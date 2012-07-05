@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>org.gumtree.maven.tycho.test</artifactId>
+	<packaging>pom</packaging>
+	<parent>
+		<groupId>org.codehaus.gumtree</groupId>
+		<artifactId>org.gumtree.maven.tycho</artifactId>
+		<version>1.7.0-SNAPSHOT</version>
+		<relativePath>../org.gumtree.maven.tycho</relativePath>
+	</parent>
+	<properties>
+		<enableEmmaReport>false</enableEmmaReport>
+	</properties>
+	
+	<reporting>
+		<plugins>
+			<!-- Does not work, see: http://software.2206966.n2.nabble.com/Controlling-Tycho-from-parent-pom-xml-td5169275.html
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<configuration>
+					<aggregate>true</aggregate>
+				</configuration>
+			</plugin>
+			-->
+			<plugin>
+				<groupId>${tycho.groupId}</groupId>
+				<artifactId>tycho-surefire</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<aggregate>true</aggregate>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
+	
+	<name>Gumtree Tycho Test Based Parent POM</name>
+	
+	<profiles>
+		<profile>
+			<id>coverage</id>
+			<activation>
+				<property>
+					<name>coverage</name>
+				</property>
+			</activation>
+			<properties>
+				<emma.session.out.file>${project.build.directory}/emma/${project.artifactId}.es</emma.session.out.file>
+				<emma.filter>org.gumtree.*,au.gov.ansto.*</emma.filter>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>${tycho.groupId}</groupId>
+						<artifactId>tycho-surefire-plugin</artifactId>
+						<version>${tycho.version}</version>
+						<configuration>
+							<systemProperties combine.children="append">
+								<eclemma.help>true</eclemma.help>
+								<emma.session.out.file>${emma.session.out.file}</emma.session.out.file>
+								<emma.filter>${emma.filter}</emma.filter>
+								<eclemma.instrument.bundles>${eclemma.instrument.bundles}</eclemma.instrument.bundles>
+							</systemProperties>
+							<frameworkExtensions>
+								<frameworkExtension>
+									<groupId>org.codehaus.gumtree</groupId>
+									<artifactId>org.eclemma.runtime.equinox</artifactId>
+									<version>1.1.0-SNAPSHOT</version>
+								</frameworkExtension>
+							</frameworkExtensions>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<dependencies>
+							<dependency>
+								<groupId>emma</groupId>
+								<artifactId>emma_ant</artifactId>
+								<version>2.0.5312</version>
+							</dependency>
+							<dependency>
+								<groupId>emma</groupId>
+								<artifactId>emma</artifactId>
+								<version>2.0.5312</version>
+							</dependency>
+						</dependencies>
+						<executions>
+							<execution>
+								<id>emma-report</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<taskdef resource="emma_ant.properties" />
+										<echo>Process emma report...</echo>
+										<emma enabled="${enableEmmaReport}">
+											<report>
+												<infileset dir="${project.build.directory}/emma"
+													includes="*.es" />
+												<txt outfile="${project.build.directory}/emma/${project.artifactId}-coverage.txt" />
+												<xml outfile="${project.build.directory}/emma/${project.artifactId}-coverage.xml" />
+												<html outfile="${project.build.directory}/emma/${project.artifactId}-coverage.html" />
+												<!-- Could also generate an HTML report, if you want... -->
+											</report>
+										</emma>
+										<loadfile property="emma.txt"
+											srcFile="${project.build.directory}/emma/${project.artifactId}-coverage.txt"
+											failonerror="false" />
+										<echo>${emma.txt}</echo>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>attach-artifacts</id>
+								<phase>package</phase>
+								<goals>
+									<goal>attach-artifact</goal>
+								</goals>
+								<configuration>
+									<artifacts>
+										<artifact>
+											<file>${emma.session.out.file}</file>
+											<type>es</type>
+										</artifact>
+									</artifacts>
+									<skipAttach>true</skipAttach>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.codehaus.gumtree</groupId>
+	<artifactId>org.gumtree.maven.parent</artifactId>
+	<version>1.7.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<properties>
+		<eclipse.groupId>org.codehaus.gumtree</eclipse.groupId>
+		<gumtree.groupId>org.codehaus.gumtree</gumtree.groupId>
+		<gumtree.version>1.7.0-SNAPSHOT</gumtree.version>
+		<cdma.version>3.0.0-SNAPSHOT</cdma.version>
+	</properties>
+
+	<build>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-webdav</artifactId>
+				<version>1.0-beta-2</version>
+			</extension>
+		</extensions>
+	</build>
+
+	<name>Gumtree Maven Parent POM</name>
+	<description>Gumtree Maven Parent Project Metadata</description>
+	<url>http://gumtree.codehaus.org</url>
+	<inceptionYear>2004</inceptionYear>
+	<licenses>
+		<license>
+			<name>Eclipse Public License - v 1.0</name>
+			<url>http://www.eclipse.org/org/documents/epl-v10.php</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<issueManagement>
+		<system>JIRA</system>
+		<url>http://jira.codehaus.org/browse/GUMTREE</url>
+	</issueManagement>
+	<mailingLists>
+		<mailingList>
+			<name>GumTree Decision</name>
+			<archive>https://groups.google.com/forum/#!forum/gumtree</archive>
+		</mailingList>
+	</mailingLists>
+	<scm>
+		<connection>scm:svn:http://svn.codehaus.org/gumtree/gumtree/trunk</connection>
+    	<developerConnection>scm:svn:https://svn.codehaus.org/gumtree/gumtree/trunk</developerConnection>
+    	<url>http://svn.codehaus.org/gumtree/gumtree/trunk</url>
+	</scm>
+	<repositories>
+		<!--
+		<repository>
+			<id>com.springsource.repository.bundles.release</id>
+			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/release</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>
+		-->
+		<repository>
+			<id>codehaus.snapshots</id>
+			<name>Codehaus Snapshots</name>
+			<layout>default</layout>
+			<snapshots>
+				<enabled>true</enabled>
+				<checksumPolicy>ignore</checksumPolicy>
+				<updatePolicy>daily</updatePolicy>
+			</snapshots>
+			<url>http://snapshots.repository.codehaus.org/</url>
+		</repository>
+	</repositories>
+	<distributionManagement>
+		<repository>
+			<id>codehaus.org</id>
+			<name>Gumtree Central Distribution Repository</name>
+			<url>dav:https://dav.codehaus.org/repository/gumtree/</url>
+		</repository>
+		<snapshotRepository>
+			<id>codehaus.org</id>
+			<name>Gumtree Central Development Repository</name>
+			<url>dav:https://dav.codehaus.org/snapshots.repository/gumtree/</url>
+			<uniqueVersion>false</uniqueVersion>
+		</snapshotRepository>
+		<site>
+			<id>codehaus.org</id>
+			<url>dav:https://dav.codehaus.org/gumtree/</url>
+		</site>
+	</distributionManagement>
+</project>
