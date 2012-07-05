@@ -1,0 +1,4 @@
+L1=$entry/none_existing/L1
+L1=$entry/instrument/parameters/L1
+L2=$entry/instrument/parameters/L2
+sample=$entry/sample/name

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>ncsa.hdf.win32.x86</artifactId>
+	<packaging>eclipse-plugin</packaging>
+	<version>2.7.0-SNAPSHOT</version>
+	<parent>
+		<groupId>org.codehaus.gumtree</groupId>
+		<artifactId>org.gumtree.data.parent</artifactId>
+		<version>3.0.0-SNAPSHOT</version>
+		<relativePath>../org.gumtree.data.parent</relativePath>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>${tycho.groupId}</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<resolver>p2</resolver>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<name>NCSA HDF Win32 x86 Fragment</name>
+</project>

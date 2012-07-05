@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: NCSA HDF Linux x86_64
+Bundle-SymbolicName: ncsa.hdf.linux.x86_64
+Bundle-Version: 2.7.0.qualifier
+Fragment-Host: ncsa.hdf;bundle-version="2.7.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-PlatformFilter: (& (osgi.os=linux) (osgi.arch=x86_64))
+Eclipse-BundleShape: jar

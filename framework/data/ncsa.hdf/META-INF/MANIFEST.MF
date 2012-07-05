@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Hdf
+Bundle-SymbolicName: ncsa.hdf
+Bundle-Version: 2.7.0.qualifier
+Export-Package: ncsa.hdf.hdf5lib,
+ ncsa.hdf.hdf5lib.callbacks,
+ ncsa.hdf.hdf5lib.exceptions,
+ ncsa.hdf.hdf5lib.structs,
+ ncsa.hdf.hdflib,
+ ncsa.hdf.object,
+ ncsa.hdf.object.h4,
+ ncsa.hdf.object.h5,
+ ncsa.hdf.view,
+ nom.tam.fits,
+ nom.tam.image,
+ nom.tam.util
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: HDF Group
+Eclipse-BundleShape: jar
+Import-Package: org.slf4j;version="1.6.1";resolution:=optional

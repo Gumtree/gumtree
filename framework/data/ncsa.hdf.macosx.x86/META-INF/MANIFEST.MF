@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: NCSA HDF Mac OS X x86
+Bundle-SymbolicName: ncsa.hdf.macosx.x86
+Bundle-Version: 2.7.0.qualifier
+Fragment-Host: ncsa.hdf;bundle-version="2.7.0"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Eclipse-PlatformFilter: (& (osgi.os=macosx) (osgi.arch=x86))
+Eclipse-BundleShape: jar

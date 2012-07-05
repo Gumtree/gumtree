@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF8"?>
+<!ELEMENT configuration (global? | dataset_model*)>
+<!ATTLIST configuration 
+    name CDATA #REQUIRED
+>
+
+<!-- 
+==========================
+global
+========================== 
+-->
+<!ELEMENT global (java? | cpp?)>
+<!ELEMENT java (set*)>
+<!ELEMENT cpp (set*)>
+<!ELEMENT set EMPTY>
+<!ATTLIST set 
+    name CDATA #REQUIRED
+    value CDATA #REQUIRED
+>
+
+<!--
+==========================
+dataset_model
+========================== 
+-->
+<!ELEMENT dataset_model (criteria? , parameters? , plugin? )>
+<!ATTLIST dataset_model 
+    name CDATA #REQUIRED
+>
+    
+<!--
+==========================
+plugin
+========================== 
+--> 
+<!ELEMENT plugin ( java? | cpp? )>
+
+
+<!--
+==========================
+criteria
+========================== 
+-->
+<!ELEMENT criteria (if*)>
+<!ELEMENT if EMPTY>
+<!ATTLIST if 
+    target CDATA #REQUIRED
+    exist ( true | false ) #IMPLIED
+    equal CDATA #IMPLIED
+    not_equal CDATA #IMPLIED
+>
+
+
+<!--
+==========================
+parameters
+========================== 
+-->
+<!ELEMENT parameters (parameter*)>
+<!ELEMENT parameter (value?)>
+<!ATTLIST parameter
+    name CDATA #REQUIRED
+    value CDATA #IMPLIED
+>
+
+
+<!ELEMENT value EMPTY>
+<!ATTLIST value 
+    type ( exist | name | value | constant | equal ) #REQUIRED
+    target CDATA #IMPLIED
+    constant CDATA #IMPLIED
+>
+
