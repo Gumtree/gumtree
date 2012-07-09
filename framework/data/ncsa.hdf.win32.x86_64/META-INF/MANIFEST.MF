@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: HDF win32 64-bit support
-Bundle-SymbolicName: ncsa.hdf.win32.x86_64
-Bundle-Version: 2.7.0.qualifier
-Fragment-Host: ncsa.hdf;bundle-version="2.7.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Eclipse-PlatformFilter: (& (osgi.os=win32) (osgi.arch=x86_64))
-Eclipse-BundleShape: jar
