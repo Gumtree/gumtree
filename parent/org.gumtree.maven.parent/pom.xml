@@ -5,12 +5,12 @@
 
 	<groupId>org.codehaus.gumtree</groupId>
 	<artifactId>org.gumtree.maven.parent</artifactId>
-	<version>1.7.0-SNAPSHOT</version>
+	<version>1.8.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
 		<eclipse.groupId>org.codehaus.gumtree</eclipse.groupId>
 		<gumtree.groupId>org.codehaus.gumtree</gumtree.groupId>
-		<gumtree.version>1.7.0-SNAPSHOT</gumtree.version>
+		<gumtree.version>1.8.0-SNAPSHOT</gumtree.version>
 		<cdma.version>3.0.0-SNAPSHOT</cdma.version>
 	</properties>
 
