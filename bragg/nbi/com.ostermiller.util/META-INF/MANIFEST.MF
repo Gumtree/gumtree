@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ostermiller Java Utilities
+Bundle-SymbolicName: com.ostermiller.util
+Bundle-Version: 1.7.0.qualifier
+Bundle-ClassPath: ostermillerutils_1_07_00.jar
+Bundle-Vendor: ostermiller.org
+Export-Package: com.Ostermiller.util
+Eclipse-BundleShape: dir
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

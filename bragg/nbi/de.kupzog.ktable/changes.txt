@@ -1,0 +1,98 @@
+
+de.kupzog.ktable.*  Version 2.1-3
+URL: http://ktable.sourceforge.net/
+_______________________________________________________________________
+
+VERSION 2.1.3
+
+* Making getCellForCoordinates() public (Newsgroup request)
+* Fix calculation bug when scrolling whole pages
+* Fix bug when doing FILL_WITH_DUMMY_COL
+* Fixed bug that preventet showing the last row completely when SWT.H_BAR
+  is given.
+* Added a scroll(int, int) method to easily scroll the table.
+* Added a doubleclick cell listener.
+
+VERSION 2.1.2
+
+* Implemented a tablemodel that uses weights for column widths (non-scrolling!)
+* Implemented a better way of handling resizing (Thanks Greg)
+* Demonstrated switching to other resize cursors in one of the examples
+* Fixed a bug that prevented selecting cells while holding CRTL from working 
+  correctly.
+* Fixed a bug preventing resizeing to optimal from working correctly.
+
+VERSION 2.1.1
+
+* Fixed a bug that resulted in not correctly fired cell selection events.
+* Fixed a bug that prevented SWTX.MARK_FOCUS_HEADERS from working correctly.
+
+VERSION 2.1.0.0
+
+* Implemented completely adjustable row heights:
+  Before, you could set the height of the first and all the other
+  rows. Now every row is resizable by itself!
+  Unfortunately, this yet again breaks the API:
+  
+  IN KTableModel:
+  setRowHeight(int value) => setRowHeight(int row, int value)
+  setFirstRowHeight(int value) => no longer needed.
+  getRowHeight() => getRowHeight(int row)
+  getFirstRowHeight() => deprecated, defaults to getRowHeight(0)
+  
+  IN KTableCellResizeListener:
+  rowResized(int newHeight) => rowResized(int row, int newHeight)
+  firstRowResized() => no longer needed.
+  
+* Fixed Bug that caused flickering when moving the cursor in 
+  multiselection and row selection mode 
+* Fixed Bug that prevented the SWT.END button from working correctly.
+  
+
+VERSION 2.0.0.0
+
+* THIS VERSION REPRESENTS A MERGE OF ALL EXISTING KTable IMPLEMENTATIONS
+  It introduces a changed API that provides more flexibility ...
+  
+* Specifiy SWT.FLAT on KTable to disable the black outer border line.
+  (Feature transfer from Friedrich Kupzogs orignal version)
+* Fix bug in RowSelection mode where clicks on fixed columns did not change
+  the selection.
+* API Change: 
+  Moved to a more SWT-like method to specify special behavior using styles.
+  To keep the ability to change the behavior after creation, the method
+  setStyle(int) was introduced.
+  The following methods are replaced by style codes:
+  table.setRowSelectionMode(false); => SWT.FULL_SELECTION
+  table.setMultiSelectionMode(true); => SWT.MULTI
+  table.setEditOnKeyEvent(true); => SWTX.EDIT_ON_KEY
+  table.setShowSelectionWithoutFocus(fase); => SWT.HIDE_SELECTION
+  table.setHighlightSelectionInHeader(true); => SWTX.MARK_FOCUS_HEADERS
+* Bugfix: ComboEditors threw SWT.Error when closed via arrow keys.
+  
+  
+
+
+VERSION 1.9.0.0
+
+Changes since 1.8.0.0:
+
+* Added the ability to automatically show scrolling bars (Thanks
+  to the implementation in the SWT newsgroup by Andreas Fuchs).
+  Set the style bit SWTX.AUTO_SCROLL when creating the ktable to 
+  enable this behavior.
+* Added font management to the default cellrenderer. 
+  Now you can specify SWT.BOLD and SWT.ITALIC as styles for 
+  TextCellRenderer and FixedCellRenderer.
+* Using the new style bit SWTX.FILL_WITH_DUMMYCOL the table area
+  can now be automatically filled with an additional empty column
+  in case there is space left that is not occupied by a column.
+  The style bit SWTX.FILL_WITH_LASTCOL does the same, but instead of
+  adding another col, it widens the last column of the table to 
+  always fill the whole table area with colums.
+* Bugfix: Allow selecting cells by dragging the mouse while holding the 
+  right mouse button.
+* Bugfix: Editing of fixed cells now works properly. Before the editor did not
+  correctly get focus.
+* DefaultTableModel now also delegates the method call getRowCount() to an abstract
+  method called doGetRowCount(). Implementors should now implement doGetRowCount().

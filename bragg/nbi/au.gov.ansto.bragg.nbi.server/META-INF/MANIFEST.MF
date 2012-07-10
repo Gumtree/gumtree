@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg NBI Server Library
+Bundle-SymbolicName: au.gov.ansto.bragg.nbi.server
+Bundle-Version: 1.8.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.nbi.server.internal.Activator
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: Bragg Institute
+Require-Bundle: org.json;bundle-version="1.0.0";visibility:=reexport,
+ org.restlet;bundle-version="2.0.11";visibility:=reexport,
+ com.github.wolfie.refresher;bundle-version="1.1.1";visibility:=reexport,
+ com.vaadin.touchkit;bundle-version="2.1.0";visibility:=reexport,
+ org.gumtree.server;bundle-version="1.7.0";visibility:=reexport,
+ au.gov.ansto.bragg.nbi.core;bundle-version="1.7.0";visibility:=reexport
+Export-Package: au.gov.ansto.bragg.nbi.server,
+ au.gov.ansto.bragg.nbi.server.vaadin

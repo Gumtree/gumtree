@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.gumtree.ui.actionShortcuts">
+      <category
+            id="au.gov.ansto.bragg.nbi.ui.beamMonitorCategory"
+            name="Beam Monitors"/>
+   </extension>
+   <extension
+         point="org.gumtree.ui.launchers">
+      <!--
+      <launcher
+            category="tasks"
+            class="au.gov.ansto.bragg.nbi.ui.internal.KakaduLauncher"
+            icon32="icons/edu-mathematics-32x32.png"
+            icon64="icons/Calculator64.png"
+            id="au.gov.ansto.bragg.nbi.ui.kakaduLauncher"
+            label="Data Analysis"
+            quickLauncher="true">
+      </launcher>
+      <launcher
+            category="commandLine"
+            class="au.gov.ansto.bragg.nbi.ui.internal.PythonConsoleLauncher"
+            icon16="icons/python16x16.png"
+            icon32="icons/python32x32.png"
+            icon64="icons/python64x64.png"
+            id="au.gov.ansto.bragg.nbi.ui.pythonConsoleLauncher"
+            label="Experimental Python Console">
+      </launcher>
+      -->
+      <launcher
+            category="sics"
+            class="au.gov.ansto.bragg.nbi.ui.internal.ExpertPerspectiveLauncher"
+            icon32="icons/Config-Tools32x32.png"
+            id="au.gov.ansto.bragg.nbi.ui.ExpertPerspectiveLauncher"
+            label="Expert Instrument Control"
+            quickLauncher="false">
+      </launcher>
+      <category
+            icon="icons/Aqua-Smooth-Folder-Developer-32x32.png"
+            id="tasks"
+            label="Tasks">
+      </category>
+      <launcher
+            category="au.gov.ansto.bragg.experiment"
+            class="au.gov.ansto.bragg.nbi.ui.launchers.InstrumentDashboardLauncher"
+            icon16="icons/everaldo/Dashboard16x16.png"
+            icon32="icons/everaldo/Dashboard32x32.png"
+            icon64="icons/everaldo/Dashboard64x64.png"
+            id="au.gov.ansto.bragg.nbi.ui.instrumentDashboardLauncher"
+            label="Instrument Dashboard"
+            quickLauncher="true">
+      </launcher>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="au.gov.ansto.bragg.nbi.ui.preference.UserProfilePreferencePage"
+            id="au.gov.ansto.bragg.nbi.ui.userProfile"
+            name="Gumtree User Profile">
+      </page>
+   </extension>
+   <!--
+   <extension
+         point="org.gumtree.ui.gadgets">
+      <gadget
+            contentProvider="au.gov.ansto.bragg.nbi.ui.widgets.ReactorSourceGadget"
+            icon="icons/database.png"
+            id="au.gov.ansto.bragg.nbi.ui.reactorGadget"
+            isGlobal="true"
+            name="Reactor Source"
+            tags="sics">
+      </gadget>
+      <gadget
+            contentProvider="au.gov.ansto.bragg.nbi.ui.widgets.ShutterStatusGadget"
+            icon="icons/widgets/sport_golf.png"
+            id="au.gov.ansto.bragg.nbi.ui.shutterStatusGadget"
+            isGlobal="true"
+            name="Shutter Status"
+            tags="sics">
+      </gadget>
+      <gadget
+            contentProvider="au.gov.ansto.bragg.nbi.ui.widgets.TemperatureSensorGadget"
+            icon="icons/fugue/dashboard.png"
+            id="au.gov.ansto.bragg.nbi.ui.temperatureSensorGadget"
+            isGlobal="true"
+            name="Temperature Sensor"
+            tags="sics">
+      </gadget>
+   </extension>
+   -->
+   <extension
+         point="org.gumtree.workflow.ui.tasks">
+      <task
+            class="au.gov.ansto.bragg.nbi.ui.tasks.NeXusReaderTask"
+            icon="icons/tasks/nexus16x16.png"
+            icon32="icons/tasks/nexus32x32.png"
+            label="NeXus Reader"
+            provider="Bragg Institute"
+            tags="numeric">
+         <description>
+            This task reads a NeXus file and returns a GDM representation of this dataset.
+         </description>
+      </task>
+      <task
+            class="au.gov.ansto.bragg.nbi.ui.tasks.DatasetPlotTask"
+            icon="icons/tasks/kmplot16x16.png"
+            icon32="icons/tasks/kmplot32x32.png"
+            label="Plot Dataset"
+            provider="Bragg Institute"
+            tags="numeric">
+         <description>
+            This task plots a given dataset in a Kakadu view.
+         </description>
+      </task>
+      <task
+            class="au.gov.ansto.bragg.nbi.ui.tasks.PythonScriptingTask"
+            icon="icons/tasks/python16x16.png"
+            icon32="icons/tasks/python32x32.png"
+            label="Python Scripting"
+            provider="Bragg Institute"
+            tags="utilities">
+         <description>
+            This task execute a Python script which can accpet input and return output after execution.
+         </description>
+      </task>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.gumtree.scripting.ui.util.IEngineDataTreeNode"
+            class="au.gov.ansto.bragg.nbi.ui.scripting.EngineDataViewerFactory">
+         <adapter
+               type="org.gumtree.scripting.ui.util.IEngineDataViewer">
+         </adapter>
+      </factory>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+	  <perspective
+            class="au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective"
+            icon="icons/script/scripting_16.png"
+            id="au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective"
+            fixed="true"
+            name="Analysis Scripting">
+	  </perspective>
+	  <perspective
+            class="au.gov.ansto.bragg.nbi.ui.internal.SICSExperimentPerspective"
+            icon="icons/reports_stack.png"
+            id="au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective"
+            fixed="true"
+            name="SICS Experiment">
+	  </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+       <category
+            name="NBI UI"
+            id="au.gov.ansto.bragg.nbi.ui">
+      </category>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.nbi.ui"
+            class="au.gov.ansto.bragg.nbi.ui.internal.SicsRealtimeDataView"
+            icon="icons/activity_monitor.png"
+            id="au.gov.ansto.bragg.nbi.ui.SicsRealtimeDataView"
+            name="Activity Monitor">
+      </view>
+	  <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.nbi.ui"
+            class="au.gov.ansto.bragg.nbi.ui.scripting.ControlView"
+            icon="icons/script/operation_parameters_view.gif"
+            id="au.gov.ansto.bragg.nbi.ui.scripting.ControlView"
+            name="Scripting Control">
+      </view>
+	  <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.nbi.ui"
+            class="au.gov.ansto.bragg.nbi.ui.scripting.DataSourceView"
+            icon="icons/script/data_source_view.gif"
+            id="au.gov.ansto.bragg.nbi.ui.scripting.DataSourceView"
+            name="Scripting Data Source">
+      </view>      
+	  <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.nbi.ui"
+            class="au.gov.ansto.bragg.nbi.ui.scripting.ConsoleView"
+            icon="icons/script/open_console_obj.gif"
+            id="au.gov.ansto.bragg.nbi.ui.scripting.ConsoleView"
+            name="Scripting Console">
+      </view>
+   	  <view
+            allowMultiple="true"
+            category="au.gov.ansto.bragg.nbi.ui"
+            class="au.gov.ansto.bragg.nbi.ui.scripting.DummyView"
+            id="au.gov.ansto.bragg.nbi.ui.scripting.DummyView"
+            name="Place Holder">
+      </view>      
+   </extension>
+   <extension
+         point="org.gumtree.ui.gadgets">
+      <gadget
+            class="au.gov.ansto.bragg.nbi.ui.widgets.ReactorSourceGadget"
+            level="1"
+            name="Neutron Source">
+      </gadget>
+      <gadget
+            class="org.gumtree.gumnix.sics.ui.widgets.SicsStatusGadget"
+            level="4"
+            name="SICS Status"
+            prespectives="*">
+      </gadget>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="au.gov.ansto.bragg.nbi.ui.scripting.ScriptingUIStartup">
+      </startup>
+   </extension>
+</plugin>

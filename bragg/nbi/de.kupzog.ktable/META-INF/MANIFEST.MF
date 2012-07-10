@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: de.kupzog.ktable
+Bundle-Version: 2.1.3.qualifier
+Bundle-ClassPath: ktable_2.1.3.jar
+Bundle-Localization: plugin
+Export-Package: de.kupzog.ktable,
+ de.kupzog.ktable.editors,
+ de.kupzog.ktable.renderers,
+ icons
+Require-Bundle: org.eclipse.swt;visibility:=reexport,
+ org.eclipse.jface;visibility:=reexport
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-BundleShape: dir

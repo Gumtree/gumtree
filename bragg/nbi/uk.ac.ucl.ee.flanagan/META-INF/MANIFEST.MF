@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Flanagan Scientific Library
+Bundle-SymbolicName: uk.ac.ucl.ee.flanagan
+Bundle-Version: 1.0.20120305.qualifier
+Export-Package: flanagan.analysis,
+ flanagan.complex,
+ flanagan.control,
+ flanagan.integration,
+ flanagan.interpolation,
+ flanagan.io,
+ flanagan.math,
+ flanagan.optics,
+ flanagan.physchem,
+ flanagan.physprop,
+ flanagan.plot,
+ flanagan.roots
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: Michael Thomas Flanagan

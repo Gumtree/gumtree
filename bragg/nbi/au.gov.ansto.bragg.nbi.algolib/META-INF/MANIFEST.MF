@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg NBI Algorithm Library
+Bundle-SymbolicName: au.gov.ansto.bragg.nbi.algolib
+Bundle-Version: 1.8.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.thoughtworks.xstream;bundle-version="1.4.2";visibility:=reexport,
+ org.gumtree.data.core;bundle-version="2.1.0";visibility:=reexport,
+ uk.ac.ucl.ee.flanagan;bundle-version="1.0.20120305";resolution:=optional
+Export-Package: au.gov.ansto.bragg.common.dra.algolib.calibration,
+ au.gov.ansto.bragg.common.dra.algolib.data,
+ au.gov.ansto.bragg.common.dra.algolib.errPro.processes,
+ au.gov.ansto.bragg.common.dra.algolib.errPro.ui,
+ au.gov.ansto.bragg.common.dra.algolib.math,
+ au.gov.ansto.bragg.common.dra.algolib.model,
+ au.gov.ansto.bragg.common.dra.algolib.plot,
+ au.gov.ansto.bragg.common.dra.algolib.processes,
+ au.gov.ansto.bragg.common.dra.algolib.rebinning
+Bundle-Vendor: Bragg Institute

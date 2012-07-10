@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="interpreter" name="command interpreter" schema="schema/interpreter.exsd"/>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+      		allowMultiple="false"
+            category="org.eclipse.ui"
+            class="org.gumtree.ui.internal.cli.beanshell.BeanShellCommandLineView"
+            icon="icons/javabean.gif"
+            id="org.gumtree.ui.cli.beanShellTerminalview"
+            name="Command Line"/>
+   </extension>
+   <!--
+   <extension
+         point="org.gumtree.ui.actionShortcuts">
+      <actionShortcut
+            category="org.gumtree.ui.isee.general"
+            class="org.gumtree.ui.internal.cli.beanshell.BeanShellLaunchAction"
+            icon16="icons/javabean.gif"
+            id="org.gumtree.ui.cli.launchBeanShell"
+            label="Command Line"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="org.gumtree.ui.cli.beanshellSet"
+            label="Script"
+            visible="true">
+         <menu
+               id="GShell"
+               label="GShell">
+            <separator name="experimentGroup"/>
+         </menu>
+         <action
+               class="org.gumtree.ui.internal.cli.beanshell.ShowBeanShellViewAction"
+               icon="icons/javabean.gif"
+               id="org.gumtree.ui.cli.showBeanShellViewAction"
+               label="GShell Command Line"
+               menubarPath="GShell/experimentGroup"
+               style="push"
+               toolbarPath="org.gumtree.gumnix.sics.ui.actionSet1/SICS"/>
+      </actionSet>
+   </extension>
+      -->
+</plugin>

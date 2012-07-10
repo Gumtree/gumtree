@@ -1,0 +1,5 @@
+@import "../base/styles.css";
+
+.v-touchkit-navbar .v-touchkit-componentgroup-h {
+	white-space: nowrap;
+}

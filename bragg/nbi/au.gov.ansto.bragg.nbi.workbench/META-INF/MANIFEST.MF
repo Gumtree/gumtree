@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg NBI Workbench Application
+Bundle-SymbolicName: au.gov.ansto.bragg.nbi.workbench
+Bundle-Version: 1.8.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: Bragg Institute
+Require-Bundle: au.gov.ansto.bragg.nbi.ui;bundle-version="1.7.0";visibility:=reexport
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: au.gov.ansto.bragg.nbi.workbench.internal.Activator
+Eclipse-BundleShape: dir
