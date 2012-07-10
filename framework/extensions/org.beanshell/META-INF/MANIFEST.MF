@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Beanshell
+Bundle-SymbolicName: org.beanshell
+Bundle-Version: 2.1.0.qualifier
+Export-Package: bsh,
+ bsh.classpath,
+ bsh.commands,
+ bsh.org.objectweb.asm,
+ bsh.servlet,
+ bsh.util
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-BundleShape: jar

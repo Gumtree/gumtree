@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gumtree Jython UI
+Bundle-SymbolicName: org.gumtree.jython.ui;singleton:=true
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: org.gumtree.jython.ui.internal.Activator
+Require-Bundle: org.gumtree.jython.core;bundle-version="1.7.0";visibility:=reexport,
+ org.gumtree.ui;bundle-version="1.7.0";visibility:=reexport,
+ org.eclipse.jface.text;bundle-version="3.7.1"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-BundleShape: jar
+Bundle-Vendor: Bragg Institute

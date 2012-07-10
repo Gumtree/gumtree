@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.gumtree.jython.core.OsgiPyScriptEngine"
+            class="org.gumtree.jython.ui.internal.ContentAssistProcessorFactory">
+         <adapter
+               type="org.gumtree.ui.scripting.ICommandLineContentAssistProcessor">
+         </adapter>
+      </factory>
+   </extension>
+
+</plugin>
