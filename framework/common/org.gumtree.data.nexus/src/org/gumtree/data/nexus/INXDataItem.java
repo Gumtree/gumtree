@@ -32,7 +32,7 @@ public interface INXDataItem extends IDataItem {
 	
 	/**
 	 * Set the title as an attribute of the data item, with the name as 'title'
-	 * @param title: String object
+	 * @param title String object
 	 */
 	void setTitle(String title);
 
@@ -40,7 +40,7 @@ public interface INXDataItem extends IDataItem {
 	/**
 	 * Read the data with tolerance. Jump away from errors when loading the data.
 	 * @param withTolerance
-	 * @return
+	 * @return array
 	 * @throws IOException 
 	 */
 	IArray getData(boolean withTolerance) throws IOException;

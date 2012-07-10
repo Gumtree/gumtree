@@ -41,7 +41,7 @@
 		<module>${data.path}/org.gumtree.data.soleil</module>
 		<module>${data.path}/org.gumtree.data.soleil.feature</module>
 		
-		
+
 		<module>${common.path}/com.db4o.osgi</module>
 		<module>${common.path}/com.google.guava</module>
 		<module>${common.path}/com.thoughtworks.xstream</module>
@@ -193,11 +193,11 @@
 				<module>${data.path}/org.gumtree.data.soleil.tests</module>
 
 
+				<!--
 				<module>${common.path}/org.gumtree.core.tests</module>
 				<module>${common.path}/org.gumtree.server.tests</module>
 
 
-				<!--
 				<module>${applications.path}/org.gumtree.app.runtime.tests</module>
 				-->
 			</modules>

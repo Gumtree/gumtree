@@ -47,7 +47,6 @@ public class GenericDataFitting {
        * @param fitFunc       Fitting function name, such as Gaussian, Lorenzian or Polynomial function
        * @param fittingParam  this designed fot user defined fitting function. If you do not use user defined function, just input "null"
        *                                     regarding to polynomial function, n order of polynomial should be written as Poly(2) or Poly(n)
-       * @return  fitted one D detector scan array.
        */	      
       public GenericDataFitting (double[] scanDat, double[] axisVect, double[] resoVect, String fitFunc, String fittingParam) {
 	      // Create factories
