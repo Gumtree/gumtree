@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.gumtree.app.workbench.feature"
+      label="Gumtree Workbench Application"
+      version="1.8.0.qualifier"
+      provider-name="Bragg Institute">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <includes
+         id="org.gumtree.common.ui.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.gumtree.app.runtime.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.platform"
+         version="0.0.0"/>
+
+   <includes
+         id="org.gumtree.jython.ui.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.gumtree.xml.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.gumtree.passerelle.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.gumtree.pydev.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.gumtree.gumpy.feature"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.gumtree.app.workbench"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.pde.runtime"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

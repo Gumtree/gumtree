@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+    <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+        <property name="properties">
+            <props>
+                <prop key="gumtree.runtime.rmiRegistryPort">60050</prop>
+            </props>
+        </property>
+    </bean>
+    
+    <bean id="rmiRegistry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+        <property name="alwaysCreate" value="true"/>
+        <property name="port" value="${gumtree.runtime.rmiRegistryPort}" />
+    </bean>
+
+    <bean id="connectorServer" class="org.springframework.jmx.support.ConnectorServerFactoryBean">
+        <property name="serviceUrl" value="service:jmx:rmi:///jndi/rmi://localhost:${gumtree.runtime.rmiRegistryPort}/jmxrmi" />
+    </bean>
+</beans>

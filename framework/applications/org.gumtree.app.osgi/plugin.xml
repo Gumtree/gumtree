@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="org.gumtree.app.osgi.internal.OsgiApplication">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.gumtree.app.osgi.application"
+            name="Gumtree">
+         <property
+               name="appName"
+               value="Gumtree">
+         </property>
+         <property
+               name="startupForegroundColor"
+               value="FFFFFF">
+         </property>
+         <property
+               name="startupMessageRect"
+               value="5,257,571,17">
+         </property>
+         <property
+               name="startupProgressRect"
+               value="1,280,573,15">
+         </property>
+         <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
+         </property>
+         <property
+               name="aboutImage"
+               value="platform:/plugin/org.gumtree.app.runtime/images/earth.png">
+         </property>
+         <property
+               name="windowImages"
+               value="platform:/plugin/org.gumtree.app.runtime/images/g-icon_16x16.png,platform:/plugin/org.gumtree.app.runtime/images/g-icon_32x32.png,platform:/plugin/org.gumtree.app.runtime/images/g-icon_48x48.png,platform:/plugin/org.gumtree.app.runtime/images/g-icon_64x64.png,platform:/plugin/org.gumtree.app.runtime/images/g-icon_128x128.png">
+         </property>
+         <property
+               name="aboutText"
+               value="Gumtree&#x0A;&#x0A;(c) Copyright Bragg Institute and others 2012.  All rights reserved.&#x0A;Visit http://gumtree.codehaus.org/&#x0A;&#x0A;This product includes software developed by the&#x0A;Eclipse Foundation http://www.eclipse.org/">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

@@ -1,0 +1,4 @@
+This package is copied from org.eclipse.ui.ide.application (3.7.2).
+
+Modifications are:
+* [GUMTREE-816] IDEWorkbenchAdvisor line 200

@@ -1,0 +1,46 @@
+<configuration>
+	<jmxConfigurator />
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${logback.logFileLocation}/gumtree.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>gumtree.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>30</maxHistory>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>500MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="LILITH"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${logback.logFileLocation}/gumtree.lilith</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>gumtree.%d{yyyy-MM-dd}.lilith</fileNamePattern>
+			<maxHistory>30</maxHistory>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>500MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder class="de.huxhorn.lilith.logback.encoder.ClassicLilithEncoder">
+			<IncludeCallerData>true</IncludeCallerData>
+		</encoder>
+	</appender>
+	<appender name="MULTIPLEX"
+		class="de.huxhorn.lilith.logback.appender.ClassicMultiplexSocketAppender">
+		<!-- Default port for compressed is 10000 and uncompressed 10001 -->
+		<Compressing>true</Compressing>
+		<ReconnectionDelay>10000</ReconnectionDelay>
+		<IncludeCallerData>true</IncludeCallerData>
+		<RemoteHosts>localhost</RemoteHosts>
+	</appender>
+	<root level="DEBUG">
+		<appender-ref ref="FILE" />
+		<appender-ref ref="LILITH" />
+		<!-- <appender-ref ref="MULTIPLEX"/> -->
+	</root>
+</configuration>

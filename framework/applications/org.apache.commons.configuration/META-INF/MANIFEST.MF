@@ -1,0 +1,37 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Apache Commons Configuration
+Bundle-SymbolicName: org.apache.commons.configuration
+Bundle-Version: 1.6.0.qualifier
+Bundle-ClassPath: commons-configuration-1.6.jar
+Bundle-Vendor: The Apache Software Foundation
+Export-Package: org.apache.commons.configuration,
+ org.apache.commons.configuration.beanutils,
+ org.apache.commons.configuration.event,
+ org.apache.commons.configuration.interpol,
+ org.apache.commons.configuration.plist,
+ org.apache.commons.configuration.reloading,
+ org.apache.commons.configuration.tree,
+ org.apache.commons.configuration.tree.xpath,
+ org.apache.commons.configuration.web
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: javax.naming;resolution:=optional,
+ javax.servlet;resolution:=optional,
+ javax.sql;resolution:=optional,
+ javax.xml.parsers;resolution:=optional,
+ javax.xml.transform;resolution:=optional,
+ javax.xml.transform.dom;resolution:=optional,
+ javax.xml.transform.stream;resolution:=optional,
+ org.apache.commons.beanutils;resolution:=optional,
+ org.apache.commons.codec.binary;resolution:=optional,
+ org.apache.commons.collections,
+ org.apache.commons.collections.iterators,
+ org.apache.commons.collections.map,
+ org.apache.commons.collections.set,
+ org.apache.commons.logging,
+ org.apache.commons.logging.impl,
+ org.apache.tools.ant.taskdefs;resolution:=optional,
+ org.w3c.dom;resolution:=optional,
+ org.xml.sax;resolution:=optional,
+ org.xml.sax.helpers;resolution:=optional
+Require-Bundle: org.apache.commons.lang;bundle-version="2.4.0";visibility:=reexport
