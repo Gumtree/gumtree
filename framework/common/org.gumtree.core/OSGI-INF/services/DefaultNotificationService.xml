@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.gumtree.core.DefaultNotificationService">
+   <implementation class="org.gumtree.service.notification.support.DefaultNotificationService"/>
+   <service>
+      <provide interface="org.gumtree.service.notification.INotificationService"/>
+   </service>
+   <reference bind="setObjectContainerManager" cardinality="1..1" interface="org.gumtree.service.persistence.IObjectContainerManager" name="IObjectContainerManager" policy="static"/>
+   <reference bind="setServiceManager" cardinality="1..1" interface="org.gumtree.core.service.IServiceManager" name="IServiceManager" policy="static"/>
+</scr:component>

@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse Nebula JFace
+Bundle-SymbolicName: org.eclipse.nebula.jface
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.eclipse.nebula.widgets;bundle-version="1.0.0";visibility:=reexport,
+ org.eclipse.jface;bundle-version="3.3.2";visibility:=reexport
+Export-Package: org.eclipse.nebula.jface.galleryviewer,
+ org.eclipse.nebula.jface.gridviewer
+Eclipse-BundleShape: jar
+Bundle-Vendor: Eclipse.org

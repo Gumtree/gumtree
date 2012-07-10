@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Import-Bundle: com.vaadin
+Service-Component: OSGI-INF/VaadinOSGiTouchKitApplicationManager.xml
+Bundle-Version: 1.7.0.qualifier
+Bundle-Name: Vaadin OSGi TouchKit Support
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.vaadin.osgi.touchkit
+Bundle-Vendor: Bragg Institute
+Require-Bundle: com.vaadin.touchkit;bundle-version="2.1.0"
+Import-Package: org.osgi.service.component;version="1.1.0",
+ org.osgi.service.http;version="1.2.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

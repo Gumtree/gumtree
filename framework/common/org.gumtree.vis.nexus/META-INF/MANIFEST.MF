@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gumtree NeXus Visualisation
+Bundle-SymbolicName: org.gumtree.vis.nexus
+Bundle-Version: 1.7.0.qualifier
+Require-Bundle: org.gumtree.vis.gdm;visibility:=reexport,
+ org.gumtree.data.nexus;visibility:=reexport
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: org.gumtree.vis.nexus.dataset,
+ org.gumtree.vis.nexus.utils
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: Bragg Institute

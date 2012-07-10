@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="workflows" name="Workflow" schema="schema/workflows.exsd"/>
+   <extension-point id="tasks" name="Tasks" schema="schema/tasks.exsd"/>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.gumtree.workflow.ui.internal.WorkflowEditor"
+            extensions="gwf"
+            icon="icons/welcome_item.gif"
+            id="org.gumtree.workflow.ui.editor"
+            name="Workflow Editor">
+      </editor>
+      <editor
+            class="org.gumtree.workflow.ui.internal.AutomatorEditor"
+            default="false"
+            extensions="gwf"
+            icon="icons/annotation_obj.gif"
+            id="org.gumtree.workflow.ui.automatorEditor"
+            name="Automator Editor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <file-association
+            content-type="org.eclipse.core.runtime.xml"
+            file-extensions="gwf">
+      </file-association>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.gumtree.workflow.ui.workflowCategory"
+            name="Workflow">
+      </category>
+      <wizard
+            canFinishEarly="true"
+            category="org.gumtree.workflow.ui.workflowCategory"
+            class="org.gumtree.workflow.ui.internal.NewWizard"
+            hasPages="false"
+            icon="icons/seq_sc_obj.gif"
+            id="org.gumtree.workflow.ui.newWizard"
+            name="Workflow"
+            project="false">
+      </wizard>
+      <primaryWizard
+            id="org.gumtree.workflow.ui.newWizard">
+      </primaryWizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.gumtree.ui.isee.workbenchPerspective">
+         <newWizardShortcut
+               id="org.gumtree.workflow.ui.newWizard">
+         </newWizardShortcut>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.gumtree.workflow.ui.tasks">
+      <task
+            class="org.gumtree.workflow.ui.tasks.PauseTask"
+            icon="icons/tasks/player_pause16x16.png"
+            icon32="icons/tasks/player_pause32x32.png"
+            label="Pause"
+            provider="Bragg Institute"
+            tags="utilities">
+         <description>
+            This task pause the workflow to a number of second.
+         </description>
+      </task>
+      <task
+            class="org.gumtree.workflow.ui.tasks.InputDisplayTask"
+            icon="icons/tasks/view_text16x16.png"
+            icon32="icons/tasks/view_text32x32.png"
+            label="Input Display"
+            provider="Bragg Institute"
+            tags="utilities">
+         <description>
+            This task displays input in form of text.
+         </description>
+      </task>
+      <task
+            class="org.gumtree.workflow.ui.tasks.TextFileReaderTask"
+            icon="icons/tasks/reader16x16.png"
+            icon32="icons/tasks/reader32x32.png"
+            label="Text File Reader"
+            provider="Bragg Institute"
+            tags="text">
+         <description>
+            This task reads from a file and returns a text string.
+         </description>
+      </task>
+      <task
+            class="org.gumtree.workflow.ui.tasks.LoopMarkerTask"
+            icon="icons/tasks/jump16x16.png"
+            icon32="icons/tasks/jump32x32.png"
+            label="Loop Marker"
+            provider="Bragg Institute"
+            tags="utilities">
+      </task>
+      <task
+            class="org.gumtree.workflow.ui.tasks.LoopTask"
+            icon="icons/tasks/loop16x16.png"
+            icon32="icons/tasks/loop32x32.png"
+            label="Loop"
+            provider="Bragg Institute"
+            tags="utilities">
+      </task>
+   </extension>
+
+</plugin>

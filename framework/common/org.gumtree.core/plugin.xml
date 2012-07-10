@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="org.gumtree.core.runtime.bundle"
+         point="org.eclipse.core.filesystem.filesystems">
+      <filesystem
+            scheme="bundle">
+         <run
+               class="org.gumtree.util.eclipse.BundleFileSystem">
+         </run>
+      </filesystem>
+   </extension>
+
+</plugin>
+

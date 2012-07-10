@@ -1,0 +1,4 @@
+<workflow>
+	<task id="proposal" label="Proposal" classname="au.gov.ansto.bragg.experiment.ui.tasks.ProposalTask" />
+	<task id="user" label="User" classname="au.gov.ansto.bragg.experiment.ui.tasks.UserTask" />
+</workflow>

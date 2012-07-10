@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="launchers" name="Launchers" schema="schema/launchers.exsd"/>
+   <extension-point id="gadgets" name="Gadgets" schema="schema/gadgets.exsd"/>
+   <extension-point id="actionShortcuts" name="Action Shortcuts" schema="schema/actionShortcuts.exsd"/>
+   <extension-point id="appLaunches" name="App Launches" schema="schema/appLaunches.exsd"/>
+   <extension-point id="tools" name="Tools" schema="schema/tools.exsd"/>
+   <extension-point id="communicationAdapters" name="Tools" schema="schema/communicationAdapters.exsd"/>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.gumtree.ui.util.xwt.XwtCompositeEditor"
+            default="false"
+            extensions="xwt"
+            icon="icons/xwt/widget_file_16x16.png"
+            id="org.gumtree.ui.xwtCompositeEditor"
+            name="XWT">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="true"
+            category="org.eclipse.ui"
+            class="org.gumtree.ui.scripting.support.CommandLineView"
+            icon="icons/scripting/class_obj.gif"
+            id="org.gumtree.ui.commandLineView"
+            name="Command Line"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            category="org.eclipse.ui"
+            class="org.gumtree.ui.terminal.support.CommandLineTerminal"
+            icon="icons/terminal/telnet.gif"
+            id="org.gumtree.ui.terminal.commandLineTerminal"
+            name="Command Line Terminal"
+            restorable="true">
+      </view>
+   </extension>
+    <extension
+         point="org.gumtree.ui.tools">
+      <tool
+            class="org.gumtree.ui.scripting.tools.AttributeViewer"
+            id="variables"
+            label="Variables">
+      </tool>
+   </extension>
+    <extension
+          point="org.gumtree.ui.communicationAdapters">
+       <communicationAdapter
+             class="org.gumtree.ui.terminal.support.telnet.TelnetAdapter"
+             id="org.gumtree.ui.terminal.telnetAdapter"
+             label="Telnet">
+       </communicationAdapter>
+    </extension>
+</plugin>

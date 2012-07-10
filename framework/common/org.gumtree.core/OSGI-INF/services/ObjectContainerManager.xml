@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" enabled="true" name="org.gumtree.core.ObjectContainerManager">
+   <implementation class="org.gumtree.service.persistence.support.ObjectContainerManager"/>
+   <service>
+      <provide interface="org.gumtree.service.persistence.IObjectContainerManager"/>
+      <provide interface="org.gumtree.core.management.IManageableBeanProvider"/>
+   </service>
+   <reference bind="setDb4oService" cardinality="1..1" interface="com.db4o.osgi.Db4oService" name="Db4oService" policy="static"/>
+   <reference bind="setServiceManager" cardinality="1..1" interface="org.gumtree.core.service.IServiceManager" name="IServiceManager" policy="static"/></scr:component>

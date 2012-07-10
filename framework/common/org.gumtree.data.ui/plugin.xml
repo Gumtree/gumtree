@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.gumtree.data.ui.internal.DatasetEditor"
+            default="false"
+            extensions="hdf,nxs"
+            icon="icons/table_file_16x16.png"
+            id="org.gumtree.data.ui.editor"
+            name="Dataset Viewer">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="true"
+            category="org.gumtree.data.ui"
+            class="org.gumtree.data.ui.part.DatasetBrowserView"
+            id="org.gumtree.data.ui.DatasetBrowserView"
+            name="Dataset Browser">
+      </view>
+      <view 
+         id="org.gumtree.data.ui.PlotView" 
+         name="Plot View"
+         allowMultiple = "true" 
+         class="org.gumtree.data.ui.part.PlotView"/>
+      <category
+            id="org.gumtree.data.ui"
+            name="Data">
+      </category>
+   </extension>
+
+</plugin>

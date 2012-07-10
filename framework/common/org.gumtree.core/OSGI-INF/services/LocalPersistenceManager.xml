@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.gumtree.core.LocalPersistenceManager">
+   <implementation class="org.gumtree.service.persistence.support.LocalPersistenceManager"/>
+   <service>
+      <provide interface="org.gumtree.service.persistence.ILocalPersistenceManager"/>
+   </service>
+   <reference bind="setObjectContainerManager" cardinality="1..1" interface="org.gumtree.service.persistence.IObjectContainerManager" name="IObjectContainerManager" policy="static"/>
+</scr:component>

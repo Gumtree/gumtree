@@ -1,0 +1,2 @@
+AlphaEffect.java
+* Disabled alpha effect as it is not available in SWT 3.3

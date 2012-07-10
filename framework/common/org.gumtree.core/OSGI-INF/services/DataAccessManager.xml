@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.gumtree.core.DataAccessManager">
+   <implementation class="org.gumtree.service.dataaccess.support.DataAccessManager"/>
+   <service>
+      <provide interface="org.gumtree.service.dataaccess.IDataAccessManager"/>
+      <provide interface="org.gumtree.core.management.IManageableBeanProvider"/>
+   </service>
+   <reference bind="setServiceManager" cardinality="1..1" interface="org.gumtree.core.service.IServiceManager" name="IServiceManager" policy="static"/>
+</scr:component>

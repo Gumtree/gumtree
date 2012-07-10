@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Objenesis Library
+Bundle-SymbolicName: org.objenesis
+Bundle-Version: 1.2.0.qualifier
+Bundle-Vendor: http://code.google.com/p/objenesis/
+Export-Package: org.objenesis,
+ org.objenesis.instantiator,
+ org.objenesis.instantiator.basic,
+ org.objenesis.instantiator.gcj,
+ org.objenesis.instantiator.jrockit,
+ org.objenesis.instantiator.perc,
+ org.objenesis.instantiator.sun,
+ org.objenesis.strategy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-BundleShape: jar

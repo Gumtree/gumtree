@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="true"
+            category="org.gumtree.data.ui"
+            class="org.gumtree.data.nexus.ui.NexusBrowserView"
+            id="org.gumtree.data.nexus.ui.NexusBrowserView"
+            name="Nexus Browser">
+      </view>
+   </extension>
+
+</plugin>

@@ -1,0 +1,26 @@
+/*******************************************************************************
+ * Copyright (c) 2007 Australian Nuclear Science and Technology Organisation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Tony Lam (Bragg Institute) - initial API and implementation
+ *******************************************************************************/
+
+package org.gumtree.workflow.ui.util;
+
+import org.gumtree.core.service.IService;
+
+public interface ITaskRegistry extends IService {
+
+	public ITaskDescriptor[] getAllTaskDescriptors();
+	
+	public String[] getAvailableTags();
+	
+	public ITaskDescriptor getTaskDescriptorById(String id);
+	
+	public ITaskDescriptor[] getTaskDescriptorsByTag(String tag);
+	
+}

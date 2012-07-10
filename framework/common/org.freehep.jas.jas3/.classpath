@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry exported="true" kind="lib" path="aida.jar"/>
+	<classpathentry exported="true" kind="lib" path="aida-dev.jar"/>
+	<classpathentry exported="true" kind="lib" path="AidaPlugin.jar"/>
+	<classpathentry exported="true" kind="lib" path="CompilerPlugin.jar"/>
+	<classpathentry exported="true" kind="lib" path="ExcelPlugin.jar"/>
+	<classpathentry exported="true" kind="lib" path="freehep-hep.jar"/>
+	<classpathentry exported="true" kind="lib" path="jc.jar"/>
+	<classpathentry exported="true" kind="lib" path="jel.jar"/>
+	<classpathentry exported="true" kind="lib" path="JMinuit.jar"/>
+	<classpathentry exported="true" kind="lib" path="jxl.jar"/>
+	<classpathentry exported="true" kind="lib" path="jython.jar"/>
+	<classpathentry exported="true" kind="lib" path="JythonPlugin.jar"/>
+	<classpathentry exported="true" kind="lib" path="optimizers.jar"/>
+	<classpathentry exported="true" kind="lib" path="PawPlugin.jar"/>
+	<classpathentry exported="true" kind="lib" path="pnuts.jar"/>
+	<classpathentry exported="true" kind="lib" path="pnuts-modules.jar"/>
+	<classpathentry exported="true" kind="lib" path="PnutsPlugin.jar"/>
+	<classpathentry exported="true" kind="lib" path="RecordLoop.jar"/>
+	<classpathentry exported="true" kind="lib" path="SimpleEditor.jar"/>
+	<classpathentry exported="true" kind="lib" path="Spreadsheet.jar"/>
+	<classpathentry exported="true" kind="lib" path="TupleExplorer.jar"/>
+	<classpathentry exported="true" kind="lib" path="BrowserLauncher2.jar"/>
+	<classpathentry exported="true" kind="lib" path="freehep-base.jar"/>
+	<classpathentry exported="true" kind="lib" path="jas3.jar"/>
+	<classpathentry exported="true" kind="lib" path="jdom.jar"/>
+	<classpathentry exported="true" kind="lib" path="jlfgr.jar"/>
+	<classpathentry exported="true" kind="lib" path="openide-lookup.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

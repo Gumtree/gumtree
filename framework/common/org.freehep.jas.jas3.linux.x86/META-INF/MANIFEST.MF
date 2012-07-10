@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JAS3 Linux x86
+Bundle-SymbolicName: org.freehep.jas.jas3.linux.x86
+Bundle-Version: 0.8.3.qualifier
+Fragment-Host: org.freehep.jas.jas3;bundle-version="0.8.3"
+Eclipse-PlatformFilter: (& (osgi.os=linux) (osgi.arch=x86))
+Eclipse-BundleShape: dir

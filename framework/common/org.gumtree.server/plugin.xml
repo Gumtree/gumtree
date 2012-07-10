@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="jmxHttpcontext"
+         point="org.eclipse.equinox.http.registry.httpcontexts">
+      <httpcontext
+            id="jmx">
+         <resource-mapping
+               path="/jmx">
+         </resource-mapping>
+      </httpcontext>
+   </extension>
+   <extension
+         id="jmxRestlet"
+         point="org.eclipse.equinox.http.registry.servlets">
+      <servlet
+            alias="/jmx"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="jmx">
+         <init-param
+               name="org.restlet.application"
+               value="org.gumtree.server.restlet.jmx.JmxRestletApplication">
+         </init-param>
+      </servlet>
+   </extension>
+</plugin>

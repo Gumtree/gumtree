@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse Nebula Widgets
+Bundle-SymbolicName: org.eclipse.nebula.widgets
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: org.eclipse.nebula.animation,
+ org.eclipse.nebula.animation.effects,
+ org.eclipse.nebula.animation.movement,
+ org.eclipse.nebula.effects.stw,
+ org.eclipse.nebula.effects.stw.transitions,
+ org.eclipse.nebula.widgets.calendarcombo,
+ org.eclipse.nebula.widgets.collapsiblebuttons,
+ org.eclipse.nebula.widgets.gallery,
+ org.eclipse.nebula.widgets.grid,
+ org.eclipse.nebula.widgets.pgroup,
+ org.eclipse.nebula.widgets.pgroup.ext,
+ org.eclipse.nebula.widgets.pshelf
+Require-Bundle: org.eclipse.swt;bundle-version="3.3.2";visibility:=reexport
+Eclipse-BundleShape: jar
+Bundle-Vendor: Eclipse.org

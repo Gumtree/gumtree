@@ -1,0 +1,5 @@
+PGroup.java
+* Method initListeners(): private -> protected
+* Method onMouseDown(Event e): private -> protected
+* Field overToggle: private -> protected
+* Field expanded: private -> protected

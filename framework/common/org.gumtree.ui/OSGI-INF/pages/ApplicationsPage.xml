@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.gumtree.ui.ApplicationsPage">
+   <implementation class="org.gumtree.ui.cruise.support.ApplicationsPage"/>
+   <service>
+      <provide interface="org.gumtree.ui.cruise.ICruisePanelPage"/>
+   </service>
+   <reference bind="setAppLaunchRegistry" cardinality="1..1" interface="org.gumtree.ui.service.applaunch.IAppLaunchRegistry" name="IAppLaunchRegistry" policy="static"/>
+</scr:component>

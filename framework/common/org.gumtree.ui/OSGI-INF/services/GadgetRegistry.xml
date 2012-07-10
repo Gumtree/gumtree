@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.gumtree.ui.GadgetRegistry">
+   <implementation class="org.gumtree.ui.service.sidebar.support.GadgetRegistry"/>
+   <service>
+      <provide interface="org.gumtree.ui.service.sidebar.IGadgetRegistry"/>
+   </service>
+</scr:component>
