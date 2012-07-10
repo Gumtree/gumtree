@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="daeHttpcontext"
+         point="org.eclipse.equinox.http.registry.httpcontexts">
+      <httpcontext
+            id="dae">
+         <resource-mapping
+               path="/dae/rest">
+         </resource-mapping>
+      </httpcontext>
+   </extension>
+   
+   <extension
+         id="anstohmRestlet"
+         point="org.eclipse.equinox.http.registry.servlets">
+      <servlet
+            alias="/dae/rest"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="dae">
+         <init-param
+               name="org.restlet.application"
+               value="org.gumtree.dae.server.restlet.DaeRestletApplication">
+         </init-param>
+      </servlet>
+   </extension>
+
+</plugin>

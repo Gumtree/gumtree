@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gumtree DAE Core
+Bundle-SymbolicName: org.gumtree.dae.core
+Bundle-Version: 1.8.0.qualifier
+Bundle-Activator: org.gumtree.dae.core.internal.Activator
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: org.apache.commons.httpclient,
+ org.apache.commons.httpclient.auth,
+ org.apache.commons.httpclient.methods,
+ org.apache.commons.httpclient.params,
+ org.eclipse.core.runtime,
+ org.slf4j
+Export-Package: org.gumtree.dae.core.util
+Eclipse-BundleShape: jar
+Require-Bundle: org.eclipse.core.runtime
+Bundle-Vendor: Bragg Institute

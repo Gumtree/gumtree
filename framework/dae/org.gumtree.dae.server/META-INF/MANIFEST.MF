@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gumtree DAE Server
+Bundle-SymbolicName: org.gumtree.dae.server;singleton:=true
+Bundle-Version: 1.8.0.qualifier
+Bundle-Activator: org.gumtree.dae.server.internal.Activator
+Require-Bundle: com.google.guava;bundle-version="11.0.1",
+ org.restlet;bundle-version="2.0.3",
+ org.restlet.ext.servlet;bundle-version="2.0.3",
+ org.eclipse.equinox.http.registry;bundle-version="1.1.1",
+ org.gumtree.core;bundle-version="1.7.0",
+ org.springframework.context;bundle-version="3.0.5"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.apache.commons.httpclient,
+ org.apache.commons.httpclient.auth,
+ org.apache.commons.httpclient.methods,
+ org.apache.commons.httpclient.params,
+ org.osgi.framework,
+ org.slf4j,
+ org.springframework.beans.factory;version="3.0.5.RELEASE"
+Export-Package: org.gumtree.dae.server.restlet
+Bundle-Vendor: Bragg Institute
