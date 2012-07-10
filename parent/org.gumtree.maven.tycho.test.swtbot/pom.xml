@@ -31,7 +31,7 @@
 					<useUIThread>false</useUIThread>
 					<product>${test-product}</product>
 					<application>${test-application}</application>
-					<argLine>${test-argLine} -Dosgi.framework.extensions=org.gumtree.osgi.hook -Dosgi.locking=none -Dgumtree.runtime.configBundle=${gumtree-runtime-configBundle} -Xmx512m</argLine>
+					<argLine>${test-argLine} -Dosgi.locking=none -Dgumtree.runtime.configBundle=${gumtree-runtime-configBundle} -Xmx512m</argLine>
 					<appArgLine>-consoleLog</appArgLine>
 					<bundleStartLevel>
 						<bundle>

@@ -26,6 +26,8 @@
 				</configuration>
 			</plugin>
 			-->
+			<!-- [ANSTO][Tony][2012-07-10] We cannot get this to work with Tycho 0.15.0 -->
+			<!--
 			<plugin>
 				<groupId>${tycho.groupId}</groupId>
 				<artifactId>tycho-surefire</artifactId>
@@ -34,6 +36,7 @@
 					<aggregate>true</aggregate>
 				</configuration>
 			</plugin>
+			-->
 		</plugins>
 	</reporting>
 	
@@ -68,7 +71,7 @@
 								<frameworkExtension>
 									<groupId>org.codehaus.gumtree</groupId>
 									<artifactId>org.eclemma.runtime.equinox</artifactId>
-									<version>1.1.0-SNAPSHOT</version>
+									<version>${gumtree.eclemma.version}</version>
 								</frameworkExtension>
 							</frameworkExtensions>
 						</configuration>
@@ -76,16 +79,17 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-antrun-plugin</artifactId>
+						<version>${maven.antrun.version}</version>
 						<dependencies>
 							<dependency>
 								<groupId>emma</groupId>
 								<artifactId>emma_ant</artifactId>
-								<version>2.0.5312</version>
+								<version>${maven.emma.version}</version>
 							</dependency>
 							<dependency>
 								<groupId>emma</groupId>
 								<artifactId>emma</artifactId>
-								<version>2.0.5312</version>
+								<version>${maven.emma.version}</version>
 							</dependency>
 						</dependencies>
 						<executions>
