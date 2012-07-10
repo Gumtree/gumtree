@@ -1,0 +1,3 @@
+<module>
+	<inherits name="com.vaadin.terminal.gwt.DefaultWidgetSet" />
+</module>

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Vaadin TouchKit Add-on
+Bundle-SymbolicName: com.vaadin.touchkit
+Bundle-Version: 2.1.0.qualifier
+Export-Package: com.vaadin.addon.touchkit.gwt,
+ com.vaadin.addon.touchkit.gwt.client,
+ com.vaadin.addon.touchkit.server,
+ com.vaadin.addon.touchkit.service,
+ com.vaadin.addon.touchkit.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.vaadin;bundle-version="6.7.8";visibility:=reexport,
+ javax.servlet;visibility:=reexport

@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: db4o OSGi Support
+Bundle-SymbolicName: com.db4o.osgi
+Bundle-Version: 8.0.184.qualifier
+Bundle-Activator: com.db4o.osgi.Db4oActivator
+Bundle-Vendor: Versant Corp
+Import-Package: com.db4o;version="8.0.184.15484",
+ com.db4o.config;version="8.0.184.15484",
+ com.db4o.cs;version="8.0.184.15484",
+ com.db4o.cs.config;version="8.0.184.15484",
+ com.db4o.cs.internal.config;version="8.0.184.15484",
+ com.db4o.ext;version="8.0.184.15484",
+ com.db4o.foundation;version="8.0.184.15484",
+ com.db4o.reflect;version="8.0.184.15484",
+ com.db4o.reflect.jdk;version="8.0.184.15484",
+ org.osgi.framework
+Bundle-ClassPath: .
+Bundle-ActivationPolicy: lazy 
+Export-Package: com.db4o.osgi
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-BundleShape: jar
+Require-Bundle: com.db4o.java5;bundle-version="8.0.184";visibility:=reexport
+Service-Component: OSGI-INF/Db4oService.xml
+Eclipse-BuddyPolicy: global

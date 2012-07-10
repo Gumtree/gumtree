@@ -342,10 +342,12 @@ Essential plug-ins:
 
 * EGit
 
+
 Optional plug-ins:
 
 * SVNKit 1.7.4 (or above) implementation
 * Eclipse SDK Examples
+* Mylyn + JIRA connector
 
 http://vaadin.com/eclipse
 Vaadin Plug-in for Eclipse http://vaadin.com/eclipse/
@@ -612,6 +614,7 @@ Run java -DDJENKINS_HOME="." -jar jenkins-<version>.war --httpPort=7070
 
 Install git
 Set proxy to git: git config --global http.proxy http://<host>:<port>
+(or use EGit for permenant set)
 
 Install plugins
 

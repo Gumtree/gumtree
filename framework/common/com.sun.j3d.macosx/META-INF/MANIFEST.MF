@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Java 3D Mac OS X
+Bundle-SymbolicName: com.sun.j3d.macosx
+Bundle-Version: 1.5.2.qualifier
+Bundle-Vendor: Oracle
+Fragment-Host: com.sun.j3d;bundle-version="1.5.2"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.sun.opengl;bundle-version="1.1.1"
+Eclipse-PlatformFilter: (osgi.os=macosx)
+Eclipse-BundleShape: jar

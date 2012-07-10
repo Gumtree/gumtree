@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Java 3D Win32 x86_64
+Bundle-SymbolicName: com.sun.j3d.win32.x86_64
+Bundle-Version: 1.5.2.qualifier
+Bundle-Vendor: Oracle
+Fragment-Host: com.sun.j3d;bundle-version="1.5.2"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-BundleShape: jar
+Eclipse-PlatformFilter: (& (osgi.os=win32) (osgi.arch=x86_64))

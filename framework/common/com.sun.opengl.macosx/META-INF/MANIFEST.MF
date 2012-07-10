@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Java OpenGL Mac OS X
+Bundle-SymbolicName: com.sun.opengl.macosx
+Bundle-Version: 1.1.1.qualifier
+Bundle-Vendor: Oracle
+Fragment-Host: com.sun.opengl;bundle-version="1.1.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-PlatformFilter: (osgi.os=macosx)
+Eclipse-BundleShape: jar
