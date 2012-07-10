@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.codehaus.gumtree</groupId>
+	<artifactId>org.gumtree.framework.module</artifactId>
+	<version>1.7.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<properties>
+		<data.path>../../data</data.path>
+		<common.path>../../common</common.path>
+		<extensions.path>../../extensions</extensions.path>
+		<sics.path>../../sics</sics.path>
+		<dae.path>../../dae</dae.path>
+		<processor.path>../../processor</processor.path>
+		<gumpy.path>../../gumpy</gumpy.path>
+		<applications.path>../../applications</applications.path>
+		<build.path>../../build</build.path>
+	</properties>
+
+	<modules>
+		<module>${data.path}/org.gumtree.data.parent</module>
+		<module>${data.path}/org.gumtree.data.core</module>
+		<module>${data.path}/org.gumtree.data.utilities</module>
+		<module>${data.path}/org.gumtree.data.common.feature</module>
+
+		<module>${data.path}/ucar.netcdf</module>
+		<module>${data.path}/ncsa.hdf</module>
+		<module>${data.path}/ncsa.hdf.linux.x86</module>
+		<module>${data.path}/ncsa.hdf.linux.x86_64</module>
+		<module>${data.path}/ncsa.hdf.macosx.x86</module>
+		<module>${data.path}/ncsa.hdf.macosx.x86_64</module>
+		<module>${data.path}/ncsa.hdf.win32.x86</module>
+		<module>${data.path}/ncsa.hdf.win32.x86_64</module>
+		<module>${data.path}/org.gumtree.data.impl.netcdf</module>
+		<module>${data.path}/org.gumtree.data.ansto.feature</module>
+
+		<module>${data.path}/org.nexusformat</module>
+		<module>${data.path}/org.gumtree.data.engine.jnexus</module>
+		<module>${data.path}/org.gumtree.data.soleil</module>
+		<module>${data.path}/org.gumtree.data.soleil.feature</module>
+
+
+		<module>${common.path}/com.db4o.osgi</module>
+		<module>${common.path}/com.google.guava</module>
+		<module>${common.path}/com.thoughtworks.xstream</module>
+		<module>${common.path}/org.objenesis</module>
+		<module>${common.path}/ch.lambdaj</module>
+		<module>${common.path}/org.gumtree.core</module>
+		<module>${common.path}/org.freehep.jas.jas3</module>
+		<module>${common.path}/org.freehep.jas.jas3.win32.x86</module>
+		<module>${common.path}/org.freehep.jas.jas3.linux.x86</module>
+		<module>${common.path}/org.freehep.jas.jas3.macosx.x86</module>
+		<module>${common.path}/org.gumtree.data.nexus</module>
+		<module>${common.path}/org.eclemma.runtime.equinox</module>
+		<module>${common.path}/org.mockito</module>
+		<module>${common.path}/org.jfree.common</module>
+		<module>${common.path}/org.jfree.chart</module>
+		<module>${common.path}/com.sun.opengl</module>
+		<module>${common.path}/com.sun.opengl.macosx</module>
+		<module>${common.path}/com.sun.j3d</module>
+		<module>${common.path}/com.sun.j3d.linux.x86</module>
+		<module>${common.path}/com.sun.j3d.linux.x86_64</module>
+		<module>${common.path}/com.sun.j3d.macosx</module>
+		<module>${common.path}/com.sun.j3d.win32.x86</module>
+		<module>${common.path}/com.sun.j3d.win32.x86_64</module>
+		<module>${common.path}/org.freehep.j3d</module>
+		<module>${common.path}/org.gumtree.vis.core</module>
+		<module>${common.path}/org.gumtree.common.core.feature</module>
+
+		<module>${common.path}/com.github.wolfie.refresher</module>
+		<module>${common.path}/com.vaadin.addon</module>
+		<module>${common.path}/com.vaadin.touchkit</module>
+		<module>${common.path}/org.vaadin.osgi.touchkit</module>
+		<module>${common.path}/org.gumtree.server</module>
+		<module>${common.path}/org.gumtree.common.server.feature</module>
+
+		<module>${common.path}/org.eclipse.nebula.widgets</module>
+		<module>${common.path}/org.eclipse.nebula.jface</module>
+		<module>${common.path}/net.sourceforge.nattable</module>
+		<module>${common.path}/org.gumtree.vis.gdm</module>
+		<module>${common.path}/org.gumtree.vis.nexus</module>
+		<module>${common.path}/org.gumtree.ui</module>
+		<module>${common.path}/org.gumtree.workflow.ui</module>
+		<module>${common.path}/org.gumtree.data.ui.viewers</module>
+		<module>${common.path}/org.gumtree.data.ui</module>
+		<module>${common.path}/org.gumtree.data.nexus.ui</module>
+		<module>${common.path}/org.gumtree.common.ui.feature</module>
+
+
+		<module>${extensions.path}/org.beanshell</module>
+		<module>${extensions.path}/org.gumtree.beanshell.core</module>
+		<module>${extensions.path}/org.gumtree.beanshell.core.feature</module>
+
+		<module>${extensions.path}/org.python.jython</module>
+		<module>${extensions.path}/org.gumtree.jython.core</module>
+		<module>${extensions.path}/org.gumtree.jython.core.feature</module>
+
+		<module>${extensions.path}/org.gumtree.jython.ui</module>
+		<module>${extensions.path}/org.gumtree.jython.ui.feature</module>
+
+		<module>${extensions.path}/org.gumtree.pydev.configurator</module>
+		<module>${extensions.path}/org.gumtree.pydev.feature</module>
+
+		<module>${extensions.path}/org.gumtree.tcl.feature</module>
+
+		<module>${extensions.path}/org.gumtree.xml.feature</module>
+
+		<module>${extensions.path}/org.gumtree.passerelle.feature</module>
+
+
+		<module>${sics.path}/ch.psi.sics.hipadaba</module>
+		<module>${sics.path}/ch.unifr.nio.framework</module>
+		<module>${sics.path}/org.gumtree.sics.core</module>
+		<module>${sics.path}/org.gumtree.gumnix.sics.core</module>
+		<module>${sics.path}/org.gumtree.sics.core.feature</module>
+
+		<module>${sics.path}/org.gumtree.sics.server</module>
+		<module>${sics.path}/org.gumtree.sics.server.feature</module>
+
+		<module>${sics.path}/ch.psi.sics.hipadaba.edit</module>
+		<module>${sics.path}/ch.psi.sics.hipadaba.editor</module>
+		<module>${sics.path}/sun.tools.jconsole</module>
+		<module>${sics.path}/org.gumtree.sics.ui</module>
+		<module>${sics.path}/org.gumtree.gumnix.sics.ui</module>
+		<module>${sics.path}/org.gumtree.gumnix.sics.ui.transaction</module>
+		<module>${sics.path}/org.gumtree.gumnix.sics.batch.ui</module>
+		<module>${sics.path}/org.gumtree.gumnix.sics</module>
+		<module>${sics.path}/org.gumtree.gumnix.sics.doc.user</module>
+		<module>${sics.path}/org.gumtree.gumnix.sics.dom</module>
+		<module>${sics.path}/org.gumtree.sics.ui.feature</module>
+
+
+		<module>${dae.path}/org.gumtree.dae.core</module>
+		<module>${dae.path}/org.gumtree.dae.core.feature</module>
+
+		<module>${dae.path}/org.gumtree.dae.server</module>
+		<module>${dae.path}/org.gumtree.dae.server.feature</module>
+
+
+		<module>${processor.path}/au.gov.ansto.bragg.errorpropagation</module>
+		<module>${processor.path}/au.gov.ansto.bragg.datastructures</module>
+		<module>${processor.path}/org.gumtree.data.ansto</module>
+		<module>${processor.path}/au.gov.ansto.bragg.freehep.jas3</module>
+		<module>${processor.path}/au.gov.ansto.bragg.base.common</module>
+		<module>${processor.path}/au.gov.ansto.bragg.process</module>
+		<module>${processor.path}/au.gov.ansto.bragg.cicada.dam</module>
+		<module>${processor.path}/au.gov.ansto.bragg.cicada</module>
+		<module>${processor.path}/au.gov.ansto.bragg.cicada.dra</module>
+		<module>${processor.path}/au.gov.ansto.bragg.cicada.dom</module>
+		<module>${processor.path}/org.gumtree.processor.core.feature</module>
+
+		<module>${processor.path}/au.gov.ansto.bragg.kakadu.core</module>
+		<module>${processor.path}/au.gov.ansto.bragg.kakadu.ui</module>
+		<module>${processor.path}/au.gov.ansto.bragg.kakadu.dom</module>
+		<module>${processor.path}/au.gov.ansto.bragg.kakadu.doc</module>
+		<module>${processor.path}/org.gumtree.processor.ui.feature</module>
+
+
+		<module>${gumpy.path}/org.gumtree.gumpy.scripts</module>
+		<module>${gumpy.path}/org.gumtree.gumpy.feature</module>
+
+
+		<module>${applications.path}/org.gumtree.app.osgi</module>
+		<module>${applications.path}/org.gumtree.app.osgi.feature</module>
+		<module>${applications.path}/de.huxhorn.lilith.logback</module>
+		<module>${applications.path}/org.apache.commons.configuration</module>
+		<module>${applications.path}/org.gumtree.app.runtime</module>
+		<module>${applications.path}/org.gumtree.app.runtime.feature</module>
+		<module>${applications.path}/org.gumtree.app.webserver</module>
+		<module>${applications.path}/org.gumtree.app.webserver.feature</module>
+		<module>${applications.path}/org.gumtree.app.workbench</module>
+		<module>${applications.path}/org.gumtree.app.workbench.feature</module>
+		<module>${applications.path}/org.gumtree.app.scriptrunner</module>
+		<module>${applications.path}/org.gumtree.app.scriptrunner.feature</module>
+		
+		
+		<module>${build.path}/org.gumtree.framework.sources.feature</module>
+	</modules>
+
+	<name>Gumtree Framework Build</name>
+
+	<profiles>
+		<profile>
+			<id>test</id>
+			<modules>
+				<module>${data.path}/org.gumtree.data.core.tests</module>
+				<module>${data.path}/org.gumtree.data.impl.netcdf.tests</module>
+				<module>${data.path}/org.gumtree.data.soleil.tests</module>
+
+				<module>${common.path}/org.gumtree.core.tests</module>
+				<module>${common.path}/org.gumtree.server.tests</module>
+
+				<module>${applications.path}/org.gumtree.app.runtime.tests</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>ide</id>
+			<properties>
+				<data.path>..</data.path>
+				<common.path>..</common.path>
+				<extensions.path>..</extensions.path>
+				<sics.path>..</sics.path>
+				<dae.path>..</dae.path>
+				<processor.path>..</processor.path>
+				<gumpy.path>..</gumpy.path>
+				<applications.path>..</applications.path>
+				<build.path>..</build.path>
+			</properties>
+		</profile>
+	</profiles>
+</project>
