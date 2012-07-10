@@ -11,7 +11,7 @@
 		<gumtree.groupId>org.codehaus.gumtree</gumtree.groupId>
 		<cdma.version>3.0.0-SNAPSHOT</cdma.version>
 		<tycho.groupId>org.eclipse.tycho</tycho.groupId>
-		<tycho.version>0.14.1</tycho.version>
+		<tycho.version>0.15.0</tycho.version>
 		<maven.javadoc.version>2.8</maven.javadoc.version>
 		<project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
 		<enableEmmaReport>false</enableEmmaReport>
