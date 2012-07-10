@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.6"?><target name="Gumtree Bundles" sequenceNumber="22">
+<locations>
+<location includeAllPlatforms="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.sdk.ide" version="3.7.2.M20120208-0800"/>
+<repository location="http://download.eclipse.org/eclipse/updates/3.7/"/>
+</location>
+<location includeAllPlatforms="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.emf.sdk.feature.group" version="2.7.2.v20120130-0943"/>
+<unit id="org.eclipse.gef.sdk.feature.group" version="3.7.2.v20110927-2020-7G7W77A5WNgIRPdWXDIbNTSQPdQL"/>
+<unit id="org.eclipse.gmf.runtime.sdk.feature.group" version="1.5.0.v20110607-1200-67N09E9QnChoWswz-3wf_rz0kQ8Y"/>
+<unit id="org.eclipse.wst.xml_ui.feature.feature.group" version="3.3.2.v201112072049-7H7EFZ7DxumTmce4khcSkIiqoD8eDMKlT8Oz011P"/>
+<repository location="http://download.eclipse.org/releases/indigo"/>
+</location>
+<location includeAllPlatforms="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="ch.qos.logback.classic" version="1.0.0.v20111214-2030"/>
+<unit id="ch.qos.logback.classic.source" version="1.0.0.v20111214-2030"/>
+<unit id="ch.qos.logback.core" version="1.0.0.v20111214-2030"/>
+<unit id="ch.qos.logback.core.source" version="1.0.0.v20111214-2030"/>
+<unit id="ch.qos.logback.slf4j" version="1.0.0.v20120123-1500"/>
+<unit id="ch.qos.logback.slf4j.source" version="1.0.0.v20120123-1500"/>
+<unit id="com.google.protobuf" version="2.4.0.v201105131100"/>
+<unit id="com.google.protobuf.source" version="2.4.0.v201105131100"/>
+<unit id="com.thoughtworks.qdox" version="1.6.3.v20081201-1400"/>
+<unit id="com.thoughtworks.qdox.source" version="1.6.3.v20081201-1400"/>
+<unit id="javax.activation" version="1.1.0.v201108011116"/>
+<unit id="javax.activation.source" version="1.1.0.v201108011116"/>
+<unit id="javax.annotation" version="1.0.0.v20101115-0725"/>
+<unit id="javax.annotation.source" version="1.0.0.v20101115-0725"/>
+<unit id="javax.inject" version="1.0.0.v20091030"/>
+<unit id="javax.inject.source" version="1.0.0.v20091030"/>
+<unit id="javax.jms" version="1.1.0.v201205091237"/>
+<unit id="javax.jms.source" version="1.1.0.v201205091237"/>
+<unit id="javax.mail" version="1.4.0.v201005080615"/>
+<unit id="javax.management" version="1.2.0.v20100427-1100"/>
+<unit id="net.miginfocom.layout" version="3.7.1.v200911230030"/>
+<unit id="net.miginfocom.layout.source" version="3.7.1.v200911230030"/>
+<unit id="net.miginfocom.layout.swing" version="3.7.1.v200911230030"/>
+<unit id="net.miginfocom.layout.swing.source" version="3.7.1.v200911230030"/>
+<unit id="net.miginfocom.layout.swt" version="3.7.1.v200911230030"/>
+<unit id="net.miginfocom.layout.swt.source" version="3.7.1.v200911230030"/>
+<unit id="org.apache.commons.beanutils" version="1.8.0.v201205091237"/>
+<unit id="org.apache.commons.beanutils.source" version="1.8.0.v201205091237"/>
+<unit id="org.apache.commons.collections" version="3.2.0.v201005080500"/>
+<unit id="org.apache.commons.collections.source" version="3.2.0.v201005080500"/>
+<unit id="org.apache.commons.lang" version="2.4.0.v201005080502"/>
+<unit id="org.apache.commons.lang.source" version="2.4.0.v201005080502"/>
+<unit id="org.apache.commons.logging" version="1.1.1.v201101211721"/>
+<unit id="org.apache.commons.logging.source" version="1.1.1.v201101211721"/>
+<unit id="org.apache.commons.math" version="2.1.0.v201105210652"/>
+<unit id="org.apache.commons.math.source" version="2.1.0.v201105210652"/>
+<unit id="org.apache.commons.net" version="2.2.0.v201101241833"/>
+<unit id="org.apache.commons.net.source" version="2.2.0.v201101241833"/>
+<unit id="org.apache.xerces" version="2.9.0.v201101211617"/>
+<unit id="org.apache.xml.serializer" version="2.7.1.v201005080400"/>
+<unit id="org.apache.log4j" version="1.2.15.v201012070815"/>
+<unit id="org.apache.log4j.source" version="1.2.15.v201012070815"/>
+<unit id="org.slf4j.api" version="1.6.4.v20120130-2120"/>
+<unit id="org.slf4j.ext" version="1.6.4.v20120130-2120"/>
+<unit id="org.slf4j.ext.source" version="1.6.4.v20120130-2120"/>
+<unit id="org.slf4j.api.source" version="1.6.4.v20120130-2120"/>
+<unit id="org.slf4j.jul" version="1.6.4.v20120130-2120"/>
+<unit id="org.slf4j.jul.source" version="1.6.4.v20120130-2120"/>
+<unit id="org.slf4j.jcl" version="1.6.4.v20120130-2120"/>
+<unit id="org.slf4j.jcl.source" version="1.6.4.v20120130-2120"/>
+<unit id="org.slf4j.log4j" version="1.6.4.v20120130-2120"/>
+<unit id="org.slf4j.log4j.source" version="1.6.4.v20120130-2120"/>
+<unit id="org.hamcrest" version="1.1.0.v20090501071000"/>
+<unit id="org.hamcrest.core" version="1.1.0.v20090501071000"/>
+<unit id="org.hamcrest.core.source" version="1.1.0.v20090501071000"/>
+<unit id="org.hamcrest.generator" version="1.1.0.v20090501071000"/>
+<unit id="org.hamcrest.generator.source" version="1.1.0.v20090501071000"/>
+<unit id="org.hamcrest.integration" version="1.1.0.v20090501071000"/>
+<unit id="org.hamcrest.integration.source" version="1.1.0.v20090501071000"/>
+<unit id="org.hamcrest.library" version="1.1.0.v20090501071000"/>
+<unit id="org.hamcrest.library.source" version="1.1.0.v20090501071000"/>
+<unit id="org.hamcrest.text" version="1.1.0.v20090501071000"/>
+<unit id="org.hamcrest.text.source" version="1.1.0.v20090501071000"/>
+<unit id="org.quartz" version="1.8.3.v20110329-1420"/>
+<unit id="org.quartz.source" version="1.8.3.v20110329-1420"/>
+<unit id="org.xmlpull" version="1.1.3.4_v201201052148"/>
+<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20120526062928/repository/"/>
+</location>
+<location includeAllPlatforms="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.e4.ui.feature.feature.group" version="0.10.0.v20110613-2030-7AAI77FQFxCMos_Wz0drF-G27B74"/>
+<unit id="org.eclipse.e4.ui.source.feature.feature.group" version="0.10.0.v20110613-2030-7AAI77FQFxCMos_Wz0drF-G27B74"/>
+<unit id="org.eclipse.e4.xwt.feature.feature.group" version="0.9.1.v20091126-1500-17Z2AkF7B98PAL03211"/>
+<repository location="http://download.eclipse.org/e4/downloads/drops/R-0.111-201109121510/repository"/>
+</location>
+<location path="X:/eclipse/plugins/bsh/2.0.0.b4/eclipse" type="Directory"/>
+<location path="X:/eclipse/plugins/com.buschmais.maexo/1.1.0/eclipse" type="Directory"/>
+<location path="X:/eclipse/plugins/com.db4o/8.0/eclipse" type="Directory"/>
+<location path="X:/eclipse/plugins/com.isencia.passerelle/7.0.0/eclipse" type="Directory"/>
+<location path="X:/eclipse/plugins/com.richclientgui.rcptoolbox/1.0.6/eclipse" type="Directory"/>
+<location path="X:/eclipse/plugins/com.vaadin/6.7.8/eclipse" type="Directory"/>
+<location path="X:/eclipse/plugins/org.eclipse.emf.ecore.sdo/2.4.2/eclipse" type="Directory"/>
+<location path="X:/eclipse/plugins/org.restlet/2.0.11/eclipse" type="Directory"/>
+<location path="X:/eclipse/plugins/org.scala-ide/2.0.1/eclipse" type="Directory"/>
+<location path="X:/eclipse/plugins/org.springframework.osgi/1.2.1.spring3/eclipse" type="Directory"/>
+</locations>
+</target>

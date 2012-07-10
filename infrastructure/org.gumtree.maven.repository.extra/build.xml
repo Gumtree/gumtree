@@ -1,0 +1,102 @@
+<!--
+	This script requires the following parameters to be set in the ANT runtime
+	Paramaters:
+		baseLocation
+-->
+<project default="main">
+
+	<property name="groupId" value="org.codehaus.gumtree" />
+	<property name="mvnExecutable" value="${baseLocation}/tools/apache-maven-3.0.3/bin/mvn.bat" />
+	<property name="artifcatLocation" value="${baseLocation}/source/plugins/org.gumtree.maven.repository.extra/artifacts" />
+	<property name="mvnLocation" value="${baseLocation}/source/plugins/org.gumtree.maven.repository.extra/repository" />
+
+	<!--
+		Parameters:
+			groupId
+			artifactId
+			version
+			artifcatLocation
+			mvnLocation
+	-->
+	<target name="copyP2BundleToM2Repo">
+		<exec executable="${mvnExecutable}">
+			<arg line="install:install-file" />
+			<arg line="-DgroupId=${groupId}" />
+			<arg line="-DartifactId=${artifactId}" />
+			<arg line="-Dversion=${version}" />
+			<arg line="-Dfile=${artifcatLocation}/${artifactId}/${artifactId}_${version}.jar" />
+			<arg line="-Dpackaging=jar" />
+			<arg line="-DlocalRepositoryPath=${mvnLocation}" />
+		</exec>
+	</target>
+
+	<!--
+		Parameters:
+			groupId
+			artifactId
+			version
+			artifcatLocation
+			mvnLocation
+	-->
+	<target name="copyP2BundleToM2RepoWithSource">
+		<antcall target="copyP2BundleToM2Repo" />
+		<exec executable="${mvnExecutable}">
+			<arg line="install:install-file" />
+			<arg line="-DgroupId=${groupId}" />
+			<arg line="-DartifactId=${artifactId}" />
+			<arg line="-Dversion=${version}" />
+			<arg line="-Dfile=${artifcatLocation}/${artifactId}/${artifactId}.source_${version}.jar" />
+			<arg line="-Dpackaging=jar" />
+			<arg line="-Dclassifier=sources" />
+			<arg line="-DlocalRepositoryPath=${mvnLocation}" />
+		</exec>
+	</target>
+
+	<target name="main">
+		<antcall target="copyP2BundleToM2RepoWithSource">
+			<param name="artifactId" value="org.eclipse.osgi" />
+			<param name="version" value="3.7.2.v20120110-1415" />
+		</antcall>
+		<antcall target="copyP2BundleToM2Repo">
+			<param name="artifactId" value="org.eclipse.swt" />
+			<param name="version" value="3.7.2.v3740f" />
+		</antcall>
+		<antcall target="copyP2BundleToM2RepoWithSource">
+			<param name="artifactId" value="org.eclipse.swt.win32.win32.x86" />
+			<param name="version" value="3.7.2.v3740f" />
+		</antcall>
+		<antcall target="copyP2BundleToM2RepoWithSource">
+			<param name="artifactId" value="org.eclipse.swt.win32.win32.x86_64" />
+			<param name="version" value="3.7.2.v3740f" />
+		</antcall>
+		<antcall target="copyP2BundleToM2RepoWithSource">
+			<param name="artifactId" value="org.eclipse.swt.gtk.linux.x86" />
+			<param name="version" value="3.7.2.v3740f" />
+		</antcall>
+		<antcall target="copyP2BundleToM2RepoWithSource">
+			<param name="artifactId" value="org.eclipse.swt.gtk.linux.x86_64" />
+			<param name="version" value="3.7.2.v3740f" />
+		</antcall>
+		<antcall target="copyP2BundleToM2RepoWithSource">
+			<param name="artifactId" value="org.eclipse.swt.cocoa.macosx" />
+			<param name="version" value="3.7.2.v3740f" />
+		</antcall>
+		<antcall target="copyP2BundleToM2RepoWithSource">
+			<param name="artifactId" value="org.eclipse.swt.cocoa.macosx.x86_64" />
+			<param name="version" value="3.7.2.v3740f" />
+		</antcall>
+		<antcall target="copyP2BundleToM2RepoWithSource">
+			<param name="artifactId" value="org.eclipse.jface" />
+			<param name="version" value="3.7.0.v20110928-1505" />
+		</antcall>
+		<antcall target="copyP2BundleToM2RepoWithSource">
+			<param name="artifactId" value="org.eclipse.equinox.common" />
+			<param name="version" value="3.6.0.v20110523" />
+		</antcall>
+		<antcall target="copyP2BundleToM2RepoWithSource">
+			<param name="artifactId" value="org.eclipse.core.commands" />
+			<param name="version" value="3.6.0.I20110111-0800" />
+		</antcall>
+	</target>
+
+</project>

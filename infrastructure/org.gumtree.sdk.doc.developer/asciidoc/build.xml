@@ -1,0 +1,26 @@
+<project default="main">
+	
+	<property name="bashLocation" value="D:/Applications/Cygwin/1.7.15-1/bin" />
+	<property name="asciidocLocation" value="/cygdrive/d/Applications/Asciidoc/8.6.7" />
+	<property name="sourceLocation" value="/cygdrive/d/Development/Workspace/Gumtree-1.7.x/source/plugins/org.gumtree.sdk.doc.developer/asciidoc" />
+
+	<target name="generateHTML">
+		<exec executable="${bashLocation}/bash.exe">
+			<arg line="--login" />
+			<arg line="-c &quot;python ${asciidocLocation}/asciidoc.py -b html5 -a toc2 ${sourceLocation}/gumtree.txt&quot;" />
+		</exec>
+	</target>
+
+	<target name="generatePDF">
+		<exec executable="${bashLocation}/bash.exe">
+			<arg line="--login" />
+			<arg line="-c &quot;python ${asciidocLocation}/a2x.py --no-xmllint ${sourceLocation}/gumtree.txt&quot;" />
+		</exec>
+	</target>
+
+	<target name="main">
+		<antcall target="generateHTML" />
+		<antcall target="generatePDF" />
+	</target>
+
+</project>

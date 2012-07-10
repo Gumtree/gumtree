@@ -1,0 +1,629 @@
+Book of Gumtree
+===============
+Bragg Institute <gumtree@googlegroups.com>
+v1.7.0, July 2012: Written for Gumtree version 1.7.x
+:doctype: book
+
+:numbered:
+
+OVERVIEW
+========
+
+Introduction
+------------
+
+=== What is Gumtree ===
+Gumtree is a suite of software for running scientific experiments on a beam
+line instrument. Gumtree helps users to perform the following tasks:
+
+* *Controls* and *monitors* instrument system
+* *Plans* and *executes* experiments on an instrument
+* *Retrieves* and *displays* experiment data from the system
+* *Reduces* and *analyzes* live or archived experiment data
+
+Gumtree offers the desktop version, named the *Gumtree Workbench*, which runs
+on major operating systems including _Windows_, _Linux_ and _Mac OS X_. The web
+based version, known as the *Gumtree Server*, provides the remote instrument
+status to browsers and mobile devices.
+
+The goal of Gumtree is to provide an open source platform for developers to
+write user friendly applications, without spending time and energy on dealing
+with common programming tasks. Gumtree can be distributed freely and has been
+licensed under http://www.eclipse.org/legal/epl-v10.html[EPL v1.0
+(Eclipse Public License)].
+
+=== About this book ===
+The "Book of Gumtree" serves as a developer guide for Gumtree programmers.
+
+Gumtree Project Overview
+------------------------
+
+=== Project Structure ===
+The Gumtree Project is an open source project hosted by Codehaus. This project
+is mainly sponsored by the Australian Nuclear Science and Techology
+Organisation (ANSTO), for its use on a number of neutron scattering instruments
+attached to the OPAL research reactor.
+
+The Gumtree development team follows the agile development methodology:
+*"release early, release often"*, where shippable quality software is delivered 
+every couple of weeks for public testing and review.
+
+=== Project Resources ===
+The following links are some useful online resources for the Gumtree project:
+
+* *Home Page*: http://gumtree.codehaus.org
+* *Download Site*: http://gumtree.codehaus.org/downloads
+* *Subversion Repository*: http://svn.codehaus.org/gumtree/
+* *Issue Tracking System*: http://jira.codehaus.org/browse/GUMTREE
+* *Site Management*: http://xircles.codehaus.org/projects/gumtree
+* *Mailing List*: gumtree@googlegroups.com
+
+Architectural Design
+--------------------
+
+=== High Level Requirements ===
+The design of Gumtree should meet the following requirements:
+
+* *Instrument control* - The top requirement for Gumtree is the ability to drive
+an instrument via the delicate instrument control system.
+* *Data Access* - Gumtree should provide a user friendly way to retrieve data
+from various sources, for example, local file system, devices or data grid.
+* *Data visualisation* - Gumtree should be able to visualise data either from
+the live system or data files.
+* *Data reduction support* - Gumtree should be capable of providing mathematical
+package to process live data or archived data in a certain way.
+* *Simple user interface* - The front end of the system, either in desktop,
+mobile or web mode, needs to be simple.
+* *Scripting support* - Scripting works as a two edged sword: enabling users to
+perform non standard operations and add extra values to the system.  For
+example,  users can script to automate instrument control, or instrument
+scientists may introduce new reduction script while GumTree is running.
+Scripts can be run locally or remotely on a middleware server.
+* *Persistence and crash recovery* - Crash recovery is essential for users to
+minimise their time spent on resetting their running experiment.
+* *Remote access* - Remote access is a nice tool for users to monitor and fix
+simple problem during the experiment. Gumtree does not intent to provide full
+remote access for instrument control outside of the facility.
+* *Configurable* - Each application can be configured by user defined setting or
+from a central configuration server. Instrument scientists and supporting
+staffs can update the entries from the configuration server to change the
+behaviour of those applications. Users may also be able to upload their
+configuration to the server to sync between different instance of Gumtree.
+* *Access control* - The application may limit its feature based on the role of
+a user who has signed to the system.
+* *Connectivity with other online services* - Gumtree should leverage other
+services available from the instrument system, and provide add-on value by
+mashing up services.
+* *Support for rapid development* - Gumtree should be designed by using modern
+software engineering techniques, such that code is more maintainable and
+reusable.
+
+=== Domain Analysis ===
+The essential entity of this model is experiment. In a typical experiment, a
+user plans a sequence of instructions to control devices managed by control
+systems.  An experiment may also require additional metadata from various
+sources for auditing purpose.  Once an experiment is executed, those control
+systems will create raw data for further reduction.  Experiment can be optimised
+by using this reduced data to make intelligent decision for the next step of the
+experiment.
+
+.Domain Model
+image::./images/Domain_Model.png[Domain Model]
+
+=== System Analysis ===
+Gumtree adpots the client-server model for distributed instrument control. In a
+typical instrument system, there are a number of physical devices controlled by
+a central sequencer via some kind of control system software stack. Along with
+a centralised server, there are also a number of facility servers like
+database and access control which provide additional non-control system related
+services. From the user frontend, there are different computation devices for
+accessing servers available in an instrument system. Gumtree fills in the grap
+between the users and the instrument system.
+
+.System Architecture
+image::./images/System_Architecture.png[System Architecture]
+
+=== Technology Choice ===
+
+==== Java ====
+The Java platform has been selected as the base platform for Gumtree. Java is
+composed by three major components:
+
+* *Java Virtual Machine (JVM)* - the JVM is a software platform that allows same
+code, known as bytecode, to be executed on different operating system.
+* *Class Libraries* - there are large set of reusable libraries from Java and
+other third party providers for standard programming tasks such as user
+interface and networking. 
+* *Language* - the Java language is a static typed object oriented language
+which claims to be the world's most popular programming language. Along with
+the Java programming language, other static or dynamic typed languages can
+be used to generate bytecode for running on JVM.
+
+The majority of code from Gumtree is written in Java, so that we can leverage
+the robustness and predictability of the static typed system. A small portion of
+Gumtree is written in scripting languages, mainly Jython, in order to take the
+advantage of their dynamic behaviour when quick code modification is required. 
+
+[[Eclipse]]
+==== Eclipse ====
+The Eclipse platform is an application framework that runs on top of JVM.
+Gumtree is built entirely on the Eclipse platform because it offers dynamic
+modular system support (OSGi), native look and feel graphical user interface
+widgets (SWT), desktop window management (Eclipse Rich Client Platform), and
+lots of other add-on services. With using the Eclipse platform, we can build
+various type of applications which range from simple headless mode servers to
+large scale desktop applications. 
+
+Eclipse has been increasingly adopted by the scientific community for building
+desktop applications. There is a list of examples:
+
+* *OpenGDA* - http://www.opengda.org/
+* *Control System Studio* - http://http://cs-studio.sourceforge.net/
+* *Data Analysis Workbench* - http://www.dawb.org/
+* *Passerelle* - http://code.google.com/a/eclipselabs.org/p/passerelle/
+* *NASA Maestro* - http://www.eclipse.org/community/casestudies/NASAfinal.pdf
+* *Bioclipse* - http://bioclipse.net/
+* *OpenChrom* - http://www.openchrom.net/main/content/index.php
+
+==== Open Source Libraries ====
+The following table shows a comprehensive list of open source technologies used
+within Gumtree:
+
+.List of Third Party Libraries
+[options="header"]
+|===============================================================================
+|Project|Web Site|Notes
+|*HDF*|http://www.hdfgroup.org/hdf-java-html/|Data format I/O library
+|*Jetty*|http://www.eclipse.org/jetty/|Embedded webserver
+|*JFreeChart*|http://www.jfree.org/jfreechart/|Visualisation library
+|*Jython*|http://www.jython.org/| Java implementation of Python scripting
+|*JUnit*|http://www.junit.org/|Unit testing framework
+|*lambdaj*|http://code.google.com/p/lambdaj/|Functional programming support for Java
+|*Logback*|http://logback.qos.ch/|Logging engine (backend for SLF4J)
+|*MigLayout*|http://www.miglayout.com/|String based layout manager for Swing and SWT
+|*Mockito*|http://code.google.com/p/mockito/|Mocking framework for unit testing
+|*NetCDF*|http://www.unidata.ucar.edu/software/netcdf-java/|Data model backend
+|*PyDev*|http://pydev.org/|Python IDE support
+|*Restlet*|http://www.restlet.org/|RESTful web service framework
+|*RCP Toolbox*|http://launchpad.net/rcptoolbox|SWT widget library
+|*SLF4J*|http://www.slf4j.org/|Logging interface
+|*Spring Framework*|http://www.springsource.org/spring-framework|Enterprise Java support
+|*Vaadin*|http://vaadin.com/home|GWT based Java web framework
+|*XStream*|http://xstream.codehaus.org/|XML serialisation library
+|===============================================================================
+
+=== Application Architecture ===
+Software architecture is what determines the maintainability of a project. A
+software project will not success if it is difficult to maintain. Gumtree has
+chosen the modular framework architectural approach to keep its code
+maintainable. Using modular framework approach has the following advantages:
+
+* Framework forces reuse of software components
+* Modular programming encourages developers to code under the separation of concerns
+
+All applications developed in the Gumtree project are based on a Java
+application platform called the *Gumtree Application Framework*, or *Gumtree
+Framework* in short. This framework provides all necessary runtime and
+components for building general purposed scientific applications.
+
+For Gumtree to be used on the Bragg Institutue's neutron beam instruments, there
+is an layer of software called the *Bragg Gumtree Extensions*, or simply *Bragg
+Extensions*, which contains additional support and customisation on the
+framework.
+
+The underlying kernel for Gumtree is a Java based dynamic modular system called
+OSGi. OSGi is a lightweight application container which allows modular units,
+known as bundles, to be installed or uninstalled during runtime. Gumtree
+components and third party libraries are packaged into individual bundles, allow
+developers to build their unique applications by mixing and matching different
+modules. 
+
+[graphviz, ./graphviz/Application_Stack.png]
+---------------------------------------------------------
+digraph html {
+	abc [shape=none, margin=0, label=<
+	<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+		<TR>
+			<TD>Bragg Gumtree Extensions</TD>
+		</TR>
+		<TR>
+			<TD>Gumtree Application Framework</TD>
+		</TR>
+		<TR>
+			<TD>OSGi Modular System</TD>
+		</TR>
+		<TR>
+			<TD>Java Platform</TD>
+		</TR>
+	</TABLE>>];
+}
+---------------------------------------------------------
+
+=== Module Layout ===
+The Gumtree project has separated into those major module groups:
+
+* *Maven Build Parent* - A set of supporting projects for building Gumtree with
+Maven build system  (http://svn.codehaus.org/gumtree/gumtree/trunk/parent)
+* *Gumtree Framework* - The application framework for building Gumtree
+applications (http://svn.codehaus.org/gumtree/gumtree/trunk/framework)
+* *Bragg Extensions* - The frameworkwork extensions for building Bragg
+Institute's neutron beam instrument applications
+(http://svn.codehaus.org/gumtree/gumtree/trunk/bragg)
+* *Project Infrastructure* - A set of supporting projects for Gumtree software
+development and release engineering
+(http://svn.codehaus.org/gumtree/gumtree/trunk/infrastructure)
+
+=== Interoperability ===
+The design goal of the Gumtree framework is all about reusability. In principle
+all Gumtree components should be able to be reused on other Eclipse based
+applications, such as those scientific applications mentioned in the
+<<Eclipse,Eclipse>> section.
+
+=== Programming Model ===
+Gumtree has adopted few programming principles to improve its overall
+code quaility.
+
+==== Component Based Software Engineering ====
+The component based approach encourage programmers to design their software by
+the separation of concerns, which makes code more coherence and easier for
+testing and reuse.
+
+In modern Java software design, it is more favourable to code component in POJO
+(Plain Old Java Object) style, and connects component with dependency injection
+containers. Gumtree uses the Eclipse context from e4 as the dependency injection
+container.
+
+See also: http://en.wikipedia.org/wiki/Component-based_software_engineering
+
+==== Service Oriented Architecture ====
+The service oriented architecture allows components to be visible as services
+across the system. This helps to improve the high level application
+architectural design. In this architecture style, the consumers of the
+components (services) only recongise the contracts (interface) provided by the
+components, without knowing the actual implementation or instance of the
+components. This approach can allow components to be swapped in and out to suit
+different purposes, such as change of requirement or testing. 
+
+Gumtree uses the OSGi service registery to manage the visibility of services.
+Services can be registered into the runtime via the following methods:
+
+* OSGi Declarative Services (recommended)
+* Spring Dynamic Modules
+* Manual registration using OSGi API
+
+See also: http://en.wikipedia.org/wiki/Service-oriented_architecture
+
+==== Resource Oriented Architecture ====
+Any information that can be named is abstracted to _resource_, for examples:
+document, image, database record, device, application state and functionality
+(service). Each resource has unique identifier in form of URI. This
+architectural style provides a simple and uniform way of resource discovery and 
+manipulation. The Gumtree server uses this extensively for providing instrument
+remote access. A noticable example of this architecture is REST
+(REpresentational State Transfer), which is commonly used on World Wide Web.
+
+See also: http://en.wikipedia.org/wiki/Resource-oriented_architecture
+
+==== Event Driven Programming ====
+Listener design pattern is probably one of the most important mechanism for
+modern applications. However, this subscribe and publish pattern can leads to a
+highly coupled design. Instead, Gumtree uses the event bus design such that
+the subscriber and publisher do not need to make any dependency on each other.
+
+Event driven approach (or message passaging) can also improve application
+performance when it comes to the multi threaded execution environment.
+
+See: http://en.wikipedia.org/wiki/Event-driven_programming
+
+Getting Started with Gumtree Development
+----------------------------------------
+
+Download and install JDK 1.6
+
+Download and install Classic Eclipse 4.2
+
+Setup workspace folder structure
+
+Run Eclipse
+
+Configure Eclipse
+
+* Add extra RAM to eclipse.ini
+* Switch JRE to JDK 1.6
+* Set JDK Compliance to 1.6
+* Set Execution Environment to match JDK
+* Set proxy connection
+
+
+
+=== Development Environment Setup ===
+
+Essential plug-ins:
+
+* EGit
+
+Optional plug-ins:
+
+* SVNKit 1.7.4 (or above) implementation
+* Eclipse SDK Examples
+
+http://vaadin.com/eclipse
+Vaadin Plug-in for Eclipse http://vaadin.com/eclipse/
+
+
+
+=== Running Gumtree Workbench ===
+XXX
+
+GUMTREE FRAMEWORK
+=================
+
+Framework Overview
+------------------
+
+=== Gumtree Framework ===
+The Gumtree Framework is an application framework for building Eclipse based
+applications. It has special focus on delivering applications for the scientific
+domain, like instrument control and data analysis. The minimium execution
+requirement for the Gumtree Framework is Java 6 and Equinox OSGi runtime.
+
+The framework provides the following components:
+
+* *OSGi services* - the framework contains services like data access,
+application persistence and scripting engine for the OSGi runtime
+* *Common data model* - the data model provides an abstraction layer to deal with
+multiple scientific data format within an application
+* *Application containers* - the application containers enable Gumtree to be run
+as web servers or as rich client desktop applications
+* *Widget libraries* - a set of graphical user interface blocks for building
+rich desktop or web applications  
+
+
+=== Framework Structure ===
+The Gumtree Framework is organised into a number of modules
+
+.Gumtree Framework Modules
+[options="header"]
+|===============================================================================
+|Component|SVN Repository|Notes
+|*Common Data Model*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/data|The scientific data model
+|*Framework Common*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/common|The core framework
+|*Framework Extensions*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/extensions|Optional features to the framework
+|*SICS Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/sics|Support for the SICS control system
+|*DAE Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/dae|Support for the ANSTO DAE system
+|*Processor Framework*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/processor|A processor based data analysis framework
+|*Gumpy Scripting Library*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/gumpy|Python scripting library for Gumtree
+|*Application Containers*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/applications|Applications containers
+|*Framework Builder*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/build|Maven builder for this framework
+|===============================================================================
+
+.Framework module dependencies
+[graphviz, ./graphviz/Gumtree_Framework_Dependency.png]
+---------------------------------------------------------
+digraph G {
+	Common->Data
+	SICS->Common
+	DAE->Common
+	Processor->Common
+	Extensions->Common
+	Applications->Gumpy
+	Applications->Extensions
+}
+---------------------------------------------------------
+
+==== Common Data Model ====
+
+==== Framework Common ====
+The Framework Common is separated into three parts:
+
+* Core
+* Server
+* UI
+
+.Framework Common module dependencies
+[graphviz, ./graphviz/Gumtree_Framework_Common_Dependency.png]
+---------------------------------------------------------
+digraph G {
+	Server->Core
+	UI->Core
+}
+---------------------------------------------------------
+
+==== Framework Extensions ====
+XXX
+
+* Beanshell
+* Jython
+* Passerelle
+* PyDev
+* DLTK TCL
+* XML Editor
+
+==== SICS Support ====
+XXX
+
+==== DAE Support ====
+XXX
+
+==== Processor Framework ====
+XXX
+
+==== Gumpy Scripting Library ====
+XXX
+
+==== Application Containers ====
+XXX
+
+==== Framework Builder ====
+XXX
+
+Runtime Application Container
+-----------------------------
+
+=== OSGi Runtime ===
+A Java application is effectively a single process running bytecode on a virtual
+machine. The virtual machine process can only run bytecode which are specified
+in the class path before the JVM is started. When working with large scale Java
+application, class path management can be extremely difficult. Although bytecode
+can be separated into jars, there is no way to control the loading order or
+dependency between jar files. OSGi is born to resolve those problems. In the
+OSGi module system, bytecodes are organised into modules of either jar files or
+folders, with additional text entries in each _MANIFEST.MF_ file to specifies
+the dependency between them. Each module is called *bundle* in OSGi terminology.
+An OSGi enabled Java application is basically a bunch of bundles running on the
+JVM.
+
+The core of the OSGi system is a small kernel called the OSGi runtime. The
+runtime itself is also a OSGi bundle, which provides bundle life cycle
+management for dynamically loading and unloading bundles in a JVM process. On
+top of the life cycle management, it also provides:
+
+* *service registry management* - allows software components (plan java object) to
+be registered and visible by all other components within a JVM process  
+* *application management* - allows a single JVM process to host and execute
+multiple applications
+
+There are a number of OSGi implementations available. Two important one are
+*Equinox OSGi* (used by Eclipse IDE) and *Apache Felix* (used by Java EE
+application servers like GlassFish). Gumtree has chosen Equinox OSGi because it
+is the fundamental part of the Eclipse application framework.
+
+Further Readings:
+
+* http://en.wikipedia.org/wiki/OSGi
+* http://www.eclipse.org/equinox/documents/
+* http://www.vogella.com/articles/OSGi/article.html
+
+=== Running OSGi in IDE ===
+XXX
+
+=== Gumtree Runtime Application Container ===
+XXX
+
+Gumtree Core Library
+--------------------
+
+Webserver Application Container
+-------------------------------
+
+RESTful Web services with Restlet
+---------------------------------
+
+Vaadin Web Application Framework
+--------------------------------
+
+Gumtree Server Library
+----------------------
+
+Workbench Application Container
+-------------------------------
+
+Common Data Model
+-----------------
+
+Visualisation Toolkit
+---------------------
+
+BRAGG EXTENSIONS
+================
+
+Bragg Extensions Overview
+-------------------------
+
+=== Bragg Extensions ===
+XXX
+
+=== Extensions Structure ===
+XXX
+
+.Bragg Extensions Modules
+[options="header"]
+|===============================================================================
+|Component|SVN Repository|Notes
+|*NBI Common Library*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/nbi|Common library for all instrument
+|*Echidna Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/echidna|Support for the Echidna instrument
+|*Wombat Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/wombat|Support for the Wombat instrument
+|*Kowari Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/kowari|Support for the Kowari instrument
+|*Quokka Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/quokka|Support for the Quokka instrument
+|*Platypus Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/platypus|Support for the Platypus instrument
+|*Pelican Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/pelican|Support for the Pelican instrument
+|*Taipan Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/taipan|Support for the Taipan instrument
+|*Extensions Builder*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/build|Maven builder for this extensions
+|===============================================================================
+
+.Framework module dependencies
+[graphviz, ./graphviz/Bragg_Extensions_Dependencies.png]
+---------------------------------------------------------
+digraph G {
+	Echidna->NBI
+	Wombat->NBI
+	Kowari->NBI
+	Quokka->NBI
+	Platypus->NBI
+	Pelican->NBI
+	Taipan->NBI
+}
+---------------------------------------------------------
+
+NBI Common Library
+------------------
+
+Echidna High-Resolution Powder Diffractometer
+---------------------------------------------
+
+Wombat High-Intensity Powder Diffractometer
+-------------------------------------------
+
+Kowari Strain Scanner
+---------------------
+
+Quokka Small-Angle Neutron Scattering
+-------------------------------------
+
+Platypus Neutron Reflectometer
+------------------------------
+
+Pelican Time-of-Flight Spectrometer
+-----------------------------------
+
+Taipan Thermal 3-Axis Spectrometer
+----------------------------------
+
+Development Process
+===================
+
+Maven Build System
+------------------
+
+Release Engineering
+-------------------
+
+Continuous Build System
+-----------------------
+
+=== Installation ===
+Download Jenkins from http://jenkins-ci.org/
+Rename jenkins.war to jenkins-<version>.war
+Copy jenkins-<version>.war to V:\build\jenkins
+cd V:\build\jenkins
+Run java -DDJENKINS_HOME="." -jar jenkins-<version>.war --httpPort=7070
+-- Set DJENKINS_HOME to <build_system_path>
+-- Set http port to 7070
+
+Install git
+Set proxy to git: git config --global http.proxy http://<host>:<port>
+
+Install plugins
+
+* Github Plugin
+
+Configuration
+
+# of executors -> 1
+SCM checkout retry count -> 3
+Add global environment variable: maven_install_goal -> clean install surefire-report:report site -P test,coverage,findbugs
+Set JDK location
+Set Git location
+Set Ant location
+Set Maven location
+Set Jenkins URL -> http://dav1-test.nbi.ansto.gov.au:7070/

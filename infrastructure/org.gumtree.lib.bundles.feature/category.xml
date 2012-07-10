@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.gumtree.lib.bundles.feature_1.6.0.qualifier.jar" id="org.gumtree.lib.bundles.feature" version="1.6.0.qualifier">
+      <category name="gumtreeBundles"/>
+   </feature>
+   <feature url="features/org.gumtree.lib.bundles.feature.source_1.6.0.qualifier.jar" id="org.gumtree.lib.bundles.feature.source" version="1.6.0.qualifier">
+      <category name="gumtreeBundles"/>
+   </feature>
+   <category-def name="gumtreeBundles" label="GumTree Thrid Party Bundle Library"/>
+</site>

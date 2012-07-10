@@ -1,0 +1,28 @@
+<project default="main">
+
+	<target name="generateHTML">
+		<delete failonerror="false">
+			<fileset dir="${basedir}/build/html" />
+		</delete>
+		<exec executable="make">
+			<arg value="html" />
+		</exec>
+	</target>
+
+	<target name="generatePDF">
+		<delete failonerror="false">
+			<fileset dir="${basedir}/build/latex" />
+		</delete>
+		<exec executable="make">
+			<arg value="latexpdf" />
+		</exec>
+		<mkdir dir="${basedir}/build/latexpdf" />
+		<copy file="${basedir}/build/latex/BookOfGumtree.pdf" tofile="${basedir}/build/latexpdf/BookOfGumtree.pdf" />
+	</target>
+
+	<target name="main">
+		<antcall target="generateHTML" />
+		<antcall target="generatePDF" />
+	</target>
+
+</project>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Gumtree" uid="org.gumtree.app.osgi.product" id="org.gumtree.app.osgi.product" application="org.gumtree.app.osgi.application" version="1.7.0.qualifier" useFeatures="true" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-console
+-showSplash
+splash.bmp</programArgs>
+      <vmArgs>-Dosgi.locking=none
+-Dosgi.noShutdown=true
+-Declipse.ignoreApp=true
+-Dlogback.configurationFile=logback.xml</vmArgs>
+      <vmArgsMac>-Xdock:icon=../Resources/Eclipse.icns
+-XstartOnFirstThread
+-Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <windowImages/>
+
+   <splash
+      location="org.gumtree.app.osgi"
+      startupProgressRect="1,280,569,15"
+      startupMessageRect="5,257,571,17"
+      startupForegroundColor="FFFFFF" />
+   <launcher name="gumtree">
+      <macosx icon="../../../images/g-icon.icns"/>
+      <solaris/>
+      <win useIco="false">
+         <bmp
+            winSmallHigh="../../../images/g-icon_16x16_32-bit.bmp"
+            winSmallLow="../../../images/g-icon_16x16_8-bit.bmp"
+            winMediumHigh="../../../images/g-icon_32x32_32-bit.bmp"
+            winMediumLow="../../../images/g-icon_32x32_8-bit.bmp"
+            winLargeHigh="../../../images/g-icon_48x48_32-bit.bmp"
+            winLargeLow="../../../images/g-icon_48x48_8-bit.bmp"/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="org.gumtree.app.osgi.feature"/>
+   </features>
+
+   <configurations>
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <plugin id="org.gumtree.app.osgi" autoStart="true" startLevel="2" />
+   </configurations>
+
+</product>

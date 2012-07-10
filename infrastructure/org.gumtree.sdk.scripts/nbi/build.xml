@@ -1,0 +1,503 @@
+<!--
+	This script requires the following parameters to be set in the ANT runtime
+	Paramaters:
+		sourceDirectory
+		artifactDirectory
+		ideOS
+-->
+<project name="Packaging" default="usage" basedir=".">
+
+	<!--
+	############################################################################
+	#
+	# Configuration
+	#
+	############################################################################
+	-->
+
+	<property name="version" value="1.7.5" />
+	<property name="repoProject" value="org.gumtree.maven.repository" />
+	<property name="containerProduct" value="org.gumtree.app.osgi.product" />
+	<property name="buildScriptProject" value="org.gumtree.sdk.scripts" />
+	<property name="allMavenProject" value="org.gumtree.maven.all" />
+	<property name="equinoxJarLocation" value="tools/eclipse-SDK-3.7.2-${ideOS}/eclipse/plugins/org.eclipse.equinox.launcher_1.2.0.v20110502.jar" />
+	<property name="nsisHome" value="X:/apps/PortableApps/1.6/PortableApps/NSISPortable/App/NSIS" />
+
+	<!--
+	############################################################################
+	#
+	# Deploy tasks
+	#
+	############################################################################
+	-->
+
+	<!--
+		Copy P2 repository (used by build system)
+		Paramaters:
+			artifactDirectory		(predefined)
+			sourceDirectory			(predefined)
+			repoProject				(predefined)
+			version					(predefined)
+	-->
+	<target name="copyRepository">
+		<echo message="Copying P2 repository..." />
+		<delete dir="${artifactDirectory}/export/repository" failonerror="false" />
+		<!-- Copy directory structure -->
+		<copy todir="${artifactDirectory}/export/repository">
+			<fileset dir="${sourceDirectory}/${repoProject}/target/repository" />
+		</copy>
+		<!-- Copy archived version -->
+		<copy file="${sourceDirectory}/${repoProject}/target/${repoProject}.zip" tofile="${artifactDirectory}/export/repository/GumtreeRepository_${version}.zip" overwrite="true" />
+	</target>
+
+	<!--
+		Copy runtime applications (used by build system) 
+		Paramaters:
+			artifactDirectory		(predefined)
+			sourceDirectory			(predefined)
+			repoProject				(predefined)
+			containerProduct		(predefined)
+	-->
+	<target name="copyRuntime">
+		<echo message="Copying runtime container..." />
+		<delete dir="${artifactDirectory}/export/container" failonerror="false" />
+		<!-- win32 -->
+		<copy todir="${artifactDirectory}/export/container/win32">
+			<fileset dir="${sourceDirectory}/${repoProject}/target/products/${containerProduct}/win32/win32/x86" excludes="eclipsec.exe" />
+		</copy>
+		<!-- win64 -->
+		<copy todir="${artifactDirectory}/export/container/win64">
+			<fileset dir="${sourceDirectory}/${repoProject}/target/products/${containerProduct}/win32/win32/x86_64" excludes="eclipsec.exe" />
+		</copy>
+		<!-- gtk32 -->
+		<copy todir="${artifactDirectory}/export/container/gtk32">
+			<fileset dir="${sourceDirectory}/${repoProject}/target/products/${containerProduct}/linux/gtk/x86" />
+		</copy>
+		<!-- gtk64 -->
+		<copy todir="${artifactDirectory}/export/container/gtk64">
+			<fileset dir="${sourceDirectory}/${repoProject}/target/products/${containerProduct}/linux/gtk/x86_64" />
+		</copy>
+		<!-- cocoa32 -->
+		<copy todir="${artifactDirectory}/export/container/cocoa32">
+			<fileset dir="${sourceDirectory}/${repoProject}/target/products/${containerProduct}/macosx/cocoa/x86" />
+		</copy>
+		<move file="${artifactDirectory}/export/container/cocoa32/splash.bmp" todir="${artifactDirectory}/export/container/cocoa32/gumtree.app/Contents/MacOS" />
+		<exec executable="mv">
+			<arg value="${artifactDirectory}/export/container/cocoa32/gumtree.app"/>
+			<arg value="${artifactDirectory}/export/container/cocoa32/Gumtree.app"/>
+		</exec>
+		<!-- cocoa32 -->
+		<copy todir="${artifactDirectory}/export/container/cocoa64">
+			<fileset dir="${sourceDirectory}/${repoProject}/target/products/${containerProduct}/macosx/cocoa/x86_64" />
+		</copy>
+		<move file="${artifactDirectory}/export/container/cocoa64/splash.bmp" todir="${artifactDirectory}/export/container/cocoa64/gumtree.app/Contents/MacOS" />
+		<exec executable="mv">
+			<arg value="${artifactDirectory}/export/container/cocoa64/gumtree.app"/>
+			<arg value="${artifactDirectory}/export/container/cocoa64/Gumtree.app"/>
+		</exec>
+	</target>
+
+	<!--
+		Copy scripts for future packaging (used by build system)
+		Paramaters:
+			artifactDirectory		(predefined)
+			sourceDirectory			(predefined)
+			buildScriptProject		(predefined)
+	-->
+	<target name="copyScripts">
+		<echo message="Copying build scripts..." />
+		<delete dir="${artifactDirectory}/export/scripts" failonerror="false" />
+		<copy todir="${artifactDirectory}/export/scripts/nbi/scripts">
+			<fileset dir="${sourceDirectory}/${buildScriptProject}/nbi/scripts" />
+		</copy>
+		<copy todir="${artifactDirectory}/export/scripts/nbi/nsis">
+			<fileset dir="${sourceDirectory}/${buildScriptProject}/nbi/nsis" />
+		</copy>
+		<copy file="build.xml" todir="${artifactDirectory}/export/scripts/nbi" />
+		<copy file="PackagingServers.bat" todir="${artifactDirectory}/export/scripts/nbi" />
+		<copy file="PackagingWorkbeches.bat" todir="${artifactDirectory}/export/scripts/nbi" />
+		<copy file="PackagingDatabrowser.bat" todir="${artifactDirectory}/export/scripts/nbi" />
+	</target>
+
+	<!--
+		Copy aggregated Javadoc files (used by build system)
+		Paramaters:
+			artifactDirectory		(predefined)
+			sourceDirectory			(predefined)
+			allMavenProject			(predefined)
+	-->
+	<target name="copyJavadoc">
+		<echo message="Copying Javadoc..." />
+		<delete dir="${artifactDirectory}/export/javadoc" failonerror="false" />
+		<copy todir="${artifactDirectory}/export/javadoc">
+			<fileset dir="${sourceDirectory}/${allMavenProject}/target/site/apidocs/" />
+		</copy>
+		<zip destfile="${artifactDirectory}/export/javadoc/javadoc.zip" basedir="${artifactDirectory}/export/javadoc" />
+	</target>
+
+	<!--
+	############################################################################
+	#
+	# Build application tasks
+	#
+	############################################################################
+	-->
+
+	<!--
+		Copy container
+		Paramaters:
+			artifactDirectory 		(predefined)
+			applicationType 		(eg. workbench)
+			applicationName 		(eg. gumtree)
+			osType					(eg. win32)
+	-->
+	<macrodef name="copyContainer">
+		<attribute name="applicationType" />
+		<attribute name="applicationName" />
+		<attribute name="osType" />
+		<sequential>
+			<copy todir="${artifactDirectory}/export/products/@{applicationType}/@{applicationName}/@{osType}">
+				<fileset dir="${artifactDirectory}/export/container/@{osType}" />
+			</copy>
+		</sequential>
+	</macrodef>
+
+	<!--
+		Install feature
+		Paramaters:
+			artifactDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			applicationType 		(eg. workbench)
+			applicationName 		(eg. gumtree)
+			osType					(eg. win32)
+			featureId				(eg. org.gumtree.app.workbench)
+			os						(eg. win32)
+			ws						(eg. win32)
+			arch					(eg. x86)
+	-->
+	<macrodef name="installFeature">
+		<attribute name="applicationType" />
+		<attribute name="applicationName" />
+		<attribute name="osType" />
+		<attribute name="featureId" />
+		<attribute name="os" />
+		<attribute name="ws" />
+		<attribute name="arch" />
+		<sequential>
+			<java fork="true" jar="${artifactDirectory}/${equinoxJarLocation}">
+				<arg line="-application org.eclipse.equinox.p2.director" />
+				<arg line="-metadataRepository &quot;file:/${artifactDirectory}/export/repository&quot;" />
+				<arg line="-artifactRepository &quot;file:/${artifactDirectory}/export/repository&quot;" />
+				<arg line="-installIU  &quot;@{featureId}.feature.group&quot;" />
+				<arg line="-destination &quot;${artifactDirectory}/export/products/@{applicationType}/@{applicationName}/@{osType}&quot;" />
+				<arg line="-profile DefaultProfile" />
+				<arg line="-bundlepool &quot;${artifactDirectory}/export/products/@{applicationType}/@{applicationName}/common&quot;" />
+				<arg line="-consoleLog" />
+				<arg line="-roaming -p2.os @{os} -p2.ws @{ws} -p2.arch @{arch}" />
+			</java>
+		</sequential>
+	</macrodef>
+
+
+	<!--
+		Build application
+		Paramaters:
+			artifactDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			applicationType 		(eg. workbench)
+			applicationName 		(eg. gumtree)
+			osType					(eg. win32)
+			os						(eg. win32)
+			ws						(eg. win32)
+			arch					(eg. x86)
+		-->
+	<macrodef name="buildApplication">
+		<attribute name="applicationType" />
+		<attribute name="applicationName" />
+		<attribute name="osType" />
+		<attribute name="os" />
+		<attribute name="ws" />
+		<attribute name="arch" />
+		<sequential>
+			<copyContainer applicationType="@{applicationType}" applicationName="@{applicationName}" osType="@{osType}" />
+			<installFeature applicationType="@{applicationType}" applicationName="@{applicationName}" osType="@{osType}" featureId="org.gumtree.app.@{applicationType}.feature" os="@{os}" ws="@{ws}" arch="@{arch}" />
+		</sequential>
+	</macrodef>
+
+	<!--
+		Build application for multiple OS
+		Paramaters:
+			artifactDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			applicationType 		(eg. workbench)
+			applicationName 		(eg. gumtree)
+			applicationLabel		(eg. GumtreeWorkbench)
+	-->
+	<macrodef name="buildApplicationMultiOS">
+		<attribute name="applicationType" />
+		<attribute name="applicationName" />
+		<attribute name="applicationLabel" />
+		<sequential>
+			<delete includeEmptyDirs="true" failonerror="false">
+				<fileset dir="${artifactDirectory}/export/products/@{applicationType}/@{applicationName}" />
+			</delete>
+			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="win32" os="win32" ws="win32" arch="x86" />
+			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="win64" os="win32" ws="win32" arch="x86_64" />
+			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="gtk32" os="linux" ws="gtk" arch="x86" />
+			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="gtk64" os="linux" ws="gtk" arch="x86_64" />
+			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="cocoa32" os="macoxs" ws="cocoa" arch="x86" />
+			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="cocoa64" os="macoxs" ws="cocoa" arch="x86_64" />
+			<tar destfile="${artifactDirectory}/export/products/@{applicationType}/@{applicationLabel}-${version}.tar.gz" compression="gzip">
+				<tarfileset dir="${artifactDirectory}/export/products/@{applicationType}" filemode="755">
+					<include name="@{applicationName}/**" />
+				</tarfileset>
+			</tar>
+			<delete includeEmptyDirs="true">
+				<fileset dir="${artifactDirectory}/export/products/@{applicationType}/@{applicationName}" />
+			</delete>
+		</sequential>
+	</macrodef>
+
+	<!--
+		Build Bragg application
+		Paramaters:
+			artifactDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			applicationType 		(eg. workbench)
+			applicationName 		(eg. echidna)
+			osType					(eg. win32)
+			os						(eg. win32)
+			ws						(eg. win32)
+			arch					(eg. x86)
+		-->
+	<macrodef name="buildBraggApplication">
+		<attribute name="applicationType" />
+		<attribute name="applicationName" />
+		<attribute name="osType" />
+		<attribute name="os" />
+		<attribute name="ws" />
+		<attribute name="arch" />
+		<sequential>
+			<copyContainer applicationType="@{applicationType}" applicationName="@{applicationName}" osType="@{osType}" />
+			<installFeature applicationType="@{applicationType}" applicationName="@{applicationName}" osType="@{osType}" featureId="org.gumtree.app.@{applicationType}.feature" os="@{os}" ws="@{ws}" arch="@{arch}" />
+			<installFeature applicationType="@{applicationType}" applicationName="@{applicationName}" osType="@{osType}" featureId="au.gov.ansto.bragg.@{applicationName}.@{applicationType}.feature" os="@{os}" ws="@{ws}" arch="@{arch}" />
+		</sequential>
+	</macrodef>
+
+	<!--
+		Build Bragg application for multiple OS
+		Paramaters:	
+			artifactDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+			applicationType 		(eg. workbench)
+			applicationName 		(eg. echidna)
+			applicationLabel		(eg. EchidnaWorkbench)
+	-->
+	<macrodef name="buildBraggApplicationMultiOS">
+		<attribute name="applicationType" />
+		<attribute name="applicationName" />
+		<attribute name="applicationLabel" />
+		<sequential>
+			<delete includeEmptyDirs="true" failonerror="false">
+				<fileset dir="${artifactDirectory}/export/products/@{applicationType}/@{applicationName}" />
+			</delete>
+			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="win32" os="win32" ws="win32" arch="x86" />
+			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="win64" os="win32" ws="win32" arch="x86_64" />
+			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="gtk32" os="linux" ws="gtk" arch="x86" />
+			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="gtk64" os="linux" ws="gtk" arch="x86_64" />
+			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="cocoa32" os="macoxs" ws="cocoa" arch="x86" />
+			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="cocoa64" os="macoxs" ws="cocoa" arch="x86_64" />
+			<tar destfile="${artifactDirectory}/export/products/@{applicationType}/@{applicationLabel}-${version}.tar.gz" compression="gzip">
+				<tarfileset dir="${artifactDirectory}/export/products/@{applicationType}" filemode="755">
+					<include name="@{applicationName}/**" />
+				</tarfileset>
+			</tar>
+			<delete includeEmptyDirs="true">
+				<fileset dir="${artifactDirectory}/export/products/@{applicationType}/@{applicationName}" />
+			</delete>
+		</sequential>
+	</macrodef>
+
+	<!--
+		Build webservers
+		Paramaters:	
+			artifactDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildWebserver">
+		<delete dir="${artifactDirectory}/export/products/webserver" failonerror="false" />
+		<buildApplicationMultiOS applicationType="webserver" applicationName="gumtree" applicationLabel="GumtreeWebserver" />
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="echidna" applicationLabel="EchidnaWebserver" />
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="wombat" applicationLabel="WombatWebserver" />
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="kowari" applicationLabel="KowariWebserver" />
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="quokka" applicationLabel="QuokkaWebserver" />
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="platypus" applicationLabel="PlatypusWebserver" />
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="pelican" applicationLabel="PelicanWebserver" />
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="taipan" applicationLabel="TaipanWebserver" />
+	</target>
+
+	<!--
+		Build workbenches
+		Paramaters:	
+			artifactDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildWorkbench">
+		<delete dir="${artifactDirectory}/export/products/workbench" failonerror="false" />
+		<buildApplicationMultiOS applicationType="workbench" applicationName="gumtree" applicationLabel="GumtreeWorkbench" />
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="echidna" applicationLabel="EchidnaWorkbench" />
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="wombat" applicationLabel="WombatWorkbench" />
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="kowari" applicationLabel="KowariWorkbench" />
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="quokka" applicationLabel="QuokkaWorkbench" />
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="platypus" applicationLabel="PlatypusWorkbench" />
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="pelican" applicationLabel="PelicanWorkbench" />
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="taipan" applicationLabel="TaipanWorkbench" />
+	</target>
+
+	<!--
+	############################################################################
+	#
+	# Build installer tasks
+	#
+	############################################################################
+	-->
+
+	<!--
+		Build installer
+		Paramaters:
+			artifactDirectory 		(predefined)
+			equinoxJarLocation 		(predefined)
+			version 				(predefined)
+			nsisHome 				(predefined)
+			applicationName			(eg. gumtree)
+			applicationLabel		(eg. Gumtree)
+			applicationShortcut		(eg. Gumtree Workbench)
+	-->
+	<macrodef name="buildInstaller">
+		<attribute name="applicationName" />
+		<attribute name="applicationLabel" />
+		<attribute name="applicationShortcut" />
+		<sequential>
+			<delete includeEmptyDirs="true" failonerror="false">
+				<fileset dir="${artifactDirectory}/export/products/workbench/@{applicationName}" />
+			</delete>
+			<buildApplication applicationType="workbench" applicationName="@{applicationName}" osType="win32" os="win32" ws="win32" arch="x86" />
+			<exec executable="${nsisHome}/makensis.exe">
+				<arg value="/DINSTRUMENT=@{applicationName}" />
+				<arg value="/DINSTRUMENT_LABEL=@{applicationLabel}" />
+				<arg value="/DINSTRUMENT_SHORTCUT=@{applicationShortcut}" />
+				<arg value="/DAPP_VERSION=${version}" />
+				<arg value="/DSOURCE=${artifactDirectory}/export/products/workbench/@{applicationName}" />
+				<arg value="${artifactDirectory}/export/scripts/nbi/nsis/gumtree_win32_generic.nsi" />
+			</exec>
+			<delete includeEmptyDirs="true">
+				<fileset dir="${artifactDirectory}/export/products/workbench/@{applicationName}" />
+			</delete>
+			<move file="${artifactDirectory}/export/scripts/nbi/nsis/@{applicationLabel}WorkbenchSetup-${version}-win32.exe" todir="${artifactDirectory}/export/products/installer/generic" />
+		</sequential>
+	</macrodef>
+
+	<!--
+		Build Bragg installer
+		Paramaters:
+			artifactDirectory 		(predefined)
+			equinoxJarLocation 		(predefined)
+			version 				(predefined)
+			nsisHome 				(predefined)
+			applicationName			(eg. echidna)
+			applicationLabel		(eg. Echidna)
+			applicationShortcut		(eg. Echidna Workbench)
+	-->
+	<macrodef name="buildBraggInstaller">
+		<attribute name="applicationName" />
+		<attribute name="applicationLabel" />
+		<attribute name="applicationShortcut" />
+		<sequential>
+			<delete includeEmptyDirs="true" failonerror="false">
+				<fileset dir="${artifactDirectory}/export/products/workbench/@{applicationName}" />
+			</delete>
+			<buildBraggApplication applicationType="workbench" applicationName="@{applicationName}" osType="win32" os="win32" ws="win32" arch="x86" />
+			<exec executable="${nsisHome}/makensis.exe">
+				<arg value="/DINSTRUMENT=@{applicationName}" />
+				<arg value="/DINSTRUMENT_LABEL=@{applicationLabel}" />
+				<arg value="/DINSTRUMENT_SHORTCUT=@{applicationShortcut}" />
+				<arg value="/DAPP_VERSION=${version}" />
+				<arg value="/DSOURCE=${artifactDirectory}/export/products/workbench/@{applicationName}" />
+				<arg value="${artifactDirectory}/export/scripts/nbi/nsis/gumtree_win32_generic.nsi" />
+			</exec>
+			<delete includeEmptyDirs="true">
+				<fileset dir="${artifactDirectory}/export/products/workbench/@{applicationName}" />
+			</delete>
+			<move file="${artifactDirectory}/export/scripts/nbi/nsis/@{applicationLabel}WorkbenchSetup-${version}-win32.exe" todir="${artifactDirectory}/export/products/installer/generic" />
+		</sequential>
+	</macrodef>
+
+	<!--
+		Build Bragg installer (internal)
+		Paramaters:
+			artifactDirectory 		(predefined)
+			equinoxJarLocation 		(predefined)
+			version 				(predefined)
+			nsisHome 				(predefined)
+			applicationName			(eg. echidna)
+			applicationLabel		(eg. Echidna)
+			applicationShortcut		(eg. Echidna Workbench)
+	-->
+	<macrodef name="buildBraggInstallerInternal">
+		<attribute name="applicationName" />
+		<attribute name="applicationLabel" />
+		<attribute name="applicationShortcut" />
+		<sequential>
+			<delete includeEmptyDirs="true" failonerror="false">
+				<fileset dir="${artifactDirectory}/export/products/workbench/@{applicationName}" />
+			</delete>
+			<buildBraggApplication applicationType="workbench" applicationName="@{applicationName}" osType="win32" os="win32" ws="win32" arch="x86" />
+			<!-- [GUMTREE-817] Special hack to include a configuration to point Gumtree to store log on H: drive -->
+			<echo file="${artifactDirectory}/export/products/workbench/@{applicationName}/win32/gumtree.ini" append="true">-Dlogback.logFileLocation=H:/AppData/Gumtree/@{applicationName}/experiment</echo>
+			<exec executable="${nsisHome}/makensis.exe">
+				<arg value="/DINSTRUMENT=@{applicationName}" />
+				<arg value="/DINSTRUMENT_LABEL=@{applicationLabel}" />
+				<arg value="/DINSTRUMENT_SHORTCUT=@{applicationShortcut}" />
+				<arg value="/DAPP_VERSION=${version}" />
+				<arg value="/DSOURCE=${artifactDirectory}/export/products/workbench/@{applicationName}" />
+				<arg value="${artifactDirectory}/export/scripts/nbi/nsis/gumtree_win32_internal.nsi" />
+			</exec>
+			<delete includeEmptyDirs="true">
+				<fileset dir="${artifactDirectory}/export/products/workbench/@{applicationName}" />
+			</delete>
+			<move file="${artifactDirectory}/export/scripts/nbi/nsis/@{applicationLabel}WorkbenchSetup-${version}-win32-internal.exe" todir="${artifactDirectory}/export/products/installer/internal" />
+		</sequential>
+	</macrodef>
+
+	<target name="buildGenericInstallers">
+		<delete dir="${artifactDirectory}/export/products/installer/generic" failonerror="false" />
+		<buildInstaller applicationName="gumtree" applicationLabel="Gumtree" applicationShortcut="Gumtree Workbench" />
+		<buildBraggInstaller applicationName="echidna" applicationLabel="Echidna" applicationShortcut="Echidna Workbench" />
+		<buildBraggInstaller applicationName="wombat" applicationLabel="Wombat" applicationShortcut="Wombat Workbench" />
+		<buildBraggInstaller applicationName="kowari" applicationLabel="Kowari" applicationShortcut="Kowari Workbench" />
+		<buildBraggInstaller applicationName="quokka" applicationLabel="Quokka" applicationShortcut="Quokka Workbench" />
+		<buildBraggInstaller applicationName="platypus" applicationLabel="Platypus" applicationShortcut="Platypus Workbench" />
+		<buildBraggInstaller applicationName="pelican" applicationLabel="Pelican" applicationShortcut="Pelican Workbench" />
+		<buildBraggInstaller applicationName="taipan" applicationLabel="Taipan" applicationShortcut="Taipan Workbench" />
+	</target>
+
+	<target name="buildInternalInstallers">
+		<delete dir="${artifactDirectory}/export/products/installer/internal" failonerror="false" />
+		<buildBraggInstallerInternal applicationName="echidna" applicationLabel="Echidna" applicationShortcut="Echidna Workbench" />
+		<buildBraggInstallerInternal applicationName="wombat" applicationLabel="Wombat" applicationShortcut="Wombat Workbench" />
+		<buildBraggInstallerInternal applicationName="kowari" applicationLabel="Kowari" applicationShortcut="Kowari Workbench" />
+		<buildBraggInstallerInternal applicationName="quokka" applicationLabel="Quokka" applicationShortcut="Quokka Workbench" />
+		<buildBraggInstallerInternal applicationName="platypus" applicationLabel="Platypus" applicationShortcut="Platypus Workbench" />
+		<buildBraggInstallerInternal applicationName="pelican" applicationLabel="Pelican" applicationShortcut="Pelican Workbench" />
+		<buildBraggInstallerInternal applicationName="taipan" applicationLabel="Taipan" applicationShortcut="Taipan Workbench" />
+	</target>
+
+	<!-- Helper targets -->
+	<target name="usage">
+		<echo message="This is a packaging library." />
+	</target>
+
+</project>
