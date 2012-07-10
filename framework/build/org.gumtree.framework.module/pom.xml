@@ -40,7 +40,7 @@
 		<module>${data.path}/org.gumtree.data.engine.jnexus</module>
 		<module>${data.path}/org.gumtree.data.soleil</module>
 		<module>${data.path}/org.gumtree.data.soleil.feature</module>
-		
+
 
 		<module>${common.path}/com.db4o.osgi</module>
 		<module>${common.path}/com.google.guava</module>
@@ -140,7 +140,6 @@
 		<module>${dae.path}/org.gumtree.dae.server.feature</module>
 
 
-		<!--
 		<module>${processor.path}/au.gov.ansto.bragg.errorpropagation</module>
 		<module>${processor.path}/au.gov.ansto.bragg.datastructures</module>
 		<module>${processor.path}/org.gumtree.data.ansto</module>
@@ -176,10 +175,9 @@
 		<module>${applications.path}/org.gumtree.app.workbench.feature</module>
 		<module>${applications.path}/org.gumtree.app.scriptrunner</module>
 		<module>${applications.path}/org.gumtree.app.scriptrunner.feature</module>
-		
-		
+
+
 		<module>${build.path}/org.gumtree.framework.sources.feature</module>
-		-->
 	</modules>
 
 	<name>Gumtree Framework Build</name>
@@ -197,9 +195,7 @@
 				<module>${common.path}/org.gumtree.server.tests</module>
 
 
-				<!--
 				<module>${applications.path}/org.gumtree.app.runtime.tests</module>
-				-->
 			</modules>
 		</profile>
 	</profiles>
