@@ -193,28 +193,14 @@
 				<module>${data.path}/org.gumtree.data.soleil.tests</module>
 
 
-				<!--
 				<module>${common.path}/org.gumtree.core.tests</module>
 				<module>${common.path}/org.gumtree.server.tests</module>
 
 
+				<!--
 				<module>${applications.path}/org.gumtree.app.runtime.tests</module>
 				-->
 			</modules>
-		</profile>
-		<profile>
-			<id>ide</id>
-			<properties>
-				<data.path>..</data.path>
-				<common.path>..</common.path>
-				<extensions.path>..</extensions.path>
-				<sics.path>..</sics.path>
-				<dae.path>..</dae.path>
-				<processor.path>..</processor.path>
-				<gumpy.path>..</gumpy.path>
-				<applications.path>..</applications.path>
-				<build.path>..</build.path>
-			</properties>
 		</profile>
 	</profiles>
 </project>
