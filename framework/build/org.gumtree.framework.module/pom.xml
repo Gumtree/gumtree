@@ -111,7 +111,6 @@
 		<module>${extensions.path}/org.gumtree.passerelle.feature</module>
 
 
-		<!--
 		<module>${sics.path}/ch.psi.sics.hipadaba</module>
 		<module>${sics.path}/ch.unifr.nio.framework</module>
 		<module>${sics.path}/org.gumtree.sics.core</module>
@@ -134,6 +133,7 @@
 		<module>${sics.path}/org.gumtree.sics.ui.feature</module>
 
 
+		<!--
 		<module>${dae.path}/org.gumtree.dae.core</module>
 		<module>${dae.path}/org.gumtree.dae.core.feature</module>
 
