@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.gumtree.gumnix.sics.core.SicsDataProvider">
+   <implementation class="org.gumtree.gumnix.sics.core.dataaccess.SicsDataProvider"/>
+   <service>
+      <provide interface="org.gumtree.service.dataaccess.IDataProvider"/>
+   </service>
+   <property name="scheme" type="String" value="sics"/>
+   <reference cardinality="1..1" interface="org.gumtree.gumnix.sics.core.ISicsManager" name="ISicsManager" policy="static"/>
+   <reference cardinality="1..1" interface="org.gumtree.service.eventbus.IEventBus" name="IEventBus" policy="static"/>
+</scr:component>

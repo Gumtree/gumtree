@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+  <title>Scans</title>
+</head>
+<body>
+<h1 class="documentFirstHeading">Scans</h1>
+
+    
+        
+<div>
+
+    
+<div class="documentByLine">
+        
+
+        
+          <span>
+            by
+          <a href="http://gumtree:9080/nbicms/author/ffr">Ferdi Franceschini</a>
+          </span>
+
+          &mdash;
+
+        
+
+        <span>
+        last modified
+        </span>
+        2007-01-22 09:37
+
+        
+
+        
+
+        
+
+        
+
+        <span class="reviewHistory">
+    
+</span>
+
+    </div>
+
+
+</div>
+
+
+        
+<p class="documentDescription">An introduction to running scans in SICS</p>
+
+    
+        
+    
+        
+            
+<h2 class="Heading">What is a SICS Scan</h2>
+<p>A
+SICS scan allows you to perform a sequence of measurements while
+stepping one or more variables through a sequence of values. For
+example, you could record the histogram memory from the detector while
+you step a motor through a sequence of positions, such as stth from 74
+to 70 degrees by one degree steps.<br>
+</p>
+<br>
+<h2 class="Heading">Defining a scan command</h2>
+<p>Scan
+commands must be set up in the SICS configuration file. When defining a
+scan command, the characteristics of the scan command, such as the
+counter that is used to control the scan and some files that are used
+by the scan, are defined.<br>
+</p>
+<p>Echidna has been set up with two scan commands:</p>
+<ol start="1">
+  <li>hmscan</li>
+  <li>bmonscan</li>
+</ol>
+<h3 class="Subheading">hmscan</h3>
+<p>Uses
+the 128 tube area detector to collect data during scans.&nbsp; It is
+configured to use a separate counter as a beam monitor to control the
+scans.</p>
+<h3 class="Subheading">bmonscan</h3>
+<p>Uses a single counter to collect data during scans.&nbsp; This is the same counter that is used for the beam monitor by the <b>hmscan </b>command.</p>
+<p>Both scan commands automatically save the data collected during a scan&nbsp; under the <b>/usr/local/sics/data/000</b> directory of the SICS host computer.&nbsp; The data includes the position of all the motors and the values of some variables.</p>
+<p>You can define your own scan commands by adding a configuration to the SICS configuration file, see&nbsp;<a title="Running Scans" class="generated" href="http://gumtree:9080/nbicms/instruments/instrument-control-familiarisation/contents/resolveuid/cb7d7eccc0b36ddebb4f2ddf6ae21257" target="_self">Running Scans</a> for some notes on configuring scans. <br>
+</p>
+<h2 class="Heading">Preparing a scan command</h2>
+<p>Before
+you can run a scan you have to add one or more scan variables to the
+scan command. A scan variable might be a motor or an environment
+controller like a temperature controller. Each scan variable is added
+with an initial value and a step size. When the scan is run, the each
+of variables are driven to the initial value for the first step and
+each variable is stepped by the step value for each subsequent setp.<br>
+</p>
+<pre>hmscan add stth 74 -1<br></pre>
+<p>This
+adds stth, the sample two-theta motor, to the scan command. This motor
+rotates the position of the detector table around the sample table. The
+position of the detector table will start at 74 degrees and be rotated
+by minus one degree for each step of the scan.<br>
+</p>
+<h2 class="Heading">Running a scan</h2>
+<p>NOTE: Currently you have to be logged on as a <b>manager</b> to run scans, this is a bug and will be fixed soon(ish).<br>
+</p>
+<p>When
+the scan command has been prepared you can then run it. The run command
+specifies the number of steps and the mode and preset value&nbsp;for the
+associated counter.<br>
+</p>
+<p>The following scan command will collect
+data from the area detector. It will stop at 5 positions with the
+counter in timer mode and run the counter for 10 seconds at each point
+while collecting data.<br>
+</p>
+<pre>hmscan run 5 timer 10<br></pre>
+<p>This will produce the following output</p>
+<pre>ansto2007n000043.nx.hdf updated<br>Writing data file: ..//data/000/ansto2007n000044.nx.dat ...<br>NP   stth      Counts         Monitor1    Monitor2    Monitor3    Time<br>0    74.000    0              0           -1          -1          10.0<br>ansto2007n000043.nx.hdf updated<br><br><br>NP   stth      Counts         Monitor1    Monitor2    Monitor3    Time<br>1    73.000    0              0           -1          -1          10.0<br>ansto2007n000043.nx.hdf updated<br><br><br>NP   stth      Counts         Monitor1    Monitor2    Monitor3    Time<br>2    72.000    0              0           -1          -1          10.0<br>ansto2007n000043.nx.hdf updated<br><br><br>NP   stth      Counts         Monitor1    Monitor2    Monitor3    Time<br>3    71.000    0              0           -1          -1          10.0<br>ansto2007n000043.nx.hdf updated<br><br><br>NP   stth      Counts         Monitor1    Monitor2    Monitor3    Time<br>4    70.000    0              0           -1          -1          10.0<br>ansto2007n000043.nx.hdf updated<br>ansto2007n000043.nx.hdf updated<br><br><br></pre>
+<p>Some other useful sub-commands for hmscan and bmonscan are</p>
+<ul>
+  <li>clear: This removes all the scan variables from a scan (before preparing for a new scan)<br>
+  </li>
+  <li>noscanvar: Shows the number of variables configured into a scan</li>
+  <li>getvarpar <i>i</i>: Gives descriptive info about scanvariable <i>i</i>.</li>
+</ul>
+See&nbsp;<a title="Scan Command" class="generated" href="http://gumtree:9080/nbicms/instruments/instrument-control-familiarisation/contents/resolveuid/0bf9fd2442a3f2afa6cfa1fbca0503c2" target="_self">Scan Command</a> for a complete list of scan sub-commands.
+</body>
+</html>

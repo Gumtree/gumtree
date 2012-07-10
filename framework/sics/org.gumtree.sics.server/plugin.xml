@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="sicsHttpcontext"
+         point="org.eclipse.equinox.http.registry.httpcontexts">
+      <httpcontext
+            id="sics">
+         <resource-mapping
+               path="/sics/rest">
+         </resource-mapping>
+      </httpcontext>
+   </extension>
+   <extension
+         id="sicsRestlet"
+         point="org.eclipse.equinox.http.registry.servlets">
+      <servlet
+            alias="/sics/rest"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="sics">
+         <init-param
+               name="org.restlet.application"
+               value="org.gumtree.sics.server.restlet.SicsRestletApplication">
+         </init-param>
+      </servlet>
+   </extension>
+
+</plugin>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>org.gumtree.gumnix.sics.batch.ui</artifactId>
+	<packaging>eclipse-plugin</packaging>
+	<parent>
+		<groupId>org.codehaus.gumtree</groupId>
+		<artifactId>org.gumtree.maven.tycho</artifactId>
+		<version>1.7.0-SNAPSHOT</version>
+	</parent>
+
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>${tycho.groupId}</groupId>
+				<artifactId>tycho-source-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<executions>
+					<execution>
+						<id>plugin-source</id>
+						<goals>
+							<goal>plugin-source</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<name>Gumtree SICS Batch Bundle</name>
+</project>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.gumtree.gumnix.sics.batch.ui.BatchBufferManager">
+   <implementation class="org.gumtree.gumnix.sics.batch.ui.buffer.BatchBufferManager"/>
+   <service>
+      <provide interface="org.gumtree.gumnix.sics.batch.ui.buffer.IBatchBufferManager"/>
+   </service>
+   <reference bind="setSicsManager" cardinality="1..1" interface="org.gumtree.gumnix.sics.core.ISicsManager" name="ISicsManager" policy="static"/>
+</scr:component>

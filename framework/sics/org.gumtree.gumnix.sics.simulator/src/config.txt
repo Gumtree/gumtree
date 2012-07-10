@@ -1,0 +1,9 @@
+{"config": {
+    "serverPort": 60402,
+	"password": {
+    	"manager": "manager",
+	    "user": "user",
+    	"spy": "spy"
+    },
+    "hipadabaModel": "quokka20100722.hipabada"
+}}

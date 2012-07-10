@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.psi.ch/sics/hipadaba" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.psi.ch/sics/hipadaba">
+
+    <complexType name="Instrument">
+    	<complexContent>
+    		<extension base="tns:Component">
+    			<sequence>
+    				<element name="part" type="tns:Part"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    				<element name="device" type="tns:Device"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    			</sequence>
+
+
+
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="Part">
+    	<complexContent>
+    		<extension base="tns:Component">
+    			<sequence>
+    				<element name="part" type="tns:Part"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    				<element name="device" type="tns:Device"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    			</sequence>
+
+
+
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="Device">
+    	<complexContent>
+    		<extension base="tns:Component">
+    			<sequence>
+    				<element name="property" type="tns:Property"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    			</sequence>
+
+
+
+    			<attribute name="deviceType" type="string"></attribute>
+
+    			<attribute name="primaryProperty" type="string"></attribute>
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="Property">
+        <sequence>
+        	<element name="val" type="tns:PropertyConstrain" maxOccurs="unbounded" minOccurs="0"></element>
+        </sequence>
+        <attribute name="id" type="string"></attribute>
+    	<attribute name="privilege" type="tns:PropertyPrivilege"></attribute>
+    	<attribute name="dataType" type="tns:DataType"></attribute>
+    </complexType>
+
+    <simpleType name="PropertyPrivilege">
+    	<restriction base="string">
+    		<enumeration value="READ_ONLY"></enumeration>
+    		<enumeration value="MANAGER"></enumeration>
+    		<enumeration value="USER"></enumeration>
+    		<enumeration value="SPY"></enumeration>
+    	</restriction>
+    </simpleType>
+
+    <simpleType name="DataType">
+    	<restriction base="string">
+    		<enumeration value="Integer"></enumeration>
+    		<enumeration value="Float"></enumeration>
+    		<enumeration value="Text"></enumeration>
+    	</restriction>
+    </simpleType>
+
+
+    <complexType name="Component">
+    	<attribute name="id" type="string"></attribute>
+    	<attribute name="label" type="string"></attribute>
+    </complexType>
+
+    <complexType name="PropertyConstrain">
+    	<simpleContent>
+    		<extension base="string"></extension>
+    	</simpleContent>
+    </complexType>
+</schema>

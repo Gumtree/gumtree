@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+  <title>Moving Motors</title>
+</head>
+<body>
+<h1 class="documentFirstHeading">Moving Motors</h1>
+
+    
+        
+<div>
+
+    
+<div class="documentByLine">
+        
+
+        
+          <span>
+            by
+          <a href="http://gumtree:9080/nbicms/author/dcl">Douglas Clowes</a>
+          </span>
+
+          &mdash;
+
+        
+
+        <span>
+        last modified
+        </span>
+        2007-01-17 16:48
+
+        
+
+        
+
+        
+
+        
+
+        <span class="reviewHistory">
+    
+</span>
+
+    </div>
+
+
+</div>
+
+
+        
+<p class="documentDescription">An introduction to moving motors on an instrument.</p>
+
+    
+        
+    
+        
+            
+<p>Moving
+motors on an instrument is done through SICS software on the instrument
+iontrol system computer. Each motor on the instrument has a name in
+SICS that reflects the function of the motor. Motors are accessed in
+SICS through commands using the name of the motor.</p>
+<p>Typical motors on Echidna are:<br>
+</p>
+<ul>
+  <li>mtth
+- monochromator two-theta. This is the angle of rotation of the sample
+stage about the monochromator. The angle is from the beam line.</li>
+  <li>som - sample omega. This is the angle of rotation, of the sample stage about the vertical axis.</li>
+  <li>stth - sample two-theta. This is the ange of rotation of the detector table about the sample stage.</li>
+</ul>
+<h2 class="Heading">What is the Current Position of a Motor</h2>
+<p>To find out the current position of a motor, just enter the name of the motor and press RETURN.<br>
+</p>
+<pre>mtth<br>mtth = 90.000000<br></pre>
+<h2 class="Heading">Moving a Motor<br>
+</h2>
+<p>To
+move a motor you can use the SICS "run" command or "drive" command on
+one or more motors. The "run " command returns before the move is
+complete, the "drive" command returns after the move is complete. To
+move the sample angle to 5 degrees and the detector angle to 10 degrees
+you can do the following:</p>
+<pre>run som 5<br>run stth 10<br></pre>
+<p>Apart
+from a few blank lines (not shown) there is no indication of when these
+commands complete. The second run command can be entered before or
+after the first one completes. the "run" command can control more than
+one motor at a time:</p>
+<pre>run som 5 stth 10<br></pre>
+<p>Another way
+of doing this, that waits until the movement has completed before
+allowing more commands is to use the "drive" command as follows:</p>
+<pre>drive som 5 stth 10<br>new som position      5.000<br>new stth position    10.000<br>Driving finished sucessfully<br></pre>
+<p>If
+after entering the "drive" command another command is entered before
+the command completes, SICS responds with "ERROR: Busy". When the
+command completes, SICS announces the new postions and the successful
+completion of the command.</p>
+<h2 class="Heading">More Motor Commands</h2>
+<p>For more motor commands, see <a title="Motor Control" class="generated" href="http://gumtree:9080/nbicms/instruments/instrument-control-familiarisation/contents/resolveuid/b9da7756424586889e9f19499b7351aa" target="_self">Motor Control.</a><br>
+</p>
+</body>
+</html>

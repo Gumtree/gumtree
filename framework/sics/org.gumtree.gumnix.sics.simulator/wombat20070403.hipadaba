@@ -1,0 +1,4500 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<hipadaba:SICS xmlns:hipadaba="http://www.psi.ch/sics/hipadaba" >
+  <component id="commands" dataType="none">
+    <property id="type">
+        <value>part</value>
+    </property>
+    <component id="bmonscan" dataType="text">
+      <property id="type">
+            <value>command</value>
+      </property>
+      <property id="priv">
+            <value>user</value>
+      </property>
+      <component id="scan_variable" dataType="text">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="argtype">
+                <value>drivable</value>
+        </property>
+      </component>
+      <component id="scan_start" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="argtype">
+                <value>float</value>
+        </property>
+      </component>
+      <component id="scan_increment" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="argtype">
+                <value>float</value>
+        </property>
+      </component>
+      <component id="NP" dataType="int">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="argtype">
+                <value>int</value>
+        </property>
+      </component>
+      <component id="mode" dataType="text">
+        <property id="priv">
+                <value>user</value>
+        </property>
+        <property id="argtype">
+                <value>text</value>
+        </property>
+        <property id="values">
+                <value>monitor</value>
+                <value>timer</value>
+        </property>
+      </component>
+      <component id="preset" dataType="float">
+        <property id="priv">
+                <value>user</value>
+        </property>
+        <property id="argtype">
+                <value>float</value>
+        </property>
+      </component>
+      <component id="channel" dataType="int">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="argtype">
+                <value>int</value>
+        </property>
+        <property id="min">
+                <value>0</value>
+        </property>
+        <property id="max">
+                <value>8</value>
+        </property>
+      </component>
+      <component id="feedback" dataType="none">
+        <component id="filename" dataType="text">
+          <property id="privilege">
+                    <value>READ_ONLY</value>
+          </property>
+        </component>
+        <component id="mode" dataType="text">
+          <property id="privilege">
+                    <value>READ_ONLY</value>
+          </property>
+        </component>
+        <component id="preset" dataType="float">
+          <property id="privilege">
+                    <value>READ_ONLY</value>
+          </property>
+        </component>
+        <component id="scan_variable" dataType="none">
+          <property id="privilege">
+                    <value>READ_ONLY</value>
+          </property>
+          <component id="value" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+        </component>
+        <component id="NP" dataType="none">
+          <property id="privilege">
+                    <value>READ_ONLY</value>
+          </property>
+          <component id="current" dataType="int">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+        </component>
+        <component id="counts" dataType="int">
+          <property id="privilege">
+                    <value>READ_ONLY</value>
+          </property>
+        </component>
+      </component>
+    </component>
+  </component>
+  <component id="wombat" dataType="none">
+    <property id="type">
+        <value>instrument</value>
+    </property>
+    <component id="experiment" dataType="none">
+      <property id="type">
+            <value>part</value>
+      </property>
+    </component>
+    <component id="detector" dataType="none">
+      <property id="type">
+            <value>part</value>
+      </property>
+      <component id="monitor" dataType="none">
+        <property id="type">
+                <value>part</value>
+        </property>
+      </component>
+      <component id="histmem" dataType="none">
+        <property id="type">
+                <value>part</value>
+        </property>
+      </component>
+    </component>
+    <component id="sample" dataType="none">
+      <property id="type">
+            <value>part</value>
+      </property>
+      <component id="phi" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>sphi</value>
+        </property>
+        <component id="target" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardupperlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="softlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softupperlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softzero" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="fixed" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="interruptmode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="precision" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="accesscode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="sign" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="failafter" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="maxretry" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="ignorefault" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="movecount" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="long_name" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="axis" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="home" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="units" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="speed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxSpeed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="accel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxAccel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="decel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxDecel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="motOffDelay" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Debug" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Settle" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Check_Interval" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Thresh" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Ratio" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Fail" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="AirPads" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEnc" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEncHome" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="cntsPerX" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+      </component>
+      <component id="chi" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>schi</value>
+        </property>
+        <component id="target" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardupperlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="softlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softupperlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softzero" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="fixed" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="interruptmode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="precision" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="accesscode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="sign" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="failafter" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="maxretry" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="ignorefault" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="movecount" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="long_name" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="axis" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="home" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="units" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="speed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxSpeed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="accel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxAccel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="decel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxDecel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="motOffDelay" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Debug" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Settle" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Check_Interval" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Thresh" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Ratio" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Fail" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="AirPads" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEnc" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEncHome" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="cntsPerX" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+      </component>
+      <component id="translate_y" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>sy</value>
+        </property>
+        <component id="target" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardupperlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="softlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softupperlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softzero" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="fixed" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="interruptmode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="precision" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="accesscode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="sign" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="failafter" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="maxretry" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="ignorefault" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="movecount" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="long_name" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="axis" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="home" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="units" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="speed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxSpeed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="accel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxAccel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="decel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxDecel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="motOffDelay" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Debug" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Settle" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Check_Interval" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Thresh" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Ratio" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Fail" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="AirPads" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEnc" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEncHome" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="cntsPerX" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+      </component>
+      <component id="translate_x" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>sx</value>
+        </property>
+        <component id="target" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardupperlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="softlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softupperlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softzero" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="fixed" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="interruptmode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="precision" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="accesscode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="sign" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="failafter" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="maxretry" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="ignorefault" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="movecount" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="long_name" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="axis" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="home" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="units" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="speed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxSpeed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="accel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxAccel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="decel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxDecel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="motOffDelay" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Debug" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Settle" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Check_Interval" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Thresh" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Ratio" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Fail" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="AirPads" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEnc" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEncHome" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="cntsPerX" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+      </component>
+      <component id="rotate" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>som</value>
+        </property>
+        <component id="target" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardupperlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="softlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softupperlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softzero" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="fixed" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="interruptmode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="precision" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="accesscode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="sign" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="failafter" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="maxretry" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="ignorefault" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="movecount" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="long_name" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="axis" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="home" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="units" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="speed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxSpeed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="accel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxAccel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="decel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxDecel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="motOffDelay" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Debug" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Settle" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Check_Interval" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Thresh" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Ratio" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Fail" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="AirPads" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEnc" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEncHome" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="cntsPerX" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+      </component>
+      <component id="azimuthal_angle" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>stth</value>
+        </property>
+        <component id="target" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardupperlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="softlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softupperlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softzero" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="fixed" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="interruptmode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="precision" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="accesscode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="sign" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="failafter" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="maxretry" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="ignorefault" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="movecount" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="long_name" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="axis" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="home" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="units" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="speed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxSpeed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="accel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxAccel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="decel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxDecel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="motOffDelay" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Debug" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Settle" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Check_Interval" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Thresh" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Ratio" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Fail" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="AirPads" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEnc" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEncHome" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="cntsPerX" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+      </component>
+      <component id="sth" dataType="float">
+        <property id="privilege">
+                <value>user</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>sth</value>
+        </property>
+      </component>
+    </component>
+    <component id="collimator" dataType="none">
+      <property id="type">
+            <value>part</value>
+      </property>
+      <component id="oct" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>oct</value>
+        </property>
+        <component id="target" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardupperlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="softlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softupperlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softzero" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="fixed" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="interruptmode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="precision" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="accesscode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="sign" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="failafter" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="maxretry" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="ignorefault" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="movecount" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="long_name" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="axis" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="home" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="units" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="speed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxSpeed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="accel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxAccel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="decel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxDecel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="motOffDelay" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Debug" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Settle" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Check_Interval" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Thresh" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Ratio" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Fail" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="AirPads" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEnc" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEncHome" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="cntsPerX" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+      </component>
+    </component>
+    <component id="monochromator" dataType="none">
+      <property id="type">
+            <value>part</value>
+      </property>
+      <component id="phi" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>mphi</value>
+        </property>
+        <component id="target" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardupperlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="softlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softupperlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softzero" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="fixed" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="interruptmode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="precision" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="accesscode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="sign" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="failafter" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="maxretry" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="ignorefault" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="movecount" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="long_name" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="axis" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="home" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="units" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="speed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxSpeed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="accel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxAccel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="decel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxDecel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="motOffDelay" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Debug" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Settle" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Check_Interval" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Thresh" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Ratio" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Fail" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="AirPads" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEnc" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEncHome" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="cntsPerX" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+      </component>
+      <component id="chi" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>mchi</value>
+        </property>
+        <component id="target" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardupperlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="softlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softupperlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softzero" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="fixed" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="interruptmode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="precision" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="accesscode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="sign" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="failafter" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="maxretry" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="ignorefault" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="movecount" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="long_name" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="axis" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="home" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="units" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="speed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxSpeed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="accel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxAccel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="decel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxDecel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="motOffDelay" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Debug" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Settle" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Check_Interval" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Thresh" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Ratio" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Fail" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="AirPads" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEnc" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEncHome" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="cntsPerX" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+      </component>
+      <component id="translate_y" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>my</value>
+        </property>
+        <component id="target" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardupperlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="softlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softupperlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softzero" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="fixed" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="interruptmode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="precision" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="accesscode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="sign" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="failafter" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="maxretry" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="ignorefault" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="movecount" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="long_name" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="axis" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="home" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="units" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="speed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxSpeed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="accel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxAccel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="decel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxDecel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="motOffDelay" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Debug" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Settle" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Check_Interval" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Thresh" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Ratio" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Fail" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="AirPads" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEnc" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEncHome" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="cntsPerX" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+      </component>
+      <component id="translate_x" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>mx</value>
+        </property>
+        <component id="target" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardupperlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="softlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softupperlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softzero" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="fixed" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="interruptmode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="precision" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="accesscode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="sign" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="failafter" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="maxretry" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="ignorefault" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="movecount" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="long_name" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="axis" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="home" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="units" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="speed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxSpeed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="accel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxAccel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="decel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxDecel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="motOffDelay" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Debug" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Settle" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Check_Interval" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Thresh" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Ratio" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Fail" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="AirPads" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEnc" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEncHome" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="cntsPerX" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+      </component>
+      <component id="rotate" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>mom</value>
+        </property>
+        <component id="target" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardupperlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="softlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softupperlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softzero" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="fixed" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="interruptmode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="precision" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="accesscode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="sign" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="failafter" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="maxretry" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="ignorefault" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="movecount" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="long_name" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="axis" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="home" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="units" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="speed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxSpeed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="accel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxAccel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="decel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxDecel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="motOffDelay" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Debug" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Settle" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Check_Interval" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Thresh" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Ratio" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Fail" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="AirPads" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEnc" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEncHome" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="cntsPerX" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+      </component>
+      <component id="takeoff_angle" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>mtth</value>
+        </property>
+        <component id="target" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardupperlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="softlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softupperlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softzero" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="fixed" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="interruptmode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="precision" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="accesscode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="sign" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="failafter" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="maxretry" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="ignorefault" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="movecount" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="long_name" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="axis" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="home" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="units" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="speed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxSpeed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="accel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxAccel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="decel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxDecel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="motOffDelay" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Debug" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Settle" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Check_Interval" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Thresh" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Ratio" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Fail" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="AirPads" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEnc" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEncHome" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="cntsPerX" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+      </component>
+      <component id="mf2" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>mf2</value>
+        </property>
+        <component id="target" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="hardupperlim" dataType="float">
+          <property id="privilege">
+                    <value>internal</value>
+          </property>
+        </component>
+        <component id="softlowerlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softupperlim" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="softzero" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="fixed" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+        </component>
+        <component id="interruptmode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="precision" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="accesscode" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="sign" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="failafter" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="maxretry" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="ignorefault" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="movecount" dataType="float">
+          <property id="privilege">
+                    <value>MANAGER</value>
+          </property>
+        </component>
+        <component id="long_name" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="axis" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="home" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="units" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="speed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxSpeed" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="accel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxAccel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="decel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="maxDecel" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="motOffDelay" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Debug" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Settle" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Check_Interval" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Thresh" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Ratio" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="Blockage_Fail" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="AirPads" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEnc" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="absEncHome" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+        <component id="cntsPerX" dataType="float">
+          <property id="privilege">
+                    <value>manager</value>
+          </property>
+        </component>
+      </component>
+      <component id="mth" dataType="float">
+        <property id="privilege">
+                <value>user</value>
+        </property>
+        <property id="type">
+                <value>drivable</value>
+        </property>
+        <property id="sicsdev">
+                <value>mth</value>
+        </property>
+      </component>
+    </component>
+    <component id="slits" dataType="none">
+      <property id="type">
+            <value>part</value>
+      </property>
+      <component id="first" dataType="none">
+        <property id="type">
+                <value>part</value>
+        </property>
+        <component id="right" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss1r</value>
+          </property>
+          <component id="target" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardupperlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="softlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softupperlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softzero" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="fixed" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="interruptmode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="precision" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="accesscode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="sign" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="failafter" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="maxretry" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="ignorefault" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="movecount" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="long_name" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="axis" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="home" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="units" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="speed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxSpeed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="accel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxAccel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="decel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxDecel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="motOffDelay" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Debug" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Settle" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Check_Interval" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Thresh" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Ratio" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Fail" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="AirPads" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="absEnc" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+        </component>
+        <component id="left" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss1l</value>
+          </property>
+          <component id="target" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardupperlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="softlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softupperlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softzero" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="fixed" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="interruptmode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="precision" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="accesscode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="sign" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="failafter" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="maxretry" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="ignorefault" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="movecount" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="long_name" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="axis" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="home" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="units" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="speed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxSpeed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="accel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxAccel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="decel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxDecel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="motOffDelay" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Debug" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Settle" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Check_Interval" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Thresh" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Ratio" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Fail" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="AirPads" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="absEnc" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+        </component>
+        <component id="top" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss1u</value>
+          </property>
+          <component id="target" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardupperlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="softlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softupperlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softzero" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="fixed" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="interruptmode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="precision" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="accesscode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="sign" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="failafter" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="maxretry" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="ignorefault" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="movecount" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="long_name" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="axis" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="home" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="units" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="speed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxSpeed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="accel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxAccel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="decel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxDecel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="motOffDelay" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Debug" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Settle" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Check_Interval" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Thresh" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Ratio" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Fail" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="AirPads" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="absEnc" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+        </component>
+        <component id="bottom" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss1d</value>
+          </property>
+          <component id="target" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardupperlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="softlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softupperlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softzero" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="fixed" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="interruptmode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="precision" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="accesscode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="sign" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="failafter" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="maxretry" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="ignorefault" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="movecount" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="long_name" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="axis" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="home" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="units" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="speed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxSpeed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="accel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxAccel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="decel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxDecel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="motOffDelay" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Debug" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Settle" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Check_Interval" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Thresh" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Ratio" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Fail" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="AirPads" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="absEnc" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+        </component>
+        <component id="ss1vg" dataType="float">
+          <property id="units">
+          			<value>mm</value>
+          </property>			
+          <property id="privilege">
+                    <value>user</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss1vg</value>
+          </property>
+        </component>
+        <component id="ss1vo" dataType="float">
+          <property id="privilege">
+                    <value>user</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss1vo</value>
+          </property>
+        </component>
+        <component id="ss1hg" dataType="float">
+          <property id="privilege">
+                    <value>user</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss1hg</value>
+          </property>
+        </component>
+        <component id="ss1ho" dataType="float">
+          <property id="privilege">
+                    <value>user</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss1ho</value>
+          </property>
+        </component>
+      </component>
+      <component id="second" dataType="none">
+        <property id="type">
+                <value>part</value>
+        </property>
+        <component id="right" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss2r</value>
+          </property>
+          <component id="target" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardupperlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="softlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softupperlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softzero" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="fixed" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="interruptmode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="precision" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="accesscode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="sign" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="failafter" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="maxretry" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="ignorefault" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="movecount" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="long_name" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="axis" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="home" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="units" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="speed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxSpeed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="accel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxAccel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="decel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxDecel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="motOffDelay" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Debug" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Settle" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Check_Interval" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Thresh" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Ratio" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Fail" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="AirPads" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="absEnc" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+        </component>
+        <component id="left" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss2l</value>
+          </property>
+          <component id="target" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardupperlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="softlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softupperlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softzero" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="fixed" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="interruptmode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="precision" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="accesscode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="sign" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="failafter" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="maxretry" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="ignorefault" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="movecount" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="long_name" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="axis" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="home" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="units" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="speed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxSpeed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="accel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxAccel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="decel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxDecel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="motOffDelay" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Debug" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Settle" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Check_Interval" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Thresh" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Ratio" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Fail" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="AirPads" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="absEnc" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+        </component>
+        <component id="top" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss2u</value>
+          </property>
+          <component id="target" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardupperlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="softlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softupperlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softzero" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="fixed" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="interruptmode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="precision" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="accesscode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="sign" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="failafter" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="maxretry" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="ignorefault" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="movecount" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="long_name" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="axis" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="home" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="units" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="speed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxSpeed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="accel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxAccel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="decel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxDecel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="motOffDelay" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Debug" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Settle" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Check_Interval" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Thresh" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Ratio" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Fail" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="AirPads" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="absEnc" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+        </component>
+        <component id="bottom" dataType="float">
+          <property id="privilege">
+                    <value>USER</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss2d</value>
+          </property>
+          <component id="target" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="hardupperlim" dataType="float">
+            <property id="privilege">
+                        <value>internal</value>
+            </property>
+          </component>
+          <component id="softlowerlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softupperlim" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="softzero" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="fixed" dataType="float">
+            <property id="privilege">
+                        <value>USER</value>
+            </property>
+          </component>
+          <component id="interruptmode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="precision" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="accesscode" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="sign" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="failafter" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="maxretry" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="ignorefault" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="movecount" dataType="float">
+            <property id="privilege">
+                        <value>MANAGER</value>
+            </property>
+          </component>
+          <component id="long_name" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="axis" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="home" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="units" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="speed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxSpeed" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="accel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxAccel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="decel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="maxDecel" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="motOffDelay" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Debug" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Settle" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Check_Interval" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Thresh" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Ratio" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="Blockage_Fail" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="AirPads" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+          <component id="absEnc" dataType="float">
+            <property id="privilege">
+                        <value>manager</value>
+            </property>
+          </component>
+        </component>
+        <component id="ss2vg" dataType="float">
+          <property id="units">
+          			<value>mm</value>
+          </property>
+          <property id="privilege">
+                    <value>user</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss2vg</value>
+          </property>
+        </component>
+        <component id="ss2vo" dataType="float">
+          <property id="privilege">
+                    <value>user</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss2vo</value>
+          </property>
+        </component>
+        <component id="ss2hg" dataType="float">
+          <property id="privilege">
+                    <value>user</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss2hg</value>
+          </property>
+        </component>
+        <component id="ss2ho" dataType="float">
+          <property id="privilege">
+                    <value>user</value>
+          </property>
+          <property id="type">
+                    <value>drivable</value>
+          </property>
+          <property id="sicsdev">
+                    <value>ss2ho</value>
+          </property>
+        </component>
+      </component>
+    </component>
+  </component>
+  <component id="experiment" dataType="none">
+    <component id="title" dataType="text">
+      <property id="privilege">
+            <value>USER</value>
+      </property>
+    </component>
+    <component id="description" dataType="text">
+      <property id="privilege">
+            <value>USER</value>
+      </property>
+    </component>
+    <component id="user" dataType="none">
+      <property id="type">
+            <value>part</value>
+      </property>
+      <component id="name" dataType="text">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+      </component>
+      <component id="email" dataType="text">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+      </component>
+      <component id="phone" dataType="text">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+      </component>
+    </component>
+    <component id="datafile" dataType="text">
+      <property id="privilege">
+            <value>USER</value>
+      </property>
+    </component>
+  </component>
+  <component id="graphics" dataType="none">
+    <property id="type">
+        <value>graphset</value>
+    </property>
+    <component id="beam_monitor_scan" dataType="none">
+      <property id="type">
+            <value>graphdata</value>
+      </property>
+      <property id="viewer">
+            <value>default</value>
+      </property>
+      <property id="rank">
+            <value>1</value>
+      </property>
+      <component id="dim" dataType="int">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+      </component>
+      <component id="point" dataType="int">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+      </component>
+      <component id="lastaxis" dataType="float">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+      </component>
+      <component id="lastdata" dataType="int">
+        <property id="privilege">
+                <value>USER</value>
+        </property>
+      </component>
+      <component id="axis" dataType="floatvarar">
+        <property id="type">
+                <value>axis</value>
+        </property>
+      </component>
+      <component id="data" dataType="floatvarar">
+        <property id="type">
+                <value>data</value>
+        </property>
+      </component>
+    </component>
+  </component>
+</hipadaba:SICS>

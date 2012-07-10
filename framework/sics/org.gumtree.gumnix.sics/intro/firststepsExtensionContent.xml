@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<introContent>
+  <!-- Extension to the SDK Tutorials Page. -->
+  <extensionContent id="org.gumtree.gumnix.sic" name="SICS" alt-style="css/swt.properties" style="css/firststeps.css" path="firststeps/@">
+    <group label="SICS DAQ" id="sics" style-id="content-group">
+      <link url="http://org.eclipse.ui.intro/showStandby?partId=org.gumtree.platform.cheatsheet&amp;input=org.gumtree.gumnix.sics.batch" label="Execute batch script in SICS" id="sics-batch" style-id="content-link">
+        <text>Learn how to run a simple batch script in GumTree</text>
+      </link>
+    </group>
+  </extensionContent>
+</introContent>

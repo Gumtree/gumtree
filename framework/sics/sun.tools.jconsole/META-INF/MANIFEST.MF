@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JConsole
+Bundle-SymbolicName: sun.tools.jconsole
+Bundle-Version: 1.6.7.qualifier
+Bundle-ClassPath: .,
+ jconsole.jar
+Export-Package: com.sun.tools.jconsole,
+ sun.tools.jconsole,
+ sun.tools.jconsole.inspector,
+ sun.tools.jconsole.resources
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

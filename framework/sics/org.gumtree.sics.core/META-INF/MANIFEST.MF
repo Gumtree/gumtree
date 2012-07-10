@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gumtree SICS Core
+Bundle-SymbolicName: org.gumtree.sics.core;singleton:=true
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: org.gumtree.sics.util.Activator
+Require-Bundle: org.json;bundle-version="1.0.0";visibility:=reexport,
+ ch.psi.sics.hipadaba;bundle-version="1.7.0";visibility:=reexport,
+ org.gumtree.core;bundle-version="1.7.0";visibility:=reexport,
+ javax.inject;bundle-version="1.0.0",
+ ch.lambdaj;bundle-version="2.3.3",
+ ch.unifr.nio.framework;bundle-version="1.1.0",
+ com.google.guava;bundle-version="11.0.1",
+ com.db4o.java5;bundle-version="8.0.184"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.slf4j;version="1.6.1"
+Export-Package: org.gumtree.sics.control,
+ org.gumtree.sics.control.support,
+ org.gumtree.sics.core,
+ org.gumtree.sics.core.support,
+ org.gumtree.sics.io,
+ org.gumtree.sics.io.support,
+ org.gumtree.sics.util
+Eclipse-BundleShape: jar
+Service-Component: OSGI-INF/SicsManager.xml
+Bundle-Vendor: Bragg Institute

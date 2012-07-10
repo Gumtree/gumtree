@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+  <title>Getting Started</title>
+</head>
+<body>
+<h1 class="documentFirstHeading">Getting Started</h1>
+
+    
+        
+<div>
+
+    
+<div class="documentByLine">
+        
+
+        
+          <span>
+            by
+          <a href="http://gumtree:9080/nbicms/author/dcl">Douglas Clowes</a>
+          </span>
+
+          &mdash;
+
+        
+
+        <span>
+        last modified
+        </span>
+        2007-03-06 16:21
+
+        
+
+        
+
+        
+
+        
+
+        <span class="reviewHistory">
+    
+</span>
+
+    </div>
+
+
+</div>
+
+
+        
+<p class="documentDescription">How to get onto the Instrument Control Computer and into the SICS software.</p>
+
+    
+        
+    
+        
+            
+<h2 class="Heading">Introduction</h2>
+If you are looking here it is probably because you need to do some work on the command line.&nbsp; We have prepared a <a title="Linux Command Guide" href="http://gumtree:9080/nbicms/instruments/instrument-control-familiarisation/contents/resolveuid/16e7b725f6164ccfe258f0a9e19c632c" target="_self">brief guide</a>
+to useful system commands because the instrument control software runs
+on Linux computers with which many people may not be familiar.
+<p><br>
+There
+is an instrument control system computer (ICS) for each instrument. The
+ICS computer runs the SICS instrument control software which allows the
+computer to control the instrument. The SICS software uses a set of
+configuration files that define the controllable hardware of the
+instrument.<br>
+</p>
+<p>Users of the instrument must have a valid ICS username and password with
+which they can log into the ICS computer. This may not be the same as any other
+username and password that a user may have.</p>
+<p>Users
+of the SICS instrument control software must have a valid SICS username
+and password with which they can log into the SICS software. This may
+not be the same as any other
+username and password that a user may have, and will usually be
+different. <br>
+ </p>
+<p><br>
+</p>
+
+<h2 class="Heading">Connecting to the ICS</h2>
+<p>You may use the ICS at the console of the computer, in the instrument cabin.</p>
+<p>You
+may also connect to the ICS from the ANSTO network by using the ssh
+(secure shell) protocol. The name of each ICS computer is derived from
+the name of the instrument. The
+ICS computer for the Echidna instrument&nbsp; is
+"ics1-echidna.nbi.ansto.gov.au".</p>
+<p>In either case, you will be prompted to log into the computer.<br>
+ </p>
+<br>
+<h2 class="Heading">Logging into the ICS</h2>
+<p>Once
+you are connected to the ICS, you should be prompted for your username.
+Log onto the ICS by entering your ICS username and password at the
+prompts.</p>
+<p>When you have successfully logged into the ICS, you will be in your "home" directory.<br>
+</p>
+<h2 class="Heading">Starting the SICS Software<br>
+</h2>
+<p>The
+SICS software must be running on the instrument control computer. This
+may be started by calling the "runsics start"&nbsp; command as shown below.<br>
+</p>
+<p>Note: the "echidna@ics1-echidna:~&gt;"&nbsp; is just the command line prompt.<br>
+</p>
+<pre>echidna@ics1-echidna:~&gt; runsics start<br><br>Starting SICS<br>29087<br>SUCCESS<br><br><br>Starting SICS Script Validator<br>29091<br>SUCCESS<br><br></pre>
+<p>You can also call "runsics status" for check if sics is running and "runsics stop" to stop SICS and the script validator.<br>
+</p>
+<h2 class="Heading">Connecting to the SICS Software<br>
+</h2>
+<p>From
+your home directory on the ICS computer, connect to SICS using the
+"socat" tool. This will give command line history and editing.</p>
+<pre>socat READLINE,history=echidna_history TCP4:localhost:server-echidna,crnl<br></pre>
+<p>In this example, the "socat" tool connects your keyboard and screen to the SICS software.</p>
+<p>
+The READLINE method is used on the keyboard allowing command editing
+and history recall. The command history is saved between sessions in
+the file "echidna_history" in your current directory, which should be
+your home directory.</p>
+<p>The connection is established by TCP/IP to
+the current computer ("localhost") on the port identified by the
+service "server-echidna" which is congigured into the system. On other
+instruments, replace the "echidna" with the name of the instrument.<br>
+</p>
+<h2 class="Heading">Logging into the SICS Software</h2>
+<p>Once
+you are connected to SICS, you must log into SICS as a SICS user. There
+is no prompt for your username, only the generic "OK" prompt that SICS
+issues when asking for input.</p>
+<p>Just type in your SICS username and
+password on the line and press the RETURN key. Your username and
+password will echo on the screen and be visible to any other people
+nearby.</p>
+<p>If you are not successful, SICS will tell you. If you are successful, SICS will tell you that too.</p>
+<pre>OK<br>list<br>ERROR: Bad login<br>myusername mypassword<br>Login OK</pre>
+In
+this example, the "OK" prompt was received after connecting to the SICS
+software. The "list" command was issued without logging in and SICS
+does not recognise it as a successful login. When a correct username
+and password is entered, SICS announces that the login was successful.
+SICS commands can now be entered.
+</body>
+</html>

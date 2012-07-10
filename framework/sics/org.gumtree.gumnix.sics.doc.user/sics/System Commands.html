@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+  <title>System Commands</title>
+</head>
+<body>
+<h2>System Commands</h2>
+
+<p>
+<b> sics_exitus </b>. A single word commands which shuts the server down. Only managers may use this command.</p>
+
+<p>
+ <b> wait <i>time</i> </b> waits time seconds before the next command is executed. This does not stop other clients from issuing commands.</p>
+
+<p>
+ <b> resetserver </b> resets the server after an interrupt.</p>
+
+<p>
+ <b> dir </b> a command which lists objects available in the SICS
+ system. Dir without any options prints a list of all objects. The
+ list can be restricted with:
+</p>
+<dl>
+  <dt>dir var
+  </dt>
+  <dd>prints all SICS primitive variables
+  </dd>
+  <dt>dir mot
+  </dt>
+  <dd>prints a list of all motors
+  </dd>
+  <dt>dir inter driv
+  </dt>
+  <dd> prints a list of all drivable objects. This is more then motors
+and includes virtual motors such as environment devices and wavelength
+as well.
+  </dd>
+  <dt>dir inter count
+  </dt>
+  <dd>Shows everything which can be counted upon.
+  </dd>
+  <dt>dir inter env
+  </dt>
+  <dd>Shows all currently configured environment devices.  
+  </dd>
+  <dt>dir match wildcard
+  </dt>
+  <dd>lists all objects which match the wildcard string given in
+wildcard. 
+  </dd>
+</dl>
+
+<p></p>
+
+<p>
+ <b> status </b> A single word command which makes SICS print its
+current status. Possible return values can be: Eager to execute
+commands, Scanning, Counting, Running, Halted. Note that if a command
+is executing which takes some time to complete the server will return
+an ERROR: Busy message when further commands are issued.
+</p>
+
+<p>
+<b>status interest</b> initiates automatic printing of any status change in the
+server. This command is primarily of interest for status display client
+implementors.
+</p>
+
+<p>
+<b>backup <i>[file]</i></b> saves the current values of SICS variables and selected
+ motor and device parameters to the disk file specified as
+ parameter. If no file parameter is given the data is written to the
+ system default status backup file. 
+ The format
+ of the file is a list of SICS commands to set all these parameters
+ again. The file is written on the instrument computer relative to the
+ path of the SICS server. This is usually /home/INSTRUMENT/bin. 
+</p>
+
+<p>
+<b>backup motsave</b> toggles a flag which controls saving of motor 
+ positions. If this flag  is set, commands for driving motors to the
+  current positions are included in the backup file. This is useful
+  for instruments with slipping motors.
+</p>
+
+<p>
+<b>restore <i>[file]</i></b> reads a file produced by the backup command described 
+above and restores SICS to the state it was in when the status was saved with
+ backup. If no file argument is given the system default file gets
+ read. 
+</p>
+
+<p>
+<b>killfile</b> decrements the data number used for SICS file writing
+and thus consequently overwrites the last datafile. This is useful
+when useless data files have been created during tests. As this is
+critical command in normal user operations, this command requires
+managers privilege. 
+</p>
+
+<p>
+<b>sicsidle</b> prints the number of seconds since the last invocation of a counting
+ or driving operation. Used in scripts.
+</p>
+</body>
+</html>

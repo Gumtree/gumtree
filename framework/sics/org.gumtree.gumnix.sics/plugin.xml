@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.intro.configExtension">
+      <configExtension
+            configId="org.eclipse.ui.intro.universalConfig"
+            content="$nl$/intro/firststepsExtensionContent.xml"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+      <category
+            id="org.gumtree.gumnix.sics"
+            name="SICS DAQ"/>
+      <cheatsheet
+            category="org.gumtree.gumnix.sics"
+            contentFile="$nl$/cheatsheets/SicsBatch.xml"
+            id="org.gumtree.gumnix.sics.batch"
+            name="SICS Batch">
+         <description>
+            Simple batch facility for running tcl script in SICS.
+         </description>
+      </cheatsheet>
+   </extension>
+
+</plugin>

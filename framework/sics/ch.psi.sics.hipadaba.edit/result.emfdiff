@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="Cp1252"?>
+<diff:ComparisonResourceSnapshot xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:diff="http://www.eclipse.org/emf/compare/diff/1.1" date="2010-06-09T16:18:04.662+1000">
+  <diff>
+    <ownedElements xsi:type="diff:DiffGroup">
+      <subDiffElements xsi:type="diff:DiffGroup">
+        <subDiffElements xsi:type="diff:DiffGroup">
+          <subDiffElements xsi:type="diff:DiffGroup">
+            <subDiffElements xsi:type="diff:DiffGroup">
+              <subDiffElements xsi:type="diff:DiffGroup">
+                <subDiffElements xsi:type="diff:UpdateAttribute">
+                  <attribute href="http://www.psi.ch/sics/hipadaba#//Property/id"/>
+                  <leftElement href="file:/D:/tla/workspace/gumtree1.5/runtime-QuokkaExperimentDEV.product/EMF/prod/full.hipadaba#//@component.2/@component.4/@component.1/@property.2"/>
+                  <rightElement href="file:/D:/tla/workspace/gumtree1.5/runtime-QuokkaExperimentDEV.product/EMF/prod/required2.hipadaba#//@component.2/@component.4/@component.1/@property.2"/>
+                </subDiffElements>
+                <rightParent href="file:/D:/tla/workspace/gumtree1.5/runtime-QuokkaExperimentDEV.product/EMF/prod/required2.hipadaba#//@component.2/@component.4/@component.1/@property.2"/>
+              </subDiffElements>
+              <subDiffElements xsi:type="diff:ModelElementChangeLeftTarget">
+                <rightParent href="file:/D:/tla/workspace/gumtree1.5/runtime-QuokkaExperimentDEV.product/EMF/prod/required2.hipadaba#//@component.2/@component.4/@component.1"/>
+                <leftElement href="file:/D:/tla/workspace/gumtree1.5/runtime-QuokkaExperimentDEV.product/EMF/prod/full.hipadaba#//@component.2/@component.4/@component.1/@property.3"/>
+              </subDiffElements>
+              <rightParent href="file:/D:/tla/workspace/gumtree1.5/runtime-QuokkaExperimentDEV.product/EMF/prod/required2.hipadaba#//@component.2/@component.4/@component.1"/>
+            </subDiffElements>
+            <rightParent href="file:/D:/tla/workspace/gumtree1.5/runtime-QuokkaExperimentDEV.product/EMF/prod/required2.hipadaba#//@component.2/@component.4"/>
+          </subDiffElements>
+          <rightParent href="file:/D:/tla/workspace/gumtree1.5/runtime-QuokkaExperimentDEV.product/EMF/prod/required2.hipadaba#//@component.2"/>
+        </subDiffElements>
+        <rightParent href="file:/D:/tla/workspace/gumtree1.5/runtime-QuokkaExperimentDEV.product/EMF/prod/required2.hipadaba#/"/>
+      </subDiffElements>
+    </ownedElements>
+    <leftRoots href="file:/D:/tla/workspace/gumtree1.5/runtime-QuokkaExperimentDEV.product/EMF/prod/full.hipadaba#/"/>
+    <rightRoots href="file:/D:/tla/workspace/gumtree1.5/runtime-QuokkaExperimentDEV.product/EMF/prod/required2.hipadaba#/"/>
+  </diff>
+</diff:ComparisonResourceSnapshot>

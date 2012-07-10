@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="org.gumtree.gumnix.sics.ui"
+            class="org.gumtree.gumnix.sics.ui.internal.transaction.TransactionView"
+            icon="icons/synced.gif"
+            id="org.gumtree.gumnix.sics.ui.transaction.transactionView"
+            name="SICS Transaction">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.gumtree.gumnix.sics.ui.sicsPerspective">
+         <view
+               id="org.gumtree.gumnix.sics.ui.transaction.transactionView"
+               relationship="stack"
+               relative="org.eclipse.ui.views.PropertySheet"
+               visible="true">
+         </view>
+      </perspectiveExtension>
+   </extension>
+
+</plugin>

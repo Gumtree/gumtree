@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gumtree SICS UI Transaction
+Bundle-SymbolicName: org.gumtree.gumnix.sics.ui.transaction;singleton:=true
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: org.gumtree.gumnix.sics.ui.internal.transaction.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.gumtree.gumnix.sics.core
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Eclipse-BundleShape: jar

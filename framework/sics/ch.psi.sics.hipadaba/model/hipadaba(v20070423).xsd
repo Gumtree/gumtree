@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.psi.ch/sics/hipadaba" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.psi.ch/sics/hipadaba">
+
+    <complexType name="SICS">
+        <sequence>
+        	<element name="component" type="tns:Component" maxOccurs="unbounded" minOccurs="0"></element>
+        </sequence>
+        <attribute name="id" type="string"></attribute>
+    </complexType>
+
+    <element name="SICS" type="tns:SICS"></element>
+
+    <complexType name="Component">
+    	<sequence>
+            <element name="component" type="tns:Component" maxOccurs="unbounded" minOccurs="0"></element>
+            <element name="property" type="tns:Property"
+    			maxOccurs="unbounded" minOccurs="0">
+    		</element>
+    	</sequence>
+
+    	<attribute name="id" type="string" use="required"></attribute>
+
+		<attribute name="dataType" type="tns:DataType"></attribute>
+    </complexType>
+
+    <complexType name="Property">
+        <sequence>
+        	<element name="value" type="string" maxOccurs="unbounded"
+        		minOccurs="1">
+        	</element>
+        </sequence>
+        <attribute name="id" type="string"></attribute>
+    </complexType>
+
+
+
+    <simpleType name="DataType">
+    	<restriction base="string">
+    		<enumeration value="int"></enumeration>
+    		<enumeration value="float"></enumeration>
+    		<enumeration value="text"></enumeration>
+    		<enumeration value="intar"></enumeration>
+    		<enumeration value="floatar"></enumeration>
+    		<enumeration value="intvarar"></enumeration>
+    		<enumeration value="floatvarar"></enumeration>
+    		<enumeration value="none"></enumeration>
+    	</restriction>
+    </simpleType>
+
+    <complexType name="Command">
+    	<complexContent>
+    		<extension base="tns:StatefulComponent"></extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="Scan">
+    	<complexContent>
+    		<extension base="tns:Command">
+    			<sequence>
+                    <element name="config" type="tns:ScanConfig" maxOccurs="1" minOccurs="1"></element>
+    				<element name="feedback" type="tns:ScanFeedback"
+    					maxOccurs="1" minOccurs="1">
+    				</element>
+    				<element name="graphics" type="tns:GraphicData"
+    					maxOccurs="1" minOccurs="0">
+    				</element>
+    			</sequence>
+
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="GroupComponent">
+    	<complexContent>
+    		<extension base="tns:Component"></extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="GraphicData">
+    	<complexContent>
+    		<extension base="tns:Component">
+    			<sequence>
+                    <element name="point" type="tns:Component" maxOccurs="1" minOccurs="1">
+    				</element>
+    				<element name="data" type="tns:Component"
+    					maxOccurs="1" minOccurs="1">
+    				</element>
+    			</sequence>
+    			<attribute name="rank" type="int"></attribute>
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="Device">
+    	<complexContent>
+    		<extension base="tns:StatefulComponent">
+    			<attribute name="isDrivable" type="boolean"></attribute>
+    			<attribute name="isCountable" type="boolean"></attribute>
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+
+
+
+
+
+
+    <complexType name="GraphicData1D">
+    	<complexContent>
+    		<extension base="tns:GraphicData">
+    			<sequence>
+    				<element name="dim_i" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="last_i" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="axis_i" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    			</sequence>
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="GraphicData2D">
+    	<complexContent>
+    		<extension base="tns:GraphicData">
+    			<sequence>
+    				<element name="dim_i" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="dim_j" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="last_i" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="last_j" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="axis_i" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="axis_j" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    			</sequence>
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="GraphicData3D">
+    	<complexContent>
+    		<extension base="tns:GraphicData">
+    			<sequence>
+    				<element name="dim_i" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="dim_j" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="dim_k" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="last_i" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="last_j" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="last_k" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="axis_i" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="axis_j" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="axis_k" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    			</sequence>
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="ScanFeedback">
+    	<complexContent>
+    		<extension base="tns:Component">
+    			<sequence>
+    				<element name="filename" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="mode" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="preset" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="scan_variable_value" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="current_np" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="counts" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    			</sequence>
+
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+
+    <complexType name="StatefulComponent">
+    	<complexContent>
+    		<extension base="tns:Component">
+    			<attribute name="sicsid" type="string"></attribute>
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="ScanConfig">
+    	<complexContent>
+    		<extension base="tns:GroupComponent">
+    			<sequence>
+    				<element name="scan_variable" type="tns:Component"
+    					maxOccurs="1" minOccurs="1">
+    				</element>
+    				<element name="scan_start" type="tns:Component"
+    					maxOccurs="1" minOccurs="1">
+    				</element>
+    				<element name="scan_increment" type="tns:Component"
+    					maxOccurs="1" minOccurs="1">
+    				</element>
+    				<element name="NP" type="tns:Component"
+    					maxOccurs="1" minOccurs="1">
+    				</element>
+    				<element name="mode" type="tns:Component"
+    					maxOccurs="1" minOccurs="1">
+    				</element>
+    				<element name="preset" type="tns:Component"
+    					maxOccurs="1" minOccurs="1">
+    				</element>
+    				<element name="channel" type="tns:Component"
+    					maxOccurs="1" minOccurs="1">
+    				</element>
+    			</sequence>
+
+    		</extension>
+    	</complexContent>
+    </complexType>
+    
+    <complexType name="Count">
+    	<complexContent>
+    		<extension base="tns:Command">
+    			<sequence>
+    				<element name="mode" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="preset" type="tns:Component" maxOccurs="1" minOccurs="1"></element>
+    				<element name="graphics" type="tns:GraphicData1D" maxOccurs="1" minOccurs="0"></element>
+    			</sequence>
+
+    		</extension>
+    	</complexContent>
+    </complexType>
+</schema>

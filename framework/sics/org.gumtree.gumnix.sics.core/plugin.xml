@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="instrumentProfiles" name="Instrument Profiles" schema="schema/instrumentProfiles.exsd"/>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="ch.psi.sics.hipadaba.Component"
+            class="org.gumtree.gumnix.sics.control.ComponentControllerFactory">
+         <adapter type="org.gumtree.gumnix.sics.control.controllers.IComponentController"/>
+      </factory>
+   </extension>
+
+</plugin>

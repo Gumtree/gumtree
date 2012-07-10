@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+  <title>Basic SICS concepts</title>
+</head>
+<body>
+<h2>Basic SICS concepts</h2>
+
+<hr size="4" width="66%">
+<h3>General structure</h3>
+
+<p>
+ SICS is a client server system. The application the user sees is
+ usually some form of client. A client has two tasks: the first is  to
+ collect user input and send it to the SICS server which then executes
+the command. The clients second task is to listen to the the server
+ messages and display them in a readable format. This aproach has two
+ advantages: clients can reside on machines across the whole network
+ thus enabling remote control from everywhere in the world. The second
+ advantage is that new clients (such as graphical user interface
+ clients) can be written in any feasible language without changes to
+ the server.</p>
+
+
+<h3>SICS Command  Syntax </h3>
+
+<p> SICS is an object oriented system. This is reflected in the command
+syntax. SICS objects can be devices such as motors, single counters,
+histogram memories or other hardware variables such as wavelength or
+Title and measurement procedures. Communication with these objects
+happens by sending messages to the target object. This is very simply
+done by typing something like: object message par1 par2 .. parn. For
+example, if we have a motor called A1:</p>
+<pre>         A1 list<br></pre>
+ will print a parameter listing for the motor A1. In this example
+no parameters were needed. There exist a number of one-word commands as
+well. For compatability reasons some commands have a form which
+resembles a function call such as:
+<pre>           drive a1 26.54<br></pre>
+
+ This will drive motor a1 to 26.54. All commands are 
+ASCII-strings and usually in english. SICS is in general CASE INSENSITIVE.
+However, this does not hold for parameters you have to specify. On a unix
+system for instance file names are case sensitive and that had to be
+preserved. Commands defined in the scripting language are lower case by
+convention.  
+<p></p>
+
+<p>
+Most SICS objects also hold the parameters  required for their proper
+operation. The general syntax for handling such parameters is:
+</p>
+<pre>objectname parametername<br></pre>
+
+prints the current value of the parameter 
+<pre>objectname parametername newvalue<br></pre>
+
+sets the parameter value to newvalue if you are properly authorized.
+<p></p>
+
+<h3>SICS variables</h3>
+
+<p> Most of the parameters SICS uses are hidden in the objects to which
+they belong. But some are separate objects of their own right and are
+accessible at top level. For instance things like Title or wavelength.
+They share a common syntax for changing and requesting their values.
+This is very simple: The command <i> objectname </i> will return the value, the command <i> objectname newvalue </i> will change the variable. But only if the authorisation codes match. </p>
+
+<p>
+</p>
+<h3>Authorisation</h3>
+
+<p> A client server system is potentially open to unauthorised hackers
+who might mess up the instrument and your valuable measurements. A
+known problem in instrument control is that less knowledgeable user
+accidentally change instrument parameters which ought to be left fixed.
+In order to solve these two problems SICS supports authorisation on a
+very fine level. As a user you have to specify a username and password
+in order to able to access SICS. Some clients already do this for you
+automatically. SICS support four levels of access to an instrument:</p>
+<ul>
+  <li> <b> Spy </b> may look at everything, request any value, but may  not actually change anything. No damage potential here.
+  </li>
+  <li> <b> User </b> is privileged to perform a certain amount of operations necessary to run the instrument.
+  </li>
+  <li> <b> Manager </b> has the permission to mess with  almost everything.  A very dangerous person.
+  </li>
+  <li> <b> Internal </b> is not accessible to the outside world and
+is used to circumvent protection for internal uses. However some
+parameters are considered to be so critical that they cannot be changed
+during the runtime of the SICS-server, not even by Managers.
+  </li>
+</ul>
+
+ All this is stated here in order to explain the common error message:
+ You are not authorised to do that and that or something along these
+ lines.
+</body>
+</html>

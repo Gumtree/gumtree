@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.psi.ch/sics/hipadaba" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.psi.ch/sics/hipadaba">
+
+    <complexType name="SICS">
+        <sequence>
+        	<element name="component" type="tns:Component" maxOccurs="unbounded" minOccurs="0"></element>
+        </sequence>
+        <attribute name="id" type="string"></attribute>
+    </complexType>
+
+    <element name="SICS" type="tns:SICS"></element>
+
+    <complexType name="Component">
+    	<sequence>
+            <element name="value" type="tns:Value" maxOccurs="1" minOccurs="0"></element>
+            <element name="property" type="tns:Property"
+    			maxOccurs="unbounded" minOccurs="0">
+    		</element>
+    		<element name="component" type="tns:Component"
+    			maxOccurs="unbounded" minOccurs="0">
+    		</element>
+    	</sequence>
+    	<attribute name="id" type="string" use="required"></attribute>
+    	<attribute name="dataType" type="tns:DataType"></attribute>
+    </complexType>
+
+    <complexType name="Property">
+        <sequence>
+        	<element name="value" type="string" maxOccurs="unbounded"
+        		minOccurs="1">
+        	</element>
+        </sequence>
+        <attribute name="id" type="string"></attribute>
+    </complexType>
+
+
+
+    <simpleType name="DataType">
+    	<restriction base="string">
+    		<enumeration value="int"></enumeration>
+    		<enumeration value="float"></enumeration>
+    		<enumeration value="text"></enumeration>
+    		<enumeration value="intar"></enumeration>
+    		<enumeration value="floatar"></enumeration>
+    		<enumeration value="intvarar"></enumeration>
+    		<enumeration value="floatvarar"></enumeration>
+    		<enumeration value="none"></enumeration>
+    		<enumeration value="func"></enumeration>
+    	</restriction>
+    </simpleType>
+
+    <complexType name="Value">
+    	<simpleContent>
+    		<extension base="string"></extension>
+    	</simpleContent>
+    </complexType>
+</schema>

@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gumtree SICS Branding
+Bundle-SymbolicName: org.gumtree.gumnix.sics;singleton:=true
+Bundle-Version: 1.7.0.qualifier
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui.intro,
+ org.eclipse.ui.cheatsheets
+Eclipse-BundleShape: dir

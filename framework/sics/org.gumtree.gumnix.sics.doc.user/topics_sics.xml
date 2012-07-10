@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Getting Started with SICS">
+	<topic label="Getting Started with SICS" href="sics/Table of Contents.html">
+		<topic label="Overview" href="sics/Overview.html" />
+		<topic label="Getting Started" href="sics/Getting Started.html" />
+		<topic label="Moving Motors" href="sics/Moving Motors.html" />
+		<topic label="Scans" href="sics/Scans.html" />
+		<topic label="Batch Control" href="sics/Batch Control.html" />
+		<topic label="Safety PLC in SICS" href="sics/Safety PLC in SICS.html" />
+	</topic>
+</toc>

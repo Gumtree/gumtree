@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="org.gumtree.gumnix.sics.ui"
+            class="org.gumtree.gumnix.sics.batch.ui.internal.SicsVisualBatchView"
+            icon="icons/executable-script16x16.png"
+            id="org.gumtree.gumnix.sics.batch.ui.visualBatchView"
+            name="SICS Visual Batch">
+      </view>
+      <view
+            category="org.gumtree.gumnix.sics.ui"
+            class="org.gumtree.gumnix.sics.batch.ui.buffer.BatchBufferManagerView"
+            icon="icons/Farm-Fresh/script_gear16x16.png"
+            id="org.gumtree.gumnix.sics.batch.ui.batchBufferManagerView"
+            name="Batch Buffer Manager"
+            restorable="true">
+      </view>
+      <view
+            category="org.gumtree.gumnix.sics.ui"
+            class="org.gumtree.gumnix.sics.batch.ui.buffer.BatchBufferRunnerView"
+            icon="icons/Farm-Fresh/script_gear16x16.png"
+            id="org.gumtree.gumnix.sics.batch.ui.batchBufferRunnerView"
+            name="③ Batch Runner"
+            restorable="true">
+      </view>
+      <view
+            category="org.gumtree.gumnix.sics.ui"
+            class="org.gumtree.gumnix.sics.batch.ui.buffer.BatchBufferValidatorView"
+            icon="icons/check_error_16x16.png"
+            id="org.gumtree.gumnix.sics.batch.ui.batchBufferValidatorView"
+            name="② Batch Validation"
+            restorable="true">
+      </view>
+      
+   </extension>
+   <extension
+         point="org.gumtree.ui.launchers">
+      <launcher
+            category="sics"
+            class="org.gumtree.ui.launcher.ViewLauncher:org.gumtree.gumnix.sics.batch.ui.batchBufferManagerView"
+            icon16="icons/Farm-Fresh/script_gear16x16.png"
+            icon32="icons/Farm-Fresh/script_gear32x32.png"
+            id="org.gumtree.gumnix.sics.batch.ui.batchBufferLauncher"
+            label="Batch Buffer Manager">
+      </launcher>
+   </extension>
+   <extension
+         point="org.gumtree.workflow.ui.tasks">
+      <task
+            class="org.gumtree.gumnix.sics.batch.ui.BatchExecutorTask"
+            icon="icons/tasks/executable-script16x16.png"
+            icon32="icons/tasks/executable-script32x32.png"
+            label="SICS Batch Executor"
+            provider="Bragg Institute"
+            tags="sics">
+         <description>
+            This tasks runs a batch script in the SICS server.  It excepts inputs from batch command task, or from a text file.
+         </description>
+      </task>
+      <!-- task
+            class="org.gumtree.gumnix.sics.batch.ui.CommandBlockTask"
+            icon="icons/tasks/tcl16x16.png"
+            icon32="icons/tasks/tcl32x32.png"
+            label="SICS Batch Commands"
+            provider="Bragg Institute"
+            tags="tcl">
+         <description>
+            This task helps to construct a SICS tcl script for batch execution.
+         </description>
+      </task>
+      <task
+            class="org.gumtree.gumnix.sics.batch.ui.HeaderInformationBlockTask"
+			icon="icons/tasks/H_16x16.png"
+			icon32="icons/tasks/H_32x32.png"	
+            label="User Header Information"
+            provider="Bragg Institute"
+            tags="tcl">
+      </task -->
+   </extension>
+   <!--
+   <extension
+         point="org.gumtree.ui.gadgets">
+      <gadget
+            contentProvider="org.gumtree.gumnix.sics.batch.ui.buffer.BatchBufferGadget"
+            icon="icons/script_start_16x16.gif"
+            id="org.gumtree.gumnix.sics.batch.ui.batchBufferGadget"
+            name="Batch Buffer Status">
+      </gadget>
+   </extension>
+	-->
+</plugin>

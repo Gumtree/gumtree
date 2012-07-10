@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<comment>Localhost config</comment>
+	<entry key="host">gumtree</entry>
+	<entry key="port">60003</entry>
+	<entry key="login">manager</entry>
+	<entry key="password">ansto</entry>
+	<entry key="interest.login">manager</entry>
+	<entry key="interest.password">ansto</entry>
+</properties>

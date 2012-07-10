@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.gumtree.gumnix.sics.ui.util.ISicsTreeNode"
+            class="org.gumtree.gumnix.sics.internal.ui.navigator.PropertySourceAdapterFactory">
+         <adapter type="org.eclipse.ui.views.properties.IPropertySource"/>
+      </factory>
+      <factory
+            adaptableType="org.gumtree.gumnix.sics.control.controllers.IComponentController"
+            class="org.gumtree.gumnix.sics.ui.componentview.ComponentViewContentFactory">
+         <adapter type="org.gumtree.gumnix.sics.ui.componentview.IComponentViewContent"/>
+      </factory>
+      <factory
+            adaptableType="org.gumtree.gumnix.sics.control.controllers.IComponentController"
+            class="org.gumtree.gumnix.sics.ui.util.ControllerNodeFactory">
+         <adapter type="org.gumtree.gumnix.sics.ui.util.ISicsTreeNode"/>
+      </factory>
+      <factory
+            adaptableType="org.gumtree.gumnix.sics.control.controllers.IComponentController"
+            class="org.gumtree.gumnix.sics.ui.util.ControllerEditorFactory">
+         <adapter type="org.eclipse.ui.IEditorDescriptor"/>
+      </factory>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerContentBinding viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+         <includes>
+            <contentExtension pattern="org.gumtree.gumnix.sics.ui.instrumentContent"/>
+         </includes>
+      </viewerContentBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <navigatorContent
+            contentProvider="org.gumtree.gumnix.sics.internal.ui.navigator.InstrumentContentProvider"
+            icon="icons/full/obj16/debugt_obj.gif"
+            id="org.gumtree.gumnix.sics.ui.instrumentContent"
+            labelProvider="org.gumtree.ui.util.jface.TreeLabelProvider"
+            name="Instrument"
+            priority="highest">
+         <enablement>
+            <or>
+               <instanceof value="org.eclipse.core.resources.IWorkspaceRoot"/>
+               <instanceof value="org.gumtree.gumnix.sics.ui.util.ISicsTreeNode"/>
+            </or>
+         </enablement>
+         <actionProvider
+               class="org.gumtree.gumnix.sics.internal.ui.navigator.ComponentNavigatorActionProvider"
+               id="org.gumtree.gumnix.sics.ui.navigator.ComponentNavigatorActionProvider"/>
+      </navigatorContent>
+   </extension>
+   <extension
+         point="org.eclipse.ui.decorators">
+      <decorator
+            class="org.gumtree.gumnix.sics.internal.ui.LabelDecorator"
+            id="org.gumtree.gumnix.sics.ui.componentDecorator"
+            label="Sics Instrument Component"
+            lightweight="true"
+            location="BOTTOM_LEFT"
+            state="true">
+         <enablement>
+            <objectClass
+                  name="org.gumtree.ui.util.ITreeNode">
+            </objectClass>
+         </enablement>
+         <description>
+            Instrument component status
+         </description>
+      </decorator>
+   </extension>
+   <!--
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="org.gumtree.gumnix.sics.ui.actionSet1"
+            label="SICS Actions"
+            visible="true">
+         <menu
+               id="SICS"
+               label="SICS">
+            <separator name="SICSGroup"/>
+         </menu>
+         <action
+               class="org.gumtree.gumnix.sics.internal.ui.actions.ExportModelAction"
+               icon="icons/full/obj16/externalize.gif"
+               id="org.gumtree.gumnix.sics.ui.exportModelAction"
+               label="Export Instrument Model"
+               menubarPath="SICS/SICSGroup"
+               style="push"
+               toolbarPath="SICS"/>
+         <action
+               class="org.gumtree.gumnix.sics.internal.ui.actions.SicsTerminalLaunchAction"
+               icon="icons/telnet.gif"
+               id="org.gumtree.gumnix.sics.ui.openSicsTerminal"
+               label="SICS Terminal"
+               menubarPath="SICS/SICSGroup"
+               style="push"
+               toolbarPath="SICS"/>
+      </actionSet>
+	  <actionSet
+      		id="org.gumtree.gumnix.sics.project.sics"
+      		label="Project"
+      		visible="true">
+      	 <menu
+               id="project"
+               label="Project">
+            <separator name="projectGroup"/>
+         </menu>
+         <action
+               class="org.gumtree.gumnix.sics.internal.ui.actions.OpenSICSPerspectiveAction"
+               icon="icons/full/obj16/debugt_obj.gif"
+               id="org.gumtree.gumnix.sics.project.sicsProject"
+               label="SICS Project"
+               menubarPath="Project/projectGroup"
+               style="push"
+               toolbarPath="projectBar"/>
+      </actionSet>
+   </extension>
+   -->
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup class="org.gumtree.gumnix.sics.internal.ui.statusline.StartStatusLine"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.gumtree.gumnix.sics.internal.ui.editors.SicsControlEditor"
+            default="false"
+            icon="icons/full/obj16/server.gif"
+            id="org.gumtree.gumnix.sics.ui.sicsControl"
+            name="SICS Control"/>
+      <editor
+            class="org.gumtree.gumnix.sics.internal.ui.editors.ComponentControlEditor"
+            default="false"
+            icon="icons/full/obj16/plugin_obj.gif"
+            id="org.gumtree.gumnix.sics.ui.componentControl"
+            name="Component Control"/>
+   </extension>
+   <!--
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.gumtree.gumnix.sics.internal.ui.PerspectiveFactory"
+            icon="icons/full/obj16/debugt_obj.gif"
+            id="org.gumtree.gumnix.sics.ui.sicsPerspective"
+            name="SICS Instrument"/>
+   </extension>
+   -->
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension targetID="org.gumtree.gumnix.sics.ui.sicsPerspective">
+         <perspectiveShortcut id="org.gumtree.ui.isee.workbenchPerspective"/>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.gumtree.ui.actionShortcuts">
+      <category
+            id="org.gumtree.gumnix.sics.ui.shortcutCategory"
+            name="SICS DAQ"/>
+      <actionShortcut
+            category="org.gumtree.gumnix.sics.ui.shortcutCategory"
+            class="org.gumtree.gumnix.sics.internal.ui.actions.SicsControlLaunchAction"
+            icon16="icons/full/obj16/debugt_obj.gif"
+            id="org.gumtree.gumnix.sics.ui.compoentControlView"
+            label="Instrument Control"/>
+      <actionShortcut
+            category="org.gumtree.gumnix.sics.ui.shortcutCategory"
+            class="org.gumtree.gumnix.sics.internal.ui.batch.ControlViewLaunchAction"
+            icon16="icons/full/etool16/copy_edit.gif"
+            id="org.gumtree.gumnix.sics.ui.simpleBatch"
+            label="Simple Batch">
+      </actionShortcut>
+   </extension>
+   <extension
+         point="org.gumtree.ui.communicationAdapters">
+      <communicationAdapter
+            class="org.gumtree.gumnix.sics.internal.ui.SicsTelnetAdapter"
+            id="org.gumtree.gumnix.sics.ui.telnetCommunicationAdapter"
+            label="SICS Telnet"/>
+      <communicationAdapter
+            class="org.gumtree.gumnix.sics.internal.ui.SicsServerAdapter"
+            id="org.gumtree.gumnix.sics.ui.serverCommunicationAdapter"
+            label="SICS Console"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="org.gumtree.gumnix.sics.ui"
+            class="org.gumtree.gumnix.sics.internal.ui.SicsDashboardView"
+            id="org.gumtree.gumnix.sics.ui.dashboardView"
+            name="SICS Dashboard">
+      </view>
+      <view
+            category="org.gumtree.gumnix.sics.ui"
+            class="org.gumtree.gumnix.sics.internal.ui.SicsInterruptView"
+            icon="icons/Stop-Normal-Red-16x16.png"
+            id="org.gumtree.gumnix.sics.ui.interruptView"
+            name="SICS Interrupt">
+      </view>
+      <view
+            category="org.gumtree.gumnix.sics.ui"
+            class="org.gumtree.gumnix.sics.ui.widgets.SicsTerminalView"
+            icon="icons/terminal.png"
+            id="org.gumtree.gumnix.sics.ui.SicsTerminalView"
+            name="SICS Terminal">
+      </view>
+      <view
+            category="org.gumtree.gumnix.sics.ui"
+            class="org.gumtree.gumnix.sics.internal.ui.batch.ControlView"
+            icon="icons/full/etool16/copy_edit.gif"
+            id="org.gumtree.gumnix.sics.ui.sicsBatchView"
+            name="SICS Batch Control">
+      </view>
+      <category
+            id="org.gumtree.gumnix.sics.ui"
+            name="SICS Control System">
+      </category>
+   </extension>
+   <extension
+         point="org.gumtree.ui.launchers">
+      <category
+            icon="icons/SICS_Folder-32x32.png"
+            id="sics"
+            label="SICS">
+      </category>
+   </extension>
+   <!--
+   <extension
+         point="org.gumtree.ui.gadgets">
+      <gadget
+            contentProvider="org.gumtree.gumnix.sics.ui.widgets.SicsInterruptGadget"
+            icon="icons/round_stop.png"
+            id="org.gumtree.gumnix.sics.ui.interruptGadget"
+            isClosable="false"
+            isDetachable="false"
+            isGlobal="true"
+            name="SICS Interrupt"
+            summaryProvider="org.gumtree.gumnix.sics.ui.widgets.SicsInterruptGadgetSummary"
+            tags="sics">
+      </gadget>
+      <gadget
+            contentProvider="org.gumtree.gumnix.sics.ui.widgets.SicsStatusGadget"
+            icon="icons/full/obj16/server.gif"
+            id="org.gumtree.gumnix.sics.ui.sicsStatusGadget"
+            isGlobal="true"
+            name="SICS Status"
+            tags="sics">
+      </gadget>
+   </extension>
+   -->
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.gumtree.gumnix.sics.internal.ui.handlers.OpenSicsTerminalHandlers"
+            id="org.gumtree.gumnix.sics.ui.openSicsTerminalCommand"
+            name="Open SICS Terminal">
+      </command>
+   </extension>
+   <extension
+         point="org.gumtree.ui.appLaunches">
+      <appLaunch
+            commandId="org.eclipse.ui.views.showView"
+            icon64="icons/batch_64x64.png"
+            label="Batch Buffer">
+         <parameter
+               id="org.eclipse.ui.views.showView.viewId"
+               value="org.gumtree.gumnix.sics.ui.sicsBatchView">
+         </parameter>
+      </appLaunch>
+      <appLaunch
+            commandId="org.gumtree.gumnix.sics.ui.openSicsTerminalCommand"
+            icon64="icons/SICS-Terminal_64x64.png"
+            label="SICS Terminal">
+      </appLaunch>
+   </extension>
+   <extension
+         point="org.gumtree.ui.gadgets">
+      <gadget
+            class="org.gumtree.gumnix.sics.ui.widgets.SicsInterruptGadget"
+            level="0"
+            name="SICS Interrupt"
+            prespectives="*">
+      </gadget>
+   </extension>
+
+</plugin>

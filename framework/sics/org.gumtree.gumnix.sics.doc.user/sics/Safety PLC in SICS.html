@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+  <title>Safety PLC in SICS</title>
+</head>
+<body>
+<h1 class="documentFirstHeading">Safety PLC in SICS</h1>
+
+    
+        
+<div>
+
+    
+<div class="documentByLine">
+        
+
+        
+          <span>
+            by
+          <a href="http://gumtree:9080/nbicms/author/dcl">Douglas Clowes</a>
+          </span>
+
+          &mdash;
+
+        
+
+        <span>
+        last modified
+        </span>
+        2007-03-09 11:51
+
+        
+
+        
+
+        
+
+        
+
+        <span class="reviewHistory">
+    
+</span>
+
+    </div>
+
+
+</div>
+
+
+        
+<p class="documentDescription">The lights on the Safety PLC panel in the instrument cabin can be read by SICS</p>
+
+    
+        
+    
+        
+<div class="plain">
+            
+<p>The
+Safety PLC is represented in SICS by an object called "plc". Each of
+the lamps on the Safety PLC panel in the instrument cabin, except the
+lamp test button, are available through the plc object.</p>
+<br>
+<p>To list all the states of the lamps:</p>
+<pre>plc list<br>plc.Key = enabled<br>plc.Secondary = opened<br>plc.Tertiary = opened<br>plc.MotionControl = enabled<br>plc.Access = locked<br>plc.DC = false<br>plc.Exit = false<br>plc.Trip = false<br>plc.Fault = false<br>plc.Operate = false<br>plc.Relay = true<br>plc.Ready = true</pre>
+<p>Each field can be acquired individually by entering its name as the only parameter:</p>
+<pre>plc ready<br>plc.Ready = true</pre>
+<p>The fields and their meanings are:</p>
+<ul>
+  <li>Key - Secondary Shutter Key Administrative Control Enabled/Disabled.<br>
+  </li>
+  <li>Secondary - Secondary Shutter Opened/Closed.<br>
+  </li>
+  <li>Tertiary - Sample Shutter Opened/Closed.<br>
+  </li>
+  <li>MotionControl - Motion Control Enabled/Disabled.<br>
+  </li>
+  <li>Access - Instrument Area Access Locked/Unlocked.<br>
+  </li>
+  <li>DC - DC Supplies OK.<br>
+  </li>
+  <li>Exit - Exit In Progress.<br>
+  </li>
+  <li>Trip - Safety Interlock System Tripped.<br>
+  </li>
+  <li>Fault - Safety Interlock Malfunction.<br>
+  </li>
+  <li>Operate - Sample Shutter Operate.<br>
+  </li>
+  <li>Relay - Secondary Shutter Interfacing Relay Enabled<br>
+  </li>
+  <li>Ready - Instrument Ready.</li>
+</ul>
+<p>The
+values for the fields "Key" through "Access" may also take the values
+"unknown(low)" if both lights are off, or "invalid(high)" if both
+lights are on.</p>
+
+        </div>
+</body>
+</html>

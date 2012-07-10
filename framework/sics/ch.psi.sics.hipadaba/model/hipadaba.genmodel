@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/ch.psi.sics.hipadaba/src"
+    modelPluginID="ch.psi.sics.hipadaba" modelName="Hipadaba" rootExtendsInterface=""
+    rootExtendsClass="org.eclipse.emf.ecore.sdo.impl.EDataObjectImpl" rootImplementsInterface="org.eclipse.emf.ecore.sdo.InternalEDataObject"
+    suppressEMFTypes="true" suppressEMFMetaData="true" featureMapWrapperInterface="commonj.sdo.Sequence"
+    featureMapWrapperInternalInterface="org.eclipse.emf.ecore.sdo.util.ESequence"
+    featureMapWrapperClass="org.eclipse.emf.ecore.sdo.util.BasicESequence" importerID="org.eclipse.xsd.ecore.importer"
+    complianceLevel="5.0">
+  <foreignModel>hipadaba.xsd</foreignModel>
+  <staticPackages>http://www.eclipse.org/emf/2003/SDO</staticPackages>
+  <modelPluginVariables>EMF_COMMONJ_SDO=org.eclipse.emf.commonj.sdo</modelPluginVariables>
+  <modelPluginVariables>EMF_ECORE_SDO=org.eclipse.emf.ecore.sdo</modelPluginVariables>
+  <genPackages prefix="Hipadaba" basePackage="ch.psi.sics" resource="XML" disposableProviderFactory="true"
+      ecorePackage="hipadaba.ecore#/">
+    <genEnums ecoreEnum="hipadaba.ecore#//DataType">
+      <genEnumLiterals ecoreEnumLiteral="hipadaba.ecore#//DataType/int"/>
+      <genEnumLiterals ecoreEnumLiteral="hipadaba.ecore#//DataType/float"/>
+      <genEnumLiterals ecoreEnumLiteral="hipadaba.ecore#//DataType/text"/>
+      <genEnumLiterals ecoreEnumLiteral="hipadaba.ecore#//DataType/intar"/>
+      <genEnumLiterals ecoreEnumLiteral="hipadaba.ecore#//DataType/floatar"/>
+      <genEnumLiterals ecoreEnumLiteral="hipadaba.ecore#//DataType/intvarar"/>
+      <genEnumLiterals ecoreEnumLiteral="hipadaba.ecore#//DataType/floatvarar"/>
+      <genEnumLiterals ecoreEnumLiteral="hipadaba.ecore#//DataType/none"/>
+      <genEnumLiterals ecoreEnumLiteral="hipadaba.ecore#//DataType/func"/>
+    </genEnums>
+    <genDataTypes ecoreDataType="hipadaba.ecore#//DataTypeObject"/>
+    <genClasses ecoreClass="hipadaba.ecore#//Component">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference hipadaba.ecore#//Component/value"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference hipadaba.ecore#//Component/property"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference hipadaba.ecore#//Component/component"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute hipadaba.ecore#//Component/dataType"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute hipadaba.ecore#//Component/id"/>
+    </genClasses>
+    <genClasses ecoreClass="hipadaba.ecore#//DocumentRoot">
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute hipadaba.ecore#//DocumentRoot/mixed"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference hipadaba.ecore#//DocumentRoot/xMLNSPrefixMap"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference hipadaba.ecore#//DocumentRoot/xSISchemaLocation"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference hipadaba.ecore#//DocumentRoot/sICS"/>
+    </genClasses>
+    <genClasses ecoreClass="hipadaba.ecore#//Property">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute hipadaba.ecore#//Property/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute hipadaba.ecore#//Property/id"/>
+    </genClasses>
+    <genClasses ecoreClass="hipadaba.ecore#//SICS">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference hipadaba.ecore#//SICS/component"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute hipadaba.ecore#//SICS/id"/>
+    </genClasses>
+    <genClasses ecoreClass="hipadaba.ecore#//Value">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute hipadaba.ecore#//Value/value"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

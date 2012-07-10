@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+ <copyright>
+ </copyright>
+
+ $Id$
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.ui.newWizards">
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="ch.psi.sics.hipadaba.presentation.HipadabaModelWizardID"
+            name="%_UI_HipadabaModelWizard_label"
+            class="ch.psi.sics.hipadaba.presentation.HipadabaModelWizard"
+            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            icon="icons/full/obj16/HipadabaModelFile.gif">
+         <description>%_UI_HipadabaModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
+
+   <extension point="org.eclipse.ui.editors">
+      <editor
+            id="ch.psi.sics.hipadaba.presentation.HipadabaEditorID"
+            name="%_UI_HipadabaEditor_label"
+            icon="icons/full/obj16/HipadabaModelFile.gif"
+            extensions="hipadaba"
+            class="ch.psi.sics.hipadaba.presentation.HipadabaEditor"
+            contributorClass="ch.psi.sics.hipadaba.presentation.HipadabaActionBarContributor">
+      </editor>
+   </extension>
+
+</plugin>

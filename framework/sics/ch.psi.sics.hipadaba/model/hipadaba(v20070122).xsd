@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.psi.ch/sics/hipadaba" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.psi.ch/sics/hipadaba">
+
+    <complexType name="Instrument">
+    	<complexContent>
+    		<extension base="tns:Component">
+    			<sequence>
+    				<element name="part" type="tns:Part"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    				<element name="device" type="tns:Device"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    			</sequence>
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="Part">
+    	<complexContent>
+    		<extension base="tns:Component">
+    			<sequence>
+    				<element name="part" type="tns:Part"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    				<element name="device" type="tns:Device"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    			</sequence>
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="Device">
+    	<complexContent>
+    		<extension base="tns:Component">
+    			<sequence>
+    				<element name="property" type="tns:Property"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    			</sequence>
+    			<attribute name="deviceType" type="string"></attribute>
+    			<attribute name="dataType" type="tns:DataType"></attribute>
+    			<attribute name="privilege" type="tns:Privilege"></attribute>
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="Property">
+        <sequence>
+        	<element name="val" type="tns:PropertyConstrain" maxOccurs="unbounded" minOccurs="0"></element>
+        </sequence>
+        <attribute name="id" type="string"></attribute>
+    	<attribute name="privilege" type="tns:Privilege"></attribute>
+    	<attribute name="dataType" type="tns:DataType"></attribute>
+    </complexType>
+
+    <simpleType name="Privilege">
+    	<restriction base="string">
+    		<enumeration value="READ_ONLY"></enumeration>
+    		<enumeration value="MANAGER"></enumeration>
+    		<enumeration value="USER"></enumeration>
+    		<enumeration value="SPY"></enumeration>
+    	</restriction>
+    </simpleType>
+
+    <simpleType name="DataType">
+    	<restriction base="string">
+    		<enumeration value="Int"></enumeration>
+    		<enumeration value="Float"></enumeration>
+    		<enumeration value="Text"></enumeration>
+    		<enumeration value="Intar"></enumeration>
+    		<enumeration value="Floatar"></enumeration>
+    		<enumeration value="Intvarar"></enumeration>
+    		<enumeration value="Floatvarar"></enumeration>
+    	</restriction>
+    </simpleType>
+
+
+    <complexType name="Component">
+    	<attribute name="id" type="string"></attribute>
+    	<attribute name="label" type="string"></attribute>
+    </complexType>
+
+    <complexType name="PropertyConstrain">
+    	<simpleContent>
+    		<extension base="string"></extension>
+    	</simpleContent>
+    </complexType>
+
+    <complexType name="SICS">
+    	<sequence>
+    		<element name="instrument" type="tns:Instrument" maxOccurs="1" minOccurs="1"></element>
+    		<element name="commands" type="tns:Commands" maxOccurs="1" minOccurs="0"></element>
+    		<element name="graphics" type="tns:Graphics" maxOccurs="1" minOccurs="0"></element>
+    	</sequence></complexType>
+
+    <complexType name="Commands">
+    	<complexContent>
+    		<extension base="tns:Component">
+    			<sequence>
+    				<element name="commands" type="tns:Commands"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    				<element name="command" type="tns:Command"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    			</sequence>
+
+
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="Graphics">
+    	<complexContent>
+    		<extension base="tns:Component">
+    			<sequence>
+    				<element name="graphics" type="tns:Graphics"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    				<element name="graphdata" type="tns:GraphData"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    			</sequence>
+
+
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="Command">
+    	<complexContent>
+    		<extension base="tns:Component">
+                <sequence>
+                	<element name="property" type="tns:Property" maxOccurs="unbounded" minOccurs="0"></element>
+                </sequence>
+                <attribute name="privilege" type="tns:Privilege"></attribute>
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="GraphData">
+    	<complexContent>
+    		<extension base="tns:Component">
+    			<sequence>
+    				<element name="property" type="tns:Property"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    				<element name="axis" type="tns:Axis"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    				<element name="data" type="tns:Data"
+    					maxOccurs="unbounded" minOccurs="0">
+    				</element>
+    			</sequence>
+    			<attribute name="viewer" type="string"></attribute>
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="Axis">
+		<attribute name="id" type="string"></attribute>
+    	<attribute name="privilege" type="tns:Privilege"></attribute>
+    	<attribute name="dataType" type="tns:DataType"></attribute>
+		<attribute name="dim" type="string"></attribute>
+    </complexType>
+
+    <complexType name="Data">
+		<attribute name="id" type="string"></attribute>
+    	<attribute name="privilege" type="tns:Privilege"></attribute>
+    	<attribute name="dataType" type="tns:DataType"></attribute>
+    </complexType>
+
+    <element name="SICS" type="tns:SICS"></element>
+</schema>

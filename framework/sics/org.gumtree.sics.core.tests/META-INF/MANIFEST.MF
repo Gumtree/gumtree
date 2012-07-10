@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GumTree SICS Core Tests
+Bundle-SymbolicName: org.gumtree.sics.core.tests
+Bundle-Version: 1.7.0.qualifier
+Fragment-Host: org.gumtree.sics.core;bundle-version="1.6.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.junit;bundle-version="4.8.1",
+ ch.lambdaj;bundle-version="2.3.3",
+ org.mockito;bundle-version="1.9.0"
