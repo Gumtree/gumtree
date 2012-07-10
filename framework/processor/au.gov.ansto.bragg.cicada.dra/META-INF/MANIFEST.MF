@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg Cicada DRA
+Bundle-SymbolicName: au.gov.ansto.bragg.cicada.dra;singleton:=true
+Bundle-Version: 1.8.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.cicada.dra.internal.Activator
+Require-Bundle: au.gov.ansto.bragg.cicada;visibility:=reexport
+Bundle-ActivationPolicy: lazy
+Export-Package: au.gov.ansto.bragg.cicada.dra.core,
+ au.gov.ansto.bragg.cicada.dra.core.lib
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: org.eclipse.core.runtime,
+ org.osgi.framework
+Eclipse-BundleShape: jar
+Bundle-Vendor: Bragg Institute

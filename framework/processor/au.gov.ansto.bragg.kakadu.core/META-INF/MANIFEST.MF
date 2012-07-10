@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg Kakadu Core
+Bundle-SymbolicName: au.gov.ansto.bragg.kakadu.core
+Bundle-Version: 1.8.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.kakadu.core.Activator
+Bundle-Vendor: Bragg Institute
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.core.runtime,
+ au.gov.ansto.bragg.cicada;visibility:=reexport,
+ org.gumtree.vis.core;visibility:=reexport
+Bundle-ActivationPolicy: lazy
+Export-Package: au.gov.ansto.bragg.kakadu.core,
+ au.gov.ansto.bragg.kakadu.core.data,
+ au.gov.ansto.bragg.kakadu.core.data.region
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Eclipse-BundleShape: jar

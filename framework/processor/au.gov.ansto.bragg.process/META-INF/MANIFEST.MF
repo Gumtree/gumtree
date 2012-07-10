@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg Process Manager
+Bundle-SymbolicName: au.gov.ansto.bragg.process
+Bundle-Version: 1.8.0.qualifier
+Require-Bundle: au.gov.ansto.bragg.base.common;visibility:=reexport
+Export-Package: au.gov.ansto.bragg.process.agent,
+ au.gov.ansto.bragg.process.common,
+ au.gov.ansto.bragg.process.common.exception,
+ au.gov.ansto.bragg.process.configuration,
+ au.gov.ansto.bragg.process.exception,
+ au.gov.ansto.bragg.process.factory,
+ au.gov.ansto.bragg.process.factory.exception,
+ au.gov.ansto.bragg.process.parse,
+ au.gov.ansto.bragg.process.port,
+ au.gov.ansto.bragg.process.processor,
+ au.gov.ansto.bragg.process.util
+Eclipse-BuddyPolicy: global
+Bundle-ActivationPolicy: lazy
+Import-Package: org.dom4j;version="1.6.1",
+ org.dom4j.io;version="1.6.1",
+ org.slf4j
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-BundleShape: jar
+Bundle-Vendor: Bragg Institute

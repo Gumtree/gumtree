@@ -1,0 +1,172 @@
+/*******************************************************************************
+ * Copyright (c) 2007 Australian Nuclear Science and Technology Organisation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Danil Klimontov (Bragg Institute) - initial API and implementation
+ *******************************************************************************/
+package au.gov.ansto.bragg.kakadu.core.data.region;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+
+/**
+ * The class provides business methods for Region functionality management.
+ *  
+ * @author Danil Klimontov (dak)
+ */
+public class ParameterRegionManager {
+	private final List<UIRegion> regions = new ArrayList<UIRegion>();
+	private final List<RegionListener> regionListeners = new ArrayList<RegionListener>();
+	private String operationName;
+	private String parameterName;
+	private String operationUILabel;
+	private String parameterUILabel;
+	private int algorithmTaskId;
+	
+	
+	public ParameterRegionManager(String operationName, String parameterName) {
+		this.operationName = operationName;
+		this.parameterName = parameterName;
+	}
+
+	public String getOperationName() {
+		return operationName;
+	}
+	
+	public String getParameterName() {
+		return parameterName;
+	}
+	
+	/**
+	 * @return the operationUILabel
+	 */
+	public String getOperationUILabel() {
+		return operationUILabel;
+	}
+
+	/**
+	 * @param operationUILabel the operationUILabel to set
+	 */
+	public void setOperationUILabel(String operationUILabel) {
+		this.operationUILabel = operationUILabel;
+	}
+
+	/**
+	 * @return the parameterUILabel
+	 */
+	public String getParameterUILabel() {
+		return parameterUILabel;
+	}
+
+	/**
+	 * @param parameterUILabel the parameterUILabel to set
+	 */
+	public void setParameterUILabel(String parameterUILabel) {
+		this.parameterUILabel = parameterUILabel;
+	}
+
+	public void addRegion(UIRegion region) {
+		regions.add(region);
+		fireRegionAddedEvent(region);
+	}
+	
+	public void addAllRegions(List<UIRegion> addedRegions) {
+		for (UIRegion region : addedRegions) {
+			addRegion(region);
+		}
+	}
+	
+	public void removeRegion(UIRegion region) {
+		for (Iterator<UIRegion> iterator = regions.iterator(); iterator.hasNext();) {
+			UIRegion r = iterator.next();
+			if (region == r) {
+				iterator.remove();
+				fireRegionRemovedEvent(region);
+				break;
+			}
+		}
+
+//		regions.remove(region);
+	}
+	
+	public void removeAllRegions() {
+		for (UIRegion region : new ArrayList<UIRegion>(regions)) {
+			removeRegion(region);
+		}
+	}
+	
+	public List<UIRegion> getRegions() {
+		return new ArrayList<UIRegion>(regions);
+	}
+	
+	public UIRegion getRegion(int id) {
+		for (UIRegion region : regions) {
+			if (region.getId() == id) {
+				return region;
+			}
+		}
+		return null;
+	}
+	
+	public int getRegionCount() {
+		return regions.size();
+	}
+
+	public void updateRegion(int id, String name, boolean isInclusive, double xMin, double yMin, double xMax, double yMax) {
+		UIRegion region = getRegion(id);
+		if (region != null) {
+		region.setName(name);
+		region.setInclusive(isInclusive);
+		region.setXMin(xMin);
+		region.setYMin(yMin);
+		region.setXMax(xMax);
+		region.setYMax(yMax);
+		
+		fireRegionUpdatedEvent(region);
+		}
+	}
+	
+	public void addRegionListener(RegionListener regionListener) {
+		regionListeners.add(regionListener);
+	}
+	
+	public void removeRegionListener(RegionListener regionListener) {
+		regionListeners.remove(regionListener);
+	}
+	
+	public ArrayList<RegionListener> getRegionListeners() {
+		return new ArrayList<RegionListener>(regionListeners);
+	}
+	
+	protected void fireRegionAddedEvent(UIRegion region) {
+		for (RegionListener regionListener : getRegionListeners() ) {
+			regionListener.regionAdded(region);			
+		}
+	}
+
+	protected void fireRegionRemovedEvent(UIRegion region) {
+		for (RegionListener regionListener : getRegionListeners() ) {
+			regionListener.regionRemoved(region);			
+		}
+	}
+
+	protected void fireRegionUpdatedEvent(UIRegion region) {
+		for (RegionListener regionListener : getRegionListeners() ) {
+			regionListener.regionUpdated(region);			
+		}
+	}
+
+	public void setAlgorithmTaskId(int algorithmTaskId) {
+		this.algorithmTaskId = algorithmTaskId;
+	}
+
+	public int getAlgorithmTaskId() {
+		return algorithmTaskId;
+	}
+}

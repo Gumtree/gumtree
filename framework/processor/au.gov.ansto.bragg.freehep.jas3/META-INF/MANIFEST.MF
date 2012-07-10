@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg JAS3 Extension
+Bundle-SymbolicName: au.gov.ansto.bragg.freehep.jas3;singleton:=true
+Bundle-Version: 1.8.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.freehep.jas3.internal.Activator
+Require-Bundle: org.freehep.jas.jas3;visibility:=reexport,
+ au.gov.ansto.bragg.datastructures;visibility:=reexport
+Bundle-ActivationPolicy: lazy
+Export-Package: au.gov.ansto.bragg.freehep.jas3.core,
+ au.gov.ansto.bragg.freehep.jas3.exception
+Import-Package: org.osgi.framework
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Eclipse-BundleShape: jar
+Bundle-Vendor: Bragg Institute

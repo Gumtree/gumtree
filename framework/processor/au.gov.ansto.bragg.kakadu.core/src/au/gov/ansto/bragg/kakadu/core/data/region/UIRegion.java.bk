@@ -1,0 +1,143 @@
+/*******************************************************************************
+ * Copyright (c) 2007 Australian Nuclear Science and Technology Organisation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Danil Klimontov (Bragg Institute) - initial API and implementation
+ *******************************************************************************/
+package au.gov.ansto.bragg.kakadu.core.data.region;
+
+/**
+ * The bean object for region functionality.
+ * 
+ * @author Danil Klimontov (dak)
+ */
+public class UIRegion {
+
+	private static int idCounter = 0;
+	private int id;
+	
+	private String name;
+	private RegionType type;
+	private double xMin, yMin, xMax, yMax;
+//	private boolean isSelected;
+	private boolean isInclusive = true;
+	
+	
+	public UIRegion(boolean isInclusive, double  xMin, double  yMin, double  xMax, double  yMax) {
+		id = idCounter++;
+		name = "Region " + id;
+
+		this.isInclusive = isInclusive;
+		this.xMin = xMin;
+		this.yMin = yMin;
+		this.xMax = xMax;
+		this.yMax = yMax;
+	}
+
+
+	public int getId() {
+		return id;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	
+
+	public double getXMin() {
+		return xMin;
+	}
+
+
+	public void setXMin(double min) {
+		xMin = min;
+	}
+
+
+	public double  getYMin() {
+		return yMin;
+	}
+
+
+	public void setYMin(double min) {
+		yMin = min;
+	}
+
+
+	public double  getXMax() {
+		return xMax;
+	}
+
+
+	public void setXMax(double max) {
+		xMax = max;
+	}
+
+
+	public double  getYMax() {
+		return yMax;
+	}
+
+
+	public void setYMax(double max) {
+		yMax = max;
+	}
+
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+//		if (this == obj) {
+//			return true;
+//		}
+		if (obj instanceof UIRegion) {
+			UIRegion uiRegion = (UIRegion) obj;
+			return uiRegion.isInclusive() == isInclusive &&
+				uiRegion.getXMin() == xMin &&
+				uiRegion.getYMin() == yMin &&
+				uiRegion.getXMax() == xMax &&
+				uiRegion.getYMax() == yMax;
+		}
+		return super.equals(obj);
+	}
+
+	public String toString() {
+		return "" +
+				name +
+				" [" +
+				xMin +
+				", " +
+				yMin +
+				", " +
+				xMax +
+				", " +
+				yMax +
+				", " +
+				(isInclusive ? "Inclusive" : "Exclusive") +
+				"]";
+	}
+
+
+	public boolean isInclusive() {
+		return isInclusive;
+	}
+
+	public void setInclusive(boolean isInclusive) {
+		this.isInclusive = isInclusive;
+	}
+	
+	public static int nextId(){
+		return idCounter ++;
+	}
+}

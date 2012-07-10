@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Data Analysis"
+            id="au.gov.ansto.bragg.kakadu.ui">
+      </category>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.kakadu.ui"
+            class="au.gov.ansto.bragg.kakadu.ui.views.DataSourceView"
+            icon="icons/data_source_view.gif"
+            id="au.gov.ansto.bragg.kakadu.ui.views.DataSourceView"
+            name="Data Source">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.kakadu.ui"
+            class="au.gov.ansto.bragg.kakadu.ui.instrument.SingleEntryDataSourceView"
+            icon="icons/data_source_view.gif"
+            id="au.gov.ansto.bragg.kakadu.ui.instrument.SingleEntryDataSourceView"
+            name="Nexus File Source">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.kakadu.ui"
+            class="au.gov.ansto.bragg.kakadu.ui.instrument.InstrumentDataSourceView"
+            icon="icons/data_source_view.gif"
+            id="au.gov.ansto.bragg.kakadu.ui.instrument.InstrumentDataSourceView"
+            name="File Source">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.kakadu.ui"
+            class="au.gov.ansto.bragg.kakadu.ui.views.AlgorithmListView"
+            icon="icons/alg_list_view.gif"
+            id="au.gov.ansto.bragg.kakadu.ui.views.AlgorithmListView"
+            name="Algorithm List"/>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.kakadu.ui"
+            class="au.gov.ansto.bragg.kakadu.ui.views.ProjectView"
+            icon="icons/project_view.gif"
+            id="au.gov.ansto.bragg.kakadu.ui.ProjectView"
+            name="Project"/>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.kakadu.ui"
+            class="au.gov.ansto.bragg.kakadu.ui.views.RegionView"
+            icon="icons/sample.gif"
+            id="au.gov.ansto.bragg.kakadu.ui.views.RegionView"
+            name="Region">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.kakadu.ui"
+            class="au.gov.ansto.bragg.kakadu.ui.views.MaskPropertiesView"
+            icon="icons/mask_prop_view.gif"
+            id="au.gov.ansto.bragg.kakadu.ui.views.MaskPropertiesView"
+            name="Mask Properties">
+      </view>
+      <view
+            allowMultiple="true"
+            category="au.gov.ansto.bragg.kakadu.ui"
+            class="au.gov.ansto.bragg.kakadu.ui.views.PlotView"
+            icon="icons/mask_prop_view.gif"
+            id="au.gov.ansto.bragg.kakadu.ui.views.PlotView"
+            name="Plot">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.kakadu.ui"
+            class="au.gov.ansto.bragg.kakadu.ui.views.OperationParametersView"
+            icon="icons/operation_parameters_view.gif"
+            id="au.gov.ansto.bragg.kakadu.ui.views.OperationParametersView"
+            name="Operation Parameters">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.kakadu.ui"
+            class="au.gov.ansto.bragg.kakadu.ui.views.AnalysisParametersView"
+            icon="icons/operation_parameters_view.gif"
+            id="au.gov.ansto.bragg.kakadu.ui.views.AnalysisParametersView"
+            name="Analysis Parameters">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="au.gov.ansto.bragg.kakadu.ui.editors.AlgorithmTaskEditor"
+            extensions="xml"
+            icon="icons/alg_task_editor.gif"
+            id="au.gov.ansto.bragg.kakadu.ui.editors.AlgorithmTaskEditor"
+            name="Algorithm Task"/>
+   </extension>
+   <!--
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="au.gov.ansto.bragg.kakadu.ui.actionSet"
+            label="Kakadu Action Set"
+            visible="true">
+         <menu
+               id="kakaduMenu"
+               label="Anal&amp;ysis">
+            <separator name="kakaduGroup"/>
+         </menu>
+		 <action
+               class="au.gov.ansto.bragg.kakadu.ui.actions.OpenAlgorithmTaskAction"
+               icon="icons/toc_open.gif"
+               id="au.gov.ansto.bragg.kakadu.ui.actions.OpenAlgorithmTaskAction"
+               label="Open Reduction Task"
+               menubarPath="file/new.ext"
+               style="push"
+               toolbarPath="org.eclipse.ui.workbench.file/new.ext"
+               tooltip="Open a saved DRA task">
+         </action>
+         <action
+               class="au.gov.ansto.bragg.kakadu.ui.actions.ShowOperationParametersView"
+               icon="icons/operation_parameters_view.gif"
+               id="au.gov.ansto.bragg.kakadu.ui.actions.ShowOperationParametersView"
+               label="Operation &amp;Parameters"
+               menubarPath="kakaduMenu/kakaduGroup"
+               style="push"
+               toolbarPath="kakaduGroup"
+               tooltip="Show Operation Parameters View">
+         </action>
+         <action
+               allowLabelUpdate="true"
+               class="au.gov.ansto.bragg.kakadu.ui.actions.ShowMaskPropertiesAction"
+               icon="icons/mask_prop_view.gif"
+               id="au.gov.ansto.bragg.kakadu.ui.ShowMaskPropertiesAction"
+               label="&amp;Mask Properties"
+               menubarPath="kakaduMenu/kakaduGroup"
+               style="push"
+               toolbarPath="kakaduGroup"
+               tooltip="Show Mask Properties View">
+         </action>
+         <action
+               class="au.gov.ansto.bragg.kakadu.ui.actions.ShowAlgorithmListAction"
+               icon="icons/alg_list_view.gif"
+               id="au.gov.ansto.bragg.kakadu.ui.actions.ShowAlgorithmListAction"
+               label="&amp;Algorithm List"
+               menubarPath="kakaduMenu/kakaduGroup"
+               style="push"
+               toolbarPath="kakaduGroup"
+               tooltip="Show Algorithm List view"/>
+         <action
+               class="au.gov.ansto.bragg.kakadu.ui.actions.ShowDataSourceAction"
+               icon="icons/data_source_view.gif"
+               id="au.gov.ansto.bragg.kakadu.ui.ShowDataSourceAction"
+               label="&amp;Data Source"
+               menubarPath="kakaduMenu/kakaduGroup"
+               style="push"
+               toolbarPath="kakaduGroup"
+               tooltip="Show Data Source view"/>
+      </actionSet>
+   </extension>
+   -->
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="au.gov.ansto.bragg.kakadu.ui.KakaduPerspective"
+            icon="icons/project_view.gif"
+            id="au.gov.ansto.bragg.kakadu.ui.KakaduPerspective"
+            name="Analysis"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="au.gov.ansto.bragg.kakadu.ui.preferences.CicadaPreferencePage"
+            id="cicada preference page when kakadu is loaded"
+            name="Algorithm Set">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="au.gov.ansto.bragg.kakadu.ui.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
+
+</plugin>

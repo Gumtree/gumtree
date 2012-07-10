@@ -1,0 +1,117 @@
+package au.gov.ansto.bragg.kakadu.core.data.region;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * The manager manage all regions in a scope of one AlgorithmTask.
+ * 
+ * @author Danil Klimontov (dak)
+ */
+public class RegionManager {
+	/**
+	 * <operationName, <parameterName, ParameterRegionManager>>
+	 */
+	private Map<String, Map<String, ParameterRegionManager>> parameterRegionManagers = 
+		new HashMap<String, Map<String,ParameterRegionManager>>();
+	private ParameterRegionManager lastEditebleParameterRegionManager;
+	
+	public ParameterRegionManager getParameterRegionManager(String operationName, String parameterName) {
+		final Map<String, ParameterRegionManager> managers = getParameterRegionManagers(operationName);
+		ParameterRegionManager parameterRegionManager = managers.get(parameterName);
+		if (parameterRegionManager == null) {
+			parameterRegionManager = new ParameterRegionManager(operationName, parameterName);
+			managers.put(parameterName, parameterRegionManager);
+		}
+		return parameterRegionManager;
+	}
+	
+	/**
+	 * 
+	 * @param operationName
+	 * @return <parameterName, ParameterRegionManager>
+	 */
+	public Map<String, ParameterRegionManager> getParameterRegionManagers(String operationName) {
+		//<parameterName, ParameterRegionManager>
+		Map<String, ParameterRegionManager> result = parameterRegionManagers.get(operationName);
+		if (result == null) {
+			result = new HashMap<String, ParameterRegionManager>();
+			parameterRegionManagers.put(operationName, result);
+		}
+		return result;
+	}
+	
+
+	/**
+	 * Gets list of available ParameterRegionManager objects.
+	 * @return list of ParameterRegionManager objects.
+	 */
+	public List<ParameterRegionManager> getParameterRegionManagerList() {
+		final ArrayList<ParameterRegionManager> result = new ArrayList<ParameterRegionManager>();
+		for (Map<String, ParameterRegionManager> map : parameterRegionManagers.values()) {
+			for (ParameterRegionManager parameterRegionManager : map.values()) {
+				result.add(parameterRegionManager);
+			}
+		}
+		return result;
+	}
+
+	public List<UIRegion> getRegions(String operationName) {
+		final ArrayList<UIRegion> result = new ArrayList<UIRegion>();
+		final Collection<ParameterRegionManager> managers = getParameterRegionManagers(operationName).values();
+		for (ParameterRegionManager parameterRegionManager : managers) {
+			result.addAll(parameterRegionManager.getRegions());
+		}
+		return result;
+	}
+	
+	public void addRegion(String operationName, UIRegion region) {
+		final Collection<ParameterRegionManager> managers = getParameterRegionManagers(operationName).values();
+		for (ParameterRegionManager parameterRegionManager : managers) {
+			parameterRegionManager.addRegion(region);
+		}
+	}
+
+	public void removeRegion(String operationName, UIRegion region) {
+		final Collection<ParameterRegionManager> managers = getParameterRegionManagers(operationName).values();
+		for (ParameterRegionManager parameterRegionManager : managers) {
+			parameterRegionManager.removeRegion(region);
+		}
+	}
+	
+	
+	public void addRegionListener(String operationName, RegionListener regionListener) {
+		final Collection<ParameterRegionManager> managers = getParameterRegionManagers(operationName).values();
+		for (ParameterRegionManager parameterRegionManager : managers) {
+			parameterRegionManager.addRegionListener(regionListener);
+		}
+	}
+	
+	public void removeRegionListener(String operationName, RegionListener regionListener) {
+		final Collection<ParameterRegionManager> managers = getParameterRegionManagers(operationName).values();
+		for (ParameterRegionManager parameterRegionManager : managers) {
+			parameterRegionManager.removeRegionListener(regionListener);
+		}
+	}
+
+	/**
+	 * Remembers last ParameterRegionManager which was opened in MaskPropertiesView.
+	 * @param lastEditebleParameterRegionManager
+	 */
+	public void setLastEditableParameterRegionManager(
+			ParameterRegionManager lastEditebleParameterRegionManager) {
+				this.lastEditebleParameterRegionManager = lastEditebleParameterRegionManager;
+	}
+	
+	/**
+	 * Gets last ParameterRegionManager which was opened in MaskPropertiesView.
+	 * @return
+	 */
+	public ParameterRegionManager getLastEditebleParameterRegionManager() {
+		return lastEditebleParameterRegionManager;
+	}
+
+}

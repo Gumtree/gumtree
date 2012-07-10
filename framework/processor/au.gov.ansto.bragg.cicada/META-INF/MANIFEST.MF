@@ -1,0 +1,29 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg Cicada Algorithm Manager
+Bundle-SymbolicName: au.gov.ansto.bragg.cicada;singleton:=true
+Bundle-Version: 1.8.0.qualifier
+Export-Package: au.gov.ansto.bragg.cicada.core;
+  uses:="au.gov.ansto.bragg.cicada.dam.core,
+   au.gov.ansto.bragg.process.processor,
+   au.gov.ansto.bragg.process.agent,
+   au.gov.ansto.bragg.process.port,
+   org.gumtree.data.interfaces,
+   au.gov.ansto.bragg.cicada.core.extension,
+   au.gov.ansto.bragg.process.common",
+ au.gov.ansto.bragg.cicada.core.exception,
+ au.gov.ansto.bragg.cicada.core.extension;uses:="org.eclipse.core.runtime,org.gumtree.core.util.eclipse",
+ au.gov.ansto.bragg.cicada.export;
+  uses:="org.gumtree.data.impl.io,
+   org.gumtree.data.interfaces,
+   au.gov.ansto.bragg.process.common,
+   au.gov.ansto.bragg.cicada.core"
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: au.gov.ansto.bragg.cicada.core.internal.Activator
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: org.slf4j
+Require-Bundle: au.gov.ansto.bragg.cicada.dam;visibility:=reexport,
+ au.gov.ansto.bragg.process;visibility:=reexport,
+ com.springsource.org.dom4j;bundle-version="1.6.1"
+Eclipse-BundleShape: jar
+Bundle-Vendor: Bragg Institute

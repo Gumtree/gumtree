@@ -133,7 +133,6 @@
 		<module>${sics.path}/org.gumtree.sics.ui.feature</module>
 
 
-		<!--
 		<module>${dae.path}/org.gumtree.dae.core</module>
 		<module>${dae.path}/org.gumtree.dae.core.feature</module>
 
@@ -141,6 +140,7 @@
 		<module>${dae.path}/org.gumtree.dae.server.feature</module>
 
 
+		<!--
 		<module>${processor.path}/au.gov.ansto.bragg.errorpropagation</module>
 		<module>${processor.path}/au.gov.ansto.bragg.datastructures</module>
 		<module>${processor.path}/org.gumtree.data.ansto</module>

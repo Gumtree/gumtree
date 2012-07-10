@@ -1,0 +1,10 @@
+<contexts>
+   <context id="dataSourceView">
+      <description>Data Source View is assigned to select data files and data items to process them with an Algorithm.</description>
+      <topic href="html/subtopic.html" label="Subtopic" />
+   </context>
+   <context id="algorithmListView">
+      <description>Algorithm List View is assigned to select an Algorithm from the list of available algorithms and run it.</description>
+      <topic href="html/subtopic.html" label="Subtopic" />
+   </context>
+</contexts>

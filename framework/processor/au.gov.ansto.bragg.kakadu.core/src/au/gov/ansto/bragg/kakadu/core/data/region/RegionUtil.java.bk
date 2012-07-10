@@ -1,0 +1,153 @@
+/*******************************************************************************
+ * Copyright (c) 2007 Australian Nuclear Science and Technology Organisation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Danil Klimontov (Bragg Institute) - initial API and implementation
+ *******************************************************************************/
+package au.gov.ansto.bragg.kakadu.core.data.region;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.gumtree.data.gdm.core.Attribute;
+import org.gumtree.data.gdm.core.DataItem;
+import org.gumtree.data.gdm.core.Factory;
+import org.gumtree.data.gdm.core.Group;
+
+import au.gov.ansto.bragg.datastructures.core.region.RectilinearRegion;
+import au.gov.ansto.bragg.datastructures.core.region.Region;
+import au.gov.ansto.bragg.datastructures.core.region.RegionFactory;
+import au.gov.ansto.bragg.datastructures.core.region.RegionSet;
+import au.gov.ansto.bragg.datastructures.core.region.RegionUtils;
+
+/**
+ * The utility class for region functionality.
+ * 
+ * @author Danil Klimontov (dak)
+ */
+public class RegionUtil {
+
+	public static Group convertToServerObject(List<UIRegion> regionList) throws Exception {
+		Group regionSet = RegionFactory.createRegionSet(
+				Factory.createDataset().getRootGroup(), "regionSet");
+
+		for (UIRegion region : regionList) {
+//			au.gov.ansto.bragg.datastructures.core.Region.addRectilinearRegion(regionSet, "rectangular", region.isInclusive(), 
+//			new int[]{region.getYMin(), region.getXMin()}, 
+//			new int[]{region.getYMax() - region.getYMin(), region.getXMax() - region.getXMin()}, null);
+
+			System.err.println("RegionUtil.java: convertToServerObjecT() isInclusive: " + region.isInclusive());
+			RegionFactory.createRectilinearRegion(regionSet, region.getName(), 
+					new double[]{region.getYMin(), region.getXMin()}, new double[]{region.getYMax() 
+					- region.getYMin(), region.getXMax() - region.getXMin()}, new String [] { 
+					"degrees", "counts"}, region.isInclusive()); 
+
+
+		}
+		return regionSet;
+	}
+
+	public static List<UIRegion> convertToUIObject(Group group) {
+		ArrayList<UIRegion> regions = new ArrayList<UIRegion>();
+
+		//parse regions
+//		if (group != null) {
+//		for (Iterator<?> iterator = group.getDataItems().iterator(); iterator.hasNext();) {
+//		DataItem region = (DataItem) iterator.next();
+//		Attribute regionType = region.findAttribute("geometry");
+//		if (regionType.getStringValue().matches("rectilineal")){
+//		double[] reference = (double[]) region.findAttribute("reference").getValue().copyTo1DJavaArray();
+//		double[] range = (double[]) region.findAttribute("range").getValue().copyTo1DJavaArray();
+//		boolean isInclusive =  ((boolean[]) region.findAttribute("inclusive").getValue().copyTo1DJavaArray())[0];
+
+//		regions.add(new UIRegion(isInclusive, (int) reference[1], (int) reference[0], 
+//		(int) (reference[1] + range[1]), (int) (reference[0] + range[0]) ) );
+//		}			
+//		}
+
+//		}
+		if (group != null) {
+//			List<Region> regionList = ((RegionSet) group).getRegionList();
+			List<Region> regionList = RegionUtils.getRegionFromGroup(group);
+			for (Region region : regionList){
+				if (region instanceof RectilinearRegion) {
+					RectilinearRegion rectilinearRegion = (RectilinearRegion) region;
+					double[] reference = rectilinearRegion.getPrimaryPhysicalReference();
+					double[] range = rectilinearRegion.getPrimaryPhysicalRange();
+					boolean isInclusive = false;
+					try {
+						isInclusive = rectilinearRegion.isInclusive();
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+					regions.add(new UIRegion(isInclusive, (int) reference[1], (int) reference[0], 
+							(int) (reference[1] + range[1]), (int) (reference[0] + range[0]) ) );						
+				}
+			}
+		}
+		return regions;
+	}
+
+	/**
+	 * Compare two lists of UIRegion objects. Order of UIRegion objects in the list is ignored.
+	 * Method <code>equal()</code> of UIRegion must use data values for comparison 
+	 * instead of object reference or id.
+	 * @param regions1 first list of regions
+	 * @param regions2 second list of regions
+	 * @return true if each element of region1 was found in region2 and sizes of lists are equal
+	 * or false otherwise.
+	 */
+	public static boolean areEqual(List<UIRegion> regions1, List<UIRegion> regions2) {
+		if (regions1 == null) {
+			return regions2 == null;
+		}
+		if (regions2 == null) {
+			return false;
+		}
+		if (regions1.size() != regions2.size()) {
+			return false;
+		}
+
+		for (UIRegion region : regions1) {
+			if (!contains(regions2, region)) {
+				return false;
+			}
+		}
+		for (UIRegion region : regions2) {
+			if (!contains(regions1, region)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static boolean contains(List<UIRegion> regions, UIRegion region) {
+		for (UIRegion regionItem : regions) {
+			if (regionItem.equals(region)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @param region
+	 * @return
+	 */
+	public static int getRegionIndex(java.util.List<UIRegion> regions, UIRegion region) {
+		int index = -1;
+		for (int i = 0;regions.size() > i; i++) {
+			UIRegion r = regions.get(i);
+			if (r == region) {
+				index = i;
+				break;
+			}
+
+		}
+		return index;
+	}
+}

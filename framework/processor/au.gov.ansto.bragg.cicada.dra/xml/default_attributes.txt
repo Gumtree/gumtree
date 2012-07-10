@@ -1,0 +1,6 @@
+user_name
+title
+file_time
+run_mode
+hmm_mode
+start_time

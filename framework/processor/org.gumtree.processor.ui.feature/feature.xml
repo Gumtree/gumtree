@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.gumtree.processor.ui.feature"
+      label="Gumtree Processor UI"
+      version="1.8.0.qualifier"
+      provider-name="Bragg Institute">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <includes
+         id="org.gumtree.processor.core.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.gumtree.common.ui.feature"
+         version="0.0.0"/>
+
+   <requires>
+      <import feature="org.gumtree.common.ui.feature" version="1.7.0.qualifier"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="au.gov.ansto.bragg.cicada"/>
+      <import plugin="org.gumtree.vis.core"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.gumtree.vis.gdm"/>
+      <import plugin="org.gumtree.ui" version="1.7.0" match="greaterOrEqual"/>
+      <import plugin="au.gov.ansto.bragg.cicada.dom"/>
+      <import plugin="au.gov.ansto.bragg.freehep.jas3"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui.forms"/>
+      <import plugin="org.slf4j.api"/>
+   </requires>
+
+   <plugin
+         id="au.gov.ansto.bragg.kakadu.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="au.gov.ansto.bragg.kakadu.doc"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="au.gov.ansto.bragg.kakadu.dom"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="au.gov.ansto.bragg.kakadu.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
