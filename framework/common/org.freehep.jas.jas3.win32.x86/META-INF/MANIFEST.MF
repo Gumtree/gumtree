@@ -6,3 +6,4 @@ Bundle-Version: 0.8.3.qualifier
 Fragment-Host: org.freehep.jas.jas3;bundle-version="0.8.3"
 Eclipse-PlatformFilter: (& (osgi.os=win32) (osgi.arch=x86))
 Eclipse-BundleShape: dir
+Bundle-Vendor: FreeHEP

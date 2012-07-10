@@ -23,3 +23,4 @@ Require-Bundle: org.hamcrest.core;bundle-version="1.1.0";visibility:=reexport,
  org.objenesis;bundle-version="1.2.0",
  com.springsource.net.sf.cglib;bundle-version="2.2.0"
 Eclipse-BundleShape: jar
+Bundle-Vendor: http://code.google.com/p/lambdaj

@@ -7,8 +7,9 @@
 	<packaging>eclipse-feature</packaging>
 	<parent>
 		<groupId>org.codehaus.gumtree</groupId>
-		<artifactId>org.gumtree.maven.tycho.crossplatform</artifactId>
-		<version>1.7.0-SNAPSHOT</version>
+		<artifactId>org.gumtree.maven.tycho</artifactId>
+		<version>1.8.0-SNAPSHOT</version>
+		<relativePath>../../../parent/org.gumtree.maven.tycho</relativePath>
 	</parent>
 
 	<name>Gumtree Framework Common Server Feature</name>

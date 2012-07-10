@@ -8,7 +8,6 @@
 	<version>1.8.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
-		<cmda.path>../../../cdma</cmda.path>
 		<parent.path>../../../gumtree/parent</parent.path>
 		<framework.path>../../../gumtree/framework/build</framework.path>
 		<bragg.path>../../../gumtree/bragg/build</bragg.path>
@@ -17,7 +16,6 @@
 	
 	<modules>
 		<module>${parent.path}/org.gumtree.maven.module</module>
-		<!-- <module>${cmda.path}/org.gumtree.data.build</module> -->
 		<module>${framework.path}/org.gumtree.framework.module</module>
 		<!--
 		<module>${bragg.path}/au.gov.ansto.bragg.extensions.module</module>

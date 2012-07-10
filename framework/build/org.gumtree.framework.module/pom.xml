@@ -40,14 +40,15 @@
 		<module>${data.path}/org.gumtree.data.engine.jnexus</module>
 		<module>${data.path}/org.gumtree.data.soleil</module>
 		<module>${data.path}/org.gumtree.data.soleil.feature</module>
-
-		<!--
+		
+		
 		<module>${common.path}/com.db4o.osgi</module>
 		<module>${common.path}/com.google.guava</module>
 		<module>${common.path}/com.thoughtworks.xstream</module>
 		<module>${common.path}/org.objenesis</module>
 		<module>${common.path}/ch.lambdaj</module>
 		<module>${common.path}/org.gumtree.core</module>
+
 		<module>${common.path}/org.freehep.jas.jas3</module>
 		<module>${common.path}/org.freehep.jas.jas3.win32.x86</module>
 		<module>${common.path}/org.freehep.jas.jas3.linux.x86</module>
@@ -89,6 +90,7 @@
 		<module>${common.path}/org.gumtree.common.ui.feature</module>
 
 
+		<!--
 		<module>${extensions.path}/org.beanshell</module>
 		<module>${extensions.path}/org.gumtree.beanshell.core</module>
 		<module>${extensions.path}/org.gumtree.beanshell.core.feature</module>
@@ -190,10 +192,12 @@
 				<module>${data.path}/org.gumtree.data.impl.netcdf.tests</module>
 				<module>${data.path}/org.gumtree.data.soleil.tests</module>
 
-				<!--
+
 				<module>${common.path}/org.gumtree.core.tests</module>
 				<module>${common.path}/org.gumtree.server.tests</module>
 
+
+				<!--
 				<module>${applications.path}/org.gumtree.app.runtime.tests</module>
 				-->
 			</modules>

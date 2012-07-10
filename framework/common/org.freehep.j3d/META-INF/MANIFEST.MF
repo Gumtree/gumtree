@@ -8,3 +8,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.freehep.j3d,
  org.freehep.j3d.plot
 Eclipse-BundleShape: jar
+Bundle-Vendor: FreeHEP

@@ -127,3 +127,4 @@ Require-Bundle: org.eclipse.jface;visibility:=reexport,
  org.apache.commons.lang
 Eclipse-BundleShape: jar
 Import-Package: org.apache.commons.logging;version="1.1.1"
+Bundle-Vendor: Eclipse.org
