@@ -1,0 +1,45 @@
+<map-def name="SWING" version="1.0.0">
+    <item key="camera">
+        <path>/{NXentry}/{NXinstrument}/{NXdetector}</path>
+    </item>
+    <item key="dark">
+        <path>/{NXentry}/{NXinstrument}/{NXdetector}/intensityBlack</path>
+    </item>
+    <item key="distance">
+        <path>/{NXentry}/{NXinstrument}/{NXdetector}/distance</path>
+    </item>
+    <item key="exposureTime">
+        <path>/{NXentry}/{NXinstrument}/{NXdetector}/Exposure</path>
+    </item>
+    <item key="shutterCloseDelay">
+        <path>/{NXentry}/{NXinstrument}/{NXdetector}/ShutterCloseDelay</path>
+    </item>
+    <item key="xBin">
+        <path>/{NXentry}/{NXinstrument}/{NXdetector}/Xbin</path>
+    </item>
+    <item key="yBin">
+        <path>/{NXentry}/{NXinstrument}/{NXdetector}/Ybin</path>
+    </item>
+    <item key="mi">
+        <path>/{NXentry}/{NXinstrument}/{NXintensity_monitor}</path>
+    </item>
+    <item key="gain">
+        <path>/{NXentry}/{NXinstrument}/{NXintensity_monitor}/Gain</path>
+    </item>
+    <item key="intensity">
+        <path>/{NXentry}/{NXinstrument}/$(name){NXintensity_monitor}/intensity</path>
+    </item>
+    <item key="lambda">
+        <path>/{NXentry}/{NXinstrument}/{NXmonochromator}/wavelength</path>
+    </item>
+    <item key="energy">
+        <path>/{NXentry}/{NXinstrument}/{NXmonochromator}/energy</path>
+    </item>
+    <item key="spectrums">
+        <path>/{NXentry}/{NXdata}/data*</path>
+        <call>org.gumtree.data.soleil.external.DataItemStacker.stackDataItems</call>
+    </item>
+    <item key="comments">
+        <path>/{NXentry}/{NXsample}/comments/data</path>
+    </item>
+</map-def>

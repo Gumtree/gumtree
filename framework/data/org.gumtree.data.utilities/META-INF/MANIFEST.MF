@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: CDMA Utilities
+Bundle-SymbolicName: org.gumtree.data.utilities
+Bundle-Version: 3.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.gumtree.data.core;bundle-version="3.0.0";visibility:=reexport,
+ org.eclipse.equinox.common;bundle-version="3.6.0";resolution:=optional
+Import-Package: org.jdom,
+ org.jdom.input,
+ org.osgi.framework;resolution:=optional
+Export-Package: org.gumtree.data.util,
+ org.gumtree.data.util.configuration,
+ org.gumtree.data.util.performance
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.gumtree.data.util.internal.Activator

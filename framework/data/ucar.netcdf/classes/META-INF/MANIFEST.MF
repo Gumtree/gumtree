@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.7.1
+Created-By: 11.3-b02 (Sun Microsystems Inc.)
+Built-By: caron
+Built-On: 2009-07-08 20:10:17
+Implementation-Title: NetCDF-Java-Library
+Implementation-Version: 4.0.48.2.20090708.2010
+Implementation-Vendor: UCAR/Unidata
+

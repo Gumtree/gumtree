@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>org.gumtree.data.build</artifactId>
+	<packaging>pom</packaging>
+	<parent>
+		<groupId>org.codehaus.gumtree</groupId>
+		<artifactId>org.gumtree.data.parent</artifactId>
+		<version>3.0.0-SNAPSHOT</version>
+		<relativePath>../org.gumtree.data.parent</relativePath>
+	</parent>
+
+	<modules>
+		<module>../org.gumtree.data.parent</module>
+		<module>../org.gumtree.data.core</module>
+		<module>../org.gumtree.data.utilities</module>
+		<module>../org.gumtree.data.common.feature</module>
+
+		<module>../ucar.netcdf</module>
+		<module>../ncsa.hdf</module>
+		<module>../ncsa.hdf.linux.x86</module>
+		<module>../ncsa.hdf.linux.x86_64</module>
+		<module>../ncsa.hdf.macosx.x86</module>
+		<module>../ncsa.hdf.macosx.x86_64</module>
+		<module>../ncsa.hdf.win32.x86</module>
+		<module>../ncsa.hdf.win32.x86_64</module>
+		<module>../org.gumtree.data.impl.netcdf</module>
+		<module>../org.gumtree.data.ansto.feature</module>
+
+		<module>../org.nexusformat</module>
+		<module>../org.gumtree.data.engine.jnexus</module>
+		<module>../org.gumtree.data.soleil</module>
+		<module>../org.gumtree.data.soleil.feature</module>
+	</modules>
+
+	<name>CDMA Build POM</name>
+	
+	<profiles>
+		<profile>
+			<id>test</id>
+			<modules>
+				<module>../org.gumtree.data.core.tests</module>
+				<module>../org.gumtree.data.impl.netcdf.tests</module>
+				<module>../org.gumtree.data.soleil.tests</module>
+			</modules>
+		</profile>
+	</profiles>
+</project>
