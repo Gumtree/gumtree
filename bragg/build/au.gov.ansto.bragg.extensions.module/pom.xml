@@ -157,19 +157,5 @@
 			<modules>
 			</modules>
 		</profile>
-		<profile>
-			<id>ide</id>
-			<properties>
-				<nbi.path>..</nbi.path>
-				<echidna.path>..</echidna.path>
-				<wombat.path>..</wombat.path>
-				<kowari.path>..</kowari.path>
-				<quokka.path>..</quokka.path>
-				<platypus.path>..</platypus.path>
-				<pelican.path>..</pelican.path>
-				<taipan.path>..</taipan.path>
-				<build.path>..</build.path>
-			</properties>
-		</profile>
 	</profiles>
 </project>

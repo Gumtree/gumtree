@@ -8,19 +8,17 @@
 	<version>1.8.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
-		<parent.path>../../../gumtree/parent</parent.path>
-		<framework.path>../../../gumtree/framework/build</framework.path>
-		<bragg.path>../../../gumtree/bragg/build</bragg.path>
+		<parent.path>../../parent</parent.path>
+		<framework.path>../../framework/build</framework.path>
+		<bragg.path>../../bragg/build</bragg.path>
 		<sdk.path>..</sdk.path>
 	</properties>
 	
 	<modules>
 		<module>${parent.path}/org.gumtree.maven.module</module>
 		<module>${framework.path}/org.gumtree.framework.module</module>
-		<!--
 		<module>${bragg.path}/au.gov.ansto.bragg.extensions.module</module>
 		<module>${sdk.path}/org.gumtree.sdk.module</module>
-		-->
 	</modules>
 	
 	<name>Gumtree Project Maven Build</name>
