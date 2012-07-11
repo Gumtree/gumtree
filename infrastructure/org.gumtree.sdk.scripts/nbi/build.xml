@@ -15,12 +15,13 @@
 	############################################################################
 	-->
 
-	<property name="version" value="1.7.5" />
+	<property name="version" value="1.8.0" />
 	<property name="repoProject" value="org.gumtree.maven.repository" />
-	<property name="containerProduct" value="org.gumtree.app.osgi.product" />
-	<property name="buildScriptProject" value="org.gumtree.sdk.scripts" />
-	<property name="allMavenProject" value="org.gumtree.maven.all" />
+	<property name="repositoryLocation" value="infrastructure/${repoProject}/target" />
+	<property name="buildScriptLocation" value="infrastructure/org.gumtree.sdk.scripts" />
+	<property name="mavenBuildLocation" value="infrastructure/org.gumtree.maven.all/target" />
 	<property name="equinoxJarLocation" value="tools/eclipse-SDK-3.7.2-${ideOS}/eclipse/plugins/org.eclipse.equinox.launcher_1.2.0.v20110502.jar" />
+	<property name="containerProduct" value="org.gumtree.app.osgi.product" />
 	<property name="nsisHome" value="X:/apps/PortableApps/1.6/PortableApps/NSISPortable/App/NSIS" />
 
 	<!--
@@ -37,6 +38,7 @@
 			artifactDirectory		(predefined)
 			sourceDirectory			(predefined)
 			repoProject				(predefined)
+			repositoryLocation		(predefined)
 			version					(predefined)
 	-->
 	<target name="copyRepository">
@@ -44,10 +46,10 @@
 		<delete dir="${artifactDirectory}/export/repository" failonerror="false" />
 		<!-- Copy directory structure -->
 		<copy todir="${artifactDirectory}/export/repository">
-			<fileset dir="${sourceDirectory}/${repoProject}/target/repository" />
+			<fileset dir="${sourceDirectory}/${repositoryLocation}/repository" />
 		</copy>
 		<!-- Copy archived version -->
-		<copy file="${sourceDirectory}/${repoProject}/target/${repoProject}.zip" tofile="${artifactDirectory}/export/repository/GumtreeRepository_${version}.zip" overwrite="true" />
+		<copy file="${sourceDirectory}/${repositoryLocation}/${repoProject}.zip" tofile="${artifactDirectory}/export/repository/GumtreeRepository_${version}.zip" overwrite="true" />
 	</target>
 
 	<!--
@@ -55,7 +57,7 @@
 		Paramaters:
 			artifactDirectory		(predefined)
 			sourceDirectory			(predefined)
-			repoProject				(predefined)
+			repositoryLocation		(predefined)
 			containerProduct		(predefined)
 	-->
 	<target name="copyRuntime">
@@ -63,23 +65,23 @@
 		<delete dir="${artifactDirectory}/export/container" failonerror="false" />
 		<!-- win32 -->
 		<copy todir="${artifactDirectory}/export/container/win32">
-			<fileset dir="${sourceDirectory}/${repoProject}/target/products/${containerProduct}/win32/win32/x86" excludes="eclipsec.exe" />
+			<fileset dir="${sourceDirectory}/${repositoryLocation}/products/${containerProduct}/win32/win32/x86" excludes="eclipsec.exe" />
 		</copy>
 		<!-- win64 -->
 		<copy todir="${artifactDirectory}/export/container/win64">
-			<fileset dir="${sourceDirectory}/${repoProject}/target/products/${containerProduct}/win32/win32/x86_64" excludes="eclipsec.exe" />
+			<fileset dir="${sourceDirectory}/${repositoryLocation}/products/${containerProduct}/win32/win32/x86_64" excludes="eclipsec.exe" />
 		</copy>
 		<!-- gtk32 -->
 		<copy todir="${artifactDirectory}/export/container/gtk32">
-			<fileset dir="${sourceDirectory}/${repoProject}/target/products/${containerProduct}/linux/gtk/x86" />
+			<fileset dir="${sourceDirectory}/${repositoryLocation}/products/${containerProduct}/linux/gtk/x86" />
 		</copy>
 		<!-- gtk64 -->
 		<copy todir="${artifactDirectory}/export/container/gtk64">
-			<fileset dir="${sourceDirectory}/${repoProject}/target/products/${containerProduct}/linux/gtk/x86_64" />
+			<fileset dir="${sourceDirectory}/${repositoryLocation}/products/${containerProduct}/linux/gtk/x86_64" />
 		</copy>
 		<!-- cocoa32 -->
 		<copy todir="${artifactDirectory}/export/container/cocoa32">
-			<fileset dir="${sourceDirectory}/${repoProject}/target/products/${containerProduct}/macosx/cocoa/x86" />
+			<fileset dir="${sourceDirectory}/${repositoryLocation}/products/${containerProduct}/macosx/cocoa/x86" />
 		</copy>
 		<move file="${artifactDirectory}/export/container/cocoa32/splash.bmp" todir="${artifactDirectory}/export/container/cocoa32/gumtree.app/Contents/MacOS" />
 		<exec executable="mv">
@@ -88,7 +90,7 @@
 		</exec>
 		<!-- cocoa32 -->
 		<copy todir="${artifactDirectory}/export/container/cocoa64">
-			<fileset dir="${sourceDirectory}/${repoProject}/target/products/${containerProduct}/macosx/cocoa/x86_64" />
+			<fileset dir="${sourceDirectory}/${repositoryLocation}/products/${containerProduct}/macosx/cocoa/x86_64" />
 		</copy>
 		<move file="${artifactDirectory}/export/container/cocoa64/splash.bmp" todir="${artifactDirectory}/export/container/cocoa64/gumtree.app/Contents/MacOS" />
 		<exec executable="mv">
@@ -102,16 +104,16 @@
 		Paramaters:
 			artifactDirectory		(predefined)
 			sourceDirectory			(predefined)
-			buildScriptProject		(predefined)
+			buildScriptLocation		(predefined)
 	-->
 	<target name="copyScripts">
 		<echo message="Copying build scripts..." />
 		<delete dir="${artifactDirectory}/export/scripts" failonerror="false" />
 		<copy todir="${artifactDirectory}/export/scripts/nbi/scripts">
-			<fileset dir="${sourceDirectory}/${buildScriptProject}/nbi/scripts" />
+			<fileset dir="${sourceDirectory}/${buildScriptLocation}/nbi/scripts" />
 		</copy>
 		<copy todir="${artifactDirectory}/export/scripts/nbi/nsis">
-			<fileset dir="${sourceDirectory}/${buildScriptProject}/nbi/nsis" />
+			<fileset dir="${sourceDirectory}/${buildScriptLocation}/nbi/nsis" />
 		</copy>
 		<copy file="build.xml" todir="${artifactDirectory}/export/scripts/nbi" />
 		<copy file="PackagingServers.bat" todir="${artifactDirectory}/export/scripts/nbi" />
@@ -124,13 +126,13 @@
 		Paramaters:
 			artifactDirectory		(predefined)
 			sourceDirectory			(predefined)
-			allMavenProject			(predefined)
+			mavenBuildLocation		(predefined)
 	-->
 	<target name="copyJavadoc">
 		<echo message="Copying Javadoc..." />
 		<delete dir="${artifactDirectory}/export/javadoc" failonerror="false" />
 		<copy todir="${artifactDirectory}/export/javadoc">
-			<fileset dir="${sourceDirectory}/${allMavenProject}/target/site/apidocs/" />
+			<fileset dir="${sourceDirectory}/${mavenBuildLocation}/site/apidocs/" />
 		</copy>
 		<zip destfile="${artifactDirectory}/export/javadoc/javadoc.zip" basedir="${artifactDirectory}/export/javadoc" />
 	</target>
