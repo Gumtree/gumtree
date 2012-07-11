@@ -12,24 +12,5 @@
 		<relativePath>../../../parent/org.gumtree.maven.tycho</relativePath>
 	</parent>
 
-	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<plugins>
-			<plugin>
-				<groupId>${tycho.groupId}</groupId>
-				<artifactId>tycho-source-plugin</artifactId>
-				<version>${tycho.version}</version>
-				<executions>
-					<execution>
-						<id>plugin-source</id>
-						<goals>
-							<goal>plugin-source</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-
 	<name>Bragg Quokka Server Library Bundle</name>
 </project>

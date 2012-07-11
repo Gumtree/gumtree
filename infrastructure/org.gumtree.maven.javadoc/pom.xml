@@ -45,6 +45,29 @@
 	<modules>
 		<module>${framework.path}/data/org.gumtree.data.core</module>
 		<module>${framework.path}/data/org.gumtree.data.utilities</module>
+		<module>${framework.path}/common/org.gumtree.core</module>
+		<module>${framework.path}/common/org.gumtree.ui</module>
+		<module>${framework.path}/common/org.gumtree.vis.core</module>
+		<module>${framework.path}/common/org.gumtree.workflow.ui</module>
+		<module>${framework.path}/sics/org.gumtree.gumnix.sics.core</module>
+		<module>${framework.path}/sics/org.gumtree.gumnix.sics.ui</module>
+		
+		<module>${bragg.path}/nbi/au.gov.ansto.bragg.nbi.core</module>
+		<module>${bragg.path}/nbi/au.gov.ansto.bragg.nbi.ui</module>
+		<module>${bragg.path}/echidna/au.gov.ansto.bragg.echidna.core</module>
+		<module>${bragg.path}/echidna/au.gov.ansto.bragg.echidna.ui</module>
+		<module>${bragg.path}/wombat/au.gov.ansto.bragg.wombat.core</module>
+		<module>${bragg.path}/wombat/au.gov.ansto.bragg.wombat.ui</module>
+		<module>${bragg.path}/kowari/au.gov.ansto.bragg.kowari.core</module>
+		<module>${bragg.path}/kowari/au.gov.ansto.bragg.kowari.ui</module>
+		<module>${bragg.path}/quokka/au.gov.ansto.bragg.quokka.core</module>
+		<module>${bragg.path}/quokka/au.gov.ansto.bragg.quokka.ui</module>
+		<module>${bragg.path}/platypus/au.gov.ansto.bragg.platypus.core</module>
+		<module>${bragg.path}/platypus/au.gov.ansto.bragg.platypus.ui</module>
+		<module>${bragg.path}/pelican/au.gov.ansto.bragg.pelican.core</module>
+		<module>${bragg.path}/pelican/au.gov.ansto.bragg.pelican.ui</module>
+		<module>${bragg.path}/taipan/au.gov.ansto.bragg.taipan.core</module>
+		<module>${bragg.path}/taipan/au.gov.ansto.bragg.taipan.ui</module>
 	</modules>
 	
 	<name>Gumtree Project Maven Javadoc Build</name>
