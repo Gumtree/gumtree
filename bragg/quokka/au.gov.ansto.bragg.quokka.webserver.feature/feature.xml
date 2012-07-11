@@ -2,7 +2,7 @@
 <feature
       id="au.gov.ansto.bragg.quokka.webserver.feature"
       label="Bragg Quokka Webserver"
-      version="1.7.0.qualifier"
+      version="1.8.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">
