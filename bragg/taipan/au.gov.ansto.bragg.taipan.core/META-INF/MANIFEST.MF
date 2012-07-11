@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg Taipan Core Library
+Bundle-SymbolicName: au.gov.ansto.bragg.taipan.core
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.taipan.core.internal.Activator
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: Bragg Institue
+Bundle-ActivationPolicy: lazy
+Require-Bundle: au.gov.ansto.bragg.nbi.core;bundle-version="1.7.0";visibility:=reexport

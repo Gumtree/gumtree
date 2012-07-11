@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:svg="http://www.w3.org/2000/svg"
+         xmlns:m="http://www.w3.org/1998/Math/MathML"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:db="http://docbook.org/ns/docbook">
+  <title>Experiment Window</title>
+
+  <sect1>
+    <title>Introduction</title>
+
+    <para>The Kowari Experiment Window is a graphical user interface to do
+    neutron scattering experiments on Kowari instrument. It consists of four
+    window parts, the <emphasis>Project Explorer</emphasis>, the
+    <emphasis>Scan Design &amp; Run</emphasis> , the <emphasis>Command Line
+    Terminal</emphasis>, and the <emphasis>Instrument Status Table</emphasis>.
+    These applications can help user to do both instrument control and scan
+    experiments.</para>
+
+    <para>To launch the Experiment Window, click on the
+    <emphasis>Launch</emphasis> button. Choose
+    <emphasis>Perspective</emphasis> option, then choose <emphasis>Kowari
+    Experiment</emphasis> option. <xref linkend="scan_window" /> shows an
+    snapshot of the Experiment Window.</para>
+
+    <figure xml:id="scan_window">
+      <title>Experiment Window</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata contentwidth="640"
+                     fileref="kowari.ui.images/Experiment/experiment_perspective.PNG"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+  </sect1>
+
+
+</chapter>

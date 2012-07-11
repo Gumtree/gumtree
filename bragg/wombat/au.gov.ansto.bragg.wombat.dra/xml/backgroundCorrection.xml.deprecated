@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : backgroundCorrection.xml
+    Created on : 18 July 2007, 17:10
+    Author     : nxi
+    Description:
+        Recipe file of the background correction algorithm in Wombat algorithm set.
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.ansto.gov.au/bragg/dra/recipeSchema http://gumtree.ansto.gov.au:9080/nbicms/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe.xsd"
+id="030202" 
+name="Background Correction" 
+domain="au.gov.ansto.bragg.wombat.dra" 
+version="2.1" 
+help_url="./help.txt" 
+short_description="Background Correction" 
+icon="xml/icons/backgroundCorrection.gif">
+
+	<processor name="Source" class="au.gov.ansto.bragg.wombat.dra.core.Source">
+		<ins>
+			<in name="source_groupData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="source_scanData" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="source_dataName" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<processor name="BackgroundCorrection" class="au.gov.ansto.bragg.nbi.dra.core.BackgroundCorrection">
+		<ins>
+			<in name="backgroundCorrection_scanData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="backgroundCorrection_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="backgroundCorrection_skip" type="java.lang.Boolean"/>
+			<var name="backgroundCorrection_stop" type="java.lang.Boolean"/>
+			<var name="backgroundCorrection_ratio" type="java.lang.Double"/>
+			<var name="backgroundCorrection_backgroundFilename" type="java.net.URI"/>
+		</vars>
+	</processor>
+	<processor name="Wrap" class="au.gov.ansto.bragg.wombat.dra.core.Wrap">
+		<ins>
+			<in name="wrap_databag" type="org.gumtree.data.gdm.core.Group"/>
+			<in name="wrap_result" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="wrap_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="wrap_inputName" type="java.lang.String"/>
+			<var name="wrap_resultName" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<sink name="dataReduction_result">
+		<ins>
+			<in name="dataReductionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="SourceSink">
+		<ins>
+			<in name="sourceSink_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="backgroundCorrection_result">
+		<ins>
+			<in name="backgroundCorrectionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<ins>
+		<in name="frame_databag" type="org.gumtree.data.gdm.core.Group"/>
+	</ins>
+	<outs>
+		<out name="frame_output" type="org.gumtree.data.gdm.core.Group"/>
+	</outs>
+	<vars>
+		<var name="frame_dataName" type="java.lang.String" default_value="data" usage="parameter" label="name of data"/>
+		<var name="frame_backgroundFilename" type="java.net.URI" default_value="default" usage="parameter" label="background file"/>
+		<var name="frame_backgroundCorrectionSkip" type="java.lang.Boolean" default_value="false" usage="option" label="skip background correction"/>
+		<var name="frame_backgroundCorrectionStop" type="java.lang.Boolean" default_value="false" usage="option" label="stop after background correction"/>
+		<var name="frame_ratio" type="java.lang.Double" default_value="0.08" usage="parameter" label="background ratio"/>
+		<var name="frame_resultName" type="java.lang.String" default_value="backgroundCorrection_result" usage="parameter" label="name of result"/>
+	</vars>
+	<connectors>
+		<connector producer="frame_databag" consumer="source_groupData"/>
+		<connector producer="frame_databag" consumer="wrap_databag"/>
+		<connector producer="wrap_output" consumer="frame_output"/>
+		<connector producer="frame_dataName" consumer="source_dataName"/>
+		<connector producer="frame_dataName" consumer="wrap_inputName"/>
+		<connector producer="frame_backgroundFilename" consumer="backgroundCorrection_backgroundFilename"/>
+		<connector producer="frame_backgroundCorrectionSkip" consumer="backgroundCorrection_skip"/>
+		<connector producer="frame_backgroundCorrectionStop" consumer="backgroundCorrection_stop"/>
+		<connector producer="frame_ratio" consumer="backgroundCorrection_ratio"/>
+		<connector producer="frame_resultName" consumer="wrap_resultName"/>
+		<connector producer="source_scanData" consumer="backgroundCorrection_scanData"/>
+		<connector producer="source_scanData" consumer="sourceSink_in"/>
+		<connector producer="backgroundCorrection_output" consumer="wrap_result"/>
+		<connector producer="backgroundCorrection_output" consumer="backgroundCorrectionResult_in"/>
+		<connector producer="wrap_output" consumer="dataReductionResult_in"/>
+	</connectors>
+	<agents>
+		<agent name="source_processor" principal="ProcessorAgent" pname="Source" label="Data Source"/>
+		<agent name="backgroundCorrection_processor" principal="ProcessorAgent" pname="BackgroundCorrection" label="Background Correction"/>
+		<agent name="correction_output_port" principal="PortAgent" pname="backgroundCorrection_output" label="Output Port of Background Correction"/>
+		<agent name="correction_result_framework_port" principal="PortAgent" pname="frame_output" label="Frame Output Port of Corrected Signal"/>
+	</agents>
+</framework>

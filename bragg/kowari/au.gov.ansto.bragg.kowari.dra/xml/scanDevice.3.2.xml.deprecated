@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : scanDevice.xml
+    Created on : 18 Apr 2007, 17:10
+    Author     : nxi
+    Description:
+        Recipe file of the scan procedure in Kowari algorithm set.
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.ansto.gov.au/bragg/dra/recipeSchema 
+	http://gumtree.ansto.gov.au:9080/nbicms/projects/group-project-resources/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe-1-3.xsd" 
+	id="031010" 
+	name="Scan"
+	domain="au.gov.ansto.bragg.kowari.dra" 
+	version="3.2"
+	help_url="./help.txt" 
+	short_description="Run a scan on single device" 
+	icon="xml/icons/scan.gif"
+	type="experiment"
+	hidden="false">
+	<processor name="Initialise" class="au.gov.ansto.bragg.kowari.exp.processor.InitialiseProcessor">
+		<outs>
+			<out name="initialise_isDone" type="java.lang.Boolean"/>
+		</outs>
+		<vars>
+			<var name="initialise_experimentTitle" type="java.lang.String"/>
+			<var name="initialise_sampleName" type="java.lang.String"/>
+			<var name="initialise_sampleTitle" type="java.lang.String"/>
+			<var name="initialise_sampleDescription" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<processor name="HistmemScan" class="au.gov.ansto.bragg.kowari.exp.processor.HistmemScanProcessor">
+		<ins>
+			<in name="loopIn" type="java.lang.Boolean"/>
+		</ins>
+		<outs>
+			<out name="runNumber" type="java.lang.Integer"/>
+			<out name="resultEntry" type="org.gumtree.data.gdm.core.Group"/>
+			<out name="loopOut" type="java.lang.Boolean"/>
+		</outs>
+		<vars>
+			<var name="scanVar" type="java.lang.String"/>
+			<var name="startPosition" type="java.lang.Double"/>
+			<var name="stopPosition" type="java.lang.Double"/>
+			<var name="numPoints" type="java.lang.Integer"/>
+			<var name="mode" type="java.lang.String"/>
+			<var name="preset" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<processor name="PrepareSourcePlot" class="au.gov.ansto.bragg.nbi.dra.source.PrepareSourcePlot">
+		<ins>
+			<in name="prepareSourcePlot_inputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="prepareSourcePlot_outputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+	</processor>
+	<processor name="CalculateTwoTheta" class="au.gov.ansto.bragg.kowari.dra.core.CalculateTTh" version="1.0.0">
+		<ins>
+			<in name="inputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="outputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+		    <var name="sampleToDetector" type="java.lang.Double" default_value="1000.0"/>
+		</vars>
+	</processor>
+	<processor name="EfficiencyCorrection" class="au.gov.ansto.bragg.nbi.dra.correction.EfficiencyCorrection" version="3.0.0">
+		<ins>
+			<in name="efficiencyCorrection_inputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="efficiencyCorrection_outputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+		    <var name="efficiencyCorrection_mapURI" type="java.net.URI"/>
+			<var name="efficiencyCorrection_enable" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="ApplyRegion" class="au.gov.ansto.bragg.nbi.dra.source.ApplyRegion">
+		<ins>
+			<in name="applyRegion_inputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="applyRegion_sourceGroup" type="org.gumtree.data.gdm.core.Group"/>
+			<out name="applyRegion_outputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="applyRegion_region" type="org.gumtree.data.gdm.core.Group"/>
+		</vars>
+	</processor>
+	<processor name="VerticalIntegration" class="au.gov.ansto.bragg.nbi.dra.integration.VerticalIntegration">
+		<ins>
+			<in name="verticalIntegration_inputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="verticalIntegration_outputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+	</processor>
+	<processor name="IntensityOrFitting" class="au.gov.ansto.bragg.kowari.dra.core.IntensityOrFitting">
+		<ins>
+			<in name="inputGroup" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<in name="inputMap" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="outputMap" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<out name="plotSet" type="au.gov.ansto.bragg.datastructures.core.plot.PlotSet"/>
+			<out name="outputGroup" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="yAxisType" type="java.lang.String"/>
+			<var name="fitParameter" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<processor name="SlicePlotter" class="au.gov.ansto.bragg.kowari.dra.core.ChooseSlice">
+		<ins>
+			<in name="chooseSlice_mapsetInput" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<in name="chooseSlice_patternsetInput" type="au.gov.ansto.bragg.datastructures.core.plot.PlotSet"/>
+		</ins>
+		<outs>
+			<out name="chooseSlice_mapOutput" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<out name="chooseSlice_patternOutput" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="chooseSlice_stepDirection" type="au.gov.ansto.bragg.datastructures.core.plot.StepDirection"/>
+			<var name="chooseSlice_currentIndex" type="java.lang.Integer"/>
+		</vars>
+	</processor>
+	<processor name="MapHolder" class="au.gov.ansto.bragg.nbi.dra.source.DataHolder">
+		<ins>
+			<in name="dataHolder_inputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="dataHolder_outputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+	</processor>
+	<sink name="initialise_result">
+		<ins>
+			<in name="initialiseResult_in" type="java.lang.Boolean"/>
+		</ins>
+	</sink>
+	<sink name="scan_result">
+		<ins>
+			<in name="scanResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="SourceSink" autoplot="true">
+		<ins>
+			<in name="sourceSink_in" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+	</sink>
+	<sink name="ApplyRegionSink">
+		<ins>
+			<in name="applyRegionSink_in" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+	</sink>
+	<sink name="verticalIntegration_result" autoplot="true">
+		<ins>
+			<in name="verticalIntegrationResult_in" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+	</sink>
+	<sink name="efficiencyCorrection_result">
+		<ins>
+			<in name="efficiencyCorrectionResult_in" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+	</sink>
+	<sink name="scanResultPlotter_pattern" autoplot="true">
+		<ins>
+			<in name="scanResultPlotterPattern_in" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+	</sink>
+	<outs>
+		<out name="frame_output" type="org.gumtree.data.gdm.core.Group"/>
+	</outs>
+	<vars>
+		<var name="frame_experimentTitle" type="java.lang.String" default_value="" usage="parameter" label="experiment title"/>
+		<var name="frame_sampleName" type="java.lang.String" default_value="" usage="parameter" label="sample name"/>
+		<var name="frame_sampleTitle" type="java.lang.String" default_value="" usage="parameter" label="sample short title"/>
+		<var name="frame_sampleDescription" type="java.lang.String" default_value="" usage="parameter" label="sample description"/>
+		<var name="frame_scanVar" type="java.lang.String" default_value="sx" usage="parameter" label="scan variable" option="psho,sx,sy,sz,som,stth,mphi,mchi,mx,my,mom,mtth,mth,dummy_motor"/>
+		<var name="frame_scanStartPosition" type="java.lang.Double" default_value="0" usage="parameter" label="start position"/>
+		<var name="frame_scanStopPosition" type="java.lang.Double" default_value="0" usage="parameter" label="stop position"/>
+		<var name="frame_numPoints" type="java.lang.Integer" default_value="1" usage="parameter" label="number of points"/>
+		<var name="frame_scanMode" type="java.lang.String" default_value="time" usage="parameter" label="scan mode" option="time, monitor"/>
+		<var name="frame_preset" type="java.lang.String" default_value="0" usage="parameter" label="time(sec)/monitor(counts)"/>
+		<var name="frame_efficiencyMapURI" type="java.net.URI" default_value="null" usage="parameter" label="efficiency file"/>
+		<var name="frame_efficiencyCorrectionEnable" type="java.lang.Boolean" default_value="false" usage="parameter" label="enable efficiency correction"/>
+		<var name="frame_region" type="org.gumtree.data.gdm.core.Group" default_value="null" usage="region" label="region of interests or mask"/>
+		<var name="frame_plotterYAxisName" type="java.lang.String" default_value="Intensity" usage="parameter" option="Intensity,Fitting Result" label="Y axis"/>
+		<var name="frame_fitParameter" type="java.lang.String" default_value="mean" usage="parameter" UIwidth="5" option="mean,Chi2,amplitude,sigma,area" label="fitting parameter"/>
+		<var name="frame_stepDirection" type="au.gov.ansto.bragg.datastructures.core.plot.StepDirection" default_value="holding" usage="parameter" label="step"/>
+		<var name="frame_currentIndex" type="java.lang.Integer" default_value="0" usage="parameter" label="or jump to"/>
+	</vars>
+	<connectors>
+		<connector producer="outputGroup" consumer="frame_output"/>
+		<connector producer="runNumber" consumer="chooseSlice_currentIndex"/>
+		<connector producer="frame_experimentTitle" consumer="initialise_experimentTitle"/>
+		<connector producer="frame_sampleName" consumer="initialise_sampleName"/>
+		<connector producer="frame_sampleTitle" consumer="initialise_sampleTitle"/>
+		<connector producer="frame_sampleDescription" consumer="initialise_sampleDescription"/>
+		<connector producer="frame_scanVar" consumer="scanVar"/>
+		<connector producer="frame_scanStartPosition" consumer="startPosition"/>
+		<connector producer="frame_scanStopPosition" consumer="stopPosition"/>
+		<connector producer="frame_numPoints" consumer="numPoints"/>
+		<connector producer="frame_scanMode" consumer="mode"/>
+		<connector producer="frame_preset" consumer="preset"/>
+		<connector producer="frame_stepDirection" consumer="chooseSlice_stepDirection"/>
+		<connector producer="frame_currentIndex" consumer="chooseSlice_currentIndex"/>
+		<connector producer="frame_efficiencyMapURI" consumer="efficiencyCorrection_mapURI"/>
+		<connector producer="frame_efficiencyCorrectionEnable" consumer="efficiencyCorrection_enable"/>
+		<connector producer="frame_region" consumer="applyRegion_region"/>
+		<connector producer="frame_plotterYAxisName" consumer="yAxisType"/>
+		<connector producer="frame_fitParameter" consumer="fitParameter"/>
+		<connector producer="initialise_isDone" consumer="loopIn"/>
+		<connector producer="initialise_isDone" consumer="initialiseResult_in"/>
+		<connector producer="resultEntry" consumer="scanResult_in"/>
+		<connector producer="resultEntry" consumer="prepareSourcePlot_inputGroup"/>
+		<connector producer="loopOut" consumer="loopIn"/>
+		<connector producer="prepareSourcePlot_outputGroup" consumer="inputPlot"/>
+		<connector producer="outputPlot" consumer="efficiencyCorrection_inputPlot"/>
+		<connector producer="chooseSlice_mapOutput" consumer="dataHolder_inputPlot"/>
+		<connector producer="dataHolder_outputPlot" consumer="sourceSink_in"/>
+		<connector producer="efficiencyCorrection_outputPlot" consumer="efficiencyCorrectionResult_in"/>
+		<connector producer="efficiencyCorrection_outputPlot" consumer="applyRegion_inputGroup"/>
+		<connector producer="applyRegion_outputGroup" consumer="applyRegionSink_in"/>
+		<connector producer="applyRegion_sourceGroup" consumer="inputMap"/>
+		<connector producer="outputMap" consumer="chooseSlice_mapsetInput"/>
+		<connector producer="applyRegion_outputGroup" consumer="verticalIntegration_inputPlot"/>
+		<connector producer="verticalIntegration_outputPlot" consumer="inputGroup"/>
+		<connector producer="plotSet" consumer="chooseSlice_patternsetInput"/>
+		<connector producer="chooseSlice_patternOutput" consumer="verticalIntegrationResult_in"/>
+		<connector producer="outputGroup" consumer="scanResultPlotterPattern_in"/>
+	</connectors>
+	<agents>
+		<agent name="initialise_processor" principal="ProcessorAgent" pname="Initialise" label="Experiment Setup"/>
+		<agent name="scan_processor" principal="ProcessorAgent" pname="HistmemScan" label="Scan Configuration"/>
+		<agent name="efficiencyCorrection_processor" principal="ProcessorAgent" pname="EfficiencyCorrection" label="Efficiency Correction"/>
+		<agent name="applyRegion_processor" principal="ProcessorAgent" pname="ApplyRegion" label="Apply Region of Interest and Mask"/>
+		<agent name="source_processor" principal="ProcessorAgent" pname="MapHolder" label="Raw Record"/>
+		<agent name="plotter_processor" principal="ProcessorAgent" pname="IntensityOrFitting" label="Plot Setup"/>
+		<agent name="integration_processor" principal="ProcessorAgent" pname="SlicePlotter" label="Navigation"/>
+	</agents>
+</framework>

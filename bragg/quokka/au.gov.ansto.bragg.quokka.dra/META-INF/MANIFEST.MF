@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg Quokka DRA
+Bundle-SymbolicName: au.gov.ansto.bragg.quokka.dra;singleton:=true
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.quokka.dra.internal.Activator
+Require-Bundle: au.gov.ansto.bragg.nbi.dra;visibility:=reexport,
+ au.gov.ansto.bragg.quokka.algolib;visibility:=reexport,
+ au.gov.ansto.bragg.quokka.core;bundle-version="1.7.0"
+Bundle-ActivationPolicy: lazy
+Export-Package: au.gov.ansto.bragg.quokka.dra.core,
+ au.gov.ansto.bragg.quokka.dra.core.exception,
+ au.gov.ansto.bragg.quokka.dra.core.experiment,
+ au.gov.ansto.bragg.quokka.dra.online,
+ au.gov.ansto.bragg.quokka.dra.online.util
+Bundle-Vendor: Bragg Institute
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-BundleShape: jar

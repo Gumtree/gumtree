@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg Pelican UI Library
+Bundle-SymbolicName: au.gov.ansto.bragg.pelican.ui
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.pelican.ui.internal.Activator
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Require-Bundle: au.gov.ansto.bragg.pelican.core;bundle-version="1.7.0";visibility:=reexport,
+ au.gov.ansto.bragg.nbi.ui;bundle-version="1.7.0";visibility:=reexport
+Bundle-Vendor: Bragg Institute

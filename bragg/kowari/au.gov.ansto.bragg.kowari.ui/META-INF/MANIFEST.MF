@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg Kowari Ui Library
+Bundle-SymbolicName: au.gov.ansto.bragg.kowari.ui;singleton:=true
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.kowari.ui.internal.Activator
+Require-Bundle: au.gov.ansto.bragg.kowari.core;bundle-version="1.7.0";visibility:=reexport,
+ au.gov.ansto.bragg.nbi.ui;bundle-version="1.7.0";visibility:=reexport,
+ au.gov.ansto.bragg.kowari.dra;bundle-version="1.7.0",
+ au.gov.ansto.bragg.kowari.exp;bundle-version="1.7.0"
+Bundle-ActivationPolicy: lazy
+Export-Package: au.gov.ansto.bragg.kowari.ui,
+ au.gov.ansto.bragg.kowari.ui.widgets
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: Bragg Institute
+Eclipse-BundleShape: jar

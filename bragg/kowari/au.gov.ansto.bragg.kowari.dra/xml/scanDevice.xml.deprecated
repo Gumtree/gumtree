@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : scanDevice.xml
+    Created on : 18 Apr 2007, 17:10
+    Author     : nxi
+    Description:
+        Recipe file of the scan procedure in Kowari algorithm set.
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.ansto.gov.au/bragg/dra/recipeSchema 
+	http://gumtree.ansto.gov.au:9080/nbicms/projects/group-project-resources/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe-1-3.xsd" 
+	id="011010" 
+	name="Scan" 
+	domain="au.gov.ansto.bragg.kowari.dra" 
+	version="0.1" 
+	help_url="./help.txt" 
+	short_description="Run a scan on single device" 
+	icon="xml/icons/scan.gif"
+	type="experiment"
+	hidden="false">
+	<processor name="Initialise" class="au.gov.ansto.bragg.kowari.exp.processor.InitialiseProcessor">
+		<outs>
+			<out name="initialise_isDone" type="java.lang.Boolean"/>
+		</outs>
+		<vars>
+			<var name="initialise_experimentTitle" type="java.lang.String"/>
+			<var name="initialise_sampleName" type="java.lang.String"/>
+			<var name="initialise_sampleTitle" type="java.lang.String"/>
+			<var name="initialise_sampleDescription" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<processor name="Runscan" class="au.gov.ansto.bragg.kowari.exp.processor.RunscanProcessor">
+		<ins>
+			<in name="runscan_trigger" type="java.lang.Boolean"/>
+		</ins>
+		<outs>
+			<out name="runscan_resultEntry" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="runscan_scanVar" type="java.lang.String"/>
+			<var name="runscan_startPosition" type="java.lang.String"/>
+			<var name="runscan_stopPosition" type="java.lang.String"/>
+			<var name="runscan_numPoints" type="java.lang.String"/>
+			<var name="runscan_mode" type="java.lang.String"/>
+			<var name="runscan_preset" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<processor name="PrepareSourcePlot" class="au.gov.ansto.bragg.nbi.dra.source.PrepareSourcePlot">
+		<ins>
+			<in name="prepareSourcePlot_inputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="prepareSourcePlot_outputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+	</processor>
+	<processor name="ApplyRegion" class="au.gov.ansto.bragg.nbi.dra.source.ApplyRegion">
+		<ins>
+			<in name="applyRegion_inputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="applyRegion_outputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="applyRegion_region" type="org.gumtree.data.gdm.core.Group"/>
+		</vars>
+	</processor>
+	<processor name="VerticalIntegration" class="au.gov.ansto.bragg.kowari.dra.core.VerticalIntegration">
+		<ins>
+			<in name="verticalIntegration_input" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="verticalIntegration_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+	</processor>
+	<processor name="RegionalIntegration" class="au.gov.ansto.bragg.kowari.dra.core.RegionalIntegration">
+		<ins>
+			<in name="regionalIntegration_input" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="regionalIntegration_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+	</processor>
+	<processor name="FittingProcessor" class="au.gov.ansto.bragg.kowari.dra.core.FittingProcessor">
+		<ins>
+			<in name="fittingProcessor_inputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="fittingProcessor_outputGroup" type="org.gumtree.data.gdm.core.Group"/>
+			<out name="fittingProcessor_fittingResult" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="fittingProcessor_functionName" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<processor name="ScanResultPlotter" class="au.gov.ansto.bragg.kowari.dra.core.ScanResultPlotter">
+		<ins>
+			<in name="scanResultPlotter_fitResultGroup" type="org.gumtree.data.gdm.core.Group"/>
+			<in name="scanResultPlotter_intensityGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="scanResultPlotter_outputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="scanResultPlotter_yAxisName" type="java.lang.String"/>
+			<var name="scanResultPlotter_fitParameter" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<sink name="initialise_result">
+		<ins>
+			<in name="initialiseResult_in" type="java.lang.Boolean"/>
+		</ins>
+	</sink>
+	<sink name="scan_result">
+		<ins>
+			<in name="scanResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="SourceSink" autoplot="true">
+		<ins>
+			<in name="sourceSink_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="ApplyRegionSink">
+		<ins>
+			<in name="applyRegionSink_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="verticalIntegration_result" autoplot="true">
+		<ins>
+			<in name="verticalIntegrationResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="fittingProcessor_pattern">
+		<ins>
+			<in name="fittingProcessorPattern_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="fittingProcessor_result">
+		<ins>
+			<in name="fittingProcessorResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="scanResultPlotter_pattern" autoplot="true">
+		<ins>
+			<in name="scanResultPlotterPattern_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<outs>
+		<out name="frame_output" type="org.gumtree.data.gdm.core.Group"/>
+	</outs>
+	<vars>
+		<var name="frame_experimentTitle" type="java.lang.String" default_value="" usage="parameter" label="experiment title"/>
+		<var name="frame_sampleName" type="java.lang.String" default_value="" usage="parameter" label="sample name"/>
+		<var name="frame_sampleTitle" type="java.lang.String" default_value="" usage="parameter" label="sample short title"/>
+		<var name="frame_sampleDescription" type="java.lang.String" default_value="" usage="parameter" label="sample description"/>
+		<var name="frame_scanVar" type="java.lang.String" default_value="sx" usage="parameter" label="scan variable" option="psho,sx,sy,sz,som,stth,mphi,mchi,mx,my,mom,mtth,mth"/>
+		<var name="frame_scanStartPosition" type="java.lang.String" default_value="0" usage="parameter" label="start position"/>
+		<var name="frame_scanStopPosition" type="java.lang.String" default_value="0" usage="parameter" label="stop position"/>
+		<var name="frame_numPoints" type="java.lang.String" default_value="0" usage="parameter" label="number of points"/>
+		<var name="frame_scanMode" type="java.lang.String" default_value="timer" usage="parameter" label="scan mode" option="timer, monitor"/>
+		<var name="frame_preset" type="java.lang.String" default_value="0" usage="parameter" label="parameter for above mode"/>
+		<var name="frame_region" type="org.gumtree.data.gdm.core.Group" default_value="null" usage="region" label="region of interests or mask"/>
+		<var name="frame_fittingFunctionName" type="java.lang.String" default_value="GaussianLorentzian" usage="parameter" option="GaussianLorentzian, Gaussian" label="Fitting Function"/>
+		<var name="frame_plotterYAxisName" type="java.lang.String" default_value="Fitting Peak" usage="parameter" option="Intensity,LOG(I),Peak,Fitting Peak" label="Y Axis"/>
+		<var name="frame_fitParameter" type="java.lang.String" default_value="mean" usage="parameter" UIwidth="5" option="mean,amplitude,sigma" label="Fitting parameter"/>
+	</vars>
+	<connectors>
+		<connector producer="frame_experimentTitle" consumer="initialise_experimentTitle"/>
+		<connector producer="frame_sampleName" consumer="initialise_sampleName"/>
+		<connector producer="frame_sampleTitle" consumer="initialise_sampleTitle"/>
+		<connector producer="frame_sampleDescription" consumer="initialise_sampleDescription"/>
+		<connector producer="frame_scanVar" consumer="runscan_scanVar"/>
+		<connector producer="frame_scanStartPosition" consumer="runscan_startPosition"/>
+		<connector producer="frame_scanStopPosition" consumer="runscan_stopPosition"/>
+		<connector producer="frame_numPoints" consumer="runscan_numPoints"/>
+		<connector producer="frame_scanMode" consumer="runscan_mode"/>
+		<connector producer="frame_preset" consumer="runscan_preset"/>
+		<connector producer="frame_region" consumer="applyRegion_region"/>
+		<connector producer="frame_fittingFunctionName" consumer="fittingProcessor_functionName"/>
+		<connector producer="frame_plotterYAxisName" consumer="scanResultPlotter_yAxisName"/>
+		<connector producer="frame_fitParameter" consumer="scanResultPlotter_fitParameter"/>
+		<connector producer="initialise_isDone" consumer="runscan_trigger"/>
+		<connector producer="initialise_isDone" consumer="initialiseResult_in"/>
+		<connector producer="runscan_resultEntry" consumer="scanResult_in"/>
+		<connector producer="runscan_resultEntry" consumer="prepareSourcePlot_inputGroup"/>
+		<connector producer="prepareSourcePlot_outputGroup" consumer="sourceSink_in"/>
+		<connector producer="prepareSourcePlot_outputGroup" consumer="applyRegion_inputGroup"/>
+		<connector producer="applyRegion_outputGroup" consumer="applyRegionSink_in"/>
+		<connector producer="applyRegion_outputGroup" consumer="verticalIntegration_input"/>
+		<connector producer="applyRegion_outputGroup" consumer="regionalIntegration_input"/>
+		<connector producer="verticalIntegration_output" consumer="verticalIntegrationResult_in"/>
+		<connector producer="verticalIntegration_output" consumer="fittingProcessor_inputGroup"/>
+		<connector producer="fittingProcessor_outputGroup" consumer="fittingProcessorPattern_in"/>
+		<connector producer="fittingProcessor_outputGroup" consumer="scanResultPlotter_fitResultGroup"/>
+		<connector producer="fittingProcessor_fittingResult" consumer="fittingProcessorResult_in"/>
+		<connector producer="regionalIntegration_output" consumer="scanResultPlotter_intensityGroup"/>
+		<connector producer="scanResultPlotter_outputGroup" consumer="scanResultPlotterPattern_in"/>
+		<connector producer="scanResultPlotter_outputGroup" consumer="frame_output"/>
+	</connectors>
+	<agents>
+		<agent name="initialise_processor" principal="ProcessorAgent" pname="Initialise" label="Experiment Setup"/>
+		<agent name="scan_processor" principal="ProcessorAgent" pname="Runscan" label="Scan Configuration"/>
+		<agent name="source_processor" principal="ProcessorAgent" pname="PrepareSourcePlot" label="Fetch Data"/>
+		<agent name="applyRegion_processor" principal="ProcessorAgent" pname="ApplyRegion" label="Apply Region of Interest and Mask"/>		<agent name="integration_processor" principal="ProcessorAgent" pname="VerticalIntegration" label="Integration Setup"/>
+		<agent name="fitting_processor" principal="ProcessorAgent" pname="FittingProcessor" label="Fitting Setup"/>
+		<agent name="plotter_processor" principal="ProcessorAgent" pname="ScanResultPlotter" label="Plot Setup"/>
+	</agents>
+</framework>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : horizontalIntegration.xml
+    Created on : 13 Apr 2007, 10:10
+    Author     : nxi
+    Description:
+        Purpose of the document follows.
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.ansto.gov.au/bragg/dra/recipeSchema http://gumtree.ansto.gov.au:9080/nbicms/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe.xsd"
+id="10701" 
+name="Vertical Integration" 
+domain="au.gov.ansto.bragg.wombat.dra" 
+version="2.0" 
+help_url="./help.txt" 
+short_description="Vertical Integration" 
+icon="xml/icons/horizontal_integration.gif">
+
+	<processor name="Source" class="au.gov.ansto.bragg.wombat.dra.core.Source">
+		<ins>
+			<in name="source_groupData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="source_scanData" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="source_dataName" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<processor name="VerticalIntegration" class="au.gov.ansto.bragg.nbi.dra.core.VerticalIntegration">
+		<ins>
+			<in name="verticalIntegration_input" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="verticalIntegration_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="verticalIntegration_skip" type="java.lang.Boolean"/>
+			<var name="verticalIntegration_stop" type="java.lang.Boolean"/>
+			<var name="verticalIntegration_minDist" type="java.lang.Double"/>
+			<var name="verticalIntegration_maxDist" type="java.lang.Double"/>
+			<var name="verticalIntegration_region" type="org.gumtree.data.gdm.core.Group"/>
+		</vars>
+	</processor>
+	<processor name="Wrap" class="au.gov.ansto.bragg.wombat.dra.core.Wrap">
+		<ins>
+			<in name="wrap_databag" type="org.gumtree.data.gdm.core.Group"/>
+			<in name="wrap_result" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="wrap_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="wrap_inputName" type="java.lang.String"/>
+			<var name="wrap_resultName" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<sink name="SourceSink">
+		<ins>
+			<in name="sourceSink_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="dataReduction_result">
+		<ins>
+			<in name="dataReductionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="verticalIntegration_result">
+		<ins>
+			<in name="verticalIntegrationResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<ins>
+		<in name="frame_databag" type="org.gumtree.data.gdm.core.Group"/>
+	</ins>
+	<outs>
+		<out name="frame_output" type="org.gumtree.data.gdm.core.Group"/>
+	</outs>
+	<vars>
+		<var name="frame_dataName" type="java.lang.String" default_value="data" usage="parameter" label="name of data"/>
+		<var name="frame_verticalIntegrationSkip" type="java.lang.Boolean" default_value="false" usage="option" label="skip integration"/>
+		<var name="frame_verticalIntegrationStop" type="java.lang.Boolean" default_value="false" usage="option" label="stop after integration"/>
+		<var name="frame_minDist" type="java.lang.Double" default_value="0" usage="parameter" label="lower boundary"/>
+		<var name="frame_maxDist" type="java.lang.Double" default_value="127" usage="parameter" label="upper boundary"/>
+		<var name="frame_resultName" type="java.lang.String" default_value="horizontalIntegration_result" usage="parameter" label="name of result"/>
+		<var name="frame_verticalIntegrationRegion" type="org.gumtree.data.gdm.core.Group" default_value="null" usage="region" label="region of interests or mask"/>
+	</vars>
+	<connectors>
+		<connector producer="frame_databag" consumer="source_groupData"/>
+		<connector producer="frame_databag" consumer="wrap_databag"/>
+		<connector producer="wrap_output" consumer="frame_output"/>
+		<connector producer="frame_dataName" consumer="source_dataName"/>
+		<connector producer="frame_dataName" consumer="wrap_inputName"/>
+		<connector producer="frame_verticalIntegrationSkip" consumer="verticalIntegration_skip"/>
+		<connector producer="frame_verticalIntegrationStop" consumer="verticalIntegration_stop"/>
+		<connector producer="frame_minDist" consumer="verticalIntegration_minDist"/>
+		<connector producer="frame_maxDist" consumer="verticalIntegration_maxDist"/>
+		<connector producer="frame_verticalIntegrationRegion" consumer="verticalIntegration_region"/>
+		<connector producer="frame_resultName" consumer="wrap_resultName"/>
+		<connector producer="source_scanData" consumer="verticalIntegration_input"/>
+		<connector producer="source_scanData" consumer="sourceSink_in"/>
+		<connector producer="verticalIntegration_output" consumer="wrap_result"/>
+		<connector producer="verticalIntegration_output" consumer="verticalIntegrationResult_in"/>
+		<connector producer="wrap_output" consumer="dataReductionResult_in"/>
+	</connectors>
+	<agents>
+		<agent name="source_processor" principal="ProcessorAgent" pname="Source" label="Data Source"/>
+		<agent name="integration_processor" principal="ProcessorAgent" pname="VerticalIntegration" label="Vertical Integration"/>
+		<agent name="integration_output_port" principal="PortAgent" pname="verticalIntegration_output" label="Output Port of Vertical Integration"/>
+		<agent name="integrated_signal_framework_port" principal="PortAgent" pname="frame_output" label="Frame Output Port of Integrated Signal"/>
+	</agents>
+</framework>

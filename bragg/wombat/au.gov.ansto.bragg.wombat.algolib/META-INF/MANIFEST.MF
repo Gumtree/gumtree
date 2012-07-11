@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg Wombat Algorithm Library
+Bundle-SymbolicName: au.gov.ansto.bragg.wombat.algolib
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.wombat.dra.algolib.Activator
+Bundle-ActivationPolicy: lazy
+Import-Package: org.osgi.framework
+Eclipse-BundleShape: jar
+Require-Bundle: au.gov.ansto.bragg.nbi.algolib;bundle-version="1.7.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: au.gov.ansto.bragg.wombat.dra.algolib,
+ au.gov.ansto.bragg.wombat.dra.algolib.core,
+ au.gov.ansto.bragg.wombat.dra.algolib.entity,
+ au.gov.ansto.bragg.wombat.dra.algolib.processes
+Bundle-Vendor: Bragg Institute

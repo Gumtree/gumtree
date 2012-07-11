@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:svg="http://www.w3.org/2000/svg"
+         xmlns:m="http://www.w3.org/1998/Math/MathML"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:db="http://docbook.org/ns/docbook">
+  <title>Introduction</title>
+
+  <sect1>
+    <title>Who Should Read This Guide</title>
+
+    <para>This user guide is prepared for users of the neutron scattering
+    instrument <emphasis>Wombat - High-Intensity Powder
+    Diffractometer</emphasis> at the Bragg Institute, ANSTO. It can also be
+    used as a reference by the instrument scientists of Wombat.</para>
+  </sect1>
+
+  <sect1>
+    <title>System Requirements</title>
+
+    <itemizedlist>
+      <listitem>
+        <para>Hardware requirements</para>
+
+        <para>- Processor: 32-bit 1GHz or above CPU</para>
+
+        <para>- Memory: at least 1GB of free physical memory</para>
+
+        <para>- Storage: 1GB available space</para>
+
+        <para>- Video Card: support OpenGL V1.5</para>
+      </listitem>
+
+      <listitem>
+        <para>Software requirements</para>
+
+        <para>- Windows XP or Vista</para>
+
+        <para>- Java SE JRE or JDK version 6 or above</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+
+  <sect1 xml:id="installAndRun">
+    <title>Install and Run Gumtree-Wombat</title>
+
+    <sect2>
+      <title>Download and Install Gumtree-Wombat</title>
+
+      <para>Please find the newest version of Gumtree-Wombat at <link
+      xlink:href="http://gumtree.codehaus.org/Downloads">http://gumtree.codehaus.org/Downloads</link>.
+      The installer file name is WombatSetup_1.x.x.exe (here 'x' is the
+      wildcard for version numbers). Please save the installer file in your
+      local hard drive.</para>
+
+      <para>After downloading, please run the installer file. The installer
+      pops up a window for you to specify an installation path.</para>
+
+      <para>The installation will put a short-cut file in the start menu and
+      on the desktop. You can run Gumtree-Wombat by double clicking on the
+      icon on your desktop, or from the start menu: Start -&gt; Programs -&gt;
+      Gumtree -&gt; Wombat 1.x.x.</para>
+
+      <figure xml:id="wombat_icon">
+        <title>Gumtree-Wombat application icon</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata contentwidth="100"
+                       fileref="wombat.ui.images/introduction/wombat_icon.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Login to SICS</title>
+
+      <para>If your computer is in the NBI network, a window will pop up to
+      ask you to login to <emphasis>SICS - the Instrument Control
+      Sever</emphasis>, as shown in <xref linkend="sics_login" />. Please ask
+      the instrument scientists for the login information. If you do not want
+      to login to SICS, simply tick the checkbox <emphasis>Do not ask to login
+      again</emphasis>, and click on <emphasis>Cancel</emphasis>
+      button.</para>
+
+      <figure xml:id="sics_login">
+        <title>SICS Login Window</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/introduction/login_sics.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Launch Application Windows</title>
+
+      <para>Gumtree-Wombat will display a welcome page after the start up.
+      There are some quick launch short-cuts on the welcome page. Use
+      <emphasis>Experiment Window</emphasis> button to launch the wombat
+      experiment graphic user interface windows, which consist of experiment
+      control, analysis and dashboard windows. The other chapters of this
+      document will cover the functionality of the other buttons.</para>
+
+      <para><figure>
+          <title>Welcome Screen</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/introduction/welcome_screen.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>Alternatively, you can use the <emphasis>Launch</emphasis>
+      button on the top left of the application window to drop down the
+      similar menu. <figure>
+          <title>The Launch Menu</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/introduction/launch_menu.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure></para>
+
+      <para>Once you clicking on the <emphasis>Experiment Window
+      </emphasis>menu button, three application windows will automatically
+      open. If you have three monitors, these application windows will the
+      launch in to different monitors. You can identify these windows by the
+      application titles, which are located at the top left corner of the
+      windows. For example, <xref linkend="dashboard_title" />, <xref
+      linkend="title_experiment" /> and <xref
+      linkend="title_analysis" />.</para>
+
+      <figure xml:id="dashboard_title">
+        <title>Title of Dashboard Window</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/introduction/dashboard_title.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <figure xml:id="title_experiment">
+        <title>Title of Experiment Window</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/introduction/experiment_title.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <figure xml:id="title_analysis">
+        <title>Title of Analysis Window</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/introduction/analysis_title.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>To launch the dashboard window only, click on the
+      <emphasis>Launch</emphasis> button. Then choose on the
+      <emphasis>Instrument Dashboard</emphasis> button.</para>
+
+      <para>To launch the data analysis window only, click on the
+      <emphasis>Launch</emphasis> button. Then choose <emphasis>Analysis
+      Window </emphasis> option.</para>
+
+      <para>To launch the experiment window only, click on the
+      <emphasis>Launch</emphasis> button. Choose
+      <emphasis>Perspective</emphasis> option. Then choose <emphasis>Wombat
+      Experiment</emphasis> option.</para>
+    </sect2>
+
+    <sect2>
+      <title>Select User Profile</title>
+
+      <para>Setup your user profile by using the <emphasis>User Profile
+      Selector</emphasis> manu item.</para>
+
+      <para><inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/introduction/user_profile.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject></para>
+
+      <para>A confirmation dialog window pops up. It warns you that if you
+      have any experiment script unsaved or any analysis project opening, this
+      action will clear them. If OK is selected in the confirmation dialog, a
+      user profile dialog window pops up.</para>
+
+      <figure>
+        <title>User Profile Preference Page</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/introduction/user_profile_dialog.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>Follow these steps to change the user profile:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>To setup a new user profile, type in the user name and use the
+          <emphasis>Browse</emphasis> button to select a folder path. All data
+          generated for this user will be copied to the specified
+          folder.</para>
+        </listitem>
+
+        <listitem>
+          <para>To change the user profile, simply select an existing one from
+          the profile list.</para>
+        </listitem>
+
+        <listitem>
+          <para>To apply the change, click on <emphasis>OK</emphasis>
+          button.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Please note that unsaved script in the experiment window and
+      existing analysis project in the analysis window will be removed.</para>
+    </sect2>
+  </sect1>
+</chapter>

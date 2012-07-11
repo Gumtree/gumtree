@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2007 (http://www.altova.com) by Norman Xiong (Australian Nuclear Science and Technology Organisation (ANSTO)) -->
+<!--
+    Document   : Stitching.xml
+    Created on : 6 December 2006, 10:10
+    Author     : nxi
+    Description:
+        Purpose of the document follows.
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.ansto.gov.au/bragg/dra/recipeSchema http://gumtree.ansto.gov.au:9080/nbicms/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe.xsd"
+ id="010602" name="Stitching Data" domain="au.gov.ansto.bragg.dra" version="2.0" help_url="./help.txt" short_description="Stitching Data" icon="xml/icons/stitching.gif">
+	<processor name="Source" class="au.gov.ansto.bragg.echidna.dra.core.Source">
+		<ins>
+			<in name="source_groupData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="source_outData" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="source_dataName" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<processor name="Stitch" class="au.gov.ansto.bragg.echidna.dra.core.Stitching">
+		<ins>
+			<in name="stitch_input" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="stitch_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="stitch_skip" type="java.lang.Boolean"/>
+			<var name="stitch_stop" type="java.lang.Boolean"/>
+			<var name="stitch_reverse" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="Wrap" class="au.gov.ansto.bragg.echidna.dra.core.Wrap">
+		<ins>
+			<in name="wrap_databag" type="org.gumtree.data.gdm.core.Group"/>
+			<in name="wrap_result" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="wrap_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="wrap_inputName" type="java.lang.String"/>
+			<var name="wrap_resultName" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<sink name="SourceSink">
+		<ins>
+			<in name="sourceSink_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="dataReduction_result">
+		<ins>
+			<in name="dataReductionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="stitching_result">
+		<ins>
+			<in name="stitchingResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<ins>
+		<in name="frame_databag" type="org.gumtree.data.gdm.core.Group"/>
+	</ins>
+	<outs>
+		<out name="frame_output" type="org.gumtree.data.gdm.core.Group"/>
+	</outs>
+	<vars>
+		<var name="frame_dataName" type="java.lang.String" default_value="backgroundCorrection_result" usage="parameter" label="name of data"/>
+		<var name="frame_stitchSkip" type="java.lang.Boolean" default_value="false" usage="option" label="skip stitching"/>
+		<var name="frame_stitchStop" type="java.lang.Boolean" default_value="false" usage="option" label="stop after stitching"/>
+		<var name="frame_stitchreverse" type="java.lang.Boolean" default_value="true" usage="parameter" label="Tube two theta values reversed"/>
+		<var name="frame_resultName" type="java.lang.String" default_value="stitch_result" usage="parameter" label="name of result"/>
+	</vars>
+	<connectors>
+		<connector producer="frame_databag" consumer="source_groupData"/>
+		<connector producer="frame_databag" consumer="wrap_databag"/>
+		<connector producer="wrap_output" consumer="frame_output"/>
+		<connector producer="frame_dataName" consumer="source_dataName"/>
+		<connector producer="frame_dataName" consumer="wrap_inputName"/>
+		<connector producer="frame_stitchSkip" consumer="stitch_skip"/>
+		<connector producer="frame_stitchStop" consumer="stitch_stop"/>
+		<connector producer="frame_stitchreverse" consumer="stitch_reverse"/>
+		<connector producer="frame_resultName" consumer="wrap_resultName"/>
+		<connector producer="source_outData" consumer="stitch_input"/>
+		<connector producer="source_outData" consumer="sourceSink_in"/>
+		<connector producer="stitch_output" consumer="stitchingResult_in"/>
+		<connector producer="stitch_output" consumer="wrap_result"/>
+		<connector producer="wrap_output" consumer="dataReductionResult_in"/>
+	</connectors>
+	<agents>
+		<agent name="source_processor" principal="ProcessorAgent" pname="Source" label="Data Source"/>
+		<agent name="stitching_processor" principal="ProcessorAgent" pname="Stitch" label="Data Stitching"/>
+		<agent name="stitched_signal_port" principal="PortAgent" pname="stitch_output" label="Output Port of Data Stitching"/>
+		<agent name="stitched_signal_framework_port" principal="PortAgent" pname="frame_output" label="Frame Output Port of Data Stitching"/>
+	</agents>
+</framework>

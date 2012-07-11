@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.gumtree.ui.actionShortcuts">
+      <actionShortcut
+            category="org.gumtree.gumnix.sics.ui.shortcutCategory"
+            class="au.gov.ansto.bragg.echidna.ui.OpenHMBorwserAction"
+            icon16="icons/document.gif"
+            id="au.gov.ansto.bragg.echidna.ui.openHMSiteActionShortcut"
+            label="Open Histogram Site"/>
+      <actionShortcut
+            category="org.gumtree.gumnix.sics.ui.shortcutCategory"
+            class="au.gov.ansto.bragg.echidna.ui.OpenPLCBorwserAction"
+            icon16="icons/document.gif"
+            id="au.gov.ansto.bragg.echidna.ui.openPLCSiteActionShortcut"
+            label="Open PLC Site"/>
+      <actionShortcut
+            category="au.gov.ansto.bragg.nbi.ui.beamMonitorCategory"
+            class="au.gov.ansto.bragg.echidna.ui.OpenMonitor1BorwserAction"
+            icon16="icons/document.gif"
+            id="au.gov.ansto.bragg.echidna.ui.openMonitorSiteActionShortcut1"
+            label="Beam Monitor 1"/>
+      <actionShortcut
+            category="au.gov.ansto.bragg.nbi.ui.beamMonitorCategory"
+            class="au.gov.ansto.bragg.echidna.ui.OpenMonitor2BorwserAction"
+            icon16="icons/document.gif"
+            id="au.gov.ansto.bragg.echidna.ui.openMonitorSiteActionShortcut2"
+            label="Beam Monitor 2"/>
+      <actionShortcut
+            category="au.gov.ansto.bragg.nbi.ui.beamMonitorCategory"
+            class="au.gov.ansto.bragg.echidna.ui.OpenMonitor3BorwserAction"
+            icon16="icons/document.gif"
+            id="au.gov.ansto.bragg.echidna.ui.openMonitorSiteActionShortcut3"
+            label="Beam Monitor 3"/>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.gumtree.gumnix.sics.control.ISicsController"
+            class="au.gov.ansto.bragg.echidna.ui.internal.status.SicsStatusAdapterFactory">
+         <adapter type="org.gumtree.gumnix.sics.ui.ISicsStatusContent"/>
+      </factory>
+   </extension>
+   <extension
+         point="org.gumtree.ui.launchers">
+      <launcher
+            category="au.gov.ansto.bragg.experiment"
+            class="au.gov.ansto.bragg.echidna.ui.internal.DAQWorkbenchLayoutLauncher"
+            icon32="icons/room_temp32.png"
+            icon64="icons/room_temp64.png"
+            id="au.gov.ansto.bragg.echidna.ui.daqWorkbenchLayoutLauncher"
+            label="Customised Temperature Experiment"
+            quickLauncher="true">
+         <description>
+            Start 2 monitor setup in the following order:
+1. Room Temperature Experiment Window
+2. Analysis Window
+         </description>
+      </launcher>
+      <launcher
+            category="au.gov.ansto.bragg.experiment"
+            class="au.gov.ansto.bragg.echidna.ui.internal.LowTemperatureWorkbenchLauncher"
+            icon32="icons/cold_temp32x32.png"
+            icon64="icons/cold_temp64.png"
+            id="au.gov.ansto.bragg.echidna.ui.LowTemperatureWorkbenchLauncher"
+            label="Low Temperature Experiment"
+            quickLauncher="true">
+         <description>
+            Start 2 monitor setup in the following order:
+1. Low Temperature Experiment Window
+2. Analysis Window
+         </description>
+      </launcher>
+      <launcher
+            category="au.gov.ansto.bragg.experiment"
+            class="au.gov.ansto.bragg.echidna.ui.internal.HighTemperatureWorkbenchLauncher"
+            icon32="icons/hot_temp32x32.png"
+            icon64="icons/hot_temp64.png"
+            id="au.gov.ansto.bragg.echidna.ui.HighTemperatureWorkbenchLaunche"
+            label="High Temperature Experiment"
+            quickLauncher="true">
+         <description>
+            Start 2 monitor setup in the following order:
+1. High Temperature Experiment Window
+2. Analysis Window
+         </description>
+      </launcher>
+      <launcher
+            category="au.gov.ansto.bragg.experiment"
+            class="au.gov.ansto.bragg.echidna.ui.internal.MagneticFieldWorkbenchLauncher"
+            icon32="icons/magnet32.png"
+            icon64="icons/magnet64.png"
+            id="au.gov.ansto.bragg.echidna.ui.MagneticFieldWorkbenchLauncher"
+            label="Magnetic Field Experiment"
+            quickLauncher="true">
+         <description>
+            Start 2 monitor setup in the following order:
+1. Magnetic Field Experiment Window
+2. Analysis Window
+         </description>
+      </launcher>
+      <launcher
+            category="au.gov.ansto.bragg.analysis"
+            class="au.gov.ansto.bragg.echidna.ui.internal.EchidnaAnalysisLauncher"
+            icon16="icons/analysis_16x16.png"
+            icon32="icons/analysis_32x32.png"
+            icon64="icons/analysis_64x64.png"
+            id="au.gov.ansto.bragg.echidna.ui.analysisLauncher"
+            label="Analysis Window"
+            quickLauncher="true">
+      </launcher>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.echidna.ui"
+            class="au.gov.ansto.bragg.echidna.ui.views.EchidnaAnalysisControlView"
+            icon="icons/operation_parameters_view.gif"
+            id="au.gov.ansto.bragg.echidna.ui.views.EchidnaAnalysisControlView"
+            name="Analysis Control">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.echidna.ui"
+            class="au.gov.ansto.bragg.echidna.ui.views.SicsRealtimeDataView"
+            icon="icons/activity_monitor.png"
+            id="au.gov.ansto.bragg.echidna.ui.views.SicsRealtimeDataView"
+            name="Activity Monitor">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.echidna.ui"
+            class="au.gov.ansto.bragg.echidna.ui.views.EchidnaDataSourceView"
+            icon="icons/data_source_view.gif"
+            id="au.gov.ansto.bragg.echidna.ui.views.EchidnaDataSourceView"
+            name="Nexus File Source">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.echidna.ui"
+            class="au.gov.ansto.bragg.echidna.ui.views.EchidnaControlView"
+            icon="icons/tree_mode.gif"
+            id="au.gov.ansto.bragg.echidna.ui.views.EchidnaControlView"
+            name="SIC Server[User]">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.echidna.ui"
+            class="au.gov.ansto.bragg.echidna.ui.views.SicsTerminalView"
+            icon="icons/terminal.png"
+            id="au.gov.ansto.bragg.echidna.ui.views.SicsTerminalView"
+            name="Sics Terminal">
+      </view>
+	  <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.echidna.ui"
+            class="au.gov.ansto.bragg.echidna.ui.views.EchidnaBatchEditingView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.echidna.ui.views.EchidnaBatchEditingView"
+            name="Batch Editor">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="au.gov.ansto.bragg.echidna.ui.preference.EchidnaGlobalPreferencePage"
+            id="au.gov.ansto.bragg.echidna.ui.EchidnaGlobalPreferencePage"
+            name="Echidna Instrument">
+      </page>
+      <page
+            category="au.gov.ansto.bragg.echidna.ui.EchidnaGlobalPreferencePage"
+            class="au.gov.ansto.bragg.echidna.ui.preference.DRAPreferencePage"
+            id="au.gov.ansto.bragg.echidna.ui.DRAPreferencePage"
+            name="Data Reduction">
+      </page>
+   </extension>
+     <extension
+         point="org.eclipse.ui.perspectives">
+	  <perspective
+	  		allowMultiple="false"
+            class="au.gov.ansto.bragg.echidna.ui.internal.EchidnaAnalysisPerspective"
+            icon="icons/project_view.gif"
+            id="au.gov.ansto.bragg.echidna.ui.internal.EchidnaAnalysisPerspective"
+            name="Echidna Data Analysis"/>
+      <perspective
+      		allowMultiple="false"
+            class="au.gov.ansto.bragg.echidna.ui.internal.TCLRunnerPerspective"
+            icon="icons/room_temp16.png"
+            id="au.gov.ansto.bragg.echidna.ui.internal.TCLRunnerPerspective"
+            name="Customised Temperature Experiment"/>
+      <perspective
+      		allowMultiple="false"
+            class="au.gov.ansto.bragg.echidna.ui.internal.LowTemperaturePerspective"
+            icon="icons/cold_temp16.png"
+            id="au.gov.ansto.bragg.echidna.ui.LowTemperaturePerspective"
+            name="Low Temperature Experiment"/>
+      <perspective
+      		allowMultiple="false"
+            class="au.gov.ansto.bragg.echidna.ui.internal.HighTemperaturePerspective"
+            icon="icons/hot_temp16x16.png"
+            id="au.gov.ansto.bragg.echidna.ui.HighTemperaturePerspective"
+            name="High Temperature Experiment"/>
+      <perspective
+      		allowMultiple="false"
+            class="au.gov.ansto.bragg.echidna.ui.internal.MagneticFieldPerspective"
+            icon="icons/magnet16.png"
+            id="au.gov.ansto.bragg.echidna.ui.MagneticFieldPerspective"
+            name="Magnetic Field Experiment"/>
+   </extension>
+   <!--
+   <extension
+         point="org.gumtree.ui.gadgets">
+      <gadget
+            contentProvider="au.gov.ansto.bragg.echidna.ui.widget.EchidnaExperimentGadget"
+            icon="icons/experiments_16x16.png"
+            id="au.gov.ansto.bragg.echidna.ui.experimentGadget"
+            isGlobal="true"
+            name="Experiment Info">
+      </gadget>
+      <gadget
+            contentProvider="au.gov.ansto.bragg.echidna.ui.widget.EchidnaTwoThetaGadget"
+            icon="icons/rotate_16x16.png"
+            id="au.gov.ansto.bragg.echidna.ui.twoThetaGadget"
+            isGlobal="true"
+            name="Experiment Status">
+      </gadget>
+      <gadget
+            contentProvider="au.gov.ansto.bragg.echidna.ui.widget.EchidnaFurnaceTemperatureGadget"
+            icon="icons/dashboard.png"
+            id="au.gov.ansto.bragg.echidna.ui.furnaceGadget"
+            isGlobal="true"
+            name="Furnace Temp.">
+      </gadget>
+      <gadget
+            contentProvider="au.gov.ansto.bragg.echidna.ui.widget.EchidnaRobotGadget"
+            icon="icons/robot_16x16.png"
+            id="au.gov.ansto.bragg.echidna.ui.robotGadget"
+            isGlobal="true"
+            name="Robotic Changer">
+      </gadget>
+      <gadget
+            contentProvider="au.gov.ansto.bragg.echidna.ui.widget.NeutronCountRateGadget"
+            icon="icons/counter_16x16.png"
+            id="au.gov.ansto.bragg.echidna.ui.monitorRateGadget"
+            isGlobal="true"
+            name="Monitor Event Rate">
+      </gadget>
+      <gadget
+            contentProvider="au.gov.ansto.bragg.echidna.ui.widget.TC1Gadget"
+            icon="icons/dashboard.png"
+            id="au.gov.ansto.bragg.echidna.ui.TC1Gadget"
+            isGlobal="true"
+            name="Temperature Control">
+      </gadget>
+   </extension>
+   -->
+</plugin>

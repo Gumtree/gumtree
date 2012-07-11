@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg Platypus Workbench Application
+Bundle-SymbolicName: au.gov.ansto.bragg.platypus.workbench
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.platypus.workbench.internal.Activator
+Import-Package: org.osgi.framework;version="1.3.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: Bragg Institute
+Require-Bundle: au.gov.ansto.bragg.platypus.ui;bundle-version="1.7.0";visibility:=reexport,
+ au.gov.ansto.bragg.nbi.workbench;bundle-version="1.7.0";visibility:=reexport
+Service-Component: OSGI-INF/cruise/PlatypusCruisePage.xml
+Bundle-ActivationPolicy: lazy
+Export-Package: au.gov.ansto.bragg.platypus.workbench

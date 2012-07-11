@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.gumtree.ui.cli.interpreter">
+      <interpreterClass
+            class="au.gov.ansto.bragg.wombat.exp.interpreter.WombatInterpreter"
+            name="wombat.exp">
+      </interpreterClass>
+   </extension>
+   <extension
+         point="org.gumtree.workflow.ui.tasks">
+      <task
+            class="au.gov.ansto.bragg.wombat.exp.task.HeaderInformationBlockTask"
+			icon="icons/H_16x16.png"
+			icon32="icons/H_32x32.png"	
+            label="Set Header Information"
+            provider="Bragg Institute"
+            tags="tcl">
+      </task>
+      <task
+            class="au.gov.ansto.bragg.wombat.exp.task.ChooseWavelengthTask"
+            icon="icons/lambda_16x16.png"
+            icon32="icons/lambda_32x32.png"
+            label="Choose Wavelength"
+            provider="Bragg Institute"
+            tags="tcl">
+      </task>
+      <task
+            class="au.gov.ansto.bragg.wombat.exp.task.RunTScanTask"
+            icon="icons/T_16x16.png"
+            icon32="icons/T_32x32.png"
+            label="Run Temperature Scan"
+            provider="Bragg Institute"
+            tags="tcl">
+      </task>
+      <task
+            class="org.gumtree.gumnix.sics.batch.ui.CommandBlockTask"
+            icon="icons/tcl16x16.png"
+            icon32="icons/tcl32x32.png"
+            label="Run SICS Commands"
+            provider="Bragg Institute"
+            tags="tcl">
+         <description>
+            This task helps to construct a SICS tcl script for batch execution.
+         </description>
+      </task>
+   </extension>
+</plugin>

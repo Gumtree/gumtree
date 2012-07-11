@@ -1,0 +1,1794 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:svg="http://www.w3.org/2000/svg"
+         xmlns:m="http://www.w3.org/1998/Math/MathML"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:db="http://docbook.org/ns/docbook">
+  <title xml:id="analysisWindow">Data Analysis Window</title>
+
+  <para>The Wombat Data Analysis Window is a customised graphic user interface
+  for reducing raw data acquired by Wombat Instrument. It consists of 3 parts,
+  File Manager, Algorithm Control and Plots. The data is in binary
+  <emphasis>NeXus</emphasis> format and contains raw data acquired in a Scan
+  done using the Experiment Window.</para>
+
+  <para>To launch the analysis window, click on the
+  <emphasis>Launch</emphasis> button, choose <emphasis>Analysis
+  Window</emphasis> option.</para>
+
+  <figure>
+    <title>Analysis Window</title>
+
+    <screenshot>
+      <mediaobject>
+        <imageobject>
+          <imagedata contentwidth="690"
+                     fileref="wombat.ui.images/analysis/analysis_snapshot.PNG"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </screenshot>
+  </figure>
+
+  <sect1>
+    <title>Getting Started with Data Analysis</title>
+
+    <para>A standard Wombat Data Analysis procedure includes the following
+    steps: efficiency correction, geometry correction, 2θ integration and
+    plotting. Please contact your instrument scientist for detail information
+    about this procedure.</para>
+
+    <sect2>
+      <title>File Manager</title>
+
+      <para>On the top left part of the window, there is the <emphasis>File
+      Manager</emphasis>, as shown in <xref linkend="file_source" />.</para>
+
+      <figure xml:id="file_source">
+        <title>File Manager</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/sourceView/file_source.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>Use button <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/sourceView/add_item.gif"></imagedata>
+          </imageobject>
+        </inlinemediaobject> to pop up the file selection window. You can get
+      the same window popped up by clicking on the drop down menu
+      <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/common/view_menu.gif"></imagedata>
+          </imageobject>
+        </inlinemediaobject> and choose <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/sourceView/add_files.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> option.</para>
+
+      <figure xml:base="" xml:id="file_selection">
+        <title>File Browser</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata contentwidth="360"
+                       fileref="wombat.ui.images/analysis/sourceView/file_browser.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>By default, the File Browser will use a filter to show all the
+      files that have an extension name of '*.hdf'. You can also set the
+      filter to show all files by setting the <emphasis>Files of
+      type</emphasis> option to '*.*'. You can use the file browser window to
+      select multiple files at the same time. Then click the
+      <emphasis>Open</emphasis> button to confirm your selections. Once one or
+      more files have been selected, the analysis application will pick the
+      last file in the selections and run the analysis algorithm on it. The
+      results of the analysis algorithm will be plotted in the Plot area of
+      the Analysis Window.</para>
+    </sect2>
+
+    <sect2 xml:id="change_param">
+      <title>Algorithm Control</title>
+
+      <para><emphasis>Algorithm Control</emphasis> is located in the bottom
+      left of the <emphasis>Analysis Window</emphasis>. Please read the
+      following items to tune the algorithm. If you need detail information
+      about the algorithm parameters, please read <xref
+      linkend="sect_ap" />.</para>
+
+      <sect3 xml:id="frame">
+        <title>Frame</title>
+
+        <para>A <emphasis role="italic">frame</emphasis> is defined as a
+        single detector histogram which is a 2-dimensional array of neutron
+        count data and has been taken at a single point in a multi-point scan.
+        The number of frames equals the number of scan points.</para>
+      </sect3>
+
+      <sect3>
+        <title>Navigation Control</title>
+
+        <para>By default when you first run the algorithm on a NeXus data
+        file, it will pick the first <emphasis role="italic">frame</emphasis>
+        of data to process. The correction result will show up in the
+        uppermost Plot. It is a two-dimensional plot of the detector reading
+        after efficiency correction and geometry correction, if you have
+        enabled these corrections. If there is more than one frame in the data
+        file, you need to use the widgets in <xref linkend="nav_control" /> to
+        navigate through the frames.</para>
+
+        <para>More detail can be found in <xref linkend="navigation" /></para>
+
+        <figure xml:id="nav_control">
+          <title>Navigation Control</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/navigate_group.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+
+          <itemizedlist>
+            <listitem>
+              <para>The <emphasis>jump to</emphasis> drop down list shows all
+              the frame IDs. You can select to analyse on a frame by selecting
+              an ID.</para>
+            </listitem>
+
+            <listitem>
+              <para>The <emphasis>step</emphasis> navigation buttons will help
+              you to move forwards or backwards in the frame sequence.</para>
+            </listitem>
+
+            <listitem>
+              <para>The <emphasis>scan variable</emphasis> drop down list
+              shows all the scan variable positions where each frame of data
+              is taken. You can analyse on a frame by selecting its scan
+              variable position.</para>
+            </listitem>
+          </itemizedlist>
+        </figure>
+      </sect3>
+
+      <sect3>
+        <title>Efficiency Correction Control</title>
+
+        <para>You need to use an efficiency map file to correct the histogram
+        data. The map can be either prepared in ahead of time or created at
+        runtime. Please ask your instrument scientist for any prepared
+        efficiency map files. To create an efficiency map file at runtime,
+        please see <xref linkend="efficiencymap_section" />. Once you know the
+        location of the efficiency files, you can use the widgets in <xref
+        linkend="efficiency_group" /> to load the efficiency file. Enable
+        efficiency correction by selecting the checkbox.</para>
+
+        <figure xml:id="efficiency_group">
+          <title>Efficiency Correction Control</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/efficiency_group.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para>For more information on efficiency correction, please read <xref
+        linkend="efficiencyCorrection" />.</para>
+      </sect3>
+
+      <sect3>
+        <title>Geometry Correction Control</title>
+
+        <para>The geometry correction algorithm used in the analysis is to
+        project a horizontal curved detector histogram onto a spherical
+        surface. Please consult with your instrument scientist about whether
+        you need to apply the geometry correction algorithm. To enable
+        geometry correction, tick on the enable checkbox.<figure>
+            <title>Geometry Correction Control</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/geometry_correction.PNG"></imagedata>
+              </imageobject>
+            </mediaobject>
+          </figure></para>
+      </sect3>
+    </sect2>
+
+    <sect2>
+      <title>Plot</title>
+
+      <para>The Plot area is in the right part of the window. There are three
+      plots that show the results of the data reduction and analysis.</para>
+
+      <para>To read more information about how to control Plot, for example
+      zooming and panning, see <xref linkend="plotting" />.</para>
+
+      <sect3>
+        <title>Corrected Data</title>
+
+        <para>The first Plot is a two-dimensional intensity plot that shows
+        the corrected detector counts. If you have chosen to enable efficiency
+        correction and geometry correction, it will plot the intensity data
+        after these corrections. In the example of <xref
+        linkend="correction_result_plot" />, both the vertical and horizontal
+        axes are the physical dimensions of the detector. The colour of each
+        pixel in the plot represents the neutron count reading in that
+        location of the detector.</para>
+
+        <figure xml:id="correction_result_plot">
+          <title>Corrected Data Plot</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Plotting/2D_correction.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+
+      <sect3>
+        <title>Integrated Counts</title>
+
+        <para>The second plot is the vertically integrated detector counts as
+        a curve. If you have applied a <emphasis>Region of
+        Interests</emphasis> (ROI) in the intensity plot above, the algorithm
+        will do the integration only in the 'region of interests' area.</para>
+
+        <figure>
+          <title>Integrated Counts PlotSttt</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Plotting/integration_result.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+
+      <sect3>
+        <title>Strips Plot</title>
+
+        <para>The third Plot shows the aggregated strips plot. The vertical
+        axis represents the scan variable, for example temperature. If you
+        need more details about the result plots, please read <xref
+        linkend="analysis_result" />.</para>
+
+        <figure>
+          <title>Strips Plot</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Plotting/strips_plot.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>File Manager</title>
+
+    <para>As shown in <xref linkend="file_source" />, users can manage the
+    data source files in this <emphasis>File Manager</emphasis>. This section
+    details how to use the file manager to select files for analysis.</para>
+
+    <sect2>
+      <title>Add Files</title>
+
+      <para>You can use the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/sourceView/add_item.gif"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button or drop down menu <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/sourceView/add_files.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> to open a <emphasis>file selection
+      window</emphasis> as shown in <xref linkend="file_selection" />. Once
+      one or more files has been selected, they will be imported into the
+      <emphasis>File Manager</emphasis>. The names and locations of these
+      files will be shown. By default, the analysis algorithm will use the
+      last file in the selection as the input file and automatically Analysed
+      and Plotted.</para>
+
+      <para>You can use this button to add one or many data files to the
+      <emphasis>File Manager</emphasis>. However, only one file gets processed
+      at a time and its result is plotted. The file that is processed gets
+      highlighted, as shown in <xref linkend="files_example" />.</para>
+
+      <figure xml:id="files_example">
+        <title>File Manager</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/sourceView/files_example.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Add Folder</title>
+
+      <para>Use the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/sourceView/add_dir.gif"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button or drop down menu <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/sourceView/add_folder.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> to open a folder selection window as shown in
+      <xref linkend="folder_selection" />. Once a folder has been selected,
+      click on the <emphasis>OK</emphasis> button to confirm your selection.
+      This will import all NeXus files in that folder to the <emphasis>File
+      Manager</emphasis>. The last file in the selected folder will be
+      automatically Analysed and Plotted.</para>
+
+      <figure xml:id="folder_selection">
+        <title>Folder Selection Window</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/sourceView/select_folder.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2 xml:id="fileSelect">
+      <title>Select an Input File</title>
+
+      <para>To Analyse a file, select that file by a single click. The
+      selected file is highlighted and Analysis starts. You can only select
+      one file at a time, hence only one file is Analysed and Plotted. You can
+      use the <emphasis>Arrow Up</emphasis> or <emphasis>Arrow Down</emphasis>
+      keys on your keyboard to navigate through the files in the
+      <emphasis>File Manager</emphasis>.</para>
+    </sect2>
+
+    <sect2>
+      <title>Remove a File</title>
+
+      <para>To remove a file from the File Manager, you need to select the
+      file. Please read <xref linkend="fileSelect" /> on the detail. Use
+      button <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/sourceView/rem_item.gif"></imagedata>
+          </imageobject>
+        </inlinemediaobject> or drop down menu <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/sourceView/remove_file.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>to remove the selected file. After removal, the
+      file located immediately below it in the File Manager will be
+      highlighted and Analysed and Plotted. If there is no file below, the
+      file above will be selected, Analysed and Plotted. If after removal,
+      there is no file in the File Manager, Plot will be empty. Since it does
+      not support multi-selection, you cannot remove multiple files unless you
+      choose to Remove All Files.</para>
+    </sect2>
+
+    <sect2>
+      <title>Remove All Files</title>
+
+      <para>Use the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/sourceView/rem_all_items.gif"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button or drop down menu <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/sourceView/remove_folder.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> to remove all files in the <emphasis>File
+      Manager</emphasis>. A confirmation window will pop up. If confirmed, all
+      files are removed. Plot will be emptied.</para>
+    </sect2>
+
+    <sect2>
+      <title>Monitor Live Histogram Data</title>
+
+      <para>If Gumtree-Wombat is connected to SICS it will monitor any new
+      NeXus file created or modified by the SICS server. To learn about how to
+      connect to SICS server, please read <xref linkend="installAndRun" />.
+      When a new NeXus file is created, the File Manager will automatically
+      read the file in. By default the files in the File Manager are sorted in
+      a descending sequence. The new file usually has a larger numeric ID, so
+      that it will be put on top of the file list in the File Manager. To
+      Analyse and Plot the new file, simple click on it to select it.</para>
+
+      <para>If the selected file is modified by SICS, Gumtree-Wombat will
+      detect this and read the modified file. If the frame entry in the file
+      gets changed, Gumtree will re-run Analysis and Plot on the new result.
+      If there is a new frame entry appended to the file, Gumtree will pick up
+      the entry and Analyse and Plot it.</para>
+    </sect2>
+  </sect1>
+
+  <sect1 xml:id="sect_ap">
+    <title>Algorithm Control</title>
+
+    <para>In this section, you will find information about how to tune the
+    analysis algorithms. <xref linkend="control_block" /> shows an overview of
+    the <emphasis>Algorithm Control</emphasis>.</para>
+
+    <figure xml:id="control_block">
+      <title>Algorithm Control</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/control_block.PNG"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+
+    <sect2>
+      <title>How to Change a Parameter</title>
+
+      <para>There are limited types of graphical widgets in
+      <emphasis>Algorithm Control</emphasis>. They are checkbox, drop down
+      list, file selection widget, navigation button and mask manager. Except
+      for the navigation buttons, all changes to the above widgets need a
+      confirmation click on the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/apply_button.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button. After the file is Analysed and Plotted,
+      the <emphasis>Apply</emphasis> button is greyed out. Once a change is
+      made to the control widgets, the <emphasis>Apply</emphasis> button is
+      highlighted. A single clicking on this button will apply all the changes
+      made and start Analysis and Plot. Navigation buttons are exceptions,
+      they do not need confirmation.</para>
+    </sect2>
+
+    <sect2 xml:id="navigation">
+      <title>Navigation Control</title>
+
+      <para>There are three ways of navigating through the <xref
+      linkend="frame" />frame sequence in the NeXus file.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Use frame index</para>
+
+          <para>The index of each frame will show up in the drop down list in
+          <xref linkend="jump_to" />. Choose the index of a frame that you
+          want to show by a single click in the drop down list.</para>
+
+          <figure xml:id="jump_to">
+            <title>Frame Index</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/jump_to.PNG"></imagedata>
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </listitem>
+
+        <listitem>
+          <para>Use navigation buttons <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/nav_button.PNG"></imagedata>
+              </imageobject>
+            </inlinemediaobject>. You can navigate backwards or forwards along
+          the frame sequence with these buttons.</para>
+        </listitem>
+
+        <listitem>
+          <para>Use scan variable position</para>
+
+          <para>The value of the scan variable for each frame will show up in
+          the drop down list in <xref linkend="scan_variable" />. You can
+          choose to show a frame by selecting the scan variable value of that
+          frame.</para>
+
+          <figure xml:id="scan_variable">
+            <title>Scan Variable Values</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/scan_variable.PNG"></imagedata>
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2 xml:id="efficiencyCorrection">
+      <title>Efficiency Correction Control</title>
+
+      <para>You need to use an efficiency map file to correct the histogram
+      data. The map can be either prepared in ahead of time or created at
+      runtime. Please ask your instrument scientist for any prepared
+      efficiency map files. To create an efficiency map file at runtime,
+      please see <xref linkend="efficiencymap_section" />. Once you know the
+      location of the efficiency files, you can use the widgets in <xref
+      linkend="efficiency_control" /> to load the efficiency file. Enable
+      efficiency correction by selecting the checkbox.</para>
+
+      <para>First, you need to select a folder where the efficiency maps are
+      stored. Click on the folder selection button <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/select_file_button.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> to pop up a folder selection window. Once a
+      folder is selected, its path gets inputted into the text box. And all
+      efficiency map files will be listed in the file name drop down list. You
+      can type the path of the file in the text box as well. Use the drop down
+      list to select the correct efficiency map file.</para>
+
+      <figure xml:id="efficiency_control">
+        <title>Efficiency Correction Control</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/efficiency_group.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>You can enable or disable efficiency correction by changing
+      selection of the checkbox. Click on the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/apply_button.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button to apply the change.</para>
+    </sect2>
+
+    <sect2 xml:id="efficiencymap_section">
+      <title>Create New Efficiency Map</title>
+
+      <para>The efficiency maps used for efficiency correction can be
+      different for different instrument environment. Sometimes the user needs
+      to create an efficiency map file for a special scan. Gumtree provides a
+      function to create an efficiency map on the fly. To open the window for
+      creating effciency map, click on the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/efficiency_button.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button at the bottom of the control block. The
+      window is shown in <xref linkend="make_efficiency" />. 
+      	<figure
+          xml:id="make_efficiency">
+          <title>Efficiency Map Factory</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/make_efficiency.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure></para>
+
+      <para>First, load a histogram data collection file in the <emphasis>long
+      run</emphasis> parameter. The file is a common NEXUS data collected with
+      the shutter open for an even distribution scattering. Next load a
+      background data collection file in the <emphasis>bcg run</emphasis>
+      parameter. The file is also a common NEXUS data collected with shutter
+      closed. Then put a path for the new map file in the <emphasis>save
+      to</emphasis> parameter. The new efficiency file is going to be saved to
+      this path. By default it is a HDF file.</para>
+
+      <para>After the setup, click on the <emphasis>Run</emphasis> button. The
+      program starts to generate an efficiency map file. The progress bar
+      displays the progress.</para>
+
+      <para>Once the data gets created, there is a preview of the map
+      displayed in right part of the window.</para>
+
+      <para>If the path of the new file is under the folder which is used in
+      the efficiency correction of the algorithm control, this new map will be
+      automatically loaded to the drop down list of the efficiency control. To
+      use the new efficiency map, simply select it from the list and click on
+      <emphasis>Apply</emphasis> button. For example in <xref
+      linkend="load_efficiency" />, <emphasis>new_map.hdf</emphasis> is a
+      newly created file and can be used for correction.</para>
+
+      <figure xml:id="load_efficiency">
+        <title>Load New Efficiency Map</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/new_efficiencymap.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Geometry Correction Control</title>
+
+      <para>The geometry correction algorithm used in the analysis is to
+      project a flat detector histogram onto a spherical surface. Please
+      consult with your instrument scientist about whether you need to apply
+      the geometry correction algorithm. To enable geometry correction, simply
+      click to select the checkbox in <xref linkend="geometry_control" />.
+      Then click on <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/apply_button.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button to apply the change.</para>
+
+      <figure xml:id="geometry_control">
+        <title>Geometry Correction Control</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/geometry_correction.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2 xml:id="ROIMask">
+      <title>Region of Interest and Masking Control</title>
+
+      <para>In the analysis algorithm, you can put a series of mask as a
+      single parameter to control selection of the detector histogram data.
+      There are two types of masks, inclusive and exclusive. Inclusive masks
+      are also called a <emphasis>Region of Interest</emphasis>, or ROI. If an
+      ROI has been applied to the histogram data, only pixels included in the
+      ROI will be considered in the analysis algorithm. Exclusive masks are
+      called masks. If a mask has been applied to the histogram data, the
+      pixels in the mask region will not be considered in the analysis
+      algorithm.</para>
+
+      <para>There are two ways of inputting ROI or masks into the algorithm.
+      One is to draw regions on the two-dimensional intensity plot in the
+      plotting area. The other is to use the <emphasis>Masking Properties
+      Window</emphasis> to define regions.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>To draw an ROI on the two-dimensional intensity plot, use
+          <emphasis role="bold">ALT + Left Mouse Button</emphasis> combination
+          to draw a rectilinear region on the plot. As shown in <xref
+          linkend="ROI_plot" />, the colour of the ROI is green. To resize the
+          ROI, move your mouse to the boarder of the region. The cursor
+          becomes drag-able. You can drag the boarder to change the width or
+          the height. To remove, move your mouse onto the ROI until the region
+          gets focus. Push the <emphasis role="bold">DELETE</emphasis> key on
+          your keyboard to remove.</para>
+
+          <figure xml:id="ROI_plot">
+            <title>ROI on 2D Plot</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/2D_mask.PNG"></imagedata>
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </listitem>
+
+        <listitem>
+          <para>To draw a mask on the two-dimensional intensity plot, use
+          <emphasis role="bold">SHIFT + ALT + Left Mouse Button</emphasis>
+          combination. The colour of the mask region is red. Other properties
+          of the mask are the same as the ROI.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>You can draw as many ROI and masks on the intensity plot as you
+      like. <xref linkend="mulit_mask" /> shows an example of drawing one ROI
+      and two masks on the intensity plot.</para>
+
+      <figure xml:id="mulit_mask">
+        <title>Multiple ROI and Masks</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/3masks.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>The other way of apply region selections is to define ROI and mask
+      regions in the <emphasis>Masking Properties Window</emphasis>. To open
+      this window, click on the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/select_file_button.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button in the algorithm control widget shown in
+      <xref linkend="mask_control" />.</para>
+
+      <figure xml:id="mask_control">
+        <title>ROI and Mask Control</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/mask_control.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para><xref linkend="mask_prop" /> shows an example of masking
+      properties window.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>To add a new mask, click on the <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/analysis/sourceView/add_item.gif"></imagedata>
+              </imageobject>
+            </inlinemediaobject> button, a new mask item will show up in the
+          <emphasis>Mask list</emphasis>. You can edit the position and size
+          of the region by changing the coordinates of the mask in the
+          <emphasis>Points</emphasis> widget. You can define as ROI or mask by
+          switching between <emphasis>Inclusive</emphasis> and
+          <emphasis>Exclusive</emphasis> options widget. You need to click on
+          the <emphasis>Apply</emphasis> button to confirm any change.</para>
+        </listitem>
+
+        <listitem>
+          <para>To change the name of the region, simply type in the
+          <emphasis>Name</emphasis> text box.</para>
+        </listitem>
+
+        <listitem>
+          <para>To remove a mask, click on the mask item. Then click on the
+          <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/analysis/sourceView/rem_item.gif"></imagedata>
+              </imageobject>
+            </inlinemediaobject> button.</para>
+        </listitem>
+
+        <listitem>
+          <para>To remove all masks, click on the <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/analysis/sourceView/rem_all_items.gif"></imagedata>
+              </imageobject>
+            </inlinemediaobject> button.</para>
+        </listitem>
+
+        <listitem>
+          <para>To save all the masks to a file, click on the
+          <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/mask_save.gif"></imagedata>
+              </imageobject>
+            </inlinemediaobject> button. Pick a path and filename, then click
+          on <emphasis>SAVE</emphasis>. All the masks drawn on the plot will
+          be saved into the file in XML format.</para>
+        </listitem>
+
+        <listitem>
+          <para>To load saved masks, click on the <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/mask_load.gif"></imagedata>
+              </imageobject>
+            </inlinemediaobject> button. Choose a file saved previously, then
+          click <emphasis>OPEN</emphasis>.</para>
+        </listitem>
+      </itemizedlist>
+
+      <figure xml:id="mask_prop">
+        <title>Mask Properties Window</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/mask_property.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>The following logic describes how the regions define the
+      selections of the histogram data.</para>
+
+      <orderedlist>
+        <listitem>
+          <para>If there is no ROI or mask region, all pixels in the detector
+          histogram will be used.</para>
+        </listitem>
+
+        <listitem>
+          <para>If only masks exist, all pixels but the masked ones will be
+          used.</para>
+        </listitem>
+
+        <listitem>
+          <para>If only ROI exist, only pixels in the ROI regions will be
+          used.</para>
+        </listitem>
+
+        <listitem>
+          <para>If both ROI and masks exist, pixels in the ROI regions but not
+          in the mask will be used.</para>
+        </listitem>
+      </orderedlist>
+    </sect2>
+
+    <sect2>
+      <title>Progress Bar</title>
+
+      <para>The Progress Bar shows the progress of processing all frames in a
+      single NeXus file, when you choose to run the algorithm on that
+      file.<figure xml:id="batch_bar">
+          <title>Export and Progress Bar</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/export_all.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure></para>
+    </sect2>
+
+    <sect2>
+      <title>Control Buttons</title>
+
+      <para>There are 3 control buttons at the bottom of the algorithm control
+      block, as shown in <xref linkend="control_buttons" />.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><emphasis>Efficiency</emphasis> button: use this button to
+          open the window for creating new efficiency map files. For details
+          about creating efficiency files, see <xref
+          linkend="efficiencymap_section" />.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis>Apply</emphasis> button: after the algorithm
+          finishes processing, this button gets disabled. If any parameter
+          gets changed in the algorithm control block, this button is enabled.
+          Press this button to apply the changes. This allows you to apply
+          multiple changes at once.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis>Relaunch</emphasis> button: use this button to rerun
+          the algorithm at any time.</para>
+        </listitem>
+      </itemizedlist>
+
+      <figure xml:id="control_buttons">
+        <title>Control Buttons</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/control_buttons.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+  </sect1>
+
+  <sect1 xml:id="analysis_result">
+    <title>Plot</title>
+
+    <para>There are three types of results for the Gumtree-Wombat data
+    analysis, Corrected, Reduced and Analysed. In this section, we talk about
+    these results.</para>
+
+    <sect2 xml:id="correctionResult">
+      <title>Corrected Data</title>
+
+      <para>The first Plot shows the Corrected result. It is a two-dimensional
+      detector histogram data plot. If you have chosen to enable efficiency
+      correction and geometry correction, it will plot the intensity data
+      after these corrections. <xref linkend="intensity_plot" /> shows this
+      Plot. The vertical and horizontal axes are the physical dimensions of
+      the detector. Units of the axes are <emphasis>mm</emphasis>. The
+      horizontal axis is the 2θ values of the detector, in degrees.</para>
+
+      <para>The colour of each pixel in the plot is coded by the number of
+      neutron counts. The colour scale is located to the right of the plot.
+      Readings from low to high coded by colors from dark to light. <figure
+          xml:id="intensity_plot">
+          <title>Corrected Data</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Plotting/2D_plot.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure></para>
+
+      <para>To learn more information about the plot control, please read
+      <xref linkend="plotting" />.</para>
+    </sect2>
+
+    <sect2 xml:id="reductionResult">
+      <title>Integrated Counts</title>
+
+      <para>The one-dimensional reduction result is located in the second
+      plot. It is the integration of the corrected histogram data in vertical
+      direction. The horizontal axis of the curve has been converted into 2θ
+      values. <xref linkend="integration_plot" /> shows the integration result
+      with a fitting curve. The integration result is plotted in Diamond
+      markers and the fitting result is in a curved line. You can choose
+      different marker shape for the plot. Please refer to <xref
+      linkend="plotControl1D" />.</para>
+
+      <figure xml:id="integration_plot">
+        <title>Integrated Counts</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/Plotting/integration_plot.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2 xml:id="analysisResult">
+      <title>Strips Plot</title>
+
+      <para>The analysis result of the algorithm will show up in the third
+      plot in the plotting area. The vertical axis of the plot is the scan
+      variables. For example, it can be temperature readings. <xref
+      linkend="peak_positions" /> shows a plot with 43 strips aggregated in a
+      strips plot, where vertical axis represents run numbers.</para>
+
+      <figure xml:id="peak_positions">
+        <title>Scan Data</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/Plotting/integration_strips.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2 xml:id="save_scan">
+      <title>Save Scan Data</title>
+
+      <para>You can save different analysis results in multiple formats. The
+      supported file formats are <emphasis>binary (HDF5),</emphasis>
+      <emphasis>ASCII(3 columns)</emphasis>, and <emphasis>XML</emphasis>.
+      There are different advantages in saving into different formats.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>HDF (Binary HDF5) format is a popular format in neutron
+          scattering science. The NeXus data files created in Wombat
+          experiments are also in HDF5 binary format. The data saved in HDF5
+          format are compressed, which helps to save storage space. Such file
+          that contains analysis result can be easily read back by Gumtree
+          applications.</para>
+        </listitem>
+
+        <listitem>
+          <para>XYSigma (ASCII, with 3 columns table) format is more
+          human-readable. This format is only supported for exporting
+          one-dimensional curve data. The 3 columns are the
+          <emphasis>AXIS</emphasis>, the <emphasis>VALUE</emphasis>, and the
+          <emphasis>ERROR</emphasis> respectively.</para>
+        </listitem>
+
+        <listitem>
+          <para>XML format is available for both the two-dimensional result
+          and one-dimensional curve result. The advantage of using this format
+          is that it easily holds the metadata and it is human
+          readable.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>To choose to save the result in your local drive, click on the
+      <emphasis>Export</emphasis> item in the plot menu, as shown in <xref
+      linkend="export_result" />. Then choose the file format you want to
+      save. A file selection window will show up. Choose the folder and give a
+      name to the file, then click <emphasis>Save</emphasis>.</para>
+
+      <figure xml:id="export_result">
+        <title>Export Result Menu</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/Plotting/export_menu.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+  </sect1>
+
+  <sect1 xml:id="plotControl1D">
+    <title>1D Plot Controls</title>
+
+    <para>The following features are about features supported by a
+    one-dimensional curve plot, for example the reduction result plot or the
+    analysis result plot. To learn about the meaning of the 1D results, please
+    read <xref linkend="reductionResult" />.</para>
+
+    <sect2>
+      <title>Plot Window Control</title>
+
+      <sect3>
+        <title>Zoom</title>
+
+        <para>To zoom in certain region of the 1D plot, simply <emphasis>push
+        down the left mouse button and draw a rectilinear box from top left to
+        bottom right</emphasis> on that region. You can use this action to
+        zoom in up to possible zooming levels.</para>
+
+        <para>To zoom out to the original level, <emphasis>push down the left
+        mouse button and move it up or left</emphasis>. Another way to zoom
+        out is to click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Plotting/refresh16x16.png"></imagedata>
+            </imageobject>
+          </inlinemediaobject> button at the top left corner of the
+        plot.</para>
+
+        <para>You can also zoom in and out with the mouse wheel. Put the mouse
+        over a point of interest. Then sroll up the mouse wheel to zoom in and
+        scroll down to zoom out. If at the same time SHIFT key is pressed
+        down, it will zoom in or out in a less progression rate.</para>
+      </sect3>
+
+      <sect3>
+        <title>Panning</title>
+
+        <para>To pan current plot, press and hold CTRL key. Use the mouse to
+        drag the plot in a direction.</para>
+      </sect3>
+
+      <sect3>
+        <title>Pick a point in the curve</title>
+
+        <para>Single clicking on a point in the curve, it will provide a
+        crossing at the point in blue colour. The crossing clearly tells the
+        positions of the point. The detail values of the position will also
+        show up in the status bar at the bottom of the plot.</para>
+
+        <figure>
+          <title>Point Properties</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Kakadu/point_properties.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+
+      <sect3>
+        <title>Switch between logarithmic and linear axis</title>
+
+        <para>Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Plotting/logarithm.gif"></imagedata>
+            </imageobject>
+          </inlinemediaobject> button to switch the vertical coordinate axis
+        between logarithm axis and common axis. <xref
+        linkend="logarithm_axis" /> shows an example with logarithm vertical
+        axis in the plot.</para>
+
+        <figure xml:id="logarithm_axis">
+          <title>Logarithm Axis</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Plotting/logarithm.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+
+      <sect3>
+        <title>Copy to clipboard</title>
+
+        <para>Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Plotting/copy16x16.png"></imagedata>
+            </imageobject>
+          </inlinemediaobject> button to copy the current plot image into
+        system clipboard. You can paste the image into common Windows imaging
+        application such as <emphasis>MSPaint</emphasis> and
+        <emphasis>MSOffice</emphasis> applications.</para>
+      </sect3>
+
+      <sect3>
+        <title>Save to image file</title>
+
+        <para>Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Plotting/picture_save16x16.png"></imagedata>
+            </imageobject>
+          </inlinemediaobject> button to save the current plot to an image
+        file in your file system. A <emphasis>Save As</emphasis> window will
+        pop up for you to pick the folder and file name for the image file. It
+        supports three image file formats: <emphasis>BMP</emphasis>,
+        <emphasis>JPEG</emphasis> and <emphasis>PNG</emphasis>.</para>
+      </sect3>
+
+      <sect3>
+        <title>Print the plot</title>
+
+        <para>Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Plotting/printer16x16.png"></imagedata>
+            </imageobject>
+          </inlinemediaobject> button to print the current plot image. Two
+        windows will pop up for you to setup the layout properties and to
+        choose a printer.</para>
+      </sect3>
+    </sect2>
+
+    <sect2 xml:id="dataPropertiesControl1D">
+      <title>Data</title>
+
+      <para>Click on the <emphasis>Data</emphasis> item in the plot menu bar,
+      a Data Control Block will show up in the left side of the plot. For
+      example, <xref linkend="data_control_1D" /> shows the block of the
+      integration result plot.</para>
+
+      <figure xml:id="data_control_1D">
+        <title>Data Control</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/Kakadu/1D_data_control.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>The following features are supported in the Data Control
+      Block.</para>
+
+      <sect3>
+        <title>Visible</title>
+
+        <para>The first column of the data control area is visibility control.
+        Select or deselect the check box in that column to show or hide the
+        data.</para>
+
+        <para>The one-dimensional curve data is called
+        <emphasis>Pattern</emphasis> in Gumtree plotting space. Some time, the
+        data fed to the plot can be a group of such one-dimensional data,
+        which we call <emphasis>PatternSet</emphasis>. By default, all
+        <emphasis>Patterns</emphasis> under the
+        <emphasis>PatternSet</emphasis> will show up in the Visibility Control
+        Area. Click on the button <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Kakadu/folding_data.PNG"></imagedata>
+            </imageobject>
+          </inlinemediaobject> to fold the <emphasis>PatternSet</emphasis> so
+        that it hides the <emphasis>Patterns</emphasis> within it. Click it
+        again to unfold it. Deselect the visibility checkbox of the
+        <emphasis>PatternSet</emphasis> will set all
+        <emphasis>Patterns</emphasis> in it invisible.</para>
+      </sect3>
+
+      <sect3>
+        <title>Color</title>
+
+        <para>Use the <emphasis>Colour</emphasis> column to change the colour
+        of the curve shows in the plot. By default, the colors of the curve
+        data are selected automatically from a rainbow colour series to be
+        different from each other. You can change the colour of a single curve
+        by clicking on the colour label in the <emphasis>Colour</emphasis>
+        column. A <emphasis>Colour Selection Panel</emphasis> window will show
+        up as in <xref linkend="color_panel" />. You can either choose a basic
+        colour or click on the <emphasis>Define Custom Colors</emphasis> to
+        generate a customised color. Click on OK to confirm the change.</para>
+
+        <figure xml:id="color_panel">
+          <title>Colour Selection Panel</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Kakadu/color_panel.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+
+      <sect3>
+        <title>Title</title>
+
+        <para>By default, the title in the 1D plot uses the title of the data
+        that put into the plot widget. So that you can control the title of
+        the plot by changing the title of the data. To change the title,
+        simply click on the current title of the data in the
+        <emphasis>Title</emphasis> column, then type in a new text.</para>
+
+        <figure>
+          <title>Change Title</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Kakadu/change_title.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+
+      <sect3>
+        <title>Marker</title>
+
+        <para>You can change the marker shape of each curve in the plot. To
+        change the marker shape, simply click on the drop down list in the
+        <emphasis>Marker</emphasis> column and select one from the available
+        marker shapes. <xref linkend="marker_table" /> shows the available
+        marker shapes and their names.</para>
+
+        <table xml:id="marker_table">
+          <title>Available Marker Shapes</title>
+
+          <tgroup cols="3">
+            <colspec align="center" />
+
+            <tbody>
+              <row>
+                <entry>Name</entry>
+
+                <entry>Icon</entry>
+
+                <entry>Style</entry>
+              </row>
+
+              <row>
+                <entry>Line Only</entry>
+
+                <entry>-</entry>
+
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="wombat.ui.images/analysis/Kakadu/line_only.PNG"></imagedata>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+
+              <row>
+                <entry>Diamond</entry>
+
+                <entry>*</entry>
+
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="wombat.ui.images/analysis/Kakadu/diamond_shape.PNG"></imagedata>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+
+              <row>
+                <entry>Diagonal Cross</entry>
+
+                <entry>x</entry>
+
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="wombat.ui.images/analysis/Kakadu/diagnal_cross.PNG"></imagedata>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+
+              <row>
+                <entry>Regular Cross</entry>
+
+                <entry>+</entry>
+
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="wombat.ui.images/analysis/Kakadu/regular_cross.PNG"></imagedata>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+
+              <row>
+                <entry>Up Triangle</entry>
+
+                <entry>^</entry>
+
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="wombat.ui.images/analysis/Kakadu/up_triangle.PNG"></imagedata>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+
+              <row>
+                <entry>Down Triangle</entry>
+
+                <entry>v</entry>
+
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="wombat.ui.images/analysis/Kakadu/down_triangle.PNG"></imagedata>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+
+              <row>
+                <entry>Line Diamond</entry>
+
+                <entry>-*</entry>
+
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="wombat.ui.images/analysis/Kakadu/line_diamond.PNG"></imagedata>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+
+              <row>
+                <entry>Line Diagonal Cross</entry>
+
+                <entry>-x</entry>
+
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="wombat.ui.images/analysis/Kakadu/line_diagnal_cross.PNG"></imagedata>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+
+              <row>
+                <entry>Line Regular Cross</entry>
+
+                <entry>-+</entry>
+
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="wombat.ui.images/analysis/Kakadu/line_regular_cross.PNG"></imagedata>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+
+              <row>
+                <entry>Line Up Triangle</entry>
+
+                <entry>-^</entry>
+
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="wombat.ui.images/analysis/Kakadu/line_up_triangle.PNG"></imagedata>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+
+              <row>
+                <entry>Line Down Triangle</entry>
+
+                <entry>-v</entry>
+
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="wombat.ui.images/analysis/Kakadu/line_down_triangle.PNG"></imagedata>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+      </sect3>
+
+      <sect3>
+        <title>Linked</title>
+
+        <para>To link the data with the algorithm means when the algorithm is
+        processed again, new result data will overwrite the current data. This
+        makes the plot updates automatically to the most recent result. By
+        default this feature is enabled. To disable it, simply deselect the
+        checkbox in the <emphasis>Linked</emphasis> column.</para>
+      </sect3>
+
+      <sect3>
+        <title>Metadata columns</title>
+
+        <para>The metadata columns show the plot data information.</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><emphasis>Reference</emphasis> column shows the ID of the
+            algorithm that generates this plot.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis>Data type</emphasis> column shows the type of the
+            data, such as <emphasis>Pattern</emphasis> or
+            <emphasis>PatternSet</emphasis>.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis>Status</emphasis> column shows the status of the
+            algorithm that generates this plot, for example,
+            <emphasis>InProgress</emphasis>, <emphasis>Done</emphasis> or
+            <emphasis>Error</emphasis>.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis>Timestamps</emphasis> column shows the time stamp
+            of this plot data generation.</para>
+          </listitem>
+        </itemizedlist>
+      </sect3>
+    </sect2>
+  </sect1>
+
+  <sect1 xml:id="plotting">
+    <title>2D Plot Controls</title>
+
+    <para>The following features are about two-dimensional plots, e.g.
+    Corrected Data plots (see <xref linkend="correctionResult" />)</para>
+
+    <sect2>
+      <title>Plot Window Control</title>
+
+      <para>The following features are supported by the two-dimensional
+      window.</para>
+
+      <sect3>
+        <title>Zoom</title>
+
+        <para>To zoom in certain region of the 2D plot, simply <emphasis>push
+        down the left mouse button and draw a rectilinear box</emphasis> on
+        that region.</para>
+
+        <para>To zoom out use the key combination, <emphasis role="bold">CTRL
+        + Z</emphasis> to zoom out to the next zoom level.</para>
+
+        <para>To zoom out to the original level, use key combination,
+        <emphasis role="bold">CTRL + SHIFT + Z</emphasis> or click on the
+        <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Plotting/refresh16x16.png"></imagedata>
+            </imageobject>
+          </inlinemediaobject> button at the top left corner of the
+        plot.</para>
+      </sect3>
+
+      <sect3>
+        <title>Pan</title>
+
+        <para>Pan is available if the plot has been zoomed. Push down the
+        <emphasis role="bold">CTRL</emphasis> key, then drag the image to pan
+        in any direction.</para>
+      </sect3>
+
+      <sect3>
+        <title>Show pixel properties</title>
+
+        <para>Moving your mouse cursor to a pixel on the plot will get the
+        pixel properties shown in the status bar. It tells you the horizontal
+        axis value, the vertical axis value and the intensity reading on that
+        pixel. It also tells you the zoom level.</para>
+
+        <figure>
+          <title>Pixel Properties</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Kakadu/pixel_properties.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+
+      <sect3>
+        <title>Switch between linear and logarithmic colour scale</title>
+
+        <para>Using logarithm colour scale can help to reveal lower intensity
+        pixels in the plot. By default, the plot will use the common colour
+        scale. Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Plotting/logarithm.gif"></imagedata>
+            </imageobject>
+          </inlinemediaobject> button to switch between common and logarithm
+        colour scale. See <xref linkend="logarithm_scale" /> for the
+        difference between common colour scale and logarithm colour
+        scale.</para>
+
+        <figure xml:id="logarithm_scale">
+          <title>Linear and Logarithm Colour Scales</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Kakadu/logarithm_scale.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+
+      <sect3>
+        <title>Copy to clipboard</title>
+
+        <para>Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Plotting/copy16x16.png"></imagedata>
+            </imageobject>
+          </inlinemediaobject> button to copy the current plot image into
+        system clipboard. You can paste the image into common Windows imaging
+        application such as <emphasis>MSPaint</emphasis> and
+        <emphasis>MSOffice</emphasis> applications.</para>
+      </sect3>
+
+      <sect3>
+        <title>Save to image file</title>
+
+        <para>Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Plotting/picture_save16x16.png"></imagedata>
+            </imageobject>
+          </inlinemediaobject> button to save the current plot to an image
+        file in your file system. A <emphasis>Save As</emphasis> window will
+        pop up for you to pick the folder and file name for the image file. It
+        supports three image file formats: <emphasis>BMP</emphasis>,
+        <emphasis>JPEG</emphasis> and <emphasis>PNG</emphasis>.</para>
+      </sect3>
+
+      <sect3>
+        <title>Print the plot</title>
+
+        <para>Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Plotting/printer16x16.png"></imagedata>
+            </imageobject>
+          </inlinemediaobject> button to print the current plot. Two windows
+        will pop up for you to setup the layout properties and to choose a
+        printer.</para>
+      </sect3>
+    </sect2>
+
+    <sect2 xml:id="dataPropertiesControl">
+      <title>Data</title>
+
+      <para>Click on the <emphasis>Data</emphasis> item in the plot menu bar,
+      a <emphasis>Data Control</emphasis> will show up in the left side of the
+      plot. For example, <xref linkend="data_control_2D" /> shows the block of
+      the integration result plot.</para>
+
+      <figure xml:id="data_control_2D">
+        <title>Data Control</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/AlgorithmControl/2D_data_control.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>The following features are supported in the <emphasis>Data Control
+      Block</emphasis>.</para>
+
+      <sect3>
+        <title>Visible</title>
+
+        <para>The first column of the <emphasis>Data Control Block</emphasis>
+        is visibility control. Select or deselect the check box in that column
+        to view or hide the data.</para>
+
+        <para>A two-dimensional data is called <emphasis>Map</emphasis> in
+        Gumtree plotting space. Some time, the data fed to the plot can be a
+        group of such two-dimensional data, which we call
+        <emphasis>MapSet</emphasis>. By default, all <emphasis>Maps</emphasis>
+        under the <emphasis>MapSet</emphasis> will show up in the visibility
+        control area. Click on the button <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Kakadu/folding_data.PNG"></imagedata>
+            </imageobject>
+          </inlinemediaobject> to fold the <emphasis>MapSet</emphasis> so that
+        it hides the <emphasis>Maps</emphasis> within it. Click it again to
+        unfold it. Deselect the visibility checkbox of the
+        <emphasis>MapSet</emphasis> will hide all <emphasis>Maps</emphasis> in
+        it.</para>
+      </sect3>
+
+      <sect3>
+        <title>Color</title>
+
+        <para>Use the <emphasis>Color</emphasis> column to change the colour
+        scale of the two-dimensional plot. By default, the colour scale picked
+        is Rainbow colour scale. All the supported colour scales are shown in
+        <xref linkend="color_scales" />.</para>
+
+        <figure xml:id="color_scales">
+          <title>Colour Scales</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Kakadu/color_scales.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para>To change the colour scale, simply click on the current colour
+        scale name in the <emphasis>Color</emphasis> column. A drop down list
+        will show up as shown in <xref linkend="select_color_scale" />. Choose
+        your selection to change the colour scale.</para>
+
+        <figure xml:id="select_color_scale">
+          <title>Select Colour Scale</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Kakadu/color_scale.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+
+      <sect3>
+        <title>Title</title>
+
+        <para>By default, the title in the 2D plot uses the title of the data
+        that put into the plot widget. So that you can control the title of
+        the plot by changing the title of the data. To change the title,
+        simply click on the current title of the data in the
+        <emphasis>Title</emphasis> column, then type in a new text.</para>
+
+        <figure>
+          <title>Change Title</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/analysis/Kakadu/change_title.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+
+      <sect3>
+        <title>Linked</title>
+
+        <para>To link the data with the algorithm means when the algorithm is
+        processed again, the new result data will overwrite the current data.
+        This makes the plot update automatically to the most recent result. By
+        default this feature is enabled. To disable it, simply deselect the
+        checkbox in the <emphasis>Linked</emphasis> column.</para>
+      </sect3>
+
+      <sect3>
+        <title>Meta data columns</title>
+
+        <para>The metadata columns in the data control area shows the plot
+        data information.</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><emphasis>Reference</emphasis> column shows the ID of the
+            algorithm that generates this plot.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis>Data type</emphasis> column shows the type of the
+            data, such as <emphasis>Map</emphasis> or
+            <emphasis>MapSet</emphasis>.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis>Status</emphasis> column shows the status of the
+            algorithm that generates this plot, for example,
+            <emphasis>InProgress</emphasis>, <emphasis>Done</emphasis> or
+            <emphasis>Error</emphasis>.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis>Timestamps</emphasis> column shows the time stamp
+            of this plot data gets generated.</para>
+          </listitem>
+        </itemizedlist>
+      </sect3>
+    </sect2>
+
+    <sect2>
+      <title>View</title>
+
+      <para>Click on the <emphasis>View</emphasis> item in the plot menu bar
+      will show up the View Properties Control, as shown in <xref
+      linkend="view_control" />.</para>
+
+      <figure xml:id="view_control">
+        <title>View Properties Control</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/Kakadu/view_control.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <itemizedlist>
+        <listitem>
+          <para>View mode - Intensity</para>
+
+          <para>Use this to choose the Plot data. It is supported to put
+          multiple plot data into the 2D plot widget. They can be in single
+          <emphasis>Map</emphasis> data, or enclosed in
+          <emphasis>MapSet</emphasis> data (for more information, please see
+          <xref linkend="dataPropertiesControl" />). All available 2D Maps are
+          available in the Intensity drop down list as shown in the above
+          figure. Click on the drop down list to choose a Map data to
+          plot.</para>
+        </listitem>
+
+        <listitem>
+          <para>Flip X-Axis</para>
+
+          <para>Use the checkbox of <emphasis>Flip X-Axis</emphasis> to flip
+          the plot and axis horizontally.</para>
+        </listitem>
+
+        <listitem>
+          <para>Statistic Data</para>
+
+          <para>Click on the <emphasis>Statistic Data</emphasis> checkbox to
+          show statistic properties of the plot data. The statistic properties
+          will show up in the right part of the plot in table mode.</para>
+        </listitem>
+
+        <listitem>
+          <para>Title mode - Generated</para>
+
+          <para>By default it will use the title of the plot data as the plot
+          title. You can choose the <emphasis>Custom</emphasis> radio button
+          to overwrite the title. Simply type new text in the text box will
+          change the title of the plot.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2>
+      <title>Fitting</title>
+
+      <para>Under construction</para>
+    </sect2>
+
+    <sect2>
+      <title>Mask</title>
+
+      <para>To enable of disable the Mask feature, use the <emphasis>Mask
+      Control</emphasis>. Click on the <emphasis>Mask</emphasis> item in the
+      plot menu bar. The Mask Control will show up as shown in <xref
+      linkend="masking_control" />.</para>
+
+      <figure xml:id="masking_control">
+        <title>Mask Control</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/Kakadu/mask_control.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>By default the Mask feature is enabled. To disable this feature,
+      click on the Mask enabled checkbox. If disabled, the Plot will not show
+      any mask or ROI. The drop down list in the Mask Control provides options
+      of which algorithm parameter will take the mask. To learn more
+      information about how to use masks in an algorithm, please read <xref
+      linkend="ROIMask" />.</para>
+    </sect2>
+
+    <sect2>
+      <title>Export</title>
+
+      <para>Use this menu to save data. See <xref
+      xlink:href="#save_scan" /></para>
+    </sect2>
+
+    <sect2>
+      <title>Navigation Bar</title>
+
+      <para>If there are more than one dataset in the Plot, you can use the
+      navigation buttons <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/analysis/Kakadu/nav_bar.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> in the Plot menu bar to jump forwards or
+      backwards in the sequence. If there is only one dataset, this feature is
+      disabled.</para>
+    </sect2>
+  </sect1>
+
+  <!-- nxi: hide unfinished section
+  <sect1>
+    <title>Analysis Troubleshooting</title>
+    <para>Under construction</para>
+  </sect1>
+   -->
+</chapter>

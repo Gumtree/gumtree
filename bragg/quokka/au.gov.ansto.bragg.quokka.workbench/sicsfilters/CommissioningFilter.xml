@@ -1,0 +1,22 @@
+<nodeset>
+    <title>Commissioning</title>
+    <type>subtree</type>
+    <include>/experiment/file_name</include>
+    <include>/instrument/collimator/att</include>
+    <include>/instrument/collimator/srce</include>
+    <include>/instrument/collimator/apx</include>
+    <include>/instrument/detector/detector_y</include>
+    <include>/instrument/detector/detector_x</include>
+    <include>/instrument/detector/bsx</include>
+    <include>/instrument/detector/bsz</include>
+    <include>/instrument/detector/max_binrate</include>
+    <include>/instrument/parameters/changer_position/samplenum</include>
+    <include>/instrument/parameters/BeamStop</include>
+    <include>/sample/name</include>
+    <include>/sample/sample_x</include>
+    <include>/sample/sampleNum</include>
+    <include>/sample/tc1</include>
+    <include>/commands/optics/guide</include>
+    <include>/commands/histogram/histmem</include>
+    <include>/commands/scan/runscan</include>
+</nodeset>

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg Quokka Webserver Application
+Bundle-SymbolicName: au.gov.ansto.bragg.quokka.webserver
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.quokka.webserver.internal.Activator
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: Bragg Institute
+Require-Bundle: au.gov.ansto.bragg.nbi.webserver;bundle-version="1.7.0";visibility:=reexport,
+ au.gov.ansto.bragg.quokka.server;bundle-version="1.7.0";visibility:=reexport
+Service-Component: OSGI-INF/QuokkaWebApplication.xml, OSGI-INF/QuokkaMobileApplication.xml
+Bundle-ActivationPolicy: lazy
+Export-Package: au.gov.ansto.bragg.quokka.webserver.vaadin

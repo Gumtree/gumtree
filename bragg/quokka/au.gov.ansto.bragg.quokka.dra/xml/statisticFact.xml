@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : statisticFact.xml
+    Created on : 18 July 2007, 17:10
+    Author     : nxi
+    Description:
+    Recipe file of the algorithm to get statistic fact from data in Quokka algorithm set.
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://www.ansto.gov.au/bragg/dra/recipeSchema 
+    http://gumtree.ansto.gov.au:9080/nbicms/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe.xsd"
+    id="250602" 
+    name="Statistics" 
+    domain="au.gov.ansto.bragg.quokka.dra" 
+    version="2.0" 
+    help_url="./help.txt" 
+    short_description="Find the plot statistics from acquired scan data" 
+    icon="xml/icons/statisticFact.gif" 
+    hidden="true" type="analysis">
+    
+    <!-- the processor wrap a concrete processor class -->
+    <processor name="PrepareSourcePlot" class="au.gov.ansto.bragg.nbi.dra.source.PrepareSourcePlot">
+        <ins>
+            <in name="prepareSourcePlot_inputGroup" type="org.gumtree.data.interfaces.IGroup"/>
+        </ins>
+        <outs>
+            <out name="prepareSourcePlot_outputGroup" type="org.gumtree.data.interfaces.IGroup"/>
+        </outs>
+    </processor>
+    <processor name="PreCalculation" class="au.gov.ansto.bragg.quokka.dra.core.PreCalculation">
+        <ins>
+            <in name="preCalculation_inputGroup" type="org.gumtree.data.interfaces.IGroup"/>
+        </ins>
+        <outs>
+            <out name="preCalculation_outputGroup" type="org.gumtree.data.interfaces.IGroup"/>
+        </outs>
+        <vars>
+            <var name="preCalculation_transmission" type="java.lang.Double" />
+        </vars>
+    </processor>
+    <processor name="StatisticFact" class="au.gov.ansto.bragg.nbi.dra.calculation.StatisticCalculation">
+        <ins>
+            <in name="statistic_inputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+        </ins>
+        <outs>
+            <out name="statistic_outputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+        </outs>
+    </processor>
+    <sink name="SourceSink">
+        <ins>
+            <in name="sourceSink_in" type="org.gumtree.data.interfaces.IGroup"/>
+        </ins>
+    </sink>
+    <sink name="beam_center">
+        <ins>
+            <in name="beamCenter_in" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+        </ins>
+    </sink>
+    <ins>
+        <in name="frame_databag" type="org.gumtree.data.interfaces.IGroup"/>
+    </ins>
+    <outs>
+        <out name="frame_output" type="org.gumtree.data.interfaces.IGroup"/>
+    </outs>
+    <vars>
+        <var name="frame_transmission" type="java.lang.Double" default_value="1.0" label="transmission factor"/>
+    </vars>
+    <connectors>
+        <connector producer="frame_databag" consumer="prepareSourcePlot_inputGroup"/>
+        <connector producer="statistic_outputPlot" consumer="frame_output"/>
+        <connector producer="frame_transmission" consumer="preCalculation_transmission"/>
+        <connector producer="prepareSourcePlot_outputGroup" consumer="preCalculation_inputGroup"/>
+        <connector producer="prepareSourcePlot_outputGroup" consumer="sourceSink_in"/>
+        <connector producer="preCalculation_outputGroup" consumer="statistic_inputPlot"/>
+        <connector producer="statistic_outputPlot" consumer="beamCenter_in"/>
+    </connectors>
+    <agents>
+        <agent name="source_processor" principal="ProcessorAgent" pname="PrepareSourcePlot" label="Data Source"/>
+        <agent name="beam_center_locator_processor" principal="ProcessorAgent" pname="StatisticFact" label="Beam Center Locator"/>
+    </agents>
+</framework>

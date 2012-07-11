@@ -1,0 +1,22 @@
+<nodeset>
+    <title>Filtered Tree</title>
+    <type>subtree</type>
+    <include>/instrument/crystal/m1</include>
+    <include>/instrument/crystal/m2</include>
+    <include>/sample/s1</include>
+    <include>/sample/s2</include>
+    <include>/instrument/crystal/a1</include>
+    <include>/instrument/detector/a2</include>
+    <include>/sample/ei</include>
+    <include>/sample/ef</include>
+    <include>/sample/en</include>
+    <include>/sample/qh</include>
+    <include>/sample/qk</include>
+    <include>/sample/ql</include>
+    <include>/monitor/bm1_counts</include>
+    <include>/monitor/bm2_counts</include>
+    <include>/experiment/file_name</include>
+    <include>/sample/name</include>
+    <include>/commands/scan/bmonscan</include>
+    <include>/experiment/currpoint</include>
+</nodeset>

@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Seq-Auto-2.xml
+    Created on : 10 July 2009
+    Author     : Paul Hathaway
+    Description: 
+        Prototype sequence to fetch and interpret Quokka Experiment Result Model
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://gumtree.ansto.gov.au:9080/nbicms/projects/group-project-resources/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe-1-3.xsd" 
+	id="R2009071001" 
+	name="Quokka Auto-Reduction (V2.0)" 
+	domain="au.gov.ansto.bragg.quokka.dra" 
+	version="2.0" 
+	help_url="./help.txt" 
+	short_description="Quokka Auto-Reduction 2" 
+	icon="xml/icons/findData.gif" 
+	hidden="false">
+	
+	<processor name="ExperimentParser" class="au.gov.ansto.bragg.quokka.dra.core.ExperimentParser">
+		<ins>
+			<in name="ExperimentParser.inLoop" type="java.lang.Boolean"/>
+		</ins>
+		<outs>
+			<out name="ExperimentParser.model" type="au.gov.ansto.bragg.quokka2.experiment.result.ExperimentResult"/>
+			<out name="ExperimentParser.result" type="au.gov.ansto.bragg.quokka.dra.online.util.ResultRecord"/>
+		</outs>
+		<vars>
+			<var name="ExperimentParser.stop" type="java.lang.Boolean"/>
+			<var name="ExperimentParser.interval" type="java.lang.Long"/>
+			<var name="ExperimentParser.timeout" type="java.lang.Long"/>
+			<var name="ExperimentParser.counter" type="java.lang.Long"/>
+		</vars>
+	</processor>
+	<processor name="Selector" class="au.gov.ansto.bragg.quokka.dra.online.Selector">
+		<ins>
+			<in name="Selector.result" type="au.gov.ansto.bragg.quokka.dra.online.util.ResultRecord"/>
+			<in name="Selector.model" type="au.gov.ansto.bragg.quokka2.experiment.result.ExperimentResult"/>
+		</ins>
+		<outs>
+			<out name="Selector.outLoop" type="java.lang.Boolean"/>
+			<out name="Selector.outGroup" type="org.gumtree.data.interfaces.IGroup"/>
+		</outs>
+		<vars>
+			<var name="Selector.stop" type="java.lang.Boolean"/>
+			<var name="Selector.mURI" type="java.net.URI"/>
+		</vars>
+	</processor>
+	<processor name="Source" class="au.gov.ansto.bragg.quokka.dra.online.SourceReader">
+		<ins>
+			<in name="Source.inGroup" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+		<outs>
+			<out name="Source.dataGroup" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="Source.stop" type="java.lang.Boolean" />
+			<var name="Source.axis0" type="java.lang.String" />
+			<var name="Source.dim0" type="java.lang.Integer" />
+			<var name="Source.axis1" type="java.lang.String" />
+			<var name="Source.dim1" type="java.lang.Integer" />
+			<var name="Source.axis2" type="java.lang.String" />
+			<var name="Source.dim2" type="java.lang.Integer" />
+			<var name="Source.axis3" type="java.lang.String" />
+			<var name="Source.dim3" type="java.lang.Integer" />
+		</vars>
+	</processor>
+	<processor name="Patch" class="au.gov.ansto.bragg.quokka.dra.core.Patch2">
+		<ins>
+			<in name="Patch.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="Patch.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="Patch.stop" type="java.lang.Boolean" />
+			<var name="Patch.override" type="java.lang.Boolean"/>
+			<var name="Patch.name" type="java.lang.String"/>
+			<var name="Patch.thickness" type="java.lang.Double"/>
+			<var name="Patch.countTime" type="java.lang.Double"/>
+			<var name="Patch.monCount" type="java.lang.Double"/>
+			<var name="Patch.detCount" type="java.lang.Double"/>
+			<var name="Patch.wavelength" type="java.lang.Double"/>
+			<var name="Patch.detOffset" type="java.lang.Double"/>
+			<var name="Patch.L2mm" type="java.lang.Double"/>
+		</vars>
+	</processor>
+	<processor name="Background" class="au.gov.ansto.bragg.quokka.dra.core.Blank_Background" version="1.0.0">
+		<ins>
+			<in name="Background.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="Background.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="Background.skip" type="java.lang.Boolean"/>
+			<var name="Background.stop" type="java.lang.Boolean"/>
+			<var name="Background.scaleMode" type="java.lang.String"/>
+			<var name="Background.scatterBackgroundUri" type="java.net.URI"/>
+		</vars>
+	</processor>
+	<processor name="Transmission" class="au.gov.ansto.bragg.quokka.dra.core.Blank_Transmission">
+		<ins>
+			<in name="Transmission.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="Transmission.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<out name="Transmission.display" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="Transmission.skip" type="java.lang.Boolean"/>
+			<var name="Transmission.stop" type="java.lang.Boolean"/>
+			<var name="Transmission.txSampleUri" type="java.net.URI"/>
+			<var name="Transmission.txEmptyUri" type="java.net.URI"/>
+			<var name="Transmission.scatterEmptyUri" type="java.net.URI"/>
+			<var name="Transmission.scatterBackgroundUri" type="java.net.URI"/>
+			<var name="Transmission.centroidUri" type="java.net.URI"/>
+		</vars>
+	</processor>
+	<processor name="Centroid" class="au.gov.ansto.bragg.quokka.dra.core.Blank_Centroid">
+		<ins>
+			<in name="Centroid.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<in name="Centroid.centrePlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="Centroid.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="Centroid.centroidRoi" type="org.gumtree.data.interfaces.IGroup"/>
+		</vars>
+	</processor>
+	<processor name="Efficiency" class="au.gov.ansto.bragg.quokka.dra.core.Blank_Efficiency">
+		<ins>
+			<in name="Efficiency.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="Efficiency.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="Efficiency.enable" type="java.lang.Boolean"/>
+			<var name="Efficiency.mapURI" type="java.net.URI"/>
+		</vars>
+	</processor>
+	<processor name="Scaler" class="au.gov.ansto.bragg.quokka.dra.core.Blank_Scaler">
+		<ins>
+			<in name="Scaler.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="Scaler.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="Scaler.enable" type="java.lang.Boolean"/>
+			<var name="Scaler.stop" type="java.lang.Boolean"/>
+			<var name="Scaler.kappa" type="java.lang.Double"/>
+			<var name="Scaler.dirUri" type="java.net.URI"/>
+			<var name="Scaler.centroidRoi" type="org.gumtree.data.interfaces.IGroup"/>
+		</vars>
+	</processor>
+	<processor name="Show" class="au.gov.ansto.bragg.quokka.dra.core.ShowCalculation">
+		<ins>
+			<in name="Show.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="Show.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="Show.stop" type="java.lang.Boolean"/>
+			<var name="Show.centroidX" type="java.lang.Double"/>
+			<var name="Show.centroidZ" type="java.lang.Double"/>
+			<var name="Show.centroidRoi" type="org.gumtree.data.interfaces.IGroup"/>
+			<var name="Show.absTxEmptyCell" type="java.lang.Double"/>
+			<var name="Show.absTxSample" type="java.lang.Double"/>
+		</vars>
+	</processor>
+	<processor name="MaskMap" class="au.gov.ansto.bragg.quokka.dra.core.MaskMap">
+		<ins>
+			<in name="MaskMap.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="MaskMap.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="MaskMap.skip" type="java.lang.Boolean"/>
+			<var name="MaskMap.stop" type="java.lang.Boolean"/>
+			<var name="MaskMap.maskRoi" type="org.gumtree.data.interfaces.IGroup"/>
+			<var name="MaskMap.top" type="java.lang.Integer"/>
+			<var name="MaskMap.btm" type="java.lang.Integer"/>
+			<var name="MaskMap.lft" type="java.lang.Integer"/>
+			<var name="MaskMap.rgt" type="java.lang.Integer"/>
+		</vars>
+	</processor>
+	<processor name="PreCalc" class="au.gov.ansto.bragg.quokka.dra.core.Blank_PreCalc">
+		<ins>
+			<in name="PreCalc.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="PreCalc.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+		</vars>
+	</processor>
+	<processor name="Integration" class="au.gov.ansto.bragg.quokka.dra.core.Blank_Integrate">
+		<ins>
+			<in name="Integration.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="Integration.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="Integration.numberOfBin" type="java.lang.Integer"/>
+			<var name="Integration.minRadius" type="java.lang.Double"/>
+		</vars>
+	</processor>
+	<processor name="Plotter" class="au.gov.ansto.bragg.quokka.dra.core.Default_Plotter">
+		<ins>
+			<in name="Plotter.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="Plotter.outPlot" type="org.gumtree.data.interfaces.IGroup"/>
+		</outs>
+		<vars>
+			<var name="Plotter.title" type="java.lang.String"/>
+			<var name="Plotter.yAxisName" type="java.lang.String"/>
+			<var name="Plotter.xAxisName" type="java.lang.String"/>
+			<var name="Plotter.a" type="java.lang.Double"/>
+			<var name="Plotter.b" type="java.lang.Double"/>
+			<var name="Plotter.c" type="java.lang.Double"/>
+		</vars>
+	</processor>
+	<sink name="Source.dataGroup.sink" autoplot="true">
+		<ins>
+			<in name="Source.dataGroup.sink.port" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+	</sink>
+	<sink name="Plotter.result.sink" autoplot="true">
+		<ins>
+			<in name="Plotter.result.sink.port" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+	</sink>
+	<sink name="Transmission.display.sink" autoplot="true">
+		<ins>
+			<in name="Transmission.display.sink.port" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+	</sink>
+	<vars>
+		<!-- Common-use var ports -->
+		<var name="frame.centroidX" type="java.lang.Double" default_value="480.0" label="Horizontal (X) Centroid (mm)"/>
+		<var name="frame.centroidZ" type="java.lang.Double" default_value="480.0" label="Vertical (Z) Centroid (mm)"/>
+		<var name="frame.txSampleUri" type="java.net.URI" default_value="null" usage="parameter" label="Sample Transmission"/>
+		<var name="frame.txEmptyUri" type="java.net.URI" default_value="null" usage="parameter" label="Empty Cell Transmission"/>
+		<var name="frame.txDirectUri" type="java.net.URI" default_value="null" usage="parameter" label="Direct (Empty) Beam"/>
+		<var name="frame.scatterSampleUri" type="java.net.URI" default_value="null" usage="parameter" label="Sample Scatter Data"/>
+		<var name="frame.scatterStandardUri" type="java.net.URI" default_value="null" usage="parameter" label="'Standard' Scatter Data"/>
+		<var name="frame.scatterEmptyUri" type="java.net.URI" default_value="null" usage="parameter" label="Empty Cell Scatter Data"/>
+		<var name="frame.scatterBackgroundUri" type="java.net.URI" default_value="null" usage="parameter" label="Background (Blocked Beam)"/>
+		<var name="frame.centroidUri" type="java.net.URI" default_value="null" usage="parameter" label="Beam Centre File"/>
+	
+		<!-- Operation-specific var ports -->
+		<var name="frame.ExperimentParser.stop" type="java.lang.Boolean" default_value="False" usage="option" label="Stop Monitor"/>
+		<var name="frame.ExperimentParser.interval" type="java.lang.Long" default_value="1000" usage="parameter" label="Poll Interval"/>
+		<var name="frame.ExperimentParser.timeout" type="java.lang.Long" default_value="20000" usage="parameter" label="Model Timeout"/>
+		<var name="frame.ExperimentParser.counter" type="java.lang.Long" default_value="0" usage="parameter" label="Poll Counter"/>
+		
+		<var name="frame.Selector.stop" type="java.lang.Boolean" default_value="False" usage="option" label="Stop After Selection"/>
+		<var name="frame.Selector.muri" type="java.net.URI" default_value="null" usage="parameter" label="Measurement URI"/>
+		
+		<var name="frame.Source.stop" type="java.lang.Boolean" default_value="False" usage="option" />
+		<var name="frame.Source.axis0" type="java.lang.String" default_value="" usage="parameter" label="Axis 0" />
+		<var name="frame.Source.axis1" type="java.lang.String" default_value="" usage="parameter" label="Axis 1"/>
+		<var name="frame.Source.axis2" type="java.lang.String" default_value="" usage="parameter" label="Axis 2"/>
+		<var name="frame.Source.axis3" type="java.lang.String" default_value="" usage="parameter" label="Axis 3"/>
+		<var name="frame.Source.dim0" type="java.lang.Integer" default_value="" usage="parameter" label="Dimn 0" />
+		<var name="frame.Source.dim1" type="java.lang.Integer" default_value="" usage="parameter" label="Dimn 1" />
+		<var name="frame.Source.dim2" type="java.lang.Integer" default_value="" usage="parameter" label="Dimn 2" />
+		<var name="frame.Source.dim3" type="java.lang.Integer" default_value="" usage="parameter" label="Dimn 3" />
+		
+		<var name="frame.Patch.stop" type="java.lang.Boolean" default_value="False" usage="option" />
+		<var name="frame.Patch.override" type="java.lang.Boolean" default_value="False" usage="parameter" label="Override file values"/>
+		<var name="frame.Patch.wavelength" type="java.lang.Double" default_value="5.0" label="Wavelength (Ao)"/>
+		<var name="frame.Patch.L1mm" type="java.lang.Double" default_value="2000.0" label="L1 Source to Sample (mm)"/>
+		<var name="frame.Patch.L2mm" type="java.lang.Double" default_value="2000.0" label="L2 Sample to Detector (mm)"/>
+		<var name="frame.Patch.name" type="java.lang.String" default_value="null" label="Measurement Name"/>
+		<var name="frame.Patch.thickness" type="java.lang.Double" default_value="1.0" label="Sample thickness (mm)"/>
+		<var name="frame.Patch.countTime" type="java.lang.Double" default_value="0.0" label="Count Time (sec)"/>
+		<var name="frame.Patch.monCount" type="java.lang.Double" default_value="0.0" label="Monitor 1 (count)"/>
+		<var name="frame.Patch.detCount" type="java.lang.Double" default_value="0.0" label="Detector Sum (count)"/>
+		<var name="frame.Patch.detOffset" type="java.lang.Double" default_value="0.0" label="Detector Offset X (mm)"/>
+		
+		<var name="frame.Background.skip" type="java.lang.Boolean" default_value="False" usage="option" label="Skip Background Correction"/>
+		<var name="frame.Background.stop" type="java.lang.Boolean" default_value="False" usage="option" label="Skip Background Correction"/>
+		<var name="frame.Background.scaleMode" type="java.lang.String" default_value="monitor counts 1" usage="parameter" option="time, detector counts, monitor counts 1, monitor counts 2, monitor counts 3" label="Scaling Mode"/>
+		<var name="frame.Background.mapUri" type="java.net.URI" default_value="null" usage="parameter" label="Background (Blocked Beam)"/>
+		
+		<var name="frame.Transmission.skip" type="java.lang.Boolean" default_value="False" usage="option" label="Skip Transmission Correction"/>
+		<var name="frame.Transmission.stop" type="java.lang.Boolean" default_value="False" usage="option" label="Stop After Correction"/>
+		
+		<var name="frame.Efficiency.enable" type="java.lang.Boolean" default_value="true" usage="option" label="Enable Sensitivity Correction"/>
+		<var name="frame.Efficiency.mapUri" type="java.net.URI" default_value="null" usage="parameter" label="Sensitivity File"/>
+		
+		<var name="frame.Scaler.enable" type="java.lang.Boolean" default_value="true" usage="option" label="Enable Absolute Scaling"/>
+		<var name="frame.Scaler.stop" type="java.lang.Boolean" default_value="false" usage="option" label="Stop after Scaling"/>
+		<var name="frame.Scaler.kappa" type="java.lang.Double" default_value="1.0" label="kappa scale factor"/>
+		<var name="frame.Scaler.referenceRoi" type="org.gumtree.data.interfaces.IGroup" default_value="null" usage="region" label="Reference ROI"/>
+		
+		<var name="frame.Show.stop" type="java.lang.Boolean" default_value="false" usage="option" label="Stop @ Show"/>
+		<var name="frame.Show.abstxemptycell" type="java.lang.Double" default_value="-1.0" usage="parameter" label="Empty Cell Transmission"/>
+		
+		<var name="frame.MaskMap.skip" type="java.lang.Boolean" default_value="false" usage="option" label="Skip ROI Mask"/>
+		<var name="frame.MaskMap.stop" type="java.lang.Boolean" default_value="false" usage="option" label="Stop ROI Mask"/>
+		<var name="frame.MaskMap.maskRoi" type="org.gumtree.data.interfaces.IGroup" default_value="null" usage="region" label="ROI Mask"/>
+		<var name="frame.MaskMap.top" type="java.lang.Integer" default_value="1" label="Trim Top (rows)"/>
+		<var name="frame.MaskMap.btm" type="java.lang.Integer" default_value="1" label="Trim Bottom (rows)"/>
+		<var name="frame.MaskMap.lft" type="java.lang.Integer" default_value="1" label="Trim Left (cols)"/>
+		<var name="frame.MaskMap.rgt" type="java.lang.Integer" default_value="1" label="Trim Right (cols)"/>
+		
+		<var name="frame.Integration.numberOfBin" type="java.lang.Integer" default_value="120" min="0" label="Number of X-Axis-bins"/>
+		<var name="frame.Integration.minRadius" type="java.lang.Double" default_value="0.0" min="0.0" label="Minimum Radius (mm)"/>
+		
+		<var name="frame.Centroid.centroidRoi" type="org.gumtree.data.interfaces.IGroup" default_value="null" usage="region" label="Centroid ROI"/>
+		
+		<var name="frame.Plotter.title" type="java.lang.String" default_value="Intensity" label="Plot Title"/>
+		<var name="frame.Plotter.yAxisName" type="java.lang.String" default_value="I" option="I, log(I), ln(I), 1/I, I^a, I*X^b, I^a*X^b, 1/sqrt(I), ln(I*X), ln(I*X^-2)" label="Vertical Plot Axis (Y)"/>
+		<var name="frame.Plotter.xAxisName" type="java.lang.String" default_value="Q" option="Q, log(q), q^2, q^c, r, 2theta(rad), 2theta(deg)" label="Horizontal Plot Axis (X)"/>
+		<var name="frame.Plotter.a" type="java.lang.Double" default_value="1.0" label="Axis Parameter 'a'"/>
+		<var name="frame.Plotter.b" type="java.lang.Double" default_value="1.0" label="Axis Parameter 'b' "/>
+		<var name="frame.Plotter.c" type="java.lang.Double" default_value="1.0" label="Axis Parameter 'c'"/>
+	</vars>
+	<connectors>
+		<!-- Frame to Source connectors -->
+		<!--  <connector producer="frame.databag" consumer="SourceReader_inputGroup"/> -->
+		<!-- Frame to ExperimentParser connectors -->
+		<connector producer="frame.ExperimentParser.stop" consumer="ExperimentParser.stop"/>
+		<connector producer="frame.ExperimentParser.interval" consumer="ExperimentParser.interval"/>
+		<connector producer="frame.ExperimentParser.timeout" consumer="ExperimentParser.timeout"/>
+		<connector producer="frame.ExperimentParser.counter" consumer="ExperimentParser.counter"/>
+		<!-- Frame to Selector connectors -->
+		<connector producer="frame.Selector.stop" consumer="Selector.stop"/>
+		<connector producer="frame.Selector.muri" consumer="Selector.mURI"/>
+		<!-- Frame to Source connectors -->
+		<connector producer="frame.Source.stop" consumer="Source.stop" />
+		<connector producer="frame.Source.axis0" consumer="Source.axis0" />
+		<connector producer="frame.Source.axis1" consumer="Source.axis1" />
+		<connector producer="frame.Source.axis2" consumer="Source.axis2" />
+		<connector producer="frame.Source.axis3" consumer="Source.axis3" />
+		<connector producer="frame.Source.dim0" consumer="Source.dim0" />
+		<connector producer="frame.Source.dim1" consumer="Source.dim1" />
+		<connector producer="frame.Source.dim2" consumer="Source.dim2" />
+		<connector producer="frame.Source.dim3" consumer="Source.dim3" />
+		<!-- Frame to Patch connectors -->
+		<connector producer="frame.Patch.stop" consumer="Patch.stop" />
+		<connector producer="frame.Patch.wavelength" consumer="Patch.wavelength"/>
+		<!-- <connector producer="frame.Patch.L1mm" consumer="Patch.L1mm"/> -->
+		<connector producer="frame.Patch.L2mm" consumer="Patch.L2mm"/>
+		<connector producer="frame.Patch.override" consumer="Patch.override"/>
+		<connector producer="frame.Patch.name" consumer="Patch.name"/>
+		<!-- <connector producer="frame.Patch.transmission" consumer="Patch.transmission"/> -->
+		<connector producer="frame.Patch.thickness" consumer="Patch.thickness"/>
+		<!-- <connector producer="frame.Patch.attRotDeg" consumer="Patch.attRotDeg"/> -->
+		<!-- <connector producer="frame.Patch.attenuation" consumer="Patch.attenuation"/> -->
+		<connector producer="frame.Patch.countTime" consumer="Patch.countTime"/>
+		<connector producer="frame.Patch.monCount" consumer="Patch.monCount"/>
+		<connector producer="frame.Patch.detCount" consumer="Patch.detCount"/>
+		<!-- <connector producer="frame.Patch.txDetCount" consumer="Patch.txDetCount"/> -->
+		<!-- <connector producer="frame.Patch.deltaLambda" consumer="Patch.deltaLambda"/> -->
+		<!-- <connector producer="frame.Patch.temperature" consumer="Patch.temperature"/> -->
+		<!-- <connector producer="frame.Patch.magField" consumer="Patch.magField"/> -->
+		<!-- <connector producer="frame.Patch.srcApp" consumer="Patch.srcApp"/> -->
+		<!-- <connector producer="frame.Patch.samApp" consumer="Patch.samApp"/> -->
+		<connector producer="frame.Patch.detOffset" consumer="Patch.detOffset"/>
+		<!-- <connector producer="frame.Patch.beamstopDia" consumer="Patch.beamstopDia"/> -->
+		<!-- Frame to Background connectors -->
+		<connector producer="frame.Background.skip" consumer="Background.skip"/>
+		<connector producer="frame.Background.stop" consumer="Background.stop"/>
+		<connector producer="frame.Background.scaleMode" consumer="Background.scaleMode"/>
+		<connector producer="frame.scatterBackgroundUri" consumer="Background.scatterBackgroundUri"/>
+		<!-- Frame to Transmission connectors -->
+		<connector producer="frame.Transmission.skip" consumer="Transmission.skip"/>
+		<connector producer="frame.Transmission.stop" consumer="Transmission.stop"/>
+		<connector producer="frame.txSampleUri" consumer="Transmission.txSampleUri"/>
+		<connector producer="frame.txEmptyUri" consumer="Transmission.txEmptyUri"/>
+		<connector producer="frame.scatterEmptyUri" consumer="Transmission.scatterEmptyUri"/>
+		<connector producer="frame.scatterBackgroundUri" consumer="Transmission.scatterBackgroundUri"/>
+		<connector producer="frame.centroidUri" consumer="Transmission.centroidUri"/>
+		<!-- Frame to Efficiency connectors -->
+		<connector producer="frame.Efficiency.enable" consumer="Efficiency.enable"/>
+		<connector producer="frame.Efficiency.mapUri" consumer="Efficiency.mapURI"/>
+		<!-- Frame to Scaler connectors -->
+		<connector producer="frame.Scaler.enable" consumer="Scaler.enable"/>
+		<connector producer="frame.Scaler.stop" consumer="Scaler.stop"/>
+		<connector producer="frame.Scaler.kappa" consumer="Scaler.kappa"/>
+		<!-- <connector producer="frame.Patch.thickness" consumer="Scaler.samDepth"/> -->
+		<connector producer="frame.txDirectUri" consumer="Scaler.dirUri"/>
+		<connector producer="frame.Scaler.referenceRoi" consumer="Scaler.centroidRoi"/>
+		<!-- Frame to MaskMap connectors -->
+		<connector producer="frame.MaskMap.skip" consumer="MaskMap.skip"/>
+		<connector producer="frame.MaskMap.stop" consumer="MaskMap.stop"/>
+		<connector producer="frame.MaskMap.maskRoi" consumer="MaskMap.maskRoi"/>
+		<connector producer="frame.MaskMap.top" consumer="MaskMap.top"/>
+		<connector producer="frame.MaskMap.btm" consumer="MaskMap.btm"/>
+		<connector producer="frame.MaskMap.lft" consumer="MaskMap.lft"/>
+		<connector producer="frame.MaskMap.rgt" consumer="MaskMap.rgt"/>
+		<!-- Frame to Centroid connectors -->
+		<connector producer="frame.Centroid.centroidRoi" consumer="Centroid.centroidRoi"/>
+		<!-- Frame to Pre-Calculation connectors -->
+		<!-- Frame to Show connectors -->
+		<connector producer="frame.Show.stop" consumer="Show.stop"/>
+		<connector producer="frame.centroidX" consumer="Show.centroidX"/>
+		<connector producer="frame.centroidZ" consumer="Show.centroidZ"/>
+		<connector producer="frame.Centroid.centroidRoi" consumer="Show.centroidRoi"/>
+		<connector producer="frame.Show.abstxemptycell" consumer="Show.absTxEmptyCell"/>
+		<connector producer="frame.Show.abstxsample" consumer="Show.absTxSample"/>	
+		<!-- 
+		<connector producer="frame.Patch.countTime" consumer="Show.countTime"/>
+		<connector producer="frame.Patch.monCount" consumer="Show.monCount"/>
+		<connector producer="frame.Scaler.kappa" consumer="Show.kappa"/>
+		 -->
+		<!-- Frame to Integration connectors -->
+		<connector producer="frame.Integration.numberOfBin" consumer="Integration.numberOfBin"/>
+		<connector producer="frame.Integration.minRadius" consumer="Integration.minRadius"/>
+		<!-- Frame to Plotter connectors -->
+		<!-- 
+		<connector producer="frame.Plotter.title" consumer="Plotter.title"/>
+		<connector producer="frame.Plotter.yAxisName" consumer="Plotter.yAxisName"/>
+		<connector producer="frame.Plotter.xAxisName" consumer="Plotter.xAxisName"/>
+		<connector producer="frame.Plotter.a" consumer="Plotter.a"/>
+		<connector producer="frame.Plotter.b" consumer="Plotter.b"/>
+		<connector producer="frame.Plotter.c" consumer="Plotter.c"/>
+		 -->
+
+		<!-- Sequence connectors -->
+		<connector producer="ExperimentParser.result" consumer="Selector.result"/>
+		<connector producer="ExperimentParser.model" consumer="Selector.model"/>
+		<connector producer="Selector.outGroup" consumer="Source.inGroup"/>
+		<connector producer="Source.dataGroup" consumer="Source.dataGroup.sink.port"/>
+		<connector producer="Selector.outLoop" consumer="ExperimentParser.inLoop"/>
+
+		<connector producer="Source.dataGroup" consumer="Patch.inPlot"/>
+		<connector producer="Patch.outPlot" consumer="Background.inPlot"/>
+		<connector producer="Background.outPlot" consumer="Transmission.inPlot"/>
+		<connector producer="Transmission.display" consumer="Transmission.display.sink.port"/>
+		<connector producer="Transmission.display" consumer="Centroid.centrePlot"/>
+		<connector producer="Transmission.outPlot" consumer="Efficiency.inPlot"/>
+		<connector producer="Efficiency.outPlot" consumer="Scaler.inPlot"/>
+		<connector producer="Scaler.outPlot" consumer="Centroid.inPlot"/>
+		<connector producer="Centroid.outPlot" consumer="Show.inPlot"/>
+		<connector producer="Show.outPlot" consumer="MaskMap.inPlot"/>
+		<connector producer="MaskMap.outPlot" consumer="PreCalc.inPlot"/>
+		<connector producer="PreCalc.outPlot" consumer="Integration.inPlot"/>
+		<connector producer="Integration.outPlot" consumer="Plotter.inPlot"/>
+		<connector producer="Plotter.outPlot" consumer="Plotter.result.sink.port"/>	
+	</connectors>
+	<agents>
+		<agent name="ExperimentParser.op" principal="ProcessorAgent" pname="ExperimentParser" label="Observer"/>
+		<agent name="Selector.op" principal="ProcessorAgent" pname="Selector" label="Selector"/>
+		<agent name="Source.op" principal="ProcessorAgent" pname="Source" label="Source"/>
+		<agent name="Patch.op" principal="ProcessorAgent" pname="Patch" label="Patch"/>
+		<!-- <agent name="Background.op" principal="ProcessorAgent" pname="Background" label="Background"/> -->
+		<agent name="Transmission.op" principal="ProcessorAgent" pname="Transmission" label="Transmission References"/>
+		<agent name="Efficiency.op" principal="ProcessorAgent" pname="Efficiency" label="Sensitivity"/>
+		<agent name="Scaler.op" principal="ProcessorAgent" pname="Scaler" label="Abs.Scaler"/>
+		<!-- hide these agents in final product -->
+		<!-- <agent name="Centroid.op" principal="ProcessorAgent" pname="Centroid" label="Centre"/> --> 
+		<agent name="Show.op" principal="ProcessorAgent" pname="Show" label="Calculate"/>
+		<agent name="Mask.op" principal="ProcessorAgent" pname="MaskMap" label="Mask/Trim"/>
+		<!-- hide these agents in final product -->
+		<!-- <agent name="precalc.op" principal="ProcessorAgent" pname="PreCalc" label="Integrate"/> -->
+		<!-- <agent name="integrate.op" principal="ProcessorAgent" pname="Integration" label="Integrate"/> -->
+		<agent name="Plotter.op" principal="ProcessorAgent" pname="Plotter" label="Plot"/>
+	</agents>
+</framework>

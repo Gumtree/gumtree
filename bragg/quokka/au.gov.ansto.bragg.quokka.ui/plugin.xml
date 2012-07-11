@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.gumtree.ui.launchers">
+      <launcher
+            category="au.gov.ansto.bragg.experiment"
+            class="au.gov.ansto.bragg.quokka.ui.internal.MultiSampleWorkflowLauncher"
+            id="au.gov.ansto.bragg.quokka.ui.multiSampleWorkflowLauncher"
+            label="Multi Sample Workflow"
+            quickLauncher="true">
+      </launcher>
+      <launcher
+            category="au.gov.ansto.bragg.experiment"
+            class="au.gov.ansto.bragg.quokka.ui.internal.AlignmentLauncher"
+            icon16="icons/4directions-SZ-16x16.png"
+            icon32="icons/4directions-SZ-32x32.png"
+            icon64="icons/4directions-SZ-64x64.png"
+            id="au.gov.ansto.bragg.quokka.ui.alignment"
+            label="Alignment Windows"
+            quickLauncher="true">
+      </launcher>
+       <launcher
+            category="au.gov.ansto.bragg.analysis"
+            class="au.gov.ansto.bragg.quokka.ui.internal.QuokkaAnalysisLauncher"
+            icon16="icons/analysis_16x16.png"
+            icon32="icons/analysis_32x32.png"
+            icon64="icons/analysis_64x64.png"
+            id="au.gov.ansto.bragg.quokka.ui.analysisLauncher"
+            label="Analysis Window"
+            quickLauncher="true">
+      </launcher>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="au.gov.ansto.bragg.quokka.ui.internal.AlignmentPerspective"
+            icon="icons/plugin_depend.gif"
+            id="au.gov.ansto.bragg.quokka.ui.alignmentPerspective"
+            name="Alignment">
+      </perspective>
+      <perspective
+            class="au.gov.ansto.bragg.quokka.ui.internal.QuokkaScanPerspective"
+            fixed="true"
+            icon="icons/edu_science_16x16.png"
+            id="au.gov.ansto.bragg.quokka.ui.scanPerspective"
+            name="Quokka Scan">
+      </perspective>
+      <perspective
+            class="au.gov.ansto.bragg.quokka.ui.internal.QuokkaAnalysisPerspective"
+            fixed="true"
+            icon="icons/project_view.gif"
+            id="au.gov.ansto.bragg.quokka.ui.analysis"
+            name="Quokka Analysis">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="au.gov.ansto.bragg.quokka"
+            class="au.gov.ansto.bragg.quokka.ui.internal.QuokkaScanView"
+            icon="icons/edu_science_16x16.png"
+            id="au.gov.ansto.bragg.quokka.ui.scanView"
+            name="Quokka Scan">
+            allowMultiple="false"
+      </view>
+      <category
+            id="au.gov.ansto.bragg.quokka"
+            name="Quokka">
+      </category>
+      <view
+            category="au.gov.ansto.bragg.quokka"
+            class="au.gov.ansto.bragg.quokka.ui.internal.OldQuokkaScanView"
+            icon="icons/edu_science_16x16.png"
+            id="au.gov.ansto.bragg.quokka.ui.oldScanView"
+            name="Quokka Scan (OLD)">
+      </view>
+      <view
+            category="au.gov.ansto.bragg.quokka"
+            class="au.gov.ansto.bragg.quokka.ui.internal.AnalysisControlView"
+            icon="icons/operation_parameters_view.gif"
+            id="au.gov.ansto.bragg.quokka.ui.internal.AnalysisControlView"
+            name="Analysis Control">
+      </view>
+            <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.quokka"
+            class="au.gov.ansto.bragg.quokka.ui.internal.ExportAllView"
+            icon="icons/exp_product.gif"
+            id="au.gov.ansto.bragg.quokka.ui.internal.ExportAllView"
+            name="Export All">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.quokka"
+            class="au.gov.ansto.bragg.quokka.ui.internal.DataSourceView"
+            icon="icons/sample.gif"
+            id="au.gov.ansto.bragg.quokka.ui.internal.DataSourceView"
+            name="DataSourceView">
+      </view>
+      <view
+            category="au.gov.ansto.bragg.quokka"
+            class="au.gov.ansto.bragg.quokka.ui.internal.QuokkaParametersView"
+            icon="icons/sample.gif"
+            id="au.gov.ansto.bragg.quokka.ui.views.au.gov.ansto.bragg.ui.internal.QuokkaParametersView"
+            name="Quokka Parameters">
+      </view>
+      <view
+            category="au.gov.ansto.bragg.quokka"
+            class="au.gov.ansto.bragg.quokka.ui.views.SicsRealtimeDataView"
+            icon="icons/activity_monitor.png"
+            id="au.gov.ansto.bragg.quokka.ui.views.SicsRealtimeDataView"
+            name="Activity Monitor"
+            restorable="true">
+      </view>
+      <view
+            class="au.gov.ansto.bragg.quokka.ui.internal.ResultMonitorView"
+            id="au.gov.ansto.bragg.quokka.ui.resultView"
+            name="Quokka Result Monitor"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               id="au.gov.ansto.bragg.quokka.ui.internal.DataSourceView"
+               ratio="0.5"
+               relationship="right"
+               relative="org.eclipse.ui.views.TaskList">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="au.gov.ansto.bragg.quokka.ui.internal.QuokkaAnalysisSetup">
+      </startup>
+   </extension>
+
+</plugin>

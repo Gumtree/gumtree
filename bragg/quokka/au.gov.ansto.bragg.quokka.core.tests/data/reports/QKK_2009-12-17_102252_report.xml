@@ -1,0 +1,102 @@
+<report>
+  <config name="det0p5m_1off" lambda="0.0" l1="12028.5" l2="1347.67">
+    <transmission mode="Timer">
+      <sample position="15" name="AgBE" thickness="2.0" type="sample" att="270.0" preset="60" runId="0010378"/>
+      <sample position="16" name="h2o" thickness="5.0" type="sample" att="270.0" preset="60" runId="0010379"/>
+      <sample position="19" name="MT cell" thickness="0.0" type="empty_cell" att="270.0" preset="60" runId="0010380"/>
+      <sample position="20" name="MT beam" thickness="0.0" type="empty_beam" att="270.0" preset="60" runId="0010381"/>
+    </transmission>
+    <scattering mode="Timer">
+      <sample position="15" name="AgBE" thickness="2.0" type="sample" att="0.0" preset="3600" runId="0010382"/>
+      <sample position="16" name="h2o" thickness="5.0" type="sample" att="0.0" preset="3600" runId="0010383"/>
+      <sample position="19" name="MT cell" thickness="0.0" type="empty_cell" att="0.0" preset="900" runId="0010384"/>
+      <sample position="20" name="MT beam" thickness="0.0" type="empty_beam" att="0.0" preset="3600" runId=""/>
+    </scattering>
+    <emptyCellTransmissionRunId>0010380</emptyCellTransmissionRunId>
+    <emptyCellScatteringRunId>0010384</emptyCellScatteringRunId>
+    <emptyBeamTransmissionRunId>0010381</emptyBeamTransmissionRunId>
+  </config>
+  <config name="det1m_1off" lambda="0.0" l1="12028.5" l2="1842.48">
+    <transmission mode="Timer">
+      <sample position="15" name="AgBE" thickness="2.0" type="sample" att="270.0" preset="60" runId="0010385"/>
+      <sample position="16" name="h2o" thickness="5.0" type="sample" att="270.0" preset="60" runId="0010386"/>
+      <sample position="19" name="MT cell" thickness="0.0" type="empty_cell" att="270.0" preset="60" runId="0010387"/>
+      <sample position="20" name="MT beam" thickness="0.0" type="empty_beam" att="270.0" preset="60" runId="0010388"/>
+    </transmission>
+    <scattering mode="Timer">
+      <sample position="15" name="AgBE" thickness="2.0" type="sample" att="0.0" preset="3600" runId="0010389"/>
+      <sample position="16" name="h2o" thickness="5.0" type="sample" att="0.0" preset="3600" runId="0010390"/>
+      <sample position="19" name="MT cell" thickness="0.0" type="empty_cell" att="0.0" preset="900" runId="0010391"/>
+      <sample position="20" name="MT beam" thickness="0.0" type="empty_beam" att="0.0" preset="3600" runId=""/>
+    </scattering>
+    <emptyCellTransmissionRunId>0010387</emptyCellTransmissionRunId>
+    <emptyCellScatteringRunId>0010391</emptyCellScatteringRunId>
+    <emptyBeamTransmissionRunId>0010388</emptyBeamTransmissionRunId>
+  </config>
+  <config name="det2m_1off" lambda="0.0" l1="12028.5" l2="2843.01">
+    <transmission mode="Timer">
+      <sample position="15" name="AgBE" thickness="2.0" type="sample" att="270.0" preset="60" runId="0010392"/>
+      <sample position="16" name="h2o" thickness="5.0" type="sample" att="270.0" preset="60" runId="0010393"/>
+      <sample position="19" name="MT cell" thickness="0.0" type="empty_cell" att="270.0" preset="60" runId="0010394"/>
+      <sample position="20" name="MT beam" thickness="0.0" type="empty_beam" att="270.0" preset="60" runId="0010395"/>
+    </transmission>
+    <scattering mode="Timer">
+      <sample position="15" name="AgBE" thickness="2.0" type="sample" att="0.0" preset="3600" runId="0010396"/>
+      <sample position="16" name="h2o" thickness="5.0" type="sample" att="0.0" preset="3600" runId="0010397"/>
+      <sample position="19" name="MT cell" thickness="0.0" type="empty_cell" att="0.0" preset="900" runId="0010398"/>
+      <sample position="20" name="MT beam" thickness="0.0" type="empty_beam" att="0.0" preset="3600" runId=""/>
+    </scattering>
+    <emptyCellTransmissionRunId>0010394</emptyCellTransmissionRunId>
+    <emptyCellScatteringRunId>0010398</emptyCellScatteringRunId>
+    <emptyBeamTransmissionRunId>0010395</emptyBeamTransmissionRunId>
+  </config>
+  <config name="det3m_1off" lambda="0.0" l1="12028.5" l2="3844.32">
+    <transmission mode="Timer">
+      <sample position="15" name="AgBE" thickness="2.0" type="sample" att="270.0" preset="60" runId="0010399"/>
+      <sample position="16" name="h2o" thickness="5.0" type="sample" att="270.0" preset="60" runId="0010400"/>
+      <sample position="19" name="MT cell" thickness="0.0" type="empty_cell" att="270.0" preset="60" runId="0010401"/>
+      <sample position="20" name="MT beam" thickness="0.0" type="empty_beam" att="270.0" preset="60" runId="0010402"/>
+    </transmission>
+    <scattering mode="Timer">
+      <sample position="15" name="AgBE" thickness="2.0" type="sample" att="0.0" preset="3600" runId="0010403"/>
+      <sample position="16" name="h2o" thickness="5.0" type="sample" att="0.0" preset="3600" runId="0010404"/>
+      <sample position="19" name="MT cell" thickness="0.0" type="empty_cell" att="0.0" preset="900" runId="0010405"/>
+      <sample position="20" name="MT beam" thickness="0.0" type="empty_beam" att="0.0" preset="3600" runId=""/>
+    </scattering>
+    <emptyCellTransmissionRunId>0010401</emptyCellTransmissionRunId>
+    <emptyCellScatteringRunId>0010405</emptyCellScatteringRunId>
+    <emptyBeamTransmissionRunId>0010402</emptyBeamTransmissionRunId>
+  </config>
+  <config name="det4m_1off" lambda="0.0" l1="12028.5" l2="4842.79">
+    <transmission mode="Timer">
+      <sample position="15" name="AgBE" thickness="2.0" type="sample" att="270.0" preset="60" runId="0010406"/>
+      <sample position="16" name="h2o" thickness="5.0" type="sample" att="270.0" preset="60" runId="0010407"/>
+      <sample position="19" name="MT cell" thickness="0.0" type="empty_cell" att="270.0" preset="60" runId="0010408"/>
+      <sample position="20" name="MT beam" thickness="0.0" type="empty_beam" att="270.0" preset="60" runId="0010409"/>
+    </transmission>
+    <scattering mode="Timer">
+      <sample position="15" name="AgBE" thickness="2.0" type="sample" att="0.0" preset="3600" runId="0010410"/>
+      <sample position="16" name="h2o" thickness="5.0" type="sample" att="0.0" preset="3600" runId="0010411"/>
+      <sample position="19" name="MT cell" thickness="0.0" type="empty_cell" att="0.0" preset="900" runId="0010412"/>
+      <sample position="20" name="MT beam" thickness="0.0" type="empty_beam" att="0.0" preset="3600" runId=""/>
+    </scattering>
+    <emptyCellTransmissionRunId>0010408</emptyCellTransmissionRunId>
+    <emptyCellScatteringRunId>0010412</emptyCellScatteringRunId>
+    <emptyBeamTransmissionRunId>0010409</emptyBeamTransmissionRunId>
+  </config>
+  <config name="det4m_1off" lambda="0.0" l1="0.0" l2="0.0">
+    <transmission mode="Timer">
+      <sample position="15" name="AgBE" thickness="2.0" type="sample" att="0.0" preset="60" runId=""/>
+      <sample position="16" name="h2o" thickness="5.0" type="sample" att="0.0" preset="60" runId=""/>
+      <sample position="19" name="MT cell" thickness="0.0" type="empty_cell" att="0.0" preset="60" runId=""/>
+      <sample position="20" name="MT beam" thickness="0.0" type="empty_beam" att="0.0" preset="60" runId=""/>
+    </transmission>
+    <scattering mode="Timer">
+      <sample position="15" name="AgBE" thickness="2.0" type="sample" att="0.0" preset="21600" runId=""/>
+      <sample position="16" name="h2o" thickness="5.0" type="sample" att="0.0" preset="21600" runId=""/>
+      <sample position="19" name="MT cell" thickness="0.0" type="empty_cell" att="0.0" preset="21600" runId=""/>
+      <sample position="20" name="MT beam" thickness="0.0" type="empty_beam" att="0.0" preset="21600" runId=""/>
+    </scattering>
+  </config>
+  <startTime>2009-12-16 18:30:40.96 EST</startTime>
+</report>

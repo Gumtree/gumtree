@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : DataReduction.xml
+    Created on : 8 Aug 2007, 16:26
+    Author     : nxi
+    Description:
+        Recipe file of the data reduction processor chain in Echidna algorithm set.
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.ansto.gov.au/bragg/dra/recipeSchema http://gumtree.ansto.gov.au:9080/nbicms/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe.xsd"
+id="011201" 
+name="Reduction + GSAS"
+domain="au.gov.ansto.bragg.echidna.dra" 
+version="1.0" 
+help_url="./help.txt" 
+short_description="Data Reduction Processor Chain" 
+icon="xml/icons/EchidnaDRA.gif">
+
+	<processor name="Source" class="au.gov.ansto.bragg.echidna.dra.core.Source">
+		<ins>
+			<in name="source_groupData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="source_scanData" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="source_dataName" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<processor name="BackgroundCorrection" class="au.gov.ansto.bragg.echidna.dra.core.BackgroundCorrection">
+		<ins>
+			<in name="backgroundCorrection_scanData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="backgroundCorrection_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="backgroundCorrection_skip" type="java.lang.Boolean"/>
+			<var name="backgroundCorrection_stop" type="java.lang.Boolean"/>
+			<var name="backgroundCorrection_ratio" type="java.lang.Double"/>
+			<var name="backgroundCorrection_backgroundFilename" type="java.net.URI"/>
+		</vars>
+	</processor>
+	<processor name="EfficiencyCorrection" class="au.gov.ansto.bragg.echidna.dra.core.EfficiencyCorrection">
+		<ins>
+			<in name="efficiencyCorrection_scanData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="efficiencyCorrection_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="efficiencyCorrection_mapFilename" type="java.net.URI"/>
+			<var name="efficiencyCorrection_skip" type="java.lang.Boolean"/>
+			<var name="efficiencyCorrection_stop" type="java.lang.Boolean"/>
+			<var name="efficiencyCorrection_threshold" type="java.lang.Double"/>
+		</vars>
+	</processor>
+	<processor name="Stitch" class="au.gov.ansto.bragg.echidna.dra.core.Stitching">
+		<ins>
+			<in name="stitch_input" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="stitch_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="stitch_stop" type="java.lang.Boolean"/>
+			<var name="stitch_binSize" type="java.lang.Double"/>
+		</vars>
+	</processor>
+	<processor name="GeometryCorrection" class="au.gov.ansto.bragg.echidna.dra.core.GeometryCorrection">
+		<ins>
+			<in name="geometryCorrection_scanData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="geometryCorrection_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="geometryCorrection_mapFilename" type="java.net.URI"/>
+			<var name="geometryCorrection_skip" type="java.lang.Boolean"/>
+			<var name="geometryCorrection_stop" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="HorizontalIntegration" class="au.gov.ansto.bragg.echidna.dra.core.HorizontalIntegration">
+		<ins>
+			<in name="horizontalIntegration_input" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="horizontalIntegration_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="horizontalIntegration_minDist" type="java.lang.Double"/>
+			<var name="horizontalIntegration_maxDist" type="java.lang.Double"/>
+			<var name="horizontalIntegration_region" type="org.gumtree.data.gdm.core.Group"/>
+		</vars>
+	</processor>
+	<processor name="GSASOut" class="au.gov.ansto.bragg.echidna.dra.core.GsasExport">
+	    <ins>
+	        <in name="GSASinputdata" type="org.gumtree.data.gdm.core.Group"/>
+	    </ins>
+	    <outs>
+	        <out name="GSASOnwardData" type="org.gumtree.data.gdm.core.Group"/>
+	    </outs>
+	    <vars>
+	        <var name="GSASOutputFilename" type="java.lang.String"/>
+	        <var name="GSAS_Skip_Flag" type="java.lang.Boolean"/>
+	        <var name="GSAS_tth_wrong" type="java.lang.Boolean"/>
+	    </vars>
+	</processor>
+	<processor name="Wrap" class="au.gov.ansto.bragg.echidna.dra.core.Wrap">
+		<ins>
+			<in name="wrap_databag" type="org.gumtree.data.gdm.core.Group"/>
+			<in name="wrap_result" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="wrap_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="wrap_inputName" type="java.lang.String"/>
+			<var name="wrap_resultName" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<sink name="SourceSink">
+		<ins>
+			<in name="sourceSink_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="backgroundCorrection_result">
+		<ins>
+			<in name="backgroundCorrectionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="efficiencyCorrection_result">
+		<ins>
+			<in name="efficiencyCorrectionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="stitching_result">
+		<ins>
+			<in name="stitchingResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="geometryCorrection_result">
+		<ins>
+			<in name="geometryCorrectionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="dataReduction_result">
+		<ins>
+			<in name="dataReductionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="horizontalIntegration_result">
+		<ins>
+			<in name="horizontalIntegrationResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<ins>
+		<in name="frame_databag" type="org.gumtree.data.gdm.core.Group"/>
+	</ins>
+	<outs>
+		<out name="frame_output" type="org.gumtree.data.gdm.core.Group"/>
+	</outs>
+	<vars>
+		<var name="frame_dataName" type="java.lang.String" default_value="data" usage="parameter" label="name of data"/>
+		<var name="frame_backgroundFilename" type="java.net.URI" default_value="default" usage="parameter" label="background filename"/>
+		<var name="frame_backgroundCorrectionSkip" type="java.lang.Boolean" default_value="false" usage="option" label="skip background correction"/>
+		<var name="frame_backgroundCorrectionStop" type="java.lang.Boolean" default_value="false" usage="option" label="stop after background correction"/>
+		<var name="frame_ratio" type="java.lang.Double" default_value="0.21" usage="parameter" label="background noise ration"/>
+		<var name="frame_efficiencyCorrectionMapFilename" type="java.net.URI" default_value="default" usage="parameter" label="efficiency filename"/>
+		<var name="frame_efficiencyCorrectionSkip" type="java.lang.Boolean" default_value="false" usage="option" label="skip efficiency correction"/>
+		<var name="frame_efficiencyCorrectionStop" type="java.lang.Boolean" default_value="false" usage="option" label="stop after efficiency correction"/>
+		<var name="frame_efficiencyCorrectionThreshold" type="java.lang.Double" default_value="0.21" usage="parameter" label="threshold for correction"/>
+		<var name="frame_stitchStop" type="java.lang.Boolean" default_value="false" usage="option" label="stop after stitching"/>
+		<var name="frame_binSize" type="java.lang.Double" default_value="0" usage="parameter" label="size of bin"/>
+		<var name="frame_geometryCorrectionMapFilename" type="java.net.URI" default_value="null" usage="parameter" label="geometry filename"/>
+		<var name="frame_geometryCorrectionSkip" type="java.lang.Boolean" default_value="false" usage="option" label="skip geometry correction"/>
+		<var name="frame_geometryCorrectionStop" type="java.lang.Boolean" default_value="false" usage="option" label="stop after geometry correction"/>
+		<var name="frame_minDist" type="java.lang.Double" default_value="0" usage="parameter" label="lower boundary"/>
+		<var name="frame_maxDist" type="java.lang.Double" default_value="127" usage="parameter" label="upper boundary"/>
+		<var name="frame_resultName" type="java.lang.String" default_value="dataReduction_result" usage="parameter" label="name of result"/>
+		<var name="frame_horizontalIntegrationRegion" type="org.gumtree.data.gdm.core.Group" default_value="null" usage="region" label="region of interests or mask"/>
+	    <var name="frame_GSASoutname" type="java.lang.String" default_value="GSASOut.dat" usage="parameter" label="Output filename"/>
+	    <var name="frame_GSAS_Skip" type="java.lang.Boolean" default_value="true" usage="option" label="skip GSAS output"/>
+	    <var name="frame_tth_wrong" type="java.lang.Boolean" default_value="true" usage="parameter" label="Two theta reversed"/>
+	</vars>
+	<connectors>
+		<connector producer="frame_databag" consumer="source_groupData"/>
+		<connector producer="frame_databag" consumer="wrap_databag"/>
+		<connector producer="wrap_output" consumer="frame_output"/>
+		<connector producer="frame_dataName" consumer="source_dataName"/>
+		<connector producer="frame_dataName" consumer="wrap_inputName"/>
+		<connector producer="frame_backgroundFilename" consumer="backgroundCorrection_backgroundFilename"/>
+		<connector producer="frame_backgroundCorrectionSkip" consumer="backgroundCorrection_skip"/>
+		<connector producer="frame_backgroundCorrectionStop" consumer="backgroundCorrection_stop"/>
+		<connector producer="frame_ratio" consumer="backgroundCorrection_ratio"/>
+		<connector producer="frame_efficiencyCorrectionMapFilename" consumer="efficiencyCorrection_mapFilename"/>
+		<connector producer="frame_efficiencyCorrectionSkip" consumer="efficiencyCorrection_skip"/>
+		<connector producer="frame_efficiencyCorrectionStop" consumer="efficiencyCorrection_stop"/>
+		<connector producer="frame_efficiencyCorrectionThreshold" consumer="efficiencyCorrection_threshold"/>
+		<connector producer="frame_stitchStop" consumer="stitch_stop"/>
+		<connector producer="frame_binSize" consumer="stitch_binSize"/>
+		<connector producer="frame_geometryCorrectionMapFilename" consumer="geometryCorrection_mapFilename"/>
+		<connector producer="frame_geometryCorrectionSkip" consumer="geometryCorrection_skip"/>
+		<connector producer="frame_geometryCorrectionStop" consumer="geometryCorrection_stop"/>
+		<connector producer="frame_horizontalIntegrationRegion" consumer="horizontalIntegration_region"/>
+		<connector producer="frame_minDist" consumer="horizontalIntegration_minDist"/>
+		<connector producer="frame_maxDist" consumer="horizontalIntegration_maxDist"/>
+		<connector producer="frame_resultName" consumer="wrap_resultName"/>
+		<connector producer="source_scanData" consumer="backgroundCorrection_scanData"/>
+		<connector producer="source_scanData" consumer="sourceSink_in"/>
+		<connector producer="backgroundCorrection_output" consumer="efficiencyCorrection_scanData"/>
+		<connector producer="backgroundCorrection_output" consumer="backgroundCorrectionResult_in"/>
+		<connector producer="efficiencyCorrection_output" consumer="stitch_input"/>
+		<connector producer="efficiencyCorrection_output" consumer="efficiencyCorrectionResult_in"/>
+		<connector producer="geometryCorrection_output" consumer="horizontalIntegration_input"/>
+		<connector producer="geometryCorrection_output" consumer="geometryCorrectionResult_in"/>
+		<connector producer="stitch_output" consumer="stitchingResult_in"/>
+		<connector producer="stitch_output" consumer="geometryCorrection_scanData"/>
+		<connector producer="GSASOnwardData" consumer="wrap_result"/>
+		<connector producer="horizontalIntegration_output" consumer="horizontalIntegrationResult_in"/>
+		<connector producer="horizontalIntegration_output" consumer="GSASinputdata"/>
+		<connector producer="frame_GSASoutname" consumer="GSASOutputFilename"/>
+		<connector producer="frame_GSAS_Skip" consumer="GSAS_Skip_Flag"/>
+		<connector producer="frame_tth_wrong" consumer="GSAS_tth_wrong"/>
+		<connector producer="wrap_output" consumer="dataReductionResult_in"/>
+	</connectors>
+	<agents>
+		<agent name="source_processor" principal="ProcessorAgent" pname="Source" label="Data Source"/>
+		<agent name="backgroundCorrection_processor" principal="ProcessorAgent" pname="BackgroundCorrection" label="Background Correction"/>
+		<agent name="efficiencyCorrection_processor" principal="ProcessorAgent" pname="EfficiencyCorrection" label="Efficiency Correction"/>
+		<agent name="stitching_processor" principal="ProcessorAgent" pname="Stitch" label="Data Stitching"/>
+		<agent name="geometryCorrection_processor" principal="ProcessorAgent" pname="GeometryCorrection" label="Geometry Correction"/>
+		<agent name="integration_processor" principal="ProcessorAgent" pname="HorizontalIntegration" label="Horizontal Integration"/>
+	    <agent name="GSAS output processor" principal="ProcessorAgent" pname="GSASOut" label="GSAS Output"/>
+	</agents>
+</framework>

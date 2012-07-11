@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg Kowari DRA
+Bundle-SymbolicName: au.gov.ansto.bragg.kowari.dra;singleton:=true
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.kowari.dra.internal.Activator
+Bundle-ActivationPolicy: lazy
+Export-Package: au.gov.ansto.bragg.kowari.dra.core,
+ au.gov.ansto.bragg.kowari.dra.sgf
+Import-Package: org.osgi.framework,
+ org.slf4j
+Eclipse-BundleShape: jar
+Require-Bundle: au.gov.ansto.bragg.freehep.jas3;bundle-version="1.7.0",
+ au.gov.ansto.bragg.nbi.dra;bundle-version="1.7.0";visibility:=reexport
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: Bragg Institute

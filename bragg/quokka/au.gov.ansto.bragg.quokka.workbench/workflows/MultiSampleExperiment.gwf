@@ -1,0 +1,80 @@
+<workflow>
+	<parameters>
+		<title>Quokka Multi Sample Scan</title>
+	</parameters>
+	<task classname="au.gov.ansto.bragg.quokka.ui.workflow.QuokkaExperimentConfigurator">
+		<parameters>
+			<!-- UI properties -->
+			<label>Experiment Model Configurator</label>
+			<visible>false</visible>
+			<sampleSize>20</sampleSize>
+			<!-- Testing only (use proper drivable device when controller is ready) -->
+			<sampleEnvControllers>dummy_motor,/sample/tc1/setpoint,/sample/ips120/setpoint,/sample/tc3/sensor/setpoint1,highvoltage</sampleEnvControllers>
+			<configs>long,medium,short</configs>
+			<!-- Long configuration -->
+			<long.label>Long</long.label>
+			<long.detPosition>18900</long.detPosition>
+			<long.detOffset>-30</long.detOffset>
+			<long.guide>ga</long.guide>
+			<long.entRotAp>150</long.entRotAp>
+			<long.bsUp>1</long.bsUp>
+			<long.bsx>-62</long.bsx>
+			<long.bsz>24</long.bsz>
+			<long.transmissionAttenuation>240</long.transmissionAttenuation>
+			<long.startingAttenuation>180</long.startingAttenuation>
+			<!-- Medium configuration -->
+			<medium.label>Medium</medium.label>
+			<medium.detPosition>10000</medium.detPosition>
+			<medium.detOffset>-30</medium.detOffset>
+			<medium.guide>g4</medium.guide>
+			<medium.entRotAp>180</medium.entRotAp>
+			<medium.bsUp>2</medium.bsUp>
+			<medium.bsx>-75</medium.bsx>
+			<medium.bsz>31</medium.bsz>
+			<medium.transmissionAttenuation>240</medium.transmissionAttenuation>
+			<medium.startingAttenuation>330</medium.startingAttenuation>
+			<!-- Short configuration -->
+			<short.label>Short</short.label>
+			<short.detPosition>1000</short.detPosition>
+			<short.detOffset>-30</short.detOffset>
+			<short.guide>g7</short.guide>
+			<short.entRotAp>180</short.entRotAp>
+			<short.bsUp>2</short.bsUp>
+			<short.bsx>-76</short.bsx>
+			<short.bsz>33</short.bsz>
+			<short.transmissionAttenuation>270</short.transmissionAttenuation>
+			<short.startingAttenuation>330</short.startingAttenuation>
+		</parameters>
+	</task>
+	<task classname="org.gumtree.workflow.ui.tasks.ScriptEngineTask">
+		<parameters>
+			<label>Set Script Engine</label>
+			<visible>false</visible>
+		</parameters>
+	</task>
+	<task classname="au.gov.ansto.bragg.quokka.ui.workflow.ProposalTask">
+		<parameters>
+			<label>Experiment Details</label>
+		</parameters>
+	</task>
+	<task classname="au.gov.ansto.bragg.quokka.ui.workflow.SampleTask">
+		<parameters>
+			<label>Sample Information</label>
+		</parameters>
+	</task>
+	<task classname="au.gov.ansto.bragg.quokka.ui.workflow.ConfigurationTask">
+		<parameters>
+			<label>Q Range Configurations</label>
+		</parameters>
+	</task>
+	<task classname="au.gov.ansto.bragg.quokka.ui.workflow.SampleEnvironmentTask">
+		<parameters>
+			<label>Sample Environment</label>
+		</parameters>
+	</task>
+	<task classname="au.gov.ansto.bragg.quokka.ui.workflow.AcquisitionTask">
+		<parameters>
+			<label>Experiment Control</label>
+		</parameters>
+	</task>
+</workflow>

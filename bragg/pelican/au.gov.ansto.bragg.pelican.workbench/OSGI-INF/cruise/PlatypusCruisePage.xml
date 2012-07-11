@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="au.gov.ansto.bragg.pelican.workbench.PelicanCruisePage">
+   <implementation class="au.gov.ansto.bragg.pelican.workbench.PelicanCruisePage"/>
+   <service>
+      <provide interface="org.gumtree.ui.cruise.ICruisePanelPage"/>
+   </service>
+</scr:component>

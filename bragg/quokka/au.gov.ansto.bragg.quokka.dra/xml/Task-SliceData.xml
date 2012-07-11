@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Task-Slice-Data.xml
+    Created on : 14 July 2009
+    Author     : Paul Hathaway
+    Description: 
+        Prototype sequence to split multi-frame hmm to separate nexus(hdf) files
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://gumtree.ansto.gov.au:9080/nbicms/projects/group-project-resources/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe-1-3.xsd" 
+	id="R2009071401" 
+	name="Quokka Slice Data (V1.0)" 
+	domain="au.gov.ansto.bragg.quokka.dra" 
+	version="1.0" 
+	help_url="./help.txt" 
+	short_description="Quokka Slice Data 1" 
+	icon="xml/icons/findData.gif" 
+	hidden="false">
+	
+	<processor name="Source" class="au.gov.ansto.bragg.quokka.dra.core.MultiDimSource">
+		<ins>
+			<in name="Source.inGroup" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+		<outs>
+			<out name="Source.outGroup" type="org.gumtree.data.interfaces.IGroup"/>
+			<out name="Source.flag" type="java.lang.Boolean"/>
+			<out name="Source.scan" type="java.util.Map"/>
+		</outs>
+		<vars>
+			<var name="Source.stop" type="java.lang.Boolean"/>
+			<var name="Source.axis0" type="java.lang.String"/>
+			<var name="Source.dim0" type="java.lang.Integer"/>
+			<var name="Source.axis1" type="java.lang.String"/>
+			<var name="Source.dim1" type="java.lang.Integer"/>
+			<var name="Source.axis2" type="java.lang.String"/>
+			<var name="Source.dim2" type="java.lang.Integer"/>
+			<var name="Source.axis3" type="java.lang.String"/>
+			<var name="Source.dim3" type="java.lang.Integer"/>
+		</vars>
+	</processor>
+	<processor name="Export" class="au.gov.ansto.bragg.quokka.dra.core.MultiDimExport">
+		<ins>
+			<in name="Export.inGroup" type="org.gumtree.data.interfaces.IGroup"/>
+			<in name="Export.flag" type="java.lang.Boolean"/>
+			<in name="Export.scan" type="java.util.Map"/>
+		</ins>
+		<outs>
+			<!-- <out name="Export.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/> -->
+		</outs>
+		<vars>
+			<var name="Export.stop" type="java.lang.Boolean"/>
+			<var name="Export.exportFolder" type="java.lang.String"/>
+			<var name="Export.filePrefix" type="java.lang.String"/>
+			<var name="Export.histogramName" type="java.lang.String"/>
+			<var name="Export.firstSliceIndex" type="java.lang.Integer"/>
+			<var name="Export.lastSliceIndex" type="java.lang.Integer"/>
+			<var name="Export.sliceStride" type="java.lang.Integer"/>			
+		</vars>
+	</processor>
+	<ins>
+		<in name="frame.databag" type="org.gumtree.data.interfaces.IGroup"/>
+	</ins>
+	<vars>
+		<!-- Common-use var ports -->
+		<!-- Operation-specific var ports -->
+		<var name="frame.Source.stop" type="java.lang.Boolean" default_value="True" usage="option" label="Stop Monitor"/>
+		<var name="frame.Source.axis0" type="java.lang.String" />
+		<var name="frame.Source.axis1" type="java.lang.String" />
+		<var name="frame.Source.axis2" type="java.lang.String" />
+		<var name="frame.Source.axis3" type="java.lang.String" />
+		<var name="frame.Source.dim0" type="java.lang.Integer" />
+		<var name="frame.Source.dim1" type="java.lang.Integer" />
+		<var name="frame.Source.dim2" type="java.lang.Integer" />
+		<var name="frame.Source.dim3" type="java.lang.Integer" />
+		<var name="frame.Export.stop" type="java.lang.Boolean" default_value="False" usage="option" label="Stop After Selection"/>
+		<var name="frame.Export.exportFolder" type="java.lang.String" default_value="D:\temp" label="Export Folder"/>
+		<var name="frame.Export.filePrefix" type="java.lang.String" default_value="QKK" label="Filename Prefix"/>
+		<var name="frame.Export.histogramName" type="java.lang.String" default_value="hmm_xy" label="Histogram Name"/>
+		<var name="frame.Export.firstSliceIndex" type="java.lang.Integer" default_value="0" label="First Frame"/>
+		<var name="frame.Export.lastSliceIndex" type="java.lang.Integer" default_value="0" label="Last Frame"/>
+		<var name="frame.Export.sliceStride" type="java.lang.Integer" default_value="1" label="Stride"/>					
+	</vars>
+	<connectors>
+		<!-- Frame to Source connectors -->
+		<connector producer="frame.databag" consumer="Source.inGroup"/>
+		<!-- Frame to Source connectors -->
+		<connector producer="frame.Source.stop" consumer="Source.stop"/>
+		<connector producer="frame.Source.axis0" consumer="Source.axis0"/>
+		<connector producer="frame.Source.dim0" consumer="Source.dim0"/>
+		<connector producer="frame.Source.axis1" consumer="Source.axis1"/>
+		<connector producer="frame.Source.dim1" consumer="Source.dim1"/>
+		<connector producer="frame.Source.axis2" consumer="Source.axis2"/>
+		<connector producer="frame.Source.dim2" consumer="Source.dim2"/>
+		<connector producer="frame.Source.axis3" consumer="Source.axis3"/>
+		<connector producer="frame.Source.dim3" consumer="Source.dim3"/>
+		<!-- Frame to Transmission connectors -->
+		<connector producer="frame.Export.stop" consumer="Export.stop"/>
+		<connector producer="frame.Export.exportFolder" consumer="Export.exportFolder"/>
+		<connector producer="frame.Export.filePrefix" consumer="Export.filePrefix"/>
+		<connector producer="frame.Export.histogramName" consumer="Export.histogramName"/>
+		<connector producer="frame.Export.firstSliceIndex" consumer="Export.firstSliceIndex"/>
+		<connector producer="frame.Export.lastSliceIndex" consumer="Export.lastSliceIndex"/>
+		<connector producer="frame.Export.sliceStride" consumer="Export.sliceStride"/>					
+		<!-- Sequence connectors -->
+		<connector producer="Source.outGroup" consumer="Export.inGroup"/>
+		<connector producer="Source.flag" consumer="Export.flag"/>
+		<connector producer="Source.scan" consumer="Export.scan"/>
+	</connectors>
+	<agents>
+		<agent name="Source.op" principal="ProcessorAgent" pname="Source" label="Source"/>
+		<agent name="Export.op" principal="ProcessorAgent" pname="Export" label="Exporter"/>
+	</agents>
+</framework>

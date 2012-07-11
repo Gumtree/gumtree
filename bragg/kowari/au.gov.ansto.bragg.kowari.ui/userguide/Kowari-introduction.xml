@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+  xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:svg="http://www.w3.org/2000/svg" xmlns:m="http://www.w3.org/1998/Math/MathML"
+  xmlns:html="http://www.w3.org/1999/xhtml" xmlns:db="http://docbook.org/ns/docbook">
+  <title>Introduction</title>
+  <sect1>
+    <title>Who Should Read This Guide</title>
+    <para>This user guide is prepared for users of the neutron scattering instrument
+        <emphasis>Kowari - Residual Stress Diffractometer</emphasis> at the Bragg Institute, ANSTO.
+      It can also be used as a reference by the instrument scientists of Kowari.</para>
+  </sect1>
+  <sect1>
+    <title>System Requirements</title>
+    <itemizedlist>
+      <listitem>
+        <para>Hardware requirements</para>
+        <para>- Processor: 32-bit 1GHz or above CPU</para>
+        <para>- Memory: at least 1GB of free physical memory</para>
+        <para>- Storage: 1GB available space</para>
+        <para>- Video Card: support OpenGL V1.5</para>
+      </listitem>
+      <listitem>
+        <para>Software requirements</para>
+        <para>- Windows XP or Vista</para>
+        <para>- Java SE JRE or JDK version 5 or above</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title xml:id="installAndRun">Install and Run Gumtree-Kowari</title>
+    <sect2>
+      <title>Install and run Gumtree from NBI network.</title>
+      <para>If your computer is on the NBI network, you can run Gumtree from a the file server. To
+        do so you need to open the <emphasis>Explorer</emphasis> window, and map your <emphasis>X:
+          drive</emphasis> with the remote folder: <emphasis>\\filer\scratch\xenv</emphasis> .</para>
+      <para>Now open the folder: <emphasis>X:\gumtree\releases\apps\kowari</emphasis>, double click
+        on the file <emphasis>install.bat</emphasis>. This will install the
+        <emphasis>Gumtree-Kowari</emphasis> application shortcut on your computer.</para>
+      <para>On your desktop, find the below icon and double click on it.</para>
+      <figure xml:id="kowari_icon">
+        <title>Gumtree-Kowari application icon</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata contentwidth="90" fileref="kowari.ui.images/kowari_icon.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+    <sect2>
+      <title>Install and run Gumtree from ANSTO network</title>
+      <para>If your computer is on the ANSTO network, you can run Gumtree from the file server. To
+        do so you need to open the <emphasis>Explorer</emphasis> window, map your <emphasis>X:
+        drive</emphasis> with the remote folder:
+          <emphasis>\\FIANNA\Sections\Bragg\Data_Analysis_Team\Share\xevn</emphasis> .</para>
+      <para>Open the folder: <emphasis>X:\gumtree\releases\apps\kowari</emphasis>, double click the
+        file <emphasis>install.bat</emphasis>. This will install the
+        <emphasis>Gumtree-Kowari</emphasis> application shortcut on your computer.</para>
+      <para>On your desktop, find the icon shown in <xref linkend="kowari_icon"/> and double click
+        on it.</para>
+    </sect2>
+    <sect2>
+      <title>Install and run a standalone version</title>
+      <para>Please contact Kowari instrument scientists or the software support team in the Bragg
+        Institute for a copy of standalone version of Gumtree application.</para>
+      <para>Once you get the zipped application package of Gumtree, unzip the package into your
+        local drive. In the target folder, you will find an executable file
+        <emphasis>kowari.exe</emphasis> with an icon shown in <xref linkend="kowari_icon"/>. Double
+        click on it to run Gumtree.</para>
+    </sect2>
+    <sect2>
+      <title>Login to SICS</title>
+      <para>If you are running remotely in NBI network, a window will pop up to ask you to login to
+          <emphasis>SICS - the Instrument Control Sever</emphasis>, as shown in <xref
+          linkend="sics_login"/>. Please ask for the login information from the instrument
+        scientists. If you do not want to login to SICS, simply tick the checkbox <emphasis>Do not
+          ask to login again</emphasis>, and click on <emphasis>Cancel</emphasis> button.</para>
+      <figure xml:id="sics_login">
+        <title>SICS Login Window</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/login_sics.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+    <sect2>
+      <title>Open / switch to Analysis Window and Scan Experiment Window</title>
+      <para>If you are running on the NBI network, both the analysis window and the experiment
+        window will be automatically opened. You can identify these windows by the titles. The title
+        is located at the top left corner of the window. For example, <xref linkend="title_analysis"
+        /> and <xref linkend="title_experiment"/>.</para>
+      <figure xml:id="title_analysis">
+        <title>Title of Analysis Window</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/analysis_title.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <figure xml:id="title_experiment">
+        <title>Title of Experiment Window</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/experiment_title.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>If you are running a standalone version of Gumtree, the above two windows will not
+        automatically open at the beginning. To launch both windows, click on the
+          <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/launch_button.PNG"/>
+          </imageobject>
+        </inlinemediaobject> button, and choose <emphasis role="bold">Kowari Experiment</emphasis>
+        option.</para>
+      <para>To launch the data analysis window, click on the <emphasis>Launch</emphasis> button,
+        choose <emphasis>Perspective</emphasis> option, then choose <emphasis>Kowari Data
+        Analysis</emphasis> option.</para>
+      <para>To launch the experiment window, click on the <emphasis>Launch</emphasis> button, choose
+          <emphasis>Perspective</emphasis> option, then choose <emphasis>Kowari
+        Experiment</emphasis> option.</para>
+    </sect2>
+  </sect1>
+</chapter>

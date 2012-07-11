@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: au.gov.ansto.bragg.quokka.algolib
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.quokka.dra.algolib.internal.Activator
+Bundle-ActivationPolicy: lazy
+Export-Package: au.gov.ansto.bragg.quokka.dra.algolib.core
+Bundle-Name: Bragg Quokka DRA Algorithm Library
+Eclipse-BundleShape: jar
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: Bragg Institute
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.7.0",
+ org.gumtree.data.impl.netcdf;bundle-version="2.1.0",
+ au.gov.ansto.bragg.nbi.algolib;bundle-version="1.7.0";visibility:=reexport

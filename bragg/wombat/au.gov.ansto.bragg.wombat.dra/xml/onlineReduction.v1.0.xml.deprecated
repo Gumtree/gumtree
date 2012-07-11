@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : onlineReduction.xml
+    Created on : 8 Aug 2007, 16:26
+    Author     : nxi
+    Description:
+        Recipe file of the online reduction processor chain in Wombat algorithm set.
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.ansto.gov.au/bragg/dra/recipeSchema http://gumtree.ansto.gov.au:9080/nbicms/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe.xsd"
+id="031302" 
+name="Online Reduction" 
+domain="au.gov.ansto.bragg.wombat.dra" 
+version="1.0" 
+help_url="./help.txt" 
+short_description="Online Reduction Algorithm" 
+icon="xml/icons/WombatDRA.gif">
+
+	<processor name="Monitor" class="au.gov.ansto.bragg.nbi.exp.processor.ExperimentDataMonitor" version="1.0.0">
+		<ins>
+			<in name="loopIn" type="java.lang.Boolean"/>
+		</ins>
+		<outs>
+			<out name="experimentDataMonitor_plotOutput" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<out name="experimentDataMonitor_currentPoint" type="java.lang.Integer"/>
+			<out name="loopOut" type="java.lang.Boolean"/>
+		</outs>
+	</processor>
+	<processor name="BackgroundCorrection" class="au.gov.ansto.bragg.nbi.dra.correction.BackgroundCorrection" version="1.0.0">
+		<ins>
+			<in name="backgroundCorrection_inputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<in name="backgroundCorrection_index" type="java.lang.Integer"/>
+		</ins>
+		<outs>
+			<out name="backgroundCorrection_outputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="backgroundCorrection_factor" type="java.lang.String"/>
+		    <var name="backgroundCorrection_mapURI" type="java.net.URI"/>
+			<var name="backgroundCorrection_skip" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="EfficiencyCorrection" class="au.gov.ansto.bragg.nbi.dra.correction.EfficiencyCorrection" version="3.0.0">
+		<ins>
+			<in name="efficiencyCorrection_inputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="efficiencyCorrection_outputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+		    <var name="efficiencyCorrection_mapURI" type="java.net.URI"/>
+			<var name="efficiencyCorrection_enable" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="GeometryCorrection" class="au.gov.ansto.bragg.nbi.dra.core.GeometryCorrection" version="1.0.0">
+		<ins>
+			<in name="geometryCorrection_scanData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="geometryCorrection_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="geometryCorrection_skip" type="java.lang.Boolean"/>
+			<var name="geometryCorrection_stop" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="ApplyRegion" class="au.gov.ansto.bragg.nbi.dra.source.ApplyRegion">
+		<ins>
+			<in name="applyRegion_inputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="applyRegion_outputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="applyRegion_region" type="org.gumtree.data.gdm.core.Group"/>
+		</vars>
+	</processor>
+	<processor name="VerticalIntegration" class="au.gov.ansto.bragg.nbi.dra.integration.VerticalIntegration">
+		<ins>
+			<in name="verticalIntegration_inputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="verticalIntegration_outputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+	</processor>
+	<sink name="SourceSink">
+		<ins>
+			<in name="sourceSink_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="backgroundCorrection_result">
+		<ins>
+			<in name="backgroundCorrectionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="efficiencyCorrection_result">
+		<ins>
+			<in name="efficiencyCorrectionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="geometryCorrection_result" autoplot="true">
+		<ins>
+			<in name="geometryCorrectionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="ApplyRegionSink">
+		<ins>
+			<in name="applyRegionSink_in" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+	</sink>
+	<sink name="verticalIntegration_result" autoplot="true">
+		<ins>
+			<in name="verticalIntegrationResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<vars>
+		<var name="frame_backgroundCorrectionFactor" type="java.lang.String" default_value="monitor counts 1" usage="parameter" option="time, detector counts, monitor counts 1, monitor counts 2, monitor counts 3" label="Scaling Mode"/>
+		<var name="frame_backgroundCorrectionMapURI" type="java.net.URI" default_value="null" usage="parameter" label="Background File"/>
+		<var name="frame_backgroundCorrectionSkip" type="java.lang.Boolean" default_value="False" usage="option" label="Skip Background Correction"/>
+		<var name="frame_efficiencyMapURI" type="java.net.URI" default_value="null" usage="parameter" label="Efficiency File"/>
+		<var name="frame_efficiencyCorrectionEnable" type="java.lang.Boolean" default_value="true" usage="option" label="Enable Efficiency Correction"/>
+		<var name="frame_geometryCorrectionSkip" type="java.lang.Boolean" default_value="true" usage="option" label="skip geometry correction"/>
+		<var name="frame_region" type="org.gumtree.data.gdm.core.Group" default_value="null" usage="region" label="region of interests or mask"/>
+	</vars>
+	<connectors>
+		<connector producer="frame_backgroundCorrectionFactor" consumer="backgroundCorrection_factor"/>
+		<connector producer="frame_backgroundCorrectionMapURI" consumer="backgroundCorrection_mapURI"/>
+		<connector producer="frame_backgroundCorrectionSkip" consumer="backgroundCorrection_skip"/>
+		<connector producer="frame_efficiencyMapURI" consumer="efficiencyCorrection_mapURI"/>
+		<connector producer="frame_efficiencyCorrectionEnable" consumer="efficiencyCorrection_enable"/>
+		<connector producer="frame_geometryCorrectionSkip" consumer="geometryCorrection_skip"/>
+		<connector producer="frame_region" consumer="applyRegion_region"/>
+		<connector producer="experimentDataMonitor_plotOutput" consumer="sourceSink_in"/>
+		<connector producer="experimentDataMonitor_plotOutput" consumer="backgroundCorrection_inputPlot"/>
+		<connector producer="experimentDataMonitor_currentPoint" consumer="backgroundCorrection_index"/>
+		<connector producer="loopOut" consumer="loopIn"/>
+		<connector producer="backgroundCorrection_outputPlot" consumer="backgroundCorrectionResult_in"/>
+		<connector producer="backgroundCorrection_outputPlot" consumer="efficiencyCorrection_inputPlot"/>
+		<connector producer="efficiencyCorrection_outputPlot" consumer="efficiencyCorrectionResult_in"/>
+		<connector producer="efficiencyCorrection_outputPlot" consumer="geometryCorrection_scanData"/>
+		<connector producer="geometryCorrection_output" consumer="geometryCorrectionResult_in"/>
+		<connector producer="geometryCorrection_output" consumer="applyRegion_inputGroup"/>
+		<connector producer="applyRegion_outputGroup" consumer="applyRegionSink_in"/>
+		<connector producer="applyRegion_outputGroup" consumer="verticalIntegration_inputPlot"/>
+		<connector producer="verticalIntegration_outputPlot" consumer="verticalIntegrationResult_in"/>
+	</connectors>
+	<agents>
+		<agent name="source_processor" principal="ProcessorAgent" pname="Monitor" label="Resource Monitor"/>
+		<agent name="backgroundCorrection_processor" principal="ProcessorAgent" pname="BackgroundCorrection" label="Background Correction"/>
+		<agent name="efficiencyCorrection_processor" principal="ProcessorAgent" pname="EfficiencyCorrection" label="Efficiency Correction"/>
+		<agent name="geometryCorrection_processor" principal="ProcessorAgent" pname="GeometryCorrection" label="Geometry Correction"/>
+		<agent name="applyRegion_processor" principal="ProcessorAgent" pname="ApplyRegion" label="Apply Region of Interest and Mask"/>
+		<agent name="integration_processor" principal="ProcessorAgent" pname="VerticalIntegration" label="Vertical Integration"/>
+	</agents>
+</framework>

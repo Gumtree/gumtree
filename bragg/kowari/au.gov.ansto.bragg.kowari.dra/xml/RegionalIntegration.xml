@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : regionalIntegration.xml
+    Created on : 3 July 2008, 10:38
+    Author     : nxi
+    Description:
+        Recipe file of vertical integration algorithm for Kowari.
+-->
+
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://gumtree.ansto.gov.au:9080/nbicms/projects/group-project-resources/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe-1-3.xsd"
+  id="101001"
+  name="Regional Integration"
+  domain="au.gov.ansto.bragg.kowari.dra"
+  version="2.0" 
+  help_url="./help.txt"
+  short_description="Regional Integration Algorithm for Kowari"
+  icon="xml/icons/vertical_integration.gif"
+  >
+
+ 	<processor name="Source" class="au.gov.ansto.bragg.kowari.dra.core.FindData">
+		<ins>
+			<in name="source_groupData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="source_scanData" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="source_dataName" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<processor name="RegionalIntegration" class="au.gov.ansto.bragg.kowari.dra.core.RegionalIntegration">
+		<ins>
+			<in name="regionalIntegration_input" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="regionalIntegration_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="regionalIntegration_resultName" type="java.lang.String"/>
+			<var name="regionalIntegration_region" type="org.gumtree.data.gdm.core.Group"/>
+		</vars>
+	</processor>
+	<sink name="SourceSink">
+		<ins>
+			<in name="sourceSink_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="regionalIntegration_result">
+		<ins>
+			<in name="regionalIntegrationResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<ins>
+		<in name="frame_databag" type="org.gumtree.data.gdm.core.Group"/>
+	</ins>
+	<outs>
+		<out name="frame_output" type="org.gumtree.data.gdm.core.Group"/>
+	</outs>
+	<vars>
+		<var name="frame_dataName" type="java.lang.String" default_value="data" usage="parameter"/>
+		<var name="frame_resultName" type="java.lang.String" default_value="verticalIntegration_result" usage="parameter"/>
+		<var name="frame_regionalIntegrationRegion" type="org.gumtree.data.gdm.core.Group" default_value="null" usage="region" label="region of interests or mask"/>
+	</vars>
+	<connectors>
+		<connector producer="frame_databag" consumer="source_groupData"/>
+		<connector producer="regionalIntegration_output" consumer="frame_output"/>
+		<connector producer="frame_dataName" consumer="source_dataName"/>
+		<connector producer="frame_resultName" consumer="regionalIntegration_resultName"/>
+		<connector producer="frame_regionalIntegrationRegion" consumer="regionalIntegration_region"/>
+		<connector producer="source_scanData" consumer="regionalIntegration_input"/>
+		<connector producer="source_scanData" consumer="sourceSink_in"/>
+		<connector producer="regionalIntegration_output" consumer="regionalIntegrationResult_in"/>
+	</connectors>
+	<agents>
+		<agent name="source_processor" principal="ProcessorAgent" pname="Source" label="Data Source"/>
+		<agent name="integration_processor" principal="ProcessorAgent" pname="RegionalIntegration" label="Regional Integration"/>
+	</agents>
+</framework>

@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg Echidna DRA
+Bundle-SymbolicName: au.gov.ansto.bragg.echidna.dra;singleton:=true
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.echidna.dra.internal.Activator
+Require-Bundle: org.gumtree.data.impl.netcdf;bundle-version="2.1.0",
+ au.gov.ansto.bragg.echidna.algolib;visibility:=reexport,
+ au.gov.ansto.bragg.nbi.dra;visibility:=reexport
+Bundle-ActivationPolicy: lazy
+Export-Package: au.gov.ansto.bragg.echidna.dra.core,
+ au.gov.ansto.bragg.echidna.dra.core.exception
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: org.osgi.framework
+Eclipse-BundleShape: jar

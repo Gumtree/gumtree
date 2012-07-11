@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="taipanHttpcontext"
+         point="org.eclipse.equinox.http.registry.httpcontexts">
+      <httpcontext
+            id="taipan">
+         <resource-mapping
+               path="/taipan/rest">
+         </resource-mapping>
+      </httpcontext>
+   </extension>
+   <extension
+         id="taipanRestlet"
+         point="org.eclipse.equinox.http.registry.servlets">
+      <servlet
+            alias="/taipan/rest"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="taipan">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.taipan.webserver.restlet.TaipanRestletApplication">
+         </init-param>
+      </servlet>
+   </extension>
+
+</plugin>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="au.gov.ansto.bragg.cicada.algorithmSet">
+      <algorithm_set
+            id="au.gov.ansto.bragg.quokka.dra"
+            name="quokka.dra"
+            version="1.0">
+      </algorithm_set>
+   </extension>
+
+</plugin>

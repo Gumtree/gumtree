@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.gumtree.ui.actionShortcuts">
+      <actionShortcut
+            category="org.gumtree.gumnix.sics.ui.shortcutCategory"
+            class="au.gov.ansto.bragg.kowari.ui.OpenHMBrowserAction"
+            icon16="icons/document.gif"
+            id="au.gov.ansto.bragg.kowari.ui.openHMSiteActionShortcut"
+            label="Open Histogram Site">
+      </actionShortcut>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective"
+            icon="icons/exp_per.gif"
+            id="au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective"
+            name="Kowari Experiment"/>
+      <!--
+      <perspective
+            class="au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspectiveOld"
+            icon="icons/exp_per.gif"
+            id="au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspectiveOld"
+            name="Kowari Experiment Old"/>
+      -->
+	  <perspective
+            class="au.gov.ansto.bragg.kowari.ui.internal.KowariAnalysisPerspective"
+            icon="icons/project_view.gif"
+            id="au.gov.ansto.bragg.kowari.ui.internal.KowariAnalysisPerspective"
+            name="Kowari Data Analysis"/>
+   </extension>
+   <extension
+         point="org.gumtree.ui.launchers">
+      <launcher
+            category="au.gov.ansto.bragg.experiment"
+            class="au.gov.ansto.bragg.kowari.ui.KowariWorkbenchLauncher"
+            icon32="icons/MultiMonitors32.png"
+            icon64="icons/MultiMonitors.png"
+            id="au.gov.ansto.bragg.kowari.ui.KowariWorkbenchLauncher"
+            label="Kowari Experiment"
+            quickLauncher="true">
+         <description>
+            Start 2 monitor setup in the following order:
+			1. Experiment Window
+			2. Analysis Window
+         </description>
+      </launcher>
+      <launcher
+            category="au.gov.ansto.bragg.experiment"
+            class="au.gov.ansto.bragg.kowari.ui.KowariWorkbenchLauncherOld"
+            icon32="icons/MultiMonitors32.png"
+            icon64="icons/MultiMonitors.png"
+            id="au.gov.ansto.bragg.kowari.ui.KowariWorkbenchLauncherOld"
+            label="Kowari Experiment Old"
+            quickLauncher="false">
+         <description>
+			Launch Kowari Experiment Window
+         </description>
+      </launcher>
+      <launcher
+            category="au.gov.ansto.bragg.analysis"
+            class="au.gov.ansto.bragg.kowari.ui.KowariAnalysisLauncher"
+            icon16="icons/analysis_16x16.png"
+            icon32="icons/analysis_32x32.png"
+            icon64="icons/analysis_64x64.png"
+            id="au.gov.ansto.bragg.kowari.ui.KowariAnalysisLauncher"
+            label="Analysis Window"
+            quickLauncher="true">
+      </launcher>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="au.gov.ansto.bragg.kowari.ui.internal.KowariWorkbenchSetup">
+      </startup>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.kowari.ui"
+            class="au.gov.ansto.bragg.kowari.ui.views.ExportAllView"
+            icon="icons/exp_product.gif"
+            id="au.gov.ansto.bragg.kowari.ui.views.ExportAllView"
+            name="export all">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.kowari.ui"
+            class="au.gov.ansto.bragg.kowari.ui.views.KowariDataSourceView"
+            icon="icons/data_source_view.gif"
+            id="au.gov.ansto.bragg.kowari.ui.views.KowariDataSourceView"
+            name="Files">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.kowari.ui"
+            class="au.gov.ansto.bragg.kowari.ui.views.KowariControlView"
+            icon="icons/tree_mode.gif"
+            id="au.gov.ansto.bragg.kowari.ui.views.KowariControlView"
+            name="SIC Server[User]">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.kowari.ui"
+            class="au.gov.ansto.bragg.kowari.ui.views.AnalysisControlView"
+            icon="icons/operation_parameters_view.gif"
+            id="au.gov.ansto.bragg.kowari.ui.views.AnalysisControlView"
+            name="Analysis Control">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.kowari.ui"
+            class="au.gov.ansto.bragg.kowari.ui.views.KowariBatchEditingView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.kowari.ui.views.KowariBatchEditingView"
+            name="Batch Editor - Old">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.kowari.ui"
+            class="au.gov.ansto.bragg.kowari.ui.views.TclEditorView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.kowari.ui.views.TclEditorView"
+            name="① Batch Editor">
+      </view>
+   </extension>
+   <!--
+   <extension
+         point="org.gumtree.ui.gadgets">
+      <gadget
+            contentProvider="au.gov.ansto.bragg.kowari.ui.widgets.KowariNeutronCountGadget"
+            icon="icons/gadgets/javaassist_co.gif"
+            id="au.gov.ansto.bragg.kowari.ui.beamMonitorGadget"
+            isGlobal="true"
+            name="Neutron Counts">
+      </gadget>
+      <gadget
+            contentProvider="au.gov.ansto.bragg.kowari.ui.widgets.KowariMotorStatusGadget"
+            icon="icons/gadgets/javaassist_co.gif"
+            id="au.gov.ansto.bragg.kowari.ui.motorGadget"
+            isGlobal="true"
+            name="Motor Status">
+      </gadget>
+      <gadget
+            contentProvider="au.gov.ansto.bragg.kowari.ui.widgets.KowariMotorStatusGadget"
+            icon="icons/gadgets/javaassist_co.gif"
+            id="au.gov.ansto.bragg.kowari.ui.motorGadget"
+            isGlobal="true"
+            name="Motor Status">
+      </gadget>
+      <gadget
+            contentProvider="au.gov.ansto.bragg.kowari.ui.widgets.KowariSlitsGadget"
+            icon="icons/gadgets/slits_16x16.png"
+            id="au.gov.ansto.bragg.kowari.ui.slitsGadget"
+            isGlobal="true"
+            name="Slits">
+      </gadget>
+      <gadget
+            contentProvider="au.gov.ansto.bragg.kowari.ui.widgets.KowariPositionerStatusGadget"
+            icon="icons/gadgets/stage_16x16.gif"
+            id="au.gov.ansto.bragg.kowari.ui.positionerGadget"
+            isGlobal="true"
+            name="Positioner">
+      </gadget>
+      <gadget
+            contentProvider="au.gov.ansto.bragg.kowari.ui.widgets.KowariMonochromatorGadget"
+            icon="icons/gadgets/mono_16x16.png"
+            id="au.gov.ansto.bragg.kowari.ui.monochromatorGadget"
+            isGlobal="true"
+            name="Monochromator">
+      </gadget>
+   </extension>
+   -->
+   <extension
+         point="org.eclipse.ui.themes">
+      <!-- themeElementCategory
+       		id="au.gov.ansto.bragg.kowari.ui.theme"
+       		class="au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective"
+       		label="Kowari Experiment"/ -->
+      <theme
+        	id="au.gov.ansto.bragg.kowari.ui.theme"
+        	name="Kowari Experiment View Title Font">
+        	<fontOverride
+        		id="org.eclipse.ui.workbench.TAB_TEXT_FONT"
+        		value="Arial-bold-14">
+        	</fontOverride>
+        	<description>
+        		This font is used by the Kowari experiment view title.
+        	</description>
+      </theme>
+      <theme
+        	id="au.gov.ansto.bragg.kowari.ui.default"
+        	name="Default View Title Font">
+        	<fontOverride
+        		id="org.eclipse.ui.workbench.TAB_TEXT_FONT"
+        		value="Tahoma-regular-8">
+        	</fontOverride>
+        	<description>
+        		This font is used by all the view title except for Kowari experiment perspective.
+        	</description>
+      </theme>
+   </extension>
+</plugin>

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.codehaus.gumtree</groupId>
+	<artifactId>au.gov.ansto.bragg.extensions.module</artifactId>
+	<version>1.7.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<properties>
+		<nbi.path>../../nbi</nbi.path>
+		<echidna.path>../../echidna</echidna.path>
+		<wombat.path>../../wombat</wombat.path>
+		<kowari.path>../../kowari</kowari.path>
+		<quokka.path>../../quokka</quokka.path>
+		<platypus.path>../../platypus</platypus.path>
+		<pelican.path>../../pelican</pelican.path>
+		<taipan.path>../../taipan</taipan.path>
+		<build.path>../../build</build.path>
+	</properties>
+
+	<modules>
+		<module>${nbi.path}/com.ostermiller.util</module>
+		<module>${nbi.path}/org.apache.poi</module>
+		<module>${nbi.path}/uk.ac.ucl.ee.flanagan</module>
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.core</module>
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.algolib</module>
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.dra</module>
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.core.feature</module>
+
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.server</module>
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.vaadin</module>
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.webserver</module>
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.webserver.feature</module>
+
+		<module>${nbi.path}/de.kupzog.ktable</module>
+		<module>${nbi.path}/org.gumtree.ui.cli</module>
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.ui</module>
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.workbench</module>
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.scripts</module>
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.workbench.feature</module>
+
+
+
+		<module>${echidna.path}/au.gov.ansto.bragg.echidna.algolib</module>
+		<module>${echidna.path}/au.gov.ansto.bragg.echidna.dra</module>
+		<module>${echidna.path}/au.gov.ansto.bragg.echidna.core</module>
+		<module>${echidna.path}/au.gov.ansto.bragg.echidna.core.feature</module>
+
+		<module>${echidna.path}/au.gov.ansto.bragg.echidna.server</module>
+		<module>${echidna.path}/au.gov.ansto.bragg.echidna.webserver</module>
+		<module>${echidna.path}/au.gov.ansto.bragg.echidna.webserver.feature</module>
+
+		<module>${echidna.path}/au.gov.ansto.bragg.echidna.exp</module>
+		<module>${echidna.path}/au.gov.ansto.bragg.echidna.ui</module>
+		<module>${echidna.path}/au.gov.ansto.bragg.echidna.workbench</module>
+		<module>${echidna.path}/au.gov.ansto.bragg.echidna.workbench.feature</module>
+
+
+
+		<module>${wombat.path}/au.gov.ansto.bragg.wombat.algolib</module>
+		<module>${wombat.path}/au.gov.ansto.bragg.wombat.dra</module>
+		<module>${wombat.path}/au.gov.ansto.bragg.wombat.core</module>
+		<module>${wombat.path}/au.gov.ansto.bragg.wombat.core.feature</module>
+
+
+		<module>${wombat.path}/au.gov.ansto.bragg.wombat.server</module>
+		<module>${wombat.path}/au.gov.ansto.bragg.wombat.webserver</module>
+		<module>${wombat.path}/au.gov.ansto.bragg.wombat.webserver.feature</module>
+
+		<module>${wombat.path}/au.gov.ansto.bragg.wombat.exp</module>
+		<module>${wombat.path}/au.gov.ansto.bragg.wombat.ui</module>
+		<module>${wombat.path}/au.gov.ansto.bragg.wombat.workbench</module>
+		<module>${wombat.path}/au.gov.ansto.bragg.wombat.workbench.feature</module>
+
+
+
+		<module>${kowari.path}/au.gov.ansto.bragg.kowari.dra</module>
+		<module>${kowari.path}/au.gov.ansto.bragg.kowari.core</module>
+		<module>${kowari.path}/au.gov.ansto.bragg.kowari.core.feature</module>
+
+		<module>${kowari.path}/au.gov.ansto.bragg.kowari.server</module>
+		<module>${kowari.path}/au.gov.ansto.bragg.kowari.webserver</module>
+		<module>${kowari.path}/au.gov.ansto.bragg.kowari.webserver.feature</module>
+
+		<module>${kowari.path}/au.gov.ansto.bragg.kowari.exp</module>
+		<module>${kowari.path}/au.gov.ansto.bragg.kowari.ui</module>
+		<module>${kowari.path}/au.gov.ansto.bragg.kowari.workbench</module>
+		<module>${kowari.path}/au.gov.ansto.bragg.kowari.workbench.feature</module>
+
+
+
+		<module>${quokka.path}/au.gov.ansto.bragg.quokka.algolib</module>
+		<module>${quokka.path}/au.gov.ansto.bragg.quokka.model</module>
+		<module>${quokka.path}/au.gov.ansto.bragg.quokka.core</module>
+		<module>${quokka.path}/au.gov.ansto.bragg.quokka.dra</module>
+		<module>${quokka.path}/au.gov.ansto.bragg.quokka.core.feature</module>
+
+		<module>${quokka.path}/au.gov.ansto.bragg.quokka.server</module>
+		<module>${quokka.path}/au.gov.ansto.bragg.quokka.webserver</module>
+		<module>${quokka.path}/au.gov.ansto.bragg.quokka.webserver.feature</module>
+
+		<module>${quokka.path}/au.gov.ansto.bragg.quokka.exp</module>
+		<module>${quokka.path}/au.gov.ansto.bragg.quokka.ui</module>
+		<module>${quokka.path}/au.gov.ansto.bragg.quokka.workbench</module>
+		<module>${quokka.path}/au.gov.ansto.bragg.quokka.workbench.feature</module>
+
+
+
+		<module>${platypus.path}/au.gov.ansto.bragg.platypus.core</module>
+		<module>${platypus.path}/au.gov.ansto.bragg.platypus.core.feature</module>
+
+		<module>${platypus.path}/au.gov.ansto.bragg.platypus.server</module>
+		<module>${platypus.path}/au.gov.ansto.bragg.platypus.webserver</module>
+		<module>${platypus.path}/au.gov.ansto.bragg.platypus.webserver.feature</module>
+
+		<module>${platypus.path}/au.gov.ansto.bragg.platypus.ui</module>
+		<module>${platypus.path}/au.gov.ansto.bragg.platypus.workbench</module>
+		<module>${platypus.path}/au.gov.ansto.bragg.platypus.workbench.feature</module>
+
+
+
+		<module>${pelican.path}/au.gov.ansto.bragg.pelican.core</module>
+		<module>${pelican.path}/au.gov.ansto.bragg.pelican.core.feature</module>
+
+		<module>${pelican.path}/au.gov.ansto.bragg.pelican.server</module>
+		<module>${pelican.path}/au.gov.ansto.bragg.pelican.webserver</module>
+		<module>${pelican.path}/au.gov.ansto.bragg.pelican.webserver.feature</module>
+
+		<module>${pelican.path}/au.gov.ansto.bragg.pelican.ui</module>
+		<module>${pelican.path}/au.gov.ansto.bragg.pelican.workbench</module>
+		<module>${pelican.path}/au.gov.ansto.bragg.pelican.workbench.feature</module>
+
+
+
+		<module>${taipan.path}/au.gov.ansto.bragg.taipan.core</module>
+		<module>${taipan.path}/au.gov.ansto.bragg.taipan.core.feature</module>
+		
+		<module>${taipan.path}/au.gov.ansto.bragg.taipan.server</module>
+		<module>${taipan.path}/au.gov.ansto.bragg.taipan.webserver</module>
+		<module>${taipan.path}/au.gov.ansto.bragg.taipan.webserver.feature</module>
+		
+		<module>${taipan.path}/au.gov.ansto.bragg.taipan.ui</module>
+		<module>${taipan.path}/au.gov.ansto.bragg.taipan.workbench</module>
+		<module>${taipan.path}/au.gov.ansto.bragg.taipan.workbench.feature</module>
+
+
+
+		<module>${build.path}/au.gov.ansto.bragg.extensions.sources.feature</module>
+	</modules>
+
+	<name>Bragg Extensions Build</name>
+
+	<profiles>
+		<profile>
+			<id>test</id>
+			<modules>
+			</modules>
+		</profile>
+		<profile>
+			<id>ide</id>
+			<properties>
+				<nbi.path>..</nbi.path>
+				<echidna.path>..</echidna.path>
+				<wombat.path>..</wombat.path>
+				<kowari.path>..</kowari.path>
+				<quokka.path>..</quokka.path>
+				<platypus.path>..</platypus.path>
+				<pelican.path>..</pelican.path>
+				<taipan.path>..</taipan.path>
+				<build.path>..</build.path>
+			</properties>
+		</profile>
+	</profiles>
+</project>

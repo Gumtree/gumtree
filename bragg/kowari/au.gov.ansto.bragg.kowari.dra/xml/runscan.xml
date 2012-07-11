@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : scan.xml
+    Created on : 18 Apr 2007, 17:10
+    Author     : nxi
+    Description:
+        Recipe file of the scan procedure in Kowari algorithm set.
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.ansto.gov.au/bragg/dra/recipeSchema 
+http://gumtree.ansto.gov.au:9080/nbicms/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe.xsd"
+id="011001" 
+name="HM Scan" 
+domain="au.gov.ansto.bragg.kowari.dra" 
+version="0.1" 
+help_url="./help.txt" 
+short_description="Run a histogram memeory scan" 
+type="experiment"
+icon="xml/icons/scan.gif">
+
+	<processor name="Runscan" class="au.gov.ansto.bragg.kowari.exp.processor.RunscanProcessor">
+		<outs>
+			<out name="runscan_resultEntry" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="runscan_scanVar" type="java.lang.String"/>
+			<var name="runscan_startPosition" type="java.lang.String"/>
+			<var name="runscan_stopPosition" type="java.lang.String"/>
+			<var name="runscan_numPoints" type="java.lang.String"/>
+			<var name="runscan_mode" type="java.lang.String"/>
+			<var name="runscan_preset" type="java.lang.String"/>
+			<var name="runscan_channel" type="java.lang.String"/>
+			<var name="runscan_stop" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="Source" class="au.gov.ansto.bragg.kowari.dra.core.FindData">
+		<ins>
+			<in name="source_groupData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="source_scanData" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="source_dataName" type="java.lang.String"/>
+		</vars>
+	</processor>
+
+
+	<sink name="scan_result">
+		<ins>
+			<in name="scanResult_in" type="java.lang.Boolean"/>
+		</ins>
+	</sink>
+	<sink name="SourceSink">
+		<ins>
+			<in name="sourceSink_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<outs>
+		<out name="frame_output" type="org.gumtree.data.gdm.core.Group"/>
+	</outs>
+	<vars>
+			<var name="frame_scanVar" type="java.lang.String" default_value="sx" usage="parameter" label="scan variable" option="sx,sy,sz,som,stth,mphi,mchi,mx,my,mom,mtth,mth" />
+			<var name="frame_scanStartPosition" type="java.lang.String" default_value="0" usage="parameter" label="start position" />
+			<var name="frame_scanStopPosition" type="java.lang.String" default_value="0" usage="parameter" label="stop position" />
+			<var name="frame_numPoints" type="java.lang.String" default_value="0" usage="parameter" label="number of points" />
+			<var name="frame_scanMode" type="java.lang.String" default_value="timer" usage="parameter" label="scan mode" option="timer, monitor"/>
+			<var name="frame_preset" type="java.lang.String" default_value="0" usage="parameter" label="scan preset" />
+			<var name="frame_channel" type="java.lang.String" default_value="0" option="0, 1, 2, 3" usage="parameter" label="save type" />
+			<var name="frame_scanStop" type="java.lang.Boolean" default_value="false" usage="option" label="stop after the scan" />
+			<var name="frame_dataName" type="java.lang.String" default_value="data" usage="parameter" label="name of data"/>
+	</vars>	
+	<connectors>
+		<connector producer="source_scanData" consumer="frame_output"/>
+		<connector producer="frame_scanVar" consumer="runscan_scanVar"/>
+		<connector producer="frame_scanStartPosition" consumer="runscan_startPosition"/>
+		<connector producer="frame_scanStopPosition" consumer="runscan_stopPosition"/>
+		<connector producer="frame_numPoints" consumer="runscan_numPoints"/>
+		<connector producer="frame_scanMode" consumer="runscan_mode"/>
+		<connector producer="frame_preset" consumer="runscan_preset"/>
+		<connector producer="frame_channel" consumer="runscan_channel"/>
+		<connector producer="frame_scanStop" consumer="runscan_stop"/>
+		<connector producer="frame_dataName" consumer="source_dataName"/>
+		<connector producer="runscan_resultEntry" consumer="source_groupData"/>
+		<connector producer="runscan_resultEntry" consumer="scanResult_in"/>
+		<connector producer="source_scanData" consumer="sourceSink_in"/>
+	</connectors>
+	<agents>
+		<agent name="scan_processor" principal="ProcessorAgent" pname="Runscan" label="Scan Procedure"/>
+		<agent name="source_processor" principal="ProcessorAgent" pname="Source" label="Data Source"/>
+	</agents>
+</framework>

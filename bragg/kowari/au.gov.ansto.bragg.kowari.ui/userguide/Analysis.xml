@@ -1,0 +1,1376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+  xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:svg="http://www.w3.org/2000/svg" xmlns:m="http://www.w3.org/1998/Math/MathML"
+  xmlns:html="http://www.w3.org/1999/xhtml" xmlns:db="http://docbook.org/ns/docbook">
+  <title xml:id="analysisWindow">Data Analysis Window</title>
+  <para>The Kowari Data Analysis Window is a customised graphic user interface for reducing raw data
+    acquired by Kowari. It consists of 4 parts, File Manager, Batch Data Processing and Export,
+    Algorithm Control and Plot. The data is in binary <emphasis>NeXus</emphasis> format and contains
+    raw data acquired in a Scan done using the Experiment Window.</para>
+  <para>To launch the analysis window, click on the <emphasis>Launch</emphasis> button, choose
+      <emphasis>Perspective</emphasis> option, then choose <emphasis>Kowari Data Analysis</emphasis>
+    option.</para>
+  <figure>
+    <title>Analysis Window</title>
+    <screenshot>
+      <mediaobject>
+        <imageobject>
+          <imagedata contentwidth="640" fileref="kowari.ui.images/analysis_snapshot.PNG"/>
+        </imageobject>
+      </mediaobject>
+    </screenshot>
+  </figure>
+  <sect1>
+    <title>Getting Started with Data Analysis</title>
+    <para>A standard Kowari Data Analysis procedure includes the following steps: efficiency
+      correction, geometry correction, 2θ integration and curve fitting. Please contact your
+      instrument scientist for detail information about this procedure.</para>
+    <sect2>
+      <title>File Manager</title>
+      <para>On the top left part of the window, there is the <emphasis>File Manager</emphasis>, as
+        shown in <xref linkend="file_source"/>.</para>
+      <figure xml:id="file_source">
+        <title>File Manager</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/SourceView/file_source.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>Use button <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/SourceView/add_item.gif"/>
+          </imageobject>
+        </inlinemediaobject> to pop up the file selection window. You can get the same window popped
+        up by clicking on the drop down menu <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/RPC/drop_down.PNG"/>
+          </imageobject>
+        </inlinemediaobject> and choose <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/SourceView/add_files.PNG"/>
+          </imageobject>
+        </inlinemediaobject> option.</para>
+      <figure xml:base="" xml:id="file_selection">
+        <title>File Browser</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata contentwidth="480" fileref="kowari.ui.images/SourceView/file_browser.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>By default, the File Browser will use a filter to show all the files that have an
+        extension name of '*.hdf'. You can also set the filter to show all files by setting the
+          <emphasis>Files of type</emphasis> option to '*.*'. You can use the file browser window to
+        select multiple files at the same time. Then click the <emphasis>Open</emphasis> button to
+        confirm your selections. Once one or more files have been selected, the analysis application
+        will pick the last file in the selections and run the analysis algorithm on it. The results
+        of the analysis algorithm will be plotted in the Plot area of the Analysis Window.</para>
+    </sect2>
+    <sect2>
+      <title xml:id="change_param">Algorithm Control</title>
+      <para><emphasis>Algorithm Control</emphasis> is located in the bottom left of the Analysis
+        Window. Please read the following items to tune the algorithms. If you need detail
+        information about the algorithm parameters, please read <xref linkend="sect_ap"/>.</para>
+      <sect3>
+        <title xml:id="frame">Frame</title>
+        <para>A <emphasis role="italic">frame</emphasis> is defined as a single detector histogram
+          which is a 2-dimensional array of neutron count data and has been taken at a single point
+          in a multi-point scan. The number of frames equals the number of scan points.</para>
+      </sect3>
+      <sect3>
+        <title>Navigation Control</title>
+        <para>By default when you first run the algorithm on a NeXus data file, it will pick the
+          first <emphasis role="italic"><xref linkend="frame"/>frame</emphasis> of data to process.
+          The correction result will show up in the uppermost Plot. It is a two-dimensional plot of
+          the detector reading after efficiency correction and geometry correction, if you have
+          enabled these corrections. If there is more than one frame in the data file, you need to
+          use the widgets in <xref linkend="nav_control"/> to navigate through the frames.</para>
+        <para>More detail can be found in <xref linkend="navigation"/></para>
+        <figure xml:id="nav_control">
+          <title>Navigation Control</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/AlgorithmControl/navigate_group.PNG"/>
+            </imageobject>
+          </mediaobject>
+          <itemizedlist>
+            <listitem>
+              <para>The <emphasis>jump to</emphasis> drop down list shows all the frame IDs. You can
+                select to analyse on a frame by selecting an ID.</para>
+            </listitem>
+            <listitem>
+              <para>The <emphasis>step</emphasis> navigation buttons will help you to move forwards
+                or backwards in the frame sequence.</para>
+            </listitem>
+            <listitem>
+              <para>The <emphasis>scan variable</emphasis> drop down list shows all the scan
+                variable positions where each frame of data is taken. You can analyse on a frame by
+                selecting its scan variable position.</para>
+            </listitem>
+          </itemizedlist>
+        </figure>
+      </sect3>
+      <sect3>
+        <title>Efficiency Correction Control</title>
+        <para>The instrument scientist will prepare the efficiency map of the detector ahead of
+          time. Please ask your instrument scientist for the location of this file. Once you know
+          where to find this file, you can use the widgets in <xref linkend="efficiency_group"/> to
+          load the efficiency file. Enable efficiency correction by selecting the checkbox.</para>
+        <figure xml:id="efficiency_group">
+          <title>Efficiency Correction Control</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/AlgorithmControl/efficiency_group.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>For more information on efficiency correction, please read <xref
+            linkend="efficiencyCorrection"/>.</para>
+      </sect3>
+      <!-- nxi: hide temporarily
+      <sect3>
+        <title>Choose Analysis Result</title>
+        <para>By default the algorithm result shown in the third Plot is the intensity integration
+          result. You can use the widgets in <xref linkend="result_control"/> to change to view
+          different analysis results. Please read more information about analysis result plots in
+            <xref linkend="analysis_result"/>.</para>
+        <figure xml:id="result_control">
+          <title>Result Selection</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/AlgorithmControl/result_control.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+      -->
+    </sect2>
+    <sect2>
+      <title>Plot</title>
+      <para>The Plot area is the right part of the window. There are three plots that show the
+        results of the data reduction and analysis.</para>
+      <para>To read more information about how to control Plot, for example zoom see <xref
+          linkend="plotting"/>.</para>
+      <sect3>
+        <title>Corrected Data</title>
+        <para>The first Plot is a two-dimensional intensity plot that shows the corrected detector
+          counts. If you have chosen to enable efficiency correction and geometry correction, it
+          will plot the intensity data after these corrections. In the example of <xref
+            linkend="correction_result_plot"/>, both the vertical and horizontal axes are the
+          physical dimensions of the detector. The colour of each pixel in the plot represents the
+          neutron count reading in that location of the detector.</para>
+        <figure xml:id="correction_result_plot">
+          <title>Corrected Data</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Plotting/2D_correction.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+      <sect3>
+        <title>Integrated Counts</title>
+        <para>The second Plot consists of two plots. The vertically integrated detector counts are
+          shown as points, and a fit to these points is shown as a curve. If you have applied a
+            <emphasis>Region of Interests</emphasis> (ROI) in the intensity plot above, the
+          algorithm will do the integration only in the masked area.</para>
+        <figure>
+          <title>Integrated Counts</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Plotting/integration_result.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+      <sect3>
+        <title>Scan Data</title>
+        <para>The third Plot shows the aggregated scan data. By default it shows the
+            <emphasis>intensity integration of the whole detector vs scan variable</emphasis> plot.
+          <!--  nxi: hide temporarily
+          You can use the control widgets shown in <xref linkend="result_control"/> to show other
+          plots. For example plot the <emphasis>fitting peak vs scan variable</emphasis> plot. 
+          -->
+          If you need more details about the result plots, please read <xref linkend="analysis_result"
+          />.</para>
+        <figure>
+          <title>Scan Data</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Plotting/intensity_result.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title>File Manager</title>
+    <para>As shown in <xref linkend="file_source"/>, users can manage the data source files in this
+        <emphasis>File Manager</emphasis>. This section details how to use the file manager to
+      select files for analysis.</para>
+    <sect2>
+      <title>Add Files</title>
+      <para>You can use the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/SourceView/add_item.gif"/>
+          </imageobject>
+        </inlinemediaobject> button or drop down menu <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/SourceView/add_files.PNG"/>
+          </imageobject>
+        </inlinemediaobject> to open a <emphasis>file selection window</emphasis> as shown in <xref
+          linkend="file_selection"/>. Once one or more files has been selected, they will be
+        imported into the <emphasis>File Manager</emphasis>. The names and locations of these files
+        will be shown. By default, the analysis algorithm will use the last file in the selection as
+        the input file and automatically Analysed and Plotted.</para>
+      <para>You can use this button to add one or many data files to the <emphasis>File
+        Manager</emphasis>. However, only one file gets processed at a time and its result is
+        plotted. The file that is processed gets highlighted, as shown in <xref
+          linkend="files_example"/>.</para>
+      <figure xml:id="files_example">
+        <title>File Manager</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/SourceView/files_example.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+    <sect2>
+      <title>Add Folder</title>
+      <para>Use the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/SourceView/add_dir.gif"/>
+          </imageobject>
+        </inlinemediaobject> button or drop down menu <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/SourceView/add_folder.PNG"/>
+          </imageobject>
+        </inlinemediaobject> to open a folder selection window as shown in <xref
+          linkend="folder_selection"/>. Once a folder has been selected, click on the
+        <emphasis>OK</emphasis> button to confirm your selection. This will import all NeXus files
+        in that folder to the <emphasis>File Manager</emphasis>. The last file in the selected
+        folder will be automatically Analysed and Plotted.</para>
+      <figure xml:id="folder_selection">
+        <title>Folder Selection Window</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/SourceView/select_folder.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+    <sect2>
+      <title xml:id="fileSelect">Select an Input File</title>
+      <para>To Analyse a file, select that file by a single click. The selected file is highlighted
+        and Analysis starts. You can only select one file at a time, hence only one file is Analysed
+        and Plotted. You can use the <emphasis>Arrow Up</emphasis> or <emphasis>Arrow
+        Down</emphasis> keys on your keyboard to navigate through the files in the <emphasis>File
+          Manager</emphasis>.</para>
+    </sect2>
+    <sect2>
+      <title>Remove a File</title>
+      <para>To remove a file from the File Manager, you need to select the file. Please read <xref
+          linkend="fileSelect"/> on the detail. Use button <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/SourceView/rem_item.gif"/>
+          </imageobject>
+        </inlinemediaobject> or drop down menu <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/SourceView/remove_file.PNG"/>
+          </imageobject>
+        </inlinemediaobject>to remove the selected file. After removal, the file located immediately
+        below it in the File Manager will be highlighted and Analysed and Plotted. If there is no
+        file below, the file above will be selected, Analysed and Plotted. If after removal, there
+        is no file in the File Manager, Plot will be empty. Since it does not support
+        multi-selection, you cannot remove multiple files unless you choose to Remove All
+      Files.</para>
+    </sect2>
+    <sect2>
+      <title>Remove All Files</title>
+      <para>Use the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/SourceView/rem_all_items.gif"/>
+          </imageobject>
+        </inlinemediaobject> button or drop down menu <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/SourceView/remove_folder.PNG"/>
+          </imageobject>
+        </inlinemediaobject> to remove all files in the <emphasis>File Manager</emphasis>. A
+        confirmation window will pop up. If confirmed, all files are removed. Plot will be
+      emptied.</para>
+    </sect2>
+    <sect2>
+      <title>Monitor Live Histogram Data</title>
+      <para>If Gumtree-Kowari is connected to SICS it will monitor any new NeXus file created or
+        modified by the SICS server. To learn about how to connect to SICS server, please read <xref
+          linkend="installAndRun"/>. When a new NeXus file is created, the File Manager will
+        automatically read the file in. By default the files in the File Manager are sorted in a
+        descending sequence. The new file usually has a larger numeric ID, so that it will be put on
+        top of the file list in the File Manager. To Analyse and Plot the new file, simple click on
+        it to select it.</para>
+      <para>If the selected file is modified by SICS, Gumtree-Kowari will detect this and read the
+        modified file. If the frame entry in the file gets changed, Gumtree will re-run Analysis and
+        Plot on the new result. If there is a new frame entry appended to the file, Gumtree will
+        pick up the entry and Analyse and Plot it.</para>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title>Batch Data Processing and Export</title>
+    <para>The Export All (batch data processing and save) button and a progress bar are located in
+      the center left of the window, as shown in <xref linkend="batch_bar"/>.</para>
+    <figure xml:id="batch_bar">
+      <title>Export and Progress Bar</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="kowari.ui.images/AlgorithmControl/export_all.PNG"/>
+        </imageobject>
+      </mediaobject>
+    </figure>
+    <sect2>
+      <title>Batch Processing</title>
+      <para>You can reduce and export all files loaded into the File Manager. Using Export All, the
+        NeXus data files are read sequentially and processed with the reduction algorithm. The
+        one-dimensional vertically integrated result curves are saved into
+        <emphasis>XYSigma</emphasis> ASCII files. For each NeXus file, there is one
+          <emphasis>XYSigma</emphasis> file created. There is several lines of header information in
+        the file to show the metadata. Each curve also follows a couple of header lines to tell the
+        scan variable information.</para>
+      <para>To do batch processing, click on the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/AlgorithmControl/export_button.PNG"/>
+          </imageobject>
+        </inlinemediaobject> button. A <emphasis>Folder Selection Window</emphasis> will pop up.
+        After you confirm your selection, Gumtree will begin the process. The name of the exported
+        files are the same as the NeXus files e.g. KWR1234567 but with an appended suffix and file
+        extension. If efficiency correction is enabled in the <emphasis>Algorithm
+        Control</emphasis>, it will append '_e' to the export file name. If geometry correction is
+        enabled, it will append '_g' to the export file name. If there is a mask region applied, it
+        will append the vertical boundary information of the region to the file name, e.g.
+        '_-137.0_125.0' means vertical region from -137.0 mm to 125.0 mm. The extension will be
+        *.xyd. An example of the file name is: KWR0003415_eg_-137.0_125.0.xyd, with efficiency
+        correction, geometry correction and mask enabled. Data can also be saved one file at a time.
+        See <xref xlink:href="#save_scan"/></para>
+    </sect2>
+    <sect2>
+      <title>Progress Bar</title>
+      <para>The progress bar represents the processing progress in two different modes.</para>
+      <orderedlist>
+        <listitem>
+          <para>File process mode. The Progress Bar shows the progress of processing all frames in a
+            single NeXus file, when you choose to run the algorithm for a single file.</para>
+        </listitem>
+        <listitem>
+          <para>File export mode. The Progress bar shows the progress of exporting all files in the
+            File Manager.</para>
+        </listitem>
+      </orderedlist>
+    </sect2>
+  </sect1>
+  <sect1 xml:id="sect_ap">
+    <title>Algorithm Control</title>
+    <para>In this section, you will find information about how to tune the analysis algorithms.
+        <xref linkend="control_block"/> shows an overview of the <emphasis>Algorithm
+      Control</emphasis>.</para>
+    <figure xml:id="control_block">
+      <title>Algorithm Control</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="kowari.ui.images/AlgorithmControl/control_block.PNG"/>
+        </imageobject>
+      </mediaobject>
+    </figure>
+    <sect2>
+      <title>How to Change a Parameter</title>
+      <para>There are limited types of graphical widgets in <emphasis>Algorithm Control</emphasis>.
+        They are checkbox, drop down list, file selection widget, navigation button and mask
+        manager. Except for the navigation buttons, all changes to the above widgets need a
+        confirmation click on the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/AlgorithmControl/apply_button.PNG"/>
+          </imageobject>
+        </inlinemediaobject> button. After the file is Analysed and Plotted, the
+        <emphasis>Apply</emphasis> button is greyed out. Once a change is made to the control
+        widgets, the <emphasis>Apply</emphasis> button is highlighted. A single clicking on this
+        button will apply all the changes made and start Analysis and Plot. Navigation buttons are
+        exceptions, they do not need confirmation.</para>
+    </sect2>
+    <sect2>
+      <title>Use Corrected Data</title>
+      <para>In the NeXus file, the detector count data are accompanied with corrected data, which is
+        corrected for count binning artefacts generated by the detector and its electronics. The
+        corrected data is produced by the histogram server which uses dithering to balance counts in
+        adjacent wires on the detector. By default, uncorrected data is Analysed and Plotted.
+        Consult with your instrument scientist if you need to use the corrected data.</para>
+      <para>To use the wire corrected data, click to select the checkbox <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/AlgorithmControl/use_correction.PNG"/>
+          </imageobject>
+        </inlinemediaobject>.</para>
+    </sect2>
+    <sect2 xml:id="navigation">
+      <title>Navigation Control</title>
+      <para>There are three ways of navigating through the <xref linkend="frame"/>frame sequence in
+        the NeXus file.</para>
+      <itemizedlist>
+        <listitem>
+          <para>Use frame index</para>
+          <para>The index of each frame will show up in the drop down list in <xref
+              linkend="jump_to"/>. Choose the index of a frame that you want to show by a single
+            click in the drop down list.</para>
+          <figure xml:id="jump_to">
+            <title>Frame Index</title>
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/AlgorithmControl/jump_to.PNG"/>
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </listitem>
+        <listitem>
+          <para>Use navigation buttons <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/AlgorithmControl/nav_button.PNG"/>
+              </imageobject>
+            </inlinemediaobject>. You can navigate backwards or forwards along the frame sequence
+            with these buttons.</para>
+        </listitem>
+        <listitem>
+          <para>Use scan variable position</para>
+          <para>The value of the scan variable for each frame will show up in the drop down list in
+              <xref linkend="scan_variable"/>. You can choose to show a frame by selecting the scan
+            variable value of that frame.</para>
+          <figure xml:id="scan_variable">
+            <title>Scan Variable Values</title>
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/AlgorithmControl/scan_variable.PNG"/>
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+    <sect2 xml:id="efficiencyCorrection">
+      <title>Efficiency Correction Control</title>
+      <para>Usually the instrument scientist will prepare the efficiency map of the detector before
+        you arrive and put it in your proposal directory. Please consult with your instrument
+        scientist for the details of this file. To use the efficiency map file, you can use the
+        widgets shown in <xref linkend="efficiency_control"/> to load it. Click on the file
+        selection button <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/AlgorithmControl/select_file_button.PNG"/>
+          </imageobject>
+        </inlinemediaobject>, to pop up a file selection window. Once the efficiency map file is
+        selected, its path gets inputted into the text box. You can type the path of the file in the
+        text box as well.</para>
+      <figure xml:id="efficiency_control">
+        <title>Efficiency Correction Control</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/AlgorithmControl/efficiency_control.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>You can enable or disable efficiency correction by changing selection of the checkbox.
+        Click on the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/AlgorithmControl/apply_button.PNG"/>
+          </imageobject>
+        </inlinemediaobject> button to apply the change.</para>
+    </sect2>
+    <sect2>
+      <title>Geometry Correction Control</title>
+      <para>The geometry correction algorithm used in the analysis is to project a flat detector
+        histogram onto a spherical surface. Please consult with your instrument scientist if you
+        need to apply the geometry correction algorithm. To enable geometry correction, simply click
+        to select the checkbox in <xref linkend="geometry_control"/>. Then click on
+          <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/AlgorithmControl/apply_button.PNG"/>
+          </imageobject>
+        </inlinemediaobject> button to apply the change.</para>
+      <figure xml:id="geometry_control">
+        <title>Geometry Correction Control</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/AlgorithmControl/geometry_correction.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+    <sect2>
+      <title xml:id="ROIMask">Region of Interest and Masking Control</title>
+      <para>In the analysis algorithm, you can put a series of mask as a single parameter to control
+        selection of the detector histogram data. There are two types of masks, inclusive and
+        exclusive. Inclusive masks are also called a <emphasis>Region of Interest</emphasis>, or
+        ROI. If an ROI has been applied to the histogram data, only pixels included in the ROI will
+        be considered in the analysis algorithm. Exclusive masks are called masks. If a mask has
+        been applied to the histogram data, the pixels in the mask region will not be considered in
+        the analysis algorithm.</para>
+      <para>There are two ways of inputting ROI or masks into the algorithm. One is to draw regions
+        on the two-dimensional intensity plot in the plotting area. The other is to use the
+          <emphasis>Masking Properties Window</emphasis> to define regions.</para>
+      <itemizedlist>
+        <listitem>
+          <para>To draw an ROI on the two-dimensional intensity plot, use <emphasis role="bold">ALT
+              + Left Mouse Button</emphasis> combination to draw a rectilinear region on the plot.
+            As shown in <xref linkend="ROI_plot"/>, the colour of the ROI is green. To resize the
+            ROI, move your mouse to the boarder of the region. The cursor becomes drag-able. You can
+            drag the boarder to change the width or the height. To remove, move your mouse onto the
+            ROI until the region gets focus. Push the <emphasis role="bold">DELETE</emphasis> key on
+            your keyboard to remove.</para>
+          <figure xml:id="ROI_plot">
+            <title>ROI on 2D Plot</title>
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/AlgorithmControl/2D_mask.PNG"/>
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </listitem>
+        <listitem>
+          <para>To draw a mask on the two-dimensional intensity plot, use <emphasis role="bold"
+              >SHIFT + ALT + Left Mouse Button</emphasis> combination. The colour of the mask region
+            is red. Other properties of the mask are the same as the ROI.</para>
+        </listitem>
+      </itemizedlist>
+      <para>You can draw as many ROI and masks on the intensity plot as you like. <xref
+          linkend="mulit_mask"/> shows an example of drawing one ROI and two masks on the intensity
+        plot.</para>
+      <figure xml:id="mulit_mask">
+        <title>Multiple ROI and Masks</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/AlgorithmControl/3masks.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>The other way of apply region selections is to define ROI and mask regions in the
+          <emphasis>Masking Properties Window</emphasis>. To open this window, click on the
+          <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/AlgorithmControl/select_file_button.PNG"/>
+          </imageobject>
+        </inlinemediaobject> button in the algorithm control widget shown in <xref
+          linkend="mask_control"/>.</para>
+      <figure xml:id="mask_control">
+        <title>ROI and Mask Control</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/AlgorithmControl/mask_control.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para><xref linkend="mask_prop"/> shows an example of masking properties window.</para>
+      <itemizedlist>
+        <listitem>
+          <para>To add a new mask, click on the <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/SourceView/add_item.gif"/>
+              </imageobject>
+            </inlinemediaobject> button, a new mask item will show up in the <emphasis>Mask
+            list</emphasis>. You can edit the position and size of the region by changing the
+            coordinates of the mask in the <emphasis>Points</emphasis> widget. You can define as ROI
+            or mask by switching between <emphasis>Inclusive</emphasis> and
+            <emphasis>Exclusive</emphasis> options widget. You need to click on the
+            <emphasis>Apply</emphasis> button to confirm any change.</para>
+        </listitem>
+        <listitem>
+          <para>To change the name of the region, simply type in the <emphasis>Name</emphasis> text
+            box.</para>
+        </listitem>
+        <listitem>
+          <para>To remove a mask, click on the mask item. Then click on the <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/SourceView/rem_item.gif"/>
+              </imageobject>
+            </inlinemediaobject> button.</para>
+        </listitem>
+        <listitem>
+          <para>To remove all masks, click on the <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/SourceView/rem_all_items.gif"/>
+              </imageobject>
+            </inlinemediaobject> button.</para>
+        </listitem>
+        <listitem>
+          <para>To save all the masks to a file, click on the <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/AlgorithmControl/mask_save.gif"/>
+              </imageobject>
+            </inlinemediaobject> button. Pick a path and filename, then click on
+            <emphasis>SAVE</emphasis>. All the masks drawn on the plot will be saved into the file
+            in XML format.</para>
+        </listitem>
+        <listitem>
+          <para>To load saved masks, click on the <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/AlgorithmControl/mask_load.gif"/>
+              </imageobject>
+            </inlinemediaobject> button. Choose a file saved previously, then click
+            <emphasis>OPEN</emphasis>.</para>
+        </listitem>
+      </itemizedlist>
+      <figure xml:id="mask_prop">
+        <title>Mask Properties Window</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/AlgorithmControl/mask_property.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>The following logic describes how the regions define the selections of the histogram
+        data.</para>
+      <orderedlist>
+        <listitem>
+          <para>If there is no ROI or mask region, all pixels in the detector histogram will be
+            used.</para>
+        </listitem>
+        <listitem>
+          <para>If only masks exist, all pixels but the masked ones will be used.</para>
+        </listitem>
+        <listitem>
+          <para>If only ROI exist, only pixels in the ROI regions will be used.</para>
+        </listitem>
+        <listitem>
+          <para>If both ROI and masks exist, pixels in the ROI regions but not in the mask will be
+            used.</para>
+        </listitem>
+      </orderedlist>
+    </sect2>
+    <!-- nxi: hide temporarily
+    <sect2 xml:id="chooseResult">
+      <title>Choose Analysis Result</title>
+      <para>By default the algorithm result shown in the third Plot is the integrated intensity of
+        each frame. You can use the widgets in <xref linkend="result_option"/> to change the view of
+        different analysis results. This change will affect the curve shown in the third Plot.
+          <figure xml:id="result_option">
+          <title>Result Selection Control</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/AlgorithmControl/result_control.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure></para>
+      <itemizedlist>
+        <listitem>
+          <para>Choose <emphasis>Intensity</emphasis> shows the integrated counts over the region of
+            interest of each frame vs scan variable.</para>
+        </listitem>
+        <listitem>
+          <para>Choose <emphasis>mean</emphasis> shows the fitted peak position of the frame vs scan
+            variable.</para>
+        </listitem>
+        <listitem>
+          <para>Choose <emphasis>Chi2</emphasis> shows the fitting quality Chi square values of the
+            frame vs scan variable.</para>
+        </listitem>
+        <listitem>
+          <para>Choose <emphasis>amplitude</emphasis> shows the fitted amplitude values of the frame
+            vs scan variable.</para>
+        </listitem>
+        <listitem>
+          <para>Choose <emphasis>sigma</emphasis> shows the fitted sigma values of the frame vs scan
+            variable.</para>
+        </listitem>
+        <listitem>
+          <para>Choose <emphasis>area</emphasis> shows the fitted Gaussian curve area of the frame
+            (calculated from sigma and amplitude) vs scan variable.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+    -->
+  </sect1>
+  <sect1>
+    <title xml:id="analysis_result">Plot</title>
+    <para>There are three types of results for the Gumtree-Kowari data analysis, Corrected, Reduced
+      and Analysed. In this section, we talk about these results.</para>
+    <sect2>
+      <title xml:id="correctionResult">Corrected Data</title>
+      <para>The first Plot shows the Corrected result. It is a two-dimensional detector histogram
+        data plot. If you have chosen to enable efficiency correction and geometry correction, it
+        will plot the intensity data after these corrections. <xref linkend="intensity_plot"/> shows
+        this Plot. The vertical and horizontal axes are the physical dimensions of the detector.
+        Units of the axes are <emphasis>mm</emphasis>.</para>
+      <para>The colour of each pixel in the plot is coded by the number of neutron counts. The
+        colour scale is located to the right of the plot. Readings from low to high coded by colors
+        from dark to light. <figure xml:id="intensity_plot">
+          <title>Corrected Data</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Plotting/2D_plot.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure></para>
+      <para>To learn more information about the plot control, please read <xref linkend="plotting"
+        />.</para>
+    </sect2>
+    <sect2>
+      <title xml:id="reductionResult">Integrated Counts</title>
+      <para>The one-dimensional reduction result is located in the second plot. It is the
+        integration of the corrected histogram data in vertical direction. The horizontal axis of
+        the curve has been converted into 2θ values. <xref linkend="integration_plot"/> shows the
+        integration result with a fitting curve. The integration result is plotted in Diamond
+        markers and the fitting result is in a curved line. You can choose different marker shape
+        for the plot. Please refer to <xref linkend="plotControl1D"/>.</para>
+      <figure xml:id="integration_plot">
+        <title>Integrated Counts</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Plotting/integration_plot.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+    <sect2>
+      <title xml:id="analysisResult">Scan Data</title>
+      <para>The analysis result of the algorithm will show up in the third plot in the plotting
+        area. 
+        <!-- 
+        You can choose to show different analysis result in the algorithm control widget (see
+          <xref linkend="chooseResult"/> for details about selecting result). When you select a
+        different result, the different curve will show up.
+        --> 
+        The horizontal axis of the plot is
+        always the scan variables. For example, <xref linkend="peak_positions"/> shows the peak
+        positions of the fitting of the frames vs the scan variable values.</para>
+      <figure xml:id="peak_positions">
+        <title>Scan Data</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Plotting/fitting_peaks.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>All features in the 1D curve plot are supported by this Plot. However there are
+          additional features for this plot.</para>
+        <itemizedlist>
+          <listitem>
+            <para>Jump to a frame</para>
+            <para><emphasis>Double click on a point</emphasis> to pick the histogram frame that has
+              a scan variable value as your selection. The algorithm will pick the frame as input
+              and start processing. As a result, in the first plot of the plotting area, it will
+              show the correction result of that frame. In the second plot, it will show the
+              reduction result of that frame.</para>
+          </listitem>
+        </itemizedlist>
+    </sect2>
+    <sect2 xml:id="save_scan">
+      <title>Save Scan Data</title>
+      <para>You can save different analysis results in multiple formats. The supported file formats
+        are <emphasis>binary (HDF5),</emphasis>
+        <emphasis>ASCII(3 columns)</emphasis>, and <emphasis>XML</emphasis>. There are different
+        advantages in saving into different formats.</para>
+      <itemizedlist>
+        <listitem>
+          <para>HDF (Binary HDF5) format is a popular format in neutron scattering science. The
+            NeXus data files created in Kowari experiments are also in HDF5 binary format. The data
+            saved in HDF5 format are compressed, which helps to save storage space. Such file that
+            contains analysis result can be easily read back by Gumtree applications.</para>
+        </listitem>
+        <listitem>
+          <para>XYSigma (ASCII, with 3 columns table) format is more human-readable. This format is
+            only supported for exporting one-dimensional curve data. The 3 columns are the
+              <emphasis>AXIS</emphasis>, the <emphasis>VALUE</emphasis>, and the
+            <emphasis>ERROR</emphasis> respectively.</para>
+        </listitem>
+        <listitem>
+          <para>XML format is available for both the two-dimensional result and one-dimensional
+            curve result. The advantage of using this format is that it easily holds the metadata
+            and it is human readable.</para>
+        </listitem>
+      </itemizedlist>
+      <para>To choose to save the result in your local drive, click on the
+        <emphasis>Export</emphasis> item in the plot menu, as shown in <xref linkend="export_result"
+        />. Then choose the file format you want to save. A file selection window will show up.
+        Choose the folder and give a name to the file, then click <emphasis>Save</emphasis>.</para>
+      <figure xml:id="export_result">
+        <title>Export Result Menu</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Plotting/export_menu.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title xml:id="plotControl1D">1D Plot Controls</title>
+    <para>The following features are about features supported by a one-dimensional curve plot, for
+      example the reduction result plot or the analysis result plot. To learn about the meaning of
+      the 1D results, please read <xref linkend="reductionResult"/> and <xref
+        linkend="analysisResult"/>.</para>
+    <sect2>
+      <title>Plot Window Control</title>
+      <sect3>
+        <title>Zoom</title>
+        <para>To zoom in certain region of the 1D plot, simply <emphasis>push down the left mouse
+            button and draw a rectilinear box from top left to bottom right</emphasis> on that
+          region. You can use this action to zoom in up to possible zooming levels.</para>
+        <para>To zoom out to the original level, <emphasis>push down the left mouse button and move
+            it up or left</emphasis>. Another way to zoom out is to click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Plotting/refresh16x16.png"/>
+            </imageobject>
+          </inlinemediaobject> button at the top left corner of the plot.</para>
+      </sect3>
+      <sect3>
+        <title>Pick a point in the curve</title>
+        <para>Single click on a point in the curve, it will provide a crossing at the point in blue
+          colour. The crossing clearly tells the positions of the point. The detail values of the
+          position will also show up in the status bar at the bottom of the plot.</para>
+        <figure>
+          <title>Point Properties</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Kakadu/point_properties.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+      <sect3>
+        <title>Switch between logarithmic and linear axis</title>
+        <para>Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Plotting/logarithm.gif"/>
+            </imageobject>
+          </inlinemediaobject> button to switch the vertical coordinate axis between logarithm axis
+          and common axis. <xref linkend="logarithm_axis"/> shows an example with logarithm vertical
+          axis in the plot.</para>
+        <figure xml:id="logarithm_axis">
+          <title>Logarithm Axis</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Plotting/logarithm.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+      <sect3>
+        <title>Copy to clipboard</title>
+        <para>Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Plotting/copy16x16.png"/>
+            </imageobject>
+          </inlinemediaobject> button to copy the current plot image into system clipboard. You can
+          paste the image into common Windows imaging application such as
+          <emphasis>MSPaint</emphasis> and <emphasis>MSOffice</emphasis> applications.</para>
+      </sect3>
+      <sect3>
+        <title>Save to image file</title>
+        <para>Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Plotting/picture_save16x16.png"/>
+            </imageobject>
+          </inlinemediaobject> button to save the current plot to an image file in your file system.
+          A <emphasis>Save As</emphasis> window will pop up for you to pick the folder and file name
+          for the image file. It supports three image file formats: <emphasis>BMP</emphasis>,
+            <emphasis>JPEG</emphasis> and <emphasis>PNG</emphasis>.</para>
+      </sect3>
+      <sect3>
+        <title>Print the plot</title>
+        <para>Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Plotting/printer16x16.png"/>
+            </imageobject>
+          </inlinemediaobject> button to print the current plot image. Two windows will pop up for
+          you to setup the layout properties and to choose a printer.</para>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title xml:id="dataPropertiesControl1D">Data</title>
+      <para>Click on the <emphasis>Data</emphasis> item in the plot menu bar, a Data Control Block
+        will show up in the left side of the plot. For example, <xref linkend="data_control_1D"/>
+        shows the block of the integration result plot.</para>
+      <figure xml:id="data_control_1D">
+        <title>Data Control</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Kakadu/1D_data_control.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>The following features are supported in the Data Control Block.</para>
+      <sect3>
+        <title>Visible</title>
+        <para>The first column of the data control area is visibility control. Select or deselect
+          the check box in that column to show or hide the data.</para>
+        <para>The one-dimensional curve data is called <emphasis>Pattern</emphasis> in Gumtree
+          plotting space. Some time, the data fed to the plot can be a group of such one-dimensional
+          data, which we call <emphasis>PatternSet</emphasis>. By default, all
+          <emphasis>Patterns</emphasis> under the <emphasis>PatternSet</emphasis> will show up in
+          the Visibility Control Area. Click on the button <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Kakadu/folding_data.PNG"/>
+            </imageobject>
+          </inlinemediaobject> to fold the <emphasis>PatternSet</emphasis> so that it hides the
+            <emphasis>Patterns</emphasis> within it. Click it again to unfold it. Deselect the
+          visibility checkbox of the <emphasis>PatternSet</emphasis> will set all
+          <emphasis>Patterns</emphasis> in it invisible.</para>
+      </sect3>
+      <sect3>
+        <title>Color</title>
+        <para>Use the <emphasis>Colour</emphasis> column to change the colour of the curve shows in
+          the plot. By default, the colors of the curve data are selected automatically from a
+          rainbow colour series to be different from each other. You can change the colour of a
+          single curve by clicking on the colour label in the <emphasis>Colour</emphasis> column. A
+            <emphasis>Colour Selection Panel</emphasis> window will show up as in <xref
+            linkend="color_panel"/>. You can either choose a basic colour or click on the
+            <emphasis>Define Custom Colors</emphasis> to generate a customised color. Click on OK to
+          confirm the change.</para>
+        <figure xml:id="color_panel">
+          <title>Colour Selection Panel</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Kakadu/color_panel.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+      <sect3>
+        <title>Title</title>
+        <para>By default, the title in the 1D plot uses the title of the data that put into the plot
+          widget. So that you can control the title of the plot by changing the title of the data.
+          To change the title, simply click on the current title of the data in the
+          <emphasis>Title</emphasis> column, then type in a new text.</para>
+        <figure>
+          <title>Change Title</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Kakadu/change_title.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+      <sect3>
+        <title>Marker</title>
+        <para>You can change the marker shape of each curve in the plot. To change the marker shape,
+          simply click on the drop down list in the <emphasis>Marker</emphasis> column and select
+          one from the available marker shapes. <xref linkend="marker_table"/> shows the available
+          marker shapes and their names.</para>
+        <table xml:id="marker_table">
+          <title>Available Marker Shapes</title>
+          <tgroup cols="3">
+            <colspec align="center"/>
+            <tbody>
+              <row>
+                <entry>Name</entry>
+                <entry>Icon</entry>
+                <entry>Style</entry>
+              </row>
+              <row>
+                <entry>Line Only</entry>
+                <entry>-</entry>
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="kowari.ui.images/Kakadu/line_only.PNG"/>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+              <row>
+                <entry>Diamond</entry>
+                <entry>*</entry>
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="kowari.ui.images/Kakadu/diamond_shape.PNG"/>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+              <row>
+                <entry>Diagonal Cross</entry>
+                <entry>x</entry>
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="kowari.ui.images/Kakadu/diagnal_cross.PNG"/>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+              <row>
+                <entry>Regular Cross</entry>
+                <entry>+</entry>
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="kowari.ui.images/Kakadu/regular_cross.PNG"/>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+              <row>
+                <entry>Up Triangle</entry>
+                <entry>^</entry>
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="kowari.ui.images/Kakadu/up_triangle.PNG"/>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+              <row>
+                <entry>Down Triangle</entry>
+                <entry>v</entry>
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="kowari.ui.images/Kakadu/down_triangle.PNG"/>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+              <row>
+                <entry>Line Diamond</entry>
+                <entry>-*</entry>
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="kowari.ui.images/Kakadu/line_diamond.PNG"/>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+              <row>
+                <entry>Line Diagonal Cross</entry>
+                <entry>-x</entry>
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="kowari.ui.images/Kakadu/line_diagnal_cross.PNG"/>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+              <row>
+                <entry>Line Regular Cross</entry>
+                <entry>-+</entry>
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="kowari.ui.images/Kakadu/line_regular_cross.PNG"/>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+              <row>
+                <entry>Line Up Triangle</entry>
+                <entry>-^</entry>
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="kowari.ui.images/Kakadu/line_up_triangle.PNG"/>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+              <row>
+                <entry>Line Down Triangle</entry>
+                <entry>-v</entry>
+                <entry><inlinemediaobject>
+                    <imageobject>
+                      <imagedata fileref="kowari.ui.images/Kakadu/line_down_triangle.PNG"/>
+                    </imageobject>
+                  </inlinemediaobject></entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+      </sect3>
+      <sect3>
+        <title>Linked</title>
+        <para>To link the data with the algorithm means when the algorithm is processed again, new
+          result data will overwrite the current data. This makes the plot updates automatically to
+          the most recent result. By default this feature is enabled. To disable it, simply deselect
+          the checkbox in the <emphasis>Linked</emphasis> column.</para>
+      </sect3>
+      <sect3>
+        <title>Metadata columns</title>
+        <para>The metadata columns show the plot data information.</para>
+        <itemizedlist>
+          <listitem>
+            <para><emphasis>Reference</emphasis> column shows the ID of the algorithm that generates
+              this plot.</para>
+          </listitem>
+          <listitem>
+            <para><emphasis>Data type</emphasis> column shows the type of the data, such as
+                <emphasis>Pattern</emphasis> or <emphasis>PatternSet</emphasis>.</para>
+          </listitem>
+          <listitem>
+            <para><emphasis>Status</emphasis> column shows the status of the algorithm that
+              generates this plot, for example, <emphasis>InProgress</emphasis>,
+              <emphasis>Done</emphasis> or <emphasis>Error</emphasis>.</para>
+          </listitem>
+          <listitem>
+            <para><emphasis>Timestamps</emphasis> column shows the time stamp of this plot data
+              generation.</para>
+          </listitem>
+        </itemizedlist>
+      </sect3>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title xml:id="plotting">2D Plot Controls</title>
+    <para>The following features are about two-dimensional plots, e.g. Corrected Data plots (see
+        <xref linkend="correctionResult"/>)</para>
+    <sect2>
+      <title>Plot Window Control</title>
+      <para>The following features are supported by the two-dimensional window</para>
+      <sect3>
+        <title>Zoom</title>
+        <para>To zoom in certain region of the 2D plot, simply <emphasis>push down the left mouse
+            button and draw a rectilinear box</emphasis> on that region.</para>
+        <para>To zoom out use the key combination, <emphasis role="bold">CTRL + Z</emphasis> to zoom
+          out to the next zoom level.</para>
+        <para>To zoom out to the original level, use key combination, <emphasis role="bold">CTRL +
+            SHIFT + Z</emphasis> or click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Plotting/refresh16x16.png"/>
+            </imageobject>
+          </inlinemediaobject> button at the top left corner of the plot.</para>
+      </sect3>
+      <sect3>
+        <title>Pan</title>
+        <para>Pan is available if the plot has been zoomed. Push down the <emphasis role="bold"
+          >CTRL</emphasis> key, then drag the image to pan in any direction.</para>
+      </sect3>
+      <sect3>
+        <title>Show pixel properties</title>
+        <para>Moving your mouse cursor to a pixel on the plot will get the pixel properties shown in
+          the status bar. It tells you the horizontal axis value, the vertical axis value and the
+          intensity reading on that pixel. It also tells you the zoom level.</para>
+        <figure>
+          <title>Pixel Properties</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Kakadu/pixel_properties.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+      <sect3>
+        <title>Switch between linear and logarithmic colour scale</title>
+        <para>Using logarithm colour scale can help to reveal lower intensity pixels in the plot. By
+          default, the plot will use the common colour scale. Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Plotting/logarithm.gif"/>
+            </imageobject>
+          </inlinemediaobject> button to switch between common and logarithm colour scale. See <xref
+            linkend="logarithm_scale"/> for the difference between common colour scale and logarithm
+          colour scale.</para>
+        <figure xml:id="logarithm_scale">
+          <title>Linear and Logarithm Colour Scales</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Kakadu/logarithm_scale.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+      <sect3>
+        <title>Copy to clipboard</title>
+        <para>Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Plotting/copy16x16.png"/>
+            </imageobject>
+          </inlinemediaobject> button to copy the current plot image into system clipboard. You can
+          paste the image into common Windows imaging application such as
+          <emphasis>MSPaint</emphasis> and <emphasis>MSOffice</emphasis> applications.</para>
+      </sect3>
+      <sect3>
+        <title>Save to image file</title>
+        <para>Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Plotting/picture_save16x16.png"/>
+            </imageobject>
+          </inlinemediaobject> button to save the current plot to an image file in your file system.
+          A <emphasis>Save As</emphasis> window will pop up for you to pick the folder and file name
+          for the image file. It supports three image file formats: <emphasis>BMP</emphasis>,
+            <emphasis>JPEG</emphasis> and <emphasis>PNG</emphasis>.</para>
+      </sect3>
+      <sect3>
+        <title>Print the plot</title>
+        <para>Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Plotting/printer16x16.png"/>
+            </imageobject>
+          </inlinemediaobject> button to print the current plot. Two windows will pop up for you to
+          setup the layout properties and to choose a printer.</para>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title xml:id="dataPropertiesControl">Data</title>
+      <para>Click on the <emphasis>Data</emphasis> item in the plot menu bar, a <emphasis>Data
+          Control</emphasis> will show up in the left side of the plot. For example, <xref
+          linkend="data_control_2D"/> shows the block of the integration result plot.</para>
+      <figure xml:id="data_control_2D">
+        <title>Data Control</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/AlgorithmControl/2D_data_control.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>The following features are supported in the <emphasis>Data Control Block</emphasis>.</para>
+      <sect3>
+        <title>Visible</title>
+        <para>The first column of the <emphasis>Data Control Block</emphasis> is visibility control.
+          Select or deselect the check box in that column to view or hide the data.</para>
+        <para>A two-dimensional data is called <emphasis>Map</emphasis> in Gumtree plotting space.
+          Some time, the data fed to the plot can be a group of such two-dimensional data, which we
+          call <emphasis>MapSet</emphasis>. By default, all <emphasis>Maps</emphasis> under the
+            <emphasis>MapSet</emphasis> will show up in the visibility control area. Click on the
+          button <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Kakadu/folding_data.PNG"/>
+            </imageobject>
+          </inlinemediaobject> to fold the <emphasis>MapSet</emphasis> so that it hides the
+            <emphasis>Maps</emphasis> within it. Click it again to unfold it. Deselect the
+          visibility checkbox of the <emphasis>MapSet</emphasis> will hide all
+          <emphasis>Maps</emphasis> in it.</para>
+      </sect3>
+      <sect3>
+        <title>Color</title>
+        <para>Use the <emphasis>Color</emphasis> column to change the colour scale of the
+          two-dimensional plot. By default, the colour scale picked is Rainbow colour scale. All the
+          supported colour scales are shown in <xref linkend="color_scales"/>.</para>
+        <figure xml:id="color_scales">
+          <title>Colour Scales</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Kakadu/color_scales.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>To change the colour scale, simply click on the current colour scale name in the
+            <emphasis>Color</emphasis> column. A drop down list will show up as shown in <xref
+            linkend="select_color_scale"/>. Choose your selection to change the colour scale.</para>
+        <figure xml:id="select_color_scale">
+          <title>Select Colour Scale</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Kakadu/color_scale.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+      <sect3>
+        <title>Title</title>
+        <para>By default, the title in the 2D plot uses the title of the data that put into the plot
+          widget. So that you can control the title of the plot by changing the title of the data.
+          To change the title, simply click on the current title of the data in the
+          <emphasis>Title</emphasis> column, then type in a new text.</para>
+        <figure>
+          <title>Change Title</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Kakadu/change_title.PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect3>
+      <sect3>
+        <title>Linked</title>
+        <para>To link the data with the algorithm means when the algorithm is processed again, the
+          new result data will overwrite the current data. This makes the plot update automatically
+          to the most recent result. By default this feature is enabled. To disable it, simply
+          deselect the checkbox in the <emphasis>Linked</emphasis> column.</para>
+      </sect3>
+      <sect3>
+        <title>Meta data columns</title>
+        <para>The metadata columns in the data control area shows the plot data information.</para>
+        <itemizedlist>
+          <listitem>
+            <para><emphasis>Reference</emphasis> column shows the ID of the algorithm that generates
+              this plot.</para>
+          </listitem>
+          <listitem>
+            <para><emphasis>Data type</emphasis> column shows the type of the data, such as
+                <emphasis>Map</emphasis> or <emphasis>MapSet</emphasis>.</para>
+          </listitem>
+          <listitem>
+            <para><emphasis>Status</emphasis> column shows the status of the algorithm that
+              generates this plot, for example, <emphasis>InProgress</emphasis>,
+              <emphasis>Done</emphasis> or <emphasis>Error</emphasis>.</para>
+          </listitem>
+          <listitem>
+            <para><emphasis>Timestamps</emphasis> column shows the time stamp of this plot data gets
+              generated.</para>
+          </listitem>
+        </itemizedlist>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title>View</title>
+      <para>Click on the <emphasis>View</emphasis> item in the plot menu bar will show up the View
+        Properties Control, as shown in <xref linkend="view_control"/>.</para>
+      <figure xml:id="view_control">
+        <title>View Properties Control</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Kakadu/view_control.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <itemizedlist>
+        <listitem>
+          <para>View mode - Intensity</para>
+          <para>Use this to choose the Plot data. It is supported to put multiple plot data into the
+            2D plot widget. They can be in single <emphasis>Map</emphasis> data, or enclosed in
+              <emphasis>MapSet</emphasis> data (for more information, please see <xref
+              linkend="dataPropertiesControl"/>). All available 2D Maps are available in the
+            Intensity drop down list as shown in the above figure. Click on the drop down list to
+            choose a Map data to plot.</para>
+        </listitem>
+        <listitem>
+          <para>Flip X-Axis</para>
+          <para>Use the checkbox of <emphasis>Flip X-Axis</emphasis> to flip the plot and axis
+            horizontally.</para>
+        </listitem>
+        <listitem>
+          <para>Statistic Data</para>
+          <para>Click on the <emphasis>Statistic Data</emphasis> checkbox to show statistic
+            properties of the plot data. The statistic properties will show up in the right part of
+            the plot in table mode.</para>
+        </listitem>
+        <listitem>
+          <para>Title mode - Generated</para>
+          <para>By default it will use the title of the plot data as the plot title. You can choose
+            the <emphasis>Custom</emphasis> radio button to overwrite the title. Simply type new
+            text in the text box will change the title of the plot.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+    <sect2>
+      <title>Fitting</title>
+      <para>Under construction</para>
+    </sect2>
+    <sect2>
+      <title>Mask</title>
+      <para>To enable of disable the Mask feature, use the <emphasis>Mask Control</emphasis>. Click
+        on the <emphasis>Mask</emphasis> item in the plot menu bar. The Mask Control will show up as
+        shown in <xref linkend="masking_control"/>.</para>
+      <figure xml:id="masking_control">
+        <title>Mask Control</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Kakadu/mask_control.PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>By default the Mask feature is enabled. To disable this feature, click on the Mask
+        enabled checkbox. If disabled, the Plot will not show any mask or ROI. The drop down list in
+        the Mask Control provides options of which algorithm parameter will take the mask. To learn
+        more information about how to use masks in an algorithm, please read <xref linkend="ROIMask"
+        />.</para>
+    </sect2>
+    <sect2>
+      <title>Export</title>
+      <para>Use this menu to save data. See <xref xlink:href="#save_scan"/></para>
+    </sect2>
+    <sect2>
+      <title>Navigation Bar</title>
+      <para>If there are more than one dataset in the Plot, you can use the navigation buttons
+          <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Kakadu/nav_bar.PNG"/>
+          </imageobject>
+        </inlinemediaobject> in the Plot menu bar to jump forwards or backwards in the sequence. If
+        there is only one dataset, this feature is disabled.</para>
+    </sect2>
+  </sect1>
+  <!-- nxi: hide unfinished section
+  <sect1>
+    <title>Analysis Troubleshooting</title>
+    <para>Under construction</para>
+  </sect1>
+   -->
+</chapter>

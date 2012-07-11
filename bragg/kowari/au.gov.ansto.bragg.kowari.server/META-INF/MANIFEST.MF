@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg Kowari Server Library
+Bundle-SymbolicName: au.gov.ansto.bragg.kowari.server
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.kowari.server.internal.Activator
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: au.gov.ansto.bragg.kowari.core;bundle-version="1.7.0";visibility:=reexport,
+ au.gov.ansto.bragg.nbi.server;bundle-version="1.7.0";visibility:=reexport
+Bundle-Vendor: Bragg Institute
+Bundle-ActivationPolicy: lazy

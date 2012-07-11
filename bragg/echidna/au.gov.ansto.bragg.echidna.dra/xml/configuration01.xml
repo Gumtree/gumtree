@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<netcdf xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
+  <group name="configuration01">
+    <dimension name="4" length="4" />
+    <dimension name="5" length="5" />
+    <dimension name="7" length="7" />
+    <dimension name="3" length="3" />
+    <dimension name="20" length="20" />
+    <dimension name="9" length="9" />
+    <attribute name="recipeID" value="011201" />
+    <attribute name="algorithmName" value="Data reduction V 1.2" />
+    <attribute name="dataStructureType" value="configuration" />
+    <variable name="frame_dataName" shape="4" type="char">
+      <values>data</values>
+    </variable>
+    <variable name="frame_normSkip" shape="5" type="char">
+      <values>false</values>
+    </variable>
+    <variable name="frame_backgroundFilename" shape="7" type="char">
+      <values>default</values>
+    </variable>
+    <variable name="frame_backgroundCorrectionSkip" shape="4" type="char">
+      <values>true</values>
+    </variable>
+    <variable name="frame_backgroundCorrectionStop" shape="5" type="char">
+      <values>false</values>
+    </variable>
+    <variable name="frame_efficiencyCorrectionMapFilename" shape="7" type="char">
+      <values>default</values>
+    </variable>
+    <variable name="frame_efficiencyCorrectionSkip" shape="5" type="char">
+      <values>false</values>
+    </variable>
+    <variable name="frame_efficiencyCorrectionStop" shape="5" type="char">
+      <values>false</values>
+    </variable>
+    <variable name="frame_stitchStop" shape="5" type="char">
+      <values>false</values>
+    </variable>
+    <variable name="frame_stitchreverse" shape="4" type="char">
+      <values>true</values>
+    </variable>
+    <variable name="frame_stitchcorrect" shape="5" type="char">
+      <values>false</values>
+    </variable>
+    <variable name="frame_geometryCorrectionSkip" shape="5" type="char">
+      <values>false</values>
+    </variable>
+    <variable name="frame_geometryCorrectionStop" shape="5" type="char">
+      <values>false</values>
+    </variable>
+    <variable name="frame_minDist" shape="3" type="char">
+      <values>0.0</values>
+    </variable>
+    <variable name="frame_maxDist" shape="5" type="char">
+      <values>126.0</values>
+    </variable>
+    <variable name="frame_rescale" shape="5" type="char">
+      <values>false</values>
+    </variable>
+    <variable name="frame_resultName" shape="20" type="char">
+      <values>dataReduction_result</values>
+    </variable>
+    <variable name="frame_verticalIntegrationRegion" shape="9" type="char">
+      <values>regionSet</values>
+    </variable>
+    <variable name="frame_XYoutname" shape="9" type="char">
+      <values>XYOut.dat</values>
+    </variable>
+    <variable name="frame_XY_Skip" shape="4" type="char">
+      <values>true</values>
+    </variable>
+    <group name="regionSet">
+      <attribute name="dataStructureType" value="regionset" />
+      <group name="Mask 0">
+        <dimension name="2" length="2" />
+        <attribute name="dataStructureType" value="region" />
+        <attribute name="regionType" value="rectilinear" />
+        <attribute name="log" value="Source data is from file&#xA;Created" />
+        <attribute name="units" value="degrees:counts" />
+        <attribute name="isInclusive" value="true" />
+        <variable name="physicalReference" shape="2" type="double">
+          <values>-114.0 112.0</values>
+        </variable>
+        <variable name="physicalRange" shape="2" type="double">
+          <values>223.0 8.0</values>
+        </variable>
+      </group>
+    </group>
+  </group>
+</netcdf>
+

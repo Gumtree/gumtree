@@ -1,0 +1,1077 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:svg="http://www.w3.org/2000/svg"
+         xmlns:m="http://www.w3.org/1998/Math/MathML"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:db="http://docbook.org/ns/docbook">
+  <title>Experiment Window</title>
+
+  <sect1>
+    <title>Introduction</title>
+
+    <para>The Wombat Experiment Window is a graphical user interface helping
+    to carry out neutron scattering experiments on Wombat instrument. It
+    consists of four window parts, the <emphasis>Visual Script
+    Editor</emphasis>, the <emphasis>Buffer Runner</emphasis> , the
+    <emphasis>Command Line Terminal</emphasis>, and the <emphasis>Project
+    Explorer</emphasis>. These applications can help user to do both
+    instrument control and scan experiment.</para>
+
+    <para>To launch the Experiment Window, click on the
+    <emphasis>Launch</emphasis> button. Choose
+    <emphasis>Perspective</emphasis> option, then choose <emphasis>Wombat
+    Experiment</emphasis> option. <xref linkend="scan_window" /> shows an
+    snapshot of the Experiment Window.</para>
+
+    <figure xml:id="scan_window">
+      <title>Experiment Window</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata contentwidth="680"
+                     fileref="wombat.ui.images/experiment/experiment_snapshot.PNG"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+  </sect1>
+
+  <sect1>
+    <title>Getting Started with Scan Experiment</title>
+
+    <para>The <emphasis>Gumtree Experiment</emphasis> application is
+    programmed to simplify designing and carrying out neutron scattering
+    experiment on Wombat instrument. To quickly get started with this
+    application interface, please follow the procedure described in this
+    section.</para>
+
+    <sect2>
+      <title>Get the Instrument Ready</title>
+
+      <para>Before you want to do a scan experiment on Wombat, you need to
+      make sure the hardware required in your experiment is installed and the
+      whole instrument is well aligned. These hardwares include the sample
+      itself, the sample holder, and the sample environment facility. Your
+      instrument scientist will help you with this. You need to work out how
+      to configure the instrument to best suit your experiment requirements
+      with the instrument scientist as well.</para>
+
+      <para>Once your experiment sample has been placed in the instrument, you
+      need to come up with a plan on how to perform the neutron scattering
+      scan. Your instrument scientists can help you to fingure out what kind
+      of sample environment it is going to need and how to control them. The
+      <emphasis>Visual Script Editor</emphasis> embedded in the experiment
+      aplication window can help you to make a script to serialise your tasks
+      such as controlling devices and performing neutron scans.</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Visual Script Editor</title>
+
+    <para>The <emphasis>Visual Script Editor</emphasis> is located at the
+    upper left of the experiment window. It consists of editor area and task
+    templates area. The pre-designed tasks in the templates area can help
+    users to break down an experiment script into a serials of task blocks. To
+    start editing, simply drag and drop these tasks to to the editor area.
+    Then type in some argument values.</para>
+
+    <figure>
+      <title>Visual Script Editor</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="wombat.ui.images/experiment/script_editor.PNG"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+
+    <sect2>
+      <title>General Features of Task Blocks</title>
+
+      <para>Task blocks are visual script editors to create TCL code. They
+      work as templates for code that carry out special type of tasks. In the
+      task library area there are pre-defined task templates. To start up with
+      the task editor, drag and drop a task template from the task library.
+      You can drop the the task template to any where of the editor area. The
+      task editor will perform an insertion or appending depending on the
+      location where you drop the task template.</para>
+
+      <para>A task block consists of title area, content area and property
+      area. Initially the property area is hiden. By clicking on the
+      <emphasis>Results</emphasis> or <emphasis>Description</emphasis> menu
+      item, it shows or hides the property area. For example, in <xref
+      linkend="task_example" />, the title bar displays the title of the task:
+      SICS Commands. The content area holds the UI widgets for script editing.
+      The property area has been expanded. It displays the description of the
+      task. The descriptions are pre-defined and are not editable.</para>
+
+      <figure>
+        <title>Task Block Example</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/task_block.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>Double clicking on the title bar can hide or expand the task
+      content. For example, you can hide the content like in <xref
+      linkend="task_example" />.</para>
+
+      <figure xml:id="task_example">
+        <title>Hide Task Content</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/hide_task.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>To remove a task, right click on the title bar or click on the
+      drop down menu button <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/common/view_menu.gif"></imagedata>
+          </imageobject>
+        </inlinemediaobject>. Select <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/remove_block.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> menu item to remove the task from the task
+      editor.</para>
+
+      <para>To change the sequence of the tasks, use drag and drop function.
+      Simply drag the title bar of the task and drop it to the correct
+      place.</para>
+    </sect2>
+
+    <sect2>
+      <title>Header Information Task</title>
+
+      <para>This task template is for user to input the sample name and sample
+      description, as shown in <xref linkend="header_information" />. This
+      information will be used to label your sample in the NeXus data
+      file</para>
+
+      <figure xml:id="header_information">
+        <title>Header Information Block Task</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/header_task.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>RunT Scan Task</title>
+
+      <para>Use RunT Scan task to design temperature scans with oscilliating
+      the Drag and drop a RunT Scan task into the design area. There are 4
+      parameters to fill. The following items show the meaning of each
+      parameter.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>temperature - to set the temperature for the scan.</para>
+        </listitem>
+
+        <listitem>
+          <para>delay - the time to wait for the temperature to reach the
+          target value, in seconds.</para>
+        </listitem>
+
+        <listitem>
+          <para>numsteps - number of steps in the scan.</para>
+        </listitem>
+
+        <listitem>
+          <para>oscno - the number of rounds for the detector to
+          oscillation.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>To add a new line of RunT scan command, use the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/add_obj.gif"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button to add one more line below. Use the
+      <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/remove_correction.gif"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button to remove the current command line. It
+      requires at least one line of command for the task. So if there is just
+      one line left, it can't be removed.</para>
+
+      <para>To change the sequence of the RunT commands, use drag and drop
+      action. Move the mouse over the <emphasis>RunT</emphasis> label, the
+      cursor changed to a hand cursor:<inlinemediaobject>
+          <imageobject>
+            <imagedata contentdepth="28"
+                       fileref="wombat.ui.images/experiment/cursor_hand.jpg"></imagedata>
+          </imageobject>
+        </inlinemediaobject>. You can drag and drop the whole line to a new
+      location.</para>
+
+      <figure>
+        <title>RunT Scan Task</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/runt_task.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>SICS Command Task</title>
+
+      <para>The SICS Command task is for advanced users that know the
+      instrument well. The task block provides UI widgets for different
+      commands. After drag and drop the task to the editor area, use the
+      <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/add_obj.gif"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button to add command lines.</para>
+
+      <figure xml:id="scan_types">
+        <title>SICS Scan Task</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/sics_task.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>To change the command type, move the mouse over the command title
+      and right click on it. A drop down menu pops up. Select the correct type
+      to update the block. For example in the above block right click on the
+      <emphasis>Line Script</emphasis> label.</para>
+
+      <figure>
+        <title>SICS Command Types</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/sics_dropdown.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>Here is an introduction of the types of SICS commands.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Line Script: a single line of command.</para>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/experiment/line_script.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </listitem>
+
+        <listitem>
+          <para>Script: multiple lines of command.</para>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/experiment/script_command.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </listitem>
+
+        <listitem>
+          <para>Variable: to change SICS environment variables, such as user
+          information and sample information. It provides a list of variables
+          that can be changed.</para>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/experiment/variable_command.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </listitem>
+
+        <listitem>
+          <para>Drivable: to drive motor or other controlable devices, such as
+          temperature controller. It provides a list of available devices that
+          can be controlled. Using the <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/experiment/add_obj.gif"></imagedata>
+              </imageobject>
+            </inlinemediaobject> and <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/experiment/remove_correction.gif"></imagedata>
+              </imageobject>
+            </inlinemediaobject> buttons you can drive multiple devices at the
+          same time.</para>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/experiment/drivable_command.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </listitem>
+
+        <listitem>
+          <para>Device: to change device properties. For example to enable or
+          disable a device. It provides a list of devices that are accessable.
+          Once a device is selected, it also gives a list of properies of the
+          device to change.</para>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/experiment/device_command.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </listitem>
+
+        <listitem>
+          <para>User: user defined commands. They are helper commands provided
+          by the instrument scientists. They are routines designed to perform
+          special tasks. It provides a list of pre-defined commands.</para>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/experiment/user_command.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </listitem>
+
+        <listitem>
+          <para>Countable: to control the histogram server. User can use this
+          block to set parameters of histogram server and control it. Use the
+          drop down list to select command type and parameters.</para>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/experiment/countable_command.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </listitem>
+
+        <listitem>
+          <para>Command: other commands. A drop down list provides all other
+          commands.</para>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="wombat.ui.images/experiment/other_command.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </listitem>
+      </itemizedlist>
+
+      <para>Use the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/delete_command.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> menu item to remove a command line.</para>
+
+      <para>To change the sequence of the commands, you can either drag and
+      drop the command to the new location, or use the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/move_up.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>, <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/move_down.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> menu items, which swap the neighbour
+      commands.</para>
+    </sect2>
+
+    <sect2>
+      <title>Control Buttons</title>
+
+      <para>On the bottom of the editor area, there are control buttons to
+      manage the tasks.</para>
+
+      <figure>
+        <title>Control Buttons</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/control_buttons.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+
+        <itemizedlist>
+          <listitem>
+            <para>The <emphasis>Clear</emphasis> button: use this button to
+            clear the editor area. All tasks in the editor will be
+            removed.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis>Put to Run Queue</emphasis> button: use this
+            button to create a script based on the tasks, and put it in the
+            batch buffer runner. The script is in TCL syntax. You can review
+            the script in the batch buffer runner area.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis>Save Tasks</emphasis> button: use this button to
+            save your design to a file that can be loaded back in the future.
+            Once clicked, a dialog window pops up asking for a target
+            location. You need to select a location, type in a name and click
+            on OK. By default the file will be saved with an extension name of
+            '.wml'.</para>
+          </listitem>
+
+          <listitem>
+            <para>Append Tasks: use this button to load a file back to the
+            editor. The file must be pre-saved by the task editor. It is in
+            XML format. The task editor helps to verify the file. If in the
+            wrong format the task editor will not load it.</para>
+
+            <para>Please note that the tasks loaded will be appended to the
+            end of the current content of the editor. If you want to load the
+            file into a new page, you need to use the
+            <emphasis>Clear</emphasis> button to clear the editor
+            first.</para>
+          </listitem>
+        </itemizedlist>
+      </figure>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Batch Buffer Runner</title>
+
+    <para>The Batch Buffer Runner helps you to queue a series of TCL scripts
+    to run in the instrument control server. You can manage the queue when a
+    script is running in the buffer. You can either create a script with the
+    task editor, or simply load a TCL script from the file system. The batch
+    buffer runner shows you the status, the progress and the instrument
+    control server feedback. Before you run the script, it is recommended to
+    validate the script first. To validate the script, use the
+    <emphasis>Validate</emphasis> tab at the bottom of the buffer runner
+    block.</para>
+
+    <figure>
+      <title>Batch Buffer Runner</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="wombat.ui.images/experiment/batch_runner.PNG"
+                     xml:id="buffer_runner"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+
+    <sect2>
+      <title>Buffer and Queue</title>
+
+      <para>The buffer holds the current running script. Physical location of
+      the buffer is in the instrument control server. When you want to run a
+      script, you must put it in the buffer queue. Then you can run the
+      scripts in the queue one by one. To run the queue, click on the play
+      button. A script is pushed to the executing buffer to run. Once the
+      batch finishes running, it disappears from the buffer. Another batch
+      file on top of the queue will be pushed in. For example, in <xref
+      linkend="buffer_queue" />, <emphasis>batch2</emphasis> has been pushed
+      into the executing buffer and is running. <emphasis>Batch3</emphasis> is
+      on the top of the queue. It will be the next script to run once
+      <emphasis>batch2</emphasis> finishes running.</para>
+
+      <figure xml:id="buffer_queue">
+        <title>Buffer and Queue</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/buffer_queue.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2 xml:id="load_script">
+      <title>Load Script to Buffer Queue</title>
+
+      <para>You can either put a script to the queue from the task editor, or
+      load a script from the file system.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>To put the script created by the task editor, use the
+          <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/experiment/put_runqueue.PNG"></imagedata>
+              </imageobject>
+            </inlinemediaobject> button in the task editor area.</para>
+        </listitem>
+
+        <listitem>
+          <para>To load an existing script to the queue, use the
+          <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/experiment/from_workspace.PNG"></imagedata>
+              </imageobject>
+            </inlinemediaobject> and <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/experiment/from_filesystem.PNG"></imagedata>
+              </imageobject>
+            </inlinemediaobject> buttons. The <emphasis>Workspace</emphasis>
+          button allows you to quickly locate a file from your workspace,
+          which are the folders in your <emphasis>Projector
+          Explorer</emphasis> (covered in <xref linkend="project_exp" />). The
+          <emphasis>File System</emphasis> button allows you navigate to the
+          whole file system and load a script.</para>
+        </listitem>
+
+        <listitem>
+          <para>You can also drag and drop a script file from any file
+          explorer to the <emphasis>Buffer Queue</emphasis>. The file explorer
+          can be either the build-in <emphasis>Project Explorer</emphasis> or
+          a general Windows File Explorer.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2>
+      <title>Remove Scripts from Buffer Queue</title>
+
+      <para>To remove scripts from the queue, first select the scripts you
+      want to remove. Click on a script, or use CTRL + Click to select
+      multiple ones. You can also use SHIFT + Click to select a series of
+      scripts. Selected scripts are highlighted. Right click on the
+      highlighted scripts, a <emphasis>Remove</emphasis> menu item pops up.
+      Click on it to remove them. Alternatively you can use the
+      <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/remove_block.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button to remove.</para>
+    </sect2>
+
+    <sect2>
+      <title>Validate TCL Script</title>
+
+      <para>The TCL script generated by the Design tab will show up in the
+      text area of the <emphasis>Run</emphasis> tab. Before you run the
+      script, please read your script and validate it. Validation is done by
+      sending the script to a validation server. First you need to setup the
+      validation server address and port number. A validation server is a SICS
+      simulation server that simulate the instrument controls. The default
+      setup has already been inputted. Don't change it if you are not told to
+      do so. To do the validation, click on the <emphasis>Validate</emphasis>
+      button. A connection will be established. The script will be sent to the
+      simulation server to run. It should only take a few seconds to run. If
+      there is a problem in the script, the validation window will let you
+      know. Otherwise it will tell you that the script validation has passed.
+      The scripts in the queue must be validated one by one. To switch script,
+      click on the target script in the queue, as seen in <xref
+      linkend="validation_window" />. If there are errors in the script, they
+      are shown in the Log text box.</para>
+
+      <figure xml:id="validation_window">
+        <title>Validation Block</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/validation_block.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Instrument Ready Checkbox</title>
+
+      <para>Some scripts can only run when the instrument is in 'Ready'
+      status. In order to make sure such scripts do run safely, the
+      application checks it for you. If the instrument is not ready, for
+      example the shutter is not open or the motion controller is disabled, it
+      will stop you from running a script. Instead it pops up a message box
+      telling you the instrument is not ready and what is the cause when you
+      press the play button. You need to make the instrument ready before
+      running these scripts.</para>
+
+      <para>However sometime you do need to run a script with a closed
+      shutter. To do this, you need to tick off the the check box that
+      checking the instrument ready, as shown in <xref
+      linkend="instrument_ready" />.</para>
+
+      <figure xml:id="instrument_ready">
+        <title>Instrument Ready Checkbox</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/instrument_ready.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Run Scan Script</title>
+
+      <para>To run the TCL Script, click on the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/play_button.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button. Gumtree will send the first TCL script on
+      the top of the queue to the instrument control server to run.</para>
+
+      <para>When SICS is running the scan script, the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/play_button.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button changes to an <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/pause_button.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button. Clicking on this button, the system will
+      stop after finish running the current script in the <emphasis>Executiong
+      Buffer</emphasis>. If you want to do a panic stop, use the interrupt
+      button.</para>
+    </sect2>
+
+    <sect2>
+      <title>Interrupt the Scan</title>
+
+      <para>There are three interrupt buttons available in the Gumtree
+      application window.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>The most convenient way to stop running of the script is to
+          use the SICS Interrupt Button in the side bar. In every Gumtree
+          window, there is a side bar located at the right side of the window.
+          Single clicking on the <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/experiment/Stop-Normal-Red-16x16.png"></imagedata>
+              </imageobject>
+            </inlinemediaobject> button will stop SICS. To learn more about
+          the side bar, please read <xref linkend="sicsInterrupt" />.</para>
+        </listitem>
+
+        <listitem>
+          <para>In the control button group, there is an <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/experiment/interrupt_button.PNG"></imagedata>
+              </imageobject>
+            </inlinemediaobject> button. You can use this button immediately
+          stop the script.</para>
+        </listitem>
+
+        <listitem>
+          <para>There is an <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/experiment/statusbar_interrupt.PNG"></imagedata>
+              </imageobject>
+            </inlinemediaobject> button in the status bar at the bottom of the
+          <emphasis><emphasis>each</emphasis> <emphasis>Gumtree application
+          Window</emphasis></emphasis>, as shown in <xref
+          linkend="foot_bar" />. You can use this button to stop the
+          script.</para>
+
+          <figure xml:id="foot_bar">
+            <title>Interrupt Button at the Foot Bar</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/experiment/foot_interrupt.PNG"></imagedata>
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2>
+      <title>Run Status</title>
+
+      <para>There are totally 3 status for the <emphasis>Batch Buffer
+      Runner</emphasis>, IDLE with green backgroud, PREPARING with yellow
+      background and EXECUTING with yellow background. Once you click on the
+      Play button, the status bar on top of the Run block will change to
+      preparing status. For example, <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/preparing_status.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>. Meanwhile the timer at the top right will start,
+      for example, <inlinemediaobject>
+          <imageobject>
+            <imagedata contentwidth="100"
+                       fileref="wombat.ui.images/experiment/time_counter.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>. This is the time for Gumtree to count for
+      running scripts in the instrument control server (SICS). Once the script
+      is ready in SICS, it start running. And the Batch Buffer Runner status
+      chages to <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/executing_status.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>. When the script processing is completed, the
+      status label becomes <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/idle_status.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> and the timer stops.</para>
+
+      <para>The <emphasis>Buffer</emphasis> block in the top right of the
+      Batch Buffer Runner displays the contents of the current running buffer.
+      You will notice that the line colour changes when running the script. It
+      is the colour shows the progress. When one line of the script gets
+      processed, the colour of that line is changed to yellow. For example, in
+      <xref linkend="running_status" />, the last one of the yellow coloured
+      lines is currently in executing.</para>
+
+      <figure xml:id="running_status">
+        <title>Running Progress</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/buffer_progress.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+  </sect1>
+
+  <sect1 xml:id="project_exp">
+    <title>Project Explorer</title>
+
+    <para>The Project Explorer is an application window for you to manage
+    saved scan tasks. It is located at the bottom left of the Experiment
+    Window. <xref linkend="project_explorer" /> shows an example of the tree
+    structure of the Project Explorer. You can copy and paste any type of file
+    to the folders in the Project Explorer. However you can only load two
+    types of files into the Experiment Window. One is
+    <emphasis>*.wml</emphasis> files, which can be loaded into the Design tab.
+    The other type is <emphasis>*.tcl</emphasis> files, which can be loaded
+    into the <emphasis>Batch Buffer Runner</emphasis>.</para>
+
+    <figure xml:id="project_explorer">
+      <title>Project Explorer Block</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="wombat.ui.images/experiment/project_explorer.PNG"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+
+    <sect2>
+      <title>Create Project</title>
+
+      <para>To create a new project, right click on the Project Explorer
+      Block, an application menu will pop up. Choose <emphasis>New -&gt;
+      Project</emphasis> option. A project creating wizard will pop up.
+      Another way to show the wizard is to use the application window menu
+      <emphasis>File -&gt; New -&gt; Project</emphasis>. In the wizard window,
+      please choose the project type, <emphasis>General -&gt;
+      Project</emphasis>, as shown in <xref linkend="project_wizard" />. Then
+      click on <emphasis>Next</emphasis>. In the next window, simply type in a
+      name of the project, then click on <emphasis>Finish</emphasis>.</para>
+
+      <figure xml:id="project_wizard">
+        <title>New Project Wizard</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/project_wizards.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Add Folder</title>
+
+      <para>To add a new folder in a project, simply right click in the
+      Project Explorer. In the pop up menu, choose <emphasis>New -&gt;
+      Folder</emphasis> option. A folder creation wizard window will pop up.
+      Choose the project root or a parent folder where you want to put the new
+      folder, and give a name to the new folder. Then click on
+      <emphasis>Finish</emphasis>.</para>
+
+      <figure>
+        <title>New Folder Wizard</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/folder_wizard.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Drag and Drop</title>
+
+      <itemizedlist>
+        <listitem>
+          <para>You can drag and drop a <emphasis>*.wml</emphasis> file into
+          the <emphasis>Design Editor</emphasis>. The
+          <emphasis>*.wml</emphasis> files are saved by the design editor at a
+          previous time. Simply drag the file and drop it into the design
+          editor. The design editor will read out the file and insert tasks of
+          the file to the existing tasks in the editor area. The Design tab
+          will create the graphical scan commands accordingly.</para>
+        </listitem>
+
+        <listitem>
+          <para>You can drag and drop a <emphasis>*.tcl</emphasis> file into
+          the <emphasis>Batch Buffer Runner</emphasis>. The
+          <emphasis>*.tcl</emphasis> files are TCL script files. Once a
+          <emphasis>*.tcl</emphasis> file is loaded into the batch queue, you
+          can either do a validation on the script or start running the script
+          by clicking on the <emphasis>Play</emphasis> button. For more
+          information about loading TCL files to the buffer queue, see <xref
+          linkend="load_script" />.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2>
+      <title>Other File Management Action</title>
+
+      <para>You can perform other file management actions on the Project
+      Explorer Block. The supported actions are, <emphasis>Copy and
+      Paste</emphasis>, <emphasis>Move Files</emphasis>, <emphasis>Change
+      Filename</emphasis>, <emphasis>Delete File</emphasis>, and so on.</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Command Line Terminal</title>
+
+    <para>To send a SICS command with the <emphasis>Command Line
+    Terminal</emphasis>, simply type a SICS command into the Input text box.
+    Then hit the <emphasis>Enter</emphasis> key. To read the command history,
+    use the <emphasis role="bold">CTRL + Space</emphasis> key
+    combination.</para>
+
+    <warning>
+      <para>Be very careful! You can put the instrument out of alignment or
+      disrupt your experiment using this terminal.</para>
+    </warning>
+
+    <figure>
+      <title>Command Line Terminal</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="wombat.ui.images/experiment/command_terminal.PNG"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+  </sect1>
+
+  <sect1>
+    <title>Gadgets Sidebar</title>
+
+    <para>In every Gumtree application window, there is a Sidebar. There are
+    convenient Gadgets available in the Sidebar. <xref
+    linkend="gadgets_block" /> shows the Reactor Information gadget and Sics
+    Interrupt gadget.</para>
+
+    <figure xml:id="gadgets_block">
+      <title>Gadgets Block</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="wombat.ui.images/experiment/sidebar_all.PNG"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+
+    <sect2>
+      <title>Show or Hide Sidebar</title>
+
+      <para>The Sidebar will automatically show up in the experiment window.
+      However you can always show or hide the Sidebar in all application
+      windows. </para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Use the <emphasis>Sidebar</emphasis> icon in the Gumtree quick
+          launch menu bar to hide the Sidebar, as seen in <xref
+          linkend="sidebar_control" />. Click on the same button to show the
+          Sidebar again. </para>
+
+          <figure xml:id="sidebar_control">
+            <title>Sidebar Control</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="wombat.ui.images/experiment/sidebar_control.PNG"></imagedata>
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2>
+      <title>Shutter Status Bar</title>
+
+      <para>You can easily find the shutter status from the side bar. Both
+      secondary shutter and sample shutter (tertiary shutter) are covered.
+      Green colour means open. Red colour means close.</para>
+
+      <figure>
+        <title>Shutter Status Bar</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/shutter_status.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Temperature Sensor Bar</title>
+
+      <para>There is status information of 4 temperature sensors avaialble in
+      the side bar. The ones that are used in control have red background
+      colour.</para>
+
+      <figure>
+        <title>Temperature Sensor Status Bar</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/sensor_bar.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Motor Status Bar</title>
+
+      <para>In the Motor Status section, it lists monochromator and sample
+      stage devices. If the sample stage is not available, it will hide the
+      sample stage section.</para>
+
+      <figure>
+        <title>Motor Status Bar</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/motor_bar.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Neutron Counts Bar</title>
+
+      <para>In the Neutron Counts section, it lists the beam monitor readings
+      and the detector total reading.</para>
+
+      <figure>
+        <title>Neutron Counts Bar</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/counts_bar.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2 xml:id="sicsInterrupt">
+      <title>SICS Interrupt</title>
+
+      <para>To quickly locate the SICS interrupt widget, find the button as
+      shown in <xref linkend="sics_interrupt" /> in the Sidebar block. Click
+      on this <emphasis>SICS Interrupt</emphasis> button will send an
+      interrupt signal and stop any action of the SICS server.</para>
+
+      <warning>
+        <para>Hitting the interrupt will not immediately stop motion. A motor
+        will go into its deceleration routine and come to rest as quickly as
+        possible without damaging the instrument.</para>
+      </warning>
+
+      <figure xml:id="sics_interrupt">
+        <title>SICS Interrupt Gadget</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/sics_interrupt.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>SICS Status Bar</title>
+
+      <para>In the SICS status section, it shows the current SICS server
+      information. There are totally 5 different status.</para>
+
+      <figure>
+        <title>SICS Status Bar</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="wombat.ui.images/experiment/sicsstatus_bar.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <itemizedlist>
+        <listitem>
+          <para><emphasis>EAGER TO EXECUTE</emphasis> in green background
+          colour means the instrument control system is in idle status.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis>DRIVING</emphasis> in yellow background colour means
+          it is driving certain motor device.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis>COUNTING</emphasis> in yellow backgroun colour means
+          the histogram server is counting.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis>WAITING</emphasis> in green colour means the server
+          is waiting for certain period of time, which in design is to wait
+          until some task is finished.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis>DISCONNECTED</emphasis> in red colour means the
+          server has been disconnected. You can click on that block to open
+          the connection window.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2>
+      <title>JVM Statistics Bar</title>
+
+      <para>This section displays the software environment status. The memory
+      usage information can help user and supporter to decide if Gumtree is
+      running in a stable mode. Please ignor this section if you do not
+      understand the meaning. </para>
+    </sect2>
+  </sect1>
+
+  <!-- nxi: hide unfinished section
+  <sect1>
+    <title>Experiment User Interface Troubleshooting</title>
+
+    <para>Under construction</para>
+  </sect1>
+  -->
+</chapter>

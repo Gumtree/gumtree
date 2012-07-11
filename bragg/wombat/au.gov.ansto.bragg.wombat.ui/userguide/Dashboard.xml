@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:svg="http://www.w3.org/2000/svg"
+         xmlns:m="http://www.w3.org/1998/Math/MathML"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:db="http://docbook.org/ns/docbook">
+  <title>Dashboard Window</title>
+
+  <sect1>
+    <title>Introduction</title>
+
+    <para>The Wombat Dashboard Window is a s.</para>
+
+    <para>To launch the Dashboard Window, click on the
+    <emphasis>Launch</emphasis> button. Choose <emphasis>Instrument Dashboard
+    </emphasis>option. The dashboard not only gives the user an overview of
+    the instrument status, but also provides controlability to motors and
+    histogram server. <xref linkend="dashboard_window" /> shows an snapshot of
+    the Experiment Window.</para>
+
+    <figure xml:id="dashboard_window">
+      <title>Dashboard Window</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata contentwidth="680"
+                     fileref="wombat.ui.images/dashboard/dashboard_window.PNG"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+
+    <sect2>
+      <title>The Histogram Picture</title>
+
+      <para></para>
+    </sect2>
+  </sect1>
+</chapter>

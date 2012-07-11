@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : onlineReduction.xml
+    Created on : 8 Aug 2007, 16:26
+    Author     : nxi
+    Description:
+        Recipe file of the online reduction processor chain in Wombat algorithm set.
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.ansto.gov.au/bragg/dra/recipeSchema http://gumtree.ansto.gov.au:9080/nbicms/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe.xsd"
+id="031402" 
+name="Efficiency Map Producer" 
+domain="au.gov.ansto.bragg.wombat.dra" 
+version="1.0" 
+help_url="./help.txt" 
+short_description="Efficiency Map Producer"
+icon="xml/icons/WombatDRA.gif">
+
+	<processor name="EfficiencyMapProducer" class="au.gov.ansto.bragg.wombat.dra.core.EfficiencyMapFactory" version="1.0.0">
+		<outs>
+			<out name="efficiencyMapGroup" type="org.gumtree.data.interfaces.IGroup"/>
+		</outs>
+		<vars>
+		    <var name="efficiencyMapURI" type="java.net.URI"/>
+			<var name="backgroundForEfficiencyMapURI" type="java.net.URI"/>
+		</vars>
+	</processor>
+	<processor name="HdfExporter" class="au.gov.ansto.bragg.nbi.dra.export.HdfExporter" version="1.0.0">
+		<ins>
+			<in name="inputGroup" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+		<outs>
+			<out name="outputGroup" type="org.gumtree.data.interfaces.IGroup"/>
+		</outs>
+		<vars>
+			<var name="saveUri" type="java.net.URI"/>
+		</vars>
+	</processor>
+	<sink name="efficiencyCorrection_result">
+		<ins>
+			<in name="efficiencyCorrectionResult_in" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+	</sink>
+	<vars>
+		<var name="frame_efficiencyMapURI" type="java.net.URI" default_value="null" usage="parameter" label="long run"/>
+		<var name="frame_backgroundForEfficiencyMapURI" type="java.net.URI" default_value="null" usage="parameter" label="bcg run"/>
+		<var name="frame_saveURI" type="java.net.URI" default_value="null" usage="parameter" label="save to"/>
+	</vars>
+	<connectors>
+		<connector producer="frame_efficiencyMapURI" consumer="efficiencyMapURI"/>
+		<connector producer="frame_backgroundForEfficiencyMapURI" consumer="backgroundForEfficiencyMapURI"/>
+		<connector producer="frame_saveURI" consumer="saveUri"/>
+		<connector producer="efficiencyMapGroup" consumer="efficiencyCorrectionResult_in"/>
+		<connector producer="efficiencyMapGroup" consumer="inputGroup"/>
+	</connectors>
+	<agents>
+		<agent name="efficiencyCorrection_processor" principal="ProcessorAgent" pname="EfficiencyMapProducer" label="Efficiency Map Producter"/>
+		<agent name="hdfExporter_processor" principal="ProcessorAgent" pname="HdfExporter" label="Efficiency Map Exporter"/>
+	</agents>
+</framework>

@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Echidna DRA Algorithm Library
+Bundle-SymbolicName: au.gov.ansto.bragg.echidna.algolib;singleton:=true
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.echidna.dra.algolib.internal.Activator
+Require-Bundle: au.gov.ansto.bragg.nbi.algolib;bundle-version="1.7.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: org.osgi.framework
+Eclipse-BundleShape: jar
+Export-Package: au.gov.ansto.bragg.echidna.dra.algolib.core,
+ au.gov.ansto.bragg.echidna.dra.algolib.entity,
+ au.gov.ansto.bragg.echidna.dra.algolib.processes
+Bundle-Vendor: Bragg Institute

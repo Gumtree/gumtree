@@ -1,0 +1,1041 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:svg="http://www.w3.org/2000/svg"
+         xmlns:m="http://www.w3.org/1998/Math/MathML"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:db="http://docbook.org/ns/docbook">
+  <title>Experiment Window</title>
+
+  <sect1>
+    <title>Introduction</title>
+
+    <para>The Kowari Experiment Window is a graphical user interface to do
+    neutron scattering experiments on Kowari instrument. It consists of four
+    window parts, the <emphasis>Project Explorer</emphasis>, the
+    <emphasis>Scan Design &amp; Run</emphasis> , the <emphasis>Command Line
+    Terminal</emphasis>, and the <emphasis>Instrument Status Table</emphasis>.
+    These applications can help user to do both instrument control and scan
+    experiments.</para>
+
+    <para>To launch the Experiment Window, click on the
+    <emphasis>Launch</emphasis> button. Choose
+    <emphasis>Perspective</emphasis> option, then choose <emphasis>Kowari
+    Experiment</emphasis> option. <xref linkend="scan_window" /> shows an
+    snapshot of the Experiment Window.</para>
+
+    <figure xml:id="scan_window">
+      <title>Experiment Window</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata contentwidth="640"
+                     fileref="kowari.ui.images/Experiment/experiment_perspective.PNG"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+  </sect1>
+
+  <sect1>
+    <title>Getting Started with Scan Experiment</title>
+
+    <para>The <emphasis>Gumtree Scan Experiment</emphasis> application is a
+    tool to simplify designing and carrying on neutron scattering experiment
+    on Kowari instrument. To quickly getting started with this application
+    interface, please follow the procedure described in this section.</para>
+
+    <sect2>
+      <title>Get the Instrument Ready</title>
+
+      <para>Before you want to do a scan experiment on Kowari, you need to
+      make sure the hardwares required in your experiment are installed and
+      the whole instrument is well aligned. These hardwares include the
+      sample, the sample holder, and the sample environment facility. Your
+      instrument scientist will help you with this. You need to work out how
+      to configure the instrument to best suit your experiment requirements
+      with the instrument scientist as well.</para>
+
+      <para>Once your experiment sample has been planted into the instrument,
+      you need to measure the detail positions of the sample on the sample
+      stage. Then you need to come up with a plan on how to perform the
+      neutron scattering scan. Drawing the plan on a plot can help you to work
+      it out.</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Scan Design tab</title>
+
+    <para>Use the <emphasis>Design</emphasis> tab to create the scan
+    tasks.</para>
+
+    <sect2>
+      <title>Header Information</title>
+
+      <para>Input the sample name and sample description in the
+      <emphasis>Header Information Block</emphasis> in the Design tab, as
+      shown in <xref linkend="header_information" />. This information will be
+      used to label your sample in the NeXus data file</para>
+
+      <figure xml:id="header_information">
+        <title>Header Information</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/header_information.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Add a Scan</title>
+
+      <para>To add more scans, click on the button <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/add_block.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>. A new scan widget will show up at the bottom of
+      the Design tab. The new scan is by default the same type as the one
+      above it.</para>
+    </sect2>
+
+    <sect2>
+      <title>Select Scan Type</title>
+
+      <para>To select the scan type, click on the drop down menu button
+      <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/RPC/drop_down.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>. A list of scan types will show up, as seen in
+      <xref linkend="scan_types" />. Simply choose the one you need, then the
+      task block will change to the selected type. Please be careful of
+      changing the type, because once you changed the type of a scan block,
+      the editing previously done in this block will get lost. You will have a
+      blank block in a newly selected type.</para>
+
+      <figure xml:id="scan_types">
+        <title>Scan Types</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/scan_types.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Scan Parameters</title>
+
+      <para>To use the Design tab to create a scan, you need to learn the
+      meaning of the following arguments.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><emphasis>variable</emphasis> : the scan variable. It is an
+          instrument component, which can be a motor or an sample environment
+          controller e.g., temperature controller.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis>start</emphasis> : the start value for the scan
+          variable.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis>finish</emphasis> : the finish value for the scan
+          variable.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis>points</emphasis> : the total number of points in
+          the scan.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis>mode</emphasis> : the histogram memory mode.
+          Available options are, <emphasis>time</emphasis> and
+          <emphasis>count</emphasis>. If you set the mode to
+          <emphasis>time</emphasis>, the histogram server will stop when the
+          acquisition time reaches the number of seconds set with the
+          <emphasis>preset</emphasis> argument. If you set the mode to
+          <emphasis>count</emphasis>, the histogram server will stop when the
+          beam monitor counts reaches the number which is set by the
+          <emphasis>preset</emphasis> argument.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis>preset</emphasis> : the acquisition duration at each
+          scan point, this is in seconds if the mode is
+          <emphasis>time</emphasis>, or counts if the mode is
+          <emphasis>count</emphasis>.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2>
+      <title>One-dimensional Scan</title>
+
+      <para>A one-dimensional scan means only one variable is changed in the
+      scan. A graphical description of a one-dimensional scan is in <xref
+      linkend="oneD_icon" /></para>
+
+      <figure xml:id="oneD_icon">
+        <title>Icon of One-Dimensional Scan</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/oneDScan.gif"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>Use the <emphasis>Multi-dimensional Scan</emphasis> block in the
+      Design tab for this type of scan. For example in <xref
+      linkend="oneD_scan" />, the scan will perform like this: drive
+      <emphasis>sx</emphasis> motor to positions, 0, 1, 2 and 3. At each
+      position, do a histogram memory acquisition for 120 seconds. The
+      single_file choice helps to save all the data records into the same
+      file. If you choose multiple_files option, each data record will be
+      saved into a separate file. </para>
+
+      <figure xml:id="oneD_scan">
+        <title>One-Dimensional Scan</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata contentwidth="600"
+                       fileref="kowari.ui.images/Experiment/oneD_scan.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Simple Multi-Dimensional Scan</title>
+
+      <para>The multi-dimensional scan means more than one variable is changed
+      in the scan. The way of these variables get changed is in a matrix way.
+      A graphical description of such scan is shown in <xref
+      linkend="twoD_icon" />, which is a two-dimensional special case. </para>
+
+      <figure xml:id="twoD_icon">
+        <title>Icon of Two-Dimensional Scan</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/twoDScan.gif"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>Use the <emphasis>Multi-dimensional Scan</emphasis> block in the
+      Design tab to setup this scan. For example in <xref
+      linkend="multiD_scan" />, it will drive <emphasis>sx</emphasis> and
+      <emphasis>sy</emphasis> motors to the following coordinate positions,
+      (0, 0.1), (0, 0.2), (0, 0.3), (1, 0.1) ..., (3, 0.3), totally 12
+      positions. At each position, do a histogram memory acquisition for 120
+      seconds. There are totally 12 data records will be generated. If you
+      choose the single_file option, all data will be saved into the same
+      file. If you choose the multiple_files option at the line for
+      <emphasis>sx</emphasis>, there will be 4 files generated. Each file will
+      contain 3 data records. If you choose the multiple_files option at the
+      line for <emphasis>sy</emphasis>, there will be 12 records generated,
+      with 1 data record in each file. </para>
+
+      <figure xml:id="multiD_scan">
+        <title>Multi-Dimensional Scan</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata contentwidth="600"
+                       fileref="kowari.ui.images/Experiment/multiD_scan.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Advanced Multi-Dimensional Scan</title>
+
+      <para>An advanced multi-dimensional scan is a scan that has one or more
+      dimensions. And in each of the dimensions, you can change more than one
+      variable. Use the <emphasis>Advanced Multi-dimensional Scan</emphasis>
+      block in the Design tab to setup this scan. A graphical description of
+      this scan is shown in <xref linkend="aMulti_icon" />.</para>
+
+      <figure xml:id="aMulti_icon">
+        <title>Icon of Advanced Multi_Dimensional Scan</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/aMultiScan.gif"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>For example in <xref linkend="advanced_scan" />, the scan has two
+      dimensions. In the first dimension, it moves motor
+      <emphasis>sx</emphasis> and <emphasis>sy</emphasis> at the same time for
+      each scan point. These coordinates are (0, 0.1), (1, 0.2), (2, 0.3) and
+      (3, 0.4). For each coordinate of these positions, it will do a single
+      dimensional scan on <emphasis>som</emphasis>. The total scan positions
+      in this example is 44. If you choose the single_file option, all data
+      will be saved into the same file. If you choose the multiple_files
+      option at dimension 0, there will be 4 files generated. Each file will
+      contain 11 data records. If you choose the multiple_files option at
+      dimension 1, there will be 44 records generated, with 1 data record in
+      each file. </para>
+
+      <figure xml:id="advanced_scan">
+        <title>Advanced Multi-Dimensional Scan</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata contentwidth="600"
+                       fileref="kowari.ui.images/Experiment/advanced_scan.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Arbitrary Scan</title>
+
+      <para>The Arbitrary Scan is a scan that you can change arbitrary
+      variable in the instrument. A graphical description of such scan is
+      shown in <xref linkend="arbitrary_icon" />.</para>
+
+      <figure xml:id="arbitrary_icon">
+        <title>Icon of Arbitrary Scan</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/arbitraryScan.gif"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>You need to define each position separately. For example, there
+      are 3 scan positions. In each position, you change arbitrary
+      parameters.</para>
+
+      <figure>
+        <title>Arbitrary Scan</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata contentwidth="600"
+                       fileref="kowari.ui.images/Experiment/adhoc_scan.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Run the Scan</title>
+
+      <para>To run the scan, change to the <emphasis>Run</emphasis> interface.
+      To do so, click on the <emphasis>Run</emphasis> tab at the bottom of the
+      Design tab, see <xref linkend="design_run" />. You will get Run
+      interface. More information on this interface is provided later in this
+      chapter. To run the script, simply click on the Run button.</para>
+
+      <figure xml:id="design_run">
+        <title>Switch to Run Interface</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/design_run.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Check the Scan Result</title>
+
+      <para>Once you click on the Run button, the status bar on top of the Run
+      block will change colour and show <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/running_label.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>. Meanwhile the timer at the top right will start,
+      for example, <inlinemediaobject>
+          <imageobject>
+            <imagedata contentwidth="100"
+                       fileref="kowari.ui.images/Experiment/time_counter.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>. When one line of the script gets processed, the
+      colour of that line is changed to yellow. When the script processing is
+      complete, the status label becomes <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/ready_label.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> and the timer stops.</para>
+
+      <para>To view scan data and data reduction result, please use the
+      <emphasis>Kowari Analysis Window</emphasis>. If the analysis application
+      window is open, it will pick up the newly generated NeXus data and load
+      it into the <emphasis>File Management</emphasis>. To run the analysis
+      algorithm, simply click on the file. The algorithm will start processing
+      and the results will get shown in the plotting area. For more
+      information about data analysis, please read <xref
+      linkend="analysisWindow" />.</para>
+    </sect2>
+
+    <sect2>
+      <title>Add SICS Command Block</title>
+
+      <para>To add SICS command block, click on the button <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/add_command.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>. An empty SICS command block will appear. To add
+      new commands in the block, click on the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/add_drivable.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button. As shown in <xref
+      linkend="sics_block" />, there are two types of commands, the
+      <emphasis>Drivable</emphasis> command and <emphasis>Script</emphasis>
+      command. </para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Use <emphasis>Drivable </emphasis>command to move a motor to
+          certain position. Please select the motor name in the drop down
+          list, and set the target position value. </para>
+        </listitem>
+
+        <listitem>
+          <para>Use <emphasis>Script </emphasis>command - to add SICS Tcl
+          commands. You can add as many as possible lines of Tcl code to the
+          text box. </para>
+        </listitem>
+      </itemizedlist>
+
+      <figure xml:id="sics_block">
+        <title>SICS Command Block</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/sics_block.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+
+      </figure>
+        <para>Click on the <inlinemediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Experiment/down_select.PNG"></imagedata>
+            </imageobject>
+          </inlinemediaobject> button, a drop down menu pops up, as show in
+        <xref linkend="command_menu" />. You can use this menu to change the
+        type of the command, delete it, or move it. </para>
+
+        <figure xml:id="command_menu">
+          <title>Command Drop-down Menu</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="kowari.ui.images/Experiment/command_dropdown.PNG"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Scan Design tab Advanced</title>
+
+    <para>In this section, we will introduce the advanced functions of the
+    Design tab.</para>
+
+    <sect2>
+      <title>Move Scan</title>
+
+      <para>You can move a scan up or down. To move a scan up, click on the
+      drop down menu button <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/RPC/drop_down.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>, select <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/move_up.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>. The scan will get switched with the scan above
+      it. To move a scan down, select <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/move_down.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> in the drop down menu. The scan will get switched
+      with the block blow it.</para>
+    </sect2>
+
+    <sect2>
+      <title>Remove Scan</title>
+
+      <para>To remove a scan, click on the drop down menu button
+      <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/RPC/drop_down.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>, select <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/remove_block.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>. The scan will be removed.</para>
+    </sect2>
+
+    <sect2>
+      <title>Save and Load Scan</title>
+
+      <para>You can save the group of scans designed in the Design tab to a
+      file in the Gumtree Project Folder and load it.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>To save the group of scans, click on the <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/Experiment/save_block.PNG"></imagedata>
+              </imageobject>
+            </inlinemediaobject> button. A <emphasis>Save As</emphasis> wizard
+          window will pop up, as shown in <xref linkend="saveas_wizard" />.
+          You need to choose a project folder to store your file and provide a
+          file name. Click <emphasis>OK</emphasis> button to confirm. By
+          default, the extension name of the file is
+          <emphasis>*.wml</emphasis>. After the file is saved, you can find it
+          in the <emphasis>Project Explorer</emphasis>.</para>
+
+          <figure xml:id="saveas_wizard">
+            <title>'Save As' Wizard</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/Experiment/saveas_wizard.PNG"></imagedata>
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </listitem>
+
+        <listitem>
+          <para>To load the saved group of scans, click on the
+          <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/Experiment/load_block.PNG"></imagedata>
+              </imageobject>
+            </inlinemediaobject> button. A <emphasis>File Selection</emphasis>
+          window will pop up, as shown in <xref linkend="load_wml" />. You can
+          choose a file with an extension name of <emphasis>*.wml</emphasis>.
+          The File Selection window allows you to locate any file in your file
+          system.</para>
+
+          <figure xml:id="load_wml">
+            <title>File Selection Window</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/Experiment/open_wml.PNG"></imagedata>
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </listitem>
+
+        <listitem>
+          <para>Another way to load a saved scans is by drag and drop. In the
+          <emphasis>Project Explorer</emphasis> block, locate the file you
+          want to load. Simply drag and drop it into the Design tab. The file
+          will be loaded. If the target file is not a scan file, an error
+          message box will pop up.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2>
+      <title>Estimation of Total Run Time</title>
+
+      <para>The Design tab helps you to estimate how much time your group of
+      scans is going to take. The text box that shows the estimation is
+      located at the bottom left corner of the Design tab, as shown in <xref
+      linkend="estimation_text" />.</para>
+
+      <figure xml:id="estimation_text">
+        <title>Run Time Estimation</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/estimated_time.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <itemizedlist>
+        <listitem>
+          <para>If the scan modes of your tasks are <emphasis>time</emphasis>,
+          the estimation will provide a value in time units. For example,
+          <emphasis>101 minutes</emphasis> or <emphasis>15
+          hours</emphasis>.</para>
+        </listitem>
+
+        <listitem>
+          <para>If the scan modes of your tasks are
+          <emphasis>count</emphasis>, the estimation will provide a value in
+          counts. For example, <emphasis>20,000 counts</emphasis>. To achieve
+          the same counts, it will take different amount of time in different
+          experiments.</para>
+        </listitem>
+
+        <listitem>
+          <para>If the scan mode of your tasks are a combination of
+          <emphasis>time</emphasis> and <emphasis>count</emphasis>, the
+          estimation will be time plus counts. For example, 3 hours and 10,000
+          counts.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Scan Run Tab</title>
+
+    <para>To run the scan, you need to change to the <emphasis>Run</emphasis>
+    tab. To do so, click on the <emphasis>Run</emphasis> tab at the bottom of
+    the Scan Design &amp; Run. The Design tab disappears and is replaced with
+    the Run tab, as seen in <xref linkend="scan_runner_block" />. You can
+    check the Tcl script that is going to be sent to SICS to run. Before you
+    want to run the script, it is recommended to validate the script first. To
+    validate the script, send the script to a validation server by clicking on
+    the <emphasis>Open Validator</emphasis> button. To run the script, simply
+    click on the <inlinemediaobject>
+        <imageobject>
+          <imagedata fileref="kowari.ui.images/Experiment/run_script.PNG"></imagedata>
+        </imageobject>
+      </inlinemediaobject> button.</para>
+
+    <figure xml:id="scan_runner_block">
+      <title>Run tab</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="kowari.ui.images/Experiment/batch_runner.PNG"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+
+    <sect2>
+      <title>Validate Tcl Script</title>
+
+      <para>The Tcl script generated by the Design tab will show up in the
+      text area of the <emphasis>Run</emphasis> tab. Before you run the
+      script, please visually check the script and validate it. Validation is
+      done by sending the script to SICS running in simulation mode. To do the
+      validation, click on the <emphasis>Open Validator</emphasis> button. A
+      connection window will pop up to login in to SICS, as seen in <xref
+      linkend="validation_window" />. Simply input your SICS login name and
+      password and click on <emphasis>Validate</emphasis>. The script should
+      only take a few seconds to run. If there is a problem in the script
+      code, the validation window will let you know. Otherwise it will tell
+      you that the script validation has passed.</para>
+
+      <figure xml:id="validation_window">
+        <title>Validation Dialog</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/validate_connect.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Run Scan Script</title>
+
+      <para>To run the Tcl Script, click on the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/run_script.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button. Gumtree will send the Tcl script to SICS
+      to run.</para>
+
+      <para>When SICS is running the scan script, the <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/run_script.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button changes to an <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/interrupt_script.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> button. You can use this button to stop the
+      script.</para>
+    </sect2>
+
+    <sect2>
+      <title>Interrupt the Scan</title>
+
+      <para>There are three <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/interrupt_script.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> buttons available in the Gumtree application
+      window.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>The most convenient way of stopping running of the script is
+          to use the SICS Interrupt Button in the Sidebar. In every Gumtree
+          window, there is a Sidebar located at the right side of the window.
+          Single click on the <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/Experiment/interrupt_script.PNG"></imagedata>
+              </imageobject>
+            </inlinemediaobject> button will stop SICS. To learn more about
+          the Sidebar, please read <xref linkend="sicsInterrupt" />.</para>
+        </listitem>
+
+        <listitem>
+          <para>Once the script is running, the <emphasis>Run</emphasis>
+          button in the <emphasis>Run</emphasis> tab will change to an
+          <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/Experiment/interrupt_script.PNG"></imagedata>
+              </imageobject>
+            </inlinemediaobject> button. You can use this button to stop the
+          script.</para>
+        </listitem>
+
+        <listitem>
+          <para>There is an <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/Experiment/interrupt_script.PNG"></imagedata>
+              </imageobject>
+            </inlinemediaobject> button in the status bar at the bottom of the
+          <emphasis>Scan Experiment Window</emphasis>, as shown in <xref
+          linkend="foot_bar" />. You can use this button to stop the
+          script.</para>
+
+          <figure xml:id="foot_bar">
+            <title>Interrupt Button at the Foot Bar</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/Experiment/foot_interrupt.PNG"></imagedata>
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2>
+      <title>Run Status</title>
+
+      <para>Once you click on the Run button, the status bar on top of the Run
+      block will change colour and show <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/running_label.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>. Meanwhile the timer at the top right will start,
+      for example, <inlinemediaobject>
+          <imageobject>
+            <imagedata contentwidth="100"
+                       fileref="kowari.ui.images/Experiment/time_counter.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject>. When one line of the script gets processed, the
+      colour of that line is changed to yellow. When the script processing is
+      complete, the status label becomes <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/ready_label.PNG"></imagedata>
+          </imageobject>
+        </inlinemediaobject> and the timer stops.</para>
+
+      <figure xml:id="running_status">
+        <title>Run Status</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/tcl_runner.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Drag and Drop Tcl Script File</title>
+
+      <para>You can drag and drop a <emphasis>*.tcl</emphasis> file from the
+      Project Explorer block into the Scan Run tab. The
+      <emphasis>*.tcl</emphasis> files must be Tcl script files. Once a script
+      is loaded, you can either do a validation on the script or start running
+      the script by clicking on the <emphasis>Run</emphasis> button.</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Project Explorer</title>
+
+    <para>The Project Explorer is an application window for you to manage
+    saved scan tasks. It is located at the top left of the Experiment Window.
+    <xref linkend="project_explorer" /> shows an example of the tree structure
+    of the Project Explorer. You can copy and paste any type of file to the
+    folders in the Project Explorer. However you can only load two types of
+    files into the Experiment Window. One is <emphasis>*.wml</emphasis> files,
+    which can be loaded into the Design tab. The other type is
+    <emphasis>*.tcl</emphasis> files, which can be loaded into the Run
+    tab.</para>
+
+    <figure xml:id="project_explorer">
+      <title>Project Explorer Block</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="kowari.ui.images/Experiment/project_explorer.PNG"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+
+    <sect2>
+      <title>Create Project</title>
+
+      <para>To create a new project, right click on the Project Explorer
+      Block, an application menu will pop up. Choose <emphasis>New -&gt;
+      Project</emphasis> option. A project creating wizard will pop up.
+      Another way to show the wizard is to use the application window menu
+      <emphasis>File -&gt; New -&gt; Project</emphasis>. In the wizard window,
+      please choose the project type, <emphasis>General -&gt;
+      Project</emphasis>, as shown in <xref linkend="project_wizard" />. Then
+      click on <emphasis>Next</emphasis>. In the next window, simply type in a
+      name of the project, then click on <emphasis>Finish</emphasis>.</para>
+
+      <figure xml:id="project_wizard">
+        <title>New Project Wizard</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/project_wizards.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Add Folder</title>
+
+      <para>To add a new folder in a project, simply right click in the
+      Project Explorer. In the pop up menu, choose <emphasis>New -&gt;
+      Folder</emphasis> option. A folder creation wizard window will pop up.
+      Choose the project root or a parent folder where you want to put the new
+      folder, and give a name to the new folder. Then click on
+      <emphasis>Finish</emphasis>.</para>
+
+      <figure>
+        <title>New Folder Wizard</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Experiment/folder_wizard.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+
+    <sect2>
+      <title>Drag and Drop</title>
+
+      <itemizedlist>
+        <listitem>
+          <para>You can drag and drop a <emphasis>*.wml</emphasis> file into
+          the Design tab. The <emphasis>*.wml</emphasis> files are saved by
+          the Design tab at a previous time. Simply drag the file and drop it
+          into the Design tab. The file will be loaded back by the Design tab.
+          The Design tab will create the graphical scan commands
+          accordingly.</para>
+        </listitem>
+
+        <listitem>
+          <para>You can drag and drop a <emphasis>*.tcl</emphasis> file into
+          the Tcl Runner Block. The <emphasis>*.tcl</emphasis> files are Tcl
+          script files. Once a <emphasis>*.tcl</emphasis> file is loaded into
+          the Script Runner, you can either do a validation on the script or
+          start running the script by clicking on the <emphasis>Run</emphasis>
+          button.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2>
+      <title>Other File Management Action</title>
+
+      <para>You can perform other file management actions on the Project
+      Explorer Block. The supported actions are, <emphasis>Copy and
+      Paste</emphasis>, <emphasis>Move Files</emphasis>, <emphasis>Change
+      Filename</emphasis>, <emphasis>Delete File</emphasis>, and so on.</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Command Line Terminal</title>
+
+    <para>To send a SICS command with the <emphasis>Command Line
+    Terminal</emphasis>, simply type a SICS command into the Input text box.
+    Then hit the <emphasis>Enter</emphasis> key. To read the command history,
+    use the <emphasis role="bold">CTRL + Space</emphasis> key
+    combination.</para>
+
+    <warning>
+      <para>Be very careful! You can put the instrument out of alignment or
+      disrupt your experiment using this terminal.</para>
+    </warning>
+
+    <figure>
+      <title>Command Line Terminal</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="kowari.ui.images/Experiment/command_terminal.PNG"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+  </sect1>
+
+  <sect1>
+    <title>Instrument Status Table</title>
+
+    <para>The Instrument Status Table is located at bottom right of the
+    Experiment Window. You can use this table to monitor certain parameters of
+    the instrument. You can also change the parameter values by using this
+    table.</para>
+
+    <warning>
+      <para>Be very careful! You can put the instrument out of alignment, or
+      disrupt your experiment using this table.</para>
+    </warning>
+
+    <para>The columns of the Instrument Status Table are:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para><emphasis>Device</emphasis> column: the sics name of the
+        parameter.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis>Status</emphasis> column: the status of the device. It
+        can be <emphasis>running</emphasis>, or empty. Once you choose to
+        drive the device, the status will change to
+        <emphasis>running</emphasis>. It will change back to empty once the
+        drive is done.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis>Current</emphasis> column: the current position or
+        value of the device.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis>Target</emphasis> column: the target position or value
+        of the device. You can use this column to drive the device or change
+        the value. To do this, click on the <emphasis>Target</emphasis> column
+        of the device. Type in the new value, then hit <emphasis
+        role="bold">ENTER</emphasis> key.</para>
+      </listitem>
+    </itemizedlist>
+
+    <figure>
+      <title>Instrument Status Table</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="kowari.ui.images/Experiment/instrument_status.PNG"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+  </sect1>
+
+  <sect1>
+    <title>Gadgets Sidebar</title>
+
+    <para>In every Gumtree application window, there is a Sidebar. There are
+    convenient Gadgets available in the Sidebar. <xref
+    linkend="gadgets_block" /> shows the Reactor Information gadget and Sics
+    Interrupt gadget.</para>
+
+    <figure xml:id="gadgets_block">
+      <title>Gadgets Block</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="kowari.ui.images/Sics/sidebar_gedgets.PNG"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+
+    <sect2>
+      <title>Show or Hide Sidebar</title>
+
+      <para>You have two ways of showing or hiding Gadgets Sidebar.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Use the arrow button <inlinemediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/Sics/fold_bar.PNG"></imagedata>
+              </imageobject>
+            </inlinemediaobject> to fold the Sidebar.</para>
+        </listitem>
+
+        <listitem>
+          <para>Use the <emphasis>Sidebar</emphasis> icon in the Gumtree quick
+          launch menu bar to hid the Sidebar, as seen in <xref
+          linkend="sidebar_control" />.</para>
+
+          <figure xml:id="sidebar_control">
+            <title>Sidebar Control</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="kowari.ui.images/Sics/sidebar_control.PNG"></imagedata>
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2>
+      <title xml:id="sicsInterrupt">SICS Interrupt</title>
+
+      <para>To quickly locate the SICS interrupt widget, find the button as
+      shown in <xref linkend="sics_interrupt" /> in the Gadgets block. Click
+      on this <emphasis>SICS Interrupt</emphasis> button will send an
+      interrupt signal and stop any action by the SICS server.</para>
+
+      <warning>
+        <para>Hitting the interrupt will not immediately stop motion. A motor
+        will go into its deceleration routine and come to rest as quickly as
+        possible without damaging the instrument.</para>
+      </warning>
+
+      <figure xml:id="sics_interrupt">
+        <title>SICS Interrupt Gadget</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="kowari.ui.images/Sics/sics_interrupt.PNG"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
+  </sect1>
+
+  <!-- nxi: hide unfinished section
+  <sect1>
+    <title>Experiment User Interface Troubleshooting</title>
+
+    <para>Under construction</para>
+  </sect1>
+  -->
+</chapter>

@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <actionProvider
+            class="au.gov.ansto.bragg.wombat.ui.InstrumentActionProvider"
+            dependsOn="org.gumtree.gumnix.sics.ui.navigator.ComponentNavigatorActionProvider"
+            id="au.gov.ansto.bragg.wombat.ui.instrumentActionProvider">
+         <enablement>
+            <instanceof value="org.gumtree.gumnix.sics.ui.util.SicsControllerNode"/>
+         </enablement>
+      </actionProvider>
+   </extension>
+   <extension
+         point="org.gumtree.ui.actionShortcuts">
+      <actionShortcut
+            category="org.gumtree.gumnix.sics.ui.shortcutCategory"
+            class="au.gov.ansto.bragg.wombat.ui.OpenHMBorwserAction"
+            icon16="icons/document.gif"
+            id="au.gov.ansto.bragg.wombat.ui.openHMSiteActionShortcut"
+            label="Open Histogram Site"/>
+      <actionShortcut
+            category="org.gumtree.gumnix.sics.ui.shortcutCategory"
+            class="au.gov.ansto.bragg.wombat.ui.OpenPLCBorwserAction"
+            icon16="icons/document.gif"
+            id="au.gov.ansto.bragg.wombat.ui.openPLCSiteActionShortcut"
+            label="Open PLC Site"/>
+      <actionShortcut
+            category="au.gov.ansto.bragg.nbi.ui.beamMonitorCategory"
+            class="au.gov.ansto.bragg.wombat.ui.OpenMonitor1BorwserAction"
+            icon16="icons/document.gif"
+            id="au.gov.ansto.bragg.wombat.ui.openMonitorSiteActionShortcut1"
+            label="Beam Monitor 1"/>
+      <actionShortcut
+            category="au.gov.ansto.bragg.nbi.ui.beamMonitorCategory"
+            class="au.gov.ansto.bragg.wombat.ui.OpenMonitor2BorwserAction"
+            icon16="icons/document.gif"
+            id="au.gov.ansto.bragg.wombat.ui.openMonitorSiteActionShortcut2"
+            label="Beam Monitor2"/>
+      <actionShortcut
+            category="au.gov.ansto.bragg.nbi.ui.beamMonitorCategory"
+            class="au.gov.ansto.bragg.wombat.ui.OpenMonitor3BorwserAction"
+            icon16="icons/document.gif"
+            id="au.gov.ansto.bragg.wombat.ui.openMonitorSiteActionShortcut3"
+            label="Beam Monitor 3"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="au.gov.ansto.bragg.wombat.ui.actionSet"
+            label="Wombat Actions"
+            visible="true">
+         <menu
+               id="Wombat"
+               label="Wombat"
+               path="SICS">
+            <separator
+                  name="Script">
+            </separator>
+         </menu>
+         <action
+               class="au.gov.ansto.bragg.wombat.ui.CreateScriptsProjectAction"
+               icon="icons/monkey.gif"
+               id="au.gov.ansto.bragg.wombat.ui.createProjectAction"
+               label="Wombat SICS Script Examples"
+               menubarPath="Wombat/Script"
+               tooltip="Create the Womabat SICS example scripts project">
+         </action>
+      </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.gumtree.gumnix.sics.control.ISicsController"
+            class="au.gov.ansto.bragg.wombat.ui.internal.status.SicsStatusAdapterFactory">
+         <adapter
+               type="org.gumtree.gumnix.sics.ui.ISicsStatusContent">
+         </adapter>
+      </factory>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <!--
+      <perspective
+            class="au.gov.ansto.bragg.wombat.ui.internal.DaqPerspectiveFactory"
+            fixed="true"
+            id="au.gov.ansto.bragg.wombat.ui.daqPerspective"
+            name="Wombat DAQ">
+      </perspective>
+      <perspective
+            class="au.gov.ansto.bragg.wombat.ui.internal.OnlineReductionPerspective"
+            icon="icons/exp_per.gif"
+            id="au.gov.ansto.bragg.wombat.ui.internal.OnlineReductionPerspective"
+            name="Wombat Online Reduction">
+	  </perspective>
+	  <perspective
+	  		allowMultiple="false"
+            class="au.gov.ansto.bragg.wombat.ui.internal.ExperimentPerspective"
+            icon="icons/exp_per.gif"
+            id="au.gov.ansto.bragg.wombat.ui.internal.ExperimentPerspective"
+            name="Wombat Experiment">
+	  </perspective>
+	  <perspective
+            class="au.gov.ansto.bragg.wombat.ui.script.WombatScriptPerspective"
+            icon="icons/project_view.gif"
+            id="au.gov.ansto.bragg.wombat.ui.script.WombatScriptPerspective"
+            fixed="true"
+            name="Analysis Scripting">
+	  </perspective>
+	  -->
+	  <perspective
+	  		allowMultiple="false"
+            class="au.gov.ansto.bragg.wombat.ui.internal.TCLRunnerPerspective"
+            icon="icons/exp_per.gif"
+            id="au.gov.ansto.bragg.wombat.ui.internal.TCLRunnerPerspective"
+            name="Wombat Experiment">
+	  </perspective>
+	  <perspective
+	  		allowMultiple="false"
+            class="au.gov.ansto.bragg.wombat.ui.internal.WombatAnalysisPerspective"
+            icon="icons/project_view.gif"
+            id="au.gov.ansto.bragg.wombat.ui.internal.WombatAnalysisPerspective"
+            name="Wombat Analysis">
+	  </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.wombat.ui"
+            class="au.gov.ansto.bragg.wombat.ui.views.WorkflowView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.wombat.ui.views.WorkflowView"
+            name="Wombat Workflow">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.wombat.ui"
+            class="au.gov.ansto.bragg.wombat.ui.views.WombatAnalysisControlView"
+            icon="icons/operation_parameters_view.gif"
+            id="au.gov.ansto.bragg.wombat.ui.views.WombatAnalysisControlView"
+            name="Analysis Control">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.wombat.ui"
+            class="au.gov.ansto.bragg.wombat.ui.views.WombatDataSourceView"
+            icon="icons/data_source_view.gif"
+            id="au.gov.ansto.bragg.wombat.ui.views.WombatDataSourceView"
+            name="Resource">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.wombat.ui"
+            class="au.gov.ansto.bragg.wombat.ui.views.SicsTerminalView"
+            icon="icons/terminal.png"
+            id="au.gov.ansto.bragg.wombat.ui.views.SicsTerminalView"
+            name="Sics Terminal">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.wombat.ui"
+            class="au.gov.ansto.bragg.wombat.ui.views.WombatBatchEditingView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.wombat.ui.views.WombatBatchEditingView"
+            name="Batch Editor">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.wombat.ui"
+            class="au.gov.ansto.bragg.wombat.ui.views.TclEditorView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.wombat.ui.views.WombatTclEditorView"
+            name="Tcl Batch Editor">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.wombat.ui"
+            class="au.gov.ansto.bragg.wombat.ui.views.EfficiencyMapManagerView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.wombat.ui.views.EfficiencyMapManagerView"
+            name="Make Efficiency Map">
+      </view>
+      <view
+            category="au.gov.ansto.bragg.wombat.ui"
+            class="au.gov.ansto.bragg.wombat.ui.internal.WombatControlView"
+            id="au.gov.ansto.bragg.wombat.ui.controlView"
+            name="Wombat Control"
+            restorable="true">
+      </view>
+      <view
+            category="au.gov.ansto.bragg.wombat.ui"
+            class="au.gov.ansto.bragg.wombat.ui.internal.WombatDaeView"
+            id="au.gov.ansto.bragg.wombat.ui.daeView"
+            name="Wombat DAE"
+            restorable="true">
+      </view>
+      <category
+            id="au.gov.ansto.bragg.wombat.ui"
+            name="Wombat">
+      </category>
+      <!--
+	  <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.wombat.ui"
+            class="au.gov.ansto.bragg.wombat.ui.script.ControlView"
+            icon="icons/operation_parameters_view.gif"
+            id="au.gov.ansto.bragg.wombat.ui.script.ControlView"
+            name="Scripting Control">
+      </view>
+	  <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.wombat.ui"
+            class="au.gov.ansto.bragg.wombat.ui.script.DataSourceView"
+            icon="icons/data_source_view.gif"
+            id="au.gov.ansto.bragg.wombat.ui.script.DataSourceView"
+            name="Scripting Data Source">
+      </view>      
+	  <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.wombat.ui"
+            class="au.gov.ansto.bragg.wombat.ui.script.ConsoleView"
+            icon="icons/open_console_obj.gif"
+            id="au.gov.ansto.bragg.wombat.ui.script.ConsoleView"
+            name="Scripting Console">
+      </view>
+   	  <view
+            allowMultiple="true"
+            category="au.gov.ansto.bragg.wombat.ui"
+            class="au.gov.ansto.bragg.wombat.ui.script.DummyView"
+            id="au.gov.ansto.bragg.wombat.ui.script.DummyView"
+            name="Place Holder">
+      </view>
+      -->
+   </extension>
+   <extension
+         point="org.gumtree.ui.launchers">
+      <launcher
+            category="au.gov.ansto.bragg.experiment"
+            class="au.gov.ansto.bragg.wombat.ui.internal.ExperimentLauncher"
+            icon16="icons/shellscript16x16.png"
+            icon32="icons/shellscript32x32.png"
+            icon64="icons/shellscript64x64.png"
+            id="au.gov.ansto.bragg.wombat.ui.experiment"
+            label="Experiment Window"
+            quickLauncher="true">
+      </launcher>
+      <launcher
+            category="au.gov.ansto.bragg.analysis"
+            class="au.gov.ansto.bragg.wombat.ui.internal.WombatAnalysisLauncher"
+            icon16="icons/analysis_16x16.png"
+            icon32="icons/analysis_32x32.png"
+            icon64="icons/analysis_64x64.png"
+            id="au.gov.ansto.bragg.wombat.ui.analysisLauncher"
+            label="Analysis Window"
+            quickLauncher="true">
+      </launcher>
+      <launcher
+            category="au.gov.ansto.bragg.experiment"
+            class="au.gov.ansto.bragg.wombat.ui.internal.UserProfileLauncher"
+            icon16="icons/new-profile-16x16.png"
+            icon32="icons/new-profile-32x32.png"
+            icon64="icons/new-profile-64x64.png"
+            id="au.gov.ansto.bragg.wombat.ui.UserProfileLauncher"
+            label="User Profile Selector"
+            quickLauncher="true">
+      </launcher>
+   </extension>
+   <!--
+   <extension
+         point="org.gumtree.ui.gadgets">
+      <gadget
+            contentProvider="au.gov.ansto.bragg.wombat.ui.widgets.WombatMotorStatusGadget"
+            icon="icons/gadgets/javaassist_co.gif"
+            id="au.gov.ansto.bragg.wombat.ui.motorGadget"
+            isGlobal="true"
+            name="Motor Status">
+      </gadget>
+      <gadget
+            contentProvider="au.gov.ansto.bragg.wombat.ui.widgets.WombatNeutronCountGadget"
+            icon="icons/gadgets/javaassist_co.gif"
+            id="au.gov.ansto.bragg.wombat.ui.beamMonitorGadget"
+            isGlobal="true"
+            name="Neutron Counts">
+      </gadget>
+   </extension>
+   -->
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="au.gov.ansto.bragg.wombat.ui.internal.handlers.UserProfileSelectorHandler"
+            id="au.gov.ansto.bragg.wombat.ui.userProfileSelectorCommand"
+            name="User Profile Selector">
+      </command>
+   </extension>
+   <extension
+         point="org.gumtree.ui.appLaunches">
+      <appLaunch
+            commandId="au.gov.ansto.bragg.wombat.ui.userProfileSelectorCommand"
+            icon64="icons/new-profile-64x64.png"
+            label="User Profile">
+      </appLaunch>
+   </extension>
+   <extension
+         point="org.eclipse.ui.themes">
+      <theme
+        	id="au.gov.ansto.bragg.wombat.ui.theme.exp"
+        	name="Wombat Experiment View Title Font">
+        	<fontOverride
+        		id="org.eclipse.ui.workbench.TAB_TEXT_FONT"
+        		value="Arial-bold-14">
+        	</fontOverride>
+        	<description>
+        		This font is used by the Wombat experiment view title.
+        	</description>
+      </theme>
+      <theme
+        	id="au.gov.ansto.bragg.wombat.ui.theme.default"
+        	name="Default View Title Font">
+        	<fontOverride
+        		id="org.eclipse.ui.workbench.TAB_TEXT_FONT"
+        		value="Tahoma-regular-8">
+        	</fontOverride>
+        	<description>
+        		This font is used by all the view title except for Wombat experiment perspective.
+        	</description>
+      </theme>
+   </extension>
+   <extension
+         point="org.gumtree.ui.gadgets">
+      <gadget
+            class="au.gov.ansto.bragg.wombat.ui.widgets.WombatMotorStatusGadget"
+            level="3"
+            name="Wombat Motors"
+            prespectives="*">
+      </gadget>
+      <gadget
+            class="au.gov.ansto.bragg.wombat.ui.widgets.WombatNeutronCountGadget"
+            level="3"
+            name="Neutron Counts"
+            prespectives="*">
+      </gadget>
+   </extension>
+</plugin>

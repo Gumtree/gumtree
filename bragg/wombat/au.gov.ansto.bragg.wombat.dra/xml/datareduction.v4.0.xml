@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : onlineReduction.xml
+    Created on : 10 June 2011, 16:26
+    Author     : nxi
+    Description:
+        Recipe file of the online reduction processor chain in Wombat algorithm set.
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://gumtree.ansto.gov.au:9080/nbicms/projects/group-project-resources/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe-1-3.xsd"
+id="031302" 
+name="Reduction Algorithms 4.0" 
+domain="au.gov.ansto.bragg.wombat.dra" 
+version="4.0" 
+help_url="./help.txt" 
+short_description="Reduction Algorithm">
+
+	<processor name="FrameTrack" class="au.gov.ansto.bragg.nbi.dra.source.FrameTrack">
+		<ins>
+			<in name="inputGroup" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+		<outs>
+			<out name="resetHistory" type="java.lang.Boolean"/>
+			<out name="scanAxis" type="org.gumtree.data.interfaces.IDataItem"/>
+			<out name="currentIndexOut" type="java.lang.Integer"/>
+			<out name="outputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<out name="loopOut" type="org.gumtree.data.interfaces.IGroup"/>
+		</outs>
+		<vars>
+			<!--  var name="useCorrectedData" type="java.lang.Boolean"/ -->
+			<var name="currentIndexVar" type="java.lang.Integer"/>
+			<var name="trackStepDirection" type="au.gov.ansto.bragg.datastructures.core.plot.StepDirection"/>
+			<var name="scanVariablePosition" type="au.gov.ansto.bragg.datastructures.core.plot.Position"/>
+			<var name="isInLoop" type="java.lang.Boolean"/>
+			<var name="currentStepIndex" type="java.lang.Integer"/>
+			<var name="numberOfSteps" type="java.lang.Integer"/>
+		</vars>
+	</processor>
+	<processor name="EfficiencyCorrection" class="au.gov.ansto.bragg.wombat.dra.core.EfficiencyWithBackground" version="1.0.0">
+		<ins>
+			<in name="efficiency_inputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="efficiency_outputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+		    <var name="efficiencyMapFolderURI" type="java.net.URI"/>
+			<var name="efficiencyMapFilename" type="java.lang.String"/>
+			<var name="efficiency_enable" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="GeometryCorrection" class="au.gov.ansto.bragg.nbi.dra.core.GeometryCorrection" version="1.0.0">
+		<ins>
+			<in name="geometryCorrection_scanData" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+		<outs>
+			<out name="geometryCorrection_output" type="org.gumtree.data.interfaces.IGroup"/>
+		</outs>
+		<vars>
+			<var name="geometryCorrection_enable" type="java.lang.Boolean"/>
+			<var name="geometryCorrection_stop" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="ApplyRegion" class="au.gov.ansto.bragg.nbi.dra.source.ApplyRegion">
+		<ins>
+			<in name="applyRegion_inputGroup" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+		<outs>
+			<out name="applyRegion_outputGroup" type="org.gumtree.data.interfaces.IGroup"/>
+		</outs>
+		<vars>
+			<var name="applyRegion_region" type="org.gumtree.data.interfaces.IGroup"/>
+		</vars>
+	</processor>
+	<processor name="VerticalIntegration" class="au.gov.ansto.bragg.nbi.dra.integration.VerticalIntegration">
+		<ins>
+			<in name="verticalIntegration_inputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="verticalIntegration_outputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+	</processor>
+	<processor name="StatisticCalculation" class="au.gov.ansto.bragg.nbi.dra.experiment.StatisticCalculation">
+		<ins>
+			<in name="statisticInputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="statisticOutput" type="java.lang.Double"/>
+		</outs>
+		<vars>
+			<var name="regionLeft" type="java.lang.Double"/>
+			<var name="regionRight" type="java.lang.Double"/>
+		</vars>
+	</processor>
+	<processor name="PlotGenerator" class="au.gov.ansto.bragg.wombat.dra.core.PlotGenerator">
+		<ins>
+			<in name="integrationPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<in name="plotDataInput" type="java.lang.Double"/>
+		</ins>
+		<outs>
+			<out name="generatorPlot1D" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<out name="generatorPlot2D" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="plot.currentIndex" type="java.lang.Integer"/>
+			<var name="plotSkip" type="java.lang.Boolean"/>
+			<var name="plot.resetHistory" type="java.lang.Boolean" usage="hidden"/>
+		</vars>
+	</processor>	
+	<sink name="SliceSink">
+		<ins>
+			<in name="sliceSink_in" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+	</sink>
+	<sink name="efficiencyCorrection_result">
+		<ins>
+			<in name="efficiencyCorrectionResult_in" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+	</sink>
+	<sink name="geometryCorrection_result" autoplot="true">
+		<ins>
+			<in name="geometryCorrectionResult_in" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+	</sink>
+	<sink name="ApplyRegionSink">
+		<ins>
+			<in name="applyRegionSink_in" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+	</sink>
+	<sink name="verticalIntegration_result" autoplot="true">
+		<ins>
+			<in name="verticalIntegrationResult_in" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+	</sink>
+	<sink name="statisticCalculation_result">
+		<ins>
+			<in name="statisticCalculationResult_in" type="java.lang.Double"/>
+		</ins>
+	</sink>
+	<sink name="plotGenerator_result" autoplot="true">
+		<ins>
+			<in name="plotGeneratorResult_in" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+	</sink>	
+	<sink name="plotGenerator_strip" autoplot="false">
+		<ins>
+			<in name="plotGeneratorStrip_in" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+	</sink>	
+	<ins>
+		<in name="frame_inputGroup" type="org.gumtree.data.interfaces.IGroup"/>
+	</ins>
+	<outs>
+		<out name="frame_output" type="org.gumtree.data.interfaces.IGroup"/>
+	</outs>
+	<vars>
+		<var name="frame_isInLoop" type="java.lang.Boolean" default_value="false" usage="hidden" label="is in loop"/>
+		<var name="frame_numberOfSteps" type="java.lang.Integer" default_value="0" usage="hidden" label="number of steps"/>
+		<var name="frame_stepDirection" type="au.gov.ansto.bragg.datastructures.core.plot.StepDirection" default_value="holding" usage="parameter" label="step"/>
+		<var name="frame_currentStepIndex" type="java.lang.Integer" default_value="0" usage="hidden" label="current step"/>
+		<var name="frame_currentIndex" type="java.lang.Integer" default_value="1" usage="parameter" option="1" label="or jump to"/>
+		<var name="frame_efficiencyMapFolderURI" type="java.net.URI" uri_type="folder" default_value="null" usage="parameter" label="folder path"/>
+		<var name="frame_efficiencyMapFilename" type="java.lang.String" default_value="" usage="parameter" option="" label="file name"/>
+		<var name="frame_efficiencyCorrectionEnable" type="java.lang.Boolean" default_value="true" usage="parameter" label="enable"/>
+		<var name="frame_geometryCorrectionEnable" type="java.lang.Boolean" default_value="false" usage="parameter" label="enable"/>
+		<var name="frame_region" type="org.gumtree.data.interfaces.IGroup" default_value="null" usage="region" label="ROI and mask"/>
+		<!-- var name="frame_regionLeft" type="java.lang.Double" default_value="NaN" usage="parameter" label="left boundary"/>
+		<var name="frame_regionRight" type="java.lang.Double" default_value="NaN" usage="parameter" label="right boundary"/ -->
+		<!--  var name="frame_axisName" type="java.lang.String" default_value="run_index" usage="parameter" option="run_index" label="axis name"/ -->
+		<var name="frame_axisValue" type="au.gov.ansto.bragg.datastructures.core.plot.Position" default_value="NaN" option="NaN" usage="position" label="scan variable"/>
+	</vars>
+	<connectors>
+		<connector producer="frame_isInLoop" consumer="isInLoop"/>
+		<connector producer="frame_inputGroup" consumer="inputGroup"/>
+		<connector producer="outputPlot" consumer="frame_output"/>
+		<connector producer="frame_stepDirection" consumer="trackStepDirection"/>
+		<connector producer="frame_currentIndex" consumer="currentIndexVar"/>
+		<connector producer="frame_numberOfSteps" consumer="numberOfSteps"/>
+		<connector producer="frame_currentStepIndex" consumer="currentStepIndex"/>
+		<connector producer="frame_axisValue" consumer="scanVariablePosition"/>
+		<connector producer="frame_efficiencyMapFolderURI" consumer="efficiencyMapFolderURI"/>
+		<connector producer="frame_efficiencyMapFilename" consumer="efficiencyMapFilename"/>
+		<connector producer="frame_efficiencyCorrectionEnable" consumer="efficiency_enable"/>
+		<connector producer="frame_geometryCorrectionEnable" consumer="geometryCorrection_enable"/>
+		<connector producer="frame_region" consumer="applyRegion_region"/>
+		<!-- connector producer="frame_axisName" consumer="axisName"/ -->
+		<!--  connector producer="scanAxis" consumer="iof.scanAxis"/ -->
+		<connector producer="resetHistory" consumer="plot.resetHistory"/>
+		<connector producer="currentIndexOut" consumer="plot.currentIndex"/>
+		<connector producer="outputPlot" consumer="efficiency_inputPlot"/>
+		<connector producer="loopOut" consumer="inputGroup"/>
+		<!-- connector producer="currentIndexOutput" consumer="plot.currentIndex"/>
+		<connector producer="changedDevices" consumer="plot.changedDevices"/>
+		<connector producer="trackOutputPlot" consumer="sliceSink_in"/>
+		<connector producer="trackOutputPlot" consumer="efficiency_inputPlot"/>
+		<connector producer="trackOutputURI" consumer="trackInputURI"/ -->
+		<connector producer="efficiency_outputPlot" consumer="efficiencyCorrectionResult_in"/>
+		<connector producer="efficiency_outputPlot" consumer="geometryCorrection_scanData"/>
+		<connector producer="geometryCorrection_output" consumer="geometryCorrectionResult_in"/>
+		<connector producer="geometryCorrection_output" consumer="applyRegion_inputGroup"/>
+		<connector producer="applyRegion_outputGroup" consumer="applyRegionSink_in"/>
+		<connector producer="applyRegion_outputGroup" consumer="verticalIntegration_inputPlot"/>
+		<connector producer="verticalIntegration_outputPlot" consumer="verticalIntegrationResult_in"/>
+		<connector producer="verticalIntegration_outputPlot" consumer="integrationPlot"/>
+		<connector producer="verticalIntegration_outputPlot" consumer="statisticInputPlot"/>
+		<!-- connector producer="verticalIntegration_outputPlot" consumer="parentPlot"/ -->
+		<connector producer="statisticOutput" consumer="statisticCalculationResult_in"/>
+		<connector producer="statisticOutput" consumer="plotDataInput"/>
+		<connector producer="generatorPlot1D" consumer="plotGeneratorResult_in"/>
+		<connector producer="generatorPlot2D" consumer="plotGeneratorStrip_in"/>
+	</connectors>
+	<agents>
+		<agent name="nexus_processor" principal="ProcessorAgent" pname="FrameTrack" label="Navigator"/>
+		<agent name="efficiencyCorrection_processor" principal="ProcessorAgent" pname="EfficiencyCorrection" label="Efficiency Correction"/>
+		<agent name="geometryCorrection_processor" principal="ProcessorAgent" pname="GeometryCorrection" label="Geometry Correction"/>
+		<agent name="applyRegion_processor" principal="ProcessorAgent" pname="ApplyRegion" label="Apply Region of Interest and Mask"/>
+		<agent name="integration_processor" principal="ProcessorAgent" pname="VerticalIntegration" label="Vertical Integration"/>
+		<agent name="calculation_processor" principal="ProcessorAgent" pname="StatisticCalculation" label="Statistic Calculation"/>
+		<agent name="plotGenerator_processor" principal="ProcessorAgent" pname="PlotGenerator" label="Calculation Plot"/>
+	</agents>
+</framework>

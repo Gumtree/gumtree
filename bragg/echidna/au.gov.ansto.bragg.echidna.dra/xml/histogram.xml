@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : histogram.xml
+    Created on : 20 July 2007, 16:10
+    Author     : nxi
+    Description:
+        Recipe file of taking a data out from the databag in the echidna algorithm set.
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.ansto.gov.au/bragg/dra/recipeSchema http://gumtree.ansto.gov.au:9080/nbicms/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe.xsd"
+id="250801" 
+name="Histogram Data" 
+domain="au.gov.ansto.bragg.echidna.dra" 
+version="1.0" 
+help_url="./help.txt" 
+short_description="Realtime histogram data" 
+icon="xml/icons/findData.gif"
+hidden="false">
+
+	<processor name="HistogramViewer" class="au.gov.ansto.bragg.echidna.dra.core.HistogramViewer">
+		<ins>
+			<in name="histogramViewer_loopIn" type="java.lang.Boolean"/>
+		</ins>
+		<outs>
+			<out name="histogramViewer_data" type="org.gumtree.data.gdm.core.Group"/>
+			<out name="histogramViewer_loopOut" type="java.lang.Boolean"/>
+		</outs>
+		<vars>
+			<var name="histogramViewer_interval" type="java.lang.Double"/>
+			<var name="histogramViewer_stop" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="Source" class="au.gov.ansto.bragg.echidna.dra.core.FindData">
+		<ins>
+			<in name="source_groupData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="source_scanData" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="source_dataName" type="java.lang.String"/>
+			<var name="source_interval" type="java.lang.Double"/>
+			<var name="source_stop" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="HorizontalIntegration" class="au.gov.ansto.bragg.echidna.dra.core.HorizontalIntegration" version="1.0.0">
+		<ins>
+			<in name="horizontalIntegration_input" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="horizontalIntegration_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="horizontalIntegration_minDist" type="java.lang.Double"/>
+			<var name="horizontalIntegration_maxDist" type="java.lang.Double"/>
+			<var name="horizontalIntegration_region" type="org.gumtree.data.gdm.core.Group"/>
+		</vars>
+	</processor>
+	<sink name="SourceSink">
+		<ins>
+			<in name="sourceSink_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="horizontalIntegration_result">
+		<ins>
+			<in name="horizontalIntegrationResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<vars>
+		<var name="frame_interval" type="java.lang.Double" default_value="10.0" label="Refresh Interval"/>
+		<var name="frame_histogramViewerStop" type="java.lang.Boolean" default_value="false" label="stop refreshing"/>
+		<var name="frame_dataName" type="java.lang.String" default_value="data" label="name of data"/>
+		<var name="frame_minDist" type="java.lang.Double" default_value="0" usage="parameter" label="lower boundary"/>
+		<var name="frame_maxDist" type="java.lang.Double" default_value="127" usage="parameter" label="upper boundary"/>
+		<var name="frame_horizontalIntegrationRegion" type="org.gumtree.data.gdm.core.Group" default_value="null" usage="region" label="region of interests or mask"/>
+	</vars>
+	<connectors>
+		<connector producer="frame_interval" consumer="histogramViewer_interval"/>
+		<connector producer="frame_interval" consumer="source_interval"/>
+		<connector producer="frame_histogramViewerStop" consumer="histogramViewer_stop"/>
+		<connector producer="frame_histogramViewerStop" consumer="source_stop"/>
+		<connector producer="frame_dataName" consumer="source_dataName"/>
+		<connector producer="frame_horizontalIntegrationRegion" consumer="horizontalIntegration_region"/>
+		<connector producer="frame_minDist" consumer="horizontalIntegration_minDist"/>
+		<connector producer="frame_maxDist" consumer="horizontalIntegration_maxDist"/>
+		<connector producer="histogramViewer_data" consumer="source_groupData"/>
+		<connector producer="histogramViewer_loopOut" consumer="histogramViewer_loopIn"/>
+		<connector producer="source_scanData" consumer="sourceSink_in"/>
+		<connector producer="source_scanData" consumer="horizontalIntegration_input"/>
+		<connector producer="horizontalIntegration_output" consumer="horizontalIntegrationResult_in"/>
+	</connectors>
+	<agents>
+		<agent name="histogram_processor" principal="ProcessorAgent" pname="HistogramViewer" label="Histogram Viewer"/>
+		<agent name="source_processor" principal="ProcessorAgent" pname="Source" label="Data Source"/>
+		<agent name="integration_processor" principal="ProcessorAgent" pname="HorizontalIntegration" label="Horizontal Integration"/>
+	</agents>
+</framework>

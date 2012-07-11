@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : squareIntegration.xml
+    Created on : 8 May 2007, 10:25
+    Author     : nxi + acx
+    Description:
+        Recipe for square integration algorithm of Echidna.
+-->
+
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.ansto.gov.au/bragg/dra/recipeSchema http://gumtree.ansto.gov.au:9080/nbicms/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe.xsd"
+  id="10901"
+  name="Square Integration"
+  domain="au.gov.ansto.bragg.dra"
+  version="2.0" 
+  help_url="./help.txt"
+  short_description="Square Integration"
+  icon="xml/icons/square_integration.gif"
+  >
+
+	<processor name="Source" class="au.gov.ansto.bragg.echidna.dra.core.Source">
+		<ins>
+			<in name="source_groupData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="source_scanData" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="source_dataName" type="java.lang.String" default_value="stitch_result"/>
+		</vars>
+	</processor>
+	<processor name="SquareIntegration" class="au.gov.ansto.bragg.echidna.dra.core.SquareIntegration">
+		<ins>
+			<in name="squareIntegration_input" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="squareIntegration_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="squareIntegration_skip" type="java.lang.Boolean" default_value="false"/>
+			<var name="squareIntegration_stop" type="java.lang.Boolean" default_value="false"/>
+			<var name="squareIntegration_minDist" type="org.gumtree.dra.common.math.FPoint" default_value="0.0 0.0"/>
+			<var name="squareIntegration_maxDist" type="org.gumtree.dra.common.math.FPoint" default_value="127.0 127.0"/>
+		</vars>
+	</processor>
+	<processor name="Wrap" class="au.gov.ansto.bragg.echidna.dra.core.Wrap">
+		<ins>
+			<in name="wrap_databag" type="org.gumtree.data.gdm.core.Group"/>
+			<in name="wrap_result" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="wrap_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="wrap_inputName" type="java.lang.String" default_value="stitch_result"/>
+			<var name="wrap_resultName" type="java.lang.String" default_value="squareIntegration_result"/>
+		</vars>
+	</processor>
+	<sink name="SourceSink">
+		<ins>
+			<in name="sourceSink_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="dataReduction_result">
+		<ins>
+			<in name="dataReductionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="squareIntegration_result">
+		<ins>
+			<in name="squareIntegrationResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<ins>
+		<in name="frame_databag" type="org.gumtree.data.gdm.core.Group"/>
+	</ins>
+	<outs>
+		<out name="frame_output" type="org.gumtree.data.gdm.core.Group"/>
+	</outs>
+	<vars>
+		<var name="frame_dataName" type="java.lang.String" default_value="stitch_result" usage="parameter"/>
+		<var name="frame_squareIntegrationSkip" type="java.lang.Boolean" default_value="false" usage="option"/>
+		<var name="frame_squareIntegrationStop" type="java.lang.Boolean" default_value="false" usage="option"/>
+		<var name="frame_minDist" type="org.gumtree.dra.common.math.FPoint" default_value="0.0 0.0" usage="parameter"/>
+		<var name="frame_maxDist" type="org.gumtree.dra.common.math.FPoint" default_value="127.0 127.0" usage="parameter"/>
+		<var name="frame_resultName" type="java.lang.String" default_value="squareIntegration_result" usage="parameter"/>
+	</vars>
+	<connectors>
+		<connector producer="frame_databag" consumer="source_groupData"/>
+		<connector producer="frame_databag" consumer="wrap_databag"/>
+		<connector producer="wrap_output" consumer="frame_output"/>
+		<connector producer="frame_dataName" consumer="source_dataName"/>
+		<connector producer="frame_dataName" consumer="wrap_inputName"/>
+		<connector producer="frame_squareIntegrationSkip" consumer="squareIntegration_skip"/>
+		<connector producer="frame_squareIntegrationStop" consumer="squareIntegration_stop"/>
+		<connector producer="frame_minDist" consumer="squareIntegration_minDist"/>
+		<connector producer="frame_maxDist" consumer="squareIntegration_maxDist"/>
+		<connector producer="frame_resultName" consumer="wrap_resultName"/>
+		<connector producer="source_scanData" consumer="squareIntegration_input"/>
+		<connector producer="source_scanData" consumer="sourceSink_in"/>
+		<connector producer="squareIntegration_output" consumer="wrap_result"/>
+		<connector producer="squareIntegration_output" consumer="squareIntegrationResult_in"/>
+		<connector producer="wrap_output" consumer="dataReductionResult_in"/>
+	</connectors>
+	<agents>
+		<agent name="source_processor" principal="ProcessorAgent" pname="Source" description="Source processor"/>
+		<agent name="integration_processor" principal="ProcessorAgent" pname="SquareIntegration" description="Processor of square integration"/>
+		<agent name="integration_output_port" principal="PortAgent" pname="squareIntegration_output" description="Output port of square integration"/>
+		<agent name="integrated_signal_framework_port" principal="PortAgent" pname="frame_output" description="Frame output port of integrated signal"/>
+	</agents>
+</framework>

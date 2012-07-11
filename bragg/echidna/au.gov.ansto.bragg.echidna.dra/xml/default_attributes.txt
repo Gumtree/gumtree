@@ -1,0 +1,7 @@
+sample_name
+title
+#user_name
+#file_time
+#run_mode
+#hmm_mode
+#start_time

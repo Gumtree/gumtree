@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : DataReduction.xml
+    Created on : 13 Oct 2008, 16:26
+    Author     : nxi
+    Description:
+        Recipe file of the data reduction processor chain in Kowari algorithm set.
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.ansto.gov.au/bragg/dra/recipeSchema 
+http://gumtree.ansto.gov.au:9080/nbicms/projects/group-project-resources/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe-1-3.xsd" 
+id="031202" 
+name="Reduction Algorithms" 
+domain="au.gov.ansto.bragg.kowari.dra" 
+version="2.3" 
+help_url="./help.txt" 
+short_description="Data Reduction Processor Chain" 
+type="analysis"
+icon="xml/icons/KowariDRA.gif">
+
+	<processor name="PrepareSourcePlot" class="au.gov.ansto.bragg.nbi.dra.source.PrepareSourcePlot">
+		<ins>
+			<in name="prepareSourcePlot_inputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="prepareSourcePlot_outputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+	</processor>
+	<processor name="EfficiencyCorrection" class="au.gov.ansto.bragg.nbi.dra.correction.EffeciencyCorrection" version="3.0.0">
+		<ins>
+			<in name="efficiencyCorrection_inputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="efficiencyCorrection_outputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+		    <var name="efficiencyCorrection_mapURI" type="java.net.URI"/>
+			<var name="efficiencyCorrection_enable" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="ApplyRegion" class="au.gov.ansto.bragg.nbi.dra.source.ApplyRegion">
+		<ins>
+			<in name="applyRegion_inputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="applyRegion_outputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="applyRegion_region" type="org.gumtree.data.gdm.core.Group"/>
+		</vars>
+	</processor>
+	<processor name="VerticalIntegration" class="au.gov.ansto.bragg.nbi.dra.integration.VerticalIntegration">
+		<ins>
+			<in name="verticalIntegration_inputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="verticalIntegration_outputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+	</processor>
+	<processor name="RegionalIntegration" class="au.gov.ansto.bragg.kowari.dra.core.RegionalIntegration">
+		<ins>
+			<in name="regionalIntegration_input" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="regionalIntegration_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+	</processor>
+	<processor name="FittingProcessor" class="au.gov.ansto.bragg.kowari.dra.core.FittingProcessor">
+		<ins>
+			<in name="fittingProcessor_inputGroup" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="fittingProcessor_outputGroup" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<out name="fittingProcessor_fittingResult" type="au.gov.ansto.bragg.datastructures.core.plot.PlotSet"/>
+		</outs>
+		<vars>
+			<var name="fittingProcessor_functionName" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<processor name="ScanResultPlotter" class="au.gov.ansto.bragg.kowari.dra.core.ScanResultPlotter">
+		<ins>
+			<in name="scanResultPlotter_fitResultGroup" type="org.gumtree.data.gdm.core.Group"/>
+			<in name="scanResultPlotter_intensityGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="scanResultPlotter_outputGroup" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="scanResultPlotter_yAxisName" type="java.lang.String"/>
+			<var name="scanResultPlotter_fitParameter" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<processor name="SlicePlotter" class="au.gov.ansto.bragg.kowari.dra.core.ChooseSlice">
+		<ins>
+			<in name="chooseSlice_mapsetInput" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<in name="chooseSlice_patternsetInput" type="au.gov.ansto.bragg.datastructures.core.plot.PlotSet"/>
+		</ins>
+		<outs>
+			<out name="chooseSlice_mapOutput" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<out name="chooseSlice_patternOutput" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="chooseSlice_stepDirection" type="au.gov.ansto.bragg.datastructures.core.plot.StepDirection"/>
+		</vars>
+	</processor>
+	<processor name="MapHolder" class="au.gov.ansto.bragg.nbi.dra.source.DataHolder">
+		<ins>
+			<in name="dataHolder_inputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="dataHolder_outputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+	</processor>
+	<sink name="SourceSink" autoplot="true">
+		<ins>
+			<in name="sourceSink_in" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+	</sink>
+	<sink name="ApplyRegionSink">
+		<ins>
+			<in name="applyRegionSink_in" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+	</sink>
+	<sink name="verticalIntegration_result" autoplot="true">
+		<ins>
+			<in name="verticalIntegrationResult_in" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+	</sink>
+	<sink name="efficiencyCorrection_result">
+		<ins>
+			<in name="efficiencyCorrectionResult_in" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+	</sink>
+	<sink name="fittingProcessor_pattern">
+		<ins>
+			<in name="fittingProcessorPattern_in" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+	</sink>
+	<sink name="fittingProcessor_result">
+		<ins>
+			<in name="fittingProcessorResult_in" type="au.gov.ansto.bragg.datastructures.core.plot.PlotSet"/>
+		</ins>
+	</sink>
+	<sink name="scanResultPlotter_pattern" autoplot="true">
+		<ins>
+			<in name="scanResultPlotterPattern_in" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+	</sink>
+	<ins>
+		<in name="frame_input" type="org.gumtree.data.gdm.core.Group"/>
+	</ins>
+	<outs>
+		<out name="frame_output" type="org.gumtree.data.gdm.core.Group"/>
+	</outs>
+	<vars>
+		<var name="frame_stepDirection" type="au.gov.ansto.bragg.datastructures.core.plot.StepDirection" default_value="holding" usage="parameter" label="navigating"/>
+		<var name="frame_efficiencyMapURI" type="java.net.URI" default_value="null" usage="parameter" label="efficiency file"/>
+		<var name="frame_efficiencyCorrectionEnable" type="java.lang.Boolean" default_value="false" usage="parameter" label="enable efficiency correction"/>
+		<var name="frame_region" type="org.gumtree.data.gdm.core.Group" default_value="null" usage="region" label="region of interests or mask"/>
+		<var name="frame_fittingFunctionName" type="java.lang.String" default_value="Gaussian" usage="parameter" option="GaussianLorentzian, Gaussian" label="fitting function"/>
+		<var name="frame_plotterYAxisName" type="java.lang.String" default_value="Intensity" usage="parameter" option="Intensity,Fitting Result" label="Y axis"/>
+		<var name="frame_fitParameter" type="java.lang.String" default_value="mean" usage="parameter" UIwidth="5" option="mean,Chi2,amplitude,sigma,area" label="fitting parameter"/>
+	</vars>
+	<connectors>
+		<connector producer="frame_input" consumer="prepareSourcePlot_inputGroup"/>
+		<connector producer="scanResultPlotter_outputGroup" consumer="frame_output"/>
+		<connector producer="frame_stepDirection" consumer="chooseSlice_stepDirection"/>
+		<connector producer="frame_efficiencyMapURI" consumer="efficiencyCorrection_mapURI"/>
+		<connector producer="frame_efficiencyCorrectionEnable" consumer="efficiencyCorrection_enable"/>
+		<connector producer="frame_region" consumer="applyRegion_region"/>
+		<connector producer="frame_fittingFunctionName" consumer="fittingProcessor_functionName"/>
+		<connector producer="frame_plotterYAxisName" consumer="scanResultPlotter_yAxisName"/>
+		<connector producer="frame_fitParameter" consumer="scanResultPlotter_fitParameter"/>
+		<connector producer="prepareSourcePlot_outputGroup" consumer="chooseSlice_mapsetInput"/>
+		<connector producer="chooseSlice_mapOutput" consumer="dataHolder_inputPlot"/>
+		<connector producer="dataHolder_outputPlot" consumer="sourceSink_in"/>
+		<connector producer="prepareSourcePlot_outputGroup" consumer="efficiencyCorrection_inputPlot"/>
+		<connector producer="efficiencyCorrection_outputPlot" consumer="efficiencyCorrectionResult_in"/>
+		<connector producer="efficiencyCorrection_outputPlot" consumer="applyRegion_inputGroup"/>
+		<connector producer="applyRegion_outputGroup" consumer="applyRegionSink_in"/>
+		<connector producer="applyRegion_outputGroup" consumer="verticalIntegration_inputPlot"/>
+		<connector producer="applyRegion_outputGroup" consumer="regionalIntegration_input"/>
+		<connector producer="fittingProcessor_fittingResult" consumer="chooseSlice_patternsetInput"/>
+		<connector producer="chooseSlice_patternOutput" consumer="verticalIntegrationResult_in"/>
+		<connector producer="verticalIntegration_outputPlot" consumer="fittingProcessor_inputGroup"/>
+		<connector producer="fittingProcessor_outputGroup" consumer="fittingProcessorPattern_in"/>
+		<connector producer="fittingProcessor_outputGroup" consumer="scanResultPlotter_fitResultGroup"/>
+		<connector producer="fittingProcessor_fittingResult" consumer="fittingProcessorResult_in"/>
+		<connector producer="regionalIntegration_output" consumer="scanResultPlotter_intensityGroup"/>
+		<connector producer="scanResultPlotter_outputGroup" consumer="scanResultPlotterPattern_in"/>
+	</connectors>
+	<agents>
+		<agent name="efficiencyCorrection_processor" principal="ProcessorAgent" pname="EfficiencyCorrection" label="Efficiency Correction"/>
+		<agent name="applyRegion_processor" principal="ProcessorAgent" pname="ApplyRegion" label="Apply Region of Interest and Mask"/>
+		<agent name="fitting_processor" principal="ProcessorAgent" pname="FittingProcessor" label="Fitting Setup"/>
+		<agent name="source_processor" principal="ProcessorAgent" pname="MapHolder" label="Raw Record"/>
+		<agent name="plotter_processor" principal="ProcessorAgent" pname="ScanResultPlotter" label="Plot Setup"/>
+		<agent name="integration_processor" principal="ProcessorAgent" pname="SlicePlotter" label="Integration Setup"/>
+	</agents>
+</framework>

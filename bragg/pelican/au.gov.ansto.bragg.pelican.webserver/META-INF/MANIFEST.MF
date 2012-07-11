@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bragg Pelican Webserver Application
+Bundle-SymbolicName: au.gov.ansto.bragg.pelican.webserver
+Bundle-Version: 1.7.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.pelican.webserver.Activator
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: Bragg Institute
+Require-Bundle: au.gov.ansto.bragg.pelican.server;bundle-version="1.7.0";visibility:=reexport,
+ au.gov.ansto.bragg.nbi.webserver;bundle-version="1.7.0";visibility:=reexport

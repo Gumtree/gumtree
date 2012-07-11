@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : histogram1.5.xml
+    Created on : 6 October 2009
+    Author     : pvh
+    Description:
+        Algorithm Task retrieves histogram direct from server for reduction
+        Partial implementation for radial integration of fetched data.
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.ansto.gov.au/bragg/dra/recipeSchema http://gumtree.ansto.gov.au:9080/nbicms/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe.xsd"
+id="2009090601" 
+name="Histogram Data 1.5" 
+domain="au.gov.ansto.bragg.quokka.dra" 
+version="1.5" 
+help_url="./help.txt" 
+short_description="Online Histogram" 
+icon="xml/icons/findData.gif"
+hidden="true">
+
+	<processor name="Histogram" class="au.gov.ansto.bragg.quokka.dra.online.HistogramViewer">
+		<ins>
+			<in name="Histogram.inLoop" type="java.lang.Boolean"/>
+		</ins>
+		<outs>
+			<!-- Must put port histogram before port outLoop -->
+			<out name="Histogram.histogram" type="org.gumtree.data.interfaces.IGroup"/>
+			<out name="Histogram.outLoop" type="java.lang.Boolean"/>
+		</outs>
+		<vars>
+			<var name="Histogram.serverName" type="java.lang.String"/>
+			<var name="Histogram.serverPort" type="java.lang.Integer"/>
+			<var name="Histogram.pollInterval" type="java.lang.Double"/>
+			<var name="Histogram.stop" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="Source" class="au.gov.ansto.bragg.quokka.dra.core.SourceReader2">
+		<ins>
+			<in name="Source.inGroup" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+		<outs>
+			<!--  <out name="Source.outGroup" type="org.gumtree.data.interfaces.IGroup"/> -->
+			<out name="Source.result" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<out name="Source.display" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<!-- <out name="Source.dictionary" type="java.util.Map"/> -->
+		</outs>
+		<vars>
+			<var name="Source.stop" type="java.lang.Boolean" />
+			<var name="Source.axis0" type="java.lang.String" />
+			<var name="Source.dim0" type="java.lang.Integer" />
+			<var name="Source.axis1" type="java.lang.String" />
+			<var name="Source.dim1" type="java.lang.Integer" />
+			<var name="Source.axis2" type="java.lang.String" />
+			<var name="Source.dim2" type="java.lang.Integer" />
+			<var name="Source.axis3" type="java.lang.String" />
+			<var name="Source.dim3" type="java.lang.Integer" />
+		</vars>
+	</processor>
+	<processor name="Centroid" class="au.gov.ansto.bragg.quokka.dra.core.Blank_Centroid">
+		<ins>
+			<in name="Centroid.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+			<in name="Centroid.centrePlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="Centroid.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+<!-- 			<out name="Centroid.isCalculated" type="java.lang.Boolean"/>  -->
+		</outs>
+		<vars>
+			<var name="Centroid.centroidRoi" type="org.gumtree.data.interfaces.IGroup"/>
+		</vars>
+	</processor>
+	<processor name="Show" class="au.gov.ansto.bragg.quokka.dra.core.ShowCalculation">
+		<ins>
+			<in name="Show.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="Show.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="Show.stop" type="java.lang.Boolean"/>
+			<var name="Show.centroidX" type="java.lang.Double"/>
+			<var name="Show.centroidZ" type="java.lang.Double"/>
+			<var name="Show.centroidRoi" type="org.gumtree.data.interfaces.IGroup"/>
+		</vars>
+	</processor>
+	<processor name="MaskMap" class="au.gov.ansto.bragg.quokka.dra.core.MaskMap">
+		<ins>
+			<in name="MaskMap.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="MaskMap.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="MaskMap.skip" type="java.lang.Boolean"/>
+			<var name="MaskMap.stop" type="java.lang.Boolean"/>
+			<var name="MaskMap.maskRoi" type="org.gumtree.data.interfaces.IGroup"/>
+			<var name="MaskMap.top" type="java.lang.Integer"/>
+			<var name="MaskMap.btm" type="java.lang.Integer"/>
+			<var name="MaskMap.lft" type="java.lang.Integer"/>
+			<var name="MaskMap.rgt" type="java.lang.Integer"/>
+		</vars>
+	</processor>
+	<processor name="PreCalc" class="au.gov.ansto.bragg.quokka.dra.core.Blank_PreCalc">
+		<ins>
+			<in name="PreCalc.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="PreCalc.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+		</vars>
+	</processor>
+	<processor name="Integration" class="au.gov.ansto.bragg.quokka.dra.core.Blank_Integrate">
+		<ins>
+			<in name="Integration.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="Integration.outPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</outs>
+		<vars>
+			<var name="Integration.numberOfBin" type="java.lang.Integer"/>
+			<var name="Integration.minRadius" type="java.lang.Double"/>
+		</vars>
+	</processor>
+	<processor name="Plotter" class="au.gov.ansto.bragg.quokka.dra.core.Default_Plotter">
+		<ins>
+			<in name="Plotter.inPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
+		</ins>
+		<outs>
+			<out name="Plotter.outPlot" type="org.gumtree.data.interfaces.IGroup"/>
+		</outs>
+		<vars>
+			<var name="Plotter.yAxisName" type="java.lang.String"/>
+			<var name="Plotter.xAxisName" type="java.lang.String"/>
+			<var name="Plotter.a" type="java.lang.Double"/>
+			<var name="Plotter.b" type="java.lang.Double"/>
+			<var name="Plotter.c" type="java.lang.Double"/>
+		</vars>
+	</processor>
+	<sink name="Plotter.result.sink" autoplot="true">
+		<ins>
+			<in name="Plotter.result.sink.port" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+	</sink>
+	<sink name="Source.result.sink" autoplot="true">
+		<ins>
+			<in name="Source.result.sink.port" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+	</sink>
+	<sink name="MaskMap.outPlot.sink" autoplot="true">
+		<ins>
+			<in name="Maskmap.outPlot.sink.port" type="org.gumtree.data.interfaces.IGroup"/>
+		</ins>
+	</sink>
+	<!-- ins>
+		<in name="frame.databag" type="org.gumtree.data.interfaces.IGroup"/>
+	</ins -->
+	<vars>
+		<var name="frame.Histogram.serverName" type="java.lang.String" 
+			default_value="das1-quokka.nbi.ansto.gov.au" 
+			usage="parameter" 
+			option="default, das1-quokka.nbi.ansto.gov.au, das1-test.nbi.ansto.gov.au, localhost" 
+			label="Server Name"/>
+		<var name="frame.Histogram.serverPort" type="java.lang.Integer" 
+			default_value="8080" 
+			usage="parameter" 
+			option="8080, 8081" 
+			label="Port Number"/>
+		<var name="frame.Histogram.pollInterval" type="java.lang.Double" default_value="5.0" usage="parameter" label="Interval (s)" />
+		<var name="frame.Histogram.stop" type="java.lang.Boolean" default_value="False" usage="option" />
+		<var name="frame.Source.stop" type="java.lang.Boolean" default_value="False" usage="option" />
+		<var name="frame.Source.axis0" type="java.lang.String" default_value="" usage="parameter" label="Axis 0" />
+		<var name="frame.Source.axis1" type="java.lang.String" default_value="" usage="parameter" label="Axis 1"/>
+		<var name="frame.Source.axis2" type="java.lang.String" default_value="" usage="parameter" label="Axis 2"/>
+		<var name="frame.Source.axis3" type="java.lang.String" default_value="" usage="parameter" label="Axis 3"/>
+		<var name="frame.Source.dim0" type="java.lang.Integer" default_value="" usage="parameter" label="Dimn 0" />
+		<var name="frame.Source.dim1" type="java.lang.Integer" default_value="" usage="parameter" label="Dimn 1" />
+		<var name="frame.Source.dim2" type="java.lang.Integer" default_value="" usage="parameter" label="Dimn 2" />
+		<var name="frame.Source.dim3" type="java.lang.Integer" default_value="" usage="parameter" label="Dimn 3" />
+		<var name="frame.Show.stop" type="java.lang.Boolean" default_value="false" usage="option" label="Stop @ Show"/>
+		<var name="frame.Show.centroidZ" type="java.lang.Double" default_value="96.0" label="Vertical (Z) Centroid (pixel)"/>
+		<var name="frame.Show.centroidX" type="java.lang.Double" default_value="96.0" label="Horizontal (X) Centroid (pixel)"/>
+		<var name="frame.MaskMap.skip" type="java.lang.Boolean" default_value="false" usage="option" label="Skip ROI Mask"/>
+		<var name="frame.MaskMap.stop" type="java.lang.Boolean" default_value="false" usage="option" label="Stop ROI Mask"/>
+		<var name="frame.MaskMap.maskRoi" type="org.gumtree.data.interfaces.IGroup" default_value="null" usage="region" label="ROI Mask"/>
+		<var name="frame.MaskMap.top" type="java.lang.Integer" default_value="1" label="Trim Top (rows)"/>
+		<var name="frame.MaskMap.btm" type="java.lang.Integer" default_value="1" label="Trim Bottom (rows)"/>
+		<var name="frame.MaskMap.lft" type="java.lang.Integer" default_value="1" label="Trim Left (cols)"/>
+		<var name="frame.MaskMap.rgt" type="java.lang.Integer" default_value="1" label="Trim Right (cols)"/>
+		<var name="frame.Integration.numberOfBin" type="java.lang.Integer" default_value="120" min="0" label="Number of X-Axis-bins"/>
+		<var name="frame.Integration.minRadius" type="java.lang.Double" default_value="0.0" min="0.0" label="Minimum Radius (mm)"/>
+		<var name="frame.Centroid.centroidRoi" type="org.gumtree.data.interfaces.IGroup" default_value="null" usage="region" label="Centroid ROI"/>
+		<var name="frame.Plotter.yAxisName" type="java.lang.String" default_value="I" option="I, log(I), ln(I), 1/I, I^a, I*X^b, I^a*X^b, 1/sqrt(I), ln(I*X), ln(I*X^-2)" label="Vertical Plot Axis (Y)"/>
+		<var name="frame.Plotter.xAxisName" type="java.lang.String" default_value="r" option="Q, log(q), q^2, q^c, r, 2theta(rad), 2theta(deg)" label="Horizontal Plot Axis (X)"/>
+		<var name="frame.Plotter.a" type="java.lang.Double" default_value="1.0" label="Axis Parameter 'a'"/>
+		<var name="frame.Plotter.b" type="java.lang.Double" default_value="1.0" label="Axis Parameter 'b' "/>
+		<var name="frame.Plotter.c" type="java.lang.Double" default_value="1.0" label="Axis Parameter 'c'"/>
+	</vars>
+	<connectors>
+		<!-- Frame to Source connectors -->
+		<!-- <connector producer="frame.databag" consumer="Source.inGroup" />  -->
+		<connector producer="frame.Histogram.stop" consumer="Histogram.stop" />
+		<connector producer="frame.Histogram.serverName" consumer="Histogram.serverName" />
+		<connector producer="frame.Histogram.serverPort" consumer="Histogram.serverPort" />
+		<connector producer="frame.Histogram.pollInterval" consumer="Histogram.pollInterval" />
+		<connector producer="frame.Source.stop" consumer="Source.stop" />
+		<connector producer="frame.Source.axis0" consumer="Source.axis0" />
+		<connector producer="frame.Source.axis1" consumer="Source.axis1" />
+		<connector producer="frame.Source.axis2" consumer="Source.axis2" />
+		<connector producer="frame.Source.axis3" consumer="Source.axis3" />
+		<connector producer="frame.Source.dim0" consumer="Source.dim0" />
+		<connector producer="frame.Source.dim1" consumer="Source.dim1" />
+		<connector producer="frame.Source.dim2" consumer="Source.dim2" />
+		<connector producer="frame.Source.dim3" consumer="Source.dim3" />
+		<!-- Frame to Centroid connectors -->
+		<connector producer="frame.Centroid.centroidRoi" consumer="Centroid.centroidRoi"/>
+		<connector producer="frame.Show.centroidZ" consumer="Show.centroidZ"/>
+		<connector producer="frame.Show.centroidX" consumer="Show.centroidX"/>
+		<!-- Frame to MaskMap connectors -->
+		<connector producer="frame.MaskMap.skip" consumer="MaskMap.skip"/>
+		<connector producer="frame.MaskMap.stop" consumer="MaskMap.stop"/>
+		<connector producer="frame.MaskMap.maskRoi" consumer="MaskMap.maskRoi"/>
+		<connector producer="frame.MaskMap.top" consumer="MaskMap.top"/>
+		<connector producer="frame.MaskMap.btm" consumer="MaskMap.btm"/>
+		<connector producer="frame.MaskMap.lft" consumer="MaskMap.lft"/>
+		<connector producer="frame.MaskMap.rgt" consumer="MaskMap.rgt"/>
+		<!-- Frame to Pre-Calculation connectors -->
+		<!-- Frame to Show connectors -->
+		<connector producer="frame.Show.stop" consumer="Show.stop"/>
+		<connector producer="frame.Centroid.centroidRoi" consumer="Show.centroidRoi"/>
+		<!-- Frame to Integration connectors -->
+		<connector producer="frame.Integration.numberOfBin" consumer="Integration.numberOfBin"/>
+		<connector producer="frame.Integration.minRadius" consumer="Integration.minRadius"/>
+		<!-- Frame to Plotter connectors -->
+		<!-- 
+		<connector producer="frame.plotter.yAxisName" consumer="Plotter.yAxisName"/>
+		<connector producer="frame.plotter.xAxisName" consumer="Plotter.xAxisName"/>
+		<connector producer="frame.plotter.a" consumer="Plotter.a"/>
+		<connector producer="frame.plotter.b" consumer="Plotter.b"/>
+		<connector producer="frame.plotter.c" consumer="Plotter.c"/>
+		 -->
+		<!-- Sequence connectors -->
+		<connector producer="Histogram.histogram" consumer="Source.inGroup"/>
+		<connector producer="Source.result" consumer="Centroid.inPlot"/>
+		<connector producer="Source.result" consumer="Centroid.centrePlot"/>
+		<connector producer="Source.display" consumer="Source.result.sink.port"/>
+		<connector producer="Centroid.outPlot" consumer="Show.inPlot"/>
+		<connector producer="Show.outPlot" consumer="MaskMap.inPlot"/>
+		<connector producer="MaskMap.outPlot" consumer="PreCalc.inPlot"/>
+		<connector producer="PreCalc.outPlot" consumer="Integration.inPlot"/>
+		<connector producer="Integration.outPlot" consumer="Plotter.inPlot"/>
+		<connector producer="Plotter.outPlot" consumer="Plotter.result.sink.port"/>
+		<!-- <connector producer="Histogram.outLoop" consumer="Histogram.inLoop"/> -->
+	</connectors>
+	<agents>
+		<agent name="Histogram.op" principal="ProcessorAgent" pname="Histogram" label="Histogram"/>
+		<agent name="Source.op" principal="ProcessorAgent" pname="Source" label="Source"/>
+		<!-- hide these agents in final product -->
+		<!-- <agent name="centroid.op" principal="ProcessorAgent" pname="Centroid" label="Centre"/> --> 
+		<agent name="Show.op" principal="ProcessorAgent" pname="Show" label="Calculate"/>
+		<agent name="Mask.op" principal="ProcessorAgent" pname="MaskMap" label="Mask/Trim"/>
+		<!-- hide these agents in final product -->
+		<!-- <agent name="Precalc.op" principal="ProcessorAgent" pname="PreCalc" label="Integrate"/> -->
+		<!-- <agent name="Integrate.op" principal="ProcessorAgent" pname="Integration" label="Integrate"/> -->
+		<agent name="plotter.op" principal="ProcessorAgent" pname="Plotter" label="Plot"/>
+	</agents>
+</framework>

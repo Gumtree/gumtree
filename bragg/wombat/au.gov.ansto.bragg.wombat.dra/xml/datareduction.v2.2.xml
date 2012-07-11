@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : DataReduction.xml
+    Created on : 8 Aug 2007, 16:26
+    Author     : nxi
+    Description:
+        Recipe file of the data reduction processor chain in Wombat algorithm set.
+-->
+<framework xmlns="http://www.ansto.gov.au/bragg/dra/recipeSchema" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.ansto.gov.au/bragg/dra/recipeSchema http://gumtree.ansto.gov.au:9080/nbicms/dat-projects/data-reduction-capability-projects/cicada-the-dav-application-interface-project/xml-schema/recipe.xsd"
+id="031202" 
+name="Reduction Algorithms 2.2" 
+domain="au.gov.ansto.bragg.wombat.dra" 
+version="2.2" 
+help_url="./help.txt" 
+short_description="Data Reduction Algorithm" 
+icon="xml/icons/WombatDRA.gif">
+
+	<processor name="Source" class="au.gov.ansto.bragg.wombat.dra.core.Source" version="1.0.0">
+		<ins>
+			<in name="source_groupData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="source_scanData" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="source_dataName" type="java.lang.String"/>
+			<var name="source_dataStructureType" type="java.lang.String"/>
+			<var name="source_dataDimensionType" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<processor name="AxisCorrection"
+		class="au.gov.ansto.bragg.nbi.dra.core.AxisCorrection" version="1.0.0">
+		<ins>
+			<in name="axisCorrection_input" type="org.gumtree.data.gdm.core.Group" />
+		</ins>
+		<outs>
+			<out name="axisCorrection_output" type="org.gumtree.data.gdm.core.Group" />
+		</outs>
+		<vars>
+			<var name="axis_flip" type="java.lang.Boolean" />
+			<var name="axisCorrection_skip" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="Normalisation" class="au.gov.ansto.bragg.nbi.dra.core.Normalise">
+	    <ins>
+	       <in name="norm_groupdata" type="org.gumtree.data.gdm.core.Group"/>
+	    </ins>
+	    <outs>
+	       <out name="normalised_data" type="org.gumtree.data.gdm.core.Group"/>
+	    </outs>
+	    <vars>
+	       <var name="Normalise_skip" type="java.lang.Boolean"/>
+	    </vars>
+	</processor>
+	<processor name="BackgroundCorrection" class="au.gov.ansto.bragg.nbi.dra.core.BackgroundCorrection" version="1.0.0">
+		<ins>
+			<in name="backgroundCorrection_scanData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="backgroundCorrection_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="backgroundCorrection_skip" type="java.lang.Boolean"/>
+			<var name="backgroundCorrection_stop" type="java.lang.Boolean"/>
+			<var name="backgroundCorrection_backgroundFilename" type="java.net.URI"/>
+		</vars>
+	</processor>
+	<processor name="EfficiencyCorrection" class="au.gov.ansto.bragg.wombat.dra.core.EfficiencyCorrection" version="1.0.0">
+		<ins>
+			<in name="efficiencyCorrection_inputPlot" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="efficiencyCorrection_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+		    <var name="efficiencyCorrection_mapURI" type="java.net.URI"/>
+			<var name="efficiencyCorrection_enable" type="java.lang.Boolean"/>
+			<var name="efficiencyCorrection_stop" type="java.lang.Boolean"/>
+			<var name="efficiencyCorrection_skip" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="GeometryCorrection" class="au.gov.ansto.bragg.nbi.dra.core.GeometryCorrection" version="1.0.0">
+		<ins>
+			<in name="geometryCorrection_scanData" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="geometryCorrection_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="geometryCorrection_skip" type="java.lang.Boolean"/>
+			<var name="geometryCorrection_stop" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="VerticalIntegration" class="au.gov.ansto.bragg.nbi.dra.core.VerticalIntegration" version="1.0.0">
+		<ins>
+			<in name="verticalIntegration_input" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="verticalIntegration_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="verticalIntegration_minDist" type="java.lang.Double"/>
+			<var name="verticalIntegration_maxDist" type="java.lang.Double"/>
+			<var name="verticalIntegration_region" type="org.gumtree.data.gdm.core.Group"/>
+			<var name="verticalIntegration_stop" type="java.lang.Boolean"/>
+			<var name="verticalIntegration_skip" type="java.lang.Boolean"/>
+			<var name="vertInt_scale" type="java.lang.Boolean"/>
+		</vars>
+	</processor>
+	<processor name="Wrap" class="au.gov.ansto.bragg.wombat.dra.core.Wrap" version="1.0.0">
+		<ins>
+			<in name="wrap_databag" type="org.gumtree.data.gdm.core.Group"/>
+			<in name="wrap_result" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+		<outs>
+			<out name="wrap_output" type="org.gumtree.data.gdm.core.Group"/>
+		</outs>
+		<vars>
+			<var name="wrap_inputName" type="java.lang.String"/>
+			<var name="wrap_resultName" type="java.lang.String"/>
+		</vars>
+	</processor>
+	<sink name="SourceSink">
+		<ins>
+			<in name="sourceSink_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="Axis correction result">
+	<ins>
+	<in name="axisCorrectionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+	</ins>
+	</sink>
+	<sink name="Normalisation_result">
+		<ins>
+			<in name="normalisationResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="backgroundCorrection_result">
+		<ins>
+			<in name="backgroundCorrectionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="efficiencyCorrection_result">
+		<ins>
+			<in name="efficiencyCorrectionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="geometryCorrection_result">
+		<ins>
+			<in name="geometryCorrectionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="dataReduction_result">
+		<ins>
+			<in name="dataReductionResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+	<sink name="verticalIntegration_result">
+		<ins>
+			<in name="verticalIntegrationResult_in" type="org.gumtree.data.gdm.core.Group"/>
+		</ins>
+	</sink>
+		<sink name="xyout_result">
+	   <ins>
+	       <in name="xyoutresult_in" type="org.gumtree.data.gdm.core.Group"/>
+	   </ins>
+	</sink>
+	<ins>
+		<in name="frame_databag" type="org.gumtree.data.gdm.core.Group"/>
+	</ins>
+	<outs>
+		<out name="frame_output" type="org.gumtree.data.gdm.core.Group"/>
+	</outs>
+	<vars>
+		<var name="frame_dataName" type="java.lang.String" default_value="data" usage="parameter" label="name of data"/>
+		<var name="frame_axisflip" type="java.lang.Boolean" default_value="true" usage="parameter" label="Two theta is reversed"/>
+		<var name="frame_axiscorrskip" type="java.lang.Boolean" default_value="false" usage="option" label="Skip axis correction"/>
+		<var name="frame_normalskip" type="java.lang.Boolean" default_value="false" usage="option" label="Skip normalisation"/>
+		<var name="frame_backgroundFilename" type="java.net.URI" default_value="default" usage="parameter" label="background file"/>
+		<var name="frame_backgroundCorrectionSkip" type="java.lang.Boolean" default_value="true" usage="option" label="skip background correction"/>
+		<var name="frame_backgroundCorrectionStop" type="java.lang.Boolean" default_value="false" usage="option" label="stop after background correction"/>
+		<var name="frame_efficiencyCorrectionMapURI" type="java.net.URI" default_value="default" usage="parameter" label="efficiency file"/>
+		<var name="frame_efficiencyCorrectionSkip" type="java.lang.Boolean" default_value="false" usage="option" label="skip efficiency correction"/>
+		<var name="frame_efficiencyCorrectionStop" type="java.lang.Boolean" default_value="false" usage="option" label="stop after efficiency correction"/>
+		<var name="frame_geometryCorrectionSkip" type="java.lang.Boolean" default_value="true" usage="option" label="skip geometry correction"/>
+		<var name="frame_geometryCorrectionStop" type="java.lang.Boolean" default_value="false" usage="option" label="stop after geometry correction"/>
+		<var name="frame_viSkip" type="java.lang.Boolean" default_value="false" usage="option" label="skip vertical integration"/>
+		<var name="frame_viStop" type="java.lang.Boolean" default_value="false" usage="option" label="stop after vertical integration"/>
+	    <var name="frame_rescale" type="java.lang.Boolean" default_value="false" usage="parameter" label="Make maximum=10000"/>
+		<var name="frame_resultName" type="java.lang.String" default_value="dataReduction_result" usage="parameter" label="name of result"/>
+		<var name="frame_verticalIntegrationRegion" type="org.gumtree.data.gdm.core.Group" default_value="null" usage="region" label="region of interests or mask"/>
+	</vars>
+	<connectors>
+		<connector producer="frame_databag" consumer="source_groupData"/>
+		<connector producer="frame_databag" consumer="wrap_databag"/>
+		<connector producer="wrap_output" consumer="frame_output"/>
+		<connector producer="frame_dataName" consumer="source_dataName"/>
+		<connector producer="frame_axisflip" consumer="axis_flip"/>
+		<connector producer="frame_axiscorrskip" consumer="axisCorrection_skip"/>
+		<connector producer="frame_normalskip" consumer="Normalise_skip"/>
+		<connector producer="frame_dataName" consumer="wrap_inputName"/>
+		<connector producer="frame_backgroundFilename" consumer="backgroundCorrection_backgroundFilename"/>
+		<connector producer="frame_backgroundCorrectionSkip" consumer="backgroundCorrection_skip"/>
+		<connector producer="frame_backgroundCorrectionStop" consumer="backgroundCorrection_stop"/>
+		<connector producer="frame_efficiencyCorrectionMapURI" consumer="efficiencyCorrection_mapURI"/>
+		<connector producer="frame_efficiencyCorrectionSkip" consumer="efficiencyCorrection_skip"/>
+		<connector producer="frame_efficiencyCorrectionStop" consumer="efficiencyCorrection_stop"/>
+		<connector producer="frame_geometryCorrectionSkip" consumer="geometryCorrection_skip"/>
+		<connector producer="frame_geometryCorrectionStop" consumer="geometryCorrection_stop"/>
+		<connector producer="frame_viSkip" consumer="verticalIntegration_skip"/>
+		<connector producer="frame_viStop" consumer="verticalIntegration_stop"/>
+		<connector producer="frame_verticalIntegrationRegion" consumer="verticalIntegration_region"/>
+		<connector producer="frame_rescale" consumer="vertInt_scale"/>
+		<connector producer="frame_resultName" consumer="wrap_resultName"/>
+		<connector producer="source_scanData" consumer="axisCorrection_input"/>
+		<connector producer="axisCorrection_output" consumer="norm_groupdata"/>
+		<connector producer="source_scanData" consumer="sourceSink_in"/>
+		<connector producer="axisCorrection_output" consumer="axisCorrectionResult_in"/>
+		<connector producer="normalised_data" consumer="backgroundCorrection_scanData"/>
+		<connector producer="normalised_data" consumer="normalisationResult_in"/>
+		<connector producer="backgroundCorrection_output" consumer="efficiencyCorrection_inputPlot"/>
+		<connector producer="backgroundCorrection_output" consumer="backgroundCorrectionResult_in"/>
+		<connector producer="efficiencyCorrection_output" consumer="geometryCorrection_scanData"/>
+		<connector producer="efficiencyCorrection_output" consumer="efficiencyCorrectionResult_in"/>
+		<connector producer="geometryCorrection_output" consumer="verticalIntegration_input"/>
+		<connector producer="geometryCorrection_output" consumer="geometryCorrectionResult_in"/>
+		<connector producer="wrap_output" consumer="dataReductionResult_in"/>
+		<connector producer="verticalIntegration_output" consumer="verticalIntegrationResult_in"/>
+		<connector producer="verticalIntegration_output" consumer="wrap_result"/>
+	</connectors>
+	<agents>
+		<agent name="source_processor" principal="ProcessorAgent" pname="Source" label="Data Source"/>
+		<agent name="axis_processor" principal="ProcessorAgent" pname="AxisCorrection" label="Axis correction"/>
+		<agent name="Normalisation_processor" principal="ProcessorAgent" pname="Normalisation" label="Normalisation"/>
+		<agent name="backgroundCorrection_processor" principal="ProcessorAgent" pname="BackgroundCorrection" label="Background Correction"/>
+		<agent name="efficiencyCorrection_processor" principal="ProcessorAgent" pname="EfficiencyCorrection" label="Efficiency Correction"/>
+		<agent name="geometryCorrection_processor" principal="ProcessorAgent" pname="GeometryCorrection" label="Geometry Correction"/>
+		<agent name="integration_processor" principal="ProcessorAgent" pname="VerticalIntegration" label="Vertical Integration"/>
+	</agents>
+</framework>
