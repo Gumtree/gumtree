@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.6"?><target name="Gumtree Bundles" sequenceNumber="22">
+<?pde version="3.8"?><target name="Gumtree Bundles" sequenceNumber="24">
 <locations>
-<location includeAllPlatforms="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.sdk.ide" version="3.7.2.M20120208-0800"/>
-<repository location="http://download.eclipse.org/eclipse/updates/3.7/"/>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.sdk.ide" version="4.2.0.I20120608-1400"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.2"/>
 </location>
-<location includeAllPlatforms="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.emf.sdk.feature.group" version="2.7.2.v20120130-0943"/>
-<unit id="org.eclipse.gef.sdk.feature.group" version="3.7.2.v20110927-2020-7G7W77A5WNgIRPdWXDIbNTSQPdQL"/>
-<unit id="org.eclipse.gmf.runtime.sdk.feature.group" version="1.5.0.v20110607-1200-67N09E9QnChoWswz-3wf_rz0kQ8Y"/>
-<unit id="org.eclipse.wst.xml_ui.feature.feature.group" version="3.3.2.v201112072049-7H7EFZ7DxumTmce4khcSkIiqoD8eDMKlT8Oz011P"/>
-<repository location="http://download.eclipse.org/releases/indigo"/>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.emf.sdk.feature.group" version="2.8.0.v20120608-0554"/>
+<unit id="org.eclipse.gef.sdk.feature.group" version="3.8.0.201206112118"/>
+<unit id="org.eclipse.gmf.runtime.sdk.feature.group" version="1.6.0.v20120517-1809-67R09E9QuFflXswwIO_z0E3d4k_X"/>
+<unit id="org.eclipse.wst.xml_ui.feature.feature.group" version="3.4.0.v201111021744-7H7GFeBDxumUpsl5liePhK3loz-m62J4rSz011R1"/>
+<repository location="http://download.eclipse.org/releases/juno"/>
 </location>
-<location includeAllPlatforms="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="ch.qos.logback.classic" version="1.0.0.v20111214-2030"/>
 <unit id="ch.qos.logback.classic.source" version="1.0.0.v20111214-2030"/>
 <unit id="ch.qos.logback.core" version="1.0.0.v20111214-2030"/>
@@ -81,14 +81,12 @@
 <unit id="org.xmlpull" version="1.1.3.4_v201201052148"/>
 <repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20120526062928/repository/"/>
 </location>
-<location includeAllPlatforms="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.e4.ui.feature.feature.group" version="0.10.0.v20110613-2030-7AAI77FQFxCMos_Wz0drF-G27B74"/>
-<unit id="org.eclipse.e4.ui.source.feature.feature.group" version="0.10.0.v20110613-2030-7AAI77FQFxCMos_Wz0drF-G27B74"/>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.e4.xwt.feature.feature.group" version="0.9.1.v20091126-1500-17Z2AkF7B98PAL03211"/>
-<repository location="http://download.eclipse.org/e4/downloads/drops/R-0.111-201109121510/repository"/>
+<unit id="org.eclipse.e4.xwt.source.feature.feature.group" version="0.9.1.v20091126-1500-17Z2AkF7B98PAL03211"/>
+<repository location="http://download.eclipse.org/e4/downloads/drops/R-0.12-201206131100/repository/"/>
 </location>
 <location path="X:/eclipse/plugins/bsh/2.0.0.b4/eclipse" type="Directory"/>
-<location path="X:/eclipse/plugins/com.buschmais.maexo/1.1.0/eclipse" type="Directory"/>
 <location path="X:/eclipse/plugins/com.db4o/8.0/eclipse" type="Directory"/>
 <location path="X:/eclipse/plugins/com.isencia.passerelle/7.0.0/eclipse" type="Directory"/>
 <location path="X:/eclipse/plugins/com.richclientgui.rcptoolbox/1.0.6/eclipse" type="Directory"/>
