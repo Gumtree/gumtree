@@ -1,32 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.6"?><target name="Gumtree Platform Developer Target" sequenceNumber="44">
+<?pde version="3.8"?><target name="Gumtree Platform Developer Target" sequenceNumber="50">
 <locations>
-<location includeAllPlatforms="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.sdk.ide" version="3.7.2.M20120208-0800"/>
-<repository location="http://download.eclipse.org/eclipse/updates/3.7"/>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.platform.sdk" version="4.2.0.I20120608-1400"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.2"/>
 </location>
-<location includeAllPlatforms="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.emf.sdk.feature.group" version="2.7.2.v20120130-0943"/>
-<unit id="org.eclipse.emf.compare.sdk.feature.group" version="1.2.2.v20120214-0915"/>
-<unit id="org.eclipse.gef.sdk.feature.group" version="3.7.2.v20110927-2020-7G7W77A5WNgIRPdWXDIbNTSQPdQL"/>
-<unit id="org.eclipse.gmf.runtime.sdk.feature.group" version="1.5.0.v20110607-1200-67N09E9QnChoWswz-3wf_rz0kQ8Y"/>
-<unit id="org.eclipse.ecf.core.feature.group" version="3.5.4.v20111230-0120"/>
-<unit id="org.eclipse.rse.feature.group" version="3.3.2.R33x_v201110030150-7L7CFGH8wqio8s-qYtkPgn8qWd4T"/>
-<unit id="org.eclipse.dltk.core.feature.group" version="3.0.0.v20101211-0331-7l-2ED-z0UkhYdtV3_LBO"/>
-<unit id="org.eclipse.dltk.tcl.feature.group" version="3.0.0.v20101109-0623-7g--EC3wSgpTPwM02543"/>
-<unit id="org.eclipse.wst.xml_ui.feature.feature.group" version="3.3.2.v201112072049-7H7EFZ7DxumTmce4khcSkIiqoD8eDMKlT8Oz011P"/>
-<repository location="http://download.eclipse.org/releases/indigo"/>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.ecf.core.feature.group" version="3.5.6.v20120610-1946"/>
+<unit id="org.eclipse.rse.feature.group" version="3.4.0.201205300905-7L7IFBV83omxZWwIDyHWipb2Sz-f"/>
+<unit id="org.eclipse.emf.sdk.feature.group" version="2.8.0.v20120608-0554"/>
+<unit id="org.eclipse.emf.compare.sdk.feature.group" version="1.3.1.v20120605-0748"/>
+<unit id="org.eclipse.gef.sdk.feature.group" version="3.8.0.201206112118"/>
+<unit id="org.eclipse.gmf.runtime.sdk.feature.group" version="1.6.0.v20120517-1809-67R09E9QuFflXswwIO_z0E3d4k_X"/>
+<unit id="org.eclipse.dltk.tcl.feature.group" version="4.0.0.201206120848"/>
+<unit id="org.eclipse.wst.xml_ui.feature.feature.group" version="3.4.0.v201111021744-7H7GFeBDxumUpsl5liePhK3loz-m62J4rSz011R1"/>
+<repository location="http://download.eclipse.org/releases/juno"/>
 </location>
-<location includeAllPlatforms="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.gumtree.lib.bundles.feature.feature.group" version="1.7.0.201206061653"/>
-<unit id="org.gumtree.lib.bundles.feature.source.feature.group" version="1.7.0.201206061653"/>
-<repository location="http://dist.codehaus.org/gumtree/sites/bundles/"/>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.gumtree.lib.bundles.feature.feature.group" version="1.8.0.201207121243"/>
+<unit id="org.gumtree.lib.bundles.feature.source.feature.group" version="1.8.0.201207121243"/>
+<repository location="http://dist.codehaus.org/gumtree/sites/bundles/1.8.0.201207121243/"/>
 </location>
-<location includeAllPlatforms="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.python.pydev.feature.feature.group" version="2.5.0.2012040618"/>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.python.pydev.feature.feature.group" version="2.6.0.2012062818"/>
 <repository location="http://pydev.org/updates"/>
 </location>
-<location includeAllPlatforms="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.swtbot.eclipse.feature.group" version="2.0.5.20111003_1754-3676ac8-dev-e36"/>
 <repository location="http://download.eclipse.org/technology/swtbot/helios/dev-build/update-site"/>
 </location>
