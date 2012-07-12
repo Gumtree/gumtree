@@ -16,7 +16,7 @@
 		<parent.path>../../parent</parent.path>
 		<framework.path>../../framework</framework.path>
 		<bragg.path>../../bragg</bragg.path>
-		<sdk.path>..</sdk.path>
+		<infrastructure.path>..</infrastructure.path>
 	</properties>
 	
 	<build>
