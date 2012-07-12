@@ -24,10 +24,5 @@
 			<modules>
 			</modules>
 		</profile>
-		<profile>
-			<id>ide</id>
-				<properties>
-				</properties>
-		</profile>
 	</profiles>
 </project>
