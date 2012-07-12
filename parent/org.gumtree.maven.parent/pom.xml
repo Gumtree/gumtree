@@ -42,14 +42,14 @@
 	</issueManagement>
 	<mailingLists>
 		<mailingList>
-			<name>GumTree Decision</name>
+			<name>Gumtree Decision</name>
 			<archive>https://groups.google.com/forum/#!forum/gumtree</archive>
 		</mailingList>
 	</mailingLists>
 	<scm>
-		<connection>scm:svn:http://svn.codehaus.org/gumtree/gumtree/trunk</connection>
-    	<developerConnection>scm:svn:https://svn.codehaus.org/gumtree/gumtree/trunk</developerConnection>
-    	<url>http://svn.codehaus.org/gumtree/gumtree/trunk</url>
+		<connection>scm:git:git://github.com/Gumtree/gumtree.git</connection>
+    	<developerConnection>scm:git:https://github.com/Gumtree/gumtree.git</developerConnection>
+    	<url>http://github.com/Gumtree/gumtree</url>
 	</scm>
 	<repositories>
 		<!--
