@@ -46,6 +46,8 @@
 		<module>${common.path}/com.google.guava</module>
 		<module>${common.path}/com.thoughtworks.xstream</module>
 		<module>${common.path}/org.objenesis</module>
+		<module>${common.path}/org.eclemma.runtime.equinox</module>
+		<module>${common.path}/org.mockito</module>
 		<module>${common.path}/ch.lambdaj</module>
 		<module>${common.path}/org.gumtree.core</module>
 
@@ -54,8 +56,6 @@
 		<module>${common.path}/org.freehep.jas.jas3.linux.x86</module>
 		<module>${common.path}/org.freehep.jas.jas3.macosx.x86</module>
 		<module>${common.path}/org.gumtree.data.nexus</module>
-		<module>${common.path}/org.eclemma.runtime.equinox</module>
-		<module>${common.path}/org.mockito</module>
 		<module>${common.path}/org.jfree.common</module>
 		<module>${common.path}/org.jfree.chart</module>
 		<module>${common.path}/com.sun.opengl</module>
