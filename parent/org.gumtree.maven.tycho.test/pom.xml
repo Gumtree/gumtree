@@ -40,7 +40,6 @@
 			</plugin>
 			-->
 			<!-- [ANSTO][Tony][2012-07-10] We cannot get this to work with Tycho 0.15.0 -->
-			<!--
 			<plugin>
 				<groupId>${tycho.groupId}</groupId>
 				<artifactId>tycho-surefire</artifactId>
@@ -49,7 +48,6 @@
 					<aggregate>true</aggregate>
 				</configuration>
 			</plugin>
-			-->
 		</plugins>
 	</reporting>
 	
