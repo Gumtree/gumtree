@@ -15,10 +15,6 @@
 		<enableEmmaReport>true</enableEmmaReport>
 	</properties>
 
-	<build>
-		<sourceDirectory>src</sourceDirectory>
-	</build>
-
 	<name>Gumtree Framework Core Tests Bundle</name>
 
 	<profiles>
