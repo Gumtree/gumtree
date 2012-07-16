@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree Data Nexus UI
 Bundle-SymbolicName: org.gumtree.data.nexus.ui;singleton:=true
-Bundle-Version: 1.8.0.qualifier
+Bundle-Version: 1.7.0.qualifier
 Service-Component: OSGI-INF/exporterProvider.xml
 Bundle-Activator: org.gumtree.data.nexus.ui.internal.Activator
 Require-Bundle: org.eclipse.core.runtime;visibility:=reexport,

@@ -5,7 +5,7 @@
 
 	<groupId>org.codehaus.gumtree</groupId>
 	<artifactId>org.gumtree.framework.module</artifactId>
-	<version>1.8.0-SNAPSHOT</version>
+	<version>1.7.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
 		<data.path>../../data</data.path>
@@ -89,7 +89,7 @@
 		<module>${common.path}/org.gumtree.data.nexus.ui</module>
 		<module>${common.path}/org.gumtree.common.ui.feature</module>
 
-
+		<!--
 		<module>${extensions.path}/org.beanshell</module>
 		<module>${extensions.path}/org.gumtree.beanshell.core</module>
 		<module>${extensions.path}/org.gumtree.beanshell.core.feature</module>
@@ -178,6 +178,7 @@
 
 
 		<module>${build.path}/org.gumtree.framework.sources.feature</module>
+		-->
 	</modules>
 
 	<name>Gumtree Framework Build</name>
@@ -194,8 +195,9 @@
 				<module>${common.path}/org.gumtree.core.tests</module>
 				<module>${common.path}/org.gumtree.server.tests</module>
 
-
+				<!--
 				<module>${applications.path}/org.gumtree.app.runtime.tests</module>
+				-->
 			</modules>
 		</profile>
 	</profiles>
