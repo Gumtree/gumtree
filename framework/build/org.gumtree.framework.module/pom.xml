@@ -42,6 +42,7 @@
 		<module>${data.path}/org.gumtree.data.soleil.feature</module>
 
 
+
 		<module>${common.path}/com.db4o.osgi</module>
 		<module>${common.path}/com.google.guava</module>
 		<module>${common.path}/com.thoughtworks.xstream</module>
@@ -90,6 +91,7 @@
 		<module>${common.path}/org.gumtree.common.ui.feature</module>
 
 
+
 		<module>${extensions.path}/org.beanshell</module>
 		<module>${extensions.path}/org.gumtree.beanshell.core</module>
 		<module>${extensions.path}/org.gumtree.beanshell.core.feature</module>
@@ -109,6 +111,7 @@
 		<module>${extensions.path}/org.gumtree.xml.feature</module>
 
 		<module>${extensions.path}/org.gumtree.passerelle.feature</module>
+
 
 
 		<module>${sics.path}/ch.psi.sics.hipadaba</module>
@@ -133,11 +136,13 @@
 		<module>${sics.path}/org.gumtree.sics.ui.feature</module>
 
 
+
 		<module>${dae.path}/org.gumtree.dae.core</module>
 		<module>${dae.path}/org.gumtree.dae.core.feature</module>
 
 		<module>${dae.path}/org.gumtree.dae.server</module>
 		<module>${dae.path}/org.gumtree.dae.server.feature</module>
+
 
 
 		<module>${processor.path}/au.gov.ansto.bragg.errorpropagation</module>
@@ -159,8 +164,10 @@
 		<module>${processor.path}/org.gumtree.processor.ui.feature</module>
 
 
+
 		<module>${gumpy.path}/org.gumtree.gumpy.scripts</module>
 		<module>${gumpy.path}/org.gumtree.gumpy.feature</module>
+
 
 
 		<module>${applications.path}/org.gumtree.app.osgi</module>
@@ -177,6 +184,7 @@
 		<module>${applications.path}/org.gumtree.app.scriptrunner.feature</module>
 
 
+
 		<module>${build.path}/org.gumtree.framework.sources.feature</module>
 	</modules>
 
@@ -191,8 +199,11 @@
 				<module>${data.path}/org.gumtree.data.soleil.tests</module>
 
 
+
 				<module>${common.path}/org.gumtree.core.tests</module>
 				<module>${common.path}/org.gumtree.server.tests</module>
+
+
 
 				<module>${applications.path}/org.gumtree.app.runtime.tests</module>
 			</modules>

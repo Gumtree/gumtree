@@ -41,7 +41,7 @@
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.workbench.feature</module>
 
 
-		<!--
+
 		<module>${echidna.path}/au.gov.ansto.bragg.echidna.algolib</module>
 		<module>${echidna.path}/au.gov.ansto.bragg.echidna.dra</module>
 		<module>${echidna.path}/au.gov.ansto.bragg.echidna.core</module>
@@ -57,7 +57,7 @@
 		<module>${echidna.path}/au.gov.ansto.bragg.echidna.workbench.feature</module>
 
 
-
+		<!--
 		<module>${wombat.path}/au.gov.ansto.bragg.wombat.algolib</module>
 		<module>${wombat.path}/au.gov.ansto.bragg.wombat.dra</module>
 		<module>${wombat.path}/au.gov.ansto.bragg.wombat.core</module>
