@@ -2,7 +2,7 @@
 <feature
       id="org.gumtree.sics.ui.feature"
       label="Gumtree SICS UI"
-      version="1.8.0.qualifier"
+      version="1.7.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">

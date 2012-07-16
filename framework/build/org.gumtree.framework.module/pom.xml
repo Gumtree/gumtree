@@ -89,7 +89,7 @@
 		<module>${common.path}/org.gumtree.data.nexus.ui</module>
 		<module>${common.path}/org.gumtree.common.ui.feature</module>
 
-		<!--
+
 		<module>${extensions.path}/org.beanshell</module>
 		<module>${extensions.path}/org.gumtree.beanshell.core</module>
 		<module>${extensions.path}/org.gumtree.beanshell.core.feature</module>
@@ -132,7 +132,7 @@
 		<module>${sics.path}/org.gumtree.gumnix.sics.dom</module>
 		<module>${sics.path}/org.gumtree.sics.ui.feature</module>
 
-
+		<!--
 		<module>${dae.path}/org.gumtree.dae.core</module>
 		<module>${dae.path}/org.gumtree.dae.core.feature</module>
 
