@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.codehaus.gumtree</groupId>
 		<artifactId>org.gumtree.maven.parent</artifactId>
-		<version>1.8.0-SNAPSHOT</version>
+		<version>1.7.0-SNAPSHOT</version>
 		<relativePath>../org.gumtree.maven.parent</relativePath>
 	</parent>
 	<properties>
