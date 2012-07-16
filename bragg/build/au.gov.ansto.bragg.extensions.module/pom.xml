@@ -57,7 +57,7 @@
 		<module>${echidna.path}/au.gov.ansto.bragg.echidna.workbench.feature</module>
 
 
-		<!--
+
 		<module>${wombat.path}/au.gov.ansto.bragg.wombat.algolib</module>
 		<module>${wombat.path}/au.gov.ansto.bragg.wombat.dra</module>
 		<module>${wombat.path}/au.gov.ansto.bragg.wombat.core</module>
@@ -106,7 +106,7 @@
 		<module>${quokka.path}/au.gov.ansto.bragg.quokka.workbench.feature</module>
 
 
-
+		<!--
 		<module>${platypus.path}/au.gov.ansto.bragg.platypus.core</module>
 		<module>${platypus.path}/au.gov.ansto.bragg.platypus.core.feature</module>
 
