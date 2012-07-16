@@ -132,7 +132,7 @@
 		<module>${sics.path}/org.gumtree.gumnix.sics.dom</module>
 		<module>${sics.path}/org.gumtree.sics.ui.feature</module>
 
-		<!--
+
 		<module>${dae.path}/org.gumtree.dae.core</module>
 		<module>${dae.path}/org.gumtree.dae.core.feature</module>
 
@@ -178,7 +178,6 @@
 
 
 		<module>${build.path}/org.gumtree.framework.sources.feature</module>
-		-->
 	</modules>
 
 	<name>Gumtree Framework Build</name>
@@ -195,9 +194,7 @@
 				<module>${common.path}/org.gumtree.core.tests</module>
 				<module>${common.path}/org.gumtree.server.tests</module>
 
-				<!--
 				<module>${applications.path}/org.gumtree.app.runtime.tests</module>
-				-->
 			</modules>
 		</profile>
 	</profiles>

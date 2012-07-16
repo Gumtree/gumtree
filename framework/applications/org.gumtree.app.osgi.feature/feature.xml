@@ -2,7 +2,7 @@
 <feature
       id="org.gumtree.app.osgi.feature"
       label="Gumtree OSGi Application"
-      version="1.8.0.qualifier"
+      version="1.7.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">
