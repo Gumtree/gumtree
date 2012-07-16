@@ -5,7 +5,7 @@
 
 	<groupId>org.codehaus.gumtree</groupId>
 	<artifactId>au.gov.ansto.bragg.extensions.module</artifactId>
-	<version>1.8.0-SNAPSHOT</version>
+	<version>1.7.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
 		<nbi.path>../../nbi</nbi.path>
@@ -41,7 +41,7 @@
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.workbench.feature</module>
 
 
-
+		<!--
 		<module>${echidna.path}/au.gov.ansto.bragg.echidna.algolib</module>
 		<module>${echidna.path}/au.gov.ansto.bragg.echidna.dra</module>
 		<module>${echidna.path}/au.gov.ansto.bragg.echidna.core</module>
@@ -147,6 +147,7 @@
 
 
 		<module>${build.path}/au.gov.ansto.bragg.extensions.sources.feature</module>
+		-->
 	</modules>
 
 	<name>Bragg Extensions Build</name>
