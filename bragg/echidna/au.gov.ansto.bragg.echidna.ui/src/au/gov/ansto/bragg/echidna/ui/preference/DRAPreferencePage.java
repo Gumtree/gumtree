@@ -115,7 +115,8 @@ public class DRAPreferencePage extends FieldEditorPreferencePage implements
 		final ComboFieldEditor normRefCombo = new ComboFieldEditor(
 				PreferenceConstants.P_NORM_REF, 
 				"Normalisation reference: ", 
-				new String[][]{{"bm1_counts", "bm1_counts"}, {"bm2_counts", "bm2_counts"}}, 
+				new String[][]{{"bm1_counts", "bm1_counts"}, {"bm2_counts", "bm2_counts"}, 
+						{"bm3_counts", "bm3_counts"}}, 
 				getFieldEditorParent());
 		addField(normRefCombo);
 //		GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(normRefCombo.get);

@@ -183,6 +183,14 @@
             id="au.gov.ansto.bragg.nbi.ui.scripting.DataSourceView"
             name="Scripting Data Source">
       </view>      
+      <view
+            allowMultiple="true"
+            category="au.gov.ansto.bragg.nbi.ui"
+            class="au.gov.ansto.bragg.nbi.ui.internal.SicsTerminalView"
+            icon="icons/terminal.png"
+            id="au.gov.ansto.bragg.nbi.ui.SicsTerminalView"
+            name="Sics Terminal">
+      </view>
 	  <view
             allowMultiple="false"
             category="au.gov.ansto.bragg.nbi.ui"

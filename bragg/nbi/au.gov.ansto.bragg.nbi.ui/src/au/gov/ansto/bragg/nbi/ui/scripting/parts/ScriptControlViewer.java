@@ -110,16 +110,19 @@ public class ScriptControlViewer extends Composite {
 	private static final String TEMPLATE_SCRIPT = "/pyscripts/AnalysisScriptingTemplate.py";
 	private static final String PRE_RUN_SCRIPT = "/pyscripts/pre_run.py";
 	private static final String POST_RUN_SCRIPT	= "/pyscripts/post_run.py";
-	private static final String INTERNAL_FOLDER_PATH = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/Internal";
-	private static final String[][] INTERNAL_SCRIPTS = new String[][]{
-									{"Experiment Setup", "/Experiment/Experiment_Setup.py"},
-									{"Nickel Alignment", "/Nickel_Auto/auto_Nickel_align.py"},
-									{"Slits Calibration", "/Experiment/Slits_Calibration.py"},
-									{"Live Data", "/Analysis/Live_Data.py"}, 
-									{"Graffiti Export", "/Analysis/Graffiti_Export.py"}};
-	private static final String[] INITIAL_SCRIPTS = new String[]{
-									"/Experiment/Initialise.py"
-									};
+//	private static final String INTERNAL_FOLDER_PATH = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/Internal";
+	private static final String WORKSPACE_FOLDER_PATH = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+	private static final String GUMTREE_SCRIPTING_LIST_PROPERTY = "gumtree.scripting.menuitems";
+	private static final String GUMTREE_SCRIPTING_INIT_PROPERTY = "gumtree.scripting.initscript";
+//	private static final String[][] INTERNAL_SCRIPTS = new String[][]{
+//									{"Experiment Setup", "/Experiment/Experiment_Setup.py"},
+//									{"Nickel Alignment", "/Nickel_Auto/auto_Nickel_align.py"},
+//									{"Slits Calibration", "/Experiment/Slits_Calibration.py"},
+//									{"Live Data", "/Analysis/Live_Data.py"}, 
+//									{"Graffiti Export", "/Analysis/Graffiti_Export.py"}};
+//	private static final String[] INITIAL_SCRIPTS = new String[]{
+//									"/Experiment/Initialise.py"
+//									};
 //	private static String[] PRE_RUN_SCRIPT = new String[] {
 //		"from gumpy.nexus import *",
 //		"from gumpy.control import param",
@@ -264,21 +267,44 @@ public class ScriptControlViewer extends Composite {
 		recentMenu = new Menu(recentMenuItem);
 		recentMenuItem.setMenu(recentMenu);
 		new MenuItem(loadMenu, SWT.SEPARATOR);
-		for (int i = 0; i < INTERNAL_SCRIPTS.length; i++) {
-			MenuItem item = new MenuItem(loadMenu, SWT.PUSH);
-			item.setText(INTERNAL_SCRIPTS[i][0]);
-			final String itemPath = INTERNAL_FOLDER_PATH + INTERNAL_SCRIPTS[i][1];
-			item.addSelectionListener(new SelectionListener() {
-				
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					loadScript(itemPath);
+		String scriptListProperty = System.getProperty(GUMTREE_SCRIPTING_LIST_PROPERTY);
+		if (scriptListProperty != null) {
+			String[] scripts = scriptListProperty.split(",");
+			for (int i = 0; i < scripts.length; i++){
+				if (scripts[i].contains(":")){
+					String[] pairs = scripts[i].split(":");
+					MenuItem item = new MenuItem(loadMenu, SWT.PUSH);
+					item.setText(pairs[0]);
+					final String itemPath = WORKSPACE_FOLDER_PATH + pairs[1];
+					item.addSelectionListener(new SelectionListener() {
+						
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							loadScript(itemPath);
+						}
+						
+						@Override
+						public void widgetDefaultSelected(SelectionEvent e) {
+						}
+					});
+				} else {
+					MenuItem item = new MenuItem(loadMenu, SWT.PUSH);
+					final String itemPath = WORKSPACE_FOLDER_PATH + scripts[i];
+					File scriptFile = new File(itemPath);
+					item.setText(scriptFile.getName());
+					item.addSelectionListener(new SelectionListener() {
+						
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							loadScript(itemPath);
+						}
+						
+						@Override
+						public void widgetDefaultSelected(SelectionEvent e) {
+						}
+					});
 				}
-				
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
-				}
-			});
+			}
 		}
 		
 		scriptLabel = new Label(staticComposite, SWT.CENTER);
@@ -471,14 +497,22 @@ public class ScriptControlViewer extends Composite {
 	}
 
 	public void runInitialScripts() {
-		for (String item : INITIAL_SCRIPTS){
-			String itemPath = INTERNAL_FOLDER_PATH + item;
+		String initScriptString = System.getProperty(GUMTREE_SCRIPTING_INIT_PROPERTY);
+		if (initScriptString != null && initScriptString.trim() != "") {
 			try {
-				initScriptControl(itemPath);
+				initScriptControl(WORKSPACE_FOLDER_PATH + initScriptString);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
 		}
+//		for (String item : INITIAL_SCRIPTS){
+//			String itemPath = INTERNAL_FOLDER_PATH + item;
+//			try {
+//				initScriptControl(itemPath);
+//			} catch (FileNotFoundException e) {
+//				e.printStackTrace();
+//			}
+//		}
 	}
 
 	private void makeRecentListMenu(Menu parent) {
@@ -1070,7 +1104,12 @@ public class ScriptControlViewer extends Composite {
 						} else {
 							dialog.setFilterPath(ScriptDataSourceViewer.fileDialogPath);
 						}
-						dialog.setFilterExtensions(new String[]{"*.hdf"});
+						String ext = parameter.getProperty("ext");
+						if (ext != null) {
+							dialog.setFilterExtensions(ext.split(","));
+						} else {
+							dialog.setFilterExtensions(new String[]{"*.*"});
+						}
 						dialog.open();
 						if (dialog.getFileName() == null) {
 							return;
@@ -1400,7 +1439,13 @@ public class ScriptControlViewer extends Composite {
 	}
 	
 	public String getPreference(String name) {
-		return Platform.getPreferencesService().getString(
-				Activator.PLUGIN_ID, name, "", null).trim();
+		if (name.contains(":")){
+			String[] pairs = name.split(":");
+			return Platform.getPreferencesService().getString(
+					pairs[0], pairs[1], "", null).trim();
+		} else {
+			return Platform.getPreferencesService().getString(
+					Activator.PLUGIN_ID, name, "", null).trim();
+		}
 	}
 }

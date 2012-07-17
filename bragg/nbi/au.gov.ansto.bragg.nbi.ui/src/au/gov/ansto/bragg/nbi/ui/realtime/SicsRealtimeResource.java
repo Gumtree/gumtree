@@ -87,11 +87,14 @@ public class SicsRealtimeResource implements IRealtimeResource {
 	}
 	
 	private String getValue(String idOrPath) throws SicsCoreException{
+		if (idOrPath.contains(":")) {
+			String[] parts = idOrPath.split(":");
+			idOrPath = parts[1].trim();
+		}
 		IComponentController controller = null;
 		try{
 			controller = getDevice(idOrPath);
 		}catch (Exception e) {
-			// TODO: handle exception
 			controller = getController(idOrPath);
 		}
 		if (controller == null)
@@ -104,7 +107,6 @@ public class SicsRealtimeResource implements IRealtimeResource {
 				IComponentData data = dynamicController.getValue();
 				return data.getSicsString();
 			} catch (Exception e) {
-				// TODO: handle exception
 				throw new SicsCoreException(e.getLocalizedMessage());
 			}
 		} else {
@@ -113,6 +115,10 @@ public class SicsRealtimeResource implements IRealtimeResource {
 	}
 	
 	public static IComponentController findDevice(String idOrPath) {
+		if (idOrPath.contains(":")) {
+			String[] parts = idOrPath.split(":");
+			idOrPath = parts[1].trim();
+		}
 		IComponentController controller = null;
 		try{
 			controller = getDevice(idOrPath);
@@ -155,6 +161,10 @@ public class SicsRealtimeResource implements IRealtimeResource {
 	}
 	
 	public static String getSimpleName(String fullName) {
+		if (fullName.contains(":")) {
+			String[] parts = fullName.split(":");
+			return parts[0].trim();
+		}
 		if (fullName.contains("/")) {
 			String[] parts = fullName.split("/");
 			for (int i = parts.length - 1; i >= 0; i--) {

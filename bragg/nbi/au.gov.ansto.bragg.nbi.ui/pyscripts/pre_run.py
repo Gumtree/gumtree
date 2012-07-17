@@ -47,6 +47,18 @@ def load_script(fname):
 def confirm(msg): 
 	return __runner__.openConfirm(msg)
 
+def open_warning(msg): 
+	return __runner__.openWarning(msg)
+
+def open_information(msg): 
+	return __runner__.openInformation(msg)
+
+def open_error(msg): 
+	return __runner__.openError(msg)
+
+def open_question(msg): 
+	return __runner__.openQuestion(msg)
+
 def selectSaveFolder():
 	return __runner__.selectSaveFile()
 
