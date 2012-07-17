@@ -17,10 +17,8 @@
 	<modules>
 		<module>${parent.path}/org.gumtree.maven.module</module>
 		<module>${framework.path}/build/org.gumtree.framework.module</module>
-		<!--
 		<module>${bragg.path}/build/au.gov.ansto.bragg.extensions.module</module>
 		<module>${infrastructure.path}/org.gumtree.sdk.module</module>
-		-->
 	</modules>
 	
 	<name>Gumtree Project Maven Build</name>
