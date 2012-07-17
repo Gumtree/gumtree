@@ -125,16 +125,20 @@ public class DoRTScanTask extends AbstractEchidnaScanTask {
 //			data.horizontalSpan = 4;
 //			data.grabExcessHorizontalSpace = true;
 //			group.setLayoutData (data);
+			final ComboViewer overlapsOption = new ComboViewer(parent, SWT.READ_ONLY);
+			overlapsOption.setContentProvider(new ArrayContentProvider());
+			overlapsOption.setLabelProvider(new LabelProvider());
+			overlapsOption.setInput(new String[]{"0", "1", "2"});
 			
-			final Text startangText = getToolkit().createText(parent, "");
-			GridDataFactory.swtDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(
-					SWT.FILL, SWT.CENTER).grab(true, false).applyTo(startangText);
-			addValidator(startangText, floatValidator);
-			
-			final Text finishangText = getToolkit().createText(parent, "");
-			GridDataFactory.swtDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(
-					SWT.FILL, SWT.CENTER).grab(true, false).applyTo(finishangText);
-			addValidator(finishangText, floatValidator);
+//			final Text startangText = getToolkit().createText(parent, "");
+//			GridDataFactory.swtDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(
+//					SWT.FILL, SWT.CENTER).grab(true, false).applyTo(startangText);
+//			addValidator(startangText, floatValidator);
+//			
+//			final Text finishangText = getToolkit().createText(parent, "");
+//			GridDataFactory.swtDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(
+//					SWT.FILL, SWT.CENTER).grab(true, false).applyTo(finishangText);
+//			addValidator(finishangText, floatValidator);
 			
 			final Text stepsizeText = getToolkit().createText(parent, "");
 			GridDataFactory.swtDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(
@@ -200,12 +204,15 @@ public class DoRTScanTask extends AbstractEchidnaScanTask {
 					bindingContext.bindValue(ViewersObservables.observeSingleSelection(sampposNumber),
 							BeansObservables.observeValue(command, "sampposNumber"),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(startangText, SWT.Modify),
-							BeansObservables.observeValue(command, "startang"),
+					bindingContext.bindValue(ViewersObservables.observeSingleSelection(overlapsOption),
+							BeansObservables.observeValue(command, "overlaps"),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(finishangText, SWT.Modify),
-							BeansObservables.observeValue(command, "finishang"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
+//					bindingContext.bindValue(SWTObservables.observeText(startangText, SWT.Modify),
+//							BeansObservables.observeValue(command, "startang"),
+//							new UpdateValueStrategy(), new UpdateValueStrategy());
+//					bindingContext.bindValue(SWTObservables.observeText(finishangText, SWT.Modify),
+//							BeansObservables.observeValue(command, "finishang"),
+//							new UpdateValueStrategy(), new UpdateValueStrategy());
 					bindingContext.bindValue(SWTObservables.observeText(stepsizeText, SWT.Modify),
 							BeansObservables.observeValue(command, "stepsize"),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
@@ -231,8 +238,9 @@ public class DoRTScanTask extends AbstractEchidnaScanTask {
 					newCommand.setSize(command.getSize());
 					newCommand.setSampposAB(command.getSampposAB());
 					newCommand.setSampposNumber(command.getSampposNumber());
-					newCommand.setStartang(command.getStartang());
-					newCommand.setFinishang(command.getFinishang());
+//					newCommand.setStartang(command.getStartang());
+//					newCommand.setFinishang(command.getFinishang());
+					newCommand.setOverlaps(command.getOverlaps());
 					newCommand.setStepsize(command.getStepsize());
 					newCommand.setTot_time(command.getTot_time());
 					newCommand.setRotate(command.getRotate());
@@ -255,13 +263,14 @@ public class DoRTScanTask extends AbstractEchidnaScanTask {
 						return;
 					getDataModel().removeCommand(command);
 					refreshUI(parent);
+					notifyPropertyChanged(command, null);
 				}
 			});
 			removeButton.setToolTipText("click to remove this line, if it is not the single line");
 		}
 		
 		public void createPartControl(Composite parent) {
-			GridLayoutFactory.swtDefaults().numColumns(12).applyTo(parent);
+			GridLayoutFactory.swtDefaults().numColumns(11).applyTo(parent);
 			if (getDataModel().getCommands().length == 0){
 				DoRTCommand newCommand = new DoRTCommand();
 				newCommand.setSampposAB("A");
@@ -278,11 +287,12 @@ public class DoRTScanTask extends AbstractEchidnaScanTask {
 			getToolkit().createLabel(parent, "Sample");
 			getToolkit().createLabel(parent, "Sample");
 			Label sampposLabel = getToolkit().createLabel(parent, "Sample position");
-			getToolkit().createLabel(parent, "Starting");
-			getToolkit().createLabel(parent, "Finishing");
+//			getToolkit().createLabel(parent, "Starting");
+//			getToolkit().createLabel(parent, "Finishing");
+			getToolkit().createLabel(parent, "Overlaps");
 			getToolkit().createLabel(parent, "Step size");
-			getToolkit().createLabel(parent, "Total time");
-			getToolkit().createLabel(parent, "Rotate speed");
+			getToolkit().createLabel(parent, "Total");
+			getToolkit().createLabel(parent, "Rotate");
 //			Label sampposLabel = getToolkit().createLabel(parent, "sample_position");
 			GridDataFactory.fillDefaults().span(2, 1).applyTo(sampposLabel);
 //			getToolkit().createLabel(parent, "start_angle");
@@ -296,10 +306,11 @@ public class DoRTScanTask extends AbstractEchidnaScanTask {
 			getToolkit().createLabel(parent, "name");
 			getToolkit().createLabel(parent, "shape");
 			Label sampposLabel2 = getToolkit().createLabel(parent, "");
-			getToolkit().createLabel(parent, "angle(deg)");
-			getToolkit().createLabel(parent, "angle(deg)");
+//			getToolkit().createLabel(parent, "angle(deg)");
+//			getToolkit().createLabel(parent, "angle(deg)");
+			getToolkit().createLabel(parent, "");
 			getToolkit().createLabel(parent, "(deg)");
-			getToolkit().createLabel(parent, "(h)");
+			getToolkit().createLabel(parent, "time (h)");
 			getToolkit().createLabel(parent, "(deg/s)");
 //			Label sampposLabel = getToolkit().createLabel(parent, "sample_position");
 			GridDataFactory.fillDefaults().span(2, 1).applyTo(sampposLabel2);

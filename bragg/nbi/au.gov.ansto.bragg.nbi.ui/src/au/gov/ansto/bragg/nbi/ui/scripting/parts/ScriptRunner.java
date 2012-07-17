@@ -48,7 +48,7 @@ public class ScriptRunner {
 			
 			@Override
 			public void run() {
-				isConfirmed = MessageDialog.openConfirm(shell, "Confirm Dialog", msg);
+				isConfirmed = MessageDialog.openConfirm(shell, "Please Confirm", msg);
 				System.out.println("confirmed directly");
 				setActionPerformed(true);
 			}
@@ -64,6 +64,87 @@ public class ScriptRunner {
 		return isConfirmed();
 	}
 
+	public boolean openQuestion(final String msg){
+		setActionPerformed(false);
+		shell.getDisplay().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				isConfirmed = MessageDialog.openQuestion(shell, "Gumtree Dialog", msg);
+				setActionPerformed(true);
+			}
+		});
+		
+		while (!isActionPerformed()){
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				System.out.println("can't wait");
+			}
+		}
+		return isConfirmed();
+	}
+	
+	public void openError(final String msg){
+		setActionPerformed(false);
+		shell.getDisplay().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				MessageDialog.openError(shell, "Error", msg);
+				setActionPerformed(true);
+			}
+		});
+		
+		while (!isActionPerformed()){
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				System.out.println("can't wait");
+			}
+		}
+	}
+	
+	public void openInformation(final String msg){
+		setActionPerformed(false);
+		shell.getDisplay().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				MessageDialog.openInformation(shell, "Gumtree Information", msg);
+				setActionPerformed(true);
+			}
+		});
+		
+		while (!isActionPerformed()){
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				System.out.println("can't wait");
+			}
+		}
+	}
+	
+	public void openWarning(final String msg){
+		setActionPerformed(false);
+		shell.getDisplay().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				MessageDialog.openWarning(shell, "Warning", msg);
+				setActionPerformed(true);
+			}
+		});
+		
+		while (!isActionPerformed()){
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				System.out.println("can't wait");
+			}
+		}
+	}
+	
 	public String selectSaveFile(){
 		setActionPerformed(false);
 		shell.getDisplay().asyncExec(new Runnable() {

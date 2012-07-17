@@ -25,6 +25,9 @@ class Par:
             return self.__par__.getCommand()
         elif name == 'type' :
             return self.__par__.getType()
+        elif name != '__par__' :
+            return self.__par__.getProperty(name)
+            
     
     def __setattr__(self, name, value):
         if name == 'name' :
@@ -35,8 +38,10 @@ class Par:
             self.__par__.setOptions(value)
         elif name == 'command' :
             self.__par__.setCommand(value)
-        else :
+        elif name == '__par__' :
             self.__dict__[name] = value
+        else :
+            self.__par__.setProperty(name, str(value))
             
     def __str__(self):
         return 'Par_' + self.name

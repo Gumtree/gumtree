@@ -18,7 +18,7 @@ public class SICSExperimentPerspective implements IPerspectiveFactory {
 
 	public static final String SICS_EXPERIMENT_PERSPECTIVE_ID = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
 	public static final String SICS_BATCH_RUNNER_VIEW_ID = "org.gumtree.gumnix.sics.batch.ui.batchBufferManagerView";
-	public static final String SICS_TERMINAL_VIEW_ID = "org.gumtree.ui.terminal.commandLineTerminal";
+	public static final String SICS_TERMINAL_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.SicsTerminalView";
 	public static final String PROJECT_EXPLORER_VIEW_ID = "org.eclipse.ui.navigator.ProjectExplorer";
 	
 	public void createInitialLayout(final IPageLayout factory) {
@@ -57,7 +57,6 @@ public class SICSExperimentPerspective implements IPerspectiveFactory {
 		factory.getViewLayout("right").setMoveable(false);
 		factory.getViewLayout("right").setCloseable(false);
 		factory.setFixed(true);
-		
 	}
 
 

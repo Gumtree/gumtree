@@ -27,7 +27,6 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.gumtree.vis.dataset.XYTimeSeriesSet;
 import org.gumtree.vis.interfaces.ITimePlot;
 import org.gumtree.vis.swt.PlotComposite;
-import org.jfree.text.TextBox;
 
 import au.gov.ansto.bragg.kakadu.ui.util.DisplayManager;
 import au.gov.ansto.bragg.nbi.ui.internal.Activator;

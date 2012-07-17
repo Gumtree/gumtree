@@ -113,6 +113,10 @@
    </extension>
    <extension
          point="org.eclipse.ui.views">
+       <category
+            name="Echidna UI"
+            id="au.gov.ansto.bragg.echidna.ui">
+      </category>
       <view
             allowMultiple="false"
             category="au.gov.ansto.bragg.echidna.ui"
@@ -161,6 +165,14 @@
             id="au.gov.ansto.bragg.echidna.ui.views.EchidnaBatchEditingView"
             name="Batch Editor">
       </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.echidna.ui"
+            class="au.gov.ansto.bragg.echidna.ui.views.EchidnaRobotTaskEditingView"
+            icon="icons/robot_16x16.png"
+            id="au.gov.ansto.bragg.echidna.ui.views.EchidnaRobotTaskEditingView"
+            name="Robot Task Editor">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
@@ -202,6 +214,12 @@
             icon="icons/hot_temp16x16.png"
             id="au.gov.ansto.bragg.echidna.ui.HighTemperaturePerspective"
             name="High Temperature Experiment"/>
+      <perspective
+      		allowMultiple="false"
+            class="au.gov.ansto.bragg.echidna.ui.internal.RobotExperimentPerspective"
+            icon="icons/robot_16x16.png"
+            id="au.gov.ansto.bragg.echidna.ui.internal.RobotExperimentPerspective"
+            name="Robot Experiment"/>
       <perspective
       		allowMultiple="false"
             class="au.gov.ansto.bragg.echidna.ui.internal.MagneticFieldPerspective"

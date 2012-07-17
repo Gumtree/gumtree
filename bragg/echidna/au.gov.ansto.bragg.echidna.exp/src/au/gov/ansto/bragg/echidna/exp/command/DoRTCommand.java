@@ -18,14 +18,16 @@ import org.gumtree.gumnix.sics.batch.ui.commands.AbstractSicsCommand;
  */
 public class DoRTCommand extends AbstractSicsCommand {
 
-	private final static String DEFAULT_STARTANG_NAME = "command.default.startang";
-	private final static String DEFAULT_FINISHANG_NAME = "command.default.finishang";
+//	private final static String DEFAULT_STARTANG_NAME = "command.default.startang";
+//	private final static String DEFAULT_FINISHANG_NAME = "command.default.finishang";
+	private final static String DEFAULT_OVERLAPS_NAME = "command.default.overlaps";
 	private final static String DEFAULT_STEPSIZE_NAME = "command.default.stepsize";
 	private final static String DEFAULT_TOT_TIME_NAME = "command.default.tot-time";
 	private final static String DEFAULT_ROTATE_NAME = "command.default.rotate";
 	private final static String DEFAULT_SIZE_NAME = "command.default.size";
-	private float startang = 2.75f;
-	private float finishang = 5.2f;
+//	private float startang = 2.75f;
+//	private float finishang = 5.2f;
+	private String overlaps = "0";
 	private float stepsize = 0.05f;
 	private float rotate = 0f;
 	private String size = "9mm can";
@@ -43,13 +45,18 @@ public class DoRTCommand extends AbstractSicsCommand {
 			size = System.getProperty(DEFAULT_SIZE_NAME);
 		} catch (Exception e) {
 		}
+//		try{
+//			startang = Float.valueOf(System.getProperty(DEFAULT_STARTANG_NAME));
+//		} catch (Exception e) {
+//		}
+//		try{
+//			finishang = Float.valueOf(System.getProperty(DEFAULT_FINISHANG_NAME));
+//		} catch (Exception e) {
+//		}
 		try{
-			startang = Float.valueOf(System.getProperty(DEFAULT_STARTANG_NAME));
+			overlaps = System.getProperty(DEFAULT_OVERLAPS_NAME);
 		} catch (Exception e) {
-		}
-		try{
-			finishang = Float.valueOf(System.getProperty(DEFAULT_FINISHANG_NAME));
-		} catch (Exception e) {
+			overlaps = "0";
 		}
 		try{
 			stepsize = Float.valueOf(System.getProperty(DEFAULT_STEPSIZE_NAME));
@@ -67,32 +74,43 @@ public class DoRTCommand extends AbstractSicsCommand {
 	/**
 	 * @return the startang
 	 */
-	public float getStartang() {
-		return startang;
-	}
+//	public float getStartang() {
+//		return startang;
+//	}
 	/**
 	 * @param startang the startang to set
 	 */
-	public void setStartang(float startang) {
-		float oldValue = this.startang;
-		this.startang = startang;
-		firePropertyChange("startang", oldValue, startang);
-
-	}
+//	public void setStartang(float startang) {
+//		float oldValue = this.startang;
+//		this.startang = startang;
+//		firePropertyChange("startang", oldValue, startang);
+//
+//	}
 	/**
 	 * @return the finishang
 	 */
-	public float getFinishang() {
-		return finishang;
-	}
+//	public float getFinishang() {
+//		return finishang;
+//	}
 	/**
 	 * @param finishang the finishang to set
 	 */
-	public void setFinishang(float finishang) {
-		float oldValue = this.finishang;
-		this.finishang = finishang;
-		firePropertyChange("finishang", oldValue, finishang);
+//	public void setFinishang(float finishang) {
+//		float oldValue = this.finishang;
+//		this.finishang = finishang;
+//		firePropertyChange("finishang", oldValue, finishang);
+//	}
+	
+	public String getOverlaps() {
+		return overlaps;
 	}
+
+	public void setOverlaps(String overlaps) {
+		String oldValue = this.overlaps;
+		this.overlaps = overlaps;
+		firePropertyChange("overlaps", oldValue, overlaps);
+	}
+
 	/**
 	 * @return the stepsize
 	 */
@@ -201,8 +219,9 @@ public class DoRTCommand extends AbstractSicsCommand {
 			(size != null && size.trim().length() > 0 ? "{" + size.trim() + "} " : "") +
 			(sampposAB != null && sampposAB.trim().length() > 0 ? sampposAB.trim() : "") +
 			(sampposNumber != null && sampposNumber.trim().length() > 0 ? sampposNumber.trim() + " " : "") +
-			(startang != Float.NaN ? String.valueOf(startang) + " " : "") + 
-			(finishang != Float.NaN ? String.valueOf(finishang) + " " : "") +
+//			(startang != Float.NaN ? String.valueOf(startang) + " " : "") + 
+//			(finishang != Float.NaN ? String.valueOf(finishang) + " " : "") +
+			(overlaps != null && sampposNumber.trim().length() > 0 ? overlaps.trim() + " ": "") +
 			(stepsize != 0 ? String.valueOf(stepsize) + " " : "") +
 			(tot_time != Float.NaN ? String.valueOf(tot_time) + " " : "") +
 			(rotate != Float.NaN ? String.valueOf(rotate) + " " : "");

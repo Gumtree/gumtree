@@ -27,7 +27,7 @@ __script__.version = 'unknown'
 __runner__ = __UI__.getRunner()
 __writer__ = __UI__.getScriptExecutor().getEngine().getContext().getWriter()
 def logln(text):
-	log(text, __writer__)
+    log(text, __writer__)
 clear = script.clear
 Par.__model__ = __model__
 Act.__model__ = __model__
@@ -38,42 +38,54 @@ Plot2 = GPlot(widget=__register__.getPlot2())
 Plot3 = GPlot(widget=__register__.getPlot3())
 gumtree_root = str(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString())
 def noclose():
-	print 'not closable'
-	
+    print 'not closable'
+    
 def load_script(fname):
-	fname = os.path.dirname(__UI__.getScriptFilename()) + '/' + fname
-	__UI__.loadScript(fname)
-	
+    fname = os.path.dirname(__UI__.getScriptFilename()) + '/' + fname
+    __UI__.loadScript(fname)
+    
 def confirm(msg): 
-	return __runner__.openConfirm(msg)
+    return __runner__.openConfirm(msg)
+
+def open_warning(msg): 
+    return __runner__.openWarning(msg)
+
+def open_information(msg): 
+    return __runner__.openInformation(msg)
+
+def open_error(msg): 
+    return __runner__.openError(msg)
+
+def open_question(msg): 
+    return __runner__.openQuestion(msg)
 
 def selectSaveFolder():
-	return __runner__.selectSaveFile()
+    return __runner__.selectSaveFile()
 
 Plot1.close = noclose
 Plot2.close = noclose
 Plot3.close = noclose
 
 if '__dispose__' in globals() :
-	__dispose__()
-	
+    __dispose__()
+    
 def auto_run():
-	pass
+    pass
 
 def run_action(act):
-	act.set_running_status()
-	try:
-		exec(act.command)
-		act.set_done_status()
-	except Exception, e:
-		act.set_interrupt_status()
-		raise Exception, e.message
-	except:
-		act.set_error_status()
-		traceback.print_exc(file = sys.stdout)
-		raise Exception, 'Error in running <' + act.text + '>'
-	sics.handleInterrupt()
-	
+    act.set_running_status()
+    try:
+        exec(act.command)
+        act.set_done_status()
+    except Exception, e:
+        act.set_interrupt_status()
+        raise Exception, e.message
+    except:
+        act.set_error_status()
+        traceback.print_exc(file = sys.stdout)
+        raise Exception, 'Error in running <' + act.text + '>'
+    sics.handleInterrupt()
+    
 def slog(text):
     global __file_logger__
     logln(text + '\n')
