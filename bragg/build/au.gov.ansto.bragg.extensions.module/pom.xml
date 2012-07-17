@@ -106,7 +106,7 @@
 		<module>${quokka.path}/au.gov.ansto.bragg.quokka.workbench.feature</module>
 
 
-		<!--
+
 		<module>${platypus.path}/au.gov.ansto.bragg.platypus.core</module>
 		<module>${platypus.path}/au.gov.ansto.bragg.platypus.core.feature</module>
 
@@ -147,7 +147,6 @@
 
 
 		<module>${build.path}/au.gov.ansto.bragg.extensions.sources.feature</module>
-		-->
 	</modules>
 
 	<name>Bragg Extensions Build</name>
