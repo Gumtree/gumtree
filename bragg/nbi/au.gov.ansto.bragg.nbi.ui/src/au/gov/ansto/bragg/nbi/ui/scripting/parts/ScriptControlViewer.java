@@ -54,8 +54,10 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
@@ -1096,28 +1098,104 @@ public class ScriptControlViewer extends Composite {
 
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						FileDialog dialog = new FileDialog(getShell(), SWT.SINGLE);
-						if (ScriptDataSourceViewer.fileDialogPath == null){
-							IWorkspace workspace= ResourcesPlugin.getWorkspace();
-							IWorkspaceRoot root = workspace.getRoot();
-							dialog.setFilterPath(root.getLocation().toOSString());
-						} else {
-							dialog.setFilterPath(ScriptDataSourceViewer.fileDialogPath);
+						String dialogTypeString = parameter.getProperty("dtype");
+						if (dialogTypeString == null) {
+							dialogTypeString = "single";
 						}
-						String ext = parameter.getProperty("ext");
-						if (ext != null) {
-							dialog.setFilterExtensions(ext.split(","));
-						} else {
-							dialog.setFilterExtensions(new String[]{"*.*"});
-						}
-						dialog.open();
-						if (dialog.getFileName() == null) {
-							return;
-						}
-						String filePath = dialog.getFilterPath() + File.separator + dialog.getFileName();
-						if (filePath != null) {
+						if (dialogTypeString.toLowerCase().matches("multi")) {
+							FileDialog dialog = new FileDialog(getShell(), SWT.MULTI);
+							if (ScriptDataSourceViewer.fileDialogPath == null){
+								IWorkspace workspace= ResourcesPlugin.getWorkspace();
+								IWorkspaceRoot root = workspace.getRoot();
+								dialog.setFilterPath(root.getLocation().toOSString());
+							} else {
+								dialog.setFilterPath(ScriptDataSourceViewer.fileDialogPath);
+							}
+							String ext = parameter.getProperty("ext");
+							if (ext != null) {
+								dialog.setFilterExtensions(ext.split(","));
+							} else {
+								dialog.setFilterExtensions(new String[]{"*.*"});
+							}
+							dialog.open();
+							String[] filenames = dialog.getFileNames();
+							if (filenames == null || filenames.length == 0) {
+								return;
+							}
+							String filePath = "";
+							for (String filename : filenames) {
+								filePath += dialog.getFilterPath() + File.separator + filename + ";";
+							}
+							if (filePath != null) {
+								fileText.setText(filePath);
+								fileText.setToolTipText(filePath);
+							}
+						} else if (dialogTypeString.toLowerCase().matches("save")){
+							FileDialog dialog = new FileDialog(getShell(), SWT.SAVE);
+							if (ScriptDataSourceViewer.fileDialogPath == null){
+								IWorkspace workspace= ResourcesPlugin.getWorkspace();
+								IWorkspaceRoot root = workspace.getRoot();
+								dialog.setFilterPath(root.getLocation().toOSString());
+							} else {
+								dialog.setFilterPath(ScriptDataSourceViewer.fileDialogPath);
+							}
+							String ext = parameter.getProperty("ext");
+							if (ext != null) {
+								dialog.setFilterExtensions(ext.split(","));
+							} else {
+								dialog.setFilterExtensions(new String[]{"*.*"});
+							}
+							dialog.open();
+							if (dialog.getFileName() == null) {
+								return;
+							}
+							String filePath = dialog.getFilterPath() + File.separator + dialog.getFileName();
+							if (filePath != null) {
+								fileText.setText(filePath);
+								fileText.setToolTipText(filePath);
+							}
+						} else if (dialogTypeString.toLowerCase().matches("folder") 
+								|| dialogTypeString.toLowerCase().matches("dir")){
+							DirectoryDialog dialog = new DirectoryDialog(getShell(), SWT.SINGLE);
+							if (ScriptDataSourceViewer.fileDialogPath == null){
+								IWorkspace workspace= ResourcesPlugin.getWorkspace();
+								IWorkspaceRoot root = workspace.getRoot();
+								dialog.setFilterPath(root.getLocation().toOSString());
+							} else {
+								dialog.setFilterPath(ScriptDataSourceViewer.fileDialogPath);
+							}
+							String filePath = dialog.open();
+							if (filePath == null) {
+								return;
+							}
 							fileText.setText(filePath);
 							fileText.setToolTipText(filePath);
+							ScriptDataSourceViewer.fileDialogPath = dialog.getFilterPath();
+						} else {
+							FileDialog dialog = new FileDialog(getShell(), SWT.SINGLE);
+							if (ScriptDataSourceViewer.fileDialogPath == null){
+								IWorkspace workspace= ResourcesPlugin.getWorkspace();
+								IWorkspaceRoot root = workspace.getRoot();
+								dialog.setFilterPath(root.getLocation().toOSString());
+							} else {
+								dialog.setFilterPath(ScriptDataSourceViewer.fileDialogPath);
+							}
+							String ext = parameter.getProperty("ext");
+							if (ext != null) {
+								dialog.setFilterExtensions(ext.split(","));
+							} else {
+								dialog.setFilterExtensions(new String[]{"*.*"});
+							}
+							dialog.open();
+							if (dialog.getFileName() == null) {
+								return;
+							}
+							String filePath = dialog.getFilterPath() + File.separator + dialog.getFileName();
+							if (filePath != null) {
+								fileText.setText(filePath);
+								fileText.setToolTipText(filePath);
+								ScriptDataSourceViewer.fileDialogPath = dialog.getFilterPath();
+							}
 						}
 					}
 
