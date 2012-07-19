@@ -1,15 +1,16 @@
 <!--
 	This script requires the following parameters to be set in the ANT runtime
 	Paramaters:
-		baseLocation
+		buildDirectory
+		sourceDirectory
 -->
 <project default="main">
 
 	<!-- TODO: change to new Git folder structure -->
 	<property name="groupId" value="org.codehaus.gumtree" />
-	<property name="mvnExecutable" value="${baseLocation}/tools/apache-maven-3.0.4/bin/mvn.bat" />
-	<property name="artifcatLocation" value="${baseLocation}/source/plugins/org.gumtree.maven.repository.extra/artifacts" />
-	<property name="mvnLocation" value="${baseLocation}/source/plugins/org.gumtree.maven.repository.extra/repository" />
+	<property name="mvnExecutable" value="${buildDirectory}/tools/apache-maven-3.0.4/bin/mvn.bat" />
+	<property name="artifcatLocation" value="${sourceDirectory}/gumtree/infrastructure/org.gumtree.maven.repository.extra/artifacts" />
+	<property name="mvnLocation" value="${sourceDirectory}/gumtree/infrastructure/org.gumtree.maven.repository.extra/repository" />
 
 	<!--
 		Parameters:
