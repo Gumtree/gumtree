@@ -375,7 +375,7 @@
 			exportDirectory 		(predefined)
 			equinoxJarLocation 		(predefined)
 			version 				(predefined)
-			nsisHome 				(predefined)
+			nsisDirectory 			(predefined)
 			applicationName			(eg. gumtree)
 			applicationLabel		(eg. Gumtree)
 			applicationShortcut		(eg. Gumtree Workbench)
@@ -389,7 +389,7 @@
 				<fileset dir="${exportDirectory}/products/workbench/@{applicationName}" />
 			</delete>
 			<buildApplication applicationType="workbench" applicationName="@{applicationName}" osType="win32" os="win32" ws="win32" arch="x86" />
-			<exec executable="${nsisHome}/makensis.exe">
+			<exec executable="${nsisDirectory}/makensis.exe">
 				<arg value="/DINSTRUMENT=@{applicationName}" />
 				<arg value="/DINSTRUMENT_LABEL=@{applicationLabel}" />
 				<arg value="/DINSTRUMENT_SHORTCUT=@{applicationShortcut}" />
@@ -410,7 +410,7 @@
 			exportDirectory 		(predefined)
 			equinoxJarLocation 		(predefined)
 			version 				(predefined)
-			nsisHome 				(predefined)
+			nsisDirectory 			(predefined)
 			applicationName			(eg. echidna)
 			applicationLabel		(eg. Echidna)
 			applicationShortcut		(eg. Echidna Workbench)
@@ -424,7 +424,7 @@
 				<fileset dir="${exportDirectory}/products/workbench/@{applicationName}" />
 			</delete>
 			<buildBraggApplication applicationType="workbench" applicationName="@{applicationName}" osType="win32" os="win32" ws="win32" arch="x86" />
-			<exec executable="${nsisHome}/makensis.exe">
+			<exec executable="${nsisDirectory}/makensis.exe">
 				<arg value="/DINSTRUMENT=@{applicationName}" />
 				<arg value="/DINSTRUMENT_LABEL=@{applicationLabel}" />
 				<arg value="/DINSTRUMENT_SHORTCUT=@{applicationShortcut}" />
@@ -445,7 +445,7 @@
 			exportDirectory 		(predefined)
 			equinoxJarLocation 		(predefined)
 			version 				(predefined)
-			nsisHome 				(predefined)
+			nsisDirectory 			(predefined)
 			applicationName			(eg. echidna)
 			applicationLabel		(eg. Echidna)
 			applicationShortcut		(eg. Echidna Workbench)
@@ -461,7 +461,7 @@
 			<buildBraggApplication applicationType="workbench" applicationName="@{applicationName}" osType="win32" os="win32" ws="win32" arch="x86" />
 			<!-- [GUMTREE-817] Special hack to include a configuration to point Gumtree to store log on H: drive -->
 			<echo file="${exportDirectory}/products/workbench/@{applicationName}/win32/gumtree.ini" append="true">-Dlogback.logFileLocation=H:/AppData/Gumtree/@{applicationName}/experiment</echo>
-			<exec executable="${nsisHome}/makensis.exe">
+			<exec executable="${nsisDirectory}/makensis.exe">
 				<arg value="/DINSTRUMENT=@{applicationName}" />
 				<arg value="/DINSTRUMENT_LABEL=@{applicationLabel}" />
 				<arg value="/DINSTRUMENT_SHORTCUT=@{applicationShortcut}" />
