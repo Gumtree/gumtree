@@ -71,6 +71,7 @@ public class DRAPreferencePage extends FieldEditorPreferencePage implements
 				"Detector efficiency file:", 40, getFieldEditorParent());
 		Button browseButton = new Button(getFieldEditorParent(), SWT.PUSH);
 		browseButton.setText("Browse...");
+		browseButton.setToolTipText("Click to browse the file system");
 		addField(efficiencyFileText);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(browseButton);
 		browseButton.addSelectionListener(new SelectionListener() {
@@ -93,7 +94,7 @@ public class DRAPreferencePage extends FieldEditorPreferencePage implements
 				"Angular offset file:", 40, getFieldEditorParent());
 		Button browseButton2 = new Button(getFieldEditorParent(), SWT.PUSH);
 		browseButton2.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_HAND));
-		browseButton2.setToolTipText("click this to find a scripting file");
+		browseButton2.setToolTipText("Click to browse the file system");
 		browseButton2.setText("Browse...");
 		addField(angularOffsetFileText);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(browseButton2);
@@ -119,6 +120,56 @@ public class DRAPreferencePage extends FieldEditorPreferencePage implements
 						{"bm3_counts", "bm3_counts"}}, 
 				getFieldEditorParent());
 		addField(normRefCombo);
+		new Label(getFieldEditorParent(), SWT.NONE);
+
+		
+		final StringFieldEditor userOutputFileText = new StringFieldEditor(
+				PreferenceConstants.P_USER_OUTPUT_DIRECTORY, 
+				"User Output Directory:", 40, getFieldEditorParent());
+		Button browseButton3 = new Button(getFieldEditorParent(), SWT.PUSH);
+		browseButton3.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_HAND));
+		browseButton3.setToolTipText("Click to browse the file system");
+		browseButton3.setText("Browse...");
+		addField(userOutputFileText);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(browseButton3);
+		browseButton3.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String filename = Util.selectDirectoryFromShell(getShell());
+				if (filename != null && filename.trim().length() > 0) {
+					userOutputFileText.setStringValue(filename);
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
+		final StringFieldEditor calibrationOutputFileText = new StringFieldEditor(
+				PreferenceConstants.P_CALIBRATION_OUTPUT_DIRECTORY, 
+				"Calibration Output Directory:", 40, getFieldEditorParent());
+		Button browseButton4 = new Button(getFieldEditorParent(), SWT.PUSH);
+		browseButton4.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_HAND));
+		browseButton4.setToolTipText("Click to browse the file system");
+		browseButton4.setText("Browse...");
+		addField(calibrationOutputFileText);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(browseButton4);
+		browseButton4.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String filename = Util.selectDirectoryFromShell(getShell());
+				if (filename != null && filename.trim().length() > 0) {
+					calibrationOutputFileText.setStringValue(filename);
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 //		GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(normRefCombo.get);
 	}
 
