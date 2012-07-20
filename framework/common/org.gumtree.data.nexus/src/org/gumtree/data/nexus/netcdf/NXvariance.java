@@ -22,7 +22,7 @@ public class NXvariance extends NXDataItem implements IVariance {
 	 */
 	public NXvariance(VariableDS from) {
 		super(from);
-		if (hasAttribute(NXConstants.GLOBAL_SIGNAL_CLASS_LABEL, 
+		if (!hasAttribute(NXConstants.GLOBAL_SIGNAL_CLASS_LABEL, 
 				NXConstants.VARANCE_CLASS_VALUE)) {
 			addStringAttribute(NXConstants.GLOBAL_SIGNAL_CLASS_LABEL, 
 				NXConstants.VARANCE_CLASS_VALUE);
@@ -38,7 +38,7 @@ public class NXvariance extends NXDataItem implements IVariance {
 	public NXvariance(NcGroup group, String shortName, IArray array)
 			throws InvalidArrayTypeException {
 		super(group, shortName, array);
-		if (hasAttribute(NXConstants.GLOBAL_SIGNAL_CLASS_LABEL, 
+		if (!hasAttribute(NXConstants.GLOBAL_SIGNAL_CLASS_LABEL, 
 				NXConstants.VARANCE_CLASS_VALUE)) {
 			addStringAttribute(NXConstants.GLOBAL_SIGNAL_CLASS_LABEL, 
 				NXConstants.VARANCE_CLASS_VALUE);
@@ -55,7 +55,7 @@ public class NXvariance extends NXDataItem implements IVariance {
 	public NXvariance(NcDataset dataset, NcGroup group, String shortName,
 			IArray array) throws InvalidArrayTypeException {
 		super(dataset, group, shortName, array);
-		if (hasAttribute(NXConstants.GLOBAL_SIGNAL_CLASS_LABEL, 
+		if (!hasAttribute(NXConstants.GLOBAL_SIGNAL_CLASS_LABEL, 
 				NXConstants.VARANCE_CLASS_VALUE)) {
 			addStringAttribute(NXConstants.GLOBAL_SIGNAL_CLASS_LABEL, 
 				NXConstants.VARANCE_CLASS_VALUE);

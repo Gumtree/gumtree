@@ -78,13 +78,15 @@ def run_action(act):
         exec(act.command)
         act.set_done_status()
     except Exception, e:
-        act.set_interrupt_status()
+        if sics.getSicsController() != None: 
+            act.set_interrupt_status()
         raise Exception, e.message
     except:
         act.set_error_status()
         traceback.print_exc(file = sys.stdout)
         raise Exception, 'Error in running <' + act.text + '>'
-    sics.handleInterrupt()
+    if sics.getSicsController() != None:
+        sics.handleInterrupt()
     
 def slog(text):
     global __file_logger__
