@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Gumtree" uid="org.gumtree.app.workbench.product" id="org.gumtree.app.workbench.product" application="org.gumtree.app.workbench.application" version="1.7.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="Gumtree" uid="org.gumtree.app.workbench.product" id="org.gumtree.app.workbench.product" application="org.gumtree.app.workbench.application" version="1.8.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.gumtree.app.runtime/images/earth.png"/>
@@ -27,6 +27,7 @@ Eclipse Foundation http://www.eclipse.org/
 -Dlogback.logFileLocation=logs
 -Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime,org.springframework.osgi.extender
 -Dgumtree.runtime.configBundle=org.gumtree.app.workbench
+-Dsun.java2d.d3d=false
 -XX:MaxPermSize=256m
 -Xmx512m</vmArgs>
       <vmArgsMac>-Xdock:icon=../Resources/Eclipse.icns
