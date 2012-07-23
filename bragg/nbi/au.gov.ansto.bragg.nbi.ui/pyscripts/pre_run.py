@@ -73,27 +73,27 @@ def auto_run():
     pass
 
 def run_action(act):
-    act.set_running_status()
-    try:
-        exec(act.command)
-        act.set_done_status()
-    except Exception, e:
-        if sics.getSicsController() != None: 
-            act.set_interrupt_status()
-        raise Exception, e.message
-    except:
-        act.set_error_status()
-        traceback.print_exc(file = sys.stdout)
-        raise Exception, 'Error in running <' + act.text + '>'
-    if sics.getSicsController() != None:
-        sics.handleInterrupt()
-    
-def slog(text):
-    global __file_logger__
-    logln(text + '\n')
-    try:
-        tsmp = strftime("[%Y-%m-%d %H:%M:%S]", localtime())
-        __file_logger__.write(tsmp + ' ' + text + '\n')
-        __file_logger__.flush()
-    except:
-        print 'failed to log'
+	act.set_running_status()
+	try:
+		exec(act.command)
+		act.set_done_status()
+	except Exception, e:
+		if sics.getSicsController() != None: 
+			act.set_interrupt_status()
+		raise Exception, e.message
+	except:
+		act.set_error_status()
+		traceback.print_exc(file = sys.stdout)
+		raise Exception, 'Error in running <' + act.text + '>'
+	if sics.getSicsController() != None:
+		sics.handleInterrupt()
+	
+#def slog(text):
+#    global __file_logger__
+#    logln(text + '\n')
+#    try:
+#        tsmp = strftime("[%Y-%m-%d %H:%M:%S]", localtime())
+#        __file_logger__.write(tsmp + ' ' + text + '\n')
+#        __file_logger__.flush()
+#    except:
+#        print 'failed to log'

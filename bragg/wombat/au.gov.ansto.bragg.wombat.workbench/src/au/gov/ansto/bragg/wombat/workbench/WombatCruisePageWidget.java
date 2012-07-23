@@ -19,8 +19,8 @@ import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
 import au.gov.ansto.bragg.nbi.ui.widgets.DeviceStatusWidget;
 import au.gov.ansto.bragg.nbi.ui.widgets.ShutterStatusWidget;
-import au.gov.ansto.bragg.nbi.ui.widgets.SicsStatusWidget;
 
+@SuppressWarnings("restriction")
 public class WombatCruisePageWidget extends AbstractCruisePageWidget {
 
 	private IEclipseContext eclipseContext;
