@@ -1,7 +1,7 @@
 Book of Gumtree
 ===============
 Bragg Institute <gumtree@googlegroups.com>
-v1.7.0, July 2012: Written for Gumtree version 1.7.x
+v1.8.0, July 2012: Written for Gumtree version 1.8.x
 :doctype: book
 
 :numbered:
@@ -53,7 +53,7 @@ The following links are some useful online resources for the Gumtree project:
 
 * *Home Page*: http://gumtree.codehaus.org
 * *Download Site*: http://gumtree.codehaus.org/downloads
-* *Subversion Repository*: http://svn.codehaus.org/gumtree/
+* *Git Repository*: https://github.com/Gumtree/gumtree
 * *Issue Tracking System*: http://jira.codehaus.org/browse/GUMTREE
 * *Site Management*: http://xircles.codehaus.org/projects/gumtree
 * *Mailing List*: gumtree@googlegroups.com
@@ -243,15 +243,15 @@ digraph html {
 The Gumtree project has separated into those major module groups:
 
 * *Maven Build Parent* - A set of supporting projects for building Gumtree with
-Maven build system  (http://svn.codehaus.org/gumtree/gumtree/trunk/parent)
+Maven build system  (https://github.com/Gumtree/gumtree/tree/master/parent)
 * *Gumtree Framework* - The application framework for building Gumtree
-applications (http://svn.codehaus.org/gumtree/gumtree/trunk/framework)
+applications (https://github.com/Gumtree/gumtree/tree/master/framework)
 * *Bragg Extensions* - The frameworkwork extensions for building Bragg
 Institute's neutron beam instrument applications
-(http://svn.codehaus.org/gumtree/gumtree/trunk/bragg)
+(https://github.com/Gumtree/gumtree/tree/master/bragg)
 * *Project Infrastructure* - A set of supporting projects for Gumtree software
 development and release engineering
-(http://svn.codehaus.org/gumtree/gumtree/trunk/infrastructure)
+(https://github.com/Gumtree/gumtree/tree/master/infrastructure)
 
 === Interoperability ===
 The design goal of the Gumtree framework is all about reusability. In principle
@@ -318,40 +318,50 @@ See: http://en.wikipedia.org/wiki/Event-driven_programming
 Getting Started with Gumtree Development
 ----------------------------------------
 
-Download and install JDK 1.6
-
-Download and install Classic Eclipse 4.2
-
-Setup workspace folder structure
-
-Run Eclipse
-
-Configure Eclipse
-
-* Add extra RAM to eclipse.ini
-* Switch JRE to JDK 1.6
-* Set JDK Compliance to 1.6
-* Set Execution Environment to match JDK
-* Set proxy connection
-
-
-
 === Development Environment Setup ===
+Java Development Toolkit (JDK) and Eclipse IDE are the minimum software
+requirement for developing Gumtree applications. 
 
-Essential plug-ins:
+*Step 1 - Software Installation*
 
-* EGit
+Install JDK::
+	Download and install *JDK 6 or above* from: http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
+Install Eclipse::
+	Download and install *Eclipse Classic 4.2 or above* from: http://www.eclipse.org/downloads
 
-Optional plug-ins:
+*Step 2 - Create Development Directory*
 
-* SVNKit 1.7.4 (or above) implementation
-* Eclipse SDK Examples
-* Mylyn + JIRA connector
+Create development folder::
+	Create a new folder <gumtree_directory> for Gumtree development (eg D:\Development\Workspace\Gumtree on Windows)
 
-http://vaadin.com/eclipse
-Vaadin Plug-in for Eclipse http://vaadin.com/eclipse/
+Create IDE workspace folder::
+	Create a sub folder <gumtree_directory>/source/plugins as your Eclipse IDE workspace (eg D:\Development\Workspace\Gumtree\source\plugins)
 
+Your development directory will look like this:
+
+.Basic development directory structure
+[graphviz, ./graphviz/Basic_Development_Directory_Structure.png]
+---------------------------------------------------------
+graph linuxdir {
+	size = "14,14"
+	node [shape = box];
+	dev [label = "<gumtree_directory>"];
+	dev -- source;
+	source -- plugins;
+}
+---------------------------------------------------------
+
+*Step 3 - Setup Eclipse IDE*
+
+Additional JVM memory::
+Configure your Eclipse IDE with more memory (edit the JVM argument setting in eclipse.ini)
+
+Start IDE::
+Start Eclipse under <gumtree_directory>/source/plugins
+
+Configure to JDK
+Under 
 
 
 === Running Gumtree Workbench ===
@@ -388,15 +398,15 @@ The Gumtree Framework is organised into a number of modules
 [options="header"]
 |===============================================================================
 |Component|SVN Repository|Notes
-|*Common Data Model*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/data|The scientific data model
-|*Framework Common*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/common|The core framework
-|*Framework Extensions*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/extensions|Optional features to the framework
-|*SICS Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/sics|Support for the SICS control system
-|*DAE Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/dae|Support for the ANSTO DAE system
-|*Processor Framework*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/processor|A processor based data analysis framework
-|*Gumpy Scripting Library*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/gumpy|Python scripting library for Gumtree
-|*Application Containers*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/applications|Applications containers
-|*Framework Builder*|http://svn.codehaus.org/gumtree/gumtree/trunk/framework/build|Maven builder for this framework
+|*Common Data Model*|https://github.com/Gumtree/gumtree/tree/master/framework/data|The scientific data model
+|*Framework Common*|https://github.com/Gumtree/gumtree/tree/master/framework/common|The core framework
+|*Framework Extensions*|https://github.com/Gumtree/gumtree/tree/master/framework/extensions|Optional features to the framework
+|*SICS Support*|https://github.com/Gumtree/gumtree/tree/master/framework/sics|Support for the SICS control system
+|*DAE Support*|https://github.com/Gumtree/gumtree/tree/master/framework/dae|Support for the ANSTO DAE system
+|*Processor Framework*|https://github.com/Gumtree/gumtree/tree/master/framework/processor|A processor based data analysis framework
+|*Gumpy Scripting Library*|https://github.com/Gumtree/gumtree/tree/master/framework/gumpy|Python scripting library for Gumtree
+|*Application Containers*|https://github.com/Gumtree/gumtree/tree/master/framework/applications|Applications containers
+|*Framework Builder*|https://github.com/Gumtree/gumtree/tree/master/framework/build|Maven builder for this framework
 |===============================================================================
 
 .Framework module dependencies
@@ -542,15 +552,19 @@ XXX
 [options="header"]
 |===============================================================================
 |Component|SVN Repository|Notes
-|*NBI Common Library*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/nbi|Common library for all instrument
-|*Echidna Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/echidna|Support for the Echidna instrument
-|*Wombat Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/wombat|Support for the Wombat instrument
-|*Kowari Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/kowari|Support for the Kowari instrument
-|*Quokka Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/quokka|Support for the Quokka instrument
-|*Platypus Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/platypus|Support for the Platypus instrument
-|*Pelican Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/pelican|Support for the Pelican instrument
-|*Taipan Support*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/taipan|Support for the Taipan instrument
-|*Extensions Builder*|http://svn.codehaus.org/gumtree/gumtree/trunk/bragg/build|Maven builder for this extensions
+|*NBI Common Library*|https://github.com/Gumtree/gumtree/tree/master/bragg/nbi|Common library for all instrument
+|*Echidna Support*|https://github.com/Gumtree/gumtree/tree/master/bragg/echidna|Support for the Echidna instrument
+|*Wombat Support*|https://github.com/Gumtree/gumtree/tree/master/bragg/wombat|Support for the Wombat instrument
+|*Kowari Support*|https://github.com/Gumtree/gumtree/tree/master/bragg/kowari|Support for the Kowari instrument
+|*Quokka Support*|https://github.com/Gumtree/gumtree/tree/master/bragg/quokka|Support for the Quokka instrument
+|*Platypus Support*|https://github.com/Gumtree/gumtree/tree/master/bragg/platypus|Support for the Platypus instrument
+|*Pelican Support*|https://github.com/Gumtree/gumtree/tree/master/bragg/pelican|Support for the Pelican instrument
+|*Taipan Support*|https://github.com/Gumtree/gumtree/tree/master/bragg/taipan|Support for the Taipan instrument
+|*Kookaburra Support*|https://github.com/Gumtree/gumtree/tree/master/bragg/kookaburra|Support for the Kookaburra instrument
+|*Bilby Support*|https://github.com/Gumtree/gumtree/tree/master/bragg/bilby|Support for the Bilby instrument
+|*Dingo Support*|https://github.com/Gumtree/gumtree/tree/master/bragg/dingo|Support for the Dingo instrument
+|*Emu Support*|https://github.com/Gumtree/gumtree/tree/master/bragg/emu|Support for the Emu instrument
+|*Extensions Builder*|https://github.com/Gumtree/gumtree/tree/master/bragg/build|Maven builder for this extensions
 |===============================================================================
 
 .Framework module dependencies
@@ -564,6 +578,10 @@ digraph G {
 	Platypus->NBI
 	Pelican->NBI
 	Taipan->NBI
+	Kookaburra->NBI
+	Bilby->NBI
+	Dingo->NBI
+	Emu->NBI
 }
 ---------------------------------------------------------
 
@@ -602,71 +620,3 @@ Release Engineering
 
 Continuous Build System
 -----------------------
-
-=== Installation ===
-Install JDK (6 or above)
-
-Install Cygwin
-* We need cygwin for "mv" command
-
-Install git from http://code.google.com/p/msysgit/
-Set proxy to git: git config --global http.proxy http://<host>:<port>
-(or use EGit for permenant set)
-
-Install ANT
-
-Install Maven
-We need a Maven instance for eash version of Gumtree build
-Configure localRepository path
-Configure proxy setting (on NBI network)
-
-Download Jenkins from http://jenkins-ci.org/
-Copy jenkins.war to V:\build\jenkins
-cd V:\build\jenkins
-Create run.bat with the following content:
-java -DJENKINS_HOME="." -jar jenkins.war --httpPort=7070
--- Set DJENKINS_HOME to <build_system_path>
--- Set http port to 7070
-
-Install plugins
-Manage Jenkins -> Manage Plugins -> Advanced
-Configure proxy setting
-Install plugins
-* Github Plugin
-* FindBugs Plug-in
-* Emma Plugin
-* Status View Plugin
-* Downstream build view
-
-Restart Jenkins to install plugins
-
-Configure Jenkins
-Manage Jenkins -> Configure System
-# of executors = 1
-SCM checkout retry count = 3
-
-Add new JDK installation
-Add new Git installation (eg X:\apps\msysgit\1.7.11\bin\git.exe)
-Add new Ant installation
-Add new Maven installation for each Gumtree version
-Jenkins URL = http://dav1-test.nbi.ansto.gov.au:7070/
-
-Create build project:
-Example: Gumtree-Source (1.7.x)
-Discard Old Builds -> Max # of builds to keep = 20
-GitHub project = https://github.com/Gumtree/gumtree/
-Use custom workspace (Advanced Project Options) = K:\Build\Gumtree-1.7.x\source\gumtree
-Git repository URL = https://github.com/Gumtree/gumtree.git
-Branches to build = 1.7.x
-epository browser = githubweb, url = https://github.com/Gumtree/gumtree/
-Poll SCM = 0 */2 * * * (ie every 2 hours)
-Add Maven build:
-- Select specific version of Maven
-- goals = clean install surefire-report:report -P test,coverage,findbugs
-- POM = infrastructure/org.gumtree.maven.all/pom.xml
-- JVM Options = -Xmx1024m -XX:MaxPermSize=256m
-Add publish FindBugs
-Add publish JUnit test result
-- XMLs = **/surefire-reports/*.xml
-Add record Emma
-- XML = **/emma/*-coverage.xml

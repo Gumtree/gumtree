@@ -2,7 +2,7 @@
 	
 	<property name="bashLocation" value="D:/Applications/Cygwin/1.7.15-1/bin" />
 	<property name="asciidocLocation" value="/cygdrive/d/Applications/Asciidoc/8.6.7" />
-	<property name="sourceLocation" value="/cygdrive/d/Development/Workspace/Gumtree-1.7.x/source/plugins/org.gumtree.sdk.doc.developer/asciidoc" />
+	<property name="sourceLocation" value="/cygdrive/d/Development/Workspace/Gumtree-1.8.x/source/plugins/gumtree/infrastructure/org.gumtree.sdk.doc.developer/asciidoc" />
 
 	<target name="generateHTML">
 		<exec executable="${bashLocation}/bash.exe">
@@ -19,6 +19,7 @@
 	</target>
 
 	<target name="main">
+		<mkdir dir="${basedir}/graphviz"/>
 		<antcall target="generateHTML" />
 		<antcall target="generatePDF" />
 	</target>

@@ -1,0 +1,121 @@
+Download and install JDK 1.6
+
+Download and install Classic Eclipse 4.2
+
+Setup workspace folder structure
+
+Run Eclipse
+
+Configure Eclipse
+
+* Add extra RAM to eclipse.ini
+* Switch JRE to JDK 1.6
+* Set JDK Compliance to 1.6
+* Set Execution Environment to match JDK
+* Set proxy connection
+
+
+
+=== Development Environment Setup ===
+
+Essential plug-ins:
+
+* EGit
+
+
+Optional plug-ins:
+
+* SVNKit 1.7.4 (or above) implementation
+* Eclipse SDK Examples
+* Mylyn + JIRA connector
+
+http://vaadin.com/eclipse
+Vaadin Plug-in for Eclipse http://vaadin.com/eclipse/
+
+
+
+=== Running Gumtree Workbench ===
+XXX
+
+
+
+
+
+
+
+
+
+
+
+
+
+Continuous Build System
+-----------------------
+
+=== Installation ===
+Install JDK (6 or above)
+
+Install Cygwin
+* We need cygwin for "mv" command
+
+Install git from http://code.google.com/p/msysgit/
+Set proxy to git: git config --global http.proxy http://<host>:<port>
+(or use EGit for permenant set)
+
+Install ANT
+
+Install Maven
+We need a Maven instance for eash version of Gumtree build
+Configure localRepository path
+Configure proxy setting (on NBI network)
+
+Download Jenkins from http://jenkins-ci.org/
+Copy jenkins.war to V:\build\jenkins
+cd V:\build\jenkins
+Create run.bat with the following content:
+java -DJENKINS_HOME="." -jar jenkins.war --httpPort=7070
+-- Set DJENKINS_HOME to <build_system_path>
+-- Set http port to 7070
+
+Install plugins
+Manage Jenkins -> Manage Plugins -> Advanced
+Configure proxy setting
+Install plugins
+* Github Plugin
+* FindBugs Plug-in
+* Emma Plugin
+* Status View Plugin
+* Downstream build view
+
+Restart Jenkins to install plugins
+
+Configure Jenkins
+Manage Jenkins -> Configure System
+# of executors = 1
+SCM checkout retry count = 3
+
+Add new JDK installation
+Add new Git installation (eg X:\apps\msysgit\1.7.11\bin\git.exe)
+Add new Ant installation
+Add new Maven installation for each Gumtree version
+Jenkins URL = http://dav1-test.nbi.ansto.gov.au:7070/
+
+Create build project:
+Example: Gumtree-Source (1.7.x)
+Discard Old Builds -> Max # of builds to keep = 20
+GitHub project = https://github.com/Gumtree/gumtree/
+Use custom workspace (Advanced Project Options) = K:\Build\Gumtree-1.7.x\source\gumtree
+Git repository URL = https://github.com/Gumtree/gumtree.git
+Branches to build = 1.7.x
+epository browser = githubweb, url = https://github.com/Gumtree/gumtree/
+Poll SCM = 0 */2 * * * (ie every 2 hours)
+Add Maven build:
+- Select specific version of Maven
+- goals = clean install surefire-report:report -P test,coverage,findbugs
+- POM = infrastructure/org.gumtree.maven.all/pom.xml
+- JVM Options = -Xmx1024m -XX:MaxPermSize=256m
+Add publish FindBugs
+Add publish JUnit test result
+- XMLs = **/surefire-reports/*.xml
+Add record Emma
+- XML = **/emma/*-coverage.xml
