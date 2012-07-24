@@ -120,7 +120,7 @@
          id="javax.annotation"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.0.0.v20101115-0725"
          unpack="false"/>
 
    <plugin
@@ -580,7 +580,7 @@
          version="0.0.0"
          fragment="true"
          unpack="false"/>
-         
+
    <plugin
          id="org.eclipse.core.filesystem.macosx"
          os="macosx"
