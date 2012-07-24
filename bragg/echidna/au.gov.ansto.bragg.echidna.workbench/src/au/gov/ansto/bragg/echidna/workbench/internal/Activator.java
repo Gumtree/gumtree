@@ -34,7 +34,7 @@ public class Activator extends AbstractUIPlugin {
 		}
 		context = null;
 		instance = null;
-		super.stop(context);
+		super.stop(bundleContext);
 	}
 
 	public IEclipseContext getEclipseContext() {
