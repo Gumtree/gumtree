@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="Gumtree Platform Developer Target" sequenceNumber="50">
+<?pde version="3.8"?><target name="Gumtree Platform Developer Target" sequenceNumber="51">
 <locations>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.platform.sdk" version="4.2.0.I20120608-1400"/>
+<unit id="org.eclipse.sdk.ide" version="4.2.0.I20120608-1400"/>
 <repository location="http://download.eclipse.org/eclipse/updates/4.2"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
