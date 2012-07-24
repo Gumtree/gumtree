@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Gumtree" uid="au.gov.ansto.bragg.echidna.webserver.product" id="org.gumtree.app.osgi.product" application="org.gumtree.app.osgi.application" version="1.7.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="Gumtree" uid="au.gov.ansto.bragg.echidna.webserver.product" id="org.gumtree.app.osgi.product" application="org.gumtree.app.osgi.application" version="1.8.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.gumtree.app.runtime/images/earth.png"/>
@@ -60,7 +60,6 @@ Eclipse Foundation http://www.eclipse.org/
             winLargeLow="/org.gumtree.app.runtime/images/g-icon_48x48_8-bit.bmp"/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>
