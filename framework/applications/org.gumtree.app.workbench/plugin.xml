@@ -39,6 +39,18 @@
                name="aboutText"
                value="Gumtree&#x0A;&#x0A;(c) Copyright Bragg Institute and others 2012.  All rights reserved.&#x0A;Visit http://gumtree.codehaus.org/&#x0A;&#x0A;This product includes software developed by the&#x0A;Eclipse Foundation http://www.eclipse.org/">
          </property>
+         <property
+               name="applicationXMI"
+               value="org.eclipse.platform/LegacyIDE.e4xmi">
+         </property>
+         <property
+               name="cssTheme"
+               value="org.eclipse.e4.ui.css.theme.e4_default">
+         </property>
+         <property
+               name="applicationCSSResources"
+               value="platform:/plugin/org.eclipse.platform/images/">
+         </property>
       </product>
    </extension>
    <extension
