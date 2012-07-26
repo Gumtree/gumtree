@@ -25,6 +25,7 @@
 	<property name="equinoxJarLocation" value="${buildDirectory}/tools/eclipse-SDK-4.2-${ideOS}/eclipse/plugins/org.eclipse.equinox.launcher_1.3.0.v20120522-1813.jar" />
 	<property name="containerProduct" value="org.gumtree.app.osgi.product" />
 	<property name="nsisDirectory" value="X:/apps/PortableApps/1.6/PortableApps/NSISPortable/App/NSIS" />
+	<property name="cygwinDirectory" value="X:/apps/Cygwin/1.7.15-1/bin" />
 
 	<!--
 	############################################################################
@@ -86,7 +87,7 @@
 			<fileset dir="${sourceDirectory}/${repositoryPath}/products/${containerProduct}/macosx/cocoa/x86" />
 		</copy>
 		<move file="${exportDirectory}/container/cocoa32/splash.bmp" todir="${exportDirectory}/container/cocoa32/gumtree.app/Contents/MacOS" />
-		<exec executable="mv">
+		<exec executable="${cygwinDirectory}/mv">
 			<arg value="${exportDirectory}/container/cocoa32/gumtree.app"/>
 			<arg value="${exportDirectory}/container/cocoa32/Gumtree.app"/>
 		</exec>
@@ -95,7 +96,7 @@
 			<fileset dir="${sourceDirectory}/${repositoryPath}/products/${containerProduct}/macosx/cocoa/x86_64" />
 		</copy>
 		<move file="${exportDirectory}/container/cocoa64/splash.bmp" todir="${exportDirectory}/container/cocoa64/gumtree.app/Contents/MacOS" />
-		<exec executable="mv">
+		<exec executable="${cygwinDirectory}/mv">
 			<arg value="${exportDirectory}/container/cocoa64/gumtree.app"/>
 			<arg value="${exportDirectory}/container/cocoa64/Gumtree.app"/>
 		</exec>
@@ -257,7 +258,7 @@
 				</tarfileset>
 			</tar>
 			<delete includeEmptyDirs="true">
-				<fileset dir="${exportDirectory}/products/@{applicationType}/@{applicationName}" />
+				<fileset dir="${exportDirectory}/products/@{applicationType}/@{applicationName}" defaultexcludes="false" />
 			</delete>
 		</sequential>
 	</macrodef>
