@@ -17,6 +17,10 @@
       %license
    </license>
 
+   <includes
+         id="net.jeeeyul.eclipse.themes.feature"
+         version="0.0.0"/>
+
    <plugin
          id="bsh"
          download-size="0"

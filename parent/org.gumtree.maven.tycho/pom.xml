@@ -86,17 +86,12 @@
 		<repository>
 			<id>gumtree_bundles</id>
 			<layout>p2</layout>
-			<url>http://dist.codehaus.org/gumtree/sites/bundles/1.8.0.201207201516</url>
+			<url>http://dist.codehaus.org/gumtree/sites/bundles/1.8.0.201207261330</url>
 		</repository>
 		<repository>
 			<id>pydev</id>
 			<layout>p2</layout>
 			<url>http://pydev.org/updates</url>
-		</repository>
-		<repository>
-			<id>jeeeyul</id>
-			<layout>p2</layout>
-			<url>https://raw.github.com/jeeeyul/eclipse-themes/master/net.jeeeyul.eclipse.themes.updatesite</url>
 		</repository>
 		<!--
 		<repository>

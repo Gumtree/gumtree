@@ -91,6 +91,7 @@
 <location path="X:/eclipse/plugins/com.isencia.passerelle/7.0.0/eclipse" type="Directory"/>
 <location path="X:/eclipse/plugins/com.richclientgui.rcptoolbox/1.0.6/eclipse" type="Directory"/>
 <location path="X:/eclipse/plugins/com.vaadin/6.7.8/eclipse" type="Directory"/>
+<location path="X:/eclipse/plugins/net.jeeeyul.eclipse.themes/1.1.0.201207260042/eclipse" type="Directory"/>
 <location path="X:/eclipse/plugins/org.eclipse.emf.ecore.sdo/2.4.2/eclipse" type="Directory"/>
 <location path="X:/eclipse/plugins/org.restlet/2.0.11/eclipse" type="Directory"/>
 <location path="X:/eclipse/plugins/org.scala-ide/2.0.1/eclipse" type="Directory"/>
