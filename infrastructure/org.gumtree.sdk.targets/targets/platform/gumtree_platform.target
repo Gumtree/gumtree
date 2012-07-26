@@ -17,9 +17,9 @@
 <repository location="http://download.eclipse.org/releases/juno"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.gumtree.lib.bundles.feature.feature.group" version="1.8.0.201207261330"/>
-<unit id="org.gumtree.lib.bundles.feature.source.feature.group" version="1.8.0.201207261330"/>
-<repository location="http://dist.codehaus.org/gumtree/sites/bundles/1.8.0.201207261330/"/>
+<unit id="org.gumtree.lib.bundles.feature.feature.group" version="1.8.0.201207261348"/>
+<unit id="org.gumtree.lib.bundles.feature.source.feature.group" version="1.8.0.201207261348"/>
+<repository location="http://dist.codehaus.org/gumtree/sites/bundles/1.8.0.201207261348/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.python.pydev.feature.feature.group" version="2.6.0.2012062818"/>

@@ -49,10 +49,6 @@
          id="org.gumtree.gumpy.feature"
          version="0.0.0"/>
 
-   <includes
-         id="net.jeeeyul.eclipse.themes.feature"
-         version="0.0.0"/>
-
    <plugin
          id="org.gumtree.app.workbench"
          download-size="0"
@@ -61,6 +57,13 @@
 
    <plugin
          id="org.eclipse.pde.runtime"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.jeeeyul.eclipse.themes"
          download-size="0"
          install-size="0"
          version="0.0.0"

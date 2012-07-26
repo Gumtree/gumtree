@@ -17,10 +17,6 @@
       %license
    </license>
 
-   <includes
-         id="net.jeeeyul.eclipse.themes.feature"
-         version="0.0.0"/>
-
    <plugin
          id="bsh"
          download-size="0"
@@ -976,6 +972,13 @@
 
    <plugin
          id="org.xmlpull"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.jeeeyul.eclipse.themes"
          download-size="0"
          install-size="0"
          version="0.0.0"
