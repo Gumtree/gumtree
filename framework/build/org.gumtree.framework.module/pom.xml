@@ -172,6 +172,7 @@
 		<module>${applications.path}/org.gumtree.app.osgi.feature</module>
 		<module>${applications.path}/de.huxhorn.lilith.logback</module>
 		<module>${applications.path}/org.apache.commons.configuration</module>
+		<module>${applications.path}/net.jeeeyul.eclipse.themes</module>
 		<module>${applications.path}/org.gumtree.app.runtime</module>
 		<module>${applications.path}/org.gumtree.app.runtime.feature</module>
 		<module>${applications.path}/org.gumtree.app.webserver</module>
