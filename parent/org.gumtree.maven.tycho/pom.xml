@@ -93,6 +93,11 @@
 			<layout>p2</layout>
 			<url>http://pydev.org/updates</url>
 		</repository>
+		<repository>
+			<id>jeeeyul</id>
+			<layout>p2</layout>
+			<url>https://raw.github.com/jeeeyul/eclipse-themes/master/net.jeeeyul.eclipse.themes.updatesite</url>
+		</repository>
 		<!--
 		<repository>
 			<id>xtend</id>
