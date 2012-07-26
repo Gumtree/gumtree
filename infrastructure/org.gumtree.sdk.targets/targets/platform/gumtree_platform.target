@@ -14,6 +14,7 @@
 <unit id="org.eclipse.gmf.runtime.sdk.feature.group" version="1.6.0.v20120517-1809-67R09E9QuFflXswwIO_z0E3d4k_X"/>
 <unit id="org.eclipse.dltk.tcl.feature.group" version="4.0.0.201206120848"/>
 <unit id="org.eclipse.wst.xml_ui.feature.feature.group" version="3.4.0.v201111021744-7H7GFeBDxumUpsl5liePhK3loz-m62J4rSz011R1"/>
+<unit id="org.eclipse.mylyn.github.feature.feature.group" version="2.0.0.201206130900-r"/>
 <repository location="http://download.eclipse.org/releases/juno"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
