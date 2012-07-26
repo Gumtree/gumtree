@@ -23,10 +23,6 @@
 <repository location="http://dist.codehaus.org/gumtree/sites/bundles/1.8.0.201207261453/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="net.jeeeyul.eclipse.themes.feature.feature.group" version="1.1.0.201207260042"/>
-<repository location="http://dist.codehaus.org/gumtree/sites/eclipse-themes/1.1.0.201207260042/"/>
-</location>
-<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.python.pydev.feature.feature.group" version="2.6.0.2012062818"/>
 <repository location="http://pydev.org/updates"/>
 </location>
