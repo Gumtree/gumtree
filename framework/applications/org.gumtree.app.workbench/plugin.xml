@@ -49,7 +49,7 @@
          </property>
          <property
                name="applicationCSSResources"
-               value="platform:/plugin/net.jeeeyul.eclipse.themes/images/">
+               value="platform:/plugin/org.eclipse.platform/images/">
          </property>
       </product>
    </extension>
