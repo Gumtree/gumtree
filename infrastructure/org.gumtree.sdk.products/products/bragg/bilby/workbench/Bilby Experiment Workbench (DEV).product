@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Gumtree" uid="au.gov.ansto.bragg.echidna.webserver.product" id="org.gumtree.app.osgi.product" application="org.gumtree.app.osgi.application" version="1.8.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="Gumtree" uid="au.gov.ansto.bragg.bilby.workbench.product" id="org.gumtree.app.workbench.product" application="org.gumtree.app.workbench.application" version="1.8.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.gumtree.app.runtime/images/earth.png"/>
@@ -20,21 +20,22 @@ Eclipse Foundation http://www.eclipse.org/
    </configIni>
 
    <launcherArgs>
-      <programArgs>-console
--consoleLog</programArgs>
+      <programArgs>-consoleLog</programArgs>
       <vmArgs>-Dosgi.locking=none
--Dosgi.noShutdown=true
--Declipse.ignoreApp=true
 -Dorg.eclipse.update.reconcile=false
 -Dlogback.configurationFile=logback.xml
 -Dlogback.logFileLocation=logs
 -Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime,org.springframework.osgi.extender
--Dgumtree.runtime.configBundle=au.gov.ansto.bragg.nbi.webserver
--Dgumtree.runtime.configEnv.instr=echidna
+-Dgumtree.runtime.configBundle=au.gov.ansto.bragg.nbi.workbench
+-Dgumtree.runtime.configEnv.instr=bilby
 -Dgumtree.runtime.configEnv.env=dev
--Dgumtree.runtime.configEnv.mode=main
+-Dgumtree.runtime.configEnv.mode=experiment
+-Dgumtree.sics.role=spy
+-Dgumtree.sics.password=007
+-Dgumtree.sics.loginMode=auto
+-Dsun.java2d.d3d=false
 -XX:MaxPermSize=256m
--Xmx512m</vmArgs>
+-Xmx800m</vmArgs>
       <vmArgsMac>-Xdock:icon=../Resources/Eclipse.icns
 -XstartOnFirstThread
 -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
@@ -68,7 +69,7 @@ Eclipse Foundation http://www.eclipse.org/
    </plugins>
 
    <features>
-      <feature id="au.gov.ansto.bragg.echidna.webserver.feature"/>
+      <feature id="au.gov.ansto.bragg.bilby.workbench.feature"/>
    </features>
 
    <configurations>
