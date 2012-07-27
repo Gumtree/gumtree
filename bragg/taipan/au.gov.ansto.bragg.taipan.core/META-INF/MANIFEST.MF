@@ -7,4 +7,4 @@ Bundle-Activator: au.gov.ansto.bragg.taipan.core.internal.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Bragg Institue
 Bundle-ActivationPolicy: lazy
-Require-Bundle: au.gov.ansto.bragg.nbi.core;bundle-version="1.7.0";visibility:=reexport
+Require-Bundle: au.gov.ansto.bragg.nbi.core;bundle-version="1.8.0";visibility:=reexport
