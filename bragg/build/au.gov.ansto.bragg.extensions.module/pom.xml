@@ -16,10 +16,15 @@
 		<platypus.path>../../platypus</platypus.path>
 		<pelican.path>../../pelican</pelican.path>
 		<taipan.path>../../taipan</taipan.path>
+		<kookaburra.path>../../kookaburra</kookaburra.path>
+		<bilby.path>../../bilby</bilby.path>
+		<dingo.path>../../dingo</dingo.path>
+		<emu.path>../../emu</emu.path>
 		<build.path>../../build</build.path>
 	</properties>
 
 	<modules>
+		<!--
 		<module>${nbi.path}/com.ostermiller.util</module>
 		<module>${nbi.path}/org.apache.poi</module>
 		<module>${nbi.path}/uk.ac.ucl.ee.flanagan</module>
@@ -146,7 +151,60 @@
 
 
 
+		<module>${kookaburra.path}/au.gov.ansto.bragg.kookaburra.core</module>
+		<module>${kookaburra.path}/au.gov.ansto.bragg.kookaburra.core.feature</module>
+		
+		<module>${kookaburra.path}/au.gov.ansto.bragg.kookaburra.server</module>
+		<module>${kookaburra.path}/au.gov.ansto.bragg.kookaburra.webserver</module>
+		<module>${kookaburra.path}/au.gov.ansto.bragg.kookaburra.webserver.feature</module>
+		
+		<module>${kookaburra.path}/au.gov.ansto.bragg.kookaburra.ui</module>
+		<module>${kookaburra.path}/au.gov.ansto.bragg.kookaburra.workbench</module>
+		<module>${kookaburra.path}/au.gov.ansto.bragg.kookaburra.workbench.feature</module>
+		
+		
+		-->
+		<module>${bilby.path}/au.gov.ansto.bragg.bilby.core</module>
+		<module>${bilby.path}/au.gov.ansto.bragg.bilby.core.feature</module>
+		
+		<module>${bilby.path}/au.gov.ansto.bragg.bilby.server</module>
+		<module>${bilby.path}/au.gov.ansto.bragg.bilby.webserver</module>
+		<module>${bilby.path}/au.gov.ansto.bragg.bilby.webserver.feature</module>
+		
+		<module>${bilby.path}/au.gov.ansto.bragg.bilby.ui</module>
+		<module>${bilby.path}/au.gov.ansto.bragg.bilby.workbench</module>
+		<module>${bilby.path}/au.gov.ansto.bragg.bilby.workbench.feature</module>
+		
+		
+		<!--
+		<module>${dingo.path}/au.gov.ansto.bragg.dingo.core</module>
+		<module>${dingo.path}/au.gov.ansto.bragg.dingo.core.feature</module>
+		
+		<module>${dingo.path}/au.gov.ansto.bragg.dingo.server</module>
+		<module>${dingo.path}/au.gov.ansto.bragg.dingo.webserver</module>
+		<module>${dingo.path}/au.gov.ansto.bragg.dingo.webserver.feature</module>
+		
+		<module>${dingo.path}/au.gov.ansto.bragg.dingo.ui</module>
+		<module>${dingo.path}/au.gov.ansto.bragg.dingo.workbench</module>
+		<module>${dingo.path}/au.gov.ansto.bragg.dingo.workbench.feature</module>
+		
+		
+		
+		<module>${emu.path}/au.gov.ansto.bragg.emu.core</module>
+		<module>${emu.path}/au.gov.ansto.bragg.emu.core.feature</module>
+		
+		<module>${emu.path}/au.gov.ansto.bragg.emu.server</module>
+		<module>${emu.path}/au.gov.ansto.bragg.emu.webserver</module>
+		<module>${emu.path}/au.gov.ansto.bragg.emu.webserver.feature</module>
+		
+		<module>${emu.path}/au.gov.ansto.bragg.emu.ui</module>
+		<module>${emu.path}/au.gov.ansto.bragg.emu.workbench</module>
+		<module>${emu.path}/au.gov.ansto.bragg.emu.workbench.feature</module>
+		
+		
+		
 		<module>${build.path}/au.gov.ansto.bragg.extensions.sources.feature</module>
+		-->
 	</modules>
 
 	<name>Bragg Extensions Build</name>
