@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="au.gov.ansto.bragg.nbi.workbench.feature"
-      label="Bragg NBI Workbench"
+      id="org.gumtree.github.feature"
+      label="Gumtree Extensions GitHub"
       version="1.8.0.qualifier"
       provider-name="Bragg Institute">
 
@@ -18,57 +18,71 @@
    </license>
 
    <includes
-         id="org.gumtree.sics.ui.feature"
+         id="org.eclipse.mylyn.github.feature"
          version="0.0.0"/>
 
    <includes
-         id="org.gumtree.processor.ui.feature"
+         id="org.eclipse.egit"
          version="0.0.0"/>
 
    <includes
-         id="au.gov.ansto.bragg.nbi.core.feature"
+         id="org.eclipse.jgit"
          version="0.0.0"/>
 
    <includes
-         id="org.gumtree.app.workbench.feature"
+         id="org.eclipse.mylyn_feature"
          version="0.0.0"/>
 
    <includes
-         id="org.gumtree.github.feature"
+         id="org.eclipse.mylyn.commons"
          version="0.0.0"/>
 
    <includes
-         id="org.gumtree.tcl.feature"
+         id="org.eclipse.mylyn.commons.identity"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.mylyn.commons.notifications"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.mylyn.commons.repositories"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.mylyn.monitor"
          version="0.0.0"/>
 
    <plugin
-         id="au.gov.ansto.bragg.nbi.ui"
+         id="org.eclipse.mylyn.commons.net"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="de.kupzog.ktable"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.gumtree.ui.cli"
+         id="org.eclipse.mylyn.context.core"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="au.gov.ansto.bragg.nbi.workbench"
+         id="org.eclipse.mylyn.resources.ui"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
-         id="bsh"
+         id="org.eclipse.mylyn.context.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.sun.syndication"
          download-size="0"
          install-size="0"
          version="0.0.0"

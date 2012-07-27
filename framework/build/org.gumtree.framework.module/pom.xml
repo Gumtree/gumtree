@@ -112,6 +112,8 @@
 
 		<module>${extensions.path}/org.gumtree.passerelle.feature</module>
 
+		<module>${extensions.path}/org.gumtree.github.feature</module>
+
 
 
 		<module>${sics.path}/ch.psi.sics.hipadaba</module>
