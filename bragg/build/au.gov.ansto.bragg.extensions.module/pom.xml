@@ -24,7 +24,6 @@
 	</properties>
 
 	<modules>
-		<!--
 		<module>${nbi.path}/com.ostermiller.util</module>
 		<module>${nbi.path}/org.apache.poi</module>
 		<module>${nbi.path}/uk.ac.ucl.ee.flanagan</module>
@@ -163,7 +162,7 @@
 		<module>${kookaburra.path}/au.gov.ansto.bragg.kookaburra.workbench.feature</module>
 		
 		
-		-->
+
 		<module>${bilby.path}/au.gov.ansto.bragg.bilby.core</module>
 		<module>${bilby.path}/au.gov.ansto.bragg.bilby.core.feature</module>
 		
@@ -176,7 +175,7 @@
 		<module>${bilby.path}/au.gov.ansto.bragg.bilby.workbench.feature</module>
 		
 		
-		<!--
+
 		<module>${dingo.path}/au.gov.ansto.bragg.dingo.core</module>
 		<module>${dingo.path}/au.gov.ansto.bragg.dingo.core.feature</module>
 		
@@ -189,7 +188,7 @@
 		<module>${dingo.path}/au.gov.ansto.bragg.dingo.workbench.feature</module>
 		
 		
-		
+
 		<module>${emu.path}/au.gov.ansto.bragg.emu.core</module>
 		<module>${emu.path}/au.gov.ansto.bragg.emu.core.feature</module>
 		
@@ -204,7 +203,6 @@
 		
 		
 		<module>${build.path}/au.gov.ansto.bragg.extensions.sources.feature</module>
-		-->
 	</modules>
 
 	<name>Bragg Extensions Build</name>

@@ -1,8 +1,12 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Workbench
+Bundle-Name: Bragg Dingo Workbench Application
 Bundle-SymbolicName: au.gov.ansto.bragg.dingo.workbench
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.8.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.dingo.workbench.internal.Activator
 Import-Package: org.osgi.framework;version="1.3.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: Bragg Institute
+Require-Bundle: au.gov.ansto.bragg.dingo.ui;bundle-version="1.8.0";visibility:=reexport,
+ au.gov.ansto.bragg.nbi.workbench;bundle-version="1.8.0";visibility:=reexport
