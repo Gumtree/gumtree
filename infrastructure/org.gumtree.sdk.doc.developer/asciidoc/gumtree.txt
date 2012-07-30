@@ -597,8 +597,8 @@ Wombat High-Intensity Powder Diffractometer
 Kowari Strain Scanner
 ---------------------
 
-Quokka Small-Angle Neutron Scattering
--------------------------------------
+Quokka Small-Angle Neutron Scattering Instrument
+------------------------------------------------
 
 Platypus Neutron Reflectometer
 ------------------------------
@@ -608,6 +608,18 @@ Pelican Time-of-Flight Spectrometer
 
 Taipan Thermal 3-Axis Spectrometer
 ----------------------------------
+
+Kookaburra Ultra Small Angle Scattering
+---------------------------------------
+
+Bilby Small-Angle Neutron Scattering Instrument
+-----------------------------------------------
+
+Dingo Radiography/Tomography/Imaging Station
+--------------------------------------------
+
+Emu High-Resolution Backscattering Spectrometer
+-----------------------------------------------
 
 Development Process
 ===================
