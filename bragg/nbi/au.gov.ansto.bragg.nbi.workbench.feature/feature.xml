@@ -34,10 +34,6 @@
          version="0.0.0"/>
 
    <includes
-         id="org.gumtree.github.feature"
-         version="0.0.0"/>
-
-   <includes
          id="org.gumtree.tcl.feature"
          version="0.0.0"/>
 
