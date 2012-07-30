@@ -21,6 +21,10 @@
          id="au.gov.ansto.bragg.nbi.workbench.feature"
          version="0.0.0"/>
 
+   <includes
+         id="au.gov.ansto.bragg.kookaburra.core.feature"
+         version="0.0.0"/>
+
    <plugin
          id="au.gov.ansto.bragg.kookaburra.ui"
          download-size="0"
