@@ -1,8 +1,11 @@
 <project default="main">
 
-	<property name="bashLocation" value="D:/Applications/Cygwin/1.7.15-1/bin" />
-	<property name="asciidocLocation" value="/cygdrive/d/Applications/Asciidoc/8.6.7" />
-	<property name="sourceLocation" value="/cygdrive/d/Development/Workspace/Gumtree-1.8.x/source/plugins/gumtree/infrastructure/org.gumtree.sdk.doc.developer/asciidoc" />
+	<!-- Require property "buildLocation" (eg /cygdrive/d/Development/Workspace/Gumtree-1.8.x) -->
+	<!-- Please read the "Book of Gumtree" for setup instructions -->
+	
+	<property name="bashLocation" value="X:/apps/Cygwin/1.7.16-1/bin" />
+	<property name="asciidocLocation" value="/cygdrive/x/apps/Asciidoc/8.6.7" />
+	<property name="sourceLocation" value="${buildLocation}/source/plugins/gumtree/infrastructure/org.gumtree.sdk.doc.developer/asciidoc" />
 
 	<target name="generateHTML">
 		<exec executable="${bashLocation}/bash.exe">
@@ -55,7 +58,7 @@
 		<antcall target="generateHTML" />
 		<antcall target="generateChunked" />
 		<antcall target="generatePDF" />
-
+		
 		<!-- Clean up -->
 		<delete dir="${basedir}/graphviz" failonerror="false" />
 	</target>
