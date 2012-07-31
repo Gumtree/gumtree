@@ -2,10 +2,12 @@ Book of Gumtree
 ===============
 Bragg Institute <gumtree@googlegroups.com>
 v1.8.0, July 2012: Written for Gumtree version 1.8.x
+:toc:
 :doctype: book
-
+:icons:
 :numbered:
 
+[[Overview]]
 OVERVIEW
 ========
 
@@ -16,24 +18,38 @@ Introduction
 Gumtree is a suite of software for running scientific experiments on a beam
 line instrument. Gumtree helps users to perform the following tasks:
 
-* *Controls* and *monitors* instrument system
+* *Controls* and *monitors* an instrument system
 * *Plans* and *executes* experiments on an instrument
 * *Retrieves* and *displays* experiment data from the system
-* *Reduces* and *analyzes* live or archived experiment data
+* *Reduces* and *analyses* live or archived experiment data
 
-Gumtree offers the desktop version, named the *Gumtree Workbench*, which runs
-on major operating systems including _Windows_, _Linux_ and _Mac OS X_. The web
-based version, known as the *Gumtree Server*, provides the remote instrument
-status to browsers and mobile devices.
+Gumtree is available in desktop or server mode. The desktop mode, known as the
+*Gumtree Workbench*, provides interactive user interface for the instrument
+system, and can be run on major operating systems including _Windows_, _Linux_
+and _Mac OS X_. The server mode, known as the *Gumtree Web Server*, provides
+the remote instrument status to browsers and mobile devices.
 
-The goal of Gumtree is to provide an open source platform for developers to
-write user friendly applications, without spending time and energy on dealing
-with common programming tasks. Gumtree can be distributed freely and has been
-licensed under http://www.eclipse.org/legal/epl-v10.html[EPL v1.0
-(Eclipse Public License)].
+The goal of Gumtree is to deliver an open source platform for developers to
+write rich feature applications, without spending time and effort on dealing
+with common programming tasks. Gumtree can be distributed freely and is licensed
+under the http://www.eclipse.org/legal/epl-v10.html[_Eclipse Public License
+version 1.0_]  (EPL v1.0).
 
 === About this book ===
-The "Book of Gumtree" serves as a developer guide for Gumtree programmers.
+The _Book of Gumtree_ is a definitive guide for developers working with Gumtree.
+This book is split into the following parts:
+
+*<<Overview,Part I: Overview>>*::
+	A glance of the Gumtree project, design and architecture 
+
+*<<GumtreeFramework,Part II: Gumtree Framework>>*::
+	In depth cover of the Gumtree application framework
+
+*<<BraggExtensions,Part IIII: Bragg Extensions>>*::
+	Details of supported Bragg Institute instruments
+
+*<<DevelopmentProcess,Part IV: Development Process>>*::
+	Related topics on build process and continuous integration
 
 Gumtree Project Overview
 ------------------------
@@ -125,6 +141,7 @@ image::./images/System_Architecture.png[System Architecture]
 
 === Technology Choice ===
 
+[float]
 ==== Java ====
 The Java platform has been selected as the base platform for Gumtree. Java is
 composed by three major components:
@@ -145,6 +162,7 @@ Gumtree is written in scripting languages, mainly Jython, in order to take the
 advantage of their dynamic behaviour when quick code modification is required. 
 
 [[Eclipse]]
+[float]
 ==== Eclipse ====
 The Eclipse platform is an application framework that runs on top of JVM.
 Gumtree is built entirely on the Eclipse platform because it offers dynamic
@@ -165,6 +183,7 @@ desktop applications. There is a list of examples:
 * *Bioclipse* - http://bioclipse.net/
 * *OpenChrom* - http://www.openchrom.net/main/content/index.php
 
+[float]
 ==== Open Source Libraries ====
 The following table shows a comprehensive list of open source technologies used
 within Gumtree:
@@ -319,18 +338,29 @@ Getting Started with Gumtree Development
 ----------------------------------------
 
 === Development Environment Setup ===
+XXX
+
+[float]
+==== Step 1 - Software Installation ====
 Java Development Toolkit (JDK) and Eclipse IDE are the minimum software
 requirement for developing Gumtree applications. 
 
-*Step 1 - Software Installation*
+.Java Development Toolkit
+*******************************************************************************
+* Gumtree development requires *Java SE version 6 or above*
+* Download *JDK* from http://www.oracle.com/technetwork/java/javase/downloads/index.html
+* Install JDK into your local machine
+*******************************************************************************
 
-Install JDK::
-	Download and install *JDK 6 or above* from: http://www.oracle.com/technetwork/java/javase/downloads/index.html
+.Eclipse IDE
+*******************************************************************************
+* Gumtree development requires *Eclipse 4.2 or above*
+* Download *Eclipse Classic* from http://www.eclipse.org/downloads
+* Extract Eclipse into your local machine
+*******************************************************************************
 
-Install Eclipse::
-	Download and install *Eclipse Classic 4.2 or above* from: http://www.eclipse.org/downloads
-
-*Step 2 - Create Development Directory*
+[float]
+==== Step 2 - Create Development Directory ====
 
 Create development folder::
 	Create a new folder <gumtree_directory> for Gumtree development (eg D:\Development\Workspace\Gumtree on Windows)
@@ -352,7 +382,8 @@ graph linuxdir {
 }
 ---------------------------------------------------------
 
-*Step 3 - Setup Eclipse IDE*
+[float]
+==== Step 3 - Setup Eclipse IDE ====
 
 Additional JVM memory::
 Configure your Eclipse IDE with more memory (edit the JVM argument setting in eclipse.ini)
@@ -367,6 +398,7 @@ Under
 === Running Gumtree Workbench ===
 XXX
 
+[[GumtreeFramework]]
 GUMTREE FRAMEWORK
 =================
 
@@ -536,6 +568,7 @@ Common Data Model
 Visualisation Toolkit
 ---------------------
 
+[[BraggExtensions]]
 BRAGG EXTENSIONS
 ================
 
@@ -621,6 +654,7 @@ Dingo Radiography/Tomography/Imaging Station
 Emu High-Resolution Backscattering Spectrometer
 -----------------------------------------------
 
+[[DevelopmentProcess]]
 Development Process
 ===================
 
