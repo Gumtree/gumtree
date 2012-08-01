@@ -138,7 +138,7 @@
 		<copy todir="${exportDirectory}/docs/javadoc">
 			<fileset dir="${sourceDirectory}/${javadocBuildPath}/site/apidocs/" />
 		</copy>
-		<zip destfile="${exportDirectory}/javadoc/javadoc.zip" basedir="${exportDirectory}/javadoc" />
+		<zip destfile="${exportDirectory}/docs/javadoc/javadoc.zip" basedir="${exportDirectory}/docs/javadoc" />
 	</target>
 
 	<!--
