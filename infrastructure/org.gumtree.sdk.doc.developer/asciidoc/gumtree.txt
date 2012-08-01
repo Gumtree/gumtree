@@ -29,15 +29,18 @@ system, and can be run on major operating systems including _Windows_, _Linux_
 and _Mac OS X_. The server mode, known as the *Gumtree Web Server*, provides
 the remote instrument status to browsers and mobile devices.
 
-The goal of Gumtree is to deliver an open source platform for developers to
-write rich feature applications, without spending time and effort on dealing
-with common programming tasks. Gumtree can be distributed freely and is licensed
-under the http://www.eclipse.org/legal/epl-v10.html[_Eclipse Public License
-version 1.0_]  (EPL v1.0).
+The core of Gumtree is an application framework, named as the
+*Gumtree Framework*. The goal of this framework is to deliver an open source
+platform for developers to build scientific applications from scratch, or to add
+extra features on any existing Eclipse RCP applications. Gumtree can be
+distributed freely and is licensed under the
+http://www.eclipse.org/legal/epl-v10.html[_Eclipse Public License version 1.0_]
+(EPL v1.0).
 
 === About this book ===
-The _Book of Gumtree_ is a definitive guide for developers working with Gumtree.
-This book is split into the following parts:
+The _Book of Gumtree_ is a definitive guide for people who build Gumtree based
+applications or develop the Gumtree framework. This book is split into the
+following parts:
 
 *<<Overview,Part I: Overview>>*::
 	A glance of the Gumtree project, design and architecture 
@@ -55,9 +58,9 @@ Gumtree Project Overview
 ------------------------
 
 === Project Structure ===
-The Gumtree Project is an open source project hosted by Codehaus. This project
-is mainly sponsored by the Australian Nuclear Science and Techology
-Organisation (ANSTO), for its use on a number of neutron scattering instruments
+The *Gumtree Project* is an open source project hosted by _Codehaus_. This
+project is mainly sponsored by the _Australian Nuclear Science and Techology
+Organisation_ (ANSTO), for its use on a number of neutron scattering instruments
 attached to the OPAL research reactor.
 
 The Gumtree development team follows the agile development methodology:
@@ -65,7 +68,7 @@ The Gumtree development team follows the agile development methodology:
 every couple of weeks for public testing and review.
 
 === Project Resources ===
-The following links are some useful online resources for the Gumtree project:
+The following links are useful online resources for the Gumtree Project:
 
 * *Home Page*: http://gumtree.codehaus.org
 * *Download Site*: http://gumtree.codehaus.org/downloads
@@ -73,6 +76,7 @@ The following links are some useful online resources for the Gumtree project:
 * *Issue Tracking System*: http://jira.codehaus.org/browse/GUMTREE
 * *Site Management*: http://xircles.codehaus.org/projects/gumtree
 * *Mailing List*: gumtree@googlegroups.com
+* *Mail Archive*: https://groups.google.com/forum/?fromgroups#!forum/gumtree
 
 Architectural Design
 --------------------
@@ -127,7 +131,7 @@ experiment.
 image::./images/Domain_Model.png[Domain Model]
 
 === System Analysis ===
-Gumtree adpots the client-server model for distributed instrument control. In a
+Gumtree adopts the client-server model for distributed instrument control. In a
 typical instrument system, there are a number of physical devices controlled by
 a central sequencer via some kind of control system software stack. Along with
 a centralised server, there are also a number of facility servers like
@@ -282,6 +286,7 @@ applications, such as those scientific applications mentioned in the
 Gumtree has adopted few programming principles to improve its overall
 code quaility.
 
+[float]
 ==== Component Based Software Engineering ====
 The component based approach encourage programmers to design their software by
 the separation of concerns, which makes code more coherence and easier for
@@ -294,6 +299,7 @@ container.
 
 See also: http://en.wikipedia.org/wiki/Component-based_software_engineering
 
+[float]
 ==== Service Oriented Architecture ====
 The service oriented architecture allows components to be visible as services
 across the system. This helps to improve the high level application
@@ -312,6 +318,7 @@ Services can be registered into the runtime via the following methods:
 
 See also: http://en.wikipedia.org/wiki/Service-oriented_architecture
 
+[float]
 ==== Resource Oriented Architecture ====
 Any information that can be named is abstracted to _resource_, for examples:
 document, image, database record, device, application state and functionality
@@ -323,6 +330,7 @@ remote access. A noticable example of this architecture is REST
 
 See also: http://en.wikipedia.org/wiki/Resource-oriented_architecture
 
+[float]
 ==== Event Driven Programming ====
 Listener design pattern is probably one of the most important mechanism for
 modern applications. However, this subscribe and publish pattern can leads to a
@@ -338,7 +346,11 @@ Getting Started with Gumtree Development
 ----------------------------------------
 
 === Development Environment Setup ===
-XXX
+This chapter will introduce the quickest way to start Gumtree development. This
+approach is suitable for developers who use Gumtree as a framework for building
+their own applications. If you are interest in developing the Gumtree Framework
+itself, please refer to the chapter on <<GumtreePlatformDevelopment,Gumtree
+Platform Development>>.
 
 [float]
 ==== Step 1 - Software Installation ====
@@ -361,42 +373,107 @@ requirement for developing Gumtree applications.
 
 [float]
 ==== Step 2 - Create Development Directory ====
+Although there is no special requirement for directory structure on Gumtree
+development, it is preferable to follow some conventions 
 
-Create development folder::
-	Create a new folder <gumtree_directory> for Gumtree development (eg D:\Development\Workspace\Gumtree on Windows)
+.Create development folder
+*******************************************************************************
+* Create a new folder _<gumtree_directory>_ for Gumtree development
+* For example: _D:\Development\Workspace\Gumtree_
+* This folder will hold everything, including development tools, for your
+Gumtree development.
+*******************************************************************************
 
-Create IDE workspace folder::
-	Create a sub folder <gumtree_directory>/source/plugins as your Eclipse IDE workspace (eg D:\Development\Workspace\Gumtree\source\plugins)
-
-Your development directory will look like this:
-
-.Basic development directory structure
-[graphviz, ./graphviz/Basic_Development_Directory_Structure.png]
----------------------------------------------------------
-graph linuxdir {
-	size = "14,14"
-	node [shape = box];
-	dev [label = "<gumtree_directory>"];
-	dev -- source;
-	source -- plugins;
-}
----------------------------------------------------------
+.Create IDE workspace folder
+*******************************************************************************
+* Create a sub folder _/source/plugins_ under _<gumtree_directory>_
+* For example: _D:\Development\Workspace\Gumtree\source\plugins_
+* The _/source_ folder holds some IDE generated contains
+* The _/source/plugins_ is the actual Eclipse IDE workspace
+*******************************************************************************
 
 [float]
 ==== Step 3 - Setup Eclipse IDE ====
+The Eclipse IDE is the primary development tool for developing Gumtree
+applications. There are some configuration steps has to be done before coding.
 
-Additional JVM memory::
-Configure your Eclipse IDE with more memory (edit the JVM argument setting in eclipse.ini)
+.Additional JVM memory
+*******************************************************************************
+* 1GB of heap memory is required by the Eclipse IDE
+* Configure your Eclipse IDE with more JVM memory by editing _eclipse.ini_
+* Change the line in _eclipse.ini_ from _-Xmx512m_ to _-Xmx1024m_
+*******************************************************************************
 
-Start IDE::
-Start Eclipse under <gumtree_directory>/source/plugins
+.Start IDE
+*******************************************************************************
+* Start Eclipse IDE and select _<gumtree_directory>/source/plugins_ as your
+workspace
+*******************************************************************************
 
-Configure to JDK
-Under 
+.Configuring Java settings
+*******************************************************************************
+* Once the Eclipse IDE is launched, modify the Java setting from the preferences
+dialog (usually under the Windows menu)
+* Under the preferences dialog, select _Java->Compiler_, and ensure the _"Compiler
+compliance level"_ is set to *1.6*
+* Under the preferences dialog, select _Java->Installed JREs_ and *"Add..."* a
+new JDK from your machine. Make sure the new JDK is selected after it is being
+added.
+* Using JDK instead of JRE gives additional development tools like javadoc
+*******************************************************************************
 
+[float]
+==== Step 4 - Download Gumtree development libraries ====
+Building application requires additional Java libraries. Those libraries 
+are defined as *Target Platform* in the Eclipse IDE. The Gumtree target platform
+is public available on _http://dist.codehaus.org/gumtree/sites/platform/1.8.x_.
 
-=== Running Gumtree Workbench ===
-XXX
+.Add Gumtree target platform
+*******************************************************************************
+* Under the preferences dialog, select _Plug-in Development->Target Platform_
+* Press _Add..._ to add a new target platform
+* Select _"Nothing: Start with an empty target definition"_ and press _Next>_
+* Enter *Gumtree* under the _Name:_ text box
+* Press _Add..._ to include a target platform location
+* Select _Software Site_ and press _Next>_
+* Enter  *http://dist.codehaus.org/gumtree/sites/platform/1.8.x* under the
+_Work with:_ text box and press _Enter_
+* Select all three categories: *Gumtree Framework*, *Bragg Extensions*,
+*Gumtree Infrastructure*, and press _Finish_. The IDE will take some time to
+download all libraries.
+* Press _Finish_ when download has been completed
+* Finally select *Gumtree* from the _Target deinitions_ list and press _OK_
+*******************************************************************************
+
+If you have trouble configuring the target plaform, please read Eclipse help on:
+http://help.eclipse.org/juno/index.jsp?topic=%2Forg.eclipse.pde.doc.user%2Fguide%2Ftools%2Fpreference_pages%2Ftarget_platform.htm
+
+[float]
+==== Step 5 - Verify development setup ====
+Your development environment is almost ready when the target platform is loaded.
+To verify the setup, we will need to launch an instance of Gumtre Workbench from
+the IDE.
+
+.Import product definitions
+*******************************************************************************
+* Switch to _Plug-in Development_ perspective
+* Select the _Plug-ins_ view
+* Right click on  the plug-in with name *org.gumtree.sdk.products*, and select
+_Import As->Source Project_
+* This will create a new project called *org.gumtree.sdk.products* in your
+workspace
+*******************************************************************************
+
+.Launch Gumtree Workbench
+*******************************************************************************
+* From your workspace, navigate to the Gumtree Workbench product definition under
+_org.gumtree.sdk.products->products->framework->workbench->Gumtree Workbench.product_
+* Open the file *Gumtree Workbench.product*, and it will show the _Product
+Configuration Editor_.
+* Under the first tab _Overview_, click on the link *Launch an Eclipse application*
+under _Testing_ section
+* It will start an launch an instance of the Gumtree Workbench under your IDE
+*******************************************************************************
 
 [[GumtreeFramework]]
 GUMTREE FRAMEWORK
@@ -657,6 +734,10 @@ Emu High-Resolution Backscattering Spectrometer
 [[DevelopmentProcess]]
 Development Process
 ===================
+
+[[GumtreePlatformDevelopment]]
+Gumtree Platform Development
+----------------------------
 
 Maven Build System
 ------------------

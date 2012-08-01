@@ -15,9 +15,22 @@ Gumtree Design Architecture
 
 
 
-Download and install JDK 1.6
 
-Download and install Classic Eclipse 4.2
+Your development directory will look like this:
+
+.Basic development directory structure
+[graphviz, ./graphviz/Basic_Development_Directory_Structure.png]
+---------------------------------------------------------
+graph linuxdir {
+	size = "14,14"
+	node [shape = box];
+	dev [label = "<gumtree_directory>"];
+	dev -- source;
+	source -- plugins;
+}
+---------------------------------------------------------
+
+
 
 Setup workspace folder structure
 
