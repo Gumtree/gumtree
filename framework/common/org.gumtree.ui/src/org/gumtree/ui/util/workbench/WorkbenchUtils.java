@@ -3,9 +3,11 @@ package org.gumtree.ui.util.workbench;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.window.ApplicationWindow;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.gumtree.ui.internal.Activator;
 
 public final class WorkbenchUtils {
 
@@ -34,6 +36,15 @@ public final class WorkbenchUtils {
         }
         return statusLine;
     }
+	
+	public static IEclipseContext getWorkbenchContext() {
+		E4Processor processor = Activator.getDefault().getEclipseContext()
+				.get(E4Processor.class);
+		if (processor != null) {
+			return processor.getEclipseContext();
+		}
+		return null;
+	}
 	
 	private WorkbenchUtils() {
 		super();

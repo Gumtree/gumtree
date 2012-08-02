@@ -55,4 +55,12 @@
              label="Telnet">
        </communicationAdapter>
     </extension>
+    <extension
+          id="id1"
+          point="org.eclipse.e4.workbench.model">
+       <processor
+             beforefragment="true"
+             class="org.gumtree.ui.util.workbench.E4Processor">
+       </processor>
+    </extension>
 </plugin>
