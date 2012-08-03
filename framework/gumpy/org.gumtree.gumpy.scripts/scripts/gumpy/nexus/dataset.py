@@ -247,7 +247,6 @@ class Dataset(Data):
             title += '_'
         return new(storage, name, var, axes, anames, aunits, False, False, title = title)
 
-    
     def __copy_metadata__(self, dfrom, mslice = None, deep = False):
         if hasattr(dfrom, '__iDictionary__') and not dfrom.__iDictionary__ is None :
             keys = dfrom.__iDictionary__.getAllKeys().toArray()
