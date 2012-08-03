@@ -271,6 +271,12 @@ class Dataset(Data):
                         self.__iDictionary__.addEntry(key, nx_factory.createPath('/' + key.getName()))
 #                        print key
 
+    def copy_metadata_deep(self, dfrom, mslice = None):
+        self.__copy_metadata__(self, dfrom, mslice, True)
+        
+    def copy_metadata_shallow(self, dfrom, mslice = None):
+        self.__copy_metadata__(self, dfrom, mslice, False)
+        
     def __getitem__(self, index):
         if type(index) is str :
             return self.get_metadata(index)
