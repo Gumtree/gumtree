@@ -38,6 +38,15 @@
             name="Command Line Terminal"
             restorable="true">
       </view>
+      <view
+            allowMultiple="true"
+            category="org.eclipse.ui"
+            class="org.gumtree.ui.scripting.support.ScriptConsoleView"
+            icon="icons/console.png"
+            id="org.gumtree.ui.scriptConsole"
+            name="Script Console"
+            restorable="true">
+      </view>
    </extension>
     <extension
          point="org.gumtree.ui.tools">

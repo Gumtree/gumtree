@@ -27,10 +27,20 @@ import org.gumtree.service.eventbus.IEventHandler;
  */
 public interface IScriptExecutor {
 
+	public static final String EVENT_TOPIC_SCRIPT_EXECUTOR = "org/gumtree/scripting/executor";
+	
+	public static final String EVENT_TOPIC_SCRIPT_EXECUTOR_BUSY = EVENT_TOPIC_SCRIPT_EXECUTOR + "/busy";
+	
+	public static final String EVENT_TOPIC_SCRIPT_EXECUTOR_COMPLETED = EVENT_TOPIC_SCRIPT_EXECUTOR + "/completed";
+	
+	public static final String EVENT_PROP_EXECUTOR_ID = "executorId";
+	
 	// Used "__" prefix (Python convention) for this local variable 
 	public static final String VAR_EXECUTOR = "__executor__";
 	
 	public static final String VAR_SILENCE_MODE = "slienceMode";
+	
+	public String getId();
 	
 	public void runScript(String script);
 	

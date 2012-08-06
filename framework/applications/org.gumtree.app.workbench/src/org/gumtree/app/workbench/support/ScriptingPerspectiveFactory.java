@@ -37,7 +37,7 @@ public class ScriptingPerspectiveFactory implements IPerspectiveFactory {
                 "bottom", IPageLayout.BOTTOM, (float) 0.65,//$NON-NLS-1$
                 editorArea);
 
-		bottom.addView(ScriptingUI.ID_VIEW_COMMAND_LINE);
+		bottom.addView("org.gumtree.ui.scriptConsole");
 		bottom.addView(IPageLayout.ID_PROP_SHEET);
 
         // Left.

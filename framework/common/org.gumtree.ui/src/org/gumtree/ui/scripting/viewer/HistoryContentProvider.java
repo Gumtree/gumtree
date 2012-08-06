@@ -68,7 +68,7 @@ public class HistoryContentProvider implements IStructuredContentProvider, IComm
 		});
 	}
 
-	protected class CommandHistory {
+	public class CommandHistory {
 		
 		private Date timestamp;
 		
