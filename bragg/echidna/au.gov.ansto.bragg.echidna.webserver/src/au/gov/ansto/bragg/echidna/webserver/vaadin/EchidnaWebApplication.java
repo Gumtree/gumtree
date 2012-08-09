@@ -125,7 +125,7 @@ public class EchidnaWebApplication extends Application {
 				try {
 					update();
 				} catch (Exception e) {
-					logger.error("Failed to update Taipan data", e);
+					logger.error("Failed to update Echidna data", e);
 				}
 				if (EchidnaWebApplication.this.isRunning()) {
 					schedule(REFRESH_INTERVAL);
