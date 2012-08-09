@@ -16,6 +16,8 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.Realm;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -126,6 +128,11 @@ public class SingleADParameter extends AbstractScanParameter {
 	}
 
 	private void calculateFinishPosition() {
+		if (Float.isNaN(startPosition)) {
+			setFinishPosition(Float.NaN);
+			isLocked = false;
+			return;
+		}
 		float numberOfPoints = parentParameter.getNumberOfPoints();
 		isLocked = true;
 		if (numberOfPoints <= 2)
@@ -136,6 +143,10 @@ public class SingleADParameter extends AbstractScanParameter {
 	}
 
 	public void calculateStepSize() {
+		if (Float.isNaN(startPosition) || Float.isNaN(finishPosition)) {
+			isLocked = false;
+			return;
+		}
 		float numberOfPoints = parentParameter.getNumberOfPoints();
 		isLocked = true;
 		if (numberOfPoints <= 2)
@@ -200,10 +211,81 @@ public class SingleADParameter extends AbstractScanParameter {
 						new UpdateValueStrategy(), new UpdateValueStrategy());
 				bindingContext.bindValue(SWTObservables.observeText(startPositionText, SWT.Modify),
 						BeansObservables.observeValue(getInstance(), "startPosition"),
-						new UpdateValueStrategy(), new UpdateValueStrategy());
+						new UpdateValueStrategy(){
+
+							/* (non-Javadoc)
+							 * @see org.eclipse.core.databinding.UpdateValueStrategy#convert(java.lang.Object)
+							 */
+							@Override
+							public Object convert(Object value) {
+								if ("*".equals(String.valueOf(value)))
+									return Float.NaN;
+								else 
+									return super.convert(value);
+							}
+		
+							@Override
+							public IStatus validateAfterGet(Object value) {
+								if ("*".equals(value)) {
+									return Status.OK_STATUS;
+								}
+								return super.validateAfterGet(value);
+							}
+							
+						}, new UpdateValueStrategy(){
+		
+							/* (non-Javadoc)
+							 * @see org.eclipse.core.databinding.UpdateValueStrategy#convert(java.lang.Object)
+							 */
+							@Override
+							public Object convert(Object value) {
+								if (value instanceof Float)
+									if (Float.isNaN((Float) value))
+										return "*";
+									else 
+										super.convert(value);
+								return super.convert(value);
+							}
+
+							@Override
+							public IStatus validateAfterGet(Object value) {
+								if ("*".equals(value)) {
+									return Status.OK_STATUS;
+								}
+								return super.validateAfterGet(value);
+							}
+							
+						});
 				bindingContext.bindValue(SWTObservables.observeText(finishPositionText, SWT.Modify),
 						BeansObservables.observeValue(getInstance(), "finishPosition"),
-						new UpdateValueStrategy(), new UpdateValueStrategy());
+						new UpdateValueStrategy(){
+
+							/* (non-Javadoc)
+							 * @see org.eclipse.core.databinding.UpdateValueStrategy#convert(java.lang.Object)
+							 */
+							@Override
+							public Object convert(Object value) {
+								if ("*".equals(String.valueOf(value)))
+									return Float.NaN;
+								else 
+									return super.convert(value);
+							}
+		
+						}, new UpdateValueStrategy(){
+		
+							/* (non-Javadoc)
+							 * @see org.eclipse.core.databinding.UpdateValueStrategy#convert(java.lang.Object)
+							 */
+							@Override
+							public Object convert(Object value) {
+								if (value instanceof Float)
+									if (Float.isNaN((Float) value))
+										return "*";
+									else 
+										super.convert(value);
+								return super.convert(value);
+							}
+						});
 				bindingContext.bindValue(SWTObservables.observeText(stepSizeText, SWT.Modify),
 						BeansObservables.observeValue(getInstance(), "stepSize"),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
@@ -309,6 +391,15 @@ public class SingleADParameter extends AbstractScanParameter {
 	}
 
 	public String iterationGetPoint(int pointID, int numberOfPoints) {
+		if (Float.isNaN(startPosition) || Float.isNaN(finishPosition)) {
+			String text = "set pos [SplitReply [" + scanVariable + "]]\n";
+			if (pointID >= 0 && pointID < numberOfPoints) {
+				text += "drive " + scanVariable + " [expr $pos+" + ((float) stepSize) + "]";
+				return text;
+			} else {
+				return "";
+			}
+		}
 		if (startPosition == finishPosition)
 			return "drive " + scanVariable + " " + startPosition;
 		if (numberOfPoints == 0)
@@ -336,18 +427,30 @@ public class SingleADParameter extends AbstractScanParameter {
 
 	@Override
 	public String getDriveScript(String indexName, String indent) {
+		if (Float.isNaN(startPosition) || Float.isNaN(finishPosition)) {
+			String text = indent + "set pos [SplitReply [" + scanVariable + "]]\n";
+			text += indent + "drive " + scanVariable + " [expr $pos+" + stepSize + "]\n";
+			return text;
+		}
 		return indent + "drive " + scanVariable + " " + "[expr $" + indexName + "*"
 			+ ((float) stepSize) + "+" + ((float)startPosition) + "]\n";
 	}
 	
 	@Override
 	public String getBroadcastScript(String indexName, String indent) {
+		if (Float.isNaN(startPosition) || Float.isNaN(finishPosition)) {
+			String text = indent + "broadcast " + scanVariable + " = [expr $pos+" + stepSize + "]\n";
+			return text;
+		}
 		return indent + "broadcast " + scanVariable + " = " + "[expr $" + indexName + "*"
 			+ ((float) stepSize) + "+" + ((float)startPosition) + "]\n";
 	}
 	
 	@Override
 	public String getPritable(boolean isFirstLine) {
+		if (Float.isNaN(startPosition) || Float.isNaN(finishPosition)) {
+			return scanVariable + "\t*\t*\t" + stepSize;
+		}
 		return scanVariable + "\t" + String.valueOf(startPosition) + "\t" +
 				String.valueOf(finishPosition) + "\t" + stepSize;
 	}
