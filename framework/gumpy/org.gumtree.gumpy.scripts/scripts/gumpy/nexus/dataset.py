@@ -479,7 +479,7 @@ class Dataset(Data):
 
     def float_copy(self):
         res = Data.float_copy(self)
-        res.__copy_metadata__(self)
+        res.__copy_metadata__(self, deep = True)
         return res
     
     def absolute_copy(self):
