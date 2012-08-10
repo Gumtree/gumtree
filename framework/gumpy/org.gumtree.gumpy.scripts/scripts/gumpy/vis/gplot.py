@@ -107,7 +107,10 @@ class GPlot:
             for s in sds.getSeries() :
                 if s.getNxDataset() is ds.__iNXDataset__ :
                     sds.removeSeries(s)
-                    self.__ds__.remove(ds)
+                    for i in xrange(len(self.__ds__)):
+                        if self.__ds__[i] is ds:
+                            self.__ds__.__delitem__(i)
+                            break
                     break
         else :
             raise AttributeError, 'not supported for this type of plot: ' + str(self.ndim) + '-dimension'
