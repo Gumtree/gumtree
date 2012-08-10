@@ -203,6 +203,7 @@
 
 				<module>${common.path}/org.gumtree.core.tests</module>
 				<module>${common.path}/org.gumtree.server.tests</module>
+				<module>${common.path}/org.gumtree.ui.tests</module>
 
 
 
