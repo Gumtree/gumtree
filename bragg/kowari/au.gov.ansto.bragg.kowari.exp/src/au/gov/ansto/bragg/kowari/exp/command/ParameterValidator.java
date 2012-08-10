@@ -23,6 +23,9 @@ public abstract class ParameterValidator {
 		public boolean isValid(String text) {
 			if (text == null || text.trim().length() == 0)
 				return false;
+			if (text.trim().equals("*")) {
+				return true;
+			}
 			try{
 				text = text.replaceAll(",", "");
 				Double.parseDouble(text);

@@ -263,6 +263,9 @@ public class WorkflowComposerViewer extends AbstractWorkflowViewerComponent {
 									"Cannot open file " + ((File) selection).getAbsolutePath(), e);
 						}
 					}
+					c.form.layout(true, true);
+					c.form.reflow(true);
+					c.form.forceFocus();
 				} 
 //				else {
 //					Object adaptable = event.data;
@@ -429,6 +432,9 @@ public class WorkflowComposerViewer extends AbstractWorkflowViewerComponent {
 									"Cannot open file " + ((File) selection).getAbsolutePath(), e);
 						}
 					}
+					c.form.layout(true, true);
+					c.form.reflow(true);
+					c.form.forceFocus();
 				}
 			}
 		});
@@ -895,6 +901,7 @@ public class WorkflowComposerViewer extends AbstractWorkflowViewerComponent {
 			c.form.layout(true, true);
 			c.form.reflow(true);
 		}
+		c.form.forceFocus();
 	}
 	
 	private void syncWorkflowUI() {
