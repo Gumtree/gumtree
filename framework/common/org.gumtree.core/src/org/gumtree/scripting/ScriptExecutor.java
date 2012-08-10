@@ -16,6 +16,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -28,6 +29,7 @@ import org.gumtree.core.service.ServiceUtils;
 import org.gumtree.service.eventbus.IEventBus;
 import org.gumtree.service.eventbus.IEventHandler;
 import org.gumtree.util.PlatformUtils;
+import org.gumtree.util.messaging.EventBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +48,8 @@ public class ScriptExecutor implements IScriptExecutor {
 	
 	private List<Future<?>> futures;
 	
+	private String id;
+	
 	private boolean initialised = false;
 	
 	// Hopefully we can keep track of the engine state in this
@@ -58,6 +62,7 @@ public class ScriptExecutor implements IScriptExecutor {
 	
 	public ScriptExecutor(final String engineName) {
 		super();
+		id = UUID.randomUUID().toString();
 		// Wait forever until the scripting manager is available
 		setScriptingManager(ServiceUtils.getServiceManager().getService(
 				IScriptingManager.class, IServiceManager.NO_TIMEOUT));
@@ -78,6 +83,7 @@ public class ScriptExecutor implements IScriptExecutor {
 	
 	public ScriptExecutor(final ScriptEngine engine) {
 		super();
+		id = UUID.randomUUID().toString();
 		futures = new ArrayList<Future<?>>(2);
 		executorService = Executors.newSingleThreadExecutor();
 		this.engine = engine;
@@ -90,6 +96,10 @@ public class ScriptExecutor implements IScriptExecutor {
 				initialised = true;
 			}
 		});
+	}
+	
+	public String getId() {
+		return id;
 	}
 	
 	public boolean isInitialised() {
@@ -121,6 +131,9 @@ public class ScriptExecutor implements IScriptExecutor {
 						setBusy(false);	
 					}
 					getEventBus().postEvent(new ScriptExecutorCompletionEvent(ScriptExecutor.this));
+					new EventBuilder(EVENT_TOPIC_SCRIPT_EXECUTOR_COMPLETED)
+							.append(EVENT_PROP_EXECUTOR_ID, getId())
+							.post();
 				}
 			}
 		});
@@ -144,6 +157,9 @@ public class ScriptExecutor implements IScriptExecutor {
 						setBusy(false);
 					}
 					getEventBus().postEvent(new ScriptExecutorCompletionEvent(ScriptExecutor.this));
+					new EventBuilder(EVENT_TOPIC_SCRIPT_EXECUTOR_COMPLETED)
+							.append(EVENT_PROP_EXECUTOR_ID, getId())
+							.post();
 				}
 			}			
 		});
@@ -176,6 +192,9 @@ public class ScriptExecutor implements IScriptExecutor {
 						setBusy(false);
 					}
 					getEventBus().postEvent(new ScriptExecutorCompletionEvent(ScriptExecutor.this));
+					new EventBuilder(EVENT_TOPIC_SCRIPT_EXECUTOR_COMPLETED)
+							.append(EVENT_PROP_EXECUTOR_ID, getId())
+							.post();
 				}
 			}			
 		});
@@ -220,6 +239,8 @@ public class ScriptExecutor implements IScriptExecutor {
 	private void setBusy(boolean isBusy) {
 		this.isBusy = isBusy;
 		getEventBus().postEvent(new ScriptExecutorStateEvent(this, isBusy));
+		new EventBuilder(EVENT_TOPIC_SCRIPT_EXECUTOR_BUSY).append(
+				EVENT_PROP_EXECUTOR_ID, getId()).post();
 	}
 	
 	public synchronized void shutDown() {

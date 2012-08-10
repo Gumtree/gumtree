@@ -49,6 +49,14 @@
          id="org.gumtree.gumpy.feature"
          version="0.0.0"/>
 
+   <includes
+         id="org.gumtree.github.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.e4.core.tools.feature"
+         version="0.0.0"/>
+
    <plugin
          id="org.gumtree.app.workbench"
          download-size="0"
@@ -64,6 +72,20 @@
 
    <plugin
          id="net.jeeeyul.eclipse.themes"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.emf.databinding"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.emf.databinding.edit"
          download-size="0"
          install-size="0"
          version="0.0.0"

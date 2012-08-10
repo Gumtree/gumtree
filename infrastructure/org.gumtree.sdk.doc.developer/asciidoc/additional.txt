@@ -1,6 +1,36 @@
-Download and install JDK 1.6
+Gumtree Tutorial
 
-Download and install Classic Eclipse 4.2
+Development Process
+* Setup development environment
+* Online services (Codehaus, JIRA, GitHub)
+* Daily development cycle: Checkout -> Code -> Test -> Commit
+* Continuous Integration - test result, code analysis 
+* Release management - review, plain, release, schedule
+
+Gumtree Design Architecture
+* Layered approach
+
+
+
+
+
+
+
+Your development directory will look like this:
+
+.Basic development directory structure
+[graphviz, ./graphviz/Basic_Development_Directory_Structure.png]
+---------------------------------------------------------
+graph linuxdir {
+	size = "14,14"
+	node [shape = box];
+	dev [label = "<gumtree_directory>"];
+	dev -- source;
+	source -- plugins;
+}
+---------------------------------------------------------
+
+
 
 Setup workspace folder structure
 
@@ -119,3 +149,24 @@ Add publish JUnit test result
 - XMLs = **/surefire-reports/*.xml
 Add record Emma
 - XML = **/emma/*-coverage.xml
+
+
+
+
+
+
+
+
+
+
+
+
+Ascii Doc
+---------
+Install Cygwin
+- Install asciidoc (we do not use this instance, but it will help us to install all its dependence)
+- Install dblatex
+- Install Cygwin's version of Graphvis (see: http://sourceware.org/cygwinports/)
+
+Install Asciidoc
+

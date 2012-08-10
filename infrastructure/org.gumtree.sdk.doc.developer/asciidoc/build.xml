@@ -1,27 +1,66 @@
 <project default="main">
+
+	<!-- Require property "sourceLocation" (eg /cygdrive/d/Development/Workspace/Gumtree-1.8.x/source/plugins) -->
+	<!-- Please read the "Book of Gumtree" for setup instructions -->
 	
-	<property name="bashLocation" value="D:/Applications/Cygwin/1.7.15-1/bin" />
-	<property name="asciidocLocation" value="/cygdrive/d/Applications/Asciidoc/8.6.7" />
-	<property name="sourceLocation" value="/cygdrive/d/Development/Workspace/Gumtree-1.8.x/source/plugins/gumtree/infrastructure/org.gumtree.sdk.doc.developer/asciidoc" />
+	<property name="bashLocation" value="X:/apps/Cygwin/1.7.16-1/bin" />
+	<property name="asciidocLocation" value="/cygdrive/x/apps/Asciidoc/8.6.7" />
+	<property name="buildLocation" value="${sourceLocation}/gumtree/infrastructure/org.gumtree.sdk.doc.developer/asciidoc" />
 
 	<target name="generateHTML">
 		<exec executable="${bashLocation}/bash.exe">
 			<arg line="--login" />
-			<arg line="-c &quot;python ${asciidocLocation}/asciidoc.py -b html5 -a toc2 ${sourceLocation}/gumtree.txt&quot;" />
+			<arg line="-c &quot;python ${asciidocLocation}/asciidoc.py -b html5 -a toc2 ${buildLocation}/gumtree.txt&quot;" />
 		</exec>
+		<move file="${basedir}/gumtree.html" tofile="${basedir}/output/html/gumtree.html" />
+		<copy todir="${basedir}/output/html/images">
+			<fileset dir="${basedir}/images"/>
+		</copy>
+		<copy todir="${basedir}/output/html/graphviz">
+			<fileset dir="${basedir}/graphviz"/>
+		</copy>
+	</target>
+
+	<target name="generateChunked">
+		<exec executable="${bashLocation}/bash.exe">
+			<arg line="--login" />
+			<arg line="-c &quot;python ${asciidocLocation}/asciidoc.py -b docbook ${buildLocation}/gumtree.txt&quot;" />
+		</exec>
+		<exec executable="${bashLocation}/bash.exe">
+			<arg line="--login" />
+			<arg line="-c &quot;xsltproc --output ${buildLocation}/output/chunked/ --stringparam chunk.section.depth 0 ${asciidocLocation}/docbook-xsl/chunked.xsl ${buildLocation}/gumtree.xml&quot;" />
+		</exec>
+		<copy todir="${basedir}/output/chunked/images">
+			<fileset dir="${basedir}/images"/>
+		</copy>
+		<copy todir="${basedir}/output/chunked/graphviz">
+			<fileset dir="${basedir}/graphviz"/>
+		</copy>
 	</target>
 
 	<target name="generatePDF">
 		<exec executable="${bashLocation}/bash.exe">
 			<arg line="--login" />
-			<arg line="-c &quot;python ${asciidocLocation}/a2x.py --no-xmllint ${sourceLocation}/gumtree.txt&quot;" />
+			<arg line="-c &quot;python ${asciidocLocation}/a2x.py --no-xmllint ${buildLocation}/gumtree.txt&quot;" />
 		</exec>
+		<move file="${basedir}/gumtree.pdf" tofile="${basedir}/output/pdf/gumtree.pdf" />
 	</target>
 
 	<target name="main">
-		<mkdir dir="${basedir}/graphviz"/>
+		<!-- Initialise -->
+		<delete dir="${basedir}/graphviz" failonerror="false" />
+		<mkdir dir="${basedir}/graphviz" />
+
+		<delete dir="${basedir}/output" failonerror="false" />
+		<mkdir dir="${basedir}/output" />
+
+		<!-- Build -->
 		<antcall target="generateHTML" />
+		<antcall target="generateChunked" />
 		<antcall target="generatePDF" />
+
+		<!-- Clean up -->
+		<delete dir="${basedir}/graphviz" failonerror="false" />
 	</target>
 
 </project>

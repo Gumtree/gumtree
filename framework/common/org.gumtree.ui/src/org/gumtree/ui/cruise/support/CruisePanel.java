@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
+import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.jface.action.Action;
 import org.eclipse.nebula.effects.stw.Transition;
 import org.eclipse.nebula.effects.stw.TransitionManager;
@@ -57,7 +60,8 @@ public class CruisePanel extends FormComposite implements ICruisePanel {
 	
 	private List<String> pagenames;
 
-	public CruisePanel(Composite parent, int style) {
+	@Inject
+	public CruisePanel(Composite parent, @Optional int style) {
 		// Initialise
 		super(parent, style);
 		setLayout(new FillLayout());

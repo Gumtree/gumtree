@@ -299,12 +299,6 @@
             name="Cruise Panel"
             restorable="true">
       </view>
-      <stickyView
-            closeable="false"
-            id="org.gumtree.app.workbench.cruisePanel"
-            location="RIGHT"
-            moveable="false">
-      </stickyView>
    </extension>
    <extension
          point="org.eclipse.ui.startup">

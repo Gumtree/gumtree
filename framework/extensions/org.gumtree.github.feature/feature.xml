@@ -53,6 +53,10 @@
          id="org.eclipse.mylyn.monitor"
          version="0.0.0"/>
 
+   <includes
+         id="org.eclipse.mylyn.discovery"
+         version="0.0.0"/>
+
    <plugin
          id="org.eclipse.mylyn.commons.net"
          download-size="0"

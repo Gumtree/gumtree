@@ -16,12 +16,17 @@ import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.InjectionException;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.e4.core.services.log.Logger;
+import org.gumtree.core.internal.Activator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 @SuppressWarnings("restriction")
 public final class E4Utils {
 
+	public static IEclipseContext createEclipseContext() {
+		return createEclipseContext(Activator.getContext());
+	}
+	
 	public static IEclipseContext createEclipseContext(Bundle bundle) {
 		return createEclipseContext(bundle.getBundleContext());
 	}
@@ -38,4 +43,8 @@ public final class E4Utils {
 		return eclipseContext;
 	}
 
+	public static IEclipseContext getEclipseContext() {
+		return Activator.getDefault().getEclipseContext();
+	}
+	
 }

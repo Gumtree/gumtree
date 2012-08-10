@@ -89,6 +89,11 @@
 			<url>http://dist.codehaus.org/gumtree/sites/bundles/1.8.0.201207261453</url>
 		</repository>
 		<repository>
+			<id>e4_tools</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/e4/updates/0.12</url>
+		</repository>
+		<repository>
 			<id>pydev</id>
 			<layout>p2</layout>
 			<url>http://pydev.org/updates</url>

@@ -125,7 +125,7 @@ public class EchidnaWebApplication extends Application {
 				try {
 					update();
 				} catch (Exception e) {
-					logger.error("Failed to update Taipan data", e);
+					logger.error("Failed to update Echidna data", e);
 				}
 				if (EchidnaWebApplication.this.isRunning()) {
 					schedule(REFRESH_INTERVAL);
@@ -172,6 +172,19 @@ public class EchidnaWebApplication extends Application {
 				"degrees");
 		createDeviceLabel(panelLayout, "Current Point",
 				"/experiment/currpoint", null);
+		createDeviceLabel(panelLayout, "File Name", "/experiment/file_name",
+				null, new ITextFormatter() {
+					@Override
+					public String formatText(String text) {
+						String[] results = text.split("[^\\d]");
+						for (String result : results) {
+							if (result.length() > 0) {
+								return result;
+							}
+						}
+						return StringUtils.EMPTY_STRING;
+					}
+				});
 	}
 
 	private void createRobotChangerPanel(ComponentContainer parent) {
@@ -241,6 +254,12 @@ public class EchidnaWebApplication extends Application {
 
 	private void createDeviceLabel(ComponentContainer parent, String name,
 			String path, String unit) {
+		createDeviceLabel(parent, name, path, unit, null);
+	}
+
+	@SuppressWarnings("serial")
+	private void createDeviceLabel(ComponentContainer parent, String name,
+			String path, String unit, final ITextFormatter formatter) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.setWidth("100%");
 		parent.addComponent(horizontalLayout);
@@ -249,7 +268,14 @@ public class EchidnaWebApplication extends Application {
 		label.setStyleName("white");
 		horizontalLayout.addComponent(label);
 
-		label = new Label("--");
+		label = new Label("--") {
+			public void setValue(Object newValue) {
+				if (formatter != null) {
+					newValue = formatter.formatText(newValue.toString());
+				}
+				super.setValue(newValue);
+			}
+		};
 		label.setStyleName("bigger white");
 		label.setWidth("100%");
 		componentMap.put(path, label);
@@ -372,6 +398,12 @@ public class EchidnaWebApplication extends Application {
 		private Label statusLabel;
 		private Label timeLabel;
 		private Embedded hmImage;
+	}
+
+	private interface ITextFormatter {
+
+		String formatText(String text);
+
 	}
 
 }
