@@ -17,6 +17,12 @@ import org.gumtree.util.SystemProperty;
 public final class SystemProperties {
 
 	/**
+	 * The class URI for the panel 
+	 */
+	public static final ISystemProperty CRUISE_PANEL_URI = new SystemProperty(
+			"gumtree.cruise.panelUri", "bundleclass://org.gumtree.ui/org.gumtree.ui.cruise.support.CruisePanel");
+			
+	/**
 	 * Create sidebar on the workbench
 	 */
 	public static final ISystemProperty CREATE_SIDEBAR = new SystemProperty(

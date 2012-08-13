@@ -64,7 +64,7 @@ public class CruisePanelActivator implements IStartup {
 		// Create cruise panel
 		MPart part = MBasicFactory.INSTANCE.createPart();
 		part.setLabel("Cruise Panel");
-		part.setContributionURI("bundleclass://org.gumtree.ui/org.gumtree.ui.cruise.support.CruisePanel");
+		part.setContributionURI(SystemProperties.CRUISE_PANEL_URI.getValue());
 		partSashContainer.getChildren().add(part);
 		// Set sash weight
 		originalContainer.setContainerData("8000");
