@@ -16,8 +16,6 @@ Import-Package: org.apache.commons.httpclient,
  org.apache.commons.httpclient.auth,
  org.apache.commons.httpclient.methods,
  org.apache.commons.httpclient.params,
- org.osgi.framework,
- org.slf4j,
  org.springframework.beans.factory;version="3.0.5.RELEASE"
 Export-Package: org.gumtree.dae.server.restlet
 Bundle-Vendor: Bragg Institute

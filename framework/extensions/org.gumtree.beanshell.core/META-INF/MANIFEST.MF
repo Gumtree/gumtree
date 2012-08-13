@@ -4,9 +4,8 @@ Bundle-Name: Gumtree BeanSehll Core
 Bundle-SymbolicName: org.gumtree.beanshell.core
 Bundle-Version: 1.8.0.qualifier
 Bundle-Activator: org.gumtree.beanshell.core.internal.Activator
-Import-Package: org.osgi.framework;version="1.3.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.beanshell;bundle-version="2.1.0",
- org.gumtree.core;bundle-version="1.7.0"
+Require-Bundle: org.beanshell;bundle-version="2.1.0";visibility:=reexport,
+ org.gumtree.core;bundle-version="1.7.0";visibility:=reexport
 Service-Component: OSGI-INF/factory.xml
 Eclipse-BundleShape: jar

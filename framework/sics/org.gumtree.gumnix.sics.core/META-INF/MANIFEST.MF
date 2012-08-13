@@ -39,8 +39,7 @@ Eclipse-RegisterBuddy: org.apache.log4j
 Import-Package: ch.unifr.nio.framework,
  ch.unifr.nio.framework.transform,
  org.json,
- org.osgi.service.event,
- org.slf4j
+ org.osgi.service.event
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-BundleShape: jar
 Service-Component: OSGI-INF/ComponentControllerFactory.xml, OSGI-INF/SicsDataProvider.xml, OSGI-INF/SicsDataConverter.xml, OSGI-INF/SicsProxyMonitor.xml, OSGI-INF/SicsProxyWatchdog.xml, OSGI-INF/SicsManager.xml, OSGI-INF/InstrumentReadyManager.xml, OSGI-INF/SicsPersistenceManager.xml

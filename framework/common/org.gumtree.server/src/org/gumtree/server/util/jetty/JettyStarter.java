@@ -4,27 +4,23 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
+import org.gumtree.server.ServerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JettyStarter {
+public class JettyStarter implements IJettyStarter {
 
 	private static final String ID_WEB_APP = "restlet";
-	
-	private static final int DEFAULT_PORT = 9876;
-	
+
 	private static Logger logger = LoggerFactory.getLogger(JettyStarter.class);
-	
-	private int port = DEFAULT_PORT;
-	
+
 	private boolean isStarted = false;
-	
-	private boolean enable = true;
-	
+
 	public JettyStarter() {
 		super();
 	}
-	
+
+	@Override
 	public void init() {
 		if (isEnable()) {
 			Dictionary<String, Object> d = new Hashtable<String, Object>();
@@ -37,15 +33,18 @@ public class JettyStarter {
 			try {
 				JettyConfigurator.startServer(ID_WEB_APP, d);
 				isStarted = true;
-				logger.info("Server " + ID_WEB_APP + " started on port " + getPort());
+				logger.info("Server " + ID_WEB_APP + " started on port "
+						+ getPort());
 			} catch (Exception e) {
-				logger.error("Cannot start server " + ID_WEB_APP + " on port " + getPort(), e);
+				logger.error("Cannot start server " + ID_WEB_APP + " on port "
+						+ getPort(), e);
 			}
 		} else {
 			logger.info("Restlet Jetty server is disabled by current configuration.");
 		}
 	}
-	
+
+	@Override
 	public void cleanup() {
 		if (isStarted) {
 			try {
@@ -56,21 +55,25 @@ public class JettyStarter {
 			}
 		}
 	}
-	
+
+	@Override
 	public int getPort() {
-		return port;
+		return ServerProperties.SERVER_PORT.getInt();
 	}
-	
+
+	@Override
 	public void setPort(int port) {
-		this.port = port;
+		ServerProperties.SERVER_PORT.setInt(port).save();
 	}
 
+	@Override
 	public boolean isEnable() {
-		return enable;
+		return ServerProperties.SERVER_ENABLE.getBoolean();
 	}
 
+	@Override
 	public void setEnable(boolean enable) {
-		this.enable = enable;
+		ServerProperties.SERVER_ENABLE.setBoolean(enable).save();
 	}
-	
+
 }

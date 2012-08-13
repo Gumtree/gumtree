@@ -45,10 +45,11 @@ Export-Package: org.gumtree.core,
  org.gumtree.workflow.tasks,
  org.gumtree.workflow.types
 Import-Package: javax.mail.internet;version="1.4.0";resolution:=optional,
- org.apache.commons.codec.binary;version="1.3.0";resolution:=optional,
- org.osgi.framework;version="1.6.0",
- org.slf4j;version="1.6.1"
-Require-Bundle: org.eclipse.osgi.services;bundle-version="3.3.0";visibility:=reexport,
+ org.apache.commons.codec.binary;version="1.3.0";resolution:=optional
+Require-Bundle: org.slf4j.api;bundle-version="1.6.4";visibility:=reexport,
+ javax.inject;bundle-version="1.0.0";visibility:=reexport,
+ javax.annotation;bundle-version="1.0.0";visibility:=reexport,
+ org.eclipse.osgi.services;bundle-version="3.3.0";visibility:=reexport,
  org.eclipse.e4.core.di;bundle-version="1.0.0";visibility:=reexport,
  org.eclipse.e4.core.contexts;bundle-version="1.0.0";visibility:=reexport,
  org.eclipse.e4.core.services;bundle-version="0.10.0";visibility:=reexport,
@@ -66,19 +67,3 @@ Require-Bundle: org.eclipse.osgi.services;bundle-version="3.3.0";visibility:=ree
  org.apache.commons.httpclient;bundle-version="3.1.0";resolution:=optional,
  org.gumtree.data.core;bundle-version="2.1.0";resolution:=optional
 Eclipse-BuddyPolicy: global
-Service-Component: OSGI-INF/services/CommandLineOptions.xml,
- OSGI-INF/services/DataAccessManager.xml,
- OSGI-INF/services/DirectoryService.xml,
- OSGI-INF/services/ObjectContainerManager.xml,
- OSGI-INF/services/PlatformEventBus.xml,
- OSGI-INF/services/PreferencesManager.xml,
- OSGI-INF/services/ScriptingManager.xml,
- OSGI-INF/services/ServiceManager.xml,
- OSGI-INF/services/MBeanDiscoverer.xml,
- OSGI-INF/services/LocalPersistenceManager.xml,
- OSGI-INF/services/DefaultNotificationService.xml,
- OSGI-INF/services/HttpClientFactory.xml,
- OSGI-INF/providers/BundleDataProvider.xml,
- OSGI-INF/providers/ResourceDataProvider.xml,
- OSGI-INF/providers/FileDataProvider.xml,
- OSGI-INF/converters/FileStoreConverter.xml

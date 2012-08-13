@@ -4,9 +4,6 @@ Bundle-Name: Gumtree Framework UI
 Bundle-SymbolicName: org.gumtree.ui;singleton:=true
 Bundle-Version: 1.8.0.qualifier
 Bundle-Activator: org.gumtree.ui.internal.Activator
-Import-Package: net.miginfocom.swt;version="3.7.1";resolution:=optional,
- org.osgi.framework;version="1.3.0";resolution:=optional,
- org.slf4j;version="1.6.1";resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.gumtree.core;bundle-version="1.7.0";visibility:=reexport,
  org.eclipse.ui;bundle-version="3.7.0";visibility:=reexport,
@@ -26,7 +23,8 @@ Require-Bundle: org.gumtree.core;bundle-version="1.7.0";visibility:=reexport,
  org.eclipse.e4.ui.workbench;bundle-version="0.10.2";resolution:=optional,
  org.eclipse.ui.ide;bundle-version="3.7.0";resolution:=optional,
  org.eclipse.e4.xwt;bundle-version="0.9.1";resolution:=optional,
- org.eclipse.nebula.widgets;bundle-version="1.0.0";resolution:=optional
+ org.eclipse.nebula.widgets;bundle-version="1.0.0";resolution:=optional,
+ net.miginfocom.layout.swt;bundle-version="3.7.1";resolution:=optional
 Export-Package: org.gumtree.ui.cruise,
  org.gumtree.ui.cruise.support,
  org.gumtree.ui.dashboard.app,
@@ -65,10 +63,3 @@ Export-Package: org.gumtree.ui.cruise,
 Eclipse-BundleShape: jar
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Bragg Institute
-Service-Component: OSGI-INF/services/AppLaunchRegistry.xml,
- OSGI-INF/services/CommandLineToolRegistry.xml,
- OSGI-INF/services/CommunicationAdapterRegistry.xml,
- OSGI-INF/services/CruisePanelManager.xml,
- OSGI-INF/services/GadgetRegistry.xml,
- OSGI-INF/pages/ApplicationsPage.xml,
- OSGI-INF/converters/FileStoreUIConverter.xml
