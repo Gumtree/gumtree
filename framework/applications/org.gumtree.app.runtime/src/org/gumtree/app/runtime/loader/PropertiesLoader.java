@@ -13,7 +13,9 @@ package org.gumtree.app.runtime.loader;
 
 import java.net.URI;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -60,13 +62,14 @@ public class PropertiesLoader implements IRuntimeLoader {
 		
 		IConfigEnvironmentManager manager = new ConfigEnvironmentManager();
 		Properties processedProperties = manager.resolveProperties(config.getProperties());
-		for (String key : processedProperties.stringPropertyNames()) {
+		Map<String, String> sortedProperties = convertPropertiesToMap(processedProperties);
+		for (String key : sortedProperties.keySet()) {
 			// Do not change existing system properties
 			if (getProperties().containsKey(key)) {
 				continue;
 			}
-			getProperties().setProperty(key, processedProperties.getProperty(key));
-			logger.info("Loaded properties {} = {}", key, processedProperties.getProperty(key));
+			getProperties().setProperty(key, sortedProperties.get(key));
+			logger.info("Loaded properties {} = {}", key, sortedProperties.get(key));
 		}
 	}
 
@@ -105,6 +108,14 @@ public class PropertiesLoader implements IRuntimeLoader {
 	
 	public void setProperties(Properties props) {
 		this.props = props;
+	}
+	
+	private Map<String, String> convertPropertiesToMap(Properties properties) {
+		Map<String, String> map = new TreeMap<String, String>();
+		for (String key : properties.stringPropertyNames()) {
+			map.put(key, properties.getProperty(key));
+		}
+		return map;
 	}
 	
 	private static class ExtendedPropertiesConfiguration extends PropertiesConfiguration {

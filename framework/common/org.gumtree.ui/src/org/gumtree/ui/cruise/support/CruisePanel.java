@@ -14,11 +14,8 @@ import org.eclipse.nebula.effects.stw.TransitionManager;
 import org.eclipse.nebula.effects.stw.Transitionable;
 import org.eclipse.nebula.effects.stw.transitions.SlideTransition;
 import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -33,11 +30,8 @@ import org.gumtree.ui.util.forms.FormComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("restriction")
 public class CruisePanel extends FormComposite implements ICruisePanel {
-
-	private static final String SUFFIX_FULL = ".full";
-
-	private static final String SUFFIX_NORMAL = ".normal";
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(CruisePanel.class);
@@ -46,18 +40,16 @@ public class CruisePanel extends FormComposite implements ICruisePanel {
 
 	private String currentPageName;
 
-	private boolean isFullMode;
-
 	private StackLayout stackLayout;
-	
+
 	private Form form;
 
 	private SelectionListener transitionLister;
-			
+
 	private TransitionContext transitionContext;
-	
+
 	private Map<String, Composite> pageMap;
-	
+
 	private List<String> pagenames;
 
 	@Inject
@@ -68,41 +60,21 @@ public class CruisePanel extends FormComposite implements ICruisePanel {
 		pageMap = new HashMap<String, Composite>();
 		pagenames = new ArrayList<String>();
 		transitionContext = new TransitionContext();
-		
+
 		// Create widget
-		createCruisePanel();
-
-		// Check initial state
-		if (checkIsFullMode()) {
-			setToFullMode();
-		} else {
-			setToNormalMode();
-		}
+		createCruisePanel(this);
 		
-		// Resize listener
-		addControlListener(new ControlListener() {
-			@Override
-			public void controlResized(ControlEvent e) {
-				if (checkIsFullMode() && !isFullMode()) {
-					setToFullMode();
-				} else if (!checkIsFullMode() && isFullMode()) {
-					setToNormalMode();
-				}
-			}
-
-			@Override
-			public void controlMoved(ControlEvent e) {
-			}
-		});
+		// Set current page
+		stackLayout.topControl = pageMap.get(currentPageName);
 	}
 
-	private void createCruisePanel() {
+	protected void createCruisePanel(Composite parent) {
 		form = getToolkit().createForm(this);
 		getToolkit().decorateFormHeading(form);
-		
+
 		stackLayout = new StackLayout();
 		form.getBody().setLayout(stackLayout);
-		
+
 		ICruisePanelPage[] pages = getCruisePanelManager().getRegisteredPages();
 		for (ICruisePanelPage page : pages) {
 			createPage(form.getBody(), page);
@@ -111,7 +83,7 @@ public class CruisePanel extends FormComposite implements ICruisePanel {
 			currentPageName = pages[0].getName();
 			form.setText(currentPageName);
 		}
-				
+
 		// Transition effects
 		TransitionManager transitionManager = new TransitionManager(
 				new Transitionable() {
@@ -146,9 +118,10 @@ public class CruisePanel extends FormComposite implements ICruisePanel {
 				});
 		Transition transition = new SlideTransition(transitionManager);
 		transitionManager.setTransition(transition);
-		
+
 		// Navigation
-		Action left = new Action("", InternalImage.LEFT_ARROW_16.getDescriptor()) {
+		Action left = new Action("",
+				InternalImage.LEFT_ARROW_16.getDescriptor()) {
 			public void runWithEvent(Event e) {
 				int index = pagenames.indexOf(getCurrentPageName());
 				int newIndex = index - 1;
@@ -156,25 +129,19 @@ public class CruisePanel extends FormComposite implements ICruisePanel {
 					newIndex = pagenames.size() - 1;
 				}
 				currentPageName = pagenames.get(newIndex);
-				if (isFullMode()) {
-					transitionContext.targetControl = pageMap.get(currentPageName + SUFFIX_FULL);
-					transitionContext.transitionDirection = Transition.DIR_RIGHT;
-					transitionLister.widgetSelected(new SelectionEvent(e));
-					stackLayout.topControl = transitionContext.targetControl;
-				} else {
-					transitionContext.targetControl = pageMap.get(currentPageName + SUFFIX_NORMAL);
-					transitionContext.transitionDirection = Transition.DIR_RIGHT;
-					transitionLister.widgetSelected(new SelectionEvent(e));
-					stackLayout.topControl = transitionContext.targetControl;
-				}
+				transitionContext.targetControl = pageMap.get(currentPageName);
+				transitionContext.transitionDirection = Transition.DIR_RIGHT;
+				transitionLister.widgetSelected(new SelectionEvent(e));
+				stackLayout.topControl = transitionContext.targetControl;
 				form.setText(currentPageName);
 				CruisePanel.this.layout(true, true);
 				// TODO: log
 			}
 		};
 		form.getToolBarManager().add(left);
-		
-		Action right = new Action("", InternalImage.RIGHT_ARROW_16.getDescriptor()) {
+
+		Action right = new Action("",
+				InternalImage.RIGHT_ARROW_16.getDescriptor()) {
 			public void runWithEvent(Event e) {
 				int index = pagenames.indexOf(getCurrentPageName());
 				int newIndex = index + 1;
@@ -182,57 +149,35 @@ public class CruisePanel extends FormComposite implements ICruisePanel {
 					newIndex = 0;
 				}
 				currentPageName = pagenames.get(newIndex);
-				if (isFullMode()) {
-					transitionContext.targetControl = pageMap.get(currentPageName + SUFFIX_FULL);
-					transitionContext.transitionDirection = Transition.DIR_LEFT;
-					transitionLister.widgetSelected(new SelectionEvent(e));
-					stackLayout.topControl = transitionContext.targetControl;
-				} else {
-					transitionContext.targetControl = pageMap.get(currentPageName + SUFFIX_NORMAL);
-					transitionContext.transitionDirection = Transition.DIR_LEFT;
-					transitionLister.widgetSelected(new SelectionEvent(e));
-					stackLayout.topControl = transitionContext.targetControl;
-				}
+				transitionContext.targetControl = pageMap.get(currentPageName);
+				transitionContext.transitionDirection = Transition.DIR_LEFT;
+				transitionLister.widgetSelected(new SelectionEvent(e));
+				stackLayout.topControl = transitionContext.targetControl;
 				form.setText(currentPageName);
 				CruisePanel.this.layout(true, true);
 				// TODO: log
 			}
 		};
 		form.getToolBarManager().add(right);
-		
+
 		form.getToolBarManager().update(true);
 	}
 
 	private void createPage(Composite parent, ICruisePanelPage page) {
 		try {
 			Composite normalPage = page.createNormalWidget(parent);
-			pageMap.put(page.getName() + SUFFIX_NORMAL, normalPage);
+			pageMap.put(page.getName(), normalPage);
 		} catch (Exception e) {
-			pageMap.put(page.getName() + SUFFIX_NORMAL,
-					createErrorPage(parent, e));
+			pageMap.put(page.getName(), createErrorPage(parent, e));
+			logger.warn("Error occurred when creating page " + page.getName());
 		}
-
-		try {
-			Composite fullPage = page.createFullWidget(parent);
-			pageMap.put(page.getName() + SUFFIX_FULL, fullPage);
-		} catch (Exception e) {
-			pageMap.put(page.getName() + SUFFIX_FULL,
-					createErrorPage(parent, e));
-		}
-		
 		pagenames.add(page.getName());
-	}
-
-	@Override
-	public boolean isFullMode() {
-		return isFullMode;
 	}
 
 	// TODO: test this method!
 	@Override
 	public void setPage(String pageName) {
-		Composite composite = isFullMode() ? pageMap.get(pageName + ".full")
-				: pageMap.get(pageName + ".normal");
+		Composite composite = pageMap.get(pageName);
 		if (composite != null) {
 			stackLayout.topControl = composite;
 		}
@@ -267,32 +212,11 @@ public class CruisePanel extends FormComposite implements ICruisePanel {
 		return getWidgetFactory().createComposite(parent);
 	}
 
-	private boolean checkIsFullMode() {
-		Point shellSize = getShell().getSize();
-		Point parentSize = getSize();
-		// Suggests to use full mode when both height and width excess over 50%
-		// of its parent shell
-		return parentSize.x >= (shellSize.x / 2)
-				&& parentSize.y >= (shellSize.y / 2);
-	}
-
-	private void setToFullMode() {
-		isFullMode = true;
-		stackLayout.topControl = pageMap.get(currentPageName + SUFFIX_FULL);
-		logger.info("Switched to full mode");
-	}
-
-	private void setToNormalMode() {
-		isFullMode = false;
-		stackLayout.topControl = pageMap.get(currentPageName + SUFFIX_NORMAL);
-		logger.info("Switched to normal mode");
-	}
-
 	class TransitionContext {
 		private Control targetControl;
 		private double transitionDirection;
 	}
-	
+
 	/*************************************************************************
 	 * Components
 	 *************************************************************************/

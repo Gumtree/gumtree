@@ -9,3 +9,4 @@ Require-Bundle: au.gov.ansto.bragg.nbi.ui;bundle-version="1.7.0";visibility:=ree
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: au.gov.ansto.bragg.nbi.workbench.internal.Activator
 Eclipse-BundleShape: dir
+Export-Package: au.gov.ansto.bragg.nbi.workbench
