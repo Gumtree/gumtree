@@ -1,4 +1,5 @@
 /target
 /bin
 /cachedir
+/Lib/*.class
 /Lib/*/*.class
