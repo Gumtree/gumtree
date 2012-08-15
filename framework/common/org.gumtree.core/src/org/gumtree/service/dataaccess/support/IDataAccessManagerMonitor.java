@@ -14,10 +14,15 @@ package org.gumtree.service.dataaccess.support;
 import javax.management.MXBean;
 
 import org.gumtree.core.management.IManageableBean;
+import org.gumtree.core.service.IServiceManager;
 
 @MXBean
 public interface IDataAccessManagerMonitor extends IManageableBean {
 
 	public DataAccessProviderInfo[] getAvailableProviders();
+	
+	public IServiceManager getServiceManager();
+	
+	public void setServiceManager(IServiceManager serviceManager);
 	
 }

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.net.URI;
 import java.util.Map;
 
+import org.gumtree.core.service.ServiceManager;
 import org.gumtree.core.service.ServiceRegistrationManager;
 import org.gumtree.service.dataaccess.providers.AbstractDataProvider;
 import org.gumtree.service.dataaccess.support.DataAccessManagerMonitor;
@@ -23,6 +24,7 @@ public class DataAccessManagerMonitorTest {
 				CollectionUtils.createMap("scheme", "dummy"));
 
 		IDataAccessManagerMonitor monitor = new DataAccessManagerMonitor();
+		monitor.setServiceManager(new ServiceManager());
 		DataAccessProviderInfo dummyInfo = null;
 		for (DataAccessProviderInfo info : monitor.getAvailableProviders()) {
 			if (info.getScheme().equals("dummy")) {

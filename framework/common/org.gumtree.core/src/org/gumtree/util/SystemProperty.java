@@ -32,7 +32,7 @@ public class SystemProperty implements ISystemProperty {
 			System.setProperty(key, def);
 		}
 		// We only set this once using static field
-		if (preferences == null) {
+		if (preferences == null && ServiceUtils.getServiceManager() != null) {
 			try {
 				preferences = ServiceUtils.getServiceManager().getServiceNow(
 						IPreferencesManager.class);

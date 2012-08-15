@@ -14,6 +14,7 @@ package org.gumtree.service.dataaccess.support;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.gumtree.core.service.IServiceManager;
 import org.gumtree.core.service.ServiceUtils;
 import org.gumtree.service.dataaccess.IDataProvider;
 import org.osgi.framework.ServiceReference;
@@ -23,10 +24,16 @@ public class DataAccessManagerMonitor implements IDataAccessManagerMonitor {
 
 	private static final String PROP_SCHEME = "scheme";
 	
+	private IServiceManager serviceManager;
+	
+	public DataAccessManagerMonitor() {
+		super();
+	}
+	
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public DataAccessProviderInfo[] getAvailableProviders() {
-		ServiceTracker tracker = ServiceUtils.getServiceManager().getTrackerNow(IDataProvider.class);
+		ServiceTracker tracker = getServiceManager().getTrackerNow(IDataProvider.class);
 		List<DataAccessProviderInfo> results = new ArrayList<DataAccessProviderInfo>();
 		for (ServiceReference ref : tracker.getServiceReferences()) {
 			String scheme = (String) ref.getProperty(PROP_SCHEME);
@@ -41,6 +48,19 @@ public class DataAccessManagerMonitor implements IDataAccessManagerMonitor {
 	@Override
 	public String getRegistrationKey() {
 		return "org.gumtree.core:type=DataAccessManager";
+	}
+	
+	@Override
+	public IServiceManager getServiceManager() {
+		if (serviceManager == null) {
+			serviceManager = ServiceUtils.getServiceManager();
+		}
+		return serviceManager;
+	}
+	
+	@Override
+	public void setServiceManager(IServiceManager serviceManager) {
+		this.serviceManager = serviceManager;
 	}
 	
 }

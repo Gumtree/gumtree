@@ -143,10 +143,12 @@ public class ScriptingManager implements IScriptingManager {
 	 * Referenced services
 	 *************************************************************************/
 	
+	@Override
 	public IServiceManager getServiceManager() {
 		return serviceManager;
 	}
 	
+	@Override
 	public void setServiceManager(IServiceManager serviceManager) {
 		this.serviceManager = serviceManager;
 	}

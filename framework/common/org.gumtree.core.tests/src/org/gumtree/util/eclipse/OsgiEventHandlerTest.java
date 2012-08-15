@@ -2,7 +2,8 @@ package org.gumtree.util.eclipse;
 
 import static org.junit.Assert.assertEquals;
 
-import org.gumtree.core.service.ServiceUtils;
+import org.gumtree.core.service.IServiceManager;
+import org.gumtree.core.service.ServiceManager;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.LoopRunner;
 import org.gumtree.util.LoopRunnerStatus;
@@ -31,9 +32,12 @@ public class OsgiEventHandlerTest {
 	
 	private static final String FILTER_SIMPLE = "(key=123)";
 
+	private static IServiceManager serviceManager;
+	
 	@BeforeClass
 	public static void setup() throws Exception {
 		OsgiUtils.startBundle("org.eclipse.equinox.event");
+		serviceManager = new ServiceManager();
 	}
 
 	@Test
@@ -49,7 +53,7 @@ public class OsgiEventHandlerTest {
 		handler.activate();
 
 		// Prepare sender
-		EventAdmin eventAdmin = ServiceUtils.getService(EventAdmin.class);
+		EventAdmin eventAdmin = serviceManager.getService(EventAdmin.class);
 		eventAdmin.postEvent(new OsgiEventBuilder(EVENT_TOPIC_SIMPLE).get());
 
 		// Wait
@@ -88,7 +92,7 @@ public class OsgiEventHandlerTest {
 		handler.activate();
 
 		// Send topic 1
-		EventAdmin eventAdmin = ServiceUtils.getService(EventAdmin.class);
+		EventAdmin eventAdmin = serviceManager.getService(EventAdmin.class);
 		eventAdmin.postEvent(new OsgiEventBuilder(EVENT_TOPIC_1).get());
 
 		// Wait
@@ -140,7 +144,7 @@ public class OsgiEventHandlerTest {
 		handler.activate();
 		
 		// Send with no properties
-		EventAdmin eventAdmin = ServiceUtils.getService(EventAdmin.class);
+		EventAdmin eventAdmin = serviceManager.getService(EventAdmin.class);
 		eventAdmin.postEvent(new OsgiEventBuilder(EVENT_TOPIC_SIMPLE).get());
 		
 		// Wait (should timeout)

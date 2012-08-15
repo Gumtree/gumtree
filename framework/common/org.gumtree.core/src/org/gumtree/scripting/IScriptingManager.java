@@ -16,25 +16,30 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
 import org.gumtree.core.service.IService;
+import org.gumtree.core.service.IServiceManager;
 
 public interface IScriptingManager extends IService {
-	
+
 	// Gets the associated JSR 223 scripting manager
 	public ScriptEngineManager getScriptEngineManager();
 
 	public String getDefaultEngineName();
-	
+
 	// Create default engine
 	public ScriptEngine createEngine();
-	
+
 	// Return default if engine not found
 	public ScriptEngine createEngine(String shortName);
-		
+
 	public ScriptEngineFactory getDefaultFactory();
-	
+
 	// Use this instead of getScriptEngineManager().getEngineFactories()
 	public ScriptEngineFactory[] getAllEngineFactories();
-	
+
 	public ScriptEngineFactory getFactoryByName(String shortName);
-	
+
+	public IServiceManager getServiceManager();
+
+	public void setServiceManager(IServiceManager serviceManager);
+
 }
