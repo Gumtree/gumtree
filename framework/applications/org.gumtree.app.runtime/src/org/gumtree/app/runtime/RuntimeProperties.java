@@ -8,6 +8,8 @@ public final class RuntimeProperties {
 
 	public static final String SHUTDOWN_ON_ERROR = "gumtree.runtime.shutdownOnError";
 	
+	public static final String RMI_REGISTRY_PORT = "gumtree.runtime.rmiRegistryPort";
+	
 	private RuntimeProperties() {
 		super();
 	}

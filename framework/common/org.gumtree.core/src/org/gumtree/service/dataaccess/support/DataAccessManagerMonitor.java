@@ -50,7 +50,6 @@ public class DataAccessManagerMonitor implements IDataAccessManagerMonitor {
 		return "org.gumtree.core:type=DataAccessManager";
 	}
 	
-	@Override
 	public IServiceManager getServiceManager() {
 		if (serviceManager == null) {
 			serviceManager = ServiceUtils.getServiceManager();
@@ -58,7 +57,6 @@ public class DataAccessManagerMonitor implements IDataAccessManagerMonitor {
 		return serviceManager;
 	}
 	
-	@Override
 	public void setServiceManager(IServiceManager serviceManager) {
 		this.serviceManager = serviceManager;
 	}

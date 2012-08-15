@@ -5,6 +5,7 @@ import java.util.Stack;
 import org.gumtree.app.runtime.RuntimeProperties;
 import org.gumtree.app.runtime.loader.EclipseLogListenerLoader;
 import org.gumtree.app.runtime.loader.IRuntimeLoader;
+import org.gumtree.app.runtime.loader.JMXLoader;
 import org.gumtree.app.runtime.loader.PluginsLoader;
 import org.gumtree.app.runtime.loader.PropertiesLoader;
 import org.gumtree.app.runtime.loader.RuntimeInfoLoader;
@@ -44,10 +45,13 @@ public class Activator implements BundleActivator {
 
 		// Load runtime info
 		load(new RuntimeInfoLoader(), context);
-
+		
 		// Eclipse log listener
 		load(new EclipseLogListenerLoader(), context);
-		
+
+		// Start JMX server
+		load(new JMXLoader(), context);
+
 		// JUL to SLF4J
 //		load(new JULBridgeLoader(), context);
 

@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.gumtree.core.service.ServiceUtils;
+import org.gumtree.core.service.IServiceManager;
+import org.gumtree.core.service.ServiceManager;
 import org.gumtree.jython.core.internal.Activator;
 import org.gumtree.util.PlatformUtils;
 import org.gumtree.util.eclipse.OsgiUtils;
@@ -36,7 +37,8 @@ public class OsgiPackageLoader {
 	public void load() {
 		lock.lock();
 		logger.info("Loading OSGi bundle packages into Jython.");
-		EventAdmin eventAdmin = ServiceUtils.getService(EventAdmin.class);
+		IServiceManager serviceManager = new ServiceManager();
+		EventAdmin eventAdmin = serviceManager.getService(EventAdmin.class);
 		if (Py.getSystemState() == null) {
 			// Initialise system state if necessary
 			new PySystemState();

@@ -10,7 +10,6 @@ import org.gumtree.core.service.ServiceRegistrationManager;
 import org.gumtree.service.dataaccess.providers.AbstractDataProvider;
 import org.gumtree.service.dataaccess.support.DataAccessManagerMonitor;
 import org.gumtree.service.dataaccess.support.DataAccessProviderInfo;
-import org.gumtree.service.dataaccess.support.IDataAccessManagerMonitor;
 import org.gumtree.util.collection.CollectionUtils;
 import org.junit.Test;
 
@@ -23,7 +22,7 @@ public class DataAccessManagerMonitorTest {
 				new DummyDataProvider(),
 				CollectionUtils.createMap("scheme", "dummy"));
 
-		IDataAccessManagerMonitor monitor = new DataAccessManagerMonitor();
+		DataAccessManagerMonitor monitor = new DataAccessManagerMonitor();
 		monitor.setServiceManager(new ServiceManager());
 		DataAccessProviderInfo dummyInfo = null;
 		for (DataAccessProviderInfo info : monitor.getAvailableProviders()) {
