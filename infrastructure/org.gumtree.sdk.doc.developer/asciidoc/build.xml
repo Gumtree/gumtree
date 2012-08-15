@@ -7,6 +7,12 @@
 	<property name="asciidocLocation" value="/cygdrive/x/apps/Asciidoc/8.6.7" />
 	<property name="buildLocation" value="${sourceLocation}/gumtree/infrastructure/org.gumtree.sdk.doc.developer/asciidoc" />
 
+	<target name="generateHTMLPython">
+		<exec executable="python">
+			<arg line="/Users/tla/Development/Applications/AsciiDoc/8.6.7/asciidoc.py -b html5 -a toc2 gumtree.txt" />
+		</exec>
+	</target>
+
 	<target name="generateHTML">
 		<exec executable="${bashLocation}/bash.exe">
 			<arg line="--login" />

@@ -1,9 +1,11 @@
 package org.gumtree.ui.tasklet;
 
-import java.util.List;
-
 public interface ITasklet {
 
+	public String getLabel();
+	
 	public String getTags();
+	
+	public String getContributionURI();
 	
 }

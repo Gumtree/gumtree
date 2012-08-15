@@ -25,7 +25,7 @@ Eclipse Foundation http://www.eclipse.org/
 -Dorg.eclipse.update.reconcile=false
 -Dlogback.configurationFile=logback.xml
 -Dlogback.logFileLocation=logs
--Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime,org.springframework.osgi.extender
+-Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime
 -Dgumtree.runtime.configBundle=au.gov.ansto.bragg.nbi.workbench
 -Dgumtree.runtime.configEnv.instr=kookaburra
 -Dgumtree.runtime.configEnv.env=dev
