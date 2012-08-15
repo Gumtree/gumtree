@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.forms.widgets.Form;
+import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.gumtree.core.service.ServiceUtils;
 import org.gumtree.ui.cruise.ICruisePanel;
 import org.gumtree.ui.cruise.ICruisePanelManager;
@@ -69,7 +70,9 @@ public class CruisePanel extends FormComposite implements ICruisePanel {
 	}
 
 	protected void createCruisePanel(Composite parent) {
-		form = getToolkit().createForm(this);
+		parent.setLayout(new FillLayout());
+		ScrolledForm scrolledForm =  getToolkit().createScrolledForm(parent);
+		form = scrolledForm.getForm();
 		getToolkit().decorateFormHeading(form);
 
 		stackLayout = new StackLayout();

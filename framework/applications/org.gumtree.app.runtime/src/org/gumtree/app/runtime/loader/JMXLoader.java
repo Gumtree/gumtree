@@ -31,11 +31,17 @@ public class JMXLoader implements IRuntimeLoader {
 	@Override
 	public void unload(BundleContext context) throws Exception {
 		if (rmiRegistryFactoryBean != null) {
-			rmiRegistryFactoryBean.destroy();
+			try {
+				rmiRegistryFactoryBean.destroy();
+			} catch (Exception e) {
+			}
 			rmiRegistryFactoryBean = null;
 		}
 		if (connectorServerFactoryBean != null) {
-			connectorServerFactoryBean.destroy();
+			try {
+				connectorServerFactoryBean.destroy();
+			} catch (Exception e) {
+			}
 			connectorServerFactoryBean = null;
 		}
 	}
