@@ -16,6 +16,7 @@ import org.gumtree.core.service.ServiceUtils;
 import org.gumtree.ui.service.launcher.AbstractLauncher;
 import org.gumtree.ui.service.launcher.LauncherException;
 import org.gumtree.ui.service.multimonitor.IMultiMonitorManager;
+import org.gumtree.ui.service.multimonitor.support.MultiMonitorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,7 @@ public class TaipanWorkbenchLauncher extends AbstractLauncher {
 	private static final String ID_PERSPECTIVE_EXPERIMENT = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
 	
 	// Use the default as buffer to hold the editor
-	private static final String ID_PERSPECTIVE_DEFAULT = "org.gumtree.ui.isee.workbenchPerspective";
+	private static final String ID_PERSPECTIVE_DEFAULT = "au.gov.ansto.bragg.nbi.ui.EmptyPerspective";
 	
 	private static Logger logger = LoggerFactory.getLogger(TaipanWorkbenchLauncher.class);
 	
@@ -39,7 +40,8 @@ public class TaipanWorkbenchLauncher extends AbstractLauncher {
 		{			
 			// TODO: move this logic to experiment UI manager service
 			
-			IMultiMonitorManager mmManager = ServiceUtils.getService(IMultiMonitorManager.class);
+//			IMultiMonitorManager mmManager = ServiceUtils.getService(IMultiMonitorManager.class);
+			IMultiMonitorManager mmManager = new MultiMonitorManager();
 			// Attempt to close intro
 //			IIntroPart introPart = PlatformUI.getWorkbench().getIntroManager().getIntro();
 //			PlatformUI.getWorkbench().getIntroManager().closeIntro(introPart);

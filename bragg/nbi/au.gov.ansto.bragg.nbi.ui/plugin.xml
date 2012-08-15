@@ -152,6 +152,12 @@
             fixed="true"
             name="SICS Experiment">
 	  </perspective>
+	  <perspective
+            class="au.gov.ansto.bragg.nbi.ui.internal.EmptyPerspective"
+            id="au.gov.ansto.bragg.nbi.ui.EmptyPerspective"
+            fixed="true"
+            name="Workbench Window">
+	  </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.views">
