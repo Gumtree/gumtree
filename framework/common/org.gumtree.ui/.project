@@ -30,4 +30,16 @@
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>resources/icons</name>
+			<type>2</type>
+			<locationURI>PROJECT_LOC/icons</locationURI>
+		</link>
+		<link>
+			<name>resources/images</name>
+			<type>2</type>
+			<locationURI>PROJECT_LOC/images</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

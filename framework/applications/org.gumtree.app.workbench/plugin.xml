@@ -316,6 +316,13 @@
             splashId="org.gumtree.app.workbench.splashHandler">
       </splashHandlerProductBinding>
    </extension>
+   <extension
+         point="org.gumtree.ui.tasklets">
+      <tasklet
+            contributionUri="bundle://org.gumtree.app.workbench/scripts/jython/taslets/test.py"
+            label="Test">
+      </tasklet>
+   </extension>
    <!--
    <extension
          point="org.gumtree.ui.gadgets">

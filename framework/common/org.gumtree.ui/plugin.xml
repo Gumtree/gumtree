@@ -7,6 +7,7 @@
    <extension-point id="appLaunches" name="App Launches" schema="schema/appLaunches.exsd"/>
    <extension-point id="tools" name="Tools" schema="schema/tools.exsd"/>
    <extension-point id="communicationAdapters" name="Tools" schema="schema/communicationAdapters.exsd"/>
+   <extension-point id="tasklets" name="Tasklets" schema="schema/tasklets.exsd"/>
    <extension
          point="org.eclipse.ui.editors">
       <editor

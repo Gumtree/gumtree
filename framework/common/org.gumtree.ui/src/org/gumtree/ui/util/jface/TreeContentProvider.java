@@ -4,12 +4,21 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
-public abstract class TreeContentProvider implements ITreeContentProvider {
+public class TreeContentProvider implements ITreeContentProvider {
 
 	protected static Object[] EMPTY_ARRAY = new Object[0];
 	
 	private TreeViewer viewer;
-	
+
+	public Object[] getElements(final Object inputElement) {
+		if (inputElement instanceof ITreeNode[]) {
+			return (ITreeNode[]) inputElement;
+		} else if (inputElement instanceof ITreeNode) {
+			return new Object[] { inputElement };
+		}
+		return new Object[0];
+	}
+
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof ITreeNode) {
 			return ((ITreeNode) parentElement).getChildren();

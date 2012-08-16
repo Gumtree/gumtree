@@ -47,8 +47,12 @@ public enum InternalImage {
 	
 	// Cruise
 	LEFT_ARROW_16("icons/cruise/backward_nav.gif"),
-	RIGHT_ARROW_16("icons/cruise/forward_nav.gif");
+	RIGHT_ARROW_16("icons/cruise/forward_nav.gif"),
 
+	// Tasklet
+	FOLDER_16("icons/tasklet/fldr_obj.gif"),
+	TASKLET_16("icons/tasklet/default_persp.gif");
+	
 	private InternalImage(String path) {
 		this.path = path;
 	}
