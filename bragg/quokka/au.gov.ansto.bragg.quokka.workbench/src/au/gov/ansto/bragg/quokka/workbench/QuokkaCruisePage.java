@@ -16,16 +16,7 @@ public class QuokkaCruisePage implements ICruisePanelPage {
 	}
 
 	@Override
-	public Composite createNormalWidget(Composite parent) {
-		QuokkaCruisePageWidget widget = new QuokkaCruisePageWidget(parent,
-				SWT.NONE);
-		ContextInjectionFactory.inject(widget, Activator.getDefault()
-				.getEclipseContext());
-		return widget;
-	}
-
-	@Override
-	public Composite createFullWidget(Composite parent) {
+	public Composite create(Composite parent) {
 		QuokkaCruisePageWidget widget = new QuokkaCruisePageWidget(parent,
 				SWT.NONE);
 		ContextInjectionFactory.inject(widget, Activator.getDefault()

@@ -32,5 +32,5 @@ Service-Component: OSGI-INF/services/AppLaunchRegistry.xml,
  OSGI-INF/services/GadgetRegistry.xml,
  OSGI-INF/services/TaskletRegistry.xml,
  OSGI-INF/pages/ApplicationsPage.xml,
- OSGI-INF/pages/NotificationPage.xml,
+ OSGI-INF/pages/TaskPage.xml,
  OSGI-INF/converters/FileStoreUIConverter.xml

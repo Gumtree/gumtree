@@ -10,11 +10,7 @@ public class SicsStatusPage implements ICruisePanelPage {
 		return "SICS";
 	}
 
-	public Composite createNormalWidget(Composite parent) {
-		return new SicsStatusPageWidget(parent, SWT.NONE);
-	}
-
-	public Composite createFullWidget(Composite parent) {
+	public Composite create(Composite parent) {
 		return new SicsStatusPageWidget(parent, SWT.NONE);
 	}
 

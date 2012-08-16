@@ -168,7 +168,7 @@ public class CruisePanel extends FormComposite implements ICruisePanel {
 
 	private void createPage(Composite parent, ICruisePanelPage page) {
 		try {
-			Composite normalPage = page.createNormalWidget(parent);
+			Composite normalPage = page.create(parent);
 			pageMap.put(page.getName(), normalPage);
 		} catch (Exception e) {
 			pageMap.put(page.getName(), createErrorPage(parent, e));

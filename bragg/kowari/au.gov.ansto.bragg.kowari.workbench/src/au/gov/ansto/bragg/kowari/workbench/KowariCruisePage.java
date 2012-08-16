@@ -12,12 +12,7 @@ public class KowariCruisePage implements ICruisePanelPage {
 	}
 
 	@Override
-	public Composite createNormalWidget(Composite parent) {
-		return new KowariCruisePageWidget(parent, SWT.NONE);
-	}
-
-	@Override
-	public Composite createFullWidget(Composite parent) {
+	public Composite create(Composite parent) {
 		return new KowariCruisePageWidget(parent, SWT.NONE);
 	}
 

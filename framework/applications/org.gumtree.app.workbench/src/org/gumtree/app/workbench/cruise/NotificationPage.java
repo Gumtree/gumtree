@@ -15,15 +15,7 @@ public class NotificationPage implements ICruisePanelPage {
 	}
 
 	@Override
-	public Composite createNormalWidget(Composite parent) {
-		NotificationPageWidget widget = new NotificationPageWidget(parent, SWT.NONE);
-		ContextInjectionFactory.inject(widget, Activator.getDefault()
-				.getEclipseContext());
-		return widget;
-	}
-
-	@Override
-	public Composite createFullWidget(Composite parent) {
+	public Composite create(Composite parent) {
 		NotificationPageWidget widget = new NotificationPageWidget(parent, SWT.NONE);
 		ContextInjectionFactory.inject(widget, Activator.getDefault()
 				.getEclipseContext());

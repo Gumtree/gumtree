@@ -16,16 +16,7 @@ public class TaipanCruisePage implements ICruisePanelPage {
 	}
 
 	@Override
-	public Composite createNormalWidget(Composite parent) {
-		TaipanCruisePageWidget widget = new TaipanCruisePageWidget(parent,
-				SWT.NONE);
-		ContextInjectionFactory.inject(widget, Activator.getDefault()
-				.getEclipseContext());
-		return widget;
-	}
-
-	@Override
-	public Composite createFullWidget(Composite parent) {
+	public Composite create(Composite parent) {
 		TaipanCruisePageWidget widget = new TaipanCruisePageWidget(parent,
 				SWT.NONE);
 		ContextInjectionFactory.inject(widget, Activator.getDefault()

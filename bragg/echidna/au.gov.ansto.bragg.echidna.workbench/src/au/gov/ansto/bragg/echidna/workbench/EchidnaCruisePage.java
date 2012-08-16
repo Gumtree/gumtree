@@ -16,16 +16,7 @@ public class EchidnaCruisePage implements ICruisePanelPage {
 	}
 
 	@Override
-	public Composite createNormalWidget(Composite parent) {
-		EchidnaCruisePageWidget widget = new EchidnaCruisePageWidget(parent,
-				SWT.NONE);
-		ContextInjectionFactory.inject(widget, Activator.getDefault()
-				.getEclipseContext());
-		return widget.render();
-	}
-
-	@Override
-	public Composite createFullWidget(Composite parent) {
+	public Composite create(Composite parent) {
 		EchidnaCruisePageWidget widget = new EchidnaCruisePageWidget(parent,
 				SWT.NONE);
 		ContextInjectionFactory.inject(widget, Activator.getDefault()

@@ -319,7 +319,7 @@
    <extension
          point="org.gumtree.ui.tasklets">
       <tasklet
-            contributionUri="bundle://org.gumtree.app.workbench/scripts/jython/taslets/test.py"
+            contributionUri="bundle://org.gumtree.app.workbench/scripts/jython/tasklets/test.py"
             label="Test">
       </tasklet>
    </extension>

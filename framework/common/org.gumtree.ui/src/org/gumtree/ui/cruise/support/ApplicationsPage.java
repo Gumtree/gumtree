@@ -7,13 +7,14 @@ import org.gumtree.ui.cruise.ICruisePanelPage;
 import org.gumtree.ui.internal.Activator;
 import org.gumtree.ui.service.applaunch.IAppLaunchRegistry;
 
+@SuppressWarnings("restriction")
 public class ApplicationsPage implements ICruisePanelPage {
 
 	private IAppLaunchRegistry appLaunchRegistry;
 
 	
 	@Override
-	public Composite createNormalWidget(Composite parent) {
+	public Composite create(Composite parent) {
 		ApplicationsPageWidget widget = new ApplicationsPageWidget(
 				parent, SWT.NONE);
 		ContextInjectionFactory.inject(widget, Activator.getDefault()
@@ -22,18 +23,6 @@ public class ApplicationsPage implements ICruisePanelPage {
 		widget.render();
 		return widget;
 	}
-
-	@Override
-	public Composite createFullWidget(Composite parent) {
-		ApplicationsPageWidget widget = new ApplicationsPageWidget(
-				parent, SWT.NONE);
-		ContextInjectionFactory.inject(widget, Activator.getDefault()
-				.getEclipseContext());
-		widget.setNumberOfColumn(6);
-		widget.render();
-		return widget;
-	}
-
 	
 	@Override
 	public String getName() {

@@ -7,8 +7,6 @@ public interface ICruisePanelPage extends IContributionService {
 	
 	public String getName();
 	
-	public Composite createNormalWidget(Composite parent);
-	
-	public Composite createFullWidget(Composite parent);
+	public Composite create(Composite parent);
 	
 }

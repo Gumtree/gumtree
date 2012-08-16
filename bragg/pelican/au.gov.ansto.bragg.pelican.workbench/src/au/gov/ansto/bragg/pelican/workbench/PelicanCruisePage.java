@@ -12,12 +12,7 @@ public class PelicanCruisePage implements ICruisePanelPage {
 	}
 
 	@Override
-	public Composite createNormalWidget(Composite parent) {
-		return new PelicanCruisePageWidget(parent, SWT.NONE);
-	}
-
-	@Override
-	public Composite createFullWidget(Composite parent) {
+	public Composite create(Composite parent) {
 		return new PelicanCruisePageWidget(parent, SWT.NONE);
 	}
 

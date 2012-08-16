@@ -7,6 +7,7 @@ import org.gumtree.ui.cruise.ICruisePanelPage;
 
 import au.gov.ansto.bragg.wombat.workbench.internal.Activator;
 
+@SuppressWarnings("restriction")
 public class WombatCruisePage implements ICruisePanelPage {
 
 	@Override
@@ -15,15 +16,7 @@ public class WombatCruisePage implements ICruisePanelPage {
 	}
 
 	@Override
-	public Composite createNormalWidget(Composite parent) {
-		WombatCruisePageWidget widget = new WombatCruisePageWidget(parent, SWT.NONE);
-		ContextInjectionFactory.inject(widget, Activator.getDefault()
-				.getEclipseContext());
-		return widget.render();
-	}
-
-	@Override
-	public Composite createFullWidget(Composite parent) {
+	public Composite create(Composite parent) {
 		WombatCruisePageWidget widget = new WombatCruisePageWidget(parent, SWT.NONE);
 		ContextInjectionFactory.inject(widget, Activator.getDefault()
 				.getEclipseContext());
