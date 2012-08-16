@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+     <category
+           id="au.gov.ansto.bragg.pelican.ui"
+           name="Pelican Views">
+     </category>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.pelican.ui"
+            class="au.gov.ansto.bragg.pelican.ui.views.TclEditorView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.pelican.ui.views.TclEditorView"
+            name="① Batch Editor">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="au.gov.ansto.bragg.pelican.ui.internal.TCLRunnerPerspective"
+            icon="icons/exp_per.gif"
+            id="au.gov.ansto.bragg.pelican.ui.TCLRunnerPerspective"
+            name="Pelican Experiment"/>
+   </extension>
+</plugin>
