@@ -9,5 +9,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Bragg Institute
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.junit;bundle-version="4.10.0",
- org.gumtree.ui;bundle-version="1.8.0"
+ org.gumtree.ui;bundle-version="1.8.0",
+ com.google.gson;bundle-version="2.1.0"
 Export-Package: org.gumtree.ui.tasklet
