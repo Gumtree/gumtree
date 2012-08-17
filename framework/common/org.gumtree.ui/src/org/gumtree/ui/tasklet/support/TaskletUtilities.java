@@ -16,6 +16,15 @@ public final class TaskletUtilities {
 		return WorkbenchUtils.getFirstChild(mWindow, MPerspectiveStack.class);
 	}
 
+	public static MPerspectiveStack getActiveMPerspectiveStack() {
+		MWindow mWindow = WorkbenchUtils.getActiveMWindow();
+		return getMPerspectiveStack(mWindow);
+	}
+	
+	public static MPerspective getActivePerspective() {
+		return getActiveMPerspectiveStack().getSelectedElement();
+	}
+	
 	public static MPerspective createMPerspective(
 			MPerspectiveStack mPerspectiveStack, String label) {
 		MPerspective mPerspective = MAdvancedFactory.INSTANCE

@@ -70,6 +70,13 @@
                </documentation>
             </annotation>
          </attribute>
+         <attribute name="newWindow" type="boolean">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 

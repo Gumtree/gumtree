@@ -23,6 +23,8 @@ public class TaskletRegistry implements ITaskletRegistry {
 	@Override
 	public void addTasklet(ITasklet tasklet) {
 		tasklets.add(tasklet);
+		// Notify
+		// Persist
 	}
 
 	@Override

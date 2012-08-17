@@ -9,9 +9,11 @@ import javax.inject.Inject;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.e4.core.di.annotations.Optional;
+import org.eclipse.e4.core.di.extensions.EventTopic;
 import org.eclipse.e4.ui.model.application.ui.advanced.MPerspective;
 import org.eclipse.e4.ui.model.application.ui.advanced.MPerspectiveStack;
 import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
+import org.eclipse.e4.ui.workbench.UIEvents;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -25,6 +27,9 @@ import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
@@ -33,6 +38,13 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IPerspectiveDescriptor;
+import org.eclipse.ui.IPerspectiveListener;
+import org.eclipse.ui.IWindowListener;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PerspectiveAdapter;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorInputTransfer;
 import org.eclipse.ui.part.EditorInputTransfer.EditorInputData;
 import org.eclipse.ui.part.FileEditorInput;
@@ -53,9 +65,11 @@ import ch.lambdaj.collection.LambdaCollections;
 public class TaskletRegistryViewer extends ExtendedComposite {
 
 	private ITaskletRegistry taskletRegistry;
-	
+
 	private ITaskletLauncher taskletLauncher;
-	
+
+	private UIContext context;
+
 	private MWindow mWindow;
 
 	@Inject
@@ -65,12 +79,19 @@ public class TaskletRegistryViewer extends ExtendedComposite {
 
 	@PostConstruct
 	public void render() {
+		context = new UIContext();
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(this);
 
 		// Create tool area
 		Button addButton = getWidgetFactory().createButton(this, "", SWT.PUSH);
 		addButton.setToolTipText("Add new tasklet");
 		addButton.setImage(InternalImage.ADD_TASKLET_16.getImage());
+		addButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				launchAddTaskletDialog(null);
+			}
+		});
 
 		Button hierarchyDisplayButton = getWidgetFactory().createButton(this,
 				"", SWT.TOGGLE);
@@ -101,11 +122,21 @@ public class TaskletRegistryViewer extends ExtendedComposite {
 		treeViewer.setInput(createTreeNode("", false));
 
 		// Close button
-		Button closeTaskButton = getWidgetFactory().createButton(this,
+		context.closeTaskButton = getWidgetFactory().createButton(this,
 				"Close Task", SWT.PUSH);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
-				.grab(true, false).span(3, 1).applyTo(closeTaskButton);
-		closeTaskButton.setEnabled(false);
+				.grab(true, false).span(3, 1).applyTo(context.closeTaskButton);
+		context.closeTaskButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				MPerspectiveStack mPerspectiveStack = TaskletUtilities
+						.getActiveMPerspectiveStack();
+				MPerspective mPerspective = TaskletUtilities
+						.getActivePerspective();
+				mPerspectiveStack.getChildren().remove(mPerspective);
+			}
+		});
+		context.closeTaskButton.setEnabled(false);
 
 		// Launch console button
 		Button showConsoleButton = getWidgetFactory().createButton(this,
@@ -159,10 +190,46 @@ public class TaskletRegistryViewer extends ExtendedComposite {
 						}
 					}
 				});
+
+		// Listening to perspective change
+		if (PlatformUI.isWorkbenchRunning()) {
+			context.window = PlatformUI.getWorkbench()
+					.getActiveWorkbenchWindow();
+			context.perspectiveListener = new PerspectiveAdapter() {
+				public void perspectiveActivated(IWorkbenchPage page,
+						IPerspectiveDescriptor perspective) {
+					MPerspective mPerspective = TaskletUtilities
+							.getActivePerspective();
+					if (mPerspective.getProperties().containsKey("tasklet")) {
+						context.closeTaskButton.setEnabled(true);
+					} else {
+						context.closeTaskButton.setEnabled(false);
+					}
+				}
+			};
+			context.window.addPerspectiveListener(context.perspectiveListener);
+		}
 	}
 
 	@Override
 	protected void disposeWidget() {
+		if (context != null) {
+			if (context.perspectiveListener != null) {
+				context.window
+						.removePerspectiveListener(context.perspectiveListener);
+			}
+		}
+		context = null;
+	}
+
+	/*************************************************************************
+	 * Event handlers
+	 *************************************************************************/
+
+	@Inject
+	public void handlePerspectiveChange(
+			@EventTopic(UIEvents.UILifeCycle.PERSPECTIVE_OPENED) Object data) {
+		System.out.println(data);
 	}
 
 	/*************************************************************************
@@ -177,7 +244,7 @@ public class TaskletRegistryViewer extends ExtendedComposite {
 	public void setTaskletRegistry(ITaskletRegistry taskletRegistry) {
 		this.taskletRegistry = taskletRegistry;
 	}
-	
+
 	public ITaskletLauncher getTaskletLauncher() {
 		return taskletLauncher;
 	}
@@ -190,7 +257,7 @@ public class TaskletRegistryViewer extends ExtendedComposite {
 	public MWindow getMWindow() {
 		return mWindow;
 	}
-	
+
 	public void setMWindow(MWindow mWindow) {
 		this.mWindow = mWindow;
 	}
@@ -220,7 +287,7 @@ public class TaskletRegistryViewer extends ExtendedComposite {
 		// Run script
 		getTaskletLauncher().launchTasklet(tasklet, mPerspective);
 	}
-	
+
 	protected ITreeNode[] createTreeNode(String filter, boolean isHierarchical) {
 		List<ITreeNode> treeNodes = new ArrayList<ITreeNode>(2);
 		for (ITasklet tasklet : getTaskletRegistry().getTasklets()) {
@@ -249,6 +316,13 @@ public class TaskletRegistryViewer extends ExtendedComposite {
 			return tasklet;
 		}
 
+	}
+
+	private class UIContext {
+		Button closeTaskButton;
+		Button showConsoleButton;
+		IWorkbenchWindow window;
+		IPerspectiveListener perspectiveListener;
 	}
 
 	public static void main(String[] args) {

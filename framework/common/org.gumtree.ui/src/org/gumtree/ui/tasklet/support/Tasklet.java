@@ -16,11 +16,17 @@ public class Tasklet implements ITasklet {
 
 	private String contributionURI;
 
+	private boolean newWindow;
+
 	private Map<String, String> properties;
 
 	public Tasklet() {
 		properties = new HashMap<String, String>(2);
 	}
+
+	/*************************************************************************
+	 * Properties
+	 *************************************************************************/
 
 	@Override
 	public String getLabel() {
@@ -53,6 +59,16 @@ public class Tasklet implements ITasklet {
 	}
 
 	@Override
+	public boolean isNewWindow() {
+		return newWindow;
+	}
+
+	@Override
+	public void setNewWindow(boolean newWindow) {
+		this.newWindow = newWindow;
+	}
+
+	@Override
 	public String getProperty(String key) {
 		return properties.get(key);
 	}
@@ -71,7 +87,8 @@ public class Tasklet implements ITasklet {
 	public String toString() {
 		return Objects.toStringHelper(this).add("label", getLabel())
 				.add("tags", getTags())
-				.add("contributionURI", getContributionURI()).toString();
+				.add("contributionURI", getContributionURI())
+				.add("newWindow", isNewWindow()).toString();
 	}
 
 }

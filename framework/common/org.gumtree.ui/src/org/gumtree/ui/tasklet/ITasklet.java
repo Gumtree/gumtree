@@ -16,6 +16,10 @@ public interface ITasklet {
 
 	public void setContributionURI(String contributionURI);
 	
+	public boolean isNewWindow();
+	
+	public void setNewWindow(boolean newWindow);
+	
 	public String getProperty(String key);
 	
 	public Map<String, String> getProperties();

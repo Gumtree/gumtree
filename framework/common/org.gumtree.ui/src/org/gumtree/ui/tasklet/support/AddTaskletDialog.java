@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.gumtree.ui.tasklet.ITasklet;
 import org.gumtree.ui.tasklet.ITaskletRegistry;
 
 public class AddTaskletDialog extends Dialog {
@@ -101,7 +102,12 @@ public class AddTaskletDialog extends Dialog {
 	protected void okPressed() {
 		// Preapre new tasklet
 		if (getTaskletRegistry() != null) {
-
+			ITasklet tasklet = new Tasklet();
+			tasklet.setLabel(context.labelText.getText());
+			tasklet.setTags(context.tagsText.getText());
+			tasklet.setContributionURI(context.scriptText.getText());
+			tasklet.setNewWindow(context.startNewWindowButton.getSelection());
+			getTaskletRegistry().addTasklet(tasklet);
 		}
 		super.okPressed();
 	}

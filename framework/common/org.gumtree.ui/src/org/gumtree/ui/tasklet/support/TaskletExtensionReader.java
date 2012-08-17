@@ -23,6 +23,8 @@ public class TaskletExtensionReader extends ExtensionRegistryReader {
 
 	public static String ATTRIBUTE_TAGS = "tags";
 
+	public static String ATTRIBUTE_NEW_WINDOW = "newWindow";
+
 	public static String EXTENTION_POINT_TASKLETS = Activator.PLUGIN_ID + "."
 			+ EXTENSION_TASKLETS;
 
@@ -39,8 +41,11 @@ public class TaskletExtensionReader extends ExtensionRegistryReader {
 		if (element.getName().equals(ELEMENT_TASKLET)) {
 			ITasklet tasklet = new Tasklet();
 			tasklet.setLabel(element.getAttribute(ATTRIBUTE_LABEL));
-			tasklet.setContributionURI(element.getAttribute(ATTRIBUTE_CONTRIBUTION_URI));
+			tasklet.setContributionURI(element
+					.getAttribute(ATTRIBUTE_CONTRIBUTION_URI));
 			tasklet.setTags(element.getAttribute(ATTRIBUTE_TAGS));
+			tasklet.setNewWindow(Boolean.parseBoolean(element
+					.getAttribute(ATTRIBUTE_NEW_WINDOW)));
 			registeredTasklets.add(tasklet);
 		}
 		return true;
