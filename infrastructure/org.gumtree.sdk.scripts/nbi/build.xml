@@ -357,6 +357,10 @@
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="platypus" applicationLabel="PlatypusWebserver" />
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="pelican" applicationLabel="PelicanWebserver" />
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="taipan" applicationLabel="TaipanWebserver" />
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="kookaburra" applicationLabel="KookaburraWebserver" />
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="bilby" applicationLabel="BilbyWebserver" />
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="dingo" applicationLabel="DingoWebserver" />
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="emu" applicationLabel="EmuWebserver" />
 	</target>
 
 	<!--
@@ -376,6 +380,10 @@
 		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="platypus" applicationLabel="PlatypusWorkbench" />
 		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="pelican" applicationLabel="PelicanWorkbench" />
 		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="taipan" applicationLabel="TaipanWorkbench" />
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="kookaburra" applicationLabel="KookaburraWorkbench" />
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="bilby" applicationLabel="BilbyWorkbench" />
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="dingo" applicationLabel="DingoWorkbench" />
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="emu" applicationLabel="EmuWorkbench" />
 	</target>
 
 	<!--
@@ -503,6 +511,10 @@
 		<buildBraggInstaller applicationName="platypus" applicationLabel="Platypus" applicationShortcut="Platypus Workbench" />
 		<buildBraggInstaller applicationName="pelican" applicationLabel="Pelican" applicationShortcut="Pelican Workbench" />
 		<buildBraggInstaller applicationName="taipan" applicationLabel="Taipan" applicationShortcut="Taipan Workbench" />
+		<buildBraggInstaller applicationName="kookaburra" applicationLabel="Taipan" applicationShortcut="Kookaburra Workbench" />
+		<buildBraggInstaller applicationName="bilby" applicationLabel="Taipan" applicationShortcut="Bilby Workbench" />
+		<buildBraggInstaller applicationName="dingo" applicationLabel="Taipan" applicationShortcut="Dingo Workbench" />
+		<buildBraggInstaller applicationName="emu" applicationLabel="Taipan" applicationShortcut="Emu Workbench" />
 	</target>
 
 	<target name="buildInternalInstallers">
@@ -514,6 +526,10 @@
 		<buildBraggInstallerInternal applicationName="platypus" applicationLabel="Platypus" applicationShortcut="Platypus Workbench" />
 		<buildBraggInstallerInternal applicationName="pelican" applicationLabel="Pelican" applicationShortcut="Pelican Workbench" />
 		<buildBraggInstallerInternal applicationName="taipan" applicationLabel="Taipan" applicationShortcut="Taipan Workbench" />
+		<buildBraggInstallerInternal applicationName="kookaburra" applicationLabel="Taipan" applicationShortcut="Kookaburra Workbench" />
+		<buildBraggInstallerInternal applicationName="bilby" applicationLabel="Taipan" applicationShortcut="Bilby Workbench" />
+		<buildBraggInstallerInternal applicationName="dingo" applicationLabel="Taipan" applicationShortcut="Dingo Workbench" />
+		<buildBraggInstallerInternal applicationName="emu" applicationLabel="Taipan" applicationShortcut="Emu Workbench" />
 	</target>
 
 	<!-- Helper targets -->
