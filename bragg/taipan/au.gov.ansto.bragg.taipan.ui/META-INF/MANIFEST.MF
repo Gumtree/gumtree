@@ -1,12 +1,14 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Taipan UI Library
-Bundle-SymbolicName: au.gov.ansto.bragg.taipan.ui
+Bundle-SymbolicName: au.gov.ansto.bragg.taipan.ui;singleton:=true
 Bundle-Version: 1.7.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.taipan.ui.internal.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Bragg Institue
 Bundle-ActivationPolicy: lazy
 Require-Bundle: au.gov.ansto.bragg.taipan.core;bundle-version="1.7.0";visibility:=reexport,
- au.gov.ansto.bragg.nbi.ui;bundle-version="1.7.0";visibility:=reexport
-Export-Package: au.gov.ansto.bragg.taipan.ui.widgets
+ org.gumtree.ui;bundle-version="1.7.0",
+ au.gov.ansto.bragg.nbi.ui;bundle-version="1.7.0"
+Export-Package: au.gov.ansto.bragg.taipan.ui,
+ au.gov.ansto.bragg.taipan.ui.widgets

@@ -1078,9 +1078,11 @@ public class ScriptControlViewer extends Composite {
 				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(40, 0).applyTo(name);
 				Composite fileComposite = new Composite(parent, SWT.NONE);
 				GridLayoutFactory.fillDefaults().numColumns(2).applyTo(fileComposite);
-				GridDataFactory.fillDefaults().applyTo(fileComposite);
+				GridDataFactory.swtDefaults().grab(true, false).applyTo(fileComposite);
 				final Text fileText = new Text(fileComposite, SWT.BORDER);
-				fileText.setText(String.valueOf(parameter.getValue()));
+				String itemText = String.valueOf(parameter.getValue());
+				fileText.setText(itemText);
+				fileText.setToolTipText(itemText);
 				GridDataFactory.fillDefaults().grab(true, false).applyTo(fileText);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {

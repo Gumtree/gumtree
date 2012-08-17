@@ -150,12 +150,14 @@ class Data(SimpleData):
                 axis = axes[i]
                 aname = None
                 units = None
+                title = None
                 if isinstance(axis, Array) :
                     arr = axis
                 elif isinstance(axis, SimpleData) :
                     arr = axis.storage
                     aname = axis.name
                     units = axis.units
+                    title = axis.title
                 else :
                     arr = Array(axis)
                 if not anames is None and len(anames) > i :
@@ -168,6 +170,8 @@ class Data(SimpleData):
                                                         arr.__iArray__)
                 if not units is None :
                     iNXaxis.setUnits(str(units))
+                if not title is None :
+                    iNXaxis.setTitle(str(title))
                 iaxes += [iNXaxis]
                 self.__dict__['axes'].__append__(SimpleData(iNXaxis))
             iNXdata = self.__iNXdata__
