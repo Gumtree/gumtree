@@ -15,7 +15,7 @@
 	############################################################################
 	-->
 
-	<property name="version" value="1.8.0" />
+	<property name="version" value="1.8.1" />
 	<property name="exportDirectory" value="${buildDirectory}/export" />
 	<property name="repositoryProject" value="org.gumtree.maven.repository" />
 	<property name="repositoryPath" value="infrastructure/${repositoryProject}/target" />
@@ -511,10 +511,10 @@
 		<buildBraggInstaller applicationName="platypus" applicationLabel="Platypus" applicationShortcut="Platypus Workbench" />
 		<buildBraggInstaller applicationName="pelican" applicationLabel="Pelican" applicationShortcut="Pelican Workbench" />
 		<buildBraggInstaller applicationName="taipan" applicationLabel="Taipan" applicationShortcut="Taipan Workbench" />
-		<buildBraggInstaller applicationName="kookaburra" applicationLabel="Taipan" applicationShortcut="Kookaburra Workbench" />
-		<buildBraggInstaller applicationName="bilby" applicationLabel="Taipan" applicationShortcut="Bilby Workbench" />
-		<buildBraggInstaller applicationName="dingo" applicationLabel="Taipan" applicationShortcut="Dingo Workbench" />
-		<buildBraggInstaller applicationName="emu" applicationLabel="Taipan" applicationShortcut="Emu Workbench" />
+		<buildBraggInstaller applicationName="kookaburra" applicationLabel="Kookaburra" applicationShortcut="Kookaburra Workbench" />
+		<buildBraggInstaller applicationName="bilby" applicationLabel="Bilby" applicationShortcut="Bilby Workbench" />
+		<buildBraggInstaller applicationName="dingo" applicationLabel="Dingo" applicationShortcut="Dingo Workbench" />
+		<buildBraggInstaller applicationName="emu" applicationLabel="Emu" applicationShortcut="Emu Workbench" />
 	</target>
 
 	<target name="buildInternalInstallers">
@@ -526,10 +526,10 @@
 		<buildBraggInstallerInternal applicationName="platypus" applicationLabel="Platypus" applicationShortcut="Platypus Workbench" />
 		<buildBraggInstallerInternal applicationName="pelican" applicationLabel="Pelican" applicationShortcut="Pelican Workbench" />
 		<buildBraggInstallerInternal applicationName="taipan" applicationLabel="Taipan" applicationShortcut="Taipan Workbench" />
-		<buildBraggInstallerInternal applicationName="kookaburra" applicationLabel="Taipan" applicationShortcut="Kookaburra Workbench" />
-		<buildBraggInstallerInternal applicationName="bilby" applicationLabel="Taipan" applicationShortcut="Bilby Workbench" />
-		<buildBraggInstallerInternal applicationName="dingo" applicationLabel="Taipan" applicationShortcut="Dingo Workbench" />
-		<buildBraggInstallerInternal applicationName="emu" applicationLabel="Taipan" applicationShortcut="Emu Workbench" />
+		<buildBraggInstallerInternal applicationName="kookaburra" applicationLabel="Kookaburra" applicationShortcut="Kookaburra Workbench" />
+		<buildBraggInstallerInternal applicationName="bilby" applicationLabel="Bilby" applicationShortcut="Bilby Workbench" />
+		<buildBraggInstallerInternal applicationName="dingo" applicationLabel="Dingo" applicationShortcut="Dingo Workbench" />
+		<buildBraggInstallerInternal applicationName="emu" applicationLabel="Emu" applicationShortcut="Emu Workbench" />
 	</target>
 
 	<!-- Helper targets -->
