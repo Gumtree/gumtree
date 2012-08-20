@@ -7,7 +7,6 @@ import java.net.URI;
 import javax.inject.Inject;
 import javax.script.ScriptEngine;
 
-import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.ui.advanced.MPerspective;
 import org.gumtree.scripting.IScriptExecutor;
 import org.gumtree.scripting.IScriptingManager;
@@ -15,8 +14,6 @@ import org.gumtree.scripting.ScriptExecutor;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.ui.tasklet.ITasklet;
 import org.gumtree.ui.tasklet.ITaskletLauncher;
-import org.gumtree.ui.tasklet.support.TaskletUtilities;
-import org.gumtree.ui.util.workbench.WorkbenchUtils;
 
 @SuppressWarnings("restriction")
 public class JythonTaskletLauncher implements ITaskletLauncher {
@@ -38,24 +35,31 @@ public class JythonTaskletLauncher implements ITaskletLauncher {
 		// Prepare script engine
 		ScriptEngine scriptEngine = getScriptingManager().createEngine("jython");
 		IScriptExecutor scriptExecutor = new ScriptExecutor(scriptEngine);
-		URI scriptURI = URI.create("bundle://org.gumtree.app.workbench/scripts/jython/tasklets/runner.py");
-		InputStream inputStream = getDataAccessManager().get(scriptURI, InputStream.class);
-		InputStreamReader reader = new InputStreamReader(inputStream);
-		scriptExecutor.runScript(reader);
+		if (tasklet.isSimpleLayout()) {
+			// Import helper script
+			URI scriptURI = URI.create("bundle://org.gumtree.app.workbench/scripts/jython/tasklets/SimpleRunner.py");
+			InputStream inputStream = getDataAccessManager().get(scriptURI, InputStream.class);
+			InputStreamReader reader = new InputStreamReader(inputStream);
+			scriptExecutor.runScript(reader);
+			
+			// Import tasklet script
+			scriptURI = URI.create(tasklet.getContributionURI());
+			inputStream = getDataAccessManager().get(scriptURI, InputStream.class);
+			reader = new InputStreamReader(inputStream);
+			scriptExecutor.runScript(reader);
 		
-		// Import tasklet script
-		scriptURI = URI.create(tasklet.getContributionURI());
-		inputStream = getDataAccessManager().get(scriptURI, InputStream.class);
-		reader = new InputStreamReader(inputStream);
-		scriptExecutor.runScript(reader);
+			// Create parent composite
+			scriptExecutor.getEngine().put("mPerspective", mPerspective);
+			scriptExecutor.runScript("createParentComposite()");
+			
+			// Run tasklet script
+			scriptExecutor.runScript("runnable = FunctionRunnable(create, parentComposite)");
+			scriptExecutor.runScript("SafeUIRunner.asyncExec(runnable)");
 		
-		// Run
-		scriptExecutor.getEngine().put("mPerspective", mPerspective);
-		scriptExecutor.runScript("runnable = Runnable()");
-		scriptExecutor.runScript("runnable.setFunction(createPerspective)");
-		scriptExecutor.runScript("runnable.setMPerspective(mPerspective)");
-		scriptExecutor.runScript("SafeUIRunner.asyncExec(runnable)");
-		
+			// Refresh
+			scriptExecutor.runScript("runnable = FunctionRunnable(refresh)");
+			scriptExecutor.runScript("SafeUIRunner.asyncExec(runnable)");
+		}
 		// TODO: error handling
 	}
 	

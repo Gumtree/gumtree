@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.Platform;
 import org.gumtree.ui.internal.Activator;
 import org.gumtree.ui.tasklet.ITasklet;
 import org.gumtree.util.eclipse.ExtensionRegistryReader;
+import org.gumtree.util.string.StringUtils;
 
 public class TaskletExtensionReader extends ExtensionRegistryReader {
 
@@ -23,6 +24,8 @@ public class TaskletExtensionReader extends ExtensionRegistryReader {
 
 	public static String ATTRIBUTE_TAGS = "tags";
 
+	public static String ATTRIBUTE_LAYOUT = "layout";
+	
 	public static String ATTRIBUTE_NEW_WINDOW = "newWindow";
 
 	public static String EXTENTION_POINT_TASKLETS = Activator.PLUGIN_ID + "."
@@ -46,6 +49,12 @@ public class TaskletExtensionReader extends ExtensionRegistryReader {
 			tasklet.setTags(element.getAttribute(ATTRIBUTE_TAGS));
 			tasklet.setNewWindow(Boolean.parseBoolean(element
 					.getAttribute(ATTRIBUTE_NEW_WINDOW)));
+			String layout = element.getAttribute(ATTRIBUTE_LAYOUT); 
+			if (!StringUtils.isEmpty(layout) && layout.equals("advanced")) {
+				tasklet.setSimpleLayout(false);
+			} else {
+				tasklet.setSimpleLayout(true);
+			}
 			registeredTasklets.add(tasklet);
 		}
 		return true;

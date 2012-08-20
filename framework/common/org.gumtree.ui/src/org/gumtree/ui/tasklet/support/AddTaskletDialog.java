@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -42,7 +43,8 @@ public class AddTaskletDialog extends Dialog {
 		label.setText("Label: ");
 		context.labelText = new Text(composite, SWT.BORDER);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
-				.grab(true, false).hint(350, SWT.DEFAULT).span(2, 1).applyTo(context.labelText);
+				.grab(true, false).hint(350, SWT.DEFAULT).span(2, 1)
+				.applyTo(context.labelText);
 
 		// Tags
 		label = new Label(composite, SWT.NONE);
@@ -74,16 +76,32 @@ public class AddTaskletDialog extends Dialog {
 			}
 		});
 
+		// Layout option
+		Group layoutGroup = new Group(composite, SWT.NONE);
+		layoutGroup.setText("Layout");
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
+				.grab(true, true).span(3, 1).applyTo(layoutGroup);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(layoutGroup);
+		context.simpleLayoutButton = new Button(layoutGroup, SWT.RADIO);
+		context.simpleLayoutButton.setText("Simple");
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
+				.grab(true, false).applyTo(context.simpleLayoutButton);
+		context.advancedLayoutButton = new Button(layoutGroup, SWT.RADIO);
+		context.advancedLayoutButton.setText("Advanced");
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
+				.grab(true, false).applyTo(context.advancedLayoutButton);
+
 		// New window option
 		context.startNewWindowButton = new Button(composite, SWT.CHECK);
-		context.startNewWindowButton.setText(" Always start task in new window");
+		context.startNewWindowButton
+				.setText(" Always start task in new window");
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, true).span(3, 1)
 				.applyTo(context.startNewWindowButton);
 
 		// Title
 		getShell().setText("Add new tasklet");
-		
+
 		return composite;
 	}
 
@@ -91,7 +109,7 @@ public class AddTaskletDialog extends Dialog {
 	protected boolean isResizable() {
 		return true;
 	}
-	
+
 	@Override
 	public boolean close() {
 		context = null;
@@ -106,6 +124,7 @@ public class AddTaskletDialog extends Dialog {
 			tasklet.setLabel(context.labelText.getText());
 			tasklet.setTags(context.tagsText.getText());
 			tasklet.setContributionURI(context.scriptText.getText());
+			tasklet.setSimpleLayout(context.simpleLayoutButton.getSelection());
 			tasklet.setNewWindow(context.startNewWindowButton.getSelection());
 			getTaskletRegistry().addTasklet(tasklet);
 		}
@@ -140,6 +159,8 @@ public class AddTaskletDialog extends Dialog {
 		Text labelText;
 		Text tagsText;
 		Text scriptText;
+		Button simpleLayoutButton;
+		Button advancedLayoutButton;
 		Button startNewWindowButton;
 	}
 

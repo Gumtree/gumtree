@@ -16,12 +16,15 @@ public class Tasklet implements ITasklet {
 
 	private String contributionURI;
 
+	private boolean simpleLayout;
+	
 	private boolean newWindow;
 
 	private Map<String, String> properties;
 
 	public Tasklet() {
 		properties = new HashMap<String, String>(2);
+		simpleLayout = true;
 	}
 
 	/*************************************************************************
@@ -57,6 +60,16 @@ public class Tasklet implements ITasklet {
 	public void setContributionURI(String contributionURI) {
 		this.contributionURI = contributionURI;
 	}
+	
+	@Override
+	public boolean isSimpleLayout() {
+		return simpleLayout;
+	}
+
+	@Override
+	public void setSimpleLayout(boolean simpleLayout) {
+		this.simpleLayout = simpleLayout;
+	}
 
 	@Override
 	public boolean isNewWindow() {
@@ -88,6 +101,7 @@ public class Tasklet implements ITasklet {
 		return Objects.toStringHelper(this).add("label", getLabel())
 				.add("tags", getTags())
 				.add("contributionURI", getContributionURI())
+				.add("simple", isSimpleLayout())
 				.add("newWindow", isNewWindow()).toString();
 	}
 

@@ -320,7 +320,8 @@
          point="org.gumtree.ui.tasklets">
       <tasklet
             contributionUri="bundle://org.gumtree.app.workbench/scripts/jython/tasklets/test.py"
-            label="Test">
+            label="Test"
+            layout="simple">
       </tasklet>
    </extension>
    <!--

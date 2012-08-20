@@ -70,6 +70,21 @@
                </documentation>
             </annotation>
          </attribute>
+         <attribute name="layout" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+            <simpleType>
+               <restriction base="string">
+                  <enumeration value="simple">
+                  </enumeration>
+                  <enumeration value="advanced">
+                  </enumeration>
+               </restriction>
+            </simpleType>
+         </attribute>
          <attribute name="newWindow" type="boolean">
             <annotation>
                <documentation>

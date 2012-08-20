@@ -16,6 +16,10 @@ public interface ITasklet {
 
 	public void setContributionURI(String contributionURI);
 	
+	public boolean isSimpleLayout();
+	
+	public void setSimpleLayout(boolean simpleLayout);
+	
 	public boolean isNewWindow();
 	
 	public void setNewWindow(boolean newWindow);
