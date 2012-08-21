@@ -25,12 +25,5 @@ Bundle-Vendor: Bragg Institute
 Eclipse-BundleShape: dir
 Bundle-Localization: plugin
 Bundle-ActivationPolicy: lazy
-Service-Component: OSGI-INF/services/AppLaunchRegistry.xml,
- OSGI-INF/services/CommandLineToolRegistry.xml,
- OSGI-INF/services/CommunicationAdapterRegistry.xml,
- OSGI-INF/services/CruisePanelManager.xml,
- OSGI-INF/services/GadgetRegistry.xml,
- OSGI-INF/services/TaskletManager.xml,
- OSGI-INF/pages/ApplicationsPage.xml,
- OSGI-INF/pages/TaskPage.xml,
- OSGI-INF/converters/FileStoreUIConverter.xml
+Service-Component: OSGI-INF/services/AppLaunchRegistry.xml,OSGI-INF/services/CommandLineToolRegistry.xml,OSGI-INF/services/CommunicationAdapterRegistry.xml,OSGI-INF/services/CruisePanelManager.xml,OSGI-INF/services/GadgetRegistry.xml,OSGI-INF/services/TaskletManager.xml,OSGI-INF/pages/ApplicationsPage.xml,OSGI-INF/pages/TaskPage.xml,OSGI-INF/converters/FileStoreUIConverter.xml,
+ OSGI-INF/services/JythonTaskletLauncher.xml

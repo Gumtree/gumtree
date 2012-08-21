@@ -7,6 +7,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.gumtree.ui.cruise.ICruisePanelPage;
 import org.gumtree.ui.tasklet.ITaskletLauncher;
+import org.gumtree.ui.tasklet.support.JythonTaskletLauncher;
 import org.gumtree.ui.tasklet.support.TaskletManagerViewer;
 import org.gumtree.ui.util.workbench.WorkbenchUtils;
 
@@ -24,11 +25,6 @@ public class TaskPage implements ICruisePanelPage {
 		IEclipseContext context = WorkbenchUtils.getWorkbenchContext()
 				.createChild();
 		context.set(MWindow.class, WorkbenchUtils.getActiveMWindow());
-
-		// Create launcher
-		JythonTaskletLauncher launcher = ContextInjectionFactory.make(
-				JythonTaskletLauncher.class, context);
-		context.set(ITaskletLauncher.class, launcher);
 
 		// Create viewer
 		TaskletManagerViewer viewer = new TaskletManagerViewer(parent,

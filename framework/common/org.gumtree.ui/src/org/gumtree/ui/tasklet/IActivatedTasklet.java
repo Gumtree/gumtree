@@ -8,6 +8,8 @@ public interface IActivatedTasklet extends IDisposable {
 	
 	public String getId();
 
+	public String getLabel();
+	
 	public ITasklet getTasklet();
 	
 	public Map<Object, Object> getContext();

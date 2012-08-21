@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.gumtree.app.workbench.JythonTaskletLauncher">
+   <implementation class="org.gumtree.ui.tasklet.support.JythonTaskletLauncher"/>
+   <service>
+      <provide interface="org.gumtree.ui.tasklet.ITaskletLauncher"/>
+   </service>
+   <reference bind="setScriptingManager" cardinality="1..1" interface="org.gumtree.scripting.IScriptingManager" name="IScriptingManager" policy="static"/>
+   <reference bind="setDataAccessManager" cardinality="1..1" interface="org.gumtree.service.dataaccess.IDataAccessManager" name="IDataAccessManager" policy="static"/>
+</scr:component>

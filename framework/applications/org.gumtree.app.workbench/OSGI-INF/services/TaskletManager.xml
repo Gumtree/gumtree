@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="org.gumtree.ui.TaskletManager">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="org.gumtree.app.workbench.TaskletManager">
    <implementation class="org.gumtree.ui.tasklet.support.TaskletManager"/>
    <service>
       <provide interface="org.gumtree.ui.tasklet.ITaskletManager"/>
    </service>
    <reference bind="setExtensionRegistry" cardinality="1..1" interface="org.eclipse.core.runtime.IExtensionRegistry" name="IExtensionRegistry" policy="static"/>
+   <reference bind="setTaskletLauncher" cardinality="1..1" interface="org.gumtree.ui.tasklet.ITaskletLauncher" name="ITaskletLauncher" policy="static"/>
 </scr:component>

@@ -20,6 +20,8 @@ public interface ITaskletManager extends IService {
 	
 	public List<ITasklet> getTasklets();
 	
+	public ITaskletLauncher getLauncher(ITasklet tasklet);
+	
 	public IActivatedTasklet activatedTasklet(ITasklet tasklet);
 	
 	public void deactivatedTasklet(IActivatedTasklet tasklet);

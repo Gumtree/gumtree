@@ -8,7 +8,8 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.core.di.extensions.EventTopic;
 import org.eclipse.e4.ui.model.application.ui.advanced.MPerspective;
@@ -42,22 +43,26 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveListener;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PerspectiveAdapter;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorInputTransfer;
 import org.eclipse.ui.part.EditorInputTransfer.EditorInputData;
 import org.eclipse.ui.part.FileEditorInput;
+import org.gumtree.scripting.IScriptExecutor;
+import org.gumtree.ui.internal.Activator;
 import org.gumtree.ui.internal.InternalImage;
+import org.gumtree.ui.scripting.IScriptConsole;
+import org.gumtree.ui.scripting.support.ScriptConsole;
+import org.gumtree.ui.tasklet.IActivatedTasklet;
 import org.gumtree.ui.tasklet.ITasklet;
-import org.gumtree.ui.tasklet.ITaskletLauncher;
 import org.gumtree.ui.tasklet.ITaskletManager;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.ui.util.jface.ITreeNode;
 import org.gumtree.ui.util.jface.TreeContentProvider;
 import org.gumtree.ui.util.jface.TreeLabelProvider;
 import org.gumtree.ui.util.jface.TreeNode;
-import org.gumtree.ui.util.workbench.WorkbenchUtils;
 import org.gumtree.ui.widgets.ExtendedComposite;
 import org.gumtree.util.messaging.EventHandler;
 import org.osgi.service.event.Event;
@@ -67,9 +72,7 @@ import ch.lambdaj.collection.LambdaCollections;
 @SuppressWarnings("restriction")
 public class TaskletManagerViewer extends ExtendedComposite {
 
-	private ITaskletManager taskletRegistry;
-
-	private ITaskletLauncher taskletLauncher;
+	private ITaskletManager taskletManager;
 
 	private UIContext context;
 
@@ -113,12 +116,12 @@ public class TaskletManagerViewer extends ExtendedComposite {
 		treeViewer.getTree().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
-				if (getTaskletLauncher() != null) {
+				if (getTaskletManager() != null) {
 					// Run tasklet on double click
 					TaskletTreeNode node = (TaskletTreeNode) ((IStructuredSelection) treeViewer
 							.getSelection()).getFirstElement();
 					ITasklet tasklet = node.getTasklet();
-					runTasklet(tasklet);
+					getTaskletManager().activatedTasklet(tasklet);
 				}
 			}
 		});
@@ -132,21 +135,39 @@ public class TaskletManagerViewer extends ExtendedComposite {
 		context.closeTaskButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				MPerspectiveStack mPerspectiveStack = TaskletUtilities
-						.getActiveMPerspectiveStack();
-				MPerspective mPerspective = TaskletUtilities
-						.getActivePerspective();
-				mPerspectiveStack.getChildren().remove(mPerspective);
+				IWorkbenchPage page = PlatformUI.getWorkbench()
+						.getActiveWorkbenchWindow().getActivePage();
+				IPerspectiveDescriptor perspective = page.getPerspective();
+				page.closePerspective(perspective, false, false);
 			}
 		});
 		context.closeTaskButton.setEnabled(false);
 
 		// Launch console button
-		Button showConsoleButton = getWidgetFactory().createButton(this,
+		context.showConsoleButton = getWidgetFactory().createButton(this,
 				"Show Console", SWT.PUSH);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
-				.grab(true, false).span(3, 1).applyTo(showConsoleButton);
-		showConsoleButton.setEnabled(false);
+				.grab(true, false).span(3, 1).applyTo(context.showConsoleButton);
+		context.showConsoleButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				MPerspective mPerspective = TaskletUtilities.getActivePerspective();
+				if (mPerspective.getProperties().containsKey("id")) {
+					String id = mPerspective.getProperties().get("id");
+					IActivatedTasklet activatedTasklet = getTaskletManager().getActivatedTasklet(id);
+					IScriptExecutor executor = (IScriptExecutor) activatedTasklet.getContext().get(IScriptExecutor.class);
+					Shell shell = new Shell(getDisplay());
+					shell.setSize(500, 500);
+					shell.setLayout(new FillLayout());
+					IScriptConsole console = new ScriptConsole(shell, SWT.NONE);
+					IEclipseContext eclipseContext = Activator.getDefault().getEclipseContext().createChild();
+					eclipseContext.set(IScriptExecutor.class, executor);
+					ContextInjectionFactory.inject(console, eclipseContext);
+					shell.open();
+				}
+			}
+		});
+		context.showConsoleButton.setEnabled(false);
 
 		// DnD
 		Transfer[] transfers = new Transfer[] {
@@ -203,16 +224,24 @@ public class TaskletManagerViewer extends ExtendedComposite {
 						IPerspectiveDescriptor perspective) {
 					MPerspective mPerspective = TaskletUtilities
 							.getActivePerspective();
-					if (mPerspective.getProperties().containsKey("tasklet")) {
+					if (mPerspective.getProperties().containsKey("id")) {
 						context.closeTaskButton.setEnabled(true);
+						context.showConsoleButton.setEnabled(true);
 					} else {
 						context.closeTaskButton.setEnabled(false);
+						context.showConsoleButton.setEnabled(false);
 					}
+				}
+
+				public void perspectiveChanged(IWorkbenchPage page,
+						IPerspectiveDescriptor perspective,
+						IWorkbenchPartReference partRef, String changeId) {
+					System.out.println("Closed");
 				}
 			};
 			context.window.addPerspectiveListener(context.perspectiveListener);
 		}
-		
+
 		// Event handler
 		context.eventHandler = new EventHandler(
 				ITaskletManager.EVENT_TASKLET_REGISTRAION_ALL) {
@@ -235,7 +264,8 @@ public class TaskletManagerViewer extends ExtendedComposite {
 			if (context.perspectiveListener != null) {
 				context.window
 						.removePerspectiveListener(context.perspectiveListener);
-			} if (context.eventHandler != null) {
+			}
+			if (context.eventHandler != null) {
 				context.eventHandler.deactivate();
 			}
 		}
@@ -256,22 +286,13 @@ public class TaskletManagerViewer extends ExtendedComposite {
 	 * Components
 	 *************************************************************************/
 
-	public ITaskletManager getTaskletRegistry() {
-		return taskletRegistry;
+	public ITaskletManager getTaskletManager() {
+		return taskletManager;
 	}
 
 	@Inject
-	public void setTaskletRegistry(ITaskletManager taskletRegistry) {
-		this.taskletRegistry = taskletRegistry;
-	}
-
-	public ITaskletLauncher getTaskletLauncher() {
-		return taskletLauncher;
-	}
-
-	@Inject
-	public void setTaskletLauncher(ITaskletLauncher taskletLauncher) {
-		this.taskletLauncher = taskletLauncher;
+	public void setTaskletManager(ITaskletManager taskletManager) {
+		this.taskletManager = taskletManager;
 	}
 
 	public MWindow getMWindow() {
@@ -289,28 +310,13 @@ public class TaskletManagerViewer extends ExtendedComposite {
 	private void launchAddTaskletDialog(String contributionUri) {
 		AddTaskletDialog dialog = new AddTaskletDialog(getShell());
 		dialog.setContributionUri(contributionUri);
-		dialog.setTaskletRegistry(getTaskletRegistry());
+		dialog.setTaskletRegistry(getTaskletManager());
 		dialog.open();
-	}
-
-	private void runTasklet(ITasklet tasklet) {
-		// Create new perspective
-		MWindow mWindow = WorkbenchUtils.getActiveMWindow();
-		MPerspectiveStack stack = TaskletUtilities
-				.getMPerspectiveStack(mWindow);
-		MPerspective mPerspective = TaskletUtilities.createMPerspective(stack,
-				tasklet.getLabel());
-		mPerspective.getProperties().put("tasklet", tasklet.getLabel());
-		stack.getChildren().add(mPerspective);
-		// Switch to new perspective
-		stack.setSelectedElement(mPerspective);
-		// Run script
-		getTaskletLauncher().launchTasklet(tasklet, mPerspective);
 	}
 
 	protected ITreeNode[] createTreeNode(String filter, boolean isHierarchical) {
 		List<ITreeNode> treeNodes = new ArrayList<ITreeNode>(2);
-		for (ITasklet tasklet : getTaskletRegistry().getTasklets()) {
+		for (ITasklet tasklet : getTaskletManager().getTasklets()) {
 			treeNodes.add(new TaskletTreeNode(tasklet));
 		}
 		return LambdaCollections.with(treeNodes).toArray(ITreeNode.class);
@@ -351,19 +357,18 @@ public class TaskletManagerViewer extends ExtendedComposite {
 		Shell shell = new Shell(display);
 		shell.setLayout(new FillLayout());
 
-		TaskletManagerViewer viewer = new TaskletManagerViewer(shell,
-				SWT.NONE);
+		TaskletManagerViewer viewer = new TaskletManagerViewer(shell, SWT.NONE);
 
-		ITaskletManager registry = new TaskletManager();
-		viewer.setTaskletRegistry(registry);
+		ITaskletManager manager = new TaskletManager();
+		viewer.setTaskletManager(manager);
 		ITasklet tasklet = new Tasklet();
 		tasklet.setLabel("1D Scan");
 		tasklet.setTags("experiment");
-		registry.addTasklet(tasklet);
+		manager.addTasklet(tasklet);
 		tasklet = new Tasklet();
 		tasklet.setLabel("Histgram Memory");
 		tasklet.setTags("control, status");
-		registry.addTasklet(tasklet);
+		manager.addTasklet(tasklet);
 
 		viewer.render();
 

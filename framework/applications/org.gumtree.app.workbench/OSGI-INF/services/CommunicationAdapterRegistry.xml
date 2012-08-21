@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.gumtree.ui.CommunicationAdapterRegistry">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.gumtree.app.workbench.CommunicationAdapterRegistry">
    <implementation class="org.gumtree.ui.terminal.support.CommunicationAdapterRegistry"/>
    <service>
       <provide interface="org.gumtree.ui.terminal.ICommunicationAdapterRegistry"/>

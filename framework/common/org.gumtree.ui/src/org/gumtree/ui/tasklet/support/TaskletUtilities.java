@@ -26,14 +26,14 @@ public final class TaskletUtilities {
 		return getActiveMPerspectiveStack().getSelectedElement();
 	}
 	
-	public static MPerspective createMPerspective(
-			MPerspectiveStack mPerspectiveStack, String label) {
-		MPerspective mPerspective = MAdvancedFactory.INSTANCE
-				.createPerspective();
-		mPerspective.setLabel(label);
-		mPerspectiveStack.getChildren().add(mPerspective);
-		return mPerspective;
-	}
+//	public static MPerspective createMPerspective(
+//			MPerspectiveStack mPerspectiveStack, String label) {
+//		MPerspective mPerspective = MAdvancedFactory.INSTANCE
+//				.createPerspective();
+//		mPerspective.setLabel(label);
+//		mPerspectiveStack.getChildren().add(mPerspective);
+//		return mPerspective;
+//	}
 
 	public static String serialiseTasklet(ITasklet tasklet) {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();

@@ -38,10 +38,19 @@ public class TaskletPersistor {
 	public void saveTasklet(ITasklet tasklet) throws Exception {
 		// Serialise
 		String taskletString = TaskletUtilities.serialiseTasklet(tasklet);
-		File file = Activator.getDefault().getStateLocation()
+		File file = getTaskletStorage(tasklet);
+		FileUtils.writeStringToFile(file, taskletString);
+	}
+
+	public void removeTasklet(ITasklet tasklet) {
+		File file = getTaskletStorage(tasklet);
+		FileUtils.deleteQuietly(file);
+	}
+
+	private File getTaskletStorage(ITasklet tasklet) {
+		return Activator.getDefault().getStateLocation()
 				.addFileExtension("/tasklet/" + tasklet.getLabel() + ".txt")
 				.toFile();
-		FileUtils.writeStringToFile(file, taskletString);
 	}
 
 }

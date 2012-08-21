@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.gumtree.ui.tasklet.IActivatedTasklet;
 import org.gumtree.ui.tasklet.ITasklet;
+import org.gumtree.ui.tasklet.ITaskletLauncher;
 import org.gumtree.ui.tasklet.ITaskletManager;
 import org.gumtree.util.messaging.EventBuilder;
 import org.slf4j.Logger;
@@ -27,6 +28,8 @@ public class TaskletManager implements ITaskletManager {
 
 	private IExtensionRegistry extensionRegistry;
 
+	private ITaskletLauncher taskletLauncher;
+	
 	private TaskletPersistor persistor;
 
 	public TaskletManager() {
@@ -35,6 +38,10 @@ public class TaskletManager implements ITaskletManager {
 		persistor = new TaskletPersistor();
 	}
 
+	/*************************************************************************
+	 * Life cycle
+	 *************************************************************************/
+	
 	public void activate() {
 		// Load from extension point
 		if (getExtensionRegistry() != null) {
@@ -48,6 +55,26 @@ public class TaskletManager implements ITaskletManager {
 		tasklets.addAll(persistedTasklets);
 	}
 
+	public void deactivate() {
+		if (tasklets != null) {
+			tasklets.clear();
+			tasklets = null;
+		}
+		if (activatedTasklets != null) {
+			for (IActivatedTasklet activatedTasklet : activatedTasklets
+					.values()) {
+				activatedTasklet.disposeObject();
+			}
+			activatedTasklets.clear();
+			activatedTasklets = null;
+		}
+		extensionRegistry = null;
+	}
+	
+	/*************************************************************************
+	 * Registry
+	 *************************************************************************/
+	
 	@Override
 	public void addTasklet(ITasklet tasklet) {
 		tasklets.add(tasklet);
@@ -79,6 +106,8 @@ public class TaskletManager implements ITaskletManager {
 	public IActivatedTasklet activatedTasklet(ITasklet tasklet) {
 		IActivatedTasklet activatedTasklet = new ActivatedTasklet(tasklet);
 		activatedTasklets.put(activatedTasklet.getId(), activatedTasklet);
+		ITaskletLauncher launcher = getLauncher(tasklet);
+		launcher.launchTasklet(activatedTasklet);
 		return activatedTasklet;
 	}
 
@@ -98,22 +127,12 @@ public class TaskletManager implements ITaskletManager {
 		return new ArrayList<IActivatedTasklet>(activatedTasklets.values());
 	}
 
-	public void deactivate() {
-		if (tasklets != null) {
-			tasklets.clear();
-			tasklets = null;
-		}
-		if (activatedTasklets != null) {
-			for (IActivatedTasklet activatedTasklet : activatedTasklets
-					.values()) {
-				activatedTasklet.disposeObject();
-			}
-			activatedTasklets.clear();
-			activatedTasklets = null;
-		}
-		extensionRegistry = null;
+	@Override
+	public ITaskletLauncher getLauncher(ITasklet tasklet) {
+		// We only support single launcher at this stage
+		return getTaskletLauncher();
 	}
-
+	
 	/*************************************************************************
 	 * Components
 	 *************************************************************************/
@@ -125,6 +144,15 @@ public class TaskletManager implements ITaskletManager {
 	@Inject
 	public void setExtensionRegistry(IExtensionRegistry extensionRegistry) {
 		this.extensionRegistry = extensionRegistry;
+	}
+
+	public ITaskletLauncher getTaskletLauncher() {
+		return taskletLauncher;
+	}
+
+	@Inject
+	public void setTaskletLauncher(ITaskletLauncher taskletLauncher) {
+		this.taskletLauncher = taskletLauncher;
 	}
 
 	/*************************************************************************

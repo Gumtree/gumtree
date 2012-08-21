@@ -32,6 +32,11 @@ public class ActivatedTasklet implements IActivatedTasklet {
 	}
 
 	@Override
+	public String getLabel() {
+		return getTasklet().getLabel();
+	}
+
+	@Override
 	public Map<Object, Object> getContext() {
 		return context;
 	}
