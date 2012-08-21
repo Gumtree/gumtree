@@ -19,13 +19,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.gumtree.ui.tasklet.ITasklet;
-import org.gumtree.ui.tasklet.ITaskletRegistry;
+import org.gumtree.ui.tasklet.ITaskletManager;
 
 public class AddTaskletDialog extends Dialog {
 
 	private String contributionUri;
 
-	private ITaskletRegistry taskletRegistry;
+	private ITaskletManager taskletRegistry;
 
 	private UIContext context;
 
@@ -42,6 +42,8 @@ public class AddTaskletDialog extends Dialog {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText("Label: ");
 		context.labelText = new Text(composite, SWT.BORDER);
+		context.labelText.setText("New Task");
+		context.labelText.selectAll();
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).hint(350, SWT.DEFAULT).span(2, 1)
 				.applyTo(context.labelText);
@@ -84,6 +86,7 @@ public class AddTaskletDialog extends Dialog {
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(layoutGroup);
 		context.simpleLayoutButton = new Button(layoutGroup, SWT.RADIO);
 		context.simpleLayoutButton.setText("Simple");
+		context.simpleLayoutButton.setSelection(true);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(context.simpleLayoutButton);
 		context.advancedLayoutButton = new Button(layoutGroup, SWT.RADIO);
@@ -105,6 +108,13 @@ public class AddTaskletDialog extends Dialog {
 		return composite;
 	}
 
+	// Override to set focus
+	@Override
+	public void create() {
+		super.create();
+		context.labelText.setFocus();
+	}
+	
 	@Override
 	protected boolean isResizable() {
 		return true;
@@ -118,7 +128,7 @@ public class AddTaskletDialog extends Dialog {
 
 	@Override
 	protected void okPressed() {
-		// Preapre new tasklet
+		// Prepare new tasklet
 		if (getTaskletRegistry() != null) {
 			ITasklet tasklet = new Tasklet();
 			tasklet.setLabel(context.labelText.getText());
@@ -143,11 +153,11 @@ public class AddTaskletDialog extends Dialog {
 		this.contributionUri = contributionUri;
 	}
 
-	public ITaskletRegistry getTaskletRegistry() {
+	public ITaskletManager getTaskletRegistry() {
 		return taskletRegistry;
 	}
 
-	public void setTaskletRegistry(ITaskletRegistry taskletRegistry) {
+	public void setTaskletRegistry(ITaskletManager taskletRegistry) {
 		this.taskletRegistry = taskletRegistry;
 	}
 

@@ -81,6 +81,7 @@
 		<module>${common.path}/org.eclipse.nebula.widgets</module>
 		<module>${common.path}/org.eclipse.nebula.jface</module>
 		<module>${common.path}/net.sourceforge.nattable</module>
+		<module>${common.path}/org.apache.commons.io</module>
 		<module>${common.path}/org.gumtree.vis.gdm</module>
 		<module>${common.path}/org.gumtree.vis.nexus</module>
 		<module>${common.path}/org.gumtree.ui</module>

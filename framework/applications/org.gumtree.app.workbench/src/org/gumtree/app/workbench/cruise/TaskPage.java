@@ -7,7 +7,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.gumtree.ui.cruise.ICruisePanelPage;
 import org.gumtree.ui.tasklet.ITaskletLauncher;
-import org.gumtree.ui.tasklet.support.TaskletRegistryViewer;
+import org.gumtree.ui.tasklet.support.TaskletManagerViewer;
 import org.gumtree.ui.util.workbench.WorkbenchUtils;
 
 @SuppressWarnings("restriction")
@@ -31,7 +31,7 @@ public class TaskPage implements ICruisePanelPage {
 		context.set(ITaskletLauncher.class, launcher);
 
 		// Create viewer
-		TaskletRegistryViewer viewer = new TaskletRegistryViewer(parent,
+		TaskletManagerViewer viewer = new TaskletManagerViewer(parent,
 				SWT.NONE);
 		ContextInjectionFactory.inject(viewer, context);
 

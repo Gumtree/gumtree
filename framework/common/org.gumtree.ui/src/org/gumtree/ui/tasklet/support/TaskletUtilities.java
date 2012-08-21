@@ -8,6 +8,7 @@ import org.gumtree.ui.tasklet.ITasklet;
 import org.gumtree.ui.util.workbench.WorkbenchUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 @SuppressWarnings("restriction")
 public final class TaskletUtilities {
@@ -35,7 +36,7 @@ public final class TaskletUtilities {
 	}
 
 	public static String serialiseTasklet(ITasklet tasklet) {
-		Gson gson = new Gson();
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		return gson.toJson(tasklet);
 	}
 

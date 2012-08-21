@@ -8,6 +8,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.core.di.extensions.EventTopic;
 import org.eclipse.e4.ui.model.application.ui.advanced.MPerspective;
@@ -17,6 +18,7 @@ import org.eclipse.e4.ui.workbench.UIEvents;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -29,7 +31,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
@@ -40,7 +41,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveListener;
-import org.eclipse.ui.IWindowListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PerspectiveAdapter;
@@ -51,20 +51,23 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.gumtree.ui.internal.InternalImage;
 import org.gumtree.ui.tasklet.ITasklet;
 import org.gumtree.ui.tasklet.ITaskletLauncher;
-import org.gumtree.ui.tasklet.ITaskletRegistry;
+import org.gumtree.ui.tasklet.ITaskletManager;
+import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.ui.util.jface.ITreeNode;
 import org.gumtree.ui.util.jface.TreeContentProvider;
 import org.gumtree.ui.util.jface.TreeLabelProvider;
 import org.gumtree.ui.util.jface.TreeNode;
 import org.gumtree.ui.util.workbench.WorkbenchUtils;
 import org.gumtree.ui.widgets.ExtendedComposite;
+import org.gumtree.util.messaging.EventHandler;
+import org.osgi.service.event.Event;
 
 import ch.lambdaj.collection.LambdaCollections;
 
 @SuppressWarnings("restriction")
-public class TaskletRegistryViewer extends ExtendedComposite {
+public class TaskletManagerViewer extends ExtendedComposite {
 
-	private ITaskletRegistry taskletRegistry;
+	private ITaskletManager taskletRegistry;
 
 	private ITaskletLauncher taskletLauncher;
 
@@ -73,7 +76,7 @@ public class TaskletRegistryViewer extends ExtendedComposite {
 	private MWindow mWindow;
 
 	@Inject
-	public TaskletRegistryViewer(Composite parent, @Optional int style) {
+	public TaskletManagerViewer(Composite parent, @Optional int style) {
 		super(parent, style);
 	}
 
@@ -209,6 +212,21 @@ public class TaskletRegistryViewer extends ExtendedComposite {
 			};
 			context.window.addPerspectiveListener(context.perspectiveListener);
 		}
+		
+		// Event handler
+		context.eventHandler = new EventHandler(
+				ITaskletManager.EVENT_TASKLET_REGISTRAION_ALL) {
+			@Override
+			public void handleEvent(Event event) {
+				// Update tree viewer
+				SafeUIRunner.asyncExec(new SafeRunnable() {
+					@Override
+					public void run() throws Exception {
+						treeViewer.setInput(createTreeNode("", false));
+					}
+				});
+			}
+		}.activate();
 	}
 
 	@Override
@@ -217,6 +235,8 @@ public class TaskletRegistryViewer extends ExtendedComposite {
 			if (context.perspectiveListener != null) {
 				context.window
 						.removePerspectiveListener(context.perspectiveListener);
+			} if (context.eventHandler != null) {
+				context.eventHandler.deactivate();
 			}
 		}
 		context = null;
@@ -236,12 +256,12 @@ public class TaskletRegistryViewer extends ExtendedComposite {
 	 * Components
 	 *************************************************************************/
 
-	public ITaskletRegistry getTaskletRegistry() {
+	public ITaskletManager getTaskletRegistry() {
 		return taskletRegistry;
 	}
 
 	@Inject
-	public void setTaskletRegistry(ITaskletRegistry taskletRegistry) {
+	public void setTaskletRegistry(ITaskletManager taskletRegistry) {
 		this.taskletRegistry = taskletRegistry;
 	}
 
@@ -323,6 +343,7 @@ public class TaskletRegistryViewer extends ExtendedComposite {
 		Button showConsoleButton;
 		IWorkbenchWindow window;
 		IPerspectiveListener perspectiveListener;
+		EventHandler eventHandler;
 	}
 
 	public static void main(String[] args) {
@@ -330,10 +351,10 @@ public class TaskletRegistryViewer extends ExtendedComposite {
 		Shell shell = new Shell(display);
 		shell.setLayout(new FillLayout());
 
-		TaskletRegistryViewer viewer = new TaskletRegistryViewer(shell,
+		TaskletManagerViewer viewer = new TaskletManagerViewer(shell,
 				SWT.NONE);
 
-		ITaskletRegistry registry = new TaskletRegistry();
+		ITaskletManager registry = new TaskletManager();
 		viewer.setTaskletRegistry(registry);
 		ITasklet tasklet = new Tasklet();
 		tasklet.setLabel("1D Scan");

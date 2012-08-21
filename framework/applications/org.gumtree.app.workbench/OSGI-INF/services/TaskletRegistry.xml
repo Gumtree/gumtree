@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="init" name="org.gumtree.ui.TaskletRegistry">
-   <implementation class="org.gumtree.ui.tasklet.support.TaskletRegistry"/>
-   <service>
-      <provide interface="org.gumtree.ui.tasklet.ITaskletRegistry"/>
-   </service>
-   <reference bind="setExtensionRegistry" cardinality="1..1" interface="org.eclipse.core.runtime.IExtensionRegistry" name="IExtensionRegistry" policy="static"/>
-</scr:component>
