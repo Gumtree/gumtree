@@ -3,7 +3,7 @@ package org.gumtree.ui.tasklet;
 import static org.junit.Assert.assertEquals;
 
 import org.gumtree.ui.tasklet.support.Tasklet;
-import org.gumtree.ui.tasklet.support.TaskletUtilities;
+import org.gumtree.ui.tasklet.support.TaskletUtils;
 import org.junit.Test;
 
 public class TaskletUtilitiesTest {
@@ -16,9 +16,9 @@ public class TaskletUtilitiesTest {
 		tasklet.setContributionURI("bundle://org.gumtree.ui/scripts/hm_custom.py");
 		tasklet.setProperty("defaultUri", "bundle://org.gumtree.ui/scripts/hm.py");
 		
-		String text = TaskletUtilities.serialiseTasklet(tasklet);
+		String text = TaskletUtils.serialiseTasklet(tasklet);
 	
-		ITasklet newTasklet = TaskletUtilities.deserialiseTasklet(text);
+		ITasklet newTasklet = TaskletUtils.deserialiseTasklet(text);
 		assertEquals(tasklet.getLabel(), newTasklet.getLabel());
 		assertEquals(tasklet.getTags(), newTasklet.getTags());
 		assertEquals(tasklet.getContributionURI(), newTasklet.getContributionURI());

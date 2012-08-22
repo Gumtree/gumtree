@@ -104,7 +104,7 @@ public class TaskletManager implements ITaskletManager {
 
 	@Override
 	public IActivatedTasklet activatedTasklet(ITasklet tasklet) {
-		IActivatedTasklet activatedTasklet = new ActivatedTasklet(tasklet);
+		IActivatedTasklet activatedTasklet = new ActivatedTasklet(tasklet, this);
 		activatedTasklets.put(activatedTasklet.getId(), activatedTasklet);
 		ITaskletLauncher launcher = getLauncher(tasklet);
 		launcher.launchTasklet(activatedTasklet);

@@ -26,7 +26,7 @@ public class TaskletPersistor {
 			if (file.isFile() && file.getName().endsWith(".txt")) {
 				try {
 					String data = FileUtils.readFileToString(file);
-					tasklets.add(TaskletUtilities.deserialiseTasklet(data));
+					tasklets.add(TaskletUtils.deserialiseTasklet(data));
 				} catch (Exception e) {
 					logger.error("Failed to load " + file.getName());
 				}
@@ -37,7 +37,7 @@ public class TaskletPersistor {
 
 	public void saveTasklet(ITasklet tasklet) throws Exception {
 		// Serialise
-		String taskletString = TaskletUtilities.serialiseTasklet(tasklet);
+		String taskletString = TaskletUtils.serialiseTasklet(tasklet);
 		File file = getTaskletStorage(tasklet);
 		FileUtils.writeStringToFile(file, taskletString);
 	}

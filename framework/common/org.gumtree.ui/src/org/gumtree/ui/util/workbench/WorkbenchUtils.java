@@ -2,17 +2,22 @@ package org.gumtree.ui.util.workbench;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map.Entry;
 
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.model.application.MApplication;
+import org.eclipse.e4.ui.model.application.ui.MContext;
 import org.eclipse.e4.ui.model.application.ui.MElementContainer;
 import org.eclipse.e4.ui.model.application.ui.MUIElement;
+import org.eclipse.e4.ui.model.application.ui.advanced.MPerspective;
+import org.eclipse.e4.ui.model.application.ui.advanced.MPerspectiveStack;
 import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.window.ApplicationWindow;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.gumtree.ui.internal.Activator;
+import org.gumtree.util.collection.IMapFilter;
 
 @SuppressWarnings("restriction")
 public final class WorkbenchUtils {
@@ -75,6 +80,19 @@ public final class WorkbenchUtils {
 		return getMWindow(PlatformUI.getWorkbench().getActiveWorkbenchWindow());
 	}
 
+	public static MPerspectiveStack getMPerspectiveStack(MWindow mWindow) {
+		return WorkbenchUtils.getFirstChild(mWindow, MPerspectiveStack.class);
+	}
+
+	public static MPerspectiveStack getActiveMPerspectiveStack() {
+		MWindow mWindow = WorkbenchUtils.getActiveMWindow();
+		return getMPerspectiveStack(mWindow);
+	}
+
+	public static MPerspective getActivePerspective() {
+		return getActiveMPerspectiveStack().getSelectedElement();
+	}
+
 	@SuppressWarnings("unchecked")
 	public static <T> T getFirstChild(MElementContainer<?> container,
 			Class<T> childClass) {
@@ -87,6 +105,38 @@ public final class WorkbenchUtils {
 				if (child instanceof MElementContainer) {
 					result = getFirstChild((MElementContainer<?>) child,
 							childClass);
+					if (result != null) {
+						break;
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T extends MContext> T getFirstChildWithProperty(
+			MElementContainer<?> container, Class<T> childClass,
+			IMapFilter<String, String> propertyFilter) {
+		if (propertyFilter == null) {
+			return null;
+		}
+		T result = null;
+		for (MUIElement child : container.getChildren()) {
+			if (childClass.isInstance(child)) {
+				for (Entry<String, String> entry : ((MContext) child)
+						.getProperties().entrySet()) {
+					if (propertyFilter.accept(entry.getKey(), entry.getValue())) {
+						result = (T) child;
+						break;
+					}
+				}
+			}
+			if (result == null) {
+				if (child instanceof MElementContainer) {
+					result = getFirstChildWithProperty(
+							(MElementContainer<?>) child, childClass,
+							propertyFilter);
 					if (result != null) {
 						break;
 					}

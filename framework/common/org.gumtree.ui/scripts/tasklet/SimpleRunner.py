@@ -3,8 +3,8 @@ from org.eclipse.e4.ui.model.application.ui.advanced import MAdvancedFactory
 from org.eclipse.jface.util import SafeRunnable
 from org.eclipse.ui import PlatformUI
 
-from org.gumtree.ui.tasklet.support import TaskletUtilities
 from org.gumtree.ui.util import SafeUIRunner
+from org.gumtree.ui.util.workbench import WorkbenchUtils
 
 from time import sleep
 
@@ -39,7 +39,7 @@ class FunctionRunnable(SafeRunnable):
 
 def prepareUI():
     global mPerspectiveStack
-    mPerspectiveStack = TaskletUtilities.getActiveMPerspectiveStack()
+    mPerspectiveStack = WorkbenchUtils.getActiveMPerspectiveStack()
     originalPerspective = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getPerspective()
     perspectiveRegistry = PlatformUI.getWorkbench().getPerspectiveRegistry()
     global perspectiveDesc
@@ -62,9 +62,10 @@ def createParentComposite():
     # Create model
     global mPart
     mPart = MBasicFactory.INSTANCE.createPart()
-    tasklet = __executor__.getEngine().get('activatedTasklet').getTasklet()
-    if not tasklet == None:
-        mPart.setLabel(tasklet.getLabel())
+    activatedTasklet = __executor__.getEngine().get('activatedTasklet')
+    tasklet = activatedTasklet.getTasklet()
+    if not activatedTasklet == None:
+        mPart.setLabel(activatedTasklet.getTasklet().getLabel())
     mPart.setContributionURI('bundleclass://org.gumtree.ui/org.gumtree.ui.tasklet.support.DefaultPart')
     mPerspective.getChildren().add(mPart)
     # Get part widget
@@ -72,6 +73,9 @@ def createParentComposite():
     SafeUIRunner.asyncExec(runnable)
     while parentComposite == None:
         sleep(0.1)
+    # Register parent to tasklet
+    if not activatedTasklet == None:
+        activatedTasklet.setParentComposite(parentComposite)
 
 ###############################################################################
 # Main helper function
@@ -91,6 +95,8 @@ def run():
     if not activatedTasklet == None:
         mPerspective.setLabel(activatedTasklet.getLabel());
         mPerspective.getProperties().put('id', activatedTasklet.getId())
+        activatedTasklet.setMPerspective(mPerspective)
+        activatedTasklet.setPerspective(perspectiveDesc)
     mPerspective.setElementId(perspectiveDesc.getId())
     mPerspectiveStack.getChildren().add(mPerspective);
     mPerspectiveStack.setSelectedElement(mPerspective)

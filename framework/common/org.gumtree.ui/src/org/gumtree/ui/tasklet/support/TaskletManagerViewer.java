@@ -8,12 +8,20 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.core.di.extensions.EventTopic;
 import org.eclipse.e4.ui.model.application.ui.advanced.MPerspective;
-import org.eclipse.e4.ui.model.application.ui.advanced.MPerspectiveStack;
+import org.eclipse.e4.ui.model.application.ui.basic.MBasicFactory;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.model.application.ui.basic.MPartSashContainer;
+import org.eclipse.e4.ui.model.application.ui.basic.MPartSashContainerElement;
 import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
 import org.eclipse.e4.ui.workbench.UIEvents;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -58,12 +66,15 @@ import org.gumtree.ui.scripting.support.ScriptConsole;
 import org.gumtree.ui.tasklet.IActivatedTasklet;
 import org.gumtree.ui.tasklet.ITasklet;
 import org.gumtree.ui.tasklet.ITaskletManager;
+import org.gumtree.ui.util.ParameterizedSafeRunnable;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.ui.util.jface.ITreeNode;
 import org.gumtree.ui.util.jface.TreeContentProvider;
 import org.gumtree.ui.util.jface.TreeLabelProvider;
 import org.gumtree.ui.util.jface.TreeNode;
+import org.gumtree.ui.util.workbench.WorkbenchUtils;
 import org.gumtree.ui.widgets.ExtendedComposite;
+import org.gumtree.util.collection.IMapFilter;
 import org.gumtree.util.messaging.EventHandler;
 import org.osgi.service.event.Event;
 
@@ -95,7 +106,7 @@ public class TaskletManagerViewer extends ExtendedComposite {
 		addButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				launchAddTaskletDialog(null);
+				handleLaunchAddTaskletDialog(null);
 			}
 		});
 
@@ -121,7 +132,7 @@ public class TaskletManagerViewer extends ExtendedComposite {
 					TaskletTreeNode node = (TaskletTreeNode) ((IStructuredSelection) treeViewer
 							.getSelection()).getFirstElement();
 					ITasklet tasklet = node.getTasklet();
-					getTaskletManager().activatedTasklet(tasklet);
+					handleTaskletActivation(tasklet);
 				}
 			}
 		});
@@ -145,25 +156,28 @@ public class TaskletManagerViewer extends ExtendedComposite {
 
 		// Launch console button
 		context.showConsoleButton = getWidgetFactory().createButton(this,
-				"Show Console", SWT.PUSH);
+				"Toggle Console", SWT.PUSH);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
-				.grab(true, false).span(3, 1).applyTo(context.showConsoleButton);
+				.grab(true, false).span(3, 1)
+				.applyTo(context.showConsoleButton);
 		context.showConsoleButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				MPerspective mPerspective = TaskletUtilities.getActivePerspective();
-				if (mPerspective.getProperties().containsKey("id")) {
-					String id = mPerspective.getProperties().get("id");
-					IActivatedTasklet activatedTasklet = getTaskletManager().getActivatedTasklet(id);
-					IScriptExecutor executor = (IScriptExecutor) activatedTasklet.getContext().get(IScriptExecutor.class);
-					Shell shell = new Shell(getDisplay());
-					shell.setSize(500, 500);
-					shell.setLayout(new FillLayout());
-					IScriptConsole console = new ScriptConsole(shell, SWT.NONE);
-					IEclipseContext eclipseContext = Activator.getDefault().getEclipseContext().createChild();
-					eclipseContext.set(IScriptExecutor.class, executor);
-					ContextInjectionFactory.inject(console, eclipseContext);
-					shell.open();
+				MPerspective perspective = WorkbenchUtils
+						.getActivePerspective();
+				MPart mPart = WorkbenchUtils.getFirstChildWithProperty(
+						perspective, MPart.class,
+						new IMapFilter<String, String>() {
+							@Override
+							public boolean accept(String key, String value) {
+								return "partType".equals(key)
+										&& "taskletConsole".equals(value);
+							}
+						});
+				if (mPart != null) {
+					mPart.setVisible(!mPart.isVisible());
+				} else {
+					handleCreateConsole();
 				}
 			}
 		});
@@ -174,46 +188,7 @@ public class TaskletManagerViewer extends ExtendedComposite {
 				LocalSelectionTransfer.getTransfer(),
 				FileTransfer.getInstance(), EditorInputTransfer.getInstance() };
 		treeViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE, transfers,
-				new DropTargetAdapter() {
-					public void drop(DropTargetEvent event) {
-						if (FileTransfer.getInstance().isSupportedType(
-								event.currentDataType)) {
-							// 1. Handle dropping from file system
-							String[] filenames = (String[]) event.data;
-							if (filenames.length == 1) {
-								File file = new File(filenames[0]);
-								launchAddTaskletDialog(file.toURI().toString());
-							}
-						} else if (EditorInputTransfer.getInstance()
-								.isSupportedType(event.currentDataType)
-								&& event.data instanceof EditorInputData[]) {
-							// 2. Handle dropping from remote system explorer
-							EditorInputData[] inputDatas = ((EditorInputData[]) event.data);
-							if (inputDatas.length == 1) {
-								IEditorInput input = inputDatas[0].input;
-								if (input instanceof FileEditorInput) {
-									IFile file = ((FileEditorInput) input)
-											.getFile();
-									launchAddTaskletDialog(file
-											.getLocationURI().toString());
-								}
-							}
-						} else if (LocalSelectionTransfer.getTransfer()
-								.isSupportedType(event.currentDataType)
-								&& event.data instanceof IStructuredSelection) {
-							// 3. Handle dropping from project explorer
-							List<?> files = ((IStructuredSelection) event.data)
-									.toList();
-							if (files != null && files.size() == 1) {
-								if (files.get(0) instanceof IFile) {
-									IFile file = (IFile) files.get(0);
-									launchAddTaskletDialog(file
-											.getLocationURI().toString());
-								}
-							}
-						}
-					}
-				});
+				new DropTargetListener());
 
 		// Listening to perspective change
 		if (PlatformUI.isWorkbenchRunning()) {
@@ -222,7 +197,7 @@ public class TaskletManagerViewer extends ExtendedComposite {
 			context.perspectiveListener = new PerspectiveAdapter() {
 				public void perspectiveActivated(IWorkbenchPage page,
 						IPerspectiveDescriptor perspective) {
-					MPerspective mPerspective = TaskletUtilities
+					MPerspective mPerspective = WorkbenchUtils
 							.getActivePerspective();
 					if (mPerspective.getProperties().containsKey("id")) {
 						context.closeTaskButton.setEnabled(true);
@@ -307,11 +282,81 @@ public class TaskletManagerViewer extends ExtendedComposite {
 	 * Utilities
 	 *************************************************************************/
 
-	private void launchAddTaskletDialog(String contributionUri) {
+	private void handleLaunchAddTaskletDialog(String contributionUri) {
 		AddTaskletDialog dialog = new AddTaskletDialog(getShell());
 		dialog.setContributionUri(contributionUri);
 		dialog.setTaskletRegistry(getTaskletManager());
 		dialog.open();
+	}
+
+	private void handleTaskletActivation(ITasklet tasklet) {
+		// Activate tasklet
+		IActivatedTasklet activatedTasklet = getTaskletManager()
+				.activatedTasklet(tasklet);
+	}
+
+	private void handleCreateConsole() {
+		MPerspective mPerspective = WorkbenchUtils.getActivePerspective();
+		if (mPerspective.getProperties().containsKey("id")) {
+			String id = mPerspective.getProperties().get("id");
+			IActivatedTasklet activatedTasklet = getTaskletManager()
+					.getActivatedTasklet(id);
+			final IScriptExecutor executor = (IScriptExecutor) activatedTasklet
+					.getContext().get(IScriptExecutor.class);
+			MPerspective perspective = WorkbenchUtils.getActivePerspective();
+
+			MPartSashContainerElement partSashContainerElement = perspective
+					.getChildren().get(0);
+			perspective.getChildren().remove(partSashContainerElement);
+
+			MPartSashContainer partSashContainer = MBasicFactory.INSTANCE
+					.createPartSashContainer();
+			perspective.getChildren().add(partSashContainer);
+			partSashContainer.getChildren().add(partSashContainerElement);
+
+			final MPart mPart = MBasicFactory.INSTANCE.createPart();
+			mPart.setLabel("Console");
+			mPart.setContributionURI("bundleclass://org.gumtree.ui/org.gumtree.ui.tasklet.support.DefaultPart");
+			mPart.getProperties().put("partType", "taskletConsole");
+			partSashContainer.getChildren().add(mPart);
+
+			// Wait until widget is ready and then create console
+			Job job = new Job("Find widget") {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					if (mPart.getWidget() == null) {
+						schedule(100);
+					} else {
+						// Create console
+						SafeUIRunner
+								.asyncExec(new ParameterizedSafeRunnable<MPart>(
+										mPart) {
+									@Override
+									public void run(MPart mPart)
+											throws Exception {
+										Composite parent = (Composite) ((Composite) mPart
+												.getWidget()).getChildren()[0];
+										IScriptConsole console = new ScriptConsole(
+												parent, SWT.NONE);
+										IEclipseContext eclipseContext = Activator
+												.getDefault()
+												.getEclipseContext()
+												.createChild();
+										eclipseContext
+												.set(IScriptExecutor.class,
+														executor);
+										ContextInjectionFactory.inject(console,
+												eclipseContext);
+										parent.getParent().layout(true, true);
+									}
+								});
+					}
+					return Status.OK_STATUS;
+				}
+			};
+			job.schedule();
+		}
+
 	}
 
 	protected ITreeNode[] createTreeNode(String filter, boolean isHierarchical) {
@@ -323,7 +368,6 @@ public class TaskletManagerViewer extends ExtendedComposite {
 	}
 
 	public class TaskletTreeNode extends TreeNode {
-
 		private ITasklet tasklet;
 
 		public TaskletTreeNode(ITasklet tasklet) {
@@ -341,7 +385,46 @@ public class TaskletManagerViewer extends ExtendedComposite {
 		public ITasklet getTasklet() {
 			return tasklet;
 		}
+	}
 
+	private class DropTargetListener extends DropTargetAdapter {
+		@Override
+		public void drop(DropTargetEvent event) {
+			if (FileTransfer.getInstance().isSupportedType(
+					event.currentDataType)) {
+				// 1. Handle dropping from file system
+				String[] filenames = (String[]) event.data;
+				if (filenames.length == 1) {
+					File file = new File(filenames[0]);
+					handleLaunchAddTaskletDialog(file.toURI().toString());
+				}
+			} else if (EditorInputTransfer.getInstance().isSupportedType(
+					event.currentDataType)
+					&& event.data instanceof EditorInputData[]) {
+				// 2. Handle dropping from remote system explorer
+				EditorInputData[] inputDatas = ((EditorInputData[]) event.data);
+				if (inputDatas.length == 1) {
+					IEditorInput input = inputDatas[0].input;
+					if (input instanceof FileEditorInput) {
+						IFile file = ((FileEditorInput) input).getFile();
+						handleLaunchAddTaskletDialog(file.getLocationURI()
+								.toString());
+					}
+				}
+			} else if (LocalSelectionTransfer.getTransfer().isSupportedType(
+					event.currentDataType)
+					&& event.data instanceof IStructuredSelection) {
+				// 3. Handle dropping from project explorer
+				List<?> files = ((IStructuredSelection) event.data).toList();
+				if (files != null && files.size() == 1) {
+					if (files.get(0) instanceof IFile) {
+						IFile file = (IFile) files.get(0);
+						handleLaunchAddTaskletDialog(file.getLocationURI()
+								.toString());
+					}
+				}
+			}
+		}
 	}
 
 	private class UIContext {
