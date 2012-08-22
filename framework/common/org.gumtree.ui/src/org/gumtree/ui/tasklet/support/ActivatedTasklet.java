@@ -80,10 +80,11 @@ public class ActivatedTasklet implements IActivatedTasklet {
 					@Override
 					public void widgetDisposed(DisposeEvent e) {
 						// Remove from workbench model
-						mPerspective.getParent().getChildren()
-								.remove(mPerspective);
 						PlatformUI.getWorkbench().getPerspectiveRegistry()
 								.deletePerspective(perspective);
+						// Buggy!!
+//						mPerspective.getParent().getChildren()
+//								.remove(mPerspective);
 						// Deactivate tasklet
 						getTaskletManager().deactivatedTasklet(
 								ActivatedTasklet.this);

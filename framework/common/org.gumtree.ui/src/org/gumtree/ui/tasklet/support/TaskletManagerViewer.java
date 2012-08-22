@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
@@ -24,6 +23,11 @@ import org.eclipse.e4.ui.model.application.ui.basic.MPartSashContainer;
 import org.eclipse.e4.ui.model.application.ui.basic.MPartSashContainerElement;
 import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
 import org.eclipse.e4.ui.workbench.UIEvents;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -45,6 +49,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
@@ -119,24 +124,25 @@ public class TaskletManagerViewer extends ExtendedComposite {
 				.grab(true, false).applyTo(searchText);
 
 		// Create tree
-		final TreeViewer treeViewer = new TreeViewer(this);
+		context.treeViewer = new TreeViewer(this);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL)
-				.grab(true, true).span(3, 1).applyTo(treeViewer.getControl());
-		treeViewer.setContentProvider(new TreeContentProvider());
-		treeViewer.setLabelProvider(new TreeLabelProvider());
-		treeViewer.getTree().addMouseListener(new MouseAdapter() {
+				.grab(true, true).span(3, 1)
+				.applyTo(context.treeViewer.getControl());
+		context.treeViewer.setContentProvider(new TreeContentProvider());
+		context.treeViewer.setLabelProvider(new TreeLabelProvider());
+		context.treeViewer.getTree().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
 				if (getTaskletManager() != null) {
 					// Run tasklet on double click
-					TaskletTreeNode node = (TaskletTreeNode) ((IStructuredSelection) treeViewer
+					TaskletTreeNode node = (TaskletTreeNode) ((IStructuredSelection) context.treeViewer
 							.getSelection()).getFirstElement();
 					ITasklet tasklet = node.getTasklet();
 					handleTaskletActivation(tasklet);
 				}
 			}
 		});
-		treeViewer.setInput(createTreeNode("", false));
+		context.treeViewer.setInput(createTreeNode("", false));
 
 		// Close button
 		context.closeTaskButton = getWidgetFactory().createButton(this,
@@ -187,8 +193,39 @@ public class TaskletManagerViewer extends ExtendedComposite {
 		Transfer[] transfers = new Transfer[] {
 				LocalSelectionTransfer.getTransfer(),
 				FileTransfer.getInstance(), EditorInputTransfer.getInstance() };
-		treeViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE, transfers,
-				new DropTargetListener());
+		context.treeViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE,
+				transfers, new DropTargetListener());
+
+		// Context menu
+		MenuManager menuManager = new MenuManager();
+		menuManager.setRemoveAllWhenShown(true);
+		menuManager.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager manager) {
+				IStructuredSelection selections = (IStructuredSelection) context.treeViewer
+						.getSelection();
+				if (context.deleteAction == null) {
+					context.deleteAction = new Action("Remove task",
+							InternalImage.DELETE_16.getDescriptor()) {
+						public void run() {
+							IStructuredSelection selections = (IStructuredSelection) context.treeViewer
+									.getSelection();
+							for (Object selection : selections.toList()) {
+								getTaskletManager().removeTasklet(
+										((TaskletTreeNode) selection)
+												.getTasklet());
+							}
+							context.treeViewer.setInput(createTreeNode("",
+									false));
+						}
+					};
+				}
+				if (selections.size() >= 1) {
+					manager.add(context.deleteAction);
+				}
+			}
+		});
+		Menu menu = menuManager.createContextMenu(context.treeViewer.getTree());
+		context.treeViewer.getTree().setMenu(menu);
 
 		// Listening to perspective change
 		if (PlatformUI.isWorkbenchRunning()) {
@@ -226,7 +263,7 @@ public class TaskletManagerViewer extends ExtendedComposite {
 				SafeUIRunner.asyncExec(new SafeRunnable() {
 					@Override
 					public void run() throws Exception {
-						treeViewer.setInput(createTreeNode("", false));
+						context.treeViewer.setInput(createTreeNode("", false));
 					}
 				});
 			}
@@ -347,6 +384,7 @@ public class TaskletManagerViewer extends ExtendedComposite {
 														executor);
 										ContextInjectionFactory.inject(console,
 												eclipseContext);
+										console.setContentAssistEnabled(true);
 										parent.getParent().layout(true, true);
 									}
 								});
@@ -428,8 +466,10 @@ public class TaskletManagerViewer extends ExtendedComposite {
 	}
 
 	private class UIContext {
+		TreeViewer treeViewer;
 		Button closeTaskButton;
 		Button showConsoleButton;
+		IAction deleteAction;
 		IWorkbenchWindow window;
 		IPerspectiveListener perspectiveListener;
 		EventHandler eventHandler;

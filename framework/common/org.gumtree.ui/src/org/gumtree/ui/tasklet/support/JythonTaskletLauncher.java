@@ -38,29 +38,28 @@ public class JythonTaskletLauncher implements ITaskletLauncher {
 						"jython");
 				IScriptExecutor scriptExecutor = new ScriptExecutor(
 						scriptEngine);
-				scriptExecutor.getEngine().put("activatedTasklet", activatedTasklet);
+				scriptExecutor.getEngine().put("activatedTasklet",
+						activatedTasklet);
 				activatedTasklet.getContext().put(IScriptExecutor.class,
 						scriptExecutor);
-				if (tasklet.isSimpleLayout()) {
-					// Import helper script
-					URI scriptURI = URI
-							.create("bundle://org.gumtree.ui/scripts/tasklet/SimpleRunner.py");
-					InputStream inputStream = getDataAccessManager().get(
-							scriptURI, InputStream.class);
-					InputStreamReader reader = new InputStreamReader(
-							inputStream);
-					scriptExecutor.runScript(reader);
 
-					// Import tasklet script
-					scriptURI = URI.create(tasklet.getContributionURI());
-					inputStream = getDataAccessManager().get(scriptURI,
-							InputStream.class);
-					reader = new InputStreamReader(inputStream);
-					scriptExecutor.runScript(reader);
-					
-					// Run
-					scriptExecutor.runScript("run()");
-				}
+				// Import helper script
+				URI scriptURI = URI
+						.create("bundle://org.gumtree.ui/scripts/tasklet/TaskletRunner.py");
+				InputStream inputStream = getDataAccessManager().get(scriptURI,
+						InputStream.class);
+				InputStreamReader reader = new InputStreamReader(inputStream);
+				scriptExecutor.runScript(reader);
+
+				// Import tasklet script
+				scriptURI = URI.create(tasklet.getContributionURI());
+				inputStream = getDataAccessManager().get(scriptURI,
+						InputStream.class);
+				reader = new InputStreamReader(inputStream);
+				scriptExecutor.runScript(reader);
+
+				// Run
+				scriptExecutor.runScript("__run__()");
 			}
 		});
 	}

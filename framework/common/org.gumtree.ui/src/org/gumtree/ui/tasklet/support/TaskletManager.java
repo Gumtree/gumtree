@@ -95,6 +95,8 @@ public class TaskletManager implements ITaskletManager {
 		// Notify
 		new EventBuilder(EVENT_TASKLET_REGISTRAION_REMOVED).append("tasklet",
 				tasklet).post();
+		// Persist
+		persistor.removeTasklet(tasklet);
 	}
 
 	@Override
