@@ -14,12 +14,10 @@ from time import sleep
 
 __mPerspectiveStack__ = None
 __mPerspective__ = None
-__mPart__ = None
 __perspectiveDesc__ = None
-__parentComposite__ = None
 
 ###############################################################################
-# Helper class
+# Helper class and functions
 ###############################################################################
 
 class FunctionRunnable(SafeRunnable):
@@ -38,64 +36,76 @@ def runUIFunction(function, context=None):
     runnable = FunctionRunnable(function, context)
     SafeUIRunner.asyncExec(runnable)
 
+def createPart(function, parent, label):
+    mPart = MBasicFactory.INSTANCE.createPart()
+    mPart.setLabel(label)
+    mPart.setContributionURI('bundleclass://org.gumtree.ui/org.gumtree.ui.tasklet.support.DefaultPart')
+    parent.getChildren().add(mPart)
+    while mPart.getWidget() == None:
+        sleep(0.1)
+    runUIFunction(function, mPart.getWidget())
+    return mPart
+
+def refreshUI():
+    def refresh():
+        global __mPerspective__
+        __mPerspective__.getWidget().layout(True, True)
+    runUIFunction(refresh)
+
 ###############################################################################
 # UI thread helper functions
 ###############################################################################
 
 def __prepareUI__():
-    global __mPerspectiveStack__
-    __mPerspectiveStack__ = WorkbenchUtils.getActiveMPerspectiveStack()
+    global __perspectiveDesc__
     originalPerspective = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getPerspective()
     perspectiveRegistry = PlatformUI.getWorkbench().getPerspectiveRegistry()
-    global __perspectiveDesc__
-    __perspectiveDesc__ = perspectiveRegistry.createPerspective('Test', originalPerspective)
+    __perspectiveDesc__ = perspectiveRegistry.createPerspective('tasklet', originalPerspective)
+    activatedTasklet = __getActivateTasklet__()
+    if not activatedTasklet == None:
+        if activatedTasklet.getTasklet().isNewWindow():
+            WorkbenchUtils.openEmptyWorkbenchWindow()
+    global __mPerspectiveStack__
+    __mPerspectiveStack__ = WorkbenchUtils.getActiveMPerspectiveStack()
     
-def __getPartWidget__():
-    global __mPart__
-    global __parentComposite__
-    __parentComposite__ = __mPart__.getWidget()
-
-def __refresh__():
-    global __parentComposite__
-    __parentComposite__.layout(True, True)
-
 ###############################################################################
 # Non UI thread helper functions
 ###############################################################################
 
-def __createParentComposite__():
-    # Create model
-    global __mPart__
-    __mPart__ = MBasicFactory.INSTANCE.createPart()
-    activatedTasklet = __executor__.getEngine().get('activatedTasklet')
-    tasklet = activatedTasklet.getTasklet()
+def __getActivateTasklet__():
+    return __executor__.getEngine().get('activatedTasklet')
+
+def __createSinglePart__(mPerspective, createWidgetFunction):
+    label = 'Part'
+    activatedTasklet = __getActivateTasklet__()
     if not activatedTasklet == None:
-        __mPart__.setLabel(activatedTasklet.getTasklet().getLabel())
-    __mPart__.setContributionURI('bundleclass://org.gumtree.ui/org.gumtree.ui.tasklet.support.DefaultPart')
-    global __mPerspective__
-    __mPerspective__.getChildren().add(__mPart__)
-    # Get part widget
-    runUIFunction(__getPartWidget__)
-    while __parentComposite__ == None:
-        sleep(0.1)
+        label = activatedTasklet.getTasklet().getLabel()
+    mPart = createPart(createWidgetFunction, mPerspective, label)
     # Register parent to tasklet
     if not activatedTasklet == None:
-        activatedTasklet.setParentComposite(__parentComposite__)
+        activatedTasklet.setParentComposite(mPart.getWidget())
 
+def __createPerspective__(mPerspective):
+    create(__mPerspective__)
+    activatedTasklet = __getActivateTasklet__()
+    if not activatedTasklet == None:
+        activatedTasklet.setParentComposite(__mPerspective__.getWidget())
+    
 ###############################################################################
-# Main helper function
+# Main function
 ###############################################################################
 
 def __run__():
     # Prepare UI
     runUIFunction(__prepareUI__)
+    global __mPerspectiveStack__
+    global __perspectiveDesc__
     while __mPerspectiveStack__ == None:
         sleep(0.1)
     # Create model
     global __mPerspective__
-    global __perspectiveDesc__
     __mPerspective__ = MAdvancedFactory.INSTANCE.createPerspective()
-    activatedTasklet = __executor__.getEngine().get('activatedTasklet')
+    activatedTasklet = __getActivateTasklet__()
     if not activatedTasklet == None:
         __mPerspective__.setLabel(activatedTasklet.getLabel());
         __mPerspective__.getProperties().put('id', activatedTasklet.getId())
@@ -106,10 +116,8 @@ def __run__():
     __mPerspectiveStack__.setSelectedElement(__mPerspective__)
     if not activatedTasklet == None:
         if activatedTasklet.getTasklet().isSimpleLayout():
-            __createParentComposite__()
-            # Use script
-            runUIFunction(create, __parentComposite__)
-            # Refresh
-            runUIFunction(__refresh__)
+            __createSinglePart__(__mPerspective__, create)
         else:
-            runUIFunction(create, __mPerspective__)
+            __createPerspective__(__mPerspective__)
+    # Refresh UI
+    refreshUI()

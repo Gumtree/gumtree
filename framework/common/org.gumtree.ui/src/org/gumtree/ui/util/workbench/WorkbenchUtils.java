@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map.Entry;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.ui.MContext;
@@ -16,6 +17,7 @@ import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.window.ApplicationWindow;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.WorkbenchException;
 import org.gumtree.ui.internal.Activator;
 import org.gumtree.util.collection.IMapFilter;
 
@@ -58,6 +60,17 @@ public final class WorkbenchUtils {
 			return processor.getEclipseContext();
 		}
 		return null;
+	}
+
+	public static IWorkbenchWindow openEmptyWorkbenchWindow()
+			throws WorkbenchException {
+		IAdaptable input = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+				.getActivePage().getInput();
+		IWorkbenchWindow window = PlatformUI.getWorkbench()
+				.openWorkbenchWindow(input);
+		window.getActivePage().closePerspective(
+				window.getActivePage().getPerspective(), false, false);
+		return window;
 	}
 
 	public static MApplication getMApplication() {

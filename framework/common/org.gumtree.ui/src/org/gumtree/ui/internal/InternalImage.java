@@ -53,7 +53,11 @@ public enum InternalImage {
 	FOLDER_16("icons/tasklet/fldr_obj.gif"),
 	TASKLET_16("icons/tasklet/default_persp.gif"),
 	HIERARCHY_16("icons/tasklet/hierarchicalLayout.gif"),
-	ADD_TASKLET_16("icons/tasklet/add_exc.gif");
+	ADD_TASKLET_16("icons/tasklet/add_exc.gif"),
+	DELETE_EDIT_16("icons/tasklet/delete_edit.gif"),
+	SETTING_16("icons/tasklet/prefs_misc.gif"),
+	EDIT_16("icons/tasklet/editor_area.gif"),
+	RUN_16("icons/tasklet/run_exec.gif");
 	
 	private InternalImage(String path) {
 		this.path = path;

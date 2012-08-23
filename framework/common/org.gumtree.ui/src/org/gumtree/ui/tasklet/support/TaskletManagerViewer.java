@@ -1,12 +1,15 @@
 package org.gumtree.ui.tasklet.support;
 
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -15,19 +18,18 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
-import org.eclipse.e4.core.di.extensions.EventTopic;
 import org.eclipse.e4.ui.model.application.ui.advanced.MPerspective;
 import org.eclipse.e4.ui.model.application.ui.basic.MBasicFactory;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.model.application.ui.basic.MPartSashContainer;
 import org.eclipse.e4.ui.model.application.ui.basic.MPartSashContainerElement;
 import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
-import org.eclipse.e4.ui.workbench.UIEvents;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -56,10 +58,11 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveListener;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PerspectiveAdapter;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.EditorInputTransfer;
 import org.eclipse.ui.part.EditorInputTransfer.EditorInputData;
 import org.eclipse.ui.part.FileEditorInput;
@@ -82,11 +85,16 @@ import org.gumtree.ui.widgets.ExtendedComposite;
 import org.gumtree.util.collection.IMapFilter;
 import org.gumtree.util.messaging.EventHandler;
 import org.osgi.service.event.Event;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.lambdaj.collection.LambdaCollections;
 
 @SuppressWarnings("restriction")
 public class TaskletManagerViewer extends ExtendedComposite {
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(TaskletManagerViewer.class);
 
 	private ITaskletManager taskletManager;
 
@@ -203,9 +211,58 @@ public class TaskletManagerViewer extends ExtendedComposite {
 			public void menuAboutToShow(IMenuManager manager) {
 				IStructuredSelection selections = (IStructuredSelection) context.treeViewer
 						.getSelection();
+				if (context.runAction == null) {
+					context.runAction = new Action("Run Task",
+							InternalImage.RUN_16.getDescriptor()) {
+						public void run() {
+							IStructuredSelection selections = (IStructuredSelection) context.treeViewer
+									.getSelection();
+							ITasklet tasklet = ((TaskletTreeNode) selections
+									.getFirstElement()).getTasklet();
+							handleTaskletActivation(tasklet);
+						}
+					};
+				}
+				if (context.settingAction == null) {
+					context.settingAction = new Action("Settings...",
+							InternalImage.SETTING_16.getDescriptor()) {
+						public void run() {
+							IStructuredSelection selections = (IStructuredSelection) context.treeViewer
+									.getSelection();
+							ITasklet tasklet = ((TaskletTreeNode) selections
+									.getFirstElement()).getTasklet();
+							handleLaunchTaskletSettingDialog(tasklet);
+						}
+					};
+				}
+				if (context.editAction == null) {
+					context.editAction = new Action("Edit Script",
+							InternalImage.EDIT_16.getDescriptor()) {
+						public void run() {
+							IStructuredSelection selections = (IStructuredSelection) context.treeViewer
+									.getSelection();
+							ITasklet tasklet = ((TaskletTreeNode) selections
+									.getFirstElement()).getTasklet();
+							String uri = tasklet.getContributionURI();
+							IFileStore fileStore = EFS.getLocalFileSystem()
+									.getStore(URI.create(uri));
+							IWorkbenchPage page = PlatformUI.getWorkbench()
+									.getActiveWorkbenchWindow().getActivePage();
+
+							try {
+								if (fileStore != null) {
+									IDE.openEditorOnFileStore(page, fileStore);
+								}
+							} catch (PartInitException e) {
+								logger.error("Failed to open " + uri
+										+ " in IDE", e);
+							}
+						}
+					};
+				}
 				if (context.deleteAction == null) {
 					context.deleteAction = new Action("Remove task",
-							InternalImage.DELETE_16.getDescriptor()) {
+							InternalImage.DELETE_EDIT_16.getDescriptor()) {
 						public void run() {
 							IStructuredSelection selections = (IStructuredSelection) context.treeViewer
 									.getSelection();
@@ -220,6 +277,11 @@ public class TaskletManagerViewer extends ExtendedComposite {
 					};
 				}
 				if (selections.size() >= 1) {
+					manager.add(context.runAction);
+					manager.add(new Separator());
+					manager.add(context.settingAction);
+					manager.add(context.editAction);
+					manager.add(new Separator());
 					manager.add(context.deleteAction);
 				}
 			}
@@ -237,18 +299,14 @@ public class TaskletManagerViewer extends ExtendedComposite {
 					MPerspective mPerspective = WorkbenchUtils
 							.getActivePerspective();
 					if (mPerspective.getProperties().containsKey("id")) {
-						context.closeTaskButton.setEnabled(true);
+						if (page.getSortedPerspectives().length > 1) {
+							context.closeTaskButton.setEnabled(true);
+						}
 						context.showConsoleButton.setEnabled(true);
 					} else {
 						context.closeTaskButton.setEnabled(false);
 						context.showConsoleButton.setEnabled(false);
 					}
-				}
-
-				public void perspectiveChanged(IWorkbenchPage page,
-						IPerspectiveDescriptor perspective,
-						IWorkbenchPartReference partRef, String changeId) {
-					System.out.println("Closed");
 				}
 			};
 			context.window.addPerspectiveListener(context.perspectiveListener);
@@ -288,12 +346,6 @@ public class TaskletManagerViewer extends ExtendedComposite {
 	 * Event handlers
 	 *************************************************************************/
 
-	@Inject
-	public void handlePerspectiveChange(
-			@EventTopic(UIEvents.UILifeCycle.PERSPECTIVE_OPENED) Object data) {
-		System.out.println(data);
-	}
-
 	/*************************************************************************
 	 * Components
 	 *************************************************************************/
@@ -320,16 +372,22 @@ public class TaskletManagerViewer extends ExtendedComposite {
 	 *************************************************************************/
 
 	private void handleLaunchAddTaskletDialog(String contributionUri) {
-		AddTaskletDialog dialog = new AddTaskletDialog(getShell());
+		TaskletSettingDialog dialog = new TaskletSettingDialog(getShell());
 		dialog.setContributionUri(contributionUri);
+		dialog.setTaskletRegistry(getTaskletManager());
+		dialog.open();
+	}
+
+	private void handleLaunchTaskletSettingDialog(ITasklet tasklet) {
+		TaskletSettingDialog dialog = new TaskletSettingDialog(getShell());
+		dialog.setTasklet(tasklet);
 		dialog.setTaskletRegistry(getTaskletManager());
 		dialog.open();
 	}
 
 	private void handleTaskletActivation(ITasklet tasklet) {
 		// Activate tasklet
-		IActivatedTasklet activatedTasklet = getTaskletManager()
-				.activatedTasklet(tasklet);
+		getTaskletManager().activatedTasklet(tasklet);
 	}
 
 	private void handleCreateConsole() {
@@ -470,6 +528,9 @@ public class TaskletManagerViewer extends ExtendedComposite {
 		Button closeTaskButton;
 		Button showConsoleButton;
 		IAction deleteAction;
+		IAction settingAction;
+		IAction editAction;
+		IAction runAction;
 		IWorkbenchWindow window;
 		IPerspectiveListener perspectiveListener;
 		EventHandler eventHandler;

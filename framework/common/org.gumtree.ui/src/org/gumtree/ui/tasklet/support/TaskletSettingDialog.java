@@ -21,15 +21,17 @@ import org.eclipse.swt.widgets.Text;
 import org.gumtree.ui.tasklet.ITasklet;
 import org.gumtree.ui.tasklet.ITaskletManager;
 
-public class AddTaskletDialog extends Dialog {
+public class TaskletSettingDialog extends Dialog {
 
 	private String contributionUri;
 
 	private ITaskletManager taskletRegistry;
 
 	private UIContext context;
+	
+	private ITasklet tasklet;
 
-	public AddTaskletDialog(Shell parentShell) {
+	public TaskletSettingDialog(Shell parentShell) {
 		super(parentShell);
 		context = new UIContext();
 	}
@@ -42,8 +44,12 @@ public class AddTaskletDialog extends Dialog {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText("Label: ");
 		context.labelText = new Text(composite, SWT.BORDER);
-		context.labelText.setText("New Task");
-		context.labelText.selectAll();
+		if (getTasklet() != null  && getTasklet().getLabel() != null) {
+			context.labelText.setText(getTasklet().getLabel());
+		} else {
+			context.labelText.setText("New Task");
+			context.labelText.selectAll();
+		}
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).hint(350, SWT.DEFAULT).span(2, 1)
 				.applyTo(context.labelText);
@@ -52,6 +58,11 @@ public class AddTaskletDialog extends Dialog {
 		label = new Label(composite, SWT.NONE);
 		label.setText("Tags: ");
 		context.tagsText = new Text(composite, SWT.BORDER);
+		if (getTasklet() != null && getTasklet().getTags() != null) {
+			context.tagsText.setText(getTasklet().getTags());
+		} else {
+			context.tagsText.setText("");
+		}
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).span(2, 1).applyTo(context.tagsText);
 
@@ -59,8 +70,12 @@ public class AddTaskletDialog extends Dialog {
 		label = new Label(composite, SWT.NONE);
 		label.setText("Script: ");
 		context.scriptText = new Text(composite, SWT.BORDER);
-		if (getContributionUri() != null) {
-			context.scriptText.setText(getContributionUri());
+		if (getTasklet() != null) {
+			context.scriptText.setText(getTasklet().getContributionURI());
+		} else {
+			if (getContributionUri() != null) {
+				context.scriptText.setText(getContributionUri());
+			}
 		}
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(context.scriptText);
@@ -86,18 +101,29 @@ public class AddTaskletDialog extends Dialog {
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(layoutGroup);
 		context.simpleLayoutButton = new Button(layoutGroup, SWT.RADIO);
 		context.simpleLayoutButton.setText("Simple");
-		context.simpleLayoutButton.setSelection(true);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(context.simpleLayoutButton);
 		context.advancedLayoutButton = new Button(layoutGroup, SWT.RADIO);
 		context.advancedLayoutButton.setText("Advanced");
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(context.advancedLayoutButton);
-
+		if (getTasklet() != null) {
+			if (getTasklet().isSimpleLayout()) {
+				context.simpleLayoutButton.setSelection(true);
+			} else {
+				context.advancedLayoutButton.setSelection(true);
+			}
+		} else {
+			context.simpleLayoutButton.setSelection(true);
+		}
+		
 		// New window option
 		context.startNewWindowButton = new Button(composite, SWT.CHECK);
 		context.startNewWindowButton
 				.setText(" Always start task in new window");
+		if (getTasklet() != null) {
+			context.startNewWindowButton.setSelection(getTasklet().isNewWindow());
+		}
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, true).span(3, 1)
 				.applyTo(context.startNewWindowButton);
@@ -130,6 +156,9 @@ public class AddTaskletDialog extends Dialog {
 	protected void okPressed() {
 		// Prepare new tasklet
 		if (getTaskletRegistry() != null) {
+			if (getTasklet() != null) {
+				getTaskletRegistry().removeTasklet(tasklet);
+			}
 			ITasklet tasklet = new Tasklet();
 			tasklet.setLabel(context.labelText.getText());
 			tasklet.setTags(context.tagsText.getText());
@@ -153,6 +182,14 @@ public class AddTaskletDialog extends Dialog {
 		this.contributionUri = contributionUri;
 	}
 
+	public ITasklet getTasklet() {
+		return tasklet;
+	}
+	
+	public void setTasklet(ITasklet tasklet) {
+		this.tasklet = tasklet;
+	}
+	
 	public ITaskletManager getTaskletRegistry() {
 		return taskletRegistry;
 	}
@@ -179,7 +216,7 @@ public class AddTaskletDialog extends Dialog {
 		Shell shell = new Shell(display);
 		shell.setLayout(new FillLayout());
 
-		AddTaskletDialog dialog = new AddTaskletDialog(shell);
+		TaskletSettingDialog dialog = new TaskletSettingDialog(shell);
 		dialog.open();
 
 		display.dispose();
