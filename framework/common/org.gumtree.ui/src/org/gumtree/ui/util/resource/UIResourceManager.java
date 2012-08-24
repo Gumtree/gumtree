@@ -12,6 +12,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Control;
+import org.gumtree.ui.internal.Activator;
 
 public class UIResourceManager extends ResourceManager {
 
@@ -19,6 +20,14 @@ public class UIResourceManager extends ResourceManager {
 
 	private LocalResourceManager manager;
 
+	public UIResourceManager() {
+		this(Activator.PLUGIN_ID);
+	}
+	
+	public UIResourceManager(Control owner) {
+		this(Activator.PLUGIN_ID, owner);
+	}
+	
 	public UIResourceManager(String pluginId) {
 		manager = new LocalResourceManager(JFaceResources.getResources());
 		this.pluginId = pluginId;
