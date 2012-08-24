@@ -156,16 +156,20 @@ public class TaskletSettingDialog extends Dialog {
 	protected void okPressed() {
 		// Prepare new tasklet
 		if (getTaskletRegistry() != null) {
-			if (getTasklet() != null) {
-				getTaskletRegistry().removeTasklet(tasklet);
+			ITasklet tasklet = getTasklet();
+			if (tasklet == null) {
+				tasklet = new Tasklet();
 			}
-			ITasklet tasklet = new Tasklet();
 			tasklet.setLabel(context.labelText.getText());
 			tasklet.setTags(context.tagsText.getText());
 			tasklet.setContributionURI(context.scriptText.getText());
 			tasklet.setSimpleLayout(context.simpleLayoutButton.getSelection());
 			tasklet.setNewWindow(context.startNewWindowButton.getSelection());
-			getTaskletRegistry().addTasklet(tasklet);
+			if (getTasklet() != null) {
+				getTaskletRegistry().updateTasklet(tasklet);	
+			} else {
+				getTaskletRegistry().addTasklet(tasklet);
+			}
 		}
 		super.okPressed();
 	}

@@ -463,6 +463,22 @@ public class TaskletManagerViewer extends ExtendedComposite {
 		return LambdaCollections.with(treeNodes).toArray(ITreeNode.class);
 	}
 
+	public class TagTreeNode extends TreeNode {
+		private String tag;
+		
+		public TagTreeNode(String tag) {
+			this.tag = tag;
+		}
+		
+		public String getText() {
+			return tag;
+		}
+		
+		public Image getImage() {
+			return InternalImage.FOLDER_16.getImage();
+		}
+	}
+	
 	public class TaskletTreeNode extends TreeNode {
 		private ITasklet tasklet;
 

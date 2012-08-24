@@ -12,11 +12,15 @@ public interface ITaskletManager extends IService {
 	
 	public static final String EVENT_TASKLET_REGISTRAION_REMOVED = "org/gumtree/ui/tasklet/registration/removed";
 	
+	public static final String EVENT_TASKLET_REGISTRAION_UPDATED = "org/gumtree/ui/tasklet/registration/updated";
+	
 	public static final String EVENT_TASKLET_ACTIVATED = "org/gumtree/ui/tasklet/activated";
 	
 	public void addTasklet(ITasklet tasklet);
 	
 	public void removeTasklet(ITasklet tasklet);
+	
+	public void updateTasklet(ITasklet tasklet);
 	
 	public List<ITasklet> getTasklets();
 	

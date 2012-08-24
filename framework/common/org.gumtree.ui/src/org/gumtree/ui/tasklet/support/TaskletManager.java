@@ -99,6 +99,20 @@ public class TaskletManager implements ITaskletManager {
 		persistor.removeTasklet(tasklet);
 	}
 
+	public void updateTasklet(ITasklet tasklet) {
+		if (tasklets.contains(tasklet)) {
+			// Notify
+			new EventBuilder(EVENT_TASKLET_REGISTRAION_UPDATED).append("tasklet",
+					tasklet).post();
+			// Persist
+			try {
+				persistor.saveTasklet(tasklet);
+			} catch (Exception e) {
+				logger.error("Failed to save tasklet: " + tasklet.getLabel());
+			}
+		}
+	}
+	
 	@Override
 	public List<ITasklet> getTasklets() {
 		return Collections.unmodifiableList(tasklets);

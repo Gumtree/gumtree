@@ -43,7 +43,12 @@ def createPart(function, parent, label):
     parent.getChildren().add(mPart)
     while mPart.getWidget() == None:
         sleep(0.1)
-    runUIFunction(function, mPart.getWidget())
+    def prepareWidget(widget):
+        # Remove composite from DefaultPart
+        widget.getChildren()[0].dispose()
+        # Construct widget from function
+        function(widget)
+    runUIFunction(prepareWidget, mPart.getWidget())
     return mPart
 
 def refreshUI():
