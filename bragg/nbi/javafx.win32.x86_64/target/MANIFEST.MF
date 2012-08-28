@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-Vendor: Oracle
+Fragment-Host: javafx;bundle-version="2.2.0"
+Eclipse-BundleShape: jar
+Bundle-Version: 2.2.0.201208280220
+Eclipse-PlatformFilter: (& (osgi.os=win32) (osgi.arch=x86_64))
+Bundle-Name: JavaFX Win32 x86_64
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: javafx.win32.x86_64
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+
