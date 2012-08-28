@@ -1249,7 +1249,11 @@ public class ScriptControlViewer extends Composite {
 	public IScriptExecutor getScriptExecutor() {
 		ScriptPageRegister register = ScriptPageRegister.getRegister(scriptRegisterID);
 		if (register != null) {
-			return register.getConsoleViewer().getScriptExecutor();
+			if (register.getScriptExecutor() != null) {
+				return register.getScriptExecutor();
+			} else {
+				return register.getConsoleViewer().getScriptExecutor();
+			}
 		}
 		return null;
 	}

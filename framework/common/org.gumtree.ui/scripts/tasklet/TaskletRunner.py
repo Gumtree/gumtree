@@ -36,10 +36,11 @@ def runUIFunction(function, context=None):
     runnable = FunctionRunnable(function, context)
     SafeUIRunner.asyncExec(runnable)
 
-def createPart(function, parent, label):
+def createPart(function, parent, label, containerData='1000'):
     mPart = MBasicFactory.INSTANCE.createPart()
     mPart.setLabel(label)
     mPart.setContributionURI('bundleclass://org.gumtree.ui/org.gumtree.ui.tasklet.support.DefaultPart')
+    mPart.setContainerData(containerData)
     parent.getChildren().add(mPart)
     while mPart.getWidget() == None:
         sleep(0.1)

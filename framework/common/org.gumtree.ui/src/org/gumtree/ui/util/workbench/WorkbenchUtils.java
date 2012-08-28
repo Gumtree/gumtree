@@ -12,7 +12,9 @@ import org.eclipse.e4.ui.model.application.ui.MElementContainer;
 import org.eclipse.e4.ui.model.application.ui.MUIElement;
 import org.eclipse.e4.ui.model.application.ui.advanced.MPerspective;
 import org.eclipse.e4.ui.model.application.ui.advanced.MPerspectiveStack;
+import org.eclipse.e4.ui.model.application.ui.advanced.MPlaceholder;
 import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
+import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.window.ApplicationWindow;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -104,6 +106,12 @@ public final class WorkbenchUtils {
 
 	public static MPerspective getActivePerspective() {
 		return getActiveMPerspectiveStack().getSelectedElement();
+	}
+
+	public static MPlaceholder creatView(String viewId) {
+		EPartService partService = WorkbenchUtils.getWorkbenchContext().get(
+				EPartService.class);
+		return partService.createSharedPart(viewId);
 	}
 
 	@SuppressWarnings("unchecked")
