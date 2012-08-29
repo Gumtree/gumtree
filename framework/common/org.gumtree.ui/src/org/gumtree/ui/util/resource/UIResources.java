@@ -13,6 +13,7 @@ package org.gumtree.ui.util.resource;
 
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Display;
@@ -22,6 +23,10 @@ public final class UIResources {
 
 	private static UIResourceManager manager;
 
+	public static Color getSystemColor(int color) {
+		return ((Display) getManager().getDevice()).getSystemColor(color);
+	}
+	
 	public static Font getDefaultFont() {
 		return JFaceResources.getDefaultFont();
 	}

@@ -160,6 +160,9 @@ public final class StringUtils {
 	}
 	
 	public static List<String> split(String string, String separator, boolean trim) {
+		if (string == null) {
+			return new ArrayList<String>(0);
+		}
 		Iterator<String> iterator = Splitter.on(separator).split(string).iterator();
 		List<String> list = new ArrayList<String>(2);
 		while (iterator.hasNext()) {

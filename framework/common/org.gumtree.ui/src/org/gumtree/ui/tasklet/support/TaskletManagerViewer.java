@@ -3,7 +3,9 @@ package org.gumtree.ui.tasklet.support;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -80,10 +82,14 @@ import org.gumtree.ui.util.jface.ITreeNode;
 import org.gumtree.ui.util.jface.TreeContentProvider;
 import org.gumtree.ui.util.jface.TreeLabelProvider;
 import org.gumtree.ui.util.jface.TreeNode;
+import org.gumtree.ui.util.resource.SharedImage;
+import org.gumtree.ui.util.resource.UIResourceManager;
+import org.gumtree.ui.util.resource.UIResources;
 import org.gumtree.ui.util.workbench.WorkbenchUtils;
 import org.gumtree.ui.widgets.ExtendedComposite;
 import org.gumtree.util.collection.IMapFilter;
 import org.gumtree.util.messaging.EventHandler;
+import org.gumtree.util.string.StringUtils;
 import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,12 +116,17 @@ public class TaskletManagerViewer extends ExtendedComposite {
 	@PostConstruct
 	public void render() {
 		context = new UIContext();
+		context.resourceManager = new UIResourceManager(Activator.PLUGIN_ID,
+				this);
+		Image backgroundImage = SharedImage.CRUISE_BG.getImage();
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(this);
+		setBackgroundImage(SharedImage.CRUISE_BG.getImage());
 
 		// Create tool area
 		Button addButton = getWidgetFactory().createButton(this, "", SWT.PUSH);
 		addButton.setToolTipText("Add new tasklet");
 		addButton.setImage(InternalImage.ADD_TASKLET_16.getImage());
+		addButton.setBackgroundImage(backgroundImage);
 		addButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -123,11 +134,22 @@ public class TaskletManagerViewer extends ExtendedComposite {
 			}
 		});
 
-		Button hierarchyDisplayButton = getWidgetFactory().createButton(this,
+		context.hierarchyDisplayButton = getWidgetFactory().createButton(this,
 				"", SWT.TOGGLE);
-		hierarchyDisplayButton.setImage(InternalImage.HIERARCHY_16.getImage());
+		context.hierarchyDisplayButton.setImage(InternalImage.HIERARCHY_16
+				.getImage());
+		context.hierarchyDisplayButton.setBackgroundImage(backgroundImage);
+		context.hierarchyDisplayButton
+				.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						context.treeViewer.setInput(createTreeNode("",
+								context.hierarchyDisplayButton.getSelection()));
+					}
+				});
 
 		Text searchText = getWidgetFactory().createText(this, "", SWT.SEARCH);
+		searchText.setBackgroundImage(backgroundImage);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(searchText);
 
@@ -136,6 +158,11 @@ public class TaskletManagerViewer extends ExtendedComposite {
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL)
 				.grab(true, true).span(3, 1)
 				.applyTo(context.treeViewer.getControl());
+		context.treeViewer.getTree().setBackgroundImage(backgroundImage);
+		context.treeViewer.getTree().setForeground(
+				UIResources.getSystemColor(SWT.COLOR_WHITE));
+		context.treeViewer.getTree().setFont(
+				context.resourceManager.createDefaultFont(12, SWT.NONE));
 		context.treeViewer.setContentProvider(new TreeContentProvider());
 		context.treeViewer.setLabelProvider(new TreeLabelProvider());
 		context.treeViewer.getTree().addMouseListener(new MouseAdapter() {
@@ -150,11 +177,13 @@ public class TaskletManagerViewer extends ExtendedComposite {
 				}
 			}
 		});
-		context.treeViewer.setInput(createTreeNode("", false));
+		context.treeViewer.setInput(createTreeNode("",
+				context.hierarchyDisplayButton.getSelection()));
 
 		// Close button
 		context.closeTaskButton = getWidgetFactory().createButton(this,
 				"Close Task", SWT.PUSH);
+		context.closeTaskButton.setBackgroundImage(backgroundImage);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).span(3, 1).applyTo(context.closeTaskButton);
 		context.closeTaskButton.addSelectionListener(new SelectionAdapter() {
@@ -171,6 +200,7 @@ public class TaskletManagerViewer extends ExtendedComposite {
 		// Launch console button
 		context.showConsoleButton = getWidgetFactory().createButton(this,
 				"Toggle Console", SWT.PUSH);
+		context.showConsoleButton.setBackgroundImage(backgroundImage);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).span(3, 1)
 				.applyTo(context.showConsoleButton);
@@ -272,7 +302,8 @@ public class TaskletManagerViewer extends ExtendedComposite {
 												.getTasklet());
 							}
 							context.treeViewer.setInput(createTreeNode("",
-									false));
+									context.hierarchyDisplayButton
+											.getSelection()));
 						}
 					};
 				}
@@ -321,7 +352,8 @@ public class TaskletManagerViewer extends ExtendedComposite {
 				SafeUIRunner.asyncExec(new SafeRunnable() {
 					@Override
 					public void run() throws Exception {
-						context.treeViewer.setInput(createTreeNode("", false));
+						context.treeViewer.setInput(createTreeNode("",
+								context.hierarchyDisplayButton.getSelection()));
 					}
 				});
 			}
@@ -457,28 +489,65 @@ public class TaskletManagerViewer extends ExtendedComposite {
 
 	protected ITreeNode[] createTreeNode(String filter, boolean isHierarchical) {
 		List<ITreeNode> treeNodes = new ArrayList<ITreeNode>(2);
-		for (ITasklet tasklet : getTaskletManager().getTasklets()) {
-			treeNodes.add(new TaskletTreeNode(tasklet));
+		if (isHierarchical) {
+			Map<String, TagTreeNode> tagMap = new HashMap<String, TagTreeNode>(
+					2);
+			for (ITasklet tasklet : getTaskletManager().getTasklets()) {
+				for (String tag : StringUtils.split(tasklet.getTags(), ",")) {
+					TagTreeNode tagNode = tagMap.get(tag);
+					if (tagMap.get(tag) == null) {
+						tagNode = new TagTreeNode(tag);
+						tagMap.put(tag, tagNode);
+						treeNodes.add(tagNode);
+					}
+					tagNode.getChildrenList().add(new TaskletTreeNode(tasklet));
+				}
+				if (StringUtils.isEmpty(tasklet.getTags())) {
+					TagTreeNode tagNode = tagMap.get("Others");
+					if (tagMap.get("Others") == null) {
+						tagNode = new TagTreeNode("Others");
+						tagMap.put("Others", tagNode);
+						treeNodes.add(tagNode);
+					}
+					tagNode.getChildrenList().add(new TaskletTreeNode(tasklet));
+				}
+			}
+		} else {
+			for (ITasklet tasklet : getTaskletManager().getTasklets()) {
+				treeNodes.add(new TaskletTreeNode(tasklet));
+			}
 		}
 		return LambdaCollections.with(treeNodes).toArray(ITreeNode.class);
 	}
 
 	public class TagTreeNode extends TreeNode {
 		private String tag;
-		
+
+		private List<ITreeNode> children;
+
 		public TagTreeNode(String tag) {
 			this.tag = tag;
+			children = new ArrayList<ITreeNode>(2);
 		}
-		
+
 		public String getText() {
 			return tag;
 		}
-		
+
 		public Image getImage() {
 			return InternalImage.FOLDER_16.getImage();
 		}
+
+		public List<ITreeNode> getChildrenList() {
+			return children;
+		}
+
+		public ITreeNode[] getChildren() {
+			return LambdaCollections.with(getChildrenList()).toArray(
+					ITreeNode.class);
+		}
 	}
-	
+
 	public class TaskletTreeNode extends TreeNode {
 		private ITasklet tasklet;
 
@@ -540,7 +609,9 @@ public class TaskletManagerViewer extends ExtendedComposite {
 	}
 
 	private class UIContext {
+		UIResourceManager resourceManager;
 		TreeViewer treeViewer;
+		Button hierarchyDisplayButton;
 		Button closeTaskButton;
 		Button showConsoleButton;
 		IAction deleteAction;

@@ -20,21 +20,13 @@ __perspectiveDesc__ = None
 # Helper class and functions
 ###############################################################################
 
-class FunctionRunnable(SafeRunnable):
-    
-    def __init__(self, function, context=None):
-        self.function = function
-        self.context = context
-        
-    def run(self):
-        if (self.context == None):
-            self.function()
-        else:
-            self.function(self.context)
-
-def runUIFunction(function, context=None):
-    runnable = FunctionRunnable(function, context)
-    SafeUIRunner.asyncExec(runnable)
+def swtFunction(function):
+    def internalRun(*args, **kwargs):
+        class Runnable(SafeRunnable):
+            def run(self):
+                function(*args, **kwargs)
+        SafeUIRunner.asyncExec(Runnable())
+    return internalRun
 
 def createPart(function, parent, label, containerData='1000'):
     mPart = MBasicFactory.INSTANCE.createPart()
@@ -44,24 +36,25 @@ def createPart(function, parent, label, containerData='1000'):
     parent.getChildren().add(mPart)
     while mPart.getWidget() == None:
         sleep(0.1)
+    @swtFunction
     def prepareWidget(widget):
         # Remove composite from DefaultPart
         widget.getChildren()[0].dispose()
         # Construct widget from function
         function(widget)
-    runUIFunction(prepareWidget, mPart.getWidget())
+    prepareWidget(mPart.getWidget())
     return mPart
 
+@swtFunction
 def refreshUI():
-    def refresh():
-        global __mPerspective__
-        __mPerspective__.getWidget().layout(True, True)
-    runUIFunction(refresh)
+    global __mPerspective__
+    __mPerspective__.getWidget().layout(True, True)
 
 ###############################################################################
-# UI thread helper functions
+# Internal helper functions
 ###############################################################################
 
+@swtFunction
 def __prepareUI__():
     global __perspectiveDesc__
     originalPerspective = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getPerspective()
@@ -73,10 +66,6 @@ def __prepareUI__():
             WorkbenchUtils.openEmptyWorkbenchWindow()
     global __mPerspectiveStack__
     __mPerspectiveStack__ = WorkbenchUtils.getActiveMPerspectiveStack()
-    
-###############################################################################
-# Non UI thread helper functions
-###############################################################################
 
 def __getActivateTasklet__():
     return __executor__.getEngine().get('activatedTasklet')
@@ -103,7 +92,7 @@ def __createPerspective__(mPerspective):
 
 def __run__():
     # Prepare UI
-    runUIFunction(__prepareUI__)
+    __prepareUI__()
     global __mPerspectiveStack__
     global __perspectiveDesc__
     while __mPerspectiveStack__ == None:
