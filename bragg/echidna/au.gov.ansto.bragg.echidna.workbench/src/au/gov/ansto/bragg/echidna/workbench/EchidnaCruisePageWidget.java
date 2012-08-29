@@ -48,7 +48,7 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 		ShutterStatusWidget shutterStatuswidget = new ShutterStatusWidget(
 				shutterGroup, SWT.NONE);
 		configureWidget(shutterStatuswidget);
-		shutterStatuswidget.render();
+//		shutterStatuswidget.render();
 
 		// Experiment info
 		PGroup infoGroup = createGroup("EXPERIMENT INFO",

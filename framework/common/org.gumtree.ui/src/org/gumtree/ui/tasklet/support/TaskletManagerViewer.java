@@ -143,7 +143,6 @@ public class TaskletManagerViewer extends ExtendedComposite {
 		context.hierarchyDisplayButton.setImage(InternalImage.HIERARCHY_16
 				.getImage());
 		context.hierarchyDisplayButton.setBackgroundImage(backgroundImage);
-		context.hierarchyDisplayButton.setSelection(true);
 		context.hierarchyDisplayButton
 				.addSelectionListener(new SelectionAdapter() {
 					@Override
