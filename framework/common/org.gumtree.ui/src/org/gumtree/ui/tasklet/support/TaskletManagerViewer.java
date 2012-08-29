@@ -1,5 +1,8 @@
 package org.gumtree.ui.tasklet.support;
 
+import static ch.lambdaj.Lambda.on;
+import static ch.lambdaj.collection.LambdaCollections.with;
+
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -56,6 +59,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveListener;
@@ -139,17 +143,20 @@ public class TaskletManagerViewer extends ExtendedComposite {
 		context.hierarchyDisplayButton.setImage(InternalImage.HIERARCHY_16
 				.getImage());
 		context.hierarchyDisplayButton.setBackgroundImage(backgroundImage);
+		context.hierarchyDisplayButton.setSelection(true);
 		context.hierarchyDisplayButton
 				.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
 						context.treeViewer.setInput(createTreeNode("",
 								context.hierarchyDisplayButton.getSelection()));
+						context.treeViewer.expandAll();
 					}
 				});
-
 		Text searchText = getWidgetFactory().createText(this, "", SWT.SEARCH);
 		searchText.setBackgroundImage(backgroundImage);
+		// TODO: enable search feature
+		searchText.setVisible(false);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(searchText);
 
@@ -170,15 +177,23 @@ public class TaskletManagerViewer extends ExtendedComposite {
 			public void mouseDoubleClick(MouseEvent e) {
 				if (getTaskletManager() != null) {
 					// Run tasklet on double click
-					TaskletTreeNode node = (TaskletTreeNode) ((IStructuredSelection) context.treeViewer
+					Object node = ((IStructuredSelection) context.treeViewer
 							.getSelection()).getFirstElement();
-					ITasklet tasklet = node.getTasklet();
-					handleTaskletActivation(tasklet);
+					if (node instanceof TagTreeNode) {
+						TreeItem item = context.treeViewer.getTree().getSelection()[0];
+						boolean expanded = item.getExpanded();
+						item.setExpanded(!expanded);				
+					} else if (node instanceof TaskletTreeNode) {
+						ITasklet tasklet = ((TaskletTreeNode) node)
+								.getTasklet();
+						handleTaskletActivation(tasklet);
+					}
 				}
 			}
 		});
 		context.treeViewer.setInput(createTreeNode("",
 				context.hierarchyDisplayButton.getSelection()));
+		context.treeViewer.expandAll();
 
 		// Close button
 		context.closeTaskButton = getWidgetFactory().createButton(this,
@@ -494,6 +509,9 @@ public class TaskletManagerViewer extends ExtendedComposite {
 					2);
 			for (ITasklet tasklet : getTaskletManager().getTasklets()) {
 				for (String tag : StringUtils.split(tasklet.getTags(), ",")) {
+					if (StringUtils.isEmpty(tag)) {
+						continue;
+					}
 					TagTreeNode tagNode = tagMap.get(tag);
 					if (tagMap.get(tag) == null) {
 						tagNode = new TagTreeNode(tag);
@@ -517,7 +535,8 @@ public class TaskletManagerViewer extends ExtendedComposite {
 				treeNodes.add(new TaskletTreeNode(tasklet));
 			}
 		}
-		return LambdaCollections.with(treeNodes).toArray(ITreeNode.class);
+		return with(treeNodes).sort(on(ITreeNode.class).getText()).toArray(
+				ITreeNode.class);
 	}
 
 	public class TagTreeNode extends TreeNode {
