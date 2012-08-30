@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>User Defined Scans</title><author>
+            <personname>Ferdi Franceschini</personname>
+        </author>
+        <date>2006-08-16 15:25</date>
+    </info>
+    <sect1>
+        <title>Creating a Scan Command</title>
+        <para>A scan command must first be initialised with <command>MakeScanCommand</command>
+            command in the SICS configuration file before it can be used.
+            <command>MakeScanCommand</command> initialises the SICS internal <command>scan</command>
+            command.</para>
+        <para>
+            <command>MakeScanCommand</command>
+            <replaceable>name countername headfile recoverfil</replaceable>
+        </para>
+        <para>Arguments must be in the order described</para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <replaceable>name</replaceable>
+                </term>
+                <listitem>
+                    <para>The scan will be accessible as <replaceable>name</replaceable> in the
+                        system. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>countername</replaceable>
+                </term>
+                <listitem>
+                    <para>The name of a valid counter object to use for counting</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>headfile</replaceable>
+                </term>
+                <listitem>
+                    <para>The full pathname of a header description file. This file describes the
+                        contents of the header of the data file. The format of this file is
+                        described below</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>recoverfil</replaceable>
+                </term>
+                <listitem>
+                    <para> The full pathname of a file to store recover data. The internal scan
+                        command writes the state of the scan to a file after each scan point. This
+                        allows for restarting of aborted scans. </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+    <sect1>
+        <title>Using a Scan Command</title>
+        <para> The scan command (named here <command>MyScan</command>, but may have another name)
+            understands the following commands: </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <command>MyScan run</command>
+                    <replaceable>NP mode preset </replaceable>
+                </term>
+                <listitem>
+                    <para>Executes a scan. </para>
+                    <para><replaceable>NP</replaceable> is the number of scan points</para>
+                    <para><replaceable>mode</replaceable> is the counter mode, either
+                        <option>timer</option> or <option>monitor</option></para>
+                    <para><replaceable>preset</replaceable> is the preset value for the counter</para>
+                    <para>Scan data is written to an output file. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan add</command>
+                    <replaceable>name start step </replaceable>
+                </term>
+                <listitem>
+                    <para>Adds the variable specified by the argument
+                        <replaceable>name</replaceable> to the list of variables scanned in the next
+                        scan. The arguments <replaceable>start</replaceable> and
+                        <replaceable>step</replaceable> define the starting point and the step width
+                        for the scan on this variable. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan appendvarpos</command>
+                    <replaceable>i pos</replaceable>
+                </term>
+                <listitem>
+                    <para>Append <replaceable>pos</replaceable> to the array of positions for scan
+                        variable <replaceable>i</replaceable>. To be used from user defined scan
+                        functions. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan callback</command>
+                    <replaceable>status</replaceable>
+                </term>
+                <listitem>
+                    <para>Triggers callbacks configured on the scan object. </para>
+                    <para>Allow <replaceable>status</replaceable> one of:</para>
+                    <para>
+                        <option>scanstart </option>
+                    </para>
+                    <para>
+                        <option>scanpoint </option>
+                    </para>
+                    <para>
+                        <option>scanend </option>
+                    </para>
+                    <para>May be used by user functions implementing own scan loops. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan clear</command>
+                </term>
+                <listitem>
+                    <para>Clears the list of scan variables. Must be called before each scan that
+                        has different parameters. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan configure </command>
+                    <replaceable>mode</replaceable>
+                </term>
+                <listitem>
+                    <para>Configures the scan <replaceable>mode</replaceable></para>
+                    <para>Allowed <replaceable>mode </replaceable>one of: </para>
+                    <para><option>standard</option> (default). Writing ASCII files</para>
+                    <para><option>script</option> Scan functions are overriden by the user. </para>
+                    <para><option>soft</option> The scan stores and saves software zero point
+                        corrected motor positions. The standard is to save the hardware positions as
+                        read from the motor controller.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan continue</command>
+                    <replaceable>NP mode preset </replaceable>
+                </term>
+                <listitem>
+                    <para>Continues an interrupted scan. </para>
+                    <para>Used by the recovery feature. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan function list </command>
+                </term>
+                <listitem>
+                    <para>Lists the available configurable function names. The calling style of
+                        these functions is described in the next section about stdscan. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan function</command>
+                    <replaceable>functionname</replaceable>
+                </term>
+                <listitem>
+                    <para>Returns the currently configured function for
+                        <replaceable>functionname</replaceable>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan function</command>
+                    <replaceable>functionname newfunctionname</replaceable>
+                </term>
+                <listitem>
+                    <para>Sets a new function to be called for the function
+                            <replaceable>functionname</replaceable> in the scan. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan getcounts</command>
+                </term>
+                <listitem>
+                    <para>Retrieves the counts collected during the scan. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan getfile</command>
+                </term>
+                <listitem>
+                    <para>Returns the name of the current data file</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan getmonitor</command>
+                    <replaceable>i</replaceable>
+                </term>
+                <listitem>
+                    <para>Prints the monitor values collected during the scan for monitor
+                            <replaceable>i</replaceable></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan gettime</command>
+                </term>
+                <listitem>
+                    <para>Prints the counting times for the scan points in the current scan. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan getvardata</command>
+                    <replaceable>n</replaceable>
+                </term>
+                <listitem>
+                    <para>Retrieves the values of a scan variable during the scan (the x axis).
+                            <replaceable>n</replaceable> is the ID of the scan variable to retrieve
+                        data for. ID is 0 for the first scan variable added, 1 for the second etc.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan getvarpar</command>
+                    <replaceable>i</replaceable>
+                </term>
+                <listitem>
+                    <para>Prints the name, start and step of the scan variable number
+                        <replaceable>i</replaceable>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan interest</command>
+                </term>
+                <listitem>
+                    <para>A SICS client can be automatically notified about scan progress. This is
+                        switched on with this command. Three types of messages are sent: </para>
+                    <para>a string <computeroutput>NewScan</computeroutput> on start of the scan</para>
+                    <para>a string <computeroutput>ScanEnd</computeroutput> after the scan has
+                        finished </para>
+                    <para>a string <computeroutput>scan.Counts = {109292 8377 ...}
+                        </computeroutput>with the scan values after each finished scan point.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan uuinterest</command>
+                </term>
+                <listitem>
+                    <para>As for <command>interest</command> but the array of counts is transferred
+                        in UU encoded format. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan dyninterest</command>
+                </term>
+                <listitem>
+                    <para>As for <command>interest</command> but scan points are printed one by one
+                        as a list containing: </para>
+                    <para><replaceable>point number first_scan_var_pos counts</replaceable>. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan uninterest</command>
+                </term>
+                <listitem>
+                    <para> Uninterest switches automatic notification about scan progress off.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan integrate</command>
+                </term>
+                <listitem>
+                    <para> Calculates the integrated intensity of the peak and the variance of the
+                        intensity for the last scan. </para>
+                    <para>Returns either an error when insufficient scan data is available, or a
+                        pair of numbers. Peak integration is performed along the method described by
+                        Grant and Gabe in J. Appl. Cryst. (1978), 11, 114-120. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan log</command>
+                    <replaceable>var</replaceable>
+                </term>
+                <listitem>
+                    <para>Adds <replaceable>var</replaceable> to list of variables logged during the
+                        scan. Can be slave motors such as <option>stt, om, chi, phi </option>during
+                        four circle work. These variables are not driven, just logged.
+                            <replaceable>var</replaceable> is the SICS variable to log. Only
+                        drivable parameters may be logged in such a way. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan noscanvar</command>
+                </term>
+                <listitem>
+                    <para>Prints the number of scan variables </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan np</command>
+                </term>
+                <listitem>
+                    <para>Prints the number of points in the current scan. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan setchannel</command>
+                    <replaceable>n</replaceable>
+                </term>
+                <listitem>
+                    <para>Sometimes it is required to scan not the counter but a monitor. This
+                        command sets the channel to collect data from. <replaceable>n</replaceable>
+                        is an integer ID for the channel to use. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan simscan</command>
+                    <replaceable>pos FWHM height </replaceable>
+                </term>
+                <listitem>
+                    <warning>
+                        <para>BROKEN</para>
+                    </warning>
+                    <para>This is a debugging command. It simulates scan data with a hundred points
+                        between an x axis ranging from 10 to 20. A gaussian peak is produced from
+                        the arguments given: </para>
+                    <para><replaceable>pos</replaceable> the position of the peak maximum</para>
+                    <para><replaceable>FWHM</replaceable> is the full width at half maxxximum for
+                        the peak </para>
+                    <para><replaceable>height</replaceable> is its height</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan silent</command>
+                    <replaceable>NP mode preset </replaceable>
+                </term>
+                <listitem>
+                    <para>Executes a scan. </para>
+                    <para>Does not produce an output file</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>MyScan storecounts</command> counts time mon1 mon2 ... </term>
+                <listitem>
+                    <warning>
+                        <para>Don't understand the syntax nha. </para>
+                    </warning>
+                    <para>This stores an entry of count values into the scan data structure. To be
+                        used from user defined scan functions. The scan pointer is incremented by
+                        one. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan storecounter</command>
+                </term>
+                <listitem>
+                    <para>Store the counts and monitors in the counter object configured for the
+                        scan into the scan data structure. Increments the scan pointer by one.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan recover</command>
+                </term>
+                <listitem>
+                    <para>Recovers an aborted scan. </para>
+                    <para>The scan object writes a file with all data necessary to continue the scan
+                        after each scan point. If for some reason a scan has been aborted due to
+                        user intervention or a system failure, this scheme allows to continue the
+                        scan when everything is alright again. This works only if the scan has been
+                        started with <command>run</command>, not with
+                    <command>silent</command></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>MyScan window</command>
+                    <replaceable>newval</replaceable>
+                </term>
+                <listitem>
+                    <para>Peak Integration uses a window in order to determine if it is still in the
+                        peak or in background. This command allows to request the size of this
+                        window (without argument) or set it with <replaceable>newval</replaceable>
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+    <sect1>
+        <title>User Definable Scan Functions</title>
+        <para>The last commands in the last section allow overloading functions that implement
+            various operations during the scan with user defined functions. This section is the
+            reference for user defined functions. The following operations during a scan can be
+            configured: </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <command>count MyScan </command>
+                    <replaceable>userobjectname point mode preset</replaceable>
+                </term>
+                <listitem>
+                    <para>Called at each scan point to perform the counting operation </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>collect MyScan </command>
+                    <replaceable>userobjectname point </replaceable>
+                </term>
+                <listitem>
+                    <para>Called for each scan point. This function stores the scan data into the
+                        scan data structure. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>drive MyScan </command>
+                    <replaceable>userobjectname point</replaceable>
+                </term>
+                <listitem>
+                    <para><command>drive</command> to the next scan point </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>finish MyScan </command>
+                    <replaceable>userobjectname</replaceable>
+                </term>
+                <listitem>
+                    <para>Called after the scan finishes and may be used to dump a data file or
+                        perform other clean up operations after a scan. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>prepare MyScan </command>
+                    <replaceable>userobjectname</replaceable>
+                </term>
+                <listitem>
+                    <para>Does operations before a scan starts. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>userdata </term>
+                <listitem>
+                    <para>This is the name of a user defined object which may be used to store user
+                        data for the scan. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>writeheader MyScan </command>
+                    <replaceable>userobjectname</replaceable>
+                </term>
+                <listitem>
+                    <para>Write the header of the data file </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>writepoint MyScan </command>
+                    <replaceable>userobjectname point </replaceable>
+                </term>
+                <listitem>
+                    <para>Called for each scan point. Prints information about the scan point to the
+                        data file and to the user. </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            <command>MyScan</command> is the name of the scan object invoking the function. This can
+            be used for querying the scan object. <replaceable>userobjectname</replaceable> is the
+            name of a entity as specified as userdata in the configuration. point is the number of
+            the current scan point.</para>
+    </sect1>
+</chapter>

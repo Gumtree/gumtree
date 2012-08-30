@@ -11,7 +11,6 @@ class Injector:
     def __init__(self):
         self.eclipseContext = E4Utils.getEclipseContext().createChild()
         self.bindMap = {}
-        return self
         
     def bind(self, variable, className):
         self.bindMap[variable] = className

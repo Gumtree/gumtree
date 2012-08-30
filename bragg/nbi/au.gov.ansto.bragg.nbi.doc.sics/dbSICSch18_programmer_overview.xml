@@ -1,0 +1,672 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+        <info><bibliosource> The SICS programmers guide. overview.tex converted to docbook using
+                htlatex. SINQ specific content removed</bibliosource>
+            <title>SICS Overview</title></info>
+        <sect1>
+            <title>Introduction</title>
+            <para>SICS, the SINQ Instrument Control System, meets the following specifications: </para>
+            <itemizedlist>
+                <listitem>
+                    <!--l. 11-->
+                    <para>Control the instrument reliably. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 12-->
+                    <para>Good remote access to the instrument via the internet. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 13-->
+                    <para>Portability across operating system platforms. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 14-->
+                    <para>Enhanced portability across instrument hardware. This means that it should
+                        be easy to add other types of motors, counters or other hardware to the
+                        system. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 17-->
+                    <para>Support authorization on the command and parameter modification level.
+                        This means that certain instrument settings can be protected against random
+                        changes by less knowledgeable users. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 21-->
+                    <para>Good maintainability and extendability. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 22-->
+                    <para>Be capable to accommodate graphical user interfaces. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 23-->
+                    <para>One code base for all instruments. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 24-->
+                    <para>Powerful macro language.</para>
+                </listitem>
+            </itemizedlist>
+            <para>A suitable new system was implemented using an object oriented design which
+                matches the above criteria. </para>
+        </sect1>
+        <sect1>
+            <title>SICS Overall Design</title>
+            <para>In order to achieve the design goals stated above it was decided to divide the
+                system into a client server system. This means that there are at least two programs
+                necessary to run an instrument: a client program and a server program. The server
+                program, the SICS server, does all the work and implements the actual instrument
+                control. The SICS server usually runs on the ics (instrument control server)
+                computer. The client program may run on any computer on the world and implements the
+                user interface to the instrument. Any numbers of clients can communicate with one
+                SICS server. The SICS server and the clients communicate via a simple ASCII command
+                protocol through TCP/IP sockets. With this design good remote control through the
+                network is easily achieved. As clients can be implemented in any language or system
+                capable of handling TCP/IP the user interface and the functional aspect are well
+                separated. This allows for easy exchange of user interfaces by writing new clients.
+            </para>
+        </sect1>
+        <sect1>
+            <title>SICS Clients</title>
+            <para>SICS Clients implement the SICS user interface. The Gumtree client is implemented
+                in Java for platform independence. This is a real concern where MS Windows,
+                Macintosh and Unix users have to be satisfied. As many instrument scientists still
+                prefer the command line for interacting with instruments, the most used client is a
+                visual command line client. Status displays are another kind of specialized client
+                programs. </para>
+        </sect1>
+        <sect1>
+            <title>The SICS Server</title>
+            <para>The SICS server is the core component of the SICS system. The SICS server is
+                responsible for doing all the work in instrument control. Additionally the server
+                has to answer the requests of possibly multiple clients. The SICS server can be
+                subdivided into three subsystems: </para>
+            <variablelist>
+                <varlistentry>
+                    <term> The kernel </term>
+                    <listitem>
+                        <!--l. 102-->
+                        <para>The SICS server kernel takes care of client multitasking and the
+                            preservation of the proper I/O and error context for each client command
+                            executing. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term> SICS Object Database </term>
+                    <listitem>
+                        <!--l. 105-->
+                        <para>SICS objects are software modules which represent all aspects of an
+                            instrument: hardware devices, commands, measurement strategies and data
+                            storage. This database of objects is initialized at server startup time
+                            from an initialization script. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term> The Interpreter </term>
+                    <listitem>
+                        <!--l. 109-->
+                        <para>The interpreter allows to issue commands to the objects in the objects
+                            database.</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <figure>
+                <title>Schematic Representation of the SICS server structure </title>
+                <mediaobject>
+                    <imageobject><imagedata align="center" width="150mm"
+                            fileref="newsics.gif"/></imageobject>
+                </mediaobject>
+            </figure>
+        </sect1>
+        <sect1>
+            <title>The SICS Server Kernel</title>
+            <para>In more detail the SICS server kernel has the following tasks: </para>
+            <itemizedlist>
+                <listitem>
+                    <!--l. 125-->
+                    <para>Accept and verify client connection requests. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 126-->
+                    <para>Read and execute client commands. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 127-->
+                    <para>Maintain the I/O and error context for each client connection. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 128-->
+                    <para>Serialize data access. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 129-->
+                    <para>Serialize hardware access. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 130-->
+                    <para>Monitor HW operations. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 131-->
+                    <para>Monitor environment devices.</para>
+                </listitem>
+            </itemizedlist>
+            <para>Any program serving multiple clients has the problem how to organize multiple
+                clients accessing the same server and how to prevent one client from reading data,
+                while another client is writing. The approach used for the SICS server is a
+                combination of polling and cooperative multitasking. This scheme is simple and can
+                be implemented in an operating system independent manner. One way to look at the
+                SICS server is as a series of tasks in a circular queue executing one after another.
+                The servers main loop does nothing but executing the tasks in this circular buffer
+                in an endless loop. There are several system tasks and one such task for each living
+                client connection. Thus only one task executes at any given time and data access is
+                efficiently serialized. </para>
+            <para>One of the main system tasks, and the one which will be always there, is the
+                network reader. The network reader has a list of open network connections and checks
+                each of them for pending requests. What happens when data is pending on an open
+                network port depends on the type of port: If it is the servers main connection port,
+                the network reader will try to accept and verify a new client connection and create
+                the associated data structures. If the port belongs to an open client connection the
+                network reader will read the command pending and put it onto a command stack
+                existing for each client connection. When it is time for a client task to execute,
+                it will fetch a command from its very own command stack and execute it. This is how
+                the SICS server deals with client requests. </para>
+            <para>The scheme described above relies on the fact that most SICS command need only
+                very little time to execute. A command needing time extensive calculations may
+                effectively block the server. Implementations of such commands have to take care
+                that control passes back to the task switching loop at regular intervals in order to
+                prevent the server from blocking. </para>
+            <para>Another problem in a server handling multiple client requests is how to maintain
+                the proper execution context for each client. This includes the clients I/O-context
+                (socket), the authorisation of the client and possible error conditions pending for
+                a client connection. SICS does this via a connection object, a special data
+                structure holding all the above information plus a set of functions operating on
+                this data structure. This connection object is passed along with many calls
+                throughout the whole system. </para>
+            <para>Multiple clients issuing commands to the SICS server may mean that multiple
+                clients might try to move motors or access other hardware in conflicting ways. As
+                there is only one set of instrument hardware this needs to be prevented. This is
+                achieved by a convention. No SICS object drives hardware directly but registers it's
+                request with a special object, the device executor. This device executor starts the
+                requested operation and reserves the hardware for the length of the operation.
+                During the execution of such an hardware request all other clients requests to drive
+                the hardware will return an error. The device executor is also responsible for
+                monitoring the progress of an hardware operation. It does so by adding a special
+                task into the system which checks the status of the operation each time this tasks
+                executes. When the hardware operation is finished this device executor task will
+                end. A special system facility allows a client task to wait for the device executor
+                task to end while the rest of the task queue is still executing. In this way time
+                intensive hardware operations can be performed by drive, count or scan commands
+                without blocking the whole system for other clients. </para>
+            <para>The SICS server can be configured to support another security feature, the token
+                system. In this scheme a client can grab control of the instrument. With the control
+                token grabbed, only the client which has the token may control the instrument. Any
+                other client may look at things in the SICS server but does not have permission to
+                change anything. Passing the control token requires that the client which has the
+                token releases the token so that another client may grab it. There exists a password
+                protected back door for SICS managers which allows to force the release of a control
+                token. </para>
+            <para>Most experiments do not happen at ambient room conditions but require some special
+                environment for the sample. Mostly this is temperature but it can also be magnetic
+                of electric fields etc. Most of such devices can regulate themselves but the data
+                acquisition program needs to monitor such devices. Within SICS, this is done via a
+                special system object, the environment monitor. A environment device, for example a
+                temperature controller, registers it's presence with this object. Then a special
+                system task will control this device when it is executing, check for possible out of
+                range errors and initiates the proper error handling if such a problem is
+                encountered. </para>
+            <para>
+            </para>
+        </sect1>
+        <sect1>
+            <title>The SICS Interpreter</title>
+            <para>When a task belonging to a client connection executes a command it will pass the
+                command along with the connection object to the SICS interpreter. The SICS
+                interpreter will then analyze the command and forward it to the appropriate SICS
+                object in the object database for further action. The SICS interpreter is very much
+                modeled after the Tcl interpreter as devised by John Ousterhout</para>
+            <para> For each SICS object visible from the interpreter there is a wrapper function.
+                Using the first word of the command as a key, the interpreter will locate the
+                objects wrapper function. If such a function is found it is passed the command
+                parameters, the interpreter object and the connection object for further processing.
+                An interface exists to add and remove commands to this interpreter very easily. Thus
+                the actual command list can be configured easily to match the instrument in
+                question, sometimes even at run time. Given the closeness of the design of the SICS
+                interpreter to the Tcl interpreter, the reader may not be surprised to learn that
+                the SICS server incorporates Tcl as its internal macro language. The internal macro
+                language may use Tcl commands as well as SICS commands. </para>
+            <para>
+            </para>
+        </sect1>
+        <sect1>
+            <title>SICS Objects</title>
+            <para>As already said, SICS objects implement the true functionality of SICS instrument
+                control. All hardware, all commands and procedures, all data handling strategies are
+                implemented as SICS objects. Hardware objects, for instance motors deserve some
+                special attention. Such objects are divided into two objects in the SICS system: A
+                logical hardware object and a driver object. The logical object is responsible for
+                implementing all the nuts and bolts of the hardware device, whereas the driver
+                defines a set of primitive operations on the device. The benefit of this scheme is
+                twofold: switching to new hardware, for instance a new type of motor, just requires
+                to incorporate a new driver into the system. Internally, independent from the actual
+                hardware, all hardware object of the same type, for example motors look the same and
+                can be treated the same by higher level objects. No need to rewrite a scan command
+                because a motor changed. </para>
+            <para>In order to live happily within the SICS system SICS object have to adhere to a
+                system of protocols. There are protocols for: </para>
+            <itemizedlist>
+                <listitem>
+                    <!--l. 247-->
+                    <para>Input/Output to the client. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 248-->
+                    <para>Error handling. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 249-->
+                    <para>Interaction with the interpreter. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 250-->
+                    <para>For identification of the object to the system at run time. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 251-->
+                    <para>For interacting with hardware, see device executor above. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 252-->
+                    <para>For checking the authorisation of the client who wants to execute the
+                        command.</para>
+                </listitem>
+            </itemizedlist>
+            <para>SICS objects have the ability to notify clients and other objects of internal
+                state changes. For example when a motor is driven, the motor object can be
+                configured to tell SICS clients or other SICS objects about his new position. </para>
+            <para>SICS uses NeXus, the upcoming standard for data exchange for neutron and xray
+                scattering as its raw data format. </para>
+            <para>
+            </para>
+        </sect1>
+        <sect1>
+            <title>SICS Working Examples</title>
+            <para>In order to get a better feeling for the internal working of SICS the course of a
+                few different requests through the SICS system is traced in this section. The
+                examples traced will be: </para>
+            <itemizedlist>
+                <listitem>
+                    <!--l. 269-->
+                    <para>A request for a new client connection. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 270-->
+                    <para>A simple command. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 271-->
+                    <para>A command to drive a motor in blocking mode. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 272-->
+                    <para>A command to drive a motor which got interrupted by the user. </para>
+                </listitem>
+                <listitem>
+                    <!--l. 273-->
+                    <para>A command to drive a motor in non blocking mode.</para>
+                </listitem>
+            </itemizedlist>
+            <para>For the whole discussion it is assumed that the main loop is running, executing
+                cyclically each single task registered in the server. Task switching is done by a
+                special system component, the task switcher. </para>
+            <para>
+            </para>
+            <sect2>
+                <title>The Request for a new Client Connection</title>
+                <para>
+                </para>
+                <itemizedlist>
+                    <listitem>
+                        <!--l. 281-->
+                        <para>The network reader recognizes pending data on its main server port.
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 282-->
+                        <para>The network reader accepts the connection and tries to read an
+                            username/password pair. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 284-->
+                        <para>If such an username/password pair comes within a suitable time
+                            interval it is checked for validity. On failure the connection is closed
+                            again. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 287-->
+                        <para>If a valid connection has been found: A new connection object is
+                            created, a new task for this client connection is introduced into the
+                            system and the network reader registers a new client port to check for
+                            pending commands. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 291-->
+                        <para>Control is passed back to the task switcher.</para>
+                    </listitem>
+                </itemizedlist>
+                <para>
+                </para>
+            </sect2>
+            <sect2>
+                <title>A Simple Command</title>
+                <para>
+                </para>
+                <itemizedlist>
+                    <listitem>
+                        <!--l. 296-->
+                        <para>The network reader finds data pending at one of the client ports.
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 297-->
+                        <para>The network reader reads the command, splits it into single lines and
+                            put those on top of the client connections command stack. The network
+                            reader passes control to the task switcher. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 300-->
+                        <para>In due time the client connection task executes, inspects its command
+                            stack, pops the command pending and forwards it together with a pointer
+                            to itself to the SICS interpreter. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 303-->
+                        <para>The SICS interpreter inspects the first word of the command. Using
+                            this key the interpreter finds the objects wrapper function and passes
+                            control to that function. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 306-->
+                        <para>The object wrapper function will check further arguments, checks the
+                            clients authorisation if appropriate for the action requested. Depending
+                            on the checks, the wrapper function will create an error message or do
+                            its work. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 310-->
+                        <para>This done, control passes back through the interpreter and the
+                            connection task to the task switcher. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 312-->
+                        <para>The next task executes.</para>
+                    </listitem>
+                </itemizedlist>
+                <para>
+                </para>
+            </sect2>
+            <sect2>
+                <title>A "drive" Command in Blocking Mode</title>
+                <para>
+                </para>
+                <itemizedlist>
+                    <listitem>
+                        <!--l. 317-->
+                        <para>The network reader finds data pending at one of the client ports.
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 318-->
+                        <para>The network reader reads the command, splits it into single lines and
+                            put those on the top of the client connections command stack. The
+                            network reader passes control to the task switcher. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 321-->
+                        <para>In due time the client connection task executes, inspects its command
+                            stack, pops the command pending and forwards it together with a pointer
+                            to itself to the SICS interpreter. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 324-->
+                        <para>The SICS interpreter inspects the first word of the command. Using
+                            this key the interpreter finds the drive command wrapper function and
+                            passes control to that function. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 327-->
+                        <para>The drive command wrapper function will check further arguments,
+                            checks the clients authorisation if appropriate for the action
+                            requested. Depending on the checks, the wrapper function will create an
+                            error message or do its work. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 332-->
+                        <para>Assuming everything is OK, the motor is located in the system. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 333-->
+                        <para>The drive command wrapper function asks the device executor to run the
+                            motor. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 335-->
+                        <para>The device executor verifies that nobody else is driving, then starts
+                            the motor and grabs hardware control. The device executor also starts a
+                            task monitoring the activity of the motor. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 338-->
+                        <para>The drive command wrapper function now enters a wait state. This means
+                            the task switcher will execute other tasks, except the connection task
+                            requesting the wait state. The client connection and task executing the
+                            drive command will not be able to process further commands. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 342-->
+                        <para>The device executor task will keep on monitoring the progress of the
+                            motor driving whenever the task switcher allows it to execute. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 344-->
+                        <para>In due time the device executor task will find that the motor finished
+                            driving. The task will then finish executing. The clients grab of the
+                            hardware driving permission will be released. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 347-->
+                        <para>At this stage the drive command wrapper function will awake and
+                            continue execution. This means inspecting errors and reporting to the
+                            client how things worked out. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 350-->
+                        <para>This done, control passes back through the interpreter and the
+                            connection task to the task switcher. The client connection is free to
+                            execute other commands. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 353-->
+                        <para>The next task executes.</para>
+                    </listitem>
+                </itemizedlist>
+                <para>
+                </para>
+            </sect2>
+            <sect2>
+                <title>A "drive" Command Interrupted</title>
+                <para>
+                </para>
+                <itemizedlist>
+                    <listitem>
+                        <!--l. 358-->
+                        <para>The network reader finds data pending at one of the client ports.
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 359-->
+                        <para>The network reader reads the command, splits it into single lines and
+                            put those on the top of the client connections command stack. The
+                            network reader passes control to the task switcher. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 362-->
+                        <para>In due time the client connection task executes, inspects its command
+                            stack, pops the command pending and forwards it together with a pointer
+                            to itself to the SICS interpreter. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 365-->
+                        <para>The SICS interpreter inspects the first word of the command. Using
+                            this key the interpreter finds the drive command wrapper function and
+                            passes control to that function. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 368-->
+                        <para>The drive command wrapper function will check further arguments,
+                            checks the clients authorisation if appropriate for the action
+                            requested. Depending on the checks, the wrapper function will create an
+                            error message or do its work. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 373-->
+                        <para>Assuming everything is OK, the motor is located in the system. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 374-->
+                        <para>The drive command wrapper function asks the device executor to run the
+                            motor. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 376-->
+                        <para>The device executor verifies that nobody else is driving, then starts
+                            the motor and grabs hardware control. The device executor also starts a
+                            task monitoring the activity of the motor. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 379-->
+                        <para>The drive command wrapper function now enters a wait state. This means
+                            the task switcher will execute other tasks, except the connection task
+                            requesting the wait state. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 382-->
+                        <para>The device executor task will keep on monitoring the progress of the
+                            driving of the motor when it is its turn to execute. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 384-->
+                        <para>The network reader finds a user interrupt pending. The interrupt will
+                            be forwarded to all tasks in the system. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 386-->
+                        <para>In due time the device executor task will try to check on the progress
+                            of the motor. It will recognize the interrupt. If appropriate the motor
+                            will get a halt command. The task will then die. The clients grab of the
+                            hardware driving permission will be released. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 390-->
+                        <para>At this stage the drive command wrapper function will awake and
+                            continue execution. This means it finds the interrupt, tells the user
+                            what he already knows: an interrupt was issued. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 393-->
+                        <para>This done, control passes back through drive command wrapper, the
+                            interpreter and the connection task to the task switcher. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 396-->
+                        <para>The next task executes.</para>
+                    </listitem>
+                </itemizedlist>
+                <para>
+                </para>
+            </sect2>
+            <sect2>
+                <title>A "run" Command in Non Blocking Mode</title>
+                <para>
+                </para>
+                <itemizedlist>
+                    <listitem>
+                        <!--l. 401-->
+                        <para>The network reader finds data pending at one of the client ports.
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 402-->
+                        <para>The network reader reads the command, splits it into single lines and
+                            put those on the top of the client connections command stack. The
+                            network reader passes control to the task switcher. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 405-->
+                        <para>In due time the client connection task executes, inspects its command
+                            stack, pops the command pending and forwards it together with a pointer
+                            to itself to the SICS interpreter. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 408-->
+                        <para>The SICS interpreter inspects the first word of the command. Using
+                            this key the interpreter finds the drive command wrapper function and
+                            passes control to that function. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 411-->
+                        <para>The "run" command wrapper function will check further arguments,
+                            checks the clients authorisation if appropriate for the action
+                            requested. Depending on the checks, the wrapper function will create an
+                            error message or do its work. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 416-->
+                        <para>Assuming everything is OK, the motor is located in the system. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 417-->
+                        <para>The "run" command wrapper function asks the device executor to run the
+                            motor. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 419-->
+                        <para>The device executor verifies that nobody else is driving, then starts
+                            the motor and grabs hardware control. The device executor also starts a
+                            task monitoring the activity of the motor. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 422-->
+                        <para>The run command wrapper function passes control through the
+                            interpreter and the clients task function back to the task switcher. The
+                            client connection can handle new commands. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 425-->
+                        <para>The device executor task will keep on monitoring the progress of the
+                            motor driving whenever the task switcher allows it to execute. </para>
+                    </listitem>
+                    <listitem>
+                        <!--l. 427-->
+                        <para>In due time the device executor task will find that the motor finished
+                            driving. The task will then die silently. The clients grab of the
+                            hardware driving permission will be released. Any errors however, will
+                            be reported.</para>
+                    </listitem>
+                </itemizedlist>
+                <para>All this seems to be pretty complex and time consuming. But it is the
+                    complexity needed to do so many things, especially the non blocking mode of
+                    operation requested by users. Tests have shown that the task switcher manages
+                    +900 cycles per second through the task list on a DigitalUnix machine and 500
+                    cycles per second on a pentium 2GHz machine running linux. Both data were
+                    obtained with software simulation of hardware devices. With real SINQ hardware
+                    these numbers drop to as low as 4 cycles per second if the hardware is slow in
+                    responding. This shows clearly that the communication with the hardware is the
+                    systems bottleneck and not the task switching scheme. </para>
+            </sect2>
+        </sect1>
+</chapter>
+    

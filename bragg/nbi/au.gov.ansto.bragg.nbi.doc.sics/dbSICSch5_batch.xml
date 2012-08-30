@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Batching Tasks</title><author>
+            <personname>Ferdi Franceschini</personname>
+        </author>
+        <date>2006-08-17 16:31</date>
+    </info>
+    <sect1>
+        <title>Usage</title>
+        <para>The SICS batch manager reads commands from a Tcl script and executes them, you can use
+            Tcl loops and logical constructs in the batch file, see the <uri
+                xlink:href="dbSICSch8.xml#batch">Tcl command</uri> reference.   The batch manager
+            command is <command>exe</command>. Refer to the command reference section below for
+            syntax and usage.</para>
+        <para>Following is an example of an advanced batch file which runs some twotheta scans and
+            omega scans several times each.  The batch execution has been made dynamically
+            configurable by using two tcl arrays, "scan()" and "batch()", to hold parameters for the
+            scan commands and the loops.  This means that the user can change the number of points
+            per scan or the number of iterations in the loops from the command line before executing
+            the batchfile.  The 'if' statements at the start of the file initialise the arrays if
+            they don't already exist.  </para>
+        <example>
+            <title>Batch file example</title>
+            <programlisting># This is an example of a dynamically configurable batch file.
+# Set default values for the batch and scan parameters.
+if { [info exists scan(np)] == 0 } { set scan(np) 5 }
+if { [info exists scan(mode)] == 0 } { set scan(mode) timer }
+if { [info exists scan(preset)] == 0 } { set scan(preset) 1.0 }
+if { [info exists batch(repeatnum)] == 0 } { set batch(repeatnum) 3 }
+clientput "Starting batch of twotheta scans"
+MyScan add twotheta 50 0.01
+for {set i 0} {$i &lt; $batch(repeatnum)} {incr i} {
+    clientput "twotheta scan: $i"
+    MyScan run $scan(np) $scan(mode) $scan(preset)
+}
+        
+MyScan clear
+clientput "Starting batch of omega scans"
+MyScan add omega 50 0.01
+for {set i 0} {$i &lt; $batch(repeatnum)} {incr i} {
+    clientput "omega scan: $i"
+    MyScan run $scan(np) $scan(mode) $scan(preset)
+}
+    </programlisting>
+        </example>
+        <para>Assuming that the file is called batch.tcl, the user could execute it as follows</para>
+        <programlisting>
+        set scan(np) 100
+        exe batch.tcl
+    </programlisting>
+        <warning>
+            <title>Warning about the <command>run </command> command</title>
+            <para>The <command>run</command> command does not wait for a move to complete before it
+                returns, this means that the batch manager will execute any following commands
+                straight away.  If you want move an axis and then perform some action after the move
+                is completed you should use the <command>drive</command> command instead of
+                    <command>run</command>. The following batch file will print the message after
+                the move is complete.</para>
+            <programlisting>
+            drive omega 5
+            clientput "omega is has reached five degrees"
+        </programlisting>
+        </warning>
+    </sect1>
+    <sect1>
+        <title>Commands</title>
+        <para>
+            <uri xreflabel="batch"/>The batch buffer manager handles the execution of batch files.
+            It can execute batch files directly. Additionally, batch files can be added into a queue
+            for later processing. The batch buffer manager supports the following commands described
+            below.  The command for controlling the batch manager is called <command>exe</command>
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <command>exe append </command>
+                    <replaceable>'tcl commands' </replaceable>
+                </term>
+                <listitem>
+                    <para><note>
+                            <para>don't know the syntax. nha</para>
+                        </note>Append some tcl commands. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe </command>
+                    <replaceable>buffername</replaceable>
+                </term>
+                <listitem>
+                    <para>directly load the buffer stored in the file
+                        <replaceable>buffername</replaceable> and execute it. The file is searched
+                        in the batch buffer search path. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe batchpath </command>
+                    <replaceable>newpath</replaceable>
+                </term>
+                <listitem>
+                    <para>Without an argument, this command lists the directories which are searched
+                        for batch files. </para>
+                    <para><replaceable>newpath</replaceable> sets a new search path. It is possible
+                        to specify multiple directories by separating them with colons. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe clear</command>
+                </term>
+                <listitem>
+                    <para>Clears the queue of batch buffers. For safety, use in conjuction with 
+                        <command>exe clearupload</command> </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe clearupload</command>
+                </term>
+                <listitem>
+                    <para>Clears partially uploaded batch buffers.  </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe enqueue </command>
+                    <replaceable>buffername</replaceable>
+                </term>
+                <listitem>
+                    <para>Appends <replaceable>buffername</replaceable> to the queue of batch
+                        buffers to execute. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe forcesave </command>
+                    <replaceable>filename</replaceable>
+                </term>
+                <listitem>
+                    <para>Will overwrite an existing batch file without warning. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe info </command>
+                </term>
+                <listitem>
+                    <para>prints the name of the currently executing batch buffer </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe info stack</command>
+                </term>
+                <listitem>
+                    <para>prints the stack of nested batch files (i.e. batch files calling each
+                        other). </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe info range </command>
+                    <replaceable>name</replaceable>
+                </term>
+                <listitem>
+                    <para>Without an argument prints the range of code currently being executed.</para>
+                    <para><replaceable>name</replaceable> prints the range of code executing in
+                        named buffer within the stack of nested buffers. The reply looks like: </para>
+                    <para>
+                        <computeroutput>number of start character = number of end character = line
+                            number</computeroutput>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe info text </command>
+                    <replaceable>name</replaceable>
+                </term>
+                <listitem>
+                    <para>Without an argument prints the code text currently being executed. </para>
+                    <para><replaceable>name </replaceable> prints the range of code text executing
+                        in the named buffer within the stack of nested buffers. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe interest </command>
+                </term>
+                <listitem>
+                    <para>Switches on automatic notification about starting batch files, executing a
+                        new bit of code or for finishing a batch file. This is most useful for SICS
+                        clients watching the progress of the experiment.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe print </command>
+                    <replaceable>buffername</replaceable>
+                </term>
+                <listitem>
+                    <para>Prints the content of the batch buffer
+                        <replaceable>buffername</replaceable> to the screen. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe queue</command>
+                </term>
+                <listitem>
+                    <para>Prints the content of the batch buffer queue. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe run </command>
+                </term>
+                <listitem>
+                    <para>Starts executing the batch buffers in the queue. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe save </command>
+                    <replaceable>filename</replaceable>
+                </term>
+                <listitem>
+                    <para>Save the commands to a batch file.  Returns an error if you try to
+                        overwrite an existing batch file</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe syspath </command>
+                    <replaceable>newpath</replaceable>
+                </term>
+                <listitem>
+                    <para>Without an argument, this command lists the system directories which are
+                        searched for batch files. </para>
+                    <para><replaceable>newpath</replaceable> sets a new system search path. It is
+                        possible to specify multiple directories by separating them with colons.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe upload </command>
+                </term>
+                <listitem>
+                    <para>Prepare the batch manager to upload a new set of commands from the
+                    client</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+</chapter>

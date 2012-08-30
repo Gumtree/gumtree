@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Astrium Velocity Selector</title><author>
+            <personname>Nick Hauser</personname>
+        </author>
+        <date>2009-03-31 15:50</date>
+    </info>
+    <sect1>
+        <title>Commands</title>
+        <para>The Astrium velocity selector is a SICS script context object. There are 2 parts, the
+            script context object, which has the name
+            <command>/instrument/velocity_selector</command> and the 2 driveable interfaces to the
+            object, which have the names <command>nvs_speed</command> and
+            <command>nvs_lambda</command>. Hence you can <command>drive</command> and
+            <command>run</command>
+            <command>nvs_speed</command> and <command>nvs_lambda</command>. To get and set other
+            parameters use <command>hget</command> or <command>hset
+            /instrument/velocity_selector/</command></para>
+        <variablelist>
+            <varlistentry>
+                <term><command>run nvs_lambda</command>
+                    <replaceable> wavelength</replaceable>
+                </term>
+                <listitem>
+                    <para>Units: Angstroms</para>
+                    <para>Runs the velocity selector to <replaceable>wavelength</replaceable></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>drive nvs_lambda</command>
+                    <replaceable> wavelength</replaceable>
+                </term>
+                <listitem>
+                    <para>Units: Angstroms</para>
+                    <para>Is the same as <command>run</command> but it blocks the client that
+                        requested the <command>drive</command> from issuing commands until the task
+                        has finished.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hset /instrument/velocity_selector/setstate
+                    </command><option>brake</option></term>
+                <listitem>
+                    <para>Set the state. The state can be read using <command>hget
+                            /instrument/velocity_selector/state</command></para>
+                    <para>If the state is set to <command>brake </command>, then <command>hget
+                            /instrument/velocity_selector/state</command> will return
+                            <computeroutput>BRAKING </computeroutput>even when the rotor has
+                        stopped.</para>
+                    <para>You can use <command>run nvs_speed</command> to run the rotor again</para>
+                    <para>Allowed values:</para>
+                    <para><option>brake</option>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget /instrument/velocity_selector/state </command></term>
+                <listitem>
+                    <para>Get the state. The normal operating state under SICS control is
+                            <computeroutput>CONTROL</computeroutput></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hlist /instrument/velocity_selector</command>
+                </term>
+                <listitem>
+                    <para>Lists all the <command>velocity_selector</command> nodes</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hset
+                    /instrument/velocity_selector/</command><replaceable>node</replaceable>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Set <replaceable>val</replaceable> on a
+                    <replaceable>node</replaceable></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget
+                    /instrument/velocity_selector/</command><replaceable>node</replaceable></term>
+                <listitem>
+                    <para>Get the value of a <replaceable>node</replaceable></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hset /instrument/velocity_selector/setspeed </command>
+                    <replaceable>val</replaceable></term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Units = rpm</para>
+                    <para>Set the rotor set speed. </para>
+                    <para>Once this is set, the velocity selector will attempt to run to this speed.</para>
+                    <para>If called with no argument, will return an error</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>The velocity selector is under the
+            <computeroutput>/instrument/velocity_selector</computeroutput> node in hipadaba, which
+            is where it will be found when using the Gumtree TableTree. This complies with the NeXus
+            standard. </para>
+    </sect1>
+    <sect1>
+        <title>Parameters</title>
+        <para>For more detailed description of these parameter, please see the <uri
+                xlink:href="http://gumtree:9080/nbicms/devices/velocity-selector/doc_ngs040.pdf/view"
+                >ASTRIUM velocity selector manual</uri> on ANSTOnet. </para>
+        <variablelist>
+            <varlistentry>
+                <term><command>hget /instrument/velocity_selector/</command><command>wvalv</command>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Get the state of the water valve. The water valve will open in once the
+                        velocity selector has reached 3000 rpm. The valve will close again and the
+                        selector will brake to 0 rpm if the water flow is not within tolerance.</para>
+                    <para><option>open</option> Water valve open</para>
+                    <para><option>clos</option> Water valve closed </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget /instrument/velocity_selector/</command><command>rtemp</command>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Units = Celsius</para>
+                    <para>Get the rotor temperature.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget /instrument/velocity_selector/</command><command>state</command>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Get the state.</para>
+                    <para><option>IDLING</option> Is not being controlled. Should be at zero rpm.</para>
+                    <para><option>RESET</option> A reset has been issued by the velocity selector
+                        client program </para>
+                    <para><option>CONTROL</option> Control has been requested by SICS or the
+                        velocity selector client program</para>
+                    <para><option>BRAKING</option> The velocity selector has the brake applied due
+                        to an <command>hset setstate brake</command> request, the
+                        <guibutton>Brake</guibutton> button applied on the velocity selector client
+                        program, or due to a fault condition</para>
+                    <para><option>POWERLOSS MEASUREMENT</option>
+                        <guibutton>Powerloss measurement </guibutton>button applied on the velocity
+                        selector client program </para>
+                    <para><option>EMERGENCY STOP</option>
+                        <guibutton>Emergency stop</guibutton> button applied on the velocity
+                        selector client program </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget
+                    /instrument/velocity_selector/</command><command>aspeed</command>
+                </term>
+                <listitem>
+                    <para>Units = rpm</para>
+                    <para>Get the actual speed</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget /instrument/velocity_selector/</command><command>sspeed
+                        </command><replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Units = rpm</para>
+                    <para>No idea ??? </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget /instrument/velocity_selector/</command><command>winlt</command>
+                </term>
+                <listitem>
+                    <para>Units = Celsius</para>
+                    <para>Get the cooling water inlet temperature</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget /instrument/velocity_selector/</command><command>wflow</command>
+                </term>
+                <listitem>
+                    <para>Units = litres/min</para>
+                    <para>Get the cooling water flow rate</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget /instrument/velocity_selector/</command><command>ploss</command>
+                </term>
+                <listitem>
+                    <para>Units = Watts</para>
+                    <para>Get the last measured power loss</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget /instrument/velocity_selector/</command><command>splos</command>
+                </term>
+                <listitem>
+                    <para>Units = rpm </para>
+                    <para>Get the speed of the last measured power loss </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget
+                    /instrument/velocity_selector/</command><command>rspeed</command>
+                </term>
+                <listitem>
+                    <para>Units = rpm</para>
+                    <para>Get the requested speed, set using <command>run nvs_speed
+                    </command></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget /instrument/velocity_selector/</command><command>woutt</command>
+                </term>
+                <listitem>
+                    <para>Units = Celsius</para>
+                    <para>Get the cooling water outlet temperature </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>hget /instrument/velocity_selector/</command><command>vacum</command>
+                </term>
+                <listitem>
+                    <para>Units = 10<superscript>-3</superscript>bar</para>
+                    <para>Get the vacuum</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget /instrument/velocity_selector/</command><command>bcuun</command></term>
+                <listitem>
+                    <para>Get the BCU units</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget /instrument/velocity_selector/</command><command>ttang</command></term>
+                <listitem>
+                    <para>Units = degrees</para>
+                    <para>Get the turntable angle. 999.99 if not initialised</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget /instrument/velocity_selector/</command><command>vibrt</command></term>
+                <listitem>
+                    <para>Units = mm/s</para>
+                    <para>Get the vibration</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget /instrument/velocity_selector/</command><command>vvalv</command></term>
+                <listitem>
+                    <para>Get the vacuum valve state</para>
+                    <para>Returned values:</para>
+                    <para><option>open</option>
+                    </para>
+                    <para><option>closed</option>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hget /instrument/velocity_selector/</command><command>aveto</command></term>
+                <listitem>
+                    <para>Get the veto state</para>
+                    <para>Returned values:</para>
+                    <para><option>nok</option> not OK</para>
+                    <para><option>ok</option> OK</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+</chapter>

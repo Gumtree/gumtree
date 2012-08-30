@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <info>
+        <title>SICS User Manual for Triple Axis Spectrometers</title>
+        <subtitle>DRAFT ANSTO version 0.2    27 June 2012</subtitle>
+        <date>27 June 2012</date>
+        <author><personname>Mark Koennecke</personname></author>
+        <author><personname>Heinz Heer</personname></author>
+        <author><personname>Ferdi Francheschini</personname></author>
+        <author><personname>Nick Hauser</personname></author>
+        <bibliosource>db5SICSUserManual.xml plus instrument specific chapters. 
+            Manually maintained from this source ie. can't Xinclude a book into a book. </bibliosource>
+    </info>
+    <part><title>INTRODUCTION</title>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch1_intro.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch17_control_and_interrupt.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch19_interrupting_sics.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch20_file_commands.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+    </part>
+    <part><title>COMMANDS IN DETAIL</title>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch24_UB_matrix.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch2_motor_control.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch6_counters.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch3_histogram_control.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch4_simple_scan_taipan_only.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch5_batch.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch7_user_defn_scan.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch8_batch_manager.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch10_tcl_commands.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+    </part>
+    <part><title>CONFIGURATION AND TROUBLESHOOTING</title>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch23_extraconfig.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch9_motor_configuration.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch21_histogram_configuration.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch14_troubleshooting.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+    </part>
+    <part><title>OVERVIEW OF SICS DESIGN AND IMPLEMENTATION</title>
+        <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dbSICSch18_programmer_overview.xml">
+            <xi:fallback>
+                <para>
+                    <emphasis>FIXME: MISSING XINCLUDE CONTENT</emphasis>
+                </para>
+            </xi:fallback>
+        </xi:include>
+    </part>
+    
+</book>

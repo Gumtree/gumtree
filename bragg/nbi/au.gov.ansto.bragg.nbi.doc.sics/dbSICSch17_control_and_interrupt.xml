@@ -1,0 +1,864 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Control, interrupt and system commands</title><author>
+            <personname>Mark Koennecke</personname>
+        </author>
+        <date/>
+        <bibliosource>
+        </bibliosource>
+    </info>
+    <sect1>
+        <info>
+            <bibliosource> from The SICS Master User manual. userrefman. converted to tex using
+                html2tex (from Mark Koennecke) converted to docbook4using htlatex converted to
+                docbook5 using the transform available in Oxygen hand edited to remove lint and put
+                into</bibliosource>
+            <title>Introduction</title></info>
+        <para>In the previous chapter, you learnt how to start and stop SICS, and how to login. Now
+            you'll learn how to control the instrument. </para>
+        <para>The first part of this chapter deals with some of the most used commands in SICS. This
+            includes system commands and control commands. This provides you with a soft start. </para>
+        <para>The second part of the chapter deals with logging activity and configuring your
+            connection to SICS.</para>
+        <para>The next chapter will go more deeply into the how SICS executes those commands,
+            through a sequence of states. You may want to skip the next chapter if you don't require
+            a deeper understanding of SICS.</para>
+        <para>This chapter and the next are from the master user manual for SICS. It gives an
+            overview over all commands implemented, independent of a specific instrument. This is to
+            be used as the source for more instrument specific user manuals and gives an overview of
+            the commands available within SICS. Please note, that many instruments have special
+            commands realized as scripts in the SICS built in scripting language. Only the most
+            common of such commands are listed here. </para>
+    </sect1>
+    <sect1>
+        <info>
+            <title>System Commands and Concepts</title>
+        </info>
+        <sect2>
+            <info>
+                <title>Authorisation</title>
+            </info>
+            <para>A client server system is potentially open to unauthorised hackers who might mess
+                up the instrument and your valuable measurements. A known problem in instrument
+                control is that less knowledgeable user accidentally change instrument parameters
+                which ought to be left fixed. In order to solve these two problems SICS supports
+                authorisation on a very fine level. As a user you have to specify a username and
+                password in order to able to access SICS. Some clients already do this for you
+                automatically. SICS support four levels of access to an instrument: </para>
+            <variablelist>
+                <title>Roles</title>
+                <varlistentry>
+                    <term>Spy</term>
+                    <listitem>
+                        <para> may look at everything, request any value, but may not actually
+                            change anything. No damage potential here. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>User</term>
+                    <listitem>
+                        <para> is privileged to perform a certain amount of operations necessary to
+                            run the instrument. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Manager</term>
+                    <listitem>
+                        <para> has the permission to mess with almost everything. A very dangerous
+                            person. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Internal</term>
+                    <listitem>
+                        <para> is not accessible to the outside world and is used to circumvent
+                            protection for internal uses. However some parameters are considered to
+                            be so critical that they cannot be changed during the runtime of the
+                            SICS-server, not even by Managers.</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para> All this is stated here in order to explain the common error message: You are not
+                authorised to do that and that or something along these lines. </para>
+            <para>
+            </para>
+        </sect2>
+        <sect2>
+            <title>General Structure</title>
+            <para>SICS is a client server system. The application the user sees is usually some form
+                of client. A client has two tasks: the first is to collect user input and send it to
+                the SICS server which then executes the command. The clients second task is to
+                listen to the server messages and display them in a readable format. This approach
+                has two advantages: clients can reside on machines across the whole network thus
+                enabling remote control from everywhere in the world. The second advantage is that
+                new clients (such as graphical user interface clients) can be written in any
+                feasible language without changes to the server. </para>
+            <para>
+            </para>
+        </sect2>
+        <sect2>
+            <info>
+                <title>SICS Command Syntax </title>
+            </info>
+            <para>SICS is an object oriented system. This is reflected in the command syntax. SICS
+                objects can be devices such as motors, single counters, histogram memories or other
+                hardware variables such as wavelength or Title and measurement procedures.
+                Communication with these objects happens by sending messages to the target object.
+                This is very simply done by typing something like: object message par1 par2 .. parn.
+                For example, if we have a motor called A1: </para>
+            <programlisting>
+A1 list
+                </programlisting>
+            <para>will print a parameter listing for the motor A1. In this example no parameters
+                were needed. There exist a number of one-word commands as well. For compatibility
+                reasons some commands have a form which resembles a function call such as: </para>
+            <programlisting>
+drive a1 26.54
+                </programlisting>
+            <para>This will drive motor a1 to 26.54. All commands are ASCII-strings and usually in
+                english. SICS is in general CASE INSENSITIVE. However, this does not hold for
+                parameters you have to specify. On a unix system for instance file names are case
+                sensitive and that had to be preserved. Commands defined in the scripting language
+                are lower case by convention. </para>
+            <para> Most SICS objects also hold the parameters required for their proper operation.
+                The general syntax for handling such parameters is: </para>
+            <programlisting>
+objectname parametername
+                </programlisting>
+            <para> prints the current value of the parameter </para>
+            <programlisting>
+objectname parametername newvalue
+                </programlisting>
+            <para> sets the parameter value to newvalue if you are properly authorized. </para>
+            <para>
+            </para>
+        </sect2>
+        <sect2>
+            <info>
+                <title>SICS Variables</title>
+            </info>
+            <para>Most of the parameters SICS uses are hidden in the objects to which they belong.
+                But some are separate objects of their own right and are accessible at top level.
+                For instance things like Title or wavelength. They share a common syntax for
+                changing and requesting their values. This is very simple: The command objectname
+                will return the value, the command objectname newvalue will change the variable. But
+                only if the authorisation codes match. </para>
+            <para>
+            </para>
+        </sect2>
+        <sect2>
+            <title>Commonly Used SICS Commands</title>
+            <para>The most used commands in SICS are: </para>
+            <variablelist>
+                <varlistentry>
+                    <term><command>sicslist interface drivable</command></term>
+                    <listitem>
+                        <para>prints a list of all drivable objects. This is more than motors and
+                            includes virtual motors, sample environment devices and wavelength
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>run</command>
+                        <replaceable>device value</replaceable></term>
+                    <listitem>
+                        <para><command>run</command> a <replaceable>device</replaceable> to a
+                                <replaceable>value</replaceable></para>
+                        <para>runs any object listed using <command>dir inter driv</command> in
+                            non-blocking/asynchronous mode </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>drive</command>
+                        <replaceable>device value</replaceable></term>
+                    <listitem>
+                        <para><command>drive</command> a <replaceable>device</replaceable> to a
+                                <replaceable>value</replaceable></para>
+                        <para>drives any object listed using <command>dir inter driv</command> in
+                            blocking/synchronous mode </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>stopexe</command>
+                        <replaceable>device</replaceable></term>
+                    <listitem>
+                        <para>interrupts a <command>drive</command> or <command>run</command>
+                            command. In the case of motors, the motor will decelerate. It won't stop
+                            immediately, as this can cause damage to the instrument </para>
+                        <warning>
+                            <para>This will not interrupt a scan e.g. <command>runscan</command>. </para>
+                            <para>SICS will continue to accept commands from a client</para>
+                        </warning>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>stopexe all</command></term>
+                    <listitem>
+                        <para>interrupts all devices. In the case of motors, the motor will
+                            decelerate. It won't stop immediately, as this can cause damage to the
+                            instrument </para>
+                        <warning>
+                            <para>This will not interrupt a scan e.g. <command>runscan</command>. </para>
+                            <para>SICS will continue to accept commands from a client</para>
+                        </warning>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                <command>runscan </command>
+                <replaceable>scanvar start stop numpoints mode preset [force datatype
+                savetype]</replaceable></para>
+            <para>Arguments must be in the order described. See more detail in the "Simple Scans"
+                chapter.</para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <replaceable>scanvar</replaceable>
+                    </term>
+                    <listitem>
+                        <para>a drivable device, ie a motor or temperature controller etc</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <replaceable>start</replaceable>
+                    </term>
+                    <listitem>
+                        <para>the start position for the scan variable</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <replaceable>stop</replaceable>
+                    </term>
+                    <listitem>
+                        <para>the stop position for the scan variable</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <replaceable>numpoints</replaceable>
+                    </term>
+                    <listitem>
+                        <para>the number of scan points (the start and stop positions will be
+                            included in the scan)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <replaceable>mode</replaceable>
+                    </term>
+                    <listitem>
+                        <para>Allowed <replaceable>mode </replaceable>one of:</para>
+                        <para>
+                            <command>time</command>
+                        </para>
+                        <para>
+                            <command>unlimited</command>
+                        </para>
+                        <para>
+                            <command>period</command>
+                        </para>
+                        <para>
+                            <command>count</command>
+                        </para>
+                        <para>
+                            <command>frame</command>
+                        </para>
+                        <para><command>MONITOR_n</command> (where n=1,2,3 ...)</para>
+                        <para>If you set the mode to MONITOR_1 then the histogram server will stop
+                            when MONITOR_1 reaches the preset number of counts which has been set
+                            with the following <replaceable>preset</replaceable> parameter</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <replaceable>preset</replaceable>
+                    </term>
+                    <listitem>
+                        <para>the acquisition duration at each scan point, this is in second if the
+                            mode is time, or counts if the mode is count or MONITOR_n</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <variablelist>
+                <varlistentry>
+                    <term><command>INT1712 3</command></term>
+                    <listitem>
+                        <para>interrupts a <command>runscan</command> command. In the case of
+                            motors, the motor will decelerate. It won't stop immediately, as this
+                            can cause damage to the instrument </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </sect2>
+        <sect2>
+            <info>
+                <title>SICS System Commands</title>
+            </info>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <command>sics_exitus</command></term>
+                    <listitem>
+                        <para>A single word commands which shuts the server down. Only managers may
+                            use this command. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <command>wait time</command></term>
+                    <listitem>
+                        <para>waits time seconds before the next command is executed. This does not
+                            stop other clients from issuing commands. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>resetserver</command></term>
+                    <listitem>
+                        <para>resets the server after an interrupt. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>sicslist</command></term>
+                    <listitem>
+                        <para>Prints a list of all SICS objects. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>sicslist server</command></term>
+                    <listitem>
+                        <para>Prints a list of all server options.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>sicslist </command><replaceable>sicsobject</replaceable></term>
+                    <listitem>
+                        <para>Prints all the metadata associated with the SICS object
+                                <replaceable>sicsobject</replaceable>. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>sicslist </command><replaceable>sicsobject key</replaceable></term>
+                    <listitem>
+                        <para>Prints the value of the <replaceable>key</replaceable> associated with
+                            the SICS object <replaceable>sicsobject</replaceable>.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>sicslist setatt </command><replaceable>sicsobject key
+                        value</replaceable></term>
+                    <listitem>
+                        <para>Sets a user defined attribute with the name
+                            <replaceable>key</replaceable> and the value
+                            <replaceable>value</replaceable> for the SICS object
+                                <replaceable>sicsobject</replaceable>. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>sicslist </command><replaceable>metadatakey</replaceable></term>
+                    <listitem>
+                        <para>List all unique entries for the specified metadata key. </para>
+                        <para>System supplied metadata keys are: </para>
+                        <para><option>type</option> The object class</para>
+                        <para><option>interface</option> The object interfaces implemented by SICS </para>
+                        <para>e.g. <command>sicslist type</command> will print all the objects
+                            classes available in the SICS server</para>
+                        <para>This list may be augmented with user generated keys as defined through
+                            using the <command>sicslist setatt obj key value</command>
+                        command</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>sicslist </command><replaceable>metadatakey value</replaceable>
+                    </term>
+                    <listitem>
+                        <para>List all the SICS objects which match the value for the
+                                <replaceable>metadatakey</replaceable> given as parameters. </para>
+                        <para>e.g. <command>sicslist interface drivable </command> will print all
+                            objects implementing the drivable interface in the SICS server.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>sicslist objstatus</command>
+                        <replaceable>obj</replaceable>
+                    </term>
+                    <listitem>
+                        <para>Will query the current state of the SICS object
+                            <replaceable>obj</replaceable>. This makes sense for things like motors,
+                            counter etc. which can be run asynchronously. The result can be:</para>
+                        <para><computeroutput>idle, fault, busy </computeroutput>etc. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>sicslist match </command><replaceable>mask</replaceable>
+                    </term>
+                    <listitem>
+                        <para>Will print the names of all SICS objects where the name matches the
+                            wildcard given as <replaceable>mask</replaceable></para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>status</command></term>
+                    <listitem>
+                        <para>A single word command which makes SICS print its current status.</para>
+                        <para>Possible return values can be: </para>
+                        <para><computeroutput>Eager to execute commands</computeroutput></para>
+                        <para><computeroutput>Scanning</computeroutput></para>
+                        <para><computeroutput>Counting</computeroutput></para>
+                        <para><computeroutput>Running</computeroutput></para>
+                        <para><computeroutput>Halted</computeroutput></para>
+                        <para>Note that if a command is executing which takes some time to complete
+                            the server will return an <computeroutput>ERROR: Busy </computeroutput>
+                            message when further commands are issued. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>status interest</command></term>
+                    <listitem>
+                        <para>initiates automatic printing of any status change in the server. This
+                            command is primarily of interest for status display client implementors.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>backup</command></term>
+                    <listitem>
+                        <para>saves the current values of SICS variables and selected motor and
+                            device parameters to the disk file specified as parameter. If no file
+                            parameter is given the data is written to the system default status
+                            backup file. The format of the file is a list of SICS commands to set
+                            all these parameters again. The file is written on the instrument
+                            computer relative to the path of the SICS server. This is usually
+                            /home/INSTRUMENT/bin. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>backup motsave</command></term>
+                    <listitem>
+                        <para>toggles a ﬂag which controls saving of motor positions. If this ﬂag is
+                            set, commands for driving motors to the current positions are included
+                            in the backup file. This is useful for instruments with slipping motors.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>restore</command></term>
+                    <listitem>
+                        <para>reads a file produced by the backup command described above and
+                            restores SICS to the state it was in when the status was saved with
+                            backup. If no file argument is given the system default file gets read.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>restore listerr</command></term>
+                    <listitem>
+                        <para>prints the list of lines which caused errors during the last restore.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>killfile</command></term>
+                    <listitem>
+                        <para>decrements the data number used for SICS file writing and thus
+                            consequently overwrites the last datafile. This is useful when useless
+                            data files have been created during tests. As this is critical command
+                            in normal user operations, this command requires managers privilege.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>sicsidle</command></term>
+                    <listitem>
+                        <para>prints the number of seconds since the last invocation of a counting
+                            or driving operation. Used in scripts. </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+            </para>
+        </sect2>
+        <sect2>
+            <title>Deprecated commands</title>
+            <para>
+                <variablelist>
+                    <varlistentry>
+                        <term><command>dir</command></term>
+                        <listitem>
+                            <para><emphasis role="bold">DEPRECATED: use sicslist</emphasis> a
+                                command which lists objects available in the SICS system. Without
+                                any options prints a list of all objects. The list can be restricted
+                                with: </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <command>dir var</command>
+                        </term>
+                        <listitem>
+                            <para><emphasis role="bold">DEPRECATED: use sicslist</emphasis>prints
+                                all SICS primitive variables </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>dir mot</command>
+                        </term>
+                        <listitem>
+                            <para><emphasis role="bold">DEPRECATED: use sicslist</emphasis>prints a
+                                list of all motors </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>dir inter driv</command></term>
+                        <listitem>
+                            <para><emphasis role="bold">DEPRECATED: use sicslist</emphasis>prints a
+                                list of all drivable objects. This is more than motors and includes
+                                virtual motors such as environment devices and wavelength as well.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>dir inter count</command></term>
+                        <listitem>
+                            <para><emphasis role="bold">DEPRECATED: use sicslist</emphasis>Shows
+                                everything which can be counted upon. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>dir inter env</command></term>
+                        <listitem>
+                            <para><emphasis role="bold">DEPRECATED: use sicslist</emphasis>Shows all
+                                currently configured environment devices. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>dir match </command><replaceable>wildcard</replaceable>
+                        </term>
+                        <listitem>
+                            <para><emphasis role="bold">DEPRECATED: use sicslist</emphasis>lists all
+                                objects which match the wildcard string given in wildcard -
+                                    <emphasis role="bold">doesn't work</emphasis></para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </para>
+        </sect2>
+    </sect1>
+    <sect1>
+        <info>
+            <title>Logging your activity</title>
+        </info>
+        <para> SICS offers not less then three different ways of logging your commands and the SICS
+            server’s responses </para>
+        <itemizedlist>
+            <listitem>
+                <para>You may create a similar per client log file on the computer running the SICS
+                    server through the <command>logbook</command> command. </para>
+            </listitem>
+            <listitem>
+                <para>Then there is a way to log all activity registered from users with either user
+                    or manager privilege into a file. This means all commands which affect the
+                    experiment regardless from which client they have been issued. This is
+                    accomplished with the <command>commandlog</command> command.</para>
+            </listitem>
+            <listitem>
+                <para> the <command>GetLog</command> command receives messages from all active
+                    clients. This allows you to view all events on your connection, and is intended
+                    for debugging.</para>
+            </listitem>
+        </itemizedlist>
+        <sect2>
+            <info>
+                <title>LogBook command</title>
+            </info>
+            <para> Some users like to have all the input typed to SICS and responses collected in a
+                file for further review. This is implemented via the <command>LogBook</command>
+                command. <command>LogBook</command> is actually a wrapper around the config file
+                command. <command>LogBook</command> understands the following syntax: </para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <command>LogBook</command>
+                    </term>
+                    <listitem>
+                        <para>alone prints the name of the current logfile and the status of event
+                            logging. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <command>LogBook file</command>
+                        <replaceable>filename</replaceable>
+                    </term>
+                    <listitem>
+                        <para>sets the filename to which output will be printed. Please note that
+                            this new filename will only be in effect after restarting logging.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <command>LogBook on</command></term>
+                    <listitem>
+                        <para>This command turns logging on. All commands and all answers will be
+                            written to the file defined with the command described above. Please
+                            note, that this command will overwrite an existing file with the same
+                            name. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <command>LogBook off</command>
+                    </term>
+                    <listitem>
+                        <para>This command closes the logfile and ends logging.</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </sect2>
+        <sect2>
+            <info>
+                <title>The Commandlog</title>
+            </info>
+            <para> The Commandlog is a file where all communication with clients having user or
+                manager privilege is logged. This log allows to retrace each step of an experiment.
+                This log is normally configured in the startup file or can be configured by the
+                instrument manager. There exists a special command, <command>Commandlog</command>,
+                which allows to control this log file. </para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <command>Commandlog new</command>
+                        <replaceable>filename</replaceable>
+                    </term>
+                    <listitem>
+                        <para>starts a new commandlog writing to
+                            <replaceable>filename</replaceable>. Any prior files will be closed. The
+                            log file can be found in the directory specified by the ServerOption
+                            LogFileDir. Usually this is the log directory. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <command>Commandlog</command>
+                    </term>
+                    <listitem>
+                        <para>displays the status of the commandlog. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <command>Commandlog close</command>
+                    </term>
+                    <listitem>
+                        <para>closes the commandlog file. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <command>Commandlog auto</command>
+                    </term>
+                    <listitem>
+                        <para>Switches automatic log file creation on. This is normally switched on.
+                            Log files are written to the log directory of the instrument account.
+                            There are time stamps any hour in that file and there is a new file any
+                            24 hours. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <command>Commandlog tail</command>
+                        <replaceable>n</replaceable>
+                    </term>
+                    <listitem>
+                        <para>prints the last <replaceable>n</replaceable> entries made into the
+                            command log. n is optional and defaults to 20. Up to 1000 lines are held
+                            in an internal buffer for this command. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <command>Commandlog intervall</command>
+                        <replaceable>minutes</replaceable>
+                    </term>
+                    <listitem>
+                        <para>Queries and configures the intervall in
+                            <replaceable>minutes</replaceable> at which time stamps are written to
+                            the commandlog.</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para> It is now possible to have a script executed whenever a new log file is started.
+                In order to make this work a ServerOption with the name logstartfile must exist in
+                the instrument configuration file. The value of this option must be the full path
+                name of the file to execute. </para>
+            <para> Note: with the command <command>config listen 1</command> you can have the output
+                to the command log printed into your client, too. With <command>config listen
+                0</command> you can switch this off again. This is useful for listening into a
+                running instrument. </para>
+            <para>
+            </para>
+        </sect2>
+        <sect2>
+            <title>GetLog Command</title>
+            <para> The SICS server logs all its activities to a logfile, regardless of what the user
+                requested. This logfile is mainly intended to help in server debugging. However,
+                clients may register an interest in certain server events and can have them
+                displayed. This facility is accessed via the <command>GetLog</command> command. It
+                needs to be stressed that this log receives messages from all active clients.
+                    <command>GetLog</command> understands the following messages: </para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <command>GetLog All</command></term>
+                    <listitem>
+                        <para> achieves that all output to the server logfile is also written to the
+                            client which issued this command. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>GetLog Kill</command></term>
+                    <listitem>
+                        <para>stops all logging output to the client.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>GetLog OutCode</command></term>
+                    <listitem>
+                        <para>request that only certain events will be logged to the client issuing
+                            this command. Enables only the level specified. Multiple calls are
+                            possible.</para>
+                        <para> Possible values for <command>OutCode</command> are: </para>
+                        <para><computeroutput>Internal</computeroutput> internal errors such as
+                            memory errors etc.</para>
+                        <para><computeroutput>Command</computeroutput> all commands issued from any
+                            client to the server. </para>
+                        <para><computeroutput>HWError</computeroutput> all errors generated by
+                            instrument hardware. The SICS server tries hard to fix HW errors in
+                            order to achieve stable operations and may not generate an error message
+                            if it was able to fix the problem. This option may be very helpful when
+                            tracking dodgy devices. </para>
+                        <para><computeroutput>InError</computeroutput> All input errors found on any
+                            clients input. </para>
+                        <para><computeroutput>Error</computeroutput> All error messages generated by
+                            all clients. </para>
+                        <para><computeroutput>Status</computeroutput> some commands send status
+                            messages to the client invoking the command in order to monitor the
+                            state of a scan. </para>
+                        <para><computeroutput>Value</computeroutput> Some commands return requested
+                            values to a user. These messages have an output code of Value.</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </sect2>
+    </sect1>
+    <sect1>
+        <info>
+            <title>Connection Configuration Commands</title>
+        </info>
+        <para> SICS has a command for changing the user rights of the current client server
+            connection, control the amount of output a client receives and to specify additional
+            logfiles where output will be placed. All this is accessed through the following
+            commands: </para>
+        <sect2>
+            <title>Config command</title>
+            <para> The <command>config</command> command configures various aspects of the current
+                client server connection. Basically three things can be manipulated: The connections
+                output class, the user rights associated with it, and output files. </para>
+            <variablelist>
+                <varlistentry>
+                    <term><command>config OutCode </command><replaceable>val</replaceable></term>
+                    <listitem>
+                        <para>sets the output code for the connection. By default all output is sent
+                            to the client. But a graphical user interface client might want to
+                            restrict message to only those delivering requested values and error
+                            messages and suppressing anything else. In order to achieve this, this
+                            command is provided. </para>
+                        <para>Possible values: Values for <replaceable>val</replaceable> are</para>
+                        <para><option>Internal</option></para>
+                        <para><option>Command</option></para>
+                        <para><option>HWError</option></para>
+                        <para><option>InError</option></para>
+                        <para><option>Status</option></para>
+                        <para><option>Error</option></para>
+                        <para><option>Value</option></para>
+                        <para>This list is hierarchical. For example specifying
+                            <option>InError</option> for <replaceable>val</replaceable> lets the
+                            client receive all messages tagged <option>InError, Status,
+                            Error</option> and <option>Value</option>, but not <option>HWError,
+                                Command</option> and <option>Internal</option> messages. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>config Rights</command>
+                        <replaceable>Username Password</replaceable></term>
+                    <listitem>
+                        <para>Each connection between a client and the SICS server has user rights
+                            assocociated with it. These user rights can be configured at runtime
+                            with the command <command>config Rights </command>
+                            <replaceable>Username Password</replaceable>. If a matching entry can be
+                            found in the servers password database new rights will be set. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>config File</command>
+                        <replaceable>name</replaceable></term>
+                    <listitem>
+                        <para>Scientists are not content with having output on the screen. In order
+                            to check results a log of all output may be required. The command
+                                <command>config File</command>
+                            <replaceable>name</replaceable> makes all output to the client to be
+                            written to the file specified by <replaceable>name</replaceable> as
+                            well. The file must be a file accessible to the server, i.e. reside on
+                            the same machine as the server. Up to 10 logfiles can be specified.
+                            Note, that a directly connected line printer is only a special filename
+                            in unix. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>config close</command>
+                        <replaceable>num</replaceable>
+                    </term>
+                    <listitem>
+                        <para>closes the log file denoted by num again. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>config list</command>
+                    </term>
+                    <listitem>
+                        <para>lists the currently active values for outcode and user rights. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>config myname</command>
+                    </term>
+                    <listitem>
+                        <para>returns the name of the connection. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>config myrights</command>
+                    </term>
+                    <listitem>
+                        <para>prints the rights associated with your connection. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>config listen</command>
+                        <replaceable>val</replaceable></term>
+                    <listitem>
+                        <para>switches listening to the commandlog on or off for this conenction. If
+                            this on, all output to the commandlog, i.e. all interesting things
+                            happening in SICS, is printed to your connection as well.</para>
+                        <para><replaceable>val</replaceable> = <option>0</option> is off</para>
+                        <para><replaceable>val</replaceable> = <option>1</option> is on</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </sect2>
+    </sect1>
+</chapter>

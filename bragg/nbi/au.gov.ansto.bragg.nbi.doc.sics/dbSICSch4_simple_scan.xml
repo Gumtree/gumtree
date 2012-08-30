@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Simple Scans</title><author>
+            <personname>Ferdi Franceschini</personname>
+        </author>
+        <date>2008-09-17 12:52</date>
+    </info>
+    <sect1>
+        <title><command>runscan </command>command</title>
+        <para>You can run a histogram memory scan with the <command>runscan</command> command.  With
+            this command you can acquire data with the histogram memory server while scanning
+            against a "drivable" device, eg motors, temperature controllers.  By default this saves
+            time resolved, ie HISTOGRAM_XYT data at each scan point.</para>
+        <para>Multi-dimensional scans, where you would like to scan say temperature and a motor,
+            have to be done in a batch file, or by using a tcl <command>for</command> loop, which
+            may contain a runscan. See Chapter5. Batch Manager </para>
+        <note>
+            <para> The data acquired at each scan point is saved before going to the next
+            point.</para>
+        </note>
+        <para><command>runscan </command>
+            <replaceable>scanvar start stop numpoints mode preset [force datatype
+            savetype]</replaceable>
+        </para>
+        <para>Arguments must be in the order described</para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <replaceable>scanvar</replaceable>
+                </term>
+                <listitem>
+                    <para>a drivable device, ie a motor or temperature controller etc</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>start</replaceable>
+                </term>
+                <listitem>
+                    <para>the start position for the scan variable</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>stop</replaceable>
+                </term>
+                <listitem>
+                    <para>the stop position for the scan variable</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>numpoints</replaceable>
+                </term>
+                <listitem>
+                    <para>the number of scan points (the start and stop positions will be included
+                        in the scan)</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mode</replaceable>
+                </term>
+                <listitem>
+                    <para>Allowed <replaceable>mode </replaceable>one of:</para>
+                    <para>
+                        <command>time</command>
+                    </para>
+                    <para>
+                        <command>unlimited</command>
+                    </para>
+                    <para>
+                        <command>period</command>
+                    </para>
+                    <para>
+                        <command>count</command>
+                    </para>
+                    <para>
+                        <command>frame</command>
+                    </para>
+                    <para><command>MONITOR_n</command> (where n=1,2,3 ...)</para>
+                    <para>If you set the mode to MONITOR_1 then the histogram server will stop when
+                        MONITOR_1 reaches the preset number of counts which has been set with the
+                        following <replaceable>preset</replaceable> parameter</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>preset</replaceable>
+                </term>
+                <listitem>
+                    <para>the acquisition duration at each scan point, this is in second if the mode
+                        is time, or counts if the mode is count or MONITOR_n</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+    <sect1>
+        <title>
+            <command>runscan </command>
+            <option>options</option>
+        </title>
+        <para>These parameters must be supplied as a name-value pair, e.g.
+            <command>datatype</command>
+            <option>HISTOGRAM_Y</option>
+        </para>
+        <para>They can be given in any order.</para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <command>force </command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Force a scan</para>
+                    <para>Allowed <replaceable>val</replaceable> one of:</para>
+                    <para>
+                        <option>true</option>
+                    </para>
+                    <para>
+                        <option>false</option> (default) </para>
+                    <para> If you really want to, you can force a scan when the instrument isn't
+                        ready. This can be useful for getting a background reference. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>datatype </command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Select the histogram memory <command>datatype</command> to save in your
+                        data file. </para>
+                    <para>Allowed <replaceable>val</replaceable> one of:</para>
+                    <para>
+                        <option>HISTOGRAM_T</option>
+                    </para>
+                    <para>
+                        <option>HISTOGRAM_X</option>
+                    </para>
+                    <para>
+                        <option>HISTOGRAM_XT</option>
+                    </para>
+                    <para>
+                        <option>HISTOGRAM_Y</option>
+                    </para>
+                    <para>
+                        <option>HISTOGRAM_YT</option>
+                    </para>
+                    <para>
+                        <option>HISTOGRAM_XY</option>
+                    </para>
+                    <para>
+                        <option>HISTOGRAM_XYT</option> (default)</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>savetype </command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Allowed <replaceable>val</replaceable> one of:</para>
+                    <para>
+                        <option>save</option> (default) </para>
+                    <para>
+                        <option>nosave</option>
+                    </para>
+                    <para> By default your data will be saved in a file with a three letter
+                        instrument prefix and a run number.  If you use <command>savetype </command>
+                        <option>nosave</option> then the data will be written to a scratch file
+                        called scratch.nx.hdf</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <example>
+            <title><command>runscan </command>example</title>
+            <para>
+                <command>runscan </command>
+                <option>sphi 0 2 4 time 5</option>
+            </para>
+        </example>
+        <para>This will run a four point scan with the sphi motor starting at 0 and stopping at 2. 
+            The data will be acquired over five seconds at each point, with the default datatype
+            HISTOGRAM_XYT, and saved in a file with a three letter instrument prefix and run number.</para>
+        <example>
+            <title><command>runscan </command>example</title>
+            <para><command>runscan </command><option>mom 69.000 75 2 </option><command>MONITOR_2
+                </command>3000 <command>savetype </command><option>nosave </option><command>datatype
+                    </command><option>HISTOGRAM_Y </option>
+                <command>force </command><option>true</option></para>
+            <para>This example sets all <command>runscan </command>parameters</para>
+        </example>
+    </sect1>
+    <sect1>
+        <title><command>bmonscan </command>command</title>
+        <para>You can run a beam monitor scan with the <command>bmonscan</command> command.  With
+            this command you can acquire data with a counter in the histogram memory server while
+            scanning against a "drivable" device, eg motors. The main detector is not required.
+            Generally this would be used to align an instrument, e.g. alignment of a monochromator
+            or sample crystal.</para>
+        <para>Additional information can be found in the chapters "Counters", "User Defined Scans"
+            and "Batch Manager". </para>
+        <para><command>bmonscan</command> will create a data file of type BEAM_MONITOR. </para>
+        <para>Multi-dimensional scans have to be done in a batch file, or by using a tcl
+                <command>for</command> loop, which may contain a runscan. See the chapter "Batch
+            Manager".</para>
+        <para>Unlike runscan, bmonscan is a standard SICS scan object. This means you can configure,
+            interrogate and control bmonscan using the commands in the chapter "User Defined Scans".
+            This section has only a summary of the most used commands, which allows you to do a one
+            variable scan. </para>
+        <note>
+            <para> The data acquired at each scan point is saved before going to the next
+            point.</para>
+        </note>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <command>bmonscan run</command>
+                    <replaceable>NP mode preset </replaceable>
+                </term>
+                <listitem>
+                    <para>Executes a scan. </para>
+                    <para><replaceable>NP</replaceable> is the number of scan points</para>
+                    <para><replaceable>mode</replaceable> is the counter mode, either
+                        <option>timer</option> or <option>monitor</option></para>
+                    <para><replaceable>preset</replaceable> is the preset value for the counter</para>
+                    <para>Scan data is written to an output file.</para>
+                    <para>tree interface <replaceable>/commands/scan/bmonscan/NP</replaceable></para>
+                    <para>tree interface <replaceable>/commands/scan/bmonscan/mode</replaceable></para>
+                    <para>tree interface
+                    <replaceable>/commands/scan/bmonscan/preset</replaceable></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>bmonscan clear</command>
+                </term>
+                <listitem>
+                    <para>Clears the list of scan variables. Must be called before each scan that
+                        has different parameters. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>bmonscan add</command>
+                    <replaceable>variable start increment </replaceable>
+                </term>
+                <listitem>
+                    <para>Adds the variable specified by the argument
+                        <replaceable>variable</replaceable> to the list of variables scanned in the
+                        next scan. The arguments <replaceable>start</replaceable> and
+                            <replaceable>increment</replaceable> define the starting point and the
+                        step width for the scan on this variable. </para>
+                    <para>tree interface
+                        <replaceable>/commands/scan/bmonscan/scan_variable</replaceable></para>
+                    <para>tree interface
+                        <replaceable>/commands/scan/bmonscan/scan_start</replaceable></para>
+                    <para>tree interface
+                        <replaceable>/commands/scan/bmonscan/scan_increment</replaceable></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>bmonscan getvarpar</command>
+                    <replaceable>i</replaceable>
+                </term>
+                <listitem>
+                    <para>Prints the name, start and step of the scan variable number
+                        <replaceable>i</replaceable>
+                    </para>
+                    <para>tree interface
+                        <replaceable>/commands/scan/bmonscan/scan_variable</replaceable></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>bmonscan setchannel</command>
+                    <replaceable>n</replaceable>
+                </term>
+                <listitem>
+                    <para>Sets the beam monitor to collect data from, where
+                        <replaceable>n</replaceable> is an integer ID for the beam monitor to use.
+                        setchannel uses zero-based counting, so 0 is bm1 etc.</para>
+                    <para>tree interface <replaceable>/commands/scan/bmonscan/channel</replaceable>
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <example>
+            <title>bmonscan example</title>
+            <para><command>bmonscan clear</command> clears the list of scan variables</para>
+            <para><command>bmonscan add </command><replaceable>stth 0 0.1</replaceable> adds the
+                motor stth to the scan, with a starting value of 0 degrees and an increment value
+                0.1 degrees</para>
+            <para><command>bmonscan getvarpar </command><replaceable>0</replaceable> lets you check
+                the variable you are scanning, its start and step value. In this case it returns
+                    <returnvalue>bmonscan.stth = 0.000000 = 0.100000</returnvalue></para>
+            <para><command>bmonscan setchannel </command><replaceable>0</replaceable> selects the
+                first beam monitor, aka bm1. You'll need to check physically where this beam monitor
+                is on the instrument you're driving</para>
+            <para><command>bmonscan run </command><replaceable>10 monitor 10000</replaceable> runs
+                the scan with 10 scan points, in counter mode with a preset of 10000 counts. </para>
+        </example>
+    </sect1>
+</chapter>

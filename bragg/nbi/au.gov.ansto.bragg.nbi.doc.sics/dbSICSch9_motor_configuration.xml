@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Motor Configuration</title><author>
+            <personname>Ferdi Franceschini</personname>
+        </author>
+        <date>2007-02-12 14:24</date>
+    </info>
+    <sect1>
+        <title>Configuration example</title>
+        <para>Motors are configured by following this pattern</para>
+        <itemizedlist>
+            <listitem>
+                <para>Setup the host and port of the controller</para>
+            </listitem>
+            <listitem>
+                <para>Make the motor queue</para>
+            </listitem>
+            <listitem>
+                <para>Set the home value for the absolute encoder</para>
+            </listitem>
+            <listitem>
+                <para>Set the motor configuration parameters</para>
+            </listitem>
+        </itemizedlist>
+        <example>
+            <title>Motor configuration example</title>
+            <para>from
+                    <computeroutput>ics1-echidna.nbi.ansto.gov.au:/usr/local/sics/server/config/motors/motor_configuration.tcl</computeroutput></para>
+            <programlisting># Setup addresses of Galil DMC2280 controllers.
+            set dmc2280_controller1(host) mc1-$animal
+            set dmc2280_controller1(port) pmc1-$animal
+            ...
+            MakeAsyncQueue mc1 DMC2280 $dmc2280_controller1(host) \
+            $dmc2280_controller1(port)
+            ...
+            #Measured absolute encoder reading at home position
+            set mphi_Home 7781389
+            ...
+            # Monochromator phi, Tilt 1, upper
+            Motor mphi $motor_driver_type [params \
+            asyncqueue mc1\
+            absEnc 1\
+            absEncHome $mphi_Home\
+            axis A\
+            cntsPerX -8192\
+            hardlowerlim -2\
+            hardupperlim 2\
+            maxSpeed 1\
+            maxAccel 1\
+            maxDecel 1\
+            stepsPerX -25000\
+            units degrees]
+            
+            setHomeandRange -motor mphi -home 0 -lowrange 2 -uprange 2
+            mphi speed 1
+            mphi movecount $move_count
+            mphi precision 0.05
+            mphi part crystal
+            mphi long_name phi
+        </programlisting>
+        </example>
+    </sect1>
+    <sect1>
+        <title>Configuration checklist</title>
+        <para>Always use a positive number for the motor steps conversion multiplier.If the encoder
+            counts decrease when the motor steps increase then the encoder counts conversion
+            multiplier must be negative.</para>
+        <sect2>
+            <title>For each axis with an absolute encoder</title>
+            <orderedlist spacing="compact">
+                <listitem>
+                    <para>How many motor steps are there per degree or mm?</para>
+                </listitem>
+                <listitem>
+                    <para>How many encoder counts are there per degree or mm?</para>
+                </listitem>
+                <listitem>
+                    <para>Move the motor a positive number of steps.If the encoder counts has
+                        increased then set the <emphasis role="b">stepsPerX</emphasis> positive
+                        otherwise negative.</para>
+                </listitem>
+                <listitem>
+                    <para>If encoder counts decrease when motor steps increase then set the sign of
+                            <emphasis role="b">cntsPerX</emphasis> to the opposite sign of <emphasis
+                            role="b">stepsPerX</emphasis>, otherwise the sign should be the
+                    same.</para>
+                </listitem>
+                <listitem>
+                    <para>What is the encoder reading at the home position?</para>
+                </listitem>
+            </orderedlist>
+        </sect2>
+        <sect2>
+            <title>For each axis without an absolute encoder</title>
+            <orderedlist spacing="compact">
+                <listitem>
+                    <para>How many motor steps are there per degree or mm?</para>
+                </listitem>
+                <listitem>
+                    <para>Move the motor a positive number of steps.If the axis moved in the
+                        positive direction according to the coordinate conventions then set the
+                            <emphasis role="b">stepsPerX</emphasis> positive otherwise
+                    negative.</para>
+                </listitem>
+                <listitem>
+                    <para>Set axis home position.<orderedlist spacing="compact">
+                            <listitem>
+                                <para>Make sure the axis HOME routine has been run. The axis should
+                                    be at the lower limit and the motor defined position should be
+                                    zero, ie TDx returns zero.</para>
+                            </listitem>
+                            <listitem>
+                                <para>Drive the axis to the home position and set <emphasis role="b"
+                                        >motorHome</emphasis> to TDx</para>
+                            </listitem>
+                        </orderedlist></para>
+                </listitem>
+            </orderedlist>
+        </sect2>
+        <sect2>
+            <title>For all axes</title>
+            <orderedlist spacing="compact">
+                <listitem>
+                    <para>Check that maxSpeed, maxAccel, and maxDecel are sane. NOTE: The initial
+                        speed, accel and decel will be set to the maximum values.</para>
+                </listitem>
+                <listitem>
+                    <para>If an axis should not be powered down after each move then set
+                        noPowerSave=1.</para>
+                </listitem>
+            </orderedlist>
+        </sect2>
+        <sect2>
+            <title>Slits</title>
+            <para>The zero position for the slits is defined when the slits are closed but not
+                overlapping.  Since the slit motors don't have absolute encoders we need to define a
+                zero reference for counting motor steps, we will call this reference the motorHome. 
+                The motorHome is set when the slits are fully open, there is a home subroutine
+                (called #HOME) on the DMC2280 controller which can be called to set this position
+                for you.</para>
+            <para>The homing code on the controller fully opens the slits and then sets the position
+                as zero.</para>
+            <orderedlist spacing="compact">
+                <listitem>
+                    <para>Run #HOME command on controller, ie XQ #HOME,1Useu</para>
+                </listitem>
+                <listitem>
+                    <para>Check that the command has completed with MG _XQ1, a value of -1 means the
+                        command has finished otherwise it displays the current line number.</para>
+                </listitem>
+                <listitem>
+                    <para>After the #HOME command has completed check that the defined motor
+                        positions has been set to zero by executing TDEFGH</para>
+                </listitem>
+                <listitem>
+                    <para>run gap to zero, set lowerlims to -ve val if there is a gap, then run gap
+                        to -ve witdh.</para>
+                </listitem>
+                <listitem>
+                    <para>Read position for each slit and set it as the "motorHome" parameter in the
+                        sics configuration file.</para>
+                </listitem>
+            </orderedlist>
+        </sect2>
+        <sect2>
+            <title>Testing</title>
+            <orderedlist spacing="compact">
+                <listitem>
+                    <para>Check communications to all four controllers.</para>
+                </listitem>
+                <listitem>
+                    <para>Try to run motor past limits.Does SICS reject the command?</para>
+                </listitem>
+                <listitem>
+                    <para>Run motors to limits.Does it move in the right direction?Does it stop
+                        where expected?</para>
+                </listitem>
+                <listitem>
+                    <para>Run motor to home position.Does it stop where expected?</para>
+                </listitem>
+                <listitem>
+                    <para>Set limits</para>
+                </listitem>
+                <listitem>
+                    <para>Set home</para>
+                </listitem>
+                <listitem>
+                    <para>Set softzero</para>
+                </listitem>
+                <listitem>
+                    <para>Set sign (direction of motion)</para>
+                </listitem>
+                <listitem>
+                    <para>Set speed</para>
+                </listitem>
+                <listitem>
+                    <para>Set acceleration</para>
+                </listitem>
+                <listitem>
+                    <para>Set deceleration</para>
+                </listitem>
+            </orderedlist>
+        </sect2>
+    </sect1>
+    <sect1>
+        <title>Configuration reference</title>
+        <variablelist>
+            <varlistentry>
+                <term><command>absEnc </command><replaceable>integer</replaceable>
+                </term>
+                <listitem>
+                    <para>Set to 1 if the axis has an absolute encoder</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>absEncHome </command><replaceable>integer</replaceable>
+                </term>
+                <listitem>
+                    <para>The calibrated "home" position in encoder counts</para>
+                    <para>Required if <command>absEnc</command> = 1</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>axis </command><replaceable>val</replaceable></term>
+                <listitem>
+                    <para>The DMC2280 motor controller can control up to eight axes</para>
+                    <para>Allowed <replaceable>val</replaceable> one of: </para>
+                    <para><option>A B C D E F G H</option></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>cntsPerX </command><replaceable>integer</replaceable>
+                </term>
+                <listitem>
+                    <para>Number of absolute encoder counts per <command>unit</command> of movement
+                        along/about the axis of motion</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hardlowerlim </command><replaceable>integer</replaceable></term>
+                <listitem>
+                    <para>Hardware lower limit for motor</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hardupperlim </command><replaceable>integer</replaceable></term>
+                <listitem>
+                    <para>Hardware upper limit for motor</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>maxAccel </command><replaceable>val</replaceable></term>
+                <listitem>
+                    <para>Maximum allowed acceleration in <command>units</command> per
+                            second<superscript>2</superscript></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>maxDecel </command><replaceable>val</replaceable></term>
+                <listitem>
+                    <para>Maximum allowed deceleration in <command>units</command> per
+                            second<superscript>2</superscript></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>maxSpeed </command><replaceable>val</replaceable></term>
+                <listitem>
+                    <para>Speed in <command>units</command> per second</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>motorHome </command><replaceable>integer</replaceable>
+                </term>
+                <listitem>
+                    <para>The calibrated "home" position in motor steps.  You only need to set this
+                        if the axis does not have an absolute encoder</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>motOffDelay </command><replaceable>integer</replaceable></term>
+                <listitem>
+                    <para>Number of msec to wait before switching off a motor after a move</para>
+                    <para>Default = <option>0</option></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>noPowerSave</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>By default a motor will switch off after a move. If you set this to 1 the
+                        motor will stay on.</para>
+                    <para>Allowed <replaceable>val</replaceable> one of: </para>
+                    <para><option>0</option> (default)</para>
+                    <para><option>1</option></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>stepsPerX </command><replaceable>val</replaceable></term>
+                <listitem>
+                    <para>Number of motor steps per <command>unit</command> of movement along/about
+                        the axis of motion</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>units </command><replaceable>val</replaceable></term>
+                <listitem>
+                    <para>The units of motion for the axis, eg <option>degrees</option> for phi or
+                        two-theta, <option>mm</option> for translation</para>
+                    <para>Allowed <replaceable>val</replaceable> one of: </para>
+                    <para><option>degrees </option></para>
+                    <para><option>mm</option></para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+</chapter>

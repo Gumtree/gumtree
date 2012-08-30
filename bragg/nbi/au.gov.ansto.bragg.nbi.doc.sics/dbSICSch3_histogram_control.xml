@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Histogram Control</title><author>
+            <personname>Ferdi Franceschini</personname>
+        </author>
+        <date>2008-09-17 12:24</date>
+    </info>
+    <sect1>
+        <title><command>histmem</command> command</title>
+        <para>You can start and stop acquisitions and do limited configuration the histogram server
+            with the histmem command. </para>
+        <para>Note that histmem does not save data. You have to explicitly use the save command. </para>
+        <para>The histogram memory server is a component that is separate from SICS. SICS currently
+            exposes only a subset of the histogram server interface. In the future, Gumtree will
+            provide an editor for the histogram server configuration files. </para>
+        <para>For a simple experiment in beam monitor mode, where you want to histogram data until
+            one million counts are counted in the beam monitor, from the command line you would</para>
+        <para>
+            <programlisting>
+...
+histmem mode MONITOR_1
+histmem preset 1000000
+histmem start
+"wait until the histogram is finished"
+save
+</programlisting>
+        </para>
+        <para>For subsequent acquisitions where you want to do fast starts of the histogram server
+            because you don't need to change configuration</para>
+        <para>
+            <programlisting>
+histmem pause
+do something in SICS like change the sample or temperature
+histmem start
+"wait until the histogram is finished"
+save
+        </programlisting>
+        </para>
+        <para>You must call the histmem command with one of the following subcommands</para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <command>histmem </command>
+                    <command>start</command>
+                    <option>block</option>
+                </term>
+                <listitem>
+                    <para>will start an acquisition in the current mode</para>
+                    <para>The option <option>block</option> prevents subsequent commands from being
+                        processed until the histmem is finished. Used in scripts, when using the
+                            <command>count</command> or <command>time</command> modes</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>histmem </command>
+                    <command>stop</command>
+                </term>
+                <listitem>
+                    <para>will stop the histogram memory if it is running in
+                        <command>unlimited</command> mode that has been started without the
+                            <option>block</option> option.</para>
+                    <para>NOTE: If you are running in 'unlimited &amp; block' mode, count or time
+                        modes, you must send an INT1712 1 to abort the acquistion or hit the
+                        Interrupt button in Gumtree. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>histmem </command>
+                    <command>veto </command>
+                    <option>enable/disable</option>
+                </term>
+                <listitem>
+                    <para><option>disable</option> will stop the histogram memory from counting and
+                        not clear memory. It will have no effect on configuration. Use this command
+                        if you need to pause a measurement without clearing the memory. </para>
+                    <para><option>enable</option> will resume counting without clearing the memory.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>histmem </command>
+                    <command>pause</command>
+                </term>
+                <listitem>
+                    <para>if MULTIPLE_DATASETS=ENABLE mode (default - but check)</para>
+                    <para>use pause instead of stop for a 'fast' start. Use this if you don't have
+                        to change the histogram memory configuration. Clears histograms and
+                        counters, but doesn't reinitialisation the histogram server. </para>
+                    <para>if MULTIPLE_DATASETS=DISABLE mode</para>
+                    <para>use pause instead of veto. Does not clear histograms and counters, does
+                        not reinitialise the histogram server. Data is accumulated. </para>
+                    <para>Note that the MULTIPLE_DATASETS mode is set in the SICS hmm configuration
+                        files and/or on the histogram memory server. SICS does not report this
+                        value. To view this value, you must look at the config tab on the histogram
+                        server web client. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>histmem </command>
+                    <command>mode </command>
+                    <replaceable>mode</replaceable>
+                </term>
+                <listitem>
+                    <para>Allowed <replaceable>mode </replaceable>one of:</para>
+                    <para><command>MONITOR_n</command> (where n=1,2,3 ...). If you set the mode to
+                        MONITOR_1 then the server will stop when MONITOR_1 reaches the
+                            <command>preset</command> counts</para>
+                    <para>
+                        <command>time</command> will stop at the <command>preset</command> time
+                        after <command>start</command></para>
+                    <para>
+                        <command>unlimited</command> will stop when it receives a <command>histmem
+                            stop</command> or INT1712 1</para>
+                    <para>
+                        <command>count</command> will stop when the total histogram counts reaches
+                            <command>preset</command> counts</para>
+                    <para>
+                        <command>frame</command> will stop when the <command>preset</command> number
+                        of TOF (time of flight) frames. e.g. when there's no TOF, there is an
+                        internal frame frequency which by default is 50Hz. So if you have a
+                            <command>preset</command> of 1000 frames you will get a 20 second
+                        acquisition</para>
+                    <para>
+                        <command>period</command> will stop when it reaches
+                        <command>preset</command> number of periods. A histogram period contains
+                        some number of frames averaged together - this is controlled by the BAT
+                        (base address table) and its attributes. The mapping can be fairly complex
+                        (e.g. time-averaged, time-history and stroboscopic acquisition) so there's
+                        not always a simple relationship between number-of-periods acquired and the
+                        DAQ time, but it can be worked out from the BAT setup</para>
+                    <para><command>count_roi</command></para>
+                    <para>Not supported. Will stop when the total histogram counts reaches
+                            <command>preset</command> counts in a region of interest defined in the
+                        histogram server configuration. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>histmem preset </command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>the acquisition will terminate after the <replaceable>val</replaceable>
+                        period.  This is seconds if the mode is time, and counts if the mode is
+                        count or MONITOR_n.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>histmem freq </command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para><replaceable>val </replaceable> is the frame frequency (Hz)  for time
+                        resolved data.  If you set a frequency of zero then this will default to
+                        50Hz.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>histmem fsrce</command>
+                    <replaceable>frame_source</replaceable>
+                </term>
+                <listitem>
+                    <para>Allow values of <replaceable>frame_source</replaceable> are:</para>
+                    <para><option>EXTERNAL </option>(default) </para>
+                    <para><option>INTERNAL </option>
+                    </para>
+                    <para>You can set this to <option>INTERNAL</option> if you don't have an
+                        external frame signal</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>histmem </command>
+                    <command>status</command>
+                </term>
+                <listitem>
+                    <para><warning>
+                            <para>This doesn't report anything</para>
+                        </warning> Started, Stopped, or Paused</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>histmem </command>
+                    <command>loadconf</command>
+                </term>
+                <listitem>
+                    <para>this uploads configuration tables (e.g. OAT for setting bins) to the
+                        histogram memory</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>OAT_TABLE</command>
+                </term>
+                <listitem>
+                    <para>with no arguments will print out <application>SICS</application>'s copy of
+                        the OAT_TABLE</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>OAT_TABLE</command>
+                    <option>-set X {</option>
+                    <replaceable>bb0 bb1</replaceable>
+                    <option>} Y {</option><replaceable>bb0 bb1</replaceable>
+                    <option>} T </option>{<replaceable>bb0 bb1</replaceable>
+                    <option>}</option></term>
+                <listitem>
+                    <para>will generate a table starting at bin boundary
+                        <replaceable>bb0</replaceable> with a spacing of (bb1-bb0) extrapolated to
+                        the maximum bin boundary.  The numbers of channels are calculated
+                        automatically.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>OAT_TABLE</command>
+                    <option>-set X {</option>
+                    <replaceable>bb0 bb1</replaceable>
+                    <option>} Y {</option><replaceable>bb0 bb1</replaceable>
+                    <option>} T </option>{<replaceable>bb0 bb1</replaceable>
+                    <option>} NTC </option><replaceable>val1 </replaceable>
+                    <option>NXC </option><replaceable>val2 </replaceable>
+                    <option>NYC </option><replaceable>val3 </replaceable></term>
+                <listitem>
+                    <para>this version sets the number of channels explicitly</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para><application>SICS</application> cannot read the current OAT_TABLE from the histogram
+            server, the only way to make sure that <application>SICS</application> is in sync with
+            the histogram memory is to use the <application>SICS</application>
+            <command>OAT_TABLE</command>
+            <option>-set </option> command to change your table and then to upload it to the
+            histogram server with the <command>histmem loadconf </command>command</para>
+    </sect1>
+    <sect1>
+        <title>Histogram memory object</title>
+        <para>In most cases, the <command>histmem</command> command will be sufficient to configure
+            and control an experiment. </para>
+        <para>This section describes a richer level of configuration and control, using the SICS
+            histogram memory object. The histogram memory object in SICS is used to set the
+            configuration of the histogram memory server (described in detail in a later chapter),
+            and to get the current histogram memory server configuration and data. Note that it is
+            possible to for the histogram memory's configuration to be set independently from SICS
+            e.g. through the histogram memory's web interface. Therefore, care must taken to ensure
+            synchronisation between the SICS histogram memory object and the histogram memory
+            server. </para>
+        <para>SICS has seven histogram-memory objects as follows:</para>
+        <para><command>hmm</command>
+        </para>
+        <para><command>hmm_xy</command>
+        </para>
+        <para><command>hmm_xt</command>
+        </para>
+        <para><command>hmm_yt</command>
+        </para>
+        <para><command>hmm_x</command>
+        </para>
+        <para><command>hmm_y</command>
+        </para>
+        <para><command>hmm_t</command>
+        </para>
+        <para>which you can use to fetch xyt, xy, xt, yt, x, y and t data. </para>
+        <para>For simplicity, we will use <replaceable>hm</replaceable> to refer to any of the 7
+            histogram memory objects. Make sure you use the one appropriate to your measurement. </para>
+        <para>
+            <variablelist>
+                <varlistentry>
+                    <term><replaceable>hm</replaceable><command> get 1</command></term>
+                    <listitem>
+                        <para>gets the current histogram memory data ie. 'live' data</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><replaceable>hm</replaceable><command> zipget 1</command></term>
+                    <listitem>
+                        <para>gets the current histogram memory data in binary zip form</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><replaceable>hm</replaceable><command> configure rank</command></term>
+                    <listitem>
+                        <para>gets the rank of the current histogram memory </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><replaceable>hm</replaceable><command> configure
+                            dim</command><replaceable>n</replaceable></term>
+                    <listitem>
+                        <para>gets the current histogram memory data in binary zip form</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </para>
+    </sect1>
+</chapter>

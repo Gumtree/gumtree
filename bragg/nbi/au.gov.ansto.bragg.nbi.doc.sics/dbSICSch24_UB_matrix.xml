@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>TASUB: The Triple Axis Calculation Module</title><author>
+            <personname>Mark Koennecke</personname>
+        </author>
+        <date/>
+    </info>
+    <sect1>
+        <title>TASUB: The Triple Axis Calculation Module</title>
+        <para>On a triple axis instrument the parameters incoming energy, Q-position in 3D and
+            analyzed energy have to be changed frequently. These calculations are the task of the
+            TASUB module. This module uses the calculus described by M. Lumsden, J. L. Roberston and
+            M. Yethiraj in J. Appl. Cryst. (2005), 38, 405-411. The special feauture of this
+            algorithm is that the tilt cradles of the sample table are used to help during alignment
+            and in order to drive out of plane (within the limits of the tilt cradles). For
+            alignment, two reflections must be located and their angles and Q-E parameters entered
+            into the module. Then a UB matrix can be calculated. With a UB matrix, the Q-E variables
+            ei, ki, ef, kf, en, qh, qk and ql can be driven as virtual motors in SICS. </para>
+    </sect1>
+    <sect1>
+        <title>Commands understood by Tasub</title>
+        <sect2>
+            <title>Monochromator and Analyzer Parameters</title>
+            <para>Incident and scattered energies are defined by monochromator crystals. In order
+                for the calculations to work, some parameters need to be configured. Monochromator
+                and analyzer parameters can be accessed with the prefixes: The parameter syntax used
+                is as usual: giving only the parameter name queries the value, giving the parameter
+                plus a value sets the parameter to the new value. The following parameters are
+                supported: </para>
+            <variablelist>
+                <varlistentry>
+                    <term><command>tasub mono</command>
+                    </term>
+                    <listitem>
+                        <para>Monochromator properties </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>tasub ana</command>
+                    </term>
+                    <listitem>
+                        <para>Analyser properties </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>Allowed <command>properties </command> for <command>tasub mono</command> and
+                    <command>tasub ana</command> one of:</para>
+            <variablelist>
+                <varlistentry>
+                    <term><command>dd</command></term>
+                    <listitem>
+                        <para>The d-spacing of the reflection used </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>ss</command>
+                    </term>
+                    <listitem>
+                        <para>The scattering sense, 1 or -1 are possible. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>hb1</command>
+                    </term>
+                    <listitem>
+                        <para>First parameter for the calculation of the horizontal curvature
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>hb2 </command></term>
+                    <listitem>
+                        <para>Second parameter for the calculation of the horizontal curvature
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>vb1</command>
+                    </term>
+                    <listitem>
+                        <para>First parameter for the calculation of the vertical curvature </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>vb2</command>
+                    </term>
+                    <listitem>
+                        <para>Second parameter for the calculation of the vertical curvature </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>Examples: </para>
+            <variablelist>
+                <varlistentry>
+                    <term><command>tasub mono dd </command></term>
+                    <listitem>
+                        <para>will print the current d-spacing of the monochromator </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>tasub mono dd </command><replaceable>4.3</replaceable>
+                    </term>
+                    <listitem>
+                        <para>Will set the d-spacing of the monochromator to 4.3 </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>tasub mono ss </command></term>
+                    <listitem>
+                        <para>will print the scattering sense of the monochromator </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>tasub ana ss </command></term>
+                    <listitem>
+                        <para>will print the scattering sense of the analyser </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>tasub ana ss 1</command></term>
+                    <listitem>
+                        <para>will set the scattering sense of the analyser to 1</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </sect2>
+        <sect2>
+            <title>Cell Parameters</title>
+            <para> In order for the UB matrix calculation to work, the cell constants must be known: <variablelist>
+                    <varlistentry>
+                        <term><command>tasub cell </command></term>
+                        <listitem>
+                            <para>This command prints the current cell parameters. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub cell </command><replaceable>a b c alpha beta
+                            gamma</replaceable>
+                        </term>
+                        <listitem>
+                            <para>This command sets the new cell parameters. All six values must be
+                                given. </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist></para>
+        </sect2>
+        <sect2>
+            <title>Reflection Management</title>
+            <para> In order to calculate a UB matrix a list of reflections must be maintained. This
+                is done with the commands in this section: <variablelist>
+                    <varlistentry>
+                        <term><command>tasub clear </command></term>
+                        <listitem>
+                            <para>Clears the reflection list </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub listref</command>
+                        </term>
+                        <listitem>
+                            <para>Prints a list of all known reflections. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub del </command><replaceable>num</replaceable>
+                        </term>
+                        <listitem>
+                            <para>Delete the reflection number num from the list </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub addref </command><replaceable>qh qk ql </replaceable></term>
+                        <listitem>
+                            <para>Adds a reflection to the list. The indices of the reflections are
+                                given. The angles and energy values are read from the motors. Use
+                                this command only when the instrument is positioned right on a
+                                reflection. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub addref </command><replaceable>qh qk ql a3 a4 sgu sgl ei
+                                ef </replaceable></term>
+                        <listitem>
+                            <para>Add a new reflection to the list. Besides the indices all angles
+                                are given: a3, the sample rotation, a4, sample two theta, sgu, upper
+                                tilt cradle, sgl, lower tilt cradle and incoming energey ei and
+                                outgoing energy ef. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub addauxref </command><replaceable>qh qk ql
+                            </replaceable></term>
+                        <listitem>
+                            <para>Adds an auxiliary reflection with indices qh, qk, ql to the list.
+                                A4 is calculated from cell constants. A3 is either left alone or is
+                                calculated to have the correct angular difference to a previous
+                                reflection. This is a help for setting up the instrument or running
+                                powder mode. When a UB has been generated from auxiliary
+                                reflections, a3, sgu and sgl angles will be incorrect. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub repref </command><replaceable>id qh qk ql a3 a4 sgu sgl
+                                ei ef </replaceable></term>
+                        <listitem>
+                            <para>Modifies the reflection with id id to have the values given.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist></para>
+        </sect2>
+        <sect2>
+            <title>Calculations</title>
+            <para> This section covers the parameters and commands to use to make the module do
+                calculations for you. <variablelist>
+                    <varlistentry>
+                        <term><command>tasbub const ki | kf | elastic </command></term>
+                        <listitem>
+                            <para>Sets a parameter to determine if KI or KF is fixed when the energy
+                                transfer en is being driven. Allowed values: ki, kf, elastic. In
+                                elastic mode the analyzer is disregarded. This is useful for two
+                                circle diffractometers. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub const </command></term>
+                        <listitem>
+                            <para>Prints if ki or kf is fixed. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub ss </command></term>
+                        <listitem>
+                            <para>Prints the sample scattering sense. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub ss 1 | -1 </command></term>
+                        <listitem>
+                            <para>Sets the sample scattering sense. Allowed values are either 1 or
+                                -1. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub silent 0 | 1 </command></term>
+                        <listitem>
+                            <para>Prints or sets the silent flag. If this is 0, the messages Driving
+                                motor .. from .. to .. are suppressed.</para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub outofplane 0 | 1 </command></term>
+                        <listitem>
+                            <para>Prints or sets the outofplane flag. If this flag is 0, the
+                                instrument will stay in the scattering plane and not move out of it.
+                                This is here in order to protect those bloody magnets which cannot
+                                be tilted.</para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub makeub</command><replaceable> r1 r2 </replaceable></term>
+                        <listitem>
+                            <para>Calculate a new UB matrix from the current cell constants and the
+                                entries r1 and r2 in the reflection list. r1 and r2 are integer
+                                numbers. This command will not only print the new UB matrix but also
+                                the results of various back and forth calculations performed with
+                                the new UB matrix. This can be inspected in order to check the new
+                                UB. WARNING: The calculation will go wrong if the scattering sense
+                                at the sample has changed since the reflections used for the UB
+                                matrix determination have been entered. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub listub </command></term>
+                        <listitem>
+                            <para>prints the current UB matrix. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub calcang </command><replaceable>qh qk ql ei ef
+                            </replaceable></term>
+                        <listitem>
+                            <para>Will calculate new angles for the Q-E position specified. The
+                                angles will be printed in the order: monochromator two theta, sample
+                                rotation, sample two theta, lower tilt cradle, upper tilt cradle and
+                                analyzer two theta. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub calcqe </command><replaceable>a2 a3 a4 sgu sgl a6
+                            </replaceable></term>
+                        <listitem>
+                            <para>Calculates and prints the Q-E position from the angles given: a2 =
+                                monochromator two theta, a3 = sample rotation, a4 = sample tow
+                                theta, sgu = upper tilt cradle, sgl = lower tilt cradle and a6 =
+                                analyzer two theta. The Q-E position is printed in the sequence: qh,
+                                qk, ql, ei, ef. </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist></para>
+        </sect2>
+        <sect2>
+            <title>Virtual Motors</title>
+            <para> The tasub module also installs the following virtual motors into SICS: ei, ki,
+                qh, qk, ql, en, ef, kf and qm. All these motors can be used in SICS drive, run or
+                scan commands like real motors. Driving them triggers a recalculation of angles and
+                the drives the real motors to appropriate values. The virtual motors have a very
+                limited command set (shown at the example of qh): <variablelist>
+                    <varlistentry>
+                        <term><command>qh</command>
+                        </term>
+                        <listitem>
+                            <para>The name of the motor alone will print its current position.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>qh</command>
+                            <replaceable>target</replaceable>
+                        </term>
+                        <listitem>
+                            <para>This will print the last requested target position for this
+                                virtual motor. </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist></para>
+            <para> The virtual motor qm implements <emphasis role="b">powder mode</emphasis>. In
+                this mode, only the sample two theta and energy motors will be driven, sample
+                rotation and tilt cradles will be left at their respective positions. THis is
+                commonly used to analyze the energy transfer of powder samples. </para>
+            <para> There are other important command: <variablelist>
+                    <varlistentry>
+                        <term><command>tasub update </command></term>
+                        <listitem>
+                            <para>This command will force a recalculation of the current Q-E
+                                position for the virtual motors from angles. Normally tasub will
+                                take care of this. However, if any of the angle motors are moved
+                                directly or manualy, this command might be required. The SICS dr
+                                wrapper command, however, even takes care of this. </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist><variablelist>
+                    <varlistentry>
+                        <term><command>tasub updatetargets</command>
+                        </term>
+                        <listitem>
+                            <para>This command makes the QE targets macth the current position. This
+                                is useful after initialization in the instrument.tcl file.</para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist></para>
+        </sect2>
+        <sect2>
+            <title>Internal Commands</title>
+            <para> The tasub module supports some more commands which are used by SICS in order to
+                restore the tasub configuration between instantiations of SICS. These commands are
+                documented here for the sake of completeness: <variablelist>
+                    <varlistentry>
+                        <term><command>tasub setub </command><replaceable>ub11 ub12 ub13 ub21 ub22
+                                ub23 ub31 ub32 ub33 </replaceable></term>
+                        <listitem>
+                            <para>Sets the UB matrix. Nine values are required. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub setnormal </command><replaceable>n1 n2 n3
+                            </replaceable></term>
+                        <listitem>
+                            <para>This command sets the plane normal which is required in
+                                calculations. Normally this plane normal is automatically generated
+                                during the calculation of the UB matrix. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub settarget </command><replaceable> qh qk ql qm ki kf
+                            </replaceable></term>
+                        <listitem>
+                            <para>Sets the Q-E target. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub</command>
+                            <replaceable> r1 qh qk ql a3 a4 sgu sgl ki kf </replaceable></term>
+                        <listitem>
+                            <para/>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>tasub </command><replaceable>r2 qh qkl ql a3 a4 sgu sgl ki kf
+                            </replaceable></term>
+                        <listitem>
+                            <para>These commands set the values for the two reflections used for
+                                generating the UB matrix. </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist></para>
+        </sect2>
+    </sect1>
+</chapter>

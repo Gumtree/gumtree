@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Rheometer</title><author>
+            <personname>Ferdi Franceschini</personname>
+        </author>
+        <date/>
+    </info>
+    <sect1>
+        <title>Configuration</title>
+        <para>The driver is loaded into SICS by adding the following line in the
+                <literal>/usr/local/sics/extraconfig.tcl</literal> file </para>
+        <para>
+            <variablelist>
+                <varlistentry>
+                    <term><command>add_rheo name IP tol settletime PORT</command></term>
+                    <listitem>
+                        <para><replaceable>name</replaceable> of parameter from rheometer, use
+                            either <command>rhSpeed</command> or <command>rhTorque</command> for
+                            consistency with existing data files</para>
+                        <para><replaceable>IP</replaceable> is the address of Moxa box</para>
+                        <para><replaceable>tol</replaceable> is the tolerance of
+                            <replaceable>name</replaceable></para>
+                        <para><replaceable>settletime</replaceable> is the time to wait in seconds
+                            before checking that we have reached the set value of
+                            <replaceable>name</replaceable>.</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </para>
+        <para><command>add_rheo rhSpeed ca3-quokka 0.01 5 4001</command></para>
+        <para>This will create a driver with a tolerance of 0.01 for the speed, with a settle time
+            of 5 seconds. </para>
+        <para>The rheometer speed and torque will be available under the <literal>/sample</literal>
+            group and will be saved in the data file as <literal>../sample/rhTorque</literal> and
+                <literal>../sample/rhSpeed</literal>.</para>
+        <para>A standard HISTOGRAM_XY file (ie a QKKxxxx.nx.hdf XY data file)will be created by
+            default. Use <command>newfile</command> to specify other filetypes. </para>
+    </sect1>
+    <sect1>
+        <title>Commands</title>
+        <para>The rheometer driver in SICS starts an acquisition on the histogram memory when the
+            rheometer matches the speeds in a list of trigger values held by the driver. Data will
+            be saved after each acquisition. </para>
+        <para>
+            <variablelist>
+                <varlistentry>
+                    <term><command>hset /sample/rhSpeed/runexp 1</command></term>
+                    <listitem>
+                        <para>The driver begins a sequence when this flag is set to 1. When the flag
+                            is 0 (default) the rheometer speed is ignored and no sequence is run.
+                            The flag is automatically reset to 0 at the end of a sequence</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </para>
+    </sect1>
+    <sect1>
+        <title>Parameters</title>
+        <para>
+            <variablelist>
+                <varlistentry>
+                    <term><command>hset /sample/rhTorque</command></term>
+                    <listitem>
+                        <para>
+                            <option>scale </option>(default 1) scale the voltage reading to the
+                            torque value</para>
+                        <para><option>offset </option>(default 0) applies an offset if
+                        necessary.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>hset /sample/rhSpeed</command></term>
+                    <listitem>
+                        <para><option>scale</option> (default 1) scale the voltage reading to the
+                            speed value</para>
+                        <para><option>offset</option> (default 0) applies an offset if necessary.</para>
+                        <para><option>saveIndex</option> The index of the next entry to be saved in
+                            the data file, starts at zero</para>
+                        <para><option>triggerList</option> (default "EMPTY") List of speeds which
+                            will trigger an acquisition and save data</para>
+                        <para><option>acqTime</option> (default "EMPTY") List of histogram memory
+                            acquisition times. If you only put one value here it will be applied to
+                            all of the acquisitions</para>
+                        <para><option>runexp</option> (default 0) The driver ignores the rheometer
+                            speed until this flag has been set to 1. NOTE: It is automatically reset
+                            at the end of a sequence</para>
+                        <para><option>tol</option> Tolerance, an acquisition will be triggered when
+                            the rheometer speed is within tolerance of the current trigger value in
+                            the triggerList. </para>
+                        <para>The <option>triggerList</option> and <option>acqTime</option> lists
+                            will be cleared when a sequence has been completed.</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </para>
+        <example>
+            <title>Rheometer example</title>
+            <para>
+                <literallayout>
+                        <computeroutput>
+hset /sample/rhSpeed/triggerList 4 5 6 5 4
+OK
+hset /sample/rhSpeed/acqTime 5 10 15 10 5
+OK
+hset /sample/rhSpeed/runexp 1
+OK
+Data will be saved in a standard HISTOGRAM_XY file
+You can override this default by running the 'newfile' command first
+
+rhCallBack /sics/rhSpeed 3.9807 trigger a 5 second acquisition, 
+sicstime 2011-06-10 17:33:35
+rheometer_savehmmdata /sics/rhSpeed: save data index = 0, 
+sicstime 2011-06-10 17:33:35
+rhCallBack /sics/rhSpeed 4.9562 trigger a 10 second acquisition, 
+sicstime 2011-06-10 17:33:43
+rheometer_savehmmdata /sics/rhSpeed: save data index = 1, 
+sicstime 2011-06-10 17:33:43
+rhCallBack /sics/rhSpeed 5.98 trigger a 15 second acquisition, 
+sicstime 2011-06-10 17:33:50
+rheometer_savehmmdata /sics/rhSpeed: save data index = 2, 
+sicstime 2011-06-10 17:33:50
+rhCallBack /sics/rhSpeed 5.023 trigger a 10 second acquisition, 
+sicstime 2011-06-10 17:34:06
+rheometer_savehmmdata /sics/rhSpeed: save data index = 3, 
+sicstime 2011-06-10 17:34:06
+rhCallBack /sics/rhSpeed 4.0226 trigger a 5 second acquisition, 
+sicstime 2011-06-10 17:34:20
+rheometer_savehmmdata /sics/rhSpeed: save data index = 4, 
+sicstime 2011-06-10 17:34:20
+                            </computeroutput>
+                    </literallayout>
+            </para>
+        </example>
+    </sect1>
+</chapter>

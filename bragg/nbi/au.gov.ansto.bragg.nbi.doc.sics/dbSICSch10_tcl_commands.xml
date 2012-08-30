@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>TCL command language interface</title><author><personname>Ferdi
+            Franceschini</personname></author>
+        <date>2006-08-17 14:01</date></info>
+    <sect1>
+        <title>Common commands &amp; exclusions</title>
+        <para>From the PSI SANS documentation by Dr. Joachim Kohlbrecher and Dr. Mark Könnecke with
+            slight modifications.</para>
+        <para>The macro language implemented in the SICS server is <uri
+                xlink:href="http://home.pacbell.net/ouster/">John Ousterhout</uri> Tool Command
+            Language <uri xlink:href="http://www.tcl.tk/">TCL</uri> . Tcl has control constructs,
+            variables of its own, loop constructs, associative arrays and procedures. Tcl is well
+                <uri xlink:href="http://www.tcl.tk/doc/">documented</uri> by several books, online
+            tutorials and manuals.  All SICS commands are available in the macro language. </para>
+        <para>Some potentially harmful Tcl commands have been deleted from the standard Tcl
+            interpreter. These are: </para>
+        <para>
+            <command>exec</command></para>
+        <para><command>source</command></para>
+        <para><command>puts</command></para>
+        <para><command>vwait</command></para>
+        <para><command>exit</command></para>
+        <para><command>gets</command></para>
+        <para><command>socket</command></para>
+        <para>Below only a small subset of the most important Tcl commands like assigning variables,
+            evaluating expressions, control and loop constructs are described. For complete
+            description of Tcl commands have a look on the <uri
+                xlink:href="http://www.tcl.tk/man/tcl8.4/">manual pages</uri> or on one of the many
+            books about Tcl/Tk.</para>
+        <variablelist>
+            <varlistentry>
+                <term><command>set </command><replaceable> varName value</replaceable>
+                    <command>set </command><replaceable>arrName(index) value</replaceable></term>
+                <listitem>
+                    <para>Set/get scalar variables or array elements.  Arrays in Tcl are actually
+                        associative arrays, this means that their indices are not restricted to
+                        integers.  The following examples demonstrate setting a scalar variable and
+                        a couple of array elements.  Note the third array example which shows that
+                        the same array can have mixed indices (the number 1 and 'one') as well as
+                        mixed data types (the number 10 and 'ten') in the same array.</para>
+                    <programlisting>set a 3
+set arr(1) 10
+set arr(one) ten</programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>expr </command><replaceable>arg arg arg</replaceable></term>
+                <listitem>
+                    <para>Concatenates arg’s (adding separator spaces between them), evaluates the
+                        result as a Tcl expression, and returns the value. The operators permitted
+                        in Tcl expressions are a subset of the operators permitted in C expressions,
+                        and they have the same meaning and precedence as the corresponding C
+                        operators. Expressions almost always yield numeric results (integer or
+                        floating-point values). For example, the expression </para>
+                    <programlisting>expr 8.2 + 6</programlisting>
+                    <para>evaluates to 14.2. For some examples of simple expressions, suppose the
+                        variable a = 3 and b = 6. Then the commands shown below will produce the
+                        value after the -&gt;
+                    </para>
+                    <programlisting>set a 3
+set b 6
+expr 3.1 + $a                     -&gt; 6.1
+expr 2 + "$a.$b"                  -&gt; 5.6
+expr [ splitreply [omega] ] / 2.0 -&gt;  
+                    omega axis position / 2.0</programlisting>
+                    <para>Note the use of square brackets [] for command substitution.</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+    <sect1>
+        <title>Math functions</title>
+        <para>Tcl supports the following mathematical functions in
+            expressions:<?db2html element="br"?></para>
+        <para><informaltable>
+                <tgroup cols="4">
+                    <tbody>
+                        <row>
+                            <entry>acos</entry>
+                            <entry>cos </entry>
+                            <entry>hypot </entry>
+                            <entry>sinh </entry>
+                        </row>
+                        <row>
+                            <entry>asin </entry>
+                            <entry>cosh </entry>
+                            <entry>log </entry>
+                            <entry>sqrt </entry>
+                        </row>
+                        <row>
+                            <entry>atan </entry>
+                            <entry>exp </entry>
+                            <entry>log10 </entry>
+                            <entry>tan </entry>
+                        </row>
+                        <row>
+                            <entry>atan2 </entry>
+                            <entry>floor </entry>
+                            <entry>pow </entry>
+                            <entry>tanh </entry>
+                        </row>
+                        <row>
+                            <entry>ceil </entry>
+                            <entry>fmod </entry>
+                            <entry>sin </entry>
+                            <entry> </entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </informaltable>Note you must use the <command>expr</command> command to invoke these
+            functions  eg,</para>
+        <programlisting>expr cos(0) 
+set pi [expr acos(-1)]
+expr sin($pi)</programlisting>
+        <para>Each of these functions invokes the math library function of the same name; see the
+            manual entries for the library functions for details on what they do. Tcl also
+            implements the following functions for conversion between integers and floating-point
+            numbers and the generation of random numbers: </para>
+        <para><command>abs</command>(<replaceable>arg</replaceable>),
+                <command>double</command>(<replaceable>arg</replaceable>) ,
+                <command>int</command>(<replaceable>arg</replaceable>),
+                <command>rand</command>(<replaceable>arg</replaceable>),
+                <command>round</command>(<replaceable>arg</replaceable>),
+                <command>srand</command>(<replaceable>arg</replaceable>). </para>
+    </sect1>
+    <sect1>
+        <title>if - execute scripts conditionally</title>
+        <programlisting><command>if</command> <replaceable>expr1 </replaceable><command>then </command> 
+  <replaceable>body1</replaceable> 
+<command>elseif </command><replaceable>expr2 </replaceable><command>then</command>
+  <replaceable>body2</replaceable>
+<command>elseif</command>...
+<command>else</command>
+  <replaceable>bodyN</replaceable>
+        </programlisting>
+        <para>The <command>if</command> command evaluates <replaceable>expr1</replaceable> as an
+            expression (in the same way that <command>expr</command> evaluates its argument). The
+            value of the expression must be a boolean (a numeric value, where 0 is false and
+            anything is true, or a string value such as "true" or "yes" for true and "false" or "no"
+            for false); if it is true then <replaceable>body1</replaceable> is executed by passing
+            it to the Tcl interpreter. Otherwise <replaceable>expr2</replaceable> is evaluated as an
+            expression and if it is true then <replaceable>body2</replaceable> is executed, and so
+            on. If none of the expressions evaluates to true then <replaceable>bodyN</replaceable>
+            is executed. The <command>then</command> and <command>else</command> arguments are
+            optional "noise words" to make the command easier to read. There may be any number of
+                <command>elseif</command> clauses, including zero. <replaceable>BodyN</replaceable>
+            may also be omitted as long as <command>else</command> is omitted too. The return value
+            from the command is the result of the body script that was executed, or an empty string
+            if none of the expressions was non-zero and there was no
+            <replaceable>bodyN</replaceable>. </para>
+        <example>
+            <title>"if"</title>
+            <programlisting>set a 3
+  if {$a == 3} {puts "a equals three"} </programlisting>
+        </example>
+    </sect1>
+    <sect1>
+        <title>for - "for" loop</title>
+        <programlisting><command>for </command><replaceable>start test
+  next
+  body</replaceable>
+        </programlisting>
+        <para><command>for</command> is a looping command, similar in structure to the C
+                <command>for</command> statement. The <replaceable>start, next</replaceable>, and
+                <replaceable>body</replaceable> arguments must be Tcl command strings, and
+                <replaceable>test</replaceable> is an expression string. If a
+            <command>continue</command> command is invoked within <replaceable>body</replaceable>
+            then any remaining commands in the current execution of <replaceable>body</replaceable>
+            are skipped; processing continues by invoking the Tcl interpreter on
+            <replaceable>next</replaceable>, then evaluating <replaceable>test</replaceable> , and
+            so on. If a <command>break</command> command is invoked within
+            <replaceable>body</replaceable> or <replaceable>next</replaceable> , then the
+                <command>for</command> command will return immediately. The operation of
+                <command>break</command> and <command>continue</command> are similar to the
+            corresponding statements in C. <command>for</command> returns an empty string. </para>
+        <example>
+            <title>"for"</title>
+            <programlisting>for {set x 0} {$x&lt;10} {incr x} {puts "x is $x"}</programlisting>
+        </example>
+    </sect1>
+    <sect1>
+        <title>while - execute script repeatedly as long as a condition is met</title>
+        <programlisting><command>while</command> <replaceable>test
+  body </replaceable></programlisting>
+        <para> The <command>while</command> command evaluates <replaceable>test</replaceable> as an
+            expression (in the same way that <command>expr</command> evaluates its argument). The
+            value of the expression must be a proper boolean value; if it is a true value then
+                <replaceable>body</replaceable> is executed by passing it to the Tcl interpreter.
+            Once <replaceable>body</replaceable> has been executed then
+            <replaceable>test</replaceable> is evaluated again, and the process repeats until
+            eventually <replaceable>test</replaceable> evaluates to a false boolean value.
+                <command>continue</command> commands may be executed inside
+            <replaceable>body</replaceable> to terminate the current iteration of the loop, and
+                <command>break</command> commands may be executed inside <command>body</command> to
+            cause immediate termination of the <command>while</command> command. The
+            <command>while</command> command always returns an empty string. </para>
+        <example>
+            <title>"while"</title>
+            <programlisting>set x 0
+  while {$x&lt;10} {
+  puts "x is $x"
+  incr x
+}</programlisting>
+        </example>
+    </sect1>
+</chapter>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Motor Troubleshooting</title><author>
+            <personname>Ferdi Franceschini</personname>
+        </author>
+        <date>2006-09-04 15:50</date>
+    </info>
+    <para>You can check for problems between SICS and the instrument by running the troubleshoot.tcl
+        application in the /usr/local/sics/server/common directory.The trouble-shooter constructs a
+        control panel from information in the SICS configuration file and from information in the
+        troubleshoot_setup.tcl file.  The trouble-shooter setup file specifies the expected
+        configuration for the motor controllers, this file should be updated whenever the motor
+        controller configuration is changed.</para>
+    <sect1>
+        <title>A Troubleshooting Session</title>
+        <warning>
+            <para>This chapter requires testing. nha. 1 May 2009</para>
+        </warning>
+        <para>If you have a computer with an X server then you can troubleshoot your instrument via
+            remote terminal session.  If you are running linux on your computer then the following
+            will just work.  If you are using an Apple computer you should have the X11 support
+            installed.  If you are running windows you will need to have something like X-Win32 or
+            or Cygwin (with X11) installed.  Otherwise you will have to run this on the instrument
+            control computer locally.</para>
+    </sect1>
+    <sect1>
+        <title>Starting the troubleshooter</title>
+        <para>First log on to the instrument control computer by entering the following in a
+            terminal (linux or cygwin) </para>
+        <programlisting>ssh -Y uname@ic-instname.nbi.ansto.gov.au</programlisting>
+        <para>Where uname is your ANSTO user id and instname is the name of your instrument (eg
+            echidna, wombat).</para>
+        <para>Once you have logged in, go to the sics server directory,</para>
+        <programlisting>cd /usr/local/sics/server</programlisting>
+        <para>There should be a troubleshoot.tcl script and troubleshoot_setup.tcl file in this
+            directory, check this by listing the directory contents with the 'ls' command.</para>
+    </sect1>
+    <sect1>
+        <title>An example showing failures</title>
+        <para>This example uses the following troubleshoot_setup.tcl file for Echidna.  </para>
+        <programlisting># ECHIDNA setupset configFileName "hrpd_configuration.tcl"# These subroutines should be installed on the controllersset contSubs(dmc2280_controller1) "#AUTO  #ABC #LIMSWI #SOLCTRL #TCPERR"set contSubs(dmc2280_controller2) "#AUTO  #LIMSWI #SOLCTRL #TCPERR"set contSubs(dmc2280_controller3) "#AUTO #HOME #LOOPER #RES #TCPERR"set contSubs(dmc2280_controller4) "#AUTO #HOME #LIMSWI #LOOPER #TCPERR"# These threads should be running on the controllers.set contThreads(dmc2280_controller1) "0"set contThreads(dmc2280_controller2) "0"set contThreads(dmc2280_controller3) "0"set contThreads(dmc2280_controller4) "0"</programlisting>
+        <para>Two simulated failures and one real failure are demonstrated in what follows.  I have
+            simulated a missing subroutine error by adding a dummy subroutine name "#ABC" to
+            controller one in the setup file above.  A network failure is simulated by simply
+            unplugging the ethernet cable from controller two.  There is a real failure on
+            controller three, a necessary thread was not running on that controller because a
+            command failed in the auto start subroutine.</para>
+        <para>Start the troubleshooter  with the following command</para>
+        <programlisting>common/troubleshoot.tcl</programlisting>
+        <para>You will see this dialog box which lets you specify the name of your instrument's
+            configuration file.</para>
+        <para><inlinemediaobject><imageobject><imagedata fileref="troubleshoot1.jpeg"
+                /></imageobject></inlinemediaobject>
+        </para>
+        <para>Note: The default file name can be set in the "troubleshoot_setup.tcl" script.</para>
+        <para>When you press the "Load config" button a control window will be constructed from the
+            information in the instrument configuration file and the "troubleshoot_setup.tcl" file.</para>
+        <para>
+            <inlinemediaobject><imageobject><imagedata fileref="troubleshoot2.jpeg" width="150mm"
+                /></imageobject></inlinemediaobject>
+        </para>
+        <para>There is a column for each of the motion controllers specified in the instrument
+            configuration file (hrpd_configuration.tcl in this example).  The control buttons allow
+            you to test the connection to each controller and then perform some tests on the
+            controllers.</para>
+        <para>To test the communications and motor controller status just click on the buttons in
+            each column from top to bottom.  If the test succeeds the button lights up green, if it
+            fails a message box describing the failure will pop-up.  Following are some examples of
+            the failure messages.</para>
+    </sect1>
+    <sect1>
+        <title>Motor Controller Communications Failure Example</title>
+        <para>When you press the connect button it should light up green if everything is OK,
+            otherwise you will see the following message.</para>
+        <para>
+            <inlinemediaobject><imageobject><imagedata fileref="troubleshoot3.jpeg" width="150mm"
+                /></imageobject></inlinemediaobject>
+        </para>
+    </sect1>
+    <sect1>
+        <title>Missing motor controller subroutine example</title>
+        <para>Assuming that the connection has succeeded (ie the "connect" button is now green) then
+            you can click on the "Check subs" button.  If the check succeeds the button will light
+            up green, if not you will see the following message.</para>
+        <para>
+            <inlinemediaobject><imageobject><imagedata fileref="troubleshoot4.jpeg" width="150mm"
+                /></imageobject></inlinemediaobject>
+        </para>
+        <para>This means the a required subroutine named "#ABC" was not found on controller
+        one.</para>
+    </sect1>
+    <sect1>
+        <title>Motor controller thread not running example</title>
+        <para>You can if necessary threads are running on the motor controller by clicking on the
+            "Check threads" button.  If the check succeeds then the button should now be green.  On
+            failure you will see the following message.</para>
+        <para>
+            <inlinemediaobject><imageobject><imagedata fileref="troubleshoot5.jpeg" width="150mm"
+                /></imageobject></inlinemediaobject>
+        </para>
+        <para>This means that something should be running in thread zero but it's not.  Typically
+            the #AUTO subroutine will be running an empty loop in thread zero to trigger trip points
+            in the controller software. </para>
+    </sect1>
+    <sect1>
+        <title>Final status display</title>
+        <para>After completing all the tests for this example you will see the following display. 
+            This means that controller one is missing one or more subroutines, the connection failed
+            on controller two, one or more required threads are not running on controller three, and
+            all the tests succeeded on controller four.</para>
+        <para>
+            <inlinemediaobject><imageobject><imagedata fileref="troubleshoot6.jpeg"
+            /></imageobject></inlinemediaobject>
+        </para>
+    </sect1>
+    <sect1>
+        <title>Using sicsclient for troubleshoot</title>
+        <para>The <command>sicsclient</command> command line can be used for troubleshooting motors.</para>
+        <para> There can be circumstances when a third party, such as the handle-held wireless Galil
+            controller, or a terminal client is used to control motors. In these cases, the values
+            in SICS can be out of sync with those on the controller. The Galil controller can be
+            interrogated using <command>send</command>. </para>
+        <para>
+            <replaceable>mot1</replaceable>
+            <command>send </command>
+            <replaceable>"MG _SP`"</replaceable>
+        </para>
+        <para>In this example, the controller and axis of motor <replaceable>mot1</replaceable> will
+            the sent a command which will return the speed <replaceable>_SP</replaceable> of the
+            motor. Note that a substitution is made in SICS of the controller and axis using the
+            backtick character `</para>
+        <para>The values from the controller can be compared manually with the values from SICS </para>
+        <para><replaceable>mot1</replaceable>
+            <command>list</command></para>
+    </sect1>
+</chapter>

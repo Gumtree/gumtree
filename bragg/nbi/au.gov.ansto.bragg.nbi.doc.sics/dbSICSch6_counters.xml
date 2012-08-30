@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Counters</title><author>
+            <personname>Ferdi Franceschini</personname>
+        </author>
+        <date>2006-08-16 16:24</date>
+        <releaseinfo>Beam monitors have not been documented completely in either the PSI source code
+            or on the Bragg Institute Plone CMS. Therefore, this document is a standalone document,
+            not edited from another source. </releaseinfo>
+    </info>
+    <sect1>
+        <title>Beam monitors</title>
+        <para>When you are doing an experiment with the main detector, you don't address beam
+            monitors directly. You would normally select and configure the beam monitor to control
+            your experiment using the <command>histmem</command> command.</para>
+        <para>However, you may want to use a scan command with a beam monitor and without the main
+            detector. This can be done with <command>bmonscan</command> which is a SICS scan object.
+            For more detail on bmonscan, see the chapter "Simple Scans". </para>
+        <para>Instruments often have more than one beam monitor. SICS has a multicounter interface
+            named <command>bm</command>, which is a list of all the beam monitors on the instrument,
+            usually 2 or 3 beam monitors with names bm1, bm2 and bm3. You must select which beam
+            monitor will control your experiment. When you run the experiment using bm, all the beam
+            monitors on the instrument will count, and with most instrument configurations, the
+            values will be saved to the data file - you should check this is the case if you need
+            these values. </para>
+        <sect2>
+            <title>Selecting a beam monitor for bm</title>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <command>bmonscan setchannel</command>
+                        <replaceable>n</replaceable>
+                    </term>
+                    <listitem>
+                        <para>Sets the active beam monitor. </para>
+                        <para><replaceable>n</replaceable> = 0 is bm1, <replaceable>n</replaceable>
+                            =1 is bm2 etc. </para>
+                        <para>This is the preferred command when doing a
+                        <command>bmonscan</command></para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <command>bm setchannel</command>
+                        <replaceable>n</replaceable>
+                    </term>
+                    <listitem>
+                        <para>Sets the active beam monitor. </para>
+                        <para><replaceable>n</replaceable> = 0 is bm1, <replaceable>n</replaceable>
+                            =1 is bm2 etc. </para>
+                        <para>This is the alternate command when using
+                        <command>bmonscan</command></para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <command>histmem mode</command>
+                        <replaceable>MONITOR_n</replaceable>
+                    </term>
+                    <listitem>
+                        <para>Sets the active beam monitor. </para>
+                        <para><replaceable>n</replaceable> = 1 is bm1, <replaceable>n</replaceable>
+                            =2 is bm2 etc.</para>
+                        <para>Use this command when using <command>histmem</command></para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para><command>runscan</command> also has an argument to select the beam monitor. </para>
+            <para>Do not use these interchangably e.g. do not use <command>bm setchannel</command>
+                <replaceable>n</replaceable> to set <command>histmem mode</command>
+                <replaceable>MONITOR_n</replaceable>. It will not work. </para>
+            <para>Since there are four commands for selecting beam monitor, you have to be careful
+                to use the right one. Be explicit with your selection of beam monitor when using
+                these commands. Don't assume. </para>
+            <para>If you are using <command>histmem</command> to control the detector, set the beam
+                monitor using <command>histmem mode</command>. </para>
+            <para>If you are using <command>bmonscan</command> set the beam monitor using
+                    <command>bm setchannel</command> or <command>bmonscan setchannel</command></para>
+            <para>If you are using <command>runscan</command> set the beam monitor with the
+                    <replaceable>mode</replaceable> setting in the runscan arguments.</para>
+        </sect2>
+        <sect2>
+            <title>Setting modes for the beam monitors</title>
+            <para>The mode for a beam monitor, either <option>Timer</option> or
+                <option>Monitor</option> can be set using <command>bm mode</command>, where bm can
+                be bm, bm1, bm2 etc. The mode of the mulitcounter <command>bm</command> may be
+                different from the mode of the selected beam monitor e.g. <command>bm1
+                mode</command>. </para>
+            <para>Even if you select bm1 using <command>bm setchannel 0</command> or
+                    <command>bmonscan setchannel 0</command>, changing the mode of bm1 e.g.
+                    <command>bm1 mode monitor</command> will not change <command>bm mode</command>.</para>
+            <para><command>bm mode</command> is set by the most recent <command>bmonscan
+                run</command>. </para>
+        </sect2>
+        <sect2>
+            <title>Active beam monitor commands (bm)</title>
+            <para>The active beam monitor <command>bm</command> has the following commands. These
+                commands are get only</para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <replaceable>bm_preset</replaceable>
+                    </term>
+                    <listitem>
+                        <para>scalar value at which an acquisition will be stopped. Used in
+                            conjunction with <replaceable>mode</replaceable></para>
+                        <para>get only</para>
+                        <para>tree interface <command>/monitor/preset</command></para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <replaceable>bm_mode</replaceable>
+                    </term>
+                    <listitem>
+                        <para>mode to stop acquisitions, either <option>Timer</option> or
+                                <option>Counter</option></para>
+                        <para>get only</para>
+                        <para>Return values:</para>
+                        <para><option>Timer</option> will stop acquisition <command>preset</command>
+                            seconds after the acquisition is started</para>
+                        <para><option>Monitor</option> will stop acquisition
+                            <command>preset</command> counts after the acquisition is started</para>
+                        <para>tree interface <command>/monitor/mode</command></para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <replaceable>tree interface only</replaceable>
+                    </term>
+                    <listitem>
+                        <para>gets the scalar value for the instantaneous time of the beam monitor
+                            selected to control the experiment. </para>
+                        <para>get only</para>
+                        <para>Units: seconds</para>
+                        <para>tree interface <command>/monitor/time</command></para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <replaceable>tree interface only</replaceable>
+                    </term>
+                    <listitem>
+                        <para>gets the scalar value for the instantaneous counts of the beam monitor
+                            selected to control the experiment. </para>
+                        <para>get only</para>
+                        <para>Units: counts</para>
+                        <para>tree interface <command>/monitor/data</command></para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para><command>bm</command> is available in the tree interface under the /monitor node,
+                and attributes can be set and get using the <command>hget</command> and
+                    <command>hset</command> commands. </para>
+        </sect2>
+        <sect2>
+            <title>Specific beam monitor commands (bm1)</title>
+            <para>Each beam monitors are accessible as SICS objects, and in the tree interface under
+                the /monitor node. They can be addressed by name, or using the hget commands when
+                using the tree interface. There are generally either 1, 2 or 3 monitor per
+                instrument, and the commands are of the form</para>
+            <para><command>bm1_...</command></para>
+            <para>where 1 can be 1, 2 or 3</para>
+            <para>For simplicity, all the command descriptions below will use <command>bm1</command></para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <replaceable>bm1_counts</replaceable>
+                    </term>
+                    <listitem>
+                        <para>returns the instanteous value of the number of counts</para>
+                        <para>Units: counts</para>
+                        <para>tree interface <replaceable>/monitor/bm1_counts</replaceable></para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <replaceable>bm1_event_rate</replaceable>
+                    </term>
+                    <listitem>
+                        <para>returns the instanteous value of the count rate</para>
+                        <para>Units: counts per second</para>
+                        <para>tree interface
+                        <replaceable>/monitor/bm1_event_rate</replaceable></para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <replaceable>bm1_time</replaceable>
+                    </term>
+                    <listitem>
+                        <para>return the instantaneous time on this beam monitor. Each beam monitor
+                            can have a unique time value. </para>
+                        <para>Units: seconds</para>
+                        <para>tree interface <replaceable>/monitor/bm1_time</replaceable></para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <replaceable>bm1_status</replaceable>
+                    </term>
+                    <listitem>
+                        <para>Return values:</para>
+                        <para><option>RUNNING</option> Beam monitor is enabled</para>
+                        <para><option>DISABLED</option> Beam monitor is disabled</para>
+                        <para>tree interface <replaceable>/monitor/bm1_status</replaceable></para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </sect2>
+        <sect2>
+            <title>Commands used on both active (bm) and specific (bm1) beam monitors</title>
+            <para>Use the commands on either <command>bm</command> or <command>bm1</command></para>
+            <para>Please replace <replaceable>bm1</replaceable> with the beam monitor you want to
+                control. </para>
+            <para><emphasis>A setting on <command>bm</command> will not change the setting on the
+                    selected beam monitor e.g. <command>bm1</command></emphasis></para>
+            <variablelist>
+                <varlistentry>
+                    <term><replaceable>bm1 preset value</replaceable></term>
+                    <listitem>
+                        <para>get or set a preset <replaceable>value</replaceable> for
+                                <replaceable>bm1</replaceable>. This is the value at which the
+                            acquisition will be stopped. Used in conjunction with
+                            <replaceable>mode</replaceable></para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><replaceable>bm1 mode value</replaceable></term>
+                    <listitem>
+                        <para>get or set the mode to stop acquisitions, either
+                            <option>timer</option> or <option>monitor</option></para>
+                        <para><replaceable>value</replaceable> must be one of these options</para>
+                        <para><option>timer</option> will stop acquisition <command>preset</command>
+                            seconds after the acquisition is started</para>
+                        <para><option>monitor</option> will stop acquisition
+                            <command>preset</command> counts after the acquisition is started</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><replaceable>bm1 status</replaceable></term>
+                    <listitem>
+                        <para>returns the monitor status. e.g. </para>
+                        <para><returnvalue>bm1.CountStatus = 10000 0 Beam: 0 E6</returnvalue></para>
+                        <para>= preset, current control value, current counts. </para>
+                        <para>The current counts may be high by 10 times. To be tested and fixed.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><replaceable>bm1 count value</replaceable></term>
+                    <listitem>
+                        <para>Sets the preset to <replaceable>value</replaceable> and runs the
+                            counter to the preset.</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>Use <command>hget</command> with the tree interface e.g. <command>hget
+                    /monitor/bm1_counts</command>. </para>
+            <para><command>hget /monitor/bm1_counts</command> will return the same value as
+                    <command>bm1_counts</command></para>
+            <para>These attributes are get only e.g. <command>hget /monitor/bm1_counts</command></para>
+            <para>The next section refers to <command>histmem</command> which is most commonly used.
+                The second section will refer to bm, and how it interacts with
+                <command>histmem</command></para>
+        </sect2>
+    </sect1>
+    <sect1>
+        <title>Configuring counters</title>
+        <para>Counters must be configured into the SICS server with the MakeCounter command, they
+            cannot be added dynamically to a running server. The MakeCounter command has the
+            following syntax </para>
+        <para>
+            <command>MakeCounter</command>
+            <replaceable>name</replaceable>
+            <replaceable>type</replaceable>
+            <replaceable>[parameters]</replaceable>
+        </para>
+        <para>The list of parameters depends on the type of counter that is being created.</para>
+    </sect1>
+</chapter>

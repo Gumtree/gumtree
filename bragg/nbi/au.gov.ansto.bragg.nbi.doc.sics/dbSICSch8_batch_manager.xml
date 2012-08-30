@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Batch Manager</title><author>
+            <personname>Ferdi Franceschini</personname>
+        </author>
+        <date>2006-08-17 15:46</date>
+    </info>
+    <sect1>
+        <title>Commands</title>
+        <para>
+            <uri xreflabel="batch"/>The batch buffer manager handles the execution of batch files.
+            It can execute batch files directly. Additionally, batch files can be added into a queue
+            for later processing. The batch buffer manager supports the following commands described
+            below.  The command for controlling the batch manager is called <command>exe</command>
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <command>exe </command>
+                    <replaceable>buffername</replaceable>
+                </term>
+                <listitem>
+                    <para>directly load the buffer stored in the file
+                        <replaceable>buffername</replaceable> and execute it. The file is searched
+                        in the batch buffer search path. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe batchpath </command>
+                    <replaceable>newpath</replaceable>
+                </term>
+                <listitem>
+                    <para>Without an argument, this command lists the directories which are searched
+                        for batch files. </para>
+                    <para><replaceable>newpath</replaceable> sets a new search path. It is possible
+                        to specify multiple directories by separating them with colons. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe syspath </command>
+                    <replaceable>newpath</replaceable>
+                </term>
+                <listitem>
+                    <para>Without an argument, this command lists the system directories which are
+                        searched for batch files. </para>
+                    <para><replaceable>newpath</replaceable> sets a new system search path. It is
+                        possible to specify multiple directories by separating them with colons.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe info </command>
+                </term>
+                <listitem>
+                    <para>prints the name of the currently executing batch buffer </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe info stack</command>
+                </term>
+                <listitem>
+                    <para>prints the stack of nested batch files (i.e. batch files calling each
+                        other). </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe info range </command>
+                    <replaceable>name</replaceable>
+                </term>
+                <listitem>
+                    <para>Without an argument prints the range of code currently being executed.</para>
+                    <para><replaceable>name</replaceable> prints the range of code executing in
+                        named buffer within the stack of nested buffers. The reply looks like: </para>
+                    <para>
+                        <computeroutput>number of start character = number of end character = line
+                            number</computeroutput>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe info text </command>
+                    <replaceable>name</replaceable>
+                </term>
+                <listitem>
+                    <para>Without an argument prints the code text currently being executed. </para>
+                    <para><replaceable>name </replaceable> prints the range of code text executing
+                        in the named buffer within the stack of nested buffers. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe enqueue </command>
+                    <replaceable>buffername</replaceable>
+                </term>
+                <listitem>
+                    <para>Appends <replaceable>buffername</replaceable> to the queue of batch
+                        buffers to execute. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe clear</command>
+                </term>
+                <listitem>
+                    <para>Clears the queue of batch buffers </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe queue</command>
+                </term>
+                <listitem>
+                    <para>Prints the content of the batch buffer queue. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe run </command>
+                </term>
+                <listitem>
+                    <para>Starts executing the batch buffers in the queue. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe print </command>
+                    <replaceable>buffername</replaceable>
+                </term>
+                <listitem>
+                    <para>Prints the content of the batch buffer
+                        <replaceable>buffername</replaceable> to the screen. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe interest </command>
+                </term>
+                <listitem>
+                    <para>Switches on automatic notification about starting batch files, executing a
+                        new bit of code or for finishing a batch file. This is most useful for SICS
+                        clients watching the progress of the experiment.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe upload </command>
+                </term>
+                <listitem>
+                    <para>Prepare the batch manager to upload a new set of commands from the
+                    client</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe append </command>
+                    <replaceable>'tcl commands' </replaceable>
+                </term>
+                <listitem>
+                    <para><note>
+                            <para>don't know the syntax. nha</para>
+                        </note>Append some tcl commands. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe save </command>
+                    <replaceable>filename</replaceable>
+                </term>
+                <listitem>
+                    <para>Save the commands to a batch file.  Returns an error if you try to
+                        overwrite an existing batch file</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>exe forcesave </command>
+                    <replaceable>filename</replaceable>
+                </term>
+                <listitem>
+                    <para>Will overwrite an existing batch file without warning. </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+</chapter>

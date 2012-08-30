@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Beamstops</title><author>
+            <personname>Ferdi Franceschini</personname>
+        </author>
+        <date>2008-12-15 </date>
+    </info>
+    <sect1>
+        <title>Commands</title>
+        <para>Raising and lowering of beamstops is implemented via the <command>selbs</command> 
+            command.</para>
+        <para><command>selbs</command> raises the selected beamstop in a safe manner. It will leave
+            the previously selected beamstop in place until the selected stop is fully raised and
+            then lower the other beamstop. </para>
+        <para><emphasis>If you are changing the <option>x z </option>coordinates there is no safe
+                sequence. You should set maximum attenuation or close the fast shutter before moving
+                the beamstops.</emphasis></para>
+        <para>You can monitor the beamstop position via GumTree as it is being raised, and you can
+            also see the state by reading angles. </para>
+        <para>The odd and even numbered beamstops are on separate parallel axes which are
+            horizontally offset by about 10cm. This means that beamstops must be raised to an angle
+            which is a few degrees of vertical so that the odd and even beamstops will overlap, you
+            will see that the odd numbered stops will be at roughly 93 degrees and the even numbered
+            ones will be at 86 degrees to vertical when raised.</para>
+        <variablelist>
+            <varlistentry>
+                <term><command>selbs </command><replaceable>n </replaceable><replaceable>x
+                    z</replaceable></term>
+                <listitem>
+                    <para>Allowed <replaceable>n</replaceable>
+                        <option>1,2,3,4,5,6</option> where </para>
+                    <para>1 = largest beamstop </para>
+                    <para>6 = smallest beamstop</para>
+                    <para><option>x</option> = beam x position in detector coordinates</para>
+                    <para><option>z</option> = beam z position in detector coordinates</para>
+                    <para>The beam position (x,z) is optional</para>
+                    <note>
+                        <para>This is a blocking command. You will not be able to run other commands
+                            in the session running <command>selbs</command> until it has
+                        finished.</para>
+                    </note>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <example>
+            <title>selbs example</title>
+            <para><command>selbs 1 487.7 490</command></para>
+            <para>Select beamstop one and position it over the middle of the detector.</para>
+            <para><command>selbs 2</command></para>
+            <para>Leave the beamstop carriage in place and select beamstop two.</para>
+        </example>
+    </sect1>
+    <sect1>
+        <title>Parameters</title>
+        <variablelist>
+            <varlistentry>
+                <term><varname>beamstop</varname></term>
+                <listitem>
+                    <para><command>selbs</command> also sets a variable called
+                        <varname>beamstop</varname> and saves it in the data file.</para>
+                    <para>Possible values for <varname>beamstop</varname></para>
+                    <para><option>0</option>
+                        <command>selbs</command> has never been run or the sics status.tcl file has
+                        been cleared</para>
+                    <para><option>-1</option>
+                        <command>selbs</command> failed while driving the beamstops</para>
+                    <para><replaceable>n</replaceable>
+                        <command>selbs</command> completed driving successfully and has selected
+                        beamstop <replaceable>n</replaceable></para>
+                    <para>The value of the "beamstop" variable persists between restarts of SICS.</para>
+                    <warning>
+                        <para>If someone drives the beamstops directly then the
+                            <varname>beamstop</varname> variable may be wrong</para>
+                    </warning>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+    <sect1>
+        <title>Troubleshooting</title>
+        <para>Beamstop position can be checked visually (by eyes) from the vessel port with touch. 
+            To do this,  you should drive the detector to position 9300mm, and view from the middle
+            vessel port.</para>
+    </sect1>
+</chapter>

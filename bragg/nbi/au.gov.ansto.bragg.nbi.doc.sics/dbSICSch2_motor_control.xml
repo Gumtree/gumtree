@@ -1,0 +1,784 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Motor Controls &amp; Drive </title><author>
+            <personname>Ferdi Franceschini</personname>
+        </author>
+        <date>2008-11-08 12:48</date>
+    </info>
+    <sect1>
+        <title>Drive commands</title>
+        <para> Many objects in SICS are drivable . This means they can run to a new value. Obvious
+            examples are motors. Less obvious examples include composite adjustments such as setting
+            a wavelength or an energy. Such devices are alos called virtual motors. This class of
+            objects can be operated by the drive, run, Success family of commands. These commands
+            cater for blocking and non-blocking modes of operation.</para>
+    </sect1>
+    <sect1>
+        <title>Commands</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <command>run </command>
+                    <replaceable>mot1 pos1 mot2 pos2 ...</replaceable>
+                </term>
+                <listitem>
+                    <para>runs <replaceable>mot1</replaceable> to <replaceable>pos1</replaceable>,
+                            <replaceable>mot2</replaceable> to <replaceable>pos2</replaceable>,
+                            <replaceable>...</replaceable></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>success</command>
+                </term>
+                <listitem>
+                    <para>waits and blocks the command connection until all pending operations have
+                        finished (or an interrupt occured).</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>drive </command>
+                    <replaceable>mot1 pos1 mot2 pos2 ...</replaceable>
+                </term>
+                <listitem>
+                    <para>is the same as <command>run</command> but it blocks the client that
+                        requested the <command>drive</command> from issuing commands until the
+                        motion has finished. Can be called with one to n pairs of object new value
+                        pairs. This command will set the variables in motion and wait until the
+                        driving has finished. A <command>drive</command> can be seen as a sequence
+                        of a <command>run</command> command as stated above immediatly followed by a
+                            <command>Success</command> command</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>setpos </command>
+                    <replaceable>mot newPosition</replaceable>
+                </term>
+                <listitem>
+                    <para>Sets the current position value of <replaceable>mot</replaceable> to
+                            <replaceable>newPosition</replaceable></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>setpos </command>
+                    <replaceable>mot oldPosition newPosition</replaceable>
+                </term>
+                <listitem>
+                    <para>Sets the position value of <replaceable>oldPosition</replaceable> to
+                            <replaceable>newPosition</replaceable></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable> OR <replaceable>mot</replaceable>
+                    <command>position</command>
+                </term>
+                <listitem>
+                    <para>prints the current position of the motor. All zero point and sign
+                        corrections are applied</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>hardposition</command>
+                </term>
+                <listitem>
+                    <para>prints the current position of the motor. No corrections are applied.
+                        Should read the same as the controller box</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>list</command>
+                </term>
+                <listitem>
+                    <para>Lists all the motor's parameters.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>reset</command>
+                </term>
+                <listitem>
+                    <para>resets the motor parameters to default values. This is software zero to
+                        0.0 and software limits are reset to hardware limits</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>interest</command>
+                </term>
+                <listitem>
+                    <para>initiates automatic printing of any position change of the motor. This
+                        command is mainly interesting for implementors of status display
+                    clients.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>uninterest</command>
+                </term>
+                <listitem>
+                    <para>disables interest</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>homerun </command>
+                    <option>1 or 0</option>
+                </term>
+                <listitem>
+                    <para><command>homerun</command> with no arguments reports the current status, a
+                        value of "1" means that the motors have been homed.</para>
+                    <para><command>homerun </command><replaceable>1</replaceable> will run the
+                        homing routine. Used on motors with relative encoders e.g. slit motors.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>list </command>
+                    <replaceable>mot</replaceable>
+                    <option>type</option>
+                </term>
+                <listitem>
+                    <para>Returns the motor's type.</para>
+                    <warning>
+                        <para>Appears to be broken. </para>
+                        <para>Configurable virtual motors do not have a list subcommand.</para>
+                    </warning>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+    <sect1>
+        <title>Parameters</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>absenc</command>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Get the absolute encoder reading.  (Only implemented by motors that have
+                        absolute encoders.)</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>accel</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Get/Set the acceleration along/about the axis controlled by this motor in
+                        physical units per square second, ie mm/s^2, deg/s^2</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>accesscode</command>
+                    <replaceable>val</replaceable>
+                    <emphasis role="b">(persists)</emphasis>
+                </term>
+                <listitem>
+                    <para>Default = <option>2</option> i.e. user</para>
+                    <para>Privilege = Manager</para>
+                    <para>Controls which type of user is allowed to control the motor</para>
+                    <para>Allowed <replaceable>val</replaceable>
+                    </para>
+                    <para><option>0</option> Internal. Motor is reserved for internal use by
+                            <application>SICS</application></para>
+                    <para><option>1</option> Manager. Only users who logon as managers are allowed
+                        to move the motor. Usually just instrument scientists </para>
+                    <para><option>2</option> User</para>
+                    <para><option>3</option> Spy. Anyone is allowed to move the motor</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>blockage_check_interval</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Privilege = Manager</para>
+                    <para>Units = seconds</para>
+                    <para>Get/Set the interval at which the motor driver checks the axis for
+                        significant changes in position</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>decel</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Get/Set the deceleration along/about the axis controlled by this motor in
+                        physical units per second, ie mm/s<superscript>2</superscript>,
+                            deg/s<superscript>2</superscript>.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>failafter</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Privilege = Manager</para>
+                    <para>This is the number of consecutive failures of positioning operations this
+                        motor allows before it thinks that something is really broken and aborts the
+                        experiment</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>fixed</command>
+                    <replaceable>val</replaceable>
+                    <emphasis role="b">(persists)</emphasis>
+                </term>
+                <listitem>
+                    <para>Default = 1.0</para>
+                    <para>Privilege = User</para>
+                    <para>Set to -1.0 to prevent the motor from being moved, set to 1.0 to allow
+                        movement.</para>
+                    <para>NOTE: The instrument manager can set the accesscode to prevent users from
+                        moving a motor.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>home</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>
+                        <warning>
+                            <para>subject to change. This may be changed to a configuration only
+                                parameter</para>
+                        </warning>
+                    </para>
+                    <para>Privilege = Manager</para>
+                    <para>Get/Set the home position for the axis which the motor controls, (ie phi,
+                        chi, two-theta, x, y).  So it is the physical home position in the units
+                        given by the <emphasis role="b">units</emphasis> parameter below, (ie mm,
+                        degrees, ...)</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>ignorefault</command>
+                    <replaceable>val</replaceable>
+                    <emphasis role="b">(persists)</emphasis>
+                </term>
+                <listitem>
+                    <para>Position faults will be ignored if this is greater than zero</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>interruptmode</command>
+                    <replaceable>val</replaceable>
+                    <emphasis role="b">(persists)</emphasis>
+                </term>
+                <listitem>
+                    <para>Default = 0 (continue)</para>
+                    <para>Privilege = Manager</para>
+                    <para>Controls what effect a motor failure has on operations</para>
+                    <para>Allowed <replaceable>val</replaceable> one of: </para>
+                    <para><option>0</option> Continue. A motor failure will not affect other
+                        operations</para>
+                    <para><option>1</option> AbortOperation. Stop current hardware operation but no
+                        scans or batchfiles</para>
+                    <para><option>2</option> AbortScan. Stop current scan or operation but continue
+                        processing of batch files with next command</para>
+                    <para><option>3</option> AbortBatch. Stop all processing, even batch
+                    files</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>maxretry</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Default = <option>3</option></para>
+                    <para>Privilege = Manager</para>
+                    <para>The number of times that <application>SICS</application> will retry a move
+                        if a motor has not reached the target position to within the required
+                        precision</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>movecount</command>
+                    <replaceable>val</replaceable>
+                    <emphasis role="b">(persists)</emphasis>
+                </term>
+                <listitem>
+                    <para>Default=<option>10</option></para>
+                    <para>Privilege = Manager</para>
+                    <para>Controls frequency with which position changes are reported if a user
+                        subscribes interest to a motor.  A larger value reduces the frequency</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>precision</command>
+                    <replaceable>val</replaceable>
+                    <emphasis role="b">(persists)</emphasis>
+                </term>
+                <listitem>
+                    <para>Privilege = Manager</para>
+                    <para>Controls precision of movements.  If a motor has not completed a move to
+                        the required precision then the move command will be resent.  The number of
+                        retries is controlled by the maxretry parameter.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>sign</command>
+                    <replaceable>val</replaceable>
+                    <emphasis role="b">(persists)</emphasis>
+                </term>
+                <listitem>
+                    <para>Default = <option>1</option></para>
+                    <para>Privilege = Manager</para>
+                    <para>Controls direction of motion, set to -1 to reverse.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>softlowerlim</command>
+                    <replaceable>val</replaceable>
+                    <emphasis>(persists)</emphasis>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Get/set lower software limit.  This is automatically adjusted when you set
+                        the softzero or use the <command>setpos</command> command.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>softupperlim</command>
+                    <replaceable>val</replaceable>
+                    <emphasis role="b">(persists)</emphasis>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Get/set upper software limit.  This is automatically adjusted when you set
+                        the softzero or use the <command>setpos</command> command.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>softzero</command>
+                    <replaceable>val</replaceable>
+                    <emphasis role="b">(persists)</emphasis>
+                </term>
+                <listitem>
+                    <para>Default = 0</para>
+                    <para>Privilege = User</para>
+                    <para>Sets the zero position to <replaceable>val</replaceable>. You probably
+                        want to use <command>setpos</command> described below, it's easier to
+                        understand. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>speed</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para> Privilege = User</para>
+                    <para>Get/Set the speed of motion along/about the axis controlled by this motor
+                        in physical units per second, ie mm/s, deg/s.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <replaceable>mot</replaceable>
+                    <command>units</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para> Privilege = User</para>
+                    <para>Get/Set the physical units</para>
+                    <para>Preferred <replaceable>val</replaceable>:</para>
+                    <para><option>mm</option></para>
+                    <para><option>degrees</option></para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+    <sect1>
+        <title><command>list </command>output </title>
+        <para><replaceable>mot </replaceable><command>list</command> shows the values of the
+            parameters listed below, in the order listed below.</para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <computeroutput>Position</computeroutput>
+                </term>
+                <listitem>
+                    <para>Reports the current positon</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>TargetPosition</computeroutput>
+                </term>
+                <listitem>
+                    <para>Shows target position</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>hardlowerlim </computeroutput></term>
+                <listitem>
+                    <para>Hardware lower limit for motor set in SICS configuration file</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>hardupperlim </computeroutput></term>
+                <listitem>
+                    <para>Hardware upper limit for motor set in SICS configuration file</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>softlowerlim</computeroutput>
+                </term>
+                <listitem>
+                    <para>Lower software limit.  This is automatically adjusted when you set the
+                        softzero or use the <command>setpos</command> command.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>softupperlim</computeroutput>
+                </term>
+                <listitem>
+                    <para>Upper software limit.  This is automatically adjusted when you set the
+                        softzero or use the <command>setpos</command> command.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>softzero</computeroutput>
+                </term>
+                <listitem>
+                    <para>The zero position. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>fixed</computeroutput>
+                </term>
+                <listitem>
+                    <para><option>-1.0</option> prevents movement</para>
+                    <para><option>1.0</option> allows movement.</para>
+                    <para>NOTE: The instrument manager can set the accesscode to prevent users from
+                        moving a motor.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>interruptmode</computeroutput>
+                </term>
+                <listitem>
+                    <para>Controls what effect a motor failure has on operations</para>
+                    <para>Values: </para>
+                    <para><option>0</option> Continue. A motor failure will not affect other
+                        operations</para>
+                    <para><option>1</option> AbortOperation. Stop current hardware operation but no
+                        scans or batchfiles</para>
+                    <para><option>2</option> AbortScan. Stop current scan or operation but continue
+                        processing of batch files with next command</para>
+                    <para><option>3</option> AbortBatch. Stop all processing, even batch
+                    files</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>precision</computeroutput>
+                </term>
+                <listitem>
+                    <para>Controls precision of movements.  If a motor has not completed a move to
+                        the required precision then the move command will be resent.  The number of
+                        retries is controlled by the <command>maxretry</command> parameter.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>accesscode</computeroutput>
+                </term>
+                <listitem>
+                    <para>Controls which type of user is allowed to control the motor</para>
+                    <para>Allowed values: </para>
+                    <para><option>0</option> Internal. Motor is reserved for internal use by
+                            <application>SICS</application></para>
+                    <para><option>1</option> Manager. Only users who logon as managers are allowed
+                        to move the motor. Usually just instrument scientists </para>
+                    <para><option>2</option> User</para>
+                    <para><option>3</option> Spy. Anyone is allowed to move the motor</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>sign</computeroutput>
+                </term>
+                <listitem>
+                    <para>Default = 1</para>
+                    <para>Privilege = Manager</para>
+                    <para>Controls direction of motion, set to -1 to reverse.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>failafter</computeroutput>
+                </term>
+                <listitem>
+                    <para>This is the number of consecutive failures of positioning operations this
+                        motor allows before it thinks that something is really broken and aborts the
+                        experiment</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>maxretry</computeroutput>
+                </term>
+                <listitem>
+                    <para>The number of times that <application>SICS</application> will retry a move
+                        if a motor has not reached the target position to within the required
+                        precision</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>ignorefault</computeroutput>
+                </term>
+                <listitem>
+                    <para>Position faults will be ignored if this is greater than zero</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>movecount</computeroutput>
+                </term>
+                <listitem>
+                    <para>Default=10</para>
+                    <para>Controls frequency with which position changes are reported if a user
+                        subscribes interest to a motor.  A larger value reduces the frequency</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>home</computeroutput>
+                </term>
+                <listitem>
+                    <para>home position for the axis which the motor controls, (ie phi, chi,
+                        two-theta, x, y).  So it is the physical home position in the units given by
+                        the <emphasis role="b">units</emphasis> parameter below, (ie mm, degrees,
+                        ...)</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>speed</computeroutput>
+                </term>
+                <listitem>
+                    <para>The speed of motion along/about the axis controlled by this motor in
+                        physical units per second, ie mm/s, deg/s.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>maxSpeed </computeroutput></term>
+                <listitem>
+                    <para>Speed in <command>units</command>/s</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>accel</computeroutput>
+                </term>
+                <listitem>
+                    <para>Acceleration along/about the axis controlled by this motor. </para>
+                    <para>Configurable</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>maxAccel </computeroutput></term>
+                <listitem>
+                    <para>Maximum allowed acceleration in
+                        <command>units</command>/s<superscript>2</superscript></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>decel</computeroutput>
+                </term>
+                <listitem>
+                    <para>Deceleration along/about the axis controlled by this motor. </para>
+                    <para>Configurable</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>maxDecel </computeroutput></term>
+                <listitem>
+                    <para>Maximum allowed deceleration in
+                        <command>units</command>/s<superscript>2</superscript></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>motOffDelay </computeroutput></term>
+                <listitem>
+                    <para>Number of msec to wait before switching off a motor after a move</para>
+                    <para>Default = <option>0</option></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>Debug </computeroutput><replaceable/></term>
+                <listitem>
+                    <para/>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>Settle </computeroutput><replaceable/></term>
+                <listitem>
+                    <para/>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>Blockage_Check_Interval </computeroutput><replaceable/></term>
+                <listitem>
+                    <para/>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>Blockage_Thresh </computeroutput><replaceable/></term>
+                <listitem>
+                    <para/>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>Blockage_Ratio </computeroutput><replaceable/></term>
+                <listitem>
+                    <para/>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>Blockage_Fail </computeroutput><replaceable/></term>
+                <listitem>
+                    <para/>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>Backlash_offset </computeroutput><replaceable/></term>
+                <listitem>
+                    <para/>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>Protocol </computeroutput><replaceable/></term>
+                <listitem>
+                    <para/>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>absEncoder </computeroutput></term>
+                <listitem>
+                    <para>Allowed values:</para>
+                    <para><option>0</option> no absolute encoder</para>
+                    <para><option>1</option> absolute encoder enabled</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>absEncHome </computeroutput></term>
+                <listitem>
+                    <para>The calibrated "home" position in encoder counts</para>
+                    <para>Required if <command>absEncoder</command> = 1</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>cntsPerX </computeroutput></term>
+                <listitem>
+                    <para>Number of absolute encoder counts per <command>unit</command> of movement
+                        along/about the axis of motion</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>Creep_Offset </computeroutput></term>
+                <listitem>
+                    <para/>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>Creep_Precision </computeroutput></term>
+                <listitem>
+                    <para/>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>posit_count </computeroutput></term>
+                <listitem>
+                    <para/>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>posit_1 </computeroutput></term>
+                <listitem>
+                    <para/>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>posit_2 </computeroutput></term>
+                <listitem>
+                    <para/>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>posit_3 </computeroutput></term>
+                <listitem>
+                    <para/>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><computeroutput>stepsPerX </computeroutput></term>
+                <listitem>
+                    <para>Number of motor steps per <command>unit</command> of movement along/about
+                        the axis of motion</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+</chapter>

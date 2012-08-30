@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title><application>SICS</application> - The Instrument Control Server</title><author>
+            <personname>Ferdi Franceschini </personname>
+        </author>
+        <date>2007-02-28 18:29</date>
+    </info>
+    <sect1>
+        <title>Safety</title>
+        <para>SICS is <emphasis role="bold">NOT</emphasis> a safety system! It will allow you to do
+            tasks that may damage persons and the instruments. </para>
+        <para>
+        </para>
+        <para><emphasis role="bold">DO</emphasis> use the <emphasis role="bold">STAR</emphasis>
+            principle. <emphasis role="bold">STOP. THINK. ACT. REVIEW</emphasis></para>
+        <para><emphasis role="bold">Familiarise</emphasis> yourself the location of the Emergency
+            Stop buttons located near the cabin exit, or in several places within the instrument
+            enclosure.</para>
+        <para><emphasis role="bold">Familiarise</emphasis> yourself with the instrument and its safe
+            operation. </para>
+        <para><emphasis role="bold">DO NOT</emphasis> do anything with SICS that may risk damage to
+            persons or the instrument. </para>
+        <para><emphasis role="bold">DO NOT</emphasis> rely on these commands to stop motors or close
+            shutters. If in any doubt, use the Emergency Stop button.</para>
+        <para>The commands in this chapter may fail for a variety of reasons. <itemizedlist>
+                <listitem>
+                    <para>SICS has crashed</para>
+                </listitem>
+                <listitem>
+                    <para>Your network connection to the SICS is blocked, due to network congestion
+                        or failure</para>
+                </listitem>
+                <listitem>
+                    <para>The motor controller is no longer accepting connections or has a rogue
+                        process running</para>
+                </listitem>
+            </itemizedlist></para>
+    </sect1>
+    <sect1>
+        <title>What is SICS</title>
+        <para>Neutron scattering experiments require control of motors for instrument configuration,
+            control of histogram memory for counting neutrons, and control of sample environment.
+            SICS is a program that accepts human readable commands, and converts these to commands
+            that devices understand. For simplicity, much of the control for an experiment is done
+            in a sequence (synchronously), requiring that an operation completes successfully before
+            the next is commenced. SICS can also be used asynchronously, but more care has to be
+            exercised by the operator to ensure the desired result. </para>
+         <para>Instrument control is based on a client server architecture, each instrument has a
+            dedicated server, called <application>SICS</application>,  which receives commands from
+            client applications and then executes them by issuing control sequences to the
+            hardware.  <application>SICS</application> was originally developed at <uri
+                xlink:href="http://lns00.psi.ch/sics/design/sics.html">PSI</uri> to control the SINQ
+            spallation source instruments.  Drivers and site specific extensions have been developed
+            at ANSTO to control and provide status information for motors, sample environment and histogrammed neutron
+            event data from the detectors.</para>
+        <para/>
+        <para>Driving a device synchronously is done using the <command>drive</command> command. The device could be a
+            motor or sample environment e.g. temperature controller.</para>
+        <para>Driving a devices asynchronously is done using the <command>run</command> command.</para>
+        <para>Stopping the device is done using the <command>stopexe</command> command.</para>
+        <para>Counting of histogrammed neutron events is done using the <command>histmem</command> command.</para>
+        <para>Running scans that are a linear sequence of driving, counting and file saving tasks is done using the <command>runscan</command> command.</para>
+        <para>Creating a new file is done using the <command>newfile</command> command, and saving data to the file is
+            done using the <command>save</command> command.</para>
+        <para>Detail for using each of these commands is provided in the next chapter. SICS provides many other functions, but we won't cloud the issue
+            at this stage. 
+        </para>
+    </sect1>
+    <sect1>
+        <title>Should I read further?</title>
+        <para>In general, the Bragg Institute instrument scientists manage SICS for the instrument
+            users. SICS should be running when you come to the instrument, and you should only need
+            to run the Gumtree program. You should read further if you think that SICS is not
+            running and you want to start it, you want to command a device directly with SICS (the
+            first half of this manual), or you would like to change the instrument configuration
+            (the second half). </para>
+    </sect1>
+    <sect1>
+        <title>Where is SICS?</title>
+        <para>SICS runs on an ICS computer (instrument control server). All ICS computers run the
+            Linux operating system, and have a name that looks like ics1-echidna.nbi.ansto.gov.au.
+            If you have an account on the NBI network, you can use that username and password to
+            login. You must login using <command>ssh</command> from a unix computer, or using an ssh
+            client on a Microsoft Windows computer like <link
+                xlink:href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">
+                <application>putty</application></link> or
+        <application>F-Secure</application></para>
+    </sect1>
+    <sect1>
+        <title>Starting and stopping <application>SICS</application> using
+            <command>runsics</command></title>
+        <para>To control the instrument, the SICS software must be running on the instrument control
+            computer. First, check to see if SICS is already running by calling the
+            <command>runsics</command>
+            <option>status </option> command as shown below. Note: the "echidna@ics1-echidna:~>" is
+            just the command line prompt.</para>
+        <programlisting>
+echidna@ics1-echidna:~> runsics status
+SICServer running
+SICS script validator running
+        </programlisting>
+        <para> This example shows SICS is already running. In this case, you should proceed to login
+            to SICS. </para>
+        <para>If the reply is</para>
+        <programlisting>
+echidna@ics1-echidna:~> runsics status
+SICServer NOT running
+SICS script validator NOT running
+        </programlisting>
+        <para>then use the <command>runsics</command>
+            <option>start</option> command</para>
+        <programlisting>
+echidna@ics1-echidna:~> runsics start
+            
+Starting SICS
+29087
+SUCCESS
+
+
+Starting SICS Script Validator
+29091
+SUCCESS
+        </programlisting>
+    </sect1>
+    <sect1>
+        <title>Login to SICS</title>
+        <para>Most users won't want to login to <application>SICS.</application> However, if you do
+            need to get to the <application>SICS</application> command line, then use the
+                <command>sicsclient</command> command at the Linux prompt. </para>
+        <programlisting>
+echidna@ics1-echidna:~> sicsclient
+OK
+</programlisting>
+        <para>Now you'll have to login to SICS with your <option>role</option> and
+            <option>password</option>. The role is <option>spy</option>, <option>user</option> or
+                <option>manager</option>, and the instrument scientist will provide you with the
+            password. </para>
+        <programlisting>
+myusername mypassword
+Login OK
+</programlisting>
+        <para>When a correct username and password is entered, SICS announces that the login was
+            successful. SICS commands can now be entered.</para>
+    </sect1>
+    <sect1>
+        <title>Starting <application>SICS</application> from the command line</title>
+        <para>To start <application>SICS</application> you have to log on to the instrument control
+            computer and then </para>
+        <para>
+            <computeroutput>cd /usr/local/sics/server</computeroutput>
+        </para>
+        <para> and launch the server in the background with a command similar to the one shown below</para>
+        <para>
+            <computeroutput>cd /usr/local/sics/server</computeroutput>
+        </para>
+        <para>
+            <computeroutput>nohup ./SICServer xxx_configuration.tcl &amp;</computeroutput>
+        </para>
+        <para>where <replaceable>xxx</replaceable> is the instrument name.</para>
+        <note>
+            <para>The <replaceable>'&amp;'</replaceable> is important, it runs the server in the
+                background, nohup logs output from <application>SICS</application> to a file called
+                nohup.out and ensures that <application>SICS</application> continues running when
+                you logout. The .tcl file specified on the command line is the configuration file for
+                your instrument, replace the <replaceable>xxx</replaceable> with your instrument's
+                ID.  The configuration file may source other .tcl files.</para>
+        </note>
+    </sect1>
+    <sect1>
+        <title><application>SICS</application> Directory Structure</title>
+        <para><application>SICS</application> is installed on the /usr/local/sics/ directory of the
+            instrument control computer.  It has the following subdirectories</para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <computeroutput>/server</computeroutput>
+                </term>
+                <listitem>
+                    <para>This contains the SICServer and the *.tcl configuration files</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>/data</computeroutput>
+                </term>
+                <listitem>
+                    <para>Data files are stored here</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>/log</computeroutput>
+                </term>
+                <listitem>
+                    <para>Server log files are stored here along with the status.tcl file.  The
+                        status.tcl file preserves variable settings and some parameter values from
+                        the last session with the SICServer</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <computeroutput>/tmp</computeroutput>
+                </term>
+                <listitem>
+                    <para>The server keeps temporary files here</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+    <sect1>
+        <title><application>SICS</application> Configuration</title>
+        <para><application>SICS</application> is configured via *.tcl files which initialise the
+            command objects which clients use to control the hardware.  Also,  the server's
+            functionality can be extended by defining new commands in the configuration files, we
+            can do this because <application>SICS</application> embeds a <uri
+                xlink:href="http://www.tcl.tk/">Tcl</uri> interpreter (hence the .tcl
+        extension).</para>
+    </sect1>
+</chapter>

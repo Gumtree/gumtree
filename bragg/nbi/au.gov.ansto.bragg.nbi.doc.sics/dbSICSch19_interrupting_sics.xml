@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Interrupting SICS</title><author>
+            <personname>Ferdi Franceschini</personname>
+        </author>
+        <date>2006-09-04 15:50</date>
+        <bibliosource>The SICS programmers guide. converted to docbook using htlatex. converted to
+            docbook5 by xslt in Oxygen. SINQ specific content removed</bibliosource>
+    </info>
+    <sect1>
+        <title>Safety</title>
+        <para>SICS is <emphasis role="bold">NOT</emphasis> a safety system! It will allow you to do
+            tasks that may damage persons and the instruments. </para>
+        <para>
+        </para>
+        <para><emphasis role="bold">DO</emphasis> use the <emphasis role="bold">STAR</emphasis>
+            principle. <emphasis role="bold">STOP. THINK. ACT. REVIEW</emphasis></para>
+        <para><emphasis role="bold">Familiarise</emphasis> yourself the location of the Emergency
+            Stop buttons located near the cabin exit, or in several places within the instrument
+            enclosure.</para>
+        <para><emphasis role="bold">Familiarise</emphasis> yourself with the instrument and its safe
+            operation. </para>
+        <para><emphasis role="bold">DO NOT</emphasis> do anything with SICS that may risk damage to
+            persons or the instrument. </para>
+        <para><emphasis role="bold">DO NOT</emphasis> rely on these commands to stop motors or close
+            shutters. If in any doubt, use the Emergency Stop button.</para>
+        <para>The commands in this chapter may fail for a variety of reasons. <itemizedlist>
+                <listitem>
+                    <para>SICS has crashed</para>
+                </listitem>
+                <listitem>
+                    <para>Your network connection to the SICS is blocked, due to network congestion
+                        or failure</para>
+                </listitem>
+                <listitem>
+                    <para>The motor controller is no longer accepting connections or has a rogue
+                        process running</para>
+                </listitem>
+            </itemizedlist></para>
+    </sect1>
+    <sect1>
+        <title>stopexe command</title>
+        <para>The <command>stopexe</command> command will stop drivable objects. It will NOT stop
+            scans or batch files. For that you'll have to use an interrupt as found in the next
+            section.</para>
+        <para>
+            <variablelist>
+                <varlistentry>
+                    <term><command>stopexe</command>
+                        <replaceable>device</replaceable></term>
+                    <listitem>
+                        <para>interrupts a <command>drive</command> or <command>run</command>
+                            command. In the case of motors, the motor will decelerate. It won't stop
+                            immediately, as this can cause damage to the instrument </para>
+                        <warning>
+                            <para>This will not interrupt a scan e.g. <command>runscan</command>. </para>
+                            <para>SICS will continue to accept commands from a client</para>
+                        </warning>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>stopexe all</command></term>
+                    <listitem>
+                        <para>interrupts all devices. In the case of motors, the motor will
+                            decelerate. It won't stop immediately, as this can cause damage to the
+                            instrument </para>
+                        <warning>
+                            <para>This will not interrupt a scan e.g. <command>runscan</command>. </para>
+                            <para>SICS will continue to accept commands from a client</para>
+                        </warning>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </para>
+    </sect1>
+    <sect1>
+        <info>
+            <title>Interrupting SICS</title>
+        </info>
+        <para>On occasion, you as the user, or a SICS object may come to the conclusion that an
+            error is so bad that the measurement needs to be stopped. Clearly a means is needed to
+            communicate this to upper level code. This means is setting an interrupt on the
+            connection. The current active interrupt is located at the connection object (note for
+            SICS programmers, this can be retrieved with SCGetInterrupt and set with SCSetInterrupt.
+            Interrupt codes are defined in interrupt.h). These codes are ordered into a hierarchy</para>
+        <para>
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term> INT1712 0 </term>
+                <listitem>
+                    <para>Continue. Everything is just fine. eContinue</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term> INT1712 1 </term>
+                <listitem>
+                    <para>Abort Operation. </para>
+                    <para>Stop the current scan point or whatever is done, but do not stop
+                        altogether. eAbortOperation</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term> INT1712 2 </term>
+                <listitem>
+                    <para>Abort Scan. </para>
+                    <para>Abort the current scan, but continue processing of further commands in
+                        buffers or command ﬁles. eAbortScan</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term> INT1712 3 </term>
+                <listitem>
+                    <para>Abort Batch. </para>
+                    <para>Aborts everything, operations, scans and batch processing and leaves the
+                        system ready to enter new commands. eAbortBatch</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term> INT1712 4 </term>
+                <listitem>
+                    <para>Halt System. </para>
+                    <para>As eAbortBatch, but lock the system. eHaltSystem</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term> INT1712 5 </term>
+                <listitem>
+                    <para>Free System</para>
+                    <para>Unlocks a system halted with eHaltSystem. eFreeSystem</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term> INT1712 6 </term>
+                <listitem>
+                    <warning>
+                        <para>For internal usage only</para>
+                    </warning>
+                    <para>Makes the SICS server run down and exit. .</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>Higher level SICS objects may come to the conclusion that the error reported by lower
+            level code is actually not that critical and clear any pending interrupts by setting the
+            interrupt code to eContinue and thus consume the interrupt. </para>
+    </sect1>
+</chapter>

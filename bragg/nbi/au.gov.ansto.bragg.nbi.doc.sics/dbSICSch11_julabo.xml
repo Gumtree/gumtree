@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Julabo Temperature Control</title><author>
+            <personname>Nick Hauser</personname>
+        </author>
+        <date>2009-03-27 15:50</date>
+    </info>
+    <sect1>
+        <title>Commands</title>
+        <para>The Julabo temperature controller is a SICS script context object. There are 2 parts,
+            the script context object, which has the name <command>/sample/tc1</command> and the
+            driveable interface to the object, which has the name <command>tc1_driveable</command>
+            ie. "tee-cee-one". Note this name can change in the configuration. Hence you can
+                <command>drive</command> and <command>run</command>
+            <command>tc1_driveable</command>. To get and set other parameters use
+            <command>hget</command> or <command>hset /sample/tc1</command></para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <command>run tc1_driveable</command>
+                    <replaceable>temp1</replaceable>
+                </term>
+                <listitem>
+                    <para>Runs the temperature controller <command>tc1</command> to
+                            <replaceable>temp1</replaceable></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>drive tc1_driveable</command>
+                    <replaceable>temp1</replaceable>
+                </term>
+                <listitem>
+                    <para>Is the same as <command>run</command> but it blocks the client that
+                        requested the <command>drive</command> from issuing commands until the task
+                        has finished.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>hlist /sample/tc1</command>
+                </term>
+                <listitem>
+                    <para>Lists all the <command>tc1</command> nodes. Nodes can be get and set using
+                            <command>hget</command> and <command>hset</command></para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>The temperature controller is usually put under the
+            <computeroutput>/sample</computeroutput> node in hipadaba, which is where it will be
+            found when using the Gumtree SICS. This complies with the NeXus standard. </para>
+    </sect1>
+    <sect1>
+        <title>Parameters</title>
+        <para>Use <command>hget </command>and <command>hset </command>on these parameters. Parameter
+            without <replaceable>val</replaceable> are read only and therefore cannot be set. </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <command>/sample/tc1/</command><command>setpoint</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Units = Celsius</para>
+                    <para>Get/Set the temperature setpoint. If the setpoint is set, the controller
+                        will change the temperature to this value, subject to constraints including
+                            <command>operate remote_ctrl hitemp lotemp upperlimit lowerlimit
+                        </command>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>/sample/tc1/</command><command>overtemp_warnlimit</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Units = Celsius</para>
+                    <para>Get/Set the controller's temperature upper limit. When the temperature is
+                        &gt;
+                        <replaceable>val</replaceable>, <application>SICS </application> will veto
+                        counters until the temperature fall below <replaceable>val
+                    </replaceable>.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>/sample/tc1/</command><command>subtemp_warnlimit</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Units = Celsius</para>
+                    <para>Get/Set the controller's temperature lower limit. When the temperature is
+                        &lt; <replaceable>val</replaceable>, <application>SICS </application> will
+                        veto the histogram memory and counters until the temperature rises above
+                            <replaceable>val </replaceable>.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>/sample/tc1/</command><command>sensor/value</command>
+                </term>
+                <listitem>
+                    <para>Units = Celsius</para>
+                    <para>Get the controller's temperature sensor value</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>/sample/tc1/</command><command>heating_power_percent</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Units = percent</para>
+                    <para>Get the controller's current heating power</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>/sample/tc1/</command><command>operate</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Get/Set the operate state.</para>
+                    <para>Allowed <replaceable>val</replaceable>:</para>
+                    <para><option>0</option> Controller doesn't control temperature. Will still
+                        report parameters</para>
+                    <para><option>1</option> Controller provides control. </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>/sample/tc1/</command><command>status</command>
+                </term>
+                <listitem>
+                    <para>Get the controller's operate state</para>
+                    <para>Allowed <replaceable>val</replaceable>:</para>
+                    <para><option>Busy</option> Equivalent to <replaceable>tc1</replaceable>
+                        <command>operate</command>
+                        <option>1</option>
+                    </para>
+                    <para><option>Idle</option> Equivalent to <replaceable>tc1</replaceable>
+                        <command>operate</command>
+                        <option>0</option>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>/sample/tc1/</command><command>remote_ctrl</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Get/Set remote control enable/disable </para>
+                    <para>Allowed <replaceable>val</replaceable>:</para>
+                    <para><option>True</option>
+                        <replaceable>tc1</replaceable> remote control enabled </para>
+                    <para><option>False</option>
+                        <replaceable>tc1</replaceable> remote control disabled </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>/sample/tc1/</command><command>lh45_lasterror</command>
+                </term>
+                <listitem>
+                    <para>Get the last error recorded on the controller. Note that this error
+                        condition is not cleared if the error no longer exists. This value is only
+                        overwritten by another error state. </para>
+                    <para>Example of an error state: </para>
+                    <para><computeroutput>-04 LOW TEMPERATURE WARNING</computeroutput>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>/sample/tc1/</command><command>tolerance</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Units = Celsius</para>
+                    <para>Get/Set <command>tolerance</command>. </para>
+                    <para><command>overtemp_warnlimit</command> and
+                        <command>subtemp_warnlimit</command> will be set when you use the
+                            <command>run</command> or <command>drive</command>
+                        <replaceable>tc1 temp1</replaceable>. Control is dependent on the
+                            <command>overtemp_warnlimit</command> and
+                        <command>subtemp_warnlimit</command> values, not on tolerance. Setting
+                            <command>overtemp_warnlimit</command> or
+                        <command>subtemp_warnlimit</command> will override
+                        <command>tolerance</command></para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>/sample/tc1/</command><command>apply_tolerance</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Privilege = User</para>
+                    <para>Get/Set apply_tolerance <emphasis role="bold">Don't know what this
+                        does</emphasis></para>
+                    <para>Allowed <replaceable>val</replaceable>:</para>
+                    <para><option>0</option>
+                    </para>
+                    <para><option>1</option>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>/sample/tc1/</command><command>lowerlimit</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Privilege = Manager</para>
+                    <para>Get/Set the lower limit for <command>setpoint</command>. If you try to set
+                            <command>setpoint</command> below this value, will return.</para>
+                    <para>ERROR: setpoint violates limits</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>/sample/tc1/</command><command>upperlimit</command>
+                    <replaceable>val</replaceable>
+                </term>
+                <listitem>
+                    <para>Privilege = Manager</para>
+                    <para>Get/Set the lower limit for <command>setpoint</command>. If you try to set
+                            <command>setpoint</command> above this value, will return.</para>
+                    <para>ERROR: setpoint violates limits</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <command>/sample/tc1/</command><command>emon/monmode</command>
+                </term>
+                <listitem>
+                    <para>Get emon's monitor mode <emphasis role="bold">Don't know what this
+                        does</emphasis></para>
+                    <para>Returned values:</para>
+                    <para><option>monitor</option>
+                    </para>
+                    <para><option>???</option>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>/sample/tc1/</command><command>emon/isintol</command>
+                </term>
+                <listitem>
+                    <para>Get if the value is within tolerance (but which tolerance?) hitemp lotemp
+                        or tolerance</para>
+                    <para>Returned values:</para>
+                    <para><option>0</option> out of tolerance</para>
+                    <para><option>1</option> in tolerance</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>/sample/tc1/</command><command>emon/errhandler</command>
+                </term>
+                <listitem>
+                    <para>Get if the value is within tolerance (but which tolerance?) hitemp lotemp
+                        or tolerance</para>
+                    <para>Returned values:</para>
+                    <para><option>pause</option> ???</para>
+                    <para><option>???</option> ???</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+</chapter>

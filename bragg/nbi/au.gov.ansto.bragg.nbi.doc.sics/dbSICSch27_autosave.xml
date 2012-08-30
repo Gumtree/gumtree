@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Autosave</title><author>
+            <personname>Ferdi Franceschini</personname>
+        </author>
+        <date>2008-08-29 16:47</date>
+    </info>
+    <sect1>
+        <title>Commands</title>
+        <variablelist>
+            <varlistentry>
+                <term><command>autosave</command></term>
+                <listitem>
+                    <para>With no arguments enables autosaving with a default interval of 300
+                        seconds (5 minutes)</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+    <sect1>
+        <title>Parameters</title>
+        <variablelist>
+            <varlistentry>
+                <term><command>autosave </command><replaceable>n</replaceable></term>
+                <listitem>
+                    <para><replaceable>n</replaceable> &lt;= 0 disables autosaving</para>
+                    <para><replaceable>n</replaceable> &gt; 0 enables autosaving with an interval of
+                            <replaceable>n</replaceable> seconds (if already running it just sets a
+                        new interval)</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <variablelist>
+            <varlistentry>
+                <term><command>autosave </command><option>check</option></term>
+                <listitem>
+                    <para>Reports if autosave is enabled or disabled.</para>
+                    <para>Return messages are:</para>
+                    <para><literal>AUTOSAVE_STATE = DISABLED</literal></para>
+                    <para><literal>AUTOSAVE_STATE = ENABLED</literal></para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <example>
+            <title>autosave example</title>
+            <literallayout>
+                <literal>
+autosave check
+AUTOSAVE_STATE = DISABLED
+
+autosave 10
+OK
+
+autosave check
+AUTOSAVE_STATE = ENABLED
+                </literal>
+            </literallayout>
+        </example>
+    </sect1>
+    <sect1>
+        <title>Description</title>
+        <para>Data will be saved in the "designated" next data slot in a file. It's tricky because a
+            sequence of datasets can be saved in a single data file (this is in fact the normal case
+            across the instruments). I say "designated" because when you save a sequence of data
+            acquistions in a file <command>autosave</command> cannot tell if the last entry in the
+            file was "autosaved" or deliberately saved. The next slot is designated by making a call
+            to <command>save</command> eg <command>save 3</command> will cause
+            <command>autosave</command> to save data at the next index (ie. 4). This will be made
+            clearer later with examples.</para>
+        <para/>
+        <para>Data will be autosaved under the following conditions:</para>
+        <para>
+            <command>autosave</command> is enabled, of course :)</para>
+        <para><command>newfile</command> has been called to create a new file.</para>
+        <para>The histogram memory is acquiring data.</para>
+        <para>After autosave has been enabled it will start saving data at point zero in the data
+            file, in other words it is equivalent to calling <command>save 0</command> at regular
+            intervals. If a call is made to <command>save</command> eg <command>save 0</command>
+            then autosaving will start saving data in the next slot, ie it saves data in index 1.</para>
+        <para/>
+        <para> Autosaving is suspended under the following conditions:</para>
+        <para>The histogram memory has been paused</para>
+        <para>It resumes after a <command>histogram start</command></para>
+        <para>The histogram memory has been stopped</para>
+        <para>It resumes after a <command>histogram start</command></para>
+        <para><command>newfile clear</command> has been called (this forces you to call
+                <command>newfile</command> again before a new file can be saved).</para>
+        <para>It resumes saving data in a new file at index 0 after a call like <command>newfile
+                HISTOGRAM_XY</command> or <command>newfile scratch</command></para>
+        <para>When a <command>runscan</command> terminates.</para>
+        <para>It resumes saving in a new file starting from index 0 when a new
+            <command>runscan</command> is called.</para>
+        <example>
+            <title>A typical autosave run</title>
+            <literallayout>
+                <literal>
+autosave 1
+OK
+newfile HISTOGRAM_XY
+OK
+histmem mode time
+histmem preset 5
+histmem start block
+histmem started
+autosave 0
+QKK0000035.nx.hdf updated
+autosave 0
+QKK0000035.nx.hdf updated
+histmem paused
+save 0
+QKK0000035.nx.hdf updated
+OK
+newfile HISTOGRAM_XY
+OK
+histmem start block
+histmem started
+autosave 0
+QKK0000036.nx.hdf updated
+autosave 0
+QKK0000036.nx.hdf updated
+histmem paused
+save 0
+QKK0000036.nx.hdf updated
+OK
+                </literal>
+            </literallayout>
+            <para>You should notice that there are a couple of <command>autosave</command> commands
+                before the histogram memory pauses to allow a deliberate call to
+                <command>save</command> and that you must call <command>newfile</command> to
+                autosave data in a new file otherwise you will overwrite data from the previous
+                acquisition (NOTE: this is not a problem with <command>autosave</command>, this is
+                what happens already if you're not careful).</para>
+        </example>
+        <example>
+            <title>autosave example simulates saving a sequence of acquisitions in a single data
+                file</title>
+            <literallayout>
+                <literal>
+autosave 10
+OK
+newfile HISTOGRAM_XY
+OK
+histmem start
+histmem started
+autosave 0
+QKK0000025.nx.hdf updated
+autosave 0
+QKK0000025.nx.hdf updated
+histmem pause
+histmem paused
+save 0
+QKK0000025.nx.hdf updated
+OK
+histmem start
+histmem started
+autosave 1
+QKK0000025.nx.hdf updated
+autosave 1
+QKK0000025.nx.hdf updated
+histmem pause
+histmem paused
+save 1
+QKK0000025.nx.hdf updated
+OK
+autosave 0
+OK
+                </literal>
+            </literallayout>
+            <para>Note how <command>autosave</command> increments after the <command>save
+                0</command>. You should also be aware that autosaving is suspended when the
+                histogram memory is paused or stopped, it resumes when the histogram is
+            restarted.</para>
+        </example>
+        <example>
+            <title>autosave example using <command>runscan</command></title>
+            <literallayout>
+                <literal>
+autosave 2
+OK
+runscan dummy_motor 7.8 -1.5 2 time 10
+Scan start:  7.800000 , Scan step:  -9.300000, Number of points: 2
+Datatype: HISTOGRAM_XYT
+histmem started
+autosave 0
+QKK0000027.nx.hdf updated
+autosave 0
+QKK0000027.nx.hdf updated
+autosave 0
+QKK0000027.nx.hdf updated
+histmem paused
+NP   dummy_mot Counts         Time
+0    7.800     45775          10.00
+Monitor 1 2746
+Monitor 2 3217
+Monitor 3 9863
+QKK0000027.nx.hdf updated
+histmem started
+autosave 1
+QKK0000027.nx.hdf updated
+autosave 1
+QKK0000027.nx.hdf updated
+autosave 1
+QKK0000027.nx.hdf updated
+histmem paused
+NP   dummy_mot Counts         Time
+1    -1.500    45981          10.00
+Monitor 1 229
+Monitor 2 909
+Monitor 3 5385
+QKK0000027.nx.hdf updated
+histmem stopped
+OK
+autosave check
+AUTOSAVE_STATE = ENABLED
+autosave 0
+OK
+autosave check
+AUTOSAVE_STATE = DISABLED
+                </literal>
+            </literallayout>
+            <para>autosaving is suspended at the end of <command>runscan</command> because the
+                histogram memory has stopped running, but autosaving is still enabled as can be seen
+                from the call to <command>autosave check</command>. However there is no risk that
+                data will be overwritten if the histogram is restarted because the runscan command
+                makes a call to <command>newfile clear</command> when it terminates.</para>
+        </example>
+        <example>
+            <title> autosave example using two <command>runscan</command> commands</title>
+            <literallayout>
+                <literal>
+autosave 1
+OK
+runscan dummy_motor 7.8 -1.5 2 time 5
+Scan start:  7.800000 , Scan step:  -9.300000, Number of points: 2
+Datatype: HISTOGRAM_XYT
+histmem started
+autosave 0
+QKK0000031.nx.hdf updated
+autosave 0
+QKK0000031.nx.hdf updated
+histmem paused
+NP   dummy_mot Counts         Time
+0    7.800     22846          5.00
+Monitor 1 276
+Monitor 2 1152
+Monitor 3 2643
+QKK0000031.nx.hdf updated
+histmem started
+autosave 1
+QKK0000031.nx.hdf updated
+autosave 1
+QKK0000031.nx.hdf updated
+histmem paused
+NP   dummy_mot Counts         Time
+1    -1.500    22898          5.00
+Monitor 1 91
+Monitor 2 79
+Monitor 3 5071
+QKK0000031.nx.hdf updated
+histmem stopped
+OK
+                </literal>
+            </literallayout>
+        </example>
+        <example>
+            <title>...autosave example continued</title>
+            <literallayout>
+                <literal>
+runscan dummy_motor 7.8 -1.5 2 time 5
+Scan start:  7.800000 , Scan step:  -9.300000, Number of points: 2
+Datatype: HISTOGRAM_XYT
+histmem started
+autosave 0
+QKK0000032.nx.hdf updated
+autosave 0
+QKK0000032.nx.hdf updated
+histmem paused
+NP   dummy_mot Counts         Time
+0    7.800     23043          5.00
+Monitor 1 8630
+Monitor 2 6962
+Monitor 3 4012
+QKK0000032.nx.hdf updated
+histmem started
+autosave 1
+QKK0000032.nx.hdf updated
+autosave 1
+QKK0000032.nx.hdf updated
+histmem paused
+NP   dummy_mot Counts         Time
+1    -1.500    22887          5.00
+Monitor 1 2449
+Monitor 2 7798
+Monitor 3 9172
+QKK0000032.nx.hdf updated
+histmem stopped
+OK
+                </literal>
+            </literallayout>
+            <para>You should notice that after the first <command>runscan</command> data is
+                autosaved to file 31 and after the second runscan it is autosaved to file 32.</para>
+        </example>
+        <example>
+            <title>example shows what happens if you enable <command>autosave</command> after a
+                couple of datasets have been acquired and saved</title>
+            <literallayout>
+                <literal>
+newfile HISTOGRAM_XY
+OK
+histmem start
+histmem started
+save 0
+QKK0000038.nx.hdf updated
+OK
+save 1
+QKK0000038.nx.hdf updated
+OK
+autosave 5 &lt;---- AUTOSAVE enabled here.
+OK
+autosave 2
+QKK0000038.nx.hdf updated
+autosave 2
+QKK0000038.nx.hdf updated
+save 2
+QKK0000038.nx.hdf updated
+OK
+autosave 3
+QKK0000038.nx.hdf updated
+histmem stop
+histmem stopped
+save 3
+QKK0000038.nx.hdf updated
+OK
+                </literal>
+            </literallayout>
+            <para> You shold notice that autosaving properly commences saving data at index 2 after
+                it has been enabled instead of autosaving over index 0 or 1. It's a bit contrived
+                but it attempts to show the sort of thing that should happen if you are saving
+                multiple periods from a histogram memory.</para>
+        </example>
+    </sect1>
+    <sect1>
+        <title>Known Issues</title>
+        <para>Under exceptional conditions your data file may end up with one more entry than you
+            intended. In other words if you fail to disable autosaving after a deliberate
+                <command>save</command> and <command>newfile</command> has not been called before
+            the histogram memory starts acquiring data again, then another entry will be saved
+            beyond your last save. No data will be lost but you may get more than you expected.
+        </para>
+    </sect1>
+</chapter>

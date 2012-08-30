@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Ordela Detector Voltage Control</title><author>
+            <personname>Ferdi Franceschini</personname>
+        </author>
+        <date>2008-08-29 16:47</date>
+    </info>
+    <sect1>
+        <title>Commands</title>
+        <para>The High Voltage controller for the Ordela detector has been implemented as a standard
+            SICS environment controller object with a driveable interface. It has been configured
+            differently to other SICS objects in several ways. Firstly, you use
+            <command>up</command> and <command>down</command> commands to drive the voltage to its
+                <command>upper</command> and <command>lower</command> limits. This is a blocking
+            task i.e. no other task can started until this is complete. Secondly, the instrument has
+            been configured with the SICS anticollider to prevent you from moving the detector when
+            the voltage is above a certain threshold, which will lead to damage of the detector.
+            This is important for Quokka as the detector is moved frequently. </para>
+        <variablelist>
+            <varlistentry>
+                <term><command>dhv1 up</command></term>
+                <listitem>
+                    <para>Raise the voltage</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>dhv1 down</command></term>
+                <listitem>
+                    <para>Lower the voltage</para>
+                    <note>
+                        <para>NOTE This command blocks until the power supply reaches the "upper" or
+                            "lower" running voltages, see below.</para>
+                    </note>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>INT1712 1</command></term>
+                <listitem>
+                    <para>If this commands hang SICS you can interrupt it with by entering this at
+                        the SICS command line, or by pressing the interrupt button at the bottom of
+                        GumTree</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>dhv1 reset</command></term>
+                <listitem>
+                    <para>Reset the controller </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>dhv1 list</command></term>
+                <listitem>
+                    <para>Displays the values of the various parameters</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>dhv1 send </command><replaceable>command</replaceable></term>
+                <listitem>
+                    <para>Sends a <replaceable>command</replaceable> to the unit and displays the
+                        response</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>dhv1 off </command></term>
+                <listitem>
+                    <para>Drives the output voltage to zero</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+    <sect1>
+        <title>Parameters</title>
+        <variablelist>
+            <varlistentry>
+                <term><command>dhv1 upper </command><replaceable>voltage</replaceable></term>
+                <listitem>
+                    <para>Sets the running voltage for the <command>up</command> command. This would
+                        normally be the operating voltage for the equipment to which the power
+                        supply is connected.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>dhv1 lower </command><replaceable>voltage</replaceable></term>
+                <listitem>
+                    <para>Sets the standby voltage for the <command>down</command> command. This
+                        would normally be the standby voltage for the equipment to which the power
+                        supply is connected.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>dhv1 max </command><replaceable>voltage</replaceable></term>
+                <listitem>
+                    <para>Sets the hardware maximum for the power supply. For the Ordela power
+                        supplies, it is important that this is the correct full-scale value of the
+                        power supply itself. This is used to convert between the voltage step and
+                        voltages and to calculate the step period from the voltage slew rate.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>dhv1 rate </command><replaceable>voltage</replaceable></term>
+                <listitem>
+                    <para>The volts per second at which the power supply slews between voltages. For
+                        the Ordela power supplies, this is used to calculate the time between
+                        voltage steps based on the <option>max</option> parameter</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>dhv1 debug </command><replaceable>val</replaceable></term>
+                <listitem>
+                    <para>Allowed <replaceable>val</replaceable></para>
+                    <para><option>0</option> No debug information in log</para>
+                    <para><option>1</option> Debug information in log</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>dhv1 lock </command></term>
+                <listitem>
+                    <para>This locks the device from being set by users. Users can use <command>up
+                            down</command> and <command>off</command> commands to set
+                    voltages</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><command>dhv1 unlock </command></term>
+                <listitem>
+                    <para>Managers may unlock the device</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </sect1>
+</chapter>

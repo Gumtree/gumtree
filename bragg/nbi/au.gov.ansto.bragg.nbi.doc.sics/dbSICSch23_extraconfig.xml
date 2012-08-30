@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>Personal configuration</title><author>
+            <personname>Nick Hauser</personname>
+        </author>
+        <date/>
+    </info>
+    <sect1>
+        <title>Personalised configuration. extraconfig.tcl</title>
+        <para>You can add your own variables and functions to sics. Start by opening
+            /usr/local/sics/extraconfig.tcl in a text editor (this is on the ics computer). </para>
+        <para>The purpose of the extraconfig.tcl file is to allow instrument scientists and users to
+            create personal configurations, that can be stored in the user's home directory and
+            reused later if required. It also allows users to experiment with additional features,
+            that once proven, can be migrated to an appropriate configuration file</para>
+        <para>Edit the file using the patterns provided below. </para>
+        <para>For the changes to take effect, you'll need to save the file and stop and restart
+            sics.</para>
+        <sect2>
+            <title>Adding a procedure</title>
+            <para>To add a procedure to SICS. Say you want to add the procedure
+                <command>movdet</command> to sics and set by a user, </para>
+            <programlisting>
+    proc movedet {pos} {
+    
+    drive dhv1 600
+    drive det $pos
+    drive dhv1 2350
+    }
+    publish movedet user
+</programlisting>
+            <para>This function will drive the high voltage controller to 600 volts, move the motor
+                    <command>det</command> to position <replaceable>pos</replaceable> and drive the
+                high voltage controller to 2350 volts</para>
+            <para><command>publish</command> is a SICS manager command which makes a Tcl command or
+                procedure visible in the SICS interpreter. <command>publish</command> provides a
+                special wrapper for a Tcl command, which first checks the user rights of the client
+                connection which wants to execute the Tcl command. If the user rights are
+                appropriate the command is invoked in the Tcl–interpreter.</para>
+        </sect2>
+        <sect2>
+            <title>Adding a variable</title>
+            <para>To add a variable, use the <command>mkVar</command> procedure.
+                <command>mkVar</command> is a Tcl wrapper for the SICS function
+                <command>VarMake</command>. These 2 functions share the same first 3 parameters.</para>
+            <para>To view these settings, use <command>hlistprop</command>
+                <replaceable>name</replaceable></para>
+            <para>
+                <command>::utility::mkVar</command>
+                <replaceable>name type access_privilege long_name nxsave class control
+                data</replaceable>
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><replaceable>name</replaceable></term>
+                    <listitem>
+                        <para>name on the sics command line</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><replaceable>type</replaceable></term>
+                    <listitem>
+                        <para>text, int, float</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><replaceable>access_privilege</replaceable></term>
+                    <listitem>
+                        <para>spy, user, manager, internal, readonly</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><replaceable>long_name</replaceable></term>
+                    <listitem>
+                        <para>long name</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><replaceable>nxsave</replaceable></term>
+                    <listitem>
+                        <para>saves to NeXus file</para>
+                        <para>true, false (default). </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><replaceable>class</replaceable></term>
+                    <listitem>
+                        <para>node under which this variable is saved and controlled</para>
+                        <para>e.g. instrument, sample</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><replaceable>control</replaceable></term>
+                    <listitem>
+                        <para>will appear in the Gumtree table tree if this is set to true</para>
+                        <para>true, false (default)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><replaceable>data</replaceable></term>
+                    <listitem>
+                        <para>will appear in the data node of NeXus file if this is set to true.
+                            nxsave must also be set to true.</para>
+                        <para>true, false (default)</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>Example</para>
+            <para>::utility::mkVar starttime Text user start true experiment true true</para>
+            <para>creates a variable called starttime, which is a text variable requiring user
+                privilege to set. The long_name is start, it will be saved to the NeXus file under
+                the 'experiment' node and appear in the Gumtree table tree. </para>
+        </sect2>
+    </sect1>
+</chapter>

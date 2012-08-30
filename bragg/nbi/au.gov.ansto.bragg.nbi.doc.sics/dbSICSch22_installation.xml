@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info><title>SICS installation</title><author>
+            <personname>Ferdi Franceschini</personname>
+        </author>
+        <date>2008-01-25 09:46</date>
+    </info>
+    <sect1>
+        <title>SICS installation</title>
+        <sect2>
+            <title>Requirements</title>
+            <para>For your operating system, you must have these software components installed. The
+                links here are not maintained. They may or may not be up to date, and may or may not
+                link with the version of SICS you are trying to compile. The standard install
+                operating system for ANSTO is SuSE linux, version 9.2, 10, 10.2</para>
+            <para>
+                <uri xlink:href="http://rpmfind.net/linux/rpm2html/search.php?query=hdf5">HDF5</uri>
+                from <uri xlink:href="http://www.hdfgroup.org/HDF5/"
+                >http://www.hdfgroup.org/HDF5/</uri>
+            </para>
+            <para>
+                <uri xlink:href="http://oss.metaparadigm.com/json-c/">JSON-C</uri> from <uri
+                    xlink:href="http://www.json.org/">http://www.json.org/</uri></para>
+            <para>
+                <uri xlink:href="http://mxml.sourceforge.net/">mxml</uri> from <uri
+                    xlink:href="http://mxml.sourceforge.net/">http://mxml.sourceforge.net/</uri>
+            </para>
+            <para>tcl8.4 - Get this from the RPMs for your operating system. Also requires
+                tcl-devel, zlib, zlib-devel, libghttp and libghttp-devel RPMs and tDOM</para>
+        </sect2>
+        <sect2>
+            <title>Getting SICS at ANSTO</title>
+            <para>To get sics you must have an account on boson and you need to belong to the nbip
+                group.  If you are using the command line cvs client you need to set the CVS_RSH
+                environment variable to ssh.  You can then check sics out with the following
+                command,</para>
+            <programlisting>cvs -d:ext:uname@boson.ansto.gov.au:/projects/nbip/cvsroot co sics</programlisting>
+            <para>where uname is your username on boson.</para>
+        </sect2>
+        <sect2>
+            <title>Getting a Release Branch</title>
+            <programlisting>cvs -d:ext:uname@boson.ansto.gov.au:/projects/nbip/cvsroot
+co -rRELEASE-&lt;N>_0-BRANCH sics</programlisting>
+            <para>where &lt;N> is the branch number.</para>
+        </sect2>
+        <sect2>
+            <title>Compiling sics</title>
+            <para>After checking out sics cd to the <filename>site_ansto</filename> directory and
+                run <command>make</command>. This will build a <command>SICServer</command> binary
+                in the <filename>site_ansto</filename> directory.</para>
+            <note>
+                <para>The build system is a work in progress.  I have manage to reduce it down to
+                    two files a Makefile, and  make_gen_variables which is essentially a copy of the
+                    variables in the sics core make_gen file.  The goal is to extract the variables
+                    from make_gen and get rid of make_gen _variables.</para>
+            </note>
+        </sect2>
+    </sect1>
+    <sect1>
+        <info><bibliosource>http://gumtree:9080/nbicms/sics-control-system/ansto-sics/sics-configuration-and-deployment</bibliosource>
+            <author><personname>Ferdi Franceschini</personname></author>
+            <date> 2007-03-21 15:29</date>
+            <title>Instrument Configuration and Deployment</title></info>
+        <sect2>
+            <title>TODO</title>
+            <para> Create motion control checklists for Wombat, Koala, Kowari, and Platypus based on
+                the Echidna Motion Control Functional Test Checklist</para>
+        </sect2>
+        <sect2>
+            <title>SICS Configuration Source Files</title>
+            <para><filename>site_ansto/instrument</filename> is the toplevel directory for the
+                instrument configuration source files along with the shared configuration
+                information, deployment scripts, test code and scaffolding.</para>
+            <para>The top level of the <filename>site_ansto/instrument</filename> directory contains
+                the common instrument configuration files.  All of the instruments depend on the
+                following files: </para>
+            <para><filename>server_config.tcl</filename> defines paths, server options and variables
+                for all of the instruments.  </para>
+            <para><filename>util/utility.tcl</filename> file contains some tcl procs which are
+                useful for defining instrument configurations.</para>
+            <para><filename>/config</filename> directory contains task specific configuration files
+                which may be shared by two or more instruments. It has the following structure: </para>
+            <programlisting>config
+|-- counter
+|-- hipadaba
+|-- hmm
+|-- nexus
+`-- scan  </programlisting>
+            <para>The instrument specific configuration files are stored in subdirectories of
+                    <filename>site_ansto/instrument</filename> name as follows:</para>
+            <simplelist>
+                <member><filename>hipd</filename> (wombat) </member>
+                <member><filename>hrpd</filename> (echidna) </member>
+                <member><filename>pas</filename> (pelican) </member>
+                <member><filename>qld</filename> (koala) </member>
+                <member><filename>reflectometer</filename> (platypus) </member>
+                <member><filename>rsd</filename> (kowari) </member>
+                <member><filename>sans</filename> (quokka) </member>
+                <member><filename>tas</filename> (taipan)</member>
+            </simplelist>
+            <para><emphasis role="b">TODO</emphasis> We should really rename these directories, but
+                doing that in CVS requires a cool clear head and a calm steady hand.</para>
+            <para>Each of the instrument specific subdirectories should have the following layout:</para>
+            <programlisting>&lt;inst&gt; 
+ |-- DMC2280
+ |-- config
+ |    |-- counter
+ |    |-- hipadaba
+ |    |-- hmm
+ |    |-- nexus
+ |    `-- scan  
+ |-- script_validator 
+ |     `-- config 
+ |       |-- counter 
+ |       |-- hmm
+ |       `-- motors
+ `-- util     
+       `-- dmc2280  </programlisting>
+            <para>Each &lt;inst&gt; directory contains the following files </para>
+            <itemizedlist spacing="compact">
+                <listitem>
+                    <para><filename>sics_ports.tcl</filename>
+                    </para>
+                    <para>List of port names used by the SICS server for this instrument </para>
+                </listitem>
+                <listitem>
+                    <para><filename>extraconfig.tcl</filename>
+                    </para>
+                    <para>In the future we will be able to override values recorded in the
+                        status.tcl file by setting them here. </para>
+                </listitem>
+                <listitem>
+                    <para><filename>MANIFEST.TXT</filename>
+                    </para>
+                    <para>List of files and subdirectories to be deployed to the ics1-&lt;inst&gt;
+                        computer. </para>
+                </listitem>
+                <listitem>
+                    <para><filename>Makefile</filename>
+                    </para>
+                    <para>Generates a simulated motor configuration file for the script validator
+                        during deployment. </para>
+                </listitem>
+                <listitem>
+                    <para><filename>&lt;instrument-name&gt;_configuration.tcl</filename>
+                    </para>
+                    <para>This is the main configuration file, it sources all the other
+                        configuration files required to setup an instrument. </para>
+                </listitem>
+            </itemizedlist>
+            <para>The &lt;inst&gt; directories are broken down into the following subdirectories,</para>
+            <variablelist>
+                <varlistentry>
+                    <term><filename>DMC2280</filename></term>
+                    <listitem>
+                        <para>Contains the programs which setup and run on the Galil motion
+                            controllers. They will typically define subroutines and interrupt
+                            handlers for limit switches, and motors. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><filename>config</filename></term>
+                    <listitem>
+                        <para>Contains subdirectories which organise the instrument configuration
+                            files by task.  As well as the following files:</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><filename>INSTCFCOMMON.TXT</filename></term>
+                    <listitem>
+                        <para>Lists common configuration files that this instrument depends
+                        on.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><filename>Makefile</filename></term>
+                    <listitem>
+                        <para>Composes nexus dictionary files into task specific dictionaries for an
+                            instrument</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><filename>script_validator</filename></term>
+                    <listitem>
+                        <para>The port numbers and simulation drivers required by the script
+                            validator are defined here. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><filename>util</filename></term>
+                    <listitem>
+                        <para>Maintenence and diagnostic utilities which can be run independently of
+                            SICS can be found here. </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </sect2>
+    </sect1>
+    <sect1>
+        <title>Deploying SICS</title>
+        <sect2>
+            <title>Deploying to the TEST_SICS directory on bluegum from a working directory on
+                bluegum </title>
+            <para>The root directory for SICS for each instrument on bluegum is
+                    <filename>/usr/local/TEST_SICS/&lt;inst></filename>
+            </para>
+            <para>Under each of these root directories is the following directory structure:</para>
+            <programlisting>/
+|-- batch
+|-- data
+|-- log
+|-- script_validator
+|   |-- batch
+|   |-- data
+|   |-- log
+|   |-- server
+|   |-- tmp
+|-- server
+`-- tmp
+</programlisting>
+            <para>For a fresh install you have to create these directories.</para>
+            <para>Go to the source code directory <filename>site_ansto</filename></para>
+            <programlisting>cd instrument
+./deploySICS.sh test/kowari localhost /usr/local/TEST_SICS/kowari/</programlisting>
+            <para>Edit /etc/services</para>
+            <para>Add lines for the motor services e.g.</para>
+            <programlisting>
+pmc1-kowari 62335/tcp 
+pmc2-kowari 62336/tcp 
+pmc3-kowari 62337/tcp 
+pmc4-kowari 62338/tcp 
+</programlisting>
+            <para>After deploying a test setup you will need to configure the fake motors for SICS</para>
+            <programlisting>cd /usr/local/TEST_SICS/kowari/fakeDMC 
+./mkSimAxes.tcl kowari</programlisting>
+            <para>Then you can run the fake motors in separate terminals </para>
+            <programlisting>./cont.tcl -cont 1 -port pmc1-kowari 
+./cont.tcl -cont 2 -port pmc2-kowari 
+./cont.tcl -cont 3 -port pmc3-kowari 
+./cont.tcl -cont 4 -port pmc4-kowari </programlisting>
+            <para>Then create the DataNumber file and launch SICS </para>
+            <programlisting>cd /usr/local/TEST_SICS/kowari/sics/ 
+touch data/DataNumber 
+cd server 
+./SICServer kowari_configuration.tcl</programlisting>
+        </sect2>
+        <sect2>
+            <title>Deploying to ics1-dev.nbi.ansto.gov.au and ics1-test.nbi.ansto.gov.au</title>
+            <para>The instrument dev and test computers must have the information in the
+                    <filename>sics_test_hosts</filename> and the
+                <filename>sics_test_services</filename> files under
+                    the <filename>site_ansto/instrument/TEST_SICS/</filename> directory appended to
+                the services and hosts files.  This will allow us to run multiple instances of sics
+                on the test computer without changing the instrument configuration files. </para>
+            <programlisting>cd instrument 
+./deploySICS.sh echidna/test ics1-dev.nbi.ansto.gov.au</programlisting>
+        </sect2>
+        <sect2>
+            <title>Deploying to an instrument control server</title>
+            <programlisting>cd instrument 
+./deploySICS.sh echidna</programlisting>
+        </sect2>
+    </sect1>
+</chapter>
