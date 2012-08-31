@@ -16,7 +16,8 @@ public enum InternalImage {
 	STOP("icons/full/elcl16/terminate_co.gif"),
 	TELNET("icons/telnet.gif"),
 	LOCK("icons/lock.png"),
-	UNLOCK("icons/lock_open.png");
+	UNLOCK("icons/lock_open.png"),
+	STOP_128("icons/stop_128x128.png");
 	
 	private InternalImage(String path) {
 		this.path = path;

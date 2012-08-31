@@ -1,3 +1,4 @@
+from org.eclipse.e4.core.contexts import ContextInjectionFactory
 from org.eclipse.e4.ui.model.application.ui.basic import MBasicFactory
 from org.eclipse.e4.ui.model.application.ui.advanced import MAdvancedFactory
 from org.eclipse.jface.util import SafeRunnable
@@ -28,6 +29,12 @@ def swtFunction(function):
         SafeUIRunner.asyncExec(Runnable())
     return internalRun
 
+#def inject(function):
+#    def internal():
+#        __getActivateTasklet__().getEclipseContext()
+#        function()
+#    return internal
+
 def createPart(function, parent, label, containerData='1000'):
     mPart = MBasicFactory.INSTANCE.createPart()
     mPart.setLabel(label)
@@ -49,6 +56,10 @@ def createPart(function, parent, label, containerData='1000'):
 def refreshUI():
     global __mPerspective__
     __mPerspective__.getWidget().layout(True, True)
+
+def configureObject(object):
+    activatedTasklet = __getActivateTasklet__()
+    ContextInjectionFactory.inject(object, activatedTasklet.getEclipseContext())
 
 ###############################################################################
 # Internal helper functions

@@ -8,9 +8,12 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.gumtree.gumnix.sics.ui.widgets.SicsInterruptWidget;
 import org.gumtree.ui.cruise.support.CruisePanel;
+import org.gumtree.ui.util.resource.SharedImage;
 
 import au.gov.ansto.bragg.nbi.workbench.internal.Activator;
+import au.gov.ansto.bragg.nbi.workbench.internal.InternalImage;
 
 @SuppressWarnings("restriction")
 public class NBICruisePanel extends CruisePanel {
@@ -29,10 +32,12 @@ public class NBICruisePanel extends CruisePanel {
 				.grab(true, true).applyTo(originalComposite);
 		super.createCruisePanel(originalComposite);
 
-		CruiseSicsInterruptWidget interruptWidget = new CruiseSicsInterruptWidget(parent,
+		SicsInterruptWidget interruptWidget = new SicsInterruptWidget(parent,
 				SWT.NONE);
+		interruptWidget.setButtonImage(InternalImage.STOP_128.getImage());
 		ContextInjectionFactory.inject(interruptWidget, Activator.getDefault()
 				.getEclipseContext());
+		interruptWidget.setBackgroundImage(SharedImage.CRUISE_BG.getImage());
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(interruptWidget);
 	}

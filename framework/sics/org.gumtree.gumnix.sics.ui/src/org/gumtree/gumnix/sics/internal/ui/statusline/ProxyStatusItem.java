@@ -93,24 +93,28 @@ public class ProxyStatusItem extends ControlContribution {
     }
 
     private void updateUI() {
-    	if (launchImage != null && !launchImage.isDisposed()) {
-			SafeUIRunner.asyncExec(new SafeRunnable() {
-				public void run() throws Exception {
+		SafeUIRunner.asyncExec(new SafeRunnable() {
+			public void run() throws Exception {
+				if (launchImage != null && !launchImage.isDisposed()) {
 					if (SicsCore.getDefaultProxy().isConnected()) {
 						launchImage.setImage(connectedImage);
-						launchImage.setToolTipText("Sics is connected. Click to disconnect from SICS");
-						ISicsConnectionContext context = SicsCore.getDefaultProxy().getConnectionContext();
-						lauunchText.setText(context.getHost() + ":" + context.getPort());
+						launchImage
+								.setToolTipText("Sics is connected. Click to disconnect from SICS");
+						ISicsConnectionContext context = SicsCore
+								.getDefaultProxy().getConnectionContext();
+						lauunchText.setText(context.getHost() + ":"
+								+ context.getPort());
 					} else {
 						launchImage.setImage(disconnectedImage);
-						launchImage.setToolTipText("Sics is disconnected. Click to connect SICS");
+						launchImage
+								.setToolTipText("Sics is disconnected. Click to connect SICS");
 						lauunchText.setText("Disconnected");
 					}
 					launchImage.redraw();
 					launchImage.getParent().layout();
 				}
-			});
-    	}
+			}
+		});
     }
     
     public void dispose() {

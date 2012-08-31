@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.SafeRunner;
 import org.gumtree.core.management.IManageableBean;
 import org.gumtree.gumnix.sics.core.SicsCoreProperties;
+import org.gumtree.gumnix.sics.core.SicsEvents;
 import org.gumtree.gumnix.sics.internal.io.SicsCommunicationConstants.JSONTag;
 import org.gumtree.gumnix.sics.io.ISicsCallback;
 import org.gumtree.gumnix.sics.io.ISicsChannelMonitor;
@@ -27,6 +28,7 @@ import org.gumtree.gumnix.sics.io.SicsCallbackAdapter;
 import org.gumtree.gumnix.sics.io.SicsExecutionException;
 import org.gumtree.gumnix.sics.io.SicsIOException;
 import org.gumtree.gumnix.sics.io.SicsRole;
+import org.gumtree.util.messaging.EventBuilder;
 import org.gumtree.util.messaging.IListenerManager;
 import org.gumtree.util.messaging.ListenerManager;
 import org.gumtree.util.messaging.SafeListenerRunnable;
@@ -43,6 +45,8 @@ public class SicsProxy implements ISicsProxy {
 	private static final int HEART_BEAT_PERIOD = 5000;
 
 	private static final int WAIT_INTERVAL = 10;
+	
+	private static long idCounter = 0;
 
 	private static Logger logger;
 
@@ -68,7 +72,10 @@ public class SicsProxy implements ISicsProxy {
 	
 	private Thread messageDispatcherThread;
 
+	private String id;
+	
 	public SicsProxy() {
+		id = idCounter++ + "";
 		state = ProxyState.DISCONNECTED;
 		role = SicsRole.UNDEF;
 		roleChangedNotify = false;
@@ -85,6 +92,10 @@ public class SicsProxy implements ISicsProxy {
 		messageDispatcherThread.start();
 	}
 
+	public String getId() {
+		return id;
+	}
+	
 	public void disconnect() throws SicsIOException {
 		if(state == ProxyState.DISCONNECTED) {
 			throw new SicsIOException("Proxy has already been disconnected");
@@ -103,6 +114,9 @@ public class SicsProxy implements ISicsProxy {
 						listener.proxyDisconnected();
 					}
 				});
+		new EventBuilder(SicsEvents.Proxy.TOPIC_DISCONNECTED)
+				.append(SicsEvents.Proxy.PROXY, this)
+				.append(SicsEvents.Proxy.PROXY_ID, getId()).post();
 		connectionMonitor = null;
 		
 		// New
@@ -228,6 +242,9 @@ public class SicsProxy implements ISicsProxy {
 						listener.proxyConnected();
 					}
 				});
+		new EventBuilder(SicsEvents.Proxy.TOPIC_CONNECTED)
+				.append(SicsEvents.Proxy.PROXY, this)
+				.append(SicsEvents.Proxy.PROXY_ID, getId()).post();
 		getLogger().info("Sics listeners for notifying connection openned are all ready to run.");
 
 		// [GUMTREE-70] since Java socket does not notify and check for disconnection

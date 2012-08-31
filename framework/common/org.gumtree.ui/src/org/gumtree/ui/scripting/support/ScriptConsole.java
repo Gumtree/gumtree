@@ -107,7 +107,7 @@ public class ScriptConsole extends ExtendedComposite implements IScriptConsole {
 	private ICommandLineToolRegistry toolRegistry;
 
 	private UIContext context;
-	
+
 	private String id;
 
 	private int originalStyle;
@@ -469,7 +469,7 @@ public class ScriptConsole extends ExtendedComposite implements IScriptConsole {
 	public String getId() {
 		return id;
 	}
-	
+
 	@Override
 	public int getOriginalStyle() {
 		return originalStyle;
@@ -839,7 +839,8 @@ public class ScriptConsole extends ExtendedComposite implements IScriptConsole {
 
 		SafeUIRunner.asyncExec(new SafeRunnable() {
 			public void run() throws Exception {
-				if (context != null && context.toolTabFolder != null) {
+				if (context != null && context.toolTabFolder != null
+						&& getToolRegistry() != null) {
 					// Setup Tools
 					String[] toolIds = getToolProperty(engine).split(",");
 					boolean historyToolCreated = false;
@@ -854,14 +855,14 @@ public class ScriptConsole extends ExtendedComposite implements IScriptConsole {
 						} else {
 							ICommandLineTool tool = null;
 							try {
-								tool = toolRegistry
-										.createCommandLineTool(toolId);
+								tool = getToolRegistry().createCommandLineTool(
+										toolId);
 							} catch (CoreException e) {
 								logger.error(
 										"Failed to instantiate tool for id "
 												+ toolId + ".", e);
 							}
-							String label = toolRegistry
+							String label = getToolRegistry()
 									.getCommandLineToolLabel(toolId);
 							if (tool != null) {
 								tool.setScriptExecutor(executor);

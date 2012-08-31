@@ -4,15 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.model.application.ui.advanced.MPerspective;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IPerspectiveDescriptor;
-import org.eclipse.ui.IWindowListener;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.gumtree.ui.internal.Activator;
 import org.gumtree.ui.tasklet.IActivatedTasklet;
 import org.gumtree.ui.tasklet.ITasklet;
 import org.gumtree.ui.tasklet.ITaskletManager;
@@ -33,6 +33,8 @@ public class ActivatedTasklet implements IActivatedTasklet {
 
 	private IPerspectiveDescriptor perspective;
 
+	private IEclipseContext eclipseContext;
+	
 	private Map<Object, Object> context;
 
 	public ActivatedTasklet(ITasklet tasklet, ITaskletManager taskletManager) {
@@ -40,6 +42,7 @@ public class ActivatedTasklet implements IActivatedTasklet {
 		this.tasklet = tasklet;
 		this.taskletManager = taskletManager;
 		context = new HashMap<Object, Object>(2);
+		eclipseContext = Activator.getDefault().getEclipseContext().createChild();
 	}
 
 	@Override
@@ -52,6 +55,11 @@ public class ActivatedTasklet implements IActivatedTasklet {
 		return tasklet;
 	}
 
+	@Override
+	public IEclipseContext getEclipseContext() {
+		return eclipseContext;
+	}
+	
 	public ITaskletManager getTaskletManager() {
 		return taskletManager;
 	}
@@ -119,6 +127,10 @@ public class ActivatedTasklet implements IActivatedTasklet {
 		parent = null;
 		mPerspective = null;
 		perspective = null;
+		if (eclipseContext != null) {
+			eclipseContext.dispose();
+			eclipseContext = null;
+		}
 		if (context != null) {
 			context.clear();
 			context = null;

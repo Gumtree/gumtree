@@ -30,6 +30,8 @@ public interface ISicsProxy {
 		CONNECTED, DISCONNECTED
 	}
 
+	public String getId();
+	
 	public void login(ISicsConnectionContext context) throws SicsExecutionException, SicsIOException;
 
 	public void changeRole(SicsRole role, String password) throws SicsExecutionException, SicsIOException;

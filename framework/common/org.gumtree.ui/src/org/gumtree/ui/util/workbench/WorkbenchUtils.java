@@ -16,10 +16,10 @@ import org.eclipse.e4.ui.model.application.ui.advanced.MPlaceholder;
 import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.jface.action.IStatusLineManager;
-import org.eclipse.jface.window.ApplicationWindow;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
+import org.eclipse.ui.internal.WorkbenchWindow;
 import org.gumtree.ui.internal.Activator;
 import org.gumtree.util.collection.IMapFilter;
 
@@ -37,7 +37,7 @@ public final class WorkbenchUtils {
 		// due to incompatibilities in the internals between 2.1 and 3.0.
 		IStatusLineManager statusLine = null;
 		try {
-			Method gslm = ApplicationWindow.class.getDeclaredMethod(
+			Method gslm = WorkbenchWindow.class.getDeclaredMethod(
 					"getStatusLineManager", new Class[0]); //$NON-NLS-1$
 			gslm.setAccessible(true);
 			statusLine = (IStatusLineManager) gslm
