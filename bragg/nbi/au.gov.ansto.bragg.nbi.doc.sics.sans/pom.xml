@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>au.gov.ansto.bragg.nbi.doc.sics.powder</artifactId>
+	<artifactId>au.gov.ansto.bragg.nbi.doc.sics.sans</artifactId>
 	<packaging>eclipse-plugin</packaging>
 	<parent>
 		<groupId>org.codehaus.gumtree</groupId>
@@ -12,7 +12,7 @@
 		<relativePath>../../../parent/org.gumtree.maven.tycho</relativePath>
 	</parent>
 	<properties>
-		<docbook.book>db5SICSUserManualPowder</docbook.book>
+		<docbook.book>db5SICSUserManualQuokka</docbook.book>
 		<docbook.sourceProject>au.gov.ansto.bragg.nbi.doc.sics</docbook.sourceProject>
 	</properties>
 
@@ -92,5 +92,5 @@
 		</plugins>
 	</build>
 
-	<name>Bragg NBI SICS Powder Documentation Bundle</name>
+	<name>Bragg NBI SICS SANS Documentation Bundle</name>
 </project>

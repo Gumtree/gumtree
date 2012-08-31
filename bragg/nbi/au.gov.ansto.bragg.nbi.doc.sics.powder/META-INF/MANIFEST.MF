@@ -3,3 +3,4 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Bragg NBI SICS Powder Documentation
 Bundle-SymbolicName: au.gov.ansto.bragg.nbi.doc.sics.powder;singleton:=true
 Bundle-Version: 1.8.0.qualifier
+Bundle-Vendor: Bragg Institute

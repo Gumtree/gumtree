@@ -30,6 +30,9 @@
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.core</module>
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.algolib</module>
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.dra</module>
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.doc.sics.powder</module>
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.doc.sics.sans</module>
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.doc.sics.tas</module>
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.core.feature</module>
 
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.server</module>
