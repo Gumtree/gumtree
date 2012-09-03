@@ -11,8 +11,9 @@
 
 package au.gov.ansto.bragg.taipan.ui;
 
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.gumtree.core.service.ServiceUtils;
+import org.eclipse.ui.internal.WorkbenchWindow;
 import org.gumtree.ui.service.launcher.AbstractLauncher;
 import org.gumtree.ui.service.launcher.LauncherException;
 import org.gumtree.ui.service.multimonitor.IMultiMonitorManager;
@@ -39,7 +40,10 @@ public class TaipanWorkbenchLauncher extends AbstractLauncher {
 	public void launch() throws LauncherException {
 		{			
 			// TODO: move this logic to experiment UI manager service
-			
+			IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			if (activeWorkbenchWindow instanceof WorkbenchWindow) {
+				((WorkbenchWindow) activeWorkbenchWindow).setCoolBarVisible(false);
+			}
 //			IMultiMonitorManager mmManager = ServiceUtils.getService(IMultiMonitorManager.class);
 			IMultiMonitorManager mmManager = new MultiMonitorManager();
 			// Attempt to close intro
@@ -50,6 +54,7 @@ public class TaipanWorkbenchLauncher extends AbstractLauncher {
 //			launcher.launch(0);
 			
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
+			
 			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
 				// open new window as editor buffer
 				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, true);

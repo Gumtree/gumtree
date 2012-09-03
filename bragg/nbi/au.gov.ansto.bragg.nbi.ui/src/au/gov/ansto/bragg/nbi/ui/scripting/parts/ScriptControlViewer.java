@@ -54,10 +54,9 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
@@ -83,6 +82,7 @@ import org.gumtree.gumnix.sics.control.events.IDynamicControllerListener;
 import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.io.SicsIOException;
 import org.gumtree.scripting.IScriptExecutor;
+import org.gumtree.scripting.ScriptExecutor;
 
 import au.gov.ansto.bragg.nbi.ui.internal.Activator;
 import au.gov.ansto.bragg.nbi.ui.internal.InternalImage;
@@ -113,9 +113,9 @@ public class ScriptControlViewer extends Composite {
 	private static final String PRE_RUN_SCRIPT = "/pyscripts/pre_run.py";
 	private static final String POST_RUN_SCRIPT	= "/pyscripts/post_run.py";
 //	private static final String INTERNAL_FOLDER_PATH = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/Internal";
-	private static final String WORKSPACE_FOLDER_PATH = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
-	private static final String GUMTREE_SCRIPTING_LIST_PROPERTY = "gumtree.scripting.menuitems";
-	private static final String GUMTREE_SCRIPTING_INIT_PROPERTY = "gumtree.scripting.initscript";
+	public static final String WORKSPACE_FOLDER_PATH = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+	public static final String GUMTREE_SCRIPTING_LIST_PROPERTY = "gumtree.scripting.menuitems";
+	public static final String GUMTREE_SCRIPTING_INIT_PROPERTY = "gumtree.scripting.initscript";
 //	private static final String[][] INTERNAL_SCRIPTS = new String[][]{
 //									{"Experiment Setup", "/Experiment/Experiment_Setup.py"},
 //									{"Nickel Alignment", "/Nickel_Auto/auto_Nickel_align.py"},
@@ -230,6 +230,7 @@ public class ScriptControlViewer extends Composite {
 	private ScriptModel scriptModel;
 	private String scriptFilename;
 	private Button currentButton;
+	private ScriptExecutor scriptExecutor;
 	private IActivityListener datasetActivityListener;
 	/**
 	 * @param parent
@@ -1247,6 +1248,9 @@ public class ScriptControlViewer extends Composite {
 	}
 
 	public IScriptExecutor getScriptExecutor() {
+		if (scriptExecutor != null) {
+			return scriptExecutor;
+		}
 		ScriptPageRegister register = ScriptPageRegister.getRegister(scriptRegisterID);
 		if (register != null) {
 			return register.getConsoleViewer().getScriptExecutor();
@@ -1527,5 +1531,17 @@ public class ScriptControlViewer extends Composite {
 			return Platform.getPreferencesService().getString(
 					Activator.PLUGIN_ID, name, "", null).trim();
 		}
+	}
+	
+	public Composite getStaticComposite() {
+		return staticComposite;
+	}
+	
+	public Composite getScrollArea() {
+		return scroll;
+	}
+	
+	public void setScriptExecutor(ScriptExecutor executor){
+		this.scriptExecutor = executor;
 	}
 }

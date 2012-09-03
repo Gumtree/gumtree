@@ -15,6 +15,14 @@
             id="au.gov.ansto.bragg.pelican.ui.views.TclEditorView"
             name="① Batch Editor">
       </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.pelican.ui"
+            class="au.gov.ansto.bragg.pelican.ui.views.ExperimentConfigView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.pelican.ui.views.ExperimentConfigView"
+            name="Experiment Configuration">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">

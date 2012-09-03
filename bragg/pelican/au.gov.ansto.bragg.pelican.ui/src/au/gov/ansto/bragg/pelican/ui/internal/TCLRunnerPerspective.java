@@ -23,6 +23,7 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 	public static final String COMMAND_LINE_VIEW_ID="org.gumtree.scripting.ui.commandLineView";
 	public static final String SICS_TERMINAL_VIEW_ID = "org.gumtree.gumnix.sics.ui.SicsTerminalView";
 	public static final String PROJECT_EXPLORER_VIEW_ID = "org.eclipse.ui.navigator.ProjectExplorer";
+	public static final String EXPERIMENT_CONFIG_VIEW_ID = "au.gov.ansto.bragg.pelican.ui.views.ExperimentConfigView";
 //	public static final String CONTROL_VIEW_ID = "au.gov.ansto.bragg.pelican.ui.views.KowariControlView";
 	public static final String SICS_BUFFER_RUNNER_VIEW_ID = "org.gumtree.gumnix.sics.batch.ui.batchBufferRunnerView";
 	public static final String SICS_BUFFER_VALIDATOR_VIEW_ID = "org.gumtree.gumnix.sics.batch.ui.batchBufferValidatorView";
@@ -40,9 +41,9 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 				IPageLayout.TOP,
 				0.73f,
 				factory.getEditorArea());
+		top2.addView(EXPERIMENT_CONFIG_VIEW_ID);
 		top2.addView(WORKFLOW_VIEW_ID);
 		top2.addView(SICS_BUFFER_VALIDATOR_VIEW_ID);
-//		top2.addView(SICS_BUFFER_RUNNER_VIEW_ID);
 
 		factory.addStandaloneView(SICS_BUFFER_RUNNER_VIEW_ID, false, 
 				IPageLayout.RIGHT, 0.6f, "top_folder");
