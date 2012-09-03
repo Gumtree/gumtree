@@ -24,7 +24,7 @@ public interface ITaskletManager extends IService {
 	
 	public List<ITasklet> getTasklets();
 	
-	public ITaskletLauncher getLauncher(ITasklet tasklet);
+	public ITaskletLauncherFactory getTaskletLauncherFactory(ITasklet tasklet);
 	
 	public IActivatedTasklet activatedTasklet(ITasklet tasklet);
 	
@@ -33,9 +33,5 @@ public interface ITaskletManager extends IService {
 	public IActivatedTasklet getActivatedTasklet(String id);
 	
 	public List<IActivatedTasklet> getActivatedTasklets();
-	
-	/*************************************************************************
-	 * Components
-	 *************************************************************************/
 	
 }

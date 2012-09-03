@@ -6,8 +6,6 @@ import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.gumtree.ui.cruise.ICruisePanelPage;
-import org.gumtree.ui.tasklet.ITaskletLauncher;
-import org.gumtree.ui.tasklet.support.JythonTaskletLauncher;
 import org.gumtree.ui.tasklet.support.TaskletManagerViewer;
 import org.gumtree.ui.util.workbench.WorkbenchUtils;
 

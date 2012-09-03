@@ -17,7 +17,8 @@ Require-Bundle: com.ibm.icu;bundle-version="4.4.2",
  org.eclipse.e4.ui.workbench;bundle-version="0.10.2",
  org.eclipse.e4.ui.di;bundle-version="0.10.1",
  org.gumtree.workflow.ui;bundle-version="1.7.0",
- org.gumtree.app.runtime;bundle-version="1.8.0"
+ org.gumtree.app.runtime;bundle-version="1.8.0",
+ org.gumtree.jython.ui;bundle-version="1.8.0"
 Export-Package: org.gumtree.app.workbench.cruise,
  org.gumtree.app.workbench.support,
  org.gumtree.app.workbench.tasks
@@ -26,4 +27,4 @@ Eclipse-BundleShape: dir
 Bundle-Localization: plugin
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/services/AppLaunchRegistry.xml,OSGI-INF/services/CommandLineToolRegistry.xml,OSGI-INF/services/CommunicationAdapterRegistry.xml,OSGI-INF/services/CruisePanelManager.xml,OSGI-INF/services/GadgetRegistry.xml,OSGI-INF/services/TaskletManager.xml,OSGI-INF/pages/ApplicationsPage.xml,OSGI-INF/pages/TaskPage.xml,OSGI-INF/converters/FileStoreUIConverter.xml,
- OSGI-INF/services/JythonTaskletLauncher.xml
+ OSGI-INF/services/JythonTaskletLauncherFactory.xml

@@ -16,7 +16,9 @@ public enum InternalImage {
 	VARIABLE("icons/var_simple.gif"),
 	STRING("icons/var_string.gif"),
 	LIST("icons/list.gif"),
-	TUPLE("icons/tuple.gif");
+	TUPLE("icons/tuple.gif"),
+	FOLDER("icons/fldr_obj.gif"),
+	SCRIPT_FILE("icons/script_gear_16x16.png");
 	
 	private InternalImage(String path) {
 		this.path = path;

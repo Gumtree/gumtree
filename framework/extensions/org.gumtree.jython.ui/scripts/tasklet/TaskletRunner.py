@@ -1,3 +1,5 @@
+from gumpy.commons.swt import swtFunction
+
 from org.eclipse.e4.core.contexts import ContextInjectionFactory
 from org.eclipse.e4.ui.model.application.ui.basic import MBasicFactory
 from org.eclipse.e4.ui.model.application.ui.advanced import MAdvancedFactory
@@ -21,14 +23,6 @@ __perspectiveDesc__ = None
 # Helper class and functions
 ###############################################################################
 
-def swtFunction(function):
-    def internalRun(*args, **kwargs):
-        class Runnable(SafeRunnable):
-            def run(self):
-                function(*args, **kwargs)
-        SafeUIRunner.asyncExec(Runnable())
-    return internalRun
-
 #def inject(function):
 #    def internal():
 #        __getActivateTasklet__().getEclipseContext()
@@ -47,9 +41,9 @@ def createPart(function, parent, label, containerData='1000'):
     def prepareWidget(widget):
         # Remove composite from DefaultPart
         widget.getChildren()[0].dispose()
-        # Construct widget from function
-        function(widget)
     prepareWidget(mPart.getWidget())
+    # Construct widget from function
+    function(mPart.getWidget())
     return mPart
 
 @swtFunction
@@ -89,13 +83,13 @@ def __createSinglePart__(mPerspective, createWidgetFunction):
     mPart = createPart(createWidgetFunction, mPerspective, label)
     # Register parent to tasklet
     if not activatedTasklet == None:
-        activatedTasklet.setParentComposite(mPart.getWidget())
+        activatedTasklet.setMPerspective(mPerspective)
 
 def __createPerspective__(mPerspective):
-    create(__mPerspective__)
+    create(mPerspective)
     activatedTasklet = __getActivateTasklet__()
     if not activatedTasklet == None:
-        activatedTasklet.setParentComposite(__mPerspective__.getWidget())
+        activatedTasklet.setMPerspective(mPerspective)
     
 ###############################################################################
 # Main function
@@ -115,7 +109,6 @@ def __run__():
     if not activatedTasklet == None:
         __mPerspective__.setLabel(activatedTasklet.getLabel());
         __mPerspective__.getProperties().put('id', activatedTasklet.getId())
-        activatedTasklet.setMPerspective(__mPerspective__)
         activatedTasklet.setPerspective(__perspectiveDesc__)
     __mPerspective__.setElementId(__perspectiveDesc__.getId())
     __mPerspectiveStack__.getChildren().add(__mPerspective__);

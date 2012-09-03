@@ -15,6 +15,7 @@ import org.eclipse.ui.PlatformUI;
 import org.gumtree.ui.internal.Activator;
 import org.gumtree.ui.tasklet.IActivatedTasklet;
 import org.gumtree.ui.tasklet.ITasklet;
+import org.gumtree.ui.tasklet.ITaskletLauncher;
 import org.gumtree.ui.tasklet.ITaskletManager;
 import org.gumtree.ui.util.SafeUIRunner;
 
@@ -27,14 +28,14 @@ public class ActivatedTasklet implements IActivatedTasklet {
 
 	private ITaskletManager taskletManager;
 
-	private Composite parent;
+	private ITaskletLauncher taskletLauncher;
 
 	private MPerspective mPerspective;
 
 	private IPerspectiveDescriptor perspective;
 
 	private IEclipseContext eclipseContext;
-	
+
 	private Map<Object, Object> context;
 
 	public ActivatedTasklet(ITasklet tasklet, ITaskletManager taskletManager) {
@@ -42,7 +43,8 @@ public class ActivatedTasklet implements IActivatedTasklet {
 		this.tasklet = tasklet;
 		this.taskletManager = taskletManager;
 		context = new HashMap<Object, Object>(2);
-		eclipseContext = Activator.getDefault().getEclipseContext().createChild();
+		eclipseContext = Activator.getDefault().getEclipseContext()
+				.createChild();
 	}
 
 	@Override
@@ -59,7 +61,7 @@ public class ActivatedTasklet implements IActivatedTasklet {
 	public IEclipseContext getEclipseContext() {
 		return eclipseContext;
 	}
-	
+
 	public ITaskletManager getTaskletManager() {
 		return taskletManager;
 	}
@@ -69,46 +71,71 @@ public class ActivatedTasklet implements IActivatedTasklet {
 		return getTasklet().getLabel();
 	}
 
-	@Override
-	public Composite getParentComposite() {
-		return parent;
-	}
-
-	@Override
-	public void setParentComposite(final Composite parent) {
-		// Can only be set once
-		if (this.parent != null) {
-			return;
-		}
-		this.parent = parent;
-		SafeUIRunner.asyncExec(new SafeRunnable() {
-			@Override
-			public void run() throws Exception {
-				parent.addDisposeListener(new DisposeListener() {
-					@Override
-					public void widgetDisposed(DisposeEvent e) {
-						// Remove from workbench model
-						PlatformUI.getWorkbench().getPerspectiveRegistry()
-								.deletePerspective(perspective);
-						// Buggy!!
-//						mPerspective.getParent().getChildren()
-//								.remove(mPerspective);
-						// Deactivate tasklet
-						getTaskletManager().deactivatedTasklet(
-								ActivatedTasklet.this);
-					}
-				});
-			}
-		});
-	}
+	// @Override
+	// public Composite getParentComposite() {
+	// return parent;
+	// }
+	//
+	// @Override
+	// public void setParentComposite(final Composite parent) {
+	// // Can only be set once
+	// if (this.parent != null) {
+	// return;
+	// }
+	// this.parent = parent;
+	// SafeUIRunner.asyncExec(new SafeRunnable() {
+	// @Override
+	// public void run() throws Exception {
+	// parent.addDisposeListener(new DisposeListener() {
+	// @Override
+	// public void widgetDisposed(DisposeEvent e) {
+	// // Remove from workbench model
+	// PlatformUI.getWorkbench().getPerspectiveRegistry()
+	// .deletePerspective(perspective);
+	// // Buggy!!
+	// // mPerspective.getParent().getChildren()
+	// // .remove(mPerspective);
+	// // Deactivate tasklet
+	// getTaskletManager().deactivatedTasklet(
+	// ActivatedTasklet.this);
+	// }
+	// });
+	// }
+	// });
+	// }
 
 	@Override
 	public MPerspective getMPerspective() {
 		return mPerspective;
 	}
 
-	public void setMPerspective(MPerspective mPerspective) {
+	public void setMPerspective(final MPerspective mPerspective) {
 		this.mPerspective = mPerspective;
+		if (mPerspective.getWidget() != null) {
+			SafeUIRunner.asyncExec(new SafeRunnable() {
+				@Override
+				public void run() throws Exception {
+					((Composite) mPerspective.getWidget())
+							.addDisposeListener(new DisposeListener() {
+								@Override
+								public void widgetDisposed(DisposeEvent e) {
+									// Remove from workbench model
+									PlatformUI.getWorkbench()
+											.getPerspectiveRegistry()
+											.deletePerspective(perspective);
+									
+									// Buggy!!
+									// mPerspective.getParent().getChildren()
+									// .remove(mPerspective);
+									
+									// Deactivate tasklet
+									getTaskletManager().deactivatedTasklet(
+											ActivatedTasklet.this);
+								}
+							});
+				}
+			});
+		}
 	}
 
 	public void setPerspective(IPerspectiveDescriptor perspective) {
@@ -124,9 +151,13 @@ public class ActivatedTasklet implements IActivatedTasklet {
 	public void disposeObject() {
 		id = null;
 		tasklet = null;
-		parent = null;
 		mPerspective = null;
 		perspective = null;
+		taskletManager = null;
+		if (taskletLauncher != null) {
+			taskletLauncher.disposeObject();
+			taskletLauncher = null;
+		}
 		if (eclipseContext != null) {
 			eclipseContext.dispose();
 			eclipseContext = null;
@@ -135,6 +166,21 @@ public class ActivatedTasklet implements IActivatedTasklet {
 			context.clear();
 			context = null;
 		}
+	}
+
+	@Override
+	public ITaskletLauncher getTaskletLauncher() {
+		return taskletLauncher;
+	}
+
+	@Override
+	public void setTaskletLauncher(ITaskletLauncher taskletLauncher) {
+		this.taskletLauncher = taskletLauncher;
+	}
+
+	@Override
+	public void start() {
+		getTaskletLauncher().launchTasklet(this);
 	}
 
 }

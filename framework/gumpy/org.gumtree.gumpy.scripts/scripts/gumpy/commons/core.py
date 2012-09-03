@@ -1,11 +1,16 @@
 from java.lang import Class
 
+from org.eclipse.e4.core.contexts import ContextInjectionFactory
+
 from org.gumtree.core.service import ServiceUtils
 from org.gumtree.util.eclipse import E4Utils
 
 def getService(classname):
     return ServiceUtils.getService(Class.forName(classname))
 
+def injectObject(object, eclipseContext=E4Utils.getEclipseContext()):
+    ContextInjectionFactory.inject(object, eclipseContext)
+    
 class Injector:
     
     def __init__(self):

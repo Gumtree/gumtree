@@ -1,9 +1,8 @@
 package org.gumtree.ui.tasklet;
 
-import org.eclipse.e4.ui.model.application.ui.advanced.MPerspective;
+import org.gumtree.core.object.IDisposable;
 
-@SuppressWarnings("restriction")
-public interface ITaskletLauncher {
+public interface ITaskletLauncher extends IDisposable {
 
 	public void launchTasklet(IActivatedTasklet tasklet);
 	

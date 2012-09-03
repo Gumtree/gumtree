@@ -19,5 +19,5 @@ public class DefaultPart extends ExtendedComposite {
 	@Override
 	protected void disposeWidget() {
 	}
-	
+
 }

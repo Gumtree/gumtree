@@ -5,5 +5,5 @@
       <provide interface="org.gumtree.ui.tasklet.ITaskletManager"/>
    </service>
    <reference bind="setExtensionRegistry" cardinality="1..1" interface="org.eclipse.core.runtime.IExtensionRegistry" name="IExtensionRegistry" policy="static"/>
-   <reference bind="setTaskletLauncher" cardinality="1..1" interface="org.gumtree.ui.tasklet.ITaskletLauncher" name="ITaskletLauncher" policy="static"/>
+   <reference bind="setTaskletLauncherFactory" cardinality="1..1" interface="org.gumtree.ui.tasklet.ITaskletLauncherFactory" name="ITaskletLauncherFactory" policy="static"/>
 </scr:component>

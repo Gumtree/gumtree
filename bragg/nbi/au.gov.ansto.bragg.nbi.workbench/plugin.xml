@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.gumtree.ui.tasklets">
+      <tasklet
+            contributionUri="bundle://au.gov.ansto.bragg.nbi.workbench/scripts/tasklets/WidgetDemo.py"
+            label="Widget Demo"
+            layout="simple"
+            newWindow="true"
+            tags="Demo">
+      </tasklet>
+   </extension>
+
+</plugin>
