@@ -16,6 +16,7 @@ def create(parent):
     demoWidget.addScript('JavaFX', 'Pie Chart', path + '/javafx/PieChart.py')
     # SICS
     demoWidget.addScript('SICS', 'Interrupt', path + '/sics/Interrupt.py')
+    demoWidget.addScript('SICS', 'SICS Status', path + '/sics/SicsStatus.py')
     # Services
     demoWidget.addScript('Services', 'Script Console', path + '/services/ScriptConsole.py')
     # Visualisation

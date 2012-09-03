@@ -22,6 +22,7 @@ import org.gumtree.gumnix.sics.control.controllers.IDynamicController;
 import org.gumtree.gumnix.sics.control.controllers.ISicsObjectController;
 import org.gumtree.gumnix.sics.control.events.ComponentControllerListenerAdapter;
 import org.gumtree.gumnix.sics.core.SicsCore;
+import org.gumtree.gumnix.sics.core.SicsEvents;
 import org.gumtree.gumnix.sics.core.SicsUtils;
 import org.gumtree.gumnix.sics.io.ISicsReplyData;
 import org.gumtree.gumnix.sics.io.SicsCallbackAdapter;
@@ -221,8 +222,10 @@ public class SicsController implements ISicsController {
 	
 	private void setServerStatus(ServerStatus serverStatus) {
 		this.serverStatus = serverStatus;
-		new EventBuilder(EVENT_TOPIC_SERVER_STATUS).append(EVENT_PROP_VALUE,
-				serverStatus).post();
+//		new EventBuilder(EVENT_TOPIC_SERVER_STATUS).append(EVENT_PROP_VALUE,
+//				serverStatus).post();
+		new EventBuilder(SicsEvents.Server.TOPIC_SERVER_STATUS).append(
+				SicsEvents.Server.STATUS, serverStatus).post();
 	}
 
 	private IComponentControllerFactory getControllerFactory() {

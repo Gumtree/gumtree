@@ -1,14 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2007 Australian Nuclear Science and Technology Organisation.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     Tony Lam (Bragg Institute) - initial API and implementation
- *******************************************************************************/
-
 package org.gumtree.gumnix.sics.ui.widgets;
 
 import org.eclipse.jface.util.SafeRunnable;
@@ -24,13 +13,13 @@ import org.gumtree.ui.util.resource.UIResources;
 import org.gumtree.util.messaging.EventHandler;
 import org.osgi.service.event.Event;
 
-public class SicsStatusGadget extends AbstractSicsWidget {
+public class SicsStatusWidget extends AbstractSicsComposite {
 
 	private EventHandler eventHandler;
 
 	private Label statusLabel;
 
-	public SicsStatusGadget(Composite parent, int style) {
+	public SicsStatusWidget(Composite parent, int style) {
 		super(parent, style);
 		eventHandler = new EventHandler(SicsEvents.Server.TOPIC_SERVER_STATUS) {
 			public void handleEvent(Event event) {
@@ -38,15 +27,6 @@ public class SicsStatusGadget extends AbstractSicsWidget {
 						.getProperty(SicsEvents.Server.STATUS));
 			}
 		};
-	}
-
-	@Override
-	protected void handleRender() {
-		setLayout(new FillLayout());
-		statusLabel = getWidgetFactory().createLabel(this, "--", SWT.CENTER);
-		statusLabel.setFont(UIResources.getDefaultFont(SWT.BOLD));
-		statusLabel.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
-		updateUI(null);
 	}
 
 	@Override
@@ -66,13 +46,27 @@ public class SicsStatusGadget extends AbstractSicsWidget {
 	}
 
 	@Override
+	protected void handleRender() {
+		setLayout(new FillLayout());
+		statusLabel = getWidgetFactory().createLabel(this, "--", SWT.CENTER);
+		statusLabel.setFont(UIResources.getDefaultFont(SWT.BOLD));
+		statusLabel.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+		updateUI(null);
+	}
+
+	@Override
 	protected void disposeWidget() {
 		if (eventHandler != null) {
 			eventHandler.deactivate();
 			eventHandler = null;
 		}
 		statusLabel = null;
+		super.disposeWidget();
 	}
+
+	/*************************************************************************
+	 * Utilities
+	 *************************************************************************/
 
 	public void updateUI(final ServerStatus status) {
 		SafeUIRunner.asyncExec(new SafeRunnable() {

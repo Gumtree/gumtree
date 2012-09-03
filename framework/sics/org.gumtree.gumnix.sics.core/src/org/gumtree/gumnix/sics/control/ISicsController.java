@@ -12,9 +12,9 @@ import ch.psi.sics.hipadaba.SICS;
 
 public interface ISicsController {
 
-	public static final String EVENT_TOPIC_SERVER_STATUS = "org/gumtree/gumnix/sics/controller/serverstatus";
-	
-	public static final String EVENT_PROP_VALUE = "value";
+//	public static final String EVENT_TOPIC_SERVER_STATUS = "org/gumtree/gumnix/sics/controller/serverstatus";
+//	
+//	public static final String EVENT_PROP_VALUE = "value";
 	
 	/**
 	 * Returns the direct child component controllers under the SICS controller.
