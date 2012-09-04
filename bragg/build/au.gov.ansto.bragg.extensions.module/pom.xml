@@ -41,6 +41,7 @@
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.webserver.feature</module>
 
 		<module>${nbi.path}/javafx</module>
+		<module>${nbi.path}/javafx.macosx.x86_64</module>
 		<module>${nbi.path}/javafx.win32.x86</module>
 		<module>${nbi.path}/javafx.win32.x86_64</module>
 		<module>${nbi.path}/de.kupzog.ktable</module>
