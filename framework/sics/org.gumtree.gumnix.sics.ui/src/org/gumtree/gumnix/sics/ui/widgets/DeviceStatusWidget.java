@@ -1,4 +1,4 @@
-package au.gov.ansto.bragg.nbi.ui.widgets;
+package org.gumtree.gumnix.sics.ui.widgets;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -16,7 +16,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.gumtree.gumnix.sics.control.ISicsMonitor;
+import org.gumtree.gumnix.sics.core.SicsEvents;
+import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.service.dataaccess.IDataHandler;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.ui.util.resource.UIResources;
@@ -26,15 +27,15 @@ import org.gumtree.util.messaging.IDelayEventExecutor;
 import org.osgi.service.event.Event;
 
 @SuppressWarnings("restriction")
-public class DeviceStatusWidget extends SicsStatusWidget {
+public class DeviceStatusWidget extends AbstractSicsComposite {
+
+	private IDataAccessManager dataAccessManager;
+
+	private IDelayEventExecutor delayEventExecutor;
 
 	private List<DeviceContext> deviceContexts;
 
 	private Set<LabelContext> labelContexts;
-
-	@Inject
-	@Optional
-	private IDelayEventExecutor delayEventExecutor;
 
 	public DeviceStatusWidget(Composite parent, int style) {
 		super(parent, style);
@@ -43,7 +44,7 @@ public class DeviceStatusWidget extends SicsStatusWidget {
 	}
 
 	@Override
-	protected void renderWidget() {
+	protected void handleRender() {
 		GridLayoutFactory.swtDefaults().numColumns(5).spacing(1, 1)
 				.margins(0, 0).applyTo(this);
 
@@ -81,7 +82,7 @@ public class DeviceStatusWidget extends SicsStatusWidget {
 	}
 
 	@Override
-	protected void enableWidget() {
+	protected void handleSicsConnect() {
 		if (labelContexts == null) {
 			return;
 		}
@@ -93,7 +94,6 @@ public class DeviceStatusWidget extends SicsStatusWidget {
 						public void handleData(URI uri, String data) {
 							updateLabelText(labelContext.label, data);
 						}
-
 						@Override
 						public void handleError(URI uri, Exception exception) {
 						}
@@ -102,7 +102,7 @@ public class DeviceStatusWidget extends SicsStatusWidget {
 	}
 
 	@Override
-	protected void disableWidget() {
+	protected void handleSicsDisconnect() {
 		if (labelContexts == null) {
 			return;
 		}
@@ -132,6 +132,9 @@ public class DeviceStatusWidget extends SicsStatusWidget {
 			labelContexts.clear();
 			labelContexts = null;
 		}
+		dataAccessManager = null;
+		delayEventExecutor = null;
+		super.disposeWidget();
 	}
 
 	/*************************************************************************
@@ -142,6 +145,10 @@ public class DeviceStatusWidget extends SicsStatusWidget {
 		return addDevice(path, label, null, null);
 	}
 
+	public DeviceStatusWidget addDevice(String path, String label, Image icon) {
+		return addDevice(path, label, icon, null);
+	}
+	
 	public DeviceStatusWidget addDevice(String path, String label, Image icon,
 			String unit) {
 		DeviceContext context = new DeviceContext();
@@ -161,19 +168,34 @@ public class DeviceStatusWidget extends SicsStatusWidget {
 		return this;
 	}
 
+	/*************************************************************************
+	 * Components
+	 *************************************************************************/
+
+	public IDataAccessManager getDataAccessManager() {
+		return dataAccessManager;
+	}
+
+	@Inject
+	public void setDataAccessManager(IDataAccessManager dataAccessManager) {
+		this.dataAccessManager = dataAccessManager;
+	}
+
 	public IDelayEventExecutor getDelayEventExecutor() {
 		return delayEventExecutor;
 	}
 
+	@Inject
+	@Optional
 	public void setDelayEventExecutor(IDelayEventExecutor delayEventExecutor) {
 		this.delayEventExecutor = delayEventExecutor;
 	}
-
+	
 	/*************************************************************************
 	 * Utilities
 	 *************************************************************************/
 
-	class DeviceContext {
+	private class DeviceContext {
 		String path;
 		Image icon;
 		String label;
@@ -181,26 +203,26 @@ public class DeviceStatusWidget extends SicsStatusWidget {
 		boolean isSeparator;
 	}
 
-	class LabelContext {
+	private class LabelContext {
 		String path;
 		Label label;
 		String defaultText;
 		EventHandler handler;
 	}
 
-	class HdbEventHandler extends DelayEventHandler {
+	private class HdbEventHandler extends DelayEventHandler {
 		Label label;
 
 		public HdbEventHandler(String path, Label label,
 				IDelayEventExecutor delayEventExecutor) {
-			super(ISicsMonitor.EVENT_TOPIC_HNOTIFY + path, delayEventExecutor);
+			super(SicsEvents.HNotify.TOPIC_HNOTIFY + path, delayEventExecutor);
 			this.label = label;
 		}
 
 		@Override
 		public void handleDelayEvent(Event event) {
 			updateLabelText(label,
-					event.getProperty(ISicsMonitor.EVENT_PROP_VALUE).toString());
+					event.getProperty(SicsEvents.HNotify.VALUE).toString());
 		}
 	}
 

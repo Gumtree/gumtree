@@ -29,10 +29,6 @@ def create(parent):
     fxCanvas = FXCanvas(parent, SWT.NONE)
     createAnimation(fxCanvas)
 
-@swtFunction
-def dispose():
-    pass
-
 @fxFunction
 def createAnimation(fxCanvas):
     circle = Circle(20, Color.CRIMSON)

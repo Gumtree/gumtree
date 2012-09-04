@@ -10,7 +10,3 @@ def create(parent):
     injectObject(scriptingConsole)
     scriptingConsole.setContentAssistEnabled(True)
 
-@swtFunction
-def dispose():
-    pass
-

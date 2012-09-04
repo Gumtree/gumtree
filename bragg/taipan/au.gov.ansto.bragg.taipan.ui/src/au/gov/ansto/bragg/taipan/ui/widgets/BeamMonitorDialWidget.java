@@ -20,7 +20,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.gumtree.gumnix.sics.control.ISicsMonitor;
+import org.gumtree.gumnix.sics.core.SicsEvents;
 import org.gumtree.gumnix.sics.ui.widgets.AbstractSicsWidget;
 import org.gumtree.service.dataaccess.IDataHandler;
 import org.gumtree.util.messaging.DelayEventHandler;
@@ -58,10 +58,10 @@ public class BeamMonitorDialWidget extends AbstractSicsWidget {
 	@Named("unit")
 	@Optional
 	private String unit;
-	
+
 	@Inject
 	private IDelayEventExecutor delayEventExecutor;
-	
+
 	private long maximumDisplayValue;
 
 	public BeamMonitorDialWidget(Composite parent, int style) {
@@ -89,7 +89,8 @@ public class BeamMonitorDialWidget extends AbstractSicsWidget {
 				SWT.READ_ONLY | SWT.RIGHT);
 		combo.setBackground(getDisplay().getSystemColor(
 				SWT.COLOR_WIDGET_BACKGROUND));
-		combo.setItems(new String[] { "x10", "x100", "x1000", "x10000", "x100000" });
+		combo.setItems(new String[] { "x10", "x100", "x1000", "x10000",
+				"x100000" });
 		combo.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				String maxValue = combo.getItem(combo.getSelectionIndex())
@@ -101,20 +102,20 @@ public class BeamMonitorDialWidget extends AbstractSicsWidget {
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(combo);
 
-		eventHandler = new DelayEventHandler(ISicsMonitor.EVENT_TOPIC_HNOTIFY
+		eventHandler = new DelayEventHandler(SicsEvents.HNotify.TOPIC_HNOTIFY
 				+ getDevicePath(), getDelayEventExecutor()) {
 			@Override
 			public void handleDelayEvent(Event event) {
 				try {
 					String value = (String) event
-							.getProperty(ISicsMonitor.EVENT_PROP_VALUE);
+							.getProperty(SicsEvents.HNotify.VALUE);
 					context.deviceValue = Float.parseFloat(value);
 					updateUI(context.deviceValue);
 				} catch (Exception e) {
 				}
 			}
 		};
-		
+
 		// Default setting
 		setMaximumValue(1000);
 		combo.select(2);
@@ -155,22 +156,26 @@ public class BeamMonitorDialWidget extends AbstractSicsWidget {
 		context.standarddialrangeLow.setInnerRadius(0.52000000000000002D);
 		context.standarddialrangeLow.setOuterRadius(0.55000000000000004D);
 		context.standarddialrangeLow.setLowerBound(0);
-		context.standarddialrangeLow.setUpperBound(getMaximumDisplayValue() * 0.5);
+		context.standarddialrangeLow
+				.setUpperBound(getMaximumDisplayValue() * 0.5);
 		dialplot.addLayer(context.standarddialrangeLow);
 
 		context.standarddialrangeMid = new StandardDialRange();
 		context.standarddialrangeMid.setPaint(Color.ORANGE);
 		context.standarddialrangeMid.setInnerRadius(0.52000000000000002D);
 		context.standarddialrangeMid.setOuterRadius(0.55000000000000004D);
-		context.standarddialrangeMid.setLowerBound(getMaximumDisplayValue() * 0.5);
-		context.standarddialrangeMid.setUpperBound(getMaximumDisplayValue() * 0.75);
+		context.standarddialrangeMid
+				.setLowerBound(getMaximumDisplayValue() * 0.5);
+		context.standarddialrangeMid
+				.setUpperBound(getMaximumDisplayValue() * 0.75);
 		dialplot.addLayer(context.standarddialrangeMid);
 
 		context.standarddialrangeHigh = new StandardDialRange();
 		context.standarddialrangeHigh.setPaint(Color.GREEN);
 		context.standarddialrangeHigh.setInnerRadius(0.52000000000000002D);
 		context.standarddialrangeHigh.setOuterRadius(0.55000000000000004D);
-		context.standarddialrangeHigh.setLowerBound(getMaximumDisplayValue() * 0.75);
+		context.standarddialrangeHigh
+				.setLowerBound(getMaximumDisplayValue() * 0.75);
 		context.standarddialrangeHigh.setUpperBound(getMaximumDisplayValue());
 		dialplot.addLayer(context.standarddialrangeHigh);
 

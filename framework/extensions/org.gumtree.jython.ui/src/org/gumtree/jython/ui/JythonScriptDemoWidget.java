@@ -3,6 +3,7 @@ package org.gumtree.jython.ui;
 import static ch.lambdaj.Lambda.on;
 import static ch.lambdaj.collection.LambdaCollections.with;
 
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +28,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.TreeItem;
 import org.gumtree.jython.ui.internal.InternalImage;
 import org.gumtree.service.dataaccess.IDataAccessManager;
@@ -45,13 +45,12 @@ public class JythonScriptDemoWidget extends ExtendedComposite {
 
 	private IEclipseContext eclipseContext;
 
-	private Map<String, List<ScriptContext>> scriptRegistry;
+	private URI scriptPath;
 
 	private UIContext context;
 
 	public JythonScriptDemoWidget(Composite parent, int style) {
 		super(parent, style);
-		scriptRegistry = new HashMap<String, List<ScriptContext>>(2);
 		context = new UIContext();
 	}
 
@@ -86,6 +85,15 @@ public class JythonScriptDemoWidget extends ExtendedComposite {
 		context.treeViewer.setLabelProvider(new TreeLabelProvider());
 		context.treeViewer.getTree().addMouseListener(new MouseAdapter() {
 			@Override
+			public void mouseDown(MouseEvent e) {
+				Object node = ((IStructuredSelection) context.treeViewer
+						.getSelection()).getFirstElement();
+				if (node instanceof ScriptTreeNode) {
+					loadScript(((ScriptTreeNode) node).getScriptContext());
+				}
+			}
+
+			@Override
 			public void mouseDoubleClick(MouseEvent e) {
 				Object node = ((IStructuredSelection) context.treeViewer
 						.getSelection()).getFirstElement();
@@ -93,8 +101,6 @@ public class JythonScriptDemoWidget extends ExtendedComposite {
 					TreeItem item = context.treeViewer.getTree().getSelection()[0];
 					boolean expanded = item.getExpanded();
 					item.setExpanded(!expanded);
-				} else if (node instanceof ScriptTreeNode) {
-					loadScript(((ScriptTreeNode) node).getScriptContext());
 				}
 			}
 		});
@@ -103,30 +109,15 @@ public class JythonScriptDemoWidget extends ExtendedComposite {
 
 	@Override
 	protected void disposeWidget() {
-		if (scriptRegistry != null) {
-			scriptRegistry.clear();
-			scriptRegistry = null;
-		}
 		if (context != null) {
 			if (context.lineStyler != null) {
 				context.lineStyler.disposeColors();
 			}
 			context = null;
 		}
-	}
-
-	public JythonScriptDemoWidget addScript(String group, String label,
-			String scriptURI) {
-		ScriptContext scriptContext = new ScriptContext();
-		scriptContext.label = label;
-		scriptContext.scriptURI = URI.create(scriptURI);
-		List<ScriptContext> contexts = scriptRegistry.get(group);
-		if (contexts == null) {
-			contexts = new ArrayList<ScriptContext>(2);
-			scriptRegistry.put(group, contexts);
-		}
-		contexts.add(scriptContext);
-		return this;
+		dataAccessManager = null;
+		eclipseContext = null;
+		scriptPath = null;
 	}
 
 	/**************************************************************************
@@ -152,22 +143,53 @@ public class JythonScriptDemoWidget extends ExtendedComposite {
 	}
 
 	/**************************************************************************
+	 * Properties
+	 **************************************************************************/
+
+	public URI getScriptPath() {
+		return scriptPath;
+	}
+
+	public void setScriptPath(URI scriptPath) {
+		this.scriptPath = scriptPath;
+		// Update tree
+		if (context != null && context.treeViewer != null) {
+			context.treeViewer.setInput(createTreeNode());
+		}
+	}
+
+	/**************************************************************************
 	 * Utilities
 	 **************************************************************************/
 
 	private ITreeNode[] createTreeNode() {
-		List<ITreeNode> treeNodes = new ArrayList<ITreeNode>(2);
-		for (Entry<String, List<ScriptContext>> entry : scriptRegistry
-				.entrySet()) {
-			GroupTreeNode groupTreeNode = new GroupTreeNode(entry.getKey());
-			for (ScriptContext context : entry.getValue()) {
-				groupTreeNode.getChildrenList()
-						.add(new ScriptTreeNode(context));
-			}
-			treeNodes.add(groupTreeNode);
+		if (getScriptPath() == null) {
+			return new ITreeNode[0];
 		}
-		return with(treeNodes).sort(on(ITreeNode.class).getText()).toArray(
-				ITreeNode.class);
+		List<ITreeNode> treeNodes = new ArrayList<ITreeNode>(2);
+		File baseDirectory = getDataAccessManager().get(getScriptPath(),
+				File.class);
+		for (File file : baseDirectory.listFiles()) {
+			treeNodes.add(createTreeNode(file));
+		}
+		return with(treeNodes).toArray(ITreeNode.class);
+	}
+
+	private ITreeNode createTreeNode(File file) {
+		if (file.isDirectory()) {
+			GroupTreeNode groupTreeNode = new GroupTreeNode(file.getName());
+			for (File child : file.listFiles()) {
+				ITreeNode childTreeNode = createTreeNode(child);
+				groupTreeNode.getChildrenList().add(childTreeNode);
+			}
+			return groupTreeNode;
+		} else {
+			ScriptContext scriptContext = new ScriptContext();
+			scriptContext.label = file.getName();
+			scriptContext.scriptURI = file.toURI();
+			ScriptTreeNode scriptTreeNode = new ScriptTreeNode(scriptContext);
+			return scriptTreeNode;
+		}
 	}
 
 	private void loadScript(ScriptContext scriptContext) {

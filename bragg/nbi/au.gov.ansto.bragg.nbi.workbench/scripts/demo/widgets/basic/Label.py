@@ -5,8 +5,4 @@ from org.eclipse.swt.widgets import Label
 
 @swtFunction
 def create(parent):
-    label = Label(parent, SWT.NONE, text ='Cool!')
-
-@swtFunction
-def dispose():
-    pass
+    label = Label(parent, SWT.NONE, text ='Hello, World!')

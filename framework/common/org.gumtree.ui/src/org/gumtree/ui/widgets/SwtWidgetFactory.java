@@ -51,6 +51,7 @@ public class SwtWidgetFactory implements IWidgetFactory {
 	@Override
 	public Label createLabel(Composite parent, String text, int style) {
 		Label widget = new Label(parent, style);
+		widget.setForeground(parent.getForeground());
 		widget.setText(text);
 		return widget;
 	}

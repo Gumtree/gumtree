@@ -56,7 +56,6 @@ public class JythonScriptWidget extends ExtendedComposite {
 	@Override
 	protected void disposeWidget() {
 		if (scriptExecutor != null) {
-			scriptExecutor.runScript("dispose()");
 			scriptExecutor.runScript("del parentComposite");
 			JobRunner.run(new ILoopExitCondition() {
 				@Override

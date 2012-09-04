@@ -1,15 +1,4 @@
-/*******************************************************************************
- * Copyright (c) 2007 Australian Nuclear Science and Technology Organisation.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     Tony Lam (Bragg Institute) - initial API and implementation
- *******************************************************************************/
-
-package au.gov.ansto.bragg.nbi.ui.widgets;
+package org.gumtree.gumnix.sics.ui.widgets;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -17,10 +6,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.JFaceResources;
@@ -30,15 +22,23 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.gumtree.gumnix.sics.core.SicsEvents;
+import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.service.dataaccess.IDataHandler;
 import org.gumtree.service.directory.IDirectoryService;
 import org.gumtree.ui.util.SafeUIRunner;
+import org.gumtree.util.messaging.DelayEventHandler;
 import org.gumtree.util.messaging.EventHandler;
+import org.gumtree.util.messaging.IDelayEventExecutor;
 import org.osgi.service.event.Event;
 
-public class ShutterStatusWidget extends SicsStatusWidget {
+@SuppressWarnings("restriction")
+public class ShutterStatusWidget extends AbstractSicsComposite {
 
-	private EventHandler eventHandler;
+	private IDataAccessManager dataAccessManager;
+
+	private IDelayEventExecutor delayEventExecutor;
+
+	private EventHandler blindEventHandler;
 
 	private Set<Context> contexts;
 
@@ -47,7 +47,8 @@ public class ShutterStatusWidget extends SicsStatusWidget {
 		contexts = new HashSet<Context>();
 	}
 
-	public void renderWidget() {
+	@Override
+	protected void handleRender() {
 		setBackgroundMode(SWT.INHERIT_FORCE);
 		GridLayoutFactory.swtDefaults().applyTo(this);
 
@@ -61,7 +62,8 @@ public class ShutterStatusWidget extends SicsStatusWidget {
 		context.path = "/instrument/status/secondary";
 		context.label = label;
 		context.originalForeground = label.getForeground();
-		context.handler = new HdbEventHandler(context).activate();
+		context.handler = new HdbEventHandler(context, getDelayEventExecutor())
+				.activate();
 		contexts.add(context);
 
 		label = getWidgetFactory().createLabel(this, "Sample\n--",
@@ -74,12 +76,13 @@ public class ShutterStatusWidget extends SicsStatusWidget {
 		context.path = "/instrument/status/tertiary";
 		context.label = label;
 		context.originalForeground = label.getForeground();
-		context.handler = new HdbEventHandler(context).activate();
+		context.handler = new HdbEventHandler(context, getDelayEventExecutor())
+				.activate();
 		contexts.add(context);
 
 		// TODO: test this code
 		// [GUMTREE-141] Blinking
-		eventHandler = new EventHandler(IDirectoryService.EVENT_TOPIC_BIND) {
+		blindEventHandler = new EventHandler(IDirectoryService.EVENT_TOPIC_BIND) {
 			@Override
 			public void handleEvent(Event event) {
 				// TODO: use topic to filter
@@ -139,7 +142,8 @@ public class ShutterStatusWidget extends SicsStatusWidget {
 		};
 	}
 
-	protected void enableWidget() {
+	@Override
+	protected void handleSicsConnect() {
 		if (contexts == null) {
 			return;
 		}
@@ -156,17 +160,18 @@ public class ShutterStatusWidget extends SicsStatusWidget {
 						}
 					});
 		}
-		if (eventHandler != null) {
-			eventHandler.activate();
+		if (blindEventHandler != null) {
+			blindEventHandler.activate();
 		}
 	}
 
-	protected void disableWidget() {
+	@Override
+	protected void handleSicsDisconnect() {
 		if (contexts == null) {
 			return;
 		}
-		if (eventHandler != null) {
-			eventHandler.deactivate();
+		if (blindEventHandler != null) {
+			blindEventHandler.deactivate();
 		}
 		SafeUIRunner.asyncExec(new SafeRunnable() {
 			@Override
@@ -191,9 +196,9 @@ public class ShutterStatusWidget extends SicsStatusWidget {
 
 	@Override
 	protected void disposeWidget() {
-		if (eventHandler != null) {
-			eventHandler.deactivate();
-			eventHandler = null;
+		if (blindEventHandler != null) {
+			blindEventHandler.deactivate();
+			blindEventHandler = null;
 		}
 		if (contexts != null) {
 			for (Context context : contexts) {
@@ -204,13 +209,38 @@ public class ShutterStatusWidget extends SicsStatusWidget {
 			contexts.clear();
 			contexts = null;
 		}
+		dataAccessManager = null;
+		delayEventExecutor = null;
+	}
+
+	/*************************************************************************
+	 * Components
+	 *************************************************************************/
+
+	public IDataAccessManager getDataAccessManager() {
+		return dataAccessManager;
+	}
+
+	@Inject
+	public void setDataAccessManager(IDataAccessManager dataAccessManager) {
+		this.dataAccessManager = dataAccessManager;
+	}
+
+	public IDelayEventExecutor getDelayEventExecutor() {
+		return delayEventExecutor;
+	}
+
+	@Inject
+	@Optional
+	public void setDelayEventExecutor(IDelayEventExecutor delayEventExecutor) {
+		this.delayEventExecutor = delayEventExecutor;
 	}
 
 	/*************************************************************************
 	 * Utilities
 	 *************************************************************************/
 
-	class Context {
+	private class Context {
 		String path;
 		Label label;
 		EventHandler handler;
@@ -218,17 +248,18 @@ public class ShutterStatusWidget extends SicsStatusWidget {
 		boolean isActivated;
 	}
 
-	class HdbEventHandler extends EventHandler {
+	private class HdbEventHandler extends DelayEventHandler {
 		Context context;
 
-		public HdbEventHandler(Context context) {
-			super(SicsEvents.HNotify.TOPIC_HNOTIFY + context.path);
+		public HdbEventHandler(Context context,
+				IDelayEventExecutor delayEventExecutor) {
+			super(SicsEvents.HNotify.TOPIC_HNOTIFY + context.path,
+					delayEventExecutor);
 			this.context = context;
 		}
 
 		@Override
-		public void handleEvent(final Event event) {
-			// TODO: message overflow protection??
+		public void handleDelayEvent(Event event) {
 			updateLabel(context, event.getProperty(SicsEvents.HNotify.VALUE)
 					.toString());
 		}

@@ -5,12 +5,12 @@ from org.eclipse.jface.layout import GridDataFactory
 from org.eclipse.jface.layout import GridLayoutFactory
 from org.eclipse.swt import SWT
 
-from org.gumtree.gumnix.sics.ui.widgets import SicsStatusWidget
+from org.gumtree.gumnix.sics.ui.widgets import ShutterStatusWidget
 
 @swtFunction
 def create(parent):
     GridLayoutFactory.swtDefaults().applyTo(parent)
-    sicsStatusWidget = SicsStatusWidget(parent, SWT.NONE)
-    injectObject(sicsStatusWidget)
+    shutterStatusWidget = ShutterStatusWidget(parent, SWT.NONE)
+    injectObject(shutterStatusWidget)
     GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)\
-        .grab(True, True).hint(200, 50).applyTo(sicsStatusWidget)
+        .grab(True, True).hint(200, 200).applyTo(shutterStatusWidget)

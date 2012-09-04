@@ -15,7 +15,7 @@ Export-Package: org.gumtree.gumnix.sics.internal.ui.actions,
  org.gumtree.gumnix.sics.ui.widgets,
  org.gumtree.gumnix.sics.ui.workflow
 Bundle-Vendor: %providerName
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-BundleShape: jar
 Require-Bundle: javax.inject;bundle-version="1.0.0";visibility:=reexport,
  javax.annotation;bundle-version="1.0.0";visibility:=reexport,

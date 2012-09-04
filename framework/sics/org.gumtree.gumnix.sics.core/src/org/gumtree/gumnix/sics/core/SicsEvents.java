@@ -4,7 +4,9 @@ public class SicsEvents {
 
 	public static final String TOPIC_BASE = "org/gumtree/gumnix/sics";
 
-	public static interface Proxy {
+	public static final String SEP = "/";
+	
+	public static final class Proxy {
 
 		public static final String TOPIC_ALL = TOPIC_BASE + "/proxy/*";
 
@@ -20,7 +22,7 @@ public class SicsEvents {
 
 	}
 
-	public static interface Server {
+	public static final class Server {
 
 		public static final String TOPIC_ALL = TOPIC_BASE + "/server/*";
 
@@ -29,6 +31,16 @@ public class SicsEvents {
 
 		public static final String STATUS = "status";
 
+	}
+	
+	public static final class HNotify {
+		
+		public static final String TOPIC_ALL = TOPIC_BASE + "/hnotify/*";
+		
+		public static final String TOPIC_HNOTIFY = TOPIC_BASE + "/hnotify";
+		
+		public static final String VALUE = "value";
+		
 	}
 
 }

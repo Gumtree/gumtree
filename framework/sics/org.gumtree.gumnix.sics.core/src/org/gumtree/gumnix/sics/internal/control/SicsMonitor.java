@@ -8,6 +8,7 @@ import org.gumtree.gumnix.sics.control.ISicsListener;
 import org.gumtree.gumnix.sics.control.ISicsMonitor;
 import org.gumtree.gumnix.sics.control.IStateMonitorListener;
 import org.gumtree.gumnix.sics.control.IStateMonitorListener.SicsMonitorState;
+import org.gumtree.gumnix.sics.core.SicsEvents;
 import org.gumtree.gumnix.sics.io.ISicsCallback;
 import org.gumtree.gumnix.sics.io.ISicsProxy;
 import org.gumtree.gumnix.sics.io.ISicsProxy.ProxyState;
@@ -134,7 +135,8 @@ public class SicsMonitor implements ISicsMonitor {
 						});
 					}
 					// [GUMTREE-809] New event bus support
-					new EventBuilder(EVENT_TOPIC_HNOTIFY + path).append(EVENT_PROP_VALUE, value).post();
+					new EventBuilder(SicsEvents.HNotify.TOPIC_HNOTIFY + path)
+							.append(SicsEvents.HNotify.VALUE, value).post();
 				} catch (JSONException e) {
 					logger.error("Cannot interprete reply from SICS in the hnotifty normal callback", e);
 				}

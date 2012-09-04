@@ -9,7 +9,7 @@ from org.gumtree.vis.nexus.utils import NXFactory
 @swtFunction
 def create(parent):
     # Create plot
-    plotviewer = PlotViewer(parent, SWT.NONE)
+    plotviewer = PlotViewer(parent, SWT.NONE, widgetDisposed=dispose)
     # Create dataset
     ds = dataset.rand(100)
     # Wrap to plottable dataset
@@ -17,6 +17,6 @@ def create(parent):
     # Plot
     plotviewer.setDataset(pds)
 
-@swtFunction
-def dispose():
+def dispose(event):
+    # Dispose function here
     pass

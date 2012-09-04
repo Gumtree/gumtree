@@ -11,7 +11,3 @@ def create(parent):
     sicsInterruptWidget = SicsInterruptWidget(parent, SWT.NONE)
     sicsInterruptWidget.setBackgroundImage(SharedImage.CRUISE_BG.getImage())
     injectObject(sicsInterruptWidget)
-
-@swtFunction
-def dispose():
-    pass

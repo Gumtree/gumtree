@@ -24,10 +24,6 @@ def create(parent):
     fxCanvas = FXCanvas(parent, SWT.NONE)
     createChart(fxCanvas)
 
-@swtFunction
-def dispose():
-    pass
-
 @fxFunction
 def createChart(fxCanvas):
     pieChartData = FXCollections.observableArrayList(

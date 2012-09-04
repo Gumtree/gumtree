@@ -19,17 +19,16 @@ import org.eclipse.nebula.widgets.pgroup.SimpleGroupStrategy;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
-import org.gumtree.gumnix.sics.ui.widgets.SicsInterruptGadget;
-import org.gumtree.gumnix.sics.ui.widgets.SicsStatusGadget;
+import org.gumtree.gumnix.sics.ui.widgets.DeviceStatusWidget;
+import org.gumtree.gumnix.sics.ui.widgets.SicsStatusWidget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
 import org.gumtree.ui.util.resource.SharedImage;
-import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 import org.gumtree.util.messaging.IDelayEventExecutor;
+import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import au.gov.ansto.bragg.nbi.ui.widgets.DeviceStatusWidget;
 import au.gov.ansto.bragg.taipan.ui.widgets.BeamMonitorDialWidget;
 
 @SuppressWarnings("restriction")
@@ -58,11 +57,11 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 
 		// SICS status
 		PGroup statusGroup = createGroup("SERVER STATUS", null);
-		SicsStatusGadget statusGadget = new SicsStatusGadget(statusGroup,
+		SicsStatusWidget statusWidget = new SicsStatusWidget(statusGroup,
 				SWT.NONE);
-		ContextInjectionFactory.inject(statusGadget, getEclipseContext());
+		ContextInjectionFactory.inject(statusWidget, getEclipseContext());
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
-				.grab(true, false).applyTo(statusGadget);
+				.grab(true, false).applyTo(statusWidget);
 
 		// Beam monitor 1
 		PGroup bm1Group = createGroup("BEAM MONITOR 1", null);
@@ -123,12 +122,12 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 				.grab(true, false).applyTo(deviceStatusWidget);
 
 		// Interrupt
-		PGroup interruptGroup = createGroup("INTERRUPT", null);
-		SicsInterruptGadget interruptGadget = new SicsInterruptGadget(
-				interruptGroup, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)
-				.grab(true, false).applyTo(interruptGadget);
-		interruptGadget.afterParametersSet();
+//		PGroup interruptGroup = createGroup("INTERRUPT", null);
+//		SicsInterruptGadget interruptGadget = new SicsInterruptGadget(
+//				interruptGroup, SWT.NONE);
+//		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)
+//				.grab(true, false).applyTo(interruptGadget);
+//		interruptGadget.afterParametersSet();
 	}
 
 	@Override
