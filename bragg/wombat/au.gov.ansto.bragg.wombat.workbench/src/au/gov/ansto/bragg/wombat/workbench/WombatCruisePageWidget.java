@@ -15,10 +15,10 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.DeviceStatusWidget;
+import org.gumtree.gumnix.sics.ui.widgets.ShutterStatusWidget;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
 
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
-import au.gov.ansto.bragg.nbi.ui.widgets.ShutterStatusWidget;
 
 @SuppressWarnings("restriction")
 public class WombatCruisePageWidget extends AbstractCruisePageWidget {
