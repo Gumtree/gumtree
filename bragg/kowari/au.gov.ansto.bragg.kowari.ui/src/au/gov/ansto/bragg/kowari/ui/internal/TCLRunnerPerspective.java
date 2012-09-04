@@ -41,7 +41,7 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 	public static final String WORKFLOW_VIEW_ID = "au.gov.ansto.bragg.kowari.ui.views.TclEditorView";
 //	public static final String FILTERED_STATUS_MONITOR_VIEW_ID = "org.gumtree.dashboard.ui.rcp.FilteredStatusMonitorView";
 	public static final String COMMAND_LINE_VIEW_ID="org.gumtree.scripting.ui.commandLineView";
-	public static final String SICS_TERMINAL_VIEW_ID = "org.gumtree.gumnix.sics.ui.SicsTerminalView";
+	public static final String SICS_TERMINAL_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.SicsTerminalView";
 //	public static final String SICS_TELNET_ADAPTOR_ID = "org.gumtree.gumnix.sics.ui.serverCommunicationAdapter";
 	public static final String PROJECT_EXPLORER_VIEW_ID = "org.eclipse.ui.navigator.ProjectExplorer";
 	public static final String CONTROL_VIEW_ID = "au.gov.ansto.bragg.kowari.ui.views.KowariControlView";

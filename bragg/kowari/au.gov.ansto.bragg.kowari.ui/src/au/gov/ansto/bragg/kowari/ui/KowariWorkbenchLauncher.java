@@ -11,27 +11,24 @@
 
 package au.gov.ansto.bragg.kowari.ui;
 
+import org.eclipse.ui.IPerspectiveDescriptor;
+import org.eclipse.ui.IPerspectiveListener;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.WorkbenchWindow;
 import org.eclipse.ui.intro.IIntroPart;
-import org.gumtree.core.service.ServiceUtils;
 import org.gumtree.ui.service.launcher.AbstractLauncher;
 import org.gumtree.ui.service.launcher.LauncherException;
 import org.gumtree.ui.service.multimonitor.IMultiMonitorManager;
+import org.gumtree.ui.service.multimonitor.support.MultiMonitorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class KowariWorkbenchLauncher extends AbstractLauncher {
 
-	private static final String ID_PERSPECTIVE_STATUS_MONITOR = "org.gumtree.dashboard.ui.rcp.statusMonitorPerspective";
-	
-	private static final String ID_PERSPECTIVE_KAKADU = "au.gov.ansto.bragg.kowari.ui.internal.KowariAnalysisPerspective";
 	
 	private static final String ID_PERSPECTIVE_EXPERIMENT = "au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective";
-	
-	// Use the default as buffer to hold the editor
-	private static final String ID_PERSPECTIVE_DEFAULT = "org.gumtree.ui.isee.workbenchPerspective";
-	
-	private static final String PROP_STATUS_DASHBOARD_CONFIG_FILE = "status.dashboardConfigFile";
 	
 	private static Logger logger = LoggerFactory.getLogger(KowariWorkbenchLauncher.class);
 	
@@ -44,7 +41,12 @@ public class KowariWorkbenchLauncher extends AbstractLauncher {
 		{			
 			// TODO: move this logic to experiment UI manager service
 			
-			IMultiMonitorManager mmManager = ServiceUtils.getService(IMultiMonitorManager.class);
+			final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			if (activeWorkbenchWindow instanceof WorkbenchWindow) {
+				((WorkbenchWindow) activeWorkbenchWindow).setCoolBarVisible(false);
+			}
+//			IMultiMonitorManager mmManager = ServiceUtils.getService(IMultiMonitorManager.class);
+			IMultiMonitorManager mmManager = new MultiMonitorManager();
 			// Prepare status in screen 1 (maximised)
 //			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_DEFAULT, 0, 0, true);
 //			String configFile = System.getProperty(PROP_STATUS_DASHBOARD_CONFIG_FILE);
@@ -60,8 +62,8 @@ public class KowariWorkbenchLauncher extends AbstractLauncher {
 //			}
 			
 			// Attempt to close intro
-			IIntroPart introPart = PlatformUI.getWorkbench().getIntroManager().getIntro();
-			PlatformUI.getWorkbench().getIntroManager().closeIntro(introPart);
+//			IIntroPart introPart = PlatformUI.getWorkbench().getIntroManager().getIntro();
+//			PlatformUI.getWorkbench().getIntroManager().closeIntro(introPart);
 			
 //			InstrumentDashboardLauncher launcher = new InstrumentDashboardLauncher();
 //			launcher.launch(0);
@@ -81,7 +83,23 @@ public class KowariWorkbenchLauncher extends AbstractLauncher {
 //			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_KAKADU, 1, 1, mmManager.isMultiMonitorSystem());
 
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
+			activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
 
+			activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
+				
+				@Override
+				public void perspectiveChanged(IWorkbenchPage page,
+						IPerspectiveDescriptor perspective, String changeId) {
+					if (perspective.getId().equals("au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective")) {
+						activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
+					}
+				}
+				
+				@Override
+				public void perspectiveActivated(IWorkbenchPage page,
+						IPerspectiveDescriptor perspective) {
+				}
+			});
 //			if (isCoolBarVisable) {
 //				IWorkbench workbench = PlatformUI.getWorkbench();				
 //				ActionFactory.IWorkbenchAction toggleToolbar = 

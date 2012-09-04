@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Pelican Exp
+Bundle-Name: Bragg Pelican Experiment
 Bundle-SymbolicName: au.gov.ansto.bragg.pelican.exp;singleton:=true
 Bundle-Version: 1.7.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.pelican.exp.Activator
@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.ui,
  au.gov.ansto.bragg.nbi.ui,
  org.gumtree.gumnix.sics.batch.ui
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: au.gov.ansto.bragg.pelican.exp,
  au.gov.ansto.bragg.pelican.exp.config,
  au.gov.ansto.bragg.pelican.exp.task,

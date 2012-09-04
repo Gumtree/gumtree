@@ -44,7 +44,6 @@
          <description>
             Start 2 monitor setup in the following order:
 			1. Experiment Window
-			2. Analysis Window
          </description>
       </launcher>
       <launcher
