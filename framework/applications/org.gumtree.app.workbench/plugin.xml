@@ -13,11 +13,11 @@
          </property>
          <property
                name="aboutImage"
-               value="platform:/plugin/org.gumtree.app.runtime/images/earth.png">
+               value="/org.gumtree.app.runtime/images/earth.png">
          </property>
          <property
                name="windowImages"
-               value="platform:/plugin/org.gumtree.app.runtime/images/g-icon_16x16.png,platform:/plugin/org.gumtree.app.runtime/images/g-icon_32x32.png,platform:/plugin/org.gumtree.app.runtime/images/g-icon_48x48.png,platform:/plugin/org.gumtree.app.runtime/images/g-icon_64x64.png,platform:/plugin/org.gumtree.app.runtime/images/g-icon_128x128.png">
+               value="/org.gumtree.app.runtime/images/g-icon_16x16.png,/org.gumtree.app.runtime/images/g-icon_32x32.png,/org.gumtree.app.runtime/images/g-icon_48x48.png,/org.gumtree.app.runtime/images/g-icon_64x64.png,/org.gumtree.app.runtime/images/g-icon_128x128.png">
          </property>
          <property
                name="startupForegroundColor"

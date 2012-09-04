@@ -1,7 +1,7 @@
 Book of Gumtree
 ===============
 Bragg Institute <gumtree@googlegroups.com>
-v1.7.0, July 2012: Written for Gumtree version 1.7.x
+v1.8.0, July 2012: Written for Gumtree version 1.8.x
 :doctype: book
 
 :numbered:
@@ -602,31 +602,3 @@ Release Engineering
 
 Continuous Build System
 -----------------------
-
-=== Installation ===
-Download Jenkins from http://jenkins-ci.org/
-Rename jenkins.war to jenkins-<version>.war
-Copy jenkins-<version>.war to V:\build\jenkins
-cd V:\build\jenkins
-Run java -DDJENKINS_HOME="." -jar jenkins-<version>.war --httpPort=7070
--- Set DJENKINS_HOME to <build_system_path>
--- Set http port to 7070
-
-Install git
-Set proxy to git: git config --global http.proxy http://<host>:<port>
-(or use EGit for permenant set)
-
-Install plugins
-
-* Github Plugin
-
-Configuration
-
-# of executors -> 1
-SCM checkout retry count -> 3
-Add global environment variable: maven_install_goal -> clean install surefire-report:report site -P test,coverage,findbugs
-Set JDK location
-Set Git location
-Set Ant location
-Set Maven location
-Set Jenkins URL -> http://dav1-test.nbi.ansto.gov.au:7070/
