@@ -1,4 +1,4 @@
-package org.gumtree.gumnix.sics.ui.widgets;
+package org.gumtree.gumnix.sics.widgets.swt;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -6,13 +6,13 @@ import javax.inject.Inject;
 import org.eclipse.swt.widgets.Composite;
 import org.gumtree.gumnix.sics.core.ISicsManager;
 import org.gumtree.gumnix.sics.core.SicsEvents;
-import org.gumtree.ui.widgets.ExtendedComposite;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.JobRunner;
 import org.gumtree.util.messaging.EventHandler;
+import org.gumtree.widgets.swt.ExtendedComposite;
 import org.osgi.service.event.Event;
 
-public abstract class AbstractSicsComposite extends ExtendedComposite {
+public abstract class ExtendedSicsComposite extends ExtendedComposite {
 
 	private ISicsManager sicsManager;
 
@@ -20,7 +20,7 @@ public abstract class AbstractSicsComposite extends ExtendedComposite {
 
 	private boolean initialised;
 	
-	public AbstractSicsComposite(Composite parent, int style) {
+	public ExtendedSicsComposite(Composite parent, int style) {
 		super(parent, style);
 		initialised = false;
 	}

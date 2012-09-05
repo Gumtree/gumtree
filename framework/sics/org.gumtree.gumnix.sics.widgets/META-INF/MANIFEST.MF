@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Widgets
+Bundle-Name: Gumtree SICS Widgets
 Bundle-SymbolicName: org.gumtree.gumnix.sics.widgets
 Bundle-Version: 1.8.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -10,3 +10,5 @@ Require-Bundle: org.gumtree.gumnix.sics.core;bundle-version="1.8.0",
  org.gumtree.widgets;bundle-version="1.8.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.gumtree.gumnix.sics.widgets.internal.Activator
+Export-Package: org.gumtree.gumnix.sics.widgets.swt
+Bundle-Vendor: Bragg Institute

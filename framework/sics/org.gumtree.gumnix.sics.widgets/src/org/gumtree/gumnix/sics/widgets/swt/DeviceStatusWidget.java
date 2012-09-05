@@ -27,7 +27,7 @@ import org.gumtree.widgets.swt.util.UIResources;
 import org.osgi.service.event.Event;
 
 @SuppressWarnings("restriction")
-public class DeviceStatusWidget extends AbstractSicsComposite {
+public class DeviceStatusWidget extends ExtendedSicsComposite {
 
 	private IDataAccessManager dataAccessManager;
 

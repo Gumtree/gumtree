@@ -1,4 +1,4 @@
-package org.gumtree.gumnix.sics.ui.widgets;
+package org.gumtree.gumnix.sics.widgets.swt;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -25,14 +25,14 @@ import org.gumtree.gumnix.sics.core.SicsEvents;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.service.dataaccess.IDataHandler;
 import org.gumtree.service.directory.IDirectoryService;
-import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.util.messaging.DelayEventHandler;
 import org.gumtree.util.messaging.EventHandler;
 import org.gumtree.util.messaging.IDelayEventExecutor;
+import org.gumtree.widgets.swt.util.SafeUIRunner;
 import org.osgi.service.event.Event;
 
 @SuppressWarnings("restriction")
-public class ShutterStatusWidget extends AbstractSicsComposite {
+public class ShutterStatusWidget extends ExtendedSicsComposite {
 
 	private IDataAccessManager dataAccessManager;
 

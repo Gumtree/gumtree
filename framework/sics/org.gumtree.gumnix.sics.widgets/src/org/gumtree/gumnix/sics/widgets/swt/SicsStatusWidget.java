@@ -1,4 +1,4 @@
-package org.gumtree.gumnix.sics.ui.widgets;
+package org.gumtree.gumnix.sics.widgets.swt;
 
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
@@ -8,12 +8,12 @@ import org.eclipse.swt.widgets.Label;
 import org.gumtree.gumnix.sics.control.ServerStatus;
 import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.core.SicsEvents;
-import org.gumtree.ui.util.SafeUIRunner;
-import org.gumtree.ui.util.resource.UIResources;
 import org.gumtree.util.messaging.EventHandler;
+import org.gumtree.widgets.swt.util.SafeUIRunner;
+import org.gumtree.widgets.swt.util.UIResources;
 import org.osgi.service.event.Event;
 
-public class SicsStatusWidget extends AbstractSicsComposite {
+public class SicsStatusWidget extends ExtendedSicsComposite {
 
 	private EventHandler eventHandler;
 

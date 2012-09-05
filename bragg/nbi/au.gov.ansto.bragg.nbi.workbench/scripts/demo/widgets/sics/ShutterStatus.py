@@ -5,7 +5,7 @@ from org.eclipse.jface.layout import GridDataFactory
 from org.eclipse.jface.layout import GridLayoutFactory
 from org.eclipse.swt import SWT
 
-from org.gumtree.gumnix.sics.ui.widgets import ShutterStatusWidget
+from org.gumtree.gumnix.sics.widgets.swt import ShutterStatusWidget
 
 @swtFunction
 def create(parent):

@@ -8,7 +8,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.gumtree.gumnix.sics.ui.widgets.SicsInterruptWidget;
+import org.gumtree.gumnix.sics.widgets.swt.SicsInterruptWidget;
 import org.gumtree.ui.cruise.support.CruisePanel;
 import org.gumtree.ui.util.resource.SharedImage;
 

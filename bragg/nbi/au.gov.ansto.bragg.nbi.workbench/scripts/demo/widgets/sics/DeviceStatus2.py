@@ -7,10 +7,10 @@ from org.eclipse.jface.layout import GridDataFactory
 from org.eclipse.jface.layout import GridLayoutFactory
 from org.eclipse.swt import SWT
 
-from org.gumtree.gumnix.sics.ui.widgets import DeviceStatusWidget
+from org.gumtree.gumnix.sics.widgets.swt import DeviceStatusWidget
 from org.gumtree.ui.util.resource import SharedImage
-from org.gumtree.ui.util.resource import UIResourceManager
-from org.gumtree.ui.util.resource import UIResources
+from org.gumtree.widgets.swt.util import UIResourceManager
+from org.gumtree.widgets.swt.util import UIResources
 
 @swtFunction
 def create(parent):

@@ -82,6 +82,7 @@
 		<module>${common.path}/org.eclipse.nebula.jface</module>
 		<module>${common.path}/net.sourceforge.nattable</module>
 		<module>${common.path}/org.apache.commons.io</module>
+		<module>${common.path}/org.gumtree.widgets</module>
 		<module>${common.path}/org.gumtree.vis.gdm</module>
 		<module>${common.path}/org.gumtree.vis.nexus</module>
 		<module>${common.path}/org.gumtree.ui</module>
@@ -132,6 +133,7 @@
 
 		<module>${sics.path}/sun.tools.jconsole</module>
 		<module>${sics.path}/org.gumtree.sics.ui</module>
+		<module>${sics.path}/org.gumtree.gumnix.sics.widgets</module>
 		<module>${sics.path}/org.gumtree.gumnix.sics.ui</module>
 		<module>${sics.path}/org.gumtree.gumnix.sics.ui.transaction</module>
 		<module>${sics.path}/org.gumtree.gumnix.sics.batch.ui</module>

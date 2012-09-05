@@ -16,7 +16,7 @@ import org.gumtree.widgets.swt.util.UIResources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SicsInterruptWidget extends AbstractSicsComposite {
+public class SicsInterruptWidget extends ExtendedSicsComposite {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(SicsInterruptWidget.class);

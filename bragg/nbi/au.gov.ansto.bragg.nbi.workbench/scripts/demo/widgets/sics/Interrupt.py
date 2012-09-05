@@ -3,7 +3,7 @@ from gumpy.commons.swt import swtFunction
 
 from org.eclipse.swt import SWT
 
-from org.gumtree.gumnix.sics.ui.widgets import SicsInterruptWidget
+from org.gumtree.gumnix.sics.widgets.swt import SicsInterruptWidget
 from org.gumtree.ui.util.resource import SharedImage
 
 @swtFunction
