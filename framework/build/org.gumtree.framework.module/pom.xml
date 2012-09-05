@@ -115,7 +115,11 @@
 
 		<module>${extensions.path}/org.gumtree.github.feature</module>
 
-
+		<module>${extensions.path}/javafx</module>
+		<module>${extensions.path}/javafx.macosx.x86_64</module>
+		<module>${extensions.path}/javafx.win32.x86</module>
+		<module>${extensions.path}/javafx.win32.x86_64</module>
+		<module>${extensions.path}/org.gumtree.javafx.feature</module>
 
 		<module>${sics.path}/ch.psi.sics.hipadaba</module>
 		<module>${sics.path}/ch.unifr.nio.framework</module>
