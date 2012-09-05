@@ -111,7 +111,7 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 				.render();
 
 		// Euler Cradle
-		PGroup cradleGroup = createGroup("Euler Cradle",
+		PGroup cradleGroup = createGroup("",
 				SharedImage.CRADLE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(cradleGroup, SWT.NONE);
 		configureWidget(deviceStatusWidget);
