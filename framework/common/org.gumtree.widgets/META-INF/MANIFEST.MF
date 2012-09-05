@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gumtree Widgets
+Bundle-SymbolicName: org.gumtree.widgets
+Bundle-Version: 1.8.0.qualifier
+Bundle-Vendor: Bragg Institute
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.eclipse.swt;bundle-version="3.100.0";resolution:=optional,
+ org.eclipse.equinox.common;bundle-version="3.6.100";resolution:=optional,
+ org.eclipse.core.jobs;bundle-version="3.5.200";resolution:=optional,
+ org.eclipse.jface;bundle-version="3.8.0";resolution:=optional,
+ org.eclipse.ui.forms;bundle-version="3.5.200";resolution:=optional
+Export-Package: org.gumtree.widgets,
+ org.gumtree.widgets.swing,
+ org.gumtree.widgets.swt,
+ org.gumtree.widgets.swt.forms,
+ org.gumtree.widgets.swt.util
+Import-Package: org.eclipse.osgi.util;version="1.1.0";resolution:=optional,
+ org.osgi.framework;version="1.7.0";resolution:=optional,
+ org.slf4j;version="1.6.4";resolution:=optional
+Bundle-Activator: org.gumtree.widgets.internal.Activator
+Bundle-ActivationPolicy: lazy
