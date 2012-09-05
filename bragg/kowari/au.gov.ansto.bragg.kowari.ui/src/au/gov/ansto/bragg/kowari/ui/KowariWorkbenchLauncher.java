@@ -25,6 +25,8 @@ import org.gumtree.ui.service.multimonitor.support.MultiMonitorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective;
+
 public class KowariWorkbenchLauncher extends AbstractLauncher {
 
 	
@@ -85,21 +87,28 @@ public class KowariWorkbenchLauncher extends AbstractLauncher {
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
 			activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
 
-			activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
-				
-				@Override
-				public void perspectiveChanged(IWorkbenchPage page,
-						IPerspectiveDescriptor perspective, String changeId) {
-					if (perspective.getId().equals("au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective")) {
-						activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
-					}
-				}
-				
-				@Override
-				public void perspectiveActivated(IWorkbenchPage page,
-						IPerspectiveDescriptor perspective) {
-				}
-			});
+//			activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
+//				
+//				@Override
+//				public void perspectiveChanged(IWorkbenchPage page,
+//						IPerspectiveDescriptor perspective, String changeId) {
+//					if (perspective.getId().equals("au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective")) {
+//						activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
+//					}
+//				}
+//				
+//				@Override
+//				public void perspectiveActivated(IWorkbenchPage page,
+//						IPerspectiveDescriptor perspective) {
+//					if (perspective.getId().equals(TCLRunnerPerspective.EXPERIMENT_PERSPECTIVE_ID)) {
+//						PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
+//								TCLRunnerPerspective.EXPERIMENT_PERSPECTIVE_THEME);
+//					} else {
+//						PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
+//								TCLRunnerPerspective.DEFAULT_PERSPECTIVE_THEME);
+//					}
+//				}
+//			});
 //			if (isCoolBarVisable) {
 //				IWorkbench workbench = PlatformUI.getWorkbench();				
 //				ActionFactory.IWorkbenchAction toggleToolbar = 

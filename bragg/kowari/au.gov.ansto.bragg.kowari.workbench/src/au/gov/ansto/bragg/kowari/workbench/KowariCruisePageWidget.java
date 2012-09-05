@@ -112,7 +112,7 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 				.render();
 
 		// Euler Cradle
-		PGroup cradleGroup = createGroup("",
+		PGroup cradleGroup = createGroup("Euler Cradle",
 				InternalImage.CRADLE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(cradleGroup, SWT.NONE);
 		configureWidget(deviceStatusWidget);
