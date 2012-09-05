@@ -107,29 +107,52 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 //		factory.getViewLayout(ANALYSIS_PARAMETERS_VIEW_ID).setCloseable(false);
 		
 //		factory.setFixed(true);
-		PlatformUI.getWorkbench().getActiveWorkbenchWindow().addPerspectiveListener(new IPerspectiveListener() {
+//		PlatformUI.getWorkbench().getActiveWorkbenchWindow().addPerspectiveListener(new IPerspectiveListener() {
+//			
+//			@Override
+//			public void perspectiveChanged(IWorkbenchPage page,
+//					IPerspectiveDescriptor perspective, String changeId) {
+//				System.out.println("perspective changed");
+//			}
+//			
+//			@Override
+//			public void perspectiveActivated(IWorkbenchPage page,
+//					IPerspectiveDescriptor perspective) {
+//				if (perspective.getId().equals(EXPERIMENT_PERSPECTIVE_ID)) {
+//					PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
+//							EXPERIMENT_PERSPECTIVE_THEME);
+//				} else {
+//					PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
+//							DEFAULT_PERSPECTIVE_THEME);
+//				}
+//				
+//			}
+//		});
+		
+		
+		final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
 			
 			@Override
 			public void perspectiveChanged(IWorkbenchPage page,
 					IPerspectiveDescriptor perspective, String changeId) {
-				System.out.println("perspective changed");
+				if (perspective.getId().equals("au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective")) {
+					activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
+				}
 			}
 			
 			@Override
 			public void perspectiveActivated(IWorkbenchPage page,
 					IPerspectiveDescriptor perspective) {
-				if (perspective.getId().equals(EXPERIMENT_PERSPECTIVE_ID)) {
+				if (perspective.getId().equals(TCLRunnerPerspective.EXPERIMENT_PERSPECTIVE_ID)) {
 					PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
-							EXPERIMENT_PERSPECTIVE_THEME);
+							TCLRunnerPerspective.EXPERIMENT_PERSPECTIVE_THEME);
 				} else {
 					PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
-							DEFAULT_PERSPECTIVE_THEME);
+							TCLRunnerPerspective.DEFAULT_PERSPECTIVE_THEME);
 				}
-				
 			}
 		});
-		
-		
 	}
 
 //	/* (non-Javadoc)

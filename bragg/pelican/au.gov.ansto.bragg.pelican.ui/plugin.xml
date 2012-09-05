@@ -32,4 +32,27 @@
             id="au.gov.ansto.bragg.pelican.ui.TCLRunnerPerspective"
             name="Pelican Experiment"/>
    </extension>
+   <extension 
+   		point="org.gumtree.ui.launchers">
+      <launcher
+            category="au.gov.ansto.bragg.experiment"
+            class="au.gov.ansto.bragg.pelican.ui.internal.PelicanWorkbenchLauncher"
+            icon32="icons/MultiMonitors32.png"
+            icon64="icons/MultiMonitors.png"
+            id="au.gov.ansto.bragg.pelican.ui.PelicanWorkbenchLauncher"
+            label="Pelican Workbench"
+            quickLauncher="true">
+         <description>
+            Start 2 monitor setup in the following order:
+			1. Experiment Window
+			2. Analysis Scripting Window
+         </description>
+      </launcher>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="au.gov.ansto.bragg.pelican.ui.internal.PelicanWorkbenchSetup">
+      </startup>
+   </extension>
 </plugin>

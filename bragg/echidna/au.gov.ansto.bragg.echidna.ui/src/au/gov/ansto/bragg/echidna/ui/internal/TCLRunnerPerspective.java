@@ -28,7 +28,7 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 	public static final String WORKFLOW_VIEW_ID = "au.gov.ansto.bragg.echidna.ui.views.EchidnaBatchEditingView";
 //	public static final String FILTERED_STATUS_MONITOR_VIEW_ID = "org.gumtree.dashboard.ui.rcp.FilteredStatusMonitorView";
 	public static final String COMMAND_LINE_VIEW_ID="org.gumtree.scripting.ui.commandLineView";
-	public static final String SICS_TERMINAL_VIEW_ID = "au.gov.ansto.bragg.echidna.ui.views.SicsTerminalView";
+	public static final String SICS_TERMINAL_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.SicsTerminalView";
 	public static final String SICS_BUFFER_RUNNER = "org.gumtree.gumnix.sics.batch.ui.batchBufferManagerView";
 	public static final String PROJECT_EXPLORER_VIEW_ID = "org.eclipse.ui.navigator.ProjectExplorer";
 	public static final String CONTROL_VIEW_ID = "au.gov.ansto.bragg.echidna.ui.views.EchidnaControlView";

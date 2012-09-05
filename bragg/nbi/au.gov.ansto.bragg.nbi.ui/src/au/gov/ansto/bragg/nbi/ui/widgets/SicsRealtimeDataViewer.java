@@ -17,6 +17,8 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.gumtree.gumnix.sics.core.SicsCore;
 
 import au.gov.ansto.bragg.nbi.ui.realtime.RealtimeDataViewer;
 import au.gov.ansto.bragg.nbi.ui.realtime.SicsRealtimeRourceProvider;
@@ -31,19 +33,41 @@ public class SicsRealtimeDataViewer extends Composite {
 
 	public SicsRealtimeDataViewer(Composite parent, int style) {
 		super(parent, style);
-		RealtimeDataViewer viewer = new RealtimeDataViewer(this, SWT.NONE);
+		final RealtimeDataViewer viewer = new RealtimeDataViewer(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().spacing(0, 0).applyTo(viewer);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer);
-		SicsRealtimeRourceProvider provider = new SicsRealtimeRourceProvider();
-//		provider.setFilter(new String[]{
-//				"/sample/tc1/sensor/sensorValueA",
-//				"/sample/tc1/sensor/sensorValueB",
-//				"/sample/tc1/sensor/sensorValueC", 
-//				"/sample/tc1/sensor/sensorValueD",
-//				"/sample/tempone/sensorA",
-//				"stth"});
-		provider.setFilter(getDeviceFilter());
-		viewer.setResourceProvider(provider);
+		Thread thread = new Thread(){
+			@Override
+			public void run() {
+				try {
+					while(SicsCore.getSicsController() == null){
+						Thread.sleep(500);
+					}
+					Display.getDefault().asyncExec(new Runnable() {
+						
+						@Override
+						public void run() {
+							Display.getDefault().asyncExec(new Runnable() {
+								
+								@Override
+								public void run() {
+									try {
+										SicsRealtimeRourceProvider provider = new SicsRealtimeRourceProvider();
+										provider.setFilter(getDeviceFilter());
+										viewer.setResourceProvider(provider);
+									} catch (Exception e) {
+									}
+								}
+							});
+						}
+					});
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		thread.start();
+
 	}
 
 	public static List<String> getDeviceFilter(){
