@@ -24,7 +24,7 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.gumtree.ui.service.applaunch.IAppLaunchDescriptor;
 import org.gumtree.ui.service.applaunch.IAppLaunchRegistry;
-import org.gumtree.ui.util.resource.UIResources;
+import org.gumtree.widgets.swt.util.UIResources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

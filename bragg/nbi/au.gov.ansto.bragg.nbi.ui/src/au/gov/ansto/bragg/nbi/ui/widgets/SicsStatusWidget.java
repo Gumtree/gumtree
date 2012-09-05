@@ -15,7 +15,7 @@ import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.io.ISicsProxyListener;
 import org.gumtree.gumnix.sics.io.SicsProxyListenerAdapter;
 import org.gumtree.service.dataaccess.IDataAccessManager;
-import org.gumtree.ui.widgets.ExtendedComposite;
+import org.gumtree.widgets.swt.ExtendedComposite;
 
 public abstract class SicsStatusWidget extends ExtendedComposite {
 

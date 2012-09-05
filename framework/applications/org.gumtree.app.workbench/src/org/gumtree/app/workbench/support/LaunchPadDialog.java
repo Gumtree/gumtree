@@ -34,9 +34,9 @@ import org.gumtree.app.workbench.internal.Activator;
 import org.gumtree.core.service.ServiceUtils;
 import org.gumtree.ui.service.applaunch.IAppLaunchDescriptor;
 import org.gumtree.ui.service.applaunch.IAppLaunchRegistry;
-import org.gumtree.ui.util.resource.UIResourceManager;
-import org.gumtree.ui.util.resource.UIResources;
-import org.gumtree.ui.widgets.IWidget;
+import org.gumtree.widgets.IWidget;
+import org.gumtree.widgets.swt.util.UIResourceManager;
+import org.gumtree.widgets.swt.util.UIResources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

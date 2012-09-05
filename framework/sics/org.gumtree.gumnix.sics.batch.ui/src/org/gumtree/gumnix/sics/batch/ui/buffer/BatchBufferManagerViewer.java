@@ -10,11 +10,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.forms.widgets.Form;
 import org.gumtree.gumnix.sics.batch.ui.internal.Activator;
-import org.gumtree.ui.util.forms.FormComposite;
 import org.gumtree.ui.util.swt.IDNDHandler;
+import org.gumtree.widgets.swt.forms.ExtendedFormComposite;
 
 @SuppressWarnings("restriction")
-public class BatchBufferManagerViewer extends FormComposite {
+public class BatchBufferManagerViewer extends ExtendedFormComposite {
 
 	public static final int HIDE_RUNNER = 1 << 1;
 

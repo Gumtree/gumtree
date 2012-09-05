@@ -18,7 +18,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.gumtree.ui.internal.Activator;
-import org.gumtree.ui.util.resource.UIResourceUtils;
+import org.gumtree.widgets.IWidget;
+import org.gumtree.widgets.swt.util.UIResourceUtils;
 
 public class TimerWidget extends Composite implements IWidget {
 

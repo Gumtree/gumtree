@@ -13,9 +13,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.gumtree.core.object.IConfigurable;
 import org.gumtree.ui.util.SafeUIRunner;
-import org.gumtree.ui.widgets.IWidget;
 import org.gumtree.util.bean.AbstractModelObject;
 import org.gumtree.util.collection.IParameters;
+import org.gumtree.widgets.IWidget;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 

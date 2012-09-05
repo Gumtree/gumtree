@@ -57,13 +57,13 @@ import org.gumtree.gumnix.sics.io.SicsIOException;
 import org.gumtree.gumnix.sics.io.SicsProxyListenerAdapter;
 import org.gumtree.service.eventbus.IEventHandler;
 import org.gumtree.ui.util.SafeUIRunner;
-import org.gumtree.ui.util.forms.FormComposite;
 import org.gumtree.ui.util.swt.IDNDHandler;
 import org.gumtree.ui.widgets.AutoScrollStyledText;
 import org.gumtree.ui.widgets.TimerWidget;
 import org.gumtree.util.bean.AbstractModelObject;
+import org.gumtree.widgets.swt.forms.ExtendedFormComposite;
 
-public class BatchRunnerPage extends FormComposite {
+public class BatchRunnerPage extends ExtendedFormComposite {
 
 	private static final String KEY_PREV_DOC_LEN = "previousDocLength";
 	

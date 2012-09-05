@@ -27,12 +27,12 @@ import org.gumtree.ui.cruise.ICruisePanel;
 import org.gumtree.ui.cruise.ICruisePanelManager;
 import org.gumtree.ui.cruise.ICruisePanelPage;
 import org.gumtree.ui.internal.InternalImage;
-import org.gumtree.ui.util.forms.FormComposite;
+import org.gumtree.widgets.swt.forms.ExtendedFormComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("restriction")
-public class CruisePanel extends FormComposite implements ICruisePanel {
+public class CruisePanel extends ExtendedFormComposite implements ICruisePanel {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(CruisePanel.class);

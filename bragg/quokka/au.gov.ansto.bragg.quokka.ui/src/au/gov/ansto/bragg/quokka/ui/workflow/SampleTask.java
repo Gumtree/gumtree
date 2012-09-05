@@ -48,8 +48,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.statushandlers.StatusManager;
-import org.gumtree.ui.util.resource.UIResources;
 import org.gumtree.ui.util.swt.FloatTextVerifyListener;
+import org.gumtree.widgets.swt.util.UIResources;
 import org.gumtree.workflow.ui.AbstractTaskView;
 import org.gumtree.workflow.ui.ITaskView;
 

@@ -48,8 +48,8 @@ import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.service.eventbus.IFilteredEventHandler;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.ui.util.forms.FormControlWidget;
-import org.gumtree.ui.util.resource.UIResources;
 import org.gumtree.util.PlatformUtils;
+import org.gumtree.widgets.swt.util.UIResources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -10,11 +10,11 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.Form;
 import org.gumtree.gumnix.sics.batch.ui.internal.Activator;
-import org.gumtree.ui.util.forms.FormComposite;
 import org.gumtree.ui.util.swt.IDNDHandler;
+import org.gumtree.widgets.swt.forms.ExtendedFormComposite;
 
 @SuppressWarnings("restriction")
-public class BatchBufferRunnerViewer extends FormComposite {
+public class BatchBufferRunnerViewer extends ExtendedFormComposite {
 	
 	private IEclipseContext eclipseContext;
 

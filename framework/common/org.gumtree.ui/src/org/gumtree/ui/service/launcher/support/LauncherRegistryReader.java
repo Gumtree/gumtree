@@ -13,8 +13,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.gumtree.ui.internal.Activator;
 import org.gumtree.ui.internal.InternalImage;
-import org.gumtree.ui.util.resource.UIResourceUtils;
 import org.gumtree.util.eclipse.ExtensionRegistryReader;
+import org.gumtree.widgets.swt.util.UIResourceUtils;
 
 public class LauncherRegistryReader extends ExtensionRegistryReader {
 

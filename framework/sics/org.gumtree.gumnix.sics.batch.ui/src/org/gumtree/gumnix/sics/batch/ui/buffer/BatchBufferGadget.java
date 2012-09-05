@@ -22,7 +22,7 @@ import org.gumtree.core.service.ServiceUtils;
 import org.gumtree.service.eventbus.IEventHandler;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.ui.util.forms.FormControlWidget;
-import org.gumtree.ui.util.resource.UIResources;
+import org.gumtree.widgets.swt.util.UIResources;
 
 public class BatchBufferGadget extends FormControlWidget {
 

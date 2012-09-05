@@ -49,10 +49,10 @@ import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.core.SicsCoreProperties;
 import org.gumtree.gumnix.sics.io.ISicsConnectionContext;
 import org.gumtree.gumnix.sics.io.SicsConnectionContext;
-import org.gumtree.ui.util.forms.FormComposite;
 import org.gumtree.ui.widgets.AutoScrollStyledText;
+import org.gumtree.widgets.swt.forms.ExtendedFormComposite;
 
-public class BatchValidationPage extends FormComposite {
+public class BatchValidationPage extends ExtendedFormComposite {
 
 	private static final String KEY_PREV_DOC_LEN = "previousDocLength";
 	

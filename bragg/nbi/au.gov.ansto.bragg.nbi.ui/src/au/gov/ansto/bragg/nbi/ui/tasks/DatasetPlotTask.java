@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.gumtree.data.interfaces.IDataset;
 import org.gumtree.data.interfaces.IGroup;
-import org.gumtree.ui.util.resource.UIResources;
+import org.gumtree.widgets.swt.util.UIResources;
 import org.gumtree.workflow.ui.AbstractTask;
 import org.gumtree.workflow.ui.AbstractTaskView;
 import org.gumtree.workflow.ui.ITaskView;

@@ -11,7 +11,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.gumtree.ui.internal.Activator;
-import org.gumtree.ui.util.resource.UIResourceUtils;
+import org.gumtree.widgets.swt.util.UIResourceUtils;
 
 public abstract class OpenBrowserViewAction extends Action {
 	

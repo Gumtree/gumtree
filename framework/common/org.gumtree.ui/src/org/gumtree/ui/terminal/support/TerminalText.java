@@ -6,9 +6,8 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.StyledTextContent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
-import org.gumtree.ui.terminal.ITerminalOutputBuffer;
 import org.gumtree.ui.terminal.ITerminalOutputBuffer.OutputStyle;
-import org.gumtree.ui.widgets.IWidget;
+import org.gumtree.widgets.IWidget;
 
 public class TerminalText extends StyledText implements IWidget {
 

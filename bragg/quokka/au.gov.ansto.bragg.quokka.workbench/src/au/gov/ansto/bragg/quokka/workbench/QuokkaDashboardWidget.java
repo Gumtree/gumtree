@@ -1,9 +1,9 @@
 package au.gov.ansto.bragg.quokka.workbench;
 
 import org.eclipse.swt.widgets.Composite;
-import org.gumtree.ui.util.forms.FormComposite;
+import org.gumtree.widgets.swt.forms.ExtendedFormComposite;
 
-public class QuokkaDashboardWidget extends FormComposite {
+public class QuokkaDashboardWidget extends ExtendedFormComposite {
 
 	public QuokkaDashboardWidget(Composite parent, int style) {
 		super(parent, style);

@@ -3,7 +3,7 @@ package org.gumtree.cs.sics.ui.browser;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.gumtree.ui.widgets.ExtendedComposite;
+import org.gumtree.widgets.swt.ExtendedComposite;
 
 public class SicsTableTreeViewer extends ExtendedComposite implements
 		ISicsTableTreeViewer {

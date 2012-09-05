@@ -13,7 +13,7 @@ import org.gumtree.gumnix.sics.io.ISicsProxyListener;
 import org.gumtree.gumnix.sics.io.SicsIOException;
 import org.gumtree.gumnix.sics.io.SicsProxyListenerAdapter;
 import org.gumtree.ui.util.SafeUIRunner;
-import org.gumtree.ui.util.resource.UIResourceManager;
+import org.gumtree.widgets.swt.util.UIResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

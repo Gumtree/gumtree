@@ -14,9 +14,9 @@ import org.gumtree.scripting.IScriptExecutor;
 import org.gumtree.scripting.IScriptingManager;
 import org.gumtree.scripting.ScriptExecutor;
 import org.gumtree.service.dataaccess.IDataAccessManager;
-import org.gumtree.ui.widgets.ExtendedComposite;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.JobRunner;
+import org.gumtree.widgets.swt.ExtendedComposite;
 
 public class JythonScriptWidget extends ExtendedComposite {
 

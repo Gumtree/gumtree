@@ -23,13 +23,13 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 import org.gumtree.ui.internal.InternalImage;
 import org.gumtree.ui.service.sidebar.IGadget;
-import org.gumtree.ui.util.forms.FormComposite;
+import org.gumtree.widgets.swt.forms.ExtendedFormComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.lambdaj.collection.LambdaCollections;
 
-public class GadgetViewer extends FormComposite {
+public class GadgetViewer extends ExtendedFormComposite {
 	
 	private static final Logger logger = LoggerFactory.getLogger(GadgetViewer.class);
 	

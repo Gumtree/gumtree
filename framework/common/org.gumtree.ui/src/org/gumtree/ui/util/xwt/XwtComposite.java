@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.gumtree.core.object.IConfigurable;
 import org.gumtree.ui.util.SafeUIRunner;
-import org.gumtree.ui.widgets.ExtendedComposite;
+import org.gumtree.widgets.swt.ExtendedComposite;
 
 public class XwtComposite extends ExtendedComposite {
 

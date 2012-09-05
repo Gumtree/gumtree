@@ -5,7 +5,7 @@ import java.io.Reader;
 import java.io.Writer;
 
 import org.gumtree.scripting.IScriptExecutor;
-import org.gumtree.ui.widgets.IWidget;
+import org.gumtree.widgets.IWidget;
 
 public interface IScriptConsole extends IWidget {
 

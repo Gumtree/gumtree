@@ -6,10 +6,7 @@ import static ch.lambdaj.collection.LambdaCollections.with;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -36,7 +33,7 @@ import org.gumtree.ui.util.jface.ITreeNode;
 import org.gumtree.ui.util.jface.TreeContentProvider;
 import org.gumtree.ui.util.jface.TreeLabelProvider;
 import org.gumtree.ui.util.jface.TreeNode;
-import org.gumtree.ui.widgets.ExtendedComposite;
+import org.gumtree.widgets.swt.ExtendedComposite;
 
 @SuppressWarnings("restriction")
 public class JythonScriptDemoWidget extends ExtendedComposite {

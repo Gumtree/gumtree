@@ -80,9 +80,9 @@ import org.gumtree.ui.scripting.support.ExportOutputAction;
 import org.gumtree.ui.scripting.tools.ICommandLineTool;
 import org.gumtree.ui.scripting.viewer.HistoryContentProvider.CommandHistory;
 import org.gumtree.ui.util.SafeUIRunner;
-import org.gumtree.ui.util.resource.UIResourceManager;
 import org.gumtree.ui.util.workbench.AbstractPartControlProvider;
 import org.gumtree.util.PlatformUtils;
+import org.gumtree.widgets.swt.util.UIResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

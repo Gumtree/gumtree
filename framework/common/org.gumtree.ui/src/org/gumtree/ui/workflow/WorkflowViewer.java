@@ -2,15 +2,13 @@ package org.gumtree.ui.workflow;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.swt.widgets.Composite;
-import org.gumtree.ui.util.forms.FormComposite;
-import org.gumtree.ui.widgets.ExtendedComposite;
+import org.gumtree.widgets.swt.forms.ExtendedFormComposite;
 import org.gumtree.workflow.IWorkflow;
 
-public class WorkflowViewer extends FormComposite {
+public class WorkflowViewer extends ExtendedFormComposite {
 
 	@Inject
 	@Optional

@@ -32,8 +32,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.statushandlers.StatusManager;
-import org.gumtree.ui.util.resource.UIResourceManager;
-import org.gumtree.ui.util.resource.UIResources;
+import org.gumtree.widgets.swt.util.UIResourceManager;
+import org.gumtree.widgets.swt.util.UIResources;
 
 import au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfig;
 import au.gov.ansto.bragg.quokka.experiment.report.ExperimentConfig;

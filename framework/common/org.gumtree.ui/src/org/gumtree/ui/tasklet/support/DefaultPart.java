@@ -5,7 +5,7 @@ import javax.inject.Inject;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.gumtree.ui.widgets.ExtendedComposite;
+import org.gumtree.widgets.swt.ExtendedComposite;
 
 @SuppressWarnings("restriction")
 public class DefaultPart extends ExtendedComposite {

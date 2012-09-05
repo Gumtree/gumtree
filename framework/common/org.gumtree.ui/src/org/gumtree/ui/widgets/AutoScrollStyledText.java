@@ -5,6 +5,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.StyledTextContent;
 import org.eclipse.swt.widgets.Composite;
 import org.gumtree.ui.util.SafeUIRunner;
+import org.gumtree.widgets.IWidget;
 
 public class AutoScrollStyledText extends StyledText implements IWidget {
 

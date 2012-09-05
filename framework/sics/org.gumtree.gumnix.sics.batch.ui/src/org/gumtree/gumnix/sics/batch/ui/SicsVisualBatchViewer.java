@@ -65,7 +65,7 @@ import org.gumtree.gumnix.sics.batch.ui.model.ISicsCommandBlock;
 import org.gumtree.gumnix.sics.batch.ui.util.SicsBatchUIUtils;
 import org.gumtree.gumnix.sics.ui.util.SicsBatchViewer;
 import org.gumtree.ui.util.SafeUIRunner;
-import org.gumtree.ui.util.resource.UIResources;
+import org.gumtree.widgets.swt.util.UIResources;
 import org.gumtree.workflow.ui.ITask;
 import org.gumtree.workflow.ui.ITaskView;
 import org.gumtree.workflow.ui.IWorkflow;

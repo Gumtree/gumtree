@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.gumtree.ui.internal.InternalImage;
 import org.gumtree.ui.service.applaunch.IAppLaunchDescriptor;
-import org.gumtree.ui.util.resource.UIResourceUtils;
+import org.gumtree.widgets.swt.util.UIResourceUtils;
 
 import com.google.common.base.Objects;
 

@@ -42,7 +42,7 @@ import org.gumtree.gumnix.sics.control.controllers.IComponentController;
 import org.gumtree.gumnix.sics.control.controllers.IDynamicController;
 import org.gumtree.gumnix.sics.core.dataaccess.SicsDataAccessUtils;
 import org.gumtree.gumnix.sics.io.SicsIOException;
-import org.gumtree.ui.util.resource.UIResources;
+import org.gumtree.widgets.swt.util.UIResources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,8 +4,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.gumtree.ui.util.resource.SharedImage;
-import org.gumtree.ui.widgets.ExtendedComposite;
-import org.gumtree.ui.widgets.SwtWidgetFactory;
+import org.gumtree.widgets.swt.ExtendedComposite;
+import org.gumtree.widgets.swt.SwtWidgetFactory;
 
 public abstract class AbstractCruisePageWidget extends ExtendedComposite {
 

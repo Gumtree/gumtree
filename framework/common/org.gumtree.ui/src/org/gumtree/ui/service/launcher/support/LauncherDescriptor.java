@@ -17,8 +17,8 @@ import org.gumtree.ui.service.launcher.ILauncher;
 import org.gumtree.ui.service.launcher.ILauncherDescriptor;
 import org.gumtree.ui.service.launcher.ILauncherRegistry;
 import org.gumtree.ui.service.launcher.LauncherException;
-import org.gumtree.ui.util.resource.UIResourceUtils;
 import org.gumtree.util.eclipse.ExtensionRegistryReader;
+import org.gumtree.widgets.swt.util.UIResourceUtils;
 
 public class LauncherDescriptor implements ILauncherDescriptor {
 

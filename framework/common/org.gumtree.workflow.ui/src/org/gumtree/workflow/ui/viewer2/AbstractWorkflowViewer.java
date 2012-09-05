@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.ui.util.forms.FormControlWidget;
-import org.gumtree.ui.util.resource.UIResources;
+import org.gumtree.widgets.swt.util.UIResources;
 import org.gumtree.workflow.ui.IWorkflow;
 import org.gumtree.workflow.ui.internal.InternalImage;
 import org.gumtree.workflow.ui.util.WorkflowFactory;
