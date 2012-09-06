@@ -21,7 +21,8 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.gumtree.gumnix.sics.core.SicsEvents;
-import org.gumtree.gumnix.sics.ui.widgets.AbstractSicsWidget;
+import org.gumtree.gumnix.sics.widgets.swt.ExtendedSicsComposite;
+import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.service.dataaccess.IDataHandler;
 import org.gumtree.util.messaging.DelayEventHandler;
 import org.gumtree.util.messaging.IDelayEventExecutor;
@@ -41,7 +42,7 @@ import org.jfree.ui.StandardGradientPaintTransformer;
 import org.osgi.service.event.Event;
 
 @SuppressWarnings("restriction")
-public class BeamMonitorDialWidget extends AbstractSicsWidget {
+public class BeamMonitorDialWidget extends ExtendedSicsComposite {
 
 	private DelayEventHandler eventHandler;
 
@@ -59,7 +60,8 @@ public class BeamMonitorDialWidget extends AbstractSicsWidget {
 	@Optional
 	private String unit;
 
-	@Inject
+	private IDataAccessManager dataAccessManager;
+	
 	private IDelayEventExecutor delayEventExecutor;
 
 	private long maximumDisplayValue;
@@ -238,19 +240,32 @@ public class BeamMonitorDialWidget extends AbstractSicsWidget {
 		context = null;
 		devicePath = null;
 		delayEventExecutor = null;
+		dataAccessManager = null;
 	}
 
-	private class UIContext {
-		float deviceValue;
-		DefaultValueDataset dataset;
-		JFreeChart chart;
-		ChartPanel chartpanel;
-		StandardDialScale standarddialscale;
-		StandardDialRange standarddialrangeLow;
-		StandardDialRange standarddialrangeMid;
-		StandardDialRange standarddialrangeHigh;
+	/*************************************************************************
+	 * Components
+	 *************************************************************************/
+
+	public IDataAccessManager getDataAccessManager() {
+		return dataAccessManager;
 	}
 
+	@Inject
+	public void setDataAccessManager(IDataAccessManager dataAccessManager) {
+		this.dataAccessManager = dataAccessManager;
+	}
+
+	public IDelayEventExecutor getDelayEventExecutor() {
+		return delayEventExecutor;
+	}
+
+	@Inject
+	@Optional
+	public void setDelayEventExecutor(IDelayEventExecutor delayEventExecutor) {
+		this.delayEventExecutor = delayEventExecutor;
+	}
+	
 	/*************************************************************************
 	 * Properties
 	 *************************************************************************/
@@ -271,14 +286,6 @@ public class BeamMonitorDialWidget extends AbstractSicsWidget {
 		this.unit = unit;
 	}
 
-	public IDelayEventExecutor getDelayEventExecutor() {
-		return delayEventExecutor;
-	}
-
-	public void setDelayEventExecutor(IDelayEventExecutor delayEventExecutor) {
-		this.delayEventExecutor = delayEventExecutor;
-	}
-
 	public long getMaximumValue() {
 		return maximumValue;
 	}
@@ -297,6 +304,21 @@ public class BeamMonitorDialWidget extends AbstractSicsWidget {
 
 	public JFreeChart getChart() {
 		return context.chart;
+	}
+
+	/*************************************************************************
+	 * Utilities 
+	 *************************************************************************/
+	
+	private class UIContext {
+		float deviceValue;
+		DefaultValueDataset dataset;
+		JFreeChart chart;
+		ChartPanel chartpanel;
+		StandardDialScale standarddialscale;
+		StandardDialRange standarddialrangeLow;
+		StandardDialRange standarddialrangeMid;
+		StandardDialRange standarddialrangeHigh;
 	}
 
 }

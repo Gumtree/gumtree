@@ -48,7 +48,7 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 		ShutterStatusWidget shutterStatuswidget = new ShutterStatusWidget(
 				shutterGroup, SWT.NONE);
 		configureWidget(shutterStatuswidget);
-//		shutterStatuswidget.render();
+		// shutterStatuswidget.render();
 
 		// Experiment info
 		PGroup infoGroup = createGroup("EXPERIMENT INFO",
@@ -127,8 +127,7 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/sample/tc2/heater/heaterOutput_1", "TC2H1-R/O",
 						InternalImage.ONE.getImage(), null)
 				.addDevice("/sample/tc2/heater/heaterOutput_2", "TC2H2-R/O",
-						InternalImage.TWO.getImage(), null)
-				.render();
+						InternalImage.TWO.getImage(), null).render();
 
 		return this;
 	}

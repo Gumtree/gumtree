@@ -70,7 +70,7 @@ public class QuokkaCruisePageWidget extends AbstractCruisePageWidget {
 	public void setDataAccessManager(IDataAccessManager dataAccessManager) {
 		this.dataAccessManager = dataAccessManager;
 	}
-	
+
 	/*************************************************************************
 	 * Utilities
 	 *************************************************************************/

@@ -35,7 +35,7 @@ public class WeatherCruiseWidget extends AbstractCruisePageWidget {
 	private IHttpClientFactory httpClientFactory;
 
 	private IHttpClient httpClient;
-	
+
 	private UIContext context;
 
 	public WeatherCruiseWidget(Composite parent, int style) {
@@ -46,19 +46,20 @@ public class WeatherCruiseWidget extends AbstractCruisePageWidget {
 	public void render() {
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(this);
 		context = new UIContext();
-		
+
 		// Icon
 		context.weatherIconLabel = getWidgetFactory().createLabel(this, "");
 		context.weatherIconLabel.setFont(UIResources.getDefaultFont(SWT.BOLD));
-		GridDataFactory.swtDefaults().span(1, 2).applyTo(context.weatherIconLabel);
-		
+		GridDataFactory.swtDefaults().span(1, 2)
+				.applyTo(context.weatherIconLabel);
+
 		// Temperature
 		context.temperatureLabel = getWidgetFactory().createLabel(this, "-- C");
 		context.temperatureLabel.setFont(UIResources.getDefaultFont(SWT.BOLD));
-		
+
 		// Location
 		context.locationLabel = getWidgetFactory().createLabel(this, "Sydney");
-		
+
 		httpClient = getHttpClientFactory().createHttpClient();
 		httpClient.performGet(
 				URI.create("http://www.google.com/ig/api?weather=Sydney"),
@@ -80,7 +81,8 @@ public class WeatherCruiseWidget extends AbstractCruisePageWidget {
 					"current_conditions");
 			Node temperatureNode = XMLUtils.getFirstChild(currentConditionNode,
 					"temp_c");
-			final String temperature = XMLUtils.getAttribute(temperatureNode, "data");
+			final String temperature = XMLUtils.getAttribute(temperatureNode,
+					"data");
 			SafeUIRunner.asyncExec(new SafeRunnable() {
 				@Override
 				public void run() throws Exception {
@@ -142,12 +144,12 @@ public class WeatherCruiseWidget extends AbstractCruisePageWidget {
 	public void setHttpClientFactory(IHttpClientFactory httpClientFactory) {
 		this.httpClientFactory = httpClientFactory;
 	}
-	
+
 	class UIContext {
 		private Image icon;
 		private Label temperatureLabel;
 		private Label locationLabel;
-		private Label weatherIconLabel; 
+		private Label weatherIconLabel;
 	}
 
 }

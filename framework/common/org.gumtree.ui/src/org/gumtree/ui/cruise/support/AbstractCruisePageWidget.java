@@ -14,7 +14,8 @@ public abstract class AbstractCruisePageWidget extends ExtendedComposite {
 		setWidgetFactory(new SwtWidgetFactory() {
 			public Label createLabel(Composite parent, String text, int style) {
 				Label label = super.createLabel(parent, text, style);
-				label.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+				label.setForeground(getDisplay()
+						.getSystemColor(SWT.COLOR_WHITE));
 				return label;
 			}
 		});

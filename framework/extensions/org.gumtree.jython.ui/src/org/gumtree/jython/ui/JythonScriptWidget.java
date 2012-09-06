@@ -36,7 +36,8 @@ public class JythonScriptWidget extends ExtendedComposite {
 	@PostConstruct
 	public void render() {
 		// Initialise
-		ScriptEngine scriptEngine = getScriptingManager().createEngine("jython");
+		ScriptEngine scriptEngine = getScriptingManager()
+				.createEngine("jython");
 		scriptExecutor = new ScriptExecutor(scriptEngine);
 		scriptExecutor.getEngine().put("parentComposite", this);
 		scriptExecutor.runScript("from gumpy.commons.swt import swtFunction");
@@ -47,7 +48,7 @@ public class JythonScriptWidget extends ExtendedComposite {
 				InputStream.class);
 		InputStreamReader reader = new InputStreamReader(inputStream);
 		scriptExecutor.runScript(reader);
-		
+
 		// Run
 		scriptExecutor.runScript("create(parentComposite)");
 		scriptExecutor.runScript("refreshWidget(parentComposite)");

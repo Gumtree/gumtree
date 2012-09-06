@@ -122,12 +122,12 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 				.grab(true, false).applyTo(deviceStatusWidget);
 
 		// Interrupt
-//		PGroup interruptGroup = createGroup("INTERRUPT", null);
-//		SicsInterruptGadget interruptGadget = new SicsInterruptGadget(
-//				interruptGroup, SWT.NONE);
-//		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)
-//				.grab(true, false).applyTo(interruptGadget);
-//		interruptGadget.afterParametersSet();
+		// PGroup interruptGroup = createGroup("INTERRUPT", null);
+		// SicsInterruptGadget interruptGadget = new SicsInterruptGadget(
+		// interruptGroup, SWT.NONE);
+		// GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)
+		// .grab(true, false).applyTo(interruptGadget);
+		// interruptGadget.afterParametersSet();
 	}
 
 	@Override

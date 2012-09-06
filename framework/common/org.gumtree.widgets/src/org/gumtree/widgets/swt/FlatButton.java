@@ -132,7 +132,7 @@ public class FlatButton extends ExtendedComposite {
 	/*************************************************************************
 	 * Events
 	 *************************************************************************/
-	
+
 	public void addSelectionListener(SelectionListener listener) {
 		checkWidget();
 		listeners.add(listener);
@@ -142,7 +142,7 @@ public class FlatButton extends ExtendedComposite {
 		checkWidget();
 		listeners.remove(listener);
 	}
-	
+
 	private void handleSelection(boolean selection) {
 		// Paint
 		paint(selection);
@@ -165,7 +165,7 @@ public class FlatButton extends ExtendedComposite {
 	/*************************************************************************
 	 * Properties
 	 *************************************************************************/
-	
+
 	@Override
 	public Color getBackground() {
 		checkWidget();
@@ -261,7 +261,7 @@ public class FlatButton extends ExtendedComposite {
 	/*************************************************************************
 	 * Utilities
 	 *************************************************************************/
-	
+
 	public static void main(String[] args) {
 		Display display = new Display();
 		Shell shell = new Shell(display);

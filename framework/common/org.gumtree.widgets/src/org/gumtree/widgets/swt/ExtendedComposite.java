@@ -15,9 +15,9 @@ import org.gumtree.widgets.IWidget;
 public abstract class ExtendedComposite extends Composite implements IWidget {
 
 	private IWidgetFactory widgetFactory;
-	
+
 	private int originalStyle;
-	
+
 	public ExtendedComposite(Composite parent, int style) {
 		super(parent, style);
 		originalStyle = style;
@@ -31,9 +31,9 @@ public abstract class ExtendedComposite extends Composite implements IWidget {
 			}
 		});
 	}
-	
+
 	protected abstract void disposeWidget();
-	
+
 	public IWidgetFactory getWidgetFactory() {
 		if (widgetFactory == null) {
 			// Use the widget factory from parent if necessary
@@ -58,16 +58,18 @@ public abstract class ExtendedComposite extends Composite implements IWidget {
 	public int getOriginalStyle() {
 		return originalStyle;
 	}
-	
+
 	public static <T extends Composite> T launchSWTShell(Class<T> compositeClass) {
 		return launchSWTShell(compositeClass, "", SWT.NONE);
 	}
-	
-	public static <T extends Composite> T launchSWTShell(Class<T> compositeClass, String title) {
-		return launchSWTShell(compositeClass, title, SWT.NONE);	
+
+	public static <T extends Composite> T launchSWTShell(
+			Class<T> compositeClass, String title) {
+		return launchSWTShell(compositeClass, title, SWT.NONE);
 	}
-	
-	public static <T extends Composite> T launchSWTShell(final Class<T> compositeClass, final String title, final int style) {
+
+	public static <T extends Composite> T launchSWTShell(
+			final Class<T> compositeClass, final String title, final int style) {
 		final BlockingQueue<T> queue = new ArrayBlockingQueue<T>(1);
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
@@ -78,8 +80,8 @@ public abstract class ExtendedComposite extends Composite implements IWidget {
 				shell.setSize(800, 640);
 
 				try {
-					queue.put(compositeClass.getConstructor(Composite.class, int.class)
-							.newInstance(shell, style));
+					queue.put(compositeClass.getConstructor(Composite.class,
+							int.class).newInstance(shell, style));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -95,5 +97,5 @@ public abstract class ExtendedComposite extends Composite implements IWidget {
 		}
 		return null;
 	}
-	
+
 }

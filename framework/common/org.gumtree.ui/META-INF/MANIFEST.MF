@@ -61,7 +61,6 @@ Export-Package: org.gumtree.ui.cruise,
  org.gumtree.ui.util.workbench,
  org.gumtree.ui.util.xwt,
  org.gumtree.ui.widgets,
- org.gumtree.ui.widgets.breadcrumb,
  org.gumtree.ui.widgets.tabbed,
  org.gumtree.ui.workflow
 Eclipse-BundleShape: jar
