@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.endsWith;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.IStartup;
@@ -126,7 +127,9 @@ public class InterpreterRegister implements IStartup {
 			libraries.remove(index);
 		}
 		// Add to library
-		libraries.add(path);
+		if (!libraries.contains(path)) {
+			libraries.add(path);
+		}
 	}
 
 }
