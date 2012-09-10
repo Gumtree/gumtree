@@ -95,7 +95,7 @@ public abstract class EventHandler implements
 	}
 
 	public IEventBroker getEventBroker() {
-		if (eventBroker == null) {
+		if (eventBroker == null && Activator.getDefault()!= null) {
 			eventBroker = Activator.getDefault().getEclipseContext()
 					.get(IEventBroker.class);
 		}

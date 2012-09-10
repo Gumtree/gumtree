@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,8 +12,11 @@
 package org.gumtree.widgets.swt.breadcrumb;
 
 import org.eclipse.core.runtime.Assert;
+//import org.eclipse.debug.internal.ui.DebugUIPlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.dialogs.DialogSettings;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.CompositeImageDescriptor;
 import org.eclipse.jface.util.Geometry;
 import org.eclipse.jface.viewers.ISelection;
@@ -21,6 +24,7 @@ import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.accessibility.AccessibleAdapter;
 import org.eclipse.swt.accessibility.AccessibleEvent;
+import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.DisposeEvent;
@@ -56,15 +60,10 @@ import org.eclipse.swt.widgets.Widget;
  */
 class BreadcrumbItemDropDown implements IBreadcrumbDropDownSite {
 
-	/**
-	 * Tells whether this class is in debug mode.
-	 */
-//	private static boolean DEBUG= DebugUIPlugin.DEBUG && "true".equalsIgnoreCase(Platform.getDebugOption("org.eclipse.debug.ui/debug/breadcrumb")); //$NON-NLS-1$//$NON-NLS-2$
-//	private static boolean DEBUG= "true".equalsIgnoreCase(Platform.getDebugOption("org.eclipse.debug.ui/debug/breadcrumb")); //$NON-NLS-1$//$NON-NLS-2$
-	private static boolean DEBUG = false;
-	
 	private static final boolean IS_MAC_WORKAROUND= "carbon".equals(SWT.getPlatform()); //$NON-NLS-1$
 
+	private IDialogSettings javaSettings;
+	
 	/**
 	 * An arrow image descriptor. The images color is related to the list
 	 * fore- and background color. This makes the arrow visible even in high contrast
@@ -151,8 +150,17 @@ class BreadcrumbItemDropDown implements IBreadcrumbDropDownSite {
 		}
 	}
 
-	private static final int DROP_DOWN_HIGHT= 300;
-	private static final int DROP_DOWN_WIDTH= 500;
+	// Workaround for bug 258196: set the minimum size to 500 because on Linux
+	// the size is not adjusted correctly in a virtual tree.
+    private static final int DROP_DOWN_MIN_WIDTH= 500;
+    private static final int DROP_DOWN_MAX_WIDTH= 501;
+    
+    private static final int DROP_DOWN_DEFAULT_MIN_HEIGHT= 100;
+    private static final int DROP_DOWN_DEFAULT_MAX_HEIGHT= 500;
+
+    private static final String DIALOG_SETTINGS= "BreadcrumbItemDropDown"; //$NON-NLS-1$
+    private static final String DIALOG_HEIGHT= "height"; //$NON-NLS-1$
+    private static final String DIALOG_WIDTH= "width"; //$NON-NLS-1$
 
 	private final BreadcrumbItem fParent;
 	private final Composite fParentComposite;
@@ -161,6 +169,10 @@ class BreadcrumbItemDropDown implements IBreadcrumbDropDownSite {
 	private boolean fMenuIsShown;
 	private boolean fEnabled;
 	private Shell fShell;
+    private boolean fIsResizingProgrammatically;
+    private int fCurrentWidth = -1;
+    private int fCurrentHeight = -1;
+    
 
 	public BreadcrumbItemDropDown(BreadcrumbItem parent, Composite composite) {
 		fParent= parent;
@@ -253,8 +265,9 @@ class BreadcrumbItemDropDown implements IBreadcrumbDropDownSite {
 	 * Opens the drop down menu.
 	 */
 	public void showMenu() {
-		if (DEBUG)
-			System.out.println("BreadcrumbItemDropDown.showMenu()"); //$NON-NLS-1$
+//		if (DebugUIPlugin.DEBUG_BREADCRUMB) {
+//			DebugUIPlugin.trace("BreadcrumbItemDropDown.showMenu()"); //$NON-NLS-1$
+//		}
 
 		if (!fEnabled || fMenuIsShown)
 			return;
@@ -262,8 +275,25 @@ class BreadcrumbItemDropDown implements IBreadcrumbDropDownSite {
 		fMenuIsShown= true;
 
 		fShell= new Shell(fToolBar.getShell(), SWT.RESIZE | SWT.TOOL | SWT.ON_TOP);
-		if (DEBUG)
-			System.out.println("	creating new shell"); //$NON-NLS-1$
+//		if (DebugUIPlugin.DEBUG_BREADCRUMB) {
+//			DebugUIPlugin.trace("	creating new shell"); //$NON-NLS-1$
+//		}
+	      
+        fShell.addControlListener(new ControlAdapter() {
+            /*
+             * @see org.eclipse.swt.events.ControlAdapter#controlResized(org.eclipse.swt.events.ControlEvent)
+             */
+            public void controlResized(ControlEvent e) {
+                if (fIsResizingProgrammatically)
+                    return;
+                
+                Point size= fShell.getSize();
+                fCurrentWidth = size.x;
+                fCurrentHeight = size.y;
+                getDialogSettings().put(DIALOG_WIDTH, size.x);
+                getDialogSettings().put(DIALOG_HEIGHT, size.y);
+            }
+        });
 
 		GridLayout layout= new GridLayout(1, false);
 		layout.marginHeight= 0;
@@ -302,23 +332,26 @@ class BreadcrumbItemDropDown implements IBreadcrumbDropDownSite {
 
 				switch (event.type) {
 					case SWT.FocusIn:
-						if (DEBUG)
-							System.out.println("focusIn - is breadcrumb tree: " + isFocusBreadcrumbTreeFocusWidget); //$NON-NLS-1$
+//						if (DebugUIPlugin.DEBUG_BREADCRUMB) {
+//							DebugUIPlugin.trace("focusIn - is breadcrumb tree: " + isFocusBreadcrumbTreeFocusWidget); //$NON-NLS-1$
+//						}
 
 						if (!isFocusBreadcrumbTreeFocusWidget && !isFocusWidgetParentShell) {
-							if (DEBUG)
-								System.out.println("==> closing shell since focus in other widget"); //$NON-NLS-1$
+//							if (DebugUIPlugin.DEBUG_BREADCRUMB) {
+//								DebugUIPlugin.trace("==> closing shell since focus in other widget"); //$NON-NLS-1$
+//							}
 							shell.close();
 						}
 						break;
 
 					case SWT.FocusOut:
-						if (DEBUG)
-							System.out.println("focusOut - is breadcrumb tree: " + isFocusBreadcrumbTreeFocusWidget); //$NON-NLS-1$
-
+//						if (DebugUIPlugin.DEBUG_BREADCRUMB) {
+//							DebugUIPlugin.trace("focusOut - is breadcrumb tree: " + isFocusBreadcrumbTreeFocusWidget); //$NON-NLS-1$
+//						}
 						if (event.display.getActiveShell() == null) {
-							if (DEBUG)
-								System.out.println("==> closing shell since event.display.getActiveShell() != shell"); //$NON-NLS-1$
+//							if (DebugUIPlugin.DEBUG_BREADCRUMB) {
+//								DebugUIPlugin.trace("==> closing shell since event.display.getActiveShell() != shell"); //$NON-NLS-1$
+//							}
 							shell.close();
 						}
 						break;
@@ -350,8 +383,9 @@ class BreadcrumbItemDropDown implements IBreadcrumbDropDownSite {
 
 		shell.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
-				if (DEBUG)
-					System.out.println("==> shell disposed"); //$NON-NLS-1$
+//				if (DebugUIPlugin.DEBUG_BREADCRUMB) {
+//					DebugUIPlugin.trace("==> shell disposed"); //$NON-NLS-1$
+//				}
 
 				display.removeFilter(SWT.FocusIn, focusListener);
 				display.removeFilter(SWT.FocusOut, focusListener);
@@ -366,9 +400,9 @@ class BreadcrumbItemDropDown implements IBreadcrumbDropDownSite {
 			}
 
 			public void shellClosed(ShellEvent e) {
-				if (DEBUG)
-					System.out.println("==> shellClosed"); //$NON-NLS-1$
-
+//				if (DebugUIPlugin.DEBUG_BREADCRUMB) {
+//					DebugUIPlugin.trace("==> shellClosed"); //$NON-NLS-1$
+//				}
 				if (!fMenuIsShown)
 					return;
 
@@ -386,6 +420,33 @@ class BreadcrumbItemDropDown implements IBreadcrumbDropDownSite {
 		});
 	}
 
+	private IDialogSettings getDialogSettings() {
+//	    IDialogSettings javaSettings= DebugUIPlugin.getDefault().getDialogSettings();
+		if (javaSettings == null) {
+			javaSettings = new DialogSettings("Workbench");
+		}
+	    IDialogSettings settings= javaSettings.getSection(DIALOG_SETTINGS);
+	    if (settings == null)
+	        settings= javaSettings.addNewSection(DIALOG_SETTINGS);
+	    return settings;
+	}
+	    
+	private int getMaxWidth() {
+	    try {
+	        return getDialogSettings().getInt(DIALOG_WIDTH);
+	    } catch (NumberFormatException e) {
+	        return DROP_DOWN_MAX_WIDTH;
+	    }
+	}
+
+	private int getMaxHeight() {
+	    try {
+	        return getDialogSettings().getInt(DIALOG_HEIGHT);
+	    } catch (NumberFormatException e) {
+	        return DROP_DOWN_DEFAULT_MAX_HEIGHT;
+	    }
+	}
+
 	/**
 	 * Calculates a useful size for the given shell.
 	 *
@@ -397,12 +458,8 @@ class BreadcrumbItemDropDown implements IBreadcrumbDropDownSite {
 		Rectangle toolbarBounds= fToolBar.getBounds();
 
 		Point size = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT, false);
-		int height= Math.min(size.y, DROP_DOWN_HIGHT);
-		// TODO: Because of bug 258196 the drop down does not resize correctly 
-		// on GTK.  As a workaround temporarily increase the initial width of 
-		// the drop down to 500.
-		//int width= Math.max(Math.min(size.x, DROP_DOWN_WIDTH), 250);
-        int width= Math.max(Math.min(size.x, DROP_DOWN_WIDTH), 500);
+		int height= Math.max(Math.min(size.y, getMaxHeight()), DROP_DOWN_DEFAULT_MIN_HEIGHT);
+		int width= Math.max(getMaxWidth(), DROP_DOWN_MIN_WIDTH);
 
 		int imageBoundsX= 0;
 		if (fParent.getImage() != null) {
@@ -431,7 +488,14 @@ class BreadcrumbItemDropDown implements IBreadcrumbDropDownSite {
 			pt.x= monitor.x;
 
 		shell.setLocation(pt);
-		shell.setSize(width, height);
+        fIsResizingProgrammatically= true;
+        try {
+            shell.setSize(width, height);
+            fCurrentWidth = width;
+            fCurrentHeight = height;
+        } finally {
+            fIsResizingProgrammatically= false;
+        }
 	}
 
 	/**
@@ -471,50 +535,56 @@ class BreadcrumbItemDropDown implements IBreadcrumbDropDownSite {
 
 	/**
 	 * Set the size of the given shell such that more content can be shown. The shell size does not
-	 * exceed {@link #DROP_DOWN_HIGHT} and {@link #DROP_DOWN_WIDTH}.
+     * exceed a user-configurable maximum.
 	 *
 	 * @param shell the shell to resize
 	 */
 	private void resizeShell(final Shell shell) {
-		Point size= shell.getSize();
-		int currentWidth= size.x;
-		int currentHeight= size.y;
-
-		if (currentHeight >= DROP_DOWN_HIGHT && currentWidth >= DROP_DOWN_WIDTH)
+        int maxHeight= getMaxHeight();
+        int maxWidth = getMaxWidth();
+        
+        if (fCurrentHeight >= maxHeight && fCurrentWidth >= maxWidth)
 			return;
 
 		Point preferedSize= shell.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 
 		int newWidth;
-		if (currentWidth >= DROP_DOWN_WIDTH) {
-			newWidth= currentWidth;
+        if (fCurrentWidth >= DROP_DOWN_MAX_WIDTH) {
+			newWidth= fCurrentWidth;
 		} else {
-			newWidth= Math.min(Math.max(preferedSize.x, currentWidth), DROP_DOWN_WIDTH);
+		    // Workaround for bug 319612: Do not resize width below the 
+		    // DROP_DOWN_MIN_WIDTH.  This can happen because the Shell.getSize()
+		    // is incorrectly small on Linux.
+            newWidth= Math.min(Math.max(Math.max(preferedSize.x, fCurrentWidth), DROP_DOWN_MIN_WIDTH), maxWidth);
 		}
 		int newHeight;
-		if (currentHeight >= DROP_DOWN_HIGHT) {
-			newHeight= currentHeight;
+        if (fCurrentHeight >= maxHeight) {
+			newHeight= fCurrentHeight;
 		} else {
-			newHeight= Math.min(Math.max(preferedSize.y, currentHeight), DROP_DOWN_HIGHT);
+            newHeight= Math.min(Math.max(preferedSize.y, fCurrentHeight), maxHeight);
 		}
 
-		if (newHeight != currentHeight || newWidth != currentWidth) {
+		if (newHeight != fCurrentHeight || newWidth != fCurrentWidth) {
 			shell.setRedraw(false);
 			try {
+                fIsResizingProgrammatically= true;
 				shell.setSize(newWidth, newHeight);
+				fCurrentWidth = newWidth;
+				fCurrentHeight = newHeight;
 				
 				Point location = shell.getLocation();
 				Point newLocation = location;
 				if (!isLeft()) {
-					newLocation = new Point(newLocation.x - (newWidth - currentWidth), newLocation.y);
+					newLocation = new Point(newLocation.x - (newWidth - fCurrentWidth), newLocation.y);
 				}
 				if (!isTop()) {
-                    newLocation = new Point(newLocation.x, newLocation.y - (newHeight - currentHeight));
+                    newLocation = new Point(newLocation.x, newLocation.y - (newHeight - fCurrentHeight));
 				}				    
 				if (!location.equals(newLocation)) {
 	                shell.setLocation(newLocation.x, newLocation.y);
 				}
 			} finally {
+                fIsResizingProgrammatically= false;
 				shell.setRedraw(true);
 			}
 		}

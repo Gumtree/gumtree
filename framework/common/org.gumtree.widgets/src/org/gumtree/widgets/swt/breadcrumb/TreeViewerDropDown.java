@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Wind River Systems and others.
+ * Copyright (c) 2009, 2012 Wind River Systems and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     Wind River Systems - initial API and implementation
+ *     IBM Corporation - ongoing bug fixes and enhancements
  *******************************************************************************/
 package org.gumtree.widgets.swt.breadcrumb;
 
@@ -17,6 +18,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+//import org.eclipse.debug.internal.core.IInternalDebugCoreConstants;
+//import org.eclipse.debug.internal.ui.DebugUIPlugin;
 import org.eclipse.jface.util.OpenStrategy;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -39,6 +42,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+//import org.eclipse.ui.progress.UIJob;
 
 /**
  * A breadcrumb drop-down which shows a tree viewer.  It implements mouse and 
@@ -51,17 +55,7 @@ import org.eclipse.swt.widgets.TreeItem;
  */
 public abstract class TreeViewerDropDown {
     
-	/**
-	 * Represents the empty string
-	 */
-	public static final String EMPTY_STRING = ""; //$NON-NLS-1$
-	
-    /**
-     * Tells whether this class is in debug mode.
-     */
-//    private static boolean DEBUG= DebugUIPlugin.DEBUG && "true".equalsIgnoreCase(Platform.getDebugOption("org.eclipse.debug.ui/debug/breadcrumb")); //$NON-NLS-1$//$NON-NLS-2$
-//	private static boolean DEBUG= "true".equalsIgnoreCase(Platform.getDebugOption("org.eclipse.debug.ui/debug/breadcrumb")); //$NON-NLS-1$//$NON-NLS-2$
-	private static boolean DEBUG = false;
+	private static final String EMPTY_STRING = "";
 	
     /**
      * Delay to control scrolling when the mouse pointer reaches the edge of 
@@ -94,9 +88,9 @@ public abstract class TreeViewerDropDown {
 
         fDropDownViewer.addOpenListener(new IOpenListener() {
             public void open(OpenEvent event) {
-                if (DEBUG)
-                    System.out.println("BreadcrumbItemDropDown.showMenu()$treeViewer>open"); //$NON-NLS-1$
-
+//                if (DebugUIPlugin.DEBUG_TREE_VIEWER_DROPDOWN) {
+//                	DebugUIPlugin.trace("BreadcrumbItemDropDown.showMenu()$treeViewer>open"); //$NON-NLS-1$
+//                }
                 openElement(event.getSelection());
             }
         });
@@ -105,9 +99,9 @@ public abstract class TreeViewerDropDown {
         
         tree.addMouseListener(new MouseListener() {
             public void mouseUp(MouseEvent e) {
-                if (DEBUG)
-                    System.out.println("BreadcrumbItemDropDown.showMenu()$treeViewer>mouseUp"); //$NON-NLS-1$
-
+//                if (DebugUIPlugin.DEBUG_TREE_VIEWER_DROPDOWN) {
+//                	DebugUIPlugin.trace("BreadcrumbItemDropDown.showMenu()$treeViewer>mouseUp"); //$NON-NLS-1$
+//                }
                 if (e.button != 1)
                     return;
 
@@ -143,6 +137,10 @@ public abstract class TreeViewerDropDown {
             public void mouseMove(MouseEvent e) {
                 if (tree.equals(e.getSource())) {
                     Object o= tree.getItem(new Point(e.x, e.y));
+					if (fLastItem == null ^ o == null) {
+						tree.setCursor(o == null ? null : tree.getDisplay()
+								.getSystemCursor(SWT.CURSOR_HAND));
+					}
                     if (o instanceof TreeItem) {
                         TreeItem currentItem= (TreeItem) o;
                         if (!o.equals(fLastItem)) {
@@ -188,6 +186,8 @@ public abstract class TreeViewerDropDown {
                                 }
                             }
                         }
+					} else if (o == null) {
+						fLastItem = null;
                     }
                 }
             }
@@ -224,7 +224,7 @@ public abstract class TreeViewerDropDown {
 
             public void treeExpanded(TreeExpansionEvent event) {
                 tree.setRedraw(false);
-                new Job(EMPTY_STRING) {
+                Job job = new Job(EMPTY_STRING) {
 					@Override
 					protected IStatus run(IProgressMonitor monitor) {
 						tree.getDisplay().asyncExec(new Runnable() {
@@ -241,8 +241,10 @@ public abstract class TreeViewerDropDown {
 						});
 						return Status.OK_STATUS;
 					}
-				}.schedule();
-//                new UIJob(tree.getDisplay(), EMPTY_STRING) {
+				};
+				job.setSystem(true);
+				job.schedule();
+//                new UIJob(tree.getDisplay(), IInternalDebugCoreConstants.EMPTY_STRING) {
 //                    { setSystem(true); }
 //                    public IStatus runInUIThread(IProgressMonitor monitor) {
 //                        if (!tree.isDisposed()) {
@@ -291,11 +293,11 @@ public abstract class TreeViewerDropDown {
         
         boolean treeHasFocus= !tree.isDisposed() && tree.isFocusControl();
 
-        if (DEBUG) {
-            System.out.println("    isDisposed: " + tree.isDisposed()); //$NON-NLS-1$
-            System.out.println("    shell hasFocus: " + (!tree.isDisposed() && tree.isFocusControl())); //$NON-NLS-1$
-            System.out.println("    tree hasFocus: " + treeHasFocus); //$NON-NLS-1$
-        }
+//        if (DebugUIPlugin.DEBUG_TREE_VIEWER_DROPDOWN) {
+//        	DebugUIPlugin.trace("    isDisposed: " + tree.isDisposed()); //$NON-NLS-1$
+//        	DebugUIPlugin.trace("    shell hasFocus: " + (!tree.isDisposed() && tree.isFocusControl())); //$NON-NLS-1$
+//        	DebugUIPlugin.trace("    tree hasFocus: " + treeHasFocus); //$NON-NLS-1$
+//        }
 
         if (tree.isDisposed())
             return;
