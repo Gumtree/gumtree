@@ -11,9 +11,9 @@ public class CommandHandler {
 	}
 
 	public ScriptExecutor getScriptExecutor(){
-		if (Jython_Executor == null) {
-			 Jython_Executor = new ScriptExecutor("jython");
-			 try {
+		if (Jython_Executor == null || Jython_Executor.getEngine() == null) {
+			Jython_Executor = new ScriptExecutor("jython");
+			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 			}

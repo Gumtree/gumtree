@@ -695,12 +695,14 @@ public class ScriptControlViewer extends Composite {
 		if (filePath.length() > 24) {
 			text = filePath.substring(0, 3) + "..." + filePath.substring(filePath.length() - 18);
 		}
-		scriptLabel.setText(text);
-		scriptLabel.setToolTipText(filePath);
-		getRunner().setScriptPath(filePath);
-		reloadButton.setEnabled(true);
-		showButton.setEnabled(true);
-		runButton.setEnabled(true);
+		if (!staticComposite.isDisposed()) {
+			scriptLabel.setText(text);
+			scriptLabel.setToolTipText(filePath);
+			getRunner().setScriptPath(filePath);
+			reloadButton.setEnabled(true);
+			showButton.setEnabled(true);
+			runButton.setEnabled(true);
+		}
 		setScriptFilename(filePath);
 		scriptModel = new ScriptModel(scriptRegisterID);
 		scriptModel.addChangeListener(new ScriptModel.IModelChangeListener() {
@@ -778,7 +780,9 @@ public class ScriptControlViewer extends Composite {
 			if (title.length() > 22) {
 				title = title.substring(0, 3) + "..." + title.substring(title.length() - 16);
 			}
-			scriptLabel.setText(title);
+			if (!scriptLabel.isDisposed()) {
+				scriptLabel.setText(title);
+			}
 		}
 		List<ScriptObjectGroup> groups = scriptModel.getGroups();
 		List<IPyObject> objs = scriptModel.getControlList();
