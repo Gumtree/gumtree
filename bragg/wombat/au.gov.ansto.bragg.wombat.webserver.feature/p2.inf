@@ -1,11 +1,15 @@
 instructions.install = \
+	removeProgramArg(programArg:-console); \
+	removeProgramArg(programArg:60053); \
+	addProgramArg(programArg:-console); \
+	addProgramArg(programArg:60153); \
     removeJvmArg(jvmArg:-Dgumtree.runtime.configBundle=org.gumtree.app.workbench); \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configBundle=au.gov.ansto.bragg.nbi.webserver); \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configEnv.instr=wombat); \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configEnv.env=prod); \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configEnv.mode=web); \
 	addJvmArg(jvmArg:-Xdebug); \
-	addJvmArg(jvmArg:-Xrunjdwp:transport=dt_socket${#44}server=y${#44}suspend=n${#44}address=60052);
+	addJvmArg(jvmArg:-Xrunjdwp:transport=dt_socket${#44}server=y${#44}suspend=n${#44}address=60152);
 instructions.install.import= \
 	org.eclipse.equinox.p2.touchpoint.eclipse.addProgramArg, \
 	org.eclipse.equinox.p2.touchpoint.eclipse.removeProgramArg, \

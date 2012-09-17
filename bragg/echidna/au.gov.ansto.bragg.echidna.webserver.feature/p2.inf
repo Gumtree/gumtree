@@ -1,4 +1,8 @@
 instructions.install = \
+	removeProgramArg(programArg:-console); \
+	removeProgramArg(programArg:60053); \
+	addProgramArg(programArg:-console); \
+	addProgramArg(programArg:60053); \
     removeJvmArg(jvmArg:-Dgumtree.runtime.configBundle=org.gumtree.app.workbench); \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configBundle=au.gov.ansto.bragg.nbi.webserver); \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configEnv.instr=echidna); \
