@@ -91,8 +91,8 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 		factory.addStandaloneView(ID_VIEW_ACTIVITY_MONITOR, false, 
 		IPageLayout.RIGHT, 0.50f, SICS_TERMINAL_VIEW_ID);
 
-		factory.addStandaloneView(PROJECT_EXPLORER_VIEW_ID, false, 
-				IPageLayout.BOTTOM, 0.1f, factory.getEditorArea());
+		factory.addStandaloneView(PROJECT_EXPLORER_VIEW_ID, true, 
+				IPageLayout.LEFT, 0.2f, "top2");
 
 		factory.getViewLayout(WORKFLOW_VIEW_ID).setCloseable(false);
 		factory.getViewLayout(WORKFLOW_VIEW_ID).setMoveable(false);

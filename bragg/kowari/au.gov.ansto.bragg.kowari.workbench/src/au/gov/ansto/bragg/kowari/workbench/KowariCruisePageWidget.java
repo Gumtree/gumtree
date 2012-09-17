@@ -40,10 +40,10 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.REACTOR.getImage());
 		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(
 				sourceGroup, SWT.NONE);
+		configureWidget(deviceStatusWidget);
 		deviceStatusWidget.addDevice("/instrument/source/power", "Power",
 				SharedImage.POWER.getImage(), null);
-		configureWidget(deviceStatusWidget);
-		deviceStatusWidget.render();
+//		deviceStatusWidget.render();
 
 		// Shutter Status
 		PGroup shutterGroup = createGroup("SHUTTER STATUS",
@@ -51,7 +51,7 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		ShutterStatusWidget shutterStatuswidget = new ShutterStatusWidget(
 				shutterGroup, SWT.NONE);
 		configureWidget(shutterStatuswidget);
-		shutterStatuswidget.render();
+//		shutterStatuswidget.render();
 
 		// Server Status
 		PGroup sicsStatusGroup = createGroup("SERVER STATUS", 
