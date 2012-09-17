@@ -122,6 +122,11 @@
 		<module>${extensions.path}/javafx.win32.x86_64</module>
 		<module>${extensions.path}/org.gumtree.javafx.feature</module>
 
+		<module>${extensions.path}/org.gumtree.xygraph</module>
+		<module>${extensions.path}/org.gumtree.xygraph.feature</module>
+
+
+
 		<module>${sics.path}/ch.psi.sics.hipadaba</module>
 		<module>${sics.path}/ch.unifr.nio.framework</module>
 		<module>${sics.path}/org.gumtree.sics.core</module>

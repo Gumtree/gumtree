@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SWT XYGraph
+Bundle-SymbolicName: org.gumtree.xygraph
+Bundle-Version: 2.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.eclipse.draw2d;bundle-version="3.8.0";visibility:=reexport,
+ org.eclipse.jface;bundle-version="3.8.0";visibility:=reexport
+Export-Package: org.csstudio.swt.widgets.datadefinition,
+ org.csstudio.swt.widgets.figureparts,
+ org.csstudio.swt.widgets.figures,
+ org.csstudio.swt.widgets.introspection,
+ org.csstudio.swt.widgets.util,
+ org.csstudio.swt.xygraph,
+ org.csstudio.swt.xygraph.dataprovider,
+ org.csstudio.swt.xygraph.figures,
+ org.csstudio.swt.xygraph.linearscale,
+ org.csstudio.swt.xygraph.toolbar,
+ org.csstudio.swt.xygraph.undo,
+ org.csstudio.swt.xygraph.util
+Bundle-Vendor: Xihui Chen
