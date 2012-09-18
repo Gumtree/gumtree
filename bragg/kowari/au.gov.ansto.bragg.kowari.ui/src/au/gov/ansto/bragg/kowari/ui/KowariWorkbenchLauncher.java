@@ -11,13 +11,9 @@
 
 package au.gov.ansto.bragg.kowari.ui;
 
-import org.eclipse.ui.IPerspectiveDescriptor;
-import org.eclipse.ui.IPerspectiveListener;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchWindow;
-import org.eclipse.ui.intro.IIntroPart;
 import org.gumtree.ui.service.launcher.AbstractLauncher;
 import org.gumtree.ui.service.launcher.LauncherException;
 import org.gumtree.ui.service.multimonitor.IMultiMonitorManager;
@@ -25,12 +21,11 @@ import org.gumtree.ui.service.multimonitor.support.MultiMonitorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective;
-
 public class KowariWorkbenchLauncher extends AbstractLauncher {
 
 	
 	private static final String ID_PERSPECTIVE_EXPERIMENT = "au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective";
+	private static final String ID_PERSPECTIVE_ANALYSIS = "au.gov.ansto.bragg.kowari.ui.internal.KowariAnalysisPerspective";
 	
 	private static Logger logger = LoggerFactory.getLogger(KowariWorkbenchLauncher.class);
 	
@@ -84,7 +79,12 @@ public class KowariWorkbenchLauncher extends AbstractLauncher {
 ////			// position it
 //			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_KAKADU, 1, 1, mmManager.isMultiMonitorSystem());
 
-			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
+			String runMode = System.getProperty("gumtree.runtime.configEnv.mode");
+			String perspectiveId = ID_PERSPECTIVE_EXPERIMENT;
+			if (runMode != null && runMode.toLowerCase().equals("analysis")){
+				perspectiveId = ID_PERSPECTIVE_ANALYSIS;
+			}
+			mmManager.showPerspectiveOnOpenedWindow(perspectiveId, 0, 0, mmManager.isMultiMonitorSystem());
 			activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
 
 //			activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
