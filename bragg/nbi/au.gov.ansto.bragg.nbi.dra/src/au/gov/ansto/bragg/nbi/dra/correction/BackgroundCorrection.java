@@ -72,8 +72,8 @@ public class BackgroundCorrection extends ConcreteProcessor{
 		}
 //		String mapStartTime = backgroundData.getParentGroup().findDataItem("start_time").getData().toString();
 //		String mapEndTime = backgroundData.getParentGroup().findDataItem("end_time").getData().toString();
-//		String dataStartTime = backgroundCorrection_inputPlot.getDataItem("start_time").getData().toString();
-//		String dataEndTime = backgroundCorrection_inputPlot.getDataItem("end_time").getData().toString();
+//		String dataStartTime = backgroundCorrection_inputPlot.findDataItem("start_time").getData().toString();
+//		String dataEndTime = backgroundCorrection_inputPlot.findDataItem("end_time").getData().toString();
 //		long mapTime = MathUtils.timeDifference(mapStartTime, mapEndTime);
 //		long dataTime = MathUtils.timeDifference(dataStartTime, dataEndTime);
 		IArray factor;
@@ -81,7 +81,7 @@ public class BackgroundCorrection extends ConcreteProcessor{
 		IArray dataReading = null;
 		if (mode == DetectorMode.TIME){
 			try{
-				mapReading = backgroundData.getDataItem("detector_time").getData().getArrayMath().getMaximum();
+				mapReading = backgroundData.findDataItem("detector_time").getData().getArrayMath().getMaximum();
 			}catch (Exception e) {
 				try{
 					mapReading = backgroundData.getParentGroup().findGroup("instrument").
@@ -89,7 +89,7 @@ public class BackgroundCorrection extends ConcreteProcessor{
 				}catch (Exception e1) {}
 			}
 			try{
-				dataReading = backgroundCorrection_inputPlot.getDataItem("detector_time").getData();
+				dataReading = backgroundCorrection_inputPlot.findDataItem("detector_time").getData();
 			}catch (Exception e) {}
 		}else if (mode == DetectorMode.DETECTOR_TOTAL){
 			try {
@@ -99,7 +99,7 @@ public class BackgroundCorrection extends ConcreteProcessor{
 			}
 		}else if (mode == DetectorMode.MONITOR1){
 			try{
-				mapReading = backgroundData.getDataItem("monitor1_counts").getData().getArrayMath().getMaximum();
+				mapReading = backgroundData.findDataItem("monitor1_counts").getData().getArrayMath().getMaximum();
 			}catch (Exception e) {
 				try{
 					mapReading = backgroundData.getParentGroup().findGroup("monitor").
@@ -107,11 +107,11 @@ public class BackgroundCorrection extends ConcreteProcessor{
 				}catch (Exception e1) {}
 			}
 			try{
-				dataReading = backgroundCorrection_inputPlot.getDataItem("monitor1_counts").getData();
+				dataReading = backgroundCorrection_inputPlot.findDataItem("monitor1_counts").getData();
 			}catch (Exception e) {}
 		}else if (mode == DetectorMode.MONITOR2){
 			try{
-				mapReading = backgroundData.getDataItem("monitor2_counts").getData().getArrayMath().getMaximum();
+				mapReading = backgroundData.findDataItem("monitor2_counts").getData().getArrayMath().getMaximum();
 			}catch (Exception e) {
 				try{
 					mapReading = backgroundData.getParentGroup().findGroup("monitor").
@@ -119,11 +119,11 @@ public class BackgroundCorrection extends ConcreteProcessor{
 				}catch (Exception e1) {}
 			}
 			try{
-				dataReading = backgroundCorrection_inputPlot.getDataItem("monitor2_counts").getData();
+				dataReading = backgroundCorrection_inputPlot.findDataItem("monitor2_counts").getData();
 			}catch (Exception e) {}
 		}else if (mode == DetectorMode.MONITOR3){
 			try{
-				mapReading = backgroundData.getDataItem("monitor3_counts").getData().getArrayMath().getMaximum();
+				mapReading = backgroundData.findDataItem("monitor3_counts").getData().getArrayMath().getMaximum();
 			}catch (Exception e) {
 				try{
 					mapReading = backgroundData.getParentGroup().findGroup("monitor").
@@ -131,7 +131,7 @@ public class BackgroundCorrection extends ConcreteProcessor{
 				}catch (Exception e1) {}
 			}
 			try{
-				dataReading = backgroundCorrection_inputPlot.getDataItem("monitor3_counts").getData();
+				dataReading = backgroundCorrection_inputPlot.findDataItem("monitor3_counts").getData();
 			}catch (Exception e) {}
 		}
 		if (mapReading == 0 || dataReading == null)
