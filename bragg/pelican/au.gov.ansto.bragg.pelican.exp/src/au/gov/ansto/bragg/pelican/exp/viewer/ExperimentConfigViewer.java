@@ -26,6 +26,8 @@ public class ExperimentConfigViewer extends Composite {
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(this);
 		ScriptPageRegister register = new ScriptPageRegister();
 		CommandHandler commandHandler = new CommandHandler();
+		CommandLineViewer viewer = new CommandLineViewer();
+		viewer.setScriptExecutor(commandHandler.getScriptExecutor());
 		controlViewer = new ScriptControlViewer(this, style);
 		controlViewer.setScriptExecutor(commandHandler.getScriptExecutor());
 		controlViewer.setBackground(whiteColor);
@@ -44,8 +46,6 @@ public class ExperimentConfigViewer extends Composite {
 		ScriptPageRegister.registPage(controlViewer.getScriptRegisterID(), register);
 		register.setControlViewer(controlViewer);
 		
-		CommandLineViewer viewer = new CommandLineViewer();
-		viewer.setScriptExecutor(commandHandler.getScriptExecutor());
 		Composite consoleComposite = new Composite(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(consoleComposite);
 		GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, 104).applyTo(consoleComposite);

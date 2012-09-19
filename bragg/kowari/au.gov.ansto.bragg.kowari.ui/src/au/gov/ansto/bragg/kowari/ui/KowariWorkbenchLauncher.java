@@ -81,10 +81,12 @@ public class KowariWorkbenchLauncher extends AbstractLauncher {
 
 			String runMode = System.getProperty("gumtree.runtime.configEnv.mode");
 			String perspectiveId = ID_PERSPECTIVE_EXPERIMENT;
+			int windowId = 0;
 			if (runMode != null && runMode.toLowerCase().equals("analysis")){
 				perspectiveId = ID_PERSPECTIVE_ANALYSIS;
+				windowId = 1;
 			}
-			mmManager.showPerspectiveOnOpenedWindow(perspectiveId, 0, 0, mmManager.isMultiMonitorSystem());
+			mmManager.showPerspectiveOnOpenedWindow(perspectiveId, 0, windowId, mmManager.isMultiMonitorSystem());
 			activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
 
 //			activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
