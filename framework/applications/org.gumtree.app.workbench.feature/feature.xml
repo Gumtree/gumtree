@@ -38,10 +38,6 @@
          version="0.0.0"/>
 
    <includes
-         id="org.gumtree.passerelle.feature"
-         version="0.0.0"/>
-
-   <includes
          id="org.gumtree.pydev.feature"
          version="0.0.0"/>
 

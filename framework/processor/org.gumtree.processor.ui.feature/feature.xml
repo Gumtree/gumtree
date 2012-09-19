@@ -48,12 +48,6 @@
          unpack="false"/>
 
    <plugin
-         id="au.gov.ansto.bragg.kakadu.doc"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="au.gov.ansto.bragg.kakadu.dom"
          download-size="0"
          install-size="0"
