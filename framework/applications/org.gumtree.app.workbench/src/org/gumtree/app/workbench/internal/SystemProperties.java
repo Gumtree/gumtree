@@ -19,8 +19,8 @@ public final class SystemProperties {
 	/**
 	 * The class URI for the panel 
 	 */
-	public static final ISystemProperty CRUISE_PANEL_URI = new SystemProperty(
-			"gumtree.cruise.panelUri", "bundleclass://org.gumtree.ui/org.gumtree.ui.cruise.support.CruisePanel");
+	public static final ISystemProperty SIDEBAR_PART_URI = new SystemProperty(
+			"gumtree.sidebar.partUri", "bundleclass://org.gumtree.app.workbench/org.gumtree.app.workbench.support.SidebarWidget");
 			
 	/**
 	 * Create sidebar on the workbench

@@ -2,6 +2,7 @@ package org.gumtree.widgets.swt.forms;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -14,6 +15,8 @@ import org.gumtree.widgets.swt.IWidgetFactory;
 
 public class FormWidgetFactory implements IWidgetFactory {
 
+	private static final String EMPTY_STRING = "";
+	
 	private FormToolkit toolkit;
 
 	@Override
@@ -59,6 +62,13 @@ public class FormWidgetFactory implements IWidgetFactory {
 		return getToolkit().createLabel(parent, text, style);
 	}
 
+	@Override
+	public Label createLabel(Composite parent, Image image) {
+		Label widget = createLabel(parent, EMPTY_STRING);
+		widget.setImage(image);
+		return widget;
+	}
+	
 	@Override
 	public Button createButton(Composite parent, String text, int style) {
 		return getToolkit().createButton(parent, text, style);

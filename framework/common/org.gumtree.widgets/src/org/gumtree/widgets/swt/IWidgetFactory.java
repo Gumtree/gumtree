@@ -1,6 +1,7 @@
 package org.gumtree.widgets.swt;
 
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -21,10 +22,12 @@ public interface IWidgetFactory {
 	public Text createText(Composite parent, String text);
 
 	public Text createText(Composite parent, String text, int style);
-
+	
 	public Label createLabel(Composite parent, String text);
 
 	public Label createLabel(Composite parent, String text, int style);
+	
+	public Label createLabel(Composite parent, Image image);
 
 	public Button createButton(Composite parent, String text, int style);
 

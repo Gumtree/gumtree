@@ -2,6 +2,7 @@ package org.gumtree.widgets.swt;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -18,7 +19,10 @@ public class SwtWidgetFactory implements IWidgetFactory {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		return new Composite(parent, style);
+		Composite widget = new Composite(parent, style);
+		widget.setBackgroundMode(SWT.INHERIT_FORCE);
+		widget.setForeground(parent.getForeground());
+		return widget;
 	}
 
 	@Override
@@ -56,6 +60,13 @@ public class SwtWidgetFactory implements IWidgetFactory {
 		return widget;
 	}
 
+	@Override
+	public Label createLabel(Composite parent, Image image) {
+		Label widget = new Label(parent, SWT.NONE);
+		widget.setImage(image);
+		return widget;
+	}
+	
 	@Override
 	public Button createButton(Composite parent, String text, int style) {
 		Button widget = new Button(parent, style);

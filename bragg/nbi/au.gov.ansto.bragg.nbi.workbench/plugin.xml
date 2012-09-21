@@ -11,5 +11,17 @@
             tags="Demo">
       </tasklet>
    </extension>
+   <extension
+         point="org.gumtree.ui.hubs">
+      <hub
+            label="Instrument">
+      </hub>
+      <hub
+            label="Reduction">
+      </hub>
+      <hub
+            label="Experiment">
+      </hub>
+   </extension>
 
 </plugin>

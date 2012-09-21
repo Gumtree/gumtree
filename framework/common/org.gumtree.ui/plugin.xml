@@ -8,6 +8,8 @@
    <extension-point id="tools" name="Tools" schema="schema/tools.exsd"/>
    <extension-point id="communicationAdapters" name="Tools" schema="schema/communicationAdapters.exsd"/>
    <extension-point id="tasklets" name="Tasklets" schema="schema/tasklets.exsd"/>
+   <extension-point id="hubs" name="Hubs" schema="schema/hubs.exsd"/>
+   <extension-point id="apps" name="Apps" schema="schema/apps.exsd"/>
    <extension
          point="org.eclipse.ui.editors">
       <editor

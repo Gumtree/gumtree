@@ -303,7 +303,7 @@
    <extension
          point="org.eclipse.ui.startup">
       <startup
-            class="org.gumtree.app.workbench.internal.CruisePanelActivator"></startup>
+            class="org.gumtree.app.workbench.internal.SidebarActivator"></startup>
    </extension>
    <extension
          point="org.eclipse.ui.splashHandlers">
@@ -315,6 +315,12 @@
             productId="org.gumtree.app.workbench.product"
             splashId="org.gumtree.app.workbench.splashHandler">
       </splashHandlerProductBinding>
+   </extension>
+   <extension
+         point="org.gumtree.ui.hubs">
+      <hub
+            label="Settings">
+      </hub>
    </extension>
    <!--
    <extension

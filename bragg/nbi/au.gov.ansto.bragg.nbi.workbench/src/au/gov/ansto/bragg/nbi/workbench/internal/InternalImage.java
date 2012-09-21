@@ -9,11 +9,16 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
-import org.gumtree.util.eclipse.OsgiUtils;
+import org.gumtree.widgets.swt.util.UIResourceUtils;
 
 public enum InternalImage {
 
-	STOP_128("/icons/stop_128x128.png");
+	STOP_128("icons/stop_128x128.png"),
+	START_32("icons/play_32x32.png"),
+	STOP_32("icons/stop_32x32.png"),
+	CONNECT_32("icons/connect_32x32.png"),
+	DISCONNECT_32("icons/disconnect_32x32.png"),
+	INTERRUPT_72("icons/interrupt_72x72.png");
 
 	private InternalImage(String path) {
 		this.path = path;
@@ -30,16 +35,16 @@ public enum InternalImage {
 	public URI getURI() {
 		return URI.create("bundle://" + Activator.PLUGIN_ID + "/" + path());
 	}
-	
+
 	public ImageIcon createImageIcon() {
-        java.net.URL imgURL = Activator.class.getResource(path());
-        if (imgURL != null) {
-            return new ImageIcon(imgURL);
-        } else {
-            return null;
-        }
-    }
-	
+		java.net.URL imgURL = Activator.class.getResource(path());
+		if (imgURL != null) {
+			return new ImageIcon(imgURL);
+		} else {
+			return null;
+		}
+	}
+
 	public static boolean isInstalled() {
 		return registry != null;
 	}
@@ -50,7 +55,7 @@ public enum InternalImage {
 			registry = null;
 		}
 	}
-	
+
 	private String path() {
 		return path;
 	}
@@ -61,16 +66,19 @@ public enum InternalImage {
 				if (registry == null) {
 					registry = new ImageRegistry(Display.getDefault());
 					for (InternalImage key : values()) {
-						if (OsgiUtils.isOsgiRunning()) {
+						if (UIResourceUtils.isOsgiRunning()) {
 							// Under OSGi runtime
-							URL fullPathString = OsgiUtils.findFile(Activator.PLUGIN_ID, key.path());
-							registry.put(key.name(),
-									ImageDescriptor.createFromURL(fullPathString));
+							URL fullPathString = UIResourceUtils.findFile(
+									Activator.PLUGIN_ID, key.path());
+							registry.put(key.name(), ImageDescriptor
+									.createFromURL(fullPathString));
 						} else {
 							// Under normal Java runtime
-							registry.put(key.name(),
-									ImageDescriptor.createFromFile(
-											Activator.class, key.path()));
+							registry.put(key.name(), ImageDescriptor
+									.createFromFile(
+											Activator.class,
+											"../../../../../../../"
+													+ key.path()));
 						}
 					}
 				}

@@ -37,6 +37,12 @@ public enum InternalImage {
 	COLLAPSE_ALL("/icons/sidebar/collapseall.gif"),
 	DELETE_12("/icons/sidebar/delete_12x12.png"),
 	
+	// Mission control
+	BACK_22("/icons/missioncontrol/back_22x22.png"),
+	HOME_22("/icons/missioncontrol/home_22x22.png"),
+	WINDOWS_22("/icons/missioncontrol/windows_22x22.png"),
+	SETTINGS_22("/icons/missioncontrol/settings_22x22.png"),
+	
 	// Scripting
 	CONTENT_ASSIST("icons/scripting/help_search.gif"),
 	SCROLL_LOCK("icons/scripting/lock_co.gif"),

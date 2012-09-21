@@ -19,7 +19,7 @@ import org.gumtree.util.messaging.EventHandler;
 import org.osgi.service.event.Event;
 
 @SuppressWarnings("restriction")
-public class CruisePanelActivator implements IStartup {
+public class SidebarActivator implements IStartup {
 
 	@Override
 	public void earlyStartup() {
@@ -73,7 +73,7 @@ public class CruisePanelActivator implements IStartup {
 					@Override
 					public boolean accept(String key, String value) {
 						return "type".equals(key)
-								&& "cruisepanel".equals(value);
+								&& "sidebar".equals(value);
 					}
 				});
 		// Do nothing if the window has already been processed
@@ -93,9 +93,9 @@ public class CruisePanelActivator implements IStartup {
 				(MPartSashContainerElement) originalContainer);
 		// Create cruise panel
 		MPart part = MBasicFactory.INSTANCE.createPart();
-		part.setLabel("Cruise Panel");
-		part.setContributionURI(SystemProperties.CRUISE_PANEL_URI.getValue());
-		part.getProperties().put("type", "cruisepanel");
+		part.setLabel("Sidebar");
+		part.setContributionURI(SystemProperties.SIDEBAR_PART_URI.getValue());
+		part.getProperties().put("type", "sidebar");
 		partSashContainer.getChildren().add(part);
 		// Set sash weight
 		originalContainer.setContainerData("8000");
