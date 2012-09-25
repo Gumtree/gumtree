@@ -44,7 +44,7 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 		IFolderLayout top2 = factory.createFolder(
 				"top_folder", //NON-NLS-1
 				IPageLayout.TOP,
-				0.73f,
+				0.78f,
 				factory.getEditorArea());
 		top2.addView(EXPERIMENT_CONFIG_VIEW_ID);
 		top2.addView(WORKFLOW_VIEW_ID);

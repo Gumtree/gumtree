@@ -223,7 +223,15 @@ public class DeviceStatusWidget extends SicsStatusWidget {
 			@Override
 			public void run() throws Exception {
 				if (label != null && !label.isDisposed()) {
-					label.setText(data);
+					String text = data;
+					try {
+						double value = Double.valueOf(data);
+						if (data.contains(".")) {
+							text = String.format("%.2f", value);
+						} 
+					} catch (Exception e) {
+					} 
+					label.setText(text);
 					// TODO: does it have any performance hit?
 					label.getParent().layout(true, true);
 				}

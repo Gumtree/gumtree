@@ -42,7 +42,6 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget.addDevice("/instrument/source/power", "Power",
 				SharedImage.POWER.getImage(), null);
 		configureWidget(deviceStatusWidget);
-		deviceStatusWidget.render();
 
 		// Shutter Status
 		PGroup shutterGroup = createGroup("SHUTTER STATUS",
@@ -50,7 +49,6 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		ShutterStatusWidget shutterStatuswidget = new ShutterStatusWidget(
 				shutterGroup, SWT.NONE);
 		configureWidget(shutterStatuswidget);
-		shutterStatuswidget.render();
 
 		// Server Status
 		PGroup sicsStatusGroup = createGroup("SERVER STATUS", 
@@ -61,66 +59,88 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(statusGadget);
 
-		// Monitor Event Rate
-		PGroup monitorGroup = createGroup("Neutron Counts",
-				SharedImage.MONITOR.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
-		deviceStatusWidget
-				.addDevice("/monitor/bm1_counts", "Monitor Counts", null, "")
-				.addDevice("/instrument/detector/total_counts", "Detector Counts", null, "")
-				.render();
-
-		// Slits Info
-		PGroup slitsGroup = createGroup("Slits Status",
-				SharedImage.SLITS.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(slitsGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
-		deviceStatusWidget
-				.addDevice("/instrument/slits/primary_psho", "psho", null, "")
-				.addDevice("/instrument/slits/primary_psp", "psp", null, "")
-				.addDevice("/instrument/slits/primary_psw", "psw", null, "")
-				.addDevice("/instrument/slits/secondary_ssho", "ssho", null, "")
-				.addDevice("/instrument/slits/secondary_ssp", "ssp", null, "")
-				.addDevice("/instrument/slits/secondary_ssw", "ssw", null, "")
-				.render();
-
-		// Positioner Group
-		PGroup positionerGroup = createGroup("Positioner Status",
-				SharedImage.POSITIONER.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(positionerGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
-		deviceStatusWidget
-				.addDevice("/sample/sx", "sx", null, "")
-				.addDevice("/sample/sy", "sy", null, "")
-				.addDevice("/sample/sz", "sz", null, "")
-				.addDevice("/sample/som", "som", null, "")
-				.addDevice("/sample/stth", "stth", null, "")
-				.render();
-		
 		// Monochromator
-		PGroup monochromatorGroup = createGroup("Monochromator",
+		PGroup monochromatorGroup = createGroup("MONOCROMATOR",
 				SharedImage.MONOCHROMATOR.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup, SWT.NONE);
 		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
+				.addDevice("/instrument/crystal/wavelength", "wavelength", null, "")
 				.addDevice("/instrument/crystal/mom", "mom", null, "")
 				.addDevice("/instrument/crystal/mtth", "mtth", null, "")
-				.addDevice("/instrument/monochromator/focus/mf1", "mf1", null, "")
-				.addDevice("/instrument/monochromator/focus/mf2", "mf2", null, "")
 				.render();
 
-		// Euler Cradle
-		PGroup cradleGroup = createGroup("",
-				SharedImage.CRADLE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(cradleGroup, SWT.NONE);
+		// Monitor Event Rate
+		PGroup monitorGroup = createGroup("NEUTRON COUNTS",
+				SharedImage.MONITOR.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
 		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
-				.addDevice("/sample/eom", "EOM", null, "")
-				.addDevice("/sample/echi", "EChi", null, "")
-				.addDevice("/sample/ephi", "EPhi", null, "")
+				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "")
+				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "")
 				.render();
 
+		// Slits Info
+		PGroup slitsGroup = createGroup("SLITS STATUS",
+				SharedImage.SLITS.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(slitsGroup, SWT.NONE);
+		configureWidget(deviceStatusWidget);
+		deviceStatusWidget
+				.addDevice("/instrument/aperture/sv1", "slit 1 top", null, "")
+				.addDevice("/instrument/aperture/sh1", "slit 1 bottom", null, "")
+				.addDevice("/instrument/aperture/sv2", "slit 2 top", null, "")
+				.addDevice("/instrument/aperture/sh2", "slit 2 bottom", null, "")
+				.render();
+
+		// fermi chopper
+		PGroup fermi1Group = createGroup("FERMI CHOPPER 1",
+				SharedImage.SPIN.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(fermi1Group, SWT.NONE);
+		configureWidget(deviceStatusWidget);
+		deviceStatusWidget
+				.addDevice("/instrument/fermi_chopper/ch1/frequency", "frequency", null, "")
+				.addDevice("/instrument/fermi_chopper/ch1/ratio", "overlap ratio", null, "")
+				.render();
+
+		// fermi chopper
+		PGroup fermi2Group = createGroup("FERMI CHOPPER 2",
+				SharedImage.SPIN.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(fermi2Group, SWT.NONE);
+		configureWidget(deviceStatusWidget);
+		deviceStatusWidget
+				.addDevice("/instrument/fermi_chopper/ch2/frequency", "frequency", null, "")
+				.addDevice("/instrument/fermi_chopper/ch2/ratio", "overlap ratio", null, "")
+				.render();
+
+		// Other device
+		PGroup otherGroup = createGroup("OTHER DEVICES",
+				SharedImage.GEAR.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(otherGroup, SWT.NONE);
+		configureWidget(deviceStatusWidget);
+		deviceStatusWidget
+				.addDevice("/instrument/crystal/FilterZ", "filter", null, "")
+				.addDevice("/instrument/crystal/PolarizerZ", "polariser", null, "")
+				.render();
+
+		// Slits Info
+		PGroup collimatorGroup = createGroup("RADIAL COLLIMATOR",
+				SharedImage.CRADLE.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(collimatorGroup, SWT.NONE);
+		configureWidget(deviceStatusWidget);
+		deviceStatusWidget
+				.addDevice("/instrument/collimator/vrcz", "in/out", null, "")
+				.addDevice("/instrument/collimator/frequency", "frequency", null, "")
+				.render();
+
+		// Sample
+		PGroup sampleGroup = createGroup("SAMPLE TANK",
+				SharedImage.BEAKER.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(sampleGroup, SWT.NONE);
+		configureWidget(deviceStatusWidget);
+		deviceStatusWidget
+				.addDevice("/instrument/detector/stth", "angle", null, "")
+				.render();
+		
 		// Experiment info
 //		PGroup infoGroup = createGroup("EXPERIMENT INFO",
 //				InternalImage.EXPERIMENT_INFO.getImage());
@@ -131,17 +151,17 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 //				.addDevice("/user/name", "User").render();
 
 		// Furnace Temp
-		PGroup furnaceGroup = createGroup("FURNACE TEMPERATURE",
+		PGroup furnaceGroup = createGroup("FURNACE TEMP",
 				SharedImage.FURNACE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(furnaceGroup, SWT.NONE);
 		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
-				.addDevice("/sample/tempone/sensorA/value", "Temperature")
-				.addDevice("/sample/tempone/setpoint", "Setpoint").render();
+				.addDevice("/sample/tempone/sensorA/value", "temperature")
+				.addDevice("/sample/tempone/setpoint", "set point").render();
 
 
 		// Temperature TC1 Control
-		PGroup tempControlGroup = createGroup("Temperature Controller",
+		PGroup tempControlGroup = createGroup("TEMPERATURE CONTR",
 				SharedImage.FURNACE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
 		configureWidget(deviceStatusWidget);
@@ -154,22 +174,6 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 						SharedImage.C.getImage(), null)
 				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D",
 						SharedImage.D.getImage(), null)
-//				.addDevice("/sample/tc1/heater/heaterOutput_1", "TC1H1-R/O",
-//						InternalImage.ONE.getImage(), null)
-//				.addDevice("/sample/tc1/heater/heaterOutput_2", "TC1H2-R/O",
-//						InternalImage.TWO.getImage(), null)
-//				.addDevice("/sample/tc2/sensor/sensorValueA", "TC2A-T/C",
-//						InternalImage.A.getImage(), null)
-//				.addDevice("/sample/tc2/sensor/sensorValueB", "TC2B-T/C",
-//						InternalImage.B.getImage(), null)
-//				.addDevice("/sample/tc2/sensor/sensorValueC", "TC2C-T/C",
-//						InternalImage.C.getImage(), null)
-//				.addDevice("/sample/tc2/sensor/sensorValueD", "TC2D-T/C",
-//						InternalImage.D.getImage(), null)
-//				.addDevice("/sample/tc2/heater/heaterOutput_1", "TC2H1-R/O",
-//						InternalImage.ONE.getImage(), null)
-//				.addDevice("/sample/tc2/heater/heaterOutput_2", "TC2H2-R/O",
-//						InternalImage.TWO.getImage(), null)
 				.render();
 
 		// Interrupt
