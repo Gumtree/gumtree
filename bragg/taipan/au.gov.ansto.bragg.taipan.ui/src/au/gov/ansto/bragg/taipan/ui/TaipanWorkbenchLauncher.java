@@ -47,12 +47,6 @@ public class TaipanWorkbenchLauncher extends AbstractLauncher {
 //			IMultiMonitorManager mmManager = ServiceUtils.getService(IMultiMonitorManager.class);
 			IMultiMonitorManager mmManager = new MultiMonitorManager();
 			// Attempt to close intro
-//			IIntroPart introPart = PlatformUI.getWorkbench().getIntroManager().getIntro();
-//			PlatformUI.getWorkbench().getIntroManager().closeIntro(introPart);
-			
-//			InstrumentDashboardLauncher launcher = new InstrumentDashboardLauncher();
-//			launcher.launch(0);
-			
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
 			
 			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {

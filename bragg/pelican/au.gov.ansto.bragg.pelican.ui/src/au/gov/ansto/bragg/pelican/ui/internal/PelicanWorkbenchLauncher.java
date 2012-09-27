@@ -11,7 +11,11 @@
 
 package au.gov.ansto.bragg.pelican.ui.internal;
 
+import org.eclipse.ui.IPerspectiveDescriptor;
+import org.eclipse.ui.IPerspectiveListener;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchWindow;
 import org.gumtree.ui.service.launcher.AbstractLauncher;
@@ -40,7 +44,7 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 	public void launch() throws LauncherException {
 		{			
 			// TODO: move this logic to experiment UI manager service
-			IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			if (activeWorkbenchWindow instanceof WorkbenchWindow) {
 				((WorkbenchWindow) activeWorkbenchWindow).setCoolBarVisible(false);
 			}
@@ -55,12 +59,36 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 			
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
 			
-//			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
-//				// open new window as editor buffer
-//				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, true);
-//			}
-//			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
+			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
+				// open new window as editor buffer
+				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, true);
+			}
+			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
 
+			activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
+				
+				@Override
+				public void perspectiveChanged(IWorkbenchPage page,
+						IPerspectiveDescriptor perspective, String changeId) {
+					if (perspective.getId().equals(ID_PERSPECTIVE_SCRIPTING)) {
+						IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
+						activePage.hideView(activePage.findViewReference("org.gumtree.app.workbench.cruisePanel"));
+					} else if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT)) {
+						IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
+						try {
+							activePage.showView("org.gumtree.app.workbench.cruisePanel");
+						} catch (PartInitException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				
+				@Override
+				public void perspectiveActivated(IWorkbenchPage page,
+						IPerspectiveDescriptor perspective) {
+				}
+			});
 		}
 	}
 

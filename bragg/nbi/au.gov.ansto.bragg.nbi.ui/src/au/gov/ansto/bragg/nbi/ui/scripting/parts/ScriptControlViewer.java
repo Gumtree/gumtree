@@ -485,7 +485,7 @@ public class ScriptControlViewer extends Composite {
 		});
 		
 		try {
-			initSicsListeners();
+//			initSicsListeners();
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
