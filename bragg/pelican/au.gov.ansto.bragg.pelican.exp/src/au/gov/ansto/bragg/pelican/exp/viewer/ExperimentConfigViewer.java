@@ -34,7 +34,7 @@ public class ExperimentConfigViewer extends Composite {
 		Label titleLabel = new Label(controlViewer, SWT.NONE);
 		titleLabel.setBackground(whiteColor);
 		FontData[] fD = titleLabel.getFont().getFontData();
-		fD[0].setHeight(20);
+		fD[0].setHeight(18);
 		titleLabel.setFont(new Font(titleLabel.getDisplay(), fD));
 		titleLabel.setText(" Experiment Setup");
 		controlViewer.getScrollArea().moveAbove(controlViewer.getStaticComposite());
