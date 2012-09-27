@@ -53,7 +53,7 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 		factory.addStandaloneView(SICS_BUFFER_RUNNER_VIEW_ID, false, 
 				IPageLayout.RIGHT, 0.6f, "top_folder");
 		
-		factory.addStandaloneView(PROJECT_EXPLORER_VIEW_ID, false, 
+		factory.addStandaloneView(PROJECT_EXPLORER_VIEW_ID, true, 
 				IPageLayout.LEFT, 0.2f, "top_folder");
 
 		factory.addStandaloneView(SICS_TERMINAL_VIEW_ID, false, 
@@ -68,7 +68,8 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 		factory.getViewLayout(SICS_BUFFER_RUNNER_VIEW_ID).setMoveable(false);
 		factory.getViewLayout(SICS_BUFFER_VALIDATOR_VIEW_ID).setCloseable(false);
 		factory.getViewLayout(SICS_BUFFER_VALIDATOR_VIEW_ID).setMoveable(false);
-//		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setMoveable(false);
+		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setMoveable(false);
+		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setCloseable(false);
 		factory.setEditorAreaVisible(false);
 		
 		final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
