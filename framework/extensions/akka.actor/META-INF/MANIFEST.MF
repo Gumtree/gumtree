@@ -1,0 +1,30 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Akka Actor
+Bundle-SymbolicName: akka.actor
+Bundle-Version: 2.0.3.qualifier
+Bundle-ClassPath: .
+Bundle-Vendor: Typesafe Inc.
+Export-Package: akka,
+ akka.actor,
+ akka.config,
+ akka.dispatch,
+ akka.event,
+ akka.event.japi,
+ akka.japi,
+ akka.jsr166y,
+ akka.pattern,
+ akka.routing,
+ akka.serialization,
+ akka.util,
+ akka.util.cps,
+ akka.util.duration,
+ com.eaio.util.lang,
+ com.eaio.uuid,
+ org.jboss.netty.akka.util,
+ org.jboss.netty.akka.util.internal
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: scala;bundle-version="2.9.2";visibility:=reexport,
+ com.typesafe.config;bundle-version="0.5.2";visibility:=reexport,
+ org.slf4j.api;bundle-version="1.6.4";visibility:=reexport
+Eclipse-BuddyPolicy: global
