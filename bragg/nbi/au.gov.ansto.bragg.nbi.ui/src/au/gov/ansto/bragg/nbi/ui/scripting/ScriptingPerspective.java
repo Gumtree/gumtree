@@ -220,7 +220,16 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 
 	public static void registerViews(final ScriptPageRegister register) throws PartInitException{
 		
-		IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		IWorkbenchWindow workbenchWindow = null;
+		IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+		for (IWorkbenchWindow window : windows) {
+			if (window.getActivePage().getPerspective().getId().equals(SCRIPTING_PERSPECTIVE_ID)){
+				workbenchWindow = window;
+			}
+		}
+		if (workbenchWindow == null) {
+			return;
+		}
 		final IWorkbenchPage workbenchPage = workbenchWindow.getActivePage();
 		register.setWorkbenchPage(workbenchPage);
 		

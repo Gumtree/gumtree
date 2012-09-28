@@ -48,35 +48,48 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 			if (activeWorkbenchWindow instanceof WorkbenchWindow) {
 				((WorkbenchWindow) activeWorkbenchWindow).setCoolBarVisible(false);
 			}
-//			IMultiMonitorManager mmManager = ServiceUtils.getService(IMultiMonitorManager.class);
-			IMultiMonitorManager mmManager = new MultiMonitorManager();
-			// Attempt to close intro
-//			IIntroPart introPart = PlatformUI.getWorkbench().getIntroManager().getIntro();
-//			PlatformUI.getWorkbench().getIntroManager().closeIntro(introPart);
-			
-//			InstrumentDashboardLauncher launcher = new InstrumentDashboardLauncher();
-//			launcher.launch(0);
-			
-			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
-			
-			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
-				// open new window as editor buffer
-				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, true);
-			}
-			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
-
-			activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
+//			IMultiMonitorManager mmManager = new MultiMonitorManager();
+//			
+//			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
+//			
+//			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
+//				// open new window as editor buffer
+//				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, true);
+//			}
+//			
+//			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
+//
+//			activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
+//				
+//				@Override
+//				public void perspectiveChanged(IWorkbenchPage page,
+//						IPerspectiveDescriptor perspective, String changeId) {
+//					if (perspective.getId().equals(ID_PERSPECTIVE_SCRIPTING)) {
+//						page.hideView(page.findViewReference("org.gumtree.app.workbench.cruisePanel"));
+//					} else if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT)) {
+//						try {
+//							page.showView("org.gumtree.app.workbench.cruisePanel");
+//						} catch (PartInitException e) {
+//							e.printStackTrace();
+//						}
+//					}
+//				}
+//				
+//				@Override
+//				public void perspectiveActivated(IWorkbenchPage page,
+//						IPerspectiveDescriptor perspective) {
+//				}
+//			});
+			IPerspectiveListener listener = new IPerspectiveListener() {
 				
 				@Override
 				public void perspectiveChanged(IWorkbenchPage page,
 						IPerspectiveDescriptor perspective, String changeId) {
 					if (perspective.getId().equals(ID_PERSPECTIVE_SCRIPTING)) {
-						IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
-						activePage.hideView(activePage.findViewReference("org.gumtree.app.workbench.cruisePanel"));
+						page.hideView(page.findViewReference("org.gumtree.app.workbench.cruisePanel"));
 					} else if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT)) {
-						IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
 						try {
-							activePage.showView("org.gumtree.app.workbench.cruisePanel");
+							page.showView("org.gumtree.app.workbench.cruisePanel");
 						} catch (PartInitException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -88,7 +101,24 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 				public void perspectiveActivated(IWorkbenchPage page,
 						IPerspectiveDescriptor perspective) {
 				}
-			});
+			};
+			
+			IMultiMonitorManager mmManager = new MultiMonitorManager();
+			// Attempt to close intro
+			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
+			
+			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
+				// open new window as editor buffer
+				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, true);
+			}
+//			// position it
+			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
+
+			IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+			for (IWorkbenchWindow window : windows) {
+				window.addPerspectiveListener(listener);
+			}
+			
 		}
 	}
 

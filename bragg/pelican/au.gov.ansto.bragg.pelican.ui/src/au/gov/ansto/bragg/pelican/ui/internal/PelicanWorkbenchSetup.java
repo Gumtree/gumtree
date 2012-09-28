@@ -26,7 +26,7 @@ public class PelicanWorkbenchSetup implements IStartup {
 		if (Boolean.parseBoolean(launchTaipanLayout)) {
 			SafeUIRunner.asyncExec(new ISafeRunnable() {
 				public void handleException(Throwable exception) {
-					logger.error("Failed to launch Taipan workbench layout during early startup.", exception);
+					logger.error("Failed to launch Pelican workbench layout during early startup.", exception);
 				}
 				public void run() throws Exception {
 					PelicanWorkbenchLauncher launcher = new PelicanWorkbenchLauncher();
