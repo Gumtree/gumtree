@@ -29,7 +29,7 @@ public enum SharedImage {
 	POSITIONER("/icons/cruise/stage_16x16.gif"),
 	MONOCHROMATOR("/icons/cruise/mono_16x16.png"),
 	ROBOT("/icons/cruise/robot_16x16.png"),
-	SERVER("/icons/cruise/server_16.gif"),
+	SERVER("/icons/cruise/server_16.png"),
 	MONITOR("/icons/cruise/counter_16x16.png"),
 	A("/icons/cruise/document-attribute.png"),
 	B("/icons/cruise/document-attribute-b.png"),
