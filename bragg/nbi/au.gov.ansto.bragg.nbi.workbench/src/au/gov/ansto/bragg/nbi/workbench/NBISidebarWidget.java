@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.gumtree.app.workbench.support.SidebarWidget;
+import org.gumtree.ui.missioncontrol.IHubRegistry;
 import org.gumtree.ui.missioncontrol.support.MissionControlWidget;
 import org.gumtree.widgets.swt.ExtendedComposite;
 import org.gumtree.widgets.swt.util.UIResources;
@@ -21,6 +22,8 @@ import org.gumtree.widgets.swt.util.UIResources;
 @SuppressWarnings("restriction")
 public class NBISidebarWidget extends ExtendedComposite {
 
+	private IHubRegistry hubRegistry;
+	
 	@Inject
 	public NBISidebarWidget(Composite parent, @Optional int style) {
 		super(parent, style);
@@ -43,6 +46,7 @@ public class NBISidebarWidget extends ExtendedComposite {
 		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
 		tabItem.setText("Mission Control");
 		MissionControlWidget widget = new MissionControlWidget(tabFolder, SWT.NONE);
+		widget.setHubRegistry(getHubRegistry());
 		widget.render();
 		tabItem.setControl(widget);
 		
@@ -65,6 +69,23 @@ public class NBISidebarWidget extends ExtendedComposite {
 	protected void disposeWidget() {
 	}
 
+	/*************************************************************************
+	 * Components
+	 *************************************************************************/
+	
+	public IHubRegistry getHubRegistry() {
+		return hubRegistry;
+	}
+
+	@Inject
+	public void setHubRegistry(IHubRegistry hubRegistry) {
+		this.hubRegistry = hubRegistry;
+	}
+	
+	/*************************************************************************
+	 * Utilities
+	 *************************************************************************/
+	
 	public static void main(String[] args) {
 		Display display = new Display();
 		Shell shell = new Shell(display);
