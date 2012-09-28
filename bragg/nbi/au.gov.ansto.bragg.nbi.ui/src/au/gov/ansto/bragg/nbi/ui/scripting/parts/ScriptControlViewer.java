@@ -984,7 +984,7 @@ public class ScriptControlViewer extends Composite {
 				final Text stringText = new Text(parent, SWT.BORDER);
 				stringText.setText(String.valueOf(parameter.getValue()));
 				GridDataFactory.fillDefaults().grab(true, false).applyTo(stringText);
-				stringText.setEnabled(itemEnabled);
+				stringText.setEditable(itemEnabled);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
@@ -1000,7 +1000,7 @@ public class ScriptControlViewer extends Composite {
 
 										@Override
 										public void run() {
-											stringText.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+											stringText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
 										}
 									});
 								} 
@@ -1026,7 +1026,7 @@ public class ScriptControlViewer extends Composite {
 				final Text intText = new Text(parent, SWT.BORDER);
 				intText.setText(String.valueOf(parameter.getValue()));
 				GridDataFactory.fillDefaults().grab(true, false).applyTo(intText);
-				intText.setEnabled(itemEnabled);
+				intText.setEditable(itemEnabled);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
@@ -1042,7 +1042,7 @@ public class ScriptControlViewer extends Composite {
 
 										@Override
 										public void run() {
-											intText.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+											intText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
 										}
 									});
 								} 
@@ -1068,7 +1068,7 @@ public class ScriptControlViewer extends Composite {
 				final Text floatText = new Text(parent, SWT.BORDER);
 				floatText.setText(String.valueOf(parameter.getValue()));
 				GridDataFactory.fillDefaults().grab(true, false).applyTo(floatText);
-				floatText.setEnabled(itemEnabled);
+				floatText.setEditable(itemEnabled);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
@@ -1084,7 +1084,7 @@ public class ScriptControlViewer extends Composite {
 
 										@Override
 										public void run() {
-											floatText.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+											floatText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
 										}
 									});
 								} 
@@ -1160,7 +1160,7 @@ public class ScriptControlViewer extends Composite {
 				String itemText = String.valueOf(parameter.getValue());
 				fileText.setText(itemText);
 				fileText.setToolTipText(itemText);
-				fileText.setEnabled(itemEnabled);
+				fileText.setEditable(itemEnabled);
 				GridDataFactory.fillDefaults().grab(true, false).applyTo(fileText);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
@@ -1177,7 +1177,7 @@ public class ScriptControlViewer extends Composite {
 
 										@Override
 										public void run() {
-											fileText.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+											fileText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
 										}
 									});
 								} 
@@ -1316,7 +1316,7 @@ public class ScriptControlViewer extends Composite {
 				final Text defaultText = new Text(parent, SWT.BORDER);
 				defaultText.setText(String.valueOf(parameter.getValue()));
 				GridDataFactory.fillDefaults().grab(true, false).applyTo(defaultText);
-				defaultText.setEnabled(itemEnabled);
+				defaultText.setEditable(itemEnabled);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
@@ -1332,7 +1332,7 @@ public class ScriptControlViewer extends Composite {
 
 										@Override
 										public void run() {
-											defaultText.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+											defaultText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
 										}
 									});
 								} 
