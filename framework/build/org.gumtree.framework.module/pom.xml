@@ -125,6 +125,13 @@
 		<module>${extensions.path}/org.gumtree.xygraph</module>
 		<module>${extensions.path}/org.gumtree.xygraph.feature</module>
 
+		<module>${extensions.path}/com.typesafe.config</module>
+		<module>${extensions.path}/org.jboss.netty</module>
+		<module>${extensions.path}/scala</module>
+		<module>${extensions.path}/akka.actor</module>
+		<module>${extensions.path}/akka.remote</module>
+		<module>${extensions.path}/org.gumtree.akka.feature</module>
+
 
 
 		<module>${sics.path}/ch.psi.sics.hipadaba</module>

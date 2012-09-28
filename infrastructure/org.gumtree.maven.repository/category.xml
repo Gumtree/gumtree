@@ -39,6 +39,9 @@
    <feature url="features/org.gumtree.xygraph.feature_1.8.0.qualifier.jar" id="org.gumtree.xygraph.feature" version="1.8.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
+   <feature url="features/org.gumtree.akka.feature_1.8.0.qualifier.jar" id="org.gumtree.akka.feature" version="1.8.0.qualifier">
+      <category name="gumtreeFramework"/>
+   </feature>
    <feature url="features/org.gumtree.sics.core.feature_1.8.0.qualifier.jar" id="org.gumtree.sics.core.feature" version="1.8.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
