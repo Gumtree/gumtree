@@ -36,4 +36,11 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.python.pydev.pythonNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>resources/icons</name>
+			<type>2</type>
+			<locationURI>PROJECT_LOC/icons</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

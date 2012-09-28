@@ -47,8 +47,8 @@ public class TaskletManager implements ITaskletManager {
 		if (getExtensionRegistry() != null) {
 			TaskletExtensionReader reader = new TaskletExtensionReader();
 			reader.setExtensionRegistry(getExtensionRegistry());
-			List<ITasklet> registeredTasklet = reader.getRegisteredTasklets();
-			tasklets.addAll(registeredTasklet);
+			List<ITasklet> registeredTasklets = reader.getRegisteredTasklets();
+			tasklets.addAll(registeredTasklets);
 		}
 		// Load from local disk
 		List<ITasklet> persistedTasklets = persistor.loadTasklet();

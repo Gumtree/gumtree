@@ -1,15 +1,10 @@
 package org.gumtree.widgets.swt;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Control;
 import org.gumtree.widgets.IWidget;
 
 public abstract class ExtendedComposite extends Composite implements IWidget {
@@ -21,6 +16,7 @@ public abstract class ExtendedComposite extends Composite implements IWidget {
 	public ExtendedComposite(Composite parent, int style) {
 		super(parent, style);
 		originalStyle = style;
+		setBackgroundMode(SWT.INHERIT_FORCE);
 		addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
 				disposeWidget();
@@ -59,43 +55,12 @@ public abstract class ExtendedComposite extends Composite implements IWidget {
 		return originalStyle;
 	}
 
-	public static <T extends Composite> T launchSWTShell(Class<T> compositeClass) {
-		return launchSWTShell(compositeClass, "", SWT.NONE);
-	}
-
-	public static <T extends Composite> T launchSWTShell(
-			Class<T> compositeClass, String title) {
-		return launchSWTShell(compositeClass, title, SWT.NONE);
-	}
-
-	public static <T extends Composite> T launchSWTShell(
-			final Class<T> compositeClass, final String title, final int style) {
-		final BlockingQueue<T> queue = new ArrayBlockingQueue<T>(1);
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				Shell shell = new Shell(Display.getDefault());
-				shell.setText(title);
-				shell.setLayout(new FillLayout());
-				shell.setSize(800, 640);
-
-				try {
-					queue.put(compositeClass.getConstructor(Composite.class,
-							int.class).newInstance(shell, style));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-				shell.open();
+	public void disposeChildren() {
+		if (!isDisposed()) {
+			for (Control child : getChildren()) {
+				child.dispose();
 			}
-		});
-		try {
-			// We need to wait for above code to be executed by the SWT thread
-			return queue.take();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
 		}
-		return null;
 	}
 
 }

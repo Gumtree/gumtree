@@ -5,8 +5,10 @@ import org.eclipse.swt.widgets.Control;
 
 public interface IApp {
 
-	public String getName();
+	public String getLabel();
 
+	public void setLabel(String label);
+	
 	public Control creatWidget(Composite parent);
 
 }

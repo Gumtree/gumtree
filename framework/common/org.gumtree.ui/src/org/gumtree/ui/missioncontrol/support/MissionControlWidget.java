@@ -237,6 +237,7 @@ public class MissionControlWidget extends ExtendedComposite {
 		return hubRegistry;
 	}
 
+	@Inject
 	public void setHubRegistry(IHubRegistry hubRegistry) {
 		this.hubRegistry = hubRegistry;
 	}
