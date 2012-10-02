@@ -247,7 +247,7 @@ public class ScriptControlViewer extends Composite {
 	}
 
 	private void createStaticArea() {
-		staticComposite = new Composite(this, SWT.EMBEDDED);
+		staticComposite = new Composite(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(3).margins(0, 0).spacing(1, 1).applyTo(staticComposite);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(staticComposite);
 		staticComposite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
