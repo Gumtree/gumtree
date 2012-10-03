@@ -335,7 +335,7 @@
 				</tarfileset>
 			</tar>
 			<delete includeEmptyDirs="true">
-				<fileset dir="${exportDirectory}/products/@{applicationType}/@{applicationName}" />
+				<fileset dir="${exportDirectory}/products/@{applicationType}/@{applicationName}" defaultexcludes="false" />
 			</delete>
 		</sequential>
 	</macrodef>
@@ -395,7 +395,7 @@
 	-->
 
 	<!--
-		Build installer
+		Build Win32 installer
 		Paramaters:
 			exportDirectory 		(predefined)
 			equinoxJarLocation 		(predefined)
@@ -405,7 +405,7 @@
 			applicationLabel		(eg. Gumtree)
 			applicationShortcut		(eg. Gumtree Workbench)
 	-->
-	<macrodef name="buildInstaller">
+	<macrodef name="buildWin32Installer">
 		<attribute name="applicationName" />
 		<attribute name="applicationLabel" />
 		<attribute name="applicationShortcut" />
@@ -420,27 +420,27 @@
 				<arg value="/DINSTRUMENT_SHORTCUT=@{applicationShortcut}" />
 				<arg value="/DAPP_VERSION=${version}" />
 				<arg value="/DSOURCE=${exportDirectory}/products/workbench/@{applicationName}" />
-				<arg value="${exportDirectory}/scripts/nbi/nsis/gumtree_win32_generic.nsi" />
+				<arg value="${exportDirectory}/scripts/nbi/nsis/gumtree_win32_bragg.nsi" />
 			</exec>
 			<delete includeEmptyDirs="true">
 				<fileset dir="${exportDirectory}/products/workbench/@{applicationName}" />
 			</delete>
-			<move file="${exportDirectory}/scripts/nbi/nsis/@{applicationLabel}WorkbenchSetup-${version}-win32.exe" todir="${exportDirectory}/products/installer/generic" />
+			<move file="${exportDirectory}/scripts/nbi/nsis/@{applicationLabel}WorkbenchSetup-${version}-win32.exe" todir="${exportDirectory}/products/installer/bragg32" />
 		</sequential>
 	</macrodef>
 
 	<!--
-		Build Bragg installer
+		Build Win64 installer
 		Paramaters:
 			exportDirectory 		(predefined)
 			equinoxJarLocation 		(predefined)
 			version 				(predefined)
 			nsisDirectory 			(predefined)
-			applicationName			(eg. echidna)
-			applicationLabel		(eg. Echidna)
-			applicationShortcut		(eg. Echidna Workbench)
+			applicationName			(eg. gumtree)
+			applicationLabel		(eg. Gumtree)
+			applicationShortcut		(eg. Gumtree Workbench)
 	-->
-	<macrodef name="buildBraggInstaller">
+	<macrodef name="buildWin64Installer">
 		<attribute name="applicationName" />
 		<attribute name="applicationLabel" />
 		<attribute name="applicationShortcut" />
@@ -448,88 +448,50 @@
 			<delete includeEmptyDirs="true" failonerror="false">
 				<fileset dir="${exportDirectory}/products/workbench/@{applicationName}" />
 			</delete>
-			<buildBraggApplication applicationType="workbench" applicationName="@{applicationName}" osType="win32" os="win32" ws="win32" arch="x86" />
+			<buildApplication applicationType="workbench" applicationName="@{applicationName}" osType="win64" os="win32" ws="win32" arch="x86_64" />
 			<exec executable="${nsisDirectory}/makensis.exe">
 				<arg value="/DINSTRUMENT=@{applicationName}" />
 				<arg value="/DINSTRUMENT_LABEL=@{applicationLabel}" />
 				<arg value="/DINSTRUMENT_SHORTCUT=@{applicationShortcut}" />
 				<arg value="/DAPP_VERSION=${version}" />
 				<arg value="/DSOURCE=${exportDirectory}/products/workbench/@{applicationName}" />
-				<arg value="${exportDirectory}/scripts/nbi/nsis/gumtree_win32_generic.nsi" />
+				<arg value="${exportDirectory}/scripts/nbi/nsis/gumtree_win64_bragg.nsi" />
 			</exec>
 			<delete includeEmptyDirs="true">
 				<fileset dir="${exportDirectory}/products/workbench/@{applicationName}" />
 			</delete>
-			<move file="${exportDirectory}/scripts/nbi/nsis/@{applicationLabel}WorkbenchSetup-${version}-win32.exe" todir="${exportDirectory}/products/installer/generic" />
+			<move file="${exportDirectory}/scripts/nbi/nsis/@{applicationLabel}WorkbenchSetup-${version}-win64.exe" todir="${exportDirectory}/products/installer/bragg64" />
 		</sequential>
 	</macrodef>
-
-	<!--
-		Build Bragg installer (internal)
-		Paramaters:
-			exportDirectory 		(predefined)
-			equinoxJarLocation 		(predefined)
-			version 				(predefined)
-			nsisDirectory 			(predefined)
-			applicationName			(eg. echidna)
-			applicationLabel		(eg. Echidna)
-			applicationShortcut		(eg. Echidna Workbench)
-	-->
-	<macrodef name="buildBraggInstallerInternal">
-		<attribute name="applicationName" />
-		<attribute name="applicationLabel" />
-		<attribute name="applicationShortcut" />
-		<sequential>
-			<delete includeEmptyDirs="true" failonerror="false">
-				<fileset dir="${exportDirectory}/products/workbench/@{applicationName}" />
-			</delete>
-			<buildBraggApplication applicationType="workbench" applicationName="@{applicationName}" osType="win32" os="win32" ws="win32" arch="x86" />
-			<!-- [GUMTREE-817] Special hack to include a configuration to point Gumtree to store log on H: drive -->
-			<echo file="${exportDirectory}/products/workbench/@{applicationName}/win32/gumtree.ini" append="true">-Dlogback.logFileLocation=H:/AppData/Gumtree/@{applicationName}/experiment</echo>
-			<exec executable="${nsisDirectory}/makensis.exe">
-				<arg value="/DINSTRUMENT=@{applicationName}" />
-				<arg value="/DINSTRUMENT_LABEL=@{applicationLabel}" />
-				<arg value="/DINSTRUMENT_SHORTCUT=@{applicationShortcut}" />
-				<arg value="/DAPP_VERSION=${version}" />
-				<arg value="/DSOURCE=${exportDirectory}/products/workbench/@{applicationName}" />
-				<arg value="${exportDirectory}/scripts/nbi/nsis/gumtree_win32_internal.nsi" />
-			</exec>
-			<delete includeEmptyDirs="true">
-				<fileset dir="${exportDirectory}/products/workbench/@{applicationName}" />
-			</delete>
-			<move file="${exportDirectory}/scripts/nbi/nsis/@{applicationLabel}WorkbenchSetup-${version}-win32-internal.exe" todir="${exportDirectory}/products/installer/internal" />
-		</sequential>
-	</macrodef>
-
-	<target name="buildGenericInstallers">
-		<delete dir="${exportDirectory}/products/installer/generic" failonerror="false" />
-		<buildInstaller applicationName="gumtree" applicationLabel="Gumtree" applicationShortcut="Gumtree Workbench" />
-		<buildBraggInstaller applicationName="echidna" applicationLabel="Echidna" applicationShortcut="Echidna Workbench" />
-		<buildBraggInstaller applicationName="wombat" applicationLabel="Wombat" applicationShortcut="Wombat Workbench" />
-		<buildBraggInstaller applicationName="kowari" applicationLabel="Kowari" applicationShortcut="Kowari Workbench" />
-		<buildBraggInstaller applicationName="quokka" applicationLabel="Quokka" applicationShortcut="Quokka Workbench" />
-		<buildBraggInstaller applicationName="platypus" applicationLabel="Platypus" applicationShortcut="Platypus Workbench" />
-		<buildBraggInstaller applicationName="pelican" applicationLabel="Pelican" applicationShortcut="Pelican Workbench" />
-		<buildBraggInstaller applicationName="taipan" applicationLabel="Taipan" applicationShortcut="Taipan Workbench" />
-		<buildBraggInstaller applicationName="kookaburra" applicationLabel="Kookaburra" applicationShortcut="Kookaburra Workbench" />
-		<buildBraggInstaller applicationName="bilby" applicationLabel="Bilby" applicationShortcut="Bilby Workbench" />
-		<buildBraggInstaller applicationName="dingo" applicationLabel="Dingo" applicationShortcut="Dingo Workbench" />
-		<buildBraggInstaller applicationName="emu" applicationLabel="Emu" applicationShortcut="Emu Workbench" />
+	
+	<target name="buildBraggWin32Installers">
+		<delete dir="${exportDirectory}/products/installer/bragg32" failonerror="false" />
+		<buildWin32Installer applicationName="echidna" applicationLabel="Echidna" applicationShortcut="Echidna Workbench" />
+		<buildWin32Installer applicationName="wombat" applicationLabel="Wombat" applicationShortcut="Wombat Workbench" />
+		<buildWin32Installer applicationName="kowari" applicationLabel="Kowari" applicationShortcut="Kowari Workbench" />
+		<buildWin32Installer applicationName="quokka" applicationLabel="Quokka" applicationShortcut="Quokka Workbench" />
+		<buildWin32Installer applicationName="platypus" applicationLabel="Platypus" applicationShortcut="Platypus Workbench" />
+		<buildWin32Installer applicationName="pelican" applicationLabel="Pelican" applicationShortcut="Pelican Workbench" />
+		<buildWin32Installer applicationName="taipan" applicationLabel="Taipan" applicationShortcut="Taipan Workbench" />
+		<buildWin32Installer applicationName="kookaburra" applicationLabel="Kookaburra" applicationShortcut="Kookaburra Workbench" />
+		<buildWin32Installer applicationName="bilby" applicationLabel="Bilby" applicationShortcut="Bilby Workbench" />
+		<buildWin32Installer applicationName="dingo" applicationLabel="Dingo" applicationShortcut="Dingo Workbench" />
+		<buildWin32Installer applicationName="emu" applicationLabel="Emu" applicationShortcut="Emu Workbench" />
 	</target>
 
-	<target name="buildInternalInstallers">
-		<delete dir="${exportDirectory}/products/installer/internal" failonerror="false" />
-		<buildBraggInstallerInternal applicationName="echidna" applicationLabel="Echidna" applicationShortcut="Echidna Workbench" />
-		<buildBraggInstallerInternal applicationName="wombat" applicationLabel="Wombat" applicationShortcut="Wombat Workbench" />
-		<buildBraggInstallerInternal applicationName="kowari" applicationLabel="Kowari" applicationShortcut="Kowari Workbench" />
-		<buildBraggInstallerInternal applicationName="quokka" applicationLabel="Quokka" applicationShortcut="Quokka Workbench" />
-		<buildBraggInstallerInternal applicationName="platypus" applicationLabel="Platypus" applicationShortcut="Platypus Workbench" />
-		<buildBraggInstallerInternal applicationName="pelican" applicationLabel="Pelican" applicationShortcut="Pelican Workbench" />
-		<buildBraggInstallerInternal applicationName="taipan" applicationLabel="Taipan" applicationShortcut="Taipan Workbench" />
-		<buildBraggInstallerInternal applicationName="kookaburra" applicationLabel="Kookaburra" applicationShortcut="Kookaburra Workbench" />
-		<buildBraggInstallerInternal applicationName="bilby" applicationLabel="Bilby" applicationShortcut="Bilby Workbench" />
-		<buildBraggInstallerInternal applicationName="dingo" applicationLabel="Dingo" applicationShortcut="Dingo Workbench" />
-		<buildBraggInstallerInternal applicationName="emu" applicationLabel="Emu" applicationShortcut="Emu Workbench" />
+	<target name="buildBraggWin64Installers">
+		<delete dir="${exportDirectory}/products/installer/bragg64" failonerror="false" />
+		<buildWin64Installer applicationName="echidna" applicationLabel="Echidna" applicationShortcut="Echidna Workbench" />
+		<buildWin64Installer applicationName="wombat" applicationLabel="Wombat" applicationShortcut="Wombat Workbench" />
+		<buildWin64Installer applicationName="kowari" applicationLabel="Kowari" applicationShortcut="Kowari Workbench" />
+		<buildWin64Installer applicationName="quokka" applicationLabel="Quokka" applicationShortcut="Quokka Workbench" />
+		<buildWin64Installer applicationName="platypus" applicationLabel="Platypus" applicationShortcut="Platypus Workbench" />
+		<buildWin64Installer applicationName="pelican" applicationLabel="Pelican" applicationShortcut="Pelican Workbench" />
+		<buildWin64Installer applicationName="taipan" applicationLabel="Taipan" applicationShortcut="Taipan Workbench" />
+		<buildWin64Installer applicationName="kookaburra" applicationLabel="Kookaburra" applicationShortcut="Kookaburra Workbench" />
+		<buildWin64Installer applicationName="bilby" applicationLabel="Bilby" applicationShortcut="Bilby Workbench" />
+		<buildWin64Installer applicationName="dingo" applicationLabel="Dingo" applicationShortcut="Dingo Workbench" />
+		<buildWin64Installer applicationName="emu" applicationLabel="Emu" applicationShortcut="Emu Workbench" />
 	</target>
 
 	<!-- Helper targets -->

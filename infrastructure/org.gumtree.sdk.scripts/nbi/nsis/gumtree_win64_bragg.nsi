@@ -24,6 +24,7 @@ Name " ${INSTRUMENT_LABEL} ${APP_VERSION}"
 !include "FileFunc.nsh"
 !include Sections.nsh
 !include MUI2.nsh
+!include x64.nsh
 
 # Variables
 Var StartMenuGroup
@@ -41,8 +42,9 @@ Var StartMenuGroup
 !insertmacro MUI_LANGUAGE English
 
 # Installer attributes
-OutFile ${INSTRUMENT_LABEL}WorkbenchSetup-${VERSION}-win32-internal.exe
-InstallDir "$PROGRAMFILES\Gumtree\${INSTRUMENT_LABEL} ${VERSION}"
+OutFile ${INSTRUMENT_LABEL}WorkbenchSetup-${VERSION}-win64.exe
+# Enable 64-bit, see: http://bojan-komazec.blogspot.com.au/2011/10/nsis-installer-for-64-bit-windows.html
+InstallDir "$PROGRAMFILES64\Gumtree\${INSTRUMENT_LABEL} ${VERSION}"
 CRCCheck on
 XPStyle on
 ShowInstDetails show
@@ -61,9 +63,11 @@ ShowUninstDetails show
 Section -Main SEC0000
     SetOutPath $INSTDIR
     SetOverwrite on
+    # Enable 64-bit registry, see: http://bojan-komazec.blogspot.com.au/2011/10/nsis-installer-for-64-bit-windows.html
+    SetRegView 64
     File /r ${SOURCE}\*
-    SetOutPath $INSTDIR\win32
-    CreateShortcut "$INSTDIR\${INSTRUMENT_SHORTCUT} ${VERSION}.lnk" $INSTDIR\win32\gumtree.exe "-data H:/AppData/Gumtree/${INSTRUMENT}/experiment" 
+    SetOutPath $INSTDIR\win64
+    CreateShortcut "$INSTDIR\${INSTRUMENT_SHORTCUT} ${VERSION}.lnk" $INSTDIR\win64\gumtree.exe "-data @user.home/Gumtree/${INSTRUMENT}/experiment" 
     SetOutPath $INSTDIR
     # Grant access
     AccessControl::GrantOnFile "$INSTDIR" "(S-1-5-32-545)" "FullAccess"

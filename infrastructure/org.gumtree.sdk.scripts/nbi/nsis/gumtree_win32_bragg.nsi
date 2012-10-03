@@ -63,7 +63,7 @@ Section -Main SEC0000
     SetOverwrite on
     File /r ${SOURCE}\*
     SetOutPath $INSTDIR\win32
-    CreateShortcut "$INSTDIR\${INSTRUMENT_SHORTCUT} ${VERSION}.lnk" $INSTDIR\win32\gumtree.exe
+    CreateShortcut "$INSTDIR\${INSTRUMENT_SHORTCUT} ${VERSION}.lnk" $INSTDIR\win32\gumtree.exe "-data @user.home/Gumtree/${INSTRUMENT}/experiment"
     SetOutPath $INSTDIR
     # Grant access
     AccessControl::GrantOnFile "$INSTDIR" "(S-1-5-32-545)" "FullAccess"
