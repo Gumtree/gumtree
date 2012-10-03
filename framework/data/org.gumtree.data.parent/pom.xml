@@ -177,7 +177,7 @@
 		<repository>
 			<id>gumtree_bundles</id>
 			<layout>p2</layout>
-			<url>http://dist.codehaus.org/gumtree/sites/bundles/1.8.0.201207261453</url>
+			<url>http://dist.codehaus.org/gumtree/sites/bundles/1.8.x</url>
 		</repository>
 		<repository>
 			<id>codehaus.snapshots</id>
