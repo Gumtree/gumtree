@@ -44,11 +44,13 @@
 							<ws>gtk</ws>
 							<arch>x86_64</arch>
 						</environment>
+						<!--
 						<environment>
 							<os>macosx</os>
 							<ws>cocoa</ws>
 							<arch>x86</arch>
 						</environment>
+						-->
 						<environment>
 							<os>macosx</os>
 							<ws>cocoa</ws>
@@ -169,15 +171,22 @@
 		</mailingList>
 	</mailingLists>
 	<repositories>
+		<!--
+		<repository>
+			<id>eclipse_juno</id>
+			<layout>p2</layout>
+			<url>file:/x:/eclipse/p2/repo/eclipse/releases/juno</url>
+		</repository>
+		-->
 		<repository>
 			<id>eclipse_juno</id>
 			<layout>p2</layout>
 			<url>http://download.eclipse.org/releases/juno</url>
 		</repository>
 		<repository>
-			<id>gumtree_bundles</id>
+			<id>gumtree_library</id>
 			<layout>p2</layout>
-			<url>http://dist.codehaus.org/gumtree/sites/bundles/1.8.x</url>
+			<url>http://dist.codehaus.org/gumtree/sites/library/1.8.x</url>
 		</repository>
 		<repository>
 			<id>codehaus.snapshots</id>

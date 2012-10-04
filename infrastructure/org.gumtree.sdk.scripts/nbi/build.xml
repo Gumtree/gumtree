@@ -83,16 +83,7 @@
 		<copy todir="${exportDirectory}/container/gtk64">
 			<fileset dir="${sourceDirectory}/${repositoryPath}/products/${containerProduct}/linux/gtk/x86_64" />
 		</copy>
-		<!-- cocoa32 -->
-		<copy todir="${exportDirectory}/container/cocoa32">
-			<fileset dir="${sourceDirectory}/${repositoryPath}/products/${containerProduct}/macosx/cocoa/x86" />
-		</copy>
-		<move file="${exportDirectory}/container/cocoa32/splash.bmp" todir="${exportDirectory}/container/cocoa32/gumtree.app/Contents/MacOS" />
-		<exec executable="${cygwinDirectory}/mv">
-			<arg value="${exportDirectory}/container/cocoa32/gumtree.app"/>
-			<arg value="${exportDirectory}/container/cocoa32/Gumtree.app"/>
-		</exec>
-		<!-- cocoa32 -->
+		<!-- cocoa64 -->
 		<copy todir="${exportDirectory}/container/cocoa64">
 			<fileset dir="${sourceDirectory}/${repositoryPath}/products/${containerProduct}/macosx/cocoa/x86_64" />
 		</copy>
@@ -266,7 +257,6 @@
 			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="win64" os="win32" ws="win32" arch="x86_64" />
 			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="gtk32" os="linux" ws="gtk" arch="x86" />
 			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="gtk64" os="linux" ws="gtk" arch="x86_64" />
-			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="cocoa32" os="macoxs" ws="cocoa" arch="x86" />
 			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="cocoa64" os="macoxs" ws="cocoa" arch="x86_64" />
 			<tar destfile="${exportDirectory}/products/@{applicationType}/@{applicationLabel}-${version}.tar.gz" compression="gzip">
 				<tarfileset dir="${exportDirectory}/products/@{applicationType}" filemode="755">
@@ -327,7 +317,6 @@
 			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="win64" os="win32" ws="win32" arch="x86_64" />
 			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="gtk32" os="linux" ws="gtk" arch="x86" />
 			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="gtk64" os="linux" ws="gtk" arch="x86_64" />
-			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="cocoa32" os="macoxs" ws="cocoa" arch="x86" />
 			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="cocoa64" os="macoxs" ws="cocoa" arch="x86_64" />
 			<tar destfile="${exportDirectory}/products/@{applicationType}/@{applicationLabel}-${version}.tar.gz" compression="gzip">
 				<tarfileset dir="${exportDirectory}/products/@{applicationType}" filemode="755">
