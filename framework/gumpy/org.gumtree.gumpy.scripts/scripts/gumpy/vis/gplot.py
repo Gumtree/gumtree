@@ -232,7 +232,18 @@ class GPlot:
                 index += 1
         else :
             raise ValueError, 'not supported for this type of plot: ' + str(self.ndim) + '-dimension'
-                    
+
+    def get_selected_dataset(self):
+        if self.ndim == 1 :
+            id = self.pv.getPlot().getSelectedCurveIndex()
+            dss = self.ds
+            if id >= 0 and len(dss) > id:
+                return dss[id]
+            else:
+                return None
+        else :
+            raise ValueError, 'not supported for this type of plot: ' + str(self.ndim) + '-dimension'
+                            
     def restore_x_range(self):
         self.pv.getPlot().restoreHorizontalBounds()
         
