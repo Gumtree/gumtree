@@ -77,6 +77,10 @@
    </extension>
    <extension
          point="org.eclipse.ui.views">
+      <category
+      		name="Kowar" 
+            id="au.gov.ansto.bragg.kowari.ui">
+      </category>
       <view
             allowMultiple="false"
             category="au.gov.ansto.bragg.kowari.ui"
@@ -125,6 +129,78 @@
             id="au.gov.ansto.bragg.kowari.ui.views.TclEditorView"
             name="① Batch Editor">
       </view>
+   </extension>
+   <extension
+         point="org.gumtree.workflow.ui.tasks">
+      <task
+            class="au.gov.ansto.bragg.nbi.ui.tasks.ScanNDTask"
+            colour="BLUE"
+            icon="icons/tasks/twoDScan_16x16.gif"
+            icon32="icons/tasks/twoDScan_32x32.gif"
+            label="Multi-dimensional Scan"
+            provider="Bragg Institute"
+            tags="tcl">
+            <description>
+            Scan on one or more drivable devices. This will create a maxtrix of scan positions. 
+            Use the '+,-' button to add or remove dimensions. You can also control how 
+            many files will be created for the scan by selecting 'multiple_files' in 
+            different dimensions. For more information, please read Gumtree manual.
+         	</description>
+      </task>
+      <task
+            class="au.gov.ansto.bragg.nbi.ui.tasks.SimpleTableScanTask"
+            colour="DARK_GREEN"
+            icon="icons/tasks/table_row_16x16.png"
+            icon32="icons/tasks/table_row_32x32.png"
+            label="Simple Table Scan"
+            provider="Bragg Institute"
+            tags="tcl">
+            <description>
+            A scan loaded from a ASCII file with a table of sample locations. The columns of
+            the table are: sx, sy, sz, som, and scan time.
+         	</description>
+      </task>
+      <task
+            class="au.gov.ansto.bragg.nbi.ui.tasks.AdvancedScanTask"
+            colour="DARK_BLUE"
+            icon="icons/tasks/aMultiScan_16x16.gif"
+            icon32="icons/tasks/aMultiScan_32x32.gif"
+            label="Advanced Multi-dimensional Scan"
+            provider="Bragg Institute"
+            tags="tcl">
+            <description>
+            A more complex multi-dimensional scan. In each dimension, this allow you to
+            drive more than one devices at the same time, hence create a diagonal trace
+            of scan positions. You can also control how many files will be created for 
+            the scan by selecting 'multiple_files' in different dimensions. 
+            For more information, please read Gumtree manual.
+         	</description>
+      </task>
+      <task
+            class="au.gov.ansto.bragg.nbi.ui.tasks.HmmscanTask"
+            colour="DARK_CYAN"
+            icon="icons/tasks/arbitraryScan_16x16.gif"
+            icon32="icons/tasks/arbitraryScan_32x32.gif"
+            label="Arbitrary Scan"
+            provider="Bragg Institute"
+            tags="tcl">
+            <description>
+            A scan for you to move arbitrary devices at scan positions. The scan result 
+            will be saved in a single file. For more information, please read Gumtree manual.
+         	</description>
+      </task>
+      <task
+            class="au.gov.ansto.bragg.nbi.ui.tasks.SicsBlockTask"
+            colour="DARK_GRAY"
+            icon="icons/tasks/tcl16x16.png"
+            icon32="icons/tasks/tcl32x32.png"
+            label="SICS Command"
+            provider="Bragg Institute"
+            tags="tcl">
+            <description>
+            This task helps to construct a SICS tcl script for batch execution.
+         	</description>
+      </task>
    </extension>
    <!--
    <extension

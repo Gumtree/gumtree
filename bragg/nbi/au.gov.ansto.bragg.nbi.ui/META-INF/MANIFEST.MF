@@ -8,6 +8,7 @@ Bundle-Localization: plugin
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
 Export-Package: au.gov.ansto.bragg.nbi.ui.core,
+ au.gov.ansto.bragg.nbi.ui.core.commands,
  au.gov.ansto.bragg.nbi.ui.launchers,
  au.gov.ansto.bragg.nbi.ui.preference,
  au.gov.ansto.bragg.nbi.ui.realtime,
@@ -26,4 +27,5 @@ Require-Bundle: org.eclipse.core.resources;bundle-version="3.7.100";visibility:=
  au.gov.ansto.bragg.kakadu.dom;bundle-version="1.7.0";visibility:=reexport,
  au.gov.ansto.bragg.nbi.core;bundle-version="1.7.0";visibility:=reexport,
  net.sourceforge.nattable;bundle-version="2.1.0";resolution:=optional,
- org.eclipse.ui.ide;bundle-version="3.7.0";resolution:=optional
+ org.eclipse.ui.ide;bundle-version="3.7.0";resolution:=optional,
+ org.gumtree.gumnix.sics.batch.ui;bundle-version="1.7.0"
