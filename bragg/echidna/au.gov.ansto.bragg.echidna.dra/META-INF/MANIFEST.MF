@@ -4,7 +4,7 @@ Bundle-Name: Bragg Echidna DRA
 Bundle-SymbolicName: au.gov.ansto.bragg.echidna.dra;singleton:=true
 Bundle-Version: 1.8.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.echidna.dra.internal.Activator
-Require-Bundle: org.gumtree.data.impl.netcdf;bundle-version="2.1.0",
+Require-Bundle: org.gumtree.data.impl.netcdf;bundle-version="1.8.0",
  au.gov.ansto.bragg.echidna.algolib;visibility:=reexport,
  au.gov.ansto.bragg.nbi.dra;visibility:=reexport
 Bundle-ActivationPolicy: lazy

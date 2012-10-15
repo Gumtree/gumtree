@@ -109,18 +109,18 @@
 	<name>Gumtree Tycho Based Parent POM</name>
 
 	<repositories>
+		<!--
 		<repository>
 			<id>eclipse_juno</id>
 			<layout>p2</layout>
 			<url>file:/x:/eclipse/p2/repo/eclipse/releases/juno</url>
 		</repository>
-		<!--
+		-->
 		<repository>
 			<id>eclipse_juno</id>
 			<layout>p2</layout>
 			<url>http://download.eclipse.org/releases/juno</url>
 		</repository>
-		-->
 		<repository>
 			<id>gumtree_bundles</id>
 			<layout>p2</layout>

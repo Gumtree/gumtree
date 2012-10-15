@@ -10,5 +10,5 @@ Eclipse-BundleShape: jar
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Bragg Institute
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.7.0",
- org.gumtree.data.impl.netcdf;bundle-version="2.1.0",
+ org.gumtree.data.impl.netcdf;bundle-version="1.8.0",
  au.gov.ansto.bragg.nbi.algolib;bundle-version="1.7.0";visibility:=reexport
