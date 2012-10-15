@@ -14,6 +14,8 @@ Export-Package: org.gumtree.core,
  org.gumtree.scripting,
  org.gumtree.scripting.support,
  org.gumtree.security,
+ org.gumtree.service.actorsystem,
+ org.gumtree.service.actorsystem.support,
  org.gumtree.service.cli,
  org.gumtree.service.cli.support,
  org.gumtree.service.dataaccess,
@@ -65,5 +67,7 @@ Require-Bundle: org.slf4j.api;bundle-version="1.6.4";visibility:=reexport,
  org.springframework.context;bundle-version="3.0.5";resolution:=optional,
  org.springframework.context.support;bundle-version="3.0.5";resolution:=optional,
  org.apache.commons.httpclient;bundle-version="3.1.0";resolution:=optional,
- org.gumtree.data.core;bundle-version="1.8.0";resolution:=optional
+ org.gumtree.data.core;bundle-version="1.8.0";resolution:=optional,
+ akka.remote;bundle-version="2.0.3";resolution:=optional,
+ akka.slf4j;bundle-version="2.0.3";resolution:=optional
 Eclipse-BuddyPolicy: global

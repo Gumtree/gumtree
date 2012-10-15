@@ -37,6 +37,12 @@ public final class CoreProperties {
 	public static final ISystemProperty DEFAULT_ENGINE_NAME = new SystemProperty(
 			"gumtree.scripting.defaultEngineName", "");
 	
+	public static final ISystemProperty AKKA_PORT = new SystemProperty(
+			"gumtree.akka.port", "60054");
+	
+	public static final ISystemProperty AKKA_DEBUG_LEVEL = new SystemProperty(
+			"gumtree.akka.debugLevel", "INFO");
+	
 	private CoreProperties() {
 		super();
 	}
