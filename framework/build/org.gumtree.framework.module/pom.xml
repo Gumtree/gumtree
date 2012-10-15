@@ -20,36 +20,14 @@
 	</properties>
 
 	<modules>
-		<module>${data.path}/org.gumtree.data.parent</module>
-		<module>${data.path}/org.gumtree.data.core</module>
-		<module>${data.path}/org.gumtree.data.utilities</module>
-		<module>${data.path}/org.gumtree.data.common.feature</module>
-
-		<module>${data.path}/ucar.netcdf</module>
-		<module>${data.path}/ncsa.hdf</module>
-		<module>${data.path}/ncsa.hdf.linux.x86</module>
-		<module>${data.path}/ncsa.hdf.linux.x86_64</module>
-		<module>${data.path}/ncsa.hdf.macosx.x86</module>
-		<module>${data.path}/ncsa.hdf.macosx.x86_64</module>
-		<module>${data.path}/ncsa.hdf.win32.x86</module>
-		<module>${data.path}/ncsa.hdf.win32.x86_64</module>
-		<module>${data.path}/org.gumtree.data.impl.netcdf</module>
-		<module>${data.path}/org.gumtree.data.ansto.feature</module>
-
-		<module>${data.path}/org.nexusformat</module>
-		<module>${data.path}/org.gumtree.data.engine.jnexus</module>
-		<module>${data.path}/org.gumtree.data.soleil</module>
-		<module>${data.path}/org.gumtree.data.soleil.feature</module>
-
-
-
+		<module>${common.path}/org.gumtree.data.core</module>
+		<module>${common.path}/ucar.netcdf</module>
+		<module>${common.path}/org.gumtree.data.impl.netcdf</module>
+		
 		<module>${common.path}/com.db4o.osgi</module>
 		<module>${common.path}/com.google.guava</module>
 		<module>${common.path}/com.thoughtworks.xstream</module>
-		<module>${common.path}/org.objenesis</module>
 		<module>${common.path}/org.eclemma.runtime.equinox</module>
-		<module>${common.path}/org.mockito</module>
-		<module>${common.path}/ch.lambdaj</module>
 		<module>${common.path}/org.gumtree.core</module>
 
 		<module>${common.path}/org.freehep.jas.jas3</module>
@@ -59,14 +37,6 @@
 		<module>${common.path}/org.gumtree.data.nexus</module>
 		<module>${common.path}/org.jfree.common</module>
 		<module>${common.path}/org.jfree.chart</module>
-		<module>${common.path}/com.sun.opengl</module>
-		<module>${common.path}/com.sun.opengl.macosx</module>
-		<module>${common.path}/com.sun.j3d</module>
-		<module>${common.path}/com.sun.j3d.linux.x86</module>
-		<module>${common.path}/com.sun.j3d.linux.x86_64</module>
-		<module>${common.path}/com.sun.j3d.macosx</module>
-		<module>${common.path}/com.sun.j3d.win32.x86</module>
-		<module>${common.path}/com.sun.j3d.win32.x86_64</module>
 		<module>${common.path}/org.freehep.j3d</module>
 		<module>${common.path}/org.gumtree.vis.core</module>
 		<module>${common.path}/org.gumtree.common.core.feature</module>
@@ -125,12 +95,6 @@
 		<module>${extensions.path}/org.gumtree.xygraph</module>
 		<module>${extensions.path}/org.gumtree.xygraph.feature</module>
 
-		<module>${extensions.path}/com.typesafe.config</module>
-		<module>${extensions.path}/org.jboss.netty</module>
-		<module>${extensions.path}/scala</module>
-		<module>${extensions.path}/akka.actor</module>
-		<module>${extensions.path}/akka.remote</module>
-		<module>${extensions.path}/org.gumtree.akka.feature</module>
 
 
 
@@ -214,12 +178,8 @@
 		<profile>
 			<id>test</id>
 			<modules>
-				<module>${data.path}/org.gumtree.data.core.tests</module>
-				<module>${data.path}/org.gumtree.data.impl.netcdf.tests</module>
-				<module>${data.path}/org.gumtree.data.soleil.tests</module>
-
-
-
+				<module>${common.path}/org.gumtree.data.core.tests</module>
+				<module>${common.path}/org.gumtree.data.impl.netcdf.tests</module>
 				<module>${common.path}/org.gumtree.core.tests</module>
 				<module>${common.path}/org.gumtree.server.tests</module>
 				<module>${common.path}/org.gumtree.ui.tests</module>

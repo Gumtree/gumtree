@@ -47,9 +47,36 @@
 					<resolver>p2</resolver>
 					<environments>
 						<environment>
-							<os>${osgi.os}</os>
-							<ws>${osgi.ws}</ws>
-							<arch>${osgi.arch}</arch>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<!--
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86</arch>
+						</environment>
+						-->
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
 						</environment>
 					</environments>
 				</configuration>
@@ -82,20 +109,20 @@
 	<name>Gumtree Tycho Based Parent POM</name>
 
 	<repositories>
-		<!--
 		<repository>
 			<id>eclipse_juno</id>
 			<layout>p2</layout>
 			<url>file:/x:/eclipse/p2/repo/eclipse/releases/juno</url>
 		</repository>
-		-->
+		<!--
 		<repository>
 			<id>eclipse_juno</id>
 			<layout>p2</layout>
 			<url>http://download.eclipse.org/releases/juno</url>
 		</repository>
+		-->
 		<repository>
-			<id>gumtree_library</id>
+			<id>gumtree_bundles</id>
 			<layout>p2</layout>
 			<url>http://dist.codehaus.org/gumtree/sites/bundles/1.8.x</url>
 		</repository>

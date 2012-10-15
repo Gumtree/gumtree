@@ -5,6 +5,7 @@
 
 	<artifactId>org.gumtree.data.ui.viewers</artifactId>
 	<packaging>eclipse-plugin</packaging>
+	<!--
 	<dependencies>
 		<dependency>
 			<groupId>${gumtree.groupId}</groupId>
@@ -17,6 +18,7 @@
 			<version>${gumtree.version}</version>
 		</dependency>
 	</dependencies>
+	-->
 	<parent>
 		<groupId>org.codehaus.gumtree</groupId>
 		<artifactId>org.gumtree.maven.tycho</artifactId>

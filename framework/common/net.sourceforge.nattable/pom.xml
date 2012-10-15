@@ -6,6 +6,7 @@
 	<artifactId>net.sourceforge.nattable</artifactId>
 	<version>2.1.0-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
+	<!--
 	<dependencies>
 		<dependency>
 			<groupId>commons-lang</groupId>
@@ -38,6 +39,7 @@
 			<version>3.7.0.v20110928-1505</version>
 		</dependency>
 	</dependencies>
+	-->
 	<parent>
 		<groupId>org.codehaus.gumtree</groupId>
 		<artifactId>org.gumtree.maven.tycho</artifactId>

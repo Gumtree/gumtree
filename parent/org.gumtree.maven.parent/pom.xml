@@ -64,6 +64,7 @@
 			<url>http://repository.springsource.com/maven/bundles/external</url>
 		</repository>
 		-->
+		<!--
 		<repository>
 			<id>codehaus.snapshots</id>
 			<name>Codehaus Snapshots</name>
@@ -75,6 +76,7 @@
 			</snapshots>
 			<url>http://snapshots.repository.codehaus.org/</url>
 		</repository>
+		-->
 	</repositories>
 	<distributionManagement>
 		<repository>

@@ -5,6 +5,7 @@
 
 	<artifactId>org.gumtree.core</artifactId>
 	<packaging>eclipse-plugin</packaging>
+	<!--
 	<dependencies>
 		<dependency>
 			<groupId>${eclipse.groupId}</groupId>
@@ -17,6 +18,7 @@
 			<version>3.6.0.v20110523</version>
 		</dependency>
 	</dependencies>
+	-->
 	<parent>
 		<groupId>org.codehaus.gumtree</groupId>
 		<artifactId>org.gumtree.maven.tycho</artifactId>

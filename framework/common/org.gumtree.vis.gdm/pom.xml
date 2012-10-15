@@ -12,6 +12,7 @@
 		<relativePath>../../../parent/org.gumtree.maven.tycho</relativePath>
 	</parent>
 
+	<!--
 	<dependencies>
 		<dependency>
 			<groupId>${gumtree.groupId}</groupId>
@@ -39,6 +40,7 @@
 			<version>3.7.0.v20110928-1505</version>
 		</dependency>
 	</dependencies>
+	-->
 
 	<name>Gumtree GDM Visualisation Bundle</name>
 </project>

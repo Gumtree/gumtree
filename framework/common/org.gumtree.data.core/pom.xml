@@ -6,6 +6,7 @@
 	<groupId>org.codehaus.gumtree</groupId>
 	<artifactId>org.gumtree.data.core</artifactId>
 	<packaging>eclipse-plugin</packaging>
+	<!--
 	<dependencies>
 		<dependency>
 			<groupId>${gumtree.groupId}</groupId>
@@ -18,11 +19,12 @@
 			<version>1.1</version>
 		</dependency>
 	</dependencies>
+	-->
 	<parent>
 		<groupId>org.codehaus.gumtree</groupId>
-		<artifactId>org.gumtree.data.parent</artifactId>
-		<version>3.0.0-SNAPSHOT</version>
-		<relativePath>../org.gumtree.data.parent</relativePath>
+		<artifactId>org.gumtree.maven.tycho</artifactId>
+		<version>1.8.0-SNAPSHOT</version>
+		<relativePath>../../../parent/org.gumtree.maven.tycho</relativePath>
 	</parent>
 
 	<name>Gumtree Data Core Bundle</name>

@@ -6,6 +6,7 @@
 	<artifactId>org.jfree.chart</artifactId>
 	<version>1.0.13-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
+	<!--
 	<dependencies>
 		<dependency>
 			<groupId>${gumtree.groupId}</groupId>
@@ -19,6 +20,7 @@
 			<optional>true</optional>
 		</dependency>
 	</dependencies>
+	-->
 	<parent>
 		<groupId>org.codehaus.gumtree</groupId>
 		<artifactId>org.gumtree.maven.tycho</artifactId>

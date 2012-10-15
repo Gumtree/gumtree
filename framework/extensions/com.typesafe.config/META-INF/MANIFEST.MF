@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Typesafe Config
-Bundle-SymbolicName: com.typesafe.config
-Bundle-Version: 0.5.2.qualifier
-Bundle-Vendor: Typesafe, Inc.
-Export-Package: com.typesafe.config
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
