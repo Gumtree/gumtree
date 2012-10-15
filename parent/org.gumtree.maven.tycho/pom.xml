@@ -97,7 +97,7 @@
 		<repository>
 			<id>gumtree_library</id>
 			<layout>p2</layout>
-			<url>http://dist.codehaus.org/gumtree/sites/library/1.8.x</url>
+			<url>http://dist.codehaus.org/gumtree/sites/bundles/1.8.x</url>
 		</repository>
 		<!--
 		<repository>
