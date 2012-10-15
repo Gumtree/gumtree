@@ -25,6 +25,7 @@
 		<module>${common.path}/org.gumtree.data.impl.netcdf</module>
 		
 		<module>${common.path}/com.db4o.osgi</module>
+		<module>${common.path}/com.google.gson</module>
 		<module>${common.path}/com.google.guava</module>
 		<module>${common.path}/com.thoughtworks.xstream</module>
 		<module>${common.path}/org.eclemma.runtime.equinox</module>
@@ -95,6 +96,7 @@
 		<module>${extensions.path}/org.gumtree.xygraph</module>
 		<module>${extensions.path}/org.gumtree.xygraph.feature</module>
 
+		<module>${extensions.path}/org.gumtree.e4tools.feature</module>
 
 
 
