@@ -13,7 +13,6 @@ import org.gumtree.util.eclipse.OsgiUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import akka.actor.ActorRefFactory;
 import akka.actor.ActorSystem;
 
 import com.typesafe.config.Config;
@@ -77,7 +76,7 @@ public class ActorSystemService implements IActorSystemService {
 	}
 
 	@Override
-	public ActorRefFactory getActorSystem() {
+	public ActorSystem getActorSystem() {
 		return system;
 	}
 

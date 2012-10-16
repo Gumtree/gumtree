@@ -1,6 +1,7 @@
 package org.gumtree.workflow.tasks;
 
-import org.gumtree.workflow.AbstractTask;
+import org.gumtree.workflow.ITask;
+
 
 @SuppressWarnings("serial")
 public class PrintConsoleTask extends AbstractTask<Object, Object> {

@@ -31,11 +31,11 @@ public class WorkflowSystemActor implements IWorkflowSystem, PreStart,
 	private static final Logger logger = LoggerFactory
 			.getLogger(WorkflowSystemActor.class);
 
-	private List<IWorkflow> workflows;
+	private List<ActorRef> workflowRefs;
 
 	public WorkflowSystemActor() {
 		super();
-		workflows = new ArrayList<IWorkflow>(2);
+		workflowRefs = new ArrayList<ActorRef>(2);
 	}
 
 	/*************************************************************************
@@ -67,7 +67,7 @@ public class WorkflowSystemActor implements IWorkflowSystem, PreStart,
 	 *************************************************************************/
 
 	@Override
-	public Future<IWorkflow> addWorkflow(final WorkflowModel model) {
+	public Future<ActorRef> addWorkflow(final WorkflowModel model) {
 		// Get typed system
 		TypedActorFactory factory = TypedActor.get(TypedActor.context());
 		// Create workflow
@@ -79,16 +79,17 @@ public class WorkflowSystemActor implements IWorkflowSystem, PreStart,
 							}
 						}));
 		// Assign name
-		model.setAssignedId(factory.getActorRefFor(workflow).path().name());
+//		model.setAssignedId(factory.getActorRefFor(workflow).path().name());
 		// Cache workflow
-		workflows.add(workflow);
+		ActorRef workflowRef = factory.getActorRefFor(workflow);
+		workflowRefs.add(workflowRef);
 		logger.info("Workflow has been successfully added from the system.");
 		// Return workflow
-		return Futures.successful(workflow, TypedActor.dispatcher());
+		return Futures.successful(workflowRef, TypedActor.dispatcher());
 	}
 
-	public Future<List<IWorkflow>> getAvailableWorkflows() {
-		return Futures.successful(Collections.unmodifiableList(workflows),
+	public Future<List<ActorRef>> getAvailableWorkflowRefs() {
+		return Futures.successful(Collections.unmodifiableList(workflowRefs),
 				TypedActor.dispatcher());
 	}
 
@@ -97,20 +98,14 @@ public class WorkflowSystemActor implements IWorkflowSystem, PreStart,
 	// it)
 	// - remove completed workflow some time after (eg in 24 hours)
 	@Override
-	public Future<Boolean> removeWorkflow(IWorkflow workflow) {
-		// Get typed system
-		TypedActorFactory factory = TypedActor.get(TypedActor.context());
+	public Future<Boolean> removeWorkflow(ActorRef workflowRef) {
 		// Stop the workflow (remove from the system)
-		boolean result = factory.stop(workflow);
+		TypedActor.context().stop(workflowRef);
 		/// Does this work with remote actor reference???
-		workflows.remove(workflow);
-		if (result) {
-			logger.info("Workflow has been successfully removed from the system.");
-		} else {
-			logger.info("Workflow cannot be removed from the system.");
-		}
+		workflowRefs.remove(workflowRef);
+		logger.info("Workflow has been successfully removed from the system.");
 		// Return result
-		return Futures.successful(result, TypedActor.dispatcher());
+		return Futures.successful(true, TypedActor.dispatcher());
 	}
 
 }

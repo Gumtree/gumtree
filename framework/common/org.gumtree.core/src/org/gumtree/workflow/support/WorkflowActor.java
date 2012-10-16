@@ -1,7 +1,10 @@
 package org.gumtree.workflow.support;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.gumtree.workflow.ITaskController;
 import org.gumtree.workflow.IWorkflow;
 import org.gumtree.workflow.WorkflowState;
 import org.gumtree.workflow.model.TaskModel;
@@ -10,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import scala.Option;
+import akka.actor.ActorRef;
 import akka.actor.TypedActor;
 import akka.actor.TypedActor.PostRestart;
 import akka.actor.TypedActor.PostStop;
@@ -22,8 +26,8 @@ import akka.dispatch.Futures;
 import akka.japi.Creator;
 
 @SuppressWarnings("serial")
-public class WorkflowActor implements IWorkflow, IParentActor, PreStart,
-		PreRestart, PostRestart, PostStop, Serializable {
+public class WorkflowActor implements IWorkflow, ITaskCompletionHandler,
+		PreStart, PreRestart, PostRestart, PostStop, Serializable {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(WorkflowActor.class);
@@ -32,11 +36,14 @@ public class WorkflowActor implements IWorkflow, IParentActor, PreStart,
 
 	private WorkflowState state;
 
+	private Map<TaskModel, ActorRef> modelRefMap;
+
 	private int completedTasks;
-	
+
 	public WorkflowActor(WorkflowModel model) {
 		this.model = model;
 		state = WorkflowState.IDLE;
+		modelRefMap = new HashMap<TaskModel, ActorRef>();
 	}
 
 	/*************************************************************************
@@ -47,16 +54,17 @@ public class WorkflowActor implements IWorkflow, IParentActor, PreStart,
 	public void preStart() {
 		for (final TaskModel taskModel : model.getChildren()) {
 			TypedActorFactory factory = TypedActor.get(TypedActor.context());
-			ITaskActor taskActor = factory
-					.typedActorOf(new TypedProps<TaskActor>(ITaskActor.class,
-							new Creator<TaskActor>() {
+			ITaskController taskController = factory
+					.typedActorOf(new TypedProps<TaskControllerActor>(
+							ITaskController.class,
+							new Creator<TaskControllerActor>() {
 								@Override
-								public TaskActor create() throws Exception {
-									return new TaskActor(taskModel);
+								public TaskControllerActor create()
+										throws Exception {
+									return new TaskControllerActor(taskModel);
 								}
 							}));
-			taskModel.setAssignedId(factory.getActorRefFor(taskActor).path()
-					.name());
+			modelRefMap.put(taskModel, factory.getActorRefFor(taskController));
 		}
 	}
 
@@ -102,29 +110,31 @@ public class WorkflowActor implements IWorkflow, IParentActor, PreStart,
 		TypedActorFactory factory = TypedActor.get(TypedActor.context());
 		completedTasks = 0;
 		for (TaskModel taskModel : model.getStartTasks()) {
-			ITaskActor taskActor = factory.typedActorOf(
-					new TypedProps<ITaskActor>(ITaskActor.class), TypedActor
-							.context().actorFor(taskModel.getAssignedId()));
-			taskActor.run();
+			ActorRef taskControllerRef = modelRefMap.get(taskModel);
+			ITaskController taskController = factory.typedActorOf(
+					new TypedProps<ITaskController>(ITaskController.class),
+					taskControllerRef);
+			taskController.run(null);
 		}
 		return Futures.successful(true, TypedActor.dispatcher());
 	}
 
 	@Override
-	public void handleTaskCompletion(TaskModel taskModel) {
+	public void handleTaskCompletion(TaskModel taskModel, Object output) {
 		TypedActorFactory factory = TypedActor.get(TypedActor.context());
 		if (taskModel.getNextTasks().size() == 0) {
 			completedTasks++;
 			if (model.getEndTasks().size() == completedTasks) {
 				state = WorkflowState.COMPLETED;
+				logger.info("Workflow is completed.");
 			}
 		} else {
 			for (TaskModel nextTaskModel : taskModel.getNextTasks()) {
-				ITaskActor taskActor = factory.typedActorOf(
-						new TypedProps<ITaskActor>(ITaskActor.class),
-						TypedActor.context().actorFor(
-								nextTaskModel.getAssignedId()));
-				taskActor.run();
+				ActorRef taskControllerRef = modelRefMap.get(nextTaskModel);
+				ITaskController taskController = factory.typedActorOf(
+						new TypedProps<ITaskController>(ITaskController.class),
+						taskControllerRef);
+				taskController.run(output);
 			}
 		}
 	}

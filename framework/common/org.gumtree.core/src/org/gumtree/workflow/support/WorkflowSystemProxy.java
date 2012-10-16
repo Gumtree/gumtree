@@ -3,16 +3,16 @@ package org.gumtree.workflow.support;
 import java.util.List;
 
 import org.gumtree.service.actorsystem.IActorSystemService;
-import org.gumtree.workflow.IWorkflow;
 import org.gumtree.workflow.IWorkflowSystem;
 import org.gumtree.workflow.model.WorkflowModel;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.TypedActor;
 import akka.actor.TypedProps;
 import akka.dispatch.Future;
 
-public class WorkflowSystem implements IWorkflowSystem {
+public class WorkflowSystemProxy implements IWorkflowSystem {
 
 	private IWorkflowSystem workflowSystemActor;
 
@@ -57,18 +57,18 @@ public class WorkflowSystem implements IWorkflowSystem {
 	 *************************************************************************/
 
 	@Override
-	public Future<IWorkflow> addWorkflow(WorkflowModel model) {
+	public Future<ActorRef> addWorkflow(WorkflowModel model) {
 		return getWorkflowSystemActor().addWorkflow(model);
 	}
 
 	@Override
-	public Future<List<IWorkflow>> getAvailableWorkflows() {
-		return getWorkflowSystemActor().getAvailableWorkflows();
+	public Future<List<ActorRef>> getAvailableWorkflowRefs() {
+		return getWorkflowSystemActor().getAvailableWorkflowRefs();
 	}
 
 	@Override
-	public Future<Boolean> removeWorkflow(IWorkflow workflow) {
-		return getWorkflowSystemActor().removeWorkflow(workflow);
+	public Future<Boolean> removeWorkflow(ActorRef workflowRef) {
+		return getWorkflowSystemActor().removeWorkflow(workflowRef);
 	}
 
 }

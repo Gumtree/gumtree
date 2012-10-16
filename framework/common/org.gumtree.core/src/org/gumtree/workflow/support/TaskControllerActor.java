@@ -3,6 +3,9 @@ package org.gumtree.workflow.support;
 import java.io.Serializable;
 import java.util.concurrent.Callable;
 
+import org.gumtree.core.object.ObjectFactory;
+import org.gumtree.workflow.ITask;
+import org.gumtree.workflow.ITaskController;
 import org.gumtree.workflow.model.TaskModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,17 +23,18 @@ import akka.dispatch.Futures;
 import akka.japi.Creator;
 
 @SuppressWarnings("serial")
-public class TaskActor implements ITaskActor, IParentActor, PreStart,
-		PreRestart, PostRestart, PostStop, Serializable {
+public class TaskControllerActor implements ITaskController,
+		ITaskCompletionHandler, PreStart, PreRestart, PostRestart, PostStop,
+		Serializable {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(TaskActor.class);
+			.getLogger(TaskControllerActor.class);
 
 	private TaskModel model;
 
-	private IParentActor parentActor;
-	
-	public TaskActor(TaskModel model) {
+	private ITaskCompletionHandler parentActor;
+
+	public TaskControllerActor(TaskModel model) {
 		super();
 		this.model = model;
 	}
@@ -51,12 +55,14 @@ public class TaskActor implements ITaskActor, IParentActor, PreStart,
 	public void preStart() {
 		TypedActorFactory factory = TypedActor.get(TypedActor.context());
 		for (final TaskModel taskModel : model.getChildren()) {
-			ITaskActor taskActor = factory
-					.typedActorOf(new TypedProps<TaskActor>(ITaskActor.class,
-							new Creator<TaskActor>() {
+			ITaskController taskActor = factory
+					.typedActorOf(new TypedProps<TaskControllerActor>(
+							ITaskController.class,
+							new Creator<TaskControllerActor>() {
 								@Override
-								public TaskActor create() throws Exception {
-									return new TaskActor(taskModel);
+								public TaskControllerActor create()
+										throws Exception {
+									return new TaskControllerActor(taskModel);
 								}
 							}));
 			// Bad
@@ -80,36 +86,38 @@ public class TaskActor implements ITaskActor, IParentActor, PreStart,
 	 * Methods
 	 *************************************************************************/
 
-	public void run() {
+	@Override
+	public void run(final Object input) {
+		TypedActorFactory factory = TypedActor.get(TypedActor.context());
+		parentActor = factory.typedActorOf(
+				new TypedProps<ITaskCompletionHandler>(
+						ITaskCompletionHandler.class), TypedActor.context()
+						.actorFor("../"));
 		// Check state
 		// Check if previous nodes are done
 		logger.info("Start task " + model.getName());
 		// Logic
 		Future<Void> future = Futures.future(new Callable<Void>() {
 			public Void call() {
-				logger.info("Start task " + model.getName() + " logic");
-				try {
-					Thread.sleep(Math.round(Math.random() * 5 * 1000));
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				logger.info("Completed task " + model.getName() + " logic");
-				handleTaskCompleted();
+				ITask task = ObjectFactory.instantiateObject(model.getTaskClass(), ITask.class);
+				task.getProperties().putAll(model.getProperties());
+				task.setInput(input);
+				logger.info("Start task '" + model.getName() + "'");
+				task.run();
+				logger.info("Completed task '" + model.getName() + "'");
+				handleTaskCompleted(task.getOutput());
 				return null;
 			}
 		}, TypedActor.dispatcher());
-		TypedActorFactory factory = TypedActor.get(TypedActor.context());
-		parentActor = factory.typedActorOf(
-				new TypedProps<IParentActor>(IParentActor.class), TypedActor
-						.context().actorFor("../"));
+
 	}
 
-	private void handleTaskCompleted() {
-		parentActor.handleTaskCompletion(model);
+	private void handleTaskCompleted(Object output) {
+		parentActor.handleTaskCompletion(model, output);
 	}
-	
+
 	@Override
-	public void handleTaskCompletion(TaskModel taskModel) {
+	public void handleTaskCompletion(TaskModel taskModel, Object output) {
 	}
 
 }

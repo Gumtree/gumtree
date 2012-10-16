@@ -1,9 +1,9 @@
 package org.gumtree.service.actorsystem;
 
-import akka.actor.ActorRefFactory;
+import akka.actor.ActorSystem;
 
 public interface IActorSystemService {
 
-	public ActorRefFactory getActorSystem();
+	public ActorSystem getActorSystem();
 	
 }

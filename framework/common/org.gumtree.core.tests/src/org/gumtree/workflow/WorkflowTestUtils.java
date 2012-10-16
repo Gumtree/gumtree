@@ -1,9 +1,9 @@
 package org.gumtree.workflow;
 
-import org.gumtree.workflow.AbstractTask;
 import org.gumtree.workflow.model.ElementModel;
 import org.gumtree.workflow.model.TaskModel;
 import org.gumtree.workflow.model.WorkflowModel;
+import org.gumtree.workflow.tasks.AbstractTask;
 
 public final class WorkflowTestUtils {
 

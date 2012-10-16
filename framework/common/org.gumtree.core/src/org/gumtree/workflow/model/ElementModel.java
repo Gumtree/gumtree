@@ -5,12 +5,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @SuppressWarnings("serial")
 public abstract class ElementModel implements Serializable, Cloneable {
 
 	private String name;
 
+	private UUID id;
+	
 	private Map<String, Object> properties;
 
 	private List<TaskModel> children;
@@ -19,9 +22,10 @@ public abstract class ElementModel implements Serializable, Cloneable {
 
 	private List<TaskModel> endTasks;
 
-	private String assignedId;
+	// private String assignedId;
 
 	public ElementModel() {
+		id = UUID.randomUUID();
 		properties = new HashMap<String, Object>(2);
 		children = new ArrayList<TaskModel>(2);
 		startTasks = new ArrayList<TaskModel>(2);
@@ -40,12 +44,8 @@ public abstract class ElementModel implements Serializable, Cloneable {
 		this.name = name;
 	}
 
-	public String getAssignedId() {
-		return assignedId;
-	}
-
-	public void setAssignedId(String assignedId) {
-		this.assignedId = assignedId;
+	public UUID getId() {
+		return id;
 	}
 
 	public Map<String, Object> getProperties() {
@@ -82,11 +82,11 @@ public abstract class ElementModel implements Serializable, Cloneable {
 	public void addStartTask(TaskModel task) {
 		getStartTasks().add(task);
 	}
-	
+
 	public void addEndTask(TaskModel task) {
 		getEndTasks().add(task);
 	}
-	
+
 	public ElementModel clone() throws CloneNotSupportedException {
 		return (ElementModel) super.clone();
 	}
@@ -95,17 +95,7 @@ public abstract class ElementModel implements Serializable, Cloneable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((assignedId == null) ? 0 : assignedId.hashCode());
-		result = prime * result
-				+ ((children == null) ? 0 : children.hashCode());
-		result = prime * result
-				+ ((endTasks == null) ? 0 : endTasks.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result
-				+ ((properties == null) ? 0 : properties.hashCode());
-		result = prime * result
-				+ ((startTasks == null) ? 0 : startTasks.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		return result;
 	}
 
@@ -118,35 +108,10 @@ public abstract class ElementModel implements Serializable, Cloneable {
 		if (getClass() != obj.getClass())
 			return false;
 		ElementModel other = (ElementModel) obj;
-		if (assignedId == null) {
-			if (other.assignedId != null)
+		if (id == null) {
+			if (other.id != null)
 				return false;
-		} else if (!assignedId.equals(other.assignedId))
-			return false;
-		if (children == null) {
-			if (other.children != null)
-				return false;
-		} else if (!children.equals(other.children))
-			return false;
-		if (endTasks == null) {
-			if (other.endTasks != null)
-				return false;
-		} else if (!endTasks.equals(other.endTasks))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (properties == null) {
-			if (other.properties != null)
-				return false;
-		} else if (!properties.equals(other.properties))
-			return false;
-		if (startTasks == null) {
-			if (other.startTasks != null)
-				return false;
-		} else if (!startTasks.equals(other.startTasks))
+		} else if (!id.equals(other.id))
 			return false;
 		return true;
 	}

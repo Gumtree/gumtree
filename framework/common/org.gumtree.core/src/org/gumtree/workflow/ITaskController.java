@@ -1,14 +1,14 @@
-package org.gumtree.workflow.support;
+package org.gumtree.workflow;
 
 import org.gumtree.workflow.model.TaskModel;
 
 import akka.dispatch.Future;
 
 
-public interface ITaskActor {
+public interface ITaskController {
 
 	public Future<TaskModel> getModel();
 	
-	public void run();
+	public void run(Object input);
 	
 }
