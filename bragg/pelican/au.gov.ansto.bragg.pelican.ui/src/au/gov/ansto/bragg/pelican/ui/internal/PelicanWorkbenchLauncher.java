@@ -89,8 +89,8 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 						page.hideView(page.findViewReference("org.gumtree.app.workbench.cruisePanel"));
 					} else if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT)) {
 						try {
-							page.showView("org.gumtree.app.workbench.cruisePanel");
-						} catch (PartInitException e) {
+//							page.showView("org.gumtree.app.workbench.cruisePanel", null, IWorkbenchPage.VIEW_ACTIVATE);
+						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
@@ -106,6 +106,12 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 			IMultiMonitorManager mmManager = new MultiMonitorManager();
 			// Attempt to close intro
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
+			try {
+				activeWorkbenchWindow.getActivePage().showView("org.gumtree.app.workbench.cruisePanel", null, IWorkbenchPage.VIEW_ACTIVATE);
+			} catch (PartInitException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
 				// open new window as editor buffer

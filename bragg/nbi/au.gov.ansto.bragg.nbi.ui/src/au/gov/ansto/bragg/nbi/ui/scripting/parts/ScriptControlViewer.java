@@ -761,7 +761,9 @@ public class ScriptControlViewer extends Composite {
 					runScript();
 				}
 			};
-			getDataSourceViewer().addActivityListener(datasetActivityListener);
+			if (getDataSourceViewer() != null) {
+				getDataSourceViewer().addActivityListener(datasetActivityListener);
+			}
 		}
 		executor.runScript("time.sleep(0.1)");
 		executor.runScript("auto_run()");
@@ -1515,7 +1517,6 @@ public class ScriptControlViewer extends Composite {
 
 	    private IStructuredSelection selection;
 	    private NewConfigFileWizardPage newFileWizardPage;
-	    private IWorkbench workbench;
 	    private String filename;
 	 
 	    public NewConfigFileWizard() {
@@ -1533,14 +1534,13 @@ public class ScriptControlViewer extends Composite {
 	       
 	        IFile file = newFileWizardPage.createNewFile();
 	        filename = file.getRawLocationURI().getPath();
-	        if (file != null)
+	        if (file != null && file.exists())
 	            return true;
 	        else
 	            return false;
 	    }
 
 	    public void init(IWorkbench workbench, IStructuredSelection selection) {
-	        this.workbench = workbench;
 	        this.selection = selection;
 	    }
 	    

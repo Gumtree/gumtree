@@ -27,6 +27,11 @@ public class ExperimentConfigViewer extends Composite {
 		ScriptPageRegister register = new ScriptPageRegister();
 		CommandHandler commandHandler = new CommandHandler();
 		CommandLineViewer viewer = new CommandLineViewer();
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		viewer.setScriptExecutor(commandHandler.getScriptExecutor());
 		controlViewer = new ScriptControlViewer(this, style);
 		controlViewer.setScriptExecutor(commandHandler.getScriptExecutor());
