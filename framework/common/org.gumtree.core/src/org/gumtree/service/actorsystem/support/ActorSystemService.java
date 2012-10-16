@@ -13,7 +13,6 @@ import org.gumtree.util.eclipse.OsgiUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import scala.actors.threadpool.helpers.Utils;
 import akka.actor.ActorRefFactory;
 import akka.actor.ActorSystem;
 
@@ -54,6 +53,14 @@ public class ActorSystemService implements IActorSystemService {
 			properties.put("akka.event-handlers", handlers);
 			Config config = ConfigFactory.parseMap(properties);
 			config = config.withFallback(remoteConfig);
+
+			// Info
+			logger.info("Set actor system host to: "
+					+ InetAddress.getLocalHost().getHostAddress());
+			logger.info("Set actor system port to: "
+					+ CoreProperties.AKKA_PORT.getInt());
+			logger.info("Set actor system debug level to: "
+					+ CoreProperties.AKKA_DEBUG_LEVEL.getValue());
 
 			// Create actor system
 			system = ActorSystem.create("ActorSystem", config);

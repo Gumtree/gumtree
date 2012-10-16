@@ -2,6 +2,6 @@ package org.gumtree.workflow;
 
 public enum WorkflowState {
 
-	IDLE, RUNNING, PAUSED
-	
+	IDLE, STARTED, PAUSING, PAUSED, STOPPING, COMPLETED
+
 }

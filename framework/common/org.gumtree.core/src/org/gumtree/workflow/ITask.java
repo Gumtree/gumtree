@@ -2,20 +2,10 @@ package org.gumtree.workflow;
 
 public interface ITask<I, O> {
 
-	public TaskState getState();
+	public void run();
 	
-	public ITask<I, O> setInput(I input);
-	
-	public I getInput();
+	public void setInput(I input);
 	
 	public O getOutput();
-	
-	public ITask<I, O> run();
-	
-	public ITask<I, O> stop();
-	
-	public ITask<I, O> pause();
-	
-	public ITask<I, O> resume();
-	
+
 }

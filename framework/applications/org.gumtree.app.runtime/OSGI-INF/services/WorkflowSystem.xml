@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" name="org.gumtree.core.WorkflowSystem">
+   <implementation class="org.gumtree.workflow.support.WorkflowSystem"/>
+   <reference bind="setActorSystemService" cardinality="1..1" interface="org.gumtree.service.actorsystem.IActorSystemService" name="IActorSystemService" policy="static"/>
+   <service>
+      <provide interface="org.gumtree.workflow.IWorkflowSystem"/>
+   </service>
+</scr:component>

@@ -43,9 +43,9 @@ Export-Package: org.gumtree.core,
  org.gumtree.util.string,
  org.gumtree.util.xml,
  org.gumtree.workflow,
+ org.gumtree.workflow.model,
  org.gumtree.workflow.support,
- org.gumtree.workflow.tasks,
- org.gumtree.workflow.types
+ org.gumtree.workflow.tasks
 Import-Package: javax.mail.internet;version="1.4.0";resolution:=optional,
  org.apache.commons.codec.binary;version="1.3.0";resolution:=optional
 Require-Bundle: org.slf4j.api;bundle-version="1.6.4";visibility:=reexport,
@@ -69,5 +69,6 @@ Require-Bundle: org.slf4j.api;bundle-version="1.6.4";visibility:=reexport,
  org.apache.commons.httpclient;bundle-version="3.1.0";resolution:=optional,
  org.gumtree.data.core;bundle-version="1.8.0";resolution:=optional,
  akka.remote;bundle-version="2.0.3";resolution:=optional,
- akka.slf4j;bundle-version="2.0.3";resolution:=optional
+ akka.slf4j;bundle-version="2.0.3";resolution:=optional,
+ com.google.gson;bundle-version="2.2.0";resolution:=optional
 Eclipse-BuddyPolicy: global
