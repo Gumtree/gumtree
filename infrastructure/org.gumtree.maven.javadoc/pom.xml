@@ -43,8 +43,7 @@
 	</build>
 	
 	<modules>
-		<module>${framework.path}/data/org.gumtree.data.core</module>
-		<module>${framework.path}/data/org.gumtree.data.utilities</module>
+		<module>${framework.path}/common/org.gumtree.data.core</module>
 		<module>${framework.path}/common/org.gumtree.core</module>
 		<module>${framework.path}/common/org.gumtree.ui</module>
 		<module>${framework.path}/common/org.gumtree.vis.core</module>
