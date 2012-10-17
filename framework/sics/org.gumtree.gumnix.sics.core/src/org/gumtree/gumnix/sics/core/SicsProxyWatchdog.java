@@ -16,11 +16,13 @@ public class SicsProxyWatchdog implements ISicsProxyWatchdog, IManageableBean {
 		SicsCore.getDefaultProxy().setWatchdog(this);
 	}
 
-	public long getTimeoutInSecond() {
+	@Override
+	public long getTimeout() {
 		return SicsCoreProperties.PROXY_TIMEOUT.getLong();
 	}
 
-	public void setTimeoutInSecond(long timeoutInSecond) {
+	@Override
+	public void setTimeout(long timeoutInSecond) {
 		SicsCoreProperties.PROXY_TIMEOUT.setLong(timeoutInSecond).save();
 	}
 
@@ -56,6 +58,7 @@ public class SicsProxyWatchdog implements ISicsProxyWatchdog, IManageableBean {
 		SicsCoreProperties.WATCHDOG_NOTIFICATION_RECIPIENTS.setValue(recipients).save();
 	}
 
+	@Override
 	public long getNotificationSent() {
 		return notificationSent;
 	}
@@ -68,6 +71,7 @@ public class SicsProxyWatchdog implements ISicsProxyWatchdog, IManageableBean {
 		SicsCoreProperties.WATCHDOG_NOTIFICATION_RECIPIENTS.reset();
 	}
 
+	@Override
 	public void notifySicsStalled() {
 		if (isSendEmailNotification()) {
 			INotificationService service = ServiceUtils

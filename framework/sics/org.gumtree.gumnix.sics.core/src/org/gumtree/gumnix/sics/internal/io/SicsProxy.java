@@ -364,9 +364,9 @@ public class SicsProxy implements ISicsProxy {
 					// Wait for message
 					MessageContainer messageContainer = null;
 					if (getProxyState().equals(ProxyState.CONNECTED) && watchdog != null) {
-						long timeout = watchdog.getTimeoutInSecond();
+						long timeout = watchdog.getTimeout();
 						// with timeout in connected mode
-						messageContainer = incomingMessageQueue.poll(timeout, TimeUnit.SECONDS);
+						messageContainer = incomingMessageQueue.poll(timeout, TimeUnit.MILLISECONDS);
 					} else {
 						// without timeout in disconnected mode
 						messageContainer = incomingMessageQueue.take();

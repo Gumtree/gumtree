@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ASCII"?>
-<p:Palette xmlns:p="http://jeeeyul.net/pde-tools/icg/palette" fieldName="ICONS" folder="/net.jeeeyul.eclipse.themes/icons">
+<p:Palette xmlns:p="http://jeeeyul.net/pde-tools" fieldName="ICONS" folder="/net.jeeeyul.eclipse.themes/icons">
   <imageFiles fieldName="ECLIPSE" file="/net.jeeeyul.eclipse.themes/icons/eclipse.gif"/>
   <imageFiles fieldName="LAYOUT" file="/net.jeeeyul.eclipse.themes/icons/layout.gif"/>
   <imageFiles fieldName="MAXMIZE" file="/net.jeeeyul.eclipse.themes/icons/maxmize.gif"/>

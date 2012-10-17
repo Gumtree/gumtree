@@ -2,9 +2,9 @@ package org.gumtree.gumnix.sics.io;
 
 public interface ISicsProxyWatchdog {
 
-	public long getTimeoutInSecond();
+	public long getTimeout();
 	
-	public void setTimeoutInSecond(long timeoutInSecond);
+	public void setTimeout(long timeoutInSecond);
 	
 	public void notifySicsStalled();
 	
