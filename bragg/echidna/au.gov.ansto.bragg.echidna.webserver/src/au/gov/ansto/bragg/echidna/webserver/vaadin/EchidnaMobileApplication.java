@@ -3,6 +3,8 @@ package au.gov.ansto.bragg.echidna.webserver.vaadin;
 import au.gov.ansto.bragg.nbi.server.vaadin.InstrumentStatutsNavigationView;
 
 import com.vaadin.addon.touchkit.ui.TouchKitApplication;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.CloseListener;
 
 @SuppressWarnings("serial")
 public class EchidnaMobileApplication extends TouchKitApplication {
@@ -43,6 +45,14 @@ public class EchidnaMobileApplication extends TouchKitApplication {
 				.addStatusItem("/sample/tempone/sensorA", "Furnace Temperature")
 				.addStatusItem("/sample/tempone/setpoint", "Furance Setpoint");		
 		view.initialise();
+		
+		// Close application when page is closed
+		getMainWindow().addListener(new CloseListener() {
+			@Override
+			public void windowClose(CloseEvent e) {
+				getMainWindow().getApplication().close();
+			}
+		});
 	}
 
 }

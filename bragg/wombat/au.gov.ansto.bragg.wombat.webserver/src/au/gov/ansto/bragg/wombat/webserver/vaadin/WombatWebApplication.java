@@ -34,6 +34,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.CloseListener;
 
 @SuppressWarnings("serial")
 public class WombatWebApplication extends Application {
@@ -106,7 +108,7 @@ public class WombatWebApplication extends Application {
 
 		// Row 2
 		createHMImagePanel(mainLayout);
-				
+
 		// Row 3
 		context.timeLabel = new Label();
 		mainLayout.addComponent(context.timeLabel);
@@ -128,6 +130,14 @@ public class WombatWebApplication extends Application {
 		};
 		job.setSystem(true);
 		job.schedule();
+
+		// Close application when page is closed
+		getMainWindow().addListener(new CloseListener() {
+			@Override
+			public void windowClose(CloseEvent e) {
+				getMainWindow().getApplication().close();
+			}
+		});
 	}
 
 	public void close() {
@@ -209,7 +219,7 @@ public class WombatWebApplication extends Application {
 		label.setStyleName("white");
 		horizontalLayout.addComponent(label);
 	}
-	
+
 	private void createHMImagePanel(GridLayout parent) {
 		Panel panel = new Panel("");
 		panel.setSizeFull();

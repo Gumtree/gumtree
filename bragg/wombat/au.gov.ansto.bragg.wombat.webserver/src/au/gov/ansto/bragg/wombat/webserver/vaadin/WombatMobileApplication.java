@@ -3,6 +3,8 @@ package au.gov.ansto.bragg.wombat.webserver.vaadin;
 import au.gov.ansto.bragg.nbi.server.vaadin.InstrumentStatutsNavigationView;
 
 import com.vaadin.addon.touchkit.ui.TouchKitApplication;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.CloseListener;
 
 @SuppressWarnings("serial")
 public class WombatMobileApplication extends TouchKitApplication {
@@ -21,14 +23,26 @@ public class WombatMobileApplication extends TouchKitApplication {
 		view.setSizeFull();
 		view.createStatusGroup("Neutron Beam")
 				.addStatusItem("/source/power", "Reactor Power")
-				.addStatusItem("/instrument/detector/total_maprate", "Rate on Detector")
-				.addStatusItem("/instrument/detector/max_binrate", "Rate on Pixel");
-		view.createStatusGroup("Experiment Info")
-				.addStatusItem("/experiment/title", "Proposal");
+				.addStatusItem("/instrument/detector/total_maprate",
+						"Rate on Detector")
+				.addStatusItem("/instrument/detector/max_binrate",
+						"Rate on Pixel");
+		view.createStatusGroup("Experiment Info").addStatusItem(
+				"/experiment/title", "Proposal");
 		view.createStatusGroup("Instrument Configuration")
-				.addStatusItem("/instrument/slits/first/vertical/gap", "Slit 1 Vertical Gap")
-				.addStatusItem("/instrument/slits/first/horizontal/gap", "Slit 1 Horizontal Gap");
-		view.initialise();		
+				.addStatusItem("/instrument/slits/first/vertical/gap",
+						"Slit 1 Vertical Gap")
+				.addStatusItem("/instrument/slits/first/horizontal/gap",
+						"Slit 1 Horizontal Gap");
+		view.initialise();
+
+		// Close application when page is closed
+		getMainWindow().addListener(new CloseListener() {
+			@Override
+			public void windowClose(CloseEvent e) {
+				getMainWindow().getApplication().close();
+			}
+		});
 	}
 
 }

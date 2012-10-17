@@ -34,6 +34,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.CloseListener;
 
 public class TaipanWebApplication extends Application {
 
@@ -49,9 +51,9 @@ public class TaipanWebApplication extends Application {
 	private String sicsRestletURI;
 
 	private Map<String, Label> componentMap;
-	
+
 	private Label statusLabel;
-	
+
 	private Label timeLabel;
 
 	@Override
@@ -99,6 +101,14 @@ public class TaipanWebApplication extends Application {
 		};
 		job.setSystem(true);
 		job.schedule();
+
+		// Close application when page is closed
+		getMainWindow().addListener(new CloseListener() {
+			@Override
+			public void windowClose(CloseEvent e) {
+				getMainWindow().getApplication().close();
+			}
+		});
 	}
 
 	private void createLeftContent(ComponentContainer parent) {
@@ -127,8 +137,8 @@ public class TaipanWebApplication extends Application {
 		titlePanelLayout.addComponent(subtitleLabel);
 
 		// Image
-//		Embedded image = new Embedded("", new ClassResource("taipan.png",
-//				window.getApplication()));
+		// Embedded image = new Embedded("", new ClassResource("taipan.png",
+		// window.getApplication()));
 		String plotURI = "http://"
 				+ NBIServerProperties.SICS_RESTLET_HOST.getValue() + ":"
 				+ NBIServerProperties.SICS_RESTLET_PORT.getInt()
@@ -151,7 +161,7 @@ public class TaipanWebApplication extends Application {
 		Refresher refresher = new Refresher();
 		refresher.setRefreshInterval(REFRESH_INTERVAL / 2);
 		parent.addComponent(refresher);
-		
+
 		// SICS status
 		Panel panel = new Panel("SICS Status");
 		panel.setWidth("408px");
@@ -160,23 +170,23 @@ public class TaipanWebApplication extends Application {
 		VerticalLayout panelLayout = (VerticalLayout) panel.getContent();
 		panelLayout.setSpacing(true);
 		panelLayout.setWidth("100%");
-		
+
 		statusLabel = new Label();
 		statusLabel.setWidth("100%");
 		panelLayout.addComponent(statusLabel);
-		
+
 		// Experiment details panel
 		createExperimentPanel(rightLayout);
-		
+
 		// Beam monitors panel
 		createBeamMonitorsPanel(rightLayout);
-		
+
 		// Real motors panel
 		createRealMotorsPanel(rightLayout);
-		
+
 		// Virtual motors panel
 		createVirtualMotorsPanel(rightLayout);
-		
+
 		// Time
 		timeLabel = new Label();
 		rightLayout.addComponent(timeLabel, 0, 4, 1, 4);
@@ -190,11 +200,11 @@ public class TaipanWebApplication extends Application {
 		VerticalLayout panelLayout = (VerticalLayout) panel.getContent();
 		panelLayout.setSpacing(true);
 		panelLayout.setWidth("100%");
-		
+
 		createDynamicLabel(panelLayout, "/experiment/title", "Title");
 		createDynamicLabel(panelLayout, "/sample/name", "Sample");
 	}
-	
+
 	private void createBeamMonitorsPanel(GridLayout parent) {
 		Panel panel = new Panel("Beam Monitors");
 		panel.setWidth("408px");
@@ -203,41 +213,41 @@ public class TaipanWebApplication extends Application {
 		VerticalLayout panelLayout = (VerticalLayout) panel.getContent();
 		panelLayout.setSpacing(true);
 		panelLayout.setWidth("100%");
-		
+
 		// BM 1
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.setWidth("100%");
 		panelLayout.addComponent(horizontalLayout);
-		
+
 		Label label = new Label("BM1 ");
 		label.setStyleName("white");
 		horizontalLayout.addComponent(label);
-		
+
 		Label bm1Label = new Label("--");
 		bm1Label.setStyleName("bigger white");
 		bm1Label.setWidth("100%");
 		componentMap.put("/monitor/bm1_counts", bm1Label);
 		horizontalLayout.addComponent(bm1Label);
-		
+
 		label = new Label(" counts/sec");
 		label.setStyleName("white");
 		horizontalLayout.addComponent(label);
-		
+
 		// BM 2
 		horizontalLayout = new HorizontalLayout();
 		horizontalLayout.setSizeFull();
 		panelLayout.addComponent(horizontalLayout);
-		
+
 		label = new Label("BM2 ");
 		label.setStyleName("white");
 		horizontalLayout.addComponent(label);
-		
+
 		Label bm2Label = new Label("--");
 		bm2Label.setStyleName("bigger white");
 		bm2Label.setWidth("100%");
 		componentMap.put("/monitor/bm2_counts", bm2Label);
 		horizontalLayout.addComponent(bm2Label);
-		
+
 		label = new Label(" counts/sec");
 		label.setStyleName("white");
 		horizontalLayout.addComponent(label);
@@ -251,7 +261,7 @@ public class TaipanWebApplication extends Application {
 		VerticalLayout panelLayout = (VerticalLayout) panel.getContent();
 		panelLayout.setSpacing(true);
 		panelLayout.setWidth("100%");
-		
+
 		createDynamicLabel(panelLayout, "/instrument/crystal/m1", "m1");
 		createDynamicLabel(panelLayout, "/instrument/crystal/m2", "m2");
 		createDynamicLabel(panelLayout, "/sample/s1", "s1");
@@ -259,7 +269,7 @@ public class TaipanWebApplication extends Application {
 		createDynamicLabel(panelLayout, "/instrument/crystal/a1", "a1");
 		createDynamicLabel(panelLayout, "/instrument/detector/a2", "a2");
 	}
-	
+
 	private void createVirtualMotorsPanel(ComponentContainer parent) {
 		Panel panel = new Panel("Virtual Motors");
 		panel.setWidth("200px");
@@ -268,7 +278,7 @@ public class TaipanWebApplication extends Application {
 		VerticalLayout panelLayout = (VerticalLayout) panel.getContent();
 		panelLayout.setSpacing(true);
 		panelLayout.setWidth("100%");
-		
+
 		createDynamicLabel(panelLayout, "/sample/ei", "ei");
 		createDynamicLabel(panelLayout, "/sample/ef", "ef");
 		createDynamicLabel(panelLayout, "/sample/en", "en");
@@ -276,18 +286,19 @@ public class TaipanWebApplication extends Application {
 		createDynamicLabel(panelLayout, "/sample/qk", "qk");
 		createDynamicLabel(panelLayout, "/sample/ql", "ql");
 	}
-	
-	private void createDynamicLabel(ComponentContainer parent, String path, String deviceLabel) {
+
+	private void createDynamicLabel(ComponentContainer parent, String path,
+			String deviceLabel) {
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.setColumns(2);
 		gridLayout.setWidth("100%");
 		parent.addComponent(gridLayout);
-				
+
 		Label label = new Label(deviceLabel + " ");
 		label.setStyleName("white");
 		gridLayout.addComponent(label);
 		gridLayout.setComponentAlignment(label, Alignment.TOP_LEFT);
-				
+
 		Label valueLabel = new Label("--");
 		valueLabel.setStyleName("bigger white");
 		valueLabel.setWidth("100%");
@@ -295,7 +306,7 @@ public class TaipanWebApplication extends Application {
 		gridLayout.addComponent(valueLabel);
 		gridLayout.setComponentAlignment(valueLabel, Alignment.TOP_RIGHT);
 	}
-	
+
 	private void update() throws Exception {
 		updateStatus();
 		updateHDB();
@@ -306,13 +317,13 @@ public class TaipanWebApplication extends Application {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(sicsRestletURI + "/status");
 		buffer.append("?format=json");
-		
+
 		// Get data
 		ClientResource clientResource = new ClientResource(URI.create(buffer
 				.toString()));
 		Representation data = clientResource.get();
 		JSONObject object = new JSONObject(data.getText());
-		
+
 		String value = (String) object.get("status");
 		if (value.startsWith("EAGER")) {
 			statusLabel.setStyleName("green bigger");
@@ -321,7 +332,7 @@ public class TaipanWebApplication extends Application {
 		}
 		statusLabel.setValue(value);
 	}
-	
+
 	private void updateHDB() throws Exception {
 		// Prepare url
 		StringBuffer buffer = new StringBuffer();
@@ -355,7 +366,8 @@ public class TaipanWebApplication extends Application {
 			}
 		}
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyy.MM.dd HH:mm:ss");
-		timeLabel.setValue("Last update: " + dateFormat.format(Calendar.getInstance().getTime()));
+		timeLabel.setValue("Last update: "
+				+ dateFormat.format(Calendar.getInstance().getTime()));
 	}
 
 }

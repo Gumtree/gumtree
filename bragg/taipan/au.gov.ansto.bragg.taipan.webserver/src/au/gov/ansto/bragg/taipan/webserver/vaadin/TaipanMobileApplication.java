@@ -3,6 +3,8 @@ package au.gov.ansto.bragg.taipan.webserver.vaadin;
 import au.gov.ansto.bragg.nbi.server.vaadin.InstrumentStatutsNavigationView;
 
 import com.vaadin.addon.touchkit.ui.TouchKitApplication;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.CloseListener;
 
 @SuppressWarnings("serial")
 public class TaipanMobileApplication extends TouchKitApplication {
@@ -40,6 +42,14 @@ public class TaipanMobileApplication extends TouchKitApplication {
 				.addStatusItem("/sample/qk", "qk")
 				.addStatusItem("/sample/ql", "ql");
 		view.initialise();
+
+		// Close application when page is closed
+		getMainWindow().addListener(new CloseListener() {
+			@Override
+			public void windowClose(CloseEvent e) {
+				getMainWindow().getApplication().close();
+			}
+		});
 	}
 
 }

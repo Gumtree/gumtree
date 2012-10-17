@@ -46,17 +46,17 @@ public class InstrumentStatutsNavigationView extends NavigationView {
 			.getLogger(InstrumentStatutsNavigationView.class);
 
 	private int refreshInterval = DEFAULT_REFRESH_INTERVAL;
-	
+
 	private String sicsRestletURI;
 
 	private Map<String, UIContext> contextMap;
-	
+
 	private List<StatusGroup> groups;
 
 	private Label statusLabel;
 
 	private NavigationBar toolbar;
-	
+
 	public InstrumentStatutsNavigationView() {
 		super();
 		groups = new ArrayList<StatusGroup>(2);
@@ -75,13 +75,13 @@ public class InstrumentStatutsNavigationView extends NavigationView {
 		Refresher refresher = new Refresher();
 		refresher.setRefreshInterval(getRefreshInterval());
 		content.addComponent(refresher);
-		
+
 		createSicsStatusGroup(content);
-		
+
 		for (StatusGroup group : groups) {
 			createStatusGroup(content, group);
 		}
-		
+
 		setContent(content);
 		setToolbar(createToolbar(getApplication()));
 
@@ -113,21 +113,22 @@ public class InstrumentStatutsNavigationView extends NavigationView {
 
 		parent.addComponent(componentGroup);
 	}
-	
+
 	private void createStatusGroup(ComponentContainer parent, StatusGroup group) {
 		VerticalComponentGroup componentGroup = new VerticalComponentGroup();
 		componentGroup.setCaption(group.getLabel());
 
 		for (StatusItem item : group.getItems()) {
 			Label label = new Label("<b>" + item.getLabel() + "</b>: --",
-				Label.CONTENT_XHTML);
-			contextMap.put(item.getPath(), new UIContext(item.getLabel(), label));
+					Label.CONTENT_XHTML);
+			contextMap.put(item.getPath(),
+					new UIContext(item.getLabel(), label));
 			componentGroup.addComponent(label);
 		}
 
 		parent.addComponent(componentGroup);
 	}
-	
+
 	private Component createToolbar(Application application) {
 		toolbar = new NavigationBar();
 
@@ -146,7 +147,7 @@ public class InstrumentStatutsNavigationView extends NavigationView {
 
 		return toolbar;
 	}
-	
+
 	private void update() throws Exception {
 		updateStatus();
 		updateHDB();
@@ -193,12 +194,14 @@ public class InstrumentStatutsNavigationView extends NavigationView {
 						.get(deviceData.getString("path"));
 				Label label = context.label;
 				if (label != null) {
-					String value = deviceData.getString("value");
-					if (StringUtils.isNumber(value)) {
-						value = formatter.format(Double.parseDouble(value));
+					if (deviceData.has("value")) {
+						String value = deviceData.getString("value");
+						if (StringUtils.isNumber(value)) {
+							value = formatter.format(Double.parseDouble(value));
+						}
+						label.setValue("<b>" + context.deviceLabel + "</b>: "
+								+ value);
 					}
-					label.setValue("<b>" + context.deviceLabel + "</b>: "
-							+ value);
 					continue;
 				}
 			}
@@ -208,7 +211,7 @@ public class InstrumentStatutsNavigationView extends NavigationView {
 		toolbar.setCaption("Updated "
 				+ dateFormatter.format(Calendar.getInstance().getTime()));
 	}
-	
+
 	public StatusGroup createStatusGroup(String label) {
 		StatusGroup statusGroup = new StatusGroup(label);
 		groups.add(statusGroup);

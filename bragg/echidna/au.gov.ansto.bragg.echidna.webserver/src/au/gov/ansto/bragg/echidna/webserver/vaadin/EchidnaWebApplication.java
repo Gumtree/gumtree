@@ -34,6 +34,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.CloseListener;
 
 public class EchidnaWebApplication extends Application {
 
@@ -135,6 +137,14 @@ public class EchidnaWebApplication extends Application {
 		};
 		job.setSystem(true);
 		job.schedule();
+
+		// Close application when page is closed
+		getMainWindow().addListener(new CloseListener() {
+			@Override
+			public void windowClose(CloseEvent e) {
+				getMainWindow().getApplication().close();
+			}
+		});
 	}
 
 	public void close() {
@@ -375,11 +385,13 @@ public class EchidnaWebApplication extends Application {
 			if (deviceData.has("path")) {
 				Label label = componentMap.get(deviceData.getString("path"));
 				if (label != null) {
-					String value = deviceData.getString("value");
-					if (StringUtils.isNumber(value)) {
-						value = formatter.format(Double.parseDouble(value));
+					if (deviceData.has("value")) {
+						String value = deviceData.getString("value");
+						if (StringUtils.isNumber(value)) {
+							value = formatter.format(Double.parseDouble(value));
+						}
+						label.setValue(value);
 					}
-					label.setValue(value);
 					continue;
 				}
 			}
