@@ -103,7 +103,7 @@ public class SicsModelLoader {
 				counter += WAIT_TIME;
 				// [GT-24] [Tony] [2008-06-24] We need to give more time for
 				// SICS to generate the hipadaba model.
-				if (counter > (SicsCoreProperties.PROXY_TIMEOUT.getLong() * 10)) {
+				if (counter > (SicsCoreProperties.PROXY_TIMEOUT.getLong() * 5)) {
 					throw new SicsIOException(
 							"Time out on loading instrument model.");
 				}

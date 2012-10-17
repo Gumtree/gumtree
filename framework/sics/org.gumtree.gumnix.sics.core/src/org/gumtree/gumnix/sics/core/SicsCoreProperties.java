@@ -52,8 +52,9 @@ public final class SicsCoreProperties {
 	public static final ISystemProperty INSTRUMENT_NAME = new SystemProperty(
 			"gumtree.sics.instrumenrtName", "");
 
+	// Unit: millisecond
 	public static final ISystemProperty PROXY_TIMEOUT = new SystemProperty(
-			"gumtree.sics.proxyTimeout", Integer.toString(5 * 60));
+			"gumtree.sics.proxyTimeout", Integer.toString(5 * 60 * 1000));
 
 	public static final ISystemProperty WATCHDOG_NOTIFY = new SystemProperty(
 			"gumtree.sics.watchdog.notify", "false");
