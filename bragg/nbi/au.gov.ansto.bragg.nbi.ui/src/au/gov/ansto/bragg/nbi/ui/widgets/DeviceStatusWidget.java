@@ -12,14 +12,24 @@ import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.nebula.widgets.pgroup.PGroup;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+import org.gumtree.gumnix.sics.control.ControllerStatus;
 import org.gumtree.gumnix.sics.control.ISicsMonitor;
+import org.gumtree.gumnix.sics.control.events.SicsControllerEvent;
 import org.gumtree.service.dataaccess.IDataHandler;
+import org.gumtree.service.eventbus.IFilteredEventHandler;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.ui.util.resource.UIResources;
+import org.gumtree.util.PlatformUtils;
 import org.gumtree.util.messaging.DelayEventHandler;
 import org.gumtree.util.messaging.EventHandler;
 import org.gumtree.util.messaging.IDelayEventExecutor;
@@ -32,12 +42,16 @@ public class DeviceStatusWidget extends SicsStatusWidget {
 
 	private Set<LabelContext> labelContexts;
 
+	private IFilteredEventHandler<SicsControllerEvent> eventHandler;
 	@Inject
 	@Optional
 	private IDelayEventExecutor delayEventExecutor;
 
 	public DeviceStatusWidget(Composite parent, int style) {
 		super(parent, style);
+		if (parent instanceof PGroup) {
+			((PGroup) parent).setExpanded(false);
+		}
 		deviceContexts = new ArrayList<DeviceStatusWidget.DeviceContext>();
 		labelContexts = new HashSet<DeviceStatusWidget.LabelContext>();
 	}
@@ -71,15 +85,87 @@ public class DeviceStatusWidget extends SicsStatusWidget {
 						.grab(true, false).applyTo(label);
 				label.setFont(UIResources.getDefaultFont(SWT.BOLD));
 				// Part 4: Separator
-				label = getWidgetFactory().createLabel(this, " ");
+//				String labelSep = (deviceContext.unit == null) ? "" : " ";
+//				label = getWidgetFactory().createLabel(this, labelSep);
+				label = getWidgetFactory().createLabel(this, "");
 				// Part 5: Unit
 				label = createDeviceLabel(this, deviceContext.path + "?units",
 						(deviceContext.unit == null) ? "" : deviceContext.unit,
 						SWT.LEFT);
 			}
 		}
+		
+		eventHandler = new IFilteredEventHandler<SicsControllerEvent>() {
+			public void handleEvent(SicsControllerEvent event) {
+				Class<?> representation = String.class;
+				if ("status".equals(event.getURI().getQuery())) {
+					representation = ControllerStatus.class;
+				}
+				updateData(event.getURI(), getLabelContext(event.getURI()).label,
+						getDataAccessManager().get(event.getURI(), representation));
+			}
+			public boolean isDispatchable(SicsControllerEvent event) {
+				return getDeviceContext(event.getURI()) != null;
+			}
+		};
+		PlatformUtils.getPlatformEventBus().subscribe(eventHandler);
 	}
 
+	private DeviceContext getDeviceContext(URI uri) {
+		for (DeviceContext context : deviceContexts){
+			if (context.path.equals(uri.getPath())) {
+				return context;
+			}
+		}
+		return null;
+	}
+	
+	private LabelContext getLabelContext(URI uri) {
+		for (LabelContext context : labelContexts){
+			if (context.path.equals(uri.getPath())) {
+				return context;
+			}
+		}
+		return null;
+	}
+	
+	private void updateData(final URI uri, final Object widget, final Object data) {
+		if (isDisposed()) {
+			return;
+		}
+		SafeUIRunner.asyncExec(new SafeRunnable() {
+			public void run() throws Exception {
+				if (isDisposed()) {
+					return;
+				}
+				updateWidgetData(uri, widget, data);
+			}
+		});
+	}
+	
+	protected void updateWidgetData(URI uri, Object widget, Object data) {
+//		if (data instanceof String) {
+//			if (widget instanceof Label) {
+//				Label label = (Label) widget; 
+//				label.setText((String) data);
+//				label.getParent().layout(new Control[] { label });
+//			} else if (widget instanceof Text) {
+//				((Text) widget).setText((String) data);
+//			}
+//		} else 
+		if (data instanceof ControllerStatus && widget instanceof Control) {
+			ControllerStatus status = (ControllerStatus) data;
+			Control control = (Control) widget;
+			if (status.equals(ControllerStatus.OK)) {
+				control.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+			} else if (status.equals(ControllerStatus.RUNNING)) {
+				control.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
+			} else if (status.equals(ControllerStatus.ERROR)) {
+				control.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+			}
+		}
+	}
+	
 	@Override
 	protected void enableWidget() {
 		if (labelContexts == null) {
@@ -119,6 +205,10 @@ public class DeviceStatusWidget extends SicsStatusWidget {
 
 	@Override
 	protected void disposeWidget() {
+		if (eventHandler != null) {
+			PlatformUtils.getPlatformEventBus().unsubscribe(eventHandler);
+			eventHandler = null;
+		}
 		if (deviceContexts != null) {
 			deviceContexts.clear();
 			deviceContexts = null;
@@ -223,6 +313,12 @@ public class DeviceStatusWidget extends SicsStatusWidget {
 			@Override
 			public void run() throws Exception {
 				if (label != null && !label.isDisposed()) {
+					Composite parent = getParent();
+					if (parent instanceof PGroup) {
+						if (!((PGroup) parent).getExpanded()) {
+							((PGroup) parent).setExpanded(true);
+						}
+					}
 					String text = data;
 					try {
 						double value = Double.valueOf(data);
@@ -232,6 +328,7 @@ public class DeviceStatusWidget extends SicsStatusWidget {
 					} catch (Exception e) {
 					} 
 					label.setText(text);
+//					label.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 					// TODO: does it have any performance hit?
 					label.getParent().layout(true, true);
 				}

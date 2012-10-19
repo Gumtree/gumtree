@@ -19,4 +19,10 @@
     <include>/sample/name</include>
     <include>/commands/scan/bmonscan</include>
     <include>/experiment/currpoint</include>
+    <include>/sample/tc1/sensor/sensorValueA</include>
+    <include>/sample/tc1/sensor/sensorValueB</include>
+    <include>/sample/tc1/sensor/sensorValueC</include>
+    <include>/sample/tc1/sensor/sensorValueD</include>
+    <include>/sample/tempone/sensorA/value</include>
+    <include>/sample/magnet/sensor/value</include>
 </nodeset>
