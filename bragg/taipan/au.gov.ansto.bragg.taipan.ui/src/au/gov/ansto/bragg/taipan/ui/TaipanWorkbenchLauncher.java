@@ -53,16 +53,17 @@ public class TaipanWorkbenchLauncher extends AbstractLauncher {
 				@Override
 				public void perspectiveChanged(IWorkbenchPage page,
 						IPerspectiveDescriptor perspective, String changeId) {
-					if (perspective.getId().equals(ID_PERSPECTIVE_SCRIPTING)) {
-						page.hideView(page.findViewReference("org.gumtree.app.workbench.cruisePanel"));
-					} else if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT)) {
-						try {
-							page.showView("org.gumtree.app.workbench.cruisePanel");
-						} catch (PartInitException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
+//					if (perspective.getId().equals(ID_PERSPECTIVE_SCRIPTING)) {
+//						page.hideView(page.findViewReference("org.gumtree.app.workbench.cruisePanel"));
+//					} else if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT)) {
+//						try {
+//							page.showView("org.gumtree.app.workbench.cruisePanel");
+//						} catch (PartInitException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+//					}
+					((WorkbenchWindow) page.getWorkbenchWindow()).setCoolBarVisible(false);
 				}
 				
 				@Override
@@ -82,10 +83,10 @@ public class TaipanWorkbenchLauncher extends AbstractLauncher {
 //			// position it
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
 
-//			IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
-//			for (IWorkbenchWindow window : windows) {
-//				window.addPerspectiveListener(listener);
-//			}
+			IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+			for (IWorkbenchWindow window : windows) {
+				window.addPerspectiveListener(listener);
+			}
 			
 		}
 	}

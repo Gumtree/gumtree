@@ -40,7 +40,9 @@ import org.gumtree.data.interfaces.IGroup;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.slf4j.LoggerFactory;
 
+import au.gov.ansto.bragg.cicada.core.Algorithm;
 import au.gov.ansto.bragg.cicada.core.Algorithm.AlgorithmStatus;
+import au.gov.ansto.bragg.cicada.core.AlgorithmInput;
 import au.gov.ansto.bragg.cicada.core.Exporter;
 import au.gov.ansto.bragg.cicada.core.Format;
 import au.gov.ansto.bragg.cicada.core.exception.TransferFailedException;
@@ -369,12 +371,51 @@ public class EchidnaAnalysisControlView extends AnalysisParametersView {
 			
 			Exporter exporter = cicada.getAlgorithmManager().getExporter(format);
 			int id = 0;
+			Algorithm algorithm = cicada.loadAlgorithm(EXPORT_ALL_ALGORITHM);
+			if (algorithmTask != null && algorithmTask.getAlgorithmInputs().size() > 0){
+				List<Tuner> tuners = algorithmTask.getAlgorithmInputs().get(0).getAlgorithm().getTunerArray();
+				for (Tuner tuner : tuners){
+					if (tuner.getCoreName().equals(ALIGNMENT_STATISTIC_TUNER_NAME))
+						cicada.setTuner(ALIGNMENT_STATISTIC_TUNER_NAME, tuner.getSignal());
+					if (tuner.getCoreName().equals(NORMALISATION_REFERENCE_TUNER_NAME))
+						cicada.setTuner(NORMALISATION_REFERENCE_TUNER_NAME, tuner.getSignal());
+					if (tuner.getCoreName().equals(SKIP_NORMALISATION_TUNER_NAME))
+						cicada.setTuner(SKIP_NORMALISATION_TUNER_NAME, tuner.getSignal());
+					if (tuner.getCoreName().equals(SKIP_BACKGROUND_TUNER_NAME))
+						cicada.setTuner(SKIP_BACKGROUND_TUNER_NAME, tuner.getSignal());
+					if (tuner.getCoreName().equals(BACKGROUND_FILE_TUNER_NAME))
+						cicada.setTuner(BACKGROUND_FILE_TUNER_NAME, tuner.getSignal());
+					if (tuner.getCoreName().equals(SKIP_EFFICIENCY_TUNER_NAME))
+						cicada.setTuner(SKIP_EFFICIENCY_TUNER_NAME, tuner.getSignal());
+					if (tuner.getCoreName().equals(EFFICIENCY_FILE_TUNER_NAME))
+						cicada.setTuner(EFFICIENCY_FILE_TUNER_NAME, tuner.getSignal());
+					if (tuner.getCoreName().equals(SKIP_GAIN_REFINEMENT_TUNER_NAME))
+						cicada.setTuner(SKIP_GAIN_REFINEMENT_TUNER_NAME, tuner.getSignal());
+					if (tuner.getCoreName().equals(TUBE_ANGLES_REVERSED_TUNER_NAME))
+						cicada.setTuner(TUBE_ANGLES_REVERSED_TUNER_NAME, tuner.getSignal());
+					if (tuner.getCoreName().equals(APPLY_ANGULAR_TUNER_NAME))
+						cicada.setTuner(APPLY_ANGULAR_TUNER_NAME, tuner.getSignal());
+					if (tuner.getCoreName().equals(SKIP_GEOMETRY_TUNER_NAME))
+						cicada.setTuner(SKIP_GEOMETRY_TUNER_NAME, tuner.getSignal());
+					if (tuner.getCoreName().equals(LOWER_BOUNDARY_TUNER_NAME))
+						cicada.setTuner(LOWER_BOUNDARY_TUNER_NAME, tuner.getSignal());
+					if (tuner.getCoreName().equals(UPPER_BOUNDARY_TUNER_NAME))
+						cicada.setTuner(UPPER_BOUNDARY_TUNER_NAME, tuner.getSignal());
+					if (tuner.getCoreName().equals(DO_RESCALE_TUNER_NAME))
+						cicada.setTuner(DO_RESCALE_TUNER_NAME, tuner.getSignal());
+					if (tuner.getCoreName().equals(MERGE_GROUPS_TUNER_NAME))
+						cicada.setTuner(MERGE_GROUPS_TUNER_NAME, tuner.getSignal());
+					if (tuner.getCoreName().equals(SAMPLING_STATISTICS_TUNER_NAME))
+						cicada.setTuner(SAMPLING_STATISTICS_TUNER_NAME, tuner.getSignal());
+				}
+			}
 			for (DataSourceFile file : fileList){
 				progressBar.setSelection(progressBar.getSelection() + 1);
 				IGroup groupData = NexusUtils.getNexusEntryList(file.getDataObject()).get(0);
-				cicada.loadInputData(groupData);
+				AlgorithmInput input = cicada.loadInputData(groupData);
+				input.setAlgorithm(algorithm);
+				algorithm.setCurrentSignal(input);
 //				System.out.println( amanager.listAvailableAlgorithms() );
-				cicada.loadAlgorithm(EXPORT_ALL_ALGORITHM);
 //				RectilinearRegion region = null;
 //				if (groupData instanceof Plot){
 //				Group nexusData = NexusUtils.getNexusData(groupData);
@@ -398,44 +439,11 @@ public class EchidnaAnalysisControlView extends AnalysisParametersView {
 //								regionSet, "region" + stripId, reference, range, new String[]{"mm", "mm"}, true);
 //					}
 //				}
-				if (algorithmTask != null && algorithmTask.getAlgorithmInputs().size() > 0){
-					List<Tuner> tuners = algorithmTask.getAlgorithmInputs().get(0).getAlgorithm().getTunerArray();
-					for (Tuner tuner : tuners){
-						if (tuner.getCoreName().equals(ALIGNMENT_STATISTIC_TUNER_NAME))
-							cicada.setTuner(ALIGNMENT_STATISTIC_TUNER_NAME, tuner.getSignal());
-						if (tuner.getCoreName().equals(SKIP_NORMALISATION_TUNER_NAME))
-							cicada.setTuner(SKIP_NORMALISATION_TUNER_NAME, tuner.getSignal());
-						if (tuner.getCoreName().equals(SKIP_BACKGROUND_TUNER_NAME))
-							cicada.setTuner(SKIP_BACKGROUND_TUNER_NAME, tuner.getSignal());
-						if (tuner.getCoreName().equals(BACKGROUND_FILE_TUNER_NAME))
-							cicada.setTuner(BACKGROUND_FILE_TUNER_NAME, tuner.getSignal());
-						if (tuner.getCoreName().equals(SKIP_EFFICIENCY_TUNER_NAME))
-							cicada.setTuner(SKIP_EFFICIENCY_TUNER_NAME, tuner.getSignal());
-						if (tuner.getCoreName().equals(EFFICIENCY_FILE_TUNER_NAME))
-							cicada.setTuner(EFFICIENCY_FILE_TUNER_NAME, tuner.getSignal());
-						if (tuner.getCoreName().equals(SKIP_GAIN_REFINEMENT_TUNER_NAME))
-							cicada.setTuner(SKIP_GAIN_REFINEMENT_TUNER_NAME, tuner.getSignal());
-						if (tuner.getCoreName().equals(TUBE_ANGLES_REVERSED_TUNER_NAME))
-							cicada.setTuner(TUBE_ANGLES_REVERSED_TUNER_NAME, tuner.getSignal());
-						if (tuner.getCoreName().equals(APPLY_ANGULAR_TUNER_NAME))
-							cicada.setTuner(APPLY_ANGULAR_TUNER_NAME, tuner.getSignal());
-						if (tuner.getCoreName().equals(SKIP_GEOMETRY_TUNER_NAME))
-							cicada.setTuner(SKIP_GEOMETRY_TUNER_NAME, tuner.getSignal());
-						if (tuner.getCoreName().equals(LOWER_BOUNDARY_TUNER_NAME))
-							cicada.setTuner(LOWER_BOUNDARY_TUNER_NAME, tuner.getSignal());
-						if (tuner.getCoreName().equals(UPPER_BOUNDARY_TUNER_NAME))
-							cicada.setTuner(UPPER_BOUNDARY_TUNER_NAME, tuner.getSignal());
-						if (tuner.getCoreName().equals(DO_RESCALE_TUNER_NAME))
-							cicada.setTuner(DO_RESCALE_TUNER_NAME, tuner.getSignal());
-						if (tuner.getCoreName().equals(MERGE_GROUPS_TUNER_NAME))
-							cicada.setTuner(MERGE_GROUPS_TUNER_NAME, tuner.getSignal());
-						if (tuner.getCoreName().equals(SAMPLING_STATISTICS_TUNER_NAME))
-							cicada.setTuner(SAMPLING_STATISTICS_TUNER_NAME, tuner.getSignal());
-					}
-				}
+
 				cicada.process();
 				exportResult((Plot) cicada.getDefaultResult(), folder, file.getLocalName(), exporter);
 				progressBar.setSelection(id++);
+				file.close();
 			}
 			progressBar.setSelection(0);
 			progressBar.setEnabled(false);
