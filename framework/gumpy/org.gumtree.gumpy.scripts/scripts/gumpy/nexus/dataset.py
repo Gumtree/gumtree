@@ -179,6 +179,15 @@ class Dataset(Data):
     def __getattr__(self, name):
         if name == 'title' or name == 'name' :
             return self.__iNXDataset__.getTitle()
+        elif name == 'log' :
+            try:
+                log = self.get_metadata('log')
+                if not log :
+                    return ''
+                else:
+                    return str(log)
+            except:
+                return ''
         elif name == 'id' :
             location = self.__iNXDataset__.getLocation()
             fname = location
@@ -556,6 +565,9 @@ class Dataset(Data):
                 if not par is None :
                     par.removeDataItem(oitem)
                     par.addDataItem(value.__iDataItem__)
+        
+    def append_log(self, log):
+        self.log = self.log + log
         
 def new(storage, name = None, var = None, axes = None, anames = None, \
         aunits = None, default_var = True, default_axes = True, title = None) :

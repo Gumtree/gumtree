@@ -202,12 +202,18 @@ public class XYSigmaExporter extends ConcreteProcessor {
 					tth_iter = tth_points.getSliceIterator(1);   //re-initialise
 					tth_row = tth_iter.getArrayNext();
 				}
+				double scnd_loc = scnd_iter.getDoubleNext();
 				IArray data_row = out_iter.getArrayNext();
 				IArray err_row = err_iter.getArrayNext();
+				if (data_row.getDouble(data_row.getIndex().set(0)) < -1e4) {
+					if (timeIterator != null && timeIterator.hasNext()) {
+						timeIterator.next();
+					}
+					continue;
+				}
 				IArrayIterator row_iter = tth_row.getIterator();
 				IArrayIterator data_iter = data_row.getIterator();
 				IArrayIterator error_iter = err_row.getIterator();
-				double scnd_loc = scnd_iter.getDoubleNext();
 				frame_ct++;
 				//				if(xyexport_sep_flag) 
 				//					outputfile = new PrintWriter(new FileWriter(new File(fileURI.getRawPath()+"_frame_"+String.valueOf(frame_ct)+".xyd")));
