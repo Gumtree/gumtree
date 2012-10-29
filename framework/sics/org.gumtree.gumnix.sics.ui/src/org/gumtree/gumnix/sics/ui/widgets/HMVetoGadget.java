@@ -119,12 +119,12 @@ public class HMVetoGadget extends AbstractSicsWidget {
 		GridLayoutFactory.swtDefaults().margins(0, 0).applyTo(this);
 		UIResourceManager resourceManager = new UIResourceManager(Activator.PLUGIN_ID, this);
 		status = new Label(this, SWT.CENTER);
-		status.setBackground(getBackground());
+//		status.setBackground(getBackground());
 		status.setText("Click to Pause Counting");
 		status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		GridDataFactory.swtDefaults().align(SWT.CENTER, GridData.VERTICAL_ALIGN_CENTER).grab(true, false).applyTo(status);
 		button = new Label(this, SWT.CENTER);
-		button.setBackground(getBackground());
+//		button.setBackground(getBackground());
 		pauseImage = resourceManager.createImage("icons/button_blue_pause.png");
 		continueImage = resourceManager.createImage("icons/StepForwardNormalBlue16.png");
 		button.setImage(pauseImage);
@@ -266,7 +266,7 @@ public class HMVetoGadget extends AbstractSicsWidget {
 //						isVetoed = false;
 //					}
 //					System.err.println(status);
-					if (serverStatus.equals(ServerStatus.EAGER_TO_EXECUTE) || serverStatus.equals(ServerStatus.PAUSED) || serverStatus.equals(ServerStatus.COUNTING)) {
+					if (serverStatus.equals(ServerStatus.PAUSED) || serverStatus.equals(ServerStatus.COUNTING)) {
 						button.setEnabled(true);
 					} else {
 						button.setEnabled(false);

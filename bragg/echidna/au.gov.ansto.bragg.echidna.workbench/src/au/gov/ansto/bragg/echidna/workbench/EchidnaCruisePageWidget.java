@@ -137,7 +137,7 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 		HMVetoGadget pauseStatuswidget = new HMVetoGadget(
 				pauseGroup, SWT.NONE);
 		configureWidget(pauseStatuswidget);
-		pauseStatuswidget.render();
+//		pauseStatuswidget.render();
 				
 
 		return this;
