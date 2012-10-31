@@ -24,6 +24,8 @@ public final class StringUtils {
 
 	public static String EMPTY_STRING = "";
 	
+	public static String SPACE = " ";
+	
 	public static String formatTime(long timeInSecond) {
 		long hour = timeInSecond / (60 * 60);
 		long minute = (timeInSecond - (hour * 60 * 60)) / 60;
