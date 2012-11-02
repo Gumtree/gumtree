@@ -21,12 +21,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.gumtree.gumnix.sics.ui.widgets.BMVetoGadget;
 import org.gumtree.gumnix.sics.ui.widgets.SicsInterruptGadget;
 import org.gumtree.gumnix.sics.ui.widgets.SicsStatusGadget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
-import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 import org.gumtree.util.messaging.IDelayEventExecutor;
+import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,13 +67,12 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(statusGadget);
 
-		// Interrupt
-		PGroup interruptGroup = createGroup("INTERRUPT", null);
-		SicsInterruptGadget interruptGadget = new SicsInterruptGadget(
-				interruptGroup, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)
-				.grab(true, false).applyTo(interruptGadget);
-		interruptGadget.afterParametersSet();
+		// Pause Counter
+		PGroup pauseGroup = createGroup("PAUSE COUNTING",
+				SharedImage.SHUTTER.getImage());
+		BMVetoGadget pauseStatuswidget = new BMVetoGadget(
+				pauseGroup, SWT.NONE);
+		configureWidget(pauseStatuswidget);
 
 		File bgImageFile = getDataAccessManager().get(
 				SharedImage.SPIN.getURI(), File.class);
@@ -221,6 +221,14 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/experiment/file_name", "filename");
 		configureWidget(deviceStatusWidget);
 		
+		// Interrupt
+		PGroup interruptGroup = createGroup("INTERRUPT", null);
+		SicsInterruptGadget interruptGadget = new SicsInterruptGadget(
+				interruptGroup, SWT.NONE);
+		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)
+				.grab(true, false).applyTo(interruptGadget);
+		interruptGadget.afterParametersSet();
+
 	}
 
 	@Override

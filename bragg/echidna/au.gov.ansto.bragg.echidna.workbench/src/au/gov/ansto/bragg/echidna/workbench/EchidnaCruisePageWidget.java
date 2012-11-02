@@ -15,7 +15,12 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
+import org.gumtree.gumnix.sics.ui.widgets.SicsInterruptGadget;
+import org.gumtree.gumnix.sics.ui.widgets.SicsStatusGadget;
+import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
+import org.gumtree.util.messaging.IDelayEventExecutor;
+import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 
 import au.gov.ansto.bragg.echidna.workbench.internal.InternalImage;
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
@@ -27,13 +32,20 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 
 	private IEclipseContext eclipseContext;
 
+	private IDelayEventExecutor delayEventExecutor;
+
+	@Inject
+	private IDataAccessManager dataAccessManager;
+
 	public EchidnaCruisePageWidget(Composite parent, int style) {
 		super(parent, style);
 	}
 
 	public EchidnaCruisePageWidget render() {
 		GridLayoutFactory.swtDefaults().applyTo(this);
-
+		getEclipseContext().set(IDelayEventExecutor.class,
+				getDelayEventExecutor());
+		
 		// Reactor Source
 		PGroup sourceGroup = createGroup("REACTOR SOURCE",
 				SharedImage.REACTOR.getImage());
@@ -49,61 +61,74 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 		ShutterStatusWidget shutterStatuswidget = new ShutterStatusWidget(
 				shutterGroup, SWT.NONE);
 		configureWidget(shutterStatuswidget);
-		shutterStatuswidget.render();
+
+		// SICS status
+		PGroup sicsStatusGroup = createGroup("SERVER STATUS", null);
+		SicsStatusGadget statusGadget = new SicsStatusGadget(sicsStatusGroup,
+				SWT.NONE);
+		ContextInjectionFactory.inject(statusGadget, getEclipseContext());
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
+				.grab(true, false).applyTo(statusGadget);
+
+		// Pause Counter
+		PGroup pauseGroup = createGroup("PAUSE COUNTING",
+				SharedImage.SHUTTER.getImage());
+		HMVetoGadget pauseStatuswidget = new HMVetoGadget(
+				pauseGroup, SWT.NONE);
+		configureWidget(pauseStatuswidget);
+//		pauseStatuswidget.render();
 
 		// Experiment info
 		PGroup infoGroup = createGroup("EXPERIMENT INFO",
 				InternalImage.EXPERIMENT_INFO.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(infoGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget.addDevice("/experiment/title", "Proposal")
-				.addDevice("/experiment/title", "Sample")
-				.addDevice("/user/name", "User").render();
+				.addDevice("/sample/name", "Sample")
+				.addDevice("/user/name", "User");
+		configureWidget(deviceStatusWidget);
 
 		// Experiment Status
 		PGroup statusGroup = createGroup("EXPERIMENT STATUS",
 				InternalImage.EXPERIMENT_STATUS.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(statusGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget.addDevice("/sample/azimuthal_angle", "stth")
-				.addDevice("/experiment/currpoint", "Currpoint").render();
+				.addDevice("/experiment/currpoint", "Currpoint");
+		configureWidget(deviceStatusWidget);
 
 		// Furnace Temp
 		PGroup furnaceGroup = createGroup("FURNACE TEMPERATURE",
 				InternalImage.FURNACE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(furnaceGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
 				.addDevice("/sample/tempone/sensorA/value", "Temperature")
-				.addDevice("/sample/tempone/setpoint", "Setpoint").render();
+				.addDevice("/sample/tempone/setpoint", "Setpoint");
+		configureWidget(deviceStatusWidget);
 
 		// Robotic Changer
 		PGroup robotGroup = createGroup("ROBOTIC CHANGER",
 				InternalImage.ROBOT.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(robotGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
 				.addDevice("/sample/robby/Control/Pallet_Nam", "Pallet Name")
 				.addDevice("/sample/robby/Control/Pallet_Idx",
 						"Sample Position")
-				.addDevice("/sample/robby/status", "Sample")
-				.addDevice("/sample/robby/setpoint", "Robot Status").render();
+				.addDevice("/sample/robby/setpoint", "Sample")
+				.addDevice("/sample/robby/status", "Robot Status");
+		configureWidget(deviceStatusWidget);
 
 		// Monitor Event Rate
 		PGroup monitorGroup = createGroup("BEAM MONITOR",
 				InternalImage.MONITOR.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
 				.addDevice("/monitor/bm1_event_rate", "BM1", null, "counts/sec")
-				.addDevice("/monitor/bm2_event_rate", "BM2", null, "counts/sec")
-				.render();
+				.addDevice("/monitor/bm2_event_rate", "BM2", null, "counts/sec");
+		configureWidget(deviceStatusWidget);
 
 		// Temperature TC1 Control
 		PGroup tempControlGroup = createGroup("Temperature Controller",
 				InternalImage.FURNACE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
 				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A-T/C",
 						InternalImage.A.getImage(), null)
@@ -128,29 +153,42 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/sample/tc2/heater/heaterOutput_1", "TC2H1-R/O",
 						InternalImage.ONE.getImage(), null)
 				.addDevice("/sample/tc2/heater/heaterOutput_2", "TC2H2-R/O",
-						InternalImage.TWO.getImage(), null)
-				.render();
+						InternalImage.TWO.getImage(), null);
+		configureWidget(deviceStatusWidget);
 
-		// Pause Counter
-		PGroup pauseGroup = createGroup("PAUSE COUNTING",
-				SharedImage.SHUTTER.getImage());
-		HMVetoGadget pauseStatuswidget = new HMVetoGadget(
-				pauseGroup, SWT.NONE);
-		configureWidget(pauseStatuswidget);
-//		pauseStatuswidget.render();
 				
+		// Interrupt
+		PGroup interruptGroup = createGroup("INTERRUPT", null);
+		SicsInterruptGadget interruptGadget = new SicsInterruptGadget(
+				interruptGroup, SWT.NONE);
+		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)
+				.grab(true, false).applyTo(interruptGadget);
+		interruptGadget.afterParametersSet();
 
 		return this;
 	}
 
 	@Override
 	protected void disposeWidget() {
+		if (delayEventExecutor != null) {
+			delayEventExecutor.deactivate();
+			delayEventExecutor = null;
+		}
 		eclipseContext = null;
+		dataAccessManager = null;
 	}
 
 	/*************************************************************************
 	 * Components
 	 *************************************************************************/
+
+	public IDataAccessManager getDataAccessManager() {
+		return dataAccessManager;
+	}
+
+	public void setDataAccessManager(IDataAccessManager dataAccessManager) {
+		this.dataAccessManager = dataAccessManager;
+	}
 
 	public IEclipseContext getEclipseContext() {
 		return eclipseContext;
@@ -188,6 +226,17 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 		if (getEclipseContext() != null) {
 			ContextInjectionFactory.inject(widget, getEclipseContext());
 		}
+	}
+
+	public IDelayEventExecutor getDelayEventExecutor() {
+		if (delayEventExecutor == null) {
+			delayEventExecutor = new ReducedDelayEventExecutor(1000).activate();
+		}
+		return delayEventExecutor;
+	}
+
+	public void setDelayEventExecutor(IDelayEventExecutor delayEventExecutor) {
+		this.delayEventExecutor = delayEventExecutor;
 	}
 
 }
