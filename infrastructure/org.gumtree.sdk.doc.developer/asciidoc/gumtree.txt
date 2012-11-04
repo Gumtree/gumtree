@@ -1,13 +1,13 @@
 Book of Gumtree
 ===============
 Bragg Institute <gumtree@googlegroups.com>
-v1.8.0, July 2012: Written for Gumtree version 1.8.x
+v1.8.0, November 2012: Written for Gumtree version 1.8.x
 :toc:
-:doctype: book
 :icons:
 :numbered:
+:doctype: book
+:website: http://gumtree.codehaus.org/
 
-[[Overview]]
 OVERVIEW
 ========
 
@@ -42,17 +42,17 @@ The _Book of Gumtree_ is a definitive guide for people who build Gumtree based
 applications or develop the Gumtree framework. This book is split into the
 following parts:
 
-*<<Overview,Part I: Overview>>*::
+*<<_overview,Part I: Overview>>*::
 	A glance of the Gumtree project, design and architecture 
 
-*<<GumtreeFramework,Part II: Gumtree Framework>>*::
+*<<_gumtree_framework,Part II: Gumtree Framework>>*::
 	In depth cover of the Gumtree application framework
 
-*<<BraggExtensions,Part IIII: Bragg Extensions>>*::
+*<<_bragg_extesions,Part IIII: Bragg Extensions>>*::
 	Details of supported Bragg Institute instruments
 
-*<<DevelopmentProcess,Part IV: Development Process>>*::
-	Related topics on build process and continuous integration
+*<<_advanced_topics,Part IV: Advanced Topics>>*::
+	Advanced topics such as build process and continuous integration
 
 Gumtree Project Overview
 ------------------------
@@ -85,7 +85,7 @@ Architectural Design
 The design of Gumtree should meet the following requirements:
 
 * *Instrument control* - The top requirement for Gumtree is the ability to drive
-an instrument via the delicate instrument control system.
+an instrument via a delicated instrument control system.
 * *Data Access* - Gumtree should provide a user friendly way to retrieve data
 from various sources, for example, local file system, devices or data grid.
 * *Data visualisation* - Gumtree should be able to visualise data either from
@@ -475,7 +475,6 @@ under _Testing_ section
 * It will start an launch an instance of the Gumtree Workbench under your IDE
 *******************************************************************************
 
-[[GumtreeFramework]]
 GUMTREE FRAMEWORK
 =================
 
@@ -645,7 +644,6 @@ Common Data Model
 Visualisation Toolkit
 ---------------------
 
-[[BraggExtensions]]
 BRAGG EXTENSIONS
 ================
 
@@ -698,42 +696,63 @@ digraph G {
 NBI Common Library
 ------------------
 
-Echidna High-Resolution Powder Diffractometer
----------------------------------------------
+Echidna Instrument Support
+--------------------------
 
-Wombat High-Intensity Powder Diffractometer
--------------------------------------------
+Ecdina is a High-Resolution Powder Diffractometer
 
-Kowari Strain Scanner
----------------------
+Wombat Instrument Support 
+--------------------------
 
-Quokka Small-Angle Neutron Scattering Instrument
-------------------------------------------------
+Wombat is a High-Intensity Powder Diffractometer
 
-Platypus Neutron Reflectometer
-------------------------------
+Kowari Instrument Support
+-------------------------
 
-Pelican Time-of-Flight Spectrometer
------------------------------------
+Kowari is a Strain Scanner
 
-Taipan Thermal 3-Axis Spectrometer
-----------------------------------
+Quokka Instrument Support
+-------------------------
 
-Kookaburra Ultra Small Angle Scattering
----------------------------------------
+Quokka is a Small-Angle Neutron Scattering Instrument
 
-Bilby Small-Angle Neutron Scattering Instrument
------------------------------------------------
+Platypus Instrument Support
+---------------------------
 
-Dingo Radiography/Tomography/Imaging Station
---------------------------------------------
+Platypus is a Neutron Reflectometer
 
-Emu High-Resolution Backscattering Spectrometer
------------------------------------------------
+Pelican Instrument Support
+--------------------------
 
-[[DevelopmentProcess]]
-Development Process
-===================
+Pelican is a Time-of-Flight Spectrometer
+
+Taipan Instrument Support 
+-------------------------
+
+Taipan is a Thermal 3-Axis Spectrometer
+
+Kookaburra Instrument Support
+-----------------------------
+
+Kookaburra is a  Ultra Small Angle Scattering
+
+Bilby Instrument Support
+------------------------
+
+Bilby is a Small-Angle Neutron Scattering Instrument
+
+Dingo Instrument Support
+------------------------
+
+Dingo is a Radiography/Tomography/Imaging Station
+
+Emu Instrument Support
+----------------------
+
+Emu is a High-Resolution Backscattering Spectrometer
+
+Advanced Topics
+===============
 
 [[GumtreePlatformDevelopment]]
 Gumtree Platform Development
