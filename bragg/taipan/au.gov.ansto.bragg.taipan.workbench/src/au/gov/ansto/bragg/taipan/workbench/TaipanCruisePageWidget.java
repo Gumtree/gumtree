@@ -79,6 +79,14 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		DeviceStatusWidget deviceStatusWidget;
 		IEclipseContext context = getEclipseContext().createChild();
 
+		// Interrupt
+		PGroup interruptGroup = createGroup("INTERRUPT", null);
+		SicsInterruptGadget interruptGadget = new SicsInterruptGadget(
+				interruptGroup, SWT.NONE);
+		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)
+				.grab(true, false).applyTo(interruptGadget);
+		interruptGadget.afterParametersSet();
+
 //		// Beam monitor 2
 		PGroup bm2Group = createGroup("DETECTOR", null);
 
@@ -183,8 +191,8 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		PGroup magnetGroup = createGroup("MAGNET SENSOR",
 				SharedImage.POSITIONER.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(magnetGroup, SWT.NONE);
-		deviceStatusWidget.addDevice("/magnet/sensor/value", "Magnetic")
-				.addDevice("/magnet/setpoint", "Setpoint");
+		deviceStatusWidget.addDevice("/sample/magnetic/magneticFieldCurrent", "Set Point")
+				.addDevice("/sample/magnetic/magneticFieldTesla", "Value");
 		configureWidget(deviceStatusWidget);
 				
 		// Temperature TC1 Control
@@ -192,14 +200,12 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.FURNACE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A",
+				.addDevice("/sample/tc1/sensor/value", "TC1A",
 						SharedImage.A.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueB", "TC1B",
+				.addDevice("/sample/tc1/sensor2/value", "TC1B",
 						SharedImage.B.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C",
-						SharedImage.C.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D",
-						SharedImage.D.getImage(), null);
+				.addDevice("/sample/tc1/sensor3/value", "TC1C",
+						SharedImage.C.getImage(), null);
 		configureWidget(deviceStatusWidget);
 
 		// Experiment info
@@ -221,14 +227,6 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/experiment/file_name", "filename");
 		configureWidget(deviceStatusWidget);
 		
-		// Interrupt
-		PGroup interruptGroup = createGroup("INTERRUPT", null);
-		SicsInterruptGadget interruptGadget = new SicsInterruptGadget(
-				interruptGroup, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)
-				.grab(true, false).applyTo(interruptGadget);
-		interruptGadget.afterParametersSet();
-
 	}
 
 	@Override

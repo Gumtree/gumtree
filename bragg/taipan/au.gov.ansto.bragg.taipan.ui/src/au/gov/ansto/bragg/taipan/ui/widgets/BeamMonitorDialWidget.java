@@ -76,13 +76,11 @@ public class BeamMonitorDialWidget extends AbstractSicsWidget {
 		GridLayoutFactory.swtDefaults().applyTo(this);
 		Composite embedComposite = getWidgetFactory().createComposite(this,
 				SWT.EMBEDDED);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL)
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).hint(SWT.DEFAULT, 150)
 				.grab(true, true).applyTo(embedComposite);
 		Frame frame = SWT_AWT.new_Frame(embedComposite);
-
 		createChart();
 		context.chartpanel = new ChartPanel(context.chart);
-
 		frame.add(context.chartpanel);
 
 		final Combo combo = getWidgetFactory().createCombo(this,
