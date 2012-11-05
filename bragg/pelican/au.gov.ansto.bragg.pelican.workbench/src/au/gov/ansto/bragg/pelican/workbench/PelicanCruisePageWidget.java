@@ -1,5 +1,6 @@
 package au.gov.ansto.bragg.pelican.workbench;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
@@ -7,6 +8,7 @@ import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.nebula.widgets.pgroup.AbstractGroupStrategy;
 import org.eclipse.nebula.widgets.pgroup.ChevronsToggleRenderer;
 import org.eclipse.nebula.widgets.pgroup.PGroup;
 import org.eclipse.nebula.widgets.pgroup.SimpleGroupStrategy;
@@ -16,7 +18,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.SicsInterruptGadget;
 import org.gumtree.gumnix.sics.ui.widgets.SicsStatusGadget;
+import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
+import org.gumtree.util.messaging.IDelayEventExecutor;
+import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
 import au.gov.ansto.bragg.nbi.ui.widgets.DeviceStatusWidget;
@@ -27,13 +32,23 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 
 	private IEclipseContext eclipseContext;
 
+	@Inject
+	private IDelayEventExecutor delayEventExecutor;
+
+	@Inject
+	private IDataAccessManager dataAccessManager;
+
 	public PelicanCruisePageWidget(Composite parent, int style) {
 		super(parent, style);
 	}
 
-	public PelicanCruisePageWidget render() {
-		GridLayoutFactory.swtDefaults().applyTo(this);
-
+	@PostConstruct
+	public void render() {
+		GridLayoutFactory.swtDefaults().spacing(1, 0)
+				.applyTo(this);
+		getEclipseContext().set(IDelayEventExecutor.class,
+				getDelayEventExecutor());
+		
 		// Reactor Source
 		PGroup sourceGroup = createGroup("REACTOR SOURCE",
 				SharedImage.REACTOR.getImage());
@@ -55,91 +70,83 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.SERVER.getImage());
 		SicsStatusGadget statusGadget = new SicsStatusGadget(sicsStatusGroup,
 				SWT.NONE);
-		ContextInjectionFactory.inject(statusGadget, getEclipseContext());
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(statusGadget);
+		configureWidget(statusGadget);
 
 		// Monochromator
 		PGroup monochromatorGroup = createGroup("MONOCROMATOR",
 				SharedImage.MONOCHROMATOR.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
 				.addDevice("/instrument/crystal/wavelength", "wavelength", null, "")
 				.addDevice("/instrument/crystal/mom", "mom", null, "")
-				.addDevice("/instrument/crystal/mtth", "mtth", null, "")
-				.render();
+				.addDevice("/instrument/crystal/mtth", "mtth", null, "");
+		configureWidget(deviceStatusWidget);
 
 		// Monitor Event Rate
 		PGroup monitorGroup = createGroup("NEUTRON COUNTS",
 				SharedImage.MONITOR.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
 				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "")
-				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "")
-				.render();
+				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "");
+		configureWidget(deviceStatusWidget);
 
 		// Slits Info
 		PGroup slitsGroup = createGroup("SLITS STATUS",
 				SharedImage.SLITS.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(slitsGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
 				.addDevice("/instrument/aperture/sv1", "slit 1 top", null, "")
 				.addDevice("/instrument/aperture/sh1", "slit 1 bottom", null, "")
 				.addDevice("/instrument/aperture/sv2", "slit 2 top", null, "")
-				.addDevice("/instrument/aperture/sh2", "slit 2 bottom", null, "")
-				.render();
+				.addDevice("/instrument/aperture/sh2", "slit 2 bottom", null, "");
+		configureWidget(deviceStatusWidget);
 
 		// fermi chopper
 		PGroup fermi1Group = createGroup("FERMI CHOPPER 1",
 				SharedImage.SPIN.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(fermi1Group, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
 				.addDevice("/instrument/fermi_chopper/ch1/frequency", "frequency", null, "")
-				.addDevice("/instrument/fermi_chopper/ch1/ratio", "overlap ratio", null, "")
-				.render();
+				.addDevice("/instrument/fermi_chopper/ch1/ratio", "overlap ratio", null, "");
+		configureWidget(deviceStatusWidget);
 
 		// fermi chopper
 		PGroup fermi2Group = createGroup("FERMI CHOPPER 2",
 				SharedImage.SPIN.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(fermi2Group, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
 				.addDevice("/instrument/fermi_chopper/ch2/frequency", "frequency", null, "")
-				.addDevice("/instrument/fermi_chopper/ch2/ratio", "overlap ratio", null, "")
-				.render();
+				.addDevice("/instrument/fermi_chopper/ch2/ratio", "overlap ratio", null, "");
+		configureWidget(deviceStatusWidget);
 
 		// Other device
 		PGroup otherGroup = createGroup("OTHER DEVICES",
 				SharedImage.GEAR.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(otherGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
 				.addDevice("/instrument/crystal/FilterZ", "filter", null, "")
-				.addDevice("/instrument/crystal/PolarizerZ", "polariser", null, "")
-				.render();
+				.addDevice("/instrument/crystal/PolarizerZ", "polariser", null, "");
+		configureWidget(deviceStatusWidget);
 
 		// Slits Info
 		PGroup collimatorGroup = createGroup("RADIAL COLLIMATOR",
 				SharedImage.CRADLE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(collimatorGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
 				.addDevice("/instrument/collimator/vrcz", "in/out", null, "")
-				.addDevice("/instrument/collimator/frequency", "frequency", null, "")
-				.render();
+				.addDevice("/instrument/collimator/frequency", "frequency", null, "");
+		configureWidget(deviceStatusWidget);
 
 		// Sample
 		PGroup sampleGroup = createGroup("SAMPLE TANK",
 				SharedImage.BEAKER.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(sampleGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
-				.addDevice("/instrument/detector/stth", "angle", null, "")
-				.render();
+				.addDevice("/instrument/detector/stth", "angle", null, "");
+		configureWidget(deviceStatusWidget);
 		
 		// Experiment info
 //		PGroup infoGroup = createGroup("EXPERIMENT INFO",
@@ -154,17 +161,16 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		PGroup furnaceGroup = createGroup("FURNACE TEMP",
 				SharedImage.FURNACE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(furnaceGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
 				.addDevice("/sample/tempone/sensorA/value", "temperature")
-				.addDevice("/sample/tempone/setpoint", "set point").render();
+				.addDevice("/sample/tempone/setpoint", "set point");
+		configureWidget(deviceStatusWidget);
 
 
 		// Temperature TC1 Control
 		PGroup tempControlGroup = createGroup("TEMPERATURE CONTR",
 				SharedImage.FURNACE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
-		configureWidget(deviceStatusWidget);
 		deviceStatusWidget
 				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A",
 						SharedImage.A.getImage(), null)
@@ -173,8 +179,8 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C",
 						SharedImage.C.getImage(), null)
 				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D",
-						SharedImage.D.getImage(), null)
-				.render();
+						SharedImage.D.getImage(), null);
+		configureWidget(deviceStatusWidget);
 
 		// Interrupt
 		PGroup interruptGroup = createGroup("INTERRUPT", null);
@@ -184,12 +190,16 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 				.grab(true, false).applyTo(interruptGadget);
 		interruptGadget.afterParametersSet();
 
-		return this;
 	}
 
 	@Override
 	protected void disposeWidget() {
+		if (delayEventExecutor != null) {
+			delayEventExecutor.deactivate();
+			delayEventExecutor = null;
+		}
 		eclipseContext = null;
+		dataAccessManager = null;
 	}
 
 	/*************************************************************************
@@ -200,9 +210,27 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		return eclipseContext;
 	}
 
-	@Inject
 	public void setEclipseContext(IEclipseContext eclipseContext) {
-		this.eclipseContext = eclipseContext;
+		this.eclipseContext = eclipseContext.createChild();
+	}
+
+	public IDataAccessManager getDataAccessManager() {
+		return dataAccessManager;
+	}
+
+	public void setDataAccessManager(IDataAccessManager dataAccessManager) {
+		this.dataAccessManager = dataAccessManager;
+	}
+
+	public IDelayEventExecutor getDelayEventExecutor() {
+		if (delayEventExecutor == null) {
+			delayEventExecutor = new ReducedDelayEventExecutor(1000).activate();
+		}
+		return delayEventExecutor;
+	}
+
+	public void setDelayEventExecutor(IDelayEventExecutor delayEventExecutor) {
+		this.delayEventExecutor = delayEventExecutor;
 	}
 
 	/*************************************************************************
@@ -211,7 +239,8 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 
 	protected PGroup createGroup(String text, Image image) {
 		PGroup group = new PGroup(this, SWT.NONE);
-		group.setStrategy(new SimpleGroupStrategy());
+		AbstractGroupStrategy strategy = new SimpleGroupStrategy();
+		group.setStrategy(strategy);
 		group.setToggleRenderer(new ChevronsToggleRenderer());
 		group.setText(text);
 		group.setFont(JFaceResources.getFontRegistry().getBold(

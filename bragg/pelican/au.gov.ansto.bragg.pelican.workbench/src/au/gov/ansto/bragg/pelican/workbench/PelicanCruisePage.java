@@ -7,6 +7,7 @@ import org.gumtree.ui.cruise.ICruisePanelPage;
 
 import au.gov.ansto.bragg.pelican.workbench.internal.Activator;
 
+@SuppressWarnings("restriction")
 public class PelicanCruisePage implements ICruisePanelPage {
 
 	@Override
@@ -20,7 +21,8 @@ public class PelicanCruisePage implements ICruisePanelPage {
 				SWT.NONE);
 		ContextInjectionFactory.inject(widget, Activator.getDefault()
 				.getEclipseContext());
-		return widget.render();
+		widget.render();
+		return widget;
 	}
 
 	@Override
@@ -29,7 +31,8 @@ public class PelicanCruisePage implements ICruisePanelPage {
 				SWT.NONE);
 		ContextInjectionFactory.inject(widget, Activator.getDefault()
 				.getEclipseContext());
-		return widget.render();
+		widget.render();
+		return widget;
 	}
 
 }

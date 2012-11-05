@@ -120,10 +120,10 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 //			// position it
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
 
-			IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
-			for (IWorkbenchWindow window : windows) {
-				window.addPerspectiveListener(listener);
-			}
+//			IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+//			for (IWorkbenchWindow window : windows) {
+//				window.addPerspectiveListener(listener);
+//			}
 			
 		}
 	}
