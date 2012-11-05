@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?><target name="Gumtree" sequenceNumber="36">
+<locations>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="au.gov.ansto.bragg.dingo.webserver.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.echidna.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.quokka.workbench.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.emu.webserver.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.quokka.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.echidna.webserver.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.nbi.webserver.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.bilby.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.quokka.webserver.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.pelican.workbench.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.taipan.webserver.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.platypus.webserver.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.kowari.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.taipan.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.dingo.workbench.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.wombat.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.platypus.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.bilby.workbench.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.wombat.webserver.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.kookaburra.webserver.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.bilby.webserver.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.echidna.workbench.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.emu.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.nbi.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.platypus.workbench.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.kookaburra.workbench.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.emu.workbench.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.nbi.workbench.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.dingo.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.pelican.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.taipan.workbench.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.kowari.webserver.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.pelican.webserver.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.wombat.workbench.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.kowari.workbench.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.kookaburra.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.common.server.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.app.workbench.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.app.runtime.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.sics.ui.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.dae.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.tcl.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.github.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.sics.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.beanshell.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.common.ui.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.xygraph.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.app.webserver.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.dae.server.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.processor.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.common.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.xml.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.jython.ui.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.app.osgi.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.e4tools.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.javafx.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.processor.ui.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.jython.core.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.gumpy.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.pydev.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.sics.server.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.sdk.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="au.gov.ansto.bragg.extensions.sources.feature.feature.group" version="1.8.0.201211050611"/>
+<unit id="org.gumtree.framework.sources.feature.feature.group" version="1.8.0.201211050611"/>
+<repository location="http://dist.codehaus.org/gumtree/sites/platform/1.8.x/"/>
+</location>
+</locations>
+</target>

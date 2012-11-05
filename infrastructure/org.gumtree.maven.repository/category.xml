@@ -18,9 +18,6 @@
    <feature url="features/org.gumtree.jython.ui.feature_1.8.0.qualifier.jar" id="org.gumtree.jython.ui.feature" version="1.8.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.passerelle.feature_1.8.0.qualifier.jar" id="org.gumtree.passerelle.feature" version="1.8.0.qualifier">
-      <category name="gumtreeFramework"/>
-   </feature>
    <feature url="features/org.gumtree.pydev.feature_1.8.0.qualifier.jar" id="org.gumtree.pydev.feature" version="1.8.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>

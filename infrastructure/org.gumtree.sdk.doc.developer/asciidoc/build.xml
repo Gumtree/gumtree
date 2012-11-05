@@ -79,9 +79,11 @@
 
 		<!-- Build -->
 		<antcall target="generateSingleHTML" />
+		<!--
 		<antcall target="generateChunkedHTML" />
 		<antcall target="generatePDF" />
-
+		-->
+		
 		<!-- Clean up -->
 		<delete dir="${basedir}/graphviz" failonerror="false" />
 	</target>

@@ -15,62 +15,64 @@ Introduction
 ------------
 
 === What is Gumtree ===
-Gumtree is a suite of software for running scientific experiments on a beam
-line instrument. Gumtree helps users to perform the following tasks:
+Gumtree is a software for managing large scale scientific instruments. The
+primary role for Gumtree includes:
 
-* *Controls* and *monitors* an instrument system
-* *Plans* and *executes* experiments on an instrument
-* *Retrieves* and *displays* experiment data from the system
-* *Reduces* and *analyses* live or archived experiment data
+* _Controls_ and _monitors_ an instrument system
+* _Plans_ and _executes_ experiments on an instrument
+* _Retrieves_ and _displays_ experiment data from the system
+* _Reduces_ and _analyses_ live or archived experiment data
 
-Gumtree is available in desktop or server mode. The desktop mode, known as the
-*Gumtree Workbench*, provides interactive user interface for the instrument
+Gumtree comes with two types of variation. The desktop mode, known as the
+_Gumtree Workbench_, provides interactive user interface for the instrument
 system, and can be run on major operating systems including _Windows_, _Linux_
-and _Mac OS X_. The server mode, known as the *Gumtree Web Server*, provides
+and _Mac OS X_. The server mode, known as the _Gumtree Web Server_, provides
 the remote instrument status to browsers and mobile devices.
 
 The core of Gumtree is an application framework, named as the
-*Gumtree Framework*. The goal of this framework is to deliver an open source
-platform for developers to build scientific applications from scratch, or to add
-extra features on any existing Eclipse RCP applications. Gumtree can be
-distributed freely and is licensed under the
-http://www.eclipse.org/legal/epl-v10.html[_Eclipse Public License version 1.0_]
+_Gumtree Framework_. The goal of this framework is to deliver an open source
+platform for developers to build their high quality scientific applications,
+without reinventing the wheel. Gumtree can be distributed freely and is licensed
+under the http://www.eclipse.org/legal/epl-v10.html[Eclipse Public License version 1.0]
 (EPL v1.0).
 
 === About this book ===
-The _Book of Gumtree_ is a definitive guide for people who build Gumtree based
-applications or develop the Gumtree framework. This book is split into the
-following parts:
+The _Book of Gumtree_ is a definitive guide for people who build applications
+with the Gumtree, or for experts who extend the Gumtree framework. This book is
+split into the following parts:
 
-*<<_overview,Part I: Overview>>*::
+<<_overview,Part I: Overview>>::
 	A glance of the Gumtree project, design and architecture 
 
-*<<_gumtree_framework,Part II: Gumtree Framework>>*::
-	In depth cover of the Gumtree application framework
+<<_programming_fundamentals, Part II: Programming Fundamentals>>::
+	Getting started for developing applications with Gumtree  
+	
+<<_gumtree_framework,Part III: Gumtree Framework>>::
+	In depth coverage of the Gumtree application framework
 
-*<<_bragg_extesions,Part IIII: Bragg Extensions>>*::
-	Details of supported Bragg Institute instruments
+<<_bragg_extensions,Part IV: Bragg Extensions>>::
+	Details on supported Bragg Institute instruments
 
-*<<_advanced_topics,Part IV: Advanced Topics>>*::
-	Advanced topics such as build process and continuous integration
+<<_advanced_topics,Part V: Advanced Topics>>::
+	Advanced topics on build system and software maintenance
 
 Gumtree Project Overview
 ------------------------
 
 === Project Structure ===
-The *Gumtree Project* is an open source project hosted by _Codehaus_. This
-project is mainly sponsored by the _Australian Nuclear Science and Techology
-Organisation_ (ANSTO), for its use on a number of neutron scattering instruments
-attached to the OPAL research reactor.
+The _Gumtree Project_ is an open source project hosted on the _Codehaus_
+website. This project is financially sponsored by the _Australian Nuclear
+Science and Techology Organisation_ (ANSTO), for its use on a number of neutron
+scattering instruments in the OPAL research reactor complex.
 
 The Gumtree development team follows the agile development methodology:
-*"release early, release often"*, where shippable quality software is delivered 
+_"release early, release often"_, where shippable quality software is delivered 
 every couple of weeks for public testing and review.
 
 === Project Resources ===
 The following links are useful online resources for the Gumtree Project:
 
-* *Home Page*: http://gumtree.codehaus.org
+* Home Page: http://gumtree.codehaus.org
 * *Download Site*: http://gumtree.codehaus.org/downloads
 * *Git Repository*: https://github.com/Gumtree/gumtree
 * *Issue Tracking System*: http://jira.codehaus.org/browse/GUMTREE
@@ -341,6 +343,9 @@ Event driven approach (or message passaging) can also improve application
 performance when it comes to the multi threaded execution environment.
 
 See: http://en.wikipedia.org/wiki/Event-driven_programming
+
+Programming Fundamentals
+========================
 
 Getting Started with Gumtree Development
 ----------------------------------------
