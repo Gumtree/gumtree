@@ -23,7 +23,7 @@
 	<property name="mavenBuildPath" value="infrastructure/org.gumtree.maven.all/target" />
 	<property name="javadocBuildPath" value="infrastructure/org.gumtree.maven.javadoc/target" />
 	<property name="referenceBuildPath" value="infrastructure/org.gumtree.sdk.doc.developer/asciidoc/output" />
-	<property name="equinoxJarLocation" value="${buildDirectory}/tools/eclipse-SDK-4.2-${ideOS}/eclipse/plugins/org.eclipse.equinox.launcher_1.3.0.v20120522-1813.jar" />
+	<property name="equinoxJarLocation" value="${buildDirectory}/tools/eclipse-SDK-4.2.1-${ideOS}/eclipse/plugins/org.eclipse.equinox.launcher_1.3.0.v20120522-1813.jar" />
 	<property name="containerProduct" value="org.gumtree.app.osgi.product" />
 	<property name="nsisDirectory" value="X:/apps/PortableApps/1.6/PortableApps/NSISPortable/App/NSIS" />
 	<property name="cygwinDirectory" value="X:/apps/Cygwin/1.7.15-1/bin" />
@@ -400,7 +400,7 @@
 		<attribute name="applicationShortcut" />
 		<sequential>
 			<delete includeEmptyDirs="true" failonerror="false">
-				<fileset dir="${exportDirectory}/products/workbench/@{applicationName}" />
+				<fileset dir="${exportDirectory}/products/workbench/@{applicationName}" defaultexcludes="false" />
 			</delete>
 			<buildApplication applicationType="workbench" applicationName="@{applicationName}" osType="win32" os="win32" ws="win32" arch="x86" />
 			<exec executable="${nsisDirectory}/makensis.exe">
@@ -411,8 +411,8 @@
 				<arg value="/DSOURCE=${exportDirectory}/products/workbench/@{applicationName}" />
 				<arg value="${exportDirectory}/scripts/nbi/nsis/gumtree_win32_bragg.nsi" />
 			</exec>
-			<delete includeEmptyDirs="true">
-				<fileset dir="${exportDirectory}/products/workbench/@{applicationName}" />
+			<delete includeEmptyDirs="true" failonerror="false">
+				<fileset dir="${exportDirectory}/products/workbench/@{applicationName}" defaultexcludes="false" />
 			</delete>
 			<move file="${exportDirectory}/scripts/nbi/nsis/@{applicationLabel}WorkbenchSetup-${version}-win32.exe" todir="${exportDirectory}/products/installer/bragg32" />
 		</sequential>
@@ -435,7 +435,7 @@
 		<attribute name="applicationShortcut" />
 		<sequential>
 			<delete includeEmptyDirs="true" failonerror="false">
-				<fileset dir="${exportDirectory}/products/workbench/@{applicationName}" />
+				<fileset dir="${exportDirectory}/products/workbench/@{applicationName}" defaultexcludes="false" />
 			</delete>
 			<buildApplication applicationType="workbench" applicationName="@{applicationName}" osType="win64" os="win32" ws="win32" arch="x86_64" />
 			<exec executable="${nsisDirectory}/makensis.exe">
@@ -446,8 +446,8 @@
 				<arg value="/DSOURCE=${exportDirectory}/products/workbench/@{applicationName}" />
 				<arg value="${exportDirectory}/scripts/nbi/nsis/gumtree_win64_bragg.nsi" />
 			</exec>
-			<delete includeEmptyDirs="true">
-				<fileset dir="${exportDirectory}/products/workbench/@{applicationName}" />
+			<delete includeEmptyDirs="true" failonerror="false">
+				<fileset dir="${exportDirectory}/products/workbench/@{applicationName}" defaultexcludes="false" />
 			</delete>
 			<move file="${exportDirectory}/scripts/nbi/nsis/@{applicationLabel}WorkbenchSetup-${version}-win64.exe" todir="${exportDirectory}/products/installer/bragg64" />
 		</sequential>

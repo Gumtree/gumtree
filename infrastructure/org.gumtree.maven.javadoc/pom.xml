@@ -29,7 +29,7 @@
 					<failOnError>false</failOnError>
 					<excludePackageNames>*.internal.*:*.internal*</excludePackageNames>
 					<minmemory>128m</minmemory>
-					<maxmemory>512m</maxmemory>
+					<maxmemory>1024m</maxmemory>
 					<links>
 						<link>http://dist.codehaus.org/gumtree/files/javadoc/eclipse/4.2/</link>
 						<link>http://xstream.codehaus.org/javadoc/</link>
