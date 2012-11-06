@@ -923,6 +923,14 @@ public class ScriptControlViewer extends Composite {
 	}
 
 	private void addParameter(Composite parent, final ScriptParameter parameter) {
+		String enabledProperty = parameter.getProperty("enabled");
+		boolean itemEnabled = true;
+		if (enabledProperty != null) {
+			try {
+				itemEnabled = Boolean.valueOf(enabledProperty);
+			} catch (Exception e) {
+			}
+		}
 		if (parameter.getOptions() != null) {
 			Label name = new Label(parent, SWT.RIGHT);
 			name.setText(parameter.getName());
@@ -931,6 +939,7 @@ public class ScriptControlViewer extends Composite {
 			GridDataFactory.fillDefaults().grab(false, false).applyTo(comboBox.getControl());
 			comboBox.setContentProvider(new ArrayContentProvider());
 			comboBox.setLabelProvider(new LabelProvider());
+			comboBox.getCombo().setEnabled(itemEnabled);
 			//				comboBox.setSorter(new ViewerSorter());
 			comboBox.setInput(parameter.getOptions());
 			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
@@ -969,14 +978,6 @@ public class ScriptControlViewer extends Composite {
 				}
 			});
 		} else {
-			String enabledProperty = parameter.getProperty("enabled");
-			boolean itemEnabled = true;
-			if (enabledProperty != null) {
-				try {
-					itemEnabled = Boolean.valueOf(enabledProperty);
-				} catch (Exception e) {
-				}
-			}
 			PType type = parameter.getType();
 			switch (type) {
 			case STRING:

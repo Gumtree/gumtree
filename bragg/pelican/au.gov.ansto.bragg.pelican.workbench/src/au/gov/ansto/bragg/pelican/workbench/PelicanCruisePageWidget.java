@@ -30,9 +30,9 @@ import au.gov.ansto.bragg.nbi.ui.widgets.ShutterStatusWidget;
 @SuppressWarnings("restriction")
 public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 
+	@Inject
 	private IEclipseContext eclipseContext;
 
-	@Inject
 	private IDelayEventExecutor delayEventExecutor;
 
 	@Inject

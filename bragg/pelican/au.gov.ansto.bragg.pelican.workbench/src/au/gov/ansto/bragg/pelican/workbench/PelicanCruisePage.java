@@ -21,7 +21,6 @@ public class PelicanCruisePage implements ICruisePanelPage {
 				SWT.NONE);
 		ContextInjectionFactory.inject(widget, Activator.getDefault()
 				.getEclipseContext());
-		widget.render();
 		return widget;
 	}
 
@@ -31,7 +30,6 @@ public class PelicanCruisePage implements ICruisePanelPage {
 				SWT.NONE);
 		ContextInjectionFactory.inject(widget, Activator.getDefault()
 				.getEclipseContext());
-		widget.render();
 		return widget;
 	}
 
