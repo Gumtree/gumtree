@@ -128,6 +128,7 @@ public class HMVetoGadget extends AbstractSicsWidget {
 		pauseImage = resourceManager.createImage("icons/button_blue_pause.png");
 		continueImage = resourceManager.createImage("icons/StepForwardNormalBlue16.png");
 		button.setImage(pauseImage);
+		button.setToolTipText("Button is enabled only when the server is in counting status.");
 //		button.setText("PAUSED");
 		button.setEnabled(false);
 		FontData[] fontData = button.getFont().getFontData();

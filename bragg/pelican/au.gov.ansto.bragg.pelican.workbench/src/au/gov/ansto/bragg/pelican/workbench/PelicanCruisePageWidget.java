@@ -16,6 +16,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
 import org.gumtree.gumnix.sics.ui.widgets.SicsInterruptGadget;
 import org.gumtree.gumnix.sics.ui.widgets.SicsStatusGadget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
@@ -74,6 +75,13 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 				.grab(true, false).applyTo(statusGadget);
 		configureWidget(statusGadget);
 
+		// Pause Counter
+		PGroup pauseGroup = createGroup("PAUSE COUNTING",
+				SharedImage.SHUTTER.getImage());
+		HMVetoGadget pauseStatuswidget = new HMVetoGadget(
+				pauseGroup, SWT.NONE);
+		configureWidget(pauseStatuswidget);
+
 		// Monochromator
 		PGroup monochromatorGroup = createGroup("MONOCROMATOR",
 				SharedImage.MONOCHROMATOR.getImage());
@@ -105,21 +113,12 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(deviceStatusWidget);
 
 		// fermi chopper
-		PGroup fermi1Group = createGroup("FERMI CHOPPER 1",
+		PGroup fermi1Group = createGroup("FERMI CHOPPER",
 				SharedImage.SPIN.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(fermi1Group, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/fermi_chopper/ch1/frequency", "frequency", null, "")
-				.addDevice("/instrument/fermi_chopper/ch1/ratio", "overlap ratio", null, "");
-		configureWidget(deviceStatusWidget);
-
-		// fermi chopper
-		PGroup fermi2Group = createGroup("FERMI CHOPPER 2",
-				SharedImage.SPIN.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(fermi2Group, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/instrument/fermi_chopper/ch2/frequency", "frequency", null, "")
-				.addDevice("/instrument/fermi_chopper/ch2/ratio", "overlap ratio", null, "");
+				.addDevice("/instrument/fermi_chopper/mchs", "master chopper", null, "rpm")
+				.addDevice("/instrument/fermi_chopper/schs", "slave chopper", null, "rpm");
 		configureWidget(deviceStatusWidget);
 
 		// Other device
@@ -136,8 +135,8 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.CRADLE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(collimatorGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/collimator/vrcz", "in/out", null, "")
-				.addDevice("/instrument/collimator/frequency", "frequency", null, "");
+				.addDevice("/instrument/collimator/RCollZ", "in/out", null, "")
+				.addDevice("/instrument/collimator/rcz", "frequency", null, "");
 		configureWidget(deviceStatusWidget);
 
 		// Sample
