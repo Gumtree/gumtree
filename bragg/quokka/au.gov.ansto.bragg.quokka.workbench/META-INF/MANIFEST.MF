@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Quokka Workbench Application
-Bundle-SymbolicName: au.gov.ansto.bragg.quokka.workbench
+Bundle-SymbolicName: au.gov.ansto.bragg.quokka.workbench;singleton:=true
 Bundle-Version: 1.8.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.quokka.workbench.internal.Activator
 Import-Package: org.osgi.framework;version="1.3.0"

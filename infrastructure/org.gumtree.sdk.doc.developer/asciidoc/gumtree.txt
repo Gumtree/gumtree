@@ -72,15 +72,15 @@ every couple of weeks for public testing and review.
 === Project Resources ===
 The following links are useful online resources for the Gumtree Project:
 
-* Home Page: http://gumtree.codehaus.org
-* *Download Site*: http://gumtree.codehaus.org/downloads
-* *Git Repository*: https://github.com/Gumtree/gumtree
-* *Issue Tracking System*: http://jira.codehaus.org/browse/GUMTREE
-* *Site Management*: http://xircles.codehaus.org/projects/gumtree
-* *Mailing List*: gumtree@googlegroups.com
-* *Mail Archive*: https://groups.google.com/forum/?fromgroups#!forum/gumtree
+* *Home Page* - http://gumtree.codehaus.org
+* *Download Site* - http://gumtree.codehaus.org/downloads
+* *Git Repository* - https://github.com/Gumtree/gumtree
+* *Issue Tracking System* - http://jira.codehaus.org/browse/GUMTREE
+* *Site Management* - http://xircles.codehaus.org/projects/gumtree
+* *Mailing List* - gumtree@googlegroups.com
+* *Mail Archive* - https://groups.google.com/forum/?fromgroups#!forum/gumtree
 
-Architectural Design
+Requirement Analysis
 --------------------
 
 === High Level Requirements ===
@@ -139,11 +139,35 @@ a central sequencer via some kind of control system software stack. Along with
 a centralised server, there are also a number of facility servers like
 database and access control which provide additional non-control system related
 services. From the user frontend, there are different computation devices for
-accessing servers available in an instrument system. Gumtree fills in the grap
+accessing servers available in an instrument system. Gumtree fills in the gap
 between the users and the instrument system.
 
 .System Architecture
 image::./images/System_Architecture.png[System Architecture]
+
+Architectural Design
+--------------------
+
+=== Architecture Overview ===
+
+Gumtree is based on the component based architecture.
+
+A component can be a service, widget 
+
+Component Based
+Model
+Event Driven
+
+
+
+
+
+Modular, layerd
+
+
+
+
+=== Layered Architecture ===
 
 === Technology Choice ===
 
@@ -198,6 +222,7 @@ within Gumtree:
 [options="header"]
 |===============================================================================
 |Project|Web Site|Notes
+|*Akka*|http://akka.io/|Concurrency library
 |*HDF*|http://www.hdfgroup.org/hdf-java-html/|Data format I/O library
 |*Jetty*|http://www.eclipse.org/jetty/|Embedded webserver
 |*JFreeChart*|http://www.jfree.org/jfreechart/|Visualisation library
@@ -766,8 +791,29 @@ Gumtree Platform Development
 Maven Build System
 ------------------
 
+Tycho Reference Card - http://wiki.eclipse.org/Tycho/Reference_Card
+Eclipse Tycho - Tutorial for building Eclipse Plugins and RCP applications - http://www.vogella.com/articles/EclipseTycho/article.html
+
+
 Release Engineering
 -------------------
 
 Continuous Build System
 -----------------------
+
+
+
+
+Online Resources
+----------------
+
+Java
+The Java Tutorials (Oracle) - http://docs.oracle.com/javase/tutorial/
+
+SWT
+SWT Snippets - http://www.eclipse.org/swt/snippets/
+
+Eclipse
+Vogella tutorial on Eclipse - http://www.vogella.com/eclipse.html
+
+

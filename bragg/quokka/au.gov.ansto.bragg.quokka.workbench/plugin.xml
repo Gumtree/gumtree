@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="au.gov.ansto.bragg.quokka.workbench.internal.OpenMultiSampleWorkflowHandler"
+            id="au.gov.ansto.bragg.quokka.workbench.openMultiSampleWorkflowCommand"
+            name="Open Multi Sample Workflow">
+      </command>
+   </extension>
+   <extension
+         point="org.gumtree.ui.appLaunches">
+      <appLaunch
+            commandId="au.gov.ansto.bragg.quokka.workbench.openMultiSampleWorkflowCommand"
+            icon64="icons/workflow_64x64.png"
+            label="Multi Sample Workflow">
+      </appLaunch>
+   </extension>
+
+</plugin>
