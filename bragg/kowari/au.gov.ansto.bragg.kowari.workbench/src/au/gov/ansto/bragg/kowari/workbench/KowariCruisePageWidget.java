@@ -14,6 +14,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
 import org.gumtree.gumnix.sics.ui.widgets.SicsInterruptGadget;
 import org.gumtree.gumnix.sics.ui.widgets.SicsStatusGadget;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
@@ -57,6 +58,13 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		SicsStatusGadget statusGadget = new SicsStatusGadget(sicsStatusGroup,
 				SWT.NONE);
 		configureWidget(statusGadget);
+
+		// Pause Counter
+		PGroup pauseGroup = createGroup("PAUSE COUNTING",
+				SharedImage.SHUTTER.getImage());
+		HMVetoGadget pauseStatuswidget = new HMVetoGadget(
+				pauseGroup, SWT.NONE);
+		configureWidget(pauseStatuswidget);
 
 		// Monitor Event Rate
 		PGroup monitorGroup = createGroup("Neutron Counts",
