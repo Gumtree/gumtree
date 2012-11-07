@@ -39,6 +39,7 @@ public class OsgiPyScriptEngine extends ExtendedPyScriptEngine {
 	public void activate() {
 		// [Tony][2010-10-08] Initialise
 		interp.runsource("import sys", "<script>");
+		interp.set("__context__", getContext());
 
 		// Set prefix
 		try {

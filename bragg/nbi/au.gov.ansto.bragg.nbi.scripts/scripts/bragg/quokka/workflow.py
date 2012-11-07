@@ -14,7 +14,7 @@ from gumpy.commons import sics
 from bragg.quokka import quokka
 from bragg.quokka.quokka import *
 from time import sleep
-from org.gumtree.core.util import WorkspaceUtils
+from org.gumtree.util.eclipse import WorkspaceUtils
 
 """
 Quokka Workflow module contains helper method to glue the Python code with 
