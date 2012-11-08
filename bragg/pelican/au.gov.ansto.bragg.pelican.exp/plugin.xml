@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.gumtree.workflow.ui.tasks">
+      <task
+            class="au.gov.ansto.bragg.pelican.exp.task.SicsBlockTask"
+            colour="DARK_GRAY"
+            icon="icons/tcl16x16.png"
+            icon32="icons/tcl32x32.png"
+            label="SICS Command"
+            provider="Bragg Institute"
+            tags="tcl">
+            <description>
+            This task helps to construct a SICS tcl script for batch execution.
+         	</description>
+      </task>
+   </extension>
+</plugin>
