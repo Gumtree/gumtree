@@ -17,8 +17,27 @@ public enum SharedImage {
 
 	SHUTTER("/icons/shared/pipe_16x16.png"),
 	REACTOR("/icons/shared/data_source_view.gif"),
-	POWER("/icons/shared/power16x16.png");
-	
+	POWER("/icons/shared/power16x16.png"),
+	EXPERIMENT_INFO("/icons/cruise/experiments_16x16.png"),
+	EXPERIMENT_STATUS("/icons/cruise/rotate_16x16.png"),
+	SPIN("/icons/cruise/spin.png"),
+	GEAR("/icons/cruise/gear_16.png"),
+	BEAKER("/icons/cruise/beaker.png"),
+	FURNACE("/icons/cruise/dashboard.png"),
+	CRADLE("/icons/cruise/cradle_16x16.png"),
+	SLITS("/icons/cruise/slits_16x16.png"),
+	POSITIONER("/icons/cruise/stage_16x16.gif"),
+	MONOCHROMATOR("/icons/cruise/mono_16x16.png"),
+	ROBOT("/icons/cruise/robot_16x16.png"),
+	SERVER("/icons/cruise/server_16.png"),
+	MONITOR("/icons/cruise/counter_16x16.png"),
+	A("/icons/cruise/document-attribute.png"),
+	B("/icons/cruise/document-attribute-b.png"),
+	C("/icons/cruise/document-attribute-c.png"),
+	D("/icons/cruise/document-attribute-d.png"),
+	ONE("/icons/cruise/hh1_16x16.png"),
+	TWO("/icons/cruise/hh2_16x16.png");
+
 	private SharedImage(String path) {
 		this.path = path;
 	}

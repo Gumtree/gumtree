@@ -41,7 +41,7 @@ public class Normalise extends ConcreteProcessor {
 		if(dataArray.getRank()>2) {
 			int [] data_dims = dataArray.getShape();
 			int dlength = dataArray.getRank();
-			IArray monitor_array = normalise_groupdata.getRootGroup().getDataItem("monitor_data").getData();
+			IArray monitor_array = normalise_groupdata.getRootGroup().findDataItem("monitor_data").getData();
 			//We should have a monitor array rather than a single value
 			monmax = monitor_array.getArrayMath().getMaximum();
 			IArray outarray = Factory.createArray(double.class, data_dims);

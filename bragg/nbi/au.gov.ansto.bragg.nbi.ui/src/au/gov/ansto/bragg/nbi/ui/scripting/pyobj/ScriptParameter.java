@@ -117,11 +117,13 @@ public class ScriptParameter implements IPyObject{
 		this.command = command;
 	}
 	
-	public void setProperty(String name, String value){
+	public void setProperty(String name, Object value){
 		if (properties == null) {
 			properties = new HashMap<String, String>();
 		}
-		properties.put(name, value);
+		String oldValue = properties.get(name);
+		properties.put(name, String.valueOf(value));
+		firePropertyChange(name, oldValue, String.valueOf(value));
 	}
 	
 	public String getProperty(String name) {

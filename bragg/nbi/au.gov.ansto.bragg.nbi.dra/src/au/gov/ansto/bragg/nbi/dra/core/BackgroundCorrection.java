@@ -65,7 +65,7 @@ public class BackgroundCorrection extends ConcreteProcessor {
 			try {
 			     norm_counts = ((NcGroup) backgroundCorrection_scanData).findSignal().getParentGroup().findAttribute("normalised_to_val").getNumericValue().doubleValue();
 			} catch (NullPointerException e) {
-				IArray mon_data = backgroundCorrection_scanData.getRootGroup().getDataItem("monitor_data").getData();
+				IArray mon_data = backgroundCorrection_scanData.getRootGroup().findDataItem("monitor_data").getData();
 				IIndex mon_data_index = mon_data.getIndex();
 				mon_data_index.set(0);
 				norm_counts =  mon_data.getDouble(mon_data_index);
@@ -75,7 +75,7 @@ public class BackgroundCorrection extends ConcreteProcessor {
 			//In reducing the background data, we are assuming that the input data has also been reduced
 			//Note that the background data may not be a Plot object so we use the Group interface
 			IArray backgroundArray = ((NcGroup) backgroundData).findSignal().getData().getArrayUtils().reduce().getArray(); //remove unused dimensions
-			IArray backmonitor = backgroundData.getRootGroup().getDataItem("monitor_data").getData();
+			IArray backmonitor = backgroundData.getRootGroup().findDataItem("monitor_data").getData();
 			// We may have a variable number of dimensions, but we assume that the largest two are the detector
 			// dimensions, and these should match our background dimensions.
 			// Now check that all shapes match; otherwise return true (which means failure)

@@ -54,10 +54,9 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
@@ -83,6 +82,7 @@ import org.gumtree.gumnix.sics.control.events.IDynamicControllerListener;
 import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.io.SicsIOException;
 import org.gumtree.scripting.IScriptExecutor;
+import org.gumtree.scripting.ScriptExecutor;
 
 import au.gov.ansto.bragg.nbi.ui.internal.Activator;
 import au.gov.ansto.bragg.nbi.ui.internal.InternalImage;
@@ -113,9 +113,9 @@ public class ScriptControlViewer extends Composite {
 	private static final String PRE_RUN_SCRIPT = "/pyscripts/pre_run.py";
 	private static final String POST_RUN_SCRIPT	= "/pyscripts/post_run.py";
 //	private static final String INTERNAL_FOLDER_PATH = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/Internal";
-	private static final String WORKSPACE_FOLDER_PATH = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
-	private static final String GUMTREE_SCRIPTING_LIST_PROPERTY = "gumtree.scripting.menuitems";
-	private static final String GUMTREE_SCRIPTING_INIT_PROPERTY = "gumtree.scripting.initscript";
+	public static final String WORKSPACE_FOLDER_PATH = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+	public static final String GUMTREE_SCRIPTING_LIST_PROPERTY = "gumtree.scripting.menuitems";
+	public static final String GUMTREE_SCRIPTING_INIT_PROPERTY = "gumtree.scripting.initscript";
 //	private static final String[][] INTERNAL_SCRIPTS = new String[][]{
 //									{"Experiment Setup", "/Experiment/Experiment_Setup.py"},
 //									{"Nickel Alignment", "/Nickel_Auto/auto_Nickel_align.py"},
@@ -230,6 +230,7 @@ public class ScriptControlViewer extends Composite {
 	private ScriptModel scriptModel;
 	private String scriptFilename;
 	private Button currentButton;
+	private ScriptExecutor scriptExecutor;
 	private IActivityListener datasetActivityListener;
 	/**
 	 * @param parent
@@ -246,7 +247,7 @@ public class ScriptControlViewer extends Composite {
 	}
 
 	private void createStaticArea() {
-		staticComposite = new Composite(this, SWT.EMBEDDED);
+		staticComposite = new Composite(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(3).margins(0, 0).spacing(1, 1).applyTo(staticComposite);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(staticComposite);
 		staticComposite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
@@ -484,7 +485,7 @@ public class ScriptControlViewer extends Composite {
 		});
 		
 		try {
-			initSicsListeners();
+//			initSicsListeners();
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -694,12 +695,14 @@ public class ScriptControlViewer extends Composite {
 		if (filePath.length() > 24) {
 			text = filePath.substring(0, 3) + "..." + filePath.substring(filePath.length() - 18);
 		}
-		scriptLabel.setText(text);
-		scriptLabel.setToolTipText(filePath);
-		getRunner().setScriptPath(filePath);
-		reloadButton.setEnabled(true);
-		showButton.setEnabled(true);
-		runButton.setEnabled(true);
+		if (!staticComposite.isDisposed()) {
+			scriptLabel.setText(text);
+			scriptLabel.setToolTipText(filePath);
+			getRunner().setScriptPath(filePath);
+			reloadButton.setEnabled(true);
+			showButton.setEnabled(true);
+			runButton.setEnabled(true);
+		}
 		setScriptFilename(filePath);
 		scriptModel = new ScriptModel(scriptRegisterID);
 		scriptModel.addChangeListener(new ScriptModel.IModelChangeListener() {
@@ -758,7 +761,9 @@ public class ScriptControlViewer extends Composite {
 					runScript();
 				}
 			};
-			getDataSourceViewer().addActivityListener(datasetActivityListener);
+			if (getDataSourceViewer() != null) {
+				getDataSourceViewer().addActivityListener(datasetActivityListener);
+			}
 		}
 		executor.runScript("time.sleep(0.1)");
 		executor.runScript("auto_run()");
@@ -777,7 +782,9 @@ public class ScriptControlViewer extends Composite {
 			if (title.length() > 22) {
 				title = title.substring(0, 3) + "..." + title.substring(title.length() - 16);
 			}
-			scriptLabel.setText(title);
+			if (!scriptLabel.isDisposed()) {
+				scriptLabel.setText(title);
+			}
 		}
 		List<ScriptObjectGroup> groups = scriptModel.getGroups();
 		List<IPyObject> objs = scriptModel.getControlList();
@@ -916,6 +923,14 @@ public class ScriptControlViewer extends Composite {
 	}
 
 	private void addParameter(Composite parent, final ScriptParameter parameter) {
+		String enabledProperty = parameter.getProperty("enabled");
+		boolean itemEnabled = true;
+		if (enabledProperty != null) {
+			try {
+				itemEnabled = Boolean.valueOf(enabledProperty);
+			} catch (Exception e) {
+			}
+		}
 		if (parameter.getOptions() != null) {
 			Label name = new Label(parent, SWT.RIGHT);
 			name.setText(parameter.getName());
@@ -924,6 +939,7 @@ public class ScriptControlViewer extends Composite {
 			GridDataFactory.fillDefaults().grab(false, false).applyTo(comboBox.getControl());
 			comboBox.setContentProvider(new ArrayContentProvider());
 			comboBox.setLabelProvider(new LabelProvider());
+			comboBox.getCombo().setEnabled(itemEnabled);
 			//				comboBox.setSorter(new ViewerSorter());
 			comboBox.setInput(parameter.getOptions());
 			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
@@ -946,7 +962,7 @@ public class ScriptControlViewer extends Composite {
 												parameter.getValue()));
 									}
 								});
-							}
+							} 
 						}
 					});
 				}
@@ -971,12 +987,28 @@ public class ScriptControlViewer extends Composite {
 				final Text stringText = new Text(parent, SWT.BORDER);
 				stringText.setText(String.valueOf(parameter.getValue()));
 				GridDataFactory.fillDefaults().grab(true, false).applyTo(stringText);
+				stringText.setEditable(itemEnabled);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
 						bindingContext.bindValue(SWTObservables.observeText(stringText, SWT.Modify),
 								BeansObservables.observeValue(parameter, "value"),
 								new UpdateValueStrategy(), new UpdateValueStrategy());
+						parameter.addPropertyChangeListener(new PropertyChangeListener() {
+
+							@Override
+							public void propertyChange(final PropertyChangeEvent evt) {
+								if (evt.getPropertyName().equals("enabled")) {
+									Display.getDefault().asyncExec(new Runnable() {
+
+										@Override
+										public void run() {
+											stringText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+										}
+									});
+								} 
+							}
+						});
 					}
 				});
 				stringText.addModifyListener(new ModifyListener() {
@@ -997,12 +1029,28 @@ public class ScriptControlViewer extends Composite {
 				final Text intText = new Text(parent, SWT.BORDER);
 				intText.setText(String.valueOf(parameter.getValue()));
 				GridDataFactory.fillDefaults().grab(true, false).applyTo(intText);
+				intText.setEditable(itemEnabled);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
 						bindingContext.bindValue(SWTObservables.observeText(intText, SWT.Modify),
 								BeansObservables.observeValue(parameter, "value"),
 								new UpdateValueStrategy(), new UpdateValueStrategy());
+						parameter.addPropertyChangeListener(new PropertyChangeListener() {
+
+							@Override
+							public void propertyChange(final PropertyChangeEvent evt) {
+								if (evt.getPropertyName().equals("enabled")) {
+									Display.getDefault().asyncExec(new Runnable() {
+
+										@Override
+										public void run() {
+											intText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+										}
+									});
+								} 
+							}
+						});
 					}
 				});
 				intText.addModifyListener(new ModifyListener() {
@@ -1023,12 +1071,28 @@ public class ScriptControlViewer extends Composite {
 				final Text floatText = new Text(parent, SWT.BORDER);
 				floatText.setText(String.valueOf(parameter.getValue()));
 				GridDataFactory.fillDefaults().grab(true, false).applyTo(floatText);
+				floatText.setEditable(itemEnabled);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
 						bindingContext.bindValue(SWTObservables.observeText(floatText, SWT.Modify),
 								BeansObservables.observeValue(parameter, "value"),
 								new UpdateValueStrategy(), new UpdateValueStrategy());
+						parameter.addPropertyChangeListener(new PropertyChangeListener() {
+
+							@Override
+							public void propertyChange(final PropertyChangeEvent evt) {
+								if (evt.getPropertyName().equals("enabled")) {
+									Display.getDefault().asyncExec(new Runnable() {
+
+										@Override
+										public void run() {
+											floatText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+										}
+									});
+								} 
+							}
+						});
 					}
 				});
 				floatText.addModifyListener(new ModifyListener() {
@@ -1049,12 +1113,28 @@ public class ScriptControlViewer extends Composite {
 				final Button selectBox = new Button(parent, SWT.CHECK);
 				selectBox.setSelection(Boolean.valueOf(String.valueOf(parameter.getValue())));
 				GridDataFactory.fillDefaults().grab(false, false).applyTo(selectBox);
+				selectBox.setEnabled(itemEnabled);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
 						bindingContext.bindValue(SWTObservables.observeSelection(selectBox),
 								BeansObservables.observeValue(parameter, "value"),
 								new UpdateValueStrategy(), new UpdateValueStrategy());
+						parameter.addPropertyChangeListener(new PropertyChangeListener() {
+
+							@Override
+							public void propertyChange(final PropertyChangeEvent evt) {
+								if (evt.getPropertyName().equals("enabled")) {
+									Display.getDefault().asyncExec(new Runnable() {
+
+										@Override
+										public void run() {
+											selectBox.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+										}
+									});
+								} 
+							}
+						});
 					}
 				});
 				selectBox.addSelectionListener(new SelectionListener() {
@@ -1083,6 +1163,7 @@ public class ScriptControlViewer extends Composite {
 				String itemText = String.valueOf(parameter.getValue());
 				fileText.setText(itemText);
 				fileText.setToolTipText(itemText);
+				fileText.setEditable(itemEnabled);
 				GridDataFactory.fillDefaults().grab(true, false).applyTo(fileText);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
@@ -1090,6 +1171,21 @@ public class ScriptControlViewer extends Composite {
 						bindingContext.bindValue(SWTObservables.observeText(fileText, SWT.Modify),
 								BeansObservables.observeValue(parameter, "value"),
 								new UpdateValueStrategy(), new UpdateValueStrategy());
+						parameter.addPropertyChangeListener(new PropertyChangeListener() {
+
+							@Override
+							public void propertyChange(final PropertyChangeEvent evt) {
+								if (evt.getPropertyName().equals("enabled")) {
+									Display.getDefault().asyncExec(new Runnable() {
+
+										@Override
+										public void run() {
+											fileText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+										}
+									});
+								} 
+							}
+						});
 					}
 				});
 				final Button fileLocatorButton = new Button(fileComposite, SWT.PUSH);
@@ -1223,12 +1319,28 @@ public class ScriptControlViewer extends Composite {
 				final Text defaultText = new Text(parent, SWT.BORDER);
 				defaultText.setText(String.valueOf(parameter.getValue()));
 				GridDataFactory.fillDefaults().grab(true, false).applyTo(defaultText);
+				defaultText.setEditable(itemEnabled);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
 						bindingContext.bindValue(SWTObservables.observeText(defaultText, SWT.Modify),
 								BeansObservables.observeValue(parameter, "value"),
 								new UpdateValueStrategy(), new UpdateValueStrategy());
+						parameter.addPropertyChangeListener(new PropertyChangeListener() {
+
+							@Override
+							public void propertyChange(final PropertyChangeEvent evt) {
+								if (evt.getPropertyName().equals("enabled")) {
+									Display.getDefault().asyncExec(new Runnable() {
+
+										@Override
+										public void run() {
+											defaultText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+										}
+									});
+								} 
+							}
+						});
 					}
 				});
 				defaultText.addModifyListener(new ModifyListener() {
@@ -1247,13 +1359,12 @@ public class ScriptControlViewer extends Composite {
 	}
 
 	public IScriptExecutor getScriptExecutor() {
+		if (scriptExecutor != null) {
+			return scriptExecutor;
+		}
 		ScriptPageRegister register = ScriptPageRegister.getRegister(scriptRegisterID);
 		if (register != null) {
-			if (register.getScriptExecutor() != null) {
-				return register.getScriptExecutor();
-			} else {
-				return register.getConsoleViewer().getScriptExecutor();
-			}
+			return register.getConsoleViewer().getScriptExecutor();
 		}
 		return null;
 	}
@@ -1407,7 +1518,6 @@ public class ScriptControlViewer extends Composite {
 
 	    private IStructuredSelection selection;
 	    private NewConfigFileWizardPage newFileWizardPage;
-	    private IWorkbench workbench;
 	    private String filename;
 	 
 	    public NewConfigFileWizard() {
@@ -1425,14 +1535,13 @@ public class ScriptControlViewer extends Composite {
 	       
 	        IFile file = newFileWizardPage.createNewFile();
 	        filename = file.getRawLocationURI().getPath();
-	        if (file != null)
+	        if (file != null && file.exists())
 	            return true;
 	        else
 	            return false;
 	    }
 
 	    public void init(IWorkbench workbench, IStructuredSelection selection) {
-	        this.workbench = workbench;
 	        this.selection = selection;
 	    }
 	    
@@ -1531,5 +1640,17 @@ public class ScriptControlViewer extends Composite {
 			return Platform.getPreferencesService().getString(
 					Activator.PLUGIN_ID, name, "", null).trim();
 		}
+	}
+	
+	public Composite getStaticComposite() {
+		return staticComposite;
+	}
+	
+	public Composite getScrollArea() {
+		return scroll;
+	}
+	
+	public void setScriptExecutor(ScriptExecutor executor){
+		this.scriptExecutor = executor;
 	}
 }
