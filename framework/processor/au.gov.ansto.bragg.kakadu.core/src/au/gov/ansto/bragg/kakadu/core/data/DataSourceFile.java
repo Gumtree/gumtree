@@ -149,6 +149,7 @@ public class DataSourceFile {
 		try {
 			rootGroup.getDataset().close();
 			System.out.println("Dataset File Closed");
+			rootGroup = null;
 		} catch (IOException e) {
 		}
 	}

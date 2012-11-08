@@ -159,6 +159,7 @@ public class Normalise extends ConcreteProcessor {
 
 	public void setNorm_reference(String refloc) {
 		norm_reference = refloc;
+		informVarValueChange("norm_reference", norm_reference);
 	}
 	
 	public DataStructureType getDataStructureType() {
