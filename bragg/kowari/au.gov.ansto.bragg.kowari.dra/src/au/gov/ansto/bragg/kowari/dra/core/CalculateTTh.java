@@ -185,7 +185,7 @@ public class CalculateTTh extends ConcreteProcessor {
 
 	public static Double getSDD(Plot plot){
 		try{
-			double value = plot.getDataItem("sample_to_detector_distance").getData().getArrayMath().getMaximum();
+			double value = plot.findDataItem("sample_to_detector_distance").getData().getArrayMath().getMaximum();
 			return Double.valueOf(value);
 		}catch (Exception e) {
 			System.out.println("can not find sample to detector distance value from the file");

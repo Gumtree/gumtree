@@ -69,7 +69,7 @@ public class FindData extends ConcreteProcessor {
 		try {
 			source_scanData = source_groupData.getGroup(source_dataName);
 			if (source_scanData == null)
-				source_scanData = source_groupData.getDataItem(source_dataName).getParentGroup();			
+				source_scanData = source_groupData.findDataItem(source_dataName).getParentGroup();			
 		} catch (Exception e) {
 			// TODO: handle exception
 			throw new Exception("can not find the data: " + source_dataName);

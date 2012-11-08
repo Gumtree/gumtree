@@ -41,7 +41,7 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 	public static final String WORKFLOW_VIEW_ID = "au.gov.ansto.bragg.kowari.ui.views.TclEditorView";
 //	public static final String FILTERED_STATUS_MONITOR_VIEW_ID = "org.gumtree.dashboard.ui.rcp.FilteredStatusMonitorView";
 	public static final String COMMAND_LINE_VIEW_ID="org.gumtree.scripting.ui.commandLineView";
-	public static final String SICS_TERMINAL_VIEW_ID = "org.gumtree.gumnix.sics.ui.SicsTerminalView";
+	public static final String SICS_TERMINAL_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.SicsTerminalView";
 //	public static final String SICS_TELNET_ADAPTOR_ID = "org.gumtree.gumnix.sics.ui.serverCommunicationAdapter";
 	public static final String PROJECT_EXPLORER_VIEW_ID = "org.eclipse.ui.navigator.ProjectExplorer";
 	public static final String CONTROL_VIEW_ID = "au.gov.ansto.bragg.kowari.ui.views.KowariControlView";
@@ -91,8 +91,8 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 		factory.addStandaloneView(ID_VIEW_ACTIVITY_MONITOR, false, 
 		IPageLayout.RIGHT, 0.50f, SICS_TERMINAL_VIEW_ID);
 
-		factory.addStandaloneView(PROJECT_EXPLORER_VIEW_ID, false, 
-				IPageLayout.BOTTOM, 0.1f, factory.getEditorArea());
+		factory.addStandaloneView(PROJECT_EXPLORER_VIEW_ID, true, 
+				IPageLayout.LEFT, 0.2f, "top2");
 
 		factory.getViewLayout(WORKFLOW_VIEW_ID).setCloseable(false);
 		factory.getViewLayout(WORKFLOW_VIEW_ID).setMoveable(false);
@@ -107,29 +107,52 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 //		factory.getViewLayout(ANALYSIS_PARAMETERS_VIEW_ID).setCloseable(false);
 		
 //		factory.setFixed(true);
-		PlatformUI.getWorkbench().getActiveWorkbenchWindow().addPerspectiveListener(new IPerspectiveListener() {
+//		PlatformUI.getWorkbench().getActiveWorkbenchWindow().addPerspectiveListener(new IPerspectiveListener() {
+//			
+//			@Override
+//			public void perspectiveChanged(IWorkbenchPage page,
+//					IPerspectiveDescriptor perspective, String changeId) {
+//				System.out.println("perspective changed");
+//			}
+//			
+//			@Override
+//			public void perspectiveActivated(IWorkbenchPage page,
+//					IPerspectiveDescriptor perspective) {
+//				if (perspective.getId().equals(EXPERIMENT_PERSPECTIVE_ID)) {
+//					PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
+//							EXPERIMENT_PERSPECTIVE_THEME);
+//				} else {
+//					PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
+//							DEFAULT_PERSPECTIVE_THEME);
+//				}
+//				
+//			}
+//		});
+		
+		
+		final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
 			
 			@Override
 			public void perspectiveChanged(IWorkbenchPage page,
 					IPerspectiveDescriptor perspective, String changeId) {
-				System.out.println("perspective changed");
+				if (perspective.getId().equals("au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective")) {
+					activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
+				}
 			}
 			
 			@Override
 			public void perspectiveActivated(IWorkbenchPage page,
 					IPerspectiveDescriptor perspective) {
-				if (perspective.getId().equals(EXPERIMENT_PERSPECTIVE_ID)) {
+				if (perspective.getId().equals(TCLRunnerPerspective.EXPERIMENT_PERSPECTIVE_ID)) {
 					PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
-							EXPERIMENT_PERSPECTIVE_THEME);
+							TCLRunnerPerspective.EXPERIMENT_PERSPECTIVE_THEME);
 				} else {
 					PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
-							DEFAULT_PERSPECTIVE_THEME);
+							TCLRunnerPerspective.DEFAULT_PERSPECTIVE_THEME);
 				}
-				
 			}
 		});
-		
-		
 	}
 
 //	/* (non-Javadoc)
