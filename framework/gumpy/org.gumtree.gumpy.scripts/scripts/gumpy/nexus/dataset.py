@@ -179,6 +179,15 @@ class Dataset(Data):
     def __getattr__(self, name):
         if name == 'title' or name == 'name' :
             return self.__iNXDataset__.getTitle()
+        elif name == 'log' :
+            try:
+                log = self.get_metadata('log')
+                if not log :
+                    return ''
+                else:
+                    return str(log)
+            except:
+                return ''
         elif name == 'id' :
             location = self.__iNXDataset__.getLocation()
             fname = location
@@ -247,6 +256,7 @@ class Dataset(Data):
             title += '_'
         return new(storage, name, var, axes, anames, aunits, False, False, title = title)
 
+    
     def __copy_metadata__(self, dfrom, mslice = None, deep = False):
         if hasattr(dfrom, '__iDictionary__') and not dfrom.__iDictionary__ is None :
             keys = dfrom.__iDictionary__.getAllKeys().toArray()
@@ -269,7 +279,7 @@ class Dataset(Data):
                         self.__iDictionary__.removeEntry(key.getName())
                         self.__iDictionary__.addEntry(key, nx_factory.createPath('/' + key.getName()))
 #                        print key
-
+    
     def copy_metadata_deep(self, dfrom, mslice = None):
         self.__copy_metadata__(self, dfrom, mslice, True)
         
@@ -325,14 +335,14 @@ class Dataset(Data):
             indent = ' ' * 8
         else :
             indent += ' ' * 8
-        res = 'Dataset(' + self.storage.__repr__(indent) + ', \n' \
-                + indent + 'title=\'' + self.title + '\''
+        res = 'Dataset(' + self.storage.__repr__(indent) + str(', \n' \
+                + indent + 'title=\'' + self.title + '\'')
         if not self.var is None :
             res += ',\n' + indent + 'var=' + self.var.storage.__repr__(indent + ' ' * 4)
         if len(self.axes) > 0 :
             res += ',\n' + indent + 'axes=['
             for i in xrange(len(self.axes)) :
-                res += self.axes[i].__repr__(indent + ' ' * 6)
+                res += str(self.axes[i].__repr__(indent + ' ' * 6))
                 if i < len(self.axes) - 1 :
                     res += ',\n' + indent + ' ' * 6
             res += ']'
@@ -343,14 +353,14 @@ class Dataset(Data):
         res = 'title: ' + self.title + '\n' + indent
         if not self.units is None and len(self.units) > 0 :
             res += 'units: ' + self.units + '\n' + indent
-        res += 'storage: ' + self.storage.__str__(indent + ' ' * 9)
+        res = str(res + 'storage: ') + self.storage.__str__(indent + ' ' * 9)
         if not self.var is None :
             res += '\n' + indent + 'error: ' + \
                     (self.var ** 0.5).storage.__str__(indent + ' ' * 7)
         if len(self.axes) > 0 :
             res += '\n' + indent + 'axes:\n' + indent + ' ' * 2
             for i in xrange(len(self.axes)) :
-                res += str(i) + '. ' + self.axes[i].__str__(indent + ' ' * 5)
+                res += str(i) + '. ' + str(self.axes[i].__str__(indent + ' ' * 5))
                 if i < len(self.axes) - 1 :
                     res += '\n' + indent + ' ' * 2
         return res
@@ -555,6 +565,9 @@ class Dataset(Data):
                 if not par is None :
                     par.removeDataItem(oitem)
                     par.addDataItem(value.__iDataItem__)
+        
+    def append_log(self, log):
+        self.log = self.log + log
         
 def new(storage, name = None, var = None, axes = None, anames = None, \
         aunits = None, default_var = True, default_axes = True, title = None) :

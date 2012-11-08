@@ -865,6 +865,16 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 		}
 	}
 
+	public int getSelectedCurveIndex() {
+		if (selectedSeriesIndex >= 0) {
+			XYDataset dataset = getChart().getXYPlot().getDataset();
+			if (dataset.getSeriesCount()> selectedSeriesIndex){
+				return selectedSeriesIndex;
+			}
+		}
+		return -1;
+	}
+	
 	protected int findSelectedMask(int x, int y) {
 		if (getSelectedMask() != null && !getSelectedMask().isEmpty()) {
 			Rectangle2D screenArea = getScreenDataArea();

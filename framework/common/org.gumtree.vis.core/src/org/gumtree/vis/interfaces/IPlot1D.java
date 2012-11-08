@@ -30,6 +30,8 @@ public interface IPlot1D extends IPlot{
 	
 	public Stroke getErrorBarStroke();
 	
+	public int getSelectedCurveIndex();
+	
 	public boolean isCurveMarkerFilled(IXYErrorSeries pattern);
 	
 	public boolean isCurveVisible(IXYErrorSeries pattern);
