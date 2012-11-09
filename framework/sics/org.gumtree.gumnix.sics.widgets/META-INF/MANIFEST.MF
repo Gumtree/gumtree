@@ -12,3 +12,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.gumtree.gumnix.sics.widgets.internal.Activator
 Export-Package: org.gumtree.gumnix.sics.widgets.swt
 Bundle-Vendor: Bragg Institute
+Import-Package: org.eclipse.nebula.widgets.pgroup

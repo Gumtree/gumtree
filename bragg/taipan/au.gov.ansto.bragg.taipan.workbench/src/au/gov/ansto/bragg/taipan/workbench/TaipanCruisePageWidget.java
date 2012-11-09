@@ -71,63 +71,64 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 				pauseGroup, SWT.NONE);
 		configureWidget(pauseStatuswidget);
 		
-		// Beam monitor 1
-		PGroup bm1Group = createGroup("BEAM MONITOR 1", null);
-
-		BeamMonitorDialWidget bm1DialWidget = new BeamMonitorDialWidget(
-				bm1Group, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)
-				.grab(true, false).hint(200, 200).applyTo(bm1DialWidget);
-		IEclipseContext context = getEclipseContext().createChild();
-		context.set("devicePath", "/monitor/bm1_counts");
-		context.set("unit", "counts/sec");
-		ContextInjectionFactory.inject(bm1DialWidget, context);
-
-		File bgImageFile = getDataAccessManager().get(
-				org.gumtree.ui.util.resource.SharedImage.CRUISE_BG.getURI(), File.class);
-		try {
-			bm1DialWidget.getChart().setBackgroundImage(
-					ImageIO.read(bgImageFile));
-		} catch (IOException e) {
-			logger.error("Failed to load image", e);
-		}
-		bm1DialWidget.getChart().setBackgroundPaint(Color.DARK_GRAY);
-
-		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(
-				bm1Group, SWT.NONE);
-		deviceStatusWidget.addDevice("/monitor/bm1_counts", "BM1", null,
-				"counts/sec");
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
-				.grab(true, false).applyTo(deviceStatusWidget);
-		ContextInjectionFactory.inject(deviceStatusWidget, getEclipseContext());
-
-		// Beam monitor 2
-		PGroup bm2Group = createGroup("BEAM MONITOR 2", null);
-
-		BeamMonitorDialWidget bm2DialWidget = new BeamMonitorDialWidget(
-				bm2Group, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)
-				.grab(true, false).hint(200, 200).applyTo(bm2DialWidget);
-		context = getEclipseContext().createChild();
-		context.set("devicePath", "/monitor/bm2_counts");
-		context.set("unit", "counts/sec");
-		ContextInjectionFactory.inject(bm2DialWidget, context);
-
-		try {
-			bm2DialWidget.getChart().setBackgroundImage(
-					ImageIO.read(bgImageFile));
-		} catch (IOException e) {
-			logger.error("Failed to load image", e);
-		}
-		bm2DialWidget.getChart().setBackgroundPaint(Color.DARK_GRAY);
-
-		deviceStatusWidget = new DeviceStatusWidget(bm2Group, SWT.NONE);
-
-		deviceStatusWidget.addDevice("/monitor/bm2_counts", "BM2", null,
-				"counts/sec");
-		ContextInjectionFactory.inject(deviceStatusWidget, context);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
-				.grab(true, false).applyTo(deviceStatusWidget);
+		DeviceStatusWidget deviceStatusWidget;
+//		// Beam monitor 1
+//		PGroup bm1Group = createGroup("BEAM MONITOR 1", null);
+//
+//		BeamMonitorDialWidget bm1DialWidget = new BeamMonitorDialWidget(
+//				bm1Group, SWT.NONE);
+//		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)
+//				.grab(true, false).hint(200, 200).applyTo(bm1DialWidget);
+//		IEclipseContext context = getEclipseContext().createChild();
+//		context.set("devicePath", "/monitor/bm1_counts");
+//		context.set("unit", "counts/sec");
+//		ContextInjectionFactory.inject(bm1DialWidget, context);
+//
+//		File bgImageFile = getDataAccessManager().get(
+//				org.gumtree.ui.util.resource.SharedImage.CRUISE_BG.getURI(), File.class);
+//		try {
+//			bm1DialWidget.getChart().setBackgroundImage(
+//					ImageIO.read(bgImageFile));
+//		} catch (IOException e) {
+//			logger.error("Failed to load image", e);
+//		}
+//		bm1DialWidget.getChart().setBackgroundPaint(Color.DARK_GRAY);
+//
+//		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(
+//				bm1Group, SWT.NONE);
+//		deviceStatusWidget.addDevice("/monitor/bm1_counts", "BM1", null,
+//				"counts/sec");
+//		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
+//				.grab(true, false).applyTo(deviceStatusWidget);
+//		ContextInjectionFactory.inject(deviceStatusWidget, getEclipseContext());
+//
+//		// Beam monitor 2
+//		PGroup bm2Group = createGroup("BEAM MONITOR 2", null);
+//
+//		BeamMonitorDialWidget bm2DialWidget = new BeamMonitorDialWidget(
+//				bm2Group, SWT.NONE);
+//		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)
+//				.grab(true, false).hint(200, 200).applyTo(bm2DialWidget);
+//		context = getEclipseContext().createChild();
+//		context.set("devicePath", "/monitor/bm2_counts");
+//		context.set("unit", "counts/sec");
+//		ContextInjectionFactory.inject(bm2DialWidget, context);
+//
+//		try {
+//			bm2DialWidget.getChart().setBackgroundImage(
+//					ImageIO.read(bgImageFile));
+//		} catch (IOException e) {
+//			logger.error("Failed to load image", e);
+//		}
+//		bm2DialWidget.getChart().setBackgroundPaint(Color.DARK_GRAY);
+//
+//		deviceStatusWidget = new DeviceStatusWidget(bm2Group, SWT.NONE);
+//
+//		deviceStatusWidget.addDevice("/monitor/bm2_counts", "BM2", null,
+//				"counts/sec");
+//		ContextInjectionFactory.inject(deviceStatusWidget, context);
+//		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
+//				.grab(true, false).applyTo(deviceStatusWidget);
 
 		// Interrupt
 		// PGroup interruptGroup = createGroup("INTERRUPT", null);

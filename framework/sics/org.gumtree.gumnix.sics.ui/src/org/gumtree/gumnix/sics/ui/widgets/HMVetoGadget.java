@@ -121,7 +121,7 @@ public class HMVetoGadget extends AbstractSicsWidget {
 		status = new Label(this, SWT.CENTER);
 //		status.setBackground(getBackground());
 		status.setText("Click to Pause Counting");
-		status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+//		status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		GridDataFactory.swtDefaults().align(SWT.CENTER, GridData.VERTICAL_ALIGN_CENTER).grab(true, false).applyTo(status);
 		button = new Label(this, SWT.CENTER);
 //		button.setBackground(getBackground());
@@ -177,7 +177,7 @@ public class HMVetoGadget extends AbstractSicsWidget {
 							isVetoed = true;
 						} else {
 							button.setImage(continueImage);
-							status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
+//							status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
 							status.setText("Counting Paused");
 						}
 					} else {
@@ -186,7 +186,7 @@ public class HMVetoGadget extends AbstractSicsWidget {
 							isVetoed = false;
 						} else {
 							button.setImage(pauseImage);
-							status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+//							status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 							status.setText("Click to Pause Counting");
 						}
 					}

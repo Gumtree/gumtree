@@ -296,13 +296,13 @@ public class BMVetoGadget extends AbstractSicsWidget {
 		getLink(vetoEgi);
 		if (vetoFlag) {
 			button.setImage(continueImage);
-			status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
+//			status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
 			status.setText("Counting Paused");
 			((SicsMonitor) SicsCore.getSicsManager().monitor()).notifyListener("/", "Paused");
 			System.err.println("Counting Paused");
 		} else {
 			button.setImage(pauseImage);
-			status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+//			status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 			status.setText("Click to Pause Counting");
 			((SicsMonitor) SicsCore.getSicsManager().monitor()).notifyListener("/", "Counting");
 		}

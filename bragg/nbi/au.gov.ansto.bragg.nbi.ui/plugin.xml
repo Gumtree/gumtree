@@ -227,10 +227,10 @@
             prespectives="*">
       </gadget>
    </extension>
-   <extension
+   <!-- extension
          point="org.eclipse.ui.startup">
       <startup
             class="au.gov.ansto.bragg.nbi.ui.scripting.ScriptingUIStartup">
       </startup>
-   </extension>
+   </extension -->
 </plugin>
