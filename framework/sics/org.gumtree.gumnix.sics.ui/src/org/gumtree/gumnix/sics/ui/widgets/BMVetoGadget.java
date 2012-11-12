@@ -42,12 +42,13 @@ import org.gumtree.gumnix.sics.internal.control.SicsMonitor;
 import org.gumtree.gumnix.sics.internal.ui.Activator;
 import org.gumtree.gumnix.sics.io.ISicsProxyListener;
 import org.gumtree.gumnix.sics.io.SicsProxyListenerAdapter;
+import org.gumtree.gumnix.sics.widgets.swt.ExtendedSicsComposite;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.widgets.swt.util.UIResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BMVetoGadget extends AbstractSicsWidget {
+public class BMVetoGadget extends ExtendedSicsComposite {
 
 	private static Logger logger = LoggerFactory.getLogger(BMVetoGadget.class);
 	
@@ -116,18 +117,19 @@ public class BMVetoGadget extends AbstractSicsWidget {
 	}
 	
 	public void handleRender() {
-		GridLayoutFactory.swtDefaults().margins(0, 0).applyTo(this);
+		GridLayoutFactory.swtDefaults().margins(0, 0).numColumns(2).applyTo(this);
 		UIResourceManager resourceManager = new UIResourceManager(Activator.PLUGIN_ID, this);
-		status = new Label(this, SWT.CENTER);
-//		status.setBackground(getBackground());
+		status = getWidgetFactory().createLabel(this, "", SWT.CENTER);
 		status.setText("Click to Pause Counting");
 		status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-		GridDataFactory.swtDefaults().align(SWT.CENTER, GridData.VERTICAL_ALIGN_CENTER).grab(true, false).applyTo(status);
-		button = new Label(this, SWT.CENTER);
-//		button.setBackground(getBackground());
+		GridDataFactory.swtDefaults().align(SWT.CENTER, GridData.VERTICAL_ALIGN_CENTER)
+					.hint(SWT.DEFAULT, 32).grab(true, false).applyTo(status);
+		button = getWidgetFactory().createLabel(this, "", SWT.CENTER);
 		pauseImage = resourceManager.createImage("icons/button_blue_pause.png");
 		continueImage = resourceManager.createImage("icons/StepForwardNormalBlue16.png");
 		button.setImage(pauseImage);
+		GridDataFactory.swtDefaults().align(SWT.LEFT, GridData.VERTICAL_ALIGN_CENTER)
+					.hint(80, 32).grab(false, false).applyTo(button);
 //		button.setText("PAUSED");
 		button.setEnabled(false);
 		FontData[] fontData = button.getFont().getFontData();
@@ -193,7 +195,6 @@ public class BMVetoGadget extends AbstractSicsWidget {
 				}
 			}
 		});
-		GridDataFactory.swtDefaults().align(SWT.CENTER, GridData.VERTICAL_ALIGN_CENTER).hint(SWT.DEFAULT, 32).grab(true, false).applyTo(button);
 		this.layout(true, true);
 		// Set UI status
 		updateUI();
@@ -346,9 +347,4 @@ public class BMVetoGadget extends AbstractSicsWidget {
 		return client;
 	}
 
-	@Override
-	public void afterParametersSet() {
-		// TODO Auto-generated method stub
-		
-	}
 }

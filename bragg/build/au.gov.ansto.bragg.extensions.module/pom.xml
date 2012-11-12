@@ -134,6 +134,7 @@
 		<module>${pelican.path}/au.gov.ansto.bragg.pelican.webserver</module>
 		<module>${pelican.path}/au.gov.ansto.bragg.pelican.webserver.feature</module>
 
+		<module>${pelican.path}/au.gov.ansto.bragg.pelican.exp</module>
 		<module>${pelican.path}/au.gov.ansto.bragg.pelican.ui</module>
 		<module>${pelican.path}/au.gov.ansto.bragg.pelican.workbench</module>
 		<module>${pelican.path}/au.gov.ansto.bragg.pelican.workbench.feature</module>
