@@ -28,7 +28,7 @@ public class StaticValues {
     public final static int PANEL_MINIMUM_DRAW_WIDTH = 100;
     public final static int PANEL_MINIMUM_DRAW_HEIGHT = 50;
     public final static int PANEL_MAXIMUM_DRAW_WIDTH = 1280 * 3;
-    public final static int PANEL_MAXIMUM_DRAW_HEIGHT = 1024;
+    public final static int PANEL_MAXIMUM_DRAW_HEIGHT = 1200;
     public final static double SMALLEST_POSITIVE_VALUE = 1e-8;
 	public final static float defaultZoomInFactor = 0.85f;
 	public final static float defaultZoomOutFactor = 1 / defaultZoomInFactor;

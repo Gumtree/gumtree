@@ -220,7 +220,16 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 
 	public static void registerViews(final ScriptPageRegister register) throws PartInitException{
 		
-		IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		IWorkbenchWindow workbenchWindow = null;
+		IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+		for (IWorkbenchWindow window : windows) {
+			if (window.getActivePage().getPerspective().getId().equals(SCRIPTING_PERSPECTIVE_ID)){
+				workbenchWindow = window;
+			}
+		}
+		if (workbenchWindow == null) {
+			return;
+		}
 		final IWorkbenchPage workbenchPage = workbenchWindow.getActivePage();
 		register.setWorkbenchPage(workbenchPage);
 		
@@ -236,11 +245,10 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 				SCRIPT_CONTROL_VIEW_ID, null, IWorkbenchPage.VIEW_CREATE);
 		ScriptPageRegister.registPage(controlView.getViewer().getScriptRegisterID(), register);
 		register.setControlViewer(controlView.getViewer());
-		controlView.getViewer().runInitialScripts();
 		
-		workbenchPage.showView(
-				PROJECT_EXPLORER_VIEW_ID, null, IWorkbenchPage.VIEW_CREATE);
-		
+//		workbenchPage.showView(
+//				PROJECT_EXPLORER_VIEW_ID, null, IWorkbenchPage.VIEW_CREATE);
+
 		PlotView plot1 = (PlotView) workbenchPage.showView(
 				PLOT_VIEW_ID, "1", IWorkbenchPage.VIEW_CREATE);
 		register.setPlot1(plot1);
@@ -258,6 +266,11 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 		workbenchPage.hideView(workbenchPage.findViewReference(DUMMY_VIEW_ID, "2"));
 		workbenchPage.hideView(workbenchPage.findViewReference(DUMMY_VIEW_ID, "3"));
 		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		controlView.getViewer().runInitialScripts();
 
 	}
 }

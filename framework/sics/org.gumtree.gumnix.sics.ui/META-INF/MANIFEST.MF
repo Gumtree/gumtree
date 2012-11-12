@@ -32,4 +32,9 @@ Require-Bundle: javax.inject;bundle-version="1.0.0";visibility:=reexport,
  org.eclipse.ui.console;bundle-version="3.5.100",
  org.eclipse.ui.views;bundle-version="3.6.0",
  org.eclipse.ui.ide;bundle-version="3.7.0"
-Import-Package: org.slf4j
+Import-Package: org.apache.commons.httpclient;version="3.1.0",
+ org.apache.commons.httpclient.auth;version="3.1.0",
+ org.apache.commons.httpclient.methods;version="3.1.0",
+ org.apache.commons.httpclient.params;version="3.1.0",
+ org.slf4j
+Service-Component: OSGI/pages/SicsStatusPage.xml

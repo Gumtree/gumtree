@@ -31,6 +31,8 @@ import org.gumtree.data.interfaces.IAttribute;
 import org.gumtree.data.interfaces.IDataItem;
 import org.gumtree.data.interfaces.IGroup;
 import org.gumtree.vis.listener.XYChartMouseEvent;
+import org.gumtree.vis.mask.AbstractMask;
+import org.gumtree.vis.mask.IMaskEventListener;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.slf4j.LoggerFactory;
@@ -81,6 +83,7 @@ public class AnalysisControlView extends AnalysisParametersView {
 	protected static final String[] DEVICE_NAMES = new String[]{"mf1", "mf2", "sx", "sy", "sz", "som", "stth"};
 	
 	protected Button generateReportButton;
+	private boolean taskScheduled = false;
 	/* (non-Javadoc)
 	 * @see au.gov.ansto.bragg.kakadu.ui.views.AnalysisParametersView#createPartControl(org.eclipse.swt.widgets.Composite)
 	 */
@@ -203,10 +206,12 @@ public class AnalysisControlView extends AnalysisParametersView {
 					List<OperationParameterEditor> editors = parameterEditorsMap.get(operation.getName());
 					for (OperationParameterEditor editor : editors){
 						if (editor.getOperationParameter() == parameter){
-							if (editor instanceof OptionOperationParameterEditor)
+							if (editor instanceof OptionOperationParameterEditor) {
 								((OptionOperationParameterEditor) editor).setSelection(
 										new Position(String.valueOf(
 												((XYChartMouseEvent) event).getX())));
+								applyParameters();
+							}
 						}
 					}
 				}
@@ -221,6 +226,32 @@ public class AnalysisControlView extends AnalysisParametersView {
 					plot.getCurrentPlotWidget().addChartMouseListener(chartMouseListener);
 			}});
 		
+		final IMaskEventListener maskEventListener = new IMaskEventListener() {
+
+			@Override
+			public void maskAdded(AbstractMask mask) {
+				runDelayedTask();
+			}
+
+			@Override
+			public void maskRemoved(AbstractMask mask) {
+				runDelayedTask();
+			}
+
+			@Override
+			public void maskUpdated(AbstractMask mask) {
+				runDelayedTask();
+			}
+			
+		};
+		
+		PlotManager.addOpenNewPlotListener(new PlotManager.OpenNewPlotListener(){
+
+			public void newPlotOpened(au.gov.ansto.bragg.kakadu.ui.plot.Plot plot) {
+				if (plot.getOperaton() == geometryOperation)
+					plot.getCurrentPlotWidget().addMaskEventListener(maskEventListener);
+			}});
+
 		final TunerPortListener applyToAllListener = new TunerPortListener(isInLoopTuner){
 
 			@Override
@@ -248,6 +279,29 @@ public class AnalysisControlView extends AnalysisParametersView {
 			
 		};
 		isInLoopTuner.addVarPortListener(applyToAllListener);
+	}
+	
+	private void runDelayedTask(){
+		try {
+			if (!taskScheduled) {
+				taskScheduled = true;
+				new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						try {
+							Thread.sleep(1500);
+							runAlgorithmWithSelectedData();
+							taskScheduled = false;
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}).start();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void exportReport(URI targetFolderURI, Plot resultPlot) {

@@ -33,13 +33,20 @@ Par.__model__ = __model__
 Act.__model__ = __model__
 Group.__model__ = __model__
 df = script.df
-Plot1 = GPlot(widget=__register__.getPlot1())
-Plot2 = GPlot(widget=__register__.getPlot2())
-Plot3 = GPlot(widget=__register__.getPlot3())
-gumtree_root = str(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString())
 def noclose():
     print 'not closable'
     
+if __register__.getPlot1() != None:
+    Plot1 = GPlot(widget=__register__.getPlot1())
+    Plot1.close = noclose
+if __register__.getPlot2() != None:
+    Plot2 = GPlot(widget=__register__.getPlot2())
+    Plot2.close = noclose
+if __register__.getPlot3() != None:
+    Plot3 = GPlot(widget=__register__.getPlot3())
+    Plot3.close = noclose
+    
+gumtree_root = str(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString())
 def load_script(fname):
     fname = os.path.dirname(__UI__.getScriptFilename()) + '/' + fname
     __UI__.loadScript(fname)
@@ -62,10 +69,6 @@ def open_question(msg):
 def selectSaveFolder():
     return __runner__.selectSaveFile()
 
-Plot1.close = noclose
-Plot2.close = noclose
-Plot3.close = noclose
-
 if '__dispose__' in globals() :
     __dispose__()
     
@@ -73,21 +76,21 @@ def auto_run():
     pass
 
 def run_action(act):
-	act.set_running_status()
-	try:
-		exec(act.command)
-		act.set_done_status()
-	except Exception, e:
-		if sics.getSicsController() != None: 
-			act.set_interrupt_status()
-		raise Exception, e.message
-	except:
-		act.set_error_status()
-		traceback.print_exc(file = sys.stdout)
-		raise Exception, 'Error in running <' + act.text + '>'
-	if sics.getSicsController() != None:
-		sics.handleInterrupt()
-	
+    act.set_running_status()
+    try:
+        exec(act.command)
+        act.set_done_status()
+    except Exception, e:
+        if sics.getSicsController() != None: 
+            act.set_interrupt_status()
+        raise Exception, e.message
+    except:
+        act.set_error_status()
+        traceback.print_exc(file = sys.stdout)
+        raise Exception, 'Error in running <' + act.text + '>'
+    if sics.getSicsController() != None:
+        sics.handleInterrupt()
+    
 #def slog(text):
 #    global __file_logger__
 #    logln(text + '\n')

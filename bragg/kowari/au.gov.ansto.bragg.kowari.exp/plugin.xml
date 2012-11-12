@@ -22,7 +22,7 @@
             Task to help you set up sample information. 
          	</description>
       </task>
-      <task
+      <!-- task
             class="au.gov.ansto.bragg.kowari.exp.task.ScanNDTask"
             colour="BLUE"
             icon="icons/twoDScan_16x16.gif"
@@ -90,6 +90,6 @@
             <description>
             This task helps to construct a SICS tcl script for batch execution.
          	</description>
-      </task>
+      </task -->
    </extension>
 </plugin>

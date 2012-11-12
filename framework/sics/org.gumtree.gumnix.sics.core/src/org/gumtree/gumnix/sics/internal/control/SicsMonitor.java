@@ -107,6 +107,17 @@ public class SicsMonitor implements ISicsMonitor {
 		proxy.addProxyListener(proxyListener);
 	}
 
+	public void notifyListener(String path, final String value) {
+		IListenerManager<IHipadabaListener> listenerManager = hdbListeners.get(path);
+		if(listenerManager != null) {
+			listenerManager.asyncInvokeListeners(new SafeListenerRunnable<IHipadabaListener>() {
+				public void run(IHipadabaListener listener) throws Exception {
+					listener.valueUpdated(value);
+				}
+			});
+		}
+	}
+	
 	private void bindProxy() {
 		callback = new SicsCallbackAdapter() {
 			private boolean initialised = false;

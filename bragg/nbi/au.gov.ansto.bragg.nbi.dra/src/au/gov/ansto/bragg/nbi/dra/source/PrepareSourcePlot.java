@@ -70,7 +70,7 @@ public class PrepareSourcePlot extends ConcreteProcessor {
 		if (prepareSourcePlot_enableNormalisation){
 			IArray variableArray = null;
 			try{
-				variableArray = prepareSourcePlot_inputGroup.getDataItem(
+				variableArray = prepareSourcePlot_inputGroup.findDataItem(
 						prepareSourcePlot_normalisationVariable).getData();
 			}catch (Exception e) {
 			}
@@ -114,7 +114,7 @@ public class PrepareSourcePlot extends ConcreteProcessor {
 			throw new Exception("can not put metadata to output");
 		String[] metaDataNames = prepareSourcePlot_metaDataNames.split(",");
 		for (int i = 0; i < metaDataNames.length; i++) {
-			IDataItem item = prepareSourcePlot_inputGroup.getDataItem(metaDataNames[i].trim());
+			IDataItem item = prepareSourcePlot_inputGroup.findDataItem(metaDataNames[i].trim());
 			if (item != null){
 				IDataItem cloneItem = item.clone();
 				cloneItem.addStringAttribute(Util.PLOT_METADATA_ATTRIBUTE_NAME, 

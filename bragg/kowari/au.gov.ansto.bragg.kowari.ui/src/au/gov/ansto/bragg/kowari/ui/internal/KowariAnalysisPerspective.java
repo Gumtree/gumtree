@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveFactory;
+import org.eclipse.ui.IPerspectiveListener;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -227,6 +228,24 @@ public class KowariAnalysisPerspective implements IPerspectiveFactory {
 //			
 //		});
 		factory.setFixed(true);
+		
+		final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
+			
+			@Override
+			public void perspectiveChanged(IWorkbenchPage page,
+					IPerspectiveDescriptor perspective, String changeId) {
+				if (perspective.getId().equals(ANALYSIS_PERSPECTIVE_ID)) {
+					IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
+					activePage.hideView(activePage.findViewReference("org.gumtree.app.workbench.cruisePanel"));
+				}
+			}
+			
+			@Override
+			public void perspectiveActivated(IWorkbenchPage page,
+					IPerspectiveDescriptor perspective) {
+			}
+		});
 }
 
 	public static CicadaDOM getCicadaDOM(){

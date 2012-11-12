@@ -12,6 +12,7 @@ import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.nebula.widgets.pgroup.PGroup;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
@@ -39,6 +40,9 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 
 	public DeviceStatusWidget(Composite parent, int style) {
 		super(parent, style);
+		if (parent instanceof PGroup) {
+			((PGroup) parent).setExpanded(false);
+		}
 		deviceContexts = new ArrayList<DeviceStatusWidget.DeviceContext>();
 		labelContexts = new HashSet<DeviceStatusWidget.LabelContext>();
 	}
@@ -245,6 +249,12 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 			@Override
 			public void run() throws Exception {
 				if (label != null && !label.isDisposed()) {
+					Composite parent = getParent();
+					if (parent instanceof PGroup) {
+						if (!((PGroup) parent).getExpanded()) {
+							((PGroup) parent).setExpanded(true);
+						}
+					}
 					label.setText(data);
 					// TODO: does it have any performance hit?
 					label.getParent().layout(true, true);

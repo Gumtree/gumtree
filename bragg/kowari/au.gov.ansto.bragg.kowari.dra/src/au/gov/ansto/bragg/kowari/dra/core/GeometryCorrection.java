@@ -103,10 +103,10 @@ public class GeometryCorrection extends ConcreteProcessor {
 //			throw new StructureTypeException("wrong axis information, units of horizontal dimension not in 'mm'");
 		IArray stth = null;
 		try{
-			stth = geometry_inputPlot.getDataItem("stth").getData();
+			stth = geometry_inputPlot.findDataItem("stth").getData();
 		}catch (Exception e) {
 			try{
-				stth = geometry_inputPlot.getDataItem("old_stth").getData();
+				stth = geometry_inputPlot.findDataItem("old_stth").getData();
 			}catch (Exception e1) {
 				throw new SignalNotAvailableException("can not find stth from the nexus data");
 			}
