@@ -123,13 +123,13 @@ public class BMVetoGadget extends ExtendedSicsComposite {
 		status.setText("Click to Pause Counting");
 		status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		GridDataFactory.swtDefaults().align(SWT.CENTER, GridData.VERTICAL_ALIGN_CENTER)
-					.hint(SWT.DEFAULT, 32).grab(true, false).applyTo(status);
+					.indent(SWT.DEFAULT, 8).grab(true, false).applyTo(status);
 		button = getWidgetFactory().createLabel(this, "", SWT.CENTER);
 		pauseImage = resourceManager.createImage("icons/button_blue_pause.png");
 		continueImage = resourceManager.createImage("icons/StepForwardNormalBlue16.png");
 		button.setImage(pauseImage);
 		GridDataFactory.swtDefaults().align(SWT.LEFT, GridData.VERTICAL_ALIGN_CENTER)
-					.hint(80, 32).grab(false, false).applyTo(button);
+					.hint(60, 32).grab(false, false).applyTo(button);
 //		button.setText("PAUSED");
 		button.setEnabled(false);
 		FontData[] fontData = button.getFont().getFontData();

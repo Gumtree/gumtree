@@ -125,7 +125,7 @@ public class HMVetoGadget extends ExtendedSicsComposite {
 		status.setFont(UIResources.getDefaultFont(SWT.BOLD));
 		status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		GridDataFactory.swtDefaults().align(SWT.CENTER, GridData.VERTICAL_ALIGN_CENTER)
-				.indent(SWT.DEFAULT, 6).grab(true, false).applyTo(status);
+				.indent(SWT.DEFAULT, 8).grab(true, false).applyTo(status);
 		button = getWidgetFactory().createLabel(this, "", SWT.CENTER);
 		pauseImage = resourceManager.createImage("icons/button_blue_pause.png");
 		continueImage = resourceManager.createImage("icons/StepForwardNormalBlue16.png");

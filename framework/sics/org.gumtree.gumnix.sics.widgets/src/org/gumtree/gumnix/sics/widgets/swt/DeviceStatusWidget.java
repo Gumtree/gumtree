@@ -16,10 +16,16 @@ import org.eclipse.nebula.widgets.pgroup.PGroup;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.gumtree.gumnix.sics.control.ControllerStatus;
+import org.gumtree.gumnix.sics.control.events.SicsControllerEvent;
 import org.gumtree.gumnix.sics.core.SicsEvents;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.service.dataaccess.IDataHandler;
+import org.gumtree.service.eventbus.IFilteredEventHandler;
+import org.gumtree.util.PlatformUtils;
 import org.gumtree.util.messaging.DelayEventHandler;
 import org.gumtree.util.messaging.EventHandler;
 import org.gumtree.util.messaging.IDelayEventExecutor;
@@ -37,6 +43,8 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 	private List<DeviceContext> deviceContexts;
 
 	private Set<LabelContext> labelContexts;
+
+	private IFilteredEventHandler<SicsControllerEvent> eventHandler;
 
 	public DeviceStatusWidget(Composite parent, int style) {
 		super(parent, style);
@@ -76,15 +84,79 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 						.grab(true, false).applyTo(label);
 				label.setFont(UIResources.getDefaultFont(SWT.BOLD));
 				// Part 4: Separator
-				label = getWidgetFactory().createLabel(this, " ");
+//				String labelSep = (deviceContext.unit == null) ? "" : " ";
+//				label = getWidgetFactory().createLabel(this, labelSep);
+				label = getWidgetFactory().createLabel(this, "");
 				// Part 5: Unit
 				label = createDeviceLabel(this, deviceContext.path + "?units",
 						(deviceContext.unit == null) ? "" : deviceContext.unit,
 						SWT.LEFT);
 			}
 		}
+
+		eventHandler = new IFilteredEventHandler<SicsControllerEvent>() {
+			public void handleEvent(SicsControllerEvent event) {
+				Class<?> representation = String.class;
+				if ("status".equals(event.getURI().getQuery())) {
+					representation = ControllerStatus.class;
+				}
+				updateData(event.getURI(), getLabelContext(event.getURI()).label,
+						getDataAccessManager().get(event.getURI(), representation));
+			}
+			public boolean isDispatchable(SicsControllerEvent event) {
+				return getDeviceContext(event.getURI()) != null;
+			}
+		};
+		PlatformUtils.getPlatformEventBus().subscribe(eventHandler);
+
 	}
 
+	private DeviceContext getDeviceContext(URI uri) {
+		for (DeviceContext context : deviceContexts){
+			if (context.path.equals(uri.getPath())) {
+				return context;
+			}
+		}
+		return null;
+	}
+	
+	private LabelContext getLabelContext(URI uri) {
+		for (LabelContext context : labelContexts){
+			if (context.path.equals(uri.getPath())) {
+				return context;
+			}
+		}
+		return null;
+	}
+
+	private void updateData(final URI uri, final Object widget, final Object data) {
+		if (isDisposed()) {
+			return;
+		}
+		SafeUIRunner.asyncExec(new SafeRunnable() {
+			public void run() throws Exception {
+				if (isDisposed()) {
+					return;
+				}
+				updateWidgetData(uri, widget, data);
+			}
+		});
+	}
+	
+	protected void updateWidgetData(URI uri, Object widget, Object data) {
+		if (data instanceof ControllerStatus && widget instanceof Control) {
+			ControllerStatus status = (ControllerStatus) data;
+			Control control = (Control) widget;
+			if (status.equals(ControllerStatus.OK)) {
+				control.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+			} else if (status.equals(ControllerStatus.RUNNING)) {
+				control.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
+			} else if (status.equals(ControllerStatus.ERROR)) {
+				control.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+			}
+		}
+	}
+	
 	@Override
 	protected void handleSicsConnect() {
 		if (labelContexts == null) {
@@ -255,7 +327,15 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 							((PGroup) parent).setExpanded(true);
 						}
 					}
-					label.setText(data);
+					String text = data;
+					try {
+						double value = Double.valueOf(data);
+						if (data.contains(".")) {
+							text = String.format("%.2f", value);
+						} 
+					} catch (Exception e) {
+					} 
+					label.setText(text);
 					// TODO: does it have any performance hit?
 					label.getParent().layout(true, true);
 				}
