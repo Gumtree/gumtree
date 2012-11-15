@@ -129,7 +129,7 @@ public class BMVetoGadget extends ExtendedSicsComposite {
 		continueImage = resourceManager.createImage("icons/StepForwardNormalBlue16.png");
 		button.setImage(pauseImage);
 		GridDataFactory.swtDefaults().align(SWT.LEFT, GridData.VERTICAL_ALIGN_CENTER)
-					.hint(60, 32).grab(false, false).applyTo(button);
+					.hint(50, 32).grab(false, false).applyTo(button);
 //		button.setText("PAUSED");
 		button.setEnabled(false);
 		FontData[] fontData = button.getFont().getFontData();

@@ -58,7 +58,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 	@Override
 	protected void handleRender() {
 		GridLayoutFactory.swtDefaults().numColumns(5).spacing(1, 1)
-				.margins(0, 0).applyTo(this);
+				.applyTo(this);
 
 		for (DeviceContext deviceContext : deviceContexts) {
 			if (deviceContext.isSeparator) {

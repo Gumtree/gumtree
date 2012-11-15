@@ -242,7 +242,7 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(group);
 		GridLayoutFactory.swtDefaults().numColumns(1).spacing(1, 1)
-				.margins(10, 0).applyTo(group);
+				.margins(10, SWT.DEFAULT).applyTo(group);
 		return group;
 	}
 

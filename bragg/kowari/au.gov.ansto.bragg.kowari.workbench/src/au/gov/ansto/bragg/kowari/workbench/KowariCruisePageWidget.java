@@ -17,12 +17,12 @@ import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
 import org.gumtree.gumnix.sics.ui.widgets.SicsInterruptGadget;
 import org.gumtree.gumnix.sics.ui.widgets.SicsStatusGadget;
+import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
+import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
 
 import au.gov.ansto.bragg.kowari.workbench.internal.InternalImage;
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
-import au.gov.ansto.bragg.nbi.ui.widgets.DeviceStatusWidget;
-import au.gov.ansto.bragg.nbi.ui.widgets.ShutterStatusWidget;
 
 @SuppressWarnings("restriction")
 public class KowariCruisePageWidget extends AbstractCruisePageWidget {
@@ -34,7 +34,7 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 	}
 
 	public KowariCruisePageWidget render() {
-		GridLayoutFactory.swtDefaults().applyTo(this);
+		GridLayoutFactory.swtDefaults().spacing(1, 0).applyTo(this);
 
 		// Reactor Source
 		PGroup sourceGroup = createGroup("REACTOR SOURCE",
@@ -67,7 +67,7 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(pauseStatuswidget);
 
 		// Monitor Event Rate
-		PGroup monitorGroup = createGroup("Neutron Counts",
+		PGroup monitorGroup = createGroup("NEUTRON COUNTS",
 				InternalImage.MONITOR.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
 		deviceStatusWidget.addDevice("/monitor/bm1_counts", "Monitor Counts",
@@ -76,7 +76,7 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(deviceStatusWidget);
 
 		// Slits Info
-		PGroup slitsGroup = createGroup("Slits Status",
+		PGroup slitsGroup = createGroup("SLITS STATUS",
 				InternalImage.SLITS.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(slitsGroup, SWT.NONE);
 		deviceStatusWidget
@@ -89,7 +89,7 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(deviceStatusWidget);
 
 		// Positioner Group
-		PGroup positionerGroup = createGroup("Positioner Status",
+		PGroup positionerGroup = createGroup("POSITIONER STATUS",
 				InternalImage.POSITIONER.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(positionerGroup, SWT.NONE);
 		deviceStatusWidget.addDevice("/sample/sx", "sx", null, "")
@@ -100,7 +100,7 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(deviceStatusWidget);
 
 		// Monochromator
-		PGroup monochromatorGroup = createGroup("Monochromator",
+		PGroup monochromatorGroup = createGroup("MONOCHROMATOR",
 				InternalImage.MONOCHROMATOR.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup,
 				SWT.NONE);
@@ -114,7 +114,7 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(deviceStatusWidget);
 
 		// Euler Cradle
-		PGroup cradleGroup = createGroup("Euler Cradle",
+		PGroup cradleGroup = createGroup("EULER CRADLE",
 				InternalImage.CRADLE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(cradleGroup, SWT.NONE);
 		deviceStatusWidget.addDevice("/sample/eom", "EOM", null, "")
@@ -141,7 +141,7 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(deviceStatusWidget);
 
 		// Temperature TC1 Control
-		PGroup tempControlGroup = createGroup("Temperature Controller",
+		PGroup tempControlGroup = createGroup("TEMPERATURE CONTROLLER",
 				InternalImage.FURNACE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
 		deviceStatusWidget
@@ -170,14 +170,6 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		// .addDevice("/sample/tc2/heater/heaterOutput_2", "TC2H2-R/O",
 		// InternalImage.TWO.getImage(), null)
 		configureWidget(deviceStatusWidget);
-
-		// Interrupt
-		PGroup interruptGroup = createGroup("INTERRUPT", null);
-		SicsInterruptGadget interruptGadget = new SicsInterruptGadget(
-				interruptGroup, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)
-				.grab(true, false).applyTo(interruptGadget);
-		interruptGadget.afterParametersSet();
 
 		return this;
 	}
@@ -216,7 +208,7 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		group.setLinePosition(SWT.CENTER);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(group);
-		GridLayoutFactory.swtDefaults().numColumns(1).spacing(1, 1)
+		GridLayoutFactory.swtDefaults().numColumns(1).spacing(1, 0)
 				.margins(10, 0).applyTo(group);
 		return group;
 	}

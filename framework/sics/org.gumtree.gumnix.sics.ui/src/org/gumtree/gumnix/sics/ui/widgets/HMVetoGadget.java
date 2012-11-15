@@ -133,7 +133,7 @@ public class HMVetoGadget extends ExtendedSicsComposite {
 		button.setToolTipText("Button is enabled only when the server is in counting status.");
 //		button.setText("PAUSED");
 		GridDataFactory.swtDefaults().align(SWT.LEFT, GridData.VERTICAL_ALIGN_CENTER)
-				.hint(60, 32).grab(false, false).applyTo(button);
+				.hint(50, 32).grab(false, false).applyTo(button);
 		button.setEnabled(false);
 		FontData[] fontData = button.getFont().getFontData();
 		fontData[0].setHeight(16);

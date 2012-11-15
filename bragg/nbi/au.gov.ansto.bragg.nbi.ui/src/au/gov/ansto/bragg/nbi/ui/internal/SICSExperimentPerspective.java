@@ -28,34 +28,39 @@ public class SICSExperimentPerspective implements IPerspectiveFactory {
 		
 		factory.addPerspectiveShortcut(SICS_EXPERIMENT_PERSPECTIVE_ID);
 
-		IFolderLayout bottomRight =
-			factory.createFolder(
-				"bottomRight", //NON-NLS-1
-				IPageLayout.BOTTOM,
-				0.70f,
-				factory.getEditorArea());
-		bottomRight.addView(SICS_TERMINAL_VIEW_ID);
+//		IFolderLayout bottomRight =
+//			factory.createFolder(
+//				"bottomRight", //NON-NLS-1
+//				IPageLayout.BOTTOM,
+//				0.70f,
+//				factory.getEditorArea());
+//		bottomRight.addView(SICS_TERMINAL_VIEW_ID);
+		factory.addStandaloneView(SICS_TERMINAL_VIEW_ID, false, IPageLayout.BOTTOM, 0.70f, factory.getEditorArea());
 		
-		IFolderLayout bottomLeft  =
-			factory.createFolder(
-				"bottomLeft", //NON-NLS-1
-				IPageLayout.LEFT,
-				0.33f,
-				"bottomRight");
-		bottomLeft.addView(PROJECT_EXPLORER_VIEW_ID);
+//		IFolderLayout bottomLeft  =
+//			factory.createFolder(
+//				"bottomLeft", //NON-NLS-1
+//				IPageLayout.LEFT,
+//				0.33f,
+//				"bottomRight");
+//		bottomLeft.addView(PROJECT_EXPLORER_VIEW_ID);
+		factory.addStandaloneView(PROJECT_EXPLORER_VIEW_ID, false, IPageLayout.LEFT, 0.33f, SICS_TERMINAL_VIEW_ID);
 
-		IFolderLayout right = factory.createFolder(
-				"right", 
-				IPageLayout.RIGHT, 
-				0.50f, 
-				factory.getEditorArea());
-		right.addView(SICS_BATCH_RUNNER_VIEW_ID);
+//		IFolderLayout right = 
+//			factory.createFolder(
+//				"right", 
+//				IPageLayout.RIGHT, 
+//				0.50f, 
+//				factory.getEditorArea());
+//		right.addView(SICS_BATCH_RUNNER_VIEW_ID);
+		factory.addStandaloneView(SICS_BATCH_RUNNER_VIEW_ID, false, IPageLayout.RIGHT, 0.40f, factory.getEditorArea());
+
 
 		factory.setEditorAreaVisible(true);
-		factory.getViewLayout("bottomLeft").setMoveable(false);
-		factory.getViewLayout("bottomLeft").setCloseable(false);
-		factory.getViewLayout("right").setMoveable(false);
-		factory.getViewLayout("right").setCloseable(false);
+//		factory.getViewLayout("bottomLeft").setMoveable(false);
+//		factory.getViewLayout("bottomLeft").setCloseable(false);
+//		factory.getViewLayout("right").setMoveable(false);
+//		factory.getViewLayout("right").setCloseable(false);
 		factory.setFixed(true);
 	}
 

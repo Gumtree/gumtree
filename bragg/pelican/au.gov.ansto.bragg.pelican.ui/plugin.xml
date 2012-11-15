@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+     <category
+           id="au.gov.ansto.bragg.pelican.ui"
+           name="Pelican Views">
+     </category>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.pelican.ui"
+            class="au.gov.ansto.bragg.pelican.ui.views.TclEditorView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.pelican.ui.views.TclEditorView"
+            name="① Batch Editor">
+      </view>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.pelican.ui"
+            class="au.gov.ansto.bragg.pelican.ui.views.ExperimentConfigView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.pelican.ui.views.ExperimentConfigView"
+            name="Experiment Configuration">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="au.gov.ansto.bragg.pelican.ui.internal.TCLRunnerPerspective"
+            icon="icons/exp_per.gif"
+            id="au.gov.ansto.bragg.pelican.ui.TCLRunnerPerspective"
+            name="Pelican Experiment"/>
+   </extension>
+   <extension 
+   		point="org.gumtree.ui.launchers">
+      <launcher
+            category="au.gov.ansto.bragg.experiment"
+            class="au.gov.ansto.bragg.pelican.ui.internal.PelicanWorkbenchLauncher"
+            icon32="icons/MultiMonitors32.png"
+            icon64="icons/MultiMonitors.png"
+            id="au.gov.ansto.bragg.pelican.ui.PelicanWorkbenchLauncher"
+            label="Pelican Workbench"
+            quickLauncher="true">
+         <description>
+            Start 2 monitor setup in the following order:
+			1. Experiment Window
+			2. Analysis Scripting Window
+         </description>
+      </launcher>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="au.gov.ansto.bragg.pelican.ui.internal.PelicanWorkbenchSetup">
+      </startup>
+   </extension>
+</plugin>
