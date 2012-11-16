@@ -269,13 +269,13 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 		}
 		if (getNumberOfMotor() == 7) {
 			if (column5) {
-				text += "eom, \t";
+				text += "ga, \t";
 			}
 			if (column6) {
-				text += "echi, \t";
+				text += "gb, \t";
 			}
 			if (column7) {
-				text += "ephi, \t";
+				text += "gc, \t";
 			}
 		} 
 		text += "time(s)\n";
@@ -301,3 +301,4 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 		this.numberOfMotor = numberOfMotor;
 	}
 }
+
