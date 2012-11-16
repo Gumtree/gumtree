@@ -238,9 +238,9 @@ public class SimpleTableScanTask extends AbstractKowariScanTask {
 									parameter.setSy(Float.valueOf(items[1]));
 									parameter.setSz(Float.valueOf(items[2]));
 									parameter.setSom(Float.valueOf(items[3]));
-									parameter.setEom(Float.valueOf(items[4]));
-									parameter.setEchi(Float.valueOf(items[5]));
-									parameter.setEphi(Float.valueOf(items[6]));
+									parameter.setGa(Float.valueOf(items[4]));
+									parameter.setGb(Float.valueOf(items[5]));
+									parameter.setGc(Float.valueOf(items[6]));
 									parameter.setTime(Float.valueOf(items[7]));
 								}
 								parameter.setIsSelected(true);
