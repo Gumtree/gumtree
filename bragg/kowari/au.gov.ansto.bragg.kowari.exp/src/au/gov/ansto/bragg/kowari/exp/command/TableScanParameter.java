@@ -16,7 +16,6 @@ import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -40,9 +39,9 @@ public class TableScanParameter extends AbstractScanParameter {
 	private float sz;
 	private float som;
 	private float time;
-	private float eom;
-	private float echi;
-	private float ephi;
+	private float ga;
+	private float gb;
+	private float gc;
 	
 	public TableScanParameter() {
 		super();
@@ -88,34 +87,34 @@ public class TableScanParameter extends AbstractScanParameter {
 		firePropertyChange("som", oldValue, som);
 	}
 
-	public float getEom() {
-		return eom;
+	public float getGa() {
+		return ga;
 	}
 
-	public void setEom(float eom) {
-		float oldValue = this.eom;
-		this.eom = eom;
-		firePropertyChange("eom", oldValue, eom);
+	public void setGa(float ga) {
+		float oldValue = this.ga;
+		this.ga = ga;
+		firePropertyChange("ga", oldValue, ga);
 	}
 
-	public float getEchi() {
-		return echi;
+	public float getGb() {
+		return gb;
 	}
 
-	public void setEchi(float echi) {
-		float oldValue = this.echi;
-		this.echi = echi;
-		firePropertyChange("echi", oldValue, echi);
+	public void setGb(float gb) {
+		float oldValue = this.gb;
+		this.gb = gb;
+		firePropertyChange("gb", oldValue, gb);
 	}
 
-	public float getEphi() {
-		return ephi;
+	public float getGc() {
+		return gc;
 	}
 
-	public void setEphi(float ephi) {
-		float oldValue = this.ephi;
-		this.ephi = ephi;
-		firePropertyChange("ephi", oldValue, ephi);
+	public void setGc(float gc) {
+		float oldValue = this.gc;
+		this.gc = gc;
+		firePropertyChange("gc", oldValue, gc);
 	}
 
 	public float getTime() {
@@ -253,13 +252,13 @@ public class TableScanParameter extends AbstractScanParameter {
 							BeansObservables.observeValue(getInstance(), "som"),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
 					bindingContext.bindValue(SWTObservables.observeText(eomText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "eom"),
+							BeansObservables.observeValue(getInstance(), "ga"),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
 					bindingContext.bindValue(SWTObservables.observeText(echiText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "echi"),
+							BeansObservables.observeValue(getInstance(), "gb"),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
 					bindingContext.bindValue(SWTObservables.observeText(ephiText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "ephi"),
+							BeansObservables.observeValue(getInstance(), "gc"),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
 					bindingContext.bindValue(SWTObservables.observeText(timeText, SWT.Modify),
 							BeansObservables.observeValue(getInstance(), "time"),
@@ -275,7 +274,7 @@ public class TableScanParameter extends AbstractScanParameter {
 	public String toString() {
 		String text = sx + " " + sy + " " + sz + " " + som;
 		if (command.getNumberOfMotor() == 7) {
-			text += " " + eom + " " + echi + " " + ephi;
+			text += " " + ga + " " + gb + " " + gc;
 		}
 		return text + " " + time;
 	}
@@ -297,13 +296,13 @@ public class TableScanParameter extends AbstractScanParameter {
 		}
 		if (command.getNumberOfMotor() == 7) {
 			if (command.getColumn5()) {
-				script += indent + "drive eom " + ((float) eom) + "\n";
+				script += indent + "drive ga " + ((float) ga) + "\n";
 			}
 			if (command.getColumn6()) {
-				script += indent + "drive echi " + ((float) echi) + "\n";
+				script += indent + "drive gb " + ((float) gb) + "\n";
 			}
 			if (command.getColumn7()) {
-				script += indent + "drive ephi " + ((float) ephi) + "\n";
+				script += indent + "drive gc " + ((float) gc) + "\n";
 			}
 		}
 		script += indent + "histmem preset " + ((int) time) + "\n";
@@ -316,7 +315,7 @@ public class TableScanParameter extends AbstractScanParameter {
 	public String getBroadcastScript(String indexName, String indent) {
 		String text = indent + "broadcast " + sx + " " + sy + " " + sz + " " + som;
 		if (command.getNumberOfMotor() == 7) {
-			text += " " + eom + " " + echi + " " + ephi;
+			text += " " + ga + " " + gb + " " + gc;
 		}
 		return text + " " + time + "\n";
 	}
@@ -338,13 +337,13 @@ public class TableScanParameter extends AbstractScanParameter {
 		}
 		if (command.getNumberOfMotor() == 7) {
 			if (command.getColumn5()) {
-				text += eom + ", \t";
+				text += ga + ", \t";
 			}
 			if (command.getColumn6()) {
-				text += echi + ", \t";
+				text += gb + ", \t";
 			}
 			if (command.getColumn7()) {
-				text += ephi + ", \t";
+				text += gc + ", \t";
 			}
 		}
 		return text + time + "\n";	}

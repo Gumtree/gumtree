@@ -200,11 +200,11 @@ public class SimpleScanCommandView extends AbstractScanCommandView {
 		Label somLabel = getToolkit().createLabel(parent, "som");
 		GridDataFactory.swtDefaults().indent(4, 0).applyTo(somLabel);
 		if (command.getNumberOfMotor() == 7) {
-			Label eomLabel = getToolkit().createLabel(parent, "eom");
+			Label eomLabel = getToolkit().createLabel(parent, "ga");
 			GridDataFactory.swtDefaults().indent(4, 0).applyTo(eomLabel);
-			Label echiLabel = getToolkit().createLabel(parent, "echi");
+			Label echiLabel = getToolkit().createLabel(parent, "gb");
 			GridDataFactory.swtDefaults().indent(4, 0).applyTo(echiLabel);
-			Label ephiLabel = getToolkit().createLabel(parent, "ephi");
+			Label ephiLabel = getToolkit().createLabel(parent, "gc");
 			GridDataFactory.swtDefaults().indent(4, 0).applyTo(ephiLabel);
 		}
 		Label timeLabel = getToolkit().createLabel(parent, "time(s)");

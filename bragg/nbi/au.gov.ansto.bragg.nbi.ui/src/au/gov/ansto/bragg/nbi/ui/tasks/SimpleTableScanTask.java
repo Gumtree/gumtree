@@ -174,6 +174,7 @@ public class SimpleTableScanTask extends AbstractScanTask {
 					SimpleTableScanCommand command = new SimpleTableScanCommand();
 					BufferedReader reader = new BufferedReader(new FileReader(pickedFile));
 					boolean isFirstLine = true;
+					int parameterIndex = 0;
 					while(reader.ready()) {
 						String line = reader.readLine();
 						if (line != null) {
@@ -182,7 +183,7 @@ public class SimpleTableScanTask extends AbstractScanTask {
 								continue;
 							}
 //							line = line.replaceAll("\t", "");
-							String spliter = " ";
+							String spliter = "\\s+";
 							if (line.contains(",")) {
 								spliter = ",";
 							}
@@ -214,6 +215,7 @@ public class SimpleTableScanTask extends AbstractScanTask {
 									isFirstLine = false;
 									continue;
 								} else {
+									reader.close();
 									throw new Exception("The flag row must have 4 or 7 numbers");
 								}
 //								}
@@ -223,9 +225,12 @@ public class SimpleTableScanTask extends AbstractScanTask {
 							} else if (items.length == 8) {
 								command.setNumberOfMotor(7);
 							} else {
+								reader.close();
 								throw new Exception("The row must have 5 or 8 numbers");
 							}
 							TableScanParameter parameter = new TableScanParameter();
+							parameterIndex ++;
+							parameter.setIndex(parameterIndex);
 							try {
 								if (items.length == 5) {
 									parameter.setSx(Float.valueOf(items[0]));
@@ -238,13 +243,14 @@ public class SimpleTableScanTask extends AbstractScanTask {
 									parameter.setSy(Float.valueOf(items[1]));
 									parameter.setSz(Float.valueOf(items[2]));
 									parameter.setSom(Float.valueOf(items[3]));
-									parameter.setEom(Float.valueOf(items[4]));
-									parameter.setEchi(Float.valueOf(items[5]));
-									parameter.setEphi(Float.valueOf(items[6]));
+									parameter.setGa(Float.valueOf(items[4]));
+									parameter.setGb(Float.valueOf(items[5]));
+									parameter.setGc(Float.valueOf(items[6]));
 									parameter.setTime(Float.valueOf(items[7]));
 								}
 								parameter.setIsSelected(true);
 							} catch (Exception e) {
+								reader.close();
 								throw new Exception("failed to interpret the line: " + line);
 							}
 							parameter.setCommand(command);
@@ -254,6 +260,7 @@ public class SimpleTableScanTask extends AbstractScanTask {
 					}
 					label.setText(filePath);
 					label.setToolTipText(filePath);
+					reader.close();
 					return command;
 				} catch (Exception error) {
 					error.printStackTrace();
