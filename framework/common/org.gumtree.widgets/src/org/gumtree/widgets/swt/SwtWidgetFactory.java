@@ -32,7 +32,9 @@ public class SwtWidgetFactory implements IWidgetFactory {
 	
 	@Override
 	public Group createGroup(Composite parent, String text, int style) {
-		return new Group(parent, style);
+		Group widget = new Group(parent, style);
+		widget.setText(text);
+		return widget;
 	}
 
 	@Override
