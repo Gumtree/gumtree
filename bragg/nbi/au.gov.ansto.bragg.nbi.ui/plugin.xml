@@ -211,7 +211,17 @@
             class="au.gov.ansto.bragg.nbi.ui.scripting.DummyView"
             id="au.gov.ansto.bragg.nbi.ui.scripting.DummyView"
             name="Place Holder">
-      </view>      
+      </view>
+      <view 
+	         id="org.gumtree.data.ui.PlotView.Plot1" 
+	         name="Plot 1"
+	         allowMultiple = "true" 
+	         class="org.gumtree.data.ui.part.PlotView"/>
+      <view 
+	         id="org.gumtree.data.ui.PlotView.Plot2" 
+	         name="Plot 2"
+	         allowMultiple = "true" 
+	         class="org.gumtree.data.ui.part.PlotView"/>
    </extension>
    <extension
          point="org.gumtree.ui.gadgets">

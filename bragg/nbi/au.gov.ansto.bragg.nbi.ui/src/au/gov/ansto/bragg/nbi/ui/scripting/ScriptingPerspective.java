@@ -10,10 +10,14 @@
  *******************************************************************************/
 package au.gov.ansto.bragg.nbi.ui.scripting;
 
+import org.eclipse.e4.ui.model.application.ui.basic.MBasicFactory;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveFactory;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
@@ -21,10 +25,14 @@ import org.eclipse.ui.PerspectiveAdapter;
 import org.eclipse.ui.PlatformUI;
 import org.gumtree.data.ui.part.PlotView;
 
+import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptControlViewer;
+
 public class ScriptingPerspective implements IPerspectiveFactory {
 
 	public static final String SCRIPTING_PERSPECTIVE_ID = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
 	public static final String PLOT_VIEW_ID = "org.gumtree.data.ui.PlotView";
+	public static final String PLOT1_VIEW_ID = "org.gumtree.data.ui.PlotView.Plot1";
+	public static final String PLOT2_VIEW_ID = "org.gumtree.data.ui.PlotView.Plot2";
 //	public static final String DATA_SOURCE_VIEW_ID = "au.gov.ansto.bragg.wombat.ui.views.WombatDataSourceView";
 	public static final String SCRIPT_CONTROL_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.scripting.ControlView";
 	public static final String SCRIPT_DATASOURCE_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.scripting.DataSourceView";
@@ -127,37 +135,35 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 //				0.67f,
 //				factory.getEditorArea());
 //		bottom.addView(BEANSHELL_VIEW_ID);
-		factory.addStandaloneView(DUMMY_VIEW_ID + ":1", false, 
+//		factory.addStandaloneView(DUMMY_VIEW_ID + ":1", false, 
+//				IPageLayout.LEFT, 0.2f, factory.getEditorArea());
+
+		factory.addStandaloneView(SCRIPT_DATASOURCE_VIEW_ID, true,   
 				IPageLayout.LEFT, 0.2f, factory.getEditorArea());
 
-		factory.addStandaloneViewPlaceholder(SCRIPT_DATASOURCE_VIEW_ID,  
-				IPageLayout.TOP, 0.32f, DUMMY_VIEW_ID + ":1", false);
+		factory.addStandaloneView(SCRIPT_CONTROL_VIEW_ID, true,
+				IPageLayout.BOTTOM, 0.45f, SCRIPT_DATASOURCE_VIEW_ID);
 		
-		factory.addPlaceholder(SCRIPT_CONTROL_VIEW_ID, 
-				IPageLayout.BOTTOM, 0.05f, DUMMY_VIEW_ID + ":1");
+		factory.addStandaloneView(SCRIPT_CONSOLE_VIEW_ID, true,
+				IPageLayout.BOTTOM, 0.67f, factory.getEditorArea());
+		
 		
 //		factory.addPlaceholder(PROJECT_EXPLORER_VIEW_ID, 
 //				IPageLayout.BOTTOM, 0.05f, DUMMY_VIEW_ID + ":1");
 		
-		factory.addStandaloneView(DUMMY_VIEW_ID + ":2", false, 
-				IPageLayout.BOTTOM, 0.75f, factory.getEditorArea());
-		
-		factory.addStandaloneViewPlaceholder(SCRIPT_CONSOLE_VIEW_ID, 
-				IPageLayout.LEFT, 0.67f, DUMMY_VIEW_ID + ":2", false);
-		
-		factory.addStandaloneView(DUMMY_VIEW_ID + ":3", false, 
-				IPageLayout.RIGHT, 0.75f, factory.getEditorArea());
-		
-		factory.addStandaloneViewPlaceholder(PLOT_VIEW_ID + ":1", 
-				IPageLayout.TOP, 0.50f, DUMMY_VIEW_ID + ":3", false);
+//		factory.addView(PLOT_VIEW_ID, 
+//				IPageLayout.TOP, 0.50f, factory.getEditorArea());
+//
+//		factory.addView(PLOT_VIEW_ID,  
+//				IPageLayout.BOTTOM, 0.25f, factory.getEditorArea());
+////		
+		factory.addView(PLOT_VIEW_ID, IPageLayout.RIGHT, 0.5f, SCRIPT_CONSOLE_VIEW_ID);
 
-		factory.addStandaloneViewPlaceholder(PLOT_VIEW_ID + ":2", 
-				IPageLayout.BOTTOM, 0.05f, DUMMY_VIEW_ID + ":3", false);
-		
-		factory.addPlaceholder(PLOT_VIEW_ID + ":3", 
-				IPageLayout.RIGHT, 0.05f, DUMMY_VIEW_ID + ":2");
+		factory.addStandaloneViewPlaceholder(PLOT1_VIEW_ID, IPageLayout.RIGHT, 0.50f, factory.getEditorArea(), false);
 
+		factory.addStandaloneViewPlaceholder(PLOT2_VIEW_ID, IPageLayout.BOTTOM, 0.50f, PLOT1_VIEW_ID, false);
 		
+//		factory.addStandaloneViewPlaceholder(PLOT_VIEW_ID, IPageLayout.TOP, 0.50f, factory.getEditorArea(), false);
 		
 //		factory.addPlaceholder(PLOT_VIEW_ID + ":*", 
 //				IPageLayout.BOTTOM, 0.50f, PLOT_VIEW_ID + ":2");
@@ -178,7 +184,7 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 		final IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		workbenchWindow.addPerspectiveListener(new PerspectiveAdapter() {
 			@Override
-			public void perspectiveOpened(IWorkbenchPage page,
+			public void perspectiveActivated(IWorkbenchPage page,
 					IPerspectiveDescriptor perspective) {
 				super.perspectiveOpened(page, perspective);
 				final PerspectiveAdapter adapter = this;
@@ -187,7 +193,9 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 
 					public void run() {
 						try{
+							workbenchWindow.getActivePage().setEditorAreaVisible(false);
 							registerViews(register);
+							System.err.println("activated");
 //							factory.getViewLayout(SCRIPT_CONTROL_VIEW_ID).setMoveable(false);
 //							factory.getViewLayout(SCRIPT_CONTROL_VIEW_ID).setCloseable(false);
 
@@ -197,10 +205,11 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 						}
 					}});
 			}
+			
 		});
 		factory.setEditorAreaVisible(false);
-		factory.getViewLayout(PLOT_VIEW_ID + ":3").setMoveable(false);
-		factory.getViewLayout(PLOT_VIEW_ID + ":3").setCloseable(false);
+//		factory.getViewLayout(PLOT_VIEW_ID + ":3").setMoveable(false);
+//		factory.getViewLayout(PLOT_VIEW_ID + ":3").setCloseable(false);
 //		OperationParametersView.subscribeStopButtonListener(new ButtonClickListener(){
 //
 //			@Override
@@ -213,7 +222,7 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 //			}
 //			
 //		});
-		factory.setFixed(true);
+		factory.setFixed(false);
 		
 		
 	}
@@ -233,44 +242,90 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 		final IWorkbenchPage workbenchPage = workbenchWindow.getActivePage();
 		register.setWorkbenchPage(workbenchPage);
 		
-		DataSourceView dataSourceView = (DataSourceView) workbenchPage.showView(
-				SCRIPT_DATASOURCE_VIEW_ID, null, IWorkbenchPage.VIEW_CREATE);
-		register.setDataSourceViewer(dataSourceView.getViewer());
-
-		ConsoleView consoleView = (ConsoleView) workbenchPage.showView(
-				SCRIPT_CONSOLE_VIEW_ID, null, IWorkbenchPage.VIEW_CREATE);
-		register.setConsoleViewer(consoleView.getCommandLineViewer());
+		ScriptControlViewer controlViewer = null;
+		IViewReference[] viewReferences = workbenchPage.getViewReferences();
+		for (IViewReference reference : viewReferences) {
+			IViewPart view = reference.getView(false);
+			if (SCRIPT_DATASOURCE_VIEW_ID.equals(reference.getId())) {
+				register.setDataSourceViewer(((DataSourceView) view).getViewer());
+			} else if (SCRIPT_CONSOLE_VIEW_ID.equals(reference.getId())) {
+				register.setConsoleViewer(((ConsoleView) view).getCommandLineViewer());
+			} else if (SCRIPT_CONTROL_VIEW_ID.equals(reference.getId())) {
+				controlViewer = ((ControlView) view).getViewer();
+				ScriptPageRegister.registPage(controlViewer.getScriptRegisterID(), register);
+				register.setControlViewer(controlViewer);
+			} else if (PLOT_VIEW_ID.equals(reference.getId())) {
+//				plotId ++;
+//				if (plotId == 1) {
+//					register.setPlot1((PlotView) view);
+//				} else if (plotId == 2) {
+//					register.setPlot2((PlotView) view);
+//				} else if (plotId == 3) {
+//					register.setPlot3((PlotView) view);
+//				}
+////				if ("1".equals(reference.getSecondaryId())){
+////					register.setPlot1((PlotView) view);
+////				} else if ("2".equals(reference.getSecondaryId())){
+////					register.setPlot2((PlotView) view);
+////				} else if ("3".equals(reference.getSecondaryId())){
+////					register.setPlot3((PlotView) view);
+////				}
+				register.setPlot3((PlotView) view);
+			}
+		}
+		PlotView view1 = (PlotView) workbenchPage.showView(
+				PLOT1_VIEW_ID, null, IWorkbenchPage.VIEW_CREATE);
+		register.setPlot1(view1);
+		PlotView view2 = (PlotView) workbenchPage.showView(
+				PLOT2_VIEW_ID, null, IWorkbenchPage.VIEW_CREATE);
+		register.setPlot2(view2);
 		
-		ControlView controlView = (ControlView) workbenchPage.showView(
-				SCRIPT_CONTROL_VIEW_ID, null, IWorkbenchPage.VIEW_CREATE);
-		ScriptPageRegister.registPage(controlView.getViewer().getScriptRegisterID(), register);
-		register.setControlViewer(controlView.getViewer());
-		
-//		workbenchPage.showView(
-//				PROJECT_EXPLORER_VIEW_ID, null, IWorkbenchPage.VIEW_CREATE);
-
-		PlotView plot1 = (PlotView) workbenchPage.showView(
-				PLOT_VIEW_ID, "1", IWorkbenchPage.VIEW_CREATE);
-		register.setPlot1(plot1);
-		
-		PlotView plot2 = (PlotView) workbenchPage.showView(
-				PLOT_VIEW_ID, "2", IWorkbenchPage.VIEW_CREATE);
-		register.setPlot2(plot2);
-		
-		PlotView plot3 = (PlotView) workbenchPage.showView(
-				PLOT_VIEW_ID, "3", IWorkbenchPage.VIEW_CREATE);
-		register.setPlot3(plot3);
 		PlotView.setCurrentIndex(4);
-		
-		workbenchPage.hideView(workbenchPage.findViewReference(DUMMY_VIEW_ID, "1"));
-		workbenchPage.hideView(workbenchPage.findViewReference(DUMMY_VIEW_ID, "2"));
-		workbenchPage.hideView(workbenchPage.findViewReference(DUMMY_VIEW_ID, "3"));
-		
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 		}
-		controlView.getViewer().runInitialScripts();
+		if (controlViewer != null) {
+			controlViewer.runInitialScripts();
+		}
+//		DataSourceView dataSourceView = (DataSourceView) workbenchPage.showView(
+//				SCRIPT_DATASOURCE_VIEW_ID, null, IWorkbenchPage.VIEW_CREATE);
+//		register.setDataSourceViewer(dataSourceView.getViewer());
+//
+//		ConsoleView consoleView = (ConsoleView) workbenchPage.showView(
+//				SCRIPT_CONSOLE_VIEW_ID, null, IWorkbenchPage.VIEW_CREATE);
+//		register.setConsoleViewer(consoleView.getCommandLineViewer());
+//		
+//		ControlView controlView = (ControlView) workbenchPage.showView(
+//				SCRIPT_CONTROL_VIEW_ID, null, IWorkbenchPage.VIEW_CREATE);
+//		ScriptPageRegister.registPage(controlView.getViewer().getScriptRegisterID(), register);
+//		register.setControlViewer(controlView.getViewer());
+//		
+////		workbenchPage.showView(
+////				PROJECT_EXPLORER_VIEW_ID, null, IWorkbenchPage.VIEW_CREATE);
+//
+//		PlotView plot1 = (PlotView) workbenchPage.showView(
+//				PLOT_VIEW_ID, "1", IWorkbenchPage.VIEW_CREATE);
+//		register.setPlot1(plot1);
+//		
+//		PlotView plot2 = (PlotView) workbenchPage.showView(
+//				PLOT_VIEW_ID, "2", IWorkbenchPage.VIEW_CREATE);
+//		register.setPlot2(plot2);
+//		
+//		PlotView plot3 = (PlotView) workbenchPage.showView(
+//				PLOT_VIEW_ID, "3", IWorkbenchPage.VIEW_CREATE);
+//		register.setPlot3(plot3);
+//		PlotView.setCurrentIndex(4);
+//		
+//		workbenchPage.hideView(workbenchPage.findViewReference(DUMMY_VIEW_ID, "1"));
+//		workbenchPage.hideView(workbenchPage.findViewReference(DUMMY_VIEW_ID, "2"));
+//		workbenchPage.hideView(workbenchPage.findViewReference(DUMMY_VIEW_ID, "3"));
+//		
+//		try {
+//			Thread.sleep(1000);
+//		} catch (InterruptedException e) {
+//		}
+//		controlView.getViewer().runInitialScripts();
 
 	}
 }

@@ -334,7 +334,10 @@ class GPlot:
             
     def __getattr__(self, name):
         if name == 'title' :
-            return self.pv.getPlot().getTitle().getText()
+            if self.pv.getPlot():
+                return self.pv.getPlot().getTitle().getText()
+            else :
+                return 'empty plot'
         if name == 'x_label' :
             return self.pv.getPlot().getHorizontalAxis().getLabel()
         if name == 'y_label' :

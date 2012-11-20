@@ -208,6 +208,10 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 			labelContexts.clear();
 			labelContexts = null;
 		}
+		if (eventHandler != null) {
+			PlatformUtils.getPlatformEventBus().unsubscribe(eventHandler);
+			eventHandler = null;
+		}
 		dataAccessManager = null;
 		delayEventExecutor = null;
 		super.disposeWidget();
