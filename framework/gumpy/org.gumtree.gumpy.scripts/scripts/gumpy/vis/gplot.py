@@ -337,7 +337,7 @@ class GPlot:
             if self.pv.getPlot():
                 return self.pv.getPlot().getTitle().getText()
             else :
-                return 'empty plot'
+                return 'empty'
         if name == 'x_label' :
             return self.pv.getPlot().getHorizontalAxis().getLabel()
         if name == 'y_label' :
@@ -359,6 +359,8 @@ class GPlot:
             res = 'Image 2D'
         elif self.ndim == 1 :
             res = 'Plot 1D'
+        else:
+            res = 'Plot'
         if self.title != None :
             res += ': ' + self.title
         return res
