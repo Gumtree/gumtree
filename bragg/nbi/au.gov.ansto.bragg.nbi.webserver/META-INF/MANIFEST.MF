@@ -6,7 +6,8 @@ Bundle-Version: 1.8.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Bragg Institute
 Eclipse-BundleShape: dir
-Require-Bundle: au.gov.ansto.bragg.nbi.server;bundle-version="1.7.0";visibility:=reexport,
+Require-Bundle: org.eclipse.equinox.http.registry;bundle-version="1.1.200";visibility:=reexport,
+ au.gov.ansto.bragg.nbi.server;bundle-version="1.7.0";visibility:=reexport,
  org.gumtree.app.webserver;bundle-version="1.8.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: au.gov.ansto.bragg.nbi.webserver.internal.Activator

@@ -2,22 +2,22 @@ package org.gumtree.sics.server.restlet;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.sics.control.ControllerCallbackAdapter;
-import org.gumtree.sics.control.IControllerCallback;
 import org.gumtree.sics.control.IDynamicController;
 import org.gumtree.sics.control.ISicsController;
 import org.gumtree.sics.control.ServerStatus;
 import org.gumtree.sics.core.ISicsManager;
 import org.gumtree.sics.io.ISicsData;
+import org.gumtree.sics.util.SicsComponentUtils;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.LoopRunner;
 import org.gumtree.util.LoopRunnerStatus;
-import org.gumtree.util.string.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,9 +36,15 @@ public class SicsRestlet extends Restlet implements IDisposable {
 	
 	private static final String PART_HDBS = "hdbs";
 	
+	private static final String PART_DEVICES = "devices";
+	
 	private static final String PART_STATUS = "status";
 	
 	private static final String QUERY_FORMAT = "format";
+	
+	private static final String QUERY_CALLBACK = "callback";
+	
+	private static final String QUERY_JSON_CALLBACK = "jsoncallback";
 	
 	private static final String QUERY_DEVICS = "devices";
 	
@@ -70,7 +76,10 @@ public class SicsRestlet extends Restlet implements IDisposable {
         		handleHdbRequest(request,response, hdbPath, queryForm);
         	} else if (pathTokens[0].equals(PART_HDBS)) {
         		// Multi hdb requests
-        		handleHdbRequests(request,response, queryForm);
+        		handleHdbRequests(request, response, queryForm);
+        	} else if (pathTokens[0].equals(PART_DEVICES)) {
+        		// Devices request
+        		handleDevicesRequests(request, response, queryForm);
         	} else if (pathTokens[0].equals(PART_STATUS)) {
         		// Specific sics request
         		handleSicsRequest(request, response, queryForm);
@@ -160,6 +169,35 @@ public class SicsRestlet extends Restlet implements IDisposable {
 		}
 	}
 	
+	private void handleDevicesRequests(Request request, Response response,
+			Form queryForm) {
+		JSONArray array = new JSONArray();
+		ISicsController serverController = getSicsManager().getServerController();
+		List<ISicsController> deviceControllers = SicsComponentUtils.getDeviceControllers(serverController);
+		for (ISicsController controller : deviceControllers) {
+			try {
+				JSONObject controllerValues = new JSONObject();
+				controllerValues.put("id", controller.getId());
+				controllerValues.put("deviceId", controller.getDeviceId());
+				controllerValues.put("path", controller.getPath());
+				array.put(controllerValues);
+			} catch (Exception e) {
+				logger.error(
+						"Failed to get JSON representation for component "
+								+ controller.getPath(), e);
+			}
+		}
+		
+		// Write result
+		try {
+			JSONObject result = new JSONObject();
+			result.put("devices", array);
+			writeJSONObject(response, queryForm, result);
+		} catch (JSONException e) {
+			response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+		}
+	}
+	
 	// We only export proxy status at this stage
 	private void handleSicsRequest(Request request, Response response, Form queryForm) {
 		JSONObject result = new JSONObject();
@@ -202,6 +240,7 @@ public class SicsRestlet extends Restlet implements IDisposable {
 			if (controller.getParent() != null) {
 				JSONObject parentResult = new JSONObject();
 				parentResult.put("id", controller.getParent().getId());
+				parentResult.put("path", controller.getParent().getPath());
 				parentResult.put("url", request.getResourceRef().getBaseRef()
 						+ "/hdb" + controller.getParent().getPath());
 				result.put("parent", parentResult);
@@ -211,6 +250,7 @@ public class SicsRestlet extends Restlet implements IDisposable {
 			for (ISicsController child : controller.getChildren()) {
 				JSONObject childResult = new JSONObject();
 				childResult.put("id", child.getId());
+				childResult.put("path", child.getPath());
 				childResult.put("url", request.getResourceRef().getBaseRef()
 						+ "/hdb" + child.getPath());
 				childrenResult.put(childResult);
@@ -257,12 +297,22 @@ public class SicsRestlet extends Restlet implements IDisposable {
 		// Use content-type in header to resolve representation (see http://restlet.tigris.org/issues/show_bug.cgi?id=385)
 	    // TODO: fix this will Restlet 1.1
 	    String outputValue = queryForm.getValues(QUERY_FORMAT);
-	    // Set response
-	    if ("json".equals(outputValue)) {
-	    	response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
-	    } else {
-	    	response.setEntity(jsonObject.toString(), MediaType.TEXT_PLAIN);
+	    String callback = queryForm.getValues(QUERY_CALLBACK);
+	    if (callback == null) {
+	    	callback = queryForm.getValues(QUERY_JSON_CALLBACK);
 	    }
+		// Set response
+		if (callback != null) {
+			response.setEntity(callback + "(" + jsonObject.toString() + ")",
+					MediaType.APPLICATION_JAVASCRIPT);
+		} else {
+			if ("json".equals(outputValue)) {
+				response.setEntity(jsonObject.toString(),
+						MediaType.APPLICATION_JSON);
+			} else {
+				response.setEntity(jsonObject.toString(), MediaType.TEXT_PLAIN);
+			}
+		}
 	}
 	
 	public ISicsManager getSicsManager() {
