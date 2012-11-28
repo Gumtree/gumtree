@@ -442,14 +442,14 @@ public class VisualBatchBufferControlViewer extends AbstractWorkflowViewerCompon
 		if (seconds < 360)
 			return String.valueOf((int) seconds) + " seconds";
 		if (seconds < 3600 * 2)
-			return String.valueOf((int) Math.ceil(seconds / 60)) + " minites";
+			return String.valueOf((int) Math.ceil(seconds / 60)) + " minutes";
 		if (seconds < 3600 * 5){
 			double remainder = Math.IEEEremainder(seconds, 3600);
 			if (remainder < 0)
 				remainder = 3600 + remainder;
 			int minites = (int) (remainder / 60);
 			return String.valueOf((int) (seconds / 3600)) + " hours " + (
-					minites > 1 ? String.valueOf(minites) + " minites" : "");
+					minites > 1 ? String.valueOf(minites) + " minutes" : "");
 		}
 		return String.valueOf((int) Math.ceil(seconds / 3600)) + " hours";
 	}
