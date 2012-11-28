@@ -11,3 +11,4 @@ Export-Package: au.gov.ansto.bragg.echidna.webserver.vaadin
 Service-Component: OSGI-INF/EchidnaWebApplication.xml, OSGI-INF/EchdinaMobileApplication.xml
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: au.gov.ansto.bragg.echidna.webserver.internal.Activator
+Eclipse-BundleShape: dir
