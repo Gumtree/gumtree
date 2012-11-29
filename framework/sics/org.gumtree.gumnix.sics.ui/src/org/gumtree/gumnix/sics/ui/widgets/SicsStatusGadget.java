@@ -100,7 +100,7 @@ public class SicsStatusGadget extends AbstractSicsWidget {
 					} else if (serverStatus.equals(ServerStatus.WAIT)) {
 						statusLabel.setBackground(getDisplay().getSystemColor(
 								SWT.COLOR_YELLOW));
-					} else if (status.equals(ServerStatus.PAUSED)) {
+					} else if (serverStatus.equals(ServerStatus.PAUSED)) {
 						statusLabel.setBackground(getDisplay().getSystemColor(
 								SWT.COLOR_BLUE));
 					} else {
