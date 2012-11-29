@@ -17,6 +17,8 @@ import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
 import org.gumtree.gumnix.sics.ui.widgets.SicsInterruptGadget;
 import org.gumtree.gumnix.sics.ui.widgets.SicsStatusGadget;
+import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
+import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
 import org.gumtree.util.messaging.IDelayEventExecutor;
@@ -24,8 +26,6 @@ import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 
 import au.gov.ansto.bragg.echidna.workbench.internal.InternalImage;
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
-import au.gov.ansto.bragg.nbi.ui.widgets.DeviceStatusWidget;
-import au.gov.ansto.bragg.nbi.ui.widgets.ShutterStatusWidget;
 
 @SuppressWarnings("restriction")
 public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
@@ -157,14 +157,6 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(deviceStatusWidget);
 
 				
-		// Interrupt
-		PGroup interruptGroup = createGroup("INTERRUPT", null);
-		SicsInterruptGadget interruptGadget = new SicsInterruptGadget(
-				interruptGroup, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER)
-				.grab(true, false).applyTo(interruptGadget);
-		interruptGadget.afterParametersSet();
-
 		return this;
 	}
 
