@@ -462,7 +462,11 @@ public class ScriptDataSourceViewer extends Composite {
 	}
 	
 	public List<DatasetInfo> getSelectedDatasets() {
-		return selectedDatasets;
+		if (selectedDatasets == null){
+			return new ArrayList<DatasetInfo>();
+		} else {
+			return selectedDatasets;
+		}
 	}
 //	public void addSelectionChangeListener(ISelectionChangedListener listener) {
 //		tableViewer.addSelectionChangedListener(listener);
