@@ -567,7 +567,7 @@ class Dataset(Data):
                     par.addDataItem(value.__iDataItem__)
         
     def append_log(self, log):
-        self.log = self.log + log
+        self.log = self.log + log.encode('ascii')
         
 def new(storage, name = None, var = None, axes = None, anames = None, \
         aunits = None, default_var = True, default_axes = True, title = None) :

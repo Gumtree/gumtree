@@ -76,12 +76,12 @@ public class TaipanWorkbenchLauncher extends AbstractLauncher {
 			// Attempt to close intro
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
 			
-//			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
-//				// open new window as editor buffer
-//				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, true);
-//			}
-////			// position it
-//			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
+			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
+				// open new window as editor buffer
+				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, true);
+			}
+//			// position it
+			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
 //
 //			IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
 //			for (IWorkbenchWindow window : windows) {
