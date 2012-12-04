@@ -22,7 +22,7 @@ OVERVIEW
 Introduction
 ------------
 
-=== What is Gumtree ===
+=== What is Gumtree ? ===
 Gumtree is a software suite for managing large scale scientific instruments.
 Its primary roles are:
 
