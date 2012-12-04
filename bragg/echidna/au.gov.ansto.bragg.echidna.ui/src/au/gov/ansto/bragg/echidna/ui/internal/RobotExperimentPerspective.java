@@ -110,13 +110,13 @@ public class RobotExperimentPerspective implements IPerspectiveFactory {
 //			e.printStackTrace();
 //		}
 //		factory.setEditorAreaVisible(false);
-		factory.getViewLayout(CONTROL_VIEW_ID).setCloseable(false);
-		factory.getViewLayout(WORKFLOW_VIEW_ID).setCloseable(false);
-		factory.getViewLayout(WORKFLOW_VIEW_ID).setMoveable(false);
-		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setCloseable(false);
-		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setMoveable(false);
-		factory.getViewLayout(SICS_BUFFER_RUNNER).setCloseable(false);
-		factory.getViewLayout(SICS_BUFFER_RUNNER).setMoveable(false);
+//		factory.getViewLayout(CONTROL_VIEW_ID).setCloseable(false);
+//		factory.getViewLayout(WORKFLOW_VIEW_ID).setCloseable(false);
+//		factory.getViewLayout(WORKFLOW_VIEW_ID).setMoveable(false);
+//		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setCloseable(false);
+//		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setMoveable(false);
+//		factory.getViewLayout(SICS_BUFFER_RUNNER).setCloseable(false);
+//		factory.getViewLayout(SICS_BUFFER_RUNNER).setMoveable(false);
 		factory.setEditorAreaVisible(false);
 //		factory.getViewLayout(FILTERED_STATUS_MONITOR_VIEW_ID).setCloseable(false);
 //		factory.getViewLayout(ANALYSIS_PARAMETERS_VIEW_ID).setCloseable(false);

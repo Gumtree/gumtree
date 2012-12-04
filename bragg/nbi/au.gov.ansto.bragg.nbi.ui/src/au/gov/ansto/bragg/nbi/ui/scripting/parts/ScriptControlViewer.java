@@ -255,6 +255,7 @@ public class ScriptControlViewer extends Composite {
 		
 		loadButton = new Button(staticComposite, SWT.PUSH);
 		loadButton.setText("Load Script");
+		loadButton.setToolTipText("Load script from file system or create new script.");
 		loadButton.setImage(InternalImage.DOWN_16.getImage());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(40, 0).applyTo(loadButton);
 		loadMenu = new Menu(staticComposite);
@@ -315,18 +316,21 @@ public class ScriptControlViewer extends Composite {
 		
 		showButton = new Button(staticComposite, SWT.PUSH);
 		showButton.setText("Edit/Hide");
+		showButton.setToolTipText("Click to edit or hide the script currently loaded.");
 		showButton.setImage(InternalImage.EDIT_16.getImage());
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(showButton);
 		showButton.setEnabled(false);
 
 		reloadButton = new Button(staticComposite, SWT.PUSH);
 		reloadButton.setText("Reload");
+		reloadButton.setToolTipText("Click to reload the current script.");
 		reloadButton.setImage(InternalImage.RELOAD_16.getImage());
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(reloadButton);
 		reloadButton.setEnabled(false);
 
 		runButton = new Button(staticComposite, SWT.PUSH);
 		runButton.setText("Run");
+		runButton.setToolTipText("Click to run the current script (run command: __run_script__ defined in the script).");
 		runButton.setImage(InternalImage.PLAY_16.getImage());
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(runButton);
 		runButton.setEnabled(false);
@@ -577,6 +581,7 @@ public class ScriptControlViewer extends Composite {
 			} 
 		}
 		IEditorPart editorPart = IDE.openEditorOnFileStore( page, fileStore );
+		setEditorVisible(true);
 		if (editorPart != scriptEditor) {
 			if (scriptEditor != null){
 				scriptEditor.removePropertyListener(editorListener);
