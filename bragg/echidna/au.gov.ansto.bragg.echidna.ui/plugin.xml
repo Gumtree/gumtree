@@ -112,6 +112,12 @@
       </launcher>
    </extension>
    <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="au.gov.ansto.bragg.echidna.ui.internal.EchidnaWorkbenchSetup">
+      </startup>
+   </extension>
+   <extension
          point="org.eclipse.ui.views">
        <category
             name="Echidna UI"

@@ -46,7 +46,7 @@ public class MagneticFieldPerspective implements IPerspectiveFactory {
 	public static final String SICS_TERMINAL_VIEW_ID = "au.gov.ansto.bragg.echidna.ui.views.SicsTerminalView";
 	public static final String SICS_BUFFER_RUNNER = "org.gumtree.gumnix.sics.batch.ui.batchBufferManagerView";
 	public static final String PROJECT_EXPLORER_VIEW_ID = "org.eclipse.ui.navigator.ProjectExplorer";
-	public static final String CONTROL_VIEW_ID = "au.gov.ansto.bragg.echidna.ui.views.EchidnaControlView";
+	public static final String CONTROL_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.SicsTerminalView";
 	public static final String ID_VIEW_SPY_VIEW = "org.gumtree.dashboard.ui.rcp.spyView";
 	public static final String ID_TCL_EDITOR = "org.eclipse.dltk.tcl.ui.editor.TclEditor";
 	public static final String ID_VIEW_ACTIVITY_MONITOR = "au.gov.ansto.bragg.echidna.ui.views.SicsRealtimeDataView";

@@ -17,5 +17,10 @@
             label="Multi Sample Workflow">
       </appLaunch>
    </extension>
-
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="au.gov.ansto.bragg.quokka.workbench.QuokkaWorkbenchSetup">
+      </startup>
+   </extension>
 </plugin>

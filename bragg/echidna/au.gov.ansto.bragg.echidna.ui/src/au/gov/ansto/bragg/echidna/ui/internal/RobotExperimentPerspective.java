@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 
 public class RobotExperimentPerspective implements IPerspectiveFactory {
 
-	public static final String EXPERIMENT_PERSPECTIVE_ID = "au.gov.ansto.bragg.echidna.ui.internal.TCLRunnerPerspective";
+	public static final String EXPERIMENT_PERSPECTIVE_ID = "au.gov.ansto.bragg.echidna.ui.internal.RobotExperimentPerspective";
 //	public static final String PLOT_VIEW_ID = "au.gov.ansto.bragg.kakadu.ui.views.PlotView";
 //	public static final String MASK_PROPERTIES_VIEW_ID = "au.gov.ansto.bragg.kakadu.ui.views.MaskPropertiesView";
 //	public static final String ALGORITHM_LIST_VIEW_ID = "au.gov.ansto.bragg.kakadu.ui.views.AlgorithmListView";
@@ -27,8 +27,8 @@ public class RobotExperimentPerspective implements IPerspectiveFactory {
 //	public static final String BEANSHELL_VIEW_ID = "org.gumtree.ui.cli.beanShellTerminalview";
 	public static final String WORKFLOW_VIEW_ID = "au.gov.ansto.bragg.echidna.ui.views.EchidnaRobotTaskEditingView";
 //	public static final String FILTERED_STATUS_MONITOR_VIEW_ID = "org.gumtree.dashboard.ui.rcp.FilteredStatusMonitorView";
-	public static final String COMMAND_LINE_VIEW_ID="org.gumtree.scripting.ui.commandLineView";
-	public static final String SICS_TERMINAL_VIEW_ID = "au.gov.ansto.bragg.echidna.ui.views.SicsTerminalView";
+	public static final String COMMAND_LINE_VIEW_ID = "org.gumtree.scripting.ui.commandLineView";
+	public static final String SICS_TERMINAL_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.SicsTerminalView";
 	public static final String SICS_BUFFER_RUNNER = "org.gumtree.gumnix.sics.batch.ui.batchBufferManagerView";
 	public static final String PROJECT_EXPLORER_VIEW_ID = "org.eclipse.ui.navigator.ProjectExplorer";
 	public static final String CONTROL_VIEW_ID = "au.gov.ansto.bragg.echidna.ui.views.EchidnaControlView";

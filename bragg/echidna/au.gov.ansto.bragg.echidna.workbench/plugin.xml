@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="au.gov.ansto.bragg.echidna.workbench.internal.OpenRobotExperimentHandler"
+            id="au.gov.ansto.bragg.echidna.workbench.OpenRobotExperimentHandler"
+            name="Open Robot Experiment">
+      </command>
+      <command
+            defaultHandler="au.gov.ansto.bragg.echidna.workbench.internal.OpenMagneticFieldExperimentHandler"
+            id="au.gov.ansto.bragg.echidna.workbench.OpenMagneticFieldExperimentHandler"
+            name="Open Robot Experiment">
+      </command>
+      <command
+            defaultHandler="au.gov.ansto.bragg.echidna.workbench.internal.OpenLowTemperatureExperimentHandler"
+            id="au.gov.ansto.bragg.echidna.workbench.OpenLowTemperatureExperimentHandler"
+            name="Open Robot Experiment">
+      </command>
+      <command
+            defaultHandler="au.gov.ansto.bragg.echidna.workbench.internal.OpenHighTemperatureExperimentHandler"
+            id="au.gov.ansto.bragg.echidna.workbench.OpenHighTemperatureExperimentHandler"
+            name="Open Robot Experiment">
+      </command>
+      <command
+            defaultHandler="au.gov.ansto.bragg.echidna.workbench.internal.OpenCustomisedTemperatureExperimentHandler"
+            id="au.gov.ansto.bragg.echidna.workbench.OpenCustomisedTemperatureExperimentHandler"
+            name="Open Robot Experiment">
+      </command>
+   </extension>
+   <extension
+         point="org.gumtree.ui.appLaunches">
+      <appLaunch
+            commandId="au.gov.ansto.bragg.echidna.workbench.OpenRobotExperimentHandler"
+            icon64="icons/industrial_robot_64.png"
+            label="Robot Changer">
+      </appLaunch>
+      <appLaunch
+            commandId="au.gov.ansto.bragg.echidna.workbench.OpenMagneticFieldExperimentHandler"
+            icon64="icons/magnet64.png"
+            label="Magnetic Field">
+      </appLaunch>
+      <appLaunch
+            commandId="au.gov.ansto.bragg.echidna.workbench.OpenLowTemperatureExperimentHandler"
+            icon64="icons/cold_temp64.png"
+            label="Low Temperature">
+      </appLaunch>
+      <appLaunch
+            commandId="au.gov.ansto.bragg.echidna.workbench.OpenHighTemperatureExperimentHandler"
+            icon64="icons/hot_temp64.png"
+            label="High Temperature">
+      </appLaunch>
+      <appLaunch
+            commandId="au.gov.ansto.bragg.echidna.workbench.OpenCustomisedTemperatureExperimentHandler"
+            icon64="icons/room_temp64.png"
+            label="Room Temperature">
+      </appLaunch>
+   </extension>
+
+</plugin>
