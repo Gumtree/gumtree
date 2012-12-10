@@ -10,7 +10,6 @@
  *******************************************************************************/
 package au.gov.ansto.bragg.nbi.ui.internal;
 
-import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
@@ -35,7 +34,7 @@ public class SICSExperimentPerspective implements IPerspectiveFactory {
 //				0.70f,
 //				factory.getEditorArea());
 //		bottomRight.addView(SICS_TERMINAL_VIEW_ID);
-		factory.addStandaloneView(SICS_TERMINAL_VIEW_ID, false, IPageLayout.BOTTOM, 0.70f, factory.getEditorArea());
+		factory.addView(SICS_TERMINAL_VIEW_ID, IPageLayout.BOTTOM, 0.70f, factory.getEditorArea());
 		
 //		IFolderLayout bottomLeft  =
 //			factory.createFolder(
