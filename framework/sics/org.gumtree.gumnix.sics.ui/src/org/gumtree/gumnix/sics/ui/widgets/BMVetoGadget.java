@@ -128,6 +128,7 @@ public class BMVetoGadget extends ExtendedSicsComposite {
 		pauseImage = resourceManager.createImage("icons/button_blue_pause.png");
 		continueImage = resourceManager.createImage("icons/StepForwardNormalBlue16.png");
 		button.setImage(pauseImage);
+		button.setToolTipText("Click to pause counting.");
 		GridDataFactory.swtDefaults().align(SWT.LEFT, GridData.VERTICAL_ALIGN_CENTER)
 					.hint(50, 32).grab(false, false).applyTo(button);
 //		button.setText("PAUSED");
@@ -151,24 +152,28 @@ public class BMVetoGadget extends ExtendedSicsComposite {
 							} else {
 								button.setImage(continueImage);
 								status.setText("Waiting for Counting");
+								button.setToolTipText("Click to cancel pausing command.");
 							}
 						} else {
 							button.setImage(continueImage);
+							button.setToolTipText("Click to pause counting.");
 							status.setText("Counting Paused");
 						}
 					} else {
 						if (isVetoed) {
-							if (serverStatus.equals(ServerStatus.COUNTING)){
+							if (serverStatus.equals(ServerStatus.COUNTING) || serverStatus.equals(ServerStatus.PAUSED)){
 								runVeto(false);
 								isVetoed = false;
 							} else {
 								button.setImage(pauseImage);
 								status.setText("Click to Pause Counting");
+								button.setToolTipText("Click to pause counting.");
 								isVetoed = false;
 							}
 						} else {
 							button.setImage(pauseImage);
 							status.setText("Click to Pause Counting");
+							button.setToolTipText("Click to pause counting.");
 						}
 					}
 //					if (isRequested) {
@@ -262,12 +267,14 @@ public class BMVetoGadget extends ExtendedSicsComposite {
 							if (!serverStatus.equals(ServerStatus.PAUSED)) {
 								status.setText("Click to Pause Counting");
 								button.setImage(pauseImage);
+								button.setToolTipText("Click to pause counting.");
 								isVetoed = false;
 							}
 						}
 					} else {
 						button.setImage(pauseImage);
 						status.setText("Click to Pause Counting");
+						button.setToolTipText("Click to pause counting.");
 						isVetoed = false;
 					}
 //					if (serverStatus.equals(ServerStatus.PAUSED) || serverStatus.equals(ServerStatus.COUNTING)) {
@@ -299,13 +306,15 @@ public class BMVetoGadget extends ExtendedSicsComposite {
 			button.setImage(continueImage);
 //			status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
 			status.setText("Counting Paused");
-			((SicsMonitor) SicsCore.getSicsManager().monitor()).notifyListener("/", "Paused");
+			button.setToolTipText("Click to continue counting.");
+//			((SicsMonitor) SicsCore.getSicsManager().monitor()).notifyListener("/", "Paused");
 			System.err.println("Counting Paused");
 		} else {
 			button.setImage(pauseImage);
+			button.setToolTipText("Click to pause counting.");
 //			status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 			status.setText("Click to Pause Counting");
-			((SicsMonitor) SicsCore.getSicsManager().monitor()).notifyListener("/", "Counting");
+//			((SicsMonitor) SicsCore.getSicsManager().monitor()).notifyListener("/", "Counting");
 		}
 	}
 	
