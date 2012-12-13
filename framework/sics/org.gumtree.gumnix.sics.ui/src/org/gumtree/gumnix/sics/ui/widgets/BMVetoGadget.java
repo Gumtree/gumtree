@@ -38,7 +38,6 @@ import org.eclipse.swt.widgets.Label;
 import org.gumtree.gumnix.sics.control.IHipadabaListener;
 import org.gumtree.gumnix.sics.control.ServerStatus;
 import org.gumtree.gumnix.sics.core.SicsCore;
-import org.gumtree.gumnix.sics.internal.control.SicsMonitor;
 import org.gumtree.gumnix.sics.internal.ui.Activator;
 import org.gumtree.gumnix.sics.io.ISicsProxyListener;
 import org.gumtree.gumnix.sics.io.SicsProxyListenerAdapter;
@@ -156,7 +155,7 @@ public class BMVetoGadget extends ExtendedSicsComposite {
 							}
 						} else {
 							button.setImage(continueImage);
-							button.setToolTipText("Click to pause counting.");
+							button.setToolTipText("Click to continue counting.");
 							status.setText("Counting Paused");
 						}
 					} else {
@@ -264,11 +263,15 @@ public class BMVetoGadget extends ExtendedSicsComposite {
 								isVetoed = true;
 							}
 						} else {
-							if (!serverStatus.equals(ServerStatus.PAUSED)) {
+							if (serverStatus.equals(ServerStatus.PAUSED)) {
+								button.setImage(continueImage);
+								button.setToolTipText("Click to continue counting.");
+								status.setText("Counting Paused");
+							} else {
 								status.setText("Click to Pause Counting");
 								button.setImage(pauseImage);
 								button.setToolTipText("Click to pause counting.");
-								isVetoed = false;
+								isVetoed = false;								
 							}
 						}
 					} else {
