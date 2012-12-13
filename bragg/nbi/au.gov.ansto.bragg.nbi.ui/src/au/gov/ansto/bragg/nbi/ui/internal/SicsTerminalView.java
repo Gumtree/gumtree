@@ -13,6 +13,7 @@ package au.gov.ansto.bragg.nbi.ui.internal;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.gumtree.gumnix.sics.core.SicsCore;
+import org.gumtree.gumnix.sics.io.ISicsProxy;
 import org.gumtree.ui.terminal.support.CommandLineTerminal;
 
 
@@ -23,6 +24,7 @@ import org.gumtree.ui.terminal.support.CommandLineTerminal;
 public class SicsTerminalView extends CommandLineTerminal {
 
 	public static final String SICS_TELNET_ADAPTOR_ID = "org.gumtree.gumnix.sics.ui.serverCommunicationAdapter";
+	private Composite parent = null;
 	
 	/**
 	 * 
@@ -37,24 +39,49 @@ public class SicsTerminalView extends CommandLineTerminal {
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
+		this.parent = parent;
 		Thread thread = new Thread(){
+			boolean isConnected = false;
+			boolean isFirstConnection = true;
 			@Override
 			public void run() {
 				try {
-					while(SicsCore.getSicsController() == null){
-						Thread.sleep(500);
-					}
-					Display.getDefault().asyncExec(new Runnable() {
-						
-						@Override
-						public void run() {
-							try {
-								selectCommunicationAdapter(SICS_TELNET_ADAPTOR_ID);
-								connect();
-							} catch (Exception e) {
+					while(!isDisposed()){
+						ISicsProxy proxy = SicsCore.getDefaultProxy();
+						boolean connectionStatus = proxy != null && proxy.isConnected() && SicsCore.getSicsController() != null;
+						if (connectionStatus != isConnected) {
+							if (connectionStatus) {
+								Display.getDefault().asyncExec(new Runnable() {
+									
+									@Override
+									public void run() {
+										try {
+											if (isFirstConnection) {
+												selectCommunicationAdapter(SICS_TELNET_ADAPTOR_ID);
+												isFirstConnection = false;
+											}
+											connect();
+											isConnected = true;
+										} catch (Exception e) {
+										}
+									}
+								});
+							} else {
+								Display.getDefault().asyncExec(new Runnable() {
+									
+									@Override
+									public void run() {
+										try {
+											disconnect();
+											isConnected = false;
+										} catch (Exception e) {
+										}
+									}
+								});
 							}
 						}
-					});
+						Thread.sleep(500);
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -80,5 +107,7 @@ public class SicsTerminalView extends CommandLineTerminal {
 //		});
 	}
 
-	
+	private boolean isDisposed() {
+		return parent.isDisposed();
+	}
 }

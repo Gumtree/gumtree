@@ -393,4 +393,33 @@ public class CommandLineTerminal extends ViewPart implements ICommandLineTermina
 		});
 	}
 
+	public void disconnect() throws CommunicationAdapterException {
+		if(getAdapter() != null) {
+			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+				public void run() {
+					try {
+						getAdapter().disconnect();
+						textDisplay.append("\nDisconnected\n");
+						textInput.setEnabled(false);
+//						textInput.setFocus();
+//						IAction[] toolActions = getAdapter().getToolActions();
+//						if(toolActions != null) {
+//							for(IAction action : toolActions) {
+//								if (getViewSite() != null) {
+//									IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
+//									mgr.add(action);
+//									mgr.update(true);
+//								}
+//							}
+//						}
+					} catch (Exception e) {
+						printError(e);
+					}
+				}
+			});
+		} else {
+			throw new CommunicationAdapterException("Communication adapter is missing.");
+		}
+	}
+	
 }
