@@ -401,7 +401,7 @@ public class CommandLineTerminal extends ViewPart implements ICommandLineTermina
 						if(getAdapter().isConnected()) {
 							adapter.disconnect();
 						}
-						textDisplay.append("\nDisconnected\n");
+						textDisplay.appendInputText("\nDisconnected\n");
 						textInput.setEnabled(false);
 //						textInput.setFocus();
 //						IAction[] toolActions = getAdapter().getToolActions();
