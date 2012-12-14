@@ -398,7 +398,9 @@ public class CommandLineTerminal extends ViewPart implements ICommandLineTermina
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				public void run() {
 					try {
-						getAdapter().disconnect();
+						if(getAdapter().isConnected()) {
+							adapter.disconnect();
+						}
 						textDisplay.append("\nDisconnected\n");
 						textInput.setEnabled(false);
 //						textInput.setFocus();

@@ -339,6 +339,12 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 						} 
 					} catch (Exception e) {
 					} 
+					try {
+						if (text.contains("/")) {
+							text = text.substring(text.lastIndexOf("/") + 1);
+						}
+					} catch (Exception e) {
+					}
 					label.setText(text);
 					// TODO: does it have any performance hit?
 					label.getParent().layout(true, true);

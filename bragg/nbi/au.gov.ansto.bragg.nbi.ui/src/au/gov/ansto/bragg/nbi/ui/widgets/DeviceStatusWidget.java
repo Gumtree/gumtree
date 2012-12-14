@@ -325,7 +325,13 @@ public class DeviceStatusWidget extends SicsStatusWidget {
 							text = String.format("%.2f", value);
 						} 
 					} catch (Exception e) {
-					} 
+					}
+					try {
+						if (text.contains("/")) {
+							text = text.substring(text.lastIndexOf("/") + 1);
+						}
+					} catch (Exception e) {
+					}
 					label.setText(text);
 //					label.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 					// TODO: does it have any performance hit?

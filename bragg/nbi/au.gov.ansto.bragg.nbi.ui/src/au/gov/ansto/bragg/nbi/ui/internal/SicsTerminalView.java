@@ -66,6 +66,11 @@ public class SicsTerminalView extends CommandLineTerminal {
 										}
 									}
 								});
+								int time = 0;
+								while (!isConnected && time < 5000) {
+									Thread.sleep(250);
+									time += 250;
+								}
 							} else {
 								Display.getDefault().asyncExec(new Runnable() {
 									

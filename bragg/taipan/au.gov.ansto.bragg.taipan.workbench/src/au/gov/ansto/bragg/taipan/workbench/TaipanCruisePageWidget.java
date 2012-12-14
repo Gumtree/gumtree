@@ -1,11 +1,6 @@
 package au.gov.ansto.bragg.taipan.workbench;
 
-import java.awt.Color;
-import java.io.File;
-import java.io.IOException;
-
 import javax.annotation.PostConstruct;
-import javax.imageio.ImageIO;
 import javax.inject.Inject;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
@@ -31,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
-import au.gov.ansto.bragg.taipan.ui.widgets.BeamMonitorDialWidget;
 
 @SuppressWarnings("restriction")
 public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
