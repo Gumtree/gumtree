@@ -21,7 +21,9 @@ import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.Group;
 import ncsa.hdf.object.HObject;
 
+import org.gumtree.data.Factory;
 import org.gumtree.data.exception.ItemExistException;
+import org.gumtree.data.exception.ShapeNotMatchException;
 import org.gumtree.data.exception.WriterException;
 import org.gumtree.data.interfaces.IArray;
 import org.gumtree.data.interfaces.IAttribute;
@@ -348,16 +350,67 @@ public class NcHdfWriter implements IWriter {
 	 */
 	private Object getData(final IArray array) {
 		Class<?> type = array.getElementType();
-		if (type.equals(float.class) || type.equals(int.class)
-				|| type.equals(boolean.class) || type.equals(byte.class)) {
-			return array.getStorage();
-		} else if (type.equals(double.class)) {
-			double[] storage = (double[]) array.getStorage();
-			float[] floatData = new float[storage.length];
-			for (int i = 0; i < floatData.length; i++) {
-				floatData[i] = (float) storage[i];
+//		if (type.equals(float.class) || type.equals(int.class)
+//				|| type.equals(boolean.class) || type.equals(byte.class)) {
+//			return array.getStorage();
+//		} else if (type.equals(double.class)) {
+//			double[] storage = (double[]) array.getStorage();
+//			float[] floatData = new float[storage.length];
+//			for (int i = 0; i < floatData.length; i++) {
+//				floatData[i] = (float) storage[i];
+//			}
+//			return floatData;
+//		} else if (type.equals(String.class) || type.equals(char.class)) {
+//			return new String[] { array.toString() };
+//		} else {
+//			return array.toString();
+//		}
+		if (type.equals(float.class)) {
+			float[] storage = (float[]) array.getStorage();
+			if (array.getSize() == storage.length) {
+				return storage;
+			} else {
+				IArray newArray = array.copy();
+				return newArray.getStorage();
 			}
-			return floatData;
+		} else if (type.equals(double.class)){
+			double[] storage = (double[]) array.getStorage();
+			if (array.getSize() == storage.length) {
+				float[] floatData = new float[storage.length];
+				System.arraycopy(storage, 0, floatData, 0, storage.length);
+				return floatData;
+			} else {
+				IArray newArray = Factory.getFactory().createArray(type, array.getShape());
+				try {
+					array.getArrayUtils().copyTo(newArray);
+				} catch (ShapeNotMatchException e) {
+				}
+				return newArray.getStorage();
+			}
+		} else if (type.equals(int.class)) {
+			int[] storage = (int[]) array.getStorage();
+			if (array.getSize() == storage.length) {
+				return storage;
+			} else {
+				IArray newArray = array.copy();
+				return newArray.getStorage();
+			}
+		} else if (type.equals(boolean.class)) {
+			boolean[] storage = (boolean[]) array.getStorage();
+			if (array.getSize() == storage.length) {
+				return storage;
+			} else {
+				IArray newArray = array.copy();
+				return newArray.getStorage();
+			}
+		} else if (type.equals(byte.class)) {
+			byte[] storage = (byte[]) array.getStorage();
+			if (array.getSize() == storage.length) {
+				return storage;
+			} else {
+				IArray newArray = array.copy();
+				return newArray.getStorage();
+			}
 		} else if (type.equals(String.class) || type.equals(char.class)) {
 			return new String[] { array.toString() };
 		} else {
