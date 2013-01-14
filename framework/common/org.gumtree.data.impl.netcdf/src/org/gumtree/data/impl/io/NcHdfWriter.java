@@ -374,19 +374,12 @@ public class NcHdfWriter implements IWriter {
 				return newArray.getStorage();
 			}
 		} else if (type.equals(double.class)){
-			double[] storage = (double[]) array.getStorage();
-			if (array.getSize() == storage.length) {
-				float[] floatData = new float[storage.length];
-				System.arraycopy(storage, 0, floatData, 0, storage.length);
-				return floatData;
-			} else {
-				IArray newArray = Factory.getFactory().createArray(type, array.getShape());
-				try {
-					array.getArrayUtils().copyTo(newArray);
-				} catch (ShapeNotMatchException e) {
-				}
-				return newArray.getStorage();
+			IArray newArray = Factory.getFactory().createArray(float.class, array.getShape());
+			try {
+				array.getArrayUtils().copyTo(newArray);
+			} catch (ShapeNotMatchException e) {
 			}
+			return newArray.getStorage();
 		} else if (type.equals(int.class)) {
 			int[] storage = (int[]) array.getStorage();
 			if (array.getSize() == storage.length) {
