@@ -132,15 +132,19 @@ class Dataset(Data):
             else :
                 self.__dict__[name] = value
 
-    def add_metadata(self, name, value):
+    def add_metadata(self, name, value, tag = None, append = False):
         if hasattr(self, '__iNXroot__') and not self.__iNXroot__ is None :
             item = self.__iNXroot__.findDataItem(name)
             if not item is None :
                 data = SimpleData(item)
+                if tag:
+                    setattr(data, 'METADATA_TAG', str(tag))
                 dtype = type(value)
                 if dtype is int or dtype is float or dtype is long :
                     data.fill(value)
                 elif dtype is str :
+                    if append:
+                        value = str(item.getData().toString()) + '\n' + value
                     item.setCachedData(Array(value).__iArray__, False)
                 elif hasattr(value, '__len__') :
                     data.copy_from(value)
@@ -149,8 +153,28 @@ class Dataset(Data):
             else :
                 data = SimpleData(value)
                 data.__set_name__(name)
+                if tag:
+                    setattr(data, 'METADATA_TAG', str(tag))
                 self.__iNXroot__.addDataItem(data.__iDataItem__)
+            if hasattr(self, '__iDictionary__') :
+                keys = self.__iDictionary__.addEntry(name, '/' + name)
 
+    def harvest_metadata(self, tag):
+        meta = dict()
+        if hasattr(self, '__iDictionary__') :
+            keys = self.__iDictionary__.getAllKeys().toArray()
+            for key in keys :
+                item = self.__iNXroot__.findDataItem(self.__iDictionary__.getPath(key).getValue())
+                if item:
+                    if item.getAttribute('METADATA_TAG'):
+                        meta[key.getName()] = SimpleData[item]
+            items = self.__iNXroot__.getDataItemList()
+            for item in items :
+                if item.getAttribute('METADATA_TAG'):
+                    name = str(item.getShortName())
+                    meta[name] = SimpleData(item)
+        return meta
+        
     def get_metadata(self, name):
         if name.__contains__('/') :
             item = self.__iNXroot__.findContainerByPath(name)
