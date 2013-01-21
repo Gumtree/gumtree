@@ -10,6 +10,8 @@
 *******************************************************************************/
 package au.gov.ansto.bragg.nbi.ui.core.commands;
 
+import java.util.List;
+
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
@@ -24,6 +26,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import au.gov.ansto.bragg.datastructures.core.exception.IndexOutOfBoundException;
+
 
 /**
  * @author nxi
@@ -33,15 +37,20 @@ public class TableScanParameter extends AbstractScanParameter {
 
 	private SimpleTableScanCommand command;
 	private boolean isSelected;
+	private int length;
 	private int index;
-	private float sx;
-	private float sy;
-	private float sz;
-	private float som;
-	private float time;
-	private float ga;
-	private float gb;
-	private float gc;
+	private float preset;
+	private float p0;
+	private float p1;
+	private float p2;
+	private float p3;
+	private float p4;
+	private float p5;
+	private float p6;
+	private float p7;
+	private float p8;
+	private float p9;
+	private List<String> pNames;
 	
 	public TableScanParameter() {
 		super();
@@ -57,87 +66,116 @@ public class TableScanParameter extends AbstractScanParameter {
 		firePropertyChange("index", oldValue, index);
 	}
 
-	public float getSx() {
-		return sx;
+	public float getPreset() {
+		return preset;
 	}
 
-	public void setSx(float sx) {
-		float oldValue = this.sx;
-		this.sx = sx;
-		firePropertyChange("sx", oldValue, sx);
+	public void setPreset(float preset) {
+		float oldValue = this.preset;
+		this.preset = preset;
+		firePropertyChange("preset", oldValue, preset);
 	}
 
-	public float getSy() {
-		return sy;
+	public float getP0() {
+		return p0;
 	}
 
-	public void setSy(float sy) {
-		float oldValue = this.sy;
-		this.sy = sy;
-		firePropertyChange("sy", oldValue, sy);
+	public void setP0(float p0) {
+		float oldValue = this.p0;
+		this.p0 = p0;
+		firePropertyChange("p0", oldValue, p0);
 	}
 
-	public float getSz() {
-		return sz;
+	public float getP1() {
+		return p1;
 	}
 
-	public void setSz(float sz) {
-		float oldValue = this.sz;
-		this.sz = sz;
-		firePropertyChange("sz", oldValue, sz);
+	public void setP1(float p1) {
+		float oldValue = this.p1;
+		this.p1 = p1;
+		firePropertyChange("p1", oldValue, p1);
 	}
 
-	public float getSom() {
-		return som;
+	public float getP2() {
+		return p2;
 	}
 
-	public void setSom(float som) {
-		float oldValue = this.som;
-		this.som = som;
-		firePropertyChange("som", oldValue, som);
+	public void setP2(float p2) {
+		float oldValue = this.p2;
+		this.p2 = p2;
+		firePropertyChange("p2", oldValue, p2);
 	}
 
-	public float getGa() {
-		return ga;
+	public float getP3() {
+		return p3;
 	}
 
-	public void setGa(float ga) {
-		float oldValue = this.ga;
-		this.ga = ga;
-		firePropertyChange("ga", oldValue, ga);
+	public void setP3(float p3) {
+		float oldValue = this.p3;
+		this.p3 = p3;
+		firePropertyChange("p3", oldValue, p3);
 	}
 
-	public float getGb() {
-		return gb;
+	public float getP4() {
+		return p4;
 	}
 
-	public void setGb(float gb) {
-		float oldValue = this.gb;
-		this.gb = gb;
-		firePropertyChange("gb", oldValue, gb);
+	public void setP4(float p4) {
+		float oldValue = this.p4;
+		this.p4 = p4;
+		firePropertyChange("p4", oldValue, p4);
 	}
 
-	public float getGc() {
-		return gc;
+	public float getP5() {
+		return p5;
 	}
 
-	public void setGc(float gc) {
-		float oldValue = this.gc;
-		this.gc = gc;
-		firePropertyChange("gc", oldValue, gc);
+	public void setP5(float p5) {
+		float oldValue = this.p5;
+		this.p5 = p5;
+		firePropertyChange("p5", oldValue, p5);
 	}
 
-	public float getTime() {
-		return time;
+	public float getP6() {
+		return p6;
 	}
 
-	public void setTime(float time) {
-		float oldValue = this.time;
-		this.time = time;
-		firePropertyChange("time", oldValue, time);
+	public void setP6(float p6) {
+		float oldValue = this.p6;
+		this.p6 = p6;
+		firePropertyChange("p6", oldValue, p6);
 	}
 
-	
+	public float getP7() {
+		return p7;
+	}
+
+	public void setP7(float p7) {
+		float oldValue = this.p7;
+		this.p7 = p7;
+		firePropertyChange("p7", oldValue, p7);
+	}
+
+	public float getP8() {
+		return p8;
+	}
+
+	public void setP8(float p8) {
+		float oldValue = this.p8;
+		this.p8 = p8;
+		firePropertyChange("p8", oldValue, p8);
+	}
+
+	public float getP9() {
+		return p9;
+	}
+
+	public void setP9(float p9) {
+		float oldValue = this.p9;
+		this.p9 = p9;
+		firePropertyChange("p9", oldValue, p9);
+	}
+
 	public boolean getIsSelected() {
 		return isSelected;
 	}
@@ -154,170 +192,126 @@ public class TableScanParameter extends AbstractScanParameter {
 	@Override
 	public void createParameterUI(Composite parent, final AbstractScanCommandView commandView, 
 			final FormToolkit toolkit) {
-		if (command.getNumberOfMotor() == 4) {
 //			final Label dragLabel = toolkit.createLabel(parent, "\u2022");
-			final Label dragLabel = toolkit.createLabel(parent, "\u2022");
-			dragLabel.setCursor(parent.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
+		final Label dragLabel = toolkit.createLabel(parent, "\u2022");
+		dragLabel.setCursor(parent.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
 
-			final Button selectBox = toolkit.createButton(parent, "", SWT.CHECK);
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).indent(0, 2).applyTo(selectBox);
+		final Button selectBox = toolkit.createButton(parent, "", SWT.CHECK);
+		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).indent(0, 2).applyTo(selectBox);
 
-			final Text sxText = toolkit.createText(parent, "");
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(sxText);
-			addValidator(sxText, ParameterValidator.floatValidator);
-
-			final Text syText = toolkit.createText(parent, "");
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(syText);
-			addValidator(syText, ParameterValidator.floatValidator);
-
-			final Text szText = toolkit.createText(parent, "");
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(szText);
-			addValidator(szText, ParameterValidator.floatValidator);
-
-			final Text somText = toolkit.createText(parent, "");
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(somText);
-			addValidator(somText, ParameterValidator.floatValidator);
-
-			final Text timeText = toolkit.createText(parent, "");
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(timeText);
-			addValidator(timeText, ParameterValidator.floatValidator);
-
+		for (int i = 0; i < getLength(); i++) {
+			final String name = "p" + i;
+			final Text pText = toolkit.createText(parent, "");
+			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(pText);
+			addValidator(pText, ParameterValidator.floatValidator);
 			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeSelection(selectBox),
-							BeansObservables.observeValue(getInstance(), "isSelected"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(sxText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "sx"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(syText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "sy"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(szText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "sz"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(somText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "som"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(timeText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "time"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-				}
-			});
-		} else if (command.getNumberOfMotor() == 7) {
-//			final Label dragLabel = toolkit.createLabel(parent, "\u2022");
-			final Label dragLabel = toolkit.createLabel(parent, String.valueOf(getIndex()));
-			dragLabel.setCursor(parent.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
-
-			final Button selectBox = toolkit.createButton(parent, "", SWT.CHECK);
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).indent(0, 2).applyTo(selectBox);
-			
-			final Text sxText = toolkit.createText(parent, "");
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(sxText);
-			addValidator(sxText, ParameterValidator.floatValidator);
-
-			final Text syText = toolkit.createText(parent, "");
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(syText);
-			addValidator(syText, ParameterValidator.floatValidator);
-
-			final Text szText = toolkit.createText(parent, "");
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(szText);
-			addValidator(szText, ParameterValidator.floatValidator);
-
-			final Text somText = toolkit.createText(parent, "");
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(somText);
-			addValidator(somText, ParameterValidator.floatValidator);
-
-			final Text eomText = toolkit.createText(parent, "");
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(eomText);
-			addValidator(eomText, ParameterValidator.floatValidator);
-
-			final Text echiText = toolkit.createText(parent, "");
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(echiText);
-			addValidator(echiText, ParameterValidator.floatValidator);
-
-			final Text ephiText = toolkit.createText(parent, "");
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(ephiText);
-			addValidator(ephiText, ParameterValidator.floatValidator);
-
-			final Text timeText = toolkit.createText(parent, "");
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(timeText);
-			addValidator(timeText, ParameterValidator.floatValidator);
-
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
-				public void run() {
-					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeSelection(selectBox),
-							BeansObservables.observeValue(getInstance(), "isSelected"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(sxText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "sx"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(syText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "sy"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(szText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "sz"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(somText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "som"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(eomText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "ga"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(echiText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "gb"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(ephiText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "gc"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(timeText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), "time"),
+					bindingContext.bindValue(SWTObservables.observeText(pText, SWT.Modify),
+							BeansObservables.observeValue(getInstance(), name),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});
 		}
-		
+
+		final Text presetText = toolkit.createText(parent, "");
+		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(presetText);
+		addValidator(presetText, ParameterValidator.floatValidator);
+
+		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			public void run() {
+				DataBindingContext bindingContext = new DataBindingContext();
+				bindingContext.bindValue(SWTObservables.observeSelection(selectBox),
+						BeansObservables.observeValue(getInstance(), "isSelected"),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(SWTObservables.observeText(presetText, SWT.Modify),
+						BeansObservables.observeValue(getInstance(), "preset"),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+			}
+		});
 		
 	}
 
+	public float getP(int i) {
+		if (i > 9) {
+			i = 9;
+		}
+		if (i < 0) {
+			i = 0;
+		}
+		switch (i) {
+		case 0:
+			return p0;
+		case 1:
+			return p1;
+		case 2:
+			return p2;
+		case 3:
+			return p3;
+		case 4:
+			return p4;
+		case 5:
+			return p5;
+		case 6:
+			return p6;
+		case 7:
+			return p7;
+		case 8:
+			return p8;
+		case 9:
+			return p9;
+		default:
+			return 0;
+		}
+	}
+	
 	@Override
 	public String toString() {
-		String text = sx + " " + sy + " " + sz + " " + som;
-		if (command.getNumberOfMotor() == 7) {
-			text += " " + ga + " " + gb + " " + gc;
+		String text = "";
+		for (int i = 0; i < getLength(); i++) {
+			text += pNames.get(i) + " ";
 		}
-		return text + " " + time;
+		text += "preset\n";
+		for (int i = 0; i < getLength(); i++) {
+			text += getP(i) + " ";
+		}
+		return text + " " + preset;
 	}
 
 	@Override
 	public String getDriveScript(String indexName, String indent) {
 		String script = "";
-		if (command.getColumn1()) {
-			script += indent + "drive sx " + ((float) sx) + "\n";
+		if (length > 0) {
+			script += indent + "drive " + pNames.get(0) + " " + p0 + "\n";
 		}
-		if (command.getColumn2()) {
-			script += indent + "drive sy " + ((float) sy) + "\n";
+		if (length > 1) {
+			script += indent + "drive " + pNames.get(1) + " " + p1 + "\n";
 		}
-		if (command.getColumn3()) {
-			script += indent + "drive sz " + ((float) sz) + "\n";
+		if (length > 2) {
+			script += indent + "drive " + pNames.get(2) + " " + p2 + "\n";
 		}
-		if (command.getColumn4()) {
-			script += indent + "drive som " + ((float) som) + "\n";
+		if (length > 3) {
+			script += indent + "drive " + pNames.get(3) + " " + p3 + "\n";
 		}
-		if (command.getNumberOfMotor() == 7) {
-			if (command.getColumn5()) {
-				script += indent + "drive ga " + ((float) ga) + "\n";
-			}
-			if (command.getColumn6()) {
-				script += indent + "drive gb " + ((float) gb) + "\n";
-			}
-			if (command.getColumn7()) {
-				script += indent + "drive gc " + ((float) gc) + "\n";
-			}
+		if (length > 4) {
+			script += indent + "drive " + pNames.get(4) + " " + p4 + "\n";
 		}
-		script += indent + "histmem preset " + ((int) time) + "\n";
+		if (length > 5) {
+			script += indent + "drive " + pNames.get(5) + " " + p5 + "\n";
+		}
+		if (length > 6) {
+			script += indent + "drive " + pNames.get(6) + " " + p6 + "\n";
+		}
+		if (length > 7) {
+			script += indent + "drive " + pNames.get(7) + " " + p7 + "\n";
+		}
+		if (length > 8) {
+			script += indent + "drive " + pNames.get(8) + " " + p8 + "\n";
+		}
+		if (length > 9) {
+			script += indent + "drive " + pNames.get(9) + " " + p9 + "\n";
+		}
+		script += indent + "histmem preset " + ((int) preset) + "\n";
 		script += indent + "histmem start block\n";
 		script += indent + "save " + indexName + "\n";
 		return script;
@@ -325,40 +319,136 @@ public class TableScanParameter extends AbstractScanParameter {
 	
 	@Override
 	public String getBroadcastScript(String indexName, String indent) {
-		String text = indent + "broadcast " + sx + " " + sy + " " + sz + " " + som;
-		if (command.getNumberOfMotor() == 7) {
-			text += " " + ga + " " + gb + " " + gc;
+		String text = indent + "broadcast ";
+		if (length > 0) {
+			text += pNames.get(0) + ", ";
 		}
-		return text + " " + time + "\n";
+		if (length > 1) {
+			text += pNames.get(1) + ", ";
+		}
+		if (length > 2) {
+			text += pNames.get(2) + ", ";
+		}
+		if (length > 3) {
+			text += pNames.get(3) + ", ";
+		}
+		if (length > 4) {
+			text += pNames.get(4) + ", ";
+		}
+		if (length > 5) {
+			text += pNames.get(5) + ", ";
+		}
+		if (length > 6) {
+			text += pNames.get(6) + ", ";
+		}
+		if (length > 7) {
+			text += pNames.get(7) + ", ";
+		}
+		if (length > 8) {
+			text += pNames.get(8) + ", ";
+		}
+		if (length > 9) {
+			text += pNames.get(9) + ", ";
+		}
+		text += "preset\n" + indent;
+		if (length > 0) {
+			text += p0 + ", ";
+		}
+		if (length > 1) {
+			text += p1 + ", ";
+		}
+		if (length > 2) {
+			text += p2 + ", ";
+		}
+		if (length > 3) {
+			text += p3 + ", ";
+		}
+		if (length > 4) {
+			text += p4 + ", ";
+		}
+		if (length > 5) {
+			text += p5 + ", ";
+		}
+		if (length > 6) {
+			text += p6 + ", ";
+		}
+		if (length > 7) {
+			text += p7 + ", ";
+		}
+		if (length > 8) {
+			text += p8 + ", ";
+		}
+		if (length > 9) {
+			text += p9 + ", ";
+		}
+		return text + " " + preset + "\n";
 	}
 	
 	@Override
 	public String getPritable(boolean isFirstLine) {
 		String text = "";
-		if (command.getColumn1()) {
-			text += sx + ", \t";
+		if (length > 0) {
+			text += pNames.get(0) + ", \t";
 		}
-		if (command.getColumn2()) {
-			text += sy + ", \t";
+		if (length > 1) {
+			text += pNames.get(1) + ", \t";
 		}
-		if (command.getColumn3()) {
-			text += sz + ", \t";
+		if (length > 2) {
+			text += pNames.get(2) + ", \t";
 		}
-		if (command.getColumn4()) {
-			text += som + ", \t";
+		if (length > 3) {
+			text += pNames.get(3) + ", \t";
 		}
-		if (command.getNumberOfMotor() == 7) {
-			if (command.getColumn5()) {
-				text += ga + ", \t";
-			}
-			if (command.getColumn6()) {
-				text += gb + ", \t";
-			}
-			if (command.getColumn7()) {
-				text += gc + ", \t";
-			}
+		if (length > 4) {
+			text += pNames.get(4) + ", \t";
 		}
-		return text + time + "\n";	}
+		if (length > 5) {
+			text += pNames.get(5) + ", \t";
+		}
+		if (length > 6) {
+			text += pNames.get(6) + ", \t";
+		}
+		if (length > 7) {
+			text += pNames.get(7) + ", \t";
+		}
+		if (length > 8) {
+			text += pNames.get(8) + ", \t";
+		}
+		if (length > 9) {
+			text += pNames.get(9) + ", \t";
+		}
+		text += "preset\n";
+		if (length > 0) {
+			text += p0 + ", \t";
+		}
+		if (length > 1) {
+			text += p1 + ", \t";
+		}
+		if (length > 2) {
+			text += p2 + ", \t";
+		}
+		if (length > 3) {
+			text += p3 + ", \t";
+		}
+		if (length > 4) {
+			text += p4 + ", \t";
+		}
+		if (length > 5) {
+			text += p5 + ", \t";
+		}
+		if (length > 6) {
+			text += p6 + ", \t";
+		}
+		if (length > 7) {
+			text += p7 + ", \t";
+		}
+		if (length > 8) {
+			text += p8 + ", \t";
+		}
+		if (length > 9) {
+			text += p9 + ", \t";
+		}
+		return text + preset + "\n";	}
 
 	@Override
 	public void startIteration() {
@@ -395,6 +485,25 @@ public class TableScanParameter extends AbstractScanParameter {
 	 */
 	public void setCommand(SimpleTableScanCommand command) {
 		this.command = command;
+	}
+
+	public int getLength() {
+		return length;
+	}
+
+	public void setLength(int length) throws IndexOutOfBoundException {
+		if (length > 10) {
+			throw new IndexOutOfBoundException("Can not handle more than 10 items.");
+		}
+		this.length = length;
+	}
+
+	public List<String> getPNames() {
+		return pNames;
+	}
+
+	public void setPNames(List<String> pNames) {
+		this.pNames = pNames;
 	}
 
 }

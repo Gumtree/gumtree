@@ -53,77 +53,23 @@ public class SimpleScanCommandView extends AbstractScanCommandView {
 //		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.TOP).indent(0, 12).applyTo(titleLabel);
 //		GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.TOP).applyTo(titleLabel);
 //		parameterComposite = getToolkit().createComposite(parent);
-		if (((SimpleTableScanCommand) command).getNumberOfMotor() == 4) {
-//			GridLayoutFactory.swtDefaults().margins(0, 0).spacing(6, 4).numColumns(7).applyTo(parent);
-			final Button check1 = getToolkit().createButton(parent, "", SWT.CHECK);
-			GridDataFactory.swtDefaults().span(3, 1).indent(34, 0).align(SWT.BEGINNING, SWT.BOTTOM).applyTo(check1);
-			final Button check2 = getToolkit().createButton(parent, "", SWT.CHECK);
-			GridDataFactory.swtDefaults().indent(4, 0).align(SWT.BEGINNING, SWT.BOTTOM).applyTo(check2);
-			final Button check3 = getToolkit().createButton(parent, "", SWT.CHECK);
-			GridDataFactory.swtDefaults().indent(4, 0).align(SWT.BEGINNING, SWT.BOTTOM).applyTo(check3);
-			final Button check4 = getToolkit().createButton(parent, "", SWT.CHECK);
-			GridDataFactory.swtDefaults().indent(4, 0).span(2, 1).align(SWT.BEGINNING, SWT.BOTTOM).applyTo(check4);
-
+		int numberOfMotors = ((SimpleTableScanCommand) command).getNumberOfMotor();
+		Label spaceLabel = getToolkit().createLabel(parent, "");
+		GridDataFactory.swtDefaults().span(2, 1).applyTo(spaceLabel);
+		for (int i = 0; i < numberOfMotors; i++) {
+			final Button check = getToolkit().createButton(parent, "", SWT.CHECK);
+			final String columnName = "column" + i;
+			GridDataFactory.swtDefaults().indent(4, 0).align(SWT.BEGINNING, SWT.BOTTOM).applyTo(check);
 			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeSelection(check1),
-							BeansObservables.observeValue(command, "column1"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check2),
-							BeansObservables.observeValue(command, "column2"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check3),
-							BeansObservables.observeValue(command, "column3"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check4),
-							BeansObservables.observeValue(command, "column4"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-				}
-			});
-		} else if (((SimpleTableScanCommand) command).getNumberOfMotor() == 7) {
-			final Button check1 = getToolkit().createButton(parent, "", SWT.CHECK);
-			GridDataFactory.swtDefaults().span(3, 1).indent(34, 0).align(SWT.BEGINNING, SWT.BOTTOM).applyTo(check1);
-			final Button check2 = getToolkit().createButton(parent, "", SWT.CHECK);
-			GridDataFactory.swtDefaults().indent(4, 0).align(SWT.BEGINNING, SWT.BOTTOM).applyTo(check2);
-			final Button check3 = getToolkit().createButton(parent, "", SWT.CHECK);
-			GridDataFactory.swtDefaults().indent(4, 0).align(SWT.BEGINNING, SWT.BOTTOM).applyTo(check3);
-			final Button check4 = getToolkit().createButton(parent, "", SWT.CHECK);
-			GridDataFactory.swtDefaults().indent(4, 0).align(SWT.BEGINNING, SWT.BOTTOM).applyTo(check4);
-			final Button check5 = getToolkit().createButton(parent, "", SWT.CHECK);
-			GridDataFactory.swtDefaults().indent(4, 0).align(SWT.BEGINNING, SWT.BOTTOM).applyTo(check5);
-			final Button check6 = getToolkit().createButton(parent, "", SWT.CHECK);
-			GridDataFactory.swtDefaults().indent(4, 0).align(SWT.BEGINNING, SWT.BOTTOM).applyTo(check6);
-			final Button check7 = getToolkit().createButton(parent, "", SWT.CHECK);
-			GridDataFactory.swtDefaults().indent(4, 0).span(2, 1).align(SWT.BEGINNING, SWT.BOTTOM).applyTo(check7);
-
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
-				public void run() {
-					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeSelection(check1),
-							BeansObservables.observeValue(command, "column1"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check2),
-							BeansObservables.observeValue(command, "column2"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check3),
-							BeansObservables.observeValue(command, "column3"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check4),
-							BeansObservables.observeValue(command, "column4"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check5),
-							BeansObservables.observeValue(command, "column5"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check6),
-							BeansObservables.observeValue(command, "column6"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check7),
-							BeansObservables.observeValue(command, "column7"),
+					bindingContext.bindValue(SWTObservables.observeSelection(check),
+							BeansObservables.observeValue(command, columnName),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});
 		}
+		getToolkit().createLabel(parent, "");
 		for (AbstractScanParameter parameter : command.getParameterList()) {
 			((TableScanParameter) parameter).createParameterUI(parent, this, getToolkit());
 		}
@@ -179,31 +125,17 @@ public class SimpleScanCommandView extends AbstractScanCommandView {
 	}
 
 	private void createLabelArea(Composite parent, SimpleTableScanCommand command) {
-		if (command.getNumberOfMotor() == 4) {
-			GridLayoutFactory.swtDefaults().margins(0, 0).spacing(4, 4).numColumns(7).applyTo(parent);
-		} else if (command.getNumberOfMotor() == 7) {
-			GridLayoutFactory.swtDefaults().margins(0, 0).spacing(4, 4).numColumns(10).applyTo(parent);
-		}
+		GridLayoutFactory.swtDefaults().margins(0, 0).spacing(4, 4).numColumns(command.getNumberOfMotor() + 3).applyTo(parent);
 //		Label blankLabel = getToolkit().createLabel(parent, "");
 //		GridDataFactory.swtDefaults().span(3, 1).hint(26, SWT.DEFAULT).applyTo(blankLabel);
-		Label sxLabel = getToolkit().createLabel(parent, "sx");
-		GridDataFactory.swtDefaults().span(3, 1).indent(35, 0).applyTo(sxLabel);
-		Label syLabel = getToolkit().createLabel(parent, "sy");
-		GridDataFactory.swtDefaults().indent(4, 0).applyTo(syLabel);
-		Label szLabel = getToolkit().createLabel(parent, "sz");
-		GridDataFactory.swtDefaults().indent(4, 0).applyTo(szLabel);
-		Label somLabel = getToolkit().createLabel(parent, "som");
-		GridDataFactory.swtDefaults().indent(4, 0).applyTo(somLabel);
-		if (command.getNumberOfMotor() == 7) {
-			Label eomLabel = getToolkit().createLabel(parent, "ga");
-			GridDataFactory.swtDefaults().indent(4, 0).applyTo(eomLabel);
-			Label echiLabel = getToolkit().createLabel(parent, "gb");
-			GridDataFactory.swtDefaults().indent(4, 0).applyTo(echiLabel);
-			Label ephiLabel = getToolkit().createLabel(parent, "gc");
-			GridDataFactory.swtDefaults().indent(4, 0).applyTo(ephiLabel);
+		Label spaceLabel = getToolkit().createLabel(parent, "");
+		GridDataFactory.swtDefaults().span(2, 1).applyTo(spaceLabel);
+		for (String pName : command.getPNames()) {
+			Label pLabel = getToolkit().createLabel(parent, pName);
+			GridDataFactory.swtDefaults().indent(4, 0).applyTo(pLabel);
 		}
-		Label timeLabel = getToolkit().createLabel(parent, "time(s)");
-		GridDataFactory.swtDefaults().indent(4, 0).applyTo(timeLabel);
+		Label presetLabel = getToolkit().createLabel(parent, "preset");
+		GridDataFactory.swtDefaults().indent(4, 0).applyTo(presetLabel);
 	}
 
 }

@@ -177,7 +177,7 @@ public class VisualBatchBufferControlViewer extends AbstractWorkflowViewerCompon
 		 * Save (routine filled by Norman 17/03/10)
 		 *********************************************************************/
 
-		Button saveButton = getToolkit().createButton(this, "Save Tasks", SWT.PUSH);
+		Button saveButton = getToolkit().createButton(this, "Save", SWT.PUSH);
 		saveButton.setToolTipText("Save tasks into a file.");
 		saveButton.setImage(InternalImage.SAVE.getImage());
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(saveButton);
@@ -271,7 +271,7 @@ public class VisualBatchBufferControlViewer extends AbstractWorkflowViewerCompon
 		/*********************************************************************
 		 * Append (routine filled by Norman 17/03/10) to end of workflow
 		 *********************************************************************/
-		Button appendButton = getToolkit().createButton(this, "Append Tasks", SWT.PUSH);
+		Button appendButton = getToolkit().createButton(this, "Append", SWT.PUSH);
 		appendButton.setToolTipText("Load tasks from a file and append them to the end of " +
 				"current tasks.");
 		appendButton.setImage(InternalImage.APPEND.getImage());
@@ -312,7 +312,7 @@ public class VisualBatchBufferControlViewer extends AbstractWorkflowViewerCompon
 		/*********************************************************************
 		 * Print (routine filled by Norman 24/01/11) to end of workflow
 		 *********************************************************************/
-		Button printButton = getToolkit().createButton(this, "Print Tasks", SWT.PUSH);
+		Button printButton = getToolkit().createButton(this, "Print", SWT.PUSH);
 		printButton.setToolTipText("Print out the tasks");
 		printButton.setImage(InternalImage.PRINT.getImage());
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(printButton);

@@ -79,7 +79,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 				label.setFont(UIResources.getDefaultFont(SWT.BOLD));
 				// Part 3: Value
 				label = createDeviceLabel(this, deviceContext.path, "--",
-						SWT.RIGHT);
+						SWT.RIGHT, deviceContext.converter);
 				GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 						.grab(true, false).applyTo(label);
 				label.setFont(UIResources.getDefaultFont(SWT.BOLD));
@@ -90,7 +90,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 				// Part 5: Unit
 				label = createDeviceLabel(this, deviceContext.path + "?units",
 						(deviceContext.unit == null) ? "" : deviceContext.unit,
-						SWT.LEFT);
+						SWT.LEFT, null);
 			}
 		}
 
@@ -168,7 +168,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 					new IDataHandler<String>() {
 						@Override
 						public void handleData(URI uri, String data) {
-							updateLabelText(labelContext.label, data);
+							updateLabelText(labelContext.label, data, labelContext.converter);
 						}
 						@Override
 						public void handleError(URI uri, Exception exception) {
@@ -222,21 +222,27 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 	 *************************************************************************/
 
 	public DeviceStatusWidget addDevice(String path, String label) {
-		return addDevice(path, label, null, null);
+		return addDevice(path, label, null, null, null);
 	}
 
 	public DeviceStatusWidget addDevice(String path, String label, Image icon) {
-		return addDevice(path, label, icon, null);
+		return addDevice(path, label, icon, null, null);
 	}
 	
 	public DeviceStatusWidget addDevice(String path, String label, Image icon,
 			String unit) {
+		return addDevice(path, label, icon, unit, null);
+	}
+	
+	public DeviceStatusWidget addDevice(String path, String label, Image icon,
+			String unit, LabelConverter converter) {
 		DeviceContext context = new DeviceContext();
 		context.path = path;
 		context.icon = icon;
 		context.label = label;
 		context.unit = unit;
 		context.isSeparator = false;
+		context.converter = converter;
 		deviceContexts.add(context);
 		return this;
 	}
@@ -281,6 +287,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		String label;
 		String unit;
 		boolean isSeparator;
+		LabelConverter converter;
 	}
 
 	private class LabelContext {
@@ -288,10 +295,16 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		Label label;
 		String defaultText;
 		EventHandler handler;
+		LabelConverter converter;
 	}
 
+	public interface LabelConverter {
+		String convertValue(Object obj);
+	}
+	
 	private class HdbEventHandler extends DelayEventHandler {
 		Label label;
+		LabelConverter converter;
 
 		public HdbEventHandler(String path, Label label,
 				IDelayEventExecutor delayEventExecutor) {
@@ -299,28 +312,36 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 			this.label = label;
 		}
 
+		public void setLabelConverter(LabelConverter converter) {
+			this.converter = converter;
+		}
+		
 		@Override
 		public void handleDelayEvent(Event event) {
 			updateLabelText(label,
-					event.getProperty(SicsEvents.HNotify.VALUE).toString());
+					event.getProperty(SicsEvents.HNotify.VALUE).toString(), converter);
 		}
 	}
 
 	private Label createDeviceLabel(Composite parent, String path,
-			String defaultText, int style) {
+			String defaultText, int style, LabelConverter converter) {
 		Label label = getWidgetFactory()
 				.createLabel(parent, defaultText, style);
 		LabelContext context = new LabelContext();
 		context.path = path;
 		context.label = label;
 		context.defaultText = defaultText;
-		context.handler = new HdbEventHandler(path, label,
-				getDelayEventExecutor()).activate();
+		HdbEventHandler handler = new HdbEventHandler(path, label,
+				getDelayEventExecutor());
+		handler.setLabelConverter(converter);
+		handler.activate();
+		context.handler = handler;
+		context.converter = converter;
 		labelContexts.add(context);
 		return label;
 	}
 
-	private void updateLabelText(final Label label, final String data) {
+	private void updateLabelText(final Label label, final String data, final LabelConverter converter) {
 		SafeUIRunner.asyncExec(new SafeRunnable() {
 			@Override
 			public void run() throws Exception {
@@ -332,18 +353,25 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 						}
 					}
 					String text = data;
-					try {
-						double value = Double.valueOf(data);
-						if (data.contains(".")) {
-							text = String.format("%.2f", value);
+					if (converter == null) {
+						try {
+							double value = Double.valueOf(data);
+							if (data.contains(".")) {
+								text = String.format("%.2f", value);
+							} 
+						} catch (Exception e) {
 						} 
-					} catch (Exception e) {
-					} 
-					try {
-						if (text.contains("/")) {
-							text = text.substring(text.lastIndexOf("/") + 1);
+						try {
+							if (text.contains("/")) {
+								text = text.substring(text.lastIndexOf("/") + 1);
+							}
+						} catch (Exception e) {
 						}
-					} catch (Exception e) {
+						if (data.equals("count")) {
+							text = "";
+						}
+					} else {
+						text = converter.convertValue(data);
 					}
 					label.setText(text);
 					// TODO: does it have any performance hit?

@@ -11,6 +11,7 @@
 package au.gov.ansto.bragg.nbi.ui.core.commands;
 
 import java.beans.PropertyChangeListener;
+import java.util.List;
 
 /**
  * @author nxi
@@ -21,7 +22,8 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 
 //	private float tot_time;
 //	public boolean isSingleFile = true;
-	private int numberOfMotor = 4;
+	private int numberOfMotor = 10;
+	private boolean column0 = true;
 	private boolean column1 = true;
 	private boolean column2 = true;
 	private boolean column3 = true;
@@ -29,7 +31,10 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 	private boolean column5 = true;
 	private boolean column6 = true;
 	private boolean column7 = true;
-	
+	private boolean column8 = true;
+	private boolean column9 = true;
+	private List<String> pNames; 
+
 	/**
 	 * 
 	 */
@@ -39,11 +44,19 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 		setScan_mode("time");
 	}
 
+	public boolean getColumn0() {
+		return column0;
+	}
+
+	public void setColumn0(boolean column0) {
+		boolean oldValue = this.column0;
+		this.column0 = column0;
+		firePropertyChange("column0", oldValue, column0);
+	}
+
 	public boolean getColumn1() {
 		return column1;
 	}
-
-
 
 	public void setColumn1(boolean column1) {
 		boolean oldValue = this.column1;
@@ -51,13 +64,9 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 		firePropertyChange("column1", oldValue, column1);
 	}
 
-
-
 	public boolean getColumn2() {
 		return column2;
 	}
-
-
 
 	public void setColumn2(boolean column2) {
 		boolean oldValue = this.column2;
@@ -65,13 +74,9 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 		firePropertyChange("column2", oldValue, column2);
 	}
 
-
-
 	public boolean getColumn3() {
 		return column3;
 	}
-
-
 
 	public void setColumn3(boolean column3) {
 		boolean oldValue = this.column3;
@@ -79,13 +84,9 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 		firePropertyChange("column3", oldValue, column3);
 	}
 
-
-
 	public boolean getColumn4() {
 		return column4;
 	}
-
-
 
 	public void setColumn4(boolean column4) {
 		boolean oldValue = this.column4;
@@ -97,8 +98,6 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 		return column5;
 	}
 
-
-
 	public void setColumn5(boolean column5) {
 		boolean oldValue = this.column5;
 		this.column5 = column5;
@@ -108,8 +107,6 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 	public boolean getColumn6() {
 		return column6;
 	}
-
-
 
 	public void setColumn6(boolean column6) {
 		boolean oldValue = this.column6;
@@ -121,12 +118,30 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 		return column7;
 	}
 
-
-
 	public void setColumn7(boolean column7) {
 		boolean oldValue = this.column7;
 		this.column7 = column7;
 		firePropertyChange("column7", oldValue, column7);
+	}
+
+	public boolean getColumn8() {
+		return column8;
+	}
+
+	public void setColumn8(boolean column8) {
+		boolean oldValue = this.column8;
+		this.column8 = column8;
+		firePropertyChange("column8", oldValue, column8);
+	}
+
+	public boolean getColumn9() {
+		return column9;
+	}
+
+	public void setColumn9(boolean column9) {
+		boolean oldValue = this.column9;
+		this.column9 = column9;
+		firePropertyChange("column9", oldValue, column9);
 	}
 
 	public String toScript() {
@@ -214,7 +229,7 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 		float totalTime = 0;
 		for (AbstractScanParameter parameter : getParameterList()) {
 			if (((TableScanParameter) parameter).getIsSelected()) {
-				totalTime += ((TableScanParameter) parameter).getTime() + 8;
+				totalTime += ((TableScanParameter) parameter).getPreset() + 8;
 			}
 		}
 		return totalTime;
@@ -239,7 +254,6 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 	 * @return the isSingleFile
 	 */
 	public boolean isSingleFile() {
-		// TODO: add implementation 
 		return true;
 	}
 
@@ -255,30 +269,37 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 	@Override
 	public String getPrintable() {
 		String text = "#";
-		if (column1) {
-			text += "sx, \t";
+		if (getColumn0()) {
+			text += pNames.get(0) + ", \t";
 		}
-		if (column2) {
-			text += "sy, \t";
+		if (getColumn1()) {
+			text += pNames.get(1) + ", \t";
 		}
-		if (column3) {
-			text += "sz, \t";
+		if (getColumn2()) {
+			text += pNames.get(2) + ", \t";
 		}
-		if (column4) {
-			text += "som, \t";
+		if (getColumn3()) {
+			text += pNames.get(3) + ", \t";
 		}
-		if (getNumberOfMotor() == 7) {
-			if (column5) {
-				text += "ga, \t";
-			}
-			if (column6) {
-				text += "gb, \t";
-			}
-			if (column7) {
-				text += "gc, \t";
-			}
-		} 
-		text += "time(s)\n";
+		if (getColumn4()) {
+			text += pNames.get(4) + ", \t";
+		}
+		if (getColumn5()) {
+			text += pNames.get(5) + ", \t";
+		}
+		if (getColumn6()) {
+			text += pNames.get(6) + ", \t";
+		}
+		if (getColumn7()) {
+			text += pNames.get(7) + ", \t";
+		}
+		if (getColumn8()) {
+			text += pNames.get(8) + ", \t";
+		}
+		if (getColumn9()) {
+			text += pNames.get(9) + ", \t";
+		}
+		text += "preset\n";
 		for (AbstractScanParameter parameter : getParameterList()) {
 			if (((TableScanParameter) parameter).getIsSelected()) {
 				text += parameter.getPritable(false);
@@ -300,5 +321,14 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 	public void setNumberOfMotor(int numberOfMotor) {
 		this.numberOfMotor = numberOfMotor;
 	}
+
+	public List<String> getPNames() {
+		return pNames;
+	}
+
+	public void setPNames(List<String> pNames) {
+		this.pNames = pNames;
+	}
+
 }
 

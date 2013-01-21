@@ -15,6 +15,7 @@ import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.Arrays;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -173,8 +174,9 @@ public class SimpleTableScanTask extends AbstractScanTask {
 				try {
 					SimpleTableScanCommand command = new SimpleTableScanCommand();
 					BufferedReader reader = new BufferedReader(new FileReader(pickedFile));
-					boolean isFirstLine = true;
+					int lineCount = 0;
 					int parameterIndex = 0;
+					int numberOfMotors = 0;
 					while(reader.ready()) {
 						String line = reader.readLine();
 						if (line != null) {
@@ -188,8 +190,19 @@ public class SimpleTableScanTask extends AbstractScanTask {
 								spliter = ",";
 							}
 							String[] items = line.split(spliter);
-							if (isFirstLine) {
-//								if (items.length == 4 || items.length == 7) {
+							if (lineCount == 0) {
+								for (int i = 0; i < items.length; i++) {
+									items[i] = items[i].trim();
+								}
+								numberOfMotors = items.length;
+								if (items[items.length - 1].equals("preset")){
+									numberOfMotors--;
+								}
+								command.setPNames(Arrays.asList(items));
+								command.setNumberOfMotor(items.length);
+								lineCount++;
+								continue;
+							} else if (lineCount == 1) {
 								boolean isBoolean = true;
 								for (int i = 0; i < items.length; i++) {
 									String item = items[i].trim().toLowerCase();
@@ -203,16 +216,40 @@ public class SimpleTableScanTask extends AbstractScanTask {
 									}
 								}
 								if (isBoolean) {
-									command.setColumn1(Boolean.valueOf(items[0].trim().toLowerCase()));
-									command.setColumn2(Boolean.valueOf(items[1].trim().toLowerCase()));
-									command.setColumn3(Boolean.valueOf(items[2].trim().toLowerCase()));
-									command.setColumn4(Boolean.valueOf(items[3].trim().toLowerCase()));
-									if (items.length == 7) {
-										command.setColumn5(Boolean.valueOf(items[4].trim().toLowerCase()));
-										command.setColumn6(Boolean.valueOf(items[5].trim().toLowerCase()));
-										command.setColumn7(Boolean.valueOf(items[6].trim().toLowerCase()));
+									try{
+									if (numberOfMotors > 0) {
+										command.setColumn0(Boolean.valueOf(items[0].trim().toLowerCase()));
 									}
-									isFirstLine = false;
+									if (numberOfMotors > 1) {
+										command.setColumn1(Boolean.valueOf(items[1].trim().toLowerCase()));
+									}
+									if (numberOfMotors > 2) {
+										command.setColumn2(Boolean.valueOf(items[2].trim().toLowerCase()));
+									}
+									if (numberOfMotors > 3) {
+										command.setColumn3(Boolean.valueOf(items[3].trim().toLowerCase()));
+									}
+									if (numberOfMotors > 4) {
+										command.setColumn4(Boolean.valueOf(items[4].trim().toLowerCase()));
+									}
+									if (numberOfMotors > 5) {
+										command.setColumn5(Boolean.valueOf(items[5].trim().toLowerCase()));
+									}
+									if (numberOfMotors > 6) {
+										command.setColumn6(Boolean.valueOf(items[6].trim().toLowerCase()));
+									}
+									if (numberOfMotors > 7) {
+										command.setColumn7(Boolean.valueOf(items[7].trim().toLowerCase()));
+									}
+									if (numberOfMotors > 8) {
+										command.setColumn8(Boolean.valueOf(items[8].trim().toLowerCase()));
+									}
+									if (numberOfMotors > 9) {
+										command.setColumn9(Boolean.valueOf(items[9].trim().toLowerCase()));
+									}
+									} catch (Exception e) {
+									}
+									lineCount++;
 									continue;
 								} else {
 									reader.close();
@@ -220,43 +257,52 @@ public class SimpleTableScanTask extends AbstractScanTask {
 								}
 //								}
 							}
-							if (items.length == 5) {
-								command.setNumberOfMotor(4);
-							} else if (items.length == 8) {
-								command.setNumberOfMotor(7);
-							} else {
-								reader.close();
-								throw new Exception("The row must have 5 or 8 numbers");
-							}
 							TableScanParameter parameter = new TableScanParameter();
 							parameterIndex ++;
 							parameter.setIndex(parameterIndex);
 							try {
-								if (items.length == 5) {
-									parameter.setSx(Float.valueOf(items[0]));
-									parameter.setSy(Float.valueOf(items[1]));
-									parameter.setSz(Float.valueOf(items[2]));
-									parameter.setSom(Float.valueOf(items[3]));
-									parameter.setTime(Float.valueOf(items[4]));
-								} else if (items.length == 8) {
-									parameter.setSx(Float.valueOf(items[0]));
-									parameter.setSy(Float.valueOf(items[1]));
-									parameter.setSz(Float.valueOf(items[2]));
-									parameter.setSom(Float.valueOf(items[3]));
-									parameter.setGa(Float.valueOf(items[4]));
-									parameter.setGb(Float.valueOf(items[5]));
-									parameter.setGc(Float.valueOf(items[6]));
-									parameter.setTime(Float.valueOf(items[7]));
+								if (numberOfMotors > 0) {
+									parameter.setP0(Float.valueOf(items[0]));
 								}
+								if (numberOfMotors > 1) {
+									parameter.setP1(Float.valueOf(items[1]));
+								}
+								if (numberOfMotors > 2) {
+									parameter.setP2(Float.valueOf(items[2]));
+								}
+								if (numberOfMotors > 3) {
+									parameter.setP3(Float.valueOf(items[3]));
+								}
+								if (numberOfMotors > 4) {
+									parameter.setP4(Float.valueOf(items[4]));
+								}
+								if (numberOfMotors > 5) {
+									parameter.setP5(Float.valueOf(items[5]));
+								}
+								if (numberOfMotors > 6) {
+									parameter.setP6(Float.valueOf(items[6]));
+								}
+								if (numberOfMotors > 7) {
+									parameter.setP7(Float.valueOf(items[7]));
+								}
+								if (numberOfMotors > 8) {
+									parameter.setP8(Float.valueOf(items[8]));
+								}
+								if (numberOfMotors > 9) {
+									parameter.setP9(Float.valueOf(items[9]));
+								}
+								parameter.setPreset(Float.valueOf(items[items.length - 1]));
 								parameter.setIsSelected(true);
 							} catch (Exception e) {
 								reader.close();
 								throw new Exception("failed to interpret the line: " + line);
 							}
 							parameter.setCommand(command);
+							parameter.setLength(numberOfMotors);
+							parameter.setPNames(command.getPNames());
 							command.getParameterList().add(parameter);
-							isFirstLine = false;
 						}
+						lineCount++;
 					}
 					label.setText(filePath);
 					label.setToolTipText(filePath);

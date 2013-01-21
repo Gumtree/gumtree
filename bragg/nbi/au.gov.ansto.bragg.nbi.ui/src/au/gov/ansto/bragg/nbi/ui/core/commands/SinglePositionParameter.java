@@ -100,7 +100,13 @@ public class SinglePositionParameter extends AbstractScanParameter {
 		scanVariableCombo.setContentProvider(new ArrayContentProvider());
 		scanVariableCombo.setLabelProvider(new LabelProvider());
 		scanVariableCombo.setSorter(new ViewerSorter());
-		scanVariableCombo.setInput(SicsBatchUIUtils.getSicsDrivableIds());
+		String[] ids = SicsBatchUIUtils.getSicsDrivableIds();
+		for (int i = 0; i < ids.length; i++) {
+			if (ids[i] == null) {
+				ids[i] = "";
+			}
+		}
+		scanVariableCombo.setInput(ids);
 		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.TOP).hint(WIDTH_COMBO, SWT.DEFAULT).applyTo(scanVariableCombo.getCombo());
 //		GridDataFactory.fillDefaults().grab(true, false).applyTo(scanVariableCombo.getCombo());
 		

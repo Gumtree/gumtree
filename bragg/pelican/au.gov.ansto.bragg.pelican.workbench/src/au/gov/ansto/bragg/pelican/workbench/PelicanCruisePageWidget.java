@@ -17,9 +17,9 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
-import org.gumtree.gumnix.sics.ui.widgets.SicsInterruptGadget;
 import org.gumtree.gumnix.sics.ui.widgets.SicsStatusGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
+import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget.LabelConverter;
 import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
@@ -89,7 +89,10 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget
 				.addDevice("/instrument/crystal/wavelength", "wavelength", null, "")
 				.addDevice("/instrument/crystal/mom", "mom", null, "")
-				.addDevice("/instrument/crystal/mtth", "mtth", null, "");
+				.addDevice("/instrument/crystal/mtth", "mtth", null, "")
+				.addDevice("/instrument/crystal/mra", "mra", null, "")
+				.addDevice("/instrument/crystal/mrb", "mrb", null, "")
+				.addDevice("/instrument/crystal/mrc", "mrc", null, "");
 		configureWidget(deviceStatusWidget);
 
 		// Monitor Event Rate
@@ -125,17 +128,75 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		PGroup otherGroup = createGroup("OTHER DEVICES",
 				SharedImage.GEAR.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(otherGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/instrument/crystal/FilterZ", "filter", null, "")
-				.addDevice("/instrument/crystal/PolarizerZ", "polariser", null, "");
+		
+		LabelConverter converter = new LabelConverter() {
+			
+			@Override
+			public String convertValue(Object obj) {
+				try {
+					String data = String.valueOf(obj);
+					double value = Math.round(Double.valueOf(data));
+					if (value == 1) {
+						return "graphite";
+					} else if (value == 2) {
+						return "none";
+					} else {
+						return "Be";
+					}
+				} catch (Exception e) {
+					return "none";
+				}
+			}
+		};
+		deviceStatusWidget.addDevice("/instrument/crystal/FilterZ", "filter", null, "", converter);
+		converter = new LabelConverter() {
+			
+			@Override
+			public String convertValue(Object obj) {
+				try {
+					String data = String.valueOf(obj);
+					double value = Math.round(Double.valueOf(data));
+					if (value == 1) {
+						return "collimator";
+					} else if (value == 2) {
+						return "none";
+					} else if (value == 3){
+						return "polariser";
+					} else {
+						return "none";
+					}
+				} catch (Exception e) {
+					return "none";
+				}
+			}
+		};
+		deviceStatusWidget.addDevice("/instrument/crystal/PolarizerZ", "polariser", null, "", converter);
 		configureWidget(deviceStatusWidget);
 
 		// Slits Info
 		PGroup collimatorGroup = createGroup("RADIAL COLLIMATOR",
 				SharedImage.CRADLE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(collimatorGroup, SWT.NONE);
+		converter = new LabelConverter() {
+			
+			@Override
+			public String convertValue(Object obj) {
+				try {
+					String data = String.valueOf(obj);
+					double value = Double.valueOf(data);
+					if (Math.round(value) == 1) {
+						return "IN";
+					} else {
+						return "OUT";
+					}
+				} catch (Exception e) {
+					return "OUT";
+				}
+			}
+		};
+		
 		deviceStatusWidget
-				.addDevice("/instrument/collimator/RCollZ", "in/out", null, "")
+				.addDevice("/instrument/collimator/RCollZ", "in/out", null, "", converter)
 				.addDevice("/instrument/collimator/rcz", "frequency", null, "");
 		configureWidget(deviceStatusWidget);
 
