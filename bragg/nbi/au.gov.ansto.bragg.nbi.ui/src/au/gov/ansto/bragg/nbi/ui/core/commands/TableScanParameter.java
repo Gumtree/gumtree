@@ -281,34 +281,34 @@ public class TableScanParameter extends AbstractScanParameter {
 	@Override
 	public String getDriveScript(String indexName, String indent) {
 		String script = "";
-		if (length > 0) {
+		if (length > 0 && command.getColumn0()) {
 			script += indent + "drive " + pNames.get(0) + " " + p0 + "\n";
 		}
-		if (length > 1) {
+		if (length > 1 && command.getColumn1()) {
 			script += indent + "drive " + pNames.get(1) + " " + p1 + "\n";
 		}
-		if (length > 2) {
+		if (length > 2 && command.getColumn2()) {
 			script += indent + "drive " + pNames.get(2) + " " + p2 + "\n";
 		}
-		if (length > 3) {
+		if (length > 3 && command.getColumn3()) {
 			script += indent + "drive " + pNames.get(3) + " " + p3 + "\n";
 		}
-		if (length > 4) {
+		if (length > 4 && command.getColumn4()) {
 			script += indent + "drive " + pNames.get(4) + " " + p4 + "\n";
 		}
-		if (length > 5) {
+		if (length > 5 && command.getColumn5()) {
 			script += indent + "drive " + pNames.get(5) + " " + p5 + "\n";
 		}
-		if (length > 6) {
+		if (length > 6 && command.getColumn6()) {
 			script += indent + "drive " + pNames.get(6) + " " + p6 + "\n";
 		}
-		if (length > 7) {
+		if (length > 7 && command.getColumn7()) {
 			script += indent + "drive " + pNames.get(7) + " " + p7 + "\n";
 		}
-		if (length > 8) {
+		if (length > 8 && command.getColumn8()) {
 			script += indent + "drive " + pNames.get(8) + " " + p8 + "\n";
 		}
-		if (length > 9) {
+		if (length > 9 && command.getColumn9()) {
 			script += indent + "drive " + pNames.get(9) + " " + p9 + "\n";
 		}
 		script += indent + "histmem preset " + ((int) preset) + "\n";
@@ -320,65 +320,65 @@ public class TableScanParameter extends AbstractScanParameter {
 	@Override
 	public String getBroadcastScript(String indexName, String indent) {
 		String text = indent + "broadcast ";
-		if (length > 0) {
+		if (length > 0 && command.getColumn0()) {
 			text += pNames.get(0) + ", ";
 		}
-		if (length > 1) {
+		if (length > 1 && command.getColumn1()) {
 			text += pNames.get(1) + ", ";
 		}
-		if (length > 2) {
+		if (length > 2 && command.getColumn2()) {
 			text += pNames.get(2) + ", ";
 		}
-		if (length > 3) {
+		if (length > 3 && command.getColumn3()) {
 			text += pNames.get(3) + ", ";
 		}
-		if (length > 4) {
+		if (length > 4 && command.getColumn4()) {
 			text += pNames.get(4) + ", ";
 		}
-		if (length > 5) {
+		if (length > 5 && command.getColumn5()) {
 			text += pNames.get(5) + ", ";
 		}
-		if (length > 6) {
+		if (length > 6 && command.getColumn6()) {
 			text += pNames.get(6) + ", ";
 		}
-		if (length > 7) {
+		if (length > 7 && command.getColumn7()) {
 			text += pNames.get(7) + ", ";
 		}
-		if (length > 8) {
+		if (length > 8 && command.getColumn8()) {
 			text += pNames.get(8) + ", ";
 		}
-		if (length > 9) {
+		if (length > 9 && command.getColumn9()) {
 			text += pNames.get(9) + ", ";
 		}
 		text += "preset\n" + indent;
-		if (length > 0) {
+		if (length > 0 && command.getColumn0()) {
 			text += p0 + ", ";
 		}
-		if (length > 1) {
+		if (length > 1 && command.getColumn1()) {
 			text += p1 + ", ";
 		}
-		if (length > 2) {
+		if (length > 2 && command.getColumn2()) {
 			text += p2 + ", ";
 		}
-		if (length > 3) {
+		if (length > 3 && command.getColumn3()) {
 			text += p3 + ", ";
 		}
-		if (length > 4) {
+		if (length > 4 && command.getColumn4()) {
 			text += p4 + ", ";
 		}
-		if (length > 5) {
+		if (length > 5 && command.getColumn5()) {
 			text += p5 + ", ";
 		}
-		if (length > 6) {
+		if (length > 6 && command.getColumn6()) {
 			text += p6 + ", ";
 		}
-		if (length > 7) {
+		if (length > 7 && command.getColumn7()) {
 			text += p7 + ", ";
 		}
-		if (length > 8) {
+		if (length > 8 && command.getColumn8()) {
 			text += p8 + ", ";
 		}
-		if (length > 9) {
+		if (length > 9 && command.getColumn9()) {
 			text += p9 + ", ";
 		}
 		return text + " " + preset + "\n";
@@ -387,65 +387,65 @@ public class TableScanParameter extends AbstractScanParameter {
 	@Override
 	public String getPritable(boolean isFirstLine) {
 		String text = "";
-		if (length > 0) {
+		if (length > 0 && command.getColumn0()) {
 			text += pNames.get(0) + ", \t";
 		}
-		if (length > 1) {
+		if (length > 1 && command.getColumn1()) {
 			text += pNames.get(1) + ", \t";
 		}
-		if (length > 2) {
+		if (length > 2 && command.getColumn2()) {
 			text += pNames.get(2) + ", \t";
 		}
-		if (length > 3) {
+		if (length > 3 && command.getColumn3()) {
 			text += pNames.get(3) + ", \t";
 		}
-		if (length > 4) {
+		if (length > 4 && command.getColumn4()) {
 			text += pNames.get(4) + ", \t";
 		}
-		if (length > 5) {
+		if (length > 5 && command.getColumn5()) {
 			text += pNames.get(5) + ", \t";
 		}
-		if (length > 6) {
+		if (length > 6 && command.getColumn6()) {
 			text += pNames.get(6) + ", \t";
 		}
-		if (length > 7) {
+		if (length > 7 && command.getColumn7()) {
 			text += pNames.get(7) + ", \t";
 		}
-		if (length > 8) {
+		if (length > 8 && command.getColumn8()) {
 			text += pNames.get(8) + ", \t";
 		}
-		if (length > 9) {
+		if (length > 9 && command.getColumn9()) {
 			text += pNames.get(9) + ", \t";
 		}
 		text += "preset\n";
-		if (length > 0) {
+		if (length > 0 && command.getColumn0()) {
 			text += p0 + ", \t";
 		}
-		if (length > 1) {
+		if (length > 1 && command.getColumn1()) {
 			text += p1 + ", \t";
 		}
-		if (length > 2) {
+		if (length > 2 && command.getColumn2()) {
 			text += p2 + ", \t";
 		}
-		if (length > 3) {
+		if (length > 3 && command.getColumn3()) {
 			text += p3 + ", \t";
 		}
-		if (length > 4) {
+		if (length > 4 && command.getColumn4()) {
 			text += p4 + ", \t";
 		}
-		if (length > 5) {
+		if (length > 5 && command.getColumn5()) {
 			text += p5 + ", \t";
 		}
-		if (length > 6) {
+		if (length > 6 && command.getColumn6()) {
 			text += p6 + ", \t";
 		}
-		if (length > 7) {
+		if (length > 7 && command.getColumn7()) {
 			text += p7 + ", \t";
 		}
-		if (length > 8) {
+		if (length > 8 && command.getColumn8()) {
 			text += p8 + ", \t";
 		}
-		if (length > 9) {
+		if (length > 9 && command.getColumn9()) {
 			text += p9 + ", \t";
 		}
 		return text + preset + "\n";	}
