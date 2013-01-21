@@ -38,7 +38,9 @@ import org.gumtree.workflow.ui.viewer2.WorkflowComposerViewer;
 public class VisualBatchBufferComposer extends AbstractWorkflowViewerComponent {
 	
 	// Temporary object for registering change listener
+	public final static String SHOW_RUN_QUEUE_PROPERTY_ID = "gumtree.workflow.showRunQueue";
 	private IBatchBuffer buffer;
+	private boolean showRunQueue = true;
 	
 	// Monitoring buffer name
 	private PropertyChangeListener listener;
@@ -47,6 +49,11 @@ public class VisualBatchBufferComposer extends AbstractWorkflowViewerComponent {
 	
 	public VisualBatchBufferComposer(Composite parent, int style) {
 		super(parent, style);
+		try {
+			String showRunQueueProperty = System.getProperty(SHOW_RUN_QUEUE_PROPERTY_ID);
+			showRunQueue = Boolean.valueOf(showRunQueueProperty);
+		} catch (Exception e) {
+		}
 		listener = new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt) {
 				SafeUIRunner.asyncExec(new SafeRunnable() {
@@ -121,8 +128,11 @@ public class VisualBatchBufferComposer extends AbstractWorkflowViewerComponent {
 				}
 			}
 		});
-		
-		sashForm.setWeights(new int[] { 9, 1 });
+		if (showRunQueue) {
+			sashForm.setWeights(new int[] { 9, 1 });
+		} else {
+			sashForm.setWeights(new int[] { 10, 0 });
+		}
 //		sashForm.setMaximizedControl(composerGroup);
 		IWorkflowViewerComponent controlViewer = new VisualBatchBufferControlViewer(this, SWT.NONE);
 		configureViewerComponent(controlViewer);

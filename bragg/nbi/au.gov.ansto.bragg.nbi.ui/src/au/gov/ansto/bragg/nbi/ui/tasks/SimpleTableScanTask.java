@@ -304,7 +304,24 @@ public class SimpleTableScanTask extends AbstractScanTask {
 						}
 						lineCount++;
 					}
-					label.setText(filePath);
+					String filePathString;
+					int FILE_NAME_LENGTH = 60;
+					if (filePath.length() > FILE_NAME_LENGTH) {
+						String spliter = "\\";
+						if (filePath.contains("/")) {
+							spliter = "/";
+						}
+						int spliterIndex = filePath.indexOf(spliter, 3);
+						if (spliterIndex > 0 && spliterIndex < 50) {
+							spliterIndex ++;
+							filePathString = filePath.substring(0, spliterIndex) + "..." + filePath.subSequence(filePath.length() - FILE_NAME_LENGTH + spliterIndex, filePath.length());
+						} else {
+							filePathString = filePath.substring(0, 3) + "..." + filePath.subSequence(filePath.length() - FILE_NAME_LENGTH + 3, filePath.length());;
+						}
+					} else {
+						filePathString = filePath;
+					}
+					label.setText(filePathString);
 					label.setToolTipText(filePath);
 					reader.close();
 					return command;
