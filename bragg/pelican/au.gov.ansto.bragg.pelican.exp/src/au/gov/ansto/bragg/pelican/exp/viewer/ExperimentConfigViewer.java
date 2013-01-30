@@ -18,6 +18,8 @@ import au.gov.ansto.bragg.pelican.exp.config.CommandHandler;
 
 public class ExperimentConfigViewer extends Composite {
 
+	private static final String CONFIG_PROPERTY_NAME = "gumtree.workflow.configscript";
+	
 	private ScriptControlViewer controlViewer;
 	
 	public ExperimentConfigViewer(Composite parent, int style) {
@@ -56,7 +58,7 @@ public class ExperimentConfigViewer extends Composite {
 		GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, 104).applyTo(consoleComposite);
 		viewer.createPartControl(consoleComposite, ICommandLineViewer.NO_UTIL_AREA | ICommandLineViewer.NO_INPUT_TEXT);
 		
-		controlViewer.loadScript(ScriptControlViewer.WORKSPACE_FOLDER_PATH + "/Internal/Experiment/config.py");
+		controlViewer.loadScript(ScriptControlViewer.WORKSPACE_FOLDER_PATH + System.getProperty(CONFIG_PROPERTY_NAME));
 //		Button applyButton = new Button(this, SWT.PUSH);
 //		applyButton.setText("Apply Changes");
 	}

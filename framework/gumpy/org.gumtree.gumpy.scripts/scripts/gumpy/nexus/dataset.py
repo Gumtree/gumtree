@@ -138,7 +138,8 @@ class Dataset(Data):
             if not item is None :
                 data = SimpleData(item)
                 if tag:
-                    setattr(data, 'METADATA_TAG', str(tag))
+                    data.set_attribute('METADATA_TAG', str(tag))
+#                    setattr(data, 'METADATA_TAG', str(tag))
                 dtype = type(value)
                 if dtype is int or dtype is float or dtype is long :
                     data.fill(value)
@@ -154,7 +155,8 @@ class Dataset(Data):
                 data = SimpleData(value)
                 data.__set_name__(name)
                 if tag:
-                    setattr(data, 'METADATA_TAG', str(tag))
+                    data.set_attribute('METADATA_TAG', str(tag))
+#                    setattr(data, 'METADATA_TAG', str(tag))
                 self.__iNXroot__.addDataItem(data.__iDataItem__)
             if hasattr(self, '__iDictionary__') :
                 keys = self.__iDictionary__.addEntry(name, '/' + name)

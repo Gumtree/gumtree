@@ -156,6 +156,18 @@ class SimpleData:
                     if arr.size == 1 :
                         return arr[0]
         return getattr(self.storage, name)
+    
+    def get_attribute(self, name):
+        att = self.__iDataItem__.findAttributeIgnoreCase(name)
+        if att:
+            val = att.getValue()
+            if val.getElementType() is String:
+                return str(val)
+            else:
+                arr = Array(val)
+                if arr.size == 1 :
+                    return arr[0]
+        return None
 
     def __setattr__(self, name, value):
         if name == 'name' :
@@ -170,13 +182,17 @@ class SimpleData:
         elif name.startswith('__'):
             self.__dict__[name] = value
         else:
-            if type(value) is str:
-                self.__iDataItem__.addStringAttribute(name, value)
-            else:
-                arr = Array(value)
-                att = nx_factory.createAttribute(name, arr.__iArray__)
-                self.__iDataItem__.addOneAttribute(att)
+            self.__dict__[name] = value
     
+    def set_attribute(self, name, value):
+        if type(value) is str:
+            self.__iDataItem__.addStringAttribute(name, value)
+        else:
+            arr = Array(value)
+            att = nx_factory.createAttribute(name, arr.__iArray__)
+            self.__iDataItem__.addOneAttribute(att)
+        
+        
     def __iter__(self):
         if (self.ndim > 1) :
             return SimpledataSliceIter(self)

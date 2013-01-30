@@ -185,18 +185,31 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(deviceStatusWidget);
 				
 		// Temperature TC1 Control
-		PGroup tempControlGroup = createGroup("TEMPERATURE CONTR",
+//		PGroup tempControlGroup = createGroup("TEMPERATURE CONTR",
+//				SharedImage.FURNACE.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
+//		deviceStatusWidget
+//				.addDevice("/sample/tc1/sensor/value", "TC1A",
+//						SharedImage.A.getImage(), null)
+//				.addDevice("/sample/tc1/sensor2/value", "TC1B",
+//						SharedImage.B.getImage(), null)
+//				.addDevice("/sample/tc1/sensor3/value", "TC1C",
+//						SharedImage.C.getImage(), null);
+//		configureWidget(deviceStatusWidget);
+		
+		PGroup tempControlGroup = createGroup("Temperature Controller",
 				SharedImage.FURNACE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/sample/tc1/sensor/value", "TC1A",
+				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A-T/C",
 						SharedImage.A.getImage(), null)
-				.addDevice("/sample/tc1/sensor2/value", "TC1B",
+				.addDevice("/sample/tc1/sensor/sensorValueB", "TC1B-T/C",
 						SharedImage.B.getImage(), null)
-				.addDevice("/sample/tc1/sensor3/value", "TC1C",
-						SharedImage.C.getImage(), null);
+				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C-T/C",
+						SharedImage.C.getImage(), null)
+				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D-T/C",
+						SharedImage.D.getImage(), null);
 		configureWidget(deviceStatusWidget);
-
 		// Experiment info
 //		PGroup infoGroup = createGroup("EXPERIMENT INFO",
 //				SharedImage.EXPERIMENT_INFO.getImage());
