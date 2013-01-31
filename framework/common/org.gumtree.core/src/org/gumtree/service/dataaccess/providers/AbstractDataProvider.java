@@ -14,7 +14,7 @@ package org.gumtree.service.dataaccess.providers;
 import java.util.List;
 import java.util.Map;
 
-import org.gumtree.core.service.ServiceUtils;
+import org.gumtree.core.service.IServiceManager;
 import org.gumtree.service.dataaccess.DataAccessException;
 import org.gumtree.service.dataaccess.IDataChangeListener;
 import org.gumtree.service.dataaccess.IDataConverter;
@@ -27,6 +27,8 @@ public abstract class AbstractDataProvider<K> implements IDataProvider<K> {
 
 	private static final String PROP_PROVIDER = "provider";
 	
+	private IServiceManager serviceManager;
+	
 	protected IListenerManager<IDataChangeListener> listenerManager;
 	
 	public AbstractDataProvider() {
@@ -36,9 +38,11 @@ public abstract class AbstractDataProvider<K> implements IDataProvider<K> {
 	
 	@SuppressWarnings("unchecked")
 	public List<IDataConverter<K>> getDataConverter() {
-		Object providers = (Object) ServiceUtils.getServiceManager()
-				.getServices(IDataConverter.class, PROP_PROVIDER,
-						getClass().getName());
+//		Object providers = (Object) ServiceUtils.getServiceManager()
+//				.getServices(IDataConverter.class, PROP_PROVIDER,
+//						getClass().getName());
+		Object providers = getServiceManager().getServicesNow(
+				IDataConverter.class, PROP_PROVIDER, getClass().getName());
 		return (List<IDataConverter<K>>) providers;
 	}
 	
@@ -69,5 +73,13 @@ public abstract class AbstractDataProvider<K> implements IDataProvider<K> {
 	public void removeDataChangeListener(IDataChangeListener listener) {
 		listenerManager.removeListenerObject(listener);
 	}
-	                            
+	     
+	public IServiceManager getServiceManager() {
+		return serviceManager;
+	}
+
+	public void setServiceManager(IServiceManager serviceManager) {
+		this.serviceManager = serviceManager;
+	}
+
 }

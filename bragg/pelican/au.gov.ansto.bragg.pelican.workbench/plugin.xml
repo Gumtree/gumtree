@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.pelican.ui"
+            class="au.gov.ansto.bragg.pelican.workbench.internal.PelicanHMView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.pelican.ui.views.PelicanHMView"
+            name="Histogram Image">
+      </view>
+   </extension>
+
+</plugin>

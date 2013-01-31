@@ -11,6 +11,8 @@
 
 package au.gov.ansto.bragg.nbi.ui.widgets;
 
+import javax.inject.Inject;
+
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
@@ -36,6 +38,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.ui.widgets.ScalableImageDisplayWidget;
 
 import au.gov.ansto.bragg.nbi.ui.internal.Activator;
@@ -131,4 +134,27 @@ public class HMImageDisplayWidget extends ScalableImageDisplayWidget {
 		return super.getDataURI() + getImageMode().getQuery();
 	}
 	
+	@Inject
+	public void setDataAccessManager(IDataAccessManager dataAccessManager) {
+		super.setDataAccessManager(dataAccessManager);
+	}
+	
+	@Override
+	public void update() {
+		setWidth(getBounds().width);
+		setHeight(getBounds().height);
+		super.update();
+	}
+	
+	@Override
+	public void redraw() {
+		// TODO Auto-generated method stub
+		super.redraw();
+	}
+	
+	@Override
+	public void layout() {
+		// TODO Auto-generated method stub
+		super.layout();
+	}
 }

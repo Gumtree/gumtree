@@ -20,6 +20,7 @@ import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.service.dataaccess.IDataChangeListener;
 import org.gumtree.service.dataaccess.IDataHandler;
 import org.gumtree.service.dataaccess.IDataProvider;
+import org.gumtree.service.dataaccess.providers.AbstractDataProvider;
 
 /**
  * Abstract implementation of the data access manager. It provides some basic
@@ -53,7 +54,11 @@ public abstract class AbstractDataAccessManager implements IDataAccessManager {
 				IDataProvider.class, PROP_SCHEME, scheme);
 
 		// TODO: provide a way to reconfigure the data providers order
-
+		for (IDataProvider provider : providers) {
+			if (provider instanceof AbstractDataProvider) {
+				((AbstractDataProvider<?>) provider).setServiceManager(getServiceManager());
+			}
+		}
 		return providers;
 	}
 

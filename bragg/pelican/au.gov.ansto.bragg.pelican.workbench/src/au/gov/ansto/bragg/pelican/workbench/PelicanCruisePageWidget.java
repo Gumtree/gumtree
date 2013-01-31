@@ -27,6 +27,7 @@ import org.gumtree.util.messaging.IDelayEventExecutor;
 import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
+import au.gov.ansto.bragg.nbi.ui.widgets.HMImageDisplayWidget;
 
 @SuppressWarnings("restriction")
 public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
@@ -81,6 +82,16 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		HMVetoGadget pauseStatuswidget = new HMVetoGadget(
 				pauseGroup, SWT.NONE);
 		configureWidget(pauseStatuswidget);
+
+		// Hist Counter
+//		PGroup histGroup = createGroup("HISTOGRAM",
+//				SharedImage.SHUTTER.getImage());
+//		HMImageDisplayWidget hmWidget = new HMImageDisplayWidget(
+//				histGroup, SWT.NONE);
+//		String path = "http://localhost:60030/admin/openimageinformat.egi&#63;type=HISTOPERIOD_XYT&#38;open_format=DISLIN_PNG&#38;open_colour_table=RAIN&#38;open_plot_zero_pixels=AUTO&#38;open_annotations=ENABLE";
+////		String path = "http://localhost:60030/admin/openimageinformat.egi?type=HISTOPERIOD_XYT&open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO&open_annotations=ENABLE";
+//		hmWidget.setDataURI(path);
+//		configureWidget(hmWidget);
 
 		// Monochromator
 		PGroup monochromatorGroup = createGroup("MONOCROMATOR",

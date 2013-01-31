@@ -68,3 +68,4 @@ Export-Package: org.gumtree.ui.cruise,
 Eclipse-BundleShape: jar
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Bragg Institute
+Service-Component: OSGI-INF/HttpUIConverter.xml
