@@ -36,4 +36,5 @@ Service-Component: OSGI-INF/services/CommandLineOptions.xml,
  OSGI-INF/providers/BundleDataProvider.xml,
  OSGI-INF/providers/ResourceDataProvider.xml,
  OSGI-INF/providers/FileDataProvider.xml,
+ OSGI-INF/providers/HttpDataProvider.xml,
  OSGI-INF/converters/FileStoreConverter.xml
