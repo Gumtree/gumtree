@@ -24,6 +24,7 @@ public class PelicanHMView extends ViewPart {
 
 	private static final String DAE_HOST_NAME = "gumtree.dae.host";
 	private static final String DAE_PORT_NUMBER = "gumtree.dae.port";
+	private static final String DAE_HM_REFRESHTIME = "gumtree.hm.refreshperiod";
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
@@ -42,16 +43,21 @@ public class PelicanHMView extends ViewPart {
 			port = System.getProperty(DAE_PORT_NUMBER);
 		} catch (Exception e) {
 		}
-		String path = "http://" + host + ":" + port + "/admin/openimageinformat.egi?type=HISTOPERIOD_XYT&open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO&open_annotations=ENABLE";
+		String path = "http://" + host + ":" + port + "/admin/openimageinformat.egi?open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO&open_annotations=DISABLE";
 		widget.setDataURI(path);
 		ContextInjectionFactory.inject(widget, Activator.getDefault()
 				.getEclipseContext());
 		IParameters para = new Parameters();
 		para.put("login", "manager");
 		para.put("password", "ansto");
-		para.put("refreshDelay", 5000);
+		float period = 60;
+		try {
+			period = Float.valueOf(System.getProperty(DAE_HM_REFRESHTIME));
+		} catch (Exception e) {
+		}
+		para.put("refreshDelay", period * 1000);
 		widget.setParameters(para);
-		widget.setRefreshDelay(5);
+		widget.setRefreshDelay(period);
 //		widget.setWidth(240);
 //		widget.setHeight(120);
 		widget.afterParametersSet();
