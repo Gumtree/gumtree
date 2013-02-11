@@ -13,7 +13,7 @@ Documentation and tutorials can be found on the [Gumtree wiki](http://github.com
 ## License
 
 The use and distribution terms for this software are covered by the
-Eclipse Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)
+[Eclipse Public License (EPL v1.0)] (http://www.eclipse.org/legal/epl-v10.html)
 which can be found in the file LICENSE.html at the root of this distribution.
 By using this software in any fashion, you are agreeing to be bound by
 the terms of this license.
