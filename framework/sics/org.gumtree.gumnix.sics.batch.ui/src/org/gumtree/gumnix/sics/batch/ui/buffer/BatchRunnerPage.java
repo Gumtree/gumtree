@@ -283,24 +283,44 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 						((Button) e.widget).setSelection(false);
 						return;
 					}
+				} else {
+					boolean confirm = MessageDialog.openConfirm(getShell(), "Confirm pausing the queue", "Please confirm if you want to pause the queue. " +
+							"The current script running in SICS will not be affected. If confirmed, the rest of the scripts in the " +
+							"buffer queue will not be processed.");
+					if (!confirm) {
+						getBatchBufferManager().setAutoRun(true);
+						((Button) e.widget).setSelection(true);
+						return;
+					}
 				}
-				getBatchBufferManager().setAutoRun(((Button) e.widget).getSelection());
-			}
-		});
-		context.autoRunButton.addPaintListener(new PaintListener() {
-			public void paintControl(PaintEvent e) {
-				if (previousSelection[0] != context.autoRunButton.getSelection()) {
-					if (context.autoRunButton.getSelection()) {
+				boolean isAutoRun = ((Button) e.widget).getSelection();
+				if (previousSelection[0] != isAutoRun) {
+					if (isAutoRun) {
 						context.autoRunButton.setText("Pause");
 						context.autoRunButton.setImage(InternalImage.PAUSE.getImage());
 					} else {
 						context.autoRunButton.setText("Play");
 						context.autoRunButton.setImage(InternalImage.PLAY.getImage());
 					}
-					previousSelection[0] = context.autoRunButton.getSelection();
+					previousSelection[0] = isAutoRun;
 				}
+				getBatchBufferManager().setAutoRun(isAutoRun);
 			}
 		});
+//		context.autoRunButton.addPaintListener(new PaintListener() {
+//			public void paintControl(PaintEvent e) {
+//				if (previousSelection[0] != context.autoRunButton.getSelection()) {
+//					if (context.autoRunButton.getSelection()) {
+//						context.autoRunButton.setText("Pause");
+//						context.autoRunButton.setImage(InternalImage.PAUSE.getImage());
+//					} else {
+//						context.autoRunButton.setText("Play");
+//						context.autoRunButton.setImage(InternalImage.PLAY.getImage());
+//					}
+//					previousSelection[0] = context.autoRunButton.getSelection();
+//				}
+//			}
+//		});
 		
 		Button interruptButton = getToolkit().createButton(parent, "Interrupt", SWT.PUSH);
 		interruptButton.setImage(InternalImage.INTERRUPT.getImage());
