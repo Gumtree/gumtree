@@ -279,7 +279,7 @@ public class ScriptControlViewer extends Composite {
 					String[] pairs = scripts[i].split(":");
 					MenuItem item = new MenuItem(loadMenu, SWT.PUSH);
 					item.setText(pairs[0]);
-					final String itemPath = WORKSPACE_FOLDER_PATH + pairs[1];
+					final String itemPath = getFullScriptPath(pairs[1]);
 					item.addSelectionListener(new SelectionListener() {
 						
 						@Override
@@ -293,7 +293,7 @@ public class ScriptControlViewer extends Composite {
 					});
 				} else {
 					MenuItem item = new MenuItem(loadMenu, SWT.PUSH);
-					final String itemPath = WORKSPACE_FOLDER_PATH + scripts[i];
+					final String itemPath = getFullScriptPath(scripts[i]);
 					File scriptFile = new File(itemPath);
 					item.setText(scriptFile.getName());
 					item.addSelectionListener(new SelectionListener() {
@@ -507,7 +507,7 @@ public class ScriptControlViewer extends Composite {
 		String initScriptString = System.getProperty(GUMTREE_SCRIPTING_INIT_PROPERTY);
 		if (initScriptString != null && initScriptString.trim() != "") {
 			try {
-				initScriptControl(WORKSPACE_FOLDER_PATH + initScriptString);
+				initScriptControl(getFullScriptPath(initScriptString));
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -660,7 +660,8 @@ public class ScriptControlViewer extends Composite {
 	}
 	
 	private void handleException(Exception ex, String message) {
-		MessageDialog.openError(getShell(), "Error", message + ": " + ex.getLocalizedMessage());
+//		MessageDialog.openError(getShell(), "Error", message + ": " + ex.getLocalizedMessage());
+		ex.printStackTrace();
 	}
 	
 	private void setEditorVisible(boolean isVisible) {
@@ -1657,5 +1658,31 @@ public class ScriptControlViewer extends Composite {
 	
 	public void setScriptExecutor(ScriptExecutor executor){
 		this.scriptExecutor = executor;
+	}
+	
+	public static String getProjectPath(String projectName) {
+		return ResourcesPlugin.getWorkspace().getRoot().getProject(projectName).getLocation().toString();
+	}
+	
+	public static String getFullScriptPath(String shortPath) {
+		String splitter = null;
+		if (shortPath.contains("/")) {
+			splitter = "/";
+		} else if (shortPath.contains("\\")) {
+			splitter = "\\";
+		}
+		if (splitter == null) {
+			return WORKSPACE_FOLDER_PATH + "/" + shortPath;
+		}
+		String[] list = shortPath.split(splitter);
+		if (shortPath.startsWith(splitter)) {
+			if (list.length == 2) {
+				return WORKSPACE_FOLDER_PATH + shortPath;
+			} else {
+				return getProjectPath(list[1]) + shortPath.substring(list[1].length() + 1);
+			}
+		} else {
+			return getProjectPath(list[0]) + shortPath.substring(list[0].length());
+		}
 	}
 }

@@ -8,6 +8,7 @@ from gumpy.control.param import Act
 from gumpy.control.param import Group
 from gumpy.control.script import *
 from au.gov.ansto.bragg.nbi.ui.scripting import ScriptPageRegister
+from au.gov.ansto.bragg.nbi.ui.scripting.parts import ScriptControlViewer
 from gumpy.vis.image2d import Image
 from gumpy.vis.plot1d import Plot
 from gumpy.vis.gplot import GPlot
@@ -47,6 +48,12 @@ if __register__.getPlot3() != None:
     Plot3.close = noclose
     
 gumtree_root = str(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString())
+def get_project_path(pname):
+    return str(ResourcesPlugin.getWorkspace().getRoot().getProject(pname).getLocation().toString())
+
+def get_absolute_path(spath):
+    return str(ScriptControlViewer.getFullScriptPath(spath))
+    
 def load_script(fname):
     fname = os.path.dirname(__UI__.getScriptFilename()) + '/' + fname
     __UI__.loadScript(fname)
