@@ -258,6 +258,7 @@ public class SicsProxy implements ISicsProxy {
 //						System.out.println("Checking heat beat...");
 						socket = new Socket(getConnectionContext().getHost(), getConnectionContext().getPort());
 					} catch (IOException ioe) {
+						getLogger().info("SICS proxy needs to disconnect due to network error", ioe);
 						try {
 							// disconnect the proxy if network is unavailable
 							disconnect();
