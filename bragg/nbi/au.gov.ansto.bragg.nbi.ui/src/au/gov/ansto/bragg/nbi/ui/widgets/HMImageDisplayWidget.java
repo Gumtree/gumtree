@@ -141,8 +141,8 @@ public class HMImageDisplayWidget extends ScalableImageDisplayWidget {
 	
 	@Override
 	public void update() {
-		setWidth(getBounds().width);
-		setHeight(getBounds().height);
+		setWidth(getImageArea().getBounds().width);
+		setHeight(getImageArea().getBounds().height - 40);
 		super.update();
 	}
 	

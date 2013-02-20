@@ -147,4 +147,7 @@ public class ImageDisplayWidget extends DataDisplayWidget implements IDataHandle
 		this.height = height;
 	}
 	
+	public Composite getImageArea() {
+		return imageArea;
+	}
 }
