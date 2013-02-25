@@ -307,20 +307,20 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 				getBatchBufferManager().setAutoRun(isAutoRun);
 			}
 		});
-//		context.autoRunButton.addPaintListener(new PaintListener() {
-//			public void paintControl(PaintEvent e) {
-//				if (previousSelection[0] != context.autoRunButton.getSelection()) {
-//					if (context.autoRunButton.getSelection()) {
-//						context.autoRunButton.setText("Pause");
-//						context.autoRunButton.setImage(InternalImage.PAUSE.getImage());
-//					} else {
-//						context.autoRunButton.setText("Play");
-//						context.autoRunButton.setImage(InternalImage.PLAY.getImage());
-//					}
-//					previousSelection[0] = context.autoRunButton.getSelection();
-//				}
-//			}
-//		});
+		context.autoRunButton.addPaintListener(new PaintListener() {
+			public void paintControl(PaintEvent e) {
+				if (previousSelection[0] != context.autoRunButton.getSelection()) {
+					if (context.autoRunButton.getSelection()) {
+						context.autoRunButton.setText("Pause");
+						context.autoRunButton.setImage(InternalImage.PAUSE.getImage());
+					} else {
+						context.autoRunButton.setText("Play");
+						context.autoRunButton.setImage(InternalImage.PLAY.getImage());
+					}
+					previousSelection[0] = context.autoRunButton.getSelection();
+				}
+			}
+		});
 		
 		Button interruptButton = getToolkit().createButton(parent, "Interrupt", SWT.PUSH);
 		interruptButton.setImage(InternalImage.INTERRUPT.getImage());

@@ -268,7 +268,7 @@ public class HMVetoGadget extends ExtendedSicsComposite {
 //						status.setText("Click to Pause Counting");
 //						isVetoed = false;
 //					}
-//					System.err.println(status);
+//					System.err.println(serverStatus);
 					if (serverStatus.equals(ServerStatus.PAUSED) || serverStatus.equals(ServerStatus.COUNTING)) {
 						button.setEnabled(true);
 					} else {

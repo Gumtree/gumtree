@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.gumtree.gumnix.sics.control.ServerStatus;
 import org.gumtree.gumnix.sics.core.SicsCore;
+import org.gumtree.gumnix.sics.core.SicsEvents;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.util.messaging.EventHandler;
 import org.gumtree.widgets.swt.util.UIResources;
@@ -37,10 +38,10 @@ public class SicsStatusGadget extends AbstractSicsWidget {
 	public SicsStatusGadget(Composite parent, int style) {
 		super(parent, style);
 		eventHandler = new EventHandler(
-				EVENT_TOPIC_HNOTIFY) {
+				SicsEvents.Server.TOPIC_SERVER_STATUS) {
 			public void handleEvent(Event event) {
 				updateUI((ServerStatus) event
-						.getProperty(EVENT_PROP_VALUE));
+						.getProperty(SicsEvents.Server.STATUS));
 			}
 		};
 	}

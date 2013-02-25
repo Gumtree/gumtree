@@ -4,7 +4,7 @@
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${logback.logFileLocation}/gumtree.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>gumtree.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<fileNamePattern>${logback.logFileLocation}/gumtree.%d{yyyy-MM-dd}.log</fileNamePattern>
 			<maxHistory>30</maxHistory>
 			<timeBasedFileNamingAndTriggeringPolicy
 				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
