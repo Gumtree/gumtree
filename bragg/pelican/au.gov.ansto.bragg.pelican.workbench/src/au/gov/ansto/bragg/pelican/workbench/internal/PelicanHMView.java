@@ -43,7 +43,7 @@ public class PelicanHMView extends ViewPart {
 			port = System.getProperty(DAE_PORT_NUMBER);
 		} catch (Exception e) {
 		}
-		String path = "http://" + host + ":" + port + "/admin/openimageinformat.egi?open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO&open_annotations=DISABLE";
+		String path = "http://" + host + ":" + port + "/admin/openimageinformat.egi?open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO";
 		widget.setDataURI(path);
 		ContextInjectionFactory.inject(widget, Activator.getDefault()
 				.getEclipseContext());
@@ -62,20 +62,6 @@ public class PelicanHMView extends ViewPart {
 //		widget.setHeight(120);
 		widget.afterParametersSet();
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(widget);
-		parent.addControlListener(new ControlListener() {
-			
-			@Override
-			public void controlResized(ControlEvent e) {
-				widget.setWidth(parent.getBounds().width);
-				widget.setHeight(parent.getBounds().height);
-			}
-			
-			@Override
-			public void controlMoved(ControlEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
 	}
 
 	/* (non-Javadoc)

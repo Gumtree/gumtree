@@ -8,11 +8,14 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.gumtree.service.dataaccess.IDataHandler;
 import org.gumtree.ui.util.SafeUIRunner;
 
@@ -35,6 +38,17 @@ public class ImageDisplayWidget extends DataDisplayWidget implements IDataHandle
 	public ImageDisplayWidget(Composite parent, int style) {
 		super(parent, style);
 		imageArea = createImageArea();
+//		setWidth(getImageArea().getBounds().width);
+//		setHeight(getImageArea().getBounds().height);
+		parent.addListener(SWT.Resize,  new Listener() {
+			
+			@Override
+			public void handleEvent(Event event) {
+//				setWidth(getImageArea().getBounds().width);
+//				setHeight(getImageArea().getBounds().height);
+				pullData();
+			}
+		});
 	}
 
 	protected void widgetDispose() {
@@ -102,10 +116,16 @@ public class ImageDisplayWidget extends DataDisplayWidget implements IDataHandle
 				}
 				
 				// Scaling
-				ImageData scaledData = data.scaledTo(
-						getWidth() != -1 ? getWidth() : data.width,
-						getHeight() != -1 ? getHeight() : data.height);
-				
+//				ImageData scaledData = data.scaledTo(
+//						getWidth() > 0 ? getWidth() : data.width,
+//						getHeight() > 0 ? getHeight() : data.height);
+				Rectangle bounds = imageArea.getBounds();
+				ImageData scaledData = data;
+				if (bounds.width > 0 && bounds.height > 0) {
+					scaledData = data.scaledTo(
+							imageArea.getBounds().width,
+							imageArea.getBounds().height);
+				}
 				// Reset detection
 				boolean reset = false;
 				if (displayWidth != scaledData.width | displayHeight != scaledData.height) {
@@ -127,6 +147,48 @@ public class ImageDisplayWidget extends DataDisplayWidget implements IDataHandle
 		});
 	}
 
+	private void updateCurrentImage() {
+		SafeUIRunner.asyncExec(new SafeRunnable() {
+			public void run() throws Exception {
+				if (isDisposed()) {
+					return;
+				}
+				// Dispose
+				if (currentImage == null || currentImage.isDisposed()) {
+					return;
+				}
+				for (Control child : imageArea.getChildren()) {
+					child.dispose();
+				}
+				
+//				// Scaling
+//				ImageData scaledData = data.scaledTo(
+//						getWidth() != -1 ? getWidth() : data.width,
+//						getHeight() != -1 ? getHeight() : data.height);
+//				
+//				// Reset detection
+//				boolean reset = false;
+//				if (displayWidth != scaledData.width | displayHeight != scaledData.height) {
+//					reset = true;
+//				}
+//				displayWidth = scaledData.width;
+//				displayHeight = scaledData.height;
+//				
+//				currentImage = new Image(Display.getDefault(), scaledData);
+				// Draw
+//				paintImage(imageArea, currentImage, reset);
+//				// Layout (optimised so that it only update high level layout on new size)
+//				if (reset) {
+//					getParent().layout(true, true);
+//				} else {
+//					layout(true, true);
+//				}
+				paintImage(imageArea, currentImage, false);
+				getParent().layout(true, true);
+			}
+		});
+	}
+	
 	protected void setupPush() {
 		// Not supported
 	}

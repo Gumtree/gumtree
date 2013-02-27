@@ -20,12 +20,17 @@ import org.eclipse.draw2d.RectangleFigure;
 import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
 public class ScalableImageDisplayWidget extends ImageDisplayWidget {
@@ -75,14 +80,24 @@ public class ScalableImageDisplayWidget extends ImageDisplayWidget {
 		return imageArea;
 	}
 	
-	protected void paintImage(Composite parent, Image image, boolean reset) {
+	protected void paintImage(Composite parent, final Image image, boolean reset) {
 		if (reset) {
 			mode = Mode.INITIAL;
 		}
 		
 		width = image.getImageData().width;
 		height = image.getImageData().height;
-		
+//		Canvas canvas = new Canvas(parent, SWT.BORDER);
+////		GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.CENTER).grab(true, true).applyTo(canvas);
+//		canvas.setLayoutData(new GridData(GridData.FILL_BOTH));
+//
+//		canvas.addPaintListener(new PaintListener() {
+//			
+//			@Override
+//			public void paintControl(PaintEvent e) {
+//				e.gc.drawImage(image,0,0);
+//			}
+//		});
 		plotCanvas = new FigureCanvas(parent, SWT.NO_BACKGROUND | SWT.DOUBLE_BUFFERED);
 		final ImageFigure imageFigure = new ImageFigure(image, PositionConstants.NORTH | PositionConstants.WEST) {
 			protected void paintFigure(Graphics graphics) {

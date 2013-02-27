@@ -33,7 +33,6 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -45,7 +44,10 @@ import au.gov.ansto.bragg.nbi.ui.internal.Activator;
 
 public class HMImageDisplayWidget extends ScalableImageDisplayWidget {
 	
+	private final static String[] SCALE_INPUT = new String[]{"enable", "disable"};
+	private static final String IS_SCALE_ENABLED = "gumtree.hm.isScaleEnabled";
 	private HMImageMode imageMode;
+	private boolean isScaleEnabled;
 	
 	public HMImageDisplayWidget(Composite parent, int style) {
 		super(parent, style);
@@ -57,7 +59,7 @@ public class HMImageDisplayWidget extends ScalableImageDisplayWidget {
 	}
 	
 	protected Composite createImageArea() {
-		GridLayoutFactory.swtDefaults().numColumns(6).margins(0, 0).applyTo(this);
+		GridLayoutFactory.swtDefaults().numColumns(9).margins(0, 0).applyTo(this);
 		
 		// Mode
 		Label label = getToolkit().createLabel(this, "Mode: ");
@@ -92,7 +94,45 @@ public class HMImageDisplayWidget extends ScalableImageDisplayWidget {
 		
 		// Separator
 		label = getToolkit().createLabel(this, "");
-		GridDataFactory.swtDefaults().hint(65, SWT.DEFAULT).applyTo(label);
+		GridDataFactory.swtDefaults().hint(8, SWT.DEFAULT).applyTo(label);
+		
+		Label scaleLabel = getToolkit().createLabel(this, "Scale: ");
+		scaleLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
+		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).grab(true, false).applyTo(scaleLabel);
+		ComboViewer scaleViewer = new ComboViewer(this, SWT.READ_ONLY);
+		scaleViewer.setContentProvider(new ArrayContentProvider());
+		scaleViewer.setLabelProvider(new LabelProvider());
+		scaleViewer.setInput(SCALE_INPUT);
+		isScaleEnabled = true;
+		try {
+			isScaleEnabled = Boolean.valueOf(System.getProperty(IS_SCALE_ENABLED));
+		} catch (Exception e) {
+		}
+		scaleViewer.setSelection(new StructuredSelection(SCALE_INPUT[isScaleEnabled ? 0 : 1]));
+		scaleViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				// Change display mode
+				setScaleEnabled(SCALE_INPUT[0].equals(((IStructuredSelection) event.getSelection()).getFirstElement()));
+				// Update NOW
+				Job job = new Job(HMImageDisplayWidget.class.getName()) {
+					protected IStatus run(IProgressMonitor monitor) {
+						try {
+							// Get data (one off)
+							pullData();
+						} catch (Exception e) {
+							return new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+									"Failed to fetch data.", e);
+						}
+						return Status.OK_STATUS;
+					}			
+				};
+				job.setSystem(true);
+				job.schedule();
+			}
+		});
+				
+		label = getToolkit().createLabel(this, "");
+		GridDataFactory.swtDefaults().hint(8, SWT.DEFAULT).applyTo(label);
 		
 		// Refresh
 		label = getToolkit().createLabel(this, "Refresh: ");
@@ -106,15 +146,13 @@ public class HMImageDisplayWidget extends ScalableImageDisplayWidget {
 								HMImageDisplayWidget.this, "refreshDelay"), new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});
-		GridDataFactory.swtDefaults().hint(50, SWT.DEFAULT).applyTo(refreshText);
+		GridDataFactory.swtDefaults().hint(20, SWT.DEFAULT).applyTo(refreshText);
 		label = getToolkit().createLabel(this, "sec");
 		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
 		
-		Composite imageArea = getToolkit().createComposite(this);
-		
-		imageArea.setLayout(new FillLayout());
+		Composite imageArea = getToolkit().createComposite(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(0, 0).spacing(0, 0).applyTo(imageArea);
-		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).grab(true, true).span(6, 1).applyTo(imageArea);	
+		GridDataFactory.fillDefaults().grab(true, true).span(9, 1).applyTo(imageArea);	
 		
 		return imageArea;
 	}
@@ -131,7 +169,7 @@ public class HMImageDisplayWidget extends ScalableImageDisplayWidget {
 	}
 	
 	public String getDataURI() {
-		return super.getDataURI() + getImageMode().getQuery();
+		return super.getDataURI() + getImageMode().getQuery() + getScaleEnabledQuery();
 	}
 	
 	@Inject
@@ -141,8 +179,6 @@ public class HMImageDisplayWidget extends ScalableImageDisplayWidget {
 	
 	@Override
 	public void update() {
-		setWidth(getImageArea().getBounds().width);
-		setHeight(getImageArea().getBounds().height - 40);
 		super.update();
 	}
 	
@@ -156,5 +192,17 @@ public class HMImageDisplayWidget extends ScalableImageDisplayWidget {
 	public void layout() {
 		// TODO Auto-generated method stub
 		super.layout();
+	}
+
+	public boolean isScaleEnabled() {
+		return isScaleEnabled;
+	}
+
+	public void setScaleEnabled(boolean isScaleEnabled) {
+		this.isScaleEnabled = isScaleEnabled;
+	}
+	
+	public String getScaleEnabledQuery() {
+		return "&open_annotations=" + SCALE_INPUT[isScaleEnabled ? 0 : 1];
 	}
 }
