@@ -254,7 +254,6 @@ public class BMVetoGadget extends ExtendedSicsComposite {
 						button.setEnabled(true);
 					}
 					ServerStatus serverStatus = SicsCore.getSicsController().getServerStatus();
-					System.err.println(serverStatus);
 					if (isRequested) {
 						if (!isVetoed) {
 							if (serverStatus.equals(ServerStatus.COUNTING)) {
