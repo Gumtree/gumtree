@@ -212,6 +212,8 @@ public class SicsMonitor implements ISicsMonitor {
 							}
 						});
 					}
+//					new EventBuilder(SicsEvents.Server.TOPIC_SERVER_STATUS).append(
+//							SicsEvents.Server.STATUS, serverStatus).post();
 				} catch (Exception e) {
 					logger.error("Failed to extract status string.", e);
 				}

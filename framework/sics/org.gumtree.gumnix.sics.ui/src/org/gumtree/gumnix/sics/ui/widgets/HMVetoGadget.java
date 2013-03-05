@@ -11,12 +11,6 @@
 
 package org.gumtree.gumnix.sics.ui.widgets;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -38,8 +32,8 @@ import org.eclipse.swt.widgets.Label;
 import org.gumtree.gumnix.sics.control.IHipadabaListener;
 import org.gumtree.gumnix.sics.control.ServerStatus;
 import org.gumtree.gumnix.sics.core.SicsCore;
-import org.gumtree.gumnix.sics.internal.control.SicsMonitor;
 import org.gumtree.gumnix.sics.internal.ui.Activator;
+import org.gumtree.gumnix.sics.io.ISicsProxy;
 import org.gumtree.gumnix.sics.io.ISicsProxyListener;
 import org.gumtree.gumnix.sics.io.SicsProxyListenerAdapter;
 import org.gumtree.gumnix.sics.widgets.swt.ExtendedSicsComposite;
@@ -51,6 +45,8 @@ import org.slf4j.LoggerFactory;
 
 public class HMVetoGadget extends ExtendedSicsComposite {
 
+	private static final String SICS_COMMAND_VETO_ON = "histmem veto on";
+	private static final String SICS_COMMAND_VETO_OFF = "histmem veto off";
 	private static Logger logger = LoggerFactory.getLogger(HMVetoGadget.class);
 	
 	private Label status;
@@ -63,7 +59,7 @@ public class HMVetoGadget extends ExtendedSicsComposite {
 	
 	private Image continueImage;
 	
-	private HttpClient client;
+//	private HttpClient client;
 	
 	private ISicsProxyListener proxyListener;
 	
@@ -71,17 +67,17 @@ public class HMVetoGadget extends ExtendedSicsComposite {
 	
 //	private static String host = "http://das1-test.nbi.ansto.gov.au";
 	
-	private static String host = "http://" + System.getProperty("gumtree.dae.host");
+//	private static String host = "http://" + System.getProperty("gumtree.dae.host");
 			
 //	private static String port = "8081";
 	
-	private static String port = System.getProperty("gumtree.dae.port");
+//	private static String port = System.getProperty("gumtree.dae.port");
 	
-	private boolean isVetoed = false;
+//	private boolean isVetoed = false;
 	
-	private boolean isAuth = false;
+//	private boolean isAuth = false;
 	
-	private boolean isRequested = false;
+//	private boolean isRequested = false;
 	
 	public HMVetoGadget(Composite parent, int style) {
 		super(parent, style);
@@ -145,61 +141,43 @@ public class HMVetoGadget extends ExtendedSicsComposite {
 				try {
 					// Action: interrupt SICS
 //					runVeto(!isVetoed);
-					isRequested = !isRequested;
+//					isRequested = !isRequested;
 					ServerStatus serverStatus = SicsCore.getSicsController().getServerStatus();
 //					if (isRequested) {
 //						if (!isVetoed) {
-//							if (serverStatus.equals(ServerStatus.COUNTING)){
-//								runVeto(true);
-//								isVetoed = true;
-//							} else {
-//								button.setImage(continueImage);
-//								status.setText("Waiting for Counting");
-//							}
+//							runVeto(true);
+//							isVetoed = true;
 //						} else {
 //							button.setImage(continueImage);
+////							status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
 //							status.setText("Counting Paused");
 //						}
 //					} else {
 //						if (isVetoed) {
-//							if (serverStatus.equals(ServerStatus.COUNTING)){
-//								runVeto(false);
-//								isVetoed = false;
-//							} else {
-//								button.setImage(pauseImage);
-//								status.setText("Click to Pause Counting");
-//								isVetoed = false;
-//							}
+//							runVeto(false);
+//							isVetoed = false;
 //						} else {
 //							button.setImage(pauseImage);
+////							status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 //							status.setText("Click to Pause Counting");
 //						}
 //					}
-					if (isRequested) {
-						if (!isVetoed) {
-							runVeto(true);
-							isVetoed = true;
-						} else {
-							button.setImage(continueImage);
-//							status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
-							status.setText("Counting Paused");
-						}
-					} else {
-						if (isVetoed) {
-							runVeto(false);
-							isVetoed = false;
-						} else {
-							button.setImage(pauseImage);
-//							status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-							status.setText("Click to Pause Counting");
-						}
+					switch (serverStatus) {
+					case PAUSED:
+						runVeto(false);
+						break;
+					case COUNTING:
+						runVeto(true);
+						break;
+					default:
+						break;
 					}
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 			}
 		});
-		this.layout(true, true);
+//		this.layout(true, true);
 		// Set UI status
 		updateUI();
 		// Register proxy listener
@@ -236,7 +214,22 @@ public class HMVetoGadget extends ExtendedSicsComposite {
 			handCursor.dispose();
 			handCursor = null;
 		}
-		button = null;
+		if (pauseImage != null && !pauseImage.isDisposed()){
+			pauseImage.dispose();
+			pauseImage = null;
+		}
+		if (continueImage != null && !continueImage.isDisposed()){
+			continueImage.dispose();
+			continueImage = null;
+		}			
+		if (status != null && !status.isDisposed()){
+			status.dispose();
+			status = null;
+		}
+		if (button != null && !button.isDisposed()){
+			button.dispose();
+			button = null;
+		}
 	}
 	
 	private void updateUI() {
@@ -269,85 +262,111 @@ public class HMVetoGadget extends ExtendedSicsComposite {
 //						isVetoed = false;
 //					}
 //					System.err.println(serverStatus);
-					if (serverStatus.equals(ServerStatus.PAUSED) || serverStatus.equals(ServerStatus.COUNTING)) {
+//					if (serverStatus.equals(ServerStatus.PAUSED) || serverStatus.equals(ServerStatus.COUNTING)) {
+//						button.setEnabled(true);
+//					} else {
+//						button.setEnabled(false);
+//						if (isVetoed) {
+//							button.setImage(pauseImage);
+//							status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+//							status.setText("Click to Pause Counting");
+//							isVetoed = false;
+//							isRequested = false;
+//						}
+//					}
+					switch (serverStatus) {
+					case PAUSED:
 						button.setEnabled(true);
-					} else {
+						button.setImage(continueImage);
+						status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
+						status.setText("Counting Paused");
+						break;
+					case COUNTING:
+						button.setEnabled(true);
+						button.setImage(pauseImage);
+						status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+						status.setText("Click to Pause Counting");
+						break;
+					default:
 						button.setEnabled(false);
-						if (isVetoed) {
-							button.setImage(pauseImage);
-							status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-							status.setText("Click to Pause Counting");
-							isVetoed = false;
-							isRequested = false;
-						}
+						button.setImage(pauseImage);
+						status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+						status.setText("Click to Pause Counting");
+						break;
 					}
+					layout(true, true);
 				}
 			});
 		}
 	}
 
 	private void runVeto(boolean vetoFlag) throws Exception {
-		String vetoEgi = null;
+//		String vetoEgi = null;
+//		if (vetoFlag) {
+//			vetoEgi = "/admin/guienablesoftveto.egi";
+//		} else {
+//			vetoEgi = "/admin/guidisablesoftveto.egi";
+//		}
+//		String seizeControl = "/admin/seizereleasecontrolconfig.egi";
+//		getLink(seizeControl);
+//		getLink(vetoEgi);
+//		getLink(seizeControl);
+//		if (vetoFlag) {
+//			button.setImage(continueImage);
+//			status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
+//			status.setText("Counting Paused");
+//			((SicsMonitor) SicsCore.getSicsManager().monitor()).notifyListener("/", "Paused");
+//			System.err.println("Counting Paused");
+//		} else {
+//			button.setImage(pauseImage);
+//			status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+//			status.setText("Click to Pause Counting");
+//			((SicsMonitor) SicsCore.getSicsManager().monitor()).notifyListener("/", "Counting");
+//		}
 		if (vetoFlag) {
-			vetoEgi = "/admin/guienablesoftveto.egi";
+			SicsCore.getDefaultProxy().send(SICS_COMMAND_VETO_ON, null, ISicsProxy.CHANNEL_STATUS);
 		} else {
-			vetoEgi = "/admin/guidisablesoftveto.egi";
-		}
-		String seizeControl = "/admin/seizereleasecontrolconfig.egi";
-		getLink(seizeControl);
-		getLink(vetoEgi);
-		getLink(seizeControl);
-		if (vetoFlag) {
-			button.setImage(continueImage);
-			status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
-			status.setText("Counting Paused");
-			((SicsMonitor) SicsCore.getSicsManager().monitor()).notifyListener("/", "Paused");
-			System.err.println("Counting Paused");
-		} else {
-			button.setImage(pauseImage);
-			status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-			status.setText("Click to Pause Counting");
-			((SicsMonitor) SicsCore.getSicsManager().monitor()).notifyListener("/", "Counting");
+			SicsCore.getDefaultProxy().send(SICS_COMMAND_VETO_OFF, null, ISicsProxy.CHANNEL_STATUS);
 		}
 	}
 	
-	private void getLink(String path) throws Exception {
-		GetMethod getMethod = new GetMethod(host + ":" + port);
-		if (isAuth) {
-			getMethod.setDoAuthentication(false);
-		} else {
-			getMethod.setDoAuthentication(true);
-		}
-		getMethod.setPath(path);
-		int statusCode = getClient().executeMethod(getMethod);
-		if (statusCode != HttpStatus.SC_OK) {
-			logger.error("HTTP GET failed: " + getMethod.getStatusLine());
-			getMethod.releaseConnection();
-			throw new Exception("Cannot get file");
-		}
-		getMethod.releaseConnection();
-	}
+//	private void getLink(String path) throws Exception {
+//		GetMethod getMethod = new GetMethod(host + ":" + port);
+//		if (isAuth) {
+//			getMethod.setDoAuthentication(false);
+//		} else {
+//			getMethod.setDoAuthentication(true);
+//		}
+//		getMethod.setPath(path);
+//		int statusCode = getClient().executeMethod(getMethod);
+//		if (statusCode != HttpStatus.SC_OK) {
+//			logger.error("HTTP GET failed: " + getMethod.getStatusLine());
+//			getMethod.releaseConnection();
+//			throw new Exception("Cannot get file");
+//		}
+//		getMethod.releaseConnection();
+//	}
 	
-	private HttpClient getClient() {
-		if (client == null) {
-			synchronized (HMVetoGadget.class) {
-				if (client == null) {
-					client = new HttpClient();
-					
-					// Set proxy if available
-//					if (getProxyHost() != null && getProxyPort() != null) {
-//						client.getHostConfiguration().setProxy(getProxyHost(), getProxyPort());
-//					}
-					
-					// Set credentials if login information supplied
-					client.getParams().setAuthenticationPreemptive(true);
-					Credentials defaultcreds = new UsernamePasswordCredentials("manager", "ansto");
-					client.getState().setCredentials(AuthScope.ANY, defaultcreds);
-				}
-			}
-		}
-		return client;
-	}
+//	private HttpClient getClient() {
+//		if (client == null) {
+//			synchronized (HMVetoGadget.class) {
+//				if (client == null) {
+//					client = new HttpClient();
+//					
+//					// Set proxy if available
+////					if (getProxyHost() != null && getProxyPort() != null) {
+////						client.getHostConfiguration().setProxy(getProxyHost(), getProxyPort());
+////					}
+//					
+//					// Set credentials if login information supplied
+//					client.getParams().setAuthenticationPreemptive(true);
+//					Credentials defaultcreds = new UsernamePasswordCredentials("manager", "ansto");
+//					client.getState().setCredentials(AuthScope.ANY, defaultcreds);
+//				}
+//			}
+//		}
+//		return client;
+//	}
 
 	protected void disposeWidget() {
 		super.disposeWidget();
