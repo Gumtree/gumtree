@@ -469,7 +469,10 @@ class SimpleData:
             units = self.units
         if title is None :
             title = self.title
-        return new(storage, name, units, parent, title)
+        sd = new(storage, name, units, parent, title)
+        for att in self.__iDataItem__.getAttributeList():
+            sd.__iDataItem__.addOneAttribute(att)
+        return sd
 
     def __dir__(self):
         dirs = self.storage.__dir__()
