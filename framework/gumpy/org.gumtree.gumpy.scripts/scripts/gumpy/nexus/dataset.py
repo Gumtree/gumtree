@@ -293,7 +293,7 @@ class Dataset(Data):
                     sdata = SimpleData(nx_factory.copyToNXDataItem(item))
                     if deep:
                         arr = sdata.storage.__copy__()
-                        sdata.setCachedData(arr.__iArray__)
+                        sdata.__iDataItem__.setCachedData(arr.__iArray__, False)
 #                        sdata = sdata.__copy__()
                     stype = sdata.dtype
                     if not mslice is None and (stype is int or stype is float or stype is long) \
