@@ -47,6 +47,7 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 			final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			if (activeWorkbenchWindow instanceof WorkbenchWindow) {
 				((WorkbenchWindow) activeWorkbenchWindow).setCoolBarVisible(false);
+				activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
 			}
 //			IMultiMonitorManager mmManager = new MultiMonitorManager();
 //			

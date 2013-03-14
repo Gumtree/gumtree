@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EchidnaWorkbenchSetup implements IStartup {
 
-	private static final String PROP_START_EXP_LAYOUT = "echidna.startExperimentLayout";
+	private static final String PROP_START_EXP_LAYOUT = "gumtree.startExperimentLayout";
 	
 	private static Logger logger = LoggerFactory.getLogger(EchidnaWorkbenchSetup.class);
 	

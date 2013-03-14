@@ -21,6 +21,8 @@ public class SicsInterruptWidget extends ExtendedSicsComposite {
 	private static final Logger logger = LoggerFactory
 			.getLogger(SicsInterruptWidget.class);
 
+	private static final String GUMTREE_USE_LARGE_STOP_BUTTON = "gumtree.sics.useLargeStopButton";
+
 	private Label interruptButton;
 
 	private Image buttonImage;
@@ -94,7 +96,12 @@ public class SicsInterruptWidget extends ExtendedSicsComposite {
 
 	public Image getButtonImage() {
 		if (buttonImage == null) {
-			buttonImage = InternalImage.STOP_128.getImage();
+			String useLargeStopButton = System.getProperty(GUMTREE_USE_LARGE_STOP_BUTTON, "true");
+			if (Boolean.parseBoolean(useLargeStopButton)) {
+				buttonImage = InternalImage.STOP_128.getImage();
+			} else {
+				buttonImage = InternalImage.STOP_64.getImage();
+			}
 		}
 		return buttonImage;
 	}

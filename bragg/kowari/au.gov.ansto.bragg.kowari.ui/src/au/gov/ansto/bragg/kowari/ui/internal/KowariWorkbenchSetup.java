@@ -17,7 +17,7 @@ import au.gov.ansto.bragg.kowari.ui.KowariWorkbenchLauncher;
  */
 public class KowariWorkbenchSetup implements IStartup {
 
-	private static final String PROP_START_EXP_LAYOUT = "kowari.startExperimentLayout";
+	private static final String PROP_START_EXP_LAYOUT = "gumtree.startExperimentLayout";
 	
 	private static Logger logger = LoggerFactory.getLogger(KowariWorkbenchSetup.class);
 	

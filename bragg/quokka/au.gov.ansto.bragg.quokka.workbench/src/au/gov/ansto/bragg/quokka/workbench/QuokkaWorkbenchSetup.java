@@ -22,7 +22,7 @@ public class QuokkaWorkbenchSetup implements IStartup {
 	private static Logger logger = LoggerFactory.getLogger(QuokkaWorkbenchSetup.class);
 	
 	public void earlyStartup() {
-		String launchTaipanLayout = System.getProperty(PROP_START_EXP_LAYOUT, "true");
+		String launchTaipanLayout = System.getProperty(PROP_START_EXP_LAYOUT, "false");
 		// [GT-73] Launch Taipan 2 monitor layout if required
 		if (Boolean.parseBoolean(launchTaipanLayout)) {
 			SafeUIRunner.asyncExec(new ISafeRunnable() {

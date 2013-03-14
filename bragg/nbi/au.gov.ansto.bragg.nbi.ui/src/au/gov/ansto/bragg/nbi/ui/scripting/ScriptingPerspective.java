@@ -10,8 +10,6 @@
  *******************************************************************************/
 package au.gov.ansto.bragg.nbi.ui.scripting;
 
-import org.eclipse.e4.ui.model.application.ui.basic.MBasicFactory;
-import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveDescriptor;
@@ -19,6 +17,7 @@ import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PerspectiveAdapter;
@@ -39,6 +38,7 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 	public static final String SCRIPT_CONSOLE_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.scripting.ConsoleView";
 	public static final String DUMMY_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.scripting.DummyView";
 	public static final String PROJECT_EXPLORER_VIEW_ID = "org.eclipse.ui.navigator.ProjectExplorer";
+	private static final String GUMTREE_SCRIPTING_SHOWCOUNCIL = "gumtree.scripting.showCouncil";
 	
 	public void createInitialLayout(final IPageLayout factory) {
 //		factory.addShowViewShortcut(DATA_SOURCE_VIEW_ID);
@@ -144,9 +144,9 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 		factory.addStandaloneView(SCRIPT_CONTROL_VIEW_ID, true,
 				IPageLayout.BOTTOM, 0.45f, SCRIPT_DATASOURCE_VIEW_ID);
 		
-		factory.addStandaloneView(SCRIPT_CONSOLE_VIEW_ID, true,
-				IPageLayout.BOTTOM, 0.67f, factory.getEditorArea());
-		
+//		factory.addStandaloneView(SCRIPT_CONSOLE_VIEW_ID, true,
+//				IPageLayout.BOTTOM, 0.67f, factory.getEditorArea());
+		factory.addView(SCRIPT_CONSOLE_VIEW_ID, IPageLayout.BOTTOM, 0.67f, factory.getEditorArea());
 		
 //		factory.addPlaceholder(PROJECT_EXPLORER_VIEW_ID, 
 //				IPageLayout.BOTTOM, 0.05f, DUMMY_VIEW_ID + ":1");
@@ -184,7 +184,7 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 		final IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		workbenchWindow.addPerspectiveListener(new PerspectiveAdapter() {
 			@Override
-			public void perspectiveActivated(IWorkbenchPage page,
+			public void perspectiveActivated(final IWorkbenchPage page,
 					IPerspectiveDescriptor perspective) {
 				super.perspectiveOpened(page, perspective);
 				final PerspectiveAdapter adapter = this;
@@ -195,21 +195,25 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 						try{
 							workbenchWindow.getActivePage().setEditorAreaVisible(false);
 							registerViews(register);
-							System.err.println("activated");
-//							factory.getViewLayout(SCRIPT_CONTROL_VIEW_ID).setMoveable(false);
-//							factory.getViewLayout(SCRIPT_CONTROL_VIEW_ID).setCloseable(false);
-
+							boolean showCouncil = true;
+							try {
+								showCouncil = Boolean.valueOf(System.getProperty(GUMTREE_SCRIPTING_SHOWCOUNCIL));
+							} catch (Exception e) {
+							}
+							if (!showCouncil) {
+								IWorkbenchPartReference myView = page.findViewReference(SCRIPT_CONSOLE_VIEW_ID);
+								page.setPartState(myView, IWorkbenchPage.STATE_MINIMIZED);
+							}
 							workbenchWindow.removePerspectiveListener(adapter);
 						}catch (Exception e) {
-							e.printStackTrace();
 						}
 					}});
 			}
 			
 		});
 		factory.setEditorAreaVisible(false);
-//		factory.getViewLayout(PLOT_VIEW_ID + ":3").setMoveable(false);
-//		factory.getViewLayout(PLOT_VIEW_ID + ":3").setCloseable(false);
+		factory.getViewLayout(PLOT_VIEW_ID).setCloseable(false);
+		factory.getViewLayout(SCRIPT_CONSOLE_VIEW_ID).setCloseable(false);
 //		OperationParametersView.subscribeStopButtonListener(new ButtonClickListener(){
 //
 //			@Override

@@ -189,37 +189,37 @@ public class ScriptDataSourceViewer extends Composite {
 	}
 	
 	public void addDataset(String filePath, final boolean notifyListener) throws FileAccessException, IOException {
-		final DatasetInfo info = getDataset(filePath);
-		if (info == null) {
+		DatasetInfo datasetInfo = getDataset(filePath);
+		if (datasetInfo == null) {
 			URI fileURI = new File(filePath).toURI();
 			IDataset dataset = factoryManager.getFactory().openDataset(fileURI);
-			final DatasetInfo obj = new DatasetInfo(dataset);
+			datasetInfo = new DatasetInfo(dataset);
 			dataset.close();
-			datasetList.add(obj);
-			Display.getDefault().asyncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					tableViewer.refresh(false, true);
-					tableViewer.setSelection(new StructuredSelection(new Object[]{obj}), true);
-					if (notifyListener) {
-						fireActivityEvent(obj);
-					}
-				}
-			});
-		} else {
-			Display.getDefault().asyncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					tableViewer.refresh(false, true);
-					tableViewer.setSelection(new StructuredSelection(new Object[]{info}), true);
-					if (notifyListener) {
-						fireActivityEvent(info);
-					}
-				}
-			});			
+			datasetList.add(datasetInfo);
+//			Display.getDefault().asyncExec(new Runnable() {
+//
+//				@Override
+//				public void run() {
+//					tableViewer.refresh(false, true);
+//					tableViewer.setSelection(new StructuredSelection(new Object[]{obj}), true);
+//					if (notifyListener) {
+//						fireActivityEvent(obj);
+//					}
+//				}
+//			});
 		}
+		final DatasetInfo info = datasetInfo;
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				tableViewer.refresh(false, true);
+				tableViewer.setSelection(new StructuredSelection(new Object[]{info}), true);
+				if (notifyListener) {
+					fireDatasetAddEvent(new DatasetInfo[]{info});
+				}
+			}
+		});			
 	}
 	
 	public DatasetInfo getDataset(String filePath) {
@@ -291,7 +291,7 @@ public class ScriptDataSourceViewer extends Composite {
 				if (selection instanceof StructuredSelection) {
 					Object obj = ((StructuredSelection) selection).getFirstElement();
 					if (obj instanceof DatasetInfo) {
-						fireActivityEvent((DatasetInfo) obj);
+						fireRunSelectedEvent();
 					}
 				}
 			}
@@ -325,10 +325,10 @@ public class ScriptDataSourceViewer extends Composite {
 	    	public void run() {
 	    		ISelection selection = tableViewer.getSelection();
 	    		if (!selection.isEmpty()) {
-	    			Object[] objs = ((StructuredSelection) selection).toArray();
-	    			DatasetInfo[] datasets = new DatasetInfo[objs.length];
-	    			System.arraycopy(objs, 0, datasets, 0, objs.length);
-	    			fireActivitiesEvent(datasets);
+//	    			Object[] objs = ((StructuredSelection) selection).toArray();
+//	    			DatasetInfo[] datasets = new DatasetInfo[objs.length];
+//	    			System.arraycopy(objs, 0, datasets, 0, objs.length);
+	    			fireRunSelectedEvent();
 	    		} 		
 	    	}
 		};
@@ -433,8 +433,8 @@ public class ScriptDataSourceViewer extends Composite {
 	}
 	
 	public interface IActivityListener {
-		public void activityTriggered(DatasetInfo dataset);
-		public void activitiesTriggered(DatasetInfo[] datasets);
+		public void datasetAdded(DatasetInfo[] datasets);
+		public void runSelected();
 	}
 	
 	public void addActivityListener(IActivityListener listener) {
@@ -445,15 +445,15 @@ public class ScriptDataSourceViewer extends Composite {
 		activityListeners.remove(listener);
 	}
 	
-	public void fireActivityEvent(DatasetInfo dataset) {
+	public void fireDatasetAddEvent(DatasetInfo[] datasets) {
 		for (IActivityListener listener : activityListeners) {
-			listener.activityTriggered(dataset);
+			listener.datasetAdded(datasets);
 		}
 	}
 	
-	public void fireActivitiesEvent(DatasetInfo[] datasets) {
+	public void fireRunSelectedEvent() {
 		for (IActivityListener listener : activityListeners) {
-			listener.activitiesTriggered(datasets);
+			listener.runSelected();
 		}
 	}
 

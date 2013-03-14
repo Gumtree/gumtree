@@ -18,6 +18,8 @@ import au.gov.ansto.bragg.nbi.workbench.internal.InternalImage;
 @SuppressWarnings("restriction")
 public class NBICruisePanel extends CruisePanel {
 
+	private static final String GUMTREE_USE_LARGE_STOP_BUTTON = "gumtree.sics.useLargeStopButton";
+
 	@Inject
 	public NBICruisePanel(Composite parent, @Optional int style) {
 		super(parent, style);
@@ -34,7 +36,12 @@ public class NBICruisePanel extends CruisePanel {
 
 		SicsInterruptWidget interruptWidget = new SicsInterruptWidget(parent,
 				SWT.NONE);
-		interruptWidget.setButtonImage(InternalImage.STOP_128.getImage());
+		String useLargeStopButton = System.getProperty(GUMTREE_USE_LARGE_STOP_BUTTON, "true");
+		if (Boolean.parseBoolean(useLargeStopButton)) {
+			interruptWidget.setButtonImage(InternalImage.STOP_128.getImage());
+		} else {
+			interruptWidget.setButtonImage(InternalImage.STOP_64.getImage());
+		}
 		ContextInjectionFactory.inject(interruptWidget, Activator.getDefault()
 				.getEclipseContext());
 		interruptWidget.setBackgroundImage(SharedImage.CRUISE_BG.getImage());

@@ -14,6 +14,7 @@ import org.gumtree.widgets.swt.util.UIResourceUtils;
 public enum InternalImage {
 
 	STOP_128("icons/stop_128x128.png"),
+	STOP_64("icons/stop_64x64.png"),
 	START_32("icons/play_32x32.png"),
 	STOP_32("icons/stop_32x32.png"),
 	CONNECT_32("icons/connect_32x32.png"),

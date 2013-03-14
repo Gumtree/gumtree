@@ -31,6 +31,7 @@ import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
@@ -654,6 +655,18 @@ public class ScriptControlViewer extends Composite {
 		executor.runScript("__run_script__(" + arg + ")");
 	}
 	
+	private void runDatasetAddedScript(DatasetInfo[] datasets) {
+		String arg = "[";
+		for (DatasetInfo dataset : datasets) {
+			String location = dataset.getLocation();
+			location = location.replaceAll("\\\\", "/");
+			arg += "'" + location + "', ";
+		}
+		arg += "]";
+		IScriptExecutor executor = getScriptExecutor();
+		executor.runScript("__dataset_added__(" + arg + ")");
+	}
+	
 	private void runCommand(String command) {
 		IScriptExecutor executor = getScriptExecutor();
 		executor.runScript(command);
@@ -758,12 +771,12 @@ public class ScriptControlViewer extends Composite {
 			datasetActivityListener = new IActivityListener() {
 				
 				@Override
-				public void activityTriggered(DatasetInfo dataset) {
-					runScript();
+				public void datasetAdded(DatasetInfo[] datasets) {
+					runDatasetAddedScript(datasets);
 				}
 				
 				@Override
-				public void activitiesTriggered(DatasetInfo[] datasets) {
+				public void runSelected() {
 					runScript();
 				}
 			};
@@ -1635,6 +1648,18 @@ public class ScriptControlViewer extends Composite {
 	public void setPreference(String name, String value){
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		store.setValue(name, value);
+	}
+
+	public void savePreferenceStore(){
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		if (store != null && store.needsSaving()
+				&& store instanceof IPersistentPreferenceStore) {
+			try {
+				((IPersistentPreferenceStore) store).save();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public String getPreference(String name) {

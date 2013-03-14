@@ -259,7 +259,15 @@ class Dataset(Data):
                 else :
                     return data
             else :
-                return Data.__getattr__(self, name) 
+                item = self.__iNXroot__.getAttribute(name)
+                if not item is None :
+                    data = SimpleData(str(item.value))
+                    if data.size == 1 :
+                        return data[0]
+                    else :
+                        return data
+                else :
+                    return Data.__getattr__(self, name) 
     
     def close(self):
         if self.__iNXDataset__.isOpen() :

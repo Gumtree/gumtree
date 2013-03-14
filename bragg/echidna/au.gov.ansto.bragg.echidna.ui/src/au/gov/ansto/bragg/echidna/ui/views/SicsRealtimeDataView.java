@@ -44,7 +44,7 @@ public class SicsRealtimeDataView extends ViewPart {
 		RealtimeDataViewer viewer = new RealtimeDataViewer(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(parent);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer);
-		SicsRealtimeRourceProvider provider = new SicsRealtimeRourceProvider();
+		final SicsRealtimeRourceProvider provider = new SicsRealtimeRourceProvider();
 //		provider.setFilter(new String[]{
 //				"/sample/tc1/sensor/sensorValueA",
 //				"/sample/tc1/sensor/sensorValueB",

@@ -13,7 +13,8 @@ import org.gumtree.widgets.swt.util.UIResourceUtils;
 
 public enum InternalImage {
 
-	STOP_128("icons/stop_128x128.png");
+	STOP_128("icons/stop_128x128.png"), 
+	STOP_64("icons/stop_64x64.png");
 
 	private InternalImage(String path) {
 		this.path = path;

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  */
 public class QuokkaAnalysisSetup implements IStartup {
 
-	private static final String PROP_START_EXP_LAYOUT = "quokka.startAnalysisLayout";
+	private static final String PROP_START_EXP_LAYOUT = "gumtree.startAnalysisLayout";
 	
 	private static Logger logger = LoggerFactory.getLogger(QuokkaAnalysisSetup.class);
 	

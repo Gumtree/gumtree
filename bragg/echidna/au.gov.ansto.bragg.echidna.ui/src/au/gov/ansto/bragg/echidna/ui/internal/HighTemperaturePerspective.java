@@ -99,13 +99,15 @@ public class HighTemperaturePerspective implements IPerspectiveFactory {
 //		IWorkbench workbench = PlatformUI.getWorkbench();
 		
 //		IEditorInput input = new NullEditorInput();
-		try {
-			IFileEditorInput input = getFileStorage(0);
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(
-					input, ID_TCL_EDITOR);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		String makeNewEditor = System.getProperty("gumtree.echidna.openNewEditor", "false");
+		if (Boolean.parseBoolean(makeNewEditor)) {
+			try {
+				IFileEditorInput input = getFileStorage(0);
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(
+						input, ID_TCL_EDITOR);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 //		workbench.getActiveWorkbenchWindow().addPerspectiveListener(new IPerspectiveListener() {
 //			

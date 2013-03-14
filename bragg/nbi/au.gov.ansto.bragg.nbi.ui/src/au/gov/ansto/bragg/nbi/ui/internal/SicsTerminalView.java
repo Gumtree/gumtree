@@ -68,8 +68,8 @@ public class SicsTerminalView extends CommandLineTerminal {
 								});
 								int time = 0;
 								while (!isConnected && time < 5000) {
-									Thread.sleep(250);
-									time += 250;
+									Thread.sleep(500);
+									time += 500;
 								}
 							} else {
 								Display.getDefault().asyncExec(new Runnable() {
@@ -83,9 +83,14 @@ public class SicsTerminalView extends CommandLineTerminal {
 										}
 									}
 								});
+								int time = 0;
+								while (isConnected && time < 5000) {
+									Thread.sleep(500);
+									time += 500;
+								}
 							}
 						}
-						Thread.sleep(500);
+						Thread.sleep(1000);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();

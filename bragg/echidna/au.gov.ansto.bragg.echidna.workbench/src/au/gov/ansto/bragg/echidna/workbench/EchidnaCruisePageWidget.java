@@ -47,13 +47,13 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 				getDelayEventExecutor());
 		
 		// Reactor Source
-		PGroup sourceGroup = createGroup("REACTOR SOURCE",
-				SharedImage.REACTOR.getImage());
-		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(
-				sourceGroup, SWT.NONE);
-		deviceStatusWidget.addDevice("/instrument/source/power", "Power",
-				SharedImage.POWER.getImage(), null);
-		configureWidget(deviceStatusWidget);
+//		PGroup sourceGroup = createGroup("REACTOR SOURCE",
+//				SharedImage.REACTOR.getImage());
+//		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(
+//				sourceGroup, SWT.NONE);
+//		deviceStatusWidget.addDevice("/instrument/source/power", "Power",
+//				SharedImage.POWER.getImage(), null);
+//		configureWidget(deviceStatusWidget);
 
 		// Shutter Status
 		PGroup shutterGroup = createGroup("SHUTTER STATUS",
@@ -81,7 +81,7 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 		// Experiment info
 		PGroup infoGroup = createGroup("EXPERIMENT INFO",
 				InternalImage.EXPERIMENT_INFO.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(infoGroup, SWT.NONE);
+		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(infoGroup, SWT.NONE);
 		deviceStatusWidget.addDevice("/experiment/title", "Proposal")
 				.addDevice("/sample/name", "Sample")
 				.addDevice("/user/name", "User");
@@ -122,7 +122,8 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/monitor/bm1_event_rate", "BM1", null, "counts/sec")
-				.addDevice("/monitor/bm2_event_rate", "BM2", null, "counts/sec");
+				.addDevice("/monitor/bm2_event_rate", "BM2", null, "counts/sec")
+				.addDevice("/monitor/bm3_event_rate", "BM3", null, "counts/sec");
 		configureWidget(deviceStatusWidget);
 
 		// Temperature TC1 Control

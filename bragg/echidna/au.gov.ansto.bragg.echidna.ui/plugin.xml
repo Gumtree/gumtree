@@ -206,32 +206,32 @@
       		allowMultiple="false"
             class="au.gov.ansto.bragg.echidna.ui.internal.TCLRunnerPerspective"
             icon="icons/room_temp16.png"
-            id="au.gov.ansto.bragg.echidna.ui.internal.TCLRunnerPerspective"
-            name="Customised Temperature Experiment"/>
+            id="au.gov.ansto.bragg.echidna.ui.TCLRunnerPerspective"
+            name="Customised Temperature"/>
       <perspective
       		allowMultiple="false"
             class="au.gov.ansto.bragg.echidna.ui.internal.LowTemperaturePerspective"
             icon="icons/cold_temp16.png"
             id="au.gov.ansto.bragg.echidna.ui.LowTemperaturePerspective"
-            name="Low Temperature Experiment"/>
+            name="Low Temperature"/>
       <perspective
       		allowMultiple="false"
             class="au.gov.ansto.bragg.echidna.ui.internal.HighTemperaturePerspective"
             icon="icons/hot_temp16x16.png"
             id="au.gov.ansto.bragg.echidna.ui.HighTemperaturePerspective"
-            name="High Temperature Experiment"/>
+            name="High Temperature"/>
       <perspective
       		allowMultiple="false"
             class="au.gov.ansto.bragg.echidna.ui.internal.RobotExperimentPerspective"
             icon="icons/robot_16x16.png"
-            id="au.gov.ansto.bragg.echidna.ui.internal.RobotExperimentPerspective"
-            name="Robot Experiment"/>
+            id="au.gov.ansto.bragg.echidna.ui.RobotExperimentPerspective"
+            name="Room Temperature"/>
       <perspective
       		allowMultiple="false"
             class="au.gov.ansto.bragg.echidna.ui.internal.MagneticFieldPerspective"
             icon="icons/magnet16.png"
             id="au.gov.ansto.bragg.echidna.ui.MagneticFieldPerspective"
-            name="Magnetic Field Experiment"/>
+            name="Magnetic Field"/>
    </extension>
    <!--
    <extension
