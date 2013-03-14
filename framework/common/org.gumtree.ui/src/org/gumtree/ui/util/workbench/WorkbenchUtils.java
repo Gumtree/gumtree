@@ -79,10 +79,17 @@ public final class WorkbenchUtils {
 		return WorkbenchUtils.getWorkbenchContext().get(MApplication.class);
 	}
 
+	// nxi to fix the null window context problem
 	public static MWindow getMWindow(IWorkbenchWindow workbenchWindow) {
 		for (MWindow mWindow : getMApplication().getChildren()) {
-			IWorkbenchWindow window = mWindow.getContext().get(
-					IWorkbenchWindow.class);
+			IWorkbenchWindow window = null;
+			try {
+				window = mWindow.getContext().get(
+						IWorkbenchWindow.class);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
 			// Reference comparison
 			if (workbenchWindow == window) {
 				return mWindow;

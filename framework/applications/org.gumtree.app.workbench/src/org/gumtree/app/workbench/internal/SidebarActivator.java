@@ -60,6 +60,7 @@ public class SidebarActivator implements IStartup {
 		}.activate();
 	}
 
+	// nxi fix the null mWindow problem. 
 	private void openCruisePanel(IWorkbenchWindow window) {
 		// Check
 		if (window == null) {
@@ -67,6 +68,10 @@ public class SidebarActivator implements IStartup {
 		}
 		// Get current window model
 		MWindow mWindow = WorkbenchUtils.getMWindow(window);
+		if (mWindow == null) {
+			return;
+		}
+		
 		// Find existing cruise part
 		MPart cruisePart = WorkbenchUtils.getFirstChildWithProperty(mWindow,
 				MPart.class, new IMapFilter<String, String>() {
