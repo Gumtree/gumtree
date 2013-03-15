@@ -138,7 +138,9 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/monitor/bm1_counts", "BM1", null, "counts")
-				.addDevice("/monitor/bm2_counts", "BM2", null, "counts");
+				.addDevice("/monitor/bm2_counts", "BM2", null, "counts")
+				.addDevice("/monitor/time", "Time", null, "sec")
+				;
 		configureWidget(deviceStatusWidget);
 		
 		// INSTRUMENT

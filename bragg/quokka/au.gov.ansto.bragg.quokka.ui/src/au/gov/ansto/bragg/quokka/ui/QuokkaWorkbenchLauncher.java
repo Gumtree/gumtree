@@ -27,6 +27,7 @@ public class QuokkaWorkbenchLauncher extends AbstractLauncher {
 	private static final String ID_PERSPECTIVE_EXPERIMENT = "au.gov.ansto.bragg.quokka.ui.scanPerspective";
 	private static final String ID_PERSPECTIVE_SCRIPTING = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
 	private static final String ID_PERSPECTIVE_DEFAULT = "au.gov.ansto.bragg.nbi.ui.EmptyPerspective";
+	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
 
 	private static Logger logger = LoggerFactory.getLogger(QuokkaWorkbenchLauncher.class);
 	
@@ -58,7 +59,7 @@ public class QuokkaWorkbenchLauncher extends AbstractLauncher {
 			
 			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
 				// open new window as editor buffer
-				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, true);
+				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_SICS, 1, true);
 			}
 //			// position it
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
