@@ -95,8 +95,10 @@ public class AdvancedScanCommand extends AbstractScanCommand {
 		script += loopParameters(parameters.subList(1, parameters.size()), indent + "\t", 
 				id + 1, broadcastScript);
 		if (parameters.size() == 1) {
-			script += broadcastScript.replace("broadcast", indent + "\t\t" + "broadcast");
-			script += indent + "\t\t" + "broadcast CURRENT LOOP = $loopnumber\n";
+			broadcastScript = broadcastScript.replace("gumput", indent + "\t\t" + "gumput");
+			broadcastScript = broadcastScript.replace("if", indent + "\t\t" + "if");
+			script += broadcastScript.replace("}\n", indent + "\t\t" + "}\n");
+			script += indent + "\t\t" + "gumput CURRENT LOOP = $loopnumber\n";
 			script += indent + "\t\t" + getHistmemScript();
 			script += indent + "\t\t" + "save $savenumber\n";
 			script += indent + "\t}\n";

@@ -428,8 +428,8 @@ public class SingleADParameter extends AbstractScanParameter {
 	@Override
 	public String getDriveScript(String indexName, String indent) {
 		if (Float.isNaN(startPosition) || Float.isNaN(finishPosition)) {
-			String text = indent + "set pos [SplitReply [" + scanVariable + "]]\n";
-			text += indent + "drive " + scanVariable + " [expr $pos+" + stepSize + "]\n";
+			String text = indent + "set pos_" + scanVariable + " [SplitReply [" + scanVariable + "]]\n";
+			text += indent + "drive " + scanVariable + " [expr $pos_" + scanVariable + "+(" + stepSize + ")]\n";
 			return text;
 		}
 		return indent + "drive " + scanVariable + " " + "[expr $" + indexName + "*"
@@ -439,11 +439,11 @@ public class SingleADParameter extends AbstractScanParameter {
 	@Override
 	public String getBroadcastScript(String indexName, String indent) {
 		if (Float.isNaN(startPosition) || Float.isNaN(finishPosition)) {
-			String text = indent + "broadcast " + scanVariable + " = [expr $pos+" + stepSize + "]\n";
+			String text = indent + "broadcast " + scanVariable + " = [expr $pos_" + scanVariable + "+(" + stepSize + ")]\n";
 			return text;
 		}
-		return indent + "broadcast " + scanVariable + " = " + "[expr $" + indexName + "*"
-			+ ((float) stepSize) + "+" + ((float)startPosition) + "]\n";
+		return indent + "broadcast " + scanVariable + " = " + "[expr $" + indexName + "*("
+			+ ((float) stepSize) + ")+(" + ((float)startPosition) + ")]\n";
 	}
 	
 	@Override

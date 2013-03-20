@@ -426,22 +426,28 @@ public class SingleADParameter extends AbstractScanParameter {
 	@Override
 	public String getDriveScript(String indexName, String indent) {
 		if (Float.isNaN(startPosition) || Float.isNaN(finishPosition)) {
-			String text = indent + "set pos [SplitReply [" + scanVariable + "]]\n";
-			text += indent + "drive " + scanVariable + " [expr $pos+" + stepSize + "]\n";
+			String text = indent + "if {$" + indexName + " > 0} {\n";
+			text += indent + "\tset pos_" + scanVariable + " [SplitReply [" + scanVariable + "]]\n";
+			text += indent + "\tdrive " + scanVariable + " [expr $pos_" + scanVariable + "+(" + stepSize + ")]\n";
+			text += indent + "}\n";
 			return text;
 		}
-		return indent + "drive " + scanVariable + " " + "[expr $" + indexName + "*"
-			+ ((float) stepSize) + "+" + ((float)startPosition) + "]\n";
+		return indent + "drive " + scanVariable + " " + "[expr $" + indexName + "*("
+			+ ((float) stepSize) + ")+(" + ((float)startPosition) + ")]\n";
 	}
 	
 	@Override
 	public String getBroadcastScript(String indexName, String indent) {
 		if (Float.isNaN(startPosition) || Float.isNaN(finishPosition)) {
-			String text = indent + "broadcast " + scanVariable + " = [expr $pos+" + stepSize + "]\n";
+			String text = indent + "if {$" + indexName + " > 0} {\n";
+//			text += indent + "\tbroadcast " + scanVariable + " = [expr $pos_" + scanVariable + "+(" + stepSize + ")]\n";
+			text += indent + "\tgumput [" + scanVariable + "]\n";
+			text += indent + "}\n";
 			return text;
 		}
-		return indent + "broadcast " + scanVariable + " = " + "[expr $" + indexName + "*"
-			+ ((float) stepSize) + "+" + ((float)startPosition) + "]\n";
+//		return indent + "broadcast " + scanVariable + " = " + "[expr $" + indexName + "*("
+//			+ ((float) stepSize) + ")+(" + ((float)startPosition) + ")]\n";
+		return indent + "gumput [" + scanVariable + "]\n";
 	}
 	
 	@Override

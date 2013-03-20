@@ -184,7 +184,7 @@ public class SimpleTableScanTask extends AbstractScanTask {
 							if (line.startsWith("#")) {
 								continue;
 							}
-//							line = line.replaceAll("\t", "");
+							//	line = line.replaceAll("\t", "");
 							String spliter = "\\s+";
 							if (line.contains(",")) {
 								spliter = ",";
@@ -195,7 +195,7 @@ public class SimpleTableScanTask extends AbstractScanTask {
 									items[i] = items[i].trim();
 								}
 								numberOfMotors = items.length;
-								if (items[items.length - 1].equals("preset")){
+								if (items[items.length - 1].equals("preset") || items[items.length - 1].equals("time")){
 									numberOfMotors--;
 								}
 								command.setPNames(Arrays.asList(items));
@@ -217,36 +217,36 @@ public class SimpleTableScanTask extends AbstractScanTask {
 								}
 								if (isBoolean) {
 									try{
-									if (numberOfMotors > 0) {
-										command.setColumn0(Boolean.valueOf(items[0].trim().toLowerCase()));
-									}
-									if (numberOfMotors > 1) {
-										command.setColumn1(Boolean.valueOf(items[1].trim().toLowerCase()));
-									}
-									if (numberOfMotors > 2) {
-										command.setColumn2(Boolean.valueOf(items[2].trim().toLowerCase()));
-									}
-									if (numberOfMotors > 3) {
-										command.setColumn3(Boolean.valueOf(items[3].trim().toLowerCase()));
-									}
-									if (numberOfMotors > 4) {
-										command.setColumn4(Boolean.valueOf(items[4].trim().toLowerCase()));
-									}
-									if (numberOfMotors > 5) {
-										command.setColumn5(Boolean.valueOf(items[5].trim().toLowerCase()));
-									}
-									if (numberOfMotors > 6) {
-										command.setColumn6(Boolean.valueOf(items[6].trim().toLowerCase()));
-									}
-									if (numberOfMotors > 7) {
-										command.setColumn7(Boolean.valueOf(items[7].trim().toLowerCase()));
-									}
-									if (numberOfMotors > 8) {
-										command.setColumn8(Boolean.valueOf(items[8].trim().toLowerCase()));
-									}
-									if (numberOfMotors > 9) {
-										command.setColumn9(Boolean.valueOf(items[9].trim().toLowerCase()));
-									}
+										if (numberOfMotors > 0) {
+											command.setColumn0(Boolean.valueOf(items[0].trim().toLowerCase()));
+										}
+										if (numberOfMotors > 1) {
+											command.setColumn1(Boolean.valueOf(items[1].trim().toLowerCase()));
+										}
+										if (numberOfMotors > 2) {
+											command.setColumn2(Boolean.valueOf(items[2].trim().toLowerCase()));
+										}
+										if (numberOfMotors > 3) {
+											command.setColumn3(Boolean.valueOf(items[3].trim().toLowerCase()));
+										}
+										if (numberOfMotors > 4) {
+											command.setColumn4(Boolean.valueOf(items[4].trim().toLowerCase()));
+										}
+										if (numberOfMotors > 5) {
+											command.setColumn5(Boolean.valueOf(items[5].trim().toLowerCase()));
+										}
+										if (numberOfMotors > 6) {
+											command.setColumn6(Boolean.valueOf(items[6].trim().toLowerCase()));
+										}
+										if (numberOfMotors > 7) {
+											command.setColumn7(Boolean.valueOf(items[7].trim().toLowerCase()));
+										}
+										if (numberOfMotors > 8) {
+											command.setColumn8(Boolean.valueOf(items[8].trim().toLowerCase()));
+										}
+										if (numberOfMotors > 9) {
+											command.setColumn9(Boolean.valueOf(items[9].trim().toLowerCase()));
+										}
 									} catch (Exception e) {
 									}
 									lineCount++;
@@ -255,7 +255,6 @@ public class SimpleTableScanTask extends AbstractScanTask {
 									reader.close();
 									throw new Exception("The flag row must have 4 or 7 numbers");
 								}
-//								}
 							}
 							TableScanParameter parameter = new TableScanParameter();
 							parameterIndex ++;
