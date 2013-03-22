@@ -28,10 +28,11 @@ import au.gov.ansto.bragg.nbi.ui.realtime.SicsRealtimeRourceProvider;
 public class SicsRealtimeDataViewer extends Composite {
 
 	private static final String SICS_REALTIME_MONITOR_PROPERTY_NAME = "sics.realtime.monitor.devices";
+	private RealtimeDataViewer viewer;
 
 	public SicsRealtimeDataViewer(Composite parent, int style) {
 		super(parent, style);
-		RealtimeDataViewer viewer = new RealtimeDataViewer(this, SWT.NONE);
+		viewer = new RealtimeDataViewer(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().spacing(0, 0).applyTo(viewer);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer);
 		SicsRealtimeRourceProvider provider = new SicsRealtimeRourceProvider();
@@ -59,5 +60,14 @@ public class SicsRealtimeDataViewer extends Composite {
 			return filter;
 		}
 		return null;
+	}
+	
+	@Override
+	public void dispose() {
+		if (viewer != null && !viewer.isDisposed()) {
+			viewer.dispose();
+			viewer = null;
+		}
+		super.dispose();
 	}
 }

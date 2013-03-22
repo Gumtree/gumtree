@@ -278,4 +278,16 @@
         	</description>
       </theme>
    </extension>
+   <extension  point="org.eclipse.e4.ui.css.swt.theme">
+   			<theme
+   				basestylesheeturi="css/kowari.css"
+   				id="au.gov.ansto.bragg.kowari.ui.kowaritheme" 
+   				label="Kowari Theme">
+   			</theme>
+   			<theme
+   				basestylesheeturi="css/default.css"
+   				id="au.gov.ansto.bragg.kowari.ui.defaulttheme" 
+   				label="Default Theme">
+   			</theme>
+   </extension>
 </plugin>

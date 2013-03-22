@@ -299,7 +299,7 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 		if (getColumn9()) {
 			text += pNames.get(9) + ", \t";
 		}
-		text += "preset\n";
+		text += scan_mode + "\n";
 		for (AbstractScanParameter parameter : getParameterList()) {
 			if (((TableScanParameter) parameter).getIsSelected()) {
 				text += parameter.getPritable(false);

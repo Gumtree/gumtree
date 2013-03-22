@@ -15,6 +15,7 @@ import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 
 import org.eclipse.core.resources.IWorkspace;
@@ -171,9 +172,10 @@ public class SimpleTableScanTask extends AbstractScanTask {
 				return null;
 			fileDialogPath = pickedFile.getParent();
 			if (filePath != null) {
+				BufferedReader reader = null;
 				try {
 					SimpleTableScanCommand command = new SimpleTableScanCommand();
-					BufferedReader reader = new BufferedReader(new FileReader(pickedFile));
+					reader = new BufferedReader(new FileReader(pickedFile));
 					int lineCount = 0;
 					int parameterIndex = 0;
 					int numberOfMotors = 0;
@@ -194,12 +196,20 @@ public class SimpleTableScanTask extends AbstractScanTask {
 								for (int i = 0; i < items.length; i++) {
 									items[i] = items[i].trim();
 								}
-								numberOfMotors = items.length;
-								if (items[items.length - 1].equals("preset") || items[items.length - 1].equals("time")){
-									numberOfMotors--;
+								numberOfMotors = items.length - 1;
+								String lastItme = items[items.length - 1].toLowerCase();
+								if (lastItme.startsWith("monitor_")) {
+									command.setScan_mode(lastItme.toUpperCase());
+								} else if (lastItme.equals("time") || lastItme.equals("unlimited") || 
+										lastItme.equals("count") || lastItme.equals("frame") || 
+										lastItme.equals("period") || lastItme.equals("count_roi") ) {
+									command.setScan_mode(lastItme);
+								} else {
+									command.setScan_mode("time");
+									numberOfMotors = items.length;
 								}
 								command.setPNames(Arrays.asList(items));
-								command.setNumberOfMotor(items.length);
+								command.setNumberOfMotor(numberOfMotors);
 								lineCount++;
 								continue;
 							} else if (lineCount == 1) {
@@ -251,9 +261,6 @@ public class SimpleTableScanTask extends AbstractScanTask {
 									}
 									lineCount++;
 									continue;
-								} else {
-									reader.close();
-									throw new Exception("The flag row must have 4 or 7 numbers");
 								}
 							}
 							TableScanParameter parameter = new TableScanParameter();
@@ -326,6 +333,12 @@ public class SimpleTableScanTask extends AbstractScanTask {
 					return command;
 				} catch (Exception error) {
 					error.printStackTrace();
+					if (reader != null) {
+						try {
+							reader.close();
+						} catch (IOException e) {
+						}
+					}
 					MessageDialog.openError(parent.getShell(), "Error", "Failed to load command: " 
 							+ error.getLocalizedMessage());
 				}
@@ -354,8 +367,8 @@ public class SimpleTableScanTask extends AbstractScanTask {
 						}
 						if (arg0.getPropertyName().equals("parameter_remove")){
 //							Object parameter = arg0.getNewValue();
-							if (!singleFileRadio.isDisposed())
-								singleFileRadio.setSelection(isSingleFile());
+//							if (!singleFileRadio.isDisposed())
+//								singleFileRadio.setSelection(isSingleFile());
 						}
 						if (arg0.getPropertyName().equals("multiple files")){
 							if (!singleFileRadio.isDisposed())

@@ -14,3 +14,4 @@ Export-Package: au.gov.ansto.bragg.kowari.ui,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Bragg Institute
 Eclipse-BundleShape: jar
+Import-Package: org.eclipse.e4.ui.css.swt.theme

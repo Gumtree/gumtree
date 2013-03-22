@@ -31,7 +31,6 @@ import org.gumtree.vis.dataset.XYTimeSeriesSet;
 import org.gumtree.vis.interfaces.ITimePlot;
 import org.gumtree.vis.swt.PlotComposite;
 
-import au.gov.ansto.bragg.kakadu.ui.util.DisplayManager;
 import au.gov.ansto.bragg.nbi.ui.internal.Activator;
 
 /**
@@ -51,6 +50,7 @@ public class RealtimeDataViewer extends Composite {
 	private Text timeText;
 	private ITimePlot timePlot;
 	private Thread updateThread;
+	private boolean isDisposed;
 	
 	/**
 	 * @param parent
@@ -58,6 +58,7 @@ public class RealtimeDataViewer extends Composite {
 	 */
 	public RealtimeDataViewer(Composite parent, int style) {
 		super(parent, style);
+		isDisposed = false;
 		GridLayoutFactory.fillDefaults().spacing(0, 0).applyTo(this);
 		
 		Composite controlComposite = getFormToolkit().createComposite(this);
@@ -131,7 +132,7 @@ public class RealtimeDataViewer extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				DisplayManager.getDefault().asyncExec(new Runnable() {
+				Display.getDefault().asyncExec(new Runnable() {
 					
 					@Override
 					public void run() {
@@ -157,7 +158,7 @@ public class RealtimeDataViewer extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				DisplayManager.getDefault().asyncExec(new Runnable() {
+				Display.getDefault().asyncExec(new Runnable() {
 					
 					@Override
 					public void run() {
@@ -206,16 +207,19 @@ public class RealtimeDataViewer extends Composite {
 	}
 
 	private void updateResourceCombo() {
-		resourceCombo.removeAll();
-		if (resourceProvider == null) {
-			return;
+		if (resourceCombo != null && !resourceCombo.isDisposed()) {
+			resourceCombo.removeAll();
+			if (resourceProvider == null) {
+				return;
+			}
+			for (IRealtimeResource resource : resourceProvider.getResourceList()) {
+				String resourceName = resource.getName();
+				resourceCombo.add(resourceName);
+				resourceCombo.setData(resourceName, resource);
+			}
+			resourceCombo.update();
+			resourceCombo.getParent().getParent().layout(true, true);
 		}
-		for (IRealtimeResource resource : resourceProvider.getResourceList()) {
-			String resourceName = resource.getName();
-			resourceCombo.add(resourceName);
-			resourceCombo.setData(resourceName, resource);
-		}
-		contentCombo.update();
 //		contentCombo.redraw();
 	}
 
@@ -233,7 +237,11 @@ public class RealtimeDataViewer extends Composite {
 					@Override
 					public boolean getExitCondition() {
 						if (SicsCore.getDefaultProxy() != null && SicsCore.getDefaultProxy().isConnected() && SicsCore.getSicsController() != null){
-							DisplayManager.getDefault().asyncExec(new Runnable() {
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+							}
+							Display.getDefault().asyncExec(new Runnable() {
 								
 								@Override
 								public void run() {
@@ -243,7 +251,7 @@ public class RealtimeDataViewer extends Composite {
 							startUpdateThread();
 							return true;
 						}
-						return false;
+						return isDisposed;
 					}
 				}, -1, 1000);
 			}
@@ -307,6 +315,7 @@ public class RealtimeDataViewer extends Composite {
 		addButton = null;
 		removeButton = null;
 		formToolkit.dispose();
+		isDisposed = true;
 		super.dispose();
 	}
 

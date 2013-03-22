@@ -10,6 +10,7 @@
 *******************************************************************************/
 package au.gov.ansto.bragg.nbi.ui.core.commands;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
 import org.eclipse.core.databinding.DataBindingContext;
@@ -18,13 +19,32 @@ import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceAdapter;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.gumtree.gumnix.sics.batch.ui.util.SicsBatchUIUtils;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.datastructures.core.exception.IndexOutOfBoundException;
 
@@ -190,19 +210,21 @@ public class TableScanParameter extends AbstractScanParameter {
 	 * @see au.gov.ansto.bragg.kowari.exp.command.AbstractScanParameter#createParameterUI(org.eclipse.swt.widgets.Composite)
 	 */
 	@Override
-	public void createParameterUI(Composite parent, final AbstractScanCommandView commandView, 
+	public void createParameterUI(Composite parameterComposite, final AbstractScanCommandView commandView, 
 			final FormToolkit toolkit) {
 //			final Label dragLabel = toolkit.createLabel(parent, "\u2022");
-		final Label dragLabel = toolkit.createLabel(parent, "\u2022");
-		dragLabel.setCursor(parent.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
+//		parameterComposite = toolkit.createComposite(parent);
+//		parameterComposite = new Composite(parent, SWT.NONE);
+		final Label dragLabel = toolkit.createLabel(parameterComposite, "\u2022");
+		dragLabel.setCursor(parameterComposite.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
 
-		final Button selectBox = toolkit.createButton(parent, "", SWT.CHECK);
-		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).indent(0, 2).applyTo(selectBox);
+		final Button selectBox = toolkit.createButton(parameterComposite, "", SWT.CHECK);
+		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).indent(0, 2).applyTo(selectBox);
 
 		for (int i = 0; i < getLength(); i++) {
 			final String name = "p" + i;
-			final Text pText = toolkit.createText(parent, "");
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(pText);
+			final Text pText = toolkit.createText(parameterComposite, "");
+			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(pText);
 			addValidator(pText, ParameterValidator.floatValidator);
 			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
@@ -214,8 +236,8 @@ public class TableScanParameter extends AbstractScanParameter {
 			});
 		}
 
-		final Text presetText = toolkit.createText(parent, "");
-		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(presetText);
+		final Text presetText = toolkit.createText(parameterComposite, "");
+		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(presetText);
 		addValidator(presetText, ParameterValidator.floatValidator);
 
 		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
@@ -227,6 +249,60 @@ public class TableScanParameter extends AbstractScanParameter {
 				bindingContext.bindValue(SWTObservables.observeText(presetText, SWT.Modify),
 						BeansObservables.observeValue(getInstance(), "preset"),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
+			}
+		});
+		
+		Button addButton = toolkit.createButton(parameterComposite, "", SWT.PUSH);
+		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).indent(0, 0).applyTo(addButton);
+		try {
+			addButton.setImage(SicsBatchUIUtils.getBatchEditorImage("ADD"));
+		} catch (FileNotFoundException e2) {
+			LoggerFactory.getLogger(this.getClass()).error("can not find ADD image", e2);
+		}
+		addButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				addNewParameter(command);
+				commandView.refreshParameterComposite();
+//				notifyPropertyChanged(newCommand, null);
+			}
+		});
+		
+		Button removeButton = toolkit.createButton(parameterComposite, "", SWT.PUSH);
+		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).indent(0, 0).applyTo(removeButton);
+		try {
+			removeButton.setImage(SicsBatchUIUtils.getBatchEditorImage("REMOVE"));
+		} catch (FileNotFoundException e1) {
+			LoggerFactory.getLogger(this.getClass()).error("can not find REMOVE image", e1);
+		}
+		removeButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				removeParameter(command);
+				commandView.refreshParameterComposite();
+			}
+		});
+		
+		DragSource dragSource = new DragSource(dragLabel, DND.DROP_MOVE);
+
+		LocalSelectionTransfer transferObject = LocalSelectionTransfer.getTransfer();
+
+		Transfer[] types = new Transfer[] {transferObject};
+		dragSource.setTransfer(types);
+		final TableScanParameter child = this;
+		dragSource.addDragListener(new DragSourceAdapter() {
+			
+			@Override
+			public void dragFinished(DragSourceEvent event) {
+				LocalSelectionTransfer.getTransfer().setSelection(null);
+			}
+			@Override
+			public void dragSetData(DragSourceEvent event) {
+				if (LocalSelectionTransfer.getTransfer().isSupportedType(event.dataType)) {
+					DndTransferData transferData = new DndTransferData();
+					transferData.setParent(command);
+					transferData.setChild(child);
+					LocalSelectionTransfer.getTransfer().setSelection(
+							new StructuredSelection(transferData));
+				}
 			}
 		});
 		
@@ -504,6 +580,38 @@ public class TableScanParameter extends AbstractScanParameter {
 
 	public void setPNames(List<String> pNames) {
 		this.pNames = pNames;
+	}
+
+	@Override
+	protected void addNewParameter(AbstractScanCommand command){
+		TableScanParameter newParameter = new TableScanParameter();
+		newParameter.setCommand((SimpleTableScanCommand) command);
+		newParameter.setIsSelected(true);
+		try {
+			newParameter.setLength(length);
+		} catch (IndexOutOfBoundException e) {
+		}
+		newParameter.setIndex(index);
+		newParameter.setPreset(preset);
+		newParameter.setP0(p0);
+		newParameter.setP1(p1);
+		newParameter.setP2(p2);
+		newParameter.setP3(p3);
+		newParameter.setP4(p4);
+		newParameter.setP5(p5);
+		newParameter.setP6(p6);
+		newParameter.setP7(p7);
+		newParameter.setP8(p8);
+		newParameter.setP9(p9);
+		newParameter.setPNames(pNames);
+		command.insertParameter(command.indexOfParameter(this) + 1, newParameter);
+	}
+	
+	protected void removeParameter(AbstractScanCommand command){
+		if (command.getParameterList().size() <= 1)
+			return;
+		command.removeParameter(this);
+		firePropertyChange("parameter_remove", true, false);
 	}
 
 }
