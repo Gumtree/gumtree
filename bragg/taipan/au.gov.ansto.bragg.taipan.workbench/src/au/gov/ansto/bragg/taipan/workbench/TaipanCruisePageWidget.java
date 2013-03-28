@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.BMVetoGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
+import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget.LabelConverter;
 import org.gumtree.gumnix.sics.widgets.swt.SicsStatusWidget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
@@ -228,7 +229,20 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget.addDevice("/commands/scan/bmonscan/scan_variable", "variable")
 				.addDevice("/commands/scan/bmonscan/feedback/scan_variable_value", "value")
 				.addDevice("/experiment/currpoint", "scanpoint")
-				.addDevice("/experiment/file_name", "filename");
+				.addDevice("/experiment/file_name", "filename", null, null, new LabelConverter() {
+					
+					@Override
+					public String convertValue(Object obj) {
+						if (obj == null) {
+							return null;
+						}
+						String text = String.valueOf(obj);
+						if (text.contains("/")) {
+							text = text.substring(text.lastIndexOf("/") + 1);
+						}
+						return text;
+					}
+				});
 		configureWidget(deviceStatusWidget);
 		
 	}

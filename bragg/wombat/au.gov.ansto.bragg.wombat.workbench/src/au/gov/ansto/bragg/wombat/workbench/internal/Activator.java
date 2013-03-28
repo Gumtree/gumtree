@@ -5,6 +5,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.gumtree.util.eclipse.E4Utils;
 import org.osgi.framework.BundleContext;
 
+@SuppressWarnings("restriction")
 public class Activator extends AbstractUIPlugin {
 
 	public static final String PLUGIN_ID = "au.gov.ansto.bragg.wombat.workbench";
@@ -28,7 +29,10 @@ public class Activator extends AbstractUIPlugin {
 			eclipseContext.dispose();
 			eclipseContext = null;
 		}
-		this.context = null;
+		if (InternalImage.isInstalled()) {
+			InternalImage.dispose();
+		}
+		context = null;
 		instance = null;
 		super.stop(context);
 	}

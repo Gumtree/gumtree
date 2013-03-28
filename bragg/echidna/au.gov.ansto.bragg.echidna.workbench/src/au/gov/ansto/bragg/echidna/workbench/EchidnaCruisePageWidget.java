@@ -127,7 +127,7 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(deviceStatusWidget);
 
 		// Temperature TC1 Control
-		PGroup tempControlGroup = createGroup("Temperature Controller",
+		PGroup tempControlGroup = createGroup("Temperature Controller 1",
 				InternalImage.FURNACE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
 		deviceStatusWidget
@@ -142,7 +142,13 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/sample/tc1/heater/heaterOutput_1", "TC1H1-R/O",
 						InternalImage.ONE.getImage(), null)
 				.addDevice("/sample/tc1/heater/heaterOutput_2", "TC1H2-R/O",
-						InternalImage.TWO.getImage(), null)
+						InternalImage.TWO.getImage(), null);
+		configureWidget(deviceStatusWidget);
+
+		PGroup tempControlGroup2 = createGroup("Temperature Controller 2",
+				InternalImage.FURNACE.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup2, SWT.NONE);
+		deviceStatusWidget
 				.addDevice("/sample/tc2/sensor/sensorValueA", "TC2A-T/C",
 						InternalImage.A.getImage(), null)
 				.addDevice("/sample/tc2/sensor/sensorValueB", "TC2B-T/C",
@@ -156,7 +162,6 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/sample/tc2/heater/heaterOutput_2", "TC2H2-R/O",
 						InternalImage.TWO.getImage(), null);
 		configureWidget(deviceStatusWidget);
-
 				
 		return this;
 	}

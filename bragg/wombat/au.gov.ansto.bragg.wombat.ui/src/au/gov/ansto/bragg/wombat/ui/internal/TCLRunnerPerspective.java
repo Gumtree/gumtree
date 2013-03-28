@@ -34,7 +34,7 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 	public static final String WORKFLOW_VIEW_ID = "au.gov.ansto.bragg.wombat.ui.views.WombatTclEditorView";
 //	public static final String FILTERED_STATUS_MONITOR_VIEW_ID = "org.gumtree.dashboard.ui.rcp.FilteredStatusMonitorView";
 	public static final String COMMAND_LINE_VIEW_ID="org.gumtree.scripting.ui.commandLineView";
-	public static final String SICS_TERMINAL_VIEW_ID = "au.gov.ansto.bragg.wombat.ui.views.SicsTerminalView";
+	public static final String SICS_TERMINAL_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.SicsTerminalView";
 //	public static final String SICS_TELNET_ADAPTOR_ID = "org.gumtree.gumnix.sics.ui.serverCommunicationAdapter";
 	public static final String PROJECT_EXPLORER_VIEW_ID = "org.eclipse.ui.navigator.ProjectExplorer";
 //	public static final String CONTROL_VIEW_ID = "au.gov.ansto.bragg.echidna.ui.views.EchidnaControlView";
@@ -72,7 +72,7 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 		top2.addView(WORKFLOW_VIEW_ID);
 //		top2.addView(SICS_BUFFER_MANAGER_VIEW_ID);
 		top2.addView(SICS_BUFFER_VALIDATOR_VIEW_ID);
-		top2.addView(SICS_BUFFER_RUNNER_VIEW_ID);
+//		top2.addView(SICS_BUFFER_RUNNER_VIEW_ID);
 		
 //		factory.addStandaloneView(WORKFLOW_VIEW_ID, false, 
 //				IPageLayout.LEFT, 0.75f, factory.getEditorArea());
@@ -80,14 +80,14 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 //		factory.addStandaloneView(SICS_TERMINAL_VIEW_ID, false, 
 //				IPageLayout.RIGHT, 0.25f, factory.getEditorArea());
 //		
-//		factory.addStandaloneView(PROJECT_EXPLORER_VIEW_ID, true, 
-//				IPageLayout.BOTTOM, 0.1f, factory.getEditorArea());
+		factory.addStandaloneView(SICS_BUFFER_RUNNER_VIEW_ID, true, 
+				IPageLayout.RIGHT, 0.60f, "top2");
 		
 		factory.addStandaloneView(ID_VIEW_ACTIVITY_MONITOR, false, 
 				IPageLayout.BOTTOM, 0.70f, factory.getEditorArea());
 		
 		factory.addStandaloneView(SICS_TERMINAL_VIEW_ID, false, 
-				IPageLayout.LEFT, 0.50f, ID_VIEW_ACTIVITY_MONITOR);
+				IPageLayout.LEFT, 0.60f, ID_VIEW_ACTIVITY_MONITOR);
 
 		factory.addStandaloneView(PROJECT_EXPLORER_VIEW_ID, false, 
 				IPageLayout.LEFT, 0.5f, SICS_TERMINAL_VIEW_ID);
@@ -144,8 +144,10 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 //		factory.setEditorAreaVisible(false);
 		factory.getViewLayout(WORKFLOW_VIEW_ID).setCloseable(false);
 		factory.getViewLayout(WORKFLOW_VIEW_ID).setMoveable(false);
-		factory.getViewLayout(SICS_BUFFER_MANAGER_VIEW_ID).setCloseable(false);
-		factory.getViewLayout(SICS_BUFFER_MANAGER_VIEW_ID).setMoveable(false);
+		factory.getViewLayout(SICS_BUFFER_VALIDATOR_VIEW_ID).setCloseable(false);
+		factory.getViewLayout(SICS_BUFFER_VALIDATOR_VIEW_ID).setMoveable(false);
+		factory.getViewLayout(SICS_BUFFER_RUNNER_VIEW_ID).setCloseable(false);
+		factory.getViewLayout(SICS_BUFFER_RUNNER_VIEW_ID).setMoveable(false);
 		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setCloseable(false);
 		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setMoveable(false);
 		factory.setEditorAreaVisible(false);

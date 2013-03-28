@@ -98,12 +98,12 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.MONOCHROMATOR.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/crystal/wavelength", "wavelength", null, "")
+				.addDevice("/instrument/crystal/wavelength", "wavelength", null, "\u212B")
 				.addDevice("/instrument/crystal/mom", "mom", null, "")
-				.addDevice("/instrument/crystal/mtth", "mtth", null, "")
-				.addDevice("/instrument/crystal/mra", "mra", null, "")
-				.addDevice("/instrument/crystal/mrb", "mrb", null, "")
-				.addDevice("/instrument/crystal/mrc", "mrc", null, "");
+				.addDevice("/instrument/crystal/mtth", "mtth", null, "deg")
+				.addDevice("/instrument/crystal/moma", "moma", null, "deg")
+				.addDevice("/instrument/crystal/momb", "momb", null, "deg")
+				.addDevice("/instrument/crystal/momc", "momc", null, "deg");
 		configureWidget(deviceStatusWidget);
 
 		// Monitor Event Rate
@@ -120,10 +120,10 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.SLITS.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(slitsGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/aperture/sv1", "slit 1 top", null, "")
-				.addDevice("/instrument/aperture/sh1", "slit 1 bottom", null, "")
-				.addDevice("/instrument/aperture/sv2", "slit 2 top", null, "")
-				.addDevice("/instrument/aperture/sh2", "slit 2 bottom", null, "");
+				.addDevice("/instrument/aperture/sv1", "slit 1 vertical", null, "")
+				.addDevice("/instrument/aperture/sh1", "slit 1 horizontal", null, "")
+				.addDevice("/instrument/aperture/sv2", "slit 2 vertical", null, "")
+				.addDevice("/instrument/aperture/sh2", "slit 2 horizontal", null, "");
 		configureWidget(deviceStatusWidget);
 
 		// fermi chopper
@@ -207,8 +207,8 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		};
 		
 		deviceStatusWidget
-				.addDevice("/instrument/collimator/RCollZ", "in/out", null, "", converter)
-				.addDevice("/instrument/collimator/rcz", "frequency", null, "");
+				.addDevice("/instrument/collimator/RCollZ", "in/out", null, "", converter);
+//				.addDevice("/instrument/collimator/rcz", "frequency", null, "");
 		configureWidget(deviceStatusWidget);
 
 		// Sample

@@ -90,7 +90,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 				// Part 5: Unit
 				label = createDeviceLabel(this, deviceContext.path + "?units",
 						(deviceContext.unit == null) ? "" : deviceContext.unit,
-						SWT.LEFT, null);
+						SWT.LEFT, UnitsConverter.getInstance());
 			}
 		}
 
@@ -113,7 +113,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 
 	private DeviceContext getDeviceContext(URI uri) {
 		for (DeviceContext context : deviceContexts){
-			if (context.path.equals(uri.getPath())) {
+			if (!context.isSeparator && context.path.equals(uri.getPath())) {
 				return context;
 			}
 		}
@@ -301,6 +301,35 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 	public interface LabelConverter {
 		String convertValue(Object obj);
 	}
+
+	static class UnitsConverter implements LabelConverter{
+
+		static UnitsConverter converter;
+		
+		@Override
+		public String convertValue(Object obj) {
+			if ("Angstrom".equalsIgnoreCase(String.valueOf(obj))){
+				return "\u212B";
+			} else if ("degree".equalsIgnoreCase(String.valueOf(obj))){
+				return "deg";
+			} else if ("degrees".equalsIgnoreCase(String.valueOf(obj))){
+				return "deg";
+			} else if ("count".equalsIgnoreCase(String.valueOf(obj))){
+				return "";
+			} else if (obj == null) {
+				return null;
+			} else {
+				return String.valueOf(obj);
+			}
+		}
+		
+		public static UnitsConverter getInstance() {
+			if (converter == null) {
+				converter = new UnitsConverter();
+			}
+			return converter;
+		}
+	}
 	
 	private class HdbEventHandler extends DelayEventHandler {
 		Label label;
@@ -361,15 +390,6 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 							} 
 						} catch (Exception e) {
 						} 
-						try {
-							if (text.contains("/")) {
-								text = text.substring(text.lastIndexOf("/") + 1);
-							}
-						} catch (Exception e) {
-						}
-						if (data.equals("count")) {
-							text = "";
-						}
 					} else {
 						text = converter.convertValue(data);
 					}
