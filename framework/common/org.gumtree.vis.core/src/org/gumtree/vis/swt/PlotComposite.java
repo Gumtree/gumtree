@@ -117,11 +117,13 @@ public class PlotComposite extends Composite{
 			
 			@Override
 			public void run() {
-				embedPlot(plot);
-				removeListeners(oldPlot);
-				addListeners();
-				composite.pack();
-				composite.getParent().layout(true, true);
+				if (!composite.isDisposed()) {
+					embedPlot(plot);
+					removeListeners(oldPlot);
+					addListeners();
+					composite.pack();
+					composite.getParent().layout(true, true);
+				}
 			}
 		});
 	}
@@ -254,7 +256,7 @@ public class PlotComposite extends Composite{
 
 						@Override
 						public void run() {
-							if (!composite.isFocusControl()) {
+							if (!composite.isDisposed() && !composite.isFocusControl()) {
 								composite.setFocus();
 							}
 						}
@@ -464,8 +466,10 @@ public class PlotComposite extends Composite{
 						frame.remove((JPanel) plot);
 						removeListeners(plot);
 						plot = null;
-						pack();
-						getParent().layout(true, true);
+						if (!isDisposed()) {
+							pack();
+							getParent().layout(true, true);
+						}
 						frame.repaint();
 					}
 				});
