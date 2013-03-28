@@ -321,20 +321,24 @@ public class BMVetoGadget extends ExtendedSicsComposite {
 	}
 	
 	private void getLink(String path) throws Exception {
-		GetMethod getMethod = new GetMethod(host + ":" + port);
-		if (isAuth) {
-			getMethod.setDoAuthentication(false);
-		} else {
-			getMethod.setDoAuthentication(true);
-		}
-		getMethod.setPath(path);
-		int statusCode = getClient().executeMethod(getMethod);
-		if (statusCode != HttpStatus.SC_OK) {
-			logger.error("HTTP GET failed: " + getMethod.getStatusLine());
+		String[] ports = port.split(",");
+		for (String eachPort : ports) {
+			GetMethod getMethod = new GetMethod(host + ":" + eachPort.trim());
+			System.err.println(getMethod.getURI());
+			if (isAuth) {
+				getMethod.setDoAuthentication(false);
+			} else {
+				getMethod.setDoAuthentication(true);
+			}
+			getMethod.setPath(path);
+			int statusCode = getClient().executeMethod(getMethod);
+			if (statusCode != HttpStatus.SC_OK) {
+				logger.error("HTTP GET failed: " + getMethod.getStatusLine());
+				getMethod.releaseConnection();
+				throw new Exception("Cannot get file");
+			}
 			getMethod.releaseConnection();
-			throw new Exception("Cannot get file");
 		}
-		getMethod.releaseConnection();
 	}
 	
 	private HttpClient getClient() {
