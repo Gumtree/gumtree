@@ -1,5 +1,6 @@
 package au.gov.ansto.bragg.wombat.ui.internal;
 
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchWindow;
@@ -21,6 +22,8 @@ public class ExperimentLauncher extends AbstractLauncher {
 
 	private static final String ID_PERSPECTIVE_EXPERIMENT = "au.gov.ansto.bragg.wombat.ui.internal.TCLRunnerPerspective";
 	
+	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
+	
 		
 	public ExperimentLauncher() {
 	}
@@ -28,19 +31,31 @@ public class ExperimentLauncher extends AbstractLauncher {
 	public void launch() throws LauncherException {	
 		// TODO: move this logic to experiment UI manager service
 			
-//		final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-//		if (activeWorkbenchWindow instanceof WorkbenchWindow) {
+		final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if (activeWorkbenchWindow instanceof WorkbenchWindow) {
 //			activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
-//		}
+			IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
+			for (IWorkbenchPage page : pages) {
+				try {
+					if (!ID_PERSPECTIVE_EXPERIMENT.equals(page.getPerspective().getId()) 
+							&& !ID_PERSPECTIVE_SICS.equals(page.getPerspective().getId())){
+						activeWorkbenchWindow.getActivePage().closePerspective(page.getPerspective(), false, true);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		IMultiMonitorManager mmManager = new MultiMonitorManager();
 		// Attempt to close intro
+		mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SICS, 0, 0, false);
 		mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
 		
 //		if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
-//			// open new window as editor buffer
+//		// open new window as editor buffer
 //			mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, true);
 //		}
-////		// position it
+//		// position it
 //		mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
 
 
