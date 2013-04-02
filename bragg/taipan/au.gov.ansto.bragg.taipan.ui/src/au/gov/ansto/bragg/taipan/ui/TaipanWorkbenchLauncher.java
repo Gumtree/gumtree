@@ -45,8 +45,17 @@ public class TaipanWorkbenchLauncher extends AbstractLauncher {
 			// TODO: move this logic to experiment UI manager service
 			final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			if (activeWorkbenchWindow instanceof WorkbenchWindow) {
-				((WorkbenchWindow) activeWorkbenchWindow).setCoolBarVisible(false);
-				activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
+//				activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
+				IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
+				for (IWorkbenchPage page : pages) {
+					try {
+						if (!ID_PERSPECTIVE_EXPERIMENT.equals(page.getPerspective().getId())){
+							activeWorkbenchWindow.getActivePage().closePerspective(page.getPerspective(), false, true);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 			}
 			IPerspectiveListener listener = new IPerspectiveListener() {
 				
