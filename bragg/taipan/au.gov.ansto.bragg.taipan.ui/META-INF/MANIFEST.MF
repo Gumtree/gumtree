@@ -9,6 +9,7 @@ Bundle-Vendor: Bragg Institue
 Bundle-ActivationPolicy: lazy
 Require-Bundle: au.gov.ansto.bragg.taipan.core;bundle-version="1.7.0";visibility:=reexport,
  org.gumtree.ui;bundle-version="1.7.0",
- au.gov.ansto.bragg.nbi.ui;bundle-version="1.7.0";visibility:=reexport
+ au.gov.ansto.bragg.nbi.ui;bundle-version="1.7.0";visibility:=reexport,
+ org.gumtree.gumnix.sics.batch.ui;bundle-version="1.8.0"
 Export-Package: au.gov.ansto.bragg.taipan.ui,
  au.gov.ansto.bragg.taipan.ui.widgets

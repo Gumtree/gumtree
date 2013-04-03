@@ -77,7 +77,8 @@ public class VisualBatchBufferToolViewer extends AbstractWorkflowViewerComponent
 					scientistFolder = new FolderTreeNode("Instrument Scientist's Tasks", toolViewer);
 					userFolder = new FolderTreeNode("User Defined Tasks", toolViewer);
 //					return new Object[] { commandTreeNode, scientistFolder, userFolder};
-					return new Object[] { commandTreeNode};
+//					return new Object[] { commandTreeNode};
+					return commandTreeNode.getChildren();
 				} else {
 					return new Object[0];
 				}

@@ -8,7 +8,7 @@
  * Contributors: 
  *    Norman Xiong (nxi@Bragg Institute) - initial API and implementation
  *******************************************************************************/
-package au.gov.ansto.bragg.kowari.ui.views;
+package au.gov.ansto.bragg.taipan.ui.internal;
 
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
