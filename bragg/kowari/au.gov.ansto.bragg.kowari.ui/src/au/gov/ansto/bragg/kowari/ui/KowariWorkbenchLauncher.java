@@ -11,6 +11,7 @@
 
 package au.gov.ansto.bragg.kowari.ui;
 
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchWindow;
@@ -40,8 +41,17 @@ public class KowariWorkbenchLauncher extends AbstractLauncher {
 			
 			final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			if (activeWorkbenchWindow instanceof WorkbenchWindow) {
-				((WorkbenchWindow) activeWorkbenchWindow).setCoolBarVisible(false);
-				activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
+//				activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
+				IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
+				for (IWorkbenchPage page : pages) {
+					try {
+						if (!ID_PERSPECTIVE_EXPERIMENT.equals(page.getPerspective().getId())){
+							activeWorkbenchWindow.getActivePage().closePerspective(page.getPerspective(), false, true);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 			}
 //			IMultiMonitorManager mmManager = ServiceUtils.getService(IMultiMonitorManager.class);
 			IMultiMonitorManager mmManager = new MultiMonitorManager();

@@ -70,7 +70,9 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 				factory.getEditorArea());
 		top2.addView(WORKFLOW_VIEW_ID);
 		top2.addView(SICS_BUFFER_VALIDATOR_VIEW_ID);
-		top2.addView(SICS_BUFFER_RUNNER_VIEW_ID);
+//		top2.addView(SICS_BUFFER_RUNNER_VIEW_ID);
+		factory.addStandaloneView(SICS_BUFFER_RUNNER_VIEW_ID, false, 
+				IPageLayout.RIGHT, 0.50f, "top2");
 						
 //		factory.addStandaloneView(WORKFLOW_VIEW_ID, false, 
 //				IPageLayout.TOP, 0.73f, factory.getEditorArea());
@@ -81,19 +83,17 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 //		factory.addStandaloneView(PROJECT_EXPLORER_VIEW_ID, true, 
 //				IPageLayout.LEFT, 0.21f, "top2");
 		
-		factory.addStandaloneView(SICS_TERMINAL_VIEW_ID, false, 
-				IPageLayout.RIGHT, 0.23f, factory.getEditorArea());
-
 		factory.addStandaloneView(ID_VIEW_ACTIVITY_MONITOR, false, 
-		IPageLayout.RIGHT, 0.50f, SICS_TERMINAL_VIEW_ID);
+				IPageLayout.BOTTOM, 0.70f, factory.getEditorArea());
+		
+		factory.addStandaloneView(SICS_TERMINAL_VIEW_ID, false, 
+				IPageLayout.LEFT, 0.60f, ID_VIEW_ACTIVITY_MONITOR);
 
-		factory.addStandaloneView(PROJECT_EXPLORER_VIEW_ID, true, 
-				IPageLayout.LEFT, 0.2f, "top2");
+		factory.addStandaloneView(PROJECT_EXPLORER_VIEW_ID, false, 
+				IPageLayout.LEFT, 0.5f, SICS_TERMINAL_VIEW_ID);
 
 		factory.getViewLayout(WORKFLOW_VIEW_ID).setCloseable(false);
 		factory.getViewLayout(WORKFLOW_VIEW_ID).setMoveable(false);
-		factory.getViewLayout(SICS_BUFFER_RUNNER_VIEW_ID).setCloseable(false);
-		factory.getViewLayout(SICS_BUFFER_RUNNER_VIEW_ID).setMoveable(false);
 		factory.getViewLayout(SICS_BUFFER_VALIDATOR_VIEW_ID).setCloseable(false);
 		factory.getViewLayout(SICS_BUFFER_VALIDATOR_VIEW_ID).setMoveable(false);
 		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setCloseable(false);
