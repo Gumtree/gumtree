@@ -51,6 +51,7 @@ public class RealtimeDataViewer extends Composite {
 	private ITimePlot timePlot;
 	private Thread updateThread;
 	private boolean isDisposed;
+	private PlotComposite plotComposite;
 	
 	/**
 	 * @param parent
@@ -118,7 +119,7 @@ public class RealtimeDataViewer extends Composite {
 		});
 //		Composite plotComposite = getFormToolkit().createComposite(parent);
 //		GridLayoutFactory.fillDefaults().applyTo(plotComposite);
-		PlotComposite plotComposite = new PlotComposite(this, SWT.NONE);
+		plotComposite = new PlotComposite(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(plotComposite);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(plotComposite);
 		plotComposite.setDataset(new XYTimeSeriesSet());
@@ -302,13 +303,19 @@ public class RealtimeDataViewer extends Composite {
 	@Override
 	public void dispose() {
 		if (updateThread != null) {
-			updateThread.interrupt();
+			try{
+				if (updateThread.isAlive()){
+					updateThread.interrupt();
+				}
+			}catch (Exception ex) {
+			}
 			updateThread = null;
 		}
 		if (resourceProvider != null) {
 			resourceProvider.clear();
 			resourceProvider = null;
 		}
+		plotComposite.dispose();
 		timePlot = null;
 		resourceCombo = null;
 		contentCombo = null;

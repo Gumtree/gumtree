@@ -201,8 +201,11 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 							} catch (Exception e) {
 							}
 							if (!showCouncil) {
-								IWorkbenchPartReference myView = page.findViewReference(SCRIPT_CONSOLE_VIEW_ID);
-								page.setPartState(myView, IWorkbenchPage.STATE_MINIMIZED);
+								try {
+									IWorkbenchPartReference myView = page.findViewReference(SCRIPT_CONSOLE_VIEW_ID);
+									page.setPartState(myView, IWorkbenchPage.STATE_MINIMIZED);
+								} catch (Exception e) {
+								}
 							}
 							workbenchWindow.removePerspectiveListener(adapter);
 						}catch (Exception e) {

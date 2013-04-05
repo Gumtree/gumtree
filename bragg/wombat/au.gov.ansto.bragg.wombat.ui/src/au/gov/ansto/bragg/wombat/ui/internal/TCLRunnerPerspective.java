@@ -12,11 +12,7 @@ package au.gov.ansto.bragg.wombat.ui.internal;
 
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
-import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.eclipse.ui.IPerspectiveListener;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 
 public class TCLRunnerPerspective implements IPerspectiveFactory {
@@ -154,29 +150,6 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 //		factory.getViewLayout(FILTERED_STATUS_MONITOR_VIEW_ID).setCloseable(false);
 //		factory.getViewLayout(ANALYSIS_PARAMETERS_VIEW_ID).setCloseable(false);
 		
-		PlatformUI.getWorkbench().getActiveWorkbenchWindow().addPerspectiveListener(new IPerspectiveListener() {
-			
-			@Override
-			public void perspectiveChanged(IWorkbenchPage page,
-					IPerspectiveDescriptor perspective, String changeId) {
-				System.out.println("perspective changed");
-			}
-			
-			@Override
-			public void perspectiveActivated(IWorkbenchPage page,
-					IPerspectiveDescriptor perspective) {
-				if (perspective.getId().equals(EXPERIMENT_PERSPECTIVE_ID)) {
-					PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
-							EXPERIMENT_PERSPECTIVE_THEME);
-					page.setEditorAreaVisible(false);
-				} else {
-					PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
-							DEFAULT_PERSPECTIVE_THEME);
-				}
-				
-			}
-		});
-//		factory.setFixed(true);
 	}
 
 //	/* (non-Javadoc)

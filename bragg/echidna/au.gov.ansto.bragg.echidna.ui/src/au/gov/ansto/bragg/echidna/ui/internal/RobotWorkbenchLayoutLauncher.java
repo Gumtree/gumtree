@@ -1,7 +1,9 @@
 package au.gov.ansto.bragg.echidna.ui.internal;
 
-import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.WorkbenchWindow;
 import org.gumtree.ui.service.launcher.AbstractLauncher;
 import org.gumtree.ui.service.launcher.LauncherException;
 import org.gumtree.ui.service.multimonitor.IMultiMonitorManager;
@@ -32,11 +34,24 @@ public class RobotWorkbenchLayoutLauncher extends AbstractLauncher {
 			IMultiMonitorManager mmManager = new MultiMonitorManager();
 			
 			// Attempt to close intro
-			IWorkbench workbench = PlatformUI.getWorkbench();
-			try {
-				workbench.getIntroManager().closeIntro(workbench.getIntroManager().getIntro());
-				workbench.getActiveWorkbenchWindow().getActivePage().closeAllPerspectives(true, false);
-			} catch (Exception e) {
+			final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			if (activeWorkbenchWindow instanceof WorkbenchWindow) {
+//				activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
+				IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
+				for (IWorkbenchPage page : pages) {
+					try {
+						if (!ID_CUSTOMISED_TEMPERATURE_EXPERIMENT.equals(page.getPerspective().getId()) 
+								&& !ID_HIGH_TEMPERATURE_EXPERIMENT.equals(page.getPerspective().getId())
+								&& !ID_LOW_TEMPERATURE_EXPERIMENT.equals(page.getPerspective().getId())
+								&& !ID_MAGNETICFIELD_EXPERIMENT.equals(page.getPerspective().getId())
+								&& !ID_ROOM_TEMPERATURE_EXPERIMENT.equals(page.getPerspective().getId())
+								){
+							activeWorkbenchWindow.getActivePage().closePerspective(page.getPerspective(), false, true);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 			}
 
 			mmManager.showPerspectiveOnOpenedWindow(ID_CUSTOMISED_TEMPERATURE_EXPERIMENT, 0, 0, true);

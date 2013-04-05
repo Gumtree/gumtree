@@ -10,6 +10,7 @@
  *******************************************************************************/
 package au.gov.ansto.bragg.kowari.ui.internal;
 
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveDescriptor;
@@ -17,6 +18,7 @@ import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.IPerspectiveListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PerspectiveAdapter;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 
@@ -125,14 +127,13 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 //			}
 //		});
 		
-		
 		final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
 			
 			@Override
 			public void perspectiveChanged(IWorkbenchPage page,
 					IPerspectiveDescriptor perspective, String changeId) {
-				if (perspective.getId().equals("au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective")) {
+				if (perspective.getId().equals(EXPERIMENT_PERSPECTIVE_ID)) {
 					activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
 				}
 			}
@@ -141,6 +142,7 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 			public void perspectiveActivated(IWorkbenchPage page,
 					IPerspectiveDescriptor perspective) {
 				if (perspective.getId().equals(TCLRunnerPerspective.EXPERIMENT_PERSPECTIVE_ID)) {
+					activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
 					PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
 							TCLRunnerPerspective.EXPERIMENT_PERSPECTIVE_THEME);
 				} else {
@@ -151,6 +153,7 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 		});
 	}
 
+	
 //	/* (non-Javadoc)
 //	 * @see java.lang.Object#finalize()
 //	 */
