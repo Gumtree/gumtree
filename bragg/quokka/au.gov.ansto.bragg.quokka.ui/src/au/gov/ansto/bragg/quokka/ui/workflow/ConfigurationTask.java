@@ -327,7 +327,19 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			TabItem initItem = new TabItem(tabFolder, SWT.NONE);
 			initItem.setText("Initialise");
 			Composite initArea = getToolkit().createComposite(tabFolder);
-			GridLayoutFactory.fillDefaults().margins(0, 0).numColumns(2).applyTo(initArea);
+			GridLayoutFactory.swtDefaults().margins(0, 0).numColumns(2).equalWidth(false).applyTo(initArea);
+			
+			// Detector distance
+			Label detectorDistanceLabel = getToolkit().createLabel(initArea, "Detector distance (mm): ");
+			GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.TOP).grab(false, false).applyTo(detectorDistanceLabel);
+			
+			final Text detectorDistanceText = getToolkit().createText(initArea, "", SWT.SINGLE);
+			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).applyTo(detectorDistanceText);
+			bindingContext.bindValue(SWTObservables
+					.observeText(detectorDistanceText, SWT.Modify), BeansObservables
+					.observeDetailValue(Realm.getDefault(), selection, "detectorDistance",
+							Float.class), null, null);
+			detectorDistanceText.setEditable(false);
 			
 			// Text editor
 			final Text initScriptText = getToolkit().createText(initArea, "", SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
@@ -343,7 +355,8 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			final ProgressBar initDriveProgressBar = new ProgressBar(initArea, SWT.INDETERMINATE);
 			initDriveProgressBar.setVisible(false);
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(initDriveProgressBar);
-			final Button initControlButton = getToolkit().createButton(initArea, "Test Drive", SWT.PUSH);			
+			final Button initControlButton = getToolkit().createButton(initArea, "Test Drive", SWT.PUSH);
+			GridDataFactory.swtDefaults().align(SWT.END, SWT.TOP).applyTo(initControlButton);
 			
 			/*****************************************************************
 			 * Pre-transmission tab
