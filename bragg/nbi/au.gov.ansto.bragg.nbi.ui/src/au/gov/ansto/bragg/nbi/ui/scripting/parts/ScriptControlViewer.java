@@ -21,10 +21,12 @@ import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
@@ -281,33 +283,37 @@ public class ScriptControlViewer extends Composite {
 					MenuItem item = new MenuItem(loadMenu, SWT.PUSH);
 					item.setText(pairs[0]);
 					final String itemPath = getFullScriptPath(pairs[1]);
-					item.addSelectionListener(new SelectionListener() {
-						
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							loadScript(itemPath);
-						}
-						
-						@Override
-						public void widgetDefaultSelected(SelectionEvent e) {
-						}
-					});
+					if (itemPath != null) {
+						item.addSelectionListener(new SelectionListener() {
+
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								loadScript(itemPath);
+							}
+
+							@Override
+							public void widgetDefaultSelected(SelectionEvent e) {
+							}
+						});
+					}
 				} else {
 					MenuItem item = new MenuItem(loadMenu, SWT.PUSH);
 					final String itemPath = getFullScriptPath(scripts[i]);
-					File scriptFile = new File(itemPath);
-					item.setText(scriptFile.getName());
-					item.addSelectionListener(new SelectionListener() {
-						
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							loadScript(itemPath);
-						}
-						
-						@Override
-						public void widgetDefaultSelected(SelectionEvent e) {
-						}
-					});
+					if (itemPath != null) {
+						File scriptFile = new File(itemPath);
+						item.setText(scriptFile.getName());
+						item.addSelectionListener(new SelectionListener() {
+
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								loadScript(itemPath);
+							}
+
+							@Override
+							public void widgetDefaultSelected(SelectionEvent e) {
+							}
+						});
+					}
 				}
 			}
 		}
@@ -507,10 +513,18 @@ public class ScriptControlViewer extends Composite {
 	public void runInitialScripts() {
 		String initScriptString = System.getProperty(GUMTREE_SCRIPTING_INIT_PROPERTY);
 		if (initScriptString != null && initScriptString.trim() != "") {
-			try {
-				initScriptControl(getFullScriptPath(initScriptString));
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+			String scriptPath = getFullScriptPath(initScriptString);
+			if (scriptPath != null) {
+				try {
+					initScriptControl(scriptPath);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+			} else {
+				IScriptExecutor executor = getScriptExecutor();
+				if (executor != null) {
+					executor.runScript("print 'failed to load " + initScriptString + "'");
+				}
 			}
 		}
 //		for (String item : INITIAL_SCRIPTS){
@@ -1686,7 +1700,14 @@ public class ScriptControlViewer extends Composite {
 	}
 	
 	public static String getProjectPath(String projectName) {
-		return ResourcesPlugin.getWorkspace().getRoot().getProject(projectName).getLocation().toString();
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+		if (project != null) {
+			IPath path = project.getLocation();
+			if (path != null) { 
+				return path.toString();
+			}
+		}
+		return null;
 	}
 	
 	public static String getFullScriptPath(String shortPath) {
@@ -1704,10 +1725,20 @@ public class ScriptControlViewer extends Composite {
 			if (list.length == 2) {
 				return WORKSPACE_FOLDER_PATH + shortPath;
 			} else {
-				return getProjectPath(list[1]) + shortPath.substring(list[1].length() + 1);
+				String projectPath = getProjectPath(list[1]);
+				if (projectPath != null) {
+					return projectPath + shortPath.substring(list[1].length() + 1);
+				} else {
+					return null;
+				}
 			}
 		} else {
-			return getProjectPath(list[0]) + shortPath.substring(list[0].length());
+			String projectPath = getProjectPath(list[0]);
+			if (projectPath != null) {
+				return projectPath + shortPath.substring(list[0].length());
+			} else {
+				return null;
+			}
 		}
 	}
 }

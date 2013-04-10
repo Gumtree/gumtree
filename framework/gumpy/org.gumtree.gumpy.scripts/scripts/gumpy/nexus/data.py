@@ -969,6 +969,53 @@ class Data(SimpleData):
                 if not self.var is None and hasattr(out, 'var') and not out.var is None :
                     self.var.sum(axis, float, out.var)
                 return out
+
+    def transpose(self, axes = None):
+        nstr = self.storage.transpose(axes)
+        nvar = None
+        if not self.var is None:
+            nvar = self.var.storage.transpose(axes)
+        saxes = self.axes
+        naxes = None
+        if not saxes is None and len(saxes) == self.ndim :
+            if axes is None:
+                dim1 = self.ndim - 1
+                dim2 = self.ndim - 2
+            else :
+                dim1 = axes[0]
+                dim2 = axes[1]
+            idx = range(self.ndim)
+            idx[dim1] = dim2
+            idx[dim2] = dim1
+            naxes = []
+            for i in idx :
+                naxes.append(saxes[i])
+        return self.__new__(nstr, var = nvar, axes = naxes)
+
+    def compress(self, condition, axis = None, out = None):
+        if axis is None:
+            nstr = self.storage.compress(condition, axis, out)
+            nvar = None
+            if not self.var is None:
+                nvar = self.var.storage.compress(condition, axis, out)
+            return self.__new__(nstr, var = nvar, axes = None)
+        else:
+            nstr = self.storage.compress(condition, axis, out)
+            nvar = None
+            if not self.var is None:
+                nvar = self.var.storage.compress(condition, axis, out)
+            naxes = None
+            saxes = self.axes
+            if not saxes is None and len(saxes) == self.ndim :
+                if axis < self.ndim:
+                    naxes = []
+                    for i in xrange(len(saxes)):
+                        if i != axis:
+                            naxes.append(saxes[i])
+                        else:
+                            naxes.append(saxes[i].compress(condition))
+            return self.__new__(nstr, var = nvar, axes = naxes)
+
 #####################################################################################
 #   Array modification
 #####################################################################################    

@@ -394,6 +394,13 @@ class SimpleData:
                 return self.__new__(self.storage.sum(axis, dtype))
             else :
                 return self.storage.sum(axis, dtype, out)
+            
+    def transpose(self, axes = None):
+        return self.__new__(self.storage.transpose(axes))
+        
+    def compress(self, condition, axis = None, out = None):
+        return self.__new__(self.storage.compress(condition, axis, out))
+        
 #********************************************************************************
 #     Array utilities
 #********************************************************************************

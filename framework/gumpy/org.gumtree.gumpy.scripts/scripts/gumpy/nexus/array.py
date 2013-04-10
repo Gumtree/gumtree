@@ -793,6 +793,71 @@ class Array:
                 pass
             return res
         
+    def count_nonzero(self):
+        dtype = self.dtype
+        cnt = 0
+        if dtype is float or dtype is int :
+            siter = self.item_iter()
+            try :
+                while True :
+                    if siter.next():
+                        cnt += 1
+            except :
+                pass
+        return cnt
+        
+    def transpose(self, axes = None):
+        if axes is None:
+            dim1 = self.ndim - 1
+            dim2 = self.ndim - 2
+        elif not hasattr(axes, '__len__'):
+            raise Exception, 'axes parameter must be either a list or a tuple with length of 2'
+        elif len(axes) != 2 :
+            raise Exception, 'axes parameter must be either a list or a tuple with length of 2'
+        else :
+            dim1 = axes[0]
+            dim2 = axes[1]
+        if dim2 >= self.ndim :
+            raise Exception, 'dimension ' + str(dim2) + ' is not available'
+        if dim1 >= self.ndim :
+            raise Exception, 'dimension ' + str(dim1) + ' is not available'
+        return Array(self.__iArray__.getArrayUtils().transpose(dim1, dim2).getArray())
+        
+    def compress(self, condition, axis = None, out = None):
+        if axis is None:
+            osize = self.size
+            if osize > len(condition):
+                osize = len(condition)
+            idx = 0
+            storage = []
+            it = self.item_iter()
+            while idx < osize:
+                if condition[idx] :
+                    storage.append(it.next())
+                else :
+                    it.next()
+                idx += 1
+            return Array(storage, dtype = self.dtype)
+        else:
+            osize = self.shape[axis]
+            if osize > len(condition):
+                osize = len(condition)
+            nsize = 0
+            for i in xrange(osize) :
+                if condition[i] :
+                    nsize += 1
+            if nsize == 0:
+                return null
+            nshape = copy.copy(self.shape)
+            nshape[axis] = nsize
+            narr = instance(nshape, dtype = self.dtype)
+            idx = 0
+            for i in xrange(osize):
+                if condition[i] :
+                    narr.get_slice(axis, idx).copy_from(self.get_slice(axis, i))
+                    idx += 1
+            return narr
+        
     def all(self):
         siter = self.item_iter()
         try :
@@ -2747,7 +2812,6 @@ def min(arr, axis = None, out = None):
     else :
         raise TypeError, 'type not supported: ' + str(type(arr))
 
-    
 #####################################################################################
 # Other utility classes
 #####################################################################################

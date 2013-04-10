@@ -605,6 +605,16 @@ class Dataset(Data):
     def append_log(self, log):
         self.log = self.log + log.encode('ascii')
         
+    def transpose(self, axes = None):
+        res = Data.transpose(self, axes)
+        res.__copy_metadata__(self)
+        return res
+        
+    def compress(self, condition, axis = None, out = None):
+        res = Data.compress(self, condition, axis, out)
+        res.__copy_metadata__(self)
+        return res
+        
 def new(storage, name = None, var = None, axes = None, anames = None, \
         aunits = None, default_var = True, default_axes = True, title = None) :
         return Dataset(storage, name = name, var = var, axes = axes, \
