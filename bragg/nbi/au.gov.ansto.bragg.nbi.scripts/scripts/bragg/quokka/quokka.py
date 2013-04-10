@@ -84,10 +84,10 @@ def getSamplePosition():
 # Drive the sample hold to load position
 def driveToLoadPosition():
     log('Driving sample holder to load position')
-    # Find soft lower limit
-    lowerlimit = sics.getValue('/sample/sample_x/softlowerlim').getFloatData()
+    # Find soft upper limit
+    upperlimit = sics.getValue('/sample/sample_x/softupperlim').getFloatData()
     # Use the soft lower limit as the load position
-    loadPosition = math.ceil(lowerlimit)
+    loadPosition = math.floor(upperlimit)
     sics.drive('samx', loadPosition)
     
 def getAttValue():

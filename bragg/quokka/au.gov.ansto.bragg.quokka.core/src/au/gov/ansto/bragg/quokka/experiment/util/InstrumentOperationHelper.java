@@ -11,7 +11,8 @@
 
 package au.gov.ansto.bragg.quokka.experiment.util;
 
-import org.gumtree.gumnix.sics.control.controllers.IComponentData;
+import org.gumtree.gumnix.sics.control.controllers.ComponentData;
+import org.gumtree.gumnix.sics.control.controllers.ComponentDataFormatException;
 import org.gumtree.gumnix.sics.control.controllers.IDynamicController;
 import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.io.SicsIOException;
@@ -34,11 +35,14 @@ public final class InstrumentOperationHelper {
 	public static void setToSampleLoadPosition() {
 		try {
 			IDynamicController samx = (IDynamicController) SicsCore.getSicsController().findDeviceController("samx");
-			IComponentData softlowerlim = ((IDynamicController) samx.getChildController("/softlowerlim")).getValue();
-			samx.setTargetValue(softlowerlim);
+			float softupperlim = ((IDynamicController) samx.getChildController("/softupperlim")).getValue().getFloatData();
+			float tolerance = ((IDynamicController) samx.getChildController("/precision")).getValue().getFloatData();
+			samx.setTargetValue(ComponentData.createData(softupperlim - tolerance));
 //			samx.setTargetValue(ComponentData.createData(System.getProperty(PROP_LOAD_POSITION)));
 			samx.commitTargetValue(null);
 		} catch (SicsIOException e) {
+			logger.error("Failed to drive samx to load position.", e);
+		} catch (ComponentDataFormatException e) {
 			logger.error("Failed to drive samx to load position.", e);
 		}
 	}
