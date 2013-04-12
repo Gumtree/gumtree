@@ -183,7 +183,7 @@ public class SimpleTableScanTask extends AbstractScanTask {
 						String line = reader.readLine();
 						if (line != null) {
 							line = line.trim();
-							if (line.startsWith("#")) {
+							if (line.startsWith("#") || line.length() == 0) {
 								continue;
 							}
 							//	line = line.replaceAll("\t", "");
