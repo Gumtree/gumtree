@@ -58,6 +58,7 @@ public class ExperimentConfigViewer extends Composite {
 		GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, 104).applyTo(consoleComposite);
 		viewer.createPartControl(consoleComposite, ICommandLineViewer.NO_UTIL_AREA | ICommandLineViewer.NO_INPUT_TEXT);
 		
+		controlViewer.runNativeInitScript();
 		controlViewer.loadScript(ScriptControlViewer.getFullScriptPath(System.getProperty(CONFIG_PROPERTY_NAME)));
 //		Button applyButton = new Button(this, SWT.PUSH);
 //		applyButton.setText("Apply Changes");

@@ -210,6 +210,9 @@ public class HMVetoGadget extends ExtendedSicsComposite {
 			SicsCore.getDefaultProxy().removeProxyListener(proxyListener);
 			proxyListener = null;
 		}
+		if (statusListener != null) {
+			SicsCore.getSicsManager().monitor().removeListener("/", statusListener);
+		}
 		if (handCursor != null) {
 			handCursor.dispose();
 			handCursor = null;

@@ -511,7 +511,7 @@ public class ScriptControlViewer extends Composite {
 //				| IResourceChangeEvent.POST_CHANGE);
 	}
 
-	public void runInitialScripts() {
+	public void runNativeInitScript() {
 		IScriptExecutor executor = getScriptExecutor();
 		if (executor != null) {
 			try {
@@ -521,7 +521,11 @@ public class ScriptControlViewer extends Composite {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
+		}		
+	}
+	
+	public void runInitialScripts() {
+		runNativeInitScript();
 		String initScriptString = System.getProperty(GUMTREE_SCRIPTING_INIT_PROPERTY);
 		if (initScriptString != null && initScriptString.trim() != "") {
 			String scriptPath = getFullScriptPath(initScriptString);
@@ -532,7 +536,7 @@ public class ScriptControlViewer extends Composite {
 					e.printStackTrace();
 				}
 			} else {
-				executor = getScriptExecutor();
+				IScriptExecutor executor = getScriptExecutor();
 				if (executor != null) {
 					executor.runScript("print 'failed to load " + initScriptString + "'");
 				}
