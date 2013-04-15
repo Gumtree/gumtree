@@ -113,6 +113,7 @@ public class ScriptControlViewer extends Composite {
 	private static int SCRIPT_REGISTER_ID = 0;
 	private static final String ID_PREFERENCE_RECENT_FILE = "org.gumtree.scripting.recent";
 	private static final String TEMPLATE_SCRIPT = "/pyscripts/AnalysisScriptingTemplate.py";
+	private static final String __INIT__SCRIPT = "/pyscripts/__init__.py";
 	private static final String PRE_RUN_SCRIPT = "/pyscripts/pre_run.py";
 	private static final String POST_RUN_SCRIPT	= "/pyscripts/post_run.py";
 //	private static final String INTERNAL_FOLDER_PATH = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/Internal";
@@ -511,6 +512,16 @@ public class ScriptControlViewer extends Composite {
 	}
 
 	public void runInitialScripts() {
+		IScriptExecutor executor = getScriptExecutor();
+		if (executor != null) {
+			try {
+				String fn = FileLocator.toFileURL(Activator.getDefault().getBundle().getEntry(__INIT__SCRIPT)).getFile();
+				executor.runScript("__script_model_id__ = " + scriptRegisterID);
+				executor.runScript(new FileReader(fn));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		String initScriptString = System.getProperty(GUMTREE_SCRIPTING_INIT_PROPERTY);
 		if (initScriptString != null && initScriptString.trim() != "") {
 			String scriptPath = getFullScriptPath(initScriptString);
@@ -521,7 +532,7 @@ public class ScriptControlViewer extends Composite {
 					e.printStackTrace();
 				}
 			} else {
-				IScriptExecutor executor = getScriptExecutor();
+				executor = getScriptExecutor();
 				if (executor != null) {
 					executor.runScript("print 'failed to load " + initScriptString + "'");
 				}
