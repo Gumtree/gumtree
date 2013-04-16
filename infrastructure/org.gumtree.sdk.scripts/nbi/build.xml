@@ -1,9 +1,9 @@
 <!--
 	This script requires the following parameters to be set in the ANT runtime
 	Paramaters:
-		buildDirectory
-		sourceDirectory
-		ideOS
+		buildDirectory - eg D:\Development\Workspace\Gumtree-1.8.x
+		sourceDirectory - eg ${workspace_loc}/gumtree
+		ideOS - win32-x86_64
 -->
 <project name="Packaging" default="usage" basedir=".">
 
@@ -23,7 +23,7 @@
 	<property name="mavenBuildPath" value="infrastructure/org.gumtree.maven.all/target" />
 	<property name="javadocBuildPath" value="infrastructure/org.gumtree.maven.javadoc/target" />
 	<property name="referenceBuildPath" value="infrastructure/org.gumtree.sdk.doc.developer/asciidoc/output" />
-	<property name="equinoxJarLocation" value="${buildDirectory}/tools/eclipse-SDK-4.2.1-${ideOS}/eclipse/plugins/org.eclipse.equinox.launcher_1.3.0.v20120522-1813.jar" />
+	<property name="equinoxJarLocation" value="${buildDirectory}/tools/eclipse-SDK-4.2.2-${ideOS}/eclipse/plugins/org.eclipse.equinox.launcher_1.3.0.v20120522-1813.jar" />
 	<property name="containerProduct" value="org.gumtree.app.osgi.product" />
 	<property name="nsisDirectory" value="X:/apps/PortableApps/1.6/PortableApps/NSISPortable/App/NSIS" />
 	<property name="cygwinDirectory" value="X:/apps/Cygwin/1.7.15-1/bin" />
