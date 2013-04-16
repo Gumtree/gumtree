@@ -727,7 +727,10 @@ public class ConfigurationTask extends AbstractExperimentTask {
 							logger.error("Failed to store starting attenuation value to template");
 						}
 						// Create templates folder
-						File templatesFolder = Activator.getDefault().getStateLocation().append(QuokkaUIConstants.PATH_TEMPLATES).toFile();
+//						File templatesFolder = Activator.getDefault().getStateLocation().append(QuokkaUIConstants.PATH_TEMPLATES).toFile();
+						// [GUMTREE-667] Save to workspace
+						IFolder folder = WorkspaceUtils.getFolder(SystemProperties.CONFIG_FOLDER.getValue());
+						File templatesFolder = new File(folder.getLocationURI());
 						if (!templatesFolder.exists()) {
 							templatesFolder.mkdir();
 						}
