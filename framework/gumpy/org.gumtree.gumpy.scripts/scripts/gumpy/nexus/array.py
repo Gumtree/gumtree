@@ -857,7 +857,33 @@ class Array:
                     narr.get_slice(axis, idx).copy_from(self.get_slice(axis, i))
                     idx += 1
             return narr
+    
+    def clip(self, a_min, a_max, out = None):
+        if out is None:
+            out = instance(self.shape, dtype = self.dtype)
+        it = self.item_iter()
+        nit = out.item_iter()
+        while it.has_next():
+            val = it.next()
+            if val < a_min:
+                nit.set_next(a_min)
+            elif val > a_max:
+                nit.set_next(a_max)
+            else:
+                nit.set_next(val)
+        return out
         
+    def mean(self, axis = None, dtype = None, out = None):
+        dsum = self.sum(axis, dtype, out)
+        if axis is None:
+            dsize = self.size
+        else :
+            dsize = 1
+            for i in xrange(self.ndim):
+                if i != axis:
+                    dsize *= self.shape[i]
+        return dsum / dsize
+    
     def all(self):
         siter = self.item_iter()
         try :

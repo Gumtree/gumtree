@@ -615,6 +615,15 @@ class Dataset(Data):
         res.__copy_metadata__(self)
         return res
         
+    def clip(self, a_min, a_max, out = None):
+        res = Data.clip(self, a_min, a_max, out)
+        res.__copy_metadata__(self)
+        return res
+        
+    def mean(self, axis = None, dtype = None, out = None):
+        res = Data.mean(self, axis, dtype, out )
+        return res
+
 def new(storage, name = None, var = None, axes = None, anames = None, \
         aunits = None, default_var = True, default_axes = True, title = None) :
         return Dataset(storage, name = name, var = var, axes = axes, \
@@ -946,6 +955,83 @@ def max(obj, axis = None, out = None):
 def min(obj, axis = None, out = None):
         return obj.min(axis, out)
 
+def cov(m, y = None, bias = 0, ddof = None):
+    if not hasattr(m, 'ndim') :
+        raise Exception, 'm must be a 1-D or 2-D dataset'
+    ndim = m.ndim
+    if ndim > 2:
+        raise Exception, 'm must be a 1-D or 2-D dataset, but got ' + str(ndim) + ' dimensions'
+    if m.size < 1:
+        raise Exception, 'm must have 2 or more values'
+    if y is None:
+        if ndim == 1:
+            return __self_cov__(m)
+        else:
+            mean = m.mean(0)
+            sh0 = m.shape[0]
+            sh1 = m.shape[1]
+            sh1_1 = sh1 - 1
+            cache = []
+            res = instance([sh0, sh0], dtype = float)
+            for i in xrange(sh0):
+                cache.append(m[i] - mean[i])
+            for i in xrange(sh0):
+                row1 = cache[i]
+                for j in xrange(sh0):
+                    if i == j:
+                        res[i, j] = __self_cov__(row1)
+                    elif i < j:
+                        row2 = cache[j]
+                        s = row1 * row2
+                        res[i, j] = s.sum() / sh1_1
+                    else:
+                        res[i, j] = res[j, i]
+            return res
+    else :
+        if not hasattr(y, 'ndim') :
+            raise Exception, 'y must be a 1-D or 2-D dataset'
+        ndim = y.ndim
+        if ndim > 2:
+            raise Exception, 'y must be a 1-D or 2-D dataset, but got ' + str(ndim) + ' dimensions'
+        if y.size < 1:
+            raise Exception, 'y must have 2 or more values'
+        cache = []
+        if m.ndim == 1:
+            cache.append(m - m.mean())
+            den = m.size - 1
+        else:
+            for item in m:
+                cache.append(item - item.mean())
+            den = m.shape[m.ndim - 1] - 1
+        if y.ndim == 1:
+            cache.append(y - y.mean())
+        else:
+            for item in y:
+                cache.append(item - item.mean())
+        clen = len(cache)
+        res = instance([clen, clen], dtype = float)
+        for i in xrange(clen):
+            row1 = cache[i]
+            for j in xrange(clen):
+                if i == j:
+                    res[i, j] = __self_cov__(row1)
+                elif i < j:
+                    row2 = cache[j]
+                    s = row1 * row2
+                    res[i, j] = s.sum() / den
+                else:
+                    res[i, j] = res[j, i]
+        return res
+        
+            
+def __self_cov__(m, mean = None):
+    if mean is None:
+        mean = m.mean()
+    res = 0
+    for val in m:
+        res += (val - mean) ** 2
+    return res / (m.size - 1)
+    
 class DatasetFactory:
     
     __path__ = ''

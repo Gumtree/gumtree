@@ -400,7 +400,25 @@ class SimpleData:
         
     def compress(self, condition, axis = None, out = None):
         return self.__new__(self.storage.compress(condition, axis, out))
+
+    def clip(self, a_min, a_max, out = None):
+        if out is None:
+            return self.__new__(self.storage.clip(a_min, a_max))
+        else :
+            if hasattr(out, 'storage'):
+                self.storage.clip(a_min, a_max, out.storage)
+            else:
+                self.storage.clip(a_min, a_max, out)
+            return out
         
+    def mean(self, axis = None, dtype = None, out = None):
+        if axis is None :
+            return self.storage.mean(dtype = dtype)
+        else :
+            if out is None :
+                return self.__new__(self.storage.mean(axis, dtype))
+            else :
+                return self.storage.mean(axis, dtype, out)
 #********************************************************************************
 #     Array utilities
 #********************************************************************************

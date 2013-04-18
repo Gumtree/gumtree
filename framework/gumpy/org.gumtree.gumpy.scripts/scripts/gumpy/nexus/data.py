@@ -1016,6 +1016,57 @@ class Data(SimpleData):
                             naxes.append(saxes[i].compress(condition))
             return self.__new__(nstr, var = nvar, axes = naxes)
 
+    def clip(self, a_min, a_max, out = None):
+        if out is None:
+            nstr = self.storage.clip(a_min, a_max)
+            nvar = None
+            if not self.var is None:
+                nvar = self.var.clip(a_min, a_max)
+            naxes = []
+            if not self.axes is None:
+                 for axis in self.axes:
+                     naxes.append(axis)
+            return self.__new__(nstr, var = nvar, axes = naxes)
+        else :
+            if hasattr(out, 'storage'):
+                self.storage.clip(a_min, a_max, out.storage)
+            else:
+                self.storage.clip(a_min, a_max, out)
+            if hasattr(out, 'var') and not out.var is None:
+                if not self.var is None:
+                    self.var.clip(a_min, a_max, out.var)
+            return out
+
+    def mean(self, axis = None, dtype = None, out = None):
+        if axis is None :
+            return self.storage.mean(dtype = dtype)
+        else :
+            if out is None :
+                nstr = self.storage.mean(axis, dtype)
+                nvar = None
+                if not self.var is None :
+                    dsum = self.var.sum(axis, float)
+                    dsize = 1
+                    for i in xrange(self.ndim):
+                        if i != axis:
+                            dsize *= self.shape[i]
+                    nvar = dsum / (dsize * dsize)
+                axis_id = axis + len(self.axes) - self.ndim
+                naxes = []
+                if axis_id >= 0 :
+                    naxes.append(self.axes[axis_id])
+                return self.__new__(nstr, var = nvar, axes = naxes)
+            else :
+                self.storage.mean(axis, dtype, out)
+                if not self.var is None and hasattr(out, 'var') and not out.var is None :
+                    self.var.sum(axis, float, out.var)
+                    dsize = 1
+                    for i in xrange(self.ndim):
+                        if i != axis:
+                            dsize *= self.shape[i]
+                    out.var /= dsize * dsize
+                return out
+        
 #####################################################################################
 #   Array modification
 #####################################################################################    
