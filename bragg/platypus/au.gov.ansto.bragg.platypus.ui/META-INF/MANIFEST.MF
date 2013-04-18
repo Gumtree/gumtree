@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Platypus UI Library
-Bundle-SymbolicName: au.gov.ansto.bragg.platypus.ui
+Bundle-SymbolicName: au.gov.ansto.bragg.platypus.ui;singleton:=true
 Bundle-Version: 1.8.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.platypus.ui.internal.Activator
 Bundle-ActivationPolicy: lazy

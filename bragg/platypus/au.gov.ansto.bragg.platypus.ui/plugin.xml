@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.gumtree.ui.launchers">
+      <launcher
+            category="au.gov.ansto.bragg.experiment"
+            class="au.gov.ansto.bragg.platypus.ui.internal.PlatypusWorkbenchLauncher"
+            icon32="icons/MultiMonitors32.png"
+            icon64="icons/MultiMonitors.png"
+            id="au.gov.ansto.bragg.platypus.ui.PlatypusWorkbenchLauncher"
+            label="Platypus Experiment"
+            quickLauncher="true">
+         <description>
+            Start the default SICS Experiment Window
+         </description>
+      </launcher>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="au.gov.ansto.bragg.platypus.ui.internal.PlatypusWorkbenchSetup">
+      </startup>
+   </extension>
+</plugin>
