@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="au.gov.ansto.bragg.kookaburra.ui.internal.KookaburraScanPerspective"
+            fixed="true"
+            icon="icons/edu_science_16x16.png"
+            id="au.gov.ansto.bragg.kookaburra.ui.scanPerspective"
+            name="Kookaburra Scan">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="au.gov.ansto.bragg.kookaburra"
+            class="au.gov.ansto.bragg.kookaburra.ui.internal.KookaburraScanView"
+            icon="icons/edu_science_16x16.png"
+            id="au.gov.ansto.bragg.kookaburra.ui.scanView"
+            name="kookaburra Scan">
+      </view>
+   </extension>
+
+</plugin>
