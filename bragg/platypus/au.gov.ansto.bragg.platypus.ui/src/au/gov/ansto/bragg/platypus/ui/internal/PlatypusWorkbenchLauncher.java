@@ -11,6 +11,10 @@
 
 package au.gov.ansto.bragg.platypus.ui.internal;
 
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.WorkbenchWindow;
 import org.gumtree.ui.service.launcher.AbstractLauncher;
 import org.gumtree.ui.service.launcher.LauncherException;
 import org.gumtree.ui.service.multimonitor.IMultiMonitorManager;
@@ -22,6 +26,8 @@ public class PlatypusWorkbenchLauncher extends AbstractLauncher {
 
 	
 	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
+	private static final String ID_PERSPECTIVE_SCRIPTING = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
+	private static final String ID_PERSPECTIVE_DEFAULT = "au.gov.ansto.bragg.nbi.ui.EmptyPerspective";
 	
 	private static Logger logger = LoggerFactory.getLogger(PlatypusWorkbenchLauncher.class);
 	
@@ -34,26 +40,31 @@ public class PlatypusWorkbenchLauncher extends AbstractLauncher {
 		{			
 			// TODO: move this logic to experiment UI manager service
 			
-//			final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-//			if (activeWorkbenchWindow instanceof WorkbenchWindow) {
-////				activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
-//				IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
-//				for (IWorkbenchPage page : pages) {
-//					try {
-//						if (!ID_PERSPECTIVE_EXPERIMENT.equals(page.getPerspective().getId())){
-//							activeWorkbenchWindow.getActivePage().closePerspective(page.getPerspective(), false, true);
-//						}
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
-//				}
-//			}
-//			IMultiMonitorManager mmManager = ServiceUtils.getService(IMultiMonitorManager.class);
+			final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			if (activeWorkbenchWindow instanceof WorkbenchWindow) {
+//				activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
+				IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
+				for (IWorkbenchPage page : pages) {
+					try {
+						if (!ID_PERSPECTIVE_SICS.equals(page.getPerspective().getId())){
+							activeWorkbenchWindow.getActivePage().closePerspective(page.getPerspective(), false, true);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
 			IMultiMonitorManager mmManager = new MultiMonitorManager();
 			// Prepare status in screen 1 (maximised)
 
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SICS, 0, 0, mmManager.isMultiMonitorSystem());
 //			activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
+			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
+				// open new window as editor buffer
+				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, true);
+			}
+//			// position it
+			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
 
 		}
 	}
