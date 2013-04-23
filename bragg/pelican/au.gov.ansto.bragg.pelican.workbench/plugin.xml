@@ -7,7 +7,7 @@
             allowMultiple="false"
             category="au.gov.ansto.bragg.pelican.ui"
             class="au.gov.ansto.bragg.pelican.workbench.internal.PelicanHMView"
-            icon="icons/workflow.gif"
+            icon="icons/dashboard.png"
             id="au.gov.ansto.bragg.pelican.ui.views.PelicanHMView"
             name="Histogram Image">
       </view>

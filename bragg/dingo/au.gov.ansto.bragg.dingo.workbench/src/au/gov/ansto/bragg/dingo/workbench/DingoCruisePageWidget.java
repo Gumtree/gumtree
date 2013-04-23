@@ -1,4 +1,4 @@
-package au.gov.ansto.bragg.platypus.workbench;
+package au.gov.ansto.bragg.dingo.workbench;
 
 import javax.inject.Inject;
 
@@ -23,11 +23,11 @@ import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
 import org.gumtree.util.messaging.IDelayEventExecutor;
 import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 
+import au.gov.ansto.bragg.dingo.workbench.internal.InternalImage;
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
-import au.gov.ansto.bragg.platypus.workbench.internal.InternalImage;
 
 @SuppressWarnings("restriction")
-public class PlatypusCruisePageWidget extends AbstractCruisePageWidget {
+public class DingoCruisePageWidget extends AbstractCruisePageWidget {
 
 	private IEclipseContext eclipseContext;
 
@@ -36,11 +36,11 @@ public class PlatypusCruisePageWidget extends AbstractCruisePageWidget {
 	@Inject
 	private IDataAccessManager dataAccessManager;
 
-	public PlatypusCruisePageWidget(Composite parent, int style) {
+	public DingoCruisePageWidget(Composite parent, int style) {
 		super(parent, style);
 	}
 
-	public PlatypusCruisePageWidget render() {
+	public DingoCruisePageWidget render() {
 		GridLayoutFactory.swtDefaults().applyTo(this);
 		getEclipseContext().set(IDelayEventExecutor.class,
 				getDelayEventExecutor());
@@ -70,11 +70,11 @@ public class PlatypusCruisePageWidget extends AbstractCruisePageWidget {
 				.grab(true, false).applyTo(statusGadget);
 
 		// Pause Counter
-		PGroup pauseGroup = createGroup("PAUSE COUNTING",
-				SharedImage.SHUTTER.getImage());
-		HMVetoGadget pauseStatuswidget = new HMVetoGadget(
-				pauseGroup, SWT.NONE);
-		configureWidget(pauseStatuswidget);
+//		PGroup pauseGroup = createGroup("PAUSE COUNTING",
+//				SharedImage.SHUTTER.getImage());
+//		HMVetoGadget pauseStatuswidget = new HMVetoGadget(
+//				pauseGroup, SWT.NONE);
+//		configureWidget(pauseStatuswidget);
 
 		// Experiment info
 		PGroup infoGroup = createGroup("EXPERIMENT INFO",
@@ -92,24 +92,24 @@ public class PlatypusCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget
 				.addDevice("/instrument/parameters/twotheta", "twotheta")
 				.addDevice("/instrument/parameters/omega", "omega")
-				.addSeparator()
-				.addDevice("/instrument/polarizer/z_translation", "analz")
-				.addDevice("/instrument/polarizer/rotation", "analtilt")
-				.addSeparator()
-				.addDevice("/instrument/collimator/translation", "c1ht")
-				.addDevice("/instrument/collimator/rotation", "m1ro")
-				.addSeparator()
-				.addDevice("/sample/translate_x", "sx")
-				.addDevice("/sample/translate_z", "sz")
-				.addDevice("/sample/sth", "sth")
-				.addDevice("/sample/sphi", "sphi")
-				.addSeparator()
-				.addDevice("/instrument/slits/first/horizontal/gap", "ss1hg")
-				.addDevice("/instrument/slits/first/vertical/gap", "ss1vg")
-				.addDevice("/instrument/slits/second/horizontal/gap", "ss2hg")
-				.addDevice("/instrument/slits/second/vertical/gap", "ss2vg")
-				.addDevice("/instrument/slits/third/horizontal/gap", "ss3hg")
-				.addDevice("/instrument/slits/third/vertical/gap", "ss3vg")
+//				.addSeparator()
+//				.addDevice("/instrument/polarizer/z_translation", "analz")
+//				.addDevice("/instrument/polarizer/rotation", "analtilt")
+//				.addSeparator()
+//				.addDevice("/instrument/collimator/translation", "c1ht")
+//				.addDevice("/instrument/collimator/rotation", "m1ro")
+//				.addSeparator()
+//				.addDevice("/sample/translate_x", "sx")
+//				.addDevice("/sample/translate_z", "sz")
+//				.addDevice("/sample/sth", "sth")
+//				.addDevice("/sample/sphi", "sphi")
+//				.addSeparator()
+//				.addDevice("/instrument/slits/first/horizontal/gap", "ss1hg")
+//				.addDevice("/instrument/slits/first/vertical/gap", "ss1vg")
+//				.addDevice("/instrument/slits/second/horizontal/gap", "ss2hg")
+//				.addDevice("/instrument/slits/second/vertical/gap", "ss2vg")
+//				.addDevice("/instrument/slits/third/horizontal/gap", "ss3hg")
+//				.addDevice("/instrument/slits/third/vertical/gap", "ss3vg")
 				;
 		configureWidget(deviceStatusWidget);
 
@@ -120,7 +120,7 @@ public class PlatypusCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget
 				.addDevice("/monitor/bm1_counts", "BM1 Counts", null, "")
 				.addDevice("/monitor/bm2_counts", "BM2 Counts", null, "")
-				.addDevice("/instrument/detector/total_counts", "Total Detector", null, "")
+//				.addDevice("/instrument/detector/total_counts", "Total Detector", null, "")
 				;
 		configureWidget(deviceStatusWidget);
 
