@@ -217,14 +217,8 @@ public class HMVetoGadget extends ExtendedSicsComposite {
 			handCursor.dispose();
 			handCursor = null;
 		}
-		if (pauseImage != null && !pauseImage.isDisposed()){
-			pauseImage.dispose();
-			pauseImage = null;
-		}
-		if (continueImage != null && !continueImage.isDisposed()){
-			continueImage.dispose();
-			continueImage = null;
-		}			
+		pauseImage = null;
+		continueImage = null;
 		if (status != null && !status.isDisposed()){
 			status.dispose();
 			status = null;
