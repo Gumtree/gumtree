@@ -109,6 +109,8 @@
 	<name>Gumtree Tycho Based Parent POM</name>
 
 	<repositories>
+	
+		<!-- Eclipse Juno p2 repository -->
 		<repository>
 			<id>eclipse_juno</id>
 			<layout>p2</layout>
@@ -121,6 +123,8 @@
 			<url>http://download.eclipse.org/releases/juno</url>
 		</repository>
 		-->
+		
+		<!-- Gumtree customised p2 repository -->
 		<repository>
 			<id>gumtree_bundles</id>
 			<layout>p2</layout>
@@ -131,30 +135,6 @@
 			<id>gumtree_bundles</id>
 			<layout>p2</layout>
 			<url>http://dist.codehaus.org/gumtree/sites/bundles/1.8.x</url>
-		</repository>
-		-->
-		<!--
-		<repository>
-			<id>e4_tools</id>
-			<layout>p2</layout>
-			<url>http://download.eclipse.org/e4/updates/0.12</url>
-		</repository>
-		<repository>
-			<id>pydev</id>
-			<layout>p2</layout>
-			<url>http://pydev.org/updates</url>
-		</repository>
-		<repository>
-			<id>xtend</id>
-			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases</url>
-		</repository>
-		-->
-		<!--
-		<repository>
-			<id>gumtree_platform</id>
-			<layout>p2</layout>
-			<url>http://dist.codehaus.org/gumtree/sites/platform</url>
 		</repository>
 		-->
 	</repositories>
