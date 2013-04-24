@@ -19,6 +19,7 @@ public class SICSExperimentPerspective implements IPerspectiveFactory {
 	public static final String SICS_BATCH_RUNNER_VIEW_ID = "org.gumtree.gumnix.sics.batch.ui.batchBufferManagerView";
 	public static final String SICS_TERMINAL_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.SicsTerminalView";
 	public static final String PROJECT_EXPLORER_VIEW_ID = "org.eclipse.ui.navigator.ProjectExplorer";
+	public static final String ID_VIEW_ACTIVITY_MONITOR = "au.gov.ansto.bragg.nbi.ui.SicsRealtimeDataView";
 	
 	public void createInitialLayout(final IPageLayout factory) {
 		factory.addShowViewShortcut(SICS_BATCH_RUNNER_VIEW_ID);
@@ -52,9 +53,11 @@ public class SICSExperimentPerspective implements IPerspectiveFactory {
 //				0.50f, 
 //				factory.getEditorArea());
 //		right.addView(SICS_BATCH_RUNNER_VIEW_ID);
-		factory.addStandaloneView(SICS_BATCH_RUNNER_VIEW_ID, false, IPageLayout.RIGHT, 0.40f, factory.getEditorArea());
+		factory.addStandaloneView(SICS_BATCH_RUNNER_VIEW_ID, false, IPageLayout.RIGHT, 0.4f, factory.getEditorArea());
 
 
+		factory.addStandaloneView(ID_VIEW_ACTIVITY_MONITOR, false, IPageLayout.RIGHT, 0.50f, SICS_TERMINAL_VIEW_ID);
+		
 		factory.setEditorAreaVisible(true);
 //		factory.getViewLayout("bottomLeft").setMoveable(false);
 //		factory.getViewLayout("bottomLeft").setCloseable(false);

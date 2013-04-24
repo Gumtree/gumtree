@@ -25,8 +25,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.gumtree.gumnix.sics.core.SicsCore;
-import org.gumtree.util.ILoopExitCondition;
-import org.gumtree.util.LoopRunner;
 import org.gumtree.vis.dataset.XYTimeSeriesSet;
 import org.gumtree.vis.interfaces.ITimePlot;
 import org.gumtree.vis.swt.PlotComposite;
@@ -207,7 +205,7 @@ public class RealtimeDataViewer extends Composite {
 		contentCombo.setText("");
 	}
 
-	private void updateResourceCombo() {
+	public void updateResourceCombo() {
 		if (resourceCombo != null && !resourceCombo.isDisposed()) {
 			resourceCombo.removeAll();
 			if (resourceProvider == null) {
@@ -229,50 +227,53 @@ public class RealtimeDataViewer extends Composite {
 	 */
 	public void setResourceProvider(IRealtimeResourceProvider resourceProvider) {
 		this.resourceProvider = resourceProvider;
-		Thread thread = new Thread(new Runnable(){
-			
-			@Override
-			public void run() {
-				LoopRunner.run(new ILoopExitCondition() {
-					
-					@Override
-					public boolean getExitCondition() {
-						if (SicsCore.getDefaultProxy() != null && SicsCore.getDefaultProxy().isConnected() && SicsCore.getSicsController() != null){
-							try {
-								Thread.sleep(1000);
-							} catch (InterruptedException e) {
-							}
-							Display.getDefault().asyncExec(new Runnable() {
-								
-								@Override
-								public void run() {
-									updateResourceCombo();
-								}
-							});
-							startUpdateThread();
-							return true;
-						}
-						return isDisposed;
-					}
-				}, -1, 1000);
-			}
-			
-		});
-		thread.start();
+//		Thread thread = new Thread(new Runnable(){
+//			
+//			@Override
+//			public void run() {
+//				LoopRunner.run(new ILoopExitCondition() {
+//					
+//					@Override
+//					public boolean getExitCondition() {
+//						if (SicsCore.getDefaultProxy() != null && SicsCore.getDefaultProxy().isConnected() && SicsCore.getSicsController() != null){
+//							try {
+//								Thread.sleep(1000);
+//							} catch (InterruptedException e) {
+//							}
+//							Display.getDefault().asyncExec(new Runnable() {
+//								
+//								@Override
+//								public void run() {
+//									updateResourceCombo();
+//								}
+//							});
+//							startUpdateThread();
+//							return true;
+//						}
+//						return isDisposed;
+//					}
+//				}, -1, 1000);
+//			}
+//			
+//		});
+//		thread.start();
 	}
 	
-	private void startUpdateThread() {
+	public void startUpdateThread() {
 		if (updateThread == null) {
 			updateThread = new Thread(new Runnable() {
 
 				@Override
 				public void run() {
 
-					while (true) {
+					while (!isDisposed) {
 						if (resourceProvider != null) {
+							if (SicsCore.getDefaultProxy() != null && SicsCore.getDefaultProxy().isConnected() 
+									&& SicsCore.getSicsController() != null){
 							resourceProvider.updateResource();
 							timePlot.updatePlot();
 //							((ChartPanel) timePlot).chartChanged(null);
+							}
 						}
 						try {
 							Thread.sleep(updatePeriod);
@@ -333,4 +334,8 @@ public class RealtimeDataViewer extends Composite {
 		this.updatePeriod = updatePeriod;
 	}
 
+	@Override
+	public boolean isDisposed() {
+		return super.isDisposed() || isDisposed;
+	}
 }

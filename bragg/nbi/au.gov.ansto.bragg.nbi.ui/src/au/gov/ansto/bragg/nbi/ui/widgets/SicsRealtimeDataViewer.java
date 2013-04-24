@@ -11,12 +11,18 @@
 package au.gov.ansto.bragg.nbi.ui.widgets;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.gumtree.gumnix.sics.batch.ui.util.SicsBatchUIUtils;
+import org.gumtree.gumnix.sics.core.SicsCore;
+import org.gumtree.util.ILoopExitCondition;
+import org.gumtree.util.LoopRunner;
 
 import au.gov.ansto.bragg.nbi.ui.realtime.RealtimeDataViewer;
 import au.gov.ansto.bragg.nbi.ui.realtime.SicsRealtimeRourceProvider;
@@ -35,16 +41,46 @@ public class SicsRealtimeDataViewer extends Composite {
 		viewer = new RealtimeDataViewer(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().spacing(0, 0).applyTo(viewer);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer);
-		SicsRealtimeRourceProvider provider = new SicsRealtimeRourceProvider();
-//		provider.setFilter(new String[]{
-//				"/sample/tc1/sensor/sensorValueA",
-//				"/sample/tc1/sensor/sensorValueB",
-//				"/sample/tc1/sensor/sensorValueC", 
-//				"/sample/tc1/sensor/sensorValueD",
-//				"/sample/tempone/sensorA",
-//				"stth"});
-		provider.setFilter(getDeviceFilter());
-		viewer.setResourceProvider(provider);
+//		SicsRealtimeRourceProvider provider = new SicsRealtimeRourceProvider();
+//		provider.setFilter(getDeviceFilter());
+//		viewer.setResourceProvider(provider);
+		initSicsListener();
+	}
+
+	private void initSicsListener() {
+		Thread thread = new Thread(new Runnable(){
+			
+			@Override
+			public void run() {
+				LoopRunner.run(new ILoopExitCondition() {
+					
+					@Override
+					public boolean getExitCondition() {
+						if (SicsCore.getDefaultProxy() != null && SicsCore.getDefaultProxy().isConnected() && SicsCore.getSicsController() != null){
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+							}
+							Display.getDefault().asyncExec(new Runnable() {
+								
+								@Override
+								public void run() {
+									SicsRealtimeRourceProvider provider = new SicsRealtimeRourceProvider();
+									provider.setFilter(getDeviceFilter());
+									viewer.setResourceProvider(provider);
+									viewer.updateResourceCombo();
+								}
+							});
+							viewer.startUpdateThread();
+							return true;
+						}
+						return viewer.isDisposed();
+					}
+				}, -1, 1000);
+			}
+			
+		});
+		thread.start();
 	}
 
 	public static List<String> getDeviceFilter(){
@@ -58,8 +94,10 @@ public class SicsRealtimeDataViewer extends Composite {
 				}
 			}
 			return filter;
+		} else {
+			String[] drivables = SicsBatchUIUtils.getSicsDrivableIds();
+			return Arrays.asList(drivables);
 		}
-		return null;
 	}
 	
 	@Override
