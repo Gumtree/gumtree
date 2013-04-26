@@ -112,6 +112,7 @@ public class ScriptControlViewer extends Composite {
 	protected static String fileDialogPath;
 	private static int SCRIPT_REGISTER_ID = 0;
 	private static final String ID_PREFERENCE_RECENT_FILE = "org.gumtree.scripting.recent";
+	private static final String DEFAULT_SCRIPTING_FOLDER = "gumtree.scripting.defaultFolder";
 	private static final String TEMPLATE_SCRIPT = "/pyscripts/AnalysisScriptingTemplate.py";
 	private static final String __INIT__SCRIPT = "/pyscripts/__init__.py";
 	private static final String PRE_RUN_SCRIPT = "/pyscripts/pre_run.py";
@@ -353,9 +354,19 @@ public class ScriptControlViewer extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog dialog = new FileDialog(getShell(), SWT.SINGLE);
  				if (fileDialogPath == null){
- 					IWorkspace workspace= ResourcesPlugin.getWorkspace();
- 					IWorkspaceRoot root = workspace.getRoot();
- 					dialog.setFilterPath(root.getLocation().toOSString());
+ 					String folderPath = System.getProperty(DEFAULT_SCRIPTING_FOLDER);
+ 					if (folderPath != null) {
+ 						File folderFile = new File(folderPath);
+ 						if (!folderFile.exists()) {
+ 							folderPath = getFullScriptPath(folderPath);
+ 						}
+						dialog.setFilterPath(folderPath);
+// 						dialog.setFilterPath("D:/Git");
+ 					} else {
+ 						IWorkspace workspace= ResourcesPlugin.getWorkspace();
+ 						IWorkspaceRoot root = workspace.getRoot();
+ 						dialog.setFilterPath(root.getLocation().toOSString());
+ 					}
  				} else {
  					dialog.setFilterPath(fileDialogPath);
  				}
@@ -1745,7 +1756,9 @@ public class ScriptControlViewer extends Composite {
 		String[] list = shortPath.split(splitter);
 		if (shortPath.startsWith(splitter)) {
 			if (list.length == 2) {
-				return WORKSPACE_FOLDER_PATH + shortPath;
+//				return WORKSPACE_FOLDER_PATH + shortPath;
+				String projectPath = getProjectPath(list[1]);
+				return projectPath;
 			} else {
 				String projectPath = getProjectPath(list[1]);
 				if (projectPath != null) {

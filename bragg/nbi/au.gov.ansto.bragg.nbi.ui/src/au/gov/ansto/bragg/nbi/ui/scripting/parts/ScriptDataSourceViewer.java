@@ -56,6 +56,7 @@ import au.gov.ansto.bragg.nbi.ui.internal.InternalImage;
  */
 public class ScriptDataSourceViewer extends Composite {
 
+	private static final String SICS_DATA_PATH = "sics.data.path";
 	private final static String[] COLUMN_TITLES = new String[]{"ID/Name", "Location"};
 	private final static int[] COLUMN_BOUNDS = { 60, 200};
 	private static FactoryManager factoryManager = new FactoryManager();
@@ -112,12 +113,22 @@ public class ScriptDataSourceViewer extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog dialog = new FileDialog(getShell(), SWT.MULTI);
- 				if (fileDialogPath == null){
- 					IWorkspace workspace= ResourcesPlugin.getWorkspace();
- 					IWorkspaceRoot root = workspace.getRoot();
- 					dialog.setFilterPath(root.getLocation().toOSString());
- 				} else {
- 					dialog.setFilterPath(fileDialogPath);
+				if (fileDialogPath == null){
+					String folderPath = System.getProperty(SICS_DATA_PATH);
+					if (folderPath != null) {
+						File folderFile = new File(folderPath);
+						if (!folderFile.exists()) {
+							folderPath = ScriptControlViewer.getFullScriptPath(folderPath);
+						}
+						dialog.setFilterPath(folderPath);
+						// 						dialog.setFilterPath("D:/Git");
+					} else {
+						IWorkspace workspace= ResourcesPlugin.getWorkspace();
+						IWorkspaceRoot root = workspace.getRoot();
+						dialog.setFilterPath(root.getLocation().toOSString());
+					}
+				} else {
+					dialog.setFilterPath(fileDialogPath);
  				}
  				dialog.setFilterExtensions(new String[]{"*.hdf"});
  				dialog.open();
