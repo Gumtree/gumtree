@@ -184,10 +184,12 @@ class Dataset(Data):
             item = self.__iNXroot__.findDataItem(name)
         if not item is None :
             data = SimpleData(item, skip_flaws = self.skip_flaws)
-            if data.size == 1 :
-                return data[0]
-            else :
-                return data
+# change the performance
+#            if data.size == 1 :
+#                return data[0]
+#            else :
+#                return data
+            return data
         else :
             return None 
         
@@ -324,7 +326,13 @@ class Dataset(Data):
         
     def __getitem__(self, index):
         if type(index) is str :
-            return self.get_metadata(index)
+            res = self.get_metadata(index)
+            if res.dtype is str:
+                return str(res)
+            elif res.size == 1 :
+                return res[0]
+            else:
+                return res
         res = Data.__getitem__(self, index)
         if isinstance(res, SimpleData) and not hasattr(index, 'ndim') :
             nidx = self.__get_slice_index__(index)
@@ -1035,7 +1043,7 @@ def __self_cov__(m, mean = None):
 class DatasetFactory:
     
     __path__ = ''
-    __prefix__ = 'ECH'
+    __prefix__ = ''
     __normalising_factor__ = None
     __path_sep__ = '/'
     

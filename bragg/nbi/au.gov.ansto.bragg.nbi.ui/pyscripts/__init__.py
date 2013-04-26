@@ -26,7 +26,28 @@ __writer__ = __UI__.getScriptExecutor().getEngine().getContext().getWriter()
 def logln(text):
     log(text, __writer__)
 clear = script.clear
-df = script.df
+
+class ScriptingDatasetFactory(DatasetFactory):
+    def __init__(self, path = None, prefix = None, factor = None):
+        DatasetFactory.__init__(self, path, prefix, factor)
+    
+    def __getitem__(self, index):
+        global __DATASOURCE__
+        if type(index) is int:
+            sname = '%(index)07d.nx.hdf' % {'index' : index}
+            for key in self.datasets.keys() :
+                if key.__contains__(sname) :
+                    return self.datasets[str(key)]
+            for dinfo in __DATASOURCE__.getDatasetList():
+                loc = dinfo.getLocation()
+                if loc.__contains__(sname) :
+                    return self.__getitem__(str(loc))
+        else :
+            return DatasetFactory.__getitem__(self, index)
+        
+        
+df = ScriptingDatasetFactory()
+
 def noclose():
     print 'not closable'
     
