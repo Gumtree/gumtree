@@ -470,6 +470,9 @@ public class PlotComposite extends Composite{
 					@Override
 					public void run() {
 						frame.remove((JPanel) plot);
+						if (emptyPanel != null) {
+							frame.add(emptyPanel);
+						}
 						removeListeners(plot);
 						plot = null;
 						if (!isDisposed()) {
