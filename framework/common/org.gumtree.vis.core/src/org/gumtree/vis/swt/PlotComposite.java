@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.gumtree.vis.swt;
 
+import java.awt.Color;
 import java.awt.Frame;
 import java.awt.event.MouseWheelEvent;
 import java.io.IOException;
@@ -51,6 +52,7 @@ public class PlotComposite extends Composite{
 	 */
 	private IPlot plot; 
 	private Frame frame;
+	private JPanel emptyPanel;
 	private MouseWheelListener mouseWheelListener;
 	private KeyListener keyListener;
 	private ChartMouseListener chartMouseListener;
@@ -64,6 +66,9 @@ public class PlotComposite extends Composite{
 		layout.spacing = 0;
 		setLayout(layout);
 		frame = SWT_AWT.new_Frame(this);
+		emptyPanel = new JPanel();
+		emptyPanel.setBackground(Color.white);
+		frame.add(emptyPanel);
 		addDisposeListener(new DisposeListener() {
 			
 			@Override
@@ -95,6 +100,7 @@ public class PlotComposite extends Composite{
 	protected void embedPlot(IPlot plot) {
 		if (plot instanceof JPanel) {
 			if (frame != null)
+				frame.remove(emptyPanel);
 				frame.add((JPanel) plot);
 		} else {
 			throw new IllegalArgumentException("must be a chart plot panel");
@@ -484,6 +490,7 @@ public class PlotComposite extends Composite{
 		super.update();
 		frame.repaint();
 	}
+	
 //	public void setMouseWheelEnabled(boolean isEnabled) {
 //		plot.setMouseWheelEnabled(isEnabled);
 //	}
