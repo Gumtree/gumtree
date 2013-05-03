@@ -316,6 +316,8 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 				return "deg";
 			} else if ("count".equalsIgnoreCase(String.valueOf(obj))){
 				return "";
+			} else if ("seconds".equalsIgnoreCase(String.valueOf(obj))){
+				return "s";
 			} else if (obj == null) {
 				return null;
 			} else {

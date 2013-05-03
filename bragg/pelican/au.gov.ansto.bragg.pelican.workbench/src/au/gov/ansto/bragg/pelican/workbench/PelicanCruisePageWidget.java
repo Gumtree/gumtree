@@ -59,6 +59,7 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget.addDevice("/instrument/source/power", "Power",
 				SharedImage.POWER.getImage(), null);
 		configureWidget(deviceStatusWidget);
+		sourceGroup.setExpanded(false);
 
 		// Shutter Status
 		PGroup shutterGroup = createGroup("SHUTTER STATUS",
@@ -66,6 +67,7 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		ShutterStatusWidget shutterStatuswidget = new ShutterStatusWidget(
 				shutterGroup, SWT.NONE);
 		configureWidget(shutterStatuswidget);
+		shutterGroup.setExpanded(false);
 
 		// Server Status
 		PGroup sicsStatusGroup = createGroup("SERVER STATUS", 
@@ -103,7 +105,11 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/instrument/crystal/mtth", "mtth", null, "deg")
 				.addDevice("/instrument/crystal/moma", "moma", null, "deg")
 				.addDevice("/instrument/crystal/momb", "momb", null, "deg")
-				.addDevice("/instrument/crystal/momc", "momc", null, "deg");
+				.addDevice("/instrument/crystal/momc", "momc", null, "deg")
+				.addDevice("/instrument/crystal/mra", "mra", null, "deg")
+				.addDevice("/instrument/crystal/mrb", "mrb", null, "deg")
+				.addDevice("/instrument/crystal/mrc", "mrc", null, "deg")
+				;
 		configureWidget(deviceStatusWidget);
 
 		// Monitor Event Rate
@@ -112,7 +118,10 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "")
-				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "");
+				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "")
+				.addDevice("/instrument/detector/total_counts", "Detector counts", null, "")
+				.addDevice("/instrument/detector/time", "Time of counting", null, "s")
+				;
 		configureWidget(deviceStatusWidget);
 
 		// Slits Info
@@ -196,9 +205,9 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 					String data = String.valueOf(obj);
 					double value = Double.valueOf(data);
 					if (Math.round(value) == 1) {
-						return "IN";
-					} else {
 						return "OUT";
+					} else {
+						return "IN";
 					}
 				} catch (Exception e) {
 					return "OUT";

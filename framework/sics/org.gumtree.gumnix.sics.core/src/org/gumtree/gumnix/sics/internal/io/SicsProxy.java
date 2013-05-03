@@ -46,6 +46,10 @@ public class SicsProxy implements ISicsProxy {
 
 	private static final int WAIT_INTERVAL = 10;
 	
+	private static final int SOCKET_TIME_OUT = 1000;
+	
+	private static final int SOCKET_TRY_INTERVAL = 200;
+	
 	private static long idCounter = 0;
 
 	private static Logger logger;
@@ -254,25 +258,31 @@ public class SicsProxy implements ISicsProxy {
 			public void run() {
 				while(getProxyState().equals(ProxyState.CONNECTED)) {
 					Socket socket = null;
-					try {
-//						System.out.println("Checking heat beat...");
-						socket = new Socket(getConnectionContext().getHost(), getConnectionContext().getPort());
-					} catch (IOException ioe) {
-						getLogger().info("SICS proxy needs to disconnect due to network error", ioe);
+					int counter = 0;
+					while(socket == null && counter <= SOCKET_TIME_OUT) {
+						try {
+							socket = new Socket(getConnectionContext().getHost(), getConnectionContext().getPort());
+						} catch (IOException ioe) {
+							counter += SOCKET_TRY_INTERVAL;
+							try {
+								Thread.sleep(SOCKET_TRY_INTERVAL);
+							} catch (InterruptedException e) {
+							}
+						} 
+					}
+					if (socket == null) {
+						getLogger().info("SICS proxy needs to disconnect due to network error");
 						try {
 							// disconnect the proxy if network is unavailable
 							disconnect();
 						} catch (SicsIOException e) {
 							getLogger().error("Error in proxy disconnection.", e);
 						}
-					} finally {
-						// clean up
-						if(socket != null) {
-							try {
-								socket.close();
-								socket = null;
-							} catch (IOException e) {
-							}
+					} else {
+						try {
+							socket.close();
+							socket = null;
+						} catch (IOException e) {
 						}
 					}
 					try {

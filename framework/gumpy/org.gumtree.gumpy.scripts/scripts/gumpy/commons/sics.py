@@ -2,6 +2,8 @@ import time
 from org.gumtree.gumnix.sics.core import SicsCore
 from org.gumtree.gumnix.sics.control.controllers import ComponentData
 from org.gumtree.gumnix.sics.control.controllers import CommandStatus
+from org.gumtree.gumnix.sics.io import SicsCallbackAdapter
+from org.gumtree.gumnix.sics.control import ServerStatus
 from org.gumtree.gumnix.sics.control import MultiDrivableRunner
 from gumpy.commons import logger
 
@@ -221,3 +223,57 @@ class SicsError(Exception):
     def __str__(self):
         return repr(self.value)
     
+__status__ = None
+__time_out__ = 1
+class __SICS_Callback__(SicsCallbackAdapter):
+    
+    def receiveReply(self, data):
+        global __status__
+        try:
+            rt = data.getString()
+            if rt.__contains__('='):
+                __status__ = data.getString().split("=")[1].strip()
+            elif rt.__contains__(':'):
+                __status__ = data.getString().split(":")[1].strip()
+                if __status__.__contains__('}'):
+                    __status__ = __status__[:__status__.index('}')]
+            else :
+                __status__ = rt
+            self.setCallbackCompleted(True)
+        except:
+            traceback.print_exc(file = sys.stdout)
+            self.setCallbackCompleted(True)
+
+def run_command(cmd):
+    global __status__
+    __status__ = None
+    call_back = __SICS_Callback__()
+    SicsCore.getDefaultProxy().send(cmd, call_back)
+    acc_time = 0
+    while __status__ is None and acc_time < 2:
+        time.sleep(0.2)
+        acc_time += 0.2
+    if __status__ is None:
+        raise Exception, 'time out in running the command'
+    return __status__
+
+def get_raw_value(comm, dtype = float):
+    global __time_out__
+    __count__ = 0
+    comm_str = str(comm)
+    while __count__ < __time_out__:
+        try:
+            item = run_command(comm_str)
+            if dtype is str:
+                return str(item)
+            elif dtype is float:
+                return float(item)
+            elif dtype is int:
+                return int(float(item))
+            else:
+                return item
+        except:
+            __count__ += 0.2
+            time.sleep(0.2)
+    print 'time out in running ' + comm_str
+    return None
