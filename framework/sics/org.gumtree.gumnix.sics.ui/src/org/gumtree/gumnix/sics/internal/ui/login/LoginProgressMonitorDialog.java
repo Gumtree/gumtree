@@ -47,24 +47,24 @@ public class LoginProgressMonitorDialog extends ProgressMonitorDialog {
 //				SicsCore.getSicsManager().service().setCurrentInstrumentProfile(profile);
 				monitor.subTask("Fetching SICS model from the server");
 				// Cause the UI thread to load the hipadaba model first
-				SICS sics = null;
-				int counter = 0;
-				Exception exp = null;
-				while (sics == null && counter < 100) {
-					try {
-						sics = SicsCore.getSicsController().getSICSModel();
-					} catch (Exception e) {
-						exp = e;
-						counter++;
-						try {
-							Thread.sleep(200);
-						} catch (InterruptedException e1) {
-						}
-					}
-				}
-				if (sics == null) {
-					throw new InvocationTargetException(exp, exp.getMessage());
-				}
+//				SICS sics = null;
+//				int counter = 0;
+//				Exception exp = null;
+//				while (sics == null && counter < 20) {
+//					try {
+//						sics = SicsCore.getSicsController().getSICSModel();
+//					} catch (Exception e) {
+//						exp = e;
+//						counter++;
+//						try {
+//							Thread.sleep(200);
+//						} catch (InterruptedException e1) {
+//						}
+//					}
+//				}
+//				if (sics == null) {
+//					throw new InvocationTargetException(exp, exp.getMessage());
+//				}
 				monitor.done();
 			}
 		});
