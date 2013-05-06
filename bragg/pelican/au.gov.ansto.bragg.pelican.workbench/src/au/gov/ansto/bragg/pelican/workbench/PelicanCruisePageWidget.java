@@ -27,7 +27,6 @@ import org.gumtree.util.messaging.IDelayEventExecutor;
 import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
-import au.gov.ansto.bragg.nbi.ui.widgets.HMImageDisplayWidget;
 
 @SuppressWarnings("restriction")
 public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
@@ -60,6 +59,7 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.POWER.getImage(), null);
 		configureWidget(deviceStatusWidget);
 		sourceGroup.setExpanded(false);
+		deviceStatusWidget.setExpandingEnabled(false);
 
 		// Shutter Status
 		PGroup shutterGroup = createGroup("SHUTTER STATUS",
@@ -218,6 +218,8 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget
 				.addDevice("/instrument/collimator/RCollZ", "in/out", null, "", converter);
 //				.addDevice("/instrument/collimator/rcz", "frequency", null, "");
+		deviceStatusWidget.setExpandingEnabled(false);
+		collimatorGroup.setExpanded(false);
 		configureWidget(deviceStatusWidget);
 
 		// Sample
@@ -226,6 +228,8 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new DeviceStatusWidget(sampleGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/instrument/detector/stth", "angle", null, "");
+		sampleGroup.setExpanded(false);
+		deviceStatusWidget.setExpandingEnabled(false);
 		configureWidget(deviceStatusWidget);
 		
 		// Experiment info

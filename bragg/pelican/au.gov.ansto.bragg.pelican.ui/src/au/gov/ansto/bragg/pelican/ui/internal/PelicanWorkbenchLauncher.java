@@ -11,11 +11,8 @@
 
 package au.gov.ansto.bragg.pelican.ui.internal;
 
-import org.eclipse.ui.IPerspectiveDescriptor;
-import org.eclipse.ui.IPerspectiveListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchWindow;
 import org.gumtree.ui.service.launcher.AbstractLauncher;
@@ -34,6 +31,8 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 	
 	// Use the default as buffer to hold the editor
 	private static final String ID_PERSPECTIVE_DEFAULT = "au.gov.ansto.bragg.nbi.ui.EmptyPerspective";
+
+	private static final String ID_PERSPECTIVE_STATUS = "au.gov.ansto.bragg.pelican.ui.PelicanStatusPerspective";
 	
 	private static Logger logger = LoggerFactory.getLogger(PelicanWorkbenchLauncher.class);
 	
@@ -128,6 +127,7 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, true);
 			}
 //			// position it
+			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_STATUS, 1, 1, mmManager.isMultiMonitorSystem());
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
 
 //			IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();

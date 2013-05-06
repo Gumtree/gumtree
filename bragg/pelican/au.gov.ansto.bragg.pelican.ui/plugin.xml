@@ -31,6 +31,11 @@
             icon="icons/exp_per.gif"
             id="au.gov.ansto.bragg.pelican.ui.TCLRunnerPerspective"
             name="Pelican Experiment"/>
+      <perspective
+            class="au.gov.ansto.bragg.pelican.ui.internal.PelicanStatusPerspective"
+            icon="icons/activity_monitor.png"
+            id="au.gov.ansto.bragg.pelican.ui.PelicanStatusPerspective"
+            name="Pelican Status"/>
    </extension>
    <extension
          point="org.gumtree.workflow.ui.tasks">

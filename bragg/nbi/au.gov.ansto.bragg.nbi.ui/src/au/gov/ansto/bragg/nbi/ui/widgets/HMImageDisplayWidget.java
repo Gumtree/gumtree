@@ -147,7 +147,7 @@ public class HMImageDisplayWidget extends ScalableImageDisplayWidget {
 			}
 		});
 		GridDataFactory.swtDefaults().hint(20, SWT.DEFAULT).applyTo(refreshText);
-		label = getToolkit().createLabel(this, "sec");
+		label = getToolkit().createLabel(this, "sec ");
 		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
 		
 		Composite imageArea = getToolkit().createComposite(this, SWT.NONE);

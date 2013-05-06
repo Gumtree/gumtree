@@ -45,6 +45,8 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 	private Set<LabelContext> labelContexts;
 
 	private IFilteredEventHandler<SicsControllerEvent> eventHandler;
+	
+	private boolean isExpandingEnabled = true;
 
 	public DeviceStatusWidget(Composite parent, int style) {
 		super(parent, style);
@@ -379,7 +381,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 				if (label != null && !label.isDisposed()) {
 					Composite parent = getParent();
 					if (parent instanceof PGroup) {
-						if (!((PGroup) parent).getExpanded()) {
+						if (isExpandingEnabled() && !((PGroup) parent).getExpanded()) {
 							((PGroup) parent).setExpanded(true);
 						}
 					}
@@ -401,6 +403,20 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 				}
 			}
 		});
+	}
+
+	/**
+	 * @return the isExpandingEnabled
+	 */
+	public boolean isExpandingEnabled() {
+		return isExpandingEnabled;
+	}
+
+	/**
+	 * @param isExpandingEnabled the isExpandingEnabled to set
+	 */
+	public void setExpandingEnabled(boolean isExpandingEnabled) {
+		this.isExpandingEnabled = isExpandingEnabled;
 	}
 
 }

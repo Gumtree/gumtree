@@ -32,9 +32,9 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 //	public static final String CONTROL_VIEW_ID = "au.gov.ansto.bragg.pelican.ui.views.KowariControlView";
 	public static final String SICS_BUFFER_RUNNER_VIEW_ID = "org.gumtree.gumnix.sics.batch.ui.batchBufferRunnerView";
 	public static final String SICS_BUFFER_VALIDATOR_VIEW_ID = "org.gumtree.gumnix.sics.batch.ui.batchBufferValidatorView";
-	public static final String PELICAN_HM_VIEW_ID = "au.gov.ansto.bragg.pelican.ui.views.PelicanHMView";
+//	public static final String PELICAN_HM_VIEW_ID = "au.gov.ansto.bragg.pelican.ui.views.PelicanHMView";
 
-	public static final String ID_VIEW_ACTIVITY_MONITOR = "au.gov.ansto.bragg.nbi.ui.SicsRealtimeDataView";
+//	public static final String ID_VIEW_ACTIVITY_MONITOR = "au.gov.ansto.bragg.nbi.ui.SicsRealtimeDataView";
 
 	
 	public void createInitialLayout(IPageLayout factory) {
@@ -44,36 +44,36 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 
 		IFolderLayout top2 = factory.createFolder(
 				"top_folder", //NON-NLS-1
-				IPageLayout.TOP,
-				0.8f,
+				IPageLayout.LEFT,
+				0.5f,
 				factory.getEditorArea());
 		top2.addView(EXPERIMENT_CONFIG_VIEW_ID);
 		top2.addView(WORKFLOW_VIEW_ID);
 		top2.addView(SICS_BUFFER_VALIDATOR_VIEW_ID);
 
 		factory.addStandaloneView(SICS_BUFFER_RUNNER_VIEW_ID, false, 
-				IPageLayout.RIGHT, 0.6f, "top_folder");
+				IPageLayout.TOP, 0.75f, factory.getEditorArea());
 		
-		factory.addStandaloneView(PROJECT_EXPLORER_VIEW_ID, true, 
-				IPageLayout.LEFT, 0.2f, "top_folder");
-
 		factory.addStandaloneView(SICS_TERMINAL_VIEW_ID, false, 
-				IPageLayout.RIGHT, 0.23f, factory.getEditorArea());
+				IPageLayout.BOTTOM, 0.75f, "top_folder");
 
-		factory.addStandaloneView(ID_VIEW_ACTIVITY_MONITOR, false, 
-		IPageLayout.RIGHT, 0.67f, SICS_TERMINAL_VIEW_ID);
+		factory.addStandaloneView(PROJECT_EXPLORER_VIEW_ID, true, 
+				IPageLayout.LEFT, 0.3f, "top_folder");
 
-		factory.addStandaloneView(PELICAN_HM_VIEW_ID, false, 
-		IPageLayout.RIGHT, 0.50f, SICS_TERMINAL_VIEW_ID);
+//		factory.addStandaloneView(ID_VIEW_ACTIVITY_MONITOR, false, 
+//		IPageLayout.RIGHT, 0.50f, SICS_TERMINAL_VIEW_ID);
+
+//		factory.addStandaloneView(PELICAN_HM_VIEW_ID, false, 
+//		IPageLayout.RIGHT, 0.50f, SICS_TERMINAL_VIEW_ID);
 
 		factory.getViewLayout(WORKFLOW_VIEW_ID).setCloseable(false);
 		factory.getViewLayout(WORKFLOW_VIEW_ID).setMoveable(false);
-		factory.getViewLayout(SICS_BUFFER_RUNNER_VIEW_ID).setCloseable(false);
-		factory.getViewLayout(SICS_BUFFER_RUNNER_VIEW_ID).setMoveable(false);
+		factory.getViewLayout(EXPERIMENT_CONFIG_VIEW_ID).setCloseable(false);
+		factory.getViewLayout(EXPERIMENT_CONFIG_VIEW_ID).setMoveable(false);
 		factory.getViewLayout(SICS_BUFFER_VALIDATOR_VIEW_ID).setCloseable(false);
 		factory.getViewLayout(SICS_BUFFER_VALIDATOR_VIEW_ID).setMoveable(false);
-		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setMoveable(false);
-		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setCloseable(false);
+//		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setMoveable(false);
+//		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setCloseable(false);
 		factory.setEditorAreaVisible(false);
 		
 		final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
