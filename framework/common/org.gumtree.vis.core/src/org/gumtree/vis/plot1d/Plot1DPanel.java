@@ -1229,6 +1229,18 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 	}
 
 	@Override
+	public void setCurveMarkerVisible(IXYErrorSeries pattern, boolean isMarkerVisible) {
+		int index = getCurveIndex(pattern);
+		if (index >= 0) {
+			XYItemRenderer renderer = getXYPlot().getRenderer();
+			if (renderer instanceof XYLineAndShapeRenderer) {
+				((XYLineAndShapeRenderer) renderer).setSeriesShapesVisible(index, 
+						isMarkerVisible); 
+			}
+		}
+	}
+	
+	@Override
 	public void setCurveStroke(IXYErrorSeries pattern, float stroke) {
 		int index = getCurveIndex(pattern);
 		if (index >= 0) {

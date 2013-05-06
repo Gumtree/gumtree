@@ -115,6 +115,16 @@ class GPlot:
         else :
             raise AttributeError, 'not supported for this type of plot: ' + str(self.ndim) + '-dimension'
 
+    def __get_NXseries__(self, ds):
+        if self.ndim == 1 :
+            sds = self.pv.getPlot().getDataset()
+            for s in sds.getSeries() :
+                if s.getNxDataset() is ds.__iNXDataset__ :
+                    return s
+            return None
+        else :
+            raise AttributeError, 'not supported for this type of plot: ' + str(self.ndim) + '-dimension'
+
     def set_log_x_on(self, flag):
         if self.ndim == 1 :
             self.pv.getPlot().setLogarithmXEnabled(flag)

@@ -50,6 +50,8 @@ public interface IPlot1D extends IPlot{
 	
 	public void setCurveMarkerShape(IXYErrorSeries pattern, MarkerShape shape);
 	
+	public void setCurveMarkerVisible(IXYErrorSeries pattern, boolean isMarkerVisible);
+	
 	public void setCurveStroke(IXYErrorSeries pattern, float stroke);
 	
 	public void setCurveVisible(IXYErrorSeries pattern, boolean visible);
