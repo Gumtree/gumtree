@@ -11,8 +11,10 @@
 
 package au.gov.ansto.bragg.pelican.ui.internal;
 
+import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchWindow;
 import org.gumtree.ui.service.launcher.AbstractLauncher;
@@ -21,6 +23,9 @@ import org.gumtree.ui.service.multimonitor.IMultiMonitorManager;
 import org.gumtree.ui.service.multimonitor.support.MultiMonitorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import au.gov.ansto.bragg.nbi.ui.scripting.ScriptPageRegister;
+import au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective;
 
 public class PelicanWorkbenchLauncher extends AbstractLauncher {
 
@@ -46,14 +51,18 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 			final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			if (activeWorkbenchWindow instanceof WorkbenchWindow) {
 //				activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
-				IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
-				for (IWorkbenchPage page : pages) {
-					try {
-						if (!ID_PERSPECTIVE_EXPERIMENT.equals(page.getPerspective().getId())){
-							activeWorkbenchWindow.getActivePage().closePerspective(page.getPerspective(), false, true);
+				IWorkbenchPage page = activeWorkbenchWindow.getActivePage();
+				if (page != null) {
+					IPerspectiveDescriptor[] perspectives = page.getOpenPerspectives();
+					for (IPerspectiveDescriptor perspective : perspectives) {
+						try {
+							System.err.println(page.getPerspective().getId());
+							if (!ID_PERSPECTIVE_EXPERIMENT.equals(perspective.getId())){
+								activeWorkbenchWindow.getActivePage().closePerspective(page.getPerspective(), false, true);
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
 						}
-					} catch (Exception e) {
-						e.printStackTrace();
 					}
 				}
 			}
@@ -124,12 +133,25 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 			
 			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
 				// open new window as editor buffer
-				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, true);
+				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_SCRIPTING, 1, true);
 			}
 //			// position it
+			ScriptPageRegister register = new ScriptPageRegister();
+			try {
+				ScriptingPerspective.registerViews(register);
+			} catch (PartInitException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_STATUS, 1, 1, mmManager.isMultiMonitorSystem());
-			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
-
+//			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
+//			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+//			for (IPerspectiveDescriptor perspective: page.getOpenPerspectives()) {
+//				if (ID_PERSPECTIVE_STATUS.equals(perspective.getId())){
+//					page.setPerspective(perspective);
+//				}
+//			}
+			
 //			IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
 //			for (IWorkbenchWindow window : windows) {
 //				window.addPerspectiveListener(listener);

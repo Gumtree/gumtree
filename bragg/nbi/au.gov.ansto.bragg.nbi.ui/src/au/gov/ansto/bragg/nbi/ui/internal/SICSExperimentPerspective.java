@@ -59,6 +59,8 @@ public class SICSExperimentPerspective implements IPerspectiveFactory {
 		factory.addStandaloneView(ID_VIEW_ACTIVITY_MONITOR, false, IPageLayout.RIGHT, 0.50f, SICS_TERMINAL_VIEW_ID);
 		
 		factory.setEditorAreaVisible(true);
+		factory.getViewLayout(SICS_TERMINAL_VIEW_ID).setCloseable(false);
+		factory.getViewLayout(SICS_TERMINAL_VIEW_ID).setMoveable(false);
 //		factory.getViewLayout("bottomLeft").setMoveable(false);
 //		factory.getViewLayout("bottomLeft").setCloseable(false);
 //		factory.getViewLayout("right").setMoveable(false);
