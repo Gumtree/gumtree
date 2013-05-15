@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension
+         point="org.eclipse.equinox.http.registry.resources">
+      <resource
+            alias="/pelican/pelican.html"
+            base-name="/WebContent/pelican.html">
+      </resource>
+      <resource
+            alias="/pelican/pelican.swf"
+            base-name="/WebContent/pelican.swf">
+      </resource>
+      <resource
+            alias="/pelican/playerProductInstall.swf"
+            base-name="/WebContent/playerProductInstall.swf">
+      </resource>
+      <resource
+            alias="/pelican/AC_OETags.js"
+            base-name="/WebContent/AC_OETags.js">
+      </resource>
+      <resource
+            alias="/pelican/assetsPelican.png"
+            base-name="/WebContent/assets/Pelican.png">
+      </resource>
+         
+   </extension>
+</plugin>
