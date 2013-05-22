@@ -1,10 +1,10 @@
 from gumpy.commons import jutils
 from org.gumtree.data import DataType
 from org.gumtree.data.utils import FactoryManager, Utilities
+from symbol import except_clause
 import copy
 import math
 import random
-from symbol import except_clause
 
 
 gdm_factory = FactoryManager().getFactory()
@@ -1681,6 +1681,81 @@ class Array:
 #            ndata.__iDataItem__.addOneAttribute(axis_attr)
 #            self.storage = narr
 
+    def intg(self, axis = None, out = None, keepdims = False):
+        if axis is None :
+            return self.sum()
+        axis_type = type(axis)
+        if axis_type is int:
+            if axis >= self.ndim :
+                raise Exception, 'index out of bound, ' + str(axis)
+        else :
+            for i in xrange(len(axis)):
+                if axis[i] >= self.ndim:
+                    raise Exception, 'index out of bound, ' + str(axis)
+        if self.ndim == 1:
+            return self.sum()
+        sshape = [1] * self.ndim
+        if axis_type is int:
+            sshape[axis] = self.shape[axis]
+        else:
+            for i in xrange(len(axis)):
+                sshape[axis[i]] = self.shape[axis[i]]
+        if keepdims:
+            nshape = copy.copy(self.shape)
+            if axis_type is int:
+                nshape[axis] = 1
+            else:
+                for i in xrange(len(axis)):
+                    nshape[axis[i]] = 1
+        else:
+            nshape = []
+            for i in xrange(self.ndim):
+                if axis_type is int:
+                    if i != axis:
+                        nshape.append(self.shape[i])
+                else:
+                    if not axis.__contains__(i):
+                        nshape.append(self.shape[i])
+        sit = self.section_iter(sshape)
+        if out is None:
+            out = instance(nshape)
+        oit = out.item_iter()
+        while sit.has_next():
+            oit.set_next(sit.next().sum())
+        return out
+#        if axis is None :
+#            return self.sum(out = out)
+#        if hasattr(axis, '__len__'):
+#            if len(axis) >= self.ndim:
+#                raise Exception, 'index out of bound'
+#            for item in axis:
+#                if item >= self.ndim :
+#                    raise Exception, str(item) + ' does not exist'
+#        else :
+#            if axis >= self.ndim :
+#                raise Exception, str(item) + ' does not exist'
+#        if keepdims:
+#            nshape = copy.copy(self.shape)
+#            if hasattr(axis, '__len__'):
+#                for item in axis:
+#                    nshape[item] = 1
+#            else:
+#                nshape[axis] = 1
+#            
+#        else:
+#            nshape = []
+#            if hasattr(axis, '__len__'):
+#                for i in xrange(self.ndim):
+#                    if not axis.__contains__(i):
+#                        nshape.append(self.shape[i])
+#            else:
+#                for i in xrange(self.ndim):
+#                    if axis != i:
+#                        nshape.append(self.shape[i])
+#            
+#        if out is None:
+#            pass
+        
 #####################################################################################
 # Array slice iter class
 #####################################################################################

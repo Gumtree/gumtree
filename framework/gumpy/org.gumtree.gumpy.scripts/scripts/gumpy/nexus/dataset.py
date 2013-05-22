@@ -512,7 +512,7 @@ class Dataset(Data):
                 return Data.sum(self, axis, dtype, out)
         
     def reshape(self, shape): 
-        res = Data.reshape(self)
+        res = Data.reshape(self, shape)
         res.__copy_metadata__(self)
         return res
     
@@ -630,6 +630,11 @@ class Dataset(Data):
         
     def mean(self, axis = None, dtype = None, out = None):
         res = Data.mean(self, axis, dtype, out )
+        return res
+    
+    def intg(self, axis = None, out = None, keepdims = False):
+        res = Data.intg(self, axis, out, keepdims)
+        res.__copy_metadata__(self)
         return res
 
 def new(storage, name = None, var = None, axes = None, anames = None, \

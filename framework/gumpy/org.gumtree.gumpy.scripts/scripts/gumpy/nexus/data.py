@@ -1211,6 +1211,30 @@ class Data(SimpleData):
             naxes.append(axis)
         self.set_axes(naxes)
         
+    def intg(self, axis = None, out = None, keepdims = False):
+        if axis is None :
+            return self.storage.intg()
+        else :
+            if out is None :
+                out = self.__new__(self.storage.intg(axis, out, keepdims))
+                if not self.var is None :
+                    out.set_var(self.var.intg(axis, None, keepdims))
+                saxes = self.axes
+                naxes = []
+                for i in xrange(len(saxes)):
+                    if type(axis) is int:
+                        if i != axis:
+                            naxes.append(saxes[i])
+                    else :
+                        if not axis.__contains__(i):
+                            naxes.append(saxes[i])
+                out.set_axes(naxes)
+                return out
+            else :
+                self.storage.intg(axis, out, keepdims)
+                if not self.var is None and hasattr(out, 'var') and not out.var is None :
+                    self.var.intg(axis, out.var, keepdims)
+                return out
 
 class __Axes__():
     

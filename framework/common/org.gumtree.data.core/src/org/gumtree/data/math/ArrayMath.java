@@ -132,7 +132,7 @@ public abstract class ArrayMath implements IArrayMath {
 			throws ShapeNotMatchException {
 		getArray().getArrayUtils().checkShape(newArray);
 		IArrayMath arrMath = newArray.getArrayMath();
-		IArray result = getFactory().createArray(getArray().getElementType(),
+		IArray result = getFactory().createArray(double.class,
 				getArray().getShape());
 		if (getArray().getRank() == newArray.getRank()) {
 			eltRemainderEqualSize(newArray, result);
@@ -166,7 +166,7 @@ public abstract class ArrayMath implements IArrayMath {
 			throws ShapeNotMatchException {
 		getArray().getArrayUtils().checkShape(newArray);
 		IArrayMath arrMath = newArray.getArrayMath();
-		IArray result = getFactory().createArray(getArray().getElementType(),
+		IArray result = getFactory().createArray(double.class,
 				getArray().getShape());
 		if (getArray().getRank() == newArray.getRank()) {
 			eltMultiplyWithEqualSize(newArray, result);
@@ -239,7 +239,7 @@ public abstract class ArrayMath implements IArrayMath {
      * @return IArray with new storage 
      */
 	public IArrayMath toScale(double value) {
-		IArray result = getFactory().createArray(getArray().getElementType(),
+		IArray result = getFactory().createArray(double.class,
 				getArray().getShape());
 		IArrayIterator oldIterator = getArray().getIterator();
 		IArrayIterator newIterator = result.getIterator();
@@ -257,7 +257,7 @@ public abstract class ArrayMath implements IArrayMath {
      * @return IArray with new storage 
      */
 	public IArrayMath toMod(double value) {
-		IArray result = getFactory().createArray(getArray().getElementType(),
+		IArray result = getFactory().createArray(double.class,
 				getArray().getShape());
 		IArrayIterator oldIterator = getArray().getIterator();
 		IArrayIterator newIterator = result.getIterator();

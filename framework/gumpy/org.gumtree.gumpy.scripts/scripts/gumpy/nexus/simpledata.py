@@ -530,7 +530,16 @@ class SimpleData:
             self.__iDataItem__ = nx_factory.\
                             createNXsignal(None, oname, narr.__iArray__)
             self.storage = narr
-            
+    
+    def intg(self, axis = None, out = None, keepdims = False):
+        if axis is None :
+            return self.storage.intg()
+        else :
+            if out is None :
+                return self.__new__(self.storage.intg(axis, out, keepdims))
+            else :
+                return self.storage.intg(axis, out, keepdims)
+        
 #####################################################################################
 # Simpledata slice iter class
 #####################################################################################
