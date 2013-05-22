@@ -460,7 +460,7 @@ class Dataset(Data):
         return res
 
     def __mod__(self, obj):
-        res = Data.__mod__(self)
+        res = Data.__mod__(self, obj)
         res.__copy_metadata__(self)
         return res
 
