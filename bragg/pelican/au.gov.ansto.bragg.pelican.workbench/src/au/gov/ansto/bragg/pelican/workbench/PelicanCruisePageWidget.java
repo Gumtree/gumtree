@@ -96,7 +96,7 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 //		configureWidget(hmWidget);
 
 		// Monochromator
-		PGroup monochromatorGroup = createGroup("MONOCROMATOR",
+		PGroup monochromatorGroup = createGroup("MONOCHROMATOR",
 				SharedImage.MONOCHROMATOR.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup, SWT.NONE);
 		deviceStatusWidget

@@ -25,6 +25,15 @@ Learn more about Flex at http://flex.org
 <script src="history/history.js" language="javascript"></script>
 <!--  END Browser History required section -->
 
+<!--  Auto refresh the browser in 30 minutes -->
+<script type="text/JavaScript">
+<!--  
+function timedRefresh(timeoutPeriod) {
+	setTimeout("location.reload(true);",timeoutPeriod * 60000);
+}
+//   -->
+</script>
+
 <style>
 body { margin: 0px; overflow:hidden }
 </style>
@@ -43,7 +52,7 @@ var requiredRevision = 124;
 </script>
 </head>
 
-<body scroll="no">
+<body scroll="no" onload="JavaScript:timedRefresh(10);">
 <script language="JavaScript" type="text/javascript">
 <!--
 // Version check for the Flash Player that has the ability to start Player Product Install (6.0r65)
