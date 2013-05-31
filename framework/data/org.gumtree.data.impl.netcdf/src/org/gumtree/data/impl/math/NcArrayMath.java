@@ -216,7 +216,7 @@ public class NcArrayMath extends ArrayMath {
      */
     public IArrayMath toAdd(final IArray newArray) throws ShapeNotMatchException {
     	getArray().getArrayUtils().checkShape(newArray);
-        IArray result = getFactory().createArray(getArray().getElementType(), getArray().getShape());
+        IArray result = getFactory().createArray(double.class, getArray().getShape());
         if (getArray().getRank() == newArray.getRank()) {
             MAMath.addDouble(((NcArray) result).getArray(), getNcArray().getArray(),
                     ((NcArray) newArray).getArray());

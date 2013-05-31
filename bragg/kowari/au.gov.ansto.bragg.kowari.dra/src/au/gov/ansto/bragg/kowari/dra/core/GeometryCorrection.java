@@ -386,15 +386,30 @@ public class GeometryCorrection extends ConcreteProcessor {
 				leftIntensityRate = 0;
 				rightIntensityRate = (twoThetaRight - twoThetaAxisFirstValue) 
 					/ (twoThetaRight - twoThetaLeft);
+				if (rightIntensityRate > 1) {
+					rightIntensityRate = 1;
+				} else if (rightIntensityRate < 0) {
+					rightIntensityRate = 0;
+				}
 			}else if (twoThetaIndexLeft >= 0 && twoThetaIndexRight < 0){
 				rightIntensityRate = 0;
 				leftIntensityRate = (twoThetaAxisLastValue - twoThetaLeft) 
 					/ (twoThetaRight - twoThetaLeft);
+				if (leftIntensityRate > 1) {
+					leftIntensityRate = 1;
+				} else if (leftIntensityRate < 0) {
+					leftIntensityRate = 0;
+				}
 			}else{
 				double twoThetaAxisValue = twoThetaAxis.getDouble(twoThetaAxisIndex.set(twoThetaIndexRight));
 				leftIntensityRate = (twoThetaAxisValue - twoThetaLeft) 
 					/ (twoThetaRight - twoThetaLeft);
 				rightIntensityRate = 1 - leftIntensityRate;
+				if (leftIntensityRate > 1) {
+					leftIntensityRate = 1;
+				} else if (leftIntensityRate < 0) {
+					leftIntensityRate = 0;
+				}
 			}
 			double inputDataValue = inputIterator.getDoubleNext();
 			double inputVarianceValue = varianceIterator.getDoubleNext();
@@ -490,14 +505,29 @@ public class GeometryCorrection extends ConcreteProcessor {
 					leftIntensityRate = 0;
 					rightIntensityRate = (twoThetaRight - twoThetaAxisFirstValue) 
 						/ (twoThetaRight - twoThetaLeft);
+					if (rightIntensityRate > 1) {
+						rightIntensityRate = 1;
+					} else if (rightIntensityRate < 0) {
+						rightIntensityRate = 0;
+					}
 				}else if (twoThetaIndexLeft >= 0 && twoThetaIndexRight < 0){
 					rightIntensityRate = 0;
 					leftIntensityRate = (twoThetaAxisLastValue - twoThetaLeft) 
 						/ (twoThetaRight - twoThetaLeft);
+					if (leftIntensityRate > 1) {
+						leftIntensityRate = 1;
+					} else if (leftIntensityRate < 0) {
+						leftIntensityRate = 0;
+					}
 				}else{
 					double twoThetaAxisValue = twoThetaAxis.getDouble(twoThetaAxisIndex.set(twoThetaIndexRight));
 					leftIntensityRate = (twoThetaAxisValue - twoThetaLeft) 
 						/ (twoThetaRight - twoThetaLeft);
+					if (leftIntensityRate > 1) {
+						leftIntensityRate = 1;
+					} else if (leftIntensityRate < 0) {
+						leftIntensityRate = 0;
+					}
 					rightIntensityRate = 1 - leftIntensityRate;
 				}
 				double inputDataValue = inputIterator.getDoubleNext();
