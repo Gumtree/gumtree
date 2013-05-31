@@ -187,8 +187,8 @@ public class KowariAnalysisPerspective implements IPerspectiveFactory {
 //		}
 //		IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		final IPerspectiveDescriptor descriptor = factory.getDescriptor();
-		SafeUIRunner.asyncExec(new SafeRunnable() {
-			public void run() throws Exception {
+//		SafeUIRunner.asyncExec(new SafeRunnable() {
+//			public void run() throws Exception {
 				try {
 					PlotManager.resetPlotViewId();
 					kakadu.loadAlgorithm(cicada.loadAlgorithm("Reduction Algorithms 4.0"), descriptor);
@@ -205,12 +205,12 @@ public class KowariAnalysisPerspective implements IPerspectiveFactory {
 //					factory.setEditorAreaVisible(false);
 					IIntroPart introPart = PlatformUI.getWorkbench().getIntroManager().getIntro();
 					PlatformUI.getWorkbench().getIntroManager().closeIntro(introPart);
-				} catch (NoneAlgorithmException e) {
+				} catch (Exception e) {
 					Util.handleException(Display.getCurrent().getShells()[0], e);
 //					return;
 				}
-			}
-		});
+//			}
+//		});
 		factory.setEditorAreaVisible(false);
 		factory.getViewLayout(DATA_SOURCE_VIEW_ID).setMoveable(false);
 		factory.getViewLayout(DATA_SOURCE_VIEW_ID).setCloseable(false);
@@ -229,23 +229,23 @@ public class KowariAnalysisPerspective implements IPerspectiveFactory {
 //		});
 		factory.setFixed(true);
 		
-		final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
-			
-			@Override
-			public void perspectiveChanged(IWorkbenchPage page,
-					IPerspectiveDescriptor perspective, String changeId) {
-				if (perspective.getId().equals(ANALYSIS_PERSPECTIVE_ID)) {
-					IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
-					activePage.hideView(activePage.findViewReference("org.gumtree.app.workbench.cruisePanel"));
-				}
-			}
-			
-			@Override
-			public void perspectiveActivated(IWorkbenchPage page,
-					IPerspectiveDescriptor perspective) {
-			}
-		});
+//		final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+//		activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
+//			
+//			@Override
+//			public void perspectiveChanged(IWorkbenchPage page,
+//					IPerspectiveDescriptor perspective, String changeId) {
+//				if (perspective.getId().equals(ANALYSIS_PERSPECTIVE_ID)) {
+//					IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
+//					activePage.hideView(activePage.findViewReference("org.gumtree.app.workbench.cruisePanel"));
+//				}
+//			}
+//			
+//			@Override
+//			public void perspectiveActivated(IWorkbenchPage page,
+//					IPerspectiveDescriptor perspective) {
+//			}
+//		});
 }
 
 	public static CicadaDOM getCicadaDOM(){

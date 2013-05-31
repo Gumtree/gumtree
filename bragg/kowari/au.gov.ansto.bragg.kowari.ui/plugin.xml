@@ -85,7 +85,7 @@
             allowMultiple="false"
             category="au.gov.ansto.bragg.kowari.ui"
             class="au.gov.ansto.bragg.kowari.ui.views.ExportAllView"
-            icon="icons/exp_product.gif"
+            icon="icons/exp_per.gif"
             id="au.gov.ansto.bragg.kowari.ui.views.ExportAllView"
             name="export all">
       </view>
