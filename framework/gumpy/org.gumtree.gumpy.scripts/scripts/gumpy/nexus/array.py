@@ -526,231 +526,87 @@ class Array:
     
     def __eq__(self, obj):
         if isinstance(obj, Array) :
-            if self.shape != obj.shape :
-                return False
-            res = instance(self.shape, dtype = bool)
-            siter = self.item_iter()
-            oiter = obj.item_iter()
-            riter = res.item_iter()
-            try :
-                if self.dtype is float :
-                    prc = 10 ** (-Array.precision)
-                    while True :
-                        riter.set_next(abs(siter.next() - oiter.next()) < prc)
-                else :
-                    while True :
-                        riter.set_next(siter.next() == oiter.next())
-            except :
-                pass
-            return res
+            iarr = self.__iArray__
+            oarr = obj.__iArray__
+            rarr = iarr.getArrayMath().equalTo(oarr).getArray()
+            return Array(rarr)
         else :
             if hasattr(obj, '__len__') :
                 return self == Array(obj)
             else :
-                res = instance(self.shape, dtype = bool)
-            siter = self.item_iter()
-            riter = res.item_iter()
-            try :
-                if self.dtype is float :
-                    prc = 10 ** (-Array.precision)
-                    while True :
-                        riter.set_next(abs(siter.next() - obj) < prc)
-                else :
-                    while True :
-                        riter.set_next(siter.next() == obj)
-            except :
-                pass
-            return res
+                iarr = self.__iArray__
+                rarr = iarr.getArrayMath().equalTo(obj).getArray()
+                return Array(rarr)
     
     def __ne__(self, obj):
         if isinstance(obj, Array) :
-            if self.shape != obj.shape :
-                return True
-            res = instance(self.shape, dtype = bool)
-            siter = self.item_iter()
-            oiter = obj.item_iter()
-            riter = res.item_iter()
-            try :
-                if self.dtype is float :
-                    prc = 10 ** (-Array.precision)
-                    while True :
-                        riter.set_next(abs(siter.next() - oiter.next()) >= prc)
-                else :
-                    while True :
-                        riter.set_next(siter.next() != oiter.next())
-            except :
-                pass
-            return res
+            iarr = self.__iArray__
+            oarr = obj.__iArray__
+            rarr = iarr.getArrayMath().notEqualTo(oarr).getArray()
+            return Array(rarr)
         else :
             if hasattr(obj, '__len__') :
                 return self != Array(obj)
             else :
-                res = instance(self.shape, dtype = bool)
-            siter = self.item_iter()
-            riter = res.item_iter()
-            try :
-                if self.dtype is float :
-                    prc = 10 ** (-Array.precision)
-                    while True :
-                        riter.set_next(abs(siter.next() - obj) >= prc)
-                else :
-                    while True :
-                        riter.set_next(siter.next() != obj)
-            except :
-                pass
-            return res
+                iarr = self.__iArray__
+                rarr = iarr.getArrayMath().notEqualTo(obj).getArray()
+                return Array(rarr)
     
     def __lt__(self, obj):
         if isinstance(obj, Array) :
-            if self.shape != obj.shape :
-                raise ValueError, 'dimension does not match'
-            res = instance(self.shape, dtype = bool)
-            siter = self.item_iter()
-            oiter = obj.item_iter()
-            riter = res.item_iter()
-            try :
-                if self.dtype is float :
-                    prc = -(10 ** (-Array.precision))
-                    while True :
-                        riter.set_next(siter.next() - oiter.next() < prc)
-                else :
-                    while True :
-                        riter.set_next(siter.next() < oiter.next())
-            except :
-                pass
-            return res
+            iarr = self.__iArray__
+            oarr = obj.__iArray__
+            rarr = iarr.getArrayMath().lessThan(oarr).getArray()
+            return Array(rarr)
         else :
             if hasattr(obj, '__len__') :
-                return self == Array(obj)
+                return self < Array(obj)
             else :
-                res = instance(self.shape, dtype = bool)
-            siter = self.item_iter()
-            riter = res.item_iter()
-            try :
-                if self.dtype is float :
-                    prc = -(10 ** (-Array.precision))
-                    while True :
-                        riter.set_next(siter.next() - obj < prc)
-                else :
-                    while True :
-                        riter.set_next(siter.next() < obj)
-            except :
-                pass
-            return res
+                iarr = self.__iArray__
+                rarr = iarr.getArrayMath().lessThan(obj).getArray()
+                return Array(rarr)
  
     def __le__(self, obj):
         if isinstance(obj, Array) :
-            if self.shape != obj.shape :
-                raise ValueError, 'dimension does not match'
-            res = instance(self.shape, dtype = bool)
-            siter = self.item_iter()
-            oiter = obj.item_iter()
-            riter = res.item_iter()
-            try :
-                if self.dtype is float :
-                    prc = 10 ** (-Array.precision)
-                    while True :
-                        riter.set_next(siter.next() - oiter.next() <= prc)
-                else :
-                    while True :
-                        riter.set_next(siter.next() <= oiter.next())
-            except :
-                pass
-            return res
+            iarr = self.__iArray__
+            oarr = obj.__iArray__
+            rarr = iarr.getArrayMath().lessEqualThan(oarr).getArray()
+            return Array(rarr)
         else :
             if hasattr(obj, '__len__') :
-                return self == Array(obj)
+                return self <= Array(obj)
             else :
-                res = instance(self.shape, dtype = bool)
-            siter = self.item_iter()
-            riter = res.item_iter()
-            try :
-                if self.dtype is float :
-                    prc = 10 ** (-Array.precision)
-                    while True :
-                        riter.set_next(siter.next() - obj <= prc)
-                else :
-                    while True :
-                        riter.set_next(siter.next() <= obj)
-            except :
-                pass
-            return res
+                iarr = self.__iArray__
+                rarr = iarr.getArrayMath().lessEqualThan(obj).getArray()
+                return Array(rarr)
 
     def __gt__(self, obj):
         if isinstance(obj, Array) :
-            if self.shape != obj.shape :
-                raise ValueError, 'dimension does not match'
-            res = instance(self.shape, dtype = bool)
-            siter = self.item_iter()
-            oiter = obj.item_iter()
-            riter = res.item_iter()
-            try :
-                if self.dtype is float :
-                    prc = 10 ** (-Array.precision)
-                    while True :
-                        riter.set_next(siter.next() - oiter.next() > prc)
-                else :
-                    while True :
-                        riter.set_next(siter.next() > oiter.next())
-            except :
-                pass
-            return res
+            iarr = self.__iArray__
+            oarr = obj.__iArray__
+            rarr = iarr.getArrayMath().largerThan(oarr).getArray()
+            return Array(rarr)
         else :
             if hasattr(obj, '__len__') :
-                return self == Array(obj)
+                return self > Array(obj)
             else :
-                res = instance(self.shape, dtype = bool)
-            siter = self.item_iter()
-            riter = res.item_iter()
-            try :
-                if self.dtype is float :
-                    prc = 10 ** (-Array.precision)
-                    while True :
-                        riter.set_next(siter.next() - obj > prc)
-                else :
-                    while True :
-                        riter.set_next(siter.next() > obj)
-            except :
-                pass
-            return res
+                iarr = self.__iArray__
+                rarr = iarr.getArrayMath().largerThan(obj).getArray()
+                return Array(rarr)
 
     def __ge__(self, obj):
         if isinstance(obj, Array) :
-            if self.shape != obj.shape :
-                raise ValueError, 'dimension does not match'
-            res = instance(self.shape, dtype = bool)
-            siter = self.item_iter()
-            oiter = obj.item_iter()
-            riter = res.item_iter()
-            try :
-                if self.dtype is float :
-                    prc = -(10 ** (-Array.precision))
-                    while True :
-                        riter.set_next(siter.next() - oiter.next() >= prc)
-                else :
-                    while True :
-                        riter.set_next(siter.next() >= oiter.next())
-            except :
-                pass
-            return res
+            iarr = self.__iArray__
+            oarr = obj.__iArray__
+            rarr = iarr.getArrayMath().largerEqualThan(oarr).getArray()
+            return Array(rarr)
         else :
             if hasattr(obj, '__len__') :
-                return self == Array(obj)
+                return self >= Array(obj)
             else :
-                res = instance(self.shape, dtype = bool)
-            siter = self.item_iter()
-            riter = res.item_iter()
-            try :
-                if self.dtype is float :
-                    prc = -(10 ** (-Array.precision))
-                    while True :
-                        riter.set_next(siter.next() - obj >= prc)
-                else :
-                    while True :
-                        riter.set_next(siter.next() >= obj)
-            except :
-                pass
-            return res
+                iarr = self.__iArray__
+                rarr = iarr.getArrayMath().largerEqualThan(obj).getArray()
+                return Array(rarr)
     
     def __not__(self):
         raise ValueError, 'The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()'
@@ -1434,26 +1290,12 @@ class Array:
                 self.set_value(l, value)
         elif hasattr(index, 'ndim') :
             if index.dtype is bool :
-                ish = index.shape
-                ash = self.shape
-                if ish == ash :
-                    it1 = index.item_iter()
-                    its = self.item_iter()
-                    if hasattr(value, '__len__') :
-                        itv = value.item_iter()
-                        while it1.has_next() :
-                            if it1.next() :
-                                its.set_next(itv.next())
-                            else :
-                                its.next()
-                    else :
-                        while it1.has_next() :
-                            if it1.next() :
-                                its.set_next(value)
-                            else :
-                                its.next()
-                    return
-            raise Exception, 'index out of range'
+                if hasattr(value, '__len__') :
+                    self.__iArray__.getArrayMath().setValue(index.__iArray__, value.__iArray__)
+                else :
+                    self.__iArray__.getArrayMath().setValue(index.__iArray__, value)
+            else :
+                raise Exception, 'not supported'
         else :
             raise Exception, 'not supported'
     

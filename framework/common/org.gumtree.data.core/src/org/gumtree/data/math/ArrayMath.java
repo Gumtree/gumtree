@@ -1087,4 +1087,345 @@ public abstract class ArrayMath implements IArrayMath {
 		}
 		return min;
 	}
+	
+	public IArrayMath largerThan(double value) {
+		IArray result = getFactory().createArray(Boolean.TYPE,
+				getArray().getShape());
+		IArrayIterator sourceIterator = getArray().getIterator();
+		IArrayIterator resultIterator = result.getIterator();
+		while (sourceIterator.hasNext()) {
+			resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() > value);
+		}
+		return result.getArrayMath();
+	}
+	
+	public IArrayMath largerThan(IArray newArray) throws ShapeNotMatchException {
+		getArray().getArrayUtils().checkShape(newArray);
+		if (getArray().getRank() == newArray.getRank()) {
+			IArray result = getFactory().createArray(Boolean.TYPE,
+					getArray().getShape());
+			IArrayIterator sourceIterator = getArray().getIterator();
+			IArrayIterator newIterator = newArray.getIterator();
+			IArrayIterator resultIterator = result.getIterator();
+			while (sourceIterator.hasNext()) {
+				resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() > newIterator.getDoubleNext());
+			}
+			return result.getArrayMath();
+		} else {
+			IArray result = getFactory().createArray(Boolean.TYPE,
+					getArray().getShape());
+			ISliceIterator sourceSliceIterator = null;
+			ISliceIterator resultSliceIterator = null;
+			try {
+				sourceSliceIterator = getArray().getSliceIterator(
+						newArray.getRank());
+				resultSliceIterator = result.getSliceIterator(
+						newArray.getRank());
+				while (sourceSliceIterator.hasNext()) {
+					IArrayIterator sourceIterator = sourceSliceIterator.getArrayNext().getIterator();
+					IArrayIterator newIterator = newArray.getIterator();
+					IArrayIterator resultIterator = resultSliceIterator.getArrayNext().getIterator();
+					while (sourceIterator.hasNext()) {
+						resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() > newIterator.getDoubleNext());
+					}
+				}
+				return result.getArrayMath();
+			} catch (InvalidRangeException e) {
+				throw new ShapeNotMatchException("shape is invalid");
+			}
+		}
+	}
+
+	public IArrayMath largerEqualThan(double value) {
+		IArray result = getFactory().createArray(Boolean.TYPE,
+				getArray().getShape());
+		IArrayIterator sourceIterator = getArray().getIterator();
+		IArrayIterator resultIterator = result.getIterator();
+		while (sourceIterator.hasNext()) {
+			resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() >= value);
+		}
+		return result.getArrayMath();
+	}
+	
+	public IArrayMath largerEqualThan(IArray newArray) throws ShapeNotMatchException {
+		getArray().getArrayUtils().checkShape(newArray);
+		if (getArray().getRank() == newArray.getRank()) {
+			IArray result = getFactory().createArray(Boolean.TYPE,
+					getArray().getShape());
+			IArrayIterator sourceIterator = getArray().getIterator();
+			IArrayIterator newIterator = newArray.getIterator();
+			IArrayIterator resultIterator = result.getIterator();
+			while (sourceIterator.hasNext()) {
+				resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() >= newIterator.getDoubleNext());
+			}
+			return result.getArrayMath();
+		} else {
+			IArray result = getFactory().createArray(Boolean.TYPE,
+					getArray().getShape());
+			ISliceIterator sourceSliceIterator = null;
+			ISliceIterator resultSliceIterator = null;
+			try {
+				sourceSliceIterator = getArray().getSliceIterator(
+						newArray.getRank());
+				resultSliceIterator = result.getSliceIterator(
+						newArray.getRank());
+				while (sourceSliceIterator.hasNext()) {
+					IArrayIterator sourceIterator = sourceSliceIterator.getArrayNext().getIterator();
+					IArrayIterator newIterator = newArray.getIterator();
+					IArrayIterator resultIterator = resultSliceIterator.getArrayNext().getIterator();
+					while (sourceIterator.hasNext()) {
+						resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() >= newIterator.getDoubleNext());
+					}
+				}
+				return result.getArrayMath();
+			} catch (InvalidRangeException e) {
+				throw new ShapeNotMatchException("shape is invalid");
+			}
+		}
+	}
+
+	public IArrayMath lessThan(double value) {
+		IArray result = getFactory().createArray(Boolean.TYPE,
+				getArray().getShape());
+		IArrayIterator sourceIterator = getArray().getIterator();
+		IArrayIterator resultIterator = result.getIterator();
+		while (sourceIterator.hasNext()) {
+			resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() < value);
+		}
+		return result.getArrayMath();
+	}
+	
+	public IArrayMath lessThan(IArray newArray) throws ShapeNotMatchException {
+		getArray().getArrayUtils().checkShape(newArray);
+		if (getArray().getRank() == newArray.getRank()) {
+			IArray result = getFactory().createArray(Boolean.TYPE,
+					getArray().getShape());
+			IArrayIterator sourceIterator = getArray().getIterator();
+			IArrayIterator newIterator = newArray.getIterator();
+			IArrayIterator resultIterator = result.getIterator();
+			while (sourceIterator.hasNext()) {
+				resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() < newIterator.getDoubleNext());
+			}
+			return result.getArrayMath();
+		} else {
+			IArray result = getFactory().createArray(Boolean.TYPE,
+					getArray().getShape());
+			ISliceIterator sourceSliceIterator = null;
+			ISliceIterator resultSliceIterator = null;
+			try {
+				sourceSliceIterator = getArray().getSliceIterator(
+						newArray.getRank());
+				resultSliceIterator = result.getSliceIterator(
+						newArray.getRank());
+				while (sourceSliceIterator.hasNext()) {
+					IArrayIterator sourceIterator = sourceSliceIterator.getArrayNext().getIterator();
+					IArrayIterator newIterator = newArray.getIterator();
+					IArrayIterator resultIterator = resultSliceIterator.getArrayNext().getIterator();
+					while (sourceIterator.hasNext()) {
+						resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() < newIterator.getDoubleNext());
+					}
+				}
+				return result.getArrayMath();
+			} catch (InvalidRangeException e) {
+				throw new ShapeNotMatchException("shape is invalid");
+			}
+		}
+	}
+
+	public IArrayMath lessEqualThan(double value) {
+		IArray result = getFactory().createArray(Boolean.TYPE,
+				getArray().getShape());
+		IArrayIterator sourceIterator = getArray().getIterator();
+		IArrayIterator resultIterator = result.getIterator();
+		while (sourceIterator.hasNext()) {
+			resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() <= value);
+		}
+		return result.getArrayMath();
+	}
+	
+	public IArrayMath lessEqualThan(IArray newArray) throws ShapeNotMatchException {
+		getArray().getArrayUtils().checkShape(newArray);
+		if (getArray().getRank() == newArray.getRank()) {
+			IArray result = getFactory().createArray(Boolean.TYPE,
+					getArray().getShape());
+			IArrayIterator sourceIterator = getArray().getIterator();
+			IArrayIterator newIterator = newArray.getIterator();
+			IArrayIterator resultIterator = result.getIterator();
+			while (sourceIterator.hasNext()) {
+				resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() <= newIterator.getDoubleNext());
+			}
+			return result.getArrayMath();
+		} else {
+			IArray result = getFactory().createArray(Boolean.TYPE,
+					getArray().getShape());
+			ISliceIterator sourceSliceIterator = null;
+			ISliceIterator resultSliceIterator = null;
+			try {
+				sourceSliceIterator = getArray().getSliceIterator(
+						newArray.getRank());
+				resultSliceIterator = result.getSliceIterator(
+						newArray.getRank());
+				while (sourceSliceIterator.hasNext()) {
+					IArrayIterator sourceIterator = sourceSliceIterator.getArrayNext().getIterator();
+					IArrayIterator newIterator = newArray.getIterator();
+					IArrayIterator resultIterator = resultSliceIterator.getArrayNext().getIterator();
+					while (sourceIterator.hasNext()) {
+						resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() <= newIterator.getDoubleNext());
+					}
+				}
+				return result.getArrayMath();
+			} catch (InvalidRangeException e) {
+				throw new ShapeNotMatchException("shape is invalid");
+			}
+		}
+	}
+
+	public IArrayMath equalTo(double value) {
+		IArray result = getFactory().createArray(Boolean.TYPE,
+				getArray().getShape());
+		IArrayIterator sourceIterator = getArray().getIterator();
+		IArrayIterator resultIterator = result.getIterator();
+		while (sourceIterator.hasNext()) {
+			resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() == value);
+		}
+		return result.getArrayMath();
+	}
+	
+	public IArrayMath equalTo(IArray newArray) throws ShapeNotMatchException {
+		getArray().getArrayUtils().checkShape(newArray);
+		if (getArray().getRank() == newArray.getRank()) {
+			IArray result = getFactory().createArray(Boolean.TYPE,
+					getArray().getShape());
+			IArrayIterator sourceIterator = getArray().getIterator();
+			IArrayIterator newIterator = newArray.getIterator();
+			IArrayIterator resultIterator = result.getIterator();
+			while (sourceIterator.hasNext()) {
+				resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() == newIterator.getDoubleNext());
+			}
+			return result.getArrayMath();
+		} else {
+			IArray result = getFactory().createArray(Boolean.TYPE,
+					getArray().getShape());
+			ISliceIterator sourceSliceIterator = null;
+			ISliceIterator resultSliceIterator = null;
+			try {
+				sourceSliceIterator = getArray().getSliceIterator(
+						newArray.getRank());
+				resultSliceIterator = result.getSliceIterator(
+						newArray.getRank());
+				while (sourceSliceIterator.hasNext()) {
+					IArrayIterator sourceIterator = sourceSliceIterator.getArrayNext().getIterator();
+					IArrayIterator newIterator = newArray.getIterator();
+					IArrayIterator resultIterator = resultSliceIterator.getArrayNext().getIterator();
+					while (sourceIterator.hasNext()) {
+						resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() == newIterator.getDoubleNext());
+					}
+				}
+				return result.getArrayMath();
+			} catch (InvalidRangeException e) {
+				throw new ShapeNotMatchException("shape is invalid");
+			}
+		}
+	}
+
+	public IArrayMath notEqualTo(double value) {
+		IArray result = getFactory().createArray(Boolean.TYPE,
+				getArray().getShape());
+		IArrayIterator sourceIterator = getArray().getIterator();
+		IArrayIterator resultIterator = result.getIterator();
+		while (sourceIterator.hasNext()) {
+			resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() != value);
+		}
+		return result.getArrayMath();
+	}
+	
+	public IArrayMath notEqualTo(IArray newArray) throws ShapeNotMatchException {
+		getArray().getArrayUtils().checkShape(newArray);
+		if (getArray().getRank() == newArray.getRank()) {
+			IArray result = getFactory().createArray(Boolean.TYPE,
+					getArray().getShape());
+			IArrayIterator sourceIterator = getArray().getIterator();
+			IArrayIterator newIterator = newArray.getIterator();
+			IArrayIterator resultIterator = result.getIterator();
+			while (sourceIterator.hasNext()) {
+				resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() != newIterator.getDoubleNext());
+			}
+			return result.getArrayMath();
+		} else {
+			IArray result = getFactory().createArray(Boolean.TYPE,
+					getArray().getShape());
+			ISliceIterator sourceSliceIterator = null;
+			ISliceIterator resultSliceIterator = null;
+			try {
+				sourceSliceIterator = getArray().getSliceIterator(
+						newArray.getRank());
+				resultSliceIterator = result.getSliceIterator(
+						newArray.getRank());
+				while (sourceSliceIterator.hasNext()) {
+					IArrayIterator sourceIterator = sourceSliceIterator.getArrayNext().getIterator();
+					IArrayIterator newIterator = newArray.getIterator();
+					IArrayIterator resultIterator = resultSliceIterator.getArrayNext().getIterator();
+					while (sourceIterator.hasNext()) {
+						resultIterator.next().setBooleanCurrent(sourceIterator.getDoubleNext() == newIterator.getDoubleNext());
+					}
+				}
+				return result.getArrayMath();
+			} catch (InvalidRangeException e) {
+				throw new ShapeNotMatchException("shape is invalid");
+			}
+		}
+	}
+
+	public void setValue(IArray indexArray, double value) {
+		IArrayIterator sourceIterator = getArray().getIterator();
+		IArrayIterator indexIterator = indexArray.getIterator();
+		while (sourceIterator.hasNext()) {
+			sourceIterator.next();
+			if (indexIterator.getBooleanNext()) {
+				sourceIterator.setDoubleCurrent(value);
+			} 
+		}
+	}
+	
+	public void setValue(IArray indexArray, IArray newArray) throws ShapeNotMatchException {
+		getArray().getArrayUtils().checkShape(newArray);
+		if (getArray().getRank() == newArray.getRank()) {
+			IArrayIterator sourceIterator = getArray().getIterator();
+			IArrayIterator newIterator = newArray.getIterator();
+			IArrayIterator indexIterator = indexArray.getIterator();
+			while (sourceIterator.hasNext()) {
+				sourceIterator.next();
+				if (indexIterator.getBooleanNext()){
+					sourceIterator.setDoubleCurrent(newIterator.getDoubleNext());
+				} else {
+					newIterator.next();
+				}
+			}
+		} else {
+			ISliceIterator sourceSliceIterator = null;
+			ISliceIterator indexSliceIterator = null;
+			try {
+				sourceSliceIterator = getArray().getSliceIterator(
+						newArray.getRank());
+				indexSliceIterator = indexArray.getSliceIterator(
+						newArray.getRank());
+				while (sourceSliceIterator.hasNext()) {
+					IArrayIterator sourceIterator = sourceSliceIterator.getArrayNext().getIterator();
+					IArrayIterator newIterator = newArray.getIterator();
+					IArrayIterator indexIterator = indexSliceIterator.getArrayNext().getIterator();
+					while (sourceIterator.hasNext()) {
+						sourceIterator.next();
+						if (indexIterator.getBooleanNext()) {
+							sourceIterator.setDoubleCurrent(newIterator.getDoubleNext());
+						} else {
+							newIterator.next();
+						}
+					}
+				}
+			} catch (InvalidRangeException e) {
+				throw new ShapeNotMatchException("shape is invalid");
+			}
+		}
+	}
+
 }
