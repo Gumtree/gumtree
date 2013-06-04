@@ -1,5 +1,6 @@
 package au.gov.ansto.bragg.quokka.ui.workflow;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.net.URI;
@@ -168,10 +169,29 @@ public class ConfigSelectionDialog extends MessageDialog {
 				if (element instanceof IFile) {
 					try {
 						URI uri = ((IFile) element).getLocationURI();
-						FileReader reader = new FileReader(new File(uri));
-						Object object = ExperimentModelUtils.getXStream().fromXML(reader);
-						if (object instanceof InstrumentConfigTemplate) {
-							return ((InstrumentConfigTemplate) object).getDescription();
+						
+						// replace au.gov.ansto.bragg.quokka2.experiment.model.InstrumentConfigTemplate
+						// with au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfigTemplate
+
+						BufferedReader reader = null;
+						try {
+							reader = new BufferedReader(new FileReader(new File(uri)));
+							StringBuilder stringBuilder = new StringBuilder();
+			
+							String line;
+							while ((line = reader.readLine()) != null) {
+								stringBuilder.append(line.replace(
+										"au.gov.ansto.bragg.quokka2.experiment.model.InstrumentConfigTemplate",
+										"au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfigTemplate"));
+						    }
+							
+							Object object = ExperimentModelUtils.getXStream().fromXML(stringBuilder.toString());
+							if (object instanceof InstrumentConfigTemplate) {
+								return ((InstrumentConfigTemplate) object).getDescription();
+							}
+						} finally {
+							if (reader != null)
+								reader.close();
 						}
 					} catch (Exception e) {
 					}

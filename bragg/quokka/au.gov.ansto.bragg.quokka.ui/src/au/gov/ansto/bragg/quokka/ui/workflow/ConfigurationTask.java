@@ -11,6 +11,7 @@
 
 package au.gov.ansto.bragg.quokka.ui.workflow;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -201,18 +202,37 @@ public class ConfigurationTask extends AbstractExperimentTask {
 							addNewConfig();
 						} else {
 							IFile selectedConfig = dialog.getSelectedConfig();
-							if (selectedConfig != null) {
-								try {
-									FileReader reader = new FileReader(new File(selectedConfig.getLocationURI()));
-									Object object = ExperimentModelUtils.getXStream().fromXML(reader);
-									if (object instanceof InstrumentConfigTemplate) {
-										addConfigFromTemplate((InstrumentConfigTemplate) object);	
-									}
-								} catch (Exception exception) {
-									logger.error("Failed to load config template from " + selectedConfig.getLocationURI().toString());
-									// TODO: pop dialog to notify error 
+							
+							// replace au.gov.ansto.bragg.quokka2.experiment.model.InstrumentConfigTemplate
+							// with au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfigTemplate
+
+							BufferedReader reader = null;
+							try {
+								reader = new BufferedReader(new FileReader(new File(selectedConfig.getLocationURI())));
+								StringBuilder stringBuilder = new StringBuilder();
+				
+								String line;
+								while ((line = reader.readLine()) != null) {
+									stringBuilder.append(line.replace(
+											"au.gov.ansto.bragg.quokka2.experiment.model.InstrumentConfigTemplate",
+											"au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfigTemplate"));
+							    }
+								
+								Object object = ExperimentModelUtils.getXStream().fromXML(stringBuilder.toString());
+								if (object instanceof InstrumentConfigTemplate) {
+									addConfigFromTemplate((InstrumentConfigTemplate) object);
 								}
+							} catch (Exception ex) {
+								logger.error("Failed to load config template from " + selectedConfig.getLocationURI().toString());
+							} finally {
+								if (reader != null)
+									try {
+										reader.close();
+									} catch (IOException e1) {
+										e1.printStackTrace();
+									}
 							}
+
 						}
 					}
 				}
