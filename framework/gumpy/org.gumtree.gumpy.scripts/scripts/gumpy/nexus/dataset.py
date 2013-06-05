@@ -247,6 +247,8 @@ class Dataset(Data):
             return dirs
 #        elif hasattr(self, 'storage') and hasattr(self.storage, name) :
 #            return self.storage.__getattr__(name)
+        elif name == '__iArray__' :
+            return self.storage.__iArray__
         elif str(name).startswith('__') :
             try :
                 return self.__dict__[name]
