@@ -171,7 +171,7 @@ public class GeometryCorrection extends ConcreteProcessor {
 			idx ++;
 		}
 		
-		geometry_outputPlot = (Plot) PlotFactory.createPlot(geometry_inputPlot, "geometry_correction", geometry_inputPlot.getDimensionType());
+		geometry_outputPlot = (Plot) PlotFactory.createPlot(geometry_inputPlot, geometry_inputPlot.getShortName() + "_geometry_correction", geometry_inputPlot.getDimensionType());
 		geometry_outputPlot.addData("geometry_correction_data", newIntensityArray, "Geometry Correction", 
 				"counts", newVarianceArray);
 //		geometry_outputPlot.addCalculationData("relocateLeftIndex", relocateLeftIndexArray, "Left Index", "", null);

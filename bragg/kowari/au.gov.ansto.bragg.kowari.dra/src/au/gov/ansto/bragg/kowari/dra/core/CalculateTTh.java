@@ -94,17 +94,53 @@ public class CalculateTTh extends ConcreteProcessor {
 					twoThetaIterator.next().setDoubleCurrent(getAngle(cosStth, sinStth, binIterator.getDoubleNext()));
 				}
 			}else{
-				twoThetaArray = Factory.createArray(Double.TYPE, new int[]{(int) stthArray.getSize(), 
-						(int) binOffsetArray.getSize()});
-				IArrayIterator stthIterator = stthArray.getIterator();
-				IArrayIterator twoThetaIterator = twoThetaArray.getIterator();
-				while(stthIterator.hasNext()){
-					double stth = stthIterator.getDoubleNext() / DEGREE_RAD_COEFFICIENT;
-					double sinStth = Math.sin(stth);
-					double cosStth = Math.cos(stth);
-					IArrayIterator binIterator = binOffsetArray.getIterator();
-					while(binIterator.hasNext()){
-						twoThetaIterator.next().setDoubleCurrent(getAngle(cosStth, sinStth, binIterator.getDoubleNext()));
+				boolean isCurrentIndexAvailable = false;
+				String inputName = inputPlot.getShortName();
+				twoThetaArray = null;
+				int startItem = 0;
+				while (startItem < inputName.length()) {
+					if (inputName.substring(startItem, startItem + 1).matches("[0-9]")){
+						break;
+					}
+					startItem++;
+				}
+				if (startItem < inputName.length()) {
+					int currentIndex = -1;
+					int endItem = startItem + 1;
+					while (endItem <= inputName.length()){
+						try {
+							currentIndex = Integer.valueOf(inputName.substring(startItem, endItem));
+							endItem += 1;
+						} catch (Exception e) {
+							break;
+						}
+					}
+					if (currentIndex >= 0) {
+						twoThetaArray = Factory.createArray(Double.TYPE, new int[]{(int) binOffsetArray.getSize()});
+						IArrayIterator twoThetaIterator = twoThetaArray.getIterator();
+						double stth = stthArray.getDouble(stthArray.getIndex().set(currentIndex)) / DEGREE_RAD_COEFFICIENT;
+						double sinStth = Math.sin(stth);
+						double cosStth = Math.cos(stth);
+						IArrayIterator binIterator = binOffsetArray.getIterator();
+						while(binIterator.hasNext()){
+							twoThetaIterator.next().setDoubleCurrent(getAngle(cosStth, sinStth, binIterator.getDoubleNext()));
+						}
+						isCurrentIndexAvailable = true;
+					}
+				}
+				if (!isCurrentIndexAvailable) {
+					twoThetaArray = Factory.createArray(Double.TYPE, new int[]{(int) stthArray.getSize(), 
+							(int) binOffsetArray.getSize()});
+					IArrayIterator stthIterator = stthArray.getIterator();
+					IArrayIterator twoThetaIterator = twoThetaArray.getIterator();
+					while(stthIterator.hasNext()){
+						double stth = stthIterator.getDoubleNext() / DEGREE_RAD_COEFFICIENT;
+						double sinStth = Math.sin(stth);
+						double cosStth = Math.cos(stth);
+						IArrayIterator binIterator = binOffsetArray.getIterator();
+						while(binIterator.hasNext()){
+							twoThetaIterator.next().setDoubleCurrent(getAngle(cosStth, sinStth, binIterator.getDoubleNext()));
+						}
 					}
 				}
 			}
