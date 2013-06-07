@@ -18,6 +18,7 @@ import org.gumtree.data.exception.ShapeNotMatchException;
 import org.gumtree.data.exception.SignalNotAvailableException;
 import org.gumtree.data.interfaces.IArray;
 import org.gumtree.data.interfaces.IArrayIterator;
+import org.gumtree.data.interfaces.IAttribute;
 import org.gumtree.data.interfaces.IIndex;
 import org.gumtree.data.interfaces.ISliceIterator;
 import org.slf4j.LoggerFactory;
@@ -119,6 +120,10 @@ public class GeometryCorrection extends ConcreteProcessor {
 		ISliceIterator varianceSliceIterator = newVarianceArray.getSliceIterator(2);
 		int idx = 0;
 		IIndex oneDIndex = stth.getIndex();
+		IAttribute currentIndexAttribute = geometry_inputPlot.getAttribute(InternalConstants.CURRENT_INDEX_NAME);
+		if (currentIndexAttribute != null) {
+			idx = Integer.valueOf(currentIndexAttribute.getStringValue());
+		}
 		while (inputSliceIterator.hasNext()) {
 			inputSlice = inputSliceIterator.getArrayNext();
 			varianceSlice = inputVarianceSliceIterator.getArrayNext();
@@ -189,6 +194,9 @@ public class GeometryCorrection extends ConcreteProcessor {
 //		geometry_outputPlot.addAxis("two_theta", twoThetaAxisArray, "Two Theta", "degrees", axisIndex ++);
 //		geometry_outputPlot.addCalculationData("two_theta", twoThetaAxisArray, "Two Theta", "units", null);
 		geometry_outputPlot.copyAxes(axisList);
+		if (currentIndexAttribute != null) {
+			geometry_outputPlot.addStringAttribute(InternalConstants.CURRENT_INDEX_NAME, currentIndexAttribute.getStringValue());
+		}
 		geometry_inputPlot.getGroupList().clear();
 //		long memorySize = geometry_inputPlot.calculateMemorySize();
 //		if (memorySize > Register.REPROCESSABLE_THRESHOLD){
