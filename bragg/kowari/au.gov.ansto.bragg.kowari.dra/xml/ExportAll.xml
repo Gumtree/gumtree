@@ -81,7 +81,7 @@ http://gumtree.ansto.gov.au:9080/nbicms/projects/group-project-resources/dat-pro
 			<var name="ignoreXLimits" type="java.lang.Boolean" default_value="true"/>
 		</vars>
 	</processor>
-	<processor name="CalculateTwoTheta" class="au.gov.ansto.bragg.kowari.dra.core.CalculateTTh" version="1.0.0">
+	<processor name="CalculateTwoTheta" class="au.gov.ansto.bragg.kowari.dra.sgf.CalculateTTh" version="1.0.0">
 		<ins>
 			<in name="tth.inputPlot" type="au.gov.ansto.bragg.datastructures.core.plot.Plot"/>
 		</ins>

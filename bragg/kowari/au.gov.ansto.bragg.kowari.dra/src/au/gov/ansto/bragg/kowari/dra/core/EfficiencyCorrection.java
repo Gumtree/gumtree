@@ -18,6 +18,7 @@ import org.gumtree.data.exception.InvalidArrayTypeException;
 import org.gumtree.data.impl.io.NcHdfWriter;
 import org.gumtree.data.impl.netcdf.NcGroup;
 import org.gumtree.data.interfaces.IArray;
+import org.gumtree.data.interfaces.IAttribute;
 import org.gumtree.data.interfaces.IGroup;
 import org.gumtree.data.math.EData;
 import org.gumtree.data.math.EMath;
@@ -27,6 +28,7 @@ import au.gov.ansto.bragg.datastructures.core.plot.Data;
 import au.gov.ansto.bragg.datastructures.core.plot.Plot;
 import au.gov.ansto.bragg.datastructures.core.plot.Variance;
 import au.gov.ansto.bragg.datastructures.nexus.NexusUtils;
+import au.gov.ansto.bragg.kowari.dra.internal.InternalConstants;
 import au.gov.ansto.bragg.process.processor.ConcreteProcessor;
 
 /**
@@ -86,6 +88,10 @@ public class EfficiencyCorrection extends ConcreteProcessor {
 			setReprocessable(true);
 		}
 		efficiencyCorrection_outputPlot.addProcessingLog("efficiency correction " + efficiencyCorrection_mapURI);
+		IAttribute currentIndexAttribute = efficiencyCorrection_inputPlot.getAttribute(InternalConstants.CURRENT_INDEX_NAME);
+		if (currentIndexAttribute != null) {
+			efficiencyCorrection_outputPlot.addStringAttribute(InternalConstants.CURRENT_INDEX_NAME, currentIndexAttribute.getStringValue());
+		}
 		efficiencyCorrection_inputPlot.getGroupList().clear();
 		return efficiencyCorrection_stop;
 	}
