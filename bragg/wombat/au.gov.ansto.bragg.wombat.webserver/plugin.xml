@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension
+         point="org.eclipse.equinox.http.registry.resources">
+      <resource
+            alias="/wombat.html"
+            base-name="/WebContent/wombat.html">
+      </resource>
+      <resource
+            alias="/index.html"
+            base-name="/WebContent/index.html">
+      </resource>
+      <resource
+            alias="/wombat.swf"
+            base-name="/WebContent/wombat.swf">
+      </resource>
+      <resource
+            alias="/playerProductInstall.swf"
+            base-name="/WebContent/playerProductInstall.swf">
+      </resource>
+      <resource
+            alias="/AC_OETags.js"
+            base-name="/WebContent/AC_OETags.js">
+      </resource>
+      <resource
+            alias="/assets/wombat_dash.jpg"
+            base-name="/WebContent/assets/wombat_dash.jpg">
+      </resource>
+         
+   </extension>
+
+</plugin>
