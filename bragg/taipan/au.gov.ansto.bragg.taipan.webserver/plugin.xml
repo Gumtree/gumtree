@@ -24,5 +24,28 @@
          </init-param>
       </servlet>
    </extension>
-
+   <extension
+         point="org.eclipse.equinox.http.registry.resources">
+      <resource
+            alias="/taipan.html"
+            base-name="/WebContent/taipan.html">
+      </resource>
+      <resource
+            alias="/index.html"
+            base-name="/WebContent/index.html">
+      </resource>
+      <resource
+            alias="/taipan.swf"
+            base-name="/WebContent/taipan.swf">
+      </resource>
+      <resource
+            alias="/playerProductInstall.swf"
+            base-name="/WebContent/playerProductInstall.swf">
+      </resource>
+      <resource
+            alias="/AC_OETags.js"
+            base-name="/WebContent/AC_OETags.js">
+      </resource>
+         
+   </extension>
 </plugin>

@@ -1,5 +1,13 @@
 package au.gov.ansto.bragg.taipan.webserver.restlet;
 
+import java.awt.Color;
+import java.awt.Paint;
+import java.awt.PaintContext;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.ColorModel;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,6 +17,7 @@ import org.gumtree.vis.dataset.XYErrorDataset;
 import org.gumtree.vis.dataset.XYErrorSeries;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.ValueAxis;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
@@ -73,6 +82,7 @@ public class TaipanRestlet extends Restlet {
 	}
 
 	private byte[] createPlot(int height, int width) {
+		
 		XYErrorDataset dataset = new XYErrorDataset();
 		dataset.setTitle("Bean Monitor VS Scan Variable");
 		dataset.setXTitle("Scan Variable");
@@ -86,6 +96,19 @@ public class TaipanRestlet extends Restlet {
 		dataset.addSeries(series);
 
 		JFreeChart chart = PlotFactory.createXYErrorChart(dataset);
+		chart.getLegend().setVisible(false);
+		chart.setBackgroundPaint(Color.BLACK);
+		chart.getXYPlot().setBackgroundPaint(Color.DARK_GRAY);
+		chart.getTitle().setPaint(Color.WHITE);
+		ValueAxis domainAxis = chart.getXYPlot().getDomainAxis();
+		domainAxis.setLabelPaint(Color.WHITE);
+		domainAxis.setTickLabelPaint(Color.LIGHT_GRAY);
+		domainAxis.setTickMarkPaint(Color.LIGHT_GRAY);
+		ValueAxis rangeAxis = chart.getXYPlot().getRangeAxis();
+		rangeAxis.setLabelPaint(Color.WHITE);
+		rangeAxis.setTickLabelPaint(Color.LIGHT_GRAY);
+		rangeAxis.setTickMarkPaint(Color.LIGHT_GRAY);
+
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
 			ChartUtilities.writeChartAsPNG(out, chart, width, height);
