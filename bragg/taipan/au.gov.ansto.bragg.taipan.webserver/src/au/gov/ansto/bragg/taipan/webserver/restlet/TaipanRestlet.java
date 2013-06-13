@@ -1,23 +1,24 @@
 package au.gov.ansto.bragg.taipan.webserver.restlet;
 
 import java.awt.Color;
-import java.awt.Paint;
-import java.awt.PaintContext;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.ColorModel;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 
+import org.gumtree.data.interfaces.IArray;
+import org.gumtree.data.nexus.INXDataset;
+import org.gumtree.data.nexus.INXdata;
+import org.gumtree.data.nexus.utils.NexusUtils;
 import org.gumtree.vis.awt.PlotFactory;
 import org.gumtree.vis.dataset.XYErrorDataset;
 import org.gumtree.vis.dataset.XYErrorSeries;
+import org.gumtree.vis.nexus.dataset.NXDatasetSeries;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
@@ -88,13 +89,41 @@ public class TaipanRestlet extends Restlet {
 		dataset.setXTitle("Scan Variable");
 		dataset.setYTitle("Bean Monitor");
 
-		XYErrorSeries series = new XYErrorSeries("data");
-		series.add(1.0, 1.0, 0.0);
-		series.add(2.0, 4.0, 0.0);
-		series.add(3.0, 3.0, 0.0);
-		series.add(5.0, 8.0, 0.0);
-		dataset.addSeries(series);
+		XYErrorSeries series1 = new XYErrorSeries("data");
+		series1.add(1.0, 1.0, 0.0);
+		series1.add(2.0, 4.0, 0.0);
+		series1.add(3.0, 3.0, 0.0);
+		series1.add(5.0, 8.0, 0.0);
+		dataset.addSeries(series1);
 
+		try {
+			String filepath = "/experiments/taipan/data/current";
+			File dir = new File(filepath);
+
+			File[] files = dir.listFiles();
+			if (files.length > 0) {
+				File lastModifiedFile = files[0];
+				for (int i = 1; i < files.length; i++) {
+					if (lastModifiedFile.lastModified() < files[i].lastModified()) {
+						lastModifiedFile = files[i];
+					}
+				}
+				INXDataset ds = NexusUtils.readNexusDataset(lastModifiedFile.toURI());
+				IArray dataArray = ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm2_counts").getData();
+				INXdata data = ds.getNXroot().getFirstEntry().getData();
+				IArray axisArray = data.getAxisList().get(0).getData();
+				NXDatasetSeries series = new NXDatasetSeries(lastModifiedFile.getName());
+				series.setData(dataArray, axisArray, dataArray);
+//				dataset.addSeries(series);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			dataset.setTitle(e.getMessage());
+		} 
+
+		
+		
 		JFreeChart chart = PlotFactory.createXYErrorChart(dataset);
 		chart.getLegend().setVisible(false);
 		chart.setBackgroundPaint(Color.BLACK);
@@ -108,7 +137,11 @@ public class TaipanRestlet extends Restlet {
 		rangeAxis.setLabelPaint(Color.WHITE);
 		rangeAxis.setTickLabelPaint(Color.LIGHT_GRAY);
 		rangeAxis.setTickMarkPaint(Color.LIGHT_GRAY);
-
+		XYItemRenderer renderer = chart.getXYPlot().getRenderer();
+		if (renderer instanceof XYLineAndShapeRenderer) {
+			renderer.setSeriesPaint(0, Color.CYAN);
+		}
+		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
 			ChartUtilities.writeChartAsPNG(out, chart, width, height);
