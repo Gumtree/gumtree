@@ -7,12 +7,12 @@ import java.io.File;
 import java.io.IOException;
 
 import org.gumtree.data.interfaces.IArray;
+import org.gumtree.data.nexus.IAxis;
 import org.gumtree.data.nexus.INXDataset;
 import org.gumtree.data.nexus.INXdata;
 import org.gumtree.data.nexus.utils.NexusUtils;
 import org.gumtree.vis.awt.PlotFactory;
 import org.gumtree.vis.dataset.XYErrorDataset;
-import org.gumtree.vis.dataset.XYErrorSeries;
 import org.gumtree.vis.nexus.dataset.NXDatasetSeries;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -33,6 +33,8 @@ public class TaipanRestlet extends Restlet {
 
 	private static final String QUERY_WIDTH = "width";
 
+	private static final String SICS_DATA_PATH = "sics.data.path";
+	
 	private ImageCache imageCache;
 
 	public TaipanRestlet() {
@@ -85,19 +87,22 @@ public class TaipanRestlet extends Restlet {
 	private byte[] createPlot(int height, int width) {
 		
 		XYErrorDataset dataset = new XYErrorDataset();
-		dataset.setTitle("Bean Monitor VS Scan Variable");
+		dataset.setTitle("Data plot not availalbe");
 		dataset.setXTitle("Scan Variable");
 		dataset.setYTitle("Bean Monitor");
 
-		XYErrorSeries series1 = new XYErrorSeries("data");
-		series1.add(1.0, 1.0, 0.0);
-		series1.add(2.0, 4.0, 0.0);
-		series1.add(3.0, 3.0, 0.0);
-		series1.add(5.0, 8.0, 0.0);
-		dataset.addSeries(series1);
+//		XYErrorSeries series1 = new XYErrorSeries("data");
+//		series1.add(1.0, 1.0, 0.0);
+//		series1.add(2.0, 4.0, 0.0);
+//		series1.add(3.0, 3.0, 0.0);
+//		series1.add(5.0, 8.0, 0.0);
+//		dataset.addSeries(series1);
 
 		try {
-			String filepath = "/experiments/taipan/data/current";
+			String filepath = System.getProperty(SICS_DATA_PATH);
+			if (filepath == null) {
+				filepath = "/experiments/taipan/data/current";
+			}
 			File dir = new File(filepath);
 
 			File[] files = dir.listFiles();
@@ -111,10 +116,15 @@ public class TaipanRestlet extends Restlet {
 				INXDataset ds = NexusUtils.readNexusDataset(lastModifiedFile.toURI());
 				IArray dataArray = ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm2_counts").getData();
 				INXdata data = ds.getNXroot().getFirstEntry().getData();
-				IArray axisArray = data.getAxisList().get(0).getData();
+				IAxis axis = data.getAxisList().get(0);
+				IArray axisArray = axis.getData();
 				NXDatasetSeries series = new NXDatasetSeries(lastModifiedFile.getName());
-				series.setData(dataArray, axisArray, dataArray);
-//				dataset.addSeries(series);
+				series.setData(axisArray, dataArray, dataArray.getArrayMath().toSqrt().getArray());
+				dataset.addSeries(series);
+				dataset.setTitle(lastModifiedFile.getName());
+				dataset.setXTitle(axis.getShortName());
+				dataset.setYTitle("Detector Counts");
+				ds.close();
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

@@ -25,8 +25,9 @@ public class TaipanMobileApplication extends TouchKitApplication {
 				.addStatusItem("/experiment/title", "Title")
 				.addStatusItem("/sample/name", "Sample");
 		view.createStatusGroup("Beam Monitors")
-				.addStatusItem("/monitor/bm1_counts", "BM1")
-				.addStatusItem("/monitor/bm2_counts", "BM2");
+				.addStatusItem("/monitor/bm1_counts", "Monitor")
+				.addStatusItem("/monitor/bm2_counts", "Detector")
+				.addStatusItem("/monitor/time", "Time");
 		view.createStatusGroup("Real Motors")
 				.addStatusItem("/instrument/crystal/m1", "m1")
 				.addStatusItem("/instrument/crystal/m2", "m2")
@@ -41,6 +42,11 @@ public class TaipanMobileApplication extends TouchKitApplication {
 				.addStatusItem("/sample/qh", "qh")
 				.addStatusItem("/sample/qk", "qk")
 				.addStatusItem("/sample/ql", "ql");
+		view.createStatusGroup("Scan Status")
+				.addStatusItem("/commands/scan/bmonscan/scan_variable", "Variable")
+				.addStatusItem("/commands/scan/bmonscan/feedback/scan_variable_value", "Value")
+				.addStatusItem("/experiment/currpoint", "Index");
+				
 		view.initialise();
 
 		// Close application when page is closed
