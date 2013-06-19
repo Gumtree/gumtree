@@ -17,6 +17,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Shape;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.event.MouseWheelEvent;
@@ -910,5 +911,71 @@ public class CompositePanel extends JPanel implements ICompositePlot,
 	public IHelpProvider getHelpProvider() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void addShape(Shape shape, Color color) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeShape(Shape shape) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void clearShapes() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isShapeEnabled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setShapeEnabled(boolean isShapeEnabled) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addDomainAxisMarker(double x, int height, Color color) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addRangeAxisMarker(double y, int width, Color color) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addMarker(double x, double y, Color color) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeMarker(double x, double y) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeRangeAxisMarker(double y) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeDomainAxisMarker(double x) {
+		// TODO Auto-generated method stub
+		
 	}
 }

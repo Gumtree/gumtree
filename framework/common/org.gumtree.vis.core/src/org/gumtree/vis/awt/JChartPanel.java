@@ -17,6 +17,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Shape;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.event.ActionEvent;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
@@ -110,6 +112,11 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
     private LinkedHashMap<AbstractMask, Color> maskList;
     private AbstractMask selectedMask;
     private List<IMaskEventListener> maskEventListeners = new ArrayList<IMaskEventListener>();
+	private boolean isShapeEnabled = true;
+    private LinkedHashMap<Line2D, Color> domainMarkerMap;
+    private LinkedHashMap<Line2D, Color> rangeMarkerMap;
+    private LinkedHashMap<Line2D, Color> markerMap;
+	private LinkedHashMap<Shape, Color> shapeMap;
     
     
     /**
@@ -230,6 +237,10 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 				maximumDrawWidth, maximumDrawHeight, useBuffer, properties,
 				copy, save, print, zoom, tooltips);
 		maskList = new LinkedHashMap<AbstractMask, Color>();
+		shapeMap = new LinkedHashMap<Shape, Color>();
+		domainMarkerMap = new LinkedHashMap<Line2D, Color>();
+		rangeMarkerMap = new LinkedHashMap<Line2D, Color>();
+		markerMap = new LinkedHashMap<Line2D, Color>();
 		addMouseWheelListener(new ExposedMouseWheelHandler(this));
 	}
 
@@ -456,6 +467,9 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 			ChartMaskingUtilities.drawMasks(g2, getScreenDataArea(), maskList, 
 					selectedMask, getChart());
 		}
+		if (isShapeEnabled()) {
+			ChartMaskingUtilities.drawShapes(g2, getScreenDataArea(), shapeMap, getChart());
+		}
 		if (getHorizontalAxisTrace()) {
 			drawHorizontalAxisTrace(g2, horizontalTraceLocation);
 		}
@@ -465,6 +479,7 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		if (isToolTipFollowerEnabled) {
 			drawToolTipFollower(g2, horizontalTraceLocation, verticalTraceLocation);
 		}
+		
 //		long diff = System.currentTimeMillis() - time;
 //		if (diff > 100) {
 //			System.out.println("refreshing cost: " + diff);
@@ -811,6 +826,18 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
     	}
 	}
 
+    public void addShape(Shape shape, Color color) {
+    	shapeMap.put(shape, color);
+    }
+    
+    public void removeShape(Shape shape) {
+    	shapeMap.remove(shape);
+    }
+    
+    public void clearShapes() {
+    	shapeMap.clear();
+    }
+    
 	@Override
 	protected JPopupMenu createPopupMenu(boolean properties, boolean copy,
 			boolean save, boolean print, boolean zoom) {
@@ -1237,6 +1264,8 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 	@Override
 	public void chartChanged(ChartChangeEvent event) {
 		if (autoUpdate) {
+			clearShapes();
+			makeMarkers();
 			super.chartChanged(event);
 		}
 	}
@@ -1250,5 +1279,154 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 	@Override
 	public void cleanUp() {
 		
+	}
+
+	/**
+	 * @return the isShapeEnabled
+	 */
+	public boolean isShapeEnabled() {
+		return isShapeEnabled;
+	}
+
+	/**
+	 * @param isShapeEnabled the isShapeEnabled to set
+	 */
+	public void setShapeEnabled(boolean isShapeEnabled) {
+		this.isShapeEnabled = isShapeEnabled;
+		getXYPlot().setNotify(true);
+	}
+
+	@Override
+	public void addDomainAxisMarker(double x, int height, Color color) {
+		if (color == null) {
+			color = Color.getColor("BLACK");
+		}
+		double dHeight = height;
+		if (height == 0) {
+			dHeight = 1e-9;
+		}
+		Line2D line = new Line2D.Double(new Point2D.Double(x, 0), new Point2D.Double(x, dHeight));
+		domainMarkerMap.put(line, color);
+		Line2D newLine = convertDomainAxisMarker(line);
+		addShape(newLine, color);
+		getXYPlot().setNotify(true);
+	}
+	
+	private Line2D convertDomainAxisMarker(Line2D marker) {
+		Line2D newLine = (Line2D) marker.clone();
+		Rectangle2D imageArea = getScreenDataArea();
+		double maxY = imageArea.getBounds2D().getMaxY();
+		newLine.setLine(marker.getX1(), ChartMaskingUtilities.translateScreenY(maxY - marker.getY1(), imageArea, getChart(), 0), 
+				marker.getX2(), ChartMaskingUtilities.translateScreenY(maxY - marker.getY2(), imageArea, getChart(), 0));
+		return newLine;
+	}
+	
+	private void createDomainAxisMarkers() {
+		for (Entry<Line2D, Color> entry : domainMarkerMap.entrySet()) {
+			Line2D line = entry.getKey();
+			Color color = entry.getValue();
+			Line2D newLine = convertDomainAxisMarker(line);
+			addShape(newLine, color);
+		}
+	}
+
+	@Override
+	public void addRangeAxisMarker(double y, int width, Color color) {
+		if (color == null) {
+			color = Color.BLACK;
+		}
+		double dWidth = width;
+		if (width == 0) {
+			dWidth = 1e-9;
+		}
+		Line2D line = new Line2D.Double(new Point2D.Double(0, y), new Point2D.Double(dWidth, y));
+		rangeMarkerMap.put(line, color);
+		Line2D newLine = convertRangeAxisMarker(line);
+		addShape(newLine, color);
+		getXYPlot().setNotify(true);
+	}
+	
+	private Line2D convertRangeAxisMarker(Line2D marker) {
+		Line2D newLine = (Line2D) marker.clone();
+		Rectangle2D imageArea = getScreenDataArea();
+		double minX = imageArea.getBounds2D().getMinX();
+		newLine.setLine(ChartMaskingUtilities.translateScreenX(minX + marker.getX1(), imageArea, getChart()), marker.getY1(),  
+				ChartMaskingUtilities.translateScreenX(minX + marker.getX2(), imageArea, getChart()), marker.getY2());
+		return newLine;
+	}
+	
+	private void createRangeAxisMarkers() {
+		for (Entry<Line2D, Color> entry : rangeMarkerMap.entrySet()) {
+			Line2D line = entry.getKey();
+			Color color = entry.getValue();
+			Line2D newLine = convertRangeAxisMarker(line);
+			addShape(newLine, color);
+		}
+	}	
+
+	private void makeMarkers() {
+		createDomainAxisMarkers();
+		createRangeAxisMarkers();
+		createMarkers();
+	}
+
+	@Override
+	public void addMarker(double x, double y, Color color) {
+		if (color == null) {
+			color = Color.BLACK;
+		}
+//		Point2D newPoint = ChartMaskingUtilities.translateChartPoint(new Point2D.Double(x, y), getScreenDataArea(), getChart());
+//		
+//		Shape newShape = ShapeUtilities.createTranslatedShape(shape, newPoint.getX(), newPoint.getY());
+		Point2D marker = new Point2D.Double(x, y);
+		Line2D point = new Line2D.Double(marker, marker);
+		markerMap.put(point, color);
+//		Shape newShape = shape.
+		addShape(point, color);
+		getXYPlot().setNotify(true);
+	}
+	
+	private void createMarkers() {
+		for (Entry<Line2D, Color> entry : markerMap.entrySet()) {
+			Line2D line = entry.getKey();
+			Color color = entry.getValue();
+			addShape(line, color);
+		}
+	}
+
+	@Override
+	public void removeDomainAxisMarker(double x) {
+		for (Entry<Line2D, Color> entry : domainMarkerMap.entrySet()) {
+			Line2D line = entry.getKey();
+			if (line.getP1().getX() == x) {
+				domainMarkerMap.remove(line);
+				break;
+			}
+		}
+		getXYPlot().setNotify(true);
+	}
+	
+	@Override
+	public void removeRangeAxisMarker(double y) {
+		for (Entry<Line2D, Color> entry : rangeMarkerMap.entrySet()) {
+			Line2D line = entry.getKey();
+			if (line.getP1().getY() == y) {
+				rangeMarkerMap.remove(line);
+				break;
+			}
+		}
+		getXYPlot().setNotify(true);
+	}
+	
+	@Override
+	public void removeMarker(double x, double y) {
+		for (Entry<Line2D, Color> entry : markerMap.entrySet()) {
+			Line2D line = entry.getKey();
+			if (line.getP1().getX() == x && line.getP1().getY() == y) {
+				markerMap.remove(line);
+				break;
+			}
+		}
+		getXYPlot().setNotify(true);
 	}
 }

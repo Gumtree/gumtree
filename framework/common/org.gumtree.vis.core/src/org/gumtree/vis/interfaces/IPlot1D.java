@@ -67,4 +67,5 @@ public interface IPlot1D extends IPlot{
 	public void setMarkerEnabled(boolean enabled);
 	
 	public void setSelectedSeries(int seriesIndex);
+	
 }

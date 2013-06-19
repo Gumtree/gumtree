@@ -15,8 +15,10 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.RectangularShape;
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -37,6 +39,7 @@ import org.jfree.chart.encoders.ImageFormat;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.Range;
 import org.jfree.ui.RectangleEdge;
+import org.jfree.util.ShapeUtilities;
 
 /**
  * @author nxi
@@ -73,6 +76,52 @@ public class ChartMaskingUtilities {
     			Math.abs(screenStart.getX() - screenEnd.getX()), 
     			Math.abs(screenStart.getY() - screenEnd.getY())));
     	return imageMask;
+    }
+    
+    public static Shape translateChartShape(Shape shape, Rectangle2D imageArea, JFreeChart chart) {
+    	if (shape instanceof Line2D) {
+    		Line2D line = (Line2D) shape;
+    		double length = line.getP1().distance(line.getP2());
+    		if (length == 0){
+    			Point2D point = line.getP1();
+    			Point2D newPoint = ChartMaskingUtilities.translateChartPoint(point, imageArea, chart);
+    			Shape oShape = ShapeUtilities.createDiagonalCross(5f, 0.2f);
+//    			Shape oShape = ShapeUtilities.createRegularCross(3f, 0.5f);
+    			Shape newShape = ShapeUtilities.createTranslatedShape(oShape, newPoint.getX(), newPoint.getY());
+    			return newShape;
+    		} else if (length < 1e-6) {
+    			if (line.getP1().getX() == line.getP2().getX()) {
+    				double newX = ChartMaskingUtilities.translateChartPoint(line.getP1(), imageArea, chart).getX();
+    				Line2D newLine = new Line2D.Double(newX, imageArea.getMinY(), newX, imageArea.getMaxY());
+    				return newLine;
+    			} else {
+    				double newY = ChartMaskingUtilities.translateChartPoint(line.getP1(), imageArea, chart).getY();
+    				Line2D newLine = new Line2D.Double(imageArea.getMinX(), newY, imageArea.getMaxX(), newY);
+    				return newLine;
+    			}
+    		}
+    		Line2D newShape = (Line2D) line.clone();
+    		Point2D newP1 = translateChartPoint(line.getP1(), imageArea, chart);
+    		Point2D newP2 = translateChartPoint(line.getP2(), imageArea, chart);
+    		newShape.setLine(newP1, newP2);
+    		return newShape;
+    	} else if (shape instanceof RectangularShape) {
+    		RectangularShape rect = (RectangularShape) shape;
+    		RectangularShape newShape = (RectangularShape) rect.clone();
+    		Rectangle2D bound = rect.getBounds2D();
+    		Point2D start = new Point2D.Double(bound.getMinX(), bound.getMinY());
+        	Point2D end = new Point2D.Double(bound.getMaxX(), bound.getMaxY());
+        	Point2D screenStart = translateChartPoint(start, imageArea, chart);
+        	Point2D screenEnd = translateChartPoint(end, imageArea, chart);
+        	newShape.setFrame(new Rectangle2D.Double(
+        			Math.min(screenStart.getX(), screenEnd.getX()), 
+        			Math.min(screenStart.getY(), screenEnd.getY()), 
+        			Math.abs(screenStart.getX() - screenEnd.getX()), 
+        			Math.abs(screenStart.getY() - screenEnd.getY())));
+        	return newShape;
+    	} else {
+    		return shape;
+    	}
     }
     
     public static Rectangle2D getDomainMaskFrame(RangeMask mask, 
@@ -412,6 +461,26 @@ public class ChartMaskingUtilities {
 			drawMaskBoarder(g2, translatedRectangle);
 		}
 		drawMaskName(g2, mask, translatedRectangle, fontSizeRate);
+	}
+
+	public static void drawShapes(Graphics2D g2, Rectangle2D imageArea,
+			LinkedHashMap<Shape, Color> shapeList, JFreeChart chart) {
+		for (Entry<Shape, Color> shapeEntry : shapeList.entrySet()) {
+			Shape shape = shapeEntry.getKey();
+			Color color = shapeEntry.getValue();
+			drawShape(g2, imageArea, shape, color, chart);
+		}
+	}
+
+	public static void drawShape(Graphics2D g2, Rectangle2D imageArea,
+			Shape shape, Color color, JFreeChart chart) {
+		g2.clip(imageArea);
+    	g2.setPaint(color);
+    	Shape newShape = translateChartShape(shape, imageArea, chart);
+    	if (shape == null) {
+    		return;
+    	}
+    	g2.draw(newShape);
 	}
 
 }

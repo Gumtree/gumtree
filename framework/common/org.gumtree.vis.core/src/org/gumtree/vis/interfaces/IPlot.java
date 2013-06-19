@@ -14,6 +14,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Shape;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
@@ -171,7 +172,13 @@ public interface IPlot {
 	public abstract void addMaskEventListener(IMaskEventListener listener);
 	
 	public abstract void removeMaskEventListener(IMaskEventListener listener);
-	
+
+	public void addShape(Shape shape, Color color);
+
+	public void removeShape(Shape shape);
+
+	public void clearShapes();
+
 	public abstract void setPlotTitle(String title);
 	
 	public abstract void doHelp();
@@ -185,4 +192,23 @@ public interface IPlot {
 	public abstract boolean isLogarithmEnabled();
 
 	public abstract IHelpProvider getHelpProvider();
+	
+	public boolean isShapeEnabled();
+	/**
+	 * @param isShapeEnabled the isShapeEnabled to set
+	 */
+	public void setShapeEnabled(boolean isShapeEnabled);
+
+	void addDomainAxisMarker(double x, int height, Color color);
+
+	void addRangeAxisMarker(double y, int width, Color color);
+
+	void addMarker(double x, double y, Color color);
+
+	void removeMarker(double x, double y);
+	
+	void removeRangeAxisMarker(double y);
+	
+	void removeDomainAxisMarker(double x);
+	
 }

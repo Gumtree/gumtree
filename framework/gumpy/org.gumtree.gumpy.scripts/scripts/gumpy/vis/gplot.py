@@ -1,3 +1,4 @@
+from java.awt import Color
 from org.gumtree.data.ui.part import PlotView
 from org.gumtree.vis.hist2d.color import ColorScale
 from org.gumtree.vis.mask import EllipseMask, RectangleMask, RangeMask
@@ -386,6 +387,72 @@ class GPlot:
 
     def close(self):
         PlotView.closePlotView(self.__view__)
+        
+    def add_x_marker(self, pos, height = None, color = None):
+        if color is None:
+            cc = None
+        else:
+            cc = __get_color__(color)
+        if hasattr(pos, '__len__') :
+            for item in pos :
+                self.pv.getPlot().addDomainAxisMarker(item, height, cc)
+        else:
+            self.pv.getPlot().addDomainAxisMarker(pos, height, cc)
+    
+    def remove_x_marker(self, pos):
+        if hasattr(pos, '__len__') :
+            for item in pos :
+                self.pv.getPlot().removeDomainAxisMarker(item)
+        else:
+            self.pv.getPlot().removeDomainAxisMarker(pos)
+        
+        
+    def add_y_marker(self, pos, width = None, color = None):
+        if color is None:
+            cc = None
+        else:
+            cc = __get_color__(color)
+        if hasattr(pos, '__len__') :
+            for item in pos :
+                self.pv.getPlot().addRangeAxisMarker(item, width, cc)
+        else :
+            self.pv.getPlot().addRangeAxisMarker(pos, width, cc)
+     
+    def remove_y_marker(self, pos):
+        if hasattr(pos, '__len__') :
+            for item in pos :
+                self.pv.getPlot().removeRangeAxisMarker(item)
+        else:
+            self.pv.getPlot().removeRangeAxisMarker(pos)
+        
 
+    def add_marker(self, x, y, color):
+        if color is None:
+            cc = None
+        else:
+            cc = __get_color__(color)
+        if hasattr(x, '__len__') and hasattr(y, '__len__') and len(x) == len(y):
+            for i in xrange(len(x)) :
+                self.pv.getPlot().addMarker(x[i], y[i], cc)
+        else :
+            self.pv.getPlot().addMarker(x, y, cc)
+
+    def remove_marker(self, x, y):
+        if hasattr(x, '__len__') and hasattr(y, '__len__') and len(x) == len(y):
+            for i in xrange(len(x)) :
+                self.pv.getPlot().removeMarker(x[i], y[i])
+        else :
+            self.pv.getPlot().removeMarker(x, y)
+        
+def __get_color__(name):
+    res = None
+    try:
+        res = eval('Color.' + name.upper())
+    except:
+        res = Color.getColor(name)
+    if name != None and res is None:
+        print 'can not interpret color ' + name
+    return res
+    
 def plot(ds = None, title = None, x_label = None, y_label = None):
     return GPlot(ds, title, x_label, y_label)
