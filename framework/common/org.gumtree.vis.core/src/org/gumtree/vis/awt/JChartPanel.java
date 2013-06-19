@@ -1330,6 +1330,11 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		}
 	}
 
+	public void clearDomainAxisMarkers() {
+		domainMarkerMap.clear();
+		getXYPlot().setNotify(true);
+	}
+	
 	@Override
 	public void addRangeAxisMarker(double y, int width, Color color) {
 		if (color == null) {
@@ -1364,6 +1369,11 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		}
 	}	
 
+	public void clearRangeAxisMarkers() {
+		rangeMarkerMap.clear();
+		getXYPlot().setNotify(true);
+	}
+	
 	private void makeMarkers() {
 		createDomainAxisMarkers();
 		createRangeAxisMarkers();
@@ -1394,6 +1404,11 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		}
 	}
 
+	public void clearMarkers() {
+		markerMap.clear();
+		getXYPlot().setNotify(true);
+	}
+	
 	@Override
 	public void removeDomainAxisMarker(double x) {
 		for (Entry<Line2D, Color> entry : domainMarkerMap.entrySet()) {

@@ -978,4 +978,22 @@ public class CompositePanel extends JPanel implements ICompositePlot,
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void clearMarkers() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void clearDomainAxisMarkers() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void clearRangeAxisMarkers() {
+		// TODO Auto-generated method stub
+		
+	}
 }

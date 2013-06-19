@@ -406,7 +406,15 @@ class GPlot:
         else:
             self.pv.getPlot().removeDomainAxisMarker(pos)
         
+    def clear_x_markers(self):
+        self.pv.getPlot().clearDomainAxisMarkers()
         
+    def clear_y_markers(self):
+        self.pv.getPlot().clearRangeAxisMarkers()
+        
+    def clear_markers(self):
+        self.pv.getPlot().clearMarkers()
+
     def add_y_marker(self, pos, width = None, color = None):
         if color is None:
             cc = None

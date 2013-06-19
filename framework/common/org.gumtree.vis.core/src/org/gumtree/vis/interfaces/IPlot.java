@@ -211,4 +211,10 @@ public interface IPlot {
 	
 	void removeDomainAxisMarker(double x);
 	
+	public void clearMarkers();
+	
+	public void clearDomainAxisMarkers();
+	
+	public void clearRangeAxisMarkers();
+	
 }
