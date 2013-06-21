@@ -352,12 +352,13 @@ public class ChartMaskingUtilities {
      * @param width  the image width.
      * @param height  the image height.
      * @param info  the chart rendering info (<code>null</code> permitted).
+     * @param shapeMap 
      *
      * @throws IOException if there are any I/O errors.
      */
     public static void writeChartAsJPEG(File file, JFreeChart chart,
             int width, int height, ChartRenderingInfo info, Rectangle2D imageArea, 
-            LinkedHashMap<AbstractMask, Color> maskList)
+            LinkedHashMap<AbstractMask, Color> maskList, LinkedHashMap<Shape, Color> shapeMap)
             throws IOException {
 
         if (file == null) {
@@ -371,6 +372,7 @@ public class ChartMaskingUtilities {
                 BufferedImage.TYPE_INT_RGB, info);
         Graphics2D g2 = image.createGraphics();
         drawMasks(g2, imageArea, maskList, null, chart);
+        drawShapes(g2, imageArea, shapeMap, chart);
         g2.dispose();
         try{
         	EncoderUtil.writeBufferedImage(image, ImageFormat.JPEG, out);
@@ -391,6 +393,7 @@ public class ChartMaskingUtilities {
      * @param height  the image height.
      * @param info  carries back chart rendering info (<code>null</code>
      *              permitted).
+     * @param shapeMap 
      * @param encodeAlpha  encode alpha?
      * @param compression  the PNG compression level (0-9).
      *
@@ -398,7 +401,8 @@ public class ChartMaskingUtilities {
      */
     public static void writeChartAsPNG(File file, JFreeChart chart,
             int width, int height, ChartRenderingInfo info, 
-            Rectangle2D imageArea, LinkedHashMap<AbstractMask, Color> maskList) 
+            Rectangle2D imageArea, LinkedHashMap<AbstractMask, Color> maskList, 
+            LinkedHashMap<Shape, Color> shapeMap) 
     throws IOException {
 
         if (file == null) {
@@ -412,6 +416,7 @@ public class ChartMaskingUtilities {
                 BufferedImage.TYPE_INT_ARGB, info);
         Graphics2D g2 = chartImage.createGraphics();
         drawMasks(g2, imageArea, maskList, null, chart);
+        drawShapes(g2, imageArea, shapeMap, chart);
         g2.dispose();
         try{
         	ChartUtilities.writeBufferedImageAsPNG(out, chartImage);

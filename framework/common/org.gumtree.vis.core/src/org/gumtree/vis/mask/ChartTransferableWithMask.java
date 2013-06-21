@@ -13,6 +13,7 @@ package org.gumtree.vis.mask;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -45,6 +46,7 @@ public class ChartTransferableWithMask implements Transferable {
 
 
     LinkedHashMap<AbstractMask, Color> masks;
+    private LinkedHashMap<Shape, Color> shapeMap;
 	private Rectangle2D dataArea;
 	
 	/**
@@ -75,10 +77,12 @@ public class ChartTransferableWithMask implements Transferable {
 	}
 
 	public ChartTransferableWithMask(JFreeChart chart, int width, int height, 
-			Rectangle2D dataArea, LinkedHashMap<AbstractMask, Color> masks) {
+			Rectangle2D dataArea, LinkedHashMap<AbstractMask, Color> masks, 
+			LinkedHashMap<Shape, Color> shapeMap) {
 		this(chart, width, height);
 		this.dataArea = dataArea;
 		this.masks = masks;
+		this.shapeMap = shapeMap;
 	}
 	
     /**
@@ -114,6 +118,7 @@ public class ChartTransferableWithMask implements Transferable {
         Graphics2D g2 = image.createGraphics();
         drawMasksInDataArea(g2, dataArea != null ? dataArea : 
         	new Rectangle2D.Double(0, 0, width, height), masks, chart);
+        ChartMaskingUtilities.drawShapes(g2, dataArea, shapeMap, chart);
         g2.dispose();
         return image;
 	}
@@ -122,6 +127,7 @@ public class ChartTransferableWithMask implements Transferable {
     		LinkedHashMap<AbstractMask, Color> masks, JFreeChart chart) {
     	ChartMaskingUtilities.drawMasks(g2, dataArea, masks, null, chart);
     }
+
     
 //    private void drawMaskRectangle(Graphics2D g2) {
 //    	if (masks != null) {

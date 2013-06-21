@@ -113,6 +113,7 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
     private AbstractMask selectedMask;
     private List<IMaskEventListener> maskEventListeners = new ArrayList<IMaskEventListener>();
 	private boolean isShapeEnabled = true;
+	private boolean isShapeValid = true;
     private LinkedHashMap<Line2D, Color> domainMarkerMap;
     private LinkedHashMap<Line2D, Color> rangeMarkerMap;
     private LinkedHashMap<Line2D, Color> markerMap;
@@ -468,7 +469,7 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 					selectedMask, getChart());
 		}
 		if (isShapeEnabled()) {
-			ChartMaskingUtilities.drawShapes(g2, getScreenDataArea(), shapeMap, getChart());
+			drawShapes(g2);
 		}
 		if (getHorizontalAxisTrace()) {
 			drawHorizontalAxisTrace(g2, horizontalTraceLocation);
@@ -572,7 +573,7 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
                 = Toolkit.getDefaultToolkit().getSystemClipboard();
         Rectangle2D screenArea = getScreenDataArea();
         final ChartTransferableWithMask selection = new ChartTransferableWithMask(
-        		getChart(), getWidth(), getHeight(), screenArea, maskList);
+        		getChart(), getWidth(), getHeight(), screenArea, maskList, shapeMap);
         //TODO: the below command take too long to run. 6 seconds for Wombat data. 
         Cursor currentCursor = getCursor();
         setCursor(WAIT_CURSOR);
@@ -734,10 +735,11 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		if (filterIndex == 0) {
 			ChartMaskingUtilities.writeChartAsPNG(new File(filename), getChart(), 
 					getWidth(), getHeight(), null, getScreenDataArea(), 
-					maskList);
+					maskList, shapeMap);
 		} else if (filterIndex == 1) {
 			ChartMaskingUtilities.writeChartAsJPEG(new File(filename), getChart(),
-					getWidth(), getHeight(), null, getScreenDataArea(), maskList);
+					getWidth(), getHeight(), null, getScreenDataArea(), maskList, 
+					shapeMap);
 		} else if (filterIndex == 2) {
 			FileWriter fw = new FileWriter(filename);
 			BufferedWriter writer = new BufferedWriter (fw);
@@ -836,6 +838,7 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
     
     public void clearShapes() {
     	shapeMap.clear();
+    	isShapeValid = true;
     }
     
 	@Override
@@ -1109,6 +1112,8 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
         getChart().draw(g2, area, getAnchor(), null);
         ChartMaskingUtilities.drawMasks(g2, dataArea, 
         		maskList, null, getChart(), overallRatio);
+        ChartMaskingUtilities.drawShapes(g2, dataArea, 
+        		shapeMap, getChart());
         plot.getDomainAxis().setLabelFont(domainFont);
         plot.getRangeAxis().setLabelFont(rangeFont);
         if (titleBlock != null) {
@@ -1296,6 +1301,14 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		getXYPlot().setNotify(true);
 	}
 
+	private void drawShapes(Graphics2D g2) {
+		if (!isShapeValid) {
+			clearShapes();
+			makeMarkers();
+		}
+		ChartMaskingUtilities.drawShapes(g2, getScreenDataArea(), shapeMap, getChart());
+	}
+	
 	@Override
 	public void addDomainAxisMarker(double x, int height, Color color) {
 		if (color == null) {
@@ -1316,6 +1329,9 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		Line2D newLine = (Line2D) marker.clone();
 		Rectangle2D imageArea = getScreenDataArea();
 		double maxY = imageArea.getBounds2D().getMaxY();
+		if (maxY == 0) {
+			isShapeValid = false;
+		}
 		newLine.setLine(marker.getX1(), ChartMaskingUtilities.translateScreenY(maxY - marker.getY1(), imageArea, getChart(), 0), 
 				marker.getX2(), ChartMaskingUtilities.translateScreenY(maxY - marker.getY2(), imageArea, getChart(), 0));
 		return newLine;
@@ -1355,6 +1371,9 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		Line2D newLine = (Line2D) marker.clone();
 		Rectangle2D imageArea = getScreenDataArea();
 		double minX = imageArea.getBounds2D().getMinX();
+		if (imageArea.getBounds2D().getMaxX() == 0) {
+			isShapeValid = false;
+		}
 		newLine.setLine(ChartMaskingUtilities.translateScreenX(minX + marker.getX1(), imageArea, getChart()), marker.getY1(),  
 				ChartMaskingUtilities.translateScreenX(minX + marker.getX2(), imageArea, getChart()), marker.getY2());
 		return newLine;
