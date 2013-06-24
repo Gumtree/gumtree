@@ -388,11 +388,17 @@ class GPlot:
     def close(self):
         PlotView.closePlotView(self.__view__)
         
-    def add_x_marker(self, pos, height = None, color = None):
+    # Add markers on horizontal axis. 
+    # pos: positions on horizontal axis. Can be either a double value or a list of double values. If height is 0, it will draw a line through the whole y range. 
+    # height: length of the marker in pixel
+    # color: color of the marker (optional)
+    def add_x_marker(self, pos, height, color = None):
         if color is None:
             cc = None
         else:
             cc = __get_color__(color)
+        if height is None:
+            height = 0
         if hasattr(pos, '__len__') :
             for item in pos :
                 self.pv.getPlot().addDomainAxisMarker(item, height, cc)
@@ -415,11 +421,17 @@ class GPlot:
     def clear_markers(self):
         self.pv.getPlot().clearMarkers()
 
-    def add_y_marker(self, pos, width = None, color = None):
+    # Add markers on vertical axis. 
+    # pos: positions on vertical axis. Can be either a double value or a list of double values. If width is 0, it will draw a line through the whole x range. 
+    # height: length of the marker in pixel
+    # color: color of the marker (optional)
+    def add_y_marker(self, pos, width, color = None):
         if color is None:
             cc = None
         else:
             cc = __get_color__(color)
+        if width is None:
+            width = 0
         if hasattr(pos, '__len__') :
             for item in pos :
                 self.pv.getPlot().addRangeAxisMarker(item, width, cc)
@@ -433,8 +445,10 @@ class GPlot:
         else:
             self.pv.getPlot().removeRangeAxisMarker(pos)
         
-
-    def add_marker(self, x, y, color):
+    # Add markers in the plot. 
+    # x, y: coordinate of the marker in double values.
+    # color: color of the marker (optional)
+    def add_marker(self, x, y, color = None):
         if color is None:
             cc = None
         else:

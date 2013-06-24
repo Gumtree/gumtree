@@ -7,6 +7,26 @@
             alias="/echidna/index.html"
             base-name="/WebContent/index.html">
       </resource>
+      <resource
+            alias="/echidna.html"
+            base-name="/WebContent/echidna.html">
+      </resource>
+      <resource
+            alias="/index.html"
+            base-name="/WebContent/index.html">
+      </resource>
+      <resource
+            alias="/echidna.swf"
+            base-name="/WebContent/echidna.swf">
+      </resource>
+      <resource
+            alias="/playerProductInstall.swf"
+            base-name="/WebContent/playerProductInstall.swf">
+      </resource>
+      <resource
+            alias="/AC_OETags.js"
+            base-name="/WebContent/AC_OETags.js">
+      </resource>
    </extension>
 
 </plugin>

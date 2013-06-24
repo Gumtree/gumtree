@@ -109,7 +109,7 @@ public class TaipanRestlet extends Restlet {
 			if (files.length > 0) {
 				File lastModifiedFile = files[0];
 				for (int i = 1; i < files.length; i++) {
-					if (lastModifiedFile.lastModified() < files[i].lastModified()) {
+					if (lastModifiedFile.lastModified() < files[i].lastModified() && lastModifiedFile.isFile()) {
 						lastModifiedFile = files[i];
 					}
 				}
