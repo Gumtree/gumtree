@@ -594,7 +594,7 @@ public class Hist2DPanel extends JChartPanel implements IHist2D, DatasetChangeLi
 //	}
 
     
-	protected int findSelectedMask(int x, int y) {
+	protected int findCursorOnSelectedItem(int x, int y) {
         if (getSelectedMask() != null && !getSelectedMask().getRectangleFrame().isEmpty()) {
         	Rectangle2D screenArea = getScreenDataArea();
         	Rectangle2D maskArea = ChartMaskingUtilities.translateChartRectangle(getSelectedMask(), 
@@ -829,7 +829,7 @@ public class Hist2DPanel extends JChartPanel implements IHist2D, DatasetChangeLi
 
 //        if (isMaskingEnabled() && (e.getModifiers() & maskingKeyMask) != 0) {
     	if (isMaskingEnabled()) {
-        	int cursorType = findSelectedMask(e.getX(), e.getY());
+        	int cursorType = findCursorOnSelectedItem(e.getX(), e.getY());
         	setCursor(Cursor.getPredefinedCursor(cursorType));
         } else if (getCursor() != defaultCursor) {
         	setCursor(defaultCursor);
@@ -1026,7 +1026,7 @@ public class Hist2DPanel extends JChartPanel implements IHist2D, DatasetChangeLi
 //        if (isMaskingEnabled() && (mods & maskingKeyMask) != 0) {
         if (isMaskingEnabled()) {
         	// Prepare masking service.
-        	int cursorType = findSelectedMask(e.getX(), e.getY());
+        	int cursorType = findCursorOnSelectedItem(e.getX(), e.getY());
         	if (cursorType == Cursor.DEFAULT_CURSOR) {
         		Rectangle2D screenDataArea = getScreenDataArea(e.getX(), e.getY());
         		if (screenDataArea != null) {

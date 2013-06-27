@@ -294,7 +294,7 @@ public class ChartMaskingUtilities {
         g2.fill(mask.getShape());
 	}
 
-	private static void drawMaskBoarder(Graphics2D g2, Rectangle2D frame) {
+	public static void drawMaskBoarder(Graphics2D g2, Rectangle2D frame) {
         g2.setPaint(Color.orange);
         g2.setStroke(new BasicStroke(1));
         g2.draw(frame);

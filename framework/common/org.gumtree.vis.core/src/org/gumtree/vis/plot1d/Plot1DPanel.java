@@ -13,6 +13,7 @@ package org.gumtree.vis.plot1d;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Shape;
@@ -20,14 +21,11 @@ import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map.Entry;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
@@ -54,10 +52,10 @@ import org.gumtree.vis.mask.RangeMask;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.block.RectangleConstraint;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.XYItemEntity;
-import org.jfree.chart.event.ChartChangeEvent;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
@@ -67,6 +65,7 @@ import org.jfree.data.Range;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.ExtensionFileFilter;
 import org.jfree.ui.RectangleEdge;
+import org.jfree.ui.Size2D;
 
 /**
  * @author nxi
@@ -81,6 +80,7 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 	public static final Color MASK_EXCLUSIVE_COLOR = new Color(0, 0, 220, 30);
 	private static final long serialVersionUID = -5212815744540142881L;
 	private static final String LEGEND_NONE_COMMAND = "legendNone";
+	private static final String LEGEND_INTERNAL_COMMAND = "legendInternal";
 	private static final String LEGEND_BOTTOM_COMMAND = "legendBottom";
 	private static final String LEGEND_RIGHT_COMMAND = "legendRight";
 	private static final Stroke DEFAULT_STROCK = new BasicStroke(1);
@@ -92,6 +92,7 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 	private JMenuItem legendNone;
 	private JMenuItem legendBottom;
 	private JMenuItem legendRight;
+	private JMenuItem legendInternal;
     private int selectedSeriesIndex = -1;
     private double chartError;
     
@@ -100,6 +101,7 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
     public static final String FOCUS_ON_COMMAND = "FOCUS_ON";
     private static int minMaskWidth = 4;
     private double maskPoint = Double.NaN;
+    private Point2D legendPoint;
     private RangeMask currentMaskRectangle = null;
 //    private List<RectangleMask> exclusiveMaskList;
 //    private RangeMask selectedMask;
@@ -107,6 +109,9 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 //    private JMenu maskManagementMenu;
     private JMenu curveManagementMenu;
 //    private JMenuItem removeSelectedMaskMenuItem;
+    private Rectangle2D internalLegendSetup;
+    private boolean isInternalLegendEnabled;
+	private boolean isInternalLegendSelected;
     
 	/**
 	 * @param chart
@@ -236,9 +241,20 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 			} catch (Exception e) {
 			}
 		}
-		
+		internalLegendSetup = new Rectangle2D.Double(152, 20, 150, 20);
+		isInternalLegendSelected = false;
 	}
 
+	@Override
+	public void paintComponent(Graphics g) {
+		// TODO Auto-generated method stub
+		super.paintComponent(g);
+		if (isInternalLegendEnabled) {
+			Graphics2D g2 = (Graphics2D) g.create();
+			drawInternalLegend(g2);
+		} 
+	}
+	
 //	@Override
 //	public void paintComponent(Graphics g) {
 ////		long time = System.currentTimeMillis();
@@ -260,6 +276,31 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 ////		System.out.println("refreshing cost " + (System.currentTimeMillis() - time) + " ms");
 //	}
 	
+	private void drawInternalLegend(Graphics2D g2) {
+//		XYDataset dataset = getXYPlot().getDataset();
+//		int numSeries = dataset.getSeriesCount();
+		Rectangle2D screenArea = getScreenDataArea();
+		Rectangle2D lengendArea = new Rectangle2D.Double(screenArea.getMaxX() - internalLegendSetup.getMinX(), 
+				screenArea.getMinY() + internalLegendSetup.getMinY(), internalLegendSetup.getWidth(), 
+				internalLegendSetup.getHeight());
+		LegendTitle legend = new LegendTitle(getXYPlot());
+		RectangleConstraint rc = new RectangleConstraint(
+                new Range(0, internalLegendSetup.getWidth()), new Range(0, internalLegendSetup.getHeight()));
+        Size2D size = legend.arrange(g2, rc);
+		getXYPlot().getLegendItems();
+		legend.draw(g2, lengendArea);
+		Rectangle2D titleRect = new Rectangle2D.Double(lengendArea.getMinX(), lengendArea.getMinY(), size.width,
+                size.height);
+		internalLegendSetup.setRect(internalLegendSetup.getX(), internalLegendSetup.getY(), 
+				titleRect.getWidth(), titleRect.getHeight());
+		if (isInternalLegendSelected) {
+			ChartMaskingUtilities.drawMaskBoarder(g2, titleRect);
+		} else {
+			g2.setColor(Color.GRAY);
+			g2.draw(titleRect);
+		}
+	}
+
 	@Override
 	protected JPopupMenu createPopupMenu(boolean properties, boolean copy,
 			boolean save, boolean print, boolean zoom) {
@@ -272,7 +313,12 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 		legendNone.setActionCommand(LEGEND_NONE_COMMAND);
 		legendNone.addActionListener(this);
 		legendMenu.add(legendNone);
-
+		
+		legendInternal = new JRadioButtonMenuItem("Internal");
+		legendInternal.setActionCommand(LEGEND_INTERNAL_COMMAND);
+		legendInternal.addActionListener(this);
+		legendMenu.add(legendInternal);
+		
 		legendBottom = new JRadioButtonMenuItem("Bottom");
 		legendBottom.setActionCommand(LEGEND_BOTTOM_COMMAND);
 		legendBottom.addActionListener(this);
@@ -308,16 +354,26 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
     			if (location.equals(RectangleEdge.BOTTOM)){
     				legendBottom.setSelected(true);
     				legendNone.setSelected(false);
+    				legendInternal.setSelected(false);
     				legendRight.setSelected(false);
     			} else if (isVisable && location.equals(RectangleEdge.RIGHT)){
     				legendRight.setSelected(true);
     				legendNone.setSelected(false);
+    				legendInternal.setSelected(false);
     				legendBottom.setSelected(false);
     			}
     		}else {
-    			legendNone.setSelected(true);
-    			legendRight.setSelected(false);
-    			legendBottom.setSelected(false);
+    			if (isInternalLegendEnabled) {
+    				legendNone.setSelected(false);
+    				legendInternal.setSelected(true);
+    				legendRight.setSelected(false);
+    				legendBottom.setSelected(false);
+    			} else {
+    				legendNone.setSelected(true);
+    				legendInternal.setSelected(false);
+    				legendRight.setSelected(false);
+    				legendBottom.setSelected(false);
+    			}
     		}
     	}
     	XYDataset dataset = getChart().getXYPlot().getDataset();
@@ -358,14 +414,21 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 		String command = event.getActionCommand();
 		if (command.equals(LEGEND_NONE_COMMAND)) {
         	getChart().getLegend().setVisible(false);
+        	isInternalLegendEnabled = false;
+        	repaint();
+        } else if (command.equals(LEGEND_INTERNAL_COMMAND)) {
+        	getChart().getLegend().setVisible(false);
+        	isInternalLegendEnabled = true;
         	repaint();
         } else if (command.equals(LEGEND_BOTTOM_COMMAND)) {
         	getChart().getLegend().setVisible(true);
         	getChart().getLegend().setPosition(RectangleEdge.BOTTOM);
+        	isInternalLegendEnabled = false;
         	repaint();
         } else if (command.startsWith(LEGEND_RIGHT_COMMAND)) {
         	getChart().getLegend().setVisible(true);
         	getChart().getLegend().setPosition(RectangleEdge.RIGHT);
+        	isInternalLegendEnabled = false;
             repaint();
         } else if (command.equals(UNFOCUS_CURVE_COMMAND)) {
         	selectSeries(-1);
@@ -430,6 +493,20 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 //        }
 
 //        if ((event.getModifiers() & maskingSelectionMask) != 0) {
+		if (isInternalLegendEnabled) {
+			Rectangle2D screenArea = getScreenDataArea();
+			Rectangle2D legendArea = new Rectangle2D.Double(screenArea.getMaxX() - internalLegendSetup.getMinX(), 
+					screenArea.getMinY() + internalLegendSetup.getMinY(), internalLegendSetup.getWidth(), 
+					internalLegendSetup.getHeight());
+			if (legendArea.contains(event.getPoint())){
+				selectInternalLegend(true);
+				selectMask(Double.NaN, Double.NaN);
+				repaint();
+				return;
+			} else {
+				selectInternalLegend(false);
+			}
+		}
         if ((event.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
         	selectMask(ChartMaskingUtilities.translateScreenX(x, 
         			getScreenDataArea(), getChart()), Double.NaN);
@@ -604,6 +681,13 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 //	        	getChart().handleClick(x, y, getChartRenderingInfo());
 	        }
 
+			if (isInternalLegendEnabled && isInternalLegendSelected) {
+	        	int cursorType = findCursorOnSelectedItem(e.getX(), e.getY());
+	        	setCursor(Cursor.getPredefinedCursor(cursorType));
+	        } else if (getCursor() != defaultCursor) {
+	        	setCursor(defaultCursor);
+	        }
+
 	    super.mouseMoved(e);
 	        // we can only generate events if the panel's chart is not null
 	        // (see bug report 1556951)
@@ -613,9 +697,24 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 	public void mousePressed(MouseEvent e) {
         int mods = e.getModifiers();
 //        if (isMaskingEnabled() && (mods & maskingKeyMask) != 0) {
+        if (isInternalLegendEnabled && isInternalLegendSelected) {
+        	int cursorType = findCursorOnSelectedItem(e.getX(), e.getY());
+        	if (cursorType == Cursor.DEFAULT_CURSOR) {
+        		Rectangle2D screenDataArea = getScreenDataArea(e.getX(), e.getY());
+        		if (screenDataArea != null) {
+        			legendPoint = e.getPoint();
+        		} else {
+        			legendPoint = null;
+        		}
+        	} else {
+        		if (cursorType == Cursor.MOVE_CURSOR){
+        			legendPoint = e.getPoint();
+        		}
+        	}
+        }
         if (isMaskingEnabled()) {
         	// Prepare masking service.
-        	int cursorType = findSelectedMask(e.getX(), e.getY());
+        	int cursorType = findCursorOnSelectedItem(e.getX(), e.getY());
         	if (cursorType == Cursor.DEFAULT_CURSOR && (mods & maskingKeyMask) != 0) {
         		Rectangle2D screenDataArea = getScreenDataArea(e.getX(), e.getY());
         		if (screenDataArea != null) {
@@ -729,14 +828,21 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
         }
         
 //        if (isMaskingEnabled() && (e.getModifiers() & maskingKeyMask) != 0) {
-        if (isMaskingEnabled() && (e.getModifiers() & maskingKeyMask) == 0) {
-        	int cursorType = findSelectedMask(e.getX(), e.getY());
+        if (isInternalLegendEnabled && isInternalLegendSelected) {
+        	int cursorType = findCursorOnSelectedItem(e.getX(), e.getY());
+        	setCursor(Cursor.getPredefinedCursor(cursorType));
+        } else if (isMaskingEnabled() && (e.getModifiers() & maskingKeyMask) == 0) {
+        	int cursorType = findCursorOnSelectedItem(e.getX(), e.getY());
         	setCursor(Cursor.getPredefinedCursor(cursorType));
         } else if (getCursor() != defaultCursor) {
         	setCursor(defaultCursor);
         }
         
-        if (getMaskDragIndicator() != Cursor.DEFAULT_CURSOR && this.getSelectedMask() != null
+        if (isInternalLegendEnabled && isInternalLegendSelected && 
+        		findCursorOnSelectedItem(e.getX(), e.getY()) != Cursor.DEFAULT_CURSOR && 
+        		(e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
+        	changeInternalLegend(e);
+        } else if (getMaskDragIndicator() != Cursor.DEFAULT_CURSOR && this.getSelectedMask() != null
         		&& (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
         	changeSelectedMask(e);
         } else if (isMaskingEnabled() && (e.getModifiers() & maskingKeyMask) != 0) {
@@ -762,6 +868,67 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 		}
 	}
 
+	private void changeInternalLegend(MouseEvent e) {
+		// TODO Auto-generated method stub
+		Point2D screenPoint = translateScreenToJava2D(e.getPoint());
+    	//TODO: resize the mask
+		Rectangle2D screenArea = getScreenDataArea();
+		if (screenArea.contains(screenPoint)) {
+//    			Point2D chartPoint = translateScreenToChart(screenPoint);
+
+//			changeSelectedMask(ChartMaskingUtilities.translateScreenX(
+//					screenPoint.getX(), getScreenDataArea(), getChart()));
+			int cursorType = findCursorOnSelectedItem(e.getX(), e.getY());
+			switch (cursorType) {
+			case Cursor.MOVE_CURSOR:
+				moveLegend(e.getPoint());
+				break;
+			case Cursor.W_RESIZE_CURSOR:
+				changeLegendX(e.getPoint());
+				break;
+			case Cursor.E_RESIZE_CURSOR:
+				changeLegendWidth(e.getPoint());
+				break;
+			default:
+				break;
+			}
+			repaint();
+		}
+	}
+	
+    private void moveLegend(Point2D point) {
+    	if (isInternalLegendEnabled && isInternalLegendSelected && legendPoint != null) {
+    		internalLegendSetup.setRect(internalLegendSetup.getX() + legendPoint.getX() - point.getX(), 
+    				internalLegendSetup.getY() - legendPoint.getY() + point.getY(), 
+    				internalLegendSetup.getWidth(), internalLegendSetup.getHeight());
+    		legendPoint = point;
+    	}
+	}
+    
+	private void changeLegendX(Point2D point) {
+		if (isInternalLegendEnabled && isInternalLegendSelected && legendPoint != null) {
+			Rectangle2D screenArea = getScreenDataArea();
+			if (point.getX() < screenArea.getMaxX()) {
+				internalLegendSetup.setRect(screenArea.getMaxX() - point.getX(), 
+						internalLegendSetup.getY(), 
+						screenArea.getMaxX() - internalLegendSetup.getX() + internalLegendSetup.getWidth() - point.getX(), 
+						internalLegendSetup.getHeight());
+			}
+    	}
+	}
+	
+	private void changeLegendWidth(Point2D point) {
+		if (isInternalLegendEnabled && isInternalLegendSelected && legendPoint != null) {
+			Rectangle2D screenArea = getScreenDataArea();
+			if (point.getX() < screenArea.getMaxX()) {
+				internalLegendSetup.setRect(internalLegendSetup.getX(), 
+						internalLegendSetup.getY(), 
+						point.getX() - screenArea.getMaxX() + internalLegendSetup.getX(), 
+						internalLegendSetup.getHeight());
+			}
+    	}
+	}
+	
 	private void makeNewMask(MouseEvent e) {
 		Point2D screenPoint = translateScreenToJava2D(e.getPoint());
     	if (Double.isNaN(maskPoint) || Math.abs(screenPoint.getX() - maskPoint) < minMaskWidth) {
@@ -879,8 +1046,39 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 		return -1;
 	}
 	
-	protected int findSelectedMask(int x, int y) {
-		if (getSelectedMask() != null && !getSelectedMask().isEmpty()) {
+	protected int findCursorOnSelectedItem(int x, int y) {
+		if (isInternalLegendEnabled && isInternalLegendSelected) {
+			Rectangle2D screenArea = getScreenDataArea();
+			Rectangle2D legendArea = new Rectangle2D.Double(screenArea.getMaxX() - internalLegendSetup.getMinX(), 
+					screenArea.getMinY() + internalLegendSetup.getMinY(), internalLegendSetup.getWidth(), 
+					internalLegendSetup.getHeight());
+			Rectangle2D intersect = screenArea.createIntersection(legendArea);
+			Point2D point = new Point2D.Double(x, y);
+			double minX = legendArea.getMinX();
+			double maxX = legendArea.getMaxX();
+			double minY = legendArea.getMinY();
+			double width = legendArea.getWidth();
+			double height = legendArea.getHeight();
+			if (!intersect.isEmpty() && screenArea.contains(point)) {
+				if (width > 8) {
+					Rectangle2D center = new Rectangle2D.Double(minX + 4, minY, 
+							width - 8, height);
+					if (screenArea.createIntersection(center).contains(point)) {
+						return Cursor.MOVE_CURSOR;
+					}
+				}
+				Rectangle2D west = new Rectangle2D.Double(minX - 4, minY, 
+						width < 8 ? width / 2 + 4 : 8, height);
+				if (screenArea.createIntersection(west).contains(point)) {
+					return Cursor.W_RESIZE_CURSOR;
+				}
+				Rectangle2D east = new Rectangle2D.Double(maxX - (width < 8 ? width / 2 : 4), 
+						minY, width < 8 ? width / 2 + 4 : 8, height);
+				if (screenArea.createIntersection(east).contains(point)) {
+					return Cursor.E_RESIZE_CURSOR;
+				}
+			}
+		} else if (getSelectedMask() != null && !getSelectedMask().isEmpty()) {
 			Rectangle2D screenArea = getScreenDataArea();
 			Rectangle2D maskArea = ChartMaskingUtilities.getDomainMaskFrame(getSelectedMask(), 
 					getScreenDataArea(), getChart());
@@ -1016,7 +1214,11 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 	}
 	
  
-    private int followDomainTrace(int seriesIndex, int domainLocation) {
+    private void selectInternalLegend(boolean isSelected) {
+    	isInternalLegendSelected = isSelected;
+	}
+
+	private int followDomainTrace(int seriesIndex, int domainLocation) {
     	if (seriesIndex >= getDataset().getSeriesCount()) {
     		return -1;
     	}
@@ -1461,6 +1663,39 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 		IDataset dataset = getDataset();
 		if (dataset != null) {
 			DatasetUtils.export((IXYErrorDataset) dataset, writer, ExportFormat.XYSIGMA);
+		}
+	}
+
+	@Override
+	public void setLegendPosition(LegendPosition position) {
+		if (position == LegendPosition.NONE) {
+        	isInternalLegendEnabled = false;
+        	getChart().getLegend().setVisible(false);
+        	repaint();
+		} else if (position == LegendPosition.BOTTOM) {
+        	isInternalLegendEnabled = false;
+        	getChart().getLegend().setVisible(true);
+        	getChart().getLegend().setPosition(RectangleEdge.BOTTOM);
+        	repaint();
+		} else if (position == LegendPosition.TOP) {
+        	isInternalLegendEnabled = false;
+        	getChart().getLegend().setVisible(true);
+        	getChart().getLegend().setPosition(RectangleEdge.TOP);
+        	repaint();
+		} else if (position == LegendPosition.RIGHT) {
+        	isInternalLegendEnabled = false;
+	    	getChart().getLegend().setVisible(true);
+	    	getChart().getLegend().setPosition(RectangleEdge.RIGHT);
+	    	repaint();
+		} else if (position == LegendPosition.LEFT) {
+        	isInternalLegendEnabled = false;
+        	getChart().getLegend().setVisible(true);
+        	getChart().getLegend().setPosition(RectangleEdge.LEFT);
+        	repaint();
+		} else if (position == LegendPosition.INSIDE) {
+        	isInternalLegendEnabled = true;
+        	getChart().getLegend().setVisible(false);
+        	repaint();
 		}
 	}
 

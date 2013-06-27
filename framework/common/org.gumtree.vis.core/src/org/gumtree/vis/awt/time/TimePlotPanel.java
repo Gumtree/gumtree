@@ -620,7 +620,7 @@ public class TimePlotPanel extends JChartPanel implements ITimePlot {
 	}
 
 	@Override
-	protected int findSelectedMask(int x, int y) {
+	protected int findCursorOnSelectedItem(int x, int y) {
 		// do nothing
 		return 0;
 	}

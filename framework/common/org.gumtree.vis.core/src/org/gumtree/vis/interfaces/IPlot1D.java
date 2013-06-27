@@ -14,6 +14,7 @@ import java.awt.Color;
 import java.awt.Shape;
 import java.awt.Stroke;
 
+import org.gumtree.vis.plot1d.LegendPosition;
 import org.gumtree.vis.plot1d.MarkerShape;
 
 /**
@@ -68,4 +69,5 @@ public interface IPlot1D extends IPlot{
 	
 	public void setSelectedSeries(int seriesIndex);
 	
+	public void setLegendPosition(LegendPosition position);
 }

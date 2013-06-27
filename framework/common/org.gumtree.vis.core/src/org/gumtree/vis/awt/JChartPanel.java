@@ -951,14 +951,14 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 	public void mouseMoved(MouseEvent e) {
 //        if (isMaskingEnabled() && (e.getModifiers() & maskingKeyMask) != 0) {
 		if (isMaskingEnabled()) {
-        	int cursorType = findSelectedMask(e.getX(), e.getY());
+        	int cursorType = findCursorOnSelectedItem(e.getX(), e.getY());
         	setCursor(Cursor.getPredefinedCursor(cursorType));
         } else if (getCursor() != defaultCursor) {
         	setCursor(defaultCursor);
         }
 	}
 	
-	protected abstract int findSelectedMask(int x, int y);
+	protected abstract int findCursorOnSelectedItem(int x, int y);
 	
     protected Point2D translateScreenToChart(Point2D point) {
         EntityCollection entities = getChartRenderingInfo().getEntityCollection();
