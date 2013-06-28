@@ -25,7 +25,6 @@ import org.gumtree.vis.swt.IPlotControlWidgetProvider;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.title.LegendTitle;
 
 /**
  * @author nxi
@@ -218,8 +217,20 @@ public class Plot1DControlWidgetProvider implements IPlotControlWidgetProvider {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				LegendTitle legend = getPlot().getChart().getLegend();
-				legend.setVisible(!legend.isVisible());
+				LegendPosition currentPosition = ((Plot1DPanel) getPlot()).getLegendPosition();
+				if (currentPosition == LegendPosition.NONE) {
+					((Plot1DPanel) getPlot()).setLegendPosition(LegendPosition.INTERNAL);
+				} else if (currentPosition == LegendPosition.INTERNAL) {
+					((Plot1DPanel) getPlot()).setLegendPosition(LegendPosition.BOTTOM);
+				} else if (currentPosition == LegendPosition.BOTTOM) {
+					((Plot1DPanel) getPlot()).setLegendPosition(LegendPosition.RIGHT);
+				} else if (currentPosition == LegendPosition.RIGHT) {
+					((Plot1DPanel) getPlot()).setLegendPosition(LegendPosition.TOP);
+				} else if (currentPosition == LegendPosition.TOP) {
+					((Plot1DPanel) getPlot()).setLegendPosition(LegendPosition.LEFT);
+				} else if (currentPosition == LegendPosition.LEFT) {
+					((Plot1DPanel) getPlot()).setLegendPosition(LegendPosition.NONE);
+				}
 			}
 			
 			@Override

@@ -1654,7 +1654,6 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 	
 	@Override
 	public IHelpProvider getHelpProvider() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
@@ -1692,11 +1691,34 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
         	getChart().getLegend().setVisible(true);
         	getChart().getLegend().setPosition(RectangleEdge.LEFT);
         	repaint();
-		} else if (position == LegendPosition.INSIDE) {
+		} else if (position == LegendPosition.INTERNAL) {
         	isInternalLegendEnabled = true;
         	getChart().getLegend().setVisible(false);
         	repaint();
 		}
+	}
+
+	@Override
+	public LegendPosition getLegendPosition() {
+		if (isInternalLegendEnabled) {
+			return LegendPosition.INTERNAL;
+		} else {
+			LegendTitle legend = getChart().getLegend();
+			if (legend != null) {
+				if (legend.isVisible()) {
+					if (legend.getPosition() == RectangleEdge.TOP) {
+						return LegendPosition.TOP;
+					} else if (legend.getPosition() == RectangleEdge.BOTTOM) {
+						return LegendPosition.BOTTOM;
+					} else if (legend.getPosition() == RectangleEdge.RIGHT) {
+						return LegendPosition.RIGHT;
+					} else if (legend.getPosition() == RectangleEdge.LEFT) {
+						return LegendPosition.LEFT;
+					} 
+				} 
+			}
+		}
+		return LegendPosition.NONE;
 	}
 
 }

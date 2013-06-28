@@ -70,4 +70,6 @@ public interface IPlot1D extends IPlot{
 	public void setSelectedSeries(int seriesIndex);
 	
 	public void setLegendPosition(LegendPosition position);
+	
+	public LegendPosition getLegendPosition();
 }

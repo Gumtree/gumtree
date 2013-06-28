@@ -3,6 +3,7 @@ from org.gumtree.data.ui.part import PlotView
 from org.gumtree.vis.hist2d.color import ColorScale
 from org.gumtree.vis.mask import EllipseMask, RectangleMask, RangeMask
 from org.gumtree.vis.nexus.utils import NXFactory
+from org.gumtree.vis.plot1d import LegendPosition
 
 color_scale = ColorScale
 
@@ -466,6 +467,15 @@ class GPlot:
         else :
             self.pv.getPlot().removeMarker(x, y)
         
+    def set_legend_position(self, pos):
+        jpos = LegendPosition.NONE
+        try :
+            if pos != None:
+                jpos = LegendPosition.valueOf(pos.upper())
+        except:
+            print 'failed to parse ' + str(pos)
+        self.pv.getPlot().setLegendPosition(jpos)
+    
 def __get_color__(name):
     res = None
     try:

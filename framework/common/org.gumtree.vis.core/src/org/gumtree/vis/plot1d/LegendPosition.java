@@ -8,5 +8,5 @@ package org.gumtree.vis.plot1d;
  *
  */
 public enum LegendPosition {
-	INSIDE, TOP, BOTTOM, LEFT, RIGHT, NONE
+	INTERNAL, TOP, BOTTOM, LEFT, RIGHT, NONE
 }
