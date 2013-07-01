@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.equinox.http.registry.resources">
+      <resource
+            alias="/dingo.html"
+            base-name="/WebContent/dingo.html">
+      </resource>
+      <resource
+            alias="/index.html"
+            base-name="/WebContent/index.html">
+      </resource>
+      <resource
+            alias="/dingo.swf"
+            base-name="/WebContent/dingo.swf">
+      </resource>
+      <resource
+            alias="/playerProductInstall.swf"
+            base-name="/WebContent/playerProductInstall.swf">
+      </resource>
+      <resource
+            alias="/AC_OETags.js"
+            base-name="/WebContent/AC_OETags.js">
+      </resource>
+         
+   </extension>
+</plugin>
