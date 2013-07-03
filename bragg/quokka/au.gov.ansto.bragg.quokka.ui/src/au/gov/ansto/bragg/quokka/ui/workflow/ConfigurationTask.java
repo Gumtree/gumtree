@@ -212,10 +212,12 @@ public class ConfigurationTask extends AbstractExperimentTask {
 								StringBuilder stringBuilder = new StringBuilder();
 				
 								String line;
+								String newLine = System.getProperty("line.separator");
 								while ((line = reader.readLine()) != null) {
 									stringBuilder.append(line.replace(
 											"au.gov.ansto.bragg.quokka2.experiment.model.InstrumentConfigTemplate",
 											"au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfigTemplate"));
+									stringBuilder.append(newLine);
 							    }
 								
 								Object object = ExperimentModelUtils.getXStream().fromXML(stringBuilder.toString());
