@@ -15,6 +15,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -477,6 +478,15 @@ public class ChartMaskingUtilities {
 		}
 	}
 
+	public static void drawShapes(Graphics2D g2, Rectangle2D imageArea,
+			Shape shape, JFreeChart chart) {
+		Color color = Color.CYAN;
+		Stroke oldStroke = g2.getStroke();
+		g2.setStroke(new BasicStroke(2f));
+		drawShape(g2, imageArea, shape, color, chart);
+		g2.setStroke(oldStroke);
+	}
+	
 	public static void drawShape(Graphics2D g2, Rectangle2D imageArea,
 			Shape shape, Color color, JFreeChart chart) {
 		g2.clip(imageArea);

@@ -144,20 +144,20 @@ public class PlotComposite extends Composite{
 
 	private void addListeners() {
 		if (plot != null) {
-			mouseWheelListener = new MouseWheelListener() {
-
-				@Override
-				public void mouseScrolled(MouseEvent event) {
-					JPanel panel = null;
-					if (plot instanceof JPanel) {
-						panel = (JPanel) plot;
-					}
-					MouseWheelEvent awtEvent = org.gumtree.vis.listener.SWT_AWT.toMouseWheelEvent(
-							event, panel);
-					plot.processMouseWheelEvent(awtEvent);
-				}
-			};
-			addMouseWheelListener(mouseWheelListener);
+//			mouseWheelListener = new MouseWheelListener() {
+//
+//				@Override
+//				public void mouseScrolled(MouseEvent event) {
+//					JPanel panel = null;
+//					if (plot instanceof JPanel) {
+//						panel = (JPanel) plot;
+//					}
+//					MouseWheelEvent awtEvent = org.gumtree.vis.listener.SWT_AWT.toMouseWheelEvent(
+//							event, panel);
+//					plot.processMouseWheelEvent(awtEvent);
+//				}
+//			};
+//			addMouseWheelListener(mouseWheelListener);
 
 
 			keyListener = new KeyListener() {

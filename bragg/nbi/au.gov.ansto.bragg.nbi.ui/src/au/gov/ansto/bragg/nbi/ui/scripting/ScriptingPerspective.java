@@ -38,7 +38,7 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 	public static final String SCRIPT_CONSOLE_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.scripting.ConsoleView";
 	public static final String DUMMY_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.scripting.DummyView";
 	public static final String PROJECT_EXPLORER_VIEW_ID = "org.eclipse.ui.navigator.ProjectExplorer";
-	private static final String GUMTREE_SCRIPTING_SHOWCOUNCIL = "gumtree.scripting.showCouncil";
+	private static final String GUMTREE_SCRIPTING_SHOWCONSOLE = "gumtree.scripting.showConsole";
 	
 	public void createInitialLayout(final IPageLayout factory) {
 //		factory.addShowViewShortcut(DATA_SOURCE_VIEW_ID);
@@ -195,12 +195,12 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 						try{
 							workbenchWindow.getActivePage().setEditorAreaVisible(false);
 							registerViews(register);
-							boolean showCouncil = true;
+							boolean showConsole = true;
 							try {
-								showCouncil = Boolean.valueOf(System.getProperty(GUMTREE_SCRIPTING_SHOWCOUNCIL));
+								showConsole = Boolean.valueOf(System.getProperty(GUMTREE_SCRIPTING_SHOWCONSOLE));
 							} catch (Exception e) {
 							}
-							if (!showCouncil) {
+							if (!showConsole) {
 								try {
 									IWorkbenchPartReference myView = page.findViewReference(SCRIPT_CONSOLE_VIEW_ID);
 									page.setPartState(myView, IWorkbenchPage.STATE_MINIMIZED);

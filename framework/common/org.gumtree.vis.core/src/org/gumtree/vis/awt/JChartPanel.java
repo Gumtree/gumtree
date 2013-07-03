@@ -17,6 +17,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Shape;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -90,6 +91,14 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
     protected static final Cursor defaultCursor = Cursor.getPredefinedCursor(
     		Cursor.DEFAULT_CURSOR);
     public static final String REMOVE_SELECTED_MASK_COMMAND = "REMOVE_SELECTED_MASK";
+	public static final String ADD_INTERNAL_MARKER_COMMAND = "ADD_INTERNAL_MARKER";
+	public static final String ADD_HORIZONTAL_BAR_COMMAND = "ADD_HORIZONTAL_BAR";
+	public static final String ADD_VERTICAL_BAR_COMMAND = "ADD_VERTICAL_BAR";
+	public static final String REMOVE_SELECTED_MARKER_COMMAND = "REMOVE_SELECTED_MARKER";
+	public static final String CLEAR_ALL_MARKERS_COMMAND = "CLEAR_ALL_MARKERS";
+	public static final String CLEAR_INTERNAL_MARKERS_COMMAND = "CLEAR_INTERNAL_MARKERS";
+	public static final String CLEAR_DOMAIN_MARKERS_COMMAND = "CLEAR_DOMAIN_MARKERS";
+	public static final String CLEAR_RANGE_MARKERS_COMMAND = "CLEAR_RANGE_MARKERS";
     protected static int maskingKeyMask = InputEvent.SHIFT_MASK;
     protected static int maskingExclusiveMask = InputEvent.ALT_MASK;
     protected static int maskingSelectionMask = InputEvent.SHIFT_MASK;
@@ -109,6 +118,15 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
     //Popup Menu
     private JMenu maskManagementMenu;
     private JMenuItem removeSelectedMaskMenuItem;
+    private JMenu markerManagementMenu;
+    private JMenuItem internalMarkerMenuItem;
+    private JMenuItem horizontalBarMenuItem;
+    private JMenuItem verticalBarMenuItem;
+    private JMenuItem removeSelectedMarkerMenuItem;
+    private JMenuItem clearMarkersMenuItem;
+    private JMenuItem clearRangeMarkersMenuItem;
+    private JMenuItem clearDomainMarkersMenuItem;
+    private JMenuItem clearAllMarkersMenuItem;
     private LinkedHashMap<AbstractMask, Color> maskList;
     private AbstractMask selectedMask;
     private List<IMaskEventListener> maskEventListeners = new ArrayList<IMaskEventListener>();
@@ -118,6 +136,9 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
     private LinkedHashMap<Line2D, Color> rangeMarkerMap;
     private LinkedHashMap<Line2D, Color> markerMap;
 	private LinkedHashMap<Shape, Color> shapeMap;
+	private Point2D mouseRightClickLocation;
+	private Line2D selectedMarker;
+	
     
     
     /**
@@ -471,6 +492,9 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		if (isShapeEnabled()) {
 			drawShapes(g2);
 		}
+		if (selectedMarker != null) {
+			drawSelectedMarker(g2);
+		}
 		if (getHorizontalAxisTrace()) {
 			drawHorizontalAxisTrace(g2, horizontalTraceLocation);
 		}
@@ -480,7 +504,6 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		if (isToolTipFollowerEnabled) {
 			drawToolTipFollower(g2, horizontalTraceLocation, verticalTraceLocation);
 		}
-		
 //		long diff = System.currentTimeMillis() - time;
 //		if (diff > 100) {
 //			System.out.println("refreshing cost: " + diff);
@@ -845,7 +868,46 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 	protected JPopupMenu createPopupMenu(boolean properties, boolean copy,
 			boolean save, boolean print, boolean zoom) {
 		JPopupMenu menu = super.createPopupMenu(properties, copy, save, print, zoom);
-        
+        this.markerManagementMenu = new JMenu("Marker Management");
+        this.internalMarkerMenuItem = new JMenuItem("Add Cross Marker Here");
+        internalMarkerMenuItem.setActionCommand(ADD_INTERNAL_MARKER_COMMAND);
+        internalMarkerMenuItem.addActionListener(this);
+        this.horizontalBarMenuItem = new JMenuItem("Add Horizontal Bar");
+        horizontalBarMenuItem.setActionCommand(ADD_HORIZONTAL_BAR_COMMAND);
+        horizontalBarMenuItem.addActionListener(this);
+        this.verticalBarMenuItem = new JMenuItem("Add Vertical Bar");
+        verticalBarMenuItem.setActionCommand(ADD_VERTICAL_BAR_COMMAND);
+        verticalBarMenuItem.addActionListener(this);
+        this.removeSelectedMarkerMenuItem = new JMenuItem("Remove Selected Marker");
+        removeSelectedMarkerMenuItem.setActionCommand(REMOVE_SELECTED_MARKER_COMMAND);
+        removeSelectedMarkerMenuItem.addActionListener(this);
+        this.clearMarkersMenuItem = new JMenuItem("Clear Cross Markers");
+        clearMarkersMenuItem.setActionCommand(CLEAR_INTERNAL_MARKERS_COMMAND);
+        clearMarkersMenuItem.addActionListener(this);
+        this.clearDomainMarkersMenuItem = new JMenuItem("Clear Vertical Markers");
+        clearDomainMarkersMenuItem.setActionCommand(CLEAR_DOMAIN_MARKERS_COMMAND);
+        clearDomainMarkersMenuItem.addActionListener(this);
+        this.clearRangeMarkersMenuItem = new JMenuItem("Clear Horizontal Markers");
+        clearRangeMarkersMenuItem.setActionCommand(CLEAR_RANGE_MARKERS_COMMAND);
+        clearRangeMarkersMenuItem.addActionListener(this);
+        this.clearAllMarkersMenuItem = new JMenuItem("Clear All Markers");
+        clearAllMarkersMenuItem.setActionCommand(CLEAR_ALL_MARKERS_COMMAND);
+        clearAllMarkersMenuItem.addActionListener(this);
+
+        markerManagementMenu.add(removeSelectedMarkerMenuItem);
+        markerManagementMenu.addSeparator();
+        markerManagementMenu.add(internalMarkerMenuItem);
+        markerManagementMenu.add(clearMarkersMenuItem);
+        markerManagementMenu.addSeparator();
+        markerManagementMenu.add(horizontalBarMenuItem);
+        markerManagementMenu.add(clearRangeMarkersMenuItem);
+        markerManagementMenu.addSeparator();
+        markerManagementMenu.add(verticalBarMenuItem);
+        markerManagementMenu.add(clearDomainMarkersMenuItem);
+        markerManagementMenu.addSeparator();
+        markerManagementMenu.add(clearAllMarkersMenuItem);
+        menu.addSeparator();
+        menu.add(markerManagementMenu);
         this.removeSelectedMaskMenuItem = new JMenuItem();
         this.removeSelectedMaskMenuItem.setActionCommand(REMOVE_SELECTED_MASK_COMMAND);
         this.removeSelectedMaskMenuItem.addActionListener(this);
@@ -859,7 +921,9 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 	
 	@Override
 	protected void displayPopupMenu(int x, int y) {
-		addMaskMenu(x, y);
+		
+        addMaskMenu(x, y);
+        removeSelectedMarkerMenuItem.setEnabled(selectedMarker != null);
 		super.displayPopupMenu(x, y);
 	}
 	
@@ -872,6 +936,25 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
         } else if (command.equals(DESELECT_MASK_COMMAND)) {
         	selectMask(Double.NaN, Double.NaN);
         	repaint();
+        } else if (command.equals(ADD_INTERNAL_MARKER_COMMAND)) {
+        	addInternalMarker(event);
+        	repaint();
+        } else if (command.equals(ADD_HORIZONTAL_BAR_COMMAND)) {
+        	addHorizontalBar(event);
+        	repaint();
+        } else if (command.equals(ADD_VERTICAL_BAR_COMMAND)) {
+        	addVerticalBar(event);
+        	repaint();
+        } else if (command.equals(REMOVE_SELECTED_MARKER_COMMAND)) {
+        	removeSelectedMarker();
+        } else if (command.equals(CLEAR_INTERNAL_MARKERS_COMMAND)) {
+        	clearMarkers();
+        } else if (command.equals(CLEAR_DOMAIN_MARKERS_COMMAND)) {
+        	clearDomainAxisMarkers();
+        } else if (command.equals(CLEAR_RANGE_MARKERS_COMMAND)) {
+        	clearRangeAxisMarkers();
+        } else if (command.equals(CLEAR_ALL_MARKERS_COMMAND)) {
+        	clearAllMarkers();
         } else if (command.startsWith(SELECT_MASK_COMMAND)) {
         	String[] commands = command.split("-", 2);
         	if (commands.length > 1) {
@@ -883,6 +966,24 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
         }
 	}
 	
+	private void addInternalMarker(ActionEvent event) {
+		if (mouseRightClickLocation != null) {
+			addMarker(mouseRightClickLocation.getX(), mouseRightClickLocation.getY(), null);
+		}
+	}
+
+	private void addHorizontalBar(ActionEvent event) {
+		if (mouseRightClickLocation != null) {
+			addRangeAxisMarker(mouseRightClickLocation.getY(), 0, null);
+		}
+	}
+
+	private void addVerticalBar(ActionEvent event) {
+		if (mouseRightClickLocation != null) {
+			addDomainAxisMarker(mouseRightClickLocation.getX(), 0, null);
+		}
+	}
+
 	protected abstract void selectMask(double x, double y);
 
 	/**
@@ -956,6 +1057,85 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
         } else if (getCursor() != defaultCursor) {
         	setCursor(defaultCursor);
         }
+		Line2D oldSelection = selectedMarker;
+		findSelectedMarker(e.getPoint());
+		if (selectedMarker != oldSelection) {
+			repaint();
+		}
+	}
+	
+	private void findSelectedMarker(Point point) {
+		Line2D marker = null;
+		double distance = Double.MAX_VALUE;
+		double cDis;
+		for (Entry<Line2D, Color> entry : domainMarkerMap.entrySet()) {
+			Line2D line = entry.getKey();
+			Point2D p2 = line.getP2();
+			double height = p2.getY();
+			cDis = Double.MAX_VALUE;
+			if (height < 1e-4) {
+				double xScr = ChartMaskingUtilities.translateChartPoint(p2, getScreenDataArea(), getChart()).getX();
+				cDis = Math.abs(point.getX() - xScr);
+			} else {
+				Point2D newP2 = ChartMaskingUtilities.translateChartPoint(p2, getScreenDataArea(), getChart());
+				if (newP2.getY() < point.getY()) {
+					cDis = Math.abs(point.getX() - newP2.getX());
+				} else {
+					cDis = newP2.distance(point);
+				}
+			}
+			if (cDis <= distance) {
+				distance = cDis;
+				marker = line;
+			}
+		}
+		for (Entry<Line2D, Color> entry : rangeMarkerMap.entrySet()) {
+			Line2D line = entry.getKey();
+			Point2D p1 = line.getP1();
+			Point2D p2 = line.getP2();
+			double width = p2.getX();
+			cDis = Double.MAX_VALUE;
+			if (width < 1e-4) {
+				double yScr = ChartMaskingUtilities.translateChartPoint(p1, getScreenDataArea(), getChart()).getY();
+				cDis = Math.abs(point.getY() - yScr);
+			} else {
+				Point2D newP2 = ChartMaskingUtilities.translateChartPoint(p2, getScreenDataArea(), getChart());
+				if (newP2.getX() > point.getX()) {
+					cDis = Math.abs(point.getY() - newP2.getY());
+				} else {
+					cDis = newP2.distance(point);
+				}
+			}
+			if (cDis <= distance) {
+				distance = cDis;
+				marker = line;
+			}
+		}
+		for (Entry<Line2D, Color> entry : markerMap.entrySet()) {
+			Line2D line = entry.getKey();
+			Point2D p1 = line.getP1();
+			double xScr = ChartMaskingUtilities.translateChartPoint(p1, getScreenDataArea(), getChart()).getX();
+			cDis = Math.abs(point.getX() - xScr);
+			if (cDis <= distance) {
+				distance = cDis;
+				marker = line;
+			}
+		}
+		if (distance < 5) {
+			selectedMarker = marker;
+		} else {
+			selectedMarker = null;
+		}
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+			double xNew = ChartMaskingUtilities.translateScreenX(e.getX(), getScreenDataArea(), getChart());
+			double yNew = ChartMaskingUtilities.translateScreenY(e.getY(), getScreenDataArea(), getChart(), 0);
+			mouseRightClickLocation = new Point2D.Double(xNew, yNew);
+		}
+		super.mouseReleased(e);
 	}
 	
 	protected abstract int findCursorOnSelectedItem(int x, int y);
@@ -1309,10 +1489,24 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		ChartMaskingUtilities.drawShapes(g2, getScreenDataArea(), shapeMap, getChart());
 	}
 	
+	private void drawSelectedMarker(Graphics2D g2) {
+		if (selectedMarker != null) {
+			if (domainMarkerMap.containsKey(selectedMarker)) {
+				Line2D line = convertDomainAxisMarker(selectedMarker);
+				ChartMaskingUtilities.drawShapes(g2, getScreenDataArea(), line, getChart());
+			} else if (rangeMarkerMap.containsKey(selectedMarker)) {
+				Line2D line = convertRangeAxisMarker(selectedMarker);
+				ChartMaskingUtilities.drawShapes(g2, getScreenDataArea(), line, getChart());
+			} else if (markerMap.containsKey(selectedMarker)) {
+				ChartMaskingUtilities.drawShapes(g2, getScreenDataArea(), selectedMarker, getChart());
+			} 
+		}
+	}
+	
 	@Override
 	public void addDomainAxisMarker(double x, int height, Color color) {
 		if (color == null) {
-			color = Color.getColor("BLACK");
+			color = Color.BLACK;
 		}
 		double dHeight = height;
 		if (height == 0) {
@@ -1423,8 +1617,22 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		}
 	}
 
+	public void clearAllMarkers() {
+		domainMarkerMap.clear();
+		rangeMarkerMap.clear();
+		markerMap.clear();
+		getXYPlot().setNotify(true);
+	}
+
 	public void clearMarkers() {
 		markerMap.clear();
+		getXYPlot().setNotify(true);
+	}
+
+	public void removeSelectedMarker() {
+		domainMarkerMap.remove(selectedMarker);
+		rangeMarkerMap.remove(selectedMarker);
+		markerMap.remove(selectedMarker);
 		getXYPlot().setNotify(true);
 	}
 	
