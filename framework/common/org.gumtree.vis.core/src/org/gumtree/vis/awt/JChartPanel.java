@@ -1064,6 +1064,15 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		}
 	}
 	
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		if ((e.getModifiers() & InputEvent.ALT_MASK) != 0) {
+			double xNew = ChartMaskingUtilities.translateScreenX(e.getX(), getScreenDataArea(), getChart());
+			double yNew = ChartMaskingUtilities.translateScreenY(e.getY(), getScreenDataArea(), getChart(), 0);
+			addMarker(xNew, yNew, null);
+		}
+	}
+	
 	private void findSelectedMarker(Point point) {
 		Line2D marker = null;
 		double distance = Double.MAX_VALUE;

@@ -571,7 +571,7 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
         for (int i = listeners.length - 1; i >= 0; i -= 1) {
             ((ChartMouseListener) listeners[i]).chartMouseClicked(chartEvent);
         }
-//        System.out.println("chartX = " + getChartX() + ", chartY = " + getChartY());
+        super.mouseClicked(event);
     }
 	
 	@Override
