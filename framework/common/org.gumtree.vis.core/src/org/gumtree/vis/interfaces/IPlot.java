@@ -217,4 +217,8 @@ public interface IPlot {
 	
 	public void clearRangeAxisMarkers();
 	
+	public boolean isTextInputEnabled();
+
+	public void setTextInputEnabled(boolean isTextInputEnabled);
+
 }

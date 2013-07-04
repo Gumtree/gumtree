@@ -1007,4 +1007,16 @@ public class Surface3DPanel extends JPanel implements ISurf3D, Printable {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public boolean isTextInputEnabled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setTextInputEnabled(boolean isTextInputEnabled) {
+		// TODO Auto-generated method stub
+		
+	}
 }

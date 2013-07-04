@@ -1103,4 +1103,16 @@ public class Preview2DPanel extends JPanel implements IPreview2D, Printable {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public boolean isTextInputEnabled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setTextInputEnabled(boolean isTextInputEnabled) {
+		// TODO Auto-generated method stub
+		
+	}
 }
