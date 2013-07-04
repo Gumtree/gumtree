@@ -48,6 +48,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JTextArea;
 
 import org.gumtree.vis.core.internal.StaticValues;
 import org.gumtree.vis.interfaces.IDataset;
@@ -111,6 +112,10 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 	private int verticalTraceLocation;
     private boolean isToolTipFollowerEnabled = true;
     private boolean isMaskingEnabled = true;
+    private boolean isTextInputEnabled = false;
+    private boolean textInputFlag = false;
+    private Point2D textInputPoint;
+    private String textInputContent;
     private double chartX;
     private double chartY;
     private int maskDragIndicator = Cursor.DEFAULT_CURSOR;
@@ -504,10 +509,24 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		if (isToolTipFollowerEnabled) {
 			drawToolTipFollower(g2, horizontalTraceLocation, verticalTraceLocation);
 		}
+		if (isTextInputEnabled && textInputFlag && textInputPoint != null){
+			drawTextInputBox(g2);
+		}
 //		long diff = System.currentTimeMillis() - time;
 //		if (diff > 100) {
 //			System.out.println("refreshing cost: " + diff);
 //		}
+	}
+
+	private void drawTextInputBox(Graphics2D g2) {
+		if (textInputFlag && textInputPoint != null) {
+			JTextArea helpArea = new JTextArea();
+//			g2.drawChars("Input Text Here".toCharArray(), 1, 60, (int) textInputPoint.getX(), (int) textInputPoint.getY());
+			Color oldColor = g2.getColor();
+			g2.setColor(Color.BLACK);
+			g2.drawString("Hello World", (int) textInputPoint.getX(), (int) textInputPoint.getY());
+			g2.setColor(oldColor);
+		}
 	}
 
 	/**
@@ -1070,6 +1089,16 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 			double xNew = ChartMaskingUtilities.translateScreenX(e.getX(), getScreenDataArea(), getChart());
 			double yNew = ChartMaskingUtilities.translateScreenY(e.getY(), getScreenDataArea(), getChart(), 0);
 			addMarker(xNew, yNew, null);
+		} else if (isTextInputEnabled) {
+			if (!textInputFlag) {
+				double xNew = ChartMaskingUtilities.translateScreenX(e.getX(), getScreenDataArea(), getChart());
+				double yNew = ChartMaskingUtilities.translateScreenY(e.getY(), getScreenDataArea(), getChart(), 0);
+				textInputFlag = true;
+//				textInputPoint = new Point2D.Double(xNew, yNew);
+				textInputPoint = e.getPoint();
+			} else {
+				textInputFlag = false;
+			}
 		}
 	}
 	
@@ -1123,8 +1152,8 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		for (Entry<Line2D, Color> entry : markerMap.entrySet()) {
 			Line2D line = entry.getKey();
 			Point2D p1 = line.getP1();
-			double xScr = ChartMaskingUtilities.translateChartPoint(p1, getScreenDataArea(), getChart()).getX();
-			cDis = Math.abs(point.getX() - xScr);
+			p1 = ChartMaskingUtilities.translateChartPoint(p1, getScreenDataArea(), getChart());
+			cDis = p1.distance(point);
 			if (cDis <= distance) {
 				distance = cDis;
 				marker = line;
@@ -1679,5 +1708,19 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 			}
 		}
 		getXYPlot().setNotify(true);
+	}
+
+	/**
+	 * @return the isTextInputEnabled
+	 */
+	public boolean isTextInputEnabled() {
+		return isTextInputEnabled;
+	}
+
+	/**
+	 * @param isTextInputEnabled the isTextInputEnabled to set
+	 */
+	public void setTextInputEnabled(boolean isTextInputEnabled) {
+		this.isTextInputEnabled = isTextInputEnabled;
 	}
 }
