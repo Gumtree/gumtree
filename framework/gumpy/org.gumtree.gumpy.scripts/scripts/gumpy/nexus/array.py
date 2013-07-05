@@ -762,83 +762,93 @@ class Array:
     
         
     def __add__(self, obj):
-        if isinstance(obj, Array) :
-            return Array(self.__iArray__.getArrayMath().toAdd(
-                                obj.__iArray__).getArray());
-        res = zeros(self.shape, self.__match_type__(obj))
-        riter = res.item_iter()
-        siter = self.item_iter()
         if hasattr(obj, '__len__') :
-            if len(obj) < self.size :
-                raise Exception, 'resource should have at least ' + \
-                    str(self.size) + ' items, got ' + str(len(obj))
-            try :
-                rawshape = get_shape(obj)
-                for id in xrange(get_size(obj, rawshape)) :
-                    riter.set_next(siter.next() + get_item(obj, id, rawshape))
-            except StopIteration:
-                pass
+            if hasattr(obj, '__iArray__') :
+                iarr = obj.__iArray__
+            else :
+                iarr = Array(obj).__iArray__
+            return Array(self.__iArray__.getArrayMath().toAdd(iarr).getArray())
         else :
-            try :
-                while True :
-                    riter.set_next(siter.next() + obj)
-            except StopIteration:
-                pass
-        return res
+            return Array(self.__iArray__.getArrayMath().toAdd(float(obj)).getArray())
+
+#        if isinstance(obj, Array) :
+#            return Array(self.__iArray__.getArrayMath().toAdd(
+#                                obj.__iArray__).getArray());
+#        res = zeros(self.shape, self.__match_type__(obj))
+#        riter = res.item_iter()
+#        siter = self.item_iter()
+#        if hasattr(obj, '__len__') :
+#            if len(obj) < self.size :
+#                raise Exception, 'resource should have at least ' + \
+#                    str(self.size) + ' items, got ' + str(len(obj))
+#            try :
+#                rawshape = get_shape(obj)
+#                for id in xrange(get_size(obj, rawshape)) :
+#                    riter.set_next(siter.next() + get_item(obj, id, rawshape))
+#            except StopIteration:
+#                pass
+#        else :
+#            try :
+#                while True :
+#                    riter.set_next(siter.next() + obj)
+#            except StopIteration:
+#                pass
+#        return res
 
     def __iadd__(self, obj):
-#        print 'call iadd'
-        if isinstance(obj, Array) :
-            return Array(self.__iArray__.getArrayMath().add(
-                                obj.__iArray__).getArray());
-        siter = self.item_iter()
         if hasattr(obj, '__len__') :
-            if len(obj) < self.size :
-                raise Exception, 'resource should have at least ' + \
-                    str(self.size) + ' items, got ' + str(len(obj))
-            try :
-                rawshape = get_shape(obj)
-                for id in xrange(get_size(obj, rawshape)) :
-                    siter.set_curr(siter.next() + get_item(obj, id, rawshape))
-            except StopIteration:
-                pass
+            if hasattr(obj, '__iArray__') :
+                iarr = obj.__iArray__
+            else :
+                iarr = Array(obj).__iArray__
+            self.__iArray__.getArrayMath().add(iarr)
+            return self
         else :
-            try :
-                while True :
-                    siter.set_curr(siter.next() + obj)
-            except StopIteration:
-                pass
-        return self
+            self.__iArray__.getArrayMath().add(float(obj))
+            return self
+#        siter = self.item_iter()
+#        if hasattr(obj, '__len__') :
+#            if len(obj) < self.size :
+#                raise Exception, 'resource should have at least ' + \
+#                    str(self.size) + ' items, got ' + str(len(obj))
+#            try :
+#                rawshape = get_shape(obj)
+#                for id in xrange(get_size(obj, rawshape)) :
+#                    siter.set_curr(siter.next() + get_item(obj, id, rawshape))
+#            except StopIteration:
+#                pass
+#        else :
+#            try :
+#                while True :
+#                    siter.set_curr(siter.next() + obj)
+#            except StopIteration:
+#                pass
+#        return self
     
     def __radd__(self, obj):
         return self.__add__(obj)
             
     def __div__(self, obj):
-        res = zeros(self.shape, self.__match_type__(obj, True))
-        riter = res.item_iter()
-        siter = self.item_iter()
         if hasattr(obj, '__len__') :
-            if len(obj) < self.size :
-                raise Exception, 'resource should have at least ' + \
-                    str(self.size) + ' items, got ' + str(len(obj))
-            try :
-                rawshape = get_shape(obj)
-                for id in xrange(get_size(obj, rawshape)) :
-                    val = get_item(obj, id, rawshape)
-                    if val != 0 :
-                        riter.set_next(siter.next() / val)
-                    else :
-                        riter.next()
-            except StopIteration:
-                pass                    
+            if hasattr(obj, '__iArray__') :
+                iarr = obj.__iArray__
+            else :
+                iarr = Array(obj).__iArray__
+            return Array(self.__iArray__.getArrayMath().toEltDivide(iarr).getArray())
         else :
-            if obj != 0 :
-                try :
-                    while True :
-                        riter.set_next(siter.next() / obj)
-                except StopIteration:
-                    pass
-        return res
+            return Array(self.__iArray__.getArrayMath().toScale(1.0/obj).getArray())
+
+    def __idiv__(self, obj):
+        if hasattr(obj, '__len__') :
+            if hasattr(obj, '__iArray__') :
+                iarr = obj.__iArray__
+            else :
+                iarr = Array(obj).__iArray__
+            self.__iArray__.getArrayMath().eltDivide(iarr)
+            return self
+        else :
+            self.__iArray__.getArrayMath().scale(1.0/obj)
+            return self
     
     def __rdiv__(self, obj):
         res = zeros(self.shape, self.__match_type__(obj, True))
@@ -871,26 +881,46 @@ class Array:
         return res
     
     def __mul__(self, obj):
-        res = zeros(self.shape, self.__match_type__(obj))
-        riter = res.item_iter()
-        siter = self.item_iter()
         if hasattr(obj, '__len__') :
-            if len(obj) < self.size :
-                raise Exception, 'resource should have at least ' + \
-                    str(self.size) + ' items, got ' + str(len(obj))
-            try :
-                rawshape = get_shape(obj)
-                for id in xrange(get_size(obj, rawshape)) :
-                    riter.set_next(siter.next() * get_item(obj, id, rawshape))
-            except StopIteration:
-                pass
+            if hasattr(obj, '__iArray__') :
+                iarr = obj.__iArray__
+            else :
+                iarr = Array(obj).__iArray__
+            return Array(self.__iArray__.getArrayMath().toEltMultiply(iarr).getArray())
         else :
-            try :
-                while True :
-                    riter.set_next(siter.next() * obj)
-            except StopIteration:
-                pass
-        return res
+            return Array(self.__iArray__.getArrayMath().toScale(float(obj)).getArray())
+#        res = zeros(self.shape, self.__match_type__(obj))
+#        riter = res.item_iter()
+#        siter = self.item_iter()
+#        if hasattr(obj, '__len__') :
+#            if len(obj) < self.size :
+#                raise Exception, 'resource should have at least ' + \
+#                    str(self.size) + ' items, got ' + str(len(obj))
+#            try :
+#                rawshape = get_shape(obj)
+#                for id in xrange(get_size(obj, rawshape)) :
+#                    riter.set_next(siter.next() * get_item(obj, id, rawshape))
+#            except StopIteration:
+#                pass
+#        else :
+#            try :
+#                while True :
+#                    riter.set_next(siter.next() * obj)
+#            except StopIteration:
+#                pass
+#        return res
+    
+    def __imul__(self, obj):
+        if hasattr(obj, '__len__') :
+            if hasattr(obj, '__iArray__') :
+                iarr = obj.__iArray__
+            else :
+                iarr = Array(obj).__iArray__
+            self.__iArray__.getArrayMath().eltMultiply(iarr)
+            return self
+        else :
+            self.__iArray__.getArrayMath().scale(float(obj))
+            return self
     
     def __rmul__(self, obj):
         return self.__mul__(obj)
@@ -899,26 +929,31 @@ class Array:
         return self * -1
     
     def __sub__(self, obj):
-        res = zeros(self.shape, self.__match_type__(obj))
-        riter = res.item_iter()
-        siter = self.item_iter()
-        if hasattr(obj, '__len__') :
-            if len(obj) < self.size :
-                raise Exception, 'resource should have at least ' + \
-                    str(self.size) + ' items, got ' + str(len(obj))
-            try :
-                rawshape = get_shape(obj)
-                for id in xrange(get_size(obj, rawshape)) :
-                    riter.set_next(siter.next() - get_item(obj, id, rawshape))
-            except StopIteration:
-                pass
-        else :
-            try :
-                while True :
-                    riter.set_next(siter.next() - obj)
-            except StopIteration:
-                pass
-        return res
+        return self.__add__(obj * -1)
+#        res = zeros(self.shape, self.__match_type__(obj))
+#        riter = res.item_iter()
+#        siter = self.item_iter()
+#        if hasattr(obj, '__len__') :
+#            if len(obj) < self.size :
+#                raise Exception, 'resource should have at least ' + \
+#                    str(self.size) + ' items, got ' + str(len(obj))
+#            try :
+#                rawshape = get_shape(obj)
+#                for id in xrange(get_size(obj, rawshape)) :
+#                    riter.set_next(siter.next() - get_item(obj, id, rawshape))
+#            except StopIteration:
+#                pass
+#        else :
+#            try :
+#                while True :
+#                    riter.set_next(siter.next() - obj)
+#            except StopIteration:
+#                pass
+#        return res
+    
+    def __isub__(self, obj):
+        self.__iadd__(obj * -1)
+        return self
     
     def __rsub__(self, obj):
         res = zeros(self.shape, self.__match_type__(obj))
