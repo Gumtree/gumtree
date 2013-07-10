@@ -764,6 +764,8 @@ class Array:
     def __add__(self, obj):
         if hasattr(obj, '__len__') :
             if hasattr(obj, '__iArray__') :
+                if obj.shape == [1]:
+                    return Array(self.__iArray__.getArrayMath().toAdd(obj[0]).getArray())
                 iarr = obj.__iArray__
             else :
                 iarr = Array(obj).__iArray__
@@ -798,6 +800,9 @@ class Array:
     def __iadd__(self, obj):
         if hasattr(obj, '__len__') :
             if hasattr(obj, '__iArray__') :
+                if obj.shape == [1]:
+                    self.__iArray__.getArrayMath().add(obj[0])
+                    return self
                 iarr = obj.__iArray__
             else :
                 iarr = Array(obj).__iArray__
@@ -831,6 +836,8 @@ class Array:
     def __div__(self, obj):
         if hasattr(obj, '__len__') :
             if hasattr(obj, '__iArray__') :
+                if obj.shape == [1]:
+                    return Array(self.__iArray__.getArrayMath().toScale(1.0 / obj[0]).getArray())
                 iarr = obj.__iArray__
             else :
                 iarr = Array(obj).__iArray__
@@ -841,6 +848,9 @@ class Array:
     def __idiv__(self, obj):
         if hasattr(obj, '__len__') :
             if hasattr(obj, '__iArray__') :
+                if obj.shape == [1]:
+                    self.__iArray__.getArrayMath().scale(1.0 / obj[0])
+                    return self
                 iarr = obj.__iArray__
             else :
                 iarr = Array(obj).__iArray__
@@ -883,6 +893,8 @@ class Array:
     def __mul__(self, obj):
         if hasattr(obj, '__len__') :
             if hasattr(obj, '__iArray__') :
+                if obj.shape == [1]:
+                    return Array(self.__iArray__.getArrayMath().toScale(obj[0]).getArray())
                 iarr = obj.__iArray__
             else :
                 iarr = Array(obj).__iArray__
@@ -913,6 +925,9 @@ class Array:
     def __imul__(self, obj):
         if hasattr(obj, '__len__') :
             if hasattr(obj, '__iArray__') :
+                if obj.shape == [1]:
+                    self.__iArray__.getArrayMath().scale(obj[0])
+                    return self
                 iarr = obj.__iArray__
             else :
                 iarr = Array(obj).__iArray__

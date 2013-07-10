@@ -578,11 +578,19 @@ class Data(SimpleData):
         else :
             svar = __make_default_var__(self.storage).__iArray__
         if isinstance(obj, Data) :
-            oarr = obj.storage.__iArray__
-            if not obj.var is None :
-                ovar = obj.var.__iArray__
+            if obj.size == 1:
+                isValue = True
+                oarr = float(obj[0])
+                if not obj.var is None:
+                    ovar = obj.var[0]
+                else:
+                    over = 0.
             else :
-                ovar = __make_default_var__(obj).__iArray__
+                oarr = obj.storage.__iArray__
+                if not obj.var is None :
+                    ovar = obj.var.__iArray__
+                else :
+                    ovar = __make_default_var__(obj).__iArray__
         elif isinstance(obj, SimpleData) :
             oarr = obj.storage.__iArray__
             ovar = None
@@ -622,11 +630,19 @@ class Data(SimpleData):
         else :
             svar = __make_default_var__(self.storage).__iArray__
         if isinstance(obj, Data) :
-            oarr = obj.storage.__iArray__
-            if not obj.var is None :
-                ovar = obj.var.__iArray__
+            if obj.size == 1:
+                isValue = True
+                oarr = 1. / obj[0]
+                if not obj.var is None:
+                    ovar = oarr ** 4 * obj.var[0]
+                else:
+                    over = 0.
             else :
-                ovar = __make_default_var__(obj).__iArray__
+                oarr = obj.storage.__iArray__
+                if not obj.var is None :
+                    ovar = obj.var.__iArray__
+                else :
+                    ovar = __make_default_var__(obj).__iArray__
         elif isinstance(obj, SimpleData) :
             oarr = obj.storage.__iArray__
             ovar = None
@@ -672,11 +688,19 @@ class Data(SimpleData):
         else :
             svar = __make_default_var__(self.storage).__iArray__
         if isinstance(obj, Data) :
-            oarr = obj.storage.__iArray__
-            if not obj.var is None :
-                ovar = obj.var.__iArray__
+            if obj.size == 1:
+                isValue = True
+                oarr = float(obj[0])
+                if not obj.var is None:
+                    ovar = obj.var[0]
+                else:
+                    over = 0.
             else :
-                ovar = __make_default_var__(obj).__iArray__
+                oarr = obj.storage.__iArray__
+                if not obj.var is None :
+                    ovar = obj.var.__iArray__
+                else :
+                    ovar = __make_default_var__(obj).__iArray__
         elif isinstance(obj, SimpleData) :
             oarr = obj.storage.__iArray__
             ovar = None
@@ -706,11 +730,19 @@ class Data(SimpleData):
         else :
             svar = __make_default_var__(self.storage).__iArray__
         if isinstance(obj, Data) :
-            oarr = obj.storage.__iArray__
-            if not obj.var is None :
-                ovar = obj.var.__iArray__
+            if obj.size == 1:
+                isValue = True
+                oarr = float(obj[0])
+                if not obj.var is None:
+                    ovar = obj.var[0]
+                else:
+                    over = 0.
             else :
-                ovar = __make_default_var__(obj).__iArray__
+                oarr = obj.storage.__iArray__
+                if not obj.var is None :
+                    ovar = obj.var.__iArray__
+                else :
+                    ovar = __make_default_var__(obj).__iArray__
         elif isinstance(obj, SimpleData) :
             oarr = obj.storage.__iArray__
             ovar = None
