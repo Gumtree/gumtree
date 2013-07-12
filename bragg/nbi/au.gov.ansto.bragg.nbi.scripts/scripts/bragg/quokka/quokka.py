@@ -1,4 +1,4 @@
-###############################################################################
+###################################################################################
 # Copyright (c) 2007 Australian Nuclear Science and Technology Organisation.
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -6,8 +6,8 @@
 # http://www.eclipse.org/legal/epl-v10.html
 #
 # Contributors:
-#     Tony Lam (Bragg Institute) - initial API and implementation
-###############################################################################
+#     David Mannicke, Tony Lam (Bragg Institute) - initial API and implementation
+###################################################################################
 
 """
 Quokka module provides helper functions to control the Quokka small angle
@@ -104,17 +104,18 @@ def driveAtt(value):
 
 def setSafeAttenuation(startingAttenuation=330):
     # Variables
-    localRateLimit = 30
-    globalRateLimit = 50000
-    rateUpdateTime = 5
-    hmPreset = rateUpdateTime * 2
+    localRateLimit = 10
+    globalRateLimit = 25000
+    #rateUpdateTime = 5
+    hmPreset = 5 #rateUpdateTime * 2
     localRate = 0
     globalRate = 0
     previousLocalRate = 0
     previousGlobalRate = 0
     startLevel = attenuationLevels.index(startingAttenuation)
-
+    
     # Hack: need to reset and run histmem
+    log('set safe attenuation...')
     scan(scanMode.time, dataType.HISTOGRAM_XY, hmPreset, 'true', saveType.nosave)
     time.sleep(1)
     
@@ -458,102 +459,164 @@ def driveSafeAttenuation(override=False, startingAttenuation=330):
         # Use traditional method
         setSafeAttenuation(startingAttenuation)
     else:
-        # Use smarter methof
         # Find safe attenuation value
-        #findSafeAttenuation(getLambdaValue())
-        att = findSafeAttenuation(getLambdaValue())
-        while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-            time.sleep(0.1)
-        driveAtt(att)
-        # Check current count
-        # If count excessed safe limit, use the traditional method
-        #setSafeAttenuation(att)
+        att, startingAttenuation = findSafeAttenuation(startingAttenuation)
+        if att is not None:
+            while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+                time.sleep(0.1)
+            driveAtt(att)
+            
+    return startingAttenuation
+
+def startHistmem():
+    # sicsController = sics.getSicsController()
+    # histmemController = sicsController.findComponentController('/commands/histogram/histmem')
+    # sics.hset(histmemController, '/mode', 'unlimited')
+    log('starting histmem...')
+    sics.execute('histmem mode unlimited')
+    time.sleep(1.0)
+    sics.execute('histmem start')
+
+def stopHistmem():
+    sicsController = sics.getSicsController()
+    histmemController = sicsController.findComponentController('/commands/histogram/histmem')
+    log('stoping histmem ...')
+    sics.execute('histmem stop')
+
+# determine averaged local and total rates
+#   samples: number of samples to create average
+#   timeout: maximal time for this function
+def determineAveragedRates(samples=5, timeout=30.0):
+
+    while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+        time.sleep(0.1)
+    startHistmem()
+    try:
+        time.sleep(1.0)
+
+        local_rate = getMaxBinRate()
+        total_rate = getTotalMapRate()
+
+        accumulated_local_rate = 0.0
+        accumulated_total_rate = 0.0
+
+        start = time.time()
+        n = max([samples, 1])
+        for i in xrange(n):
+            
+            new_local_rate = getMaxBinRate()
+            new_total_rate = getTotalMapRate()
+            
+            while (new_local_rate == local_rate) or (new_local_rate == 0) or (new_total_rate == total_rate) or (new_total_rate == 0):
+                if time.time() - start >= timeout:
+                    raise Exception("Timeout in determineAveragedRates")
+                time.sleep(0.5)
+                new_local_rate = getMaxBinRate()
+                new_total_rate = getTotalMapRate()
+
+            local_rate = new_local_rate
+            total_rate = new_total_rate
+            log('local rate: ' + str(local_rate))
+            log('total rate: ' + str(total_rate))
+
+            accumulated_local_rate += local_rate
+            accumulated_total_rate += total_rate
+
+    finally:
+        stopHistmem()
+ 
+    return accumulated_local_rate/n, accumulated_total_rate/n # -0.7 to subtract background
 
 # Find the attenuation angle
-def findSafeAttenuation(wavelength=5):
-    # HM server update rate
-    rateUpdateTime = 5
-    # We sample at double of the rate
-    hmPreset = rateUpdateTime * 2
+def findSafeAttenuation(startingAttenuation):
     # Safe count rate
-    countSafe = 50
-    # Sample at 240 and 210
-    attenuation1 = 240
-    attenuation2 = 210
+    local_rateSafe =     5.0
+    total_rateSafe = 15000.0
+    # Sample at 90 (was 150) and 60 (was 120)
+    attenuation1 = 180
+    attenuation2 = 150
+    # Safety margin (ratio)
+    safety_margin = 1.02 # 2%
     
     # First sampling
     while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
         time.sleep(0.1)
     driveAtt(attenuation1)
-    while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-        time.sleep(0.1)
-    driveHistmem(hmMode.time, hmPreset)
-    count1 = getMaxBinRate()
+        
+    local_rate1, total_rate1 = determineAveragedRates()
     thickness1 = thicknessTable[attenuation1]
-    log('count1 = ' + str(count1))
-    checkDetHealth()
-    #count1 = count(thickness1, wavelength)
+    
+    log('local rate1 = ' + str(local_rate1))
+    log('total rate1 = ' + str(total_rate1))
     
     # Second sampling
     while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
         time.sleep(0.1)
     driveAtt(attenuation2)
-    while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-        time.sleep(0.1)
-    driveHistmem(hmMode.time, hmPreset)
-    count2 = getMaxBinRate()
+        
+    local_rate2, total_rate2 = determineAveragedRates()
     thickness2 = thicknessTable[attenuation2]
-    log('count2 = ' + str(count2))
-    checkDetHealth()
-    #count2 = count(thickness2, wavelength)
     
-    # Try again, do third sampling
-    if count1 == count2:
-        log('Recount count2')
-        while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-            time.sleep(0.1)
-        driveAtt(attenuation2)
-        while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-            time.sleep(0.1)
-        driveHistmem(hmMode.time, hmPreset)
-        count2 = getMaxBinRate()
-        thickness2 = thicknessTable[attenuation2]
-        log('count2 = ' + str(count2))
+    log('local rate2 = ' + str(local_rate2))
+    log('total rate2 = ' + str(total_rate2))
     
-    # Find attenuation factor
-    attenuationFactor = (math.log(count2 / count1)) / (wavelength * (thickness1 - thickness2))
-    log('attenuationFactor = ' + str(attenuationFactor))
+    # check that at least local or total rate is sufficient
+    if (local_rate2 <= local_rate1 * safety_margin) and (total_rate2 <= total_rate1 * safety_margin):
+        log('insufficient statistics - safe attenuation routine is used')
+        sics.execute('histmem mode time')
+        if (local_rate2 <= local_rateSafe) and (total_rate2 <= total_rateSafe):
+            setSafeAttenuation(attenuation2)
+            return None, attenuation1 # to tell caller that attenuation value is set
+        elif (local_rate1 <= local_rateSafe) and (total_rate1 <= total_rateSafe):
+            setSafeAttenuation(attenuation1)
+            return None, attenuation1 # to tell caller that attenuation value is set
+        else:
+            setSafeAttenuation(startingAttenuation)
+            return None, startingAttenuation # to tell caller that attenuation value is set
+
+    # find safe thickness
+    if local_rate2 > local_rate1 * safety_margin:
+        local_ratio  = math.log(local_rate2 / local_rate1) / (thickness1 - thickness2)
+        local_offset = math.log(local_rate1 / local_rateSafe) / local_ratio
+        if local_offset < 0:
+            local_thicknessSafe = thickness1 + local_offset
+        else:
+            local_thicknessSafe = thickness1
+        log('local ratio = ' + str(local_ratio))
+    else:
+        local_thicknessSafe = 0
     
-    # Find initial count
-    countInitial1 = count1 * math.exp(attenuationFactor * thickness1 * wavelength)
-    countInitial2 = count2 * math.exp(attenuationFactor * thickness2 * wavelength)
-    countInitial = (countInitial1 + countInitial2) / 2
-    log('countInitial = ' + str(countInitial))
+    if total_rate2 > total_rate1 * safety_margin:
+        total_ratio  = math.log(total_rate2 / total_rate1) / (thickness1 - thickness2)
+        total_offset = math.log(total_rate1 / total_rateSafe) / total_ratio
+        if total_offset < 0:
+            total_thicknessSafe = thickness1 + total_offset
+        else:
+            total_thicknessSafe = thickness1
+        log('total ratio = ' + str(total_ratio))
+    else:
+        total_thicknessSafe = 0
+
+    # final safe thickness
+    thicknessSafe = max([0, local_thicknessSafe, total_thicknessSafe])
+    log('safe thickness = ' + str(thicknessSafe))
     
-    # Find safe thickness
-    thicknessSafe = math.log(countInitial / countSafe) / (attenuationFactor * wavelength)
-    log('thicknessSafe = ' + str(thicknessSafe))
-     
-    # Find the corresponding attenuation angle
-    suggestedAttenutaionAngle = 330
+    # find corresponding attenuation angle
+    suggestedAttAngle = 330
     for item in thicknessTable.items():
-        attenutaionAngle = item[0]
+        attAngle  = item[0]
         thickness = item[1]
-        if thickness >= thicknessSafe:
-            suggestedAttenutaionAngle = attenutaionAngle
-            break
+        if (thicknessSafe <= thickness) and (suggestedAttAngle > attAngle):
+            suggestedAttAngle = attAngle
     
-    # Special case: if thickness is under certain threshold, we do not need any attenuation
-    #if thicknessSafe < 0.2:
-    #    suggestedAttenutaionAngle = 0
-    
-    log('suggestedAttenutaionAngle = ' + str(suggestedAttenutaionAngle))
-    return suggestedAttenutaionAngle
+    log('suggested attenutaion angle = ' + str(suggestedAttAngle))
+    return suggestedAttAngle, attenuation1
     
 # Check the health of our detector
 def checkDetHealth():
-    if getTotalMapRate() <= 0.0:
-        raise Exception("There is no reading from the detector.")
+    #if getTotalMapRate() <= 0.0:
+    #    raise Exception("There is no reading from the detector.")
+    pass
 
 # Count simulation - used for debug only
 def count(thickness, wavelength): 

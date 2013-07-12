@@ -205,7 +205,7 @@ def runScattering(acqEntries, configSetting):
             sleep(0.1)
             # Set attenuation
             log('Finding safe attenuation value ...')
-            driveSafeAttenuation(configSetting['manualAttenuationAlgorithm'], configSetting['startingAttenuation'])
+            startingAttenuation = driveSafeAttenuation(configSetting['manualAttenuationAlgorithm'], configSetting['startingAttenuation'])
             # Acquire data
             mode = configSetting['scatteringMode']
             preset = getScatteringPreset(acqEntry['runId'], acqEntry['preset'])
@@ -220,7 +220,7 @@ def runScattering(acqEntries, configSetting):
             sleep(0.2)
             # Drive attenuation back safer value
             log('Drive attenuation back to safe value ...')
-            driveAtt(configSetting['startingAttenuation'])
+            driveAtt(startingAttenuation)
             quokka.printQuokkaSettings()
 
 def getForcedScanValue(type):
