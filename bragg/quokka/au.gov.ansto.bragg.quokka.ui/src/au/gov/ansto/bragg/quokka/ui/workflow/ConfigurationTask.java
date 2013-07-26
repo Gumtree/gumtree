@@ -39,6 +39,7 @@ import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.SafeRunnable;
@@ -54,12 +55,15 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
@@ -296,7 +300,7 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			});
 		}
 		
-		private void createScriptArea(Composite parent) {
+		private void createScriptArea(final Composite parent) {
 			parent.setLayout(new GridLayout());
 			DataBindingContext bindingContext = new DataBindingContext();
 			// bind widget to the name of the current selection
@@ -330,8 +334,9 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			final Button lockButton = getToolkit().createButton(configurationGroup, "", SWT.TOGGLE);
 			lockButton.setImage(InternalImage.LOCK.getImage());
 			
-			Button saveConfigButton = getToolkit().createButton(configurationGroup, "", SWT.PUSH);
+			final Button saveConfigButton = getToolkit().createButton(configurationGroup, "", SWT.PUSH);
 			saveConfigButton.setImage(InternalImage.SAVE.getImage());
+			saveConfigButton.setEnabled(false);
 			
 			/*****************************************************************
 			 * Script editing
@@ -708,17 +713,29 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			lockButton.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent event) {
 					if (lockButton.getSelection()) {
-						lockButton.setImage(InternalImage.UNLOCK.getImage());
-						lockLabel.setText("Unlocked");
-						nameText.setEnabled(true);
-						initScriptText.setEditable(true);
-						preTransmissionScriptText.setEditable(true);
-						preScatteringScriptText.setEditable(true);
-						startingAttenuationText.setEditable(true);
-						useManualAttenuationAlogrithmButton.setEnabled(true);
+						PasswordRequestDialog dialog = new PasswordRequestDialog(parent.getShell());
+						if (dialog.open() == PasswordRequestDialog.OK) {
+							if ("quokkarox".equals(dialog.getPassword())) {
+								lockButton.setImage(InternalImage.UNLOCK.getImage());
+								lockLabel.setText("Unlocked");
+								saveConfigButton.setEnabled(true);
+								nameText.setEnabled(true);
+								initScriptText.setEditable(true);
+								preTransmissionScriptText.setEditable(true);
+								preScatteringScriptText.setEditable(true);
+								startingAttenuationText.setEditable(true);
+								useManualAttenuationAlogrithmButton.setEnabled(true);
+							} else {
+						        MessageBox messageBox = new MessageBox(parent.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+						        messageBox.setText("Information");
+						        messageBox.setMessage("Access Denied");
+						        messageBox.open();
+							}
+						}
 					} else {
 						lockButton.setImage(InternalImage.LOCK.getImage());
 						lockLabel.setText("Locked");
+						saveConfigButton.setEnabled(false);
 						nameText.setEnabled(false);
 						initScriptText.setEditable(false);
 						preTransmissionScriptText.setEditable(false);
@@ -866,4 +883,51 @@ public class ConfigurationTask extends AbstractExperimentTask {
 		
 	}
 	
+	class PasswordRequestDialog extends Dialog {
+	    private Text passwordField;
+	    private String passwordString;
+
+	    public PasswordRequestDialog(Shell parentShell) {
+	        super(parentShell);
+	    }
+
+	    public String getPassword() {
+	        return passwordString;
+	    }
+
+	    @Override
+	    protected void configureShell(Shell newShell)  {
+	        super.configureShell(newShell);
+	        newShell.setText("Please enter password");
+	    }
+
+	    @Override
+	    protected Control createDialogArea(Composite parent) {
+	        Composite comp = (Composite) super.createDialogArea(parent);
+
+	        GridLayout layout = (GridLayout) comp.getLayout();
+	        layout.numColumns = 2;
+
+	        Label passwordLabel = new Label(comp, SWT.RIGHT);
+	        passwordLabel.setText("Password: ");
+	        passwordField = new Text(comp, SWT.SINGLE | SWT.BORDER | SWT.PASSWORD);
+
+	        GridData data = new GridData(SWT.FILL, SWT.CENTER, true, false);
+	        passwordField.setLayoutData(data);
+
+	        return comp;
+	    }
+
+	    @Override
+	    protected void okPressed() {
+	        passwordString = passwordField.getText();
+	        super.okPressed();
+	    }
+
+	    @Override
+	    protected void cancelPressed() {
+	        passwordField.setText("");
+	        super.cancelPressed();
+	    }
+	}
 }
