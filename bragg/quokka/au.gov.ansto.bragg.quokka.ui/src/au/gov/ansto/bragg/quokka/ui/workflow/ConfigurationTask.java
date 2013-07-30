@@ -88,7 +88,6 @@ import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.LoopRunner;
 import org.gumtree.util.PlatformUtils;
 import org.gumtree.util.eclipse.WorkspaceUtils;
-import org.gumtree.util.string.StringUtils;
 import org.gumtree.widgets.swt.util.UIResources;
 import org.gumtree.workflow.ui.AbstractTaskView;
 import org.gumtree.workflow.ui.ITaskView;
@@ -398,17 +397,6 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			initItem.setText("Initialise");
 			Composite initArea = getToolkit().createComposite(tabFolder);
 			GridLayoutFactory.swtDefaults().margins(0, 0).numColumns(2).equalWidth(false).applyTo(initArea);
-			
-			// Detector distance
-			Label detectorDistanceLabel = getToolkit().createLabel(initArea, "Detector distance (mm): ");
-			GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, false).applyTo(detectorDistanceLabel);
-			
-			final Text detectorDistanceText = getToolkit().createText(initArea, "", SWT.SINGLE);
-			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).applyTo(detectorDistanceText);
-			bindingContext.bindValue(
-					SWTObservables.observeText(detectorDistanceText, SWT.Modify),
-					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "detectorDistance", Float.class));
-			detectorDistanceText.setEditable(false);
 			
 			// Text editor
 			final Text initScriptText = getToolkit().createText(initArea, "", SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
