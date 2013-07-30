@@ -198,9 +198,13 @@ public class ConfigSelectionDialog extends MessageDialog {
 							String line;
 							String newLine = System.getProperty("line.separator");
 							while ((line = reader.readLine()) != null) {
-								stringBuilder.append(line.replace(
+								stringBuilder.append(line
+									.replace(
 										"au.gov.ansto.bragg.quokka2.experiment.model.InstrumentConfigTemplate",
-										"au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfigTemplate"));
+										"au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfigTemplate")
+									.replace(
+										"startingAtteunation",
+										"startingAttenuation"));
 								stringBuilder.append(newLine);
 						    }
 							

@@ -40,6 +40,8 @@ import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.SafeRunnable;
@@ -58,6 +60,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -85,6 +88,7 @@ import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.LoopRunner;
 import org.gumtree.util.PlatformUtils;
 import org.gumtree.util.eclipse.WorkspaceUtils;
+import org.gumtree.util.string.StringUtils;
 import org.gumtree.widgets.swt.util.UIResources;
 import org.gumtree.workflow.ui.AbstractTaskView;
 import org.gumtree.workflow.ui.ITaskView;
@@ -96,7 +100,6 @@ import au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfig;
 import au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfigTemplate;
 import au.gov.ansto.bragg.quokka.experiment.model.PropertyList;
 import au.gov.ansto.bragg.quokka.experiment.util.ExperimentModelUtils;
-import au.gov.ansto.bragg.quokka.ui.QuokkaUIConstants;
 import au.gov.ansto.bragg.quokka.ui.internal.Activator;
 import au.gov.ansto.bragg.quokka.ui.internal.InternalImage;
 import au.gov.ansto.bragg.quokka.ui.internal.SystemProperties;
@@ -194,12 +197,12 @@ public class ConfigurationTask extends AbstractExperimentTask {
 					Shell parentShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 					// [GUMTREE-653] Config dialog based on workspace
 					ConfigSelectionDialog dialog = new ConfigSelectionDialog(parentShell);
-					IFolder folder = WorkspaceUtils.getFolder(SystemProperties.CONFIG_FOLDER.getValue());
+					IFolder configFolder = WorkspaceUtils.getFolder(SystemProperties.CONFIG_FOLDER.getValue());
 					try {
-						folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+						configFolder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 					} catch (CoreException e1) {
 					}
-					dialog.setBaseDirectory(folder);
+					dialog.setBaseDirectory(configFolder);
 					int result = dialog.open();
 					if (result == Window.OK) {
 						if (dialog.isNewConfig()) {
@@ -218,15 +221,21 @@ public class ConfigurationTask extends AbstractExperimentTask {
 								String line;
 								String newLine = System.getProperty("line.separator");
 								while ((line = reader.readLine()) != null) {
-									stringBuilder.append(line.replace(
+									stringBuilder.append(line
+										.replace(
 											"au.gov.ansto.bragg.quokka2.experiment.model.InstrumentConfigTemplate",
-											"au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfigTemplate"));
+											"au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfigTemplate")
+										.replace(
+											"startingAtteunation",
+											"startingAttenuation"));
 									stringBuilder.append(newLine);
 							    }
 								
 								Object object = ExperimentModelUtils.getXStream().fromXML(stringBuilder.toString());
 								if (object instanceof InstrumentConfigTemplate) {
-									addConfigFromTemplate((InstrumentConfigTemplate) object);
+									// "group" is relative folder of selected configuration
+									String group = configFolder.getLocationURI().relativize(selectedConfig.getParent().getLocationURI()).getPath();
+									addConfigFromTemplate((InstrumentConfigTemplate) object, group);
 								}
 							} catch (Exception ex) {
 								logger.error("Failed to load config template from " + selectedConfig.getLocationURI().toString());
@@ -300,12 +309,24 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			});
 		}
 		
+		private void FillGroupCombo(Combo group, IFolder folder, String prefix) {
+			try {
+				for (IResource member : folder.members()) {
+					if (member instanceof IFolder) {
+						String fullName = prefix + member.getName();
+						group.add(fullName);
+						FillGroupCombo(group, (IFolder)member, fullName + "/");
+					}
+				}
+			} catch (CoreException e) {
+			}
+		}
+		
 		private void createScriptArea(final Composite parent) {
 			parent.setLayout(new GridLayout());
 			DataBindingContext bindingContext = new DataBindingContext();
 			// bind widget to the name of the current selection
-			final IObservableValue selection = ViewersObservables
-					.observeSingleSelection(tableViewer);
+			final IObservableValue selection = ViewersObservables.observeSingleSelection(tableViewer);
 			
 			/*****************************************************************
 			 * Configuration group
@@ -322,12 +343,12 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			
 			final Text nameText = getToolkit().createText(configurationGroup, "", SWT.BORDER);
 			GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).hint(150, SWT.DEFAULT).applyTo(nameText);
-			bindingContext.bindValue(SWTObservables
-					.observeText(nameText, SWT.Modify), BeansObservables
-					.observeDetailValue(Realm.getDefault(), selection, "name",
-							String.class), null, null);
+			bindingContext.bindValue(
+					SWTObservables.observeText(nameText, SWT.Modify),
+					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "name", String.class));
 			nameText.setEnabled(false);
 			
+			// Lock/Unlock
 			final Label lockLabel = getToolkit().createLabel(configurationGroup, "Locked", SWT.RIGHT);
 			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(lockLabel);
 			
@@ -337,6 +358,28 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			final Button saveConfigButton = getToolkit().createButton(configurationGroup, "", SWT.PUSH);
 			saveConfigButton.setImage(InternalImage.SAVE.getImage());
 			saveConfigButton.setEnabled(false);
+			
+			// Group
+			label = getToolkit().createLabel(configurationGroup, "Group: ", SWT.RIGHT);
+			GridDataFactory.fillDefaults().align(SWT.END, SWT.BEGINNING).hint(80, SWT.DEFAULT).applyTo(label);
+
+			final Combo groupText = new Combo(configurationGroup, SWT.DROP_DOWN | SWT.BORDER);
+			GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).hint(150, SWT.DEFAULT).applyTo(groupText);
+			bindingContext.bindValue(
+					SWTObservables.observeSelection(groupText),
+					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "group", String.class));
+			groupText.setEnabled(false);
+			
+			IFolder configFolder = WorkspaceUtils.getFolder(SystemProperties.CONFIG_FOLDER.getValue());
+			try {
+				configFolder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+				FillGroupCombo(groupText, configFolder, "");
+			} catch (CoreException e1) {
+			}
+			
+			// fill space after combo
+			label = getToolkit().createLabel(configurationGroup, "");
+			GridDataFactory.fillDefaults().span(3, 1).applyTo(label);
 			
 			/*****************************************************************
 			 * Script editing
@@ -358,23 +401,21 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			
 			// Detector distance
 			Label detectorDistanceLabel = getToolkit().createLabel(initArea, "Detector distance (mm): ");
-			GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.TOP).grab(false, false).applyTo(detectorDistanceLabel);
+			GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, false).applyTo(detectorDistanceLabel);
 			
 			final Text detectorDistanceText = getToolkit().createText(initArea, "", SWT.SINGLE);
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).applyTo(detectorDistanceText);
-			bindingContext.bindValue(SWTObservables
-					.observeText(detectorDistanceText, SWT.Modify), BeansObservables
-					.observeDetailValue(Realm.getDefault(), selection, "detectorDistance",
-							Float.class), null, null);
+			bindingContext.bindValue(
+					SWTObservables.observeText(detectorDistanceText, SWT.Modify),
+					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "detectorDistance", Float.class));
 			detectorDistanceText.setEditable(false);
 			
 			// Text editor
 			final Text initScriptText = getToolkit().createText(initArea, "", SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 			initItem.setControl(initArea);
-			bindingContext.bindValue(SWTObservables
-					.observeText(initScriptText, SWT.Modify), BeansObservables
-					.observeDetailValue(Realm.getDefault(), selection, "initScript",
-							String.class), null, null);
+			bindingContext.bindValue(
+					SWTObservables.observeText(initScriptText, SWT.Modify),
+					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "initScript", String.class));
 			initScriptText.setEditable(false);
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(2, 1).applyTo(initScriptText);
 			
@@ -396,10 +437,9 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			
 			final Text preTransmissionScriptText = getToolkit().createText(preTransmissionArea, "", SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 			preTransmissionItem.setControl(preTransmissionArea);
-			bindingContext.bindValue(SWTObservables
-					.observeText(preTransmissionScriptText, SWT.Modify), BeansObservables
-					.observeDetailValue(Realm.getDefault(), selection, "preTransmissionScript",
-							String.class), null, null);
+			bindingContext.bindValue(
+					SWTObservables.observeText(preTransmissionScriptText, SWT.Modify),
+					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "preTransmissionScript", String.class));
 			preTransmissionScriptText.setEditable(false);
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(2, 1).applyTo(preTransmissionScriptText);
 			
@@ -417,23 +457,23 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			preScatteringItem.setControl(preScatteringArea);
 			
 			final Button useManualAttenuationAlogrithmButton = getToolkit().createButton(preScatteringArea, "Use manual attenuation algorithm from: ", SWT.CHECK);
-			bindingContext.bindValue(SWTObservables.observeSelection(useManualAttenuationAlogrithmButton), BeansObservables.observeDetailValue(selection, "useManualAttenuationAlgorithm", boolean.class));
+			bindingContext.bindValue(
+					SWTObservables.observeSelection(useManualAttenuationAlogrithmButton),
+					BeansObservables.observeDetailValue(selection, "useManualAttenuationAlgorithm", boolean.class));
 			useManualAttenuationAlogrithmButton.setEnabled(false);
 			
 			final Text startingAttenuationText = getToolkit().createText(preScatteringArea, "", SWT.SINGLE);
 			GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(startingAttenuationText);
-			bindingContext.bindValue(SWTObservables
-					.observeText(startingAttenuationText, SWT.Modify), BeansObservables
-					.observeDetailValue(Realm.getDefault(), selection, "startingAttenuation",
-							int.class), null, null);
+			bindingContext.bindValue(
+					SWTObservables.observeText(startingAttenuationText, SWT.Modify),
+					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "startingAttenuation", int.class));
 			startingAttenuationText.setEditable(false);
 			
 			final Text preScatteringScriptText = getToolkit().createText(preScatteringArea, "", SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(3, 1).applyTo(preScatteringScriptText);
-			bindingContext.bindValue(SWTObservables
-					.observeText(preScatteringScriptText, SWT.Modify), BeansObservables
-					.observeDetailValue(Realm.getDefault(), selection, "preScatteringScript",
-							String.class), null, null);
+			bindingContext.bindValue(
+					SWTObservables.observeText(preScatteringScriptText, SWT.Modify),
+					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "preScatteringScript", String.class));
 			preScatteringScriptText.setEditable(false);
 
 			final ProgressBar scattDriveProgressBar = new ProgressBar(preScatteringArea, SWT.INDETERMINATE);
@@ -578,10 +618,11 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			targetToModelStrategy.setConverter(StringToNumberConverter.toLong(numberFormat, true));
 			UpdateValueStrategy modelToTargetStrategy = new UpdateValueStrategy();
 			modelToTargetStrategy.setConverter(NumberToStringConverter.fromLong(numberFormat, true));
-			bindingContext.bindValue(SWTObservables
-					.observeText(transPresetText, SWT.Modify), BeansObservables
-					.observeDetailValue(Realm.getDefault(), selection, "transmissionPreset",
-							long.class), targetToModelStrategy, modelToTargetStrategy);
+			bindingContext.bindValue(
+					SWTObservables.observeText(transPresetText, SWT.Modify),
+					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "transmissionPreset", long.class),
+					targetToModelStrategy,
+					modelToTargetStrategy);
 			
 			/*****************************************************************
 			 * Scattering settings
@@ -631,10 +672,11 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			GridDataFactory.fillDefaults().align(SWT.END, SWT.BEGINNING).hint(80, SWT.DEFAULT).applyTo(label);
 			Text defaultSettingText = getToolkit().createText(scatteringGroup, "", SWT.BORDER);
 			GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).hint(150, SWT.DEFAULT).applyTo(defaultSettingText);
-			bindingContext.bindValue(SWTObservables
-					.observeText(defaultSettingText, SWT.Modify), BeansObservables
-					.observeDetailValue(Realm.getDefault(), selection, "defaultSetting",
-							long.class), targetToModelStrategy, modelToTargetStrategy);
+			bindingContext.bindValue(
+					SWTObservables.observeText(defaultSettingText, SWT.Modify),
+					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "defaultSetting", long.class),
+					targetToModelStrategy,
+					modelToTargetStrategy);
 			
 			/*****************************************************************
 			 * File association 
@@ -648,10 +690,9 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			label = getToolkit().createLabel(fileAssociationGroup, "Empty Beam Transmission: ");
 			Text emptyBeamTransmissionText = getToolkit().createText(fileAssociationGroup, "");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(emptyBeamTransmissionText);
-			bindingContext.bindValue(SWTObservables
-					.observeText(emptyBeamTransmissionText, SWT.Modify), BeansObservables
-					.observeDetailValue(selection,
-							"emptyBeamTransmissionDataFile", String.class));
+			bindingContext.bindValue(
+					SWTObservables.observeText(emptyBeamTransmissionText, SWT.Modify),
+					BeansObservables.observeDetailValue(selection, "emptyBeamTransmissionDataFile", String.class));
 			Button loadFromReportButton = getToolkit().createButton(fileAssociationGroup, "Load from Report", SWT.PUSH);
 			loadFromReportButton.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
@@ -668,10 +709,9 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			label = getToolkit().createLabel(fileAssociationGroup, "Empty Cell Transmission: ");
 			Text emptyCellTransmissionText = getToolkit().createText(fileAssociationGroup, "");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(emptyCellTransmissionText);
-			bindingContext.bindValue(SWTObservables
-					.observeText(emptyCellTransmissionText, SWT.Modify), BeansObservables
-					.observeDetailValue(selection,
-							"emptyCellTransmissionDataFile", String.class));
+			bindingContext.bindValue(
+					SWTObservables.observeText(emptyCellTransmissionText, SWT.Modify),
+					BeansObservables.observeDetailValue(selection, "emptyCellTransmissionDataFile", String.class));
 			Button clearAllButton = getToolkit().createButton(fileAssociationGroup, "Clear All", SWT.PUSH);
 			GridDataFactory.fillDefaults().applyTo(clearAllButton);
 			clearAllButton.addSelectionListener(new SelectionAdapter() {
@@ -689,10 +729,9 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			label = getToolkit().createLabel(fileAssociationGroup, "Empty Cell Scattering: ");
 			Text emptyCellScatteringText = getToolkit().createText(fileAssociationGroup, "");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(emptyCellScatteringText);
-			bindingContext.bindValue(SWTObservables
-					.observeText(emptyCellScatteringText, SWT.Modify), BeansObservables
-					.observeDetailValue(selection,
-							"emptyCellScatteringDataFile", String.class));
+			bindingContext.bindValue(
+					SWTObservables.observeText(emptyCellScatteringText, SWT.Modify),
+					BeansObservables.observeDetailValue(selection, "emptyCellScatteringDataFile", String.class));
 			label = getToolkit().createLabel(fileAssociationGroup, "");
 			
 			/*****************************************************************
@@ -720,6 +759,7 @@ public class ConfigurationTask extends AbstractExperimentTask {
 								lockLabel.setText("Unlocked");
 								saveConfigButton.setEnabled(true);
 								nameText.setEnabled(true);
+								groupText.setEnabled(true);
 								initScriptText.setEditable(true);
 								preTransmissionScriptText.setEditable(true);
 								preScatteringScriptText.setEditable(true);
@@ -737,6 +777,7 @@ public class ConfigurationTask extends AbstractExperimentTask {
 						lockLabel.setText("Locked");
 						saveConfigButton.setEnabled(false);
 						nameText.setEnabled(false);
+						groupText.setEnabled(false);
 						initScriptText.setEditable(false);
 						preTransmissionScriptText.setEditable(false);
 						preScatteringScriptText.setEditable(false);
@@ -751,46 +792,115 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			 *****************************************************************/
 			saveConfigButton.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent event) {
-//					System.out.println(Activator.getDefault().getStateLocation());
-					InstrumentConfigTemplate template = new InstrumentConfigTemplate();
-					template.setName(nameText.getText());
-					SaveConfigDialog saveConfigDialog = new SaveConfigDialog(Display.getDefault().getActiveShell(), template);
-					if (saveConfigDialog.open() == Window.OK && template.getName() != null && template.getName().length() > 0) {
-						// Transfer script text to template object
-						template.setInitScript(initScriptText.getText());
-						template.setPreTransmissionScript(preTransmissionScriptText.getText());
-						template.setPreScatteringScript(preScatteringScriptText.getText());
-						try {
-							template.setStartingAtteunation(Integer.parseInt(startingAttenuationText.getText()));
-						} catch (NumberFormatException e) {
-							logger.error("Failed to store starting attenuation value to template");
+					// name (nameText) must be specified; group is optional
+					
+					String name = nameText.getText();
+					String group = groupText.getText();
+					
+					if (name == null || name.length() == 0) {
+						MessageDialog nameErrorDialog = new MessageDialog(
+							parent.getShell(),
+							"Warning",
+							null,
+							"Please specify a valid name for the current configuration.",
+							MessageDialog.WARNING,
+							new String[] { IDialogConstants.OK_LABEL },
+							0);
+						nameErrorDialog.open();
+						return;
+					}
+					
+					if (group != null) {
+						group = group.replace('\\', '/').trim();
+						if (group.contains("//") || !group.matches("[a-zA-Z0-9_/ ]*")) {
+							MessageDialog nameErrorDialog = new MessageDialog(
+								parent.getShell(),
+								"Warning",
+								null,
+								"Please specify a valid group for the current configuration.",
+								MessageDialog.WARNING,
+								new String[] { IDialogConstants.OK_LABEL },
+								0);
+							nameErrorDialog.open();
+							return;
 						}
-						// Create templates folder
-//						File templatesFolder = Activator.getDefault().getStateLocation().append(QuokkaUIConstants.PATH_TEMPLATES).toFile();
-						// [GUMTREE-667] Save to workspace
-						IFolder folder = WorkspaceUtils.getFolder(SystemProperties.CONFIG_FOLDER.getValue());
-						File templatesFolder = new File(folder.getLocationURI());
-						if (!templatesFolder.exists()) {
-							templatesFolder.mkdir();
+						
+						// trim all (sub)groups 
+						if (group.contains("/")) {
+							StringBuilder correctedGroup = new StringBuilder();
+							for (String subGroup : group.split("/"))
+								if (subGroup.length() > 0)
+									correctedGroup.append(subGroup.trim()).append('/');
+							
+							// remove '/' at end
+							if (correctedGroup.length() != 0)
+								correctedGroup.deleteCharAt(correctedGroup.length() - 1);
+							
+							group = correctedGroup.toString();
 						}
+					}
+					
+					final IObservableValue configDescription = BeansObservables.observeDetailValue(
+							Realm.getDefault(), selection, "description", String.class);
+					
+					Object oldDescription = configDescription.getValue();
+					SaveConfigDialog saveConfigDialog = new SaveConfigDialog(parent.getShell(), configDescription);
+										
+					if (saveConfigDialog.open() == Window.OK) {
+						
+						InstrumentConfigTemplate template = ((InstrumentConfig)selection.getValue()).generateTemplate();
+
+						// save to workspace
+						IFolder configFolder = WorkspaceUtils.getFolder(SystemProperties.CONFIG_FOLDER.getValue());
+						File templatesFolder = new File(configFolder.getLocationURI().getPath(), group);
+						if (!templatesFolder.exists())
+							templatesFolder.mkdirs();
+
 						File templateFile = new File(templatesFolder, template.getName() + ".xml");
 						try {
-							if (!templateFile.exists()) {
+							if (!templateFile.exists())
 								templateFile.createNewFile();
-							}
+
 							template.setFile(templateFile);
 							FileWriter writer = new FileWriter(templateFile);
 							ExperimentModelUtils.getXStream().toXML(template, writer);
 							writer.flush();
 							writer.close();
+							
+							MessageDialog okDialog = new MessageDialog(
+									parent.getShell(),
+									"Information",
+									null,
+									"The current configuration was successfully saved.",
+									MessageDialog.INFORMATION,
+									new String[] { IDialogConstants.OK_LABEL },
+									0);
+							okDialog.open();
+							
 						} catch (IOException e) {
 							StatusManager.getManager().handle(
-								new Status(IStatus.ERROR, Activator.PLUGIN_ID, IStatus.OK,
-										"Error occured when saving configuration " + template.getName(),
-										null), StatusManager.SHOW);
+								new Status(
+									IStatus.ERROR,
+									Activator.PLUGIN_ID,
+									IStatus.OK,
+									"Error occured when saving configuration " + template.getName(),
+									null),
+								StatusManager.SHOW);
 							logger.error("Failed to save config to " + templateFile.getName(), e);
 						}
 						
+						// update group combo
+						try {
+							if (groupText.getItemCount() != 0)
+								groupText.removeAll();
+							configFolder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+							FillGroupCombo(groupText, configFolder, "");
+							groupText.setText(group);
+						} catch (CoreException e1) {
+						}
+					} else {
+						// reset description
+						configDescription.setValue(oldDescription);
 					}
 				}
 			});
@@ -806,20 +916,22 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			tableViewer.setSelection(new StructuredSelection(newConfig));
 		}
 		
-		private void addConfigFromTemplate(InstrumentConfigTemplate configTemplate) {
+		private void addConfigFromTemplate(InstrumentConfigTemplate configTemplate, String group) {
 			if (configTemplate == null) {
 				return;
 			}
 			InstrumentConfig config = new InstrumentConfig();
 			config.setTemplate(configTemplate);
+			config.setGroup(group);
 			getExperiment().getInstrumentConfigs().add(config);
-			// Refresh UI			
+			// Refresh UI
 			tableViewer.setInput(new WritableList(getExperiment().getInstrumentConfigs(), InstrumentConfig.class));
 			// Give focus
 			tableViewer.setSelection(new StructuredSelection(config));
 		}
 		
 		private void removeConfig(InstrumentConfig config) {
+			config.setGroup("");
 			getExperiment().getInstrumentConfigs().remove(config);			
 			// Refresh UI
 			tableViewer.setInput(new WritableList(getExperiment().getInstrumentConfigs(), InstrumentConfig.class));

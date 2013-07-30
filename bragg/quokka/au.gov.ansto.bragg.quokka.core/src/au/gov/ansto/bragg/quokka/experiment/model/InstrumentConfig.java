@@ -29,6 +29,8 @@ public class InstrumentConfig extends AbstractModelObject {
 	private static Pattern pattern = Pattern.compile("driveDet\\(\\S+,");
 	
 	private String name;
+	private String group = "";
+	private String description = "";
 	
 	private String mode = "Timer";
 
@@ -65,15 +67,33 @@ public class InstrumentConfig extends AbstractModelObject {
 	public InstrumentConfig() {
 		super();
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-
+	
 	public void setName(String name) {
 		String oldValue = this.name;
 		this.name = name;
 		firePropertyChange("name", oldValue, name);
+	}
+
+	public String getGroup() {
+		return group;
+	}
+	public void setGroup(String group) {
+		String oldValue = this.group;
+		this.group = group;
+		firePropertyChange("group", oldValue, group);
+	}
+
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		String oldValue = this.description;
+		this.description = description;
+		firePropertyChange("description", oldValue, description);
 	}
 
 	public List<String> getAvailableModes() {
@@ -183,6 +203,7 @@ public class InstrumentConfig extends AbstractModelObject {
 		this.template = template;
 		firePropertyChange("template", oldValue, template);
 		setName(template.getName());
+		
 		restoreScripts();
 	}
 	
@@ -207,10 +228,11 @@ public class InstrumentConfig extends AbstractModelObject {
 	}
 
 	public void restoreScripts() {
+		setDescription(getTemplate().getDescription());
 		setInitScript(getTemplate().getInitScript());
 		setPreTransmissionScript(getTemplate().getPreTransmissionScript());
 		setPreScatteringScript(getTemplate().getPreScatteringScript());
-		setStartingAttenuation(getTemplate().getStartingAtteunation());
+		setStartingAttenuation(getTemplate().getStartingAttenuation());
 	}
 
 	public Float getDetectorDistance() {
@@ -271,7 +293,7 @@ public class InstrumentConfig extends AbstractModelObject {
 				+ emptyCellScatteringDataFile
 				+ ", emptyCellTransmissionDataFile="
 				+ emptyCellTransmissionDataFile + ", initScript=" + initScript
-				+ ", mode=" + mode + ", name=" + name
+				+ ", mode=" + mode + ", name=" + name + ", group=" + group
 				+ ", preScatteringScript=" + preScatteringScript
 				+ ", preTransmissionScript=" + preTransmissionScript
 				+ ", startingAttenuation=" + startingAttenuation
@@ -281,4 +303,16 @@ public class InstrumentConfig extends AbstractModelObject {
 				+ useManualAttenuationAlgorithm + "]";
 	}
 
+	public InstrumentConfigTemplate generateTemplate() {
+		InstrumentConfigTemplate result = new InstrumentConfigTemplate();
+
+		result.setName(name);
+		result.setDescription(description);
+		result.setInitScript(initScript);
+		result.setPreTransmissionScript(preTransmissionScript);
+		result.setPreScatteringScript(preScatteringScript);
+		result.setStartingAttenuation(startingAttenuation);
+		
+		return result;
+	}
 }
