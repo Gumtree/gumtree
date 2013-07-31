@@ -13,8 +13,6 @@ package au.gov.ansto.bragg.quokka.experiment.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class InstrumentConfig extends AbstractModelObject {
 	
@@ -26,9 +24,9 @@ public class InstrumentConfig extends AbstractModelObject {
 		modeList.add("Timer");
 	}
 	
-	private static Pattern pattern = Pattern.compile("driveDet\\(\\S+,");
-	
 	private String name;
+	private String group = "";
+	private String description = "";
 	
 	private String mode = "Timer";
 
@@ -53,8 +51,6 @@ public class InstrumentConfig extends AbstractModelObject {
 	
 	private InstrumentConfigTemplate template;
 	
-	private Float detectorDistance;
-	
 	// [[GT-207] The following 3 attributes relate to the file association propagation
 	private String emptyCellTransmissionDataFile;
 	
@@ -65,15 +61,33 @@ public class InstrumentConfig extends AbstractModelObject {
 	public InstrumentConfig() {
 		super();
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-
+	
 	public void setName(String name) {
 		String oldValue = this.name;
 		this.name = name;
 		firePropertyChange("name", oldValue, name);
+	}
+
+	public String getGroup() {
+		return group;
+	}
+	public void setGroup(String group) {
+		String oldValue = this.group;
+		this.group = group;
+		firePropertyChange("group", oldValue, group);
+	}
+
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		String oldValue = this.description;
+		this.description = description;
+		firePropertyChange("description", oldValue, description);
 	}
 
 	public List<String> getAvailableModes() {
@@ -116,20 +130,6 @@ public class InstrumentConfig extends AbstractModelObject {
 	public void setInitScript(String initScript) {
 		String oldValue = this.initScript;
 		this.initScript = initScript;
-		
-		// Calculate detector distance
-		Matcher matcher = pattern.matcher(initScript);
-	    boolean matchFound = matcher.find();
-	    // Only count on the first appears
-	    if (matchFound) {
-	    	try {
-				Float detectorDistance = Float.parseFloat(initScript.substring(
-						matcher.start() + "driveDet(".length(), matcher.end()
-								- ",".length()));
-				setDetectorDistance(detectorDistance);
-	    	} catch (Exception e) {
-	    	}
-	    }
 		firePropertyChange("initScript", oldValue, initScript);
 	}
 
@@ -183,6 +183,7 @@ public class InstrumentConfig extends AbstractModelObject {
 		this.template = template;
 		firePropertyChange("template", oldValue, template);
 		setName(template.getName());
+		
 		restoreScripts();
 	}
 	
@@ -207,20 +208,11 @@ public class InstrumentConfig extends AbstractModelObject {
 	}
 
 	public void restoreScripts() {
+		setDescription(getTemplate().getDescription());
 		setInitScript(getTemplate().getInitScript());
 		setPreTransmissionScript(getTemplate().getPreTransmissionScript());
 		setPreScatteringScript(getTemplate().getPreScatteringScript());
-		setStartingAttenuation(getTemplate().getStartingAtteunation());
-	}
-
-	public Float getDetectorDistance() {
-		return detectorDistance;
-	}
-	
-	public void setDetectorDistance(Float detectorDistance) {
-		Float oldValue = this.detectorDistance;
-		this.detectorDistance = detectorDistance;
-		firePropertyChange("detectorDistance", oldValue, detectorDistance);
+		setStartingAttenuation(getTemplate().getStartingAttenuation());
 	}
 	
 	public String getEmptyCellTransmissionDataFile() {
@@ -271,7 +263,7 @@ public class InstrumentConfig extends AbstractModelObject {
 				+ emptyCellScatteringDataFile
 				+ ", emptyCellTransmissionDataFile="
 				+ emptyCellTransmissionDataFile + ", initScript=" + initScript
-				+ ", mode=" + mode + ", name=" + name
+				+ ", mode=" + mode + ", name=" + name + ", group=" + group
 				+ ", preScatteringScript=" + preScatteringScript
 				+ ", preTransmissionScript=" + preTransmissionScript
 				+ ", startingAttenuation=" + startingAttenuation
@@ -281,4 +273,16 @@ public class InstrumentConfig extends AbstractModelObject {
 				+ useManualAttenuationAlgorithm + "]";
 	}
 
+	public InstrumentConfigTemplate generateTemplate() {
+		InstrumentConfigTemplate result = new InstrumentConfigTemplate();
+
+		result.setName(name);
+		result.setDescription(description);
+		result.setInitScript(initScript);
+		result.setPreTransmissionScript(preTransmissionScript);
+		result.setPreScatteringScript(preScatteringScript);
+		result.setStartingAttenuation(startingAttenuation);
+		
+		return result;
+	}
 }

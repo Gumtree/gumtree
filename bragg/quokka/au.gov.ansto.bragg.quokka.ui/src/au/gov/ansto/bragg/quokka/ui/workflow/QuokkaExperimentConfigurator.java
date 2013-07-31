@@ -185,7 +185,7 @@ public class QuokkaExperimentConfigurator extends AbstractExperimentTask {
 			buffer.append("driveBsx(" + bsx + ", 0)");
 			buffer.append("\n");
 			buffer.append("driveBsz(" + bsz + ")");
-			config.setStartingAtteunation(Integer.parseInt(startingAtt));
+			config.setStartingAttenuation(Integer.parseInt(startingAtt));
 			config.setPreScatteringScript(buffer.toString());
 			
 			configTemplate.add(config);

@@ -25,7 +25,7 @@ public class InstrumentConfigTemplate extends AbstractModelObject {
 	
 	private String preScatteringScript = "";
 	
-	private int startingAtteunation = 330;
+	private int startingAttenuation = 330;
 	
 	// This is used to manage user defined template
 	private File file;
@@ -98,33 +98,27 @@ public class InstrumentConfigTemplate extends AbstractModelObject {
 		firePropertyChange("preScatteringScript", oldValue, preScatteringScript);
 	}
 
-	public int getStartingAtteunation() {
-		return startingAtteunation;
+	public int getStartingAttenuation() {
+		return startingAttenuation;
 	}
 
-	public void setStartingAtteunation(int startingAtteunation) {
-		int oldValue = this.startingAtteunation;
-		this.startingAtteunation = startingAtteunation;
-		firePropertyChange("startingAtteunation", oldValue, startingAtteunation);
+	public void setStartingAttenuation(int startingAttenuation) {
+		int oldValue = this.startingAttenuation;
+		this.startingAttenuation = startingAttenuation;
+		firePropertyChange("startingAttenuation", oldValue, startingAttenuation);
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("InstrumentConfigTemplate [description=");
-		builder.append(description);
-		builder.append(", file=");
-		builder.append(file);
-		builder.append(", initScript=");
-		builder.append(initScript);
-		builder.append(", name=");
-		builder.append(name);
-		builder.append(", preScatteringScript=");
-		builder.append(preScatteringScript);
-		builder.append(", preTransmissionScript=");
-		builder.append(preTransmissionScript);
-		builder.append(", startingAtteunation=");
-		builder.append(startingAtteunation);
+		builder.append("InstrumentConfigTemplate [");
+		builder.append("description=").append(description);
+		builder.append(", file=").append(file);
+		builder.append(", initScript=").append(initScript);
+		builder.append(", name=").append(name);
+		builder.append(", preScatteringScript=").append(preScatteringScript);
+		builder.append(", preTransmissionScript=").append(preTransmissionScript);
+		builder.append(", startingAttenuation=").append(startingAttenuation);
 		builder.append("]");
 		return builder.toString();
 	}
