@@ -125,12 +125,13 @@ public class CommandController extends ComplexController implements ICommandCont
 		return statusChanged;
 	}
 	
-	protected void sleep(String errorMessage) {
+	protected void sleep(String errorMessage) throws SicsExecutionException {
 		try {
 			Thread.sleep(TIME_INTERVAL);
 		} catch (InterruptedException e) {
 			logger.error(errorMessage, e);
 			Thread.currentThread().interrupt();
+			throw new SicsExecutionException(e.getMessage());
 		}
 	}
 	

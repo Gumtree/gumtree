@@ -525,6 +525,8 @@ class Array:
         return ntype
     
     def __eq__(self, obj):
+        if obj is None:
+            return False
         if isinstance(obj, Array) :
             iarr = self.__iArray__
             oarr = obj.__iArray__
@@ -539,6 +541,8 @@ class Array:
                 return Array(rarr)
     
     def __ne__(self, obj):
+        if obj is None:
+            return True
         if isinstance(obj, Array) :
             iarr = self.__iArray__
             oarr = obj.__iArray__

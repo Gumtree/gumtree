@@ -76,6 +76,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.internal.part.NullEditorInput;
 import org.gumtree.gumnix.sics.control.ISicsController;
 import org.gumtree.gumnix.sics.control.controllers.ComponentDataFormatException;
 import org.gumtree.gumnix.sics.control.controllers.IComponentData;
@@ -84,6 +85,7 @@ import org.gumtree.gumnix.sics.control.events.DynamicControllerListenerAdapter;
 import org.gumtree.gumnix.sics.control.events.IDynamicControllerListener;
 import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.io.SicsIOException;
+import org.gumtree.gumnix.sics.ui.SicsUIConstants;
 import org.gumtree.scripting.IScriptExecutor;
 import org.gumtree.scripting.ScriptExecutor;
 
@@ -1775,5 +1777,20 @@ public class ScriptControlViewer extends Composite {
 				return null;
 			}
 		}
+	}
+	
+	public void openSICSEditor(){
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					ScriptPageRegister.getRegister(scriptRegisterID).getWorkbenchPage().openEditor(new NullEditorInput(), SicsUIConstants.ID_EDITOR_SICS_CONTROL);
+				} catch (PartInitException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}					
+			}
+		});
 	}
 }

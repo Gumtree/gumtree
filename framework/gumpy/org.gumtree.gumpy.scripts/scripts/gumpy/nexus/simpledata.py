@@ -210,6 +210,8 @@ class SimpleData:
 #********************************************************************************
     
     def __eq__(self, obj) :
+        if obj is None:
+            return False
         if isinstance(obj, SimpleData) :
             obj = obj.storage
         res = self.storage.__eq__(obj)
@@ -219,6 +221,8 @@ class SimpleData:
             return res
     
     def __ne__(self, obj):
+        if obj is None:
+            return True
         if isinstance(obj, SimpleData) :
             obj = obj.storage
         res = self.storage.__ne__(obj)

@@ -10,6 +10,7 @@ Require-Bundle: au.gov.ansto.bragg.kowari.core;bundle-version="1.7.0";visibility
  au.gov.ansto.bragg.kowari.exp;bundle-version="1.7.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: au.gov.ansto.bragg.kowari.ui,
+ au.gov.ansto.bragg.kowari.ui.tasks,
  au.gov.ansto.bragg.kowari.ui.widgets
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Bragg Institute

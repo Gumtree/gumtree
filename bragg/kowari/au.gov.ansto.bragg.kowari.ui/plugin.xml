@@ -148,16 +148,28 @@
          	</description>
       </task>
       <task
-            class="au.gov.ansto.bragg.nbi.ui.tasks.SimpleTableScanTask"
-            colour="DARK_GREEN"
+            class="au.gov.ansto.bragg.kowari.ui.tasks.KowariTableScanTask"
+            colour="GREEN"
             icon="icons/tasks/table_row_16x16.png"
             icon32="icons/tasks/table_row_32x32.png"
-            label="Simple Table Scan"
+            label="5/8 Columns Table Scan"
             provider="Bragg Institute"
             tags="tcl">
             <description>
             A scan loaded from a ASCII file with a table of sample locations. The columns of
             the table are: sx, sy, sz, som, and scan time.
+         	</description>
+      </task>
+      <task
+            class="au.gov.ansto.bragg.nbi.ui.tasks.SimpleTableScanTask"
+            colour="DARK_GREEN"
+            icon="icons/tasks/table_row_16x16.png"
+            icon32="icons/tasks/table_row_32x32.png"
+            label="Arbitrary Table Scan"
+            provider="Bragg Institute"
+            tags="tcl">
+            <description>
+            A scan loaded from a ASCII file with a table of sample locations.
          	</description>
       </task>
       <task

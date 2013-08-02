@@ -268,38 +268,38 @@ public class SimpleTableScanCommand extends AbstractScanCommand {
 //	
 	@Override
 	public String getPrintable() {
-		String text = "#";
-		if (getColumn0()) {
-			text += pNames.get(0) + ", \t";
-		}
-		if (getColumn1()) {
-			text += pNames.get(1) + ", \t";
-		}
-		if (getColumn2()) {
-			text += pNames.get(2) + ", \t";
-		}
-		if (getColumn3()) {
-			text += pNames.get(3) + ", \t";
-		}
-		if (getColumn4()) {
-			text += pNames.get(4) + ", \t";
-		}
-		if (getColumn5()) {
-			text += pNames.get(5) + ", \t";
-		}
-		if (getColumn6()) {
-			text += pNames.get(6) + ", \t";
-		}
-		if (getColumn7()) {
-			text += pNames.get(7) + ", \t";
-		}
-		if (getColumn8()) {
-			text += pNames.get(8) + ", \t";
-		}
-		if (getColumn9()) {
-			text += pNames.get(9) + ", \t";
-		}
-		text += scan_mode + "\n";
+		String text = "#table scan in " + scan_mode + " mode\n";
+//		if (getColumn0()) {
+//			text += pNames.get(0) + ", \t";
+//		}
+//		if (getColumn1()) {
+//			text += pNames.get(1) + ", \t";
+//		}
+//		if (getColumn2()) {
+//			text += pNames.get(2) + ", \t";
+//		}
+//		if (getColumn3()) {
+//			text += pNames.get(3) + ", \t";
+//		}
+//		if (getColumn4()) {
+//			text += pNames.get(4) + ", \t";
+//		}
+//		if (getColumn5()) {
+//			text += pNames.get(5) + ", \t";
+//		}
+//		if (getColumn6()) {
+//			text += pNames.get(6) + ", \t";
+//		}
+//		if (getColumn7()) {
+//			text += pNames.get(7) + ", \t";
+//		}
+//		if (getColumn8()) {
+//			text += pNames.get(8) + ", \t";
+//		}
+//		if (getColumn9()) {
+//			text += pNames.get(9) + ", \t";
+//		}
+//		text += scan_mode + "\n";
 		for (AbstractScanParameter parameter : getParameterList()) {
 			if (((TableScanParameter) parameter).getIsSelected()) {
 				text += parameter.getPritable(false);
