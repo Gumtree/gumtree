@@ -12,7 +12,6 @@ package org.gumtree.vis.swt;
 
 import java.awt.Color;
 import java.awt.Frame;
-import java.awt.event.MouseWheelEvent;
 import java.io.IOException;
 
 import javax.swing.JPanel;
@@ -23,7 +22,6 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -182,22 +180,6 @@ public class PlotComposite extends Composite{
 
 				@Override
 				public void keyPressed(KeyEvent event) {
-					switch (event.keyCode) {
-					case SWT.ARROW_UP:
-						plot.moveSelectedMask(event.keyCode);
-						break;
-					case SWT.ARROW_LEFT:
-						plot.moveSelectedMask(event.keyCode);
-						break;
-					case SWT.ARROW_RIGHT:
-						plot.moveSelectedMask(event.keyCode);
-						break;
-					case SWT.ARROW_DOWN:
-						plot.moveSelectedMask(event.keyCode);
-						break;
-					default:
-						break;
-					}
 					switch (event.stateMask) {
 					case SWT.CTRL:
 						if (event.keyCode == 'c' || event.keyCode == 'C') {
@@ -210,7 +192,6 @@ public class PlotComposite extends Composite{
 								plot.restoreAutoBounds();
 							}
 						} else if (event.keyCode == 'p' || event.keyCode == 'P') {
-							System.out.println("p pressed");
 							if (!keyPressed) {
 								Thread newThread = new Thread(new Runnable() {
 
@@ -222,7 +203,6 @@ public class PlotComposite extends Composite{
 								newThread.start();
 							}
 						} else if (event.keyCode == 'e' || event.keyCode == 'E') {
-							System.out.println("s pressed");
 							if (!keyPressed) {
 								Thread newThread = new Thread(new Runnable() {
 
@@ -240,10 +220,287 @@ public class PlotComposite extends Composite{
 						} 
 						keyPressed = true;
 						break;
-					default:
+					case SWT.ALT:
 						break;
+					default:
+						switch (event.keyCode) {
+						case SWT.ARROW_UP:
+							plot.moveSelectedMask(event.keyCode);
+							if (plot.isCurrentlyInputtingText()){
+								if (plot.getTextInputContent() != null) {
+									if (plot.getTextInputCursorIndex() > 0) {
+										String text = plot.getTextInputContent();
+										int cursorIndex = plot.getTextInputCursorIndex();
+										String[] lines = text.split("\n", 100);
+										int cursorX = 0;
+										int charCount = 0;
+										int newCursorIndex = cursorIndex;
+										for (int i = 0; i < lines.length; i++) {
+											if (cursorIndex > charCount && cursorIndex < charCount + lines[i].length() + 1) {
+												cursorX = cursorIndex - charCount;
+												if (i > 0) {
+													if (cursorX <= lines[i - 1].length()) {
+														newCursorIndex = charCount - lines[i - 1].length() - 1 + cursorX;
+													} else {
+														newCursorIndex = charCount - 1;
+													}
+													plot.setTextInputCursorIndex(newCursorIndex);
+												}
+												break;
+											} else if (cursorIndex == charCount + lines[i].length() + 1) {
+												newCursorIndex = charCount;
+												plot.setTextInputCursorIndex(newCursorIndex);
+												break;
+											}
+											charCount += lines[i].length() + 1;
+										}
+									}
+								}
+							}
+							break;
+						case SWT.ARROW_LEFT:
+							plot.moveSelectedMask(event.keyCode);
+							if (plot.isCurrentlyInputtingText()){
+								if (plot.getTextInputContent() != null) {
+									if (plot.getTextInputCursorIndex() > 0) {
+										plot.setTextInputCursorIndex(plot.getTextInputCursorIndex() - 1);
+									}
+								}
+							}
+							break;
+						case SWT.ARROW_RIGHT:
+							plot.moveSelectedMask(event.keyCode);
+							if (plot.isCurrentlyInputtingText()){
+								if (plot.getTextInputContent() != null) {
+									if (plot.getTextInputCursorIndex() < plot.getTextInputContent().length()) {
+										plot.setTextInputCursorIndex(plot.getTextInputCursorIndex() + 1);
+									}
+								}
+							}
+							break;
+						case SWT.ARROW_DOWN:
+							plot.moveSelectedMask(event.keyCode);
+							if (plot.isCurrentlyInputtingText()){
+								if (plot.getTextInputContent() != null) {
+									if (plot.getTextInputCursorIndex() >= 0) {
+										String text = plot.getTextInputContent();
+										int cursorIndex = plot.getTextInputCursorIndex();
+										String[] lines = text.split("\n", 100);
+										int cursorX = 0;
+										int charCount = 0;
+										int newCursorIndex = cursorIndex;
+										for (int i = 0; i < lines.length; i++) {
+											if (cursorIndex >= charCount && cursorIndex < charCount + lines[i].length() + 1) {
+												cursorX = cursorIndex - charCount;
+												if (i < lines.length - 1) {
+													if (cursorX <= lines[i + 1].length()) {
+														newCursorIndex = charCount + lines[i].length() + 1 + cursorX;
+													} else {
+														newCursorIndex = charCount + lines[i].length() + 1 + lines[i + 1].length();
+													}
+													plot.setTextInputCursorIndex(newCursorIndex);
+												}
+												break;
+											} 
+											charCount += lines[i].length() + 1;
+										}
+									}
+								}
+							}
+							break;
+						case SWT.ESC:
+							plot.cancelTextInput();
+						case SWT.SHIFT:
+							break;
+						case SWT.CTRL:
+							break;
+						case SWT.ALT:
+							break;
+						case SWT.F1:
+							break;
+						case SWT.F2:
+							break;
+						case SWT.F3:
+							break;
+						case SWT.F4:
+							break;
+						case SWT.F5:
+							break;
+						case SWT.F6:
+							break;
+						case SWT.F7:
+							break;
+						case SWT.F8:
+							break;
+						case SWT.F9:
+							break;
+						case SWT.F10:
+							break;
+						case SWT.F11:
+							break;
+						case SWT.F12:
+							break;
+						case SWT.PAGE_UP:
+							if (plot.isCurrentlyInputtingText()){
+								if (plot.getTextInputContent() != null) {
+									if (plot.getTextInputCursorIndex() >= 0) {
+										String text = plot.getTextInputContent();
+										int cursorIndex = plot.getTextInputCursorIndex();
+										String[] lines = text.split("\n", 100);
+										int cursorX = 0;
+										int charCount = 0;
+										int newLine = 0;
+										for (int i = 0; i < lines.length; i++) {
+											if (cursorIndex >= charCount && cursorIndex < charCount + lines[i].length() + 1) {
+												cursorX = cursorIndex - charCount;
+												if (i > 0) {
+													newLine = i - 5;
+													if (newLine < 0) {
+														newLine = 0;
+													}
+													jumpToPosition(newLine, cursorX);
+												}
+												break;
+											} 
+											charCount += lines[i].length() + 1;
+										}
+									}
+								}
+							}
+							break;
+						case SWT.PAGE_DOWN:
+							if (plot.isCurrentlyInputtingText()){
+								if (plot.getTextInputContent() != null) {
+									if (plot.getTextInputCursorIndex() >= 0) {
+										String text = plot.getTextInputContent();
+										int cursorIndex = plot.getTextInputCursorIndex();
+										String[] lines = text.split("\n", 100);
+										int cursorX = 0;
+										int charCount = 0;
+										int newLine = 0;
+										for (int i = 0; i < lines.length; i++) {
+											if (cursorIndex >= charCount && cursorIndex < charCount + lines[i].length() + 1) {
+												cursorX = cursorIndex - charCount;
+												if (i < lines.length - 1) {
+													newLine = i + 5;
+													if (newLine >= lines.length) {
+														newLine = lines.length - 1;
+													}
+													jumpToPosition(newLine, cursorX);
+												}
+												break;
+											} 
+											charCount += lines[i].length() + 1;
+										}
+									}
+								}
+							}
+							break;
+						case SWT.HOME:
+							if (plot.isCurrentlyInputtingText()){
+								if (plot.getTextInputContent() != null) {
+									if (plot.getTextInputCursorIndex() >= 0) {
+										String text = plot.getTextInputContent();
+										int cursorIndex = plot.getTextInputCursorIndex();
+										String[] lines = text.split("\n", 100);
+										int charCount = 0;
+										for (int i = 0; i < lines.length; i++) {
+											if (cursorIndex >= charCount && cursorIndex <= charCount + lines[i].length()) {
+												plot.setTextInputCursorIndex(charCount);
+												break;
+											} 
+											charCount += lines[i].length() + 1;
+										}
+									}
+								}
+							}
+							break;
+						case SWT.END:
+							if (plot.isCurrentlyInputtingText()){
+								if (plot.getTextInputContent() != null) {
+									if (plot.getTextInputCursorIndex() >= 0) {
+										String text = plot.getTextInputContent();
+										int cursorIndex = plot.getTextInputCursorIndex();
+										String[] lines = text.split("\n", 100);
+										int charCount = 0;
+										for (int i = 0; i < lines.length; i++) {
+											if (cursorIndex >= charCount && cursorIndex <= charCount + lines[i].length()) {
+												plot.setTextInputCursorIndex(charCount + lines[i].length());
+												break;
+											} 
+											charCount += lines[i].length() + 1;
+										}
+									}
+								}
+							}
+							break;
+						case SWT.BS:
+							if (plot.isCurrentlyInputtingText()) {
+								String inputText;
+								String textInputContent = plot.getTextInputContent();
+								int cursorIndex = plot.getTextInputCursorIndex();
+								int newIndex;
+								if (textInputContent == null || cursorIndex <= 0 || textInputContent.length() == 0) {
+									return;
+								} else if (cursorIndex == 1) {
+									inputText = textInputContent.substring(1);
+									newIndex = 0;
+								} else if (cursorIndex < textInputContent.length()){
+									newIndex = cursorIndex - 1;
+									inputText = textInputContent.substring(0, newIndex) + textInputContent.substring(cursorIndex);
+								} else {
+									inputText = textInputContent.substring(0, textInputContent.length() - 1);
+									newIndex = inputText.length();
+								}
+								plot.setTextInputContent(inputText);
+								plot.setTextInputCursorIndex(newIndex);
+							}
+							break;
+						case SWT.DEL:
+							if (plot.isCurrentlyInputtingText()) {
+								String inputText;
+								String textInputContent = plot.getTextInputContent();
+								int cursorIndex = plot.getTextInputCursorIndex();
+								int newIndex = cursorIndex;
+								if (textInputContent == null || textInputContent.length() == 0 || cursorIndex >= textInputContent.length()) {
+									return;
+								} else if (cursorIndex == 0){
+									inputText = textInputContent.substring(1);
+								} else {
+									inputText = textInputContent.substring(0, cursorIndex) + textInputContent.substring(cursorIndex + 1);
+								} 
+								plot.setTextInputContent(inputText);
+								plot.setTextInputCursorIndex(newIndex);
+							}
+							break;
+						case SWT.CAPS_LOCK:
+							break;
+						case SWT.INSERT:
+							break;
+						case SWT.NUM_LOCK:
+							break;
+						case SWT.PRINT_SCREEN:
+							break;
+						case SWT.SCROLL_LOCK:
+							break;
+						case SWT.PAUSE:
+							break;
+						default:
+							if (plot.isCurrentlyInputtingText()) {
+								if (Character.isWhitespace(event.character) && event.keyCode != SWT.SPACE) {
+									if (event.keyCode == SWT.CR || event.keyCode == SWT.LF) {
+										addStringToTextInput("\n", plot.getTextInputCursorIndex());
+									} 
+								} else {
+									addStringToTextInput(String.valueOf(event.character), plot.getTextInputCursorIndex());
+								}
+							}
+							break;
+						}
+						plot.repaint();
 					}
 				}
+
 			};
 			addKeyListener(keyListener);
 
@@ -270,6 +527,43 @@ public class PlotComposite extends Composite{
 				}
 			};
 			plot.addChartMouseListener(chartMouseListener);
+		}
+	}
+
+	private void jumpToPosition(int line, int cursorX) {
+		String text = plot.getTextInputContent();
+		int charCount = 0;
+		if (text != null) {
+			String[] lines = text.split("\n", 100);
+			for (int i = 0; i < lines.length; i++) {
+				if (i == line) {
+					if (lines[i].length() < cursorX) {
+						cursorX = lines[i].length();
+					}
+					plot.setTextInputCursorIndex(charCount + cursorX);
+					break;
+				} 
+				charCount += lines[i].length() + 1;
+			}
+		}
+	}
+
+	private void addStringToTextInput(String character, int textInputIndex) {
+		if (plot.isCurrentlyInputtingText()) {
+			String inputText;
+			String textInputContent = plot.getTextInputContent();
+			int cursorIndex = plot.getTextInputCursorIndex();
+			if (textInputContent == null) {
+				inputText = character;
+			} else if (cursorIndex == 0) {
+				inputText = character + textInputContent;
+			} else if (cursorIndex < textInputContent.length()){
+				inputText = textInputContent.substring(0, cursorIndex) + character + textInputContent.substring(cursorIndex);
+			} else {
+				inputText = textInputContent + character;
+			}
+			plot.setTextInputContent(inputText);
+			plot.setTextInputCursorIndex(cursorIndex + 1);
 		}
 	}
 

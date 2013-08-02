@@ -507,7 +507,7 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 				selectInternalLegend(false);
 			}
 		}
-        if ((event.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
+        if (!isTextInputEnabled() && (event.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
         	selectMask(ChartMaskingUtilities.translateScreenX(x, 
         			getScreenDataArea(), getChart()), Double.NaN);
         	repaint();
@@ -519,7 +519,7 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
         		selectMask(Double.NaN, Double.NaN);
         	}
         	repaint();
-        } else {
+        } else if (!isTextInputEnabled()){
         	selectMask(ChartMaskingUtilities.translateScreenX(x, 
         			getScreenDataArea(), getChart()), Double.NaN);
         	repaint();
@@ -547,10 +547,12 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
                 	if ((event.getModifiers() & seriesSelectionEventMask) != 0 && 
                 			(event.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
                 		selectSeries(xyEntity.getSeriesIndex());
+                		return;
                 	} else if ((event.getModifiers() & maskingSelectionMask) == 0 
                 			&& (event.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
                 		if (selectedSeriesIndex != xyEntity.getSeriesIndex()) {
                 			selectSeries(-1);
+                			return;
                 		}
                 	}
                 } else {
@@ -559,6 +561,7 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
                 				&& (event.getModifiers() & maskingSelectionMask) == 0 
                     			&& (event.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
                     		selectSeries(-1);
+                    		return;
                     	}
                  	}
                 }

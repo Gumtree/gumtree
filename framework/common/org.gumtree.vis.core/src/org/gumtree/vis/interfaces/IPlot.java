@@ -221,4 +221,15 @@ public interface IPlot {
 
 	public void setTextInputEnabled(boolean isTextInputEnabled);
 
+    public String getTextInputContent();
+
+	public void setTextInputContent(String textInputContent);
+
+	public void cancelTextInput();
+	
+	public int getTextInputCursorIndex();
+
+	public void setTextInputCursorIndex(int textInputCursorIndex);
+
+	public boolean isCurrentlyInputtingText();
 }

@@ -23,6 +23,7 @@ public enum InternalImage {
 	LOG("/icons/logarithm.gif"),
 	ROTATE("/icons/rotate_page_blue_16x16.png"),
 	HELP("/icons/question_16x16.png"),
+	TEXT_INPUT("/icons/text_input_16.png"),
 	THREE_D("/icons/3d_16x16.png");
 
 	private InternalImage(String path) {

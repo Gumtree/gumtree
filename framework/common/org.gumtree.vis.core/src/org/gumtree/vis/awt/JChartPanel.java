@@ -14,6 +14,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -23,6 +24,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -48,7 +50,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTextArea;
 
 import org.gumtree.vis.core.internal.StaticValues;
 import org.gumtree.vis.interfaces.IDataset;
@@ -116,7 +117,9 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
     private boolean textInputFlag = false;
     private Point2D textInputPoint;
     private String textInputContent;
-    private double chartX;
+    private int textInputCursorIndex;
+
+	private double chartX;
     private double chartY;
     private int maskDragIndicator = Cursor.DEFAULT_CURSOR;
 
@@ -141,6 +144,7 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
     private LinkedHashMap<Line2D, Color> rangeMarkerMap;
     private LinkedHashMap<Line2D, Color> markerMap;
 	private LinkedHashMap<Shape, Color> shapeMap;
+	private LinkedHashMap<Rectangle2D, String> textContentMap;
 	private Point2D mouseRightClickLocation;
 	private Line2D selectedMarker;
 	
@@ -268,6 +272,7 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		domainMarkerMap = new LinkedHashMap<Line2D, Color>();
 		rangeMarkerMap = new LinkedHashMap<Line2D, Color>();
 		markerMap = new LinkedHashMap<Line2D, Color>();
+		textContentMap = new LinkedHashMap<Rectangle2D, String>();
 		addMouseWheelListener(new ExposedMouseWheelHandler(this));
 	}
 
@@ -509,9 +514,9 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		if (isToolTipFollowerEnabled) {
 			drawToolTipFollower(g2, horizontalTraceLocation, verticalTraceLocation);
 		}
-		if (isTextInputEnabled && textInputFlag && textInputPoint != null){
-			drawTextInputBox(g2);
-		}
+//		if (isTextInputEnabled && textInputFlag && textInputPoint != null){
+		drawTextInputBox(g2);
+//		}
 //		long diff = System.currentTimeMillis() - time;
 //		if (diff > 100) {
 //			System.out.println("refreshing cost: " + diff);
@@ -520,15 +525,89 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 
 	private void drawTextInputBox(Graphics2D g2) {
 		if (textInputFlag && textInputPoint != null) {
-			JTextArea helpArea = new JTextArea();
 //			g2.drawChars("Input Text Here".toCharArray(), 1, 60, (int) textInputPoint.getX(), (int) textInputPoint.getY());
 			Color oldColor = g2.getColor();
 			g2.setColor(Color.BLACK);
-			g2.drawString("Hello World", (int) textInputPoint.getX(), (int) textInputPoint.getY());
+			String inputText = textInputContent == null ? "" : textInputContent;
+			FontMetrics fm = g2.getFontMetrics();
+//			int sWidth;
+//			if (textInputCursorIndex == 0 || inputText.length() == 0) {
+//				sWidth = 0;
+//			} else if (textInputCursorIndex < inputText.length()){
+//				sWidth = fm.stringWidth(inputText.substring(0, textInputCursorIndex));
+//			} else {
+//				sWidth = fm.stringWidth(inputText);
+//			}
+			
+			String[] lines = inputText.split("\n", 100);
+			int cursorY = 0;
+			int cursorX = 0;
+			int charCount = 0;
+			int maxWidth = 0;
+			int maxHeight = 0;
+			for (int i = 0; i < lines.length; i++) {
+				g2.drawString(lines[i], (int) textInputPoint.getX() + 3, (int) textInputPoint.getY() - 3 + i * 15);
+//				charCount += lines[i].length() + 1;
+				if (textInputCursorIndex > charCount && textInputCursorIndex < charCount + lines[i].length() + 1) {
+					cursorY = i;
+					cursorX = fm.stringWidth(lines[i].substring(0, textInputCursorIndex - charCount));
+				} else if (textInputCursorIndex == charCount + lines[i].length() + 1) {
+					cursorY = i + 1;
+					cursorX = 0;
+				}
+				charCount += lines[i].length() + 1;
+				int lineWidth = fm.stringWidth(lines[i]);
+				if (lineWidth > maxWidth) {
+					maxWidth = lineWidth;
+				}
+			}
+			maxHeight = 15 * lines.length;
+//			g2.drawString(inputText, (int) textInputPoint.getX() + 3, (int) textInputPoint.getY() - 3);
+			g2.setColor(Color.MAGENTA);
+//			g2.drawString("|", (float) textInputPoint.getX() + 2 + sWidth, (float) textInputPoint.getY() - 3);
+			g2.drawLine((int) textInputPoint.getX() + 3 + cursorX, (int) textInputPoint.getY() + (cursorY - 1) * 15, 
+					(int) textInputPoint.getX() + 3 + cursorX, (int) textInputPoint.getY() + cursorY * 15);
+			g2.setColor(Color.BLACK);
+			g2.setColor(oldColor);
+			
+//			int boxWidth = fm.stringWidth(inputText) + 10;
+			if (maxWidth < 100) {
+				maxWidth = 100;
+			}
+			Rectangle2D inputBox = new Rectangle2D.Double(textInputPoint.getX(), textInputPoint.getY() - 15, maxWidth + 8, maxHeight);
+//			ChartMaskingUtilities.drawMaskBoarder(g2, inputBox);
+	        Color fillColor = new Color(250, 250, 50, 30);
+	        g2.setPaint(fillColor);
+	        g2.fill(inputBox);
+			g2.setColor(Color.ORANGE);
+			g2.drawRect((int) textInputPoint.getX(), (int) textInputPoint.getY() - 15, maxWidth + 8, maxHeight);
+		}
+		if (textContentMap.size() > 0){
+			Color oldColor = g2.getColor();
+			g2.setColor(Color.BLACK);
+			Rectangle2D imageArea = getScreenDataArea();
+			for (Entry<Rectangle2D, String> entry : textContentMap.entrySet()) {
+				Rectangle2D rect = entry.getKey();
+				Point2D screenPoint = ChartMaskingUtilities.translateChartPoint(new Point2D.Double(rect.getX(), rect.getY()), imageArea, getChart());
+				String text = entry.getValue();
+				if (text == null) {
+					continue;
+				}
+				String[] lines = text.split("\n");
+				for (int i = 0; i < lines.length; i++) {
+					g2.drawString(lines[i], (int) screenPoint.getX() + 3, (int) screenPoint.getY() - 3 + i * 15);
+				}
+//				g2.drawString(text == null ? "" : text, (int) screenPoint.getX() + 3, (int) screenPoint.getY() - 3);
+			}
 			g2.setColor(oldColor);
 		}
 	}
 
+	@Override
+	protected void processKeyEvent(KeyEvent e) {
+		super.processKeyEvent(e);
+	}
+	
 	/**
      * Draws a vertical line used to trace the mouse position to the horizontal
      * axis.
@@ -1091,13 +1170,78 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 			addMarker(xNew, yNew, null);
 		} else if (isTextInputEnabled) {
 			if (!textInputFlag) {
-				double xNew = ChartMaskingUtilities.translateScreenX(e.getX(), getScreenDataArea(), getChart());
-				double yNew = ChartMaskingUtilities.translateScreenY(e.getY(), getScreenDataArea(), getChart(), 0);
 				textInputFlag = true;
 //				textInputPoint = new Point2D.Double(xNew, yNew);
 				textInputPoint = e.getPoint();
 			} else {
-				textInputFlag = false;
+				Point2D point = e.getPoint();
+				boolean finishInput = false;
+				if (point.getX() < textInputPoint.getX() || point.getY() < textInputPoint.getY() - 15) {
+					finishInput = true;
+				} else {
+					String inputText = textInputContent;
+					if (inputText == null) {
+						inputText = "";
+					}
+					String[] lines = inputText.split("\n", 100);
+					int cursorX = 0;
+					int charCount = 0;
+					int maxWidth = 0;
+					int pickX = -1;
+					FontMetrics fm = getGraphics().getFontMetrics();
+					for (int i = 0; i < lines.length; i++) {
+						int lineWidth = fm.stringWidth(lines[i]);
+						if (lineWidth > maxWidth) {
+							maxWidth = lineWidth;
+						}
+					}
+					if (maxWidth < 100) {
+						maxWidth = 100;
+					}
+					if (point.getX() > textInputPoint.getX() + 11 + maxWidth || point.getY() > textInputPoint.getY() + lines.length * 15 - 15){
+						finishInput = true;
+					} else {
+						for (int i = 0; i < lines.length; i++) {
+							if (point.getY() > textInputPoint.getY() + i * 15 - 15 && point.getY() <= textInputPoint.getY() + i * 15){
+								cursorX = fm.stringWidth(lines[i]);
+								if (point.getX() >= textInputPoint.getX() && point.getX() <= textInputPoint.getX() + 3 + cursorX) {
+									if (point.getX() >= textInputPoint.getX() && point.getX() < textInputPoint.getX() + 3) { 
+										pickX = 0;
+									}									
+									double lastEnd = textInputPoint.getX() + 3;
+									for (int j = 0; j < lines[i].length(); j++) {
+										int size = fm.stringWidth(lines[i].substring(0, j + 1));
+										double newEnd = textInputPoint.getX() + 3 + size;
+										if (point.getX() >= lastEnd && point.getX() < lastEnd + (newEnd - lastEnd) / 2) {
+											pickX = j;
+										} else if (point.getX() >= lastEnd + (newEnd - lastEnd) / 2 && point.getX() < newEnd) {
+											pickX = j + 1;
+										}
+										lastEnd = newEnd;
+									}
+									if (pickX >= 0) {
+										textInputCursorIndex = charCount + pickX;
+									}
+								} else {
+									textInputCursorIndex = charCount + lines[i].length();
+								}
+								break;
+							}
+							charCount += lines[i].length() + 1;
+						}
+					}
+				}
+				
+				if (finishInput) {
+					if (textInputContent != null && textInputContent.length() > 0) {
+						double xNew = ChartMaskingUtilities.translateScreenX(textInputPoint.getX(), getScreenDataArea(), getChart());
+						double yNew = ChartMaskingUtilities.translateScreenY(textInputPoint.getY(), getScreenDataArea(), getChart(), 0);
+						textContentMap.put(new Rectangle2D.Double(xNew, yNew, 100, 15), textInputContent);
+					}
+					textInputContent = null;
+					textInputCursorIndex = 0;
+					textInputFlag = false;
+				}
 			}
 		}
 	}
@@ -1721,6 +1865,51 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 	 * @param isTextInputEnabled the isTextInputEnabled to set
 	 */
 	public void setTextInputEnabled(boolean isTextInputEnabled) {
+		
+		if (this.isTextInputEnabled && !isTextInputEnabled) {
+			if (textInputContent != null && textInputContent.length() > 0) {
+				double xNew = ChartMaskingUtilities.translateScreenX(textInputPoint.getX(), getScreenDataArea(), getChart());
+				double yNew = ChartMaskingUtilities.translateScreenY(textInputPoint.getY(), getScreenDataArea(), getChart(), 0);
+				textContentMap.put(new Rectangle2D.Double(xNew, yNew, 100, 15), textInputContent);
+			}
+			textInputContent = null;
+			textInputCursorIndex = 0;
+			textInputFlag = false;
+			repaint();
+		}
 		this.isTextInputEnabled = isTextInputEnabled;
+	}
+
+    public String getTextInputContent() {
+		return textInputContent;
+	}
+
+	public void setTextInputContent(String textInputContent) {
+		this.textInputContent = textInputContent;
+	}
+
+	@Override
+	public void cancelTextInput() {
+		textInputContent = null;
+		textInputFlag = false;
+		textInputCursorIndex = 0;
+	}
+
+	/**
+	 * @return the textInputCursorIndex
+	 */
+	public int getTextInputCursorIndex() {
+		return textInputCursorIndex;
+	}
+
+	/**
+	 * @param textInputCursorIndex the textInputCursorIndex to set
+	 */
+	public void setTextInputCursorIndex(int textInputCursorIndex) {
+		this.textInputCursorIndex = textInputCursorIndex;
+	}
+	
+	public boolean isCurrentlyInputtingText(){
+		return textInputFlag;
 	}
 }

@@ -1115,4 +1115,40 @@ public class Preview2DPanel extends JPanel implements IPreview2D, Printable {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public String getTextInputContent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setTextInputContent(String textInputContent) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void cancelTextInput() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int getTextInputCursorIndex() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setTextInputCursorIndex(int textInputCursorIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isCurrentlyInputtingText() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

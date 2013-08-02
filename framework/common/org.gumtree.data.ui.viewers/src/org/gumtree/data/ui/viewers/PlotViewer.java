@@ -61,6 +61,7 @@ public class PlotViewer extends Composite {
 	private ToolItem helpToolItem;
 	private ToolItem settingsToolItem;
 	private ToolItem logarithmToolItem;
+	private ToolItem textInputToolItem;
 	private ToolItem orientationToolItem;
 	private ToolItem switch3DToolItem;
 	private List<ToolItem> plotControlItems;
@@ -140,6 +141,17 @@ public class PlotViewer extends Composite {
 		helpToolItem = new ToolItem (controlToolBar, SWT.PUSH);
 		helpToolItem.setToolTipText("Show help");
 		helpToolItem.setImage(InternalImage.HELP.getImage());
+
+		textInputToolItem = new ToolItem (controlToolBar, SWT.CHECK);
+		textInputToolItem.setImage(InternalImage.TEXT_INPUT.getImage());
+		if (getPlot() != null) {
+			textInputToolItem.setSelection(getPlot().isTextInputEnabled());
+		}
+		if (textInputToolItem.getSelection()) {
+			textInputToolItem.setToolTipText("Click to disable text input");
+		} else {
+			textInputToolItem.setToolTipText("Click to enable text input");
+		}
 
 	    ToolItem sepItem = new ToolItem(controlToolBar, SWT.SEPARATOR);
 	    sepItem.setWidth(6);
@@ -281,7 +293,27 @@ public class PlotViewer extends Composite {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		
+
+		textInputToolItem.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (textInputToolItem.getSelection()) {
+					textInputToolItem.setToolTipText("Click to disable text input");
+				} else {
+					textInputToolItem.setToolTipText("Click to enable text input");
+				}
+				if (getPlot() == null) {
+					return;
+				}
+				getPlot().setTextInputEnabled(textInputToolItem.getSelection());
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
 		copyToolItem.addSelectionListener(new SelectionListener() {
 			
 			@Override
