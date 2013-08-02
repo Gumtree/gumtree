@@ -341,9 +341,18 @@ public class ConfigSelectionDialog extends MessageDialog {
 			Comparator<IResource> compareDate = new Comparator<IResource>() {
 				@Override
 				public int compare(IResource o1, IResource o2) {
-					return Long.compare(
-							((IFile)o1).getLocalTimeStamp(),
-							((IFile)o2).getLocalTimeStamp());
+					long ts1 = ((IFile)o1).getLocalTimeStamp();
+					long ts2 = ((IFile)o2).getLocalTimeStamp();
+					if (ts1 == ts2)
+						return 0;
+					else if (ts1 < ts2)
+						return -1;
+					else
+						return +1;
+					
+					//return Long.compare(
+					//		((IFile)o1).getLocalTimeStamp(),
+					//		((IFile)o2).getLocalTimeStamp());
 				}
 			};
 			
