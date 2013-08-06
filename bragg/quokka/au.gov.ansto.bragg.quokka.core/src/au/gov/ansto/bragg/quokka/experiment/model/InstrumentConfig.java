@@ -11,24 +11,13 @@
 
 package au.gov.ansto.bragg.quokka.experiment.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class InstrumentConfig extends AbstractModelObject {
-	
-	public static List<String> modeList;
-	
-	static {
-		modeList = new ArrayList<String>();
-		modeList.add("Counter");
-		modeList.add("Timer");
-	}
-	
+		
 	private String name;
 	private String group = "";
 	private String description = "";
 	
-	private String mode = "Timer";
+	private ScanMode mode = ScanMode.TIME;
 
 	private long defaultSetting = 240;
 	
@@ -43,12 +32,10 @@ public class InstrumentConfig extends AbstractModelObject {
 	
 	private int startingAttenuation = 330;
 	
-	private String transmissionMode = "Timer";
+	private ScanMode transmissionMode = ScanMode.TIME;
 	
 	private long transmissionPreset = 60;
-	
-	private List<String> availableModes;
-	
+		
 	private InstrumentConfigTemplate template;
 	
 	// [[GT-207] The following 3 attributes relate to the file association propagation
@@ -89,26 +76,13 @@ public class InstrumentConfig extends AbstractModelObject {
 		this.description = description;
 		firePropertyChange("description", oldValue, description);
 	}
-
-	public List<String> getAvailableModes() {
-		if (availableModes == null) {
-			availableModes = modeList;
-		}
-        return availableModes;
-    }
-
-    public void setAvailableModes(List<String> availableModes) {
-    	List<String> oldValue = this.availableModes;
-        this.availableModes = availableModes;
-        firePropertyChange("availableModes", oldValue, availableModes);
-    }
     
-	public String getMode() {
+	public ScanMode getMode() {
 		return mode;
 	}
 
-	public void setMode(String mode) {
-		String oldValue = this.mode;
+	public void setMode(ScanMode mode) {
+		ScanMode oldValue = this.mode;
 		this.mode = mode;
 		firePropertyChange("mode", oldValue, mode);
 	}
@@ -187,12 +161,12 @@ public class InstrumentConfig extends AbstractModelObject {
 		restoreScripts();
 	}
 	
-	public String getTransmissionMode() {
+	public ScanMode getTransmissionMode() {
 		return transmissionMode;
 	}
 
-	public void setTransmissionMode(String transmissionMode) {
-		String oldValue = this.transmissionMode;
+	public void setTransmissionMode(ScanMode transmissionMode) {
+		ScanMode oldValue = this.transmissionMode;
 		this.transmissionMode = transmissionMode;
 		firePropertyChange("transmissionMode", oldValue, transmissionMode);
 	}
@@ -255,8 +229,7 @@ public class InstrumentConfig extends AbstractModelObject {
 
 	@Override
 	public String toString() {
-		return "InstrumentConfig [availableModes=" + availableModes
-				+ ", defaultSetting=" + defaultSetting
+		return "InstrumentConfig [defaultSetting=" + defaultSetting
 				+ ", emptyBeamTransmissionDataFile="
 				+ emptyBeamTransmissionDataFile
 				+ ", emptyCellScatteringDataFile="

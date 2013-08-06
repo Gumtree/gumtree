@@ -40,6 +40,7 @@ import au.gov.ansto.bragg.quokka.experiment.model.Experiment;
 import au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfig;
 import au.gov.ansto.bragg.quokka.experiment.model.Sample;
 import au.gov.ansto.bragg.quokka.experiment.model.SampleEnvironment;
+import au.gov.ansto.bragg.quokka.experiment.model.ScanMode;
 
 import com.Ostermiller.util.CSVParser;
 import com.Ostermiller.util.CSVPrinter;
@@ -307,21 +308,27 @@ public final class ExperimentModelUtils {
 			AcquisitionSetting setting = settingEntry.getValue();
 			// Add transmission time
 			if (setting.isRunTransmission()) {
-				if (config.getTransmissionMode().equalsIgnoreCase("Timer")) {
-					// Timer mode
+				if (config.getTransmissionMode() == ScanMode.TIME) {
+					// time mode
 					counter += config.getTransmissionPreset();
-				} else {
-					// Monitor mode
+				} else if (config.getTransmissionMode() == ScanMode.COUNTS) {
+					// count mode
+					counter += 0; // unknown
+				} else if (config.getTransmissionMode() == ScanMode.BM1) {
+					// MONITOR_1 mode
 					counter += config.getTransmissionPreset() / getBeamMonitorRate();
 				}
 			}
 			// Add scattering time
 			if (setting.isRunScattering()) {
-				if (config.getMode().equalsIgnoreCase("Timer")) {
-					// Timer mode
+				if (config.getMode() == ScanMode.TIME) {
+					// time mode
 					counter += setting.getPreset();
-				} else {
-					// Monitor mode
+				} else if (config.getMode() == ScanMode.COUNTS) {
+					// count mode
+					counter += 0; // unknown
+				} else if (config.getMode() == ScanMode.BM1) {
+					// MONITOR_1 mode
 					counter += setting.getPreset() / getBeamMonitorRate();
 				}
 			}

@@ -23,6 +23,7 @@ import au.gov.ansto.bragg.quokka.experiment.model.AcquisitionEntry;
 import au.gov.ansto.bragg.quokka.experiment.model.AcquisitionSetting;
 import au.gov.ansto.bragg.quokka.experiment.model.Experiment;
 import au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfig;
+import au.gov.ansto.bragg.quokka.experiment.model.ScanMode;
 
 import com.ibm.icu.text.DecimalFormat;
 
@@ -270,10 +271,11 @@ public class ScanTableModel extends KTableDefaultModel {
 			} else {
 				// Add units to preset
 				if (col >= COLUMN_SECTION_SIZE && col % COLUMN_SECTION_SIZE == 4) {
-					String mode = experiment.getInstrumentConfigs().get(col / COLUMN_SECTION_SIZE - 1).getMode();
-					if (mode.equalsIgnoreCase("Timer")) {
+					ScanMode mode = experiment.getInstrumentConfigs().get(col / COLUMN_SECTION_SIZE - 1).getMode();
+					
+					if (mode == ScanMode.TIME) {
 						return ConfigColumn.getColumnLabel(col) + " (sec)";
-					} else if (mode.equalsIgnoreCase("Counter")) {
+					} else if (mode == ScanMode.COUNTS || mode == ScanMode.BM1) {
 						return ConfigColumn.getColumnLabel(col) + " (count)";
 					}
 				}

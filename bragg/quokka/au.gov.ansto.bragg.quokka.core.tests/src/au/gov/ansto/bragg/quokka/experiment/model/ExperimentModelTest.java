@@ -74,11 +74,11 @@ public class ExperimentModelTest extends TestCase {
 		
 		// Configs
 		InstrumentConfig config1 = new InstrumentConfig();
-		config1.setMode("Timer");
+		config1.setMode(ScanMode.TIME);
 		experiment.getInstrumentConfigs().add(config1);
 		
 		InstrumentConfig config2 = new InstrumentConfig();
-		config2.setMode("Timer");
+		config2.setMode(ScanMode.TIME);
 		experiment.getInstrumentConfigs().add(config2);
 		
 		ExperimentModelUtils.getXStream().toXML(experiment, System.out);

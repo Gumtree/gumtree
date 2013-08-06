@@ -11,9 +11,11 @@
 
 package au.gov.ansto.bragg.quokka.experiment.result;
 
+import au.gov.ansto.bragg.quokka.experiment.model.ScanMode;
+
 public abstract class Measurement {
 
-	private String mode;
+	private ScanMode mode;
 	
 	private long preset;
 	
@@ -25,11 +27,11 @@ public abstract class Measurement {
 		super();
 	}
 
-	public String getMode() {
+	public ScanMode getMode() {
 		return mode;
 	}
 
-	public void setMode(String mode) {
+	public void setMode(ScanMode mode) {
 		this.mode = mode;
 	}
 

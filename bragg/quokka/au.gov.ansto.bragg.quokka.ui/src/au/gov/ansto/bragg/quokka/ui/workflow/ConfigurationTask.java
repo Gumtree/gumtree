@@ -95,9 +95,12 @@ import org.gumtree.workflow.ui.tasks.ScriptEngineTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+//import ucar.atd.dorade.ScanMode;
+
 import au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfig;
 import au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfigTemplate;
 import au.gov.ansto.bragg.quokka.experiment.model.PropertyList;
+import au.gov.ansto.bragg.quokka.experiment.model.ScanMode;
 import au.gov.ansto.bragg.quokka.experiment.util.ExperimentModelUtils;
 import au.gov.ansto.bragg.quokka.ui.internal.Activator;
 import au.gov.ansto.bragg.quokka.ui.internal.InternalImage;
@@ -556,13 +559,18 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(transmissionGroup);
 			
 			// Mode
+			String[] availableModes = new String[3];
+			availableModes[0] = ScanMode.TIME.getLabel();
+			availableModes[1] = ScanMode.COUNTS.getLabel();
+			availableModes[2] = ScanMode.BM1.getLabel();
+			
 			label = getToolkit().createLabel(transmissionGroup, "Mode: ", SWT.RIGHT);
 			GridDataFactory.fillDefaults().align(SWT.END, SWT.BEGINNING).hint(80, SWT.DEFAULT).applyTo(label);
 			final ComboViewer transModeCombo = new ComboViewer(transmissionGroup, SWT.READ_ONLY);
 			GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).hint(150, SWT.DEFAULT).applyTo(transModeCombo.getCombo());
 			transModeCombo.setContentProvider(new ArrayContentProvider());
 			transModeCombo.setLabelProvider(new LabelProvider());
-			transModeCombo.setInput(InstrumentConfig.modeList.toArray(new String[InstrumentConfig.modeList.size()]));
+			transModeCombo.setInput(availableModes);
 			// SWT view bug ... need to manually layout this combo
 			transModeCombo.getCombo().pack();
 			transmissionGroup.layout();
@@ -577,7 +585,7 @@ public class ConfigurationTask extends AbstractExperimentTask {
 					Object selection = ((IStructuredSelection) event.getSelection()).getFirstElement();
 					if (selection instanceof InstrumentConfig) {
 						InstrumentConfig config = (InstrumentConfig) selection;
-						transModeCombo.setSelection(new StructuredSelection(config.getTransmissionMode()));
+						transModeCombo.setSelection(new StructuredSelection(config.getTransmissionMode().getLabel()));
 					} else {
 						transModeCombo.setSelection(new StructuredSelection(new Object[0]));
 					}
@@ -588,7 +596,12 @@ public class ConfigurationTask extends AbstractExperimentTask {
 				public void selectionChanged(SelectionChangedEvent event) {
 					if (selection.getValue() instanceof InstrumentConfig) {
 						InstrumentConfig config = (InstrumentConfig) selection.getValue();
-						config.setTransmissionMode(((IStructuredSelection) event.getSelection()).getFirstElement().toString());
+						
+						String selection = ((IStructuredSelection)event.getSelection()).getFirstElement().toString();
+						if ((selection != null) && !selection.isEmpty()) {
+							ScanMode mode = ScanMode.fromLabel(selection);
+							config.setTransmissionMode(mode);
+						}
 					}
 				}
 			});
@@ -628,7 +641,7 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).hint(150, SWT.DEFAULT).applyTo(scatteringModeCombo.getCombo());
 			scatteringModeCombo.setContentProvider(new ArrayContentProvider());
 			scatteringModeCombo.setLabelProvider(new LabelProvider());
-			scatteringModeCombo.setInput(InstrumentConfig.modeList.toArray(new String[InstrumentConfig.modeList.size()]));
+			scatteringModeCombo.setInput(availableModes);
 			// SWT view bug ... need to manually layout this combo
 			scatteringModeCombo.getCombo().pack();
 			scatteringGroup.layout();
@@ -639,7 +652,7 @@ public class ConfigurationTask extends AbstractExperimentTask {
 					Object selection = ((IStructuredSelection) event.getSelection()).getFirstElement();
 					if (selection instanceof InstrumentConfig) {
 						InstrumentConfig config = (InstrumentConfig) selection;
-						scatteringModeCombo.setSelection(new StructuredSelection(config.getMode()));
+						scatteringModeCombo.setSelection(new StructuredSelection(config.getMode().getLabel()));
 					} else {
 						scatteringModeCombo.setSelection(new StructuredSelection(new Object[0]));
 					}
@@ -649,8 +662,13 @@ public class ConfigurationTask extends AbstractExperimentTask {
 				@Override
 				public void selectionChanged(SelectionChangedEvent event) {
 					if (selection.getValue() instanceof InstrumentConfig) {
-						InstrumentConfig config = (InstrumentConfig) selection.getValue();
-						config.setMode(((IStructuredSelection) event.getSelection()).getFirstElement().toString());
+						InstrumentConfig config = (InstrumentConfig)selection.getValue();
+
+						String selection = ((IStructuredSelection)event.getSelection()).getFirstElement().toString();
+						if ((selection != null) && !selection.isEmpty()) {
+							ScanMode mode = ScanMode.fromLabel(selection);
+							config.setMode(mode);
+						}
 					}
 				}
 			});

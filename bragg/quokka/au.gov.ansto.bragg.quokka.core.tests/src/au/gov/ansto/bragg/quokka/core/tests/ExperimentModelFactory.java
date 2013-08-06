@@ -19,6 +19,7 @@ import au.gov.ansto.bragg.quokka.experiment.model.Experiment;
 import au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfig;
 import au.gov.ansto.bragg.quokka.experiment.model.Sample;
 import au.gov.ansto.bragg.quokka.experiment.model.SampleEnvironment;
+import au.gov.ansto.bragg.quokka.experiment.model.ScanMode;
 import au.gov.ansto.bragg.quokka.experiment.model.User;
 import au.gov.ansto.bragg.quokka.experiment.util.SampleType;
 
@@ -76,12 +77,12 @@ public class ExperimentModelFactory {
 		// Configs
 		InstrumentConfig config1 = new InstrumentConfig();
 		config1.setName("High Q");
-		config1.setMode("Timer");
+		config1.setMode(ScanMode.TIME);
 		experiment.getInstrumentConfigs().add(config1);
 
 		InstrumentConfig config2 = new InstrumentConfig();
 		config2.setName("Low Q");
-		config2.setMode("Monitor");
+		config2.setMode(ScanMode.BM1);
 		experiment.getInstrumentConfigs().add(config2);
 		
 		// Mock result files
@@ -166,12 +167,12 @@ public class ExperimentModelFactory {
 		// Configs
 		InstrumentConfig config1 = new InstrumentConfig();
 		config1.setName("High Q");
-		config1.setMode("Timer");
+		config1.setMode(ScanMode.TIME);
 		experiment.getInstrumentConfigs().add(config1);
 
 		InstrumentConfig config2 = new InstrumentConfig();
 		config2.setName("Low Q");
-		config2.setMode("Monitor");
+		config2.setMode(ScanMode.BM1);
 		experiment.getInstrumentConfigs().add(config2);
 		
 		// Sample environments

@@ -14,17 +14,19 @@ package au.gov.ansto.bragg.quokka.experiment.report;
 import java.util.ArrayList;
 import java.util.List;
 
+import au.gov.ansto.bragg.quokka.experiment.model.ScanMode;
+
 public class Measurement {
 
-	private String mode;
+	private ScanMode mode;
 	
 	private List<SampleResult> samples;
 
-	public String getMode() {
+	public ScanMode getMode() {
 		return mode;
 	}
 
-	public void setMode(String mode) {
+	public void setMode(ScanMode mode) {
 		this.mode = mode;
 	}
 

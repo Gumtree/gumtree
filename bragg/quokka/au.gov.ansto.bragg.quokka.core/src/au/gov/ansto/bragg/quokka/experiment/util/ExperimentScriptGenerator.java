@@ -13,6 +13,7 @@ import au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfig;
 import au.gov.ansto.bragg.quokka.experiment.model.Sample;
 import au.gov.ansto.bragg.quokka.experiment.model.SampleEnvironment;
 import au.gov.ansto.bragg.quokka.experiment.model.SampleEnvironmentPreset;
+import au.gov.ansto.bragg.quokka.experiment.model.ScanMode;
 import au.gov.ansto.bragg.quokka.experiment.model.User;
 
 public final class ExperimentScriptGenerator {
@@ -171,16 +172,22 @@ public final class ExperimentScriptGenerator {
 				}
 				builder.appendLine("'startingAttenuation':" + config.getStartingAttenuation() + ",", 2);
 				builder.appendLine("'transmissionRoutine':driveToConfig" + i + "Transmission,", 2);
-				if (config.getTransmissionMode() == "Timer") {
+				
+				if (config.getTransmissionMode()        == ScanMode.TIME) {
 					builder.appendLine("'transmissionMode':scanMode.time,", 2);	
-				} else {
+				} else if (config.getTransmissionMode() == ScanMode.COUNTS) {
+					builder.appendLine("'transmissionMode':scanMode.count,", 2);	
+				} else if (config.getTransmissionMode() == ScanMode.BM1) {
 					builder.appendLine("'transmissionMode':scanMode.monitor,", 2);
 				}
 				builder.appendLine("'transmissionPreset':" + config.getTransmissionPreset() + ",", 2);
 				builder.appendLine("'scatteringRoutine':driveToConfig" + i + "Scattering,", 2);
-				if (config.getMode() == "Timer") {
+				
+				if (config.getMode()                  == ScanMode.TIME) {
 					builder.appendLine("'scatteringMode':scanMode.time,", 2);	
-				} else {
+				} else if (config.getMode()           == ScanMode.COUNTS) {
+					builder.appendLine("'scatteringMode':scanMode.count,", 2);	
+				} else if (config.getMode()           == ScanMode.BM1) {
 					builder.appendLine("'scatteringMode':scanMode.monitor,", 2);
 				}
 			}
