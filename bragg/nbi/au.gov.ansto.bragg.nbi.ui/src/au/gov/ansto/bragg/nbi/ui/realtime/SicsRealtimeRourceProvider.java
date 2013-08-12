@@ -58,6 +58,9 @@ public class SicsRealtimeRourceProvider implements IRealtimeResourceProvider {
 //					resourceList.add(resource);
 //				}
 //			}
+			if (name == null || "null".equals(name)) {
+				continue;
+			}
 			IComponentController controller = SicsRealtimeResource.findDevice(name);
 			if (controller != null) {
 				SicsRealtimeResource resource = new SicsRealtimeResource(
