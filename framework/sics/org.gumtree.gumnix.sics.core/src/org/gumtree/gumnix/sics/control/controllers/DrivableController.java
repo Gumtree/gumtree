@@ -70,7 +70,7 @@ public class DrivableController extends DynamicController implements IDrivableCo
 					public boolean getExitCondition() {
 						return getStatus() != ControllerStatus.RUNNING;
 					}
-				}, 2000, 10);
+				}, 4000, 10);
 				if (status.equals(LoopRunnerStatus.TIMEOUT)) {
 					throw new SicsExecutionException("Device is already running.");
 				}
