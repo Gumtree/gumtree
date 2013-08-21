@@ -876,7 +876,7 @@ public class ScriptConsole extends ExtendedComposite implements IScriptConsole {
 				}
 
 				// Setup content assistant
-				if (context.inputTextViewer != null) {
+				if (context != null && context.inputTextViewer != null) {
 					final ICommandLineContentAssistProcessor processor = (ICommandLineContentAssistProcessor) Platform
 							.getAdapterManager().loadAdapter(
 									engine,
