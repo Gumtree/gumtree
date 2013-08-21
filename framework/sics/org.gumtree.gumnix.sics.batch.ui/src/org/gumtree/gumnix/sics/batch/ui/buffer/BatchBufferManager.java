@@ -1,7 +1,12 @@
 package org.gumtree.gumnix.sics.batch.ui.buffer;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,6 +36,7 @@ import org.gumtree.util.bean.AbstractModelObject;
 @SuppressWarnings("restriction")
 public class BatchBufferManager extends AbstractModelObject implements IBatchBufferManager {
 
+	private static final String TCL_SCRIPT_COPY_FOLDER_PROPERTY = "gumtree.sics.tclScriptCopyFolder";
 	// Schedule to check queue every 500ms
 	private static final int SCHEDULING_INTERVAL = 500;
 	
@@ -238,6 +244,27 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			});
 			// Execute (in the raw batch channel)
 			asyncSend("exe run", null, ISicsProxy.CHANNEL_RAW_BATCH);
+			
+			String folderProperty = System.getProperty(TCL_SCRIPT_COPY_FOLDER_PROPERTY);
+			if (folderProperty != null) {
+				try {
+					File folder = new File(folderProperty);
+					if (!folder.exists()){
+						folder.mkdirs();
+					}
+					String timeStamp = new SimpleDateFormat("yyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+					String newFilename = folderProperty + "/" + timeStamp + "_" + buffer.getName();
+					File newFile = new File(newFilename);
+					if (!newFile.exists()){
+						newFile.createNewFile();
+					}
+					BufferedWriter writer = new BufferedWriter(new FileWriter(newFile));
+					writer.write(buffer.getContent());
+					writer.flush();
+					writer.close();
+				} catch (Exception e) {
+				}
+			}
 		}
 	}
 	
