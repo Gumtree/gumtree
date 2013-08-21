@@ -254,6 +254,9 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 					}
 					String timeStamp = new SimpleDateFormat("yyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 					String newFilename = folderProperty + "/" + timeStamp + "_" + buffer.getName();
+					if (!newFilename.toLowerCase().endsWith(".tcl")){
+						newFilename += ".tcl";
+					}
 					File newFile = new File(newFilename);
 					if (!newFile.exists()){
 						newFile.createNewFile();
