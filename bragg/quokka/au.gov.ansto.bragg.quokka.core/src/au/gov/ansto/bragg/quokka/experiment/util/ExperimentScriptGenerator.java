@@ -92,12 +92,21 @@ public final class ExperimentScriptGenerator {
 			
 			builder.appendLine("print", indentLevel);
 			builder.appendLine("log('Clean up')", indentLevel);
-			builder.appendLine("sleep(1)", indentLevel);
-			builder.appendLine("driveAtt(330)", indentLevel);
-			builder.appendLine("if workflow.isDriveSampleStage():", indentLevel);
-			builder.appendLine("driveToLoadPosition()", indentLevel + 1);
+			builder.appendLine("try:", indentLevel);
+			builder.appendLine("sleep(1)", indentLevel + 1);
+			builder.appendLine("driveAtt(330)", indentLevel + 1);
+			builder.appendLine("if workflow.isDriveSampleStage():", indentLevel + 1);
+			builder.appendLine("driveToLoadPosition()", indentLevel + 2);
+			builder.appendLine("except SicsExecutionException :", indentLevel);
+			builder.appendLine("traceback.print_exc(file=__context__.errorWriter)", indentLevel + 1);
+			builder.appendLine("logger.__global_writer__ = None", indentLevel + 1);
+			builder.appendLine("raise SicsExecutionException, 'SICS Interrupted'", indentLevel + 1);
+			builder.appendLine("except:", indentLevel);
+			builder.appendLine("traceback.print_exc(file=__context__.errorWriter)", indentLevel + 1);
+			builder.appendLine("logger.__global_writer__ = None", indentLevel + 1);
 			builder.appendLine("print", indentLevel);
 			builder.appendLine("log('Experiment has been completed')", indentLevel);
+		            
 		}
 		builder.appendEmptyLine();
 	}
@@ -388,7 +397,7 @@ public final class ExperimentScriptGenerator {
 				builder.appendLine("log('Saving intermediate result')", indentLevel + 1);
 				builder.appendLine("sics.execute('newfile HISTOGRAM_XY')", indentLevel + 1);
 				builder.appendLine("sics.execute('save')", indentLevel + 1);
-				builder.appendLine("traceback.print_exc(file=__context__.writer)", indentLevel + 1);
+				builder.appendLine("traceback.print_exc(file=__context__.errorWriter)", indentLevel + 1);
 				builder.appendLine("log(str(sys.exc_info()))", indentLevel + 1);
 			}
 			builder.appendEmptyLine(indentLevel);
