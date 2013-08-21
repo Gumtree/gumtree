@@ -47,10 +47,12 @@ public final class ExperimentScriptGenerator {
 	
 	private static void generateHeader(ScriptStringBuilder builder) {
 		builder.appendLine("from gumpy.commons import sics");
+		builder.appendLine("from gumpy.commons import logger");
 		builder.appendLine("from bragg.quokka import workflow");
 		builder.appendLine("from bragg.quokka.quokka import *");
 		builder.appendLine("from time import sleep");
 		builder.appendLine("import logging, sys, traceback");
+		builder.appendLine("log = logger.log");
 		builder.appendEmptyLine();
 	}
 	
@@ -68,7 +70,7 @@ public final class ExperimentScriptGenerator {
 			User user = experiment.getUser();
 			builder.appendComment("User details", indentLevel);
 			builder.appendLine("print", indentLevel);
-			builder.appendLine("print 'Setting user details'", indentLevel);
+			builder.appendLine("log('Setting user details')", indentLevel);
 			builder.appendLine("sics.set('user', '" + user.getName() + "')", indentLevel);
 			builder.appendLine("sics.set('email', '" + user.getEmail() + "')", indentLevel);
 			builder.appendLine("sics.set('phone', '" + user.getPhone() + "')", indentLevel);
@@ -76,7 +78,7 @@ public final class ExperimentScriptGenerator {
 			// Experiment
 			builder.appendComment("Experiment details", indentLevel);
 			builder.appendLine("print", indentLevel);
-			builder.appendLine("print 'Setting experiment details'", indentLevel);
+			builder.appendLine("log('Setting experiment details')", indentLevel);
 			builder.appendLine("sics.set('title', '" + experiment.getTitle() + "')", indentLevel);
 		}
 		builder.appendEmptyLine();
@@ -89,13 +91,13 @@ public final class ExperimentScriptGenerator {
 			int indentLevel = 1;
 			
 			builder.appendLine("print", indentLevel);
-			builder.appendLine("print 'Clean up'", indentLevel);
+			builder.appendLine("log('Clean up')", indentLevel);
 			builder.appendLine("sleep(1)", indentLevel);
 			builder.appendLine("driveAtt(330)", indentLevel);
 			builder.appendLine("if workflow.isDriveSampleStage():", indentLevel);
 			builder.appendLine("driveToLoadPosition()", indentLevel + 1);
 			builder.appendLine("print", indentLevel);
-			builder.appendLine("print 'Experiment has been completed'", indentLevel);
+			builder.appendLine("log('Experiment has been completed')", indentLevel);
 		}
 		builder.appendEmptyLine();
 	}
@@ -356,6 +358,7 @@ public final class ExperimentScriptGenerator {
 			
 			// Set up
 			builder.appendEmptyLine(indentLevel);
+			builder.appendLine("logger.__global_writer__ = __context__.writer", indentLevel);
 			builder.appendComment("Set up", indentLevel);
 			builder.appendLine("setup()", indentLevel);
 			builder.appendEmptyLine(indentLevel);
@@ -379,19 +382,21 @@ public final class ExperimentScriptGenerator {
 			builder.appendLine("except:", indentLevel);
 			{
 				builder.appendLine("logging.error('Exception occured. It will now go to clean up mode.')", indentLevel + 1);
+				builder.appendLine("log('Exception occured. It will now go to clean up mode.')", indentLevel + 1);
 				// [GUMTREE-615] save intermediate result
 				builder.appendComment("Save result", indentLevel + 1);
 				builder.appendLine("log('Saving intermediate result')", indentLevel + 1);
 				builder.appendLine("sics.execute('newfile HISTOGRAM_XY')", indentLevel + 1);
 				builder.appendLine("sics.execute('save')", indentLevel + 1);
-				builder.appendLine("traceback.print_exc()", indentLevel + 1);
-				builder.appendLine("print sys.exc_info()", indentLevel + 1);
+				builder.appendLine("traceback.print_exc(file=__context__.writer)", indentLevel + 1);
+				builder.appendLine("log(str(sys.exc_info()))", indentLevel + 1);
 			}
 			builder.appendEmptyLine(indentLevel);
 			
 			// Clean up
 			builder.appendComment("Clean up", indentLevel);
 			builder.appendLine("cleanUp()", indentLevel);
+			builder.appendLine("logger.__global_writer__ = None", indentLevel);
 		}
 		builder.appendEmptyLine();
 	}
