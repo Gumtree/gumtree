@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg NBI Core Library
 Bundle-SymbolicName: au.gov.ansto.bragg.nbi.core
-Bundle-Version: 1.8.0.qualifier
+Bundle-Version: 1.9.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.nbi.core.internal.Activator
 Require-Bundle: org.gumtree.gumnix.sics.core;bundle-version="1.7.0";visibility:=reexport,
  twitter4j;bundle-version="2.1.0";resolution:=optional

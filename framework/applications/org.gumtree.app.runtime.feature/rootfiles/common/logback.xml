@@ -1,4 +1,4 @@
-<configuration>
+<configuration debug="false">
 	<jmxConfigurator />
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -38,7 +38,23 @@
 		<IncludeCallerData>true</IncludeCallerData>
 		<RemoteHosts>localhost</RemoteHosts>
 	</appender>
-	<root level="DEBUG">
+	<logger name="org.apache" level="ERROR" />
+	<logger name="httpclient.wire.content" level="ERROR" />
+	<logger name="org.apache.http.wire" level="ERROR" />
+	<logger name="httpclient.wire" level="ERROR" />
+	<logger name="org.springframework" level="ERROR" />
+	<logger name="org.apache.commons.httpclient">
+	    <level value="fatal"/>
+	</logger>
+	
+	<logger name="httpclient.wire.header">
+	    <level value="fatal"/>
+	</logger>
+	
+	<logger name="httpclient.wire.content">
+	    <level value="fatal"/>
+	</logger>
+	<root level="ERROR">
 		<appender-ref ref="FILE" />
 		<appender-ref ref="LILITH" />
 		<!-- <appender-ref ref="MULTIPLEX"/> -->

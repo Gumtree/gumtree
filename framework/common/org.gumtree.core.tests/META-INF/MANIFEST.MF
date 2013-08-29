@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree Framework Core Tests
 Bundle-SymbolicName: org.gumtree.core.tests
-Bundle-Version: 1.8.0.qualifier
+Bundle-Version: 1.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: javax.inject;bundle-version="1.0.0",
  org.junit;bundle-version="4.8.2",

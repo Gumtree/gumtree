@@ -2,7 +2,7 @@
 <feature
       id="org.gumtree.e4tools.feature"
       label="Gumtree Extensions E4 Tools"
-      version="1.8.0.qualifier"
+      version="1.9.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">

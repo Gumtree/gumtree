@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: au.gov.ansto.bragg.quokka.algolib
-Bundle-Version: 1.8.0.qualifier
+Bundle-Version: 1.9.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.quokka.dra.algolib.internal.Activator
 Bundle-ActivationPolicy: lazy
 Export-Package: au.gov.ansto.bragg.quokka.dra.algolib.core

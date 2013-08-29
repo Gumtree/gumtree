@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Process Manager
 Bundle-SymbolicName: au.gov.ansto.bragg.process
-Bundle-Version: 1.8.0.qualifier
+Bundle-Version: 1.9.0.qualifier
 Require-Bundle: au.gov.ansto.bragg.base.common;visibility:=reexport
 Export-Package: au.gov.ansto.bragg.process.agent,
  au.gov.ansto.bragg.process.common,

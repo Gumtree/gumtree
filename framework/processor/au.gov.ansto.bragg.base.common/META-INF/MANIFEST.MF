@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Base Common
 Bundle-SymbolicName: au.gov.ansto.bragg.base.common
-Bundle-Version: 1.8.0.qualifier
+Bundle-Version: 1.9.0.qualifier
 Bundle-ClassPath: au.gov.ansto.bragg.base.common.1.00.jar
 Bundle-Localization: plugin
 Export-Package: au.gov.ansto.bragg.base.common,

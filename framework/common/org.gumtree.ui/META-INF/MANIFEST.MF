@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree Framework UI
 Bundle-SymbolicName: org.gumtree.ui;singleton:=true
-Bundle-Version: 1.8.0.qualifier
+Bundle-Version: 1.9.0.qualifier
 Bundle-Activator: org.gumtree.ui.internal.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.gumtree.core;bundle-version="1.7.0";visibility:=reexport,
@@ -27,7 +27,8 @@ Require-Bundle: org.gumtree.core;bundle-version="1.7.0";visibility:=reexport,
  net.miginfocom.layout.swt;bundle-version="3.7.1";resolution:=optional,
  com.google.gson;bundle-version="2.1.0";resolution:=optional,
  org.eclipse.e4.core.di.extensions;bundle-version="0.11.0";resolution:=optional,
- org.apache.commons.io;bundle-version="2.4.0";resolution:=optional
+ org.apache.commons.io;bundle-version="2.4.0";resolution:=optional,
+ org.apache.commons.logging;bundle-version="1.0.4"
 Export-Package: org.gumtree.ui.cruise,
  org.gumtree.ui.cruise.support,
  org.gumtree.ui.dashboard.app,

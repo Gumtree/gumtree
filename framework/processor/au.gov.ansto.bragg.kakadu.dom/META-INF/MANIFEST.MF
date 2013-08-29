@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Kakadu Dom
 Bundle-SymbolicName: au.gov.ansto.bragg.kakadu.dom;singleton:=true
-Bundle-Version: 1.8.0.qualifier
+Bundle-Version: 1.9.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.kakadu.dom.Activator
 Bundle-Vendor: Bragg Institute
 Require-Bundle: au.gov.ansto.bragg.kakadu.ui;visibility:=reexport

@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Import-Bundle: com.vaadin
 Service-Component: OSGI-INF/VaadinOSGiTouchKitApplicationManager.xml
-Bundle-Version: 1.8.0.qualifier
+Bundle-Version: 1.9.0.qualifier
 Bundle-Name: Vaadin OSGi TouchKit Support
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.vaadin.osgi.touchkit
