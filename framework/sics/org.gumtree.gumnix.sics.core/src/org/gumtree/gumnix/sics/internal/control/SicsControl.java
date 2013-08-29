@@ -20,22 +20,32 @@ public class SicsControl implements ISicsControl {
 
 	private ISicsController controller;
 
+	private boolean isLocked = false;
+	
 	public SicsControl(ISicsManager manager) {
 		this.manager = manager;
 	}
 
 	public ISicsController getSicsController() {
-		if(controller == null) {
-			try {
-				SICS model = manager.service().getOnlineModel();
-				controller = new SicsController(model);
-			} catch (SicsIOException e) {
-				// No need to log exception trace stack here because it's very usual
-				// to get this exception during GumTree intialisation phase.
-				getLogger().warn("Cannot retrieve online model for creating SICS controller");
+		synchronized (this) {
+			if(controller == null && !isLocked) {
+				try {
+					isLocked = true;
+					System.err.println("try to create new controller");
+					SICS model = manager.service().getOnlineModel();
+					controller = new SicsController(model);
+					isLocked = false;
+				} catch (SicsIOException e) {
+					// No need to log exception trace stack here because it's very usual
+					// to get this exception during GumTree intialisation phase.
+					getLogger().warn("Cannot retrieve online model for creating SICS controller");
+					isLocked = false;
+				} finally {
+					isLocked = false;
+				}
 			}
+			return controller;
 		}
-		return controller;
 	}
 
 	public ISicsBatchControl batch() {

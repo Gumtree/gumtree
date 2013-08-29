@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.gumtree.gumnix.sics.control.ServerStatus;
 import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.vis.dataset.XYTimeSeriesSet;
 import org.gumtree.vis.interfaces.ITimePlot;
@@ -269,9 +270,10 @@ public class RealtimeDataViewer extends Composite {
 					while (!isDisposed) {
 						if (resourceProvider != null) {
 							if (SicsCore.getDefaultProxy() != null && SicsCore.getDefaultProxy().isConnected() 
-									&& SicsCore.getSicsController() != null){
-							resourceProvider.updateResource();
-							timePlot.updatePlot();
+									&& SicsCore.getSicsController() != null 
+									&& SicsCore.getSicsController().getServerStatus() != ServerStatus.UNKNOWN){
+								resourceProvider.updateResource();
+								timePlot.updatePlot();
 //							((ChartPanel) timePlot).chartChanged(null);
 							}
 						}

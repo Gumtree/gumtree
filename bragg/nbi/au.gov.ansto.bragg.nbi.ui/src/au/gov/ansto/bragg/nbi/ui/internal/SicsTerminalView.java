@@ -12,6 +12,7 @@ package au.gov.ansto.bragg.nbi.ui.internal;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.gumtree.gumnix.sics.control.ServerStatus;
 import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.io.ISicsProxy;
 import org.gumtree.ui.terminal.support.CommandLineTerminal;
@@ -48,7 +49,9 @@ public class SicsTerminalView extends CommandLineTerminal {
 				try {
 					while(!isDisposed()){
 						ISicsProxy proxy = SicsCore.getDefaultProxy();
-						boolean connectionStatus = proxy != null && proxy.isConnected() && SicsCore.getSicsController() != null;
+						boolean connectionStatus = proxy != null && proxy.isConnected() 
+								&& SicsCore.getSicsController() != null 
+								&& SicsCore.getSicsController().getServerStatus() != ServerStatus.UNKNOWN;
 						if (connectionStatus != isConnected) {
 							if (connectionStatus) {
 								Display.getDefault().asyncExec(new Runnable() {

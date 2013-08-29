@@ -70,7 +70,18 @@ def run(deviceId, value):
 def drive(deviceId, value):
     sicsController = getSicsController()
     controller = getDeviceController(deviceId)
-    controller.drive(float(value))
+    cnt = 0
+    while cnt < 20:
+        try:
+            controller.drive(float(value))
+            cnt = 100
+        except:
+            time.sleep(1)
+            while not getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+                time.sleep(0.1)
+            cnt += 1
+    if cnt != 100:
+        raise Exception, 'timeout to drive ' + str(deviceId) + ' to ' + str(value)
     handleInterrupt()
 
 # Synchronously drive a number of devices to a given value
