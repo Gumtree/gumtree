@@ -76,6 +76,7 @@ def drive(deviceId, value):
             controller.drive(float(value))
             cnt = 100
         except:
+            print 'retry driving ' + str(deviceId)
             time.sleep(1)
             while not getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
                 time.sleep(0.1)
