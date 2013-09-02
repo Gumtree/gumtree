@@ -13,6 +13,8 @@ package au.gov.ansto.bragg.nbi.ui.realtime;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -180,6 +182,15 @@ public class RealtimeDataViewer extends Composite {
 				
 			}
 		});
+		
+		addDisposeListener(new DisposeListener() {
+			
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				// TODO Auto-generated method stub
+				dispose();
+			}
+		});
 	}
 
 	private void addRealtimeResource(IRealtimeResource resource) {
@@ -281,6 +292,7 @@ public class RealtimeDataViewer extends Composite {
 							Thread.sleep(updatePeriod);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
+							break;
 						}
 					}
 				}
@@ -305,6 +317,7 @@ public class RealtimeDataViewer extends Composite {
 	
 	@Override
 	public void dispose() {
+		System.err.println("dispose called");
 		if (updateThread != null) {
 			try{
 				if (updateThread.isAlive()){
