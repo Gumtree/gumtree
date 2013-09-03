@@ -317,7 +317,6 @@ public class RealtimeDataViewer extends Composite {
 	
 	@Override
 	public void dispose() {
-		System.err.println("dispose called");
 		if (updateThread != null) {
 			try{
 				if (updateThread.isAlive()){

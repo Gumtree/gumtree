@@ -31,7 +31,6 @@ public class SicsControl implements ISicsControl {
 			if(controller == null && !isLocked) {
 				try {
 					isLocked = true;
-					System.err.println("try to create new controller");
 					SICS model = manager.service().getOnlineModel();
 					controller = new SicsController(model);
 					isLocked = false;

@@ -70,9 +70,9 @@ public class SicsTerminalView extends CommandLineTerminal {
 									}
 								});
 								int time = 0;
-								while (!isConnected && time < 5000) {
-									Thread.sleep(500);
-									time += 500;
+								while (!isConnected && time < 15000) {
+									Thread.sleep(1500);
+									time += 1500;
 								}
 							} else {
 								Display.getDefault().asyncExec(new Runnable() {
@@ -87,9 +87,9 @@ public class SicsTerminalView extends CommandLineTerminal {
 									}
 								});
 								int time = 0;
-								while (isConnected && time < 5000) {
-									Thread.sleep(500);
-									time += 500;
+								while (isConnected && time < 15000) {
+									Thread.sleep(1500);
+									time += 1500;
 								}
 							}
 						}

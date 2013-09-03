@@ -5,6 +5,7 @@ from org.gumtree.gumnix.sics.control.controllers import CommandStatus
 from org.gumtree.gumnix.sics.io import SicsCallbackAdapter
 from org.gumtree.gumnix.sics.control import ServerStatus
 from org.gumtree.gumnix.sics.control import MultiDrivableRunner
+from org.gumtree.gumnix.sics.io import SicsExecutionException
 from gumpy.commons import logger
 
 # Get SICS controller
@@ -70,18 +71,22 @@ def run(deviceId, value):
 def drive(deviceId, value):
     sicsController = getSicsController()
     controller = getDeviceController(deviceId)
+#    controller.drive(float(value))
     cnt = 0
     while cnt < 20:
         try:
             controller.drive(float(value))
-            cnt = 100
-        except:
+            break
+        except SicsExecutionException, e:
+            em = str(e.getMessage())
+            if em.__contains__('Interrupted'):
+                raise e
             print 'retry driving ' + str(deviceId)
             time.sleep(1)
             while not getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-                time.sleep(0.1)
+                time.sleep(0.3)
             cnt += 1
-    if cnt != 100:
+    if cnt >= 20:
         raise Exception, 'timeout to drive ' + str(deviceId) + ' to ' + str(value)
     handleInterrupt()
 

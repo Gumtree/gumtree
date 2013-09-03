@@ -94,7 +94,7 @@ public class SampleHolderController extends DynamicController {
 		}
 		
 		// Wait while it is running
-		while(getStatus() == ControllerStatus.RUNNING) {
+		while(getStatus() == ControllerStatus.RUNNING && !SicsCore.getSicsController().isInterrupted()) {
 			try {
 				Thread.sleep(TIME_INTERVAL);
 			} catch (InterruptedException e) {

@@ -53,17 +53,8 @@ devices = {'sampleNum' : '/sample/sampleNum'}
 
 # Synchronous
 def setSample(position, name='UNKNOWN', description='UNKNOWN', thickness=0, driveSampleStage=True):
-    # Print
-    log('Driving sample holder to position ' + str(position) + ' ...')
-    # Get controller
-    sicsController = sics.getSicsController()
-    controller = sicsController.findComponentController(devices['sampleNum'])
-    # This controller is assumed to be an instance of au.gov.ansto.bragg.quokka.sics.SampleHolderController
-    # User have option to drive or not drive (set sample info only) the sample holder motor
     if driveSampleStage:
-        controller.drive(position)
-    # Print end position
-    log('Sample holder is in position ' + controller.getValue().getStringData())
+        driveSample(position)
     # Set sample name and description
     sics.set('samplename', name)
     sics.set('sampledescription', description)
@@ -73,7 +64,24 @@ def driveSample(position):
     log('Driving sample holder to position ' + str(position) + ' ...')
     sicsController = sics.getSicsController()
     controller = sicsController.findComponentController(devices['sampleNum'])
-    controller.drive(position)
+#    controller.drive(position)
+    cnt = 0
+    while cnt < 20:
+        try:
+            controller.drive(position)
+            break
+        except:
+            sics.handleInterrupt()
+            log('retry driving sampleNum')
+            time.sleep(1)
+            while not sicsController.getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+                time.sleep(0.3)
+            cnt += 1
+            sics.handleInterrupt()
+    if cnt >= 20:
+        raise Exception, 'Time out on running sampleNum'
+
+
     log('Sample holder is in position ' + controller.getValue().getStringData())
     
 def getSamplePosition():
@@ -374,6 +382,7 @@ def driveHistmem(hmMode, preset):
     sics.hset(histmemController, '/cmd', 'start')
     log('Start histmem ...')
     histmemController.syncExecute()
+    time.sleep(0.8)
     log('Histmem stopped')
 
 def driveFlipper(value):

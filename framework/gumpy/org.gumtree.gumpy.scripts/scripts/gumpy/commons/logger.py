@@ -10,7 +10,7 @@ def log(message, writer=None):
         if not __global_writer__ is None:
             __global_writer__.write('[' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '] ' + message + '\n')
         else:
-            print '[' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '] '
+            print '[' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '] ' + message
     else:
         writer.write('[' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '] ' + message + '\n')
 

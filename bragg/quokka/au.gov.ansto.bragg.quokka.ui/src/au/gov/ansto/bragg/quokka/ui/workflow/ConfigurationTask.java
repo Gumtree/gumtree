@@ -484,7 +484,10 @@ public class ConfigurationTask extends AbstractExperimentTask {
 								logger.error("Cannot interrupt SICS from test drive button", e);
 							}
 						} else {
-							startConfigDrive("print('### Test drive configuration " + nameText.getText() + " (init) ###')\n" + initScriptText.getText());
+							startConfigDrive("print('### Test drive configuration " + nameText.getText() + " (init) ###')\n" +
+									"from bragg.quokka import quokka\n" +
+									"from bragg.quokka.quokka import *\n" + 
+									initScriptText.getText());
 						}
 					}
 				});
