@@ -1,195 +1,195 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.gumtree.common.core.feature_1.8.0.qualifier.jar" id="org.gumtree.common.core.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.common.core.feature_1.9.0.qualifier.jar" id="org.gumtree.common.core.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.common.server.feature_1.8.0.qualifier.jar" id="org.gumtree.common.server.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.common.server.feature_1.9.0.qualifier.jar" id="org.gumtree.common.server.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.common.ui.feature_1.8.0.qualifier.jar" id="org.gumtree.common.ui.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.common.ui.feature_1.9.0.qualifier.jar" id="org.gumtree.common.ui.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.beanshell.core.feature_1.8.0.qualifier.jar" id="org.gumtree.beanshell.core.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.beanshell.core.feature_1.9.0.qualifier.jar" id="org.gumtree.beanshell.core.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.jython.core.feature_1.8.0.qualifier.jar" id="org.gumtree.jython.core.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.jython.core.feature_1.9.0.qualifier.jar" id="org.gumtree.jython.core.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.jython.ui.feature_1.8.0.qualifier.jar" id="org.gumtree.jython.ui.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.jython.ui.feature_1.9.0.qualifier.jar" id="org.gumtree.jython.ui.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.pydev.feature_1.8.0.qualifier.jar" id="org.gumtree.pydev.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.pydev.feature_1.9.0.qualifier.jar" id="org.gumtree.pydev.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.tcl.feature_1.8.0.qualifier.jar" id="org.gumtree.tcl.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.tcl.feature_1.9.0.qualifier.jar" id="org.gumtree.tcl.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.xml.feature_1.8.0.qualifier.jar" id="org.gumtree.xml.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.xml.feature_1.9.0.qualifier.jar" id="org.gumtree.xml.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.github.feature_1.8.0.qualifier.jar" id="org.gumtree.github.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.github.feature_1.9.0.qualifier.jar" id="org.gumtree.github.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.javafx.feature_1.8.0.qualifier.jar" id="org.gumtree.javafx.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.javafx.feature_1.9.0.qualifier.jar" id="org.gumtree.javafx.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.xygraph.feature_1.8.0.qualifier.jar" id="org.gumtree.xygraph.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.xygraph.feature_1.9.0.qualifier.jar" id="org.gumtree.xygraph.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.e4tools.feature_1.8.0.qualifier.jar" id="org.gumtree.e4tools.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.e4tools.feature_1.9.0.qualifier.jar" id="org.gumtree.e4tools.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.sics.core.feature_1.8.0.qualifier.jar" id="org.gumtree.sics.core.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.sics.core.feature_1.9.0.qualifier.jar" id="org.gumtree.sics.core.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.sics.server.feature_1.8.0.qualifier.jar" id="org.gumtree.sics.server.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.sics.server.feature_1.9.0.qualifier.jar" id="org.gumtree.sics.server.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.sics.ui.feature_1.8.0.qualifier.jar" id="org.gumtree.sics.ui.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.sics.ui.feature_1.9.0.qualifier.jar" id="org.gumtree.sics.ui.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.dae.core.feature_1.8.0.qualifier.jar" id="org.gumtree.dae.core.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.dae.core.feature_1.9.0.qualifier.jar" id="org.gumtree.dae.core.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.dae.server.feature_1.8.0.qualifier.jar" id="org.gumtree.dae.server.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.dae.server.feature_1.9.0.qualifier.jar" id="org.gumtree.dae.server.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.processor.core.feature_1.8.0.qualifier.jar" id="org.gumtree.processor.core.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.processor.core.feature_1.9.0.qualifier.jar" id="org.gumtree.processor.core.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.processor.ui.feature_1.8.0.qualifier.jar" id="org.gumtree.processor.ui.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.processor.ui.feature_1.9.0.qualifier.jar" id="org.gumtree.processor.ui.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.gumpy.feature_1.8.0.qualifier.jar" id="org.gumtree.gumpy.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.gumpy.feature_1.9.0.qualifier.jar" id="org.gumtree.gumpy.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.app.osgi.feature_1.8.0.qualifier.jar" id="org.gumtree.app.osgi.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.app.osgi.feature_1.9.0.qualifier.jar" id="org.gumtree.app.osgi.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.app.runtime.feature_1.8.0.qualifier.jar" id="org.gumtree.app.runtime.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.app.runtime.feature_1.9.0.qualifier.jar" id="org.gumtree.app.runtime.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.app.webserver.feature_1.8.0.qualifier.jar" id="org.gumtree.app.webserver.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.app.webserver.feature_1.9.0.qualifier.jar" id="org.gumtree.app.webserver.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.app.workbench.feature_1.8.0.qualifier.jar" id="org.gumtree.app.workbench.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.app.workbench.feature_1.9.0.qualifier.jar" id="org.gumtree.app.workbench.feature" version="1.9.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
-   <feature url="features/org.gumtree.framework.sources.feature_1.8.0.qualifier.jar" id="org.gumtree.framework.sources.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.framework.sources.feature_1.9.0.qualifier.jar" id="org.gumtree.framework.sources.feature" version="1.9.0.qualifier">
       <category name="gumtreeInfrastructure"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.nbi.core.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.nbi.core.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.nbi.core.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.nbi.core.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.nbi.webserver.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.nbi.webserver.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.nbi.webserver.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.nbi.webserver.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.nbi.workbench.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.nbi.workbench.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.nbi.workbench.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.nbi.workbench.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.echidna.core.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.echidna.core.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.echidna.core.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.echidna.core.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.echidna.webserver.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.echidna.webserver.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.echidna.webserver.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.echidna.webserver.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.echidna.workbench.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.echidna.workbench.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.echidna.workbench.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.echidna.workbench.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.wombat.core.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.wombat.core.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.wombat.core.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.wombat.core.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.wombat.webserver.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.wombat.webserver.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.wombat.webserver.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.wombat.webserver.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.wombat.workbench.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.wombat.workbench.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.wombat.workbench.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.wombat.workbench.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.kowari.core.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.kowari.core.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.kowari.core.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.kowari.core.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.kowari.webserver.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.kowari.webserver.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.kowari.webserver.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.kowari.webserver.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.kowari.workbench.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.kowari.workbench.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.kowari.workbench.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.kowari.workbench.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.quokka.core.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.quokka.core.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.quokka.core.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.quokka.core.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.quokka.webserver.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.quokka.webserver.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.quokka.webserver.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.quokka.webserver.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.quokka.workbench.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.quokka.workbench.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.quokka.workbench.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.quokka.workbench.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.platypus.core.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.platypus.core.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.platypus.core.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.platypus.core.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.platypus.webserver.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.platypus.webserver.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.platypus.webserver.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.platypus.webserver.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.platypus.workbench.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.platypus.workbench.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.platypus.workbench.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.platypus.workbench.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.pelican.core.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.pelican.core.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.pelican.core.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.pelican.core.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.pelican.webserver.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.pelican.webserver.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.pelican.webserver.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.pelican.webserver.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.pelican.workbench.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.pelican.workbench.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.pelican.workbench.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.pelican.workbench.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.taipan.core.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.taipan.core.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.taipan.core.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.taipan.core.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.taipan.webserver.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.taipan.webserver.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.taipan.webserver.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.taipan.webserver.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.taipan.workbench.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.taipan.workbench.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.taipan.workbench.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.taipan.workbench.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.kookaburra.core.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.kookaburra.core.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.kookaburra.core.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.kookaburra.core.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.kookaburra.webserver.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.kookaburra.webserver.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.kookaburra.webserver.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.kookaburra.webserver.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.kookaburra.workbench.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.kookaburra.workbench.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.kookaburra.workbench.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.kookaburra.workbench.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.bilby.core.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.bilby.core.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.bilby.core.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.bilby.core.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.bilby.webserver.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.bilby.webserver.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.bilby.webserver.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.bilby.webserver.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.bilby.workbench.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.bilby.workbench.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.bilby.workbench.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.bilby.workbench.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.dingo.core.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.dingo.core.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.dingo.core.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.dingo.core.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.dingo.webserver.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.dingo.webserver.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.dingo.webserver.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.dingo.webserver.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.dingo.workbench.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.dingo.workbench.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.dingo.workbench.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.dingo.workbench.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.emu.core.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.emu.core.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.emu.core.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.emu.core.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.emu.webserver.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.emu.webserver.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.emu.webserver.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.emu.webserver.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.emu.workbench.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.emu.workbench.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.emu.workbench.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.emu.workbench.feature" version="1.9.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
-   <feature url="features/au.gov.ansto.bragg.extensions.sources.feature_1.8.0.qualifier.jar" id="au.gov.ansto.bragg.extensions.sources.feature" version="1.8.0.qualifier">
+   <feature url="features/au.gov.ansto.bragg.extensions.sources.feature_1.9.0.qualifier.jar" id="au.gov.ansto.bragg.extensions.sources.feature" version="1.9.0.qualifier">
       <category name="gumtreeInfrastructure"/>
    </feature>
-   <feature url="features/org.gumtree.sdk.feature_1.8.0.qualifier.jar" id="org.gumtree.sdk.feature" version="1.8.0.qualifier">
+   <feature url="features/org.gumtree.sdk.feature_1.9.0.qualifier.jar" id="org.gumtree.sdk.feature" version="1.9.0.qualifier">
       <category name="gumtreeInfrastructure"/>
    </feature>
    <category-def name="gumtreeFramework" label="Gumtree Framework"/>

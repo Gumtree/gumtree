@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Gumtree" uid="au.gov.ansto.bragg.pelican.workbench.product" id="org.gumtree.app.workbench.product" application="org.gumtree.app.workbench.application" version="1.8.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="Gumtree" uid="au.gov.ansto.bragg.pelican.workbench.product" id="org.gumtree.app.workbench.product" application="org.gumtree.app.workbench.application" version="1.9.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.gumtree.app.runtime/images/earth.png"/>
@@ -30,8 +30,8 @@ Eclipse Foundation http://www.eclipse.org/
 -Dgumtree.runtime.configEnv.instr=pelican
 -Dgumtree.runtime.configEnv.env=dev
 -Dgumtree.runtime.configEnv.mode=experiment
--Dgumtree.sics.role=spy
--Dgumtree.sics.password=007
+-Dgumtree.sics.role=manager
+-Dgumtree.sics.password=ansto
 -Dgumtree.sics.loginMode=auto
 -Dsun.java2d.d3d=false
 -XX:MaxPermSize=256m

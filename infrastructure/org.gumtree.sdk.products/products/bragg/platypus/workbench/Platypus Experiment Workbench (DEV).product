@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Gumtree" uid="au.gov.ansto.bragg.platypus.workbench.product" id="org.gumtree.app.workbench.product" application="org.gumtree.app.workbench.application" version="1.8.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="Gumtree" uid="au.gov.ansto.bragg.platypus.workbench.product" id="org.gumtree.app.workbench.product" application="org.gumtree.app.workbench.application" version="1.9.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.gumtree.app.runtime/images/earth.png"/>
