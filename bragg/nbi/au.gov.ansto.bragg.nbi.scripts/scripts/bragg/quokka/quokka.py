@@ -427,23 +427,37 @@ def getSampleHolderPosition():
 # This scan rely on samx
 def scan(scanMode, dataType, preset, force='true', saveType=saveType.save):
     
+    controllerPath = '/commands/scan/runscan'
     sicsController = sics.getSicsController()
-    scanController = sicsController.findComponentController('/commands/scan/runscan')
+    scanController = sicsController.findComponentController(controllerPath)
     
     # Configuring scan properties
-    sics.hset(scanController, '/scan_variable', DEVICE_SAMX)
-    sics.hset(scanController, '/scan_start', getSampleHolderPosition())
-    sics.hset(scanController, '/scan_stop', getSampleHolderPosition())
-    sics.hset(scanController, '/numpoints', 1)
-    # Hack to fix monitor selection in scan
+#    sics.hset(scanController, '/scan_variable', DEVICE_SAMX)
+#    sics.hset(scanController, '/scan_start', getSampleHolderPosition())
+#    sics.hset(scanController, '/scan_stop', getSampleHolderPosition())
+#    sics.hset(scanController, '/numpoints', 1)
+#    # Hack to fix monitor selection in scan
+#    if (scanMode.key == 'monitor'):
+#        sics.hset(scanController, '/mode', 'MONITOR_1')
+#    else:
+#        sics.hset(scanController, '/mode', scanMode.key)
+#    sics.hset(scanController, '/preset', preset)
+#    sics.hset(scanController, '/datatype', dataType.key)
+#    sics.hset(scanController, '/savetype', saveType.key)
+#    sics.hset(scanController, '/force', force)
+    
+    sics.execute('hset ' + controllerPath + '/scan_variable dummy_motor', 'scan')
+    sics.execute('hset ' + controllerPath + '/scan_start 0', 'scan')
+    sics.execute('hset ' + controllerPath + '/scan_stop 0', 'scan')
+    sics.execute('hset ' + controllerPath + '/numpoints 1', 'scan')
     if (scanMode.key == 'monitor'):
-        sics.hset(scanController, '/mode', 'MONITOR_1')
+        sics.execute('hset ' + controllerPath + '/mode MONITOR_1', 'scan')
     else:
-        sics.hset(scanController, '/mode', scanMode.key)
-    sics.hset(scanController, '/preset', preset)
-    sics.hset(scanController, '/datatype', dataType.key)
-    sics.hset(scanController, '/savetype', saveType.key)
-    sics.hset(scanController, '/force', force)
+        sics.execute('hset ' + controllerPath + '/mode ' + scanMode.key, 'scan')
+    sics.execute('hset ' + controllerPath + '/preset ' + str(preset), 'scan')
+    sics.execute('hset ' + controllerPath + '/datatype ' + dataType.key, 'scan')
+    sics.execute('hset ' + controllerPath + '/savetype ' + saveType.key, 'scan')
+    sics.execute('hset ' + controllerPath + '/force ' + force, 'scan')
     
     # Wait 1 sec to make the setting settle
     time.sleep(1)

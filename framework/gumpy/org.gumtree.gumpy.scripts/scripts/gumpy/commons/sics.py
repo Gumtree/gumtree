@@ -24,8 +24,8 @@ def getDeviceController(deviceId):
     return controller
 
 # Asynchronously execute any (adhoc) SICS command (without feedback)
-def execute(command):
-    SicsCore.getDefaultProxy().send(command, None)
+def execute(command, channel_id = 'general'):
+    SicsCore.getDefaultProxy().send(command, None, channel_id)
     handleInterrupt()
 
 # Asynchronously set any device or hipadaba node to a given value
