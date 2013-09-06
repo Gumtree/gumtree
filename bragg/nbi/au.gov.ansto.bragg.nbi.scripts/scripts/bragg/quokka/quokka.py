@@ -20,6 +20,7 @@ from gumpy.commons import sics
 from gumpy.lib import enum
 from org.gumtree.gumnix.sics.core import SicsCore
 from org.gumtree.gumnix.sics.control import ServerStatus
+from org.gumtree.gumnix.sics.io import SicsExecutionException
 from au.gov.ansto.bragg.quokka.sics import DetectorHighVoltageController
 from au.gov.ansto.bragg.quokka.sics import BeamStopController
 import time
@@ -27,6 +28,10 @@ import math
 
 # Constants
 DEVICE_SAMX = 'samx'
+
+# safe count rates
+local_rateSafe =     7.0
+total_rateSafe = 20000.0
 
 # Enums
 guideConfig = enum.Enum(\
@@ -70,8 +75,11 @@ def driveSample(position):
         try:
             controller.drive(position)
             break
-        except:
-            sics.handleInterrupt()
+        except SicsExecutionException, e:
+            em = str(e.getMessage())
+            if em.__contains__('Interrupted'):
+                raise e
+            time.sleep(0.6)
             log('retry driving sampleNum')
             time.sleep(1)
             while not sicsController.getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
@@ -106,16 +114,15 @@ def getAttValue():
 def driveAtt(value):
     """ Do something very hard
     """
+    while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+        time.sleep(0.2)
+
     log('Driving attenuator to ' + str(value) + ' degree ...')
+    time.sleep(0.2)
     sics.drive('att', value)
     log('Attenuator is now at ' + str(getAttValue()) + ' degree')
 
 def setSafeAttenuation(startingAttenuation=330):
-    # Variables
-    localRateLimit = 10
-    globalRateLimit = 25000
-    #rateUpdateTime = 5
-    hmPreset = 5 #rateUpdateTime * 2
     localRate = 0
     globalRate = 0
     previousLocalRate = 0
@@ -124,8 +131,6 @@ def setSafeAttenuation(startingAttenuation=330):
     
     # Hack: need to reset and run histmem
     log('set safe attenuation...')
-    scan(scanMode.time, dataType.HISTOGRAM_XY, hmPreset, 'true', saveType.nosave)
-    time.sleep(1)
     
     # loop from the safe range of attenuation
     for level in xrange(startLevel, len(attenuationLevels)):
@@ -133,13 +138,12 @@ def setSafeAttenuation(startingAttenuation=330):
         driveAtt(attenuationLevels[level])
         
         # count bin rate
-        driveHistmem(hmMode.time, hmPreset)
-        localRate = getMaxBinRate()
-        globalRate = getTotalMapRate()
-        log('Current rate: local = ' + str(localRate) + ', global = ' + str(globalRate))
-        checkDetHealth()
+        local_rate1, total_rate1 = determineAveragedRates(max_samples=5, log_success=False)
+        log('local rate1 = ' + str(local_rate1))
+        log('total rate1 = ' + str(total_rate1))
+        
         # Too much (check both local and global rate)
-        if ((localRate > localRateLimit) or (globalRate > globalRateLimit)):
+        if ((localRate > local_rateSafe) or (globalRate > total_rateSafe)):
             if (level > 0):
                 # [GUMTREE-378] Ensure SICS is ready after count
                 while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
@@ -150,7 +154,7 @@ def setSafeAttenuation(startingAttenuation=330):
             globalRate = previousGlobalRate
             break
         # Within tolerance
-        elif (localRate >= localRateLimit / 2) and (localRate <= localRateLimit):
+        elif (localRate >= local_rateSafe / 2) and (localRate <= local_rateSafe):
             break
         previousLocalRate = localRate
         previousGlobalRate = globalRate
@@ -445,6 +449,13 @@ def scan(scanMode, dataType, preset, force='true', saveType=saveType.save):
 #    sics.hset(scanController, '/datatype', dataType.key)
 #    sics.hset(scanController, '/savetype', saveType.key)
 #    sics.hset(scanController, '/force', force)
+    sics.execute('hset /instrument/dummy_motor 0', 'general')
+    sics.execute('hset /instrument/dummy_motor 1', 'scan')
+    
+    sics.execute('hset ' + controllerPath + '/datatype ' + dataType.key, 'general')
+    sics.execute('hset ' + controllerPath + '/savetype ' + saveType.key, 'general')
+    sics.execute('hset ' + controllerPath + '/force ' + force, 'general')
+
     
     sics.execute('hset ' + controllerPath + '/scan_variable dummy_motor', 'scan')
     sics.execute('hset ' + controllerPath + '/scan_start 0', 'scan')
@@ -458,12 +469,17 @@ def scan(scanMode, dataType, preset, force='true', saveType=saveType.save):
     sics.execute('hset ' + controllerPath + '/datatype ' + dataType.key, 'scan')
     sics.execute('hset ' + controllerPath + '/savetype ' + saveType.key, 'scan')
     sics.execute('hset ' + controllerPath + '/force ' + force, 'scan')
+
+    sics.execute('hset /instrument/dummy_motor 2', 'general')
+    sics.execute('hset /instrument/dummy_motor 3', 'scan')
     
     # Wait 1 sec to make the setting settle
-    time.sleep(1)
+    time.sleep(2)
     
     # Synchronously run scan
     scanController.syncExecute()
+    sics.execute('hset /instrument/dummy_motor 4', 'general')
+    sics.execute('hset /instrument/dummy_motor 5', 'scan')
     
     # Get output filename
     filenameController = sicsController.findDeviceController('datafilename')
@@ -509,7 +525,26 @@ def stopHistmem():
 # determine averaged local and total rates
 #   samples: number of samples to create average
 #   timeout: maximal time for this function
-def determineAveragedRates(samples=5, timeout=30.0):
+def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_success=True):
+    
+    def determineStandardDeviation(sum, sqr_sum, n): # n = sample count
+        if n <= 1:
+            return float('inf')
+        
+        s_sqr = (sqr_sum - sum*sum/n) / (n - 1)
+        return math.sqrt(s_sqr)
+    
+    def getStudentsFacotr(n): # n = sample count
+        # 90% confidence
+        f = [float('inf'), 6.314, 2.92, 2.353, 2.132, 2.015, 1.943, 1.895, 1.86, 1.833, 1.812, 1.796, 1.782, 1.771, 1.761, 1.753, 1.746, 1.74, 1.734, 1.729, 1.725, 1.721, 1.717, 1.714, 1.711, 1.708, 1.706, 1.703, 1.701, 1.699, 1.697]
+        if n <= len(f):
+            return f[n - 1] # n to zero based index
+        else:
+            return f[-1]    # use last element
+        return 1
+        
+    if max_samples < 1:
+        max_samples = 1
 
     while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
         time.sleep(0.1)
@@ -520,16 +555,18 @@ def determineAveragedRates(samples=5, timeout=30.0):
         local_rate = getMaxBinRate()
         total_rate = getTotalMapRate()
 
-        accumulated_local_rate = 0.0
-        accumulated_total_rate = 0.0
+        n = 0 # sample count
+        local_rate_sum     = 0.0
+        total_rate_sum     = 0.0
+        local_rate_sqr_sum = 0.0 # sum of squared rate
+        total_rate_sqr_sum = 0.0
 
-        start = time.time()
-        n = max([samples, 1])
-        for i in xrange(n):
+        for i in xrange(max_samples):
             
             new_local_rate = getMaxBinRate()
             new_total_rate = getTotalMapRate()
             
+            start = time.time()
             while (new_local_rate == local_rate) or (new_local_rate == 0) or (new_total_rate == total_rate) or (new_total_rate == 0):
                 if time.time() - start >= timeout:
                     raise Exception("Timeout in determineAveragedRates")
@@ -539,22 +576,48 @@ def determineAveragedRates(samples=5, timeout=30.0):
 
             local_rate = new_local_rate
             total_rate = new_total_rate
-            log('local rate: ' + str(local_rate))
-            log('total rate: ' + str(total_rate))
+            log('measurement:  local rate = %10.3f          total rate = %10.3f' % (local_rate, total_rate))
 
-            accumulated_local_rate += local_rate
-            accumulated_total_rate += total_rate
+            n += 1 # increase sample count
+            local_rate_sum     += local_rate
+            total_rate_sum     += total_rate
+            local_rate_sqr_sum += (local_rate * local_rate)
+            total_rate_sqr_sum += (total_rate * total_rate)
+            
+            if n > 1:
+                # https://de.wikipedia.org/wiki/Vertrauensintervall#Beispiele_f.C3.BCr_ein_Konfidenzintervall
+                
+                local_rate_mean = local_rate_sum / n
+                total_rate_mean = total_rate_sum / n
+                
+                local_rate_std = determineStandardDeviation(local_rate_sum, local_rate_sqr_sum, n)
+                total_rate_std = determineStandardDeviation(total_rate_sum, total_rate_sqr_sum, n)
+                
+                factor = getStudentsFacotr(n) / math.sqrt(n)
+                
+                local_rate_err = factor * local_rate_std
+                total_rate_err = factor * total_rate_std
+                
+                log('estimation:   local rate = %10.3f+-%-7.3f total rate = %10.3f+-%-7.3f' % (local_rate_mean, local_rate_err, total_rate_mean, total_rate_err))
+                
+                local_rate_intvl = 2 * local_rate_err
+                total_rate_intvl = 2 * total_rate_err
+                
+                if (local_rate_intvl < interval * local_rate_mean) and (total_rate_intvl < interval * total_rate_mean):
+                    if log_success:
+                        log('successful estimation')
+                    break;
+                
+                if (n == max_samples) and log_success:
+                    log('unsuccessful estimation')
 
     finally:
         stopHistmem()
  
-    return accumulated_local_rate/n, accumulated_total_rate/n # -0.7 to subtract background
+    return local_rate_sum/n, total_rate_sum/n # -0.7 to subtract background
 
 # Find the attenuation angle
 def findSafeAttenuation(startingAttenuation):
-    # Safe count rate
-    local_rateSafe =     5.0
-    total_rateSafe = 15000.0
     # Sample at 90 (was 150) and 60 (was 120)
     attenuation1 = 180
     attenuation2 = 150
@@ -635,12 +698,6 @@ def findSafeAttenuation(startingAttenuation):
     log('suggested attenutaion angle = ' + str(suggestedAttAngle))
     return suggestedAttAngle, attenuation1
     
-# Check the health of our detector
-def checkDetHealth():
-    #if getTotalMapRate() <= 0.0:
-    #    raise Exception("There is no reading from the detector.")
-    pass
-
 # Count simulation - used for debug only
 def count(thickness, wavelength): 
     # Initial count rate = 100 count/sec
@@ -652,10 +709,10 @@ def count(thickness, wavelength):
 # Prints current instrument settings on Quokka
 def printQuokkaSettings():
     datafile = sics.getValue('datafilename').getStringData()
-    if (datafile == 'UNKNOWN'):
-        runNumber = datafile
-    else:
+    if ((datafile.find('QKK') != -1) and (datafile.find('.nx.hdf') != -1)):
         runNumber = (datafile.split('QKK')[1].split('.nx.hdf'))[0]
+    else:
+        runNumber = datafile
     print
     print "*****  Quokka Instrument Settings  *****"
     print
