@@ -89,7 +89,7 @@ public class QuokkaCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/instrument/collimator/att", "att", null, "")
 				.addDevice("/instrument/collimator/srce", "srce", null, "")
 				.addDevice("/instrument/collimator/apx", "apx", null, "")
-				.addDevice("/instrument/velocity_selector/wavelength", "wavelength", null, "")
+				.addDevice("/instrument/velocity_selector/wavelength_nominal", "wavelength", null, "")
 				;
 		configureWidget(deviceStatusWidget);
 

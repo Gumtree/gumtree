@@ -5,6 +5,7 @@
     <include>/instrument/collimator/att</include>
     <include>/instrument/collimator/srce</include>
     <include>/instrument/collimator/apx</include>
+    <include>/instrument/velocity_selector/wavelength_nominal</include>
     <include>/instrument/detector/detector_y</include>
     <include>/instrument/detector/detector_x</include>
     <include>/instrument/detector/bsx</include>
