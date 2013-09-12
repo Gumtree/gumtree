@@ -41,7 +41,7 @@ import au.gov.ansto.bragg.nbi.ui.tasks.SimpleTableScanTask;
 public class KowariTableScanTask extends SimpleTableScanTask {
 
 	private final static String[] FOUR_COLUMN_NAMES = new String[]{"sx", "sy", "sz", "som", "time"};
-	private final static String[] SEVEN_COLUMN_NAMES = new String[]{"sx", "sy", "sz", "som", "eom", "echi", "ephi", "time"};
+	private final static String[] SEVEN_COLUMN_NAMES = new String[]{"sx", "sy", "sz", "som", "ga", "gb", "gc", "time"};
 	
 	private int numberOfMotors = 4;
 	
