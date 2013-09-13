@@ -61,14 +61,15 @@ public class SampleEnvironmentTask extends AbstractExperimentTask {
 
 	// Column data structure
 	private enum Column {
-		PRESET(0), WAIT_TIME(1);
-		private Column(int index) {
-			this.index = index;
-		}
+		NUMBER(0), PRESET(1), WAIT_TIME(2);
+
+		private int index;
 		public int getIndex() {
 			return index;
 		}
-		private int index;
+		private Column(int index) {
+			this.index = index;
+		}
 	}
 	
 	private class SampleEnvironmentTaskView extends AbstractTaskView {
@@ -287,13 +288,14 @@ public class SampleEnvironmentTask extends AbstractExperimentTask {
 			 * Table area
 			 *****************************************************************/
 			Composite tableArea = getToolkit().createComposite(parent);
-			tableArea.setLayout(new GridLayout(2, false));
+			tableArea.setLayout(new GridLayout(1, false));
 			GridDataFactory.fillDefaults().applyTo(tableArea);
 			final TableViewer tableViewer = createPresetTable(tableArea, sampleEnvironment);
 			
 			/*****************************************************************
 			 * Button area
 			 *****************************************************************/
+			/*
 			Composite buttonArea = getToolkit().createComposite(tableArea);
 			buttonArea.setLayout(new GridLayout());
 			
@@ -308,7 +310,7 @@ public class SampleEnvironmentTask extends AbstractExperimentTask {
 			
 			Button downButton = getToolkit().createButton(buttonArea, "", SWT.PUSH);
 			downButton.setImage(InternalImage.DOWN.getImage());
-			
+			*/
 			/*****************************************************************
 			 * Presets generation area 
 			 *****************************************************************/
@@ -357,8 +359,12 @@ public class SampleEnvironmentTask extends AbstractExperimentTask {
 		// Creates the table (preset + wait time) for each controller
 		private TableViewer createPresetTable(Composite parent, SampleEnvironment sampleEnvironment) {
 			final TableViewer tableViewer = new TableViewer(parent, SWT.H_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
-			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL)
-				.grab(true, false).hint(SWT.DEFAULT, 100).applyTo(tableViewer.getTable());
+			GridDataFactory.fillDefaults()
+				.align(SWT.FILL, SWT.FILL)
+				.grab(true, false)
+				.hint(SWT.DEFAULT, 300)
+				.applyTo(tableViewer.getTable());
+			
 			final Table table = tableViewer.getTable();
 			tableViewer.setContentProvider(new ArrayContentProvider());
 			class TableLabelProvider extends LabelProvider implements ITableLabelProvider {
@@ -369,11 +375,12 @@ public class SampleEnvironmentTask extends AbstractExperimentTask {
 				@Override
 				public String getColumnText(Object element, int columnIndex) {
 					SampleEnvironmentPreset preset = (SampleEnvironmentPreset) element;
-					if (columnIndex == Column.PRESET.getIndex()) {
+					if (columnIndex == Column.NUMBER.getIndex())
+						return Integer.toString(preset.getNumber());
+					else if (columnIndex == Column.PRESET.getIndex())
 						return Float.toString(preset.getPreset());
-					} else if (columnIndex == Column.WAIT_TIME.getIndex()) {
+					else if (columnIndex == Column.WAIT_TIME.getIndex())
 						return Integer.toString(preset.getWaitTime());
-					}
 					return "";
 				}
 			}
@@ -390,54 +397,68 @@ public class SampleEnvironmentTask extends AbstractExperimentTask {
 			/*****************************************************************
 			 * Table columns
 			 *****************************************************************/
+			TableColumn numberColumn = new TableColumn(table, SWT.LEFT);
+			numberColumn.setText("");
+			numberColumn.setWidth(30);
+			numberColumn.setResizable(false);
+			
 			TableColumn presetColumn = new TableColumn(table, SWT.LEFT);
 			presetColumn.setText("Preset");
 			presetColumn.setWidth(150);
 			presetColumn.setResizable(false);
+			
 			TableColumn waitTimeColumn = new TableColumn(table, SWT.LEFT);
 			waitTimeColumn.setText("Wait (sec)");
 			waitTimeColumn.setWidth(150);
 			waitTimeColumn.setResizable(false);
+			
 			tableViewer.getTable().setHeaderVisible(true);
 			tableViewer.getTable().setLinesVisible(true);
 			
 			/*****************************************************************
 			 * Table cell editor
 			 *****************************************************************/
+			tableViewer.setColumnProperties(new String[] { Column.NUMBER.name(), Column.PRESET.name(), Column.WAIT_TIME.name() });
+
 			TextCellEditor textCellEditor = new TextCellEditor(tableViewer.getTable());
-			tableViewer.setColumnProperties(new String[] { Column.PRESET.name(), Column.WAIT_TIME.name() });
-			tableViewer.setCellEditors(new CellEditor[] {textCellEditor, textCellEditor});
+			tableViewer.setCellEditors(new CellEditor[] {textCellEditor, textCellEditor, textCellEditor});
+			
 			class CellModifier implements ICellModifier {
 				@Override
 				public boolean canModify(Object element, String property) {
-					return true;
+					if (property.equals(Column.PRESET.name()))
+						return true;
+					else if (property.equals(Column.WAIT_TIME.name()))
+						return true;
+					return false;
 				}
 				@Override
 				public Object getValue(Object element, String property) {
 					SampleEnvironmentPreset preset = (SampleEnvironmentPreset) element;
-					if (property.equals(Column.PRESET.name())) {
+					if (property.equals(Column.NUMBER.name()))
+						return Integer.toString(preset.getNumber());
+					else if (property.equals(Column.PRESET.name()))
 						return Float.toString(preset.getPreset());
-					} else {
+					else if (property.equals(Column.WAIT_TIME.name()))
 						return Integer.toString(preset.getWaitTime());
-					}
+					return "";
 				}
 				@Override
 				public void modify(Object element, String property, Object value) {
 					SampleEnvironmentPreset preset = (SampleEnvironmentPreset) ((TableItem) element).getData();
 					try {
-						if (property.equals(Column.PRESET.name())) {
+						if (property.equals(Column.PRESET.name()))
 							preset.setPreset(Float.parseFloat((String) value));
-						} else if (property.equals(Column.WAIT_TIME.name())) {
+						else if (property.equals(Column.WAIT_TIME.name()))
 							preset.setWaitTime(Integer.parseInt((String) value));
-						}
+						
 						tableViewer.refresh(preset);
 					} catch (NumberFormatException nfe) {
-						// TODO: what should do for invalid value?
 					}
 				}
 			}
-			final CellModifier modifier = new CellModifier();
-			tableViewer.setCellModifier(modifier);
+			tableViewer.setCellModifier(new CellModifier());
+			
 			return tableViewer;
 		}
 		

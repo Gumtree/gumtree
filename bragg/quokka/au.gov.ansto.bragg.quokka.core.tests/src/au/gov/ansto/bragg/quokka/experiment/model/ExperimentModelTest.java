@@ -253,7 +253,7 @@ public class ExperimentModelTest extends TestCase {
 		assertEquals(sampleEnv1.getPresets().size(), experiment.getAcquisitionGroups().size());
 		
 		Map<SampleEnvironment, SampleEnvironmentPreset> target = new HashMap<SampleEnvironment, SampleEnvironmentPreset>();
-		SampleEnvironmentPreset preset = new SampleEnvironmentPreset(100f, 1000);
+		SampleEnvironmentPreset preset = new SampleEnvironmentPreset(1, 100f, 1000);
 		target.put(sampleEnv1, preset);
 		
 		ControlledAcquisition acqusition = experiment.findControlledAcquisition(target);

@@ -179,17 +179,17 @@ public class ExperimentScriptGeneratorTest extends TestCase {
 		
 		SampleEnvironment env0 = new SampleEnvironment(experiment);
 		env0.setControllerId("dummy_motor");
-		env0.getPresets().add(new SampleEnvironmentPreset(100, 1));
-		env0.getPresets().add(new SampleEnvironmentPreset(200, 1));
-		env0.getPresets().add(new SampleEnvironmentPreset(300, 1));
-		env0.getPresets().add(new SampleEnvironmentPreset(400, 1));
-		env0.getPresets().add(new SampleEnvironmentPreset(500, 1));
+		env0.getPresets().add(new SampleEnvironmentPreset(1, 100, 1));
+		env0.getPresets().add(new SampleEnvironmentPreset(2, 200, 1));
+		env0.getPresets().add(new SampleEnvironmentPreset(3, 300, 1));
+		env0.getPresets().add(new SampleEnvironmentPreset(4, 400, 1));
+		env0.getPresets().add(new SampleEnvironmentPreset(5, 500, 1));
 		experiment.getSampleEnvironments().add(env0);
 		
 		SampleEnvironment env1 = new SampleEnvironment(experiment);
 		env1.setControllerId("dummy_motor");
-		env1.getPresets().add(new SampleEnvironmentPreset(10, 1));
-		env1.getPresets().add(new SampleEnvironmentPreset(20, 1));
+		env1.getPresets().add(new SampleEnvironmentPreset(1, 10, 1));
+		env1.getPresets().add(new SampleEnvironmentPreset(2, 20, 1));
 		experiment.getSampleEnvironments().add(env1);
 		
 		System.out.println();

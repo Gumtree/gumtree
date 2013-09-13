@@ -53,14 +53,13 @@ public class SampleEnvironment extends AbstractModelObject {
 	public void resetPresets(float start, float end, int step, int waitTime) {
 		// Clear previous presets
 		getPresets().clear();
-		float incr = round((end - start) / (float) (step - 1), 2);
-		for (int i = 0; i < step; i++) {
+		for (int i = 0; i < step; i++)
 			// Calculate and set new presets
-			SampleEnvironmentPreset preset = new SampleEnvironmentPreset();
-			preset.setPreset(start + incr * i);
-			preset.setWaitTime(waitTime);
-			getPresets().add(preset);
-		}
+			getPresets().add(new SampleEnvironmentPreset(
+				i + 1,
+				round(start + (i / ((float)step - 1)) * (end - start), 4),
+				waitTime));
+
 		// Update
 		experiment.updateControlledAcquisition();
 		// Fire update since the model has finished the actual update
