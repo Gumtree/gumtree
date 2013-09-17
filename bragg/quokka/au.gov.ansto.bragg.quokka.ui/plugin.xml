@@ -86,7 +86,7 @@
             allowMultiple="false"
             category="au.gov.ansto.bragg.quokka"
             class="au.gov.ansto.bragg.quokka.ui.internal.ExportAllView"
-            icon="icons/exp_product.gif"
+            icon="icons/exportpref_obj.gif"
             id="au.gov.ansto.bragg.quokka.ui.internal.ExportAllView"
             name="Export All">
       </view>
