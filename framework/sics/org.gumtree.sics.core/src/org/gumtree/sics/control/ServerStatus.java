@@ -14,7 +14,7 @@ package org.gumtree.sics.control;
 public enum ServerStatus {
 
 	UNKNOWN("UNKNOW"), EAGER_TO_EXECUTE("EAGER TO EXECUTE"), COUNTING(
-			"COUNTING"), DRIVING("DRIVING"), WAIT("WAIT");
+			"COUNTING"), DRIVING("DRIVING"), WAIT("WAIT"), PAUSE("PAUSE");
 
 	private ServerStatus(String text) {
 		this.text = text;
@@ -28,14 +28,16 @@ public enum ServerStatus {
 		if (message == null) {
 			return UNKNOWN;
 		}
-		message = message.trim();
-		if (message.startsWith("Eager")) {
+		message = message.trim().toLowerCase();
+		if (message.startsWith("eager")) {
 			return EAGER_TO_EXECUTE;
-		} else if (message.startsWith("Counting")) {
+		} else if (message.startsWith("counting")) {
 			return COUNTING;
-		} else if (message.startsWith("Driving")) {
+		} else if (message.startsWith("driving")) {
 			return DRIVING;
-		} else if (message.startsWith("User requested Wait")) {
+		} else if (message.startsWith("pause")) {
+			return PAUSE;
+		} else if (message.startsWith("user requested wait")) {
 			return WAIT;
 		} else {
 			return UNKNOWN;
