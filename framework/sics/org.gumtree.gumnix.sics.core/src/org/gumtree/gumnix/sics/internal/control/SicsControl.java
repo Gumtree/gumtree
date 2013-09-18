@@ -61,4 +61,7 @@ public class SicsControl implements ISicsControl {
 		return logger;
 	}
 
+	public boolean isControllerAvailable(){
+		return controller != null;
+	}
 }

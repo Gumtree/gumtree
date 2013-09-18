@@ -9,5 +9,7 @@ public interface ISicsControl {
 
 	// Temporary (it should use the new commandControl() in future)
 	public ISicsBatchControl batch();
+	
+	public boolean isControllerAvailable();
 
 }

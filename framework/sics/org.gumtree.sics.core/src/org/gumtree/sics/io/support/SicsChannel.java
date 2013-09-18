@@ -25,11 +25,11 @@ import org.gumtree.sics.io.ISicsCallback;
 import org.gumtree.sics.io.ISicsConnectionContext;
 import org.gumtree.sics.io.ISicsProxy;
 import org.gumtree.sics.io.SicsCommunicationConstants;
+import org.gumtree.sics.io.SicsCommunicationConstants.Flag;
+import org.gumtree.sics.io.SicsCommunicationConstants.JSONTag;
 import org.gumtree.sics.io.SicsData;
 import org.gumtree.sics.io.SicsExecutionException;
 import org.gumtree.sics.io.SicsIOException;
-import org.gumtree.sics.io.SicsCommunicationConstants.Flag;
-import org.gumtree.sics.io.SicsCommunicationConstants.JSONTag;
 import org.gumtree.sics.util.SicsCoreProperties;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -265,6 +265,8 @@ public class SicsChannel extends AbstractSicsChannel {
 						if (flag.equalsIgnoreCase(Flag.ERROR.toString())) {
 							callback.receiveError(new SicsData(response));
 						} else if (flag.equalsIgnoreCase(Flag.WARNING.toString())) {
+							callback.receiveWarning(new SicsData(response));
+						} else if(flag.equalsIgnoreCase("LOG")) {
 							callback.receiveWarning(new SicsData(response));
 						} else if (flag.equalsIgnoreCase(Flag.FINISH.toString())) {
 							callback.receiveFinish(new SicsData(response));

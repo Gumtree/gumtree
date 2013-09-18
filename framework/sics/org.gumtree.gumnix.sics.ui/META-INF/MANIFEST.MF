@@ -37,4 +37,3 @@ Import-Package: org.apache.commons.httpclient;version="3.1.0",
  org.apache.commons.httpclient.methods;version="3.1.0",
  org.apache.commons.httpclient.params;version="3.1.0",
  org.slf4j
-Service-Component: OSGI/pages/SicsStatusPage.xml

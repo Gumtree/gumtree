@@ -103,40 +103,90 @@ public class InstrumentContentProvider implements ITreeContentProvider,
 
 	class ProxyListener extends SicsProxyListenerAdapter {
 		public void proxyConnected() {
+
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				public void run() {
 					if (viewer != null && !viewer.getControl().isDisposed()) {
 						viewer.refresh(parentElement);
 					}
 					// Also launch the SICS editor
-					SafeRunner.run(new ISafeRunnable() {
-						public void handleException(Throwable exception) {
-						}
+//					if (SicsCore.getSicsManager().control().isControllerAvailable()) {
+//						System.err.println("controller available");
+//						SafeRunner.run(new ISafeRunnable() {
+//							public void handleException(Throwable exception) {
+//							}
+//
+//							public void run() throws Exception {
+//								IIntroPart introPart = PlatformUI.getWorkbench().getIntroManager().getIntro();
+//								boolean wasStandby = PlatformUI.getWorkbench().getIntroManager().isIntroStandby(introPart);
+//								PlatformUI
+//								.getWorkbench()
+//								.getActiveWorkbenchWindow()
+//								.getActivePage()
+//								.openEditor(
+//										new SicsEditorInput(
+//												SicsCore.getSicsController()),
+//												SicsUIConstants.ID_EDITOR_SICS_CONTROL);
+//								// Restore intro if the editor caused the intro to standby
+//								// Desirable behaviours when intro is available:
+//								// 1. Intro has fully visible but openning editor causes to standby --> restore intro fully
+//								// 2. Intro has not visible (in trim area or not in active page) --> do nothing
+//								// 3. Intro has standby --> do nothing
+//								if(introPart != null && !wasStandby) {
+//									PlatformUI.getWorkbench().getIntroManager().setIntroStandby(introPart, false);
+//								}
+//							}
+//
+//						});
+//					}
+				}
+			});
+			
+			Thread tempThread = new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+						public void run() {
+							if (SicsCore.getSicsManager().control().isControllerAvailable()) {
+								SafeRunner.run(new ISafeRunnable() {
+									public void handleException(Throwable exception) {
+									}
 
-						public void run() throws Exception {
-							IIntroPart introPart = PlatformUI.getWorkbench().getIntroManager().getIntro();
-							boolean wasStandby = PlatformUI.getWorkbench().getIntroManager().isIntroStandby(introPart);
-							PlatformUI
-									.getWorkbench()
-									.getActiveWorkbenchWindow()
-									.getActivePage()
-									.openEditor(
-											new SicsEditorInput(
-													SicsCore.getSicsController()),
-											SicsUIConstants.ID_EDITOR_SICS_CONTROL);
-							// Restore intro if the editor caused the intro to standby
-							// Desirable behaviours when intro is available:
-							// 1. Intro has fully visible but openning editor causes to standby --> restore intro fully
-							// 2. Intro has not visible (in trim area or not in active page) --> do nothing
-							// 3. Intro has standby --> do nothing
-							if(introPart != null && !wasStandby) {
-								PlatformUI.getWorkbench().getIntroManager().setIntroStandby(introPart, false);
+									public void run() throws Exception {
+										IIntroPart introPart = PlatformUI.getWorkbench().getIntroManager().getIntro();
+										boolean wasStandby = PlatformUI.getWorkbench().getIntroManager().isIntroStandby(introPart);
+										PlatformUI
+										.getWorkbench()
+										.getActiveWorkbenchWindow()
+										.getActivePage()
+										.openEditor(
+												new SicsEditorInput(
+														SicsCore.getSicsController()),
+														SicsUIConstants.ID_EDITOR_SICS_CONTROL);
+										// Restore intro if the editor caused the intro to standby
+										// Desirable behaviours when intro is available:
+										// 1. Intro has fully visible but openning editor causes to standby --> restore intro fully
+										// 2. Intro has not visible (in trim area or not in active page) --> do nothing
+										// 3. Intro has standby --> do nothing
+										if(introPart != null && !wasStandby) {
+											PlatformUI.getWorkbench().getIntroManager().setIntroStandby(introPart, false);
+										}
+									}
+
+								});
 							}
 						}
-
 					});
 				}
 			});
+			tempThread.start();
 		}
 		public void proxyDisconnected() {
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {

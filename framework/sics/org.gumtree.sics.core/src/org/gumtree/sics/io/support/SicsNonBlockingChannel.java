@@ -169,6 +169,8 @@ public class SicsNonBlockingChannel extends AbstractSicsChannel {
 							callback.receiveError(new SicsData(response));
 						} else if (flag.equalsIgnoreCase(Flag.WARNING.toString())) {
 							callback.receiveWarning(new SicsData(response));
+						} else if(flag.equalsIgnoreCase("LOG")) {
+							callback.receiveWarning(new SicsData(response));
 						} else if (flag.equalsIgnoreCase(Flag.FINISH.toString())) {
 							callback.receiveFinish(new SicsData(response));
 						} else {
