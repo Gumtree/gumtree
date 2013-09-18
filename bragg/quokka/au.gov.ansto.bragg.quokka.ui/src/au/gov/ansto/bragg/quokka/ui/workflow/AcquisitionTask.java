@@ -905,7 +905,30 @@ public class AcquisitionTask extends AbstractExperimentTask {
 						@Override
 						public void run() throws Exception {
 							// Manual update
-							table.setModel(tableModel);
+							//table.setModel(tableModel);
+							//tableModelMap.put(tableModel.getAcquisition(), tableModel);
+							
+							// Update model
+							Map<SampleEnvironment, SampleEnvironmentPreset> searchMap = new HashMap<SampleEnvironment, SampleEnvironmentPreset>();
+							for (SampleEnvironmentUIContext context : sampleEnvContexts.values()) {
+								if (context.comboViewer == null) {
+									// Not ready
+									return;
+								}
+								Object selection =  ((IStructuredSelection) context.comboViewer.getSelection()).getFirstElement();
+								if (selection == null) {
+									// Not ready
+									return;
+								}
+								SampleEnvironmentPreset sampleEnvPreset = (SampleEnvironmentPreset) selection;
+								searchMap.put(context.sampleEnvironment, sampleEnvPreset);
+							}
+							ControlledAcquisition acquisition = getExperiment().findControlledAcquisition(searchMap);
+							if (acquisition != null) {
+								ScanTableModel tableModel = new ScanTableModel(table, getExperiment(), acquisition);
+								table.setModel(tableModel);
+								tableModelMap.put(acquisition, tableModel);
+							}
 						}
 					});
 				}				

@@ -324,8 +324,8 @@ public class SampleEnvironmentTask extends AbstractExperimentTask {
 			final Text endText = getToolkit().createText(generationArea, "");
 			GridDataFactory.swtDefaults().hint(50, SWT.DEFAULT).applyTo(endText);
 			getToolkit().createLabel(generationArea, " in ");
-			final Text stepText = getToolkit().createText(generationArea, "");
-			GridDataFactory.swtDefaults().hint(50, SWT.DEFAULT).applyTo(stepText);
+			final Text stepsText = getToolkit().createText(generationArea, "");
+			GridDataFactory.swtDefaults().hint(50, SWT.DEFAULT).applyTo(stepsText);
 			getToolkit().createLabel(generationArea, " steps");
 			Button generateButton = getToolkit().createButton(generationArea, "Generate", SWT.PUSH);
 			generateButton.setFont(boldFont);
@@ -344,9 +344,9 @@ public class SampleEnvironmentTask extends AbstractExperimentTask {
 					try {
 						float start = Float.parseFloat(startText.getText());
 						float end = Float.parseFloat(endText.getText());
-						int step = Integer.parseInt(stepText.getText());
+						int steps = Integer.parseInt(stepsText.getText());
 						int waitTime = Integer.parseInt(waitText.getText());
-						sampleEnvironment.resetPresets(start, end, step, waitTime);
+						sampleEnvironment.resetPresets(start, end, steps, waitTime);
 						tableViewer.setInput(sampleEnvironment.getPresets().toArray(SampleEnvironmentPreset.class));
 						tableViewer.refresh();
 					} catch (NumberFormatException nfe) {
