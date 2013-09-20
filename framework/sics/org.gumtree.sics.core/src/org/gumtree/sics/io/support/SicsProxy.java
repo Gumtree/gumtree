@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PreDestroy;
 
+import org.gumtree.sics.core.PropertyConstants;
 import org.gumtree.sics.io.ISicsCallback;
 import org.gumtree.sics.io.ISicsChannel;
 import org.gumtree.sics.io.ISicsChannelMonitor;
@@ -190,12 +191,54 @@ public class SicsProxy implements ISicsProxy {
 						Thread.currentThread().interrupt();
 					}
 				}
+				try {
+					if (Boolean.valueOf(System.getProperty(PropertyConstants.SICS_KEEP_CONNECTION))){
+						reconnect();
+					}
+				} catch (Exception e) {
+				}
 			}
+
 		});
 		connectionMonitor.start();
 		
 		setProxyState(ProxyState.CONNECTED);
 		logger.info("Sics connected");
+	}
+
+	private void reconnect() {
+		connectionMonitor = new Thread(new Runnable() {
+			public void run() {
+				while (getProxyState().equals(ProxyState.DISCONNECTED)) {
+					Socket socket = null;
+					try {
+						System.err.println("check connection");
+						// System.out.println("Checking heat beat...");
+						socket = new Socket(getConnectionContext().getHost(),
+								getConnectionContext().getPort());
+						System.err.println("try reconnect");
+						send("status", null, CHANNEL_GENERAL);
+					} catch (IOException ioe) {
+					} finally {
+						// clean up
+						if (socket != null) {
+							try {
+								socket.close();
+								socket = null;
+							} catch (IOException e) {
+							}
+						}
+					}
+					try {
+						Thread.sleep(HEART_BEAT_PERIOD);
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
+				}
+			}
+
+		});
+		connectionMonitor.start();
 	}
 
 	@Override
@@ -207,7 +250,7 @@ public class SicsProxy implements ISicsProxy {
 			channel.disconnect();
 		}
 		role = SicsRole.UNDEF;
-		context = null;
+//		context = null;
 		channels = null;
 		connectionMonitor = null;
 		incomingMessageQueue.clear();
