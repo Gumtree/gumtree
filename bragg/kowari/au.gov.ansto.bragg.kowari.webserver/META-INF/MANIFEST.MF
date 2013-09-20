@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Kowari Webserver Application
-Bundle-SymbolicName: au.gov.ansto.bragg.kowari.webserver
+Bundle-SymbolicName: au.gov.ansto.bragg.kowari.webserver;singleton:=true
 Bundle-Version: 1.9.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.kowari.webserver.internal.Activator
 Bundle-ActivationPolicy: lazy

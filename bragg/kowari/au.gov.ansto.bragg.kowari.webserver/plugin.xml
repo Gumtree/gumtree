@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.equinox.http.registry.resources">
+      <resource
+            alias="/kowari/index.html"
+            base-name="/WebContent/index.html">
+      </resource>
+      <resource
+            alias="/kowari.html"
+            base-name="/WebContent/kowari.html">
+      </resource>
+      <resource
+            alias="/index.html"
+            base-name="/WebContent/index.html">
+      </resource>
+      <resource
+            alias="/kowari.swf"
+            base-name="/WebContent/kowari.swf">
+      </resource>
+      <resource
+            alias="/playerProductInstall.swf"
+            base-name="/WebContent/playerProductInstall.swf">
+      </resource>
+      <resource
+            alias="/AC_OETags.js"
+            base-name="/WebContent/AC_OETags.js">
+      </resource>
+      <resource
+            alias="/history/history.css"
+            base-name="/WebContent/history/history.css">
+      </resource>
+      <resource
+            alias="/history/history.js"
+            base-name="/WebContent/history/history.js">
+      </resource>
+      <resource
+            alias="/history/historyFrame.html"
+            base-name="/WebContent/history/historyFrame.html">
+      </resource>
+
+   </extension>
+
+</plugin>
