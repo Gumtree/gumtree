@@ -31,6 +31,18 @@
             alias="/assets/quokka_dash.jpg"
             base-name="/WebContent/assets/quokka_dash.jpg">
       </resource>
+      <resource
+            alias="/history/history.css"
+            base-name="/WebContent/history/history.css">
+      </resource>
+      <resource
+            alias="/history/history.js"
+            base-name="/WebContent/history/history.js">
+      </resource>
+      <resource
+            alias="/history/historyFrame.html"
+            base-name="/WebContent/history/historyFrame.html">
+      </resource>
          
    </extension>
 </plugin>
