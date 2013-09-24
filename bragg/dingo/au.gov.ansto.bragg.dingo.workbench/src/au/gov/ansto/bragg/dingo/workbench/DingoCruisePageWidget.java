@@ -90,8 +90,12 @@ public class DingoCruisePageWidget extends AbstractCruisePageWidget {
 				InternalImage.EXPERIMENT_STATUS.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(statusGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/parameters/twotheta", "twotheta")
-				.addDevice("/instrument/parameters/omega", "omega")
+				.addDevice("/instrument/dy", "dy")
+				.addDevice("/sample/stth", "stth")
+				.addDevice("/sample/sx", "sx")
+				.addDevice("/sample/sy", "sy")
+				.addDevice("/sample/sz", "sz")
+				.addDevice("/sample/dz", "dz")
 //				.addSeparator()
 //				.addDevice("/instrument/polarizer/z_translation", "analz")
 //				.addDevice("/instrument/polarizer/rotation", "analtilt")
@@ -114,12 +118,14 @@ public class DingoCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(deviceStatusWidget);
 
 		// Monitor Event Rate
-		PGroup monitorGroup = createGroup("NEUTRON COUNTS",
+		PGroup monitorGroup = createGroup("CAMERA STATUS",
 				InternalImage.MONITOR.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/monitor/bm1_counts", "BM1 Counts", null, "")
-				.addDevice("/monitor/bm2_counts", "BM2 Counts", null, "")
+				.addDevice("/monitor/mode", "CM1 Mode", null, "")
+				.addDevice("/monitor/preset", "CM1 Preset", null, "")
+				.addDevice("/monitor/cm1_counts", "CM1 Counts", null, "")
+				.addDevice("/monitor/cm1_time", "CM1 Time", null, "")
 //				.addDevice("/instrument/detector/total_counts", "Total Detector", null, "")
 				;
 		configureWidget(deviceStatusWidget);
