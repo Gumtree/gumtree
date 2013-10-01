@@ -1,0 +1,35 @@
+.div-inlist{
+	display:inline-block;
+}
+
+.div-inlist-right{
+	float: right;
+}
+
+.div-inlist-left{
+	float: left;
+	padding-right: 1em;
+	vertical-align: middle;
+}
+
+h1{
+	margin-left: .5em;
+}
+
+#refreshTable thead th {
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
+}
+#refreshTable tbody th,
+#refreshTable tbody td {
+  border-bottom: 1px solid rgba(0, 0, 0, .05);
+}
+
+#refreshTable {
+	width: 100%;
+}
+
+img, object{
+    max-height:98%;
+    max-width:98%;
+}
+
