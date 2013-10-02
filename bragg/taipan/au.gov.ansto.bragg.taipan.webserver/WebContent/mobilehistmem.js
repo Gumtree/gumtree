@@ -8,7 +8,6 @@ var refresh = function(){
 			} 
 		});
 	} catch (e) {
-		alert(e);
 	}
 };
 

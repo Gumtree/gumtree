@@ -31,5 +31,7 @@ h1{
 img, object{
     max-height:98%;
     max-width:98%;
+    padding:1px;
+    border:1px solid #021a40;
 }
 
