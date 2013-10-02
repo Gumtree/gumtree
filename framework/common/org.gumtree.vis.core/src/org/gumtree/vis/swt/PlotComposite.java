@@ -134,9 +134,18 @@ public class PlotComposite extends Composite{
 	
 	private void removeListeners(IPlot plot) {
 		if (plot != null) {
-			removeMouseWheelListener(mouseWheelListener);
-			removeKeyListener(keyListener);
-			plot.removeChartMouseListener(chartMouseListener);
+			if (mouseWheelListener != null) {
+				removeMouseWheelListener(mouseWheelListener);
+				mouseWheelListener = null;
+			}
+			if (keyListener != null) {
+				removeKeyListener(keyListener);
+				keyListener = null;
+			}
+			if (chartMouseListener != null) {
+				plot.removeChartMouseListener(chartMouseListener);
+				chartMouseListener = null;
+			}
 		}
 	}
 

@@ -1026,8 +1026,12 @@ public class ScriptControlViewer extends Composite {
 									@Override
 									public void run() {
 										comboBox.setInput(parameter.getOptions());
-										comboBox.setSelection(new StructuredSelection(
-												parameter.getValue()));
+										if (parameter.getValue() == null) {
+											comboBox.setSelection(null);
+										} else {
+											comboBox.setSelection(new StructuredSelection(
+													parameter.getValue()));
+										}
 									}
 								});
 							} 
