@@ -37,6 +37,11 @@ var devices = [
             	            {"classId":"sensorValueC", "deviceId":"/sample/tc1/sensor/sensorValueC", "title":"Sensor C", "units":"K"},
             	            {"classId":"sensorValueD", "deviceId":"/sample/tc1/sensor/sensorValueD", "title":"Sensor D", "units":"K"}
             	   ]
+               },
+               {"group":"TC9", 
+            	   "items":[{"classId":"tc9Setpoint", "deviceId":"/sample/tc9/setpoint", "title":"Set Point", "units":"K"},
+            	            {"classId":"tc9Sensor", "deviceId":"/sample/tc9/sensor/value", "title":"Sensor", "units":"K"}
+            	   ]
                }
                ];
 
