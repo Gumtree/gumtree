@@ -35,4 +35,4 @@ var devices = [
                }
                ];
 
-var histmemUrl = "dae/rest/image?screen_size_x=800&screen_size_y=600";
+var histmemUrl = "dae/rest/image?type=TOTAL_HISTOGRAM_XY&screen_size_x=800&screen_size_y=600";
