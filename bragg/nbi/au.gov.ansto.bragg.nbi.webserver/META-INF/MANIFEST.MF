@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg NBI Webserver Application
-Bundle-SymbolicName: au.gov.ansto.bragg.nbi.webserver
+Bundle-SymbolicName: au.gov.ansto.bragg.nbi.webserver;singleton:=true
 Bundle-Version: 1.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Bragg Institute

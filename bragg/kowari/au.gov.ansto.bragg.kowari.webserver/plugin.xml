@@ -16,50 +16,9 @@
             base-name="/WebContent/kowari.swf">
       </resource>
       <resource
-            alias="/playerProductInstall.swf"
-            base-name="/WebContent/playerProductInstall.swf">
-      </resource>
-      <resource
-            alias="/AC_OETags.js"
-            base-name="/WebContent/AC_OETags.js">
-      </resource>
-      <resource
-            alias="/history/history.css"
-            base-name="/WebContent/history/history.css">
-      </resource>
-      <resource
-            alias="/history/history.js"
-            base-name="/WebContent/history/history.js">
-      </resource>
-      <resource
-            alias="/history/historyFrame.html"
-            base-name="/WebContent/history/historyFrame.html">
-      </resource>
-      <resource
-            alias="/mobile.html"
-            base-name="/WebContent/mobile.html">
-      </resource>
-      <resource
-            alias="/mobile.js"
-            base-name="/WebContent/mobile.js">
-      </resource>
-      <resource
-            alias="/mobile.css"
-            base-name="/WebContent/mobile.css">
-      </resource>
-      <resource
             alias="/instrumentsetup.js"
             base-name="/WebContent/instrumentsetup.js">
       </resource>
-      <resource
-            alias="/mobilehistmem.html"
-            base-name="/WebContent/mobilehistmem.html">
-      </resource>
-      <resource
-            alias="/mobilehistmem.js"
-            base-name="/WebContent/mobilehistmem.js">
-      </resource>
-
    </extension>
 
 </plugin>

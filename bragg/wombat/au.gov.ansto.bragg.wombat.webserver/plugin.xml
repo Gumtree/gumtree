@@ -16,42 +16,13 @@
             base-name="/WebContent/wombat.swf">
       </resource>
       <resource
-            alias="/playerProductInstall.swf"
-            base-name="/WebContent/playerProductInstall.swf">
-      </resource>
-      <resource
-            alias="/AC_OETags.js"
-            base-name="/WebContent/AC_OETags.js">
+            alias="/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
       </resource>
       <resource
             alias="/assets/wombat_dash.jpg"
             base-name="/WebContent/assets/wombat_dash.jpg">
       </resource>
-      <resource
-            alias="/mobile.html"
-            base-name="/WebContent/mobile.html">
-      </resource>
-      <resource
-            alias="/mobile.js"
-            base-name="/WebContent/mobile.js">
-      </resource>
-      <resource
-            alias="/mobile.css"
-            base-name="/WebContent/mobile.css">
-      </resource>
-      <resource
-            alias="/instrumentsetup.js"
-            base-name="/WebContent/instrumentsetup.js">
-      </resource>
-      <resource
-            alias="/mobilehistmem.html"
-            base-name="/WebContent/mobilehistmem.html">
-      </resource>
-      <resource
-            alias="/mobilehistmem.js"
-            base-name="/WebContent/mobilehistmem.js">
-      </resource>
-         
    </extension>
 
 </plugin>
