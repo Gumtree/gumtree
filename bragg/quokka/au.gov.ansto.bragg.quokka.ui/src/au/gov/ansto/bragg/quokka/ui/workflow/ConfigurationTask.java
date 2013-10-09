@@ -485,8 +485,8 @@ public class ConfigurationTask extends AbstractExperimentTask {
 							}
 						} else {
 							startConfigDrive("print('### Test drive configuration " + nameText.getText() + " (init) ###')\n" +
-									"from bragg.quokka import quokka\n" +
-									"from bragg.quokka.quokka import *\n" + 
+//									"from bragg.quokka import quokka\n" +
+//									"from bragg.quokka.quokka import *\n" + 
 									initScriptText.getText());
 						}
 					}

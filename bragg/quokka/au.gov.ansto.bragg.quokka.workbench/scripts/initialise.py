@@ -34,6 +34,6 @@ from bragg.quokka.quokka import getEntRotApValue, driveEntRotAp
 from bragg.quokka.quokka import getSamplePosition, driveSample, setSample, driveToLoadPosition
 from bragg.quokka.quokka import getJulaboValue, driveJulabo
 from bragg.quokka.quokka import driveFlipper
-from bragg.quokka.quokka import driveHistmem, getMaxBinRate, checkDetHealth, scan
+from bragg.quokka.quokka import driveHistmem, getMaxBinRate, scan
 from bragg.quokka.quokka import selBs, selBsxz
 from bragg.quokka.quokka import printQuokkaSettings
