@@ -31,16 +31,16 @@ var devices = [
             	            {"classId":"currpoint", "deviceId":"currpoint", "title":"Scan Point", "units":""}
             	   ]
                },
+//               {"group":"TEMPERATURE CONTROLLER", 
+//            	   "items":[{"classId":"sensorValueA", "deviceId":"/sample/tc1/sensor/sensorValueA", "title":"Sensor A", "units":"K"},
+//            	            {"classId":"sensorValueB", "deviceId":"/sample/tc1/sensor/sensorValueB", "title":"Sensor B", "units":"K"},
+//            	            {"classId":"sensorValueC", "deviceId":"/sample/tc1/sensor/sensorValueC", "title":"Sensor C", "units":"K"},
+//            	            {"classId":"sensorValueD", "deviceId":"/sample/tc1/sensor/sensorValueD", "title":"Sensor D", "units":"K"}
+//            	   ]
+//               },
                {"group":"TEMPERATURE CONTROLLER", 
-            	   "items":[{"classId":"sensorValueA", "deviceId":"/sample/tc1/sensor/sensorValueA", "title":"Sensor A", "units":"K"},
-            	            {"classId":"sensorValueB", "deviceId":"/sample/tc1/sensor/sensorValueB", "title":"Sensor B", "units":"K"},
-            	            {"classId":"sensorValueC", "deviceId":"/sample/tc1/sensor/sensorValueC", "title":"Sensor C", "units":"K"},
-            	            {"classId":"sensorValueD", "deviceId":"/sample/tc1/sensor/sensorValueD", "title":"Sensor D", "units":"K"}
-            	   ]
-               },
-               {"group":"TC9", 
-            	   "items":[{"classId":"tc9Setpoint", "deviceId":"/sample/tc9/setpoint", "title":"Set Point", "units":"K"},
-            	            {"classId":"tc9Sensor", "deviceId":"/sample/tc9/sensor/value", "title":"Sensor", "units":"K"}
+            	   "items":[{"classId":"tc2Setpoint", "deviceId":"/sample/tc2/Sensor/value", "title":"TC2 Sensor", "units":"K"},
+            	            {"classId":"mixingChamber", "deviceId":"/sample/magnetic/DilutTempReading", "title":"Mixing Chamber", "units":"K"}
             	   ]
                }
                ];

@@ -32,6 +32,7 @@ public class ConsoleView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		viewer = new CommandLineViewer();
+		viewer.setContentAssistEnabled(true);
 		executor = new ScriptExecutor("jython");
 		viewer.setScriptExecutor(executor);
 		viewer.createPartControl(parent, ICommandLineViewer.NO_UTIL_AREA);
