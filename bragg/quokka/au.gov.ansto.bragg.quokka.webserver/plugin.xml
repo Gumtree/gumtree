@@ -23,5 +23,9 @@
             alias="/instrumentsetup.js"
             base-name="/WebContent/instrumentsetup.js">
       </resource>
+      <resource
+            alias="/assets/quokka_dash.jpg"
+            base-name="/WebContent/assets/quokka_dash.jpg">
+      </resource>
    </extension>
 </plugin>
