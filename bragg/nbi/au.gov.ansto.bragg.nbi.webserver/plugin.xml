@@ -36,10 +36,6 @@
             base-name="/WebContent/mobile.css">
       </resource>
       <resource
-            alias="/instrumentsetup.js"
-            base-name="/WebContent/instrumentsetup.js">
-      </resource>
-      <resource
             alias="/mobilehistmem.html"
             base-name="/WebContent/mobilehistmem.html">
       </resource>
