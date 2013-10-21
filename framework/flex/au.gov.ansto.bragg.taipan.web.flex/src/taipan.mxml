@@ -1,0 +1,644 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:gum="org.gumtree.flex.*"
+	horizontalAlign="center"
+	backgroundColor="0x000000"
+	creationComplete="init()" verticalAlign="middle">
+	
+	<!-- Scripts -->
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.serialization.json.JSON;
+			import com.adobe.serialization.json.JSONDecoder;
+			import flash.events.TimerEvent;
+			import flash.utils.Timer;
+            import mx.collections.ArrayCollection;
+            import mx.controls.TextArea;
+            import mx.managers.BrowserManager;
+			import mx.managers.IBrowserManager;
+			import mx.messaging.channels.SecureAMFChannel;
+			import mx.rpc.events.FaultEvent;
+            import mx.rpc.events.ResultEvent;
+
+	        private var bm:IBrowserManager;
+            
+            private static var serverURL:String = "";
+            
+			private var timer:Timer;
+			// hdb (devices) - widget maping
+			private var hdbDeviceMap:Array;
+			// hdb (components) - widget maping
+			private var hdbComponentMap:Array;
+			
+			private function init():void {
+				
+				bm = BrowserManager.getInstance();
+        	    bm.init("", "Taipan - Time-of-Flight Spectrometer");
+				
+				// Set HDB HTTP
+				hdbDeviceMap = ["reactor_power", reactorPower,
+				"monitor_time", timeOfCounting,
+				"currpoint", currPoint,
+				"bm1_counts", bm1Counts,
+				"bm2_counts", bm2Counts,
+				"m1", m1Value,
+				"m2", m2Value,
+				"s1", s1Value,
+				"s2", s2Value,
+				"a1", a1Value,
+				"a2", a2Value,
+				"ei", eiValue,
+				"ef", efValue,
+				"en", enValue,
+				"qh", qhValue,
+				"qk", qkValue,
+				"ql", qlValue
+	//			"plc_secondary", secondaryShutter
+				];
+				
+				var url:String = serverURL + "sics/rest/hdbs?devices=";
+				for (var i:int = 0; i < hdbDeviceMap.length; i += 2)
+            	{
+            		url += hdbDeviceMap[i];
+            		if (i != hdbDeviceMap.length - 2) {
+            			url += ",";	
+            		}
+            	}
+            	
+            	hdbComponentMap = [
+            		"/commands/scan/bmonscan/scan_variable", scanVariable,
+//            		"/experiment/currpoint", currPoint,
+            		"/commands/scan/bmonscan/feedback/scan_variable_value", variableValue,
+            		"/sample/tc1/sensor/sensorValueA", sensorA,
+            		"/sample/tc1/sensor/sensorValueB", sensorB,
+            		"/sample/tc1/sensor/sensorValueC", sensorC,
+            		"/sample/tc1/sensor/sensorValueD", sensorD
+            	];
+            	
+            	url += "&components=";
+            	for (var j:int = 0; j < hdbComponentMap.length; j += 2)
+            	{
+            		url += hdbComponentMap[j];
+            		if (j != hdbComponentMap.length - 2) {
+            			url += ",";	
+            		}
+            	}
+				
+            	url += "&format=json";
+            	httpServiceForHdb.url =url;
+            	
+            	// Set Server HTTP
+         		httpServiceForServer.url = serverURL + "sics/rest/status";
+         		
+         		// Set HM URL
+         		hmImage.url = serverURL + "taipan/rest/plot?height=400&width=600";
+         		
+         		// Update once
+         		updateTimer(null);
+         		
+            	// Setup timer
+				triggerTimer();
+			}
+            
+
+            private function triggerTimer():void
+            {
+            	if (timerCheckBox.selected == true)
+            	{
+            		if (timer == null)
+            		{
+            			// Default timer with 1 sec interval
+            			timer = new Timer(1000);
+            			timer.addEventListener(TimerEvent.TIMER, updateTimer);
+            			// Then adjust delay based on setting
+            			changeTimerDelay();
+            		}
+            		timer.start();
+            	}
+            	else {
+            		timer.stop();
+            	}
+            }
+            
+            private function updateTimer(evt:TimerEvent):void
+            {
+            	// Update HDB data
+            	httpServiceForHdb.send();
+            	// Update server data
+            	httpServiceForServer.send();
+            	// Update HM data
+				hmImage.update();
+            }
+			
+			private function changeTimerDelay():void
+			{
+				if (timer != null)
+            	{
+            		timer.delay = timerStepper.value * 1000;
+            	}
+			}
+			
+			private function handleHdbData(event:ResultEvent):void
+			{
+				//get the raw JSON data and cast to String
+				var rawData:String = String(event.result);
+				var result:Object = JSON.decode(rawData);
+				var dataArray:Array = result.hdbs as Array;
+				for (var i:int = 0; i < dataArray.length; i++) {
+					var deviceName:String = dataArray[i].deviceId;
+					// device
+					if (deviceName != null)
+					{
+						var index:int = hdbDeviceMap.indexOf(deviceName);
+						if (index >= 0)
+						{
+							var textArea:TextArea = hdbDeviceMap[index + 1] as TextArea; 
+							textArea.text = dataArray[i].value;
+						}
+//						if (deviceName == "plc_tertiary") {
+//							handleSampleShutter(dataArray[i].value);
+//						}
+						
+					}
+					// component
+					else
+					{
+						var path:String = dataArray[i].path;
+						var componentIndex:int = hdbComponentMap.indexOf(path);
+						if (componentIndex >= 0)
+						{
+							var componentTextArea:TextArea = hdbComponentMap[componentIndex + 1] as TextArea; 
+							componentTextArea.text = dataArray[i].value;
+						}	
+					}
+				}
+				
+				// Update time
+				lastUpdate.text = "Last update: " + dateFormatter.format(new Date());
+				connectionStatus.text = "OK";
+				connectionStatus.setStyle("backgroundColor", "#00c400");
+			}
+			
+			private function handleServerData(event:ResultEvent):void
+			{
+				var rawData:String = String(event.result);
+				var result:Object = JSON.decode(rawData);
+//				if (result.status == "CONNECTED") {
+//					serverStatus.text = "CONNECTED";
+//					serverStatus.setStyle("backgroundColor", "#00c400");
+//				} else  {
+//					serverStatus.text = "DISCONNECTED";
+//					serverStatus.setStyle("backgroundColor", "#c40000");
+//					initText();
+//				}
+				serverStatus.text = result.status
+				if (result.status == "EAGER TO EXECUTE") {
+					serverStatus.setStyle("backgroundColor", "#00c400");
+				} else if (result.status == "COUNTING" || result.status == "WAIT" || result.status == "DRIVING") {
+					serverStatus.setStyle("backgroundColor", "#FFA500");
+				} else if (result.status == "PAUSED") {
+					serverStatus.setStyle("backgroundColor", "#0000c4");
+				} else  {
+					serverStatus.text = "DISCONNECTED";
+					serverStatus.setStyle("backgroundColor", "#c40000");
+					initText();
+				}
+			}
+			
+			private function handleFault(event:FaultEvent):void
+			{
+				connectionStatus.text = "Fault";
+				connectionStatus.setStyle("backgroundColor", "#c40000");
+				serverStatus.text = "--";
+				serverStatus.setStyle("backgroundColor", "#000000");
+				//to do. put -- in all text fields.
+//				initText();
+			}
+			
+//			private function handleSampleShutter(status:String):void
+//            {
+//            	if (status == "OPEN") {
+//               		sampleShutter.setStyle("backgroundColor", "#c40000");
+//            	}
+//            	else {
+//            		sampleShutter.setStyle("backgroundColor", "#00c400");
+//            	}
+//            } 
+            
+            private function initText():void {
+            	var j:int = hdbDeviceMap.length;
+				for (var i:int = 0; i < j; i+=2) {
+					var textArea:TextArea = hdbDeviceMap[i+1] as TextArea; 
+					textArea.text = "--";
+					textArea.setStyle("backgroundColor", "#000000");
+				}
+            } 
+			
+		]]>
+	</mx:Script>
+	
+	<!-- Services -->
+	<mx:HTTPService id="httpServiceForHdb" resultFormat="text" result="handleHdbData(event)" fault="handleFault(event)" />
+	<mx:HTTPService id="httpServiceForServer" resultFormat="text" result="handleServerData(event)" fault="handleFault(event)"/>
+	<mx:DateFormatter id="dateFormatter" formatString="YYYY-MM-DD HH:NN:SS A" />
+	
+	<!-- Effects -->
+	<mx:WipeDown id="wipeIn" duration="1000"/>
+	<mx:Dissolve id="dissolveIn" duration="1500" alphaFrom="0.0" alphaTo="1.0"/>
+	
+	<mx:Panel title="Taipan - Thermal 3-Axis Spectrometer"
+        width="1000" height="770" horizontalAlign="center" verticalAlign="top" fontSize="18" fontWeight="normal" backgroundColor="#000000" color="#FFFFFF" borderColor="#90CCFB" alpha="1.0" cornerRadius="3" layout="absolute">
+ 
+ 		<!-- Histogram image -->
+ 		<gum:ImageView id="hmImage" width="560" height="307" left="15" bottom="100" />
+
+ 		<!-- Instrument schematic -->
+
+		<mx:Panel width="308" height="514"
+			title="Instrument Status" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
+			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
+			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="642" y="148">
+			<mx:Grid width="100%" borderStyle="none">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="100%">
+						<mx:Label fontWeight="bold" text="Motors" textAlign="left" width="100%"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="m1" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="m1Value" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text="deg"  width="50"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="m2" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="m2Value" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text="deg"  width="50"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="s1" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="s1Value" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text="deg"  width="50"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="s2" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="s2Value" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text="deg"  width="50"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="a1" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="a1Value" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text="deg"  width="50"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="a2" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="a2Value" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text="deg"  width="50"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%" borderStyle="none">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="100%">
+						<mx:Label fontWeight="bold" text="Virtual Parameters" textAlign="left" width="100%"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="ei" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="eiValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text="meV"  width="50"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="ef" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="efValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text="meV"  width="50"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="en" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="enValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text="meV"  width="50"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="qh" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="qhValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text=""  width="50"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="qk" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="qkValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text=""  width="50"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="ql" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="qlValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text=""  width="50"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%" borderStyle="none">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="100%">
+						<mx:Label fontWeight="bold" text="Scan Status" textAlign="left" width="100%"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="Scan Variable" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="scanVariable" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text=""  width="50"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="Current Value" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="variableValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text=""  width="50"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="Scan Point" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="currPoint" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text=""  width="50"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+		</mx:Panel>
+		<mx:Panel width="308" height="101"
+			title="Server Status" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
+			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
+			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="642" y="25">
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="Connection" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="connectionStatus" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="140"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text=""  width="10"/>
+					</mx:GridItem>
+				</mx:GridRow>
+				<mx:GridRow width="100%">
+					<mx:GridItem width="45%">
+						<mx:Label text="Server Status" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="serverStatus" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="140"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text=""  width="10"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+		</mx:Panel>
+		<mx:Panel horizontalGap="0" width="559" height="101"
+			title="Beam Status" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
+			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
+			cornerRadius="4" creationCompleteEffect="{wipeIn}" x="40" y="25">
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%" height="100%">
+					<mx:GridItem width="100%" height="100%">
+						<mx:Grid>
+							<mx:GridRow width="100%">
+								<mx:GridItem width="55%">
+									<mx:Label text="Reactor Power" textAlign="right" width="100%"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:TextArea id="reactorPower" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="70"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:Label text="MW" width="40"/>
+								</mx:GridItem>
+							</mx:GridRow>
+							<mx:GridRow width="100%">
+								<mx:GridItem width="55%">
+									<mx:Label text="Monitor" textAlign="right" width="100%"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:TextArea id="bm1Counts" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="70"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:Label text=""  width="50"/>
+								</mx:GridItem>
+							</mx:GridRow>
+						</mx:Grid>
+					</mx:GridItem>
+					<mx:GridItem width="100%" height="100%">
+						<mx:Grid>
+							<mx:GridRow width="100%">
+								<mx:GridItem width="55%">
+									<mx:Label text="Time of Counting" textAlign="right" width="100%"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:TextArea id="timeOfCounting" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="70"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:Label text="s"  width="50"/>
+								</mx:GridItem>
+							</mx:GridRow>
+							<mx:GridRow width="100%">
+								<mx:GridItem width="55%">
+									<mx:Label text="Detector" textAlign="right" width="100%"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:TextArea id="bm2Counts" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="70"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:Label text=""  width="50"/>
+								</mx:GridItem>
+							</mx:GridRow>
+						</mx:Grid>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+		</mx:Panel>
+        <mx:Panel horizontalGap="0" width="559" height="101"
+			title="Temperature Controller" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
+			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
+			cornerRadius="4" creationCompleteEffect="{wipeIn}" x="40" y="148">
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%" height="100%">
+					<mx:GridItem width="100%" height="100%">
+						<mx:Grid>
+							<mx:GridRow width="100%">
+								<mx:GridItem width="55%">
+									<mx:Label text="Sensor A" textAlign="right" width="100%"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:TextArea id="sensorA" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="70"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:Label text="K" width="40"/>
+								</mx:GridItem>
+							</mx:GridRow>
+							<mx:GridRow width="100%">
+								<mx:GridItem width="55%">
+									<mx:Label text="Sensor B" textAlign="right" width="100%"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:TextArea id="sensorB" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="70"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:Label text="K"  width="50"/>
+								</mx:GridItem>
+							</mx:GridRow>
+						</mx:Grid>
+					</mx:GridItem>
+					<mx:GridItem width="100%" height="100%">
+						<mx:Grid>
+							<mx:GridRow width="100%">
+								<mx:GridItem width="55%">
+									<mx:Label text="Sensor C" textAlign="right" width="100%"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:TextArea id="sensorC" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="70"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:Label text="K"  width="50"/>
+								</mx:GridItem>
+							</mx:GridRow>
+							<mx:GridRow width="100%">
+								<mx:GridItem width="55%">
+									<mx:Label text="Sensor D" textAlign="right" width="100%"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:TextArea id="sensorD" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="70"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:Label text="K"  width="50"/>
+								</mx:GridItem>
+							</mx:GridRow>
+						</mx:Grid>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+		</mx:Panel>
+        
+        <!-- Update control -->
+		<mx:ControlBar>
+            <mx:Label id="lastUpdate" fontSize="12" text="Last updated:"/>
+            <mx:Spacer width="100%"/>
+            <mx:CheckBox id="timerCheckBox" fontSize="12" selected="true" click="triggerTimer()"/>
+            <mx:Label text="Auto refresh in every" fontSize="12"/>
+            <mx:NumericStepper id="timerStepper" fontSize="12" color="#000000" value="10" change="changeTimerDelay()"/>
+            <mx:Label text="sec" fontSize="12"/>
+            <!-- Use Spacer to push Button control to the right. -->
+        </mx:ControlBar>
+        
+    </mx:Panel>
+    
+</mx:Application>
