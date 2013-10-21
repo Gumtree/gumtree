@@ -8,8 +8,8 @@
             base-name="/WebContent/pelican.html">
       </resource>
       <resource
-            alias="/index.html"
-            base-name="/WebContent/index.html">
+            alias="/"
+            base-name="/WebContent/pelican.html">
       </resource>
       <resource
             alias="/pelican.swf"

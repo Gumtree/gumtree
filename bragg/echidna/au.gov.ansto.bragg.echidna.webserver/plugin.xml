@@ -8,6 +8,10 @@
             base-name="/WebContent/echidna.html">
       </resource>
       <resource
+            alias="/"
+            base-name="/WebContent/echidna.html">
+      </resource>
+      <resource
             alias="/index.html"
             base-name="/WebContent/index.html">
       </resource>

@@ -8,8 +8,12 @@
             base-name="/WebContent/wombat.html">
       </resource>
       <resource
+            alias="/"
+            base-name="/WebContent/wombat.html">
+      </resource>
+      <resource
             alias="/index.html"
-            base-name="/WebContent/index.html">
+            base-name="/WebContent/wombat.html">
       </resource>
       <resource
             alias="/wombat.swf"

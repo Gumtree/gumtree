@@ -4,6 +4,10 @@
    <extension
          point="org.eclipse.equinox.http.registry.resources">
       <resource
+            alias="/"
+            base-name="/WebContent/kowari.html">
+      </resource>
+      <resource
             alias="/kowari.html"
             base-name="/WebContent/kowari.html">
       </resource>

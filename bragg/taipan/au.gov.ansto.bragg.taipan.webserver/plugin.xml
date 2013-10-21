@@ -27,6 +27,10 @@
    <extension
          point="org.eclipse.equinox.http.registry.resources">
       <resource
+            alias="/"
+            base-name="/WebContent/taipan.html">
+      </resource>
+      <resource
             alias="/taipan.html"
             base-name="/WebContent/taipan.html">
       </resource>
