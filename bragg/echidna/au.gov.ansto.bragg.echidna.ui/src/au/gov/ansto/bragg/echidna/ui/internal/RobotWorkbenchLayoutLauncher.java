@@ -35,6 +35,12 @@ public class RobotWorkbenchLayoutLauncher extends AbstractLauncher {
 			
 			// Attempt to close intro
 			final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			final IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+			for (IWorkbenchWindow window : windows){
+				if (window != null && window != activeWorkbenchWindow) {
+					window.close();
+				}
+			}
 			if (activeWorkbenchWindow instanceof WorkbenchWindow) {
 //				activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
 				IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();

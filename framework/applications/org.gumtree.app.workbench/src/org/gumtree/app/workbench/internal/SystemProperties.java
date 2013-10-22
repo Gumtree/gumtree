@@ -59,6 +59,9 @@ public final class SystemProperties {
 	public static final ISystemProperty RESTORE_WORKBENCH = new SystemProperty(
 			"gumtree.workbench.restoreWorkbench", "false");
 
+	public static final ISystemProperty CRUISE_ENABLE_PAGE = new SystemProperty(
+			"gumtree.cruise.enablepage", "");
+
 	private SystemProperties() {
 		super();
 	}

@@ -8,6 +8,7 @@ public final class UIProperties {
 	public static final ISystemProperty PAGE_ODER = new SystemProperty(
 			"gumtree.cruise.pageOrder", "");
 	
+	
 	private UIProperties() {
 		super();
 	}

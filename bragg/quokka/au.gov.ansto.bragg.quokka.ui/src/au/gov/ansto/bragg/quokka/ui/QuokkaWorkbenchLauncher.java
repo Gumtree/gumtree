@@ -41,6 +41,12 @@ public class QuokkaWorkbenchLauncher extends AbstractLauncher {
 			// TODO: move this logic to experiment UI manager service
 			
 			final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			final IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+			for (IWorkbenchWindow window : windows){
+				if (window != null && window != activeWorkbenchWindow) {
+					window.close();
+				}
+			}
 			if (activeWorkbenchWindow instanceof WorkbenchWindow) {
 				((WorkbenchWindow) activeWorkbenchWindow).setCoolBarVisible(false);
 				activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);

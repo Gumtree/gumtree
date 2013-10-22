@@ -1,5 +1,7 @@
 package org.gumtree.app.workbench.internal;
 
+import java.util.List;
+
 import org.eclipse.e4.ui.model.application.ui.basic.MBasicFactory;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.model.application.ui.basic.MPartSashContainer;
@@ -16,6 +18,7 @@ import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.ui.util.workbench.WorkbenchUtils;
 import org.gumtree.util.collection.IMapFilter;
 import org.gumtree.util.messaging.EventHandler;
+import org.gumtree.util.string.StringUtils;
 import org.osgi.service.event.Event;
 
 @SuppressWarnings("restriction")
@@ -71,7 +74,21 @@ public class SidebarActivator implements IStartup {
 		if (mWindow == null) {
 			return;
 		}
-		
+		try{
+			String perspectiveId = window.getActivePage().getPerspective().getId();
+			List<String> disablePages = StringUtils.split(SystemProperties.CRUISE_ENABLE_PAGE.getValue(), ",");
+			boolean cruiseEnabled = false;
+			for (String id : disablePages) {
+				if (perspectiveId != null && perspectiveId.equals(id)){
+					cruiseEnabled = true;
+					break;
+				}
+			}
+			if (!cruiseEnabled) {
+				return;
+			}
+		}catch (Exception e) {
+		}
 		// Find existing cruise part
 		MPart cruisePart = WorkbenchUtils.getFirstChildWithProperty(mWindow,
 				MPart.class, new IMapFilter<String, String>() {
