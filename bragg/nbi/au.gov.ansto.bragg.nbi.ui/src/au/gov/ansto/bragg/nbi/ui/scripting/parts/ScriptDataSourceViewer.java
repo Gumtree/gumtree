@@ -46,8 +46,10 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.gumtree.data.exception.FileAccessException;
 import org.gumtree.data.interfaces.IDataset;
 import org.gumtree.data.utils.FactoryManager;
+import org.gumtree.util.string.StringUtils;
 
 import au.gov.ansto.bragg.nbi.ui.internal.InternalImage;
+import au.gov.ansto.bragg.nbi.ui.scripting.ScriptingConstants;
 
 
 /**
@@ -364,8 +366,9 @@ public class ScriptDataSourceViewer extends Composite {
 	// This will create the columns for the table
 	private void createColumns(final Composite parent) {
 
+		int colNumber = 0;
 		// First column is for the first name
-		TableViewerColumn col = createTableViewerColumn(COLUMN_TITLES[0], COLUMN_BOUNDS[0], 0);
+		TableViewerColumn col = createTableViewerColumn(COLUMN_TITLES[0], COLUMN_BOUNDS[0], colNumber++);
 		ColumnLabelProvider labelProvider = new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -376,8 +379,23 @@ public class ScriptDataSourceViewer extends Composite {
 		};
 		col.setLabelProvider(labelProvider);
 
+		List<String> dataSourceColumns = StringUtils.split(ScriptingConstants.SCRIPTING_DATASOURCE_COLUMNS.getValue(), ",");
+		for (int i = 0; i < dataSourceColumns.size(); i ++) {
+			String column = dataSourceColumns.get(i);
+			String[] columnItems = column.split(":");
+			col = createTableViewerColumn(columnItems[0], Integer.valueOf(columnItems[2]), colNumber++);
+			final int index = i;
+			col.setLabelProvider(new ColumnLabelProvider() {
+				@Override
+				public String getText(Object element) {
+					DatasetInfo obj = (DatasetInfo) element;
+					return obj.getPropertyList().get(index).getValue().toString();
+				}
+			});
+		}
+				
 		// Second column is for the last name
-		col = createTableViewerColumn(COLUMN_TITLES[1], COLUMN_BOUNDS[1], 1);
+		col = createTableViewerColumn(COLUMN_TITLES[1], COLUMN_BOUNDS[1], colNumber++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
