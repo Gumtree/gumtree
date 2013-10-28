@@ -32,7 +32,7 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 	public static final String SICS_BUFFER_RUNNER = "org.gumtree.gumnix.sics.batch.ui.batchBufferManagerView";
 	public static final String PROJECT_EXPLORER_VIEW_ID = "org.eclipse.ui.navigator.ProjectExplorer";
 	public static final String CONTROL_VIEW_ID = "au.gov.ansto.bragg.echidna.ui.views.EchidnaControlView";
-	public static final String ID_VIEW_ACTIVITY_MONITOR = "au.gov.ansto.bragg.echidna.ui.views.SicsRealtimeDataView";
+	public static final String ID_VIEW_ACTIVITY_MONITOR = "au.gov.ansto.bragg.nbi.ui.SicsRealtimeDataView";
 
 	private static Logger logger;
 

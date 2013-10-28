@@ -49,7 +49,7 @@ public class LowTemperaturePerspective implements IPerspectiveFactory {
 	public static final String CONTROL_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.SicsTerminalView";
 	public static final String ID_VIEW_SPY_VIEW = "org.gumtree.dashboard.ui.rcp.spyView";
 	public static final String ID_TCL_EDITOR = "org.eclipse.dltk.tcl.ui.editor.TclEditor";
-	public static final String ID_VIEW_ACTIVITY_MONITOR = "au.gov.ansto.bragg.echidna.ui.views.SicsRealtimeDataView";
+	public static final String ID_VIEW_ACTIVITY_MONITOR = "au.gov.ansto.bragg.nbi.ui.SicsRealtimeDataView";
 	public static final String FOLDER_TEMPLATE = "Templates";
 	public static final String FILE_TEMPLATE = "LowTemperatureTemplate.tmp";
 	
