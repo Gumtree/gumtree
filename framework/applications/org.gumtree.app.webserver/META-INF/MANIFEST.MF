@@ -9,7 +9,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.gumtree.server;bundle-version="1.7.0",
  org.springframework.beans;bundle-version="3.0.5",
- org.gumtree.app.runtime;bundle-version="1.8.0"
+ org.gumtree.app.runtime;bundle-version="1.8.0",
+ org.eclipse.equinox.http.registry;bundle-version="1.1.200"
 Bundle-Vendor: Bragg Institute
 Eclipse-BundleShape: dir
 Service-Component: OSGI-INF/JettyStarter.xml
