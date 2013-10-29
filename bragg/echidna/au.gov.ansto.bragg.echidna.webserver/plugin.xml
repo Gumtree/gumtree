@@ -9,7 +9,7 @@
       </resource>
       <resource
             alias="/"
-            base-name="/WebContent/echidna.html">
+            base-name="/WebContent/index.html">
       </resource>
       <resource
             alias="/index.html"
