@@ -10,28 +10,12 @@ import java.util.List;
  * @author nxi
  *
  */
-public class ScriptObjectGroup implements IPyObject {
+public class ScriptObjectGroup extends PyObjectImp {
 
 	private List<IPyObject> objectList = new ArrayList<IPyObject>();
-	private String name;
 	
 	public ScriptObjectGroup(String name) {
-		this.name = name;
-	}
-	/* (non-Javadoc)
-	 * @see au.gov.ansto.bragg.wombat.ui.script.pyobj.IPyObject#getName()
-	 */
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	/* (non-Javadoc)
-	 * @see au.gov.ansto.bragg.wombat.ui.script.pyobj.IPyObject#setName(java.lang.String)
-	 */
-	@Override
-	public void setName(String name) {
-		this.name = name;
+		setName(name);
 	}
 
 	/**

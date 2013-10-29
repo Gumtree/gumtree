@@ -76,6 +76,8 @@ class Act:
             return self.__act__.getText()
         elif name == 'command' :
             return self.__act__.getCommand()
+        elif name != '__act__' :
+            return self.__act__.getProperty(name)
     
     def __setattr__(self, name, value):
         if name == 'name' :
@@ -84,8 +86,10 @@ class Act:
             self.__act__.setText(value)
         elif name == 'command' :
             self.__act__.setCommand(value)
-        else :
+        elif name == '__act__' :
             self.__dict__[name] = value
+        else :
+            self.__act__.setProperty(name, str(value))
             
     def __str__(self):
         return 'Act_' + self.name
@@ -142,13 +146,17 @@ class Group():
     def __getattr__(self, name):
         if name == 'name' :
             return self.__group__.getName()
-    
+        elif name != '__group__' :
+            return self.__group__.getProperty(name)
+            
     def __setattr__(self, name, value):
         if name == 'name' :
             self.__group__.setName(value)
-        else :
+        elif name == '__group__' :
             self.__dict__[name] = value
-            
+        else :
+            self.__group__.setProperty(name, str(value))
+                        
     def __str__(self):
         return 'Group_' + self.name
     

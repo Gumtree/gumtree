@@ -382,6 +382,9 @@ public class ScriptDataSourceViewer extends Composite {
 		List<String> dataSourceColumns = StringUtils.split(ScriptingConstants.SCRIPTING_DATASOURCE_COLUMNS.getValue(), ",");
 		for (int i = 0; i < dataSourceColumns.size(); i ++) {
 			String column = dataSourceColumns.get(i);
+			if (column == null || column.trim().length() == 0) {
+				continue;
+			}
 			String[] columnItems = column.split(":");
 			col = createTableViewerColumn(columnItems[0], Integer.valueOf(columnItems[2]), colNumber++);
 			final int index = i;

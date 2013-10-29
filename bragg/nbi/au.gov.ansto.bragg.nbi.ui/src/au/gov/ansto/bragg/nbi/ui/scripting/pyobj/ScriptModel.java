@@ -19,6 +19,7 @@ public class ScriptModel {
 	private int id;
 	private String title;
 	private String version;
+	private int numColumns = 1;
 	
 //	public static ScriptModel getModel(int id) {
 //		return modelRegistry.get(id);
@@ -90,5 +91,19 @@ public class ScriptModel {
 			}
 		}
 		return list;
+	}
+
+	/**
+	 * @return the numColumns
+	 */
+	public int getNumColumns() {
+		return numColumns;
+	}
+
+	/**
+	 * @param numColumns the numColumns to set
+	 */
+	public void setNumColumns(int numColumns) {
+		this.numColumns = numColumns;
 	}
 }

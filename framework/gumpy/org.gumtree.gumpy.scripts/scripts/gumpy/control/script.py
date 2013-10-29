@@ -10,6 +10,8 @@ class Script:
             self.model.setTitle(value)
         elif name == 'version' :
             self.model.setVersion(value)
+        elif name == 'numColumns':
+            self.model.setNumColumns(value)
         else:
             self.__dict__[name] = value
     
@@ -18,6 +20,8 @@ class Script:
             return self.model.getTitle()
         elif name == 'version' :
             return self.model.getVersion()
+        elif name == 'numColumns':
+            return self.model.getNumColumns()
             
     def __str__(self):
         return self.title

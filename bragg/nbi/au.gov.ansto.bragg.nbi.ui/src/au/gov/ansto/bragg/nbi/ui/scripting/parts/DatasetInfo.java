@@ -38,6 +38,9 @@ public class DatasetInfo {
 		List<String> dataSourceColumns = StringUtils.split(ScriptingConstants.SCRIPTING_DATASOURCE_COLUMNS.getValue(), ",");
 		propertyList = new ArrayList<DatasetInfo.ColumnProvider>();
 		for (String column : dataSourceColumns) {
+			if (column == null || column.trim().length() == 0) {
+				continue;
+			}
 			String[] columnItems = column.split(":");
 			IContainer container = null;;
 			try {

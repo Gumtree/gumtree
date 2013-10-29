@@ -10,24 +10,15 @@ import java.util.List;
  * @author nxi
  *
  */
-public class ScriptAction implements IPyObject {
+public class ScriptAction extends PyObjectImp {
 
 	public enum ActionStatus {RUNNING, INTERRUPT, DONE, ERROR, DEFAULT}
 	private List<IActionStatusListener> listeners = new ArrayList<IActionStatusListener>();
 	
 	private String text;
 	private String command;
-	private String name;
 	private ActionStatus status;
 	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public String getText() {
 		return text;
 	}

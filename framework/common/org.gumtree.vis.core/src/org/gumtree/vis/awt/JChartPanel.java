@@ -118,6 +118,7 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
     private Point2D textInputPoint;
     private String textInputContent;
     private int textInputCursorIndex;
+    private Point2D textMovePoint;
 
 	private double chartX;
     private double chartY;
@@ -145,6 +146,7 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
     private LinkedHashMap<Line2D, Color> markerMap;
 	private LinkedHashMap<Shape, Color> shapeMap;
 	private LinkedHashMap<Rectangle2D, String> textContentMap;
+	private Rectangle2D selectedTextWrapper;
 	private Point2D mouseRightClickLocation;
 	private Line2D selectedMarker;
 	
@@ -594,8 +596,31 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 					continue;
 				}
 				String[] lines = text.split("\n");
+				g2.setColor(Color.BLACK);
 				for (int i = 0; i < lines.length; i++) {
 					g2.drawString(lines[i], (int) screenPoint.getX() + 3, (int) screenPoint.getY() - 3 + i * 15);
+				}
+				if (rect == selectedTextWrapper) {
+					FontMetrics fm = g2.getFontMetrics();
+					int maxWidth = 0;
+					int maxHeight = 0;
+					for (int i = 0; i < lines.length; i++) {
+						int lineWidth = fm.stringWidth(lines[i]);
+						if (lineWidth > maxWidth) {
+							maxWidth = lineWidth;
+						}
+					}
+					maxHeight = 15 * lines.length;
+					if (maxWidth < 100) {
+						maxWidth = 100;
+					}
+					Rectangle2D inputBox = new Rectangle2D.Double(screenPoint.getX(), screenPoint.getY() - 15, maxWidth + 8, maxHeight);
+			        Color fillColor = new Color(250, 250, 50, 30);
+			        g2.setPaint(fillColor);
+			        g2.fill(inputBox);
+					g2.setColor(Color.ORANGE);
+					g2.drawRect((int) screenPoint.getX(), (int) screenPoint.getY() - 15, maxWidth + 8, maxHeight);
+
 				}
 //				g2.drawString(text == null ? "" : text, (int) screenPoint.getX() + 3, (int) screenPoint.getY() - 3);
 			}
@@ -1149,16 +1174,84 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 	@Override
 	public void mouseMoved(MouseEvent e) {
 //        if (isMaskingEnabled() && (e.getModifiers() & maskingKeyMask) != 0) {
-		if (isMaskingEnabled()) {
+		if (selectedTextWrapper == null && isMaskingEnabled()) {
         	int cursorType = findCursorOnSelectedItem(e.getX(), e.getY());
         	setCursor(Cursor.getPredefinedCursor(cursorType));
-        } else if (getCursor() != defaultCursor) {
-        	setCursor(defaultCursor);
+        } else {
+        	Cursor newCursor = defaultCursor;
+        	if (selectedTextWrapper != null) {
+				Point2D screenXY = ChartMaskingUtilities.translateChartPoint(new Point2D.Double(selectedTextWrapper.getMinX(), 
+						selectedTextWrapper.getMinY()), getScreenDataArea(), getChart());
+				Rectangle2D screenRect = new Rectangle2D.Double(screenXY.getX(), screenXY.getY() - 15, 
+						selectedTextWrapper.getWidth(), selectedTextWrapper.getHeight());
+				if (screenRect.contains(e.getX(), e.getY())) {
+					newCursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
+				}
+        	}
+        	if (newCursor != getCursor()) {
+        		setCursor(newCursor);
+        	}
         }
 		Line2D oldSelection = selectedMarker;
 		findSelectedMarker(e.getPoint());
 		if (selectedMarker != oldSelection) {
 			repaint();
+		}
+	}
+	
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		if (selectedTextWrapper != null && textInputPoint != null) {
+			moveSelectedText(e);
+		} else {
+			super.mouseDragged(e);
+		}
+	}
+	
+	private void moveSelectedText(MouseEvent e) {
+			Point2D screenPoint = translateScreenToJava2D(e.getPoint());
+			Rectangle2D screenArea = getScreenDataArea();
+			if (screenArea.contains(screenPoint)) {
+
+				if (textMovePoint != null) {
+//					Point2D point = translateScreenToChart(translateScreenToJava2D(e.getPoint()));
+					double screenX = ChartMaskingUtilities.translateScreenX(e.getX() / getScaleX(), 
+		            		getScreenDataArea(), getChart());
+					double screenY = ChartMaskingUtilities.translateScreenY(e.getY(), getScreenDataArea(), getChart(), 0);
+//					Point2D point = translateScreenToChart(translateScreenToJava2D(e.getPoint()));
+					Point2D point = new Point2D.Double(screenX, screenY);
+					selectedTextWrapper.setRect(selectedTextWrapper.getMinX() + point.getX() - textMovePoint.getX(), 
+							selectedTextWrapper.getMinY() + point.getY() - textMovePoint.getY(), 
+							selectedTextWrapper.getWidth(), 
+							selectedTextWrapper.getHeight());
+					if (point != null) {
+						this.textMovePoint = point;
+					}
+					repaint();
+				}
+			}
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		if (selectedTextWrapper != null && getCursor() == Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR)) {
+			Point2D screenXY = ChartMaskingUtilities.translateChartPoint(new Point2D.Double(selectedTextWrapper.getMinX(), selectedTextWrapper.getMinY()), getScreenDataArea(), getChart());
+			Rectangle2D screenRect = new Rectangle2D.Double(screenXY.getX(), screenXY.getY() - 15, selectedTextWrapper.getWidth(), selectedTextWrapper.getHeight());
+			if (screenRect.contains(e.getX(), e.getY())) {
+
+				double screenX = ChartMaskingUtilities.translateScreenX(e.getX() / getScaleX(), 
+						getScreenDataArea(), getChart());
+				double screenY = ChartMaskingUtilities.translateScreenY(e.getY(), getScreenDataArea(), getChart(), 0);
+				//			Point2D point = translateScreenToChart(translateScreenToJava2D(e.getPoint()));
+				Point2D point = new Point2D.Double(screenX, screenY);
+				if (point != null) {
+					this.textMovePoint = point;
+				}
+			} else {
+				this.textMovePoint = null;
+			}
+		} else {
+			super.mousePressed(e);
 		}
 	}
 	
@@ -1170,73 +1263,141 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 			addMarker(xNew, yNew, null);
 		} else if (isTextInputEnabled) {
 			if (!textInputFlag) {
-				textInputFlag = true;
-//				textInputPoint = new Point2D.Double(xNew, yNew);
-				textInputPoint = e.getPoint();
-			} else {
-				Point2D point = e.getPoint();
-				boolean finishInput = false;
-				if (point.getX() < textInputPoint.getX() || point.getY() < textInputPoint.getY() - 15) {
-					finishInput = true;
-				} else {
-					String inputText = textInputContent;
-					if (inputText == null) {
-						inputText = "";
-					}
-					String[] lines = inputText.split("\n", 100);
-					int cursorX = 0;
-					int charCount = 0;
-					int maxWidth = 0;
-					int pickX = -1;
-					FontMetrics fm = getGraphics().getFontMetrics();
-					for (int i = 0; i < lines.length; i++) {
-						int lineWidth = fm.stringWidth(lines[i]);
-						if (lineWidth > maxWidth) {
-							maxWidth = lineWidth;
+				boolean newTextEnabled = selectedTextWrapper == null;
+				if (selectedTextWrapper != null) {
+					Point2D screenXY = ChartMaskingUtilities.translateChartPoint(new Point2D.Double(selectedTextWrapper.getMinX(), selectedTextWrapper.getMinY()), getScreenDataArea(), getChart());
+					Rectangle2D screenRect = new Rectangle2D.Double(screenXY.getX(), screenXY.getY() - 15, selectedTextWrapper.getWidth(), selectedTextWrapper.getHeight());
+					if (screenRect.contains(e.getX(), e.getY())) {
+						Point2D point = e.getPoint();
+						String inputText = textContentMap.get(selectedTextWrapper);
+						if (inputText == null) {
+							inputText = "";
 						}
-					}
-					if (maxWidth < 100) {
-						maxWidth = 100;
-					}
-					if (point.getX() > textInputPoint.getX() + 11 + maxWidth || point.getY() > textInputPoint.getY() + lines.length * 15 - 15){
-						finishInput = true;
-					} else {
+						String[] lines = inputText.split("\n", 100);
+						int cursorX = 0;
+						int charCount = 0;
+						int maxWidth = 0;
+						int pickX = -1;
+						FontMetrics fm = getGraphics().getFontMetrics();
 						for (int i = 0; i < lines.length; i++) {
-							if (point.getY() > textInputPoint.getY() + i * 15 - 15 && point.getY() <= textInputPoint.getY() + i * 15){
-								cursorX = fm.stringWidth(lines[i]);
-								if (point.getX() >= textInputPoint.getX() && point.getX() <= textInputPoint.getX() + 3 + cursorX) {
-									if (point.getX() >= textInputPoint.getX() && point.getX() < textInputPoint.getX() + 3) { 
-										pickX = 0;
-									}									
-									double lastEnd = textInputPoint.getX() + 3;
-									for (int j = 0; j < lines[i].length(); j++) {
-										int size = fm.stringWidth(lines[i].substring(0, j + 1));
-										double newEnd = textInputPoint.getX() + 3 + size;
-										if (point.getX() >= lastEnd && point.getX() < lastEnd + (newEnd - lastEnd) / 2) {
-											pickX = j;
-										} else if (point.getX() >= lastEnd + (newEnd - lastEnd) / 2 && point.getX() < newEnd) {
-											pickX = j + 1;
-										}
-										lastEnd = newEnd;
-									}
-									if (pickX >= 0) {
-										textInputCursorIndex = charCount + pickX;
-									}
-								} else {
-									textInputCursorIndex = charCount + lines[i].length();
-								}
-								break;
+							int lineWidth = fm.stringWidth(lines[i]);
+							if (lineWidth > maxWidth) {
+								maxWidth = lineWidth;
 							}
-							charCount += lines[i].length() + 1;
+						}
+						if (maxWidth < 100) {
+							maxWidth = 100;
+						}
+						Point2D screenPoint = ChartMaskingUtilities.translateChartPoint(new Point2D.Double(selectedTextWrapper.getX(), 
+								selectedTextWrapper.getY()), getScreenDataArea(), getChart());
+						if (point.getX() <= screenPoint.getX() + 11 + maxWidth && point.getY() <= screenPoint.getY() + lines.length * 15 - 15){
+							textInputPoint = screenPoint;
+							textInputContent = inputText;
+							textInputFlag = true;
+							textContentMap.remove(selectedTextWrapper);
+							selectedTextWrapper = null;
+							textInputCursorIndex = 0;
+							for (int i = 0; i < lines.length; i++) {
+								if (point.getY() > screenPoint.getY() + i * 15 - 15 && point.getY() <= screenPoint.getY() + i * 15){
+									cursorX = fm.stringWidth(lines[i]);
+									if (point.getX() >= screenPoint.getX() && point.getX() <= screenPoint.getX() + 3 + cursorX) {
+										if (point.getX() >= screenPoint.getX() && point.getX() < screenPoint.getX() + 3) { 
+											pickX = 0;
+										}									
+										double lastEnd = screenPoint.getX() + 3;
+										for (int j = 0; j < lines[i].length(); j++) {
+											int size = fm.stringWidth(lines[i].substring(0, j + 1));
+											double newEnd = screenPoint.getX() + 3 + size;
+											if (point.getX() >= lastEnd && point.getX() < lastEnd + (newEnd - lastEnd) / 2) {
+												pickX = j;
+											} else if (point.getX() >= lastEnd + (newEnd - lastEnd) / 2 && point.getX() < newEnd) {
+												pickX = j + 1;
+											}
+											lastEnd = newEnd;
+										}
+										if (pickX >= 0) {
+											textInputCursorIndex = charCount + pickX;
+										}
+									} else {
+										textInputCursorIndex = charCount + lines[i].length();
+									}
+									break;
+								}
+								charCount += lines[i].length() + 1;
+							}
 						}
 					}
 				}
+				selectText(e.getX(), e.getY());
+				if (selectedTextWrapper == null && !textInputFlag && newTextEnabled && (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
+					textInputFlag = true;
+					textInputPoint = e.getPoint();
+				}
+			} else {
+				Point2D point = e.getPoint();
+				boolean finishInput = false;
+//				if (point.getX() < textInputPoint.getX() || point.getY() < textInputPoint.getY() - 15) {
+//					finishInput = true;
+//				} else {
+				String inputText = textInputContent;
+				if (inputText == null) {
+					inputText = "";
+				}
+				String[] lines = inputText.split("\n", 100);
+				int cursorX = 0;
+				int charCount = 0;
+				int maxWidth = 0;
+				int pickX = -1;
+				FontMetrics fm = getGraphics().getFontMetrics();
+				for (int i = 0; i < lines.length; i++) {
+					int lineWidth = fm.stringWidth(lines[i]);
+					if (lineWidth > maxWidth) {
+						maxWidth = lineWidth;
+					}
+				}
+				if (maxWidth < 100) {
+					maxWidth = 100;
+				}
+				if (point.getX() > textInputPoint.getX() + 11 + maxWidth || point.getY() > textInputPoint.getY() + lines.length * 15 - 15
+						|| point.getX() < textInputPoint.getX() || point.getY() < textInputPoint.getY() - 15){
+					finishInput = true;
+				} else {
+					for (int i = 0; i < lines.length; i++) {
+						if (point.getY() > textInputPoint.getY() + i * 15 - 15 && point.getY() <= textInputPoint.getY() + i * 15){
+							cursorX = fm.stringWidth(lines[i]);
+							if (point.getX() >= textInputPoint.getX() && point.getX() <= textInputPoint.getX() + 3 + cursorX) {
+								if (point.getX() >= textInputPoint.getX() && point.getX() < textInputPoint.getX() + 3) { 
+									pickX = 0;
+								}									
+								double lastEnd = textInputPoint.getX() + 3;
+								for (int j = 0; j < lines[i].length(); j++) {
+									int size = fm.stringWidth(lines[i].substring(0, j + 1));
+									double newEnd = textInputPoint.getX() + 3 + size;
+									if (point.getX() >= lastEnd && point.getX() < lastEnd + (newEnd - lastEnd) / 2) {
+										pickX = j;
+									} else if (point.getX() >= lastEnd + (newEnd - lastEnd) / 2 && point.getX() < newEnd) {
+										pickX = j + 1;
+									}
+									lastEnd = newEnd;
+								}
+								if (pickX >= 0) {
+									textInputCursorIndex = charCount + pickX;
+								}
+							} else {
+								textInputCursorIndex = charCount + lines[i].length();
+							}
+							break;
+						}
+						charCount += lines[i].length() + 1;
+					}
+				}
+//				}
 				
 				if (finishInput) {
 					if (textInputContent != null && textInputContent.length() > 0) {
 						double xNew = ChartMaskingUtilities.translateScreenX(textInputPoint.getX(), getScreenDataArea(), getChart());
 						double yNew = ChartMaskingUtilities.translateScreenY(textInputPoint.getY(), getScreenDataArea(), getChart(), 0);
-						textContentMap.put(new Rectangle2D.Double(xNew, yNew, 100, 15), textInputContent);
+						textContentMap.put(new Rectangle2D.Double(xNew, yNew, maxWidth, lines.length * 15), textInputContent);
 					}
 					textInputContent = null;
 					textInputCursorIndex = 0;
@@ -1246,6 +1407,26 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		}
 	}
 	
+	private void selectText(double xNew, double yNew) {
+		for (Entry<Rectangle2D, String> item : textContentMap.entrySet()) {
+			Rectangle2D rect = item.getKey();
+			Point2D screenPoint = ChartMaskingUtilities.translateChartPoint(new Point2D.Double(rect.getMinX(), rect.getMinY()), getScreenDataArea(), getChart());
+			Rectangle2D screenRect = new Rectangle2D.Double(screenPoint.getX(), screenPoint.getY() - 15, rect.getWidth(), rect.getHeight());
+			if (screenRect.contains(xNew, yNew)) {
+				if (selectedTextWrapper == rect) {
+					selectedTextWrapper = null;
+				} else {
+					selectedTextWrapper = rect;
+					setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+					return;
+				}
+			}
+		}
+		if (selectedTextWrapper != null) {
+			selectedTextWrapper = null;
+		}
+	}
+
 	private void findSelectedMarker(Point point) {
 		Line2D marker = null;
 		double distance = Double.MAX_VALUE;
@@ -1317,6 +1498,7 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 			double yNew = ChartMaskingUtilities.translateScreenY(e.getY(), getScreenDataArea(), getChart(), 0);
 			mouseRightClickLocation = new Point2D.Double(xNew, yNew);
 		}
+		textMovePoint = null;
 		super.mouseReleased(e);
 	}
 	
@@ -1875,9 +2057,14 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 			textInputContent = null;
 			textInputCursorIndex = 0;
 			textInputFlag = false;
+			setSelectedMask(null);
 			repaint();
 		}
 		this.isTextInputEnabled = isTextInputEnabled;
+		if (selectedMask != null) {
+			setSelectedMask(null);
+			repaint();
+		}
 	}
 
     public String getTextInputContent() {

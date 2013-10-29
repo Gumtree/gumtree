@@ -213,6 +213,13 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 					}});
 			}
 			
+			public void perspectiveChanged(IWorkbenchPage page,
+					IPerspectiveDescriptor perspective, String changeId) {
+				if (perspective.getId().equals(SCRIPTING_PERSPECTIVE_ID)) {
+					workbenchWindow.getActivePage().setEditorAreaVisible(false);
+				}
+			}
+			
 		});
 		factory.setEditorAreaVisible(false);
 		factory.getViewLayout(PLOT_VIEW_ID).setCloseable(false);
