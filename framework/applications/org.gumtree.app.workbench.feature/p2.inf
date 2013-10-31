@@ -1,5 +1,8 @@
 instructions.install = \
 	removeProgramArg(programArg:-console); \
+	removeProgramArg(programArg:60053); \
+	addProgramArg(programArg:-console); \
+	addProgramArg(programArg:62253); \
 	addProgramArg(programArg:-data); \
 	addProgramArg(programArg:workspace); \
 	removeJvmArg(jvmArg:-Dosgi.noShutdown=true); \

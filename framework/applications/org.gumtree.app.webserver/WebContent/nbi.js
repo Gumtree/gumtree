@@ -4,27 +4,28 @@ try {
 } catch (e) {
 }
 
-var title = "NBI Instruments Status";
+var title = "NBI Status";
 var ins = [
-           {"name":"Echidna", "url":"../../echidna/status/sics/rest"},
-           {"name":"Wombat", "url":"../../wombat/status/sics/rest"},
-           {"name":"Kowari", "url":"../../kowari/status/sics/rest"},
-           {"name":"Quokka", "url":"../../quokka/status/sics/rest"},
-           {"name":"Taipan", "url":"../../taipan/status/sics/rest"},
-           {"name":"Pelican", "url":"../../pelican/status/sics/rest"},
+           {"name":"Echidna", "url":"/echidna/status/sics/rest"},
+           {"name":"Wombat", "url":"/wombat/status/sics/rest"},
+           {"name":"Kowari", "url":"/kowari/status/sics/rest"},
+           {"name":"Quokka", "url":"/quokka/status/sics/rest"},
+           {"name":"Taipan", "url":"/taipan/status/sics/rest"},
+           {"name":"Pelican", "url":"/pelican/status/sics/rest"},
            ]
+var defaultTimeout = 10;
 var refresh = function(dict){
 	try{
 		$.ajax({
 			cache: false,
 			type: 'HEAD',
-			url: "sics/rest",
-			timeout: 1000,
+			url: dict.url,
+			timeout: 9000,
 			success: function() {
 				$.get(dict.url + "/status",function(data,status){
 					if (status == "success") {
-						$("#" + dict.name + "_connection").text("OK");
-						$("#" + dict.name + "_connection").css("color", "green");
+//						$("#" + dict.name + "_connection").text("OK");
+//						$("#" + dict.name + "_connection").css("color", "green");
 						var obj = jQuery.parseJSON(data);
 						$("#" + dict.name + "_status").text(obj.status);
 						if (obj.status == "EAGER TO EXECUTE") {
@@ -38,18 +39,18 @@ var refresh = function(dict){
 							$("#" + dict.name + "_status").css("color", "#c40000");
 						}
 					} else {
-						$("#" + dict.name + "_connection").text("FAULT");
-						$("#" + dict.name + "_connection").css("color", "red");
-						$("#" + dict.name + "_status").text("--");
-						$("#" + dict.name + "_status").css("color", "black");
+//						$("#" + dict.name + "_connection").text("FAULT");
+//						$("#" + dict.name + "_connection").css("color", "red");
+						$("#" + dict.name + "_status").text("FAULT");
+						$("#" + dict.name + "_status").css("color", "red");
 					}
 				});
 			},
-			error: function() {
-				$("#" + dict.name + "_connection").text("FAULT");
-				$("#" + dict.name + "_connection").css("color", "red");
-				$("#" + dict.name + "_status").text("--");
-				$("#" + dict.name + "_status").css("color", "black");
+			error: function(jqXHR, textStatus, errorThrown) {
+//				$("#" + dict.name + "_connection").text("FAULT");
+//				$("#" + dict.name + "_connection").css("color", "red");
+				$("#" + dict.name + "_status").text("FAULT");
+				$("#" + dict.name + "_status").css("color", "red");
 			}
 		});
 	} catch (e) {
@@ -72,7 +73,7 @@ jQuery(document).ready(function(){
 	$('#titleString').text(title);
 	for (i = 0; i < ins.length; i++) {
 		$("#insList").append('<li class="ui-li ui-li-divider ui-bar-d ui-first-child" role="heading" data-role="list-divider">' + ins[i].name.toUpperCase() + '</li>');
-		$("#insList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">connection: </div> <div class="div-inlist" id="' + ins[i].name + '_connection">--</div></li>');
+//		$("#insList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">connection: </div> <div class="div-inlist" id="' + ins[i].name + '_connection">--</div></li>');
 		$("#insList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">status: </div> <div class="div-inlist" id="' + ins[i].name + '_status">--</div></li>');
 	}
 
@@ -80,9 +81,12 @@ jQuery(document).ready(function(){
 		refreshAll();
 	});
 
+	
+	$("#intervalSlider").val(defaultTimeout);
+	
 	timerObject.interval_id = setInterval(function(){
 		refreshAll();
-	}, 10000);
+	}, defaultTimeout * 1000);
 	
 	$("#intervalSlider").on("slidestop", function( event, ui ) {
 		clearInterval(timerObject.interval_id);
@@ -112,7 +116,7 @@ $(document).on('pagebeforeshow', title, function(){
 	alert("pagebeforeshow");
 	timerObject.interval_id = setInterval(function() {
 		refreshAll();
-	}, 5000);
+	}, $("#intervalSlider").val() * 1000);
 	alert("pagebeforeshow");
 }); 
 
