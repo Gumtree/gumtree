@@ -11,18 +11,18 @@ var ins = [
            {"name":"Kowari", "url":"/kowari/status/sics/rest"},
            {"name":"Quokka", "url":"/quokka/status/sics/rest"},
            {"name":"Taipan", "url":"/taipan/status/sics/rest"},
-           {"name":"Pelican", "url":"/pelican/status/sics/rest"},
+           {"name":"Pelican", "url":"/pelican/status/sics/rest"}
            ]
 var defaultTimeout = 10;
 var refresh = function(dict){
 	try{
-		$.ajax({
-			cache: false,
-			type: 'HEAD',
-			url: dict.url,
-			timeout: 9000,
-			success: function() {
-				$.get(dict.url + "/status",function(data,status){
+//		$.ajax({
+//			cache: false,
+//			type: "HEAD",
+//			url: dict.url,
+//			timeout: 9000,
+//			success: function() {
+				$.get(dict.url + "/status", {"timestamp" : new Date().getTime()}, function(data,status){
 					if (status == "success") {
 //						$("#" + dict.name + "_connection").text("OK");
 //						$("#" + dict.name + "_connection").css("color", "green");
@@ -45,14 +45,14 @@ var refresh = function(dict){
 						$("#" + dict.name + "_status").css("color", "red");
 					}
 				});
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-//				$("#" + dict.name + "_connection").text("FAULT");
-//				$("#" + dict.name + "_connection").css("color", "red");
-				$("#" + dict.name + "_status").text("FAULT");
-				$("#" + dict.name + "_status").css("color", "red");
-			}
-		});
+//			},
+//			error: function(jqXHR, textStatus, errorThrown) {
+////				$("#" + dict.name + "_connection").text("FAULT");
+////				$("#" + dict.name + "_connection").css("color", "red");
+//				$("#" + dict.name + "_status").text("FAULT");
+//				$("#" + dict.name + "_status").css("color", "red");
+//			}
+//		});
 	} catch (e) {
 		alert("error");
 	}

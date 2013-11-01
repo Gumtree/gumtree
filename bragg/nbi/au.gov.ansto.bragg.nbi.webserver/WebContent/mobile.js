@@ -6,52 +6,40 @@ try {
 
 var refresh = function(){
 	try{
-		$.ajax({
-			type: 'HEAD',
-			url: "sics/rest",
-			success: function() {
-				$.get("sics/rest/status",function(data,status){
-					if (status == "success") {
-						$("#connection").text("OK");
-						$("#connection").css("color", "green");
-						var obj = jQuery.parseJSON(data);
-						$("#sicsServer").text(obj.status);
-						if (obj.status == "EAGER TO EXECUTE") {
-							$("#sicsServer").css("color", "#00c400");
-						} else if (obj.status == "COUNTING" || obj.status == "WAIT" || obj.status == "DRIVING") {
-							$("#sicsServer").css("color", "#FFA500");
-						} else if (obj.status == "PAUSED") {
-							$("#sicsServer").css("color", "#0000c4");
-						} else  {
-							$("#sicsServer").text("DISCONNECTED");
-							$("#sicsServer").css("color", "#c40000");
-						}
-					} else {
-						$("#connection").text("FAULT");
-						$("#connection").css("color", "red");
-						$("#sicsServer").text("--");
-						$("#sicsServer").css("color", "black");
-					}
-				});
-				if (!isMobileBrowser) {
-					var imgUrl = histmemUrl + "&timestamp=" + new Date().getTime();
-					try{
-						$.get(imgUrl, function(data,status){
-							if (status == "success") {
-								$("#histmemImage").attr("src", imgUrl);
-							} 
-						});
-					} catch (e) {
-					}
+		$.get("sics/rest/status", {"timestamp" : new Date().getTime()}, function(data,status){
+			if (status == "success") {
+				$("#connection").text("OK");
+				$("#connection").css("color", "green");
+				var obj = jQuery.parseJSON(data);
+				$("#sicsServer").text(obj.status);
+				if (obj.status == "EAGER TO EXECUTE") {
+					$("#sicsServer").css("color", "#00c400");
+				} else if (obj.status == "COUNTING" || obj.status == "WAIT" || obj.status == "DRIVING") {
+					$("#sicsServer").css("color", "#FFA500");
+				} else if (obj.status == "PAUSED") {
+					$("#sicsServer").css("color", "#0000c4");
+				} else  {
+					$("#sicsServer").text("DISCONNECTED");
+					$("#sicsServer").css("color", "#c40000");
 				}
-			},
-			error: function() {
+			} else {
 				$("#connection").text("FAULT");
 				$("#connection").css("color", "red");
 				$("#sicsServer").text("--");
 				$("#sicsServer").css("color", "black");
-			}            
+			}
 		});
+		if (!isMobileBrowser) {
+			var imgUrl = histmemUrl + "&timestamp=" + new Date().getTime();
+			try{
+				$.get(imgUrl, function(data,status){
+					if (status == "success") {
+						$("#histmemImage").attr("src", imgUrl);
+					} 
+				});
+			} catch (e) {
+			}
+		}
 	} catch (e) {
 		alert("error");
 	}
