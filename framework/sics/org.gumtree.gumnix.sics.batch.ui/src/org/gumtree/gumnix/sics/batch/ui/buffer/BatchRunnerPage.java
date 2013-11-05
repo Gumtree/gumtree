@@ -383,6 +383,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 						String bufferContent = getBatchBufferManager().getRunningBufferContent();
 						String rangeString = getBatchBufferManager().getRunningBufferRangeString();
 						if (bufferContent != null && rangeString != null) {
+							bufferContent = bufferContent.replaceAll("\n\n", "\n");
 							context.editorText.setText(bufferContent);
 							highlightBuffer(rangeString);
 						}
@@ -405,6 +406,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					// this is available for highlight)
 					String bufferContent = getBatchBufferManager().getRunningBufferContent();
 					if (bufferContent != null) {
+						bufferContent = bufferContent.replaceAll("\n\n", "\n");
 						context.editorText.setText(bufferContent);
 					}
 					// Clear log

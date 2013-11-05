@@ -215,28 +215,28 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			// Go to preparing mode
 			setStatus(BatchBufferManagerStatus.PREPARING);
 			// Ready to upload
-			asyncSend("exe clear", null);
-			asyncSend("exe clearupload", null);
-			asyncSend("exe upload", null);
+			asyncSend("exe clear", null, ISicsProxy.CHANNEL_RAW_BATCH);
+			asyncSend("exe clearupload", null, ISicsProxy.CHANNEL_RAW_BATCH);
+			asyncSend("exe upload", null, ISicsProxy.CHANNEL_RAW_BATCH);
 			// Upload
 			BufferedReader reader = new BufferedReader(new StringReader(buffer.getContent()));
 			String line = null;
 			try {
 				while((line = reader.readLine()) != null) {
-					asyncSend("exe append " + line, null);
+					asyncSend("exe append " + line, null, ISicsProxy.CHANNEL_RAW_BATCH);
 				}
 			} catch (Exception e) {
 				// TODO
 			}
 			// Save
-			asyncSend("exe forcesave " + buffer.getName(), null);
+			asyncSend("exe forcesave " + buffer.getName(), null, ISicsProxy.CHANNEL_RAW_BATCH);
 			// Enqueue (due to the delay in general channel, wait until it is ready)
 			final boolean[] enqueued = new boolean[] { false };
 			asyncSend("exe enqueue " + buffer.getName(), new SicsCallbackAdapter() {
 				public void receiveReply(ISicsReplyData data) {
 					enqueued[0] = true;
 				}
-			});
+			}, ISicsProxy.CHANNEL_RAW_BATCH);
 			LoopRunner.run(new ILoopExitCondition() {				
 				public boolean getExitCondition() {
 					return enqueued[0];
