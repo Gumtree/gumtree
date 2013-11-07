@@ -21,5 +21,11 @@
             name="kookaburra Scan">
       </view>
    </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="au.gov.ansto.bragg.kookaburra.ui.internal.KookaburraWorkbenchSetup">
+      </startup>
+   </extension>
 
 </plugin>
