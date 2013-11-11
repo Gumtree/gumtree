@@ -36,6 +36,7 @@ def test_var():
         var1 = data.arange(12, [3, 4])
         var1.set_var(Array(var1))
         var2 = var1.err[2]
+        print var2
         if (var2 == Data([2.8284270763397217, 3.0, 3.1622776985168457, 3.316624879837036])).all() :
             print 'passed'
         else :
