@@ -19,6 +19,7 @@ public enum InternalImage {
 	STOP_32("icons/stop_32x32.png"),
 	CONNECT_32("icons/connect_32x32.png"),
 	DISCONNECT_32("icons/disconnect_32x32.png"),
+	POWER_16("icons/power_16.png"),
 	INTERRUPT_72("icons/interrupt_72x72.png");
 
 	private InternalImage(String path) {

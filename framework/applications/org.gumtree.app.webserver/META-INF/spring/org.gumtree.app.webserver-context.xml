@@ -17,6 +17,10 @@
 	<bean id="jettyStarter" class="org.gumtree.server.util.jetty.JettyStarter" init-method="init" destroy-method="cleanup">
 		<property name="enable" value="${gumtree.restlet.serverEnable}"/>
 		<property name="port" value="${gumtree.restlet.serverPort}"/>
+		<property name="allowedOrigins" value="*"/>
+        <property name="allowedMethods" value="*"/>
+        <property name="allowedHeaders" value="*"/>
+        <property name="cross-origin" value="/*"/>
 	</bean>
 	
 </beans>

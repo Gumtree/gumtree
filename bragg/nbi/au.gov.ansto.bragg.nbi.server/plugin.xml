@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="nsHttpcontext"
+         point="org.eclipse.equinox.http.registry.httpcontexts">
+      <httpcontext
+            id="ns">
+         <resource-mapping
+               path="/ns/rest">
+         </resource-mapping>
+      </httpcontext>
+   </extension>
+   <extension
+         id="nsRestlet"
+         point="org.eclipse.equinox.http.registry.servlets">
+      <servlet
+            alias="/ns/rest"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="ns">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.restlet.NSRestletApplication">
+         </init-param>
+      </servlet>
+   </extension>
+
+
+</plugin>

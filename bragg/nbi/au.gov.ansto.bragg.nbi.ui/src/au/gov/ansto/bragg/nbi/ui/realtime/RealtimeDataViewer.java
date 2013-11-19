@@ -291,7 +291,6 @@ public class RealtimeDataViewer extends Composite {
 						try {
 							Thread.sleep(updatePeriod);
 						} catch (InterruptedException e) {
-							e.printStackTrace();
 							break;
 						}
 					}

@@ -27,6 +27,7 @@ import org.gumtree.util.messaging.IDelayEventExecutor;
 import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
+import au.gov.ansto.bragg.nbi.workbench.ReactorStatusWidget;
 
 @SuppressWarnings("restriction")
 public class KookaburraCruisePageWidget extends AbstractCruisePageWidget {
@@ -53,13 +54,14 @@ public class KookaburraCruisePageWidget extends AbstractCruisePageWidget {
 		// Reactor Source
 		PGroup sourceGroup = createGroup("REACTOR SOURCE",
 				SharedImage.REACTOR.getImage());
-		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(
-				sourceGroup, SWT.NONE);
-		deviceStatusWidget.addDevice("/instrument/source/power", "Power",
-				SharedImage.POWER.getImage(), null);
-		configureWidget(deviceStatusWidget);
+		ReactorStatusWidget reactorWidget = new ReactorStatusWidget(sourceGroup, SWT.NONE);
+//		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(
+//				sourceGroup, SWT.NONE);
+//		deviceStatusWidget.addDevice("/instrument/source/power", "Power",
+//				SharedImage.POWER.getImage(), null);
+		configureWidget(reactorWidget);
 		sourceGroup.setExpanded(false);
-		deviceStatusWidget.setExpandingEnabled(false);
+		reactorWidget.setExpandingEnabled(true);
 
 		// Shutter Status
 		PGroup shutterGroup = createGroup("SHUTTER STATUS",
@@ -98,7 +100,7 @@ public class KookaburraCruisePageWidget extends AbstractCruisePageWidget {
 		// Monochromator
 		PGroup monochromatorGroup = createGroup("MONOCHROMATOR",
 				SharedImage.MONOCHROMATOR.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup, SWT.NONE);
+		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/instrument/crystal/m1om", "m1om", null, "deg")
 				.addDevice("/instrument/crystal/m1x", "m1x", null, "mm")

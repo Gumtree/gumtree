@@ -5,6 +5,7 @@
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
 	<link rel="stylesheet" href="mobile.css" />
+	<script src="http://neutron.ansto.gov.au/WebServices/WebServiceAppServiceSoapHttpPort?WebServiceAppServiceSoapHttpPortstub.js"></script>
 	<script src="instrumentsetup.js"></script>
 	<script src="mobile.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -16,6 +17,7 @@
 	<h1 id="titleString"></h1>
 	<ul class="ui-listview ui-listview-inset ui-corner-all ui-shadow" id="deviceList" data-role="listview" data-inset="true" data-divider-theme="d">
 	    <li data-role="list-divider">SERVER STATUS</li>
+	    <li><div class="div-inlist-left">Reactor Power:</div> <div class="div-inlist" id="reactorPower">--</div></li>
 	    <li><div class="div-inlist-left">Connection:</div> <div class="div-inlist" id="connection">--</div></li>
 	    <li><div class="div-inlist-left">SICS Status:</div> <div class="div-inlist" id="sicsServer">--</div></li>
 	    <li id="histmemDiv"></li>

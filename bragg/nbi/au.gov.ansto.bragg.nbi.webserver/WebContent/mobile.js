@@ -4,7 +4,18 @@ try {
 } catch (e) {
 }
 
+$.support.cors = true;
+
 var refresh = function(){
+	$.get("ns/rest/hdbs?devices=reactorPower",function(data,status){
+		if (status == "success") {
+			try {
+				var obj = jQuery.parseJSON(data);
+				$("#reactorPower").text(obj.hdbs[0].value + " MW");
+			} catch (e) {
+			}
+		}
+	});
 	try{
 		$.get("sics/rest/status", {"timestamp" : new Date().getTime()}, function(data,status){
 			if (status == "success") {
@@ -40,8 +51,36 @@ var refresh = function(){
 			} catch (e) {
 			}
 		}
+//		$.support.cors = true;
+//		$.ajax({
+//			type: "POST",
+//			url: "http://localhost:61051/mobile.html",
+//			data: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
+//			    	<soap:Body xmlns:ns1="http://au/gov/ansto/bragg/web/model/webService/server/webservice/WebServiceAppServer.wsdl">\
+//						<ns1:getReactorPowerElement/>\
+//					</soap:Body>\
+//				</soap:Envelope>',
+//			crossDomain: true,
+//			processData: false,
+//			dataType: "xml",
+//			contentType: "text/xml"
+//		}).done(function(msg){
+//			alert(msg);
+//		}).fail(function(jqXHR, textStatus, errorThrown){
+//			var items = [];
+//			for (var item in jqXHR) {
+//				items.push(item);
+//			}
+//			alert(jqXHR.getAllResponseHeaders());
+//		});
+//		try{
+//		var power = WebServiceAppServiceSoapHttpPort_getReactorPower();
+//		alert(power);
+//		} catch(e){
+//			alert(e);
+//		}
 	} catch (e) {
-		alert("error");
+		alert("overall error");
 	}
 	var dUrl = "";
 	var cUrl = "";
@@ -151,6 +190,8 @@ jQuery(document).ready(function(){
 //		$("#intervalSlider").slider({disabled: !isAutoRefresh});
 	});
 	
+	jQuery.support.cors = true;
+	$.support.cors = true;
 	refresh();
 });
 

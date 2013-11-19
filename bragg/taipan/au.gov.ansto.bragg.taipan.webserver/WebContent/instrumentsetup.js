@@ -1,8 +1,7 @@
 var title = "Taipan Status";
 var devices = [
                {"group":"BEAM STATUS", 
-            	   "items":[{"classId":"reactor_power", "deviceId":"reactor_power", "title":"Reactor Power", "units":"MW"},  
-            	            {"classId":"monitor_time", "deviceId":"monitor_time", "title":"Time of Counting", "units":"s"}, 
+            	   "items":[{"classId":"monitor_time", "deviceId":"monitor_time", "title":"Time of Counting", "units":"s"}, 
             	            {"classId":"bm1_counts", "deviceId":"bm1_counts", "title":"Monitor", "units":"ct"},
             	            {"classId":"bm2_counts", "deviceId":"bm2_counts", "title":"Detector", "units":"ct"}
             	            ]
@@ -39,8 +38,7 @@ var devices = [
 //            	   ]
 //               },
                {"group":"TEMPERATURE CONTROLLER", 
-            	   "items":[{"classId":"tc2Setpoint", "deviceId":"/sample/tc2/Sensor/value", "title":"TC2 Sensor", "units":"K"},
-            	            {"classId":"mixingChamber", "deviceId":"/sample/magnetic/DilutTempReading", "title":"Mixing Chamber", "units":"K"}
+            	   "items":[{"classId":"tc1SensorB", "deviceId":"/sample/tc1/sensor/sensorValueB", "title":"TC1 Sensor B", "units":"K"}
             	   ]
                }
                ];
