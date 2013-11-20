@@ -28,6 +28,8 @@
 			private var timer:Timer;
 			// hdb (devices) - widget maping
 			private var hdbDeviceMap:Array;
+			
+			private var nsDeviceMap:Array;
 			// hdb (components) - widget maping
 			private var hdbComponentMap:Array;
 			
@@ -99,6 +101,22 @@
          		// Set Server Status URL
          		httpServiceForServerStatus.url = serverURL + "sics/rest/status";
          		
+         		nsDeviceMap = [
+					// Neutron Beam
+					"reactorPower", reactorValue
+				];
+				
+				url = "";
+				for (i = 0; i < nsDeviceMap.length; i += 2)
+            	{
+            		url += nsDeviceMap[i];
+            		if (i < nsDeviceMap.length - 2) {
+            			url += ",";	
+            		}
+            	}
+            	httpServiceForNS.url = serverURL + "ns/rest/hdbs?devices=" + url;
+
+
          		// Set HM URL
          		hmImage.url = serverURL + "dae/rest/image?type=TOTAL_HISTOGRAM_X&scaling_type=LIN&screen_size_x=900&screen_size_y=500";
          		
@@ -132,6 +150,7 @@
             {
             	// Update HDB data
             	httpServiceForHdb.send();
+            	httpServiceForNS.send();
             	// Update server status
             	httpServiceForServerStatus.send();
             	// Update HM data
@@ -185,6 +204,27 @@
 				connectionStatus.setStyle("backgroundColor", "#00c400");
 			}
 			
+			private function handleNSData(event:ResultEvent):void
+			{
+				//get the raw JSON data and cast to String
+				var rawData:String = String(event.result);
+				var result:Object = JSON.decode(rawData);
+				var dataArray:Array = result.hdbs as Array;
+				for (var i:int = 0; i < dataArray.length; i++) {
+					var deviceName:String = dataArray[i].id;
+					// device
+					if (deviceName != null)
+					{
+						var index:int = nsDeviceMap.indexOf(deviceName);
+						if (index >= 0)
+						{
+							var textArea:TextArea = nsDeviceMap[index + 1] as TextArea; 
+							textArea.text = dataArray[i].value;
+						}
+					}
+				}
+			}
+
 			private function handleServerData(event:ResultEvent):void
 			{
 				var rawData:String = String(event.result);
@@ -261,6 +301,7 @@
 	<!-- Services -->
 	<mx:HTTPService id="httpServiceForHdb" resultFormat="text" result="handleHdbData(event)" fault="handleFault(event)" />
 	<mx:HTTPService id="httpServiceForServerStatus" resultFormat="text" result="handleServerStatusData(event)" fault="handleFault(event)"/>
+	<mx:HTTPService id="httpServiceForNS" resultFormat="text" result="handleNSData(event)" fault="handleFault(event)" />
 	<mx:DateFormatter id="dateFormatter" formatString="YYYY-MM-DD HH:NN:SS A" />
 	
 	<!-- Effects -->
@@ -314,6 +355,17 @@
 					</mx:GridRow>
 				</mx:Grid>
 				<mx:Grid width="100%" horizontalGap="1">
+					<mx:GridRow width="100%">
+						<mx:GridItem width="50%">
+							<mx:Label text="Reactor Power" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="40%">
+							<mx:TextArea id="reactorValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="10%">
+							<mx:Label text="MW" width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
 					<mx:GridRow width="100%">
 						<mx:GridItem width="50%">
 							<mx:Label text="Monitor 1" textAlign="right" width="100%"/>
