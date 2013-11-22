@@ -15,7 +15,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
-import org.gumtree.gumnix.sics.ui.widgets.SicsInterruptGadget;
 import org.gumtree.gumnix.sics.ui.widgets.SicsStatusGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
 import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
@@ -26,6 +25,7 @@ import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 
 import au.gov.ansto.bragg.echidna.workbench.internal.InternalImage;
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
+import au.gov.ansto.bragg.nbi.workbench.ReactorStatusWidget;
 
 @SuppressWarnings("restriction")
 public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
@@ -46,14 +46,18 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 		getEclipseContext().set(IDelayEventExecutor.class,
 				getDelayEventExecutor());
 		
-		// Reactor Source
-//		PGroup sourceGroup = createGroup("REACTOR SOURCE",
-//				SharedImage.REACTOR.getImage());
+		PGroup sourceGroup = createGroup("REACTOR SOURCE",
+				SharedImage.REACTOR.getImage());
+		ReactorStatusWidget reactorWidget = new ReactorStatusWidget(sourceGroup, SWT.NONE);
+		reactorWidget.addDevice("reactorPower", "Power", "MW");
+		reactorWidget.createWidgetArea();
 //		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(
 //				sourceGroup, SWT.NONE);
 //		deviceStatusWidget.addDevice("/instrument/source/power", "Power",
 //				SharedImage.POWER.getImage(), null);
-//		configureWidget(deviceStatusWidget);
+		configureWidget(reactorWidget);
+		sourceGroup.setExpanded(false);
+		reactorWidget.setExpandingEnabled(true);
 
 		// Shutter Status
 		PGroup shutterGroup = createGroup("SHUTTER STATUS",

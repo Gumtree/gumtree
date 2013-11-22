@@ -19,7 +19,6 @@ import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
 import org.gumtree.gumnix.sics.ui.widgets.SicsStatusGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
-import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget.LabelConverter;
 import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
@@ -55,10 +54,10 @@ public class KookaburraCruisePageWidget extends AbstractCruisePageWidget {
 		PGroup sourceGroup = createGroup("REACTOR SOURCE",
 				SharedImage.REACTOR.getImage());
 		ReactorStatusWidget reactorWidget = new ReactorStatusWidget(sourceGroup, SWT.NONE);
-//		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(
-//				sourceGroup, SWT.NONE);
-//		deviceStatusWidget.addDevice("/instrument/source/power", "Power",
-//				SharedImage.POWER.getImage(), null);
+		reactorWidget.addDevice("reactorPower", "Power", "MW")
+				.addDevice("cnsInTemp", "CNS Inlet Temp", "K")
+				.addDevice("cnsOutTemp", "CNS Outlet Temp", "K");
+		reactorWidget.createWidgetArea();
 		configureWidget(reactorWidget);
 		sourceGroup.setExpanded(false);
 		reactorWidget.setExpandingEnabled(true);

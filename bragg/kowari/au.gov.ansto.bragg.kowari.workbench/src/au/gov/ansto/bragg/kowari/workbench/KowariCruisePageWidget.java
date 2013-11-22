@@ -15,7 +15,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
-import org.gumtree.gumnix.sics.ui.widgets.SicsInterruptGadget;
 import org.gumtree.gumnix.sics.ui.widgets.SicsStatusGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
 import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
@@ -23,6 +22,7 @@ import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
 
 import au.gov.ansto.bragg.kowari.workbench.internal.InternalImage;
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
+import au.gov.ansto.bragg.nbi.workbench.ReactorStatusWidget;
 
 @SuppressWarnings("restriction")
 public class KowariCruisePageWidget extends AbstractCruisePageWidget {
@@ -39,11 +39,16 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		// Reactor Source
 		PGroup sourceGroup = createGroup("REACTOR SOURCE",
 				SharedImage.REACTOR.getImage());
-		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(
-				sourceGroup, SWT.NONE);
-		deviceStatusWidget.addDevice("/instrument/source/power", "Power",
-				SharedImage.POWER.getImage(), null);
-		configureWidget(deviceStatusWidget);
+		ReactorStatusWidget reactorWidget = new ReactorStatusWidget(sourceGroup, SWT.NONE);
+		reactorWidget.addDevice("reactorPower", "Power", "MW");
+		reactorWidget.createWidgetArea();
+//		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(
+//				sourceGroup, SWT.NONE);
+//		deviceStatusWidget.addDevice("/instrument/source/power", "Power",
+//				SharedImage.POWER.getImage(), null);
+		configureWidget(reactorWidget);
+		sourceGroup.setExpanded(false);
+		reactorWidget.setExpandingEnabled(true);
 
 		// Shutter Status
 		PGroup shutterGroup = createGroup("SHUTTER STATUS",
@@ -69,7 +74,7 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		// Monitor Event Rate
 		PGroup monitorGroup = createGroup("NEUTRON COUNTS",
 				InternalImage.MONITOR.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
+		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
 		deviceStatusWidget.addDevice("/monitor/bm1_counts", "Monitor Counts",
 				null, "").addDevice("/instrument/detector/total_counts",
 				"Detector Counts", null, "");

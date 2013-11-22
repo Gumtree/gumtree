@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
+import au.gov.ansto.bragg.nbi.workbench.ReactorStatusWidget;
 
 @SuppressWarnings("restriction")
 public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
@@ -51,6 +52,19 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		GridLayoutFactory.swtDefaults().spacing(0, 0).applyTo(this);
 		getEclipseContext().set(IDelayEventExecutor.class,
 				getDelayEventExecutor());
+
+		PGroup sourceGroup = createGroup("REACTOR SOURCE",
+				SharedImage.REACTOR.getImage());
+		ReactorStatusWidget reactorWidget = new ReactorStatusWidget(sourceGroup, SWT.NONE);
+		reactorWidget.addDevice("reactorPower", "Power", "MW");
+		reactorWidget.createWidgetArea();
+//		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(
+//				sourceGroup, SWT.NONE);
+//		deviceStatusWidget.addDevice("/instrument/source/power", "Power",
+//				SharedImage.POWER.getImage(), null);
+		configureWidget(reactorWidget);
+		sourceGroup.setExpanded(false);
+		reactorWidget.setExpandingEnabled(true);
 
 		// SICS status
 		PGroup statusGroup = createGroup("SERVER STATUS", null);

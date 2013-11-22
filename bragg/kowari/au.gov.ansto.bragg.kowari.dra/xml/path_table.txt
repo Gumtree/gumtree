@@ -66,3 +66,4 @@ old_ssp=$entry/instrument/slits/secondary_position
 old_ssw=$entry/instrument/slits/secondary_width
 corrected_data=$entry/instrument/detector/hmm_xy_corrected
 active_width=$entry/instrument/detector/active_width
+suid=$entry/data/sics_suid
