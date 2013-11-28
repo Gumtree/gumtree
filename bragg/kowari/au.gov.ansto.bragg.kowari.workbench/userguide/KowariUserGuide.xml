@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book version="5.0" xmlns="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:m="http://www.w3.org/1998/Math/MathML"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:db="http://docbook.org/ns/docbook">
+  <info>
+    <title>Gumtree-Kowari User's Guide</title>
+
+	<bookinfo>
+    <mediaobject>
+      <imageobject>
+        <imagedata fileref="kowari.ui.images/GumTree-Kowari.gif"></imagedata>
+      </imageobject>
+    </mediaobject>
+    </bookinfo>
+	<version>V2.0
+	</version>
+    <author>
+      <personname><firstname>Team</firstname><surname>DAV</surname></personname>
+
+      <affiliation>
+        <orgname>Bragg Institute, ANSTO</orgname>
+
+        <address>
+        	<email>NXI@ansto.gov.au</email>
+      	  </address>
+      </affiliation>
+    </author>
+
+    <pubdate>9 Oct. 2009</pubdate>
+  </info>
+
+  <xi:include href="../../au.gov.ansto.bragg.kowari.ui/userguide/Kowari-introduction.xml">
+    <xi:fallback>
+      <para>
+        <emphasis>FIXME: MISSING INTRODUCTION CHAPTER</emphasis>
+      </para>
+    </xi:fallback>
+  </xi:include>
+
+  <xi:include href="../../au.gov.ansto.bragg.kowari.ui/userguide/Experiment.xml">
+    <xi:fallback>
+      <para>
+        <emphasis>FIXME: MISSING EXPERIMENT CHAPTER</emphasis>
+      </para>
+    </xi:fallback>
+  </xi:include>
+
+  <xi:include href="../../au.gov.ansto.bragg.kowari.ui/userguide/Analysis.xml">
+    <xi:fallback>
+      <para>
+        <emphasis>FIXME: MISSING ANALYSIS CHAPTER</emphasis>
+      </para>
+    </xi:fallback>
+  </xi:include>
+</book>

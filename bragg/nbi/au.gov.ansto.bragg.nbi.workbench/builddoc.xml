@@ -1,0 +1,213 @@
+<project>
+	
+	<!-- Default for tla's machine --> 
+	<property name="xsltproc" value="X:/apps/xsltproc/xsltproc.exe" />
+	<!-- eclipse.convertPath resourcePath="org.gumtree.doc.tools/xsltproc-1.1.24/xsltproc.exe" property="xsltproc"/ -->
+	
+	<!-- Default for tla's machine -->
+	<property name="xslLibrary" value="X:/apps/Docbook/Docbook.org/docbook-xsl-ns-1.75.2" />
+	
+	<!-- Default for tla's machine -->
+	<property name="fop" value="X:/apps/fop-0.95/fop.bat" />
+	
+	<property name="fopconfig" value="X:/apps/fop-0.95/conf/fop.xconf" />
+	
+	<property name="eclipse.plugin.provider" value="Bragg Institute" />
+	
+	<!-- Target for generating html pages
+		 Parameters:
+		 	- sourceXml				the master docbook xml
+		 	- targetName			the name of the output file
+		 	- xsltproc (optional)	location of the xsltproc executable
+		 	- xslLibrary (optional)	location of the xsl sheet
+	--> 
+	<target name="generateHtml">
+		<exec executable="${xsltproc}">
+			<arg value="-xinclude" />
+			
+			<arg value="--stringparam"/>
+			<arg value="use.extensions"/>
+			<arg value="0"/>
+	
+			<arg value="--stringparam"/>
+			<arg value="chunk.first.sections"/>
+			<arg value="1"/>
+			
+			<arg value="--stringparam"/>
+			<arg value="chunk.section.depth"/>
+			<arg value="1"/>
+			
+			<arg value="--stringparam"/>
+			<arg value="html.stylesheet"/>
+			<arg value="html.css"/>
+	
+			<arg value="--stringparam"/>
+			<arg value="toc.section.depth"/>
+			<arg value="3"/>
+			
+			<arg value="--stringparam"/>
+			<arg value="section.autolabel"/>
+			<arg value="1"/>
+			
+			<arg value="--stringparam"/>
+			<arg value="section.label.includes.component.label"/>
+			<arg value="1"/>
+			
+			<arg value="--stringparam"/>
+			<arg value="callout.graphics"/>
+			<arg value="1"/>
+	
+			<arg value="-o" />
+			<arg value="${targetName}.html" />
+			<arg value="${xslLibrary}/html/chunk.xsl" />
+			<arg value="${sourceXml}" />
+		</exec>
+	</target>
+
+	<!-- Target for generating single html page
+		 Parameters:
+			- sourceXml				the master docbook xml
+			- targetName			the name of the output file
+			- xsltproc (optional)	location of the xsltproc executable
+			- xslLibrary (optional)	location of the xsl sheet
+	--> 
+	<target name="generateSingleHtml">
+		<exec executable="${xsltproc}">
+			<arg value="-xinclude" />
+			
+			<arg value="--stringparam"/>
+			<arg value="use.extensions"/>
+			<arg value="0"/>
+
+			<arg value="--stringparam"/>
+			<arg value="toc.section.depth"/>
+			<arg value="3"/>
+						
+			<arg value="--stringparam"/>
+			<arg value="section.autolabel"/>
+			<arg value="1"/>
+						
+			<arg value="--stringparam"/>
+			<arg value="section.label.includes.component.label"/>
+			<arg value="1"/>
+						
+			<arg value="--stringparam"/>
+			<arg value="callout.graphics"/>
+			<arg value="1"/>
+			
+			<arg value="-o" />
+			<arg value="${targetName}.html" />
+			<arg value="${xslLibrary}/html/docbook.xsl" />
+			<arg value="${sourceXml}" />
+		</exec>
+	</target>
+	
+	<!-- Target for generating pdf
+		 Parameters:
+		 	- sourceXml				the master docbook xml
+		 	- targetName			the name of the output file
+		 	- xsltproc (optional)	location of the xsltproc executable
+		 	- xslLibrary (optional)	location of the xsl sheet
+		 	- use.extensions 0 		disable table extension style
+		 	- paper.type A4 		paper style
+		 	- generate.toc 2 		control generation of tocs 
+		 	- callout.graphics 1  	
+		 	- shade.verbatim 1 
+		 	- ulink.show 0 
+		 	- toc.section.depth 3 
+		 	- section.autolabel 1 
+		 	- section.label.includes.component.label 1 
+	-->
+	<target name="generatePdf">
+		<exec executable="${xsltproc}">
+			<arg value="-xinclude" />
+			
+			<arg value="--stringparam"/>
+			<arg value="use.extensions"/>
+			<arg value="0"/>
+				
+			<arg value="--stringparam"/>
+			<arg value="paper.type"/>
+			<arg value="A4"/>
+						
+			<arg value="--stringparam"/>
+			<arg value="callout.graphics"/>
+			<arg value="1"/>
+			
+			<arg value="--stringparam"/>
+			<arg value="shade.verbatim"/>
+			<arg value="1"/>
+							
+			<arg value="--stringparam"/>
+			<arg value="ulink.show"/>
+			<arg value="0"/>
+									
+			<arg value="--stringparam"/>
+			<arg value="toc.section.depth"/>
+			<arg value="3"/>
+									
+			<arg value="--stringparam"/>
+			<arg value="section.autolabel"/>
+			<arg value="3"/>
+			
+			<arg value="--stringparam"/>
+			<arg value="section.label.includes.component.label"/>
+			<arg value="1"/>
+						
+			<arg value="-o" />
+			<arg value="${targetName}.po" />
+			<arg value="${xslLibrary}/fo/docbook.xsl" />
+			<arg value="${sourceXml}" />
+		</exec>
+		<exec executable="${fop}">
+			<arg value="-c" />
+			<arg value="${fopconfig}" />
+			<arg value="${targetName}.po" />
+			<arg value="${targetName}.pdf" />
+		</exec>
+	</target>
+
+	<!-- Target for generating Eclipse help content
+		 Parameters:
+		 	- sourceXml								the master docbook xml
+		 	- helpExportLocation					location of the target help plugin
+		 	- eclipse.plugin.name					the name of the help plugin
+		 	- eclipse.plugin.id						the id of the help plugin
+		 	- eclipse.plugin.provider (optional)	plugin provider name
+		 	- xsltproc (optional)					location of the xsltproc executable
+		 	- xslLibrary (optional)					location of the xsl sheet
+	-->
+	<target name="generateEclipseHelp">
+		<exec executable="${xsltproc}">
+			<arg value="-xinclude" />
+			<arg value="-o" />
+			<arg value="${helpExportLocation}" />
+			<arg value="-stringparam" />
+			<arg value="eclipse.plugin.name" />
+			<arg value="${eclipse.plugin.name}" />
+			<arg value="-stringparam" />
+			<arg value="eclipse.plugin.id" />
+			<arg value="${eclipse.plugin.id}" />
+			<arg value="-stringparam" />
+			<arg value="eclipse.plugin.provider" />
+			<arg value="${eclipse.plugin.provider}" />
+			<arg value="${xslLibrary}/eclipse/eclipse.xsl" />
+			<arg value="${sourceXml}" />
+		</exec>
+	</target>
+	
+	<!-- Copy everything except docbook xml files to current directory
+	 	 Parameters:
+	 	 	- sourceLocation	the source location
+	-->
+	<target name="copyMediaObjects">
+		<copy todir=".">
+			<fileset dir="${sourceLocation}">
+				<exclude name="**/*.db"/>
+				<exclude name="**/*.xml"/>
+				<exclude name="**/*.xml~"/>
+			</fileset>
+		</copy>
+	</target>
+	
+</project>

@@ -1,0 +1,27 @@
+<project default="main">
+	
+	<import file="../../../nbi/au.gov.ansto.bragg.nbi.workbench/builddoc.xml"/>
+		
+	<target name="main">
+		<!-- Generate HTML -->
+		<antcall target="generateHtml">
+			<param name="sourceXml" value="KowariUserGuide.xml" />
+			<param name="targetName" value="KowariUserGuide" />
+		</antcall>
+		<!-- Generate signle HTML -->
+		<antcall target="generateSingleHtml">
+			<param name="sourceXml" value="KowariUserGuide.xml" />
+			<param name="targetName" value="KowariUserGuide" />
+		</antcall>
+		<!-- Generate PDF -->
+		<antcall target="generatePdf">
+			<param name="sourceXml" value="KowariUserGuide.xml" />
+			<param name="targetName" value="KowariUserGuide" />
+		</antcall>
+		<!-- Copy media objects -->
+		<antcall target="copyMediaObjects">
+			<param name="sourceLocation" value="../../au.gov.ansto.bragg.kowari.ui/userguide" />
+		</antcall>
+	</target>
+
+</project>

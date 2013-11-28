@@ -1,0 +1,92 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>2.3. Scan Design tab</title><link rel="stylesheet" href="html.css" type="text/css"><meta name="generator" content="DocBook XSL-NS Stylesheets V1.74.0"><link rel="home" href="index.html" title="Gumtree-Kowari User's Guide"><link rel="up" href="ch02.html" title="Chapter 2. Experiment Window"><link rel="prev" href="ch02s02.html" title="2.2. Getting Started with Scan Experiment"><link rel="next" href="ch02s04.html" title="2.4. Scan Design tab Advanced"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.3. Scan Design tab</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s02.html">Prev</a> </td><th width="60%" align="center">Chapter 2. Experiment Window</th><td width="20%" align="right"> <a accesskey="n" href="ch02s04.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id379160"></a>2.3. Scan Design tab</h2></div></div></div><p>Use the <span class="emphasis"><em>Design</em></span> tab to create the scan
+    tasks.</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id379173"></a>2.3.1. Header Information</h3></div></div></div><p>Input the sample name and sample description in the
+      <span class="emphasis"><em>Header Information Block</em></span> in the Design tab, as
+      shown in <a class="xref" href="ch02s03.html#header_information" title="Figure 2.2. Header Information">Figure 2.2, &#8220;Header Information&#8221;</a>. This information will be
+      used to label your sample in the NeXus data file</p><div class="figure"><a name="header_information"></a><p class="title"><b>Figure 2.2. Header Information</b></p><div class="figure-contents"><div class="mediaobject"><img src="kowari.ui.images/Experiment/header_information.PNG" alt="Header Information"></div></div></div><br class="figure-break"></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id379783"></a>2.3.2. Add a Scan</h3></div></div></div><p>To add more scans, click on the button <span class="inlinemediaobject"><img src="kowari.ui.images/Experiment/add_block.PNG"></span>. A new scan widget will show up at the bottom of
+      the Design tab. The new scan is by default the same type as the one
+      above it.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id379812"></a>2.3.3. Select Scan Type</h3></div></div></div><p>To select the scan type, click on the drop down menu button
+      <span class="inlinemediaobject"><img src="kowari.ui.images/RPC/drop_down.PNG"></span>. A list of scan types will show up, as seen in
+      <a class="xref" href="ch02s03.html#scan_types" title="Figure 2.3. Scan Types">Figure 2.3, &#8220;Scan Types&#8221;</a>. Simply choose the one you need, then the
+      task block will change to the selected type. Please be careful of
+      changing the type, because once you changed the type of a scan block,
+      the editing previously done in this block will get lost. You will have a
+      blank block in a newly selected type.</p><div class="figure"><a name="scan_types"></a><p class="title"><b>Figure 2.3. Scan Types</b></p><div class="figure-contents"><div class="mediaobject"><img src="kowari.ui.images/Experiment/scan_types.PNG" alt="Scan Types"></div></div></div><br class="figure-break"></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id379876"></a>2.3.4. Scan Parameters</h3></div></div></div><p>To use the Design tab to create a scan, you need to learn the
+      meaning of the following arguments.</p><div class="itemizedlist"><ul type="disc"><li><p><span class="emphasis"><em>variable</em></span> : the scan variable. It is an
+          instrument component, which can be a motor or an sample environment
+          controller e.g., temperature controller.</p></li><li><p><span class="emphasis"><em>start</em></span> : the start value for the scan
+          variable.</p></li><li><p><span class="emphasis"><em>finish</em></span> : the finish value for the scan
+          variable.</p></li><li><p><span class="emphasis"><em>points</em></span> : the total number of points in
+          the scan.</p></li><li><p><span class="emphasis"><em>mode</em></span> : the histogram memory mode.
+          Available options are, <span class="emphasis"><em>time</em></span> and
+          <span class="emphasis"><em>count</em></span>. If you set the mode to
+          <span class="emphasis"><em>time</em></span>, the histogram server will stop when the
+          acquisition time reaches the number of seconds set with the
+          <span class="emphasis"><em>preset</em></span> argument. If you set the mode to
+          <span class="emphasis"><em>count</em></span>, the histogram server will stop when the
+          beam monitor counts reaches the number which is set by the
+          <span class="emphasis"><em>preset</em></span> argument.</p></li><li><p><span class="emphasis"><em>preset</em></span> : the acquisition duration at each
+          scan point, this is in seconds if the mode is
+          <span class="emphasis"><em>time</em></span>, or counts if the mode is
+          <span class="emphasis"><em>count</em></span>.</p></li></ul></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id380005"></a>2.3.5. One-dimensional Scan</h3></div></div></div><p>A one-dimensional scan means only one variable is changed in the
+      scan. A graphical description of a one-dimensional scan is in <a class="xref" href="ch02s03.html#oneD_icon" title="Figure 2.4. Icon of One-Dimensional Scan">Figure 2.4, &#8220;Icon of One-Dimensional Scan&#8221;</a></p><div class="figure"><a name="oneD_icon"></a><p class="title"><b>Figure 2.4. Icon of One-Dimensional Scan</b></p><div class="figure-contents"><div class="mediaobject"><img src="kowari.ui.images/Experiment/oneDScan.gif" alt="Icon of One-Dimensional Scan"></div></div></div><br class="figure-break"><p>Use the <span class="emphasis"><em>Multi-dimensional Scan</em></span> block in the
+      Design tab for this type of scan. For example in <a class="xref" href="ch02s03.html#oneD_scan" title="Figure 2.5. One-Dimensional Scan">Figure 2.5, &#8220;One-Dimensional Scan&#8221;</a>, the scan will perform like this: drive
+      <span class="emphasis"><em>sx</em></span> motor to positions, 0, 1, 2 and 3. At each
+      position, do a histogram memory acquisition for 120 seconds. The
+      single_file choice helps to save all the data records into the same
+      file. If you choose multiple_files option, each data record will be
+      saved into a separate file. </p><div class="figure"><a name="oneD_scan"></a><p class="title"><b>Figure 2.5. One-Dimensional Scan</b></p><div class="figure-contents"><div class="mediaobject"><img src="kowari.ui.images/Experiment/oneD_scan.PNG" width="600" alt="One-Dimensional Scan"></div></div></div><br class="figure-break"></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id380094"></a>2.3.6. Simple Multi-Dimensional Scan</h3></div></div></div><p>The multi-dimensional scan means more than one variable is changed
+      in the scan. The way of these variables get changed is in a matrix way.
+      A graphical description of such scan is shown in <a class="xref" href="ch02s03.html#twoD_icon" title="Figure 2.6. Icon of Two-Dimensional Scan">Figure 2.6, &#8220;Icon of Two-Dimensional Scan&#8221;</a>, which is a two-dimensional special case. </p><div class="figure"><a name="twoD_icon"></a><p class="title"><b>Figure 2.6. Icon of Two-Dimensional Scan</b></p><div class="figure-contents"><div class="mediaobject"><img src="kowari.ui.images/Experiment/twoDScan.gif" alt="Icon of Two-Dimensional Scan"></div></div></div><br class="figure-break"><p>Use the <span class="emphasis"><em>Multi-dimensional Scan</em></span> block in the
+      Design tab to setup this scan. For example in <a class="xref" href="ch02s03.html#multiD_scan" title="Figure 2.7. Multi-Dimensional Scan">Figure 2.7, &#8220;Multi-Dimensional Scan&#8221;</a>, it will drive <span class="emphasis"><em>sx</em></span> and
+      <span class="emphasis"><em>sy</em></span> motors to the following coordinate positions,
+      (0, 0.1), (0, 0.2), (0, 0.3), (1, 0.1) ..., (3, 0.3), totally 12
+      positions. At each position, do a histogram memory acquisition for 120
+      seconds. There are totally 12 data records will be generated. If you
+      choose the single_file option, all data will be saved into the same
+      file. If you choose the multiple_files option at the line for
+      <span class="emphasis"><em>sx</em></span>, there will be 4 files generated. Each file will
+      contain 3 data records. If you choose the multiple_files option at the
+      line for <span class="emphasis"><em>sy</em></span>, there will be 12 records generated,
+      with 1 data record in each file. </p><div class="figure"><a name="multiD_scan"></a><p class="title"><b>Figure 2.7. Multi-Dimensional Scan</b></p><div class="figure-contents"><div class="mediaobject"><img src="kowari.ui.images/Experiment/multiD_scan.PNG" width="600" alt="Multi-Dimensional Scan"></div></div></div><br class="figure-break"></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id380596"></a>2.3.7. Advanced Multi-Dimensional Scan</h3></div></div></div><p>An advanced multi-dimensional scan is a scan that has one or more
+      dimensions. And in each of the dimensions, you can change more than one
+      variable. Use the <span class="emphasis"><em>Advanced Multi-dimensional Scan</em></span>
+      block in the Design tab to setup this scan. A graphical description of
+      this scan is shown in <a class="xref" href="ch02s03.html#aMulti_icon" title="Figure 2.8. Icon of Advanced Multi_Dimensional Scan">Figure 2.8, &#8220;Icon of Advanced Multi_Dimensional Scan&#8221;</a>.</p><div class="figure"><a name="aMulti_icon"></a><p class="title"><b>Figure 2.8. Icon of Advanced Multi_Dimensional Scan</b></p><div class="figure-contents"><div class="mediaobject"><img src="kowari.ui.images/Experiment/aMultiScan.gif" alt="Icon of Advanced Multi_Dimensional Scan"></div></div></div><br class="figure-break"><p>For example in <a class="xref" href="ch02s03.html#advanced_scan" title="Figure 2.9. Advanced Multi-Dimensional Scan">Figure 2.9, &#8220;Advanced Multi-Dimensional Scan&#8221;</a>, the scan has two
+      dimensions. In the first dimension, it moves motor
+      <span class="emphasis"><em>sx</em></span> and <span class="emphasis"><em>sy</em></span> at the same time for
+      each scan point. These coordinates are (0, 0.1), (1, 0.2), (2, 0.3) and
+      (3, 0.4). For each coordinate of these positions, it will do a single
+      dimensional scan on <span class="emphasis"><em>som</em></span>. The total scan positions
+      in this example is 44. If you choose the single_file option, all data
+      will be saved into the same file. If you choose the multiple_files
+      option at dimension 0, there will be 4 files generated. Each file will
+      contain 11 data records. If you choose the multiple_files option at
+      dimension 1, there will be 44 records generated, with 1 data record in
+      each file. </p><div class="figure"><a name="advanced_scan"></a><p class="title"><b>Figure 2.9. Advanced Multi-Dimensional Scan</b></p><div class="figure-contents"><div class="mediaobject"><img src="kowari.ui.images/Experiment/advanced_scan.PNG" width="600" alt="Advanced Multi-Dimensional Scan"></div></div></div><br class="figure-break"></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id380711"></a>2.3.8. Arbitrary Scan</h3></div></div></div><p>The Arbitrary Scan is a scan that you can change arbitrary
+      variable in the instrument. A graphical description of such scan is
+      shown in <a class="xref" href="ch02s03.html#arbitrary_icon" title="Figure 2.10. Icon of Arbitrary Scan">Figure 2.10, &#8220;Icon of Arbitrary Scan&#8221;</a>.</p><div class="figure"><a name="arbitrary_icon"></a><p class="title"><b>Figure 2.10. Icon of Arbitrary Scan</b></p><div class="figure-contents"><div class="mediaobject"><img src="kowari.ui.images/Experiment/arbitraryScan.gif" alt="Icon of Arbitrary Scan"></div></div></div><br class="figure-break"><p>You need to define each position separately. For example, there
+      are 3 scan positions. In each position, you change arbitrary
+      parameters.</p><div class="figure"><a name="id380761"></a><p class="title"><b>Figure 2.11. Arbitrary Scan</b></p><div class="figure-contents"><div class="mediaobject"><img src="kowari.ui.images/Experiment/adhoc_scan.PNG" width="600" alt="Arbitrary Scan"></div></div></div><br class="figure-break"></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id380787"></a>2.3.9. Run the Scan</h3></div></div></div><p>To run the scan, change to the <span class="emphasis"><em>Run</em></span> interface.
+      To do so, click on the <span class="emphasis"><em>Run</em></span> tab at the bottom of the
+      Design tab, see <a class="xref" href="ch02s03.html#design_run" title="Figure 2.12. Switch to Run Interface">Figure 2.12, &#8220;Switch to Run Interface&#8221;</a>. You will get Run
+      interface. More information on this interface is provided later in this
+      chapter. To run the script, simply click on the Run button.</p><div class="figure"><a name="design_run"></a><p class="title"><b>Figure 2.12. Switch to Run Interface</b></p><div class="figure-contents"><div class="mediaobject"><img src="kowari.ui.images/Experiment/design_run.PNG" alt="Switch to Run Interface"></div></div></div><br class="figure-break"></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id382822"></a>2.3.10. Check the Scan Result</h3></div></div></div><p>Once you click on the Run button, the status bar on top of the Run
+      block will change colour and show <span class="inlinemediaobject"><img src="kowari.ui.images/Experiment/running_label.PNG"></span>. Meanwhile the timer at the top right will start,
+      for example, <span class="inlinemediaobject"><img src="kowari.ui.images/Experiment/time_counter.PNG" width="100"></span>. When one line of the script gets processed, the
+      colour of that line is changed to yellow. When the script processing is
+      complete, the status label becomes <span class="inlinemediaobject"><img src="kowari.ui.images/Experiment/ready_label.PNG"></span> and the timer stops.</p><p>To view scan data and data reduction result, please use the
+      <span class="emphasis"><em>Kowari Analysis Window</em></span>. If the analysis application
+      window is open, it will pick up the newly generated NeXus data and load
+      it into the <span class="emphasis"><em>File Management</em></span>. To run the analysis
+      algorithm, simply click on the file. The algorithm will start processing
+      and the results will get shown in the plotting area. For more
+      information about data analysis, please read <a class="xref" href="ch03.html#analysisWindow">Chapter 3, <i>Data Analysis Window</i></a>.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id382904"></a>2.3.11. Add SICS Command Block</h3></div></div></div><p>To add SICS command block, click on the button <span class="inlinemediaobject"><img src="kowari.ui.images/Experiment/add_command.PNG"></span>. An empty SICS command block will appear. To add
+      new commands in the block, click on the <span class="inlinemediaobject"><img src="kowari.ui.images/Experiment/add_drivable.PNG"></span> button. As shown in <a class="xref" href="ch02s03.html#sics_block" title="Figure 2.13. SICS Command Block">Figure 2.13, &#8220;SICS Command Block&#8221;</a>, there are two types of commands, the
+      <span class="emphasis"><em>Drivable</em></span> command and <span class="emphasis"><em>Script</em></span>
+      command. </p><div class="itemizedlist"><ul type="disc"><li><p>Use <span class="emphasis"><em>Drivable </em></span>command to move a motor to
+          certain position. Please select the motor name in the drop down
+          list, and set the target position value. </p></li><li><p>Use <span class="emphasis"><em>Script </em></span>command - to add SICS Tcl
+          commands. You can add as many as possible lines of Tcl code to the
+          text box. </p></li></ul></div><div class="figure"><a name="sics_block"></a><p class="title"><b>Figure 2.13. SICS Command Block</b></p><div class="figure-contents"><div class="mediaobject"><img src="kowari.ui.images/Experiment/sics_block.PNG" alt="SICS Command Block"></div></div></div><br class="figure-break"><p>Click on the <span class="inlinemediaobject"><img src="kowari.ui.images/Experiment/down_select.PNG"></span> button, a drop down menu pops up, as show in
+        <a class="xref" href="ch02s03.html#command_menu" title="Figure 2.14. Command Drop-down Menu">Figure 2.14, &#8220;Command Drop-down Menu&#8221;</a>. You can use this menu to change the
+        type of the command, delete it, or move it. </p><div class="figure"><a name="command_menu"></a><p class="title"><b>Figure 2.14. Command Drop-down Menu</b></p><div class="figure-contents"><div class="mediaobject"><img src="kowari.ui.images/Experiment/command_dropdown.PNG" alt="Command Drop-down Menu"></div></div></div><br class="figure-break"></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s02.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ch02s04.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">2.2. Getting Started with Scan Experiment </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> 2.4. Scan Design tab Advanced</td></tr></table></div></body></html>
