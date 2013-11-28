@@ -6,6 +6,8 @@ import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.intro.IIntroPart;
 import org.gumtree.gumnix.sics.control.ControllerStatus;
@@ -160,13 +162,44 @@ public class InstrumentContentProvider implements ITreeContentProvider,
 									}
 
 									public void run() throws Exception {
+										String pageId = System.getProperty(SicsUIConstants.ID_SICS_OPEN_EDITOR_PAGE);
+										IWorkbenchPage page = null;
+										if (pageId != null && pageId.trim().length() > 0) {
+											IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+											for (IWorkbenchWindow window : windows) {
+												try {
+													if (window.getActivePage().getPerspective().getId().equals(pageId)){
+														page = window.getActivePage();
+														break;
+													}
+												} catch (Exception e) {
+												}
+											}
+											for (IWorkbenchWindow window : windows) {
+												try {
+													IWorkbenchPage[] pages = window.getPages();
+													for (IWorkbenchPage subPage : pages) {
+														if (subPage.getPerspective().getId().equals(pageId)) {
+															page = subPage;
+															break;
+														}
+													}
+													if (page != null) {
+														break;
+													}
+												} catch (Exception e) {
+												}
+											}
+										}
+										if (page == null) {
+											page = PlatformUI
+													.getWorkbench()
+													.getActiveWorkbenchWindow()
+													.getActivePage();
+										}
 										IIntroPart introPart = PlatformUI.getWorkbench().getIntroManager().getIntro();
 										boolean wasStandby = PlatformUI.getWorkbench().getIntroManager().isIntroStandby(introPart);
-										PlatformUI
-										.getWorkbench()
-										.getActiveWorkbenchWindow()
-										.getActivePage()
-										.openEditor(
+										page.openEditor(
 												new SicsEditorInput(
 														SicsCore.getSicsController()),
 														SicsUIConstants.ID_EDITOR_SICS_CONTROL);

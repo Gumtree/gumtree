@@ -34,6 +34,8 @@ public class SicsUIConstants {
 	 */
 	public static final String ID_EDITOR_SICS_CONTROL = "org.gumtree.gumnix.sics.ui.sicsControl";
 
+	public static final String ID_SICS_OPEN_EDITOR_PAGE = "gumtree.sics.controlEditorPageID";
+	
 	/**
 	 * Unique identifer for the component control editor.
 	 */

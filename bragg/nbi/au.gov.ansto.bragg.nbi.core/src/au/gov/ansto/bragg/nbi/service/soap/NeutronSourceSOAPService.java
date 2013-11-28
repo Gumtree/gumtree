@@ -124,7 +124,7 @@ public class NeutronSourceSOAPService {
 						if (statusCode != HttpStatus.SC_OK) {
 							System.err.println("HTTP GET failed: " + postMethod.getStatusLine());
 						} else {
-							System.err.println(postMethod.getResponseBodyAsString());
+//							System.err.println(postMethod.getResponseBodyAsString());
 							try{
 								SOAPMessage message = MessageFactory.newInstance().createMessage();  
 								SOAPPart soapPart = message.getSOAPPart();  
