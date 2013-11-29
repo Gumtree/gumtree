@@ -43,4 +43,8 @@ var devices = [
                }
                ];
 
+var nsItems = [
+               {"classId":"reactorPower", "deviceId":"reactorPower", "title":"Reactor Power", "units":"MW"}
+               ];
+
 var histmemUrl = "taipan/rest/plot?height=400&width=600";

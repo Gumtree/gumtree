@@ -44,4 +44,8 @@ var devices = [
                }
                ];
 
+var nsItems = [
+               {"classId":"reactorPower", "deviceId":"reactorPower", "title":"Reactor Power", "units":"MW"}
+               ];
+
 var histmemUrl = "dae/rest/image?type=TOTAL_HISTOGRAM_X&scaling_type=LIN&screen_size_x=900&screen_size_y=500";

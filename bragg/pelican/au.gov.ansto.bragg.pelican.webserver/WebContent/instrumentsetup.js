@@ -35,4 +35,10 @@ var devices = [
                }
                ];
 
+var nsItems = [
+               {"classId":"reactorPower", "deviceId":"reactorPower", "title":"Reactor Power", "units":"MW"},
+               {"classId":"cnsInTemp", "deviceId":"cnsInTemp", "title":"CNS In Temp", "units":"K"},
+               {"classId":"cnsOutTemp", "deviceId":"cnsOutTemp", "title":"CNS Out Temp", "units":"K"}
+               ];
+
 var histmemUrl = "dae/rest/image?type=TOTAL_HISTOGRAM_XY&screen_size_x=760&screen_size_y=760";

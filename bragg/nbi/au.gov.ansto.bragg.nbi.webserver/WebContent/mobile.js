@@ -7,11 +7,25 @@ try {
 $.support.cors = true;
 
 var refresh = function(){
-	$.get("ns/rest/hdbs?devices=reactorPower",function(data,status){
+	var url = "ns/rest/hdbs?devices=";
+	for (var i = 0; i < nsItems.length; i++) {
+		url += nsItems[i].deviceId;
+		if (i < nsItems.length - 1) {
+			url += ",";
+		}
+	}
+	$.get(url, function(data,status){
 		if (status == "success") {
 			try {
 				var obj = jQuery.parseJSON(data);
-				$("#reactorPower").text(obj.hdbs[0].value + " MW");
+				for (var i = 0; i < obj.hdbs.length; i++) {
+					for (var j = 0; j < nsItems.length; j++) {
+						if (nsItems[j].deviceId == obj.hdbs[i].id) {
+							$("#" + nsItems[j].classId).text(obj.hdbs[i].value + " " + nsItems[j].units);
+							break;
+						}
+					}
+				}
 			} catch (e) {
 			}
 		}
@@ -144,6 +158,12 @@ var timerObject = {
 jQuery(document).ready(function(){
 	$(document).attr("title", title);
 	$('#titleString').text(title);
+	
+	$("#deviceList").append('<li class="ui-li ui-li-divider ui-bar-d ui-first-child" role="heading" data-role="list-divider">NEUTRON SOURCE</li>');
+	for (i = 0; i < nsItems.length; i++) {
+		$("#deviceList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">' + nsItems[i].title + ': </div> <div class="div-inlist" id="' + nsItems[i].classId + '">--</div></li>');
+	}
+	
 	for (i = 0; i < devices.length; i++) {
 		$("#deviceList").append('<li class="ui-li ui-li-divider ui-bar-d ui-first-child" role="heading" data-role="list-divider">' + devices[i].group + '</li>');
 		for ( var j = 0; j < devices[i].items.length; j++) {
@@ -151,6 +171,8 @@ jQuery(document).ready(function(){
 		}
 	}
 
+	$('#deviceList').listview('refresh');
+	
 	$("#getDom").click(function() {
 		refresh();
 	});
