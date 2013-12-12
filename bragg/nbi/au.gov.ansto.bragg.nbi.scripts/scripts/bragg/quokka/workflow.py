@@ -220,6 +220,8 @@ def runScattering(acqEntries, configSetting):
             sleep(0.2)
             # Drive attenuation back safer value
             log('Drive attenuation back to safe value ...')
+            if startingAttenuation is None:
+                startingAttenuation = 180
             driveAtt(startingAttenuation)
             quokka.printQuokkaSettings()
 

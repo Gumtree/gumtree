@@ -81,7 +81,7 @@ def drive(deviceId, value):
             em = str(e.getMessage())
             if em.__contains__('Interrupted'):
                 raise e
-            print 'retry driving ' + str(deviceId)
+            logger.log('retry driving ' + str(deviceId))
             time.sleep(1)
             while not getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
                 time.sleep(0.3)
@@ -125,7 +125,7 @@ def runscan(type, scan_variable, scan_start, scan_increment, NP, mode, preset, c
         time.sleep(0.1)
     
     # Run scan
-    print 'Scan started'
+    logger.log('Scan started')
     scanController.asyncExecute()
     
     # Monitor initial status change
@@ -136,7 +136,7 @@ def runscan(type, scan_variable, scan_start, scan_increment, NP, mode, preset, c
         counter += 0.1
         if (counter >= 1):
             timeOut = True
-            print 'Time out on running scan'
+            logger.log('Time out on running scan')
             break
             
     # Enter into normal sequence
@@ -144,12 +144,12 @@ def runscan(type, scan_variable, scan_start, scan_increment, NP, mode, preset, c
         scanpoint = -1;
         scanPointController = sicsController.findComponentController(scanController, '/feedback/scanpoint')
         countsController = sicsController.findComponentController(scanController, '/feedback/counts')
-        print '  NP  ' + '\t' + ' Counts'
+        logger.log('  NP  ' + '\t' + ' Counts')
         while (scanController.getCommandStatus().equals(CommandStatus.BUSY)):
             currentPoint = scanPointController.getValue().getIntData()
             if ((scanpoint == -1 and  currentPoint == 0) or (scanpoint != -1 and currentPoint != scanpoint)):
                 scanpoint = currentPoint
-                print '%4d \t %d' % (scanpoint, countsController.getValue().getIntData())
+                logger.log('%4d \t %d' % (scanpoint, countsController.getValue().getIntData()))
             time.sleep(0.1)
         logger.log('Scan completed')
     handleInterrupt()
@@ -292,5 +292,5 @@ def get_raw_value(comm, dtype = float):
         except:
             __count__ += 0.2
             time.sleep(0.2)
-    print 'time out in running ' + comm_str
+    logger.log('time out in running ' + comm_str)
     return None

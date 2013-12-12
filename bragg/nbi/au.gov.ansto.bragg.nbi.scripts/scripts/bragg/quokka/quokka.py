@@ -30,8 +30,8 @@ import math
 DEVICE_SAMX = 'samx'
 
 # safe count rates
-local_rateSafe =     7.0
-total_rateSafe = 20000.0
+local_rateSafe =     15.0
+global_rateSafe = 40000.0
 
 # Enums
 guideConfig = enum.Enum(\
@@ -123,9 +123,9 @@ def driveAtt(value):
     log('Attenuator is now at ' + str(getAttValue()) + ' degree')
 
 def setSafeAttenuation(startingAttenuation=330):
-    localRate = 0
-    globalRate = 0
-    previousLocalRate = 0
+    local_rate  = 0
+    global_rate = 0
+    previousLocalRate  = 0
     previousGlobalRate = 0
     startLevel = attenuationLevels.index(startingAttenuation)
     
@@ -138,32 +138,35 @@ def setSafeAttenuation(startingAttenuation=330):
         driveAtt(attenuationLevels[level])
         
         # count bin rate
-        local_rate1, total_rate1 = determineAveragedRates(max_samples=5, log_success=False)
-        log('local rate1 = ' + str(local_rate1))
-        log('total rate1 = ' + str(total_rate1))
+        local_rate, global_rate = determineAveragedRates(max_samples=5, log_success=False)
+        log('local rate = '  + str(local_rate))
+        log('global rate = ' + str(global_rate))
         
         # Too much (check both local and global rate)
-        if ((localRate > local_rateSafe) or (globalRate > total_rateSafe)):
+        if ((local_rate > local_rateSafe) or (global_rate > global_rateSafe)):
             if (level > 0):
                 # [GUMTREE-378] Ensure SICS is ready after count
                 while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
                     time.sleep(0.1)
                 # Brings it back to one step
                 driveAtt(attenuationLevels[level - 1])
-            localRate = previousLocalRate
-            globalRate = previousGlobalRate
+            local_rate  = previousLocalRate
+            global_rate = previousGlobalRate
             break
+        
         # Within tolerance
-        elif (localRate >= local_rateSafe / 2) and (localRate <= local_rateSafe):
+        elif (local_rate >= local_rateSafe / 2) or (global_rate >= global_rateSafe / 2):
+            log('exit loop')
             break
-        previousLocalRate = localRate
-        previousGlobalRate = globalRate
+        
+        previousLocalRate  = local_rate
+        previousGlobalRate = global_rate
         # Ensure SICS is ready after count
         while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
             time.sleep(0.1)
     
     # Print info at the end
-    log('Attenuation is set to ' + str(getAttValue()) + ' degree with bin rate ' + str(localRate))
+    log('Attenuation is set to ' + str(getAttValue()) + ' degree with bin rate ' + str(local_rate))
 
 def getDetPosition():
     return sics.getValue('det').getIntData()
@@ -237,8 +240,25 @@ def selBs(beamstop):
         count += 0.1
         if count > timeout:
             raise Exception("Time out on receiving feedback on beam stop selection")
-    # Synchronously run command
-    commandController.syncExecute()
+    
+    cnt = 0
+    while cnt < 20:
+        try:
+            commandController.syncExecute();
+            break
+        except SicsExecutionException, e:
+            em = str(e.getMessage())
+            if em.__contains__('Interrupted'):
+                raise e
+            logger.log('retry selecting beam stop ' + str(beamstop))
+            time.sleep(1)
+            while not sicsController.getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+                time.sleep(0.3)
+            cnt += 1
+    if cnt >= 20:
+        raise Exception, 'timeout selecting beam stop ' + str(beamstop)
+    
+    logger.log('beam stop is ' + str(beamstop))
 
 def selBsxz(beamstop, bx, bz):
     # Get command controller
@@ -250,8 +270,24 @@ def selBsxz(beamstop, bx, bz):
     sics.hset(commandController, '/bx', bx)
     sics.hset(commandController, '/bz', bz)
     
-    # Synchronously run command
-    commandController.syncExecute()
+    cnt = 0
+    while cnt < 20:
+        try:
+            commandController.syncExecute();
+            break
+        except SicsExecutionException, e:
+            em = str(e.getMessage())
+            if em.__contains__('Interrupted'):
+                raise e
+            logger.log('retry selecting beam stop ' + str(beamstop))
+            time.sleep(1)
+            while not sicsController.getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+                time.sleep(0.3)
+            cnt += 1
+    if cnt >= 20:
+        raise Exception, 'timeout selecting beam stop ' + str(beamstop)
+    
+    logger.log('beam stop is ' + str(beamstop))
     
     
 def driveBs(ids, action):
@@ -314,8 +350,24 @@ def driveGuide(guideConfig):
     # Setting of configuration and starting a command are committed to SICS via different communication channels
     # In order to make those in sync, we need to wait for the configuration to be settled.
     time.sleep(0.1)
+    
     # Start command now
-    commandController.syncExecute();
+    cnt = 0
+    while cnt < 20:
+        try:
+            commandController.syncExecute();
+            break
+        except SicsExecutionException, e:
+            em = str(e.getMessage())
+            if em.__contains__('Interrupted'):
+                raise e
+            logger.log('retry moving guide to ' + str(guideConfig.key))
+            time.sleep(1)
+            while not sicsController.getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+                time.sleep(0.3)
+            cnt += 1
+    if cnt >= 20:
+        raise Exception, 'timeout moving guide to ' + str(guideConfig.key)
     log('Guide is moved to ' + getGuideConfig())
 
 def getDhv1Value():
@@ -420,7 +472,7 @@ def getMaxBinRate():
     return sics.getValue('/instrument/detector/max_binrate').getFloatData()
 
 # Gets the global count rate
-def getTotalMapRate():
+def getGlobalMapRate():
     return sics.getValue('/instrument/detector/total_maprate').getFloatData()
 
 def getSampleHolderPosition():
@@ -439,23 +491,19 @@ def scan(scanMode, dataType, preset, force='true', saveType=saveType.save):
 #    sics.hset(scanController, '/scan_variable', DEVICE_SAMX)
 #    sics.hset(scanController, '/scan_start', getSampleHolderPosition())
 #    sics.hset(scanController, '/scan_stop', getSampleHolderPosition())
-#    sics.hset(scanController, '/numpoints', 1)
+    sics.hset(scanController, '/numpoints', 1)
 #    # Hack to fix monitor selection in scan
 #    if (scanMode.key == 'monitor'):
 #        sics.hset(scanController, '/mode', 'MONITOR_1')
 #    else:
 #        sics.hset(scanController, '/mode', scanMode.key)
-#    sics.hset(scanController, '/preset', preset)
+    sics.hset(scanController, '/preset', preset)
 #    sics.hset(scanController, '/datatype', dataType.key)
 #    sics.hset(scanController, '/savetype', saveType.key)
-#    sics.hset(scanController, '/force', force)
+    sics.hset(scanController, '/force', force)
+
     sics.execute('hset /instrument/dummy_motor 0', 'general')
     sics.execute('hset /instrument/dummy_motor 1', 'scan')
-    
-    sics.execute('hset ' + controllerPath + '/datatype ' + dataType.key, 'general')
-    sics.execute('hset ' + controllerPath + '/savetype ' + saveType.key, 'general')
-    sics.execute('hset ' + controllerPath + '/force ' + force, 'general')
-
     
     sics.execute('hset ' + controllerPath + '/scan_variable dummy_motor', 'scan')
     sics.execute('hset ' + controllerPath + '/scan_start 0', 'scan')
@@ -478,6 +526,7 @@ def scan(scanMode, dataType, preset, force='true', saveType=saveType.save):
     
     # Synchronously run scan
     scanController.syncExecute()
+
     sics.execute('hset /instrument/dummy_motor 4', 'general')
     sics.execute('hset /instrument/dummy_motor 5', 'scan')
     
@@ -499,13 +548,11 @@ def driveSafeAttenuation(override=False, startingAttenuation=330):
         setSafeAttenuation(startingAttenuation)
     else:
         # Find safe attenuation value
-        att, startingAttenuation = findSafeAttenuation(startingAttenuation)
+        att = findSafeAttenuation(startingAttenuation)
         if att is not None:
             while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
                 time.sleep(0.1)
             driveAtt(att)
-            
-    return startingAttenuation
 
 def startHistmem():
     # sicsController = sics.getSicsController()
@@ -519,10 +566,10 @@ def startHistmem():
 def stopHistmem():
     sicsController = sics.getSicsController()
     histmemController = sicsController.findComponentController('/commands/histogram/histmem')
-    log('stoping histmem ...')
+    log('stopping histmem ...')
     sics.execute('histmem stop')
 
-# determine averaged local and total rates
+# determine averaged local and global rates
 #   samples: number of samples to create average
 #   timeout: maximal time for this function
 def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_success=True):
@@ -553,57 +600,57 @@ def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_succe
         time.sleep(1.0)
 
         local_rate = getMaxBinRate()
-        total_rate = getTotalMapRate()
+        global_rate = getGlobalMapRate()
 
         n = 0 # sample count
         local_rate_sum     = 0.0
-        total_rate_sum     = 0.0
+        global_rate_sum     = 0.0
         local_rate_sqr_sum = 0.0 # sum of squared rate
-        total_rate_sqr_sum = 0.0
+        global_rate_sqr_sum = 0.0
 
         for i in xrange(max_samples):
             
             new_local_rate = getMaxBinRate()
-            new_total_rate = getTotalMapRate()
+            new_global_rate = getGlobalMapRate()
             
             start = time.time()
-            while (new_local_rate == local_rate) or (new_local_rate == 0) or (new_total_rate == total_rate) or (new_total_rate == 0):
+            while (new_local_rate == local_rate) or (new_local_rate == 0) or (new_global_rate == global_rate) or (new_global_rate == 0):
                 if time.time() - start >= timeout:
                     raise Exception("Timeout in determineAveragedRates")
                 time.sleep(0.5)
                 new_local_rate = getMaxBinRate()
-                new_total_rate = getTotalMapRate()
+                new_global_rate = getGlobalMapRate()
 
             local_rate = new_local_rate
-            total_rate = new_total_rate
-            log('measurement:  local rate = %10.3f          total rate = %10.3f' % (local_rate, total_rate))
+            global_rate = new_global_rate
+            log('measurement:  local rate = %10.3f          global rate = %10.3f' % (local_rate, global_rate))
 
             n += 1 # increase sample count
             local_rate_sum     += local_rate
-            total_rate_sum     += total_rate
+            global_rate_sum     += global_rate
             local_rate_sqr_sum += (local_rate * local_rate)
-            total_rate_sqr_sum += (total_rate * total_rate)
+            global_rate_sqr_sum += (global_rate * global_rate)
             
             if n > 1:
                 # https://de.wikipedia.org/wiki/Vertrauensintervall#Beispiele_f.C3.BCr_ein_Konfidenzintervall
                 
                 local_rate_mean = local_rate_sum / n
-                total_rate_mean = total_rate_sum / n
+                global_rate_mean = global_rate_sum / n
                 
                 local_rate_std = determineStandardDeviation(local_rate_sum, local_rate_sqr_sum, n)
-                total_rate_std = determineStandardDeviation(total_rate_sum, total_rate_sqr_sum, n)
+                global_rate_std = determineStandardDeviation(global_rate_sum, global_rate_sqr_sum, n)
                 
                 factor = getStudentsFacotr(n) / math.sqrt(n)
                 
                 local_rate_err = factor * local_rate_std
-                total_rate_err = factor * total_rate_std
+                global_rate_err = factor * global_rate_std
                 
-                log('estimation:   local rate = %10.3f+-%-7.3f total rate = %10.3f+-%-7.3f' % (local_rate_mean, local_rate_err, total_rate_mean, total_rate_err))
+                log('estimation:   local rate = %10.3f+-%-7.3f global rate = %10.3f+-%-7.3f' % (local_rate_mean, local_rate_err, global_rate_mean, global_rate_err))
                 
                 local_rate_intvl = 2 * local_rate_err
-                total_rate_intvl = 2 * total_rate_err
+                global_rate_intvl = 2 * global_rate_err
                 
-                if (local_rate_intvl < interval * local_rate_mean) and (total_rate_intvl < interval * total_rate_mean):
+                if (local_rate_intvl < interval * local_rate_mean) and (global_rate_intvl < interval * global_rate_mean):
                     if log_success:
                         log('successful estimation')
                     break;
@@ -614,13 +661,13 @@ def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_succe
     finally:
         stopHistmem()
  
-    return local_rate_sum/n, total_rate_sum/n # -0.7 to subtract background
+    return local_rate_sum/n, global_rate_sum/n # -0.7 to subtract background
 
 # Find the attenuation angle
 def findSafeAttenuation(startingAttenuation):
     # Sample at 90 (was 150) and 60 (was 120)
-    attenuation1 = 180
-    attenuation2 = 150
+    attenuation1 = 120
+    attenuation2 =  90
     # Safety margin (ratio)
     safety_margin = 1.02 # 2%
     
@@ -629,36 +676,36 @@ def findSafeAttenuation(startingAttenuation):
         time.sleep(0.1)
     driveAtt(attenuation1)
         
-    local_rate1, total_rate1 = determineAveragedRates()
+    local_rate1, global_rate1 = determineAveragedRates()
     thickness1 = thicknessTable[attenuation1]
     
     log('local rate1 = ' + str(local_rate1))
-    log('total rate1 = ' + str(total_rate1))
+    log('global rate1 = ' + str(global_rate1))
     
     # Second sampling
     while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
         time.sleep(0.1)
     driveAtt(attenuation2)
         
-    local_rate2, total_rate2 = determineAveragedRates()
+    local_rate2, global_rate2 = determineAveragedRates()
     thickness2 = thicknessTable[attenuation2]
     
     log('local rate2 = ' + str(local_rate2))
-    log('total rate2 = ' + str(total_rate2))
+    log('global rate2 = ' + str(global_rate2))
     
-    # check that at least local or total rate is sufficient
-    if (local_rate2 <= local_rate1 * safety_margin) and (total_rate2 <= total_rate1 * safety_margin):
+    # check that at least local or global rate is sufficient
+    if (local_rate2 <= local_rate1 * safety_margin) and (global_rate2 <= global_rate1 * safety_margin):
         log('insufficient statistics - safe attenuation routine is used')
         sics.execute('histmem mode time')
-        if (local_rate2 <= local_rateSafe) and (total_rate2 <= total_rateSafe):
+        if (local_rate2 <= local_rateSafe) and (global_rate2 <= global_rateSafe):
             setSafeAttenuation(attenuation2)
-            return None, attenuation1 # to tell caller that attenuation value is set
-        elif (local_rate1 <= local_rateSafe) and (total_rate1 <= total_rateSafe):
+            return None # to tell caller that attenuation value is set
+        elif (local_rate1 <= local_rateSafe) and (global_rate1 <= global_rateSafe):
             setSafeAttenuation(attenuation1)
-            return None, attenuation1 # to tell caller that attenuation value is set
+            return None # to tell caller that attenuation value is set
         else:
             setSafeAttenuation(startingAttenuation)
-            return None, startingAttenuation # to tell caller that attenuation value is set
+            return None # to tell caller that attenuation value is set
 
     # find safe thickness
     if local_rate2 > local_rate1 * safety_margin:
@@ -672,19 +719,19 @@ def findSafeAttenuation(startingAttenuation):
     else:
         local_thicknessSafe = 0
     
-    if total_rate2 > total_rate1 * safety_margin:
-        total_ratio  = math.log(total_rate2 / total_rate1) / (thickness1 - thickness2)
-        total_offset = math.log(total_rate1 / total_rateSafe) / total_ratio
-        if total_offset < 0:
-            total_thicknessSafe = thickness1 + total_offset
+    if global_rate2 > global_rate1 * safety_margin:
+        global_ratio  = math.log(global_rate2 / global_rate1) / (thickness1 - thickness2)
+        global_offset = math.log(global_rate1 / global_rateSafe) / global_ratio
+        if global_offset < 0:
+            global_thicknessSafe = thickness1 + global_offset
         else:
-            total_thicknessSafe = thickness1
-        log('total ratio = ' + str(total_ratio))
+            global_thicknessSafe = thickness1
+        log('global ratio = ' + str(global_ratio))
     else:
-        total_thicknessSafe = 0
+        global_thicknessSafe = 0
 
     # final safe thickness
-    thicknessSafe = max([0, local_thicknessSafe, total_thicknessSafe])
+    thicknessSafe = max([0, local_thicknessSafe, global_thicknessSafe])
     log('safe thickness = ' + str(thicknessSafe))
     
     # find corresponding attenuation angle
@@ -696,7 +743,7 @@ def findSafeAttenuation(startingAttenuation):
             suggestedAttAngle = attAngle
     
     log('suggested attenutaion angle = ' + str(suggestedAttAngle))
-    return suggestedAttAngle, attenuation1
+    return suggestedAttAngle
     
 # Count simulation - used for debug only
 def count(thickness, wavelength): 
@@ -713,24 +760,25 @@ def printQuokkaSettings():
         runNumber = (datafile.split('QKK')[1].split('.nx.hdf'))[0]
     else:
         runNumber = datafile
-    print
-    print "*****  Quokka Instrument Settings  *****"
-    print
-    print "    Last Run Number: " + runNumber
-    print "        Sample Name: " + sics.getValue('samplename').getStringData()
-    print
-    print "         Attenuator: %.2f degree" % getAttValue()
-    print " Entrance Aperature: %.2f" % getEntRotApValue()
-    print "Guide Configuration: " + getGuideConfig()
-    print "    Sample Position: " + str(getSamplePosition())
+    msg = '\n'
+    msg += "*****  Quokka Instrument Settings  *****"
+    msg += '\n'
+    msg +=  "    Last Run Number: " + runNumber
+    msg +=  "        Sample Name: " + sics.getValue('samplename').getStringData()
+    msg += '\n'
+    msg +=  "         Attenuator: %.2f degree" % getAttValue()
+    msg +=  " Entrance Aperature: %.2f" % getEntRotApValue()
+    msg +=  "Guide Configuration: " + getGuideConfig()
+    msg +=  "    Sample Position: " + str(getSamplePosition())
 #    print "        Beam Stop 1: " + getBsPosition(1)
 #    print "        Beam Stop 2: " + getBsPosition(2)
 #    print "        Beam Stop 3: " + getBsPosition(3)
 #    print "        Beam Stop 4: " + getBsPosition(4)
 #    print "        Beam Stop 5: " + getBsPosition(5)
-    print "        Beam Stop X: %.2f" % getBsxValue()
-    print "        Beam Stop Z: %.2f" % getBszValue()
-    print "  Detector Position: %.2f" %getDetPosition()
-    print "    Detector Offset: %.2f" % getDetOffsetValue()
-    print
-    print "****************************************"
+    msg +=  "        Beam Stop X: %.2f" % getBsxValue()
+    msg +=  "        Beam Stop Z: %.2f" % getBszValue()
+    msg +=  "  Detector Position: %.2f" %getDetPosition()
+    msg +=  "    Detector Offset: %.2f" % getDetOffsetValue()
+    msg += '\n'
+    msg +=  "****************************************"
+    log(msg)
