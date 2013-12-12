@@ -250,7 +250,7 @@ def selBs(beamstop):
             em = str(e.getMessage())
             if em.__contains__('Interrupted'):
                 raise e
-            logger.log('retry selecting beam stop ' + str(beamstop))
+            log('retry selecting beam stop ' + str(beamstop))
             time.sleep(1)
             while not sicsController.getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
                 time.sleep(0.3)
@@ -258,7 +258,7 @@ def selBs(beamstop):
     if cnt >= 20:
         raise Exception, 'timeout selecting beam stop ' + str(beamstop)
     
-    logger.log('beam stop is ' + str(beamstop))
+    log('beam stop is ' + str(beamstop))
 
 def selBsxz(beamstop, bx, bz):
     # Get command controller
@@ -279,7 +279,7 @@ def selBsxz(beamstop, bx, bz):
             em = str(e.getMessage())
             if em.__contains__('Interrupted'):
                 raise e
-            logger.log('retry selecting beam stop ' + str(beamstop))
+            log('retry selecting beam stop ' + str(beamstop))
             time.sleep(1)
             while not sicsController.getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
                 time.sleep(0.3)
@@ -287,7 +287,7 @@ def selBsxz(beamstop, bx, bz):
     if cnt >= 20:
         raise Exception, 'timeout selecting beam stop ' + str(beamstop)
     
-    logger.log('beam stop is ' + str(beamstop))
+    log('beam stop is ' + str(beamstop))
     
     
 def driveBs(ids, action):
@@ -361,7 +361,7 @@ def driveGuide(guideConfig):
             em = str(e.getMessage())
             if em.__contains__('Interrupted'):
                 raise e
-            logger.log('retry moving guide to ' + str(guideConfig.key))
+            log('retry moving guide to ' + str(guideConfig.key))
             time.sleep(1)
             while not sicsController.getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
                 time.sleep(0.3)
