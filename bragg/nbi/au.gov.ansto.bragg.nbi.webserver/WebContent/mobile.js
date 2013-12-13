@@ -54,7 +54,7 @@ var refresh = function(){
 				$("#sicsServer").css("color", "black");
 			}
 		});
-		if (!isMobileBrowser) {
+		if (!isMobileBrowser && histmemUrl != null) {
 			var imgUrl = histmemUrl + "&timestamp=" + new Date().getTime();
 			try{
 				$.get(imgUrl, function(data,status){
@@ -177,10 +177,12 @@ jQuery(document).ready(function(){
 		refresh();
 	});
 
-	if (isMobileBrowser) {
-		$("#histmemDiv").html('<div data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="c" data-disabled="false" class="ui-btn ui-shadow ui-btn-corner-all ui-btn-up-c" aria-disabled="false"><span class="ui-btn-inner"><span class="ui-btn-text">Get histogram snapshot</span></span><button id="histmemButton" class="ui-btn-hidden" data-disabled="false">Get histogram snapshot</button></div>');
-	} else {
-		$("#histmemDiv").html('<img id="histmemImage" src="' + histmemUrl + '" alt="Loading error. Please refresh again.">');
+	if (histmemUrl != null) {
+		if (isMobileBrowser) {
+			$("#histmemDiv").html('<div data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="c" data-disabled="false" class="ui-btn ui-shadow ui-btn-corner-all ui-btn-up-c" aria-disabled="false"><span class="ui-btn-inner"><span class="ui-btn-text">Get histogram snapshot</span></span><button id="histmemButton" class="ui-btn-hidden" data-disabled="false">Get histogram snapshot</button></div>');
+		} else {
+			$("#histmemDiv").html('<img id="histmemImage" src="' + histmemUrl + '" alt="Loading error. Please refresh again.">');
+		}
 	}
 	
 	$("#histmemButton").click(function() {

@@ -70,7 +70,7 @@
          		httpServiceForServer.url = serverURL + "sics/rest/status";
          		
          		// Set HM URL
-         		hmImage.url = serverURL + "dae/rest/image?type=TOTAL_HISTOGRAM_XY&screen_size_x=760&screen_size_y=760";
+//         		hmImage.url = serverURL + "dae/rest/image?type=TOTAL_HISTOGRAM_XY&screen_size_x=760&screen_size_y=760";
          		
          		// Update once
          		updateTimer(null);
@@ -106,7 +106,7 @@
             	// Update server data
             	httpServiceForServer.send();
             	// Update HM data
-				hmImage.update();
+//				hmImage.update();
             }
 			
 			private function changeTimerDelay():void
@@ -255,7 +255,8 @@
         width="1000" height="640" horizontalAlign="center" verticalAlign="top" fontSize="18" fontWeight="normal" backgroundColor="#000000" color="#FFFFFF" borderColor="#90CCFB" alpha="1.0" cornerRadius="3" layout="absolute">
  
  		<!-- Histogram image -->
- 		<gum:ImageView id="hmImage" width="480" height="320" left="60" bottom="120"/>
+ 		<!-- gum:ImageView id="hmImage" width="480" height="320" left="60" bottom="120"/ -->
+ 		<mx:Image source="assets/dingo.jpg" scaleContent="true"	creationCompleteEffect="{dissolveIn}" width="480" height="320" left="90" bottom="40"/>	
 
  		<!-- Instrument schematic -->
 
