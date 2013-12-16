@@ -31,6 +31,8 @@
 			// hdb (components) - widget maping
 			private var hdbComponentMap:Array;
 			
+			private var nsDeviceMap:Array;
+
 			private function init():void {
 				
 				bm = BrowserManager.getInstance();
@@ -65,6 +67,20 @@
             	url += tempString + "&format=json";
             	httpServiceForHdb.url = url;
             	
+            	nsDeviceMap = [
+					// Neutron Beam
+					"reactorPower", reactorValue
+				];
+				
+				url = "";
+				for (i = 0; i < nsDeviceMap.length; i += 2)
+            	{
+            		url += nsDeviceMap[i];
+            		if (i != nsDeviceMap.length - 2) {
+            			url += ",";	
+            		}
+            	}
+            	httpServiceForNS.url = serverURL + "ns/rest/hdbs?devices=" + url;
             	
             	// Set Server HTTP
          		httpServiceForServer.url = serverURL + "sics/rest/status";
@@ -103,6 +119,7 @@
             {
             	// Update HDB data
             	httpServiceForHdb.send();
+				httpServiceForNS.send();
             	// Update server data
             	httpServiceForServer.send();
             	// Update HM data
@@ -200,6 +217,27 @@
 				}
 			}
 			
+			private function handleNSData(event:ResultEvent):void
+			{
+				//get the raw JSON data and cast to String
+				var rawData:String = String(event.result);
+				var result:Object = JSON.decode(rawData);
+				var dataArray:Array = result.hdbs as Array;
+				for (var i:int = 0; i < dataArray.length; i++) {
+					var deviceName:String = dataArray[i].id;
+					// device
+					if (deviceName != null)
+					{
+						var index:int = nsDeviceMap.indexOf(deviceName);
+						if (index >= 0)
+						{
+							var textArea:TextArea = nsDeviceMap[index + 1] as TextArea; 
+							textArea.text = dataArray[i].value;
+						}
+					}
+				}
+			}
+			
 			private function handleFault(event:FaultEvent):void
 			{
 				connectionStatus.text = "Fault";
@@ -245,6 +283,7 @@
 	<!-- Services -->
 	<mx:HTTPService id="httpServiceForHdb" resultFormat="text" result="handleHdbData(event)" fault="handleFault(event)" />
 	<mx:HTTPService id="httpServiceForServer" resultFormat="text" result="handleServerData(event)" fault="handleFault(event)"/>
+	<mx:HTTPService id="httpServiceForNS" resultFormat="text" result="handleNSData(event)" fault="handleFault(event)" />
 	<mx:DateFormatter id="dateFormatter" formatString="YYYY-MM-DD HH:NN:SS A" />
 	
 	<!-- Effects -->
@@ -256,7 +295,7 @@
  
  		<!-- Histogram image -->
  		<!-- gum:ImageView id="hmImage" width="480" height="320" left="60" bottom="120"/ -->
- 		<mx:Image source="assets/dingo.jpg" scaleContent="true"	creationCompleteEffect="{dissolveIn}" width="480" height="320" left="90" bottom="40"/>	
+ 		<mx:Image source="assets/dingo.jpg" scaleContent="true"	creationCompleteEffect="{dissolveIn}" width="480" height="320" left="90" bottom="30"/>	
 
  		<!-- Instrument schematic -->
 
@@ -429,7 +468,7 @@
 									<mx:TextArea id="cm1Counts" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="70"/>
 								</mx:GridItem>
 								<mx:GridItem>
-									<mx:Label text="c"  width="50"/>
+									<mx:Label text="cts"  width="40"/>
 								</mx:GridItem>
 							</mx:GridRow>
 						</mx:Grid>
@@ -449,13 +488,35 @@
 							</mx:GridRow>
 							<mx:GridRow width="100%">
 								<mx:GridItem width="55%">
-									<mx:Label text="Time of Counting" textAlign="right" width="100%"/>
+									<mx:Label text="Exposure Time" textAlign="right" width="100%"/>
 								</mx:GridItem>
 								<mx:GridItem>
 									<mx:TextArea id="timeOfCounting" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="70"/>
 								</mx:GridItem>
 								<mx:GridItem>
-									<mx:Label text="s"  width="50"/>
+									<mx:Label text="s"  width="40"/>
+								</mx:GridItem>
+							</mx:GridRow>
+						</mx:Grid>
+					</mx:GridItem>
+				</mx:GridRow>
+				<mx:GridRow width="100%" height="100%">
+					<mx:GridItem width="100%">
+						<mx:Label fontWeight="bold" text="Reactor Status" textAlign="left" width="100%"/>
+					</mx:GridItem>
+				</mx:GridRow>
+				<mx:GridRow width="100%" height="100%">
+					<mx:GridItem width="100%" height="100%">
+						<mx:Grid>
+							<mx:GridRow width="100%">
+								<mx:GridItem width="55%">
+									<mx:Label text="Power" textAlign="right" width="80"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:TextArea id="reactorValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="70"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:Label text="MW" width="40"/>
 								</mx:GridItem>
 							</mx:GridRow>
 						</mx:Grid>
