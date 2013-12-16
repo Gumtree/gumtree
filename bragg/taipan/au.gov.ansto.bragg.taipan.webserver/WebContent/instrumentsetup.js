@@ -12,7 +12,7 @@ var devices = [
             	            {"classId":"s1", "deviceId":"s1", "title":"s1", "units":"deg"}, 
             	            {"classId":"s2", "deviceId":"s2", "title":"s2", "units":"deg"}, 
             	            {"classId":"a1", "deviceId":"a1", "title":"a1", "units":"deg"}, 
-            	            {"classId":"a2", "deviceId":"m1", "title":"a2", "units":"deg"}
+            	            {"classId":"a2", "deviceId":"a2", "title":"a2", "units":"deg"}
             	            ]
                },
                {"group":"PARAMETERS", 
