@@ -110,6 +110,11 @@ public class ReactorStatusWidget extends ExtendedComposite {
 			String content = null;
 			try{
 				content = ele.getElementsByTagName("ns1:" + device.id).item(0).getTextContent();
+				try {
+					double value = Double.valueOf(content);
+					content = String.format("%.3f", value);
+				} catch (Exception e) {
+				}
 			}catch (Exception ex) {
 			}
 			if (content != null) {
