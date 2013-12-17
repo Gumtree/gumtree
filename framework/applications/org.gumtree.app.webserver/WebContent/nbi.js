@@ -12,7 +12,8 @@ var ins = [
            {"name":"Quokka", "url":"/quokka/status/sics/rest"},
            {"name":"Taipan", "url":"/taipan/status/sics/rest"},
            {"name":"Pelican", "url":"/pelican/status/sics/rest"},
-           {"name":"Kookaburra", "url":"/kookaburra/status/sics/rest"}
+           {"name":"Kookaburra", "url":"/kookaburra/status/sics/rest"},
+           {"name":"Dingo", "url":"/dingo/status/sics/rest"},
            ]
 var defaultTimeout = 10;
 var refresh = function(dict){
