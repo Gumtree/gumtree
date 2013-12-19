@@ -37,6 +37,9 @@ import org.gumtree.util.bean.AbstractModelObject;
 public class BatchBufferManager extends AbstractModelObject implements IBatchBufferManager {
 
 	private static final String TCL_SCRIPT_COPY_FOLDER_PROPERTY = "gumtree.sics.tclScriptCopyFolder";
+	
+	private static final String TCL_ESCAPE_CURLY_BRACKETS_PROPERTY = "gumtree.sics.escapeCurlyBrackets";
+	
 	// Schedule to check queue every 500ms
 	private static final int SCHEDULING_INTERVAL = 500;
 	
@@ -66,6 +69,8 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	
 	// Interrupt listener
 	private ISicsListener sicsListener;
+	
+	private boolean escapeBrackets = false;
 	
 	public BatchBufferManager() {
 		super();
@@ -109,6 +114,10 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			}
 		};
 		scheduler.setSystem(true);
+		try {
+			escapeBrackets = Boolean.valueOf(System.getProperty(TCL_ESCAPE_CURLY_BRACKETS_PROPERTY));
+		} catch (Exception e) {
+		}
 	}
 	
 	protected void handleSicsConnect() {
@@ -223,6 +232,9 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			String line = null;
 			try {
 				while((line = reader.readLine()) != null) {
+					if (escapeBrackets) {
+						line = line.replace("{", "\\{").replace("}", "\\}");
+					}
 					asyncSend("exe append " + line, null, ISicsProxy.CHANNEL_RAW_BATCH);
 				}
 			} catch (Exception e) {
