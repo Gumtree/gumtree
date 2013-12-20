@@ -65,7 +65,9 @@ public class ReactorStatusWidget extends ExtendedComposite {
 			
 			@Override
 			public void post(SOAPMessage message) {
-				updateValue(message);
+				if (!isDisposed()) {
+					updateValue(message);
+				}
 			}
 		});
 		addDisposeListener(new DisposeListener() {
