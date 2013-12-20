@@ -15,9 +15,9 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
-import org.gumtree.gumnix.sics.ui.widgets.SicsStatusGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
 import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
+import org.gumtree.gumnix.sics.widgets.swt.SicsStatusWidget;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
 
 import au.gov.ansto.bragg.kowari.workbench.internal.InternalImage;
@@ -60,9 +60,9 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		// Server Status
 		PGroup sicsStatusGroup = createGroup("SERVER STATUS",
 				InternalImage.SERVER.getImage());
-		SicsStatusGadget statusGadget = new SicsStatusGadget(sicsStatusGroup,
+		SicsStatusWidget statusWidget = new SicsStatusWidget(sicsStatusGroup,
 				SWT.NONE);
-		configureWidget(statusGadget);
+		configureWidget(statusWidget);
 
 		// Pause Counter
 		PGroup pauseGroup = createGroup("PAUSE COUNTING",

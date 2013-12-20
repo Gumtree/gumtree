@@ -1,13 +1,20 @@
 package org.gumtree.gumnix.sics.widgets.swt;
 
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.gumtree.gumnix.sics.control.ServerStatus;
 import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.core.SicsEvents;
+import org.gumtree.gumnix.sics.io.SicsIOException;
 import org.gumtree.util.messaging.EventHandler;
 import org.gumtree.widgets.swt.util.SafeUIRunner;
 import org.gumtree.widgets.swt.util.UIResources;
@@ -18,6 +25,7 @@ public class SicsStatusWidget extends ExtendedSicsComposite {
 	private EventHandler eventHandler;
 
 	private Label statusLabel;
+	private Button reconnectButton;
 
 	public SicsStatusWidget(Composite parent, int style) {
 		super(parent, style);
@@ -47,10 +55,30 @@ public class SicsStatusWidget extends ExtendedSicsComposite {
 
 	@Override
 	protected void handleRender() {
-		setLayout(new FillLayout());
+//		setLayout(new FillLayout());
+		GridLayoutFactory.fillDefaults().margins(0, 0).numColumns(2).applyTo(this);
 		statusLabel = getWidgetFactory().createLabel(this, "--", SWT.CENTER);
 		statusLabel.setFont(UIResources.getDefaultFont(SWT.BOLD));
 		statusLabel.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+		GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, 18).align(SWT.FILL, SWT.CENTER).applyTo(statusLabel);
+		reconnectButton = getWidgetFactory().createButton(this, "Connect", SWT.PUSH);
+		GridDataFactory.fillDefaults().indent(0, 0).hint(60, 18).applyTo(reconnectButton);
+		reconnectButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					SicsCore.getDefaultProxy().send("", null);
+				} catch (SicsIOException e1) {
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		updateUI(null);
 	}
 
@@ -97,11 +125,16 @@ public class SicsStatusWidget extends ExtendedSicsComposite {
 						statusLabel.setBackground(getDisplay().getSystemColor(
 								SWT.COLOR_GRAY));
 					}
+					reconnectButton.setVisible(false);
+					((GridData) reconnectButton.getLayoutData()).exclude = true;
 				} else {
 					statusLabel.setText("DISCONNECTED");
 					statusLabel.setBackground(getDisplay().getSystemColor(
 							SWT.COLOR_GRAY));
+					reconnectButton.setVisible(true);
+					((GridData) reconnectButton.getLayoutData()).exclude = false;
 				}
+				layout(new Control[]{reconnectButton});
 			}
 		});
 	}
