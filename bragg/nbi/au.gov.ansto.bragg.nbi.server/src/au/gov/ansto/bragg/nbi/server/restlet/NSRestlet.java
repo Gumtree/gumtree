@@ -149,17 +149,18 @@ public class NSRestlet extends Restlet implements IDisposable {
 			
 			@Override
 			public void run() {
-				try {
-					while (true) {
+				while (true) {
+					try {
 						updateValue();
-						try {
-							Thread.sleep(POST_THREAD_HARTBEAT);
-						} catch (InterruptedException e) {
-							break;
-						} 
+					} catch (Exception e) {
+						e.printStackTrace();
+						clearValues();
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
+					try {
+						Thread.sleep(POST_THREAD_HARTBEAT);
+					} catch (InterruptedException e) {
+						break;
+					} 
 				}
 			}
 		});
