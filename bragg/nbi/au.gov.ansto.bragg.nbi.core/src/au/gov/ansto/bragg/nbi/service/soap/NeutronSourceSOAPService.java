@@ -111,15 +111,15 @@ public class NeutronSourceSOAPService {
 			
 			@Override
 			public void run() {
-				try {
-					while (true) {
+				while (true) {
+					try {
 						int statusCode = 0;
 						try {
 							statusCode = client.executeMethod(postMethod);
 						} catch (HttpException e1) {
 							e1.printStackTrace();
-						} catch (IOException e1) {
-							e1.printStackTrace();
+						} catch (IOException e2) {
+							e2.printStackTrace();
 						}
 						if (statusCode != HttpStatus.SC_OK) {
 							System.err.println("HTTP GET failed: " + postMethod.getStatusLine());
@@ -131,17 +131,18 @@ public class NeutronSourceSOAPService {
 								soapPart.setContent(new StreamSource(postMethod.getResponseBodyAsStream()));
 								triggerUpdateEvent(message);
 							} catch (Exception e) {
+								e.printStackTrace();
 							}
 						}
 						postMethod.releaseConnection();
-						try {
-							Thread.sleep(heartbeat);
-						} catch (InterruptedException e) {
-							break;
-						} 
+					} catch (Exception ex) {
+						ex.printStackTrace();
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
+					try {
+						Thread.sleep(heartbeat);
+					} catch (InterruptedException e) {
+						break;
+					} 
 				}
 			}
 		});
