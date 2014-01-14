@@ -88,6 +88,7 @@ public class SidebarActivator implements IStartup {
 				return;
 			}
 		}catch (Exception e) {
+			return;
 		}
 		// Find existing cruise part
 		MPart cruisePart = WorkbenchUtils.getFirstChildWithProperty(mWindow,

@@ -24,6 +24,7 @@ public class DingoWorkbenchSetup implements IStartup {
 
 	private static final String PROP_START_EXP_LAYOUT = "gumtree.startExperimentLayout";
 	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
+	private static final String ID_PERSPECTIVE_SCRIPTING = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
 	
 	private static Logger logger = LoggerFactory.getLogger(DingoWorkbenchSetup.class);
 	
@@ -42,9 +43,9 @@ public class DingoWorkbenchSetup implements IStartup {
 						IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
 						for (IWorkbenchPage page : pages) {
 							try {
-								if (!ID_PERSPECTIVE_SICS.equals(page.getPerspective().getId())){
+//								if (!ID_PERSPECTIVE_SICS.equals(page.getPerspective().getId())){
 									activeWorkbenchWindow.getActivePage().closePerspective(page.getPerspective(), false, true);
-								}
+//								}
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
@@ -52,7 +53,7 @@ public class DingoWorkbenchSetup implements IStartup {
 					}
 					IMultiMonitorManager mmManager = new MultiMonitorManager();
 
-					mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SICS, 0, 0, mmManager.isMultiMonitorSystem());
+					mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 0, 0, mmManager.isMultiMonitorSystem());
 				}			
 			});
 		}
