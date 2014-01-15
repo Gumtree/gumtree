@@ -75,7 +75,8 @@ public class DetectorHighVoltageController2 implements ISicsObjectController {
 		}, 1000);
 //		System.out.println("Sending dhv1 " + command);
 		// This command is blockable
-		SicsCore.getDefaultProxy().send(DEVICE_DHV1 + " " + command.getCommand(), null, ISicsProxy.CHANNEL_SCAN);
+//		SicsCore.getDefaultProxy().send(DEVICE_DHV1 + " " + command.getCommand(), null, ISicsProxy.CHANNEL_SCAN);
+		SicsCore.getDefaultProxy().send(DEVICE_DHV1 + " " + command.getCommand(), null);
 		// Wait for 1 sec to run
 		LoopRunner.run(new ILoopExitCondition() {
 			public boolean getExitCondition() {
