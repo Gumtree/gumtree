@@ -193,7 +193,12 @@ public class SicsProxy implements ISicsProxy {
 			}
 			throw new SicsIOException("Not connected");
 		}
-		getChannels().get(channelId).send(command, callback);
+//		getChannels().get(channelId).send(command, callback);
+		AbstractSicsChannel channel = getChannels().get(channelId);
+		if (channel == null) {
+			channel = getChannels().get(CHANNEL_GENERAL);
+		}
+		channel.send(command, callback);
 	}
 
 	public void login(ISicsConnectionContext context) throws SicsExecutionException, SicsIOException {
@@ -204,7 +209,7 @@ public class SicsProxy implements ISicsProxy {
 		AbstractSicsChannel generalChannel = null;
 		AbstractSicsChannel statusChannel = null;
 		AbstractSicsChannel batchChannel = null;
-		AbstractSicsChannel scanChannel = null;
+//		AbstractSicsChannel scanChannel = null;
 		if (SicsCoreProperties.USE_NON_NIO_CHANNEL.getBoolean()) {
 			generalChannel = new SicsChannel(CHANNEL_GENERAL, this);
 			statusChannel = new SicsChannel(CHANNEL_STATUS, this);
@@ -223,7 +228,7 @@ public class SicsProxy implements ISicsProxy {
 		statusChannel.login(context);
 		batchChannel.login(context);
 //		zipDataChannel.login(context);
-		scanChannel.login(context);
+//		scanChannel.login(context);
 		rawBatchChannel.login(context);
 
 		getChannels().put(CHANNEL_GENERAL, generalChannel);
