@@ -133,24 +133,24 @@ public class SicsProxy implements ISicsProxy {
 				CHANNEL_GENERAL, this);
 		AbstractSicsChannel statusChannel = new SicsNonBlockingChannel(
 				CHANNEL_STATUS, this);
-		AbstractSicsChannel batchChannel = new SicsNonBlockingChannel(
-				CHANNEL_BATCH, this);
-		AbstractSicsChannel scanChannel = new SicsNonBlockingChannel(
-				CHANNEL_SCAN, this);
+//		AbstractSicsChannel batchChannel = new SicsNonBlockingChannel(
+//				CHANNEL_BATCH, this);
+//		AbstractSicsChannel scanChannel = new SicsNonBlockingChannel(
+//				CHANNEL_SCAN, this);
 		// [Tony][2012-02-09] Raw channel hangs on Mac!?
 //		AbstractSicsChannel rawBatchChannel = new SicsRawChannel(
 //				CHANNEL_RAW_BATCH, this);
 		
 		generalChannel.login(context);
 		statusChannel.login(context);
-		batchChannel.login(context);
-		scanChannel.login(context);
+//		batchChannel.login(context);
+//		scanChannel.login(context);
 //		rawBatchChannel.login(context);
 
 		getChannels().put(CHANNEL_GENERAL, generalChannel);
 		getChannels().put(CHANNEL_STATUS, statusChannel);
-		getChannels().put(CHANNEL_BATCH, batchChannel);
-		getChannels().put(CHANNEL_SCAN, scanChannel);
+//		getChannels().put(CHANNEL_BATCH, batchChannel);
+//		getChannels().put(CHANNEL_SCAN, scanChannel);
 //		getChannels().put(CHANNEL_RAW_BATCH, rawBatchChannel);
 
 		role = context.getRole();
@@ -282,7 +282,12 @@ public class SicsProxy implements ISicsProxy {
 					getId()).post();
 			throw new SicsIOException("Not connected");
 		}
-		getChannels().get(channelId).send(command, callback);
+//		getChannels().get(channelId).send(command, callback);
+		AbstractSicsChannel channel = getChannels().get(channelId);
+		if (channel == null) {
+			channel = getChannels().get(CHANNEL_GENERAL);
+		}
+		channel.send(command, callback);
 	}
 	
 	public ISicsConnectionContext getConnectionContext() {
