@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.BMVetoGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
+import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget.LabelConverter;
 import org.gumtree.gumnix.sics.widgets.swt.SicsStatusWidget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
@@ -65,6 +66,13 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(reactorWidget);
 		sourceGroup.setExpanded(false);
 		reactorWidget.setExpandingEnabled(true);
+
+		// Shutter Status
+		PGroup shutterGroup = createGroup("SHUTTER STATUS",
+				SharedImage.SHUTTER.getImage());
+		ShutterStatusWidget shutterStatuswidget = new ShutterStatusWidget(
+				shutterGroup, SWT.NONE);
+		configureWidget(shutterStatuswidget);
 
 		// SICS status
 		PGroup statusGroup = createGroup("SERVER STATUS", null);
