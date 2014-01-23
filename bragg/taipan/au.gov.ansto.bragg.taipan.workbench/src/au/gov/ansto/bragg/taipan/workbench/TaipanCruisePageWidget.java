@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
 import au.gov.ansto.bragg.nbi.workbench.ReactorStatusWidget;
+import au.gov.ansto.bragg.taipan.workbench.interal.CounterMeterWidget;
 
 @SuppressWarnings("restriction")
 public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
@@ -158,13 +159,14 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		// Monitor Event Rate
 		PGroup monitorGroup = createGroup("BEAM MONITOR",
 				SharedImage.MONITOR.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/monitor/bm1_counts", "Monitor", null, "")
-				.addDevice("/monitor/bm2_counts", "Detector", null, "")
-				.addDevice("/monitor/time", "Time", null, "sec")
-				;
-		configureWidget(deviceStatusWidget);
+//		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
+//		deviceStatusWidget
+//				.addDevice("/monitor/bm1_counts", "Monitor", null, "")
+//				.addDevice("/monitor/bm2_counts", "Detector", null, "")
+//				.addDevice("/monitor/time", "Time", null, "sec")
+//				;
+		CounterMeterWidget meterWidget = new CounterMeterWidget(monitorGroup, SWT.NONE);
+		configureWidget(meterWidget);
 		
 		// INSTRUMENT
 		PGroup instrumentGroup = createGroup("INSTRUMENT",
