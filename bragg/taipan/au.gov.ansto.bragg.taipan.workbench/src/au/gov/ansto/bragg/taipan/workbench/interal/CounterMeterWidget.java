@@ -35,6 +35,7 @@ import au.gov.ansto.bragg.taipan.workbench.interal.CounterService.IMonitorEventL
 public class CounterMeterWidget extends ExtendedComposite {
 
 	private static final Color FORGROUND_COLOR = new Color(224,198,147);
+	private static final Color MID_RANGE_COLOR = new Color(255, 144, 0);
 //	private static final int PLOT_SIZE = 150;
 	private static final Font DEFAULT_TITLE_FONT = new Font("Tahoma", Font.PLAIN, 16);
 	
@@ -94,8 +95,8 @@ public class CounterMeterWidget extends ExtendedComposite {
 		sub2.setLayout(layout);
 		GridDataFactory.swtDefaults().indent(0, 0).grab(true, false).hint(120, 120).applyTo(sub2);
 
-		monitorMeter = makeMeterWidget(monitorDataset);
-		detectorMeter = makeMeterWidget(detectorDataset);
+		monitorMeter = makeMeterWidget(monitorDataset, 6);
+		detectorMeter = makeMeterWidget(detectorDataset, 3);
 		
 		JFreeChart monitorChart = new JFreeChart("Monitor", DEFAULT_TITLE_FONT, monitorMeter, false);
 		monitorChart.setBackgroundImage(convertToAWT(getBackgroundImage().getImageData()));
@@ -124,9 +125,13 @@ public class CounterMeterWidget extends ExtendedComposite {
 
 	}
 	
-	private CorrectedMeterPlot makeMeterWidget(DefaultValueDataset dataset) {
+	private CorrectedMeterPlot makeMeterWidget(DefaultValueDataset dataset, int rangeMax) {
 		CorrectedMeterPlot plot = new CorrectedMeterPlot(dataset);
-		plot.addInterval(new MeterInterval("All", new Range(0.0, 10.0), FORGROUND_COLOR, new BasicStroke(2.0f), null));
+//		MeterInterval interval = new MeterInterval("All", new Range(0.0, 2.0), FORGROUND_COLOR, new BasicStroke(2.0f), null);
+		plot.addInterval(new MeterInterval("All", new Range(0, rangeMax), FORGROUND_COLOR, new BasicStroke(2.0f), null));
+		plot.addInterval(new MeterInterval("Mid", new Range(rangeMax * 1 / 3, rangeMax * 2 / 3), MID_RANGE_COLOR, new BasicStroke(2.0f), null));
+		plot.addInterval(new MeterInterval("High", new Range(rangeMax * 2 / 3, rangeMax), Color.RED, new BasicStroke(2.0f), null));
+//		plot.addInterval(interval);
         
 //        plot.addInterval(new MeterInterval("High", new Range(8.0, 10.0), Color.RED, new BasicStroke(2.0f), null));
         
@@ -141,21 +146,22 @@ public class CounterMeterWidget extends ExtendedComposite {
 //        plot.setDialBackgroundPaint(Color.BLACK);
         plot.setBackgroundImage(convertToAWT(getBackgroundImage().getImageData()));
         plot.setDialBackgroundPaint(null);
-        plot.setDialOutlinePaint(Color.RED);
+        plot.setDialOutlinePaint(FORGROUND_COLOR);
         plot.setForegroundAlpha(1f);
 //        plot.setDrawBorder(true);
         plot.setInsets(RectangleInsets.ZERO_INSETS);
 
         plot.setUnits("");
         plot.setValuePaint(FORGROUND_COLOR);
+        plot.setValueFont(DEFAULT_TITLE_FONT);
 
         plot.setTickLabelsVisible(true);
         plot.setTickLabelsVisible(true);
-        plot.setOutlineStroke(new BasicStroke(0.5f));
+        plot.setOutlineStroke(new BasicStroke(2f));
         plot.setTickSize(1);
 //        plot.setTickLabelPaint(new Color(168,166,255));
         plot.setTickLabelPaint(FORGROUND_COLOR);
-        Font font = new Font("Tahoma", Font.PLAIN, 16);
+        Font font = new Font("Tahoma", Font.PLAIN, 14);
         plot.setTickLabelFont(font);
 
 //        plot.setTickLabelFont(plot.getTickLabelFont().deriveFont(20));
@@ -165,7 +171,7 @@ public class CounterMeterWidget extends ExtendedComposite {
         //plot.getIntervals().a
         
         
-        plot.setRange(new Range(0, 10));
+        plot.setRange(new Range(0, rangeMax));
         
 //        plot.setMeterAngle(180);
 //        plot.setNeedlePaint(new Color(168,166,255));

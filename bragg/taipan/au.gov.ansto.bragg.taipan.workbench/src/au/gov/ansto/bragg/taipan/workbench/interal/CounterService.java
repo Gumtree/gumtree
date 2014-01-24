@@ -88,7 +88,7 @@ public class CounterService {
 									String[] items = replyMessage.split(" ");
 									String valueText = items[items.length - 1];
 									double value = Double.valueOf(valueText);
-									if (value > 0) {
+									if (value > 1) {
 										value = Math.log10(value);
 									} else {
 										value = 0;

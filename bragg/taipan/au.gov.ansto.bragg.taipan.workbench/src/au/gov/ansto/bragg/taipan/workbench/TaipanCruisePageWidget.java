@@ -159,14 +159,16 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		// Monitor Event Rate
 		PGroup monitorGroup = createGroup("BEAM MONITOR",
 				SharedImage.MONITOR.getImage());
-//		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
-//		deviceStatusWidget
-//				.addDevice("/monitor/bm1_counts", "Monitor", null, "")
-//				.addDevice("/monitor/bm2_counts", "Detector", null, "")
-//				.addDevice("/monitor/time", "Time", null, "sec")
-//				;
 		CounterMeterWidget meterWidget = new CounterMeterWidget(monitorGroup, SWT.NONE);
+		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/monitor/bm1_counts", "Monitor Total", null, "")
+				.addDevice("/monitor/bm2_counts", "Detector Total", null, "")
+				.addDevice("/monitor/time", "Time Counted", null, "sec")
+				;
 		configureWidget(meterWidget);
+		configureWidget(deviceStatusWidget);
+		monitorGroup.setExpanded(true);
 		
 		// INSTRUMENT
 		PGroup instrumentGroup = createGroup("INSTRUMENT",
