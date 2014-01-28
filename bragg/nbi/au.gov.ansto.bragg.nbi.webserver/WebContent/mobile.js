@@ -41,7 +41,7 @@ var refresh = function(){
 					$("#sicsServer").css("color", "#00c400");
 				} else if (obj.status == "COUNTING" || obj.status == "WAIT" || obj.status == "DRIVING") {
 					$("#sicsServer").css("color", "#FFA500");
-				} else if (obj.status == "PAUSED") {
+				} else if (obj.status == "PAUSED" || obj.status == "PAUSE") {
 					$("#sicsServer").css("color", "#0000c4");
 				} else  {
 					$("#sicsServer").text("DISCONNECTED");

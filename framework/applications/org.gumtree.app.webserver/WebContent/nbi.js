@@ -34,7 +34,7 @@ var refresh = function(dict){
 							$("#" + dict.name + "_status").css("color", "#00c400");
 						} else if (obj.status == "COUNTING" || obj.status == "WAIT" || obj.status == "DRIVING") {
 							$("#" + dict.name + "_status").css("color", "#FFA500");
-						} else if (obj.status == "PAUSED") {
+						} else if (obj.status == "PAUSED" || obj.status == "PAUSE") {
 							$("#" + dict.name + "_status").css("color", "#0000c4");
 						} else  {
 							$("#" + dict.name + "_status").text("DISCONNECTED");

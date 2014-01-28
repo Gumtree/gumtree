@@ -242,7 +242,7 @@
 					executionStatus.setStyle("backgroundColor", "#00c400");
 				} else if (result.status == "COUNTING" || result.status == "WAIT" || result.status == "DRIVING") {
 					executionStatus.setStyle("backgroundColor", "#FFA500");
-				} else if (result.status == "PAUSED") {
+				} else if (result.status == "PAUSED" || result.status == "PAUSE") {
 					executionStatus.setStyle("backgroundColor", "#0000c4");
 				} else  {
 					executionStatus.text = "DISCONNECTED";
