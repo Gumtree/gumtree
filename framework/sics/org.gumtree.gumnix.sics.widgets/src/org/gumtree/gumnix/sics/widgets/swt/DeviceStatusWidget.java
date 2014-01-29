@@ -20,7 +20,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.gumtree.gumnix.sics.control.ControllerStatus;
+import org.gumtree.gumnix.sics.control.controllers.IComponentController;
 import org.gumtree.gumnix.sics.control.events.SicsControllerEvent;
+import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.core.SicsEvents;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.service.dataaccess.IDataHandler;
@@ -36,6 +38,8 @@ import org.osgi.service.event.Event;
 @SuppressWarnings("restriction")
 public class DeviceStatusWidget extends ExtendedSicsComposite {
 
+	private static final int SICS_CONNECTION_TIMEOUT = 5000;
+	
 	private IDataAccessManager dataAccessManager;
 
 	private IDelayEventExecutor delayEventExecutor;
@@ -90,9 +94,12 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 //				label = getWidgetFactory().createLabel(this, labelSep);
 				label = getWidgetFactory().createLabel(this, "");
 				// Part 5: Unit
-				label = createDeviceLabel(this, deviceContext.path + "?units",
-						(deviceContext.unit == null) ? "" : deviceContext.unit,
-						SWT.LEFT, UnitsConverter.getInstance());
+				label = createUnitsLabel(deviceContext);
+//				label = createDeviceLabel(this, deviceContext.path + "?units",
+//						(deviceContext.unit == null) ? "" : deviceContext.unit,
+//						SWT.LEFT, UnitsConverter.getInstance());
+//				label = getWidgetFactory().createLabel(this, 
+//						(deviceContext.unit == null) ? "" : deviceContext.unit);
 			}
 		}
 
@@ -111,6 +118,15 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		};
 		PlatformUtils.getPlatformEventBus().subscribe(eventHandler);
 
+	}
+
+	private Label createUnitsLabel(DeviceContext deviceContext) {
+		if (deviceContext.unit != null) {
+			return getWidgetFactory().createLabel(this, deviceContext.unit, SWT.LEFT);
+		} else {
+			return createDeviceLabel(this, deviceContext.path + "?units",
+					"", SWT.LEFT, UnitsConverter.getInstance());
+		}
 	}
 
 	private DeviceContext getDeviceContext(URI uri) {
@@ -164,6 +180,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		if (labelContexts == null) {
 			return;
 		}
+		checkSicsConnection();
 		for (final LabelContext labelContext : labelContexts) {
 			getDataAccessManager().get(
 					URI.create("sics://hdb" + labelContext.path), String.class,
@@ -174,6 +191,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 						}
 						@Override
 						public void handleError(URI uri, Exception exception) {
+							exception.printStackTrace();
 						}
 					});
 		}
@@ -419,4 +437,16 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		this.isExpandingEnabled = isExpandingEnabled;
 	}
 
+	protected void checkSicsConnection() {
+		int counter = 0;
+		IComponentController[] controllers = SicsCore.getSicsController().getComponentControllers();
+		if (counter <= SICS_CONNECTION_TIMEOUT && (controllers == null || controllers.length == 0)) {
+			try {
+				Thread.sleep(500);
+				counter += 500;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }

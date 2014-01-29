@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
+import org.gumtree.gumnix.sics.widgets.swt.EnvironmentControlWidget;
 import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
 import org.gumtree.gumnix.sics.widgets.swt.SicsStatusWidget;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
@@ -75,9 +76,8 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		PGroup monitorGroup = createGroup("NEUTRON COUNTS",
 				InternalImage.MONITOR.getImage());
 		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
-		deviceStatusWidget.addDevice("/monitor/bm1_counts", "Monitor Counts",
-				null, "").addDevice("/instrument/detector/total_counts",
-				"Detector Counts", null, "");
+		deviceStatusWidget.addDevice("/monitor/bm1_counts", "Monitor Counts", null, "")
+							.addDevice("/instrument/detector/total_counts", "Detector Counts", null, "");
 		configureWidget(deviceStatusWidget);
 
 		// Slits Info
@@ -85,12 +85,12 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 				InternalImage.SLITS.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(slitsGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/slits/primary_psho", "psho", null, "")
-				.addDevice("/instrument/slits/primary_psp", "psp", null, "")
-				.addDevice("/instrument/slits/primary_psw", "psw", null, "")
-				.addDevice("/instrument/slits/secondary_ssho", "ssho", null, "")
-				.addDevice("/instrument/slits/secondary_ssp", "ssp", null, "")
-				.addDevice("/instrument/slits/secondary_ssw", "ssw", null, "");
+				.addDevice("/instrument/slits/primary_psho", "psho", null, null)
+				.addDevice("/instrument/slits/primary_psp", "psp", null, null)
+				.addDevice("/instrument/slits/primary_psw", "psw", null, null)
+				.addDevice("/instrument/slits/secondary_ssho", "ssho", null, null)
+				.addDevice("/instrument/slits/secondary_ssp", "ssp", null, null)
+				.addDevice("/instrument/slits/secondary_ssw", "ssw", null, null);
 		configureWidget(deviceStatusWidget);
 
 		// Positioner Group
@@ -98,10 +98,10 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 				InternalImage.POSITIONER.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(positionerGroup, SWT.NONE);
 		deviceStatusWidget.addDevice("/sample/sx", "sx", null, "")
-				.addDevice("/sample/sy", "sy", null, "")
-				.addDevice("/sample/sz", "sz", null, "")
-				.addDevice("/sample/som", "som", null, "")
-				.addDevice("/sample/stth", "stth", null, "");
+				.addDevice("/sample/sy", "sy", null, null)
+				.addDevice("/sample/sz", "sz", null, null)
+				.addDevice("/sample/som", "som", null, null)
+				.addDevice("/sample/stth", "stth", null, null);
 		configureWidget(deviceStatusWidget);
 
 		// Monochromator
@@ -110,8 +110,8 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup,
 				SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/crystal/mom", "mom", null, "")
-				.addDevice("/instrument/crystal/mtth", "mtth", null, "")
+				.addDevice("/instrument/crystal/mom", "mom", null, null)
+				.addDevice("/instrument/crystal/mtth", "mtth", null, null)
 				.addDevice("/instrument/monochromator/focus/mf1", "mf1", null,
 						"")
 				.addDevice("/instrument/monochromator/focus/mf2", "mf2", null,
@@ -137,27 +137,27 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		// .addDevice("/user/name", "User").render();
 
 		// Furnace Temp
-		PGroup furnaceGroup = createGroup("FURNACE TEMPERATURE",
-				InternalImage.FURNACE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(furnaceGroup, SWT.NONE);
-		deviceStatusWidget.addDevice("/sample/tempone/sensorA/value",
-				"Temperature")
-				.addDevice("/sample/tempone/setpoint", "Setpoint");
-		configureWidget(deviceStatusWidget);
+//		PGroup furnaceGroup = createGroup("FURNACE TEMPERATURE",
+//				InternalImage.FURNACE.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(furnaceGroup, SWT.NONE);
+//		deviceStatusWidget.addDevice("/sample/tempone/sensorA/value",
+//				"Temperature")
+//				.addDevice("/sample/tempone/setpoint", "Setpoint");
+//		configureWidget(deviceStatusWidget);
 
 		// Temperature TC1 Control
-		PGroup tempControlGroup = createGroup("TEMPERATURE CONTROLLER",
-				InternalImage.FURNACE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A",
-						InternalImage.A.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueB", "TC1B",
-						InternalImage.B.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C",
-						InternalImage.C.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D",
-						InternalImage.D.getImage(), null);
+//		PGroup tempControlGroup = createGroup("TEMPERATURE CONTROLLER",
+//				InternalImage.FURNACE.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
+//		deviceStatusWidget
+//				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A",
+//						InternalImage.A.getImage(), null)
+//				.addDevice("/sample/tc1/sensor/sensorValueB", "TC1B",
+//						InternalImage.B.getImage(), null)
+//				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C",
+//						InternalImage.C.getImage(), null)
+//				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D",
+//						InternalImage.D.getImage(), null);
 		// .addDevice("/sample/tc1/heater/heaterOutput_1", "TC1H1-R/O",
 		// InternalImage.ONE.getImage(), null)
 		// .addDevice("/sample/tc1/heater/heaterOutput_2", "TC1H2-R/O",
@@ -174,7 +174,13 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		// InternalImage.ONE.getImage(), null)
 		// .addDevice("/sample/tc2/heater/heaterOutput_2", "TC2H2-R/O",
 		// InternalImage.TWO.getImage(), null)
-		configureWidget(deviceStatusWidget);
+//		configureWidget(deviceStatusWidget);
+
+		// Environment Group
+		PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",
+				InternalImage.FURNACE.getImage());
+		EnvironmentControlWidget controlWidget = new EnvironmentControlWidget(environmentGroup, SWT.NONE);
+		configureWidget(controlWidget);
 
 		return this;
 	}

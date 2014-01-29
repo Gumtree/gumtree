@@ -96,7 +96,7 @@ public class CounterMeterWidget extends ExtendedComposite {
 		GridDataFactory.swtDefaults().indent(0, 0).grab(true, false).hint(120, 120).applyTo(sub2);
 
 		monitorMeter = makeMeterWidget(monitorDataset, 6);
-		detectorMeter = makeMeterWidget(detectorDataset, 3);
+		detectorMeter = makeMeterWidget(detectorDataset, 5);
 		
 		JFreeChart monitorChart = new JFreeChart("Monitor", DEFAULT_TITLE_FONT, monitorMeter, false);
 		monitorChart.setBackgroundImage(convertToAWT(getBackgroundImage().getImageData()));

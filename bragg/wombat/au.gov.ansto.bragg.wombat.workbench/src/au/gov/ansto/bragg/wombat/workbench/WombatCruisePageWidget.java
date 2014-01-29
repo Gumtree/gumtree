@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
+import org.gumtree.gumnix.sics.widgets.swt.EnvironmentControlWidget;
 import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
 import org.gumtree.gumnix.sics.widgets.swt.SicsStatusWidget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
@@ -87,9 +88,9 @@ public class WombatCruisePageWidget extends AbstractCruisePageWidget {
 		PGroup infoGroup = createGroup("EXPERIMENT INFO",
 				InternalImage.EXPERIMENT_INFO.getImage());
 		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(infoGroup, SWT.NONE);
-		deviceStatusWidget.addDevice("/experiment/title", "Proposal")
-				.addDevice("/sample/name", "Sample")
-				.addDevice("/user/name", "User");
+		deviceStatusWidget.addDevice("/experiment/title", "Proposal", null, "")
+				.addDevice("/sample/name", "Sample", null, "")
+				.addDevice("/user/name", "User", null, "");
 		configureWidget(deviceStatusWidget);
 
 		// Experiment Status
@@ -126,52 +127,12 @@ public class WombatCruisePageWidget extends AbstractCruisePageWidget {
 				;
 		configureWidget(deviceStatusWidget);
 
-		// Furnace Temp
-		PGroup furnaceGroup = createGroup("FURNACE TEMPERATURE",
+		// Environment Group
+		PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",
 				InternalImage.FURNACE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(furnaceGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/sample/tempone/sensorA/value", "Temperature")
-				.addDevice("/sample/tempone/setpoint", "Setpoint");
-		configureWidget(deviceStatusWidget);
+		EnvironmentControlWidget controlWidget = new EnvironmentControlWidget(environmentGroup, SWT.NONE);
+		configureWidget(controlWidget);
 
-		// Temperature TC1 Control
-		PGroup tempControlGroup = createGroup("Temperature Controller 1",
-				InternalImage.FURNACE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A-T/C",
-						InternalImage.A.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueB", "TC1B-T/C",
-						InternalImage.B.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C-T/C",
-						InternalImage.C.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D-T/C",
-						InternalImage.D.getImage(), null)
-				.addDevice("/sample/tc1/heater/heaterOutput_1", "TC1H1-R/O",
-						InternalImage.ONE.getImage(), null)
-				.addDevice("/sample/tc1/heater/heaterOutput_2", "TC1H2-R/O",
-						InternalImage.TWO.getImage(), null);
-		configureWidget(deviceStatusWidget);
-
-		PGroup tempControlGroup2 = createGroup("Temperature Controller 2",
-				InternalImage.FURNACE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup2, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/sample/tc2/sensor/sensorValueA", "TC2A-T/C",
-						InternalImage.A.getImage(), null)
-				.addDevice("/sample/tc2/sensor/sensorValueB", "TC2B-T/C",
-						InternalImage.B.getImage(), null)
-				.addDevice("/sample/tc2/sensor/sensorValueC", "TC2C-T/C",
-						InternalImage.C.getImage(), null)
-				.addDevice("/sample/tc2/sensor/sensorValueD", "TC2D-T/C",
-						InternalImage.D.getImage(), null)
-				.addDevice("/sample/tc2/heater/heaterOutput_1", "TC2H1-R/O",
-						InternalImage.ONE.getImage(), null)
-				.addDevice("/sample/tc2/heater/heaterOutput_2", "TC2H2-R/O",
-						InternalImage.TWO.getImage(), null);
-		configureWidget(deviceStatusWidget);
-				
 		return this;
 	}
 

@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.BMVetoGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
+import org.gumtree.gumnix.sics.widgets.swt.EnvironmentControlWidget;
 import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget.LabelConverter;
 import org.gumtree.gumnix.sics.widgets.swt.SicsStatusWidget;
@@ -197,21 +198,21 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(deviceStatusWidget);
 		
 		// Furnace Temp
-		PGroup furnaceGroup = createGroup("FURNACE TEMPERATURE",
-				SharedImage.FURNACE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(furnaceGroup, SWT.NONE);
-		deviceStatusWidget.addDevice("/sample/tempone/sensorA/value",
-				"Temperature")
-				.addDevice("/sample/tempone/setpoint", "Setpoint");
-		configureWidget(deviceStatusWidget);
+//		PGroup furnaceGroup = createGroup("FURNACE TEMPERATURE",
+//				SharedImage.FURNACE.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(furnaceGroup, SWT.NONE);
+//		deviceStatusWidget.addDevice("/sample/tempone/sensorA/value",
+//				"Temperature")
+//				.addDevice("/sample/tempone/setpoint", "Setpoint");
+//		configureWidget(deviceStatusWidget);
 				
 		// Magnet field
-		PGroup magnetGroup = createGroup("MAGNET SENSOR",
-				SharedImage.POSITIONER.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(magnetGroup, SWT.NONE);
-		deviceStatusWidget.addDevice("/sample/magnetic/magneticFieldCurrent", "Set Point")
-				.addDevice("/sample/magnetic/magneticFieldTesla", "Value");
-		configureWidget(deviceStatusWidget);
+//		PGroup magnetGroup = createGroup("MAGNET SENSOR",
+//				SharedImage.POSITIONER.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(magnetGroup, SWT.NONE);
+//		deviceStatusWidget.addDevice("/sample/magnetic/magneticFieldCurrent", "Set Point")
+//				.addDevice("/sample/magnetic/magneticFieldTesla", "Value");
+//		configureWidget(deviceStatusWidget);
 				
 		// Temperature TC1 Control
 //		PGroup tempControlGroup = createGroup("TEMPERATURE CONTR",
@@ -226,19 +227,6 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 //						SharedImage.C.getImage(), null);
 //		configureWidget(deviceStatusWidget);
 		
-		PGroup tempControlGroup = createGroup("Temperature Controller",
-				SharedImage.FURNACE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A-T/C",
-						SharedImage.A.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueB", "TC1B-T/C",
-						SharedImage.B.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C-T/C",
-						SharedImage.C.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D-T/C",
-						SharedImage.D.getImage(), null);
-		configureWidget(deviceStatusWidget);
 		// Experiment info
 //		PGroup infoGroup = createGroup("EXPERIMENT INFO",
 //				SharedImage.EXPERIMENT_INFO.getImage());
@@ -252,10 +240,10 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		PGroup scanGroup = createGroup("SCAN STATUS",
 				SharedImage.EXPERIMENT_STATUS.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(scanGroup, SWT.NONE);
-		deviceStatusWidget.addDevice("/commands/scan/bmonscan/scan_variable", "variable")
-				.addDevice("/commands/scan/bmonscan/feedback/scan_variable_value", "value")
-				.addDevice("/experiment/currpoint", "scanpoint")
-				.addDevice("/experiment/file_name", "filename", null, null, new LabelConverter() {
+		deviceStatusWidget.addDevice("/commands/scan/bmonscan/scan_variable", "variable", null, "")
+				.addDevice("/commands/scan/bmonscan/feedback/scan_variable_value", "value", null, "")
+				.addDevice("/experiment/currpoint", "scanpoint", null, "")
+				.addDevice("/experiment/file_name", "filename", null, "", new LabelConverter() {
 					
 					@Override
 					public String convertValue(Object obj) {
@@ -271,6 +259,21 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 				});
 		configureWidget(deviceStatusWidget);
 		
+		PGroup tempControlGroup = createGroup("ENVIRONMENT CONTROLLERS",
+				SharedImage.FURNACE.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
+//		deviceStatusWidget
+//				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A-T/C",
+//						SharedImage.A.getImage(), null)
+//				.addDevice("/sample/tc1/sensor/sensorValueB", "TC1B-T/C",
+//						SharedImage.B.getImage(), null)
+//				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C-T/C",
+//						SharedImage.C.getImage(), null)
+//				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D-T/C",
+//						SharedImage.D.getImage(), null);
+		EnvironmentControlWidget controlWidget = new EnvironmentControlWidget(tempControlGroup, SWT.NONE);
+		configureWidget(controlWidget);
+
 	}
 
 	@Override

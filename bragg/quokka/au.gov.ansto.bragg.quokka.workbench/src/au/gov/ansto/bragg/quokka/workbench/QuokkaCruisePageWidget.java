@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
+import org.gumtree.gumnix.sics.widgets.swt.EnvironmentControlWidget;
 import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
 import org.gumtree.gumnix.sics.widgets.swt.SicsStatusWidget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
@@ -139,7 +140,11 @@ public class QuokkaCruisePageWidget extends AbstractCruisePageWidget {
 				;
 		configureWidget(deviceStatusWidget);
 
-
+		PGroup tempControlGroup = createGroup("ENVIRONMENT CONTROLLERS",
+				SharedImage.FURNACE.getImage());
+		EnvironmentControlWidget controlWidget = new EnvironmentControlWidget(tempControlGroup, SWT.NONE);
+		configureWidget(controlWidget);
+		
 		// Experiment info
 //		PGroup infoGroup = createGroup("EXPERIMENT INFO",
 //				InternalImage.EXPERIMENT_INFO.getImage());
@@ -150,29 +155,29 @@ public class QuokkaCruisePageWidget extends AbstractCruisePageWidget {
 //				.addDevice("/user/name", "User").render();
 
 		// Furnace Temp
-		PGroup furnaceGroup = createGroup("FURNACE TEMP",
-				SharedImage.FURNACE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(furnaceGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/sample/tempone/sensorA/value", "temperature")
-				.addDevice("/sample/tempone/setpoint", "set point");
-		configureWidget(deviceStatusWidget);
+//		PGroup furnaceGroup = createGroup("FURNACE TEMP",
+//				SharedImage.FURNACE.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(furnaceGroup, SWT.NONE);
+//		deviceStatusWidget
+//				.addDevice("/sample/tempone/sensorA/value", "temperature")
+//				.addDevice("/sample/tempone/setpoint", "set point");
+//		configureWidget(deviceStatusWidget);
 
 
 		// Temperature TC1 Control
-		PGroup tempControlGroup = createGroup("TEMPERATURE CONTR",
-				SharedImage.FURNACE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A",
-						SharedImage.A.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueB", "TC1B",
-						SharedImage.B.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C",
-						SharedImage.C.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D",
-						SharedImage.D.getImage(), null);
-		configureWidget(deviceStatusWidget);
+//		PGroup tempControlGroup = createGroup("TEMPERATURE CONTR",
+//				SharedImage.FURNACE.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
+//		deviceStatusWidget
+//				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A",
+//						SharedImage.A.getImage(), null)
+//				.addDevice("/sample/tc1/sensor/sensorValueB", "TC1B",
+//						SharedImage.B.getImage(), null)
+//				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C",
+//						SharedImage.C.getImage(), null)
+//				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D",
+//						SharedImage.D.getImage(), null);
+//		configureWidget(deviceStatusWidget);
 
 	}
 

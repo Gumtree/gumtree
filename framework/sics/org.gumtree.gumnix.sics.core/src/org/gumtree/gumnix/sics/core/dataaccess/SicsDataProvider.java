@@ -43,6 +43,8 @@ public class SicsDataProvider extends AbstractDataProvider<Object> {
 				Map<String, Object> props = new HashMap<String, Object>(2);
 				props.put(SicsDataConverter.PROP_ATTRIBUTE, uri.getQuery());
 				return convert(controller, representation, props);
+			} else {
+				return null;
 			}
 		} else if (HOST_PROXY.equals(uri.getHost())) {
 			// TODO: get proxy information

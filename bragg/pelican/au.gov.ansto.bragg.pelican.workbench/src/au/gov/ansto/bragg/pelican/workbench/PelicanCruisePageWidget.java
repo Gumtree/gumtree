@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget.LabelConverter;
+import org.gumtree.gumnix.sics.widgets.swt.EnvironmentControlWidget;
 import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
 import org.gumtree.gumnix.sics.widgets.swt.SicsStatusWidget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
@@ -103,14 +104,14 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/instrument/crystal/wavelength", "wavelength", null, "\u212B")
-				.addDevice("/instrument/crystal/mom", "mom", null, "")
-				.addDevice("/instrument/crystal/mtth", "mtth", null, "deg")
-				.addDevice("/instrument/crystal/moma", "moma", null, "deg")
-				.addDevice("/instrument/crystal/momb", "momb", null, "deg")
-				.addDevice("/instrument/crystal/momc", "momc", null, "deg")
-				.addDevice("/instrument/crystal/mra", "mra", null, "deg")
-				.addDevice("/instrument/crystal/mrb", "mrb", null, "deg")
-				.addDevice("/instrument/crystal/mrc", "mrc", null, "deg")
+				.addDevice("/instrument/crystal/mom", "mom", null, null)
+				.addDevice("/instrument/crystal/mtth", "mtth", null, null)
+				.addDevice("/instrument/crystal/moma", "moma", null, null)
+				.addDevice("/instrument/crystal/momb", "momb", null, null)
+				.addDevice("/instrument/crystal/momc", "momc", null, null)
+				.addDevice("/instrument/crystal/mra", "mra", null, null)
+				.addDevice("/instrument/crystal/mrb", "mrb", null, null)
+				.addDevice("/instrument/crystal/mrc", "mrc", null, null)
 				;
 		configureWidget(deviceStatusWidget);
 
@@ -119,9 +120,9 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.MONITOR.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "")
-				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "")
-				.addDevice("/instrument/detector/total_counts", "Detector counts", null, "")
+				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "cts")
+				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "cts")
+				.addDevice("/instrument/detector/total_counts", "Detector counts", null, "cts")
 				.addDevice("/instrument/detector/time", "Time of counting", null, "s")
 				;
 		configureWidget(deviceStatusWidget);
@@ -131,10 +132,10 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.SLITS.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(slitsGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/aperture/sv1", "slit 1 vertical", null, "")
-				.addDevice("/instrument/aperture/sh1", "slit 1 horizontal", null, "")
-				.addDevice("/instrument/aperture/sv2", "slit 2 vertical", null, "")
-				.addDevice("/instrument/aperture/sh2", "slit 2 horizontal", null, "");
+				.addDevice("/instrument/aperture/sv1", "slit 1 vertical", null, null)
+				.addDevice("/instrument/aperture/sh1", "slit 1 horizontal", null, null)
+				.addDevice("/instrument/aperture/sv2", "slit 2 vertical", null, null)
+				.addDevice("/instrument/aperture/sh2", "slit 2 horizontal", null, null);
 		configureWidget(deviceStatusWidget);
 
 		// fermi chopper
@@ -229,7 +230,7 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.BEAKER.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(sampleGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/detector/stth", "angle", null, "");
+				.addDevice("/instrument/detector/stth", "angle", null, null);
 		sampleGroup.setExpanded(false);
 		deviceStatusWidget.setExpandingEnabled(false);
 		configureWidget(deviceStatusWidget);
@@ -244,29 +245,35 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 //				.addDevice("/user/name", "User").render();
 
 		// Furnace Temp
-		PGroup furnaceGroup = createGroup("FURNACE TEMP",
-				SharedImage.FURNACE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(furnaceGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/sample/tempone/sensorA/value", "temperature")
-				.addDevice("/sample/tempone/setpoint", "set point");
-		configureWidget(deviceStatusWidget);
+//		PGroup furnaceGroup = createGroup("FURNACE TEMP",
+//				SharedImage.FURNACE.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(furnaceGroup, SWT.NONE);
+//		deviceStatusWidget
+//				.addDevice("/sample/tempone/sensorA/value", "temperature")
+//				.addDevice("/sample/tempone/setpoint", "set point");
+//		configureWidget(deviceStatusWidget);
 
 
 		// Temperature TC1 Control
-		PGroup tempControlGroup = createGroup("TEMPERATURE CONTR",
+//		PGroup tempControlGroup = createGroup("TEMPERATURE CONTR",
+//				SharedImage.FURNACE.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
+//		deviceStatusWidget
+//				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A",
+//						SharedImage.A.getImage(), null)
+//				.addDevice("/sample/tc1/sensor/sensorValueB", "TC1B",
+//						SharedImage.B.getImage(), null)
+//				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C",
+//						SharedImage.C.getImage(), null)
+//				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D",
+//						SharedImage.D.getImage(), null);
+//		configureWidget(deviceStatusWidget);
+
+		// Environment Group
+		PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",
 				SharedImage.FURNACE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A",
-						SharedImage.A.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueB", "TC1B",
-						SharedImage.B.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C",
-						SharedImage.C.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D",
-						SharedImage.D.getImage(), null);
-		configureWidget(deviceStatusWidget);
+		EnvironmentControlWidget controlWidget = new EnvironmentControlWidget(environmentGroup, SWT.NONE);
+		configureWidget(controlWidget);
 
 	}
 
