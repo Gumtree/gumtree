@@ -105,7 +105,7 @@ public class ReactorStatusWidget extends ExtendedComposite {
 	}
 	
 	private void setValueLabel(Element ele){
-		if (ele == null) {
+		if (ele == null || isDisposed()) {
 			return;
 		}
 		for (final DeviceContext device : devices) {
@@ -125,7 +125,9 @@ public class ReactorStatusWidget extends ExtendedComposite {
 
 					@Override
 					public void run() {
-						device.label.setText(text);
+						if (device.label != null && !device.label.isDisposed()) {
+							device.label.setText(text);
+						}
 					}
 				});
 			}

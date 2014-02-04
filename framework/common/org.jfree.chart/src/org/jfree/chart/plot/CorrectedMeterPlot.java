@@ -5,9 +5,11 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.text.DecimalFormat;
 
 import org.jfree.data.general.ValueDataset;
 import org.jfree.text.TextUtilities;
+import org.jfree.ui.TextAnchor;
 
 public class CorrectedMeterPlot extends MeterPlot {
 
@@ -22,8 +24,29 @@ public class CorrectedMeterPlot extends MeterPlot {
 	
 	@Override
 	protected void drawValueLabel(Graphics2D g2, Rectangle2D area) {
-		// TODO Auto-generated method stub
-		super.drawValueLabel(g2, area);
+		g2.setFont(getValueFont());
+        g2.setPaint(getValuePaint());
+        String valueStr = "N/A";
+        if (getDataset() != null) {
+            Number n = getDataset().getValue();
+            if (n != null) {
+            	int newValue = (int) Math.pow(10, n.doubleValue());
+            	if (newValue == 1) {
+            		newValue = 0;
+            	}
+                valueStr = getTickLabelFormat().format(newValue);
+//            	DecimalFormat formatter = new DecimalFormat("0.00E0");
+//            	valueStr = formatter.format(newValue);
+//            	valueStr = String.format("%E0", newValue);
+                if (getUnits() != null && getUnits().trim().length() > 0) {
+                	valueStr += " " + getUnits();
+                }
+            }
+        }
+        float x = (float) area.getCenterX();
+        float y = (float) area.getCenterY() + DEFAULT_CIRCLE_SIZE;
+        TextUtilities.drawAlignedString(valueStr, g2, x, y,
+                TextAnchor.TOP_CENTER);
 	}
 	
     /**
@@ -68,6 +91,7 @@ public class CorrectedMeterPlot extends MeterPlot {
         if (label) {
 
             String tickLabel = getTickLabelFormat().format(value);
+            tickLabel = "E" + (int) value;
             g2.setFont(getTickLabelFont());
             g2.setPaint(getTickLabelPaint());
 

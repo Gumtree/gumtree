@@ -50,8 +50,8 @@ public class CounterMeterWidget extends ExtendedComposite {
 	public CounterMeterWidget(Composite parent, int style) {
 		super(parent, style | SWT.EMBEDDED);
 		GridLayoutFactory.swtDefaults().margins(0, 0).spacing(0, 0).numColumns(2).applyTo(this);
-		monitorDataset = new DefaultValueDataset(9.3);
-		detectorDataset = new DefaultValueDataset(7.4);
+		monitorDataset = new DefaultValueDataset(0);
+		detectorDataset = new DefaultValueDataset(0);
 		handleRender(this);
 		CounterService.addMonitorListener(new IMonitorEventListener() {
 			

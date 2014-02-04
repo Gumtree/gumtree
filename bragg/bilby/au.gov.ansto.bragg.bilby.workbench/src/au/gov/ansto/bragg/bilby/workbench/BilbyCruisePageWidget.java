@@ -1,4 +1,4 @@
-package au.gov.ansto.bragg.quokka.workbench;
+package au.gov.ansto.bragg.bilby.workbench;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -29,8 +29,7 @@ import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
 import au.gov.ansto.bragg.nbi.workbench.ReactorStatusWidget;
 
-@SuppressWarnings("restriction")
-public class QuokkaCruisePageWidget extends AbstractCruisePageWidget {
+public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 
 	@Inject
 	private IEclipseContext eclipseContext;
@@ -40,7 +39,7 @@ public class QuokkaCruisePageWidget extends AbstractCruisePageWidget {
 	@Inject
 	private IDataAccessManager dataAccessManager;
 
-	public QuokkaCruisePageWidget(Composite parent, int style) {
+	public BilbyCruisePageWidget(Composite parent, int style) {
 		super(parent, style);
 	}
 
@@ -69,6 +68,7 @@ public class QuokkaCruisePageWidget extends AbstractCruisePageWidget {
 		ShutterStatusWidget shutterStatuswidget = new ShutterStatusWidget(
 				shutterGroup, SWT.NONE);
 		configureWidget(shutterStatuswidget);
+		shutterGroup.setExpanded(false);
 
 		// Server Status
 		PGroup sicsStatusGroup = createGroup("SERVER STATUS", 
@@ -85,6 +85,16 @@ public class QuokkaCruisePageWidget extends AbstractCruisePageWidget {
 		HMVetoGadget pauseStatuswidget = new HMVetoGadget(
 				pauseGroup, SWT.NONE);
 		configureWidget(pauseStatuswidget);
+
+		// Hist Counter
+//		PGroup histGroup = createGroup("HISTOGRAM",
+//				SharedImage.SHUTTER.getImage());
+//		HMImageDisplayWidget hmWidget = new HMImageDisplayWidget(
+//				histGroup, SWT.NONE);
+//		String path = "http://localhost:60030/admin/openimageinformat.egi&#63;type=HISTOPERIOD_XYT&#38;open_format=DISLIN_PNG&#38;open_colour_table=RAIN&#38;open_plot_zero_pixels=AUTO&#38;open_annotations=ENABLE";
+////		String path = "http://localhost:60030/admin/openimageinformat.egi?type=HISTOPERIOD_XYT&open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO&open_annotations=ENABLE";
+//		hmWidget.setDataURI(path);
+//		configureWidget(hmWidget);
 
 		// Devices
 		PGroup monochromatorGroup = createGroup("DEVICES",
@@ -131,28 +141,6 @@ public class QuokkaCruisePageWidget extends AbstractCruisePageWidget {
 				;
 		configureWidget(deviceStatusWidget);
 
-		// guide
-		PGroup fermi1Group = createGroup("GUIDE",
-				SharedImage.CRADLE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(fermi1Group, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/commands/optics/guide/configuration", "configuration", null, "")
-				;
-		configureWidget(deviceStatusWidget);
-
-		PGroup tempControlGroup = createGroup("ENVIRONMENT CONTROLLERS",
-				SharedImage.FURNACE.getImage());
-		EnvironmentControlWidget controlWidget = new EnvironmentControlWidget(tempControlGroup, SWT.NONE);
-		configureWidget(controlWidget);
-		
-		// Experiment info
-//		PGroup infoGroup = createGroup("EXPERIMENT INFO",
-//				InternalImage.EXPERIMENT_INFO.getImage());
-//		deviceStatusWidget = new DeviceStatusWidget(infoGroup, SWT.NONE);
-//		configureWidget(deviceStatusWidget);
-//		deviceStatusWidget.addDevice("/experiment/title", "Proposal")
-//				.addDevice("/experiment/title", "Sample")
-//				.addDevice("/user/name", "User").render();
 
 		// Furnace Temp
 //		PGroup furnaceGroup = createGroup("FURNACE TEMP",
@@ -179,6 +167,11 @@ public class QuokkaCruisePageWidget extends AbstractCruisePageWidget {
 //						SharedImage.D.getImage(), null);
 //		configureWidget(deviceStatusWidget);
 
+		// Environment Group
+		PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",
+				SharedImage.FURNACE.getImage());
+		EnvironmentControlWidget controlWidget = new EnvironmentControlWidget(environmentGroup, SWT.NONE);
+		configureWidget(controlWidget);
 	}
 
 	@Override
@@ -253,4 +246,3 @@ public class QuokkaCruisePageWidget extends AbstractCruisePageWidget {
 	}
 
 }
-
