@@ -1,4 +1,4 @@
-package au.gov.ansto.bragg.dingo.ui.internal;
+package au.gov.ansto.bragg.bilby.ui.internal;
 
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.ui.IPerspectiveDescriptor;
@@ -21,21 +21,21 @@ import org.slf4j.LoggerFactory;
  * @author nxi
  *
  */
-public class DingoWorkbenchSetup implements IStartup {
+public class BilbyWorkbenchSetup implements IStartup {
 
 	private static final String PROP_START_EXP_LAYOUT = "gumtree.startExperimentLayout";
 	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
 	private static final String ID_PERSPECTIVE_SCRIPTING = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
 	
-	private static Logger logger = LoggerFactory.getLogger(DingoWorkbenchSetup.class);
+	private static Logger logger = LoggerFactory.getLogger(BilbyWorkbenchSetup.class);
 	
 	public void earlyStartup() {
-		String launchDingoLayout = System.getProperty(PROP_START_EXP_LAYOUT, "false");
-		// [GT-73] Launch Dingo layout if required
-		if (Boolean.parseBoolean(launchDingoLayout)) {
+		String launchBilbyLayout = System.getProperty(PROP_START_EXP_LAYOUT, "false");
+		// [GT-73] Launch Bilby layout if required
+		if (Boolean.parseBoolean(launchBilbyLayout)) {
 			SafeUIRunner.asyncExec(new ISafeRunnable() {
 				public void handleException(Throwable exception) {
-					logger.error("Failed to launch Dingo workbench layout during early startup.", exception);
+					logger.error("Failed to launch Bilby workbench layout during early startup.", exception);
 				}
 				public void run() throws Exception {
 					final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
@@ -43,15 +43,15 @@ public class DingoWorkbenchSetup implements IStartup {
 //						activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
 						IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
 						for (IWorkbenchPage page : pages) {
-							IPerspectiveDescriptor[] perspectives = page.getOpenPerspectives();
-							for (IPerspectiveDescriptor perspective : perspectives) {
-								try {
+							try {
+								IPerspectiveDescriptor[] perspectives = page.getOpenPerspectives();
+								for (IPerspectiveDescriptor perspective : perspectives) {
 									if (!ID_PERSPECTIVE_SICS.equals(perspective.getId())){
 										activeWorkbenchWindow.getActivePage().closePerspective(perspective, false, true);
 									}
-								} catch (Exception e) {
-									e.printStackTrace();
 								}
+							} catch (Exception e) {
+								e.printStackTrace();
 							}
 						}
 					}

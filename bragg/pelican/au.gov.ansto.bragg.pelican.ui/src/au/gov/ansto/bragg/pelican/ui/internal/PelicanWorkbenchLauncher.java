@@ -62,9 +62,8 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 					IPerspectiveDescriptor[] perspectives = page.getOpenPerspectives();
 					for (IPerspectiveDescriptor perspective : perspectives) {
 						try {
-							System.err.println(page.getPerspective().getId());
 							if (!ID_PERSPECTIVE_EXPERIMENT.equals(perspective.getId())){
-								activeWorkbenchWindow.getActivePage().closePerspective(page.getPerspective(), false, true);
+								activeWorkbenchWindow.getActivePage().closePerspective(perspective, false, true);
 							}
 						} catch (Exception e) {
 							e.printStackTrace();

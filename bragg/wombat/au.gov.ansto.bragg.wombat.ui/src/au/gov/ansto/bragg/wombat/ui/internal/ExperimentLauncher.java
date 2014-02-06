@@ -47,9 +47,12 @@ public class ExperimentLauncher extends AbstractLauncher {
 			IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
 			for (IWorkbenchPage page : pages) {
 				try {
-					if (!ID_PERSPECTIVE_EXPERIMENT.equals(page.getPerspective().getId()) 
-							&& !ID_PERSPECTIVE_SICS.equals(page.getPerspective().getId())){
-						activeWorkbenchWindow.getActivePage().closePerspective(page.getPerspective(), false, true);
+					IPerspectiveDescriptor[] perspectives = page.getOpenPerspectives();
+					for (IPerspectiveDescriptor perspective : perspectives) {
+						if (!ID_PERSPECTIVE_EXPERIMENT.equals(perspective.getId())
+								&& !ID_PERSPECTIVE_SICS.equals(perspective.getId())){
+							activeWorkbenchWindow.getActivePage().closePerspective(perspective, false, true);
+						}
 					}
 				} catch (Exception e) {
 					e.printStackTrace();

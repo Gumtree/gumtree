@@ -1,5 +1,6 @@
 package au.gov.ansto.bragg.echidna.ui.internal;
 
+import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -46,13 +47,17 @@ public class RobotWorkbenchLayoutLauncher extends AbstractLauncher {
 				IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
 				for (IWorkbenchPage page : pages) {
 					try {
-						if (!ID_CUSTOMISED_TEMPERATURE_EXPERIMENT.equals(page.getPerspective().getId()) 
-								&& !ID_HIGH_TEMPERATURE_EXPERIMENT.equals(page.getPerspective().getId())
-								&& !ID_LOW_TEMPERATURE_EXPERIMENT.equals(page.getPerspective().getId())
-								&& !ID_MAGNETICFIELD_EXPERIMENT.equals(page.getPerspective().getId())
-								&& !ID_ROOM_TEMPERATURE_EXPERIMENT.equals(page.getPerspective().getId())
-								){
-							activeWorkbenchWindow.getActivePage().closePerspective(page.getPerspective(), false, true);
+						IPerspectiveDescriptor[] perspectives = page.getOpenPerspectives();
+						for (IPerspectiveDescriptor perspective : perspectives) {
+							String pid = perspective.getId();
+							if (!ID_CUSTOMISED_TEMPERATURE_EXPERIMENT.equals(pid) 
+									&& !ID_HIGH_TEMPERATURE_EXPERIMENT.equals(pid)
+									&& !ID_LOW_TEMPERATURE_EXPERIMENT.equals(pid)
+									&& !ID_MAGNETICFIELD_EXPERIMENT.equals(pid)
+									&& !ID_ROOM_TEMPERATURE_EXPERIMENT.equals(pid)
+									){
+								activeWorkbenchWindow.getActivePage().closePerspective(perspective, false, true);
+							}
 						}
 					} catch (Exception e) {
 						e.printStackTrace();

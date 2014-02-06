@@ -102,9 +102,9 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/instrument/collimator/att", "att", null, null)
-				.addDevice("/instrument/collimator/srce", "srce", null, null)
-				.addDevice("/instrument/collimator/apx", "apx", null, null)
-				.addDevice("/instrument/velocity_selector/wavelength_nominal", "wavelength", null, null)
+				.addDevice("/instrument/cdd", "cdd", null, null)
+				.addDevice("/instrument/cdr", "cdr", null, null)
+				.addDevice("/instrument/sdh", "sdh", null, null)
 				;
 		configureWidget(deviceStatusWidget);
 
@@ -114,11 +114,9 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new DeviceStatusWidget(detectorGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/instrument/detector/total_counts", "total counts", null, "cts")
-				.addDevice("/instrument/detector/detector_y", "detector_y", null, null)
-				.addDevice("/instrument/detector/detector_x", "detector_x", null, null)
-				.addDevice("/instrument/parameters/BeamStop", "beam stop", null, "")
-				.addDevice("/instrument/detector/bsx", "bsx", null, null)
-				.addDevice("/instrument/detector/bsz", "bsz", null, null)
+				.addDevice("/instrument/detector/cdl", "cdl", null, null)
+				.addDevice("/instrument/detector/cdu", "cdu", null, null)
+				.addDevice("/instrument/det", "det", null, "")
 				;
 		configureWidget(deviceStatusWidget);
 
@@ -131,12 +129,20 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "cts");
 		configureWidget(deviceStatusWidget);
 
+		// Choppers
+		PGroup chopperGroup = createGroup("CHOPPERS",
+				SharedImage.POSITIONER.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(chopperGroup, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/instrument/master_chopper_id", "master chopper", null, "")
+				;
+		configureWidget(deviceStatusWidget);
+
 		// Sample Info
 		PGroup sampleGroup = createGroup("SAMPLE",
 				SharedImage.BEAKER.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(sampleGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/sample/sampleNum", "Number", null, "")
 				.addDevice("/sample/name", "Name", null, "")
 				;
 		configureWidget(deviceStatusWidget);
