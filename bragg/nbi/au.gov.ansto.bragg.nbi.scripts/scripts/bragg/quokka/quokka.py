@@ -102,6 +102,10 @@ def driveToLoadPosition():
     log('Driving sample holder to load position')
     # Find soft upper limit
     upperlimit = sics.getValue('/sample/sample_x/softupperlim').getFloatData()
+    hardlimit = sics.getValue('/sample/sample_x/hardupperlim').getFloatData()
+    softzero = sics.getValue('/sample/sample_x/softzero').getFloatData()
+    if upperlimit > hardlimit - softzero:
+        upperlimit = hardlimit - softzero
     # Use the soft lower limit as the load position
     loadPosition = math.floor(upperlimit)
     sics.drive('samx', loadPosition)

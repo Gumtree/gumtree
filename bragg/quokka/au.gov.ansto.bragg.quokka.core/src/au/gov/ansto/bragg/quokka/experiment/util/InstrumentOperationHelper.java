@@ -37,6 +37,11 @@ public final class InstrumentOperationHelper {
 			IDynamicController samx = (IDynamicController) SicsCore.getSicsController().findDeviceController("samx");
 			float softupperlim = ((IDynamicController) samx.getChildController("/softupperlim")).getValue().getFloatData();
 			float tolerance = ((IDynamicController) samx.getChildController("/precision")).getValue().getFloatData();
+			float hardupperlim = ((IDynamicController) samx.getChildController("/hardupperlim")).getValue().getFloatData();
+			float softzero = ((IDynamicController) samx.getChildController("/softzero")).getValue().getFloatData();
+			if (softupperlim > hardupperlim - softzero) {
+				softupperlim = hardupperlim - softzero;
+			}
 			samx.setTargetValue(ComponentData.createData(softupperlim - tolerance));
 //			samx.setTargetValue(ComponentData.createData(System.getProperty(PROP_LOAD_POSITION)));
 			samx.commitTargetValue(null);
