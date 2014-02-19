@@ -238,7 +238,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 					asyncSend("exe append " + line, null, ISicsProxy.CHANNEL_RAW_BATCH);
 				}
 			} catch (Exception e) {
-				// TODO
+				handleExecutionEvent("failed to append line: " + line);
 			}
 			// Save
 			asyncSend("exe forcesave " + buffer.getName(), null, ISicsProxy.CHANNEL_RAW_BATCH);
