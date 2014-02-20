@@ -98,47 +98,89 @@ public class KookaburraCruisePageWidget extends AbstractCruisePageWidget {
 //		configureWidget(hmWidget);
 
 		// Monochromator
-		PGroup monochromatorGroup = createGroup("MONOCHROMATOR",
+		PGroup monochromatorGroup = createGroup("PREMONOCHROMATOR",
 				SharedImage.MONOCHROMATOR.getImage());
 		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/crystal/m1om", "m1om", null, "deg")
-				.addDevice("/instrument/crystal/m1x", "m1x", null, "mm")
-				.addDevice("/instrument/crystal/m2om", "m2om", null, "deg")
-				.addDevice("/instrument/crystal/m2x", "m2x", null, "mm")
-				.addDevice("/instrument/crystal/m2y", "m2y", null, "mm")
 				.addDevice("/instrument/crystal/pmchi", "pmchi", null, "deg")
 				.addDevice("/instrument/crystal/pmom", "pmom", null, "deg")
-				.addDevice("/instrument/crystal/mdet", "mdet", null, "mm")
 				;
 		configureWidget(deviceStatusWidget);
 
-		// Monitor Event Rate
-		PGroup monitorGroup = createGroup("NEUTRON COUNTS",
-				SharedImage.MONITOR.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
+		PGroup berylliumGroup = createGroup("BERYLLIUM FILTER",
+				SharedImage.SHUTTER.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(berylliumGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "cts")
-				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "cts")
-				.addDevice("/instrument/detector/att", "att", null, "mm")
-				.addDevice("/instrument/detector/total_counts", "Detector counts", null, "cts")
-				.addDevice("/instrument/detector/time", "Time of counting", null, "s")
+				.addDevice("/instrument/crystal/bex", "bex", null, "mm")
+				;
+		configureWidget(deviceStatusWidget);
+
+		PGroup channelCutGroup = createGroup("CHANNEL-CUT MONOCHROMATOR",
+				SharedImage.GEAR.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(channelCutGroup, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/instrument/crystal/m1chi", "m1chi", null, "deg")
+				.addDevice("/instrument/crystal/m1om", "m1om", null, "deg")
+				.addDevice("/instrument/crystal/m1x", "m1x", null, "mm")
 				;
 		configureWidget(deviceStatusWidget);
 
 		// Slits Info
-		PGroup slitsGroup = createGroup("SLITS STATUS",
-				SharedImage.SLITS.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(slitsGroup, SWT.NONE);
+		PGroup slits1Group = createGroup("PRE-SAMPLE SLIT SYSTEM 1",
+				SharedImage.ONE.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(slits1Group, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/instrument/slits/ss1u", "ss1u", null, "mm")
 				.addDevice("/instrument/slits/ss1d", "ss1d", null, "mm")
 				.addDevice("/instrument/slits/ss1l", "ss1l", null, "mm")
 				.addDevice("/instrument/slits/ss1r", "ss1r", null, "mm")
+				;
+		configureWidget(deviceStatusWidget);
+
+		PGroup positionerGroup = createGroup("SAMPLE POSITIONER",
+				SharedImage.POSITIONER.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(positionerGroup, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/sample/samz", "samz", null, "mm")
+				;
+		configureWidget(deviceStatusWidget);
+
+		PGroup analyserGroup = createGroup("CHANNEL-CUT ANALYSER",
+				SharedImage.SPIN.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(analyserGroup, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/instrument/crystal/m2chi", "m2om", null, "deg")
+				.addDevice("/instrument/crystal/m2om", "m2om", null, "deg")
+				.addDevice("/instrument/crystal/m2x", "m2x", null, "mm")
+				.addDevice("/instrument/crystal/m2y", "m2y", null, "mm")
+				;
+		configureWidget(deviceStatusWidget);
+
+		// Slits Info
+		PGroup slitsGroup = createGroup("POST-SAMPLE SLIT SYSTEM 2",
+				SharedImage.TWO.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(slitsGroup, SWT.NONE);
+		deviceStatusWidget
 				.addDevice("/instrument/slits/ss2u", "ss2u", null, "mm")
 				.addDevice("/instrument/slits/ss2d", "ss2d", null, "mm")
 				.addDevice("/instrument/slits/ss2l", "ss2l", null, "mm")
 				.addDevice("/instrument/slits/ss2r", "ss2r", null, "mm")
+				;
+		configureWidget(deviceStatusWidget);
+
+		PGroup attGroup = createGroup("BEAM ATTENUATOR",
+				SharedImage.A.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(attGroup, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/instrument/detector/att", "att", null, "mm")
+				;
+		configureWidget(deviceStatusWidget);
+
+		PGroup detectorGroup = createGroup("MAIN DETECTOR",
+				SharedImage.SLITS.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(detectorGroup, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/instrument/crystal/mdet", "mdet", null, "mm")
 				;
 		configureWidget(deviceStatusWidget);
 
