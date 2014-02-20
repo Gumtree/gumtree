@@ -147,6 +147,7 @@ public class ShutterStatusWidget extends ExtendedSicsComposite {
 		if (contexts == null) {
 			return;
 		}
+		checkSicsConnection();
 		for (final Context context : contexts) {
 			getDataAccessManager().get(URI.create("sics://hdb" + context.path),
 					String.class, new IDataHandler<String>() {

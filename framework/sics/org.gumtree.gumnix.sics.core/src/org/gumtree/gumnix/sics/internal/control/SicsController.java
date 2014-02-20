@@ -168,31 +168,33 @@ public class SicsController implements ISicsController {
 	}
 
 	private List<IComponentController> getControllerList() {
-		if(controllers == null) {
-			controllers = new ArrayList<IComponentController>();
-			// create controllers
-			for(Component childComponent : (List<Component>)getSICSModel().getComponent()) {
-//				logger.debug("Creating top level child controller for " + childComponent.getId());
-//				Object controller = Platform.getAdapterManager().getAdapter(childComponent, IComponentController.class);
-//				IComponentController controller = ComponentControllerFactory1.createController(childComponent);
-				IComponentController controller = getControllerFactory().createComponentController(childComponent);
-				if(controller != null) {
-					controllers.add(controller);
-					// Listen to status changes
-					controller.addComponentListener(new DirectComponentListener());
+		synchronized (this) {
+			if(controllers == null) {
+				controllers = new ArrayList<IComponentController>();
+				// create controllers
+				for(Component childComponent : (List<Component>)getSICSModel().getComponent()) {
+					//				logger.debug("Creating top level child controller for " + childComponent.getId());
+					//				Object controller = Platform.getAdapterManager().getAdapter(childComponent, IComponentController.class);
+					//				IComponentController controller = ComponentControllerFactory1.createController(childComponent);
+					IComponentController controller = getControllerFactory().createComponentController(childComponent);
+					if(controller != null) {
+						controllers.add(controller);
+						// Listen to status changes
+						controller.addComponentListener(new DirectComponentListener());
+					}
+				}
+				// initialise the controllers once the hierarchy has been constructed
+				for(IComponentController childController : controllers) {
+					initialiseComponent(childController);
+				}
+				// Also initialise custom sics objects
+				for (ISicsObjectController controller : getControllerFactory()
+						.createSicsObjectControllers()) {
+					customControllers.put(controller.getId(), controller);
 				}
 			}
-			// initialise the controllers once the hierarchy has been constructed
-			for(IComponentController childController : controllers) {
-				initialiseComponent(childController);
-			}
-			// Also initialise custom sics objects
-			for (ISicsObjectController controller : getControllerFactory()
-					.createSicsObjectControllers()) {
-				customControllers.put(controller.getId(), controller);
-			}
+			return controllers;
 		}
-		return controllers;
 	}
 	
 	public ISicsObjectController[] getSicsObjectControllers() {

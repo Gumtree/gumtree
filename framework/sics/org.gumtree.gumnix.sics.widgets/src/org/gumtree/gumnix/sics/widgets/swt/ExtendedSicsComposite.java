@@ -4,7 +4,9 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.eclipse.swt.widgets.Composite;
+import org.gumtree.gumnix.sics.control.controllers.IComponentController;
 import org.gumtree.gumnix.sics.core.ISicsManager;
+import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.core.SicsEvents;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.JobRunner;
@@ -14,6 +16,8 @@ import org.osgi.service.event.Event;
 
 public abstract class ExtendedSicsComposite extends ExtendedComposite {
 
+	private static final int SICS_CONNECTION_TIMEOUT = 5000;
+	
 	private ISicsManager sicsManager;
 
 	private EventHandler sicsProxyEventHandler;
@@ -104,4 +108,19 @@ public abstract class ExtendedSicsComposite extends ExtendedComposite {
 		}, 500);
 	}
 
+	protected void checkSicsConnection() {
+		int counter = 0;
+		IComponentController[] controllers = SicsCore.getSicsController().getComponentControllers();
+		if (counter <= SICS_CONNECTION_TIMEOUT && (controllers == null || controllers.length == 0)) {
+			try {
+				Thread.sleep(500);
+				counter += 500;
+			} catch (InterruptedException e) {
+			}
+		}
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+	}
 }
