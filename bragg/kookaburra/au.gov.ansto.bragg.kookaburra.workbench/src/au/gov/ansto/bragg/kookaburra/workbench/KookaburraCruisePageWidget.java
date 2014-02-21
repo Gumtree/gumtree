@@ -120,7 +120,7 @@ public class KookaburraCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new DeviceStatusWidget(channelCutGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/instrument/crystal/m1chi", "m1chi", null, "deg")
-				.addDevice("/instrument/crystal/m1om", "m1om", null, "deg")
+				.addDevice("/instrument/crystal/m1om", "m1om", null, "deg", new DeviceStatusWidget.PrecisionConverter(5))
 				.addDevice("/instrument/crystal/m1x", "m1x", null, "mm")
 				;
 		configureWidget(deviceStatusWidget);
@@ -149,8 +149,8 @@ public class KookaburraCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.SPIN.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(analyserGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/crystal/m2chi", "m2om", null, "deg")
-				.addDevice("/instrument/crystal/m2om", "m2om", null, "deg")
+				.addDevice("/instrument/crystal/m2chi", "m2chi", null, "deg")
+				.addDevice("/instrument/crystal/m2om", "m2om", null, "deg", new DeviceStatusWidget.PrecisionConverter(5))
 				.addDevice("/instrument/crystal/m2x", "m2x", null, "mm")
 				.addDevice("/instrument/crystal/m2y", "m2y", null, "mm")
 				;

@@ -38,6 +38,8 @@ import org.osgi.service.event.Event;
 @SuppressWarnings("restriction")
 public class DeviceStatusWidget extends ExtendedSicsComposite {
 
+	private static final int SICS_CONNECTION_TIMEOUT = 5000;
+	
 	private IDataAccessManager dataAccessManager;
 
 	private IDelayEventExecutor delayEventExecutor;
@@ -351,6 +353,31 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		}
 	}
 	
+	public static class PrecisionConverter implements LabelConverter {
+
+		private int precision;
+		
+		public PrecisionConverter(int precision) {
+			this.precision = precision;
+		}
+		
+		@Override
+		public String convertValue(Object obj) {
+			String text = obj.toString();
+			if (precision >= 0) {
+				try {
+					double value = Double.valueOf(text);
+					if (text.contains(".")) {
+						text = String.format("%." + precision + "f", value);
+					} 
+				} catch (Exception e) {
+				} 
+			} 
+			return text;
+		}
+
+	}
+	
 	private class HdbEventHandler extends DelayEventHandler {
 		Label label;
 		LabelConverter converter;
@@ -435,4 +462,19 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		this.isExpandingEnabled = isExpandingEnabled;
 	}
 
+	protected void checkSicsConnection() {
+		int counter = 0;
+		IComponentController[] controllers = SicsCore.getSicsController().getComponentControllers();
+		if (counter <= SICS_CONNECTION_TIMEOUT && (controllers == null || controllers.length == 0)) {
+			try {
+				Thread.sleep(500);
+				counter += 500;
+			} catch (InterruptedException e) {
+			}
+		}
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+	}
 }
