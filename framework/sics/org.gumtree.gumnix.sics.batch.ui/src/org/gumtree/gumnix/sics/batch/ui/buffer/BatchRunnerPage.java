@@ -67,6 +67,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 
 	private static final String KEY_PREV_DOC_LEN = "previousDocLength";
 	
+	private static final String CLEAR_LOT_FOR_NEW_SCRIPT = "gumtree.sics.clearLogForNewScript";
+	
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	private IBatchBufferManager batchBufferManager;
@@ -80,6 +82,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	private UIContext context;
 	
 	private boolean checkInstrumentReady;
+	
+	private boolean clearLog;
 	
 	// Listener to the batch buffer queue and auto run
 	private PropertyChangeListener propertyChangeListener;
@@ -117,6 +121,12 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 				});
 			}
 		};
+		
+		clearLog = true;
+		String prop = System.getProperty(CLEAR_LOT_FOR_NEW_SCRIPT);
+		if (prop != null) {
+			clearLog = Boolean.parseBoolean(prop);
+		}
 	}
 
 	@PostConstruct
@@ -298,6 +308,10 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					if (isAutoRun) {
 						context.autoRunButton.setText("Pause");
 						context.autoRunButton.setImage(InternalImage.PAUSE.getImage());
+						if (!clearLog) {
+							context.logText.setText("");
+							context.logText.resetScroll();
+						}
 					} else {
 						context.autoRunButton.setText("Play");
 						context.autoRunButton.setImage(InternalImage.PLAY.getImage());
@@ -410,7 +424,10 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 						context.editorText.setText(bufferContent);
 					}
 					// Clear log
-					context.logText.setText("");
+					if (clearLog) {
+						context.logText.setText("");
+						context.logText.resetScroll();
+					}
 				} else if (message.startsWith("BATCHEND=")) {
 					// Do nothing
 				} else if (message.contains(".range = ")) {
