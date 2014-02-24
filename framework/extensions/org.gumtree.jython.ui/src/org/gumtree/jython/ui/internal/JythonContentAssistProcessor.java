@@ -103,14 +103,14 @@ public class JythonContentAssistProcessor implements ICommandLineContentAssistPr
 				proposalHolder.add(CompletionProposalFactory.NO_PROSOPAL);
 			}
 			// Sort in alphabetical order
-			Collections.sort(proposalHolder, new Comparator<ICompletionProposal>() {
-				public int compare(ICompletionProposal prop1, ICompletionProposal prop2) {
-					if (prop1.getAdditionalProposalInfo() != null && prop2.getAdditionalProposalInfo() != null) {
-						return prop1.getAdditionalProposalInfo().compareTo(prop2.getAdditionalProposalInfo());
-					}
-					return 0;
-				}
-			});
+//			Collections.sort(proposalHolder, new Comparator<ICompletionProposal>() {
+//				public int compare(ICompletionProposal prop1, ICompletionProposal prop2) {
+//					if (prop1.getAdditionalProposalInfo() != null && prop2.getAdditionalProposalInfo() != null) {
+//						return prop1.getAdditionalProposalInfo().compareTo(prop2.getAdditionalProposalInfo());
+//					}
+//					return 0;
+//				}
+//			});
 			return proposalHolder.toArray(new ICompletionProposal[proposalHolder.size()]);
 		} else {
 			return EMPTY_PROPOSALS;
