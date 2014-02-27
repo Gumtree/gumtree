@@ -15,6 +15,7 @@
 			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
 		</encoder>
 	</appender>
+	<!-- 
 	<appender name="LILITH"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${logback.logFileLocation}/gumtree.lilith</file>
@@ -33,12 +34,14 @@
 	<appender name="MULTIPLEX"
 		class="de.huxhorn.lilith.logback.appender.ClassicMultiplexSocketAppender">
 		<!-- Default port for compressed is 10000 and uncompressed 10001 -->
+		<!--
 		<Compressing>true</Compressing>
 		<ReconnectionDelay>10000</ReconnectionDelay>
 		<IncludeCallerData>true</IncludeCallerData>
 		<RemoteHosts>localhost</RemoteHosts>
 	</appender>
 	<logger name="org.apache" level="ERROR" />
+	<logger name="httpclient" level="ERROR" /> 
 	<logger name="httpclient.wire.content" level="ERROR" />
 	<logger name="org.apache.http.wire" level="ERROR" />
 	<logger name="httpclient.wire" level="ERROR" />
@@ -46,15 +49,19 @@
 	<logger name="org.apache.commons.httpclient">
 	    <level value="fatal"/>
 	</logger>
-	
-	<logger name="httpclient.wire.header">
-	    <level value="fatal"/>
+	<logger name="org.apache.commons.httpclient">
+		<level value="fatal" />
 	</logger>
-	
+
+	<logger name="httpclient.wire.header">
+		<level value="fatal" />
+	</logger>
+
 	<logger name="httpclient.wire.content">
 	    <level value="fatal"/>
 	</logger>
-	<root level="ERROR">
+	 -->
+	<root level="INFO">
 		<appender-ref ref="FILE" />
 		<appender-ref ref="LILITH" />
 		<!-- <appender-ref ref="MULTIPLEX"/> -->

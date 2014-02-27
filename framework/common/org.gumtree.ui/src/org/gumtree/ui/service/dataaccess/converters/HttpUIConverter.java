@@ -1,5 +1,8 @@
 package org.gumtree.ui.service.dataaccess.converters;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -27,10 +30,9 @@ public class HttpUIConverter implements IDataConverter<GetMethod> {
 		}
 		try {
 			if (representation.equals(ImageData.class)) {
-				return (T) new ImageData(getMethod.getResponseBodyAsStream());
+				return (T) createImageData(getMethod);
 			} else if (representation.equals(ImageData.class)) {
-				return (T) new Image(Display.getDefault(), new ImageData(
-						getMethod.getResponseBodyAsStream()));
+				return (T) new Image(Display.getDefault(), createImageData(getMethod));
 			}
 		} catch (Exception e) {
 			throw new DataAccessException(e);
@@ -42,4 +44,9 @@ public class HttpUIConverter implements IDataConverter<GetMethod> {
 		return SUPPORTED_FORMATS;
 	}
 
+	private ImageData createImageData(GetMethod getMethod) throws IOException {
+		byte[] body = getMethod.getResponseBody();
+		InputStream byteResponseStream = new ByteArrayInputStream(body);
+		return new ImageData(byteResponseStream);
+	}
 }

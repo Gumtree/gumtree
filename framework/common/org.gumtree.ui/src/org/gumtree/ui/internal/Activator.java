@@ -27,6 +27,13 @@ public class Activator extends Plugin {
 		super.start(bundleContext);
 		instance = this;
 		context = bundleContext;
+//		java.util.logging.Logger.getLogger("org.apache.http.wire").setLevel(java.util.logging.Level.SEVERE);
+//		java.util.logging.Logger.getLogger("org.apache.http.headers").setLevel(java.util.logging.Level.SEVERE);
+//		System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
+//		System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
+//		System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire", "ERROR");
+//		System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http", "ERROR");
+//		System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.headers", "ERROR");
 	}
 
 	/*
