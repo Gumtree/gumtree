@@ -158,7 +158,29 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/sample/tc2/heater/heaterOutput_2", "TC2H2-R/O",
 						InternalImage.TWO.getImage(), null);
 		configureWidget(deviceStatusWidget);
-				
+
+		PGroup tc1Group = createGroup("TC1 Controller",
+				InternalImage.FURNACE.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(tc1Group, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/sample/tc1/Loop1/sensor", "TC1_Loop1_Sensor",
+						InternalImage.A.getImage(), null)
+				.addDevice("/sample/tc1/Loop1/setpoint", "TC1_Loop1_Setpoint",
+						InternalImage.A.getImage(), null)
+				.addDevice("/sample/tc1/Loop2/sensor", "TC1_Loop2_Sensor",
+						InternalImage.B.getImage(), null)
+				.addDevice("/sample/tc1/Loop2/setpoint", "TC1_Loop2_Setpoint",
+						InternalImage.A.getImage(), null)
+				.addDevice("/sample/tc1/Loop3/sensor", "TC1_Loop3_Sensor",
+						InternalImage.C.getImage(), null)
+				.addDevice("/sample/tc1/Loop3/setpoint", "TC1_Loop3_Setpoint",
+						InternalImage.A.getImage(), null)
+				.addDevice("/sample/tc1/Loop4/sensor", "TC1_Loop4_Sensor",
+						InternalImage.D.getImage(), null)
+				.addDevice("/sample/tc1/Loop4/setpoint", "TC1_Loop4_Setpoint",
+						InternalImage.A.getImage(), null);
+		configureWidget(deviceStatusWidget);
+
 		// Environment Group
 		PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",
 				InternalImage.FURNACE.getImage());
