@@ -17,4 +17,5 @@ package au.gov.ansto.bragg.kowari.dra.internal;
 public class InternalConstants {
 	public static String SAMPLE_TO_DETECTOR_DISTANCE_NAME = "kowari.sampleToDetectorDistance";
 
+	public static String CURRENT_INDEX_NAME = "current_index";
 }

@@ -96,23 +96,38 @@ public class XYSigmaExporter extends ConcreteProcessor {
 		try {
 			timeArray = inputdata.findDataItem("detector_time").getData();
 			timeIterator = timeArray.getIterator();
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			timeArray = inputdata.getRootGroup().getDataItem("detector_time").getData();
+			timeIterator = timeArray.getIterator();
+		}
 		try {
 			timeOfFlight = inputdata.findDataItem("time_of_flight").getData();
 			timeOfFlightIterator = timeOfFlight.getIterator();
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			timeOfFlight = inputdata.getRootGroup().getDataItem("time_of_flight").getData();
+			timeOfFlightIterator = timeOfFlight.getIterator();
+		}
 		try {
 			monitor1 = inputdata.findDataItem("bm1_counts").getData();
 			bm1Iterator = monitor1.getIterator();
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			monitor1 = inputdata.getRootGroup().getDataItem("bm1_counts").getData();
+			bm1Iterator = monitor1.getIterator();
+		}
 		try {
 			monitor2 = inputdata.findDataItem("bm2_counts").getData();
 			bm2Iterator = monitor2.getIterator();
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			monitor2 = inputdata.getRootGroup().getDataItem("bm2_counts").getData();
+			bm2Iterator = monitor2.getIterator();
+		}
 		try {
 			monitor3 = inputdata.findDataItem("bm3_counts").getData();
 			bm3Iterator = monitor3.getIterator();
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			monitor3 = inputdata.getRootGroup().getDataItem("bm3_counts").getData();
+			bm3Iterator = monitor3.getIterator();
+		}
 
 		IArray second_axis = null;
 		String ax_name = "Run";
@@ -159,7 +174,9 @@ public class XYSigmaExporter extends ConcreteProcessor {
 			String userName = "";
 			try {
 				userName = inputdata.findDataItem("user_name").getData().toString();				
-			} catch (Exception e) {}
+			} catch (Exception e) {
+				userName = inputdata.getRootGroup().getDataItem("user_name").getData().toString();
+			}
 			String fileTime = ""; 
 			try {
 				fileTime = ((IAttribute) inputdata.findContainer("file_time")).getStringValue();				
@@ -193,6 +210,11 @@ public class XYSigmaExporter extends ConcreteProcessor {
 					 "\t" + getDeviceInfo("ssho", "%.5f") + "\r\n");
 			String processingLog = "# " + inputdata.getProcessingLog().replaceAll("\n", "\r\n# ") + "\r\n";
 			outputfile.append(processingLog);
+			try {
+				outputfile.append("# Title: " + inputdata.findDataItem("title").getData().toString() + "\n");
+			} catch (Exception e) {
+				outputfile.append("# Title: " + inputdata.getRootGroup().getDataItem("title").getData().toString() + "\n");
+			}
 			outputfile.append("#\r\n#\r\n");
 			while(out_iter.hasNext()) {
 				IArray tth_row = null;
@@ -228,22 +250,32 @@ public class XYSigmaExporter extends ConcreteProcessor {
 				String topcomment = "Scan variable: " + ax_name + "=" + (new Formatter()).format("%.5f", scnd_loc);
 				outputfile.format("# %-79s%n", topcomment);
 				String scanInfo = "";
-				if (timeIterator != null && timeIterator.hasNext()) {
-					scanInfo += " time=" + (new Formatter()).format("%.1f", timeIterator.getDoubleNext()) + " seconds";
-				} else {
-					IIndex timeOfFlightIndex = timeOfFlight.getIndex();
-					double time = timeOfFlight.getDouble(timeOfFlightIndex.set(1)) 
-						- timeOfFlight.getDouble(timeOfFlightIndex.set(0));
-					scanInfo += " time=" + (new Formatter()).format("%.1f", time) + " seconds";
-				}
-				if (bm1Iterator != null && bm1Iterator.hasNext()) {
-					double bm1Value = bm1Iterator.getDoubleNext();
-					if (bm1Value >= 0) {
-						scanInfo += " bm1_counts=" + (new Formatter()).format("%.0f", bm1Value);	
+				try {
+					if (timeIterator != null && timeIterator.hasNext()) {
+						scanInfo += " time=" + (new Formatter()).format("%.1f", timeIterator.getDoubleNext()) + " seconds";
+					} else {
+						IIndex timeOfFlightIndex = timeOfFlight.getIndex();
+						double time = timeOfFlight.getDouble(timeOfFlightIndex.set(1)) 
+							- timeOfFlight.getDouble(timeOfFlightIndex.set(0));
+						scanInfo += " time=" + (new Formatter()).format("%.1f", time) + " seconds";
 					}
-				} else {
-					double counts = monitor1.getArrayMath().getMaximum();
-					scanInfo += " bm1_counts=" + (new Formatter()).format("%.0f", counts);
+					if (bm1Iterator != null && bm1Iterator.hasNext()) {
+						double bm1Value = bm1Iterator.getDoubleNext();
+						if (bm1Value >= 0) {
+							scanInfo += " bm1_counts=" + (new Formatter()).format("%.0f", bm1Value);	
+						}
+					} else {
+						try{
+							double counts = monitor1.getArrayMath().getMaximum();
+							scanInfo += " bm1_counts=" + (new Formatter()).format("%.0f", counts);
+						} catch (Exception e) {
+							double counts = 0;
+							scanInfo += " bm1_counts=" + (new Formatter()).format("%.0f", counts);
+						}
+					}
+
+				} catch (Exception e) {
+					// TODO: handle exception
 				}
 //				if (bm1Iterator != null && bm2Iterator.hasNext() && bm2Iterator.getDoubleNext() >= 0)
 //					scanInfo += " bm2_counts=" + (new Formatter()).format("%.0f", bm2Iterator.getDoubleCurrent());
@@ -298,6 +330,8 @@ public class XYSigmaExporter extends ConcreteProcessor {
 				Object item = inputdata.findContainer(deviceName);
 				if (item == null)
 					item = inputdata.findContainer("old_" + deviceName);
+				if (item == null)
+					item = inputdata.getRootGroup().getContainer(deviceName);
 				IArray signal = null;
 				String units = "";
 				if (item instanceof IDataItem){

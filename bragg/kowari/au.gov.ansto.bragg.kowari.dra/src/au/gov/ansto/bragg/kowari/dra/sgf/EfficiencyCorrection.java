@@ -13,11 +13,13 @@ package au.gov.ansto.bragg.kowari.dra.sgf;
 import org.gumtree.data.impl.netcdf.NcGroup;
 import org.gumtree.data.interfaces.IArray;
 import org.gumtree.data.interfaces.IArrayIterator;
+import org.gumtree.data.interfaces.IAttribute;
 import org.gumtree.data.interfaces.IGroup;
 import org.gumtree.data.interfaces.IIndex;
 import org.gumtree.data.math.EMath;
 
 import au.gov.ansto.bragg.datastructures.nexus.NexusUtils;
+import au.gov.ansto.bragg.kowari.dra.internal.InternalConstants;
 
 /**
  * @author nxi
@@ -128,6 +130,10 @@ public class EfficiencyCorrection extends
 				efficiencyMap.getData(), efficiencyMap.getVariance());
 		((NcGroup) efficiencyCorrection_outputPlot).setLocation(efficiencyCorrection_inputPlot.getLocation());
 		efficiencyCorrection_outputPlot.addProcessingLog("efficiency correction " + efficiencyCorrection_mapURI);
+		IAttribute currentIndexAttribute = efficiencyCorrection_inputPlot.getAttribute(InternalConstants.CURRENT_INDEX_NAME);
+		if (currentIndexAttribute != null) {
+			efficiencyCorrection_outputPlot.addStringAttribute(InternalConstants.CURRENT_INDEX_NAME, currentIndexAttribute.getStringValue());
+		}
 		efficiencyCorrection_inputPlot.getGroupList().clear();
 		return efficiencyCorrection_stop;
 	}

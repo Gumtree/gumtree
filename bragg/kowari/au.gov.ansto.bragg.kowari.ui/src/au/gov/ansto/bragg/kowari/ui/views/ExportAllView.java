@@ -157,6 +157,19 @@ public class ExportAllView extends ViewPart {
 				}
 			});
 		}
+		MenuItem intensityItem = new MenuItem(stripChoiceMenu, SWT.PUSH);
+		intensityItem.setText("Export intensity curve");
+		intensityItem.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				intensityProcess();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 	}
 
 	private boolean isDataSourceAvailable() {
@@ -465,6 +478,64 @@ public class ExportAllView extends ViewPart {
 				cicada.loadInputData(groupData);
 				//				System.out.println( amanager.listAvailableAlgorithms() );
 				cicada.loadAlgorithm(EXPORT_ALL_ALGORITHM);
+				//				System.out.println( amanager.listTuners() );
+				if (algorithmTask != null && algorithmTask.getAlgorithmInputs().size() > 0){
+					List<Tuner> tuners = algorithmTask.getAlgorithmInputs().get(0).getAlgorithm().getTunerArray();
+					for (Tuner tuner : tuners){
+						if (tuner.getCoreName().equals(EFFICIENCY_TUNER_NAME))
+							cicada.setTuner(EFFICIENCY_TUNER_NAME, tuner.getSignal());
+						if (tuner.getCoreName().equals(ENABLE_EFFICIENCY_TUNER_NAME))
+							cicada.setTuner(ENABLE_EFFICIENCY_TUNER_NAME, tuner.getSignal());
+						if (tuner.getCoreName().equals(GEOMETRY_ENABLE_TUNER_NAME))
+							cicada.setTuner(GEOMETRY_ENABLE_TUNER_NAME, tuner.getSignal());
+						if (tuner.getCoreName().equals(APPLY_REGION_TUNER_NAME))
+							cicada.setTuner(APPLY_REGION_TUNER_NAME, tuner.getSignal());
+					}
+				}
+				cicada.setTuner("frame_XYFolderName", targetFolderURI);
+				cicada.process();
+			}
+			progressBar.setSelection(0);
+			progressBar.setEnabled(false);
+			exportAllButton.setEnabled(true);
+			exportAllButton.setText("Exported");
+		}catch (Exception e) {
+			exportAllButton.setEnabled(true);
+			exportAllButton.setText("Error");
+			Util.handleException(composite.getShell(), e);
+		}finally{
+			numberOfStepsListener.setEnabled(true);
+			currentStepIndexListener.setEnabled(true);
+		}
+	}
+	
+	protected void intensityProcess(){
+		numberOfStepsListener.setEnabled(false);
+		currentStepIndexListener.setEnabled(false);
+		CicadaDOM cicada = KowariAnalysisPerspective.getCicadaDOM();
+		try{
+			String filename = Util.selectDirectoryFromShell(composite.getShell());
+			if (filename == null || filename.trim().length() == 0)
+				return;
+			URI targetFolderURI = null;
+			if (filename != null) {
+				targetFolderURI = ConverterLib.path2URI(filename);
+			}
+//			Algorithm exportAllAlgorithm = cicada.loadAlgorithm("Vertical Integration");
+			List<DataItem> dataItemList = DataSourceManager.getInstance().getAllDataItems();
+			if (dataItemList == null || dataItemList.size() == 0)
+				throw new NullPointerException("No data is available");
+			progressBar.setEnabled(true);
+			progressBar.setMinimum(0);
+			progressBar.setMaximum(dataItemList.size());
+			exportAllButton.setText("Exporting");
+			exportAllButton.setEnabled(false);
+			for (DataItem dataItem : dataItemList){
+				progressBar.setSelection(progressBar.getSelection() + 1);
+				IGroup groupData = dataItem.getDataObject();
+				cicada.loadInputData(groupData);
+				//				System.out.println( amanager.listAvailableAlgorithms() );
+				cicada.loadAlgorithm("Intensity Export");
 				//				System.out.println( amanager.listTuners() );
 				if (algorithmTask != null && algorithmTask.getAlgorithmInputs().size() > 0){
 					List<Tuner> tuners = algorithmTask.getAlgorithmInputs().get(0).getAlgorithm().getTunerArray();

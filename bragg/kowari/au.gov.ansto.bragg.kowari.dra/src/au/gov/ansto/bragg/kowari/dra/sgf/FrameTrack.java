@@ -24,6 +24,7 @@ import au.gov.ansto.bragg.datastructures.core.plot.Position;
 import au.gov.ansto.bragg.datastructures.core.plot.StepDirection;
 import au.gov.ansto.bragg.datastructures.core.plot.StepDirection.StepDirectionType;
 import au.gov.ansto.bragg.datastructures.nexus.NexusUtils;
+import au.gov.ansto.bragg.kowari.dra.internal.InternalConstants;
 import au.gov.ansto.bragg.process.processor.ConcreteProcessor;
 
 /**
@@ -138,6 +139,7 @@ public class FrameTrack extends ConcreteProcessor {
 					System.err.println("&&&&&&&&&&&&The selected index is " + currentIndexOut);
 				}
 			outputPlot = NexusUtils.createSlicePlot(inputGroup, currentIndexVar, useCorrectedData);
+			outputPlot.addStringAttribute(InternalConstants.CURRENT_INDEX_NAME, String.valueOf(getCurrentIndexOut()));
 		}else{
 			if (isInLoop){
 				loopIndex ++;
@@ -147,10 +149,12 @@ public class FrameTrack extends ConcreteProcessor {
 //					isInLoop = true;
 					stopNow = true;
 					outputPlot = NexusUtils.createSlicePlot(inputGroup, currentIndexVar, useCorrectedData);
+					outputPlot.addStringAttribute(InternalConstants.CURRENT_INDEX_NAME, String.valueOf(getCurrentIndexOut()));
 					currentIndexOut = currentIndexVar;
 					updateCurrentStepIndex(numberOfFrames);
 				}else{
 					outputPlot = NexusUtils.createSlicePlot(inputGroup, loopIndex, useCorrectedData);
+					outputPlot.addStringAttribute(InternalConstants.CURRENT_INDEX_NAME, String.valueOf(getCurrentIndexOut()));
 					currentIndexOut = loopIndex;
 					updateCurrentStepIndex(currentIndexOut);
 				}
@@ -168,6 +172,7 @@ public class FrameTrack extends ConcreteProcessor {
 				currentIndexOut = loopIndex;
 				updateCurrentStepIndex(currentIndexOut);
 				outputPlot = NexusUtils.createSlicePlot(inputGroup, loopIndex, useCorrectedData);
+				outputPlot.addStringAttribute(InternalConstants.CURRENT_INDEX_NAME, String.valueOf(getCurrentIndexOut()));
 			}
 		}
 		if (inputGroup != null)
