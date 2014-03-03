@@ -19,7 +19,7 @@
 
    <includes
          id="org.python.pydev.feature"
-         version="0.0.0"/>
+         version="2.7.3"/>
 
    <plugin
          id="org.eclipse.jdt.core"
