@@ -19,7 +19,9 @@
 
    <includes
          id="org.python.pydev.feature"
-         version="2.7.3"/>
+         version="2.7.3"
+         optional="true"
+         search-location="both"/>
 
    <plugin
          id="org.eclipse.jdt.core"
