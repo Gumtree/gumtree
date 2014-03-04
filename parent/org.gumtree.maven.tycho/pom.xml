@@ -88,10 +88,16 @@
 			<layout>p2</layout>
 			<url>http://dist.codehaus.org/gumtree/sites/bundles/1.7.0.201206061653</url>
 		</repository>
-		<repository>
+		<!--  repository>
 			<id>pydev</id>
 			<layout>p2</layout>
 			<url>http://pydev.org/updates</url>
+		</repository>
+		-->
+		<repository>
+			<id>pydev</id>
+			<layout>p2</layout>
+			<url>file:/x:/eclipse/p2/repo/pydev</url>
 		</repository>
 		<!--
 		<repository>
