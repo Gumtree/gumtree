@@ -32,7 +32,7 @@ public class KowariWorkbenchLauncher extends AbstractLauncher {
 
 	
 	private static final String ID_PERSPECTIVE_EXPERIMENT = "au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective";
-	private static final String ID_PERSPECTIVE_ANALYSIS = "au.gov.ansto.bragg.kowari.ui.internal.KowariAnalysisPerspective";
+	private static final String ID_PERSPECTIVE_ANALYSIS = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
 	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
 	
 	private static Logger logger = LoggerFactory.getLogger(KowariWorkbenchLauncher.class);
@@ -132,40 +132,40 @@ public class KowariWorkbenchLauncher extends AbstractLauncher {
 				@Override
 				public void perspectiveActivated(IWorkbenchPage page,
 						IPerspectiveDescriptor perspective) {
-					if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT)) {
-						PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
-								TCLRunnerPerspective.EXPERIMENT_PERSPECTIVE_THEME);
-						activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
-					} else {
-						PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
-								TCLRunnerPerspective.DEFAULT_PERSPECTIVE_THEME);
-						activeWorkbenchWindow.getActivePage().setEditorAreaVisible(true);
-					}
+//					if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT)) {
+//						PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
+//								TCLRunnerPerspective.EXPERIMENT_PERSPECTIVE_THEME);
+//						activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
+//					} else {
+//						PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
+//								TCLRunnerPerspective.DEFAULT_PERSPECTIVE_THEME);
+//						activeWorkbenchWindow.getActivePage().setEditorAreaVisible(true);
+//					}
 				}
 			});
 			
-			activeWorkbenchWindow.addPerspectiveListener(new PerspectiveAdapter() {
-				@Override
-				public void perspectiveActivated(final IWorkbenchPage page,
-						final IPerspectiveDescriptor perspective) {
-					super.perspectiveOpened(page, perspective);
-					final PerspectiveAdapter adapter = this;
-					Display.getDefault().asyncExec(new Runnable(){
-
-						public void run() {
-							try{
-								if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT)){
-									activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
-								} else {
-									activeWorkbenchWindow.getActivePage().setEditorAreaVisible(true);
-								}
-								activeWorkbenchWindow.removePerspectiveListener(adapter);
-							}catch (Exception e) {
-							}
-						}});
-				}
-				
-			});
+//			activeWorkbenchWindow.addPerspectiveListener(new PerspectiveAdapter() {
+//				@Override
+//				public void perspectiveActivated(final IWorkbenchPage page,
+//						final IPerspectiveDescriptor perspective) {
+//					super.perspectiveOpened(page, perspective);
+//					final PerspectiveAdapter adapter = this;
+//					Display.getDefault().asyncExec(new Runnable(){
+//
+//						public void run() {
+//							try{
+//								if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT)){
+//									activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
+//								} else {
+//									activeWorkbenchWindow.getActivePage().setEditorAreaVisible(true);
+//								}
+//								activeWorkbenchWindow.removePerspectiveListener(adapter);
+//							}catch (Exception e) {
+//							}
+//						}});
+//				}
+//				
+//			});
 			
 //			if (isCoolBarVisable) {
 //				IWorkbench workbench = PlatformUI.getWorkbench();				

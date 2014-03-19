@@ -44,6 +44,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.nebula.widgets.pgroup.ext.MenuBasedGroup;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
@@ -54,16 +55,17 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -88,6 +90,7 @@ import org.gumtree.gumnix.sics.io.SicsIOException;
 import org.gumtree.gumnix.sics.ui.SicsUIConstants;
 import org.gumtree.scripting.IScriptExecutor;
 import org.gumtree.scripting.ScriptExecutor;
+import org.gumtree.ui.scripting.viewer.CommandLineViewer;
 
 import au.gov.ansto.bragg.nbi.ui.internal.Activator;
 import au.gov.ansto.bragg.nbi.ui.internal.InternalImage;
@@ -905,7 +908,9 @@ public class ScriptControlViewer extends Composite {
 	}
 
 	private void addGroup(Composite parent, ScriptObjectGroup objGroup) {
-		Group group = new Group(parent, SWT.NONE);
+//		Group group = new Group(parent, SWT.NONE);
+		MenuBasedGroup group = new MenuBasedGroup(parent, SWT.NONE);
+		group.setClickExpandEnabled(false);
 		int groupNumColumns = 1;
 		if (objGroup.getProperty("numColumns") != null) {
 			try {
@@ -916,7 +921,7 @@ public class ScriptControlViewer extends Composite {
 		if (groupNumColumns < 1) {
 			groupNumColumns = 1;
 		}
-		GridLayoutFactory.fillDefaults().numColumns(groupNumColumns * 2).applyTo(group);
+		GridLayoutFactory.fillDefaults().numColumns(groupNumColumns * 2).margins(2, 2).spacing(2, 2).applyTo(group);
 		int groupColspan = 1;
 		if (objGroup.getProperty("colspan") != null) {
 			try {
@@ -1118,6 +1123,7 @@ public class ScriptControlViewer extends Composite {
 											comboBox.setSelection(new StructuredSelection(
 													parameter.getValue()));
 										}
+										comboBox.refresh();
 									}
 								});
 							} 
@@ -1125,15 +1131,37 @@ public class ScriptControlViewer extends Composite {
 					});
 				}
 			});
-			comboBox.addSelectionChangedListener(new ISelectionChangedListener() {
+			comboBox.addPostSelectionChangedListener(new ISelectionChangedListener() {
+				
+				Object selection;
 				
 				@Override
 				public void selectionChanged(SelectionChangedEvent event) {
-					String command = parameter.getCommand();
-					if (command != null) {
-						runCommand(command);
+					
+					Object newSelection = ((IStructuredSelection) comboBox.getSelection()).getFirstElement();
+					if (newSelection != selection) {
+						String command = parameter.getCommand();
+						if (command != null) {
+							runCommand(command);
+						}
+						selection = newSelection;
 					}
 				}
+				
+//				long timeStamp = 0;
+//				
+//				@Override
+//				public void selectionChanged(SelectionChangedEvent event) {
+//					comboBox.getSelection();
+//					long newStamp = System.currentTimeMillis();
+//					if (newStamp - timeStamp > 500) {
+//						String command = parameter.getCommand();
+//						if (command != null) {
+//							runCommand(command);
+//						}
+//						timeStamp = newStamp;
+//					}
+//				}
 			});
 		} else {
 			PType type = parameter.getType();
@@ -1487,6 +1515,50 @@ public class ScriptControlViewer extends Composite {
 						if (command != null) {
 							runCommand(command);
 						}
+					}
+				});
+				break;
+			case PROGRESS:
+				final ProgressBar progressBar = new ProgressBar(parent, SWT.HORIZONTAL | SWT.NULL);
+				progressBar.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
+				GridDataFactory.fillDefaults().grab(true, false).minSize(40, 0).span(parameterColspan > 2 ? parameterColspan : 2, parameterRowspan).applyTo(progressBar);
+				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+					public void run() {
+//						DataBindingContext bindingContext = new DataBindingContext();
+//						bindingContext.bindValue(SWTObservables.observeSelection(progressBar),
+//								BeansObservables.observeValue(parameter, "value"),
+//								new UpdateValueStrategy(), new UpdateValueStrategy());
+						parameter.addPropertyChangeListener(new PropertyChangeListener() {
+
+							@Override
+							public void propertyChange(final PropertyChangeEvent evt) {
+								if (evt.getPropertyName().equals("enabled")) {
+									Display.getDefault().asyncExec(new Runnable() {
+
+										@Override
+										public void run() {
+											progressBar.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+										}
+									});
+								} else if (evt.getPropertyName().equals("max")) {
+									Display.getDefault().asyncExec(new Runnable() {
+
+										@Override
+										public void run() {
+											progressBar.setMaximum(Integer.valueOf(evt.getNewValue().toString()));
+										}
+									});
+								} else if (evt.getPropertyName().equals("selection")) {
+									Display.getDefault().asyncExec(new Runnable() {
+
+										@Override
+										public void run() {
+											progressBar.setSelection(Integer.valueOf(evt.getNewValue().toString()));
+										}
+									});
+								}
+							}
+						});
 					}
 				});
 				break;
@@ -1906,5 +1978,16 @@ public class ScriptControlViewer extends Composite {
 				}					
 			}
 		});
+	}
+	
+	public void setAutoCompletionEnabled(boolean enabled) {
+		try{
+			CommandLineViewer viewer = ScriptPageRegister.getRegister(scriptRegisterID).getConsoleViewer();
+			if (viewer != null) {
+				viewer.setContentAssistEnabled(enabled);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

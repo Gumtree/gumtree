@@ -1774,7 +1774,7 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
     	maskEventListeners.remove(listener);
     }
     
-    protected List<IMaskEventListener> getMaskEventListeners() {
+    public List<IMaskEventListener> getMaskEventListeners() {
     	return maskEventListeners;
     }
 

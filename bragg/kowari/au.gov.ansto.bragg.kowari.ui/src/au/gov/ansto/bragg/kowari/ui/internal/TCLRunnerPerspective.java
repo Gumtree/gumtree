@@ -141,14 +141,14 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 			@Override
 			public void perspectiveActivated(IWorkbenchPage page,
 					IPerspectiveDescriptor perspective) {
-				if (perspective.getId().equals(TCLRunnerPerspective.EXPERIMENT_PERSPECTIVE_ID)) {
-					activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
-					PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
-							TCLRunnerPerspective.EXPERIMENT_PERSPECTIVE_THEME);
-				} else {
-					PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
-							TCLRunnerPerspective.DEFAULT_PERSPECTIVE_THEME);
-				}
+//				if (perspective.getId().equals(TCLRunnerPerspective.EXPERIMENT_PERSPECTIVE_ID)) {
+//					activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
+//					PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
+//							TCLRunnerPerspective.EXPERIMENT_PERSPECTIVE_THEME);
+//				} else {
+//					PlatformUI.getWorkbench().getThemeManager().setCurrentTheme(
+//							TCLRunnerPerspective.DEFAULT_PERSPECTIVE_THEME);
+//				}
 			}
 		});
 	}

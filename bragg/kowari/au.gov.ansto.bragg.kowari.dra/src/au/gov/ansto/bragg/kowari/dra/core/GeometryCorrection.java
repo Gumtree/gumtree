@@ -54,8 +54,8 @@ public class GeometryCorrection extends ConcreteProcessor {
 	private IArray relocateRightIndexArray;
 	private IArray relocateLeftRateArray;
 	private IArray relocateRightRateArray;
-	private IArray relocateCounterArray;
 	
+	private IArray relocateCounterArray;
 		
 	/**
 	 * 
@@ -137,15 +137,15 @@ public class GeometryCorrection extends ConcreteProcessor {
 //
 			if (twoThetaDataArray == null){
 				twoThetaDataArray = Factory.createArray(Double.TYPE, new int[]{(int) yAxis.centres().getSize(), (int) xAxis.bounds().getSize()});
-				calculateTwoTheta(xAxis.bounds(), cosStth, sinStth, yAxis.centres(), twoThetaDataArray);		
+				calculateTwoThetaPixel(geometry_sampleToDetector, sampleToDetectorSquare, xAxis.bounds(), cosStth, sinStth, yAxis.centres(), twoThetaDataArray);		
 			}else if (!isFixedStth)
-				calculateTwoTheta(xAxis.bounds(), cosStth, sinStth, yAxis.centres(), twoThetaDataArray);
+				calculateTwoThetaPixel(geometry_sampleToDetector, sampleToDetectorSquare, xAxis.bounds(), cosStth, sinStth, yAxis.centres(), twoThetaDataArray);
 					
 			if (keepTwoTheta && isFixedStth) {
 				if (twoThetaAxisArray == null){
 					twoThetaAxisArray = Factory.createArray(Double.TYPE, new int[]{
 							(int) xAxis.bounds().getSize()});
-					calculateTwoTheta(xAxis.bounds(), cosStth, sinStth, twoThetaAxisArray);
+					calculateTwoThetaAxis(geometry_sampleToDetector, sampleToDetectorSquare, xAxis.bounds(), cosStth, sinStth, twoThetaAxisArray);
 				}
 //				twoThetaAxisSlice = twoThetaAxisArray;
 				if (relocateLeftIndexArray == null){
@@ -167,7 +167,7 @@ public class GeometryCorrection extends ConcreteProcessor {
 							(int) xAxis.bounds().getSize()});
 				}
 				twoThetaAxisSlice = twoThetaAxisArray.getArrayUtils().slice(0, idx).getArray();
-				calculateTwoTheta(xAxis.bounds(), cosStth, sinStth, twoThetaAxisSlice);
+				calculateTwoThetaAxis(geometry_sampleToDetector, sampleToDetectorSquare, xAxis.bounds(), cosStth, sinStth, twoThetaAxisSlice);
 				rebinWithTwoTheta(inputSlice, varianceSlice, newIntensitySlice, newVarianceSlice, 
 						twoThetaDataArray, twoThetaAxisSlice);
 				twoThetaAxisArray = null;
@@ -347,7 +347,7 @@ public class GeometryCorrection extends ConcreteProcessor {
 		}
 	}
 
-	private void rebinWithTwoTheta(IArray inputIntensity, IArray inputVariance, IArray newIntensity, IArray newVariance,
+	public static void rebinWithTwoTheta(IArray inputIntensity, IArray inputVariance, IArray newIntensity, IArray newVariance,
 			IArray twoThetaData, IArray twoThetaAxis) 
 	throws ShapeNotMatchException, InvalidRangeException {
 		IArrayIterator inputIterator = inputIntensity.getIterator();
@@ -461,7 +461,7 @@ public class GeometryCorrection extends ConcreteProcessor {
 		}
 	}
 	
-	private void rebinWithTwoTheta(IArray inputIntensity, IArray inputVariance, IArray newIntensity, IArray newVariance,
+	public static void rebinWithTwoTheta(IArray inputIntensity, IArray inputVariance, IArray newIntensity, IArray newVariance,
 			IArray twoThetaData, IArray twoThetaAxis, IArray relocateLeftIndexArray, IArray relocateRightIndexArray, 
 			IArray relocateLeftRateArray, IArray relocateRightRateArray, IArray relocateCounterArray, boolean init) 
 	throws ShapeNotMatchException, InvalidRangeException {
@@ -701,7 +701,7 @@ public class GeometryCorrection extends ConcreteProcessor {
 //		
 //	}
 
-	private int findIndex(double value, IArray axis, int currentIndex, double axisFirstValue,
+	public static int findIndex(double value, IArray axis, int currentIndex, double axisFirstValue,
 			double axisLastValue, boolean isAscending) {
 		IIndex axisIndex = axis.getIndex();
 		int axisSize = (int) axis.getSize();
@@ -775,12 +775,12 @@ public class GeometryCorrection extends ConcreteProcessor {
 		}
 	}
 
-	private void calculateTwoTheta(IArray xPositionArray, double cosStth, double sinStth,
+	public static void calculateTwoThetaPixel(double sampleToDetector, double sampleToDetectorSquare, IArray xPositionArray, double cosStth, double sinStth,
 			IArray yPositionArray, IArray result) throws ShapeNotMatchException, InvalidRangeException {
 		IArrayIterator yPositionIterator = yPositionArray.getIterator();
 		ISliceIterator resultSliceIterator = result.getSliceIterator(1);
 		while (yPositionIterator.hasNext() && resultSliceIterator.hasNext()){
-			calculateTwoTheta(xPositionArray, cosStth, sinStth, yPositionIterator.getDoubleNext(), 
+			calculateTwoTheta(sampleToDetector, sampleToDetectorSquare, xPositionArray, cosStth, sinStth, yPositionIterator.getDoubleNext(), 
 					resultSliceIterator.getArrayNext());
 		}
 	}
@@ -795,31 +795,31 @@ public class GeometryCorrection extends ConcreteProcessor {
 		}
 	}
 
-	private void calculateTwoTheta(IArray xPositionArray, double cosStth, double sinStth,
+	public static void calculateTwoThetaAxis(double sampleToDetector, double sampleToDetectorSquare, IArray xPositionArray, double cosStth, double sinStth,
 			IArray result) {
 		IArrayIterator inputIterator = xPositionArray.getIterator();
 		IArrayIterator resultIterator = result.getIterator();
 		while(inputIterator.hasNext() && resultIterator.hasNext()){
-			resultIterator.next().setDoubleCurrent(calculateTwoTheata(inputIterator.getDoubleNext(), cosStth, sinStth));
+			resultIterator.next().setDoubleCurrent(calculateTwoTheata(sampleToDetector, sampleToDetectorSquare, inputIterator.getDoubleNext(), cosStth, sinStth));
 		}
 	}
 
-	private void calculateTwoTheta(IArray xPositionArray, double cosStth, double sinStth, double height,
+	public static void calculateTwoTheta(double sampleToDetector, double sampleToDetectorSquare, IArray xPositionArray, double cosStth, double sinStth, double height,
 			IArray result) {
 		IArrayIterator inputIterator = xPositionArray.getIterator();
 		IArrayIterator resultIterator = result.getIterator();
 		while(inputIterator.hasNext() && resultIterator.hasNext()){
-			resultIterator.next().setDoubleCurrent(calculateTwoTheata(inputIterator.getDoubleNext(), height, cosStth, sinStth));
+			resultIterator.next().setDoubleCurrent(calculateTwoTheata(sampleToDetector, sampleToDetectorSquare, inputIterator.getDoubleNext(), height, cosStth, sinStth));
 		}
 	}
 
-	private double calculateTwoTheata(double xPosition, double cosStth, double sinStth) {
-		return Math.acos((geometry_sampleToDetector * cosStth - xPosition * sinStth) / Math.sqrt(
+	public static double calculateTwoTheata(double sampleToDetector, double sampleToDetectorSquare, double xPosition, double cosStth, double sinStth) {
+		return Math.acos((sampleToDetector * cosStth - xPosition * sinStth) / Math.sqrt(
 				sampleToDetectorSquare + xPosition * xPosition)) * DEGREE_RAD_COEFFICIENT;
 	}
 	
-	private double calculateTwoTheata(double xPosition, double height, double cosStth, double sinStth) {
-		return Math.acos((geometry_sampleToDetector * cosStth - xPosition * sinStth) / Math.sqrt(
+	public static double calculateTwoTheata(double sampleToDetector,  double sampleToDetectorSquare, double xPosition, double height, double cosStth, double sinStth) {
+		return Math.acos((sampleToDetector * cosStth - xPosition * sinStth) / Math.sqrt(
 				sampleToDetectorSquare + xPosition * xPosition + height * height)) * DEGREE_RAD_COEFFICIENT;
 	}
 	

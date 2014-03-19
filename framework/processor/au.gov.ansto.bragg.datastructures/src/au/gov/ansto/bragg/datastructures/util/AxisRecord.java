@@ -112,6 +112,24 @@ public final class AxisRecord {
 		}
 	}
 
+	public static IArray createCentres(IArray bounds){
+		int dataWidth = (int) bounds.getSize() - 1;
+		IArray centres = Factory.createArray(Double.TYPE, new int[]{dataWidth});
+		IArrayIterator centreIter = centres.getIterator();
+		IArrayIterator scaleIter = bounds.getIterator();
+		
+		double scaleValue = scaleIter.getDoubleNext();
+		double lo = scaleValue;
+		double hi = scaleIter.getDoubleNext();
+		centreIter.next().setDoubleCurrent((hi+lo)/2);  // lo + binWidth/2.0
+		while (scaleIter.hasNext()) {
+			lo = hi;
+			hi = scaleIter.getDoubleNext();
+			centreIter.next().setDoubleCurrent((hi+lo)/2);
+		}
+		return centres;
+	}
+	
 	private double middle(double s1,double s2) {
 		return (s1 + s2)/2.0;
 	}

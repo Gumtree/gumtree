@@ -19,7 +19,6 @@ import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
@@ -27,19 +26,14 @@ import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DragSourceAdapter;
 import org.eclipse.swt.dnd.DragSourceEvent;
-import org.eclipse.swt.dnd.DropTarget;
-import org.eclipse.swt.dnd.DropTargetAdapter;
-import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -210,7 +204,7 @@ public class TableScanParameter extends AbstractScanParameter {
 	 * @see au.gov.ansto.bragg.kowari.exp.command.AbstractScanParameter#createParameterUI(org.eclipse.swt.widgets.Composite)
 	 */
 	@Override
-	public void createParameterUI(Composite parameterComposite, final AbstractScanCommandView commandView, 
+	public void createParameterUI(final Composite parameterComposite, final AbstractScanCommandView commandView, 
 			final FormToolkit toolkit) {
 //			final Label dragLabel = toolkit.createLabel(parent, "\u2022");
 //		parameterComposite = toolkit.createComposite(parent);
@@ -221,6 +215,24 @@ public class TableScanParameter extends AbstractScanParameter {
 		final Button selectBox = toolkit.createButton(parameterComposite, "", SWT.CHECK);
 		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).indent(0, 2).applyTo(selectBox);
 
+		selectBox.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				System.err.println("clicked");
+				Control[] children = parameterComposite.getChildren();
+				for (Control child : children) {
+					if (child instanceof Text) {
+						child.setEnabled(selectBox.getSelection());
+					}
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
 		for (int i = 0; i < getLength(); i++) {
 			final String name = "p" + i;
 			final Text pText = toolkit.createText(parameterComposite, "");

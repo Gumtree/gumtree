@@ -68,11 +68,15 @@ class Dataset(Data):
         if name == None :
             location = self.__iNXDataset__.getLocation()
             if not location is None :
-                if location.__contains__('/') :
-                    sep = '/' 
-                else :
+                sep = None
+                if location.__contains__(os.path.sep):
                     sep = os.path.sep
-                name = location.split(sep)[-1]
+                elif location.__contains__('/') :
+                    sep = '/'
+                if not sep is None:
+                    name = location.split(sep)[-1]
+                else:
+                    name = location
             else :
                 name = str(id(self))
             self.name = name
@@ -321,10 +325,10 @@ class Dataset(Data):
 #                        print key
     
     def copy_metadata_deep(self, dfrom, mslice = None):
-        self.__copy_metadata__(self, dfrom, mslice, True)
+        self.__copy_metadata__(dfrom, mslice, True)
         
     def copy_metadata_shallow(self, dfrom, mslice = None):
-        self.__copy_metadata__(self, dfrom, mslice, False)
+        self.__copy_metadata__(dfrom, mslice, False)
         
     def __getitem__(self, index):
         if type(index) is str :
@@ -613,7 +617,7 @@ class Dataset(Data):
                     par.addDataItem(value.__iDataItem__)
         
     def append_log(self, log):
-        self.log = self.log + log.encode('ascii')
+        self.log = self.log + log.encode('ascii') + "\n"
         
     def transpose(self, axes = None):
         res = Data.transpose(self, axes)

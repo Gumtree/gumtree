@@ -4,6 +4,8 @@ from org.gumtree.vis.hist2d.color import ColorScale
 from org.gumtree.vis.mask import EllipseMask, RectangleMask, RangeMask
 from org.gumtree.vis.nexus.utils import NXFactory
 from org.gumtree.vis.plot1d import LegendPosition
+from org.jfree.chart import ChartMouseListener
+from gumpy.vis.event import __AWTMouseListener__
 
 color_scale = ColorScale
 
@@ -303,6 +305,12 @@ class GPlot:
             self.pv.getPlot().setSelectedMask(obj)
         self.pv.getPlot().repaint()
         
+    def get_masks(self):
+        if self.pv.getPlot():
+            return self.pv.getPlot().getMasks();
+        else :
+            return []
+        
     def remove_mask(self, obj):
         if type(obj) is str :
             masks = self.pv.getPlot().getMasks()
@@ -383,8 +391,38 @@ class GPlot:
     def add_mouse_listener(self, listener):
         self.pv.getPlot().addChartMouseListener(listener.__get_jlistener__())
 
+    def add_awt_mouse_listener(self, listener):
+        self.pv.getPlot().addMouseListener(listener.__get_jlistener__())
+        
+    def set_awt_mouse_listener(self, listener):
+        lts = self.pv.getPlot().getMouseListeners()
+        to_rm = []
+        for lt in lts:
+            if isinstance(lt, __AWTMouseListener__):
+                self.pv.getPlot().removeMouseListener(lt)
+        self.add_awt_mouse_listener(listener)
+        
+    def set_mouse_listener(self, listener):
+        listeners = self.pv.getPlot().getListeners(ChartMouseListener)
+        for lsn in listeners:
+            self.pv.getPlot().removeChartMouseListener(lsn)
+        self.add_mouse_listener(listener)
+        
+    def add_mask_listener(self, listener):
+        self.pv.getPlot().addMaskEventListener(listener.__get_jlistener__())
+        
+    def set_mask_listener(self, listener):
+        self.pv.getPlot().getMaskEventListeners().clear()
+        self.add_mask_listener(listener)
+        
     def remove_mouse_listener(self, listener):
         self.pv.getPlot().removeChartMouseListener(listener.__get_jlistener__())
+
+    def remove_awt_mouse_listener(self, listener):
+        self.pv.getPlot().removeMouseListener(listener.__get_jlistener__())
+
+    def remove_mask_listener(self, listener):
+        self.pv.getPlot().removeMaskEventListener(listener.__get_jlistener__())
 
     def close(self):
         PlotView.closePlotView(self.__view__)
