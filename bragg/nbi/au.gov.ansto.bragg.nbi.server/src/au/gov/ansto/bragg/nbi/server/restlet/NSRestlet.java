@@ -168,36 +168,38 @@ public class NSRestlet extends Restlet implements IDisposable {
 	}
 
 	private void updateValue() throws HttpException, IOException  {
-        // consult documentation for your web service
-//		postMethod.setRequestHeader("SOAPAction", strSoapAction);
-		int statusCode = getClient().executeMethod(postMethod);
-		if (statusCode != HttpStatus.SC_OK) {
-			System.err.println("HTTP GET failed: " + postMethod.getStatusLine());
-//			postMethod.releaseConnection();
-			clearValues();
-		} else {
-			try{
-				SOAPMessage message = MessageFactory.newInstance().createMessage();  
-				SOAPPart soapPart = message.getSOAPPart();  
-				soapPart.setContent(new StreamSource(postMethod.getResponseBodyAsStream()));
-				//        NodeList items = soapPart.getElementsByTagName("ns0:getReactorPowerResponseElement");
-				//        Element item = soapPart.getElementById("ns1:value");
-				final Element ele = soapPart.getDocumentElement();
-				String value;
-				for (String device : devices.keySet()) {
-					value = "";
-					try {
-						value = ele.getElementsByTagName("ns1:" + device).item(0).getTextContent();
-					} catch (Exception e) {
-					}
-					devices.put(device, value);
-				}
-				serverStatus = "OK";
-			} catch (Exception e) {
+		try {
+			int statusCode = getClient().executeMethod(postMethod);
+			if (statusCode != HttpStatus.SC_OK) {
+				System.err.println("HTTP GET failed: " + postMethod.getStatusLine());
 				clearValues();
+			} else {
+				try{
+					SOAPMessage message = MessageFactory.newInstance().createMessage();  
+					SOAPPart soapPart = message.getSOAPPart();  
+					soapPart.setContent(new StreamSource(postMethod.getResponseBodyAsStream()));
+					//        NodeList items = soapPart.getElementsByTagName("ns0:getReactorPowerResponseElement");
+					//        Element item = soapPart.getElementById("ns1:value");
+					final Element ele = soapPart.getDocumentElement();
+					String value;
+					for (String device : devices.keySet()) {
+						value = "";
+						try {
+							value = ele.getElementsByTagName("ns1:" + device).item(0).getTextContent();
+						} catch (Exception e) {
+						}
+						devices.put(device, value);
+					}
+					serverStatus = "OK";
+				} catch (Exception e) {
+					clearValues();
+				}
 			}
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		} finally {
+			postMethod.releaseConnection();
 		}
-		postMethod.releaseConnection();
 	}
 	
 	private void clearValues() {
