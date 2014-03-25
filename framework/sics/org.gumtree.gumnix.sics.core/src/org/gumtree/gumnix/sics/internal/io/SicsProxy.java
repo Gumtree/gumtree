@@ -213,12 +213,12 @@ public class SicsProxy implements ISicsProxy {
 		if (SicsCoreProperties.USE_NON_NIO_CHANNEL.getBoolean()) {
 			generalChannel = new SicsChannel(CHANNEL_GENERAL, this);
 			statusChannel = new SicsChannel(CHANNEL_STATUS, this);
-			batchChannel = new SicsChannel(CHANNEL_BATCH, this);
+//			batchChannel = new SicsChannel(CHANNEL_BATCH, this);
 //			scanChannel = new SicsChannel(CHANNEL_SCAN, this);			
 		} else {
 			generalChannel = new SicsNonBlockingChannel(CHANNEL_GENERAL, this);
 			statusChannel = new SicsNonBlockingChannel(CHANNEL_STATUS, this);
-			batchChannel = new SicsNonBlockingChannel(CHANNEL_BATCH, this);
+//			batchChannel = new SicsNonBlockingChannel(CHANNEL_BATCH, this);
 //			scanChannel = new SicsNonBlockingChannel(CHANNEL_SCAN, this);
 		}
 //		ISicsChannel zipDataChannel = new SicsZipDataChannel(CHANNEL_ZIP_DATA, this);
@@ -233,7 +233,7 @@ public class SicsProxy implements ISicsProxy {
 
 		getChannels().put(CHANNEL_GENERAL, generalChannel);
 		getChannels().put(CHANNEL_STATUS, statusChannel);
-		getChannels().put(CHANNEL_BATCH, batchChannel);
+//		getChannels().put(CHANNEL_BATCH, batchChannel);
 //		getChannels().put(CHANNEL_ZIP_DATA, zipDataChannel);
 //		getChannels().put(CHANNEL_SCAN, scanChannel);
 		getChannels().put(CHANNEL_RAW_BATCH, rawBatchChannel);

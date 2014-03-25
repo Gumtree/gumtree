@@ -112,6 +112,8 @@ public class SicsNonBlockingChannel extends AbstractSicsChannel {
 	}
 
 	public void disconnect() throws SicsIOException {
+		System.err.println("Disconnected");
+		channelHandler.closeChannel();
 	}
 
 	public void send(final String command, ISicsCallback proxyListener)
@@ -251,12 +253,21 @@ public class SicsNonBlockingChannel extends AbstractSicsChannel {
 
 		// TODO: report user with connection error
 		public void inputClosed() {
+			
 		}
 		
 		// TODO: report user with connection error
 		public void channelException(Exception exception) {
 		}
 		
+		public void closeChannel(){
+			try {
+				handlerAdapter.closeChannel();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	class SicsChannelReader extends AbstractForwarder<String, Void> {

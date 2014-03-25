@@ -174,7 +174,7 @@ public class SicsDOM {
 			};
 		};
 		try {
-			sicsProxy.send(rawCommand, callback, SicsProxy.CHANNEL_BATCH);
+			sicsProxy.send(rawCommand, callback, SicsProxy.CHANNEL_GENERAL);
 		} catch (SicsIOException e) {
 			// TODO Auto-generated catch block
 			throw new SicsDOMException(e);

@@ -133,8 +133,8 @@ public class SicsProxy implements ISicsProxy {
 				CHANNEL_GENERAL, this);
 		AbstractSicsChannel statusChannel = new SicsNonBlockingChannel(
 				CHANNEL_STATUS, this);
-//		AbstractSicsChannel batchChannel = new SicsNonBlockingChannel(
-//				CHANNEL_BATCH, this);
+		AbstractSicsChannel batchChannel = new SicsNonBlockingChannel(
+				CHANNEL_BATCH, this);
 //		AbstractSicsChannel scanChannel = new SicsNonBlockingChannel(
 //				CHANNEL_SCAN, this);
 		// [Tony][2012-02-09] Raw channel hangs on Mac!?
@@ -149,7 +149,7 @@ public class SicsProxy implements ISicsProxy {
 
 		getChannels().put(CHANNEL_GENERAL, generalChannel);
 		getChannels().put(CHANNEL_STATUS, statusChannel);
-//		getChannels().put(CHANNEL_BATCH, batchChannel);
+		getChannels().put(CHANNEL_BATCH, batchChannel);
 //		getChannels().put(CHANNEL_SCAN, scanChannel);
 //		getChannels().put(CHANNEL_RAW_BATCH, rawBatchChannel);
 

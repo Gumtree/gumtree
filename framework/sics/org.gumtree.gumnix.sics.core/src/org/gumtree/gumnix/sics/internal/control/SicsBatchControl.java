@@ -101,7 +101,7 @@ public class SicsBatchControl implements ISicsBatchControl {
 			synchronousSend("exe forcesave " + scriptName);
 			synchronousSend("exe enqueue " + scriptName);
 
-			manager.proxy().send("exe run", getOutputListener(), ISicsProxy.CHANNEL_BATCH);
+			manager.proxy().send("exe run", getOutputListener(), ISicsProxy.CHANNEL_GENERAL);
 		} else {
 			throw new SicsIOException("Bath system is not ready to run.");
 		}
@@ -141,7 +141,7 @@ public class SicsBatchControl implements ISicsBatchControl {
 				setCallbackCompleted(true);
 			}
 		};
-		manager.proxy().send(command, callback, ISicsProxy.CHANNEL_BATCH);
+		manager.proxy().send(command, callback, ISicsProxy.CHANNEL_GENERAL);
 		int timeCount = 0;
 		while(callback.isCallbackCompleted()) {
 			if(timeCount > SicsCoreProperties.PROXY_TIMEOUT.getLong()) {
