@@ -123,63 +123,63 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(deviceStatusWidget);
 
 		// Temperature TC1 Control
-		PGroup tempControlGroup = createGroup("Temperature Controller 1",
-				InternalImage.FURNACE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A-T/C",
-						InternalImage.A.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueB", "TC1B-T/C",
-						InternalImage.B.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C-T/C",
-						InternalImage.C.getImage(), null)
-				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D-T/C",
-						InternalImage.D.getImage(), null)
-				.addDevice("/sample/tc1/heater/heaterOutput_1", "TC1H1-R/O",
-						InternalImage.ONE.getImage(), null)
-				.addDevice("/sample/tc1/heater/heaterOutput_2", "TC1H2-R/O",
-						InternalImage.TWO.getImage(), null);
-		configureWidget(deviceStatusWidget);
+//		PGroup tempControlGroup = createGroup("Temperature Controller 1",
+//				InternalImage.FURNACE.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
+//		deviceStatusWidget
+//				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A-T/C",
+//						InternalImage.A.getImage(), null)
+//				.addDevice("/sample/tc1/sensor/sensorValueB", "TC1B-T/C",
+//						InternalImage.B.getImage(), null)
+//				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C-T/C",
+//						InternalImage.C.getImage(), null)
+//				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D-T/C",
+//						InternalImage.D.getImage(), null)
+//				.addDevice("/sample/tc1/heater/heaterOutput_1", "TC1H1-R/O",
+//						InternalImage.ONE.getImage(), null)
+//				.addDevice("/sample/tc1/heater/heaterOutput_2", "TC1H2-R/O",
+//						InternalImage.TWO.getImage(), null);
+//		configureWidget(deviceStatusWidget);
 
-		PGroup tempControlGroup2 = createGroup("Temperature Controller 2",
-				InternalImage.FURNACE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup2, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/sample/tc2/sensor/sensorValueA", "TC2A-T/C",
-						InternalImage.A.getImage(), null)
-				.addDevice("/sample/tc2/sensor/sensorValueB", "TC2B-T/C",
-						InternalImage.B.getImage(), null)
-				.addDevice("/sample/tc2/sensor/sensorValueC", "TC2C-T/C",
-						InternalImage.C.getImage(), null)
-				.addDevice("/sample/tc2/sensor/sensorValueD", "TC2D-T/C",
-						InternalImage.D.getImage(), null)
-				.addDevice("/sample/tc2/heater/heaterOutput_1", "TC2H1-R/O",
-						InternalImage.ONE.getImage(), null)
-				.addDevice("/sample/tc2/heater/heaterOutput_2", "TC2H2-R/O",
-						InternalImage.TWO.getImage(), null);
-		configureWidget(deviceStatusWidget);
-
-		PGroup tc1Group = createGroup("TC1 Controller",
-				InternalImage.FURNACE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(tc1Group, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/sample/tc1/Loop1/sensor", "TC1_Loop1_Sensor",
-						InternalImage.A.getImage(), null)
-				.addDevice("/sample/tc1/Loop1/setpoint", "TC1_Loop1_Setpoint",
-						InternalImage.A.getImage(), null)
-				.addDevice("/sample/tc1/Loop2/sensor", "TC1_Loop2_Sensor",
-						InternalImage.B.getImage(), null)
-				.addDevice("/sample/tc1/Loop2/setpoint", "TC1_Loop2_Setpoint",
-						InternalImage.A.getImage(), null)
-				.addDevice("/sample/tc1/Loop3/sensor", "TC1_Loop3_Sensor",
-						InternalImage.C.getImage(), null)
-				.addDevice("/sample/tc1/Loop3/setpoint", "TC1_Loop3_Setpoint",
-						InternalImage.A.getImage(), null)
-				.addDevice("/sample/tc1/Loop4/sensor", "TC1_Loop4_Sensor",
-						InternalImage.D.getImage(), null)
-				.addDevice("/sample/tc1/Loop4/setpoint", "TC1_Loop4_Setpoint",
-						InternalImage.A.getImage(), null);
-		configureWidget(deviceStatusWidget);
+//		PGroup tempControlGroup2 = createGroup("Temperature Controller 2",
+//				InternalImage.FURNACE.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup2, SWT.NONE);
+//		deviceStatusWidget
+//				.addDevice("/sample/tc2/sensor/sensorValueA", "TC2A-T/C",
+//						InternalImage.A.getImage(), null)
+//				.addDevice("/sample/tc2/sensor/sensorValueB", "TC2B-T/C",
+//						InternalImage.B.getImage(), null)
+//				.addDevice("/sample/tc2/sensor/sensorValueC", "TC2C-T/C",
+//						InternalImage.C.getImage(), null)
+//				.addDevice("/sample/tc2/sensor/sensorValueD", "TC2D-T/C",
+//						InternalImage.D.getImage(), null)
+//				.addDevice("/sample/tc2/heater/heaterOutput_1", "TC2H1-R/O",
+//						InternalImage.ONE.getImage(), null)
+//				.addDevice("/sample/tc2/heater/heaterOutput_2", "TC2H2-R/O",
+//						InternalImage.TWO.getImage(), null);
+//		configureWidget(deviceStatusWidget);
+//
+//		PGroup tc1Group = createGroup("TC1 Controller",
+//				InternalImage.FURNACE.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(tc1Group, SWT.NONE);
+//		deviceStatusWidget
+//				.addDevice("/sample/tc1/Loop1/sensor", "TC1_Loop1_Sensor",
+//						InternalImage.A.getImage(), null)
+//				.addDevice("/sample/tc1/Loop1/setpoint", "TC1_Loop1_Setpoint",
+//						InternalImage.A.getImage(), null)
+//				.addDevice("/sample/tc1/Loop2/sensor", "TC1_Loop2_Sensor",
+//						InternalImage.B.getImage(), null)
+//				.addDevice("/sample/tc1/Loop2/setpoint", "TC1_Loop2_Setpoint",
+//						InternalImage.A.getImage(), null)
+//				.addDevice("/sample/tc1/Loop3/sensor", "TC1_Loop3_Sensor",
+//						InternalImage.C.getImage(), null)
+//				.addDevice("/sample/tc1/Loop3/setpoint", "TC1_Loop3_Setpoint",
+//						InternalImage.A.getImage(), null)
+//				.addDevice("/sample/tc1/Loop4/sensor", "TC1_Loop4_Sensor",
+//						InternalImage.D.getImage(), null)
+//				.addDevice("/sample/tc1/Loop4/setpoint", "TC1_Loop4_Setpoint",
+//						InternalImage.A.getImage(), null);
+//		configureWidget(deviceStatusWidget);
 
 		// Environment Group
 		PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",
