@@ -10,6 +10,11 @@
  ******************************************************************************/
 package au.gov.ansto.bragg.nbi.ui.realtime;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.gumtree.gumnix.sics.control.controllers.IComponentController;
 import org.gumtree.gumnix.sics.control.controllers.IComponentData;
 import org.gumtree.gumnix.sics.control.controllers.IDynamicController;
@@ -128,6 +133,17 @@ public class SicsRealtimeResource implements IRealtimeResource {
 			controller = getController(idOrPath);
 		}
 		return controller;
+	}
+	
+	public static List<IComponentController> getEnvironmentControllers() {
+		IComponentController parent = SicsCore.getSicsController().findComponentController("/control");
+		if (parent != null) {
+			IComponentController[] children = parent.getChildControllers();
+			if (children != null & children.length > 0) {
+				return Arrays.asList(children);
+			}
+		}
+		return new ArrayList<IComponentController>();
 	}
 	
 	public static IComponentController getDevice(String deviceId) {

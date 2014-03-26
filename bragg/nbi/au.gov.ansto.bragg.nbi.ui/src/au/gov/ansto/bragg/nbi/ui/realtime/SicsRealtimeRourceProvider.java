@@ -69,6 +69,18 @@ public class SicsRealtimeRourceProvider implements IRealtimeResourceProvider {
 				resourceList.add(resource);
 			}
 		}
+		List<IComponentController> environmentControllers = SicsRealtimeResource.getEnvironmentControllers();
+		for (IComponentController controller : environmentControllers) {
+			String id = controller.getId();
+			if (id.contains("SP")) {
+				id = id.replace("SP", "_Setpoint");
+			} else {
+				id = id.replace("S", "_Sensor");
+			}
+			SicsRealtimeResource resource = new SicsRealtimeResource(id);
+			resource.setFullName(controller.getPath());
+			resourceList.add(resource);
+		}
 		return resourceList;
 	}
 
