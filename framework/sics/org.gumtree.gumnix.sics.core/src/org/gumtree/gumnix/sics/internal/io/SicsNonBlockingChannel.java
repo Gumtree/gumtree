@@ -45,15 +45,17 @@ public class SicsNonBlockingChannel extends AbstractSicsChannel {
 
 	private Lock responseHandlingLock;
 	
+	private boolean isJSonProtocol;
 	// Internal use for login
 	private BlockingQueue<MessageContainer> incomingMessageQueue;
 	
-	protected SicsNonBlockingChannel(String channelId, SicsProxy sicsProxy) {
+	protected SicsNonBlockingChannel(String channelId, SicsProxy sicsProxy, boolean isJSonProtocol) {
 		super(channelId, sicsProxy);
 		channelHandler = new SicsChannelHandler();
 		incomingMessageQueue = new LinkedBlockingQueue<MessageContainer>();
 		executor = Executors.newFixedThreadPool(1);
 		responseHandlingLock = new ReentrantLock();
+		this.isJSonProtocol = isJSonProtocol;
 	}
 
 	public void login(ISicsConnectionContext context)
@@ -91,11 +93,13 @@ public class SicsNonBlockingChannel extends AbstractSicsChannel {
 			getLogger().info("Logined");
 			
 			// Set JSON protocol
-			channelHandler.write(SicsCommunicationConstants.CMD_SET_JSON_PROTOCOL);
-			reply = incomingMessageQueue.poll(5, TimeUnit.SECONDS).getMessage();
-			if (reply == null) {
-				setChannelState(ChannelState.DISCONNECTED);
-				throw new SicsIOException("Failed to connect.");
+			if (isJSonProtocol) {
+				channelHandler.write(SicsCommunicationConstants.CMD_SET_JSON_PROTOCOL);
+				reply = incomingMessageQueue.poll(5, TimeUnit.SECONDS).getMessage();
+				if (reply == null) {
+					setChannelState(ChannelState.DISCONNECTED);
+					throw new SicsIOException("Failed to connect.");
+				}
 			}
 			incomingMessageQueue.clear();
 			channelHandler.getSicsChannelReader().setIncomingMessageQueue(getSicsProxy().getIncomingMessageQueue());

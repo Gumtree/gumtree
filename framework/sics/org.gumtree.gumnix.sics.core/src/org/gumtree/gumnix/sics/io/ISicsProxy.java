@@ -18,7 +18,7 @@ public interface ISicsProxy {
 
 	public static final String CHANNEL_STATUS = "status";
 
-	public static final String CHANNEL_BATCH = "batch";
+//	public static final String CHANNEL_BATCH = "batch";
 
 	public static final String CHANNEL_ZIP_DATA = "zipdata";
 

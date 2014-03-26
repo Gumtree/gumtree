@@ -62,4 +62,13 @@ public class SicsServerAdapter extends TelnetAdapter {
 		return new IAction[] { new BatchUploadAction(this) };
 	}
 
+	@Override
+	public void disconnect() {
+		try {
+			send("logoff");
+		} catch (CommunicationAdapterException e) {
+			e.printStackTrace();
+		}
+		super.disconnect();
+	}
 }
