@@ -1,6 +1,8 @@
 package org.gumtree.gumnix.sics.internal.io;
 
 import java.io.IOException;
+import java.net.StandardSocketOptions;
+import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,6 +80,7 @@ public class SicsNonBlockingChannel extends AbstractSicsChannel {
 			}
 			incomingMessageQueue.clear();
 			setChannelState(ChannelState.CONNECTED);
+			channelHandler.setKeepAliveOption();
 			getLogger().info("Connected.");
 			
 			// Login
@@ -230,6 +233,7 @@ public class SicsNonBlockingChannel extends AbstractSicsChannel {
 			// setup output chain
 			stringToByteBufferTransformer = new StringToByteBufferTransformer();
 			stringToByteBufferTransformer.setNextForwarder(writer);
+			
 		}
 		
 		protected void write(String data) throws IOException {
@@ -267,6 +271,15 @@ public class SicsNonBlockingChannel extends AbstractSicsChannel {
 		public void closeChannel(){
 			try {
 				handlerAdapter.closeChannel();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		public void setKeepAliveOption() {
+			try {
+				((SocketChannel) handlerAdapter.getChannel()).setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
