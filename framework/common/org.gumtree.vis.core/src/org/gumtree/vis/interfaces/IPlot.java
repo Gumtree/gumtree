@@ -232,4 +232,7 @@ public interface IPlot {
 	public void setTextInputCursorIndex(int textInputCursorIndex);
 
 	public boolean isCurrentlyInputtingText();
+
+	public abstract void removeSelectedText();
+	
 }

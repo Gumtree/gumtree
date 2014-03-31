@@ -47,6 +47,7 @@ public class ChartTransferableWithMask implements Transferable {
 
     LinkedHashMap<AbstractMask, Color> masks;
     private LinkedHashMap<Shape, Color> shapeMap;
+    private LinkedHashMap<Rectangle2D, String> textContentMap;
 	private Rectangle2D dataArea;
 	
 	/**
@@ -85,7 +86,16 @@ public class ChartTransferableWithMask implements Transferable {
 		this.shapeMap = shapeMap;
 	}
 	
-    /**
+    public ChartTransferableWithMask(JFreeChart chart, int width,
+			int height, Rectangle2D dataArea,
+			LinkedHashMap<AbstractMask, Color> masks,
+			LinkedHashMap<Shape, Color> shapeMap,
+			LinkedHashMap<Rectangle2D, String> textContents) {
+		this(chart, width, height, dataArea, masks, shapeMap);
+		this.textContentMap = textContents;
+	}
+
+	/**
      * Returns the data flavors supported.
      * 
      * @return The data flavors supported.
@@ -119,6 +129,7 @@ public class ChartTransferableWithMask implements Transferable {
         drawMasksInDataArea(g2, dataArea != null ? dataArea : 
         	new Rectangle2D.Double(0, 0, width, height), masks, chart);
         ChartMaskingUtilities.drawShapes(g2, dataArea, shapeMap, chart);
+        ChartMaskingUtilities.drawText(g2, dataArea, textContentMap, chart);
         g2.dispose();
         return image;
 	}

@@ -719,7 +719,7 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
                 = Toolkit.getDefaultToolkit().getSystemClipboard();
         Rectangle2D screenArea = getScreenDataArea();
         final ChartTransferableWithMask selection = new ChartTransferableWithMask(
-        		getChart(), getWidth(), getHeight(), screenArea, maskList, shapeMap);
+        		getChart(), getWidth(), getHeight(), screenArea, maskList, shapeMap, textContentMap);
         //TODO: the below command take too long to run. 6 seconds for Wombat data. 
         Cursor currentCursor = getCursor();
         setCursor(WAIT_CURSOR);
@@ -881,11 +881,11 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		if (filterIndex == 0) {
 			ChartMaskingUtilities.writeChartAsPNG(new File(filename), getChart(), 
 					getWidth(), getHeight(), null, getScreenDataArea(), 
-					maskList, shapeMap);
+					maskList, shapeMap, textContentMap);
 		} else if (filterIndex == 1) {
 			ChartMaskingUtilities.writeChartAsJPEG(new File(filename), getChart(),
 					getWidth(), getHeight(), null, getScreenDataArea(), maskList, 
-					shapeMap);
+					shapeMap, textContentMap);
 		} else if (filterIndex == 2) {
 			FileWriter fw = new FileWriter(filename);
 			BufferedWriter writer = new BufferedWriter (fw);
@@ -1658,6 +1658,7 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
         		maskList, null, getChart(), overallRatio);
         ChartMaskingUtilities.drawShapes(g2, dataArea, 
         		shapeMap, getChart());
+        ChartMaskingUtilities.drawText(g2, dataArea, textContentMap, getChart());
         plot.getDomainAxis().setLabelFont(domainFont);
         plot.getRangeAxis().setLabelFont(rangeFont);
         if (titleBlock != null) {
@@ -1998,6 +1999,15 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
 		rangeMarkerMap.remove(selectedMarker);
 		markerMap.remove(selectedMarker);
 		getXYPlot().setNotify(true);
+	}
+	
+	@Override
+	public void removeSelectedText() {
+		if (selectedTextWrapper != null) {
+			textContentMap.remove(selectedTextWrapper);
+			selectedTextWrapper = null;
+			repaint();
+		}
 	}
 	
 	@Override

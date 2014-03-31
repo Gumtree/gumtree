@@ -359,7 +359,8 @@ public class ChartMaskingUtilities {
      */
     public static void writeChartAsJPEG(File file, JFreeChart chart,
             int width, int height, ChartRenderingInfo info, Rectangle2D imageArea, 
-            LinkedHashMap<AbstractMask, Color> maskList, LinkedHashMap<Shape, Color> shapeMap)
+            LinkedHashMap<AbstractMask, Color> maskList, LinkedHashMap<Shape, Color> shapeMap,
+            LinkedHashMap<Rectangle2D, String> textContentMap)
             throws IOException {
 
         if (file == null) {
@@ -374,6 +375,7 @@ public class ChartMaskingUtilities {
         Graphics2D g2 = image.createGraphics();
         drawMasks(g2, imageArea, maskList, null, chart);
         drawShapes(g2, imageArea, shapeMap, chart);
+        drawText(g2, imageArea, textContentMap, chart);
         g2.dispose();
         try{
         	EncoderUtil.writeBufferedImage(image, ImageFormat.JPEG, out);
@@ -403,7 +405,8 @@ public class ChartMaskingUtilities {
     public static void writeChartAsPNG(File file, JFreeChart chart,
             int width, int height, ChartRenderingInfo info, 
             Rectangle2D imageArea, LinkedHashMap<AbstractMask, Color> maskList, 
-            LinkedHashMap<Shape, Color> shapeMap) 
+            LinkedHashMap<Shape, Color> shapeMap, 
+            LinkedHashMap<Rectangle2D, String> textContentMap) 
     throws IOException {
 
         if (file == null) {
@@ -418,6 +421,7 @@ public class ChartMaskingUtilities {
         Graphics2D g2 = chartImage.createGraphics();
         drawMasks(g2, imageArea, maskList, null, chart);
         drawShapes(g2, imageArea, shapeMap, chart);
+        drawText(g2, imageArea, textContentMap, chart);
         g2.dispose();
         try{
         	ChartUtilities.writeBufferedImageAsPNG(out, chartImage);
@@ -476,6 +480,57 @@ public class ChartMaskingUtilities {
 			Color color = shapeEntry.getValue();
 			drawShape(g2, imageArea, shape, color, chart);
 		}
+	}
+
+	public static void drawText(Graphics2D g2, Rectangle2D imageArea,
+			LinkedHashMap<Rectangle2D, String> textContentMap, JFreeChart chart) {
+		if (textContentMap == null || textContentMap.size() == 0) {
+			return;
+		}
+//		for (Entry<Rectangle2D, String> textEntry : textMap.entrySet()) {
+//			Rectangle2D rect = textEntry.getKey();
+//			String text = textEntry.getValue();
+//			drawText(g2, imageArea, rect, text, chart);
+//		}
+		Color oldColor = g2.getColor();
+		g2.setColor(Color.BLACK);
+		for (Entry<Rectangle2D, String> entry : textContentMap.entrySet()) {
+			Rectangle2D rect = entry.getKey();
+			Point2D screenPoint = ChartMaskingUtilities.translateChartPoint(new Point2D.Double(rect.getX(), rect.getY()), imageArea, chart);
+			String text = entry.getValue();
+			if (text == null) {
+				continue;
+			}
+			String[] lines = text.split("\n");
+			g2.setColor(Color.BLACK);
+			for (int i = 0; i < lines.length; i++) {
+				g2.drawString(lines[i], (int) screenPoint.getX() + 3, (int) screenPoint.getY() - 3 + i * 15);
+			}
+//			if (rect == selectedTextWrapper) {
+//				FontMetrics fm = g2.getFontMetrics();
+//				int maxWidth = 0;
+//				int maxHeight = 0;
+//				for (int i = 0; i < lines.length; i++) {
+//					int lineWidth = fm.stringWidth(lines[i]);
+//					if (lineWidth > maxWidth) {
+//						maxWidth = lineWidth;
+//					}
+//				}
+//				maxHeight = 15 * lines.length;
+//				if (maxWidth < 100) {
+//					maxWidth = 100;
+//				}
+//				Rectangle2D inputBox = new Rectangle2D.Double(screenPoint.getX(), screenPoint.getY() - 15, maxWidth + 8, maxHeight);
+//		        Color fillColor = new Color(250, 250, 50, 30);
+//		        g2.setPaint(fillColor);
+//		        g2.fill(inputBox);
+//				g2.setColor(Color.ORANGE);
+//				g2.drawRect((int) screenPoint.getX(), (int) screenPoint.getY() - 15, maxWidth + 8, maxHeight);
+//
+//			}
+//			g2.drawString(text == null ? "" : text, (int) screenPoint.getX() + 3, (int) screenPoint.getY() - 3);
+		}
+		g2.setColor(oldColor);
 	}
 
 	public static void drawShapes(Graphics2D g2, Rectangle2D imageArea,

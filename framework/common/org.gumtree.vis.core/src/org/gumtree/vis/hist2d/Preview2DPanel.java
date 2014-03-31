@@ -1151,4 +1151,10 @@ public class Preview2DPanel extends JPanel implements IPreview2D, Printable {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public void removeSelectedText() {
+		// TODO Auto-generated method stub
+		
+	}
 }

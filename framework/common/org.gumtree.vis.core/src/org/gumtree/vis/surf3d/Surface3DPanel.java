@@ -1055,4 +1055,10 @@ public class Surface3DPanel extends JPanel implements ISurf3D, Printable {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public void removeSelectedText() {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -176,6 +176,7 @@ public class PlotComposite extends Composite{
 					switch (event.keyCode) {
 					case SWT.DEL:
 						plot.removeSelectedMask();
+						plot.removeSelectedText();
 						break;
 					default:
 						break;
@@ -497,7 +498,7 @@ public class PlotComposite extends Composite{
 						default:
 							if (plot.isCurrentlyInputtingText()) {
 								if (Character.isWhitespace(event.character) && event.keyCode != SWT.SPACE) {
-									if (event.keyCode == SWT.CR || event.keyCode == SWT.LF) {
+									if (event.keyCode == SWT.CR || event.keyCode == SWT.LF || event.keyCode == 16777296) {
 										addStringToTextInput("\n", plot.getTextInputCursorIndex());
 									} 
 								} else {

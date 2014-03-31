@@ -1044,4 +1044,10 @@ public class CompositePanel extends JPanel implements ICompositePlot,
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public void removeSelectedText() {
+		// TODO Auto-generated method stub
+		
+	}
 }
