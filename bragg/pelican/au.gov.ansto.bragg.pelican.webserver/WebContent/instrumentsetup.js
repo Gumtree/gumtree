@@ -1,4 +1,5 @@
 var title = "Pelican Status";
+var batchEnabled = true;
 var devices = [
                {"group":"BEAM STATUS", 
             	   "items":[{"classId":"reactor_power", "deviceId":"reactor_power", "title":"Reactor Power", "units":"MW"},  

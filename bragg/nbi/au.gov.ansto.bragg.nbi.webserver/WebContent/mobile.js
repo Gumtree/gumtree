@@ -6,6 +6,7 @@ try {
 
 $.support.cors = true;
 
+var evEnabled = false;
 var refresh = function(){
 	var url = "ns/rest/hdbs?devices=";
 	for (var i = 0; i < nsItems.length; i++) {
@@ -54,6 +55,31 @@ var refresh = function(){
 				$("#sicsServer").css("color", "black");
 			}
 		});
+		if (batchEnabled) {
+			$.get("sics/rest/batch", {"timestamp" : new Date().getTime()}, function(data,status){
+				if (status == "success") {
+					var obj = jQuery.parseJSON(data);
+					$("#runnerStatus").text(obj.status);
+					if (obj.status == "IDLE") {
+						$("#runnerStatus").css("color", "#00c400");
+					} else if (obj.status == "EXECUTING") {
+						$("#runnerStatus").css("color", "#FFA500");
+					} else if (obj.status == "PREPARING") {
+						$("#runnerStatus").css("color", "#0000c4");
+					} else  {
+						$("#runnerStatus").text("DISCONNECTED");
+						$("#runnerStatus").css("color", "#c40000");
+					}
+					if (obj.status == "EXECUTING") {
+						$("#tclScript").text(obj.name);
+						$("#runningCode").text(obj.text);
+					} else {
+						$("#tclScript").text("--");
+						$("#runningCode").text("--");
+					}
+				} 
+			});
+		}
 		if (!isMobileBrowser && histmemUrl != null) {
 			var imgUrl = histmemUrl + "&timestamp=" + new Date().getTime();
 			try{
@@ -149,6 +175,32 @@ var refresh = function(){
 		}
 	});
 	
+	var url = "sics/rest/group?path=" + encodeURIComponent("/control");
+	$.get(url,function(data,status){
+		if (status == "success") {
+			var obj = jQuery.parseJSON(data);
+			if (obj.hdbs.length > 0) {
+				if (!evEnabled) {
+					$("#deviceList").append('<li class="ui-li ui-li-divider ui-bar-d ui-first-child" role="heading" data-role="list-divider">ENVIRONMENT CONTROLS</li>');
+					for ( var i = 0; i < obj.hdbs.length; i++) {
+						$("#deviceList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">' + obj.hdbs[i].id + ': </div> <div class="div-inlist" id="' + obj.hdbs[i].id + '">' + obj.hdbs[i].value + '</div></li>');
+					}
+					evEnabled = true;
+				} else {
+					for ( var i = 0; i < obj.hdbs.length; i++) {
+						$("#" + obj.hdbs[i].id).text(obj.hdbs[i].value);
+					}
+				}
+			}
+		}
+	});
+	
+//	url = "sics/rest/group?path=" + encodeURIComponent("/control");
+//	$.get(url,function(data,status){
+//		if (status == "success") {
+//			alert(data);
+//		}
+//	});
 };
 
 var timerObject = {
@@ -158,6 +210,13 @@ var timerObject = {
 jQuery(document).ready(function(){
 	$(document).attr("title", title);
 	$('#titleString').text(title);
+	
+	if (batchEnabled) {
+		$("#serviceList").append('<li data-role="list-divider">TCL Batch Runner</li>');
+		$("#serviceList").append('<li><div class="div-inlist-left">Runner Status:</div> <div class="div-inlist" id="runnerStatus">--</div></li>');
+		$("#serviceList").append('<li><div class="div-inlist-left">Script Name:</div> <div class="div-inlist" id="tclScript">--</div></li>');
+		$("#serviceList").append('<li><div class="div-inlist-left">Running Code:</div> <div class="div-inlist" id="runningCode">--</div></li>');
+	}
 	
 	$("#deviceList").append('<li class="ui-li ui-li-divider ui-bar-d ui-first-child" role="heading" data-role="list-divider">NEUTRON SOURCE</li>');
 	for (i = 0; i < nsItems.length; i++) {
@@ -172,6 +231,7 @@ jQuery(document).ready(function(){
 	}
 
 	$('#deviceList').listview('refresh');
+	$('#serviceList').listview('refresh');
 	
 	$("#getDom").click(function() {
 		refresh();
@@ -216,6 +276,8 @@ jQuery(document).ready(function(){
 	
 	jQuery.support.cors = true;
 	$.support.cors = true;
+	
+	
 	refresh();
 });
 

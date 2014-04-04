@@ -1,4 +1,5 @@
 var title = "Taipan Status";
+var batchEnabled = true;
 var devices = [
                {"group":"BEAM STATUS", 
             	   "items":[{"classId":"monitor_time", "deviceId":"monitor_time", "title":"Time of Counting", "units":"s"}, 

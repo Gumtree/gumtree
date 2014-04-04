@@ -1,4 +1,5 @@
 var title = "Dingo Status";
+var batchEnabled = true;
 var devices = [
                {"group":"CAMERA STATUS", 
             	   "items":[{"classId":"plc_secondary", "deviceId":"plc_secondary", "title":"Secondary Shutter", "units":""},

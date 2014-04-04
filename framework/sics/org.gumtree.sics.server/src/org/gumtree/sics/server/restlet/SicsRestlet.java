@@ -8,6 +8,8 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import org.gumtree.core.object.IDisposable;
+import org.gumtree.sics.batch.BatchBufferManagerStatus;
+import org.gumtree.sics.batch.IBatchBufferManager;
 import org.gumtree.sics.control.ControllerCallbackAdapter;
 import org.gumtree.sics.control.IDynamicController;
 import org.gumtree.sics.control.ISicsController;
@@ -38,6 +40,10 @@ public class SicsRestlet extends Restlet implements IDisposable {
 	
 	private static final String PART_DEVICES = "devices";
 	
+	private static final String PART_GROUP = "group";
+	
+	private static final String PART_BATCH = "batch";
+	
 	private static final String PART_STATUS = "status";
 	
 	private static final String QUERY_FORMAT = "format";
@@ -47,6 +53,8 @@ public class SicsRestlet extends Restlet implements IDisposable {
 	private static final String QUERY_JSON_CALLBACK = "jsoncallback";
 	
 	private static final String QUERY_DEVICS = "devices";
+	
+	private static final String QUERY_GROUP = "path";
 	
 	private static final String QUERY_COMPONENTS = "components";
 	
@@ -80,6 +88,12 @@ public class SicsRestlet extends Restlet implements IDisposable {
         	} else if (pathTokens[0].equals(PART_DEVICES)) {
         		// Devices request
         		handleDevicesRequests(request, response, queryForm);
+        	} else if (pathTokens[0].equals(PART_GROUP)) {
+        		// Devices request
+        		handleHdbGroupRequest(request, response, queryForm);
+        	} else if (pathTokens[0].equals(PART_BATCH)) {
+        		// Devices request
+        		handleBatchRequest(request, response, queryForm);
         	} else if (pathTokens[0].equals(PART_STATUS)) {
         		// Specific sics request
         		handleSicsRequest(request, response, queryForm);
@@ -110,6 +124,84 @@ public class SicsRestlet extends Restlet implements IDisposable {
 			// Controller not found
 			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
 		}
+	}
+	
+	private void handleHdbGroupRequest(Request request, Response response, Form queryForm) {
+		JSONArray array = new JSONArray();
+		
+		// Get devices
+		String devicesQuery = queryForm.getValues(QUERY_GROUP);
+		if (devicesQuery != null) {
+			ISicsController controller = getSicsManager()
+					.getServerController().findChild(devicesQuery);
+			ISicsController[] children = controller.getChildren();
+			for (ISicsController child : children){
+				try {
+					JSONObject controllerValues = createComponentJSONRepresentation(
+							request, child, false);
+					array.put(controllerValues);
+				} catch (Exception e) {
+					logger.error(
+							"Failed to get JSON representation for device "
+									+ devicesQuery, e);
+				}
+			}
+		}
+		
+		
+		// Write result
+		try {
+			JSONObject result = new JSONObject();
+			result.put("hdbs", array);
+			writeJSONObject(response, queryForm, result);
+		} catch (JSONException e) {
+			response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+		}
+	}
+
+	private void handleBatchRequest(Request request, Response response, Form queryForm) {
+		
+		// Get devices
+		JSONObject result = new JSONObject();
+		IBatchBufferManager bufferManager = getSicsManager().getBufferManager();
+		BatchBufferManagerStatus bufferStatus = bufferManager.getStatus();
+		try {
+			result.put("status", bufferStatus);
+			if (bufferStatus == BatchBufferManagerStatus.EXECUTING) {
+				String bufferName = bufferManager.getRunningBuffername();
+				String runningText = bufferManager.getRunningText();
+				String bufferContent = bufferManager.getRunningBufferContent();
+				String bufferRange = bufferManager.getRunningBufferRangeString();
+				result.put("name", bufferName);
+				result.put("text", runningText);
+				result.put("content", bufferContent);
+				result.put("range", bufferRange);
+			}
+			writeJSONObject(response, queryForm, result);
+		} catch (JSONException e) {
+			response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+		}
+
+//		String devicesQuery = queryForm.getValues(QUERY_GROUP);
+//		if (devicesQuery != null) {
+//			ISicsController controller = getSicsManager()
+//					.getServerController().findChild(devicesQuery);
+//			ISicsController[] children = controller.getChildren();
+//			for (ISicsController child : children){
+//				try {
+//					JSONObject controllerValues = createComponentJSONRepresentation(
+//							request, child, false);
+//					array.put(controllerValues);
+//				} catch (Exception e) {
+//					logger.error(
+//							"Failed to get JSON representation for device "
+//									+ devicesQuery, e);
+//				}
+//			}
+//		}
+		
+		
+		// Write result
 	}
 	
 	private void handleHdbRequests(Request request, Response response, Form queryForm) {

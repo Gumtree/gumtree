@@ -1,4 +1,5 @@
 var title = "Kowari Status";
+var batchEnabled = true;
 var devices = [
                {"group":"BEAM STATUS", 
             	   "items":[{"classId":"plc_tertiary", "deviceId":"plc_tertiary", "title":"Sample Shutter", "units":""},

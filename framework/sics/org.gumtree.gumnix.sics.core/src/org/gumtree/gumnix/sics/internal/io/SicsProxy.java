@@ -194,9 +194,13 @@ public class SicsProxy implements ISicsProxy {
 			throw new SicsIOException("Not connected");
 		}
 //		getChannels().get(channelId).send(command, callback);
+		if (channelId == null || channelId.length() == 0) {
+			channelId = CHANNEL_GENERAL;
+		}
 		AbstractSicsChannel channel = getChannels().get(channelId);
 		if (channel == null) {
-			channel = getChannels().get(CHANNEL_GENERAL);
+			throw new SicsIOException(channelId + " channel disconnected");
+//			channel = getChannels().get(CHANNEL_GENERAL);
 		}
 		channel.send(command, callback);
 	}

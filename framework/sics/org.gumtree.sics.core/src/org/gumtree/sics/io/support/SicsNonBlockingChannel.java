@@ -82,7 +82,7 @@ public class SicsNonBlockingChannel extends AbstractSicsChannel {
 					incomingMessageQueue);
 			getSicsProxy().getDispatcher().registerClientSocketChannelHandler(
 					context.getHost(), context.getPort(), channelHandler);
-			String reply = incomingMessageQueue.poll(5, TimeUnit.SECONDS)
+			String reply = incomingMessageQueue.poll(10, TimeUnit.SECONDS)
 					.getMessage();
 			if (reply == null || !reply.startsWith("OK")) {
 				setChannelState(ChannelState.DISCONNECTED);

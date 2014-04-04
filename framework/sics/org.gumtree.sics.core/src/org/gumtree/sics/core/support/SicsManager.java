@@ -2,6 +2,8 @@ package org.gumtree.sics.core.support;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.gumtree.sics.batch.BatchBufferManager;
+import org.gumtree.sics.batch.IBatchBufferManager;
 import org.gumtree.sics.control.IServerController;
 import org.gumtree.sics.core.ISicsControllerProvider;
 import org.gumtree.sics.core.ISicsManager;
@@ -28,6 +30,8 @@ public class SicsManager implements ISicsManager {
 	private volatile ISicsControllerProvider controllerProvider;
 	
 	private volatile IServerController serverController;
+	
+	private volatile IBatchBufferManager bufferManager;
 	
 	private IEclipseContext context;
 	
@@ -158,6 +162,28 @@ public class SicsManager implements ISicsManager {
 	@Override
 	public String toString() {
 		return Objects.toStringHelper(this).add("proxy", getProxy()).toString();
+	}
+
+	/**
+	 * @return the bufferManager
+	 */
+	public IBatchBufferManager getBufferManager() {
+		if (bufferManager == null) {
+			synchronized (this) {
+				if (bufferManager == null) {
+					bufferManager = new BatchBufferManager(this);
+					bufferManager.setProxy(getProxy());
+				}
+			}
+		}
+		return bufferManager;
+	}
+
+	/**
+	 * @param bufferManager the bufferManager to set
+	 */
+	public void setBufferManager(IBatchBufferManager bufferManager) {
+		this.bufferManager = bufferManager;
 	}
 	
 }
