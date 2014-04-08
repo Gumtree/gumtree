@@ -1,7 +1,7 @@
 package org.gumtree.gumnix.sics.internal.io;
 
 import java.io.IOException;
-import java.net.StandardSocketOptions;
+//import java.net.StandardSocketOptions;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -278,12 +278,12 @@ public class SicsNonBlockingChannel extends AbstractSicsChannel {
 		}
 		
 		public void setKeepAliveOption() {
-			try {
-				((SocketChannel) handlerAdapter.getChannel()).setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+//				((SocketChannel) handlerAdapter.getChannel()).setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 	}
 	
