@@ -22,6 +22,7 @@ import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -34,6 +35,7 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
@@ -53,6 +55,7 @@ import org.gumtree.widgets.swt.util.UIResources;
 import org.gumtree.workflow.ui.AbstractTaskView;
 import org.gumtree.workflow.ui.ITaskView;
 
+import au.gov.ansto.bragg.quokka.experiment.model.PropertyList;
 import au.gov.ansto.bragg.quokka.experiment.model.Sample;
 import au.gov.ansto.bragg.quokka.experiment.util.ExperimentModelUtils;
 import au.gov.ansto.bragg.quokka.experiment.util.InstrumentOperationHelper;
@@ -75,6 +78,8 @@ public class SampleTask extends AbstractExperimentTask {
 	class SampleTaskView extends AbstractTaskView {
 
 		private Cursor handCursor;
+		
+		private Button fixedPositionButton;
 		
 		public void createPartControl(final Composite parent) {
 			parent.addPaintListener(new PaintListener() {
@@ -241,6 +246,34 @@ public class SampleTask extends AbstractExperimentTask {
 						BeansObservables.observeValue(sample, "description"),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
 				
+				runButton.addSelectionListener(new SelectionListener() {
+					
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						if (fixedPositionButton != null && fixedPositionButton.getSelection()){
+							PropertyList<Sample> samples = getExperiment().getSamples();
+							int numberOfSampe = 0;
+							for (Sample sample : samples) {
+								if (sample.isRunnable()) {
+									numberOfSampe ++;
+									if (numberOfSampe > 1) {
+										break;
+									}
+								}
+							}
+							if (numberOfSampe > 1) {
+								MessageDialog.openWarning(fixedPositionButton.getShell(), "Warning of fixing the sample holder", 
+										"The sample holder is currently fixed. However you've selected more than one sample positions. " +
+										"These sample positions will not be reached if the sample holder is fixed. ");
+							}
+						}
+						
+					}
+					
+					@Override
+					public void widgetDefaultSelected(SelectionEvent e) {
+					}
+				});
 				/*************************************************************
 				 * Trigger to set sample runnable if valid text is entered
 				 *************************************************************/
@@ -294,11 +327,37 @@ public class SampleTask extends AbstractExperimentTask {
 			/*****************************************************************
 			 * Use fixed position
 			 *****************************************************************/
-			Button fixedPositionButton = getToolkit().createButton(parent, "Fix Sample Holder", SWT.CHECK);
+			fixedPositionButton = getToolkit().createButton(parent, "Fix Sample Holder", SWT.CHECK);
 			fixedPositionButton.setFont(UIResources.getDefaultFont(SWT.BOLD));
 			GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, false).applyTo(fixedPositionButton);
 			DataBindingContext bindingContext = new DataBindingContext();
 			bindingContext.bindValue(SWTObservables.observeSelection(fixedPositionButton), BeansObservables.observeValue(getExperiment(), "fixedSamplePosition"));
+			fixedPositionButton.addSelectionListener(new SelectionListener() {
+				
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (fixedPositionButton.getSelection()) {
+						PropertyList<Sample> samples = getExperiment().getSamples();
+						int numberOfSampe = 0;
+						for (Sample sample : samples) {
+							if (sample.isRunnable()) {
+								numberOfSampe ++;
+								if (numberOfSampe > 1) {
+									break;
+								}
+							}
+						}
+						if (numberOfSampe > 1) {
+							MessageDialog.openWarning(fixedPositionButton.getShell(), "Warning of fixing the sample holder", 
+									"You have more than one sample selected in the table. Please review if you want to fix the sample holder.");
+						}
+					}
+				}
+				
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+				}
+			});
 			
 			
 			/*****************************************************************
