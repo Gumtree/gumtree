@@ -31,35 +31,35 @@ var devices = [
             	            {"classId":"currpoint", "deviceId":"currpoint", "title":"Scan Point", "units":""}
             	   ]
                },
-//               {"group":"TEMPERATURE CONTROLLER", 
-//            	   "items":[{"classId":"sensorValueA", "deviceId":"/sample/tc1/sensor/sensorValueA", "title":"Sensor A", "units":"K"},
-//            	            {"classId":"sensorValueB", "deviceId":"/sample/tc1/sensor/sensorValueB", "title":"Sensor B", "units":"K"},
-//            	            {"classId":"sensorValueC", "deviceId":"/sample/tc1/sensor/sensorValueC", "title":"Sensor C", "units":"K"},
-//            	            {"classId":"sensorValueD", "deviceId":"/sample/tc1/sensor/sensorValueD", "title":"Sensor D", "units":"K"}
-//            	   ]
-//               },
-               {"group":"TEMPERATURE CONTROLLER 9", 
-            	   "items":[
+               {"group":"TEMPERATURE CONTROLLER", 
+            	   "items":[{"classId":"sensorValueA", "deviceId":"/sample/tc1/sensor/sensorValueA", "title":"Sensor A", "units":"K"},
+            	            {"classId":"sensorValueB", "deviceId":"/sample/tc1/sensor/sensorValueB", "title":"Sensor B", "units":"K"},
+            	            {"classId":"sensorValueC", "deviceId":"/sample/tc1/sensor/sensorValueC", "title":"Sensor C", "units":"K"},
+            	            {"classId":"sensorValueD", "deviceId":"/sample/tc1/sensor/sensorValueD", "title":"Sensor D", "units":"K"}
+            	   ]
+               },
+//               {"group":"TEMPERATURE CONTROLLER 1", 
+//            	   "items":[
 //            	            {"classId":"tc1SensorB", "deviceId":"/sample/tc1/sensor/sensorValueB", "title":"TC1 Sensor B", "units":"K"},
 //            	            {"classId":"tc3Driveable", "deviceId":"/sample/tc3/sensor/setpoint1", "title":"TC3 Driveable", "units":"K"},
 //            	            {"classId":"tc1Driveable", "deviceId":"/sample/tc1/sensor/setpoint1", "title":"TC1 Driveable", "units":"K"}
-							{"classId":"tc9Sensor1", "deviceId":"/sample/tc9/Loop1/sensor", "title":"TC9 Loop1 Sensor", "units":"K"},
-							{"classId":"tc9Sensor2", "deviceId":"/sample/tc9/Loop2/sensor", "title":"TC9 Loop2 Sensor", "units":"K"},
-							{"classId":"tc9Sensor3", "deviceId":"/sample/tc9/Loop3/sensor", "title":"TC9 Loop3 Sensor", "units":"K"},
-							{"classId":"tc9Sensor4", "deviceId":"/sample/tc9/Loop4/sensor", "title":"TC9 Loop4 Sensor", "units":"K"},
-							{"classId":"tc9Setpoint1", "deviceId":"/sample/tc9/Loop1/setpoint", "title":"TC9 Loop1 Setpoint", "units":"K"},
-							{"classId":"tc9Setpoint2", "deviceId":"/sample/tc9/Loop2/setpoint", "title":"TC9 Loop2 Setpoint", "units":"K"},
-							{"classId":"tc9Setpoint3", "deviceId":"/sample/tc9/Loop3/setpoint", "title":"TC9 Loop3 Setpoint", "units":"K"},
-							{"classId":"tc9Setpoint4", "deviceId":"/sample/tc9/Loop4/setpoint", "title":"TC9 Loop4 Setpoint", "units":"K"}
-            	   ]
-               },
-               {"group":"TEMPERATURE CONTROLLER 2", 
-            	   "items":[
-							{"classId":"tc2Sensor", "deviceId":"/sample/tc2/Sensor/value", "title":"TC2 Sensor", "units":"K"},
-							{"classId":"tc2Setpoint", "deviceId":"/sample/tc2/setpoint", "title":"TC2 Setpoint", "units":"K"},
-							{"classId":"DilutTemp", "deviceId":"/sample/magnetic/DilutTempReading", "title":"Dilut Temp", "units":"K"}
-            	   ]
-               }
+//							{"classId":"tc9Sensor1", "deviceId":"/sample/tc9/Loop1/sensor", "title":"TC9 Loop1 Sensor", "units":"K"},
+//							{"classId":"tc9Sensor2", "deviceId":"/sample/tc9/Loop2/sensor", "title":"TC9 Loop2 Sensor", "units":"K"},
+//							{"classId":"tc9Sensor3", "deviceId":"/sample/tc9/Loop3/sensor", "title":"TC9 Loop3 Sensor", "units":"K"},
+//							{"classId":"tc9Sensor4", "deviceId":"/sample/tc9/Loop4/sensor", "title":"TC9 Loop4 Sensor", "units":"K"},
+//							{"classId":"tc9Setpoint1", "deviceId":"/sample/tc9/Loop1/setpoint", "title":"TC9 Loop1 Setpoint", "units":"K"},
+//							{"classId":"tc9Setpoint2", "deviceId":"/sample/tc9/Loop2/setpoint", "title":"TC9 Loop2 Setpoint", "units":"K"},
+//							{"classId":"tc9Setpoint3", "deviceId":"/sample/tc9/Loop3/setpoint", "title":"TC9 Loop3 Setpoint", "units":"K"},
+//							{"classId":"tc9Setpoint4", "deviceId":"/sample/tc9/Loop4/setpoint", "title":"TC9 Loop4 Setpoint", "units":"K"}
+//            	   ]
+//               },
+//               {"group":"TEMPERATURE CONTROLLER 2", 
+//            	   "items":[
+//							{"classId":"tc2Sensor", "deviceId":"/sample/tc2/Sensor/value", "title":"TC2 Sensor", "units":"K"},
+//							{"classId":"tc2Setpoint", "deviceId":"/sample/tc2/setpoint", "title":"TC2 Setpoint", "units":"K"},
+//							{"classId":"DilutTemp", "deviceId":"/sample/magnetic/DilutTempReading", "title":"Dilut Temp", "units":"K"}
+//            	   ]
+//               }
                ];
 
 var nsItems = [

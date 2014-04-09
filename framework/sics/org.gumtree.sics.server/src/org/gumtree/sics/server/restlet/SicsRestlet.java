@@ -170,12 +170,16 @@ public class SicsRestlet extends Restlet implements IDisposable {
 			if (bufferStatus == BatchBufferManagerStatus.EXECUTING) {
 				String bufferName = bufferManager.getRunningBuffername();
 				String runningText = bufferManager.getRunningText();
-				String bufferContent = bufferManager.getRunningBufferContent();
 				String bufferRange = bufferManager.getRunningBufferRangeString();
 				result.put("name", bufferName);
 				result.put("text", runningText);
-				result.put("content", bufferContent);
 				result.put("range", bufferRange);
+				try {
+					String bufferContent = bufferManager.getRunningBufferContent();
+					result.put("content", bufferContent);
+				} catch (Exception ex) {
+					result.put("content", ex.toString());
+				}
 			}
 			writeJSONObject(response, queryForm, result);
 		} catch (JSONException e) {
