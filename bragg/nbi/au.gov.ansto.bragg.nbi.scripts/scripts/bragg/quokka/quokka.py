@@ -611,12 +611,12 @@ def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_succe
             new_global_rate = getGlobalMapRate()
             
             start = time.time()
-#            while (new_local_rate == local_rate) or (new_local_rate == 0) or (new_global_rate == global_rate) or (new_global_rate == 0):
-#                if time.time() - start >= timeout:
-#                    raise Exception("Timeout in determineAveragedRates")
-#                time.sleep(0.5)
-#                new_local_rate = getMaxBinRate()
-#                new_global_rate = getGlobalMapRate()
+            while (new_local_rate == local_rate) or (new_local_rate == 0) or (new_global_rate == global_rate) or (new_global_rate == 0):
+                if time.time() - start >= timeout:
+                    raise Exception("Timeout in determineAveragedRates")
+                time.sleep(0.5)
+                new_local_rate = getMaxBinRate()
+                new_global_rate = getGlobalMapRate()
 
             local_rate = new_local_rate
             global_rate = new_global_rate
