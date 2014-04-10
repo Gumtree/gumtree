@@ -507,33 +507,26 @@ def scan(scanMode, dataType, preset, force='true', saveType=saveType.save):
     sics.hset(scanController, '/force', force)
 
     sics.execute('hset /instrument/dummy_motor 0', 'general')
-    sics.execute('hset /instrument/dummy_motor 1', 'scan')
     
-    sics.execute('hset ' + controllerPath + '/scan_variable dummy_motor', 'scan')
-    sics.execute('hset ' + controllerPath + '/scan_start 0', 'scan')
-    sics.execute('hset ' + controllerPath + '/scan_stop 0', 'scan')
-    sics.execute('hset ' + controllerPath + '/numpoints 1', 'scan')
+    sics.execute('hset ' + controllerPath + '/scan_variable dummy_motor', 'general')
+    sics.execute('hset ' + controllerPath + '/scan_start 0', 'general')
+    sics.execute('hset ' + controllerPath + '/scan_stop 0', 'general')
+    sics.execute('hset ' + controllerPath + '/numpoints 1', 'general')
     if (scanMode.key == 'monitor'):
-        sics.execute('hset ' + controllerPath + '/mode MONITOR_1', 'scan')
+        sics.execute('hset ' + controllerPath + '/mode MONITOR_1', 'general')
     else:
-        sics.execute('hset ' + controllerPath + '/mode ' + scanMode.key, 'scan')
-    sics.execute('hset ' + controllerPath + '/preset ' + str(preset), 'scan')
-    sics.execute('hset ' + controllerPath + '/datatype ' + dataType.key, 'scan')
-    sics.execute('hset ' + controllerPath + '/savetype ' + saveType.key, 'scan')
-    sics.execute('hset ' + controllerPath + '/force ' + force, 'scan')
+        sics.execute('hset ' + controllerPath + '/mode ' + scanMode.key, 'general')
+    sics.execute('hset ' + controllerPath + '/preset ' + str(preset), 'general')
+    sics.execute('hset ' + controllerPath + '/datatype ' + dataType.key, 'general')
+    sics.execute('hset ' + controllerPath + '/savetype ' + saveType.key, 'general')
+    sics.execute('hset ' + controllerPath + '/force ' + force, 'general')
 
-    sics.execute('hset /instrument/dummy_motor 2', 'general')
-    sics.execute('hset /instrument/dummy_motor 3', 'scan')
-    
     # Wait 1 sec to make the setting settle
     time.sleep(2)
     
     # Synchronously run scan
     scanController.syncExecute()
 
-    sics.execute('hset /instrument/dummy_motor 4', 'general')
-    sics.execute('hset /instrument/dummy_motor 5', 'scan')
-    
     # Get output filename
     filenameController = sicsController.findDeviceController('datafilename')
     savedFilename = filenameController.getValue().getStringData()
@@ -618,12 +611,12 @@ def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_succe
             new_global_rate = getGlobalMapRate()
             
             start = time.time()
-            while (new_local_rate == local_rate) or (new_local_rate == 0) or (new_global_rate == global_rate) or (new_global_rate == 0):
-                if time.time() - start >= timeout:
-                    raise Exception("Timeout in determineAveragedRates")
-                time.sleep(0.5)
-                new_local_rate = getMaxBinRate()
-                new_global_rate = getGlobalMapRate()
+#            while (new_local_rate == local_rate) or (new_local_rate == 0) or (new_global_rate == global_rate) or (new_global_rate == 0):
+#                if time.time() - start >= timeout:
+#                    raise Exception("Timeout in determineAveragedRates")
+#                time.sleep(0.5)
+#                new_local_rate = getMaxBinRate()
+#                new_global_rate = getGlobalMapRate()
 
             local_rate = new_local_rate
             global_rate = new_global_rate

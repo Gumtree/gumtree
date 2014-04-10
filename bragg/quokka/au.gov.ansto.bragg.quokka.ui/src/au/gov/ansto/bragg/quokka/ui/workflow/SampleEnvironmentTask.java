@@ -26,6 +26,8 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -132,25 +134,54 @@ public class SampleEnvironmentTask extends AbstractExperimentTask {
 			/*****************************************************************
 			 * Button logics
 			 *****************************************************************/
-			normalEnvButton.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(SelectionEvent e) {
+			normalEnvButton.addFocusListener(new FocusListener() {
+				
+				@Override
+				public void focusLost(FocusEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void focusGained(FocusEvent e) {
+					System.err.println("normal is selected");
 					setNormalEnvEnable(true);
 					setCustomEnvEnable(false);
-					if (normalEnvButton.getSelection()) {
+//					if (normalEnvButton.getSelection()) {
 						// Set model to normal environment mode
 						getExperiment().setControlledAcquisition(false);
-					}
+//					}
 					// Update UI
 					refreshUI();
 				}
 			});
-			controlledEnvButton.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(SelectionEvent e) {
+//			normalEnvButton.addSelectionListener(new SelectionAdapter() {
+//				public void widgetSelected(SelectionEvent e) {
+//					System.err.println("normal is " + normalEnvButton.);
+//					setNormalEnvEnable(true);
+//					setCustomEnvEnable(false);
+//					if (normalEnvButton.getSelection()) {
+//						// Set model to normal environment mode
+//						getExperiment().setControlledAcquisition(false);
+//					}
+//					// Update UI
+//					refreshUI();
+//				}
+//			});
+			controlledEnvButton.addFocusListener(new FocusListener() {
+				@Override
+				public void focusLost(FocusEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+				@Override
+				public void focusGained(FocusEvent e) {
+					System.err.println("control is selected");
 					setNormalEnvEnable(false);
 					setCustomEnvEnable(true);
 					getExperiment().setControlledAcquisition(true);
 					// Add default
-					if (controlledEnvButton.getSelection() && getExperiment().getSampleEnvironments().size() == 0) {
+					if (getExperiment().getSampleEnvironments().size() == 0) {
 						// Dispose on this new refresh
 						for (Control control : controlledEnvArea.getChildren()) {
 							control.dispose();
@@ -169,6 +200,32 @@ public class SampleEnvironmentTask extends AbstractExperimentTask {
 					refreshUI();
 				}
 			});
+//			controlledEnvButton.addSelectionListener(new SelectionAdapter() {
+//				public void widgetSelected(SelectionEvent e) {
+//					System.err.println("control is " + normalEnvButton.getSelection());
+//					setNormalEnvEnable(false);
+//					setCustomEnvEnable(true);
+//					getExperiment().setControlledAcquisition(true);
+//					// Add default
+//					if (controlledEnvButton.getSelection() && getExperiment().getSampleEnvironments().size() == 0) {
+//						// Dispose on this new refresh
+//						for (Control control : controlledEnvArea.getChildren()) {
+//							control.dispose();
+//						}
+//						Composite composite = getToolkit().createComposite(controlledEnvArea);
+//						GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(composite);
+//						if (getExperiment().hasEnvironmentControllers()) {
+//							// Create new sample environment
+//							SampleEnvironment sampleEnvironment = new SampleEnvironment(getExperiment());
+//							sampleEnvironment.setControllerId(getExperiment().getSampleEnvControllerIds().get(0));
+//							getExperiment().getSampleEnvironments().add(sampleEnvironment);
+//							createEnvironmentElement(composite, sampleEnvironment);
+//						}
+//					}
+//					// Update UI
+//					refreshUI();
+//				}
+//			});
 		}
 		
 		// Creates block for each controller setting
@@ -241,7 +298,7 @@ public class SampleEnvironmentTask extends AbstractExperimentTask {
 					sampleEnvironment.setControllerId(getExperiment().getSampleEnvControllerIds().get(0));
 					createEnvironmentElement(composite, sampleEnvironment);
 					controlledEnvArea.getParent().layout(true, true);
-					// TODO: This only works in worflow view but not the automator
+					// TODO: This only works in workflow view but not the automator
 					if (controlledEnvArea.getParent().getParent().getParent() instanceof ScrolledForm) {
 						ScrolledForm scrolledForm = (ScrolledForm) controlledEnvArea.getParent().getParent().getParent();
 						ScrollBar verticalBar = scrolledForm.getVerticalBar();

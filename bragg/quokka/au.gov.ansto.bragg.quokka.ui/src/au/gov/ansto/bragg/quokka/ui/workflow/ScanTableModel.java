@@ -21,6 +21,7 @@ import org.gumtree.ui.util.SafeUIRunner;
 import au.gov.ansto.bragg.quokka.experiment.model.Acquisition;
 import au.gov.ansto.bragg.quokka.experiment.model.AcquisitionEntry;
 import au.gov.ansto.bragg.quokka.experiment.model.AcquisitionSetting;
+import au.gov.ansto.bragg.quokka.experiment.model.ControlledAcquisition;
 import au.gov.ansto.bragg.quokka.experiment.model.Experiment;
 import au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfig;
 import au.gov.ansto.bragg.quokka.experiment.model.ScanMode;
@@ -364,6 +365,15 @@ public class ScanTableModel extends KTableDefaultModel {
 		}
 		// Get acquisition entry
 		AcquisitionEntry entry = acquisition.getEntries().get(entryIndex);
+		updateAcquisionEntry(entry, col, value);
+		if (!experiment.isControlledEnvironment() && (acquisition instanceof ControlledAcquisition)) {
+			entry = experiment.getNormalAcquisition().getEntries().get(entryIndex);
+			updateAcquisionEntry(entry, col, value);
+		} 
+		
+	}
+	
+	private void updateAcquisionEntry(AcquisitionEntry entry, int col, Object value) {
 		if (col == 0) {
 			entry.setRunnable((Boolean) value);
 			if (table != null) {
@@ -400,7 +410,6 @@ public class ScanTableModel extends KTableDefaultModel {
 			}
 		}
 	}
-	
 	/**
 	 * Helper method to retrieve the associated setting from a cell.
 	 * 
