@@ -55,7 +55,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -110,6 +109,7 @@ import au.gov.ansto.bragg.nbi.ui.scripting.pyobj.ScriptParameter.PType;
  * @author nxi
  *
  */
+@SuppressWarnings("restriction")
 public class ScriptControlViewer extends Composite {
 
 	private final static String FILENAME_NODE_PATH = "/experiment/file_name";
@@ -1050,6 +1050,21 @@ public class ScriptControlViewer extends Composite {
 				});
 			}
 		});
+		action.addPropertyChangeListener(new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(final PropertyChangeEvent evt) {
+				if (evt.getPropertyName().equals("enabled")) {
+					Display.getDefault().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							actionButton.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+						}
+					});
+				} 
+			}
+		});
 	}
 
 	private void addParameter(Composite parent, final ScriptParameter parameter) {
@@ -1110,7 +1125,7 @@ public class ScriptControlViewer extends Composite {
 					parameter.addPropertyChangeListener(new PropertyChangeListener() {
 
 						@Override
-						public void propertyChange(PropertyChangeEvent evt) {
+						public void propertyChange(final PropertyChangeEvent evt) {
 							if (evt.getPropertyName().equals("options")) {
 								Display.getDefault().asyncExec(new Runnable() {
 
@@ -1124,6 +1139,14 @@ public class ScriptControlViewer extends Composite {
 													parameter.getValue()));
 										}
 										comboBox.refresh();
+									}
+								});
+							} else if (evt.getPropertyName().equals("enabled")) {
+								Display.getDefault().asyncExec(new Runnable() {
+
+									@Override
+									public void run() {
+										comboBox.getCombo().setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
 									}
 								});
 							} 
