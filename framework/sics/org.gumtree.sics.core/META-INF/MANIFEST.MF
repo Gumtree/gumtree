@@ -12,7 +12,7 @@ Require-Bundle: org.json;bundle-version="1.0.0";visibility:=reexport,
  com.google.guava;bundle-version="11.0.1",
  com.db4o.java5;bundle-version="8.0.184"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.gumtree.sics.batch,
  org.gumtree.sics.control,
  org.gumtree.sics.control.support,
