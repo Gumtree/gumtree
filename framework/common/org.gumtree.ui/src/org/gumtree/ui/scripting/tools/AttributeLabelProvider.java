@@ -17,7 +17,9 @@ public class AttributeLabelProvider extends LabelProvider implements ITableLabel
 			if (columnIndex == 0) {
 				return attribute.getName();
 			} else if (columnIndex == 1) {
-				return attribute.getValue().getClass().getSimpleName();
+				if (attribute.getValue() != null) {
+					return attribute.getValue().getClass().getSimpleName();
+				}
 			}
 		}
 		return "";

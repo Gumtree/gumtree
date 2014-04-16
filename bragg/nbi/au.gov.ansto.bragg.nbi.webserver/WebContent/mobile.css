@@ -34,4 +34,18 @@ img, object{
     padding:1px;
     border:1px solid #021a40;
 }
-
+.div-textarea{
+	width: 300px;
+	height: 200px;
+	background-color: white;
+	overflow: scroll;
+	white-space: pre;
+	border: 2px;
+	line-height: 16px;
+}
+.div-highlight{
+	color: orange;
+}
+.div-normal{
+	color: black;
+}

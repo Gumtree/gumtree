@@ -14,7 +14,11 @@
 			import flash.events.TimerEvent;
 			import flash.utils.Timer;
             import mx.collections.ArrayCollection;
+            import mx.containers.Grid;
+            import mx.containers.GridRow;
+            import mx.containers.GridItem;
             import mx.controls.TextArea;
+            import mx.controls.Label;
             import mx.managers.BrowserManager;
 			import mx.managers.IBrowserManager;
 			import mx.messaging.channels.SecureAMFChannel;
@@ -94,6 +98,7 @@
          		// Set HM URL
          		hmImage.url = serverURL + "dae/rest/image?type=TOTAL_HISTOGRAM_XY&screen_size_x=800&screen_size_y=600";
          		
+         		httpServiceForBatch.url = serverURL + "sics/rest/batch";
          		// Update once
          		updateTimer(null);
          		
@@ -128,6 +133,7 @@
             	httpServiceForNS.send();
             	// Update server data
             	httpServiceForServer.send();
+            	httpServiceForBatch.send();
             	// Update HM data
 				hmImage.update();
             }
@@ -202,6 +208,48 @@
 				}
 			}
 
+			private function handleBatchData(event:ResultEvent):void
+			{
+				var rawData:String = String(event.result);
+				var result:Object = JSON.decode(rawData);
+				runnerStatus.text = result.status
+				if (result.status == "IDLE") {
+					runnerStatus.setStyle("color", "#00c400");
+					scriptName.text = "--";
+					scriptContent.text = "--";
+					scriptContent.setSelection(0, 0);
+				} else if (result.status == "EXECUTING") {
+					runnerStatus.setStyle("color", "#FFA500");
+					scriptName.text = result.name;
+					var content:String = result.content;
+					var lineFeeding:RegExp = /\n\n/g
+					content = content.replace(lineFeeding, "\n");
+					scriptContent.text = content;
+					scriptContent.setFocus();
+					var range:String = result.range;
+					var items:Array = range.split("=");
+					scriptContent.setSelection(0, Number(items[2]));
+					var scrollPosition:Number = Number(items[3]);
+					if (scrollPosition > 3){
+						scrollPosition = scrollPosition - 3;
+					} else {
+						scrollPosition = 0;
+					}
+//					scriptContent.setStyle("verticalScrollPosition", scrollPosition);
+					scriptContent.verticalScrollPosition = scrollPosition;
+				} else if (result.status == "PREPARING") {
+					runnerStatus.setStyle("color", "#0000c4");
+					scriptName.text = "--";
+					scriptContent.text = "--";
+					scriptContent.setSelection(0, 0);
+				} else  {
+					runnerStatus.setStyle("color", "#c40000");
+					scriptName.text = "--";
+					scriptContent.text = "--";
+					scriptContent.setSelection(0, 0);
+				}
+			}
+			
 			private function handleServerData(event:ResultEvent):void
 			{
 				var rawData:String = String(event.result);
@@ -265,6 +313,7 @@
 	<mx:HTTPService id="httpServiceForHdb" resultFormat="text" result="handleHdbData(event)" fault="handleFault(event)" />
 	<mx:HTTPService id="httpServiceForServer" resultFormat="text" result="handleServerData(event)" fault="handleFault(event)"/>
 	<mx:HTTPService id="httpServiceForNS" resultFormat="text" result="handleNSData(event)" fault="handleFault(event)" />
+	<mx:HTTPService id="httpServiceForBatch" resultFormat="text" result="handleBatchData(event)" fault="handleFault(event)" />
 	<mx:DateFormatter id="dateFormatter" formatString="YYYY-MM-DD HH:NN:SS A" />
 	
 	<!-- Effects -->
@@ -279,10 +328,10 @@
 
  		<!-- Instrument schematic -->
 
-		<mx:Panel width="308" height="489"
+		<mx:Panel width="308" height="474"
 			title="Instrument Configuration" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
 			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
-			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="662" y="163">
+			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="657" y="178">
 			<mx:Grid width="100%" borderStyle="none">
 				<mx:GridRow width="100%">
 					<mx:GridItem width="100%">
@@ -468,10 +517,10 @@
 				</mx:GridRow>
 			</mx:Grid>
 		</mx:Panel>
-		<mx:Panel width="308" height="145"
+		<mx:Panel width="308" height="160"
 			title="Server Status" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
 			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
-			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="662" y="10">
+			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="657" y="10">
 			<mx:Grid width="100%">
 				<mx:GridRow width="100%">
 					<mx:GridItem width="55%">
@@ -508,10 +557,10 @@
 				</mx:GridRow>
 			</mx:Grid>
 		</mx:Panel>
-		<mx:Panel horizontalGap="0" width="559" height="101"
+		<mx:Panel horizontalGap="0" width="308" height="160"
 			title="Reactor Status" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
 			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
-			cornerRadius="4" creationCompleteEffect="{wipeIn}" x="50" y="10">
+			cornerRadius="4" creationCompleteEffect="{wipeIn}" x="15" y="10">
 			<mx:Grid width="100%">
 				<mx:GridRow width="100%" height="100%">
 					<mx:GridItem width="100%" height="100%">
@@ -538,10 +587,6 @@
 									<mx:Label text="c/s"  width="50"/>
 								</mx:GridItem>
 							</mx:GridRow>
-						</mx:Grid>
-					</mx:GridItem>
-					<mx:GridItem width="100%" height="100%">
-						<mx:Grid>
 							<mx:GridRow width="100%">
 								<mx:GridItem width="55%">
 									<mx:Label text="Rate on Detector" textAlign="right" width="100%"/>
@@ -569,7 +614,29 @@
 				</mx:GridRow>
 			</mx:Grid>
 		</mx:Panel>
-        
+        <mx:Panel width="308" height="160"  x="335" y="10"
+			title="Scan Status" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
+			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
+			cornerRadius="4" creationCompleteEffect="{wipeIn}">
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="55%">
+						<mx:Label text="--" id="runnerStatus" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem width="45%">
+						<mx:TextArea id="scriptName" text="--" focusEnabled="false" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" />
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:Grid width="100%">
+				<mx:GridRow width="100%">
+					<mx:GridItem width="100%" height="88">
+						<mx:TextArea id="scriptContent" text="--" backgroundColor="#EEEEEE" editable="false" selectable="true" horizontalScrollPolicy="auto" verticalScrollPolicy="auto" borderStyle="solid" color="#111111" textAlign="right" width="100%" height="88"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+		</mx:Panel>
+
         <!-- Update control -->
 		<mx:ControlBar>
             <mx:Label id="lastUpdate" fontSize="12" text="Last updated:"/>

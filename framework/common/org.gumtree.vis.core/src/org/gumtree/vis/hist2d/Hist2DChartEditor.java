@@ -540,15 +540,18 @@ public class Hist2DChartEditor extends ExposedChartEditor implements KeyListener
 			roiCombo.addItem(newMask);
 			newMask = mask;
 			panel.addMask(newMask);
+			panel.fireMaskCreationEvent(newMask);
 		} else {
 			Object obj = roiCombo.getSelectedItem();
 			if (obj instanceof Abstract2DMask) {
 				changeMask((Abstract2DMask) obj);
 			}
+			panel.fireMaskUpdateEvent((Abstract2DMask) obj);
 		}
 		if (toDeleteMasks.size() > 0) {
 			for (Abstract2DMask mask : toDeleteMasks) {
 				panel.removeMask(mask);
+				panel.fireMaskRemovalEvent(mask);
 			}
 			toDeleteMasks.clear();
 		}

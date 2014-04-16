@@ -14,7 +14,11 @@
 			import flash.events.TimerEvent;
 			import flash.utils.Timer;
             import mx.collections.ArrayCollection;
+            import mx.containers.Grid;
+            import mx.containers.GridRow;
+            import mx.containers.GridItem;
             import mx.controls.TextArea;
+            import mx.controls.Label;
             import mx.managers.BrowserManager;
 			import mx.managers.IBrowserManager;
 			import mx.messaging.channels.SecureAMFChannel;
@@ -99,6 +103,8 @@
          		// Set HM URL
          		hmImage.url = serverURL + "dae/rest/image?type=TOTAL_HISTOGRAM_XT&screen_size_x=760&screen_size_y=760";
          		
+         		httpServiceForBatch.url = serverURL + "sics/rest/batch";
+         		
          		// Update once
          		updateTimer(null);
          		
@@ -133,6 +139,7 @@
             	httpServiceForNS.send();
             	// Update server data
             	httpServiceForServer.send();
+            	httpServiceForBatch.send();
             	// Update HM data
 				hmImage.update();
             }
@@ -186,7 +193,49 @@
 				connectionStatus.setStyle("backgroundColor", "#00c400");
 			}
 			
-						private function handleNSData(event:ResultEvent):void
+			private function handleBatchData(event:ResultEvent):void
+			{
+				var rawData:String = String(event.result);
+				var result:Object = JSON.decode(rawData);
+				runnerStatus.text = result.status
+				if (result.status == "IDLE") {
+					runnerStatus.setStyle("color", "#00c400");
+					scriptName.text = "--";
+					scriptContent.text = "--";
+					scriptContent.setSelection(0, 0);
+				} else if (result.status == "EXECUTING") {
+					runnerStatus.setStyle("color", "#FFA500");
+					scriptName.text = result.name;
+					var content:String = result.content;
+					var lineFeeding:RegExp = /\n\n/g
+					content = content.replace(lineFeeding, "\n");
+					scriptContent.text = content;
+					scriptContent.setFocus();
+					var range:String = result.range;
+					var items:Array = range.split("=");
+					scriptContent.setSelection(0, Number(items[2]));
+					var scrollPosition:Number = Number(items[3]);
+					if (scrollPosition > 4){
+						scrollPosition = scrollPosition - 4;
+					} else {
+						scrollPosition = 0;
+					}
+//					scriptContent.setStyle("verticalScrollPosition", scrollPosition);
+					scriptContent.verticalScrollPosition = scrollPosition;
+				} else if (result.status == "PREPARING") {
+					runnerStatus.setStyle("color", "#0000c4");
+					scriptName.text = "--";
+					scriptContent.text = "--";
+					scriptContent.setSelection(0, 0);
+				} else  {
+					runnerStatus.setStyle("color", "#c40000");
+					scriptName.text = "--";
+					scriptContent.text = "--";
+					scriptContent.setSelection(0, 0);
+				}
+			}
+			
+			private function handleNSData(event:ResultEvent):void
 			{
 				//get the raw JSON data and cast to String
 				var rawData:String = String(event.result);
@@ -282,6 +331,7 @@
 	<mx:HTTPService id="httpServiceForHdb" resultFormat="text" result="handleHdbData(event)" fault="handleFault(event)" />
 	<mx:HTTPService id="httpServiceForServer" resultFormat="text" result="handleServerData(event)" fault="handleFault(event)"/>
 	<mx:HTTPService id="httpServiceForNS" resultFormat="text" result="handleNSData(event)" fault="handleFault(event)" />
+	<mx:HTTPService id="httpServiceForBatch" resultFormat="text" result="handleBatchData(event)" fault="handleFault(event)" />
 	<mx:DateFormatter id="dateFormatter" formatString="YYYY-MM-DD HH:NN:SS A" />
 	
 	<!-- Effects -->
@@ -292,14 +342,14 @@
         width="1000" height="770" horizontalAlign="center" verticalAlign="top" fontSize="18" fontWeight="normal" backgroundColor="#000000" color="#FFFFFF" borderColor="#90CCFB" alpha="1.0" cornerRadius="3" layout="absolute">
  
  		<!-- Histogram image -->
- 		<gum:ImageView id="hmImage" width="480" height="320" left="60" bottom="120"/>
+ 		<gum:ImageView id="hmImage" width="480" height="320" left="60" bottom="60"/>
 
  		<!-- Instrument schematic -->
 
 		<mx:Panel width="308" height="510"
 			title="Instrument Configuration" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
 			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
-			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="662" y="163">
+			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="657" y="163">
 			<mx:Grid width="100%" borderStyle="none">
 				<mx:GridRow width="100%">
 					<mx:GridItem width="100%">
@@ -520,7 +570,7 @@
 		<mx:Panel width="308" height="131"
 			title="Server Status" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
 			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
-			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="662" y="10">
+			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="657" y="10">
 			<mx:Grid width="100%">
 				<mx:GridRow width="100%">
 					<mx:GridItem width="50%">
@@ -548,10 +598,32 @@
 				</mx:GridRow>
 			</mx:Grid>
 		</mx:Panel>
-		<mx:Panel horizontalGap="0" width="559" height="131"
+		<mx:Panel width="308" height="200" x="338" y="10" horizontalCenter="0"
+				title="Scan Status" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
+				borderStyle="solid" backgroundColor="#000000" borderThickness="2"
+				cornerRadius="6" creationCompleteEffect="{wipeIn}">
+				<mx:Grid width="100%">
+					<mx:GridRow width="100%">
+						<mx:GridItem width="55%">
+							<mx:Label text="--" id="runnerStatus" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="45%">
+							<mx:TextArea id="scriptName" text="--" focusEnabled="false" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" />
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+				<mx:Grid width="100%">
+					<mx:GridRow width="100%">
+						<mx:GridItem width="100%" height="126">
+							<mx:TextArea id="scriptContent" text="--" backgroundColor="#EEEEEE" editable="false" selectable="true" horizontalScrollPolicy="auto" verticalScrollPolicy="auto" borderStyle="solid" color="#111111" textAlign="right" width="100%" height="126"/>
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+		</mx:Panel>
+		<mx:Panel horizontalGap="0" width="308" height="200"
 			title="Beam Status" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
 			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
-			cornerRadius="4" creationCompleteEffect="{wipeIn}" x="50" y="10">
+			cornerRadius="4" creationCompleteEffect="{wipeIn}" x="15" y="10">
 			<mx:Grid width="100%">
 				<mx:GridRow width="100%" height="100%">
 					<mx:GridItem width="100%" height="100%">
@@ -569,32 +641,6 @@
 							</mx:GridRow>
 							<mx:GridRow width="100%">
 								<mx:GridItem width="55%">
-									<mx:Label text="Detector Counts" textAlign="right" width="100%"/>
-								</mx:GridItem>
-								<mx:GridItem>
-									<mx:TextArea id="detectorCounts" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="70"/>
-								</mx:GridItem>
-								<mx:GridItem>
-									<mx:Label text="c"  width="50"/>
-								</mx:GridItem>
-							</mx:GridRow>
-							<mx:GridRow width="100%">
-								<mx:GridItem width="55%">
-									<mx:Label text="BM1 Counts" textAlign="right" width="100%"/>
-								</mx:GridItem>
-								<mx:GridItem>
-									<mx:TextArea id="bm1Counts" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="70"/>
-								</mx:GridItem>
-								<mx:GridItem>
-									<mx:Label text="c"  width="50"/>
-								</mx:GridItem>
-							</mx:GridRow>
-						</mx:Grid>
-					</mx:GridItem>
-					<mx:GridItem width="100%" height="100%">
-						<mx:Grid>
-							<mx:GridRow width="100%">
-								<mx:GridItem width="55%">
 									<mx:Label text="CNS Temp" textAlign="right" width="100%"/>
 								</mx:GridItem>
 								<mx:GridItem>
@@ -606,6 +652,17 @@
 							</mx:GridRow>
 							<mx:GridRow width="100%">
 								<mx:GridItem width="55%">
+									<mx:Label text="Detector Counts" textAlign="right" width="100%"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:TextArea id="detectorCounts" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="70"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:Label text="c"  width="50"/>
+								</mx:GridItem>
+							</mx:GridRow>
+							<mx:GridRow width="100%">
+								<mx:GridItem width="55%">
 									<mx:Label text="Detector Rate" textAlign="right" width="100%"/>
 								</mx:GridItem>
 								<mx:GridItem>
@@ -613,6 +670,17 @@
 								</mx:GridItem>
 								<mx:GridItem>
 									<mx:Label text="c/s"  width="50"/>
+								</mx:GridItem>
+							</mx:GridRow>
+							<mx:GridRow width="100%">
+								<mx:GridItem width="55%">
+									<mx:Label text="BM1 Counts" textAlign="right" width="100%"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:TextArea id="bm1Counts" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="70"/>
+								</mx:GridItem>
+								<mx:GridItem>
+									<mx:Label text="c"  width="50"/>
 								</mx:GridItem>
 							</mx:GridRow>
 							<mx:GridRow width="100%">

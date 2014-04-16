@@ -1779,19 +1779,19 @@ public abstract class JChartPanel extends ChartPanel implements IPlot {
     	return maskEventListeners;
     }
 
-	protected void fireMaskUpdateEvent(AbstractMask mask) {
+	public void fireMaskUpdateEvent(AbstractMask mask) {
 		for (IMaskEventListener listener : maskEventListeners) {
 			listener.maskUpdated(mask);
 		}
 	}
 	
-	protected void fireMaskCreationEvent(AbstractMask mask) {
+	public void fireMaskCreationEvent(AbstractMask mask) {
 		for (IMaskEventListener listener : maskEventListeners) {
 			listener.maskAdded(mask);
 		}
 	}
 
-	protected void fireMaskRemovalEvent(AbstractMask mask) {
+	public void fireMaskRemovalEvent(AbstractMask mask) {
 		for (IMaskEventListener listener : maskEventListeners) {
 			listener.maskRemoved(mask);
 		}

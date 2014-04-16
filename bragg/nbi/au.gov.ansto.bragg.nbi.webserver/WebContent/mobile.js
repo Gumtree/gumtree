@@ -73,9 +73,31 @@ var refresh = function(){
 					if (obj.status == "EXECUTING") {
 						$("#tclScript").text(obj.name);
 						$("#runningCode").text(obj.text);
+						try {
+							var ct = obj.content;
+							ct = ct.replace(/\n\n/g, '\n');
+							var range = obj.range;
+							var items = range.split("=");
+							var newCt = '<div class="div-highlight">' + ct.substring(0, Number(items[2])) + '</div>';
+							if (Number(items[2] < ct.length)) {
+								var torun = ct.substring(Number(items[2]) + 1, ct.length);
+								newCt += '<div class="div-normal">' + ct.substring(Number(items[2]) + 1, ct.length) + '</div>';
+							}
+							$("#scriptContent").html(newCt);
+							var scrollPosition = Number(items[3]);
+							if (scrollPosition > 4){
+								scrollPosition = scrollPosition - 4;
+							} else {
+								scrollPosition = 0;
+							}
+							$("#scriptContent").scrollTop(scrollPosition * 16);
+						} catch (e) {
+						}
 					} else {
 						$("#tclScript").text("--");
 						$("#runningCode").text("--");
+						$("#scriptContent").text("");
+						$("#scriptContent").setSelection(0, 0);
 					}
 				} 
 			});
@@ -216,6 +238,7 @@ jQuery(document).ready(function(){
 		$("#serviceList").append('<li><div class="div-inlist-left">Runner Status:</div> <div class="div-inlist" id="runnerStatus">--</div></li>');
 		$("#serviceList").append('<li><div class="div-inlist-left">Script Name:</div> <div class="div-inlist" id="tclScript">--</div></li>');
 		$("#serviceList").append('<li><div class="div-inlist-left">Running Code:</div> <div class="div-inlist" id="runningCode">--</div></li>');
+		$("#serviceList").append('<li><div class="div-inlist-left">Script Content:</div> <div class="div-inlist" id="runningCode"><div id="scriptContent" class="div-textarea" name="textarea"></div></div></li>');
 	}
 	
 	$("#deviceList").append('<li class="ui-li ui-li-divider ui-bar-d ui-first-child" role="heading" data-role="list-divider">NEUTRON SOURCE</li>');
