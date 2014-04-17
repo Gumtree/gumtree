@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree DAE Server
 Bundle-SymbolicName: org.gumtree.dae.server;singleton:=true
-Bundle-Version: 1.9.0.qualifier
+Bundle-Version: 1.10.0.qualifier
 Bundle-Activator: org.gumtree.dae.server.internal.Activator
 Require-Bundle: com.google.guava;bundle-version="11.0.1",
  org.restlet;bundle-version="2.0.3",

@@ -2,7 +2,7 @@
 <feature
       id="org.gumtree.xygraph.feature"
       label="Gumtree Extensions XY Graph"
-      version="1.9.0.qualifier"
+      version="1.10.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">

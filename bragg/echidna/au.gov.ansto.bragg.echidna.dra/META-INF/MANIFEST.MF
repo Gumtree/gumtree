@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Echidna DRA
 Bundle-SymbolicName: au.gov.ansto.bragg.echidna.dra;singleton:=true
-Bundle-Version: 1.9.0.qualifier
+Bundle-Version: 1.10.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.echidna.dra.internal.Activator
 Require-Bundle: org.gumtree.data.impl.netcdf;bundle-version="1.8.0",
  au.gov.ansto.bragg.echidna.algolib;visibility:=reexport,

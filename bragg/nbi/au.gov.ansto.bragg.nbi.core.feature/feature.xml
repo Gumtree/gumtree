@@ -2,7 +2,7 @@
 <feature
       id="au.gov.ansto.bragg.nbi.core.feature"
       label="Bragg NBI Core"
-      version="1.9.0.qualifier"
+      version="1.10.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">

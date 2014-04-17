@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Cicada DRA
 Bundle-SymbolicName: au.gov.ansto.bragg.cicada.dra;singleton:=true
-Bundle-Version: 1.9.0.qualifier
+Bundle-Version: 1.10.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.cicada.dra.internal.Activator
 Require-Bundle: au.gov.ansto.bragg.cicada;visibility:=reexport
 Bundle-ActivationPolicy: lazy

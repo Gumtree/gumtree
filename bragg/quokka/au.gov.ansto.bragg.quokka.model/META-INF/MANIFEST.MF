@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Quokka Model
 Bundle-SymbolicName: au.gov.ansto.bragg.quokka.model
-Bundle-Version: 1.9.0.qualifier
+Bundle-Version: 1.10.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.quokka.model.internal.Activator
 Require-Bundle: org.gumtree.gumnix.sics.dom;visibility:=reexport
 Bundle-ActivationPolicy: lazy

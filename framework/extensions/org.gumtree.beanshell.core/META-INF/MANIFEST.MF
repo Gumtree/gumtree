@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree BeanSehll Core
 Bundle-SymbolicName: org.gumtree.beanshell.core
-Bundle-Version: 1.9.0.qualifier
+Bundle-Version: 1.10.0.qualifier
 Bundle-Activator: org.gumtree.beanshell.core.internal.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.beanshell;bundle-version="2.1.0";visibility:=reexport,

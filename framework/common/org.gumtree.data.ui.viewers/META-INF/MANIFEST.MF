@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree Data Viewers
 Bundle-SymbolicName: org.gumtree.data.ui.viewers
-Bundle-Version: 1.9.0.qualifier
+Bundle-Version: 1.10.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.gumtree.data.ui.viewers;
   uses:="org.gumtree.ui.util.widgets,

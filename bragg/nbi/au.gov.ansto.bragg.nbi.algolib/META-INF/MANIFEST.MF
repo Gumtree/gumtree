@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg NBI Algorithm Library
 Bundle-SymbolicName: au.gov.ansto.bragg.nbi.algolib
-Bundle-Version: 1.9.0.qualifier
+Bundle-Version: 1.10.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.thoughtworks.xstream;bundle-version="1.4.2";visibility:=reexport,
  org.gumtree.data.core;bundle-version="1.8.0";visibility:=reexport,
