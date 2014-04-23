@@ -11,6 +11,7 @@
 package au.gov.ansto.bragg.nbi.ui.scripting;
 
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveFactory;
@@ -157,7 +158,10 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 //		factory.addView(PLOT_VIEW_ID,  
 //				IPageLayout.BOTTOM, 0.25f, factory.getEditorArea());
 ////		
-		factory.addView(PLOT_VIEW_ID, IPageLayout.RIGHT, 0.5f, SCRIPT_CONSOLE_VIEW_ID);
+		IFolderLayout folder = factory.createFolder("stack_folder", IPageLayout.RIGHT, 0.5f, SCRIPT_CONSOLE_VIEW_ID);
+		folder.addView(PLOT_VIEW_ID);
+		folder.addView(PROJECT_EXPLORER_VIEW_ID);
+//		factory.addView(PLOT_VIEW_ID, IPageLayout.RIGHT, 0.5f, SCRIPT_CONSOLE_VIEW_ID);
 
 		factory.addStandaloneViewPlaceholder(PLOT1_VIEW_ID, IPageLayout.RIGHT, 0.50f, factory.getEditorArea(), false);
 
