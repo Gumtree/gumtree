@@ -1,4 +1,5 @@
 var title = "Kookaburra Status";
+var batchEnabled = false;
 var devices = [
                {"group":"NEUTRON BEAM", 
             	   "items":[{"classId":"monitor_counts", "deviceId":"monitor_counts", "title":"Monitor", "units":"cts"}, 
