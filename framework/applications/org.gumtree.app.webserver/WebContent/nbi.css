@@ -38,3 +38,7 @@ img, object{
 	color: #444444;
     text-decoration: none;
 }
+
+.ui-li-link{
+	cursor: pointer;
+}

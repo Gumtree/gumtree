@@ -75,10 +75,17 @@ jQuery(document).ready(function(){
 	$(document).attr("title", title);
 	$('#titleString').text(title);
 	for (i = 0; i < ins.length; i++) {
-		$("#insList").append('<li class="ui-li ui-li-divider ui-bar-d ui-first-child" role="heading" data-role="list-divider"><a class="ui_link" href="' + ins[i].url + '">' + ins[i].name.toUpperCase() + '</a></li>');
+		$("#insList").append('<li class="ui-li ui-li-divider ui-bar-d ui-first-child" role="heading" data-role="list-divider">' + ins[i].name.toUpperCase() + '</li>');
 //		$("#insList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">connection: </div> <div class="div-inlist" id="' + ins[i].name + '_connection">--</div></li>');
-		$("#insList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">status: </div> <div class="div-inlist" id="' + ins[i].name + '_status">--</div></li>');
+		$("#insList").append('<li class="ui-li-link ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">status: <a class="ui_link" href="' + ins[i].url + '"></a></div> <div class="div-inlist" id="' + ins[i].name + '_status">--</div></li>');
 	}
+
+	$('#insList li').click(function(e){
+		var link = $(this).find('a').attr('href');
+		if (link != null) {
+			location.href = link;
+		}
+	});
 
 	$("#getDom").click(function() {
 		refreshAll();
@@ -125,4 +132,5 @@ $(document).on('pagebeforeshow', title, function(){
 
 $(document).on('pagehide', title, function(){   
 	clearInterval(timerObject.interval_id);  
-});  
+});
+
