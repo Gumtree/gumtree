@@ -111,8 +111,12 @@ public class BatchBufferQueue extends PropertyList<IBatchBuffer> {
 
 	private void persist() {
 		if (getPersistenceManager() != null) {
-			getPersistenceManager().persist(BatchBufferQueue.class.getName(),
-					new ArrayList<IBatchBuffer>(this));
+			try {
+				getPersistenceManager().persist(BatchBufferQueue.class.getName(),
+						new ArrayList<IBatchBuffer>(this));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
