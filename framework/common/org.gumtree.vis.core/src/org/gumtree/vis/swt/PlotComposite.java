@@ -87,7 +87,7 @@ public class PlotComposite extends Composite{
 							chartMouseListener = null;
 						}
 						frame.remove((JPanel) plot);
-						frame.dispose();
+//						frame.dispose();
 						plot = null;
 					}
 				}

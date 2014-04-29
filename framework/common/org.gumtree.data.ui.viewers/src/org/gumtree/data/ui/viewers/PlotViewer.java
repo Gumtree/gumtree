@@ -716,27 +716,29 @@ public class PlotViewer extends Composite {
 			plotComposite = null;
 		}
 		if (!isDisposed()) {
-			if (controlToolBar != null) {
+			if (controlToolBar != null && !controlToolBar.isDisposed()) {
 				for (ToolItem item : controlToolBar.getItems()) {
 					item.dispose();
 				}
 				controlToolBar.dispose();
-				controlToolBar = null;
 			}
-		}
-		if (coolbar != null) {
-			coolbar.dispose();
+			if (plotControlItems != null) {
+				for (ToolItem item : plotControlItems) {
+					if (!item.isDisposed()) {
+						item.dispose();
+					}
+				}
+				plotControlItems = null;
+			}
+			controlToolBar = null;
+			if (coolbar != null && !coolbar.isDisposed()) {
+				coolbar.dispose();
+			}
 			coolbar = null;
-		}
-		if (provider != null) {
-			provider.setPlot(null);
-			provider = null;
-		}
-		if (plotControlItems != null) {
-			for (ToolItem item : plotControlItems) {
-				item.dispose();
+			if (provider != null) {
+				provider.setPlot(null);
+				provider = null;
 			}
-			plotControlItems = null;
 		}
 		if (this == instance) {
 			instance = null;
