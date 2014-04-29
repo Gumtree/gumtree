@@ -101,6 +101,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 							execute(buffer);
 						} catch (Exception e) {
 							// TODO
+							handleExecutionEvent("failed to execute buffer");
 						}
 					} else {
 						setAutoRun(false);
