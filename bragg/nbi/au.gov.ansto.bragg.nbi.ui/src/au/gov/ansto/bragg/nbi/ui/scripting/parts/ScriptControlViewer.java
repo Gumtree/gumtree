@@ -18,8 +18,10 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.Realm;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.internal.databinding.beans.BeanObservableValueDecorator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
@@ -27,6 +29,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
@@ -49,6 +52,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -1206,7 +1213,7 @@ public class ScriptControlViewer extends Composite {
 						DataBindingContext bindingContext = new DataBindingContext();
 						bindingContext.bindValue(SWTObservables.observeText(stringText, SWT.Modify),
 								BeansObservables.observeValue(parameter, "value"),
-								new UpdateValueStrategy(), new UpdateValueStrategy());
+								new FlagedUpdateStrategy(), new UpdateValueStrategy());
 						parameter.addPropertyChangeListener(new PropertyChangeListener() {
 
 							@Override
@@ -1224,16 +1231,53 @@ public class ScriptControlViewer extends Composite {
 						});
 					}
 				});
-				stringText.addModifyListener(new ModifyListener() {
+//				stringText.addModifyListener(new ModifyListener() {
+//					
+//					@Override
+//					public void modifyText(ModifyEvent e) {
+//						String command = parameter.getCommand();
+//						if (command != null) {
+//							runCommand(command);
+//						}
+//					}
+//				});
+				stringText.addKeyListener(new KeyListener() {
 					
 					@Override
-					public void modifyText(ModifyEvent e) {
-						String command = parameter.getCommand();
-						if (command != null) {
-							runCommand(command);
-						}
+					public void keyReleased(KeyEvent e) {
+					}
+					
+					@Override
+					public void keyPressed(KeyEvent e) {
+						if (e.keyCode == SWT.CR || e.keyCode == SWT.LF || e.keyCode == 16777296) {
+							if (parameter.getDirtyFlag()){
+								String command = parameter.getCommand();
+								if (command != null) {
+									runCommand(command);
+								}
+								parameter.resetDirtyFlag();
+							}
+						} 
 					}
 				});
+				stringText.addFocusListener(new FocusListener() {
+					
+					@Override
+					public void focusLost(FocusEvent e) {
+						if (parameter.getDirtyFlag()){
+							String command = parameter.getCommand();
+							if (command != null) {
+								runCommand(command);
+							}
+							parameter.resetDirtyFlag();
+						}
+					}
+					
+					@Override
+					public void focusGained(FocusEvent e) {
+					}
+				});
+				
 				break;
 			case INT :
 				name = new Label(parent, SWT.RIGHT);
@@ -1252,7 +1296,7 @@ public class ScriptControlViewer extends Composite {
 						DataBindingContext bindingContext = new DataBindingContext();
 						bindingContext.bindValue(SWTObservables.observeText(intText, SWT.Modify),
 								BeansObservables.observeValue(parameter, "value"),
-								new UpdateValueStrategy(), new UpdateValueStrategy());
+								new FlagedUpdateStrategy(), new UpdateValueStrategy());
 						parameter.addPropertyChangeListener(new PropertyChangeListener() {
 
 							@Override
@@ -1270,14 +1314,50 @@ public class ScriptControlViewer extends Composite {
 						});
 					}
 				});
-				intText.addModifyListener(new ModifyListener() {
+//				intText.addModifyListener(new ModifyListener() {
+//					
+//					@Override
+//					public void modifyText(ModifyEvent e) {
+//						String command = parameter.getCommand();
+//						if (command != null) {
+//							runCommand(command);
+//						}
+//					}
+//				});
+				intText.addKeyListener(new KeyListener() {
 					
 					@Override
-					public void modifyText(ModifyEvent e) {
-						String command = parameter.getCommand();
-						if (command != null) {
-							runCommand(command);
+					public void keyReleased(KeyEvent e) {
+					}
+					
+					@Override
+					public void keyPressed(KeyEvent e) {
+						if (e.keyCode == SWT.CR || e.keyCode == SWT.LF || e.keyCode == 16777296) {
+							if (parameter.getDirtyFlag()){
+								String command = parameter.getCommand();
+								if (command != null) {
+									runCommand(command);
+								}
+								parameter.resetDirtyFlag();
+							}
+						} 
+					}
+				});
+				intText.addFocusListener(new FocusListener() {
+					
+					@Override
+					public void focusLost(FocusEvent e) {
+						if (parameter.getDirtyFlag()){
+							String command = parameter.getCommand();
+							if (command != null) {
+								runCommand(command);
+							}
+							parameter.resetDirtyFlag();
 						}
+					}
+					
+					@Override
+					public void focusGained(FocusEvent e) {
 					}
 				});
 				break;
@@ -1298,7 +1378,7 @@ public class ScriptControlViewer extends Composite {
 						DataBindingContext bindingContext = new DataBindingContext();
 						bindingContext.bindValue(SWTObservables.observeText(floatText, SWT.Modify),
 								BeansObservables.observeValue(parameter, "value"),
-								new UpdateValueStrategy(), new UpdateValueStrategy());
+								new FlagedUpdateStrategy(), new UpdateValueStrategy());
 						parameter.addPropertyChangeListener(new PropertyChangeListener() {
 
 							@Override
@@ -1316,14 +1396,50 @@ public class ScriptControlViewer extends Composite {
 						});
 					}
 				});
-				floatText.addModifyListener(new ModifyListener() {
+//				floatText.addModifyListener(new ModifyListener() {
+//					
+//					@Override
+//					public void modifyText(ModifyEvent e) {
+//						String command = parameter.getCommand();
+//						if (command != null) {
+//							runCommand(command);
+//						}
+//					}
+//				});
+				floatText.addKeyListener(new KeyListener() {
 					
 					@Override
-					public void modifyText(ModifyEvent e) {
-						String command = parameter.getCommand();
-						if (command != null) {
-							runCommand(command);
+					public void keyReleased(KeyEvent e) {
+					}
+					
+					@Override
+					public void keyPressed(KeyEvent e) {
+						if (e.keyCode == SWT.CR || e.keyCode == SWT.LF || e.keyCode == 16777296) {
+							if (parameter.getDirtyFlag()){
+								String command = parameter.getCommand();
+								if (command != null) {
+									runCommand(command);
+								}
+								parameter.resetDirtyFlag();
+							}
+						} 
+					}
+				});
+				floatText.addFocusListener(new FocusListener() {
+					
+					@Override
+					public void focusLost(FocusEvent e) {
+						if (parameter.getDirtyFlag()){
+							String command = parameter.getCommand();
+							if (command != null) {
+								runCommand(command);
+							}
+							parameter.resetDirtyFlag();
 						}
+					}
+					
+					@Override
+					public void focusGained(FocusEvent e) {
 					}
 				});
 				break;
@@ -1344,7 +1460,7 @@ public class ScriptControlViewer extends Composite {
 						DataBindingContext bindingContext = new DataBindingContext();
 						bindingContext.bindValue(SWTObservables.observeSelection(selectBox),
 								BeansObservables.observeValue(parameter, "value"),
-								new UpdateValueStrategy(), new UpdateValueStrategy());
+								new FlagedUpdateStrategy(), new UpdateValueStrategy());
 						parameter.addPropertyChangeListener(new PropertyChangeListener() {
 
 							@Override
@@ -1399,7 +1515,7 @@ public class ScriptControlViewer extends Composite {
 						DataBindingContext bindingContext = new DataBindingContext();
 						bindingContext.bindValue(SWTObservables.observeText(fileText, SWT.Modify),
 								BeansObservables.observeValue(parameter, "value"),
-								new UpdateValueStrategy(), new UpdateValueStrategy());
+								new FlagedUpdateStrategy(), new UpdateValueStrategy());
 						parameter.addPropertyChangeListener(new PropertyChangeListener() {
 
 							@Override
@@ -1602,7 +1718,7 @@ public class ScriptControlViewer extends Composite {
 						DataBindingContext bindingContext = new DataBindingContext();
 						bindingContext.bindValue(SWTObservables.observeText(defaultText, SWT.Modify),
 								BeansObservables.observeValue(parameter, "value"),
-								new UpdateValueStrategy(), new UpdateValueStrategy());
+								new FlagedUpdateStrategy(), new UpdateValueStrategy());
 						parameter.addPropertyChangeListener(new PropertyChangeListener() {
 
 							@Override
@@ -1620,14 +1736,50 @@ public class ScriptControlViewer extends Composite {
 						});
 					}
 				});
-				defaultText.addModifyListener(new ModifyListener() {
+//				defaultText.addModifyListener(new ModifyListener() {
+//					
+//					@Override
+//					public void modifyText(ModifyEvent e) {
+//						String command = parameter.getCommand();
+//						if (command != null) {
+//							runCommand(command);
+//						}
+//					}
+//				});
+				defaultText.addKeyListener(new KeyListener() {
 					
 					@Override
-					public void modifyText(ModifyEvent e) {
-						String command = parameter.getCommand();
-						if (command != null) {
-							runCommand(command);
+					public void keyReleased(KeyEvent e) {
+					}
+					
+					@Override
+					public void keyPressed(KeyEvent e) {
+						if (e.keyCode == SWT.CR || e.keyCode == SWT.LF || e.keyCode == 16777296) {
+							if (parameter.getDirtyFlag()){
+								String command = parameter.getCommand();
+								if (command != null) {
+									runCommand(command);
+								}
+								parameter.resetDirtyFlag();
+							}
+						} 
+					}
+				});
+				defaultText.addFocusListener(new FocusListener() {
+					
+					@Override
+					public void focusLost(FocusEvent e) {
+						if (parameter.getDirtyFlag()){
+							String command = parameter.getCommand();
+							if (command != null) {
+								runCommand(command);
+							}
+							parameter.resetDirtyFlag();
 						}
+					}
+					
+					@Override
+					public void focusGained(FocusEvent e) {
 					}
 				});
 				break;
@@ -2012,5 +2164,20 @@ public class ScriptControlViewer extends Composite {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private class FlagedUpdateStrategy extends UpdateValueStrategy{
+		@Override
+		protected IStatus doSet(IObservableValue observableValue, Object value) {
+			IStatus status = super.doSet(observableValue, value);
+			if (status.isOK()) {
+				Object obj = ((BeanObservableValueDecorator) observableValue).getObserved();
+				if (obj instanceof ScriptParameter) {
+					((ScriptParameter) obj).setDirtyFlag();
+				}
+			}
+			return status;
+		}
+		
 	}
 }

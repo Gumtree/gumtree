@@ -8,3 +8,6 @@ __script__.version = 'unknown'
 Par.__model__ = __model__
 Act.__model__ = __model__
 Group.__model__ = __model__
+
+if '__dispose__' in globals() :
+    __dispose__()

@@ -24,7 +24,7 @@ class Par:
         elif name == 'command' :
             return self.__par__.getCommand()
         elif name == 'type' :
-            return self.__par__.getType()
+            return str(self.__par__.getType())
         elif name != '__par__' :
             return self.__par__.getProperty(name)
             

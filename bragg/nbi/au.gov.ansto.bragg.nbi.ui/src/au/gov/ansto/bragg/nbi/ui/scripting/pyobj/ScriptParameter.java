@@ -30,6 +30,7 @@ public class ScriptParameter extends PyObjectImp {
 	private Object value;
 	private List<Object> options;
 	private String command;
+	private boolean dirtyFlag = false;
 
 	public PType getType() {
 		return type;
@@ -90,4 +91,15 @@ public class ScriptParameter extends PyObjectImp {
 		this.command = command;
 	}
 	
+	public boolean getDirtyFlag() {
+		return dirtyFlag;
+	}
+	
+	public void setDirtyFlag(){
+		dirtyFlag = true;
+	}
+	
+	public void resetDirtyFlag() {
+		dirtyFlag = false;
+	}
 }

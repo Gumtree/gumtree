@@ -55,7 +55,7 @@ public class ExperimentConfigViewer extends Composite {
 		
 		Composite consoleComposite = new Composite(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(consoleComposite);
-		GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, 104).applyTo(consoleComposite);
+		GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, 180).applyTo(consoleComposite);
 		viewer.createPartControl(consoleComposite, ICommandLineViewer.NO_UTIL_AREA | ICommandLineViewer.NO_INPUT_TEXT);
 		
 		controlViewer.runNativeInitScript();
