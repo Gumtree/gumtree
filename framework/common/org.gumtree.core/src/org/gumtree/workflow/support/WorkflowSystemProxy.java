@@ -21,9 +21,12 @@ public class WorkflowSystemProxy implements IWorkflowSystem {
 	public void activate() {
 		ActorSystem system = (ActorSystem) getActorSystemService()
 				.getActorSystem();
-		workflowSystemActor = TypedActor.get(system).typedActorOf(
-				new TypedProps<WorkflowSystemActor>(IWorkflowSystem.class,
-						WorkflowSystemActor.class), "workflowSystem");
+		try {
+			workflowSystemActor = TypedActor.get(system).typedActorOf(
+					new TypedProps<WorkflowSystemActor>(IWorkflowSystem.class,
+							WorkflowSystemActor.class), "workflowSystem");
+		} catch (Exception e) {
+		}
 	}
 
 	public void deactivate() {
