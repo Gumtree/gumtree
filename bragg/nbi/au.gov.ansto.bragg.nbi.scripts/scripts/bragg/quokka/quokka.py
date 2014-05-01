@@ -575,10 +575,10 @@ def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_succe
         if n <= 1:
             return float('inf')
         
-        s_sqr = (sqr_sum - sum*sum/n) / (n - 1)
+        s_sqr = sqr_sum/n - sum*sum/(n*n)
         return math.sqrt(s_sqr)
     
-    def getStudentsFacotr(n): # n = sample count
+    def getStudentsFactor(n): # n = sample count
         # 90% confidence
         f = [float('inf'), 6.314, 2.92, 2.353, 2.132, 2.015, 1.943, 1.895, 1.86, 1.833, 1.812, 1.796, 1.782, 1.771, 1.761, 1.753, 1.746, 1.74, 1.734, 1.729, 1.725, 1.721, 1.717, 1.714, 1.711, 1.708, 1.706, 1.703, 1.701, 1.699, 1.697]
         if n <= len(f):
@@ -586,6 +586,16 @@ def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_succe
         else:
             return f[-1]    # use last element
         return 1
+    
+    def removeOutlier(v_min, v_max, avg, sum2, n):
+        if (v_max - avg) > (avg - v_min):
+            avg2 = (n * avg - v_max) / (n - 1)
+            var2 = (sum2 - v_max * v_max) / (n - 1) - avg2 * avg2
+        else:
+            avg2 = (n * avg - v_min) / (n - 1)
+            var2 = (sum2 - v_min * v_min) / (n - 1) - avg2 * avg2
+            
+        return (avg2, math.sqrt(var2)) # var -> std
         
     if max_samples < 1:
         max_samples = 1
@@ -600,14 +610,19 @@ def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_succe
         global_rate = getGlobalMapRate()
 
         n = 0 # sample count
-        local_rate_sum     = 0.0
+        local_rate_sum      = 0.0
         global_rate_sum     = 0.0
-        local_rate_sqr_sum = 0.0 # sum of squared rate
+        local_rate_sqr_sum  = 0.0 # sum of squared rate
         global_rate_sqr_sum = 0.0
+        
+        local_rate_min  = +float('inf')
+        local_rate_max  = -float('inf')
+        global_rate_min = +float('inf')
+        global_rate_max = -float('inf')
 
         for i in xrange(max_samples):
             
-            new_local_rate = getMaxBinRate()
+            new_local_rate  = getMaxBinRate()
             new_global_rate = getGlobalMapRate()
             
             start = time.time()
@@ -618,33 +633,47 @@ def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_succe
                 new_local_rate = getMaxBinRate()
                 new_global_rate = getGlobalMapRate()
 
-            local_rate = new_local_rate
+            local_rate  = new_local_rate
             global_rate = new_global_rate
             log('measurement:  local rate = %10.3f          global rate = %10.3f' % (local_rate, global_rate))
 
+            if local_rate_min > local_rate:
+                local_rate_min = local_rate
+            if local_rate_max < local_rate:
+                local_rate_max = local_rate
+                
+            if global_rate_min > global_rate:
+                global_rate_min = global_rate
+            if global_rate_max < global_rate:
+                global_rate_max = global_rate
+                
             n += 1 # increase sample count
-            local_rate_sum     += local_rate
+            local_rate_sum      += local_rate
             global_rate_sum     += global_rate
-            local_rate_sqr_sum += (local_rate * local_rate)
+            local_rate_sqr_sum  += (local_rate * local_rate)
             global_rate_sqr_sum += (global_rate * global_rate)
             
-            if n > 1:
+            if n > 2:
                 # https://de.wikipedia.org/wiki/Vertrauensintervall#Beispiele_f.C3.BCr_ein_Konfidenzintervall
                 
-                local_rate_mean = local_rate_sum / n
+                local_rate_mean  = local_rate_sum / n
                 global_rate_mean = global_rate_sum / n
                 
-                local_rate_std = determineStandardDeviation(local_rate_sum, local_rate_sqr_sum, n)
-                global_rate_std = determineStandardDeviation(global_rate_sum, global_rate_sqr_sum, n)
+                #local_rate_std  = determineStandardDeviation(local_rate_sum , local_rate_sqr_sum , n)
+                #global_rate_std = determineStandardDeviation(global_rate_sum, global_rate_sqr_sum, n)
                 
-                factor = getStudentsFacotr(n) / math.sqrt(n)
+                # remove outlier
+                local_rate_mean , local_rate_std  = removeOutlier(local_rate_min , local_rate_max , local_rate_mean , local_rate_sqr_sum , n)
+                global_rate_mean, global_rate_std = removeOutlier(global_rate_min, global_rate_max, global_rate_mean, global_rate_sqr_sum, n)
                 
-                local_rate_err = factor * local_rate_std
+                factor = getStudentsFactor(n-1) / math.sqrt(n-1)
+                
+                local_rate_err  = factor * local_rate_std
                 global_rate_err = factor * global_rate_std
                 
                 log('estimation:   local rate = %10.3f+-%-7.3f global rate = %10.3f+-%-7.3f' % (local_rate_mean, local_rate_err, global_rate_mean, global_rate_err))
                 
-                local_rate_intvl = 2 * local_rate_err
+                local_rate_intvl  = 2 * local_rate_err
                 global_rate_intvl = 2 * global_rate_err
                 
                 if (local_rate_intvl < interval * local_rate_mean) and (global_rate_intvl < interval * global_rate_mean):
@@ -749,6 +778,16 @@ def count(thickness, wavelength):
     # Attenuation factor is 0.01 /mm/A
     attenuationFactor = 0.5
     return countInitial * math.exp(-1 * attenuationFactor * thickness * wavelength)
+    
+def driveTesla(val, speed, wait_sec):
+    sics.execute('oxfordseths on')
+    time.sleep(35)
+    sics.execute('oxfordsetrate ' + str(speed))
+    sics.execute('oxfordsetfield ' + str(val))
+    time.sleep(wait_sec)
+    sics.execute('oxfordseths off')
+    time.sleep(35)
+    
     
 # Prints current instrument settings on Quokka
 def printQuokkaSettings():
