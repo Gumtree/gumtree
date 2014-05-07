@@ -10,16 +10,15 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.freehep.j3d.plot.Plot3D.ColorTheme;
 import org.freehep.j3d.plot.RenderStyle;
+import org.gumtree.vis.core.internal.StaticValues;
 import org.gumtree.vis.hist2d.color.ColorScale;
 import org.gumtree.vis.interfaces.IExporter;
 import org.gumtree.vis.interfaces.IPlot;
@@ -43,7 +42,7 @@ public class Surf3DControlWidgetProvider implements IPlotControlWidgetProvider {
 		final ToolItem exportDataToolItem;
 		exportDataToolItem = new ToolItem (toolBar, SWT.DROP_DOWN);
 		exportDataToolItem.setToolTipText("Export data in multiple formats");
-		exportDataToolItem.setImage(getImage("icons/table_export_16x16.png"));
+		exportDataToolItem.setImage(StaticValues.getImage("icons/table_export_16x16.png"));
 		controlItems.add(exportDataToolItem);
 		final Menu exporterListMenu = new Menu(toolBar.getShell(), SWT.POP_UP);
 		exportDataToolItem.setData(exporterListMenu);
@@ -93,7 +92,7 @@ public class Surf3DControlWidgetProvider implements IPlotControlWidgetProvider {
 
 		final ToolItem colorScaleToolItem = new ToolItem (toolBar, SWT.DROP_DOWN);
 		colorScaleToolItem.setToolTipText("Change color scale");
-		colorScaleToolItem.setImage(getImage("icons/color_scale_16x16.png"));
+		colorScaleToolItem.setImage(StaticValues.getImage("icons/color_scale_16x16.png"));
 		controlItems.add(colorScaleToolItem);
 		final Menu colorScaleMenu = new Menu(toolBar.getShell(), SWT.POP_UP);
 		colorScaleToolItem.setData(colorScaleMenu);
@@ -149,7 +148,7 @@ public class Surf3DControlWidgetProvider implements IPlotControlWidgetProvider {
 		
 		final ToolItem ColorThemeToolItem = new ToolItem (toolBar, SWT.DROP_DOWN);
 		ColorThemeToolItem.setToolTipText("Change plot background");
-		ColorThemeToolItem.setImage(getImage("icons/reset_color_scale_16x16.png"));
+		ColorThemeToolItem.setImage(StaticValues.getImage("icons/reset_color_scale_16x16.png"));
 		controlItems.add(ColorThemeToolItem);
 		final Menu colorThemeMenu = new Menu(toolBar.getShell(), SWT.POP_UP);
 		ColorThemeToolItem.setData(colorThemeMenu);
@@ -204,7 +203,7 @@ public class Surf3DControlWidgetProvider implements IPlotControlWidgetProvider {
 		
 		final ToolItem renderStyleToolItem = new ToolItem (toolBar, SWT.DROP_DOWN);
 		renderStyleToolItem.setToolTipText("Change render style");
-		renderStyleToolItem.setImage(getImage("icons/blue_lego_16x16.png"));
+		renderStyleToolItem.setImage(StaticValues.getImage("icons/blue_lego_16x16.png"));
 		controlItems.add(renderStyleToolItem);
 		final Menu renderStyleMenu = new Menu(toolBar.getShell(), SWT.POP_UP);
 		renderStyleToolItem.setData(renderStyleMenu);
@@ -260,7 +259,7 @@ public class Surf3DControlWidgetProvider implements IPlotControlWidgetProvider {
 		
 		ToolItem outsideBoxToolItem = new ToolItem (toolBar, SWT.PUSH);
 		outsideBoxToolItem.setToolTipText("Toggle coordinate on/off");
-		outsideBoxToolItem.setImage(getImage("icons/box_opened_16x16.png"));
+		outsideBoxToolItem.setImage(StaticValues.getImage("icons/box_opened_16x16.png"));
 		controlItems.add(outsideBoxToolItem);
 		outsideBoxToolItem.addSelectionListener(new SelectionListener() {
 			
@@ -284,7 +283,7 @@ public class Surf3DControlWidgetProvider implements IPlotControlWidgetProvider {
 		
 		ToolItem resetCentreToolItem = new ToolItem (toolBar, SWT.PUSH);
 		resetCentreToolItem.setToolTipText("Reset centre");
-		resetCentreToolItem.setImage(getImage("icons/move_blue_16x16.png"));
+		resetCentreToolItem.setImage(StaticValues.getImage("icons/move_blue_16x16.png"));
 		controlItems.add(resetCentreToolItem);
 		resetCentreToolItem.addSelectionListener(new SelectionListener() {
 			
@@ -330,7 +329,7 @@ public class Surf3DControlWidgetProvider implements IPlotControlWidgetProvider {
 		
 		ToolItem resetZoomToolItem = new ToolItem (toolBar, SWT.PUSH);
 		resetZoomToolItem.setToolTipText("Reset camera distance");
-		resetZoomToolItem.setImage(getImage("icons/reset_zoom_16x16.png"));
+		resetZoomToolItem.setImage(StaticValues.getImage("icons/reset_zoom_16x16.png"));
 		controlItems.add(resetZoomToolItem);
 		resetZoomToolItem.addSelectionListener(new SelectionListener() {
 			
@@ -354,9 +353,9 @@ public class Surf3DControlWidgetProvider implements IPlotControlWidgetProvider {
 		return controlItems;
 	}
 
-	private Image getImage(String path) {
-		return new Image(Display.getDefault(), getClass().getClassLoader().getResourceAsStream(path));
-	}
+//	private Image getImage(String path) {
+//		return new Image(Display.getDefault(), getClass().getClassLoader().getResourceAsStream(path));
+//	}
 
 	/**
 	 * @return the plot

@@ -12,7 +12,11 @@ package org.gumtree.vis.core.internal;
 
 import java.awt.Cursor;
 import java.awt.Shape;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.gumtree.vis.hist2d.color.ColorScale;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.util.ShapeUtilities;
@@ -61,5 +65,21 @@ public class StaticValues {
 		shapeSeries[11] = ShapeUtilities.createDiagonalCross(3f, 0.5f);
 		shapeSeries[12] = ShapeUtilities.createRegularCross(3f, 0.5f);
 		return shapeSeries;
+	}
+	
+	private static Map<String, Image> imageStorage;
+	
+	public static Image getImage(String path) {
+		synchronized(StaticValues.class){
+			if (imageStorage == null) {
+				imageStorage = new HashMap<String, Image>();
+			}
+		}
+		if (imageStorage.containsKey(path)) {
+			return imageStorage.get(path);
+		}
+		Image newImage = new Image(Display.getDefault(), StaticValues.class.getClassLoader().getResourceAsStream(path));
+		imageStorage.put(path, newImage);
+		return newImage;
 	}
 }

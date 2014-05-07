@@ -10,14 +10,13 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
+import org.gumtree.vis.core.internal.StaticValues;
 import org.gumtree.vis.interfaces.IExporter;
 import org.gumtree.vis.interfaces.IPlot;
 import org.gumtree.vis.io.ExporterManager;
@@ -43,7 +42,7 @@ public class Plot1DControlWidgetProvider implements IPlotControlWidgetProvider {
 		final ToolItem exportDataToolItem;
 		exportDataToolItem = new ToolItem (toolBar, SWT.DROP_DOWN);
 		exportDataToolItem.setToolTipText("Export data in multiple formats");
-		exportDataToolItem.setImage(getImage("icons/table_export_16x16.png"));
+		exportDataToolItem.setImage(StaticValues.getImage("icons/table_export_16x16.png"));
 		final Menu exporterListMenu = new Menu(toolBar.getShell(), SWT.POP_UP);
 		exportDataToolItem.setData(exporterListMenu);
 		controlItems.add(exportDataToolItem);
@@ -92,7 +91,7 @@ public class Plot1DControlWidgetProvider implements IPlotControlWidgetProvider {
 
 		ToolItem maskToolItem = new ToolItem (toolBar, SWT.PUSH);
 		maskToolItem.setToolTipText("Manage ROI");
-		maskToolItem.setImage(getImage("icons/roi_16x16.png"));
+		maskToolItem.setImage(StaticValues.getImage("icons/roi_16x16.png"));
 		controlItems.add(maskToolItem);
 		maskToolItem.addSelectionListener(new SelectionListener() {
 			
@@ -115,7 +114,7 @@ public class Plot1DControlWidgetProvider implements IPlotControlWidgetProvider {
 
 		ToolItem markerToolItem = new ToolItem (toolBar, SWT.PUSH);
 		markerToolItem.setToolTipText("Toggle showing marker");
-		markerToolItem.setImage(getImage("icons/marker_add_16x16.png"));
+		markerToolItem.setImage(StaticValues.getImage("icons/marker_add_16x16.png"));
 		controlItems.add(markerToolItem);
 		markerToolItem.addSelectionListener(new SelectionListener() {
 			
@@ -136,7 +135,7 @@ public class Plot1DControlWidgetProvider implements IPlotControlWidgetProvider {
 
 		ToolItem errorBarToolItem = new ToolItem (toolBar, SWT.PUSH);
 		errorBarToolItem.setToolTipText("Toggle showing error bar");
-		errorBarToolItem.setImage(getImage("icons/error_bar2_16x16_l2.png"));
+		errorBarToolItem.setImage(StaticValues.getImage("icons/error_bar2_16x16_l2.png"));
 		controlItems.add(errorBarToolItem);
 		errorBarToolItem.addSelectionListener(new SelectionListener() {
 			
@@ -153,7 +152,7 @@ public class Plot1DControlWidgetProvider implements IPlotControlWidgetProvider {
 
 		ToolItem lineToolItem = new ToolItem (toolBar, SWT.PUSH);
 		lineToolItem.setToolTipText("Toggle showing lines");
-		lineToolItem.setImage(getImage("icons/chart_line_dot_16x16.png"));
+		lineToolItem.setImage(StaticValues.getImage("icons/chart_line_dot_16x16.png"));
 		controlItems.add(lineToolItem);
 		lineToolItem.addSelectionListener(new SelectionListener() {
 			
@@ -177,7 +176,7 @@ public class Plot1DControlWidgetProvider implements IPlotControlWidgetProvider {
 		
 		ToolItem flipXToolItem = new ToolItem (toolBar, SWT.PUSH);
 		flipXToolItem.setToolTipText("Flip horizontally");
-		flipXToolItem.setImage(getImage("icons/horizontal_flip_16x16_blue.png"));
+		flipXToolItem.setImage(StaticValues.getImage("icons/horizontal_flip_16x16_blue.png"));
 		controlItems.add(flipXToolItem);
 		flipXToolItem.addSelectionListener(new SelectionListener() {
 			
@@ -194,7 +193,7 @@ public class Plot1DControlWidgetProvider implements IPlotControlWidgetProvider {
 		
 		ToolItem flipYToolItem = new ToolItem (toolBar, SWT.PUSH);
 		flipYToolItem.setToolTipText("Flip vertically");
-		flipYToolItem.setImage(getImage("icons/vertical_flip_16x16_blue.png"));
+		flipYToolItem.setImage(StaticValues.getImage("icons/vertical_flip_16x16_blue.png"));
 		controlItems.add(flipYToolItem);
 		flipYToolItem.addSelectionListener(new SelectionListener() {
 			
@@ -211,7 +210,7 @@ public class Plot1DControlWidgetProvider implements IPlotControlWidgetProvider {
 
 		ToolItem legendToolItem = new ToolItem (toolBar, SWT.PUSH);
 		legendToolItem.setToolTipText("Toggle showing legend");
-		legendToolItem.setImage(getImage("icons/toggle_legend_16x16.png"));
+		legendToolItem.setImage(StaticValues.getImage("icons/toggle_legend_16x16.png"));
 		controlItems.add(legendToolItem);
 		legendToolItem.addSelectionListener(new SelectionListener() {
 			
@@ -241,9 +240,10 @@ public class Plot1DControlWidgetProvider implements IPlotControlWidgetProvider {
 		return controlItems;
 	}
 
-	private Image getImage(String path) {
-		return new Image(Display.getDefault(), getClass().getClassLoader().getResourceAsStream(path));
-	}
+//	private Image getImage(String path) {
+//		return new Image(Display.getDefault(), getClass().getClassLoader().getResourceAsStream(path));
+//		return StaticValues.getImage(path);
+//	}
 
 	/**
 	 * @return the plot
