@@ -301,8 +301,8 @@ public class ScanController extends CommandController implements
 
 	public void asyncExecute() throws SicsIOException {
 		// run scan on a different channel
-//		SicsCore.getDefaultProxy().send("hset " + getPath() + " start", null, ISicsProxy.CHANNEL_SCAN);
-		SicsCore.getDefaultProxy().send("hset " + getPath() + " start", null);
+		SicsCore.getDefaultProxy().send("hset " + getPath() + " start", null, ISicsProxy.CHANNEL_SCAN);
+//		SicsCore.getDefaultProxy().send("hset " + getPath() + " start", null);
 	}
 
 	public String toString() {

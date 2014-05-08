@@ -22,7 +22,7 @@ public interface ISicsProxy {
 
 	public static final String CHANNEL_ZIP_DATA = "zipdata";
 
-//	public static final String CHANNEL_SCAN = "scan";
+	public static final String CHANNEL_SCAN = "scan";
 	
 	public static final String CHANNEL_RAW_BATCH = "rawBatch";
 

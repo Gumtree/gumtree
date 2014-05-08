@@ -435,12 +435,14 @@ def driveJulabo(value):
     tc1.drive(float(value))
 
 def driveHistmem(hmMode, preset):
+    controllerPath = '/commands/histogram/histmem'
     sicsController = sics.getSicsController()
-    histmemController = sicsController.findComponentController('/commands/histogram/histmem')
-    sics.hset(histmemController, '/mode', hmMode.key)
-    sics.hset(histmemController, '/preset', preset)
-    sics.hset(histmemController, '/cmd', 'start')
+    histmemController = sicsController.findComponentController(controllerPath)
+    sics.execute('hset ' + controllerPath + '/mode ' + hmMode.key, 'scan')
+    sics.execute('hset ' + controllerPath + '/preset ' + str(preset), 'scan')
+    sics.execute('hset ' + controllerPath + '/cmd start', 'scan')
     log('Start histmem ...')
+    time.sleep(0.5)
     histmemController.syncExecute()
     time.sleep(0.8)
     log('Histmem stopped')
@@ -495,34 +497,34 @@ def scan(scanMode, dataType, preset, force='true', saveType=saveType.save):
 #    sics.hset(scanController, '/scan_variable', DEVICE_SAMX)
 #    sics.hset(scanController, '/scan_start', getSampleHolderPosition())
 #    sics.hset(scanController, '/scan_stop', getSampleHolderPosition())
-    sics.hset(scanController, '/numpoints', 1)
+#    sics.hset(scanController, '/numpoints', 1)
 #    # Hack to fix monitor selection in scan
 #    if (scanMode.key == 'monitor'):
 #        sics.hset(scanController, '/mode', 'MONITOR_1')
 #    else:
 #        sics.hset(scanController, '/mode', scanMode.key)
-    sics.hset(scanController, '/preset', preset)
+#    sics.hset(scanController, '/preset', preset)
 #    sics.hset(scanController, '/datatype', dataType.key)
 #    sics.hset(scanController, '/savetype', saveType.key)
-    sics.hset(scanController, '/force', force)
+#    sics.hset(scanController, '/force', force)
 
-    sics.execute('hset /instrument/dummy_motor 0', 'general')
+    sics.execute('hset /instrument/dummy_motor 0', 'scan')
     
-    sics.execute('hset ' + controllerPath + '/scan_variable dummy_motor', 'general')
-    sics.execute('hset ' + controllerPath + '/scan_start 0', 'general')
-    sics.execute('hset ' + controllerPath + '/scan_stop 0', 'general')
-    sics.execute('hset ' + controllerPath + '/numpoints 1', 'general')
+    sics.execute('hset ' + controllerPath + '/scan_variable dummy_motor', 'scan')
+    sics.execute('hset ' + controllerPath + '/scan_start 0', 'scan')
+    sics.execute('hset ' + controllerPath + '/scan_stop 0', 'scan')
+    sics.execute('hset ' + controllerPath + '/numpoints 1', 'scan')
     if (scanMode.key == 'monitor'):
-        sics.execute('hset ' + controllerPath + '/mode MONITOR_1', 'general')
+        sics.execute('hset ' + controllerPath + '/mode MONITOR_1', 'scan')
     else:
-        sics.execute('hset ' + controllerPath + '/mode ' + scanMode.key, 'general')
-    sics.execute('hset ' + controllerPath + '/preset ' + str(preset), 'general')
-    sics.execute('hset ' + controllerPath + '/datatype ' + dataType.key, 'general')
-    sics.execute('hset ' + controllerPath + '/savetype ' + saveType.key, 'general')
-    sics.execute('hset ' + controllerPath + '/force ' + force, 'general')
+        sics.execute('hset ' + controllerPath + '/mode ' + scanMode.key, 'scan')
+    sics.execute('hset ' + controllerPath + '/preset ' + str(preset), 'scan')
+    sics.execute('hset ' + controllerPath + '/datatype ' + dataType.key, 'scan')
+    sics.execute('hset ' + controllerPath + '/savetype ' + saveType.key, 'scan')
+    sics.execute('hset ' + controllerPath + '/force ' + force, 'scan')
 
     # Wait 1 sec to make the setting settle
-    time.sleep(2)
+    time.sleep(0.5)
     
     # Synchronously run scan
     scanController.syncExecute()

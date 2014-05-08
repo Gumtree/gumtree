@@ -51,8 +51,8 @@ public class CommandController extends ComplexController implements ICommandCont
 		// multiple times when scan hasn't been finished
 		statusChanged = false;
 		// Send this to the blockable channel
-//		SicsCore.getDefaultProxy().send("hset " + getPath() + " start", null, ISicsProxy.CHANNEL_SCAN);
-		SicsCore.getDefaultProxy().send("hset " + getPath() + " start", null);
+		SicsCore.getDefaultProxy().send("hset " + getPath() + " start", null, ISicsProxy.CHANNEL_SCAN);
+//		SicsCore.getDefaultProxy().send("hset " + getPath() + " start", null);
 	}
 
 	public void syncExecute() throws SicsIOException, SicsExecutionException {

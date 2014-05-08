@@ -213,17 +213,17 @@ public class SicsProxy implements ISicsProxy {
 		AbstractSicsChannel generalChannel = null;
 		AbstractSicsChannel statusChannel = null;
 //		AbstractSicsChannel batchChannel = null;
-//		AbstractSicsChannel scanChannel = null;
+		AbstractSicsChannel scanChannel = null;
 		if (SicsCoreProperties.USE_NON_NIO_CHANNEL.getBoolean()) {
 			generalChannel = new SicsChannel(CHANNEL_GENERAL, this);
 			statusChannel = new SicsChannel(CHANNEL_STATUS, this);
 //			batchChannel = new SicsChannel(CHANNEL_BATCH, this);
-//			scanChannel = new SicsChannel(CHANNEL_SCAN, this);			
+			scanChannel = new SicsChannel(CHANNEL_SCAN, this);			
 		} else {
 			generalChannel = new SicsNonBlockingChannel(CHANNEL_GENERAL, this, true);
 			statusChannel = new SicsNonBlockingChannel(CHANNEL_STATUS, this, true);
 //			batchChannel = new SicsNonBlockingChannel(CHANNEL_BATCH, this);
-//			scanChannel = new SicsNonBlockingChannel(CHANNEL_SCAN, this);
+			scanChannel = new SicsNonBlockingChannel(CHANNEL_SCAN, this, true);
 		}
 //		ISicsChannel zipDataChannel = new SicsZipDataChannel(CHANNEL_ZIP_DATA, this);
 		// Channel for new batch buffer
@@ -233,14 +233,14 @@ public class SicsProxy implements ISicsProxy {
 		statusChannel.login(context);
 //		batchChannel.login(context);
 //		zipDataChannel.login(context);
-//		scanChannel.login(context);
+		scanChannel.login(context);
 		rawBatchChannel.login(context);
 
 		getChannels().put(CHANNEL_GENERAL, generalChannel);
 		getChannels().put(CHANNEL_STATUS, statusChannel);
 //		getChannels().put(CHANNEL_BATCH, batchChannel);
 //		getChannels().put(CHANNEL_ZIP_DATA, zipDataChannel);
-//		getChannels().put(CHANNEL_SCAN, scanChannel);
+		getChannels().put(CHANNEL_SCAN, scanChannel);
 		getChannels().put(CHANNEL_RAW_BATCH, rawBatchChannel);
 
 		role = context.getRole();
