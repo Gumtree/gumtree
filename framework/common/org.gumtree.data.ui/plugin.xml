@@ -21,11 +21,12 @@
             id="org.gumtree.data.ui.DatasetBrowserView"
             name="Dataset Browser">
       </view>
-      <view 
-         id="org.gumtree.data.ui.PlotView" 
-         name="Plot View"
-         allowMultiple = "true" 
-         class="org.gumtree.data.ui.part.PlotView"/>
+      <view
+            allowMultiple="true"
+            class="org.gumtree.data.ui.part.PlotView"
+            icon="icons/curve_select_16x16.png"
+            id="org.gumtree.data.ui.PlotView"
+            name="Plot View"/>
       <category
             id="org.gumtree.data.ui"
             name="Data">

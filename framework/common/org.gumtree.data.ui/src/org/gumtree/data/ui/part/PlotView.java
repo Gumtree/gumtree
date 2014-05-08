@@ -21,9 +21,12 @@ import org.gumtree.data.ui.viewers.PlotViewer;
 public class PlotView extends ViewPart {
 
 	private final static String VIEW_ID = "org.gumtree.data.ui.PlotView";
+//	private final static String VIEW_ID = "org.gumtree.data.ui.NonClosablePlotView";
 	private static PlotView instance;
 	private static int index;
 	private PlotViewer viewer;
+	private String secondaryId;
+	
 
 	/**
 	 * 
@@ -53,9 +56,10 @@ public class PlotView extends ViewPart {
 				try{
 					IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 					final IWorkbenchPage workbenchPage = workbenchWindow.getActivePage();
-					
+					String sid = String.valueOf(index++);
 					instance = (PlotView) workbenchPage.showView(
-								VIEW_ID, String.valueOf(index++), IWorkbenchPage.VIEW_VISIBLE);
+								VIEW_ID, sid, IWorkbenchPage.VIEW_VISIBLE);
+					instance.setSecondaryId(sid);
 				}catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -73,6 +77,9 @@ public class PlotView extends ViewPart {
 		
 	}
 	
+	protected void setSecondaryId(String id) {
+		secondaryId = id;
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
@@ -111,5 +118,11 @@ public class PlotView extends ViewPart {
 		super.dispose();
 	}
 	
+	public String getSecondaryId() {
+		return secondaryId;
+	}
 	
+	public void setViewTitle(String title) {
+		super.setPartName(title);
+	}
 }

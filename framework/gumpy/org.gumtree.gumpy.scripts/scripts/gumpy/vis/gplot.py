@@ -32,6 +32,9 @@ class GPlot:
     def set_title(self, title):
         self.pv.getPlot().setPlotTitle(title)
         
+    def set_tab_title(self, tab_title):
+        self.__view__.setViewTitle(tab_title)
+        
     def set_x_label(self, x_label):
         xyplot = self.pv.getPlot().getXYPlot()
         if not xyplot is None :
