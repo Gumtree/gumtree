@@ -18,7 +18,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +40,7 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -165,7 +168,7 @@ public class AcquisitionTask extends AbstractExperimentTask {
 		IExperimentStateListener listener = new IExperimentStateListener() {
 			@Override
 			public void stateUpdated(int runId) {
-				System.out.println("Updated " + runId);
+				System.err.println("Updated " + runId);
 				Acquisition acquisition = stateManager.getAcquisition(runId);
 				view.updateUI(acquisition);
 			}
@@ -237,14 +240,27 @@ public class AcquisitionTask extends AbstractExperimentTask {
 //				}
 				ExperimentUserReport report = ExperimentUserReportUtils.createExperimentUserReport(getExperiment());
 				ExperimentUserReportUtils.exportUserReport(reportFolder, report);
+				SafeUIRunner.asyncExec(new SafeRunnable() {
+					
+					@Override
+					public void run() throws Exception {
+						exportImageReport(reportFolder);
+					}
+				});
 				
 				// User copy
 				final String userReportFolderLocation = getExperiment().getUserReportDirectory();
 				if (userReportFolderLocation != null) {
-					File userReportFolder = new File(userReportFolderLocation);
+					final File userReportFolder = new File(userReportFolderLocation);
 					// Auto export only when meaningful data are available
 					if (getExperiment().getInstrumentConfigs().size() > 0) {
 						ExperimentUserReportUtils.exportUserReport(userReportFolder, report);
+						SafeUIRunner.asyncExec(new SafeRunnable() {
+							@Override
+							public void run() throws Exception {
+								exportImageReport(userReportFolder);
+							}
+						});
 //						ExperimentResultUtils.exportReport(userReportFolder, result);
 					}
 				}
@@ -276,6 +292,72 @@ public class AcquisitionTask extends AbstractExperimentTask {
 		return null;
 	}
 	
+	private void exportImageReport(File folder) throws IOException {
+		
+		if (!folder.exists()) {
+			folder.mkdir();
+		}
+		
+		// Write report
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
+		final File reportFile = new File(folder, "QKK_" + format.format(Calendar.getInstance().getTime()) + "_report.jpg");
+		if (!reportFile.exists()) {
+			reportFile.createNewFile();
+		}
+		
+		int sizeX = 0;
+		int sizeY = 0;
+		final KTable table = view.table;
+//		Point tableSize = table.computeSize(table.getSize().x, table.getSize().y);
+		Point tableSize = table.getSize();
+		final Image tableImage = new Image(table.getDisplay(), tableSize.x, tableSize.y);
+		GC gc2 = new GC(tableImage);
+		table.print(gc2);
+		gc2.dispose();
+		
+//		if (modePanel != null) {
+//			GC gc2 = new GC(modePanel);
+//			gc2.copyArea(image, 0, 0);
+//			gc2.dispose();
+//			modePanel.print(gc2);
+//		}
+//		GC gc2 = new GC(table);
+//		gc2.copyArea(image, 0, sizeY - tableSize.y);
+//		table.print(gc2);
+
+		Point panelSize = null;
+		final Control modePanel = view.getTopControl();
+		Image modeImage = null;
+		if (modePanel != null){
+//			panelSize = modePanel.computeSize(modePanel.getSize().x, modePanel.getSize().y);
+			panelSize = modePanel.getSize();
+			final Image panelImage = new Image(modePanel.getDisplay(), panelSize.x, panelSize.y);
+			gc2 = new GC(panelImage);
+			modePanel.print(gc2);
+			gc2.dispose();
+			sizeX = panelSize.x;
+			sizeY = panelSize.y;
+			modeImage = panelImage;
+		}
+		
+		sizeX = sizeX > tableSize.x ? sizeX : tableSize.x;
+		sizeY += tableSize.y;
+		
+		final Image cmbImage = new Image(table.getDisplay(), sizeX, sizeY);
+		gc2 = new GC(cmbImage);
+		if (modePanel != null) {
+			gc2.drawImage(modeImage, 0, 0, panelSize.x, panelSize.y, 0, 0, panelSize.x, panelSize.y);			
+		}
+		gc2.drawImage(tableImage, 0, 0, tableSize.x, tableSize.y, 0, sizeY - tableSize.y, tableSize.x, tableSize.y);
+		gc2.dispose();
+		ImageLoader saver = new ImageLoader();
+		saver.data = new ImageData[] { cmbImage.getImageData() };
+		saver.save(reportFile.getAbsolutePath(), SWT.IMAGE_PNG);
+		tableImage.dispose();
+		modeImage.dispose();
+		tableImage.dispose();
+	}
+	
 	protected void handleStop() {
 		// And interrupt the current script block by interrupting SICS
 		try {
@@ -304,6 +386,10 @@ public class AcquisitionTask extends AbstractExperimentTask {
 		
 		private KTable table;
 		
+		private StackLayout stackLayout;
+		
+		private int currentNumber;
+		
 		private IEventHandler<WorkflowStateEvent> workfloEventHandler;
 		
 		@Override
@@ -325,7 +411,7 @@ public class AcquisitionTask extends AbstractExperimentTask {
 			 *****************************************************************/
 			Composite environmentArea = getToolkit().createComposite(parent);
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(environmentArea);
-			final StackLayout stackLayout = new StackLayout();
+			stackLayout = new StackLayout();
 			environmentArea.setLayout(stackLayout);
 			
 			final Composite normalEnvComposite = getToolkit().createComposite(environmentArea);
@@ -383,6 +469,13 @@ public class AcquisitionTask extends AbstractExperimentTask {
 			Composite statusArea = getToolkit().createComposite(parent);
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(statusArea);
 			createStatusArea(statusArea);
+		}
+		
+		private Control getTopControl(){
+			if (stackLayout == null) {
+				return null;
+			}
+			return stackLayout.topControl;
 		}
 		
 		private void createButtonArea(final Composite parent) {
@@ -1071,7 +1164,19 @@ public class AcquisitionTask extends AbstractExperimentTask {
 				SafeUIRunner.asyncExec(new SafeRunnable() {
 					@Override
 					public void run() throws Exception {
-						uiContext.comboViewer.setSelection(new StructuredSelection(preset));
+						ISelection selection = new StructuredSelection(preset);
+						int newNumber = preset.getNumber();
+						if (newNumber == currentNumber + 1){
+							int selectedNumber = ((SampleEnvironmentPreset) ((StructuredSelection) uiContext.comboViewer.getSelection()).getFirstElement()).getNumber();
+							if (selectedNumber != currentNumber) {
+								uiContext.comboViewer.setSelection(new StructuredSelection(uiContext.comboViewer.getElementAt(currentNumber - 1)));
+							}
+							URI reportFolderURI = new URI(SystemProperties.REPORT_LOCATION.getValue());
+							final File reportFolder = EFS.getStore(reportFolderURI).toLocalFile(EFS.NONE, new NullProgressMonitor());
+							exportImageReport(reportFolder);
+						}
+						uiContext.comboViewer.setSelection(selection);
+						currentNumber = newNumber;
 					}
 				});
 			}
