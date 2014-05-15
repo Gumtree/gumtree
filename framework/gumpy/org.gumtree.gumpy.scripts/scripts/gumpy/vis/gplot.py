@@ -11,7 +11,7 @@ color_scale = ColorScale
 
 class GPlot:
     
-    def __init__(self, ds = None, title = None, x_label = None, y_label = None, widget = None):
+    def __init__(self, ds = None, title = None, x_label = None, y_label = None, widget = None, view_title = None):
         if widget is None :
             self.__view__ = PlotView.getNewInstance()
             self.pv = self.__view__.getViewer()
@@ -28,6 +28,8 @@ class GPlot:
             self.set_x_label(x_label);
         if not y_label is None:
             self.set_y_label(y_label);
+        if not view_title is None:
+            self.__view__.setViewTitle(view_title)
                 
     def set_title(self, title):
         self.pv.getPlot().setPlotTitle(title)
@@ -516,6 +518,9 @@ class GPlot:
         except:
             print 'failed to parse ' + str(pos)
         self.pv.getPlot().setLegendPosition(jpos)
+        
+    def set_view_title(self, title):
+        self.__view__.setViewTitle(title)
     
 def __get_color__(name):
     res = None
@@ -527,5 +532,5 @@ def __get_color__(name):
         print 'can not interpret color ' + name
     return res
     
-def plot(ds = None, title = None, x_label = None, y_label = None):
-    return GPlot(ds, title, x_label, y_label)
+def plot(ds = None, title = None, x_label = None, y_label = None, view_title = None):
+    return GPlot(ds, title, x_label, y_label, view_title = view_title)

@@ -7,7 +7,7 @@ from au.gov.ansto.bragg.nbi.ui.scripting import ScriptPageRegister
 from au.gov.ansto.bragg.nbi.ui.scripting.parts import ScriptControlViewer
 from gumpy.vis.image2d import Image
 from gumpy.vis.plot1d import Plot
-from gumpy.vis.gplot import GPlot
+from gumpy.vis.gplot import GPlot, plot
 from gumpy.vis.event import MouseListener
 from org.eclipse.core.resources import ResourcesPlugin
 from gumpy.commons.logger import log
