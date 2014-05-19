@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import ch.psi.sics.hipadaba.Component;
 import ch.psi.sics.hipadaba.DataType;
+import ch.psi.sics.hipadaba.Value;
 
 public class DynamicController extends ComponentController implements IDynamicController, IHipadabaListener {
 
@@ -59,6 +60,12 @@ public class DynamicController extends ComponentController implements IDynamicCo
 		SicsCore.getSicsManager().monitor().addListener(getPath(), this);
 		persistData = SicsCoreProperties.PERSIST_HDB_DATA.getBoolean();
 		persistenceManager = ServiceUtils.getService(ISicsPersistenceManager.class);
+		Value value = component.getValue();
+		if (value != null && value.getValue() != null){
+			valueStatus = ValueStatus.IN_SYNC;
+			cachedValue = value.getValue();
+			targetValue = new ComponentData(cachedValue, component.getDataType());
+		}
 	}
 
 	public void preInitialise() {
@@ -68,7 +75,9 @@ public class DynamicController extends ComponentController implements IDynamicCo
 	}
 	
 	public void activate() {
-		setValueStatus(ValueStatus.OUT_OF_SYNC);
+		if (valueStatus == null) {
+			setValueStatus(ValueStatus.OUT_OF_SYNC);
+		}
 		IComponentController targetControllerObject = SicsCore.getSicsController().findComponentController(this, "/target");
 		if(targetControllerObject instanceof IDynamicController) {
 			targetController = (IDynamicController)targetControllerObject;
@@ -315,7 +324,7 @@ public class DynamicController extends ComponentController implements IDynamicCo
 				public void run() {
 					try {
 						// Do a synchronized get first to ensure the target is loaded
-						getValue(true);
+						getValue(false);
 						callback.handleGetValueCallback(DynamicController.this, targetValue);
 					} catch (SicsIOException e) {
 						logger.error("Failed to fetch target", e);
