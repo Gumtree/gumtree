@@ -1,9 +1,11 @@
 instructions.install = \
 	removeProgramArg(programArg:-console); \
 	removeProgramArg(programArg:60053); \
-	addProgramArg(programArg:-console); \
-	addProgramArg(programArg:61153); \
+	removeProgramArg(programArg:workspace); \
+	addProgramArg(programArg:/developer/gumtree/bilby/workspace); \
     removeJvmArg(jvmArg:-Dgumtree.runtime.configBundle=org.gumtree.app.workbench); \
+    removeJvmArg(jvmArg:-Dlogback.logFileLocation=logs); \
+    addJvmArg(jvmArg:-Dlogback.logFileLocation=/developer/gumtree/bilby/logs); \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configBundle=au.gov.ansto.bragg.nbi.webserver); \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configEnv.instr=bilby); \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configEnv.env=prod); \
