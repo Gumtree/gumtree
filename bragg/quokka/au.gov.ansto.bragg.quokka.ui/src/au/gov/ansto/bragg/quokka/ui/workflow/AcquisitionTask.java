@@ -1169,7 +1169,10 @@ public class AcquisitionTask extends AbstractExperimentTask {
 						if (newNumber == currentNumber + 1){
 							int selectedNumber = ((SampleEnvironmentPreset) ((StructuredSelection) uiContext.comboViewer.getSelection()).getFirstElement()).getNumber();
 							if (selectedNumber != currentNumber) {
-								uiContext.comboViewer.setSelection(new StructuredSelection(uiContext.comboViewer.getElementAt(currentNumber - 1)));
+								Object obj = uiContext.comboViewer.getElementAt(currentNumber - 1);
+								if (obj != null) {
+									uiContext.comboViewer.setSelection(new StructuredSelection(obj));
+								}
 							}
 							URI reportFolderURI = new URI(SystemProperties.REPORT_LOCATION.getValue());
 							final File reportFolder = EFS.getStore(reportFolderURI).toLocalFile(EFS.NONE, new NullProgressMonitor());
