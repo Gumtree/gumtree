@@ -26,9 +26,13 @@ public class SicsControllerProvider implements ISicsControllerProvider{
 	
 	private ISicsModelProvider modelProvider;
 	
+	private IServerController serverController;
+	
 	@Override
 	public IServerController createServerController() {
-		IServerController serverController = new ServerController();
+		if (serverController == null) {
+			serverController = new ServerController();
+		}
 		if (getProxy() != null) {
 			serverController.setProxy(getProxy());
 		}

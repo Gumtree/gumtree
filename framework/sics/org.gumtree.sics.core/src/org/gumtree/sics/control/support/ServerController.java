@@ -7,11 +7,13 @@ import org.gumtree.sics.control.IServerController;
 import org.gumtree.sics.control.ServerStatus;
 import org.gumtree.sics.core.ISicsMonitor;
 import org.gumtree.sics.io.ISicsData;
+import org.gumtree.sics.io.ISicsLogManager.LogType;
 import org.gumtree.sics.io.ISicsProxy;
 import org.gumtree.sics.io.SicsCallbackAdapter;
 import org.gumtree.sics.io.SicsEventBuilder;
 import org.gumtree.sics.io.SicsEventHandler;
 import org.gumtree.sics.io.SicsIOException;
+import org.gumtree.sics.io.SicsLogManager;
 import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +24,8 @@ public class ServerController extends SicsController implements IServerControlle
 			.getLogger(ServerController.class);
 
 	private static String PATH = "/";
-	
+	private static String TERTIARY_PATH = "/instrument/status/tertiary";
+	private static String SECONDARY_PATH = "/instrument/status/secondary";
 	private ServerStatus serverStatus;
 
 	private volatile boolean isInterrupted;
@@ -33,6 +36,10 @@ public class ServerController extends SicsController implements IServerControlle
 	
 	private SicsEventHandler monitorEventHandler;
 
+	private SicsEventHandler tertiaryEventHandler;
+	
+	private SicsEventHandler secondaryEventHandler;
+	
 	public ServerController() {
 		super();
 		this.serverStatus = ServerStatus.UNKNOWN;
@@ -52,8 +59,28 @@ public class ServerController extends SicsController implements IServerControlle
 			public void handleSicsEvent(Event event) {
 				serverStatus = ServerStatus.parseStatus(getString(event,
 						ISicsMonitor.EVENT_PROP_STATUS));
+				SicsLogManager.getInstance().log(LogType.STATUS, serverStatus.getText());
 			}
 		};
+		tertiaryEventHandler = new SicsEventHandler(ISicsMonitor.EVENT_TOPIC_HNOTIFY
+				+ TERTIARY_PATH) {
+			@Override
+			public void handleSicsEvent(Event event) {
+				String newValue = getString(event,
+						ISicsMonitor.EVENT_PROP_VALUE);
+				SicsLogManager.getInstance().log(LogType.TERTIARY, newValue);
+			}
+		};
+		secondaryEventHandler = new SicsEventHandler(ISicsMonitor.EVENT_TOPIC_HNOTIFY
+				+ SECONDARY_PATH) {
+			@Override
+			public void handleSicsEvent(Event event) {
+				String newValue = getString(event,
+						ISicsMonitor.EVENT_PROP_VALUE);
+				SicsLogManager.getInstance().log(LogType.SECONDARY, newValue);
+			}
+		};
+
 	}
 
 //	public IComponentController findDeviceController(String deviceId) {
@@ -245,6 +272,7 @@ public class ServerController extends SicsController implements IServerControlle
 
 	protected void setServerStatus(ServerStatus serverStatus) {
 		this.serverStatus = serverStatus;
+		SicsLogManager.getInstance().log(LogType.STATUS, serverStatus.getText());
 		if (getProxy() != null) {
 			new SicsEventBuilder(EVENT_TOPIC_SERVER_STATUS_CHANGE, getProxy()
 					.getId()).append(EVENT_PROP_CONTROLLER, this)
@@ -324,6 +352,8 @@ public class ServerController extends SicsController implements IServerControlle
 			}
 			proxyEventHandler.setProxyId(proxy.getId()).activate();
 			monitorEventHandler.setProxyId(proxy.getId()).activate();
+			tertiaryEventHandler.setProxyId(getProxy().getId()).activate();
+			secondaryEventHandler.setProxyId(getProxy().getId()).activate();
 		}
 	}
 

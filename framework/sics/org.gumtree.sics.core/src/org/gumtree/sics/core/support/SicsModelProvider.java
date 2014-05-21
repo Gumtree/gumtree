@@ -58,7 +58,7 @@ public class SicsModelProvider implements ISicsModelProvider {
 
 	@Override
 	public SICS getModel() throws SicsIOException {
-		return getModel(false);
+		return getModel(true);
 	}
 
 	@Override
@@ -74,6 +74,7 @@ public class SicsModelProvider implements ISicsModelProvider {
 		synchronized (this) {
 			if (model == null) {
 				// load model no matter refresh or not as model is empty
+				logger.info("load SICS model from server");
 				loadModel();
 			} else if (refresh) {
 				// model is not empty, but refresh has been requested

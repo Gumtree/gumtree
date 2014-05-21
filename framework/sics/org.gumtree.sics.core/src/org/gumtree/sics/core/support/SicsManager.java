@@ -50,6 +50,7 @@ public class SicsManager implements ISicsManager {
 				if (proxy == null) {
 					proxy = ContextInjectionFactory.make(SicsProxy.class,
 							context);
+					proxy.setSicsManager(this);
 				}
 			}
 		}
@@ -146,12 +147,21 @@ public class SicsManager implements ISicsManager {
 	}
 
 	@Override
+	public void reloadServerController() {
+		logger.info("reload SICS model");
+		serverController = getSicsControllerProvider().createServerController();
+	}
+
+	@Override
 	public void disposeObject() {
 		if (context != null) {
 			context.dispose();
 			context = null;
 		}
-		proxy = null;
+		if (proxy != null) {
+			proxy.setSicsManager(null);
+			proxy = null;
+		}
 		monitor = null;
 		modelProvider = null;
 		controllerProvider = null;

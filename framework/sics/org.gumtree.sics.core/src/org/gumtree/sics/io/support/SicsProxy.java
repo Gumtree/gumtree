@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PreDestroy;
 
+import org.gumtree.sics.core.ISicsManager;
 import org.gumtree.sics.core.PropertyConstants;
 import org.gumtree.sics.io.ISicsCallback;
 import org.gumtree.sics.io.ISicsChannel;
@@ -82,6 +83,8 @@ public class SicsProxy implements ISicsProxy {
 	private Dispatcher dispatcher;
 
 	private BlockingQueue<MessageContainer> incomingMessageQueue;
+	
+	private ISicsManager sicsManager;
 	
 	public SicsProxy() {
 		id = "default";
@@ -218,6 +221,9 @@ public class SicsProxy implements ISicsProxy {
 								getConnectionContext().getPort());
 						System.err.println("try reconnect");
 						send("status", null, CHANNEL_GENERAL);
+						if (getSicsManager() != null) {
+							getSicsManager().reloadServerController();
+						}
 					} catch (IOException ioe) {
 					} finally {
 						// clean up
@@ -530,6 +536,20 @@ public class SicsProxy implements ISicsProxy {
 				new StringProvider());
 		toStringHelper.add("channels", channels);
 		return toStringHelper.toString();
+	}
+
+	/**
+	 * @return the sicsManager
+	 */
+	public ISicsManager getSicsManager() {
+		return sicsManager;
+	}
+
+	/**
+	 * @param sicsManager the sicsManager to set
+	 */
+	public void setSicsManager(ISicsManager sicsManager) {
+		this.sicsManager = sicsManager;
 	}
 
 }

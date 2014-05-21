@@ -27,5 +27,7 @@ public interface ISicsManager extends IService, IDisposable {
 	public IServerController getServerController();
 	
 	public IBatchBufferManager getBufferManager();
+
+	void reloadServerController();
 	
 }

@@ -12,6 +12,7 @@
 package org.gumtree.sics.io;
 
 import org.gumtree.core.object.IDisposable;
+import org.gumtree.sics.core.ISicsManager;
 
 public interface ISicsProxy extends IDisposable {
 	
@@ -108,5 +109,9 @@ public interface ISicsProxy extends IDisposable {
 	 * @return true if this proxy is connected; false otherwise
 	 */
 	public boolean isConnected();
+
+	public ISicsManager getSicsManager();
+
+	public void setSicsManager(ISicsManager sicsManager);
 
 }
