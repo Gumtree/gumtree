@@ -1,9 +1,13 @@
 instructions.install = \
 	removeProgramArg(programArg:-console); \
 	removeProgramArg(programArg:60053); \
-	addProgramArg(programArg:-console); \
-	addProgramArg(programArg:61253); \
+	removeProgramArg(programArg:-data); \
+	removeProgramArg(programArg:workspace); \
+	addProgramArg(programArg:-data); \
+	addProgramArg(programArg:/developer/gumtree/dingo/workspace); \
     removeJvmArg(jvmArg:-Dgumtree.runtime.configBundle=org.gumtree.app.workbench); \
+    removeJvmArg(jvmArg:-Dlogback.logFileLocation=logs); \
+    addJvmArg(jvmArg:-Dlogback.logFileLocation=/developer/gumtree/dingo/logs); \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configBundle=au.gov.ansto.bragg.nbi.webserver); \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configEnv.instr=dingo); \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configEnv.env=prod); \
