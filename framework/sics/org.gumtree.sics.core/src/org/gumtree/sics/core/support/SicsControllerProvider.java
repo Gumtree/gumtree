@@ -38,6 +38,7 @@ public class SicsControllerProvider implements ISicsControllerProvider{
 		}
 		SICS sicsModel = modelProvider.getModel();
 		createSicsController(serverController, sicsModel.getComponent());
+		serverController.modelCreated();
 		return serverController;
 	}
 	

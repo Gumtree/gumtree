@@ -3,7 +3,10 @@ package org.gumtree.sics.control.support;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
+import org.gumtree.sics.control.ControllerCallbackAdapter;
+import org.gumtree.sics.control.IDynamicController;
 import org.gumtree.sics.control.IServerController;
+import org.gumtree.sics.control.ISicsController;
 import org.gumtree.sics.control.ServerStatus;
 import org.gumtree.sics.core.ISicsMonitor;
 import org.gumtree.sics.io.ISicsData;
@@ -403,6 +406,26 @@ public class ServerController extends SicsController implements IServerControlle
 	@Override
 	public String toString() {
 		return getToStringHelper().toString();
+	}
+
+	@Override
+	public void modelCreated() {
+		ISicsController tertiaryController = findChild(TERTIARY_PATH);
+		if (tertiaryController != null && tertiaryController instanceof IDynamicController) {
+			((DynamicController) tertiaryController).getCurrentValue(new ControllerCallbackAdapter() {
+				public void getCurrentValue(ISicsData data) {
+					SicsLogManager.getInstance().log(LogType.TERTIARY, data.getString());
+				}
+			});
+		}
+		ISicsController secondaryController = findChild(SECONDARY_PATH);
+		if (secondaryController != null && secondaryController instanceof IDynamicController) {
+			((DynamicController) secondaryController).getCurrentValue(new ControllerCallbackAdapter() {
+				public void getCurrentValue(ISicsData data) {
+					SicsLogManager.getInstance().log(LogType.SECONDARY, data.getString());
+				}
+			});
+		}
 	}
 
 }

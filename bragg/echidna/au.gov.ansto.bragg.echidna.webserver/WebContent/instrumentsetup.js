@@ -10,7 +10,8 @@ var devices = [
                },
                {"group":"EXPERIMENT STATUS", 
             	   "items":[{"classId":"stth", "deviceId":"stth", "title":"stth", "units":"deg"}, 
-            	            {"classId":"currpoint", "deviceId":"currpoint", "title":"Current Point", "units":""} 
+            	            {"classId":"currpoint", "deviceId":"currpoint", "title":"Current Point", "units":""},
+            	            {"classId":"hmm_preset", "deviceId":"hmm_preset", "title":"HMM Preset", "units":"s"}
             	            ]
                },
                {"group":"EXPERIMENT INFO", 
@@ -23,7 +24,7 @@ var devices = [
             	            {"classId":"Pallet_Idx", "deviceId":"/sample/robby/Control/Pallet_Idx", "title":"Sample Position", "units":""},
             	            {"classId":"setpoint", "deviceId":"/sample/robby/setpoint", "title":"Robot Status", "units":""}
             	   ]
-               }
+               },
 //               ,
 //               {"group":"TEMPERATURE CONTROLLER 1", 
 //            	   "items":[{"classId":"sensor1ValueA", "deviceId":"/sample/tc1/sensor/sensorValueA", "title":"TC1 Sensor A", "units":"K"},
@@ -39,11 +40,11 @@ var devices = [
 //            	            {"classId":"sensor2ValueD", "deviceId":"/sample/tc2/sensor/sensorValueD", "title":"TC2 Sensor D", "units":"K"}
 //            	   ]
 //               },
-//               {"group":"FURNACE", 
-//            	   "items":[{"classId":"furnaceTemp", "deviceId":"/sample/tempone/sensorA", "title":"Temperature", "units":"K"},
-//            	            {"classId":"furnaceSetpoint", "deviceId":"/sample/tempone/setpoint", "title":"Set Point", "units":"K"}
-//            	   ]
-//               }
+               {"group":"FURNACE", 
+            	   "items":[{"classId":"furnaceTemp", "deviceId":"/sample/tc1/sensorA/value", "title":"Temperature", "units":"K"},
+            	            {"classId":"furnaceSetpoint", "deviceId":"/sample/tc1/setpoint", "title":"Set Point", "units":"K"}
+            	   ]
+               }
                ];
 
 var nsItems = [

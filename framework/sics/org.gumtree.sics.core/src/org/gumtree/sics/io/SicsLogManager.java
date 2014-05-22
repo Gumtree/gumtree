@@ -24,6 +24,7 @@ public class SicsLogManager implements ISicsLogManager {
 
 	private static SicsLogManager instance;
 	private Map<LogType, PrintWriter> logFiles;
+	private Map<LogType, String> lastLogEntries;
 	private int dayOfWeek;
 	
 	/**
@@ -32,6 +33,7 @@ public class SicsLogManager implements ISicsLogManager {
 	private SicsLogManager() {
 		dayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);;
 		logFiles = new HashMap<ISicsLogManager.LogType, PrintWriter>();
+		lastLogEntries = new HashMap<ISicsLogManager.LogType, String>();
 		final String filename = System.getProperty("gumtree.logging.path");
 		if (filename == null) {
 			return;
@@ -74,12 +76,19 @@ public class SicsLogManager implements ISicsLogManager {
 					continue;
 				}
 			}
+			String lastEntry = lastLogEntries.get(type);
+			if (lastEntry != null) {
+				log(type, lastEntry);
+			}
 			try {
 				PrintWriter outputfile = new PrintWriter(new FileWriter(file, true), true);
 				PrintWriter oldFile = logFiles.get(type); 
 				logFiles.put(type, outputfile);
 				if (oldFile != null) {
 					oldFile.close();
+				}
+				if (lastEntry != null) {
+					log(type, lastEntry);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -99,6 +108,7 @@ public class SicsLogManager implements ISicsLogManager {
 			outputFile.append(String.valueOf(System.currentTimeMillis()) + "\t" + text + "\n");
 			outputFile.flush();
 		}
+		lastLogEntries.put(type, text);
 	}
 
 	/* (non-Javadoc)

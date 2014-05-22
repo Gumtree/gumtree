@@ -2,8 +2,7 @@ var title = "Pelican Status";
 var batchEnabled = true;
 var devices = [
                {"group":"BEAM STATUS", 
-            	   "items":[{"classId":"reactor_power", "deviceId":"reactor_power", "title":"Reactor Power", "units":"MW"},  
-            	            {"classId":"total_counts", "deviceId":"::histogram_memory::total_counts", "title":"Detector Counts", "units":"ct"}, 
+            	   "items":[{"classId":"total_counts", "deviceId":"::histogram_memory::total_counts", "title":"Detector Counts", "units":"ct"}, 
             	            {"classId":"histogram_memory_time", "deviceId":"::histogram_memory::time", "title":"Time of Counting", "units":"s"}, 
             	            {"classId":"bm1_counts", "deviceId":"bm1_counts", "title":"BM1 Counts", "units":"ct"},
             	            {"classId":"bm2_counts", "deviceId":"bm2_counts", "title":"BM2 Counts", "units":"ct"},

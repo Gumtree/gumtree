@@ -59,6 +59,8 @@ public interface IServerController extends ISicsController {
 	
 	public void clearInterrupt();
 
+	public void modelCreated();
+
 	/*************************************************************************
 	 * 
 	 * Getters and setters
