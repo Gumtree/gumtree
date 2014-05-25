@@ -102,10 +102,10 @@ public class SicsLogManager implements ISicsLogManager {
 	public void log(LogType type, String text) {
 		PrintWriter outputFile = logFiles.get(type);
 		if (outputFile != null && text != null) {
-//			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-//			Date date = new Date();
-//			outputFile.append(dateFormat.format(date) + " \t" + text + "\n");
-			outputFile.append(String.valueOf(System.currentTimeMillis()) + "\t" + text + "\n");
+			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
+			Date date = new Date();
+			outputFile.append(dateFormat.format(date) + " \t" + text + "\n");
+//			outputFile.append(String.valueOf(System.currentTimeMillis()) + "\t" + text + "\n");
 			outputFile.flush();
 		}
 		lastLogEntries.put(type, text);

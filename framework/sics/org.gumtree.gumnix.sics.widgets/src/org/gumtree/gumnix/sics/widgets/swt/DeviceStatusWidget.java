@@ -130,6 +130,9 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 	}
 
 	private DeviceContext getDeviceContext(URI uri) {
+		if (deviceContexts == null) {
+			return null;
+		}
 		for (DeviceContext context : deviceContexts){
 			if (!context.isSeparator && context.path.equals(uri.getPath())) {
 				return context;
