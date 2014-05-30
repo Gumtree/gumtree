@@ -3,11 +3,15 @@
  */
 package org.gumtree.sics.io;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -21,11 +25,16 @@ import java.util.Map.Entry;
  */
 public class SicsLogManager implements ISicsLogManager {
 
-
+	public final static String PROPERTY_LOGGING_PATH = "gumtree.logging.path";
+	public final static String PROPERTY_LOGGING_SHUTTER_ENABLED = "gumtree.logging.shutterEnabled";
 	private static SicsLogManager instance;
 	private Map<LogType, PrintWriter> logFiles;
 	private Map<LogType, String> lastLogEntries;
 	private int dayOfWeek;
+	private String logFolder;
+	private boolean isShutterEnabled;
+	public DateFormat logDateFormat;
+	public DateFormat fileDateFormat;
 	
 	/**
 	 * 
@@ -34,15 +43,19 @@ public class SicsLogManager implements ISicsLogManager {
 		dayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);;
 		logFiles = new HashMap<ISicsLogManager.LogType, PrintWriter>();
 		lastLogEntries = new HashMap<ISicsLogManager.LogType, String>();
-		final String filename = System.getProperty("gumtree.logging.path");
-		if (filename == null) {
+		logFolder = System.getProperty(PROPERTY_LOGGING_PATH);
+		isShutterEnabled = Boolean.valueOf(System.getProperty(PROPERTY_LOGGING_SHUTTER_ENABLED, "false"));
+		logDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
+		fileDateFormat = new SimpleDateFormat("yyyyMMdd");
+
+		if (logFolder == null) {
 			return;
 		}
-		File parent = new File(filename);
+		File parent = new File(logFolder);
 		if (!parent.exists()) {
 			parent.mkdirs();
 		}
-		createFiles(filename);
+		createFiles(logFolder);
 		Thread timeMonitorThread = new Thread(new Runnable() {
 			
 			@Override
@@ -50,7 +63,7 @@ public class SicsLogManager implements ISicsLogManager {
 				while(true) {
 					int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
 					if (day != dayOfWeek) {
-						createFiles(filename);
+						createFiles(logFolder);
 						dayOfWeek = day;
 					}
 					try {
@@ -64,31 +77,59 @@ public class SicsLogManager implements ISicsLogManager {
 	}
 
 	private void createFiles(String parentPath) {
-		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 		Date date = new Date();
-		for (LogType type : LogType.values()) {
-			File file = new File(parentPath + "/" + type.name() + "_" + dateFormat.format(date));
+		if (isShutterEnabled) {
+			for (LogType type : LogType.values()) {
+				File file = new File(parentPath + "/" + type.name() + "_" + fileDateFormat.format(date));
+				if (!file.exists()) {
+					try {
+						file.createNewFile();
+					} catch (IOException e) {
+						e.printStackTrace();
+						continue;
+					}
+				}
+				String lastEntry = lastLogEntries.get(type);
+				if (lastEntry != null) {
+					log(type, lastEntry);
+				}
+				try {
+					PrintWriter outputfile = new PrintWriter(new FileWriter(file, true), true);
+					PrintWriter oldFile = logFiles.get(type); 
+					logFiles.put(type, outputfile);
+					if (oldFile != null) {
+						oldFile.close();
+					}
+					if (lastEntry != null) {
+						log(type, lastEntry);
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		} else {
+			File file = new File(parentPath + "/" + LogType.STATUS.name() + "_" + fileDateFormat.format(date));
 			if (!file.exists()) {
 				try {
 					file.createNewFile();
 				} catch (IOException e) {
 					e.printStackTrace();
-					continue;
+					return;
 				}
 			}
-			String lastEntry = lastLogEntries.get(type);
+			String lastEntry = lastLogEntries.get(LogType.STATUS);
 			if (lastEntry != null) {
-				log(type, lastEntry);
+				log(LogType.STATUS, lastEntry);
 			}
 			try {
 				PrintWriter outputfile = new PrintWriter(new FileWriter(file, true), true);
-				PrintWriter oldFile = logFiles.get(type); 
-				logFiles.put(type, outputfile);
+				PrintWriter oldFile = logFiles.get(LogType.STATUS); 
+				logFiles.put(LogType.STATUS, outputfile);
 				if (oldFile != null) {
 					oldFile.close();
 				}
 				if (lastEntry != null) {
-					log(type, lastEntry);
+					log(LogType.STATUS, lastEntry);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -102,13 +143,12 @@ public class SicsLogManager implements ISicsLogManager {
 	public void log(LogType type, String text) {
 		PrintWriter outputFile = logFiles.get(type);
 		if (outputFile != null && text != null) {
-			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
 			Date date = new Date();
-			outputFile.append(dateFormat.format(date) + " \t" + text + "\n");
+			outputFile.append(logDateFormat.format(date) + " \t" + text + "\n");
 //			outputFile.append(String.valueOf(System.currentTimeMillis()) + "\t" + text + "\n");
 			outputFile.flush();
+			lastLogEntries.put(type, text);
 		}
-		lastLogEntries.put(type, text);
 	}
 
 	/* (non-Javadoc)
@@ -128,4 +168,195 @@ public class SicsLogManager implements ISicsLogManager {
 		return instance;
 	}
 
+	
+	public Map<String, Long> processLog(final Date start, final Date end) {
+		Map<String, Long> logCounts = new HashMap<String, Long>();
+		File folder = new File(logFolder);
+		if (!folder.exists()) {
+			return logCounts;
+		}
+		String[] files = folder.list(new FilenameFilter() {
+			
+			@Override
+			public boolean accept(File dir, String name) {
+				if (name.startsWith(LogType.STATUS.name())) {
+					String dataString = name.split("_")[1];
+					try {
+						Date readDate = fileDateFormat.parse(dataString);
+						if ((readDate.after(start) && readDate.before(end)) || readDate.equals(start) || readDate.equals(end)) {
+							return true;
+						}
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				}
+				return false;
+			}
+		});
+		for (String filename : files){
+			processStatusFile(logCounts, folder + "/" + filename);
+		}
+		if (isShutterEnabled) {
+			files = folder.list(new FilenameFilter() {
+				
+				@Override
+				public boolean accept(File dir, String name) {
+					if (name.startsWith(LogType.SECONDARY.name())) {
+						String dataString = name.split("_")[1];
+						try {
+							Date readDate = fileDateFormat.parse(dataString);
+							if ((readDate.after(start) && readDate.before(end)) || readDate.equals(start) || readDate.equals(end)) {
+								return true;
+							}
+						} catch (ParseException e) {
+							e.printStackTrace();
+						}
+					}
+					return false;
+				}
+			});
+			for (String filename : files){
+				processShutterFile(logCounts, LogType.SECONDARY.name(), folder + "/" + filename);
+			}
+			files = folder.list(new FilenameFilter() {
+				
+				@Override
+				public boolean accept(File dir, String name) {
+					if (name.startsWith(LogType.TERTIARY.name())) {
+						String dataString = name.split("_")[1];
+						try {
+							Date readDate = fileDateFormat.parse(dataString);
+							if ((readDate.after(start) && readDate.before(end)) || readDate.equals(start) || readDate.equals(end)) {
+								return true;
+							}
+						} catch (ParseException e) {
+							e.printStackTrace();
+						}
+					}
+					return false;
+				}
+			});
+			for (String filename : files){
+				processShutterFile(logCounts, LogType.TERTIARY.name(), folder + "/" + filename);
+			}
+		}
+		return logCounts;
+	}
+
+	private void processShutterFile(Map<String, Long> logCounts,
+			String shutterName, String filename) {
+		BufferedReader br = null;
+		try{
+			boolean oldStatus = false;
+			long timeStamp = 0;
+			br = new BufferedReader(new FileReader(filename));
+			String line = br.readLine();
+			long currTime = 0;
+			Long oldTime = null;
+	        while (line != null) {
+	            String[] pair = line.split("\t");
+	            currTime = logDateFormat.parse(pair[0]).getTime();
+	            oldTime = logCounts.get(shutterName);
+	            boolean newStatus = "OPEN".equals(pair[1]);
+	            if (oldStatus) {
+	            	if (oldTime != null) {
+	            		logCounts.put(shutterName, currTime - timeStamp + oldTime);
+	            	} else {
+	            		logCounts.put(shutterName, currTime - timeStamp);
+	            	}
+	            }
+	            timeStamp = currTime;
+	            oldStatus = newStatus;
+	            line = br.readLine();
+	        }
+            br.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+	}
+
+	private void processStatusFile(Map<String, Long> logCounts, String filename) {
+		BufferedReader br = null;
+		try{
+			String oldStatus = null;
+			long timeStamp = 0;
+			br = new BufferedReader(new FileReader(filename));
+			String line = br.readLine();
+			long startTime = logDateFormat.parse(line.split("\t")[0]).getTime();
+			long currTime = 0;
+			Long oldTime = null;
+	        while (line != null) {
+	        	String[] pair = line.split("\t");
+	        	currTime = logDateFormat.parse(pair[0]).getTime();
+	        	if (oldStatus != null) {
+	        		oldTime = logCounts.get(oldStatus);
+	        		if (oldTime != null) {
+	        			logCounts.put(oldStatus, currTime - timeStamp + oldTime);
+	        		} else {
+	        			logCounts.put(oldStatus, currTime - timeStamp);
+	        		}
+	        	}
+	            timeStamp = currTime;
+	            oldStatus = "STATUS." + pair[1];
+	            line = br.readLine();
+	        }
+	        oldTime = logCounts.get("TOTAL");
+	        if (oldTime != null) {
+    			logCounts.put("TOTAL", currTime - startTime + oldTime);
+    		} else {
+    			logCounts.put("TOTAL", currTime - startTime);
+    		}
+            br.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		
+	}
+
+	public String getStartDate() {
+		Date earliest = new Date();
+		File folder = new File(logFolder);
+		if (!folder.exists()) {
+			return fileDateFormat.format(earliest);
+		}
+		String[] files = folder.list(new FilenameFilter() {
+			
+			@Override
+			public boolean accept(File dir, String name) {
+				if (name.startsWith(LogType.STATUS.name())) {
+					return true;
+				}
+				return false;
+			}
+		});
+		if (files.length == 0){
+			return fileDateFormat.format(earliest);
+		}
+		for (String filename : files) {
+			String dataString = filename.split("_")[1];
+			try {
+				Date readDate = fileDateFormat.parse(dataString);
+				if (readDate.before(earliest)) {
+					earliest = readDate;
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		return fileDateFormat.format(earliest);
+	}
 }

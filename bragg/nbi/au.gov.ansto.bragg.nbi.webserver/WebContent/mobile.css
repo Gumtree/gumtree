@@ -49,3 +49,22 @@ img, object{
 .div-normal{
 	color: black;
 }
+.div-piechart {
+    width: 280px;
+    height: 280px;
+    font-size: 14px;
+    line-height: 1.2em;
+    text-align: left;
+}
+.div-piechart-inline {
+    width: 280px;
+    height: 280px;
+    font-size: 14px;
+    line-height: 1.2em;
+    text-align: left;
+    float: left;
+}
+.div-timeRange{
+	margin-left: 20px;
+	margin-right: 26px;
+}

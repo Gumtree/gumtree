@@ -18,4 +18,5 @@ Export-Package: au.gov.ansto.bragg.nbi.server,
  au.gov.ansto.bragg.nbi.server.restlet,
  au.gov.ansto.bragg.nbi.server.vaadin
 Import-Package: org.apache.commons.httpclient;version="3.1.0";resolution:=optional,
- org.apache.commons.httpclient.methods;version="3.1.0";resolution:=optional
+ org.apache.commons.httpclient.methods;version="3.1.0";resolution:=optional,
+ org.gumtree.sics.io

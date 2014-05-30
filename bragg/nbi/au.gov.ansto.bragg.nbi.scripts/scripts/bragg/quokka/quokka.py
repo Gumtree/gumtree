@@ -508,8 +508,6 @@ def scan(scanMode, dataType, preset, force='true', saveType=saveType.save):
 #    sics.hset(scanController, '/savetype', saveType.key)
 #    sics.hset(scanController, '/force', force)
 
-    sics.execute('hset /instrument/dummy_motor 0', 'scan')
-    
     sics.execute('hset ' + controllerPath + '/scan_variable dummy_motor', 'scan')
     sics.execute('hset ' + controllerPath + '/scan_start 0', 'scan')
     sics.execute('hset ' + controllerPath + '/scan_stop 0', 'scan')
@@ -524,8 +522,9 @@ def scan(scanMode, dataType, preset, force='true', saveType=saveType.save):
     sics.execute('hset ' + controllerPath + '/force ' + force, 'scan')
 
     # Wait 1 sec to make the setting settle
-    time.sleep(0.5)
-    
+    time.sleep(1)
+    while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+        time.sleep(0.1)
     # Synchronously run scan
     scanController.syncExecute()
 
@@ -567,7 +566,7 @@ def stopHistmem():
     histmemController = sicsController.findComponentController('/commands/histogram/histmem')
     log('stopping histmem ...')
     sics.execute('histmem stop')
-
+    time.sleep(1)
 # determine averaged local and global rates
 #   samples: number of samples to create average
 #   timeout: maximal time for this function

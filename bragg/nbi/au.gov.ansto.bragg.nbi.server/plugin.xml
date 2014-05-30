@@ -10,6 +10,12 @@
                path="/ns/rest">
          </resource-mapping>
       </httpcontext>
+      <httpcontext
+            id="statisticRestlet">
+         <resource-mapping
+               path="/st/rest">
+         </resource-mapping>
+      </httpcontext>
    </extension>
    <extension
          id="nsRestlet"
@@ -21,6 +27,15 @@
          <init-param
                name="org.restlet.application"
                value="au.gov.ansto.bragg.nbi.server.restlet.NSRestletApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/st/rest"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="statisticRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.restlet.StatisticRestletApplication">
          </init-param>
       </servlet>
    </extension>

@@ -32,6 +32,14 @@
             base-name="/WebContent/mobile.js">
       </resource>
       <resource
+            alias="/manager.html"
+            base-name="/WebContent/manager.html">
+      </resource>
+      <resource
+            alias="/manager.js"
+            base-name="/WebContent/manager.js">
+      </resource>
+      <resource
             alias="/mobile.css"
             base-name="/WebContent/mobile.css">
       </resource>
@@ -42,6 +50,18 @@
       <resource
             alias="/mobilehistmem.js"
             base-name="/WebContent/mobilehistmem.js">
+      </resource>
+      <resource
+            alias="/flot"
+            base-name="/WebContent/flot">
+      </resource>
+      <resource
+            alias="/css"
+            base-name="/WebContent/css">
+      </resource>
+      <resource
+            alias="/js"
+            base-name="/WebContent/js">
       </resource>
    </extension>
 
