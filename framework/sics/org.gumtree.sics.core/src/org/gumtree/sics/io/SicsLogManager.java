@@ -215,6 +215,9 @@ public class SicsLogManager implements ISicsLogManager {
 					return false;
 				}
 			});
+			if (files.length > 0) {
+				logCounts.put(LogType.SECONDARY.name(), 0L);
+			}
 			for (String filename : files){
 				processShutterFile(logCounts, LogType.SECONDARY.name(), folder + "/" + filename);
 			}
@@ -236,6 +239,9 @@ public class SicsLogManager implements ISicsLogManager {
 					return false;
 				}
 			});
+			if (files.length > 0) {
+				logCounts.put(LogType.TERTIARY.name(), 0L);
+			}
 			for (String filename : files){
 				processShutterFile(logCounts, LogType.TERTIARY.name(), folder + "/" + filename);
 			}
