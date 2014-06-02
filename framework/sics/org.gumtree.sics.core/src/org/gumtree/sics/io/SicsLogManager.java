@@ -269,7 +269,17 @@ public class SicsLogManager implements ISicsLogManager {
 	            oldStatus = newStatus;
 	            line = br.readLine();
 	        }
-            br.close();
+	        Date now = new Date();
+            if (oldStatus) {
+            	if (filename.endsWith(fileDateFormat.format(now))){
+		            oldTime = logCounts.get(shutterName);
+	            	if (oldTime != null) {
+	            		logCounts.put(shutterName, now.getTime() - timeStamp + oldTime);
+	            	} else {
+	            		logCounts.put(shutterName, now.getTime() - timeStamp);
+	            	}
+	            }	        	
+	        }
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -307,13 +317,24 @@ public class SicsLogManager implements ISicsLogManager {
 	            oldStatus = "STATUS." + pair[1];
 	            line = br.readLine();
 	        }
+	        Date now = new Date();
+            if (filename.endsWith(fileDateFormat.format(now))){
+            	if (oldStatus != null) {
+            		oldTime = logCounts.get(oldStatus);
+	            	if (oldTime != null) {
+	            		logCounts.put(oldStatus, now.getTime() - timeStamp + oldTime);
+	            	} else {
+	            		logCounts.put(oldStatus, now.getTime() - timeStamp);
+	            	}
+	            	currTime = now.getTime();
+	            }
+	        }
 	        oldTime = logCounts.get("TOTAL");
 	        if (oldTime != null) {
     			logCounts.put("TOTAL", currTime - startTime + oldTime);
     		} else {
     			logCounts.put("TOTAL", currTime - startTime);
     		}
-            br.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
