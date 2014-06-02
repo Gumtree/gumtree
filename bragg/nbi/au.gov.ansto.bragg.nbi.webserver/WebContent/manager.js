@@ -16,8 +16,8 @@ var refresh = function(){
 	if (end < start) {
 		end = start;
 	}
-	var startString = String(start.getFullYear()) + padStr(1+start.getMonth()) + padStr(start.getDate());
-	var endString = String(end.getFullYear()) + padStr(1+end.getMonth()) + padStr(end.getDate());
+	var startString = String(start.getFullYear()) + "-" + padStr(1+start.getMonth()) + "-" + padStr(start.getDate());
+	var endString = String(end.getFullYear()) + "-" + padStr(1+end.getMonth()) + "-" + padStr(end.getDate());
 	var url = "st/rest/status?from=" + startString + "&to=" + endString;
 	$.get(url,function(data,status){
 		if (status == "success") {
@@ -166,9 +166,63 @@ var refresh = function(){
 				}
 				if (obj.SECONDARY != null) {
 					$("#SECONDARY").text(toPtg(obj.SECONDARY, 1) + " of " + obj.TOTAL);
+					var open = parseFloat(obj.SECONDARY);
+					data = [{label:"OPEN", data:open}, {label:"CLOSE", data:1-open}];
+					$("#SECONDARY").unbind();
+					try {
+						$.plot('#secondaryChart', data, {
+							series: {
+								pie: {
+									show: true,
+									radius: 1,
+									label: {
+										show: true,
+										radius: 3/4,
+										formatter: labelFormatter,
+										threshold: 0.1,
+										background: {
+											opacity: 0.5
+										}
+									}
+								}
+							},
+							legend: {
+								show: false
+							}
+						});
+					} catch (e) {
+						alert(e);
+					}
 				}
 				if (obj.TERTIARY != null) {
 					$("#TERTIARY").text(toPtg(obj.TERTIARY, 1) + " of " + obj.TOTAL);
+					var open = parseFloat(obj.TERTIARY);
+					data = [{label:"OPEN", data:open}, {label:"CLOSE", data:1-open}];
+					$("#TERTIARY").unbind();
+					try {
+						$.plot('#tertiaryChart', data, {
+							series: {
+								pie: {
+									show: true,
+									radius: 1,
+									label: {
+										show: true,
+										radius: 3/4,
+										formatter: labelFormatter,
+										threshold: 0.1,
+										background: {
+											opacity: 0.5
+										}
+									}
+								}
+							},
+							legend: {
+								show: false
+							}
+						});
+					} catch (e) {
+						alert(e);
+					}
 				}
 			}
 		}
@@ -187,7 +241,7 @@ jQuery(document).ready(function(){
 		if (status == "success") {
 			try {
 				var ds = jQuery.parseJSON(data).start;
-				var startDate = new Date(ds.substring(0,4), ds.substring(4,6) - 1, ds.substring(6,8));
+				var startDate = new Date(ds.substring(0,4), ds.substring(5,7) - 1, ds.substring(8,10));
 				var endDate = new Date();
 				$("#div-slider").dateRangeSlider({
 					bounds:{

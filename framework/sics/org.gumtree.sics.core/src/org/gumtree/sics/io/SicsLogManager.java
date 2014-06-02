@@ -45,8 +45,8 @@ public class SicsLogManager implements ISicsLogManager {
 		lastLogEntries = new HashMap<ISicsLogManager.LogType, String>();
 		logFolder = System.getProperty(PROPERTY_LOGGING_PATH);
 		isShutterEnabled = Boolean.valueOf(System.getProperty(PROPERTY_LOGGING_SHUTTER_ENABLED, "false"));
-		logDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
-		fileDateFormat = new SimpleDateFormat("yyyyMMdd");
+		logDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+		fileDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 		if (logFolder == null) {
 			return;
