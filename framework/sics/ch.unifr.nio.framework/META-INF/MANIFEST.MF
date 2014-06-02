@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: NIO Framework
 Bundle-SymbolicName: ch.unifr.nio.framework
 Bundle-Version: 1.1.0.qualifier
-Bundle-ClassPath: nio_framework-1.1beta.jar
+Bundle-ClassPath: src/,
+ nio_framework-1.1beta.jar
 Export-Package: ch.unifr.nio.framework,
  ch.unifr.nio.framework.ssl,
  ch.unifr.nio.framework.transform
