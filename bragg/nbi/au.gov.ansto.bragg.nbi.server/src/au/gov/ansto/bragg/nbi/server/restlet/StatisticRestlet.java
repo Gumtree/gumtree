@@ -1,7 +1,5 @@
 package au.gov.ansto.bragg.nbi.server.restlet;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -84,9 +82,23 @@ public class StatisticRestlet extends Restlet implements IDisposable {
 				if ("TOTAL".equals(entry.getKey())){
 					result.put("TOTAL", String.format("%.1fh", entry.getValue() / 3600000.));
 				} else if ("STATUS.EAGER TO EXECUTE".equals(entry.getKey())){
-					result.put("STATUS.IDLE", String.format("%.5g", ((float) entry.getValue()) / total));
+					float percentage = ((float) entry.getValue()) / total;
+					if (percentage > 1) {
+						percentage = 1;
+					}
+					if (percentage < 0) {
+						percentage = 0;
+					}
+					result.put("STATUS.IDLE", String.format("%.5g", percentage));
 				} else {
-					result.put(entry.getKey(), String.format("%.5g", ((float) entry.getValue()) / total));
+					float percentage = ((float) entry.getValue()) / total;
+					if (percentage > 1) {
+						percentage = 1;
+					}
+					if (percentage < 0) {
+						percentage = 0;
+					}
+					result.put(entry.getKey(), String.format("%.5g", percentage));
 				}
 			}
 			writeJSONObject(response, queryForm, result);

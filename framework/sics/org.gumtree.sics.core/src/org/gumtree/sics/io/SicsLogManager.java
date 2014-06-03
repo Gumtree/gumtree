@@ -262,17 +262,19 @@ public class SicsLogManager implements ISicsLogManager {
 	        while (line != null) {
 	            String[] pair = line.split("\t");
 	            currTime = logDateFormat.parse(pair[0]).getTime();
-	            oldTime = logCounts.get(shutterName);
-	            boolean newStatus = "OPEN".equals(pair[1]);
-	            if (oldStatus) {
-	            	if (oldTime != null) {
-	            		logCounts.put(shutterName, currTime - timeStamp + oldTime);
-	            	} else {
-	            		logCounts.put(shutterName, currTime - timeStamp);
+	            if (currTime > timeStamp) {
+	            	oldTime = logCounts.get(shutterName);
+	            	boolean newStatus = "OPEN".equals(pair[1]);
+	            	if (oldStatus) {
+	            		if (oldTime != null) {
+	            			logCounts.put(shutterName, currTime - timeStamp + oldTime);
+	            		} else {
+	            			logCounts.put(shutterName, currTime - timeStamp);
+	            		}
 	            	}
+	            	timeStamp = currTime;
+	            	oldStatus = newStatus;
 	            }
-	            timeStamp = currTime;
-	            oldStatus = newStatus;
 	            line = br.readLine();
 	        }
 	        Date now = new Date();
@@ -311,16 +313,18 @@ public class SicsLogManager implements ISicsLogManager {
 	        while (line != null) {
 	        	String[] pair = line.split("\t");
 	        	currTime = logDateFormat.parse(pair[0]).getTime();
-	        	if (oldStatus != null) {
-	        		oldTime = logCounts.get(oldStatus);
-	        		if (oldTime != null) {
-	        			logCounts.put(oldStatus, currTime - timeStamp + oldTime);
-	        		} else {
-	        			logCounts.put(oldStatus, currTime - timeStamp);
+	        	if (currTime >= timeStamp) {
+	        		if (oldStatus != null) {
+	        			oldTime = logCounts.get(oldStatus);
+	        			if (oldTime != null) {
+	        				logCounts.put(oldStatus, currTime - timeStamp + oldTime);
+	        			} else {
+	        				logCounts.put(oldStatus, currTime - timeStamp);
+	        			}
 	        		}
+	        		timeStamp = currTime;
+	        		oldStatus = "STATUS." + pair[1];
 	        	}
-	            timeStamp = currTime;
-	            oldStatus = "STATUS." + pair[1];
 	            line = br.readLine();
 	        }
 	        Date now = new Date();
