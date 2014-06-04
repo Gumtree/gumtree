@@ -1,5 +1,12 @@
 var evEnabled = false;
 
+var startDate;
+var endDate;
+var nScale = 1;
+
+var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+
+
 function toPtg(val, numDigit) {
 	return String((Math.round(Number(val) * 1000) / 10).toFixed(numDigit)) + "%";
 }
@@ -229,6 +236,91 @@ var refresh = function(){
 	});
 };
 
+function getNextValue(value, nScale, startDate, endDate) {
+	var next = new Date(value);
+	try {
+		var yearDiff = (endDate - startDate) / (12.0 * 30 * 24 * 3600 * 1000);
+		if (yearDiff > nScale * 1.7) {
+			var nextYear = new Date(next.setFullYear(value.getFullYear() + Math.ceil(yearDiff / nScale)));
+			nextYear.setMonth(0);
+			nextYear.setDate(1);
+			return nextYear;
+		}
+		if (yearDiff > nScale * 0.5) {
+			var nextYear = new Date(next.setFullYear(value.getFullYear() + 1));
+			nextYear.setMonth(0);
+			nextYear.setDate(1);
+			return nextYear;
+		}
+		var monthDiff = (endDate - startDate) / (30.0 * 24 * 3600 * 1000);
+		if (monthDiff > nScale * 1.3) {
+			var nextMonth = new Date(next.setMonth(value.getMonth() + Math.ceil(monthDiff / nScale)));
+			nextMonth.setDate(1);
+			return nextMonth;
+		}
+		if (monthDiff > nScale * 0.5) {
+			var nextMonth = new Date(next.setMonth(value.getMonth() + 1));
+			nextMonth.setDate(1);
+			return nextMonth;
+		}
+		var dayDiff = (endDate - startDate) / (24.0 * 3600 * 1000);
+		if (dayDiff > nScale){
+			return new Date(next.setDate(value.getDate() + Math.ceil(dayDiff / nScale)));
+		} else {
+			return new Date(next.setDate(value.getDate() + 1));
+		}
+	}catch(e){
+		alert(e);
+	}
+}
+
+function getScaleLabel(value, nScale, startDate, endDate) {
+	try{
+		var yearDiff = (endDate - startDate) / (12.0 * 30 * 24 * 3600 * 1000);
+		if (yearDiff > nScale * 0.5) {
+			if (value.getDate() != 1 || value.getMonth() != 0) {
+				return "";
+			}
+			return String(value.getFullYear());
+		}
+		var monthDiff = (endDate - startDate) / (30.0 * 24 * 3600 * 1000);
+		if (monthDiff > nScale * 1.3) {
+			if (value.getDate() != 1) {
+				return "";
+			}
+			if (value.getMonth() < Math.ceil(monthDiff / nScale) || value.getTime() == startDate.getTime()){
+				return months[value.getMonth()] + " " + String(value.getFullYear()).substring(2);
+			} else {
+				return months[value.getMonth()];
+			}
+		}
+		if (monthDiff > nScale * 0.5) {
+			if (value.getDate() != 1) {
+				return "";
+			}
+			if (value.getMonth() == 0 || value.getTime() == startDate.getTime()){
+				return months[value.getMonth()] + " " + String(value.getFullYear()).substring(2);
+			} else {
+				return months[value.getMonth()];
+			}
+		}
+		var dayDiff = (endDate - startDate) / (24.0 * 3600 * 1000);
+		if (dayDiff > nScale){
+			if (value.getDate() <= Math.ceil(dayDiff / nScale) || value.getTime() == startDate.getTime()) {
+				return value.getDate().toString() + " " + months[value.getMonth()];
+			} else {
+				return String(value.getDate());
+			}
+		}
+		if (value.getDate() == 1 || value.getTime() == startDate.getTime()) {
+			return value.getDate().toString() + " " + months[value.getMonth()];
+		}
+		return String(value.getDate());
+	}catch(e){
+		alert("label"+e);
+	}
+}
+
 jQuery(document).ready(function(){
 	$(document).attr("title", title + " - Statistical Report");
 	$('#titleString').text(title + " - Statistical Report");
@@ -241,8 +333,13 @@ jQuery(document).ready(function(){
 		if (status == "success") {
 			try {
 				var ds = jQuery.parseJSON(data).start;
-				var startDate = new Date(ds.substring(0,4), ds.substring(5,7) - 1, ds.substring(8,10));
-				var endDate = new Date();
+//				var startDate = new Date(ds.substring(0,4), ds.substring(5,7) - 1, ds.substring(8,10));
+				startDate = new Date(2006, 1, 11);
+				endDate = new Date();
+				try {
+					nScale = $("#div-slider").width() / 100;
+				} catch (e) {
+				}
 				$("#div-slider").dateRangeSlider({
 					bounds:{
 						min: startDate,
@@ -251,7 +348,17 @@ jQuery(document).ready(function(){
 					defaultValues:{
 						min: startDate,
 						max: endDate
-					}
+					},
+					scales: [{
+						first: function(value){ return value; },
+						end: function(value) {return value; },
+						next: function(value){
+							return getNextValue(value, nScale, startDate, endDate);
+						},
+						label: function(value){
+							return getScaleLabel(value, nScale, startDate, endDate);
+						}
+					}]
 				});
 				refresh();
 			} catch (e) {
@@ -260,3 +367,23 @@ jQuery(document).ready(function(){
 	});
 });
 
+$( window ).resize(function() {
+	try {
+		var newScale = $("#div-slider").width() / 100;
+		if (newScale != nScale) {
+			nScale = newScale;
+			$("#div-slider").dateRangeSlider("option", "scales", [{
+				first: function(value){ return value; },
+				end: function(value) {return value; },
+				next: function(value){
+					return getNextValue(value, nScale, startDate, endDate);
+				},
+				label: function(value){
+					return getScaleLabel(value, nScale, startDate, endDate);
+				}
+			}]
+			);
+		}
+	} catch (e) {
+	}
+});

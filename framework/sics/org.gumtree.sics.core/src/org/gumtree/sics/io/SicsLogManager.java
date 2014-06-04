@@ -307,6 +307,9 @@ public class SicsLogManager implements ISicsLogManager {
 			long timeStamp = 0;
 			br = new BufferedReader(new FileReader(filename));
 			String line = br.readLine();
+			if (line == null) {
+				return;
+			}
 			long startTime = logDateFormat.parse(line.split("\t")[0]).getTime();
 			long currTime = 0;
 			Long oldTime = null;
@@ -347,6 +350,7 @@ public class SicsLogManager implements ISicsLogManager {
     		}
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.err.println(filename);
 		} finally {
 			if (br != null) {
 				try {
