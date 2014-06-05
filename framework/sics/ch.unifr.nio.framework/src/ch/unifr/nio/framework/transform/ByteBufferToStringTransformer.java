@@ -84,9 +84,11 @@ public class ByteBufferToStringTransformer
                 logger.log(Level.FINEST,
                         "transformed string: \"" + string + "\"");
             }
+            System.out.println(string);
         } catch (CharacterCodingException ex) {
         	string = "";
-            ex.printStackTrace();
+        	System.err.println(input.get());
+//            ex.printStackTrace();
         }
         return string;
     }

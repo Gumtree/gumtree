@@ -333,8 +333,8 @@ jQuery(document).ready(function(){
 		if (status == "success") {
 			try {
 				var ds = jQuery.parseJSON(data).start;
-//				var startDate = new Date(ds.substring(0,4), ds.substring(5,7) - 1, ds.substring(8,10));
-				startDate = new Date(2006, 1, 11);
+				var startDate = new Date(ds.substring(0,4), ds.substring(5,7) - 1, ds.substring(8,10));
+//				startDate = new Date(2006, 1, 11);
 				endDate = new Date();
 				try {
 					nScale = $("#div-slider").width() / 100;
