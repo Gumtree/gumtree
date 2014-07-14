@@ -584,11 +584,12 @@ public class NcHdfWriter implements IWriter {
 			dimension = new long[] { 1 };
 			// dimension = new long[]{attribute.getStringValue().length()};
 		} else {
-			dimension = new long[] { datatype.getDatatypeSize() };
+//			dimension = new long[] { datatype.getDatatypeSize() };
+			for (int i = 0; i < dimension.length; i++) {
+				dimension[i] = shape[i];
+			}
 		}
-		// for (int i = 0; i < dimension.length; i++) {
-		// dimension[i] = shape[i];
-		// }
+		
 		Object data = null;
 		try {
 			if (attribute.isString()) {
