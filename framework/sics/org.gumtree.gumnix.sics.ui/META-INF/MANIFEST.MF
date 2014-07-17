@@ -8,6 +8,7 @@ Bundle-Localization: plugin
 Bundle-ActivationPolicy: lazy
 Export-Package: org.gumtree.gumnix.sics.internal.ui.actions,
  org.gumtree.gumnix.sics.internal.ui.controlview,
+ org.gumtree.gumnix.sics.internal.ui.editors,
  org.gumtree.gumnix.sics.ui,
  org.gumtree.gumnix.sics.ui.componentview,
  org.gumtree.gumnix.sics.ui.controlview,
