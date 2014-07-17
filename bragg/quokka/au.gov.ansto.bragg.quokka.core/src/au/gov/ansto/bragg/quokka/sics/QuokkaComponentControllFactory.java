@@ -33,12 +33,12 @@ public class QuokkaComponentControllFactory extends ComponentControllerFactory {
 		}else if (component.getId().equals(ID_COMPONENT_DETECTOR_X)) {
 			// hack
 			return new DetectorYController(component);
-		}else if (component.getId().equals(ID_COMPONENT_TC_1)) {
-			try {
-				return new JulaboLH45Controller(component);	
-			} catch (Exception e) {
-				logger.warn("HDB setting is incorrect, generic controller will be used instead.", e);
-			}
+//		}else if (component.getId().equals(ID_COMPONENT_TC_1)) {
+//			try {
+//				return new JulaboLH45Controller(component);	
+//			} catch (Exception e) {
+//				logger.warn("HDB setting is incorrect, generic controller will be used instead.", e);
+//			}
 		} else if (component.getId().equals(ID_COMPONENT_SELBSN)) {
 			return new BeamStopCommandController(component);
 		} else if (component.getId().equals(ID_COMPONENT_SELBS_XZ)) {

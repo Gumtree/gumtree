@@ -20,9 +20,9 @@ public class JulaboLH45Controller extends DrivableController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(JulaboLH45Controller.class);
 	
-	private static final String PATH_VALUE = "/sensor/value";
+	private static final String PATH_VALUE = "/sensor/sensorValueA";
 	
-	private static final String PATH_TARGET = "/setpoint";
+	private static final String PATH_TARGET = "/sensor/setpoint1";
 	
 	private static final String PATH_STATUS = "/status";
 	
@@ -30,7 +30,7 @@ public class JulaboLH45Controller extends DrivableController {
 	
 	private static final String PATH_SUB_LIMIT = "/subtemp_warnlimit";
 	
-	private static final String PATH_TOLERANCE = "/tolerance";
+	private static final String PATH_TOLERANCE = "/tolerance1";
 	
 	private IDynamicController valueController;
 	
