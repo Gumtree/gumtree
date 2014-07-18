@@ -34,6 +34,7 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 	
 	private static final String ID_PERSPECTIVE_EXPERIMENT = "au.gov.ansto.bragg.pelican.ui.TCLRunnerPerspective";
 	
+	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
 	// Use the default as buffer to hold the editor
 	private static final String ID_PERSPECTIVE_DEFAULT = "au.gov.ansto.bragg.nbi.ui.EmptyPerspective";
 
@@ -128,6 +129,7 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 			
 			IMultiMonitorManager mmManager = new MultiMonitorManager();
 			// Attempt to close intro
+			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SICS, 0, 0, mmManager.isMultiMonitorSystem());
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
 //			try {
 //				activeWorkbenchWindow.getActivePage().showView("org.gumtree.app.workbench.cruisePanel", null, IWorkbenchPage.VIEW_ACTIVATE);

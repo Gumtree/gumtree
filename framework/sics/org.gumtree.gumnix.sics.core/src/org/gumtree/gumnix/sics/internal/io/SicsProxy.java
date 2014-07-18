@@ -50,6 +50,8 @@ public class SicsProxy implements ISicsProxy {
 	
 	private static final int SOCKET_TRY_INTERVAL = 200;
 	
+	private static final String SICS_LOG_ALL_IN_BATCH_CHANNEL = "gumtree.sics.logAllInBatchChannel";
+	
 	private static long idCounter = 0;
 
 	private static Logger logger;
@@ -78,6 +80,8 @@ public class SicsProxy implements ISicsProxy {
 
 	private String id;
 	
+	private boolean logAllInBatchChannel = false;
+	
 	public SicsProxy() {
 		id = idCounter++ + "";
 		state = ProxyState.DISCONNECTED;
@@ -94,6 +98,11 @@ public class SicsProxy implements ISicsProxy {
 		incomingMessageQueue = new LinkedBlockingQueue<MessageContainer>();
 		messageDispatcherThread = new Thread(new MessageDispatcher(), "SICS Message Dispatcher");
 		messageDispatcherThread.start();
+		
+		try {
+			logAllInBatchChannel = Boolean.valueOf(System.getProperty(SICS_LOG_ALL_IN_BATCH_CHANNEL));
+		} catch (Exception e) {
+		}
 	}
 
 	public String getId() {
@@ -420,6 +429,10 @@ public class SicsProxy implements ISicsProxy {
 								public void run(ISicsProxyListener listener)
 										throws Exception {
 									listener.messageReceived(replyMessage, channelId);
+									if (logAllInBatchChannel && !CHANNEL_RAW_BATCH.equals(channelId) && !replyMessage.startsWith("{") 
+											&& !(replyMessage.startsWith("contextdo") && replyMessage.contains("hget"))){
+										listener.messageReceived(replyMessage, CHANNEL_RAW_BATCH);
+									}
 								}
 							});
 					
