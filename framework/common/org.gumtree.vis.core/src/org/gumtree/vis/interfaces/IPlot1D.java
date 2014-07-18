@@ -72,4 +72,8 @@ public interface IPlot1D extends IPlot{
 	public void setLegendPosition(LegendPosition position);
 	
 	public LegendPosition getLegendPosition();
+	
+	public void setMouseFollowerXPrecision(int xPrecision);
+	
+	public void setMouseFollowerYPrecision(int yPrecision);
 }

@@ -112,6 +112,8 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
     private Rectangle2D internalLegendSetup;
     private boolean isInternalLegendEnabled;
 	private boolean isInternalLegendSelected;
+	private int mouseFollowerXPrecision;
+	private int mouseFollowerYPrecision;
     
 	/**
 	 * @param chart
@@ -243,6 +245,8 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 		}
 		internalLegendSetup = new Rectangle2D.Double(152, 20, 150, 20);
 		isInternalLegendSelected = false;
+		mouseFollowerXPrecision = 2;
+		mouseFollowerYPrecision = 2;
 	}
 
 	@Override
@@ -1531,7 +1535,7 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
     	Rectangle2D dataArea = getScreenDataArea();
     	if (((int) dataArea.getMinX() <= x) && (x <= (int) dataArea.getMaxX()) && 
     			((int) dataArea.getMinY() <= y) && (y <= (int) dataArea.getMaxY())) {
-    		String text = String.format("(%.2f, %.2f", getChartX(), 
+    		String text = String.format("(%." + mouseFollowerXPrecision + "f, %." + mouseFollowerYPrecision + "f", getChartX(), 
     				getChartY());
     		boolean isErrorEnabled = false;
     		XYItemRenderer renderer = getXYPlot().getRenderer();
@@ -1540,7 +1544,7 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
     					renderer).getDrawYError();
     		}
     		if (isErrorEnabled) {
-    			text += String.format(" \u00B1%.2f", getChartError());
+    			text += String.format(" \u00B1%." + mouseFollowerYPrecision + "f", getChartError());
     		}
     		text += ")";
     		int xLoc = x + 10;
@@ -1724,4 +1728,13 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 		return LegendPosition.NONE;
 	}
 
+	@Override
+	public void setMouseFollowerXPrecision(int xPrecision) {
+		mouseFollowerXPrecision = xPrecision;
+	}
+	
+	@Override
+	public void setMouseFollowerYPrecision(int yPrecision) {
+		mouseFollowerYPrecision = yPrecision;
+	}
 }

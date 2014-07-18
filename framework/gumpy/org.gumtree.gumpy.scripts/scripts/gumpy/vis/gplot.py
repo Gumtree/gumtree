@@ -521,6 +521,30 @@ class GPlot:
         
     def set_view_title(self, title):
         self.__view__.setViewTitle(title)
+        
+    def set_mouse_follower_precision(self, p1, p2 = None, p3 = None):
+        pl = self.pv.getPlot()
+        if self.ndim == 1:
+            if p2 is None:
+                pl.setMouseFollowerXPrecision(p1)
+                pl.setMouseFollowerYPrecision(p1)
+            else:
+                pl.setMouseFollowerXPrecision(p1)
+                pl.setMouseFollowerYPrecision(p2)
+        elif self.ndim == 2:
+            if p2 is None:
+                pl.setMouseFollowerXPrecision(p1)
+                pl.setMouseFollowerYPrecision(p1)
+                pl.setMouseFollowerZPrecision(p1)
+            else:
+                if p3 is None:
+                    pl.setMouseFollowerXPrecision(p1)
+                    pl.setMouseFollowerYPrecision(p1)
+                    pl.setMouseFollowerZPrecision(p2)
+                else:
+                    pl.setMouseFollowerXPrecision(p1)
+                    pl.setMouseFollowerYPrecision(p2)
+                    pl.setMouseFollowerZPrecision(p3)
     
 def __get_color__(name):
     res = None

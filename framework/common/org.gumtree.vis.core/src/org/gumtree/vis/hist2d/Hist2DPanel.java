@@ -85,7 +85,10 @@ public class Hist2DPanel extends JChartPanel implements IHist2D, DatasetChangeLi
 //    private List<RectangleMask> exclusiveMaskList;
     private Point2D maskMovePoint;
 	private double chartZ = Double.NaN;
-
+	private int mouseFollowerXPrecision;
+	private int mouseFollowerYPrecision;
+	private int mouseFollowerZPrecision;
+	
 //    private static final Cursor defaultCursor = Cursor.getPredefinedCursor(
 //    		Cursor.DEFAULT_CURSOR);
 //    private static final Cursor westResizeCursor = Cursor.getPredefinedCursor(
@@ -231,6 +234,9 @@ public class Hist2DPanel extends JChartPanel implements IHist2D, DatasetChangeLi
 			}
 		}
 		createMaskColors(true);
+		mouseFollowerXPrecision = 2;
+		mouseFollowerYPrecision = 2;
+		mouseFollowerZPrecision = 2;
 	}
 
 //	@Override
@@ -1138,7 +1144,7 @@ public class Hist2DPanel extends JChartPanel implements IHist2D, DatasetChangeLi
     	Rectangle2D dataArea = getScreenDataArea();
     	if (((int) dataArea.getMinX() < x) && (x < (int) dataArea.getMaxX()) && 
     			((int) dataArea.getMinY() < y) && (y < (int) dataArea.getMaxY())) {
-    		String text = String.format("(%.2f, %.2f, %.2f)", getChartX(), getChartY(), 
+    		String text = String.format("(%." + mouseFollowerXPrecision + "f, %." + mouseFollowerYPrecision + "f, %." + mouseFollowerZPrecision + "f)", getChartX(), getChartY(), 
     				getChartZ());
     		int xLoc = x + 10;
     		int yLoc = y + 20;
@@ -1613,6 +1619,21 @@ public class Hist2DPanel extends JChartPanel implements IHist2D, DatasetChangeLi
 		if (dataset != null) {
 			DatasetUtils.export((IXYZDataset) dataset, writer, ExportFormat.XYZ);
 		}
+	}
+
+	@Override
+	public void setMouseFollowerXPrecision(int xPrecision) {
+		mouseFollowerXPrecision = xPrecision;
+	}
+	
+	@Override
+	public void setMouseFollowerYPrecision(int yPrecision) {
+		mouseFollowerYPrecision = yPrecision;
+	}
+
+	@Override
+	public void setMouseFollowerZPrecision(int zPrecision) {
+		mouseFollowerZPrecision = zPrecision;
 	}
 
 }

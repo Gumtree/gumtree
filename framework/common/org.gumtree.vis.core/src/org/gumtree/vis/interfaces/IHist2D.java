@@ -30,4 +30,11 @@ public interface IHist2D extends IPlot{
 	public abstract void updatePaintScaleLegend();
 	
 	public abstract boolean isLogarithmScaleEnabled();
+	
+	public void setMouseFollowerXPrecision(int xPrecision);
+	
+	public void setMouseFollowerYPrecision(int yPrecision);
+
+	public void setMouseFollowerZPrecision(int zPrecision);
+	
 }
