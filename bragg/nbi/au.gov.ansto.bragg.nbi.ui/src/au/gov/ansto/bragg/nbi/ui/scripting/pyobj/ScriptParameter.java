@@ -20,6 +20,8 @@ public class ScriptParameter extends PyObjectImp {
 		BOOL,
 		FILE,
 		PROGRESS,
+		LABEL,
+		SPACE,
 		DEFAULT
 	};
 	
