@@ -1703,7 +1703,8 @@ public class ScriptControlViewer extends Composite {
 				break;
 			case LABEL:
 				final Label label = new Label(parent, SWT.NONE);
-				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan > 2 ? parameterColspan : 2, parameterRowspan).applyTo(label);
+				label.setText(String.valueOf(parameter.getValue()));
+				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).applyTo(label);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
@@ -1715,7 +1716,8 @@ public class ScriptControlViewer extends Composite {
 				break;
 			case SPACE:
 				final Label spaceLabel = new Label(parent, SWT.NONE);
-				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan > 2 ? parameterColspan : 2, parameterRowspan).applyTo(spaceLabel);
+				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).applyTo(spaceLabel);
+				break;
 			default:
 				name = new Label(parent, SWT.RIGHT);
 				if (parameter.getProperty("title") != null) {
