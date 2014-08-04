@@ -16,6 +16,12 @@
                path="/st/rest">
          </resource-mapping>
       </httpcontext>
+      <httpcontext
+            id="jythonRestlet">
+         <resource-mapping
+               path="/jython/rest">
+         </resource-mapping>
+      </httpcontext>
    </extension>
    <extension
          id="nsRestlet"
@@ -36,6 +42,15 @@
          <init-param
                name="org.restlet.application"
                value="au.gov.ansto.bragg.nbi.server.restlet.StatisticRestletApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/jython/rest"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="jythonRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.restlet.JythonRestletApplication">
          </init-param>
       </servlet>
    </extension>

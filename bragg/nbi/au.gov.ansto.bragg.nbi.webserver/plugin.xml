@@ -48,6 +48,14 @@
             base-name="/WebContent/mobilehistmem.html">
       </resource>
       <resource
+            alias="/scripting.html"
+            base-name="/WebContent/scripting.html">
+      </resource>
+      <resource
+            alias="/scripting.js"
+            base-name="/WebContent/scripting.js">
+      </resource>
+      <resource
             alias="/mobilehistmem.js"
             base-name="/WebContent/mobilehistmem.js">
       </resource>
@@ -62,6 +70,10 @@
       <resource
             alias="/js"
             base-name="/WebContent/js">
+      </resource>
+      <resource
+            alias="/images"
+            base-name="/WebContent/images">
       </resource>
    </extension>
 

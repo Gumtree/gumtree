@@ -13,7 +13,7 @@ package org.gumtree.sics.control;
 
 public enum ServerStatus {
 
-	UNKNOWN("UNKNOW"), EAGER_TO_EXECUTE("EAGER TO EXECUTE"), COUNTING(
+	UNKNOWN("UNKNOWN"), EAGER_TO_EXECUTE("EAGER TO EXECUTE"), COUNTING(
 			"COUNTING"), DRIVING("DRIVING"), WAIT("WAIT"), PAUSE("PAUSE");
 
 	private ServerStatus(String text) {

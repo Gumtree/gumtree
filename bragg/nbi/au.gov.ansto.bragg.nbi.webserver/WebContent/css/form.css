@@ -1,0 +1,28 @@
+.form-label-left{
+    width:200px !important;
+}
+.form-line{
+    padding-top:12px;
+    padding-bottom:12px;
+}
+.form-label-right{
+    width:200px;
+}
+/*
+body, html{
+    background:rgb(153, 153, 153) url(http://jotform.co/images/brushed.png) 50% 50%;
+}
+*/
+
+.form-all{
+    margin:0px auto;
+    padding-top:0px;
+    width:690px;
+/*    background:rgb(153, 153, 153) url(http://jotform.co/images/brushed.png) 50% 50%;*/
+    color:black;
+    font-family:'Arial Black';
+    font-size:12px;
+}
+.form-radio-item label, .form-checkbox-item label, .form-grading-label, .form-header{
+    color:black;
+}
