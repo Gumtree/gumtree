@@ -10,15 +10,10 @@ import java.io.PrintWriter;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 
-import org.gumtree.scripting.EvalChangeEvent;
-import org.gumtree.scripting.IObservableComponent;
 import org.gumtree.scripting.IScriptBlock;
-import org.gumtree.scripting.IScriptingListener;
 import org.gumtree.scripting.ObservableScriptContext;
-import org.gumtree.scripting.ScriptBlock;
 import org.gumtree.scripting.ScriptExecutor;
 import org.gumtree.scripting.ScriptExecutorEvent;
-import org.gumtree.scripting.ScriptingChangeEvent;
 import org.gumtree.service.eventbus.IEventHandler;
 import org.gumtree.util.PlatformUtils;
 
@@ -29,7 +24,7 @@ import org.gumtree.util.PlatformUtils;
 public class JythonExecutor {
 
 	public enum ExecutorStatus{
-		IDLE, BUSY, INTERRUPTED, ERROR, 
+		IDLE, BUSY, ERROR, 
 	}
 	
 	private static ScriptExecutor executor;
@@ -142,6 +137,7 @@ public class JythonExecutor {
 	public static void runScriptLine(final String scriptLine) {
 		currentScript = scriptLine;
 		getExecutor().getEngine().getContext().getBindings(ScriptContext.ENGINE_SCOPE).put(VAR_SILENCE_MODE, false);
+		resetErrorStatus();
 		setStatus(ExecutorStatus.BUSY);
 		getExecutor().runScript(scriptLine);
 	}
@@ -149,6 +145,7 @@ public class JythonExecutor {
 	public static void runScriptBlock(IScriptBlock scriptBlock){
 		currentScript = scriptBlock.getScript();
 		getExecutor().getEngine().getContext().getBindings(ScriptContext.ENGINE_SCOPE).put(VAR_SILENCE_MODE, true);
+		resetErrorStatus();
 		setStatus(ExecutorStatus.BUSY);
 		getExecutor().runScript(scriptBlock);
 	}
@@ -185,13 +182,18 @@ public class JythonExecutor {
 	}
 	
 	private static void setStatus(ExecutorStatus newStatus) {
-		status = newStatus;
+		if (status != ExecutorStatus.ERROR) {
+			status = newStatus;
+		}
+	}
+	
+	public static void resetErrorStatus(){
+		status = ExecutorStatus.IDLE;
 	}
 	
 	public static void interrupt() {
 		if (executor.isBusy()) {
 			executor.interrupt();
-			setStatus(ExecutorStatus.INTERRUPTED);
 		}
 	}
 	
@@ -204,4 +206,19 @@ public class JythonExecutor {
 		recentMessage = "";
 		recentError = "";
 	}
+
+	/**
+	 * @return the consoleHistory
+	 */
+	public static String getConsoleHistory() {
+		return consoleHistory;
+	}
+
+	/**
+	 * @return the errorHistory
+	 */
+	public static String getErrorHistory() {
+		return errorHistory;
+	}
+
 }

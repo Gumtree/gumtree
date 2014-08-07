@@ -16,11 +16,11 @@ function htmlEntities(s) {
             .replace(/>/g, '&gt;');
 }
 function updateConsole(data){
-    if (data.text != null && data.text.trim().length > 0){
-        $('#console').append('<div class="consoleText">' + htmlEntities(data.text) + '</div>');
+    if (data['text'] != null && data['text'].trim().length > 0){
+        $('#console').append('<div class="consoleText">' + htmlEntities(data['text']) + '</div>');
     }
-    if (data.error != null && data.error.trim().length > 0){
-        $('#console').append('<div class="consoleError">' + htmlEntities(data.error) + '</div>');
+    if (data['error'] != null && data['error'].trim().length > 0){
+        $('#console').append('<div class="consoleError">' + htmlEntities(data['error']) + '</div>');
     }
 }
 //function updateConsole(data){
@@ -33,24 +33,69 @@ function updateConsole(data){
 //    }
 //}
 
+function listProp(obj){
+    var text = "";
+    $.each( obj, function(i, n){
+        text += i + ":" + n + "\n";
+    });
+    return text;
+}
+
+function enableWidgets(){
+    $("#runner_status").css("background-color", "green");
+//    $("#run_script").removeAttr("disabled");
+    $("#run_script").val("Run Script");
+    $('#lineFeed').removeAttr("disabled");
+}
+
+function disableWidgets(){
+    $("#runner_status").css("background-color", "#B74");
+//    $("#run_script").attr("disabled", true);
+    $("#run_script").val("Interrupt");
+    $("#lineFeed").attr("disabled", true);
+}
+
+function setErrorWidgets(){
+    $("#runner_status").css("background-color", "red");
+//    $("#run_script").removeAttr("disabled");
+    $("#run_script").val("Run Script");
+    $('#lineFeed').removeAttr("disabled");
+}
+
 function updateStatus(){
     var getUrl = "jython/rest/res?type=STATUS";
     $.get(getUrl,function(data,status){
 		if (status == "success") {
-			var rStatus = data.status;
-            $('#runner_status').html(rStatus);
-            updateConsole(data);
-            $('#console').scrollTop($('#console')[0].scrollHeight);
-            if (data.status == "IDLE"){
-                $("#runner_status").css("background-color", "green");
-                $("#run_script").removeAttr("disabled");
-                clearInterval(timerObject.interval_id);
-            } else if (data.status == "BUSY"){
-                $("#runner_status").css("background-color", "orange");
-                $("#run_script").attr("disabled", true);
-            } else if (data.status == "ERROR"){
-                $("#runner_status").css("background-color", "red");
-                $("#run_script").removeAttr("disabled");
+            processStatus(data);
+		}
+    });
+}
+
+function processStatus(data) {
+    var rStatus = data['status'];
+    $('#runner_status').html(rStatus);
+    updateConsole(data);
+    $('#console').scrollTop($('#console')[0].scrollHeight);
+    if (data['status'] == "IDLE"){
+        enableWidgets();
+        clearInterval(timerObject.interval_id);
+    } else if (data['status'] == "BUSY"){
+        disableWidgets();
+    } else if (data['status'] == "ERROR"){
+        setErrorWidgets();
+        clearInterval(timerObject.interval_id);
+    }
+}
+
+function initUpdateStatus(){
+    var getUrl = "jython/rest/res?type=STATUS";
+    $.get(getUrl,function(data,status){
+		if (status == "success") {
+            processStatus(data);
+            if (data['status'] == "BUSY"){
+                timerObject.interval_id = setInterval(function(){
+                    updateStatus();
+                }, 1000);
             }
 		}
     });
@@ -59,77 +104,130 @@ function updateStatus(){
 function runScript(){
     var postUrl = "jython/rest/res?type=START";
     $.post( postUrl, $("form#script_form").serialize(), function(data, status) {
-            var rStatus = data.status;
-            $('#runner_status').html(rStatus);
-            updateConsole(data);
-            $('#console').scrollTop($('#console')[0].scrollHeight);
-            
-            if (data.status == "BUSY"){
-                $("#runner_status").css("background-color", "orange");
-                $("#run_script").attr("disabled", true);
+        if (status == "success") {
+            processStatus(data);
+            if (data['status'] == "BUSY"){
                 timerObject.interval_id = setInterval(function(){
-		          updateStatus();
-	           }, 1000);
-            } else if (data.status == "IDLE"){
-                $("#runner_status").css("background-color", "green");
-                clearInterval(timerObject.interval_id);
-                $("#run_script").removeAttr("disabled");
-            } else if (data.status == "ERROR"){
-                $("#runner_status").css("background-color", "red");
-                clearInterval(timerObject.interval_id);
-                $("#run_script").removeAttr("disabled");
+                    updateStatus();
+                }, 1000);
             }
-        })
-        .fail(function(e) {
-            alert( "error submitting the script");
-        });
-    
+        }
+    })
+    .fail(function(e) {
+        alert( "error submitting the script");
+    });
 }
 
-    $.fn.selectRange = function(start, end) {
-        return this.each(function() {
-            if (this.setSelectionRange) {
-                this.focus();
-                this.setSelectionRange(start, end);
-            } else if (this.createTextRange) {
-                var range = this.createTextRange();
-                range.collapse(true);
-                range.moveEnd('character', end);
-                range.moveStart('character', start);
-                range.select();
-            }
-        });
-    };
-    $.fn.setSelection = function(selectionStart, selectionEnd) {
-        if(this.length == 0) return this;
-        input = this[0];
-
-        if (input.createTextRange) {
-            var range = input.createTextRange();
-            range.collapse(true);
-            range.moveEnd('character', selectionEnd);
-            range.moveStart('character', selectionStart);
-            range.select();
-        } else if (input.setSelectionRange) {
-            input.focus();
-            input.setSelectionRange(selectionStart, selectionEnd);
+function interruptScript(){
+    var getUrl = "jython/rest/res?type=INTERRUPT";
+    $.get(getUrl, function(data, status) {
+        if (status == "success") {
+            processStatus(data);
         }
+    })
+    .fail(function(e) {
+            alert( "error interrupting the script");
+    });
+}
 
-        return this;
-    };
-    $.fn.setCursorPosition = function(position){
-        if(this.length == 0) return this;
-        return $(this).setSelection(position, position);
-    };
+$.fn.selectRange = function(start, end) {
+    return this.each(function() {
+        if (this.setSelectionRange) {
+            this.focus();
+            this.setSelectionRange(start, end);
+        } else if (this.createTextRange) {
+            var range = this.createTextRange();
+            range.collapse(true);
+            range.moveEnd('character', end);
+            range.moveStart('character', start);
+            range.select();
+        }
+    });
+};
+$.fn.setSelection = function(selectionStart, selectionEnd) {
+    if(this.length == 0) return this;
+    input = this[0];
+
+    if (input.createTextRange) {
+        var range = input.createTextRange();
+        range.collapse(true);
+        range.moveEnd('character', selectionEnd);
+        range.moveStart('character', selectionStart);
+        range.select();
+    } else if (input.setSelectionRange) {
+        input.focus();
+        input.setSelectionRange(selectionStart, selectionEnd);
+    }
+
+    return this;
+};
+$.fn.setCursorPosition = function(position){
+    if(this.length == 0) return this;
+    return $(this).setSelection(position, position);
+};
+
+function removeClassName (elem, className) {
+	elem.className = elem.className.replace(className, "").trim();
+}
+
+function addCSSClass (elem, className) {
+	removeClassName (elem, className);
+	elem.className = (elem.className + " " + className).trim();
+}
+
+String.prototype.trim = function() {
+	return this.replace( /^\s+|\s+$/, "" );
+}
+
+function stripedTable() {
+	if (document.getElementById && document.getElementsByTagName) {  
+		var allTables = document.getElementsByTagName('table');
+		if (!allTables) { return; }
+
+		for (var i = 0; i < allTables.length; i++) {
+			if (allTables[i].className.match(/[\w\s ]*scrollTable[\w\s ]*/)) {
+				var trs = allTables[i].getElementsByTagName("tr");
+				for (var j = 0; j < trs.length; j++) {
+					removeClassName(trs[j], 'alternateRow');
+					addCSSClass(trs[j], 'normalRow');
+				}
+				for (var k = 0; k < trs.length; k += 2) {
+					removeClassName(trs[k], 'normalRow');
+					addCSSClass(trs[k], 'alternateRow');
+				}
+			}
+		}
+	}
+}
+
 
 jQuery(document).ready(function(){
 	$(document).attr("title", title + " - Jython Runner");
 	$('#titleString').text(title + " - Jython Runner");
 
+    stripedTable();
 	$("#run_script").click(function() {
-		runScript();
+        if ($('#runner_status').html() == "BUSY"){
+            interruptScript();
+        } else {
+            runScript();
+        }
 	});
     
+    $("#tab1").click(function(){
+        $("#tab1").removeClass("tabUnselected");
+        $("#tab1").addClass("tabSelected");
+        $("#tab2").removeClass("tabSelected");
+        $("#tab2").addClass("tabUnselected");
+    });
+
+    $("#tab2").click(function(){
+        $("#tab1").removeClass("tabSelected");
+        $("#tab1").addClass("tabUnselected");
+        $("#tab2").removeClass("tabUnselected");
+        $("#tab2").addClass("tabSelected");
+    });
+
     $("#jython_file").on("change", function(event) {
         var postUrl = "jython/rest/res?type=READSCRIPT";
         var formData = new FormData($('form#file_form')[0]);
@@ -189,25 +287,13 @@ jQuery(document).ready(function(){
             $('#console').scrollTop($('#console')[0].scrollHeight);
             var postUrl = "jython/rest/res?type=START";
             $.post( postUrl, { script_text: $('#lineFeed').val(), script_input: "textInput" }, function(data, status) {
-                var rStatus = data.status;
-                $('#runner_status').html(rStatus);
-                updateConsole(data);
-                $('#console').scrollTop($('#console')[0].scrollHeight);
-
-                if (data.status == "BUSY"){
-                    $("#runner_status").css("background-color", "orange");
-                    $("#run_script").attr("disabled", true);
-                    timerObject.interval_id = setInterval(function(){
-                      updateStatus();
-                   }, 1000);
-                } else if (data.status == "IDLE"){
-                    $("#runner_status").css("background-color", "green");
-                    clearInterval(timerObject.interval_id);
-                    $("#run_script").removeAttr("disabled");
-                } else if (data.status == "ERROR"){
-                    $("#runner_status").css("background-color", "red");
-                    clearInterval(timerObject.interval_id);
-                    $("#run_script").removeAttr("disabled");
+                if (status == "success") {
+                    processStatus(data);
+                    if (data['status'] == "BUSY"){
+                        timerObject.interval_id = setInterval(function(){
+                            updateStatus();
+                        }, 1000);
+                    }
                 }
             })
             .fail(function(e) {
@@ -239,5 +325,9 @@ jQuery(document).ready(function(){
             }
         }
     });
+    
+    initUpdateStatus();
+    $("#tab1").click();
+    window.location = $('#tab1').attr('href');
 });
 

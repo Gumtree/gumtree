@@ -15,9 +15,9 @@ body, html{
 */
 
 .form-all{
-    margin:0px auto;
+    margin:2px auto;
     padding-top:0px;
-    width:690px;
+/*    width:690px;*/
 /*    background:rgb(153, 153, 153) url(http://jotform.co/images/brushed.png) 50% 50%;*/
     color:black;
     font-family:'Arial Black';

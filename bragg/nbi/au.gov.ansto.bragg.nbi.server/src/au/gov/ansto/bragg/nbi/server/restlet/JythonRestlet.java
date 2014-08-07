@@ -3,31 +3,21 @@
  */
 package au.gov.ansto.bragg.nbi.server.restlet;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.nio.channels.ReadableByteChannel;
-
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.scripting.IScriptBlock;
-import org.gumtree.scripting.ObservableScriptContext;
 import org.gumtree.scripting.ScriptBlock;
-import org.gumtree.scripting.ScriptExecutor;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
-import org.restlet.data.Encoding;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
+
+import au.gov.ansto.bragg.nbi.server.restlet.JythonExecutor.ExecutorStatus;
 
 /**
  * @author nxi
@@ -35,7 +25,6 @@ import org.restlet.representation.Representation;
  */
 public class JythonRestlet extends Restlet implements IDisposable {
 
-	private static ScriptExecutor executor;
 	private final static String QUERY_SCRIPT_TEXT = "script_text";
 	private final static String QUERY_SCRIPT_INPUT_MODE = "script_input";
 	private final static String QUERY_TYPE = "type";
@@ -125,6 +114,16 @@ public class JythonRestlet extends Restlet implements IDisposable {
 	    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 			}
 			break;
+		case INTERRUPT:
+			JythonExecutor.interrupt();
+			try {
+				jsonObject = getExecutorStatus();
+	    		response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+			} catch (JSONException e) {
+	    		e.printStackTrace();
+	    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+			}
+			break;
 		case READSCRIPT:
 			try {
 		    	Representation formEntity = request.getEntity();
@@ -149,47 +148,20 @@ public class JythonRestlet extends Restlet implements IDisposable {
 		default:
 			break;
 		}
-
-
 	}
 	
 	private JSONObject getExecutorStatus() throws JSONException{
 		JSONObject jsonObject = new JSONObject();
-		jsonObject.put("status", JythonExecutor.getStatus());
+		ExecutorStatus status = JythonExecutor.getStatus();
+		jsonObject.put("status", status);
 		jsonObject.put("text", JythonExecutor.getRecentText(true));
 		jsonObject.put("error", JythonExecutor.getRecentError(true));
+//		if (status == ExecutorStatus.ERROR) {
+//			JythonExecutor.resetErrorStatus();
+//		}
 		return jsonObject;
 	}
 	
-	public static ScriptExecutor getExecutor() {
-		synchronized (JythonRestlet.class) {
-			if (executor == null) {
-				executor = new ScriptExecutor("jython");
-				while (!executor.isInitialised()) {
-					try {
-						Thread.sleep(10);
-					} catch (InterruptedException e) { }
-				}
-	    		final ScriptEngine engine = executor.getEngine();
-	    		ScriptContext scriptContext = engine.getContext();
-	    		if (scriptContext == null) {
-	    			// Same engine (like Jepp) does not provide default context out of the box
-	    			ScriptContext context = new ObservableScriptContext();
-	    			engine.setContext(context);
-	    			scriptContext = engine.getContext();
-	    		}
-	    		PrintWriter writer = new ExecutorWriter(new ByteArrayOutputStream() {
-	    			public synchronized void flush() throws IOException {
-	    				final String text = toString();
-//	    				response.setEntity(text, MediaType.TEXT_PLAIN);
-	    				reset();
-	    			}
-	    		}, true);
-	    		scriptContext.setWriter(writer);
 
-			}
-		}
-		return executor;
-	}
 	
 }

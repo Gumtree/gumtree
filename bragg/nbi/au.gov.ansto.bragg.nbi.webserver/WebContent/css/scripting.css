@@ -5,20 +5,18 @@ http://developer.yahoo.net/yui/license.txt
 version: 2.2.2
 */
 /* for all templates and grids */
-body{text-align:center;}
+body{
+    text-align:center;
+    font: normal normal 12px Verdana, Geneva, Arial, Helvetica, sans-serif;
+	margin: 10px;
+	padding: 0
+}
 #ft{clear:both;}
 /**/
 /* 750 centered, and backward compatibility */ 
-#doc,#doc2,#doc3,.yui-t1,.yui-t2,.yui-t3,.yui-t4,.yui-t5,.yui-t6,.yui-t7 {
+#doc,.yui-t7 {
 	margin:auto;text-align:left;
-	width:57.69em;*width:56.3em;min-width:750px;}
-/* 950 centered */ 
-#doc2 {
-	width:73.074em;*width:71.313em;min-width:950px;}
-/* 100% with 10px viewport side matting */ 
-#doc3 {
-	margin:auto 10px; /* not for structure, but so content doesn't bleed to edge */
-	width:auto;}
+	width:1280px;*width:66.3em;min-width:960px;}
 	
 /* below required for all fluid grids; adjust widths and margins above accordingly */
 
@@ -27,118 +25,29 @@ body{text-align:center;}
 	.yui-b{_position:static;} /* for IE < 7 */
 	#yui-main .yui-b{position:static;} 
 
-#yui-main {width:100%;}
-.yui-t1 #yui-main,
-.yui-t2 #yui-main,
-.yui-t3 #yui-main{float:right;margin-left:-25em;/* IE: preserve layout at narrow widths */}
-
-.yui-t4 #yui-main,
-.yui-t5 #yui-main,
-.yui-t6 #yui-main{float:left;margin-right:-25em;/* IE: preserve layout at narrow widths */}
-
-.yui-t1 .yui-b {
-	float:left;
-    width:12.3207em;*width:12.0106em;}
-.yui-t1 #yui-main .yui-b{
-    margin-left:13.3207em;*margin-left:13.0106em;
-}
-
-.yui-t2 .yui-b {
-	float:left;
-    width:13.8456em;*width:13.512em;}
-.yui-t2 #yui-main .yui-b {
-    margin-left:14.8456em;*margin-left:14.512em;
-}
-
-.yui-t3 .yui-b {
-	float:left;
-    width:23.0759em;*width:22.52em;}
-.yui-t3 #yui-main .yui-b {
-    margin-left:24.0759em;*margin-left:23.52em;
-}
-
-.yui-t4 .yui-b {
-	float:right;
-    width:13.8456em;*width:13.512em;}
-.yui-t4 #yui-main .yui-b {
-    margin-right:14.8456em;*margin-right:14.512em;
-}
-
-.yui-t5 .yui-b {
-	float:right;
-    width:18.4608em;*width:18.016em;}
-.yui-t5 #yui-main .yui-b {
-    margin-right:19.4608em;*margin-right:19.016em;
-}
-
-.yui-t6 .yui-b {
-	float:right;
-    width:23.0759em;*width:22.52em;}
-.yui-t6 #yui-main .yui-b {
-    margin-right:24.0759em;*margin-right:23.52em;
-}
 
 .yui-t7 #yui-main .yui-b {
 	display:block;margin:0 0 1% 0;
 }
 #yui-main .yui-b {float:none;width:auto;}
 /* GRIDS (not TEMPLATES) */
-.yui-g .yui-u, 
-.yui-g .yui-g, 
-.yui-gc .yui-u,
-.yui-gc .yui-g .yui-u,
-.yui-ge .yui-u, 
-.yui-gf .yui-u{float:right;display:inline;}
-.yui-g div.first, 
-.yui-gc div.first,
-.yui-gc div.first div.first,
-.yui-gd div.first, 
-.yui-ge div.first, 
-.yui-gf div.first{float:left;}
-.yui-g .yui-u, 
-.yui-g .yui-g{width:49.1%;}
-.yui-g .yui-g .yui-u,
-.yui-gc .yui-g .yui-u {width:48.1%;}
-.yui-gb .yui-u, 
-.yui-gc .yui-u, 
-.yui-gd .yui-u{float:left;margin-left:1%;*margin-left:1.895%;width:25%;}
-.yui-gb div.first, 
-.yui-gc div.first, 
-.yui-gd div.first{margin-left:0;width:25%;}
-.yui-gb div.second, 
-.yui-gc div.second, 
-.yui-gd div.second{margin-left:1%;width:48%;}
-.yui-gc div.first, 
-.yui-gd .yui-u{width:66%;}
-.yui-gd div.first{width:32%;}
-.yui-ge .yui-u{width:24%;}
-.yui-ge div.first, 
-.yui-gf .yui-u{width:74.2%;}
-.yui-gf div.first{width:24%;}
-.yui-ge div.first{width:74.2%;}
-#bd:after,
-.yui-g:after, 
-.yui-gb:after, 
-.yui-gc:after, 
-.yui-gd:after, 
-.yui-ge:after, 
-.yui-gf:after{content:".";display:block;height:0;clear:both;visibility:hidden;}
-#bd,
-.yui-g, 
-.yui-gb, 
-.yui-gc, 
-.yui-gd, 
-.yui-ge, 
-.yui-gf{zoom:1;}
+.yui-gb div.first{float:left;margin-left:0;width:20%;}
+.yui-gb div.second{float:left;margin-left:4px;width:49.2%;}
+.yui-gb div.third{float:left;margin-left:4px;width:30%;}
+.yui-gb:after{content:".";display:block;height:0;clear:both;visibility:hidden;}
+.yui-gb{zoom:1;}
 
 
 /* Basic Element Formatting */
 
 #header{
 	height:30px;
-	background-color:#F3F2ED;
+	background-color:#BEB8B2;
 	margin:0;
-	padding:0;
+    margin-bottom: 2px;
+	padding:2px;
+    font: normal normal 16px Georgia, Verdana, Geneva, Arial, Helvetica, sans-serif;
+    text-shadow: 1px 1px #A59595;
 	}
 	
 #header h1{
@@ -154,15 +63,15 @@ body{text-align:center;}
 	
 .content{
 	height:470px;
-	background:#CCC8B3;
+	background:#faf7f7;
 	border-top:#FFFFFF 2px solid;
 	margin:0;
-    padding: 4px;
+	padding:2px;
 	}
 	
 #secondary{
 	height:290px;
-	background:#F6F0E0;
+	background:#FEF8F3;
 /*    border: #AAAAAA 1px solid;*/
 /*	border-top:#FFFFFF 2px solid;*/
 	margin:0;
@@ -174,7 +83,7 @@ body{text-align:center;}
 #console{
     height:270px;
     padding: 4px;
-    border: #AAAAAA 1px solid;
+    border: #8C9898 1px solid;
     margin:6px;
     overflow: scroll;
     background-color: white;
@@ -200,18 +109,36 @@ body{text-align:center;}
     font-family: monospace;
     color: red;
     }
-.runner_status{
-    text-align: center;
-    float:left;
-    min-width: 300px;
+#script_text{
+    min-width: 99%; 
+    min-height: 370px; 
+    background-color: white;
+}
+#runner_label{
+    float: left;
+    height: 18px;
+    vertical-align: middle;
+    text-shadow: 1px 1px #959595;
     margin-left: 2px;
-    margin-top: 6px;
+    margin-top: 4px;
+}
+#runner_status{
+    float: left;
+    text-align: center;
+    text-shadow: 1px 1px #606060;
+    color: white;
+    height: 18px;
+    width: 30%;
+    margin-left: 2px;
+    margin-top: 4px;
+    vertical-align: middle;
     }
 #run_button{
     float: right;
+    margin-top: 0;
     margin-right: 8px;
-    margin-top: 2px;
-    min-width: 100px;
+/*    margin-top: 2px;*/
+    min-width: 20%;
     }
 #secondaryFull{
 	height:50px;
@@ -220,12 +147,26 @@ body{text-align:center;}
 	margin:0;
 	padding:0;
 	}
-	
+#file_area{
+    overflow: auto;
+    display:block;
+    clear: both;
+/*	border: 1px solid #963;*/
+}
 #footer{
 	height:30px;
-	background:#BFBD93;
+	background:#BEB8B2;
 /*	border-top:#FFFFFF 2px solid;*/
+    text-shadow: 1px 1px #959595;
 	margin:0;
-	padding:6px 10px 0px 10px;
+	padding:6px 10px 2px 10px;
     vertical-align: middle;
 	}
+.div-embedded-plot{
+    height: 33%;
+    border: #BEB8B2 1px solid;
+}
+#plot2, #plot3{
+/*    margin: 1%;*/
+    margin-top: 1px;
+}

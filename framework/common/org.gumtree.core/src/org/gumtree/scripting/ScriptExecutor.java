@@ -208,18 +208,19 @@ public class ScriptExecutor implements IScriptExecutor {
 	// It is not recommend to use this method since it dose not keep track
 	// on the executor state
 	public void runTask(Runnable task) {
-		if (executorService != null) {
-			synchronized (futures) {
-				List<Future<?>> futureList = new ArrayList<Future<?>>(futures.size());
-				Collections.copy(futures, futureList);
-				for (Future<?> future : futureList) {
-					if (future.isCancelled() || future.isDone()) {
-						futures.remove(future);
-					}
+		if (executorService == null || executorService.isShutdown()) {
+			executorService = Executors.newSingleThreadExecutor();
+		}
+		synchronized (futures) {
+			List<Future<?>> futureList = new ArrayList<Future<?>>(futures.size());
+			Collections.copy(futures, futureList);
+			for (Future<?> future : futureList) {
+				if (future.isCancelled() || future.isDone()) {
+					futures.remove(future);
 				}
-				Future<?> future = executorService.submit(task);
-				futures.add(future);
 			}
+			Future<?> future = executorService.submit(task);
+			futures.add(future);
 		}
 	}
 	
@@ -228,6 +229,8 @@ public class ScriptExecutor implements IScriptExecutor {
 			for (Future<?> future : futures) {
 				future.cancel(true);
 			}
+			executorService.shutdown();
+			executorService.shutdownNow();
 		}
 	}
 	
