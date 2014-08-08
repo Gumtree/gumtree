@@ -72,7 +72,7 @@ public class ScanNDCommandView extends AbstractScanCommandView {
 		modeCombo.setContentProvider(new ArrayContentProvider());
 		modeCombo.setLabelProvider(new LabelProvider());
 		modeCombo.setSorter(new ViewerSorter());
-		modeCombo.setInput(new String[]{"time", "count"});
+		modeCombo.setInput(new String[]{"time", "count", "MONITOR_1", "MONITOR_2", "MONITOR_3"});
 		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.TOP).hint(
 				AbstractScanParameter.WIDTH_PARAMETER_SHORT, SWT.DEFAULT).applyTo(modeCombo.getCombo());
 

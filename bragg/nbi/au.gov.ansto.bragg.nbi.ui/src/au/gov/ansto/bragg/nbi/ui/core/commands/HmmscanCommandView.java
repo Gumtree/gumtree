@@ -79,7 +79,7 @@ public class HmmscanCommandView extends AbstractScanCommandView {
 		modeCombo.setContentProvider(new ArrayContentProvider());
 		modeCombo.setLabelProvider(new LabelProvider());
 		modeCombo.setSorter(new ViewerSorter());
-		modeCombo.setInput(new String[]{"time", "count"});
+		modeCombo.setInput(new String[]{"time", "count", "MONITOR_1", "MONITOR_2", "MONITOR_3"});
 		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.TOP).indent(0, 12).hint(
 				AbstractScanParameter.WIDTH_PARAMETER_SHORT, SWT.DEFAULT).applyTo(modeCombo.getCombo());
 
