@@ -41,7 +41,7 @@ guideConfig = enum.Enum(\
     'p6', 'g6', 'p7', 'g7', 'p8', 'g8', 'p9', 'g9')
 action = enum.Enum('up', 'down')
 hmMode = enum.Enum('time', 'monitor')
-scanMode = enum.Enum('time', 'monitor', 'unlimited', 'MONITOR_1')
+scanMode = enum.Enum('time', 'count', 'monitor', 'unlimited', 'MONITOR_1')
 dataType = enum.Enum('HISTOGRAM_XY')
 saveType = enum.Enum('save', 'nosave')
 
@@ -566,7 +566,7 @@ def stopHistmem():
     histmemController = sicsController.findComponentController('/commands/histogram/histmem')
     log('stopping histmem ...')
     sics.execute('histmem stop')
-    time.sleep(1)
+    time.sleep(0.5)
 # determine averaged local and global rates
 #   samples: number of samples to create average
 #   timeout: maximal time for this function
