@@ -5,6 +5,8 @@ var timerObject = {
 		interval_id : null
 };
 
+var jythonUrl = "jython/rest/res";
+
 //function htmlEntities(text) {
 //    var escaped = text.replace(/\]\]>/g, ']]' + '>]]&gt;<' + '![CDATA[');
 //    return '<' + '![CDATA[' + escaped + ']]' + '>';
@@ -63,12 +65,17 @@ function setErrorWidgets(){
 }
 
 function updateStatus(){
-    var getUrl = "jython/rest/res?type=STATUS";
+    var getUrl = jythonUrl + "?type=STATUS";
     $.get(getUrl,function(data,status){
 		if (status == "success") {
             processStatus(data);
 		}
     });
+}
+
+function updatePlot(id) {
+	var imgUrl = jythonUrl + "?type=PLOT&id=" + id + "&timestamp=" + new Date().getTime();
+	$("#plot_image" + id).attr("src", imgUrl);
 }
 
 function processStatus(data) {
@@ -85,10 +92,19 @@ function processStatus(data) {
         setErrorWidgets();
         clearInterval(timerObject.interval_id);
     }
+    if (data['plot1']) {
+    	updatePlot(1);
+    }
+    if (data['plot2']) {
+    	updatePlot(2);
+    }
+    if (data['plot3']) {
+    	updatePlot(3);
+    }
 }
 
 function initUpdateStatus(){
-    var getUrl = "jython/rest/res?type=STATUS";
+    var getUrl = jythonUrl + "?type=STATUS";
     $.get(getUrl,function(data,status){
 		if (status == "success") {
             processStatus(data);
@@ -102,7 +118,7 @@ function initUpdateStatus(){
 }
 
 function runScript(){
-    var postUrl = "jython/rest/res?type=START";
+    var postUrl = jythonUrl + "?type=START";
     $.post( postUrl, $("form#script_form").serialize(), function(data, status) {
         if (status == "success") {
             processStatus(data);
@@ -119,7 +135,7 @@ function runScript(){
 }
 
 function interruptScript(){
-    var getUrl = "jython/rest/res?type=INTERRUPT";
+    var getUrl = jythonUrl + "?type=INTERRUPT";
     $.get(getUrl, function(data, status) {
         if (status == "success") {
             processStatus(data);
@@ -229,7 +245,7 @@ jQuery(document).ready(function(){
     });
 
     $("#jython_file").on("change", function(event) {
-        var postUrl = "jython/rest/res?type=READSCRIPT";
+        var postUrl = jythonUrl + "?type=READSCRIPT";
         var formData = new FormData($('form#file_form')[0]);
         $.ajax({
             url: postUrl,  //Server script to process data
@@ -285,7 +301,7 @@ jQuery(document).ready(function(){
             historyIdx = commandHistory.length;
             $('#console').append('<div class="consoleText"> >> ' + $('#lineFeed').val() + '</div>');
             $('#console').scrollTop($('#console')[0].scrollHeight);
-            var postUrl = "jython/rest/res?type=START";
+            var postUrl = jythonUrl + "?type=START";
             $.post( postUrl, { script_text: $('#lineFeed').val(), script_input: "textInput" }, function(data, status) {
                 if (status == "success") {
                     processStatus(data);

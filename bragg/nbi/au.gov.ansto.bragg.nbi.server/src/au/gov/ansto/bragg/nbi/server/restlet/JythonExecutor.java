@@ -4,18 +4,23 @@
 package au.gov.ansto.bragg.nbi.server.restlet;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.gumtree.scripting.IScriptBlock;
 import org.gumtree.scripting.ObservableScriptContext;
 import org.gumtree.scripting.ScriptExecutor;
 import org.gumtree.scripting.ScriptExecutorEvent;
 import org.gumtree.service.eventbus.IEventHandler;
 import org.gumtree.util.PlatformUtils;
+
+import au.gov.ansto.bragg.nbi.server.internal.Activator;
+
 
 /**
  * @author nxi
@@ -44,6 +49,8 @@ public class JythonExecutor {
 	private static String currentScript;
 	
 	public static final String VAR_SILENCE_MODE = "slienceMode";
+
+	private static final String INIT_SCRIPT = "/pyscripts/__init__.py";
 	
 	/**
 	 * 
@@ -129,9 +136,20 @@ public class JythonExecutor {
 	    		consoleHistory = "";
 	    		errorHistory = "";
 	    		status = ExecutorStatus.IDLE;
+	    		
+	    		loadInitScript();
 			}
 		}
 		return executor;
+	}
+
+	private static void loadInitScript() {
+		try {
+			String fn = FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(INIT_SCRIPT)).getFile();
+			executor.runScript(new FileReader(fn));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void runScriptLine(final String scriptLine) {

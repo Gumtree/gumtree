@@ -15,7 +15,7 @@ public class Activator implements BundleActivator {
 	
 	public static final String PLUGIN_ID = "au.gov.ansto.bragg.nbi.server";
 			
-	static BundleContext getContext() {
+	public static BundleContext getContext() {
 		return context;
 	}
 

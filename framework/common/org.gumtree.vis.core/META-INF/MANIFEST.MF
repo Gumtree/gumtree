@@ -6,8 +6,8 @@ Bundle-Version: 1.10.0.qualifier
 Bundle-Activator: org.gumtree.vis.core.internal.Activator
 Bundle-Vendor: Bragg Institute
 Require-Bundle: org.jfree.chart;bundle-version="1.0.13";visibility:=reexport,
- org.eclipse.swt;bundle-version="3.100.0";resolution:=optional,
- org.freehep.j3d;bundle-version="2.0.0";resolution:=optional
+ org.freehep.j3d;bundle-version="2.0.0";resolution:=optional,
+ org.eclipse.swt;bundle-version="3.100.1";resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: org.gumtree.vis.awt,

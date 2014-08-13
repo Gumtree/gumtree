@@ -6,10 +6,12 @@
 <link rel="stylesheet" href="css/table.css" />
 <link rel="stylesheet" href="css/tabs.css" />
 <link rel="stylesheet" href="css/button.css" />
+<link rel="stylesheet" href="css/popup.css" />
 <link rel="stylesheet" href="css/scripting.css" />
 <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script src="instrumentsetup.js"></script>
 <script src="scripting.js"></script>
+<script src="js/popup.js"></script>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <!--[if IE]>
 <style type="text/css">
@@ -103,10 +105,10 @@
           </div>
         </div>
         <div class="yui-u third ui-corner-all ui-shadow">
-            <div class="content">
-                <div id="plot1" class="div-embedded-plot ui-corner-all ui-shadow">Plot1</div>
-                <div id="plot2" class="div-embedded-plot ui-corner-all ui-shadow">Plot2</div>
-                <div id="plot3" class="div-embedded-plot ui-corner-all ui-shadow">Plot3</div>
+            <div class="content" id="div_plot_container">
+                <div id="plot1" class="div-embedded-plot ui-corner-all ui-shadow"><img id="plot_image1" class="image_plot" src="" alt=""></div>
+                <div id="plot2" class="div-embedded-plot ui-corner-all ui-shadow"><img id="plot_image2" class="image_plot" src="" alt=""></div>
+                <div id="plot3" class="div-embedded-plot ui-corner-all ui-shadow"><img id="plot_image3" class="image_plot" src="" alt=""></div>
             </div>
         </div>
       </div>
@@ -122,6 +124,14 @@
             Command >> <input name="lineFeed" class="lineFeed" id="lineFeed" value="" style="min-width:80%;min-height:20px;" autocomplete="off" />
     </div>
   </div>
+</div>
+</div>
+<div class="focus">
+    <div class="container"></div>
+    <div class="controls">
+      <div class="div_control_button"><img class="prev" src="images/back.png"></div>
+      <div class="div_control_button"><img class="next" src="images/forward.png"></div>
+    </div>
 </div>
 </body>
 </html>

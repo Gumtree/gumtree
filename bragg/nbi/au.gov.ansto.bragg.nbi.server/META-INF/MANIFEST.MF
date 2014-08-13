@@ -14,12 +14,14 @@ Require-Bundle: org.json;bundle-version="1.0.0";visibility:=reexport,
  org.gumtree.server;bundle-version="1.7.0";visibility:=reexport,
  au.gov.ansto.bragg.nbi.core;bundle-version="1.7.0";visibility:=reexport,
  org.restlet.ext.servlet;bundle-version="2.0.11",
- org.gumtree.vis.core;bundle-version="1.10.0",
- org.gumtree.data.nexus;bundle-version="1.10.0",
- org.gumtree.vis.nexus;bundle-version="1.10.0"
+ org.jfree.chart;bundle-version="1.0.13"
 Export-Package: au.gov.ansto.bragg.nbi.server,
+ au.gov.ansto.bragg.nbi.server.image,
+ au.gov.ansto.bragg.nbi.server.internal,
  au.gov.ansto.bragg.nbi.server.restlet,
  au.gov.ansto.bragg.nbi.server.vaadin
 Import-Package: org.apache.commons.httpclient;version="3.1.0";resolution:=optional,
  org.apache.commons.httpclient.methods;version="3.1.0";resolution:=optional,
- org.gumtree.sics.io
+ org.gumtree.sics.io,
+ org.gumtree.vis.awt,
+ org.gumtree.vis.interfaces

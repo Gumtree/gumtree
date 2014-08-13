@@ -114,6 +114,8 @@ body{
     min-height: 370px; 
     background-color: white;
 }
+#div-run-widets{
+}
 #runner_label{
     float: left;
     height: 18px;
@@ -169,4 +171,8 @@ body{
 #plot2, #plot3{
 /*    margin: 1%;*/
     margin-top: 1px;
+}
+.image_plot{
+	width: 100%;
+	height: 100%;
 }
