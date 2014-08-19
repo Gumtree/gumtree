@@ -16,9 +16,6 @@ Require-Bundle: au.gov.ansto.bragg.wombat.core;bundle-version="1.7.0";visibility
  au.gov.ansto.bragg.wombat.exp;bundle-version="1.7.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: au.gov.ansto.bragg.wombat.ui,
- au.gov.ansto.bragg.wombat.ui.script,
- au.gov.ansto.bragg.wombat.ui.script.parts,
- au.gov.ansto.bragg.wombat.ui.script.pyobj,
  au.gov.ansto.bragg.wombat.ui.widgets,
  au.gov.ansto.bragg.wombat.ui.workflow
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
