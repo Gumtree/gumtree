@@ -184,19 +184,23 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 			return;
 		}
 		checkSicsConnection();
-		for (final LabelContext labelContext : labelContexts) {
-			getDataAccessManager().get(
-					URI.create("sics://hdb" + labelContext.path), String.class,
-					new IDataHandler<String>() {
-						@Override
-						public void handleData(URI uri, String data) {
-							updateLabelText(labelContext.label, data, labelContext.converter);
-						}
-						@Override
-						public void handleError(URI uri, Exception exception) {
-							exception.printStackTrace();
-						}
-					});
+		try {
+			for (final LabelContext labelContext : labelContexts) {
+				getDataAccessManager().get(
+						URI.create("sics://hdb" + labelContext.path), String.class,
+						new IDataHandler<String>() {
+							@Override
+							public void handleData(URI uri, String data) {
+								updateLabelText(labelContext.label, data, labelContext.converter);
+							}
+							@Override
+							public void handleError(URI uri, Exception exception) {
+								exception.printStackTrace();
+							}
+						});
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

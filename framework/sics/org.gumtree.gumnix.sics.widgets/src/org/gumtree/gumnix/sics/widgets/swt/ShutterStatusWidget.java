@@ -148,21 +148,26 @@ public class ShutterStatusWidget extends ExtendedSicsComposite {
 			return;
 		}
 		checkSicsConnection();
-		for (final Context context : contexts) {
-			getDataAccessManager().get(URI.create("sics://hdb" + context.path),
-					String.class, new IDataHandler<String>() {
-						@Override
-						public void handleData(URI uri, String data) {
-							updateLabel(context, data);
-						}
+		try {
+			for (final Context context : contexts) {
+				getDataAccessManager().get(URI.create("sics://hdb" + context.path),
+						String.class, new IDataHandler<String>() {
+							@Override
+							public void handleData(URI uri, String data) {
+								updateLabel(context, data);
+							}
 
-						@Override
-						public void handleError(URI uri, Exception exception) {
-						}
-					});
-		}
-		if (blindEventHandler != null) {
-			blindEventHandler.activate();
+							@Override
+							public void handleError(URI uri, Exception exception) {
+							}
+						});
+			}
+			if (blindEventHandler != null) {
+				blindEventHandler.activate();
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

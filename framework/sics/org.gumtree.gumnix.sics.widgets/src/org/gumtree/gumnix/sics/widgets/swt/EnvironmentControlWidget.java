@@ -40,7 +40,11 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 					} else if (label.contains("S")) {
 						label = id.replace("S", " Sensor");
 					}
-					addDevice(item.getPath(), label, null, units);
+					try {
+						addDevice(item.getPath(), label, null, units);
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
 				}
 				Display.getDefault().asyncExec(new Runnable() {
 					
