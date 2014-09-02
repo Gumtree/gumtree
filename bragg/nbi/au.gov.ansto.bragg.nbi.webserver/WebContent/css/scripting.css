@@ -115,6 +115,11 @@ body{
     background-color: white;
 }
 #div-run-widets{
+    margin-top: 2px;
+}
+.form-buttons-wrapper{
+    margin-top: 4px;
+    margin-left: 4px;
 }
 #runner_label{
     float: left;
@@ -135,7 +140,7 @@ body{
     margin-top: 4px;
     vertical-align: middle;
     }
-#run_button{
+.button_script{
     float: right;
     margin-top: 0;
     margin-right: 8px;

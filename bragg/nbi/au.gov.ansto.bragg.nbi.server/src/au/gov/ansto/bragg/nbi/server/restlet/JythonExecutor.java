@@ -44,9 +44,17 @@ public class JythonExecutor {
 	
 	private static String recentError;
 	
+	private static String eventJs;
+	
+	private static String filesForDownload;
+	
 	private static IEventHandler<ScriptExecutorEvent> executorEventHandler;
 	
 	private static String currentScript;
+	
+	private static JythonUIHandler uiHandler;
+	
+	private static JythonDataHandler dataHandler;
 	
 	public static final String VAR_SILENCE_MODE = "slienceMode";
 
@@ -58,7 +66,7 @@ public class JythonExecutor {
 	public JythonExecutor() {
 	}
 
-	public static ScriptExecutor getExecutor() {
+	static {
 		synchronized (JythonRestlet.class) {
 			if (executor == null) {
 				executor = new ScriptExecutor("jython");
@@ -135,16 +143,30 @@ public class JythonExecutor {
 	    		recentError = "";
 	    		consoleHistory = "";
 	    		errorHistory = "";
+	    		eventJs = "";
 	    		status = ExecutorStatus.IDLE;
 	    		
+	    		uiHandler = new JythonUIHandler();
+	    		JythonModelRegister register = new JythonModelRegister();
+	    		JythonModelRegister.registPage(uiHandler.getScriptRegisterID(), register);
+	    		
+	    		dataHandler = new JythonDataHandler();
+	    		register.setDataPath(dataHandler.getDataPath());
+	    		register.setSavePath(dataHandler.getSavePath());
 	    		loadInitScript();
+	    		executor.runScript(dataHandler.getLoadedDataCommand());
+	    		
 			}
 		}
-		return executor;
 	}
 
+	public static ScriptExecutor getExecutor() {
+		return executor;
+	}
+	
 	private static void loadInitScript() {
 		try {
+			executor.runScript("__script_model_id__ = " + uiHandler.getScriptRegisterID());
 			String fn = FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(INIT_SCRIPT)).getFile();
 			executor.runScript(new FileReader(fn));
 		} catch (Exception e) {
@@ -166,6 +188,21 @@ public class JythonExecutor {
 		resetErrorStatus();
 		setStatus(ExecutorStatus.BUSY);
 		getExecutor().runScript(scriptBlock);
+	}
+	
+	public static void runScriptFile(String filename) {
+		FileReader reader = null;
+		try {
+//			currentScript = new String(Files.readAllBytes(Paths.get(URI.create(newName))), StandardCharsets.UTF_8);
+			reader = new FileReader(filename);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+		getExecutor().getEngine().getContext().getBindings(ScriptContext.ENGINE_SCOPE).put(VAR_SILENCE_MODE, true);
+		resetErrorStatus();
+		setStatus(ExecutorStatus.BUSY);
+		getExecutor().runScript(reader);
 	}
 	
 	public static void appendText(String text) {
@@ -239,4 +276,52 @@ public class JythonExecutor {
 		return errorHistory;
 	}
 
+	public static String getScriptGUI(String script){
+		if (executor == null) {
+			getExecutor();
+		}
+		String guiHtml = uiHandler.getScriptGUIHtml(script);
+		appendEventJs(uiHandler.getControlJs());
+		return guiHtml;
+	}
+
+	/**
+	 * @return the eventMessage
+	 */
+	public static String getEventJs(boolean reset) {
+		if (reset) {
+			String script = eventJs;
+			eventJs = "";
+			return script;
+		}
+		return eventJs;
+	}
+
+	/**
+	 * @param eventMessage the eventMessage to set
+	 */
+	public static void appendEventJs(String script) {
+		eventJs += script;
+	}
+	
+	public static String getAllDataHtml(){
+		return dataHandler.getAllDataHtml();
+	}
+	
+	public static JythonDataHandler getDataHandler(){
+		return dataHandler;
+	}
+	
+	public static String getFilesForDownload(boolean reset) {
+		if (reset) {
+			String files = filesForDownload;
+			filesForDownload = "";
+			return files;
+		}
+		return filesForDownload;
+	}
+	
+	public static void appendFilesForDownload(String file){
+		filesForDownload += file + ";";
+	}
 }

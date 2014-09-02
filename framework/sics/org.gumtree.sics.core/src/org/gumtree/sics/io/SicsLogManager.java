@@ -319,6 +319,9 @@ public class SicsLogManager implements ISicsLogManager {
 	        	if (currTime >= timeStamp) {
 	        		if (oldStatus != null) {
 	        			oldTime = logCounts.get(oldStatus);
+	        	        if (currTime - startTime > 420000000) {
+	        	        	System.err.println(currTime - startTime);
+	        	        }
 	        			if (oldTime != null) {
 	        				logCounts.put(oldStatus, currTime - timeStamp + oldTime);
 	        			} else {

@@ -5,7 +5,7 @@ var endDate;
 var nScale = 1;
 
 var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
-
+var statusIDs = [];
 
 function toPtg(val, numDigit) {
 	return String((Math.round(Number(val) * 1000) / 10).toFixed(numDigit)) + "%";
@@ -94,13 +94,14 @@ var refresh = function(){
 	$.get(url,function(data,status){
 		if (status == "success") {
 			var obj = jQuery.parseJSON(data);
-			if (!evEnabled) {
+ 			if (!evEnabled) {
 				var data = [];
 				jQuery.each(obj, function(name, val) {
 					if (name.indexOf("STATUS") == 0) {
 						name = name.substring(7);
 						var text = toPtg(val, 1);
 						$("#stList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">' + name + ': </div> <div class="div-inlist" id="' + name + '">' + text + '</div></li>');
+                        statusIDs.push(name);
 						data.push({label:name, data:val});
 					} 
 				});
@@ -201,11 +202,17 @@ var refresh = function(){
 				evEnabled = true;
 			} else {
 				var data = [];
+                jQuery.each(statusIDs, function(index, item){
+                    $('#' + item).text(toPtg(0, 1));
+                });
 				jQuery.each(obj, function(name, val) {
 					if (name.indexOf("STATUS") == 0) {
 						name = name.substring(7);
 						var text = toPtg(val, 1);
 						$("#" + name).text(text);
+                        if (jQuery.inArray(name, statusIDs) >= 0) {
+                            statusIDs.push(name);
+                        }
 						data.push({label:name, data:val});
 					} 
 				});

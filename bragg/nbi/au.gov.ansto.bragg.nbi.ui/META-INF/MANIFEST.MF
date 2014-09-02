@@ -14,7 +14,6 @@ Export-Package: au.gov.ansto.bragg.nbi.ui.core,
  au.gov.ansto.bragg.nbi.ui.realtime,
  au.gov.ansto.bragg.nbi.ui.scripting,
  au.gov.ansto.bragg.nbi.ui.scripting.parts,
- au.gov.ansto.bragg.nbi.ui.scripting.pyobj,
  au.gov.ansto.bragg.nbi.ui.tasks,
  au.gov.ansto.bragg.nbi.ui.widgets
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

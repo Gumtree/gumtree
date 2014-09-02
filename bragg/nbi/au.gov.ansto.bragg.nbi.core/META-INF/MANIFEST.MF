@@ -9,6 +9,7 @@ Require-Bundle: org.gumtree.gumnix.sics.core;bundle-version="1.7.0";visibility:=
  org.apache.commons.httpclient;bundle-version="3.1.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: au.gov.ansto.bragg.nbi.service.notification.support,
+Export-Package: au.gov.ansto.bragg.nbi.scripting,
+ au.gov.ansto.bragg.nbi.service.notification.support,
  au.gov.ansto.bragg.nbi.service.soap
 Bundle-Vendor: Bragg Institute

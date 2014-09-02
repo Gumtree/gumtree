@@ -12,9 +12,9 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.gumtree.data.ui.part.PlotView;
 import org.gumtree.ui.scripting.viewer.CommandLineViewer;
 
+import au.gov.ansto.bragg.nbi.scripting.ScriptModel;
 import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptControlViewer;
 import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptDataSourceViewer;
-import au.gov.ansto.bragg.nbi.ui.scripting.pyobj.ScriptModel;
 
 
 /**

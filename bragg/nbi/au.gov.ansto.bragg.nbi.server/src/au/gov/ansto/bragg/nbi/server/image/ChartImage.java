@@ -96,7 +96,9 @@ public class ChartImage {
 //					rangeAxis.setTickMarkPaint(Color.LIGHT_GRAY);
 				} else if (dataset instanceof ITimeSeriesSet) {
 					chart = PlotFactory.createTimeChart((ITimeSeriesSet) dataset);
-				} 
+				} else {
+					System.err.println(dataset.getClass());
+				}
 			}
 			update();
 		} catch (Exception e) {
@@ -128,6 +130,9 @@ public class ChartImage {
 		} 
 	}
 	public byte[] getImageCache(){
+		if (imageCache == null) {
+			return new byte[]{};
+		}
 		return imageCache;
 	}
 	public JFreeChart getChart() {

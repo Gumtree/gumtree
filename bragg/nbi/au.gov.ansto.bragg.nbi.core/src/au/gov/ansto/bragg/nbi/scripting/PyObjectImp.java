@@ -1,7 +1,7 @@
 /**
  * 
  */
-package au.gov.ansto.bragg.nbi.ui.scripting.pyobj;
+package au.gov.ansto.bragg.nbi.scripting;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -13,8 +13,12 @@ import java.util.Set;
  * @author nxi
  *
  */
-public class PyObjectImp implements IPyObject{
+public abstract class PyObjectImp implements IPyObject{
 
+
+	public final static String PROP_COLSPAN_NAME = "colspan";
+	public final static String PROP_ROWSPAN_NAME = "rowspan";
+	
 	private String name;
 	private Map<String, String> properties;
 
@@ -64,4 +68,31 @@ public class PyObjectImp implements IPyObject{
 		return properties.keySet();
 	}
 
+	public String getTitle() {
+		if (getProperty("title") != null) {
+			return getProperty("title");
+		} else {
+			return getName();
+		}
+	}
+	
+	public abstract String getInitJs();
+	
+	public abstract String getEventJs(String property);
+	
+	@Override
+	public int getColSpan() {
+		if (getProperty(PROP_COLSPAN_NAME) != null){
+			return Integer.valueOf(getProperty(PROP_COLSPAN_NAME));
+		}
+		return 1;
+	}
+	
+	@Override
+	public int getRowSpan() {
+		if (getProperty(PROP_ROWSPAN_NAME) != null){
+			return Integer.valueOf(getProperty(PROP_ROWSPAN_NAME));
+		}
+		return 1;
+	}
 }

@@ -1,14 +1,15 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
 <link rel="stylesheet" href="css/form.css" />
 <link rel="stylesheet" href="css/table.css" />
 <link rel="stylesheet" href="css/tabs.css" />
 <link rel="stylesheet" href="css/button.css" />
 <link rel="stylesheet" href="css/popup.css" />
 <link rel="stylesheet" href="css/scripting.css" />
-<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
 <script src="instrumentsetup.js"></script>
 <script src="scripting.js"></script>
 <script src="js/popup.js"></script>
@@ -34,36 +35,13 @@
         <div class="yui-gb">
           <div class="yui-u first ui-corner-all ui-shadow">
             <div class="content tableContainer" id="file_area">
-                <table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable" id="table_datafiles">
                     <thead class="fixedHeader">
                         <tr>
-                            <th><a href="#">Data Files</a></th>
-                            <th><a href="#"></a></th>
+                            <th><a href="#" id="button_reload_data_file">Data Files</a></th>
                         </tr>
                     </thead>
                     <tbody class="scrollContent" id="fileTable">
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
-                        <tr><td></td><td></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -72,11 +50,11 @@
           	<div class="content">
               <div id="ie-test" class="ui-corner-all ui-shadow">
                 <ul id="boxLinks" class="group">
-                    <li><a href="#box1" id="tab1">Script Editor</a></li>
-                    <li><a href="#box2" id="tab2">Auto GUI</a></li>
+                    <li><a href="#div_script_text" id="tab1">Script Editor</a></li>
+                    <li><a href="#div_script_gui" id="tab2">Auto GUI</a></li>
                 </ul>
                 <div id="box">
-                    <div id="box1" class="box">
+                    <div id="div_script_text" class="box">
                         <![if !IE]>
                             <div class="form-all">
                                 <form action="jython/rest/res?type=START" method="post" name="file_form" id="file_form" accept-charset="utf-8" enctype="multipart/form-data">
@@ -90,25 +68,26 @@
                                     <textarea id="script_text" name="script_text" cols="40" rows="6" wrap='off'></textarea>
                                 </form>
                             </div>
-                            <div id="div-run-widets" class="form-input-wide">
-                              <div style="text-align:left" class="form-buttons-wrapper">
-                                <div id="runner_label">Script Runner Status: </div>
-                                <div class="runner_status ui-corner-all ui-shadow" id="runner_status" style="background-color:green;">IDLE</div>
-                                <div id="run_button"><input type="button" class="buttonStyle" data-role="button" id="run_script" value="Run Script"/></div>
-                              </div>
-                            </div>
                         <!--[if IE]><b>.</b><![endif]-->
                     </div>
-                    <div id="box2" class="box"><!--[if IE]><b>.</b><![endif]--></div>
+                    <div id="div_script_gui" class="box"><!--[if IE]><b>.</b><![endif]--></div>
                 </div>
               </div>
+                <div id="div-run-widets" class="form-input-wide">
+                  <div style="text-align:left" class="form-buttons-wrapper">
+                    <div id="runner_label">Script Runner Status: </div>
+                    <div class="runner_status ui-corner-all ui-shadow" id="runner_status" style="background-color:green;">IDLE</div>
+                    <div class="button_script" id="run_button"><input type="button" class="buttonStyle" data-role="button" id="run_script" value="Run Script"/></div>
+                    <div class="button_script" id="gui_button"><input type="button" class="buttonStyle" data-role="button" id="create_gui" value="Create GUI"/></div>
+                  </div>
+                </div>
           </div>
         </div>
         <div class="yui-u third ui-corner-all ui-shadow">
             <div class="content" id="div_plot_container">
-                <div id="plot1" class="div-embedded-plot ui-corner-all ui-shadow"><img id="plot_image1" class="image_plot" src="" alt=""></div>
-                <div id="plot2" class="div-embedded-plot ui-corner-all ui-shadow"><img id="plot_image2" class="image_plot" src="" alt=""></div>
-                <div id="plot3" class="div-embedded-plot ui-corner-all ui-shadow"><img id="plot_image3" class="image_plot" src="" alt=""></div>
+                <div id="plot1" class="div-embedded-plot ui-corner-all ui-shadow"><img id="plot_image1" class="image_plot" src="" alt="Plot1 not available"></div>
+                <div id="plot2" class="div-embedded-plot ui-corner-all ui-shadow"><img id="plot_image2" class="image_plot" src="" alt="Plot2 not available"></div>
+                <div id="plot3" class="div-embedded-plot ui-corner-all ui-shadow"><img id="plot_image3" class="image_plot" src="" alt="Plot3 not available"></div>
             </div>
         </div>
       </div>

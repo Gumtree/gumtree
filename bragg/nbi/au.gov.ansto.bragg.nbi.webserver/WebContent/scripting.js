@@ -1,11 +1,27 @@
 var historyIdx = -1;
 var commandHistory = [];
+var selectedFiles = [];
 
-var timerObject = {
-		interval_id : null
-};
+function setUpdateInterval(){
+    var interval_id = setInterval(function(){
+            updateStatus(interval_id);
+        }, 1000);
+//    if (timerObject.interval_id === undefined) {
+//        timerObject.interval_id = setInterval(function(){
+//            updateStatus();
+//        }, 1000);
+//    }
+}
 
 var jythonUrl = "jython/rest/res";
+
+function getBool(value){
+    if (value){
+        return 'True';
+    } else {
+        return 'False';
+    }
+}
 
 //function htmlEntities(text) {
 //    var escaped = text.replace(/\]\]>/g, ']]' + '>]]&gt;<' + '![CDATA[');
@@ -51,7 +67,7 @@ function enableWidgets(){
 }
 
 function disableWidgets(){
-    $("#runner_status").css("background-color", "#B74");
+    $("#runner_status").css("background-color", "orange");
 //    $("#run_script").attr("disabled", true);
     $("#run_script").val("Interrupt");
     $("#lineFeed").attr("disabled", true);
@@ -64,11 +80,11 @@ function setErrorWidgets(){
     $('#lineFeed').removeAttr("disabled");
 }
 
-function updateStatus(){
-    var getUrl = jythonUrl + "?type=STATUS";
+function updateStatus(interval_id){
+    var getUrl = jythonUrl + "?type=STATUS&timestamp=" + new Date().getTime();
     $.get(getUrl,function(data,status){
 		if (status == "success") {
-            processStatus(data);
+            processStatus(data, interval_id);
 		}
     });
 }
@@ -78,19 +94,19 @@ function updatePlot(id) {
 	$("#plot_image" + id).attr("src", imgUrl);
 }
 
-function processStatus(data) {
+function processStatus(data, interval_id) {
     var rStatus = data['status'];
     $('#runner_status').html(rStatus);
     updateConsole(data);
     $('#console').scrollTop($('#console')[0].scrollHeight);
     if (data['status'] == "IDLE"){
         enableWidgets();
-        clearInterval(timerObject.interval_id);
+        clearInterval(interval_id);
     } else if (data['status'] == "BUSY"){
         disableWidgets();
     } else if (data['status'] == "ERROR"){
         setErrorWidgets();
-        clearInterval(timerObject.interval_id);
+        clearInterval(interval_id);
     }
     if (data['plot1']) {
     	updatePlot(1);
@@ -101,6 +117,27 @@ function processStatus(data) {
     if (data['plot3']) {
     	updatePlot(3);
     }
+    if (data['js']){
+        try{
+            eval(data['js']);
+        }catch (e) {
+            alert(data['js']);
+        }
+    }
+    if (data['files']){
+        var files = data['files'].split(';');
+        $.each( files, function( idx, file ) {
+            if (file != null && file.trim().length > 0){
+                downloadFile(file);
+            }
+        });
+    }
+}
+
+function downloadFile(file){
+    var pair = file.split(':');
+    var getUrl = "jython/rest/" + pair[1] + "?type=FILE&folder=" + pair[0];
+    window.location.href = getUrl;
 }
 
 function initUpdateStatus(){
@@ -109,9 +146,7 @@ function initUpdateStatus(){
 		if (status == "success") {
             processStatus(data);
             if (data['status'] == "BUSY"){
-                timerObject.interval_id = setInterval(function(){
-                    updateStatus();
-                }, 1000);
+                setUpdateInterval();
             }
 		}
     });
@@ -123,9 +158,7 @@ function runScript(){
         if (status == "success") {
             processStatus(data);
             if (data['status'] == "BUSY"){
-                timerObject.interval_id = setInterval(function(){
-                    updateStatus();
-                }, 1000);
+                setUpdateInterval();
             }
         }
     })
@@ -146,6 +179,31 @@ function interruptScript(){
     });
 }
 
+function sendJython(cmd){
+    $('#console').append('<div class="consoleText"> >> ' + cmd + '</div>');
+    $('#console').scrollTop($('#console')[0].scrollHeight);
+    var postUrl = jythonUrl + "?type=START";
+    $.post( postUrl, { script_text: cmd, script_input: "textInput" }, function(data, status) {
+                if (status == "success") {
+                    processStatus(data);
+                    if (data['status'] == "BUSY"){
+                        setUpdateInterval();
+                    }
+                }
+            })
+            .fail(function(e) {
+                alert( "error submitting the command");
+            });
+}
+
+function changeOptions(obj, options){
+    obj.empty();
+    $.each(options, function(idx, value) {
+      obj.append($("<option></option>")
+         .attr("value", value).text(value));
+    });
+}
+
 $.fn.selectRange = function(start, end) {
     return this.each(function() {
         if (this.setSelectionRange) {
@@ -160,6 +218,7 @@ $.fn.selectRange = function(start, end) {
         }
     });
 };
+
 $.fn.setSelection = function(selectionStart, selectionEnd) {
     if(this.length == 0) return this;
     input = this[0];
@@ -177,6 +236,7 @@ $.fn.setSelection = function(selectionStart, selectionEnd) {
 
     return this;
 };
+
 $.fn.setCursorPosition = function(position){
     if(this.length == 0) return this;
     return $(this).setSelection(position, position);
@@ -216,6 +276,72 @@ function stripedTable() {
 	}
 }
 
+function getFileList(){
+    var getUrl = jythonUrl + "?type=FILENAMES";
+    $.get(getUrl, function(data, status) {
+        if (status == "success") {
+            $("#table_datafiles > tbody").html(data);
+        }
+    })
+    .fail(function(e) {
+            alert( "error interrupting the script");
+    });
+}
+
+$(window).on('hashchange',function(){ 
+    window.scrollTo(0,0);
+});
+
+
+$(function() {
+ 
+    function updateSelectedList( $selectees ) {
+
+        selected = $.makeArray( $selectees.filter( ".ui-selected" ) );
+
+        selectedFiles = [];
+        $.each(selected, function( index, value ) {
+//            var cmd = [];
+//            for(var key in value.childNodes[0]) {
+//                cmd.push(key + ":" + value[key] + "\n");
+//            }
+//            $('#script_text').text(cmd);
+//            $('#script_text').text(value.firstChild.innerHTML);
+            selectedFiles.push("'" + value.firstChild.innerHTML + "'");
+        });
+    }
+
+    $( "table > tbody" ).selectable({
+
+        // Don't allow individual table cell selection.
+        filter: ":not(td)",
+
+        // Update the initial total to 0, since nothing is selected yet.
+        create: function( e, ui ) {
+            updateSelectedList( $() );
+        },
+
+        // When a row is selected, add the highlight class to the row and
+        // update the total.
+        selected: function( e, ui ) {
+            $(ui.selected).addClass( "ui-state-highlight-customised" );
+            var widget = $( this ).data( "uiSelectable" );
+            updateSelectedList( widget.selectees );
+        },
+
+        stop: function( e, ui ) {
+            sendJython('__set_selected_files__([' + selectedFiles + '])');
+        },
+        
+        // When a row is unselected, remove the highlight class from the row.
+        unselected: function( e, ui ) {
+            $(ui.unselected).removeClass( "ui-state-highlight-customised" );
+            var widget = $( this ).data( "uiSelectable" );
+            updateSelectedList( widget.selectees );
+        }
+    });
+
+});
 
 jQuery(document).ready(function(){
 	$(document).attr("title", title + " - Jython Runner");
@@ -230,11 +356,37 @@ jQuery(document).ready(function(){
         }
 	});
     
+    $("#create_gui").click(function() {
+//        runScript();
+        var postUrl = jythonUrl + "?type=GUI";
+        $.post( postUrl, $("form#script_form").serialize(), function(data, status) {
+            if (status == "success") {
+                $("#div_script_gui").html(data['html']);
+                processStatus(data);
+                if (data['status'] == "BUSY"){
+                        setUpdateInterval();
+                }
+                if (data['error'] == null || data['error'].trim().length == 0){
+                    $("#tab2").click();
+                    window.location = $('#tab2').attr('href');
+                }
+            }
+        })
+        .fail(function(e) {
+            alert( "error submitting the script");
+        });
+	});
+    
+    $("#button_reload_data_file").click(function() {
+        getFileList();
+    });
+    
     $("#tab1").click(function(){
         $("#tab1").removeClass("tabUnselected");
         $("#tab1").addClass("tabSelected");
         $("#tab2").removeClass("tabSelected");
         $("#tab2").addClass("tabUnselected");
+        $("#create_gui").val("Create GUI");
     });
 
     $("#tab2").click(function(){
@@ -242,6 +394,7 @@ jQuery(document).ready(function(){
         $("#tab1").addClass("tabUnselected");
         $("#tab2").removeClass("tabUnselected");
         $("#tab2").addClass("tabSelected");
+        $("#create_gui").val("Reload GUI");
     });
 
     $("#jython_file").on("change", function(event) {
@@ -306,9 +459,7 @@ jQuery(document).ready(function(){
                 if (status == "success") {
                     processStatus(data);
                     if (data['status'] == "BUSY"){
-                        timerObject.interval_id = setInterval(function(){
-                            updateStatus();
-                        }, 1000);
+                        setUpdateInterval();
                     }
                 }
             })
@@ -345,5 +496,7 @@ jQuery(document).ready(function(){
     initUpdateStatus();
     $("#tab1").click();
     window.location = $('#tab1').attr('href');
+    
+    getFileList();
 });
 

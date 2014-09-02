@@ -4,6 +4,10 @@
 package au.gov.ansto.bragg.nbi.server.restlet;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.scripting.IScriptBlock;
@@ -14,9 +18,11 @@ import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
+import org.restlet.data.Disposition;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
+import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
 
@@ -33,6 +39,8 @@ public class JythonRestlet extends Restlet implements IDisposable {
 	private final static String QUERY_SCRIPT_INPUT_MODE = "script_input";
 	private final static String QUERY_TYPE = "type";
 	private final static String QUERY_PLOT_ID = "id";
+	private final static String QUERY_FILE_NAME = "name";
+	private final static String QUERY_FILE_FOLDER = "folder";
 	private final static String SCRIPT_START_FLAG = "Content-Type:";
 	private final static int IMAGE_WIDTH = 480;
 	private final static int IMAGE_HEIGHT = 240;
@@ -46,7 +54,10 @@ public class JythonRestlet extends Restlet implements IDisposable {
 		STATUS,
 		INTERRUPT,
 		READSCRIPT,
-		PLOT
+		PLOT,
+		GUI,
+		FILENAMES,
+		FILE
 	}
 	/**
 	 * 
@@ -175,6 +186,45 @@ public class JythonRestlet extends Restlet implements IDisposable {
 				response.setEntity(result);
 			} 
 			break;
+		case GUI:
+	    	entity = request.getEntity();
+	    	form = new Form(entity);
+	    	String script = form.getValues(QUERY_SCRIPT_TEXT);
+	    	try {
+				String html = JythonExecutor.getScriptGUI(script);
+				jsonObject = getExecutorStatus();
+				jsonObject.put("html", html);
+				response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			break;
+		case FILENAMES:
+			response.setEntity(JythonExecutor.getAllDataHtml(), MediaType.TEXT_PLAIN);
+			break;
+		case FILE:
+			String folderString = queryForm.getValues(QUERY_FILE_FOLDER);
+			String filename = request.getResourceRef().getLastSegment();
+			if ("save".equals(folderString)){
+				folderString = JythonExecutor.getDataHandler().getSavePath();
+			} else if ("data".equals(folderString)){
+				folderString = JythonExecutor.getDataHandler().getDataPath();
+			}
+//			Path path = Paths.get(folderString + "/" + filename);
+//			byte[] data = null;
+//			try {
+//				data = Files.readAllBytes(path);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//	    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+//			}
+//			Representation representation = new InputRepresentation(new ByteArrayInputStream(data), MediaType.APPLICATION_OCTET_STREAM);
+			FileRepresentation representation = new FileRepresentation(folderString + "/" + filename, MediaType.APPLICATION_ZIP);
+			Disposition disposition = new Disposition();
+			disposition.setFilename(filename);
+			representation.setDisposition(disposition);
+			response.setEntity(representation);
+			break;
 		default:
 			break;
 		}
@@ -186,6 +236,8 @@ public class JythonRestlet extends Restlet implements IDisposable {
 		jsonObject.put("status", status);
 		jsonObject.put("text", JythonExecutor.getRecentText(true));
 		jsonObject.put("error", JythonExecutor.getRecentError(true));
+		jsonObject.put("js", JythonExecutor.getEventJs(true));
+		jsonObject.put("files", JythonExecutor.getFilesForDownload(true));
 		jsonObject.put("plot1", getPlot1().isUpdated(true));
 		jsonObject.put("plot2", getPlot2().isUpdated(true));
 		jsonObject.put("plot3", getPlot3().isUpdated(true));

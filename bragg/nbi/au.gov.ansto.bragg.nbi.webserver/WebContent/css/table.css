@@ -40,6 +40,7 @@ html>body div.tableContainer {
 /* define width of table. IE browsers only                 */
 div.tableContainer table {
 	float: left;
+    empty-cells: show;
 /*	width: 740px*/
 }
 
@@ -54,13 +55,13 @@ html>body div.tableContainer table {
 /* an element that has an overflow property set, the relative value translates into fixed.    */
 /* Ex: parent element DIV with a class of tableContainer has an overflow property set to auto */
 thead.fixedHeader tr {
-	position: relative
+	position: relative;
 }
 
 /* set THEAD element to have block level attributes. All other non-IE browsers            */
 /* this enables overflow to work on TBODY element. All other non-IE, non-Mozilla browsers */
 html>body thead.fixedHeader tr {
-	display: block
+	display: block;
 }
 
 /* make the TH elements pretty */
@@ -71,7 +72,7 @@ thead.fixedHeader th {
 	border-top: 1px solid #EB8;
 	font-weight: normal;
 	padding: 4px 3px;
-	text-align: left
+	text-align: left;
 }
 
 /* make the A elements pretty. makes for nice clickable headers                */
@@ -79,7 +80,7 @@ thead.fixedHeader a, thead.fixedHeader a:link, thead.fixedHeader a:visited {
 	color: #FFF;
 	display: block;
 	text-decoration: none;
-	width: 100%
+	width: 100%;
 }
 
 /* make the A elements pretty. makes for nice clickable headers                */
@@ -88,7 +89,7 @@ thead.fixedHeader a:hover {
 	color: #FFF;
 	display: block;
 	text-decoration: underline;
-	width: 100%
+	width: 100%;
 }
 
 /* define the table content to be scrollable                                              */
@@ -99,7 +100,7 @@ html>body tbody.scrollContent {
 	display: block;
 /*	height: 262px;*/
 	overflow: auto;
-	width: 100%
+	width: 100%;
 }
 
 /* make TD elements pretty. Provide alternating classes for striping the table */
@@ -110,7 +111,8 @@ tbody.scrollContent td, tbody.scrollContent tr.normalRow td {
 	border-left: none;
 	border-right: 1px solid #CCC;
 	border-top: 1px solid #DDD;
-	padding: 2px 3px 3px 4px
+	padding: 2px 3px 3px 4px;
+    cursor: pointer;
 }
 
 tbody.scrollContent tr.alternateRow td {
@@ -119,36 +121,243 @@ tbody.scrollContent tr.alternateRow td {
 	border-left: none;
 	border-right: 1px solid #CCC;
 	border-top: 1px solid #DDD;
-	padding: 2px 3px 3px 4px
+	padding: 2px 3px 3px 4px;
 }
 
 /* define width of TH elements: 1st, 2nd, and 3rd respectively.          */
 /* Add 16px to last TH for scrollbar padding. All other non-IE browsers. */
 /* http://www.w3.org/TR/REC-CSS2/selector.html#adjacent-selectors        */
 html>body thead.fixedHeader th {
-	width: 50%
+	width: 246px;
+    height: 14px;
 }
 
 html>body thead.fixedHeader th + th {
-	width: 240px
+	width: 240px;
 }
 
 html>body thead.fixedHeader th + th + th {
-	width: 316px
+	width: 316px;
 }
 
 /* define width of TD elements: 1st, 2nd, and 3rd respectively.          */
 /* All other non-IE browsers.                                            */
 /* http://www.w3.org/TR/REC-CSS2/selector.html#adjacent-selectors        */
 html>body tbody.scrollContent td {
-	width: 50%;
+	width: 246px;
     height: 14px;
 }
 
 html>body tbody.scrollContent td + td {
-	width: 240px
+	width: 240px;
 }
 
 html>body tbody.scrollContent td + td + td {
-	width: 300px
+	width: 300px;
+}
+
+.div_jython_gui{
+    border: 1px solid #EB8;
+    margin: 2px;
+    margin-top: 4px;
+    width: 99%;
+    height: 98%;
+/*    padding: 2px;*/
+}
+
+.div_jython_gui table {
+	width: 100%;
+/*    table-layout: fixed;*/
+}
+
+thead.fixedHeader tr {
+	position: relative;
+}
+
+/* set THEAD element to have block level attributes. All other non-IE browsers            */
+/* this enables overflow to work on TBODY element. All other non-IE, non-Mozilla browsers */
+html>body thead.table_jython_header tr {
+	display: block;
+}
+
+thead.table_jython_header {
+    width: 100%;
+}
+
+/* make the TH elements pretty */
+thead.table_jython_header th {
+	background: #C96;
+	border-left: 1px solid #EB8;
+	border-right: 1px solid #B74;
+	border-top: 1px solid #EB8;
+	font-weight: normal;
+	padding: 4px 3px;
+	text-align: left;
+    width: 100%;
+}
+
+/* make the A elements pretty. makes for nice clickable headers                */
+thead.table_jython_header a, thead.table_jython_header a:link, thead.table_jython_header a:visited {
+	color: #FFF;
+	display: block;
+	text-decoration: none;
+	width: 100%;
+}
+
+/* make the A elements pretty. makes for nice clickable headers                */
+/* WARNING: swapping the background on hover may cause problems in WinIE 6.x   */
+thead.table_jython_header a:hover {
+	color: #FFF;
+	display: block;
+	text-decoration: underline;
+	width: 100%;
+}
+
+html>body thead.table_jython_header th {
+	width: 100%;
+    height: 16px;
+}
+
+html>body tbody.table_jython_content {
+/*	display: block;*/
+/*	height: 262px;*/
+	overflow: auto;
+	width: 100%;
+}
+
+/* make TD elements pretty. Provide alternating classes for striping the table */
+/* http://www.alistapart.com/articles/zebratables/                             */
+tbody.table_jython_content td, tbody.table_jython_content tr.normalRow td {
+	background: #FFF;
+	border-bottom: none;
+	border-left: none;
+	border-right: 1px solid #CCC;
+	border-top: 1px solid #DDD;
+/*    min-height: 16px;*/
+/*	padding: 2px 3px 3px 4px;*/
+}
+
+tbody.table_jython_content tr.alternateRow td {
+	background: #EEE;
+	border-bottom: none;
+	border-left: none;
+	border-right: 1px solid #CCC;
+	border-top: 1px solid #DDD;
+/*	padding: 2px 3px 3px 4px;*/
+}
+
+html>body thead.table_jython_content th {
+    height: 12px;
+    width: 100%;
+}
+
+.table_jython_header_td{
+    background: #C96;
+	border-left: 1px solid #EB8;
+	border-right: 1px solid #B74;
+	border-top: 1px solid #EB8;
+	font-weight: normal;
+	padding: 4px 3px;
+	text-align: left;
+    text-shadow: 1px 1px #A59595;
+}
+
+.table_jython_group_header_td{
+    background: #f4d6b8;
+/*
+	border-left: 1px solid #EB8;
+	border-right: 1px solid #B74;
+	border-top: 1px solid #EB8;
+*/
+	font-weight: normal;
+	text-align: left;
+/*    text-shadow: 1px 1px #A59595;*/
+/*	padding: -2px;
+    margin: -6px -4px; */
+    color: #444;
+    padding: 2px 3px 3px 4px;
+}
+
+.div_jython_label{
+    padding: 2px 3px 3px 4px;
+}
+
+.div_jython_input{
+    padding: 2px 3px 3px 4px;
+}
+.div_jython_action{
+    padding: 2px 3px 3px 4px;
+    text-align: left;
+    width: 100%;
+}
+.buttonAction{
+    width: 99%;
+}
+.div_jython_group{
+    border: 1px double #EB8;
+    padding: 0;
+    margin-left: 1px;
+    margin-right: 1px;
+    width: 99%;
+}
+.div_jython_group table, tbody{
+    width: 100%;
+/*    table-layout: fixed;*/
+}
+.div_jython_group td{
+/*    width: 50%;*/
+    min-width: 30%;
+}
+
+tbody.table_jython_content td{
+    width: 50%;
+    min-width: 30%;
+}
+.div_jython_label_progress{
+    float: left;
+    vertical-align: middle;
+    padding-top: 4px;
+    padding-left: 2px;
+    margin-right: 2px;
+}
+.div_jython_progress_wrap{
+    padding: 2px;
+}
+.div_jython_progress{
+    background-color: black;
+    border-radius: 13px; /* (height of inner div) / 2 + padding */
+    height: 18px;
+    padding: 3px;
+}
+.div_jython_progress > div {
+   background-color: orange;
+   border-radius: 10px;
+}
+
+.ui-state-highlight-customised {
+	background: #fabf83;
+    color: #2e25ff;
+    font-weight: bold;
+	border-bottom: none;
+	border-left: none;
+	border-right: 1px solid #CCC;
+	border-top: 1px solid #DDD;
+/*	padding: 2px 3px 3px 4px;*/
+}
+
+.div_jython_progress > .ui-progressbar-value {
+    -webkit-transition: width 2s ease-in-out;
+    -moz-transition: width 2s ease-in-out;
+    -ms-transition: width 2s ease-in-out;
+    -o-transition: width 2s ease-in-out;
+    transition: width 2s ease-in-out;
+    
+    background: #7db9e8; /* Old browsers */
+    background: -moz-linear-gradient(top, #7db9e8 0%, #207cca 31%, #207cca 50%, #2989d8 73%, #1e5799 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7db9e8), color-stop(31%,#207cca), color-stop(50%,#207cca), color-stop(73%,#2989d8), color-stop(100%,#1e5799)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #7db9e8 0%,#207cca 31%,#207cca 50%,#2989d8 73%,#1e5799 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #7db9e8 0%,#207cca 31%,#207cca 50%,#2989d8 73%,#1e5799 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #7db9e8 0%,#207cca 31%,#207cca 50%,#2989d8 73%,#1e5799 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #7db9e8 0%,#207cca 31%,#207cca 50%,#2989d8 73%,#1e5799 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7db9e8', endColorstr='#1e5799',GradientType=0 ); /* IE6-9 */
 }

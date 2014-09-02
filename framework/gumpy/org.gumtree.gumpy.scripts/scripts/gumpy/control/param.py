@@ -1,6 +1,6 @@
-from au.gov.ansto.bragg.nbi.ui.scripting.pyobj import ScriptParameter
-from au.gov.ansto.bragg.nbi.ui.scripting.pyobj import ScriptAction
-from au.gov.ansto.bragg.nbi.ui.scripting.pyobj import ScriptObjectGroup
+from au.gov.ansto.bragg.nbi.scripting import ScriptParameter
+from au.gov.ansto.bragg.nbi.scripting import ScriptAction
+from au.gov.ansto.bragg.nbi.scripting import ScriptObjectGroup
 
 class Par:
     
@@ -139,6 +139,8 @@ class Group():
                 self.__group__.addObject(obj.__par__)
             elif isinstance(obj, Act) :
                 self.__group__.addObject(obj.__act__)
+            elif isinstance(obj, Group) :
+                self.__group__.addObject(obj.__group__)
         
     def remove(self, obj):
         self.__group__.removeObject(obj)

@@ -407,7 +407,7 @@ class WebPlot:
 #            return self.pv.getPlot().getMasks();
 #        else :
 #            return []
-        raise ValueError, 'not supported'
+        return []
         
     def remove_mask(self, obj):
 #        if type(obj) is str :
@@ -453,14 +453,14 @@ class WebPlot:
             else :
                 return 'empty'
         if name == 'x_label' :
-            return self.cache.getXYPlot().getHorizontalAxis().getLabel()
+            return self.cache.getXYPlot().getDomainAxis().getLabel()
         if name == 'y_label' :
-            return self.cache.getXYPlot().getVerticalAxis().getLabel()
+            return self.cache.getXYPlot().getRangeAxis().getLabel()
         if name == 'x_range' :
-            axis = self.cache.getXYPlot().getHorizontalAxis()
+            axis = self.cache.getXYPlot().getDomainAxis()
             return [axis.getLowerBound(), axis.getUpperBound()]
         if name == 'y_range' :
-            axis = self.cache.getXYPlot().getVerticalAxis()
+            axis = self.cache.getXYPlot().getRangeAxis()
             return [axis.getLowerBound(), axis.getUpperBound()]
         if name == 'masks' :
 #            return self.pv.getPlot().getMasks()
@@ -498,14 +498,16 @@ class WebPlot:
 #            if isinstance(lt, __AWTMouseListener__):
 #                self.pv.getPlot().removeMouseListener(lt)
 #        self.add_awt_mouse_listener(listener)
-        raise ValueError, 'not supported'
+#        raise ValueError, 'not supported'
+        pass
         
     def set_mouse_listener(self, listener):
 #        listeners = self.pv.getPlot().getListeners(ChartMouseListener)
 #        for lsn in listeners:
 #            self.pv.getPlot().removeChartMouseListener(lsn)
 #        self.add_mouse_listener(listener)
-        raise ValueError, 'not supported'
+#        raise ValueError, 'not supported'
+        pass
         
     def add_mask_listener(self, listener):
 #        self.pv.getPlot().addMaskEventListener(listener.__get_jlistener__())
@@ -514,7 +516,8 @@ class WebPlot:
     def set_mask_listener(self, listener):
 #        self.pv.getPlot().getMaskEventListeners().clear()
 #        self.add_mask_listener(listener)
-        raise ValueError, 'not supported'
+#        raise ValueError, 'not supported'
+        pass
         
     def remove_mouse_listener(self, listener):
 #        self.pv.getPlot().removeChartMouseListener(listener.__get_jlistener__())

@@ -30,6 +30,10 @@ var devices = [
             	            {"classId":"ss1l", "deviceId":"ss1l", "title":"ss1l", "units":"mm"}
             	            ]
                },
+               {"group":"SAMPLE", 
+            	   "items":[{"classId":"samz", "deviceId":"samz", "title":"samz", "units":"mm"}
+            	            ]
+               },
                {"group":"CHANNEL-CUT ANALYSER", 
             	   "items":[{"classId":"m2om", "deviceId":"m2om", "title":"m2om", "units":"deg"},
             	            {"classId":"m2chi", "deviceId":"m2chi", "title":"m2chi", "units":"deg"},

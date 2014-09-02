@@ -1,7 +1,7 @@
 /**
  * 
  */
-package au.gov.ansto.bragg.nbi.ui.scripting.pyobj;
+package au.gov.ansto.bragg.nbi.scripting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +20,7 @@ public class ScriptModel {
 	private String title;
 	private String version;
 	private int numColumns = 1;
+	private boolean isDirty = false;
 	
 //	public static ScriptModel getModel(int id) {
 //		return modelRegistry.get(id);
@@ -105,5 +106,19 @@ public class ScriptModel {
 	 */
 	public void setNumColumns(int numColumns) {
 		this.numColumns = numColumns;
+	}
+
+	/**
+	 * @return the isDirty
+	 */
+	public boolean isDirty() {
+		return isDirty;
+	}
+
+	/**
+	 * @param isDirty the isDirty to set
+	 */
+	public void setDirty(boolean isDirty) {
+		this.isDirty = isDirty;
 	}
 }

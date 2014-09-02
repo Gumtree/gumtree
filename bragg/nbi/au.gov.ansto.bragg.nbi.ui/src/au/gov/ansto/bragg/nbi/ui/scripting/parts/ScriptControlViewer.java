@@ -98,18 +98,18 @@ import org.gumtree.scripting.IScriptExecutor;
 import org.gumtree.scripting.ScriptExecutor;
 import org.gumtree.ui.scripting.viewer.CommandLineViewer;
 
+import au.gov.ansto.bragg.nbi.scripting.IPyObject;
+import au.gov.ansto.bragg.nbi.scripting.ScriptAction;
+import au.gov.ansto.bragg.nbi.scripting.ScriptAction.ActionStatus;
+import au.gov.ansto.bragg.nbi.scripting.ScriptModel;
+import au.gov.ansto.bragg.nbi.scripting.ScriptObjectGroup;
+import au.gov.ansto.bragg.nbi.scripting.ScriptParameter;
+import au.gov.ansto.bragg.nbi.scripting.ScriptParameter.PType;
 import au.gov.ansto.bragg.nbi.ui.internal.Activator;
 import au.gov.ansto.bragg.nbi.ui.internal.InternalImage;
 import au.gov.ansto.bragg.nbi.ui.scripting.ScriptPageRegister;
 import au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective;
 import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptDataSourceViewer.IActivityListener;
-import au.gov.ansto.bragg.nbi.ui.scripting.pyobj.IPyObject;
-import au.gov.ansto.bragg.nbi.ui.scripting.pyobj.ScriptAction;
-import au.gov.ansto.bragg.nbi.ui.scripting.pyobj.ScriptAction.ActionStatus;
-import au.gov.ansto.bragg.nbi.ui.scripting.pyobj.ScriptModel;
-import au.gov.ansto.bragg.nbi.ui.scripting.pyobj.ScriptObjectGroup;
-import au.gov.ansto.bragg.nbi.ui.scripting.pyobj.ScriptParameter;
-import au.gov.ansto.bragg.nbi.ui.scripting.pyobj.ScriptParameter.PType;
 
 
 /**

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package au.gov.ansto.bragg.nbi.ui.scripting.pyobj;
+package au.gov.ansto.bragg.nbi.scripting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,5 +76,22 @@ public class ScriptAction extends PyObjectImp {
 	
 	public interface IActionStatusListener{
 		public void statusChanged(ActionStatus newStatus);
+	}
+	
+	public String getHtml(){
+		return "<td colspan=\"" + getColSpan() * 2 + "\" rowspan=\"" + getRowSpan() + "\"><div class=\"div_jython_action\"><input type=\"button\" class=\"buttonAction buttonStyle\" data-role=\"button\" id=\"" + getName() + "\" value=\"" 
+				+ text + "\" onclick=\"sendJython('" + command + "')\"/></div></td>";
+	}
+
+	@Override
+	public String getInitJs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getEventJs(String property) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
