@@ -34,7 +34,7 @@ public class JythonDataHandler {
 					if (selectedFiles != null){
 						for (String selectedFile : selectedFiles){
 							if (selectedFile.equals(file.getName())){
-								divClass = " class=\"ui-state-highlight-customised\"";
+								divClass = " class=\"ui-state-highlight-customised ui-selected\"";
 								break;
 							}
 						}

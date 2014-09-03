@@ -110,23 +110,20 @@ def run_action(act):
         raise Exception, 'Error in running <' + act.text + '>'
     
 def get_prof_value(name):
-#    value = __UI__.getPreference(name)
-#    if value == None:
-#        value = ''
-#    else:
-#        value = str(value)
-#    return value
-    return None
+    value = __register__.getPreference(name)
+    if value == None:
+        value = ''
+    else:
+        value = str(value)
+    return value
 
 def set_prof_value(name, value):
-#    if value == None:
-#        value = ''
-#    __UI__.setPreference(name, value)
-    pass
+    if value == None:
+        value = ''
+    __register__.setPreference(name, value)
     
 def save_pref():
-#    __UI__.savePreferenceStore()
-    pass
+    __register__.savePreferenceStore()
 
 def report_file(name, type = 'save'):
     __register__.reportFileForDownload(type + ":" + name)

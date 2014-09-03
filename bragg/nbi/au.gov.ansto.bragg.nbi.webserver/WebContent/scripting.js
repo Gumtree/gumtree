@@ -341,6 +341,9 @@ $(function() {
         }
     });
 
+    $("#table_datafiles").dblclick(function(){
+        sendJython("__run_script__(__selected_files__)");
+    });
 });
 
 jQuery(document).ready(function(){

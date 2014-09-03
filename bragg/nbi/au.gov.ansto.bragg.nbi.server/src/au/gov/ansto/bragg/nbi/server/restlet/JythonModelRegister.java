@@ -6,7 +6,11 @@ package au.gov.ansto.bragg.nbi.server.restlet;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+
 import au.gov.ansto.bragg.nbi.scripting.ScriptModel;
+import au.gov.ansto.bragg.nbi.server.internal.Activator;
 
 
 /**
@@ -78,4 +82,29 @@ public class JythonModelRegister {
 	public JythonDataHandler getDataHandler(){
 		return JythonExecutor.getDataHandler();
 	}
+	
+	public void setPreference(String name, String value){
+		IEclipsePreferences preferences = InstanceScope.INSTANCE
+				  .getNode(Activator.PLUGIN_ID);
+		preferences.put(name, value);
+	}
+
+	public void savePreferenceStore(){
+		IEclipsePreferences preferences = InstanceScope.INSTANCE
+				  .getNode(Activator.PLUGIN_ID);
+		try {
+			// forces the application to save the preferences
+			preferences.flush();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public String getPreference(String name) {
+		IEclipsePreferences preferences = InstanceScope.INSTANCE
+				  .getNode(Activator.PLUGIN_ID);
+		return preferences.get(name, "");
+	}
+
+
 }

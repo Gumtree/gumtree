@@ -57,6 +57,7 @@ public class JythonUIHandler {
 			if (scriptPath != null) {
 				try {
 					html = getScriptControlHtml(scriptPath);
+					return html;
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				}

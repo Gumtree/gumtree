@@ -134,6 +134,7 @@ public class ScriptParameter extends PyObjectImp {
 				boolean isSelected = false;
 				switch (type) {
 				case INT:
+				case FILE:
 				case STRING:
 					isSelected = getValue().equals(option);
 					break;
@@ -159,6 +160,7 @@ public class ScriptParameter extends PyObjectImp {
 					+ getName() + "\" onchange=\"sendJython('" + getName() + ".value=float(' + this.value + ')" + (getCommand() != null ? ";" + getCommand() : "") + "')\" class=\"input_jython_text\" id=\"" 
 					+ getName() + "\" value=\"" + value + "\" style=\"min-width:50%;min-height:12px;\" autocomplete=\"off\"></div></td>";
 			break;
+		case FILE:
 		case STRING:
 			html = "<td colspan=\"" + getColSpan() + "\" rowspan=\"" + getRowSpan() + "\"><div class=\"div_jython_label\">" + getTitle() + "</div></td><td colspan=\"" + getColSpan() + "\" rowspan=\"" + getRowSpan() + "\"><div class=\"div_jython_input\"><input type=\"text\" name=\"" 
 					+ getName() + "\" onchange=\"sendJython('" + getName() + ".value=str(\\\'' + this.value + '\\\')" + (getCommand() != null ? ";" + getCommand() : "") + "')\" class=\"input_jython_text\" id=\"" 
@@ -176,7 +178,6 @@ public class ScriptParameter extends PyObjectImp {
 			html = "<td colspan=\"" + getColSpan() * 2 + "\" rowspan=\"" + getRowSpan() + "\"><div class=\"div_jython_progress_wrap\"><div class=\"div_jython_label div_jython_label_progress\">" 
 					+ getTitle() + "</div><div id=\"" + getName() + "\" class=\"div_jython_progress\"></div></div></td>";
 			break;
-		case FILE:
 		case SPACE:
 			html = "<td colspan=\"" + getColSpan() * 2 + "\" rowspan=\"" + getRowSpan() + "\">&nbsp;</td>";
 			break;
@@ -208,6 +209,7 @@ public class ScriptParameter extends PyObjectImp {
 			case FLOAT:
 				js = "$('#" + getName() + "').val(" + (Float) getValue() + ");";
 				break;
+			case FILE:
 			case STRING:
 				js = "$('#" + getName() + "').val('" + getValue() + "');";
 				break;
@@ -220,7 +222,6 @@ public class ScriptParameter extends PyObjectImp {
 			case PROGRESS:
 				js = "$('#" + getName() + "').progressbar('option', 'value', " + getValue() + ");";
 				break;
-			case FILE:
 			case SPACE:
 				js = "";
 				break;
