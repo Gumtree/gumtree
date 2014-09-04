@@ -4,10 +4,6 @@
 package au.gov.ansto.bragg.nbi.server.restlet;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.scripting.IScriptBlock;
@@ -57,7 +53,9 @@ public class JythonRestlet extends Restlet implements IDisposable {
 		PLOT,
 		GUI,
 		FILENAMES,
-		FILE
+		FILE,
+		LISTSCRIPTS,
+		SCRIPT
 	}
 	/**
 	 * 
@@ -224,6 +222,19 @@ public class JythonRestlet extends Restlet implements IDisposable {
 			disposition.setFilename(filename);
 			representation.setDisposition(disposition);
 			response.setEntity(representation);
+			break;
+		case LISTSCRIPTS:
+			response.setEntity(JythonExecutor.getUIHandler().getAvailableScripts(), MediaType.TEXT_PLAIN);
+			break;
+		case SCRIPT:
+			String nameString = queryForm.getValues(QUERY_FILE_NAME);
+			try {
+				String text = JythonExecutor.getUIHandler().getScriptFileContent(nameString);
+				response.setEntity(text, MediaType.TEXT_PLAIN);
+			} catch (Exception e) {
+				e.printStackTrace();
+	    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+			}
 			break;
 		default:
 			break;

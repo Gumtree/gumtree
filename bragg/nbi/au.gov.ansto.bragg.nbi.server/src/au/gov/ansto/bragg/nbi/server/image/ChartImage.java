@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import org.gumtree.vis.awt.PlotFactory;
+import org.gumtree.vis.hist2d.ColorPaintScale;
 import org.gumtree.vis.interfaces.IDataset;
 import org.gumtree.vis.interfaces.ITimeSeriesSet;
 import org.gumtree.vis.interfaces.IXYErrorDataset;
@@ -15,6 +16,8 @@ import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.title.LegendTitle;
+import org.jfree.chart.title.PaintScaleLegend;
+import org.jfree.chart.title.Title;
 
 /**
  * @author nxi
@@ -55,6 +58,9 @@ public class ChartImage {
 			}
 			if (!createNewChart) {
 				chart.getXYPlot().setDataset(dataset);
+				if (dataset instanceof IXYZDataset) {
+					updatePaintScaleLegend();
+				}
 			} else {
 				if (dataset instanceof IXYErrorDataset) {
 					chart = PlotFactory.createXYErrorChart((IXYErrorDataset) dataset);
@@ -103,6 +109,28 @@ public class ChartImage {
 			update();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public PaintScaleLegend getPaintScaleLegend() {
+		for (Object object : getChart().getSubtitles()) {
+        	Title title = (Title) object;
+        	if (title instanceof PaintScaleLegend) {
+        		return (PaintScaleLegend) title;
+        	}
+		}
+		return null;
+	}
+	
+	public void updatePaintScaleLegend() {
+		PaintScaleLegend legend = getPaintScaleLegend();
+		double max = ((IXYZDataset) getDataset()).getZMax();
+		double min = ((IXYZDataset) getDataset()).getZMin();
+		if (legend != null) {
+			((ColorPaintScale) legend.getScale()).setLowerBound(min);
+			((ColorPaintScale) legend.getScale()).setUpperBound(max);
+			legend.getAxis().setLowerBound(min);
+			legend.getAxis().setUpperBound(max);
 		}
 	}
 	

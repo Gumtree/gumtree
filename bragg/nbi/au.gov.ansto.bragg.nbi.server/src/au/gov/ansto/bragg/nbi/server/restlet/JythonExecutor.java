@@ -276,6 +276,10 @@ public class JythonExecutor {
 		return errorHistory;
 	}
 
+	public static JythonUIHandler getUIHandler(){
+		return uiHandler;
+	}
+	
 	public static String getScriptGUI(String script){
 		if (executor == null) {
 			getExecutor();

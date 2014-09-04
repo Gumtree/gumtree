@@ -2,7 +2,12 @@ package au.gov.ansto.bragg.nbi.server.restlet;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +30,7 @@ public class JythonUIHandler {
 	private static int SCRIPT_REGISTER_ID = 0;
 	public static final String GUMTREE_SCRIPTING_LIST_PROPERTY = "gumtree.scripting.menuitems";
 	public static final String GUMTREE_SCRIPTING_INIT_PROPERTY = "gumtree.scripting.initscript";
+	public static final String GUMTREE_SCRIPTING_SCRIPTPATH_PROPERTY = "gumtree.analysis.scriptPath";
 	public static final String WORKSPACE_FOLDER_PATH = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
 	private static final String __INIT__SCRIPT = "/pyscripts/__init__.py";
 	private static final String PRE_RUN_SCRIPT = "/pyscripts/pre_run.py";
@@ -46,6 +52,21 @@ public class JythonUIHandler {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+	}
+	
+	public String getAvailableScripts() {
+		String html = "";
+		String folderString = System.getProperty(GUMTREE_SCRIPTING_SCRIPTPATH_PROPERTY);
+		if (folderString != null && folderString.trim().length() > 0){
+			File folder = new File(folderString);
+			if (folder.exists()){
+				String[] files = folder.list();
+				for (String file : files) {
+					html += file + ";";
+				}
+			}
+		}
+		return html;
 	}
 	
 	public String getInitialScriptsHtml() {
@@ -399,6 +420,15 @@ public class JythonUIHandler {
 
 	public int getScriptRegisterID() {
 		return scriptRegisterID;
+	}
+
+	public String getScriptFileContent(String name) throws IOException {
+		String folderString = System.getProperty(GUMTREE_SCRIPTING_SCRIPTPATH_PROPERTY);
+		if (folderString != null && folderString.trim().length() > 0){
+			String path = folderString + "/" + name;
+			return new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
+		}
+		return "";
 	}
 
 }

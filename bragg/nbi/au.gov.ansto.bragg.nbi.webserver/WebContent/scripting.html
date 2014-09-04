@@ -55,13 +55,16 @@
                 </ul>
                 <div id="box">
                     <div id="div_script_text" class="box">
-                        <![if !IE]>
                             <div class="form-all">
                                 <form action="jython/rest/res?type=START" method="post" name="file_form" id="file_form" accept-charset="utf-8" enctype="multipart/form-data">
+                                    Choose: 
+                                    <select id="script_select" onchange="selectScript()">
+                                        <option value=""></option>
+                                    </select>
+                                    or upload:
                                     <input type="file" class="upload" value="Open a Jython File" id="jython_file" name="jython_file" multiple="multiple" file-accept=".py" file-maxsize="10240" file-limit="0" />
                                 </form>
                             </div>
-                        <![endif]>
                             <div id="cid_8" class="form-all">
                                 <form action="jython/rest/res?type=START" method="post" name="script_form" id="script_form" accept-charset="utf-8">
                                     <input type="hidden" name="script_input" id="script_input" value="textArea" />

@@ -196,6 +196,25 @@ function sendJython(cmd){
             });
 }
 
+function selectScript(){
+    var name = $("#script_select").val();
+    if (name) {
+        var getUrl = jythonUrl + "?type=SCRIPT&name=" + name;
+        $.get(getUrl, function(data, status) {
+            if (status == "success") {
+                $("#jython_file").val("");
+                $("#script_text").html(data);
+                createGui();
+            }
+        })
+        .fail(function(e) {
+                alert( "error loading the script");
+        });
+    } else {
+        $("#script_text").html("");
+    }
+}
+
 function changeOptions(obj, options){
     obj.empty();
     $.each(options, function(idx, value) {
@@ -284,10 +303,28 @@ function getFileList(){
         }
     })
     .fail(function(e) {
-            alert( "error interrupting the script");
+            alert( "error loading data files");
     });
 }
 
+function getScriptList(){
+    var getUrl = jythonUrl + "?type=LISTSCRIPTS";
+    $.get(getUrl, function(data, status) {
+        if (status == "success") {
+            var files = data.split(";");
+            $.each(files, function(idx, file) {
+                if (file){
+                    var o = new Option(file, file);
+                    $(o).html(file);
+                    $("#script_select").append(o);
+                }
+            });
+        }
+    })
+    .fail(function(e) {
+            alert( "error loading available scripts");
+    });
+}
 $(window).on('hashchange',function(){ 
     window.scrollTo(0,0);
 });
@@ -346,6 +383,26 @@ $(function() {
     });
 });
 
+function createGui(){
+    var postUrl = jythonUrl + "?type=GUI";
+    $.post( postUrl, $("form#script_form").serialize(), function(data, status) {
+        if (status == "success") {
+            $("#div_script_gui").html(data['html']);
+            processStatus(data);
+            if (data['status'] == "BUSY"){
+                    setUpdateInterval();
+            }
+            if (data['error'] == null || data['error'].trim().length == 0){
+                $("#tab2").click();
+                window.location = $('#tab2').attr('href');
+            }
+        }
+    })
+    .fail(function(e) {
+        alert( "error submitting the script");
+    });
+}
+
 jQuery(document).ready(function(){
 	$(document).attr("title", title + " - Jython Runner");
 	$('#titleString').text(title + " - Jython Runner");
@@ -361,23 +418,7 @@ jQuery(document).ready(function(){
     
     $("#create_gui").click(function() {
 //        runScript();
-        var postUrl = jythonUrl + "?type=GUI";
-        $.post( postUrl, $("form#script_form").serialize(), function(data, status) {
-            if (status == "success") {
-                $("#div_script_gui").html(data['html']);
-                processStatus(data);
-                if (data['status'] == "BUSY"){
-                        setUpdateInterval();
-                }
-                if (data['error'] == null || data['error'].trim().length == 0){
-                    $("#tab2").click();
-                    window.location = $('#tab2').attr('href');
-                }
-            }
-        })
-        .fail(function(e) {
-            alert( "error submitting the script");
-        });
+        createGui();
 	});
     
     $("#button_reload_data_file").click(function() {
@@ -401,33 +442,36 @@ jQuery(document).ready(function(){
     });
 
     $("#jython_file").on("change", function(event) {
-        var postUrl = jythonUrl + "?type=READSCRIPT";
-        var formData = new FormData($('form#file_form')[0]);
-        $.ajax({
-            url: postUrl,  //Server script to process data
-            type: 'POST',
-            //Ajax events
-//            xhr: function() {  // Custom XMLHttpRequest
-//                var myXhr = $.ajaxSettings.xhr();
-//                if(myXhr.upload){ // Check if upload property exists
-//                    myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // For handling the progress of the upload
-//                }
-//                return myXhr;
-//            },
-//            beforeSend: beforeSendHandler,
-            success: function(data){
-                        $('#script_text').val(data);
-                    },
-            error:  function(e) {
-                        alert( "error uploading script");
-                    },
-            // Form data
-            data: formData,
-            //Options to tell jQuery not to process data or worry about content-type.
-            cache: false,
-            contentType: false,
-            processData: false
-        });
+        if ($("#jython_file").val()) {
+            var postUrl = jythonUrl + "?type=READSCRIPT";
+            var formData = new FormData($('form#file_form')[0]);
+            $.ajax({
+                url: postUrl,  //Server script to process data
+                type: 'POST',
+                //Ajax events
+    //            xhr: function() {  // Custom XMLHttpRequest
+    //                var myXhr = $.ajaxSettings.xhr();
+    //                if(myXhr.upload){ // Check if upload property exists
+    //                    myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // For handling the progress of the upload
+    //                }
+    //                return myXhr;
+    //            },
+    //            beforeSend: beforeSendHandler,
+                success: function(data){
+                            $("#script_select").val("");
+                            $('#script_text').html(data);
+                        },
+                error:  function(e) {
+                            alert( "error uploading script");
+                        },
+                // Form data
+                data: formData,
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        }
     });
     
     $(document).delegate('#script_text', 'keydown', function(e) {
@@ -500,6 +544,7 @@ jQuery(document).ready(function(){
     $("#tab1").click();
     window.location = $('#tab1').attr('href');
     
+    getScriptList();
     getFileList();
 });
 
