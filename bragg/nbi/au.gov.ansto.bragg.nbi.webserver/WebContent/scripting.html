@@ -61,8 +61,17 @@
                                     <select id="script_select" onchange="selectScript()">
                                         <option value=""></option>
                                     </select>
+                                    <![if !IE]>
                                     or upload:
                                     <input type="file" class="upload" value="Open a Jython File" id="jython_file" name="jython_file" multiple="multiple" file-accept=".py" file-maxsize="10240" file-limit="0" />
+                                    <![endif]>
+                                    <!--[if gte IE 9]>
+                                    or upload:
+                                    <input type="file" class="upload" value="Open a Jython File" id="jython_file" name="jython_file" multiple="multiple" file-accept=".py" file-maxsize="10240" file-limit="0" />
+                                    <!--<![endif]-->
+                                    <!--[if lt IE 9]>
+                                    or type in your script below:
+                                    <!--<![endif]-->
                                 </form>
                             </div>
                             <div id="cid_8" class="form-all">

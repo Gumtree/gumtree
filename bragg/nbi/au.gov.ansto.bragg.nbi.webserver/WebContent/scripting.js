@@ -23,6 +23,16 @@ function getBool(value){
     }
 }
 
+function run_image_hover(item) {
+    item.setAttribute("src", "images/go_button.png");
+    item.style.border = "red 1px solid";
+}
+
+function run_image_unhover(item) {
+    item.setAttribute("src", "images/go_button_grey.png");
+    item.style.border = "";
+}
+
 //function htmlEntities(text) {
 //    var escaped = text.replace(/\]\]>/g, ']]' + '>]]&gt;<' + '![CDATA[');
 //    return '<' + '![CDATA[' + escaped + ']]' + '>';
@@ -35,10 +45,10 @@ function htmlEntities(s) {
 }
 function updateConsole(data){
     if (data['text'] != null && data['text'].trim().length > 0){
-        $('#console').append('<div class="consoleText">' + htmlEntities(data['text']) + '</div>');
+        $('#console').append('<pre class="consoleText">' + htmlEntities(data['text']) + '</pre>');
     }
     if (data['error'] != null && data['error'].trim().length > 0){
-        $('#console').append('<div class="consoleError">' + htmlEntities(data['error']) + '</div>');
+        $('#console').append('<pre class="consoleError">' + htmlEntities(data['error']) + '</pre>');
     }
 }
 //function updateConsole(data){
@@ -203,7 +213,7 @@ function selectScript(){
         $.get(getUrl, function(data, status) {
             if (status == "success") {
                 $("#jython_file").val("");
-                $("#script_text").html(data);
+                $("#script_text").val(data);
                 createGui();
             }
         })
@@ -211,7 +221,7 @@ function selectScript(){
                 alert( "error loading the script");
         });
     } else {
-        $("#script_text").html("");
+        $("#script_text").val("");
     }
 }
 
@@ -344,14 +354,14 @@ $(function() {
 //            }
 //            $('#script_text').text(cmd);
 //            $('#script_text').text(value.firstChild.innerHTML);
-            selectedFiles.push("'" + value.firstChild.innerHTML + "'");
+            selectedFiles.push("'" + value.firstChild.firstChild.innerHTML + "'");
         });
     }
 
     $( "table > tbody" ).selectable({
 
         // Don't allow individual table cell selection.
-        filter: ":not(td)",
+        filter: ":not(td, div)",
 
         // Update the initial total to 0, since nothing is selected yet.
         create: function( e, ui ) {
@@ -369,6 +379,8 @@ $(function() {
         stop: function( e, ui ) {
             sendJython('__set_selected_files__([' + selectedFiles + '])');
         },
+        
+        distance: 0,
         
         // When a row is unselected, remove the highlight class from the row.
         unselected: function( e, ui ) {
@@ -441,38 +453,74 @@ jQuery(document).ready(function(){
         $("#create_gui").val("Reload GUI");
     });
 
-    $("#jython_file").on("change", function(event) {
-        if ($("#jython_file").val()) {
-            var postUrl = jythonUrl + "?type=READSCRIPT";
-            var formData = new FormData($('form#file_form')[0]);
-            $.ajax({
-                url: postUrl,  //Server script to process data
-                type: 'POST',
-                //Ajax events
-    //            xhr: function() {  // Custom XMLHttpRequest
-    //                var myXhr = $.ajaxSettings.xhr();
-    //                if(myXhr.upload){ // Check if upload property exists
-    //                    myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // For handling the progress of the upload
-    //                }
-    //                return myXhr;
-    //            },
-    //            beforeSend: beforeSendHandler,
-                success: function(data){
-                            $("#script_select").val("");
-                            $('#script_text').html(data);
-                        },
-                error:  function(e) {
-                            alert( "error uploading script");
-                        },
-                // Form data
-                data: formData,
-                //Options to tell jQuery not to process data or worry about content-type.
-                cache: false,
-                contentType: false,
-                processData: false
-            });
-        }
-    });
+    if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0) {
+        $("#jython_file").change(function() {
+            if ($("#jython_file").val()) {
+                var postUrl = jythonUrl + "?type=READSCRIPT";
+                var formData = new FormData($('form#file_form')[0]);
+                $.ajax({
+                    url: postUrl,  //Server script to process data
+                    type: 'POST',
+                    //Ajax events
+        //            xhr: function() {  // Custom XMLHttpRequest
+        //                var myXhr = $.ajaxSettings.xhr();
+        //                if(myXhr.upload){ // Check if upload property exists
+        //                    myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // For handling the progress of the upload
+        //                }
+        //                return myXhr;
+        //            },
+        //            beforeSend: beforeSendHandler,
+                    success: function(data){
+                                alert("load");
+                                $("#script_select").val("");
+                                $('#script_text').val(data);
+                            },
+                    error:  function(e) {
+                                alert( "error uploading script");
+                            },
+                    // Form data
+                    data: formData,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }
+        });
+    } else {
+        $("#jython_file").on("change", function(event) {
+            if ($("#jython_file").val()) {
+                var postUrl = jythonUrl + "?type=READSCRIPT";
+                var formData = new FormData($('form#file_form')[0]);
+                $.ajax({
+                    url: postUrl,  //Server script to process data
+                    type: 'POST',
+                    //Ajax events
+        //            xhr: function() {  // Custom XMLHttpRequest
+        //                var myXhr = $.ajaxSettings.xhr();
+        //                if(myXhr.upload){ // Check if upload property exists
+        //                    myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // For handling the progress of the upload
+        //                }
+        //                return myXhr;
+        //            },
+        //            beforeSend: beforeSendHandler,
+                    success: function(data){
+                                $("#script_select").val("");
+                                $('#script_text').val(data);
+                            },
+                    error:  function(e) {
+                                alert( "error uploading script");
+                            },
+                    // Form data
+                    data: formData,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }
+        });
+    }
     
     $(document).delegate('#script_text', 'keydown', function(e) {
         var keyCode = e.keyCode || e.which;

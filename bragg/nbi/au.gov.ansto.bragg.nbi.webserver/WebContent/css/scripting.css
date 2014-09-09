@@ -16,7 +16,7 @@ body{
 /* 750 centered, and backward compatibility */ 
 #doc,.yui-t7 {
 	margin:auto;text-align:left;
-	width:1280px;*width:66.3em;min-width:960px;}
+	width:1200px;*width:66.3em;min-width:960px;}
 	
 /* below required for all fluid grids; adjust widths and margins above accordingly */
 
@@ -180,4 +180,11 @@ body{
 .image_plot{
 	width: 100%;
 	height: 100%;
+}
+.div_file_name{
+    float: left;
+}
+.div_run_image{
+    float: right;
+    width: 32px;
 }

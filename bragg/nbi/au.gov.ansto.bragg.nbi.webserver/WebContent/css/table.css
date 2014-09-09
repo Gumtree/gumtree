@@ -41,7 +41,7 @@ html>body div.tableContainer {
 div.tableContainer table {
 	float: left;
     empty-cells: show;
-/*	width: 740px*/
+	width: 60px;
 }
 
 /* define width of table. Add 16px to width for scrollbar.           */
