@@ -9,9 +9,10 @@ $(function() {
   var prev = $('.prev');
   
   image.on('click', function(e) {
-    current = $('img').index($(this));
+    current = image.index($(this));
     container.empty();
-    container.append('<img class="img_popup" src=\"' + image.eq(current).attr('src') + '\" />');
+//    container.append('<img class="img_popup" src=\"' + image.eq(current).attr('src') + '\" />');
+    container.append('<img class="img_popup" src=\"' + $(this).attr('src') + '\" />');
     focus.fadeIn().addClass('enabled');
     $("#bd").addClass('darken');
     $("#bd").append('<div class="overlay"></div>');

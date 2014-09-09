@@ -25,7 +25,7 @@ function getBool(value){
 
 function run_image_hover(item) {
     item.setAttribute("src", "images/go_button.png");
-    item.style.border = "red 1px solid";
+    item.style.border = "#0a00ff 1px solid";
 }
 
 function run_image_unhover(item) {
