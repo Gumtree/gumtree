@@ -6,6 +6,7 @@ package au.gov.ansto.bragg.nbi.ui.scripting.parts;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.gumtree.data.interfaces.IArray;
 import org.gumtree.data.interfaces.IContainer;
 import org.gumtree.data.interfaces.IDataItem;
 import org.gumtree.data.interfaces.IDataset;
@@ -44,10 +45,23 @@ public class DatasetInfo {
 			String[] columnItems = column.split(":");
 			IContainer container = null;;
 			try {
-				container = dataset.getRootGroup().findContainerByPath(columnItems[1]);
+				String path = columnItems[1];
+				float offset = 0;
+				if (path.contains("+")){
+					String[] pair = path.split("\\+");
+					path = pair[0];
+					offset = Float.valueOf(pair[1]);
+				}
+				container = dataset.getRootGroup().findContainerByPath(path);
 				if (container != null) {
 					if (container instanceof IDataItem) {
-						propertyList.add(new ColumnProvider(columnItems[0], ((IDataItem) container).getData().toString(), 
+						String value = "";
+						if (offset != 0){
+							value = ((IDataItem) container).getData().getArrayMath().add(offset).getArray().toString();
+						} else {
+							value = ((IDataItem) container).getData().toString();
+						}
+						propertyList.add(new ColumnProvider(columnItems[0], value, 
 								Integer.valueOf(columnItems[2])));
 					} else {
 						propertyList.add(new ColumnProvider(columnItems[0], container.toString(), Integer.valueOf(columnItems[2])));
