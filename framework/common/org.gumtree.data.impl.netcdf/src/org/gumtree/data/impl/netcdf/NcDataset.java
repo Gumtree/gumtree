@@ -345,7 +345,7 @@ public class NcDataset implements IDataset {
 
 	@Override
 	public boolean isOpen() {
-		return netcdfDataset == null;
+		return netcdfDataset != null;
 	}
 
 	/**
