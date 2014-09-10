@@ -201,6 +201,20 @@ public class ScriptDataSourceViewer extends Composite {
 		}
 	}
 	
+	public void removeDataset(String filePath) {
+		DatasetInfo datasetInfo = getDataset(filePath);
+		if (datasetInfo != null) {
+			datasetList.remove(datasetInfo);
+		}
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				tableViewer.refresh(false, true);
+			}
+		});			
+	}
+	
 	public void addDataset(String filePath, final boolean notifyListener) throws FileAccessException, IOException {
 		DatasetInfo datasetInfo = getDataset(filePath);
 		if (datasetInfo == null) {
