@@ -105,13 +105,28 @@ public class WombatCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/sample/azimuthal_angle", "stth")
 				.addDevice("/sample/rotate", "som")
 				.addSeparator()
+				.addDevice("/instrument/collimator/oct", "oct")
+				;
+		configureWidget(deviceStatusWidget);
+
+		PGroup sampleGroup = createGroup("SAMPLE STAGE",
+				InternalImage.SAMPLE.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(sampleGroup, SWT.NONE);
+		deviceStatusWidget
 				.addDevice("/sample/translate_x", "sx")
 				.addDevice("/sample/translate_y", "sy")
 				.addDevice("/sample/chi", "schi")
 				.addDevice("/sample/phi", "sphi")
-//				.addDevice("/sample/eom", "eom")
-//				.addDevice("/sample/echi", "echi")
-//				.addDevice("/sample/ephi", "ephi")
+				;
+		configureWidget(deviceStatusWidget);
+
+		PGroup cradleGroup = createGroup("EULER CRADLE",
+				InternalImage.CRADLE.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(cradleGroup, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/sample/euler_omega", "eom")
+				.addDevice("/sample/euler_chi", "echi")
+				.addDevice("/sample/euler_phi", "ephi")
 				;
 		configureWidget(deviceStatusWidget);
 

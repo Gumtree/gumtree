@@ -24,7 +24,9 @@ public enum InternalImage {
 	C("/icons/cruise/document-attribute-c.png"),
 	D("/icons/cruise/document-attribute-d.png"),
 	ONE("/icons/cruise/hh1_16x16.png"),
-	TWO("/icons/cruise/hh2_16x16.png");
+	TWO("/icons/cruise/hh2_16x16.png"),
+	SAMPLE("/icons/cruise/sample_stage.png"),
+	CRADLE("/icons/cruise/cradle_16x16.png");
 	
 	private InternalImage(String path) {
 		this.path = path;
