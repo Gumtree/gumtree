@@ -429,7 +429,7 @@ public class SicsProxy implements ISicsProxy {
 								public void run(ISicsProxyListener listener)
 										throws Exception {
 									listener.messageReceived(replyMessage, channelId);
-									if (logAllInBatchChannel && !CHANNEL_RAW_BATCH.equals(channelId) && !replyMessage.startsWith("{") 
+									if (logAllInBatchChannel && !CHANNEL_RAW_BATCH.equals(channelId) && !replyMessage.startsWith("{") && !replyMessage.endsWith("}")
 											&& !(replyMessage.startsWith("contextdo") && replyMessage.contains("hget"))){
 										listener.messageReceived(replyMessage, CHANNEL_RAW_BATCH);
 									}
