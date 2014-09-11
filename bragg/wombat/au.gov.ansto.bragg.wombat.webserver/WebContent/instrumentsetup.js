@@ -15,11 +15,21 @@ var devices = [
             	            {"classId":"mf2", "deviceId":"mf2", "title":"mf2", "units":"deg"}
             	            ]
                },
+               {"group":"COLLIMATOR", 
+            	   "items":[{"classId":"oct", "deviceId":"oct", "title":"oct", "units":"deg"}
+            	            ]
+               },
                {"group":"SAMPLE STAGE", 
             	   "items":[{"classId":"stth", "deviceId":"stth", "title":"stth", "units":"deg"},  
             	            {"classId":"sx", "deviceId":"sx", "title":"sx", "units":"mm"},
             	            {"classId":"sy", "deviceId":"sy", "title":"sy", "units":"mm"},
             	            {"classId":"som", "deviceId":"som", "title":"som", "units":"deg"}
+            	            ]
+               },
+               {"group":"EULER CRADLE", 
+            	   "items":[{"classId":"eom", "deviceId":"eom", "title":"eom", "units":"deg"},  
+            	            {"classId":"echi", "deviceId":"echi", "title":"echi", "units":"deg"},
+            	            {"classId":"ephi", "deviceId":"ephi", "title":"ephi", "units":"deg"}
             	            ]
                },
                {"group":"SLITS", 
