@@ -363,6 +363,21 @@ public class ScriptDataSourceViewer extends Composite {
 		popupMenu.add(runAction);
 //		new MenuItem(popupMenu.getMenu(), SWT.SEPARATOR);
 		popupMenu.add(new Separator());
+		
+		IAction refreshAction = new Action("Refresh") {
+	    	@Override
+	    	public void run() {
+	    		try {
+					refreshSelectedDataset();
+				} catch (FileAccessException e) {
+					e.printStackTrace();
+				}		
+	    	}
+
+		};
+		refreshAction.setImageDescriptor(InternalImage.REFRESH_16.getDescriptor());
+	    popupMenu.add(refreshAction);
+
 		IAction removeAction = new Action("Remove") {
 	    	@Override
 	    	public void run() {
@@ -377,6 +392,32 @@ public class ScriptDataSourceViewer extends Composite {
 	    table.setMenu(menu);
 	}
 
+	private void refreshSelectedDataset() throws FileAccessException {
+		// TODO Auto-generated method stub
+		boolean refresh = false;
+		ISelection selection = tableViewer.getSelection();
+		if (!selection.isEmpty()) {
+			Object[] objs = ((StructuredSelection) selection).toArray();
+			for (Object obj : objs) {
+				if (obj instanceof DatasetInfo) {
+					try {
+						((DatasetInfo) obj).getDataset().close();
+						URI fileURI = new File(((DatasetInfo) obj).getLocation()).toURI();
+						IDataset dataset = factoryManager.getFactory().openDataset(fileURI);
+						DatasetInfo newObj = new DatasetInfo(dataset);
+						dataset.close();
+						datasetList.remove(obj);
+						datasetList.add(newObj);
+						refresh = true;
+					} catch (IOException e1) {
+					}
+				}
+			}
+			if (refresh) {
+				tableViewer.refresh(false, true);
+			}
+		}
+	}
 	// This will create the columns for the table
 	private void createColumns(final Composite parent) {
 

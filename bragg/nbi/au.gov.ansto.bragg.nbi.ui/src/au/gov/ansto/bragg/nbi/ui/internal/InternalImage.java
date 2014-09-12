@@ -30,6 +30,7 @@ public enum InternalImage {
 	NEW_16("/icons/script/new_con.gif"),
 	EDIT_16("/icons/script/edit_16.png"),
 	RELOAD_16("/icons/script/reload_page16x16.png"),
+	REFRESH_16("/icons/script/refresh.gif"),
 	DASHBOARD_16("/icons/everaldo/Dashboard16x16.png"), 
 	RECENT_16("/icons/script/recent_16.png"),
 	;
