@@ -45,6 +45,7 @@
 //					"reactor_power", reactorPower,
 					// Experiment Info
 					"att", attValue,
+					"samz", samzValue,
 //					"samplename", sample,
 					"bex", bexValue,
 					// Experiment Status
@@ -719,6 +720,26 @@
 						</mx:GridItem>
 						<mx:GridItem width="40%">
 							<mx:TextArea id="attValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="10%">
+							<mx:Label text="mm" width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+				<mx:Grid width="100%" borderStyle="none">
+					<mx:GridRow width="100%">
+						<mx:GridItem width="100%">
+							<mx:Label fontWeight="bold" text="SAMPLE" textAlign="left" width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+				<mx:Grid width="100%" horizontalGap="1">
+					<mx:GridRow width="100%">
+						<mx:GridItem width="50%">
+							<mx:Label text="samz" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="40%">
+							<mx:TextArea id="samzValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
 						</mx:GridItem>
 						<mx:GridItem width="10%">
 							<mx:Label text="mm" width="100%"/>
