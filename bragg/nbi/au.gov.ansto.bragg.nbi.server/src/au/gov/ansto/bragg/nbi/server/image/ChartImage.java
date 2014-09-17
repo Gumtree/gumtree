@@ -12,12 +12,14 @@ import org.gumtree.vis.interfaces.IDataset;
 import org.gumtree.vis.interfaces.ITimeSeriesSet;
 import org.gumtree.vis.interfaces.IXYErrorDataset;
 import org.gumtree.vis.interfaces.IXYZDataset;
+import org.gumtree.vis.plot1d.LegendPosition;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.PaintScaleLegend;
 import org.jfree.chart.title.Title;
+import org.jfree.ui.RectangleEdge;
 
 /**
  * @author nxi
@@ -120,6 +122,26 @@ public class ChartImage {
         	}
 		}
 		return null;
+	}
+	
+	public void setLegendPosition(LegendPosition position) {
+		if (position == LegendPosition.NONE) {
+        	getChart().getLegend().setVisible(false);
+		} else if (position == LegendPosition.BOTTOM) {
+        	getChart().getLegend().setVisible(true);
+        	getChart().getLegend().setPosition(RectangleEdge.BOTTOM);
+		} else if (position == LegendPosition.TOP) {
+        	getChart().getLegend().setVisible(true);
+        	getChart().getLegend().setPosition(RectangleEdge.TOP);
+		} else if (position == LegendPosition.RIGHT) {
+	    	getChart().getLegend().setVisible(true);
+	    	getChart().getLegend().setPosition(RectangleEdge.RIGHT);
+		} else if (position == LegendPosition.LEFT) {
+        	getChart().getLegend().setVisible(true);
+        	getChart().getLegend().setPosition(RectangleEdge.LEFT);
+		} else if (position == LegendPosition.INTERNAL) {
+        	getChart().getLegend().setVisible(false);
+		}
 	}
 	
 	public void updatePaintScaleLegend() {

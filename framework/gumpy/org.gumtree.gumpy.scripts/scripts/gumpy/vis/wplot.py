@@ -624,15 +624,16 @@ class WebPlot:
         raise ValueError, 'not supported'
         
     def set_legend_position(self, pos):
-#        jpos = LegendPosition.NONE
-#        try :
-#            if pos != None:
-#                jpos = LegendPosition.valueOf(pos.upper())
-#        except:
-#            print 'failed to parse ' + str(pos)
-#        self.pv.getPlot().setLegendPosition(jpos)
-        raise ValueError, 'not supported'
-        
+        if self.ndim == 1:
+            jpos = LegendPosition.NONE
+            try :
+                if pos != None:
+                    jpos = LegendPosition.valueOf(pos.upper())
+            except:
+                print 'failed to parse ' + str(pos)
+            self.cache.setLegendPosition(jpos)
+            self.update()
+                
     def set_view_title(self, title):
 #        self.__view__.setViewTitle(title)
         raise ValueError, 'not supported'

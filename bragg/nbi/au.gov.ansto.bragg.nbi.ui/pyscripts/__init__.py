@@ -112,7 +112,7 @@ def run_action(act):
     if sics.getSicsController() != None:
         sics.handleInterrupt()
     
-def get_prof_value(name):
+def get_pref_value(name):
     value = __UI__.getPreference(name)
     if value == None:
         value = ''
@@ -120,10 +120,16 @@ def get_prof_value(name):
         value = str(value)
     return value
 
-def set_prof_value(name, value):
+def get_prof_value(name):
+    return get_pref_value(name)
+    
+def set_pref_value(name, value):
     if value == None:
         value = ''
     __UI__.setPreference(name, value)
+    
+def set_prof_value(name, value):
+    set_pref_value(name, value)
     
 def save_pref():
     __UI__.savePreferenceStore()

@@ -26,4 +26,5 @@ Import-Package: org.apache.commons.httpclient;version="3.1.0";resolution:=option
  org.gumtree.sics.io,
  org.gumtree.vis.awt,
  org.gumtree.vis.hist2d,
- org.gumtree.vis.interfaces
+ org.gumtree.vis.interfaces,
+ org.gumtree.vis.plot1d

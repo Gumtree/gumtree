@@ -109,7 +109,7 @@ def run_action(act):
         traceback.print_exc(file = sys.stdout)
         raise Exception, 'Error in running <' + act.text + '>'
     
-def get_prof_value(name):
+def get_pref_value(name):
     value = __register__.getPreference(name)
     if value == None:
         value = ''
@@ -117,7 +117,7 @@ def get_prof_value(name):
         value = str(value)
     return value
 
-def set_prof_value(name, value):
+def set_pref_value(name, value):
     if value == None:
         value = ''
     __register__.setPreference(name, value)
@@ -130,3 +130,15 @@ def report_file(name, type = 'save'):
     
 def __dataset_added__():
     pass
+
+def get_script_path():
+    return __register__.getScriptPath()
+
+def get_calibration_path():
+    return __register__.getCalibrationPath()
+
+def get_data_path():
+    return __register__.getDataPath()
+
+def get_save_path():
+    return __register__.getSavePath()

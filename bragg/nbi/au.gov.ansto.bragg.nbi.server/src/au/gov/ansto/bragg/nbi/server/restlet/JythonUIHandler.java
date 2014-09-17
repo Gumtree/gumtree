@@ -431,4 +431,11 @@ public class JythonUIHandler {
 		return "";
 	}
 
+	public String getScriptPath(){
+		String folderString = System.getProperty(GUMTREE_SCRIPTING_SCRIPTPATH_PROPERTY);
+		if (folderString != null && folderString.trim().length() > 0){
+			return folderString;
+		}
+		return "";
+	}
 }

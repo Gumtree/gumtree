@@ -6,6 +6,7 @@ import java.util.List;
 public class JythonDataHandler {
 
 	private static final String PROP_SICS_DATAPATH = "gumtree.sics.dataPath";
+	private static final String PROP_ANALYSIS_CALIBRATIONPATH = "gumtree.sics.calibrationPath";
 	private static final String PROP_ANALYSIS_SAVEPATH = "gumtree.analysis.savePath";
 	private static final int NUMBER_OF_ROWS = 22;
 	private String dataPath;
@@ -84,5 +85,13 @@ public class JythonDataHandler {
 	
 	public void setSelectedData(final List<String> files){
 		selectedFiles = files;
+	}
+	
+	public String getCalibrationPath(){
+		String path = System.getProperty(PROP_ANALYSIS_CALIBRATIONPATH);
+		if (path != null && path.trim().length() > 0){
+			return path;
+		}
+		return "";
 	}
 }

@@ -153,6 +153,8 @@ public class JythonExecutor {
 	    		dataHandler = new JythonDataHandler();
 	    		register.setDataPath(dataHandler.getDataPath());
 	    		register.setSavePath(dataHandler.getSavePath());
+	    		register.setCalibrationPath(dataHandler.getCalibrationPath());
+	    		register.setScriptPath(uiHandler.getScriptPath());
 	    		loadInitScript();
 	    		executor.runScript(dataHandler.getLoadedDataCommand());
 	    		

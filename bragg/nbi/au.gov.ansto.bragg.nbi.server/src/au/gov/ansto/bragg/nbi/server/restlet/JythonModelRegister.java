@@ -28,6 +28,10 @@ public class JythonModelRegister {
 	
 	private String savePath;
 	
+	private String scriptPath;
+	
+	private String calibrationPath;
+	
 	public JythonModelRegister() {
 	}
 
@@ -106,5 +110,28 @@ public class JythonModelRegister {
 		return preferences.get(name, "");
 	}
 
+	public String getScriptPath(){
+		return scriptPath;
+	}
 
+	/**
+	 * @param scriptPath the scriptPath to set
+	 */
+	public void setScriptPath(String scriptPath) {
+		this.scriptPath = scriptPath;
+	}
+
+	/**
+	 * @return the calibrationPath
+	 */
+	public String getCalibrationPath() {
+		return calibrationPath;
+	}
+
+	/**
+	 * @param calibrationPath the calibrationPath to set
+	 */
+	public void setCalibrationPath(String calibrationPath) {
+		this.calibrationPath = calibrationPath;
+	}
 }
