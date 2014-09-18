@@ -1,5 +1,6 @@
 from au.gov.ansto.bragg.nbi.server.restlet import JythonRestlet
 from gumpy.vis.wplot import WebPlot
+import zipfile
 
 Plot1 = WebPlot(JythonRestlet.getPlot1())
 Plot2 = WebPlot(JythonRestlet.getPlot2())
@@ -142,3 +143,16 @@ def get_data_path():
 
 def get_save_path():
     return __register__.getSavePath()
+
+def zip_files(files, zipname):
+    print 'compressing result in ' + zipname
+    f_out = zipfile.ZipFile(selectSaveFolder() + '/' + zipname, mode='w')
+    for rfn in files:
+        try:
+            rfn = rfn.replace('\\', '/')
+            f_out.write(rfn, arcname = rfn[rfn.rindex('/') + 1 :])
+        except:
+            print 'failed to zip'
+            f_out.close()
+    f_out.close()
+    report_file(zipname)

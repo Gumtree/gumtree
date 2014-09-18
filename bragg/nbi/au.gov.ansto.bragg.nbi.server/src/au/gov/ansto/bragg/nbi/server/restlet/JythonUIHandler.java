@@ -60,9 +60,11 @@ public class JythonUIHandler {
 		if (folderString != null && folderString.trim().length() > 0){
 			File folder = new File(folderString);
 			if (folder.exists()){
-				String[] files = folder.list();
-				for (String file : files) {
-					html += file + ";";
+				File[] files = folder.listFiles();
+				for (File file : files) {
+					if (file.isFile()) {
+						html += file.getName() + ";";
+					}
 				}
 			}
 		}
