@@ -106,7 +106,11 @@ public class Hist2DDataset implements IXYZDataset {
 					xBlockSize = (xMax - xMin) / sizex;
 				}
 			}
-			isXAvailable = true;
+			if (xBlockSize > 0) {
+				isXAvailable = true;
+			} else {
+				isXAvailable = false;
+			}
 		} else {
 			isXAvailable = false;
 		}
@@ -148,7 +152,11 @@ public class Hist2DDataset implements IXYZDataset {
 					yBlockSize = (yMax - yMin) / sizey;
 				}
 			}
-			isYAvailable = true;
+			if (yBlockSize > 0) {
+				isYAvailable = true;
+			} else {
+				isYAvailable = false;
+			}
 		} else {
 			isYAvailable = false;
 		}
