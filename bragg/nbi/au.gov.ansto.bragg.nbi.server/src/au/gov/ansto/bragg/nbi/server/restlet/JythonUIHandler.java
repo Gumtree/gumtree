@@ -23,6 +23,7 @@ import au.gov.ansto.bragg.nbi.scripting.ScriptModel;
 import au.gov.ansto.bragg.nbi.scripting.ScriptObjectGroup;
 import au.gov.ansto.bragg.nbi.scripting.ScriptParameter;
 import au.gov.ansto.bragg.nbi.server.internal.Activator;
+import au.gov.ansto.bragg.nbi.server.jython.JythonRunner;
 
 
 public class JythonUIHandler {
@@ -40,15 +41,62 @@ public class JythonUIHandler {
 	private ScriptModel scriptModel;
 	private String scriptFilename;
 	
+	private JythonRunner jythonRunner;
+	
 	public JythonUIHandler() {
 		scriptRegisterID = getNextRegisterID();
 	}
 
+	public JythonUIHandler(JythonRunner runner) {
+		this();
+		jythonRunner = runner;
+	}
+	
+	private void runScriptLine(String line) {
+		if (jythonRunner != null) {
+			jythonRunner.runScriptLine(line);
+		} else {
+			JythonExecutor.runScriptLine(line);
+		}
+	}
+	
+	private void runScriptFile(String filename) {
+		if (jythonRunner != null) {
+			jythonRunner.runScriptFile(filename);
+		} else {
+			JythonExecutor.runScriptFile(filename);
+		}
+	}
+
+	private void runScriptBlock(IScriptBlock block) {
+		if (jythonRunner != null) {
+			jythonRunner.runScriptBlock(block);
+		} else {
+			JythonExecutor.runScriptBlock(block);
+		}
+	}
+
+	private boolean isRunnerBusy() {
+		if (jythonRunner != null) {
+			return jythonRunner.getExecutor().isBusy();
+		} else {
+			return JythonExecutor.getExecutor().isBusy();
+		}
+	}
+	
+	private void appendEventJs(String script) {
+		if (jythonRunner != null) {
+			jythonRunner.appendEventJs(script);
+		} else {
+			JythonExecutor.appendEventJs(script);
+		}
+	}
+	
 	public void runNativeInitScript() {
 			try {
 				String fn = FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(__INIT__SCRIPT)).getFile();
-				JythonExecutor.runScriptLine("__script_model_id__ = " + scriptRegisterID);
-				JythonExecutor.runScriptFile(fn);
+				runScriptLine("__script_model_id__ = " + scriptRegisterID);
+				runScriptFile(fn);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -85,7 +133,7 @@ public class JythonUIHandler {
 					e.printStackTrace();
 				}
 			} else {
-				JythonExecutor.runScriptLine("print 'failed to load " + initScriptString + "'");
+				runScriptLine("print 'failed to load " + initScriptString + "'");
 			}
 		}
 //		for (String item : INITIAL_SCRIPTS){
@@ -152,7 +200,7 @@ public class JythonUIHandler {
 	}
 
 	public String getScriptGUIHtml(final String script) {
-		if (JythonExecutor.getExecutor().isBusy()){
+		if (isRunnerBusy()){
 			return "<div class=\"div_error_message\">Failed to load script UI. Jython engine is busy.</div>";
 		}
 		scriptModel = new ScriptModel(scriptRegisterID);
@@ -165,7 +213,7 @@ public class JythonUIHandler {
 			}
 		});
 		JythonModelRegister.getRegister(scriptRegisterID).setScriptModel(scriptModel);
-		JythonExecutor.runScriptLine("__script_model_id__ = " + scriptRegisterID);
+		runScriptLine("__script_model_id__ = " + scriptRegisterID);
 //		IScriptBlock preBlock = new ScriptBlock();
 //		for (String line : PRE_RUN_SCRIPT) {
 //			preBlock.append(line);
@@ -173,7 +221,7 @@ public class JythonUIHandler {
 //		executor.runScript(preBlock);
 		try {
 			String fn = FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(PRE_RUN_SCRIPT)).getFile();
-			JythonExecutor.runScriptFile(fn);
+			runScriptFile(fn);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -183,10 +231,10 @@ public class JythonUIHandler {
 					return script;
 				}
 			};
-			JythonExecutor.runScriptBlock(block);
-			JythonExecutor.runScriptLine("print '<' + str(__script__.title) + '> loaded'");
+			runScriptBlock(block);
+			runScriptLine("print '<' + str(__script__.title) + '> loaded'");
 		} catch (Exception e) {
-			JythonExecutor.runScriptLine("print 'failed to run script'");
+			runScriptLine("print 'failed to run script'");
 		}
 //		IScriptBlock postBlock = new ScriptBlock();
 //		for (String line : POST_RUN_SCRIPT) {
@@ -195,7 +243,7 @@ public class JythonUIHandler {
 //		executor.runScript(postBlock);
 		try {
 			String fn = FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(POST_RUN_SCRIPT)).getFile();
-			JythonExecutor.runScriptFile(fn);
+			runScriptFile(fn);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -216,8 +264,8 @@ public class JythonUIHandler {
 //				getDataSourceViewer().addActivityListener(datasetActivityListener);
 //			}
 //		}
-		JythonExecutor.runScriptLine("time.sleep(0.1)");
-		JythonExecutor.runScriptLine("auto_run()");
+		runScriptLine("time.sleep(0.1)");
+		runScriptLine("auto_run()");
 		
 		while(scriptModel.isDirty()){
 			try {
@@ -230,7 +278,7 @@ public class JythonUIHandler {
 	}
 	
 	public String getScriptControlHtml(String filePath) throws FileNotFoundException {
-		if (JythonExecutor.getExecutor().isBusy()){
+		if (isRunnerBusy()){
 			return "<div class=\"div_error_message\">Failed to load script UI. Jython engine is busy.</div>";
 		}
 		String text = filePath;
@@ -248,7 +296,7 @@ public class JythonUIHandler {
 			}
 		});
 //		ScriptPageRegister.getRegister(scriptRegisterID).setScriptModel(scriptModel);
-		JythonExecutor.runScriptLine("__script_model_id__ = " + scriptRegisterID);
+		runScriptLine("__script_model_id__ = " + scriptRegisterID);
 //		IScriptBlock preBlock = new ScriptBlock();
 //		for (String line : PRE_RUN_SCRIPT) {
 //			preBlock.append(line);
@@ -256,17 +304,17 @@ public class JythonUIHandler {
 //		executor.runScript(preBlock);
 		try {
 			String fn = FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(PRE_RUN_SCRIPT)).getFile();
-			JythonExecutor.runScriptFile(fn);
+			runScriptFile(fn);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		String initFile = getScriptFilename();
 		if (initFile != null) {
 			try {
-				JythonExecutor.runScriptFile(initFile);
-				JythonExecutor.runScriptLine("print '<' + str(__script__.title) + '> loaded'");
+				runScriptFile(initFile);
+				runScriptLine("print '<' + str(__script__.title) + '> loaded'");
 			} catch (Exception e) {
-				JythonExecutor.runScriptLine("print 'failed to load " + initFile + "'");
+				runScriptLine("print 'failed to load " + initFile + "'");
 			}
 		}
 //		IScriptBlock postBlock = new ScriptBlock();
@@ -276,7 +324,7 @@ public class JythonUIHandler {
 //		executor.runScript(postBlock);
 		try {
 			String fn = FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(POST_RUN_SCRIPT)).getFile();
-			JythonExecutor.runScriptFile(fn);
+			runScriptFile(fn);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -297,8 +345,8 @@ public class JythonUIHandler {
 //				getDataSourceViewer().addActivityListener(datasetActivityListener);
 //			}
 //		}
-		JythonExecutor.runScriptLine("time.sleep(0.1)");
-		JythonExecutor.runScriptLine("auto_run()");
+		runScriptLine("time.sleep(0.1)");
+		runScriptLine("auto_run()");
 		
 		while(scriptModel.isDirty()){
 			try {
@@ -380,7 +428,7 @@ public class JythonUIHandler {
 					@Override
 					public void propertyChange(PropertyChangeEvent evt) {
 							ScriptParameter parameter = (ScriptParameter) evt.getSource();
-							JythonExecutor.appendEventJs(parameter.getEventJs(evt.getPropertyName()));
+							appendEventJs(parameter.getEventJs(evt.getPropertyName()));
 					}
 				});
 			}

@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="css/form.css" />
+<link rel="stylesheet" href="css/table.css" />
+<link rel="stylesheet" href="css/tabs.css" />
+<link rel="stylesheet" href="css/button.css" />
+<link rel="stylesheet" href="css/popup.css" />
+<link rel="stylesheet" href="css/scripting.css" />
+<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+<script src="instrumentsetup.js"></script>
+<script src="pyscript.js"></script>
+<script src="js/popup.js"></script>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--[if IE]>
+<style type="text/css">
+    .box { display: block; }
+    #box { overflow: hidden;position: relative; }
+    b { position: absolute; top: 0px; right: 0px; width:1px; height: 251px; overflow: hidden; text-indent: -9999px; }
+</style>
+<![endif]-->
+<title>Jython Script Runner</title>
+</head>
+<body>
+
+<div id="doc" class="yui-t7 ui-shadow">
+  <div id="hd">
+    <div id="header" class="ui-shadow">
+        <div id="titleString">Jython Script Runner</div>
+        <div id="div_user_header"></div>
+    </div>
+  </div>
+  <div id="bd">
+    <div id="yui-main">
+      <div class="yui-b">
+        <div class="yui-gb">
+          <div class="yui-u first ui-corner-all ui-shadow">
+            <div class="content tableContainer" id="file_area">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable" id="table_datafiles">
+                    <thead class="fixedHeader">
+                        <tr>
+                            <th><a href="#" id="button_reload_data_file">Data Files</a></th>
+                        </tr>
+                    </thead>
+                    <tbody class="scrollContent" id="fileTable">
+                    </tbody>
+                </table>
+            </div>
+          </div>
+          <div class="yui-u second ui-corner-all ui-shadow">
+          	<div class="content">
+              <div id="ie-test" class="ui-corner-all ui-shadow">
+                <ul id="boxLinks" class="group">
+                    <li><a href="#div_script_text" id="tab1">Script Editor</a></li>
+                    <li><a href="#div_script_gui" id="tab2">Auto GUI</a></li>
+                </ul>
+                <div id="box">
+                    <div id="div_script_text" class="box">
+                            <div class="form-all">
+                                <form action="jython/rest/res?type=START" method="post" name="file_form" id="file_form" accept-charset="utf-8" enctype="multipart/form-data">
+                                    Choose: 
+                                    <select id="script_select" onchange="selectScript()">
+                                        <option value=""></option>
+                                    </select>
+                                    <![if !IE]>
+                                    or upload:
+                                    <input type="file" class="upload" value="Open a Jython File" id="jython_file" name="jython_file" multiple="multiple" file-accept=".py" file-maxsize="10240" file-limit="0" />
+                                    <![endif]>
+                                    <!--[if gte IE 9]>
+                                    or upload:
+                                    <input type="file" class="upload" value="Open a Jython File" id="jython_file" name="jython_file" multiple="multiple" file-accept=".py" file-maxsize="10240" file-limit="0" />
+                                    <!--<![endif]-->
+                                    <!--[if lt IE 9]>
+                                    or type in your script below:
+                                    <!--<![endif]-->
+                                </form>
+                            </div>
+                            <div id="cid_8" class="form-all">
+                                <form action="jython/rest/res?type=START" method="post" name="script_form" id="script_form" accept-charset="utf-8">
+                                    <input type="hidden" name="script_input" id="script_input" value="textArea" />
+                                    <textarea id="script_text" name="script_text" cols="40" rows="6" wrap='off'></textarea>
+                                </form>
+                            </div>
+                        <!--[if IE]><b>.</b><![endif]-->
+                    </div>
+                    <div id="div_script_gui" class="box"><!--[if IE]><b>.</b><![endif]--></div>
+                </div>
+              </div>
+                <div id="div-run-widets" class="form-input-wide">
+                  <div style="text-align:left" class="form-buttons-wrapper">
+                    <div id="runner_label">Script Runner Status: </div>
+                    <div class="runner_status ui-corner-all ui-shadow" id="runner_status" style="background-color:green;">IDLE</div>
+                    <div class="button_script" id="run_button"><input type="button" class="buttonStyle" data-role="button" id="run_script" value="Run Script"/></div>
+                    <div class="button_script" id="gui_button"><input type="button" class="buttonStyle" data-role="button" id="create_gui" value="Create GUI"/></div>
+                  </div>
+                </div>
+          </div>
+        </div>
+        <div class="yui-u third ui-corner-all ui-shadow">
+            <div class="content" id="div_plot_container">
+                <div id="plot1" class="div-embedded-plot ui-corner-all ui-shadow"><img id="plot_image1" class="image_plot" src="" alt="Plot1 not available"></div>
+                <div id="plot2" class="div-embedded-plot ui-corner-all ui-shadow"><img id="plot_image2" class="image_plot" src="" alt="Plot2 not available"></div>
+                <div id="plot3" class="div-embedded-plot ui-corner-all ui-shadow"><img id="plot_image3" class="image_plot" src="" alt="Plot3 not available"></div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div class="yui-b ui-corner-all ui-shadow">
+      <div id="secondary">
+          <div id="console"></div>
+        </div>
+    </div>
+  </div>
+  <div id="ft">
+    <div id="footer" class="ui-widget ui-corner-all ui-shadow">
+            Command >> <input name="lineFeed" class="lineFeed" id="lineFeed" value="" style="min-width:80%;min-height:20px;" autocomplete="off" />
+    </div>
+  </div>
+</div>
+</div>
+<div class="focus">
+    <div class="container"></div>
+    <div class="controls">
+      <div class="div_control_button"><img class="prev" src="images/back.png"></div>
+      <div class="div_control_button"><img class="next" src="images/forward.png"></div>
+    </div>
+</div>
+</body>
+</html>

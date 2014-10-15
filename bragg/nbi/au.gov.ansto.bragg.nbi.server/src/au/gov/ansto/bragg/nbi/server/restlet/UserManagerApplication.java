@@ -16,24 +16,24 @@ import au.gov.ansto.bragg.nbi.server.internal.Activator;
  * @author nxi
  *
  */
-public class JythonRestletApplication extends Application {
+public class UserManagerApplication extends Application {
 
 	private IEclipseContext context;
 
 	/**
 	 * 
 	 */
-	public JythonRestletApplication() {
+	public UserManagerApplication() {
 		super();
 	}
 
 	/**
 	 * @param context
 	 */
-	public JythonRestletApplication(Context parentContext) {
+	public UserManagerApplication(Context parentContext) {
 		super(parentContext);
 		context = Activator.getDefault().getEclipseContext()
-				.createChild("jythonRestlet");
+				.createChild("userManagerRestlet");
 	}
 
 	/**
@@ -46,9 +46,9 @@ public class JythonRestletApplication extends Application {
 		Router router = new Router(getContext());
 
 		// Defines only one route
-		JythonRestlet restlet = ContextInjectionFactory.make(JythonRestlet.class,
-				context);
-		router.attachDefault(restlet);
+		UserManagerRestlet userRestlet = ContextInjectionFactory.make(
+				UserManagerRestlet.class, context);
+		router.attachDefault(userRestlet);
 		return router;
 	}
 

@@ -56,6 +56,34 @@
             base-name="/WebContent/scripting.js">
       </resource>
       <resource
+            alias="/login.html"
+            base-name="/WebContent/login.html">
+      </resource>
+      <resource
+            alias="/register.html"
+            base-name="/WebContent/register.html">
+      </resource>
+      <resource
+            alias="/reset.html"
+            base-name="/WebContent/reset.html">
+      </resource>
+      <resource
+            alias="/login.js"
+            base-name="/WebContent/login.js">
+      </resource>
+      <resource
+            alias="/password.html"
+            base-name="/WebContent/password.html">
+      </resource>
+      <resource
+            alias="/pyscript.html"
+            base-name="/WebContent/pyscript.html">
+      </resource>
+      <resource
+            alias="/pyscript.js"
+            base-name="/WebContent/pyscript.js">
+      </resource>
+      <resource
             alias="/mobilehistmem.js"
             base-name="/WebContent/mobilehistmem.js">
       </resource>

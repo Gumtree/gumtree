@@ -42,7 +42,8 @@ class WebPlot:
         self.update()
             
     def clear(self): 
-        self.cache.clear()
+        if not self.cache is None:
+            self.cache.clear()
         self.__ds__ = None
         self.update()
         
@@ -476,8 +477,13 @@ class WebPlot:
             res = 'Plot 1D'
         else:
             res = 'Plot'
-        if self.title != None :
-            res += ': ' + self.title
+        if self.cache != None:
+            if self.title != None :
+                res += ': ' + self.title
+            else :
+                res += ': empty'
+        else :
+            res += ': empty'
         return res
     
     def __repr__(self):

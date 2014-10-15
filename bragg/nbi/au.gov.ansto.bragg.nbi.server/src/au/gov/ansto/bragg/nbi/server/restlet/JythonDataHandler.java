@@ -3,21 +3,34 @@ package au.gov.ansto.bragg.nbi.server.restlet;
 import java.io.File;
 import java.util.List;
 
+import au.gov.ansto.bragg.nbi.server.jython.JythonRunner;
+
 public class JythonDataHandler {
 
 	private static final String PROP_SICS_DATAPATH = "gumtree.sics.dataPath";
 	private static final String PROP_ANALYSIS_CALIBRATIONPATH = "gumtree.sics.calibrationPath";
 	private static final String PROP_ANALYSIS_SAVEPATH = "gumtree.analysis.savePath";
+	private static final String PROP_ANALYSIS_STOREPATH = "gumtree.analysis.storePath";
 	private static final int NUMBER_OF_ROWS = 22;
 	private String dataPath;
 	private String savePath;
+	private String storePath;
+	private String calibrationPath;
 	private List<String> selectedFiles;
+	private JythonRunner jythonRunner;
 	
 	public JythonDataHandler() {
 		dataPath = System.getProperty(PROP_SICS_DATAPATH);
 		savePath = System.getProperty(PROP_ANALYSIS_SAVEPATH);
+		storePath = System.getProperty(PROP_ANALYSIS_STOREPATH);
+		calibrationPath = System.getProperty(PROP_ANALYSIS_CALIBRATIONPATH);
 	}
 
+	public JythonDataHandler(JythonRunner runner) {
+		this();
+		jythonRunner = runner;
+	}
+	
 	public String getAllDataHtml() {
 		String html = "";
 		int counter = 0;
@@ -46,7 +59,11 @@ public class JythonDataHandler {
 					counter ++;
 				}
 				fileListCommand += "])";
-				JythonExecutor.runScriptLine(fileListCommand);
+				if (jythonRunner != null) {
+					jythonRunner.runScriptLine(fileListCommand);
+				} else {
+					JythonExecutor.runScriptLine(fileListCommand);
+				}
 			}
 		}
 		if (counter < NUMBER_OF_ROWS){
@@ -83,15 +100,15 @@ public class JythonDataHandler {
 		return savePath;
 	}
 	
+	public String getStorePath(){
+		return storePath;
+	}
+
 	public void setSelectedData(final List<String> files){
 		selectedFiles = files;
 	}
 	
 	public String getCalibrationPath(){
-		String path = System.getProperty(PROP_ANALYSIS_CALIBRATIONPATH);
-		if (path != null && path.trim().length() > 0){
-			return path;
-		}
-		return "";
+		return calibrationPath;
 	}
 }

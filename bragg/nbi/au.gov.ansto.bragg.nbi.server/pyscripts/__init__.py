@@ -1,10 +1,5 @@
-from au.gov.ansto.bragg.nbi.server.restlet import JythonRestlet
 from gumpy.vis.wplot import WebPlot
 import zipfile
-
-Plot1 = WebPlot(JythonRestlet.getPlot1())
-Plot2 = WebPlot(JythonRestlet.getPlot2())
-Plot3 = WebPlot(JythonRestlet.getPlot3())
 
 import traceback
 import sys
@@ -20,12 +15,19 @@ from au.gov.ansto.bragg.nbi.server.restlet import JythonModelRegister
 from gumpy.commons.logger import log
 import time
 __register__ = JythonModelRegister.getRegister(__script_model_id__)
+
 #__DATASOURCE__ = __register__.getDataSourceViewer()
 #__runner__ = __UI__.getRunner()
 #__writer__ = __UI__.getScriptExecutor().getEngine().getContext().getWriter()
 
 __loaded_files__ = []
 __selected_files__ = []
+
+print __register__.getPlot1()
+Plot1 = WebPlot(__register__.getPlot1())
+Plot2 = WebPlot(__register__.getPlot2())
+Plot3 = WebPlot(__register__.getPlot3())
+
 
 def __set_loaded_files__(li):
     global __loaded_files__
@@ -156,3 +158,16 @@ def zip_files(files, zipname):
             f_out.close()
     f_out.close()
     report_file(zipname)
+    
+def snapshot(uuid, obj = None):
+    spath = __register__.getStorePath() + '/' + str(uuid)
+    
+    import java.io as io
+    import org.python.util as util
+    outFile = io.FileOutputStream(spath)
+    outStream = io.ObjectOutputStream(outFile)
+    if not obj is None:
+        outStream.writeObject(obj)
+    outFile.close( )
+    
+

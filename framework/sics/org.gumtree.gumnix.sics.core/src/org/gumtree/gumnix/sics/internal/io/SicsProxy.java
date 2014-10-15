@@ -52,6 +52,10 @@ public class SicsProxy implements ISicsProxy {
 	
 	private static final String SICS_LOG_ALL_IN_BATCH_CHANNEL = "gumtree.sics.logAllInBatchChannel";
 	
+	private static final String GUMTREE_VERSION_PROPERTY = "gumtree.client.version";
+	
+	private static final String GUMTREE_REPORTVERSION_PROPERTY = "gumtree.client.version.report";
+	
 	private static long idCounter = 0;
 
 	private static Logger logger;
@@ -258,6 +262,22 @@ public class SicsProxy implements ISicsProxy {
 		this.context = context;
 
 		getLogger().info("Sics connected");
+		
+		String reportVersion = System.getProperty(GUMTREE_REPORTVERSION_PROPERTY);
+		if (reportVersion != null) {
+			boolean doReport = false;
+			try {
+				doReport = Boolean.valueOf(reportVersion);
+			} catch (Exception e) {
+			}
+			if (doReport) {
+				String clientVersion = System.getProperty(GUMTREE_VERSION_PROPERTY);
+				if (clientVersion != null) {
+					send("gumtree_version " + clientVersion, null);
+				}
+			}
+		}
+		
 		getListenerManager().asyncInvokeListeners(
 				new SafeListenerRunnable<ISicsProxyListener>() {
 					public void run(ISicsProxyListener listener)

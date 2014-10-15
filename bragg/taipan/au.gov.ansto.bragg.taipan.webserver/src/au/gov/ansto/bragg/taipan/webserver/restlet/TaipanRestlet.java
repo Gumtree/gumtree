@@ -113,21 +113,28 @@ public class TaipanRestlet extends Restlet {
 						lastModifiedFile = files[i];
 					}
 				}
-				INXDataset ds = NexusUtils.readNexusDataset(lastModifiedFile.toURI());
-				IArray dataArray = ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm2_counts").getData();
-				INXdata data = ds.getNXroot().getFirstEntry().getData();
-				IAxis axis = data.getAxisList().get(0);
-				IArray axisArray = axis.getData();
-				NXDatasetSeries series = new NXDatasetSeries(lastModifiedFile.getName());
-				series.setData(axisArray, dataArray, dataArray.getArrayMath().toSqrt().getArray());
-				dataset.addSeries(series);
-				dataset.setTitle(lastModifiedFile.getName());
-				dataset.setXTitle(axis.getShortName());
-				dataset.setYTitle("Detector Counts");
-				ds.close();
+				INXDataset ds = null;
+				try {
+					ds = NexusUtils.readNexusDataset(lastModifiedFile.toURI());
+					IArray dataArray = ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm2_counts").getData();
+					INXdata data = ds.getNXroot().getFirstEntry().getData();
+					IAxis axis = data.getAxisList().get(0);
+					IArray axisArray = axis.getData();
+					NXDatasetSeries series = new NXDatasetSeries(lastModifiedFile.getName());
+					series.setData(axisArray, dataArray, dataArray.getArrayMath().toSqrt().getArray());
+					dataset.addSeries(series);
+					dataset.setTitle(lastModifiedFile.getName());
+					dataset.setXTitle(axis.getShortName());
+					dataset.setYTitle("Detector Counts");
+				} catch (Exception e) {
+					throw e;
+				} finally {
+					if (ds != null) {
+						ds.close();
+					}
+				}
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			dataset.setTitle(e.getMessage());
 		} 

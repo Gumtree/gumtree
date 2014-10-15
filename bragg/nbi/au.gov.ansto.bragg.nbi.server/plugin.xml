@@ -22,6 +22,18 @@
                path="/jython/rest">
          </resource-mapping>
       </httpcontext>
+      <httpcontext
+            id="jythonRunnerRestlet">
+         <resource-mapping
+               path="/jython/runner">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="userManagerRestlet">
+         <resource-mapping
+               path="/jython/user">
+         </resource-mapping>
+      </httpcontext>
    </extension>
    <extension
          id="nsRestlet"
@@ -51,6 +63,24 @@
          <init-param
                name="org.restlet.application"
                value="au.gov.ansto.bragg.nbi.server.restlet.JythonRestletApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/jython/runner"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="jythonRunnerRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.restlet.JythonRunnerApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/jython/user"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="userManagerRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.restlet.UserManagerApplication">
          </init-param>
       </servlet>
    </extension>

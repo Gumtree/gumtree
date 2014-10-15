@@ -10,7 +10,9 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import au.gov.ansto.bragg.nbi.scripting.ScriptModel;
+import au.gov.ansto.bragg.nbi.server.image.ChartImage;
 import au.gov.ansto.bragg.nbi.server.internal.Activator;
+import au.gov.ansto.bragg.nbi.server.jython.JythonRunner;
 
 
 /**
@@ -24,15 +26,14 @@ public class JythonModelRegister {
 	
 	private ScriptModel scriptModel;
 
-	private String dataPath;
-	
-	private String savePath;
-	
-	private String scriptPath;
-	
-	private String calibrationPath;
+	private JythonRunner jythonRunner;
 	
 	public JythonModelRegister() {
+	}
+	
+	public JythonModelRegister(JythonRunner runner) {
+		this();
+		jythonRunner = runner;
 	}
 
 	public static void registPage(int registerID, JythonModelRegister register) {
@@ -57,34 +58,39 @@ public class JythonModelRegister {
 		this.scriptModel = scriptModel;
 	}
 
-	public void setDataPath(String dataPath) {
-		this.dataPath = dataPath;
-	}
-
 	public String getDataPath(){
-		return dataPath;
+		if (jythonRunner != null) {
+			return jythonRunner.getDataHandler().getDataPath();
+		} else {
+			return JythonExecutor.getDataHandler().getDataPath();
+		}
 	}
 
 	/**
 	 * @return the savePath
 	 */
 	public String getSavePath() {
-		return savePath;
+		if (jythonRunner != null) {
+			return jythonRunner.getDataHandler().getSavePath();
+		} else {
+			return JythonExecutor.getDataHandler().getSavePath();
+		}
 	}
 
-	/**
-	 * @param savePath the savePath to set
-	 */
-	public void setSavePath(String savePath) {
-		this.savePath = savePath;
-	}
-	
 	public void reportFileForDownload(String filename){
-		JythonExecutor.appendFilesForDownload(filename);
+		if (jythonRunner != null) {
+			jythonRunner.appendFilesForDownload(filename);
+		} else {
+			JythonExecutor.appendFilesForDownload(filename);
+		}
 	}
 	
 	public JythonDataHandler getDataHandler(){
-		return JythonExecutor.getDataHandler();
+		if (jythonRunner != null) {
+			return jythonRunner.getDataHandler();
+		} else {
+			return JythonExecutor.getDataHandler();
+		}
 	}
 	
 	public void setPreference(String name, String value){
@@ -111,27 +117,57 @@ public class JythonModelRegister {
 	}
 
 	public String getScriptPath(){
-		return scriptPath;
-	}
-
-	/**
-	 * @param scriptPath the scriptPath to set
-	 */
-	public void setScriptPath(String scriptPath) {
-		this.scriptPath = scriptPath;
+		if (jythonRunner != null) {
+			return jythonRunner.getUIHandler().getScriptPath();
+		} else {
+			return JythonExecutor.getUIHandler().getScriptPath();
+		}
 	}
 
 	/**
 	 * @return the calibrationPath
 	 */
 	public String getCalibrationPath() {
-		return calibrationPath;
+		if (jythonRunner != null) {
+			return jythonRunner.getDataHandler().getCalibrationPath();
+		} else {
+			return JythonExecutor.getDataHandler().getCalibrationPath();
+		}
 	}
 
 	/**
-	 * @param calibrationPath the calibrationPath to set
+	 * @return the store path
 	 */
-	public void setCalibrationPath(String calibrationPath) {
-		this.calibrationPath = calibrationPath;
+	public String getStorePath() {
+		if (jythonRunner != null) {
+			return jythonRunner.getDataHandler().getStorePath();
+		} else {
+			return JythonExecutor.getDataHandler().getStorePath();
+		}
 	}
+
+	public ChartImage getPlot1(){
+		if (jythonRunner != null) {
+			return jythonRunner.getPlot1();
+		} else {
+			return JythonRestlet.getPlot1();
+		}
+	}
+
+	public ChartImage getPlot2(){
+		if (jythonRunner != null) {
+			return jythonRunner.getPlot2();
+		} else {
+			return JythonRestlet.getPlot2();
+		}
+	}
+	
+	public ChartImage getPlot3(){
+		if (jythonRunner != null) {
+			return jythonRunner.getPlot3();
+		} else {
+			return JythonRestlet.getPlot3();
+		}
+	}
+
 }

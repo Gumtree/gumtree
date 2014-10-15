@@ -1,12 +1,10 @@
-/**
- * 
- */
-package au.gov.ansto.bragg.nbi.server.restlet;
+package au.gov.ansto.bragg.nbi.server.jython;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.UUID;
 
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
@@ -19,55 +17,73 @@ import org.gumtree.scripting.ScriptExecutorEvent;
 import org.gumtree.service.eventbus.IEventHandler;
 import org.gumtree.util.PlatformUtils;
 
+import au.gov.ansto.bragg.nbi.server.image.ChartImage;
 import au.gov.ansto.bragg.nbi.server.internal.Activator;
+import au.gov.ansto.bragg.nbi.server.restlet.JythonDataHandler;
+import au.gov.ansto.bragg.nbi.server.restlet.JythonExecutor.ExecutorStatus;
+import au.gov.ansto.bragg.nbi.server.restlet.JythonModelRegister;
+import au.gov.ansto.bragg.nbi.server.restlet.JythonUIHandler;
 
+public class JythonRunner {
 
-/**
- * @author nxi
- *
- */
-public class JythonExecutor {
+	private UUID uuid;
+	
+	private ScriptExecutor executor;
+	
+	private ExecutorStatus status;
+	
+	private String recentMessage;
+	
+	private String consoleHistory;
+	
+	private String errorHistory;
+	
+	private String recentError;
+	
+	private String eventJs;
+	
+	private String filesForDownload;
+	
+	private IEventHandler<ScriptExecutorEvent> executorEventHandler;
+	
+	private String currentScript;
+	
+	private JythonUIHandler uiHandler;
+	
+	private JythonDataHandler dataHandler;
+	
+	private ChartImage plot1Cache;
+	private ChartImage plot2Cache;
+	private ChartImage plot3Cache;
 
-	public enum ExecutorStatus{
-		IDLE, BUSY, ERROR, 
-	}
-	
-	private static ScriptExecutor executor;
-
-	private static ExecutorStatus status;
-	
-	private static String recentMessage;
-	
-	private static String consoleHistory;
-	
-	private static String errorHistory;
-	
-	private static String recentError;
-	
-	private static String eventJs;
-	
-	private static String filesForDownload;
-	
-	private static IEventHandler<ScriptExecutorEvent> executorEventHandler;
-	
-	private static String currentScript;
-	
-	private static JythonUIHandler uiHandler;
-	
-	private static JythonDataHandler dataHandler;
-	
 	public static final String VAR_SILENCE_MODE = "slienceMode";
 
 	private static final String INIT_SCRIPT = "/pyscripts/__init__.py";
 	
-	/**
-	 * 
-	 */
-	public JythonExecutor() {
+	private final static int IMAGE_WIDTH = 480;
+	private final static int IMAGE_HEIGHT = 240;
+
+
+	public JythonRunner() {
+		uuid = UUID.randomUUID();
+		initialise();
 	}
 
-	static {
-		synchronized (JythonRestlet.class) {
+	public JythonRunner(UUID uuid) {
+		this.uuid = uuid;
+		initialise();
+	}
+	
+	/**
+	 * @return the uuid
+	 */
+	public UUID getUuid() {
+		return uuid;
+	}
+
+
+	private void initialise() {
+//		synchronized (JythonRestlet.class) {
 			if (executor == null) {
 				executor = new ScriptExecutor("jython");
 				while (!executor.isInitialised()) {
@@ -91,7 +107,6 @@ public class JythonExecutor {
 	    		
 	    		ScriptContext scriptContext = engine.getContext();
 	    		if (scriptContext == null) {
-	    			// Same engine (like Jepp) does not provide default context out of the box
 	    			ScriptContext context = new ObservableScriptContext();
 	    			engine.setContext(context);
 	    			scriptContext = engine.getContext();
@@ -146,23 +161,31 @@ public class JythonExecutor {
 	    		eventJs = "";
 	    		status = ExecutorStatus.IDLE;
 	    		
-	    		uiHandler = new JythonUIHandler();
-	    		JythonModelRegister register = new JythonModelRegister();
+	    		uiHandler = new JythonUIHandler(this);
+	    		JythonModelRegister register = new JythonModelRegister(this);
 	    		JythonModelRegister.registPage(uiHandler.getScriptRegisterID(), register);
 	    		
-	    		dataHandler = new JythonDataHandler();
+	    		dataHandler = new JythonDataHandler(this);
+//	    		register.setDataPath(dataHandler.getDataPath());
+//	    		register.setSavePath(dataHandler.getSavePath());
+//	    		register.setCalibrationPath(dataHandler.getCalibrationPath());
+//	    		register.setScriptPath(uiHandler.getScriptPath());
+	    		plot1Cache = new ChartImage(IMAGE_WIDTH, IMAGE_HEIGHT);
+	    		plot2Cache = new ChartImage(IMAGE_WIDTH, IMAGE_HEIGHT);
+	    		plot3Cache = new ChartImage(IMAGE_WIDTH, IMAGE_HEIGHT);
+
 	    		loadInitScript();
 	    		executor.runScript(dataHandler.getLoadedDataCommand());
-	    		
+	    	
 			}
-		}
+//		}
 	}
 
-	public static ScriptExecutor getExecutor() {
+	public ScriptExecutor getExecutor() {
 		return executor;
 	}
 	
-	private static void loadInitScript() {
+	private void loadInitScript() {
 		try {
 			executor.runScript("__script_model_id__ = " + uiHandler.getScriptRegisterID());
 			String fn = FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(INIT_SCRIPT)).getFile();
@@ -172,7 +195,7 @@ public class JythonExecutor {
 		}
 	}
 
-	public static void runScriptLine(final String scriptLine) {
+	public void runScriptLine(final String scriptLine) {
 		currentScript = scriptLine;
 		getExecutor().getEngine().getContext().getBindings(ScriptContext.ENGINE_SCOPE).put(VAR_SILENCE_MODE, false);
 		resetErrorStatus();
@@ -180,7 +203,7 @@ public class JythonExecutor {
 		getExecutor().runScript(scriptLine);
 	}
 	
-	public static void runScriptBlock(IScriptBlock scriptBlock){
+	public void runScriptBlock(IScriptBlock scriptBlock){
 		currentScript = scriptBlock.getScript();
 		getExecutor().getEngine().getContext().getBindings(ScriptContext.ENGINE_SCOPE).put(VAR_SILENCE_MODE, true);
 		resetErrorStatus();
@@ -188,7 +211,7 @@ public class JythonExecutor {
 		getExecutor().runScript(scriptBlock);
 	}
 	
-	public static void runScriptFile(String filename) {
+	public void runScriptFile(String filename) {
 		FileReader reader = null;
 		try {
 //			currentScript = new String(Files.readAllBytes(Paths.get(URI.create(newName))), StandardCharsets.UTF_8);
@@ -203,18 +226,18 @@ public class JythonExecutor {
 		getExecutor().runScript(reader);
 	}
 	
-	public static void appendText(String text) {
+	public void appendText(String text) {
 		recentMessage += text;
 		consoleHistory += text;
 	}
 	
-	public static void appendError(String errText) {
+	public void appendError(String errText) {
 		recentError += errText;
 		errorHistory += errText;
 		System.err.println("Error: " + errText);
 	}
 	
-	public static String getRecentText(boolean reset){
+	public String getRecentText(boolean reset){
 		String message = recentMessage;
 		if (reset) {
 			recentMessage = "";
@@ -222,7 +245,7 @@ public class JythonExecutor {
 		return message;
 	}
 	
-	public static String getRecentError(boolean reset){
+	public String getRecentError(boolean reset){
 		String error = recentError;
 		if (reset) {
 			recentError = "";
@@ -230,31 +253,31 @@ public class JythonExecutor {
 		return error;
 	}
 	
-	public static ExecutorStatus getStatus(){
+	public ExecutorStatus getStatus(){
 		return status;
 	}
 	
-	private static void setStatus(ExecutorStatus newStatus) {
+	private void setStatus(ExecutorStatus newStatus) {
 		if (status != ExecutorStatus.ERROR) {
 			status = newStatus;
 		}
 	}
 	
-	public static void resetErrorStatus(){
+	public void resetErrorStatus(){
 		status = ExecutorStatus.IDLE;
 	}
 	
-	public static void interrupt() {
+	public void interrupt() {
 		if (executor.isBusy()) {
 			executor.interrupt();
 		}
 	}
 	
-	public static String getCurrentScript(){
+	public String getCurrentScript(){
 		return currentScript;
 	}
 	
-	public static void resetConsoleMessage() {
+	public void resetConsoleMessage() {
 		setStatus(ExecutorStatus.IDLE);
 		recentMessage = "";
 		recentError = "";
@@ -263,22 +286,22 @@ public class JythonExecutor {
 	/**
 	 * @return the consoleHistory
 	 */
-	public static String getConsoleHistory() {
+	public String getConsoleHistory() {
 		return consoleHistory;
 	}
 
 	/**
 	 * @return the errorHistory
 	 */
-	public static String getErrorHistory() {
+	public String getErrorHistory() {
 		return errorHistory;
 	}
 
-	public static JythonUIHandler getUIHandler(){
+	public JythonUIHandler getUIHandler(){
 		return uiHandler;
 	}
 	
-	public static String getScriptGUI(String script){
+	public String getScriptGUI(String script){
 		if (executor == null) {
 			getExecutor();
 		}
@@ -290,7 +313,7 @@ public class JythonExecutor {
 	/**
 	 * @return the eventMessage
 	 */
-	public static String getEventJs(boolean reset) {
+	public String getEventJs(boolean reset) {
 		if (reset) {
 			String script = eventJs;
 			eventJs = "";
@@ -302,19 +325,19 @@ public class JythonExecutor {
 	/**
 	 * @param eventMessage the eventMessage to set
 	 */
-	public static void appendEventJs(String script) {
+	public void appendEventJs(String script) {
 		eventJs += script;
 	}
 	
-	public static String getAllDataHtml(){
+	public String getAllDataHtml(){
 		return dataHandler.getAllDataHtml();
 	}
 	
-	public static JythonDataHandler getDataHandler(){
+	public JythonDataHandler getDataHandler(){
 		return dataHandler;
 	}
 	
-	public static String getFilesForDownload(boolean reset) {
+	public String getFilesForDownload(boolean reset) {
 		if (reset) {
 			String files = filesForDownload;
 			filesForDownload = "";
@@ -323,7 +346,20 @@ public class JythonExecutor {
 		return filesForDownload;
 	}
 	
-	public static void appendFilesForDownload(String file){
+	public void appendFilesForDownload(String file){
 		filesForDownload += file + ";";
 	}
+
+	public ChartImage getPlot1(){
+		return plot1Cache;
+	}
+	
+	public ChartImage getPlot2(){
+		return plot2Cache;
+	}
+	
+	public ChartImage getPlot3(){
+		return plot3Cache;
+	}
+
 }
