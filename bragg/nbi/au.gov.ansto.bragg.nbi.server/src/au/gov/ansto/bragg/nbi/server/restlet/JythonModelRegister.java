@@ -170,4 +170,11 @@ public class JythonModelRegister {
 		}
 	}
 
+	public String getUUID() {
+		if (jythonRunner != null) {
+			return jythonRunner.getUuid().toString();
+		} else {
+			return "";
+		}
+	}
 }

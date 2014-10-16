@@ -163,7 +163,8 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 	    	String password = form.getValues(QUERY_PASSWORD);
 	    	if (checkLogin(email, password)){
 	    		try {
-	    			CookieSetting cookie = createUUIDCookie(email);
+	    			uuidString = persistence.retrieve(NbiPersistenceManager.ID_EMAIL_SESSION_DATABASE, email, String.class);
+	    			CookieSetting cookie = createUUIDCookie(email, uuidString);
 	    	        response.getCookieSettings().add(cookie);
 	    			result.put("result", "OK");
 	    			response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
@@ -212,14 +213,14 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 						result.put("result", "Email address already exists in our system. Please try login instead.");
 					} catch (JSONException e) {
 					}
-	    			response.setEntity(result.toString(), MediaType.APPLICATION_JSON);						
+	    			response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
 	    		} else {
 	    			try {
 	    				register(email, password);
 //	    				UUID uuid = createJythonRunner();
 //	    				CookieSetting cS = new CookieSetting(0, COOKIE_NAME_UUID, uuid.toString(), 
 //	    						COOKIE_PATH_UUID, null, COOKIE_COMMENT_UUID, 1800, false);
-	    				CookieSetting cookie = createUUIDCookie(email);
+	    				CookieSetting cookie = createUUIDCookie(email, null);
 	    				response.getCookieSettings().add(cookie);
 	    				result.put("result", "OK");
 	    				response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
@@ -424,17 +425,19 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 	private void clearSession(String email, String uuidString) {
 		if (uuidString != null) {
 			runnerManager.deleteJythonRunner(UUID.fromString(uuidString));
-			persistence.remove(NbiPersistenceManager.ID_EMAIL_SESSION_DATABASE, email);
-			persistence.remove(NbiPersistenceManager.ID_SESSION_EMAIL_DATABASE, uuidString);
+//			persistence.remove(NbiPersistenceManager.ID_EMAIL_SESSION_DATABASE, email);
+//			persistence.remove(NbiPersistenceManager.ID_SESSION_EMAIL_DATABASE, uuidString);
 		}
 	}
 
-	private CookieSetting createUUIDCookie(String email) {
-		UUID uuid = createJythonRunner();
+	private CookieSetting createUUIDCookie(String email, String uuidString) {
+		UUID uuid = createJythonRunner(uuidString);
 		CookieSetting cookie = new CookieSetting(0, COOKIE_NAME_UUID, uuid.toString(), 
 				COOKIE_PATH_UUID, null, COOKIE_COMMENT_UUID, 1800, false);
-		persistence.persist(NbiPersistenceManager.ID_SESSION_EMAIL_DATABASE, uuid.toString(), email);
-		persistence.persist(NbiPersistenceManager.ID_EMAIL_SESSION_DATABASE, email, uuid.toString());
+		if (uuidString == null) {
+			persistence.persist(NbiPersistenceManager.ID_SESSION_EMAIL_DATABASE, uuid.toString(), email);
+			persistence.persist(NbiPersistenceManager.ID_EMAIL_SESSION_DATABASE, email, uuid.toString());
+		}
 		return cookie;
 	}
 
@@ -482,8 +485,13 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 		}
 	}
 
-	private UUID createJythonRunner() {
-		JythonRunner runner = runnerManager.getNewRunner();
+	private UUID createJythonRunner(String uuidString) {
+		JythonRunner runner;
+		if (uuidString != null) {
+			runner = runnerManager.getNewRunner(uuidString);
+		} else {
+			runner = runnerManager.getNewRunner();
+		}
 		return runner.getUuid();
 	}
 

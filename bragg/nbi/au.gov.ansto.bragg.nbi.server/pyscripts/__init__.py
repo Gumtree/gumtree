@@ -23,7 +23,6 @@ __register__ = JythonModelRegister.getRegister(__script_model_id__)
 __loaded_files__ = []
 __selected_files__ = []
 
-print __register__.getPlot1()
 Plot1 = WebPlot(__register__.getPlot1())
 Plot2 = WebPlot(__register__.getPlot2())
 Plot3 = WebPlot(__register__.getPlot3())
@@ -113,7 +112,10 @@ def run_action(act):
         raise Exception, 'Error in running <' + act.text + '>'
     
 def get_pref_value(name):
-    value = __register__.getPreference(name)
+    uuid = __register__.getUUID()
+    if uuid :
+        uuid += '_'
+    value = __register__.getPreference(uuid + name)
     if value == None:
         value = ''
     else:
@@ -123,7 +125,10 @@ def get_pref_value(name):
 def set_pref_value(name, value):
     if value == None:
         value = ''
-    __register__.setPreference(name, value)
+    uuid = __register__.getUUID()
+    if uuid :
+        uuid += '_'
+    __register__.setPreference(uuid + name, value)
     
 def save_pref():
     __register__.savePreferenceStore()

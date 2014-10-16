@@ -21,6 +21,13 @@ public class JythonRunnerManager {
 		return runner;
 	}
 	
+	public JythonRunner getNewRunner(String uuidString) {
+		UUID uuid = UUID.fromString(uuidString);
+		JythonRunner runner = new JythonRunner(uuid);
+		runnerMap.put(uuid, runner);
+		return runner;
+	}
+	
 	public JythonRunner getJythonRunner(UUID uuid){
 		return runnerMap.get(uuid);
 	}
