@@ -36,7 +36,7 @@ function login(){
 //        if (status == "success") {
         $("#login_result").html(data['result']);
         if (data['result'] == 'OK'){
-            window.location = "/pyscript.html";
+            window.location = "pyscript.html";
         }
 //            processStatus(data);
 //            if (data['status'] == "BUSY"){

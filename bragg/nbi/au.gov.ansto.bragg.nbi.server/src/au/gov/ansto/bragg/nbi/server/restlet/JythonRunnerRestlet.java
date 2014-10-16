@@ -79,8 +79,11 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
 	    String uuidString = null;
 	    try {
 		    Cookie cookie = request.getCookies().getFirst(UserManagerRestlet.COOKIE_NAME_UUID);
+		    System.out.println("cookie is not null");
 		    if (cookie != null) {
 		    	uuidString = cookie.getValue();
+		    	System.out.println(cookie.getSecond());
+		    	System.out.println(uuidString);
 		    }			
 		} catch (Exception e) {
 		}
@@ -89,6 +92,7 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
 	    if (uuidString != null) {
 	    	UUID uuid = UUID.fromString(uuidString);
 	    	runner = runnerManager.getJythonRunner(uuid);
+	    	System.out.println(uuid);
 	    } 
 	    if (runner == null) {
 			JSONObject jsonObject;
@@ -260,7 +264,7 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
 	
 	private JSONObject jumpToLogin() throws JSONException {
 		JSONObject jsonObject = new JSONObject();
-		jsonObject.put("js", "window.location = '/login.html';");
+		jsonObject.put("js", "window.location = 'login.html';");
 		return jsonObject;
 	}
 

@@ -4,7 +4,7 @@ function register(){
 //        if (status == "success") {
         $("#register_result").html(data['result']);
         if (data['result'] == 'OK'){
-            window.location = "/pyscript.html";
+            window.location = "pyscript.html";
         }
 //            processStatus(data);
 //            if (data['status'] == "BUSY"){

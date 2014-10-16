@@ -433,7 +433,7 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 	private CookieSetting createUUIDCookie(String email, String uuidString) {
 		UUID uuid = createJythonRunner(uuidString);
 		CookieSetting cookie = new CookieSetting(0, COOKIE_NAME_UUID, uuid.toString(), 
-				COOKIE_PATH_UUID, null, COOKIE_COMMENT_UUID, 1800, false);
+				"/", null, COOKIE_COMMENT_UUID, 1800, false);
 		if (uuidString == null) {
 			persistence.persist(NbiPersistenceManager.ID_SESSION_EMAIL_DATABASE, uuid.toString(), email);
 			persistence.persist(NbiPersistenceManager.ID_EMAIL_SESSION_DATABASE, email, uuid.toString());
