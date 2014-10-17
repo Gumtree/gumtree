@@ -46,10 +46,12 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 	private final static String RESPOND_RESULT = "result";
 	private final static String COOKIE_PATH_UUID = "/jython";
 	private final static String COOKIE_DOMAIN_UUID = "www.nbi.ansto.gov.au";
-	private final static String COOKIE_COMMENT_UUID = "Jython runner uuid";
+	public final static String COOKIE_COMMENT_UUID = "Jython runner uuid";
 	private static final String NAME_EMAIL_HOST = "greenhouse.nbi.ansto.gov.au";
 	private static final String NAME_EMAIL_SERVICE = "mail.smtp.host";
 	private static final String NAME_EMAIL_SENDER = "noreply@ansto.gov.au";
+	private static final String PROPERTY_INSTRUMENT_ID = "gumtree.instrument.id";
+	
 	private static final String TEXT_EMAIL_FIRST_PART = "Hi ,\n\nYou're receiving this email " +
 			"because you requested a password reset for your ANSTO Python Scripting Account. " +
 			"If you did not request this change, you can safely ignore this email. \nTo choose " +
@@ -179,7 +181,6 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 					result.put("result", "Login failed");
 	    			response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 				}
 	    	}
@@ -256,7 +257,7 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 			try {
 				String savedCode = persistence.retrieve(NbiPersistenceManager.ID_RESET_DATABASE, email, String.class);
 				if (savedCode == null){
-					result.put("result", "Error: the email account doesn't exist in our system.");
+					result.put("result", "Error: the reset code is invalid.");
 				} else if (!savedCode.equals(code)){
 					result.put("result", "Error: the reset code is invalid.");
 				} else {
@@ -371,7 +372,8 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 						e1.printStackTrace();
 					}
 	    			try {
-	    				String resetLink = "http://www.nbi.ansto.gov.au/password.html?type=PASSWORD&" + QUERY_EMAIL + "=" 
+	    				String instrument = System.getProperty(PROPERTY_INSTRUMENT_ID);
+	    				String resetLink = "http://www.nbi.ansto.gov.au/" + instrument + "/status/password.html?type=PASSWORD&" + QUERY_EMAIL + "=" 
 	    					+ URLEncoder.encode(email, "UTF-8") + "&" + QUERY_CODE + "=" + URLEncoder.encode(timeString, "UTF-8");
 		    			email(email, resetLink);
 	    				result.put("result", "An email has been sent to your email address. Please follow the direction in the email to reset your password.");
@@ -443,7 +445,7 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 
 	private void email(String email, String resetLink) {
 		// Recipient's email ID needs to be mentioned.
-		String to = "xnorman@gmail.com";
+		String to = email;
 
 		// Sender's email ID needs to be mentioned
 		String from = NAME_EMAIL_SENDER;
@@ -488,7 +490,10 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 	private UUID createJythonRunner(String uuidString) {
 		JythonRunner runner;
 		if (uuidString != null) {
-			runner = runnerManager.getNewRunner(uuidString);
+			runner = runnerManager.getJythonRunner(UUID.fromString(uuidString));
+			if (runner == null) {
+				runner = runnerManager.getNewRunner(uuidString);
+			}
 		} else {
 			runner = runnerManager.getNewRunner();
 		}

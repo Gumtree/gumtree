@@ -13,6 +13,7 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.Cookie;
+import org.restlet.data.CookieSetting;
 import org.restlet.data.Disposition;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
@@ -79,11 +80,8 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
 	    String uuidString = null;
 	    try {
 		    Cookie cookie = request.getCookies().getFirst(UserManagerRestlet.COOKIE_NAME_UUID);
-		    System.out.println("cookie is not null");
 		    if (cookie != null) {
 		    	uuidString = cookie.getValue();
-		    	System.out.println(cookie.getSecond());
-		    	System.out.println(uuidString);
 		    }			
 		} catch (Exception e) {
 		}
@@ -92,7 +90,6 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
 	    if (uuidString != null) {
 	    	UUID uuid = UUID.fromString(uuidString);
 	    	runner = runnerManager.getJythonRunner(uuid);
-	    	System.out.println(uuid);
 	    } 
 	    if (runner == null) {
 			JSONObject jsonObject;
@@ -107,6 +104,10 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
 			}
 	    	return;
 	    }
+	    CookieSetting cookieSetting = new CookieSetting(0, UserManagerRestlet.COOKIE_NAME_UUID, uuidString, 
+				"/", null, UserManagerRestlet.COOKIE_COMMENT_UUID, 1800, false);
+	    response.getCookieSettings().add(cookieSetting);
+	    
 	    QueryType type = QueryType.valueOf(typeString);
 	    
 	    switch (type) {
