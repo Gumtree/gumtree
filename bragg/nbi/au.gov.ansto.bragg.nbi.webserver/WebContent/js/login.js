@@ -34,9 +34,11 @@ function login(){
     var postUrl = "jython/user?type=LOGIN";
     $.post( postUrl, $("form#login_form").serialize(), function(data, status) {
 //        if (status == "success") {
-        $("#login_result").html(data['result']);
         if (data['result'] == 'OK'){
+        	$("#login_result").html("You have signed in successfully. Now redirect to the reduction service page.");
             window.location = "pyscript.html";
+        } else {
+        	$("#login_result").html(data['result']);
         }
 //            processStatus(data);
 //            if (data['status'] == "BUSY"){
@@ -52,7 +54,6 @@ function login(){
         alert( "error submitting the script");
     });
 }
-
 
 jQuery(document).ready(function(){
     logout();
