@@ -24,6 +24,15 @@ function checkCode(){
                         change_password();
                     }
 	            });
+                $(document).delegate('#login_repassword', 'keydown', function(e) {
+                    var keyCode = e.keyCode || e.which;
+                    if (keyCode == 13) {
+                        e.preventDefault();
+                        if (checkInputs()){
+                            change_password();
+                        }
+                    }
+                });
             } else {
                 $("#p_result").html(data['result']);
             }
@@ -67,4 +76,13 @@ function change_password(){
 
 jQuery(document).ready(function(){
     checkCode();
+    
+    $(document).delegate('#login_password', 'keydown', function(e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode == 13) {
+            e.preventDefault();
+            $('#login_repassword').focus();
+        }
+    });
+    
 });

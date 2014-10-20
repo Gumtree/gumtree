@@ -33,4 +33,14 @@ jQuery(document).ready(function(){
             reset();
         }
 	});
+    
+    $(document).delegate('#login_email', 'keydown', function(e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode == 13) {
+            e.preventDefault();
+            if (checkInputs()){
+                reset();
+            }
+        }
+    });
 });

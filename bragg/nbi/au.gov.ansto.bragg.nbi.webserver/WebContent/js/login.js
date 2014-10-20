@@ -60,4 +60,20 @@ jQuery(document).ready(function(){
     $('#login_submit').click(function() {
         login();
 	});
+    
+    $(document).delegate('#login_email', 'keydown', function(e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode == 13) {
+            e.preventDefault();
+            $('#login_password').focus();
+        }
+    });
+    
+    $(document).delegate('#login_password', 'keydown', function(e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode == 13) {
+            e.preventDefault();
+            login();
+        }
+    });
 });

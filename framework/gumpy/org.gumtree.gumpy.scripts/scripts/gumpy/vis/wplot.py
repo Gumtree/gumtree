@@ -327,7 +327,7 @@ class WebPlot:
 #                    break
 #                index += 1
 #        else :
-            raise ValueError, 'not supported for this type of plot: ' + str(self.ndim) + '-dimension'
+        print 'select_dataset(): not supported'
 
     def get_selected_dataset(self):
 #        if self.ndim == 1 :
@@ -376,7 +376,8 @@ class WebPlot:
 #        self.pv.getPlot().addMask(mask)
 #        self.pv.getPlot().repaint()
 #        return mask
-        raise ValueError, 'not supported'
+#        raise ValueError, 'not supported'
+        print "add_mask_2d(): not supported"
 
     def add_mask_1d(self, x_min, x_max, name = None, is_inclusive = True):
 #        mask = RangeMask(is_inclusive)
@@ -386,7 +387,8 @@ class WebPlot:
 #        self.pv.getPlot().addMask(mask)
 #        self.pv.getPlot().repaint()
 #        return mask
-        raise ValueError, 'not supported'
+#        raise ValueError, 'not supported'
+        print "add_mask_1d(): not supported"
         
     def is_disposed(self):
         return self.cache.getChart() is None
@@ -401,7 +403,8 @@ class WebPlot:
 #        else :
 #            self.pv.getPlot().setSelectedMask(obj)
 #        self.pv.getPlot().repaint()
-        raise ValueError, 'not supported'
+#        raise ValueError, 'not supported'
+        print "select_mask(): not supported"
         
     def get_masks(self):
 #        if self.pv.getPlot():
@@ -420,7 +423,8 @@ class WebPlot:
 #        else :
 #            self.pv.getPlot().removeMask(obj)
 #        self.pv.getPlot().repaint()
-        raise ValueError, 'not supported'
+#        raise ValueError, 'not supported'
+        print "remove_mask(): not supported"
         
     def update(self):
         self.cache.update()
@@ -491,11 +495,13 @@ class WebPlot:
     
     def add_mouse_listener(self, listener):
 #        self.pv.getPlot().addChartMouseListener(listener.__get_jlistener__())
-        raise ValueError, 'not supported'
+#        raise ValueError, 'not supported'
+        print "add_mouse_listener(): not supported"
 
     def add_awt_mouse_listener(self, listener):
 #        self.pv.getPlot().addMouseListener(listener.__get_jlistener__())
-        raise ValueError, 'not supported'
+#        raise ValueError, 'not supported'
+        print "add_awt_mouse_listener(): not supported"
         
     def set_awt_mouse_listener(self, listener):
 #        lts = self.pv.getPlot().getMouseListeners()
@@ -505,7 +511,7 @@ class WebPlot:
 #                self.pv.getPlot().removeMouseListener(lt)
 #        self.add_awt_mouse_listener(listener)
 #        raise ValueError, 'not supported'
-        pass
+        print "set_awt_mouse_listener(): not supported"
         
     def set_mouse_listener(self, listener):
 #        listeners = self.pv.getPlot().getListeners(ChartMouseListener)
@@ -513,29 +519,33 @@ class WebPlot:
 #            self.pv.getPlot().removeChartMouseListener(lsn)
 #        self.add_mouse_listener(listener)
 #        raise ValueError, 'not supported'
-        pass
+        print "set_mouse_listener(): not supported"
         
     def add_mask_listener(self, listener):
 #        self.pv.getPlot().addMaskEventListener(listener.__get_jlistener__())
-        raise ValueError, 'not supported'
+
+        print "add_mask_listener(): not supported"
         
     def set_mask_listener(self, listener):
 #        self.pv.getPlot().getMaskEventListeners().clear()
 #        self.add_mask_listener(listener)
 #        raise ValueError, 'not supported'
-        pass
+        print "set_mask_listener(): not supported"
         
     def remove_mouse_listener(self, listener):
 #        self.pv.getPlot().removeChartMouseListener(listener.__get_jlistener__())
-        raise ValueError, 'not supported'
+#        raise ValueError, 'not supported'
+        print "remove_mouse_listener(): not supported"
 
     def remove_awt_mouse_listener(self, listener):
 #        self.pv.getPlot().removeMouseListener(listener.__get_jlistener__())
-        raise ValueError, 'not supported'
+#        raise ValueError, 'not supported'
+        print "remove_awt_mouse_listener(): not supported"
 
     def remove_mask_listener(self, listener):
 #        self.pv.getPlot().removeMaskEventListener(listener.__get_jlistener__())
-        raise ValueError, 'not supported'
+#        raise ValueError, 'not supported'
+        print "remove_mask_listener(): not supported"
 
     def close(self):
 #        PlotView.closePlotView(self.__view__)
@@ -558,7 +568,7 @@ class WebPlot:
 #                self.pv.getPlot().addDomainAxisMarker(item, height, cc)
 #        else:
 #            self.pv.getPlot().addDomainAxisMarker(pos, height, cc)
-        raise ValueError, 'not supported'
+        print "add_x_marker(): add marker is not supported"
     
     def remove_x_marker(self, pos):
 #        if hasattr(pos, '__len__') :
@@ -566,19 +576,20 @@ class WebPlot:
 #                self.pv.getPlot().removeDomainAxisMarker(item)
 #        else:
 #            self.pv.getPlot().removeDomainAxisMarker(pos)
-        raise ValueError, 'not supported'
+#        raise ValueError, 'not supported'
+        print "remove_x_marker(): not supported"
         
     def clear_x_markers(self):
 #        self.pv.getPlot().clearDomainAxisMarkers()
-        raise ValueError, 'not supported'
+        print "clear_x_markers(): not supported"
         
     def clear_y_markers(self):
 #        self.pv.getPlot().clearRangeAxisMarkers()
-        raise ValueError, 'not supported'
+        print "clear_y_markers(): not supported"
         
     def clear_markers(self):
 #        self.pv.getPlot().clearMarkers()
-        raise ValueError, 'not supported'
+        print "clear_markers(): not supported"
 
     # Add markers on vertical axis. 
     # pos: positions on vertical axis. Can be either a double value or a list of double values. If width is 0, it will draw a line through the whole x range. 
@@ -596,7 +607,7 @@ class WebPlot:
 #                self.pv.getPlot().addRangeAxisMarker(item, width, cc)
 #        else :
 #            self.pv.getPlot().addRangeAxisMarker(pos, width, cc)
-        raise ValueError, 'not supported'
+        print "add_y_marker(): not supported"
      
     def remove_y_marker(self, pos):
 #        if hasattr(pos, '__len__') :
@@ -604,7 +615,7 @@ class WebPlot:
 #                self.pv.getPlot().removeRangeAxisMarker(item)
 #        else:
 #            self.pv.getPlot().removeRangeAxisMarker(pos)
-        raise ValueError, 'not supported'
+        print "remove_y_marker(): not supported"
         
     # Add markers in the plot. 
     # x, y: coordinate of the marker in double values.
@@ -619,7 +630,7 @@ class WebPlot:
 #                self.pv.getPlot().addMarker(x[i], y[i], cc)
 #        else :
 #            self.pv.getPlot().addMarker(x, y, cc)
-        raise ValueError, 'not supported'
+        print "add_marker(): not supported"
 
     def remove_marker(self, x, y):
 #        if hasattr(x, '__len__') and hasattr(y, '__len__') and len(x) == len(y):
@@ -627,7 +638,7 @@ class WebPlot:
 #                self.pv.getPlot().removeMarker(x[i], y[i])
 #        else :
 #            self.pv.getPlot().removeMarker(x, y)
-        raise ValueError, 'not supported'
+        print "remove_marker(): not supported"
         
     def set_legend_position(self, pos):
         if self.ndim == 1:
@@ -642,7 +653,7 @@ class WebPlot:
                 
     def set_view_title(self, title):
 #        self.__view__.setViewTitle(title)
-        raise ValueError, 'not supported'
+        print "set_view_title(): not supported"
         
     def set_mouse_follower_precision(self, p1, p2 = None, p3 = None):
 #        pl = self.pv.getPlot()
@@ -667,7 +678,7 @@ class WebPlot:
 #                    pl.setMouseFollowerXPrecision(p1)
 #                    pl.setMouseFollowerYPrecision(p2)
 #                    pl.setMouseFollowerZPrecision(p3)
-        raise ValueError, 'not supported'
+        print "set_mouse_follower_precision(): not supported"
     
 def __get_color__(name):
     res = None

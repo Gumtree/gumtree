@@ -46,4 +46,29 @@ jQuery(document).ready(function(){
             register();
         }
 	});
+    
+    $(document).delegate('#login_email', 'keydown', function(e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode == 13) {
+            e.preventDefault();
+            $('#login_password').focus();
+        }
+    });
+    
+    $(document).delegate('#login_password', 'keydown', function(e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode == 13) {
+            e.preventDefault();
+            $('#login_repassword').focus();
+        }
+    });
+    
+    $(document).delegate('#login_repassword', 'keydown', function(e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode == 13) {
+            if (checkInputs()){
+                register();
+            }
+        }
+    });
 });

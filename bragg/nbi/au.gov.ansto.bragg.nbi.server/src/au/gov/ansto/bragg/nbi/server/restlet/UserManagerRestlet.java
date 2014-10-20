@@ -50,7 +50,7 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 	private static final String NAME_EMAIL_HOST = "greenhouse.nbi.ansto.gov.au";
 	private static final String NAME_EMAIL_SERVICE = "mail.smtp.host";
 	private static final String NAME_EMAIL_SENDER = "noreply@ansto.gov.au";
-	private static final String PROPERTY_INSTRUMENT_ID = "gumtree.instrument.id";
+	public static final String PROPERTY_INSTRUMENT_ID = "gumtree.instrument.id";
 	
 	private static final String TEXT_EMAIL_FIRST_PART = "Hi ,\n\nYou're receiving this email " +
 			"because you requested a password reset for your ANSTO Python Scripting Account. " +
@@ -127,7 +127,7 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 	    case INFO:
 		    String uuidString = null;
 		    try {
-			    Cookie cookie = request.getCookies().getFirst(UserManagerRestlet.COOKIE_NAME_UUID);
+			    Cookie cookie = request.getCookies().getFirst(UserManagerRestlet.COOKIE_NAME_UUID + "." + System.getProperty(PROPERTY_INSTRUMENT_ID) );
 			    if (cookie != null) {
 			    	uuidString = cookie.getValue();
 			    }
@@ -389,7 +389,7 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 		case LOGOUT:
 			uuidString = null;
 		    try {
-			    Cookie cookie = request.getCookies().getFirst(UserManagerRestlet.COOKIE_NAME_UUID);
+			    Cookie cookie = request.getCookies().getFirst(UserManagerRestlet.COOKIE_NAME_UUID + "." + System.getProperty(PROPERTY_INSTRUMENT_ID));
 			    if (cookie != null) {
 			    	uuidString = cookie.getValue();
 			    }
@@ -434,7 +434,7 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 
 	private CookieSetting createUUIDCookie(String email, String uuidString) {
 		UUID uuid = createJythonRunner(uuidString);
-		CookieSetting cookie = new CookieSetting(0, COOKIE_NAME_UUID, uuid.toString(), 
+		CookieSetting cookie = new CookieSetting(0, COOKIE_NAME_UUID + "." + System.getProperty(PROPERTY_INSTRUMENT_ID), uuid.toString(), 
 				"/", null, COOKIE_COMMENT_UUID, 1800, false);
 		if (uuidString == null) {
 			persistence.persist(NbiPersistenceManager.ID_SESSION_EMAIL_DATABASE, uuid.toString(), email);

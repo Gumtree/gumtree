@@ -79,7 +79,7 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
 	    
 	    String uuidString = null;
 	    try {
-		    Cookie cookie = request.getCookies().getFirst(UserManagerRestlet.COOKIE_NAME_UUID);
+		    Cookie cookie = request.getCookies().getFirst(UserManagerRestlet.COOKIE_NAME_UUID + "." + System.getProperty(UserManagerRestlet.PROPERTY_INSTRUMENT_ID));
 		    if (cookie != null) {
 		    	uuidString = cookie.getValue();
 		    }			
