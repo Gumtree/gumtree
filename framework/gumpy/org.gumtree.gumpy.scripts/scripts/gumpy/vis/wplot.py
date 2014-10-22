@@ -363,32 +363,33 @@ class WebPlot:
         self.restore_y_range()
     
     def add_mask_2d(self, x_min, x_max, y_min, y_max, name = None, is_inclusive = True, shape = 'r'):
-#        x = min(x_min, x_max)
-#        y = min(y_min, y_max)
-#        width = abs(x_max - x_min)
-#        height = abs(y_max - y_min)
-#        if shape is None or not shape[0].lower() == 'e' :
-#            mask = RectangleMask(is_inclusive, x, y, width, height)
-#        else :
-#            mask = EllipseMask(is_inclusive, x, y, width, height)
-#        if not name is None :
-#            mask.setName(name)
-#        self.pv.getPlot().addMask(mask)
-#        self.pv.getPlot().repaint()
-#        return mask
-#        raise ValueError, 'not supported'
-        print "add_mask_2d(): not supported"
+        x = min(x_min, x_max)
+        y = min(y_min, y_max)
+        width = abs(x_max - x_min)
+        height = abs(y_max - y_min)
+        if shape is None or not shape[0].lower() == 'e' :
+            mask = RectangleMask(is_inclusive, x, y, width, height)
+        else :
+            mask = EllipseMask(is_inclusive, x, y, width, height)
+        if not name is None :
+            mask.setName(name)
+        if not hasattr(self.cache, "masks") :
+            self.masks = []
+        self.masks.append(mask)
+        return mask
+#        print "add_mask_2d(): not supported"
 
     def add_mask_1d(self, x_min, x_max, name = None, is_inclusive = True):
-#        mask = RangeMask(is_inclusive)
-#        if not name is None :
-#            mask.setName(name)
-#        mask.setBoundary(min(x_min, x_max), max(x_min, x_max))
-#        self.pv.getPlot().addMask(mask)
-#        self.pv.getPlot().repaint()
-#        return mask
+        mask = RangeMask(is_inclusive)
+        if not name is None :
+            mask.setName(name)
+        mask.setBoundary(min(x_min, x_max), max(x_min, x_max))
+        
+        if not hasattr(self.cache, "masks") :
+            self.cache.masks = []
+        self.cache.masks.append(mask)
+        return mask
 #        raise ValueError, 'not supported'
-        print "add_mask_1d(): not supported"
         
     def is_disposed(self):
         return self.cache.getChart() is None
@@ -411,7 +412,11 @@ class WebPlot:
 #            return self.pv.getPlot().getMasks();
 #        else :
 #            return []
-        return []
+#        return []
+        if hasattr(self, 'masks'):
+            return self.masks
+        else :
+            return []
         
     def remove_mask(self, obj):
 #        if type(obj) is str :
@@ -424,8 +429,11 @@ class WebPlot:
 #            self.pv.getPlot().removeMask(obj)
 #        self.pv.getPlot().repaint()
 #        raise ValueError, 'not supported'
-        print "remove_mask(): not supported"
-        
+        if hasattr(self, 'masks'):
+            self.masks.remove(obj)
+        else :
+            return
+                
     def update(self):
         self.cache.update()
 
@@ -443,10 +451,10 @@ class WebPlot:
             self.set_x_range(value[0], value[1])
         if name == 'y_range' :
             self.set_y_range(value[0], value[1])
-        if name == 'masks' :
+#        if name == 'masks' :
 #            for mask in value :
 #                self.pv.getPlot().addMask(mask)
-            raise ValueError, 'not supported'
+#            raise ValueError, 'not supported'
         if name == 'ds' :
             self.set_dataset(value)
         self.__dict__[name] = value
@@ -467,9 +475,8 @@ class WebPlot:
         if name == 'y_range' :
             axis = self.cache.getXYPlot().getRangeAxis()
             return [axis.getLowerBound(), axis.getUpperBound()]
-        if name == 'masks' :
+#        if name == 'masks' :
 #            return self.pv.getPlot().getMasks()
-            raise ValueError, 'not supported'
         if name == 'ds' :
             return self.__ds__
         raise AttributeError, name + ' does not exist'
@@ -589,7 +596,12 @@ class WebPlot:
         
     def clear_markers(self):
 #        self.pv.getPlot().clearMarkers()
-        print "clear_markers(): not supported"
+        try:
+            self.cache.makers = []
+        except:
+            pass
+
+#        print "clear_markers(): not supported"
 
     # Add markers on vertical axis. 
     # pos: positions on vertical axis. Can be either a double value or a list of double values. If width is 0, it will draw a line through the whole x range. 

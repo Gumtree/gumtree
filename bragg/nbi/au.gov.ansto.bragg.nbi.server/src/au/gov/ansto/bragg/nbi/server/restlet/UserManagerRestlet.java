@@ -69,6 +69,7 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
                         "<tr><td></td><td><input type=\"button\" class=\"buttonStyle\" data-role=\"button\" id=\"password_submit\" value=\"Submit\"></td></tr>" +
                     "</tbody></table>";
 	private static final String HTML_FORMEND = "</form>";
+	private static final int COOKIE_EXP_SECONDS = 86400;
 			
 	private JythonRunnerManager runnerManager;
 	private INbiPersistenceManager persistence;
@@ -435,7 +436,7 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 	private CookieSetting createUUIDCookie(String email, String uuidString) {
 		UUID uuid = createJythonRunner(uuidString);
 		CookieSetting cookie = new CookieSetting(0, COOKIE_NAME_UUID + "." + System.getProperty(PROPERTY_INSTRUMENT_ID), uuid.toString(), 
-				"/", null, COOKIE_COMMENT_UUID, 1800, false);
+				"/", null, COOKIE_COMMENT_UUID, COOKIE_EXP_SECONDS, false);
 		if (uuidString == null) {
 			persistence.persist(NbiPersistenceManager.ID_SESSION_EMAIL_DATABASE, uuid.toString(), email);
 			persistence.persist(NbiPersistenceManager.ID_EMAIL_SESSION_DATABASE, email, uuid.toString());

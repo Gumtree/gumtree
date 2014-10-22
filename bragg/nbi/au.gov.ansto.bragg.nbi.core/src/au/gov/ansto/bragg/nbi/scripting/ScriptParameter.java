@@ -121,6 +121,7 @@ public class ScriptParameter extends PyObjectImp {
 				valueString = "float(' + this.value + ')";
 				break;
 			case STRING:
+			case FILE:
 				valueString = "str(\\\'' + this.value + '\\\')";
 				break;
 			default:
@@ -267,6 +268,7 @@ public class ScriptParameter extends PyObjectImp {
 				}
 				break;
 			case STRING:
+			case FILE:
 				for (Object option : getOptions()){
 					optionString += "'" + option + "',";
 				}
