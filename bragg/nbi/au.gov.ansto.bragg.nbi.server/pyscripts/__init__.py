@@ -1,4 +1,5 @@
 from gumpy.vis.wplot import WebPlot
+from java.lang import System
 import zipfile
 
 import traceback
@@ -16,6 +17,7 @@ from gumpy.commons.logger import log
 import time
 __register__ = JythonModelRegister.getRegister(__script_model_id__)
 
+__instrument_id__ = 'gumtree.instrument.id'
 #__DATASOURCE__ = __register__.getDataSourceViewer()
 #__runner__ = __UI__.getRunner()
 #__writer__ = __UI__.getScriptExecutor().getEngine().getContext().getWriter()
@@ -181,7 +183,10 @@ def download_selected_files():
     full_paths = []
     for f in __selected_files__:
         full_paths.append(get_data_path() + '/' + f)
-    z_name = 'ECH_raw_' + str(int(time.time() * 1000))[2:] + '.zip'
+    inst_id = System.getProperty(__instrument_id__)
+    if inst_id is None :
+        inst_id = 'DATA'
+    z_name = inst_id.upper() + '_raw_' + str(int(time.time() * 1000))[2:] + '.zip'
     zip_files(full_paths, z_name)
     print 'data files have been zipped in ' + z_name
     

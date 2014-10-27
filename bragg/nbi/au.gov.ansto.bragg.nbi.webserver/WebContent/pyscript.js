@@ -346,11 +346,13 @@ function getScriptList(){
             alert( "error loading available scripts");
     });
 }
+
 $(window).on('hashchange',function(){ 
     window.scrollTo(0,0);
 });
 
-
+var prev = -1;
+    
 $(function() {
  
     function updateSelectedList( $selectees ) {
@@ -382,7 +384,14 @@ $(function() {
         // When a row is selected, add the highlight class to the row and
         // update the total.
         selected: function( e, ui ) {
-            $(ui.selected).addClass( "ui-state-highlight-customised" );
+            var curr = $(ui.selected.tagName, e.target).index(ui.selected); // get selecting item index
+            if(e.shiftKey && prev > -1) { // if shift key was pressed and there is previous - select them all
+                $(ui.selected.tagName, e.target).slice(Math.min(prev, curr), 1 + Math.max(prev, curr)).addClass('ui-selected ui-state-highlight-customised');
+                prev = -1; // and reset prev
+            } else {
+                prev = curr; // othervise just save prev
+                $(ui.selected).addClass( "ui-state-highlight-customised" );
+            }
             var widget = $( this ).data( "uiSelectable" );
             updateSelectedList( widget.selectees );
         },
@@ -443,6 +452,10 @@ jQuery(document).ready(function(){
 //        runScript();
         createGui();
 	});
+    
+    $("#button_download").click(function() {
+        sendJython('download_selected_files()');
+    });
     
     $("#button_reload_data_file").click(function() {
         getFileList();
@@ -607,5 +620,6 @@ jQuery(document).ready(function(){
     getFileList();
     
     getUserInfo();
+    
 });
 
