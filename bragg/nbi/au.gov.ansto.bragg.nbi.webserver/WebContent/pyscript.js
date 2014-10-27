@@ -1,6 +1,7 @@
 var historyIdx = -1;
 var commandHistory = [];
 var selectedFiles = [];
+var isGuiView = false;
 
 function setUpdateInterval(){
     var interval_id = setInterval(function(){
@@ -80,10 +81,18 @@ function listProp(obj){
     return text;
 }
 
+function updateRunScriptText() {
+    if (isGuiView) {
+        $("#run_script").val("Process Data");
+    } else {
+        $("#run_script").val("Run Script");
+    }
+}
+
 function enableWidgets(){
     $("#runner_status").css("background-color", "green");
 //    $("#run_script").removeAttr("disabled");
-    $("#run_script").val("Run Script");
+    updateRunScriptText();
     $('#lineFeed').removeAttr("disabled");
 }
 
@@ -97,7 +106,7 @@ function disableWidgets(){
 function setErrorWidgets(){
     $("#runner_status").css("background-color", "red");
 //    $("#run_script").removeAttr("disabled");
-    $("#run_script").val("Run Script");
+    updateRunScriptText();
     $('#lineFeed').removeAttr("disabled");
 }
 
@@ -174,18 +183,22 @@ function initUpdateStatus(){
 }
 
 function runScript(){
-    var postUrl = jythonUrl + "?type=START";
-    $.post( postUrl, $("form#script_form").serialize(), function(data, status) {
-        if (status == "success") {
-            processStatus(data);
-            if (data['status'] == "BUSY"){
-                setUpdateInterval();
+    if (isGuiView) {
+        sendJython("__run_script__(__selected_files__)");
+    } else {
+        var postUrl = jythonUrl + "?type=START";
+        $.post( postUrl, $("form#script_form").serialize(), function(data, status) {
+            if (status == "success") {
+                processStatus(data);
+                if (data['status'] == "BUSY"){
+                    setUpdateInterval();
+                }
             }
-        }
-    })
-    .fail(function(e) {
-        alert( "error submitting the script");
-    });
+        })
+        .fail(function(e) {
+            alert( "error submitting the script");
+        });
+    }
 }
 
 function interruptScript(){
@@ -449,7 +462,6 @@ jQuery(document).ready(function(){
 	});
     
     $("#create_gui").click(function() {
-//        runScript();
         createGui();
 	});
     
@@ -467,6 +479,8 @@ jQuery(document).ready(function(){
         $("#tab2").removeClass("tabSelected");
         $("#tab2").addClass("tabUnselected");
         $("#create_gui").val("Create GUI");
+        isGuiView = false;
+        updateRunScriptText();
     });
 
     $("#tab2").click(function(){
@@ -475,6 +489,8 @@ jQuery(document).ready(function(){
         $("#tab2").removeClass("tabUnselected");
         $("#tab2").addClass("tabSelected");
         $("#create_gui").val("Reload GUI");
+        isGuiView = true;
+        updateRunScriptText();
     });
 
     if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0) {
