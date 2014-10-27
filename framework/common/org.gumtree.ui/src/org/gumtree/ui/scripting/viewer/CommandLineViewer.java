@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
@@ -18,6 +20,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
@@ -92,6 +95,8 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 //	private static final int DEFAULT_LINE_WRAP = 80;
 	
 	private static final String PROP_PREFIX_TOOLS = "gumtree.scripting.tools.";
+	private static final int TEXT_VIEWER_LENGTH_MAX = 1000000;
+	private static final int TEXT_VIEWER_LENGTH_STARTLENGTH = 500000;
 	
 	// ID for default history tool
 	private static final String ID_TOOL_HISTORY = "history";
@@ -141,6 +146,8 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 	private ContentAssistant assistant;
 	
 	private UIResourceManager resourceManager;
+	
+	private List<StyleRange> rangeList;
 	
 	public IScriptExecutor getScriptExecutor() {
 		return executor;
@@ -347,8 +354,12 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 	}
 	
 	public String getConsoleText() {
-		if (consoleTextViewer != null && !consoleTextViewer.getTextWidget().isDisposed()) {
-			return consoleTextViewer.getTextWidget().getText();
+		if (consoleTextViewer != null && !consoleTextViewer.getTextWidget().isDisposed() && consoleTextViewer.getDocument() != null) {
+//			return consoleTextViewer.getTextWidget().getText();
+			try {
+				return consoleTextViewer.getDocument().get(0, consoleTextViewer.getDocument().getLength());
+			} catch (BadLocationException e) {
+			}
 		}
 		return "";
 	}
@@ -366,6 +377,7 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 
 	public void createPartControl(Composite parent, int style) {
 		this.style = style;
+		rangeList = new ArrayList<StyleRange>();
 		createPartControl(parent);
 	}
 	
@@ -402,7 +414,9 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 	private void createTerminalArea(Composite parent) {
 		consoleTextViewer = new TextViewer(parent, SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY | SWT.WRAP | SWT.BORDER);
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).span(2, 1).grab(true, true).applyTo(consoleTextViewer.getTextWidget());
-		consoleTextViewer.setDocument(new Document());
+		Document doc = new Document();
+		consoleTextViewer.setDocument(doc);
+		consoleTextViewer.getTextWidget().setFont(getFont(SWT.NORMAL));
 		// Add drop support
 		int operations = DND.DROP_MOVE | DND.DROP_COPY;
 		DropTarget dropTarget = new DropTarget(consoleTextViewer.getTextWidget(), operations);
@@ -702,24 +716,29 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 //					}
 					
 					// Set colour and style
-					StyledText styledText = consoleTextViewer.getTextWidget();
-					StyleRange styleRange = new StyleRange();
-					styleRange.start = styledText.getCharCount();
-					styleRange.length = textToAppend.length();
-					if (style == SWT.BOLD || style == SWT.ITALIC) {
-						styleRange.font = getFont(style);
-					} else {
-						styleRange.font = getFont(SWT.NORMAL);
-					}
-					if (color != null) {
-						styleRange.foreground = color;
-					} else {
-						styleRange.foreground = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
-					}
+//					StyledText styledText = consoleTextViewer.getTextWidget();
+//					StyleRange styleRange = new StyleRange();
+//					styleRange.start = styledText.getCharCount();
+//					styleRange.length = textToAppend.length();
+//					if (style == SWT.BOLD || style == SWT.ITALIC) {
+//						styleRange.font = getFont(style);
+//					} else {
+//						styleRange.font = getFont(SWT.NORMAL);
+//					}
+//					if (color != null) {
+//						styleRange.foreground = color;
+//					} else {
+//						styleRange.foreground = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
+//					}
 					
 					// Append text
+					int curLength = consoleTextViewer.getDocument().getLength();
 					consoleTextViewer.getTextWidget().append(textToAppend);
-					styledText.setStyleRange(styleRange);
+					consoleTextViewer.setTextColor(color, curLength, text.length(), false);
+					StyleRange range = new StyleRange(curLength, text.length(), color, null);
+					rangeList.add(range);
+//					styledText.setStyleRange(styleRange);
+//					rangeList.add(styleRange);
 					autoScroll();
 				}
 //			}
@@ -763,6 +782,24 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 						styledText.setCaretOffset(docLength);
 						styledText.showSelection();
 						previousDocLength = docLength;
+					}
+					int visableLength = consoleTextViewer.getTextWidget().getCharCount();
+					int fullLength = consoleTextViewer.getDocument().getLength();
+					if (visableLength > TEXT_VIEWER_LENGTH_MAX) {
+						int newStart = fullLength - TEXT_VIEWER_LENGTH_STARTLENGTH;
+						consoleTextViewer.setVisibleRegion(newStart, TEXT_VIEWER_LENGTH_STARTLENGTH);
+						previousDocLength = TEXT_VIEWER_LENGTH_STARTLENGTH;
+						List<StyleRange> toRemove = new ArrayList<StyleRange>();
+						for (StyleRange range : rangeList) {
+							if (range.start + range.length - newStart < 0) {
+								toRemove.add(range);
+								continue;
+							} 
+						}
+						rangeList.removeAll(toRemove);
+						for (StyleRange range : rangeList) {
+							consoleTextViewer.setTextColor(range.foreground, range.start, range.length, false);
+						}
 					}
 					styledText.redraw();
 				}

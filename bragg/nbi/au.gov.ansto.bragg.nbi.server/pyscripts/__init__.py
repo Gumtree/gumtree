@@ -175,4 +175,13 @@ def snapshot(uuid, obj = None):
         outStream.writeObject(obj)
     outFile.close( )
     
-
+def download_selected_files():
+    if len(__selected_files__) == 0:
+        return
+    full_paths = []
+    for f in __selected_files__:
+        full_paths.append(get_data_path() + '/' + f)
+    z_name = 'ECH_raw_' + str(int(time.time() * 1000))[2:] + '.zip'
+    zip_files(full_paths, z_name)
+    print 'data files have been zipped in ' + z_name
+    

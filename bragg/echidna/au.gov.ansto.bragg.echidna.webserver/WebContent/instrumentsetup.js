@@ -41,7 +41,7 @@ var devices = [
 //            	   ]
 //               },
                {"group":"FURNACE", 
-            	   "items":[{"classId":"furnaceTemp", "deviceId":"/sample/tc1/sensorA/value", "title":"Temperature", "units":"K"},
+            	   "items":[{"classId":"furnaceTemp", "deviceId":"/sample/tc1/sensor", "title":"Temperature", "units":"K"},
             	            {"classId":"furnaceSetpoint", "deviceId":"/sample/tc1/setpoint", "title":"Set Point", "units":"K"}
             	   ]
                }

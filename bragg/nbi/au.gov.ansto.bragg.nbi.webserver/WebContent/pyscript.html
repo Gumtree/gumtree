@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="css/tabs.css" />
 <link rel="stylesheet" href="css/button.css" />
 <link rel="stylesheet" href="css/popup.css" />
-<link rel="stylesheet" href="css/scripting.css" />
+<link rel="stylesheet" href="css/pyscript.css" />
 <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
 <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
 <script src="instrumentsetup.js"></script>
@@ -37,16 +37,19 @@
       <div class="yui-b">
         <div class="yui-gb">
           <div class="yui-u first ui-corner-all ui-shadow">
-            <div class="content tableContainer" id="file_area">
-                <table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable" id="table_datafiles">
-                    <thead class="fixedHeader">
-                        <tr>
-                            <th><a href="#" id="button_reload_data_file">Data Files</a></th>
-                        </tr>
-                    </thead>
-                    <tbody class="scrollContent" id="fileTable">
-                    </tbody>
-                </table>
+            <div class="content">
+                <div class="tableContainer" id="file_area">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable" id="table_datafiles">
+                        <thead class="fixedHeader">
+                            <tr>
+                                <th><a href="#" id="button_reload_data_file">Data Files</a></th>
+                            </tr>
+                        </thead>
+                        <tbody class="scrollContent" id="fileTable">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="button_script" id="div_download_button"><input type="button" class="buttonStyle" data-role="button" id="button_download" value="Download Selected Files"/></div>
             </div>
           </div>
           <div class="yui-u second ui-corner-all ui-shadow">
