@@ -1,0 +1,218 @@
+/*
+Copyright (c) 2007, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.net/yui/license.txt
+version: 2.2.2
+*/
+/* for all templates and grids */
+body{
+    text-align:center;
+    font: normal normal 12px Helvetica, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	margin: 10px;
+	padding: 0
+}
+#ft{clear:both;}
+/**/
+/* 750 centered, and backward compatibility */ 
+#doc,.yui-t7 {
+	margin:auto;text-align:left;
+	width:1200px;*width:66.3em;min-width:960px;}
+	
+/* below required for all fluid grids; adjust widths and margins above accordingly */
+
+	/* to preserve source-order independence for Gecko */
+	.yui-b{position:relative;}
+	.yui-b{_position:static;} /* for IE < 7 */
+	#yui-main .yui-b{position:static;} 
+
+
+.yui-t7 #yui-main .yui-b {
+	display:block;margin:0 0 1% 0;
+}
+#yui-main .yui-b {float:none;width:auto;}
+/* GRIDS (not TEMPLATES) */
+.yui-gb div.first{float:left;margin-left:0;width:20%;}
+.yui-gb div.second{float:left;margin-left:4px;width:49.2%;}
+.yui-gb div.third{float:left;margin-left:4px;width:30%;}
+.yui-gb:after{content:".";display:block;height:0;clear:both;visibility:hidden;}
+.yui-gb{zoom:1;}
+
+
+/* Basic Element Formatting */
+
+#header{
+	height:30px;
+	background-color:#BEB8B2;
+	margin:0;
+    margin-bottom: 2px;
+	padding:2px;
+    font: normal normal 16px Helvetica, Georgia, Verdana, Geneva, Arial, Helvetica, sans-serif;
+    font-family: Helvetica, Arial, sans-serif;
+    text-shadow: 1px 1px #A59595;
+	}
+	
+#header h1{
+	font-size:1em;
+	margin:0;
+	padding:5px;
+	}
+	
+#header h1 a{
+	color:#000000;
+	background-color:#F3F2ED;
+	}
+	
+.content{
+	height:470px;
+	background:#faf7f7;
+	border-top:#FFFFFF 2px solid;
+	margin:0;
+	padding:2px;
+	}
+	
+#secondary{
+	height:290px;
+	background:#FEF8F3;
+/*    border: #AAAAAA 1px solid;*/
+/*	border-top:#FFFFFF 2px solid;*/
+	margin:0;
+	padding:0px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    width: 100%;
+	}
+#console{
+    height:270px;
+    padding: 4px;
+    border: #8C9898 1px solid;
+    margin:6px;
+    overflow: scroll;
+    background-color: white;
+    }
+.consoleCommand{
+	white-space: pre;
+	line-height: 16px;
+    unicode-bidi: embed;
+    font-family: inherit;
+    color: black;
+    }
+.consoleText{
+	white-space: pre;
+	line-height: 16px;
+    unicode-bidi: embed;
+    font-family: monospace;
+    color: black;
+    }
+.consoleError{
+	white-space: pre;
+	line-height: 16px;
+    unicode-bidi: embed;
+    font-family: monospace;
+    color: red;
+    }
+#script_text{
+    min-width: 99%; 
+    min-height: 370px; 
+    background-color: white;
+}
+#div-run-widets{
+    margin-top: 2px;
+}
+.form-buttons-wrapper{
+    margin-top: 4px;
+    margin-left: 4px;
+}
+#runner_label{
+    float: left;
+    height: 18px;
+    vertical-align: middle;
+    text-shadow: 1px 1px #959595;
+    margin-left: 2px;
+    margin-top: 4px;
+}
+#runner_status{
+    float: left;
+    text-align: center;
+    text-shadow: 1px 1px #606060;
+    color: white;
+    height: 18px;
+    width: 30%;
+    margin-left: 2px;
+    margin-top: 4px;
+    vertical-align: middle;
+    }
+.button_script{
+    float: right;
+    margin-top: 0;
+    margin-right: 8px;
+/*    margin-top: 2px;*/
+    min-width: 20%;
+    }
+#secondaryFull{
+	height:50px;
+	background-color:#CFB59F;
+	border-top:#FFFFFF 2px solid;
+	margin:0;
+	padding:0;
+	}
+#file_area{
+    overflow: auto;
+    display:block;
+    clear: both;
+/*	border: 1px solid #963;*/
+}
+#footer{
+	height:30px;
+	background:#BEB8B2;
+/*	border-top:#FFFFFF 2px solid;*/
+    text-shadow: 1px 1px #959595;
+	margin:0;
+	padding:6px 10px 2px 10px;
+    vertical-align: middle;
+	}
+.div-embedded-plot{
+    height: 33%;
+    border: #BEB8B2 1px solid;
+}
+#plot2, #plot3{
+/*    margin: 1%;*/
+    margin-top: 1px;
+}
+.image_plot{
+	width: 100%;
+	height: 100%;
+}
+.div_file_name{
+    float: left;
+}
+.div_run_image{
+    float: right;
+    width: 32px;
+    height: 18px;
+}
+#div_user_header{
+    float: right;
+	padding:5px;
+}
+#div_user_header a{
+    color: white;
+    text-shadow: 1px 1px #A59595;
+    text-decoration: none;
+}
+#div_user_header a:hover{
+    color: #207cca;
+    text-decoration: underline;
+}
+#titleString{
+    float: left;
+	padding:5px;
+}
+#file_area{
+    height: 436px;
+}
+#div_download_button {
+    padding-top: 4px;
+    margin: 4px;
+    width: 100%;
+    text-align: center;
+}
