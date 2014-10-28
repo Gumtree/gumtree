@@ -60,8 +60,8 @@ public class JythonRunner {
 
 	private static final String INIT_SCRIPT = "/pyscripts/__init__.py";
 	
-	private final static int IMAGE_WIDTH = 480;
-	private final static int IMAGE_HEIGHT = 240;
+	private final static int IMAGE_WIDTH = 640;
+	private final static int IMAGE_HEIGHT = 320;
 
 
 	public JythonRunner() {

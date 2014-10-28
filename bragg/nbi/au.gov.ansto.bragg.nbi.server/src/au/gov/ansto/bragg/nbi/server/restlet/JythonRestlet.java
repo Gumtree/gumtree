@@ -38,8 +38,8 @@ public class JythonRestlet extends Restlet implements IDisposable {
 	private final static String QUERY_FILE_NAME = "name";
 	private final static String QUERY_FILE_FOLDER = "folder";
 	private final static String SCRIPT_START_FLAG = "Content-Type:";
-	private final static int IMAGE_WIDTH = 480;
-	private final static int IMAGE_HEIGHT = 240;
+	private final static int IMAGE_WIDTH = 640;
+	private final static int IMAGE_HEIGHT = 320;
 	
 	private static ChartImage plot1Cache;
 	private static ChartImage plot2Cache;

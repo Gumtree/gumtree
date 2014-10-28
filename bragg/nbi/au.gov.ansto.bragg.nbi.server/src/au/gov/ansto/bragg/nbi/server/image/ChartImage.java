@@ -27,8 +27,8 @@ import org.jfree.ui.RectangleEdge;
  */
 public class ChartImage {
 
-	private final static int DEFAULT_WIDTH = 640;
-	private final static int DEFAULT_HEIGHT = 320;
+	private final static int DEFAULT_WIDTH = 960;
+	private final static int DEFAULT_HEIGHT = 480;
 	private JFreeChart chart;
 	private int width;
 	private int height;
