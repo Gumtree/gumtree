@@ -37,6 +37,7 @@ public class JythonUIHandler {
 	private static final String __INIT__SCRIPT = "/pyscripts/__init__.py";
 	private static final String PRE_RUN_SCRIPT = "/pyscripts/pre_run.py";
 	private static final String POST_RUN_SCRIPT	= "/pyscripts/post_run.py";
+	private static final int RUNNER_TIMEOUT = 5000;
 
 	private int scriptRegisterID;
 	private ScriptModel scriptModel;
@@ -201,6 +202,16 @@ public class JythonUIHandler {
 	}
 
 	public String getScriptGUIHtml(final String script) {
+		int time = 0;
+		int timeToWait = 200;
+		while(isRunnerBusy() && time < RUNNER_TIMEOUT) {
+			try {
+				Thread.sleep(timeToWait);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			time += timeToWait;
+		}
 		if (isRunnerBusy()){
 			return "<div class=\"div_error_message\">Failed to load script UI. Jython engine is busy.</div>";
 		}

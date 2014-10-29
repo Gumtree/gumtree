@@ -375,6 +375,7 @@ function getScriptList(){
             var defScript = data['default'];
             if (defScript) {
                 loadScript(defScript);
+                $("#script_select").val(defScript);
             }
         }
     })
