@@ -32,6 +32,7 @@ public class JythonUIHandler {
 	public static final String GUMTREE_SCRIPTING_LIST_PROPERTY = "gumtree.scripting.menuitems";
 	public static final String GUMTREE_SCRIPTING_INIT_PROPERTY = "gumtree.scripting.initscript";
 	public static final String GUMTREE_SCRIPTING_SCRIPTPATH_PROPERTY = "gumtree.analysis.scriptPath";
+	public static final String PROP_ANALYSIS_DEFAULTSCRIPT = "gumtree.analysis.defaultScript";
 	public static final String WORKSPACE_FOLDER_PATH = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
 	private static final String __INIT__SCRIPT = "/pyscripts/__init__.py";
 	private static final String PRE_RUN_SCRIPT = "/pyscripts/pre_run.py";
@@ -488,4 +489,13 @@ public class JythonUIHandler {
 		}
 		return "";
 	}
+	
+	public String getDefaultScript() {
+		String script = System.getProperty(PROP_ANALYSIS_DEFAULTSCRIPT);
+		if (script != null && script.trim().length() > 0) {
+			return script;
+		}
+		return null;
+	}
+
 }

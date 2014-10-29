@@ -232,8 +232,27 @@ function sendJython(cmd){
 
 function selectScript(){
     var name = $("#script_select").val();
-    if (name) {
-        var getUrl = jythonUrl + "?type=SCRIPT&name=" + name;
+//    if (name) {
+//        var getUrl = jythonUrl + "?type=SCRIPT&name=" + name;
+//        $.get(getUrl, function(data, status) {
+//            if (status == "success") {
+//                $("#jython_file").val("");
+//                $("#script_text").val(data);
+//                createGui();
+//            }
+//        })
+//        .fail(function(e) {
+//                alert( "error loading the script");
+//        });
+//    } else {
+//        $("#script_text").val("");
+//    }
+    loadScript(name);
+}
+
+function loadScript(script) {
+    if (script) {
+        var getUrl = jythonUrl + "?type=SCRIPT&name=" + script;
         $.get(getUrl, function(data, status) {
             if (status == "success") {
                 $("#jython_file").val("");
@@ -345,7 +364,7 @@ function getScriptList(){
     var getUrl = jythonUrl + "?type=LISTSCRIPTS";
     $.get(getUrl, function(data, status) {
         if (status == "success") {
-            var files = data.split(";");
+            var files = data['scripts'].split(";");
             $.each(files, function(idx, file) {
                 if (file){
                     var o = new Option(file, file);
@@ -353,6 +372,10 @@ function getScriptList(){
                     $("#script_select").append(o);
                 }
             });
+            var defScript = data['default'];
+            if (defScript) {
+                loadScript(defScript);
+            }
         }
     })
     .fail(function(e) {
@@ -632,10 +655,10 @@ jQuery(document).ready(function(){
     $("#tab1").click();
     window.location = $('#tab1').attr('href');
     
-    getScriptList();
     getFileList();
     
     getUserInfo();
     
+    getScriptList();
 });
 

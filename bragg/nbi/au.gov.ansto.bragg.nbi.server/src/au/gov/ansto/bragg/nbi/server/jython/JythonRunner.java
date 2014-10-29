@@ -333,6 +333,10 @@ public class JythonRunner {
 		return dataHandler.getAllDataHtml();
 	}
 	
+	public String getDefaultScript(){
+		return uiHandler.getDefaultScript();
+	}
+	
 	public JythonDataHandler getDataHandler(){
 		return dataHandler;
 	}

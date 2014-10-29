@@ -246,7 +246,17 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
 			response.setEntity(representation);
 			break;
 		case LISTSCRIPTS:
-			response.setEntity(runner.getUIHandler().getAvailableScripts(), MediaType.TEXT_PLAIN);
+			jsonObject = new JSONObject();
+			try {
+				jsonObject.put("scripts", runner.getUIHandler().getAvailableScripts());
+				String initScript = runner.getDefaultScript();
+				if (initScript != null) {
+					jsonObject.put("default", initScript);
+				}
+			} catch (JSONException e1) {
+				e1.printStackTrace();
+			}			
+			response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
 			break;
 		case SCRIPT:
 			String nameString = queryForm.getValues(QUERY_FILE_NAME);
