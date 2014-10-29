@@ -1022,6 +1022,9 @@ public class AcquisitionTask extends AbstractExperimentTask {
 								table.setModel(tableModel);
 								tableModelMap.put(acquisition, tableModel);
 							}
+							parent.pack();
+							parent.getParent().layout(true, true);
+							parent.getParent().redraw();
 						}
 					});
 				}				
