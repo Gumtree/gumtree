@@ -34,6 +34,7 @@ public class JythonUIHandler {
 	public static final String GUMTREE_SCRIPTING_SCRIPTPATH_PROPERTY = "gumtree.analysis.scriptPath";
 	public static final String PROP_ANALYSIS_DEFAULTSCRIPT = "gumtree.analysis.defaultScript";
 	public static final String WORKSPACE_FOLDER_PATH = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+	public static final String NAME_SCRIPT_LASTRUN = "gumtree.analysis.lastScript"; 
 	private static final String __INIT__SCRIPT = "/pyscripts/__init__.py";
 	private static final String PRE_RUN_SCRIPT = "/pyscripts/pre_run.py";
 	private static final String POST_RUN_SCRIPT	= "/pyscripts/post_run.py";
@@ -493,6 +494,16 @@ public class JythonUIHandler {
 		return "";
 	}
 
+	public boolean isScriptAvailable(String name) {
+		String folderString = System.getProperty(GUMTREE_SCRIPTING_SCRIPTPATH_PROPERTY);
+		if (folderString != null && folderString.trim().length() > 0){
+			String path = folderString + "/" + name;
+			File file = new File(path);
+			return file.exists();
+		}
+		return false;
+	}
+	
 	public String getScriptPath(){
 		String folderString = System.getProperty(GUMTREE_SCRIPTING_SCRIPTPATH_PROPERTY);
 		if (folderString != null && folderString.trim().length() > 0){

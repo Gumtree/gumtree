@@ -93,13 +93,13 @@ public class JythonModelRegister {
 		}
 	}
 	
-	public void setPreference(String name, String value){
+	public static void setPreference(String name, String value){
 		IEclipsePreferences preferences = InstanceScope.INSTANCE
 				  .getNode(Activator.PLUGIN_ID);
 		preferences.put(name, value);
 	}
 
-	public void savePreferenceStore(){
+	public static void savePreferenceStore(){
 		IEclipsePreferences preferences = InstanceScope.INSTANCE
 				  .getNode(Activator.PLUGIN_ID);
 		try {
@@ -110,7 +110,7 @@ public class JythonModelRegister {
 		}
 	}
 	
-	public String getPreference(String name) {
+	public static String getPreference(String name) {
 		IEclipsePreferences preferences = InstanceScope.INSTANCE
 				  .getNode(Activator.PLUGIN_ID);
 		return preferences.get(name, "");

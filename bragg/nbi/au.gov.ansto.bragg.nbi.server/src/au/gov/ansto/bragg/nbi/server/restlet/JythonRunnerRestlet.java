@@ -85,10 +85,10 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
 		    }			
 		} catch (Exception e) {
 		}
-	    
+    	UUID uuid = null;
 	    JythonRunner runner = null;
 	    if (uuidString != null) {
-	    	UUID uuid = UUID.fromString(uuidString);
+	    	uuid = UUID.fromString(uuidString);
 	    	runner = runnerManager.getJythonRunner(uuid);
 	    } 
 	    if (runner == null) {
@@ -251,7 +251,20 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
 				jsonObject.put("scripts", runner.getUIHandler().getAvailableScripts());
 				String initScript = runner.getDefaultScript();
 				if (initScript != null) {
-					jsonObject.put("default", initScript);
+					if (runner.getUIHandler().isScriptAvailable(initScript)) {
+						jsonObject.put("default", initScript);
+					}
+				} else {
+					String propName = "";
+					if (uuid != null) {
+						propName = uuid.toString() + "_";
+					}
+					String lastScriptName = JythonModelRegister.getPreference(propName + JythonUIHandler.NAME_SCRIPT_LASTRUN);
+					if (lastScriptName != null && lastScriptName.trim().length() > 0) {
+						if (runner.getUIHandler().isScriptAvailable(lastScriptName)) {
+							jsonObject.put("default", lastScriptName);
+						}
+					}
 				}
 			} catch (JSONException e1) {
 				e1.printStackTrace();
@@ -266,6 +279,15 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
 			} catch (Exception e) {
 				e.printStackTrace();
 	    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+			}
+			try {
+				String propName = "";
+				if (uuid != null) {
+					propName = uuid.toString() + "_";
+				}
+				JythonModelRegister.setPreference(propName + JythonUIHandler.NAME_SCRIPT_LASTRUN, nameString);
+				JythonModelRegister.savePreferenceStore();
+			} catch (Exception e) {
 			}
 			break;
 		default:
