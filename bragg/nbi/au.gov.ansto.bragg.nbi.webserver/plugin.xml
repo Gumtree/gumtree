@@ -60,6 +60,10 @@
             base-name="/WebContent/login.html">
       </resource>
       <resource
+            alias="/admin.html"
+            base-name="/WebContent/admin.html">
+      </resource>
+      <resource
             alias="/register.html"
             base-name="/WebContent/register.html">
       </resource>

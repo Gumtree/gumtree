@@ -13,6 +13,8 @@ package au.gov.ansto.bragg.nbi.server.db;
 
 import org.gumtree.core.service.IService;
 
+import com.db4o.ObjectSet;
+
 public interface INbiPersistenceManager extends IService {
 	
 	public <T> void persist(String dbID, String key, T data);
@@ -23,4 +25,5 @@ public interface INbiPersistenceManager extends IService {
 	
 	public boolean contains(String dbID, String key);
 
+	public <T> ObjectSet<T> list(String dbID, Class<T> type);
 }

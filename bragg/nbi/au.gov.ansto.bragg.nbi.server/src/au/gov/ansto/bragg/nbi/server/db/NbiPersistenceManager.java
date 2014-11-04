@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.db4o.ObjectContainer;
 import com.db4o.ObjectSet;
+import com.db4o.query.Predicate;
 import com.db4o.query.Query;
 
 public class NbiPersistenceManager implements INbiPersistenceManager {
@@ -27,6 +28,7 @@ public class NbiPersistenceManager implements INbiPersistenceManager {
 
 	public static final String ID_USER_DATABASE = "user";
 	public static final String ID_RESET_DATABASE = "reset";
+	public static final String ID_ADMIN_DATABASE = "admin";
 	public static final String ID_SESSION_EMAIL_DATABASE = "session";
 	public static final String ID_EMAIL_SESSION_DATABASE = "esession";
 	
@@ -65,6 +67,15 @@ public class NbiPersistenceManager implements INbiPersistenceManager {
 			return (T) entry.getData();
 		}
 		return null;
+	}
+	
+	public <T> ObjectSet<T> list(String dbID,Class<T> type) {
+		return getObjectContainer(dbID).query(new Predicate<T>() {
+			@Override
+			public boolean match(T arg0) {
+				return true;
+			}
+		});
 	}
 	
 	public void remove(String dbID, String key) {

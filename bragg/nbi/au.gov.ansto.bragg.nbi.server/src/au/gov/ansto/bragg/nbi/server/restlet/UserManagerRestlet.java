@@ -1,5 +1,6 @@
 package au.gov.ansto.bragg.nbi.server.restlet;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Properties;
 import java.util.UUID;
@@ -13,6 +14,8 @@ import javax.mail.internet.MimeMessage;
 
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.security.EncryptionUtils;
+import org.gumtree.service.persistence.PersistentEntry;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.Context;
@@ -31,6 +34,8 @@ import au.gov.ansto.bragg.nbi.server.db.NbiPersistenceManager;
 import au.gov.ansto.bragg.nbi.server.jython.JythonRunner;
 import au.gov.ansto.bragg.nbi.server.jython.JythonRunnerManager;
 
+import com.db4o.ObjectSet;
+
 public class UserManagerRestlet extends Restlet implements IDisposable {
 
 	public UserManagerRestlet() {
@@ -42,6 +47,7 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 	private final static String QUERY_EMAIL = "login_email";
 	private final static String QUERY_PASSWORD = "login_password";
 	private final static String QUERY_CODE = "code";
+	private final static String QUERY_REGISTER_CODE = "register_code";
 	private final static String QUERY_UUID = "uuid";
 	private final static String RESPOND_RESULT = "result";
 	private final static String COOKIE_PATH_UUID = "/jython";
@@ -81,7 +87,9 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 		RESET,
 		PASSWORD,
 		CHANGEPASSWORD,
-		LOGOUT
+		LOGOUT,
+		LISTACCOUNTS,
+		ADDACCOUNT
 	}
 
 	/**
@@ -191,47 +199,23 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 	    	form = new Form(entity);
 	    	email = form.getValues(QUERY_EMAIL);
 	    	password = form.getValues(QUERY_PASSWORD);
-	    	if (!email.contains("@") || !email.contains(".")){
-    			try {
-					result.put("result", "Email address is not valid.");
-				} catch (JSONException e) {
+	    	String regCode = form.getValues(QUERY_REGISTER_CODE);
+	    	
+	    	try {
+				if (checkRegisterInputs(email, password, regCode, result)){
+					register(email, password);
+//    				UUID uuid = createJythonRunner();
+//    				CookieSetting cS = new CookieSetting(0, COOKIE_NAME_UUID, uuid.toString(), 
+//    						COOKIE_PATH_UUID, null, COOKIE_COMMENT_UUID, 1800, false);
+    				CookieSetting cookie = createUUIDCookie(email, null);
+    				response.getCookieSettings().add(cookie);
+    				result.put("result", "OK");
 				}
-    			response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
-	    	} else if (password.length() < 6 || password.length() > 12){
-    			try {
-					result.put("result", "Password length should be between 6 and 12.");
-				} catch (JSONException e) {
-				}
-    			response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
-	    	} else {
-	    		String passString = null;
-	    		try {
-	    			passString = persistence.retrieve(NbiPersistenceManager.ID_USER_DATABASE, email, String.class);
-	    		} catch (Exception e) {
-	    			e.printStackTrace();
-	    		}
-	    		if (passString != null) {
-	    			try {
-						result.put("result", "Email address already exists in our system. Please try login instead.");
-					} catch (JSONException e) {
-					}
-	    			response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
-	    		} else {
-	    			try {
-	    				register(email, password);
-//	    				UUID uuid = createJythonRunner();
-//	    				CookieSetting cS = new CookieSetting(0, COOKIE_NAME_UUID, uuid.toString(), 
-//	    						COOKIE_PATH_UUID, null, COOKIE_COMMENT_UUID, 1800, false);
-	    				CookieSetting cookie = createUUIDCookie(email, null);
-	    				response.getCookieSettings().add(cookie);
-	    				result.put("result", "OK");
-	    				response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
-	    				response.setStatus(Status.SUCCESS_OK);
-	    			} catch (Exception e) {
-	    				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
-	    			}						
-	    		}
-	    	}
+				response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
+				response.setStatus(Status.SUCCESS_OK);
+			} catch (JSONException e) {
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+			}
 			break;
 		case PASSWORD:
 			email = queryForm.getValues(QUERY_EMAIL);
@@ -419,11 +403,136 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 		    	}
 		    }
 			break;
+		case ADDACCOUNT:
+		    entity = request.getEntity();
+	    	form = new Form(entity);
+	    	email = form.getValues(QUERY_EMAIL);
+	    	if (!email.contains("@") || !email.contains(".")){
+    			try {
+					result.put("result", "Email address is not valid.");
+				} catch (JSONException e) {
+				}
+    			response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
+	    	} else {
+	    		regCode = null;
+	    		try {
+	    			regCode = persistence.retrieve(NbiPersistenceManager.ID_ADMIN_DATABASE, email, String.class);
+	    		} catch (Exception e) {
+	    			e.printStackTrace();
+	    		}
+	    		if (regCode != null) {
+	    			try {
+						result.put("result", "Email address already exists.");
+					} catch (JSONException e) {
+					}
+	    			response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
+	    		} else {
+	    			try {
+	    				regCode = createCode(email);
+	    				result.put("result", "OK");
+	    				result.put("code", regCode);
+	    				String registerLink = getAccountLink(email, regCode);
+	    				result.put("link", registerLink);
+	    				response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
+	    				response.setStatus(Status.SUCCESS_OK);
+	    			} catch (Exception e) {
+	    				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+	    			}						
+	    		}
+	    	}
+			break;
+		case LISTACCOUNTS:
+			ObjectSet<String> accountList = persistence.list(NbiPersistenceManager.ID_ADMIN_DATABASE, String.class);
+			JSONArray array = new JSONArray();
+			for (Object res : accountList) {
+				try {
+					String key = ((PersistentEntry) res).getKey();
+					String passString = null;
+					try {
+						passString = persistence.retrieve(NbiPersistenceManager.ID_USER_DATABASE, key, String.class);
+					} catch (Exception e) {
+					}
+					JSONObject json = makeJsonResult(key, ((PersistentEntry) res).getData().toString(), passString != null);
+					array.put(json);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			try {
+				result.put("result", "OK");
+				result.put("list", array);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
+			response.setStatus(Status.SUCCESS_OK);
+			break;
 		default:
 			break;
 		}
 	}
 	
+	private boolean checkRegisterInputs(String email, String password,
+			String regCode, JSONObject result) throws JSONException {
+		if (!email.contains("@") || !email.contains(".")){
+			result.put("result", "Email address is not valid.");
+			return false;
+		}
+		if (password.length() < 6 || password.length() > 12){
+			result.put("result", "Password length should be between 6 and 12.");
+			return false;
+		} 
+		String passString = null;
+		try {
+			passString = persistence.retrieve(NbiPersistenceManager.ID_USER_DATABASE, email, String.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (passString != null) {
+			result.put("result", "Email address already exists in our system. Please try login instead.");
+			return false;
+		} 
+		String existingCode = null;
+		try {
+			existingCode = persistence.retrieve(NbiPersistenceManager.ID_ADMIN_DATABASE, email, String.class);						
+		} catch (Exception e) {
+		}
+		if (existingCode == null) {
+			result.put("result", "The email has not been issued an invitation code.");
+			return false;
+		}
+		if (!existingCode.equals(regCode)) {
+			result.put("result", "The invitation code is not valid. Please contact IT administrator of the Bragg Institute.");
+			return false;
+		}
+		return true;
+	}
+
+	private String getAccountLink(String email, String code) throws UnsupportedEncodingException {
+		String instrument = System.getProperty(PROPERTY_INSTRUMENT_ID);
+		return "http://www.nbi.ansto.gov.au/" + instrument + "/status/register.html?" + QUERY_EMAIL + "=" 
+				+ URLEncoder.encode(email, "UTF-8") + "&" + QUERY_CODE + "=" + URLEncoder.encode(code, "UTF-8");
+	}
+	
+	private JSONObject makeJsonResult(String key, String data, boolean isRegistered) throws JSONException, UnsupportedEncodingException {
+		JSONObject obj = new JSONObject();
+		obj.put("email", key);
+		obj.put("code", data);
+		obj.put("status", isRegistered);
+		obj.put("link", getAccountLink(key, data));
+		return obj;
+	}
+
+	private String createCode(String email) {
+		String uuid = null;
+		try {
+			uuid = UUID.randomUUID().toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		persistence.persist(NbiPersistenceManager.ID_ADMIN_DATABASE, email, uuid);
+		return uuid;
+	}
 
 	private void clearSession(String email, String uuidString) {
 		if (uuidString != null) {
