@@ -1,0 +1,16 @@
+.table_header{
+    height: 24px;
+    font-size: 16px;
+    color: #555;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.div_info_alert{
+    padding: 4px;
+    color: red;
+}
+
+#admin_form{
+    width: 100%;
+}
