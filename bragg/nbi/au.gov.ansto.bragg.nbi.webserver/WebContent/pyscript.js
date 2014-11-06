@@ -3,6 +3,13 @@ var commandHistory = [];
 var selectedFiles = [];
 var isGuiView = false;
 
+//var userUrl = "jython/user?type=INFO";
+//$.get(userUrl,function(data,status){
+//    if (status != "success") {
+//        window.location = "login.html";
+//    }
+//});
+
 function setUpdateInterval(){
     var interval_id = setInterval(function(){
             updateStatus(interval_id);
@@ -360,9 +367,21 @@ function getFileList(){
     });
 }
 
+function getUserFiles(){
+    var getUrl = jythonUrl + "?type=USERFILES";
+    $.get(getUrl, function(data, status) {
+        if (status == "success") {
+            $("#table_uploaded_datafiles > tbody").html(data);
+        }
+    })
+    .fail(function(e) {
+            alert( "error loading data files");
+    });
+}
+
 function getScriptList(){
     var getUrl = jythonUrl + "?type=LISTSCRIPTS";
-    $.get(getUrl, function(data, status) {
+    setTimeout($.get(getUrl, function(data, status) {
         if (status == "success") {
             var files = data['scripts'].split(";");
             $.each(files, function(idx, file) {
@@ -381,7 +400,7 @@ function getScriptList(){
     })
     .fail(function(e) {
             alert( "error loading available scripts");
-    });
+    }), 2000);
 }
 
 $(window).on('hashchange',function(){ 
@@ -517,6 +536,90 @@ jQuery(document).ready(function(){
         updateRunScriptText();
     });
 
+    $("#tab_file_area").click(function(){
+        $("#tab_file_area").removeClass("tabUnselected");
+        $("#tab_file_area").addClass("tabSelected");
+        $("#tab_uploaded_area").removeClass("tabSelected");
+        $("#tab_uploaded_area").addClass("tabUnselected");
+    });
+
+    $("#tab_uploaded_area").click(function(){
+        $("#tab_file_area").removeClass("tabSelected");
+        $("#tab_file_area").addClass("tabUnselected");
+        $("#tab_uploaded_area").removeClass("tabUnselected");
+        $("#tab_uploaded_area").addClass("tabSelected");
+    });
+    
+    $("#button_upload_own").click(function(){
+        $('#input_upload_file').trigger('click'); 
+    });
+    
+    if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0) {
+        $("#input_upload_file").change(function() {
+            if ($("#input_upload_file").val()) {
+                var postUrl = jythonUrl + "?type=UPLOADFILES";
+                var formData = new FormData($('form#upload_form')[0]);
+                $.ajax({
+                    url: postUrl,  //Server script to process data
+                    type: 'POST',
+                    //Ajax events
+        //            xhr: function() {  // Custom XMLHttpRequest
+        //                var myXhr = $.ajaxSettings.xhr();
+        //                if(myXhr.upload){ // Check if upload property exists
+        //                    myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // For handling the progress of the upload
+        //                }
+        //                return myXhr;
+        //            },
+        //            beforeSend: beforeSendHandler,
+                    success: function(data){
+                                alert(data['result']);
+                            },
+                    error:  function(e) {
+                                alert( "error uploading script");
+                            },
+                    // Form data
+                    data: formData,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }
+        });
+    } else {
+        $("#input_upload_file").on("change", function(event) {
+            if ($("#input_upload_file").val()) {
+                var postUrl = jythonUrl + "?type=UPLOADFILES";
+                var formData = new FormData($('form#upload_form')[0]);
+                $.ajax({
+                    url: postUrl,  //Server script to process data
+                    type: 'POST',
+                    //Ajax events
+        //            xhr: function() {  // Custom XMLHttpRequest
+        //                var myXhr = $.ajaxSettings.xhr();
+        //                if(myXhr.upload){ // Check if upload property exists
+        //                    myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // For handling the progress of the upload
+        //                }
+        //                return myXhr;
+        //            },
+        //            beforeSend: beforeSendHandler,
+                    success: function(data){
+                                alert(data['result']);
+                            },
+                    error:  function(e) {
+                                alert( "error uploading script");
+                            },
+                    // Form data
+                    data: formData,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }
+        });
+    }
+    
     if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0) {
         $("#jython_file").change(function() {
             if ($("#jython_file").val()) {
@@ -535,7 +638,6 @@ jQuery(document).ready(function(){
         //            },
         //            beforeSend: beforeSendHandler,
                     success: function(data){
-                                alert("load");
                                 $("#script_select").val("");
                                 $('#script_text').val(data);
                             },
@@ -654,9 +756,11 @@ jQuery(document).ready(function(){
     
     initUpdateStatus();
     $("#tab1").click();
+    $("#tab_file_area").click();
     window.location = $('#tab1').attr('href');
     
     getFileList();
+    getUserFiles()
     
     getUserInfo();
     

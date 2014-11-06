@@ -1,5 +1,6 @@
 package au.gov.ansto.bragg.nbi.server.restlet;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Properties;
@@ -606,6 +607,11 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 			}
 		} else {
 			runner = runnerManager.getNewRunner();
+		}
+		String userPath = runner.getUserPath();
+		File userFolder = new File(userPath);
+		if (!userFolder.exists()) {
+			userFolder.mkdirs();
 		}
 		return runner.getUuid();
 	}

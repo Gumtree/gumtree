@@ -333,6 +333,10 @@ public class JythonRunner {
 		return dataHandler.getAllDataHtml();
 	}
 	
+	public String getUserDataHtml(){
+		return dataHandler.getUserDataHtml(uuid.toString());
+	}
+	
 	public String getDefaultScript(){
 		return uiHandler.getDefaultScript();
 	}
@@ -366,4 +370,7 @@ public class JythonRunner {
 		return plot3Cache;
 	}
 
+	public String getUserPath(){
+		return dataHandler.getUserPath(uuid.toString());
+	}
 }

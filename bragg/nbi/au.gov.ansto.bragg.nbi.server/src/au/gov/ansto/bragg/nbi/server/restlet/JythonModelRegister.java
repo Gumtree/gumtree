@@ -3,6 +3,7 @@
  */
 package au.gov.ansto.bragg.nbi.server.restlet;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -176,5 +177,14 @@ public class JythonModelRegister {
 		} else {
 			return "";
 		}
+	}
+	
+	public String getUserPath() {
+		String path = getStorePath() + '/' + getUUID();
+		File folder = new File(path);
+		if (!folder.exists()) {
+			folder.mkdirs();
+		}
+		return path;
 	}
 }

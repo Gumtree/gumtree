@@ -16,21 +16,21 @@ p { margin: 0 0 10px 0; }
         #box-one:target, #box-two:target, #box-three:target { z-index: 1; }
 */
 
-#ie-test { 
+.div-ie-tab { 
     position: relative; width: 100%; 
     border: 1px solid #ccc; 
 }
-#boxLinks { 
+.ul_tabs { 
     list-style: none; 
     overflow: hidden; 
     padding: 0;
     margin: 0;
     color: #BBBBBB;
 }
-#boxLinks li {
+.ul_tabs li {
     display: inline; 
 }
-#boxLinks li a {
+.ul_tabs li a {
     padding: 4px 4px; 
     text-decoration: none; 
     border-right: 1px solid #ccc; 
@@ -43,7 +43,7 @@ p { margin: 0 0 10px 0; }
     left: 1px; 
     min-width: 100px;
 }
-#boxLinks li a:hover { 
+.ul_tabs li a:hover { 
     color: #fff; 
     background: #000; 
     border: none;
@@ -66,9 +66,25 @@ p { margin: 0 0 10px 0; }
     top: -1px; 
     background-color: #faf2eb;
 }
+#box2 { 
+    height: 444px; 
+    overflow: hidden; 
+    padding: 0px 2px 0px 2px; 
+    position: relative; 
+    top: -1px; 
+    background-color: #faf2eb;
+}
 .box { 
     display: none; 
     height: 412px; 
+    overflow: auto; 
+    display: block; 
+    position: relative; 
+    overflow-x: hidden; 
+}
+.box2 { 
+    display: none; 
+    height: 444px; 
     overflow: auto; 
     display: block; 
     position: relative; 

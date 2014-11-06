@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Restlet.Fileupload
+Bundle-SymbolicName: org.restlet.ext.fileupload
+Bundle-Version: 2.0.15
+Bundle-ClassPath: org.restlet.ext.fileupload.jar
+Export-Package: org.restlet.ext.fileupload;version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.apache.commons.fileupload,
+ org.restlet;bundle-version="2.0.11"

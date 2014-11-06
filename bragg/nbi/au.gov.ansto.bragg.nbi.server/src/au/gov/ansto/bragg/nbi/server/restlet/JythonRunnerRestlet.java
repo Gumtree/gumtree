@@ -1,8 +1,13 @@
 package au.gov.ansto.bragg.nbi.server.restlet;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.scripting.IScriptBlock;
 import org.gumtree.scripting.ScriptBlock;
@@ -18,6 +23,7 @@ import org.restlet.data.Disposition;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
+import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
@@ -53,7 +59,9 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
 		FILENAMES,
 		FILE,
 		LISTSCRIPTS,
-		SCRIPT
+		SCRIPT, 
+		USERFILES,
+		UPLOADFILES
 	}
 
 	/**
@@ -222,6 +230,9 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
 		case FILENAMES:
 			response.setEntity(runner.getAllDataHtml(), MediaType.TEXT_PLAIN);
 			break;
+		case USERFILES:
+			response.setEntity(runner.getUserDataHtml(), MediaType.TEXT_PLAIN);
+			break;
 		case FILE:
 			String folderString = queryForm.getValues(QUERY_FILE_FOLDER);
 			String filename = request.getResourceRef().getLastSegment();
@@ -288,6 +299,43 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
 				JythonModelRegister.setPreference(propName + JythonUIHandler.NAME_SCRIPT_LASTRUN, nameString);
 				JythonModelRegister.savePreferenceStore();
 			} catch (Exception e) {
+			}
+			break;
+		case UPLOADFILES:
+			try {
+
+				// 1/ Create a factory for disk-based file items
+		    	DiskFileItemFactory factory = new DiskFileItemFactory();
+                factory.setSizeThreshold(1000240);
+
+                // 2/ Create a new file upload handler based on the Restlet
+                // FileUpload extension that will parse Restlet requests and
+                // generates FileItems.
+                RestletFileUpload upload = new RestletFileUpload(factory);
+                List<FileItem> items;
+
+                // 3/ Request is parsed by the handler which generates a
+                // list of FileItems
+                items = upload.parseRequest(request);
+                
+                boolean found = false;
+                for (final Iterator<FileItem> it = items.iterator(); it
+                        .hasNext()
+                        && !found;) {
+                    FileItem fi = it.next();
+                    if (fi.getFieldName().equals("input_upload_file")) {
+                        found = true;
+                        File file = new File(runner.getUserPath() + "/" + fi.getName());
+                        fi.write(file);
+                    }
+                }
+                jsonObject = new JSONObject();
+                jsonObject.put("result", "OK");
+				response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+				response.setStatus(Status.SUCCESS_OK);
+			} catch (Exception e) {
+				e.printStackTrace();
+	    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 			}
 			break;
 		default:

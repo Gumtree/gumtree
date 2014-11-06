@@ -160,6 +160,14 @@ body{
     overflow: auto;
     display:block;
     clear: both;
+    height: 410px;
+/*	border: 1px solid #963;*/
+}
+#div_uploaded_files{
+    overflow: auto;
+    display:block;
+    clear: both;
+    height: 410px;
 /*	border: 1px solid #963;*/
 }
 #footer{
@@ -208,12 +216,12 @@ body{
     float: left;
 	padding:5px;
 }
-#file_area{
-    height: 436px;
-}
-#div_download_button {
+.div_below_datatable {
     padding-top: 4px;
     margin: 4px;
     width: 100%;
     text-align: center;
+}
+.div_hidden {
+    display: none;
 }

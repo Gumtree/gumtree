@@ -17,6 +17,7 @@ public class JythonDataHandler {
 	private String storePath;
 	private String calibrationPath;
 	private List<String> selectedFiles;
+	private List<String> selectedUserFiles;
 	private JythonRunner jythonRunner;
 	
 	public JythonDataHandler() {
@@ -108,8 +109,59 @@ public class JythonDataHandler {
 		selectedFiles = files;
 	}
 	
+	public void setSelectedUserFiles(final List<String> files){
+		selectedUserFiles = files;
+	}
+	
 	public String getCalibrationPath(){
 		return calibrationPath;
 	}
+
+	public String getUserPath(String uuid) {
+		return getStorePath() + "/" + uuid;
+	}
 	
+	public String getUserDataHtml(String uuid) {
+		String html = "";
+		int counter = 0;
+		String userPath = getUserPath(uuid);
+		if (userPath != null){
+			File folder = new File(userPath);
+			if (folder.exists()){
+				File[] files = folder.listFiles();
+				String fileListCommand = "__set_user_files__([";
+				String divClass;
+				for (File file : files) {
+					if (file.isDirectory()){
+						continue;
+					}
+					divClass = "";
+					if (selectedUserFiles != null){
+						for (String selectedFile : selectedUserFiles){
+							if (selectedFile.equals(file.getName())){
+								divClass = " class=\"ui-state-highlight-customised ui-selected\"";
+								break;
+							}
+						}
+					}
+					html += "<tr" + divClass + "><td><div class=\"div_file_name\">" + file.getName() + "</div><div class=\"div_run_image\" onmousedown=\"sendJython('__selected_user_files__=[\\\'" + file.getName() + "\\\'];__run_script__(__selected_user_files__)')\"><img class=\"class_run_image ui-corner-all \" src=\"images/go_button_grey.png\" onmouseover=\"run_image_hover(this);\" onmouseout=\"run_image_unhover(this);\"></div></td></tr>";
+//					html += "<tr" + divClass + "><td class=\"td_run_image\"><div class=\"div_file_name\">" + file.getName() + "</div><div class=\"div_run_image\"></div></td></tr>";
+					fileListCommand += "'" + file.getAbsolutePath() + "',";
+					counter ++;
+				}
+				fileListCommand += "])";
+				if (jythonRunner != null) {
+					jythonRunner.runScriptLine(fileListCommand);
+				} else {
+					JythonExecutor.runScriptLine(fileListCommand);
+				}
+			}
+		}
+		if (counter < NUMBER_OF_ROWS){
+			for (int i = 0; i < NUMBER_OF_ROWS - counter; i++) {
+				html += "<tr><td></td></tr>";
+			}
+		}
+		return html;
+	}
 }

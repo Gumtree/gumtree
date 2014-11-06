@@ -38,24 +38,57 @@
         <div class="yui-gb">
           <div class="yui-u first ui-corner-all ui-shadow">
             <div class="content">
-                <div class="tableContainer" id="file_area">
-                    <table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable" id="table_datafiles">
-                        <thead class="fixedHeader">
-                            <tr>
-                                <th><a href="#" id="button_reload_data_file">Data Files</a></th>
-                            </tr>
-                        </thead>
-                        <tbody class="scrollContent" id="fileTable">
-                        </tbody>
-                    </table>
+              <div id="ie-test1" class="div-ie-tab ui-corner-all ui-shadow">
+                <ul id="dataTabs" class="ul_tabs group">
+                    <li><a href="#div_file_area" id="tab_file_area">Raw Data</a></li>
+                    <li><a href="#div_uploaded_area" id="tab_uploaded_area">My Data</a></li>
+                </ul>
+                <div id="box2">
+                    <div id="div_file_area" class="box2">
+                        <div class="tableContainer" id="file_area">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable" id="table_datafiles">
+                                <thead class="fixedHeader">
+                                    <tr>
+                                        <th><a href="#" id="button_reload_data_file">Reload Data Files</a></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="scrollContent" id="fileTable">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="button_script div_below_datatable"><input type="button" class="buttonStyle" data-role="button" id="button_download" value="Download Selected Files"/></div>
+                        <!--[if IE]><b>.</b><![endif]-->
+                    </div>
+                    <div id="div_uploaded_area" class="box2">
+                        <div class="tableContainer" id="div_uploaded_files">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable" id="table_uploaded_datafiles">
+                                <thead class="fixedHeader">
+                                    <tr>
+                                        <th><a href="#" id="a_selected_files">My Data and Result</a></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="scrollContent" id="tbody_uploaded_files">
+                                    <tr><td>file1</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="button_script div_below_datatable" id="div_upload_button">
+                            <form action="jython/rest/res?type=UPLOADFILES" method="post" name="upload_form" id="upload_form" accept-charset="utf-8" enctype="multipart/form-data">
+                                <input type="button" class="buttonStyle" data-role="button" id="button_download_own" value="Download"/>
+                                <input type="button" class="buttonStyle" data-role="button" id="button_upload_own" value="Upload"/>
+                                <div class="div_hidden"><input type="file" id="input_upload_file" name="input_upload_file"/></div>
+                            </form>
+                        </div>
+                        <!--[if IE]><b>.</b><![endif]-->
+                    </div>
                 </div>
-                <div class="button_script" id="div_download_button"><input type="button" class="buttonStyle" data-role="button" id="button_download" value="Download Selected Files"/></div>
+              </div>
             </div>
           </div>
           <div class="yui-u second ui-corner-all ui-shadow">
           	<div class="content">
-              <div id="ie-test" class="ui-corner-all ui-shadow">
-                <ul id="boxLinks" class="group">
+              <div id="ie-test2" class="div-ie-tab ui-corner-all ui-shadow">
+                <ul id="boxLinks" class="ul_tabs group">
                     <li><a href="#div_script_text" id="tab1">Script Editor</a></li>
                     <li><a href="#div_script_gui" id="tab2">Auto GUI</a></li>
                 </ul>

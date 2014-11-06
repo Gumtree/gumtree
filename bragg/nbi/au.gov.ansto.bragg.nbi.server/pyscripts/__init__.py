@@ -24,6 +24,8 @@ __instrument_id__ = 'gumtree.instrument.id'
 
 __loaded_files__ = []
 __selected_files__ = []
+__user_files__ = []
+__selected_user_files__ = []
 
 Plot1 = WebPlot(__register__.getPlot1())
 Plot2 = WebPlot(__register__.getPlot2())
@@ -38,13 +40,22 @@ def __set_selected_files__(li):
     global __selected_files__
     __selected_files__ = li
     __register__.getDataHandler().setSelectedData(li)
+
+def __set_user_files__(li):
+    global __user_files__
+    __user_files__ = li
+
+def __set_selected_user_files__(li):
+    global __selected_user_files__
+    __selected_user_files__ = li
+    __register__.getDataHandler().setSelectedUserFiles(li)
     
 class ScriptingDatasetFactory(DatasetFactory):
     def __init__(self, path = None, prefix = None, factor = None):
         DatasetFactory.__init__(self, path, prefix, factor)
     
     def __getitem__(self, index):
-        global __register__, __selected_files__, __loaded_files__
+        global __register__, __selected_files__, __loaded_files__, __user_files__
         if type(index) is int:
             sname = '%(index)07d.nx.hdf' % {'index' : index}
             for key in self.datasets.keys() :
