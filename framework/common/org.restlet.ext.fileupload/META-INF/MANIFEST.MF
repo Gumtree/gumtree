@@ -1,10 +1,20 @@
 Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.8.0
+Created-By: 1.6.0_26-b03 (Sun Microsystems Inc.)
 Bundle-ManifestVersion: 2
-Bundle-Name: Restlet.Fileupload
+Bundle-Name: Restlet Extension - FileUpload
 Bundle-SymbolicName: org.restlet.ext.fileupload
-Bundle-Version: 2.0.15
-Bundle-ClassPath: org.restlet.ext.fileupload.jar
-Export-Package: org.restlet.ext.fileupload;version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: org.apache.commons.fileupload,
- org.restlet;bundle-version="2.0.11"
+Bundle-Version: 2.0.15.0
+Bundle-Vendor: Restlet S.A.S.
+Export-Package: org.restlet.ext.fileupload
+Import-Package: javax.servlet;resolution:=optional,javax.servlet.http;
+ resolution:=optional,org.apache.commons.fileupload,org.apache.commons
+ .fileupload.disk,org.restlet,org.restlet.data,org.restlet.representat
+ ion,org.restlet.resource,org.restlet.service,org.restlet.util
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+
+Name: org.restlet.ext.fileupload
+Implementation-Title: org.restlet.ext.fileupload
+Implementation-Version: 2.0.15 (build 0)
+Implementation-Vendor: Restlet S.A.S.
+
