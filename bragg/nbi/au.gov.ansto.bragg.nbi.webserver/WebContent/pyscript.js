@@ -191,7 +191,7 @@ function initUpdateStatus(){
 
 function runScript(){
     if (isGuiView) {
-        sendJython("__run_script__(__selected_files__)");
+        sendJython("__run_script__(__get_selected_files__())");
     } else {
         var postUrl = jythonUrl + "?type=START";
         $.post( postUrl, $("form#script_form").serialize(), function(data, status) {
@@ -467,7 +467,7 @@ $(function() {
     });
 
     $("#table_datafiles").dblclick(function(){
-        sendJython("__run_script__(__selected_files__)");
+        sendJython("__run_script__(__get_selected_files__())");
     });
 });
 
@@ -512,6 +512,10 @@ jQuery(document).ready(function(){
         sendJython('download_selected_files()');
     });
     
+    $("#button_download_own").click(function() {
+        sendJython('download_selected_files()');
+    });
+    
     $("#button_reload_data_file").click(function() {
         getFileList();
     });
@@ -541,6 +545,7 @@ jQuery(document).ready(function(){
         $("#tab_file_area").addClass("tabSelected");
         $("#tab_uploaded_area").removeClass("tabSelected");
         $("#tab_uploaded_area").addClass("tabUnselected");
+        sendJython('__is_user_file_domain__ = False');
     });
 
     $("#tab_uploaded_area").click(function(){
@@ -548,10 +553,23 @@ jQuery(document).ready(function(){
         $("#tab_file_area").addClass("tabUnselected");
         $("#tab_uploaded_area").removeClass("tabUnselected");
         $("#tab_uploaded_area").addClass("tabSelected");
+        sendJython('__is_user_file_domain__ = True');
     });
     
     $("#button_upload_own").click(function(){
         $('#input_upload_file').trigger('click'); 
+    });
+    
+    $('#button_remove_own').click(function(){
+        
+        if(confirm("Please confirm permanently remove these files.")) {
+        
+            var selected = $.makeArray( $("#table_uploaded_datafiles > tbody").find("tr").filter( ".ui-selected" ) );
+            sendJython('remove_selected_user_files()');
+            $.each(selected, function( index, value ) {
+                value.remove();
+            });
+        }
     });
     
     if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0) {
@@ -562,17 +580,10 @@ jQuery(document).ready(function(){
                 $.ajax({
                     url: postUrl,  //Server script to process data
                     type: 'POST',
-                    //Ajax events
-        //            xhr: function() {  // Custom XMLHttpRequest
-        //                var myXhr = $.ajaxSettings.xhr();
-        //                if(myXhr.upload){ // Check if upload property exists
-        //                    myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // For handling the progress of the upload
-        //                }
-        //                return myXhr;
-        //            },
-        //            beforeSend: beforeSendHandler,
                     success: function(data){
-                                alert(data['result']);
+                                if (data['result'] == "OK") {
+                                    $("#table_uploaded_datafiles > tbody:last").append(data['html']);
+                                }
                             },
                     error:  function(e) {
                                 alert( "error uploading script");
@@ -594,17 +605,10 @@ jQuery(document).ready(function(){
                 $.ajax({
                     url: postUrl,  //Server script to process data
                     type: 'POST',
-                    //Ajax events
-        //            xhr: function() {  // Custom XMLHttpRequest
-        //                var myXhr = $.ajaxSettings.xhr();
-        //                if(myXhr.upload){ // Check if upload property exists
-        //                    myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // For handling the progress of the upload
-        //                }
-        //                return myXhr;
-        //            },
-        //            beforeSend: beforeSendHandler,
                     success: function(data){
-                                alert(data['result']);
+                                if (data['result'] == "OK") {
+                                    $("#table_uploaded_datafiles > tbody:last").append(data['html']);
+                                }
                             },
                     error:  function(e) {
                                 alert( "error uploading script");
@@ -756,8 +760,9 @@ jQuery(document).ready(function(){
     
     initUpdateStatus();
     $("#tab1").click();
-    $("#tab_file_area").click();
     window.location = $('#tab1').attr('href');
+    $("#tab_file_area").click();
+    window.location = $('#tab_file_area').attr('href');
     
     getFileList();
     getUserFiles()

@@ -26,6 +26,7 @@ __loaded_files__ = []
 __selected_files__ = []
 __user_files__ = []
 __selected_user_files__ = []
+__is_user_file_domain__ = False
 
 Plot1 = WebPlot(__register__.getPlot1())
 Plot2 = WebPlot(__register__.getPlot2())
@@ -37,35 +38,57 @@ def __set_loaded_files__(li):
     __loaded_files__ = li
     
 def __set_selected_files__(li):
-    global __selected_files__
-    __selected_files__ = li
-    __register__.getDataHandler().setSelectedData(li)
+    global __selected_files__, __selected_user_files__, __is_user_file_domain__
+    if __is_user_file_domain__:
+        __selected_user_files__ = li
+        __register__.getDataHandler().setSelectedData(li)
+    else:
+        __selected_files__ = li
+        __register__.getDataHandler().setSelectedUserFiles(li)
 
 def __set_user_files__(li):
     global __user_files__
     __user_files__ = li
 
-def __set_selected_user_files__(li):
-    global __selected_user_files__
-    __selected_user_files__ = li
-    __register__.getDataHandler().setSelectedUserFiles(li)
+#def __set_selected_user_files__(li):
+#    global __selected_user_files__
+#    __selected_user_files__ = li
+#    __register__.getDataHandler().setSelectedUserFiles(li)
+#    
+def __append_user_files__(li):
+    global __user_files__
+    __user_files__ += li
+    
+def __get_selected_files__():
+    global __selected_files__, __selected_user_files__, __is_user_file_domain__
+    if __is_user_file_domain__:
+        return __selected_user_files__
+    else:
+        return __selected_files__
+    
+def __get_loaded_files__():
+    global __loaded_files__, __user_files__, __is_user_file_domain__
+    if __is_user_file_domain__:
+        return __user_files__
+    else:
+        return __loaded_files__
     
 class ScriptingDatasetFactory(DatasetFactory):
     def __init__(self, path = None, prefix = None, factor = None):
         DatasetFactory.__init__(self, path, prefix, factor)
     
     def __getitem__(self, index):
-        global __register__, __selected_files__, __loaded_files__, __user_files__
+        global __register__
         if type(index) is int:
             sname = '%(index)07d.nx.hdf' % {'index' : index}
             for key in self.datasets.keys() :
                 if key.__contains__(sname) :
                     return self.datasets[str(key)]
-            for loc in __loaded_files__ :
+            for loc in __get_loaded_files__() :
                 if loc.__contains__(sname) :
                     return self.__getitem__(str(loc))
         else :
-            for loc in __loaded_files__ :
+            for loc in __get_loaded_files__() :
                 if loc.__contains__(index) :
                     return DatasetFactory.__getitem__(self, str(loc))
             return DatasetFactory.__getitem__(self, index)
@@ -158,8 +181,15 @@ def get_script_path():
 def get_calibration_path():
     return __register__.getCalibrationPath()
 
+def get_user_data_path():
+    return __register__.getUserPath()
+    
 def get_data_path():
-    return __register__.getDataPath()
+    global __register__, __is_user_file_domain__
+    if __is_user_file_domain__:
+        return get_user_data_path()
+    else:
+        return __register__.getDataPath()
 
 def get_save_path():
     return __register__.getSavePath()
@@ -189,10 +219,10 @@ def snapshot(uuid, obj = None):
     outFile.close( )
     
 def download_selected_files():
-    if len(__selected_files__) == 0:
+    if len(__get_selected_files__()) == 0:
         return
     full_paths = []
-    for f in __selected_files__:
+    for f in __get_selected_files__():
         full_paths.append(get_data_path() + '/' + f)
     inst_id = System.getProperty(__instrument_id__)
     if inst_id is None :
@@ -201,3 +231,15 @@ def download_selected_files():
     zip_files(full_paths, z_name)
     print 'data files have been zipped in ' + z_name
     
+def remove_selected_user_files():
+    global __selected_user_files__, __user_files__
+    
+    if len(__selected_user_files__) == 0:
+        return
+    for f in __selected_user_files__:
+        for path in __user_files__:
+            if path.__contains__(f) :
+                __user_files__.remove(path)
+                os.remove(path)
+                break
+

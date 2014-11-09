@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="css/pyscript.css" />
 <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
 <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+<script src="js/jquery.confirm.min.js"></script>
 <script src="instrumentsetup.js"></script>
 <script src="pyscript.js"></script>
 <script src="js/popup.js"></script>
@@ -56,7 +57,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="button_script div_below_datatable"><input type="button" class="buttonStyle" data-role="button" id="button_download" value="Download Selected Files"/></div>
+                        <div class="button_script div_below_datatable"><input type="button" class="buttonStyle wideButton" data-role="button" id="button_download" value="Download Selected Files"/></div>
                         <!--[if IE]><b>.</b><![endif]-->
                     </div>
                     <div id="div_uploaded_area" class="box2">
@@ -73,10 +74,11 @@
                             </table>
                         </div>
                         <div class="button_script div_below_datatable" id="div_upload_button">
-                            <form action="jython/rest/res?type=UPLOADFILES" method="post" name="upload_form" id="upload_form" accept-charset="utf-8" enctype="multipart/form-data">
-                                <input type="button" class="buttonStyle" data-role="button" id="button_download_own" value="Download"/>
-                                <input type="button" class="buttonStyle" data-role="button" id="button_upload_own" value="Upload"/>
-                                <div class="div_hidden"><input type="file" id="input_upload_file" name="input_upload_file"/></div>
+                            <form action="jython/rest/res?type=UPLOADFILES" method="post" name="upload_form" id="upload_form" enctype="multipart/form-data">
+                                <input type="button" class="buttonStyle narrowButton" data-role="button" id="button_download_own" value="Download"/>
+                                <input type="button" class="buttonStyle narrowButton" data-role="button" id="button_upload_own" value="Upload"/>
+                                <input type="button" class="buttonStyle narrowButton" data-role="button" id="button_remove_own" value="Remove"/>
+                                <div class="div_hidden"><input type="file" multiple="multiple" accept=".hdf" file-maxsize="10240" file-limit="0" id="input_upload_file" name="input_upload_file"/></div>
                             </form>
                         </div>
                         <!--[if IE]><b>.</b><![endif]-->

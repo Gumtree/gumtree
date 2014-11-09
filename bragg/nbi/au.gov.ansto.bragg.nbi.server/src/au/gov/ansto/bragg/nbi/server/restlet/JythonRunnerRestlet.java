@@ -2,6 +2,7 @@ package au.gov.ansto.bragg.nbi.server.restlet;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -318,19 +319,20 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
                 // list of FileItems
                 items = upload.parseRequest(request);
                 
-                boolean found = false;
-                for (final Iterator<FileItem> it = items.iterator(); it
-                        .hasNext()
-                        && !found;) {
+                List<File> dataFiles = new ArrayList<File>();
+                for (final Iterator<FileItem> it = items.iterator(); it.hasNext();) {
                     FileItem fi = it.next();
                     if (fi.getFieldName().equals("input_upload_file")) {
-                        found = true;
                         File file = new File(runner.getUserPath() + "/" + fi.getName());
                         fi.write(file);
+                        dataFiles.add(file);
                     }
                 }
                 jsonObject = new JSONObject();
                 jsonObject.put("result", "OK");
+                if (dataFiles.size() > 0) {
+                	jsonObject.put("html", runner.getDataHandler().appendUserFiles(dataFiles));
+                }
 				response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
 				response.setStatus(Status.SUCCESS_OK);
 			} catch (Exception e) {
