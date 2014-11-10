@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Apache.Fileupload
 Bundle-SymbolicName: org.apache.commons.fileupload
-Bundle-Version: 1.10.0.qualifier
+Bundle-Version: 1.2.1.qualifier
 Bundle-ClassPath: org.apache.commons.fileupload.jar
 Export-Package: org.apache.commons.fileupload,
  org.apache.commons.fileupload.disk,

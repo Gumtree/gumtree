@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Apache Fileupload Gumtree
+Bundle-SymbolicName: org.apache.commons.fileupload.gumtree
+Bundle-Version: 1.2.2.qualifier
+Bundle-ClassPath: org.apache.commons.fileupload_1.2.2.v20111214-1400.jar
+Export-Package: org.apache.commons.fileupload,
+ org.apache.commons.fileupload.disk,
+ org.apache.commons.fileupload.portlet,
+ org.apache.commons.fileupload.servlet,
+ org.apache.commons.fileupload.util
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: javax.servlet,
+ javax.servlet.http,
+ org.apache.commons.io,
+ org.apache.commons.io.output
