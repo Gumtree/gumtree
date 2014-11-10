@@ -562,7 +562,7 @@ jQuery(document).ready(function(){
     
     $('#button_remove_own').click(function(){
         
-        if(confirm("Please confirm permanently remove these files.")) {
+        if(confirm("Do you want to permanently remove these files.")) {
         
             var selected = $.makeArray( $("#table_uploaded_datafiles > tbody").find("tr").filter( ".ui-selected" ) );
             sendJython('remove_selected_user_files()');

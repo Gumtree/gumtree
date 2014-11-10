@@ -4,7 +4,7 @@ Created-By: 1.6.0_26-b03 (Sun Microsystems Inc.)
 Bundle-ManifestVersion: 2
 Bundle-Name: Restlet Extension - FileUpload
 Bundle-SymbolicName: org.restlet.ext.fileupload
-Bundle-Version: 2.0.15.0
+Bundle-Version: 2.0.15.qualifier
 Bundle-Vendor: Restlet S.A.S.
 Export-Package: org.restlet.ext.fileupload
 Import-Package: javax.servlet;resolution:=optional,javax.servlet.http;
