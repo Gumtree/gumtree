@@ -12,5 +12,5 @@ Export-Package: org.apache.commons.fileupload,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: javax.servlet,
  javax.servlet.http,
- org.apache.commons.io,
- org.apache.commons.io.output
+ org.apache.commons.io;resolution:=optional,
+ org.apache.commons.io.output;resolution:=optional
