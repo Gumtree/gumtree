@@ -6,15 +6,20 @@ Bundle-Name: Restlet Extension - FileUpload
 Bundle-SymbolicName: org.restlet.ext.fileupload
 Bundle-Version: 2.0.15.qualifier
 Bundle-Vendor: Restlet S.A.S.
-Export-Package: org.restlet.ext.fileupload
-Import-Package: javax.servlet;resolution:=optional,javax.servlet.http;
- resolution:=optional,org.apache.commons.fileupload,org.apache.commons
- .fileupload.disk,org.restlet,org.restlet.data,org.restlet.representat
- ion,org.restlet.resource,org.restlet.service,org.restlet.util
+Export-Package: org.restlet.ext.fileupload;uses:="org.apache.commons.fileupload,org.restlet.representation,org.restlet"
+Import-Package: javax.servlet;resolution:=optional,
+ javax.servlet.http;resolution:=optional,
+ org.restlet,
+ org.restlet.data,
+ org.restlet.representation,
+ org.restlet.resource,
+ org.restlet.service,
+ org.restlet.util
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 
 Name: org.restlet.ext.fileupload
 Implementation-Title: org.restlet.ext.fileupload
 Implementation-Version: 2.0.15 (build 0)
 Implementation-Vendor: Restlet S.A.S.
+Bundle-ActivationPolicy: lazy
 

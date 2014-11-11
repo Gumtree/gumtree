@@ -7,8 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.scripting.IScriptBlock;
 import org.gumtree.scripting.ScriptBlock;
@@ -28,6 +26,8 @@ import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 
 import au.gov.ansto.bragg.nbi.server.jython.JythonRunner;
 import au.gov.ansto.bragg.nbi.server.jython.JythonRunnerManager;

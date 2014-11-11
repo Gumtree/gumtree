@@ -8,6 +8,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Bragg Institute
 Require-Bundle: org.json;bundle-version="1.0.0";visibility:=reexport,
+ org.restlet.ext.fileupload;bundle-version="2.0.15";visibility:=reexport,
  org.restlet;bundle-version="2.0.11";visibility:=reexport,
  com.github.wolfie.refresher;bundle-version="1.1.1";visibility:=reexport,
  com.vaadin.touchkit;bundle-version="2.1.0";visibility:=reexport,
@@ -17,9 +18,8 @@ Require-Bundle: org.json;bundle-version="1.0.0";visibility:=reexport,
  org.jfree.chart;bundle-version="1.0.13",
  org.eclipse.core.resources;bundle-version="3.8.1";resolution:=optional,
  com.db4o.java5;bundle-version="8.0.184",
- com.db4o.osgi;bundle-version="8.0.184",
- org.apache.commons.fileupload;bundle-version="1.2.0",
- org.restlet.ext.fileupload;bundle-version="2.0.15"
+ org.apache.commons.fileupload;bundle-version="1.2.1",
+ com.db4o.osgi;bundle-version="8.0.184"
 Export-Package: au.gov.ansto.bragg.nbi.server,
  au.gov.ansto.bragg.nbi.server.image,
  au.gov.ansto.bragg.nbi.server.internal,
