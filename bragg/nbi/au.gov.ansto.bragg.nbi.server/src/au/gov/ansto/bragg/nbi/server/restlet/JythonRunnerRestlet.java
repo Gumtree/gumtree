@@ -22,13 +22,13 @@ import org.restlet.data.Disposition;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
-import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 
+import au.gov.ansto.bragg.nbi.restlet.RestletFileUpload;
+import au.gov.ansto.bragg.nbi.restlet.fileupload.FileItem;
+import au.gov.ansto.bragg.nbi.restlet.fileupload.disk.DiskFileItemFactory;
 import au.gov.ansto.bragg.nbi.server.jython.JythonRunner;
 import au.gov.ansto.bragg.nbi.server.jython.JythonRunnerManager;
 import au.gov.ansto.bragg.nbi.server.restlet.JythonExecutor.ExecutorStatus;
