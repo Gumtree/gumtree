@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: NBI Restlet
+Bundle-SymbolicName: au.gov.ansto.bragg.nbi.restlet
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.nbi.restlet.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ org.restlet
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: javax.servlet,
+ javax.servlet.http,
+ org.apache.commons.io;resolution:=optional,
+ org.apache.commons.io.output;resolution:=optional
+Export-Package: au.gov.ansto.bragg.nbi.restlet,
+ au.gov.ansto.bragg.nbi.restlet.fileupload,
+ au.gov.ansto.bragg.nbi.restlet.fileupload.disk
