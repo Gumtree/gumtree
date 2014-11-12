@@ -8,7 +8,6 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Bragg Institute
 Require-Bundle: org.json;bundle-version="1.0.0";visibility:=reexport,
- org.restlet.ext.fileupload;bundle-version="2.0.15";visibility:=reexport,
  org.restlet;bundle-version="2.0.11";visibility:=reexport,
  com.github.wolfie.refresher;bundle-version="1.1.1";visibility:=reexport,
  com.vaadin.touchkit;bundle-version="2.1.0";visibility:=reexport,
@@ -24,11 +23,17 @@ Export-Package: au.gov.ansto.bragg.nbi.server,
  au.gov.ansto.bragg.nbi.server.internal,
  au.gov.ansto.bragg.nbi.server.jython,
  au.gov.ansto.bragg.nbi.server.restlet,
- au.gov.ansto.bragg.nbi.server.vaadin
-Import-Package: javax.mail;version="1.4.0",
- javax.mail.internet;version="1.4.0",
+ au.gov.ansto.bragg.nbi.server.vaadin,
  org.apache.commons.fileupload,
  org.apache.commons.fileupload.disk,
+ org.apache.commons.fileupload.portlet,
+ org.apache.commons.fileupload.servlet,
+ org.apache.commons.fileupload.util,
+ org.restlet.ext.fileupload
+Import-Package: javax.mail;version="1.4.0",
+ javax.mail.internet;version="1.4.0",
+ org.apache.commons.fileupload;resolution:=optional,
+ org.apache.commons.fileupload.disk;resolution:=optional,
  org.apache.commons.httpclient;version="3.1.0";resolution:=optional,
  org.apache.commons.httpclient.methods;version="3.1.0";resolution:=optional,
  org.gumtree.sics.io,
