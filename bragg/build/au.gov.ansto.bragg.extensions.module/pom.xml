@@ -35,6 +35,7 @@
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.doc.sics.tas</module>
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.core.feature</module>
 
+		<module>${nbi.path}/au.gov.ansto.bragg.nbi.restlet</module>
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.server</module>
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.vaadin</module>
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.webserver</module>
