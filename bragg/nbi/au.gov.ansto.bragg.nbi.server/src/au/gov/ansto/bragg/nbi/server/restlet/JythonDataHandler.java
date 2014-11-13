@@ -140,7 +140,7 @@ public class JythonDataHandler {
 					file.getName() + "\\\'];__run_script__(__selected_user_files__)')\">" + 
 					"<img class=\"class_run_image ui-corner-all \" src=\"images/go_button_grey.png\" " +
 					"onmouseover=\"run_image_hover(this);\" onmouseout=\"run_image_unhover(this);\"></div></td></tr>";
-			fileListCommand += "'" + file.getAbsolutePath() + "',";
+			fileListCommand += "r'" + file.getAbsolutePath() + "',";
 		}
 		fileListCommand += "])";
 		if (jythonRunner != null) {
