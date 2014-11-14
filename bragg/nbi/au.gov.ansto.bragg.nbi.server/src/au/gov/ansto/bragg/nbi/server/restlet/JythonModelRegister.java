@@ -4,7 +4,9 @@
 package au.gov.ansto.bragg.nbi.server.restlet;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -84,6 +86,19 @@ public class JythonModelRegister {
 		} else {
 			JythonExecutor.appendFilesForDownload(filename);
 		}
+	}
+	
+	public void reportAddingUserFiles(List<String> filenames) {
+		String fileListCommand = "__append_user_files__([";
+		String filenameString = "";
+		for (String filename : filenames) {
+			fileListCommand += "r'" + filename + "',";
+			File file = new File(filename);
+			filenameString += file.getName() + ",";
+		}
+		fileListCommand += "])";
+		jythonRunner.runScriptLine(fileListCommand);
+		jythonRunner.appendEventJs("appendUserFiles('" + filenameString + "');");
 	}
 	
 	public JythonDataHandler getDataHandler(){

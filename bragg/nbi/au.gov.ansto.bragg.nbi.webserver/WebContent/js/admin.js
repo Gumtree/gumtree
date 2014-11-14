@@ -7,7 +7,7 @@ function createCode(){
             var html = '<tr>';
             html += '<td>' + $("#login_email").val() + '</td>';
             html += '<td>' + data['code'] + '</td>';
-            html += '<td><a href=">' + data['link'] + '">Register</a></td>';
+            html += '<td><a href="' + data['link'] + '">Register</a></td>';
             html += '<td>No</td>';
             $('#table_admin_list > tbody:last').append(html);
         }

@@ -144,7 +144,6 @@ public class JythonDataHandler {
 		}
 		fileListCommand += "])";
 		if (jythonRunner != null) {
-			System.err.println(fileListCommand);
 			jythonRunner.runScriptLine(fileListCommand);
 		} else {
 			JythonExecutor.runScriptLine(fileListCommand);

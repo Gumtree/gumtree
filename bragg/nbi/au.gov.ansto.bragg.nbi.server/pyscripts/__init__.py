@@ -194,9 +194,13 @@ def get_data_path():
 def get_save_path():
     return __register__.getSavePath()
 
-def zip_files(files, zipname):
+def zip_files(files, zipname, in_user_area = True):
     print 'compressing result in ' + zipname
-    f_out = zipfile.ZipFile(selectSaveFolder() + '/' + zipname, mode='w')
+    if in_user_area:
+        zfile = get_user_data_path() + '/' + zipname
+    else :
+        zfile = selectSaveFolder() + '/' + zipname
+    f_out = zipfile.ZipFile(zfile, mode='w')
     for rfn in files:
         try:
             rfn = rfn.replace('\\', '/')
@@ -205,7 +209,12 @@ def zip_files(files, zipname):
             print 'failed to zip'
             f_out.close()
     f_out.close()
-    report_file(zipname)
+    __append_user_files__([zfile])
+    if in_user_area:
+        __register__.reportAddingUserFiles([zfile])
+        report_file(zipname, 'user')
+    else:
+        report_file(zipname, 'save')
     
 def snapshot(uuid, obj = None):
     spath = __register__.getStorePath() + '/' + str(uuid)
@@ -228,7 +237,7 @@ def download_selected_files():
     if inst_id is None :
         inst_id = 'DATA'
     z_name = inst_id.upper() + '_raw_' + str(int(time.time() * 1000))[2:] + '.zip'
-    zip_files(full_paths, z_name)
+    zip_files(full_paths, z_name, False)
     print 'data files have been zipped in ' + z_name
     
 def remove_selected_user_files():

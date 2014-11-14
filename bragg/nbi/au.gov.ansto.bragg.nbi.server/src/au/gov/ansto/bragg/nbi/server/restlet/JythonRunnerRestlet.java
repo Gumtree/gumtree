@@ -241,7 +241,9 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
 				folderString = runner.getDataHandler().getSavePath();
 			} else if ("data".equals(folderString)){
 				folderString = runner.getDataHandler().getDataPath();
-			}
+			} else if ("user".equals(folderString)){
+				folderString = runner.getUserPath();
+			} 
 //			Path path = Paths.get(folderString + "/" + filename);
 //			byte[] data = null;
 //			try {

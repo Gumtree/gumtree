@@ -131,6 +131,25 @@ function updatePlot(id) {
 	$("#plot_image" + id).attr("src", imgUrl);
 }
 
+function appendUserFiles(filenames) {
+    var files = filenames.split(",");
+    var html = "";
+    if (files.length > 0) {
+        $.each(files, function(idx, filename) {
+            if (filename.trim().length > 0) {
+                html += "<tr><td><div class=\"div_file_name\">" + filename + 
+					"</div><div class=\"div_run_image\" onmousedown=\"sendJython('__selected_user_files__=[\\\'" + 
+					filename + "\\\'];__run_script__(__selected_user_files__)')\">" + 
+					"<img class=\"class_run_image ui-corner-all \" src=\"images/go_button_grey.png\" " +
+					"onmouseover=\"run_image_hover(this);\" onmouseout=\"run_image_unhover(this);\"></div></td></tr>";
+            }
+        });
+    }
+    if (html.length > 0)  {
+        $("#table_uploaded_datafiles > tbody:last").append(html);
+    }
+}
+
 function processStatus(data, interval_id) {
     var rStatus = data['status'];
     $('#runner_status').html(rStatus);
@@ -158,7 +177,7 @@ function processStatus(data, interval_id) {
         try{
             eval(data['js']);
         }catch (e) {
-            alert(data['js']);
+            alert('failed to run ' + data['js']);
         }
     }
     if (data['files']){
@@ -173,7 +192,7 @@ function processStatus(data, interval_id) {
 
 function downloadFile(file){
     var pair = file.split(':');
-    var getUrl = "jython/rest/" + pair[1] + "?type=FILE&folder=" + pair[0];
+    var getUrl = "jython/runner/" + pair[1] + "?type=FILE&folder=" + pair[0];
     window.location.href = getUrl;
 }
 
