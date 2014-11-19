@@ -6,7 +6,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 
-import de.kupzog.ktable.KTableModel;
+import de.kupzog.ktable.models.KTableModel;
 import de.kupzog.ktable.renderers.DefaultCellRenderer;
 import de.kupzog.ktable.renderers.IPercentage;
 

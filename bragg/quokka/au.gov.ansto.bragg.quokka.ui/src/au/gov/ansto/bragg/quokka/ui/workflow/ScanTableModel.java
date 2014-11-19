@@ -11,6 +11,9 @@
 
 package au.gov.ansto.bragg.quokka.ui.workflow;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -29,10 +32,11 @@ import au.gov.ansto.bragg.quokka.experiment.model.ScanMode;
 import com.ibm.icu.text.DecimalFormat;
 
 import de.kupzog.ktable.KTable;
+import de.kupzog.ktable.KTableCellAction;
 import de.kupzog.ktable.KTableCellEditor;
 import de.kupzog.ktable.KTableCellRenderer;
-import de.kupzog.ktable.KTableDefaultModel;
 import de.kupzog.ktable.editors.KTableCellEditorText;
+import de.kupzog.ktable.models.KTableDefaultModel;
 import de.kupzog.ktable.renderers.CheckableCellRenderer;
 import de.kupzog.ktable.renderers.DefaultCellRenderer;
 import de.kupzog.ktable.renderers.FixedCellRenderer;
@@ -50,6 +54,9 @@ public class ScanTableModel extends KTableDefaultModel {
 	
 	// Each config contributes 5 columns
 	private static final int COLUMN_SECTION_SIZE = 5;
+	
+	private Map<Integer, Boolean> batchTransmissions;;
+	private Map<Integer, Boolean> batchScattering;
 	
 	private enum GlobalColumn {
 		RUN(0, ""),
@@ -95,9 +102,12 @@ public class ScanTableModel extends KTableDefaultModel {
 		public String getLabel() {
 			return label;
 		}
-		public static String getColumnLabel(int index) {
+		public static Object getColumnLabel(int index) {
 			for (ConfigColumn column : ConfigColumn.values()) {
 				if (column.getOffset() == (index % COLUMN_SECTION_SIZE)) {
+					if (column == TRANSMISSION_RUN || column == SCATTERING_RUN) {
+						return true;
+					}
 					return column.getLabel();
 				}
 			}
@@ -125,6 +135,10 @@ public class ScanTableModel extends KTableDefaultModel {
 	
 	private static final KTableCellRenderer fCheckableRenderer = new CheckableCellRenderer( CheckableCellRenderer.INDICATION_CLICKED | CheckableCellRenderer.INDICATION_FOCUS);
 	
+	private static final KTableCellRenderer fCheckableRenderer1 = new CheckableCellRenderer( CheckableCellRenderer.STYLE_FLAT);
+	
+	private static final KTableCellRenderer fCheckableRenderer2 = new CheckableCellRenderer( CheckableCellRenderer.INDICATION_CLICKED | CheckableCellRenderer.INDICATION_FOCUS);
+	
 	private static final TextCellRenderer ftextRenderer = new TextCellRenderer(TextCellRenderer.INDICATION_FOCUS_ROW);
 	
 	private static final ProgressCellRenderer fBarDiagramCellRenderer = new ProgressCellRenderer(ProgressCellRenderer.INDICATION_FOCUS_ROW);
@@ -149,8 +163,16 @@ public class ScanTableModel extends KTableDefaultModel {
 		fFixedRenderer1Bold.setBackground(COLOUR_LIGHT_BLUE);
 		fFixedRenderer2.setBackground(COLOUR_LIGHT_RED);
 		fFixedRenderer2Bold.setBackground(COLOUR_LIGHT_RED);
+		((CheckableCellRenderer) fCheckableRenderer1).setBackground(COLOUR_LIGHT_BLUE);
+		((CheckableCellRenderer) fCheckableRenderer1).setBorderColorHorizontal(CheckableCellRenderer.COLOR_LINE_DARKGRAY);
+		((CheckableCellRenderer) fCheckableRenderer1).setBorderColorVertical(CheckableCellRenderer.COLOR_LINE_DARKGRAY);
+		((CheckableCellRenderer) fCheckableRenderer2).setBackground(COLOUR_LIGHT_RED);
+		((CheckableCellRenderer) fCheckableRenderer2).setBorderColorHorizontal(CheckableCellRenderer.COLOR_LINE_DARKGRAY);
+		((CheckableCellRenderer) fCheckableRenderer2).setBorderColorVertical(CheckableCellRenderer.COLOR_LINE_DARKGRAY);
 		fBarDiagramCellRenderer.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		fBarDiagramCellRenderer.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
+		batchScattering = new HashMap<Integer, Boolean>();
+		batchTransmissions = new HashMap<Integer, Boolean>();
 	}
 	
 	public Acquisition getAcquisition() {
@@ -169,8 +191,14 @@ public class ScanTableModel extends KTableDefaultModel {
 	
 	@Override
 	public KTableCellEditor doGetCellEditor(int col, int row) {
-		if (row == ROW_HEADER_GROUP || row == ROW_HEADER) {
+		if (row == ROW_HEADER_GROUP) {
 			// No editing for header
+			return null;
+		}
+		if (row == ROW_HEADER) {
+			if (col >= COLUMN_SECTION_SIZE && (col % COLUMN_SECTION_SIZE == 0 || col % COLUMN_SECTION_SIZE == 2)) {
+				return new FixedKTableCellEditorCheckbox();
+			}
 			return null;
 		}
 		if (col == 0) {
@@ -204,6 +232,13 @@ public class ScanTableModel extends KTableDefaultModel {
 			// Second row
 			if (col < COLUMN_FIXED_SIZE) {
 				return fFixedRenderer;
+			} else if ((col - COLUMN_FIXED_SIZE) % COLUMN_SECTION_SIZE == 0 || (col - COLUMN_FIXED_SIZE) % COLUMN_SECTION_SIZE == 2) {
+				// Odd configs
+				if (((col - COLUMN_FIXED_SIZE) / COLUMN_SECTION_SIZE) % 2 == 0) {
+					// Odd configs
+					return fCheckableRenderer1;
+				}
+				return fCheckableRenderer2;
 			} else if (((col - COLUMN_FIXED_SIZE) / COLUMN_SECTION_SIZE) % 2 == 0) {
 				// Odd configs
 				return fFixedRenderer1;
@@ -271,7 +306,7 @@ public class ScanTableModel extends KTableDefaultModel {
 				return GlobalColumn.getColumnLabel(col);
 			} else {
 				// Add units to preset
-				if (col >= COLUMN_SECTION_SIZE && col % COLUMN_SECTION_SIZE == 4) {
+				if ((col - COLUMN_FIXED_SIZE) % COLUMN_SECTION_SIZE == 4) {
 					ScanMode mode = experiment.getInstrumentConfigs().get(col / COLUMN_SECTION_SIZE - 1).getMode();
 					
 					if (mode == ScanMode.TIME) {
@@ -280,6 +315,21 @@ public class ScanTableModel extends KTableDefaultModel {
 						return ConfigColumn.getColumnLabel(col) + " (count)";
 					}
 				}
+				if ((col - COLUMN_FIXED_SIZE) % COLUMN_SECTION_SIZE == 0 ) {
+					if (!batchTransmissions.containsKey(col)) {
+						batchTransmissions.put(col, true);
+						return true;
+					}
+					return batchTransmissions.get(col);
+				}
+				if ((col - COLUMN_FIXED_SIZE) % COLUMN_SECTION_SIZE == 2 ) {
+					if (!batchScattering.containsKey(col)) {
+						batchScattering.put(col, true);
+						return true;
+					}
+					return batchScattering.get(col);
+				}
+				
 				// Config specific
 				return ConfigColumn.getColumnLabel(col);
 			}
@@ -354,8 +404,33 @@ public class ScanTableModel extends KTableDefaultModel {
 	
 	@Override
 	public void doSetContentAt(int col, int row, Object value) {
-		if (row < 2) {
+		if (row == 0) {
 			// Header
+			return;
+		}
+		if (row == 1) {
+			if ((col - COLUMN_FIXED_SIZE) % COLUMN_SECTION_SIZE == 0) {
+				batchTransmissions.put(col, Boolean.valueOf(value.toString()));
+				for (AcquisitionEntry entry : acquisition.getEntries()) {
+					updateAcquisionEntry(entry, col, value);
+				}
+				if (!experiment.isControlledEnvironment() && (acquisition instanceof ControlledAcquisition)) {
+					for (AcquisitionEntry entry : experiment.getNormalAcquisition().getEntries()) {
+						updateAcquisionEntry(entry, col, value);
+					}
+				} 
+			}
+			if ((col - COLUMN_FIXED_SIZE) % COLUMN_SECTION_SIZE == 2) {
+				batchScattering.put(col, Boolean.valueOf(value.toString()));
+				for (AcquisitionEntry entry : acquisition.getEntries()) {
+					updateAcquisionEntry(entry, col, value);
+				}
+				if (!experiment.isControlledEnvironment() && (acquisition instanceof ControlledAcquisition)) {
+					for (AcquisitionEntry entry : experiment.getNormalAcquisition().getEntries()) {
+						updateAcquisionEntry(entry, col, value);
+					}
+				} 
+			}
 			return;
 		}
 		int entryIndex = row - 2;
@@ -575,6 +650,12 @@ public class ScanTableModel extends KTableDefaultModel {
 			return new Point(col, row);
 		}
 //		return new Point(col, row);
+	}
+
+	@Override
+	public KTableCellAction doGetCellAction(int col, int row) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

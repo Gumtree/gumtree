@@ -5,6 +5,14 @@ _______________________________________________________________________
 
 VERSION 2.1.3
 
+* Fix Bug 1476687 SWTX.AUTO_SCROLL behavior
+* Fix Bug 1487967 Error when randering spanned cells during scrolling
+* Fix Bug 1489048 doGetTooltipAt called for -1/-1
+* Fix Bug 1385229 Wrong calculation of getFullyVisibleRowCount()
+* Remove unneccesary redraw of cell on MouseUp event.
+
+VERSION 2.1.3
+
 * Making getCellForCoordinates() public (Newsgroup request)
 * Fix calculation bug when scrolling whole pages
 * Fix bug when doing FILL_WITH_DUMMY_COL

@@ -16,10 +16,11 @@ import au.gov.ansto.bragg.kookaburra.experiment.model.InstrumentConfig;
 import com.ibm.icu.text.DecimalFormat;
 
 import de.kupzog.ktable.KTable;
+import de.kupzog.ktable.KTableCellAction;
 import de.kupzog.ktable.KTableCellEditor;
 import de.kupzog.ktable.KTableCellRenderer;
-import de.kupzog.ktable.KTableDefaultModel;
 import de.kupzog.ktable.editors.KTableCellEditorText;
+import de.kupzog.ktable.models.KTableDefaultModel;
 import de.kupzog.ktable.renderers.CheckableCellRenderer;
 import de.kupzog.ktable.renderers.DefaultCellRenderer;
 import de.kupzog.ktable.renderers.FixedCellRenderer;
@@ -553,6 +554,12 @@ public class ScanTableModel extends KTableDefaultModel {
 			return new Point(col, row);
 		}
 //		return new Point(col, row);
+	}
+
+	@Override
+	public KTableCellAction doGetCellAction(int col, int row) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

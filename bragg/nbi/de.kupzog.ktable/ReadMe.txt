@@ -1,5 +1,5 @@
 
-de.kupzog.ktable.*  Version 2.1.2
+de.kupzog.ktable.*  Version 2.1.3
 
 URL: http://ktable.sourceforge.net/
 _______________________________________________________________________

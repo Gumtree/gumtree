@@ -236,7 +236,7 @@ def download_selected_files():
     inst_id = System.getProperty(__instrument_id__)
     if inst_id is None :
         inst_id = 'DATA'
-    z_name = inst_id.upper() + '_raw_' + str(int(time.time() * 1000))[2:] + '.zip'
+    z_name = inst_id.upper() + '_raw_' + str(int(time.time()))[2:] + '.zip'
     zip_files(full_paths, z_name, False)
     print 'data files have been zipped in ' + z_name
     
