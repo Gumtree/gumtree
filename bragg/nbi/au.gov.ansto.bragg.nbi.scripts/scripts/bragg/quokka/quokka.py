@@ -654,12 +654,12 @@ def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_succe
             local_rate_sqr_sum  += (local_rate * local_rate)
             global_rate_sqr_sum += (global_rate * global_rate)
             
+            local_rate_mean  = local_rate_sum / n
+            global_rate_mean = global_rate_sum / n
+            
             if n > 2:
                 # https://de.wikipedia.org/wiki/Vertrauensintervall#Beispiele_f.C3.BCr_ein_Konfidenzintervall
-                
-                local_rate_mean  = local_rate_sum / n
-                global_rate_mean = global_rate_sum / n
-                
+
                 #local_rate_std  = determineStandardDeviation(local_rate_sum , local_rate_sqr_sum , n)
                 #global_rate_std = determineStandardDeviation(global_rate_sum, global_rate_sqr_sum, n)
                 
@@ -688,7 +688,8 @@ def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_succe
     finally:
         stopHistmem()
  
-    return local_rate_sum/n, global_rate_sum/n # -0.7 to subtract background
+    return local_rate_mean, global_rate_mean
+    #return local_rate_sum/n, global_rate_sum/n # -0.7 to subtract background
 
 # Find the attenuation angle
 def findSafeAttenuation(startingAttenuation):
@@ -739,7 +740,7 @@ def findSafeAttenuation(startingAttenuation):
         local_ratio  = math.log(local_rate2 / local_rate1) / (thickness1 - thickness2)
         local_offset = math.log(local_rate1 / local_rateSafe) / local_ratio
         if local_offset < 0:
-            local_thicknessSafe = thickness1 + local_offset
+            local_thicknessSafe = thickness1 + local_offset * 0.90 # 90% for safety
         else:
             local_thicknessSafe = thickness1
         log('local ratio = ' + str(local_ratio))
@@ -750,7 +751,7 @@ def findSafeAttenuation(startingAttenuation):
         global_ratio  = math.log(global_rate2 / global_rate1) / (thickness1 - thickness2)
         global_offset = math.log(global_rate1 / global_rateSafe) / global_ratio
         if global_offset < 0:
-            global_thicknessSafe = thickness1 + global_offset
+            global_thicknessSafe = thickness1 + global_offset * 0.90 # 90% for safety
         else:
             global_thicknessSafe = thickness1
         log('global ratio = ' + str(global_ratio))
@@ -768,7 +769,12 @@ def findSafeAttenuation(startingAttenuation):
         thickness = item[1]
         if (thicknessSafe <= thickness) and (suggestedAttAngle > attAngle):
             suggestedAttAngle = attAngle
-    
+
+    # try to improve attenuation if possible
+    if suggestedAttAngle > 0:
+        setSafeAttenuation(suggestedAttAngle)
+        return None # to tell caller that attenuation value is set
+
     log('suggested attenutaion angle = ' + str(suggestedAttAngle))
     return suggestedAttAngle
     
@@ -806,7 +812,7 @@ def printQuokkaSettings():
     msg +=  "         Attenuator: %.2f degree" % getAttValue()
     msg +=  " Entrance Aperature: %.2f" % getEntRotApValue()
     msg +=  "Guide Configuration: " + getGuideConfig()
-    msg +=  "    Sample Position: " + str(getSamplePosition())
+    msg +=  "    Sample Position: ???" # + str(getSamplePosition())
 #    print "        Beam Stop 1: " + getBsPosition(1)
 #    print "        Beam Stop 2: " + getBsPosition(2)
 #    print "        Beam Stop 3: " + getBsPosition(3)
