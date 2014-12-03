@@ -12,9 +12,6 @@
 package au.gov.ansto.bragg.quokka.ui;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -25,7 +22,6 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveListener;
-import org.eclipse.ui.IPerspectiveRegistry;
 import org.eclipse.ui.IWindowListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -56,16 +52,16 @@ public class QuokkaWorkbenchLauncher extends AbstractLauncher {
 	private static final String ID_PERSPECTIVE_SCRIPTING = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
 	private static final String ID_PERSPECTIVE_DEFAULT = "au.gov.ansto.bragg.nbi.ui.EmptyPerspective";
 	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
-	private static final String[] IGNORE_PERSPECTIVES = new String[] {
-         "au.gov.ansto.bragg.quokka.ui.scanPerspective", 
-         "au.gov.ansto.bragg.kakadu.ui.KakaduPerspective",
-         "org.eclipse.dltk.tcl.ui.TclPerspective", 
-         "org.eclipse.dltk.tcl.TclBrowsingPerspective",
-         "au.gov.ansto.bragg.quokka.ui.analysis", 
-         "org.eclipse.mylyn.tasks.ui.perspectives.planning",
-         "au.gov.ansto.bragg.quokka.ui.alignmentPerspective", 
-         "org.python.pydev.ui.PythonPerspective",
-         }; 
+//	private static final String[] IGNORE_PERSPECTIVES = new String[] {
+//         "au.gov.ansto.bragg.quokka.ui.scanPerspective", 
+//         "au.gov.ansto.bragg.kakadu.ui.KakaduPerspective",
+//         "org.eclipse.dltk.tcl.ui.TclPerspective", 
+//         "org.eclipse.dltk.tcl.TclBrowsingPerspective",
+//         "au.gov.ansto.bragg.quokka.ui.analysis", 
+//         "org.eclipse.mylyn.tasks.ui.perspectives.planning",
+//         "au.gov.ansto.bragg.quokka.ui.alignmentPerspective", 
+//         "org.python.pydev.ui.PythonPerspective",
+//         }; 
 
 	private static Logger logger = LoggerFactory.getLogger(QuokkaWorkbenchLauncher.class);
 	
@@ -136,37 +132,37 @@ public class QuokkaWorkbenchLauncher extends AbstractLauncher {
 //	    	}
 	    }	
 	    
-	    removeUnWantedPerspectives();
+//	    removeUnWantedPerspectives();
 	}
 
 	/**
 	 * Removes the unwanted perspectives from your RCP application
 	 */
-	private void removeUnWantedPerspectives() {
-		IPerspectiveRegistry perspectiveRegistry = PlatformUI.getWorkbench().getPerspectiveRegistry();
-		IPerspectiveDescriptor[] perspectiveDescriptors = perspectiveRegistry.getPerspectives();
-		for (IPerspectiveDescriptor des : perspectiveDescriptors) {
-			System.err.println(des);
-		}
-		List<String> ignoredPerspectives = Arrays.asList(IGNORE_PERSPECTIVES);
-		List<IPerspectiveDescriptor> removePerspectiveDesc = new ArrayList<IPerspectiveDescriptor>();
-
-		// Add the perspective descriptors with the matching perspective ids to the list
-		for (IPerspectiveDescriptor perspectiveDescriptor : perspectiveDescriptors) {
-			if(ignoredPerspectives.contains(perspectiveDescriptor.getId())) {
-				removePerspectiveDesc.add(perspectiveDescriptor);
-			}
-		}
-
-		for (IPerspectiveDescriptor des : removePerspectiveDesc) {
-			perspectiveRegistry.deletePerspective(des);
-		}
-		// If the list is non-empty then remove all such perspectives from the IExtensionChangeHandler
-//        if(perspectiveRegistry instanceof IExtensionChangeHandler && !removePerspectiveDesc.isEmpty()) {
-//            IExtensionChangeHandler extChgHandler = (IExtensionChangeHandler) perspectiveRegistry;
-//            extChgHandler.removeExtension(null, removePerspectiveDesc.toArray());
-//        }
-	}
+//	private void removeUnWantedPerspectives() {
+//		IPerspectiveRegistry perspectiveRegistry = PlatformUI.getWorkbench().getPerspectiveRegistry();
+//		IPerspectiveDescriptor[] perspectiveDescriptors = perspectiveRegistry.getPerspectives();
+//		for (IPerspectiveDescriptor des : perspectiveDescriptors) {
+//			System.err.println(des);
+//		}
+//		List<String> ignoredPerspectives = Arrays.asList(IGNORE_PERSPECTIVES);
+//		List<IPerspectiveDescriptor> removePerspectiveDesc = new ArrayList<IPerspectiveDescriptor>();
+//
+//		// Add the perspective descriptors with the matching perspective ids to the list
+//		for (IPerspectiveDescriptor perspectiveDescriptor : perspectiveDescriptors) {
+//			if(ignoredPerspectives.contains(perspectiveDescriptor.getId())) {
+//				removePerspectiveDesc.add(perspectiveDescriptor);
+//			}
+//		}
+//
+//		for (IPerspectiveDescriptor des : removePerspectiveDesc) {
+//			perspectiveRegistry.deletePerspective(des);
+//		}
+//		// If the list is non-empty then remove all such perspectives from the IExtensionChangeHandler
+////        if(perspectiveRegistry instanceof IExtensionChangeHandler && !removePerspectiveDesc.isEmpty()) {
+////            IExtensionChangeHandler extChgHandler = (IExtensionChangeHandler) perspectiveRegistry;
+////            extChgHandler.removeExtension(null, removePerspectiveDesc.toArray());
+////        }
+//	}
 
 	public void launch() throws LauncherException {
 		{			

@@ -156,7 +156,7 @@
             class="au.gov.ansto.bragg.nbi.ui.internal.EmptyPerspective"
             id="au.gov.ansto.bragg.nbi.ui.EmptyPerspective"
             fixed="true"
-            name="Workbench Window">
+            name="Empty Workbench">
 	  </perspective>
    </extension>
    <extension
