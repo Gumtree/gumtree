@@ -108,6 +108,13 @@
             fixed="true"
             name="Analysis Scripting">
 	  </perspective>
+	  <perspective
+	  		allowMultiple="false"
+            class="au.gov.ansto.bragg.wombat.ui.internal.WombatAnalysisPerspective"
+            icon="icons/project_view.gif"
+            id="au.gov.ansto.bragg.wombat.ui.internal.WombatAnalysisPerspective"
+            name="Wombat Analysis">
+	  </perspective>
 	  -->
 	  <perspective
 	  		allowMultiple="false"
@@ -115,13 +122,6 @@
             icon="icons/exp_per.gif"
             id="au.gov.ansto.bragg.wombat.ui.internal.TCLRunnerPerspective"
             name="Wombat Experiment">
-	  </perspective>
-	  <perspective
-	  		allowMultiple="false"
-            class="au.gov.ansto.bragg.wombat.ui.internal.WombatAnalysisPerspective"
-            icon="icons/project_view.gif"
-            id="au.gov.ansto.bragg.wombat.ui.internal.WombatAnalysisPerspective"
-            name="Wombat Analysis">
 	  </perspective>
    </extension>
    <extension

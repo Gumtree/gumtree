@@ -237,6 +237,32 @@
             prespectives="*">
       </gadget>
    </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="au.gov.ansto.bragg.nbi.ui.launchers.OpenNewWindowHandler"
+            id="au.gov.ansto.bragg.nbi.ui.newWindow"
+            name="Open New Window">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="au.gov.ansto.bragg.nbi.ui.toolbar"
+               label="NBI UI">
+            <command
+                  commandId="au.gov.ansto.bragg.nbi.ui.newWindow"
+                  icon="icons/new-icon_16.png"
+                  label="Open New Window"
+                  style="push"
+                  tooltip="Open New Window">
+            </command>
+         </toolbar>
+      </menuContribution>
+   </extension>
    <!-- extension
          point="org.eclipse.ui.startup">
       <startup

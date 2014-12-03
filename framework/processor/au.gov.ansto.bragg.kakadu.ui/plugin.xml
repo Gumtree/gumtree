@@ -163,6 +163,7 @@
       </actionSet>
    </extension>
    -->
+   <!--
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
@@ -171,6 +172,7 @@
             id="au.gov.ansto.bragg.kakadu.ui.KakaduPerspective"
             name="Analysis"/>
    </extension>
+   -->
    <extension
          point="org.eclipse.ui.preferencePages">
       <page

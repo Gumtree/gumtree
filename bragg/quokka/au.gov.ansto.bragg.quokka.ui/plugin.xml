@@ -34,17 +34,18 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="au.gov.ansto.bragg.quokka.ui.internal.AlignmentPerspective"
-            icon="icons/plugin_depend.gif"
-            id="au.gov.ansto.bragg.quokka.ui.alignmentPerspective"
-            name="Alignment">
-      </perspective>
-      <perspective
             class="au.gov.ansto.bragg.quokka.ui.internal.QuokkaScanPerspective"
             fixed="true"
             icon="icons/edu_science_16x16.png"
             id="au.gov.ansto.bragg.quokka.ui.scanPerspective"
             name="Quokka Scan">
+      </perspective>
+      <!--
+      <perspective
+            class="au.gov.ansto.bragg.quokka.ui.internal.AlignmentPerspective"
+            icon="icons/plugin_depend.gif"
+            id="au.gov.ansto.bragg.quokka.ui.alignmentPerspective"
+            name="Alignment">
       </perspective>
       <perspective
             class="au.gov.ansto.bragg.quokka.ui.internal.QuokkaAnalysisPerspective"
@@ -53,6 +54,7 @@
             id="au.gov.ansto.bragg.quokka.ui.analysis"
             name="Quokka Analysis">
       </perspective>
+      -->
    </extension>
    <extension
          point="org.eclipse.ui.views">

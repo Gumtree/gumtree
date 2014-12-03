@@ -196,12 +196,14 @@
    </extension>
      <extension
          point="org.eclipse.ui.perspectives">
+     <!--
 	  <perspective
 	  		allowMultiple="false"
             class="au.gov.ansto.bragg.echidna.ui.internal.EchidnaAnalysisPerspective"
             icon="icons/project_view.gif"
             id="au.gov.ansto.bragg.echidna.ui.internal.EchidnaAnalysisPerspective"
             name="Echidna Data Analysis"/>
+     -->
       <perspective
       		allowMultiple="false"
             class="au.gov.ansto.bragg.echidna.ui.internal.TCLRunnerPerspective"
