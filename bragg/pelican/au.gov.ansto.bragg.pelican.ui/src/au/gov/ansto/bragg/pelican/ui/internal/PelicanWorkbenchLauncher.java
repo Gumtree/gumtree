@@ -205,6 +205,8 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
 				// open new window as editor buffer
 				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_SCRIPTING, 1, true);
+			} else {
+				mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
 			}
 //			// position it
 			ScriptPageRegister register = new ScriptPageRegister();

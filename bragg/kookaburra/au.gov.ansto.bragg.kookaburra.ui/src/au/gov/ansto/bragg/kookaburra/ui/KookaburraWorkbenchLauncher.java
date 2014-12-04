@@ -158,10 +158,11 @@ public class KookaburraWorkbenchLauncher extends AbstractLauncher {
 			
 			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
 				// open new window as editor buffer
-				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, true);
-			}
+				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_SCRIPTING, 1, true);
+			} else {
 //			// position it
-			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
+				mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
+			}
 //
 //			IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
 //			for (IWorkbenchWindow window : windows) {

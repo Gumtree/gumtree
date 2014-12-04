@@ -144,10 +144,11 @@ public class RobotWorkbenchLayoutLauncher extends AbstractLauncher {
 			// Open workflow in screen 2 (maximise only for multi system)
 			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
 				// open new window
-				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, true);
-			}
+				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_ANALYSIS, 1, true);
+			} else {
 			// position it
-			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_ANALYSIS, 1, 1, mmManager.isMultiMonitorSystem());
+				mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_ANALYSIS, 1, 1, mmManager.isMultiMonitorSystem());
+			}
 			
 		}
 	}
