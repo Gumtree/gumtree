@@ -41,7 +41,8 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 						label = id.replace("S", " Sensor");
 					}
 					try {
-						addDevice(item.getPath(), label, null, units);
+//						addDevice(item.getPath(), label, null, units);
+						addDevice(item.getPath(), label, null, null);
 					} catch (Exception e) {
 						// TODO: handle exception
 					}
