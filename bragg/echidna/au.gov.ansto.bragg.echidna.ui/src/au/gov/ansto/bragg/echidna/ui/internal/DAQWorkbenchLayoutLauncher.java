@@ -1,7 +1,14 @@
 package au.gov.ansto.bragg.echidna.ui.internal;
 
+import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.ui.IPerspectiveDescriptor;
+import org.eclipse.ui.IPerspectiveListener;
+import org.eclipse.ui.IWindowListener;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.WorkbenchWindow;
 import org.eclipse.ui.intro.IIntroPart;
 import org.gumtree.core.service.ServiceUtils;
 import org.gumtree.ui.service.launcher.AbstractLauncher;
@@ -32,10 +39,70 @@ public class DAQWorkbenchLayoutLauncher extends AbstractLauncher {
 	public DAQWorkbenchLayoutLauncher() {
 	}
 
+	private void hideMenus(WorkbenchWindow window){
+		WorkbenchWindow workbenchWin = (WorkbenchWindow)PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		MenuManager menuManager = ((WorkbenchWindow) window).getMenuManager();
+		IContributionItem[] items = menuManager.getItems();
+
+		for(IContributionItem item : items) {
+		  item.setVisible(false);
+		}
+		menuManager.setVisible(false);
+	    
+	    IContributionItem[] menubarItems = ((WorkbenchWindow) window).getMenuBarManager().getItems();
+	    for (IContributionItem item : menubarItems) {
+	    	item.setVisible(false);
+	    }
+	    ((WorkbenchWindow) window).getMenuBarManager().setVisible(false);
+	    
+	}
+	
 	public void launch() throws LauncherException {
 		{			
 			// TODO: move this logic to experiment UI manager service
+			final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			hideMenus((WorkbenchWindow) activeWorkbenchWindow);
 			
+			if (activeWorkbenchWindow instanceof WorkbenchWindow) {
+//				((WorkbenchWindow) activeWorkbenchWindow).setCoolBarVisible(false);
+				activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
+				activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
+					
+					@Override
+					public void perspectiveChanged(IWorkbenchPage page,
+							IPerspectiveDescriptor perspective, String changeId) {
+						hideMenus((WorkbenchWindow) activeWorkbenchWindow);
+					}
+					
+					@Override
+					public void perspectiveActivated(IWorkbenchPage page,
+							IPerspectiveDescriptor perspective) {
+						hideMenus((WorkbenchWindow) activeWorkbenchWindow);
+					}
+				});
+			}
+			
+			PlatformUI.getWorkbench().addWindowListener(new IWindowListener() {
+				
+				@Override
+				public void windowOpened(IWorkbenchWindow window) {
+					hideMenus((WorkbenchWindow) window);
+				}
+				
+				@Override
+				public void windowDeactivated(IWorkbenchWindow window) {
+				}
+				
+				@Override
+				public void windowClosed(IWorkbenchWindow window) {
+				}
+				
+				@Override
+				public void windowActivated(IWorkbenchWindow window) {
+					hideMenus((WorkbenchWindow) window);
+				}
+			});
+						
 			IMultiMonitorManager mmManager = ServiceUtils.getService(IMultiMonitorManager.class);
 			// Prepare status in screen 1 (maximised)
 //			String configFile = System.getProperty(PROP_STATUS_DASHBOARD_CONFIG_FILE);
