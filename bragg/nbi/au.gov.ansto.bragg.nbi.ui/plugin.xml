@@ -244,6 +244,11 @@
             id="au.gov.ansto.bragg.nbi.ui.newWindow"
             name="Open New Window">
       </command>
+      <command
+            defaultHandler="au.gov.ansto.bragg.nbi.ui.preference.OpenPreferenceDialogHandler"
+            id="au.gov.ansto.bragg.nbi.ui.prefDialog"
+            name="Open Preference Dialog">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -259,6 +264,13 @@
                   label="Open New Window"
                   style="push"
                   tooltip="Open New Window">
+            </command>
+            <command
+                  commandId="au.gov.ansto.bragg.nbi.ui.prefDialog"
+                  icon="icons/Control-icon16.png"
+                  label="Open Preference Dialog"
+                  style="push"
+                  tooltip="Open Preference Dialog">
             </command>
          </toolbar>
       </menuContribution>
