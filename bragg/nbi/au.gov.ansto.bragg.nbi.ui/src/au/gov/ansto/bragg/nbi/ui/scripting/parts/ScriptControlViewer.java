@@ -97,6 +97,7 @@ import org.gumtree.gumnix.sics.ui.SicsUIConstants;
 import org.gumtree.scripting.IScriptExecutor;
 import org.gumtree.scripting.ScriptExecutor;
 import org.gumtree.ui.scripting.viewer.CommandLineViewer;
+import org.gumtree.ui.scripting.viewer.ICommandLineViewer;
 
 import au.gov.ansto.bragg.nbi.scripting.IPyObject;
 import au.gov.ansto.bragg.nbi.scripting.ScriptAction;
@@ -2174,7 +2175,7 @@ public class ScriptControlViewer extends Composite {
 	
 	public void setAutoCompletionEnabled(boolean enabled) {
 		try{
-			CommandLineViewer viewer = ScriptPageRegister.getRegister(scriptRegisterID).getConsoleViewer();
+			ICommandLineViewer viewer = ScriptPageRegister.getRegister(scriptRegisterID).getConsoleViewer();
 			if (viewer != null) {
 				viewer.setContentAssistEnabled(enabled);
 			}

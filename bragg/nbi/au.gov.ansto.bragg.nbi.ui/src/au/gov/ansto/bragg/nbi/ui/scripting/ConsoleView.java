@@ -16,7 +16,7 @@ import org.gumtree.ui.scripting.viewer.ICommandLineViewer;
  */
 public class ConsoleView extends ViewPart {
 
-	private CommandLineViewer viewer;
+	private ICommandLineViewer viewer;
 	private IScriptExecutor executor;
 	
 	/**
@@ -47,7 +47,7 @@ public class ConsoleView extends ViewPart {
 
 	}
 
-	public CommandLineViewer getCommandLineViewer() {
+	public ICommandLineViewer getCommandLineViewer() {
 		return viewer;
 	}
 

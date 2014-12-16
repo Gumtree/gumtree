@@ -70,3 +70,4 @@ Eclipse-BundleShape: jar
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Bragg Institute
 Service-Component: OSGI-INF/HttpUIConverter.xml
+Import-Package: org.eclipse.ui.console
