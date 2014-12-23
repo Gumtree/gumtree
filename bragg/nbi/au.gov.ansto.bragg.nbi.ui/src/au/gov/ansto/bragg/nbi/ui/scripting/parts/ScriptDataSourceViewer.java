@@ -329,6 +329,7 @@ public class ScriptDataSourceViewer extends Composite {
 			@Override
 			public void selectionChanged(SelectionChangedEvent arg0) {
 				setSelectedDatasets(getSelectedDatasetList());
+				fireSelectionChangedEvent();
 			}
 		});
 //		final Menu tableMenu = new Menu(table);
@@ -522,6 +523,7 @@ public class ScriptDataSourceViewer extends Composite {
 	public interface IActivityListener {
 		public void datasetAdded(DatasetInfo[] datasets);
 		public void runSelected();
+		public void selectionChanged(List<DatasetInfo> selectedDatatsetList);
 	}
 	
 	public void addActivityListener(IActivityListener listener) {
@@ -544,6 +546,12 @@ public class ScriptDataSourceViewer extends Composite {
 		}
 	}
 
+	public void fireSelectionChangedEvent() {
+		for (IActivityListener listener : activityListeners) {
+			listener.selectionChanged(getSelectedDatasetList());
+		}	
+	}
+	
 	public void setSelectedDatasets(List<DatasetInfo> selectedDatasets) {
 		this.selectedDatasets = selectedDatasets;
 	}

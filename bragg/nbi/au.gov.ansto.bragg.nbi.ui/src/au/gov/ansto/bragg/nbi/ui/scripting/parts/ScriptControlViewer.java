@@ -96,7 +96,6 @@ import org.gumtree.gumnix.sics.io.SicsIOException;
 import org.gumtree.gumnix.sics.ui.SicsUIConstants;
 import org.gumtree.scripting.IScriptExecutor;
 import org.gumtree.scripting.ScriptExecutor;
-import org.gumtree.ui.scripting.viewer.CommandLineViewer;
 import org.gumtree.ui.scripting.viewer.ICommandLineViewer;
 
 import au.gov.ansto.bragg.nbi.scripting.IPyObject;
@@ -708,6 +707,18 @@ public class ScriptControlViewer extends Composite {
 		executor.runScript("__run_script__(" + arg + ")");
 	}
 	
+	private void runDatasetSelectedScript(List<DatasetInfo> datasets) {
+		String arg = "[";
+		for (DatasetInfo dataset : datasets) {
+			String location = dataset.getLocation();
+			location = location.replaceAll("\\\\", "/");
+			arg += "'" + location + "', ";
+		}
+		arg += "]";
+		IScriptExecutor executor = getScriptExecutor();
+		executor.runScript("__dataset_selected__(" + arg + ")");
+	}
+	
 	private void runDatasetAddedScript(DatasetInfo[] datasets) {
 		String arg = "[";
 		for (DatasetInfo dataset : datasets) {
@@ -839,6 +850,12 @@ public class ScriptControlViewer extends Composite {
 				public void runSelected() {
 					runScript();
 				}
+				
+				@Override
+				public void selectionChanged(
+						List<DatasetInfo> selectedDatatsetList) {
+					runDatasetSelectedScript(selectedDatatsetList);
+				}
 			};
 			if (getDataSourceViewer() != null) {
 				getDataSourceViewer().addActivityListener(datasetActivityListener);
@@ -897,7 +914,7 @@ public class ScriptControlViewer extends Composite {
 	private List<IPyObject> prepareControlList(List<IPyObject> objs, List<ScriptObjectGroup> groups) {
 		List<IPyObject> list = new ArrayList<IPyObject>();
 		for (IPyObject obj : objs) {
-			if (obj instanceof ScriptParameter || obj instanceof ScriptAction) {
+			if (obj instanceof ScriptParameter || obj instanceof ScriptAction || obj instanceof ScriptObjectGroup) {
 				boolean inGroup = false;
 				for (ScriptObjectGroup group : groups) {
 					if (group.getObjectList().contains(obj)) {

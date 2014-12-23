@@ -15,6 +15,7 @@ import org.gumtree.ui.scripting.viewer.ICommandLineViewer;
 import au.gov.ansto.bragg.nbi.scripting.ScriptModel;
 import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptControlViewer;
 import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptDataSourceViewer;
+import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptInfoViewer;
 
 
 /**
@@ -30,14 +31,17 @@ public class ScriptPageRegister {
 	private ScriptControlViewer controlViewer;
 	private ScriptDataSourceViewer dataSourceViewer;
 	private ICommandLineViewer consoleViewer;
+	private ScriptInfoViewer infoViewer;
 	private PlotView plot1;
 	private PlotView plot2;
 	private PlotView plot3;
 	private List<PlotView> plotList;
 	private ScriptModel scriptModel;
+	private Map<String, Object> objectTray;
 	
 	public ScriptPageRegister() {
 		plotList = new ArrayList<PlotView>();
+		objectTray = new HashMap<String, Object>();
 	}
 
 	public ScriptControlViewer getControlViewer() {
@@ -126,5 +130,23 @@ public class ScriptPageRegister {
 		this.workbenchPage = workbenchPage;
 	}
 	
+	public void registerObject(String id, Object object) {
+		objectTray.put(id, object);
+	}
 	
+	public void deregisterObject(String id) {
+		objectTray.remove(id);
+	}
+	
+	public Object getObject(String id) {
+		return objectTray.get(id);
+	}
+
+	public ScriptInfoViewer getInfoViewer() {
+		return infoViewer;
+	}
+
+	public void setInfoViewer(ScriptInfoViewer infoViewer) {
+		this.infoViewer = infoViewer;
+	}
 }

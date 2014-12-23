@@ -1,5 +1,6 @@
 from java.awt import Color
 from org.gumtree.data.ui.part import PlotView
+from org.gumtree.data.ui.viewers import PlotViewer
 from org.gumtree.vis.hist2d.color import ColorScale
 from org.gumtree.vis.mask import EllipseMask, RectangleMask, RangeMask
 from org.gumtree.vis.nexus.utils import NXFactory
@@ -16,8 +17,14 @@ class GPlot:
             self.__view__ = PlotView.getNewInstance()
             self.pv = self.__view__.getViewer()
         else :
-            self.__view__ = widget
-            self.pv = widget.getViewer()
+            if isinstance(widget, PlotView) :
+                self.__view__ = widget
+                self.pv = widget.getViewer()
+            elif isinstance(widget, PlotViewer) :
+                self.__view__ = None
+                self.pv = widget
+            else:
+                raise Exception, 'widget is not supported'
         self.__ds__ = None
         self.ndim = 0
         if not ds is None :
@@ -28,14 +35,15 @@ class GPlot:
             self.set_x_label(x_label);
         if not y_label is None:
             self.set_y_label(y_label);
-        if not view_title is None:
+        if not view_title is None and not self.__view__ is None :
             self.__view__.setViewTitle(view_title)
                 
     def set_title(self, title):
         self.pv.getPlot().setPlotTitle(title)
         
     def set_tab_title(self, tab_title):
-        self.__view__.setViewTitle(tab_title)
+        if not self.__view__ is None :
+            self.__view__.setViewTitle(tab_title)
         
     def set_x_label(self, x_label):
         xyplot = self.pv.getPlot().getXYPlot()
@@ -430,7 +438,8 @@ class GPlot:
         self.pv.getPlot().removeMaskEventListener(listener.__get_jlistener__())
 
     def close(self):
-        PlotView.closePlotView(self.__view__)
+        if not self.__view__ is None :
+            PlotView.closePlotView(self.__view__)
         
     # Add markers on horizontal axis. 
     # pos: positions on horizontal axis. Can be either a double value or a list of double values. If height is 0, it will draw a line through the whole y range. 
@@ -520,7 +529,8 @@ class GPlot:
         self.pv.getPlot().setLegendPosition(jpos)
         
     def set_view_title(self, title):
-        self.__view__.setViewTitle(title)
+        if not self.__view__ is None :
+            self.__view__.setViewTitle(title)
         
     def set_mouse_follower_precision(self, p1, p2 = None, p3 = None):
         pl = self.pv.getPlot()

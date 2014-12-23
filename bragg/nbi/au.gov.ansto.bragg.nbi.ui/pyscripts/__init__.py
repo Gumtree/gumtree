@@ -61,6 +61,10 @@ if __register__.getPlot3() != None:
     Plot3 = GPlot(widget=__register__.getPlot3())
     Plot3.close = noclose
     
+__INFOTEXT__ = None
+if __register__.getInfoViewer() != None:
+    __INFOTEXT__ = __register__.getInfoViewer()
+    
 gumtree_root = str(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString())
 def get_project_path(pname):
     return str(ResourcesPlugin.getWorkspace().getRoot().getProject(pname).getLocation().toString())
@@ -136,3 +140,9 @@ def save_pref():
 
 def __dataset_added__():
     pass
+
+__selected_dataset__ = []
+def __dataset_selected__(datasets):
+    global __selected_dataset__
+    __selected_dataset__ = datasets
+    

@@ -23,6 +23,8 @@ public class DatasetInfo {
 	private IDataset dataset;
 	private String fileID;
 	private String location;
+	private String title;
+	private String description;
 	private List<ColumnProvider> propertyList;
 	
 	public DatasetInfo(IDataset dataset) {
@@ -34,6 +36,13 @@ public class DatasetInfo {
 			title = String.valueOf(titleValue);
 		} catch (Exception e) {
 		}
+		try {
+			this.title = ((IDataItem) dataset.getRootGroup().findContainerByPath("$entry/experiment/title")).getData().toString();
+			this.description = ((IDataItem) dataset.getRootGroup().findContainerByPath("$entry/sample/description")).getData().toString();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
 		this.fileID = title;
 		dataset.setTitle(title);
 		List<String> dataSourceColumns = StringUtils.split(ScriptingConstants.SCRIPTING_DATASOURCE_COLUMNS.getValue(), ",");
@@ -145,6 +154,22 @@ public class DatasetInfo {
 	 */
 	public List<ColumnProvider> getPropertyList() {
 		return propertyList;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 

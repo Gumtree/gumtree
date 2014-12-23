@@ -24,4 +24,24 @@
             class="au.gov.ansto.bragg.taipan.ui.internal.TaipanWorkbenchSetup">
       </startup>
    </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="au.gov.ansto.bragg.taipan.ui.internal.TaipanCalibrationPerspective"
+            fixed="true"
+            icon="icons/compass_16x16.png"
+            id="au.gov.ansto.bragg.taipan.ui.TaipanCalibrationPerspective"
+            name="Taipan Calibration">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            class="au.gov.ansto.bragg.taipan.ui.align.TaipanCalibrationView"
+            id="au.gov.ansto.bragg.taipan.ui.TaipanCalibrationView"
+            name="Calibration View"
+            restorable="true">
+      </view>
+   </extension>
 </plugin>
