@@ -8,7 +8,7 @@ import org.osgi.framework.BundleContext;
 @SuppressWarnings("restriction")
 public class Activator extends AbstractUIPlugin {
 
-	public static final String PLUGIN_ID = "au.gov.ansto.bragg.kookaburra.workbench";
+	public static final String PLUGIN_ID = "au.gov.ansto.bragg.bilby.workbench";
 
 	private static BundleContext context;
 

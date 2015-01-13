@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension 
+   		point="org.gumtree.ui.launchers">
+      <launcher
+            category="au.gov.ansto.bragg.experiment"
+            class="au.gov.ansto.bragg.emu.ui.internal.EmuWorkbenchLauncher"
+            icon32="icons/MultiMonitors32.png"
+            icon64="icons/MultiMonitors.png"
+            id="au.gov.ansto.bragg.emu.ui.EmuWorkbenchLauncher"
+            label="Emu Workbench"
+            quickLauncher="true">
+         <description>
+            Start 2 monitor setup in the following order:
+			1. Experiment Window
+			2. Analysis Scripting Window
+         </description>
+      </launcher>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="au.gov.ansto.bragg.emu.ui.internal.EmuWorkbenchSetup">
+      </startup>
+   </extension>
+
+</plugin>

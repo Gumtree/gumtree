@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.equinox.http.registry.resources">
+      <resource
+            alias="/emu.html"
+            base-name="/WebContent/emu.html">
+      </resource>
+      <resource
+            alias="/"
+            base-name="/WebContent/emu.html">
+      </resource>
+      <resource
+            alias="/emu.swf"
+            base-name="/WebContent/emu.swf">
+      </resource>
+      <resource
+            alias="/assets/emu.jpg"
+            base-name="/WebContent/assets/emu.jpg">
+      </resource>
+      <resource
+            alias="/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+   </extension>
+
+</plugin>
