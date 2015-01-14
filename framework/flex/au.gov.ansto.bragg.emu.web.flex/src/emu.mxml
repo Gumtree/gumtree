@@ -101,7 +101,7 @@
             	httpServiceForNS.url = serverURL + "ns/rest/hdbs?devices=" + url;
 
          		// Set HM URL
-         		hmImage.url = serverURL + "dae/rest/image?type=TOTAL_HISTOGRAM_XT&screen_size_x=760&screen_size_y=760";
+         		hmImage.url = serverURL + "dae/rest/image?type=TOTAL_HISTOGRAM_XT&screen_size_x=600&screen_size_y=480";
          		
          		httpServiceForBatch.url = serverURL + "sics/rest/batch";
          		
