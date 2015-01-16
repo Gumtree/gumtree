@@ -15,6 +15,7 @@ var ins = [
            {"name":"Kookaburra", "url":"/kookaburra/status"},
            {"name":"Dingo", "url":"/dingo/status"},
            {"name":"Bilby", "url":"/bilby/status"},
+           {"name":"Emu", "url":"/emu/status"},
            ]
 var defaultTimeout = 10;
 var refresh = function(dict){
