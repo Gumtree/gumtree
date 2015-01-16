@@ -296,7 +296,7 @@ public class ScanTableModel extends KTableDefaultModel {
 	private Object getHeaderContent(int row, int col) {
 		if (row == ROW_HEADER_GROUP) {
 			// Row 0
-			if (col >= COLUMN_SECTION_SIZE && col % COLUMN_SECTION_SIZE == 1) {
+			if (col >= COLUMN_SECTION_SIZE && col % COLUMN_SECTION_SIZE == 0) {
 				return experiment.getInstrumentConfigs().get(col / COLUMN_SECTION_SIZE - 1).getName();
 			}
 		} else if (row == ROW_HEADER) {
@@ -641,6 +641,8 @@ public class ScanTableModel extends KTableDefaultModel {
 		if (row == ROW_HEADER_GROUP) {
 			if (col < COLUMN_SECTION_SIZE && col >= 0) {
 				// Span only the first 5 fixed col (not all due to scrolling problem in KTable)
+				return new Point((col / COLUMN_FIXED_SIZE) * COLUMN_FIXED_SIZE, row);
+			} else if ((col - COLUMN_FIXED_SIZE) % COLUMN_SECTION_SIZE > 0) {
 				return new Point((col / COLUMN_FIXED_SIZE) * COLUMN_FIXED_SIZE, row);
 			} else {
 				// KTabe may ask for col < 0 (this is a bug?)
