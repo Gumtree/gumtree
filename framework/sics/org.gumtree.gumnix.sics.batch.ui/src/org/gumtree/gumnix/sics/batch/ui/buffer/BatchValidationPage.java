@@ -264,6 +264,10 @@ public class BatchValidationPage extends ExtendedFormComposite {
 													|| context.logText.isDisposed()) {
 												return;
 											}
+											int fontColor = SWT.COLOR_BLUE;
+											if (message.toLowerCase().startsWith("error")) {
+												fontColor = SWT.COLOR_RED;
+											}
 											StyleRange styleRange = new StyleRange();
 											styleRange.start = context.logText
 													.getCharCount();
@@ -274,7 +278,7 @@ public class BatchValidationPage extends ExtendedFormComposite {
 													.getWorkbench()
 													.getDisplay()
 													.getSystemColor(
-															SWT.COLOR_BLUE);
+															fontColor);
 											context.logText.append(message + "\n");
 											context.logText
 													.setStyleRange(styleRange);
@@ -410,7 +414,7 @@ public class BatchValidationPage extends ExtendedFormComposite {
 					styleRange.start = context.logText.getCharCount();
 					styleRange.length = text.length() + 1;
 					styleRange.foreground = PlatformUI.getWorkbench()
-							.getDisplay().getSystemColor(SWT.COLOR_DARK_RED);
+							.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
 					context.logText.append(text + "\n");
 					context.logText.setStyleRange(styleRange);
 				}
