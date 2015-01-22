@@ -13,6 +13,7 @@ package org.gumtree.gumnix.sics.batch.ui.buffer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.PostConstruct;
@@ -26,10 +27,12 @@ public class BatchBufferQueue extends PropertyList<IBatchBuffer> {
 
 	@Inject
 	private ILocalPersistenceManager persistenceManager;
+	private List<IQueueEventListener> queueEventListeners;
 	
 	public BatchBufferQueue(AbstractModelObject modelObject,
 			String propertyName) {
-		super(modelObject, propertyName, new CopyOnWriteArrayList<IBatchBuffer>());		
+		super(modelObject, propertyName, new CopyOnWriteArrayList<IBatchBuffer>());
+		queueEventListeners = new ArrayList<BatchBufferQueue.IQueueEventListener>();
 	}
 
 	@PostConstruct
@@ -52,53 +55,62 @@ public class BatchBufferQueue extends PropertyList<IBatchBuffer> {
 	public boolean add(IBatchBuffer e) {
 		boolean result = super.add(e);
 		persist();
+		triggerQueueEvent();
 		return result;
 	}
 	
 	public void add(int index, IBatchBuffer element) {
 		add(index, element);
 		persist();
+		triggerQueueEvent();
 	}
 	
 	public boolean addAll(Collection<? extends IBatchBuffer> c) {
 		boolean result = super.addAll(c);
 		persist();
+		triggerQueueEvent();
 		return result;
 	}
 	
 	public boolean addAll(int index, Collection<? extends IBatchBuffer> c) {
 		boolean result = super.addAll(index, c);
 		persist();
+		triggerQueueEvent();
 		return result;
 	}
 	
 	public IBatchBuffer remove(int index) {
 		IBatchBuffer result = super.remove(index);
 		persist();
+		triggerQueueEvent();
 		return result;
 	}
 	
 	public boolean remove(Object o) {
 		boolean result = super.remove(o);
 		persist();
+		triggerQueueEvent();
 		return result;
 	}
 	
 	public boolean removeAll(Collection<?> c) {
 		boolean result = super.removeAll(c);
 		persist();
+		triggerQueueEvent();
 		return result;
 	}
 	
 	public IBatchBuffer set(int index, IBatchBuffer element) {
 		IBatchBuffer result = super.set(index, element);
 		persist();
+		triggerQueueEvent();
 		return result;
 	}
 	
 	public void clear() {
 		super.clear();
 		persist();
+		triggerQueueEvent();
 	}
 	
 	public ILocalPersistenceManager getPersistenceManager() {
@@ -120,4 +132,21 @@ public class BatchBufferQueue extends PropertyList<IBatchBuffer> {
 		}
 	}
 	
+	public interface IQueueEventListener{
+		public void queueChanged();
+	}
+	
+	public void addQueueEventListener(IQueueEventListener listener){
+		queueEventListeners.add(listener);
+	}
+	
+	public void removeQueueEventListener(IQueueEventListener listener) {
+		queueEventListeners.remove(listener);
+	}
+	
+	public void triggerQueueEvent() {
+		for (IQueueEventListener listener : queueEventListeners) {
+			listener.queueChanged();
+		}
+	}
 }

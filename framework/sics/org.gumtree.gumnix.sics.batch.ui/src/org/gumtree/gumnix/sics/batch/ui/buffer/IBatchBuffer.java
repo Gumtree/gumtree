@@ -14,4 +14,7 @@ public interface IBatchBuffer {
 	
 	public void setSource(Object source);
 	
+	public void setTimeEstimation(int seconds);
+	
+	public int getTimeEstimation();
 }

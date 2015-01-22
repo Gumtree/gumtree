@@ -162,7 +162,28 @@ public class VisualBatchBufferControlViewer extends AbstractWorkflowViewerCompon
 				}
 				// Add to the queue
 				IBatchBufferManager manager = ServiceUtils.getService(IBatchBufferManager.class);
-				IBatchBuffer buffer = new VisualBatchBuffer(dialog.getValue(), getWorkflow()); 
+				IBatchBuffer buffer = new VisualBatchBuffer(dialog.getValue(), getWorkflow());
+				float time = 0;
+				float counts = 0;
+				for (ITask task : getWorkflow().getTasks()) {
+					Object model = task.getDataModel();
+					if (model instanceof ISicsCommandBlock) {
+						ISicsCommandElement[] commands = ((ISicsCommandBlock) model).getCommands();
+						if (commands != null && commands.length > 0) {
+							ISicsCommandElement command = commands[0];
+							if (command instanceof AbstractSicsCommand) {
+								if ("secs".equals(((AbstractSicsCommand) command).getEstimationUnits())) {
+									time += ((AbstractSicsCommand) command).getEstimatedTime();
+								} else if ("cts".equals(((AbstractSicsCommand) command).getEstimationUnits())) {
+									counts += ((AbstractSicsCommand) command).getEstimatedTime();
+								}
+							}
+						}
+					}
+				}
+				if (counts == 0 && time > 0) {
+					buffer.setTimeEstimation((int) time);
+				}
 				manager.getBatchBufferQueue().add(buffer);
 				
 				String filename = "EXP" + getBatchDateString() + "_" + dialog.getValue()

@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.gumtree.gumnix.sics.batch.ui.buffer.BatchBufferQueue.IQueueEventListener;
 import org.gumtree.gumnix.sics.batch.ui.internal.Activator;
 import org.gumtree.gumnix.sics.control.ISicsListener;
 import org.gumtree.gumnix.sics.core.ISicsManager;
@@ -44,7 +45,11 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	private static final int SCHEDULING_INTERVAL = 500;
 	
 	// The batch buffer container
-	private List<IBatchBuffer> batchBufferQueue;
+	private BatchBufferQueue batchBufferQueue;
+	
+	private long timestampOnEstimation;
+	
+	private int estimatedTimeForBuffer;
 	
 	// The support back-end service
 	private ISicsManager sicsManager;
@@ -67,6 +72,8 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	// SICS batch buffer manager callback
 	private ISicsCallback exeInterestCallback;
 	
+	private IQueueEventListener queueEventListener;
+	
 	// Interrupt listener
 	private ISicsListener sicsListener;
 	
@@ -78,6 +85,19 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		ContextInjectionFactory.inject(batchBufferQueue, Activator.getDefault()
 				.getEclipseContext());
 		setStatus(BatchBufferManagerStatus.DISCONNECTED);
+		
+		// Handles buffer queue change event
+		queueEventListener = new IQueueEventListener() {
+			
+			@Override
+			public void queueChanged() {
+				if (isAutoRun()){
+					updateTimeEstimation();
+				}
+			}
+		};
+		batchBufferQueue.addQueueEventListener(queueEventListener);
+		
 		// Handles proxy connect and disconnect events
 		proxyListener = new SicsProxyListenerAdapter() {
 			public void proxyDisconnected() {
@@ -95,8 +115,29 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 				// * Queue is non empty
 				// * Triggered to run
 				if (getStatus().equals(BatchBufferManagerStatus.IDLE) && isAutoRun()) {
+//					boolean isTimeEstimationAvailable = true;
+//					int time = 0;
+//					List<IBatchBuffer> queue = getBatchBufferQueue();
+//					for (IBatchBuffer buffer : queue) {
+//						int estimation = buffer.getTimeEstimation();
+//						if (estimation > 0) {
+//							time += estimation;
+//						} else {
+//							isTimeEstimationAvailable = false;
+//							break;
+//						}
+//					}
+//					if (isTimeEstimationAvailable) {
+//						estimatedTotalTime = time;
+//						asyncSend("gumtree_time_estimate " + time, null);
+//					} else {
+//						estimatedTotalTime = -1;
+//						asyncSend("gumtree_time_estimate -1", null);
+//					}
 					if (getBatchBufferQueue().size() > 0) {
 						try {
+							estimatedTimeForBuffer = ((IBatchBuffer) getBatchBufferQueue().get(0)).getTimeEstimation();
+							timestampOnEstimation = System.currentTimeMillis();
 							IBatchBuffer buffer = (IBatchBuffer) getBatchBufferQueue().remove(0);
 							execute(buffer);
 						} catch (Exception e) {
@@ -104,6 +145,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 							handleExecutionEvent("failed to execute buffer");
 						}
 					} else {
+						asyncSend("gumtree_time_estimate 0", null);
 						setAutoRun(false);
 					}
 				}
@@ -118,6 +160,27 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		try {
 			escapeBrackets = Boolean.valueOf(System.getProperty(TCL_ESCAPE_CURLY_BRACKETS_PROPERTY));
 		} catch (Exception e) {
+		}
+	}
+	
+	private void updateTimeEstimation() {
+		boolean isTimeEstimationAvailable = true;
+		int time = 0;
+		List<IBatchBuffer> queue = getBatchBufferQueue();
+		for (IBatchBuffer buffer : queue) {
+			int estimation = buffer.getTimeEstimation();
+			if (estimation > 0) {
+				time += estimation;
+			} else {
+				isTimeEstimationAvailable = false;
+				break;
+			}
+		}
+		if (isTimeEstimationAvailable && estimatedTimeForBuffer >= 0) {
+			time += estimatedTimeForBuffer - (System.currentTimeMillis() - timestampOnEstimation) / 1000;
+			asyncSend("gumtree_time_estimate " + (System.currentTimeMillis() / 1000 - 1.4E9 + time) / 1000., null);
+		} else {
+			asyncSend("gumtree_time_estimate 0", null);
 		}
 	}
 	
@@ -210,6 +273,11 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	public void setAutoRun(boolean autoRun) {
 		Object oldValue = this.autoRun;
 		this.autoRun = autoRun;
+		if (!autoRun) {
+			estimatedTimeForBuffer = 0;
+			timestampOnEstimation = 0;
+			asyncSend("gumtree_time_estimate 0", null);
+		}
 		firePropertyChange("autoRun", oldValue, autoRun);
 	}
 	

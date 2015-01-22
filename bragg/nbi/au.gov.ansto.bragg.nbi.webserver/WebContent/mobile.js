@@ -6,6 +6,22 @@ try {
 
 $.support.cors = true;
 
+function formatDate(d) {
+	var dd = d.getDate();
+	if ( dd < 10 ) dd = '0' + dd;
+	var mm = d.getMonth()+1;
+	if ( mm < 10 ) mm = '0' + mm;
+	var yy = d.getFullYear();
+	var HH = d.getHours();
+	if (HH < 10) HH = '0' + HH;
+	var MM = d.getMinutes();
+	if (MM < 10) MM = '0' + MM;
+	var ss = d.getSeconds();
+	if (ss < 10) ss = '0' + ss;
+	return yy + '-' + mm + '-' + dd + 'T' + HH + ':' + MM + ':' + ss;
+}
+
+var lastTimeEstimation = -1.;
 var evEnabled = false;
 var refresh = function(){
 	var url = "ns/rest/hdbs?devices=";
@@ -55,7 +71,7 @@ var refresh = function(){
 				$("#sicsServer").css("color", "black");
 			}
 		});
-		if (batchEnabled) {
+		if (typeof batchEnabled !== 'undefined' && batchEnabled) {
 			$.get("sics/rest/batch", {"timestamp" : new Date().getTime()}, function(data,status){
 				if (status == "success") {
 					var obj = jQuery.parseJSON(data);
@@ -101,6 +117,33 @@ var refresh = function(){
 					}
 				} 
 			});
+		}
+		if (typeof timeEstimationEnabled !== 'undefined' && timeEstimationEnabled) {
+			try{
+				$.get("sics/rest/hdb/experiment/gumtree_time_estimate", {"timestamp" : new Date().getTime()}, function(data,status){
+					if (status == "success") {
+						var obj = jQuery.parseJSON(data);
+						var timeFloat = parseFloat(obj.value)
+						if (lastTimeEstimation == timeFloat){
+							return;
+						}
+						lastTimeEstimation = timeFloat;
+						if (timeFloat == 0) {
+							$("#gumtree_time_countdown").countdown('destroy');
+							$("#gumtree_time_countdown").text("--");
+							$("#gumtree_time_estimate").text("N/A");
+							return;
+						}
+						var newDate = new Date();
+						newDate.setTime(Math.round(timeFloat*1000*1000) + 1.4E12);
+						$("#gumtree_time_estimate").text(formatDate(newDate));
+						$("#gumtree_time_countdown").countdown('destroy');
+						$("#gumtree_time_countdown").countdown({until: newDate, compact: true, format: 'dHM'});
+					} 
+				});
+			} catch (e) {
+				
+			}
 		}
 		if (!isMobileBrowser && histmemUrl != null) {
 			var imgUrl = histmemUrl + "&timestamp=" + new Date().getTime();
@@ -148,12 +191,14 @@ var refresh = function(){
 	var cUrl = "";
 	for(var i = 0; i < devices.length; i++) {
 		for ( var j = 0; j < devices[i].items.length; j++) {
-			if (devices[i].items[j].deviceId.indexOf("/") != -1) {
-				cUrl += devices[i].items[j].deviceId;
-				cUrl += ",";
-			} else {
-				dUrl += devices[i].items[j].deviceId;
-				dUrl += ",";
+			if (devices[i].items[j].deviceId != null) {
+				if (devices[i].items[j].deviceId.indexOf("/") != -1) {
+					cUrl += devices[i].items[j].deviceId;
+					cUrl += ",";
+				} else {
+					dUrl += devices[i].items[j].deviceId;
+					dUrl += ",";
+				}
 			}
 		}
 	}
@@ -178,14 +223,22 @@ var refresh = function(){
 					for (var k = 0; k < obj.hdbs.length; k++){
 						if (devices[i].items[j].deviceId == obj.hdbs[k].deviceId){
 							try{
-								$("#" + devices[i].items[j].classId).text(obj.hdbs[k].value + " " + devices[i].items[j].units);
+								if (devices[i].items[j].adapt != null) {
+									$("#" + devices[i].items[j].classId).text(devices[i].items[j].adapt(obj.hdbs[k].value) + " " + devices[i].items[j].units);
+								} else {
+									$("#" + devices[i].items[j].classId).text(obj.hdbs[k].value + " " + devices[i].items[j].units);
+								}
 							} catch (e) {
 							}
 							break;
 						} else {
 							if (devices[i].items[j].deviceId == obj.hdbs[k].path){
 								try{
-									$("#" + devices[i].items[j].classId).text(obj.hdbs[k].value + " " + devices[i].items[j].units);
+									if (devices[i].items[j].adapt != null) {
+										$("#" + devices[i].items[j].classId).text(devices[i].items[j].adapt(obj.hdbs[k].value) + " " + devices[i].items[j].units);
+									} else {
+										$("#" + devices[i].items[j].classId).text(obj.hdbs[k].value + " " + devices[i].items[j].units);
+									}
 								} catch (e) {
 								}
 								break;
@@ -233,14 +286,18 @@ jQuery(document).ready(function(){
 	$(document).attr("title", title);
 	$('#titleString').text(title);
 	
-	if (batchEnabled) {
+	if (typeof batchEnabled !== 'undefined' && batchEnabled) {
 		$("#serviceList").append('<li data-role="list-divider">TCL Batch Runner</li>');
 		$("#serviceList").append('<li><div class="div-inlist-left">Runner Status:</div> <div class="div-inlist" id="runnerStatus">--</div></li>');
 		$("#serviceList").append('<li><div class="div-inlist-left">Script Name:</div> <div class="div-inlist" id="tclScript">--</div></li>');
 		$("#serviceList").append('<li><div class="div-inlist-left">Running Code:</div> <div class="div-inlist" id="runningCode">--</div></li>');
 		$("#serviceList").append('<li><div class="div-inlist-left">Script Content:</div> <div class="div-inlist" id="runningCode"><div id="scriptContent" class="div-textarea" name="textarea"></div></div></li>');
 	}
-	
+	if (typeof timeEstimationEnabled !== 'undefined' && timeEstimationEnabled) {
+		$("#deviceList").append('<li class="ui-li ui-li-divider ui-bar-d ui-first-child" role="heading" data-role="list-divider">TIME ESTIMATION</li>');
+		$("#deviceList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">Expected Finishing Time: </div> <div class="div-inlist" id="gumtree_time_estimate">--</div></li>');
+		$("#deviceList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">Count Down Timer: </div> <div class="div-inlist" id="gumtree_time_countdown">--</div></li>');
+	}
 	$("#deviceList").append('<li class="ui-li ui-li-divider ui-bar-d ui-first-child" role="heading" data-role="list-divider">NEUTRON SOURCE</li>');
 	for (i = 0; i < nsItems.length; i++) {
 		$("#deviceList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">' + nsItems[i].title + ': </div> <div class="div-inlist" id="' + nsItems[i].classId + '">--</div></li>');

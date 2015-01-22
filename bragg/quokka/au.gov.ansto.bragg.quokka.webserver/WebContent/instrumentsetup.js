@@ -1,6 +1,12 @@
 var title = "Quokka Status";
 var batchEnabled = false;
+var timeEstimationEnabled = true;
+
 var devices = [
+//               {"group":"TIME ESTIMATION", 
+//            	   "items":[{"classId":"gumtree_time_estimate", "deviceId":"gumtree_time_estimate", "title":"Expected Finishing Time", "units":"", "adapt" : getTimeString}
+//            	            ]
+//               },
                {"group":"BEAM STATUS", 
             	   "items":[{"classId":"plc_tertiary", "deviceId":"plc_tertiary", "title":"Sample Shutter", "units":""},
             	            {"classId":"fastshutter", "deviceId":"fastshutter", "title":"Fast Shutter", "units":""}
