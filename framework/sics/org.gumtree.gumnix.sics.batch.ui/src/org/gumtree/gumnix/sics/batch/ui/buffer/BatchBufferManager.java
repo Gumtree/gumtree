@@ -416,6 +416,9 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		synchronized (this.status) {
 			// Sets status
 			this.status = status;
+			
+			asyncSend("gumtree_status " + status, null);
+			
 			// Fires event
 			PlatformUtils.getPlatformEventBus().postEvent(
 					new BatchBufferManagerStatusEvent(this, status));
