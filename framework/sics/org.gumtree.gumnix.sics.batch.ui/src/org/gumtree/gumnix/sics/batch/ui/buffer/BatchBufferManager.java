@@ -141,7 +141,6 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 							IBatchBuffer buffer = (IBatchBuffer) getBatchBufferQueue().remove(0);
 							execute(buffer);
 						} catch (Exception e) {
-							// TODO
 							handleExecutionEvent("failed to execute buffer");
 						}
 					} else {
@@ -417,7 +416,11 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			// Sets status
 			this.status = status;
 			
-			asyncSend("gumtree_status " + status, null);
+			try{
+				asyncSend("gumtree_status " + status, null);
+			}catch (Exception e) {
+			
+			}
 			
 			// Fires event
 			PlatformUtils.getPlatformEventBus().postEvent(

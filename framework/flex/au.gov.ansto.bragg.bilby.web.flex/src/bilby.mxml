@@ -39,17 +39,18 @@
 				
 				// Set HDB HTTP
 				hdbDeviceMap = [
-				"ss1hg", ss1hgValue,
-				"ss1ho", ss1hoValue,
-				"ss1vg", ss1vgValue,
-				"ss1vo", ss1voValue,
+//				"ss1hg", ss1hgValue,
+//				"ss1ho", ss1hoValue,
+//				"ss1vg", ss1vgValue,
+//				"ss1vo", ss1voValue,
+				"t0_chopper_id", chopperId,
 				"monitor_counts", monitorRate,
 				"cdd", cddValue,
 				"cdl", cdlValue,
 				"cdr", cdrValue,
 				"cdu", cduValue,
 				"det", detValue,
-				"att", attValue,
+				"att_pos", attPos,
 				"::histogram_memory::ratemap_xy_total", detectorRate,
 				"::histogram_memory::ratemap_xy_max_bin", pixelRate,
 	//			"plc_secondary", secondaryShutter
@@ -321,59 +322,20 @@
 			<mx:Grid width="100%" borderStyle="none">
 				<mx:GridRow width="100%">
 					<mx:GridItem width="100%">
-						<mx:Label fontWeight="bold" text="Slits" textAlign="left" width="100%"/>
+						<mx:Label fontWeight="bold" text="Chopper" textAlign="left" width="100%"/>
 					</mx:GridItem>
 				</mx:GridRow>
 			</mx:Grid>
 			<mx:Grid width="100%">
 				<mx:GridRow width="100%">
 					<mx:GridItem width="45%">
-						<mx:Label text="ss1hg" textAlign="right" width="100%"/>
+						<mx:Label text="id" textAlign="right" width="100%"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="ss1hgValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+						<mx:TextArea id="chopperId" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:Label text="mm"  width="50"/>
-					</mx:GridItem>
-				</mx:GridRow>
-			</mx:Grid>
-			<mx:Grid width="100%">
-				<mx:GridRow width="100%">
-					<mx:GridItem width="45%">
-						<mx:Label text="ss1ho" textAlign="right" width="100%"/>
-					</mx:GridItem>
-					<mx:GridItem>
-						<mx:TextArea id="ss1hoValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
-					</mx:GridItem>
-					<mx:GridItem>
-						<mx:Label text="mm"  width="50"/>
-					</mx:GridItem>
-				</mx:GridRow>
-			</mx:Grid>
-			<mx:Grid width="100%">
-				<mx:GridRow width="100%">
-					<mx:GridItem width="45%">
-						<mx:Label text="ss1vg" textAlign="right" width="100%"/>
-					</mx:GridItem>
-					<mx:GridItem>
-						<mx:TextArea id="ss1vgValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
-					</mx:GridItem>
-					<mx:GridItem>
-						<mx:Label text="mm"  width="50"/>
-					</mx:GridItem>
-				</mx:GridRow>
-			</mx:Grid>
-			<mx:Grid width="100%">
-				<mx:GridRow width="100%">
-					<mx:GridItem width="45%">
-						<mx:Label text="ss1vo" textAlign="right" width="100%"/>
-					</mx:GridItem>
-					<mx:GridItem>
-						<mx:TextArea id="ss1voValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
-					</mx:GridItem>
-					<mx:GridItem>
-						<mx:Label text="mm"  width="50"/>
+						<mx:Label text=""  width="50"/>
 					</mx:GridItem>
 				</mx:GridRow>
 			</mx:Grid>
@@ -459,13 +421,13 @@
 			<mx:Grid width="100%">
 				<mx:GridRow width="100%">
 					<mx:GridItem width="45%">
-						<mx:Label text="att" textAlign="right" width="100%"/>
+						<mx:Label text="att position" textAlign="right" width="100%"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="attValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+						<mx:TextArea id="attPos" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:Label text="mm"  width="50"/>
+						<mx:Label text=""  width="50"/>
 					</mx:GridItem>
 				</mx:GridRow>
 			</mx:Grid>
