@@ -144,6 +144,10 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 	
 	private UIResourceManager resourceManager;
 	
+	private boolean inLocalScale = false;
+	
+	private boolean inLineScale = false;
+	
 	public IScriptExecutor getScriptExecutor() {
 		return executor;
 	}
@@ -512,13 +516,41 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 		inputTextViewer.appendVerifyKeyListener(new VerifyKeyListener() {
 			public void verifyKey(VerifyEvent event) {
 				if (event.keyCode == SWT.KEYPAD_CR || event.keyCode == SWT.CR) {
-					String command = inputTextViewer.getTextWidget().getText().trim();
+					String command = inputTextViewer.getTextWidget().getText();
 					if (historyList != null) {
 						historyList.appendCommand(command);
 					}
-					evaluateCommand(command);
-					// Reset readLineIndex
-					readLineIndex = -1;
+					if (command.endsWith(":")){
+						inLocalScale = true;
+						return;
+					}
+					if (command.endsWith("\\")){
+						inLineScale = true;
+						return;
+					}
+					if (inLineScale) {
+						if (!inLocalScale) {
+							evaluateCommand(command.trim());
+							// Reset readLineIndex
+							readLineIndex = -1;
+						} else {
+							inLineScale = false;
+						}
+						return;
+					}
+					if (inLocalScale) {
+						if (command.endsWith("\n")){
+							evaluateCommand(command);
+							// Reset readLineIndex
+							readLineIndex = -1;
+						} else {
+							return;
+						}
+					} else {
+						evaluateCommand(command.trim());
+						// Reset readLineIndex
+						readLineIndex = -1;
+					}
 				} else if (event.keyCode == SWT.ARROW_UP) {
 					if(historyList.isEmpty())
 						return;
@@ -782,6 +814,8 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 		SafeUIRunner.asyncExec(new SafeRunnable() {
 			public void run() throws Exception {
 				// Print command to console and clear input box
+				inLineScale = false;
+				inLocalScale = false;
 				if (consoleTextViewer != null && !consoleTextViewer.getTextWidget().isDisposed()) {
 					if (!(getScriptExecutor().getEngine() instanceof IObservableComponent)) {
 						print("\n\n>> ", Display.getDefault().getSystemColor(SWT.COLOR_DARK_RED), SWT.NORMAL);
