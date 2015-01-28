@@ -154,6 +154,10 @@ public class ScriptExecutor implements IScriptExecutor {
 							logger.error("Report error problem.", ioe);
 						}
 					} finally {
+						try {
+							reader.close();
+						} catch (IOException e) {
+						}
 						setBusy(false);
 					}
 					getEventBus().postEvent(new ScriptExecutorCompletionEvent(ScriptExecutor.this));

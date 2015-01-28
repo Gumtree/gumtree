@@ -834,7 +834,8 @@ public class ScriptControlViewer extends Composite {
 //		executor.runScript(postBlock);
 		try {
 			String fn = FileLocator.toFileURL(Activator.getDefault().getBundle().getEntry(POST_RUN_SCRIPT)).getFile();
-			executor.runScript(new FileReader(fn));
+			FileReader reader = new FileReader(fn);
+			executor.runScript(reader);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
