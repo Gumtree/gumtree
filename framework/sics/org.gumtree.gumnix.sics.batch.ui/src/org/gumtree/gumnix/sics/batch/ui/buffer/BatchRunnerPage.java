@@ -27,6 +27,9 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -39,10 +42,13 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ResourceSelectionDialog;
@@ -84,6 +90,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	private boolean checkInstrumentReady;
 	
 	private boolean clearLog;
+	
+	private SashForm sashForm;
 	
 	// Listener to the batch buffer queue and auto run
 	private PropertyChangeListener propertyChangeListener;
@@ -151,9 +159,19 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	
 	private void createRunMainContent(Composite parent) {
 		parent.setLayout(new FillLayout());
-		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);
+		sashForm = new SashForm(parent, SWT.VERTICAL);
 		getToolkit().adapt(sashForm);
-		
+
+		// Preview
+		Group previewGroup = new Group(sashForm, SWT.NONE);
+		previewGroup.setText("Preview");
+		getToolkit().adapt(previewGroup);
+		previewGroup.setLayout(new FillLayout());
+		previewGroup.setFont(JFaceResources.getBannerFont());
+		context.previewText = new AutoScrollStyledText(previewGroup, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
+		context.previewText.setText("");
+		context.previewText.setFont(JFaceResources.getBannerFont());
+
 		// Editor
 		Group editorGroup = new Group(sashForm, SWT.NONE);
 		editorGroup.setText("Buffer");
@@ -175,7 +193,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		context.logText.setFont(JFaceResources.getBannerFont());
 		context.logText.setData(KEY_PREV_DOC_LEN, 0);
 		
-		sashForm.setWeights(new int[] { 1, 1 });
+		sashForm.setWeights(new int[] { 0, 1, 1});
 	}
 	
 	private void createRunControlContent(Composite parent) {
@@ -211,6 +229,60 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		context.queueViewer.setManager(getBatchBufferManager());
 		context.queueViewer.afterParametersSet();
 		GridDataFactory.fillDefaults().grab(true, true).span(2, 1).applyTo(context.queueViewer);
+		
+		context.queueViewer.getViewer().addDoubleClickListener(new IDoubleClickListener() {
+			
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				ISelection selection = context.queueViewer.getViewer().getSelection();
+				if (selection instanceof IStructuredSelection){
+					Object obj = ((IStructuredSelection) selection).getFirstElement();
+					if (obj instanceof IBatchBuffer) {
+						context.previewText.setText(((IBatchBuffer) obj).getContent());
+						sashForm.setWeights(new int[]{1, 1, 1});
+					}
+				}
+			}
+		});
+		
+
+		Listener focusListener = new Listener()
+	        {
+	            public void handleEvent(Event event)
+	            {
+	                if (!(event.widget instanceof Control))
+	                {
+	                    return;
+	                }
+
+	                boolean isOurChild = false;
+	                if (context.queueViewer == null || context.queueViewer.getViewer() == null 
+	                		|| context.queueViewer.isDisposed()) {
+	                	return;
+	                }
+	                for (Control c = (Control) event.widget; c != null; c = c.getParent())
+	                {
+	                    if (c == context.queueViewer.getViewer().getControl())
+	                    {
+	                        isOurChild = true;
+	                        break;
+	                    }
+	                    if (c == context.previewText){
+	                    	isOurChild = true;
+	                        break;
+	                    }
+	                }
+
+	                if (!isOurChild)
+	                {
+	                    sashForm.setWeights(new int[]{0, 1, 1});
+	                }
+	            }
+	        };
+
+	        getDisplay().addFilter(SWT.FocusIn, focusListener);
+	        getDisplay().addFilter(SWT.FocusOut, focusListener);
+	        
 		Button addWorkspaceButton = getToolkit().createButton(queueGroup, "Workspace", SWT.PUSH);
 		addWorkspaceButton.setImage(InternalImage.ADD.getImage());
 		addWorkspaceButton.addSelectionListener(new SelectionAdapter() {
@@ -519,6 +591,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		private TimerWidget timerWidget;
 		private BatchBufferQueueViewer queueViewer;
 		private AutoScrollStyledText editorText;
+		private AutoScrollStyledText previewText;
 		private AutoScrollStyledText logText;
 		private Button autoRunButton;
 		private void dispose() {
@@ -528,6 +601,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 			logText = null;
 			editorText = null;
 			autoRunButton = null;
+			previewText = null;
 		}
 	}
 
