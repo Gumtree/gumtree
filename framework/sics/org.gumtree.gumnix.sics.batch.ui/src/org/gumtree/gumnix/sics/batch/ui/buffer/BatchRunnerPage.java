@@ -35,6 +35,8 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -246,43 +248,51 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		});
 		
 
-		Listener focusListener = new Listener()
-	        {
-	            public void handleEvent(Event event)
-	            {
-	                if (!(event.widget instanceof Control))
-	                {
-	                    return;
-	                }
+		final Listener focusListener = new Listener() {
+			public void handleEvent(Event event)
+			{
+//				if (!(event.widget instanceof Control))
+//				{
+//					return;
+//				}
 
-	                boolean isOurChild = false;
-	                if (context.queueViewer == null || context.queueViewer.getViewer() == null 
-	                		|| context.queueViewer.isDisposed()) {
-	                	return;
-	                }
-	                for (Control c = (Control) event.widget; c != null; c = c.getParent())
-	                {
-	                    if (c == context.queueViewer.getViewer().getControl())
-	                    {
-	                        isOurChild = true;
-	                        break;
-	                    }
-	                    if (c == context.previewText){
-	                    	isOurChild = true;
-	                        break;
-	                    }
-	                }
+				boolean isPreviewChild = false;
+				if (context == null || context.queueViewer == null || context.queueViewer.getViewer() == null 
+						|| context.queueViewer.isDisposed()) {
+					return;
+				}
+				for (Control c = (Control) event.widget; c != null; c = c.getParent())
+				{
+					if (c == context.queueViewer.getViewer().getControl())
+					{
+						isPreviewChild = true;
+						break;
+					}
+					if (c == context.previewText){
+						isPreviewChild = true;
+						break;
+					}
+				}
 
-	                if (!isOurChild)
-	                {
-	                    sashForm.setWeights(new int[]{0, 1, 1});
-	                }
-	            }
-	        };
+				if (!isPreviewChild)
+				{
+					sashForm.setWeights(new int[]{0, 1, 1});
+				}
+			}
+		};
 
-	        getDisplay().addFilter(SWT.FocusIn, focusListener);
-	        getDisplay().addFilter(SWT.FocusOut, focusListener);
-	        
+		getDisplay().addFilter(SWT.FocusIn, focusListener);
+		getDisplay().addFilter(SWT.FocusOut, focusListener);
+
+		addDisposeListener(new DisposeListener() {
+			
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				getDisplay().removeFilter(SWT.FocusIn, focusListener);
+				getDisplay().removeFilter(SWT.FocusOut, focusListener);
+			}
+		});
+		
 		Button addWorkspaceButton = getToolkit().createButton(queueGroup, "Workspace", SWT.PUSH);
 		addWorkspaceButton.setImage(InternalImage.ADD.getImage());
 		addWorkspaceButton.addSelectionListener(new SelectionAdapter() {
