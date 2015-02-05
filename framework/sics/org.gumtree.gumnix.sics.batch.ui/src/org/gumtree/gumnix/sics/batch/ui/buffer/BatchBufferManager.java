@@ -92,6 +92,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			@Override
 			public void queueChanged() {
 				if (isAutoRun()){
+					System.err.println("**************************try to update time estimation");
 					updateTimeEstimation();
 				}
 			}
@@ -129,10 +130,10 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 //					}
 //					if (isTimeEstimationAvailable) {
 //						estimatedTotalTime = time;
-//						asyncSend("gumtree_time_estimate " + time, null);
+//						asyncSend("hset /experiment/gumtree_time_estimate " + time, null);
 //					} else {
 //						estimatedTotalTime = -1;
-//						asyncSend("gumtree_time_estimate -1", null);
+//						asyncSend("hset /experiment/gumtree_time_estimate -1", null);
 //					}
 					if (getBatchBufferQueue().size() > 0) {
 						try {
@@ -144,7 +145,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 							handleExecutionEvent("failed to execute buffer");
 						}
 					} else {
-						asyncSend("gumtree_time_estimate 0", null);
+						asyncSend("hset /experiment/gumtree_time_estimate 0", null);
 						setAutoRun(false);
 					}
 				}
@@ -177,9 +178,9 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		}
 		if (isTimeEstimationAvailable && estimatedTimeForBuffer >= 0) {
 			time += estimatedTimeForBuffer - (System.currentTimeMillis() - timestampOnEstimation) / 1000;
-			asyncSend("gumtree_time_estimate " + (System.currentTimeMillis() / 1000 - 1.4E9 + time) / 1000., null);
+			asyncSend("hset /experiment/gumtree_time_estimate " + (System.currentTimeMillis() / 1000 + time), null);
 		} else {
-			asyncSend("gumtree_time_estimate 0", null);
+			asyncSend("hset /experiment/gumtree_time_estimate 0", null);
 		}
 	}
 	
@@ -212,6 +213,8 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		// Listen to interrupt event
 		sicsListener = new ISicsListener() {
 			public void interrupted(int level) {
+				System.err.println("******************" + level);
+
 				if (level >= 3) {
 					// Batch is interrupt with level 3 or above
 					setStatus(BatchBufferManagerStatus.IDLE);
@@ -275,7 +278,8 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		if (!autoRun) {
 			estimatedTimeForBuffer = 0;
 			timestampOnEstimation = 0;
-			asyncSend("gumtree_time_estimate 0", null);
+			System.err.println("************************ clear time estimation");
+			asyncSend("hset /experiment/gumtree_time_estimate 0", null);
 		}
 		firePropertyChange("autoRun", oldValue, autoRun);
 	}
@@ -422,6 +426,15 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			
 			}
 			
+			if (status == BatchBufferManagerStatus.IDLE) {
+				if (!isAutoRun()) {
+					try{
+						asyncSend("hset /experiment/gumtree_time_estimate 0", null);
+					}catch (Exception e) {
+					
+					}
+				}
+			}
 			// Fires event
 			PlatformUtils.getPlatformEventBus().postEvent(
 					new BatchBufferManagerStatusEvent(this, status));

@@ -18,7 +18,7 @@ function formatDate(d) {
 	if (MM < 10) MM = '0' + MM;
 	var ss = d.getSeconds();
 	if (ss < 10) ss = '0' + ss;
-	return yy + '-' + mm + '-' + dd + 'T' + HH + ':' + MM + ':' + ss;
+	return yy + '-' + mm + '-' + dd + 'T' + HH + ':' + MM ;
 }
 
 var lastTimeEstimation = -1.;
@@ -123,7 +123,11 @@ var refresh = function(){
 				$.get("sics/rest/hdb/experiment/gumtree_time_estimate", {"timestamp" : new Date().getTime()}, function(data,status){
 					if (status == "success") {
 						var obj = jQuery.parseJSON(data);
-						var timeFloat = parseFloat(obj.value)
+						var timeFloat = 0;
+						try {
+							timeFloat = parseFloat(obj.value)
+						} catch (e) {
+						}
 						if (lastTimeEstimation == timeFloat){
 							return;
 						}
@@ -135,10 +139,10 @@ var refresh = function(){
 							return;
 						}
 						var newDate = new Date();
-						newDate.setTime(Math.round(timeFloat*1000*1000) + 1.4E12);
+						newDate.setTime(Math.round(timeFloat*1000));
 						$("#gumtree_time_estimate").text(formatDate(newDate));
 						$("#gumtree_time_countdown").countdown('destroy');
-						$("#gumtree_time_countdown").countdown({until: newDate, compact: true, format: 'dHM'});
+						$("#gumtree_time_countdown").countdown({until: newDate, compact: true, format: 'HMS'});
 					} 
 				});
 			} catch (e) {

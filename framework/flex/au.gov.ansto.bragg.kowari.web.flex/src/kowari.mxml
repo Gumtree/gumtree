@@ -59,7 +59,9 @@
 				"som", sampleOmega,
 				"plc_tertiary", sampleShutter,
 				"mtth", mono2theta,
-				"stth", sample2theta
+				"stth", sample2theta,
+				"gumtree_time_estimate", finishTime
+//				"gumtree_status", gumtreeStatus
 	//			"plc_secondary", secondaryShutter
 				];
 				
@@ -158,6 +160,10 @@
 					if (deviceName != null)
 					{
 						var index:int = hdbDeviceMap.indexOf(deviceName);
+						if (deviceName == "gumtree_time_estimate") {
+							handleTimeEstimation(index, dataArray[i].value);
+							continue;
+						}
 						if (index >= 0)
 						{
 							var textArea:TextArea = hdbDeviceMap[index + 1] as TextArea; 
@@ -297,6 +303,45 @@
             	}
             } 
             
+            private function handleTimeEstimation(index:int, status:String):void
+            {
+            	var textArea:TextArea = hdbDeviceMap[index + 1] as TextArea; 
+            	var timeFloat:Number = Number(status);
+            	if (timeFloat == 0){
+            		textArea.text = "N/A";
+            		return;
+            	}
+            	var date:Date = new Date;
+				date.time = timeFloat*1000;
+            	
+            	var formatter:DateFormatter = new DateFormatter();
+				formatter.formatString = "DD/MM HH:NN";
+				textArea.text = formatter.format(date);
+//				textArea.text = String(timeFloat);
+            } 
+            
+			private function formatDate(d:Date):String {
+				var dd:int = d.getDate();
+				var ddStr:String = String(dd);
+				if ( dd < 10 ) ddStr = '0' + ddStr;
+				var mm:int = d.getMonth()+1;
+				var mmStr:String = String(mm);
+				if ( mm < 10 ) mmStr = '0' + mmStr;
+				var yy:int = d.getFullYear();
+				var yyStr:String = String(yy);
+				var HH:int = d.getHours();
+				var hhStr:String = String(HH);
+				if (HH < 10) hhStr = '0' + hhStr;
+				var MM:int = d.getMinutes();
+				var minStr:String = String(MM);
+				if (MM < 10) minStr = '0' + minStr;
+				var ss:int = d.getSeconds();
+				var ssStr:String = String(ss);
+				if (ss < 10) ssStr = '0' + ssStr;
+//				return yyStr + '-' + mmStr + '-' + ddStr + 'T' + hhStr + ':' + minStr + ':' + ssStr;
+				return hhStr + ':' + minStr + ':' + ssStr;
+			}
+
             private function initText():void {
             	var j:int = hdbDeviceMap.length;
 				for (var i:int = 0; i < j; i+=2) {
@@ -550,6 +595,17 @@
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:TextArea id="sampleShutter" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:Label text=""  width="20"/>
+					</mx:GridItem>
+				</mx:GridRow>
+				<mx:GridRow width="100%">
+					<mx:GridItem width="55%">
+						<mx:Label text="Estimated Ending Time" textAlign="right" width="100%"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="finishTime" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text=""  width="20"/>
