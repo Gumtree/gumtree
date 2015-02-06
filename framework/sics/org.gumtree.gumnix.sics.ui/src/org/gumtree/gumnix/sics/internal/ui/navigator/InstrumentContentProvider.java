@@ -6,9 +6,11 @@ import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.WorkbenchWindow;
 import org.eclipse.ui.intro.IIntroPart;
 import org.gumtree.gumnix.sics.control.ControllerStatus;
 import org.gumtree.gumnix.sics.control.ISicsController;
@@ -168,18 +170,10 @@ public class InstrumentContentProvider implements ITreeContentProvider,
 											IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
 											for (IWorkbenchWindow window : windows) {
 												try {
-													if (window.getActivePage().getPerspective().getId().equals(pageId)){
-														page = window.getActivePage();
-														break;
-													}
-												} catch (Exception e) {
-												}
-											}
-											for (IWorkbenchWindow window : windows) {
-												try {
-													IWorkbenchPage[] pages = window.getPages();
-													for (IWorkbenchPage subPage : pages) {
-														if (subPage.getPerspective().getId().equals(pageId)) {
+													IWorkbenchPage subPage = window.getActivePage();
+													IPerspectiveDescriptor[] perspectives = subPage.getSortedPerspectives();
+													for (IPerspectiveDescriptor perspective : perspectives) {
+														if (perspective.getId().equals(pageId)) {
 															page = subPage;
 															break;
 														}
@@ -188,6 +182,23 @@ public class InstrumentContentProvider implements ITreeContentProvider,
 														break;
 													}
 												} catch (Exception e) {
+												}
+											}
+											if (page == null) {
+												for (IWorkbenchWindow window : windows) {
+													try {
+														IWorkbenchPage[] pages = window.getPages();
+														for (IWorkbenchPage subPage : pages) {
+															if (subPage.getPerspective().getId().equals(pageId)) {
+																page = subPage;
+																break;
+															}
+														}
+														if (page != null) {
+															break;
+														}
+													} catch (Exception e) {
+													}
 												}
 											}
 										}
