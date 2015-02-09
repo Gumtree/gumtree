@@ -133,7 +133,8 @@ public class ExperimentLauncher extends AbstractLauncher {
 			@Override
 			public void perspectiveChanged(IWorkbenchPage page,
 					IPerspectiveDescriptor perspective, String changeId) {
-				if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT)) {
+				if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT) 
+						|| perspective.getId().equals(ID_PERSPECTIVE_SCRIPTING)) {
 					activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
 				}
 			}
@@ -141,7 +142,8 @@ public class ExperimentLauncher extends AbstractLauncher {
 			@Override
 			public void perspectiveActivated(IWorkbenchPage page,
 					IPerspectiveDescriptor perspective) {
-				if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT)) {
+				if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT)
+						|| perspective.getId().equals(ID_PERSPECTIVE_SCRIPTING)) {
 					activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
 				} else {
 					activeWorkbenchWindow.getActivePage().setEditorAreaVisible(true);
@@ -159,7 +161,8 @@ public class ExperimentLauncher extends AbstractLauncher {
 
 					public void run() {
 						try{
-							if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT)){
+							if (perspective.getId().equals(ID_PERSPECTIVE_EXPERIMENT)
+									|| perspective.getId().equals(ID_PERSPECTIVE_SCRIPTING)){
 								activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
 							} else {
 								activeWorkbenchWindow.getActivePage().setEditorAreaVisible(true);
