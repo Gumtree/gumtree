@@ -160,9 +160,9 @@
 	  </perspective>
 	  <perspective
             class="au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingPerspective"
-            icon="icons/script/scripting_16.png"
+            icon="icons/script/open_console_obj.gif"
             id="au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingPerspective"
-            name="Kowari Scripting"/>
+            name="Analysis Scripting - Stand Alone"/>
    </extension>
    <extension
          point="org.eclipse.ui.views">

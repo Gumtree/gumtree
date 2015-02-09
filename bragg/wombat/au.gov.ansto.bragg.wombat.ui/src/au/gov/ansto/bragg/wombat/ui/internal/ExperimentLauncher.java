@@ -23,7 +23,7 @@ public class ExperimentLauncher extends AbstractLauncher {
 	private static Logger logger = LoggerFactory.getLogger(ExperimentLauncher.class);
 			
 	
-	private static final String ID_PERSPECTIVE_SCRIPTING = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
+	private static final String ID_PERSPECTIVE_SCRIPTING = "au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingPerspective";
 	
 	private static final String ID_PERSPECTIVE_DEFAULT = "au.gov.ansto.bragg.nbi.ui.EmptyPerspective";
 
@@ -124,6 +124,7 @@ public class ExperimentLauncher extends AbstractLauncher {
 		}
 		IMultiMonitorManager mmManager = new MultiMonitorManager();
 		// Attempt to close intro
+		mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 0, 0, false);
 		mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SICS, 0, 0, false);
 		mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
 		
