@@ -175,6 +175,7 @@ function processStatus(data, interval_id) {
     }
     if (data['js']){
         try{
+//        	alert(data['js']);
             eval(data['js']);
         }catch (e) {
             alert('failed to run ' + data['js']);
@@ -511,6 +512,7 @@ function createGui(){
 }
 
 jQuery(document).ready(function(){
+
 	$(document).attr("title", title + " - Jython Runner");
 	$('#titleString').text(title + " - Jython Runner");
 
@@ -789,5 +791,6 @@ jQuery(document).ready(function(){
     getUserInfo();
     
     getScriptList();
+    
 });
 

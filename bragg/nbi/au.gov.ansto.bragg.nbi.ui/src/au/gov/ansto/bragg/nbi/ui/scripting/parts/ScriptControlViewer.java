@@ -247,7 +247,7 @@ public class ScriptControlViewer extends Composite {
 	private ScriptModel scriptModel;
 	private String scriptFilename;
 	private Button currentButton;
-	private ScriptExecutor scriptExecutor;
+	private IScriptExecutor scriptExecutor;
 	private IActivityListener datasetActivityListener;
 	/**
 	 * @param parent
@@ -647,7 +647,6 @@ public class ScriptControlViewer extends Composite {
 	private void confirmReload() {
 		IWorkbenchPage page = ScriptPageRegister.getRegister(scriptRegisterID).getWorkbenchPage();
 		String pageID = page.getPerspective().getId();
-		System.out.println(pageID);
 		if (ScriptingPerspective.SCRIPTING_PERSPECTIVE_ID.equals(pageID)) {
 			boolean reload = MessageDialog.openQuestion(getShell(), "Reload the Script", "The " +
 					"analysis script has been changed, do you want to reload it? All argument " +
@@ -2127,7 +2126,7 @@ public class ScriptControlViewer extends Composite {
 		return scroll;
 	}
 	
-	public void setScriptExecutor(ScriptExecutor executor){
+	public void setScriptExecutor(IScriptExecutor executor){
 		this.scriptExecutor = executor;
 	}
 	

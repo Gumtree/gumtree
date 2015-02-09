@@ -158,6 +158,11 @@
             fixed="true"
             name="Empty Workbench">
 	  </perspective>
+	  <perspective
+            class="au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingPerspective"
+            icon="icons/script/scripting_16.png"
+            id="au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingPerspective"
+            name="Kowari Scripting"/>
    </extension>
    <extension
          point="org.eclipse.ui.views">
@@ -222,6 +227,13 @@
 	         name="Plot 2"
 	         allowMultiple = "true" 
 	         class="org.gumtree.data.ui.part.PlotView"/>
+      <view 
+	         id="au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingView" 
+	         name="Stand Alone Scripting View"
+	         icon="icons/script/operation_parameters_view.gif"
+             category="au.gov.ansto.bragg.nbi.ui"
+	         allowMultiple = "true" 
+	         class="au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingView"/>
    </extension>
    <extension
          point="org.gumtree.ui.gadgets">

@@ -54,11 +54,20 @@ def noclose():
 if __register__.getPlot1() != None:
     Plot1 = GPlot(widget=__register__.getPlot1())
     Plot1.close = noclose
+elif __register__.getObject('Plot1') != None:
+    Plot1 = GPlot(widget=__register__.getObject('Plot1'))
+    Plot1.close = noclose
 if __register__.getPlot2() != None:
     Plot2 = GPlot(widget=__register__.getPlot2())
     Plot2.close = noclose
+elif __register__.getObject('Plot2') != None:
+    Plot2 = GPlot(widget=__register__.getObject('Plot2'))
+    Plot2.close = noclose
 if __register__.getPlot3() != None:
     Plot3 = GPlot(widget=__register__.getPlot3())
+    Plot3.close = noclose
+elif __register__.getObject('Plot3') != None:
+    Plot3 = GPlot(widget=__register__.getObject('Plot3'))
     Plot3.close = noclose
     
 __INFOTEXT__ = None

@@ -25,11 +25,6 @@
             id="au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspectiveOld"
             name="Kowari Experiment Old"/>
       -->
-	  <perspective
-            class="au.gov.ansto.bragg.kowari.ui.internal.KowariAnalysisPerspective"
-            icon="icons/project_view.gif"
-            id="au.gov.ansto.bragg.kowari.ui.internal.KowariAnalysisPerspective"
-            name="Kowari Data Analysis"/>
    </extension>
    <extension
          point="org.gumtree.ui.launchers">

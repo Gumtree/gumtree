@@ -31,7 +31,7 @@ public class KowariWorkbenchLauncher extends AbstractLauncher {
 
 	
 	private static final String ID_PERSPECTIVE_EXPERIMENT = "au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective";
-	private static final String ID_PERSPECTIVE_ANALYSIS = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
+	private static final String ID_PERSPECTIVE_ANALYSIS = "au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingPerspective";
 	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
 	
 	private static Logger logger = LoggerFactory.getLogger(KowariWorkbenchLauncher.class);
@@ -174,9 +174,30 @@ public class KowariWorkbenchLauncher extends AbstractLauncher {
 				windowId = 1;
 			}
 			if (windowId == 0) {
+				mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_ANALYSIS, 0, windowId, false);
 				mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SICS, 0, windowId, false);
 			}
 			mmManager.showPerspectiveOnOpenedWindow(perspectiveId, 0, windowId, mmManager.isMultiMonitorSystem());
+
+//			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_ANALYSIS, 0, windowId, true);
+//			
+//			Thread thread = new Thread(new Runnable() {
+//
+//				@Override
+//				public void run() {
+//					try {
+//						Thread.currentThread().sleep(5000);
+//						PlatformUI.getWorkbench().showPerspective(ID_PERSPECTIVE_EXPERIMENT,       
+//								PlatformUI.getWorkbench().getActiveWorkbenchWindow());
+//					} 
+//					catch (Exception e) 
+//					{
+//						e.printStackTrace();
+//					}
+//				}
+//			});
+//			thread.start();
+
 			activeWorkbenchWindow.getActivePage().setEditorAreaVisible(false);
 
 			activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
