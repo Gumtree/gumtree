@@ -266,9 +266,9 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
-            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
 	      <toolbar
-               id="org.eclipse.ui.main.toolbar"
+               id="au.gov.ansto.bragg.nbi.ui.toolbar.saveAs"
                label="Save As">
             <command
                   commandId="org.eclipse.ui.file.saveAs"
@@ -282,8 +282,21 @@
          </toolbar>
       </menuContribution>
       <menuContribution
+            allPopups="true"
+            locationURI="popup:org.eclipse.ui.popup.any?after=save">
+            <command
+                  commandId="org.eclipse.ui.file.saveAs"
+                  disabledIcon="icons/widgets/saveas_disabled.gif"
+                  icon="icons/widgets/saveas_enabled.gif"
+                  label="Save As"
+                  mode="FORCE_TEXT"
+                  style="push"
+                  tooltip="Save As">
+          </command>
+      </menuContribution>
+      <menuContribution
             allPopups="false"
-            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
          <toolbar
                id="au.gov.ansto.bragg.nbi.ui.toolbar"
                label="NBI UI">
