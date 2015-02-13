@@ -42,20 +42,20 @@ function ajaxindicatorstart(text)
 	});
 
     jQuery('#resultLoading .bg').height('100%');
-       jQuery('#resultLoading').fadeIn(300);
+    jQuery('#resultLoading').fadeIn(300);
     jQuery('body').css('cursor', 'wait');
 }
 
 function ajaxindicatorstop()
 {
     jQuery('#resultLoading .bg').height('100%');
-       jQuery('#resultLoading').fadeOut(300);
+    jQuery('#resultLoading').fadeOut(300);
     jQuery('body').css('cursor', 'default');
 }
 
 jQuery(document).ajaxStart(function () {
 		//show ajax indicator
-		ajaxindicatorstart('loading data.. please wait..');
+		ajaxindicatorstart('Loading ...');
 	}).ajaxStop(function () {
 		//hide ajax indicator
 		ajaxindicatorstop();

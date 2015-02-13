@@ -10,6 +10,24 @@ var isGuiView = false;
 //    }
 //});
 
+if (navigator.userAgent.indexOf('MSIE') !== -1 && navigator.appVersion.indexOf('Trident/') > 0) {
+    jQuery.ajaxSetup({async:false});
+}
+
+function setAjaxBusyEnabled(flag) {
+	if (flag) {
+		jQuery(document).ajaxStart(function () {
+			//show ajax indicator
+			ajaxindicatorstart('Loading ...');
+		}).ajaxStop(function () {
+			//hide ajax indicator
+			ajaxindicatorstop();
+		});
+	} else {
+		jQuery(document).unbind('ajaxStart');
+	}
+}
+
 function setUpdateInterval(){
     var interval_id = setInterval(function(){
             updateStatus(interval_id);
@@ -278,19 +296,21 @@ function selectScript(){
 }
 
 function loadScript(script) {
-    if (script) {
-        var getUrl = jythonUrl + "?type=SCRIPT&name=" + script;
-        $.get(getUrl, function(data, status) {
-            if (status == "success") {
-                $("#jython_file").val("");
-                $("#script_text").val(data);
-                createGui();
-            }
-        })
-        .fail(function(e) {
-                alert( "error loading the script");
-        });
-    } else {
+	if (script) {
+		setAjaxBusyEnabled(true);
+		var getUrl = jythonUrl + "?type=SCRIPT&name=" + script;
+		$.get(getUrl, function(data, status) {
+			if (status == "success") {
+				$("#jython_file").val("");
+				$("#script_text").val(data);
+				createGui();
+			}
+		})
+		.fail(function(e) {
+			alert( "error loading the script");
+		});
+		setAjaxBusyEnabled(false);
+	} else {
         $("#script_text").val("");
     }
 }
@@ -413,8 +433,8 @@ function getScriptList(){
             });
             var defScript = data['default'];
             if (defScript) {
-                loadScript(defScript);
-                $("#script_select").val(defScript);
+        		loadScript(defScript);
+            	$("#script_select").val(defScript);
             }
         }
     })
