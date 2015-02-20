@@ -9,7 +9,7 @@
 			<visible>false</visible>
 			<sampleSize>20</sampleSize>
 			<!-- Testing only (use proper drivable device when controller is ready) -->
-			<sampleEnvControllers>dummy_motor,/sample/tc1/setpoint,/sample/ips120/setpoint,/sample/tc3/sensor/setpoint1,highvoltage,/sample/watlow_rm/setpoint,/sample/xcs/humidity</sampleEnvControllers>
+			<sampleEnvControllers>dummy_motor,/sample/tc1/setpoint,/sample/ips120/setpoint,/sample/tc3/sensor/setpoint1,highvoltage,/sample/watlow_rm/setpoint,/sample/xcs/humidity,/sample/ma1/magnet/setpoint</sampleEnvControllers>
 			<configs>long,medium,short</configs>
 			<!-- Long configuration -->
 			<long.label>Long</long.label>

@@ -27,11 +27,17 @@ var devices = [
             	   "items":[{"classId":"ss1u", "deviceId":"ss1u", "title":"ss1u", "units":"mm"},
             	            {"classId":"ss1d", "deviceId":"ss1d", "title":"ss1d", "units":"mm"},
             	            {"classId":"ss1r", "deviceId":"ss1r", "title":"ss1r", "units":"mm"},
-            	            {"classId":"ss1l", "deviceId":"ss1l", "title":"ss1l", "units":"mm"}
+            	            {"classId":"ss1l", "deviceId":"ss1l", "title":"ss1l", "units":"mm"},
+            	            {"classId":"ss1hg", "deviceId":"ss1hg", "title":"ss1hg", "units":"mm"},
+            	            {"classId":"ss1ho", "deviceId":"ss1ho", "title":"ss1ho", "units":"mm"},
+            	            {"classId":"ss1vg", "deviceId":"ss1vg", "title":"ss1vg", "units":"mm"},
+            	            {"classId":"ss1vo", "deviceId":"ss1vo", "title":"ss1vo", "units":"mm"}
             	            ]
                },
                {"group":"SAMPLE", 
-            	   "items":[{"classId":"samz", "deviceId":"samz", "title":"samz", "units":"mm"}
+            	   "items":[{"classId":"samz", "deviceId":"samz", "title":"samz", "units":"mm"},
+            	            {"classId":"samplename", "deviceId":"samplename", "title":"Sample Name", "units":""},
+            	            {"classId":"sampledescription", "deviceId":"sampledescription", "title":"Sample Description", "units":""}
             	            ]
                },
                {"group":"CHANNEL-CUT ANALYSER", 
@@ -49,11 +55,20 @@ var devices = [
             	   "items":[{"classId":"ss2u", "deviceId":"ss2u", "title":"ss2u", "units":"mm"},
             	            {"classId":"ss2d", "deviceId":"ss2d", "title":"ss2d", "units":"mm"},
             	            {"classId":"ss2r", "deviceId":"ss2r", "title":"ss2r", "units":"mm"},
-            	            {"classId":"ss2l", "deviceId":"ss2l", "title":"ss2l", "units":"mm"}
+            	            {"classId":"ss2l", "deviceId":"ss2l", "title":"ss2l", "units":"mm"},
+            	            {"classId":"ss2hg", "deviceId":"ss2hg", "title":"ss2hg", "units":"mm"},
+            	            {"classId":"ss2ho", "deviceId":"ss2ho", "title":"ss2ho", "units":"mm"},
+            	            {"classId":"ss2vg", "deviceId":"ss2vg", "title":"ss2vg", "units":"mm"},
+            	            {"classId":"ss2vo", "deviceId":"ss2vo", "title":"ss2vo", "units":"mm"}
             	            ]
                },
                {"group":"MAIN DETECTOR", 
             	   "items":[{"classId":"mdet", "deviceId":"mdet", "title":"mdet", "units":"mm"}
+            	            ]
+               },
+               {"group":"SCAN", 
+            	   "items":[{"classId":"currpoint", "deviceId":"currpoint", "title":"Current Point", "units":""},
+            	            {"classId":"datafilename", "deviceId":"datafilename", "title":"File Name", "units":""}
             	            ]
                }
                ];
