@@ -44,10 +44,12 @@
 					// Neutron Beam
 //					"reactor_power", reactorPower,
 					// Experiment Info
-					"att", attValue,
+//					"att", attValue,
 					"samz", samzValue,
-//					"samplename", sample,
+					"samplename", samplename,
+					"sampledescription", sampledescription,
 					"bex", bexValue,
+					"currpoint", currpoint,
 					// Experiment Status
 					"pmom", pmomValue,
 					"pmchi", pmchiValue,
@@ -63,15 +65,23 @@
 					"ss1d", ss1dValue,
 					"ss1l", ss1lValue,
 					"ss1r", ss1rValue,
+					"ss1hg", ss1hgValue,
+					"ss1ho", ss1hoValue,
+					"ss1vg", ss1vgValue,
+					"ss1vo", ss1voValue,
 					"ss2u", ss2uValue,
 					"ss2d", ss2dValue,
 					"ss2l", ss2lValue,
 					"ss2r", ss2rValue,
+					"ss2hg", ss2hgValue,
+					"ss2ho", ss2hoValue,
+					"ss2vg", ss2vgValue,
+					"ss2vo", ss2voValue,
 					"monitor_counts", monitorValue,
 					"plc_tertiary", sampleShutter,
-					"::histogram_memory::total_counts", detectorValue,
-					"::histogram_memory::ratemap_xy_total", totRateValue,
-					"::histogram_memory::ratemap_xy_max_bin", pixRateValue
+//					"::histogram_memory::total_counts", detectorValue,
+//					"::histogram_memory::ratemap_xy_total", totRateValue,
+//					"::histogram_memory::ratemap_xy_max_bin", pixRateValue
 				];
 				
 				var url:String = serverURL + "sics/rest/hdbs?devices=";
@@ -326,7 +336,7 @@
         width="1000" height="780" horizontalAlign="center" verticalAlign="middle" fontSize="18" fontWeight="normal" backgroundColor="#000000" color="#FFFFFF" borderColor="#90CCFB" alpha="1.0" cornerRadius="3" layout="absolute">
  
  		<!-- Histogram image -->
- 		<gum:ImageView id="hmImage" width="600" height="260" left="200" top="400" horizontalCenter="0"/>
+ 		<gum:ImageView id="hmImage" width="600" height="260" left="40" top="400" />
 		
 		<!-- Instrument Info -->
 		<!-- <mx:Tile horizontalGap="10" verticalGap="10" top="10" height="380" left="12" right="12" direction="vertical"> -->
@@ -603,7 +613,7 @@
 				</mx:Grid>
 			</mx:Panel>
 			<!-- Sample Environment Panel -->
-			<mx:Panel width="310" height="375"
+			<mx:Panel width="310" height="650"
 				title="SLIT 1" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
 				borderStyle="solid" backgroundColor="#000000" borderThickness="2"
 				cornerRadius="6" creationCompleteEffect="{wipeIn}" top="10" right="10">
@@ -647,6 +657,50 @@
 						</mx:GridItem>
 						<mx:GridItem width="40%">
 							<mx:TextArea id="ss1rValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="10%">
+							<mx:Label text="mm" width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					<mx:GridRow width="100%">
+						<mx:GridItem width="50%">
+							<mx:Label text="ss1hg" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="40%">
+							<mx:TextArea id="ss1hgValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="10%">
+							<mx:Label text="mm" width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					<mx:GridRow width="100%">
+						<mx:GridItem width="50%">
+							<mx:Label text="ss1ho" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="40%">
+							<mx:TextArea id="ss1hoValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="10%">
+							<mx:Label text="mm" width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					<mx:GridRow width="100%">
+						<mx:GridItem width="50%">
+							<mx:Label text="ss1vg" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="40%">
+							<mx:TextArea id="ss1vgValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="10%">
+							<mx:Label text="mm" width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					<mx:GridRow width="100%">
+						<mx:GridItem width="50%">
+							<mx:Label text="ss1vo" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="40%">
+							<mx:TextArea id="ss1voValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
 						</mx:GridItem>
 						<mx:GridItem width="10%">
 							<mx:Label text="mm" width="100%"/>
@@ -705,8 +759,52 @@
 							<mx:Label text="mm" width="100%"/>
 						</mx:GridItem>
 					</mx:GridRow>
+					<mx:GridRow width="100%">
+						<mx:GridItem width="50%">
+							<mx:Label text="ss2hg" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="40%">
+							<mx:TextArea id="ss2hgValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="10%">
+							<mx:Label text="mm" width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					<mx:GridRow width="100%">
+						<mx:GridItem width="50%">
+							<mx:Label text="ss2ho" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="40%">
+							<mx:TextArea id="ss2hoValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="10%">
+							<mx:Label text="mm" width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					<mx:GridRow width="100%">
+						<mx:GridItem width="50%">
+							<mx:Label text="ss2vg" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="40%">
+							<mx:TextArea id="ss2vgValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="10%">
+							<mx:Label text="mm" width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					<mx:GridRow width="100%">
+						<mx:GridItem width="50%">
+							<mx:Label text="ss2vo" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="40%">
+							<mx:TextArea id="ss2voValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="10%">
+							<mx:Label text="mm" width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
 				</mx:Grid>
-				<mx:Grid width="100%" borderStyle="none">
+				<!--mx:Grid width="100%" borderStyle="none">
 					<mx:GridRow width="100%">
 						<mx:GridItem width="100%">
 							<mx:Label fontWeight="bold" text="ATTENUATOR" textAlign="left" width="100%"/>
@@ -719,13 +817,13 @@
 							<mx:Label text="att" textAlign="right" width="100%"/>
 						</mx:GridItem>
 						<mx:GridItem width="40%">
-							<mx:TextArea id="attValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
+							<mx:TextArea id="attValue" text="" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
 						</mx:GridItem>
 						<mx:GridItem width="10%">
 							<mx:Label text="mm" width="100%"/>
 						</mx:GridItem>
 					</mx:GridRow>
-				</mx:Grid>
+				</mx:Grid-->
 				<mx:Grid width="100%" borderStyle="none">
 					<mx:GridRow width="100%">
 						<mx:GridItem width="100%">
@@ -743,6 +841,52 @@
 						</mx:GridItem>
 						<mx:GridItem width="10%">
 							<mx:Label text="mm" width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+				<mx:Grid width="100%" horizontalGap="1">
+					<mx:GridRow width="100%">
+						<mx:GridItem width="50%">
+							<mx:Label text="sample name" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="40%">
+							<mx:TextArea id="samplename" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="10%">
+							<mx:Label text="" width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+				<mx:Grid width="100%" horizontalGap="1">
+					<mx:GridRow width="100%">
+						<mx:GridItem width="50%">
+							<mx:Label text="sample description" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="40%">
+							<mx:TextArea id="sampledescription" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="10%">
+							<mx:Label text="" width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+				<mx:Grid width="100%" borderStyle="none">
+					<mx:GridRow width="100%">
+						<mx:GridItem width="100%">
+							<mx:Label fontWeight="bold" text="SCAN" textAlign="left" width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+				<mx:Grid width="100%" horizontalGap="1">
+					<mx:GridRow width="100%">
+						<mx:GridItem width="50%">
+							<mx:Label text="current point" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="40%">
+							<mx:TextArea id="currpoint" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="100%"/>
+						</mx:GridItem>
+						<mx:GridItem width="10%">
+							<mx:Label text="" width="100%"/>
 						</mx:GridItem>
 					</mx:GridRow>
 				</mx:Grid>
