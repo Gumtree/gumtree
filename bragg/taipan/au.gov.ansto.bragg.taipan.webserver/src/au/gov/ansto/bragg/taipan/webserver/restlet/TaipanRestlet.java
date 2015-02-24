@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.gumtree.data.interfaces.IArray;
 import org.gumtree.data.nexus.IAxis;
@@ -87,7 +88,7 @@ public class TaipanRestlet extends Restlet {
 	private byte[] createPlot(int height, int width) {
 		
 		XYErrorDataset dataset = new XYErrorDataset();
-		dataset.setTitle("Data plot not availalbe");
+		dataset.setTitle("Data plot not available");
 		dataset.setXTitle("Scan Variable");
 		dataset.setYTitle("Bean Monitor");
 
@@ -118,13 +119,39 @@ public class TaipanRestlet extends Restlet {
 					ds = NexusUtils.readNexusDataset(lastModifiedFile.toURI());
 					IArray dataArray = ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm2_counts").getData();
 					INXdata data = ds.getNXroot().getFirstEntry().getData();
-					IAxis axis = data.getAxisList().get(0);
-					IArray axisArray = axis.getData();
+					IAxis hAxis = data.getAxisList().get(0);
+					List<IAxis> axes = data.getAxisList();
+					if (axes.size() > 1) {
+						for (IAxis axis : axes) {
+							if (axis.getSize() <= 1) {
+								continue;
+							}
+							IArray array = axis.getData();
+							double begin = array.getDouble(array.getIndex().set(0));
+							double end = array.getDouble(array.getIndex().set((int) array.getSize() - 1));
+							double diff = begin - end;
+							if (Math.abs(diff) < 1E-3) {
+								continue;
+							}
+							if (Math.abs(begin) > Math.abs(end)){
+				                if (Math.abs(diff / begin) < 1E-3){
+				                    continue;
+				                }
+							} else {
+				                if (Math.abs(diff / end) < 1E-3){
+				                    continue;
+				                }
+				            }
+				            hAxis= axis;
+				            break;
+						}
+					}
+					IArray axisArray = hAxis.getData();
 					NXDatasetSeries series = new NXDatasetSeries(lastModifiedFile.getName());
 					series.setData(axisArray, dataArray, dataArray.getArrayMath().toSqrt().getArray());
 					dataset.addSeries(series);
 					dataset.setTitle(lastModifiedFile.getName());
-					dataset.setXTitle(axis.getShortName());
+					dataset.setXTitle(hAxis.getShortName());
 					dataset.setYTitle("Detector Counts");
 				} catch (Exception e) {
 					throw e;
