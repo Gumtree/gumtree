@@ -169,7 +169,7 @@ public class ScriptParameter extends PyObjectImp {
 			break;
 		case BOOL:
 			html = "<td colspan=\"" + getColSpan() + "\" rowspan=\"" + getRowSpan() + "\"><div class=\"div_jython_label\">" + getTitle() + "</div></td><td colspan=\"" + getColSpan() + "\" rowspan=\"" + getRowSpan() + "\"><div class=\"div_jython_input\"><input type=\"checkbox\" name=\"" 
-					+ getName() + "\" onclick=\"sendJython('" + getName() + ".value=' + getBool(this.checked)" + (getCommand() != null ? ";" + getCommand() : "") + ")\" class=\"input_jython_check\" id=\"" 
+					+ getName() + "\" onclick=\"sendJython('" + getName() + ".value=' + getBool(this.checked)" + (getCommand() != null ? " + ';" + getCommand() + "'" : "") + ")\" class=\"input_jython_check\" id=\"" 
 					+ getName() + "\"" + ((Boolean) value ? "checked" : "") + " ></div></td>";
 			break;
 		case LABEL:
