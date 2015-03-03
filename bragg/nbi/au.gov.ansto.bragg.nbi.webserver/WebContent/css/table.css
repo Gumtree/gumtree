@@ -286,7 +286,7 @@ html>body thead.table_jython_content th {
     padding: 2px 3px 3px 4px;
 }
 .div_jython_action{
-    padding: 2px 3px 3px 4px;
+/*    padding: 2px 3px 3px 4px; */
     text-align: left;
     width: 100%;
 }

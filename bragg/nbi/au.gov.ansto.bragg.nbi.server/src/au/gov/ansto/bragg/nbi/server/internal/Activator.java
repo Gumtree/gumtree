@@ -11,6 +11,7 @@ public class Activator implements BundleActivator {
 	
 	private static Activator instance;
 
+	
 	private IEclipseContext eclipseContext;
 	
 	public static final String PLUGIN_ID = "au.gov.ansto.bragg.nbi.server";

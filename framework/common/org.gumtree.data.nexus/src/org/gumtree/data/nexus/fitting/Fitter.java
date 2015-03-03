@@ -508,23 +508,21 @@ public abstract class Fitter {
 	
 	protected void addParameterSetting(){}
 
-	protected void createPlotResult() 
-	throws IOException, InvalidArrayTypeException {
+	public void updatePlotResult() throws IOException, InvalidArrayTypeException {
 		if (fitResult == null)
 			return;
-		for (Entry<String, Double> entry : parameters.entrySet())
+//		for (Entry<String, Double> entry : parameters.entrySet())
 			//			setParameterValue(entry.getKey(), fitResult.fittedParameter(entry.getKey()));
-			entry.setValue(fitResult.fittedParameter(entry.getKey()));
-		String[] parameterNames = fitResult.fittedParameterNames();
-		double[] fitterErrors = fitResult.errors();
-		for (int i = 0; i < parameterNames.length; i ++){
-			fitErrors.put(parameterNames[i], fitterErrors[i]);
-		}
+//			entry.setValue(fitResult.fittedParameter(entry.getKey()));
+//		String[] parameterNames = fitResult.fittedParameterNames();
 		switch (dimension) {
 		case 1:
 //			String preEvaluationString = getPreEvaluationString();
 //			MathEvaluator evaluator = new MathEvaluator(preEvaluationString);
-			IFunction resultFunctino = fitResult.fittedFunction();
+			IFunction resultFunction = fitResult.fittedFunction();
+			for (Entry<String, Double> entry : parameters.entrySet()) {
+				resultFunction.setParameter(entry.getKey(), entry.getValue());
+			}
 			IAxis axis0 = data.getAxisList().get(0);
 			double[] resultAxisStorage = new double[(int) axis0.getSize() 
 			                                        * resolutionMultiple + 1];
@@ -563,7 +561,98 @@ public abstract class Fitter {
 					resultAxisStorage[i] = maxAxis - step * i;
 //				resultDataStorage[i] = evaluate(evaluator, resultAxisStorage[i]) - offset;
 //				if (inverse) resultDataStorage[i] = - resultDataStorage[i];
-				resultDataStorage[i] = resultFunctino.value(new double[]{resultAxisStorage[i]}) 
+				resultDataStorage[i] = resultFunction.value(new double[]{resultAxisStorage[i]}) 
+					- offset;
+				if (inverse) resultDataStorage[i] = - resultDataStorage[i];
+				if (resultDataStorage[i] > maxIntensity)
+					resultDataStorage[i] = maxIntensity;
+				if (resultDataStorage[i] < minIntensity)
+					resultDataStorage[i] = minIntensity;
+
+			}
+			IArray resultAxis = Factory.createArray(Double.TYPE, 
+					new int[]{resultAxisStorage.length}, resultAxisStorage);
+			IArray resultCurve = Factory.createArray(Double.TYPE, 
+					new int[]{resultDataStorage.length}, resultDataStorage);
+			String newTitle = "_fitting";
+			if (data.getTitle() != null) {
+				newTitle = data.getTitle() + newTitle;
+			}
+			resultData = nexusFactory.createNXdata(null, newTitle);
+			ISignal signal = nexusFactory.createNXsignal(resultData, "fitting_signal", resultCurve);
+			resultData.setSignal(signal);
+			IAxis axis = nexusFactory.createNXaxis(resultData, axis0.getTitle(), resultAxis);
+			List<IAxis> axes = new ArrayList<IAxis>();
+			axes.add(axis);
+			resultData.setAxes(axes);
+			IDataItem chi2Item = Factory.createDataItem(resultData, "quality", 
+					Factory.createArray(new double[]{fitResult.quality()}));
+			resultData.addDataItem(chi2Item);
+			for (Entry<String, Double> entry : parameters.entrySet())
+				chi2Item.addStringAttribute(entry.getKey(), String.valueOf(entry.getValue()));
+			break;
+
+		default:
+			break;
+		}
+	}
+	
+	public void createPlotResult() 
+	throws IOException, InvalidArrayTypeException {
+		if (fitResult == null)
+			return;
+		for (Entry<String, Double> entry : parameters.entrySet())
+			//			setParameterValue(entry.getKey(), fitResult.fittedParameter(entry.getKey()));
+			entry.setValue(fitResult.fittedParameter(entry.getKey()));
+		String[] parameterNames = fitResult.fittedParameterNames();
+		double[] fitterErrors = fitResult.errors();
+		for (int i = 0; i < parameterNames.length; i ++){
+			fitErrors.put(parameterNames[i], fitterErrors[i]);
+		}
+		switch (dimension) {
+		case 1:
+//			String preEvaluationString = getPreEvaluationString();
+//			MathEvaluator evaluator = new MathEvaluator(preEvaluationString);
+			IFunction resultFunction = fitResult.fittedFunction();
+			IAxis axis0 = data.getAxisList().get(0);
+			double[] resultAxisStorage = new double[(int) axis0.getSize() 
+			                                        * resolutionMultiple + 1];
+			double[] resultDataStorage = new double[resultAxisStorage.length];
+//			ArrayIterator axisIterator = plot.getAxis(0).getData().getIterator();
+			IIndex axisIndex = axis0.getData().getIndex();
+			boolean isAscending = true;
+			try{
+				isAscending = axis0.getData().getDouble(axisIndex.set(0)) 
+						< axis0.getData().getDouble(axisIndex.set(1)); 
+			}catch (Exception e) {
+			}
+			double minAxis = axis0.getData().getArrayMath().getMinimum();
+			double maxAxis = axis0.getData().getArrayMath().getMaximum();
+			double step = (maxAxis - minAxis) / (resultAxisStorage.length - 1);
+			IArrayMath amath = data.getSignal().getData().getArrayMath();
+			double maxIntensity = amath.getMaximum();
+			double minIntensity = amath.getMinimum();
+			double intensityWith = maxIntensity - minIntensity;
+			maxIntensity = maxIntensity + intensityWith * CutRange;
+			minIntensity = minIntensity - intensityWith * CutRange;
+//			int index = 0;
+//			while (axisIterator.hasNext()){
+//			for (int i = 0; i < resolutionMultiple; i++) {
+//			int thisIndex = (index++) * resolutionMultiple + i; 
+//			resultAxisStorage[thisIndex] = axisIterator.getDoubleNext();
+////			resultDataStorage[thisIndex] = evaluate(preEvaluationString, 
+////			resultAxisStorage[thisIndex]);
+//			resultDataStorage[thisIndex] = evaluate(evaluator, resultAxisStorage[thisIndex]);
+//			}
+//			}
+			for (int i = 0; i < resultDataStorage.length; i++) {
+				if (isAscending)
+					resultAxisStorage[i] = minAxis + step * i;
+				else
+					resultAxisStorage[i] = maxAxis - step * i;
+//				resultDataStorage[i] = evaluate(evaluator, resultAxisStorage[i]) - offset;
+//				if (inverse) resultDataStorage[i] = - resultDataStorage[i];
+				resultDataStorage[i] = resultFunction.value(new double[]{resultAxisStorage[i]}) 
 					- offset;
 				if (inverse) resultDataStorage[i] = - resultDataStorage[i];
 				if (resultDataStorage[i] > maxIntensity)
@@ -711,5 +800,9 @@ public abstract class Fitter {
 	
 	public IFitter getRawFitter() {
 		return fitter;
+	}
+	
+	public IFunction getFitFunction() {
+		return fitFunction;
 	}
 }
