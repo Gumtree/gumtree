@@ -32,9 +32,9 @@ public class ScriptInfoViewer extends Composite {
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(infoText);
 		infoText.setEditable(false);
 		UIResourceManager resourceManager = new UIResourceManager(Activator.PLUGIN_ID);
-		fontBold = resourceManager.createFont("Courier New", 12, SWT.BOLD); 
-		fontItalic = resourceManager.createFont("Courier New", 12, SWT.ITALIC);
-		fontNormal = resourceManager.createFont("Courier New", 12, SWT.NORMAL);
+		fontBold = resourceManager.createFont("Courier New", 10, SWT.BOLD); 
+		fontItalic = resourceManager.createFont("Courier New", 10, SWT.ITALIC);
+		fontNormal = resourceManager.createFont("Courier New", 10, SWT.NORMAL);
 	}
 
 	public void appendText(String text) {

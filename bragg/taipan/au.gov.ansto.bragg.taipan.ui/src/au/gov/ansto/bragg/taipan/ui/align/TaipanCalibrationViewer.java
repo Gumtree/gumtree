@@ -41,18 +41,20 @@ public class TaipanCalibrationViewer extends Composite {
 		level1Form.setWeights(new int[]{5, 5});
 
 		createControlArea(level2Left);
-		level2Left.setWeights(new int[]{7, 4});
+		level2Left.setWeights(new int[]{21, 10});
 		
 		SashForm level3Form = new SashForm(level2Right, SWT.HORIZONTAL);
-		dataSourceViewer = new ScriptDataSourceViewer(level3Form, SWT.NONE);
-		SashForm level4Form = new SashForm(level3Form, SWT.VERTICAL);
-		PlotViewer plot1Viewer = new PlotViewer(level4Form, SWT.NONE);
-//		PlotViewer plot2Viewer = new PlotViewer(level4Form, SWT.NONE);
-		infoViewer = new ScriptInfoViewer(level4Form, SWT.NONE);
-		level4Form.setWeights(new int[]{3, 2});
+		SashForm level4Left = new SashForm (level3Form, SWT.VERTICAL);
+		dataSourceViewer = new ScriptDataSourceViewer(level4Left, SWT.NONE);
+		infoViewer = new ScriptInfoViewer(level4Left, SWT.NONE);
+		level4Left.setWeights(new int[]{7, 1});
+		SashForm level4Right = new SashForm(level3Form, SWT.VERTICAL);
+		PlotViewer plot1Viewer = new PlotViewer(level4Right, SWT.NONE);
+		PlotViewer plot2Viewer = new PlotViewer(level4Right, SWT.NONE);
+		level4Right.setWeights(new int[]{1, 1});
 		level3Form.setWeights(new int[]{3, 7});
-		PlotViewer plot2Viewer = new PlotViewer(level2Right, SWT.NONE);
-		level2Right.setWeights(new int[]{7, 4});
+		PlotViewer plot3Viewer = new PlotViewer(level2Right, SWT.NONE);
+		level2Right.setWeights(new int[]{15, 8});
 		
 		ScriptPageRegister.registPage(controlViewer.getScriptRegisterID(), register);
 		register.setControlViewer(controlViewer);
@@ -61,7 +63,7 @@ public class TaipanCalibrationViewer extends Composite {
 		register.setInfoViewer(infoViewer);
 		register.registerObject("Plot1", plot1Viewer);
 		register.registerObject("Plot2", plot2Viewer);
-//		register.registerObject("Plot3", plot3Viewer);
+		register.registerObject("Plot3", plot3Viewer);
 		controlViewer.runNativeInitScript();
 		controlViewer.loadScript(ScriptControlViewer.getFullScriptPath(System.getProperty(CALIBRATION_SCRIPT_NAME)));
 	}
@@ -80,14 +82,14 @@ public class TaipanCalibrationViewer extends Composite {
 		controlViewer.setScriptExecutor(commandHandler.getScriptExecutor());
 		Color whiteColor = Display.getDefault().getSystemColor(SWT.COLOR_WHITE);
 		controlViewer.setBackground(whiteColor);
-		Label titleLabel = new Label(controlViewer, SWT.NONE);
-		titleLabel.setBackground(whiteColor);
-		FontData[] fD = titleLabel.getFont().getFontData();
-		fD[0].setHeight(18);
-		titleLabel.setFont(new Font(titleLabel.getDisplay(), fD));
-		titleLabel.setText(" Taipan Calibration");
-		controlViewer.getScrollArea().moveAbove(controlViewer.getStaticComposite());
-		titleLabel.moveAbove(controlViewer.getScrollArea());
+//		Label titleLabel = new Label(controlViewer, SWT.NONE);
+//		titleLabel.setBackground(whiteColor);
+//		FontData[] fD = titleLabel.getFont().getFontData();
+//		fD[0].setHeight(18);
+//		titleLabel.setFont(new Font(titleLabel.getDisplay(), fD));
+//		titleLabel.setText(" Taipan Calibration");
+//		controlViewer.getScrollArea().moveAbove(controlViewer.getStaticComposite());
+//		titleLabel.moveAbove(controlViewer.getScrollArea());
 		controlViewer.getStaticComposite().setVisible(false);
 		controlViewer.getStaticComposite().dispose();
 		GridLayoutFactory.fillDefaults().applyTo(controlViewer);

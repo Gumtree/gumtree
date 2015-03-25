@@ -556,6 +556,24 @@ public class ScriptDataSourceViewer extends Composite {
 		this.selectedDatasets = selectedDatasets;
 	}
 	
+	public void selectDatasets(List<String> datasetNames) {
+		final List<DatasetInfo> datasets = new ArrayList<DatasetInfo>();
+		for (DatasetInfo info : datasetList) {
+			for (String name : datasetNames) {
+				if (info.getLocation().endsWith(name)) {
+					datasets.add(info);
+				}
+			}
+		}
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				tableViewer.setSelection(new StructuredSelection(datasets));
+			}
+		});
+	}
+	
 	public List<DatasetInfo> getSelectedDatasets() {
 		if (selectedDatasets == null){
 			return new ArrayList<DatasetInfo>();

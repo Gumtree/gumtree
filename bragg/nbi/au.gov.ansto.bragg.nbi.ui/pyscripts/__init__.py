@@ -101,7 +101,12 @@ def open_question(msg):
     return __runner__.openQuestion(msg)
 
 def selectSaveFolder():
-    return __runner__.selectSaveFile()
+    return __runner__.selectSaveFolder()
+
+def selectSaveFile(ext = None):
+    if ext is None:
+        ext = []
+    return __runner__.selectSaveFile(ext)
 
 if '__dispose__' in globals() :
     __dispose__()

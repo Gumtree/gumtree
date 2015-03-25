@@ -109,6 +109,9 @@ class Act:
     def set_interrupt_status(self):
         self.__act__.setInterruptStatus()
         
+    def clear_status(self):
+        self.__act__.clearStatus()
+        
     def __run__(self):
         self.set_running_status()
 #        try:

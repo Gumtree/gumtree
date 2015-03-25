@@ -44,6 +44,10 @@ public class ScriptAction extends PyObjectImp {
 		setStatusChanged(status);
 	}
 
+	public void clearStatus() {
+		this.status = ActionStatus.DEFAULT;
+	}
+	
 	public void setBusyStatus() {
 		setStatus(ActionStatus.RUNNING);
 	}

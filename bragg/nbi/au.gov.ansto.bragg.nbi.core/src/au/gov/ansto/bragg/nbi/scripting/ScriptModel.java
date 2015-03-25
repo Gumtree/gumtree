@@ -20,6 +20,7 @@ public class ScriptModel {
 	private String title;
 	private String version;
 	private int numColumns = 1;
+	private boolean isEqualWidth = false;
 	private boolean isDirty = false;
 	
 //	public static ScriptModel getModel(int id) {
@@ -120,5 +121,13 @@ public class ScriptModel {
 	 */
 	public void setDirty(boolean isDirty) {
 		this.isDirty = isDirty;
+	}
+
+	public boolean isEqualWidth() {
+		return isEqualWidth;
+	}
+
+	public void setEqualWidth(boolean isEqualWidth) {
+		this.isEqualWidth = isEqualWidth;
 	}
 }

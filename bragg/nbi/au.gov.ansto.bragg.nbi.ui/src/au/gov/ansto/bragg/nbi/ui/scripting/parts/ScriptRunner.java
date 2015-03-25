@@ -3,12 +3,15 @@
  */
 package au.gov.ansto.bragg.nbi.ui.scripting.parts;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -22,6 +25,7 @@ public class ScriptRunner {
 	private boolean actionPerformed = false;
 	private boolean isConfirmed;
 	private String folderPath;
+	private String filePath;
 	private Shell shell;
 
 	public ScriptRunner(Shell shell) {
@@ -145,7 +149,42 @@ public class ScriptRunner {
 		}
 	}
 	
-	public String selectSaveFile(){
+	public String selectSaveFile(final List<String> extNames){
+		setActionPerformed(false);
+		shell.getDisplay().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				FileDialog dialog = new FileDialog(shell, SWT.SINGLE);
+ 				if (fileDialogPath == null){
+ 					IWorkspace workspace= ResourcesPlugin.getWorkspace();
+ 					IWorkspaceRoot root = workspace.getRoot();
+ 					dialog.setFilterPath(root.getLocation().toOSString());
+ 				} else {
+ 					dialog.setFilterPath(fileDialogPath);
+ 				}
+ 				if (extNames != null && extNames.size() > 0) {
+ 					String[] extArray = new String[extNames.size()];
+ 					dialog.setFilterExtensions(extNames.toArray(extArray));
+ 				}
+ 				String filePath = dialog.open();
+ 				setFilePath(filePath);
+ 				fileDialogPath = filePath;
+				setActionPerformed(true);
+			}
+		});
+		
+		while (!isActionPerformed()){
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				System.out.println("can't wait");
+			}
+		}
+		return getFilePath();
+	}
+
+	public String selectSaveFolder(){
 		setActionPerformed(false);
 		shell.getDisplay().asyncExec(new Runnable() {
 			
@@ -175,7 +214,7 @@ public class ScriptRunner {
 		}
 		return getFolderPath();
 	}
-	
+
 	public boolean isActionPerformed() {
 		return actionPerformed;
 	}
@@ -188,6 +227,14 @@ public class ScriptRunner {
 		return isConfirmed;
 	}
 
+	public String getFilePath() {
+		return filePath;
+	}
+	
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+	
 	public String getFolderPath() {
 		return folderPath;
 	}

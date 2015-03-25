@@ -1057,6 +1057,7 @@ class DatasetFactory:
     __prefix__ = ''
     __normalising_factor__ = None
     __path_sep__ = '/'
+    __cache_enabled__ = True
     
     def __init__(self, path = None, prefix = None, factor = None):
         if not path is None :
@@ -1105,7 +1106,9 @@ class DatasetFactory:
             if not self.normalising_factor is None :
                 if hasattr(ds, self.normalising_factor) :
                     ds.normalise(self.normalising_factor)
-            self.datasets[index] = ds
+            if DatasetFactory.__cache_enabled__ :
+                self.datasets[index] = ds
+            return ds
         return self.datasets[index]
     
     def load_dataset(self, file_path, skip_flaws = False):

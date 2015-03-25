@@ -12,6 +12,8 @@ class Script:
             self.model.setVersion(value)
         elif name == 'numColumns':
             self.model.setNumColumns(value)
+        elif name == 'equalWidth':
+            self.model.setEqualWidth(value)
         else:
             self.__dict__[name] = value
     

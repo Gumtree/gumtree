@@ -35,6 +35,32 @@
       </perspective>
    </extension>
    <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="au.gov.ansto.bragg.taipan.ui.internal.LaunchCalibrationHandler"
+            id="au.gov.ansto.bragg.taipan.ui.LaunchCalibration"
+            name="Launch Calibration Window">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="au.gov.ansto.bragg.nbi.ui.toolbar"
+               label="NBI UI">
+            <command
+                  commandId="au.gov.ansto.bragg.taipan.ui.LaunchCalibration"
+                  icon="icons/calibration_32x16.png"
+                  label="Launch Calibration Window"
+                  style="push"
+                  tooltip="Launch Nickel Calibration Window">
+            </command>
+         </toolbar>
+      </menuContribution>
+   </extension>
+   <extension
          point="org.eclipse.ui.views">
       <view
             allowMultiple="false"
