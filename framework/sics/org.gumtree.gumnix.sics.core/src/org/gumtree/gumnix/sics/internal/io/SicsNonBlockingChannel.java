@@ -119,7 +119,7 @@ public class SicsNonBlockingChannel extends AbstractSicsChannel {
 	}
 
 	public void disconnect() throws SicsIOException {
-		System.err.println("Disconnected");
+		logger.error("Disconnected channel " + getChannelId());
 		channelHandler.closeChannel();
 	}
 
