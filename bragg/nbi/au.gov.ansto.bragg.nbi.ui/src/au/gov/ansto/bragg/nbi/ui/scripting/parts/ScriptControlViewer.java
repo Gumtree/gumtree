@@ -1407,7 +1407,11 @@ public class ScriptControlViewer extends Composite {
 				if (parameter.getProperty("title") != null) {
 					name.setText(parameter.getProperty("title"));
 				} else {
-					name.setText(parameter.getName());
+					if (parameter.getName() != null) {
+						name.setText(parameter.getName());
+					} else {
+						name.setText("");
+					}
 				}
 				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(40, 0).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
 				final Text floatText = new Text(parent, SWT.BORDER);

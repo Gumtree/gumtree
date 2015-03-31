@@ -232,6 +232,13 @@ var refresh = function(){
 								} else {
 									$("#" + devices[i].items[j].classId).text(obj.hdbs[k].value + " " + devices[i].items[j].units);
 								}
+								if (devices[i].items[j].colorList != null) {
+									$.each(devices[i].items[j].colorList, function(key, value) {
+										if (obj.hdbs[k].value == key) {
+											$("#" + devices[i].items[j].classId).css("color", value);
+										}
+									});
+								}
 							} catch (e) {
 							}
 							break;

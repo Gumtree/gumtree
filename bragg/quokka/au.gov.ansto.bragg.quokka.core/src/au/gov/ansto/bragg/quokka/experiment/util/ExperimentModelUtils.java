@@ -282,15 +282,16 @@ public final class ExperimentModelUtils {
 	
 	public static long calculateEstimatedRunTime(Experiment experiment) {
 		long counter = 0;
+		boolean isRunning = experiment.isRunning();
 		if (experiment.isControlledEnvironment()) {
 			for (ControlledAcquisition acquistion : experiment.getAcquisitionGroups()) {
 				for (AcquisitionEntry entry : acquistion.getEntries()) {
-					counter += calculateEstimatedRunTime(entry);
+					counter += calculateEstimatedRunTime(entry, isRunning);
 				}
 			}
 		} else {
 			for (AcquisitionEntry entry : experiment.getNormalAcquisition().getEntries()) {
-				counter += calculateEstimatedRunTime(entry);
+				counter += calculateEstimatedRunTime(entry, isRunning);
 			}
 		}
 		return counter;
@@ -301,12 +302,13 @@ public final class ExperimentModelUtils {
 	// * Configuration changing time
 	// * Voltage controller time
 	// * Sample environment drive time
-	private static long calculateEstimatedRunTime(AcquisitionEntry entry) {
+	private static long calculateEstimatedRunTime(AcquisitionEntry entry, boolean isRunning) {
 		long counter = 0;
 		for (Entry<InstrumentConfig, AcquisitionSetting> settingEntry : entry.getConfigSettings().entrySet()) {
 			InstrumentConfig config = settingEntry.getKey();
 			AcquisitionSetting setting = settingEntry.getValue();
 			// Add transmission time
+//			if (setting.isRunTransmission() && (isRunning ? setting.getTransmissionDataFile() == null : true)) {
 			if (setting.isRunTransmission()) {
 				if (config.getTransmissionMode() == ScanMode.TIME) {
 					// time mode
@@ -320,6 +322,7 @@ public final class ExperimentModelUtils {
 				}
 			}
 			// Add scattering time
+//			if (setting.isRunScattering() && (isRunning ? setting.getScatteringDataFile() == null : true)) {
 			if (setting.isRunScattering()) {
 				if (config.getMode() == ScanMode.TIME) {
 					// time mode
@@ -343,26 +346,29 @@ public final class ExperimentModelUtils {
 		// Beamstop move time (20 sec up or down for config)
 		counter += experiment.getInstrumentConfigs().size() * 20 * 2;
 		
+		boolean isRunning = experiment.isRunning();
+		
 		if (experiment.isControlledEnvironment()) {
 			for (ControlledAcquisition acquistion : experiment.getAcquisitionGroups()) {
 				for (AcquisitionEntry entry : acquistion.getEntries()) {
-					counter += calculateEstimatedConfigTime(entry);
+					counter += calculateEstimatedConfigTime(entry, isRunning);
 				}
 			}
 		} else {
 			for (AcquisitionEntry entry : experiment.getNormalAcquisition().getEntries()) {
-				counter += calculateEstimatedConfigTime(entry);
+				counter += calculateEstimatedConfigTime(entry, isRunning);
 			}
 		}
 		return counter;
 	}
 	
-	private static long calculateEstimatedConfigTime(AcquisitionEntry entry) {
+	private static long calculateEstimatedConfigTime(AcquisitionEntry entry, boolean isRunning) {
 		long counter = 0;
 		for (Entry<InstrumentConfig, AcquisitionSetting> settingEntry : entry.getConfigSettings().entrySet()) {
 			InstrumentConfig config = settingEntry.getKey();
 			AcquisitionSetting setting = settingEntry.getValue();
 			// Add scattering time
+//			if (setting.isRunScattering() && (isRunning ? setting.getScatteringDataFile() == null : true)) {
 			if (setting.isRunScattering()) {
 				// [GUMTREE-800]
 				// Attenuation is in the step of 30 deg, and we assume each step takes 35 sec

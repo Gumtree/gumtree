@@ -66,7 +66,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.gumtree.core.service.ServiceUtils;
+import org.gumtree.gumnix.sics.core.ISicsManager;
 import org.gumtree.gumnix.sics.core.SicsCore;
+import org.gumtree.gumnix.sics.io.ISicsCallback;
 import org.gumtree.gumnix.sics.io.SicsIOException;
 import org.gumtree.scripting.IScriptBlock;
 import org.gumtree.scripting.IScriptExecutor;
@@ -115,6 +117,10 @@ public class AcquisitionTask extends AbstractExperimentTask {
 	
 	private Shell currentShell;
 	
+	private long timestampOnEstimation;
+	
+//	private int estimatedTimeForBuffer;
+
 	@Override
 	protected ITaskView createViewInstance() {
 		view = new AcquisitionTaskView();
@@ -132,11 +138,6 @@ public class AcquisitionTask extends AbstractExperimentTask {
 			getWorkflow().stop();
 			return null;
 		}
-		
-		/*********************************************************************
-		 * Update estimate
-		 *********************************************************************/
-		view.upateTimeEstimation();
 		
 		/*********************************************************************
 		 * Clear previous result
@@ -201,25 +202,44 @@ public class AcquisitionTask extends AbstractExperimentTask {
 				return script;
 			}
 		};
-		executor.runScript(block);
+		getExperiment().setRunning(true);
+		
+		
+		/*********************************************************************
+		 * Update estimate
+		 *********************************************************************/
+		timestampOnEstimation = System.currentTimeMillis();
 
-		// Not thread safe!  We need listener model instead!
-		// Wait until it gets busy
-		LoopRunner.run(new ILoopExitCondition() {
-			@Override
-			public boolean getExitCondition() {
-				return executor.isBusy();
-			}
-		}, 5000, 10);
+		view.updateTimeEstimation(true);
 		
-		// Check execution status every 1 sec
-		LoopRunner.run(new ILoopExitCondition() {
-			@Override
-			public boolean getExitCondition() {
-				return !executor.isBusy();
-			}
-		}, LoopRunner.NO_TIME_OUT, 1000);
-		
+
+		try{
+			executor.runScript(block);
+
+			// Not thread safe!  We need listener model instead!
+			// Wait until it gets busy
+			LoopRunner.run(new ILoopExitCondition() {
+				@Override
+				public boolean getExitCondition() {
+					return executor.isBusy();
+				}
+			}, 5000, 10);
+
+			// Check execution status every 1 sec
+			LoopRunner.run(new ILoopExitCondition() {
+				@Override
+				public boolean getExitCondition() {
+					return !executor.isBusy();
+				}
+			}, LoopRunner.NO_TIME_OUT, 1000);
+
+		} catch(Exception e) {
+			logger.error("Error in running script with python engine.");
+		} finally {
+			getExperiment().setRunning(false);
+			
+			view.updateTimeEstimation(true);
+		}
 		/*****************************************************************
 		 * Export
 		 *****************************************************************/
@@ -1029,6 +1049,14 @@ public class AcquisitionTask extends AbstractExperimentTask {
 					});
 				}				
 			});
+			
+			getExperiment().addPropertyChangeListener(new PropertyChangeListener() {
+				
+				@Override
+				public void propertyChange(PropertyChangeEvent arg0) {
+					updateTimeEstimation(true);
+				}
+			});
 		}
 
 		private void createTableButtonArea(Composite parent) {
@@ -1107,12 +1135,12 @@ public class AcquisitionTask extends AbstractExperimentTask {
 			Button updateButton = getToolkit().createButton(parent, "Update", SWT.PUSH);
 			updateButton.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
-					upateTimeEstimation();
+					updateTimeEstimation(false);
 				}
 			});
 		}
 		
-		private void upateTimeEstimation() {
+		private void updateTimeEstimation(final boolean doReport) {
 			SafeUIRunner.asyncExec(new SafeRunnable() {
 				public void run() throws Exception {
 					long runtTime = ExperimentModelUtils.calculateEstimatedRunTime(getExperiment());
@@ -1121,10 +1149,46 @@ public class AcquisitionTask extends AbstractExperimentTask {
 					configText.setText(StringUtils.formatTime(configTime));
 					long totalTime = runtTime + configTime;
 					totalText.setText(StringUtils.formatTime(totalTime));
+					if (doReport) {
+						reportTimeEstimation((int) totalTime);
+						reportGumtreeStatus();
+					}
 				}
 			});		
 		}
 		
+		private void reportTimeEstimation(int totalTime) throws SicsIOException{
+			if (totalTime == 0) {
+				asyncSend("hset /experiment/gumtree_time_estimate 0", null, "status");
+				return;
+			}
+			if (getExperiment().isRunning()) {
+				long finishTime = timestampOnEstimation / 1000 + totalTime;
+//				time += estimatedTimeForBuffer - (System.currentTimeMillis() - timestampOnEstimation) / 1000;
+				
+				asyncSend("hset /experiment/gumtree_time_estimate " + finishTime, null, "status");
+			} else {
+				asyncSend("hset /experiment/gumtree_time_estimate 0", null, "status");
+			}
+		}
+		
+		private void reportGumtreeStatus() throws SicsIOException {
+			if (getExperiment().isRunning()) {
+				asyncSend("gumtree_status BUSY", null, "status");
+			} else {
+				asyncSend("gumtree_status IDLE", null, "status");
+			}
+		}
+		
+		private void asyncSend(String command, ISicsCallback callback,
+				String channelId) throws SicsIOException {
+				ISicsManager sicsManager = SicsCore.getSicsManager();
+				if (sicsManager != null) {
+					sicsManager.proxy().send(command, callback, channelId);					
+				}
+				System.err.println(command);
+		}
+
 		private void fireLiveReductionRequest(int col, int row) {
 			AcquisitionSetting setting = ((ScanTableModel) table.getModel()).getAcquisitionSetting(col, row);
 			if (setting != null) {
@@ -1155,6 +1219,7 @@ public class AcquisitionTask extends AbstractExperimentTask {
 				} else {
 					updateNormalAcquisitionUI(acquisition);
 				}
+				updateTimeEstimation(true);
 			}
 		}
 		

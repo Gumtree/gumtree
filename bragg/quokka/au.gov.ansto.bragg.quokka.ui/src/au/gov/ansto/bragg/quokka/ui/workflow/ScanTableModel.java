@@ -484,6 +484,7 @@ public class ScanTableModel extends KTableDefaultModel {
 				}
 			}
 		}
+		experiment.update();
 	}
 	/**
 	 * Helper method to retrieve the associated setting from a cell.

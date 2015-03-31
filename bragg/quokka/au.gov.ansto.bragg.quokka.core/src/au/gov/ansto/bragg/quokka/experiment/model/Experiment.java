@@ -62,6 +62,8 @@ public class Experiment extends AbstractModelObject {
 	// Optional directory destination for exporting user report
 	private String userReportDirectory;
 	
+	private boolean isRunning = false;
+
 	/*************************************************************************
 	 * Dynamic settings (objects created and destroyed during configuration)
 	 *************************************************************************/
@@ -459,4 +461,16 @@ public class Experiment extends AbstractModelObject {
 				+ user + ", userReportDirectory=" + userReportDirectory + "]";
 	}
 	
+	public void update() {
+		firePropertyChange("", null, null);
+	}
+
+	public boolean isRunning() {
+		return isRunning;
+	}
+
+	public void setRunning(boolean isRunning) {
+		this.isRunning = isRunning;
+	}
+
 }

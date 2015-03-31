@@ -7,8 +7,8 @@ var devices = [
 //            	   "items":[{"classId":"gumtree_time_estimate", "deviceId":"gumtree_time_estimate", "title":"Expected Finishing Time", "units":"", "adapt" : getTimeString}
 //            	            ]
 //               },
-               {"group":"GUMTREE BUFFER QUEUE", 
-            	   "items":[{"classId":"gumtree_status", "deviceId":"gumtree_status", "title":"Status", "units":""}
+               {"group":"GUMTREE MULTI-SAMPLE WORKFLOW", 
+            	   "items":[{"classId":"gumtree_status", "deviceId":"gumtree_status", "title":"Status", "units":"", "colorList":{"BUSY":"#FFA500", "IDLE":"#00c400"}}
             	            ]
                },
                {"group":"BEAM STATUS", 
