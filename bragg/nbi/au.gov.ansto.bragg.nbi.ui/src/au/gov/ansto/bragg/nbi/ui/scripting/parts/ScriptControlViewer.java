@@ -58,6 +58,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
@@ -132,6 +133,8 @@ public class ScriptControlViewer extends Composite {
 	public static final String WORKSPACE_FOLDER_PATH = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
 	public static final String GUMTREE_SCRIPTING_LIST_PROPERTY = "gumtree.scripting.menuitems";
 	public static final String GUMTREE_SCRIPTING_INIT_PROPERTY = "gumtree.scripting.initscript";
+	public static final String GUMTREE_SCRIPTING_ALLOWFOLDING_PROPERTY = "gumtree.scripting.jython.allowFolding";
+	
 //	private static final String[][] INTERNAL_SCRIPTS = new String[][]{
 //									{"Experiment Setup", "/Experiment/Experiment_Setup.py"},
 //									{"Nickel Alignment", "/Nickel_Auto/auto_Nickel_align.py"},
@@ -248,12 +251,17 @@ public class ScriptControlViewer extends Composite {
 	private Button currentButton;
 	private IScriptExecutor scriptExecutor;
 	private IActivityListener datasetActivityListener;
+	private boolean groupAllowFolding = false;
 	/**
 	 * @param parent
 	 * @param style
 	 */
 	public ScriptControlViewer(Composite parent, int style) {
 		super(parent, style);
+		try {
+			groupAllowFolding = Boolean.valueOf(System.getProperty(GUMTREE_SCRIPTING_ALLOWFOLDING_PROPERTY));
+		} catch (Exception e) {
+		}
 		scriptRegisterID = getNextRegisterID();
 		GridLayoutFactory.fillDefaults().margins(0, 0).spacing(1, 1).applyTo(this);
 		recentMenuItems = new ArrayList<MenuItem>();
@@ -939,8 +947,8 @@ public class ScriptControlViewer extends Composite {
 
 	private void addGroup(Composite parent, ScriptObjectGroup objGroup) {
 //		Group group = new Group(parent, SWT.NONE);
-		MenuBasedGroup group = new MenuBasedGroup(parent, SWT.NONE);
-		group.setClickExpandEnabled(false);
+		final MenuBasedGroup group = new MenuBasedGroup(parent, SWT.NONE);
+		group.setClickExpandEnabled(groupAllowFolding);
 		int groupNumColumns = 1;
 		if (objGroup.getProperty("numColumns") != null) {
 			try {
@@ -981,6 +989,25 @@ public class ScriptControlViewer extends Composite {
 		GridDataFactory.fillDefaults().grab(true, false).span(groupColspan * 2, groupRowspan).applyTo(group);
 		group.setText(objGroup.getName());
 		group.setBackgroundMode(SWT.INHERIT_DEFAULT);
+		
+		Menu menu = group.getMenu();
+		
+		// Set Name
+		final MenuItem editItem = new MenuItem(menu, SWT.PUSH);
+		editItem.setText("Fold");
+//		editItem.setImage(InternalImage.TEXT_EDIT.getImage());
+		editItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (group.getExpanded()) {
+					group.setExpanded(false);
+					editItem.setText("Expand");
+				} else {
+					group.setExpanded(true);
+					editItem.setText("Fold");
+				}
+			}
+		});
+		
 		List<IPyObject> controls = objGroup.getObjectList();
 		for (final IPyObject control : controls) {
 			if (control instanceof ScriptParameter) {
