@@ -95,6 +95,8 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 	
 	private static final int DEFAULT_LINE_LIMIT = 10000;
 	
+	private static final String PROP_CONSOLE_LINELIMIT = "gumtree.scripting.linelimit";
+	
 	// ID for default history tool
 	private static final String ID_TOOL_HISTORY = "history";
 	
@@ -147,6 +149,8 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 	private boolean inLocalScale = false;
 	
 	private boolean inLineScale = false;
+	
+	private int defaultLineLimit = DEFAULT_LINE_LIMIT;
 	
 	public IScriptExecutor getScriptExecutor() {
 		return executor;
@@ -372,6 +376,10 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 
 	public void createPartControl(Composite parent, int style) {
 		this.style = style;
+		try {
+			defaultLineLimit = Integer.valueOf(System.getProperty(PROP_CONSOLE_LINELIMIT));
+		} catch (Exception e) {
+		}
 		createPartControl(parent);
 	}
 	
@@ -793,13 +801,12 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 					StyledText styledText = consoleTextViewer.getTextWidget();
 					StyledTextContent doc = styledText.getContent();
 					int lineCount = doc.getLineCount();
-					int lineLimit = DEFAULT_LINE_LIMIT;
-					if (lineCount > lineLimit){
-						int startPoint = doc.getOffsetAtLine(lineCount - lineLimit);
+					if (lineCount > defaultLineLimit){
+						int startPoint = doc.getOffsetAtLine(lineCount - defaultLineLimit);
 						doc.replaceTextRange(0, startPoint, "");
 					}
 					int docLength = doc.getCharCount();
-					if (docLength > previousDocLength || lineCount > lineLimit) {
+					if (docLength > previousDocLength || lineCount > defaultLineLimit) {
 						styledText.setCaretOffset(docLength);
 						styledText.showSelection();
 						previousDocLength = docLength;
