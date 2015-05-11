@@ -84,6 +84,10 @@
             base-name="/WebContent/pyscript.html">
       </resource>
       <resource
+            alias="/notebook.html"
+            base-name="/WebContent/notebook.html">
+      </resource>
+      <resource
             alias="/pyscript.js"
             base-name="/WebContent/pyscript.js">
       </resource>
