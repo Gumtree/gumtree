@@ -1,5 +1,6 @@
 $(function(){
-
+	
+//	define scroll div with auto height
 	$(window).resize(function() {
 	    var bodyheight = $(window).height();
 		$(".slide-out-div").height(bodyheight - 80);
@@ -26,7 +27,8 @@ $(function(){
         	$('.class_editable_page').css({ margin: "0px auto" });
 		}
     });
-    
+
+
 //            if (self.location.href == top.location.href){
 //                $("body").css({font:"normal 13px/16px 'trebuchet MS', verdana, sans-serif"});
 //                var logo=$("<a href='http://pupunzi.com'><img id='logo' border='0' src='http://pupunzi.com/images/logo.png' alt='mb.ideas.repository' style='display:none;'></a>").css({position:"absolute"});
@@ -89,12 +91,14 @@ $(function(){
             
 jQuery(document).ready(function(){
 
+//	load current notebook content file
 	var getUrl = "notebook/load";
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
 //			$('#id_editable_page').html(decodeURIComponent(data.replace(/\+/g, ' ')));
 			$('#id_editable_page').html(data);
-//			alert(decodeURIComponent(data));
+			
+//			make editable page
 			jQuery(function($) {
 				$('.class_editable_page').raptor({
 					"plugins": {
@@ -111,7 +115,7 @@ jQuery(document).ready(function(){
 							"docked": true
 						},
 						"languageMenu": false,
-						"logo": false,
+//						"logo": false,
 						// The save UI plugin/button
 						"save": {
 							// Specifies the UI to call the saveRest plugin to do the actual saving
@@ -145,17 +149,74 @@ jQuery(document).ready(function(){
 		alert( "error loading current notebook file.");
 	});
 
+//	load db xml file
+	var getUrl = "notebook/db";
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+			$('#id_sidebar_inner').html(data);
+//			add insert button to db div on mouse over
+			$('.class_db_object').hover(function() {
+				$(this).append('<div class="class_db_insert"><img alt="insert" src="images/nav_backward.gif"><span>INSERT</span></div>');
+				var h = $(this).height();
+				var w = $(this).width();
+				$('.class_db_insert').css({
+					'top': h / 2 - 10,
+					'left': w / 2 - 30
+				});
+				var rp = $('.class_editable_page').raptor.Raptor.getInstances()[0];
+				var text = '';
+				$.each(rp, function(idx, val) {
+					text += idx + '\n';
+				});
+				$('.class_db_insert').click(function(e) {
+					alert(text);
+				});
+				rp.enableEditing();
+			}, function() {
+				$('div').remove('.class_db_insert');
+			});
+
+
+		}
+	})
+	.fail(function(e) {
+		alert( "error loading db xml file.");
+	});
+
+//	define scroll div with auto height
 	var bodyheight = $(window).height();
 	$(".slide-out-div").height(bodyheight - 80);
 	$(".div_sidebar_inner").height(bodyheight - 80);
 	
 	
-//	$('#id_sidebar_inner').mousewheel(function(event) {
-//	      event.preventDefault();
-//	      event.stopPropagation();
-//	});
+//	below code prevent body scroll together with the side bar innver div.
+	$('#id_sidebar_inner').on('DOMMouseScroll mousewheel', function(ev) {
+	    var $this = $(this),
+	        scrollTop = this.scrollTop,
+	        scrollHeight = this.scrollHeight,
+	        height = $this.height(),
+	        delta = (ev.type == 'DOMMouseScroll' ?
+	            ev.originalEvent.detail * -40 :
+	            ev.originalEvent.wheelDelta),
+	        up = delta > 0;
 
-	$('html').css({
-		'overflow':'hidden'
+	    var prevent = function() {
+	        ev.stopPropagation();
+	        ev.preventDefault();
+	        ev.returnValue = false;
+	        return false;
+	    }
+
+	    if (!up && -delta > scrollHeight - height - scrollTop) {
+	        // Scrolling down, but this will take us past the bottom.
+	        $this.scrollTop(scrollHeight);
+
+	        return prevent();
+	    } else if (up && delta > scrollTop) {
+	        // Scrolling up, but this will take us past the top.
+	        $this.scrollTop(0);
+	        return prevent();
+	    }
 	});
+	
 });

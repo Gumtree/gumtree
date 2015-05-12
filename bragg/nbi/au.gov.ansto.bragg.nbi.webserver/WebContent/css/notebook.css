@@ -89,9 +89,60 @@ th {
 	overflow-y: scroll;
 }
 
-/*
-.div_sidebar_inner:hover {
-	background-color: #aaa;
-	color: #ffe;
+.class_db_object{
+	margin: 4px;
+	padding: 4px;
+	cursor: grab;
+	position: relative;
+	overflow: auto;
+	
+	border: 1px solid #8F8F8F;
+	border-radius: 4px;
+	box-shadow: 1px 1px 3px #AFAFAF;
+	
+	-webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
-*/
+
+.class_db_object:HOVER {
+	background-color: white;
+	border: 1px solid #666;
+}
+
+.class_db_insert {
+    display: block;
+    position: absolute;
+    border: 1px solid red;
+	border: 1px solid #8F8F8F;
+	border-radius: 4px;
+	box-shadow: 1px 1px 3px #AFAFAF;
+	z-index: 20;
+	background-color: #999;
+	color: white;
+	
+	font-family: "Palatino Linotype", Book Antiqua, Palatino, serif;
+	font-size: 14px;
+    vertical-align: middle;
+	font-weight: bold;
+	text-decoration: none;
+	padding: 4px;
+}
+
+.class_db_insert img {
+    vertical-align: middle;
+}
+
+.class_db_insert span {
+    vertical-align: middle;
+}
+
+.class_db_insert:HOVER {
+	background-color: #ccc;
+    color: #000;
+    cursor: pointer;
+}
+
