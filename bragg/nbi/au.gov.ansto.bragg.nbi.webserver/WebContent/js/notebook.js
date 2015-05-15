@@ -1,3 +1,23 @@
+var editorDocumentPage = null;
+var editorPastePlugin = null;
+
+jQuery.fn.outerHTML = function() {
+	return jQuery('<div />').append(this.eq(0).clone()).html();
+};
+	
+jQuery.fn.convertDbToEditor = function() {
+	var element = this.clone();
+	element.removeClass('class_db_object');
+	element.addClass('class_editor_object');
+	return jQuery('<div />').append(element).html();
+};
+
+function drag(ev) {
+	var html = ev.target.outerHTML;
+	html = html.replace("class_db_object", "class_editor_object"); 
+    ev.dataTransfer.setData("text/html", html);
+} 
+
 $(function(){
 	
 //	define scroll div with auto height
@@ -28,67 +48,24 @@ $(function(){
 		}
     });
 
-
-//            if (self.location.href == top.location.href){
-//                $("body").css({font:"normal 13px/16px 'trebuchet MS', verdana, sans-serif"});
-//                var logo=$("<a href='http://pupunzi.com'><img id='logo' border='0' src='http://pupunzi.com/images/logo.png' alt='mb.ideas.repository' style='display:none;'></a>").css({position:"absolute"});
-//                $("body").prepend(logo);
-//                $("#logo").fadeIn();
-//            }
-//	try {
-//        $("#extruderLeft").buildMbExtruder({
-//            position:"right",
-//            width:600,
-//            extruderOpacity:.8,
-//            hidePanelsOnClose:true,
-//            closeOnExternalClick:false,
-//            closeOnClick:false,
-//            accordionPanels:true,
-//            onExtOpen:function(){},
-//            onExtContentLoad:function(){},
-//            onExtClose:function(){}
-//        });
-
-		
-//        $("#extruderLeft1").buildMbExtruder({
-//            position:"left",
-//            width:300,
-//            extruderOpacity:.8,
-//            onExtOpen:function(){},
-//            onExtContentLoad:function(){},
-//            onExtClose:function(){}
-//        });
-
-//	} catch (e) {
-//		alert(e.getMessage());
-//		// TODO: handle exception
-//	}
-
-            /*
-             $("#extruderLeft").buildMbExtruder({
-             position:"left",
-             width:300,
-             extruderOpacity:.8,
-             hidePanelsOnClose:false,
-             accordionPanels:false,
-             onExtOpen:function(){},
-             onExtContentLoad:function(){$("#extruderLeft").openPanel();},
-             onExtClose:function(){}
-             });
-             */
-
-//            $("#extruderLeft2").buildMbExtruder({
-//                position:"top",
-//                width:300,
-//                positionFixed:false,
-//                top:0,
-//                extruderOpacity:.8,
-//                onExtOpen:function(){},
-//                onExtContentLoad:function(){},
-//                onExtClose:function(){}
-//            });
+//	disabled for unexpected behavior
+//	$(".class_editable_page").droppable({
+//		accept: ".class_db_object",
+//		tolerance: "pointer",
+//		revert: "invalid",
+//		drop: function(event,ui){
+////				$(this).append($(ui.draggable).clone());
+//				if (!editorDocumentPage.isEditing()) {
+//					editorDocumentPage.enableEditing();
+//					editorPastePlugin.dropContent('<br>' + $(ui.draggable).clone().convertDbToEditor());
+//				} else {
+//					editorPastePlugin.dropContent('<br>' + $(ui.draggable).clone().convertDbToEditor());
+//				}
+//			}
+//	});
 });
             
+
 jQuery(document).ready(function(){
 
 //	load current notebook content file
@@ -102,6 +79,7 @@ jQuery(document).ready(function(){
 			jQuery(function($) {
 				$('.class_editable_page').raptor({
 					"plugins": {
+						"cancel": true,
 						"classMenu": {
 							"classes": {
 								"Blue background": "cms-blue-bg",
@@ -114,6 +92,7 @@ jQuery(document).ready(function(){
 						"dock": {
 							"docked": true
 						},
+						"guides": false,
 						"languageMenu": false,
 //						"logo": false,
 						// The save UI plugin/button
@@ -138,10 +117,32 @@ jQuery(document).ready(function(){
 								"Grey Box": "<div class=\"grey-box\"><h1>Grey Box<\/h1><ul><li>This is a list<\/li><\/ul><\/div>"
 							}
 						},
-						"statistics": false
-					}
+						"statistics": false, 
+						"viewSource": true
+					} 
+					
+//				    ,"bind": {
+//				    	"disabled" : function() {
+//				    		$(".class_editable_page").droppable({
+//				    			accept: ".class_db_object",
+//				    			drop: function(event,ui){
+//				    					alert('drop detected');
+////				    					$(this).append($(ui.draggable).clone());
+//				    					if (!editorDocumentPage.isEditing()) {
+//				    						editorDocumentPage.enableEditing();
+//				    						editorPastePlugin.insertContent('<br>' + $(ui.draggable).clone().convertDbToEditor());
+//				    					} else {
+//				    						editorPastePlugin.insertContent('<br>' + $(ui.draggable).clone().convertDbToEditor());
+//				    					}
+//				    				}
+//				    		});
+//				        }
+//				    }
 				});
 			});
+			
+			editorDocumentPage = $('.class_editable_page').raptor.Raptor.getInstances()[0];
+			editorPastePlugin = editorDocumentPage.getPlugin('paste');
 
 		}
 	})
@@ -163,20 +164,54 @@ jQuery(document).ready(function(){
 					'top': h / 2 - 10,
 					'left': w / 2 - 30
 				});
-				var rp = $('.class_editable_page').raptor.Raptor.getInstances()[0];
-				var text = '';
-				$.each(rp, function(idx, val) {
-					text += idx + '\n';
-				});
 				$('.class_db_insert').click(function(e) {
-					alert(text);
+					var text = '';
+					$.each(editorPastePlugin, function(idx, val) {
+						text += idx + '\n';
+					});
+					if (!editorDocumentPage.isEditing()) {
+						editorDocumentPage.enableEditing();
+						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor());
+//						$('html, body').animate({ 
+//							   scrollTop: $(document).height()-$(window).height()}, 
+//							   1400, 
+//							   "easeOutQuint"
+//						);
+					} else {
+						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor());
+					}
+					$("div.class_db_insert").remove();
 				});
-				rp.enableEditing();
+				
 			}, function() {
 				$('div').remove('.class_db_insert');
 			});
+			
+			$('.class_db_object').dblclick(function() {
+				if (!editorDocumentPage.isEditing()) {
+					editorDocumentPage.enableEditing();
+					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor());
+				} else {
+					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor());
+				}
+			});
 
-
+			$('.class_db_object').each(function(i, obj) {
+				console.log(obj);
+			    $(this).attr("draggable", true);
+			    $(this).attr("ondragstart", "drag(event)");
+			});
+			
+//			disabled for unexpected behavior
+//			$(".class_db_object").draggable({
+//				helper : 'clone', 
+//				cursor: 'pointer' 
+//			});
+			
+//			$(".class_db_object").mousedown(function (e) {
+//				e.dataTransfer.setData("text", e.target.id);
+//			    return false;
+//			});
 		}
 	})
 	.fail(function(e) {
@@ -187,7 +222,6 @@ jQuery(document).ready(function(){
 	var bodyheight = $(window).height();
 	$(".slide-out-div").height(bodyheight - 80);
 	$(".div_sidebar_inner").height(bodyheight - 80);
-	
 	
 //	below code prevent body scroll together with the side bar innver div.
 	$('#id_sidebar_inner').on('DOMMouseScroll mousewheel', function(ev) {

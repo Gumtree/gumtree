@@ -16,21 +16,27 @@ table {
 		position: relative;*/
 		width: 680px;
 	}
+	footer {
+		margin: 0px auto;
+		width: 720px;
+	}
 }
 
 @media print {
 	header {
 		margin: 0px auto;
+		padding-left: 10px;
 	/*		padding: 50px 20px 20px 0px;
 		position: relative;*/
 		width: 680px;
 	}
+	footer {
+		margin: 0px auto;
+		padding-right: 10px;
+		width: 720px;
+	}
 }
 
-footer {
-	margin: 0px auto;
-	width: 720px;
-}
 td,
 th {
     border: 1px dotted #777;
@@ -47,8 +53,13 @@ th {
 /*		margin-left: 16px; */
 		background: #F6F6F6 none repeat scroll 0% 0%;
 		border: 1px solid #8F8F8F;
-		border-radius: 10px;
+		border-radius: 6px;
 		box-shadow: 0px 0px 3px #AFAFAF;
+	}
+	
+	.class_editable_page img{
+		border: 1px solid #444;
+		box-shadow: 1px 1px 3px #AFAFAF;
 	}
 }
 
@@ -61,6 +72,16 @@ th {
 		padding: 10px 10px 20px;
 		margin: 0px auto;
 	}
+	
+	.class_editable_page .class_db_plot img{
+		border: 1px solid #444;
+		box-shadow: 1px 1px 3px #AFAFAF;	
+	}
+}
+
+.class_editable_page img {
+	max-width:100%;
+	max-height:100%;
 }
 
 .div_footer{
@@ -89,10 +110,21 @@ th {
 	overflow-y: scroll;
 }
 
+.div_sidebar_inner img {
+	max-width:100%;
+	max-height:100%;
+}
+
 .class_db_object{
 	margin: 4px;
 	padding: 4px;
+	cursor: pointer;
+/* draggable disabled
+	cursor: hand;
 	cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+*/
 	position: relative;
 	overflow: auto;
 	
@@ -106,7 +138,19 @@ th {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    
+    word-wrap: break-word; 
+    overflow: hidden;
 }
+
+
+/* draggable disabled 
+.class_db_object:active { 
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+*/
 
 .class_db_object:HOVER {
 	background-color: white;

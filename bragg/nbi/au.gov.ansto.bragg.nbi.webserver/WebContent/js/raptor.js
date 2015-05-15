@@ -45353,7 +45353,9 @@ ElementHoverPanelLayout.prototype.getElement = function() {
     if (this.hoverPanel === null) {
         this.hoverPanel = $('<div/>')
             .addClass(this.raptor.options.baseClass + '-layout raptor-layout-hover-panel ' + this.options.baseClass)
-            .mouseleave(this.hide.bind(this));
+            .mouseleave(function() {
+            	this.hide.bind(this);
+			});
 
         var uiGroup = new UiGroup(this.raptor, this.options.uiOrder);
         uiGroup.appendTo(this, this.hoverPanel);
@@ -48719,7 +48721,7 @@ function PastePlugin(name, overrides) {
          */
         allowedTags: [
             'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote',
-            'p', 'a', 'span', 'hr', 'br', 'strong', 'em',
+            'p', 'a', 'span', 'hr', 'br', 'strong', 'em', 'img',
             'table', 'tr', 'td', 'th', 'tbody', 'thead', 'tfoot'
         ],
 
@@ -48825,6 +48827,79 @@ PastePlugin.prototype.pasteContent = function(html) {
             range.setStartBefore(newNodes[0]);
             range.setEndAfter(newNodes[newNodes.length - 1]);
             selectionSet(range);
+        }
+        this.raptor.fire('insert-nodes', [newNodes]);
+    }.bind(this));
+};
+
+function listProp(obj){
+	var text = '';
+	$.each(obj, function(idx, val) {
+		text += idx + '\n';
+	});
+	return text;
+}
+
+/**
+ * Inserts the content into the selection.
+ *
+ * @param {HTML} html The html to be inserted into the selection.
+ */
+PastePlugin.prototype.insertContent = function(html) {
+    this.raptor.actionApply(function() {
+        // @todo fire an event to allow plugins to clean up, i.e. table plugin adding a cms-table class
+        var uniqueId = elementUniqueId();
+        selectionRestore();
+        html = this.filterAttributes(html);
+        html = this.filterChars(html);
+        var newNodes = selectionReplace(html);
+        if (newNodes.length > 0) {
+            range = rangy.createRange();
+            range.setStartAfter(newNodes[newNodes.length - 1]);
+            range.collapse(false);
+            selectionSet(range);
+            range.select();
+			try {
+	            $('html, body').animate(
+	            	{scrollTop: newNodes[newNodes.length - 1].offsetTop}, 
+					1400, 
+					"easeOutQuint"
+				);
+			} catch (e) {
+			}
+        }
+        this.raptor.fire('insert-nodes', [newNodes]);
+    }.bind(this));
+};
+
+/**
+ * Inserts the content into the selection.
+ *
+ * @param {HTML} html The html to be inserted into the selection.
+ */
+PastePlugin.prototype.dropContent = function(html) {
+    this.raptor.actionApply(function() {
+        // @todo fire an event to allow plugins to clean up, i.e. table plugin adding a cms-table class
+        var uniqueId = elementUniqueId();
+        selectionRestore();
+        html = this.filterAttributes(html);
+        html = this.filterChars(html);
+        var newNodes = selectionReplace(html);
+        if (newNodes.length > 0) {
+            range = rangy.createRange();
+            range.setStartAfter(newNodes[newNodes.length - 1]);
+            range.collapse(false);
+            selectionSet(range);
+            range.select();
+//          alert(newNodes[newNodes.length - 1].offsetTop);
+//			try {
+//	            $('html, body').animate(
+//	            	{scrollTop: newNodes[newNodes.length - 1].offsetTop}, 
+//					1400, 
+//					"easeOutQuint"
+//				);
+//			} catch (e) {
+//			}
         }
         this.raptor.fire('insert-nodes', [newNodes]);
     }.bind(this));
@@ -54393,9 +54468,14 @@ Form Style\n\
 }\n\
 \n\
 /* line 36, toolbar.scss */\n\
-.raptor-layout-toolbar-group {\n\
+@media screen{.raptor-layout-toolbar-group {\n\
   float: left;\n\
   margin-right: 5px;\n\
+}\n\
+}\n\
+@media print{.raptor-layout-toolbar-group {\n\
+  display: none;\n\
+}\n\
 }\n\
 \n\
 /* line 41, toolbar.scss */\n\
@@ -54439,11 +54519,15 @@ Form Style\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
 /* line 7, hover-panel.scss */\n\
-.raptor-layout-hover-panel {\n\
+@media screen{.raptor-layout-hover-panel {\n\
   z-index: 1100;\n\
   position: absolute;\n\
 }\n\
-\n\
+}\n\
+@media print{.raptor-layout-hover-panel {\n\
+  display: none;\n\
+}\n\
+}\n\
 /* line 12, hover-panel.scss */\n\
 .raptor-layout-hover-panel .raptor-layout-toolbar-group:last-child {\n\
   margin-right: 0;\n\
@@ -55906,7 +55990,7 @@ Form Style\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
 /* line 11, unsaved-edit-warning/unsaved-edit-warning.scss */\n\
-.raptor-plugin-unsaved-edit-warning {\n\
+@media screen {.raptor-plugin-unsaved-edit-warning {\n\
   position: fixed;\n\
   bottom: 0;\n\
   right: 0;\n\
@@ -55925,7 +56009,10 @@ Form Style\n\
   transition: opacity 0.5s;\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n\
   opacity: 0;\n\
-}\n\
+}\n}\n\
+@media print {.raptor-plugin-unsaved-edit-warning {\n\
+  display: none;\n\
+}\n}\n\
 /* line 23, unsaved-edit-warning/unsaved-edit-warning.scss */\n\
 .raptor-plugin-unsaved-edit-warning .ui-icon {\n\
   display: inline-block;\n\
