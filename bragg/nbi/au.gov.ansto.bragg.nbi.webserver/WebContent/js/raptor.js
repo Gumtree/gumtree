@@ -48857,16 +48857,17 @@ PastePlugin.prototype.insertContent = function(html) {
             range = rangy.createRange();
             range.setStartAfter(newNodes[newNodes.length - 1]);
             range.collapse(false);
-            selectionSet(range);
+//            selectionSet(range);
             range.select();
-			try {
-	            $('html, body').animate(
-	            	{scrollTop: newNodes[newNodes.length - 1].offsetTop}, 
-					1400, 
-					"easeOutQuint"
-				);
-			} catch (e) {
-			}
+//			try {
+//				console.log(newNodes[newNodes.length - 1].offsetTop);
+//	            $('html, body').animate(
+//	            	{scrollTop: newNodes[newNodes.length - 1].offsetTop}, 
+//					1400, 
+//					"easeOutQuint"
+//				);
+//			} catch (e) {
+//			}
         }
         this.raptor.fire('insert-nodes', [newNodes]);
     }.bind(this));

@@ -190,3 +190,17 @@ th {
     cursor: pointer;
 }
 
+.class_inner_message {
+	margin: 8px;
+	color: #999;
+}
+
+.class_inner_topmessage {
+	margin: 8px;
+	color: #999;
+}
+
+.class_inner_loading {
+	margin: 8px;
+	text-align: center;
+}
