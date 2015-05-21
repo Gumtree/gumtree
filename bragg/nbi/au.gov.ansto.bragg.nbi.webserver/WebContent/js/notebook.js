@@ -92,11 +92,6 @@ $(function(){
         					if (!editorDocumentPage.isEditing()) {
         						editorDocumentPage.enableEditing();
         						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor());
-//        						$('html, body').animate({ 
-//        							   scrollTop: $(document).height()-$(window).height()}, 
-//        							   1400, 
-//        							   "easeOutQuint"
-//        						);
         					} else {
         						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor());
         					}
@@ -104,6 +99,16 @@ $(function(){
         				});
         			}, function() {
         				$('div').remove('.class_db_insert');
+        			});
+        			
+        			$('.class_db_object').unbind('dblclick');
+        			$('.class_db_object').dblclick(function() {
+        				if (!editorDocumentPage.isEditing()) {
+        					editorDocumentPage.enableEditing();
+        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor());
+        				} else {
+        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor());
+        				}
         			});
         			
         			$('.class_db_object').each(function(i, obj) {
@@ -160,11 +165,6 @@ $(function(){
         					if (!editorDocumentPage.isEditing()) {
         						editorDocumentPage.enableEditing();
         						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor());
-//        						$('html, body').animate({ 
-//        							   scrollTop: $(document).height()-$(window).height()}, 
-//        							   1400, 
-//        							   "easeOutQuint"
-//        						);
         					} else {
         						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor());
         					}
@@ -172,6 +172,16 @@ $(function(){
         				});
         			}, function() {
         				$('div').remove('.class_db_insert');
+        			});
+        			
+        			$('.class_db_object').unbind('dblclick');
+        			$('.class_db_object').dblclick(function() {
+        				if (!editorDocumentPage.isEditing()) {
+        					editorDocumentPage.enableEditing();
+        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor());
+        				} else {
+        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor());
+        				}
         			});
         			
         			$('.class_db_object').each(function(i, obj) {

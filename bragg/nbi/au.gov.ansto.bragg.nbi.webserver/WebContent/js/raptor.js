@@ -48859,15 +48859,19 @@ PastePlugin.prototype.insertContent = function(html) {
             range.collapse(false);
 //            selectionSet(range);
             range.select();
-//			try {
-//				console.log(newNodes[newNodes.length - 1].offsetTop);
-//	            $('html, body').animate(
-//	            	{scrollTop: newNodes[newNodes.length - 1].offsetTop}, 
-//					1400, 
-//					"easeOutQuint"
-//				);
-//			} catch (e) {
-//			}
+			try {
+				var node = $(newNodes[newNodes.length - 1]);
+				var top = node.offset().top - 60;
+				if (top < 0) {
+					top = 0;
+				}
+	            $('html, body').animate(
+	            	{scrollTop: top}, 
+					1400, 
+					"easeOutQuint"
+				);
+			} catch (e) {
+			}
         }
         this.raptor.fire('insert-nodes', [newNodes]);
     }.bind(this));
