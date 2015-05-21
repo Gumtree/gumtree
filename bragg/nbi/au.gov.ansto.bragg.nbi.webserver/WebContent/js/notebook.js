@@ -91,9 +91,9 @@ $(function(){
         					});
         					if (!editorDocumentPage.isEditing()) {
         						editorDocumentPage.enableEditing();
-        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor());
+        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
         					} else {
-        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor());
+        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
         					}
         					$("div.class_db_insert").remove();
         				});
@@ -105,9 +105,9 @@ $(function(){
         			$('.class_db_object').dblclick(function() {
         				if (!editorDocumentPage.isEditing()) {
         					editorDocumentPage.enableEditing();
-        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor());
+        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
         				} else {
-        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor());
+        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
         				}
         			});
         			
@@ -164,9 +164,9 @@ $(function(){
         					});
         					if (!editorDocumentPage.isEditing()) {
         						editorDocumentPage.enableEditing();
-        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor());
+        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
         					} else {
-        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor());
+        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
         					}
         					$("div.class_db_insert").remove();
         				});
@@ -178,9 +178,9 @@ $(function(){
         			$('.class_db_object').dblclick(function() {
         				if (!editorDocumentPage.isEditing()) {
         					editorDocumentPage.enableEditing();
-        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor());
+        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
         				} else {
-        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor());
+        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
         				}
         			});
         			
@@ -339,14 +339,14 @@ jQuery(document).ready(function(){
 					});
 					if (!editorDocumentPage.isEditing()) {
 						editorDocumentPage.enableEditing();
-						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor());
+						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
 //						$('html, body').animate({ 
 //							   scrollTop: $(document).height()-$(window).height()}, 
 //							   1400, 
 //							   "easeOutQuint"
 //						);
 					} else {
-						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor());
+						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
 					}
 					$("div.class_db_insert").remove();
 				});
@@ -357,9 +357,9 @@ jQuery(document).ready(function(){
 			$('.class_db_object').dblclick(function() {
 				if (!editorDocumentPage.isEditing()) {
 					editorDocumentPage.enableEditing();
-					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor());
+					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
 				} else {
-					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor());
+					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
 				}
 			});
 

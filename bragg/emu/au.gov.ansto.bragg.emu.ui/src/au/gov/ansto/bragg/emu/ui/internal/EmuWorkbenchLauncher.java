@@ -40,6 +40,7 @@ public class EmuWorkbenchLauncher extends AbstractLauncher {
 
 	private static Logger logger = LoggerFactory.getLogger(EmuWorkbenchLauncher.class);
 	
+	private static final String ID_PERSPECTIVE_STATUS = "au.gov.ansto.bragg.emu.ui.EmuStatusPerspective";
 	
 	public EmuWorkbenchLauncher() {
 	}
@@ -202,6 +203,9 @@ public class EmuWorkbenchLauncher extends AbstractLauncher {
 			} else {
 				mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
 			}
+			
+			
+			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_STATUS, 1, 1, mmManager.isMultiMonitorSystem());
 //			// position it
 //			ScriptPageRegister register = new ScriptPageRegister();
 //			try {

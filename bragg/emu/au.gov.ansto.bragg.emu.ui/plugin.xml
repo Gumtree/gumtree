@@ -24,5 +24,19 @@
             class="au.gov.ansto.bragg.emu.ui.internal.EmuWorkbenchSetup">
       </startup>
    </extension>
-
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="au.gov.ansto.bragg.emu.ui.internal.EmuStatusPerspective"
+            icon="icons/activity_monitor.png"
+            id="au.gov.ansto.bragg.emu.ui.EmuStatusPerspective"
+            name="Emu Status"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+     <category
+           id="au.gov.ansto.bragg.emu.ui"
+           name="Emu Views">
+     </category>
+   </extension>
 </plugin>
