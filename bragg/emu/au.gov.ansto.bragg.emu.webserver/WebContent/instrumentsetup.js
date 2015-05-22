@@ -1,7 +1,7 @@
 var title = "Emu Status";
 var batchEnabled = true;
 var devices = [
-               {"group":"BEAM STATUS", 
+               {"group":"NEUTRON COUNTS", 
             	   "items":[{"classId":"total_counts", "deviceId":"::histogram_memory::total_counts", "title":"Detector Counts", "units":"ct"}, 
             	            {"classId":"histogram_memory_time", "deviceId":"::histogram_memory::time", "title":"Time of Counting", "units":"s"}, 
             	            {"classId":"bm1_counts", "deviceId":"bm1_counts", "title":"BM1 Counts", "units":"ct"},
@@ -9,28 +9,24 @@ var devices = [
             	            {"classId":"ratemap_xy_total", "deviceId":"::histogram_memory::ratemap_xy_total", "title":"Detector Rate", "units":"ct"}
             	            ]
                },
-               {"group":"APERTURE", 
-            	   "items":[{"classId":"sv1", "deviceId":"sv1", "title":"sv1", "units":"mm"},  
-            	            {"classId":"sh1", "deviceId":"sh1", "title":"sh1", "units":"mm"},
-            	            {"classId":"sv2", "deviceId":"sv2", "title":"sv2", "units":"mm"},
-            	            {"classId":"sh2", "deviceId":"sh2", "title":"sh2", "units":"mm"}
+               {"group":"PREMONOCHROMATOR", 
+            	   "items":[{"classId":"lambda", "deviceId":"lambda", "title":"Wavelength", "units":"Å"},  
+            	            {"classId":"momto", "deviceId":"momto", "title":"Take-off angle", "units":"&deg;"},
+            	            {"classId":"mom", "deviceId":"mom", "title":"Premono Omega", "units":"&deg;"}
             	            ]
                },
-               {"group":"MONOCHROMATOR", 
-            	   "items":[{"classId":"vwi", "deviceId":"vwi", "title":"wavelength", "units":"Å"},  
-            	            {"classId":"mom", "deviceId":"mom", "title":"mom", "units":"deg"},
-            	            {"classId":"mtth", "deviceId":"mtth", "title":"mtth", "units":"deg"},
-            	            {"classId":"moma", "deviceId":"moma", "title":"moma", "units":"deg"},
-            	            {"classId":"momb", "deviceId":"momb", "title":"momb", "units":"deg"},
-            	            {"classId":"momc", "deviceId":"momc", "title":"momc", "units":"deg"},
-            	            {"classId":"mra", "deviceId":"mra", "title":"mra", "units":"deg"},
-            	            {"classId":"mrb", "deviceId":"mrb", "title":"mrb", "units":"deg"},
-            	            {"classId":"mrc", "deviceId":"mrc", "title":"mrc", "units":"deg"}
+               {"group":"CHOPPERS", 
+            	   "items":[{"classId":"chom", "deviceId":"chom", "title":"Graphite chopper omega", "units":"&deg;"},  
+            	            {"classId":"chomto", "deviceId":"chomto", "title":"Graphite chopper take-off angle", "units":"&deg;"},
+            	            {"classId":"gspeed", "deviceId":"/instrument/chpr/graphite/actspeed", "title":"Graphite chopper speed", "units":"rpm"},
+            	            {"classId":"bspeed", "deviceId":"/instrument/chpr/background/actspeed", "title":"Background chopper speed", "units":"rpm"},
+            	            {"classId":"bphase", "deviceId":"/instrument/chpr/background/actphase", "title":"Background chopper phase", "units":"&deg;"},
+            	            {"classId":"bphase", "deviceId":"/instrument/chpr/background/actgear", "title":"Background chopper ratio", "units":""}
             	            ]
                },
-               {"group":"FERMI CHOPPER", 
-            	   "items":[{"classId":"mchs", "deviceId":"mchs", "title":"master chopper", "units":"rpm"},  
-            	            {"classId":"schs", "deviceId":"schs", "title":"slave chopper", "units":"rpm"}
+               {"group":"DOPPLER", 
+            	   "items":[{"classId":"damp", "deviceId":"damp", "title":"Amplitude", "units":"mm"},
+            	            {"classId":"dvel", "deviceId":"dvel", "title":"Velocity", "units":"m/s"}
             	   ]
                }
                ];
