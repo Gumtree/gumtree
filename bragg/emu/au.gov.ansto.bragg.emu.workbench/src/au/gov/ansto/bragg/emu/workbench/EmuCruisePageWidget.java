@@ -101,9 +101,9 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.MONOCHROMATOR.getImage());
 		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/crystal/wavelength", "Wavelength", null, "\u212B")
-				.addDevice("/instrument/crystal/takeoff", "Take-off angle", null, "\u00b0")
-				.addDevice("/instrument/crystal/premom", "Premono Omega", null, "\u00b0")
+				.addDevice("/instrument/crystal/lambda", "Wavelength", null, "\u212B")
+				.addDevice("/instrument/crystal/momto", "Take-off angle", null, "\u00b0")
+				.addDevice("/instrument/crystal/mom", "Premono Omega", null, "\u00b0")
 				;
 		configureWidget(deviceStatusWidget);
 
@@ -125,7 +125,7 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new DeviceStatusWidget(chopperGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/instrument/chom", "Graphite chopper omega", null, "\u00b0")
-				.addDevice("/instrument/chomto", "Graphite chopper take-off angle", null, "\u00b0")
+				.addDevice("/instrument/crystal/chomto", "Graphite chopper take-off angle", null, "\u00b0")
 				.addDevice("/instrument/chpr/graphite/actspeed", "Graphite chopper speed", null, "rpm")
 				.addDevice("/instrument/chpr/background/actspeed", "Background chopper speed", null, "rpm")
 				.addDevice("/instrument/chpr/background/actphase", "Background chopper phase", null, "\u00b0")
