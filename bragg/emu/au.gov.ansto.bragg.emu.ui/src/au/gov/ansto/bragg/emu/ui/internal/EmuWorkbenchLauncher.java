@@ -18,6 +18,7 @@ import org.eclipse.ui.IPerspectiveListener;
 import org.eclipse.ui.IWindowListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchWindow;
 import org.gumtree.ui.service.launcher.AbstractLauncher;
@@ -26,6 +27,9 @@ import org.gumtree.ui.service.multimonitor.IMultiMonitorManager;
 import org.gumtree.ui.service.multimonitor.support.MultiMonitorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import au.gov.ansto.bragg.nbi.ui.scripting.ScriptPageRegister;
+import au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective;
 
 public class EmuWorkbenchLauncher extends AbstractLauncher {
 
@@ -203,18 +207,15 @@ public class EmuWorkbenchLauncher extends AbstractLauncher {
 			} else {
 				mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
 			}
-			
-			
-			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_STATUS, 1, 1, mmManager.isMultiMonitorSystem());
 //			// position it
-//			ScriptPageRegister register = new ScriptPageRegister();
-//			try {
-//				ScriptingPerspective.registerViews(register);
-//			} catch (PartInitException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_STATUS, 1, 1, mmManager.isMultiMonitorSystem());
+			ScriptPageRegister register = new ScriptPageRegister();
+			try {
+				ScriptingPerspective.registerViews(register);
+			} catch (PartInitException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_STATUS, 1, 1, mmManager.isMultiMonitorSystem());
 //			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
 //			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 //			for (IPerspectiveDescriptor perspective: page.getOpenPerspectives()) {
