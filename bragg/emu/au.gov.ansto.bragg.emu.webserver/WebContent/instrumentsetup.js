@@ -11,16 +11,16 @@ var devices = [
                },
                {"group":"PREMONOCHROMATOR", 
             	   "items":[{"classId":"lambda", "deviceId":"lambda", "title":"Wavelength", "units":"Å"},  
-            	            {"classId":"momto", "deviceId":"momto", "title":"Take-off angle", "units":"&deg;"},
-            	            {"classId":"mom", "deviceId":"mom", "title":"Premono Omega", "units":"&deg;"}
+            	            {"classId":"momto", "deviceId":"momto", "title":"Take-off angle", "units":"degree"},
+            	            {"classId":"mom", "deviceId":"mom", "title":"Premono Omega", "units":"degree"}
             	            ]
                },
                {"group":"CHOPPERS", 
-            	   "items":[{"classId":"chom", "deviceId":"chom", "title":"Graphite chopper omega", "units":"&deg;"},  
-            	            {"classId":"chomto", "deviceId":"chomto", "title":"Graphite chopper take-off angle", "units":"&deg;"},
+            	   "items":[{"classId":"chom", "deviceId":"chom", "title":"Graphite chopper omega", "units":"degree"},  
+            	            {"classId":"chomto", "deviceId":"chomto", "title":"Graphite chopper take-off angle", "units":"degree"},
             	            {"classId":"gspeed", "deviceId":"/instrument/chpr/graphite/actspeed", "title":"Graphite chopper speed", "units":"rpm"},
             	            {"classId":"bspeed", "deviceId":"/instrument/chpr/background/actspeed", "title":"Background chopper speed", "units":"rpm"},
-            	            {"classId":"bphase", "deviceId":"/instrument/chpr/background/actphase", "title":"Background chopper phase", "units":"&deg;"},
+            	            {"classId":"bphase", "deviceId":"/instrument/chpr/background/actphase", "title":"Background chopper phase", "units":"degree"},
             	            {"classId":"bphase", "deviceId":"/instrument/chpr/background/actgear", "title":"Background chopper ratio", "units":""}
             	            ]
                },
