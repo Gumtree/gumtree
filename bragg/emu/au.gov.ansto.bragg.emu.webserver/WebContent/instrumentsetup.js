@@ -21,7 +21,7 @@ var devices = [
             	            {"classId":"gspeed", "deviceId":"/instrument/chpr/graphite/actspeed", "title":"Graphite chopper speed", "units":"rpm"},
             	            {"classId":"bspeed", "deviceId":"/instrument/chpr/background/actspeed", "title":"Background chopper speed", "units":"rpm"},
             	            {"classId":"bphase", "deviceId":"/instrument/chpr/background/actphase", "title":"Background chopper phase", "units":"degree"},
-            	            {"classId":"bphase", "deviceId":"/instrument/chpr/background/actgear", "title":"Background chopper ratio", "units":""}
+            	            {"classId":"bgear", "deviceId":"/instrument/chpr/background/actgear", "title":"Background chopper ratio", "units":""}
             	            ]
                },
                {"group":"DOPPLER", 
