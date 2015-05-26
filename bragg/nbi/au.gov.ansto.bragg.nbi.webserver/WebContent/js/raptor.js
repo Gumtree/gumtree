@@ -48875,7 +48875,7 @@ PastePlugin.prototype.insertContent = function(html) {
             range.select();
 			try {
 				var node = $(newNodes[newNodes.length - 1]);
-				var top = node.offset().top - 60;
+				var top = node.offset().top - 260;
 				if (top < 0) {
 					top = 0;
 				}
@@ -48885,6 +48885,12 @@ PastePlugin.prototype.insertContent = function(html) {
 					"easeOutQuint"
 				);
 			} catch (e) {
+			}
+			try {
+				this.raptor.focus();
+				
+			} catch (e) {
+				console.log("failed to focus");
 			}
         }
         this.raptor.fire('insert-nodes', [newNodes]);

@@ -111,6 +111,14 @@
             alias="/images"
             base-name="/WebContent/images">
       </resource>
+      <resource
+            alias="/favicon.ico"
+            base-name="/WebContent/favicon.ico">
+      </resource>
+      <resource
+            alias="/icons"
+            base-name="/WebContent/icons">
+      </resource>
    </extension>
 
 </plugin>
