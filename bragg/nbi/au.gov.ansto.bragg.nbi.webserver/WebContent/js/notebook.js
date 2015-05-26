@@ -268,6 +268,10 @@ jQuery(document).ready(function(){
 						"guides": false,
 						"languageMenu": false,
 //						"logo": false,
+//						"paste": false,
+						"paste": {
+							enabled: false
+						},
 						// The save UI plugin/button
 						"save": {
 							// Specifies the UI to call the saveRest plugin to do the actual saving

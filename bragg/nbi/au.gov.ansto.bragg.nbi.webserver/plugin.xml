@@ -113,7 +113,7 @@
       </resource>
       <resource
             alias="/favicon.ico"
-            base-name="/WebContent/favicon.ico">
+            base-name="/WebContent/icons/favicon.ico">
       </resource>
       <resource
             alias="/icons"

@@ -48740,11 +48740,11 @@ function PastePlugin(name, overrides) {
         ],
 
         allowedAttributes: [
-            'href', 'title', 'colspan', 'rowspan'
+            'href', 'title', 'colspan', 'rowspan', 'src', 'alt'
         ],
 
         allowedEmptyTags: [
-            'hr', 'br', 'td', 'th'
+            'hr', 'br', 'td', 'th', 'img'
         ],
 
         panels: [
@@ -48752,7 +48752,9 @@ function PastePlugin(name, overrides) {
             'plain-text',
             'formatted-unclean',
             'source'
-        ]
+        ], 
+        
+        enabled: true
     };
 
     RaptorPlugin.call(this, name || 'paste', overrides);
@@ -48764,7 +48766,9 @@ PastePlugin.prototype = Object.create(RaptorPlugin.prototype);
  * Enables pasting.
  */
 PastePlugin.prototype.enable = function() {
-    this.raptor.getElement().on('paste.raptor', this.capturePaste.bind(this));
+	if (this.options.enabled) {
+		this.raptor.getElement().on('paste.raptor', this.capturePaste.bind(this));
+	}
 };
 
 PastePlugin.prototype.capturePaste = function(event) {
@@ -48841,6 +48845,21 @@ PastePlugin.prototype.pasteContent = function(html) {
             range.setStartBefore(newNodes[0]);
             range.setEndAfter(newNodes[newNodes.length - 1]);
             selectionSet(range);
+//            range.select();
+			try {
+				var node = $(newNodes[newNodes.length - 1]);
+				var top = node.offset().top - 260;
+				console.log(top);
+				if (top < 0) {
+					top = 0;
+				}
+	            $('html, body').animate(
+	            	{scrollTop: top}, 
+					1400, 
+					"easeOutQuint"
+				);
+			} catch (e) {
+			}
         }
         this.raptor.fire('insert-nodes', [newNodes]);
     }.bind(this));
@@ -48886,14 +48905,14 @@ PastePlugin.prototype.insertContent = function(html) {
 				);
 			} catch (e) {
 			}
-			try {
-				this.raptor.focus();
-				
-			} catch (e) {
-				console.log("failed to focus");
-			}
         }
         this.raptor.fire('insert-nodes', [newNodes]);
+//		try {
+//			this.raptor.getElement().focus();
+//			alert("focus");
+//		} catch (e) {
+//			console.log("failed to focus");
+//		}
     }.bind(this));
 };
 
