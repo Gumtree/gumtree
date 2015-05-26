@@ -40299,6 +40299,8 @@ extendLocale('en', 'English', {
     cancelDialogTitle: 'Cancel Editing',
     cancelTitle: 'Cancel editing',
 
+    printTitle:'Click to print', 
+    
     classMenuTitle: 'Style picker',
     cleanBlockTitle: 'Clean block',
     clearFormattingTitle: 'Clear formatting',
@@ -40307,7 +40309,7 @@ extendLocale('en', 'English', {
 
     closeTitle: 'Close this toolbar',
 
-    colorMenuBasicAutomatic: 'Automatic',
+    colorMenuBasicAutomatic: 'Font Color',
     colorMenuBasicBlack: 'Black',
     colorMenuBasicBlue: 'Blue',
     colorMenuBasicGreen: 'Green',
@@ -40456,10 +40458,12 @@ extendLocale('en', 'English', {
     saveTitle: 'Save content',
     saveNotConfigured: 'Save has not been configured, or is disabled.',
     saveJsonFail: 'Failed to save {{failed}} content block(s)',
-    saveJsonSaved: 'Successfully saved {{saved}} content block(s).',
+//    saveJsonSaved: 'Successfully saved {{saved}} content block(s).',
+    saveJsonSaved: 'Successfully saved.',
     saveRestFail: 'Failed to save {{failed}} content block(s).',
     saveRestPartial: 'Saved {{saved}} out of {{failed}} content blocks.',
-    saveRestSaved: 'Successfully saved {{saved}} content block(s).',
+//    saveRestSaved: 'Successfully saved {{saved}} content block(s).',
+    saveRestSaved: 'Successfully saved.',
 
     snippetMenuTitle: 'Snippets',
 
@@ -46548,6 +46552,16 @@ Raptor.registerUi(new PreviewButton({
         cleanWrapTextNodes(this.raptor.getElement()[0], 'p');
     }
 }));
+
+Raptor.registerUi(new Button({
+    name: 'print',
+ 
+    action: function() {
+    	window.print();
+    }
+
+}));
+
 ;
 // File end: /var/deployments/www.raptor-editor.com.3/raptor-gold/raptor-editor/src/plugins/clear-formatting/clear-formatting.js
 ;
@@ -51491,7 +51505,7 @@ Raptor.registerPreset({
         toolbar: {
             uiOrder: [
                 ['logo'],
-                ['save', 'cancel'],
+                ['save', 'cancel', 'print'],
                 ['dockToScreen', 'dockToElement', 'guides'],
                 ['viewSource'],
                 ['historyUndo', 'historyRedo'],

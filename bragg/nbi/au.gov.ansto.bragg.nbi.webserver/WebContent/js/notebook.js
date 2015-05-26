@@ -21,6 +21,13 @@ function drag(ev) {
     ev.dataTransfer.setData("text/html", html);
 } 
 
+//$(window).keydown(function(event) {
+//	if(event.ctrlKey && event.keyCode == 83) { 
+//		alert("Hey! Ctrl+S event captured!");
+//		event.preventDefault(); 
+//	}
+//});
+
 $(function(){
 	
 //	define scroll div with auto height
@@ -30,6 +37,18 @@ $(function(){
 		$(".div_sidebar_inner").height(bodyheight - 80);
 	});
 	
+//	overwrite save key shortcut	
+	$(document).bind('keydown', 'Ctrl+s', function(event) {
+		setTimeout(function() {
+			try {
+				$('.class_editable_page').raptor.Raptor.getInstances()[0].getPlugin('saveRest').save();
+			} catch (e) {
+				console.log("saving failed.");
+			}
+		}, 0);
+		return false;
+	});
+
     $('.slide-out-div').tabSlideOut({
         tabHandle: '.id_sidebar_handle',                     //class of the element that will become your tab
 //        pathToTabImage: 'images/contact_tab.gif', //path to the image for the tab //Optionally can be set using css
@@ -233,13 +252,14 @@ jQuery(document).ready(function(){
 				$('.class_editable_page').raptor({
 					"plugins": {
 						"cancel": true,
-						"classMenu": {
-							"classes": {
-								"Blue background": "cms-blue-bg",
-								"Round corners": "cms-round-corners",
-								"Indent and center": "cms-indent-center"
-							}
-						},
+						"classMenu": false,
+//						"classMenu": {
+//							"classes": {
+//								"Blue background": "cms-blue-bg",
+//								"Round corners": "cms-round-corners",
+//								"Indent and center": "cms-indent-center"
+//							}
+//						},
 						"dockToScreen": false,
 						"dockToElement": false,
 						"dock": {
@@ -265,11 +285,12 @@ jQuery(document).ready(function(){
 							},
 							retain: true
 						},
-						"snippetMenu": {
-							"snippets": {
-								"Grey Box": "<div class=\"grey-box\"><h1>Grey Box<\/h1><ul><li>This is a list<\/li><\/ul><\/div>"
-							}
-						},
+//						"snippetMenu": {
+//							"snippets": {
+//								"Grey Box": "<div class=\"grey-box\"><h1>Grey Box<\/h1><ul><li>This is a list<\/li><\/ul><\/div>"
+//							}
+//						},
+						"snippetMenu": false,
 						"statistics": false, 
 						"viewSource": true
 					} 

@@ -204,3 +204,9 @@ th {
 	margin: 8px;
 	text-align: center;
 }
+
+.ui-icon-print {
+	background-image: url("../images/nav_print.gif");
+	width: 16px;
+	height: 16px;
+}
