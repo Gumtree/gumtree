@@ -6,11 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-import au.gov.ansto.bragg.nbi.server.notebook.db.NotebookDb;
-import au.gov.ansto.bragg.nbi.server.notebook.db.RecordReader;
-import au.gov.ansto.bragg.nbi.server.notebook.db.RecordWriter;
-import au.gov.ansto.bragg.nbi.server.notebook.db.RecordsFile;
-import au.gov.ansto.bragg.nbi.server.notebook.db.RecordsFileException;
+import org.gumtree.service.db.RecordReader;
+import org.gumtree.service.db.RecordWriter;
+import org.gumtree.service.db.RecordsFile;
+import org.gumtree.service.db.RecordsFileException;
+import org.gumtree.service.db.TextDb;
 
 
 public class FileLoaderTest {
@@ -160,9 +160,9 @@ public class FileLoaderTest {
 	}
 	
 	public static void getIndex(String filename, String key) {
-		NotebookDb db = null;
+		TextDb db = null;
 		try {
-			db = new NotebookDb(filename, "rws");
+			db = new TextDb(filename, "rws");
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -183,7 +183,7 @@ public class FileLoaderTest {
 	public static void makeDb(String orgFile, String tgtFile) {
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(orgFile));
-			NotebookDb db = new NotebookDb(tgtFile, 1024);
+			TextDb db = new TextDb(tgtFile, 1024);
 			String line;
 			boolean start = false;
 			String text = "";
@@ -235,7 +235,7 @@ public class FileLoaderTest {
 	public static void appendDb(String orgFile, String tgtFile, int number) {
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(orgFile));
-			NotebookDb db = new NotebookDb(tgtFile, "rw");
+			TextDb db = new TextDb(tgtFile, "rw");
 			String line;
 			boolean start = false;
 			String text = "";

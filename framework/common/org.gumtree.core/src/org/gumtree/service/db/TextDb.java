@@ -1,7 +1,7 @@
 /**
  * 
  */
-package au.gov.ansto.bragg.nbi.server.notebook.db;
+package org.gumtree.service.db;
 
 import java.io.IOException;
 
@@ -9,7 +9,7 @@ import java.io.IOException;
  * @author nxi
  *
  */
-public class NotebookDb extends RecordsFile {
+public class TextDb extends RecordsFile {
 
 	/**
 	 * @param dbPath
@@ -17,7 +17,7 @@ public class NotebookDb extends RecordsFile {
 	 * @throws IOException
 	 * @throws RecordsFileException
 	 */
-	public NotebookDb(String dbPath, int initialSize) throws IOException,
+	public TextDb(String dbPath, int initialSize) throws IOException,
 			RecordsFileException {
 		super(dbPath, initialSize);
 		// TODO Auto-generated constructor stub
@@ -29,7 +29,7 @@ public class NotebookDb extends RecordsFile {
 	 * @throws IOException
 	 * @throws RecordsFileException
 	 */
-	public NotebookDb(String dbPath, String accessFlags) throws IOException,
+	public TextDb(String dbPath, String accessFlags) throws IOException,
 			RecordsFileException {
 		super(dbPath, accessFlags);
 		// TODO Auto-generated constructor stub
@@ -37,7 +37,7 @@ public class NotebookDb extends RecordsFile {
 
 	public synchronized void appendEntry(String key, String entry) throws IOException, RecordsFileException {
 		RecordWriter rw = new RecordWriter(key);
-		rw.writeObject(rw);
+		rw.writeObject(entry);
 		insertRecord(rw);
 	}
 	

@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.gumtree.core.object.IDisposable;
+import org.gumtree.service.db.RecordsFileException;
+import org.gumtree.service.db.TextDb;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.Context;
@@ -19,9 +21,6 @@ import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
-
-import au.gov.ansto.bragg.nbi.server.notebook.db.NotebookDb;
-import au.gov.ansto.bragg.nbi.server.notebook.db.RecordsFileException;
 
 public class NotebookRestlet extends Restlet implements IDisposable {
 
@@ -174,9 +173,9 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	    		isBeginning = true;
 	    	}
 	    	final int length = Integer.valueOf(form.getValues(QUERY_ENTRY_LENGTH));
-	    	NotebookDb db = null;
+	    	TextDb db = null;
 			try {
-				db = new NotebookDb(currentDBPath, "r");
+				db = new TextDb(currentDBPath, "r");
 				String html = "";
 				if (isBeginning) {
 					html = db.getEntries(length);

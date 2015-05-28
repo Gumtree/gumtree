@@ -25,7 +25,6 @@ Export-Package: au.gov.ansto.bragg.nbi.server,
  au.gov.ansto.bragg.nbi.server.internal,
  au.gov.ansto.bragg.nbi.server.jython,
  au.gov.ansto.bragg.nbi.server.notebook,
- au.gov.ansto.bragg.nbi.server.notebook.db,
  au.gov.ansto.bragg.nbi.server.restlet,
  au.gov.ansto.bragg.nbi.server.vaadin
 Import-Package: javax.mail;version="1.4.0",
