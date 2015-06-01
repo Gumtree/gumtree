@@ -48882,7 +48882,11 @@ PastePlugin.prototype.insertContent = function(html) {
     this.raptor.actionApply(function() {
         // @todo fire an event to allow plugins to clean up, i.e. table plugin adding a cms-table class
         var uniqueId = elementUniqueId();
-        selectionRestore();
+//        selectionRestore();
+        selection = rangy.getSelection();
+        if (selection){
+        	selection.collapseToEnd();
+        }
         html = this.filterAttributes(html);
         html = this.filterChars(html);
         var newNodes = selectionReplace(html);
