@@ -26355,13 +26355,20 @@ Description:\n\
         Default styling for Pines Notify jQuery plugin.\n\
 */\n\
 /* -- Notice */\n\
-.ui-pnotify {\n\
-    top: 25px;\n\
-    right: 25px;\n\
-    position: absolute;\n\
-    height: auto;\n\
-    /* Ensures notices are above everything */\n\
-    z-index: 9999;\n\
+@media print {\n\
+	.ui-pnotify {\n\
+		display: none;\n\
+	}\n\
+}\n\
+@media screen{\n\
+	.ui-pnotify {\n\
+	    top: 25px;\n\
+	    right: 25px;\n\
+	    position: absolute;\n\
+	    height: auto;\n\
+	    /* Ensures notices are above everything */\n\
+	    z-index: 9999;\n\
+	}\n\
 }\n\
 /* Hides position: fixed from IE6 */\n\
 html > body .ui-pnotify {\n\
@@ -26372,11 +26379,18 @@ html > body .ui-pnotify {\n\
     -moz-box-shadow: 0px 2px 10px rgba(50, 50, 50, 0.5);\n\
     box-shadow: 0px 2px 10px rgba(50, 50, 50, 0.5);\n\
 }\n\
-.ui-pnotify-container {\n\
-    background-position: 0 0;\n\
-    padding: .8em;\n\
-    height: 100%;\n\
-    margin: 0;\n\
+@media print{\n\
+	.ui-pnotify-container {\n\
+	    display: none;\n\
+	}\n\
+}\n\
+@media screen{\n\
+	.ui-pnotify-container {\n\
+	    background-position: 0 0;\n\
+	    padding: .8em;\n\
+	    height: 100%;\n\
+	    margin: 0;\n\
+	}\n\
 }\n\
 .ui-pnotify-sharp {\n\
     -webkit-border-radius: 0;\n\
