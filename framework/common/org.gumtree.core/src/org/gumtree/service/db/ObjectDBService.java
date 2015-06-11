@@ -21,7 +21,7 @@ public class ObjectDBService {
 
 	private static Map<String, ObjectDBService> dbMap;
 	
-	private final static String PROP_NOTEBOOK_SAVEPATH = "gumtree.notebook.savePath";
+	private final static String PROP_NOTEBOOK_SAVEPATH = "gumtree.loggingDB.savePath";
 
 	
 	static {
@@ -139,7 +139,7 @@ public class ObjectDBService {
 		String dbPath = System.getProperty(PROP_NOTEBOOK_SAVEPATH) + "/" + name + ".rdf";
 		File oldFile = new File(dbPath);
 		if (oldFile.exists()) {
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-DDTHH-mm-ss");
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
 			File newFile = new File(name + "_" + dateFormat.format(new Date()) + ".rdf");
 			oldFile.renameTo(newFile);
 		}

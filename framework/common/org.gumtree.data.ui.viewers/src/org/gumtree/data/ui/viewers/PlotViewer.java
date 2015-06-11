@@ -3,6 +3,8 @@
  */
 package org.gumtree.data.ui.viewers;
 
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 
@@ -29,6 +31,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.gumtree.data.ui.viewers.internal.InternalImage;
+import org.gumtree.service.db.LoggingDB;
+import org.gumtree.service.db.RecordsFileException;
 import org.gumtree.vis.awt.PlotFactory;
 import org.gumtree.vis.interfaces.IDataset;
 import org.gumtree.vis.interfaces.IHist2D;
@@ -58,6 +62,7 @@ public class PlotViewer extends Composite {
 	private ToolItem copyToolItem;
 	private ToolItem savePictureToolItem;
 	private ToolItem printToolItem;
+	private ToolItem sendLogToolItem;
 	private ToolItem helpToolItem;
 	private ToolItem settingsToolItem;
 	private ToolItem logarithmToolItem;
@@ -137,6 +142,9 @@ public class PlotViewer extends Composite {
 		printToolItem.setToolTipText("Print image");
 		printToolItem.setImage(InternalImage.PRINT.getImage());
 
+		sendLogToolItem = new ToolItem (controlToolBar, SWT.PUSH);
+		sendLogToolItem.setToolTipText("Send to notebook");
+		sendLogToolItem.setImage(InternalImage.SENDLOG.getImage());
 
 		helpToolItem = new ToolItem (controlToolBar, SWT.PUSH);
 		helpToolItem.setToolTipText("Show help");
@@ -369,6 +377,39 @@ public class PlotViewer extends Composite {
 							return;
 						}
 						getPlot().createChartPrintJob();
+					}
+				});
+				newThread.start();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
+		sendLogToolItem.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Thread newThread = new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						if (getPlot() == null) {
+							return;
+						}
+						Image image = getPlot().getImage();
+						if (image instanceof BufferedImage) {
+							try {
+								LoggingDB.getInstance().appendImageEntry("ScriptingPlot", (BufferedImage) image, null);
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (RecordsFileException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
 					}
 				});
 				newThread.start();

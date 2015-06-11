@@ -297,7 +297,7 @@ public class FileLoaderTest {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String filename = "W:/data/current/notebook/db.rdf";
+		String filename = "W:/data/current/notebook/loggingDB.rdf";
 //		readFile(filename);
 //		readRecord(filename, "Key4");
 //		getIndex(filename, "Key7");

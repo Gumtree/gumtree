@@ -3,6 +3,9 @@ var editorPastePlugin = null;
 var topDbIndex = 0;
 var bottomDbIndex = 0;
 var isAppending = false;
+var dbFilter = null;
+
+//alert($('html').hasClass('ie9'));
 
 jQuery.fn.outerHTML = function() {
 	return jQuery('<div />').append(this.eq(0).clone()).html();
@@ -21,6 +24,15 @@ function drag(ev) {
     ev.dataTransfer.setData("text/html", html);
 } 
 
+function dbApplyFilter() {
+	if (dbFilter != null){
+		$('.class_db_object').hide();
+		$(dbFilter).show();
+	} else {
+		$('.class_db_object').show();
+	}
+}
+
 //$(window).keydown(function(event) {
 //	if(event.ctrlKey && event.keyCode == 83) { 
 //		alert("Hey! Ctrl+S event captured!");
@@ -34,7 +46,7 @@ $(function(){
 	$(window).resize(function() {
 	    var bodyheight = $(window).height();
 		$(".slide-out-div").height(bodyheight - 80);
-		$(".div_sidebar_inner").height(bodyheight - 80);
+		$(".div_sidebar_inner").height(bodyheight - 104);
 	});
 	
 //	overwrite save key shortcut	
@@ -51,9 +63,9 @@ $(function(){
 
     $('.slide-out-div').tabSlideOut({
         tabHandle: '.id_sidebar_handle',                     //class of the element that will become your tab
-//        pathToTabImage: 'images/contact_tab.gif', //path to the image for the tab //Optionally can be set using css
-        imageHeight: '122px',                     //height of tab image           //Optionally can be set using css
-        imageWidth: '40px',                       //width of tab image            //Optionally can be set using css
+        pathToTabImage: $('html').hasClass('ie9') ? 'images/Database.GIF' : null, //path to the image for the tab //Optionally can be set using css
+        imageHeight: '218px',                     //height of tab image           //Optionally can be set using css
+        imageWidth: '33px',                       //width of tab image            //Optionally can be set using css
         tabLocation: 'right',                      //side of screen where tab lives, top, right, bottom, or left
         speed: 300,                               //speed of animation
         action: 'click',                          //options: 'click' or 'hover', action to trigger animation
@@ -70,6 +82,7 @@ $(function(){
 		}
     });
 
+    
     $('#id_sidebar_inner').bind('scroll', function() {
         if(!isAppending && bottomDbIndex > 0 && $(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight) {
         	isAppending = true;
@@ -87,8 +100,15 @@ $(function(){
         			var pair = data.substring(0, brk);
         			bottomDbIndex = parseInt(pair.substring(pair.indexOf(":") + 1));
         			
-        			$('#id_sidebar_inner').append(data.substring(brk + 1));
+        			$('.class_db_new').removeClass('class_db_new');
+        			var items = $('<div/>').html(data.substring(brk + 1)).children();
+        			$.each(items, function(idx, val) {
+        				$(this).addClass('class_db_new');
+					});
+        			$('#id_sidebar_inner').append(items);
 
+        			dbApplyFilter();
+        			
         			$('.class_db_object').hover(function() {
         				$(this).append('<div class="class_db_insert"><img alt="insert" src="images/nav_backward.gif"><span>INSERT</span></div>');
         				var h = $(this).height();
@@ -164,8 +184,15 @@ $(function(){
         				return;
         			}
         			
-        			$('#id_sidebar_inner').prepend(data.substring(brk + 1));
+        			$('.class_db_new').removeClass('class_db_new');
+        			var items = $('<div/>').html(data.substring(brk + 1)).children();
+        			$.each(items, function(idx, val) {
+        				$(this).addClass('class_db_new');
+					});
+        			$('#id_sidebar_inner').prepend(items);
 
+        			dbApplyFilter();
+        			
         			$('.class_db_object').hover(function() {
         				$(this).append('<div class="class_db_insert"><img alt="insert" src="images/nav_backward.gif"><span>INSERT</span></div>');
         				var h = $(this).height();
@@ -261,11 +288,12 @@ jQuery(document).ready(function(){
 						"dockToScreen": false,
 						"dockToElement": false,
 						"dock": {
-							"docked": true
+							"docked": false,
+							"persist": false
 						},
 						"guides": false,
 						"languageMenu": false,
-//						"logo": false,
+						"logo": false,
 //						"paste": false,
 						"paste": {
 							enabled: false
@@ -410,7 +438,7 @@ jQuery(document).ready(function(){
 //	define scroll div with auto height
 	var bodyheight = $(window).height();
 	$(".slide-out-div").height(bodyheight - 80);
-	$(".div_sidebar_inner").height(bodyheight - 80);
+	$(".div_sidebar_inner").height(bodyheight - 104);
 	
 //	below code prevent body scroll together with the side bar innver div.
 	$('#id_sidebar_inner').on('DOMMouseScroll mousewheel', function(ev) {
@@ -430,13 +458,91 @@ jQuery(document).ready(function(){
 	        return false;
 	    }
 
-	    if (!up && -delta > scrollHeight - height - scrollTop) {
+	    if (!up && -delta > scrollHeight - height - scrollTop && scrollHeight == height) {
 	        // Scrolling down, but this will take us past the bottom.
+		    console.log(scrollHeight + '; ' + height + ';' + scrollTop);
 	        $this.scrollTop(scrollHeight);
+        	isAppending = true;
+            $('#id_sidebar_inner').append('<div class="class_inner_loading"><img src="images/loading.gif"></div>');
+            $('#id_sidebar_inner').scrollTop = $('#id_sidebar_inner').scrollHeight;
+            var getUrl = "notebook/db?start=" + (bottomDbIndex - 1) + "&length=10";
+        	$.get(getUrl, function(data, status) {
+        		if (status == "success") {
+        			if (data.trim().length = 0) {
+        				$('#id_sidebar_inner').append("<p>End of Database</p>");
+//        				$('#id_sidebar_inner').unbind('scroll');
+        				return;
+        			}
+        			var brk = data.indexOf(";");
+        			var pair = data.substring(0, brk);
+        			bottomDbIndex = parseInt(pair.substring(pair.indexOf(":") + 1));
+        			
+        			$('.class_db_new').removeClass('class_db_new');
+        			var items = $('<div/>').html(data.substring(brk + 1)).children();
+        			$.each(items, function(idx, val) {
+        				$(this).addClass('class_db_new');
+					});
+        			$('#id_sidebar_inner').append(items);
 
+        			dbApplyFilter();
+        			
+        			$('.class_db_object').hover(function() {
+        				$(this).append('<div class="class_db_insert"><img alt="insert" src="images/nav_backward.gif"><span>INSERT</span></div>');
+        				var h = $(this).height();
+        				var w = $(this).width();
+        				$('.class_db_insert').css({
+        					'top': h / 2 - 10,
+        					'left': w / 2 - 30
+        				});
+        				$('.class_db_insert').click(function(e) {
+        					var text = '';
+        					$.each(editorPastePlugin, function(idx, val) {
+        						text += idx + '\n';
+        					});
+        					if (!editorDocumentPage.isEditing()) {
+        						editorDocumentPage.enableEditing();
+        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
+        					} else {
+        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
+        					}
+        					$("div.class_db_insert").remove();
+        				});
+        			}, function() {
+        				$('div').remove('.class_db_insert');
+        			});
+        			
+        			$('.class_db_object').unbind('dblclick');
+        			$('.class_db_object').dblclick(function() {
+        				if (!editorDocumentPage.isEditing()) {
+        					editorDocumentPage.enableEditing();
+        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
+        				} else {
+        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
+        				}
+        			});
+        			
+        			$('.class_db_object').each(function(i, obj) {
+        			    $(this).attr("draggable", true);
+        			    $(this).attr("ondragstart", "drag(event)");
+        			});
+
+        			if (bottomDbIndex <= 0){
+        				$('#id_sidebar_inner').append('<div class="class_inner_message">End of Database</div>');
+        			}
+
+        		}
+        	})
+        	.fail(function(e) {
+        		alert( "error loading db xml file.");
+        	})
+        	.always(function() {
+        	    isAppending = false;
+        	    $(".class_inner_loading").remove();
+        	});
 	        return prevent();
-	    } else if (up && delta > scrollTop) {
+	    } else if (up && delta > scrollTop && scrollHeight == height) {
 	        // Scrolling up, but this will take us past the top.
+		    console.log(scrollHeight + '; ' + height + ';' + scrollTop);
 	        $this.scrollTop(0);
 			
 	        if(!isAppending && $(this).scrollTop() == 0) {
@@ -461,8 +567,14 @@ jQuery(document).ready(function(){
 	        				return;
 	        			}
 	        			
-	        			$('#id_sidebar_inner').prepend(data.substring(brk + 1));
-
+	        			$('.class_db_new').removeClass('class_db_new');
+	        			var items = $('<div/>').html(data.substring(brk + 1)).children();
+	        			$.each(items, function(idx, val) {
+	        				$(this).addClass('class_db_new');
+						});
+	        			$('#id_sidebar_inner').prepend(items);
+	        			dbApplyFilter();
+	        			
 	        			$('.class_db_object').hover(function() {
 	        				$(this).append('<div class="class_db_insert"><img alt="insert" src="images/nav_backward.gif"><span>INSERT</span></div>');
 	        				var h = $(this).height();
@@ -518,11 +630,91 @@ jQuery(document).ready(function(){
 	    }
 	});
 	
+	$('#id_sidebar_header').prepend('<div id="indicatorContainer"><div id="pIndicator"><div id="cIndicator"></div></div></div>');
+    var activeElement = $('#id_sidebar_header>ul>li:first');
+
+    $('#id_sidebar_header>ul>li').each(function() {
+        if ($(this).hasClass('active')) {
+            activeElement = $(this);
+        }
+    });
+
+
+	var posLeft = activeElement.position().left;
+	var elementWidth = activeElement.width();
+	posLeft = posLeft + elementWidth/2 -6;
+	if (activeElement.hasClass('has-sub')) {
+		posLeft -= 6;
+	}
+
+	$('#id_sidebar_header #pIndicator').css('left', posLeft);
+	var element, leftPos, indicator = $('#id_sidebar_header pIndicator');
+	
+	$("#id_sidebar_header>ul>li").hover(function() {
+        element = $(this);
+        var w = element.width();
+        if ($(this).hasClass('has-sub'))
+        {
+        	leftPos = element.position().left + w/2 - 12;
+        }
+        else {
+        	leftPos = element.position().left + w/2 - 6;
+        }
+
+        $('#id_sidebar_header #pIndicator').css('left', leftPos);
+    }
+    , function() {
+    	$('#id_sidebar_header #pIndicator').css('left', posLeft);
+    });
+
+	$('#id_sidebar_header>ul').prepend('<li id="menu-button"><a>Menu</a></li>');
+	$( "#menu-button" ).click(function(){
+		if ($(this).parent().hasClass('open')) {
+			$(this).parent().removeClass('open');
+		}
+		else {
+			$(this).parent().addClass('open');
+		}
+	});
+
 	$('#id_sidebar_inner').hover(function() {
         $('#id_sidebar_inner').focus();
 	}, function() {
 		$('#id_sidebar_inner').blur();
 	});
 	
+	$('#id_filter_mss').click(function(e) {
+		$('.class_db_object').hide();
+		$('.class_db_table').show();
+		$('#id_filter_menu span').text('MULTI-SAMPLE SCAN');
+		dbFilter = '.class_db_table';
+	});
 
+	$('#id_filter_als').click(function(e) {
+		$('.class_db_object').hide();
+		$('.class_db_image').show();
+		$('#id_filter_menu span').text('ALIGNMENT SCAN');
+		dbFilter = '.class_db_image';
+	});
+	
+	$('#id_filter_tbo').click(function(e) {
+		$('.class_db_object').hide();
+		$('.class_db_table').show();
+		$('#id_filter_menu span').text('TABLE ONLY');
+		dbFilter = '.class_db_table';
+	});
+
+	$('#id_filter_plo').click(function(e) {
+		$('.class_db_object').hide();
+		$('.class_db_image').show();
+		$('#id_filter_menu span').text('PLOT ONLY');
+		dbFilter = '.class_db_image';
+	});
+
+	$('#id_filter_all').click(function(e) {
+		$('.class_db_object').show();
+		$('#id_filter_menu span').text('ALL ITEMS');
+		dbFilter = null;
+	});
+	
 });

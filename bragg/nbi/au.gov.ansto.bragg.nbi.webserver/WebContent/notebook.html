@@ -1,18 +1,16 @@
-<!doctype html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-<html>
+<!--[if IE 9]>     		<html class="no-js ie9"> <![endif]-->
+<!--[if gt IE 9]><!--> <html class="no-js"> <!--<![endif]-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 	<meta content="utf-8" http-equiv="encoding">    
 	
-	<!--[if lte IE 7]>
-    	<script type="text/javascript">window.location = '/unsupported-browser';</script>
-    <![endif]-->
-        
 	<title>Instrument Notebook - Quokka</title>
 	<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
 	<link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
@@ -31,16 +29,18 @@
 	<meta name="msapplication-TileColor" content="#ffffff">
 	<meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
 	<meta name="theme-color" content="#ffffff">
-	
-    <link type="text/css" rel="stylesheet" href="css/notebook.css" />
-    <link type="text/css" rel="stylesheet" href="css/raptor-front-end.min.css" />
+
+	<link type='text/css' rel='stylesheet'	href='js/raptor/libraries/raptor-front-end.css' />
+	<link type='text/css' rel='stylesheet' href='js/raptor/libraries/theme.css' />
+	<link type='text/css' rel='stylesheet' href='js/raptor/libraries/theme-icons.css' />
+	<link type='text/css' rel='stylesheet'	href='css/dropdown.css' />
+	<link type="text/css" rel='stylesheet' href='css/notebook.css' />
     <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-    <script type="text/javascript" src="js/raptor.js"></script>
+	<script type='text/javascript' src='js/raptor/libraries/jquery-ui.js'></script>
+	<script type="text/javascript" src="js/raptor/raptor.js"></script>
+
     <script type="text/javascript" src="js/jquery.tabSlideOut.v1.3.js"></script>    
     <script type="text/javascript" src="js/notebook.js"></script>
-    <script type="text/javascript">
-        
-    </script>
 </head>
 <body>
     <header class="div_shiftable">
@@ -51,8 +51,20 @@
     </div>
     <div class="slide-out-div">
 	        <a class="id_sidebar_handle" href="http://link-for-non-js-users.html">Database</a>
-        <div class="div_sidebar_inner" id="id_sidebar_inner">
-        </div>
+	    <div class="div_sidebar_header" id="id_sidebar_header">
+	    	<ul>
+			   <li class='active has-sub last'><a id="id_filter_menu" href='#'><span>All Items</span></a>
+			      <ul>
+			         <li><a id='id_filter_mss'><span>Multi-sample Scan</span></a></li>
+			         <li><a id='id_filter_als'><span>Alignment Scan</span></a></li>
+			         <li><a id='id_filter_tbo'><span>Tables Only</span></a></li>
+			         <li><a id='id_filter_plo'><span>Plots Only</span></a></li>
+			         <li class='last'><a id='id_filter_all'><span>All Items</span></a></li>
+			      </ul>
+			   </li>
+			</ul>
+	    </div>
+        <div class="div_sidebar_inner" id="id_sidebar_inner"></div>
     </div>    
 	<footer class="div_shiftable">
     	<hr>

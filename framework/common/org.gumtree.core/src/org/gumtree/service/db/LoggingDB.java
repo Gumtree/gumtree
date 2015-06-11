@@ -48,10 +48,10 @@ public class LoggingDB {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ImageIO.write(image, "PNG", out);
 		byte[] bytes = out.toByteArray();
-		String base64bytes = Base64.encodeBase64(bytes).toString();
-		String html = "data:image/png;base64," + base64bytes;
+		byte[] base64bytes = Base64.encodeBase64(bytes);
+		String html = "<img src=\"data:image/png;base64," + new String(base64bytes) + "\" alt=\"" + name + "\">";
 		if (text != null) {
-			html += "<p>" + text + "</p>";			
+			html += "<span class=\"class_span_tablefoot\">" + text + "</span><br>";			
 		}
 		String className = "class_db_image";
 		appendClassEntry(name, className, html);
@@ -70,13 +70,13 @@ public class LoggingDB {
 	}
 	
 	public void appendClassEntry(String name, String className, String text) throws IOException, RecordsFileException {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-DDTHH_mm_ss");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss");
 		String key = name + "-" + dateFormat.format(new Date());
 		appendHtmlEntry(key, (wrapToHtml(key, className, text)));		
 	}
 
 	private String wrapToHtml(String key, String className, String html) {
-		String output = "<div class=\"" + className + "\" id=\"" + key + "\">";
+		String output = "<div class=\"" + className + " class_db_object\" id=\"" + key + "\">";
 		output += html;
 		output += "</div>";
 		return output;

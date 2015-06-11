@@ -386,6 +386,7 @@ public final class ExperimentScriptGenerator {
 			builder.appendComment("Start looping through configurations", indentLevel);
 			builder.appendLine("try:", indentLevel);
 			{
+				builder.appendLine("workflow.startAcquistion()", indentLevel + 1);
 				builder.appendLine("workflow.runQuokkaScan(acqusitionEntries)", indentLevel + 1);
 			}
 			builder.appendLine("except:", indentLevel);

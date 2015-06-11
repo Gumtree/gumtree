@@ -39,7 +39,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static int BUFFER_LENGTH = 1024;
 	private final static String PROP_NOTEBOOK_SAVEPATH = "gumtree.notebook.savePath";
 	private final static String NOTEBOOK_CURRENTFILENAME = "current.xml";
-	private final static String NOTEBOOK_DBFILENAME = "db.rdf";
+	private final static String NOTEBOOK_DBFILENAME = "loggingDB.rdf";
 	private static final String QUERY_ENTRY_START = "start";
 	private static final String QUERY_ENTRY_LENGTH = "length";
 	

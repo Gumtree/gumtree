@@ -18,6 +18,7 @@ public enum InternalImage {
 	COPY("/icons/copy16x16.png"),
 	SAVE("/icons/picture_save16x16.png"),
 	PRINT("/icons/printer16x16.png"),
+	SENDLOG("/icons/sendlog.gif"),
 	EXPORT("/icons/table_export_16x16.png"),
 	SETTING("/icons/setting_16x16.png"),
 	LOG("/icons/logarithm.gif"),

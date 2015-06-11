@@ -15,7 +15,8 @@ Export-Package: org.gumtree.data.ui.viewers;
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.gumtree.data.ui.viewers.internal.Activator
 Require-Bundle: net.sourceforge.nattable;bundle-version="2.1.0";resolution:=optional,
- org.gumtree.vis.gdm;bundle-version="1.7.0";visibility:=reexport
+ org.gumtree.vis.gdm;bundle-version="1.7.0";visibility:=reexport,
+ org.gumtree.core;bundle-version="1.10.0"
 Eclipse-BundleShape: jar
 Import-Package: org.osgi.framework;version="1.5.0";resolution:=optional
 Bundle-Vendor: Bragg Institute

@@ -66,6 +66,7 @@
                 'display': 'block',
                 'textIndent' : '-99999px',
                 'outline' : 'none',
+                'border': '1px solid #000',
                 'position' : 'absolute'
             });
         } else {
@@ -86,7 +87,7 @@
                 '-o-transform-origin': '50% 50%',
                 'transform-origin': '184px 16px',
                 /* Should be unset in IE9+ I think. */
-                'filter': 'progid:DXImageTransform.Microsoft.BasicImage(rotation=3)',
+//                'filter': 'progid:DXImageTransform.Microsoft.BasicImage(rotation=3)',
 //                'margin': '4px 0 4px 4px',
 //                'margin-bottom': '16px',
 //                'padding-right': '4px',
