@@ -28,6 +28,8 @@ import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -252,18 +254,27 @@ public class SampleEnvironmentTask extends AbstractExperimentTask {
 			/*****************************************************************
 			 * Controller selection combo 
 			 *****************************************************************/
-			ComboViewer comboViewer = new ComboViewer(parent, SWT.READ_ONLY);
+			final ComboViewer comboViewer = new ComboViewer(parent, SWT.DROP_DOWN);
 			GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.TOP).span(2, 1).applyTo(comboViewer.getControl());
 			comboViewer.setContentProvider(new ArrayContentProvider());
 			comboViewer.setLabelProvider(new LabelProvider());
 			List<String> controllerIds = getExperiment().getSampleEnvControllerIds();
 			comboViewer.setInput(controllerIds.toArray(new String[controllerIds.size()]));
-			comboViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+//			comboViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+//				@Override
+//				public void selectionChanged(SelectionChangedEvent event) {
+//					// Update model
+//					Object selection = ((IStructuredSelection) event.getSelection()).getFirstElement();
+//					sampleEnvironment.setControllerId((String) selection);
+//					System.err.println("selection " + selection);
+//				}
+//			});
+			comboViewer.getCombo().addModifyListener(new ModifyListener() {
+				
 				@Override
-				public void selectionChanged(SelectionChangedEvent event) {
-					// Update model
-					Object selection = ((IStructuredSelection) event.getSelection()).getFirstElement();
-					sampleEnvironment.setControllerId((String) selection);
+				public void modifyText(ModifyEvent e) {
+					sampleEnvironment.setControllerId(comboViewer.getCombo().getText());
+					System.err.println("modify " + comboViewer.getCombo().getText());
 				}
 			});
 			// Set default selection
