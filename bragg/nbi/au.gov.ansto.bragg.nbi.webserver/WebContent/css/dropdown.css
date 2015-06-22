@@ -3,7 +3,7 @@
 	margin: 0px 0px 2px;
 	text-align: right;
 	position: relative;
-	background: #999;
+	background: #ddd;
 	width: auto;
 	font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
 }
@@ -16,7 +16,7 @@
 #id_sidebar_header > ul {
   position: relative;
   display: block;
-  background: #999;
+  background: #ddd;
   width: 100%;
   z-index: 500;
 }

@@ -1,4 +1,4 @@
-var title = "Emu Status";
+var title = "Emu";
 var batchEnabled = true;
 var devices = [
                {"group":"NEUTRON COUNTS", 

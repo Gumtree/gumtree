@@ -1,4 +1,4 @@
-var title = "Bilby Status";
+var title = "Bilby";
 var batchEnabled = false;
 var devices = [
                {"group":"NEUTRON BEAM", 

@@ -64,6 +64,10 @@
             base-name="/WebContent/admin.html">
       </resource>
       <resource
+            alias="/SystemAdmin.html"
+            base-name="/WebContent/pyadmin.html">
+      </resource>
+      <resource
             alias="/register.html"
             base-name="/WebContent/register.html">
       </resource>
@@ -118,6 +122,10 @@
       <resource
             alias="/icons"
             base-name="/WebContent/icons">
+      </resource>
+      <resource
+            alias="/admin"
+            base-name="/WebContent/admin">
       </resource>
    </extension>
 

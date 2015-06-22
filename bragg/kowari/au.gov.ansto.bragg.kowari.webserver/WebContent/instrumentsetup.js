@@ -1,4 +1,4 @@
-var title = "Kowari Status";
+var title = "Kowari";
 var batchEnabled = true;
 var timeEstimationEnabled = true;
 var devices = [

@@ -1,0 +1,55 @@
+@media screen {
+	.class_div_header {
+		width: 100%;
+		height: 48px;
+		background-color: #03547F;
+		margin: 0px;
+		padding: 0px;
+		padding-top: 6px;
+		font: normal normal 16px Helvetica, Georgia, Verdana, Geneva, Arial, Helvetica, sans-serif;
+		font-family: Helvetica, Arial, sans-serif;
+		text-shadow: 1px 1px #8ACEF3;
+		font-size: 32px;
+		color: #fff;
+	}
+	.class_div_header span {
+		padding: 6px 12px;
+	}
+	.class_div_sidemenu {
+		width: 240px;
+		float: left;
+	}
+	.class_div_sidemenu ul{
+		width: 240px;
+	}
+	.class_div_content {
+		float: left;
+		width: 680px;
+		margin: 4px;
+	}
+	.class_div_print_header {
+		display: none;
+	}
+}
+
+@media print {
+	.class_div_header {
+		display: none;
+	}
+	.class_div_sidemenu {
+		display: none;
+	}
+	.class_div_print_header h1{
+		margin: 14px;
+		padding: 14px;
+		font-size: 28px;
+		font-weight: bold;
+	}
+}
+
+footer {
+	margin: 4px auto;
+	clear: both;
+	width: 100%;
+	padding: 4px 0px;
+}

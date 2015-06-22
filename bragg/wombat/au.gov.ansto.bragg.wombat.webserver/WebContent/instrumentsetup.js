@@ -1,4 +1,4 @@
-var title = "Wombat Status";
+var title = "Wombat";
 var batchEnabled = true;
 var devices = [
                {"group":"BEAM STATUS", 

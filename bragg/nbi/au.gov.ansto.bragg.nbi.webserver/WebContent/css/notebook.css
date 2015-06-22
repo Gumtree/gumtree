@@ -118,10 +118,30 @@ th {
 		background: #ddd;
 		border: #29216d 1px solid;
 	}
+	
+	.div_canvas_slideout {
+		height:auto;
+		padding: 0px;
+		width: 480px;
+		background: #fff;
+		border: #29216d 1px solid;
+	}
+	
+	.div_sidebar_block{
+		height:auto;
+		padding: 0px;
+		width: 480px;
+	}
 }
 
 @media print {
 	.slide-out-div  {
+		display: none;
+	}
+	.div_canvas_slideout {
+		display: none;
+	}
+	.div_sidebar_block{
 		display: none;
 	}
 }
@@ -279,3 +299,18 @@ th {
 	background-color: #E2F8FF;
 }
 
+.a_sidebar_handle {
+	background-color: #999;
+	color: white;
+}
+.div_handle_highlight {
+	background-color: #ddd;
+	color: #000;
+	text-shadow: 1px 1px #444;
+}
+
+#id_canvas_inner {
+	width: auto;
+	height: 360px;
+	padding: 2px;
+}

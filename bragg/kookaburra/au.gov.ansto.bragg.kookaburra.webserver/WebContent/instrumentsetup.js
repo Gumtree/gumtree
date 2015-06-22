@@ -1,4 +1,4 @@
-var title = "Kookaburra Status";
+var title = "Kookaburra";
 var batchEnabled = false;
 var devices = [
                {"group":"NEUTRON BEAM", 

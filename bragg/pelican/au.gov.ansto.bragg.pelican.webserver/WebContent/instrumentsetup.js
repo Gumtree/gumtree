@@ -1,4 +1,4 @@
-var title = "Pelican Status";
+var title = "Pelican";
 var batchEnabled = true;
 var devices = [
                {"group":"BEAM STATUS", 

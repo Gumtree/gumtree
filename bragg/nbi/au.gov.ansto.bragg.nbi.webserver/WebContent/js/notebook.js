@@ -42,11 +42,23 @@ function dbApplyFilter() {
 
 $(function(){
 	
+	$(document).click(function(e) {
+		if (e.target.tagName.toLowerCase() == 'body') {
+			$('#id_editable_page').focus();
+		}
+//		e.stopPropagation();
+//		e.preventDefault();
+//		return false;
+	});
+	
 //	define scroll div with auto height
 	$(window).resize(function() {
 	    var bodyheight = $(window).height();
 		$(".slide-out-div").height(bodyheight - 80);
 		$(".div_sidebar_inner").height(bodyheight - 104);
+		
+		$(".div_canvas_slideout").height(bodyheight - 80);
+//		$(".div_canvas_inner").height(bodyheight - 80);
 	});
 	
 //	overwrite save key shortcut	
@@ -62,8 +74,12 @@ $(function(){
 	});
 
     $('.slide-out-div').tabSlideOut({
-        tabHandle: '.id_sidebar_handle',                     //class of the element that will become your tab
-        pathToTabImage: $('html').hasClass('ie9') ? 'images/Database.GIF' : null, //path to the image for the tab //Optionally can be set using css
+    	tabHandleClass: '.a_sidebar_handle',
+    	tabBlockClass: '.div_sidebar_block',
+        tabHandles: ['#a_sidebar_database', '#a_sidebar_canvas'],                     //class of the element that will become your tab
+        tabBlocks: ['#div_sidebar_database', '#div_sidebar_canvas'],
+        tabHandleSize: 200,
+        pathToTabImage: $('html').hasClass('ie9') ? ['images/Database.GIF', 'images/Canvas.GIF'] : null, //path to the image for the tab //Optionally can be set using css
         imageHeight: '218px',                     //height of tab image           //Optionally can be set using css
         imageWidth: '33px',                       //width of tab image            //Optionally can be set using css
         tabLocation: 'right',                      //side of screen where tab lives, top, right, bottom, or left
@@ -82,6 +98,54 @@ $(function(){
 		}
     });
 
+    
+	var drawingBoard = new DrawingBoard.Board('id_canvas_inner', {
+		controls: [
+			'Color',
+			{ Size: { type: 'dropdown' } },
+			{ DrawingMode: { filler: false } },
+			'Navigation',
+			'Download'
+		],
+		size: 1,
+		webStorage: 'session',
+		enlargeYourContainer: true,
+		droppable: true, //try dropping an image on the canvas!
+		stretchImg: false //the dropped image can be automatically ugly resized to to take the canvas size
+	});
+
+	drawingBoard.downloadImg = function() {
+		var img = $('<img >'); 
+		img.attr('src', drawingBoard.getImg());
+		if (!editorDocumentPage.isEditing()) {
+			editorDocumentPage.enableEditing();
+			editorPastePlugin.insertContent('<br>' + $('<div>').append(img).html() + '<br>');
+		} else {
+			editorPastePlugin.insertContent('<br>' + $('<div>').append(img).html() + '<br>');
+		}
+	}
+	
+//    $('.div_canvas_slideout').tabSlideOut({
+//        tabHandle: '.a_canvas_handle',                     //class of the element that will become your tab
+//        tabHandleTopPos: 220,
+//        pathToTabImage: $('html').hasClass('ie9') ? 'images/Canvas.GIF' : null, //path to the image for the tab //Optionally can be set using css
+//        imageHeight: '218px',                     //height of tab image           //Optionally can be set using css
+//        imageWidth: '33px',                       //width of tab image            //Optionally can be set using css
+//        tabLocation: 'right',                      //side of screen where tab lives, top, right, bottom, or left
+//        speed: 300,                               //speed of animation
+//        action: 'click',                          //options: 'click' or 'hover', action to trigger animation
+//        topPos: '80px',                          //position from the top/ use if tabLocation is left or right
+//        leftPos: '20px',                          //position from left/ use if tabLocation is bottom or top
+//        fixedPosition: true,                      //options: true makes it stick(fixed position) on scroll
+//        onSlideOut: function() {
+//			$('.div_shiftable').css({ marginLeft: "20px" });
+//			$('.class_editable_page').css({ marginLeft: "20px" });
+//		},
+//        onSlideIn: function() {
+//        	$('.div_shiftable').css({ marginLeft: "auto" });
+//        	$('.class_editable_page').css({ margin: "0px auto" });
+//		}
+//    });
     
     $('#id_sidebar_inner').bind('scroll', function() {
         if(!isAppending && bottomDbIndex > 0 && $(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight) {
@@ -270,7 +334,11 @@ jQuery(document).ready(function(){
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
 //			$('#id_editable_page').html(decodeURIComponent(data.replace(/\+/g, ' ')));
-			$('#id_editable_page').html(data);
+			if (data.trim().length == 0) {
+				$('#id_editable_page').html("<p><br></p>");
+			} else {
+				$('#id_editable_page').html(data);
+			}
 			
 //			make editable page
 			jQuery(function($) {
@@ -355,7 +423,7 @@ jQuery(document).ready(function(){
 	});
 
 //	load db xml file
-	var getUrl = "notebook/db?length=10";
+	var getUrl = "notebook/db?length=20";
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
 			if (data.trim().length = 0) {
@@ -440,6 +508,9 @@ jQuery(document).ready(function(){
 	$(".slide-out-div").height(bodyheight - 80);
 	$(".div_sidebar_inner").height(bodyheight - 104);
 	
+	$(".div_canvas_slideout").height(bodyheight - 80);
+//	$(".div_canvas_inner").height(bodyheight - 80);
+	
 //	below code prevent body scroll together with the side bar innver div.
 	$('#id_sidebar_inner').on('DOMMouseScroll mousewheel', function(ev) {
 	    var $this = $(this),
@@ -460,7 +531,6 @@ jQuery(document).ready(function(){
 
 	    if (!up && -delta > scrollHeight - height - scrollTop && scrollHeight == height) {
 	        // Scrolling down, but this will take us past the bottom.
-		    console.log(scrollHeight + '; ' + height + ';' + scrollTop);
 	        $this.scrollTop(scrollHeight);
         	isAppending = true;
             $('#id_sidebar_inner').append('<div class="class_inner_loading"><img src="images/loading.gif"></div>');
@@ -542,7 +612,6 @@ jQuery(document).ready(function(){
 	        return prevent();
 	    } else if (up && delta > scrollTop && scrollHeight == height) {
 	        // Scrolling up, but this will take us past the top.
-		    console.log(scrollHeight + '; ' + height + ';' + scrollTop);
 	        $this.scrollTop(0);
 			
 	        if(!isAppending && $(this).scrollTop() == 0) {

@@ -34,12 +34,14 @@
 	<link type='text/css' rel='stylesheet' href='js/raptor/libraries/theme.css' />
 	<link type='text/css' rel='stylesheet' href='js/raptor/libraries/theme-icons.css' />
 	<link type='text/css' rel='stylesheet'	href='css/dropdown.css' />
+	<link type='text/css' rel='stylesheet'	href='css/drawingboard.css' />
 	<link type="text/css" rel='stylesheet' href='css/notebook.css' />
     <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
 	<script type='text/javascript' src='js/raptor/libraries/jquery-ui.js'></script>
 	<script type="text/javascript" src="js/raptor/raptor.js"></script>
 
-    <script type="text/javascript" src="js/jquery.tabSlideOut.v1.3.js"></script>    
+    <script type="text/javascript" src="js/SlideOutTabs.js"></script>    
+    <script type="text/javascript" src="js/drawingboard.js"></script>    
     <script type="text/javascript" src="js/notebook.js"></script>
 </head>
 <body>
@@ -48,23 +50,31 @@
     </header>
     <div style="clear: both"></div>
     <div class="class_editable_page" id="id_editable_page" data-id="data_editable_page">
+    	<p><br></p>
     </div>
     <div class="slide-out-div">
-	        <a class="id_sidebar_handle" href="http://link-for-non-js-users.html">Database</a>
-	    <div class="div_sidebar_header" id="id_sidebar_header">
-	    	<ul>
-			   <li class='active has-sub last'><a id="id_filter_menu" href='#'><span>All Items</span></a>
-			      <ul>
-			         <li><a id='id_filter_mss'><span>Multi-sample Scan</span></a></li>
-			         <li><a id='id_filter_als'><span>Alignment Scan</span></a></li>
-			         <li><a id='id_filter_tbo'><span>Tables Only</span></a></li>
-			         <li><a id='id_filter_plo'><span>Plots Only</span></a></li>
-			         <li class='last'><a id='id_filter_all'><span>All Items</span></a></li>
-			      </ul>
-			   </li>
-			</ul>
-	    </div>
+	    <a class="a_sidebar_handle" id="a_sidebar_database" href="http://link-for-non-js-users.html">Database</a>
+	    <a class="a_sidebar_handle" id="a_sidebar_canvas" href="http://link-for-non-js-users.html">Canvas</a>
+	    <div class="div_sidebar_block" id="div_sidebar_database">
+		    <div class="div_sidebar_header" id="id_sidebar_header">
+		    	<ul>
+				   <li class='active has-sub last'><a id="id_filter_menu" href='#'><span>All Items</span></a>
+				      <ul>
+				         <li><a id='id_filter_mss'><span>Multi-sample Scan</span></a></li>
+				         <li><a id='id_filter_als'><span>Alignment Scan</span></a></li>
+				         <li><a id='id_filter_tbo'><span>Tables Only</span></a></li>
+				         <li><a id='id_filter_plo'><span>Plots Only</span></a></li>
+				         <li class='last'><a id='id_filter_all'><span>All Items</span></a></li>
+				      </ul>
+				   </li>
+				</ul>
+		    </div>
         <div class="div_sidebar_inner" id="id_sidebar_inner"></div>
+        </div>
+        <div class="div_sidebar_block" id="div_sidebar_canvas">
+			<h1>Drawing Canvas</h1>
+        	<div class="div_canvas_inner" id="id_canvas_inner"></div>
+        </div>
     </div>    
 	<footer class="div_shiftable">
     	<hr>

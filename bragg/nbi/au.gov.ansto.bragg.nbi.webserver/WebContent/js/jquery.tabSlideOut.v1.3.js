@@ -23,6 +23,7 @@
     $.fn.tabSlideOut = function(callerSettings) {
         var settings = $.extend({
             tabHandle: '.handle',
+            tabHandleTopPos: 0,
             speed: 300, 
             action: 'click',
             tabLocation: 'left',
@@ -36,7 +37,8 @@
             onLoadSlideOut: false,
             closeOnFocusOut: false,
             onSlideOut:function(){},
-			onSlideIn:function(){}
+			onSlideIn:function(){},
+			isSlideOut: false
         }, callerSettings||{});
 
         settings.tabHandle = $(settings.tabHandle);
@@ -163,7 +165,7 @@
                 'top' : settings.topPos
             });
             
-            settings.tabHandle.css({'top' : 0});
+            settings.tabHandle.css({'top' : settings.tabHandleTopPos});
         }
         
         if(settings.tabLocation === 'left') {
@@ -198,6 +200,7 @@
             if (settings.onSlideIn) {
             	settings.onSlideIn();
             }
+            settings.isSlideOut = false;
         };
         
         var slideOut = function() {
@@ -214,8 +217,13 @@
             if (settings.onSlideOut) {
             	settings.onSlideOut();
             }
+            settings.isSlideOut = true;
         };
 
+        var isSlideOut = function() {
+			return settings.isSlideOut;
+		};
+		
         var clickScreenToClose = function() {
             obj.click(function(event){
                 event.stopPropagation();

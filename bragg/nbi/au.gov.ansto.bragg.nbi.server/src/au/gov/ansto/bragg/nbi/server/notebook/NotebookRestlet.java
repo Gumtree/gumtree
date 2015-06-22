@@ -2,11 +2,15 @@ package au.gov.ansto.bragg.nbi.server.notebook;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
 
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.service.db.RecordsFileException;
@@ -32,16 +36,21 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String SEG_NAME_SAVE = "save";
 	private final static String SEG_NAME_LOAD = "load";
 	private final static String SEG_NAME_DB = "db";
+	private final static String SEG_NAME_NEW = "new";
+	private final static String SEG_NAME_ARCHIVE = "archive";
 	private final static String STRING_CONTENT_START = "content=";
 	private final static String STRING_CONTENT_END = "&";
 	private final static byte[] KEY_CONTENT_START = "content=".getBytes();
 	private final static int KEY_CONTENT_STOP = 38;
 	private final static int BUFFER_LENGTH = 1024;
+	private final static String PREFIX_NOTEBOOK_FILES = "Notebook_";
+	private final static String MANAGER_USERSGUIDE_FILENAME = "ManagerUsersGuide";
 	private final static String PROP_NOTEBOOK_SAVEPATH = "gumtree.notebook.savePath";
 	private final static String NOTEBOOK_CURRENTFILENAME = "current.xml";
 	private final static String NOTEBOOK_DBFILENAME = "loggingDB.rdf";
 	private static final String QUERY_ENTRY_START = "start";
 	private static final String QUERY_ENTRY_LENGTH = "length";
+	private final static String QUERY_FILE_ID = "file";
 	
 	private String currentFilePath;
 	private String currentDBPath;
@@ -142,16 +151,32 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		    	
 		    }
 		} else if (SEG_NAME_LOAD.equals(seg)) {
-			try {
-				File current = new File(currentFilePath);
-				if (current.exists()) {
-					byte[] bytes = Files.readAllBytes(Paths.get(currentFilePath));
-					response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
-				}
-			} catch (IOException e) {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
-				return;
-			}
+			Form queryForm = request.getResourceRef().getQueryAsForm();
+		    String fileId = queryForm.getValues(QUERY_FILE_ID);
+		    if (fileId == null || fileId.trim().length() == 0) {
+		    	try {
+		    		File current = new File(currentFilePath);
+		    		if (current.exists()) {
+		    			byte[] bytes = Files.readAllBytes(Paths.get(currentFilePath));
+		    			response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
+		    		}
+		    	} catch (IOException e) {
+		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+		    		return;
+		    	}
+		    } else {
+		    	try {
+		    		File current = new File(currentFilePath);
+		    		if (current.exists()) {
+		    			String filename = current.getParent() + "/" + fileId + ".xml"; 
+		    			byte[] bytes = Files.readAllBytes(Paths.get(filename));
+		    			response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
+		    		}
+		    	} catch (IOException e) {
+		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+		    		return;
+		    	}
+		    }
 		} else if (SEG_NAME_DB.equals(seg)) {
 //			try {
 //				File current = new File(currentDBPath);
@@ -197,7 +222,54 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					}
 				}
 			}
-		}
+		} else if (SEG_NAME_NEW.equals(seg)) {
+			try {
+				File current = new File(currentFilePath);
+				if (current.exists()) {
+					SimpleDateFormat format = new SimpleDateFormat("yyMMdd'T'HHmmss");
+					String newName = "Notebook_" + format.format(new Date());
+					File newFile = new File(current.getParent() + "/" + newName + ".xml");
+					current.renameTo(newFile);
+					if (!current.createNewFile()) {
+						response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to create new file");
+						return;
+					}
+					response.setEntity(newName, MediaType.TEXT_PLAIN);
+				}
+			} catch (Exception e) {
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+				return;
+			}
+		} else if (SEG_NAME_ARCHIVE.equals(seg)) {
+			try {
+				File current = new File(currentFilePath);
+				if (current.exists()) {
+					File parent = current.getParentFile();
+					String[] fileList = parent.list(new FilenameFilter() {
+						
+						@Override
+						public boolean accept(File dir, String name) {
+							if (name.startsWith(PREFIX_NOTEBOOK_FILES)){
+								return true;
+							}
+							return false;
+						}
+					});
+					Arrays.sort(fileList);
+					String responseText = "";
+					for (int i = fileList.length - 1; i >= 0; i--) {
+						responseText += fileList[i].substring(0, fileList[i].length() - 4);
+						if (i > 0){
+							responseText += ":";
+						}
+					}
+					response.setEntity(responseText, MediaType.TEXT_PLAIN);
+				}
+			} catch (Exception e) {
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+				return;
+			}
+		} 
 		response.setStatus(Status.SUCCESS_OK);
 //	    String typeString = queryForm.getValues(QUERY_TYPE);
 //	    JSONObject jsonObject = new JSONObject();

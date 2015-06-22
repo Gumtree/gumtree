@@ -1,4 +1,4 @@
-var title = "Taipan Status";
+var title = "Taipan";
 var batchEnabled = true;
 var devices = [
                {"group":"BEAM STATUS", 
