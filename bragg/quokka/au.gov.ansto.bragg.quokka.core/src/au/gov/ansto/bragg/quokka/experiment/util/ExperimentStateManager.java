@@ -9,8 +9,8 @@ import java.util.Map;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.gumtree.core.service.ServiceUtils;
-import org.gumtree.service.db.LoggingDB;
 import org.gumtree.service.db.RecordsFileException;
+import org.gumtree.service.db.RemoteTextDbService;
 import org.gumtree.service.directory.IDirectoryService;
 import org.gumtree.util.messaging.IListenerManager;
 import org.gumtree.util.messaging.ListenerManager;
@@ -167,7 +167,7 @@ public class ExperimentStateManager implements IExperimentStateManager {
 		AcquisitionSetting setting = settings.get(runId);
 		InstrumentConfig config = setting.getConfig();
 		try {
-			LoggingDB.getInstance().appendTableEntry("MSW result", ExperimentUserReportUtils.exportAcquisitionTable(getAcquisition(runId), config));
+			RemoteTextDbService.getInstance().appendTableEntry("MSW result", ExperimentUserReportUtils.exportAcquisitionTable(getAcquisition(runId), config));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -179,7 +179,7 @@ public class ExperimentStateManager implements IExperimentStateManager {
 		
 	public void setAcquistionStarted(){
 		try {
-			LoggingDB.getInstance().appendTableEntry("MSW result", ExperimentUserReportUtils.createExperimentInfoTable(experiment));
+			RemoteTextDbService.getInstance().appendTableEntry("MSW result", ExperimentUserReportUtils.createExperimentInfoTable(experiment));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
