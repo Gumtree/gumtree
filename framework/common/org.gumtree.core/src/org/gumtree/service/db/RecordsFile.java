@@ -108,8 +108,10 @@ public class RecordsFile extends BaseRecordsFile {
 		try {
 			super.close();
 		} finally {
-			memIndex.clear();
-			memIndex = null;
+			if (memIndex != null) {
+				memIndex.clear();
+				memIndex = null;
+			}
 		}
 	}
 	/**

@@ -148,14 +148,14 @@ $(function(){
 //    });
     
     $('#id_sidebar_inner').bind('scroll', function() {
-        if(!isAppending && bottomDbIndex > 0 && $(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight) {
+        if(!isAppending && bottomDbIndex > 0 && $(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight && bottomDbIndex > 0) {
         	isAppending = true;
             $('#id_sidebar_inner').append('<div class="class_inner_loading"><img src="images/loading.gif"></div>');
             $('#id_sidebar_inner').scrollTop = $('#id_sidebar_inner').scrollHeight;
             var getUrl = "notebook/db?start=" + (bottomDbIndex - 1) + "&length=10";
         	$.get(getUrl, function(data, status) {
         		if (status == "success") {
-        			if (data.trim().length = 0) {
+        			if (data.trim().length == 0) {
         				$('#id_sidebar_inner').append("<p>End of Database</p>");
 //        				$('#id_sidebar_inner').unbind('scroll');
         				return;
@@ -234,7 +234,7 @@ $(function(){
             var getUrl = "notebook/db?start=" + (topDbIndex + 10) + "&length=10";
         	$.get(getUrl, function(data, status) {
         		if (status == "success") {
-        			if (data.trim().length = 0) {
+        			if (data.trim().length == 0) {
         				$('#id_sidebar_inner').prepend('<div class="class_inner_topmessage">No new entry was found. Please try again later. </div>');
         				return;
         			}
@@ -390,9 +390,12 @@ jQuery(document).ready(function(){
 //						},
 						"snippetMenu": false,
 						"statistics": false, 
+						"tableMergeCells": true,
+						"tableSplitCells": true,
 						"viewSource": true
 					} 
-					
+					,"autoEnable": true
+
 //				    ,"bind": {
 //				    	"disabled" : function() {
 //				    		$(".class_editable_page").droppable({
@@ -426,8 +429,10 @@ jQuery(document).ready(function(){
 	var getUrl = "notebook/db?length=20";
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
-			if (data.trim().length = 0) {
-				$('#id_sidebar_inner').append("<p>Empty Database</p>");
+			console.log(data);
+			if (data.trim().length == 0) {
+				$('#id_sidebar_inner').append("<p>End of Database</p>");
+//				$('#id_sidebar_inner').unbind('scroll');
 				return;
 			}
 			var brk = data.indexOf(";");
@@ -529,7 +534,7 @@ jQuery(document).ready(function(){
 	        return false;
 	    }
 
-	    if (!up && -delta > scrollHeight - height - scrollTop && scrollHeight == height) {
+	    if (!up && -delta > scrollHeight - height - scrollTop && scrollHeight == height && bottomDbIndex > 0) {
 	        // Scrolling down, but this will take us past the bottom.
 	        $this.scrollTop(scrollHeight);
         	isAppending = true;
@@ -538,7 +543,7 @@ jQuery(document).ready(function(){
             var getUrl = "notebook/db?start=" + (bottomDbIndex - 1) + "&length=10";
         	$.get(getUrl, function(data, status) {
         		if (status == "success") {
-        			if (data.trim().length = 0) {
+        			if (data.trim().length == 0) {
         				$('#id_sidebar_inner').append("<p>End of Database</p>");
 //        				$('#id_sidebar_inner').unbind('scroll');
         				return;
@@ -622,7 +627,7 @@ jQuery(document).ready(function(){
 	            var getUrl = "notebook/db?start=" + (topDbIndex + 10) + "&length=10";
 	        	$.get(getUrl, function(data, status) {
 	        		if (status == "success") {
-	        			if (data.trim().length = 0) {
+	        			if (data.trim().length == 0) {
 	        				$('#id_sidebar_inner').prepend('<div class="class_inner_topmessage">No new entry was found. Please try again later. </div>');
 	        				return;
 	        			}

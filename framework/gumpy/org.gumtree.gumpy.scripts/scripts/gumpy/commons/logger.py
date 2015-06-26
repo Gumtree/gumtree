@@ -1,6 +1,6 @@
 import sys
 import time
-from org.gumtree.service.db import LoggingDB
+from org.gumtree.service.db import RemoteTextDbService
 
 __global_writer__ = None
 
@@ -33,7 +33,7 @@ class Logger():
 class NotebookLogger():
     
     def __init__(self):
-        self.logger = LoggingDB.getInstance()
+        self.logger = RemoteTextDbService.getInstance()
         
     def log_text(self, text, name = None):
         if name == None:

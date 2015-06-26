@@ -40,6 +40,12 @@
                path="/notebook">
          </resource-mapping>
       </httpcontext>
+      <httpcontext
+            id="databaseRestlet">
+         <resource-mapping
+               path="/db">
+         </resource-mapping>
+      </httpcontext>
    </extension>
    <extension
          id="nsRestlet"
@@ -96,6 +102,15 @@
          <init-param
                name="org.restlet.application"
                value="au.gov.ansto.bragg.nbi.server.notebook.NotebookApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/db"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="databaseRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.notebook.DatabaseApplication">
          </init-param>
       </servlet>
    </extension>

@@ -157,7 +157,7 @@ public abstract class BaseRecordsFile {
 	/**
 	 * Reads the ith key from the index.
 	 */
-	String readKeyFromIndex(int position) throws IOException {
+	public String readKeyFromIndex(int position) throws IOException {
 		file.seek(indexPositionToKeyFp(position));
 		return file.readUTF();
 	}

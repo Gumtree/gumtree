@@ -25168,6 +25168,9 @@ Raptor.registerUi(new TableCellButton({
 Raptor.registerUi(new Button({
     name: 'tableMergeCells',
     action: function() {
+//    	mergeCells
+//    	startRowIndex, startColIndex, endRowIndex, endColIndex
+    	alert("merging cell is not supported yet.");
     }
 }));
 ;
@@ -25189,6 +25192,7 @@ Raptor.registerUi(new Button({
 Raptor.registerUi(new Button({
     name: 'tableSplitCells',
     action: function() {
+    	alert("splitting cell is not supported yet.");
     }
 }));
 ;
@@ -26237,7 +26241,7 @@ Raptor.registerPreset({
                 ['tagMenu'],
                 ['classMenu'],
                 ['snippetMenu', 'specialCharacters'],
-                ['tableCreate', 'tableInsertRow', 'tableDeleteRow', 'tableInsertColumn', 'tableDeleteColumn'],
+                ['tableCreate', 'tableInsertRow', 'tableDeleteRow', 'tableInsertColumn', 'tableDeleteColumn', 'tableMergeCells', 'tableSplitCells'],
                 ['languageMenu'],
                 ['statistics']
             ]

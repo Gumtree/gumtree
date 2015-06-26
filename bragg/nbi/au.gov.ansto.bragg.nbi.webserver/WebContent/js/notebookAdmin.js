@@ -33,7 +33,18 @@ $(function() {
 				    		.fail(function(e) {
 				    			alert( "error creating new notebook file.");
 				    		});
-		
+
+				      		getUrl = "../db/new?" + timeString;
+				    		$.get(getUrl, function(data, status) {
+				    			if (status == "success") {
+//				    				$('#id_div_content').html("<p><br></p>");
+//				    				$("#id_ul_archiveList").prepend('<li><a id="' + data + '" onclick="load(\'' + data + '\')">&nbsp;-&nbsp;' + data + '</a></li>');
+				    			}
+				    		})
+				    		.fail(function(e) {
+				    			alert( "error creating new database file.");
+				    		});
+
 				    		$(this).dialog("close");
 		          },
 		          No: function () {
@@ -67,7 +78,7 @@ $(function() {
 });
 
 jQuery(document).ready(function() {
-	var notebookTitle = 'Manage Notebooks - ' + title;
+	var notebookTitle = 'Manage Notebook - ' + title;
 	$(document).attr("title", notebookTitle);
 	$('#id_div_header').html("<span>" + notebookTitle + "</span>");
 	$('#id_div_print_header').html("<h1>Instrument Notebook - " + title + "</h1>");

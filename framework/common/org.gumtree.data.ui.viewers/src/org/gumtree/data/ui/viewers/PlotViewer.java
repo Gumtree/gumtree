@@ -31,8 +31,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.gumtree.data.ui.viewers.internal.InternalImage;
-import org.gumtree.service.db.LoggingDB;
 import org.gumtree.service.db.RecordsFileException;
+import org.gumtree.service.db.RemoteTextDbService;
 import org.gumtree.vis.awt.PlotFactory;
 import org.gumtree.vis.interfaces.IDataset;
 import org.gumtree.vis.interfaces.IHist2D;
@@ -401,7 +401,7 @@ public class PlotViewer extends Composite {
 						Image image = getPlot().getImage();
 						if (image instanceof BufferedImage) {
 							try {
-								LoggingDB.getInstance().appendImageEntry("ScriptingPlot", (BufferedImage) image, null);
+								RemoteTextDbService.getInstance().appendImageEntry("ScriptingPlot", (BufferedImage) image, null);
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();

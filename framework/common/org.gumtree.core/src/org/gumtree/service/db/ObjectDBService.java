@@ -76,6 +76,20 @@ public class ObjectDBService {
 		db.insertRecord(rw);
 	}
 	
+	public synchronized Object getEntry(String key) throws RecordsFileException, IOException, ClassNotFoundException {
+		RecordReader reader = db.readRecord(key);
+		return reader.readObject();
+	}
+	
+	public synchronized Object getEntry(int index) throws RecordsFileException, IOException, ClassNotFoundException {
+		RecordReader reader = db.readRecord(index);
+		return reader.readObject();
+	}
+	
+	public synchronized String indexToKey(int index) throws IOException{
+		return db.readKeyFromIndex(index);
+	}
+	
 	public synchronized List<Object> getEntries(int start, int length) throws RecordsFileException, 
 	IOException, ClassNotFoundException {
 		List<Object> list = new ArrayList<Object>();
@@ -140,7 +154,7 @@ public class ObjectDBService {
 		File oldFile = new File(dbPath);
 		if (oldFile.exists()) {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
-			File newFile = new File(name + "_" + dateFormat.format(new Date()) + ".rdf");
+			File newFile = new File(System.getProperty(PROP_NOTEBOOK_SAVEPATH) + "/" + name + "_" + dateFormat.format(new Date()) + ".rdf");
 			oldFile.renameTo(newFile);
 		}
 		try {

@@ -43,15 +43,25 @@ public class LoggingDB {
 		db.newDBInstance();
 	}
 	
-	public void appendImageEntry(String name, BufferedImage image, String text) 
+	public void appendImageEntry(String name, BufferedImage image, String footer) 
 			throws IOException, RecordsFileException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ImageIO.write(image, "PNG", out);
 		byte[] bytes = out.toByteArray();
 		byte[] base64bytes = Base64.encodeBase64(bytes);
 		String html = "<img src=\"data:image/png;base64," + new String(base64bytes) + "\" alt=\"" + name + "\">";
-		if (text != null) {
-			html += "<span class=\"class_span_tablefoot\">" + text + "</span><br>";			
+		if (footer != null) {
+			html += "<span class=\"class_span_tablefoot\">" + footer + "</span><br>";			
+		}
+		String className = "class_db_image";
+		appendClassEntry(name, className, html);
+	}
+
+	public void appendImageEntry(String name, String imageText, String footer) 
+			throws IOException, RecordsFileException {
+		String html = "<img src=\"data:image/png;base64," + imageText + "\" alt=\"" + name + "\">";
+		if (footer != null) {
+			html += "<span class=\"class_span_tablefoot\">" + footer + "</span><br>";			
 		}
 		String className = "class_db_image";
 		appendClassEntry(name, className, html);

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -32,20 +31,15 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		this(null);
 	}
 
-	private final static String QUERY_FILENAME = "file";
 	private final static String SEG_NAME_SAVE = "save";
 	private final static String SEG_NAME_LOAD = "load";
 	private final static String SEG_NAME_DB = "db";
 	private final static String SEG_NAME_NEW = "new";
 	private final static String SEG_NAME_ARCHIVE = "archive";
 	private final static String STRING_CONTENT_START = "content=";
-	private final static String STRING_CONTENT_END = "&";
-	private final static byte[] KEY_CONTENT_START = "content=".getBytes();
-	private final static int KEY_CONTENT_STOP = 38;
-	private final static int BUFFER_LENGTH = 1024;
-	private final static String PREFIX_NOTEBOOK_FILES = "Notebook_";
-	private final static String MANAGER_USERSGUIDE_FILENAME = "ManagerUsersGuide";
+	private final static String PREFIX_NOTEBOOK_FILES = "Page_";
 	private final static String PROP_NOTEBOOK_SAVEPATH = "gumtree.notebook.savePath";
+	private final static String PROP_DATABASE_SAVEPATH = "gumtree.loggingDB.savePath";
 	private final static String NOTEBOOK_CURRENTFILENAME = "current.xml";
 	private final static String NOTEBOOK_DBFILENAME = "loggingDB.rdf";
 	private static final String QUERY_ENTRY_START = "start";
@@ -61,7 +55,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	public NotebookRestlet(Context context) {
 		super(context);
 		currentFilePath = System.getProperty(PROP_NOTEBOOK_SAVEPATH) + "/" + NOTEBOOK_CURRENTFILENAME;
-		currentDBPath = System.getProperty(PROP_NOTEBOOK_SAVEPATH) + "/" + NOTEBOOK_DBFILENAME;
+		currentDBPath = System.getProperty(PROP_DATABASE_SAVEPATH) + "/" + NOTEBOOK_DBFILENAME;
 	}
 
 	/* (non-Javadoc)
@@ -127,7 +121,6 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					try {
 						writer.close();
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -193,7 +186,11 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	    	int start = 0;
 	    	boolean isBeginning = false;
 	    	if (startValue != null) {
-		    	start = Integer.valueOf(startValue);
+	    		try {
+			    	start = Integer.valueOf(startValue);
+				} catch (Exception e) {
+					start = 0;
+				}
 	    	} else {
 	    		isBeginning = true;
 	    	}
@@ -226,8 +223,8 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 			try {
 				File current = new File(currentFilePath);
 				if (current.exists()) {
-					SimpleDateFormat format = new SimpleDateFormat("yyMMdd'T'HHmmss");
-					String newName = "Notebook_" + format.format(new Date());
+					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
+					String newName = PREFIX_NOTEBOOK_FILES + format.format(new Date());
 					File newFile = new File(current.getParent() + "/" + newName + ".xml");
 					current.renameTo(newFile);
 					if (!current.createNewFile()) {
@@ -284,18 +281,5 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	    return;
 	}
 	
-	private boolean loopToStart(InputStream input) throws IOException{
-		int read = 0;
-		int i = 0;
-		while ((read = input.read()) != -1) {
-			if (read == KEY_CONTENT_START[i]) {
-				i += 1;
-				if (i >= KEY_CONTENT_START.length) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
 
 }
