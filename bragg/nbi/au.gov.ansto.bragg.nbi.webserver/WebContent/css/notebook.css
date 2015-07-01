@@ -193,13 +193,13 @@ th {
 	max-height:100%;
 }
 
-.div_sidebar_inner table {
+.div_sidebar_inner table, th, td {
 	border-collapse: collapse;
   	border: 1px solid black;
 	font-size: 9px;
 }
 
-.class_db_object{
+.class_db_object, .class_template_object {
 	margin: 4px;
 	padding: 4px;
 	cursor: pointer;
@@ -236,12 +236,12 @@ th {
 }
 */
 
-.class_db_object:HOVER {
+.class_db_object, .class_template_object:HOVER {
 	background-color: white;
 	border: 1px solid #666;
 }
 
-.class_db_insert {
+.class_db_insert, .class_template_insert {
     display: block;
     position: absolute;
     border: 1px solid red;
@@ -260,15 +260,15 @@ th {
 	padding: 4px;
 }
 
-.class_db_insert img {
+.class_db_insert, .class_template_insert img {
     vertical-align: middle;
 }
 
-.class_db_insert span {
+.class_db_insert, .class_template_insert span {
     vertical-align: middle;
 }
 
-.class_db_insert:HOVER {
+.class_db_insert, .class_template_insert:HOVER {
 	background-color: #ccc;
     color: #000;
     cursor: pointer;

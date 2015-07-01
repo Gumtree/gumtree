@@ -18,10 +18,22 @@ jQuery.fn.convertDbToEditor = function() {
 	return jQuery('<div />').append(element).html();
 };
 
+jQuery.fn.convertTemplateToEditor = function() {
+	var element = this.clone();
+	element.removeClass('class_template_object');
+	element.addClass('class_editor_object');
+	return jQuery('<div />').append(element).html();
+};
+
 function drag(ev) {
 	var html = ev.target.outerHTML;
-	html = html.replace("class_db_object", "class_editor_object"); 
-    ev.dataTransfer.setData("text/html", html);
+	if (html.indexOf('class_db_object') != -1) {
+		html = html.replace("class_db_object", "class_editor_object"); 		
+	}
+	if (html.indexOf('class_template_object') != -1) {
+		html = html.replace("class_template_object", "class_editor_object"); 		
+	}
+    ev.dataTransfer.setData("text/html", "<br>" + html + "<br>");
 } 
 
 function dbApplyFilter() {
@@ -76,10 +88,10 @@ $(function(){
     $('.slide-out-div').tabSlideOut({
     	tabHandleClass: '.a_sidebar_handle',
     	tabBlockClass: '.div_sidebar_block',
-        tabHandles: ['#a_sidebar_database', '#a_sidebar_canvas'],                     //class of the element that will become your tab
-        tabBlocks: ['#div_sidebar_database', '#div_sidebar_canvas'],
+        tabHandles: ['#a_sidebar_database', '#a_sidebar_template', '#a_sidebar_canvas'],                     //class of the element that will become your tab
+        tabBlocks: ['#div_sidebar_database', '#div_sidebar_template', '#div_sidebar_canvas'],
         tabHandleSize: 200,
-        pathToTabImage: $('html').hasClass('ie9') ? ['images/Database.GIF', 'images/Canvas.GIF'] : null, //path to the image for the tab //Optionally can be set using css
+        pathToTabImage: $('html').hasClass('ie9') ? ['images/Database.GIF', 'images/Canvas.GIF', 'images/Template.GIF'] : null, //path to the image for the tab //Optionally can be set using css
         imageHeight: '218px',                     //height of tab image           //Optionally can be set using css
         imageWidth: '33px',                       //width of tab image            //Optionally can be set using css
         tabLocation: 'right',                      //side of screen where tab lives, top, right, bottom, or left
@@ -429,7 +441,6 @@ jQuery(document).ready(function(){
 	var getUrl = "notebook/db?length=20";
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
-			console.log(data);
 			if (data.trim().length == 0) {
 				$('#id_sidebar_inner').append("<p>End of Database</p>");
 //				$('#id_sidebar_inner').unbind('scroll');
@@ -508,6 +519,61 @@ jQuery(document).ready(function(){
 		alert( "error loading db xml file.");
 	});
 
+	getUrl = "notebook/template";
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+			if (data.trim().length == 0) {
+				return;
+			}
+			
+			$('#id_template_inner').html(data);
+
+//			add insert button to db div on mouse over
+			$('.class_template_object').hover(function() {
+				$(this).append('<div class="class_template_insert"><img alt="insert" src="images/nav_backward.gif"><span>INSERT</span></div>');
+				var h = $(this).height();
+				var w = $(this).width();
+				$('.class_template_insert').css({
+					'top': h / 2 - 10,
+					'left': w / 2 - 30
+				});
+				$('.class_template_insert').click(function(e) {
+					var text = '';
+					$.each(editorPastePlugin, function(idx, val) {
+						text += idx + '\n';
+					});
+					if (!editorDocumentPage.isEditing()) {
+						editorDocumentPage.enableEditing();
+						editorPastePlugin.insertContent('<br>' + $(this).parent().convertTemplateToEditor() + '<br>');
+					} else {
+						editorPastePlugin.insertContent('<br>' + $(this).parent().convertTemplateToEditor() + '<br>');
+					}
+					$("div.class_template_insert").remove();
+				});
+			}, function() {
+				$('div').remove('.class_template_insert');
+			});
+			
+			$('.class_template_object').dblclick(function() {
+				if (!editorDocumentPage.isEditing()) {
+					editorDocumentPage.enableEditing();
+					editorPastePlugin.insertContent('<br>' + $(this).convertTemplateToEditor() + '<br>');
+				} else {
+					editorPastePlugin.insertContent('<br>' + $(this).convertTemplateToEditor() + '<br>');
+				}
+			});
+
+			$('.class_template_object').each(function(i, obj) {
+			    $(this).attr("draggable", true);
+			    $(this).attr("ondragstart", "drag(event)");
+			});
+
+		}
+	})
+	.fail(function(e) {
+		alert( "error loading db xml file.");
+	});
+	
 //	define scroll div with auto height
 	var bodyheight = $(window).height();
 	$(".slide-out-div").height(bodyheight - 80);
