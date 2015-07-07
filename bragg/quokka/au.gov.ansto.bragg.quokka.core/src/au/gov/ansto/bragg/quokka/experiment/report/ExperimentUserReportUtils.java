@@ -230,9 +230,9 @@ public class ExperimentUserReportUtils {
 		}
 //		html.append("<tr><th colspan=\"4\"></th>\r\n<th colspan=\"3\">" + config.getName() + "</th></tr>");
 //		html.append("<tr><th>Sequence</th>\r\n<th>Position</th>\r\n<th>Sample Name</th>\r\n<th>Thickness</th>" 
-		html.append("<tr><th colspan=\"3\">" + envText + "</th>\r\n<th colspan=\"3\">" + config.getName() + "</th></tr>");
+		html.append("<tr><th colspan=\"3\">" + envText + "</th>\r\n<th colspan=\"4\">" + config.getName() + "</th></tr>");
 		html.append("<tr><th>Position</th>\r\n<th>Sample Name</th>\r\n<th>Thickness</th>"
-				+ "<th>Transmission</th><th>Scattering</th><th>Preset</th></tr>");
+				+ "<th>Transmission</th><th>Scattering</th><th>Preset</th><th>Comment</th></tr>");
 //		int index = 0;
 		for (AcquisitionEntry entry : acquisition.getEntries()){
 			Sample sample = entry.getSample();
@@ -243,22 +243,22 @@ public class ExperimentUserReportUtils {
 					+ "<td>" + sample.getName() + "</td><td>" + sample.getThickness() + "</td>\r\n"
 					+ "<td>" + (acSetting.getTransmissionDataFile() != null ? acSetting.getTransmissionDataFile() : "") + "</td>"
 					+ "<td>" + (acSetting.getScatteringDataFile() != null ? acSetting.getScatteringDataFile() : "") + "</td>"
-					+ "<td>" + acSetting.getPreset() + "</td>\r\n</tr>\r\n");
+					+ "<td>" + acSetting.getPreset() + "</td>\r\n<td></td>\r\n</tr>\r\n");
 		}
 		if (config.getEmptyBeamTransmissionDataFile() != null) {
-			html.append("<tr><th colspan=\"3\">Empty Beam Transmission ID</td><td colspan=\"3\">" 
+			html.append("<tr><th colspan=\"3\">Empty Beam Transmission ID</td><td colspan=\"4\">" 
 					+ config.getEmptyBeamTransmissionDataFile() + "</td></tr>");
 		}
 		if (config.getEmptyCellScatteringDataFile() != null) {
-			html.append("<tr><th colspan=\"3\">Empty Cell Scattering ID</td><td colspan=\"3\">" 
+			html.append("<tr><th colspan=\"3\">Empty Cell Scattering ID</td><td colspan=\"4\">" 
 					+ config.getEmptyCellScatteringDataFile() + "</td></tr>");
 		}
 		if (config.getEmptyCellTransmissionDataFile() != null) {
-			html.append("<tr><th colspan=\"3\">Empty Cell Transmission ID</td><td colspan=\"3\">" 
+			html.append("<tr><th colspan=\"3\">Empty Cell Transmission ID</td><td colspan=\"4\">" 
 					+ config.getEmptyCellTransmissionDataFile() + "</td></tr>");
 		}
 		if (acquisition.getExperiment().getDarkCurrentFile() != null) {
-			html.append("<tr><th colspan=\"3\">Dark Current File Name</td><td colspan=\"3\">" 
+			html.append("<tr><th colspan=\"3\">Dark Current File Name</td><td colspan=\"4\">" 
 					+ acquisition.getExperiment().getDarkCurrentFile() + "</td></tr>");
 		}
 		html.append("</table>");
