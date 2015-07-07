@@ -33,6 +33,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 
 	private final static String SEG_NAME_SAVE = "save";
 	private final static String SEG_NAME_LOAD = "load";
+	private final static String SEG_NAME_HELP = "help";
 	private final static String SEG_NAME_DB = "db";
 	private final static String SEG_NAME_NEW = "new";
 	private final static String SEG_NAME_ARCHIVE = "archive";
@@ -43,6 +44,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String PROP_DATABASE_SAVEPATH = "gumtree.loggingDB.savePath";
 	private final static String NOTEBOOK_CURRENTFILENAME = "current.xml";
 	private final static String NOTEBOOK_TEMPLATEFILENAME = "template.xml";
+	private final static String NOTEBOOK_HELPFILENAME = "guide.xml";
 	private final static String NOTEBOOK_DBFILENAME = "loggingDB.rdf";
 	private static final String QUERY_ENTRY_START = "start";
 	private static final String QUERY_ENTRY_LENGTH = "length";
@@ -51,6 +53,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private String currentFilePath;
 	private String currentDBPath;
 	private String templateFilePath;
+	private String helpFilePath;
 	
 	/**
 	 * @param context
@@ -60,6 +63,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		currentFilePath = System.getProperty(PROP_NOTEBOOK_SAVEPATH) + "/" + NOTEBOOK_CURRENTFILENAME;
 		currentDBPath = System.getProperty(PROP_DATABASE_SAVEPATH) + "/" + NOTEBOOK_DBFILENAME;
 		templateFilePath = System.getProperty(PROP_NOTEBOOK_SAVEPATH) + "/" + NOTEBOOK_TEMPLATEFILENAME;
+		helpFilePath = System.getProperty(PROP_NOTEBOOK_SAVEPATH) + "/" + NOTEBOOK_HELPFILENAME;
 	}
 
 	/* (non-Javadoc)
@@ -270,7 +274,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 				return;
 			}
-		}  else if (SEG_NAME_TEMPLATE.equals(seg)) {
+		} else if (SEG_NAME_TEMPLATE.equals(seg)) {
 			try {
 				File templateFile = new File(templateFilePath);
 				if (templateFile.exists()) {
@@ -278,6 +282,19 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
 				} else {
 					response.setEntity("", MediaType.TEXT_PLAIN);
+				}
+			} catch (IOException e) {
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+				return;
+			}
+		} else if (SEG_NAME_HELP.equals(seg)) {
+			try {
+				File helpFile = new File(helpFilePath);
+				if (helpFile.exists()) {
+					byte[] bytes = Files.readAllBytes(Paths.get(helpFilePath));
+					response.setEntity(new String(bytes), MediaType.TEXT_HTML);
+				} else {
+					response.setEntity("can't find the help file.", MediaType.TEXT_PLAIN);
 				}
 			} catch (IOException e) {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());

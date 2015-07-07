@@ -314,3 +314,39 @@ th {
 	height: 360px;
 	padding: 2px;
 }
+
+#id_div_headertext {
+	float: left;
+	display: inline;
+}
+
+@media screen {
+	#id_div_headercorner {
+		float: right;
+		display: inline;
+		padding-top: 50px;
+	}
+	#id_div_headercorner img{
+		height: 16px;
+		vertical-align: middle;
+	}
+	#id_div_headercorner a{
+		color: #888;
+		font-size: 14px;
+		text-decoration: none;
+	}
+	#id_div_headercorner a:HOVER{
+		text-decoration: underline;
+		color: black;
+	}
+	#id_div_headercorner span {
+	}
+}
+@media print {
+	#id_div_headercorner {
+		display: none;
+	}
+}
+
+#id_a_help {
+}
