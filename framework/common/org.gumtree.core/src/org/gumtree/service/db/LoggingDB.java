@@ -22,26 +22,31 @@ import org.xml.sax.InputSource;
 
 public class LoggingDB {
 	
-	private final static String LOGGING_DB_FILENAME = "loggingDB";
-	
-	private static LoggingDB instance;
 	
 	private ObjectDBService db;
 	
-	public LoggingDB() {
-		db = ObjectDBService.getDb(LOGGING_DB_FILENAME);
+//	public LoggingDB() {
+//		db = ObjectDBService.getDb(LOGGING_DB_FILENAME);
+//	}
+
+	public LoggingDB(String dbName) {
+		db = ObjectDBService.getDb(dbName);
 	}
 
-	public synchronized static LoggingDB getInstance(){
-		if (instance == null) {
-			instance = new LoggingDB();
-		}
-		return instance;
+//	public synchronized static LoggingDB getInstance(){
+//		if (instance == null) {
+//			instance = new LoggingDB();
+//		}
+//		return instance;
+//	}
+
+	public synchronized static LoggingDB getInstance(String dbName){
+		return new LoggingDB(dbName);
 	}
-	
-	public void archive(){
-		db.newDBInstance();
-	}
+
+//	public void archive(){
+//		db.newDBInstance();
+//	}
 	
 	public void appendImageEntry(String name, BufferedImage image, String footer) 
 			throws IOException, RecordsFileException {
@@ -195,5 +200,10 @@ public class LoggingDB {
 	  return html.toString();
 	}
 	
+	public void close() {
+		if (db != null) {
+			db.close();
+		}
+	}
 }
 

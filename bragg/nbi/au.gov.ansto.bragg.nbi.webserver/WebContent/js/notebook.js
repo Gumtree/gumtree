@@ -1,9 +1,10 @@
 var editorDocumentPage = null;
 var editorPastePlugin = null;
-var topDbIndex = 0;
-var bottomDbIndex = 0;
+var topDbIndex = -1;
+var bottomDbIndex = -1;
 var isAppending = false;
 var dbFilter = null;
+var session = null;
 
 //alert($('html').hasClass('ie9'));
 
@@ -24,6 +25,20 @@ jQuery.fn.convertTemplateToEditor = function() {
 	element.addClass('class_editor_object');
 	return jQuery('<div />').append(element).html();
 };
+
+function getParam(sParam) {
+	var sPageURL = window.location.search.substring(1);
+	var sURLVariables = sPageURL.split('&');
+	for (var i = 0; i < sURLVariables.length; i++)
+	{
+		var sParameterName = sURLVariables[i].split('=');
+		if (sParameterName[0] == sParam)
+		{
+			return sParameterName[1];
+		}
+	}
+	return null;
+}
 
 function drag(ev) {
 	var html = ev.target.outerHTML;
@@ -164,7 +179,12 @@ $(function(){
         	isAppending = true;
             $('#id_sidebar_inner').append('<div class="class_inner_loading"><img src="images/loading.gif"></div>');
             $('#id_sidebar_inner').scrollTop = $('#id_sidebar_inner').scrollHeight;
-            var getUrl = "notebook/db?start=" + (bottomDbIndex - 1) + "&length=10";
+            var getUrl;
+            if (session == null) {
+            	getUrl = "notebook/db?start=" + (bottomDbIndex - 1) + "&length=10";
+            } else {
+            	getUrl = "notebook/db?session=" + session + "&start=" + (bottomDbIndex - 1) + "&length=10";
+            }
         	$.get(getUrl, function(data, status) {
         		if (status == "success") {
         			if (data.trim().length == 0) {
@@ -243,7 +263,12 @@ $(function(){
         	$(".class_inner_topmessage").remove();
             $('#id_sidebar_inner').prepend('<div class="class_inner_loading"><img src="images/loading.gif"></div>');
             $('#id_sidebar_inner').scrollTop = 0;
-            var getUrl = "notebook/db?start=" + (topDbIndex + 10) + "&length=10";
+            var getUrl;
+            if (session == null) {
+            	getUrl = "notebook/db?start=" + (topDbIndex + 10) + "&length=10";
+            } else {
+            	getUrl = "notebook/db?session=" + session + "&start=" + (topDbIndex + 10) + "&length=10";
+            }
         	$.get(getUrl, function(data, status) {
         		if (status == "success") {
         			if (data.trim().length == 0) {
@@ -341,8 +366,13 @@ $(function(){
 
 jQuery(document).ready(function(){
 
+	session = getParam('session');
+	
 //	load current notebook content file
 	var getUrl = "notebook/load";
+	if (session != null && session.trim().length > 0) {
+		getUrl += "?session=" + session;
+	}
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
 //			$('#id_editable_page').html(decodeURIComponent(data.replace(/\+/g, ' ')));
@@ -385,7 +415,7 @@ jQuery(document).ready(function(){
 						},
 						"saveRest": {
 							// The URI to send the content to
-							url: 'notebook/save',
+							url: 'notebook/save' + (session != null ? '?session=' + session : ''),
 							// Returns an object containing the data to send to the server
 							data: function(html) {
 								return {
@@ -437,8 +467,14 @@ jQuery(document).ready(function(){
 		alert( "error loading current notebook file.");
 	});
 
-//	load db xml file
-	var getUrl = "notebook/db?length=20";
+//	load db entries
+    var getUrl;
+    if (session == null) {
+    	getUrl = "notebook/db?length=20";
+    } else {
+    	getUrl = "notebook/db?session=" + session + "&length=20";
+    }
+
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
 			if (data.trim().length == 0) {
@@ -519,6 +555,7 @@ jQuery(document).ready(function(){
 		alert( "error loading db xml file.");
 	});
 
+	// load templates
 	getUrl = "notebook/template";
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
@@ -606,7 +643,12 @@ jQuery(document).ready(function(){
         	isAppending = true;
             $('#id_sidebar_inner').append('<div class="class_inner_loading"><img src="images/loading.gif"></div>');
             $('#id_sidebar_inner').scrollTop = $('#id_sidebar_inner').scrollHeight;
-            var getUrl = "notebook/db?start=" + (bottomDbIndex - 1) + "&length=10";
+            var getUrl;
+            if (session == null) {
+            	getUrl = "notebook/db?start=" + (bottomDbIndex - 1) + "&length=10";
+            } else {
+            	getUrl = "notebook/db?session=" + session + "&start=" + (bottomDbIndex - 1) + "&length=10";
+            }
         	$.get(getUrl, function(data, status) {
         		if (status == "success") {
         			if (data.trim().length == 0) {
@@ -690,7 +732,13 @@ jQuery(document).ready(function(){
 	        	$(".class_inner_topmessage").remove();
 	            $('#id_sidebar_inner').prepend('<div class="class_inner_loading"><img src="images/loading.gif"></div>');
 	            $('#id_sidebar_inner').scrollTop = 0;
-	            var getUrl = "notebook/db?start=" + (topDbIndex + 10) + "&length=10";
+	            var getUrl;
+	            if (session == null) {
+	            	getUrl = "notebook/db?start=" + (topDbIndex + 10) + "&length=10";
+	            } else {
+	            	getUrl = "notebook/db?session=" + session + "&start=" + (topDbIndex + 10) + "&length=10";
+	            }
+
 	        	$.get(getUrl, function(data, status) {
 	        		if (status == "success") {
 	        			if (data.trim().length == 0) {

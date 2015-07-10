@@ -2,7 +2,6 @@ package au.gov.ansto.bragg.nbi.server.notebook;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.file.Files;
@@ -10,9 +9,12 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import org.gumtree.core.object.IDisposable;
+import org.gumtree.service.db.ControlDB;
 import org.gumtree.service.db.RecordsFileException;
+import org.gumtree.service.db.SessionDB;
 import org.gumtree.service.db.TextDb;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +36,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String SEG_NAME_SAVE = "save";
 	private final static String SEG_NAME_LOAD = "load";
 	private final static String SEG_NAME_HELP = "help";
+	private final static String SEG_NAME_MANAGEGUIDE = "manageguide";
 	private final static String SEG_NAME_DB = "db";
 	private final static String SEG_NAME_NEW = "new";
 	private final static String SEG_NAME_ARCHIVE = "archive";
@@ -42,28 +45,32 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String PREFIX_NOTEBOOK_FILES = "Page_";
 	private final static String PROP_NOTEBOOK_SAVEPATH = "gumtree.notebook.savePath";
 	private final static String PROP_DATABASE_SAVEPATH = "gumtree.loggingDB.savePath";
-	private final static String NOTEBOOK_CURRENTFILENAME = "current.xml";
 	private final static String NOTEBOOK_TEMPLATEFILENAME = "template.xml";
 	private final static String NOTEBOOK_HELPFILENAME = "guide.xml";
-	private final static String NOTEBOOK_DBFILENAME = "loggingDB.rdf";
+	private final static String NOTEBOOK_MANAGEHELP_FILENAME = "ManagerUsersGuide.xml";
+//	private final static String NOTEBOOK_DBFILENAME = "loggingDB.rdf";
 	private static final String QUERY_ENTRY_START = "start";
 	private static final String QUERY_ENTRY_LENGTH = "length";
-	private final static String QUERY_FILE_ID = "file";
+	private final static String QUERY_SESSION_ID = "session";
 	
-	private String currentFilePath;
-	private String currentDBPath;
+	private String currentFileFolder;
+	private String currentDBFolder;
 	private String templateFilePath;
 	private String helpFilePath;
+	private SessionDB sessionDb;
+	private ControlDB controlDb;
 	
 	/**
 	 * @param context
 	 */
 	public NotebookRestlet(Context context) {
 		super(context);
-		currentFilePath = System.getProperty(PROP_NOTEBOOK_SAVEPATH) + "/" + NOTEBOOK_CURRENTFILENAME;
-		currentDBPath = System.getProperty(PROP_DATABASE_SAVEPATH) + "/" + NOTEBOOK_DBFILENAME;
+		currentFileFolder = System.getProperty(PROP_NOTEBOOK_SAVEPATH);
+		currentDBFolder = System.getProperty(PROP_DATABASE_SAVEPATH);
 		templateFilePath = System.getProperty(PROP_NOTEBOOK_SAVEPATH) + "/" + NOTEBOOK_TEMPLATEFILENAME;
 		helpFilePath = System.getProperty(PROP_NOTEBOOK_SAVEPATH) + "/" + NOTEBOOK_HELPFILENAME;
+		sessionDb = SessionDB.getInstance();
+		controlDb = ControlDB.getInstance();
 	}
 
 	/* (non-Javadoc)
@@ -78,50 +85,35 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		
 //		Form queryForm = request.getResourceRef().getQueryAsForm();
 		String seg = request.getResourceRef().getLastSegment();
+		String ip = request.getClientInfo().getUpstreamAddress();
 		if (SEG_NAME_SAVE.equals(seg)) {
 //			String content = rForm.getValues("content");
 			Representation rep = request.getEntity();
-//			String text = request.getEntityAsText();
-//			String subText = text.substring(text.indexOf("content=") + 8, text.indexOf("&"));
-//			InputStream inputStream = null;
-//			OutputStream outputStream = null;
 			FileWriter writer = null;
+			Form queryForm = request.getResourceRef().getQueryAsForm();
+		    String sessionId = queryForm.getValues(QUERY_SESSION_ID);
+		    if (sessionId == null || sessionId.trim().length() == 0) {
+				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, "The notebook page is not available to the public.");
+					return;
+				}
+				try {
+					sessionId = controlDb.getCurrentSessionId();
+				} catch (Exception e2) {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e2.toString());
+				}
+		    }
 			try {
-//				inputStream = rep.getStream();
-//				outputStream = new FileOutputStream(new File(currentFilePath));
-//				int read = 0;
-//				byte[] bytes = new byte[BUFFER_LENGTH];
-//				int index = 0;
-//				boolean hasContent = loopToStart(inputStream);
-//				if (hasContent) {
-//					while ((read = inputStream.read()) != -1) {
-//						bytes[index] = (byte) read;
-//						if (read == KEY_CONTENT_STOP) {
-//							if (index > 0) {
-//								outputStream.write(bytes, 0, index);
-//								index = 0;
-//							}
-//							break;
-//						}
-//						index += 1;
-//						if (index >= BUFFER_LENGTH) {
-//							outputStream.write(bytes, 0, BUFFER_LENGTH);
-//							index = 0;
-//						}
-//					}
-//					if (index > 0) {
-//						outputStream.write(bytes, 0, index);
-//					}
-//				}
 				String text = rep.getText();
 				int start = text.indexOf(STRING_CONTENT_START) + STRING_CONTENT_START.length();
 				int stop = text.indexOf("&_method=");
 				text = text.substring(start, stop);
 				text = URLDecoder.decode(text, "UTF-8");
-				writer = new FileWriter(currentFilePath);
+	    		String sessionValue = sessionDb.getSessionValue(sessionId);
+				writer = new FileWriter(currentFileFolder + "/" + sessionValue + ".xml");
 				writer.write(text);
 				writer.flush();
-			} catch (IOException e1) {
+			} catch (Exception e1) {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e1.toString());
 				return;
 			}finally {
@@ -132,15 +124,6 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						e.printStackTrace();
 					}
 				}
-//				if (outputStream != null) {
-//					try {
-//						// outputStream.flush();
-//						outputStream.close();
-//					} catch (IOException e) {
-//						e.printStackTrace();
-//					}
-//
-//				}
 			}
 		    JSONObject jsonObject = new JSONObject();
 		    try {
@@ -148,49 +131,59 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		    	response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
 		    } catch (JSONException e) {
 				e.printStackTrace();
-			}finally{
-		    	
-		    }
+			}
 		} else if (SEG_NAME_LOAD.equals(seg)) {
 			Form queryForm = request.getResourceRef().getQueryAsForm();
-		    String fileId = queryForm.getValues(QUERY_FILE_ID);
-		    if (fileId == null || fileId.trim().length() == 0) {
+		    String sessionId = queryForm.getValues(QUERY_SESSION_ID);
+		    if (sessionId == null || sessionId.trim().length() == 0) {
+				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+					response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
 		    	try {
-		    		File current = new File(currentFilePath);
-		    		if (current.exists()) {
-		    			byte[] bytes = Files.readAllBytes(Paths.get(currentFilePath));
-		    			response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
-		    		}
-		    	} catch (IOException e) {
+		    		sessionId = controlDb.getCurrentSessionId();
+		    		String sessionValue = sessionDb.getSessionValue(sessionId);
+	    			byte[] bytes = Files.readAllBytes(Paths.get(currentFileFolder + "/" + sessionValue + ".xml"));
+	    			response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
+		    	} catch (Exception e) {
 		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 		    		return;
 		    	}
 		    } else {
 		    	try {
-		    		File current = new File(currentFilePath);
+		    		String filename = currentFileFolder + "/" + sessionDb.getSessionValue(sessionId) + ".xml";
+		    		File current = new File(filename);
 		    		if (current.exists()) {
-		    			String filename = current.getParent() + "/" + fileId + ".xml"; 
 		    			byte[] bytes = Files.readAllBytes(Paths.get(filename));
 		    			response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
 		    		}
-		    	} catch (IOException e) {
+		    	} catch (Exception e) {
 		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 		    		return;
 		    	}
 		    }
 		} else if (SEG_NAME_DB.equals(seg)) {
-//			try {
-//				File current = new File(currentDBPath);
-//				if (current.exists()) {
-//					byte[] bytes = Files.readAllBytes(Paths.get(currentDBPath));
-//					response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
-//				}
-//			} catch (IOException e) {
-//				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
-//				return;
-//			}
 	    	Form form = request.getResourceRef().getQueryAsForm();
 	    	String startValue = form.getValues(QUERY_ENTRY_START);
+//		    String fileId = form.getValues(QUERY_SESSION_ID);
+		    String sessionId = form.getValues(QUERY_SESSION_ID);
+		    if (sessionId == null || sessionId.trim().length() == 0) {
+				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+					response.setEntity("<span style=\"color:red\">The database is not available to the public.</span>", MediaType.TEXT_PLAIN);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
+				try {
+					sessionId = controlDb.getCurrentSessionId();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					response.setEntity("<span style=\"color:red\">Error loading current notebook page. Please ask instrument scientist for help.</span>", 
+							MediaType.TEXT_PLAIN);
+					response.setStatus(Status.SERVER_ERROR_INTERNAL);
+					return;
+				}
+		    } 
 	    	int start = 0;
 	    	boolean isBeginning = false;
 	    	if (startValue != null) {
@@ -205,7 +198,15 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	    	final int length = Integer.valueOf(form.getValues(QUERY_ENTRY_LENGTH));
 	    	TextDb db = null;
 			try {
-				db = new TextDb(currentDBPath, "r");
+			    String dbName = sessionDb.getSessionValue(sessionId);
+			    dbName = currentDBFolder + "/" + dbName + ".rdf";
+			    File dbFile = new File(dbName);
+			    if (!dbFile.exists()) {
+			    	response.setEntity("", MediaType.TEXT_PLAIN);
+			    	response.setStatus(Status.SUCCESS_OK);
+			    	return;
+			    }
+				db = new TextDb(dbName, "r");
 				String html = "";
 				if (isBeginning) {
 					html = db.getEntries(length);
@@ -227,45 +228,67 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					}
 				}
 			}
+
 		} else if (SEG_NAME_NEW.equals(seg)) {
+			if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, "Notebook management is not available to the public.");
+				return;
+			}
 			try {
-				File current = new File(currentFilePath);
-				if (current.exists()) {
-					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
-					String newName = PREFIX_NOTEBOOK_FILES + format.format(new Date());
-					File newFile = new File(current.getParent() + "/" + newName + ".xml");
-					current.renameTo(newFile);
-					if (!current.createNewFile()) {
-						response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to create new file");
-						return;
-					}
-					response.setEntity(newName, MediaType.TEXT_PLAIN);
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
+				String newName = PREFIX_NOTEBOOK_FILES + format.format(new Date());
+				File newFile = new File(currentFileFolder + "/" + newName + ".xml");
+				if (!newFile.createNewFile()) {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to create new file");
+					return;
 				}
+				String oldSession = controlDb.getCurrentSessionId();
+				String oldName = sessionDb.getSessionValue(oldSession);
+				String sessionId = sessionDb.createNewSessionId(newName);
+				controlDb.updateCurrentSessionId(sessionId);
+				response.setEntity(oldName + ":" + oldSession + ";" + newName + ":" + sessionId, MediaType.TEXT_PLAIN);
 			} catch (Exception e) {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 				return;
 			}
 		} else if (SEG_NAME_ARCHIVE.equals(seg)) {
 			try {
-				File current = new File(currentFilePath);
+				File current = new File(currentFileFolder);
 				if (current.exists()) {
-					File parent = current.getParentFile();
-					String[] fileList = parent.list(new FilenameFilter() {
-						
-						@Override
-						public boolean accept(File dir, String name) {
-							if (name.startsWith(PREFIX_NOTEBOOK_FILES)){
-								return true;
-							}
-							return false;
-						}
-					});
-					Arrays.sort(fileList);
+//					String[] fileList = current.list(new FilenameFilter() {
+//						
+//						@Override
+//						public boolean accept(File dir, String name) {
+//							if (name.startsWith(PREFIX_NOTEBOOK_FILES)){
+//								return true;
+//							}
+//							return false;
+//						}
+//					});
+//					Arrays.sort(fileList);
+//					String responseText = "";
+//					for (int i = fileList.length - 1; i >= 0; i--) {
+//						responseText += fileList[i].substring(0, fileList[i].length() - 4);
+//						if (i > 0){
+//							responseText += ":";
+//						}
+//					}
+					List<String> sessionIds = sessionDb.listSessionIds();
+					try {
+						sessionIds.remove(controlDb.getCurrentSessionId());
+					} catch (Exception e) {
+					}
+					String[] sessionPairs = new String[sessionIds.size()];
+					int index = 0;
+					for (String id : sessionIds) {
+						sessionPairs[index++] = sessionDb.getSessionValue(id) + ":" + id;
+					}
+					Arrays.sort(sessionPairs);
 					String responseText = "";
-					for (int i = fileList.length - 1; i >= 0; i--) {
-						responseText += fileList[i].substring(0, fileList[i].length() - 4);
+					for (int i = sessionPairs.length - 1; i >= 0; i--) {
+						responseText += sessionPairs[i];
 						if (i > 0){
-							responseText += ":";
+							responseText += ";";
 						}
 					}
 					response.setEntity(responseText, MediaType.TEXT_PLAIN);
@@ -300,7 +323,21 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 				return;
 			}
-		} 
+		} else if (SEG_NAME_MANAGEGUIDE.equals(seg)) {
+			try {
+				String guidePath = currentFileFolder + "/" + NOTEBOOK_MANAGEHELP_FILENAME;
+				File guideFile = new File(guidePath);
+				if (guideFile.exists()) {
+					byte[] bytes = Files.readAllBytes(Paths.get(guidePath));
+					response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
+				} else {
+					response.setEntity("", MediaType.TEXT_PLAIN);
+				}
+			} catch (IOException e) {
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+				return;
+			}
+		}
 		response.setStatus(Status.SUCCESS_OK);
 //	    String typeString = queryForm.getValues(QUERY_TYPE);
 //	    JSONObject jsonObject = new JSONObject();

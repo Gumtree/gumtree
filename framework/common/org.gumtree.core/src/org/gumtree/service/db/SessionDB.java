@@ -1,6 +1,9 @@
 package org.gumtree.service.db;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.UUID;
 
 public class SessionDB {
@@ -53,5 +56,18 @@ public class SessionDB {
 		UUID uuid = UUID.randomUUID();
 		putSession(uuid.toString(), value);
 		return uuid.toString();
+	}
+	
+	public void updateSessionId(String value, String sessionId) throws IOException, RecordsFileException {
+		if (db.keyExists(value)) {
+			db.updateEntry(value, sessionId);
+		} else {
+			db.appendEntry(value, sessionId);
+		}
+	}
+	
+	public List<String> listSessionIds(){
+		Enumeration<String> keys = db.keys();
+		return Collections.list(keys);
 	}
 }

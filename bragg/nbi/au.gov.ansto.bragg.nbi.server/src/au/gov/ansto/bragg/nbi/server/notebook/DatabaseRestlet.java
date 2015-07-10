@@ -1,7 +1,9 @@
 package au.gov.ansto.bragg.nbi.server.notebook;
 
 import org.gumtree.core.object.IDisposable;
+import org.gumtree.service.db.ControlDB;
 import org.gumtree.service.db.LoggingDB;
+import org.gumtree.service.db.SessionDB;
 import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
@@ -18,18 +20,25 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 
 	private final static String SEG_NAME_APPEND = "append";
 	private final static String SEG_NAME_NEW = "new";
+	private final static String SEG_NAME_CLOSE = "close";
 	private final static String QUERY_ID_KEY = "key";
 	private final static String QUERY_ID_HTML = "html";
+	private final static String QUERY_SESSION_ID = "session";
 //	private final static String NOTEBOOK_DBFILENAME = "loggingDB.rdf";
 //	private final static String PROP_DATABASE_SAVEPATH = "gumtree.loggingDB.savePath";
 	
 //	private String currentDBPath;
+	
+	private SessionDB sessionDb;
+	private ControlDB controlDb;
 	
 	/**
 	 * @param context
 	 */
 	public DatabaseRestlet(Context context) {
 		super(context);
+		sessionDb = SessionDB.getInstance();
+		controlDb = ControlDB.getInstance();
 //		currentDBPath = System.getProperty(PROP_DATABASE_SAVEPATH) + "/" + NOTEBOOK_DBFILENAME;
 	}
 
@@ -50,21 +59,33 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 	    	Form form = new Form(entity);
 	    	String key = form.getValues(QUERY_ID_KEY);
 	    	String html = form.getValues(QUERY_ID_HTML);
-			LoggingDB db = LoggingDB.getInstance();
-			try {
+	    	try {
+		    	String sessionId = controlDb.getCurrentSessionId();
+		    	String dbName = sessionDb.getSessionValue(sessionId);
+				LoggingDB db = LoggingDB.getInstance(dbName);
 				db.appendHtmlEntry(key, html);
 			} catch (Exception e) {
-				e.printStackTrace();
 	    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 			}
-		} else if (SEG_NAME_NEW.equals(seg)) {
+		} else if (SEG_NAME_CLOSE.equals(seg)) {
 			try {
-				LoggingDB.getInstance().archive();
+				String sessionId = controlDb.getCurrentSessionId();
+		    	String dbName = sessionDb.getSessionValue(sessionId);
+				LoggingDB db = LoggingDB.getInstance(dbName);
+				db.close();
 			} catch (Exception e) {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 				return;
 			}
 		}
+//		else if (SEG_NAME_NEW.equals(seg)) {
+//			try {
+//				LoggingDB.getInstance().archive();
+//			} catch (Exception e) {
+//				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+//				return;
+//			}
+//		}
 		
 //		else if (SEG_NAME_LOAD.equals(seg)) {
 //			Form queryForm = request.getResourceRef().getQueryAsForm();

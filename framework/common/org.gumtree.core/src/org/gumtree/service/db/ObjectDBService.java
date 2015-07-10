@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -135,6 +136,10 @@ public class ObjectDBService {
 		}
 		return -1;
 	}
+	
+	public synchronized void removeEntry(String key) throws RecordsFileException, IOException {
+		db.deleteRecord(key);
+	}
 
 	public void close() {
 		try {
@@ -168,5 +173,19 @@ public class ObjectDBService {
 	
 	public int getNumRecords() {
 		return db.getNumRecords();
+	}
+	
+	public boolean keyExists(String key) {
+		return db.recordExists(key);
+	}
+	
+	public void updateEntry(String key, Object entry) throws IOException, RecordsFileException {
+		RecordWriter rw = new RecordWriter(key);
+		rw.writeObject(entry);		
+		db.updateRecord(rw);
+	}
+	
+	public Enumeration<String> keys(){
+		return db.enumerateKeys();
 	}
 }
