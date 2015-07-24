@@ -62,16 +62,24 @@
 		    	<ul>
 				   <li class='active has-sub last'><a id="id_filter_menu" href='#'><span>All Items</span></a>
 				      <ul>
-				         <li><a id='id_filter_mss'><span>Multi-sample Scan</span></a></li>
+				         <li><a id='id_filter_mss'><span>Sample Scan</span></a></li>
 				         <li><a id='id_filter_als'><span>Alignment Scan</span></a></li>
 				         <li><a id='id_filter_tbo'><span>Tables Only</span></a></li>
 				         <li><a id='id_filter_plo'><span>Plots Only</span></a></li>
-				         <li class='last'><a id='id_filter_all'><span>All Items</span></a></li>
+				         <li class="last"><a id='id_filter_all'><span>All Items</span></a></li>
+				         <!-- li class='last'><a id='id_filter_search'><span>Search Database</span></a></li -->
 				      </ul>
 				   </li>
 				</ul>
 		    </div>
+	    	<div class="div_sidebar_search" id="id_sidebar_search">
+	    		<input type="text" id="id_input_search_db" placeholder="search text"/>
+	    		<a class="class_div_button" onclick="searchDatabase()">Search</a>
+	    		<input type="submit" id="id_input_search_close" class="class_input_search_close" value="" title="Click to close search result."/>
+	    		<!-- a class="class_input_search_close" id="id_input_search_close" onclick="closeSearch()"></a -->
+	    	</div>
         	<div class="div_sidebar_inner" id="id_sidebar_inner"></div>
+        	<div class="div_sidebar_inner" id="id_sidebar_inner_2"></div>
         </div>
         <div class="div_sidebar_block" id="div_sidebar_canvas">
 			<h2>Drawing Canvas</h2>

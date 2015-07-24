@@ -8,6 +8,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
@@ -22,8 +24,11 @@ import org.xml.sax.InputSource;
 
 public class LoggingDB {
 	
-	
+	private static final String SPAN_FREFIX = "<span class=\"class_span_search_highlight\">";
+	private static final String SPAN_END = "</span>";
+
 	private ObjectDBService db;
+	private boolean inSearch = false;
 	
 //	public LoggingDB() {
 //		db = ObjectDBService.getDb(LOGGING_DB_FILENAME);
@@ -198,6 +203,63 @@ public class LoggingDB {
 	      // Returning the original string incase of error.
 	  }
 	  return html.toString();
+	}
+	
+	public String search(String pattern) throws ClassNotFoundException, RecordsFileException, IOException {
+		String html = "";
+		for (int i = 0; i < db.getNumRecords(); i++) {
+			String entry = db.getEntry(i).toString();
+			String res = searchEntry(entry, pattern);
+			if (entry.length() != res.length()) {
+				html += res;
+			}
+		}
+		return html;
+	}
+	
+	private String searchEntry(String entry, String pattern) {
+//		if (numberOfFound >= DEFAULT_NUMBER_OF_APPERANCE) {
+//			return;
+//		}
+		String html = "";
+		if (inSearch) {
+			int nextOff = entry.indexOf("<");
+			if (nextOff >= 0) {
+				String part = entry.substring(0, nextOff);
+				html += searchPart(part, pattern);
+				inSearch = false;
+				html += searchEntry(entry.substring(nextOff), pattern);
+			}
+		} else {
+			int nextOn = entry.indexOf(">");
+			if (nextOn >= 0) {
+				inSearch = true;
+				html += entry.substring(0, nextOn + 1);
+				if (nextOn < entry.length()) {
+					html += searchEntry(entry.substring(nextOn + 1), pattern);
+				}
+			}
+		}
+		return html;
+	}
+
+	private String searchPart(String part, String pattern) {
+		pattern = pattern.replaceAll("\\s+", " ");
+		String[] patterns = pattern.split(" ");
+		String newPart = part;
+		for (String item : patterns) {
+//			newPart = newPart.replaceAll("(?i)" + item, SPAN_FREFIX + item + SPAN_END);
+			Matcher matcher = Pattern.compile("(?i)" + item).matcher(newPart);
+//			newPart = matcher.(SPAN_FREFIX + item + SPAN_END);
+	        StringBuffer stringBuffer = new StringBuffer();
+	        while(matcher.find()){
+	        	String found = matcher.group();
+	            matcher.appendReplacement(stringBuffer, SPAN_FREFIX + found + SPAN_END);
+	        }
+            matcher.appendTail(stringBuffer);
+            newPart = stringBuffer.toString();
+		}
+		return newPart;
 	}
 	
 	public void close() {

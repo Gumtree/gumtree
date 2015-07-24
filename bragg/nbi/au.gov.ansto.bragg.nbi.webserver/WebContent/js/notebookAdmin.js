@@ -16,8 +16,12 @@ function getParam(sParam) {
 	}
 }
 
-function load(id, name) {
-	getUrl = "../notebook/load?session=" + id + "&" + timeString;
+function load(id, name, pattern) {
+	getUrl = "../notebook/load?session=" + id;
+	if (typeof(pattern) !== "undefined") { 
+		 getUrl += "&pattern=" + pattern;
+	}
+	getUrl += "&" + (new Date()).getTime();
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
 			$('#id_content_header').html('<span>' + name + '</span><a class="class_div_button" onclick="edit(\'' + id + '\')">Edit</a>');
@@ -41,7 +45,77 @@ function edit(id) {
 	}
 }
 
+function searchNotebook() {
+	var searchPattern = encodeURIComponent($("#id_input_search").val());
+	getUrl = "../notebook/search?pattern=" + searchPattern + "&" + (new Date()).getTime();
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+			$('#id_search_inner').html(data);
+			$('.class_div_search_file').click(function(e) {
+				load($(this).attr('session'), $(this).attr('name'), searchPattern);
+			});
+		}
+	})
+	.fail(function(e) {
+		alert( "error searching notebook files.");
+	});	
+}
+
+function searchDatabase() {
+	var searchPattern = encodeURIComponent($("#id_input_search_db").val());
+	getUrl = "../db/searchAll?pattern=" + searchPattern + "&" + (new Date()).getTime();
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+			$('#id_search_db_inner').html(data);
+//			$('.class_div_search_file').click(function(e) {
+//				load($(this).attr('session'), $(this).attr('name'), searchPattern);
+//			});
+		}
+	})
+	.fail(function(e) {
+		alert( "error searching notebook files.");
+	});	
+}
+
 $(function() {
+	
+	$(window).resize(function() {
+	    var bodyheight = $(window).height();
+		$(".slide-out-div").height(bodyheight - 80);
+		$(".div_sidebar_inner").height(bodyheight - 118);
+	});
+
+    $('.slide-out-div').tabSlideOut({
+    	tabHandleClass: '.a_sidebar_handle',
+    	tabBlockClass: '.div_sidebar_block',
+        tabHandles: ['#a_sidebar_search', '#a_sidebar_search_db'],                     //class of the element that will become your tab
+        tabBlocks: ['#div_sidebar_search', '#div_sidebar_search_db'],
+        tabHandleSize: 200,
+        pathToTabImage: $('html').hasClass('ie9') ? ['images/Database.GIF', 'images/Database.GIF'] : null, //path to the image for the tab //Optionally can be set using css
+        imageHeight: '218px',                     //height of tab image           //Optionally can be set using css
+        imageWidth: '33px',                       //width of tab image            //Optionally can be set using css
+        tabLocation: 'right',                      //side of screen where tab lives, top, right, bottom, or left
+        speed: 300,                               //speed of animation
+        action: 'click',                          //options: 'click' or 'hover', action to trigger animation
+        topPos: '80px',                          //position from the top/ use if tabLocation is left or right
+        leftPos: '20px',                          //position from left/ use if tabLocation is bottom or top
+        fixedPosition: true                      //options: true makes it stick(fixed position) on scroll
+    });
+	
+    $('#id_input_search').keyup(function(e){
+        if(e.keyCode == 13)
+        {
+            searchNotebook();
+        }
+    });
+    
+    $('#id_input_search_db').keyup(function(e){
+        if(e.keyCode == 13)
+        {
+            searchDatabase();
+        }
+    });
+    
 	$("#id_a_newbook").click(function(e) {
 		
 		$('<div></div>').appendTo('body')
@@ -51,7 +125,7 @@ $(function() {
 		      width: 'auto', resizable: false,
 		      buttons: {
 		          Yes: function () {
-				      		getUrl = "../db/close?" + timeString;
+				      		getUrl = "../db/close?" + (new Date()).getTime();
 				    		$.get(getUrl, function(data, status) {
 				    			if (status == "success") {
 	//			    				$('#id_div_content').html("<p><br></p>");
@@ -62,7 +136,7 @@ $(function() {
 				    			alert( "error close database file.");
 				    		})
 				    		.always(function(e) {
-					      		var getUrl = "../notebook/new?" + timeString;
+					      		var getUrl = "../notebook/new?" + (new Date()).getTime();
 					    		$.get(getUrl, function(data, status) {
 					    			if (status == "success") {
 					    				$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>');
@@ -94,7 +168,7 @@ $(function() {
 
 $(function() {
 	$("#id_a_manageGuide").click(function(e) {
-		var getUrl = "../notebook/manageguide?" + timeString;
+		var getUrl = "../notebook/manageguide";
 		$.get(getUrl, function(data, status) {
 			if (status == "success") {
 				$('#id_content_header').html("<span>User's Guide</span>");
@@ -112,7 +186,7 @@ $(function() {
 	});
 	
 	$("#id_a_reviewCurrent").click(function(e) {
-		var getUrl = "../notebook/load?" + timeString;
+		var getUrl = "../notebook/load?" + (new Date()).getTime();
 		$.get(getUrl, function(data, status) {
 			if (status == "success") {
 				$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>');
@@ -137,6 +211,10 @@ jQuery(document).ready(function() {
 	$('#id_div_header').html("<span>" + notebookTitle + "</span>");
 	$('#id_div_print_header').html("<h1>Instrument Notebook - " + title + "</h1>");
 	
+	var bodyheight = $(window).height();
+	$(".slide-out-div").height(bodyheight - 80);
+	$(".div_sidebar_inner").height(bodyheight - 118);
+
 	var getUrl = "../notebook/archive?" + timeString;
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {

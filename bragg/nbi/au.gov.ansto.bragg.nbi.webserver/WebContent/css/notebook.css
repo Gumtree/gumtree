@@ -183,6 +183,7 @@ th {
 /* } */
 
 .div_sidebar_inner {
+	clear: both;
 	height:auto;
 	overflow-y: scroll;
 	font-size: 12px;
@@ -236,7 +237,7 @@ th {
 }
 */
 
-.class_db_object, .class_template_object:HOVER {
+.class_db_object:HOVER, .class_template_object:HOVER {
 	background-color: white;
 	border: 1px solid #666;
 }
@@ -260,15 +261,15 @@ th {
 	padding: 4px;
 }
 
-.class_db_insert, .class_template_insert img {
+.class_db_insert img, .class_template_insert img {
     vertical-align: middle;
 }
 
-.class_db_insert, .class_template_insert span {
+.class_db_insert span, .class_template_insert span {
     vertical-align: middle;
 }
 
-.class_db_insert, .class_template_insert:HOVER {
+.class_db_insert:HOVER, .class_template_insert:HOVER {
 	background-color: #ccc;
     color: #000;
     cursor: pointer;
@@ -348,5 +349,11 @@ th {
 	}
 }
 
-#id_a_help {
+#id_sidebar_inner_2 {
+	display: none;
+}
+
+.div_sidebar_block .class_span_search_highlight {
+	color: #ff8;
+	background-color: black;
 }

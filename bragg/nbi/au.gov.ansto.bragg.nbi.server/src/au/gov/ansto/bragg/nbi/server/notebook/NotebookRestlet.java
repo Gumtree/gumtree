@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.service.db.ControlDB;
+import org.gumtree.service.db.HtmlSearchHelper;
 import org.gumtree.service.db.RecordsFileException;
 import org.gumtree.service.db.SessionDB;
 import org.gumtree.service.db.TextDb;
@@ -36,6 +37,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String SEG_NAME_SAVE = "save";
 	private final static String SEG_NAME_LOAD = "load";
 	private final static String SEG_NAME_HELP = "help";
+	private final static String SEG_NAME_SEARCH = "search";
 	private final static String SEG_NAME_MANAGEGUIDE = "manageguide";
 	private final static String SEG_NAME_DB = "db";
 	private final static String SEG_NAME_NEW = "new";
@@ -52,6 +54,11 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private static final String QUERY_ENTRY_START = "start";
 	private static final String QUERY_ENTRY_LENGTH = "length";
 	private final static String QUERY_SESSION_ID = "session";
+	private static final String QUERY_PATTERN = "pattern";
+	private static final String FILE_FREFIX = "<div class=\"class_div_search_file\" name=\"$filename\" session=\"$session\">";
+	private static final String SPAN_SEARCH_RESULT_HEADER = "<h4>";
+	private static final String DIV_END = "</div>";
+	private static final String SPAN_END = "</h4>";
 	
 	private String currentFileFolder;
 	private String currentDBFolder;
@@ -135,6 +142,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		} else if (SEG_NAME_LOAD.equals(seg)) {
 			Form queryForm = request.getResourceRef().getQueryAsForm();
 		    String sessionId = queryForm.getValues(QUERY_SESSION_ID);
+		    String pattern = queryForm.getValues(QUERY_PATTERN);
 		    if (sessionId == null || sessionId.trim().length() == 0) {
 				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
 					response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);
@@ -144,8 +152,14 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		    	try {
 		    		sessionId = controlDb.getCurrentSessionId();
 		    		String sessionValue = sessionDb.getSessionValue(sessionId);
-	    			byte[] bytes = Files.readAllBytes(Paths.get(currentFileFolder + "/" + sessionValue + ".xml"));
-	    			response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
+		    		String filename = currentFileFolder + "/" + sessionValue + ".xml";
+	    			if (pattern == null || pattern.trim().length() == 0) {
+	    				byte[] bytes = Files.readAllBytes(Paths.get(filename));
+	    				response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
+	    			} else {
+	    				HtmlSearchHelper helper = new HtmlSearchHelper(new File(filename));
+	    				response.setEntity(helper.highlightSearch(pattern), MediaType.TEXT_PLAIN);
+	    			}
 		    	} catch (Exception e) {
 		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 		    		return;
@@ -155,8 +169,13 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		    		String filename = currentFileFolder + "/" + sessionDb.getSessionValue(sessionId) + ".xml";
 		    		File current = new File(filename);
 		    		if (current.exists()) {
-		    			byte[] bytes = Files.readAllBytes(Paths.get(filename));
-		    			response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
+		    			if (pattern == null || pattern.trim().length() == 0) {
+		    				byte[] bytes = Files.readAllBytes(Paths.get(filename));
+		    				response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
+		    			} else {
+		    				HtmlSearchHelper helper = new HtmlSearchHelper(new File(filename));
+		    				response.setEntity(helper.highlightSearch(pattern), MediaType.TEXT_PLAIN);
+		    			}
 		    		}
 		    	} catch (Exception e) {
 		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
@@ -177,7 +196,6 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				try {
 					sessionId = controlDb.getCurrentSessionId();
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
 					response.setEntity("<span style=\"color:red\">Error loading current notebook page. Please ask instrument scientist for help.</span>", 
 							MediaType.TEXT_PLAIN);
 					response.setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -334,6 +352,55 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					response.setEntity("", MediaType.TEXT_PLAIN);
 				}
 			} catch (IOException e) {
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+				return;
+			}
+		} else if (SEG_NAME_SEARCH.equals(seg)) {
+			try {
+//				String guidePath = currentFileFolder + "/" + NOTEBOOK_MANAGEHELP_FILENAME;
+//				File guideFile = new File(guidePath);
+//				if (guideFile.exists()) {
+//					byte[] bytes = Files.readAllBytes(Paths.get(guidePath));
+//					response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
+//				} else {
+//					response.setEntity("", MediaType.TEXT_PLAIN);
+//				}
+				Form queryForm = request.getResourceRef().getQueryAsForm();
+				String pattern = queryForm.getValues(QUERY_PATTERN);
+				if (pattern.trim().length() == 0) {
+					response.setEntity("Please input a valid pattern", MediaType.TEXT_PLAIN);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
+				File current = new File(currentFileFolder);
+				if (current.exists()) {
+					List<String> sessionIds = sessionDb.listSessionIds();
+					String[] sessionPairs = new String[sessionIds.size()];
+					int index = 0;
+					for (String id : sessionIds) {
+						sessionPairs[index++] = sessionDb.getSessionValue(id) + ":" + id;
+//						sessionPairs[index++] = sessionDb.getSessionValue(id);
+					}
+					Arrays.sort(sessionPairs);
+					String responseText = "";
+					for (int i = sessionPairs.length - 1; i >= 0; i--) {
+//						responseText += sessionPairs[i];
+//						if (i > 0){
+//							responseText += ";";
+//						}
+						String[] pair = sessionPairs[i].split(":");
+						String filename = currentFileFolder + "/" + pair[0] + ".xml";
+						HtmlSearchHelper helper = new HtmlSearchHelper(new File(filename));
+						String searchRes = helper.search(pattern);
+						if (searchRes.length() > 0){
+							searchRes = FILE_FREFIX.replace("$filename", pair[0]).replace("$session", pair[1]) 
+									+ SPAN_SEARCH_RESULT_HEADER + pair[0] + SPAN_END + searchRes + DIV_END;
+						}
+						responseText += searchRes;
+					}
+					response.setEntity(responseText, MediaType.TEXT_PLAIN);
+				}
+			} catch (Exception e) {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 				return;
 			}

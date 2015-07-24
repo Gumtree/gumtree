@@ -67,17 +67,93 @@ function dbApplyFilter() {
 //	}
 //});
 
+function searchDatabase() {
+	var searchPattern = encodeURIComponent($("#id_input_search_db").val());
+	getUrl = "../db/search?pattern=" + searchPattern
+	if (session != null) {
+		getUrl += "&session=" + session;
+	}
+	getUrl += "&" + (new Date()).getTime();
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+			$('#id_sidebar_inner_2').html(data);
+			$('#id_sidebar_inner').hide();
+			$('#id_sidebar_inner_2').show();
+			$('#id_input_search_close').show();
+			
+			dbApplyFilter();
+			
+			$('.class_db_object').hover(function() {
+				$(this).append('<div class="class_db_insert"><img alt="insert" src="images/nav_backward.gif"><span>INSERT</span></div>');
+				var h = $(this).height();
+				var w = $(this).width();
+				$('.class_db_insert').css({
+					'top': h / 2 - 10,
+					'left': w / 2 - 30
+				});
+				$('.class_db_insert').click(function(e) {
+					var text = '';
+					$.each(editorPastePlugin, function(idx, val) {
+						text += idx + '\n';
+					});
+					if (!editorDocumentPage.isEditing()) {
+						editorDocumentPage.enableEditing();
+						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
+					} else {
+						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
+					}
+					$("div.class_db_insert").remove();
+				});
+			}, function() {
+				$('div').remove('.class_db_insert');
+			});
+			
+			$('.class_db_object').unbind('dblclick');
+			$('.class_db_object').dblclick(function() {
+				if (!editorDocumentPage.isEditing()) {
+					editorDocumentPage.enableEditing();
+					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
+				} else {
+					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
+				}
+			});
+			
+			$('.class_db_object').each(function(i, obj) {
+			    $(this).attr("draggable", true);
+			    $(this).attr("ondragstart", "drag(event)");
+			});
+
+		}
+	})
+	.fail(function(e) {
+		alert( "error searching notebook files.");
+	});	
+}
+
+function closeSearch() {
+	$('#id_sidebar_inner').show();
+	$('#id_sidebar_inner_2').hide();
+	$('#id_input_search_close').hide();
+}
+
 $(function(){
 	
 	$(document).click(function(e) {
 		if (e.target.tagName.toLowerCase() == 'body') {
 			$('#id_editable_page').focus();
 		}
-//		e.stopPropagation();
-//		e.preventDefault();
-//		return false;
 	});
 	
+    $('#id_input_search_db').keyup(function(e){
+        if(e.keyCode == 13) {
+            searchDatabase();
+        }
+    });
+    
+    $('#id_input_search_close').click(function(e) {
+    	closeSearch();
+	});
+    
 //	define scroll div with auto height
 	$(window).resize(function() {
 	    var bodyheight = $(window).height();
@@ -112,7 +188,7 @@ $(function(){
         tabLocation: 'right',                      //side of screen where tab lives, top, right, bottom, or left
         speed: 300,                               //speed of animation
         action: 'click',                          //options: 'click' or 'hover', action to trigger animation
-        topPos: '80px',                          //position from the top/ use if tabLocation is left or right
+        topPos: '100px',                          //position from the top/ use if tabLocation is left or right
         leftPos: '20px',                          //position from left/ use if tabLocation is bottom or top
         fixedPosition: true,                      //options: true makes it stick(fixed position) on scroll
         onSlideOut: function() {
@@ -874,7 +950,7 @@ jQuery(document).ready(function(){
 	$('#id_filter_mss').click(function(e) {
 		$('.class_db_object').hide();
 		$('.class_db_table').show();
-		$('#id_filter_menu span').text('MULTI-SAMPLE SCAN');
+		$('#id_filter_menu span').text('SAMPLE SCAN');
 		dbFilter = '.class_db_table';
 	});
 
@@ -904,5 +980,13 @@ jQuery(document).ready(function(){
 		$('#id_filter_menu span').text('ALL ITEMS');
 		dbFilter = null;
 	});
+	
+//	$('#id_filter_search').click(function(e) {
+//		$('.div_sidebar_search').show();
+//		$('.class_db_object').hide();
+//		$('#id_sidebar_header').hide();
+//		$('#id_filter_menu span').text('SEARCH DATABASE');
+//		dbFilter = null;
+//	});
 	
 });

@@ -28,12 +28,13 @@
 <link type='text/css' rel='stylesheet'	href='../js/raptor/libraries/raptor-front-end.css' />
 <link type='text/css' rel='stylesheet' href='../js/raptor/libraries/theme.css' />
 <link type='text/css' rel='stylesheet' href='../js/raptor/libraries/theme-icons.css' />
-<link rel="stylesheet" href="../css/notebook.css" />
+<link type="text/css" rel='stylesheet' href='../css/notebook.css' />
 <link rel="stylesheet" href="../css/notebookAdmin.css" />
-<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-<script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
-<script src="../instrumentsetup.js"></script>
-<script src="../js/notebookAdmin.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+<script type="text/javascript" src="../instrumentsetup.js"></script>
+<script type="text/javascript" src="../js/SlideOutTabs.js"></script>    
+<script type="text/javascript" src="../js/notebookAdmin.js"></script>
 <!--[if IE]>
 <style type="text/css">
     .box { display: block; }
@@ -68,11 +69,29 @@
   		<div class="class_div_content_header" id="id_content_header"><span>User's Guide</span></div>
   		<div class="class_editable_page ui-corner-all ui-shadow" id="id_div_content"></div>
   </div>
-	<footer class="div_shiftable">
+  <div class="slide-out-div">
+	    <a class="a_sidebar_handle" id="a_sidebar_search" href="http://link-for-non-js-users.html">Search Notebook</a>
+	    <a class="a_sidebar_handle" id="a_sidebar_search_db" href="http://link-for-non-js-users.html">Search Database</a>
+        <div class="div_sidebar_block" id="div_sidebar_search">
+		    <div class="div_sidebar_header" id="id_sidebar_search_header">
+			    <input type="text" id="id_input_search" placeholder="search text">
+			    <a class="class_div_button" onclick="searchNotebook()">Search</a>
+		    </div>
+        	<div class="div_sidebar_inner" id="id_search_inner"></div>
+        </div>
+        <div class="div_sidebar_block" id="div_sidebar_search_db">
+		    <div class="div_sidebar_header" id="id_sidebar_searchDB_header">
+			    <input type="text" id="id_input_search_db" placeholder="search text">
+			    <a class="class_div_button" onclick="searchDatabase()">DB Search</a>
+		    </div>
+        	<div class="div_sidebar_inner" id="id_search_db_inner"></div>
+        </div>
+  </div>
+  <footer class="div_shiftable">
 		<hr>
 		<div class="div_footer">
 			<p class="class_footer_right">&#169;2015 ANSTO</p>
 		</div>
-	</footer>
+  </footer>
 </body>
 </html>

@@ -1,5 +1,8 @@
 package au.gov.ansto.bragg.nbi.server.notebook;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.service.db.ControlDB;
 import org.gumtree.service.db.LoggingDB;
@@ -9,6 +12,7 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.Form;
+import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 
@@ -21,11 +25,18 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 	private final static String SEG_NAME_APPEND = "append";
 	private final static String SEG_NAME_NEW = "new";
 	private final static String SEG_NAME_CLOSE = "close";
+	private final static String SEG_NAME_SEARCH = "search";
+	private final static String SEG_NAME_SEARCH_ALL = "searchAll";
 	private final static String QUERY_ID_KEY = "key";
 	private final static String QUERY_ID_HTML = "html";
 	private final static String QUERY_SESSION_ID = "session";
 //	private final static String NOTEBOOK_DBFILENAME = "loggingDB.rdf";
 //	private final static String PROP_DATABASE_SAVEPATH = "gumtree.loggingDB.savePath";
+	private static final String QUERY_PATTERN = "pattern";
+	private static final String FILE_FREFIX = "<div class=\"class_div_search_db\" name=\"$filename\" session=\"$session\">";
+	private static final String SPAN_SEARCH_RESULT_HEADER = "<h4>";
+	private static final String DIV_END = "</div>";
+	private static final String SPAN_END = "</h4>";
 	
 //	private String currentDBPath;
 	
@@ -73,6 +84,68 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 		    	String dbName = sessionDb.getSessionValue(sessionId);
 				LoggingDB db = LoggingDB.getInstance(dbName);
 				db.close();
+			} catch (Exception e) {
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+				return;
+			}
+		} else if (SEG_NAME_SEARCH.equals(seg)) {
+			try {
+				Form queryForm = request.getResourceRef().getQueryAsForm();
+				String pattern = queryForm.getValues(QUERY_PATTERN);
+				if (pattern.trim().length() == 0) {
+					response.setEntity("Please input a valid pattern", MediaType.TEXT_PLAIN);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
+				String sessionId = queryForm.getValues(QUERY_SESSION_ID);
+				if (sessionId == null || sessionId.trim().length() == 0) {
+			    	sessionId = controlDb.getCurrentSessionId();					
+				}
+		    	String dbName = sessionDb.getSessionValue(sessionId);
+				LoggingDB db = LoggingDB.getInstance(dbName);
+				String searchRes = db.search(pattern);
+				if (searchRes.length() > 0){
+					searchRes = FILE_FREFIX.replace("$filename", dbName).replace("$session", sessionId) 
+							+ searchRes + DIV_END;
+				}
+				response.setEntity(searchRes, MediaType.TEXT_PLAIN);
+			} catch (Exception e) {
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+				return;
+			}
+		} else if (SEG_NAME_SEARCH_ALL.equals(seg)) {
+			try {
+				Form queryForm = request.getResourceRef().getQueryAsForm();
+				String pattern = queryForm.getValues(QUERY_PATTERN);
+				if (pattern.trim().length() == 0) {
+					response.setEntity("Please input a valid pattern", MediaType.TEXT_PLAIN);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
+				
+				List<String> sessionIds = sessionDb.listSessionIds();
+				String[] sessionPairs = new String[sessionIds.size()];
+				int index = 0;
+				for (String id : sessionIds) {
+					sessionPairs[index++] = sessionDb.getSessionValue(id) + ":" + id;
+					//						sessionPairs[index++] = sessionDb.getSessionValue(id);
+				}
+				Arrays.sort(sessionPairs);
+				String responseText = "";
+				for (int i = sessionPairs.length - 1; i >= 0; i--) {
+					String[] pair = sessionPairs[i].split(":");
+
+					LoggingDB db = LoggingDB.getInstance(pair[0]);
+					
+//					HtmlSearchHelper helper = new HtmlSearchHelper(new File(filename));
+					String searchRes = db.search(pattern);
+					if (searchRes.length() > 0){
+						searchRes = FILE_FREFIX.replace("$filename", pair[0]).replace("$session", pair[1]) 
+								+ SPAN_SEARCH_RESULT_HEADER + pair[0] + SPAN_END + searchRes + DIV_END;
+					}
+					responseText += searchRes;
+				}
+				response.setEntity(responseText, MediaType.TEXT_PLAIN);
 			} catch (Exception e) {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 				return;

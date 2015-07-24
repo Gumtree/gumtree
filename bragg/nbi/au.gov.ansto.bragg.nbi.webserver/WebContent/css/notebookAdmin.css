@@ -97,9 +97,92 @@
 	}
 }
 
+.div_sidebar_header {
+	padding: 2px;
+}
+
+.div_sidebar_header input[type="text"] {
+  padding: 8px;
+  width: 320px;
+  border: solid 1px #dcdcdc;
+  transition: box-shadow 0.3s, border 0.3s;
+}
+.div_sidebar_header input[type="text"]:focus,
+.div_sidebar_header input[type="text"].focus {
+  border: solid 1px #707070;
+  box-shadow: 0 0 5px 1px #969696;
+}
+
 footer {
 	margin: 4px auto;
 	clear: both;
 	width: 100%;
 	padding: 4px 0px;
+}
+
+.class_span_search_highlight {
+	color: #ff8;
+	background-color: black;
+}
+
+.class_div_search_file {
+	margin: 4px;
+	padding: 4px;
+	cursor: pointer;
+	position: relative;
+	overflow: auto;
+	
+	border: 1px solid #8F8F8F;
+	border-radius: 4px;
+	box-shadow: 1px 1px 3px #AFAFAF;
+	
+	/*
+	-webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    */
+    
+    word-wrap: break-word; 
+    overflow: hidden;
+}
+
+.class_div_search_file:HOVER {
+	background-color: white;
+	border: 1px solid #666;
+}
+
+.class_div_search_load {
+    display: block;
+    position: absolute;
+    border: 1px solid red;
+	border: 1px solid #8F8F8F;
+	border-radius: 4px;
+	box-shadow: 1px 1px 3px #AFAFAF;
+	z-index: 20;
+	background-color: #999;
+	color: white;
+	
+	font-family: "Palatino Linotype", Book Antiqua, Palatino, serif;
+	font-size: 14px;
+    vertical-align: middle;
+	font-weight: bold;
+	text-decoration: none;
+	padding: 4px;
+}
+
+.class_div_search_file img {
+    vertical-align: middle;
+}
+
+.class_div_search_file span {
+    /*vertical-align: middle;*/
+}
+
+.class_div_search_file:HOVER {
+	background-color: #ccc;
+    color: #000;
+    cursor: pointer;
 }
