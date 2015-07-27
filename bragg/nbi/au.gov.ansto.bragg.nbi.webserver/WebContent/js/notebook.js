@@ -16,6 +16,9 @@ jQuery.fn.convertDbToEditor = function() {
 	var element = this.clone();
 	element.removeClass('class_db_object');
 	element.addClass('class_editor_object');
+	var found = element.find('span.class_span_search_highlight');
+//	found.removeClass('class_span_search_highlight');
+	found.replaceWith(found.html());
 	return jQuery('<div />').append(element).html();
 };
 

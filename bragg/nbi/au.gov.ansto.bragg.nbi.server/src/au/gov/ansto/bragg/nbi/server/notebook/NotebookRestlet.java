@@ -14,6 +14,7 @@ import java.util.List;
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.service.db.ControlDB;
 import org.gumtree.service.db.HtmlSearchHelper;
+import org.gumtree.service.db.LoggingDB;
 import org.gumtree.service.db.RecordsFileException;
 import org.gumtree.service.db.SessionDB;
 import org.gumtree.service.db.TextDb;
@@ -262,6 +263,12 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				}
 				String oldSession = controlDb.getCurrentSessionId();
 				String oldName = sessionDb.getSessionValue(oldSession);
+				try {
+					LoggingDB db = LoggingDB.getInstance(oldName);
+					db.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				String sessionId = sessionDb.createNewSessionId(newName);
 				controlDb.updateCurrentSessionId(sessionId);
 				response.setEntity(oldName + ":" + oldSession + ";" + newName + ":" + sessionId, MediaType.TEXT_PLAIN);

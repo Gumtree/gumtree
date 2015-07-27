@@ -125,34 +125,34 @@ $(function() {
 		      width: 'auto', resizable: false,
 		      buttons: {
 		          Yes: function () {
-				      		getUrl = "../db/close?" + (new Date()).getTime();
-				    		$.get(getUrl, function(data, status) {
-				    			if (status == "success") {
-	//			    				$('#id_div_content').html("<p><br></p>");
-	//			    				$("#id_ul_archiveList").prepend('<li><a id="' + data + '" onclick="load(\'' + data + '\')">&nbsp;-&nbsp;' + data + '</a></li>');
-				    			}
-				    		})
-				    		.fail(function(e) {
-				    			alert( "error close database file.");
-				    		})
-				    		.always(function(e) {
-					      		var getUrl = "../notebook/new?" + (new Date()).getTime();
-					    		$.get(getUrl, function(data, status) {
-					    			if (status == "success") {
-					    				$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>');
-					    				$('#id_div_content').html("<p><br></p>");
-					    				var pair = data.split(";");
-					    				pair = pair[0].split(":");
-					    				$("#id_ul_archiveList").prepend('<li><a id="' + pair[0] + '" onclick="load(\'' + pair[1] + '\', \'' 
-					    						+ pair[0] + '\')">&nbsp;-&nbsp;' + pair[0] + '</a></li>');
-					    			}
-					    		})
-					    		.fail(function(e) {
-					    			alert( "error creating new notebook file.");
-					    		});
-				    		})
+			      		var getUrl = "../notebook/new?" + (new Date()).getTime();
+			    		$.get(getUrl, function(data, status) {
+			    			if (status == "success") {
+			    				$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>');
+			    				$('#id_div_content').html("<p><br></p>");
+			    				var pair = data.split(";");
+			    				pair = pair[0].split(":");
+			    				$("#id_ul_archiveList").prepend('<li><a id="' + pair[0] + '" onclick="load(\'' + pair[1] + '\', \'' 
+			    						+ pair[0] + '\')">&nbsp;-&nbsp;' + pair[0] + '</a></li>');
+			    			}
+			    		})
+			    		.fail(function(e) {
+			    			alert( "error creating new notebook file.");
+			    		});
+//				      		getUrl = "../db/close?" + (new Date()).getTime();
+//				    		$.get(getUrl, function(data, status) {
+//				    			if (status == "success") {
+//	//			    				$('#id_div_content').html("<p><br></p>");
+//	//			    				$("#id_ul_archiveList").prepend('<li><a id="' + data + '" onclick="load(\'' + data + '\')">&nbsp;-&nbsp;' + data + '</a></li>');
+//				    			}
+//				    		})
+//				    		.fail(function(e) {
+//				    			alert( "error close database file.");
+//				    		})
+//				    		.always(function(e) {
+//				    		})
 				    		
-				    		$(this).dialog("close");
+				    	$(this).dialog("close");
 		          },
 		          No: function () {
 		              $(this).dialog("close");
