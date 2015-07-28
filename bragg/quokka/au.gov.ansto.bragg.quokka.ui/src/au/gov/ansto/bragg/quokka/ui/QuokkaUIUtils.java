@@ -53,7 +53,7 @@ public class QuokkaUIUtils {
 					public void run() throws Exception {
 						confirmed = MessageDialog
 								.openConfirm(shell, "Tertiary shutter closed",
-										"Tertiary shutter is closed. Please open the shutter and press OK to conitune");
+										"Tertiary shutter is closed. Please open the shutter and press OK to continue");
 					}
 				});
 			}
