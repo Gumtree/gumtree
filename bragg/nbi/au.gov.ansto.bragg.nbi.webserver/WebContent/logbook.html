@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">    
+	
+	<title>Instrument Notebook - Quokka</title>
+	<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="icons/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="icons/apple-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="icons/apple-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="icons/apple-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-icon-180x180.png">
+	<link rel="icon" type="image/png" sizes="192x192"  href="icons/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+	<link rel="manifest" href="icons/manifest.json">
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
+	<meta name="theme-color" content="#ffffff">
+
+	<link type='text/css' rel='stylesheet'	href='css/dropdown.css' />
+	<link type='text/css' rel='stylesheet'	href='css/drawingboard.css' />
+	<link type="text/css" rel='stylesheet' href='css/logbook.css' />
+
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+	<script type='text/javascript' src='js/raptor/libraries/jquery-ui.js'></script>
+	<!--  script type="text/javascript" src="js/ckeditor/plupload.js"></script>
+	<script type="text/javascript" src="js/ckeditor/raptorUpload.js"></script -->
+    <script type="text/javascript" src="js/ckeditor/ckeditor.js"></script>    
+    <script type="text/javascript" src="js/SlideOutTabs.js"></script>    
+    <script type="text/javascript" src="js/drawingboard.js"></script>    
+    <script type="text/javascript" src="js/logbook.js"></script>
+</head>
+<body>
+    <header class="div_shiftable">
+        <div id="id_div_headertext"><h2>Instrument Notebook - Quokka</h2></div>
+	    <div id="id_div_headercorner"><a id="id_a_help" href="notebook/help" target="_blank"><img src="images/help.gif"/><span>Help</span></a></div>
+    </header>
+    <div style="clear: both"></div>
+    <div class="class_editable_page" id="id_editable_page" data-id="data_editable_page">
+    	<n:form>
+    	<div class="class_editable_inner" id="id_editable_inner">
+                <p><br></p>
+        </div>
+        </n:form>
+    </div>
+    <div class="slide-out-div">
+	    <a class="a_sidebar_handle" id="a_sidebar_database" href="http://link-for-non-js-users.html">Database</a>
+	    <a class="a_sidebar_handle" id="a_sidebar_canvas" href="http://link-for-non-js-users.html">Canvas</a>
+	    <a class="a_sidebar_handle" id="a_sidebar_template" href="http://link-for-non-js-users.html">Templates</a>
+	    <div class="div_sidebar_block" id="div_sidebar_database">
+		    <div class="div_sidebar_header" id="id_sidebar_header">
+		    	<ul>
+				   <li class='active has-sub last'><a id="id_filter_menu" href='#'><span>All Items</span></a>
+				      <ul>
+				         <li><a id='id_filter_mss'><span>Sample Scan</span></a></li>
+				         <li><a id='id_filter_als'><span>Alignment Scan</span></a></li>
+				         <li><a id='id_filter_tbo'><span>Tables Only</span></a></li>
+				         <li><a id='id_filter_plo'><span>Plots Only</span></a></li>
+				         <li class="last"><a id='id_filter_all'><span>All Items</span></a></li>
+				         <!-- li class='last'><a id='id_filter_search'><span>Search Database</span></a></li -->
+				      </ul>
+				   </li>
+				</ul>
+		    </div>
+	    	<div class="div_sidebar_search" id="id_sidebar_search">
+	    		<input type="text" id="id_input_search_db" placeholder="search text"/>
+	    		<a class="class_div_button" onclick="searchDatabase()">Search</a>
+	    		<input type="submit" id="id_input_search_close" class="class_input_search_close" value="" title="Click to close search result."/>
+	    		<!-- a class="class_input_search_close" id="id_input_search_close" onclick="closeSearch()"></a -->
+	    	</div>
+        	<div class="div_sidebar_inner" id="id_sidebar_inner"></div>
+        	<div class="div_sidebar_inner" id="id_sidebar_inner_2"></div>
+        </div>
+        <div class="div_sidebar_block" id="div_sidebar_canvas">
+			<h2>Drawing Canvas</h2>
+        	<div class="div_canvas_inner" id="id_canvas_inner"></div>
+        </div>
+        <div class="div_sidebar_block" id="div_sidebar_template">
+        	<div class="div_sidebar_inner" id="id_template_inner"></div>
+        </div>
+    </div>    
+	<footer class="div_shiftable">
+    	<hr>
+		<div class="div_footer">
+			<p class="class_footer_right">&#169;2015 ANSTO</p>
+		</div>
+	</footer>
+</body>
+</html>

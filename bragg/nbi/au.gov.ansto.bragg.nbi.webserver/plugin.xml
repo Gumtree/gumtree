@@ -92,6 +92,10 @@
             base-name="/WebContent/notebook.html">
       </resource>
       <resource
+            alias="/logbook.html"
+            base-name="/WebContent/logbook.html">
+      </resource>
+      <resource
             alias="/pyscript.js"
             base-name="/WebContent/pyscript.js">
       </resource>

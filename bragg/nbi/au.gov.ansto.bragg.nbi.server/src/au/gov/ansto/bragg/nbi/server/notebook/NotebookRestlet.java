@@ -113,10 +113,13 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		    }
 			try {
 				String text = rep.getText();
-				int start = text.indexOf(STRING_CONTENT_START) + STRING_CONTENT_START.length();
-				int stop = text.indexOf("&_method=");
-				text = text.substring(start, stop);
-				text = URLDecoder.decode(text, "UTF-8");
+				text = text == null ? "" : text;
+				if (text.contains(STRING_CONTENT_START)) {
+					int start = text.indexOf(STRING_CONTENT_START) + STRING_CONTENT_START.length();
+					int stop = text.indexOf("&_method=");
+					text = text.substring(start, stop);
+					text = URLDecoder.decode(text, "UTF-8");
+				}
 	    		String sessionValue = sessionDb.getSessionValue(sessionId);
 				writer = new FileWriter(currentFileFolder + "/" + sessionValue + ".xml");
 				writer.write(text);

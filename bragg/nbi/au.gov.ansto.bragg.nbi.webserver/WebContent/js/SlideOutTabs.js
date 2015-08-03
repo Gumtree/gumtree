@@ -199,7 +199,7 @@
             
             $.each(settings.tabHandles, function(idx, val) {
 				$(this).css({'top' : settings.tabHandleTopPos + settings.tabHandleSize * idx});
-				console.log($(this).attr('id') + ':' + (settings.tabHandleTopPos + settings.tabHandleSize * idx));
+//				console.log($(this).attr('id') + ':' + (settings.tabHandleTopPos + settings.tabHandleSize * idx));
 			});
         }
         
