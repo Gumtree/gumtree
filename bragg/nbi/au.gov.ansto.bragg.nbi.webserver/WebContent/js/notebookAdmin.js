@@ -35,11 +35,11 @@ function load(id, name, pattern) {
 
 function edit(id) {
 	if (id == null) {
-		getUrl = "../notebook.html";
+		getUrl = "../logbook.html";
 		var win = window.open(getUrl, '_blank');
 		win.focus();
 	} else {
-		getUrl = "../notebook.html?session=" + id;
+		getUrl = "../logbook.html?session=" + id;
 		var win = window.open(getUrl, '_blank');
 		win.focus();
 	}

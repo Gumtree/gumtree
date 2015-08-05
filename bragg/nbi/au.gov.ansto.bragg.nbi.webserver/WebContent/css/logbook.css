@@ -372,3 +372,7 @@ th {
 	color: #ff8;
 	background-color: black;
 }
+
+.diffContent {
+	max-width: 1024px;
+}

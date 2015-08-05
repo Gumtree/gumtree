@@ -36,8 +36,8 @@ jQuery.fn.convertDbToEditor = function() {
 	found = element.find('img');
 	found.each(function() {
 		var width = $(this).naturalWidth();
-		if (width > 700) {
-			$(this).css("width", 700);
+		if (width > 680) {
+			$(this).css("width", 680);
 		}
 	});
 	return jQuery('<div />').append(element).html();
@@ -49,13 +49,6 @@ jQuery.fn.convertTemplateToEditor = function() {
 	element.addClass('class_editor_object');
 	found = element.find('.class_template_insert');
 	found.remove();
-	found = element.find('img');
-	found.each(function() {
-		var width = $(this).naturalWidth();
-		if (width > 700) {
-			$(this).css("width", 700);
-		}
-	});
 	return jQuery('<div />').append(element).html();
 };
 
@@ -104,7 +97,7 @@ function dbApplyFilter() {
 
 function searchDatabase() {
 	var searchPattern = encodeURIComponent($("#id_input_search_db").val());
-	getUrl = "../db/search?pattern=" + searchPattern
+	getUrl = "db/search?pattern=" + searchPattern
 	if (session != null) {
 		getUrl += "&session=" + session;
 	}
@@ -586,4 +579,92 @@ jQuery(document).ready(function() {
 	        return prevent();
 	    }
 	});
+	
+	$('#id_sidebar_header').prepend('<div id="indicatorContainer"><div id="pIndicator"><div id="cIndicator"></div></div></div>');
+    var activeElement = $('#id_sidebar_header>ul>li:first');
+
+    $('#id_sidebar_header>ul>li').each(function() {
+        if ($(this).hasClass('active')) {
+            activeElement = $(this);
+        }
+    });
+
+
+	var posLeft = activeElement.position().left;
+	var elementWidth = activeElement.width();
+	posLeft = posLeft + elementWidth/2 -6;
+	if (activeElement.hasClass('has-sub')) {
+		posLeft -= 6;
+	}
+
+	$('#id_sidebar_header #pIndicator').css('left', posLeft);
+	var element, leftPos, indicator = $('#id_sidebar_header pIndicator');
+	
+	$("#id_sidebar_header>ul>li").hover(function() {
+        element = $(this);
+        var w = element.width();
+        if ($(this).hasClass('has-sub'))
+        {
+        	leftPos = element.position().left + w/2 - 12;
+        }
+        else {
+        	leftPos = element.position().left + w/2 - 6;
+        }
+
+        $('#id_sidebar_header #pIndicator').css('left', leftPos);
+    }
+    , function() {
+    	$('#id_sidebar_header #pIndicator').css('left', posLeft);
+    });
+
+	$('#id_sidebar_header>ul').prepend('<li id="menu-button"><a>Menu</a></li>');
+	$( "#menu-button" ).click(function(){
+		if ($(this).parent().hasClass('open')) {
+			$(this).parent().removeClass('open');
+		}
+		else {
+			$(this).parent().addClass('open');
+		}
+	});
+
+	$('#id_sidebar_inner').hover(function() {
+        $('#id_sidebar_inner').focus();
+	}, function() {
+		$('#id_sidebar_inner').blur();
+	});
+	
+	$('#id_filter_mss').click(function(e) {
+		$('.class_db_object').hide();
+		$('.class_db_table').show();
+		$('#id_filter_menu span').text('SAMPLE SCAN');
+		dbFilter = '.class_db_table';
+	});
+
+	$('#id_filter_als').click(function(e) {
+		$('.class_db_object').hide();
+		$('.class_db_image').show();
+		$('#id_filter_menu span').text('ALIGNMENT SCAN');
+		dbFilter = '.class_db_image';
+	});
+	
+	$('#id_filter_tbo').click(function(e) {
+		$('.class_db_object').hide();
+		$('.class_db_table').show();
+		$('#id_filter_menu span').text('TABLE ONLY');
+		dbFilter = '.class_db_table';
+	});
+
+	$('#id_filter_plo').click(function(e) {
+		$('.class_db_object').hide();
+		$('.class_db_image').show();
+		$('#id_filter_menu span').text('PLOT ONLY');
+		dbFilter = '.class_db_image';
+	});
+
+	$('#id_filter_all').click(function(e) {
+		$('.class_db_object').show();
+		$('#id_filter_menu span').text('ALL ITEMS');
+		dbFilter = null;
+	});
+	
 });

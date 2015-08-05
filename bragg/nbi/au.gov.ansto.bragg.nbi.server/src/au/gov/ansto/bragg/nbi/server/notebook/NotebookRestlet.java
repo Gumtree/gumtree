@@ -264,9 +264,11 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to create new file");
 					return;
 				}
-				String oldSession = controlDb.getCurrentSessionId();
-				String oldName = sessionDb.getSessionValue(oldSession);
+				String oldSession = "";
+				String oldName = "";
 				try {
+					oldSession = controlDb.getCurrentSessionId();
+					oldName = sessionDb.getSessionValue(oldSession);
 					LoggingDB db = LoggingDB.getInstance(oldName);
 					db.close();
 				} catch (Exception e) {
