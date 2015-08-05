@@ -23,6 +23,8 @@ from org.gumtree.gumnix.sics.control import ServerStatus
 from org.gumtree.gumnix.sics.io import SicsExecutionException
 from au.gov.ansto.bragg.quokka.sics import DetectorHighVoltageController
 from au.gov.ansto.bragg.quokka.sics import BeamStopController
+
+import sys
 import time
 import math
 
@@ -55,6 +57,21 @@ bsList = [BeamStopController(1), \
 dhv1 = DetectorHighVoltageController()
 attenuationLevels = [330, 300, 270, 240, 210, 180, 150, 120, 90, 60, 30, 0]
 devices = {'sampleNum' : '/sample/sampleNum'}
+
+reset_trip = '/instrument/detector/reset_trip'
+
+def resetTrip():
+    print >> sys.stderr, '!!! detector tripped !!!'
+    log('adjusting attenuation')
+        
+    # drive to higher attenuation
+    driveAtt(getAttValue() + 30)
+
+    # reset fast shutter
+    raise Exception('detector tripped - reset not supported')
+
+    sics.execute('hset ' + reset_trip + ' 1')
+    time.sleep(5)
 
 # Synchronous
 def setSample(position, name='UNKNOWN', description='UNKNOWN', thickness=0, driveSampleStage=True):
@@ -145,7 +162,18 @@ def setSafeAttenuation(startingAttenuation=330):
         local_rate, global_rate = determineAveragedRates(max_samples=5, log_success=False)
         log('local rate = '  + str(local_rate))
         log('global rate = ' + str(global_rate))
-        
+
+        # check if detector has tripped
+        if sics.getValue(reset_trip).getIntData() != 0:
+            while sics.getValue(reset_trip).getIntData() != 0:
+                resetTrip()
+                
+                local_rate, global_rate = determineAveragedRates(max_samples=3, log_success=False)
+                log('local rate = '  + str(local_rate))
+                log('global rate = ' + str(global_rate))
+            
+            break;
+
         # Too much (check both local and global rate)
         if ((local_rate > local_rateSafe) or (global_rate > global_rateSafe)):
             if (level > 0):
@@ -158,8 +186,8 @@ def setSafeAttenuation(startingAttenuation=330):
             global_rate = previousGlobalRate
             break
         
-        # Within tolerance
-        elif (local_rate >= local_rateSafe / 2) or (global_rate >= global_rateSafe / 2):
+        # Within tolerance ([11/06/2015:davidm] 2.8 is a better approximation)
+        if (local_rate >= local_rateSafe / 2) or (global_rate >= global_rateSafe / 2.8):
             log('exit loop')
             break
         
@@ -521,12 +549,22 @@ def scan(scanMode, dataType, preset, force='true', saveType=saveType.save):
     sics.execute('hset ' + controllerPath + '/savetype ' + saveType.key, 'scan')
     sics.execute('hset ' + controllerPath + '/force ' + force, 'scan')
 
-    # Wait 1 sec to make the setting settle
-    time.sleep(1)
-    while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-        time.sleep(0.1)
-    # Synchronously run scan
-    scanController.syncExecute()
+    # repeat until successful
+    while True:
+
+        # Wait 1 sec to make the setting settle
+        time.sleep(1)
+        while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+            time.sleep(0.1)
+            
+        # Synchronously run scan
+        if sics.getValue(reset_trip).getIntData() == 0:
+            scanController.syncExecute()
+            
+            if sics.getValue(reset_trip).getIntData() == 0:
+                break; # successful acquisition
+
+        resetTrip()
 
     # Get output filename
     filenameController = sicsController.findDeviceController('datafilename')
@@ -551,6 +589,14 @@ def driveSafeAttenuation(override=False, startingAttenuation=330):
             while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
                 time.sleep(0.1)
             driveAtt(att)
+
+            time.sleep(3)
+            while sics.getValue(reset_trip).getIntData() != 0:
+                resetTrip()
+                
+                local_rate, global_rate = determineAveragedRates(max_samples=3, log_success=False)
+                log('local rate = '  + str(local_rate))
+                log('global rate = ' + str(global_rate))
 
 def startHistmem():
     # sicsController = sics.getSicsController()
