@@ -50,6 +50,8 @@ CKEDITOR.editorConfig = function( config ) {
 	              ];
 	config.extraPlugins = 'image2';
 	
+	config.removePlugins = 'devtools';
+	
 	config.blockedKeystrokes =
 		[
 			 CKEDITOR.CTRL + 83 /*S*/,

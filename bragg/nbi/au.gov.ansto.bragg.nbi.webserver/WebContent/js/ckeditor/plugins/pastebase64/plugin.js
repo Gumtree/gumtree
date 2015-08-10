@@ -15,9 +15,8 @@
         editor.on("contentDom", function () {
             var editableElement = editor.editable ? editor.editable() : editor.document;
             editableElement.on("paste", onPaste, null, {editor: editor});
+            editableElement.on('drop', onDrop, null, {editor: editor});
         });
-
-
     }
 
     function listProp(obj){
@@ -26,6 +25,52 @@
             text += i + ":" + n + "\n";
         });
         return text;
+    }
+    
+    function onDrop(event) {
+        var editor = event.listenerData && event.listenerData.editor;
+        var $event = event.data.$;
+//        var clipboardData = $event.clipboardData;
+
+		// Let user modify drag and drop range.
+		var dropRange = $event.dropRange,
+			dragRange = $event.dragRange,
+			dataTransfer = $event.dataTransfer;
+
+        if (!dataTransfer) {
+            return;
+        }
+
+        var found = false;
+        var imageType = /^image/;
+
+		if (dataTransfer.files && dataTransfer.files.length > 0) {
+			console.log('number of files = ' + dataTransfer.files.length);
+			for (var i = 0; i < dataTransfer.files.length; i++){
+				var file = dataTransfer.files[i];
+				if (file.type.match(imageType)) {
+					readImageAsBase64(file, editor);
+					found = true;
+				}
+			}
+		}
+		if (found) {
+			return found;
+		}
+		
+		if (dataTransfer.items && dataTransfer.items.length > 0) {
+			console.log('number of items = ' + dataTransfer.items.length);
+			for (var i = 0; i < dataTransfer.items.length; i++){
+				var file = dataTransfer.items[i];
+				if (file.type.match(imageType)) {
+					readImageAsBase64(file, editor);
+					found = true;
+				}
+			}
+		}
+		
+		return found;
+		
     }
     
     function onPaste(event) {
@@ -39,24 +84,47 @@
             return;
         }
 
-        return Array.prototype.forEach.call(clipboardData.types, function (type, i) {
-            if (found) {
-                return;
-            }
-            console.log("try");
-            console.log(listProp(clipboardData));
-            if (clipboardData.items) {
-                if (type.match(imageType) || clipboardData.items[i].type.match(imageType)) {
-                    readImageAsBase64(clipboardData.items[i], editor);
-                    return found = true;
-                }            	
-            } else if (clipboardData.files && clipboardData.files.length > 0) {
-            	if (type.match(imageType) || clipboardData.files[i].type.match(imageType)) {
-                    readImageAsBase64(clipboardData.files[i], editor);
-                    return found = true;
-                }
-            }
-        });
+		if (clipboardData.files && clipboardData.files.length > 0) {
+			console.log('number of files = ' + clipboardData.files.length);
+			for (var i = 0; i < clipboardData.files.length; i++){
+				var file = clipboardData.files[i];
+				if (file.type.match(imageType)) {
+					readImageAsBase64(file, editor);
+					found = true;
+				}
+			}
+		}
+		if (found) {
+			return found;
+		}
+		
+		if (clipboardData.items && clipboardData.items.length > 0) {
+			console.log('number of items = ' + clipboardData.items.length);
+			for (var i = 0; i < clipboardData.items.length; i++){
+				var file = clipboardData.items[i];
+				if (file.type.match(imageType)) {
+					readImageAsBase64(file, editor);
+					found = true;
+				}
+			}
+		}
+		return found;
+//        return Array.prototype.forEach.call(clipboardData.types, function (type, i) {
+//            if (found) {
+//                return;
+//            }
+//            if (clipboardData.items) {
+//                if (type.match(imageType) || clipboardData.items[i].type.match(imageType)) {
+//                    readImageAsBase64(clipboardData.items[i], editor);
+//                    return found = true;
+//                }            	
+//            } else if (clipboardData.files && clipboardData.files.length > 0) {
+//            	if (type.match(imageType) || clipboardData.files[i].type.match(imageType)) {
+//                    readImageAsBase64(clipboardData.files[i], editor);
+//                    return found = true;
+//                }
+//            }
+//        });
     }
 
     function readImageAsBase64(item, editor) {
