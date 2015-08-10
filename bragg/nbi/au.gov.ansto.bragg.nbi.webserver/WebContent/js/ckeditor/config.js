@@ -50,5 +50,15 @@ CKEDITOR.editorConfig = function( config ) {
 	              ];
 	config.extraPlugins = 'image2';
 	
-
+	config.blockedKeystrokes =
+		[
+			 CKEDITOR.CTRL + 83 /*S*/,
+			 CKEDITOR.CTRL + 73 /*I*/,
+			 CKEDITOR.CTRL + 85 /*U*/
+		];
+	
+	config.keystrokes = [
+	                 		[ CKEDITOR.CTRL + 83 /*S*/, 'save' ],
+	                 	];
+	
 };

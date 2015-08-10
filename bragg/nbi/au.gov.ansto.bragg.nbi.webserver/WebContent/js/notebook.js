@@ -1,17 +1,29 @@
-var editorDocumentPage = null;
-var editorPastePlugin = null;
 var topDbIndex = -1;
 var bottomDbIndex = -1;
 var isAppending = false;
 var dbFilter = null;
 var session = null;
 
-//alert($('html').hasClass('ie9'));
-
 jQuery.fn.outerHTML = function() {
 	return jQuery('<div />').append(this.eq(0).clone()).html();
 };
 	
+(function($) {
+	function img(url) {
+		var i = new Image;
+		i.src = url;
+		return i;
+	}
+
+	if ('naturalWidth' in (new Image)) {
+		$.fn.naturalWidth  = function() { return this[0].naturalWidth; };
+		$.fn.naturalHeight = function() { return this[0].naturalHeight; };
+		return;
+	}
+	$.fn.naturalWidth  = function() { return img(this.src).width; };
+	$.fn.naturalHeight = function() { return img(this.src).height; };
+})(jQuery);
+
 jQuery.fn.convertDbToEditor = function() {
 	var element = this.clone();
 	element.removeClass('class_db_object');
@@ -19,6 +31,15 @@ jQuery.fn.convertDbToEditor = function() {
 	var found = element.find('span.class_span_search_highlight');
 //	found.removeClass('class_span_search_highlight');
 	found.replaceWith(found.html());
+	found = element.find('.class_db_insert');
+	found.remove();
+	found = element.find('img');
+	found.each(function() {
+		var width = $(this).naturalWidth();
+		if (width > 680) {
+			$(this).css("width", 680);
+		}
+	});
 	return jQuery('<div />').append(element).html();
 };
 
@@ -26,6 +47,8 @@ jQuery.fn.convertTemplateToEditor = function() {
 	var element = this.clone();
 	element.removeClass('class_template_object');
 	element.addClass('class_editor_object');
+	found = element.find('.class_template_insert');
+	found.remove();
 	return jQuery('<div />').append(element).html();
 };
 
@@ -44,14 +67,16 @@ function getParam(sParam) {
 }
 
 function drag(ev) {
-	var html = ev.target.outerHTML;
-	if (html.indexOf('class_db_object') != -1) {
-		html = html.replace("class_db_object", "class_editor_object"); 		
-	}
-	if (html.indexOf('class_template_object') != -1) {
-		html = html.replace("class_template_object", "class_editor_object"); 		
-	}
-    ev.dataTransfer.setData("text/html", "<br>" + html + "<br>");
+//	var html = ev.target.outerHTML;
+	var element = $('<div />').append(ev.target.outerHTML);
+	element.removeClass('class_db_object');
+	var found = element.find('span.class_span_search_highlight');
+	found.replaceWith(found.html());
+	found = element.find('.class_db_insert');
+	found.remove();
+	found = element.find('.class_template_insert');
+	found.remove();
+    ev.dataTransfer.setData("text/html", "<p/>" + element.html() + "<p/>");
 } 
 
 function dbApplyFilter() {
@@ -72,7 +97,7 @@ function dbApplyFilter() {
 
 function searchDatabase() {
 	var searchPattern = encodeURIComponent($("#id_input_search_db").val());
-	getUrl = "../db/search?pattern=" + searchPattern
+	getUrl = "db/search?pattern=" + searchPattern
 	if (session != null) {
 		getUrl += "&session=" + session;
 	}
@@ -95,16 +120,7 @@ function searchDatabase() {
 					'left': w / 2 - 30
 				});
 				$('.class_db_insert').click(function(e) {
-					var text = '';
-					$.each(editorPastePlugin, function(idx, val) {
-						text += idx + '\n';
-					});
-					if (!editorDocumentPage.isEditing()) {
-						editorDocumentPage.enableEditing();
-						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
-					} else {
-						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
-					}
+					CKEDITOR.instances.id_editable_inner.insertHtml('<p>' + $(this).parent().convertDbToEditor() + '</p>');
 					$("div.class_db_insert").remove();
 				});
 			}, function() {
@@ -113,12 +129,7 @@ function searchDatabase() {
 			
 			$('.class_db_object').unbind('dblclick');
 			$('.class_db_object').dblclick(function() {
-				if (!editorDocumentPage.isEditing()) {
-					editorDocumentPage.enableEditing();
-					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
-				} else {
-					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
-				}
+				CKEDITOR.instances.id_editable_inner.insertHtml('<p>' + $(this).convertDbToEditor() + '</p>');
 			});
 			
 			$('.class_db_object').each(function(i, obj) {
@@ -139,13 +150,151 @@ function closeSearch() {
 	$('#id_input_search_close').hide();
 }
 
-$(function(){
-	
-	$(document).click(function(e) {
-		if (e.target.tagName.toLowerCase() == 'body') {
-			$('#id_editable_page').focus();
+function dbScrollBottom() {
+	isAppending = true;
+    $('#id_sidebar_inner').append('<div class="class_inner_loading"><img src="images/loading.gif"></div>');
+    $('#id_sidebar_inner').scrollTop = $('#id_sidebar_inner').scrollHeight;
+    var getUrl;
+    if (session == null) {
+    	getUrl = "notebook/db?start=" + (bottomDbIndex - 1) + "&length=10";
+    } else {
+    	getUrl = "notebook/db?session=" + session + "&start=" + (bottomDbIndex - 1) + "&length=10";
+    }
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+			if (data.trim().length == 0) {
+				$('#id_sidebar_inner').append("<p>End of Database</p>");
+//				$('#id_sidebar_inner').unbind('scroll');
+				return;
+			}
+			var brk = data.indexOf(";");
+			var pair = data.substring(0, brk);
+			bottomDbIndex = parseInt(pair.substring(pair.indexOf(":") + 1));
+			
+			$('.class_db_new').removeClass('class_db_new');
+			var items = $('<div/>').html(data.substring(brk + 1)).children();
+			$.each(items, function(idx, val) {
+				$(this).addClass('class_db_new');
+			});
+			$('#id_sidebar_inner').append(items);
+
+			dbApplyFilter();
+			
+			$('.class_db_object').hover(function() {
+				$(this).append('<div class="class_db_insert"><img alt="insert" src="images/nav_backward.gif"><span>INSERT</span></div>');
+				var h = $(this).height();
+				var w = $(this).width();
+				$('.class_db_insert').css({
+					'top': h / 2 - 10,
+					'left': w / 2 - 30
+				});
+				$('.class_db_insert').click(function(e) {
+					CKEDITOR.instances.id_editable_inner.insertHtml('<p>' + $(this).parent().convertDbToEditor() + '</p>');
+					$("div.class_db_insert").remove();
+				});
+			}, function() {
+				$('div').remove('.class_db_insert');
+			});
+			
+			$('.class_db_object').unbind('dblclick');
+			$('.class_db_object').dblclick(function() {
+				CKEDITOR.instances.id_editable_inner.insertHtml('<p>' + $(this).convertDbToEditor() + '</p>');
+			});
+			
+			$('.class_db_object').each(function(i, obj) {
+			    $(this).attr("draggable", true);
+			    $(this).attr("ondragstart", "drag(event)");
+			});
+
+			if (bottomDbIndex <= 0){
+				$('#id_sidebar_inner').append('<div class="class_inner_message">End of Database</div>');
+			}
+
 		}
+	})
+	.fail(function(e) {
+		alert( "error loading db xml file.");
+	})
+	.always(function() {
+	    isAppending = false;
+	    $(".class_inner_loading").remove();
 	});
+}
+
+function dbScrollTop() {
+	isAppending = true;
+	$(".class_inner_topmessage").remove();
+    $('#id_sidebar_inner').prepend('<div class="class_inner_loading"><img src="images/loading.gif"></div>');
+    $('#id_sidebar_inner').scrollTop = 0;
+    var getUrl;
+    if (session == null) {
+    	getUrl = "notebook/db?start=" + (topDbIndex + 10) + "&length=10";
+    } else {
+    	getUrl = "notebook/db?session=" + session + "&start=" + (topDbIndex + 10) + "&length=10";
+    }
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+			if (data.trim().length == 0) {
+				$('#id_sidebar_inner').prepend('<div class="class_inner_topmessage">No new entry was found. Please try again later. </div>');
+				return;
+			}
+			var brk = data.indexOf(";");
+			var pair = data.substring(0, brk);
+			topDbIndex = parseInt(pair.substring(0, pair.indexOf(":")));
+			var tempBottomDbIndex = parseInt(pair.substring(pair.indexOf(":") + 1));
+
+			if (topDbIndex - tempBottomDbIndex < 0){
+				$('#id_sidebar_inner').prepend('<div class="class_inner_topmessage">No new entry was found. Please try again later. </div>');
+				return;
+			}
+			
+			$('.class_db_new').removeClass('class_db_new');
+			var items = $('<div/>').html(data.substring(brk + 1)).children();
+			$.each(items, function(idx, val) {
+				$(this).addClass('class_db_new');
+			});
+			$('#id_sidebar_inner').prepend(items);
+
+			dbApplyFilter();
+			
+			$('.class_db_object').hover(function() {
+				$(this).append('<div class="class_db_insert"><img alt="insert" src="images/nav_backward.gif"><span>INSERT</span></div>');
+				var h = $(this).height();
+				var w = $(this).width();
+				$('.class_db_insert').css({
+					'top': h / 2 - 10,
+					'left': w / 2 - 30
+				});
+				$('.class_db_insert').click(function(e) {
+					CKEDITOR.instances.id_editable_inner.insertHtml('<p>' + $(this).parent().convertDbToEditor() + '</p>');
+					$("div.class_db_insert").remove();
+				});
+			}, function() {
+				$('div').remove('.class_db_insert');
+			});
+			
+			$('.class_db_object').unbind('dblclick');
+			$('.class_db_object').dblclick(function() {
+				CKEDITOR.instances.id_editable_inner.insertHtml('<p>' + $(this).convertDbToEditor() + '</p>');
+			});
+			
+			$('.class_db_object').each(function(i, obj) {
+			    $(this).attr("draggable", true);
+			    $(this).attr("ondragstart", "drag(event)");
+			});
+
+		}
+	})
+	.fail(function(e) {
+		alert( "error loading db xml file.");
+	})
+	.always(function() {
+	    isAppending = false;
+	    $(".class_inner_loading").remove();
+	});
+}
+
+$(function(){
 	
     $('#id_input_search_db').keyup(function(e){
         if(e.keyCode == 13) {
@@ -156,29 +305,19 @@ $(function(){
     $('#id_input_search_close').click(function(e) {
     	closeSearch();
 	});
-    
+
 //	define scroll div with auto height
 	$(window).resize(function() {
 	    var bodyheight = $(window).height();
-		$(".slide-out-div").height(bodyheight - 80);
-		$(".div_sidebar_inner").height(bodyheight - 104);
+		$(".slide-out-div").height(bodyheight - 20);
+		$(".div_sidebar_inner").height(bodyheight - 44);
 		
-		$(".div_canvas_slideout").height(bodyheight - 80);
+		$(".div_canvas_slideout").height(bodyheight - 20);
+		$("#id_editable_page").height(bodyheight - 180);
 //		$(".div_canvas_inner").height(bodyheight - 80);
 	});
-	
-//	overwrite save key shortcut	
-	$(document).bind('keydown', 'Ctrl+s', function(event) {
-		setTimeout(function() {
-			try {
-				$('.class_editable_page').raptor.Raptor.getInstances()[0].getPlugin('saveRest').save();
-			} catch (e) {
-				console.log("saving failed.");
-			}
-		}, 0);
-		return false;
-	});
 
+// define slide out side bar
     $('.slide-out-div').tabSlideOut({
     	tabHandleClass: '.a_sidebar_handle',
     	tabBlockClass: '.div_sidebar_block',
@@ -191,7 +330,7 @@ $(function(){
         tabLocation: 'right',                      //side of screen where tab lives, top, right, bottom, or left
         speed: 300,                               //speed of animation
         action: 'click',                          //options: 'click' or 'hover', action to trigger animation
-        topPos: '100px',                          //position from the top/ use if tabLocation is left or right
+        topPos: '40px',                          //position from the top/ use if tabLocation is left or right
         leftPos: '20px',                          //position from left/ use if tabLocation is bottom or top
         fixedPosition: true,                      //options: true makes it stick(fixed position) on scroll
         onSlideOut: function() {
@@ -203,8 +342,8 @@ $(function(){
         	$('.class_editable_page').css({ margin: "0px auto" });
 		}
     });
-
     
+// define drawing canvas
 	var drawingBoard = new DrawingBoard.Board('id_canvas_inner', {
 		controls: [
 			'Color',
@@ -220,230 +359,29 @@ $(function(){
 		stretchImg: false //the dropped image can be automatically ugly resized to to take the canvas size
 	});
 
+// config inserting drawing picture
 	drawingBoard.downloadImg = function() {
 		var img = $('<img >'); 
 		img.attr('src', drawingBoard.getImg());
-		if (!editorDocumentPage.isEditing()) {
-			editorDocumentPage.enableEditing();
-			editorPastePlugin.insertContent('<br>' + $('<div>').append(img).html() + '<br>');
-		} else {
-			editorPastePlugin.insertContent('<br>' + $('<div>').append(img).html() + '<br>');
-		}
+		CKEDITOR.instances.id_editable_inner.insertHtml('<p/>' + $('<div>').append(img).html() + '<p/>');
 	}
 	
-//    $('.div_canvas_slideout').tabSlideOut({
-//        tabHandle: '.a_canvas_handle',                     //class of the element that will become your tab
-//        tabHandleTopPos: 220,
-//        pathToTabImage: $('html').hasClass('ie9') ? 'images/Canvas.GIF' : null, //path to the image for the tab //Optionally can be set using css
-//        imageHeight: '218px',                     //height of tab image           //Optionally can be set using css
-//        imageWidth: '33px',                       //width of tab image            //Optionally can be set using css
-//        tabLocation: 'right',                      //side of screen where tab lives, top, right, bottom, or left
-//        speed: 300,                               //speed of animation
-//        action: 'click',                          //options: 'click' or 'hover', action to trigger animation
-//        topPos: '80px',                          //position from the top/ use if tabLocation is left or right
-//        leftPos: '20px',                          //position from left/ use if tabLocation is bottom or top
-//        fixedPosition: true,                      //options: true makes it stick(fixed position) on scroll
-//        onSlideOut: function() {
-//			$('.div_shiftable').css({ marginLeft: "20px" });
-//			$('.class_editable_page').css({ marginLeft: "20px" });
-//		},
-//        onSlideIn: function() {
-//        	$('.div_shiftable').css({ marginLeft: "auto" });
-//        	$('.class_editable_page').css({ margin: "0px auto" });
-//		}
-//    });
-    
     $('#id_sidebar_inner').bind('scroll', function() {
         if(!isAppending && bottomDbIndex > 0 && $(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight && bottomDbIndex > 0) {
-        	isAppending = true;
-            $('#id_sidebar_inner').append('<div class="class_inner_loading"><img src="images/loading.gif"></div>');
-            $('#id_sidebar_inner').scrollTop = $('#id_sidebar_inner').scrollHeight;
-            var getUrl;
-            if (session == null) {
-            	getUrl = "notebook/db?start=" + (bottomDbIndex - 1) + "&length=10";
-            } else {
-            	getUrl = "notebook/db?session=" + session + "&start=" + (bottomDbIndex - 1) + "&length=10";
-            }
-        	$.get(getUrl, function(data, status) {
-        		if (status == "success") {
-        			if (data.trim().length == 0) {
-        				$('#id_sidebar_inner').append("<p>End of Database</p>");
-//        				$('#id_sidebar_inner').unbind('scroll');
-        				return;
-        			}
-        			var brk = data.indexOf(";");
-        			var pair = data.substring(0, brk);
-        			bottomDbIndex = parseInt(pair.substring(pair.indexOf(":") + 1));
-        			
-        			$('.class_db_new').removeClass('class_db_new');
-        			var items = $('<div/>').html(data.substring(brk + 1)).children();
-        			$.each(items, function(idx, val) {
-        				$(this).addClass('class_db_new');
-					});
-        			$('#id_sidebar_inner').append(items);
-
-        			dbApplyFilter();
-        			
-        			$('.class_db_object').hover(function() {
-        				$(this).append('<div class="class_db_insert"><img alt="insert" src="images/nav_backward.gif"><span>INSERT</span></div>');
-        				var h = $(this).height();
-        				var w = $(this).width();
-        				$('.class_db_insert').css({
-        					'top': h / 2 - 10,
-        					'left': w / 2 - 30
-        				});
-        				$('.class_db_insert').click(function(e) {
-        					var text = '';
-        					$.each(editorPastePlugin, function(idx, val) {
-        						text += idx + '\n';
-        					});
-        					if (!editorDocumentPage.isEditing()) {
-        						editorDocumentPage.enableEditing();
-        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
-        					} else {
-        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
-        					}
-        					$("div.class_db_insert").remove();
-        				});
-        			}, function() {
-        				$('div').remove('.class_db_insert');
-        			});
-        			
-        			$('.class_db_object').unbind('dblclick');
-        			$('.class_db_object').dblclick(function() {
-        				if (!editorDocumentPage.isEditing()) {
-        					editorDocumentPage.enableEditing();
-        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
-        				} else {
-        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
-        				}
-        			});
-        			
-        			$('.class_db_object').each(function(i, obj) {
-        			    $(this).attr("draggable", true);
-        			    $(this).attr("ondragstart", "drag(event)");
-        			});
-
-        			if (bottomDbIndex <= 0){
-        				$('#id_sidebar_inner').append('<div class="class_inner_message">End of Database</div>');
-        			}
-
-        		}
-        	})
-        	.fail(function(e) {
-        		alert( "error loading db xml file.");
-        	})
-        	.always(function() {
-        	    isAppending = false;
-        	    $(".class_inner_loading").remove();
-        	});
+        	dbScrollBottom();
         } else if(!isAppending && $(this).scrollTop() == 0) {
-        	isAppending = true;
-        	$(".class_inner_topmessage").remove();
-            $('#id_sidebar_inner').prepend('<div class="class_inner_loading"><img src="images/loading.gif"></div>');
-            $('#id_sidebar_inner').scrollTop = 0;
-            var getUrl;
-            if (session == null) {
-            	getUrl = "notebook/db?start=" + (topDbIndex + 10) + "&length=10";
-            } else {
-            	getUrl = "notebook/db?session=" + session + "&start=" + (topDbIndex + 10) + "&length=10";
-            }
-        	$.get(getUrl, function(data, status) {
-        		if (status == "success") {
-        			if (data.trim().length == 0) {
-        				$('#id_sidebar_inner').prepend('<div class="class_inner_topmessage">No new entry was found. Please try again later. </div>');
-        				return;
-        			}
-        			var brk = data.indexOf(";");
-        			var pair = data.substring(0, brk);
-        			topDbIndex = parseInt(pair.substring(0, pair.indexOf(":")));
-        			var tempBottomDbIndex = parseInt(pair.substring(pair.indexOf(":") + 1));
-
-        			if (topDbIndex - tempBottomDbIndex < 0){
-        				$('#id_sidebar_inner').prepend('<div class="class_inner_topmessage">No new entry was found. Please try again later. </div>');
-        				return;
-        			}
-        			
-        			$('.class_db_new').removeClass('class_db_new');
-        			var items = $('<div/>').html(data.substring(brk + 1)).children();
-        			$.each(items, function(idx, val) {
-        				$(this).addClass('class_db_new');
-					});
-        			$('#id_sidebar_inner').prepend(items);
-
-        			dbApplyFilter();
-        			
-        			$('.class_db_object').hover(function() {
-        				$(this).append('<div class="class_db_insert"><img alt="insert" src="images/nav_backward.gif"><span>INSERT</span></div>');
-        				var h = $(this).height();
-        				var w = $(this).width();
-        				$('.class_db_insert').css({
-        					'top': h / 2 - 10,
-        					'left': w / 2 - 30
-        				});
-        				$('.class_db_insert').click(function(e) {
-        					var text = '';
-        					$.each(editorPastePlugin, function(idx, val) {
-        						text += idx + '\n';
-        					});
-        					if (!editorDocumentPage.isEditing()) {
-        						editorDocumentPage.enableEditing();
-        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
-        					} else {
-        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
-        					}
-        					$("div.class_db_insert").remove();
-        				});
-        			}, function() {
-        				$('div').remove('.class_db_insert');
-        			});
-        			
-        			$('.class_db_object').unbind('dblclick');
-        			$('.class_db_object').dblclick(function() {
-        				if (!editorDocumentPage.isEditing()) {
-        					editorDocumentPage.enableEditing();
-        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
-        				} else {
-        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
-        				}
-        			});
-        			
-        			$('.class_db_object').each(function(i, obj) {
-        			    $(this).attr("draggable", true);
-        			    $(this).attr("ondragstart", "drag(event)");
-        			});
-
-        		}
-        	})
-        	.fail(function(e) {
-        		alert( "error loading db xml file.");
-        	})
-        	.always(function() {
-        	    isAppending = false;
-        	    $(".class_inner_loading").remove();
-        	});
+        	dbScrollTop();
         }
-    })
-    
-//	disabled for unexpected behavior
-//	$(".class_editable_page").droppable({
-//		accept: ".class_db_object",
-//		tolerance: "pointer",
-//		revert: "invalid",
-//		drop: function(event,ui){
-////				$(this).append($(ui.draggable).clone());
-//				if (!editorDocumentPage.isEditing()) {
-//					editorDocumentPage.enableEditing();
-//					editorPastePlugin.dropContent('<br>' + $(ui.draggable).clone().convertDbToEditor());
-//				} else {
-//					editorPastePlugin.dropContent('<br>' + $(ui.draggable).clone().convertDbToEditor());
-//				}
-//			}
-//	});
+    });
 });
-            
 
-jQuery(document).ready(function(){
+jQuery(document).ready(function() {
+//	define scroll div with auto height
+	var bodyheight = $(window).height();
+	$(".slide-out-div").height(bodyheight - 20);
+	$(".div_sidebar_inner").height(bodyheight - 44);
+	$(".div_canvas_slideout").height(bodyheight - 20);
+	$("#id_editable_page").height(bodyheight - 180);
 
 	session = getParam('session');
 	
@@ -456,90 +394,31 @@ jQuery(document).ready(function(){
 		if (status == "success") {
 //			$('#id_editable_page').html(decodeURIComponent(data.replace(/\+/g, ' ')));
 			if (data.trim().length == 0) {
-				$('#id_editable_page').html("<p><br></p>");
+				$('#id_editable_inner').html("<p><br></p>");
 			} else {
-				$('#id_editable_page').html(data);
+				$('#id_editable_inner').html(data);
 			}
 			
 //			make editable page
-			jQuery(function($) {
-				$('.class_editable_page').raptor({
-					"plugins": {
-						"cancel": true,
-						"classMenu": false,
-//						"classMenu": {
-//							"classes": {
-//								"Blue background": "cms-blue-bg",
-//								"Round corners": "cms-round-corners",
-//								"Indent and center": "cms-indent-center"
-//							}
-//						},
-						"dockToScreen": false,
-						"dockToElement": false,
-						"dock": {
-							"docked": false,
-							"persist": false
-						},
-						"guides": false,
-						"languageMenu": false,
-						"logo": false,
-//						"paste": false,
-						"paste": {
-							enabled: false
-						},
-						// The save UI plugin/button
-						"save": {
-							// Specifies the UI to call the saveRest plugin to do the actual saving
-							plugin: 'saveRest'
-						},
-						"saveRest": {
-							// The URI to send the content to
-							url: 'notebook/save' + (session != null ? '?session=' + session : ''),
-							// Returns an object containing the data to send to the server
-							data: function(html) {
-								return {
-									id: this.raptor.getElement().data('id'),
-									content: html
-								};
-							},
-							retain: true
-						},
-//						"snippetMenu": {
-//							"snippets": {
-//								"Grey Box": "<div class=\"grey-box\"><h1>Grey Box<\/h1><ul><li>This is a list<\/li><\/ul><\/div>"
-//							}
-//						},
-						"snippetMenu": false,
-						"statistics": false, 
-						"tableMergeCells": true,
-						"tableSplitCells": true,
-						"viewSource": true
-					} 
-					,"autoEnable": true
-
-//				    ,"bind": {
-//				    	"disabled" : function() {
-//				    		$(".class_editable_page").droppable({
-//				    			accept: ".class_db_object",
-//				    			drop: function(event,ui){
-//				    					alert('drop detected');
-////				    					$(this).append($(ui.draggable).clone());
-//				    					if (!editorDocumentPage.isEditing()) {
-//				    						editorDocumentPage.enableEditing();
-//				    						editorPastePlugin.insertContent('<br>' + $(ui.draggable).clone().convertDbToEditor());
-//				    					} else {
-//				    						editorPastePlugin.insertContent('<br>' + $(ui.draggable).clone().convertDbToEditor());
-//				    					}
-//				    				}
-//				    		});
-//				        }
-//				    }
-				});
-			});
-			
-			editorDocumentPage = $('.class_editable_page').raptor.Raptor.getInstances()[0];
-			editorPastePlugin = editorDocumentPage.getPlugin('paste');
-
+			CKEDITOR.replace( 'id_editable_inner' );
+			CKEDITOR.instances.id_editable_inner.on('save', function(event, editor, data) {
+//				alert(CKEDITOR.instances.id_editable_inner.getData());
+		        var postUrl = 'notebook/save' + (session != null ? '?session=' + session : '');
+		        $.post( postUrl, CKEDITOR.instances.id_editable_inner.getData(), function(data, status) {
+		            if (status == "success") {
+			        	var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Saved', type: 'success' } );
+			            notification.show();
+			            CKEDITOR.instances.id_editable_inner.resetDirty();
+			        }
+		        })
+		        .fail(function(e) {
+		        	var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to save the page.', type: 'warning' } );
+		            notification.show();
+		        });
+		    });
+//			$('#id_editable_inner').ckeditor().on('save', function(event, editor, data) {
+//				alert("save");
+//			});
 		}
 	})
 	.fail(function(e) {
@@ -583,21 +462,7 @@ jQuery(document).ready(function(){
 					'left': w / 2 - 30
 				});
 				$('.class_db_insert').click(function(e) {
-					var text = '';
-					$.each(editorPastePlugin, function(idx, val) {
-						text += idx + '\n';
-					});
-					if (!editorDocumentPage.isEditing()) {
-						editorDocumentPage.enableEditing();
-						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
-//						$('html, body').animate({ 
-//							   scrollTop: $(document).height()-$(window).height()}, 
-//							   1400, 
-//							   "easeOutQuint"
-//						);
-					} else {
-						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
-					}
+					CKEDITOR.instances.id_editable_inner.insertHtml('<p>' + $(this).parent().convertDbToEditor() + '</p>');
 					$("div.class_db_insert").remove();
 				});
 			}, function() {
@@ -605,12 +470,7 @@ jQuery(document).ready(function(){
 			});
 			
 			$('.class_db_object').dblclick(function() {
-				if (!editorDocumentPage.isEditing()) {
-					editorDocumentPage.enableEditing();
-					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
-				} else {
-					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
-				}
+				CKEDITOR.instances.id_editable_inner.insertHtml('<p>' + $(this).convertDbToEditor() + '</p>');
 			});
 
 			$('.class_db_object').each(function(i, obj) {
@@ -654,29 +514,27 @@ jQuery(document).ready(function(){
 					'left': w / 2 - 30
 				});
 				$('.class_template_insert').click(function(e) {
-					var text = '';
-					$.each(editorPastePlugin, function(idx, val) {
-						text += idx + '\n';
-					});
-					if (!editorDocumentPage.isEditing()) {
-						editorDocumentPage.enableEditing();
-						editorPastePlugin.insertContent('<br>' + $(this).parent().convertTemplateToEditor() + '<br>');
-					} else {
-						editorPastePlugin.insertContent('<br>' + $(this).parent().convertTemplateToEditor() + '<br>');
-					}
-					$("div.class_template_insert").remove();
+//					CKEDITOR.instances.id_editable_inner.insertHtml('<br>' + $(this).parent().convertTemplateToEditor() + '<br>');
+//					CKEDITOR.instances.id_editable_inner.focus();
+//					var element = CKEDITOR.dom.element.createFromHtml($(this).parent().convertTemplateToEditor());
+//					CKEDITOR.instances.id_editable_inner.insertElement(element);
+					CKEDITOR.instances.id_editable_inner.insertHtml("<p>" + $(this).parent().convertTemplateToEditor() + "</p>");
+//					$("div.class_template_insert").remove();
 				});
 			}, function() {
 				$('div').remove('.class_template_insert');
 			});
 			
 			$('.class_template_object').dblclick(function() {
-				if (!editorDocumentPage.isEditing()) {
-					editorDocumentPage.enableEditing();
-					editorPastePlugin.insertContent('<br>' + $(this).convertTemplateToEditor() + '<br>');
-				} else {
-					editorPastePlugin.insertContent('<br>' + $(this).convertTemplateToEditor() + '<br>');
-				}
+//				if (!editorDocumentPage.isEditing()) {
+//					editorDocumentPage.enableEditing();
+//					editorPastePlugin.insertContent('<br>' + $(this).convertTemplateToEditor() + '<br>');
+//				} else {
+//					editorPastePlugin.insertContent('<br>' + $(this).convertTemplateToEditor() + '<br>');
+//				}
+				CKEDITOR.instances.id_editable_inner.insertHtml('<p>' + $(this).convertTemplateToEditor() + '</p>');
+//				var element = CKEDITOR.dom.element.createFromHtml($(this).convertTemplateToEditor());
+//				CKEDITOR.instances.id_editable_inner.insertElement(element);
 			});
 
 			$('.class_template_object').each(function(i, obj) {
@@ -690,15 +548,6 @@ jQuery(document).ready(function(){
 		alert( "error loading db xml file.");
 	});
 	
-//	define scroll div with auto height
-	var bodyheight = $(window).height();
-	$(".slide-out-div").height(bodyheight - 80);
-	$(".div_sidebar_inner").height(bodyheight - 104);
-	
-	$(".div_canvas_slideout").height(bodyheight - 80);
-//	$(".div_canvas_inner").height(bodyheight - 80);
-	
-//	below code prevent body scroll together with the side bar innver div.
 	$('#id_sidebar_inner').on('DOMMouseScroll mousewheel', function(ev) {
 	    var $this = $(this),
 	        scrollTop = this.scrollTop,
@@ -719,180 +568,14 @@ jQuery(document).ready(function(){
 	    if (!up && -delta > scrollHeight - height - scrollTop && scrollHeight == height && bottomDbIndex > 0) {
 	        // Scrolling down, but this will take us past the bottom.
 	        $this.scrollTop(scrollHeight);
-        	isAppending = true;
-            $('#id_sidebar_inner').append('<div class="class_inner_loading"><img src="images/loading.gif"></div>');
-            $('#id_sidebar_inner').scrollTop = $('#id_sidebar_inner').scrollHeight;
-            var getUrl;
-            if (session == null) {
-            	getUrl = "notebook/db?start=" + (bottomDbIndex - 1) + "&length=10";
-            } else {
-            	getUrl = "notebook/db?session=" + session + "&start=" + (bottomDbIndex - 1) + "&length=10";
-            }
-        	$.get(getUrl, function(data, status) {
-        		if (status == "success") {
-        			if (data.trim().length == 0) {
-        				$('#id_sidebar_inner').append("<p>End of Database</p>");
-//        				$('#id_sidebar_inner').unbind('scroll');
-        				return;
-        			}
-        			var brk = data.indexOf(";");
-        			var pair = data.substring(0, brk);
-        			bottomDbIndex = parseInt(pair.substring(pair.indexOf(":") + 1));
-        			
-        			$('.class_db_new').removeClass('class_db_new');
-        			var items = $('<div/>').html(data.substring(brk + 1)).children();
-        			$.each(items, function(idx, val) {
-        				$(this).addClass('class_db_new');
-					});
-        			$('#id_sidebar_inner').append(items);
-
-        			dbApplyFilter();
-        			
-        			$('.class_db_object').hover(function() {
-        				$(this).append('<div class="class_db_insert"><img alt="insert" src="images/nav_backward.gif"><span>INSERT</span></div>');
-        				var h = $(this).height();
-        				var w = $(this).width();
-        				$('.class_db_insert').css({
-        					'top': h / 2 - 10,
-        					'left': w / 2 - 30
-        				});
-        				$('.class_db_insert').click(function(e) {
-        					var text = '';
-        					$.each(editorPastePlugin, function(idx, val) {
-        						text += idx + '\n';
-        					});
-        					if (!editorDocumentPage.isEditing()) {
-        						editorDocumentPage.enableEditing();
-        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
-        					} else {
-        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
-        					}
-        					$("div.class_db_insert").remove();
-        				});
-        			}, function() {
-        				$('div').remove('.class_db_insert');
-        			});
-        			
-        			$('.class_db_object').unbind('dblclick');
-        			$('.class_db_object').dblclick(function() {
-        				if (!editorDocumentPage.isEditing()) {
-        					editorDocumentPage.enableEditing();
-        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
-        				} else {
-        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
-        				}
-        			});
-        			
-        			$('.class_db_object').each(function(i, obj) {
-        			    $(this).attr("draggable", true);
-        			    $(this).attr("ondragstart", "drag(event)");
-        			});
-
-        			if (bottomDbIndex <= 0){
-        				$('#id_sidebar_inner').append('<div class="class_inner_message">End of Database</div>');
-        			}
-
-        		}
-        	})
-        	.fail(function(e) {
-        		alert( "error loading db xml file.");
-        	})
-        	.always(function() {
-        	    isAppending = false;
-        	    $(".class_inner_loading").remove();
-        	});
+	        dbScrollBottom();
 	        return prevent();
 	    } else if (up && delta > scrollTop && scrollHeight == height) {
 	        // Scrolling up, but this will take us past the top.
 	        $this.scrollTop(0);
-			
 	        if(!isAppending && $(this).scrollTop() == 0) {
-	        	isAppending = true;
-	        	$(".class_inner_topmessage").remove();
-	            $('#id_sidebar_inner').prepend('<div class="class_inner_loading"><img src="images/loading.gif"></div>');
-	            $('#id_sidebar_inner').scrollTop = 0;
-	            var getUrl;
-	            if (session == null) {
-	            	getUrl = "notebook/db?start=" + (topDbIndex + 10) + "&length=10";
-	            } else {
-	            	getUrl = "notebook/db?session=" + session + "&start=" + (topDbIndex + 10) + "&length=10";
-	            }
-
-	        	$.get(getUrl, function(data, status) {
-	        		if (status == "success") {
-	        			if (data.trim().length == 0) {
-	        				$('#id_sidebar_inner').prepend('<div class="class_inner_topmessage">No new entry was found. Please try again later. </div>');
-	        				return;
-	        			}
-	        			var brk = data.indexOf(";");
-	        			var pair = data.substring(0, brk);
-	        			topDbIndex = parseInt(pair.substring(0, pair.indexOf(":")));
-	        			var tempBottomDbIndex = parseInt(pair.substring(pair.indexOf(":") + 1));
-
-	        			if (topDbIndex - tempBottomDbIndex < 0){
-	        				$('#id_sidebar_inner').prepend('<div class="class_inner_topmessage">No new entry was found. Please try again later. </div>');
-	        				return;
-	        			}
-	        			
-	        			$('.class_db_new').removeClass('class_db_new');
-	        			var items = $('<div/>').html(data.substring(brk + 1)).children();
-	        			$.each(items, function(idx, val) {
-	        				$(this).addClass('class_db_new');
-						});
-	        			$('#id_sidebar_inner').prepend(items);
-	        			dbApplyFilter();
-	        			
-	        			$('.class_db_object').hover(function() {
-	        				$(this).append('<div class="class_db_insert"><img alt="insert" src="images/nav_backward.gif"><span>INSERT</span></div>');
-	        				var h = $(this).height();
-	        				var w = $(this).width();
-	        				$('.class_db_insert').css({
-	        					'top': h / 2 - 10,
-	        					'left': w / 2 - 30
-	        				});
-	        				$('.class_db_insert').click(function(e) {
-	        					var text = '';
-	        					$.each(editorPastePlugin, function(idx, val) {
-	        						text += idx + '\n';
-	        					});
-	        					if (!editorDocumentPage.isEditing()) {
-	        						editorDocumentPage.enableEditing();
-	        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
-	        					} else {
-	        						editorPastePlugin.insertContent('<br>' + $(this).parent().convertDbToEditor() + '<br>');
-	        					}
-	        					$("div.class_db_insert").remove();
-	        				});
-	        			}, function() {
-	        				$('div').remove('.class_db_insert');
-	        			});
-	        			
-	        			$('.class_db_object').unbind('dblclick');
-	        			$('.class_db_object').dblclick(function() {
-	        				if (!editorDocumentPage.isEditing()) {
-	        					editorDocumentPage.enableEditing();
-	        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
-	        				} else {
-	        					editorPastePlugin.insertContent('<br>' + $(this).convertDbToEditor() + '<br>');
-	        				}
-	        			});
-	        			
-	        			$('.class_db_object').each(function(i, obj) {
-	        			    $(this).attr("draggable", true);
-	        			    $(this).attr("ondragstart", "drag(event)");
-	        			});
-
-	        		}
-	        	})
-	        	.fail(function(e) {
-	        		alert( "error loading db xml file.");
-	        	})
-	        	.always(function() {
-	        	    isAppending = false;
-	        	    $(".class_inner_loading").remove();
-	        	});
+	        	dbScrollTop();
 	        }
-	        
 	        return prevent();
 	    }
 	});
@@ -983,13 +666,5 @@ jQuery(document).ready(function(){
 		$('#id_filter_menu span').text('ALL ITEMS');
 		dbFilter = null;
 	});
-	
-//	$('#id_filter_search').click(function(e) {
-//		$('.div_sidebar_search').show();
-//		$('.class_db_object').hide();
-//		$('#id_sidebar_header').hide();
-//		$('#id_filter_menu span').text('SEARCH DATABASE');
-//		dbFilter = null;
-//	});
 	
 });

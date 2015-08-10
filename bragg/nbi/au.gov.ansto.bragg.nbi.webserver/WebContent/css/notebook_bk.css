@@ -11,15 +11,14 @@ table {
 @media screen {
 	header {
 		margin: 0px auto;
-/*
 		margin-top: 48px;
-*/
-		width: 740px;
+/*		padding: 50px 20px 20px 0px;
+		position: relative;*/
+		width: 680px;
 	}
 	footer {
-		padding-top: 30px;
 		margin: 0px auto;
-		width: 740px;
+		width: 720px;
 	}
 }
 
@@ -46,17 +45,16 @@ th {
 @media screen {
 	.class_editable_page {
 		position: relative;
-		width: 738px;
+		width: 680px;
 		background-color: white;
-		min-height: 760px;
-		padding: 2px 2px 2px;
+		min-height: 640px;
+		padding: 10px 10px 20px;
 		margin: 0px auto;
-/*		
+/*		margin-left: 16px; */
 		background: #F6F6F6 none repeat scroll 0% 0%;
 		border: 1px solid #8F8F8F;
 		border-radius: 6px;
-		box-shadow: 0px 0px 3px #AFAFAF; 
-*/
+		box-shadow: 0px 0px 3px #AFAFAF;
 	}
 	
 	.class_editable_page img{
@@ -87,18 +85,6 @@ th {
 }
 
 .class_editable_page table {
-  border-collapse: collapse;
-  border: 2px double black;
-  font-size: 0.8em;
-}
-
-.class_db_table table {
-  border-collapse: collapse;
-  border: 2px double black;
-  font-size: 0.8em;
-}
-
-.cke_editable table {
   border-collapse: collapse;
   border: 2px double black;
   font-size: 0.8em;
@@ -371,8 +357,4 @@ th {
 .div_sidebar_block .class_span_search_highlight {
 	color: #ff8;
 	background-color: black;
-}
-
-.diffContent {
-	max-width: 1024px;
 }

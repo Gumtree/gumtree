@@ -3,6 +3,7 @@ package au.gov.ansto.bragg.nbi.server.notebook;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -56,6 +57,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private static final String QUERY_ENTRY_LENGTH = "length";
 	private final static String QUERY_SESSION_ID = "session";
 	private static final String QUERY_PATTERN = "pattern";
+	private static final String QUERY_PROPOSAL_ID = "proposal_id";
 	private static final String FILE_FREFIX = "<div class=\"class_div_search_file\" name=\"$filename\" session=\"$session\">";
 	private static final String SPAN_SEARCH_RESULT_HEADER = "<h4>";
 	private static final String DIV_END = "</div>";
@@ -257,12 +259,28 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				return;
 			}
 			try {
+				Form form = request.getResourceRef().getQueryAsForm();
+		    	String proposalId = form.getValues(QUERY_PROPOSAL_ID);
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
 				String newName = PREFIX_NOTEBOOK_FILES + format.format(new Date());
 				File newFile = new File(currentFileFolder + "/" + newName + ".xml");
 				if (!newFile.createNewFile()) {
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to create new file");
 					return;
+				}
+				PrintWriter pw = null;
+				try {
+					pw = new PrintWriter(new FileWriter(newFile));
+					if (proposalId != null) {
+						pw.write("<h1>Quokka Notebook Page: " + proposalId + "</h1><p/>");
+					} else {
+						pw.write("<h1>Quokka Notebook</h1><p/>");						
+					}
+					pw.close();					
+				} finally {
+					if (pw != null) {
+						pw.close();
+					}
 				}
 				String oldSession = "";
 				String oldName = "";
