@@ -128,7 +128,7 @@
                                 id: 'diffType',
                                 label: editorInstance.lang.autosave.diffType,
                                 items: [[editorInstance.lang.autosave.sideBySide, 'sideBySide'], [editorInstance.lang.autosave.inline, 'inline']],
-                                'default': 'sideBySide',
+                                'default': 'inline',
                                 onClick: function() {
                                     RenderDiff(this._.dialog, editorInstance, autoSaveKey);
                                 }
