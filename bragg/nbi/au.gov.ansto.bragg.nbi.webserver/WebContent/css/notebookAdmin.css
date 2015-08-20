@@ -27,8 +27,36 @@
   text-decoration: none;
   cursor: pointer;
 }
+@media screen {
+	.class_editable_page {
+		position: relative;
+		width: 738px;
+		background-color: white;
+		min-height: 760px;
+		padding: 2px 2px 2px;
+		margin: 0px auto;
+/*		
+		background: #F6F6F6 none repeat scroll 0% 0%;
+		border: 1px solid #8F8F8F;
+		border-radius: 6px;
+		box-shadow: 0px 0px 3px #AFAFAF; 
+*/
+	}
+	
+	.class_editable_page img{
+		border: 1px solid #444;
+		box-shadow: 1px 1px 3px #AFAFAF;
+	}
+}
 
 @media screen {
+	.class_editable_page {
+		background: #F6F6F6 none repeat scroll 0% 0%;
+		border: 1px solid #8F8F8F;
+		border-radius: 6px;
+		box-shadow: 0px 0px 3px #AFAFAF; 
+	}
+	
 	.class_div_header {
 		width: 100%;
 		height: 48px;
@@ -75,6 +103,9 @@
 }
 
 @media print {
+	.class_editable_page {
+		background-color: white;
+	}
 	.class_div_header {
 		display: none;
 	}
@@ -101,11 +132,14 @@
 	padding: 2px;
 }
 
-.div_sidebar_header input[type="text"] {
+.div_sidebar_header input[type="text"], .class_confirm_dialog input[type="text"] {
   padding: 8px;
   width: 320px;
   border: solid 1px #dcdcdc;
   transition: box-shadow 0.3s, border 0.3s;
+}
+.class_confirm_dialog input[type="text"] {
+	width: 220px;
 }
 .div_sidebar_header input[type="text"]:focus,
 .div_sidebar_header input[type="text"].focus {
@@ -185,4 +219,15 @@ footer {
 	background-color: #ccc;
     color: #000;
     cursor: pointer;
+}
+.class_span_currentpath {
+	display: inline-block;
+	padding: 4px 4px 2px;
+    border: 1px solid red;
+	border: 1px solid #8F8F8F;
+	border-radius: 4px;
+	background-color: #FFFFC0;
+	box-shadow: 1px 1px 3px #AFAFAF;
+	font-size: .66em;
+	text-decoration: underline;
 }

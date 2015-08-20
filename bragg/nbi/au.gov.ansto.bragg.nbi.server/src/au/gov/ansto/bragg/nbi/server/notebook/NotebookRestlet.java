@@ -9,13 +9,16 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.service.db.ControlDB;
 import org.gumtree.service.db.HtmlSearchHelper;
 import org.gumtree.service.db.LoggingDB;
+import org.gumtree.service.db.ProposalDB;
 import org.gumtree.service.db.RecordsFileException;
 import org.gumtree.service.db.SessionDB;
 import org.gumtree.service.db.TextDb;
@@ -39,6 +42,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String SEG_NAME_SAVE = "save";
 	private final static String SEG_NAME_LOAD = "load";
 	private final static String SEG_NAME_HELP = "help";
+	private final static String SEG_NAME_CURRENTPAGE = "currentpage";
 	private final static String SEG_NAME_SEARCH = "search";
 	private final static String SEG_NAME_MANAGEGUIDE = "manageguide";
 	private final static String SEG_NAME_DB = "db";
@@ -58,7 +62,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String QUERY_SESSION_ID = "session";
 	private static final String QUERY_PATTERN = "pattern";
 	private static final String QUERY_PROPOSAL_ID = "proposal_id";
-	private static final String FILE_FREFIX = "<div class=\"class_div_search_file\" name=\"$filename\" session=\"$session\">";
+	private static final String FILE_FREFIX = "<div class=\"class_div_search_file\" name=\"$filename\" session=\"$session\" proposal=\"$proposal\">";
 	private static final String SPAN_SEARCH_RESULT_HEADER = "<h4>";
 	private static final String DIV_END = "</div>";
 	private static final String SPAN_END = "</h4>";
@@ -69,6 +73,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private String helpFilePath;
 	private SessionDB sessionDb;
 	private ControlDB controlDb;
+	private ProposalDB proposalDb;
 	
 	/**
 	 * @param context
@@ -81,6 +86,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		helpFilePath = System.getProperty(PROP_NOTEBOOK_SAVEPATH) + "/" + NOTEBOOK_HELPFILENAME;
 		sessionDb = SessionDB.getInstance();
 		controlDb = ControlDB.getInstance();
+		proposalDb = ProposalDB.getInstance();
 	}
 
 	/* (non-Javadoc)
@@ -188,6 +194,23 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		    		return;
 		    	}
 		    }
+		} else if (SEG_NAME_CURRENTPAGE.equals(seg)) {
+			if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+				response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);
+				response.setStatus(Status.SUCCESS_OK);
+				return;
+			}
+			try {
+				String sessionId = controlDb.getCurrentSessionId();
+				String sessionValue = sessionDb.getSessionValue(sessionId);
+				String proposalId = proposalDb.findProposalId(sessionId);
+				String filename = currentFileFolder + "/" + sessionValue + ".xml";
+				byte[] bytes = Files.readAllBytes(Paths.get(filename));
+				response.setEntity(sessionId + ":" + sessionValue + ":" + proposalId + ":" + new String(bytes), MediaType.TEXT_PLAIN);
+			} catch (Exception e) {
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+				return;
+			}
 		} else if (SEG_NAME_DB.equals(seg)) {
 	    	Form form = request.getResourceRef().getQueryAsForm();
 	    	String startValue = form.getValues(QUERY_ENTRY_START);
@@ -284,9 +307,11 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				}
 				String oldSession = "";
 				String oldName = "";
+				String oldProposal = "";
 				try {
 					oldSession = controlDb.getCurrentSessionId();
 					oldName = sessionDb.getSessionValue(oldSession);
+					oldProposal = proposalDb.findProposalId(oldSession);
 					LoggingDB db = LoggingDB.getInstance(oldName);
 					db.close();
 				} catch (Exception e) {
@@ -294,7 +319,14 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				}
 				String sessionId = sessionDb.createNewSessionId(newName);
 				controlDb.updateCurrentSessionId(sessionId);
-				response.setEntity(oldName + ":" + oldSession + ";" + newName + ":" + sessionId, MediaType.TEXT_PLAIN);
+				if (proposalId != null) {
+					try {
+						proposalDb.putSession(proposalId, sessionId);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				response.setEntity(oldSession + ":" + oldName + ":" + oldProposal + ";" + sessionId + ":" + newName + ":" + proposalId, MediaType.TEXT_PLAIN);
 			} catch (Exception e) {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 				return;
@@ -321,25 +353,42 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 //							responseText += ":";
 //						}
 //					}
+					String currentSessionId = controlDb.getCurrentSessionId();
+					List<String> proposalIds = proposalDb.listProposalIds();
+					Collections.sort(proposalIds);
+					Collections.reverse(proposalIds);
 					List<String> sessionIds = sessionDb.listSessionIds();
-					try {
-						sessionIds.remove(controlDb.getCurrentSessionId());
-					} catch (Exception e) {
-					}
-					String[] sessionPairs = new String[sessionIds.size()];
-					int index = 0;
-					for (String id : sessionIds) {
-						sessionPairs[index++] = sessionDb.getSessionValue(id) + ":" + id;
-					}
-					Arrays.sort(sessionPairs);
-					String responseText = "";
-					for (int i = sessionPairs.length - 1; i >= 0; i--) {
-						responseText += sessionPairs[i];
-						if (i > 0){
-							responseText += ";";
+					JSONObject jsonObject = new JSONObject(new LinkedHashMap<String, String>());
+					for (String proposalId : proposalIds) {
+						JSONObject proposalObject = new JSONObject(new LinkedHashMap<String, String>());
+						String sessions = proposalDb.getSessionIds(proposalId);
+						if (sessions != null && sessions.trim().length() > 0) {
+							String[] sessionArray = sessions.split(":");
+							for (String sessionId : sessionArray) {
+								if (!sessionId.equals(currentSessionId)) {
+									String pageId = sessionDb.getSessionValue(sessionId);
+									proposalObject.put(sessionId, pageId);
+								}
+								sessionIds.remove(sessionId);
+							}
+							if (proposalObject.length() > 0) {
+								jsonObject.put(proposalId, proposalObject);
+							}
 						}
 					}
-					response.setEntity(responseText, MediaType.TEXT_PLAIN);
+					if (sessionIds.size() > 0) {
+						JSONObject standaloneObject = new JSONObject(new LinkedHashMap<String, String>());
+						for (String sessionId : sessionIds) {
+							String pageId = sessionDb.getSessionValue(sessionId);
+							standaloneObject.put(sessionId, pageId);
+						}
+						jsonObject.put("Stand Alone Pages", standaloneObject);
+					}
+//					try {
+//						sessionIds.remove(controlDb.getCurrentSessionId());
+//					} catch (Exception e) {
+//					}
+					response.setEntity(jsonObject.toString(), MediaType.TEXT_PLAIN);
 				}
 			} catch (Exception e) {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
@@ -423,7 +472,11 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						HtmlSearchHelper helper = new HtmlSearchHelper(new File(filename));
 						String searchRes = helper.search(pattern);
 						if (searchRes.length() > 0){
-							searchRes = FILE_FREFIX.replace("$filename", pair[0]).replace("$session", pair[1]) 
+							String proposalId = proposalDb.findProposalId(pair[1]);
+							if (proposalId == null) {
+								proposalId = "N/A";
+							}
+							searchRes = FILE_FREFIX.replace("$filename", pair[0]).replace("$session", pair[1]).replace("$proposal", proposalId) 
 									+ SPAN_SEARCH_RESULT_HEADER + pair[0] + SPAN_END + searchRes + DIV_END;
 						}
 						responseText += searchRes;

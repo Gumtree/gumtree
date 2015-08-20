@@ -16,7 +16,7 @@ function getParam(sParam) {
 	}
 }
 
-function load(id, name, pattern) {
+function load(id, name, proposal, pattern) {
 	getUrl = "../notebook/load?session=" + id;
 	if (typeof(pattern) !== "undefined") { 
 		 getUrl += "&pattern=" + pattern;
@@ -24,7 +24,33 @@ function load(id, name, pattern) {
 	getUrl += "&" + (new Date()).getTime();
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
+			if (typeof(proposal) !== "undefined" && $.isNumeric(proposal)) { 
+				 name = 'P' + proposal + ": " + name;
+			}			
 			$('#id_content_header').html('<span>' + name + '</span><a class="class_div_button" onclick="edit(\'' + id + '\')">Edit</a>');
+			$('#id_div_content').html(data);
+		}
+	})
+	.fail(function(e) {
+		alert( "error loading notebook file " + id + ".");
+	});
+}
+
+function loadCurrent(id, name, proposal) {
+	getUrl = "../notebook/load?session=" + id;
+	getUrl += "&" + (new Date()).getTime();
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+			var currentPath = window.location.href;
+			currentPath = currentPath.substr(0, currentPath.lastIndexOf('/'));
+			currentPath = currentPath.substr(0, currentPath.lastIndexOf('/') + 1);
+			if (typeof(proposal) !== "undefined" && $.isNumeric(proposal)) {
+				$('#id_content_header').html('<a href="' + currentPath + 'notebook.html?session=' + id 
+						+ '">P' + proposal + '</a>: <div class="class_span_currentpath">' + currentPath + 'notebook.html?session=' + id + '</div>');
+			} else {			
+				$('#id_content_header').html('<a href="' + currentPath + 'notebook.html?session=' + id 
+						+ '">Link</a>: <div class="class_span_currentpath">' + currentPath + 'notebook.html?session=' + id + '</div>');
+			}
 			$('#id_div_content').html(data);
 		}
 	})
@@ -52,7 +78,7 @@ function searchNotebook() {
 		if (status == "success") {
 			$('#id_search_inner').html(data);
 			$('.class_div_search_file').click(function(e) {
-				load($(this).attr('session'), $(this).attr('name'), searchPattern);
+				load($(this).attr('session'), $(this).attr('name'), $(this).attr('proposal'), searchPattern);
 			});
 		}
 	})
@@ -75,6 +101,48 @@ function searchDatabase() {
 	.fail(function(e) {
 		alert( "error searching notebook files.");
 	});	
+}
+
+function rgbToHsl(r, g, b) {
+	r /= 255, g /= 255, b /= 255;
+	var max = Math.max(r, g, b), min = Math.min(r, g, b);
+	var h, s, l = (max + min) / 2;
+
+	if(max == min){
+		h = s = 0;
+	}
+	else {
+		var d = max - min;
+		s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+		switch(max){
+		case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+		case g: h = (b - r) / d + 2; break;
+		case b: h = (r - g) / d + 4; break;
+		}
+		h /= 6;
+	}
+	return l;
+}
+
+function getColor() {
+	var r, g, b;
+	var textColor = $('#cssmenu').css('color');
+	textColor = textColor.slice(4);
+	r = textColor.slice(0, textColor.indexOf(','));
+	textColor = textColor.slice(textColor.indexOf(' ') + 1);
+	g = textColor.slice(0, textColor.indexOf(','));
+	textColor = textColor.slice(textColor.indexOf(' ') + 1);
+	b = textColor.slice(0, textColor.indexOf(')'));
+	var l = rgbToHsl(r, g, b);
+	if (l > 0.7) {
+		$('#cssmenu>ul>li>a').css('text-shadow', '0 1px 1px rgba(0, 0, 0, .35)');
+		$('#cssmenu>ul>li>a>span').css('border-color', 'rgba(0, 0, 0, .35)');
+	}
+	else
+	{
+		$('#cssmenu>ul>li>a').css('text-shadow', '0 1px 0 rgba(255, 255, 255, .35)');
+		$('#cssmenu>ul>li>a>span').css('border-color', 'rgba(255, 255, 255, .35)');
+	}
 }
 
 $(function() {
@@ -119,21 +187,68 @@ $(function() {
 	$("#id_a_newbook").click(function(e) {
 		
 		$('<div></div>').appendTo('body')
-		  .html('<div><h6>Please confirm creating new notebook file. The current notebook file will be put into archive list.</h6></div>')
+		  .html('<div class="class_confirm_dialog">Please provide the proposal ID for the new page: <input type="text" id="id_input_proposal_id" placeholder="Proposal ID">'
+				  + '</div><br><div><p>To continue, press Yes button. The current notebook page will be put into archive list.</p></div>')
 		  .dialog({
 		      modal: true, title: 'Confirm Creating New Notebook', zIndex: 10000, autoOpen: true,
 		      width: 'auto', resizable: false,
 		      buttons: {
 		          Yes: function () {
-			      		var getUrl = "../notebook/new?" + (new Date()).getTime();
+		        	  	var proposalId = $('#id_input_proposal_id').val();
+		        	  	if (proposalId == null || proposalId.trim().length ==0 || isNaN(proposalId)) {
+		        	  		alert("A valid proposal ID is required.");
+		        	  		return;
+		        	  	}
+			      		var getUrl = "../notebook/new?proposal_id=" + proposalId + "&" + (new Date()).getTime();
 			    		$.get(getUrl, function(data, status) {
 			    			if (status == "success") {
 			    				$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>');
-			    				$('#id_div_content').html("<p><br></p>");
+			    				$('#id_div_content').html("<h1>Quokka Notebook Page: " + proposalId + "</h1><p>&nbsp;</p>");
 			    				var pair = data.split(";");
-			    				pair = pair[0].split(":");
-			    				$("#id_ul_archiveList").prepend('<li><a id="' + pair[0] + '" onclick="load(\'' + pair[1] + '\', \'' 
-			    						+ pair[0] + '\')">&nbsp;-&nbsp;' + pair[0] + '</a></li>');
+			    				var oldInfo = pair[0].split(":");
+			    				var oldSessionId = oldInfo[0];
+			    				var oldPageId = oldInfo[1];
+			    				var oldProposalId = oldInfo[2];
+			    				if (oldProposalId == 'null') {
+			    					oldProposalId = 'Stand_Alone_Pages';
+			    				}
+			    				var newInfo = pair[1].split(":");
+			    				var newSessionId = newInfo[0];
+			    				var newPageId = newInfo[1];
+			    				var newProposalId = newInfo[2];
+			    				$("#id_a_reviewCurrent").html('Current Page - P' + newProposalId + '<span class="holder"></span>');
+			    				$("#id_ul_currentpage").empty().append('<li><a id="' + newSessionId + '" onclick="loadCurrent(\'' + newSessionId + '\', \'' 
+			    						+ newPageId + '\', \'' + newProposalId + '\')">&nbsp;&nbsp;--&nbsp;' + newPageId + '</a></li>');
+			    				if (document.getElementById("id_proposal_" + oldProposalId) !== null) {
+			    					html = '<li><a id="' + oldSessionId + '" onclick="load(\'' + oldSessionId + '\', \''
+											+ oldPageId + '\', \'' + oldProposalId + '\')">&nbsp;&nbsp;--&nbsp;' + oldPageId + '</a></li>';
+			    					$('#' + oldProposalId + '_ul').prepend(html);
+			    				} else {
+			    					var html = '<li class="active has-sub"><a id="id_proposal_' + oldProposalId + '" onclick="load(\'' + oldSessionId + '\', \'' 
+										+ oldPageId + '\', \'' + oldProposalId + '\')">&nbsp;-&nbsp;Proposal - ' + oldProposalId + '</a>';
+									html += '<ul id="' + oldProposalId + '_ul">' + '<li><a id="' + oldSessionId + '" onclick="load(\'' + oldSessionId + '\', \'' 
+										+ oldPageId + '\', \'' + oldProposalId + '\')">&nbsp;&nbsp;--&nbsp;' + oldPageId + '</a></li></ul>';
+									html += '</li>';
+									$("#id_ul_archiveList").prepend(html);
+									$('#id_proposal_' + oldProposalId).on('click', function(){
+										$(this).removeAttr('href');
+										var element = $(this).parent('li');
+										if (element.hasClass('open')) {
+											element.removeClass('open');
+											element.find('li').removeClass('open');
+											element.find('ul').slideUp();
+										} else {
+											element.addClass('open');
+											element.children('ul').slideDown();
+											element.siblings('li').children('ul').slideUp();
+											element.siblings('li').removeClass('open');
+											element.siblings('li').find('li').removeClass('open');
+											element.siblings('li').find('ul').slideUp();
+										}
+									});
+
+									$('#id_proposal_' + oldProposalId).append('<span class="holder"></span>');
+			    				}
 			    			}
 			    		})
 			    		.fail(function(e) {
@@ -185,22 +300,22 @@ $(function() {
 
 	});
 	
-	$("#id_a_reviewCurrent").click(function(e) {
-		var getUrl = "../notebook/load?" + (new Date()).getTime();
-		$.get(getUrl, function(data, status) {
-			if (status == "success") {
-				$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>');
-				if (data.trim().length == 0) {
-					$('#id_div_content').html("<p><br></p>");
-				} else {
-					$('#id_div_content').html(data);
-				}
-			}
-		})
-		.fail(function(e) {
-			alert( "error loading current notebook file.");
-		});
-	});
+//	$("#id_a_reviewCurrent").click(function(e) {
+//		var getUrl = "../notebook/load?" + (new Date()).getTime();
+//		$.get(getUrl, function(data, status) {
+//			if (status == "success") {
+//				$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>');
+//				if (data.trim().length == 0) {
+//					$('#id_div_content').html("<p><br></p>");
+//				} else {
+//					$('#id_div_content').html(data);
+//				}
+//			}
+//		})
+//		.fail(function(e) {
+//			alert( "error loading current notebook file.");
+//		});
+//	});
 
 });
 
@@ -218,26 +333,97 @@ jQuery(document).ready(function() {
 	var getUrl = "../notebook/archive?" + timeString;
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
-			if (data.trim().length > 0){
-				var files = data.split(";");
-				$.each(files, function(idx, val) {
-					if (val.trim().length > 0) {
-						var pair = val.split(":");
-						$("#id_ul_archiveList").append('<li><a id="' + pair[0] + '" onclick="load(\'' + pair[1] + '\', \'' 
-								+ pair[0] + '\')">&nbsp;-&nbsp;' + pair[0] + '</a></li>');
+			if (data != null){
+//				var files = data.split(";");
+//				$.each(files, function(idx, val) {
+//					if (val.trim().length > 0) {
+//						var pair = val.split(":");
+//						$("#id_ul_archiveList").append('<li><a id="' + pair[0] + '" onclick="load(\'' + pair[1] + '\', \'' 
+//								+ pair[0] + '\')">&nbsp;-&nbsp;' + pair[0] + '</a></li>');
+//					}
+//				});
+				var html = "";
+				var obj = $.parseJSON(data);
+				$.each(obj, function(proposalName, sessions) {
+					var proposalId = proposalName.replace(new RegExp(' ', 'g'), '_');
+					if (Object.keys(sessions).length == 1) {
+						var sessionId = Object.keys(sessions)[0];
+						var pageId = sessions[sessionId];
+						html += '<li class="active has-sub"><a id="id_proposal_' + proposalId + '" onclick="load(\'' + sessionId + '\', \'' 
+							+ pageId + '\', \'' + proposalId + '\')">&nbsp;-&nbsp;Proposal - ' + proposalId + '</a>';
+						html += '<ul id="' + proposalId + '_ul">' + '<li><a id="' + sessionId + '" onclick="load(\'' + sessionId + '\', \'' 
+							+ pageId + '\', \'' + proposalId + '\')">&nbsp;&nbsp;--&nbsp;' + pageId + '</a></li></ul>';
+						html += '</li>';
+					} else if (Object.keys(sessions).length > 1) {
+						var proposalName = 'Proposal - ' + proposalId;
+						if (proposalId == 'Stand_Alone_Pages') {
+							proposalName = 'Stand Alone Pages';
+						}
+						html += '<li class="active has-sub"><a id="id_proposal_' + proposalId + '">&nbsp;-&nbsp;' + proposalName + '</a><ul id="' + proposalId + '_ul">';
+						$.each(sessions, function(sessionId, pageId) {
+							html += '<li><a id="' + sessionId + '" onclick="load(\'' + sessionId + '\', \''
+								+ pageId + '\', \'' + proposalId + '\')">&nbsp;&nbsp;--&nbsp;' + pageId + '</a></li>';
+						});
+						html += '</ul></li>';
+					}					
+				});
+				$("#id_ul_archiveList").append(html);
+				$('#id_ul_archiveList li.has-sub>a').on('click', function(){
+					$(this).removeAttr('href');
+					var element = $(this).parent('li');
+					if (element.hasClass('open')) {
+						element.removeClass('open');
+						element.find('li').removeClass('open');
+						element.find('ul').slideUp();
+					} else {
+						element.addClass('open');
+						element.children('ul').slideDown();
+						element.siblings('li').children('ul').slideUp();
+						element.siblings('li').removeClass('open');
+						element.siblings('li').find('li').removeClass('open');
+						element.siblings('li').find('ul').slideUp();
 					}
 				});
+
+				$('#id_ul_archiveList>li.has-sub>a').append('<span class="holder"></span>');
 			}
 		}
 	})
 	.fail(function(e) {
+		console.log(e);
 		alert( "error loading archive notebook files.");
 	});
 	
-	getUrl = "../notebook/load?" + timeString;
+	getUrl = "../notebook/currentpage?" + timeString;
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
-			$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>');
+			var splitIndex = data.indexOf(":");
+			var sessionId = data.substr(0, splitIndex);
+			data = data.substr(splitIndex + 1);
+			splitIndex = data.indexOf(":");
+			var pageId = data.substr(0, splitIndex);
+			data = data.substr(splitIndex + 1);
+			splitIndex = data.indexOf(":");
+			var proposalId = data.substr(0, splitIndex);
+			if (proposalId == 'null') {
+				proposalId = "N/A";
+			}
+			if (splitIndex < data.length) {
+				data = data.substr(splitIndex + 1);
+			} else {
+				data = "";
+			}
+			$("#id_a_reviewCurrent").html('Current Page - P' + proposalId + '<span class="holder"></span>');
+			$("#id_a_reviewCurrent").click(function() {
+				load(sessionId, pageId, proposalId);
+			});
+			$("#id_ul_currentpage").append('<li><a id="' + sessionId + '" onclick="loadCurrent(\'' + sessionId + '\', \'' 
+					+ pageId + '\', \'' + proposalId + '\')">&nbsp;&nbsp;--&nbsp;' + pageId + '</a></li>');
+			if ($.isNumeric(proposalId)) {
+				$('#id_content_header').html('<span>P' + proposalId + ' - Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>');				
+			} else {
+				$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>');
+			}
 			if (data.trim().length == 0) {
 				$('#id_div_content').html("<p><br></p>");
 			} else {
@@ -248,5 +434,28 @@ jQuery(document).ready(function() {
 	.fail(function(e) {
 		alert( "error loading current notebook file.");
 	});
+
+
+	$('#cssmenu li.has-sub>a').on('click', function(){
+		$(this).removeAttr('href');
+		var element = $(this).parent('li');
+		if (element.hasClass('open')) {
+			element.removeClass('open');
+			element.find('li').removeClass('open');
+			element.find('ul').slideUp();
+		} else {
+			element.addClass('open');
+			element.children('ul').slideDown();
+			element.siblings('li').children('ul').slideUp();
+			element.siblings('li').removeClass('open');
+			element.siblings('li').find('li').removeClass('open');
+			element.siblings('li').find('ul').slideUp();
+		}
+	});
+
+	$('#cssmenu>ul>li.has-sub>a').append('<span class="holder"></span>');
+
+	getColor();
+
 
 });
