@@ -202,9 +202,15 @@ $(function() {
 			      		var getUrl = "../notebook/new?proposal_id=" + proposalId + "&" + (new Date()).getTime();
 			    		$.get(getUrl, function(data, status) {
 			    			if (status == "success") {
+			    				var split = data.indexOf("=");
+			    				var header = data.substr(0, split);
+			    				var text = "";
+			    				if (data.length > split + 1) {
+			    					text = data.substr(split + 1)
+			    				}
 			    				$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>');
-			    				$('#id_div_content').html("<h1>Quokka Notebook Page: " + proposalId + "</h1><p>&nbsp;</p>");
-			    				var pair = data.split(";");
+			    				$('#id_div_content').html(text);
+			    				var pair = header.split(";");
 			    				var oldInfo = pair[0].split(":");
 			    				var oldSessionId = oldInfo[0];
 			    				var oldPageId = oldInfo[1];
@@ -217,6 +223,23 @@ $(function() {
 			    				var newPageId = newInfo[1];
 			    				var newProposalId = newInfo[2];
 			    				$("#id_a_reviewCurrent").html('Current Page - P' + newProposalId + '<span class="holder"></span>');
+			    				$("#id_a_reviewCurrent").unbind('click').click(function() {
+			    					$(this).removeAttr('href');
+									var element = $(this).parent('li');
+									if (element.hasClass('open')) {
+										element.removeClass('open');
+										element.find('li').removeClass('open');
+										element.find('ul').slideUp();
+									} else {
+										element.addClass('open');
+										element.children('ul').slideDown();
+										element.siblings('li').children('ul').slideUp();
+										element.siblings('li').removeClass('open');
+										element.siblings('li').find('li').removeClass('open');
+										element.siblings('li').find('ul').slideUp();
+									}
+									load(newSessionId, newPageId, newProposalId);
+			    				});
 			    				$("#id_ul_currentpage").empty().append('<li><a id="' + newSessionId + '" onclick="loadCurrent(\'' + newSessionId + '\', \'' 
 			    						+ newPageId + '\', \'' + newProposalId + '\')">&nbsp;&nbsp;--&nbsp;' + newPageId + '</a></li>');
 			    				if (document.getElementById("id_proposal_" + oldProposalId) !== null) {

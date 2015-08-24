@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.service.db.ControlDB;
@@ -32,6 +33,9 @@ import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
+
+import au.gov.ansto.bragg.nbi.service.soap.ProposalDBSOAPService;
+import au.gov.ansto.bragg.nbi.service.soap.ProposalDBSOAPService.ProposalItems;
 
 public class NotebookRestlet extends Restlet implements IDisposable {
 
@@ -66,6 +70,18 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private static final String SPAN_SEARCH_RESULT_HEADER = "<h4>";
 	private static final String DIV_END = "</div>";
 	private static final String SPAN_END = "</h4>";
+	private static final String EXPERIMENT_TABLE_HTML = "<div class=\"class_template_table class_template_object\" id=\"template_ec_1\">"
+			+ "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" class=\"xmlTable\" style=\"width:100%\">	<caption>Experiment Setup</caption>"
+			+ "<tbody><tr><th style=\"width: 40%;\">Start Date</th><td style=\"width: 60%;\">$START_DATE</td></tr><tr><th>End Date</th><td>$END_DATE</td></tr>"
+			+ "<tr><th>Proposal #</th><td>$ID</td></tr><tr><th>Proposal Name</th><td>$EXPERIMENT_TITLE</td></tr>"
+			+ "<tr><th>Principal Scientist</th><td>$PRINCIPAL_SCIENTIST</td></tr><tr><th>Email Address</th><td>$PRINCIPAL_EMAIL</td></tr>"
+			+ "<tr><th>Local Contact</th><td>$LOCAL_CONTACT</td></tr>"
+			+ "<tr><th>Experiment Description</th><td>$TEXT</td></tr><tr><th>Wavelength</th><td>A</td></tr>"
+//			+ "<tr><th>Wavelength Resolution</th><td>0.10</td></tr><tr><th>Standard / High res&rsquo;n NVS</th><td>Standard</td></tr>"
+//			+ "<tr><th>Apx softzero</th><td>&nbsp;</td></tr><tr><th>Samx softzero</th><td>&nbsp;</td></tr><tr><th>samy</th><td>&nbsp;</td></tr>"
+//			+ "<tr><th>samz</th><td>&nbsp;</td></tr><tr><th>Sample Environment</th><td>&nbsp;</td></tr><tr><th>T / P / field set-point</th><td>&nbsp;</td></tr>"
+//			+ "<tr><th>Cells used</th><td>&nbsp;</td></tr><tr><th>Sample alignment date</th><td>&nbsp;</td></tr><tr><th>Sensitivity file date</th><td>&nbsp;</td></tr>"
+			+ "</tbody></table></div><br><p/>";
 	
 	private String currentFileFolder;
 	private String currentDBFolder;
@@ -292,13 +308,63 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					return;
 				}
 				PrintWriter pw = null;
+				String html = "";
 				try {
 					pw = new PrintWriter(new FileWriter(newFile));
 					if (proposalId != null) {
-						pw.write("<h1>Quokka Notebook Page: " + proposalId + "</h1><p/>");
+						html += "<h1>Quokka Notebook Page: " + proposalId + "</h1><p/>";
+						int proposalInt = 0;
+						try {
+							proposalInt = Integer.valueOf(proposalId);
+						} catch (Exception e) {
+						}
+						if (proposalInt > 0) {
+							Map<ProposalItems, String> proposalInfo = ProposalDBSOAPService.getProposalInfo(proposalInt, "quokka");
+							String space = "&nbsp;";
+							if (proposalInfo != null) {
+								String tableHtml = EXPERIMENT_TABLE_HTML.replace("$" + ProposalItems.ID.name(), proposalId);
+								String user = proposalInfo.get(ProposalItems.PRINCIPAL_SCIENTIST);
+								if (user == null) {
+									user = space;
+								}
+								tableHtml = tableHtml.replace("$" + ProposalItems.PRINCIPAL_SCIENTIST.name(), user);
+								String email = proposalInfo.get(ProposalItems.PRINCIPAL_EMAIL);
+								if (email == null) {
+									email = space;
+								}
+								tableHtml = tableHtml.replace("$" + ProposalItems.PRINCIPAL_EMAIL.name(), email);
+								String title = proposalInfo.get(ProposalItems.EXPERIMENT_TITLE);
+								if (title == null) {
+									title = space;
+								}
+								tableHtml = tableHtml.replace("$" + ProposalItems.EXPERIMENT_TITLE.name(), title);
+								String text = proposalInfo.get(ProposalItems.TEXT);
+								if (text == null) {
+									text = space;
+								}
+								tableHtml = tableHtml.replace("$" + ProposalItems.TEXT.name(), text);
+								String start = proposalInfo.get(ProposalItems.START_DATE);
+								if (start == null) {
+									start = space;
+								}
+								tableHtml = tableHtml.replace("$" + ProposalItems.START_DATE.name(), start);
+								String end = proposalInfo.get(ProposalItems.END_DATE);
+								if (end == null) {
+									end = space;
+								}
+								tableHtml = tableHtml.replace("$" + ProposalItems.END_DATE.name(), end);
+								String contact = proposalInfo.get(ProposalItems.LOCAL_CONTACT);
+								if (contact == null) {
+									contact = space;
+								}
+								tableHtml = tableHtml.replace("$" + ProposalItems.LOCAL_CONTACT.name(), contact);
+								html += tableHtml;
+							}
+						}
 					} else {
-						pw.write("<h1>Quokka Notebook</h1><p/>");						
+						html += "<h1>Quokka Notebook</h1><p/>";						
 					}
+					pw.write(html);
 					pw.close();					
 				} finally {
 					if (pw != null) {
@@ -326,7 +392,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						e.printStackTrace();
 					}
 				}
-				response.setEntity(oldSession + ":" + oldName + ":" + oldProposal + ";" + sessionId + ":" + newName + ":" + proposalId, MediaType.TEXT_PLAIN);
+				response.setEntity(oldSession + ":" + oldName + ":" + oldProposal + ";" + sessionId + ":" + newName + ":" + proposalId + "=" + html, MediaType.TEXT_PLAIN);
 			} catch (Exception e) {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 				return;
