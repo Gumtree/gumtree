@@ -16,6 +16,29 @@ function getParam(sParam) {
 	}
 }
 
+function getPdf(page, session){
+	var getUrl = "../notebook/pdf";
+	if (typeof(session) !== "undefined") { 
+		 getUrl += "?session=" + session;
+	}
+//    window.location.href = getUrl;
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+			var pair = data.split(":");
+			var fileUrl = "../notebook/download/" + page + ".pdf?ext=" + pair[1];
+			if (typeof(session) !== "undefined") { 
+				 fileUrl += "&session=" + session;
+			}
+			$.fileDownload(fileUrl)
+		    	.done(function () {})
+		    	.fail(function () { alert('File download failed!'); });
+		}
+	})
+	.fail(function(e) {
+		alert( "error creating PDF file for " + page + ".");
+	});
+}
+
 function load(id, name, proposal, pattern) {
 	getUrl = "../notebook/load?session=" + id;
 	if (typeof(pattern) !== "undefined") { 
@@ -25,9 +48,10 @@ function load(id, name, proposal, pattern) {
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
 			if (typeof(proposal) !== "undefined" && $.isNumeric(proposal)) { 
-				 name = 'P' + proposal + ": " + name;
+				 var text = 'P' + proposal + ": " + name;
 			}			
-			$('#id_content_header').html('<span>' + name + '</span><a class="class_div_button" onclick="edit(\'' + id + '\')">Edit</a>');
+			$('#id_content_header').html('<span>' + text + '</span><a class="class_div_button" onclick="edit(\'' 
+					+ id + '\')">Edit</a>&nbsp;<a class="class_div_button" onclick="getPdf(\'' + name + '\', \'' + id + '\')">PDF</a><div class="id_div_busyIndicator">&nbsp;</div>');
 			$('#id_div_content').html(data);
 		}
 	})
@@ -208,8 +232,6 @@ $(function() {
 			    				if (data.length > split + 1) {
 			    					text = data.substr(split + 1)
 			    				}
-			    				$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>');
-			    				$('#id_div_content').html(text);
 			    				var pair = header.split(";");
 			    				var oldInfo = pair[0].split(":");
 			    				var oldSessionId = oldInfo[0];
@@ -222,6 +244,9 @@ $(function() {
 			    				var newSessionId = newInfo[0];
 			    				var newPageId = newInfo[1];
 			    				var newProposalId = newInfo[2];
+			    				$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>'
+			    						+ '&nbsp;<a class="class_div_button" onclick="getPdf(\'' + newPageId + '\')">PDF</a><div class="id_div_busyIndicator">&nbsp;</div>');
+			    				$('#id_div_content').html(text);
 			    				$("#id_a_reviewCurrent").html('Current Page - P' + newProposalId + '<span class="holder"></span>');
 			    				$("#id_a_reviewCurrent").unbind('click').click(function() {
 			    					$(this).removeAttr('href');
@@ -344,6 +369,14 @@ $(function() {
 
 jQuery(document).ready(function() {
 	
+	jQuery(document).ajaxStart(function () {
+		//show ajax indicator
+		$('.id_div_busyIndicator').show();
+	}).ajaxStop(function () {
+		//hide ajax indicator
+		$('.id_div_busyIndicator').hide();
+	});
+	
 	var notebookTitle = 'Manage Notebook - ' + title;
 	$(document).attr("title", notebookTitle);
 	$('#id_div_header').html("<span>" + notebookTitle + "</span>");
@@ -443,9 +476,11 @@ jQuery(document).ready(function() {
 			$("#id_ul_currentpage").append('<li><a id="' + sessionId + '" onclick="loadCurrent(\'' + sessionId + '\', \'' 
 					+ pageId + '\', \'' + proposalId + '\')">&nbsp;&nbsp;--&nbsp;' + pageId + '</a></li>');
 			if ($.isNumeric(proposalId)) {
-				$('#id_content_header').html('<span>P' + proposalId + ' - Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>');				
+				$('#id_content_header').html('<span>P' + proposalId + ' - Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>'
+						+ '&nbsp;<a class="class_div_button" onclick="getPdf(\'' + pageId + '\')">PDF</a><div class="id_div_busyIndicator">&nbsp;</div>');
 			} else {
-				$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>');
+				$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>'
+						+ '&nbsp;<a class="class_div_button" onclick="getPdf(\'' + pageId + '\', \'' + sessionId + '\')">PDF</a><div class="id_div_busyIndicator">&nbsp;</div>');
 			}
 			if (data.trim().length == 0) {
 				$('#id_div_content').html("<p><br></p>");

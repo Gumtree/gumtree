@@ -29,9 +29,11 @@ import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
+import org.restlet.data.Disposition;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
+import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
 
 import au.gov.ansto.bragg.nbi.service.soap.ProposalDBSOAPService;
@@ -51,12 +53,15 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String SEG_NAME_MANAGEGUIDE = "manageguide";
 	private final static String SEG_NAME_DB = "db";
 	private final static String SEG_NAME_NEW = "new";
+	private final static String SEG_NAME_PDF = "pdf";
+	private final static String SEG_NAME_DOWNLOAD = "download";
 	private final static String SEG_NAME_ARCHIVE = "archive";
 	private final static String SEG_NAME_TEMPLATE = "template";
 	private final static String STRING_CONTENT_START = "content=";
 	private final static String PREFIX_NOTEBOOK_FILES = "Page_";
 	private final static String PROP_NOTEBOOK_SAVEPATH = "gumtree.notebook.savePath";
 	private final static String PROP_DATABASE_SAVEPATH = "gumtree.loggingDB.savePath";
+	private final static String PROP_PDF_FOLDER = "gumtree.notebook.pdfPath";
 	private final static String NOTEBOOK_TEMPLATEFILENAME = "template.xml";
 	private final static String NOTEBOOK_HELPFILENAME = "guide.xml";
 	private final static String NOTEBOOK_MANAGEHELP_FILENAME = "ManagerUsersGuide.xml";
@@ -64,6 +69,8 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private static final String QUERY_ENTRY_START = "start";
 	private static final String QUERY_ENTRY_LENGTH = "length";
 	private final static String QUERY_SESSION_ID = "session";
+	private final static String QUERY_PAGE_ID = "page";
+	private final static String QUERY_EXTNAME_ID = "ext";
 	private static final String QUERY_PATTERN = "pattern";
 	private static final String QUERY_PROPOSAL_ID = "proposal_id";
 	private static final String FILE_FREFIX = "<div class=\"class_div_search_file\" name=\"$filename\" session=\"$session\" proposal=\"$proposal\">";
@@ -81,7 +88,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 //			+ "<tr><th>Apx softzero</th><td>&nbsp;</td></tr><tr><th>Samx softzero</th><td>&nbsp;</td></tr><tr><th>samy</th><td>&nbsp;</td></tr>"
 //			+ "<tr><th>samz</th><td>&nbsp;</td></tr><tr><th>Sample Environment</th><td>&nbsp;</td></tr><tr><th>T / P / field set-point</th><td>&nbsp;</td></tr>"
 //			+ "<tr><th>Cells used</th><td>&nbsp;</td></tr><tr><th>Sample alignment date</th><td>&nbsp;</td></tr><tr><th>Sensitivity file date</th><td>&nbsp;</td></tr>"
-			+ "</tbody></table></div><br><p/>";
+			+ "</tbody></table></div><p/>";
 	
 	private String currentFileFolder;
 	private String currentDBFolder;
@@ -90,6 +97,8 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private SessionDB sessionDb;
 	private ControlDB controlDb;
 	private ProposalDB proposalDb;
+	private String pdfFolder;
+	private NotebookPDFService pdfService;
 	
 	/**
 	 * @param context
@@ -103,6 +112,8 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		sessionDb = SessionDB.getInstance();
 		controlDb = ControlDB.getInstance();
 		proposalDb = ProposalDB.getInstance();
+		pdfFolder = System.getProperty(PROP_PDF_FOLDER);
+		pdfService = new NotebookPDFService(pdfFolder);
 	}
 
 	/* (non-Javadoc)
@@ -117,6 +128,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		
 //		Form queryForm = request.getResourceRef().getQueryAsForm();
 		String seg = request.getResourceRef().getLastSegment();
+		List<String> segList = request.getResourceRef().getSegments();
 		String ip = request.getClientInfo().getUpstreamAddress();
 		if (SEG_NAME_SAVE.equals(seg)) {
 //			String content = rForm.getValues("content");
@@ -210,6 +222,59 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		    		return;
 		    	}
 		    }
+		} else if (SEG_NAME_PDF.equals(seg)) {
+			Form queryForm = request.getResourceRef().getQueryAsForm();
+		    String sessionId = queryForm.getValues(QUERY_SESSION_ID);
+		    String sourceFilename = null;
+    		String sessionValue = null;
+    		String targetFilename = null;
+			String expName = String.valueOf(System.currentTimeMillis());
+		    if (sessionId == null || sessionId.trim().length() == 0) {
+				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+					response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
+		    	try {
+		    		sessionId = controlDb.getCurrentSessionId();
+		    		sessionValue = sessionDb.getSessionValue(sessionId);
+		    		sourceFilename = currentFileFolder + "/" + sessionValue + ".xml";
+		    		targetFilename = sessionValue + "_" + expName + ".pdf";
+		    	} catch (Exception e) {
+		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+		    		return;
+		    	}
+		    } else {
+		    	try {
+		    		sessionValue = sessionDb.getSessionValue(sessionId);
+		    		sourceFilename = currentFileFolder + "/" + sessionDb.getSessionValue(sessionId) + ".xml";
+		    		targetFilename = sessionValue + "_" + expName + ".pdf";
+		    	} catch (Exception e) {
+		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+		    		return;
+		    	}
+		    }
+    		File current = new File(sourceFilename);
+    		if (current.exists()) {
+    			String targetPath = pdfFolder + "/" + targetFilename;
+    			try {
+    				boolean isSuccessful = pdfService.createPDF(sourceFilename, targetPath);
+    				if (isSuccessful) {
+//    					FileRepresentation representation = new FileRepresentation(targetPath, MediaType.APPLICATION_ZIP);
+//    					Disposition disposition = new Disposition();
+//    					disposition.setFilename(targetFilename);
+//    					representation.setDisposition(disposition);
+//    					response.setEntity(representation);
+    					response.setEntity(sessionValue + ":" + expName, MediaType.TEXT_PLAIN);
+    				} else {
+    					response.setStatus(Status.SERVER_ERROR_INTERNAL, "Time out creating the PDF file.");
+    					return;
+        			}
+				} catch (Exception e) {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+					return;
+				}
+    		}
 		} else if (SEG_NAME_CURRENTPAGE.equals(seg)) {
 			if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
 				response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);
@@ -553,7 +618,51 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 				return;
 			}
-		}
+		} else if (seg.toLowerCase().endsWith(".pdf") && segList.size() > 1 && segList.get(segList.size() - 2).equals(SEG_NAME_DOWNLOAD)) {
+			Form queryForm = request.getResourceRef().getQueryAsForm();
+		    String sessionId = queryForm.getValues(QUERY_SESSION_ID);
+		    String pageId = seg.replaceAll(".pdf", "");
+		    String extName = queryForm.getValues(QUERY_EXTNAME_ID);
+		    String targetFilename = null;
+		    if (sessionId == null || sessionId.trim().length() == 0) {
+				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+					response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				} else {
+					targetFilename = pageId + "_" + extName + ".pdf";
+				}
+		    } else {
+		    	try {
+		    		String sessionValue = sessionDb.getSessionValue(sessionId);
+		    		if (!sessionValue.equals(pageId)) {
+		    			response.setStatus(Status.SERVER_ERROR_INTERNAL, "<span style=\"color:red\">Illigal session.</span>");
+			    		return;
+		    		}
+		    		targetFilename = pageId + "_" + extName + ".pdf";
+		    	} catch (Exception e) {
+		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+		    		return;
+		    	}
+		    }
+			String targetPath = pdfFolder + "/" + targetFilename;
+    		File current = new File(targetPath);
+    		if (current.exists()) {
+    			try {
+    				FileRepresentation representation = new FileRepresentation(targetPath, MediaType.APPLICATION_ZIP);
+    				Disposition disposition = new Disposition();
+    				disposition.setFilename(targetFilename);
+    				representation.setDisposition(disposition);
+    				response.setEntity(representation);
+				} catch (Exception e) {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+					return;
+				}
+    		} else {
+    			response.setStatus(Status.SERVER_ERROR_INTERNAL, "File not found.");
+				return;
+    		}
+		} 
 		response.setStatus(Status.SUCCESS_OK);
 //	    String typeString = queryForm.getValues(QUERY_TYPE);
 //	    JSONObject jsonObject = new JSONObject();

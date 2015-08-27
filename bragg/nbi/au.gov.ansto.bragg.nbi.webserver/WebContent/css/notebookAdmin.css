@@ -231,3 +231,11 @@ footer {
 	font-size: .66em;
 	text-decoration: underline;
 }
+
+div.id_div_busyIndicator {
+	display: inline-block;
+	margin-left: 10px;
+	width: 24px;
+	height: 24px;
+	background-image:url('../images/ajax-loader-24.gif');
+}

@@ -66,6 +66,32 @@ function getParam(sParam) {
 	return null;
 }
 
+function getPdf() {
+	var getUrl = "notebook/pdf";
+	var session = getParam("session");
+	if (session != null) { 
+		 getUrl += "?session=" + session;
+	}
+//    window.location.href = getUrl;
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+			var pair = data.split(":");
+			var fileUrl = "notebook/download/" + pair[0] + ".pdf?ext=" + pair[1];
+			if (session != null) { 
+				 fileUrl += "&session=" + session;
+			}
+			setTimeout(function() {
+				$.fileDownload(fileUrl)
+		    	.done(function () {})
+		    	.fail(function () { alert('File download failed!'); });				
+			}, 1000);
+		}
+	})
+	.fail(function(e) {
+		alert( "error creating PDF file for " + page + ".");
+	});
+}
+
 function drag(ev) {
 //	var html = ev.target.outerHTML;
 	var element = $('<div />').append(ev.target.outerHTML);

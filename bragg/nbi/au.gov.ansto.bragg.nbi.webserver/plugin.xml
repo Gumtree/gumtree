@@ -96,10 +96,6 @@
             base-name="/WebContent/logbook.html">
       </resource>
       <resource
-            alias="/pyscript.js"
-            base-name="/WebContent/pyscript.js">
-      </resource>
-      <resource
             alias="/mobilehistmem.js"
             base-name="/WebContent/mobilehistmem.js">
       </resource>
