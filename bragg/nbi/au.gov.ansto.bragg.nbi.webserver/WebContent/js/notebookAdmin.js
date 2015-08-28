@@ -326,6 +326,16 @@ $(function() {
 		      }
 		});
 		
+	    $("#id_input_proposal_id").keydown(function (event) {
+	        if (event.keyCode == 13) {
+	            $(this).parent().parent().parent()
+	                   .find("button:eq(1)").trigger("click");
+//	        	console.log($(this).parent().parent().parent()
+//		                   .find("button:eq(1)").html());
+	            return false;
+	        }
+	    });
+	    
 	});
 });
 

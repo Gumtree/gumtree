@@ -217,7 +217,7 @@ public class ExperimentUserReportUtils {
 	
 	public static String exportAcquisitionTable(Acquisition acquisition, InstrumentConfig config) {
 		StringBuilder html = new StringBuilder("<table align='center' " + 
-				"border='1' cellpadding='2' cellspacing='0' class='xmlTable' style='width:100%'>\r\n");
+				"border='1' cellpadding='2' cellspacing='0' class='xmlTable' style='table-layout:fixed; width:100%; word-wrap:break-word'>\r\n");
 		String envText = "";
 		if (acquisition.getExperiment().isControlledEnvironment() && acquisition instanceof ControlledAcquisition) {
 			Map<SampleEnvironment, SampleEnvironmentPreset> envSettings = ((ControlledAcquisition) acquisition).getEnvSettings();
@@ -278,7 +278,7 @@ public class ExperimentUserReportUtils {
 	
 	public static String createExperimentInfoTable(Experiment experiment) {
 		StringBuilder html = new StringBuilder("<table align='center' " + 
-				"border='1' cellpadding='2' cellspacing='0' class='xmlTable' style='width:100%'>\r\n");
+				"border='1' cellpadding='2' cellspacing='0' class='xmlTable' style='table-layout:fixed; width:100%; word-wrap:break-word'>\r\n");
 		String title = experiment.getTitle();
 		String user = experiment.getUser().getName();
 		String email = experiment.getUser().getEmail();

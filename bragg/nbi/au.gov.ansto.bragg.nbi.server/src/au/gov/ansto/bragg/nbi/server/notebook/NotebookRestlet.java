@@ -78,7 +78,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private static final String DIV_END = "</div>";
 	private static final String SPAN_END = "</h4>";
 	private static final String EXPERIMENT_TABLE_HTML = "<div class=\"class_template_table class_template_object\" id=\"template_ec_1\">"
-			+ "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" class=\"xmlTable\" style=\"width:100%\">	<caption>Experiment Setup</caption>"
+			+ "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" class=\"xmlTable\" style=\"table-layout:fixed; width:100%; word-wrap:break-word\"><caption>Experiment Setup</caption>"
 			+ "<tbody><tr><th style=\"width: 40%;\">Start Date</th><td style=\"width: 60%;\">$START_DATE</td></tr><tr><th>End Date</th><td>$END_DATE</td></tr>"
 			+ "<tr><th>Proposal #</th><td>$ID</td></tr><tr><th>Proposal Name</th><td>$EXPERIMENT_TITLE</td></tr>"
 			+ "<tr><th>Principal Scientist</th><td>$PRINCIPAL_SCIENTIST</td></tr><tr><th>Email Address</th><td>$PRINCIPAL_EMAIL</td></tr>"
