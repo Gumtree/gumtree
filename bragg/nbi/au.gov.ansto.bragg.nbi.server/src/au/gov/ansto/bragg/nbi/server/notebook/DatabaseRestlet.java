@@ -6,6 +6,7 @@ import java.util.List;
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.service.db.ControlDB;
 import org.gumtree.service.db.LoggingDB;
+import org.gumtree.service.db.ProposalDB;
 import org.gumtree.service.db.SessionDB;
 import org.restlet.Context;
 import org.restlet.Request;
@@ -42,6 +43,7 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 	
 	private SessionDB sessionDb;
 	private ControlDB controlDb;
+	private ProposalDB proposalDb;
 	
 	/**
 	 * @param context
@@ -50,6 +52,8 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 		super(context);
 		sessionDb = SessionDB.getInstance();
 		controlDb = ControlDB.getInstance();
+		proposalDb = ProposalDB.getInstance();
+		
 //		currentDBPath = System.getProperty(PROP_DATABASE_SAVEPATH) + "/" + NOTEBOOK_DBFILENAME;
 	}
 
@@ -72,7 +76,8 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 	    	String html = form.getValues(QUERY_ID_HTML);
 	    	try {
 		    	String sessionId = controlDb.getCurrentSessionId();
-		    	String dbName = sessionDb.getSessionValue(sessionId);
+//		    	String dbName = sessionDb.getSessionValue(sessionId);
+		    	String dbName = proposalDb.findProposalId(sessionId);
 				LoggingDB db = LoggingDB.getInstance(dbName);
 				db.appendHtmlEntry(key, html);
 			} catch (Exception e) {
@@ -81,7 +86,8 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 		} else if (SEG_NAME_CLOSE.equals(seg)) {
 			try {
 				String sessionId = controlDb.getCurrentSessionId();
-		    	String dbName = sessionDb.getSessionValue(sessionId);
+//		    	String dbName = sessionDb.getSessionValue(sessionId);
+				String dbName = proposalDb.findProposalId(sessionId);
 				LoggingDB db = LoggingDB.getInstance(dbName);
 				db.close();
 			} catch (Exception e) {
@@ -101,7 +107,8 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 				if (sessionId == null || sessionId.trim().length() == 0) {
 			    	sessionId = controlDb.getCurrentSessionId();					
 				}
-		    	String dbName = sessionDb.getSessionValue(sessionId);
+//		    	String dbName = sessionDb.getSessionValue(sessionId);
+				String dbName = proposalDb.findProposalId(sessionId);
 				LoggingDB db = LoggingDB.getInstance(dbName);
 				String searchRes = db.search(pattern);
 				if (searchRes.length() > 0){
@@ -127,7 +134,8 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 				String[] sessionPairs = new String[sessionIds.size()];
 				int index = 0;
 				for (String id : sessionIds) {
-					sessionPairs[index++] = sessionDb.getSessionValue(id) + ":" + id;
+//					sessionPairs[index++] = sessionDb.getSessionValue(id) + ":" + id;
+					sessionPairs[index++] = proposalDb.findProposalId(id) + ":" + id;
 					//						sessionPairs[index++] = sessionDb.getSessionValue(id);
 				}
 				Arrays.sort(sessionPairs);

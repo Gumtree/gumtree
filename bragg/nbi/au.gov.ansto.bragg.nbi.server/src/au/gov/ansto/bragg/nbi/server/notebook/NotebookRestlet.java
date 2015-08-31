@@ -326,7 +326,8 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	    	final int length = Integer.valueOf(form.getValues(QUERY_ENTRY_LENGTH));
 	    	TextDb db = null;
 			try {
-			    String dbName = sessionDb.getSessionValue(sessionId);
+//			    String dbName = sessionDb.getSessionValue(sessionId);
+				String dbName = proposalDb.findProposalId(sessionId);
 			    dbName = currentDBFolder + "/" + dbName + ".rdf";
 			    File dbFile = new File(dbName);
 			    if (!dbFile.exists()) {
@@ -443,8 +444,8 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					oldSession = controlDb.getCurrentSessionId();
 					oldName = sessionDb.getSessionValue(oldSession);
 					oldProposal = proposalDb.findProposalId(oldSession);
-					LoggingDB db = LoggingDB.getInstance(oldName);
-					db.close();
+//					LoggingDB db = LoggingDB.getInstance(oldName);
+//					db.close();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
