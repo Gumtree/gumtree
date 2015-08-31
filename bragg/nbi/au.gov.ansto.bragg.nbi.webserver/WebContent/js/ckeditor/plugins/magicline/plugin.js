@@ -273,6 +273,56 @@
 				[ config.magicline_keystrokeNext, 'accessNextSpace' ]
 			] );
 
+			if (editor.addMenuItems) {
+				  // 1st, add a Menu Group
+				  // tip: name it the same as your plugin. (I'm not sure about this)
+				  editor.addMenuGroup('magicline', 21);
+
+				  // 2nd, use addMenuItems to add items
+				  editor.addMenuItems({
+				      // 2.1 add the group again, and give it getItems, return all the child items
+				      magicline :
+				      {
+				        label : 'Add Empty Line',
+				        group : 'magicline',
+				        order : 201,
+				        getItems : function() {
+				          return {
+				        	  magicline_before : CKEDITOR.TRISTATE_OFF,
+				        	  magicline_after : CKEDITOR.TRISTATE_OFF
+				          };
+				        }
+				      },
+
+				      // 2.2 Now add the child items to the group.
+				      magicline_before :
+				      {
+				        label : 'Add Line before Paragraph',
+				        group : 'magicline',
+				        command : 'accessPreviousSpace',
+				        order : 202
+				      },
+
+				      magicline_after :
+				      {
+				        label : 'Add Line after Paragraph',
+				        group : 'magicline',
+				        command : 'accessNextSpace',
+				        order : 203
+				      }
+
+				  });
+				}
+
+				// 3rd, add Listener, and return the Menu Group
+				if (editor.contextMenu) {
+				  editor.contextMenu.addListener(function(element, selection) {
+				    return {
+				    	magicline : CKEDITOR.TRISTATE_OFF
+				    };
+				  });
+				}
+				
 			// Revert magicline hot node on undo/redo.
 			editor.on( 'loadSnapshot', function() {
 				var elements, element, i;

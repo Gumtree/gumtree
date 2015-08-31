@@ -35,7 +35,7 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 //	private final static String PROP_DATABASE_SAVEPATH = "gumtree.loggingDB.savePath";
 	private static final String QUERY_PATTERN = "pattern";
 	private static final String FILE_FREFIX = "<div class=\"class_div_search_db\" name=\"$filename\" session=\"$session\">";
-	private static final String SPAN_SEARCH_RESULT_HEADER = "<h4>";
+	private static final String SPAN_SEARCH_RESULT_HEADER = "<h4>Proposal ";
 	private static final String DIV_END = "</div>";
 	private static final String SPAN_END = "</h4>";
 	
@@ -130,13 +130,22 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 					return;
 				}
 				
-				List<String> sessionIds = sessionDb.listSessionIds();
-				String[] sessionPairs = new String[sessionIds.size()];
+//				List<String> sessionIds = sessionDb.listSessionIds();
+//				String[] sessionPairs = new String[sessionIds.size()];
+//				int index = 0;
+//				for (String id : sessionIds) {
+////					sessionPairs[index++] = sessionDb.getSessionValue(id) + ":" + id;
+//					sessionPairs[index++] = proposalDb.findProposalId(id) + ":" + id;
+//					//						sessionPairs[index++] = sessionDb.getSessionValue(id);
+//				}
+				List<String> proposalIds = proposalDb.listProposalIds();
+				String[] sessionPairs = new String[proposalIds.size()];
 				int index = 0;
-				for (String id : sessionIds) {
-//					sessionPairs[index++] = sessionDb.getSessionValue(id) + ":" + id;
-					sessionPairs[index++] = proposalDb.findProposalId(id) + ":" + id;
-					//						sessionPairs[index++] = sessionDb.getSessionValue(id);
+				for (String proposalId : proposalIds) {
+					String sessionId = proposalDb.getLastSessionId(proposalId);
+					if (sessionId != null) {
+						sessionPairs[index++] = proposalId + ":" + proposalDb.getLastSessionId(proposalId);						
+					}
 				}
 				Arrays.sort(sessionPairs);
 				String responseText = "";

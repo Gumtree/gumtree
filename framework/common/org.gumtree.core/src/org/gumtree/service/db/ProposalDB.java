@@ -48,6 +48,19 @@ public class ProposalDB {
 			return null;
 	}
 	
+	public String getLastSessionId(String proposalId) throws ClassNotFoundException, RecordsFileException, IOException {
+		Object entry = null;
+		try {
+			entry = db.getEntry(proposalId);
+		} catch (Exception e) {
+		}
+		if (entry != null) {
+			String[] proposalIds = entry.toString().split(":");
+			return proposalIds[proposalIds.length - 1];
+		} 
+		return null;
+	}
+	
 	public String findProposalId(String sessionId) throws IOException, ClassNotFoundException, RecordsFileException {
 		int index = 0;
 		if (sessionId == null) {
