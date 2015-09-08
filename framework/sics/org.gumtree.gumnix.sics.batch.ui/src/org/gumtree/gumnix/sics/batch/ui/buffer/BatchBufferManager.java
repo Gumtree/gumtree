@@ -305,7 +305,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			try {
 				while((line = reader.readLine()) != null) {
 					if (escapeBrackets) {
-						line = line.replace("{", "\\{").replace("}", "\\}");
+						line = line.replace("{", "\\{").replace("}", "\\}").replace("\"", "\\\"");
 					}
 					asyncSend("exe append " + line, null, ISicsProxy.CHANNEL_RAW_BATCH);
 				}
