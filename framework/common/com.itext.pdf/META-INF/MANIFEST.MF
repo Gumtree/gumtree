@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Pdf
+Bundle-Name: iText Pdf
 Bundle-SymbolicName: com.itext.pdf
 Bundle-Version: 5.5.6.qualifier
 Bundle-ClassPath: xmlworker-5.5.6.jar,
