@@ -1,48 +1,48 @@
 ﻿(function () {
-    'use strict';
+	'use strict';
 
-    CKEDITOR.plugins.add('pastebase64', {
-        init: init
-    });
+	CKEDITOR.plugins.add('pastebase64', {
+		init: init
+	});
 
-    function init(editor) {
-        if (editor.addFeature) {
-            editor.addFeature({
-                allowedContent: 'img[alt,id,!src]{width,height};'
-            });
-        }
+	function init(editor) {
+		if (editor.addFeature) {
+			editor.addFeature({
+				allowedContent: 'img[alt,id,!src]{width,height};'
+			});
+		}
 
-        editor.on("contentDom", function () {
-            var editableElement = editor.editable ? editor.editable() : editor.document;
-            editableElement.on("paste", onPaste, null, {editor: editor});
-            editableElement.on('drop', onDrop, null, {editor: editor});
-        });
-    }
+		editor.on("contentDom", function () {
+			var editableElement = editor.editable ? editor.editable() : editor.document;
+			editableElement.on("paste", onPaste, null, {editor: editor});
+			editableElement.on('drop', onDrop, null, {editor: editor});
+		});
+	}
 
-    function listProp(obj){
-        var text = "";
-        $.each( obj, function(i, n){
-            text += i + ":" + n + "\n";
-        });
-        return text;
-    }
-    
-    function onDrop(event) {
-        var editor = event.listenerData && event.listenerData.editor;
-        var $event = event.data.$;
-//        var clipboardData = $event.clipboardData;
+	function listProp(obj){
+		var text = "";
+		$.each( obj, function(i, n){
+			text += i + ":" + n + "\n";
+		});
+		return text;
+	}
+
+	function onDrop(event) {
+		var editor = event.listenerData && event.listenerData.editor;
+		var $event = event.data.$;
+//		var clipboardData = $event.clipboardData;
 
 		// Let user modify drag and drop range.
 		var dropRange = $event.dropRange,
-			dragRange = $event.dragRange,
-			dataTransfer = $event.dataTransfer;
+		dragRange = $event.dragRange,
+		dataTransfer = $event.dataTransfer;
 
-        if (!dataTransfer) {
-            return;
-        }
+		if (!dataTransfer) {
+			return;
+		}
 
-        var found = false;
-        var imageType = /^image/;
+		var found = false;
+		var imageType = /^image/;
 
 		if (dataTransfer.files && dataTransfer.files.length > 0) {
 			console.log('number of files = ' + dataTransfer.files.length);
@@ -57,7 +57,7 @@
 		if (found) {
 			return found;
 		}
-		
+
 		if (dataTransfer.items && dataTransfer.items.length > 0) {
 			console.log('number of items = ' + dataTransfer.items.length);
 			for (var i = 0; i < dataTransfer.items.length; i++){
@@ -68,22 +68,31 @@
 				}
 			}
 		}
-		
+
 		return found;
+
+	}
+
+	function onPaste(event) {
+		var editor = event.listenerData && event.listenerData.editor;
+		var $event = event.data.$;
+		var clipboardData = $event.clipboardData;
+		var found = false;
+		var imageType = /^image/;
+
+		if (!clipboardData) {
+			return;
+		}
+
+//		var eventData = CKEDITOR.plugins.clipboard.initPasteDataTransfer(event);
+//		eventData.cacheData();
+//		console.log(CKEDITOR.plugins.clipboard.initPasteDataTransfer(event)._.data);
+//		var text = eventData.getData('text/html');
 		
-    }
-    
-    function onPaste(event) {
-        var editor = event.listenerData && event.listenerData.editor;
-        var $event = event.data.$;
-        var clipboardData = $event.clipboardData;
-        var found = false;
-        var imageType = /^image/;
-
-        if (!clipboardData) {
-            return;
-        }
-
+//		var text = clipboardData.getData('text/html');
+//		clipboardData.setData('text/html', '<p>haha</p>');
+//		console.log(text);
+		
 		if (clipboardData.files && clipboardData.files.length > 0) {
 			console.log('number of files = ' + clipboardData.files.length);
 			for (var i = 0; i < clipboardData.files.length; i++){
@@ -97,7 +106,7 @@
 		if (found) {
 			return found;
 		}
-		
+
 		if (clipboardData.items && clipboardData.items.length > 0) {
 			console.log('number of items = ' + clipboardData.items.length);
 			for (var i = 0; i < clipboardData.items.length; i++){
@@ -109,52 +118,52 @@
 			}
 		}
 		return found;
-//        return Array.prototype.forEach.call(clipboardData.types, function (type, i) {
-//            if (found) {
-//                return;
-//            }
-//            if (clipboardData.items) {
-//                if (type.match(imageType) || clipboardData.items[i].type.match(imageType)) {
-//                    readImageAsBase64(clipboardData.items[i], editor);
-//                    return found = true;
-//                }            	
-//            } else if (clipboardData.files && clipboardData.files.length > 0) {
-//            	if (type.match(imageType) || clipboardData.files[i].type.match(imageType)) {
-//                    readImageAsBase64(clipboardData.files[i], editor);
-//                    return found = true;
-//                }
-//            }
-//        });
-    }
+//		return Array.prototype.forEach.call(clipboardData.types, function (type, i) {
+//		if (found) {
+//		return;
+//		}
+//		if (clipboardData.items) {
+//		if (type.match(imageType) || clipboardData.items[i].type.match(imageType)) {
+//		readImageAsBase64(clipboardData.items[i], editor);
+//		return found = true;
+//		}            	
+//		} else if (clipboardData.files && clipboardData.files.length > 0) {
+//		if (type.match(imageType) || clipboardData.files[i].type.match(imageType)) {
+//		readImageAsBase64(clipboardData.files[i], editor);
+//		return found = true;
+//		}
+//		}
+//		});
+	}
 
-    function readImageAsBase64(item, editor) {
-        if (!item) {
-            return;
-        }
+	function readImageAsBase64(item, editor) {
+		if (!item) {
+			return;
+		}
 
-        var file;
-        if ( typeof item.getAsFile === 'function') {
-        	file = item.getAsFile();
-        } else {
-        	file = item;
-        }
-        	
-        var reader = new FileReader();
+		var file;
+		if ( typeof item.getAsFile === 'function') {
+			file = item.getAsFile();
+		} else {
+			file = item;
+		}
 
-        reader.onload = function (evt) {
-            var element = editor.document.createElement('img', {
-                attributes: {
-                    src: evt.target.result
-                }
-            });
+		var reader = new FileReader();
 
-            // We use a timeout callback to prevent a bug where insertElement inserts at first caret
-            // position
-            setTimeout(function () {
-                editor.insertElement(element);
-            }, 10);
-        };
+		reader.onload = function (evt) {
+			var element = editor.document.createElement('img', {
+				attributes: {
+					src: evt.target.result
+				}
+			});
 
-        reader.readAsDataURL(file);
-    }
+			// We use a timeout callback to prevent a bug where insertElement inserts at first caret
+			// position
+			setTimeout(function () {
+				editor.insertElement(element);
+			}, 10);
+		};
+
+		reader.readAsDataURL(file);
+	}
 })();

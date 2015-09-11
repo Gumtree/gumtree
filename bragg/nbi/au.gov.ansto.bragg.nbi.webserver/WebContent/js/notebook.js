@@ -88,8 +88,14 @@ function getPdf() {
 		}
 	})
 	.fail(function(e) {
-		alert( "error creating PDF file for " + page + ".");
+		alert( "error creating PDF file.");
 	});
+}
+
+function getWord(){
+	var data = CKEDITOR.instances.id_editable_inner.getData();
+	jQuery('<div />').append(data).wordExport();
+//	$("#id_editable_page").wordExport();
 }
 
 function drag(ev) {
@@ -322,6 +328,16 @@ function dbScrollTop() {
 
 $(function(){
 	
+	$(document).click(function(e) {
+		if (e.target.tagName.toLowerCase() == 'body') {
+//			$('#id_editable_page').focus();
+			var editor = CKEDITOR.instances.id_editable_inner;
+			if (editor) {
+				editor.focus();
+			}
+		}
+	});
+	
     $('#id_input_search_db').keyup(function(e){
         if(e.keyCode == 13) {
             searchDatabase();
@@ -390,7 +406,7 @@ $(function(){
 		var img = $('<img >'); 
 		img.attr('src', drawingBoard.getImg());
 		CKEDITOR.instances.id_editable_inner.insertHtml('<p/>' + $('<div>').append(img).html() + '<p/>');
-	}
+	};
 	
     $('#id_sidebar_inner').bind('scroll', function() {
         if(!isAppending && bottomDbIndex > 0 && $(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight && bottomDbIndex > 0) {
@@ -399,6 +415,12 @@ $(function(){
         	dbScrollTop();
         }
     });
+    
+    document.body.onbeforeunload = function() {
+    	if (CKEDITOR.instances.id_editable_inner.checkDirty()) {
+    		return 'You have unsaved changes in the editor.';
+    	}
+    };
 });
 
 jQuery(document).ready(function() {

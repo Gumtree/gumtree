@@ -157,7 +157,7 @@ CKEDITOR.plugins.add("imageresize", {
 	
 	/* Config */
 	config : {
-		 "maxWidth" 	: 680
+		 "maxWidth" 	: 730
 		,"maxHeight"	: 800
 	},
 	getConfig : function(){

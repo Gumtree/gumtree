@@ -32,8 +32,8 @@ CKEDITOR.editorConfig = function( config ) {
 //	                    ];
 //	
 	config.toolbar = [
-	                  { name: 'document', items: [ 'Source', '-', 'Save', '-', 'Preview', 'Print', 'PDF'] },
-	                  { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
+	                  { name: 'document', items: [ 'Source', '-', 'Save', '-', 'Preview', 'Print', 'PDF', 'WORD'] },
+	                  { name: 'clipboard', items: [ 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
 	                  { name: 'find', items: ["Find", "SelectAll", "Scayt"]},
 	                  { name: 'basicstyles', items: [ "Bold", "Italic", "Underline", "Strike", "Subscript", "Superscript", "RemoveFormat" ] },
 	                  '/',
@@ -43,12 +43,14 @@ CKEDITOR.editorConfig = function( config ) {
 	                  { name: 'links', items: [ "Link", "Unlink", "Anchor"] },
 	                  '/',
 	                  { name: 'basicstyles', items: [ "TextColor", "BGColor", "UIColor", "ShowBlocks" ] },
+//	                  { name: 'media', items: [ "CreatePlaceholder", "Image", "Flash", "Table", "HorizontalRule", "Smiley", "Mathjax", "SpecialChar",
 	                  { name: 'media', items: [ "CreatePlaceholder", "Image", "Flash", "Table", "HorizontalRule", "Smiley", "SpecialChar",
 	                                            "PageBreak", "InsertPre"] },
 //	                  { name: 'buttons', items: [ "Form", "Checkbox", "Radio", "TextField", "Textarea", "Select",
 //	                                              "Button", "ImageButton", "HiddenField"] },
 	              ];
-	config.extraPlugins = 'image2,pdf';
+//	config.extraPlugins = 'image2,pdf,word,mathjax';
+	config.extraPlugins = 'image2,pdf,word';
 	
 	config.removePlugins = 'devtools,templates';
 	
@@ -63,4 +65,7 @@ CKEDITOR.editorConfig = function( config ) {
 	                 		[ CKEDITOR.CTRL + 83 /*S*/, 'save' ],
 	                 	];
 	
+	config.mathJaxLib = 'http://cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML';
+//	config.imageResize.maxWidth = 730;
+//	config.imageResize.maxHeight = 800;
 };

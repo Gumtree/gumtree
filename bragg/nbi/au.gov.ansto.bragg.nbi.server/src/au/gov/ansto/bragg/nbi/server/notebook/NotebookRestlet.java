@@ -3,7 +3,9 @@ package au.gov.ansto.bragg.nbi.server.notebook;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -15,14 +17,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.gumtree.core.object.IDisposable;
+import org.gumtree.security.EncryptionUtils;
 import org.gumtree.service.db.ControlDB;
 import org.gumtree.service.db.HtmlSearchHelper;
-import org.gumtree.service.db.LoggingDB;
 import org.gumtree.service.db.ProposalDB;
 import org.gumtree.service.db.RecordsFileException;
 import org.gumtree.service.db.SessionDB;
 import org.gumtree.service.db.TextDb;
+import org.gumtree.service.httpclient.IHttpClient;
+import org.gumtree.service.httpclient.IHttpClientCallback;
+import org.gumtree.service.httpclient.IHttpClientFactory;
+import org.gumtree.service.httpclient.support.HttpClientFactory;
+import org.gumtree.util.ILoopExitCondition;
+import org.gumtree.util.LoopRunner;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.Context;
@@ -33,6 +42,7 @@ import org.restlet.data.Disposition;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
+import org.restlet.engine.util.Base64;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
 
@@ -55,6 +65,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String SEG_NAME_NEW = "new";
 	private final static String SEG_NAME_PDF = "pdf";
 	private final static String SEG_NAME_DOWNLOAD = "download";
+	private final static String SEG_NAME_IMAGESERVICE = "imageService";
 	private final static String SEG_NAME_ARCHIVE = "archive";
 	private final static String SEG_NAME_TEMPLATE = "template";
 	private final static String STRING_CONTENT_START = "content=";
@@ -71,12 +82,18 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String QUERY_SESSION_ID = "session";
 	private final static String QUERY_PAGE_ID = "page";
 	private final static String QUERY_EXTNAME_ID = "ext";
+	private final static String QUERY_EXTERNAL_URL_ID = "url";
 	private static final String QUERY_PATTERN = "pattern";
 	private static final String QUERY_PROPOSAL_ID = "proposal_id";
 	private static final String FILE_FREFIX = "<div class=\"class_div_search_file\" name=\"$filename\" session=\"$session\" proposal=\"$proposal\">";
 	private static final String SPAN_SEARCH_RESULT_HEADER = "<h4>";
 	private static final String DIV_END = "</div>";
 	private static final String SPAN_END = "</h4>";
+	private static final String ID_PROXY_HOST = "http.proxyHost";
+	private static final String ID_PROXY_PORT = "http.proxyPort";
+	private static final String ID_DAE_HOST = "gumtree.dae.host";
+	private static final String ID_DAE_LOGIN = "gumtree.dae.login";
+	private static final String ID_DAE_PASSWORD = "gumtree.dae.password";
 	private static final String EXPERIMENT_TABLE_HTML = "<div class=\"class_template_table class_template_object\" id=\"template_ec_1\">"
 			+ "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" class=\"xmlTable\" style=\"table-layout:fixed; width:100%; word-wrap:break-word\"><caption>Experiment Setup</caption>"
 			+ "<tbody><tr><th style=\"width: 40%;\">Start Date</th><td style=\"width: 60%;\">$START_DATE</td></tr><tr><th>End Date</th><td>$END_DATE</td></tr>"
@@ -99,6 +116,11 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private ProposalDB proposalDb;
 	private String pdfFolder;
 	private NotebookPDFService pdfService;
+	private IHttpClient externalHttpClient;
+	private IHttpClient internalHttpClient;
+	private String daeHost;
+	private String daeLogin;
+	private String daePassword;
 	
 	/**
 	 * @param context
@@ -114,6 +136,18 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		proposalDb = ProposalDB.getInstance();
 		pdfFolder = System.getProperty(PROP_PDF_FOLDER);
 		pdfService = new NotebookPDFService(pdfFolder);
+		IHttpClientFactory clienntFactory = new HttpClientFactory();
+		externalHttpClient = clienntFactory.createHttpClient(1);
+		internalHttpClient = clienntFactory.createHttpClient(1);
+		String proxyHost = System.getProperty(ID_PROXY_HOST);
+		String proxyPort = System.getProperty(ID_PROXY_PORT);
+		if (proxyHost != null && proxyPort != null) {
+			externalHttpClient.setProxy(proxyHost, Integer.valueOf(proxyPort));
+			internalHttpClient.setProxy(proxyHost, Integer.valueOf(proxyPort));
+		}
+		daeHost = System.getProperty(ID_DAE_HOST);
+		daeLogin = System.getProperty(ID_DAE_LOGIN);
+		daePassword = System.getProperty(ID_DAE_PASSWORD);
 	}
 
 	/* (non-Javadoc)
@@ -619,6 +653,34 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 				return;
 			}
+		} else if (SEG_NAME_IMAGESERVICE.equals(seg)) {
+			Form queryForm = request.getResourceRef().getQueryAsForm();
+		    String externalUrl = queryForm.getValues(QUERY_EXTERNAL_URL_ID);
+		    if (externalUrl != null && externalUrl.trim().length() > 0) {
+			    final CallbackAdapter callback = new CallbackAdapter();
+			    if (externalUrl.contains(daeHost)) {
+			    	try {
+						internalHttpClient.performGet(URI.create(externalUrl), callback, daeLogin, EncryptionUtils.decryptBase64(daePassword));
+					} catch (Exception e) {
+						response.setStatus(Status.SERVER_ERROR_INTERNAL, "faied to convert image");
+						return;
+					}
+			    } else {
+				    externalHttpClient.performGet(URI.create(externalUrl), callback);			    	
+			    }
+		    	LoopRunner.run(new ILoopExitCondition() {
+					
+					@Override
+					public boolean getExitCondition() {
+						return callback.isReady;
+					}
+				}, 200000, 100);
+		    	if (callback.base64 == null) {
+		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, "faied to convert image");
+					return;
+		    	}
+		    	response.setEntity(callback.base64, MediaType.TEXT_PLAIN);
+		    }
 		} else if (seg.toLowerCase().endsWith(".pdf") && segList.size() > 1 && segList.get(segList.size() - 2).equals(SEG_NAME_DOWNLOAD)) {
 			Form queryForm = request.getResourceRef().getQueryAsForm();
 		    String sessionId = queryForm.getValues(QUERY_SESSION_ID);
@@ -678,5 +740,32 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	    return;
 	}
 	
+	class CallbackAdapter implements IHttpClientCallback{
+		boolean isReady = false;
+    	String base64 = null;
+    	
+		@Override
+		public void handleResponse(InputStream in) {
+			byte[] byteArray;
+			if (in == null) {
+				isReady = true;
+				return;
+			}
+			try {
+				byteArray = IOUtils.toByteArray(in);
+				base64 = Base64.encode(byteArray, false);
+				isReady = true;
+			} catch (IOException e) {
+				System.err.println(e);
+				isReady = true;
+			}
+		}
+		
+		@Override
+		public void handleError() {
+			// TODO Auto-generated method stub
+			isReady = true;
+		}
+	}
 
 }
