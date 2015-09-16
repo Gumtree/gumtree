@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Msw
+Bundle-SymbolicName: org.gumtree.msw
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.gumtree.msw.internal.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ org.apache.xerces;bundle-version="2.9.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: org.gumtree.msw,
+ org.gumtree.msw.commands,
+ org.gumtree.msw.dummy,
+ org.gumtree.msw.model,
+ org.gumtree.msw.util

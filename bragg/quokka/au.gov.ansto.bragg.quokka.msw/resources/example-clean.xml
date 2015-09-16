@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="msw.xsl"?>
+<MSW xmlns="http://www.gumtree.org/msw">
+  
+  <ExperimentDescription ExperimentTitle="Test123" ProposalNumber="???"/>
+  
+  <UserList>
+    <User Id="#1-b7d3" Name="User1" Email="test@test"/>
+    <User Id="#1-b7d4" Name="User2" Email="test@test"/>
+  </UserList>
+  
+  <LoopHierarchy>
+
+    <Environment Id="#2-b7a0" Name="Temperature">
+      <SetPoint Id="#2-b7a1" Value="15.0" WaitPeriod="1"/>
+      <SetPoint Id="#2-b7a2" Value="30.0" WaitPeriod="2"/>
+      <SetPoint Id="#2-b7a3" Value="45.0" WaitPeriod="3"/>
+    </Environment>
+
+    <ConfigurationList>
+      <Configuration Id="#2-b7d8" Name="Configuration1">
+        <SetupScript>print "configuration"</SetupScript>
+        <Measurement Id="#2-b7d7" Name="Transmission" MaxTime="10">
+          <SetupScript>print "transmission"</SetupScript>
+        </Measurement>
+        <Measurement Id="#2-b7d6" Name="Scattering" MaxTime="10">
+          <SetupScript>print "scattering"</SetupScript>
+        </Measurement>
+      </Configuration>
+    </ConfigurationList>
+
+    <SampleList>
+      <Sample Id="#1-1"  Position="1"  Enabled="false" Name=""/>
+      <Sample Id="#1-2"  Position="2"  Enabled="false" Name=""/>
+      <Sample Id="#1-3"  Position="3"  Enabled="true"  Name="Sample 1" Thickness="1.5"/>
+      <Sample Id="#1-4"  Position="4"  Enabled="true"  Name="Sample 2" Thickness="2.5"/>
+      <Sample Id="#1-5"  Position="5"  Enabled="false" Name=""/>
+      <Sample Id="#1-6"  Position="6"  Enabled="false" Name=""/>
+      <Sample Id="#1-7"  Position="7"  Enabled="false" Name=""/>
+      <Sample Id="#1-8"  Position="8"  Enabled="false" Name=""/>
+      <Sample Id="#1-9"  Position="9"  Enabled="false" Name=""/>
+      <Sample Id="#1-10" Position="10" Enabled="false" Name=""/>
+      <Sample Id="#1-11" Position="11" Enabled="false" Name=""/>
+      <Sample Id="#1-12" Position="12" Enabled="false" Name=""/>
+      <Sample Id="#1-13" Position="13" Enabled="false" Name=""/>
+      <Sample Id="#1-14" Position="14" Enabled="false" Name=""/>
+      <Sample Id="#1-15" Position="15" Enabled="false" Name=""/>
+      <Sample Id="#1-16" Position="16" Enabled="false" Name=""/>
+      <Sample Id="#1-17" Position="17" Enabled="false" Name=""/>
+      <Sample Id="#1-18" Position="18" Enabled="false" Name=""/>
+      <Sample Id="#1-19" Position="19" Enabled="false" Name=""/>
+      <Sample Id="#1-20" Position="20" Enabled="false" Name=""/>
+    </SampleList>
+    
+    <Environment Id="#a-b7a0" Name="Magnet">
+      <SetPoint Id="#a-b7a1" Value="1.0" WaitPeriod="10"/>
+      <SetPoint Id="#a-b7a2" Value="2.0" WaitPeriod="10"/>
+      <SetPoint Id="#a-b7a3" Value="3.0" WaitPeriod="10"/>
+    </Environment>
+
+  </LoopHierarchy>
+</MSW>
