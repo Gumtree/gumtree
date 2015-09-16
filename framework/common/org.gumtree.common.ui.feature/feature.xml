@@ -378,4 +378,16 @@
          install-size="0"
          version="0.0.0"/>
 
+   <plugin
+         id="org.gumtree.msw.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.gumtree.msw.ui.ktable"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
 </feature>
