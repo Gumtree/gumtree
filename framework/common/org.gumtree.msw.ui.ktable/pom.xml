@@ -4,6 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>org.gumtree.msw.ui.ktable</artifactId>
+	<version>2.2.0-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
 	<parent>
 		<groupId>org.codehaus.gumtree</groupId>
