@@ -64,7 +64,12 @@
 		<module>${common.path}/org.gumtree.data.ui</module>
 		<module>${common.path}/org.gumtree.data.nexus.ui</module>
 		<module>${common.path}/org.gumtree.common.ui.feature</module>
-
+		
+		<module>${common.path}/org.gumtree.msw</module>
+		<module>${common.path}/org.gumtree.msw.elements</module>
+		<module>${common.path}/org.gumtree.msw.schedule</module>
+		<module>${common.path}/org.gumtree.msw.ui</module>
+		<module>${common.path}/org.gumtree.msw.ui.ktable</module>
 
 
 		<module>${extensions.path}/org.beanshell</module>

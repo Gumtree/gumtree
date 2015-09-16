@@ -109,6 +109,7 @@
 		<module>${quokka.path}/au.gov.ansto.bragg.quokka.webserver.feature</module>
 
 		<module>${quokka.path}/au.gov.ansto.bragg.quokka.exp</module>
+		<module>${quokka.path}/au.gov.ansto.bragg.quokka.msw</module>
 		<module>${quokka.path}/au.gov.ansto.bragg.quokka.ui</module>
 		<module>${quokka.path}/au.gov.ansto.bragg.quokka.workbench</module>
 		<module>${quokka.path}/au.gov.ansto.bragg.quokka.workbench.feature</module>
