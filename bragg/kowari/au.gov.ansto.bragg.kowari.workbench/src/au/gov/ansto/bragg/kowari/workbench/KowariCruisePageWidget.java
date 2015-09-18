@@ -97,10 +97,10 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		PGroup positionerGroup = createGroup("POSITIONER STATUS",
 				InternalImage.POSITIONER.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(positionerGroup, SWT.NONE);
-		deviceStatusWidget.addDevice("/sample/sx", "sx", null, "")
-				.addDevice("/sample/sy", "sy", null, null)
-				.addDevice("/sample/sz", "sz", null, null)
-				.addDevice("/sample/som", "som", null, null)
+		deviceStatusWidget.addDevice("/sample/sx", "sx", null, null, null, true)
+				.addDevice("/sample/sy", "sy", null, null, null, true)
+				.addDevice("/sample/sz", "sz", null, null, null, true)
+				.addDevice("/sample/som", "som", null, null, null, true)
 				.addDevice("/sample/stth", "stth", null, null);
 		configureWidget(deviceStatusWidget);
 

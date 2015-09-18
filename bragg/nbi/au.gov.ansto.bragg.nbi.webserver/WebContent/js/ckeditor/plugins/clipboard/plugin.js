@@ -449,7 +449,6 @@
 //	}
 
 	function convertImgToBase64(image, url, callback, outputFormat){
-		console.log('using ajax')
 		var localUrl = "notebook/imageService?url=" + url;
 		$.ajax({
 			cache: false,
@@ -457,7 +456,6 @@
 			url: localUrl,
 			dataType: "text",
 			success: function (data) {
-				console.log("ajax done");
 				callback(image, data);
 			},
 			error: function (xhr) {

@@ -63,7 +63,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 
 	@Override
 	protected void handleRender() {
-		GridLayoutFactory.swtDefaults().numColumns(5).spacing(1, 1)
+		GridLayoutFactory.swtDefaults().numColumns(7).spacing(1, 1)
 				.applyTo(this);
 
 		for (DeviceContext deviceContext : deviceContexts) {
@@ -72,7 +72,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 				Label separator = getWidgetFactory().createLabel(this, "",
 						SWT.SEPARATOR | SWT.HORIZONTAL);
 				GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
-						.grab(true, false).span(5, 1).applyTo(separator);
+						.grab(true, false).span(7, 1).applyTo(separator);
 			} else {
 				// Part 1: icon
 				Label label = getWidgetFactory().createLabel(this, "");
@@ -85,9 +85,9 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 				label.setFont(UIResources.getDefaultFont(SWT.BOLD));
 				// Part 3: Value
 				label = createDeviceLabel(this, deviceContext.path, "--",
-						SWT.RIGHT, deviceContext.converter);
-				GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
-						.grab(true, false).applyTo(label);
+						SWT.RIGHT, deviceContext.converter, deviceContext.showSoftLimits);
+//				GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
+//						.grab(true, false).applyTo(label);
 				label.setFont(UIResources.getDefaultFont(SWT.BOLD));
 				// Part 4: Separator
 //				String labelSep = (deviceContext.unit == null) ? "" : " ";
@@ -124,8 +124,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		if (deviceContext.unit != null) {
 			return getWidgetFactory().createLabel(this, deviceContext.unit, SWT.LEFT);
 		} else {
-			return createDeviceLabel(this, deviceContext.path + "?units",
-					"", SWT.LEFT, UnitsConverter.getInstance());
+			return createUnitsLabel(this, deviceContext.path + "?units", "", SWT.LEFT);
 		}
 	}
 
@@ -145,6 +144,14 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		for (LabelContext context : labelContexts){
 			if (context.path.equals(uri.getPath())) {
 				return context;
+			}
+			if (context.showSoftLimits) {
+				if ((context.path + "/softlowerlim").equals(uri.getPath())){
+					return context;
+				}
+				if ((context.path + "/softupperlim").equals(uri.getPath())){
+					return context;
+				}
 			}
 		}
 		return null;
@@ -198,6 +205,32 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 								exception.printStackTrace();
 							}
 						});
+				if (labelContext.showSoftLimits) {
+					getDataAccessManager().get(
+							URI.create("sics://hdb" + labelContext.path + "/softlowerlim"), String.class,
+							new IDataHandler<String>() {
+								@Override
+								public void handleData(URI uri, String data) {
+									updateLabelText(labelContext.lowerlimLabel, " (" + data + ",", null);
+								}
+								@Override
+								public void handleError(URI uri, Exception exception) {
+									exception.printStackTrace();
+								}
+							});
+					getDataAccessManager().get(
+							URI.create("sics://hdb" + labelContext.path + "/softupperlim"), String.class,
+							new IDataHandler<String>() {
+								@Override
+								public void handleData(URI uri, String data) {
+									updateLabelText(labelContext.upperlimLabel, data + ")", null);
+								}
+								@Override
+								public void handleError(URI uri, Exception exception) {
+									exception.printStackTrace();
+								}
+							});
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -231,6 +264,12 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 				if (context.handler != null) {
 					context.handler.deactivate();
 				}
+				if (context.lowerlimHandler != null) {
+					context.lowerlimHandler.deactivate();
+				}
+				if (context.upperlimHandler != null) {
+					context.upperlimHandler.deactivate();
+				}
 			}
 			labelContexts.clear();
 			labelContexts = null;
@@ -263,6 +302,11 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 	
 	public DeviceStatusWidget addDevice(String path, String label, Image icon,
 			String unit, LabelConverter converter) {
+		return addDevice(path, label, icon, unit, null, false);
+	}
+	
+	public DeviceStatusWidget addDevice(String path, String label, Image icon,
+			String unit, LabelConverter converter, boolean showSoftLimits) {
 		DeviceContext context = new DeviceContext();
 		context.path = path;
 		context.icon = icon;
@@ -270,6 +314,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		context.unit = unit;
 		context.isSeparator = false;
 		context.converter = converter;
+		context.showSoftLimits = showSoftLimits;
 		deviceContexts.add(context);
 		return this;
 	}
@@ -315,6 +360,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		String unit;
 		boolean isSeparator;
 		LabelConverter converter;
+		boolean showSoftLimits;
 	}
 
 	private class LabelContext {
@@ -323,6 +369,11 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		String defaultText;
 		EventHandler handler;
 		LabelConverter converter;
+		boolean showSoftLimits;
+		Label lowerlimLabel;
+		EventHandler lowerlimHandler;
+		Label upperlimLabel;
+		EventHandler upperlimHandler;
 	}
 
 	public interface LabelConverter {
@@ -405,14 +456,91 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 					event.getProperty(SicsEvents.HNotify.VALUE).toString(), converter);
 		}
 	}
+	
+	private class LowerlimHdbEventHandler extends DelayEventHandler {
+		Label label;
+		LabelConverter converter;
 
-	private Label createDeviceLabel(Composite parent, String path,
-			String defaultText, int style, LabelConverter converter) {
+		public LowerlimHdbEventHandler(String path, Label label,
+				IDelayEventExecutor delayEventExecutor) {
+			super(SicsEvents.HNotify.TOPIC_HNOTIFY + path, delayEventExecutor);
+			this.label = label;
+		}
+
+		public void setLabelConverter(LabelConverter converter) {
+			this.converter = converter;
+		}
+		
+		@Override
+		public void handleDelayEvent(Event event) {
+			updateLabelText(label,
+					" (" + event.getProperty(SicsEvents.HNotify.VALUE).toString() + ",", converter);
+		}
+	}
+
+	private class UpperlimHdbEventHandler extends DelayEventHandler {
+		Label label;
+		LabelConverter converter;
+
+		public UpperlimHdbEventHandler(String path, Label label,
+				IDelayEventExecutor delayEventExecutor) {
+			super(SicsEvents.HNotify.TOPIC_HNOTIFY + path, delayEventExecutor);
+			this.label = label;
+		}
+
+		public void setLabelConverter(LabelConverter converter) {
+			this.converter = converter;
+		}
+		
+		@Override
+		public void handleDelayEvent(Event event) {
+			updateLabelText(label,
+					event.getProperty(SicsEvents.HNotify.VALUE).toString() + ")", converter);
+		}
+	}
+	
+	private Label createUnitsLabel(Composite parent, String path,
+			String defaultText, int style) {
 		Label label = getWidgetFactory()
 				.createLabel(parent, defaultText, style);
 		LabelContext context = new LabelContext();
 		context.path = path;
 		context.label = label;
+		context.showSoftLimits = false;
+		context.defaultText = defaultText;
+		HdbEventHandler handler = new HdbEventHandler(path, label,
+				getDelayEventExecutor());
+		handler.activate();
+		context.handler = handler;
+		labelContexts.add(context);
+		return label;
+	}
+
+	private Label createDeviceLabel(Composite parent, String path,
+			String defaultText, int style, LabelConverter converter, boolean showSoftLimits) {
+		Label label = getWidgetFactory()
+				.createLabel(parent, defaultText, style);
+		LabelContext context = new LabelContext();
+		context.path = path;
+		context.label = label;
+		context.showSoftLimits = showSoftLimits;
+		if (showSoftLimits) {
+			Label lowerlimLabel = getWidgetFactory().createLabel(parent, "");
+			context.lowerlimLabel = lowerlimLabel;
+			LowerlimHdbEventHandler lowerlimHandler = new LowerlimHdbEventHandler(path + "/softlowerlim", lowerlimLabel,
+					getDelayEventExecutor());
+			lowerlimHandler.activate();
+			Label upperlimLabel = getWidgetFactory().createLabel(parent, "");
+			context.upperlimLabel = upperlimLabel;
+			UpperlimHdbEventHandler upperlimHandler = new UpperlimHdbEventHandler(path + "/softupperlim", upperlimLabel,
+					getDelayEventExecutor());
+			upperlimHandler.activate();
+			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
+				.grab(true, false).applyTo(context.label);
+		} else {
+			GridDataFactory.swtDefaults().span(3, 1).align(SWT.FILL, SWT.CENTER)
+				.grab(true, false).applyTo(context.label);
+		}
 		context.defaultText = defaultText;
 		HdbEventHandler handler = new HdbEventHandler(path, label,
 				getDelayEventExecutor());
