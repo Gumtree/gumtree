@@ -52,6 +52,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ExpandEvent;
+import org.eclipse.swt.events.ExpandListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
@@ -894,7 +896,6 @@ public class ScriptControlViewer extends Composite {
 			try {
 				equalWidth = scriptModel.isEqualWidth();
 			} catch (Exception e) {
-				// TODO: handle exception
 			}
 			GridLayoutFactory.fillDefaults().equalWidth(equalWidth).margins(2, 2).spacing(4, 4).numColumns(scriptModel.getNumColumns() * 2).applyTo(
 					dynamicComposite);
@@ -945,7 +946,7 @@ public class ScriptControlViewer extends Composite {
 		return list;
 	}
 
-	private void addGroup(Composite parent, ScriptObjectGroup objGroup) {
+	private void addGroup(final Composite parent, ScriptObjectGroup objGroup) {
 //		Group group = new Group(parent, SWT.NONE);
 		final MenuBasedGroup group = new MenuBasedGroup(parent, SWT.NONE);
 		group.setClickExpandEnabled(groupAllowFolding);
@@ -991,10 +992,28 @@ public class ScriptControlViewer extends Composite {
 		group.setBackgroundMode(SWT.INHERIT_DEFAULT);
 		
 		Menu menu = group.getMenu();
-		
+//		group.setClickExpandEnabled(false);
+		group.addExpandListener(new ExpandListener() {
+			
+			@Override
+			public void itemExpanded(ExpandEvent e) {
+				group.layout(true, true);
+				group.update();
+				Rectangle r = scroll.getClientArea();
+				scroll.setMinSize(dynamicComposite.computeSize(r.width, SWT.DEFAULT));				
+			}
+			
+			@Override
+			public void itemCollapsed(ExpandEvent e) {
+				group.layout(true, true);
+				group.update();
+				Rectangle r = scroll.getClientArea();
+				scroll.setMinSize(dynamicComposite.computeSize(r.width, SWT.DEFAULT));				
+			}
+		});
 		// Set Name
 		final MenuItem editItem = new MenuItem(menu, SWT.PUSH);
-		editItem.setText("Fold");
+//		editItem.setText("Fold");
 //		editItem.setImage(InternalImage.TEXT_EDIT.getImage());
 		editItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -1018,6 +1037,22 @@ public class ScriptControlViewer extends Composite {
 				addGroup(group, (ScriptObjectGroup) control);
 			}
 		}
+
+		String foldedProperty = objGroup.getProperty("folded");
+		boolean itemFolded = false;
+		if (foldedProperty != null) {
+			try {
+				itemFolded = Boolean.valueOf(foldedProperty);
+			} catch (Exception e) {
+			}
+		}
+		if (itemFolded) {
+			editItem.setText("Expand");
+			group.setExpanded(false);
+		} else {
+			editItem.setText("Fold");
+		}
+		
 	}
 
 	private void addAction(Composite parent, final ScriptAction action) {
