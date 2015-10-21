@@ -1,5 +1,6 @@
 package org.gumtree.sics.server.internal;
 
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.gumtree.util.eclipse.EclipseUtils;
 import org.osgi.framework.BundleActivator;
@@ -24,6 +25,9 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
 		instance = this;
+		SicsStarter starter = ContextInjectionFactory.make(SicsStarter.class,
+				getEclipseContext());
+		starter.getSicsManager().getServerController().getServerStatus();
 	}
 
 	/*
