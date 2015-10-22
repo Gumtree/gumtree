@@ -6,7 +6,7 @@ instructions.install = \
 	addProgramArg(programArg:workspace); \
 	addJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false); \
 	addJvmArg(jvmArg:-Dlogback.logFileLocation=logs); \
-	addJvmArg(jvmArg:-Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds${#44}org.eclipse.equinox.event${#44}org.eclipse.core.runtime${#44}org.gumtree.app.runtime)${#44}org.gumtree.sics.server; \
+	addJvmArg(jvmArg:-Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds${#44}org.eclipse.equinox.event${#44}org.eclipse.core.runtime${#44}org.gumtree.app.runtime${#44}org.gumtree.sics.server); \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configBundle=org.gumtree.app.webserver); \
 	addJvmArg(jvmArg:-XX:MaxPermSize=256m); \
 	addJvmArg(jvmArg:-Xmx512m);
