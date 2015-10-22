@@ -28,7 +28,7 @@ Eclipse Foundation http://www.eclipse.org/
 -Dorg.eclipse.update.reconcile=false
 -Dlogback.configurationFile=logback.xml
 -Dlogback.logFileLocation=logs
--Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime
+-Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime,org.gumtree.sics.server
 -Dgumtree.runtime.configBundle=au.gov.ansto.bragg.nbi.webserver
 -Dgumtree.runtime.configEnv.instr=wombat
 -Dgumtree.runtime.configEnv.env=dev
