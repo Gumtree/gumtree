@@ -60,6 +60,32 @@ public class BilbyWorkbenchSetup implements IStartup {
 					mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SICS, 0, 0, mmManager.isMultiMonitorSystem());
 				}			
 			});
+		} else {
+			SafeUIRunner.asyncExec(new ISafeRunnable() {
+				public void handleException(Throwable exception) {
+					logger.error("Failed to launch Bilby workbench layout during early startup.", exception);
+				}
+				public void run() throws Exception {
+					final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+					if (activeWorkbenchWindow instanceof WorkbenchWindow) {
+//						activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
+						IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
+						for (IWorkbenchPage page : pages) {
+							try {
+								IPerspectiveDescriptor[] perspectives = page.getOpenPerspectives();
+								for (IPerspectiveDescriptor perspective : perspectives) {
+									activeWorkbenchWindow.getActivePage().closePerspective(perspective, false, true);
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+					IMultiMonitorManager mmManager = new MultiMonitorManager();
+
+					mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 0, 0, mmManager.isMultiMonitorSystem());
+				}			
+			});
 		}
 	}
 
