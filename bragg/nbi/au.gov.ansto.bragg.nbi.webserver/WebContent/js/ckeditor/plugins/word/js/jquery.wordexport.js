@@ -26,28 +26,44 @@ if (typeof jQuery !== "undefined" && typeof saveAs !== "undefined") {
             var images = Array();
             var img = markup.find('img');
             for (var i = 0; i < img.length; i++) {
-                // Calculate dimensions of output image
-                var w = Math.min(img[i].width, options.maxWidth);
-                var h = img[i].height * (w / img[i].width);
-                // Create canvas for converting image to data URL
-                var canvas = document.createElement("CANVAS");
-                canvas.width = w;
-                canvas.height = h;
-                // Draw image to canvas
-                var context = canvas.getContext('2d');
-                context.drawImage(img[i], 0, 0, w, h);
-                // Get data URL encoding of image
-                var uri = canvas.toDataURL("image/png");
-                $(img[i]).attr("src", img[i].src);
-                img[i].width = w;
-                img[i].height = h;
-                // Save encoded image to array
-                images[i] = {
-                    type: uri.substring(uri.indexOf(":") + 1, uri.indexOf(";")),
-                    encoding: uri.substring(uri.indexOf(";") + 1, uri.indexOf(",")),
-                    location: $(img[i]).attr("src"),
-                    data: uri.substring(uri.indexOf(",") + 1)
-                };
+            	var src = $(img[i]).attr('src');
+//            	if (src.startsWith('data')) {
+//            		images[i] = {
+//            				type: src.substring(src.indexOf(":") + 1, src.indexOf(";")),
+//            				encoding: src.substring(src.indexOf(";") + 1, src.indexOf(",")),
+//            				location: '',
+//            				data: src.substring(src.indexOf(",") + 1)
+//            		};            		
+//                	console.log(images[i].type);
+//                	console.log(images[i].encoding);
+//                	console.log(images[i].data);
+//            	} else {
+            		// Calculate dimensions of output image
+            		var w = Math.min(img[i].width, options.maxWidth);
+            		var h = img[i].height * (w / img[i].width);
+            		// Create canvas for converting image to data URL
+            		var canvas = document.createElement("CANVAS");
+            		canvas.width = w;
+            		canvas.height = h;
+            		// Draw image to canvas
+            		var context = canvas.getContext('2d');
+            		context.drawImage(img[i], 0, 0, w, h);
+            		// Get data URL encoding of image
+            		var uri = canvas.toDataURL("image/png");
+            		$(img[i]).attr("src", img[i].src);
+            		img[i].width = w;
+            		img[i].height = h;
+            		// Save encoded image to array
+            		images[i] = {
+            				type: uri.substring(uri.indexOf(":") + 1, uri.indexOf(";")),
+            				encoding: uri.substring(uri.indexOf(";") + 1, uri.indexOf(",")),
+            				location: $(img[i]).attr("src"),
+            				data: uri.substring(uri.indexOf(",") + 1)
+            		};
+                	console.log(images[i].type);
+                	console.log(images[i].encoding);
+                	console.log(images[i].data);
+//            	}
             }
 
             // Prepare bottom of mhtml file with image data

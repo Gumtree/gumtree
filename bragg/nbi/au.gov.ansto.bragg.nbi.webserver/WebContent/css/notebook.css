@@ -376,3 +376,10 @@ th {
 .diffContent {
 	max-width: 1024px;
 }
+
+.class_confirm_dialog input[type="text"] {
+  padding: 8px;
+  width: 200px;
+  border: solid 1px #dcdcdc;
+  transition: box-shadow 0.3s, border 0.3s;
+}

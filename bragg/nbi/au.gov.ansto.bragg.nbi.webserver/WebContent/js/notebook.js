@@ -67,29 +67,89 @@ function getParam(sParam) {
 }
 
 function getPdf() {
-	var getUrl = "notebook/pdf";
-	var session = getParam("session");
-	if (session != null) { 
-		 getUrl += "?session=" + session;
-	}
-//    window.location.href = getUrl;
-	$.get(getUrl, function(data, status) {
-		if (status == "success") {
-			var pair = data.split(":");
-			var fileUrl = "notebook/download/" + pair[0] + ".pdf?ext=" + pair[1];
-			if (session != null) { 
-				 fileUrl += "&session=" + session;
-			}
-			setTimeout(function() {
-				$.fileDownload(fileUrl)
-		    	.done(function () {})
-		    	.fail(function () { alert('File download failed!'); });				
-			}, 1000);
+	if (CKEDITOR.instances.id_editable_inner.checkDirty()) {
+		$('<div></div>').appendTo('body')
+		  .html('<div class="class_confirm_dialog"><p>You have unsaved changes. You need to save the page before converting it to PDF format. '
+				  + 'Do you want to save the change?</p></div>')
+		  .dialog({
+		      modal: true, title: 'Confirm Saving The Page', zIndex: 10000, autoOpen: true,
+		      width: 'auto', resizable: false,
+		      buttons: {
+		          Yes: function () {
+		        	  var postUrl = 'notebook/save' + (session != null ? '?session=' + session : '');
+		        	  $.post( postUrl, CKEDITOR.instances.id_editable_inner.getData(), function(data, status) {
+		        		  if (status == "success") {
+		        			  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Saved', type: 'success' } );
+		        			  notification.show();
+		        			  CKEDITOR.instances.id_editable_inner.resetDirty();
+		        			  
+				        	  var getUrl = "notebook/pdf";
+				        	  var session = getParam("session");
+				        	  if (session != null) { 
+				        		  getUrl += "?session=" + session;
+				        	  }
+//				        	  window.location.href = getUrl;
+				        	  $.get(getUrl, function(data, status) {
+				        		  if (status == "success") {
+				        			  var pair = data.split(":");
+				        			  var fileUrl = "notebook/download/" + pair[0] + ".pdf?ext=" + pair[1];
+				        			  if (session != null) { 
+				        				  fileUrl += "&session=" + session;
+				        			  }
+				        			  setTimeout(function() {
+				        				  $.fileDownload(fileUrl)
+				        				  .done(function () {})
+				        				  .fail(function () { alert('File download failed!'); });				
+				        			  }, 1000);
+				        		  }
+				        	  })
+				        	  .fail(function(e) {
+				        		  alert( "error creating PDF file.");
+				        	  }).always(function() {
+					        	  $(this).dialog("close");
+				        	  });
+
+		        		  }
+		        	  })
+		        	  .fail(function(e) {
+		        		  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to save the page.', type: 'warning' } );
+		        		  notification.show();
+		        	  });
+		        	  $(this).dialog("close");
+		          },
+		          No: function () {
+		              $(this).dialog("close");
+		          }
+		      },
+		      close: function (event, ui) {
+		          $(this).remove();
+		      }
+		});
+	} else {
+		var getUrl = "notebook/pdf";
+		var session = getParam("session");
+		if (session != null) { 
+			getUrl += "?session=" + session;
 		}
-	})
-	.fail(function(e) {
-		alert( "error creating PDF file.");
-	});
+//		window.location.href = getUrl;
+		$.get(getUrl, function(data, status) {
+			if (status == "success") {
+				var pair = data.split(":");
+				var fileUrl = "notebook/download/" + pair[0] + ".pdf?ext=" + pair[1];
+				if (session != null) { 
+					fileUrl += "&session=" + session;
+				}
+				setTimeout(function() {
+					$.fileDownload(fileUrl)
+					.done(function () {})
+					.fail(function () { alert('File download failed!'); });				
+				}, 1000);
+			}
+		})
+		.fail(function(e) {
+			alert( "error creating PDF file.");
+		});
+	}
 }
 
 function getWord(){
