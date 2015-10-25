@@ -1,7 +1,6 @@
 package au.gov.ansto.bragg.quokka.experiment.util;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +8,6 @@ import java.util.Map;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.gumtree.core.service.ServiceUtils;
-import org.gumtree.service.db.RecordsFileException;
 import org.gumtree.service.db.RemoteTextDbService;
 import org.gumtree.service.directory.IDirectoryService;
 import org.gumtree.util.messaging.IListenerManager;
@@ -168,25 +166,17 @@ public class ExperimentStateManager implements IExperimentStateManager {
 		InstrumentConfig config = setting.getConfig();
 		try {
 			RemoteTextDbService.getInstance().appendTableEntry("MSW result", ExperimentUserReportUtils.exportAcquisitionTable(getAcquisition(runId), config));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
-		} catch (RecordsFileException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 	}
 		
 	public void setAcquistionStarted(){
 		try {
 			RemoteTextDbService.getInstance().appendTableEntry("MSW result", ExperimentUserReportUtils.createExperimentInfoTable(experiment));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
-		} catch (RecordsFileException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 	}
 	
 	private void fireUpdate(final int runId) {
