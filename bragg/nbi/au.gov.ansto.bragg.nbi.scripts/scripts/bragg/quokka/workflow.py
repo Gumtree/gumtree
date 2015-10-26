@@ -90,8 +90,11 @@ def updateScatteringRunState(runId, running):
         
 def startAcquistion():
     if engineContext.getAttribute(ATT_STATE_MANAGER) != None:
-        stateManager = engineContext.getAttribute(ATT_STATE_MANAGER)
-        stateManager.setAcquistionStarted()
+        try:
+            stateManager = engineContext.getAttribute(ATT_STATE_MANAGER)
+            stateManager.setAcquistionStarted()
+        except:
+            pass
     
 def runQuokkaScan(acquisitionEntries, reserve=False):
     acquisitionList = list(acquisitionEntries)
@@ -169,8 +172,11 @@ def runMultiConfigScan(configGroup):
         log('Skip scattering mode')
         
     if engineContext.getAttribute(ATT_STATE_MANAGER) != None:
-        stateManager = engineContext.getAttribute(ATT_STATE_MANAGER)
-        stateManager.setConfigSetFinished(acqEntries[len(acqEntries) - 1]['runId'])
+        try:
+            stateManager = engineContext.getAttribute(ATT_STATE_MANAGER)
+            stateManager.setConfigSetFinished(acqEntries[len(acqEntries) - 1]['runId'])
+        except:
+            pass
         
 def runTransmission(acqEntries, configSetting):
     
