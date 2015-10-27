@@ -44,13 +44,20 @@
 //				"ss1vg", ss1vgValue,
 //				"ss1vo", ss1voValue,
 				"t0_chopper_id", t0ChopperId,
+				"t0_chopper_freq", t0Frequency,
+				"master_chopper_freq", masterFrequency, 
 				"monitor_counts", monitorRate,
-				"cdd", cddValue,
-				"cdl", cdlValue,
-				"cdr", cdrValue,
-				"cdu", cduValue,
-				"det", detValue,
+				"gs_l1", l1,
+				"curtaind", cddValue,
+				"curtainl", cdlValue,
+				"curtainr", cdrValue,
+				"curtainu", cduValue,
+//				"det", detValue,
+				"gs_l2_det", detValue,
+				"gs_nguide", guide,
 				"att_pos", attPos,
+				"samplename", sampleName,
+				"samx", samplePosition,
 				"::histogram_memory::ratemap_xy_total", detectorRate,
 				"::histogram_memory::ratemap_xy_max_bin", pixelRate,
 	//			"plc_secondary", secondaryShutter
@@ -307,16 +314,24 @@
 	<mx:WipeDown id="wipeIn" duration="1000"/>
 	<mx:Dissolve id="dissolveIn" duration="1500" alphaFrom="0.0" alphaTo="1.0"/>
 	
-	<mx:Panel title="Bilby - Small-Angle Neutron Scattering"
+	<mx:Panel title="Bilby - Small-Angle Neutron Scattering Instrument"
         width="1000" height="920" horizontalAlign="center" verticalAlign="top" fontSize="18" fontWeight="normal" backgroundColor="#000000" color="#FFFFFF" borderColor="#90CCFB" alpha="1.0" cornerRadius="3" layout="absolute">
  
  		<!-- Histogram image -->
- 		<gum:ImageView id="hmImage" width="500" height="300" left="71" bottom="350" maxHeight="500" maxWidth="500"/>
+ 		<gum:ImageView id="hmImage" width="500" height="400" horizontalCenter="-222" bottom="215" maxHeight="500" maxWidth="500"/>
+
+ 		<mx:Text text="Order of panels: curtains (left, right, top, bottom), rear detector (left, right)" left="80" fontSize="11" bottom="330" textAlign="center" width="480"/>
+
+ 		<mx:Text text="Sample" left="46" bottom="240" textAlign="center" width="80"/>
+ 		<mx:TextArea left="130" bottom="244" width="120" height="20" id="sampleName" color="#000000" fontSize="12" textAlign="center" editable="false"/>
+
+ 		<mx:Text text="Position" left="390" bottom="240" textAlign="center" width="88"/>
+ 		<mx:TextArea left="480" bottom="244" width="120" height="20" id="samplePosition" color="#000000" fontSize="12" textAlign="center" editable="false"/>
 
  		<mx:Image source="assets/bilby_model.JPG" scaleContent="true"
-			creationCompleteEffect="{dissolveIn}" bottom="10" horizontalCenter="-162" width="624" height="128"/>	
- 		<mx:TextArea horizontalCenter="-206" bottom="99" width="120" height="20" id="guide" color="#000000" fontSize="12" textAlign="center" editable="false"/>
- 		<mx:Text text="nguide" horizontalCenter="-97" bottom="96" fontWeight="bold" textAlign="center" width="82"/>
+			creationCompleteEffect="{dissolveIn}" bottom="90" horizontalCenter="-164" width="620" height="128"/>	
+ 		<mx:TextArea horizontalCenter="-124" bottom="181" width="80" height="20" id="guide" color="#000000" fontSize="12" textAlign="center" editable="false"/>
+ 		<mx:Text text="Guide" horizontalCenter="-202" bottom="176" fontWeight="bold" color="black" textAlign="center" width="82"/>
 
  		<!-- Instrument schematic -->
 
@@ -366,7 +381,7 @@
 						<mx:TextArea id="velWavelength" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:Label text="A"  width="30"/>
+						<mx:Label text="Å"  width="30"/>
 					</mx:GridItem>
 				</mx:GridRow>
 			</mx:Grid>
