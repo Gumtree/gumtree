@@ -10,3 +10,4 @@ Bundle-Vendor: Bragg Institute
 Bundle-ActivationPolicy: lazy
 Require-Bundle: au.gov.ansto.bragg.bilby.server;bundle-version="1.8.0";visibility:=reexport,
  au.gov.ansto.bragg.nbi.webserver;bundle-version="1.8.0";visibility:=reexport
+Eclipse-BundleShape: dir
