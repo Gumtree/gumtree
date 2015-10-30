@@ -52,6 +52,15 @@
 				"curtainl", cdlValue,
 				"curtainr", cdrValue,
 				"curtainu", cduValue,
+				"master1_chopper_id", chopperPair1,
+				"master2_chopper_id", chopperPair2,
+				"gs_l2_curtainl", l2L,
+				"gs_l2_curtainr", l2R,
+				"gs_l2_curtainu", l2U,
+				"gs_l2_curtaind", l2D,
+				"bs3", bs3,
+				"bs4", bs4,
+				"bs5", bs5,
 //				"det", detValue,
 				"gs_l2_det", detValue,
 				"gs_nguide", guide,
@@ -76,7 +85,7 @@
             	url += tempString + "&format=json";
             	
             	hdbComponentMap = [
-            		"/commands/beamstops/selbsxz/bs", bs3Value,
+//            		"/commands/beamstops/selbsxz/bs", bs3Value,
 //            		"/commands/beamstops/selbsxz/bx", bs4Value,
 //            		"/commands/beamstops/selbsxz/bz", bs5Value,
             		"/instrument/shutters/fast_shutter", fastShutter,
@@ -315,10 +324,10 @@
 	<mx:Dissolve id="dissolveIn" duration="1500" alphaFrom="0.0" alphaTo="1.0"/>
 	
 	<mx:Panel title="Bilby - Small-Angle Neutron Scattering Instrument"
-        width="1000" height="920" horizontalAlign="center" verticalAlign="top" fontSize="18" fontWeight="normal" backgroundColor="#000000" color="#FFFFFF" borderColor="#90CCFB" alpha="1.0" cornerRadius="3" layout="absolute">
+        width="1040" height="920" horizontalAlign="center" verticalAlign="top" fontSize="18" fontWeight="normal" backgroundColor="#000000" color="#FFFFFF" borderColor="#90CCFB" alpha="1.0" cornerRadius="3" layout="absolute">
  
  		<!-- Histogram image -->
- 		<gum:ImageView id="hmImage" width="500" height="400" horizontalCenter="-222" bottom="215" maxHeight="500" maxWidth="500"/>
+ 		<gum:ImageView id="hmImage" width="500" height="400" left="20" bottom="215" maxHeight="500" maxWidth="500"/>
 
  		<mx:Text text="Order of panels: curtains (left, right, top, bottom), rear detector (left, right)" left="80" fontSize="11" bottom="330" textAlign="center" width="480"/>
 
@@ -329,23 +338,23 @@
  		<mx:TextArea left="480" bottom="244" width="120" height="20" id="samplePosition" color="#000000" fontSize="12" textAlign="center" editable="false"/>
 
  		<mx:Image source="assets/bilby_model.JPG" scaleContent="true"
-			creationCompleteEffect="{dissolveIn}" bottom="90" horizontalCenter="-164" width="620" height="128"/>	
+			creationCompleteEffect="{dissolveIn}" bottom="90" left="18" width="620" height="128"/>	
  		<mx:TextArea horizontalCenter="-124" bottom="181" width="80" height="20" id="guide" color="#000000" fontSize="12" textAlign="center" editable="false"/>
  		<mx:Text text="Guide" horizontalCenter="-202" bottom="176" fontWeight="bold" color="black" textAlign="center" width="82"/>
 
  		<!-- Instrument schematic -->
 
-		<mx:Panel width="308" height="638"
+		<mx:Panel width="348" height="638"
 			title="Instrument Configuration" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
 			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
-			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="650" y="182">
+			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="654" y="182">
 			<mx:Grid width="100%">
 				<mx:GridRow width="100%">
 					<mx:GridItem width="45%">
 						<mx:Label text="Attenuator" fontWeight="bold" textAlign="left" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="attPos" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="attPos" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -365,7 +374,7 @@
 						<mx:Label text="Vel sel position" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="velPosition" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="velPosition" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text=""  width="30"/>
@@ -378,7 +387,7 @@
 						<mx:Label text="wavelength" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="velWavelength" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="velWavelength" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="Å"  width="30"/>
@@ -391,7 +400,7 @@
 						<mx:Label text="speed" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="velSpeed" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="velSpeed" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="rpm"  width="30"/>
@@ -411,7 +420,7 @@
 						<mx:Label text="T0_chopper_id" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="t0ChopperId" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="t0ChopperId" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text=""  width="30"/>
@@ -424,7 +433,7 @@
 						<mx:Label text="T0_chopper_frequency" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="t0Frequency" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="t0Frequency" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="Hz"  width="30"/>
@@ -437,7 +446,10 @@
 						<mx:Label text="chopper pair" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="chopperPair" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="chopperPair1" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="56"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="chopperPair2" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="56"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text=""  width="30"/>
@@ -450,7 +462,7 @@
 						<mx:Label text="master_chopper_frequency" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="masterFrequency" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="masterFrequency" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="Hz"  width="30"/>
@@ -463,7 +475,7 @@
 						<mx:Label text="L1" fontWeight="bold" textAlign="left" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="l1" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="l1" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -483,7 +495,10 @@
 						<mx:Label text="L2_curtaindet(l,r)" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="l2LR" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="l2L" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="56"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="l2R" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="56"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -496,7 +511,10 @@
 						<mx:Label text="L2_curtaindet(u,d)" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="l2UD" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="l2U" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="56"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextArea id="l2D" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="56"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -509,7 +527,7 @@
 						<mx:Label text="curtainl" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="cdlValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="cdlValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -522,7 +540,7 @@
 						<mx:Label text="curtainr" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="cdrValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="cdrValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -535,7 +553,7 @@
 						<mx:Label text="curtainu" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="cduValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="cduValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -548,7 +566,7 @@
 						<mx:Label text="curtaind" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="cddValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="cddValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -561,7 +579,7 @@
 						<mx:Label text="L2_det" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="detValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="detValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -581,7 +599,7 @@
 						<mx:Label text="BS3" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="bs3Value" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="bs3" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="deg"  width="30"/>
@@ -594,7 +612,7 @@
 						<mx:Label text="BS4" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="bs4Value" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="bs4" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="deg"  width="30"/>
@@ -607,7 +625,7 @@
 						<mx:Label text="BS5" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="bs5Value" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="80"/>
+						<mx:TextArea id="bs5" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="deg"  width="30"/>
@@ -656,7 +674,7 @@
 				</mx:GridRow>
 			</mx:Grid>
 		</mx:Panel>
-		<mx:Panel width="309" height="146"
+		<mx:Panel width="312" height="146"
 			title="Neutron Beam" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
 			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
 			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="324" y="19">
@@ -696,10 +714,10 @@
 				</mx:GridRow>
 			</mx:Grid>
 		</mx:Panel>
-		<mx:Panel width="308" height="146"
+		<mx:Panel width="348" height="146"
 			title="Server Status" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
 			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
-			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="650" y="19">
+			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="654" y="19">
 			<mx:Grid width="100%">
 				<mx:GridRow width="100%">
 					<mx:GridItem width="55%">
