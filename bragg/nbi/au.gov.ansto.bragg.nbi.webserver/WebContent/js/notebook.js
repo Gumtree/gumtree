@@ -3,6 +3,7 @@ var bottomDbIndex = -1;
 var isAppending = false;
 var dbFilter = null;
 var session = null;
+var pageId = null;
 
 jQuery.fn.outerHTML = function() {
 	return jQuery('<div />').append(this.eq(0).clone()).html();
@@ -154,7 +155,16 @@ function getPdf() {
 
 function getWord(){
 	var data = CKEDITOR.instances.id_editable_inner.getData();
-	jQuery('<div />').append(data).wordExport();
+//	jQuery('<div />').append(data).wordExport();
+	
+    var converted = htmlDocx.asBlob(data);
+    var fn = "Quokka_Notebook";
+    if (pageId != null) {
+    	fn = pageId;
+    }
+    fn += ".docx";
+    saveAs(converted, fn);
+    
 //	$("#id_editable_page").wordExport();
 }
 
@@ -495,8 +505,10 @@ jQuery(document).ready(function() {
 	
 //	load current notebook content file
 	var getUrl = "notebook/load";
+	var pageIdUrl = "notebook/pageid";
 	if (session != null && session.trim().length > 0) {
 		getUrl += "?session=" + session;
+		pageIdUrl += "?session=" + session;
 	}
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
@@ -507,6 +519,14 @@ jQuery(document).ready(function() {
 				$('#id_editable_inner').html(data);
 			}
 			
+			$.get(pageIdUrl, function(data, status) {
+				if (status == "success") {
+					pageId = data;
+				}
+			}) 
+			.fail(function(e) {
+			});
+
 //			make editable page
 			CKEDITOR.replace( 'id_editable_inner' );
 			CKEDITOR.instances.id_editable_inner.on('save', function(event, editor, data) {

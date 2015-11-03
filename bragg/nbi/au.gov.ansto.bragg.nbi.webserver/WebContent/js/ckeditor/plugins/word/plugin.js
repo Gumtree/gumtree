@@ -13,8 +13,12 @@ CKEDITOR.plugins.add( 'word', {
 	hidpi: true, // %REMOVE_LINE_CORE%
 	toolbar: 'WORD',
 	init: function( editor ) {
+//		CKEDITOR.scriptLoader.load(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('word') + 'js/FileSaver.js'), function() {
+//			CKEDITOR.scriptLoader.load(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('word') + 'js/jquery.wordexport.js'));			
+//		});
+		
 		CKEDITOR.scriptLoader.load(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('word') + 'js/FileSaver.js'), function() {
-			CKEDITOR.scriptLoader.load(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('word') + 'js/jquery.wordexport.js'));			
+			CKEDITOR.scriptLoader.load(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('word') + 'js/html-docx.js'));
 		});
 
 		var pluginName = 'word';

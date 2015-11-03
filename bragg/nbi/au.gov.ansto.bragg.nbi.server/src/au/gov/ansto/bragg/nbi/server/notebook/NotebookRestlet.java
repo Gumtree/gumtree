@@ -80,7 +80,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private static final String QUERY_ENTRY_START = "start";
 	private static final String QUERY_ENTRY_LENGTH = "length";
 	private final static String QUERY_SESSION_ID = "session";
-	private final static String QUERY_PAGE_ID = "page";
+	private final static String QUERY_PAGE_ID = "pageid";
 	private final static String QUERY_EXTNAME_ID = "ext";
 	private final static String QUERY_EXTERNAL_URL_ID = "url";
 	private static final String QUERY_PATTERN = "pattern";
@@ -213,6 +213,32 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		    } catch (JSONException e) {
 				e.printStackTrace();
 			}
+		} else if (QUERY_PAGE_ID.equals(seg)) {
+			Form queryForm = request.getResourceRef().getQueryAsForm();
+		    String sessionId = queryForm.getValues(QUERY_SESSION_ID);
+		    if (sessionId == null || sessionId.trim().length() == 0) {
+				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+					response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
+		    	try {
+		    		sessionId = controlDb.getCurrentSessionId();
+		    		String sessionValue = sessionDb.getSessionValue(sessionId);
+		    		response.setEntity(new String(sessionValue), MediaType.TEXT_PLAIN);
+		    	} catch (Exception e) {
+		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+		    		return;
+		    	}
+		    } else {
+		    	try {
+		    		String sessionValue = sessionDb.getSessionValue(sessionId);
+		    		response.setEntity(new String(sessionValue), MediaType.TEXT_PLAIN);
+		    	} catch (Exception e) {
+		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+		    		return;
+		    	}
+		    }
 		} else if (SEG_NAME_LOAD.equals(seg)) {
 			Form queryForm = request.getResourceRef().getQueryAsForm();
 		    String sessionId = queryForm.getValues(QUERY_SESSION_ID);
@@ -727,6 +753,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
     		}
 		} 
 		response.setStatus(Status.SUCCESS_OK);
+//		response.release();
 //	    String typeString = queryForm.getValues(QUERY_TYPE);
 //	    JSONObject jsonObject = new JSONObject();
 //	    try {
@@ -739,6 +766,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 //	    }
 	    return;
 	}
+	
 	
 	class CallbackAdapter implements IHttpClientCallback{
 		boolean isReady = false;
