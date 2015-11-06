@@ -4,6 +4,8 @@ var isAppending = false;
 var dbFilter = null;
 var session = null;
 var pageId = null;
+var updateIntervalId = null;
+var updateIntervalSeconds = 60;
 
 jQuery.fn.outerHTML = function() {
 	return jQuery('<div />').append(this.eq(0).clone()).html();
@@ -67,6 +69,17 @@ function getParam(sParam) {
 	return null;
 }
 
+function startUpdateInterval(){
+	updateIntervalId = setInterval(function(){
+		dbScrollTop();
+		}, updateIntervalSeconds * 1000);
+}
+
+function stopUpdateInterval(){
+	if (updateIntervalId != null) {
+		clearInterval(updateIntervalId);
+	}
+}
 function getPdf() {
 	if (CKEDITOR.instances.id_editable_inner.checkDirty()) {
 		$('<div></div>').appendTo('body')
@@ -483,6 +496,8 @@ $(function(){
         	dbScrollBottom();
         } else if(!isAppending && $(this).scrollTop() == 0) {
         	dbScrollTop();
+        	stopUpdateInterval();
+        	startUpdateInterval();
         }
     });
     
@@ -606,6 +621,7 @@ jQuery(document).ready(function() {
 			    $(this).attr("ondragstart", "drag(event)");
 			});
 
+			startUpdateInterval();
 //			disabled for unexpected behavior
 //			$(".class_db_object").draggable({
 //				helper : 'clone', 
@@ -703,6 +719,8 @@ jQuery(document).ready(function() {
 	        $this.scrollTop(0);
 	        if(!isAppending && $(this).scrollTop() == 0) {
 	        	dbScrollTop();
+	        	stopUpdateInterval();
+	        	startUpdateInterval();
 	        }
 	        return prevent();
 	    }
