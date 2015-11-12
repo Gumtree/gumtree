@@ -21,6 +21,25 @@ function formatDate(d) {
 	return yy + '-' + mm + '-' + dd + 'T' + HH + ':' + MM ;
 }
 
+function changeHistmemType() {
+	var newHistmemUrl;
+	if (typeof histmemTypes !== 'undefined' && histmemTypes.length > 0) {
+		newHistmemUrl = histmemUrl.replace('$HISTMEM_TYPE', $('#histmem_type').val());
+	} else {
+		newHistmemUrl = histmemUrl;
+	}
+	newHistmemUrl += "&timestamp=" + new Date().getTime()
+
+	try{
+		$.get(newHistmemUrl, function(data,status){
+			if (status == "success") {
+				$("#histmemImage").attr("src", newHistmemUrl);
+			} 
+		});
+	} catch (e) {
+	}
+}
+
 var lastTimeEstimation = -1.;
 var evEnabled = false;
 var refresh = function(){
@@ -150,11 +169,19 @@ var refresh = function(){
 			}
 		}
 		if (!isMobileBrowser && histmemUrl != null) {
-			var imgUrl = histmemUrl + "&timestamp=" + new Date().getTime();
+			
+			var newHistmemUrl;
+			if (typeof histmemTypes !== 'undefined' && histmemTypes.length > 0) {
+				newHistmemUrl = histmemUrl.replace('$HISTMEM_TYPE', $('#histmem_type').val());
+			} else {
+				newHistmemUrl = histmemUrl;
+			}
+			newHistmemUrl += "&timestamp=" + new Date().getTime()
+
 			try{
-				$.get(imgUrl, function(data,status){
+				$.get(newHistmemUrl, function(data,status){
 					if (status == "success") {
-						$("#histmemImage").attr("src", imgUrl);
+						$("#histmemImage").attr("src", newHistmemUrl);
 					} 
 				});
 			} catch (e) {
@@ -332,7 +359,22 @@ jQuery(document).ready(function(){
 		if (isMobileBrowser) {
 			$("#histmemDiv").html('<div data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="c" data-disabled="false" class="ui-btn ui-shadow ui-btn-corner-all ui-btn-up-c" aria-disabled="false"><span class="ui-btn-inner"><span class="ui-btn-text">Get histogram snapshot</span></span><button id="histmemButton" class="ui-btn-hidden" data-disabled="false">Get histogram snapshot</button></div>');
 		} else {
-			$("#histmemDiv").html('<img id="histmemImage" src="' + histmemUrl + '" alt="Loading error. Please refresh again.">');
+			var newHistmemUrl = histmemUrl;
+			var html = "";
+			if (typeof histmemTypes !== 'undefined' && histmemTypes.length > 0) {
+				var defaultType = histmemTypes[0].id;
+				html = '<label for="histmem_type" class="select">Select histogram type: </label><select id="histmem_type" name="histmem_type" onchange="changeHistmemType()">';
+				for ( var i = 0; i < histmemTypes.length; i++) {
+//					html += '<option value="' + histmemTypes[i].id + '">' + histmemTypes[i].text + '</option>';
+					html += '<option value="' + histmemTypes[i].id + '"' + (histmemTypes[i].isDefault ? ' selected' : '') + '>' + histmemTypes[i].text + '</option>';
+					if (histmemTypes[i].isDefault) {
+						defaultType = histmemTypes[i].id;
+					}
+				}
+				html += '</select><br>';
+				newHistmemUrl = histmemUrl.replace('$HISTMEM_TYPE', defaultType);
+			}
+			$("#histmemDiv").html(html + '<img id="histmemImage" src="' + newHistmemUrl + '" alt="Loading error. Please refresh again.">');
 		}
 	}
 	

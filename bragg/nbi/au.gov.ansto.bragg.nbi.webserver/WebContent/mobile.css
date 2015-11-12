@@ -68,3 +68,10 @@ img, object{
 	margin-left: 20px;
 	margin-right: 26px;
 }
+#histmemDiv {
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+#histmemDiv img {
+	margin-top: 8px;
+}

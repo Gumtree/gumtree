@@ -9,6 +9,7 @@
 	<!-- Scripts -->
 	<mx:Script>
 		<![CDATA[
+			import mx.charts.CategoryAxis;
 			import com.adobe.serialization.json.JSON;
 			import com.adobe.serialization.json.JSONDecoder;
 			import flash.events.TimerEvent;
@@ -20,6 +21,9 @@
 			import mx.messaging.channels.SecureAMFChannel;
 			import mx.rpc.events.FaultEvent;
             import mx.rpc.events.ResultEvent;
+            import mx.formatters.NumberFormatter;
+            import mx.formatters.NumberBaseRoundType;
+            import mx.utils.StringUtil;
 
 	        private var bm:IBrowserManager;
             
@@ -29,6 +33,8 @@
 			// hdb (devices) - widget maping
 			private var hdbDeviceMap:Array;
 			private var nsDeviceMap:Array;
+			private var sampleMap:Array;
+			
 			// hdb (components) - widget maping
 			private var hdbComponentMap:Array;
 			
@@ -37,47 +43,61 @@
 				bm = BrowserManager.getInstance();
         	    bm.init("", "Bilby - Small-Angle Neutron Scattering");
 				
+				sampleMap = [
+					250,
+					210.500,
+					168.375,
+					126.250,
+					84.125,
+					42.000,
+					-39.750,
+					-81.875,
+					-124.000,
+					-166.125,
+					-208.250,
+					-250
+				];
 				// Set HDB HTTP
 				hdbDeviceMap = [
 //				"ss1hg", ss1hgValue,
 //				"ss1ho", ss1hoValue,
 //				"ss1vg", ss1vgValue,
 //				"ss1vo", ss1voValue,
-				"t0_chopper_id", t0ChopperId,
-				"t0_chopper_freq", t0Frequency,
-				"master_chopper_freq", masterFrequency, 
-				"monitor_counts", monitorRate,
-				"gs_l1", l1,
-				"curtaind", cddValue,
-				"curtainl", cdlValue,
-				"curtainr", cdrValue,
-				"curtainu", cduValue,
-				"master1_chopper_id", chopperPair1,
-				"master2_chopper_id", chopperPair2,
-				"gs_l2_curtainl", l2L,
-				"gs_l2_curtainr", l2R,
-				"gs_l2_curtainu", l2U,
-				"gs_l2_curtaind", l2D,
-				"bs3", bs3,
-				"bs4", bs4,
-				"bs5", bs5,
+				"t0_chopper_id", t0ChopperId, "0",
+				"t0_chopper_freq", t0Frequency, "2",
+				"master_chopper_freq", masterFrequency, "2", 
+				"monitor_counts", monitorRate, "0",
+				"gs_l1", l1, "1",
+				"curtaind", cddValue, "1",
+				"curtainl", cdlValue, "1",
+				"curtainr", cdrValue, "1",
+				"curtainu", cduValue, "1",
+				"master1_chopper_id", chopperPair1, "0",
+				"master2_chopper_id", chopperPair2, "0",
+				"gs_l2_curtainl", l2L, "1",
+				"gs_l2_curtainr", l2R, "1",
+				"gs_l2_curtainu", l2U, "1",
+				"gs_l2_curtaind", l2D, "1",
+				"bs3", bs3, null,
+				"bs4", bs4, null,
+				"bs5", bs5, null,
 //				"det", detValue,
-				"gs_l2_det", detValue,
-				"gs_nguide", guide,
-				"att_pos", attPos,
-				"samplename", sampleName,
-				"samx", samplePosition,
-				"::histogram_memory::ratemap_xy_total", detectorRate,
-				"::histogram_memory::ratemap_xy_max_bin", pixelRate,
+				"gs_l2_det", detValue, "1",
+				"gs_nguide", guide, null,
+				"att_pos", attPos, "0",
+				"samplename", sampleName, null,
+				"samx", samplePosition, null,
+				"::histogram_memory::ratemap_xy_total", detectorRate, "1",
+				"::histogram_memory::ratemap_xy_max_bin", pixelRate, "1",
 	//			"plc_secondary", secondaryShutter
 				];
 				
 				var url:String = serverURL + "sics/rest/hdbs?devices=";
 				var tempString:String = "";
-				for (var i:int = 0; i < hdbDeviceMap.length; i += 2)
+				for (var i:int = 0; i < hdbDeviceMap.length; i += 3)
             	{
             		tempString += hdbDeviceMap[i];
-            		if (i != hdbDeviceMap.length - 2) {
+            		if (i != hdbDeviceMap.length - 3) {
             			tempString += ",";	
             		}
             	}
@@ -88,7 +108,7 @@
 //            		"/commands/beamstops/selbsxz/bs", bs3Value,
 //            		"/commands/beamstops/selbsxz/bx", bs4Value,
 //            		"/commands/beamstops/selbsxz/bz", bs5Value,
-            		"/instrument/shutters/fast_shutter", fastShutter,
+            		"/instrument/shutters/fast_shutter", fastShutter, null,
 //            		"/instrument/detector/max_binrate", pixelRate,
 //            		"/instrument/detector/total_maprate", detectorRate,
 //            		"/instrument/shutters/rough_100", rough100,
@@ -178,6 +198,27 @@
             	}
 			}
 			
+			private function convertPrecision(str:String, precision:String):String {
+				if (precision == null || StringUtil.trim(precision).length == 0) {
+					return str;
+				}
+				var number:Number;
+				var pre:Number 
+				try {  
+    				number = Number(str);
+    				pre = Number(precision);  
+				} catch (myError:Error) {  
+    				return str;  
+				} 
+//				pre = Math.pow(10, pre);
+// 				return (Math.round(number * pre)/pre).toString();
+				var formatter:NumberFormatter = new NumberFormatter();
+                formatter.precision = pre;
+                formatter.rounding = NumberBaseRoundType.NEAREST;
+                formatter.useThousandsSeparator = false;
+				return formatter.format(number);
+			}
+			
 			private function handleHdbData(event:ResultEvent):void
 			{
 				//get the raw JSON data and cast to String
@@ -189,10 +230,46 @@
 					// device
 					if (deviceName != null)	{
 						var index:int = hdbDeviceMap.indexOf(deviceName);
-						if (index >= 0)
-						{
+						if (index >= 0)	{
 							var textArea:TextArea = hdbDeviceMap[index + 1] as TextArea; 
-							textArea.text = dataArray[i].value;
+							if (deviceName == "bs3" || deviceName == "bs4" || deviceName == "bs5"){
+								try {
+									var val:Number = Number(dataArray[i].value);
+									var text:String;
+									if (val < 64 && val > 62) {
+										text = "in";
+									} else {
+										text = "out";
+									}
+									textArea.text = text;
+								}catch (myError:Error) {
+									textArea.text = dataArray[i].value;
+								} 
+							} else if (deviceName == "samx") {
+								try{
+									val = Number(dataArray[i].value);
+									var samNum:Number = -1;
+									for(var j:int = 0; j < sampleMap.length; j++) {
+										if (val > sampleMap[j]) {
+											if (j > 0) {
+												samNum = j - (val - sampleMap[j]) / (sampleMap[j - 1] - sampleMap[j]);
+											}
+											break;
+										}
+									}
+									if (samNum < 0.05 || samNum > 10.95) {
+										textArea.text = "out";
+									} else {
+										var numText:String = convertPrecision(samNum.toString(), "1");
+										numText = numText.replace(".0", "");
+										textArea.text = numText;
+									}
+								} catch (myError:Error) {
+									textArea.text = dataArray[i].value;
+								} 
+							} else {
+								textArea.text = convertPrecision(dataArray[i].value, hdbDeviceMap[index + 2]);
+							}
 						}
 //						if (deviceName == "plc_tertiary") {
 //							handleSampleShutter(dataArray[i].value);
@@ -210,7 +287,7 @@
 							if (componentIndex >= 0)
 							{
 								var componentTextArea:TextArea = hdbComponentMap[componentIndex + 1] as TextArea; 
-								componentTextArea.text = dataArray[i].value;
+								componentTextArea.text = convertPrecision(dataArray[i].value, hdbComponentMap[index + 2]);
 							}	
 						}
 					}
@@ -238,7 +315,7 @@
 						if (index >= 0)
 						{
 							var textArea:TextArea = nsDeviceMap[index + 1] as TextArea; 
-							textArea.text = dataArray[i].value;
+							textArea.text = convertPrecision(dataArray[i].value, "2");
 						}
 					}
 				}
@@ -324,7 +401,7 @@
 	<mx:Dissolve id="dissolveIn" duration="1500" alphaFrom="0.0" alphaTo="1.0"/>
 	
 	<mx:Panel title="Bilby - Small-Angle Neutron Scattering Instrument"
-        width="1040" height="920" horizontalAlign="center" verticalAlign="top" fontSize="18" fontWeight="normal" backgroundColor="#000000" color="#FFFFFF" borderColor="#90CCFB" alpha="1.0" cornerRadius="3" layout="absolute">
+        width="1056" height="920" horizontalAlign="center" verticalAlign="top" fontSize="18" fontWeight="normal" backgroundColor="#000000" color="#FFFFFF" borderColor="#90CCFB" alpha="1.0" cornerRadius="3" layout="absolute">
  
  		<!-- Histogram image -->
  		<gum:ImageView id="hmImage" width="500" height="400" left="20" bottom="215" maxHeight="500" maxWidth="500"/>
@@ -344,7 +421,7 @@
 
  		<!-- Instrument schematic -->
 
-		<mx:Panel width="348" height="638"
+		<mx:Panel width="364" height="638"
 			title="Instrument Configuration" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
 			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
 			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="654" y="182">
@@ -354,7 +431,7 @@
 						<mx:Label text="Attenuator" fontWeight="bold" textAlign="left" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="attPos" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="attPos" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -374,7 +451,7 @@
 						<mx:Label text="Vel sel position" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="velPosition" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="velPosition" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text=""  width="30"/>
@@ -387,7 +464,7 @@
 						<mx:Label text="wavelength" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="velWavelength" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="velWavelength" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="Å"  width="30"/>
@@ -400,7 +477,7 @@
 						<mx:Label text="speed" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="velSpeed" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="velSpeed" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="rpm"  width="30"/>
@@ -420,7 +497,7 @@
 						<mx:Label text="T0_chopper_id" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="t0ChopperId" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="t0ChopperId" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text=""  width="30"/>
@@ -433,7 +510,7 @@
 						<mx:Label text="T0_chopper_frequency" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="t0Frequency" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="t0Frequency" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="Hz"  width="30"/>
@@ -446,10 +523,10 @@
 						<mx:Label text="chopper pair" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="chopperPair1" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="56"/>
+						<mx:TextArea id="chopperPair1" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="64"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="chopperPair2" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="56"/>
+						<mx:TextArea id="chopperPair2" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="64"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text=""  width="30"/>
@@ -462,7 +539,7 @@
 						<mx:Label text="master_chopper_frequency" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="masterFrequency" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="masterFrequency" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="Hz"  width="30"/>
@@ -475,7 +552,7 @@
 						<mx:Label text="L1" fontWeight="bold" textAlign="left" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="l1" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="l1" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -495,10 +572,10 @@
 						<mx:Label text="L2_curtaindet(l,r)" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="l2L" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="56"/>
+						<mx:TextArea id="l2L" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="64"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="l2R" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="56"/>
+						<mx:TextArea id="l2R" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="64"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -511,10 +588,10 @@
 						<mx:Label text="L2_curtaindet(u,d)" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="l2U" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="56"/>
+						<mx:TextArea id="l2U" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="64"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="l2D" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="56"/>
+						<mx:TextArea id="l2D" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="64"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -527,7 +604,7 @@
 						<mx:Label text="curtainl" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="cdlValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="cdlValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -540,7 +617,7 @@
 						<mx:Label text="curtainr" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="cdrValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="cdrValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -553,7 +630,7 @@
 						<mx:Label text="curtainu" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="cduValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="cduValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -566,7 +643,7 @@
 						<mx:Label text="curtaind" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="cddValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="cddValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -579,7 +656,7 @@
 						<mx:Label text="L2_det" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="detValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="detValue" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
 						<mx:Label text="mm"  width="30"/>
@@ -599,10 +676,10 @@
 						<mx:Label text="BS3" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="bs3" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="bs3" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:Label text="deg"  width="30"/>
+						<mx:Label text=""  width="30"/>
 					</mx:GridItem>
 				</mx:GridRow>
 			</mx:Grid>
@@ -612,10 +689,10 @@
 						<mx:Label text="BS4" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="bs4" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="bs4" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:Label text="deg"  width="30"/>
+						<mx:Label text=""  width="30"/>
 					</mx:GridItem>
 				</mx:GridRow>
 			</mx:Grid>
@@ -625,10 +702,10 @@
 						<mx:Label text="BS5" textAlign="right" width="150"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:TextArea id="bs5" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="120"/>
+						<mx:TextArea id="bs5" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:Label text="deg"  width="30"/>
+						<mx:Label text=""  width="30"/>
 					</mx:GridItem>
 				</mx:GridRow>
 			</mx:Grid>
@@ -714,7 +791,7 @@
 				</mx:GridRow>
 			</mx:Grid>
 		</mx:Panel>
-		<mx:Panel width="348" height="146"
+		<mx:Panel width="364" height="146"
 			title="Server Status" fontSize="12" borderColor="#FFFFFF" alpha="1.0"
 			borderStyle="solid" backgroundColor="#000000" borderThickness="2"
 			cornerRadius="6" creationCompleteEffect="{wipeIn}" x="654" y="19">
