@@ -10,7 +10,7 @@ var devices = [
             	            ]
                },
                {"group":"PREMONOCHROMATOR", 
-            	   "items":[{"classId":"lambda", "deviceId":"lambda", "title":"Wavelength", "units":"Å"},  
+            	   "items":[{"classId":"lambda", "deviceId":"lambda", "title":"Wavelength", "units":"\u212B"},  
             	            {"classId":"momto", "deviceId":"momto", "title":"Take-off angle", "units":"degree"},
             	            {"classId":"mom", "deviceId":"mom", "title":"Premono Omega", "units":"degree"}
             	            ]

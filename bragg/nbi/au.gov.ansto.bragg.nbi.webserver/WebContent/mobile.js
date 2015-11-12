@@ -254,10 +254,14 @@ var refresh = function(){
 					for (var k = 0; k < obj.hdbs.length; k++){
 						if (devices[i].items[j].deviceId == obj.hdbs[k].deviceId){
 							try{
+								var value = obj.hdbs[k].value;
+								if (devices[i].items[j].decimal != null) {
+									value = String(Number(value).toFixed(devices[i].items[j].decimal));
+								}
 								if (devices[i].items[j].adapt != null) {
-									$("#" + devices[i].items[j].classId).text(devices[i].items[j].adapt(obj.hdbs[k].value) + " " + devices[i].items[j].units);
+									$("#" + devices[i].items[j].classId).text(devices[i].items[j].adapt(value) + " " + devices[i].items[j].units);
 								} else {
-									$("#" + devices[i].items[j].classId).text(obj.hdbs[k].value + " " + devices[i].items[j].units);
+									$("#" + devices[i].items[j].classId).text(value + " " + devices[i].items[j].units);
 								}
 								if (devices[i].items[j].colorList != null) {
 									$.each(devices[i].items[j].colorList, function(key, value) {
@@ -272,10 +276,14 @@ var refresh = function(){
 						} else {
 							if (devices[i].items[j].deviceId == obj.hdbs[k].path){
 								try{
+									var value = obj.hdbs[k].value;
+									if (devices[i].items[j].decimal != null) {
+										value = String(Number(value).toFixed(devices[i].items[j].decimal));
+									}
 									if (devices[i].items[j].adapt != null) {
-										$("#" + devices[i].items[j].classId).text(devices[i].items[j].adapt(obj.hdbs[k].value) + " " + devices[i].items[j].units);
+										$("#" + devices[i].items[j].classId).text(devices[i].items[j].adapt(value) + " " + devices[i].items[j].units);
 									} else {
-										$("#" + devices[i].items[j].classId).text(obj.hdbs[k].value + " " + devices[i].items[j].units);
+										$("#" + devices[i].items[j].classId).text(value + " " + devices[i].items[j].units);
 									}
 								} catch (e) {
 								}

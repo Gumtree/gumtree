@@ -17,7 +17,7 @@ var devices = [
             	            ]
                },
                {"group":"MONOCHROMATOR", 
-            	   "items":[{"classId":"vwi", "deviceId":"vwi", "title":"wavelength", "units":"Å"},  
+            	   "items":[{"classId":"vwi", "deviceId":"vwi", "title":"wavelength", "units":"\u212B"},  
             	            {"classId":"mom", "deviceId":"mom", "title":"mom", "units":"deg"},
             	            {"classId":"mtth", "deviceId":"mtth", "title":"mtth", "units":"deg"},
             	            {"classId":"moma", "deviceId":"moma", "title":"moma", "units":"deg"},
