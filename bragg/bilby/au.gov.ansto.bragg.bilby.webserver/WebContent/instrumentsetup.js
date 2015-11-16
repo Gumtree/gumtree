@@ -60,7 +60,7 @@ var devices = [
             	            ]
                },
                {"group":"ATTENUATOR", 
-            	   "items":[{"classId":"att", "deviceId":"att", "title":"att", "units":"mm", "decimal":0}
+            	   "items":[{"classId":"att", "deviceId":"att", "title":"att", "units":"", "decimal":0}
             	            ]
                },
                {"group":"VELOCITY SELECTOR", 

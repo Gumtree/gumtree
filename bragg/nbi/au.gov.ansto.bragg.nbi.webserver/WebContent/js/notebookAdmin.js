@@ -39,6 +39,30 @@ function getPdf(page, session){
 	});
 }
 
+function getWord(page, session) {
+	var getUrl = "../notebook/load";
+	if (typeof(session) !== "undefined") { 
+		 getUrl += "?session=" + session;
+	}
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+//			var data = CKEDITOR.instances.id_editable_inner.getData();
+		    var converted = htmlDocx.asBlob(data);
+		    var fn = "Quokka_Notebook";
+		    if (page != null) {
+		    	fn = page;
+		    }
+		    fn += ".docx";
+		    saveAs(converted, fn);
+		} else {
+			alert( "error downloading Word file.");
+		}
+	})
+	.fail(function(e) {
+		alert( "error downloading Word file.");
+	});
+}
+
 function load(id, name, proposal, pattern) {
 	getUrl = "../notebook/load?session=" + id;
 	if (typeof(pattern) !== "undefined") { 
@@ -51,7 +75,9 @@ function load(id, name, proposal, pattern) {
 				 var text = 'P' + proposal + ": " + name;
 			}			
 			$('#id_content_header').html('<span>' + text + '</span><a class="class_div_button" onclick="edit(\'' 
-					+ id + '\')">Edit</a>&nbsp;<a class="class_div_button" onclick="getPdf(\'' + name + '\', \'' + id + '\')">PDF</a><div class="id_div_busyIndicator">&nbsp;</div>');
+					+ id + '\')">Edit</a>&nbsp;<a class="class_div_button" onclick="getPdf(\'' + name 
+					+ '\', \'' + id + '\')">PDF</a>&nbsp;<a class="class_div_button" onclick="getWord(\'' + name 
+					+ '\', \'' + id + '\')">WORD</a><div class="id_div_busyIndicator">&nbsp;</div>');
 			$('#id_div_content').html(data);
 		}
 	})
@@ -245,7 +271,9 @@ $(function() {
 			    				var newPageId = newInfo[1];
 			    				var newProposalId = newInfo[2];
 			    				$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>'
-			    						+ '&nbsp;<a class="class_div_button" onclick="getPdf(\'' + newPageId + '\')">PDF</a><div class="id_div_busyIndicator">&nbsp;</div>');
+			    						+ '&nbsp;<a class="class_div_button" onclick="getPdf(\'' + newPageId 
+			    						+ '\')">PDF</a>&nbsp;<a class="class_div_button" onclick="getWord(\'' + newPageId 
+			    						+ '\')">WORD</a><div class="id_div_busyIndicator">&nbsp;</div>');
 			    				$('#id_div_content').html(text);
 			    				$("#id_a_reviewCurrent").html('Current Page - P' + newProposalId + '<span class="holder"></span>');
 			    				$("#id_a_reviewCurrent").unbind('click').click(function() {
@@ -487,10 +515,14 @@ jQuery(document).ready(function() {
 					+ pageId + '\', \'' + proposalId + '\')">&nbsp;&nbsp;--&nbsp;' + pageId + '</a></li>');
 			if ($.isNumeric(proposalId)) {
 				$('#id_content_header').html('<span>P' + proposalId + ' - Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>'
-						+ '&nbsp;<a class="class_div_button" onclick="getPdf(\'' + pageId + '\')">PDF</a><div class="id_div_busyIndicator">&nbsp;</div>');
+						+ '&nbsp;<a class="class_div_button" onclick="getPdf(\'' + pageId 
+						+ '\')">PDF</a>&nbsp;<a class="class_div_button" onclick="getWord(\'' + pageId 
+						+ '\')">WORD</a><div class="id_div_busyIndicator">&nbsp;</div>');
 			} else {
 				$('#id_content_header').html('<span>Current Notebook Page</span><a class="class_div_button" onclick="edit(null)">Edit</a>'
-						+ '&nbsp;<a class="class_div_button" onclick="getPdf(\'' + pageId + '\', \'' + sessionId + '\')">PDF</a><div class="id_div_busyIndicator">&nbsp;</div>');
+						+ '&nbsp;<a class="class_div_button" onclick="getPdf(\'' + pageId + '\', \'' + sessionId 
+						+ '\')">PDF</a>&nbsp;<a class="class_div_button" onclick="getWord(\'' + pageId + '\', \'' + sessionId 
+						+ '\')">WORD</a><div class="id_div_busyIndicator">&nbsp;</div>');
 			}
 			if (data.trim().length == 0) {
 				$('#id_div_content').html("<p><br></p>");

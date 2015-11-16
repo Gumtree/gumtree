@@ -68,6 +68,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String SEG_NAME_IMAGESERVICE = "imageService";
 	private final static String SEG_NAME_ARCHIVE = "archive";
 	private final static String SEG_NAME_TEMPLATE = "template";
+	private final static String SEG_NAME_LISTHISTORY = "history";
 	private final static String STRING_CONTENT_START = "content=";
 	private final static String PREFIX_NOTEBOOK_FILES = "Page_";
 	private final static String PROP_NOTEBOOK_SAVEPATH = "gumtree.notebook.savePath";
@@ -238,6 +239,49 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 		    		return;
 		    	}
+		    }
+		} else if (SEG_NAME_LISTHISTORY.equals(seg)) {
+			Form queryForm = request.getResourceRef().getQueryAsForm();
+		    String sessionId = queryForm.getValues(QUERY_SESSION_ID);
+		    if (sessionId == null || sessionId.trim().length() == 0) {
+				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+					response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
+		    	try {
+		    		sessionId = controlDb.getCurrentSessionId();
+		    	} catch (Exception e) {
+		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+		    		return;
+		    	}
+		    } 
+		    try {
+		    	String proposalId = proposalDb.findProposalId(sessionId);
+		    	String sessions = "None";
+		    	if (proposalId != null) {
+		    		sessions = proposalDb.getSessionIds(proposalId);
+		    		String sessionString = "";
+		    		if (sessions != null && sessions.trim().length() > 0) {
+		    			String[] sessionArray = sessions.split(":");
+		    			for (int i = 0; i < sessionArray.length; i++) {
+							String sId = sessionArray[i];
+							if (i > 0) {
+								sessionString += ",";
+							}
+		    				sessionString += sId + ":" + sessionDb.getSessionValue(sId);
+						}
+		    		}
+		    		if (sessionString == "") {
+		    			sessionString = "None";
+		    		}
+		    		response.setEntity(new String(proposalId + ";" + sessionString), MediaType.TEXT_PLAIN);
+		    	} else {
+		    		response.setEntity(new String("Unknown;None"), MediaType.TEXT_PLAIN);
+		    	}
+		    } catch (Exception e) {
+		    	response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+		    	return;
 		    }
 		} else if (SEG_NAME_LOAD.equals(seg)) {
 			Form queryForm = request.getResourceRef().getQueryAsForm();

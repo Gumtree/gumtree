@@ -42,8 +42,15 @@
 </head>
 <body>
     <header class="div_shiftable">
-        <div id="id_div_headertext"><h2>Instrument Notebook - Quokka</h2></div>
-	    <div id="id_div_headercorner"><a id="id_a_help" href="notebook/help" target="_blank"><img src="images/help.gif"/><span>Help</span></a></div>
+        <div id="id_div_headertext" class="class_div_dropdown"><h2>Instrument Notebook - Quokka</h2>
+        		<ul>
+				   <li class='active has-sub last'><a id="id_history_menu" href='#'><span id="id_span_proposalId"></span></a>
+				      <ul id="id_ul_historyitems">
+				      </ul>
+				   </li>
+				</ul>
+        </div>
+	    <div id="id_div_headercorner"><a id="id_a_help" href="notebook/help" target="_blank"><img src="images/help.gif"/><span>Help&nbsp;<span>&#169;2015 ANSTO</span></span></a></div>
     </header>
     <div style="clear: both"></div>
     <div class="class_editable_page" id="id_editable_page" data-id="data_editable_page">
@@ -58,7 +65,7 @@
 	    <a class="a_sidebar_handle" id="a_sidebar_canvas" href="http://link-for-non-js-users.html">Canvas</a>
 	    <a class="a_sidebar_handle" id="a_sidebar_template" href="http://link-for-non-js-users.html">Templates</a>
 	    <div class="div_sidebar_block" id="div_sidebar_database">
-		    <div class="div_sidebar_header" id="id_sidebar_header">
+		    <div class="div_sidebar_header class_div_dropdown" id="id_sidebar_header">
 		    	<ul>
 				   <li class='active has-sub last'><a id="id_filter_menu" href='#'><span>All Items</span></a>
 				      <ul>
@@ -89,11 +96,5 @@
         	<div class="div_sidebar_inner" id="id_template_inner"></div>
         </div>
     </div>    
-	<footer class="div_shiftable">
-    	<hr>
-		<div class="div_footer">
-			<p class="class_footer_right">&#169;2015 ANSTO</p>
-		</div>
-	</footer>
 </body>
 </html>

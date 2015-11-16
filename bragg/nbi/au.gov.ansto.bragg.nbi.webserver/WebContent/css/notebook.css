@@ -334,6 +334,20 @@ th {
 	float: left;
 	display: inline;
 }
+#id_div_headertext h2{
+	margin-bottom: 0px;
+}
+
+/*
+#id_div_headertext a{
+	margin: 4px 0px;
+	color: #999;
+}
+
+#id_div_headertext a:HOVER{
+	color: #118;
+}
+*/
 
 @media screen {
 	#id_div_headercorner {
@@ -355,6 +369,8 @@ th {
 		color: black;
 	}
 	#id_div_headercorner span {
+		color: #888;
+		font-size: 14px;
 	}
 }
 @media print {
@@ -383,3 +399,4 @@ th {
   border: solid 1px #dcdcdc;
   transition: box-shadow 0.3s, border 0.3s;
 }
+

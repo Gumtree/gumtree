@@ -10,7 +10,17 @@ var updateIntervalSeconds = 60;
 jQuery.fn.outerHTML = function() {
 	return jQuery('<div />').append(this.eq(0).clone()).html();
 };
-	
+
+function formatDate(d) {
+	var HH = d.getHours();
+	if (HH < 10) HH = '0' + HH;
+	var MM = d.getMinutes();
+	if (MM < 10) MM = '0' + MM;
+	var ss = d.getSeconds();
+	if (ss < 10) ss = '0' + ss;
+	return HH + ':' + MM + ":" + ss;
+}
+
 (function($) {
 	function img(url) {
 		var i = new Image;
@@ -80,6 +90,33 @@ function stopUpdateInterval(){
 		clearInterval(updateIntervalId);
 	}
 }
+
+function getHistoryPdf(session) {
+	if (session == null || session.trim().length == 0) {
+		return;
+	}
+	var getUrl = "notebook/pdf?session=" + session;
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+			var pair = data.split(":");
+			var fileUrl = "notebook/download/" + pair[0] + ".pdf?ext=" + pair[1];
+			if (session != null) { 
+				fileUrl += "&session=" + session;
+			}
+			setTimeout(function() {
+				$.fileDownload(fileUrl)
+				.done(function () {})
+				.fail(function () { alert('File download failed!'); });				
+			}, 1000);
+		}
+	})
+	.fail(function(e) {
+		alert( "error downloading PDF file.");
+	}).always(function() {
+		$(this).dialog("close");
+	});
+}
+
 function getPdf() {
 	if (CKEDITOR.instances.id_editable_inner.checkDirty()) {
 		$('<div></div>').appendTo('body')
@@ -164,6 +201,30 @@ function getPdf() {
 			alert( "error creating PDF file.");
 		});
 	}
+}
+
+function getHistoryWord(session, pageId) {
+	if (session == null || session.trim().length == 0) {
+		return;
+	}
+	var getUrl = "notebook/load?session=" + session;
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+//			var data = CKEDITOR.instances.id_editable_inner.getData();
+		    var converted = htmlDocx.asBlob(data);
+		    var fn = "Quokka_Notebook";
+		    if (pageId != null) {
+		    	fn = pageId;
+		    }
+		    fn += ".docx";
+		    saveAs(converted, fn);
+		} else {
+			alert( "error downloading Word file.");
+		}
+	})
+	.fail(function(e) {
+		alert( "error downloading Word file.");
+	});
 }
 
 function getWord(){
@@ -350,7 +411,7 @@ function dbScrollTop() {
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
 			if (data.trim().length == 0) {
-				$('#id_sidebar_inner').prepend('<div class="class_inner_topmessage">No new entry was found. Please try again later. </div>');
+				$('#id_sidebar_inner').prepend('<div class="class_inner_topmessage">No new entry was found. Last checked at ' + formatDate(new Date()) + '.</div>');
 				return;
 			}
 			var brk = data.indexOf(";");
@@ -359,7 +420,7 @@ function dbScrollTop() {
 			var tempBottomDbIndex = parseInt(pair.substring(pair.indexOf(":") + 1));
 
 			if (topDbIndex - tempBottomDbIndex < 0){
-				$('#id_sidebar_inner').prepend('<div class="class_inner_topmessage">No new entry was found. Please try again later. </div>');
+				$('#id_sidebar_inner').prepend('<div class="class_inner_topmessage">No new entry was found. Last checked at ' + formatDate(new Date()) + '.</div>');
 				return;
 			}
 			
@@ -438,7 +499,7 @@ $(function(){
 		$(".div_sidebar_inner").height(bodyheight - 44);
 		
 		$(".div_canvas_slideout").height(bodyheight - 20);
-		$("#id_editable_page").height(bodyheight - 180);
+		$("#id_editable_page").height(bodyheight - 120);
 //		$(".div_canvas_inner").height(bodyheight - 80);
 	});
 
@@ -514,16 +575,18 @@ jQuery(document).ready(function() {
 	$(".slide-out-div").height(bodyheight - 20);
 	$(".div_sidebar_inner").height(bodyheight - 44);
 	$(".div_canvas_slideout").height(bodyheight - 20);
-	$("#id_editable_page").height(bodyheight - 180);
+	$("#id_editable_page").height(bodyheight - 120);
 
 	session = getParam('session');
 	
 //	load current notebook content file
 	var getUrl = "notebook/load";
 	var pageIdUrl = "notebook/pageid";
+	var historyUrl = "notebook/history";
 	if (session != null && session.trim().length > 0) {
 		getUrl += "?session=" + session;
 		pageIdUrl += "?session=" + session;
+		historyUrl += "?session=" + session;
 	}
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
@@ -542,6 +605,34 @@ jQuery(document).ready(function() {
 			.fail(function(e) {
 			});
 
+			$.get(historyUrl, function(data, status) {
+				if (status == "success") {
+					var brk = data.indexOf(";");
+					var proposalId = data.substring(0, brk);
+					var sessions = data.substring(brk + 1);
+					if (brk != "Unknown") {
+						$('#id_span_proposalId').text("History pages of Proposal " + proposalId);
+					}
+					if (sessions != "None") {
+						var sessionList = sessions.split(",");
+						for ( var i = 0; i < sessionList.length; i++) {
+							var sessionPair = sessionList[i].split(":");
+							var sessionId = sessionPair[0];
+							var subPageId = sessionPair[1];
+							if ((session != null && sessionId != session) || (session == null && subPageId != pageId)) {
+								var html = '<li class="active has-sub"><a id="history_' + sessionId + '"><span>' + subPageId + '</span></a>';
+								html += '<ul><li><a onclick="getHistoryPdf(\'' + sessionId + '\')"><img src="images/pdf.png"><span class="class_span_historyIcons">&nbsp;&nbsp;--&nbsp;Download PDF</span></a></li>'
+								+ '<li><a onclick="getHistoryWord(\'' + sessionId + '\', \'' + subPageId + '\')"><img src="images/word.png"><span class="class_span_historyIcons">&nbsp;&nbsp;--&nbsp;Download Word</span></a></li></ul>';
+								html += '</li>';
+								$('#id_ul_historyitems').append(html);
+							}
+						}
+					}
+				}
+			}) 
+			.fail(function(e) {
+			});
+			
 //			make editable page
 			CKEDITOR.replace( 'id_editable_inner' );
 			CKEDITOR.instances.id_editable_inner.on('save', function(event, editor, data) {

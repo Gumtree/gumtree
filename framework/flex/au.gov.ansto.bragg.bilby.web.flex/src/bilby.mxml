@@ -434,7 +434,7 @@
 						<mx:TextArea id="attPos" text="--" editable="false" height="20" borderStyle="solid" backgroundColor="#000000" textAlign="right" width="136"/>
 					</mx:GridItem>
 					<mx:GridItem>
-						<mx:Label text="mm"  width="30"/>
+						<mx:Label text=""  width="30"/>
 					</mx:GridItem>
 				</mx:GridRow>
 			</mx:Grid>
