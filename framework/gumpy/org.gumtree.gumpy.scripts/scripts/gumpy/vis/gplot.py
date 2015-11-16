@@ -188,9 +188,25 @@ class GPlot:
     
     def set_x_range(self, min, max):
         self.pv.getPlot().getXYPlot().getDomainAxis().setRange(min, max)
+        
+    def set_x_min(self, min):
+        range = self.pv.getPlot().getXYPlot().getDomainAxis().getRange()
+        self.set_x_range(min, range.getUpperBound())
+    
+    def set_x_max(self, max):
+        range = self.pv.getPlot().getXYPlot().getDomainAxis().getRange()
+        self.set_x_range(range.getLowerBound(), max)
     
     def set_y_range(self, min, max):
         self.pv.getPlot().getXYPlot().getRangeAxis().setRange(min, max)
+
+    def set_y_min(self, min):
+        range = self.pv.getPlot().getXYPlot().getRangeAxis().getRange()
+        self.set_y_range(min, range.getUpperBound())
+    
+    def set_y_max(self, max):
+        range = self.pv.getPlot().getXYPlot().getRangeAxis().getRange()
+        self.set_y_range(range.getLowerBound(), max)
         
     def save_as_png(self, filename):
         self.pv.getPlot().saveTo(filename, 'png')

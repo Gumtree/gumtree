@@ -125,4 +125,15 @@ public class PlotView extends ViewPart {
 	public void setViewTitle(String title) {
 		super.setPartName(title);
 	}
+	
+	public static void closePlotView(final PlotView view) {
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().hideView(view); 
+				view.dispose();
+			}
+		});
+	}
 }
