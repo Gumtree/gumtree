@@ -390,6 +390,12 @@ class SimpleData:
                 self.storage.min(axis, obj)
                 return out
     
+    def argmax(self, axis = None):
+        return self.storage.argmax()
+
+    def argmin(self, axis = None):
+        return self.storage.argmin()
+        
     def sum(self, axis = None, dtype = None, out = None):
         if axis is None :
             return self.storage.sum(dtype = dtype)

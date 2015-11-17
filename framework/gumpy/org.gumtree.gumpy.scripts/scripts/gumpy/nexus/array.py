@@ -1316,6 +1316,86 @@ class Array:
         return l
             
 #####################################################################################
+# Returns the indices of the maximum values along an axis.
+# Parameters:    
+#     axis : int, optional
+#        By default, the index is into the flattened array, otherwise along the specified axis.
+#
+# Returns:    
+#    index_array : ndarray of ints
+#    Array of indices into the array. It has the same shape as a.shape with the dimension along axis removed.
+#####################################################################################
+    def argmax(self, axis = None):
+        if axis is None:
+            val = float("-inf")
+            found = -1
+            idx = 0
+            iter = self.item_iter()
+            while iter.has_next():
+                nv = iter.next()
+                if nv > val:
+                    val = nv
+                    found = idx
+                idx += 1
+            return found
+        else:
+            if axis >= self.ndim:
+                raise Exception, 'axis out of range'
+            if self.ndim == 1:
+                return self.argmax()
+            res_shape = copy.copy(self.shape)
+            res_shape.pop(axis)
+            res = zeros(res_shape, int)
+            res_iter = res.item_iter()
+            sec_iter_shape = [1] * self.ndim
+            sec_iter_shape[axis] = self.shape[axis]
+            sec_iter = self.section_iter(sec_iter_shape)
+            while sec_iter.has_next():
+                sec = sec_iter.next()
+                res_iter.set_next(sec.argmax())
+            return res
+        
+#####################################################################################
+# Returns the indices of the minimum values along an axis.
+# Parameters:    
+#     axis : int, optional
+#        By default, the index is into the flattened array, otherwise along the specified axis.
+#
+# Returns:    
+#    index_array : ndarray of ints
+#    Array of indices into the array. It has the same shape as a.shape with the dimension along axis removed.
+#####################################################################################
+    def argmin(self, axis = None):
+        if axis is None:
+            val = float("inf")
+            found = -1
+            idx = 0
+            iter = self.item_iter()
+            while iter.has_next():
+                nv = iter.next()
+                if nv < val:
+                    val = nv
+                    found = idx
+                idx += 1
+            return found
+        else:
+            if axis >= self.ndim:
+                raise Exception, 'axis out of range'
+            if self.ndim == 1:
+                return self.argmin()
+            res_shape = copy.copy(self.shape)
+            res_shape.pop(axis)
+            res = zeros(res_shape, int)
+            res_iter = res.item_iter()
+            sec_iter_shape = [1] * self.ndim
+            sec_iter_shape[axis] = self.shape[axis]
+            sec_iter = self.section_iter(sec_iter_shape)
+            while sec_iter.has_next():
+                sec = sec_iter.next()
+                res_iter.set_next(sec.argmin())
+            return res
+        
+#####################################################################################
 #   Array modification
 #####################################################################################    
 
@@ -1876,8 +1956,8 @@ class ArraySectionIter():
             return True
         else :
             return False
-        
-    
+
+
 #####################################################################################
 # Array utilities
 #####################################################################################
@@ -2544,6 +2624,7 @@ def dstack(*tup):
             id += 1
     return arr
 
+    
 #####################################################################################
 # Splitting arrays
 #####################################################################################
