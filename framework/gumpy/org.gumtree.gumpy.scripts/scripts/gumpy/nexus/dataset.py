@@ -567,7 +567,13 @@ class Dataset(Data):
             self.__iNXDataset__.saveTo(path)
         except :
             raise IOError, 'failed to write to: ' + path
-    
+
+#    def argmax(self, axis = None):
+#        return self.storage.argmax(axis)
+#
+#    def argmin(self, axis = None):
+#        return self.storage.argmin(axis)
+        
     def normalise(self, attr_name): 
         if hasattr(self, attr_name) :
             attr = eval('self.' + attr_name)
