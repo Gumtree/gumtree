@@ -45,8 +45,9 @@
 				return;
 
 			var command = editor.addCommand( pluginName, saveCmd );
-			command.modes = { wysiwyg: !!( editor.element.$.form ) };
-
+//			command.modes = { wysiwyg: !!( editor.element.$.form ) };
+			command.modes = { wysiwyg: 1 };
+			
 			editor.ui.addButton && editor.ui.addButton( 'Save', {
 				label: editor.lang.save.toolbar,
 				command: pluginName,

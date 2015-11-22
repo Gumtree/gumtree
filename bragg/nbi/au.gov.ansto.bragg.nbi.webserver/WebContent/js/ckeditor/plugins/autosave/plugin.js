@@ -67,7 +67,7 @@
         if (timeOutId) {
             clearTimeout(timeOutId);
         }
-        var delay = CKEDITOR.config.autosave_delay != null ? CKEDITOR.config.autosave_delay : 10;
+        var delay = CKEDITOR.config.autosave_delay != null ? CKEDITOR.config.autosave_delay : 300;
         timeOutId = setTimeout(onTimer, delay * 1000, event);
     };
     var onTimer = function(event) {

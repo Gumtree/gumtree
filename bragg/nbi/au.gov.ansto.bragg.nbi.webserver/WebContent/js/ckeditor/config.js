@@ -66,6 +66,8 @@ CKEDITOR.editorConfig = function( config ) {
 	                 	];
 	
 	config.mathJaxLib = 'http://cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML';
+	
+	config.autosave_delay = 300;
 //	config.imageResize.maxWidth = 730;
 //	config.imageResize.maxHeight = 800;
 };
