@@ -236,7 +236,7 @@
 								try {
 									var val:Number = Number(dataArray[i].value);
 									var text:String;
-									if (val < 64 && val > 62) {
+									if (val < 66 && val > 62) {
 										text = "in";
 									} else {
 										text = "out";

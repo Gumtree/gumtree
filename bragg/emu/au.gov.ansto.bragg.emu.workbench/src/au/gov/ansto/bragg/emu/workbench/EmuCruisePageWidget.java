@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
+import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget.LabelConverter;
 import org.gumtree.gumnix.sics.widgets.swt.EnvironmentControlWidget;
 import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
 import org.gumtree.gumnix.sics.widgets.swt.SicsStatusWidget;
@@ -101,7 +102,21 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.MONOCHROMATOR.getImage());
 		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/crystal/lambda", "Wavelength", null, "\u212B")
+				.addDevice("/instrument/crystal/lambda", "Wavelength", null, "\u212B", new LabelConverter() {
+					
+					@Override
+					public String convertValue(Object obj) {
+						String data = obj.toString();
+						try {
+							double value = Double.valueOf(data);
+							if (data.contains(".")) {
+								return String.format("%.5f", value);
+							}
+						} catch (Exception e) {
+						}
+						return data;
+					}
+				})
 				.addDevice("/instrument/crystal/momto", "Take-off angle", null, "\u00b0")
 				.addDevice("/instrument/crystal/mom", "Premono Omega", null, "\u00b0")
 				;
