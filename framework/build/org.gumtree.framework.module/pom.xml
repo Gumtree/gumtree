@@ -88,6 +88,8 @@
 
 		<module>${extensions.path}/org.gumtree.tcl.feature</module>
 
+		<module>${extensions.path}/org.gumtree.egit.feature</module>
+		
 		<module>${extensions.path}/org.gumtree.xml.feature</module>
 
 		<module>${extensions.path}/org.gumtree.passerelle.feature</module>
