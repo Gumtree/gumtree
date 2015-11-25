@@ -42,18 +42,4 @@
          version="0.0.0"
          unpack="false"/>
 
-   <plugin
-         id="au.gov.ansto.bragg.quokka.model"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="au.gov.ansto.bragg.quokka.msw"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
 </feature>
