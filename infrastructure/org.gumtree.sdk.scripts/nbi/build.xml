@@ -378,6 +378,372 @@
 	<!--
 	############################################################################
 	#
+	# Build individual product tasks
+	#
+	############################################################################
+	-->
+	<!--
+		Build Echidna Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildEchidnaWebserver">
+	    <var name="instrumentName" value="echidna"/>
+	    <var name="applicationLabel" value="EchidnaWebserver"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/webserver" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+
+	<!--
+		Build Wombat Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildWombatWebserver">
+	    <var name="instrumentName" value="wombat"/>
+	    <var name="applicationLabel" value="WombatWebserver"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/webserver" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+
+	<!--
+		Build Kowari Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildKowariWebserver">
+	    <var name="instrumentName" value="kowari"/>
+	    <var name="applicationLabel" value="KowariWebserver"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/webserver" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Quokka Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildQuokkaWebserver">
+	    <var name="instrumentName" value="quokka"/>
+	    <var name="applicationLabel" value="QuokkaWebserver"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/webserver" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Platypus Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildPlatypusWebserver">
+	    <var name="instrumentName" value="platypus"/>
+	    <var name="applicationLabel" value="PlatypusWebserver"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/webserver" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Pelican Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildPelicanWebserver">
+	    <var name="instrumentName" value="pelican"/>
+	    <var name="applicationLabel" value="PelicanWebserver"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/webserver" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Taipan Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildTaipanWebserver">
+	    <var name="instrumentName" value="taipan"/>
+	    <var name="applicationLabel" value="TaipanWebserver"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/webserver" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Kookaburra Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildKookaburraWebserver">
+	    <var name="instrumentName" value="kookaburra"/>
+	    <var name="applicationLabel" value="KookaburraWebserver"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/webserver" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Bilby Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildBilbyWebserver">
+	    <var name="instrumentName" value="bilby"/>
+	    <var name="applicationLabel" value="BilbyWebserver"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/webserver" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Dingo Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildDingoWebserver">
+	    <var name="instrumentName" value="dingo"/>
+	    <var name="applicationLabel" value="DingoWebserver"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/webserver" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Emu Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildEmuWebserver">
+	    <var name="instrumentName" value="emu"/>
+	    <var name="applicationLabel" value="EmuWebserver"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/webserver" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+				
+	<!--
+	############################################################################
+	#
+	# Build individual product tasks
+	#
+	############################################################################
+	-->
+	<!--
+		Build Echidna Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildEchidnaWorkbench">
+	    <var name="instrumentName" value="echidna"/>
+	    <var name="applicationLabel" value="EchidnaWorkbench"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/workbench" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+
+	<!--
+		Build Wombat Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildWombatWorkbench">
+	    <var name="instrumentName" value="wombat"/>
+	    <var name="applicationLabel" value="WombatWorkbench"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/workbench" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+
+	<!--
+		Build Kowari Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildKowariWorkbench">
+	    <var name="instrumentName" value="kowari"/>
+	    <var name="applicationLabel" value="KowariWorkbench"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/workbench" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Quokka Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildQuokkaWorkbench">
+	    <var name="instrumentName" value="quokka"/>
+	    <var name="applicationLabel" value="QuokkaWorkbench"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/workbench" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Platypus Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildPlatypusWorkbench">
+	    <var name="instrumentName" value="platypus"/>
+	    <var name="applicationLabel" value="PlatypusWorkbench"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/workbench" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Pelican Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildPelicanWorkbench">
+	    <var name="instrumentName" value="pelican"/>
+	    <var name="applicationLabel" value="PelicanWorkbench"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/workbench" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Taipan Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildTaipanWorkbench">
+	    <var name="instrumentName" value="taipan"/>
+	    <var name="applicationLabel" value="TaipanWorkbench"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/workbench" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Kookaburra Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildKookaburraWorkbench">
+	    <var name="instrumentName" value="kookaburra"/>
+	    <var name="applicationLabel" value="KookaburraWorkbench"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/workbench" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Bilby Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildBilbyWorkbench">
+	    <var name="instrumentName" value="bilby"/>
+	    <var name="applicationLabel" value="BilbyWorkbench"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/workbench" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Dingo Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildDingoWorkbench">
+	    <var name="instrumentName" value="dingo"/>
+	    <var name="applicationLabel" value="DingoWorkbench"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/workbench" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+	
+	<!--
+		Build Emu Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildEmuWorkbench">
+	    <var name="instrumentName" value="emu"/>
+	    <var name="applicationLabel" value="EmuWorkbench"/>
+	    <delete>
+    		<fileset dir="${exportDirectory}/products/workbench" includes="${instrumentLabel}-*.tar.gz" />
+		</delete>
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="${instrumentName}" applicationLabel="${applicationLabel}" />
+	</target>
+
+	<!--
+	############################################################################
+	#
 	# Build installer tasks
 	#
 	############################################################################
