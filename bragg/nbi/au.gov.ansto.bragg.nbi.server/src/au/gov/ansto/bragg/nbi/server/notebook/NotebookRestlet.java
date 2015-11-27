@@ -46,6 +46,8 @@ import org.restlet.engine.util.Base64;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
 
+import au.gov.ansto.bragg.nbi.server.git.GitException;
+import au.gov.ansto.bragg.nbi.server.git.GitService;
 import au.gov.ansto.bragg.nbi.service.soap.ProposalDBSOAPService;
 import au.gov.ansto.bragg.nbi.service.soap.ProposalDBSOAPService.ProposalItems;
 
@@ -95,6 +97,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private static final String ID_DAE_HOST = "gumtree.dae.host";
 	private static final String ID_DAE_LOGIN = "gumtree.dae.login";
 	private static final String ID_DAE_PASSWORD = "gumtree.dae.password";
+	private static final String PROPERTY_NOTEBOOK_REPOSITORY_PATH = "gumtree.notebook.gitPath";
 	private static final String EXPERIMENT_TABLE_HTML = "<div class=\"class_template_table class_template_object\" id=\"template_ec_1\">"
 			+ "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" class=\"xmlTable\" style=\"table-layout:fixed; width:100%; word-wrap:break-word\"><caption>Experiment Setup</caption>"
 			+ "<tbody><tr><th style=\"width: 40%;\">Start Date</th><td style=\"width: 60%;\">$START_DATE</td></tr><tr><th>End Date</th><td>$END_DATE</td></tr>"
@@ -122,6 +125,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private String daeHost;
 	private String daeLogin;
 	private String daePassword;
+	private GitService gitService;
 	
 	/**
 	 * @param context
@@ -149,6 +153,10 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		daeHost = System.getProperty(ID_DAE_HOST);
 		daeLogin = System.getProperty(ID_DAE_LOGIN);
 		daePassword = System.getProperty(ID_DAE_PASSWORD);
+		String gitPath = System.getProperty(PROPERTY_NOTEBOOK_REPOSITORY_PATH);
+		if (gitPath != null) {
+			gitService = new GitService(gitPath);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -182,6 +190,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e2.toString());
 				}
 		    }
+		    String pageId = null;
 			try {
 				String text = rep.getText();
 				text = text == null ? "" : text;
@@ -191,8 +200,8 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					text = text.substring(start, stop);
 					text = URLDecoder.decode(text, "UTF-8");
 				}
-	    		String sessionValue = sessionDb.getSessionValue(sessionId);
-				writer = new FileWriter(currentFileFolder + "/" + sessionValue + ".xml");
+	    		pageId = sessionDb.getSessionValue(sessionId);
+				writer = new FileWriter(currentFileFolder + "/" + pageId + ".xml");
 				writer.write(text);
 				writer.flush();
 			} catch (Exception e1) {
@@ -205,6 +214,13 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
+				}
+			}
+			if (gitService != null) {
+				try {
+					gitService.commit(pageId + ":" + System.currentTimeMillis());
+				} catch (GitException e) {
+					e.printStackTrace();
 				}
 			}
 		    JSONObject jsonObject = new JSONObject();
