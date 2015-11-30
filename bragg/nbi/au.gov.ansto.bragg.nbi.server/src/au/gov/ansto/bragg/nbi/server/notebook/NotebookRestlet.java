@@ -179,18 +179,20 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 			FileWriter writer = null;
 			Form queryForm = request.getResourceRef().getQueryAsForm();
 		    String sessionId = queryForm.getValues(QUERY_SESSION_ID);
+		    String pageId = queryForm.getValues(QUERY_PAGE_ID);
 		    if (sessionId == null || sessionId.trim().length() == 0) {
 				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, "The notebook page is not available to the public.");
 					return;
 				}
-				try {
-					sessionId = controlDb.getCurrentSessionId();
-				} catch (Exception e2) {
-					response.setStatus(Status.SERVER_ERROR_INTERNAL, e2.toString());
-				}
+		    } else {
+	    		try {
+					pageId = sessionDb.getSessionValue(sessionId);
+				} catch (Exception e) {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+					return;
+				} 
 		    }
-		    String pageId = null;
 			try {
 				String text = rep.getText();
 				text = text == null ? "" : text;
@@ -200,7 +202,6 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					text = text.substring(start, stop);
 					text = URLDecoder.decode(text, "UTF-8");
 				}
-	    		pageId = sessionDb.getSessionValue(sessionId);
 				writer = new FileWriter(currentFileFolder + "/" + pageId + ".xml");
 				writer.write(text);
 				writer.flush();

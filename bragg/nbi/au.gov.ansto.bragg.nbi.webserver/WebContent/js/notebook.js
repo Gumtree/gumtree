@@ -637,7 +637,7 @@ jQuery(document).ready(function() {
 			CKEDITOR.replace( 'id_editable_inner' );
 			CKEDITOR.instances.id_editable_inner.on('save', function(event, editor, data) {
 //				alert(CKEDITOR.instances.id_editable_inner.getData());
-		        var postUrl = 'notebook/save' + (session != null ? '?session=' + session : '');
+		        var postUrl = 'notebook/save' + (session != null ? '?session=' + session : '?pageid=' + pageId);
 		        $.post( postUrl, CKEDITOR.instances.id_editable_inner.getData(), function(data, status) {
 		            if (status == "success") {
 			        	var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Saved', type: 'success' } );
