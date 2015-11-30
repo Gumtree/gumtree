@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree Framework UI
 Bundle-SymbolicName: org.gumtree.ui;singleton:=true
-Bundle-Version: 1.10.0.qualifier
+Bundle-Version: 1.12.0.qualifier
 Bundle-Activator: org.gumtree.ui.internal.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.gumtree.core;bundle-version="1.7.0";visibility:=reexport,

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree Workbench Application
 Bundle-SymbolicName: org.gumtree.app.workbench;singleton:=true
-Bundle-Version: 1.10.0.qualifier
+Bundle-Version: 1.12.0.qualifier
 Bundle-Activator: org.gumtree.app.workbench.internal.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.ibm.icu;bundle-version="4.4.2",

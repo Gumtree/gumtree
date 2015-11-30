@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Gumtree" uid="au.gov.ansto.bragg.kookaburra.webserver.product" id="org.gumtree.app.osgi.product" application="org.gumtree.app.osgi.application" version="1.10.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="Gumtree" uid="au.gov.ansto.bragg.kookaburra.webserver.product" id="org.gumtree.app.osgi.product" application="org.gumtree.app.osgi.application" version="1.12.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.gumtree.app.runtime/images/earth.png"/>
