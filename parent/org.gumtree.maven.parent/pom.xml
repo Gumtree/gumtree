@@ -10,7 +10,7 @@
 	<properties>
 		<eclipse.groupId>org.codehaus.gumtree</eclipse.groupId>
 		<gumtree.groupId>org.codehaus.gumtree</gumtree.groupId>
-		<gumtree.version>1.10.0-SNAPSHOT</gumtree.version>
+		<gumtree.version>1.12.0-SNAPSHOT</gumtree.version>
 		<cdma.version>3.0.0-SNAPSHOT</cdma.version>
 	</properties>
 
