@@ -22,6 +22,7 @@ Require-Bundle: org.json;bundle-version="1.0.0";visibility:=reexport,
  org.eclipse.jgit;bundle-version="2.2.0"
 Export-Package: au.gov.ansto.bragg.nbi.server,
  au.gov.ansto.bragg.nbi.server.db,
+ au.gov.ansto.bragg.nbi.server.git,
  au.gov.ansto.bragg.nbi.server.image,
  au.gov.ansto.bragg.nbi.server.internal,
  au.gov.ansto.bragg.nbi.server.jython,
