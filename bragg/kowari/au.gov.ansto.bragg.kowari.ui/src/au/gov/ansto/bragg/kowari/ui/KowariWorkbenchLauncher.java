@@ -31,7 +31,7 @@ public class KowariWorkbenchLauncher extends AbstractLauncher {
 
 	
 	private static final String ID_PERSPECTIVE_EXPERIMENT = "au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective";
-	private static final String ID_PERSPECTIVE_ANALYSIS = "au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingPerspective";
+	public static final String ID_PERSPECTIVE_ANALYSIS = "au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingPerspective";
 	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
 	
 	private static Logger logger = LoggerFactory.getLogger(KowariWorkbenchLauncher.class);
