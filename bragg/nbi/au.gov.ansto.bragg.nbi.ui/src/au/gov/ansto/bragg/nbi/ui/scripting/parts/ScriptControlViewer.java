@@ -126,6 +126,7 @@ public class ScriptControlViewer extends Composite {
 	protected static String fileDialogPath;
 	private static int SCRIPT_REGISTER_ID = 0;
 	private static final String ID_PREFERENCE_RECENT_FILE = "org.gumtree.scripting.recent";
+	private final static String PROPERTY_ENABLE_EDITING = "gumtree.scripting.enableEditing";
 	private static final String DEFAULT_SCRIPTING_FOLDER = "gumtree.scripting.defaultFolder";
 	private static final String TEMPLATE_SCRIPT = "/pyscripts/AnalysisScriptingTemplate.py";
 	private static final String __INIT__SCRIPT = "/pyscripts/__init__.py";
@@ -254,6 +255,8 @@ public class ScriptControlViewer extends Composite {
 	private IScriptExecutor scriptExecutor;
 	private IActivityListener datasetActivityListener;
 	private boolean groupAllowFolding = false;
+	private boolean editingEnabled = true;
+	
 	/**
 	 * @param parent
 	 * @param style
@@ -270,6 +273,13 @@ public class ScriptControlViewer extends Composite {
 		createStaticArea();
 		createDynamicArea();
 		runner = new ScriptRunner(parent.getShell());
+		String enableEditingProperty = System.getProperty(PROPERTY_ENABLE_EDITING);
+		if (enableEditingProperty != null) {
+			try {
+				editingEnabled = Boolean.valueOf(enableEditingProperty);
+			} catch (Exception e) {
+			}
+		}
 	}
 
 	private void createStaticArea() {
@@ -346,6 +356,7 @@ public class ScriptControlViewer extends Composite {
 		
 		showButton = new Button(staticComposite, SWT.PUSH);
 		showButton.setText("Edit/Hide");
+		showButton.setEnabled(editingEnabled);
 		showButton.setToolTipText("Click to edit or hide the script currently loaded.");
 		showButton.setImage(InternalImage.EDIT_16.getImage());
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(showButton);
@@ -1084,6 +1095,8 @@ public class ScriptControlViewer extends Composite {
 //		GridDataFactory.fillDefaults().grab(false, false).indent(0, 5).minSize(40, 0).span(actionColspan, actionRowspan).applyTo(name);
 		final Button actionButton = new Button(parent, SWT.PUSH);
 		actionButton.setText(String.valueOf(action.getText()));
+//		actionButton.setBackground(new Color(Display.getDefault(), 240, 240, 255));
+//		actionButton.setForeground(new Color(Display.getDefault(), 0, 0, 255));
 		GridDataFactory.fillDefaults().grab(true, false).span(actionColspan * 2, actionRowspan).minSize(0, 32).applyTo(actionButton);
 		actionButton.addSelectionListener(new SelectionListener() {
 			

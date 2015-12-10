@@ -14,10 +14,13 @@ import au.gov.ansto.bragg.nbi.ui.scripting.ScriptPageRegister;
 
 public class StandAloneScriptingViewer extends Composite {
 
+	private final static String PROPERTY_SHOW_CONSOLE = "gumtree.scripting.showConsole";
 	private ScriptControlViewer controlViewer;
 	private CommandLineViewer consoleViewer;
 	private ScriptDataSourceViewer dataSourceViewer;
 	private ScriptInfoViewer infoViewer;
+	private boolean showConsole = true;
+	private SashForm level3Bottom;
 	
 	public StandAloneScriptingViewer(Composite parent, int style) {
 		super(parent, style);
@@ -36,7 +39,7 @@ public class StandAloneScriptingViewer extends Composite {
 		level2Left.setWeights(new int[]{4, 6});
 		
 		SashForm level3Top = new SashForm(level2Right, SWT.VERTICAL);
-		SashForm level3Bottom = new SashForm(level2Right, SWT.HORIZONTAL);
+		level3Bottom = new SashForm(level2Right, SWT.HORIZONTAL);
 		
 		PlotViewer plot1Viewer = new PlotViewer(level3Top, SWT.NONE);
 		PlotViewer plot2Viewer = new PlotViewer(level3Top, SWT.NONE);
@@ -44,8 +47,15 @@ public class StandAloneScriptingViewer extends Composite {
 
 		createConsoleArea(level3Bottom);
 		PlotViewer plot3Viewer = new PlotViewer(level3Bottom, SWT.NONE);
-		level3Bottom.setWeights(new int[]{1, 1});
-		
+		String showConsoleProperty = System.getProperty(PROPERTY_SHOW_CONSOLE);
+		if (showConsoleProperty != null) {
+			showConsole = Boolean.valueOf(showConsoleProperty);
+		}
+		if (showConsole) {
+			level3Bottom.setWeights(new int[]{1, 1});
+		}else {
+			level3Bottom.setWeights(new int[]{0, 1});
+		}
 		level2Right.setWeights(new int[]{6, 3});
 		
 		ScriptPageRegister.registPage(controlViewer.getScriptRegisterID(), register);
@@ -104,5 +114,12 @@ public class StandAloneScriptingViewer extends Composite {
 		consoleViewer.createPartControl(consoleComposite, ICommandLineViewer.NO_UTIL_AREA);
 	}
 
-	
+	public void toggleShowingConsole() {
+		showConsole = !showConsole;
+		if (showConsole) {
+			level3Bottom.setWeights(new int[]{1, 1});
+		} else {
+			level3Bottom.setWeights(new int[]{0, 1});
+		}
+	}
 }

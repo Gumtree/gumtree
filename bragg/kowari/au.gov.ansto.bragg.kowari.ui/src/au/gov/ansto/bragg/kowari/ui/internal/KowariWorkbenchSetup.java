@@ -1,6 +1,8 @@
 package au.gov.ansto.bragg.kowari.ui.internal;
 
 import org.eclipse.core.runtime.ISafeRunnable;
+import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IStartup;
@@ -45,6 +47,7 @@ public class KowariWorkbenchSetup implements IStartup {
 		} else {
 			final IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
 			for (IWorkbenchWindow window : windows) {
+				hideMenus(window);
 				if (window instanceof WorkbenchWindow) {
 					IWorkbenchPage[] pages = window.getPages();
 					for (IWorkbenchPage page : pages) {
@@ -64,10 +67,29 @@ public class KowariWorkbenchSetup implements IStartup {
 				@Override
 				public void run() {
 					IMultiMonitorManager mmManager = new MultiMonitorManager();
-					mmManager.showPerspectiveOnOpenedWindow(KowariWorkbenchLauncher.ID_PERSPECTIVE_ANALYSIS, 0, 0, true);
+					mmManager.showPerspectiveOnOpenedWindow(KowariWorkbenchLauncher.ID_PERSPECTIVE_ANALYSIS, 0, 1, true);
+					hideMenus(PlatformUI.getWorkbench().getActiveWorkbenchWindow());
 				}
 			});
 		}
+	}
+	
+	private void hideMenus(IWorkbenchWindow window){
+		WorkbenchWindow workbenchWin = (WorkbenchWindow)PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		MenuManager menuManager = ((WorkbenchWindow) window).getMenuManager();
+		IContributionItem[] items = menuManager.getItems();
+
+		for(IContributionItem item : items) {
+		  item.setVisible(false);
+		}
+		menuManager.setVisible(false);
+	    
+	    IContributionItem[] menubarItems = ((WorkbenchWindow) window).getMenuBarManager().getItems();
+	    for (IContributionItem item : menubarItems) {
+	    	item.setVisible(false);
+	    }
+	    ((WorkbenchWindow) window).getMenuBarManager().setVisible(false);
+	    
 	}
 	
 }
