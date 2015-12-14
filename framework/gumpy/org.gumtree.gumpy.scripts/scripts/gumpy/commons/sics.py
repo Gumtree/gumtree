@@ -1,4 +1,7 @@
 import time
+import os
+import sys
+import traceback
 from org.gumtree.gumnix.sics.core import SicsCore
 from org.gumtree.gumnix.sics.control.controllers import ComponentData
 from org.gumtree.gumnix.sics.control.controllers import CommandStatus
@@ -240,39 +243,40 @@ class SicsError(Exception):
     def __str__(self):
         return repr(self.value)
     
-__status__ = None
 __time_out__ = 1
 class __SICS_Callback__(SicsCallbackAdapter):
     
+    def __init__(self):
+        self.__status__ = None
+    
     def receiveReply(self, data):
-        global __status__
         try:
             rt = data.getString()
             if rt.__contains__('='):
-                __status__ = data.getString().split("=")[1].strip()
+                status = data.getString().split("=")[1].strip()
             elif rt.__contains__(':'):
-                __status__ = data.getString().split(":")[1].strip()
-                if __status__.__contains__('}'):
-                    __status__ = __status__[:__status__.index('}')]
+                status = data.getString().split(":")[1].strip()
+                if status.__contains__('}'):
+                    status = status[:status.index('}')]
             else :
-                __status__ = rt
+                status = rt
+            self.__status__ = status
             self.setCallbackCompleted(True)
         except:
             traceback.print_exc(file = sys.stdout)
             self.setCallbackCompleted(True)
 
 def run_command(cmd):
-    global __status__
-    __status__ = None
     call_back = __SICS_Callback__()
     SicsCore.getDefaultProxy().send(cmd, call_back)
     acc_time = 0
-    while __status__ is None and acc_time < 2:
+#    while call_back.__status__ is None and acc_time < 2:
+    while call_back.__status__ is None:
         time.sleep(0.2)
         acc_time += 0.2
-    if __status__ is None:
+    if call_back.__status__ is None:
         raise Exception, 'time out in running the command'
-    return __status__
+    return call_back.__status__
 
 def get_raw_value(comm, dtype = float):
     global __time_out__
@@ -294,3 +298,18 @@ def get_raw_value(comm, dtype = float):
             time.sleep(0.2)
     logger.log('time out in running ' + comm_str)
     return None
+
+def get_base_filename():
+    return os.path.basename(str(getFilename()))
+
+def get_stable_value(dev):
+    val = None
+    while (True):
+        controller = getDeviceController(dev)
+        new_val = controller.getValue(True).getFloatData()
+        if new_val == val :
+            return getValue(dev)
+        else:
+            val = new_val
+            time.sleep(1)
+        

@@ -26,6 +26,7 @@ public class BilbyWorkbenchSetup implements IStartup {
 	private static final String PROP_START_EXP_LAYOUT = "gumtree.startExperimentLayout";
 	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
 	private static final String ID_PERSPECTIVE_SCRIPTING = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
+	private static final String ID_PERSPECTIVE_ANALYSIS = "au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingPerspective";
 	
 	private static Logger logger = LoggerFactory.getLogger(BilbyWorkbenchSetup.class);
 	
@@ -58,6 +59,13 @@ public class BilbyWorkbenchSetup implements IStartup {
 					IMultiMonitorManager mmManager = new MultiMonitorManager();
 
 					mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SICS, 0, 0, mmManager.isMultiMonitorSystem());
+					
+					if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
+						// open new window as editor buffer
+						mmManager.openWorkbenchWindow(ID_PERSPECTIVE_ANALYSIS, 1, true);
+					}
+					
+//					mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_ANALYSIS, 1, 1, mmManager.isMultiMonitorSystem());
 				}			
 			});
 		} else {
