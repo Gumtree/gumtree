@@ -246,28 +246,32 @@ class SicsError(Exception):
 __time_out__ = 1
 class __SICS_Callback__(SicsCallbackAdapter):
     
-    def __init__(self):
+    def __init__(self, use_full_feedback = False):
         self.__status__ = None
+        self.__use_full_feedback__ = use_full_feedback
     
     def receiveReply(self, data):
         try:
             rt = data.getString()
-            if rt.__contains__('='):
-                status = data.getString().split("=")[1].strip()
-            elif rt.__contains__(':'):
-                status = data.getString().split(":")[1].strip()
-                if status.__contains__('}'):
-                    status = status[:status.index('}')]
-            else :
+            if self.__use_full_feedback__:
                 status = rt
+            else :
+                if rt.__contains__('='):
+                    status = data.getString().split("=")[1].strip()
+                elif rt.__contains__(':'):
+                    status = data.getString().split(":")[1].strip()
+                    if status.__contains__('}'):
+                        status = status[:status.index('}')]
+                else :
+                    status = rt
             self.__status__ = status
             self.setCallbackCompleted(True)
         except:
             traceback.print_exc(file = sys.stdout)
             self.setCallbackCompleted(True)
 
-def run_command(cmd):
-    call_back = __SICS_Callback__()
+def run_command(cmd, use_full_feedback = False):
+    call_back = __SICS_Callback__(use_full_feedback)
     SicsCore.getDefaultProxy().send(cmd, call_back)
     acc_time = 0
 #    while call_back.__status__ is None and acc_time < 2:
@@ -293,6 +297,20 @@ def get_raw_value(comm, dtype = float):
                 return int(float(item))
             else:
                 return item
+        except:
+            __count__ += 0.2
+            time.sleep(0.2)
+    logger.log('time out in running ' + comm_str)
+    return None
+
+def get_raw_feedback(comm):
+    global __time_out__
+    __count__ = 0
+    comm_str = str(comm)
+    while __count__ < __time_out__:
+        try:
+            item = run_command(comm_str, True)
+            return str(item)
         except:
             __count__ += 0.2
             time.sleep(0.2)

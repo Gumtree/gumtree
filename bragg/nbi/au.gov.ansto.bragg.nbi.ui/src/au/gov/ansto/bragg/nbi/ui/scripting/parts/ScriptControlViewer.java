@@ -356,11 +356,10 @@ public class ScriptControlViewer extends Composite {
 		
 		showButton = new Button(staticComposite, SWT.PUSH);
 		showButton.setText("Edit/Hide");
-		showButton.setEnabled(editingEnabled);
 		showButton.setToolTipText("Click to edit or hide the script currently loaded.");
 		showButton.setImage(InternalImage.EDIT_16.getImage());
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(showButton);
-		showButton.setEnabled(false);
+		showButton.setEnabled(editingEnabled && false);
 
 		reloadButton = new Button(staticComposite, SWT.PUSH);
 		reloadButton.setText("Reload");
@@ -802,7 +801,7 @@ public class ScriptControlViewer extends Composite {
 			scriptLabel.setToolTipText(filePath);
 			getRunner().setScriptPath(filePath);
 			reloadButton.setEnabled(true);
-			showButton.setEnabled(true);
+			showButton.setEnabled(editingEnabled && true);
 			runButton.setEnabled(true);
 		}
 		setScriptFilename(filePath);
@@ -2285,7 +2284,6 @@ public class ScriptControlViewer extends Composite {
 				try {
 					ScriptPageRegister.getRegister(scriptRegisterID).getWorkbenchPage().openEditor(new NullEditorInput(), SicsUIConstants.ID_EDITOR_SICS_CONTROL);
 				} catch (PartInitException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}					
 			}
