@@ -884,6 +884,16 @@ public class ScriptControlViewer extends Composite {
 		executor.runScript("auto_run()");
 	}
 	
+	public void updateUI() {
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				updateControlUI();
+			}
+		});
+	}
+	
 	private void updateControlUI() {
 		for (Control control : dynamicComposite.getChildren()) {
 			control.dispose();
@@ -958,8 +968,68 @@ public class ScriptControlViewer extends Composite {
 
 	private void addGroup(final Composite parent, ScriptObjectGroup objGroup) {
 //		Group group = new Group(parent, SWT.NONE);
-		final MenuBasedGroup group = new MenuBasedGroup(parent, SWT.NONE);
-		group.setClickExpandEnabled(groupAllowFolding);
+		Composite group;
+		String hideTitleString = objGroup.getProperty("hideTitle");
+		if (hideTitleString != null && Boolean.valueOf(hideTitleString)) {
+			group = new Composite(parent, SWT.BORDER);
+		} else {
+			group = new MenuBasedGroup(parent, SWT.NONE);
+			final MenuBasedGroup menuGroup = (MenuBasedGroup) group;
+			menuGroup.setClickExpandEnabled(groupAllowFolding);
+			menuGroup.setText(objGroup.getName());
+			Menu menu = menuGroup.getMenu();
+//			group.setClickExpandEnabled(false);
+			menuGroup.addExpandListener(new ExpandListener() {
+				
+				@Override
+				public void itemExpanded(ExpandEvent e) {
+					menuGroup.layout(true, true);
+					menuGroup.update();
+					Rectangle r = scroll.getClientArea();
+					scroll.setMinSize(dynamicComposite.computeSize(r.width, SWT.DEFAULT));				
+				}
+				
+				@Override
+				public void itemCollapsed(ExpandEvent e) {
+					menuGroup.layout(true, true);
+					menuGroup.update();
+					Rectangle r = scroll.getClientArea();
+					scroll.setMinSize(dynamicComposite.computeSize(r.width, SWT.DEFAULT));				
+				}
+			});
+			// Set Name
+			final MenuItem editItem = new MenuItem(menu, SWT.PUSH);
+//			editItem.setText("Fold");
+//			editItem.setImage(InternalImage.TEXT_EDIT.getImage());
+			editItem.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent e) {
+					if (menuGroup.getExpanded()) {
+						menuGroup.setExpanded(false);
+						editItem.setText("Expand");
+					} else {
+						menuGroup.setExpanded(true);
+						editItem.setText("Fold");
+					}
+				}
+			});
+			
+			String foldedProperty = objGroup.getProperty("folded");
+			boolean itemFolded = false;
+			if (foldedProperty != null) {
+				try {
+					itemFolded = Boolean.valueOf(foldedProperty);
+				} catch (Exception e) {
+				}
+			}
+			if (itemFolded) {
+				editItem.setText("Expand");
+				menuGroup.setExpanded(false);
+			} else {
+				editItem.setText("Fold");
+			}
+			
+		}
+//		final MenuBasedGroup group = new MenuBasedGroup(parent, SWT.NONE);
 		int groupNumColumns = 1;
 		if (objGroup.getProperty("numColumns") != null) {
 			try {
@@ -998,44 +1068,7 @@ public class ScriptControlViewer extends Composite {
 		}
 
 		GridDataFactory.fillDefaults().grab(true, false).span(groupColspan * 2, groupRowspan).applyTo(group);
-		group.setText(objGroup.getName());
 		group.setBackgroundMode(SWT.INHERIT_DEFAULT);
-		
-		Menu menu = group.getMenu();
-//		group.setClickExpandEnabled(false);
-		group.addExpandListener(new ExpandListener() {
-			
-			@Override
-			public void itemExpanded(ExpandEvent e) {
-				group.layout(true, true);
-				group.update();
-				Rectangle r = scroll.getClientArea();
-				scroll.setMinSize(dynamicComposite.computeSize(r.width, SWT.DEFAULT));				
-			}
-			
-			@Override
-			public void itemCollapsed(ExpandEvent e) {
-				group.layout(true, true);
-				group.update();
-				Rectangle r = scroll.getClientArea();
-				scroll.setMinSize(dynamicComposite.computeSize(r.width, SWT.DEFAULT));				
-			}
-		});
-		// Set Name
-		final MenuItem editItem = new MenuItem(menu, SWT.PUSH);
-//		editItem.setText("Fold");
-//		editItem.setImage(InternalImage.TEXT_EDIT.getImage());
-		editItem.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				if (group.getExpanded()) {
-					group.setExpanded(false);
-					editItem.setText("Expand");
-				} else {
-					group.setExpanded(true);
-					editItem.setText("Fold");
-				}
-			}
-		});
 		
 		List<IPyObject> controls = objGroup.getObjectList();
 		for (final IPyObject control : controls) {
@@ -1048,21 +1081,6 @@ public class ScriptControlViewer extends Composite {
 			}
 		}
 
-		String foldedProperty = objGroup.getProperty("folded");
-		boolean itemFolded = false;
-		if (foldedProperty != null) {
-			try {
-				itemFolded = Boolean.valueOf(foldedProperty);
-			} catch (Exception e) {
-			}
-		}
-		if (itemFolded) {
-			editItem.setText("Expand");
-			group.setExpanded(false);
-		} else {
-			editItem.setText("Fold");
-		}
-		
 	}
 
 	private void addAction(Composite parent, final ScriptAction action) {
@@ -1219,6 +1237,18 @@ public class ScriptControlViewer extends Composite {
 			parameterRowspan = 1;
 		}
 
+		int width = SWT.DEFAULT;
+		int height = SWT.DEFAULT;
+		String widthProperty = parameter.getProperty("width");
+		if (widthProperty != null) {
+			width = Integer.valueOf(widthProperty);
+		}
+		String heightProperty = parameter.getProperty("height");
+		if (heightProperty != null) {
+			height = Integer.valueOf(heightProperty);
+		}
+		int labelWidth = 40;
+		
 		if (parameter.getOptions() != null) {
 			Label name = new Label(parent, SWT.RIGHT);
 			if (parameter.getProperty("title") != null) {
@@ -1226,9 +1256,9 @@ public class ScriptControlViewer extends Composite {
 			} else {
 				name.setText(parameter.getName());
 			}
-			GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(40, 0).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
+			GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
 			final ComboViewer comboBox = new ComboViewer(parent, SWT.DROP_DOWN);
-			GridDataFactory.fillDefaults().grab(false, false).span(parameterColspan, parameterRowspan).applyTo(comboBox.getControl());
+			GridDataFactory.fillDefaults().grab(false, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(comboBox.getControl());
 			comboBox.setContentProvider(new ArrayContentProvider());
 			comboBox.setLabelProvider(new LabelProvider());
 			comboBox.getCombo().setEnabled(itemEnabled);
@@ -1318,10 +1348,22 @@ public class ScriptControlViewer extends Composite {
 				} else {
 					name.setText(parameter.getName());
 				}
-				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(40, 0).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
-				final Text stringText = new Text(parent, SWT.BORDER);
+				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
+				int vHeight = SWT.DEFAULT;
+				try {
+					String heightString = parameter.getProperty("height");
+					if (heightString != null) {
+						vHeight = Integer.valueOf(heightString);
+					}
+				} catch (Exception e) {
+				}
+				int textType = SWT.BORDER;
+				if (vHeight != SWT.DEFAULT) {
+					textType = SWT.BORDER | SWT.MULTI | SWT.V_SCROLL;
+				}
+				final Text stringText = new Text(parent, textType);
 				stringText.setText(String.valueOf(parameter.getValue()));
-				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).applyTo(stringText);
+				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).hint(width, vHeight).applyTo(stringText);
 				stringText.setEditable(itemEnabled);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
@@ -1401,10 +1443,11 @@ public class ScriptControlViewer extends Composite {
 				} else {
 					name.setText(parameter.getName());
 				}
-				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(40, 0).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
+				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER)
+					.span(parameterColspan, parameterRowspan).applyTo(name);
 				final Text intText = new Text(parent, SWT.BORDER);
 				intText.setText(String.valueOf(parameter.getValue()));
-				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).applyTo(intText);
+				GridDataFactory.fillDefaults().grab(true, false).hint(width, height).span(parameterColspan, parameterRowspan).applyTo(intText);
 				intText.setEditable(itemEnabled);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
@@ -1487,10 +1530,11 @@ public class ScriptControlViewer extends Composite {
 						name.setText("");
 					}
 				}
-				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(40, 0).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
+				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER)
+					.span(parameterColspan, parameterRowspan).applyTo(name);
 				final Text floatText = new Text(parent, SWT.BORDER);
 				floatText.setText(String.valueOf(parameter.getValue()));
-				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).applyTo(floatText);
+				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(floatText);
 				floatText.setEditable(itemEnabled);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
@@ -1619,10 +1663,11 @@ public class ScriptControlViewer extends Composite {
 				} else {
 					name.setText(parameter.getName());
 				}
-				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(40, 0).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
+				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER)
+					.span(parameterColspan, parameterRowspan).applyTo(name);
 				Composite fileComposite = new Composite(parent, SWT.NONE);
 				GridLayoutFactory.fillDefaults().numColumns(2).applyTo(fileComposite);
-				GridDataFactory.swtDefaults().grab(true, false).span(parameterColspan, parameterRowspan).applyTo(fileComposite);
+				GridDataFactory.swtDefaults().grab(true, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(fileComposite);
 				final Text fileText = new Text(fileComposite, SWT.BORDER);
 				String itemText = String.valueOf(parameter.getValue());
 				fileText.setText(itemText);
@@ -1779,7 +1824,8 @@ public class ScriptControlViewer extends Composite {
 			case PROGRESS:
 				final ProgressBar progressBar = new ProgressBar(parent, SWT.HORIZONTAL | SWT.NULL);
 				progressBar.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
-				GridDataFactory.fillDefaults().grab(true, false).minSize(40, 0).span(parameterColspan > 2 ? parameterColspan : 2, parameterRowspan).applyTo(progressBar);
+				GridDataFactory.fillDefaults().grab(true, false).minSize(labelWidth, 0).hint(width, height)
+					.span(parameterColspan > 2 ? parameterColspan : 2, parameterRowspan).applyTo(progressBar);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 //						DataBindingContext bindingContext = new DataBindingContext();
@@ -1823,7 +1869,8 @@ public class ScriptControlViewer extends Composite {
 			case LABEL:
 				final Label label = new Label(parent, SWT.NONE);
 				label.setText(String.valueOf(parameter.getValue()));
-				GridDataFactory.fillDefaults().grab(true, false).align(SWT.CENTER, SWT.CENTER).span(parameterColspan > 2 ? parameterColspan : 2, parameterRowspan).applyTo(label);
+				GridDataFactory.fillDefaults().grab(true, false).align(SWT.CENTER, SWT.CENTER).hint(width, height)
+					.span(parameterColspan * 2, parameterRowspan).applyTo(label);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
@@ -1835,7 +1882,7 @@ public class ScriptControlViewer extends Composite {
 				break;
 			case SPACE:
 				final Label spaceLabel = new Label(parent, SWT.NONE);
-				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan > 2 ? parameterColspan : 2, parameterRowspan).applyTo(spaceLabel);
+				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan * 2, parameterRowspan).hint(width, height).applyTo(spaceLabel);
 				break;
 			default:
 				name = new Label(parent, SWT.RIGHT);
@@ -1844,10 +1891,11 @@ public class ScriptControlViewer extends Composite {
 				} else {
 					name.setText(parameter.getName());
 				}
-				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(40, 0).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
+				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER)
+					.span(parameterColspan, parameterRowspan).applyTo(name);
 				final Text defaultText = new Text(parent, SWT.BORDER);
 				defaultText.setText(String.valueOf(parameter.getValue()));
-				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).applyTo(defaultText);
+				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(defaultText);
 				defaultText.setEditable(itemEnabled);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {

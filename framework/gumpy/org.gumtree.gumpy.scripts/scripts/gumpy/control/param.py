@@ -49,6 +49,10 @@ class Par:
     def __repr__(self):
         return 'au.gov.ansto.bragg.wombat.ui.script.pyobj.ScriptParameter'
     
+    def dispose(self):
+        if not Par.__model__ is None:
+            Par.__model__.removeControl(self.__par__)
+    
 def is_par(__name__to__test__):
     return eval('isinstance(' + __name__to__test__ + ', Par)')
 
@@ -121,6 +125,10 @@ class Act:
         exec(str(self.command))
         self.set_done_status()
         
+    def dispose(self):
+        if not Act.__model__ is None:
+            Act.__model__.removeControl(self.__act__)
+
 def is_act(__name__to__test__):
     return eval('isinstance(' + __name__to__test__ + ', Act)')
 
@@ -167,4 +175,9 @@ class Group():
     
     def __repr__(self):
         return 'au.gov.ansto.bragg.wombat.ui.script.pyobj.ScriptObjectGroup'
+    
+    def dispose(self):
+        if not Group.__model__ is None:
+            Group.__model__.removeControl(self.__group__)
+    
         

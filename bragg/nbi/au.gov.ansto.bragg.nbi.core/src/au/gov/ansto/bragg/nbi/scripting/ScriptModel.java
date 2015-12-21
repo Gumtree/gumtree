@@ -62,7 +62,11 @@ public class ScriptModel {
 	public void addControl(IPyObject control) {
 		this.controls.add(control);
 	}
-	
+
+	public void removeControl(IPyObject control) {
+		this.controls.remove(control);
+	}
+
 	public List<IPyObject> getControlList() {
 		return this.controls;
 	}
