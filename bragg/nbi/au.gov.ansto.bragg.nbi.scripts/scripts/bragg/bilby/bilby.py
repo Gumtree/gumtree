@@ -7,6 +7,11 @@ from gumpy.commons.logger import log
 
 def att_pos(val = None):
     if not val is None :
+        sics.drive('att_pos', val)
+    return sics.get_raw_value('att_pos')
+
+def att(val = None):
+    if not val is None :
         sics.drive('att', val)
     return sics.get_raw_value('att')
 
