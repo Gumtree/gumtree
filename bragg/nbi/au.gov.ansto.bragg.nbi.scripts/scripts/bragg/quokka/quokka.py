@@ -60,18 +60,26 @@ devices = {'sampleNum' : '/sample/sampleNum'}
 
 reset_trip = '/instrument/detector/reset_trip'
 
+def hasTripped():
+    try:
+        return sics.getValue(reset_trip).getIntData() != 0
+    except:
+        return False
+
 def resetTrip():
-    print >> sys.stderr, '!!! detector tripped !!!'
-    log('adjusting attenuation')
+    #print >> sys.stderr, '!!! detector tripped !!!'
+    log('!!! detector tripped !!!')
         
     # drive to higher attenuation
-    driveAtt(getAttValue() + 30)
+    if getAttValue() < 330:
+        log('adjusting attenuation')
+        driveAtt(getAttValue() + 30)
 
     # reset fast shutter
-    raise Exception('detector tripped - reset not supported')
+    # raise Exception('detector tripped - reset not supported')
 
     sics.execute('hset ' + reset_trip + ' 1')
-    time.sleep(5)
+    time.sleep(20)
 
 # Synchronous
 def setSample(position, name='UNKNOWN', description='UNKNOWN', thickness=0, driveSampleStage=True):
@@ -84,6 +92,11 @@ def setSample(position, name='UNKNOWN', description='UNKNOWN', thickness=0, driv
 
 def driveSample(position):
     log('Driving sample holder to position ' + str(position) + ' ...')
+    cur = sics.getValue('sampleNum').getFloatData()
+    if abs(cur - position) < 0.01:
+        log('sampleNum is already at ' + str(position))
+        return
+
     sicsController = sics.getSicsController()
     controller = sicsController.findComponentController(devices['sampleNum'])
 #    controller.drive(position)
@@ -164,15 +177,14 @@ def setSafeAttenuation(startingAttenuation=330):
         log('global rate = ' + str(global_rate))
 
         # check if detector has tripped
-        if sics.getValue(reset_trip).getIntData() != 0:
-            while sics.getValue(reset_trip).getIntData() != 0:
+        if hasTripped():
+            while hasTripped():
                 resetTrip()
-                
                 local_rate, global_rate = determineAveragedRates(max_samples=3, log_success=False)
-                log('local rate = '  + str(local_rate))
-                log('global rate = ' + str(global_rate))
-            
-            break;
+                
+            log('local rate = '  + str(local_rate))
+            log('global rate = ' + str(global_rate))
+            break # exit loop
 
         # Too much (check both local and global rate)
         if ((local_rate > local_rateSafe) or (global_rate > global_rateSafe)):
@@ -558,10 +570,10 @@ def scan(scanMode, dataType, preset, force='true', saveType=saveType.save):
             time.sleep(0.1)
             
         # Synchronously run scan
-        if sics.getValue(reset_trip).getIntData() == 0:
+        if not hasTripped():
             scanController.syncExecute()
             
-            if sics.getValue(reset_trip).getIntData() == 0:
+            if not hasTripped():
                 break; # successful acquisition
 
         resetTrip()
@@ -591,12 +603,12 @@ def driveSafeAttenuation(override=False, startingAttenuation=330):
             driveAtt(att)
 
             time.sleep(3)
-            while sics.getValue(reset_trip).getIntData() != 0:
+            while hasTripped():
                 resetTrip()
-                
                 local_rate, global_rate = determineAveragedRates(max_samples=3, log_success=False)
-                log('local rate = '  + str(local_rate))
-                log('global rate = ' + str(global_rate))
+                
+            log('local rate = '  + str(local_rate))
+            log('global rate = ' + str(global_rate))
 
 def startHistmem():
     # sicsController = sics.getSicsController()
@@ -752,6 +764,15 @@ def findSafeAttenuation(startingAttenuation):
         
     local_rate1, global_rate1 = determineAveragedRates()
     thickness1 = thicknessTable[attenuation1]
+
+    if hasTripped():
+        while hasTripped():
+            resetTrip()
+            local_rate, global_rate = determineAveragedRates(max_samples=3, log_success=False)
+            
+        log('local rate = '  + str(local_rate))
+        log('global rate = ' + str(global_rate))
+        return None # to tell caller that attenuation value is set
     
     log('local rate1 = ' + str(local_rate1))
     log('global rate1 = ' + str(global_rate1))
@@ -763,6 +784,15 @@ def findSafeAttenuation(startingAttenuation):
         
     local_rate2, global_rate2 = determineAveragedRates()
     thickness2 = thicknessTable[attenuation2]
+
+    if hasTripped():
+        while hasTripped():
+            resetTrip()
+            local_rate, global_rate = determineAveragedRates(max_samples=3, log_success=False)
+        
+        log('local rate = '  + str(local_rate))
+        log('global rate = ' + str(global_rate))
+        return None # to tell caller that attenuation value is set
     
     log('local rate2 = ' + str(local_rate2))
     log('global rate2 = ' + str(global_rate2))
