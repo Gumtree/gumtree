@@ -82,7 +82,9 @@ def drive(deviceId, value):
             break
         except SicsExecutionException, e:
             em = str(e.getMessage())
-            if em.__contains__('Interrupted'):
+#            if em.__contains__('Interrupted'):
+#                raise e
+            if not em.lower().__contains__('time out'):
                 raise e
             logger.log('retry driving ' + str(deviceId))
             time.sleep(1)

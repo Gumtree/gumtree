@@ -5,6 +5,21 @@ from gumpy.lib import enum
 from org.gumtree.gumnix.sics.control import ServerStatus
 from gumpy.commons.logger import log
 
+__sampleMap__ = {
+       0 : 250.000,
+       1 : 210.500,
+       2 : 168.375, 
+       3 : 126.250,
+       4 : 84.125,
+       5 : 42.000,
+       6 : -39.700,
+       7 : -81.875,
+       8 : -124.000,
+       9 : -166.125,
+       10 : -208.250,
+       11 : -250.000
+       }
+
 def att_pos(val = None):
     if not val is None :
         sics.drive('att_pos', val)
@@ -39,31 +54,18 @@ def som(val = None):
     return sics.get_raw_value('som')
  
 def sample(val = None):
-    sampleMap = {
-           0 : 250.000,
-           1 : 210.500,
-           2 : 168.375, 
-           3 : 126.250,
-           4 : 84.125,
-           5 : 42.000,
-           6 : -39.700,
-           7 : -81.875,
-           8 : -124.000,
-           9 : -166.125,
-           10 : -208.250,
-           11 : -250.000
-           }
+    global __sampleMap__
     if not val is None :
         if val <=0 or val > 10:
             raise Exception, 'sample number not supported, must be within 1 to 10, got ' + str(val)
         else:
-            sics.drive('samx', sampleMap[round(val)])
+            sics.drive('samx', __sampleMap__[round(val)])
     raw = sics.get_raw_value('samx')
     samNum = -1;
-    for i in xrange(len(sampleMap)) :
-        if raw > sampleMap[i] :
+    for i in xrange(len(__sampleMap__)) :
+        if raw > __sampleMap__[i] :
             if i > 0 :
-                samNum = i - (raw - sampleMap[i]) / (sampleMap[i - 1] - sampleMap[i])
+                samNum = i - (raw - __sampleMap__[i]) / (__sampleMap__[i - 1] - __sampleMap__[i])
             break
     if samNum < 0.05 or samNum > 10.95:
         samNum = -1
@@ -225,12 +227,15 @@ def count(mode, dataType, preset, force='true', saveType=saveType.save):
     return savedFilename
 
 def scan10(sample_position, collect_time, sample_name = None):
+    global __sampleMap__
     if sample_position < 1 or sample_position > 10:
         raise Exception, 'Invalid sample position, scan not run. Choose a position between 1 and 10 inclusive.'
     else:
         if not sample_name is None:
             sics.execute('samplename ' + str(sample_name))
-        cur_samx = samx()
+        
+        cur_samx = __sampleMap__[sample_position]
+#        cur_samx = samx()
         time.sleep(1)
         log("Collection time set to " + str(collect_time) + " seconds")
 #        sics.execute('histmem mode time')
