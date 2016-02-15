@@ -70,6 +70,9 @@ def run(deviceId, value):
     handleInterrupt()
     logger.log("Run " + device.getPath() + " OK")
 
+def isIdle():
+    return getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE)
+     
 # Synchronously set (drive) any device to a given value
 def drive(deviceId, value):
     sicsController = getSicsController()
@@ -93,6 +96,8 @@ def drive(deviceId, value):
             cnt += 1
     if cnt >= 20:
         raise Exception, 'timeout to drive ' + str(deviceId) + ' to ' + str(value)
+    while not getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+                time.sleep(0.3)
     handleInterrupt()
 
 # Synchronously drive a number of devices to a given value

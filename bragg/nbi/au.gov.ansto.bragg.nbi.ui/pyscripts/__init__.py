@@ -23,8 +23,12 @@ __DATASOURCE__ = __register__.getDataSourceViewer()
 #__script__.version = 'unknown'
 __runner__ = __UI__.getRunner()
 __writer__ = __UI__.getScriptExecutor().getEngine().getContext().getWriter()
+__err_writer__ = __UI__.getScriptExecutor().getEngine().getContext().getErrorWriter()
 def logln(text):
     log(text, __writer__)
+def logErr(text):
+    log(text, __err_writer__)
+    
 clear = script.clear
 
 class ScriptingDatasetFactory(DatasetFactory):

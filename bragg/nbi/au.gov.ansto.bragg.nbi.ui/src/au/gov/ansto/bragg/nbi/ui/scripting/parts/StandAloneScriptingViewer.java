@@ -66,6 +66,7 @@ public class StandAloneScriptingViewer extends Composite {
 		register.registerObject("Plot1", plot1Viewer);
 		register.registerObject("Plot2", plot2Viewer);
 		register.registerObject("Plot3", plot3Viewer);
+//		register.setWorkbenchPage(workbenchPage);
 		controlViewer.runInitialScripts();
 	}
 

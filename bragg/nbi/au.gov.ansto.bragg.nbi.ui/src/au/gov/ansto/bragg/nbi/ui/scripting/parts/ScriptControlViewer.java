@@ -52,6 +52,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ExpandEvent;
 import org.eclipse.swt.events.ExpandListener;
 import org.eclipse.swt.events.FocusEvent;
@@ -75,6 +77,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -98,11 +101,13 @@ import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.io.SicsIOException;
 import org.gumtree.gumnix.sics.ui.SicsUIConstants;
 import org.gumtree.scripting.IScriptExecutor;
+import org.gumtree.scripting.ScriptExecutor;
 import org.gumtree.ui.scripting.viewer.ICommandLineViewer;
 
 import au.gov.ansto.bragg.nbi.scripting.IPyObject;
 import au.gov.ansto.bragg.nbi.scripting.ScriptAction;
 import au.gov.ansto.bragg.nbi.scripting.ScriptAction.ActionStatus;
+import au.gov.ansto.bragg.nbi.scripting.ScriptAction.IActionStatusListener;
 import au.gov.ansto.bragg.nbi.scripting.ScriptModel;
 import au.gov.ansto.bragg.nbi.scripting.ScriptObjectGroup;
 import au.gov.ansto.bragg.nbi.scripting.ScriptParameter;
@@ -110,7 +115,6 @@ import au.gov.ansto.bragg.nbi.scripting.ScriptParameter.PType;
 import au.gov.ansto.bragg.nbi.ui.internal.Activator;
 import au.gov.ansto.bragg.nbi.ui.internal.InternalImage;
 import au.gov.ansto.bragg.nbi.ui.scripting.ScriptPageRegister;
-import au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective;
 import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptDataSourceViewer.IActivityListener;
 
 
@@ -664,9 +668,9 @@ public class ScriptControlViewer extends Composite {
 	}
 	
 	private void confirmReload() {
-		IWorkbenchPage page = ScriptPageRegister.getRegister(scriptRegisterID).getWorkbenchPage();
-		String pageID = page.getPerspective().getId();
-		if (ScriptingPerspective.SCRIPTING_PERSPECTIVE_ID.equals(pageID)) {
+//		IWorkbenchPage page = ScriptPageRegister.getRegister(scriptRegisterID).getWorkbenchPage();
+//		String pageID = page.getPerspective().getId();
+//		if (ScriptingPerspective.SCRIPTING_PERSPECTIVE_ID.equals(pageID)) {
 			boolean reload = MessageDialog.openQuestion(getShell(), "Reload the Script", "The " +
 					"analysis script has been changed, do you want to reload it? All argument " +
 					"values will be reset to default if reloaded.");
@@ -678,7 +682,7 @@ public class ScriptControlViewer extends Composite {
 							"please see scripting console for details");
 				}
 			}
-		}
+//		}
 	}
 	
 //	public class MyResourceChangeReporter implements IResourceChangeListener {
@@ -754,6 +758,11 @@ public class ScriptControlViewer extends Composite {
 		executor.runScript(command);
 	}
 	
+	private void runIndependentCommand(String command) {
+		IScriptExecutor executor = getScriptExecutor();
+		((ScriptExecutor) executor).runIndependentScript(command);
+	}
+	
 	private void handleException(Exception ex, String message) {
 //		MessageDialog.openError(getShell(), "Error", message + ": " + ex.getLocalizedMessage());
 		ex.printStackTrace();
@@ -772,6 +781,9 @@ public class ScriptControlViewer extends Composite {
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(scroll);
 		scroll.setExpandHorizontal(true);
 		scroll.setExpandVertical(true);
+		ScrollBar scrollBar = scroll.getVerticalBar();
+		scrollBar.setIncrement(16);
+		scrollBar.setPageIncrement(320);
 		dynamicComposite = new Composite(scroll, SWT.BORDER);
 		scroll.setContent(dynamicComposite);
 		GridLayoutFactory.fillDefaults().margins(2, 2).spacing(4, 4).numColumns(2).applyTo(
@@ -966,7 +978,7 @@ public class ScriptControlViewer extends Composite {
 		return list;
 	}
 
-	private void addGroup(final Composite parent, ScriptObjectGroup objGroup) {
+	private void addGroup(final Composite parent, final ScriptObjectGroup objGroup) {
 //		Group group = new Group(parent, SWT.NONE);
 		Composite group;
 		String hideTitleString = objGroup.getProperty("hideTitle");
@@ -979,7 +991,8 @@ public class ScriptControlViewer extends Composite {
 			menuGroup.setText(objGroup.getName());
 			Menu menu = menuGroup.getMenu();
 //			group.setClickExpandEnabled(false);
-			menuGroup.addExpandListener(new ExpandListener() {
+			
+			final ExpandListener expandListener = new ExpandListener() {
 				
 				@Override
 				public void itemExpanded(ExpandEvent e) {
@@ -995,6 +1008,15 @@ public class ScriptControlViewer extends Composite {
 					menuGroup.update();
 					Rectangle r = scroll.getClientArea();
 					scroll.setMinSize(dynamicComposite.computeSize(r.width, SWT.DEFAULT));				
+				}
+			};
+			menuGroup.addExpandListener(expandListener);
+			
+			menuGroup.addDisposeListener(new DisposeListener() {
+				
+				@Override
+				public void widgetDisposed(DisposeEvent e) {
+					menuGroup.removeExpandListener(expandListener);
 				}
 			});
 			// Set Name
@@ -1028,6 +1050,51 @@ public class ScriptControlViewer extends Composite {
 				editItem.setText("Fold");
 			}
 			
+			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+				public void run() {
+//					DataBindingContext bindingContext = new DataBindingContext();
+//					bindingContext.bindValue(SWTObservables.observeText(menuGroup),
+//							BeansObservables.observeValue(objGroup, "name"),
+//							new UpdateValueStrategy(), new UpdateValueStrategy());
+					objGroup.addPropertyChangeListener(new PropertyChangeListener() {
+
+						@Override
+						public void propertyChange(final PropertyChangeEvent evt) {
+							if (evt.getPropertyName().equals("title")) {
+								Display.getDefault().asyncExec(new Runnable() {
+
+									@Override
+									public void run() {
+										menuGroup.setText(objGroup.getProperty("title"));
+									}
+								});
+							} else if (evt.getPropertyName().equals("folded")) {
+								Display.getDefault().asyncExec(new Runnable() {
+
+									@Override
+									public void run() {
+										String foldedProperty = objGroup.getProperty("folded");
+										boolean itemFolded = false;
+										if (foldedProperty != null) {
+											try {
+												itemFolded = Boolean.valueOf(foldedProperty);
+											} catch (Exception e) {
+											}
+										}
+										if (itemFolded) {
+											editItem.setText("Expand");
+											menuGroup.setExpanded(false);
+										} else {
+											editItem.setText("Fold");
+										}
+									}
+								});
+							}
+						}
+					});
+				}
+			});
+
 		}
 //		final MenuBasedGroup group = new MenuBasedGroup(parent, SWT.NONE);
 		int groupNumColumns = 1;
@@ -1106,6 +1173,14 @@ public class ScriptControlViewer extends Composite {
 			actionRowspan = 1;
 		}
 
+		boolean independent = false;
+		if (action.getProperty("independent") != null) {
+			try {
+				independent = Boolean.valueOf(action.getProperty("independent"));
+			} catch (Exception e) {
+			}
+		}
+		final boolean isIndependent = independent;
 //		Label name = new Label(parent, SWT.RIGHT);
 //		name.setText(action.getName());
 //		name.setText("");
@@ -1129,7 +1204,11 @@ public class ScriptControlViewer extends Composite {
 //					runCommand("__UI__.setActionStatusDone()");
 //					runCommand(action.getName() + ".__run__(" + action.getCommand() + ")");
 //					runCommand(action.getName() + ".set_running_status()");
-					runCommand("run_action(" + action.getName() + ")");
+					if (isIndependent) {
+						runIndependentCommand("run_action(" + action.getName() + ")");						
+					} else {
+						runCommand("run_action(" + action.getName() + ")");
+					}
 //					runCommand(action.getName() + ".set_done_status()");
 				}
 			}
@@ -1138,7 +1217,8 @@ public class ScriptControlViewer extends Composite {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		action.addStatusListener(new ScriptAction.IActionStatusListener() {
+		
+		final IActionStatusListener statusListener = new IActionStatusListener() {
 			
 			@Override
 			public void statusChanged(final ActionStatus newStatus) {
@@ -1146,6 +1226,9 @@ public class ScriptControlViewer extends Composite {
 					
 					@Override
 					public void run() {
+						if (actionButton.isDisposed()) {
+							return;
+						}
 						switch (newStatus) {
 						case RUNNING:
 							actionButton.setImage(InternalImage.BUSY_STATUS_12.getImage());
@@ -1176,8 +1259,10 @@ public class ScriptControlViewer extends Composite {
 					}
 				});
 			}
-		});
-		action.addPropertyChangeListener(new PropertyChangeListener() {
+		};
+		action.addStatusListener(statusListener);
+		
+		final PropertyChangeListener propertyListener = new PropertyChangeListener() {
 
 			@Override
 			public void propertyChange(final PropertyChangeEvent evt) {
@@ -1204,7 +1289,18 @@ public class ScriptControlViewer extends Composite {
 					});
 				} 
 			}
+		};
+		action.addPropertyChangeListener(propertyListener);
+		
+		actionButton.addDisposeListener(new DisposeListener() {
+			
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				action.removeStatusListener(statusListener);
+				action.removePropertyChangeListener(propertyListener);
+			}
 		});
+		
 	}
 
 	private void addParameter(Composite parent, final ScriptParameter parameter) {
@@ -1274,38 +1370,41 @@ public class ScriptControlViewer extends Composite {
 					bindingContext.bindValue(SWTObservables.observeText(comboBox.getCombo()),
 							BeansObservables.observeValue(parameter, "value"),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
-					parameter.addPropertyChangeListener(new PropertyChangeListener() {
-
-						@Override
-						public void propertyChange(final PropertyChangeEvent evt) {
-							if (evt.getPropertyName().equals("options")) {
-								Display.getDefault().asyncExec(new Runnable() {
-
-									@Override
-									public void run() {
-										comboBox.setInput(parameter.getOptions());
-										if (parameter.getValue() == null) {
-											comboBox.setSelection(null);
-										} else {
-											comboBox.setSelection(new StructuredSelection(
-													parameter.getValue()));
-										}
-										comboBox.refresh();
-									}
-								});
-							} else if (evt.getPropertyName().equals("enabled")) {
-								Display.getDefault().asyncExec(new Runnable() {
-
-									@Override
-									public void run() {
-										comboBox.getCombo().setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
-									}
-								});
-							} 
-						}
-					});
 				}
 			});
+			
+			final PropertyChangeListener propertyListener = new PropertyChangeListener() {
+
+				@Override
+				public void propertyChange(final PropertyChangeEvent evt) {
+					if (evt.getPropertyName().equals("options")) {
+						Display.getDefault().asyncExec(new Runnable() {
+
+							@Override
+							public void run() {
+								comboBox.setInput(parameter.getOptions());
+								if (parameter.getValue() == null) {
+									comboBox.setSelection(null);
+								} else {
+									comboBox.setSelection(new StructuredSelection(
+											parameter.getValue()));
+								}
+								comboBox.refresh();
+							}
+						});
+					} else if (evt.getPropertyName().equals("enabled")) {
+						Display.getDefault().asyncExec(new Runnable() {
+
+							@Override
+							public void run() {
+								comboBox.getCombo().setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+							}
+						});
+					} 
+				}
+			};
+			parameter.addPropertyChangeListener(propertyListener);
+			
 			comboBox.addPostSelectionChangedListener(new ISelectionChangedListener() {
 				
 				Object selection;
@@ -1317,7 +1416,7 @@ public class ScriptControlViewer extends Composite {
 					if (newSelection != selection) {
 						String command = parameter.getCommand();
 						if (command != null) {
-							runCommand(command);
+							runIndependentCommand(command);
 						}
 						selection = newSelection;
 					}
@@ -1332,11 +1431,18 @@ public class ScriptControlViewer extends Composite {
 //					if (newStamp - timeStamp > 500) {
 //						String command = parameter.getCommand();
 //						if (command != null) {
-//							runCommand(command);
+//							runIndependentCommand(command);
 //						}
 //						timeStamp = newStamp;
 //					}
 //				}
+			});
+			comboBox.getCombo().addDisposeListener(new DisposeListener() {
+				
+				@Override
+				public void widgetDisposed(DisposeEvent e) {
+					parameter.removePropertyChangeListener(propertyListener);
+				}
 			});
 		} else {
 			PType type = parameter.getType();
@@ -1371,21 +1477,29 @@ public class ScriptControlViewer extends Composite {
 						bindingContext.bindValue(SWTObservables.observeText(stringText, SWT.Modify),
 								BeansObservables.observeValue(parameter, "value"),
 								new FlagedUpdateStrategy(), new UpdateValueStrategy());
-						parameter.addPropertyChangeListener(new PropertyChangeListener() {
+					}
+				});
+				final PropertyChangeListener stringPropertyListener = new PropertyChangeListener() {
 
-							@Override
-							public void propertyChange(final PropertyChangeEvent evt) {
-								if (evt.getPropertyName().equals("enabled")) {
-									Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void propertyChange(final PropertyChangeEvent evt) {
+						if (evt.getPropertyName().equals("enabled")) {
+							Display.getDefault().asyncExec(new Runnable() {
 
-										@Override
-										public void run() {
-											stringText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
-										}
-									});
-								} 
-							}
-						});
+								@Override
+								public void run() {
+									stringText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+								}
+							});
+						} 
+					}
+				};
+				parameter.addPropertyChangeListener(stringPropertyListener);
+				stringText.addDisposeListener(new DisposeListener() {
+					
+					@Override
+					public void widgetDisposed(DisposeEvent e) {
+						parameter.removePropertyChangeListener(stringPropertyListener);
 					}
 				});
 //				stringText.addModifyListener(new ModifyListener() {
@@ -1394,7 +1508,7 @@ public class ScriptControlViewer extends Composite {
 //					public void modifyText(ModifyEvent e) {
 //						String command = parameter.getCommand();
 //						if (command != null) {
-//							runCommand(command);
+//							runIndependentCommand(command);
 //						}
 //					}
 //				});
@@ -1410,7 +1524,7 @@ public class ScriptControlViewer extends Composite {
 							if (parameter.getDirtyFlag()){
 								String command = parameter.getCommand();
 								if (command != null) {
-									runCommand(command);
+									runIndependentCommand(command);
 								}
 								parameter.resetDirtyFlag();
 							}
@@ -1424,7 +1538,7 @@ public class ScriptControlViewer extends Composite {
 						if (parameter.getDirtyFlag()){
 							String command = parameter.getCommand();
 							if (command != null) {
-								runCommand(command);
+								runIndependentCommand(command);
 							}
 							parameter.resetDirtyFlag();
 						}
@@ -1455,21 +1569,29 @@ public class ScriptControlViewer extends Composite {
 						bindingContext.bindValue(SWTObservables.observeText(intText, SWT.Modify),
 								BeansObservables.observeValue(parameter, "value"),
 								new FlagedUpdateStrategy(), new UpdateValueStrategy());
-						parameter.addPropertyChangeListener(new PropertyChangeListener() {
+					}
+				});
+				final PropertyChangeListener intPropertyListener = new PropertyChangeListener() {
 
-							@Override
-							public void propertyChange(final PropertyChangeEvent evt) {
-								if (evt.getPropertyName().equals("enabled")) {
-									Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void propertyChange(final PropertyChangeEvent evt) {
+						if (evt.getPropertyName().equals("enabled")) {
+							Display.getDefault().asyncExec(new Runnable() {
 
-										@Override
-										public void run() {
-											intText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
-										}
-									});
-								} 
-							}
-						});
+								@Override
+								public void run() {
+									intText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+								}
+							});
+						} 
+					}
+				};
+				parameter.addPropertyChangeListener(intPropertyListener);
+				intText.addDisposeListener(new DisposeListener() {
+					
+					@Override
+					public void widgetDisposed(DisposeEvent e) {
+						parameter.removePropertyChangeListener(intPropertyListener);
 					}
 				});
 //				intText.addModifyListener(new ModifyListener() {
@@ -1478,7 +1600,7 @@ public class ScriptControlViewer extends Composite {
 //					public void modifyText(ModifyEvent e) {
 //						String command = parameter.getCommand();
 //						if (command != null) {
-//							runCommand(command);
+//							runIndependentCommand(command);
 //						}
 //					}
 //				});
@@ -1494,7 +1616,7 @@ public class ScriptControlViewer extends Composite {
 							if (parameter.getDirtyFlag()){
 								String command = parameter.getCommand();
 								if (command != null) {
-									runCommand(command);
+									runIndependentCommand(command);
 								}
 								parameter.resetDirtyFlag();
 							}
@@ -1508,7 +1630,7 @@ public class ScriptControlViewer extends Composite {
 						if (parameter.getDirtyFlag()){
 							String command = parameter.getCommand();
 							if (command != null) {
-								runCommand(command);
+								runIndependentCommand(command);
 							}
 							parameter.resetDirtyFlag();
 						}
@@ -1542,21 +1664,6 @@ public class ScriptControlViewer extends Composite {
 						bindingContext.bindValue(SWTObservables.observeText(floatText, SWT.Modify),
 								BeansObservables.observeValue(parameter, "value"),
 								new FlagedUpdateStrategy(), new UpdateValueStrategy());
-						parameter.addPropertyChangeListener(new PropertyChangeListener() {
-
-							@Override
-							public void propertyChange(final PropertyChangeEvent evt) {
-								if (evt.getPropertyName().equals("enabled")) {
-									Display.getDefault().asyncExec(new Runnable() {
-
-										@Override
-										public void run() {
-											floatText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
-										}
-									});
-								} 
-							}
-						});
 					}
 				});
 //				floatText.addModifyListener(new ModifyListener() {
@@ -1565,10 +1672,33 @@ public class ScriptControlViewer extends Composite {
 //					public void modifyText(ModifyEvent e) {
 //						String command = parameter.getCommand();
 //						if (command != null) {
-//							runCommand(command);
+//							runIndependentCommand(command);
 //						}
 //					}
 //				});
+				final PropertyChangeListener floatPropertyListener = new PropertyChangeListener() {
+
+					@Override
+					public void propertyChange(final PropertyChangeEvent evt) {
+						if (evt.getPropertyName().equals("enabled")) {
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									floatText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+								}
+							});
+						} 
+					}
+				};
+				parameter.addPropertyChangeListener(floatPropertyListener);
+				floatText.addDisposeListener(new DisposeListener() {
+					
+					@Override
+					public void widgetDisposed(DisposeEvent e) {
+						parameter.removePropertyChangeListener(floatPropertyListener);
+					}
+				});
 				floatText.addKeyListener(new KeyListener() {
 					
 					@Override
@@ -1581,7 +1711,7 @@ public class ScriptControlViewer extends Composite {
 							if (parameter.getDirtyFlag()){
 								String command = parameter.getCommand();
 								if (command != null) {
-									runCommand(command);
+									runIndependentCommand(command);
 								}
 								parameter.resetDirtyFlag();
 							}
@@ -1595,7 +1725,7 @@ public class ScriptControlViewer extends Composite {
 						if (parameter.getDirtyFlag()){
 							String command = parameter.getCommand();
 							if (command != null) {
-								runCommand(command);
+								runIndependentCommand(command);
 							}
 							parameter.resetDirtyFlag();
 						}
@@ -1624,30 +1754,39 @@ public class ScriptControlViewer extends Composite {
 						bindingContext.bindValue(SWTObservables.observeSelection(selectBox),
 								BeansObservables.observeValue(parameter, "value"),
 								new FlagedUpdateStrategy(), new UpdateValueStrategy());
-						parameter.addPropertyChangeListener(new PropertyChangeListener() {
-
-							@Override
-							public void propertyChange(final PropertyChangeEvent evt) {
-								if (evt.getPropertyName().equals("enabled")) {
-									Display.getDefault().asyncExec(new Runnable() {
-
-										@Override
-										public void run() {
-											selectBox.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
-										}
-									});
-								} 
-							}
-						});
 					}
 				});
+				final PropertyChangeListener boolPropertyListener = new PropertyChangeListener() {
+
+					@Override
+					public void propertyChange(final PropertyChangeEvent evt) {
+						if (evt.getPropertyName().equals("enabled")) {
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									selectBox.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+								}
+							});
+						} 
+					}
+				};
+				parameter.addPropertyChangeListener(boolPropertyListener);
+				selectBox.addDisposeListener(new DisposeListener() {
+					
+					@Override
+					public void widgetDisposed(DisposeEvent e) {
+						parameter.removePropertyChangeListener(boolPropertyListener);
+					}
+				});
+				
 				selectBox.addSelectionListener(new SelectionListener() {
 					
 					@Override
 					public void widgetSelected(SelectionEvent e) {
 						String command = parameter.getCommand();
 						if (command != null) {
-							runCommand(command);
+							runIndependentCommand(command);
 						}
 					}
 					
@@ -1680,21 +1819,29 @@ public class ScriptControlViewer extends Composite {
 						bindingContext.bindValue(SWTObservables.observeText(fileText, SWT.Modify),
 								BeansObservables.observeValue(parameter, "value"),
 								new FlagedUpdateStrategy(), new UpdateValueStrategy());
-						parameter.addPropertyChangeListener(new PropertyChangeListener() {
+					}
+				});
+				final PropertyChangeListener filePropertyListener = new PropertyChangeListener() {
 
-							@Override
-							public void propertyChange(final PropertyChangeEvent evt) {
-								if (evt.getPropertyName().equals("enabled")) {
-									Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void propertyChange(final PropertyChangeEvent evt) {
+						if (evt.getPropertyName().equals("enabled")) {
+							Display.getDefault().asyncExec(new Runnable() {
 
-										@Override
-										public void run() {
-											fileText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
-										}
-									});
-								} 
-							}
-						});
+								@Override
+								public void run() {
+									fileText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+								}
+							});
+						} 
+					}
+				};
+				parameter.addPropertyChangeListener(filePropertyListener);
+				fileText.addDisposeListener(new DisposeListener() {
+					
+					@Override
+					public void widgetDisposed(DisposeEvent e) {
+						parameter.removePropertyChangeListener(filePropertyListener);
 					}
 				});
 				final Button fileLocatorButton = new Button(fileComposite, SWT.PUSH);
@@ -1816,7 +1963,7 @@ public class ScriptControlViewer extends Composite {
 					public void modifyText(ModifyEvent e) {
 						String command = parameter.getCommand();
 						if (command != null) {
-							runCommand(command);
+							runIndependentCommand(command);
 						}
 					}
 				});
@@ -1832,37 +1979,46 @@ public class ScriptControlViewer extends Composite {
 //						bindingContext.bindValue(SWTObservables.observeSelection(progressBar),
 //								BeansObservables.observeValue(parameter, "value"),
 //								new UpdateValueStrategy(), new UpdateValueStrategy());
-						parameter.addPropertyChangeListener(new PropertyChangeListener() {
 
-							@Override
-							public void propertyChange(final PropertyChangeEvent evt) {
-								if (evt.getPropertyName().equals("enabled")) {
-									Display.getDefault().asyncExec(new Runnable() {
+					}
+				});
+				final PropertyChangeListener progressPropertyListener = new PropertyChangeListener() {
 
-										@Override
-										public void run() {
-											progressBar.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
-										}
-									});
-								} else if (evt.getPropertyName().equals("max")) {
-									Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void propertyChange(final PropertyChangeEvent evt) {
+						if (evt.getPropertyName().equals("enabled")) {
+							Display.getDefault().asyncExec(new Runnable() {
 
-										@Override
-										public void run() {
-											progressBar.setMaximum(Integer.valueOf(evt.getNewValue().toString()));
-										}
-									});
-								} else if (evt.getPropertyName().equals("selection")) {
-									Display.getDefault().asyncExec(new Runnable() {
-
-										@Override
-										public void run() {
-											progressBar.setSelection(Integer.valueOf(evt.getNewValue().toString()));
-										}
-									});
+								@Override
+								public void run() {
+									progressBar.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
 								}
-							}
-						});
+							});
+						} else if (evt.getPropertyName().equals("max")) {
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									progressBar.setMaximum(Integer.valueOf(evt.getNewValue().toString()));
+								}
+							});
+						} else if (evt.getPropertyName().equals("selection")) {
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									progressBar.setSelection(Integer.valueOf(evt.getNewValue().toString()));
+								}
+							});
+						}
+					}
+				};
+				parameter.addPropertyChangeListener(progressPropertyListener);
+				progressBar.addDisposeListener(new DisposeListener() {
+					
+					@Override
+					public void widgetDisposed(DisposeEvent e) {
+						parameter.removePropertyChangeListener(progressPropertyListener);
 					}
 				});
 				break;
@@ -1903,21 +2059,29 @@ public class ScriptControlViewer extends Composite {
 						bindingContext.bindValue(SWTObservables.observeText(defaultText, SWT.Modify),
 								BeansObservables.observeValue(parameter, "value"),
 								new FlagedUpdateStrategy(), new UpdateValueStrategy());
-						parameter.addPropertyChangeListener(new PropertyChangeListener() {
+					}
+				});
+				final PropertyChangeListener defaultPropertyListener = new PropertyChangeListener() {
 
-							@Override
-							public void propertyChange(final PropertyChangeEvent evt) {
-								if (evt.getPropertyName().equals("enabled")) {
-									Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void propertyChange(final PropertyChangeEvent evt) {
+						if (evt.getPropertyName().equals("enabled")) {
+							Display.getDefault().asyncExec(new Runnable() {
 
-										@Override
-										public void run() {
-											defaultText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
-										}
-									});
-								} 
-							}
-						});
+								@Override
+								public void run() {
+									defaultText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+								}
+							});
+						} 
+					}
+				};
+				parameter.addPropertyChangeListener(defaultPropertyListener);
+				defaultText.addDisposeListener(new DisposeListener() {
+					
+					@Override
+					public void widgetDisposed(DisposeEvent e) {
+						parameter.removePropertyChangeListener(defaultPropertyListener);
 					}
 				});
 //				defaultText.addModifyListener(new ModifyListener() {
@@ -1926,7 +2090,7 @@ public class ScriptControlViewer extends Composite {
 //					public void modifyText(ModifyEvent e) {
 //						String command = parameter.getCommand();
 //						if (command != null) {
-//							runCommand(command);
+//							runIndependentCommand(command);
 //						}
 //					}
 //				});
@@ -1942,7 +2106,7 @@ public class ScriptControlViewer extends Composite {
 							if (parameter.getDirtyFlag()){
 								String command = parameter.getCommand();
 								if (command != null) {
-									runCommand(command);
+									runIndependentCommand(command);
 								}
 								parameter.resetDirtyFlag();
 							}
@@ -1956,7 +2120,7 @@ public class ScriptControlViewer extends Composite {
 						if (parameter.getDirtyFlag()){
 							String command = parameter.getCommand();
 							if (command != null) {
-								runCommand(command);
+								runIndependentCommand(command);
 							}
 							parameter.resetDirtyFlag();
 						}
