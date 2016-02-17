@@ -47,6 +47,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.nebula.widgets.pgroup.RectangleGroupStrategy;
 import org.eclipse.nebula.widgets.pgroup.ext.MenuBasedGroup;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -65,6 +66,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Button;
@@ -260,6 +262,8 @@ public class ScriptControlViewer extends Composite {
 	private IActivityListener datasetActivityListener;
 	private boolean groupAllowFolding = false;
 	private boolean editingEnabled = true;
+	private Color highlightColor;
+	private Color defaultColor;
 	
 	/**
 	 * @param parent
@@ -267,6 +271,8 @@ public class ScriptControlViewer extends Composite {
 	 */
 	public ScriptControlViewer(Composite parent, int style) {
 		super(parent, style);
+		highlightColor = Display.getDefault().getSystemColor(SWT.COLOR_RED);
+		defaultColor = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
 		try {
 			groupAllowFolding = Boolean.valueOf(System.getProperty(GUMTREE_SCRIPTING_ALLOWFOLDING_PROPERTY));
 		} catch (Exception e) {
@@ -989,8 +995,20 @@ public class ScriptControlViewer extends Composite {
 			final MenuBasedGroup menuGroup = (MenuBasedGroup) group;
 			menuGroup.setClickExpandEnabled(groupAllowFolding);
 			menuGroup.setText(objGroup.getName());
-			Menu menu = menuGroup.getMenu();
+			final Menu menu = menuGroup.getMenu();
 //			group.setClickExpandEnabled(false);
+			
+			String highlightProperty = objGroup.getProperty("highlight");
+			if (highlightProperty != null) {
+				boolean isHighlight = Boolean.valueOf(highlightProperty);
+				if (isHighlight) {
+					RectangleGroupStrategy strategy = (RectangleGroupStrategy) menuGroup.getStrategy();
+					strategy.setBackground(
+							new Color[]{Display.getCurrent().getSystemColor(SWT.COLOR_RED), 
+									Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW)}, 
+							new int[]{100});
+				} 			
+			}
 			
 			final ExpandListener expandListener = new ExpandListener() {
 				
@@ -1089,7 +1107,27 @@ public class ScriptControlViewer extends Composite {
 										}
 									}
 								});
-							}
+							} else if (evt.getPropertyName().equals("highlight")) {
+								Display.getDefault().asyncExec(new Runnable() {
+
+									@Override
+									public void run() {
+										boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+										if (isHighlight) {
+											RectangleGroupStrategy strategy = (RectangleGroupStrategy) menuGroup.getStrategy();
+											strategy.setBackground(
+													new Color[]{Display.getCurrent().getSystemColor(SWT.COLOR_RED), 
+															Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW)}, 
+													new int[]{100});
+										} else {
+											Color g1 = Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT);
+									        Color g2 = Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_BACKGROUND);
+											RectangleGroupStrategy strategy = (RectangleGroupStrategy) menuGroup.getStrategy();
+									        strategy.setBackground(new Color[] {g1, g2 }, new int[] {100 }, true);
+										}
+									}
+								});
+							} 
 						}
 					});
 				}
@@ -1190,6 +1228,12 @@ public class ScriptControlViewer extends Composite {
 //		actionButton.setBackground(new Color(Display.getDefault(), 240, 240, 255));
 //		actionButton.setForeground(new Color(Display.getDefault(), 0, 0, 255));
 		GridDataFactory.fillDefaults().grab(true, false).span(actionColspan * 2, actionRowspan).minSize(0, 32).applyTo(actionButton);
+		if (action.getProperty("highlight") != null) {
+			boolean isHighlight = Boolean.valueOf(action.getProperty("highlight"));
+			if (isHighlight) {
+				actionButton.setBackground(highlightColor);
+			}
+		}
 		actionButton.addSelectionListener(new SelectionListener() {
 			
 			@Override
@@ -1287,6 +1331,21 @@ public class ScriptControlViewer extends Composite {
 							}
 						}
 					});
+				} else if (evt.getPropertyName().toLowerCase().equals("highlight")) {
+					Display.getDefault().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							if (evt.getNewValue().equals("highlight")) {
+								boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+								if (isHighlight) {
+									actionButton.setBackground(highlightColor);
+								} else {
+									actionButton.setBackground(defaultColor);
+								}
+							}
+						}
+					});
 				} 
 			}
 		};
@@ -1311,6 +1370,11 @@ public class ScriptControlViewer extends Composite {
 				itemEnabled = Boolean.valueOf(enabledProperty);
 			} catch (Exception e) {
 			}
+		}
+		String highlightProperty = parameter.getProperty("highlight");
+		boolean isHighlight = false;
+		if (highlightProperty != null) {
+			isHighlight = Boolean.valueOf(highlightProperty);
 		}
 		int parameterColspan = 1;
 		if (parameter.getProperty("colspan") != null) {
@@ -1346,7 +1410,7 @@ public class ScriptControlViewer extends Composite {
 		int labelWidth = 40;
 		
 		if (parameter.getOptions() != null) {
-			Label name = new Label(parent, SWT.RIGHT);
+			final Label name = new Label(parent, SWT.RIGHT);
 			if (parameter.getProperty("title") != null) {
 				name.setText(parameter.getProperty("title"));
 			} else {
@@ -1360,6 +1424,10 @@ public class ScriptControlViewer extends Composite {
 			comboBox.getCombo().setEnabled(itemEnabled);
 			//				comboBox.setSorter(new ViewerSorter());
 			comboBox.setInput(parameter.getOptions());
+			if (isHighlight) {
+				comboBox.getCombo().setForeground(highlightColor);
+			} 			
+
 			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
@@ -1400,7 +1468,20 @@ public class ScriptControlViewer extends Composite {
 								comboBox.getCombo().setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
 							}
 						});
-					} 
+					} else if (evt.getPropertyName().equals("highlight")) {
+						Display.getDefault().asyncExec(new Runnable() {
+
+							@Override
+							public void run() {
+								boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+								if (isHighlight) {
+									comboBox.getCombo().setForeground(highlightColor);
+								} else {
+									comboBox.getCombo().setForeground(defaultColor);
+								}
+							}
+						});
+					}
 				}
 			};
 			parameter.addPropertyChangeListener(propertyListener);
@@ -1471,6 +1552,9 @@ public class ScriptControlViewer extends Composite {
 				stringText.setText(String.valueOf(parameter.getValue()));
 				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).hint(width, vHeight).applyTo(stringText);
 				stringText.setEditable(itemEnabled);
+				if (isHighlight) {
+					stringText.setForeground(highlightColor);
+				} 	
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
@@ -1489,6 +1573,19 @@ public class ScriptControlViewer extends Composite {
 								@Override
 								public void run() {
 									stringText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+								}
+							});
+						} else if (evt.getPropertyName().equals("highlight")) {
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+									if (isHighlight) {
+										stringText.setForeground(highlightColor);
+									} else {
+										stringText.setForeground(defaultColor);
+									}
 								}
 							});
 						} 
@@ -1563,6 +1660,9 @@ public class ScriptControlViewer extends Composite {
 				intText.setText(String.valueOf(parameter.getValue()));
 				GridDataFactory.fillDefaults().grab(true, false).hint(width, height).span(parameterColspan, parameterRowspan).applyTo(intText);
 				intText.setEditable(itemEnabled);
+				if (isHighlight) {
+					intText.setForeground(highlightColor);
+				} 
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
@@ -1581,6 +1681,19 @@ public class ScriptControlViewer extends Composite {
 								@Override
 								public void run() {
 									intText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+								}
+							});
+						} else if (evt.getPropertyName().equals("highlight")) {
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+									if (isHighlight) {
+										intText.setForeground(highlightColor);
+									} else {
+										intText.setForeground(defaultColor);
+									}
 								}
 							});
 						} 
@@ -1658,6 +1771,9 @@ public class ScriptControlViewer extends Composite {
 				floatText.setText(String.valueOf(parameter.getValue()));
 				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(floatText);
 				floatText.setEditable(itemEnabled);
+				if (isHighlight) {
+					floatText.setForeground(highlightColor);
+				} 
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
@@ -1686,6 +1802,19 @@ public class ScriptControlViewer extends Composite {
 								@Override
 								public void run() {
 									floatText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+								}
+							});
+						} else if (evt.getPropertyName().equals("highlight")) {
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+									if (isHighlight) {
+										floatText.setForeground(highlightColor);
+									} else {
+										floatText.setForeground(defaultColor);
+									}
 								}
 							});
 						} 
@@ -1748,6 +1877,9 @@ public class ScriptControlViewer extends Composite {
 				selectBox.setSelection(Boolean.valueOf(String.valueOf(parameter.getValue())));
 				GridDataFactory.fillDefaults().grab(false, false).span(parameterColspan, parameterRowspan).applyTo(selectBox);
 				selectBox.setEnabled(itemEnabled);
+				if (isHighlight) {
+					selectBox.setForeground(highlightColor);
+				}
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
@@ -1766,6 +1898,19 @@ public class ScriptControlViewer extends Composite {
 								@Override
 								public void run() {
 									selectBox.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+								}
+							});
+						} else if (evt.getPropertyName().equals("highlight")) {
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+									if (isHighlight) {
+										selectBox.setForeground(highlightColor);
+									} else {
+										selectBox.setForeground(defaultColor);
+									}
 								}
 							});
 						} 
@@ -1812,6 +1957,9 @@ public class ScriptControlViewer extends Composite {
 				fileText.setText(itemText);
 				fileText.setToolTipText(itemText);
 				fileText.setEditable(itemEnabled);
+				if (isHighlight) {
+					fileText.setForeground(highlightColor);
+				} 
 				GridDataFactory.fillDefaults().grab(true, false).applyTo(fileText);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
@@ -1831,6 +1979,19 @@ public class ScriptControlViewer extends Composite {
 								@Override
 								public void run() {
 									fileText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+								}
+							});
+						} else if (evt.getPropertyName().equals("highlight")) {
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+									if (isHighlight) {
+										fileText.setForeground(highlightColor);
+									} else {
+										fileText.setForeground(defaultColor);
+									}
 								}
 							});
 						} 
@@ -1973,6 +2134,9 @@ public class ScriptControlViewer extends Composite {
 				progressBar.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
 				GridDataFactory.fillDefaults().grab(true, false).minSize(labelWidth, 0).hint(width, height)
 					.span(parameterColspan > 2 ? parameterColspan : 2, parameterRowspan).applyTo(progressBar);
+				if (isHighlight) {
+					progressBar.setForeground(highlightColor);
+				}
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 //						DataBindingContext bindingContext = new DataBindingContext();
@@ -2010,7 +2174,20 @@ public class ScriptControlViewer extends Composite {
 									progressBar.setSelection(Integer.valueOf(evt.getNewValue().toString()));
 								}
 							});
-						}
+						} else if (evt.getPropertyName().equals("highlight")) {
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+									if (isHighlight) {
+										progressBar.setForeground(highlightColor);
+									} else {
+										progressBar.setForeground(defaultColor);
+									}
+								}
+							});
+						} 
 					}
 				};
 				parameter.addPropertyChangeListener(progressPropertyListener);
@@ -2027,12 +2204,43 @@ public class ScriptControlViewer extends Composite {
 				label.setText(String.valueOf(parameter.getValue()));
 				GridDataFactory.fillDefaults().grab(true, false).align(SWT.CENTER, SWT.CENTER).hint(width, height)
 					.span(parameterColspan * 2, parameterRowspan).applyTo(label);
+				if (isHighlight) {
+					label.setForeground(highlightColor);
+				} 
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
 						bindingContext.bindValue(SWTObservables.observeText(label),
 								BeansObservables.observeValue(parameter, "value"),
 								new UpdateValueStrategy(), new UpdateValueStrategy());
+					}
+				});
+				final PropertyChangeListener labelPropertyListener = new PropertyChangeListener() {
+
+					@Override
+					public void propertyChange(final PropertyChangeEvent evt) {
+						if (evt.getPropertyName().equals("highlight")) {
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+									if (isHighlight) {
+										label.setForeground(highlightColor);
+									} else {
+										label.setForeground(defaultColor);
+									}
+								}
+							});
+						} 					
+					}
+				};
+				parameter.addPropertyChangeListener(labelPropertyListener);
+				label.addDisposeListener(new DisposeListener() {
+					
+					@Override
+					public void widgetDisposed(DisposeEvent e) {
+						parameter.removePropertyChangeListener(labelPropertyListener);
 					}
 				});
 				break;
@@ -2053,6 +2261,9 @@ public class ScriptControlViewer extends Composite {
 				defaultText.setText(String.valueOf(parameter.getValue()));
 				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(defaultText);
 				defaultText.setEditable(itemEnabled);
+				if (isHighlight) {
+					defaultText.setForeground(highlightColor);
+				}
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
@@ -2071,6 +2282,19 @@ public class ScriptControlViewer extends Composite {
 								@Override
 								public void run() {
 									defaultText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+								}
+							});
+						} else if (evt.getPropertyName().equals("highlight")) {
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+									if (isHighlight) {
+										defaultText.setForeground(highlightColor);
+									} else {
+										defaultText.setForeground(defaultColor);
+									}
 								}
 							});
 						} 

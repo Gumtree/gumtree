@@ -7,4 +7,24 @@
             class="au.gov.ansto.bragg.bilby.ui.internal.BilbyWorkbenchSetup">
       </startup>
    </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="au.gov.ansto.bragg.bilby.ui.internal.BilbyWorkflowPerspective"
+            fixed="true"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.bilby.ui.BilbyWorkflowPerspective"
+            name="Bilby Workflow">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            class="au.gov.ansto.bragg.bilby.ui.internal.BilbyWorkflowView"
+            id="au.gov.ansto.bragg.bilby.ui.BilbyWorkflowView"
+            name="Bilby Workflow View"
+            restorable="true">
+      </view>
+   </extension>
 </plugin>

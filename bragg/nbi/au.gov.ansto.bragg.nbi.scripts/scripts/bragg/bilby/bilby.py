@@ -5,6 +5,35 @@ from gumpy.lib import enum
 from org.gumtree.gumnix.sics.control import ServerStatus
 from gumpy.commons.logger import log
 
+# parameter values for nguide
+OUT = 'Out'
+R100 = 'R100'
+S40 = 'S40'
+D40 = 'D40'
+D20 = 'D20'
+D10 = 'D10'
+
+# parameter values for beam stops
+IN = 'in'
+
+ 
+# parameter for sapmot
+class Sapmot_D2:
+    def __init__(self):
+        pass
+    
+    def __getattr__(self, idx):
+        if idx == 5:
+            return 'D2.5'
+
+    def __repr__(self):
+        return 'D2'
+    
+D2 = Sapmot_D2()
+
+
+#D5, D7.5, D10, D12.5, D15, D17.5, D20, D20, D30, D40
+
 __sampleMap__ = {
        0 : 250.000,
        1 : 210.500,
