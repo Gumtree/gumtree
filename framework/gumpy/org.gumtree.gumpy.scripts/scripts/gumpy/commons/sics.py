@@ -108,6 +108,8 @@ def multiDrive(entries):
         drivable = getSicsController().findDeviceController(key)
         runner.addDrivable(drivable, entries[key])
     runner.drive()
+    while not getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+                time.sleep(0.3)
     handleInterrupt()
 
 def runbmonscan(scan_variable, scan_start, scan_increment, NP, mode, preset, channel):

@@ -6,7 +6,9 @@ from org.gumtree.gumnix.sics.control import ServerStatus
 from gumpy.commons.logger import log
 
 # parameter values for nguide
-OUT = 'Out'
+OUT = 'OUT'
+Out = 'OUT'
+out = 'OUT'
 R100 = 'R100'
 S40 = 'S40'
 D40 = 'D40'
@@ -14,24 +16,17 @@ D20 = 'D20'
 D10 = 'D10'
 
 # parameter values for beam stops
-IN = 'in'
+IN = 'IN'
+In = 'IN'
 
+# parameter values for dhv controller
+UP = 'UP'
+Up = 'UP'
+up = 'UP'
+DOWN = 'DOWN'
+Down = 'DOWN'
+down = 'DOWN'
  
-# parameter for sapmot
-class Sapmot_D2:
-    def __init__(self):
-        pass
-    
-    def __getattr__(self, idx):
-        if idx == 5:
-            return 'D2.5'
-
-    def __repr__(self):
-        return 'D2'
-    
-D2 = Sapmot_D2()
-
-
 #D5, D7.5, D10, D12.5, D15, D17.5, D20, D20, D30, D40
 
 __sampleMap__ = {
@@ -64,6 +59,8 @@ def nguide(val1 = '', val2 = '', val3 = ''):
 
 def sapmot(val = None):
     if not val is None:
+        if type(val) is float or type(val) is int :
+            val = 'D' + str(val)
         sics.run_command('pdrive sapmot ' + str(val))
     return sics.get_raw_value('posname sapmot', str)
 
@@ -102,51 +99,151 @@ def sample(val = None):
 
 def det(val = None):
     if not val is None :
-        sics.run_command('dhv down')
+        dhv('DOWN')
         sics.drive('det', val)
-        sics.run_command('dhv up')
+        dhv('UP')
     return sics.get_raw_value('det')
 
 def curtaindet(val = None):
     if not val is None :
-        sics.run_command('dhv down')
+        dhv('DOWN')
         sics.drive('curtaindet', val)
-        sics.run_command('dhv up')
+        dhv('UP')
     return sics.get_raw_value('curtaindet')
 
 def curtainl(val = None):
     if not val is None :
-        sics.run_command('dhv down')
+        dhv('DOWN')
         sics.drive('curtainl', val)
-        sics.run_command('dhv up')
+        dhv('UP')
     return sics.get_raw_value('curtainl')
 
 def curtainr(val = None):
     if not val is None :
-        sics.run_command('dhv down')
+        dhv('DOWN')
         sics.drive('curtainr', val)
-        sics.run_command('dhv up')
+        dhv('UP')
     return sics.get_raw_value('curtainr')
 
 def curtainu(val = None):
     if not val is None :
-        sics.run_command('dhv down')
+        dhv('DOWN')
         sics.drive('curtainu', val)
-        sics.run_command('dhv up')
+        dhv('UP')
     return sics.get_raw_value('curtainu')
 
 def curtaind(val = None):
     if not val is None :
-        sics.run_command('dhv down')
+        dhv('DOWN')
         sics.drive('curtaind', val)
-        sics.run_command('dhv up')
+        dhv('UP')
     return sics.get_raw_value('curtaind')
+
+def dhv(val = None):
+    if not val is None:
+        if val.upper() == 'UP':
+            dhv1_up = sics.get_raw_value('dhv1 upper')
+            dhv2_up = sics.get_raw_value('dhv2 upper')
+            res = sics.run_command('drive dhv1 ' + str(dhv1_up) + ' dhv2 ' + str(dhv2_up))
+            if res.find('Full Stop') >= 0:
+                raise Exception, res
+        elif val.upper() == 'DOWN':
+            dhv1_down = sics.get_raw_value('dhv1 lower')
+            dhv2_down = sics.get_raw_value('dhv2 lower')
+            res = sics.run_command('drive dhv1 ' + str(dhv1_down) + ' dhv2 ' + str(dhv2_down))
+            if res.find('Full Stop') >= 0:
+                raise Exception, res
+    else:
+        dhv1_up = sics.get_raw_value('dhv1 upper')
+        dhv1_down = sics.get_raw_value('dhv1 lower')
+        dhv1 = sics.get_raw_value('dhv1')
+        dhv2_up = sics.get_raw_value('dhv2 upper')
+        dhv2_down = sics.get_raw_value('dhv2 lower')
+        dhv2 = sics.get_raw_value('dhv2')
+        if abs(dhv1_up - dhv1) <= 5 and (dhv2_up - dhv2) <= 5:
+            return 'UP'
+        elif abs(dhv1 - dhv1_down) <= 5 and (dhv2 - dhv2_down) <= 5:
+            return 'DOWN'
+        else:
+            return 'ERROR'
+        
+class DetectorSystem :
+    def __init__(self):
+        self.det = None
+        self.curtaindet = None
+        self.curtainl = None
+        self.curtainr = None
+        self.curtainu = None
+        self.curtaind = None
+        
+    def clear(self):
+        self.det = None
+        self.curtaindet = None
+        self.curtainl = None
+        self.curtainr = None
+        self.curtainu = None
+        self.curtaind = None
+        
+    def multiDrive(self, det, curtaindet, curtainl, curtainr, curtainu, curtaind):
+        if det is None and curtaindet is None and curtainl is None and curtainr is None \
+                and curtainu is None and curtaind is None:
+            return
+        cmd = 'drive'
+        if not det is None:
+            cmd += ' det ' + str(det)
+        if not curtaindet is None:
+            cmd += ' curtaindet ' + str(curtaindet) 
+        if not curtainl is None:
+            cmd += ' curtainl ' + str(curtainl)
+        if not curtainr is None:
+            cmd += ' curtainr ' + str(curtainr)
+        if not curtainu is None:
+            cmd += ' curtainu ' + str(curtainu)
+        if not curtaind is None:
+            cmd += ' curtaind ' + str(curtaind)
+        res = sics.run_command(cmd)
+        if not res is None and res.find('Full Stop') >= 0:
+            raise Exception, res
+        
+    def drive(self):
+        try:
+            if self.det is None and \
+                    self.curtaindet is None and \
+                    self.curtainl is None and \
+                    self.curtainr is None and \
+                    self.curtainu is None and \
+                    self.curtaind is None:
+                raise Exception, 'please set up Detector first.'
+            else :
+                dhv('DOWN')
+                if self.det is None or self.curtaindet is None :
+                    self.multiDrive(self.det, self.curtaindet, self.curtainl, \
+                                    self.curtainr, self.curtainu, self.curtaind)
+                else:
+                    cur_det = det()
+                    cur_curtaindet = curtaindet()
+                    if self.curtaindet <= cur_curtaindet and self.det >= cur_det :
+                        self.multiDrive(self.det, self.curtaindet, self.curtainl, \
+                                    self.curtainr, self.curtainu, self.curtaind)
+                    elif self.curtaindet > cur_curtaindet:
+                        sics.drive('det', self.det)
+                        self.multiDrive(None, self.curtaindet, self.curtainl, \
+                                    self.curtainr, self.curtainu, self.curtaind)
+                    else :
+                        self.multiDrive(None, self.curtaindet, self.curtainl, \
+                                    self.curtainr, self.curtainu, self.curtaind)
+                        sics.drive('det', self.det)
+                dhv('UP')
+        finally:
+            self.clear()
+
+Detector = DetectorSystem()
 
 def bs3(val):
     if not val is None:
-        if val.lower() == 'in':
+        if val.upper() == 'IN':
             sics.drive('bs3', 65)
-        elif val.lower() == 'out':
+        elif val.upper() == 'OUT':
             sics.drive('bs3', 0)
     cur = sics.get_raw_value('bs3')
     if cur >= 63 and cur <= 67:
@@ -156,9 +253,9 @@ def bs3(val):
     
 def bs4(val):
     if not val is None:
-        if val.lower() == 'in':
+        if val.upper() == 'IN':
             sics.drive('bs4', 65)
-        elif val.lower() == 'out':
+        elif val.upper() == 'OUT':
             sics.drive('bs4', 0)
     cur = sics.get_raw_value('bs4')
     if cur >= 63 and cur <= 67:
@@ -168,9 +265,9 @@ def bs4(val):
 
 def bs5(val):
     if not val is None:
-        if val.lower() == 'in':
+        if val.upper() == 'IN':
             sics.drive('bs5', 65)
-        elif val.lower() == 'out':
+        elif val.upper() == 'OUT':
             sics.drive('bs5', 0)
     cur = sics.get_raw_value('bs5')
     if cur >= 63 and cur <= 67:
