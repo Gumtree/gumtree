@@ -90,6 +90,11 @@ th {
   border-collapse: collapse;
   border: 2px double black;
   font-size: 0.8em;
+  
+}
+
+.class_editable_page tr { 
+	line-height: 10px; 
 }
 
 .class_db_table table {
@@ -106,7 +111,7 @@ th {
 
 .class_editable_page td, th {
   border: 1px solid #999;
-  padding: 0.2rem;
+  padding: 0.2rem 2px;
   text-align: left;
 }
 

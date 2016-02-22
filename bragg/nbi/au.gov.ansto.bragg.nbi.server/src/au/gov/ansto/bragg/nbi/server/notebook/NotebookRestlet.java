@@ -73,6 +73,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String SEG_NAME_LISTHISTORY = "history";
 	private final static String STRING_CONTENT_START = "content=";
 	private final static String PREFIX_NOTEBOOK_FILES = "Page_";
+	private final static String PROP_INSTRUMENT_ID = "gumtree.instrument.id";
 	private final static String PROP_NOTEBOOK_SAVEPATH = "gumtree.notebook.savePath";
 	private final static String PROP_DATABASE_SAVEPATH = "gumtree.loggingDB.savePath";
 	private final static String PROP_PDF_FOLDER = "gumtree.notebook.pdfPath";
@@ -126,12 +127,14 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private String daeLogin;
 	private String daePassword;
 	private GitService gitService;
+	private String instrumentId;
 	
 	/**
 	 * @param context
 	 */
 	public NotebookRestlet(Context context) {
 		super(context);
+		instrumentId = System.getProperty(PROP_INSTRUMENT_ID);
 		currentFileFolder = System.getProperty(PROP_NOTEBOOK_SAVEPATH);
 		currentDBFolder = System.getProperty(PROP_DATABASE_SAVEPATH);
 		templateFilePath = System.getProperty(PROP_NOTEBOOK_SAVEPATH) + "/" + NOTEBOOK_TEMPLATEFILENAME;
@@ -499,14 +502,15 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				try {
 					pw = new PrintWriter(new FileWriter(newFile));
 					if (proposalId != null) {
-						html += "<h1>Quokka Notebook Page: " + proposalId + "</h1><p/>";
+						html += "<h1>" + instrumentId.substring(0, 1).toUpperCase() + instrumentId.substring(1) 
+								+ " Notebook Page: " + proposalId + "</h1><p/>";
 						int proposalInt = 0;
 						try {
 							proposalInt = Integer.valueOf(proposalId);
 						} catch (Exception e) {
 						}
 						if (proposalInt > 0) {
-							Map<ProposalItems, String> proposalInfo = ProposalDBSOAPService.getProposalInfo(proposalInt, "quokka");
+							Map<ProposalItems, String> proposalInfo = ProposalDBSOAPService.getProposalInfo(proposalInt, instrumentId);
 							String space = "&nbsp;";
 							if (proposalInfo != null) {
 								String tableHtml = EXPERIMENT_TABLE_HTML.replace("$" + ProposalItems.ID.name(), proposalId);
@@ -549,7 +553,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 							}
 						}
 					} else {
-						html += "<h1>Quokka Notebook</h1><p/>";						
+						html += "<h1>" + instrumentId.substring(0, 1).toUpperCase() + instrumentId.substring(1) + " Notebook</h1><p/>";
 					}
 					pw.write(html);
 					pw.close();					

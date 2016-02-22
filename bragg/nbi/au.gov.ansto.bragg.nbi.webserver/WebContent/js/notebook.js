@@ -151,7 +151,7 @@ function getPdf() {
 				        				  $.fileDownload(fileUrl)
 				        				  .done(function () {})
 				        				  .fail(function () { alert('File download failed!'); });				
-				        			  }, 1000);
+				        			  }, 1500);
 				        		  }
 				        	  })
 				        	  .fail(function(e) {
@@ -571,6 +571,12 @@ $(function(){
 
 jQuery(document).ready(function() {
 //	define scroll div with auto height
+	if (typeof title !== 'undefined') {
+		var titleString = "Instrument Notebook - " + title;
+		$(document).attr("title", titleString);
+		$('#titleString').text(titleString);
+	}
+	
 	var bodyheight = $(window).height();
 	$(".slide-out-div").height(bodyheight - 20);
 	$(".div_sidebar_inner").height(bodyheight - 44);

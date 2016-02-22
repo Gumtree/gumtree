@@ -1,7 +1,12 @@
 package au.gov.ansto.bragg.nbi.server.git;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -20,6 +25,7 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
@@ -33,6 +39,8 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
+import org.eclipse.jgit.util.FileUtils;
+import org.eclipse.jgit.util.IO;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 
 public class GitService {
@@ -93,8 +101,8 @@ public class GitService {
 
 			TreeWalk treewalk = new TreeWalk(reader);
 			treewalk.addTree(repo.resolve(revSpec + "^{tree}"));
-			treewalk.setRecursive(true);
-			treewalk.setFilter(PathFilter.create(path));
+			treewalk.setRecursive(false);
+//			treewalk.setFilter(PathFilter.create(path));
 			if (treewalk != null) {
 				while (treewalk.next()) {
 					if (path.endsWith(treewalk.getPathString())) {
@@ -333,5 +341,116 @@ public class GitService {
 			tw.release();
 		}
 		return commits;
+	}
+	
+	/**
+	 * Create a string to a UTF-8 temporary file and return the path.
+	 *
+	 * @param body
+	 *            complete content to write to the file. If the file should end
+	 *            with a trailing LF, the string should end with an LF.
+	 * @return path of the temporary file created within the trash area.
+	 * @throws IOException
+	 *             the file could not be written.
+	 */
+	protected File write(final String body) throws IOException {
+		final File f = File.createTempFile("temp", "txt");
+		try {
+			write(f, body);
+			return f;
+		} catch (Error e) {
+			f.delete();
+			throw e;
+		} catch (RuntimeException e) {
+			f.delete();
+			throw e;
+		} catch (IOException e) {
+			f.delete();
+			throw e;
+		}
+	}
+
+	/**
+	 * Write a string as a UTF-8 file.
+	 *
+	 * @param f
+	 *            file to write the string to. Caller is responsible for making
+	 *            sure it is in the trash directory or will otherwise be cleaned
+	 *            up at the end of the test. If the parent directory does not
+	 *            exist, the missing parent directories are automatically
+	 *            created.
+	 * @param body
+	 *            content to write to the file.
+	 * @throws IOException
+	 *             the file could not be written.
+	 */
+	protected void write(final File f, final String body) throws IOException {
+		writeFile(f, body);
+	}
+
+	public static void writeFile(final File f, final String body)
+			throws IOException {
+		FileUtils.mkdirs(f.getParentFile(), true);
+		Writer w = new OutputStreamWriter(new FileOutputStream(f), "UTF-8");
+		try {
+			w.write(body);
+		} finally {
+			w.close();
+		}
+	}
+	
+	public static String read(final File file) throws IOException {
+		final byte[] body = IO.readFully(file);
+		return new String(body, 0, body.length, "UTF-8");
+	}
+	
+	public String testDiff() throws GitAPIException, NoWorkTreeException, IOException {
+		String res = "";
+//		Repository db = git.getRepository();
+//		write(new File(db.getWorkTree(), "test.txt"), "test");
+//		File folder = new File(db.getWorkTree(), "folder");
+//		folder.mkdir();
+//		write(new File(folder, "folder.txt"), "folder");
+//		Git git = new Git(db);
+//		git.add().addFilepattern(".").call();
+//		git.commit().setMessage("Initial commit").call();
+//		write(new File(folder, "folder.txt"), "folder change");
+//		git.add().addFilepattern(".").call();
+//		git.commit().setMessage("second commit").call();
+//		write(new File(folder, "folder.txt"), "second folder change");
+//		git.add().addFilepattern(".").call();
+//		git.commit().setMessage("third commit").call();
+
+		// bad filter
+		DiffCommand diff = git.diff().setShowNameAndStatusOnly(true)
+				.setPathFilter(PathFilter.create("test.txt"))
+				.setOldTree(getTreeIterator("HEAD^^"))
+				.setNewTree(getTreeIterator("HEAD^"));
+		List<DiffEntry> entries = diff.call();
+		res += "size == 0 ? " + entries.size() + ";\n";
+
+		// no filter, two commits
+		OutputStream out = new ByteArrayOutputStream();
+		diff = git.diff().setOutputStream(out)
+				.setOldTree(getTreeIterator("1411d94af36927206604e89e7353794694cec5b2^"))
+				.setNewTree(getTreeIterator("4a64f0d30238bcc89ebedcf414e009d479218496^"));
+		entries = diff.call();
+		res += "size == 1 ? " + entries.size() + ";\n";
+		res += "ChangeType == MODIFY ?" + entries.get(0).getChangeType() + ";\n";
+		res += "old path == folder/folder.txt ? " + entries.get(0).getOldPath() + ";\n";
+		res += "new path == folder/folder.txt ? " + entries.get(0).getNewPath() + ";\n";
+
+		String actual = out.toString();
+		String expected = "diff --git a/folder/folder.txt b/folder/folder.txt\n"
+				+ "index 0119635..95c4c65 100644\n"
+				+ "--- a/folder/folder.txt\n"
+				+ "+++ b/folder/folder.txt\n"
+				+ "@@ -1 +1 @@\n"
+				+ "-folder\n"
+				+ "\\ No newline at end of file\n"
+				+ "+folder change\n"
+				+ "\\ No newline at end of file\n";
+		res += "is expected ? " + (expected.toString().equals(actual)) + ";\n";
+		return res;
 	}
 }
