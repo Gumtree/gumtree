@@ -11,7 +11,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 class HeaderFooter extends PdfPageEventHelper {
     /** Alternating phrase for the header. */
-    Phrase[] header = new Phrase[2];
+//    Phrase[] header = new Phrase[2];
     /** Current page number (will be reset for every chapter). */
     int pagenumber;
     
@@ -21,7 +21,7 @@ class HeaderFooter extends PdfPageEventHelper {
      *      com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document)
      */
     public void onOpenDocument(PdfWriter writer, Document document) {
-        header[0] = new Phrase("Movie history");
+//        header[0] = new Phrase("Movie history");
     }
     
     /**
@@ -33,7 +33,7 @@ class HeaderFooter extends PdfPageEventHelper {
      */
     public void onChapter(PdfWriter writer, Document document,
             float paragraphPosition, Paragraph title) {
-        header[1] = new Phrase(title.getContent());
+//        header[1] = new Phrase(title.getContent());
         pagenumber = 1;
     }
 
@@ -53,18 +53,18 @@ class HeaderFooter extends PdfPageEventHelper {
      */
     public void onEndPage(PdfWriter writer, Document document) {
         Rectangle rect = writer.getBoxSize("art");
-        switch(writer.getPageNumber() % 2) {
-        case 0:
-            ColumnText.showTextAligned(writer.getDirectContent(),
-                    Element.ALIGN_RIGHT, header[0],
-                    rect.getRight(), rect.getTop(), 0);
-            break;
-        case 1:
-            ColumnText.showTextAligned(writer.getDirectContent(),
-                    Element.ALIGN_LEFT, header[1],
-                    rect.getLeft(), rect.getTop(), 0);
-            break;
-        }
+//        switch(writer.getPageNumber() % 2) {
+//        case 0:
+//            ColumnText.showTextAligned(writer.getDirectContent(),
+//                    Element.ALIGN_RIGHT, header[0],
+//                    rect.getRight(), rect.getTop(), 0);
+//            break;
+//        case 1:
+//            ColumnText.showTextAligned(writer.getDirectContent(),
+//                    Element.ALIGN_LEFT, header[1],
+//                    rect.getLeft(), rect.getTop(), 0);
+//            break;
+//        }
         ColumnText.showTextAligned(writer.getDirectContent(),
                 Element.ALIGN_CENTER, new Phrase(String.format("%d", pagenumber)),
                 (rect.getLeft() + rect.getRight()) / 2, rect.getBottom() - 28, 0);
