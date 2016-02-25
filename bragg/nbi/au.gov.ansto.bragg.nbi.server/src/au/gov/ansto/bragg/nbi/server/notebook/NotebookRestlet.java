@@ -187,15 +187,21 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, "The notebook page is not available to the public.");
 					return;
+				} else {
+					try {
+			    		sessionId = controlDb.getCurrentSessionId();
+			    	} catch (Exception e) {
+			    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+			    		return;
+			    	}
 				}
-		    } else {
-	    		try {
-					pageId = sessionDb.getSessionValue(sessionId);
-				} catch (Exception e) {
-					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
-					return;
-				} 
-		    }
+		    } 
+		    try {
+		    	pageId = sessionDb.getSessionValue(sessionId);
+		    } catch (Exception e) {
+		    	response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+		    	return;
+		    } 
 			try {
 				String text = rep.getText();
 				text = text == null ? "" : text;

@@ -127,38 +127,41 @@ function getPdf() {
 		      width: 'auto', resizable: false,
 		      buttons: {
 		          Yes: function () {
-		        	  var postUrl = 'notebook/save' + (session != null ? '?session=' + session : '');
+		        	  var postUrl = 'notebook/save' + (session != null ? '?session=' + session : '?pageid=' + pageId);
 		        	  $.post( postUrl, CKEDITOR.instances.id_editable_inner.getData(), function(data, status) {
 		        		  if (status == "success") {
 		        			  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Saved', type: 'success' } );
 		        			  notification.show();
 		        			  CKEDITOR.instances.id_editable_inner.resetDirty();
 		        			  
-				        	  var getUrl = "notebook/pdf";
-				        	  var session = getParam("session");
-				        	  if (session != null) { 
-				        		  getUrl += "?session=" + session;
-				        	  }
-//				        	  window.location.href = getUrl;
-				        	  $.get(getUrl, function(data, status) {
-				        		  if (status == "success") {
-				        			  var pair = data.split(":");
-				        			  var fileUrl = "notebook/download/" + pair[0] + ".pdf?ext=" + pair[1];
-				        			  if (session != null) { 
-				        				  fileUrl += "&session=" + session;
-				        			  }
-				        			  setTimeout(function() {
-				        				  $.fileDownload(fileUrl)
-				        				  .done(function () {})
-				        				  .fail(function () { alert('File download failed!'); });				
-				        			  }, 1500);
-				        		  }
-				        	  })
-				        	  .fail(function(e) {
-				        		  alert( "error creating PDF file.");
-				        	  }).always(function() {
-					        	  $(this).dialog("close");
-				        	  });
+		        			  setTimeout(function() {
+		        				  var getUrl = "notebook/pdf";
+		        				  var session = getParam("session");
+		        				  if (session != null) { 
+		        					  getUrl += "?session=" + session;
+		        				  }
+//		        				  window.location.href = getUrl;
+		        				  $.get(getUrl, function(data, status) {
+		        					  if (status == "success") {
+		        						  var pair = data.split(":");
+		        						  var fileUrl = "notebook/download/" + pair[0] + ".pdf?ext=" + pair[1];
+		        						  if (session != null) { 
+		        							  fileUrl += "&session=" + session;
+		        						  }
+		        						  setTimeout(function() {
+		        							  $.fileDownload(fileUrl)
+		        							  .done(function () {})
+		        							  .fail(function () { alert('File download failed!'); });				
+		        						  }, 1000);
+		        					  }
+		        				  })
+		        				  .fail(function(e) {
+		        					  alert( "error creating PDF file.");
+		        				  }).always(function() {
+		        					  $(this).dialog("close");
+		        				  });
+		        			  }, 1000);
+		        			  
 
 		        		  }
 		        	  })
