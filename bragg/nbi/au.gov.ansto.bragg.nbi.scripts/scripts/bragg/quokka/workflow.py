@@ -90,8 +90,8 @@ def updateScatteringRunState(runId, running):
         
 def startAcquistion():
     if engineContext.getAttribute(ATT_STATE_MANAGER) != None:
+        stateManager = engineContext.getAttribute(ATT_STATE_MANAGER)
         try:
-            stateManager = engineContext.getAttribute(ATT_STATE_MANAGER)
             stateManager.setAcquistionStarted()
         except:
             pass
@@ -236,7 +236,7 @@ def runScattering(acqEntries, configSetting):
             # Drive attenuation back safer value
             log('Drive attenuation back to safe value ...')
             if startingAttenuation is None:
-                startingAttenuation = 180
+                startingAttenuation = 300
             driveAtt(startingAttenuation)
             quokka.printQuokkaSettings()
 
