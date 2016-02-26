@@ -239,7 +239,7 @@ class DetectorSystem :
 
 Detector = DetectorSystem()
 
-def bs3(val):
+def bs3(val = None):
     if not val is None:
         if val.upper() == 'IN':
             sics.drive('bs3', 65)
@@ -251,7 +251,7 @@ def bs3(val):
     else :
         return 'OUT'
     
-def bs4(val):
+def bs4(val = None):
     if not val is None:
         if val.upper() == 'IN':
             sics.drive('bs4', 65)
@@ -263,7 +263,7 @@ def bs4(val):
     else :
         return 'OUT'
 
-def bs5(val):
+def bs5(val = None):
     if not val is None:
         if val.upper() == 'IN':
             sics.drive('bs5', 65)
@@ -274,7 +274,67 @@ def bs5(val):
         return 'IN'
     else :
         return 'OUT'
+
+def bs_att(bs_num, bs_angle, att_num):
     
+    if bs_num < 3 or bs_num > 5 :
+        raise Exception, 'beam stop number ' + str(bs_num) + ' is not supported'
+
+    if att_num < 0 or att_num > 5 :
+        raise Exception, 'att position number ' + str(att_num) + ' is not supported'
+    
+    cur_bs3 = bs3()
+    cur_bs4 = bs4()
+    cur_bs5 = bs5()
+    cur_att = att_pos()
+     
+    # Check if the current configuration has all beamstops out of position and the 
+    # empty attenuator position selected. If this is the case, put an attenuator 
+    # in (which will engage the fast shutter while doing so). 
+    # Should not ever happen, but best to check.
+    if (cur_bs3 < 63.0 or cur_bs3 > 67.0) and (cur_bs4 < 63.0 or cur_bs4  > 67.0) \
+        and (cur_bs5 < 63.0 or cur_bs5 > 67.0) and cur_att == 3:
+        log('put attenuator to 5 first')
+        att_pos(5)
+
+    # This is nominally the BS in position for all beamstops
+    # Inserts a given beamstop and then remove all others. Then moves the attenuator.
+    if bs_angle >= 63.0 and bs_angle <= 67.0 :
+        log('put bs' + str(bs_num) + ' in')
+        if bs_num == 3:
+            sics.drive('bs3', bs_angle)
+            sics.drive('bs4', 0)
+            sics.drive('bs5', 0)
+        elif bs_num == 4:
+            sics.drive('bs4', bs_angle)
+            sics.drive('bs3', 0)
+            sics.drive('bs5', 0)
+        elif bs_num == 5:
+            sics.drive('bs5', bs_angle)
+            sics.drive('bs3', 0)
+            sics.drive('bs4', 0)
+        log('put attenuator to ' + str(att_num))
+        att_pos(att_num)
+    # If you are driving an attenuator in, do this first, then move the beam stop
+    elif (bs_angle < 63.0 or bs_angle > 67.0) and att_num >= 3 :
+        log('put attenuator to ' + str(att_num))
+        att_pos(att_num)
+        log('put bs' + str(bs_num) + ' in')
+        if bs_num == 3:
+            sics.drive('bs3', bs_angle)
+            sics.drive('bs4', 0)
+            sics.drive('bs5', 0)
+        elif bs_num == 4:
+            sics.drive('bs4', bs_angle)
+            sics.drive('bs3', 0)
+            sics.drive('bs5', 0)
+        elif bs_num == 5:
+            sics.drive('bs5', bs_angle)
+            sics.drive('bs3', 0)
+            sics.drive('bs4', 0)
+    else:
+        # Do not let the BS_Att command drive to an unsafe configuration
+        raise Exception, 'No valid beamstop or attenuator has been selected  no movement of beamstop or attempted'
 
 hmMode = enum.Enum('timer', 'monitor')
 scanMode = enum.Enum('time', 'count', 'monitor', 'unlimited', 'MONITOR_1')
