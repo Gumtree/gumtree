@@ -479,7 +479,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 						String bufferContent = getBatchBufferManager().getRunningBufferContent();
 						String rangeString = getBatchBufferManager().getRunningBufferRangeString();
 						if (bufferContent != null && rangeString != null) {
-							bufferContent = bufferContent.replaceAll("\n\n", "\n");
+//							bufferContent = bufferContent.replaceAll("\n\n", "\n");
 							context.editorText.setText(bufferContent);
 							highlightBuffer(rangeString);
 						}
@@ -502,7 +502,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					// this is available for highlight)
 					String bufferContent = getBatchBufferManager().getRunningBufferContent();
 					if (bufferContent != null) {
-						bufferContent = bufferContent.replaceAll("\n\n", "\n");
+//						bufferContent = bufferContent.replaceAll("\n\n", "\n");
 						context.editorText.setText(bufferContent);
 					}
 					// Clear log
@@ -538,11 +538,18 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		String[] charCounts = rangeString.split("=");
 		StyleRange styleRange = new StyleRange();
 		styleRange.start = 0;
-		styleRange.length = Integer.parseInt(charCounts[2].trim());
+		int length = Integer.parseInt(charCounts[2].trim());
+		if (length > context.editorText.getText().length()){
+			length = context.editorText.getText().length();
+		}
+		styleRange.length = length;
 		styleRange.background = PlatformUI.getWorkbench()
 				.getDisplay().getSystemColor(
 						SWT.COLOR_YELLOW);
-		context.editorText.setStyleRange(styleRange);
+		try {
+			context.editorText.setStyleRange(styleRange);			
+		} catch (Exception e) {
+		}
 	}
 	
 

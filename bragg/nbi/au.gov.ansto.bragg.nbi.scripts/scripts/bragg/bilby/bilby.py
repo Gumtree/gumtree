@@ -316,7 +316,7 @@ def bs_att(bs_num, bs_angle, att_num):
         log('put attenuator to ' + str(att_num))
         att_pos(att_num)
     # If you are driving an attenuator in, do this first, then move the beam stop
-    elif (bs_angle < 63.0 or bs_angle > 67.0) and att_num >= 3 :
+    elif (bs_angle < 63.0 or bs_angle > 67.0) and att_num != 3 :
         log('put attenuator to ' + str(att_num))
         att_pos(att_num)
         log('put bs' + str(bs_num) + ' in')
