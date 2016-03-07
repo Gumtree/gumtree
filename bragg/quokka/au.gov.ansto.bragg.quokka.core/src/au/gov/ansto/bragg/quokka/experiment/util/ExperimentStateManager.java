@@ -161,6 +161,11 @@ public class ExperimentStateManager implements IExperimentStateManager {
 		fireUpdate(runId);
 	}
 	
+	public String getScatteringDetails(final int runId) {
+		AcquisitionSetting setting = settings.get(runId);
+		return setting.getScatteringDataFile();
+	}
+	
 	public void setConfigSetFinished(final int runId){
 		AcquisitionSetting setting = settings.get(runId);
 		InstrumentConfig config = setting.getConfig();
@@ -174,6 +179,16 @@ public class ExperimentStateManager implements IExperimentStateManager {
 	public void setAcquistionStarted(){
 		try {
 			RemoteTextDbService.getInstance().appendTableEntry("MSW result", ExperimentUserReportUtils.createExperimentInfoTable(experiment));
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
+	
+	public void exportAcquisitionEntryHtml(final String html) {
+//		AcquisitionSetting setting = settings.get(runId);
+//		InstrumentConfig config = setting.getConfig();
+		try {
+			RemoteTextDbService.getInstance().appendTableEntry("MSW result", html);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 

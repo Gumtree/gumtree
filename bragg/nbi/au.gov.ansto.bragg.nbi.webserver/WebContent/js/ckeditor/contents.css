@@ -24,6 +24,14 @@ body
 	line-height: 1.6;
 }
 
+@media print {
+	.cke_editable tr
+	{
+		font-size: 13px;
+		line-height: 16px;
+	}
+}
+
 blockquote
 {
 	font-style: italic;

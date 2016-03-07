@@ -38,19 +38,31 @@ class NotebookLogger():
     def log_text(self, text, name = None):
         if name == None:
             name = "Scripting log"
-        self.logger.appendTextEntry(name, text)
+        try:
+            self.logger.appendTextEntry(name, text)
+        except:
+            print 'failed to send text to notebook db'
         
     def log_plot(self, plot, name = None, footer = None):
         if name == None:
             name = "Scripting plot"
-        self.logger.appendImageEntry(name, plot.pv.getPlot().getImage(), footer)
+        try:
+            self.logger.appendImageEntry(name, plot.pv.getPlot().getImage(), footer)
+        except:
+            print 'failed to send plot to notebook db'
         
     def log_table(self, table, name = None):
         if name == None:
             name = "Scripting table"
-        self.logger.appendTableEntry(name, table)
+        try:
+            self.logger.appendTableEntry(name, table)
+        except:
+            print 'failed to send table to notebook db'
         
     def log(self, text, name = None):
-        self.log_text(text, name)
+        try:
+            self.log_text(text, name)
+        except:
+            print 'failed to send text to notebook db'
         
 n_logger = NotebookLogger()

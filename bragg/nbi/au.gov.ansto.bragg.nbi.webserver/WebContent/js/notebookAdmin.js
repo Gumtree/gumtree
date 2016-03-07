@@ -29,9 +29,11 @@ function getPdf(page, session){
 			if (typeof(session) !== "undefined") { 
 				 fileUrl += "&session=" + session;
 			}
-			$.fileDownload(fileUrl)
-		    	.done(function () {})
-		    	.fail(function () { alert('File download failed!'); });
+		  setTimeout(function() {
+			  $.fileDownload(fileUrl)
+			  .done(function () {})
+			  .fail(function () { alert('File download failed!'); });				
+		  }, 1500);
 		}
 	})
 	.fail(function(e) {

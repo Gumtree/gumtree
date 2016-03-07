@@ -60,18 +60,59 @@ devices = {'sampleNum' : '/sample/sampleNum'}
 
 reset_trip = '/instrument/detector/reset_trip'
 
+def getHistmemTextstatus(name):
+    i = 0
+    while True:
+        try:
+            return str(sics.run_command('histmem textstatus ' + name))
+
+        except:
+            i += 1
+            if i < 3:
+                time.sleep(1)
+            else:
+                raise
+
+def hasTripped():
+    try:
+
+        '''
+        textstatus = eval("{" + str(sics.run_command("histmem textstatus")) + "}")
+
+        trip     = int(textstatus['detector_protect_num_trip'])
+        trip_ack = int(textstatus['detector_protect_num_trip_ack'])
+        '''
+
+        trip     = int(getHistmemTextstatus('detector_protect_num_trip'))
+        trip_ack = int(getHistmemTextstatus('detector_protect_num_trip_ack'))
+        
+        value = trip != trip_ack
+        
+        if value :
+            log('detector_protect_num_trip != detector_protect_num_trip_ack')
+
+        return value
+
+        #return sics.getValue(reset_trip).getIntData() != 0
+    except Exception as e:
+        log('!!! exception in hasTripped() !!!')
+        log(str(e))
+        return False
+
 def resetTrip():
-    print >> sys.stderr, '!!! detector tripped !!!'
-    log('adjusting attenuation')
+    #print >> sys.stderr, '!!! detector tripped !!!'
+    log('!!! detector tripped !!!')
         
     # drive to higher attenuation
-    driveAtt(getAttValue() + 30)
+    if getAttValue() < 330:
+        log('adjusting attenuation')
+        driveAtt(getAttValue() + 30)
 
     # reset fast shutter
-    raise Exception('detector tripped - reset not supported')
+    # raise Exception('detector tripped - reset not supported')
 
     sics.execute('hset ' + reset_trip + ' 1')
-    time.sleep(5)
+    time.sleep(20)
 
 # Synchronous
 def setSample(position, name='UNKNOWN', description='UNKNOWN', thickness=0, driveSampleStage=True):
@@ -84,9 +125,14 @@ def setSample(position, name='UNKNOWN', description='UNKNOWN', thickness=0, driv
 
 def driveSample(position):
     log('Driving sample holder to position ' + str(position) + ' ...')
+    cur = sics.getValue('sampleNum').getFloatData()
+    if abs(cur - position) < 0.01:
+        log('sampleNum is already at ' + str(position))
+        return
+
     sicsController = sics.getSicsController()
     controller = sicsController.findComponentController(devices['sampleNum'])
-#    controller.drive(position)
+    #    controller.drive(position)
     cnt = 0
     while cnt < 20:
         try:
@@ -97,12 +143,21 @@ def driveSample(position):
             if em.__contains__('Interrupted'):
                 raise e
             time.sleep(0.6)
+
+            log(str(e))
             log('retry driving sampleNum')
+
             time.sleep(1)
             while not sicsController.getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
                 time.sleep(0.3)
             cnt += 1
             sics.handleInterrupt()
+
+            cur = sics.getValue('sampleNum').getFloatData()
+            if abs(cur - position) < 0.01:
+                log('sampleNum is already at ' + str(position))
+                return
+
     if cnt >= 20:
         raise Exception, 'Time out on running sampleNum'
 
@@ -162,17 +217,23 @@ def setSafeAttenuation(startingAttenuation=330):
         local_rate, global_rate = determineAveragedRates(max_samples=5, log_success=False)
         log('local rate = '  + str(local_rate))
         log('global rate = ' + str(global_rate))
+        
+        if (local_rate == 0.0) and (global_rate == 0):
+            log('hasTripped: ' + str(hasTripped()))
+            log('detector_protect_num_trip: ' + str(sics.run_command('histmem textstatus detector_protect_num_trip')))
+            log('detector_protect_num_trip_ack: ' + str(sics.run_command('histmem textstatus detector_protect_num_trip_ack')))
 
         # check if detector has tripped
-        if sics.getValue(reset_trip).getIntData() != 0:
-            while sics.getValue(reset_trip).getIntData() != 0:
-                resetTrip()
-                
-                local_rate, global_rate = determineAveragedRates(max_samples=3, log_success=False)
-                log('local rate = '  + str(local_rate))
-                log('global rate = ' + str(global_rate))
+        if hasTripped():
+            log('increasing attenuation...')
             
-            break;
+            while hasTripped():
+                resetTrip()
+                local_rate, global_rate = determineAveragedRates(max_samples=3, log_success=False)
+                
+            log('local rate = '  + str(local_rate))
+            log('global rate = ' + str(global_rate))
+            break # exit loop
 
         # Too much (check both local and global rate)
         if ((local_rate > local_rateSafe) or (global_rate > global_rateSafe)):
@@ -558,10 +619,11 @@ def scan(scanMode, dataType, preset, force='true', saveType=saveType.save):
             time.sleep(0.1)
             
         # Synchronously run scan
-        if sics.getValue(reset_trip).getIntData() == 0:
+        if not hasTripped():
+            log("starting scan")
             scanController.syncExecute()
-            
-            if sics.getValue(reset_trip).getIntData() == 0:
+
+            if not hasTripped():
                 break; # successful acquisition
 
         resetTrip()
@@ -591,12 +653,12 @@ def driveSafeAttenuation(override=False, startingAttenuation=330):
             driveAtt(att)
 
             time.sleep(3)
-            while sics.getValue(reset_trip).getIntData() != 0:
+            while hasTripped():
                 resetTrip()
-                
                 local_rate, global_rate = determineAveragedRates(max_samples=3, log_success=False)
-                log('local rate = '  + str(local_rate))
-                log('global rate = ' + str(global_rate))
+                
+            log('local rate = '  + str(local_rate))
+            log('global rate = ' + str(global_rate))
 
 def startHistmem():
     # sicsController = sics.getSicsController()
@@ -668,9 +730,15 @@ def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_succe
         global_rate_max = -float('inf')
 
         for i in xrange(max_samples):
+
+            if hasTripped():
+                return 0.0, 0.0
             
             new_local_rate  = getMaxBinRate()
             new_global_rate = getGlobalMapRate()
+
+            if hasTripped():
+                return 0.0, 0.0
             
             start = time.time()
             while (new_local_rate == local_rate) or (new_local_rate == 0) or (new_global_rate == global_rate) or (new_global_rate == 0):
@@ -679,6 +747,9 @@ def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_succe
                 time.sleep(0.5)
                 new_local_rate = getMaxBinRate()
                 new_global_rate = getGlobalMapRate()
+
+                if hasTripped():
+                    return 0.0, 0.0
 
             local_rate  = new_local_rate
             global_rate = new_global_rate
@@ -752,6 +823,15 @@ def findSafeAttenuation(startingAttenuation):
         
     local_rate1, global_rate1 = determineAveragedRates()
     thickness1 = thicknessTable[attenuation1]
+
+    if hasTripped():
+        while hasTripped():
+            resetTrip()
+            local_rate, global_rate = determineAveragedRates(max_samples=3, log_success=False)
+            
+        log('local rate = '  + str(local_rate))
+        log('global rate = ' + str(global_rate))
+        return None # to tell caller that attenuation value is set
     
     log('local rate1 = ' + str(local_rate1))
     log('global rate1 = ' + str(global_rate1))
@@ -763,6 +843,15 @@ def findSafeAttenuation(startingAttenuation):
         
     local_rate2, global_rate2 = determineAveragedRates()
     thickness2 = thicknessTable[attenuation2]
+
+    if hasTripped():
+        while hasTripped():
+            resetTrip()
+            local_rate, global_rate = determineAveragedRates(max_samples=3, log_success=False)
+        
+        log('local rate = '  + str(local_rate))
+        log('global rate = ' + str(global_rate))
+        return None # to tell caller that attenuation value is set
     
     log('local rate2 = ' + str(local_rate2))
     log('global rate2 = ' + str(global_rate2))
@@ -850,24 +939,28 @@ def printQuokkaSettings():
     else:
         runNumber = datafile
     msg = '\n'
-    msg += "*****  Quokka Instrument Settings  *****"
+    msg += "*****  Quokka Instrument Settings  *****\n"
     msg += '\n'
-    msg +=  "    Last Run Number: " + runNumber
-    msg +=  "        Sample Name: " + sics.getValue('samplename').getStringData()
+    msg +=  "    Last Run Number: " + runNumber + '\n'
+    msg +=  "        Sample Name: " + sics.getValue('samplename').getStringData() + '\n'
     msg += '\n'
-    msg +=  "         Attenuator: %.2f degree" % getAttValue()
-    msg +=  " Entrance Aperature: %.2f" % getEntRotApValue()
-    msg +=  "Guide Configuration: " + getGuideConfig()
-    msg +=  "    Sample Position: ???" # + str(getSamplePosition())
+    msg +=  "         Attenuator: %.2f degree" % getAttValue() + '\n'
+    msg +=  " Entrance Aperature: %.2f" % getEntRotApValue() + '\n'
+    msg +=  "Guide Configuration: " + getGuideConfig() + '\n'
+    try:
+        msg +=  "    Sample Position: " + str(getSamplePosition()) + '\n'
+    except:
+        msg +=  "    Sample Position: ???\n"
+
 #    print "        Beam Stop 1: " + getBsPosition(1)
 #    print "        Beam Stop 2: " + getBsPosition(2)
 #    print "        Beam Stop 3: " + getBsPosition(3)
 #    print "        Beam Stop 4: " + getBsPosition(4)
 #    print "        Beam Stop 5: " + getBsPosition(5)
-    msg +=  "        Beam Stop X: %.2f" % getBsxValue()
-    msg +=  "        Beam Stop Z: %.2f" % getBszValue()
-    msg +=  "  Detector Position: %.2f" %getDetPosition()
-    msg +=  "    Detector Offset: %.2f" % getDetOffsetValue()
+    msg +=  "        Beam Stop X: %.2f" % getBsxValue() + '\n'
+    msg +=  "        Beam Stop Z: %.2f" % getBszValue() + '\n'
+    msg +=  "  Detector Position: %.2f" %getDetPosition() + '\n'
+    msg +=  "    Detector Offset: %.2f" % getDetOffsetValue() + '\n'
     msg += '\n'
-    msg +=  "****************************************"
+    msg +=  "****************************************\n"
     log(msg)

@@ -72,7 +72,7 @@ public class RemoteTextDbService {
 	}
 	
 	public void appendClassEntry(String name, String className, String text) throws IOException, RecordsFileException {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss.SSS");
 		String key = name + "-" + dateFormat.format(new Date());
 		appendHtmlEntry(key, (wrapToHtml(key, className, text)));		
 	}
@@ -87,6 +87,7 @@ public class RemoteTextDbService {
 	public synchronized void appendHtmlEntry(String key, String html) throws HttpException {
 		HttpClient httpClient = new HttpClient();
 		PostMethod postMethod = new PostMethod(loggingDbURL + "append");
+		System.err.println(key);
 		postMethod.addParameter("key", key);
 		postMethod.addParameter("html", html);
 		try {

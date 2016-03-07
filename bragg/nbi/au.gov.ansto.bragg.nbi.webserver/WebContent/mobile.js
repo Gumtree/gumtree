@@ -110,7 +110,7 @@ var refresh = function(){
 						$("#runningCode").text(obj.text);
 						try {
 							var ct = obj.content;
-							ct = ct.replace(/\n\n/g, '\n');
+//							ct = ct.replace(/\n\n/g, '\n');
 							var range = obj.range;
 							var items = range.split("=");
 							var newCt = '<div class="div-highlight">' + ct.substring(0, Number(items[2])) + '</div>';

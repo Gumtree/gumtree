@@ -16,12 +16,12 @@ import java.util.List;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.LoopRunner;
 
-import scala.collection.generic.VolatileAbort;
-
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Image;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfPageLabels;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.codec.Base64;
 import com.itextpdf.tool.xml.XMLWorker;
@@ -180,6 +180,10 @@ public class HtmlPDFService {
 		try {
 	        // step 2
 			final PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(targetFile));
+			writer.setPageLabels(new PdfPageLabels());
+			HeaderFooter event = new HeaderFooter();
+	        writer.setBoxSize("art", new Rectangle(36, 54, 559, 788));
+	        writer.setPageEvent(event);
 	        // step 3
 	        document.open();
 	    	thread = new Thread(new Runnable() {
@@ -202,7 +206,6 @@ public class HtmlPDFService {
 				        XMLWorker worker = new XMLWorker(css, true);
 				        XMLParser p = new XMLParser(worker);
 						p.parse(new ByteArrayInputStream(htmlString.getBytes()));
-						System.err.println("finished parsing");
 					} catch (Exception e) {
 						e.printStackTrace();
 					} finally {
@@ -236,4 +239,5 @@ public class HtmlPDFService {
 		}
 		return true;
   }
+    
 }
