@@ -75,6 +75,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String PREFIX_NOTEBOOK_FILES = "Page_";
 	private final static String PROP_INSTRUMENT_ID = "gumtree.instrument.id";
 	private final static String PROP_NOTEBOOK_SAVEPATH = "gumtree.notebook.savePath";
+	private final static String PROP_NOTEBOOK_TABLEEXTENSION = "gumtree.notebook.headerTableExtension";
 	private final static String PROP_DATABASE_SAVEPATH = "gumtree.loggingDB.savePath";
 	private final static String PROP_PDF_FOLDER = "gumtree.notebook.pdfPath";
 	private final static String NOTEBOOK_TEMPLATEFILENAME = "template.xml";
@@ -99,17 +100,20 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private static final String ID_DAE_LOGIN = "gumtree.dae.login";
 	private static final String ID_DAE_PASSWORD = "gumtree.dae.password";
 	private static final String PROPERTY_NOTEBOOK_REPOSITORY_PATH = "gumtree.notebook.gitPath";
+	private static final String EXPERIMENT_TABLE_HTML_EXTENSION = "$EXTENSION";
 	private static final String EXPERIMENT_TABLE_HTML = "<div class=\"class_template_table class_template_object\" id=\"template_ec_1\">"
 			+ "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" class=\"xmlTable\" style=\"table-layout:fixed; width:100%; word-wrap:break-word\"><caption>Experiment Setup</caption>"
-			+ "<tbody><tr><th style=\"width: 40%;\">Start Date</th><td style=\"width: 60%;\">$START_DATE</td></tr><tr><th>End Date</th><td>$END_DATE</td></tr>"
+			+ "<tbody>"
 			+ "<tr><th>Proposal #</th><td>$ID</td></tr><tr><th>Proposal Name</th><td>$EXPERIMENT_TITLE</td></tr>"
+			+ "<tr><th style=\"width: 40%;\">Start Date</th><td style=\"width: 60%;\">$START_DATE</td></tr><tr><th>End Date</th><td>$END_DATE</td></tr>"
 			+ "<tr><th>Principal Scientist</th><td>$PRINCIPAL_SCIENTIST</td></tr><tr><th>Email Address</th><td>$PRINCIPAL_EMAIL</td></tr>"
 			+ "<tr><th>Local Contact</th><td>$LOCAL_CONTACT</td></tr>"
-			+ "<tr><th>Experiment Description</th><td>$TEXT</td></tr><tr><th>Wavelength</th><td>A</td></tr>"
+			+ "<tr><th>Experiment Description</th><td>$TEXT</td></tr>"
 //			+ "<tr><th>Wavelength Resolution</th><td>0.10</td></tr><tr><th>Standard / High res&rsquo;n NVS</th><td>Standard</td></tr>"
 //			+ "<tr><th>Apx softzero</th><td>&nbsp;</td></tr><tr><th>Samx softzero</th><td>&nbsp;</td></tr><tr><th>samy</th><td>&nbsp;</td></tr>"
 //			+ "<tr><th>samz</th><td>&nbsp;</td></tr><tr><th>Sample Environment</th><td>&nbsp;</td></tr><tr><th>T / P / field set-point</th><td>&nbsp;</td></tr>"
 //			+ "<tr><th>Cells used</th><td>&nbsp;</td></tr><tr><th>Sample alignment date</th><td>&nbsp;</td></tr><tr><th>Sensitivity file date</th><td>&nbsp;</td></tr>"
+			+ "$EXTENSION"
 			+ "</tbody></table></div><p/>";
 	
 	private String currentFileFolder;
@@ -556,6 +560,11 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 									contact = space;
 								}
 								tableHtml = tableHtml.replace("$" + ProposalItems.LOCAL_CONTACT.name(), contact);
+								String extension = System.getProperty(PROP_NOTEBOOK_TABLEEXTENSION);
+								if (extension == null) {
+									extension = "";
+								}
+								tableHtml = tableHtml.replace(EXPERIMENT_TABLE_HTML_EXTENSION, extension);
 								html += tableHtml;
 							}
 						}
