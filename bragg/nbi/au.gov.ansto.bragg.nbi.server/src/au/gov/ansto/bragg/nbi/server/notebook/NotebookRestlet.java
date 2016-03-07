@@ -181,7 +181,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		    String sessionId = queryForm.getValues(QUERY_SESSION_ID);
 		    String pageId = queryForm.getValues(QUERY_PAGE_ID);
 		    if (sessionId == null || sessionId.trim().length() == 0) {
-				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.") && !ip.startsWith("0:0")){
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, "The notebook page is not available to the public.");
 					return;
 				}
@@ -219,6 +219,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 			}
 			if (gitService != null) {
 				try {
+					gitService.applyChange();
 					gitService.commit(pageId + ":" + System.currentTimeMillis());
 				} catch (GitException e) {
 					e.printStackTrace();
@@ -235,7 +236,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 			Form queryForm = request.getResourceRef().getQueryAsForm();
 		    String sessionId = queryForm.getValues(QUERY_SESSION_ID);
 		    if (sessionId == null || sessionId.trim().length() == 0) {
-				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.") && !ip.startsWith("0:0")){
 					response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);
 					response.setStatus(Status.SUCCESS_OK);
 					return;
@@ -261,7 +262,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 			Form queryForm = request.getResourceRef().getQueryAsForm();
 		    String sessionId = queryForm.getValues(QUERY_SESSION_ID);
 		    if (sessionId == null || sessionId.trim().length() == 0) {
-				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.") && !ip.startsWith("0:0")){
 					response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);
 					response.setStatus(Status.SUCCESS_OK);
 					return;
@@ -305,7 +306,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		    String sessionId = queryForm.getValues(QUERY_SESSION_ID);
 		    String pattern = queryForm.getValues(QUERY_PATTERN);
 		    if (sessionId == null || sessionId.trim().length() == 0) {
-				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.") && !ip.startsWith("0:0")){
 					response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);
 					response.setStatus(Status.SUCCESS_OK);
 					return;
@@ -351,7 +352,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
     		String targetFilename = null;
 			String expName = String.valueOf(System.currentTimeMillis());
 		    if (sessionId == null || sessionId.trim().length() == 0) {
-				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.") && !ip.startsWith("0:0")){
 					response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);
 					response.setStatus(Status.SUCCESS_OK);
 					return;
@@ -397,7 +398,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				}
     		}
 		} else if (SEG_NAME_CURRENTPAGE.equals(seg)) {
-			if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+			if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.") && !ip.startsWith("0:0")){
 				response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);
 				response.setStatus(Status.SUCCESS_OK);
 				return;
@@ -419,7 +420,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 //		    String fileId = form.getValues(QUERY_SESSION_ID);
 		    String sessionId = form.getValues(QUERY_SESSION_ID);
 		    if (sessionId == null || sessionId.trim().length() == 0) {
-				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.") && !ip.startsWith("0:0")){
 					response.setEntity("<span style=\"color:red\">The database is not available to the public.</span>", MediaType.TEXT_PLAIN);
 					response.setStatus(Status.SUCCESS_OK);
 					return;
@@ -480,7 +481,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 			}
 
 		} else if (SEG_NAME_NEW.equals(seg)) {
-			if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+			if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.") && !ip.startsWith("0:0")){
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, "Notebook management is not available to the public.");
 				return;
 			}
@@ -775,7 +776,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		    String extName = queryForm.getValues(QUERY_EXTNAME_ID);
 		    String targetFilename = null;
 		    if (sessionId == null || sessionId.trim().length() == 0) {
-				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.")){
+				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.") && !ip.startsWith("0:0")){
 					response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);
 					response.setStatus(Status.SUCCESS_OK);
 					return;

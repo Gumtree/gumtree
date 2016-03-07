@@ -5,12 +5,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoFilepatternException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.NoMessageException;
 import org.eclipse.jgit.api.errors.UnmergedPathsException;
@@ -49,10 +53,41 @@ public class GitService {
 		}
 	}
 
+	public void applyChange() throws GitException {
+		if (git != null) {
+
+			AddCommand addCommand = git.add();
+			try {
+				Status status = git.status().call();
+
+				Set<String> modified = status.getModified();
+				Set<String> untracked = status.getUntracked();
+				
+				for (String filePattern : modified) {
+					addCommand.addFilepattern(filePattern);					
+				}
+				for (String filePattern : untracked) {
+					addCommand.addFilepattern(filePattern);					
+				}
+				addCommand.call();
+			} catch (NoFilepatternException e) {
+				e.printStackTrace();
+				throw new GitException("Git error: no file pattern found.", e);
+			} catch (GitAPIException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new GitException("Git error: failed to add.", e);
+			}
+		} else {
+			throw new GitException("Git error: git repository not ready");
+		}
+	}
+	
 	public void commit(String message) throws GitException {
 		if (git != null) {
 			CommitCommand commit = git.commit();
 			try {
+				commit.setAuthor("gumtree","gumtree@ansto.gov.au");
 				commit.setMessage(message).call();
 			} catch (NoHeadException e) {
 				throw new GitException("Git error: no head found.", e);
@@ -68,7 +103,7 @@ public class GitService {
 				throw new GitException("Git error: illegal API.", e);
 			}
 		} else {
-			throw new GitException("git repository not ready");
+			throw new GitException("Git error: git repository not ready");
 		}
 	}
 
@@ -96,6 +131,10 @@ public class GitService {
 			treewalk.setRecursive(true);
 			treewalk.setFilter(PathFilter.create(path));
 			if (treewalk != null) {
+				if (path.endsWith(treewalk.getPathString())) {
+					byte[] data = reader.open(treewalk.getObjectId(0)).getBytes();
+					return new String(data, "utf-8");
+				}
 				while (treewalk.next()) {
 					if (path.endsWith(treewalk.getPathString())) {
 						byte[] data = reader.open(treewalk.getObjectId(0)).getBytes();
@@ -212,7 +251,7 @@ public class GitService {
 //			        System.err.println(diff);
 //			}
 			DiffCommand diff = git.diff().setShowNameAndStatusOnly(true)
-					.setPathFilter(PathFilter.create("Page_2015-12-01T16-17-25.xml"))
+//					.setPathFilter(PathFilter.create("Page_2015-12-01T16-17-25.xml"))
 					.setOldTree(getTreeIterator("HEAD^^"))
 					.setNewTree(getTreeIterator("HEAD^"));
 			List<DiffEntry> entries = diff.call();
@@ -243,7 +282,7 @@ public class GitService {
 	
 	public String getDiff() {
 		String ret = "";
-		String oldHash = "05b36deb504b7c72c086448ff6fd7ba1cc91a12d";
+		String oldHash = "3d8822fbb37dbc96df7ccc6d296ae4c966782850";
 
 		try {
 			ObjectId headId = git.getRepository().resolve("HEAD^{tree}");
