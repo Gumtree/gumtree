@@ -439,6 +439,9 @@ public class ChartMaskingUtilities {
 	public static void drawMasks(Graphics2D g2,
 			Rectangle2D imageArea, LinkedHashMap<AbstractMask, Color> maskList,
 			AbstractMask selectedMask, JFreeChart chart, double fontSizeRate) {
+		if (maskList == null){
+			return;
+		}
 		for (Entry<AbstractMask, Color> maskEntry : maskList.entrySet()) {
 			AbstractMask mask = maskEntry.getKey();
 			if (mask instanceof Abstract2DMask) {
@@ -475,6 +478,9 @@ public class ChartMaskingUtilities {
 
 	public static void drawShapes(Graphics2D g2, Rectangle2D imageArea,
 			LinkedHashMap<Shape, Color> shapeList, JFreeChart chart) {
+		if (shapeList == null) {
+			return;
+		}
 		for (Entry<Shape, Color> shapeEntry : shapeList.entrySet()) {
 			Shape shape = shapeEntry.getKey();
 			Color color = shapeEntry.getValue();

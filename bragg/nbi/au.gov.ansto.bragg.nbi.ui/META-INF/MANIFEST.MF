@@ -9,6 +9,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
 Export-Package: au.gov.ansto.bragg.nbi.ui.core,
  au.gov.ansto.bragg.nbi.ui.core.commands,
+ au.gov.ansto.bragg.nbi.ui.image,
  au.gov.ansto.bragg.nbi.ui.launchers,
  au.gov.ansto.bragg.nbi.ui.preference,
  au.gov.ansto.bragg.nbi.ui.realtime,

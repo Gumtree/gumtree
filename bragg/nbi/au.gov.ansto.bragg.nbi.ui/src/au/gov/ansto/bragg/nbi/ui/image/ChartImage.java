@@ -1,7 +1,7 @@
 /**
  * 
  */
-package au.gov.ansto.bragg.nbi.server.image;
+package au.gov.ansto.bragg.nbi.ui.image;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
