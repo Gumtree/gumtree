@@ -2133,7 +2133,7 @@ public class ScriptControlViewer extends Composite {
 				final ProgressBar progressBar = new ProgressBar(parent, SWT.HORIZONTAL | SWT.NULL);
 				progressBar.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
 				GridDataFactory.fillDefaults().grab(true, false).minSize(labelWidth, 0).hint(width, height)
-					.span(parameterColspan > 2 ? parameterColspan : 2, parameterRowspan).applyTo(progressBar);
+					.span(parameterColspan * 2, parameterRowspan).applyTo(progressBar);
 				if (isHighlight) {
 					progressBar.setForeground(highlightColor);
 				}
