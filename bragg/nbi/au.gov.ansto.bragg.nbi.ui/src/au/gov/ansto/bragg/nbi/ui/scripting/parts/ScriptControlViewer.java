@@ -2137,6 +2137,16 @@ public class ScriptControlViewer extends Composite {
 				if (isHighlight) {
 					progressBar.setForeground(highlightColor);
 				}
+				if (parameter.getProperty("max") != null) {
+					try {
+						progressBar.setMaximum(Integer.valueOf(parameter.getProperty("max")));
+						if (parameter.getProperty("selection") != null) {
+							progressBar.setSelection(Integer.valueOf(parameter.getProperty("selection")));
+						}						
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+				}
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 //						DataBindingContext bindingContext = new DataBindingContext();

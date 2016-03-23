@@ -283,8 +283,8 @@ def run_command(cmd, use_full_feedback = False):
     call_back = __SICS_Callback__(use_full_feedback)
     SicsCore.getDefaultProxy().send(cmd, call_back)
     acc_time = 0
-#    while call_back.__status__ is None and acc_time < 2:
-    while call_back.__status__ is None:
+    while call_back.__status__ is None and acc_time < 20:
+#    while call_back.__status__ is None:
         time.sleep(0.2)
         acc_time += 0.2
     if call_back.__status__ is None:

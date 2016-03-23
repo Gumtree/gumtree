@@ -1,5 +1,6 @@
 var title = "Bilby";
 var batchEnabled = false;
+var timeEstimationEnabled = true;
 var sampleMap = [
 					250,
 					210.500,
