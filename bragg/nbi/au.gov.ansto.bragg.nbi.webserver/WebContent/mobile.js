@@ -29,15 +29,16 @@ function changeHistmemType() {
 		newHistmemUrl = histmemUrl;
 	}
 	newHistmemUrl += "&timestamp=" + new Date().getTime()
-
-	try{
-		$.get(newHistmemUrl, function(data,status){
-			if (status == "success") {
-				$("#histmemImage").attr("src", newHistmemUrl);
-			} 
-		});
-	} catch (e) {
-	}
+	
+	$("#histmemImage").attr("src", newHistmemUrl);
+//	try{
+//		$.get(newHistmemUrl, function(data,status){
+//			if (status == "success") {
+//				$("#histmemImage").attr("src", newHistmemUrl);
+//			} 
+//		});
+//	} catch (e) {
+//	}
 }
 
 var lastTimeEstimation = -1.;
@@ -382,7 +383,7 @@ jQuery(document).ready(function(){
 				html += '</select><br>';
 				newHistmemUrl = histmemUrl.replace('$HISTMEM_TYPE', defaultType);
 			}
-			$("#histmemDiv").html(html + '<img id="histmemImage" src="' + newHistmemUrl + '" alt="Loading error. Please refresh again.">');
+			$("#histmemDiv").html(html + '<img id="histmemImage" src="' + newHistmemUrl + '" alt="Waiting for the picture to get ready, or refresh again.">');
 		}
 	}
 	
