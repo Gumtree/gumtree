@@ -61,7 +61,7 @@ jQuery(document).ready(function(){
 	var html = "";
 	if (typeof histmemTypes !== 'undefined' && histmemTypes.length > 0) {
 		var defaultType = histmemTypes[0].id;
-		html = '<label for="histmem_type" class="select">Select histogram type: </label><select id="histmem_type" name="histmem_type" onchange="changeHistmemType()">';
+		html = '<label for="histmem_type" class="select">Select histogram type (log view): </label><select id="histmem_type" name="histmem_type" onchange="changeHistmemType()">';
 		for ( var i = 0; i < histmemTypes.length; i++) {
 			html += '<option value="' + histmemTypes[i].id + '"' + (histmemTypes[i].isDefault ? ' selected' : '') + '>' + histmemTypes[i].text + '</option>';
 			if (histmemTypes[i].isDefault) {

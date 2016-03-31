@@ -66,8 +66,8 @@ var devices = [
                },
                {"group":"VELOCITY SELECTOR", 
             	   "items":[{"classId":"vs_pos", "deviceId":"vs_pos", "title":"position", "units":""},
-            	            {"classId":"vs_lambda", "deviceId":"vs_lambda", "title":"wavelength", "units":"\u212B", "decimal":2},
-            	            {"classId":"vs_speed", "deviceId":"vs_speed", "title":"speed", "units":"rpm", "decimal":0}
+            	            {"classId":"vs_lambda", "deviceId":"/instrument/nvs067/lambda", "title":"wavelength", "units":"\u212B", "decimal":1},
+            	            {"classId":"vs_speed", "deviceId":"/instrument/nvs067/actspeed", "title":"speed", "units":"rpm", "decimal":1}
             	            ]
                },
                {"group":"CHOPPERS", 
@@ -75,12 +75,12 @@ var devices = [
             	            {"classId":"t0_chopper_freq", "deviceId":"t0_chopper_freq", "title":"T0_chopper_frequency", "units":"Hz", "decimal":2},
             	            {"classId":"master1_chopper_id", "deviceId":"master1_chopper_id", "title":"master1_chopper_id", "units":""},
             	            {"classId":"master2_chopper_id", "deviceId":"master2_chopper_id", "title":"master2_chopper_id", "units":""},
-            	            {"classId":"master_chopper_freq", "deviceId":"master_chopper_freq", "title":"master_chopper_frequency", "units":"Hz", "decimal":2},
-            	            {"classId":"gs_l1", "deviceId":"gs_l1", "title":"L1", "units":"mm", "decimal":1}
+            	            {"classId":"master_chopper_freq", "deviceId":"master_chopper_freq", "title":"master_chopper_frequency", "units":"Hz", "decimal":2}
             	            ]
                },
-               {"group":"DETECTOR", 
-            	   "items":[{"classId":"gs_l2_curtainl", "deviceId":"gs_l2_curtainl", "title":"L2_curtaindet_left", "units":"mm", "decimal":1},
+               {"group":"DETECTORS", 
+            	   "items":[{"classId":"gs_l1", "deviceId":"gs_l1", "title":"L1", "units":"mm", "decimal":1},
+            	            {"classId":"gs_l2_curtainl", "deviceId":"gs_l2_curtainl", "title":"L2_curtaindet_left", "units":"mm", "decimal":1},
             	            {"classId":"gs_l2_curtainr", "deviceId":"gs_l2_curtainr", "title":"L2_curtaindet_right", "units":"mm", "decimal":1},
             	            {"classId":"gs_l2_curtainu", "deviceId":"gs_l2_curtainu", "title":"L2_curtaindet_up", "units":"mm", "decimal":1},
             	            {"classId":"gs_l2_curtaind", "deviceId":"gs_l2_curtaind", "title":"L2_curtaindet_down", "units":"mm", "decimal":1},
@@ -115,11 +115,11 @@ var nsItems = [
                ];
 
 //var histmemUrl = "dae/rest/image?type=TOTAL_HISTOGRAM_XY&screen_size_x=800&screen_size_y=600";
-var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE&screen_size_x=800&screen_size_y=600";
+var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE&screen_size_x=800";
 
 var histmemTypes = [
-                    {"id" : "TOTAL_HISTOGRAM_XY", "text" : "Total x-y histogram"},
-                    {"id" : "TOTAL_HISTOGRAM_XT", "text" : "Total x-t histogram", "isDefault" : true},
+                    {"id" : "TOTAL_HISTOGRAM_XY", "text" : "Total x-y histogram", "isDefault" : true},
+                    {"id" : "TOTAL_HISTOGRAM_XT", "text" : "Total x-t histogram"},
                     {"id" : "TOTAL_HISTOGRAM_YT", "text" : "Total y-t histogram"},
                     {"id" : "TOTAL_HISTOGRAM_X", "text" : "Total x histogram"},
                     {"id" : "TOTAL_HISTOGRAM_Y", "text" : "Total y histogram"},
