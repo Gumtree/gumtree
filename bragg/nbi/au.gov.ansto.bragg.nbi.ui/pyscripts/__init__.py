@@ -156,7 +156,7 @@ def set_prof_value(name, value):
 def save_pref():
     __UI__.savePreferenceStore()
 
-def __dataset_added__():
+def __dataset_added__(fns = None):
     pass
 
 __selected_dataset__ = []
