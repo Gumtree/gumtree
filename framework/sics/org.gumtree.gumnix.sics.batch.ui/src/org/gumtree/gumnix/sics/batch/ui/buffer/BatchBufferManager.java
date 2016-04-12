@@ -213,8 +213,6 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		// Listen to interrupt event
 		sicsListener = new ISicsListener() {
 			public void interrupted(int level) {
-				System.err.println("******************" + level);
-
 				if (level >= 3) {
 					// Batch is interrupt with level 3 or above
 					setStatus(BatchBufferManagerStatus.IDLE);
