@@ -20,7 +20,7 @@
 		<bilby.path>../../bilby</bilby.path>
 		<dingo.path>../../dingo</dingo.path>
 		<emu.path>../../emu</emu.path>
-		<banksia.path>../../banksia</emu.path>
+		<banksia.path>../../banksia</banksia.path>
 		<build.path>../../build</build.path>
 	</properties>
 
