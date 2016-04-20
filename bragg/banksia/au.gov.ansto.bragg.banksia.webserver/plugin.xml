@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.equinox.http.registry.resources">
+      <resource
+            alias="/"
+            base-name="/WebContent/banksia.html">
+      </resource>
+      <resource
+            alias="/banksia.html"
+            base-name="/WebContent/banksia.html">
+      </resource>
+      <resource
+            alias="/banksia.swf"
+            base-name="/WebContent/.swf">
+      </resource>
+      <resource
+            alias="/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/assets/bilby_model.JPG"
+            base-name="/WebContent/assets/bilby_model.JPG">
+      </resource>
+   </extension>
+
+</plugin>

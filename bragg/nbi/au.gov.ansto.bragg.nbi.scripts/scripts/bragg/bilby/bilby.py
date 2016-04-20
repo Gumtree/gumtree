@@ -11,7 +11,14 @@ Out = 'OUT'
 out = 'OUT'
 R100 = 'R100'
 S40 = 'S40'
+
+D90 = 'D90'
+D80 = 'D80'
+D70 = 'D70'
+D60 = 'D60'
+D50 = 'D50'
 D40 = 'D40'
+D30 = 'D30'
 D20 = 'D20'
 D10 = 'D10'
 
@@ -240,40 +247,28 @@ class DetectorSystem :
 Detector = DetectorSystem()
 
 def bs3(val = None):
-    if not val is None:
-        if val.upper() == 'IN':
-            sics.drive('bs3', 65)
-        elif val.upper() == 'OUT':
-            sics.drive('bs3', 0)
-    cur = sics.get_raw_value('bs3')
-    if cur >= 63 and cur <= 67:
-        return 'IN'
-    else :
-        return 'OUT'
+    return __bs__(3, val)
     
 def bs4(val = None):
-    if not val is None:
-        if val.upper() == 'IN':
-            sics.drive('bs4', 65)
-        elif val.upper() == 'OUT':
-            sics.drive('bs4', 0)
-    cur = sics.get_raw_value('bs4')
-    if cur >= 63 and cur <= 67:
-        return 'IN'
-    else :
-        return 'OUT'
+    return __bs__(4, val)
 
 def bs5(val = None):
+    return __bs__(5, val)
+
+def __bs__(id, val = None):
+    bs_name = 'bs' + str(id)
     if not val is None:
-        if val.upper() == 'IN':
-            sics.drive('bs5', 65)
-        elif val.upper() == 'OUT':
-            sics.drive('bs5', 0)
-    cur = sics.get_raw_value('bs5')
+        if type(obj) is int or type(obj) is float:
+            sics.drive(bs_name, val)
+        elif str(val).upper() == 'IN':
+            sics.drive(bs_name, 65)
+        elif str(val).upper() == 'OUT':
+            sics.drive(bs_name, 0)
+    cur = sics.get_raw_value(bs_name)
     if cur >= 63 and cur <= 67:
         return 'IN'
     else :
-        return 'OUT'
+        return 'OUT'    
 
 def bs_att(bs_num, bs_angle, att_num):
     

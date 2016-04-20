@@ -234,7 +234,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				try {
 					gitService.applyChange();
 					gitService.commit(pageId + ":" + System.currentTimeMillis());
-				} catch (GitException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
