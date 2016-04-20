@@ -35,12 +35,12 @@ public class BanksiaWorkbenchSetup implements IStartup {
 	private static Logger logger = LoggerFactory.getLogger(BanksiaWorkbenchSetup.class);
 	
 	public void earlyStartup() {
-		String launchBilbyLayout = System.getProperty(PROP_START_EXP_LAYOUT, "false");
-		// [GT-73] Launch Bilby layout if required
-		if (Boolean.parseBoolean(launchBilbyLayout)) {
+		String launchBanksiaLayout = System.getProperty(PROP_START_EXP_LAYOUT, "false");
+		// [GT-73] Launch Banksia layout if required
+		if (Boolean.parseBoolean(launchBanksiaLayout)) {
 			SafeUIRunner.asyncExec(new ISafeRunnable() {
 				public void handleException(Throwable exception) {
-					logger.error("Failed to launch Bilby workbench layout during early startup.", exception);
+					logger.error("Failed to launch Banksia workbench layout during early startup.", exception);
 				}
 				public void run() throws Exception {
 					final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
@@ -103,7 +103,7 @@ public class BanksiaWorkbenchSetup implements IStartup {
 					
 					if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
 						// open new window as editor buffer
-						mmManager.openWorkbenchWindow(BanksiaWorkflowPerspective.ID_BILBY_WORKFLOW_PERSPECTIVE, 1, true);
+						mmManager.openWorkbenchWindow(BanksiaWorkflowPerspective.ID_BANKSIA_WORKFLOW_PERSPECTIVE, 1, true);
 					}
 					
 //					mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_ANALYSIS, 1, 1, mmManager.isMultiMonitorSystem());
@@ -112,7 +112,7 @@ public class BanksiaWorkbenchSetup implements IStartup {
 		} else {
 			SafeUIRunner.asyncExec(new ISafeRunnable() {
 				public void handleException(Throwable exception) {
-					logger.error("Failed to launch Bilby workbench layout during early startup.", exception);
+					logger.error("Failed to launch Banksia workbench layout during early startup.", exception);
 				}
 				public void run() throws Exception {
 					final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
