@@ -186,6 +186,15 @@
    <feature url="features/au.gov.ansto.bragg.emu.workbench.feature_1.12.0.qualifier.jar" id="au.gov.ansto.bragg.emu.workbench.feature" version="1.12.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
+   <feature url="features/au.gov.ansto.bragg.bilby.core.feature_1.12.0.qualifier.jar" id="au.gov.ansto.bragg.banksia.core.feature" version="1.12.0.qualifier">
+      <category name="braggExtensions"/>
+   </feature>
+   <feature url="features/au.gov.ansto.bragg.bilby.webserver.feature_1.12.0.qualifier.jar" id="au.gov.ansto.bragg.banksia.webserver.feature" version="1.12.0.qualifier">
+      <category name="braggExtensions"/>
+   </feature>
+   <feature url="features/au.gov.ansto.bragg.bilby.workbench.feature_1.12.0.qualifier.jar" id="au.gov.ansto.bragg.banksia.workbench.feature" version="1.12.0.qualifier">
+      <category name="braggExtensions"/>
+   </feature>
    <feature url="features/au.gov.ansto.bragg.extensions.sources.feature_1.12.0.qualifier.jar" id="au.gov.ansto.bragg.extensions.sources.feature" version="1.12.0.qualifier">
       <category name="gumtreeInfrastructure"/>
    </feature>
