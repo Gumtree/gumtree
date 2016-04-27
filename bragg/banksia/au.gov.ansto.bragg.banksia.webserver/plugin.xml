@@ -13,7 +13,7 @@
       </resource>
       <resource
             alias="/banksia.swf"
-            base-name="/WebContent/.swf">
+            base-name="/WebContent/banksia.swf">
       </resource>
       <resource
             alias="/instrumentsetup.js"

@@ -5,7 +5,7 @@ instructions.install = \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configEnv.instr=banksia); \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configEnv.env=prod); \
 	addJvmArg(jvmArg:-Dgumtree.runtime.configEnv.mode=experiment); \
-	addJvmArg(jvmArg:-Dgumtree.sics.role=user); \
+	addJvmArg(jvmArg:-Dgumtree.sics.role=manager); \
 	addJvmArg(jvmArg:-Xdebug); \
 	addJvmArg(jvmArg:-Xrunjdwp:transport=dt_socket${#44}server=y${#44}suspend=n${#44}address=63372); \
 	addJvmArg(jvmArg:-Xmx800m);

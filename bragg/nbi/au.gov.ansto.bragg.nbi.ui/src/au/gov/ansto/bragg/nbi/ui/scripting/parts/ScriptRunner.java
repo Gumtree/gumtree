@@ -155,7 +155,7 @@ public class ScriptRunner {
 			
 			@Override
 			public void run() {
-				FileDialog dialog = new FileDialog(shell, SWT.SINGLE);
+				FileDialog dialog = new FileDialog(shell, SWT.SAVE);
  				if (fileDialogPath == null){
  					IWorkspace workspace= ResourcesPlugin.getWorkspace();
  					IWorkspaceRoot root = workspace.getRoot();
