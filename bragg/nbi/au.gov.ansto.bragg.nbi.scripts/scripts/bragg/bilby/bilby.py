@@ -61,8 +61,16 @@ def att(val = None):
         sics.drive('att', val)
     return sics.get_raw_value('att')
 
-def nguide(val1 = '', val2 = '', val3 = ''):
-    return sics.get_raw_feedback('nguide ' + str(val1) + ' ' + str(val2) + ' ' + str(val3))
+def nguide(val1, val2, val3):
+    if not type(val1) is int or val1 < 1 or val1 > 8 :
+        raise Exception, 'first parameter must be an integer between 1 and 8'
+    v2 = str(val2).upper()
+    if v2 != 'D10' and v2 != 'D20' and v2 != 'D40' and v2 != 'S40' and v2 != 'R100' :
+        raise Exception, 'second parameter must select from the list [D10, D20, D40, S40, R100]'
+    v3 = str(val3).upper()
+    if v3 != 'D10' and v3 != 'D20' and v3 != 'D40' and v3 != 'S40' and v3 != 'R100' :
+        raise Exception, 'third parameter must select from the list [D10, D20, D40, S40, R100]'
+    return sics.get_raw_feedback('nguide ' + str(val1) + ' ' + str(v2) + ' ' + str(v3))
 
 def sapmot(val = None):
     if not val is None:
