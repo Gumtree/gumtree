@@ -259,6 +259,14 @@ class __SICS_Callback__(SicsCallbackAdapter):
         self.__status__ = None
         self.__use_full_feedback__ = use_full_feedback
     
+    def receiveError(self, data):
+        self.__status__ = data.getString()
+        self.setCallbackCompleted(True)
+    
+    def receiveFinish(self, data):
+        self.__status__ = data.getString()
+        self.setCallbackCompleted(True)
+        
     def receiveReply(self, data):
         try:
             rt = data.getString()
@@ -276,6 +284,7 @@ class __SICS_Callback__(SicsCallbackAdapter):
             self.__status__ = status
             self.setCallbackCompleted(True)
         except:
+            self.__status__ = data
             traceback.print_exc(file = sys.stdout)
             self.setCallbackCompleted(True)
 
@@ -283,8 +292,8 @@ def run_command(cmd, use_full_feedback = False):
     call_back = __SICS_Callback__(use_full_feedback)
     SicsCore.getDefaultProxy().send(cmd, call_back)
     acc_time = 0
-    while call_back.__status__ is None and acc_time < 20:
-#    while call_back.__status__ is None:
+#    while call_back.__status__ is None and acc_time < 20:
+    while call_back.__status__ is None:
         time.sleep(0.2)
         acc_time += 0.2
     if call_back.__status__ is None:
