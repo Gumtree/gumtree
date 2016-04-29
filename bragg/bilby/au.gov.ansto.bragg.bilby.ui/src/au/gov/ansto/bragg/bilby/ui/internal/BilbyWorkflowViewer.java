@@ -19,7 +19,7 @@ import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptInfoViewer;
 
 public class BilbyWorkflowViewer extends Composite {
 
-	private static ScriptExecutor Jython_Executor;
+	private ScriptExecutor Jython_Executor;
 	private static final String WORKFLOW_SCRIPT_NAME = "gumtree.bilby.workflowScript";
 	
 	private ScriptControlViewer controlViewer;
@@ -74,7 +74,6 @@ public class BilbyWorkflowViewer extends Composite {
 	}
 
 	private void createControlArea(SashForm parent) {
-		// TODO Auto-generated method stub
 		ScriptExecutor scriptExecutor = getScriptExecutor();
 		consoleViewer = new CommandLineViewer();
 		try {
@@ -104,14 +103,22 @@ public class BilbyWorkflowViewer extends Composite {
 	}
 
 	public ScriptExecutor getScriptExecutor(){
-		if (Jython_Executor == null || Jython_Executor.getEngine() == null) {
+//		if (Jython_Executor == null || Jython_Executor.getEngine() == null) {
 			Jython_Executor = new ScriptExecutor("jython");
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 			}
-		}
+//		}
 		return Jython_Executor;
 	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+		if (Jython_Executor != null) {
+			Jython_Executor.interrupt();
+			Jython_Executor = null;
+		}
+	}
 }

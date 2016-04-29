@@ -8,12 +8,14 @@ import org.eclipse.ui.part.ViewPart;
 
 public class BilbyWorkflowView extends ViewPart {
 
+	private BilbyWorkflowViewer viewer;
+	
 	public BilbyWorkflowView() {
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-		BilbyWorkflowViewer viewer = new BilbyWorkflowViewer(parent, SWT.NONE);
+		viewer = new BilbyWorkflowViewer(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().applyTo(viewer);
 	}
 
@@ -21,4 +23,12 @@ public class BilbyWorkflowView extends ViewPart {
 	public void setFocus() {
 	}
 
+	@Override
+	public void dispose() {
+		// TODO Auto-generated method stub
+		super.dispose();
+		if (viewer != null) {
+			viewer.dispose();
+		}
+	}
 }
