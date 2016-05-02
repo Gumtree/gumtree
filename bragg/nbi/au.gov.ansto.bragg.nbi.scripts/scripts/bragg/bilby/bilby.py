@@ -62,8 +62,8 @@ def att(val = None):
     return sics.get_raw_value('att')
 
 def nguide(val1, val2, val3):
-    if not type(val1) is int or val1 < 1 or val1 > 8 :
-        raise Exception, 'first parameter must be an integer between 1 and 8'
+    if not type(val1) is int or val1 < 0 or val1 > 8 :
+        raise Exception, 'first parameter must be an integer between 0 and 8'
     v2 = str(val2).upper()
     if v2 != 'D10' and v2 != 'D20' and v2 != 'D40' and v2 != 'S40' and v2 != 'R100' :
         raise Exception, 'second parameter must select from the list [D10, D20, D40, S40, R100]'
@@ -266,7 +266,7 @@ def bs5(val = None):
 def __bs__(id, val = None):
     bs_name = 'bs' + str(id)
     if not val is None:
-        if type(obj) is int or type(obj) is float:
+        if type(val) is int or type(val) is float:
             sics.drive(bs_name, val)
         elif str(val).upper() == 'IN':
             sics.drive(bs_name, 65)
