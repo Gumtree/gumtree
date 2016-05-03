@@ -8,12 +8,14 @@ import org.eclipse.ui.part.ViewPart;
 
 public class BanksiaWorkflowView extends ViewPart {
 
+	private BanksiaWorkflowViewer viewer;
+	
 	public BanksiaWorkflowView() {
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-		BanksiaWorkflowViewer viewer = new BanksiaWorkflowViewer(parent, SWT.NONE);
+		viewer = new BanksiaWorkflowViewer(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().applyTo(viewer);
 	}
 
@@ -21,4 +23,12 @@ public class BanksiaWorkflowView extends ViewPart {
 	public void setFocus() {
 	}
 
+	@Override
+	public void dispose() {
+		// TODO Auto-generated method stub
+		super.dispose();
+		if (viewer != null) {
+			viewer.dispose();
+		}
+	}
 }
