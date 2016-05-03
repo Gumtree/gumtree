@@ -46,11 +46,19 @@ class NotebookLogger():
     def log_plot(self, plot, name = None, footer = None):
         if name == None:
             name = "Scripting plot"
-        try:
-            self.logger.appendImageEntry(name, plot.pv.getPlot().getImage(), footer)
-        except:
-            print 'failed to send plot to notebook db'
-        
+        if not plot is None and hasattr(plot, 'pv') :
+            try:
+                self.logger.appendImageEntry(name, plot.pv.getPlot().getImage(), footer)
+            except:
+                print 'failed to send plot to notebook db'
+        elif not plot is None and hasattr(plot, 'cache') :
+            try:
+                from org.apache.commons.codec.binary import Base64
+                from java.lang import String
+                self.logger.appendImageEntry(name, String(Base64.encodeBase64(plot.cache.getImageCache())), footer)
+            except:
+                print 'failed to send plot to notebook db'
+            
     def log_table(self, table, name = None):
         if name == None:
             name = "Scripting table"
