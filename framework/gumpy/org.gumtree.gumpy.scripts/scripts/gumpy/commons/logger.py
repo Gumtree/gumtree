@@ -47,11 +47,17 @@ class NotebookLogger():
         if name == None:
             name = "Scripting plot"
         if not plot is None and hasattr(plot, 'pv') :
+            if footer is None:
+                if hasattr(plot, 'title'):
+                    footer = plot.title
             try:
                 self.logger.appendImageEntry(name, plot.pv.getPlot().getImage(), footer)
             except:
                 print 'failed to send plot to notebook db'
         elif not plot is None and hasattr(plot, 'cache') :
+            if footer is None:
+                if hasattr(plot, 'title'):
+                    footer = plot.title
             try:
                 from org.apache.commons.codec.binary import Base64
                 from java.lang import String

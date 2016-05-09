@@ -2,6 +2,7 @@ var historyIdx = -1;
 var commandHistory = [];
 var selectedFiles = [];
 var isGuiView = false;
+var pythonEditor = null;
 
 //var userUrl = "jython/user?type=INFO";
 //$.get(userUrl,function(data,status){
@@ -231,8 +232,14 @@ function runScript(){
     if (isGuiView) {
         sendJython("__run_script__(__get_selected_files__())");
     } else {
+    	var form;
+    	if (pythonEditor != null) {
+        	form = { script_text: pythonEditor.getValue(), script_input: "textArea" }
+    	} else {
+    		form = $("form#script_form").serialize();
+    	}
         var postUrl = jythonUrl + "?type=START";
-        $.post( postUrl, $("form#script_form").serialize(), function(data, status) {
+        $.post( postUrl, form, function(data, status) {
             if (status == "success") {
                 processStatus(data);
                 if (data['status'] == "BUSY"){
@@ -302,7 +309,11 @@ function loadScript(script) {
 		$.get(getUrl, function(data, status) {
 			if (status == "success") {
 				$("#jython_file").val("");
-				$("#script_text").val(data);
+				if (pythonEditor != null) {
+					pythonEditor.setValue(data);
+				} else {
+					$("#script_text").val(data);
+				}
 				createGui();
 			}
 		})
@@ -311,7 +322,11 @@ function loadScript(script) {
 		});
 		setAjaxBusyEnabled(false);
 	} else {
-        $("#script_text").val("");
+		if (pythonEditor != null) {
+			pythonEditor.setValue("");
+		} else {
+			$("#script_text").val("");
+		}
     }
 }
 
@@ -512,8 +527,14 @@ $(function() {
 });
 
 function createGui(){
+	var form;
+	if (pythonEditor != null) {
+    	form = { script_text: pythonEditor.getValue(), script_input: "textArea" }
+	} else {
+		form = $("form#script_form").serialize();
+	}
     var postUrl = jythonUrl + "?type=GUI";
-    $.post( postUrl, $("form#script_form").serialize(), function(data, status) {
+    $.post( postUrl, form, function(data, status) {
         if (status == "success") {
             $("#div_script_gui").html(data['html']);
             processStatus(data);
@@ -545,6 +566,19 @@ jQuery(document).ready(function(){
         }
 	});
     
+	if (!(navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0)) {
+		pythonEditor = CodeMirror.fromTextArea(document.getElementById("script_text"), {
+			mode: {name: "text/x-cython",
+				version: 2,
+				singleLineStringErrors: false},
+				lineNumbers: true,
+				indentWithTabs: true,
+				indentUnit: 4,
+				matchBrackets: true
+		});
+		pythonEditor.setSize(null, 370);
+	}
+	
     $("#create_gui").click(function() {
         createGui();
 	});
@@ -684,7 +718,11 @@ jQuery(document).ready(function(){
         //            beforeSend: beforeSendHandler,
                     success: function(data){
                                 $("#script_select").val("");
-                                $('#script_text').val(data);
+                                if (pythonEditor != null) {
+                					pythonEditor.setValue(data);
+                				} else {
+                					$("#script_text").val(data);
+                				}
                             },
                     error:  function(e) {
                                 alert( "error uploading script");
@@ -717,7 +755,11 @@ jQuery(document).ready(function(){
         //            beforeSend: beforeSendHandler,
                     success: function(data){
                                 $("#script_select").val("");
-                                $('#script_text').val(data);
+                                if (pythonEditor != null) {
+                					pythonEditor.setValue(data);
+                				} else {
+                					$("#script_text").val(data);
+                				}
                             },
                     error:  function(e) {
                                 alert( "error uploading script");
@@ -805,12 +847,12 @@ jQuery(document).ready(function(){
     $("#tab_file_area").click();
     window.location = $('#tab_file_area').attr('href');
     
-    getFileList();
     getUserFiles()
     
     getUserInfo();
     
     getScriptList();
     
+//    getFileList();
 });
 

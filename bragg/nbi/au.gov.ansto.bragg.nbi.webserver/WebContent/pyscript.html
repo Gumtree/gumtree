@@ -26,13 +26,16 @@
 <link rel="stylesheet" href="css/button.css" />
 <link rel="stylesheet" href="css/popup.css" />
 <link rel="stylesheet" href="css/pyscript.css" />
+<link rel="stylesheet" href="css/codemirror.css">
 <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
 <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
 <script src="js/jquery.confirm.min.js"></script>
-<script src="js/busy.js"></script>
+<script src="js/busy_light.js"></script>
 <script src="instrumentsetup.js"></script>
 <script src="js/pyscript.js"></script>
 <script src="js/popup.js"></script>
+<script src="js/codemirror.js"></script>
+<script src="js/python_mode.js"></script>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <!--[if IE]>
 <style type="text/css">
@@ -137,7 +140,7 @@
                             <div id="cid_8" class="form-all">
                                 <form action="jython/rest/res?type=START" method="post" name="script_form" id="script_form" accept-charset="utf-8">
                                     <input type="hidden" name="script_input" id="script_input" value="textArea" />
-                                    <textarea id="script_text" name="script_text" cols="40" rows="6" wrap='off'></textarea>
+                                    <textarea id="script_text" name="script_text" cols="40" rows="8" wrap='off'></textarea>
                                 </form>
                             </div>
                         <!--[if IE]><b>.</b><![endif]-->

@@ -46,7 +46,6 @@ import org.restlet.engine.util.Base64;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
 
-import au.gov.ansto.bragg.nbi.server.git.GitException;
 import au.gov.ansto.bragg.nbi.server.git.GitService;
 import au.gov.ansto.bragg.nbi.service.soap.ProposalDBSOAPService;
 import au.gov.ansto.bragg.nbi.service.soap.ProposalDBSOAPService.ProposalItems;

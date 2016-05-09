@@ -56,7 +56,7 @@ public class JythonDataHandler {
 					}
 					html += "<tr" + divClass + "><td><div class=\"div_file_name\">" + file.getName() + "</div><div class=\"div_run_image\" onmousedown=\"sendJython('__selected_files__=[\\\'" + file.getName() + "\\\'];__run_script__(__selected_files__)')\"><img class=\"class_run_image ui-corner-all \" src=\"images/go_button_grey.png\" onmouseover=\"run_image_hover(this);\" onmouseout=\"run_image_unhover(this);\"></div></td></tr>";
 //					html += "<tr" + divClass + "><td class=\"td_run_image\"><div class=\"div_file_name\">" + file.getName() + "</div><div class=\"div_run_image\"></div></td></tr>";
-					fileListCommand += "'" + file.getAbsolutePath() + "',";
+					fileListCommand += "'" + file.getAbsolutePath() + "',\\\n";
 					counter ++;
 				}
 				fileListCommand += "])";
@@ -85,7 +85,7 @@ public class JythonDataHandler {
 					if (file.isDirectory()){
 						continue;
 					}
-					fileListCommand += "'" + file.getAbsolutePath() + "',";
+					fileListCommand += "'" + file.getAbsolutePath() + "',\\\n";
 				}
 			}
 		}

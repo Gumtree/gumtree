@@ -152,7 +152,7 @@ public class JythonExecutor {
 	    		
 	    		dataHandler = new JythonDataHandler();
 	    		loadInitScript();
-	    		executor.runScript(dataHandler.getLoadedDataCommand());
+//	    		executor.runScript(dataHandler.getLoadedDataCommand());
 	    		
 			}
 		}
