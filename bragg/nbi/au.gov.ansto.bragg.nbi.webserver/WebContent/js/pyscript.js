@@ -853,6 +853,6 @@ jQuery(document).ready(function(){
     
     getScriptList();
     
-//    getFileList();
+    getFileList();
 });
 
