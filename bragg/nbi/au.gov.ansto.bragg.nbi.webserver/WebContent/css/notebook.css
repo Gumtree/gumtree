@@ -338,6 +338,8 @@ th {
 #id_div_headertext {
 	float: left;
 	display: inline;
+	max-height: 400px;
+	overflow-y: hidden;
 }
 #id_div_headertext h2{
 	margin-bottom: 0px;

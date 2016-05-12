@@ -127,6 +127,10 @@
             alias="/admin"
             base-name="/WebContent/admin">
       </resource>
+      <resource
+            alias="/workshop.html"
+            base-name="/WebContent/workshop.html">
+      </resource>
    </extension>
 
 </plugin>
