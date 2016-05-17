@@ -116,8 +116,20 @@ public class TaipanRestlet extends Restlet {
 				}
 				INXDataset ds = null;
 				try {
+					IArray dataArray;
 					ds = NexusUtils.readNexusDataset(lastModifiedFile.toURI());
-					IArray dataArray = ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm2_counts").getData();
+					if (ds.getNXroot().getFirstEntry().getGroup("data").getDataItem("total_counts") != null) {
+						dataArray = ds.getNXroot().getFirstEntry().getGroup("data").getDataItem("total_counts").getData();
+						if (ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm1_counts") != null) {
+							IArray bm1_counts = ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm1_counts").getData();
+							if (bm1_counts.getSize() > 0) {
+								double avg = bm1_counts.getArrayMath().sum() * 1.0 / bm1_counts.getSize();
+								dataArray = dataArray.getArrayMath().toScale(avg).eltDivide(bm1_counts).getArray();
+							}
+						}
+					} else {
+						dataArray = ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm2_counts").getData();
+					}
 					INXdata data = ds.getNXroot().getFirstEntry().getData();
 					IAxis hAxis = data.getAxisList().get(0);
 					List<IAxis> axes = data.getAxisList();
