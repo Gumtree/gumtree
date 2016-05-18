@@ -1,5 +1,6 @@
 var timeString = (new Date()).getTime();
 var getUrl;
+var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 //'<img src="../images/edit.png" onclick="edit(\'' + pair[1] + '\')"/>
 
@@ -440,6 +441,7 @@ jQuery(document).ready(function() {
 //				});
 				var html = "";
 				var obj = $.parseJSON(data);
+				var st = [];
 				$.each(obj, function(proposalName, sessions) {
 					var proposalId = proposalName.replace(new RegExp(' ', 'g'), '_');
 					if (Object.keys(sessions).length == 1) {
@@ -450,6 +452,19 @@ jQuery(document).ready(function() {
 						html += '<ul id="' + proposalId + '_ul">' + '<li><a id="' + sessionId + '" onclick="load(\'' + sessionId + '\', \'' 
 							+ pageId + '\', \'' + proposalId + '\')">&nbsp;&nbsp;--&nbsp;' + pageId + '</a></li></ul>';
 						html += '</li>';
+						var d = {
+							page : pageId,
+							session : sessionId,
+							proposal : proposalId
+						};
+						var idx = st.length;
+						for (var i = 0; i < st.length; i ++) {
+							if (pageId.localeCompare(st[i].page) >= 0) {
+								idx = i;
+								break;
+							}
+						}
+						st.splice(idx, 0, d);
 					} else if (Object.keys(sessions).length > 1) {
 						var proposalName = 'Proposal - ' + proposalId;
 						if (proposalId == 'Stand_Alone_Pages') {
@@ -459,6 +474,19 @@ jQuery(document).ready(function() {
 						$.each(sessions, function(sessionId, pageId) {
 							html += '<li><a id="' + sessionId + '" onclick="load(\'' + sessionId + '\', \''
 								+ pageId + '\', \'' + proposalId + '\')">&nbsp;&nbsp;--&nbsp;' + pageId + '</a></li>';
+							var d = {
+									page : pageId,
+									session : sessionId,
+									proposal : proposalId
+							};
+							var idx = st.length;
+							for (var i = 0; i < st.length; i ++) {
+								if (pageId.localeCompare(st[i].page) >= 0) {
+									idx = i;
+									break;
+								}
+							}
+							st.splice(idx, 0, d);
 						});
 						html += '</ul></li>';
 					}					
@@ -480,7 +508,45 @@ jQuery(document).ready(function() {
 						element.siblings('li').find('ul').slideUp();
 					}
 				});
-
+				html = "";
+				if (st.length > 0 ){
+					var g = '';
+					for (var i = 0; i < st.length; i ++) {
+						var d = st[i];
+						var m = d.page.substr(5, 7);
+						if (g != m) {
+							if (g != '') {
+								html += '</ul></li>';
+							}
+							g = m;
+							var gv = monthNames[parseInt(g.substr(5, 2)) - 1] + ' ' + g.substr(0, 4);
+							html += '<li class="active has-sub"><a id="id_month_' + g + '">&nbsp;-&nbsp;' + gv + '</a>' 
+								+ '<ul id="' + g + '_ul">';
+						}
+						html += '<li><a id="' + d.session + '" onclick="load(\'' + d.session + '\', \''
+							+ d.page + '\', \'' + d.proposal + '\')">&nbsp;&nbsp;--&nbsp;' + d.page + '</a></li>';
+					}
+					if (html != '') {
+						html += '</ul></li>';
+					}
+					$("#id_ul_timeSorted").append(html);
+					$('#id_ul_timeSorted li.has-sub>a').on('click', function(){
+						$(this).removeAttr('href');
+						var element = $(this).parent('li');
+						if (element.hasClass('open')) {
+							element.removeClass('open');
+							element.find('li').removeClass('open');
+							element.find('ul').slideUp();
+						} else {
+							element.addClass('open');
+							element.children('ul').slideDown();
+							element.siblings('li').children('ul').slideUp();
+							element.siblings('li').removeClass('open');
+							element.siblings('li').find('li').removeClass('open');
+							element.siblings('li').find('ul').slideUp();
+						}
+					});
+				}
 				$('#id_ul_archiveList>li.has-sub>a').append('<span class="holder"></span>');
 			}
 		}
