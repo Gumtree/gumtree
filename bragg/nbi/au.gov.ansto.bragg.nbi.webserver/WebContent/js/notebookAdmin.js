@@ -1,6 +1,7 @@
 var timeString = (new Date()).getTime();
 var getUrl;
 var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+var curSession = null;
 
 //'<img src="../images/edit.png" onclick="edit(\'' + pair[1] + '\')"/>
 
@@ -66,7 +67,18 @@ function getWord(page, session) {
 	});
 }
 
+function highlight(id) {
+	if (curSession != null) {
+		$('#psort_' + curSession).css("color", "#eee");
+		$('#tsort_' + curSession).css("color", "#eee");
+	}
+	$('#psort_' + id).css("color", "orange");
+	$('#tsort_' + id).css("color", "orange");
+	curSession = id;
+}
+
 function load(id, name, proposal, pattern) {
+	highlight(id);
 	getUrl = "../notebook/load?session=" + id;
 	if (typeof(pattern) !== "undefined") { 
 		 getUrl += "&pattern=" + pattern;
@@ -447,11 +459,14 @@ jQuery(document).ready(function() {
 					if (Object.keys(sessions).length == 1) {
 						var sessionId = Object.keys(sessions)[0];
 						var pageId = sessions[sessionId];
-						html += '<li class="active has-sub"><a id="id_proposal_' + proposalId + '" onclick="load(\'' + sessionId + '\', \'' 
-							+ pageId + '\', \'' + proposalId + '\')">&nbsp;-&nbsp;Proposal - ' + proposalId + '</a>';
-						html += '<ul id="' + proposalId + '_ul">' + '<li><a id="' + sessionId + '" onclick="load(\'' + sessionId + '\', \'' 
+						var part = '';
+//						part += '<li class="active has-sub"><a id="id_proposal_' + proposalId + '" onclick="load(\'' + sessionId + '\', \'' 
+//							+ pageId + '\', \'' + proposalId + '\')">&nbsp;-&nbsp;Proposal - ' + proposalId + '</a>';
+						part += '<li class="active has-sub"><a id="id_proposal_' + proposalId + '">&nbsp;-&nbsp;Proposal - ' + proposalId + '</a>';
+						part += '<ul id="' + proposalId + '_ul">' + '<li><a id="psort_' + sessionId + '" onclick="load(\'' + sessionId + '\', \'' 
 							+ pageId + '\', \'' + proposalId + '\')">&nbsp;&nbsp;--&nbsp;' + pageId + '</a></li></ul>';
-						html += '</li>';
+						part += '</li>';
+						html = part + html;
 						var d = {
 							page : pageId,
 							session : sessionId,
@@ -470,10 +485,12 @@ jQuery(document).ready(function() {
 						if (proposalId == 'Stand_Alone_Pages') {
 							proposalName = 'Stand Alone Pages';
 						}
-						html += '<li class="active has-sub"><a id="id_proposal_' + proposalId + '">&nbsp;-&nbsp;' + proposalName + '</a><ul id="' + proposalId + '_ul">';
+						var part = '';
+						part += '<li class="active has-sub"><a id="id_proposal_' + proposalId + '">&nbsp;-&nbsp;' + proposalName + '</a><ul id="' + proposalId + '_ul">';
+						var sub = '';
 						$.each(sessions, function(sessionId, pageId) {
-							html += '<li><a id="' + sessionId + '" onclick="load(\'' + sessionId + '\', \''
-								+ pageId + '\', \'' + proposalId + '\')">&nbsp;&nbsp;--&nbsp;' + pageId + '</a></li>';
+							sub = '<li><a id="psort_' + sessionId + '" onclick="load(\'' + sessionId + '\', \''
+								+ pageId + '\', \'' + proposalId + '\')">&nbsp;&nbsp;--&nbsp;' + pageId + '</a></li>' + sub;
 							var d = {
 									page : pageId,
 									session : sessionId,
@@ -488,7 +505,12 @@ jQuery(document).ready(function() {
 							}
 							st.splice(idx, 0, d);
 						});
-						html += '</ul></li>';
+						part += sub + '</ul></li>';
+						if (proposalId == 'Stand_Alone_Pages') {
+							html += part;
+						} else {
+							html = part + html;
+						}
 					}					
 				});
 				$("#id_ul_archiveList").append(html);
@@ -523,8 +545,8 @@ jQuery(document).ready(function() {
 							html += '<li class="active has-sub"><a id="id_month_' + g + '">&nbsp;-&nbsp;' + gv + '</a>' 
 								+ '<ul id="' + g + '_ul">';
 						}
-						html += '<li><a id="' + d.session + '" onclick="load(\'' + d.session + '\', \''
-							+ d.page + '\', \'' + d.proposal + '\')">&nbsp;&nbsp;--&nbsp;' + d.page + '</a></li>';
+						html += '<li><a id="tsort_' + d.session + '" onclick="load(\'' + d.session + '\', \''
+							+ d.page + '\', \'' + d.proposal + '\')"><font color="#aaa">' + d.proposal + '</font>:' + d.page + '</a></li>';
 					}
 					if (html != '') {
 						html += '</ul></li>';
