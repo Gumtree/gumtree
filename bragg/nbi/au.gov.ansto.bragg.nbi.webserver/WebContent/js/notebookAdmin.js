@@ -308,38 +308,73 @@ $(function() {
 									}
 									load(newSessionId, newPageId, newProposalId);
 			    				});
-			    				$("#id_ul_currentpage").empty().append('<li><a id="' + newSessionId + '" onclick="loadCurrent(\'' + newSessionId + '\', \'' 
+			    				$("#id_ul_currentpage").empty().append('<li><a id="psort_' + newSessionId + '" onclick="loadCurrent(\'' + newSessionId + '\', \'' 
 			    						+ newPageId + '\', \'' + newProposalId + '\')">&nbsp;&nbsp;--&nbsp;' + newPageId + '</a></li>');
-			    				if (document.getElementById("id_proposal_" + oldProposalId) !== null) {
-			    					html = '<li><a id="' + oldSessionId + '" onclick="load(\'' + oldSessionId + '\', \''
-											+ oldPageId + '\', \'' + oldProposalId + '\')">&nbsp;&nbsp;--&nbsp;' + oldPageId + '</a></li>';
-			    					$('#' + oldProposalId + '_ul').prepend(html);
-			    				} else {
-			    					var html = '<li class="active has-sub"><a id="id_proposal_' + oldProposalId + '" onclick="load(\'' + oldSessionId + '\', \'' 
-										+ oldPageId + '\', \'' + oldProposalId + '\')">&nbsp;-&nbsp;Proposal - ' + oldProposalId + '</a>';
-									html += '<ul id="' + oldProposalId + '_ul">' + '<li><a id="' + oldSessionId + '" onclick="load(\'' + oldSessionId + '\', \'' 
-										+ oldPageId + '\', \'' + oldProposalId + '\')">&nbsp;&nbsp;--&nbsp;' + oldPageId + '</a></li></ul>';
-									html += '</li>';
-									$("#id_ul_archiveList").prepend(html);
-									$('#id_proposal_' + oldProposalId).on('click', function(){
-										$(this).removeAttr('href');
-										var element = $(this).parent('li');
-										if (element.hasClass('open')) {
-											element.removeClass('open');
-											element.find('li').removeClass('open');
-											element.find('ul').slideUp();
-										} else {
-											element.addClass('open');
-											element.children('ul').slideDown();
-											element.siblings('li').children('ul').slideUp();
-											element.siblings('li').removeClass('open');
-											element.siblings('li').find('li').removeClass('open');
-											element.siblings('li').find('ul').slideUp();
-										}
-									});
+			    				if (oldSessionId != null && oldSessionId != '') {
+			    					if (document.getElementById("id_proposal_" + oldProposalId) !== null) {
+			    						html = '<li><a id="psort_' + oldSessionId + '" onclick="load(\'' + oldSessionId + '\', \''
+			    							+ oldPageId + '\', \'' + oldProposalId + '\')">&nbsp;&nbsp;--&nbsp;' + oldPageId + '</a></li>';
+			    						$('#' + oldProposalId + '_ul').prepend(html);
+			    					} else {
+//			    						var html = '<li class="active has-sub"><a id="id_proposal_' + oldProposalId + '" onclick="load(\'' + oldSessionId + '\', \'' 
+//											+ oldPageId + '\', \'' + oldProposalId + '\')">&nbsp;-&nbsp;Proposal - ' + oldProposalId + '</a>';
+				    					var html = '<li class="active has-sub"><a id="id_proposal_' + oldProposalId + '">&nbsp;-&nbsp;Proposal - ' + oldProposalId + '</a>';
+										html += '<ul id="' + oldProposalId + '_ul">' + '<li><a id="psort_' + oldSessionId + '" onclick="load(\'' + oldSessionId + '\', \'' 
+											+ oldPageId + '\', \'' + oldProposalId + '\')">&nbsp;&nbsp;--&nbsp;' + oldPageId + '</a></li></ul>';
+										html += '</li>';
+										$("#id_ul_archiveList").prepend(html);
+										$('#id_proposal_' + oldProposalId).on('click', function(){
+											$(this).removeAttr('href');
+											var element = $(this).parent('li');
+											if (element.hasClass('open')) {
+												element.removeClass('open');
+												element.find('li').removeClass('open');
+												element.find('ul').slideUp();
+											} else {
+												element.addClass('open');
+												element.children('ul').slideDown();
+												element.siblings('li').children('ul').slideUp();
+												element.siblings('li').removeClass('open');
+												element.siblings('li').find('li').removeClass('open');
+												element.siblings('li').find('ul').slideUp();
+											}
+										});
 
-									$('#id_proposal_' + oldProposalId).append('<span class="holder"></span>');
+//										$('#id_proposal_' + oldProposalId).append('<span class="holder"></span>');
+			    					}
+			    					var m = oldPageId.substr(5, 7);
+			    					var mid = "id_month_" + m;
+			    					if (document.getElementById(mid) !== null) {
+			    						html = '<li><a id="tsort_' + oldSessionId + '" onclick="load(\'' + oldSessionId + '\', \''
+			    						+ oldPageId + '\', \'' + oldProposalId + '\')"><font color="#aaa">' + oldProposalId + '</font>:' + oldPageId + '</a></li>';
+			    						$('#' + m + '_ul').prepend(html);
+			    					} else {
+			    						var gv = monthNames[parseInt(m.substr(5, 2)) - 1] + ' ' + m.substr(0, 4);
+			    						html = '<li class="active has-sub"><a id="' + mid + '">&nbsp;-&nbsp;' + gv + '</a>' 
+			    						+ '<ul id="' + m + '_ul">';
+			    						html += '<li><a id="tsort_' + oldSessionId + '" onclick="load(\'' + oldSessionId + '\', \''
+			    						+ oldPageId + '\', \'' + oldProposalId + '\')"><font color="#aaa">' + oldProposalId + '</font>:' + oldPageId + '</a></li>';
+			    						html += '</ul></li>';
+			    						$("#id_ul_timeSorted").prepend(html);
+			    						$('#' + mid).on('click', function(){
+											$(this).removeAttr('href');
+											var element = $(this).parent('li');
+											if (element.hasClass('open')) {
+												element.removeClass('open');
+												element.find('li').removeClass('open');
+												element.find('ul').slideUp();
+											} else {
+												element.addClass('open');
+												element.children('ul').slideDown();
+												element.siblings('li').children('ul').slideUp();
+												element.siblings('li').removeClass('open');
+												element.siblings('li').find('li').removeClass('open');
+												element.siblings('li').find('ul').slideUp();
+											}
+										});
+			    					}
 			    				}
+			    				highlight(newSessionId);
 			    			}
 			    		})
 			    		.fail(function(e) {
