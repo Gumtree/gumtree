@@ -569,7 +569,7 @@ jQuery(document).ready(function() {
 						}
 					});
 				}
-				$('#id_ul_archiveList>li.has-sub>a').append('<span class="holder"></span>');
+//				$('#id_ul_archiveList>li.has-sub>a').append('<span class="holder"></span>');
 			}
 		}
 	})
