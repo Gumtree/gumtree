@@ -71,21 +71,21 @@ CKEDITOR.editorConfig = function( config ) {
 //	config.imageResize.maxWidth = 730;
 //	config.imageResize.maxHeight = 800;
 	
-	config.removeButtons = 'Underline,Subscript,Superscript';
-	config.ignoreEmptyParagraph = false;
-	config.pasteFromWordPromptCleanup = false;
-	config.pasteFromWordRemoveFontStyles = false;
-	config.pasteFromWordRemoveStyles = false;
-	
-	CKEDITOR.config.enterMode = CKEDITOR.ENTER_BR;
-	config.removeFormatAttributes = false;
-	CKEDITOR.config.forcePasteAsPlainText = false; 
-	CKEDITOR.config.basicEntities = true;
-	CKEDITOR.config.entities = true;
-	CKEDITOR.config.entities_latin = false;
-	CKEDITOR.config.entities_greek = false;
-	CKEDITOR.config.entities_processNumerical = false;
-	CKEDITOR.config.fillEmptyBlocks = function (element) {
-	    return true; 
-	}
+//	config.removeButtons = 'Underline,Subscript,Superscript';
+//	config.ignoreEmptyParagraph = false;
+//	config.pasteFromWordPromptCleanup = false;
+//	config.pasteFromWordRemoveFontStyles = false;
+//	config.pasteFromWordRemoveStyles = false;
+//	
+//	CKEDITOR.config.enterMode = CKEDITOR.ENTER_BR;
+//	config.removeFormatAttributes = false;
+//	CKEDITOR.config.forcePasteAsPlainText = false; 
+//	CKEDITOR.config.basicEntities = true;
+//	CKEDITOR.config.entities = true;
+//	CKEDITOR.config.entities_latin = false;
+//	CKEDITOR.config.entities_greek = false;
+//	CKEDITOR.config.entities_processNumerical = false;
+//	CKEDITOR.config.fillEmptyBlocks = function (element) {
+//	    return true; 
+//	}
 };

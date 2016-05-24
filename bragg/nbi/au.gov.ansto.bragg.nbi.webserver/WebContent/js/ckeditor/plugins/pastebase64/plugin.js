@@ -45,7 +45,6 @@
 		var imageType = /^image/;
 
 		if (dataTransfer.files && dataTransfer.files.length > 0) {
-			console.log('number of files = ' + dataTransfer.files.length);
 			for (var i = 0; i < dataTransfer.files.length; i++){
 				var file = dataTransfer.files[i];
 				if (file.type.match(imageType)) {
@@ -59,7 +58,6 @@
 		}
 
 		if (dataTransfer.items && dataTransfer.items.length > 0) {
-			console.log('number of items = ' + dataTransfer.items.length);
 			for (var i = 0; i < dataTransfer.items.length; i++){
 				var file = dataTransfer.items[i];
 				if (file.type.match(imageType)) {
@@ -83,7 +81,6 @@
 		if (!clipboardData) {
 			return;
 		}
-
 //		var eventData = CKEDITOR.plugins.clipboard.initPasteDataTransfer(event);
 //		eventData.cacheData();
 //		console.log(CKEDITOR.plugins.clipboard.initPasteDataTransfer(event)._.data);
@@ -94,7 +91,6 @@
 //		console.log(text);
 		
 		if (clipboardData.files && clipboardData.files.length > 0) {
-			console.log('number of files = ' + clipboardData.files.length);
 			for (var i = 0; i < clipboardData.files.length; i++){
 				var file = clipboardData.files[i];
 				if (file.type.match(imageType)) {
@@ -108,7 +104,6 @@
 		}
 
 		if (clipboardData.items && clipboardData.items.length > 0) {
-			console.log('number of items = ' + clipboardData.items.length);
 			for (var i = 0; i < clipboardData.items.length; i++){
 				var file = clipboardData.items[i];
 				if (file.type.match(imageType)) {

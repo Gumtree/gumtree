@@ -93,14 +93,27 @@ def som(val = None):
     if not val is None :
         sics.drive('som', val)
     return sics.get_raw_value('som')
- 
+
+def __cal_samx__(val):
+    if val <=0 or val >= 11:
+        raise Exception, 'sample number not supported, must be within 1 to 10, got ' + str(val)
+    ival = int(val)
+    if ival == val:
+        return __sampleMap__[ival]
+    else:
+        return __sampleMap__[ival] + (__sampleMap__[ival + 1] - __sampleMap__[ival]) * (val - ival)
+            
+     
 def sample(val = None):
     global __sampleMap__
     if not val is None :
-        if val <=0 or val > 10:
+        if not type(val) is int or not type(val) is float:
+            val = float(str(val))
+        if val <=0 or val >= 11:
             raise Exception, 'sample number not supported, must be within 1 to 10, got ' + str(val)
         else:
-            sics.drive('samx', __sampleMap__[round(val)])
+#            sics.drive('samx', __sampleMap__[round(val)])
+            sics.drive('samx', __cal_samx__(val))
     raw = sics.get_raw_value('samx')
     samNum = -1;
     for i in xrange(len(__sampleMap__)) :
@@ -266,7 +279,7 @@ def bs5(val = None):
 def __bs__(id, val = None):
     bs_name = 'bs' + str(id)
     if not val is None:
-        if type(val) is int or type(val) is float:
+        if type(val) is int or type(val) is float or str(val).isdigit():
             sics.drive(bs_name, val)
         elif str(val).upper() == 'IN':
             sics.drive(bs_name, 65)
@@ -280,11 +293,20 @@ def __bs__(id, val = None):
 
 def bs_att(bs_num, bs_angle, att_num):
     
+    if type(bs_num) is str or type(bs_num) is unicode:
+        bs_num = int(bs_num)
+    
     if bs_num < 3 or bs_num > 5 :
         raise Exception, 'beam stop number ' + str(bs_num) + ' is not supported'
 
+    if type(att_num) is str or type(att_num) is unicode:
+        att_num = int(att_num)
+        
     if att_num < 0 or att_num > 5 :
         raise Exception, 'att position number ' + str(att_num) + ' is not supported'
+    
+    if type(bs_angle) is str or type(bs_angle) is unicode:
+        bs_angle = float(bs_angle)
     
     cur_bs3 = bs3()
     cur_bs4 = bs4()
