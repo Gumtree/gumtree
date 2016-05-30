@@ -99,6 +99,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private static final String ID_DAE_LOGIN = "gumtree.dae.login";
 	private static final String ID_DAE_PASSWORD = "gumtree.dae.password";
 	private static final String PROPERTY_NOTEBOOK_REPOSITORY_PATH = "gumtree.notebook.gitPath";
+	private static final String PROPERTY_SERVER_REPORTPATH = "gumtree.server.reportPath";
 	private static final String EXPERIMENT_TABLE_HTML_EXTENSION = "$EXTENSION";
 	private static final String EXPERIMENT_TABLE_HTML = "<div class=\"class_template_table class_template_object\" id=\"template_ec_1\">"
 			+ "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" class=\"xmlTable\" style=\"table-layout:fixed; width:100%; word-wrap:break-word\"><caption>Experiment Setup</caption>"
@@ -193,18 +194,30 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				} else {
 					try {
 			    		sessionId = controlDb.getCurrentSessionId();
+						if (pageId == null) {
+							pageId = sessionDb.getSessionValue(sessionId);
+						}
 			    	} catch (Exception e) {
 			    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 			    		return;
 			    	}
 				}
-		    } 
-		    try {
-		    	pageId = sessionDb.getSessionValue(sessionId);
-		    } catch (Exception e) {
-		    	response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
-		    	return;
-		    } 
+		    } else {
+			    try {
+			    	String getPageId = sessionDb.getSessionValue(sessionId);
+			    	if (pageId != null){
+			    		if (!pageId.equals(getPageId)) {
+			    			response.setStatus(Status.SERVER_ERROR_INTERNAL, "Error: page and session don't match.");
+					    	return;
+			    		}
+			    	} else {
+			    		pageId = getPageId;
+			    	}
+			    } catch (Exception e) {
+			    	response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+			    	return;
+			    } 
+		    }
 			try {
 				String text = rep.getText();
 				text = text == null ? "" : text;
@@ -507,6 +520,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to create new file");
 					return;
 				}
+				saveOldPagePdf();
 				PrintWriter pw = null;
 				String html = "";
 				try {
@@ -764,7 +778,8 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		    String externalUrl = queryForm.getValues(QUERY_EXTERNAL_URL_ID);
 		    if (externalUrl != null && externalUrl.trim().length() > 0) {
 			    final CallbackAdapter callback = new CallbackAdapter();
-			    if (externalUrl.contains(daeHost)) {
+//			    if (externalUrl.contains(daeHost)) {
+			    if (externalUrl.contains("das") && externalUrl.contains(".nbi.ansto.gov.au:808")) {
 			    	try {
 						internalHttpClient.performGet(URI.create(externalUrl), callback, daeLogin, EncryptionUtils.decryptBase64(daePassword));
 					} catch (Exception e) {
@@ -848,6 +863,35 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	}
 	
 	
+	private void saveOldPagePdf() throws Exception {
+		String reportPath = System.getProperty(PROPERTY_SERVER_REPORTPATH);
+		if (reportPath == null) {
+			return;
+		}
+		try {
+			String sessionId = controlDb.getCurrentSessionId();
+			String pageId = sessionDb.getSessionValue(sessionId);
+			String proposalId = proposalDb.findProposalId(sessionId);
+			for (int i = 0; i < 5 - proposalId.length(); i ++) {
+				proposalId = "0" + proposalId;
+			}
+			String sourceFilename = currentFileFolder + "/" + pageId + ".xml";
+			String pageTime = pageId.substring(pageId.indexOf("_") + 1);
+			String targetFilename = instrumentId + "_" + proposalId + "_" + pageTime + ".pdf";
+			File current = new File(sourceFilename);
+			if (current.exists()) {
+				String targetPath = reportPath + "/" + targetFilename;
+				boolean isSuccessful = pdfService.createPDF(sourceFilename, targetPath);
+				if (!isSuccessful) {
+					throw new Exception("failed to save pdf file for old page");
+				}
+			}
+		}catch (Exception e) {
+			throw new Exception("failed to save pdf file for old page", e);
+		}
+	}
+
+
 	class CallbackAdapter implements IHttpClientCallback{
 		boolean isReady = false;
     	String base64 = null;

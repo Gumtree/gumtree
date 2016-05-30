@@ -65,6 +65,7 @@
 			// 3. Listen with high priority (3), so clean up is done before content
 			// type sniffing (priority = 6).
 			editor.on( 'paste', function( evt ) {
+				console.log('pastefromword');
 				var data = evt.data,
 					mswordHtml = data.dataValue;
 

@@ -2788,6 +2788,7 @@
 
 		// Handle pasted single widget.
 		editor.on( 'paste', function( evt ) {
+			console.log('widget');
 			var data = evt.data;
 
 			data.dataValue = data.dataValue.replace( pasteReplaceRegex, pasteReplaceFn );

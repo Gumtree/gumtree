@@ -95,6 +95,9 @@ CKEDITOR.dom.domObject.prototype = ( function() {
 					this.$.attachEvent( 'on' + eventName, listener );
 			}
 
+			if (eventName == 'paste') {
+				console.log('domobject register paste');
+			}
 			// Call the original implementation.
 			return CKEDITOR.event.prototype.on.apply( this, arguments );
 		},

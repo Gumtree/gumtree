@@ -52,7 +52,7 @@ CKEDITOR.editorConfig = function( config ) {
 //	config.extraPlugins = 'image2,pdf,word,mathjax';
 	config.extraPlugins = 'image2,pdf,word';
 	
-	config.removePlugins = 'devtools,templates';
+	config.removePlugins = 'devtools,templates,pastebase64,autocorrect';
 	
 	config.blockedKeystrokes =
 		[

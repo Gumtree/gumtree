@@ -129,6 +129,10 @@ if ( !CKEDITOR.event ) {
 			 */
 			on: function( eventName, listenerFunction, scopeObj, listenerData, priority ) {
 				// Create the function to be fired for this listener.
+				if (eventName == 'paste'){
+					console.log('event.js register paste listener');
+				}
+				
 				function listenerFirer( editor, publisherData, stopFn, cancelFn ) {
 					var ev = {
 						name: eventName,
@@ -258,6 +262,9 @@ if ( !CKEDITOR.event ) {
 
 				return function( eventName, data, editor ) {
 					// Get the event entry.
+					if (eventName == 'paste'){
+						console.log('event.js fire paste event');
+					}
 					var event = getPrivate( this )[ eventName ];
 
 					// Save the previous stopped and cancelled states. We may

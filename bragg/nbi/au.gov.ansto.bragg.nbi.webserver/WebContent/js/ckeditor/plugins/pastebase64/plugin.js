@@ -78,6 +78,7 @@
 		var found = false;
 		var imageType = /^image/;
 
+		console.log('pastebase64/plugin.js paste event');
 		if (!clipboardData) {
 			return;
 		}

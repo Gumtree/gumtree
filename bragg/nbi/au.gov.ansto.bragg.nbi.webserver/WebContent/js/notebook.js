@@ -5,7 +5,9 @@ var dbFilter = null;
 var session = null;
 var pageId = null;
 var updateIntervalId = null;
+var checkNewIntervalId = null;
 var updateIntervalSeconds = 60;
+var checkNewIntervalSeconds = 5;
 
 jQuery.fn.outerHTML = function() {
 	return jQuery('<div />').append(this.eq(0).clone()).html();
@@ -77,6 +79,72 @@ function getParam(sParam) {
 		}
 	}
 	return null;
+}
+
+function checkNewPage() {
+	var getUrl = "notebook/currentpage";
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+			try {
+				var newPageId = data.split(':')[1];
+				if (pageId != newPageId) {
+					stopCheckNewPage();
+					$('<div></div>').appendTo('body')
+					  .html('<div class="class_confirm_dialog"><p>The current '
+							  + 'notebook page is expired because a new page was created by the administrator. '
+							  + '</p><p>You must reload to the new page. Do you want to save the change before '
+							  + 'reloading the page?</p></div>')
+					  .dialog({
+					      modal: true, title: 'Confirm Saving Expired Page', zIndex: 10000, autoOpen: true,
+					      width: 'auto', resizable: false,
+					      buttons: {
+					          Yes: function () {
+					        	  var postUrl = 'notebook/save' + (session != null ? '?session=' + session : '?pageid=' + pageId);
+					        	  $.post( postUrl, CKEDITOR.instances.id_editable_inner.getData(), function(data, status) {
+					        		  if (status == "success") {
+					        			  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Saved', type: 'success' } );
+					        			  notification.show();
+					        			  CKEDITOR.instances.id_editable_inner.resetDirty();
+					        		  }
+					        		  location.reload();
+					        	  }).fail(function(e) {
+					        		  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to save the page.', type: 'warning' } );
+					        		  notification.show();
+					        	  }).always(function() {
+//						        	  $(this).dialog("close");
+					        	  });
+					          },
+					          No: function () {
+//					              $(this).dialog("close");
+					        	  location.reload();
+					          }
+					      },
+					      close: function (event, ui) {
+					    	  location.reload();
+					          $(this).remove();
+					      }
+					});
+				}	
+			} catch (e) {
+				console.log(e);
+			}			
+		}
+	})
+	.fail(function(e) {
+	}).always(function() {
+	});
+}
+
+function startCheckNewPage() {
+	checkNewIntervalId = setInterval(function(){
+		checkNewPage();
+		}, checkNewIntervalSeconds * 1000);
+}
+
+function stopCheckNewPage() {
+	if (checkNewIntervalId != null) {
+		clearInterval(checkNewIntervalId);
+	}
 }
 
 function startUpdateInterval(){
@@ -659,6 +727,9 @@ jQuery(document).ready(function() {
 		            notification.show();
 		        });
 		    });
+			
+			startCheckNewPage();
+
 //			$('#id_editable_inner').ckeditor().on('save', function(event, editor, data) {
 //				alert("save");
 //			});
@@ -722,6 +793,7 @@ jQuery(document).ready(function() {
 			});
 
 			startUpdateInterval();
+			
 //			disabled for unexpected behavior
 //			$(".class_db_object").draggable({
 //				helper : 'clone', 

@@ -146,6 +146,7 @@
 			CKEDITOR.dialog.add( 'paste', CKEDITOR.getUrl( this.path + 'dialogs/paste.js' ) );
 
 			editor.on( 'paste', function( evt ) {
+				console.log('paste 1');
 				// Init `dataTransfer` if `paste` event was fired without it, so it will be always available.
 				if ( !evt.data.dataTransfer ) {
 					evt.data.dataTransfer = new CKEDITOR.plugins.clipboard.dataTransfer();
@@ -176,6 +177,7 @@
 			}, null, null, 1 );
 
 			editor.on( 'paste', function( evt ) {
+				console.log('paste 2');
 				var data = evt.data.dataValue,
 					blockElements = CKEDITOR.dtd.$block;
 
@@ -254,6 +256,7 @@
 			}, null, null, 3 );
 
 			editor.on( 'paste', function( evt ) {
+				console.log('paste 3');
 				var dataObj = evt.data,
 					type = dataObj.type,
 					data = dataObj.dataValue,
@@ -308,6 +311,7 @@
 			// Inserts processed data into the editor at the end of the
 			// events chain.
 			editor.on( 'paste', function( evt ) {
+				console.log('paste 4');
 				var data = evt.data;
 				if ( data.dataValue ) {
 					var html = data.dataValue
@@ -591,6 +595,7 @@
 			}
 
 			function onPaste( evt ) {
+				console.log('onPaste');
 				evt.removeListener();
 				evt.cancel();
 				callback( evt.data );
@@ -691,7 +696,7 @@
 			editable.on( mainPasteEvent, function( evt ) {
 				if ( CKEDITOR.env.ie && preventBeforePasteEvent )
 					return;
-
+				console.log('clipboard/plugin.js main paste event');
 				// If you've just asked yourself why preventPasteEventNow() is not here, but
 				// in listener for CTRL+V and exec method of 'paste' command
 				// you've asked the same question we did.
