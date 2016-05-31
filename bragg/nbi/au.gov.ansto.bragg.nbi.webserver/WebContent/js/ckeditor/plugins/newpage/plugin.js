@@ -18,19 +18,24 @@ CKEDITOR.plugins.add( 'newpage', {
 		editor.addCommand( 'newpage', { modes: { wysiwyg: 1, source: 1 },
 
 			exec: function( editor ) {
-				var command = this;
-				editor.setData( editor.config.newpage_html || '', function() {
-					editor.focus();
-					// Save the undo snapshot after all document changes are affected. (#4889)
-					setTimeout( function() {
-						editor.fire( 'afterCommandExec', {
-							name: 'newpage',
-							command: command
-						} );
-						editor.selectionChange();
-
-					}, 200 );
-				} );
+//				var command = this;
+//				editor.setData( editor.config.newpage_html || '', function() {
+//					editor.focus();
+//					// Save the undo snapshot after all document changes are affected. (#4889)
+//					setTimeout( function() {
+//						editor.fire( 'afterCommandExec', {
+//							name: 'newpage',
+//							command: command
+//						} );
+//						editor.selectionChange();
+//
+//					}, 200 );
+//				} );
+				if (typeof(getPdf) !== 'undefined') {
+					makeNewPage();
+				}else {
+					alert("New-page service is not available, please use the management to create a new page.");
+				}
 			},
 			async: true
 		} );

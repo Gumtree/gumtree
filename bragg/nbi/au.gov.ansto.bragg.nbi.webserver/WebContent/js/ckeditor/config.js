@@ -32,7 +32,7 @@ CKEDITOR.editorConfig = function( config ) {
 //	                    ];
 //	
 	config.toolbar = [
-	                  { name: 'document', items: [ 'Source', '-', 'Save', '-', 'Preview', 'Print', 'PDF', 'WORD'] },
+	                  { name: 'document', items: [ 'Source', '-', 'Save', '-', 'NewPage', 'Print', 'PDF', 'WORD'] },
 	                  { name: 'clipboard', items: [ 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
 	                  { name: 'find', items: ["Find", "SelectAll", "Scayt"]},
 	                  { name: 'basicstyles', items: [ "Bold", "Italic", "Underline", "Strike", "Subscript", "Superscript", "RemoveFormat" ] },

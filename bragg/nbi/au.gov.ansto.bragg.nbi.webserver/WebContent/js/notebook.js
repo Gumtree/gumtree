@@ -4,6 +4,7 @@ var isAppending = false;
 var dbFilter = null;
 var session = null;
 var pageId = null;
+var proposal = null;
 var updateIntervalId = null;
 var checkNewIntervalId = null;
 var updateIntervalSeconds = 60;
@@ -272,6 +273,47 @@ function getPdf() {
 			alert( "error creating PDF file.");
 		});
 	}
+}
+
+function makeNewPage(){
+	$('<div></div>').appendTo('body')
+	  .html('<div class="class_confirm_dialog"><p>Do you want to save the current page and make a new one? '
+			  + '</p><p>You will not be able to edit this page again.</p></div>')
+	  .dialog({
+	      modal: true, title: 'Confirm Making New Page', zIndex: 10000, autoOpen: true,
+	      width: 'auto', resizable: false,
+	      buttons: {
+	          Yes: function () {
+	        	  var postUrl = 'notebook/save' + (session != null ? '?session=' + session : '?pageid=' + pageId);
+	        	  $.post( postUrl, CKEDITOR.instances.id_editable_inner.getData(), function(data, status) {
+	        		  if (status == "success") {
+	        			  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Saved', type: 'success' } );
+	        			  notification.show();
+	        			  CKEDITOR.instances.id_editable_inner.resetDirty();
+	    	        	  var getUrl = "../notebook/new?proposal_id=" + proposal + "&" + (new Date()).getTime();
+	    	        	  $.get(getUrl, function(data, status) {
+	    	        		  if (status == "success") {
+	    		        		  location.reload();
+	    	        		  }
+	    	        	  }).fail(function(e) {
+	    	        		  alert( "error creating new notebook file.");
+	    	        	  });
+	        		  } 
+	        	  }).fail(function(e) {
+	        		  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to save the page.', type: 'warning' } );
+	        		  notification.show();
+	        	  }).always(function() {
+//		        	  $(this).dialog("close");
+	        	  });
+	          },
+	          No: function () {
+	              $(this).dialog("close");
+	          }
+	      },
+	      close: function (event, ui) {
+	          $(this).remove();
+	      }
+	});
 }
 
 function getHistoryWord(session, pageId) {
@@ -690,6 +732,7 @@ jQuery(document).ready(function() {
 					if (brk != "Unknown") {
 						$('#id_span_proposalId').text("History pages of Proposal " + proposalId);
 					}
+					proposal = proposalId;
 					if (sessions != "None") {
 						var sessionList = sessions.split(",");
 						for ( var i = 0; i < sessionList.length; i++) {
