@@ -63,7 +63,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 
 	@Override
 	protected void handleRender() {
-		GridLayoutFactory.swtDefaults().numColumns(7).spacing(1, 1)
+		GridLayoutFactory.swtDefaults().numColumns(8).spacing(1, 1)
 				.applyTo(this);
 
 		for (DeviceContext deviceContext : deviceContexts) {
@@ -72,7 +72,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 				Label separator = getWidgetFactory().createLabel(this, "",
 						SWT.SEPARATOR | SWT.HORIZONTAL);
 				GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
-						.grab(true, false).span(7, 1).applyTo(separator);
+						.grab(true, false).span(8, 1).applyTo(separator);
 			} else {
 				// Part 1: icon
 				Label label = getWidgetFactory().createLabel(this, "");
@@ -230,6 +230,18 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 									exception.printStackTrace();
 								}
 							});
+					getDataAccessManager().get(
+							URI.create("sics://hdb" + labelContext.path + "/softzero"), String.class,
+							new IDataHandler<String>() {
+								@Override
+								public void handleData(URI uri, String data) {
+									updateLabelText(labelContext.softzeroLabel, "(" + data + ")", null);
+								}
+								@Override
+								public void handleError(URI uri, Exception exception) {
+									exception.printStackTrace();
+								}
+							});
 				}
 			}
 		} catch (Exception e) {
@@ -269,6 +281,9 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 				}
 				if (context.upperlimHandler != null) {
 					context.upperlimHandler.deactivate();
+				}
+				if (context.softzeroHandler != null) {
+					context.softzeroHandler.deactivate();
 				}
 			}
 			labelContexts.clear();
@@ -374,6 +389,8 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		EventHandler lowerlimHandler;
 		Label upperlimLabel;
 		EventHandler upperlimHandler;
+		Label softzeroLabel;
+		EventHandler softzeroHandler;
 	}
 
 	public interface LabelConverter {
@@ -499,6 +516,27 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		}
 	}
 	
+	private class SoftzeroHdbEventHandler extends DelayEventHandler {
+		Label label;
+		LabelConverter converter;
+
+		public SoftzeroHdbEventHandler(String path, Label label,
+				IDelayEventExecutor delayEventExecutor) {
+			super(SicsEvents.HNotify.TOPIC_HNOTIFY + path, delayEventExecutor);
+			this.label = label;
+		}
+
+		public void setLabelConverter(LabelConverter converter) {
+			this.converter = converter;
+		}
+		
+		@Override
+		public void handleDelayEvent(Event event) {
+			updateLabelText(label,
+					"(" + event.getProperty(SicsEvents.HNotify.VALUE).toString() + ")", converter);
+		}
+	}
+	
 	private Label createUnitsLabel(Composite parent, String path,
 			String defaultText, int style) {
 		Label label = getWidgetFactory()
@@ -527,18 +565,23 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		if (showSoftLimits) {
 			Label lowerlimLabel = getWidgetFactory().createLabel(parent, "");
 			context.lowerlimLabel = lowerlimLabel;
-			LowerlimHdbEventHandler lowerlimHandler = new LowerlimHdbEventHandler(path + "/softlowerlim", lowerlimLabel,
+			context.lowerlimHandler = new LowerlimHdbEventHandler(path + "/softlowerlim", lowerlimLabel,
 					getDelayEventExecutor());
-			lowerlimHandler.activate();
+			context.lowerlimHandler.activate();
 			Label upperlimLabel = getWidgetFactory().createLabel(parent, "");
 			context.upperlimLabel = upperlimLabel;
-			UpperlimHdbEventHandler upperlimHandler = new UpperlimHdbEventHandler(path + "/softupperlim", upperlimLabel,
+			context.upperlimHandler = new UpperlimHdbEventHandler(path + "/softupperlim", upperlimLabel,
 					getDelayEventExecutor());
-			upperlimHandler.activate();
+			context.upperlimHandler.activate();
+			Label softzeroLabel = getWidgetFactory().createLabel(parent, "");
+			context.softzeroLabel = softzeroLabel;
+			context.softzeroHandler = new SoftzeroHdbEventHandler(path + "/softzero", softzeroLabel,
+					getDelayEventExecutor());
+			context.softzeroHandler.activate();
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(context.label);
 		} else {
-			GridDataFactory.swtDefaults().span(3, 1).align(SWT.FILL, SWT.CENTER)
+			GridDataFactory.swtDefaults().span(4, 1).align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(context.label);
 		}
 		context.defaultText = defaultText;
