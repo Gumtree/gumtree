@@ -443,7 +443,7 @@ def scan10(sample_position, collect_time, sample_name = None):
         raise Exception, 'Invalid sample position, scan not run. Choose a position between 1 and 10 inclusive.'
     else:
         if not sample_name is None:
-            sics.execute('samplename ' + str(sample_name))
+            sics.execute('samplename ' + str(sample_name), 'scan')
         
         cur_samx = __sampleMap__[sample_position]
 #        cur_samx = samx()
@@ -469,4 +469,4 @@ def scan10(sample_position, collect_time, sample_name = None):
         log(sics.get_base_filename() + ' updated')
         log("Scan completed")
         if not sample_name is None:
-            sics.execute('samplename {}')
+            sics.execute('samplename {}', 'scan')
