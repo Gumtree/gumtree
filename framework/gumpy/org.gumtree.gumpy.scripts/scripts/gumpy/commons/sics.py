@@ -200,8 +200,11 @@ def count(mode, preset):
     handleInterrupt()
     logger.log('Count completed')
 
-def interrupt():
-    SicsCore.getSicsController().interrupt()
+def interrupt(channel = None):
+    if channel == None:
+        SicsCore.getSicsController().interrupt()
+    else:
+        SicsCore.getDefaultProxy().send('INT1712 3', None, channel)
     logger.log("Sent SICS interrupt")
 
 def isInterrupt():
@@ -349,3 +352,13 @@ def get_stable_value(dev):
             val = new_val
             time.sleep(1)
         
+def getStatus():
+    controller = getSicsController()
+    if not controller is None:
+        t = controller.getServerStatus().getText()
+        if t == "UNKNOW":
+            return "UNKNOWN"
+        else:
+            return t
+    else:
+        return "UNKNOWN"

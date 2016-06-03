@@ -83,13 +83,14 @@ public class KowariWorkbenchSetup implements IStartup {
 		  item.setVisible(false);
 		}
 		menuManager.setVisible(false);
+		menuManager.setRemoveAllWhenShown(true);
 	    
 	    IContributionItem[] menubarItems = ((WorkbenchWindow) window).getMenuBarManager().getItems();
 	    for (IContributionItem item : menubarItems) {
 	    	item.setVisible(false);
 	    }
 	    ((WorkbenchWindow) window).getMenuBarManager().setVisible(false);
-	    
+	    ((WorkbenchWindow) window).getMenuBarManager().setRemoveAllWhenShown(true);
 	}
 	
 }

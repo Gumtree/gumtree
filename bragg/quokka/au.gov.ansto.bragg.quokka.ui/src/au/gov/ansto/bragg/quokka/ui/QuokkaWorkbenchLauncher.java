@@ -79,6 +79,7 @@ public class QuokkaWorkbenchLauncher extends AbstractLauncher {
 		  item.setVisible(false);
 		}
 		menuManager.setVisible(false);
+		menuManager.setRemoveAllWhenShown(true);
 	    
 //	        IHandlerService service = (IHandlerService) window.getService(IHandlerService.class);
 //	        if (service != null)
@@ -95,6 +96,7 @@ public class QuokkaWorkbenchLauncher extends AbstractLauncher {
 	    	item.setVisible(false);
 	    }
 	    ((WorkbenchWindow) window).getMenuBarManager().setVisible(false);
+	    ((WorkbenchWindow) window).getMenuBarManager().setRemoveAllWhenShown(true);
 	    
 	    IToolBarManager toolbarManager = ((WorkbenchWindow) window).getToolBarManager2();
 	    IContributionItem[] barItems = toolbarManager.getItems();

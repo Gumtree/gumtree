@@ -58,13 +58,14 @@ public class EmuWorkbenchLauncher extends AbstractLauncher {
 		  item.setVisible(false);
 		}
 		menuManager.setVisible(false);
+		menuManager.setRemoveAllWhenShown(true);
 	    
 	    IContributionItem[] menubarItems = ((WorkbenchWindow) window).getMenuBarManager().getItems();
 	    for (IContributionItem item : menubarItems) {
 	    	item.setVisible(false);
 	    }
 	    ((WorkbenchWindow) window).getMenuBarManager().setVisible(false);
-	    
+	    ((WorkbenchWindow) window).getMenuBarManager().setRemoveAllWhenShown(true);
 	}
 	
 	public void launch() throws LauncherException {

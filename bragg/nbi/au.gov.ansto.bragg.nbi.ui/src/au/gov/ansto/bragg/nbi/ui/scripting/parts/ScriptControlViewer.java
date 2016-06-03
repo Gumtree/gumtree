@@ -1223,8 +1223,23 @@ public class ScriptControlViewer extends Composite {
 //		name.setText(action.getName());
 //		name.setText("");
 //		GridDataFactory.fillDefaults().grab(false, false).indent(0, 5).minSize(40, 0).span(actionColspan, actionRowspan).applyTo(name);
-		final Button actionButton = new Button(parent, SWT.PUSH);
+		int buttonType = SWT.PUSH;
+		if (action.getProperty("type") != null) {
+			if (action.getProperty("type").toUpperCase().equals("TOGGLE")){
+				buttonType = SWT.TOGGLE;
+			}
+		}
+		final Button actionButton = new Button(parent, buttonType);
 		actionButton.setText(String.valueOf(action.getText()));
+		
+		boolean enabled = true;
+		String enabledProperty = action.getProperty("enabled");
+		if (enabledProperty != null) {
+			enabled = Boolean.valueOf(enabledProperty);
+		}
+		if (!enabled) {
+			actionButton.setEnabled(false);
+		}
 //		actionButton.setBackground(new Color(Display.getDefault(), 240, 240, 255));
 //		actionButton.setForeground(new Color(Display.getDefault(), 0, 0, 255));
 		GridDataFactory.fillDefaults().grab(true, false).span(actionColspan * 2, actionRowspan).minSize(0, 32).applyTo(actionButton);
@@ -1336,13 +1351,37 @@ public class ScriptControlViewer extends Composite {
 
 						@Override
 						public void run() {
-							if (evt.getNewValue().equals("highlight")) {
-								boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
-								if (isHighlight) {
-									actionButton.setBackground(highlightColor);
-								} else {
-									actionButton.setBackground(defaultColor);
-								}
+							boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+							if (isHighlight) {
+								actionButton.setBackground(highlightColor);
+							} else {
+								actionButton.setBackground(defaultColor);
+							}
+						}
+					});
+				} else if (evt.getPropertyName().toLowerCase().equals("title")) {
+					Display.getDefault().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							if (evt.getNewValue() != null && !evt.getNewValue().equals("None") 
+									&& evt.getNewValue().toString().trim().length() > 0) {
+								actionButton.setText(evt.getNewValue().toString());
+							} else {
+								actionButton.setText(action.getText());
+							}
+						}
+					});
+				} else if (evt.getPropertyName().toLowerCase().equals("selected")) {
+					Display.getDefault().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							boolean isSelected = Boolean.valueOf(evt.getNewValue().toString());
+							if (isSelected) {
+								actionButton.setSelection(true);
+							} else {
+								actionButton.setSelection(false);
 							}
 						}
 					});

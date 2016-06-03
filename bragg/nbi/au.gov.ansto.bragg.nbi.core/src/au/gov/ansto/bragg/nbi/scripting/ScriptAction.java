@@ -24,7 +24,11 @@ public class ScriptAction extends PyObjectImp {
 	}
 
 	public void setText(String text) {
+		String oldText = this.text;
 		this.text = text;
+		if ((oldText == null && text != null) || !oldText.equals(text)) {
+			firePropertyChange("text", oldText, text);
+		}
 	}
 
 	public String getCommand() {

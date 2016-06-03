@@ -104,6 +104,13 @@ def open_error(msg):
 def open_question(msg): 
     return __runner__.openQuestion(msg)
 
+def pause(msg = None):
+    if msg is None:
+        msg = 'Paused, please press OK to continue.'
+    else:
+        msg = 'Paused, please press OK to continue.\n' + str(msg)
+    return __runner__.openInformation(msg)
+    
 def selectSaveFolder():
     return __runner__.selectSaveFolder()
 
@@ -131,8 +138,9 @@ def run_action(act):
         act.set_error_status()
         traceback.print_exc(file = sys.stdout)
         raise Exception, 'Error in running <' + act.text + '>'
-    if sics.getSicsController() != None:
-        sics.handleInterrupt()
+    if not act.no_interrupt_check == 'True':
+        if sics.getSicsController() != None:
+            sics.handleInterrupt()
     
 def get_pref_value(name):
     value = __UI__.getPreference(name)
