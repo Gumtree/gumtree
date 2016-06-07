@@ -830,14 +830,24 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		    	}
 		    }
 			String targetPath = pdfFolder + "/" + targetFilename;
+			String baseFilename = pageId + ".pdf";
     		File current = new File(targetPath);
     		if (current.exists()) {
     			try {
-    				FileRepresentation representation = new FileRepresentation(targetPath, MediaType.APPLICATION_ZIP);
+//    				FileRepresentation representation = new FileRepresentation(targetPath, MediaType.register("application/x-pdf", "Adobe PDF document"));
+    				FileRepresentation representation = new FileRepresentation(targetPath, MediaType.APPLICATION_OCTET_STREAM);
     				Disposition disposition = new Disposition();
-    				disposition.setFilename(targetFilename);
+    				disposition.setFilename(baseFilename);
+    				disposition.setType(Disposition.TYPE_ATTACHMENT);
     				representation.setDisposition(disposition);
     				response.setEntity(representation);
+//    				Form responseHeaders = (Form) response.getAttributes().get("org.restlet.http.headers");
+//    	            if (responseHeaders == null) {
+//    	                responseHeaders = new Form();
+//    	                responseHeaders.add("Pragma", "no-cache");
+//    	                responseHeaders.add("Cache-Control", "max-age=1");
+//    	                response.getAttributes().put("org.restlet.http.headers", responseHeaders);
+//    	            }
 				} catch (Exception e) {
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 					return;

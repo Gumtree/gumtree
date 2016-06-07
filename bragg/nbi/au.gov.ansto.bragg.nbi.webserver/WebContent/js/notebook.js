@@ -771,7 +771,9 @@ jQuery(document).ready(function() {
 		        });
 		    });
 			
-			startCheckNewPage();
+			if (session == null) {
+				startCheckNewPage();				
+			}
 
 //			$('#id_editable_inner').ckeditor().on('save', function(event, editor, data) {
 //				alert("save");
