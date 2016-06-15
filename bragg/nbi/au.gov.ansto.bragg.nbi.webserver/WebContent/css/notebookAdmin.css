@@ -32,9 +32,10 @@
 		position: relative;
 		width: 738px;
 		background-color: white;
-		min-height: 760px;
+		height: 84vh;
 		padding: 2px 2px 2px;
 		margin: 0px auto;
+		overflow: auto;
 /*		
 		background: #F6F6F6 none repeat scroll 0% 0%;
 		border: 1px solid #8F8F8F;
@@ -76,9 +77,11 @@
 	.class_div_sidemenu {
 		width: 256px;
 		float: left;
-	}
+		height: 88vh;
+		overflow: auto;
+}
 	.class_div_sidemenu ul{
-		width: 256px;
+		width: 238px;
 	}
 	.class_div_content_header{
 		height: 24px;
