@@ -75,13 +75,13 @@
 		padding: 6px 12px;
 	}
 	.class_div_sidemenu {
-		width: 256px;
+		width: 274px;
 		float: left;
 		height: 88vh;
 		overflow: auto;
 }
 	.class_div_sidemenu ul{
-		width: 238px;
+		width: 256px;
 	}
 	.class_div_content_header{
 		height: 24px;
