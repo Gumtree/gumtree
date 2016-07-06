@@ -44,15 +44,15 @@ def set(name, value):
 def setpos(device, value, real_value):
 	execute('setpos ' + device + ' ' + str(value) + ' ' + str(real_value))
 
-def getValue(name):
+def getValue(name, refresh = False):
     controller = getDeviceController(name)
     if (controller == None):
         raise SicsError('Device / Path ' + name + ' not found')
     else:
-        return controller.getValue()
+        return controller.getValue(refresh)
     
 def getFilename():
-    return getValue('/experiment/file_name')
+    return getValue('/experiment/file_name', True)
     
 # Asynchronously set any hipadaba node to a given value
 def hset(parentController, relativePath, value):
