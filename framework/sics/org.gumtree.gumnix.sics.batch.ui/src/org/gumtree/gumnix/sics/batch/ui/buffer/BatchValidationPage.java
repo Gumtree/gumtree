@@ -17,7 +17,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -62,10 +61,6 @@ public class BatchValidationPage extends ExtendedFormComposite {
 	private UIContext context;
 	
 	private ExtendedConnectionContext connContext;
-	
-	private Socket socket;
-	
-	private PrintStream outputStream;
 	
 	public BatchValidationPage(Composite parent, int style) {
 		super(parent, style);
@@ -238,32 +233,22 @@ public class BatchValidationPage extends ExtendedFormComposite {
 	
 	/*************************************************************************
 	 * Operation
-	 * @throws IOException 
-	 * @throws UnknownHostException 
 	 *************************************************************************/
 	
-	private PrintStream getOutputStream() throws UnknownHostException, IOException{
-		if (socket == null || socket.isClosed() || !socket.isConnected()) {
-			if (socket != null) {
-				socket.close();
-				if (outputStream != null) {
-					outputStream.close();
-				}
-			}
-			socket = new Socket(getConnectionContext().getHost(),
+	private void runValidation(IBatchBuffer buffer) {
+		context.logText.setText("");
+		// Connect and login to SICS
+		try {
+			Socket socket = new Socket(getConnectionContext().getHost(),
 					getConnectionContext().getPort());
 			final BufferedReader inputStream = new BufferedReader(
 					new InputStreamReader(socket.getInputStream()));
-			outputStream = new PrintStream(socket.getOutputStream());
-			send(getConnectionContext().getLogin() + " "
-					+ getConnectionContext().getPassword(), outputStream);
-			send("statemon interest", outputStream);
-			final Socket oldSocket = socket;
+			PrintStream outputStream = new PrintStream(socket.getOutputStream());
 			Thread listenerThread = new Thread(new Runnable() {
 				public void run() {
 					try {
 						String replyMessage;
-						while (oldSocket != null && !oldSocket.isClosed() && (replyMessage = inputStream.readLine()) != null) {
+						while ((replyMessage = inputStream.readLine()) != null) {
 							// little hack to sics telnet bug
 							while (replyMessage.startsWith("�")) {
 								replyMessage = replyMessage.substring(2);
@@ -296,14 +281,14 @@ public class BatchValidationPage extends ExtendedFormComposite {
 															fontColor);
 											context.logText.append(message + "\n");
 											context.logText
-											.setStyleRange(styleRange);
+													.setStyleRange(styleRange);
 											// Auto scroll
 											StyledTextContent doc = context.logText
 													.getContent();
 											int docLength = doc.getCharCount();
 											if (docLength > 0) {
 												context.logText
-												.setCaretOffset(docLength);
+														.setCaretOffset(docLength);
 												context.logText.showSelection();
 											}
 										}
@@ -315,15 +300,8 @@ public class BatchValidationPage extends ExtendedFormComposite {
 				}
 			});
 			listenerThread.start();
-		}
-		return outputStream;
-	}
-	
-	private void runValidation(IBatchBuffer buffer) {
-		context.logText.setText("");
-		// Connect and login to SICS
-		try {
-			PrintStream outputStream = getOutputStream();
+			send(getConnectionContext().getLogin() + " "
+					+ getConnectionContext().getPassword(), outputStream);
 			send("exe clear", outputStream);
 			send("exe upload", outputStream);
 			BufferedReader reader  = new BufferedReader(new StringReader(buffer.getContent()));
