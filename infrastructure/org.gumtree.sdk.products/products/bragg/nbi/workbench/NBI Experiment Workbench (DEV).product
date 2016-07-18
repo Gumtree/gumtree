@@ -8,8 +8,8 @@
       <text>
          Gumtree
 
-(c) Copyright Bragg Institute and others 2012.  All rights reserved.
-Visit http://gumtree.codehaus.org/
+(c) Copyright ANSTO and others 2016.  All rights reserved.
+Visit https://github.com/Gumtree/gumtree
 
 This product includes software developed by the
 Eclipse Foundation http://www.eclipse.org/
@@ -60,7 +60,6 @@ Eclipse Foundation http://www.eclipse.org/
 
    <vm>
    </vm>
-
 
    <plugins>
       <plugin id="akka.actor"/>
