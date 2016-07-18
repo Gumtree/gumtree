@@ -6,10 +6,10 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.gumtree.app.workbench.application"
-            name="Gumtree">
+            name="Gumtree 1.12.5">
          <property
                name="appName"
-               value="Gumtree">
+               value="Gumtree 1.12.5">
          </property>
          <property
                name="aboutImage"
@@ -37,7 +37,7 @@
          </property>
          <property
                name="aboutText"
-               value="Gumtree&#x0A;&#x0A;(c) Copyright Bragg Institute and others 2012.  All rights reserved.&#x0A;Visit http://gumtree.codehaus.org/&#x0A;&#x0A;This product includes software developed by the&#x0A;Eclipse Foundation http://www.eclipse.org/">
+               value="Gumtree&#x0A;&#x0A;(c) Copyright ANSTO and others 2016.  All rights reserved.&#x0A;Visit https://github.com/Gumtree/gumtree&#x0A;&#x0A;This product includes software developed by the&#x0A;Eclipse Foundation http://www.eclipse.org/">
          </property>
          <property
                name="applicationXMI"
