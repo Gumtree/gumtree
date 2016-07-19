@@ -882,7 +882,8 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 			String sessionId = controlDb.getCurrentSessionId();
 			String pageId = sessionDb.getSessionValue(sessionId);
 			String proposalId = proposalDb.findProposalId(sessionId);
-			for (int i = 0; i < 5 - proposalId.length(); i ++) {
+			int lengthDiff = 5 - proposalId.length();
+			for (int i = 0; i < lengthDiff; i ++) {
 				proposalId = "0" + proposalId;
 			}
 			String sourceFilename = currentFileFolder + "/" + pageId + ".xml";
