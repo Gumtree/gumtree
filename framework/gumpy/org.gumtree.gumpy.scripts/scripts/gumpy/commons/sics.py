@@ -303,6 +303,19 @@ def run_command(cmd, use_full_feedback = False):
         raise Exception, 'time out in running the command'
     return call_back.__status__
 
+def run_command_timeout(cmd, use_full_feedback = False, timeout = None):
+    logger.log('using timeout command')
+    call_back = __SICS_Callback__(use_full_feedback)
+    SicsCore.getDefaultProxy().send(cmd, call_back)
+    acc_time = 0
+    while call_back.__status__ is None and (timeout is None or acc_time < timeout) :
+#    while call_back.__status__ is None:
+        time.sleep(0.2)
+        acc_time += 0.2
+    if call_back.__status__ is None:
+        raise Exception, 'time out in running the command'
+    return call_back.__status__
+
 def get_raw_value(comm, dtype = float):
     global __time_out__
     __count__ = 0
