@@ -520,7 +520,10 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to create new file");
 					return;
 				}
-				saveOldPagePdf();
+				try {
+					saveOldPagePdf();					
+				} catch (Exception e) {
+				}
 				PrintWriter pw = null;
 				String html = "";
 				try {

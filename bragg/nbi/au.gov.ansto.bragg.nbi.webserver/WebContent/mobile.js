@@ -21,16 +21,17 @@ function formatDate(d) {
 	return yy + '-' + mm + '-' + dd + 'T' + HH + ':' + MM ;
 }
 
-function changeHistmemType() {
+function changeHistmemType(i) {
+	var histmemList = histmemUrl.split(";");
 	var newHistmemUrl;
 	if (typeof histmemTypes !== 'undefined' && histmemTypes.length > 0) {
-		newHistmemUrl = histmemUrl.replace('$HISTMEM_TYPE', $('#histmem_type').val());
+		newHistmemUrl = histmemList[i].replace('$HISTMEM_TYPE', $('#histmem_type').val());
 	} else {
-		newHistmemUrl = histmemUrl;
+		newHistmemUrl = histmemList[i];
 	}
 	newHistmemUrl += "&timestamp=" + new Date().getTime()
 	
-	$("#histmemImage").attr("src", newHistmemUrl);
+	$("#histmemImage" + i).attr("src", newHistmemUrl);
 //	try{
 //		$.get(newHistmemUrl, function(data,status){
 //			if (status == "success") {
@@ -171,21 +172,24 @@ var refresh = function(){
 		}
 		if (!isMobileBrowser && histmemUrl != null) {
 			
-			var newHistmemUrl;
-			if (typeof histmemTypes !== 'undefined' && histmemTypes.length > 0) {
-				newHistmemUrl = histmemUrl.replace('$HISTMEM_TYPE', $('#histmem_type').val());
-			} else {
-				newHistmemUrl = histmemUrl;
-			}
-			newHistmemUrl += "&timestamp=" + new Date().getTime()
+			histmemList = histmemUrl.split(";");
+			for ( var i = 0; i < histmemList.length; i++) {
+				var newHistmemUrl;
+				if (typeof histmemTypes !== 'undefined' && histmemTypes.length > 0) {
+					newHistmemUrl = histmemList[i].replace('$HISTMEM_TYPE', $('#histmem_type').val());
+				} else {
+					newHistmemUrl = histmemList[i];
+				}
+				newHistmemUrl += "&timestamp=" + new Date().getTime()
 
-			try{
-				$.get(newHistmemUrl, function(data,status){
-					if (status == "success") {
-						$("#histmemImage").attr("src", newHistmemUrl);
-					} 
-				});
-			} catch (e) {
+				try{
+					$.get(newHistmemUrl, function(data,status){
+						if (status == "success") {
+							$("#histmemImage" + i).attr("src", newHistmemUrl);
+						} 
+					});
+				} catch (e) {
+				}
 			}
 		}
 //		$.support.cors = true;
@@ -368,22 +372,29 @@ jQuery(document).ready(function(){
 		if (isMobileBrowser) {
 			$("#histmemDiv").html('<div data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="c" data-disabled="false" class="ui-btn ui-shadow ui-btn-corner-all ui-btn-up-c" aria-disabled="false"><span class="ui-btn-inner"><span class="ui-btn-text">Get histogram snapshot</span></span><button id="histmemButton" class="ui-btn-hidden" data-disabled="false">Get histogram snapshot</button></div>');
 		} else {
-			var newHistmemUrl = histmemUrl;
+			var histmemList = histmemUrl.split(";");
 			var html = "";
-			if (typeof histmemTypes !== 'undefined' && histmemTypes.length > 0) {
-				var defaultType = histmemTypes[0].id;
-				html = '<label for="histmem_type" class="select">Select histogram type (log view): </label><select id="histmem_type" name="histmem_type" onchange="changeHistmemType()">';
-				for ( var i = 0; i < histmemTypes.length; i++) {
-//					html += '<option value="' + histmemTypes[i].id + '">' + histmemTypes[i].text + '</option>';
-					html += '<option value="' + histmemTypes[i].id + '"' + (histmemTypes[i].isDefault ? ' selected' : '') + '>' + histmemTypes[i].text + '</option>';
-					if (histmemTypes[i].isDefault) {
-						defaultType = histmemTypes[i].id;
-					}
+			for ( var i = 0; i < histmemList.length; i++) {
+				var newHistmemUrl = histmemList[i];
+				if (i > 0){
+					html += "<br>";
 				}
-				html += '</select><br>';
-				newHistmemUrl = histmemUrl.replace('$HISTMEM_TYPE', defaultType);
+				if (typeof histmemTypes !== 'undefined' && histmemTypes.length > 0) {
+					var defaultType = histmemTypes[0].id;
+					html += '<label for="histmem_type" class="select">Select histogram type (log view): </label><select id="histmem_type' + i + '" name="histmem_type' + i + '" onchange="changeHistmemType(' + i + ')">';
+					for ( var j = 0; j < histmemTypes.length; j++) {
+//						html += '<option value="' + histmemTypes[i].id + '">' + histmemTypes[i].text + '</option>';
+						html += '<option value="' + histmemTypes[j].id + '"' + (histmemTypes[j].isDefault ? ' selected' : '') + '>' + histmemTypes[j].text + '</option>';
+						if (histmemTypes[j].isDefault) {
+							defaultType = histmemTypes[j].id;
+						}
+					}
+					html += '</select><br>';
+					newHistmemUrl = histmemList[i].replace('$HISTMEM_TYPE', defaultType);
+				}
+				html += '<img id="histmemImage' + i + '" src="' + newHistmemUrl + '" alt="Waiting for the picture to get ready, or refresh again.">';
 			}
-			$("#histmemDiv").html(html + '<img id="histmemImage" src="' + newHistmemUrl + '" alt="Waiting for the picture to get ready, or refresh again.">');
+			$("#histmemDiv").html(html);				
 		}
 	}
 	

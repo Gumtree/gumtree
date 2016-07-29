@@ -1231,6 +1231,10 @@ public class ScriptControlViewer extends Composite {
 		}
 		final Button actionButton = new Button(parent, buttonType);
 		actionButton.setText(String.valueOf(action.getText()));
+		String tooltip = action.getProperty("tool_tip");
+		if (tooltip !=null) {
+			actionButton.setToolTipText(tooltip);
+		}
 		
 		boolean enabled = true;
 		String enabledProperty = action.getProperty("enabled");
