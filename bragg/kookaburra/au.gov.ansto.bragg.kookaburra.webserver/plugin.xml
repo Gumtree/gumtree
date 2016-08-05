@@ -2,6 +2,29 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
+         id="kookaburraHttpcontext"
+         point="org.eclipse.equinox.http.registry.httpcontexts">
+      <httpcontext
+            id="kookaburra">
+         <resource-mapping
+               path="/kookaburra/rest">
+         </resource-mapping>
+      </httpcontext>
+   </extension>
+   <extension
+         id="kookaburraRestlet"
+         point="org.eclipse.equinox.http.registry.servlets">
+      <servlet
+            alias="/kookaburra/rest"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="kookaburra">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.kookaburra.webserver.restlet.KookaburraRestletApplication">
+         </init-param>
+      </servlet>
+   </extension>
+   <extension
          point="org.eclipse.equinox.http.registry.resources">
       <resource
             alias="/"

@@ -181,15 +181,27 @@ var refresh = function(){
 					newHistmemUrl = histmemList[i];
 				}
 				newHistmemUrl += "&timestamp=" + new Date().getTime()
-
-				try{
-					$.get(newHistmemUrl, function(data,status){
-						if (status == "success") {
-							$("#histmemImage" + i).attr("src", newHistmemUrl);
-						} 
-					});
-				} catch (e) {
-				}
+				$(new Image()).data("iid", i).attr('src', newHistmemUrl).load(function() {
+					$("#histmemImage" + $(this).data("iid")).attr('src', this.src);
+				});
+//				$("#histmemImage" + i).attr("alt", "not available");
+//				$("#histmemImage" + i).attr("src", newHistmemUrl).load(function(){
+//					$(this).show();
+//				});
+//				$("#histmemImage" + i).error(function() {
+//					$(this).hide();
+//				});
+//				try{
+//					$.get(newHistmemUrl, function(data,status){
+//						console.log(status);
+//						if (status == "success") {
+//							$("#histmemImage" + i).prop("alt", "not available");
+//						} else {
+//							$("#histmemImage" + i).attr("alt", data);
+//						} 
+//					});
+//				} catch (e) {
+//				}
 			}
 		}
 //		$.support.cors = true;

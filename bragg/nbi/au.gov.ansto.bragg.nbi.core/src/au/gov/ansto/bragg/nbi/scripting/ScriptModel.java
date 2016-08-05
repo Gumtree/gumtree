@@ -23,6 +23,7 @@ public class ScriptModel {
 	private int numColumns = 1;
 	private boolean isEqualWidth = false;
 	private boolean isDirty = false;
+	private long lastModifiedTimestamp;
 	
 //	public static ScriptModel getModel(int id) {
 //		return modelRegistry.get(id);
@@ -173,4 +174,13 @@ public class ScriptModel {
 	public void setEqualWidth(boolean isEqualWidth) {
 		this.isEqualWidth = isEqualWidth;
 	}
+
+	public long getLastModifiedTimestamp() {
+		return lastModifiedTimestamp;
+	}
+
+	public void setLastModifiedTimestamp(long lastModifiedTimestamp) {
+		this.lastModifiedTimestamp = lastModifiedTimestamp;
+	}
+		
 }
