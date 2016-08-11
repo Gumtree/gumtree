@@ -114,11 +114,16 @@ def pause(msg = None):
 def selectSaveFolder():
     return __runner__.selectSaveFolder()
 
-def selectSaveFile(ext = None):
+def selectSaveFile(ext = None, ws_path = None, fn = None):
     if ext is None:
         ext = []
-    return __runner__.selectSaveFile(ext)
+    return __runner__.selectSaveFile(ext, ws_path, fn)
 
+def selectLoadFile(ext = None, ws_path = None):
+    if ext is None:
+        ext = []
+    return __runner__.selectLoadFile(ext, ws_path)
+    
 if '__dispose__' in globals() :
     __dispose__()
     

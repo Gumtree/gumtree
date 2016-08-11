@@ -43,7 +43,7 @@ var devices = [
 //            	            {"classId":"ss1vo", "deviceId":"ss1vo", "title":"ss1vo", "units":"mm"}
             	            ]
                },
-               {"group":"SAMPLE (pos-1 = 32, pos-2 = 177, pos-3 = 321.5, pos-4= 468, pos-5 = 612.5)", 
+               {"group":"SAMPLE (pos-1 = 32, pos-2 = 177, pos-3 = 321.5, pos-4 = 468, pos-5 = 612.5)", 
             	   "items":[{"classId":"samz", "deviceId":"samz", "title":"samz", "units":"mm", "decimal":1},
             	            {"classId":"samplename", "deviceId":"samplename", "title":"Sample Name", "units":""},
             	            {"classId":"sampledescription", "deviceId":"sampledescription", "title":"Sample Description", "units":""}

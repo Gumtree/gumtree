@@ -1,20 +1,26 @@
 package au.gov.ansto.bragg.kookaburra.webserver.restlet;
 
-import java.awt.Color;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.restlet.Request;
+import org.restlet.Response;
+import org.restlet.Restlet;
+import org.restlet.data.Form;
+import org.restlet.data.MediaType;
+import org.restlet.data.Status;
+import org.restlet.representation.InputRepresentation;
+import org.restlet.representation.Representation;
+
+import au.gov.ansto.bragg.nbi.server.jython.JythonRunner;
+import au.gov.ansto.bragg.nbi.server.jython.JythonRunnerManager;
+import au.gov.ansto.bragg.nbi.server.restlet.JythonExecutor.ExecutorStatus;
 //import org.gumtree.data.interfaces.IArray;
 //import org.gumtree.data.nexus.IAxis;
 //import org.gumtree.data.nexus.INXDataset;
@@ -28,18 +34,6 @@ import org.json.JSONObject;
 //import org.jfree.chart.axis.ValueAxis;
 //import org.jfree.chart.renderer.xy.XYItemRenderer;
 //import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.restlet.Request;
-import org.restlet.Response;
-import org.restlet.Restlet;
-import org.restlet.data.Form;
-import org.restlet.data.MediaType;
-import org.restlet.data.Status;
-import org.restlet.representation.InputRepresentation;
-import org.restlet.representation.Representation;
-
-import au.gov.ansto.bragg.nbi.server.jython.JythonRunner;
-import au.gov.ansto.bragg.nbi.server.jython.JythonRunnerManager;
-import au.gov.ansto.bragg.nbi.server.restlet.JythonExecutor.ExecutorStatus;
 
 public class KookaburraRestlet extends Restlet {
 
@@ -58,11 +52,34 @@ public class KookaburraRestlet extends Restlet {
 	private JythonRunner jythonRunner;
 	
 	public KookaburraRestlet() {
-		jythonRunner = (new JythonRunnerManager()).getNewRunner();
-		init();
+		delayedInit();
 	}
 
-	public void init() {
+	public void delayedInit() {
+		Thread initThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+				}
+				initJythonRunner();
+			}
+		});
+		initThread.start();
+	}
+	
+	public void initJythonRunner() {
+		if (jythonRunner == null) {
+			JythonRunner runner = (new JythonRunnerManager()).getNewRunner();
+			init(runner);
+			this.jythonRunner = runner;
+		}
+	}
+	
+	public void init(JythonRunner jythonRunner) {
 //		jythonRunner.runScriptLine("from bragg.kookaburra.online import *");
 		String initScript = System.getProperty(ONLINE_SCRIPTING_INIT_SCRIPT);
 		if (initScript != null) {
@@ -100,6 +117,11 @@ public class KookaburraRestlet extends Restlet {
 		String[] pathTokens = path.split("/");
 		if (pathTokens.length > 0) {
 			if (pathTokens[0].equals("plot")) {
+				if (jythonRunner == null) {
+					response.setEntity("NOT AVAILABLE", MediaType.TEXT_PLAIN);
+					response.setStatus(Status.SERVER_ERROR_NOT_IMPLEMENTED);
+					return;
+				}
 				try {
 					int height = Integer.parseInt(queryForm.getValues(QUERY_HEIGHT));
 					int width = Integer.parseInt(queryForm.getValues(QUERY_WIDTH));
@@ -115,6 +137,11 @@ public class KookaburraRestlet extends Restlet {
 		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 				}
 			} else if (pathTokens[0].equals("status")) {
+				if (jythonRunner == null) {
+					response.setEntity("NOT AVAILABLE", MediaType.TEXT_PLAIN);
+					response.setStatus(Status.SERVER_ERROR_NOT_IMPLEMENTED);
+					return;
+				}
 				try {
 					handleStatusRequest(request, response, queryForm);
 				} catch (Exception e) {

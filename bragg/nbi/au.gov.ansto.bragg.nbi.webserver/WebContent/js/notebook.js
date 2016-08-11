@@ -290,7 +290,7 @@ function makeNewPage(){
 	        			  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Saved', type: 'success' } );
 	        			  notification.show();
 	        			  CKEDITOR.instances.id_editable_inner.resetDirty();
-	    	        	  var getUrl = "../notebook/new?proposal_id=" + proposal + "&" + (new Date()).getTime();
+	    	        	  var getUrl = "notebook/new?proposal_id=" + proposal + "&" + (new Date()).getTime();
 	    	        	  $.get(getUrl, function(data, status) {
 	    	        		  if (status == "success") {
 	    		        		  location.reload();
