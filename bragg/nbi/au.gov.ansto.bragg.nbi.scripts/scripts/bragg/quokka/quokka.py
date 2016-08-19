@@ -658,7 +658,7 @@ def driveSafeAttenuation(override=False, startingAttenuation=330):
             time.sleep(3)
             while hasTripped():
                 resetTrip()
-                local_rate, global_rate = determineAveragedRates(max_samples=3, log_success=False)
+            local_rate, global_rate = determineAveragedRates(max_samples=3, log_success=False)
                 
             log('local rate = '  + str(local_rate))
             log('global rate = ' + str(global_rate))

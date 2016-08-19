@@ -127,44 +127,74 @@ def sample(val = None):
 
 def det(val = None):
     if not val is None :
-        dhv('DOWN')
-        sics.drive('det', val)
-        dhv('UP')
+        if not _is_within_precision_('det', val, .1):
+            dhv('DOWN')
+            sics.drive('det', val)
+            dhv('UP')
+        else:
+            log('detector is already at ' + str(val) + ', skipped')
     return sics.get_raw_value('det')
 
+def _is_within_precision_(dev, target, precision = None):
+    if precision is None:
+        try:
+            precision = sics.get_raw_value(dev + ' precision')
+        except:
+            precision = 0
+    cv = sics.get_raw_value(dev)
+    if abs(cv - target) <= precision:
+        return True
+    else:
+        return False
+    
 def curtaindet(val = None):
     if not val is None :
-        dhv('DOWN')
-        sics.drive('curtaindet', val)
-        dhv('UP')
+        if not _is_within_precision_('curtaindet', val, .1):
+            dhv('DOWN')
+            sics.drive('curtaindet', val)
+            dhv('UP')
+        else:
+            log('curtaindet is already at ' + str(val) + ', skipped')
     return sics.get_raw_value('curtaindet')
 
 def curtainl(val = None):
     if not val is None :
-        dhv('DOWN')
-        sics.drive('curtainl', val)
-        dhv('UP')
+        if not _is_within_precision_('curtainl', val, .1):
+            dhv('DOWN')
+            sics.drive('curtainl', val)
+            dhv('UP')
+        else:
+            log('curtainl is already at ' + str(val) + ', skipped')
     return sics.get_raw_value('curtainl')
 
 def curtainr(val = None):
     if not val is None :
-        dhv('DOWN')
-        sics.drive('curtainr', val)
-        dhv('UP')
+        if not _is_within_precision_('curtainr', val, .1):
+            dhv('DOWN')
+            sics.drive('curtainr', val)
+            dhv('UP')
+        else:
+            log('curtainr is already at ' + str(val) + ', skipped')
     return sics.get_raw_value('curtainr')
 
 def curtainu(val = None):
     if not val is None :
-        dhv('DOWN')
-        sics.drive('curtainu', val)
-        dhv('UP')
+        if not _is_within_precision_('curtainu', val, .1):
+            dhv('DOWN')
+            sics.drive('curtainu', val)
+            dhv('UP')
+        else:
+            log('curtainu is already at ' + str(val) + ', skipped')
     return sics.get_raw_value('curtainu')
 
 def curtaind(val = None):
     if not val is None :
-        dhv('DOWN')
-        sics.drive('curtaind', val)
-        dhv('UP')
+        if not _is_within_precision_('curtaind', val, .1):
+            dhv('DOWN')
+            sics.drive('curtaind', val)
+            dhv('UP')
+        else:
+            log('curtaind is already at ' + str(val) + ', skipped')
     return sics.get_raw_value('curtaind')
 
 def dhv(val = None):
@@ -243,25 +273,60 @@ class DetectorSystem :
                     self.curtaind is None:
                 raise Exception, 'please set up Detector first.'
             else :
-                dhv('DOWN')
-                if self.det is None or self.curtaindet is None :
-                    self.multiDrive(self.det, self.curtaindet, self.curtainl, \
-                                    self.curtainr, self.curtainu, self.curtaind)
+                need_drive = False
+                if self.det != None and not _is_within_precision_('det', self.det, .1):
+                    need_drive = True
                 else:
-                    cur_det = det()
-                    cur_curtaindet = curtaindet()
-                    if self.curtaindet <= cur_curtaindet and self.det >= cur_det :
+                    if self.det != None :
+                        log('det is already at ' + str(self.det) + ', skipped')
+                if self.curtaindet != None and not _is_within_precision_('curtaindet', self.curtaindet, .1):
+                    need_drive = True
+                else:
+                    if self.curtaindet != None :
+                        log('curtaindet is already at ' + str(self.curtaindet) + ', skipped')
+                if self.curtainl != None and not _is_within_precision_('curtainl', self.curtainl, .1):
+                    need_drive = True
+                else:
+                    if self.curtainl != None :
+                        log('curtainl is already at ' + str(self.curtainl) + ', skipped')
+                if self.curtainr != None and not _is_within_precision_('curtainr', self.curtainr, .1):
+                    need_drive = True
+                else:
+                    if self.curtainr != None :
+                        log('curtainr is already at ' + str(self.curtainr) + ', skipped')
+                if self.curtainu != None and not _is_within_precision_('curtainu', self.curtainu, .1):
+                    need_drive = True
+                else:
+                    if self.curtainu != None :
+                        log('curtainu is already at ' + str(self.curtainu) + ', skipped')
+                if self.curtaind != None and not _is_within_precision_('curtaind', self.curtaind, .1):
+                    need_drive = True
+                else:
+                    if self.curtaind != None :
+                        log('curtaind is already at ' + str(self.curtaind) + ', skipped')
+                if need_drive :
+                    dhv('DOWN')
+                    if self.det is None or self.curtaindet is None :
                         self.multiDrive(self.det, self.curtaindet, self.curtainl, \
-                                    self.curtainr, self.curtainu, self.curtaind)
-                    elif self.curtaindet > cur_curtaindet:
-                        sics.drive('det', self.det)
-                        self.multiDrive(None, self.curtaindet, self.curtainl, \
-                                    self.curtainr, self.curtainu, self.curtaind)
-                    else :
-                        self.multiDrive(None, self.curtaindet, self.curtainl, \
-                                    self.curtainr, self.curtainu, self.curtaind)
-                        sics.drive('det', self.det)
-                dhv('UP')
+                                        self.curtainr, self.curtainu, self.curtaind)
+                    else:
+                        cur_det = det()
+                        cur_curtaindet = curtaindet()
+                        if self.curtaindet <= cur_curtaindet and self.det >= cur_det :
+                            self.multiDrive(self.det, self.curtaindet, self.curtainl, \
+                                        self.curtainr, self.curtainu, self.curtaind)
+                        elif self.curtaindet > cur_curtaindet:
+                            sics.drive('det', self.det)
+                            self.multiDrive(None, self.curtaindet, self.curtainl, \
+                                        self.curtainr, self.curtainu, self.curtaind)
+                        else :
+                            self.multiDrive(None, self.curtaindet, self.curtainl, \
+                                        self.curtainr, self.curtainu, self.curtaind)
+                            sics.drive('det', self.det)
+                    dhv('UP')
+                else:
+                    log('no need to drive the detectors, pass')
+                    return
         finally:
             self.clear()
 
