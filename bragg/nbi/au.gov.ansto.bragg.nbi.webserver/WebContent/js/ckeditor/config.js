@@ -7,7 +7,7 @@ CKEDITOR.editorConfig = function( config ) {
 	
 	// %REMOVE_START%
 	// The configuration options below are needed when running CKEditor from source files.
-	config.plugins = 'dialogui,dialog,a11yhelp,dialogadvtab,basicstyles,bidi,blockquote,clipboard,button,panelbutton,panel,floatpanel,colorbutton,colordialog,menu,contextmenu,div,resize,toolbar,elementspath,enterkey,entities,popup,filebrowser,find,fakeobjects,flash,floatingspace,listblock,richcombo,font,forms,format,horizontalrule,htmlwriter,iframe,wysiwygarea,image,indent,indentblock,indentlist,smiley,justify,menubutton,language,link,list,liststyle,magicline,maximize,newpage,pagebreak,pastetext,pastefromword,preview,print,removeformat,save,selectall,showblocks,showborders,sourcearea,specialchar,scayt,stylescombo,tab,table,tabletools,undo,wsc,texzilla,xml,ajax,allowsave,autocorrect,notification,autosave,backgrounds,base64image,lineutils,widget,chart,widgettemplatemenu,devtools,dropdownmenumanager,floating-tools,insertpre,lineheight,mathedit,onchange,pastebase64,removespan,resizewithwindow,tableresize,toolbarswitch';
+	config.plugins = 'dialogui,dialog,a11yhelp,dialogadvtab,basicstyles,bidi,blockquote,base64image,clipboard,button,panelbutton,panel,floatpanel,colorbutton,colordialog,menu,contextmenu,div,resize,toolbar,elementspath,enterkey,entities,popup,filebrowser,find,fakeobjects,flash,floatingspace,listblock,richcombo,font,forms,format,horizontalrule,htmlwriter,iframe,wysiwygarea,image,indent,indentblock,indentlist,smiley,justify,menubutton,language,link,list,liststyle,magicline,maximize,newpage,pagebreak,pastetext,pastefromword,preview,print,removeformat,save,selectall,showblocks,showborders,sourcearea,specialchar,scayt,stylescombo,tab,table,tabletools,undo,wsc,texzilla,xml,ajax,allowsave,autocorrect,notification,autosave,backgrounds,base64image,lineutils,widget,chart,widgettemplatemenu,devtools,dropdownmenumanager,floating-tools,insertpre,lineheight,mathedit,onchange,pastebase64,removespan,resizewithwindow,tableresize,toolbarswitch';
 	config.skin = 'moonocolor';
 	// %REMOVE_END%
 
@@ -44,7 +44,7 @@ CKEDITOR.editorConfig = function( config ) {
 	                  '/',
 	                  { name: 'basicstyles', items: [ "TextColor", "BGColor", "UIColor", "ShowBlocks" ] },
 //	                  { name: 'media', items: [ "CreatePlaceholder", "Image", "Flash", "Table", "HorizontalRule", "Smiley", "Mathjax", "SpecialChar",
-	                  { name: 'media', items: [ "CreatePlaceholder", "Image", "Flash", "Table", "HorizontalRule", "Smiley", "SpecialChar",
+	                  { name: 'media', items: [ "CreatePlaceholder", "base64image", "Flash", "Table", "HorizontalRule", "Smiley", "SpecialChar",
 	                                            "PageBreak", "InsertPre"] },
 //	                  { name: 'buttons', items: [ "Form", "Checkbox", "Radio", "TextField", "Textarea", "Select",
 //	                                              "Button", "ImageButton", "HiddenField"] },
@@ -52,7 +52,7 @@ CKEDITOR.editorConfig = function( config ) {
 //	config.extraPlugins = 'image2,pdf,word,mathjax';
 	config.extraPlugins = 'image2,pdf,word';
 	
-	config.removePlugins = 'devtools,templates,pastebase64,autocorrect';
+	config.removePlugins = 'devtools,templates,autocorrect';
 	
 	config.blockedKeystrokes =
 		[

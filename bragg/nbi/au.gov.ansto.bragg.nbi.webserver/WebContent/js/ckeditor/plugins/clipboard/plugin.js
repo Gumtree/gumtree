@@ -453,7 +453,7 @@
 
 	function convertImgToBase64(image, url, callback, outputFormat){
 		var localUrl = "notebook/imageService?url=" + url;
-		console.log('convert to base64');
+		console.log('convert to base64:clipboard/plugin.js');
 		$.ajax({
 			cache: false,
 			type: "GET",

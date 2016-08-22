@@ -14,7 +14,7 @@
 
 		editor.on("contentDom", function () {
 			var editableElement = editor.editable ? editor.editable() : editor.document;
-			editableElement.on("paste", onPaste, null, {editor: editor});
+			editableElement.on("paste", onPaste, null, {editor: editor}, 20);
 			editableElement.on('drop', onDrop, null, {editor: editor});
 		});
 	}
