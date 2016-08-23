@@ -84,6 +84,22 @@ public class SicsRealtimeRourceProvider implements IRealtimeResourceProvider {
 		return resourceList;
 	}
 
+	public SicsRealtimeResource getResource(String name) {
+		IComponentController controller = SicsRealtimeResource.findDevice(name);
+		if (controller != null) {
+			String id = controller.getId();
+			if (id.contains("SP")) {
+				id = id.replace("SP", "_Setpoint");
+			} else {
+				id = id.replace("S", "_Sensor");
+			}
+			SicsRealtimeResource resource = new SicsRealtimeResource(id);
+			resource.setFullName(name);
+			return resource;
+		}
+		return null;
+	}
+	
 	public void setFilter(List<String> nameFilter) {
 		this.nameFilter = nameFilter;
 	}

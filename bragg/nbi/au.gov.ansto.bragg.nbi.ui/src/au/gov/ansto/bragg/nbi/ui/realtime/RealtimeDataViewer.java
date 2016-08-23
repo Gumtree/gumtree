@@ -12,7 +12,15 @@ package au.gov.ansto.bragg.nbi.ui.realtime;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ModifyEvent;
@@ -26,11 +34,13 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.gumtree.data.ui.viewers.PlotViewer;
 import org.gumtree.gumnix.sics.control.ServerStatus;
+import org.gumtree.gumnix.sics.control.controllers.IComponentController;
 import org.gumtree.gumnix.sics.core.SicsCore;
+import org.gumtree.gumnix.sics.ui.util.DynamicControllerNode;
 import org.gumtree.vis.dataset.XYTimeSeriesSet;
 import org.gumtree.vis.interfaces.ITimePlot;
-import org.gumtree.vis.swt.PlotComposite;
 
 import au.gov.ansto.bragg.nbi.ui.internal.Activator;
 
@@ -52,7 +62,7 @@ public class RealtimeDataViewer extends Composite {
 	private ITimePlot timePlot;
 	private Thread updateThread;
 	private boolean isDisposed;
-	private PlotComposite plotComposite;
+	private PlotViewer plotViewer;
 	
 	/**
 	 * @param parent
@@ -120,11 +130,48 @@ public class RealtimeDataViewer extends Composite {
 		});
 //		Composite plotComposite = getFormToolkit().createComposite(parent);
 //		GridLayoutFactory.fillDefaults().applyTo(plotComposite);
-		plotComposite = new PlotComposite(this, SWT.NONE);
-		GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(plotComposite);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(plotComposite);
-		plotComposite.setDataset(new XYTimeSeriesSet());
-		timePlot = (ITimePlot) plotComposite.getPlot();
+//		plotComposite = new PlotComposite(this, SWT.NONE);
+		plotViewer = new PlotViewer(this, SWT.NONE);
+		GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(plotViewer);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(plotViewer);
+		DropTarget dt = new DropTarget(plotViewer, DND.DROP_MOVE);
+	    dt.setTransfer(new Transfer[] { LocalSelectionTransfer.getTransfer() });
+	    dt.addDropListener(new DropTargetAdapter() {
+	    	public void drop(DropTargetEvent event) {
+	    		if (LocalSelectionTransfer.getTransfer().isSupportedType(event.currentDataType)) {
+//	    			LocalSelectionTransfer.getTransfer().setSelection(treeViewer.getSelection());
+	    			ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
+	    			if (selection != null && selection instanceof IStructuredSelection) {
+	    				IStructuredSelection structures = (IStructuredSelection) selection;
+	    				for(Object struct : structures.toList()) {
+	    					if(struct instanceof DynamicControllerNode) {
+	    						IComponentController controller = ((DynamicControllerNode) struct).getController();
+	    						try {
+		    						String deviceId = controller.getId();
+		    						if (deviceId != null) {
+		    							IRealtimeResource resource = resourceProvider.getResource(deviceId);
+		    							if (resource == null) {
+		    								resource = resourceProvider.getResource(controller.getPath());
+		    							}
+		    							if (resource != null && resource instanceof SicsRealtimeResource) {
+		    								timePlot.addTimeSeriesSet(resource.getTimeSeriesSet());
+		    								resourceProvider.addResourceToUpdateList(resource);
+		    								timePlot.updatePlot();
+		    								contentCombo.add(deviceId);
+		    								contentCombo.setData(deviceId, resource);
+		    							}
+		    						}
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+	    					}
+	    				}
+	    			}
+	    		}
+	    	}
+	    });
+	    plotViewer.setDataset(new XYTimeSeriesSet());
+		timePlot = (ITimePlot) plotViewer.getPlot();
 		timePlot.setAutoUpdate(false);
 		addListeners();
 	}
@@ -187,7 +234,6 @@ public class RealtimeDataViewer extends Composite {
 			
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				// TODO Auto-generated method stub
 				dispose();
 			}
 		});
@@ -280,12 +326,16 @@ public class RealtimeDataViewer extends Composite {
 
 					while (!isDisposed) {
 						if (resourceProvider != null) {
-							if (SicsCore.getDefaultProxy() != null && SicsCore.getDefaultProxy().isConnected() 
-									&& SicsCore.getSicsController() != null 
-									&& SicsCore.getSicsController().getServerStatus() != ServerStatus.UNKNOWN){
-								resourceProvider.updateResource();
-								timePlot.updatePlot();
-//							((ChartPanel) timePlot).chartChanged(null);
+							try {
+								if (SicsCore.getDefaultProxy() != null && SicsCore.getDefaultProxy().isConnected() 
+										&& SicsCore.getSicsController() != null 
+										&& SicsCore.getSicsController().getServerStatus() != ServerStatus.UNKNOWN){
+									resourceProvider.updateResource();
+									timePlot.updatePlot();
+//								((ChartPanel) timePlot).chartChanged(null);
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
 							}
 						}
 						try {
@@ -329,7 +379,7 @@ public class RealtimeDataViewer extends Composite {
 			resourceProvider.clear();
 			resourceProvider = null;
 		}
-		plotComposite.dispose();
+		plotViewer.dispose();
 		timePlot = null;
 		resourceCombo = null;
 		contentCombo = null;
