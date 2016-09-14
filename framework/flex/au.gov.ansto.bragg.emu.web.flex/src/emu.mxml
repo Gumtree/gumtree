@@ -76,8 +76,8 @@
             		"/instrument/chpr/background/actspeed", chopperBSpeed,
             		"/instrument/chpr/background/actphase", chopperPhase,
             		"/instrument/chpr/background/actgear", chopperRatio, 
-            		"/instrument/doppler/amp", dopplerAmp,
-            		"/instrument/doppler/vel", dopplerVel, 
+            		"/instrument/doppler/ctrl/amplitude", dopplerAmp,
+            		"/instrument/doppler/ctrl/velocity", dopplerVel, 
             		"/instrument/be/temp", beTemp,
             		"/instrument/be/vac", beVac
             	];

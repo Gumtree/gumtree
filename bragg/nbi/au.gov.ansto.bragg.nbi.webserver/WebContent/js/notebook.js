@@ -8,7 +8,8 @@ var proposal = null;
 var updateIntervalId = null;
 var checkNewIntervalId = null;
 var updateIntervalSeconds = 60;
-var checkNewIntervalSeconds = 5;
+var checkNewIntervalSeconds = 6;
+var isLoggedIn = false;
 
 jQuery.fn.outerHTML = function() {
 	return jQuery('<div />').append(this.eq(0).clone()).html();
@@ -86,6 +87,7 @@ function checkNewPage() {
 	var getUrl = "notebook/currentpage";
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
+			updateUserArea(true);
 			try {
 				var newPageId = data.split(':')[1];
 				if (pageId != newPageId) {
@@ -111,6 +113,9 @@ function checkNewPage() {
 					        	  }).fail(function(e) {
 					        		  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to save the page.', type: 'warning' } );
 					        		  notification.show();
+					        		  if (e.status == 401) {
+					        			  updateUserArea(false);
+					        		  }
 					        	  }).always(function() {
 //						        	  $(this).dialog("close");
 					        	  });
@@ -132,6 +137,9 @@ function checkNewPage() {
 		}
 	})
 	.fail(function(e) {
+		  if (e.status == 401) {
+			  updateUserArea(false);
+		  }
 	}).always(function() {
 	});
 }
@@ -302,6 +310,9 @@ function makeNewPage(){
 	        	  }).fail(function(e) {
 	        		  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to save the page.', type: 'warning' } );
 	        		  notification.show();
+	        		  if (e.status == 401) {
+	        			  updateUserArea(false);
+	        		  }
 	        	  }).always(function() {
 //		        	  $(this).dialog("close");
 	        	  });
@@ -345,7 +356,7 @@ function getWord(){
 //	jQuery('<div />').append(data).wordExport();
 	
     var converted = htmlDocx.asBlob(data);
-    var fn = "Quokka_Notebook";
+    var fn = title + "_Notebook";
     if (pageId != null) {
     	fn = pageId;
     }
@@ -439,6 +450,55 @@ function closeSearch() {
 	$('#id_input_search_close').hide();
 }
 
+function showLogoutMessage(msg) {
+	var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: msg, type: 'info' } );
+	notification.show();
+}
+
+//function signout(){
+//    var getUrl = "signin/LOGOUT";
+//    $.get(getUrl, function(data, status) {
+//        if (status == "success") {
+//            if (data['result'] == "OK") {
+//            	$("#id_div_main").html("<div class=\"id_span_infoText\">You have successfully signed out. Now jump to the sign in page. "
+//            			+ "If the browser doesn't redirect automatically, please click <a href=\"signin.html\">here</a>.</div>");
+//                setTimeout(function() {
+//                	window.location = "signin.html?redirect=notebook.html";
+//    			}, 2000);
+//            } else {
+//            	$("#id_div_main").html(data['result']);
+//            }
+//        }
+//    })
+//    .fail(function(e) {
+//    	alert( "error in signing out.");
+//    });
+//}
+
+//function updateUserArea(loggedIn) {
+//	if (loggedIn) {
+//		if (isLoggedIn) {
+//			return;
+//		}
+//		$('#id_a_signout').html("<img src=\"images/signout_blue.png\"/>Sign Out ");
+//		$("#id_a_signout").unbind("click");
+//		$("#id_a_signout").click(function() {
+//			signout();
+//		});
+//	} else {
+//		$('#id_a_signout').html("<img src=\"images/signin.png\"/>Sign In ");
+//		$("#id_a_signout").unbind("click");
+//		$("#id_a_signout").click(function() {
+//			var win = window.open("signin.html", '_blank');
+//			win.focus();
+//		});	
+////		alert( "User session is expired. Please sign in again.");
+//		var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'User session is expired. Please sign in again.', type: 'info' } );
+//		notification.show();
+//	}
+//	isLoggedIn = loggedIn;
+//}
+
 function dbScrollBottom() {
 	isAppending = true;
     $('#id_sidebar_inner').append('<div class="class_inner_loading"><img src="images/loading.gif"></div>');
@@ -502,7 +562,11 @@ function dbScrollBottom() {
 		}
 	})
 	.fail(function(e) {
-		alert( "error loading db xml file.");
+		if (e.status == 401) {
+			updateUserArea(false);
+		} else {
+			alert( "error loading db xml file.");
+		}
 	})
 	.always(function() {
 	    isAppending = false;
@@ -575,7 +639,11 @@ function dbScrollTop() {
 		}
 	})
 	.fail(function(e) {
-		alert( "error loading db xml file.");
+		if (e.status == 401) {
+			updateUserArea(false);
+		} else {
+			alert( "error loading db xml file.");
+		}
 	})
 	.always(function() {
 	    isAppending = false;
@@ -768,6 +836,9 @@ jQuery(document).ready(function() {
 		        .fail(function(e) {
 		        	var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to save the page.', type: 'warning' } );
 		            notification.show();
+        		    if (e.status == 401) {
+        			    updateUserArea(false);
+        		    }
 		        });
 		    });
 			
@@ -781,7 +852,9 @@ jQuery(document).ready(function() {
 		}
 	})
 	.fail(function(e) {
-		alert( "error loading current notebook file.");
+		if (e.status == 401) {
+			window.location = "signin.html?redirect=notebook.html";
+		}
 	});
 
 //	load db entries
@@ -852,7 +925,6 @@ jQuery(document).ready(function() {
 		}
 	})
 	.fail(function(e) {
-		alert( "error loading db xml file.");
 	});
 
 	// load templates
@@ -906,7 +978,20 @@ jQuery(document).ready(function() {
 		}
 	})
 	.fail(function(e) {
-		alert( "error loading db xml file.");
+	});
+	
+	getUrl = "notebook/user";
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+//			$('#id_a_signout').html("<img src=\"images/signout_blue.png\"/>Sign Out ");
+//			$("#id_a_signout").click(function() {
+//				console.log('click');
+//				signout();
+//			});
+			updateUserArea(true);
+		}
+	})
+	.fail(function(e) {
 	});
 	
 	$('#id_sidebar_inner').on('DOMMouseScroll mousewheel', function(ev) {

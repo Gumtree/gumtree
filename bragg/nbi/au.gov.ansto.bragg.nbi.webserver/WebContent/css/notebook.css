@@ -370,6 +370,7 @@ th {
 		color: #888;
 		font-size: 14px;
 		text-decoration: none;
+		cursor: pointer;
 	}
 	#id_div_headercorner a:HOVER{
 		text-decoration: underline;

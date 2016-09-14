@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="icons/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="icons/apple-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="icons/apple-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="icons/apple-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-icon-180x180.png">
+	<link rel="icon" type="image/png" sizes="192x192"  href="icons/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+	<link rel="manifest" href="icons/manifest.json">
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
+	<meta name="theme-color" content="#ffffff">
+	
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="css/form.css" />
+<link rel="stylesheet" href="css/table.css" />
+<link rel="stylesheet" href="css/tabs.css" />
+<link rel="stylesheet" href="css/button.css" />
+<link rel="stylesheet" href="css/popup.css" />
+<link rel="stylesheet" href="css/scripting.css" />
+<link rel="stylesheet" href="css/navigate.css" />
+<link rel="stylesheet" href="css/login.css" />
+<link rel="stylesheet" href="css/home.css" />
+<script type="text/javascript" src="https://l2.io/ip.js?var=myip"></script>
+<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+<script src="instrumentsetup.js"></script>
+<script src="js/busy.js"></script>
+<script src="js/signin.js"></script>
+<script src="js/popup.js"></script>
+<!--[if IE]>
+<style type="text/css">
+    .box { display: block; }
+    #box { overflow: hidden;position: relative; }
+    b { position: absolute; top: 0px; right: 0px; width:1px; height: 251px; overflow: hidden; text-indent: -9999px; }
+</style>
+<![endif]-->
+<title>Neutron Scattering Instrument Sign in</title>
+</head>
+<body>
+
+<div id="doc" class="yui-t7 ui-shadow">
+  <div id="hd">
+    <div id="header" class="ui-shadow"><h1 id="titleString">Neutron Scattering Instrument Sign in</h1></div>
+  </div>
+  <div id="bd">
+    <div id="yui-main">
+      <div class="yui-b">
+        <div class="yui-gb">
+          <div class="yui-u first ui-corner-all ui-shadow">
+            <div class="content cssmenu" id="cssmenu">
+                <ul>
+                    <li><a href="signin.html">Sign in</a></li>
+                </ul>
+            </div>
+          </div>
+          <div class="yui-u second ui-corner-all ui-shadow">
+          	<div class="content">
+                <div id="login_result" class="div_info_alert"></div>
+                <form id="login_form" method="post" action="login?type=LOGIN" name="login_form" accept-charset="utf-8">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable" id="table_login">
+                    <tbody class="scrollContent table_jython_content" id="login_body">
+                        <tr>
+                            <td colspan="2"><div class="table_header">Sign in to Online Service</div></td>
+                        </tr>
+                        <tr>
+                            <td>User Name: </td>
+                            <td><input type="text" id="login_username" name="login_username"></td>
+                        </tr>
+                        <tr>
+                            <td>Password: </td>
+                            <td><input type="password" id="login_password" name="login_password"></td>
+                        </tr>
+                        <tr>    
+                            <td></td>
+                            <td><input type="button" class="buttonStyle" data-role="button" id="login_submit" value="Sign in"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                </form>
+            </div>
+          </div>
+          <div class="yui-u third ui-corner-all ui-shadow">
+              <div>
+                  <img src="images/ansto_logo.jpg" width="100%">
+              </div>
+              <div>
+              		<h3>Australian Centre for Neutron Scattering</h3>
+                  <img id="id_img_sideimage" src="images/acns.jpg" width="100%">
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="ft">
+    <div id="footer" class="ui-widget ui-corner-all ui-shadow">
+        <div class="div_footer">
+			<p class="class_footer_right">&#169;2015 ANSTO</p>
+		</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

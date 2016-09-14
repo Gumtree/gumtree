@@ -22,22 +22,23 @@
 	<meta name="theme-color" content="#ffffff">
 	
 
-<link rel="stylesheet" href="../css/jquery-ui-1.11.1.css" />
-<link rel="stylesheet" href="../css/tabs.css" />
-<link rel="stylesheet" href="../css/navigate.css" />
-<link type='text/css' rel='stylesheet'	href='../js/raptor/libraries/raptor-front-end.css' />
-<link type='text/css' rel='stylesheet' href='../js/raptor/libraries/theme.css' />
-<link type='text/css' rel='stylesheet' href='../js/raptor/libraries/theme-icons.css' />
-<link type="text/css" rel='stylesheet' href='../css/notebook.css' />
-<link rel="stylesheet" href="../css/notebookAdmin.css" />
+<link rel="stylesheet" href="css/jquery-ui-1.11.1.css" />
+<link rel="stylesheet" href="css/tabs.css" />
+<link rel="stylesheet" href="css/navigate.css" />
+<link type='text/css' rel='stylesheet'	href='js/raptor/libraries/raptor-front-end.css' />
+<link type='text/css' rel='stylesheet' href='js/raptor/libraries/theme.css' />
+<link type='text/css' rel='stylesheet' href='js/raptor/libraries/theme-icons.css' />
+<link type="text/css" rel='stylesheet' href='css/notebook.css' />
+<link rel="stylesheet" href="css/notebookAdmin.css" />
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
-<script type="text/javascript" src="../js/FileSaver.js"></script>
-<script type="text/javascript" src="../js/html-docx.js"></script>
-<script type="text/javascript" src="../js/jquery.fileDownload.js"></script>
-<script type="text/javascript" src="../instrumentsetup.js"></script>
-<script type="text/javascript" src="../js/SlideOutTabs.js"></script>    
-<script type="text/javascript" src="../js/notebookAdmin.js"></script>
+<script type="text/javascript" src="js/FileSaver.js"></script>
+<script type="text/javascript" src="js/html-docx.js"></script>
+<script type="text/javascript" src="js/jquery.fileDownload.js"></script>
+<script type="text/javascript" src="instrumentsetup.js"></script>
+<script type="text/javascript" src="js/SlideOutTabs.js"></script>    
+<script type="text/javascript" src="js/notebookAdmin.js"></script>
+<script type="text/javascript" src="js/account.js"></script>
 <!--[if IE]>
 <style type="text/css">
     .box { display: block; }
@@ -50,7 +51,8 @@
 <body>
 
     <div class="class_div_header" id="id_div_header">
-		<span>Manage Notebook</span>
+		<span id="id_span_header">Manage Notebook</span>
+		<div id="id_div_headercorner"><a id="id_a_home" href="home.html"><img src="images/home-icon.png"/><span>Home</span></a><a id="id_a_account"><img src="images/signout_blue.png"/><span>Sign Out</span></a></div>
     </div>
     <div class="class_div_print_header" id="id_div_print_header">
     	<h1>Instrument Notebook </h1>
@@ -64,7 +66,7 @@
                	<ul id="id_ul_currentpage">
    				</ul>
            </li>
-           <!-- li><a href="../notebook.html">Go to Current Editor Page</a></li -->
+           <!-- li><a href="notebook.html">Go to Current Editor Page</a></li -->
  		   <li class='active has-sub'><a>Sorted with Proposal ID:</a>
  		   		<ul id="id_ul_archiveList">
         		</ul>

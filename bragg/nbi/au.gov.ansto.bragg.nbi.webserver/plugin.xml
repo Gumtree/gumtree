@@ -24,6 +24,10 @@
             base-name="/WebContent/history/historyFrame.html">
       </resource>
       <resource
+            alias="/home.html"
+            base-name="/WebContent/home.html">
+      </resource>
+      <resource
             alias="/mobile.html"
             base-name="/WebContent/mobile.html">
       </resource>
@@ -58,6 +62,10 @@
       <resource
             alias="/login.html"
             base-name="/WebContent/login.html">
+      </resource>
+      <resource
+            alias="/signin.html"
+            base-name="/WebContent/signin.html">
       </resource>
       <resource
             alias="/admin.html"
@@ -124,8 +132,12 @@
             base-name="/WebContent/icons">
       </resource>
       <resource
-            alias="/admin"
-            base-name="/WebContent/admin">
+            alias="/notebookAdmin.html"
+            base-name="/WebContent/notebookAdmin.html">
+      </resource>
+      <resource
+            alias="/myNotebook.html"
+            base-name="/WebContent/myNotebook.html">
       </resource>
       <resource
             alias="/workshop.html"

@@ -25,8 +25,8 @@ var devices = [
             	            ]
                },
                {"group":"DOPPLER", 
-            	   "items":[{"classId":"damp", "deviceId":"damp", "title":"Amplitude", "units":"mm"},
-            	            {"classId":"dvel", "deviceId":"dvel", "title":"Velocity", "units":"m/s"}
+            	   "items":[{"classId":"damp", "deviceId":"/instrument/doppler/ctrl/amplitude", "title":"Amplitude", "units":"mm"},
+            	            {"classId":"dvel", "deviceId":"/instrument/doppler/ctrl/velocity", "title":"Velocity", "units":"m/s"}
             	   ]
                }
                ];

@@ -256,13 +256,22 @@ public abstract class BaseRecordsFile {
 	 */
 	public synchronized void updateRecord(RecordWriter rw)
 			throws RecordsFileException, IOException {
-		RecordHeader header = keyToRecordHeader(rw.getKey());
-		if (rw.getDataLength() > header.dataCapacity) {
-			deleteRecord(rw.getKey());
-			insertRecord(rw);
+		RecordHeader header = null;
+		try {
+			header = keyToRecordHeader(rw.getKey());
+		} catch (Exception e) {
+			// TODO: handle exception
+		} 
+		if (header != null) {
+			if (rw.getDataLength() > header.dataCapacity) {
+				deleteRecord(rw.getKey());
+				insertRecord(rw);
+			} else {
+				writeRecordData(header, rw);
+				writeRecordHeaderToIndex(header);
+			}
 		} else {
-			writeRecordData(header, rw);
-			writeRecordHeaderToIndex(header);
+			insertRecord(rw);
 		}
 	}
 

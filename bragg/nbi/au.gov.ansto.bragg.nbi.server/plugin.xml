@@ -46,6 +46,18 @@
                path="/db">
          </resource-mapping>
       </httpcontext>
+      <httpcontext
+            id="signinRestlet">
+         <resource-mapping
+               path="/signin">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="userHomeRestlet">
+         <resource-mapping
+               path="/home">
+         </resource-mapping>
+      </httpcontext>
    </extension>
    <extension
          id="nsRestlet"
@@ -111,6 +123,24 @@
          <init-param
                name="org.restlet.application"
                value="au.gov.ansto.bragg.nbi.server.notebook.DatabaseApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/signin"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="signinRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.login.SigninApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/home"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="userHomeRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.login.UserHomeApplication">
          </init-param>
       </servlet>
    </extension>

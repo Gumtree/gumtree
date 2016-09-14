@@ -1,5 +1,6 @@
 package au.gov.ansto.bragg.nbi.server.notebook;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import org.gumtree.service.db.ControlDB;
 import org.gumtree.service.db.LoggingDB;
 import org.gumtree.service.db.ProposalDB;
 import org.gumtree.service.db.SessionDB;
+import org.json.JSONArray;
 import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
@@ -16,6 +18,9 @@ import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
+
+import au.gov.ansto.bragg.nbi.server.internal.UserSessionService;
+import au.gov.ansto.bragg.nbi.server.login.UserSessionObject;
 
 public class DatabaseRestlet extends Restlet implements IDisposable {
 
@@ -28,11 +33,13 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 	private final static String SEG_NAME_CLOSE = "close";
 	private final static String SEG_NAME_SEARCH = "search";
 	private final static String SEG_NAME_SEARCH_ALL = "searchAll";
+	private final static String SEG_NAME_SEARCH_MINE = "searchMine";
 	private final static String QUERY_ID_KEY = "key";
 	private final static String QUERY_ID_HTML = "html";
 	private final static String QUERY_SESSION_ID = "session";
 //	private final static String NOTEBOOK_DBFILENAME = "loggingDB.rdf";
 //	private final static String PROP_DATABASE_SAVEPATH = "gumtree.loggingDB.savePath";
+	private static final String PROPERTY_NOTEBOOK_ALLOWEDIP = "gumtree.notebook.allowedIP";
 	private static final String QUERY_PATTERN = "pattern";
 	private static final String FILE_FREFIX = "<div class=\"class_div_search_db\" name=\"$filename\" session=\"$session\">";
 	private static final String SPAN_SEARCH_RESULT_HEADER = "<h4>Proposal ";
@@ -44,7 +51,8 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 	private SessionDB sessionDb;
 	private ControlDB controlDb;
 	private ProposalDB proposalDb;
-	
+	private String[] allowedIps;
+
 	/**
 	 * @param context
 	 */
@@ -53,7 +61,13 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 		sessionDb = SessionDB.getInstance();
 		controlDb = ControlDB.getInstance();
 		proposalDb = ProposalDB.getInstance();
-		
+		String ips = System.getProperty(PROPERTY_NOTEBOOK_ALLOWEDIP);
+		if (ips != null) {
+			allowedIps = ips.split(",");
+			for (int i = 0; i < allowedIps.length; i++) {
+				allowedIps[i] = allowedIps[i].trim();
+			}
+		}
 //		currentDBPath = System.getProperty(PROP_DATABASE_SAVEPATH) + "/" + NOTEBOOK_DBFILENAME;
 	}
 
@@ -64,110 +78,234 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 	public void disposeObject() {
 	}
 	
+	private UserSessionObject checkDavSession(Request request) {
+		if (allowedIps == null) {
+			return null;
+		}
+		String directIp = request.getClientInfo().getUpstreamAddress();
+		if (directIp != null) {
+			for (int i = 0; i < allowedIps.length; i++) {
+				if (directIp.equals(allowedIps[i])) {
+					UserSessionObject session = new UserSessionObject();
+					session.setDAV(true);
+					return session;
+				}
+			}
+		}
+		Object header = request.getAttributes().get("org.restlet.http.headers");
+		if (header != null) {
+			Form qform = (Form) header;
+			String forwardedIp = qform.getFirstValue("X-Forwarded-For");
+			if (forwardedIp != null) {
+				forwardedIp = forwardedIp.split(" ")[0].trim();
+				for (int i = 0; i < allowedIps.length; i++) {
+					if (forwardedIp.equals(allowedIps[i])) {
+						UserSessionObject session = new UserSessionObject();
+						session.setDAV(true);
+						session.setUserName(System.getenv("gumtree.instrument.id"));
+						session.setValid(true);
+						return session;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public void handle(final Request request, final Response response) {
 		
-//		Form queryForm = request.getResourceRef().getQueryAsForm();
-		String seg = request.getResourceRef().getLastSegment();
-		if (SEG_NAME_APPEND.equals(seg)) {
-		    Representation entity = request.getEntity();
-	    	Form form = new Form(entity);
-	    	String key = form.getValues(QUERY_ID_KEY);
-	    	String html = form.getValues(QUERY_ID_HTML);
-	    	try {
-		    	String sessionId = controlDb.getCurrentSessionId();
-//		    	String dbName = sessionDb.getSessionValue(sessionId);
-		    	String dbName = proposalDb.findProposalId(sessionId);
-				LoggingDB db = LoggingDB.getInstance(dbName);
-				db.appendHtmlEntry(key, html);
-			} catch (Exception e) {
-	    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
-			}
-		} else if (SEG_NAME_CLOSE.equals(seg)) {
+		UserSessionObject session = null;
+		
+		try {
+			session = UserSessionService.getSession(request, response);
+//			isSessionValid = UserSessionService.controlSession(request, response);
+		} catch (Exception e1) {
+			response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, e1.toString());
+			return;
+		}
+		
+		if (session == null || !session.isValid()) {
 			try {
-				String sessionId = controlDb.getCurrentSessionId();
-//		    	String dbName = sessionDb.getSessionValue(sessionId);
-				String dbName = proposalDb.findProposalId(sessionId);
-				LoggingDB db = LoggingDB.getInstance(dbName);
-				db.close();
+				session = checkDavSession(request);
 			} catch (Exception e) {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
-				return;
-			}
-		} else if (SEG_NAME_SEARCH.equals(seg)) {
-			try {
-				Form queryForm = request.getResourceRef().getQueryAsForm();
-				String pattern = queryForm.getValues(QUERY_PATTERN);
-				if (pattern.trim().length() == 0) {
-					response.setEntity("Please input a valid pattern", MediaType.TEXT_PLAIN);
-					response.setStatus(Status.SUCCESS_OK);
-					return;
-				}
-				String sessionId = queryForm.getValues(QUERY_SESSION_ID);
-				if (sessionId == null || sessionId.trim().length() == 0) {
-			    	sessionId = controlDb.getCurrentSessionId();					
-				}
-//		    	String dbName = sessionDb.getSessionValue(sessionId);
-				String dbName = proposalDb.findProposalId(sessionId);
-				LoggingDB db = LoggingDB.getInstance(dbName);
-				String searchRes = db.search(pattern);
-				if (searchRes.length() > 0){
-					searchRes = FILE_FREFIX.replace("$filename", dbName).replace("$session", sessionId) 
-							+ searchRes + DIV_END;
-				}
-				response.setEntity(searchRes, MediaType.TEXT_PLAIN);
-			} catch (Exception e) {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
-				return;
-			}
-		} else if (SEG_NAME_SEARCH_ALL.equals(seg)) {
-			try {
-				Form queryForm = request.getResourceRef().getQueryAsForm();
-				String pattern = queryForm.getValues(QUERY_PATTERN);
-				if (pattern.trim().length() == 0) {
-					response.setEntity("Please input a valid pattern", MediaType.TEXT_PLAIN);
-					response.setStatus(Status.SUCCESS_OK);
-					return;
-				}
-				
-//				List<String> sessionIds = sessionDb.listSessionIds();
-//				String[] sessionPairs = new String[sessionIds.size()];
-//				int index = 0;
-//				for (String id : sessionIds) {
-////					sessionPairs[index++] = sessionDb.getSessionValue(id) + ":" + id;
-//					sessionPairs[index++] = proposalDb.findProposalId(id) + ":" + id;
-//					//						sessionPairs[index++] = sessionDb.getSessionValue(id);
-//				}
-				List<String> proposalIds = proposalDb.listProposalIds();
-				String[] sessionPairs = new String[proposalIds.size()];
-				int index = 0;
-				for (String proposalId : proposalIds) {
-					String sessionId = proposalDb.getLastSessionId(proposalId);
-					if (sessionId != null) {
-						sessionPairs[index++] = proposalId + ":" + proposalDb.getLastSessionId(proposalId);						
-					}
-				}
-				Arrays.sort(sessionPairs);
-				String responseText = "";
-				for (int i = sessionPairs.length - 1; i >= 0; i--) {
-					String[] pair = sessionPairs[i].split(":");
-
-					LoggingDB db = LoggingDB.getInstance(pair[0]);
-					
-//					HtmlSearchHelper helper = new HtmlSearchHelper(new File(filename));
-					String searchRes = db.search(pattern);
-					if (searchRes.length() > 0){
-						searchRes = FILE_FREFIX.replace("$filename", pair[0]).replace("$session", pair[1]) 
-								+ SPAN_SEARCH_RESULT_HEADER + pair[0] + SPAN_END + searchRes + DIV_END;
-					}
-					responseText += searchRes;
-				}
-				response.setEntity(responseText, MediaType.TEXT_PLAIN);
-			} catch (Exception e) {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
-				return;
 			}
 		}
+
+		if (session != null && session.isValid()) {
+	//		Form queryForm = request.getResourceRef().getQueryAsForm();
+			String seg = request.getResourceRef().getLastSegment();
+			if (SEG_NAME_APPEND.equals(seg)) {
+			    Representation entity = request.getEntity();
+		    	Form form = new Form(entity);
+		    	String key = form.getValues(QUERY_ID_KEY);
+		    	String html = form.getValues(QUERY_ID_HTML);
+		    	try {
+			    	String sessionId = controlDb.getCurrentSessionId();
+	//		    	String dbName = sessionDb.getSessionValue(sessionId);
+			    	String dbName = proposalDb.findProposalId(sessionId);
+					LoggingDB db = LoggingDB.getInstance(dbName);
+					db.appendHtmlEntry(key, html);
+				} catch (Exception e) {
+		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+				}
+			} else if (SEG_NAME_CLOSE.equals(seg)) {
+				try {
+					if (!NotebookRestlet.isManager(session)) {
+						response.setStatus(Status.SERVER_ERROR_INTERNAL, "Error: your privilege does not allow closing this DB.");
+						return;
+					}
+					String sessionId = controlDb.getCurrentSessionId();
+	//		    	String dbName = sessionDb.getSessionValue(sessionId);
+					String dbName = proposalDb.findProposalId(sessionId);
+					LoggingDB db = LoggingDB.getInstance(dbName);
+					db.close();
+				} catch (Exception e) {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+					return;
+				}
+			} else if (SEG_NAME_SEARCH.equals(seg)) {
+				try {
+					Form queryForm = request.getResourceRef().getQueryAsForm();
+					String pattern = queryForm.getValues(QUERY_PATTERN);
+					if (pattern.trim().length() == 0) {
+						response.setEntity("Please input a valid pattern", MediaType.TEXT_PLAIN);
+						response.setStatus(Status.SUCCESS_OK);
+						return;
+					}
+					String sessionId = queryForm.getValues(QUERY_SESSION_ID);
+					if (sessionId == null || sessionId.trim().length() == 0) {
+				    	sessionId = controlDb.getCurrentSessionId();
+				    	if (!NotebookRestlet.allowAccessCurrentPage(session, sessionId, proposalDb)){
+							response.setStatus(Status.SERVER_ERROR_INTERNAL, "Error: your privilege does not allow editing the current page.");
+							return;
+						}
+					} else {
+						if (!NotebookRestlet.allowReadHistoryPage(session, sessionId, proposalDb)){
+							response.setStatus(Status.SERVER_ERROR_INTERNAL, "<span style=\"color:red\">Error: your privilege does not allow accessing this page.</span>");
+							return;
+						}
+					}
+	//		    	String dbName = sessionDb.getSessionValue(sessionId);
+					String dbName = proposalDb.findProposalId(sessionId);
+					LoggingDB db = LoggingDB.getInstance(dbName);
+					String searchRes = db.search(pattern);
+					if (searchRes.length() > 0){
+						searchRes = FILE_FREFIX.replace("$filename", dbName).replace("$session", sessionId) 
+								+ searchRes + DIV_END;
+					}
+					response.setEntity(searchRes, MediaType.TEXT_PLAIN);
+				} catch (Exception e) {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+					return;
+				}
+			} else if (SEG_NAME_SEARCH_ALL.equals(seg)) {
+				try {
+					if (!NotebookRestlet.isManager(session)) {
+						response.setStatus(Status.SERVER_ERROR_INTERNAL, "Error: your privilege does not allow creating new page.");
+						return;
+					}
+					Form queryForm = request.getResourceRef().getQueryAsForm();
+					String pattern = queryForm.getValues(QUERY_PATTERN);
+					if (pattern.trim().length() == 0) {
+						response.setEntity("Please input a valid pattern", MediaType.TEXT_PLAIN);
+						response.setStatus(Status.SUCCESS_OK);
+						return;
+					}
+					
+	//				List<String> sessionIds = sessionDb.listSessionIds();
+	//				String[] sessionPairs = new String[sessionIds.size()];
+	//				int index = 0;
+	//				for (String id : sessionIds) {
+	////					sessionPairs[index++] = sessionDb.getSessionValue(id) + ":" + id;
+	//					sessionPairs[index++] = proposalDb.findProposalId(id) + ":" + id;
+	//					//						sessionPairs[index++] = sessionDb.getSessionValue(id);
+	//				}
+					List<String> proposalIds = proposalDb.listProposalIds();
+					String[] sessionPairs = new String[proposalIds.size()];
+					int index = 0;
+					for (String proposalId : proposalIds) {
+						String sessionId = proposalDb.getLastSessionId(proposalId);
+						if (sessionId != null) {
+							sessionPairs[index++] = proposalId + ":" + proposalDb.getLastSessionId(proposalId);						
+						}
+					}
+					Arrays.sort(sessionPairs);
+					String responseText = "";
+					for (int i = sessionPairs.length - 1; i >= 0; i--) {
+						String[] pair = sessionPairs[i].split(":");
+	
+						LoggingDB db = LoggingDB.getInstance(pair[0]);
+						
+	//					HtmlSearchHelper helper = new HtmlSearchHelper(new File(filename));
+						String searchRes = db.search(pattern);
+						if (searchRes.length() > 0){
+							searchRes = FILE_FREFIX.replace("$filename", pair[0]).replace("$session", pair[1]) 
+									+ SPAN_SEARCH_RESULT_HEADER + pair[0] + SPAN_END + searchRes + DIV_END;
+						}
+						responseText += searchRes;
+					}
+					response.setEntity(responseText, MediaType.TEXT_PLAIN);
+				} catch (Exception e) {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+					return;
+				}
+			} else if (SEG_NAME_SEARCH_MINE.equals(seg)) {
+				try {
+					if (!NotebookRestlet.isManager(session)) {
+						response.setStatus(Status.SERVER_ERROR_INTERNAL, "Error: your privilege does not allow creating new page.");
+						return;
+					}
+					Form queryForm = request.getResourceRef().getQueryAsForm();
+					String pattern = queryForm.getValues(QUERY_PATTERN);
+					if (pattern.trim().length() == 0) {
+						response.setEntity("Please input a valid pattern", MediaType.TEXT_PLAIN);
+						response.setStatus(Status.SUCCESS_OK);
+						return;
+					}
+					
+	//				List<String> sessionIds = sessionDb.listSessionIds();
+	//				String[] sessionPairs = new String[sessionIds.size()];
+	//				int index = 0;
+	//				for (String id : sessionIds) {
+	////					sessionPairs[index++] = sessionDb.getSessionValue(id) + ":" + id;
+	//					sessionPairs[index++] = proposalDb.findProposalId(id) + ":" + id;
+	//					//						sessionPairs[index++] = sessionDb.getSessionValue(id);
+	//				}
+					JSONArray proposalArray = UserSessionService.getProposals(session);
+					List<String> proposalIds = new ArrayList<String>();
+					for (int i = 0; i < proposalArray.length(); i++) {
+						proposalIds.add(proposalArray.getString(i));
+					}
+					String[] sessionPairs = new String[proposalIds.size()];
+					int index = 0;
+					for (String proposalId : proposalIds) {
+						String sessionId = proposalDb.getLastSessionId(proposalId);
+						if (sessionId != null) {
+							sessionPairs[index++] = proposalId + ":" + proposalDb.getLastSessionId(proposalId);						
+						}
+					}
+					Arrays.sort(sessionPairs);
+					String responseText = "";
+					for (int i = sessionPairs.length - 1; i >= 0; i--) {
+						String[] pair = sessionPairs[i].split(":");
+	
+						LoggingDB db = LoggingDB.getInstance(pair[0]);
+						
+	//					HtmlSearchHelper helper = new HtmlSearchHelper(new File(filename));
+						String searchRes = db.search(pattern);
+						if (searchRes.length() > 0){
+							searchRes = FILE_FREFIX.replace("$filename", pair[0]).replace("$session", pair[1]) 
+									+ SPAN_SEARCH_RESULT_HEADER + pair[0] + SPAN_END + searchRes + DIV_END;
+						}
+						responseText += searchRes;
+					}
+					response.setEntity(responseText, MediaType.TEXT_PLAIN);
+				} catch (Exception e) {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+					return;
+				}
+			}
 //		else if (SEG_NAME_NEW.equals(seg)) {
 //			try {
 //				LoggingDB.getInstance().archive();
@@ -280,7 +418,7 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 //				return;
 //			}
 //		} 
-		response.setStatus(Status.SUCCESS_OK);
+			response.setStatus(Status.SUCCESS_OK);
 //	    String typeString = queryForm.getValues(QUERY_TYPE);
 //	    JSONObject jsonObject = new JSONObject();
 //	    try {
@@ -291,6 +429,9 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 //	    	e.printStackTrace();
 //	    	response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 //	    }
+		} else {
+			response.setStatus(Status.SERVER_ERROR_INTERNAL, "<span style=\"color:red\">Error: invalid user session.</span>");
+		}
 	    return;
 	}
 	

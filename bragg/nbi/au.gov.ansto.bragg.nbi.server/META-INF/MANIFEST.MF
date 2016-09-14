@@ -26,6 +26,7 @@ Export-Package: au.gov.ansto.bragg.nbi.server,
  au.gov.ansto.bragg.nbi.server.image,
  au.gov.ansto.bragg.nbi.server.internal,
  au.gov.ansto.bragg.nbi.server.jython,
+ au.gov.ansto.bragg.nbi.server.login,
  au.gov.ansto.bragg.nbi.server.notebook,
  au.gov.ansto.bragg.nbi.server.restlet,
  au.gov.ansto.bragg.nbi.server.vaadin
