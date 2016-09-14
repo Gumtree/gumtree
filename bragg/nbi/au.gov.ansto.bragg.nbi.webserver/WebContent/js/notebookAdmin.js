@@ -115,8 +115,8 @@ function loadCurrent(id, name, proposal) {
 		if (status == "success") {
 			updateUserArea(true);
 			var currentPath = window.location.href;
-			currentPath = currentPath.substr(0, currentPath.lastIndexOf('/'));
 			currentPath = currentPath.substr(0, currentPath.lastIndexOf('/') + 1);
+//			currentPath = currentPath.substr(0, currentPath.lastIndexOf('/') + 1);
 			if (typeof(proposal) !== "undefined" && $.isNumeric(proposal)) {
 				$('#id_content_header').html('<a href="' + currentPath + 'notebook.html?session=' + id 
 						+ '">P' + proposal + '</a>: <div class="class_span_currentpath">' + currentPath + 'notebook.html?session=' + id + '</div>');

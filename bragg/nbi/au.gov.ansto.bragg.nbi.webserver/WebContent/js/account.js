@@ -21,6 +21,10 @@ function signout(){
 }
 
 function updateUserArea(loggedIn) {
+	if (loggedIn == null) {
+		$('#id_a_account').html("");
+		return;
+	}
 	if (loggedIn) {
 		if (isLoggedIn) {
 			return;

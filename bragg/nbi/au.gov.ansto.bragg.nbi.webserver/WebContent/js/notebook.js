@@ -7,6 +7,7 @@ var pageId = null;
 var proposal = null;
 var updateIntervalId = null;
 var checkNewIntervalId = null;
+var validateUserIntervalId = null;
 var updateIntervalSeconds = 60;
 var checkNewIntervalSeconds = 6;
 var isLoggedIn = false;
@@ -83,11 +84,26 @@ function getParam(sParam) {
 	return null;
 }
 
+function validateUser() {
+	var getUrl = "notebook/user";
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+			if (data == 'NONE') {
+				updateUserArea(null);
+			} else {
+				updateUserArea(true);
+			}
+		}
+	})
+	.fail(function(e) {
+		updateUserArea(false);
+	});
+}
+
 function checkNewPage() {
 	var getUrl = "notebook/currentpage";
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
-			updateUserArea(true);
 			try {
 				var newPageId = data.split(':')[1];
 				if (pageId != newPageId) {
@@ -113,9 +129,6 @@ function checkNewPage() {
 					        	  }).fail(function(e) {
 					        		  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to save the page.', type: 'warning' } );
 					        		  notification.show();
-					        		  if (e.status == 401) {
-					        			  updateUserArea(false);
-					        		  }
 					        	  }).always(function() {
 //						        	  $(this).dialog("close");
 					        	  });
@@ -137,16 +150,20 @@ function checkNewPage() {
 		}
 	})
 	.fail(function(e) {
-		  if (e.status == 401) {
-			  updateUserArea(false);
-		  }
 	}).always(function() {
 	});
+	
 }
 
 function startCheckNewPage() {
 	checkNewIntervalId = setInterval(function(){
 		checkNewPage();
+		}, checkNewIntervalSeconds * 1000);
+}
+
+function startValidateUser() {
+	validateUserIntervalId = setInterval(function(){
+		validateUser();
 		}, checkNewIntervalSeconds * 1000);
 }
 
@@ -308,11 +325,12 @@ function makeNewPage(){
 	    	        	  });
 	        		  } 
 	        	  }).fail(function(e) {
-	        		  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to save the page.', type: 'warning' } );
-	        		  notification.show();
 	        		  if (e.status == 401) {
-	        			  updateUserArea(false);
+	        			  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to save, loggin required.', type: 'warning' } );
+	        		  } else {
+	        			  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to save the page.', type: 'warning' } );
 	        		  }
+        			  notification.show();
 	        	  }).always(function() {
 //		        	  $(this).dialog("close");
 	        	  });
@@ -845,6 +863,15 @@ jQuery(document).ready(function() {
 			if (session == null) {
 				startCheckNewPage();				
 			}
+			CKEDITOR.instances.id_editable_inner.on("instanceReady", function(event) {
+				var sessionPar = getParam("session");
+				if (sessionPar != null) {
+					var newpageCommand = CKEDITOR.instances.id_editable_inner.getCommand('newpage');
+					if (newpageCommand != null) {
+						newpageCommand.disable();
+					}
+				}
+			});
 
 //			$('#id_editable_inner').ckeditor().on('save', function(event, editor, data) {
 //				alert("save");
@@ -988,7 +1015,11 @@ jQuery(document).ready(function() {
 //				console.log('click');
 //				signout();
 //			});
-			updateUserArea(true);
+			if (data == 'NONE') {
+				updateUserArea(null);
+			} else {
+				updateUserArea(true);
+			}
 		}
 	})
 	.fail(function(e) {
@@ -1115,4 +1146,5 @@ jQuery(document).ready(function() {
 		dbFilter = null;
 	});
 	
+	startValidateUser();
 });
