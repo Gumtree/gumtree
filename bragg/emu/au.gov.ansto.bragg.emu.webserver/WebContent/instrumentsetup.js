@@ -37,4 +37,14 @@ var nsItems = [
                {"classId":"cnsOutTemp", "deviceId":"cnsOutTemp", "title":"CNS Out Temp", "units":"K"}
                ];
 
-var histmemUrl = "dae/rest/image?type=TOTAL_HISTOGRAM_XT&screen_size_x=760&screen_size_y=760";
+//var histmemUrl = "dae/rest/image?type=TOTAL_HISTOGRAM_XT&screen_size_x=760&screen_size_y=760";
+
+var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE";
+
+var histmemTypes = [
+                    {"id" : "TOTAL_HISTOGRAM_T", "text" : "Total t histogram"},
+                    {"id" : "TOTAL_HISTOGRAM_XT", "text" : "Total x-t histogram", "isDefault" : true},
+                    {"id" : "RAW_TOTAL_HISTOGRAM_XTAUX", "text" : "Raw x-taux histogram"},
+                    {"id" : "RAW_TOTAL_HISTOGRAM_YTAUX", "text" : "Raw y-taux histogram"},
+                    {"id" : "RAW_TOTAL_HISTOGRAM_TTAUX", "text" : "Raw t-taux histogram"}                    
+                    ];

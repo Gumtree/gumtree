@@ -47,6 +47,8 @@ import org.restlet.data.Status;
 import org.restlet.engine.util.Base64;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.nbi.server.git.GitService;
 import au.gov.ansto.bragg.nbi.server.internal.UserSessionService;
@@ -113,6 +115,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private static final String PROPERTY_NOTEBOOK_ICSIP = "gumtree.notebook.ics";
 	private static final String PROPERTY_NOTEBOOK_IPPREFIX = "137.157.";
 	private static final String EXPERIMENT_TABLE_HTML_EXTENSION = "$EXTENSION";
+	private static Logger logger = LoggerFactory.getLogger(NotebookRestlet.class);
 	private static final String EXPERIMENT_TABLE_HTML = "<div class=\"class_template_table class_template_object\" id=\"template_ec_1\">"
 			+ "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" class=\"xmlTable\" style=\"table-layout:fixed; width:100%; word-wrap:break-word\"><caption>Experiment Setup</caption>"
 			+ "<tbody>"
@@ -220,7 +223,11 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 			Form qform = (Form) header;
 			String forwardedIp = qform.getFirstValue("X-Forwarded-For");
 			if (forwardedIp != null) {
-				forwardedIp = forwardedIp.split(" ")[0].trim();
+				if (forwardedIp.contains(",")) {
+					forwardedIp = forwardedIp.split(",")[0].trim();
+				} else {
+					forwardedIp = forwardedIp.split(" ")[0].trim();
+				}
 				for (int i = 0; i < allowedDavIps.length; i++) {
 					if (forwardedIp.equals(allowedDavIps[i])) {
 						UserSessionObject session = new UserSessionObject();
@@ -254,7 +261,11 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 			Form qform = (Form) header;
 			String forwardedIp = qform.getFirstValue("X-Forwarded-For");
 			if (forwardedIp != null) {
-				forwardedIp = forwardedIp.split(" ")[0].trim();
+				if (forwardedIp.contains(",")) {
+					forwardedIp = forwardedIp.split(",")[0].trim();
+				} else {
+					forwardedIp = forwardedIp.split(" ")[0].trim();
+				}
 				for (int i = 0; i < allowedIcsIps.length; i++) {
 					if (forwardedIp.equals(allowedIcsIps[i])) {
 						UserSessionObject session = new UserSessionObject();

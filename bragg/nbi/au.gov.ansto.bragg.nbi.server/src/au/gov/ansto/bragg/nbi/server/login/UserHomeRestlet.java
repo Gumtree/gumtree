@@ -88,7 +88,7 @@ public class UserHomeRestlet extends Restlet implements IDisposable{
 				    	if (proposals != null) {
 				    		addNotebookProposals(menuJson, infoJson, proposals);
 				    	}
-			    		addPythonScript(menuJson, infoJson);
+//			    		addPythonScript(menuJson, infoJson);
 			    	}
 			    	jsonObject.put("menu", menuJson);
 			    	jsonObject.put("info", infoJson);

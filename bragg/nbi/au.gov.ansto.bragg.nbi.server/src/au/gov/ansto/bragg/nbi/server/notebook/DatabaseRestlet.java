@@ -97,7 +97,11 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 			Form qform = (Form) header;
 			String forwardedIp = qform.getFirstValue("X-Forwarded-For");
 			if (forwardedIp != null) {
-				forwardedIp = forwardedIp.split(" ")[0].trim();
+				if (forwardedIp.contains(",")) {
+					forwardedIp = forwardedIp.split(",")[0].trim();
+				} else {
+					forwardedIp = forwardedIp.split(" ")[0].trim();
+				}
 				for (int i = 0; i < allowedIps.length; i++) {
 					if (forwardedIp.equals(allowedIps[i])) {
 						UserSessionObject session = new UserSessionObject();
