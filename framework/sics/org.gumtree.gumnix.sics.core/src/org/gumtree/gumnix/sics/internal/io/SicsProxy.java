@@ -4,7 +4,6 @@ import static ch.lambdaj.Lambda.on;
 import static ch.lambdaj.collection.LambdaCollections.with;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -60,6 +59,8 @@ public class SicsProxy implements ISicsProxy {
 
 	private static Logger logger;
 
+	private static final String PROP_SICS_PASSWORD = "gumtree.sics.password";
+	
 	private Map<String, AbstractSicsChannel> channels;
 
 	private ProxyState state;
@@ -296,32 +297,44 @@ public class SicsProxy implements ISicsProxy {
 		connectionMonitor = new Thread(new Runnable() {
 			public void run() {
 				while(getProxyState().equals(ProxyState.CONNECTED)) {
-					Socket socket = null;
-					int counter = 0;
-					while(socket == null && counter <= SOCKET_TIME_OUT) {
+//					Socket socket = null;
+//					int counter = 0;
+//					while(socket == null && counter <= SOCKET_TIME_OUT) {
+//						try {
+//							socket = new Socket(getConnectionContext().getHost(), getConnectionContext().getPort());
+//						} catch (IOException ioe) {
+//							counter += SOCKET_TRY_INTERVAL;
+//							try {
+//								Thread.sleep(SOCKET_TRY_INTERVAL);
+//							} catch (InterruptedException e) {
+//							}
+//						} 
+//					}
+//					if (socket == null) {
+//						getLogger().info("SICS proxy needs to disconnect due to network error");
+//						try {
+//							// disconnect the proxy if network is unavailable
+//							disconnect();
+//						} catch (SicsIOException e) {
+//							getLogger().error("Error in proxy disconnection.", e);
+//						}
+//					} else {
+//						try {
+//							socket.close();
+//							socket = null;
+//						} catch (IOException e) {
+//						}
+//					}
+					try {
+//						getChannels().get(CHANNEL_STATUS).send("Poch", null);
+						send("Poch", null, "status");
+					} catch (SicsIOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 						try {
-							socket = new Socket(getConnectionContext().getHost(), getConnectionContext().getPort());
-						} catch (IOException ioe) {
-							counter += SOCKET_TRY_INTERVAL;
-							try {
-								Thread.sleep(SOCKET_TRY_INTERVAL);
-							} catch (InterruptedException e) {
-							}
-						} 
-					}
-					if (socket == null) {
-						getLogger().info("SICS proxy needs to disconnect due to network error");
-						try {
-							// disconnect the proxy if network is unavailable
 							disconnect();
-						} catch (SicsIOException e) {
+						} catch (Exception e) {
 							getLogger().error("Error in proxy disconnection.", e);
-						}
-					} else {
-						try {
-							socket.close();
-							socket = null;
-						} catch (IOException e) {
 						}
 					}
 					try {
@@ -333,6 +346,8 @@ public class SicsProxy implements ISicsProxy {
 			}
 		});
 		connectionMonitor.start();
+		
+		System.setProperty(PROP_SICS_PASSWORD, context.getPassword());
 	}
 
 	public ISicsConnectionContext getConnectionContext() {

@@ -4,8 +4,8 @@
 	<comment>Localhost config</comment>
 	<entry key="host">gumtree</entry>
 	<entry key="port">60003</entry>
-	<entry key="login">manager</entry>
-	<entry key="password">ansto</entry>
-	<entry key="interest.login">manager</entry>
-	<entry key="interest.password">ansto</entry>
+	<entry key="login">spy</entry>
+	<entry key="password">007</entry>
+	<entry key="interest.login">spy</entry>
+	<entry key="interest.password">007</entry>
 </properties>
