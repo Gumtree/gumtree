@@ -18,6 +18,8 @@ import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.nbi.server.internal.UserSessionService;
 import au.gov.ansto.bragg.nbi.server.login.UserSessionObject;
@@ -39,19 +41,20 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 	private final static String QUERY_SESSION_ID = "session";
 //	private final static String NOTEBOOK_DBFILENAME = "loggingDB.rdf";
 //	private final static String PROP_DATABASE_SAVEPATH = "gumtree.loggingDB.savePath";
-	private static final String PROPERTY_NOTEBOOK_ALLOWEDIP = "gumtree.notebook.allowedIP";
+	private static final String PROPERTY_NOTEBOOK_DAVIP = "gumtree.notebook.dav";
+	private static final String PROPERTY_NOTEBOOK_IPPREFIX = "137.157.";
 	private static final String QUERY_PATTERN = "pattern";
 	private static final String FILE_FREFIX = "<div class=\"class_div_search_db\" name=\"$filename\" session=\"$session\">";
 	private static final String SPAN_SEARCH_RESULT_HEADER = "<h4>Proposal ";
 	private static final String DIV_END = "</div>";
 	private static final String SPAN_END = "</h4>";
-	
+	private static final Logger logger = LoggerFactory.getLogger(DatabaseRestlet.class);
 //	private String currentDBPath;
 	
 	private SessionDB sessionDb;
 	private ControlDB controlDb;
 	private ProposalDB proposalDb;
-	private String[] allowedIps;
+	private String[] allowedDavIps;
 
 	/**
 	 * @param context
@@ -61,11 +64,11 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 		sessionDb = SessionDB.getInstance();
 		controlDb = ControlDB.getInstance();
 		proposalDb = ProposalDB.getInstance();
-		String ips = System.getProperty(PROPERTY_NOTEBOOK_ALLOWEDIP);
+		String ips = System.getProperty(PROPERTY_NOTEBOOK_DAVIP);
 		if (ips != null) {
-			allowedIps = ips.split(",");
-			for (int i = 0; i < allowedIps.length; i++) {
-				allowedIps[i] = allowedIps[i].trim();
+			allowedDavIps = ips.split(",");
+			for (int i = 0; i < allowedDavIps.length; i++) {
+				allowedDavIps[i] = PROPERTY_NOTEBOOK_IPPREFIX + allowedDavIps[i].replaceAll("/", ".").trim();
 			}
 		}
 //		currentDBPath = System.getProperty(PROP_DATABASE_SAVEPATH) + "/" + NOTEBOOK_DBFILENAME;
@@ -79,15 +82,17 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 	}
 	
 	private UserSessionObject checkDavSession(Request request) {
-		if (allowedIps == null) {
+		if (allowedDavIps == null) {
 			return null;
 		}
 		String directIp = request.getClientInfo().getUpstreamAddress();
 		if (directIp != null) {
-			for (int i = 0; i < allowedIps.length; i++) {
-				if (directIp.equals(allowedIps[i])) {
+			for (int i = 0; i < allowedDavIps.length; i++) {
+				if (directIp.equals(allowedDavIps[i])) {
 					UserSessionObject session = new UserSessionObject();
 					session.setDAV(true);
+					session.setUserName(System.getenv("gumtree.instrument.id"));
+					session.setValid(true);
 					return session;
 				}
 			}
@@ -102,8 +107,8 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 				} else {
 					forwardedIp = forwardedIp.split(" ")[0].trim();
 				}
-				for (int i = 0; i < allowedIps.length; i++) {
-					if (forwardedIp.equals(allowedIps[i])) {
+				for (int i = 0; i < allowedDavIps.length; i++) {
+					if (forwardedIp.equals(allowedDavIps[i])) {
 						UserSessionObject session = new UserSessionObject();
 						session.setDAV(true);
 						session.setUserName(System.getenv("gumtree.instrument.id"));

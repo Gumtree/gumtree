@@ -43,6 +43,7 @@ import org.gumtree.vis.swt.IPlotControlWidgetProvider;
 import org.gumtree.vis.swt.PlotComposite;
 import org.gumtree.vis.swt.PlotUtils;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.title.TextTitle;
 
 /**
  * @author nxi
@@ -401,7 +402,12 @@ public class PlotViewer extends Composite {
 						Image image = getPlot().getImage();
 						if (image instanceof BufferedImage) {
 							try {
-								RemoteTextDbService.getInstance().appendImageEntry("ScriptingPlot", (BufferedImage) image, null);
+								String text = "Plot";
+								TextTitle title = getPlot().getTitle();
+								if (title != null) {
+									text += ": " + title.getText();
+								}
+								RemoteTextDbService.getInstance().appendImageEntry("ScriptingPlot", (BufferedImage) image, text);
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();

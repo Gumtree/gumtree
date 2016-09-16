@@ -190,7 +190,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		}
 		String icsips = System.getProperty(PROPERTY_NOTEBOOK_ICSIP);
 		if (icsips != null) {
-			allowedIcsIps = ips.split(",");
+			allowedIcsIps = icsips.split(",");
 			for (int i = 0; i < allowedIcsIps.length; i++) {
 				allowedIcsIps[i] = PROPERTY_NOTEBOOK_IPPREFIX + allowedIcsIps[i].replaceAll("/", ".").trim();
 			}
@@ -214,6 +214,8 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				if (directIp.equals(allowedDavIps[i])) {
 					UserSessionObject session = new UserSessionObject();
 					session.setDAV(true);
+					session.setUserName(System.getenv("gumtree.instrument.id"));
+					session.setValid(true);
 					return session;
 				}
 			}
@@ -248,10 +250,14 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		}
 		String directIp = request.getClientInfo().getUpstreamAddress();
 		if (directIp != null) {
+			logger.error("direct ip = " + directIp);
+			logger.error("allowed ips = " + Arrays.toString(allowedIcsIps));
 			for (int i = 0; i < allowedIcsIps.length; i++) {
 				if (directIp.equals(allowedIcsIps[i])) {
 					UserSessionObject session = new UserSessionObject();
 					session.setICS(true);
+					session.setUserName(System.getenv("gumtree.instrument.id"));
+					session.setValid(true);
 					return session;
 				}
 			}
@@ -261,6 +267,8 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 			Form qform = (Form) header;
 			String forwardedIp = qform.getFirstValue("X-Forwarded-For");
 			if (forwardedIp != null) {
+				logger.error("forwarded ip = " + forwardedIp);
+				logger.error("header = " + header);
 				if (forwardedIp.contains(",")) {
 					forwardedIp = forwardedIp.split(",")[0].trim();
 				} else {
