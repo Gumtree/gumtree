@@ -153,8 +153,8 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.SPIN.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(dopplerGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/doppler/amp", "Amplitude", null, "mm")
-				.addDevice("/instrument/doppler/vel", "Velocity", null, "m/s")
+				.addDevice("/instrument/doppler/ctrl/amplitude", "Amplitude", null, "mm")
+				.addDevice("/instrument/doppler/ctrl/velocity", "Velocity", null, "m/s")
 				;
 		configureWidget(deviceStatusWidget);
 
