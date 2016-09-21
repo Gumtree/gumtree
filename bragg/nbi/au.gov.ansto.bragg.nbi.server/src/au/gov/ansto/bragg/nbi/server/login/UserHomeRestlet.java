@@ -93,6 +93,7 @@ public class UserHomeRestlet extends Restlet implements IDisposable{
 			    	jsonObject.put("menu", menuJson);
 			    	jsonObject.put("info", infoJson);
 			    	response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+			    	UserSessionService.renewCookie(session, response);
 			    } catch (Exception e) {
 			    	response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 			    	return;

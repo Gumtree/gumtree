@@ -118,9 +118,9 @@ public class UserSessionService {
 			userCookie = cookie.getValue();
 			if (userCookie != null) {
 				session = validateCookie(userCookie);
-				if (session.isValid()) {
-					renewCookie(session, response);
-				}
+//				if (session.isValid()) {
+//					renewCookie(session, response);
+//				}
 		    }
 		} 
 		if (session == null) {

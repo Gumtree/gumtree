@@ -91,7 +91,7 @@ function validateUser() {
 			if (data == 'NONE') {
 				updateUserArea(null);
 			} else {
-				updateUserArea(true);
+				updateUserArea(true, 'notebook.html');
 			}
 		}
 	})
@@ -897,6 +897,7 @@ jQuery(document).ready(function() {
 			if (data.trim().length == 0) {
 				$('#id_sidebar_inner').append("<p>End of Database</p>");
 //				$('#id_sidebar_inner').unbind('scroll');
+				startUpdateInterval();
 				return;
 			}
 			var brk = data.indexOf(";");
@@ -1018,7 +1019,7 @@ jQuery(document).ready(function() {
 			if (data == 'NONE') {
 				updateUserArea(null);
 			} else {
-				updateUserArea(true);
+				updateUserArea(true, 'notebook.html');
 			}
 		}
 	})

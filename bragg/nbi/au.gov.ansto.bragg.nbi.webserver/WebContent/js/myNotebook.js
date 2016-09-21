@@ -27,7 +27,7 @@ function getPdf(page, session){
 //    window.location.href = getUrl;
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
-			updateUserArea(true);
+			updateUserArea(true, 'myNotebook.html');
 			var pair = data.split(":");
 			var fileUrl = "notebook/download/" + page + ".pdf?ext=" + pair[1];
 			if (typeof(session) !== "undefined") { 
@@ -88,7 +88,7 @@ function load(id, name, proposal, pattern) {
 	getUrl += "&" + (new Date()).getTime();
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
-			updateUserArea(true);
+			updateUserArea(true, 'myNotebook.html');
 			if (typeof(proposal) !== "undefined" && $.isNumeric(proposal)) { 
 				 var text = 'P' + proposal + ": " + name;
 			}			
@@ -132,7 +132,7 @@ function searchDatabase() {
 	getUrl = "db/searchMine?pattern=" + searchPattern + "&" + (new Date()).getTime();
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
-			updateUserArea(true);
+			updateUserArea(true, 'myNotebook.html');
 			$('#id_search_db_inner').html(data);
 //			$('.class_div_search_file').click(function(e) {
 //				load($(this).attr('session'), $(this).attr('name'), searchPattern);
@@ -281,7 +281,7 @@ $(function() {
 		var getUrl = "notebook/myguide";
 		$.get(getUrl, function(data, status) {
 			if (status == "success") {
-				updateUserArea(true);
+				updateUserArea(true, 'myNotebook.html');
 				$('#id_content_header').html("<span>User's Guide</span>");
 				if (data.trim().length == 0) {
 					$('#id_div_content').html("<p><br></p>");
@@ -470,7 +470,7 @@ jQuery(document).ready(function() {
 				}
 //				$('#id_ul_archiveList>li.has-sub>a').append('<span class="holder"></span>');
 			}
-			updateUserArea(true);
+			updateUserArea(true, 'myNotebook.html');
 		}
 	})
 	.fail(function(e) {
@@ -482,7 +482,7 @@ jQuery(document).ready(function() {
 	var getUrl = "notebook/myguide";
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
-			updateUserArea(true);
+			updateUserArea(true, 'myNotebook.html');
 			$('#id_content_header').html("<span>User's Guide</span>");
 			if (data.trim().length == 0) {
 				$('#id_div_content').html("<p><br></p>");

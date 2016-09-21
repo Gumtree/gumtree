@@ -84,7 +84,6 @@ jQuery(document).ready(function(){
 	var titleText = "Neutron Scattering Instrument Sign in - " + title;
 	$(document).attr("title", titleText);
 	$('#titleString').text(titleText);
-	console.log(myip);
 
 	$('#id_img_sideimage').attr('src', 'images/' + title + '.jpg');
 //    logout();

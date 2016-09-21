@@ -291,10 +291,18 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	@Override
 	public void handle(final Request request, final Response response) {
 		
+		String seg = request.getResourceRef().getLastSegment();
+		List<String> segList = request.getResourceRef().getSegments();
+
 		UserSessionObject session = null;
 		
 		try {
 			session = UserSessionService.getSession(request, response);
+			if (session.isValid()) {
+				if (!SEG_NAME_CURRENTPAGE.equals(seg) && !SEG_NAME_USER.equals(seg) && !SEG_NAME_DB.equals(seg)) {
+					UserSessionService.renewCookie(session, response);
+				}
+			}
 //			isSessionValid = UserSessionService.controlSession(request, response);
 		} catch (Exception e1) {
 			response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, e1.toString());
@@ -319,8 +327,6 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 
 
 			//		Form queryForm = request.getResourceRef().getQueryAsForm();
-			String seg = request.getResourceRef().getLastSegment();
-			List<String> segList = request.getResourceRef().getSegments();
 //			String ip = request.getClientInfo().getUpstreamAddress();
 			if (SEG_NAME_SAVE.equals(seg)) {
 				

@@ -21,7 +21,7 @@ public class LDAPService {
 	private static final String NAME_MANAGER_ADMIN_POSTFIX = "_instrument_scientists";
 	private static final String ID_INSTRUMENT_NAME = "gumtree.instrument.id";
 	private static final String NAME_GROUP_USER = "proposal_users";
-	private LdapContext context;
+//	private LdapContext context;
 	private String managerGroupName;
 	
     public static final String DISTINGUISHED_NAME = "distinguishedName";
@@ -54,7 +54,7 @@ public class LDAPService {
 		env.put(Context.SECURITY_CREDENTIALS, password);
 		boolean isPassed = false;
 		try {
-			context = new InitialLdapContext(env, null);
+			LdapContext context = new InitialLdapContext(env, null);
 			isPassed = true;
 		} catch (NamingException e) {
 //			System.err.println("failed to create Context");
@@ -77,6 +77,7 @@ public class LDAPService {
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		env.put(Context.SECURITY_PRINCIPAL, username);
 		env.put(Context.SECURITY_CREDENTIALS, password);
+		LdapContext context = null;
 		try {
 			context = new InitialLdapContext(env, null);
 		} catch (NamingException e) {
@@ -98,6 +99,7 @@ public class LDAPService {
 //				if (bindGroup(context, userDistinguishedName, NAME_GROUP_USER)) {
 //					return GroupLevel.USER;
 //				}
+			context.close();
 			return GroupLevel.USER;
 		}
 		return GroupLevel.INVALID;
