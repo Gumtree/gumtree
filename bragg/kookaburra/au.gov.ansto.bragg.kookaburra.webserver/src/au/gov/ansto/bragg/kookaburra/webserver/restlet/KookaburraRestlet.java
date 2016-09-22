@@ -223,11 +223,8 @@ public class KookaburraRestlet extends Restlet {
 		if (lastModifiedFile != null) {
 			long fileTimestamp = lastModifiedFile.lastModified();
 			long lastRunTimestamp = jythonRunner.getUIHandler().getScriptModel().getLastModifiedTimestamp();
-			System.err.println(fileTimestamp);
-			System.err.println(lastRunTimestamp);
 			boolean isPlotAvailable = jythonRunner.getPlot1().isUpdated(false);
 			if (fileTimestamp > lastRunTimestamp || !isPlotAvailable) {
-				System.err.println(lastModifiedFile.getAbsolutePath().replace("\\", "/"));
 				jythonRunner.runScriptLine("__selected_files__ = ['" + lastModifiedFile.getAbsolutePath().replace("\\", "/") + "']");
 				jythonRunner.runScriptLine("__run_script__(__selected_files__)");
 				response.setEntity("PROCESSING", MediaType.TEXT_PLAIN);

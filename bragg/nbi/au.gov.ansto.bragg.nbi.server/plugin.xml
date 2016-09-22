@@ -40,6 +40,12 @@
                path="/notebook">
          </resource-mapping>
       </httpcontext>
+      <!-- httpcontext
+            id="NBRedirectRestlet">
+         <resource-mapping
+               path="/admin/notebookAdmin.html">
+         </resource-mapping>
+      </httpcontext -->
       <httpcontext
             id="databaseRestlet">
          <resource-mapping
@@ -114,6 +120,15 @@
          <init-param
                name="org.restlet.application"
                value="au.gov.ansto.bragg.nbi.server.notebook.NotebookApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/admin/notebookAdmin.html"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="NBRedirectRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.notebook.NBManagerRedirectApplication">
          </init-param>
       </servlet>
       <servlet

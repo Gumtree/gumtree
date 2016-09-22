@@ -202,6 +202,9 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	 */
 	@Override
 	public void disposeObject() {
+		sessionDb = null;
+		controlDb = null;
+		proposalDb = null;
 	}
 	
 	private UserSessionObject checkDavSession(Request request) {
