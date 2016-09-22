@@ -204,34 +204,6 @@ var refresh = function(){
 //				}
 			}
 		}
-//		$.support.cors = true;
-//		$.ajax({
-//			type: "POST",
-//			url: "http://localhost:61051/mobile.html",
-//			data: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\
-//			    	<soap:Body xmlns:ns1="http://au/gov/ansto/bragg/web/model/webService/server/webservice/WebServiceAppServer.wsdl">\
-//						<ns1:getReactorPowerElement/>\
-//					</soap:Body>\
-//				</soap:Envelope>',
-//			crossDomain: true,
-//			processData: false,
-//			dataType: "xml",
-//			contentType: "text/xml"
-//		}).done(function(msg){
-//			alert(msg);
-//		}).fail(function(jqXHR, textStatus, errorThrown){
-//			var items = [];
-//			for (var item in jqXHR) {
-//				items.push(item);
-//			}
-//			alert(jqXHR.getAllResponseHeaders());
-//		});
-//		try{
-//		var power = WebServiceAppServiceSoapHttpPort_getReactorPower();
-//		alert(power);
-//		} catch(e){
-//			alert(e);
-//		}
 	} catch (e) {
 		alert("overall error");
 	}
