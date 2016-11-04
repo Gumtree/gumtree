@@ -128,7 +128,7 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "cts")
-				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "cts")
+//				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "cts")
 				.addDevice("/instrument/detector/total_counts", "Detector counts", null, "cts")
 				.addDevice("/instrument/detector/time", "Time of counting", null, "s")
 				;
@@ -159,14 +159,14 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(deviceStatusWidget);
 
 		// Sample Info
-		PGroup beFilterGroup = createGroup("Be FILTER",
-				SharedImage.SLITS.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(beFilterGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/instrument/be/temp", "Temperature", null, "K")
-				.addDevice("/instrument/be/vac", "Vacuum", null, "mbar")
-				;
-		configureWidget(deviceStatusWidget);
+//		PGroup beFilterGroup = createGroup("Be FILTER",
+//				SharedImage.SLITS.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(beFilterGroup, SWT.NONE);
+//		deviceStatusWidget
+//				.addDevice("/instrument/be/temp", "Temperature", null, "K")
+//				.addDevice("/instrument/be/vac", "Vacuum", null, "mbar")
+//				;
+//		configureWidget(deviceStatusWidget);
 
 
 		// Furnace Temp

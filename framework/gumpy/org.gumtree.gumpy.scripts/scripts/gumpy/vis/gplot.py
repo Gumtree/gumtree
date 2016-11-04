@@ -357,11 +357,20 @@ class GPlot:
             self.pv.getPlot().getDataset().update()
             self.restore_bounds()
 
-    def get_dataset(self):
+    def get_dataset(self, arg = None):
 #        pds = self.pv.getPlot().getDataset()
 #        if not pds is None :
 #            return pds.getNXDataset()
-        return self.ds
+        if arg is None or self.ds is None:
+            return self.ds
+        else:
+            if type(arg) is int :
+                return self.ds[arg]
+            else:
+                for d in self.ds:
+                    if d.title == arg:
+                        return d
+                return None
         
     def __setattr__(self, name, value):
         if name == 'title' :

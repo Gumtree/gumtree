@@ -1464,6 +1464,7 @@ public class ScriptControlViewer extends Composite {
 			GridDataFactory.fillDefaults().grab(false, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(comboBox.getControl());
 			comboBox.setContentProvider(new ArrayContentProvider());
 			comboBox.setLabelProvider(new LabelProvider());
+//			comboBox.setSelection(new StructuredSelection(parameter.getValue()));
 			comboBox.getCombo().setEnabled(itemEnabled);
 			//				comboBox.setSorter(new ViewerSorter());
 			comboBox.setInput(parameter.getOptions());
@@ -1531,13 +1532,13 @@ public class ScriptControlViewer extends Composite {
 			
 			comboBox.addPostSelectionChangedListener(new ISelectionChangedListener() {
 				
-				Object selection;
+				Object selection = ((IStructuredSelection) comboBox.getSelection()).getFirstElement();
 				
 				@Override
 				public void selectionChanged(SelectionChangedEvent event) {
 					
 					Object newSelection = ((IStructuredSelection) comboBox.getSelection()).getFirstElement();
-					if (newSelection != selection) {
+					if ((newSelection == null && selection != null) || (newSelection != null && !newSelection.equals(selection))) {
 						String command = parameter.getCommand();
 						if (command != null) {
 							runIndependentCommand(command);

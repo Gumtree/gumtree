@@ -11,6 +11,7 @@
 package org.gumtree.data.nexus.fitting;
 
 import hep.aida.ref.histogram.Histogram1D;
+import hep.aida.ref.histogram.Histogram2D;
 
 import java.io.IOException;
 import java.util.Map.Entry;
@@ -30,7 +31,9 @@ import org.gumtree.data.nexus.fitting.StaticField.FunctionType;
 public class GaussianFitter extends Fitter {
 
 	private String gaussian1DFuncionText = 
-		"background+amplitude*exp(-(x[0]-mean)*(x[0]-mean)/sigma/sigma/2)";
+			"background+amplitude*exp(-(x[0]-mean)*(x[0]-mean)/sigma/sigma/2)";
+	private String gaussian2DFuncionText = 
+			"b+a*exp(-(x[0]-m1)*(x[0]-m1)/s1/s1/2-(x[1]-m2)*(x[1]-m2)/s2/s2/2)";
 	/**
 	 * 
 	 */
@@ -52,6 +55,14 @@ public class GaussianFitter extends Fitter {
 			addParameter("sigma");
 			addParameter("background");
 			break;
+		case 2:
+			setFunctionText(gaussian2DFuncionText);
+			addParameter("a");
+			addParameter("b");
+			addParameter("m1");
+			addParameter("s1");
+			addParameter("m2");
+			addParameter("s2");
 		default:
 			break;
 		}
@@ -94,7 +105,30 @@ public class GaussianFitter extends Fitter {
 			}
 			setParameterValue("sigma", histogram1D.rms() / 2);
 			break;
-
+		case 2:
+			Histogram2D histogram2D = (Histogram2D) histogram;
+//			mean = 0;
+//			try{
+//				mean = findMean();
+//			}catch (Exception e) {
+//			}
+			if (minZValue < Double.POSITIVE_INFINITY && maxZValue > minZValue) {
+				setParameterValue("a", maxZValue - minZValue);
+			} else {
+				setParameterValue("a", histogram2D.maxBinHeight() - histogram2D.minBinHeight());
+			}
+			if (minZValue < Double.POSITIVE_INFINITY) {
+				setParameterValue("b", minZValue);
+			} else {
+				setParameterValue("b", histogram2D.minBinHeight());
+			}
+//			if (peakX > minXValue && peakX < maxXValue) {
+//				setParameterValue("mean", peakX);
+//			} else {
+//				setParameterValue("mean", mean);
+//			}
+//			setParameterValue("sigma", histogram1D.rms() / 2);
+			break;
 		default:
 			break;
 		}
@@ -102,8 +136,18 @@ public class GaussianFitter extends Fitter {
 
 	protected void updateParameters(){
 		super.updateParameters();
-		double rms = ((Histogram1D) histogram).rms();
-		setParameterValue("sigma", rms / 2);
+		switch (getDimension()) {
+		case 1:
+			double rms = ((Histogram1D) histogram).rms();
+			setParameterValue("sigma", rms / 2);
+			break;
+		case 2:
+			setParameterValue("s2", ((Histogram2D) histogram).rmsX());
+			setParameterValue("s1", ((Histogram2D) histogram).rmsY());
+			break;
+		default:
+			break;
+		}
 	}
 	
 	private void reconstructHistogram(Histogram1D histogram1D, double mean,
@@ -144,15 +188,22 @@ public class GaussianFitter extends Fitter {
 		return weightIntensity / intensitySum;
 	}
 
+	
 	protected void addParameterSetting() {
 		switch (getDimension()) {
 		case 1:
 //			fitter.fitParameterSettings("amplitude").setBounds(0, histogram.maxBinHeight() * 2);
 //			fitter.fitParameterSettings("sigma").setBounds(0, ((Histogram1D) histogram).rms() * 2);
 //			fitter.fitParameterSettings("background").setLowerBound(0);
-			fitter.fitParameterSettings("sigma").setLowerBound(0);
+//			fitter.fitParameterSettings("sigma").setLowerBound(0);
+//			fitter.fitParameterSettings("sigma").setBounds(0, 10000);
+//			fitter.fitParameterSettings("mean").setBounds(15000, 35000);
+//			fitter.setConstraint("sigma>0");
 			break;
-
+		case 2:
+//			fitter.fitParameterSettings("s1").setLowerBound(0);
+//			fitter.fitParameterSettings("s2").setLowerBound(0);
+			break;
 		default:
 			break;
 		}

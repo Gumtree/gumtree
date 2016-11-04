@@ -36,7 +36,7 @@ down = 'DOWN'
  
 #D5, D7.5, D10, D12.5, D15, D17.5, D20, D20, D30, D40
 
-__sampleMap__ = {
+__sampleMap10__ = {
        0 : 250.000,
        1 : 210.500,
        2 : 168.375, 
@@ -50,6 +50,23 @@ __sampleMap__ = {
        10 : -208.250,
        11 : -250.000
        }
+
+__sampleMap5__ = {
+       0 : 180.000,
+       1 : 120.000,
+       2 : 60.000, 
+       3 : 0.000,
+       4 : -60.000,
+       5 : -120.000,
+       6 : -180.000
+       }
+
+__sampleMap__ = {
+                 5: __sampleMap5__,
+                 10: __sampleMap10__
+                 }
+
+__sampleNum__ = 10
 
 def att_pos(val = None):
     if not val is None :
@@ -95,17 +112,18 @@ def som(val = None):
     return sics.get_raw_value('som')
 
 def __cal_samx__(val):
-    if val <=0 or val >= 11:
-        raise Exception, 'sample number not supported, must be within 1 to 10, got ' + str(val)
+    global __sampleMap__, __sampleNum__
+    if val <=0 or val >= len(__sampleMap__[__sampleNum__]) - 1 :
+        raise Exception, 'sample number not supported, must be within 1 to ' + str(len(__sampleMap__[__sampleNum__]) - 2) + ', got ' + str(val)
     ival = int(val)
     if ival == val:
-        return __sampleMap__[ival]
+        return __sampleMap__[__sampleNum__][ival]
     else:
-        return __sampleMap__[ival] + (__sampleMap__[ival + 1] - __sampleMap__[ival]) * (val - ival)
+        return __sampleMap__[__sampleNum__][ival] + (__sampleMap__[__sampleNum__][ival + 1] - __sampleMap__[__sampleNum__][ival]) * (val - ival)
             
      
 def sample(val = None):
-    global __sampleMap__
+    global __sampleMap__, __sampleNum__
     if not val is None :
         if not type(val) is int or not type(val) is float:
             val = float(str(val))
@@ -116,12 +134,12 @@ def sample(val = None):
             sics.drive('samx', __cal_samx__(val))
     raw = sics.get_raw_value('samx')
     samNum = -1;
-    for i in xrange(len(__sampleMap__)) :
-        if raw > __sampleMap__[i] :
+    for i in xrange(len(__sampleMap__[__sampleNum__])) :
+        if raw > __sampleMap__[__sampleNum__][i] :
             if i > 0 :
-                samNum = i - (raw - __sampleMap__[i]) / (__sampleMap__[i - 1] - __sampleMap__[i])
+                samNum = i - (raw - __sampleMap__[__sampleNum__][i]) / (__sampleMap__[__sampleNum__][i - 1] - __sampleMap__[__sampleNum__][i])
             break
-    if samNum < 0.05 or samNum > 10.95:
+    if samNum < 0.05 or samNum > len(__sampleMap__[__sampleNum__]) - 1.05 :
         samNum = -1
     return round(samNum, 1)
 
@@ -503,14 +521,14 @@ def count(mode, dataType, preset, force='true', saveType=saveType.save):
     return savedFilename
 
 def scan10(sample_position, collect_time, sample_name = None):
-    global __sampleMap__
+    global __sampleMap__, __sampleNum__
     if sample_position < 1 or sample_position > 10:
         raise Exception, 'Invalid sample position, scan not run. Choose a position between 1 and 10 inclusive.'
     else:
         if not sample_name is None:
             sics.execute('samplename ' + str(sample_name), 'scan')
         
-        cur_samx = __sampleMap__[sample_position]
+        cur_samx = __sampleMap__[__sampleNum__][sample_position]
 #        cur_samx = samx()
         time.sleep(1)
         log("Collection time set to " + str(collect_time) + " seconds")

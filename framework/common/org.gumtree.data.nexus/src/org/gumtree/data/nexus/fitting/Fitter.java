@@ -22,6 +22,7 @@ import hep.aida.IHistogram;
 import hep.aida.ITree;
 import hep.aida.ITupleFactory;
 import hep.aida.ref.histogram.Histogram1D;
+import hep.aida.ref.histogram.Histogram2D;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -95,9 +96,12 @@ public abstract class Fitter {
 	protected boolean isInverseAllowed = false;
 	protected double minXValue = Double.MIN_VALUE;
 	protected double maxXValue = Double.MAX_VALUE;
-	protected double minYValue = Double.POSITIVE_INFINITY;
-	protected double maxYValue = Double.NEGATIVE_INFINITY;
+	protected double minYValue = Double.MIN_VALUE;
+	protected double maxYValue = Double.MAX_VALUE;
+	protected double minZValue = Double.POSITIVE_INFINITY;
+	protected double maxZValue = Double.NEGATIVE_INFINITY;
 	protected double peakX = Double.NaN;
+	protected double peakY = Double.NaN;
 
 	public static Fitter getFitter(String name, int dimension) throws FitterException{
 		FunctionType functionType = null;
@@ -317,8 +321,7 @@ public abstract class Fitter {
 		if (rank != getDimension())
 			throw new FitterException("data dimension does not match with fit function");
 //		setDimension(rank);
-		switch (rank) {
-		case 1:
+		if (rank == 1) {
 			List<IAxis> axisList = null;
 			axisList = data.getAxisList();
 			IArray axis = axisList.get(axisList.size() - 1).getData();
@@ -364,6 +367,8 @@ public abstract class Fitter {
 			dataIterator = array.getIterator();
 			axisIterator = axis.getIterator();
 			offset = getOffset(array);
+			minYValue = Double.MAX_VALUE;
+			maxYValue = Double.MIN_VALUE;
 			if (hasVariance) {
 				IArrayIterator varianceIterator = variance.getIterator();
 				int index = 0;
@@ -419,6 +424,7 @@ public abstract class Fitter {
 			}
 //			fitter.resetParameterSettings();
 			setParameters();
+			addParameterSetting();
 //			double[] err = new double[(int) axis.getSize()];
 //			dataPointSet = analysisFactory.createDataPointSetFactory(tree).createXY("dataset",
 //					(double[]) axis.getStorage(), (double[]) data.getStorage(), err, err);
@@ -437,8 +443,159 @@ public abstract class Fitter {
 			fitData = fitFactory.createFitData();
 //			fitData.create1DConnection(histogram1D);
 			fitData.create1DConnection(dataPointSet, 0, 1);
-			break;
-		default:
+		} else if (rank == 2) {
+			List<IAxis> axisList = data.getAxisList();
+			IArray xaxis = axisList.get(axisList.size() - 1).getData();
+			IArray yaxis = axisList.get(axisList.size() - 2).getData();
+			IArray array = data.getSignal().getData();
+			IArray variance = null;
+			IVariance var = data.getVariance();
+			if (var != null) {
+				variance = var.getData();
+			}
+			boolean hasVariance = variance != null;
+			IArrayIterator xAxisIterator = xaxis.getIterator();
+			IArrayIterator yAxisIterator = xaxis.getIterator();
+			IArrayIterator dDataIterator = array.getIterator();
+			int xAxisSize = 0;
+			int yAxisSize = 0;
+			double minXAxisValue = xaxis.getArrayMath().getMinimum();
+			if (minXValue < minXAxisValue) {
+				minXValue = minXAxisValue;
+			}
+			double maxXAxisValue = xaxis.getArrayMath().getMaximum();
+			if (maxXValue > maxXAxisValue) {
+				maxXValue = maxXAxisValue;
+			}
+			double minYAxisValue = yaxis.getArrayMath().getMinimum();
+			if (minYValue < minYAxisValue) {
+				minYValue = minYAxisValue;
+			}
+			double maxYAxisValue = yaxis.getArrayMath().getMaximum();
+			if (maxYValue > maxYAxisValue) {
+				maxYValue = maxYAxisValue;
+			}
+			double realXMin = Double.POSITIVE_INFINITY;
+			double realXMax = Double.NEGATIVE_INFINITY;
+			while(xAxisIterator.hasNext()){
+				double xAxisValue = xAxisIterator.getDoubleNext();
+				if (!Double.isNaN(xAxisValue) && xAxisValue >= minXValue && xAxisValue <= maxXValue){
+					if (realXMin > xAxisValue)
+						realXMin = xAxisValue;
+					if (realXMax < xAxisValue)
+						realXMax = xAxisValue;
+					xAxisSize ++;
+				}
+			}
+			double realYMin = Double.POSITIVE_INFINITY;
+			double realYMax = Double.NEGATIVE_INFINITY;
+			while(yAxisIterator.hasNext()){
+				double yAxisValue = yAxisIterator.getDoubleNext();
+				if (!Double.isNaN(yAxisValue) && yAxisValue >= minXValue && yAxisValue <= maxXValue){
+					if (realYMin > yAxisValue)
+						realYMin = yAxisValue;
+					if (realYMax < yAxisValue)
+						realYMax = yAxisValue;
+					yAxisSize ++;
+				}
+			}
+			try {
+				histogram = analysisFactory.createHistogramFactory(tree).createHistogram2D("data", xAxisSize, realXMin, realXMax, yAxisSize, realYMin, realYMax);
+				dataPointSet = dataPointSetFactory.create("dataPointSet","two dimensional IDataPointSet", 3);
+			} catch (Exception e) {
+				throw new FitterException("import axis failed");
+			} 
+			Histogram2D histogram2D = (Histogram2D) histogram;
+			IArrayIterator dataIterator = array.getIterator();
+			xAxisIterator = xaxis.getIterator();
+			yAxisIterator = yaxis.getIterator();
+			offset = getOffset(array);
+//			if (hasVariance) {
+//				IArrayIterator varianceIterator = variance.getIterator();
+//				int index = 0;
+//				while (dataIterator.hasNext()) {
+//					double axisValue = axisIterator.getDoubleNext();
+//					double dataValue = dataIterator.getDoubleNext();
+//					double errorValue = Math.sqrt(varianceIterator.getDoubleNext());
+//					if (!Double.isNaN(axisValue) && axisValue >= minXValue && axisValue <= maxXValue && !Double.isNaN(dataValue)){
+//						try {
+//							if (minYValue > dataValue) {
+//								minYValue = dataValue;
+//							}
+//							if (maxYValue < dataValue) {
+//								maxYValue = dataValue;
+//								peakX = axisValue;
+//							}
+//							if (inverse) dataValue = - dataValue;
+//							histogram1D.fill(axisValue, dataValue + offset);
+//							histogram1D.setBinError(histogram1D.coordToIndex(axisValue), errorValue);
+//							dataPointSet.addPoint();
+//							dataPointSet.point(index).coordinate(0).setValue(axisValue);
+//							dataPointSet.point(index).coordinate(1).setValue(dataValue);
+//							dataPointSet.point(index).coordinate(1).setErrorPlus(dataValue + errorValue);
+//							dataPointSet.point(index).coordinate(1).setErrorMinus(dataValue - errorValue);
+//							index++;
+//						} catch (Exception e) {
+//						}
+//						//System.out.println(axisValue + " : " + dataValue + offset);
+//					}
+//				}
+//			}else{
+				int index = 0;
+				int[] shape = array.getShape();
+				int ySize = shape[shape.length - 2];
+				int xSize = shape[shape.length - 1];
+				IIndex xAxisIndex = xaxis.getIndex();
+				IIndex yAxisIndex = yaxis.getIndex();
+				IIndex dataIndex = array.getIndex();
+				for (int i = 0; i < ySize; i++) {
+					double yAxisValue = yaxis.getDouble(yAxisIndex.set(i));
+					if (yAxisValue >= minYValue && yAxisValue <= maxYValue) { 
+						for (int j = 0; j < xSize; j++) {
+							double xAxisValue = xaxis.getDouble(xAxisIndex.set(j));
+							double dataValue = array.getDouble(dataIndex.set(i, j));
+							if (xAxisValue >= minXValue && xAxisValue <= maxXValue && !Double.isNaN(dataValue)){
+								if (minZValue > dataValue) {
+									minZValue = dataValue;
+								}
+								if (maxZValue < dataValue) {
+									maxZValue = dataValue;
+									peakX = xAxisValue;
+									peakY = yAxisValue;
+								}
+								if (inverse) dataValue = - dataValue;
+								histogram2D.fill(yAxisValue, xAxisValue, dataValue + offset);
+								dataPointSet.addPoint();
+								dataPointSet.point(index).coordinate(0).setValue(yAxisValue);
+								dataPointSet.point(index).coordinate(1).setValue(xAxisValue);
+								dataPointSet.point(index).coordinate(2).setValue(dataValue);
+								index ++;
+							}
+						}
+					}
+				}
+//			}
+//			fitter.resetParameterSettings();
+			setParameters();
+//			double[] err = new double[(int) axis.getSize()];
+//			dataPointSet = analysisFactory.createDataPointSetFactory(tree).createXY("dataset",
+//					(double[]) axis.getStorage(), (double[]) data.getStorage(), err, err);
+//			dataIterator = array.getIterator();
+//			axisIterator = axis.getIterator();
+//			while (dataIterator.hasNext() && axisIterator.hasNext()) {
+//				Double axisValue = axisIterator.getDoubleNext();
+//				Double dataValue = dataIterator.getDoubleNext();
+//				if (!axisValue.isNaN() && axisValue >= minXValue && axisValue <= maxXValue && !dataValue.isNaN()){
+//					dataPointSet.addPoint(new DataPoint(new double[]{axisValue.doubleValue(), 
+//							dataValue.doubleValue()}));
+//				}
+//			}
+//			System.out.println(dataPointSet.size());
+			
+			fitData = fitFactory.createFitData();
+//			fitData.create1DConnection(histogram1D);
+			fitData.create2DConnection(dataPointSet, 0, 1, 2);
+		} else {
 			throw new FitterException(rank + " dimension not supported");
 		}
 	}
@@ -486,8 +643,13 @@ public abstract class Fitter {
 		try{
 			int status = 0;
 			int count = 0;
-			while (status != 3 && count < 10) {
-				fitResult = fitter.fit(fitData, fitFunction);
+			System.err.println("**************** try to fit **************");
+			while (count < 3 || (status != 3 && count < 10)) {
+				if (getDimension() == 1) {
+					fitResult = fitter.fit(fitData, fitFunction);
+				} else if (getDimension() == 2) {
+					fitResult = fitter.fit(histogram, fitFunction);
+				}
 				updateParameters();
 				count ++;
 				status = fitResult.fitStatus();
@@ -499,6 +661,15 @@ public abstract class Fitter {
 		createPlotResult();
 	}
 
+	public void setParameterBounds(String name, double lowest, double highest) {
+		fitter.fitParameterSettings(name).removeBounds();
+		fitter.fitParameterSettings(name).setBounds(lowest, highest);
+	}
+	
+	public void setParameterFixed(String name, boolean isFixed) {
+		fitter.fitParameterSettings(name).setFixed(isFixed);
+	}
+	
 	protected void updateParameters(){
 		for (Entry<String, Double> entry : parameters.entrySet()){
 			fitFunction.setParameter(entry.getKey(), 
@@ -586,6 +757,86 @@ public abstract class Fitter {
 			axes.add(axis);
 			resultData.setAxes(axes);
 			IDataItem chi2Item = Factory.createDataItem(resultData, "quality", 
+					Factory.createArray(new double[]{fitResult.quality()}));
+			resultData.addDataItem(chi2Item);
+			for (Entry<String, Double> entry : parameters.entrySet())
+				chi2Item.addStringAttribute(entry.getKey(), String.valueOf(entry.getValue()));
+			break;
+		case 2:
+			resultFunction = fitResult.fittedFunction();
+			for (Entry<String, Double> entry : parameters.entrySet()) {
+				resultFunction.setParameter(entry.getKey(), entry.getValue());
+			}
+			IAxis yaxis = data.getAxisList().get(0);
+			IAxis xaxis = data.getAxisList().get(1);
+			double[] resultXAxisStorage = new double[(int) xaxis.getSize() * resolutionMultiple];
+			double[] resultYAxisStorage = new double[(int) yaxis.getSize() * resolutionMultiple];
+			double[][] resultZDataStorage = new double[resultYAxisStorage.length][resultXAxisStorage.length];
+			IIndex xAxisIndex = xaxis.getData().getIndex();
+			IIndex yAxisIndex = yaxis.getData().getIndex();
+			boolean isXAscending = true;
+			try{
+				isXAscending = xaxis.getData().getDouble(xAxisIndex.set(0)) 
+						< xaxis.getData().getDouble(xAxisIndex.set(1)); 
+			}catch (Exception e) {
+			}
+			boolean isYAscending = true;
+			try{
+				isYAscending = yaxis.getData().getDouble(yAxisIndex.set(0)) 
+						< yaxis.getData().getDouble(yAxisIndex.set(1)); 
+			}catch (Exception e) {
+			}
+			double minXAxis = xaxis.getData().getArrayMath().getMinimum();
+			double maxXAxis = xaxis.getData().getArrayMath().getMaximum();
+			double xstep = (maxXAxis - minXAxis) / (resultXAxisStorage.length - 1);
+			double minYAxis = yaxis.getData().getArrayMath().getMinimum();
+			double maxYAxis = yaxis.getData().getArrayMath().getMaximum();
+			double ystep = (maxYAxis - minYAxis) / (resultYAxisStorage.length - 1);
+			IArrayMath dmath = data.getSignal().getData().getArrayMath();
+			double dmax = dmath.getMaximum();
+			double dmin = dmath.getMinimum();
+			double dWith = dmax - dmin;
+			dmax = dmax + dWith * CutRange;
+			dmin = dmin - dWith * CutRange;
+			for (int i = 0; i < resultYAxisStorage.length; i++) {
+				if (isYAscending)
+					resultYAxisStorage[i] = minYAxis + ystep * i;
+				else
+					resultYAxisStorage[i] = maxYAxis - ystep * i;
+				for (int j = 0; j < resultXAxisStorage.length; j++) {
+					if (isXAscending)
+						resultXAxisStorage[j] = minXAxis + xstep * j;
+					else
+						resultXAxisStorage[j] = maxXAxis - xstep * j;
+					resultZDataStorage[i][j] = resultFunction.value(new double[]{resultYAxisStorage[i], resultXAxisStorage[j]}) 
+							- offset;
+					if (inverse) resultZDataStorage[i][j] = - resultZDataStorage[i][j];
+					if (resultZDataStorage[i][j] > dmax)
+						resultZDataStorage[i][j] = dmax;
+					if (resultZDataStorage[i][j] < dmin)
+						resultZDataStorage[i][j] = dmin;
+				}
+			}
+			IArray resultYAxis = nexusFactory.createArray(Double.TYPE, 
+					new int[]{resultYAxisStorage.length}, resultYAxisStorage);
+			IArray resultXAxis = nexusFactory.createArray(Double.TYPE, 
+					new int[]{resultXAxisStorage.length}, resultXAxisStorage);
+			IArray resultMap = nexusFactory.createArray(Double.TYPE, 
+					new int[]{resultYAxisStorage.length, resultXAxisStorage.length}, resultZDataStorage);
+			String fitTitle = "_fitting";
+			if (data.getTitle() != null) {
+				fitTitle = data.getTitle() + fitTitle;
+			}
+			resultData = nexusFactory.createNXdata(null, fitTitle);
+			ISignal fitSignal = nexusFactory.createNXsignal(resultData, "fitting_signal", resultMap);
+			resultData.setSignal(fitSignal);
+			IAxis xAxis = nexusFactory.createNXaxis(resultData, xaxis.getTitle(), resultXAxis);
+			IAxis yAxis = nexusFactory.createNXaxis(resultData, yaxis.getTitle(), resultYAxis);
+			List<IAxis> axesList = new ArrayList<IAxis>();
+			axesList.add(yAxis);
+			axesList.add(xAxis);
+			resultData.setAxes(axesList);
+			chi2Item = nexusFactory.createDataItem(resultData, "quality", 
 					Factory.createArray(new double[]{fitResult.quality()}));
 			resultData.addDataItem(chi2Item);
 			for (Entry<String, Double> entry : parameters.entrySet())
@@ -682,7 +933,87 @@ public abstract class Fitter {
 			for (Entry<String, Double> entry : parameters.entrySet())
 				chi2Item.addStringAttribute(entry.getKey(), String.valueOf(entry.getValue()));
 			break;
-
+		case 2:
+			resultFunction = fitResult.fittedFunction();
+			for (Entry<String, Double> entry : parameters.entrySet()) {
+				resultFunction.setParameter(entry.getKey(), entry.getValue());
+			}
+			IAxis yaxis = data.getAxisList().get(0);
+			IAxis xaxis = data.getAxisList().get(1);
+			double[] resultXAxisStorage = new double[(int) xaxis.getSize() * resolutionMultiple];
+			double[] resultYAxisStorage = new double[(int) yaxis.getSize() * resolutionMultiple];
+			double[] resultZDataStorage = new double[resultYAxisStorage.length * resultXAxisStorage.length];
+			IIndex xAxisIndex = xaxis.getData().getIndex();
+			IIndex yAxisIndex = yaxis.getData().getIndex();
+			boolean isXAscending = true;
+			try{
+				isXAscending = xaxis.getData().getDouble(xAxisIndex.set(0)) 
+						< xaxis.getData().getDouble(xAxisIndex.set(1)); 
+			}catch (Exception e) {
+			}
+			boolean isYAscending = true;
+			try{
+				isYAscending = yaxis.getData().getDouble(yAxisIndex.set(0)) 
+						< yaxis.getData().getDouble(yAxisIndex.set(1)); 
+			}catch (Exception e) {
+			}
+			double minXAxis = xaxis.getData().getArrayMath().getMinimum();
+			double maxXAxis = xaxis.getData().getArrayMath().getMaximum();
+			double xstep = (maxXAxis - minXAxis) / (resultXAxisStorage.length - 1);
+			double minYAxis = yaxis.getData().getArrayMath().getMinimum();
+			double maxYAxis = yaxis.getData().getArrayMath().getMaximum();
+			double ystep = (maxYAxis - minYAxis) / (resultYAxisStorage.length - 1);
+			IArrayMath dmath = data.getSignal().getData().getArrayMath();
+			double dmax = dmath.getMaximum();
+			double dmin = dmath.getMinimum();
+			double dWith = dmax - dmin;
+			dmax = dmax + dWith * CutRange;
+			dmin = dmin - dWith * CutRange;
+			for (int i = 0; i < resultYAxisStorage.length; i++) {
+				if (isYAscending)
+					resultYAxisStorage[i] = minYAxis + ystep * i;
+				else
+					resultYAxisStorage[i] = maxYAxis - ystep * i;
+				for (int j = 0; j < resultXAxisStorage.length; j++) {
+					if (isXAscending)
+						resultXAxisStorage[j] = minXAxis + xstep * j;
+					else
+						resultXAxisStorage[j] = maxXAxis - xstep * j;
+					double zValue = resultFunction.value(new double[]{resultYAxisStorage[i], resultXAxisStorage[j]}) 
+							- offset;
+					if (inverse) zValue = - zValue;
+					if (zValue > dmax)
+						zValue = dmax;
+					if (zValue < dmin)
+						zValue = dmin;
+					resultZDataStorage[i * resultXAxisStorage.length + j] = zValue;
+				}
+			}
+			IArray resultYAxis = nexusFactory.createArray(Double.TYPE, 
+					new int[]{resultYAxisStorage.length}, resultYAxisStorage);
+			IArray resultXAxis = nexusFactory.createArray(Double.TYPE, 
+					new int[]{resultXAxisStorage.length}, resultXAxisStorage);
+			IArray resultMap = nexusFactory.createArray(Double.TYPE, 
+					new int[]{resultYAxisStorage.length, resultXAxisStorage.length}, resultZDataStorage);
+			String fitTitle = "_fitting";
+			if (data.getTitle() != null) {
+				fitTitle = data.getTitle() + fitTitle;
+			}
+			resultData = nexusFactory.createNXdata(null, fitTitle);
+			ISignal fitSignal = nexusFactory.createNXsignal(resultData, "fitting_signal", resultMap);
+			resultData.setSignal(fitSignal);
+			IAxis xAxis = nexusFactory.createNXaxis(resultData, xaxis.getTitle(), resultXAxis);
+			IAxis yAxis = nexusFactory.createNXaxis(resultData, yaxis.getTitle(), resultYAxis);
+			List<IAxis> axesList = new ArrayList<IAxis>();
+			axesList.add(yAxis);
+			axesList.add(xAxis);
+			resultData.setAxes(axesList);
+			chi2Item = nexusFactory.createDataItem(resultData, "quality", 
+					Factory.createArray(new double[]{fitResult.quality()}));
+			resultData.addDataItem(chi2Item);
+			for (Entry<String, Double> entry : parameters.entrySet())
+				chi2Item.addStringAttribute(entry.getKey(), String.valueOf(entry.getValue()));
+			break;
 		default:
 			break;
 		}

@@ -52,7 +52,20 @@ def getValue(name, refresh = False):
         return controller.getValue(refresh)
     
 def getFilename():
-    return getValue('/experiment/file_name', True)
+    fn = None
+    timeout = 5
+    count = 0
+    while fn is None and count < timeout :
+        try:
+            fn = getValue('/experiment/file_name', True)
+        except SicsError:
+            raise
+        except:
+            time.sleep(0.5)
+            count += 0.5
+    if fn is None:
+        fn = getValue('/experiment/file_name', False)
+    return fn
     
 # Asynchronously set any hipadaba node to a given value
 def hset(parentController, relativePath, value):
