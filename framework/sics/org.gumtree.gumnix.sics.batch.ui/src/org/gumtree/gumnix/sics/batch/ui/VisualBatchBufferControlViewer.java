@@ -149,7 +149,7 @@ public class VisualBatchBufferControlViewer extends AbstractWorkflowViewerCompon
 				// Ask for buffer name input
 				InputDialog dialog = new InputDialog(getShell(),
 						"New Batch Buffer", "Enter new batch buffer name:",
-						"Batch", new IInputValidator() {
+						"Batch" + String.valueOf(System.currentTimeMillis()).substring(6), new IInputValidator() {
 							public String isValid(String newText) {
 								if (newText == null || newText.length() == 0) {
 									return "Buffer name is empty";
