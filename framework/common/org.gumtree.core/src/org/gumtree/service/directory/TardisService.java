@@ -71,7 +71,6 @@ public class TardisService {
 	public String listProposalsForUser(String username) throws IOException {
 		String function = "function=" + NAME_USERS_PROPOSAL;
 		String arg = "username=" + username;
-		arg = "username=asl";
 		String res = runFunction(function, arg);
 		return res;
 	}
