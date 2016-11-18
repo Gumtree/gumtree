@@ -261,7 +261,7 @@ th {
 	border: 1px solid #666;
 }
 
-.class_db_insert, .class_template_insert {
+.class_db_insert, .class_template_insert, .class_catalog_insert {
     display: block;
     position: absolute;
     border: 1px solid red;
@@ -280,15 +280,15 @@ th {
 	padding: 4px;
 }
 
-.class_db_insert img, .class_template_insert img {
+.class_db_insert img, .class_template_insert img, .class_catalog_insert img {
     vertical-align: middle;
 }
 
-.class_db_insert span, .class_template_insert span {
+.class_db_insert span, .class_template_insert span, .class_catalog_insert span {
     vertical-align: middle;
 }
 
-.class_db_insert:HOVER, .class_template_insert:HOVER {
+.class_db_insert:HOVER, .class_template_insert:HOVER, .class_catalog_insert:HOVER {
 	background-color: #ccc;
     color: #000;
     cursor: pointer;
@@ -406,5 +406,104 @@ th {
   width: 200px;
   border: solid 1px #dcdcdc;
   transition: box-shadow 0.3s, border 0.3s;
+}
+
+/* below is style for Catalog tab 
+.class_db_insert, .class_template_insert {
+    display: block;
+    position: absolute;
+    border: 1px solid red;
+	border: 1px solid #8F8F8F;
+	border-radius: 4px;
+	box-shadow: 1px 1px 3px #AFAFAF;
+	z-index: 20;
+	background-color: #999;
+	color: white;
+	
+	font-family: "Palatino Linotype", Book Antiqua, Palatino, serif;
+	font-size: 14px;
+    vertical-align: middle;
+	font-weight: bold;
+	text-decoration: none;
+	padding: 4px;
+}
+
+.class_db_insert img, .class_template_insert img {
+    vertical-align: middle;
+}
+
+.class_db_insert span, .class_template_insert span {
+    vertical-align: middle;
+}
+
+.class_db_insert:HOVER, .class_template_insert:HOVER {
+	background-color: #ccc;
+    color: #000;
+    cursor: pointer;
+}
+*/
+#id_div_catalogInsert, #id_div_catalogExport, #id_div_catalogConfig {
+	position:inherit; 
+	float: left;
+	margin: 2px 0px 2px 2px;
+}
+#id_div_catalogExport a, #id_div_catalogConfig a {
+	text-decoration: none;
+	color: inherit;
+}
+/*
+#id_div_catalogConfig {
+	padding: 0px;
+	padding-top: 0px;
+}
+#id_div_catalogConfig ul {
+	background: inherit;
+	padding-top: 0px;
+	width: 180px;
+}
+#id_div_catalogConfig ul li a {
+	padding: 6px 26px;
+	color: inherit;
+}
+#id_div_catalogConfig ul ul li a {
+	width: 180px;
+}
+*/
+/* The container <div> - needed to position the dropdown content */
+#id_div_catalogConfig {
+    /*position: relative;*/
+    display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.class_catalog_dropdownContent {
+    display: none;
+    position: absolute;
+    margin-top: 4px;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+/* Links inside the dropdown */
+.class_catalog_dropdownContent a {
+    color: black;
+    padding: 6px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.class_catalog_dropdownContent a span {
+	font-size: 12px;
+}
+
+/* Change color of dropdown links on hover */
+.class_catalog_dropdownContent a:hover {
+	background-color: #d1d1d1
+}
+
+/* Show the dropdown menu on hover */
+#id_div_catalogConfig:hover .class_catalog_dropdownContent {
+    display: block;
 }
 

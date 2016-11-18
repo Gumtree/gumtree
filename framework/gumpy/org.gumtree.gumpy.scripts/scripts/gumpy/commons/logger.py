@@ -1,6 +1,6 @@
 import sys
 import time
-from org.gumtree.service.db import RemoteTextDbService
+from org.gumtree.service.db import RemoteTextDbService, RemoteCatalogService
 
 __global_writer__ = None
 
@@ -79,4 +79,16 @@ class NotebookLogger():
         except:
             print 'failed to send text to notebook db'
         
+class CatalogLogger():
+    
+    def __init__(self):
+        self.logger = RemoteCatalogService.getInstance()
+        
+    def update(self, filename, columns):
+        try:
+            self.logger.updateEntry(filename, columns)
+        except:
+            print 'failed to send text to notebook db'
+        
 n_logger = NotebookLogger()
+c_logger = CatalogLogger()

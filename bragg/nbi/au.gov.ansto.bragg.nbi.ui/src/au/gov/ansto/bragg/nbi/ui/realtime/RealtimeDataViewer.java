@@ -157,8 +157,8 @@ public class RealtimeDataViewer extends Composite {
 		    								timePlot.addTimeSeriesSet(resource.getTimeSeriesSet());
 		    								resourceProvider.addResourceToUpdateList(resource);
 		    								timePlot.updatePlot();
-		    								contentCombo.add(deviceId);
-		    								contentCombo.setData(deviceId, resource);
+		    								contentCombo.add(resource.getName());
+		    								contentCombo.setData(resource.getName(), resource);
 		    								contentCombo.update();
 		    								contentCombo.getParent().getParent().layout(true, true);
 		    							}

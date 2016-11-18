@@ -28,6 +28,14 @@
             base-name="/WebContent/home.html">
       </resource>
       <resource
+            alias="/catalog.html"
+            base-name="/WebContent/catalog.html">
+      </resource>
+      <resource
+            alias="/catalogAdmin.html"
+            base-name="/WebContent/catalogAdmin.html">
+      </resource>
+      <resource
             alias="/mobile.html"
             base-name="/WebContent/mobile.html">
       </resource>

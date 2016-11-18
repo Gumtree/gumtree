@@ -49,6 +49,10 @@ public class TardisService {
 	
 	public String listFilesForUser(String username) throws IOException {
 		String function = "function=" + NAME_USER_FILES;
+		int atIndex = username.indexOf("@");
+		if (atIndex > 0) {
+			username = username.substring(0, atIndex);
+		}
 		String arg = "username=" + username;
 		String res = runFunction(function, arg);
 		return res;
@@ -70,6 +74,10 @@ public class TardisService {
 	
 	public String listProposalsForUser(String username) throws IOException {
 		String function = "function=" + NAME_USERS_PROPOSAL;
+		int atIndex = username.indexOf("@");
+		if (atIndex > 0) {
+			username = username.substring(0, atIndex);
+		}
 		String arg = "username=" + username;
 		String res = runFunction(function, arg);
 		return res;
@@ -89,7 +97,8 @@ public class TardisService {
 			int statusCode = getClient().executeMethod(getMethod);
 			if (statusCode != HttpStatus.SC_OK) {
 //				logger.error("HTTP GET failed: " + getMethod.getStatusLine());
-				throw new HttpException("cannot get function result");
+//				throw new HttpException("cannot get function result");
+				return null;
 			} else {
 				String resp = getMethod.getResponseBodyAsString();
 				return resp;

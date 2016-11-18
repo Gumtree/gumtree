@@ -1,6 +1,7 @@
 package au.gov.ansto.bragg.nbi.server.internal;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.gumtree.service.db.MapDatabase;
 import org.gumtree.service.db.RecordsFileException;
@@ -11,6 +12,7 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.Cookie;
 import org.restlet.data.CookieSetting;
+import org.restlet.data.Form;
 
 import au.gov.ansto.bragg.nbi.server.login.UserSessionObject;
 
@@ -234,5 +236,4 @@ public class UserSessionService {
 		return false;
 	}
 	
-
 }

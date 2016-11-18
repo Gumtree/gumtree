@@ -25,11 +25,11 @@
             tabHandles: [],
             tabBlocks: [],
             tabHandleTopPos: 0,
-            tabHandleSize: 200,
+            tabHandleSize: 180,
             speed: 300,
             action: 'click',
             tabLocation: 'right',
-            topPos: '200px',
+            topPos: '180px',
             leftPos: '20px',
             fixedPosition: false,
             positioning: 'absolute',
@@ -114,7 +114,7 @@
                 '-moz-transform-origin': '50% 50%',
                 '-ms-transform-origin': '50% 50%',
                 '-o-transform-origin': '50% 50%',
-                'transform-origin': '184px 16px',
+                'transform-origin': '164px 16px',
                 /* Should be unset in IE9+ I think. */
 //                'filter': 'progid:DXImageTransform.Microsoft.BasicImage(rotation=3)',
 //                'margin': '4px 0 4px 4px',
@@ -134,10 +134,11 @@
             	'font-variant': 'small-caps',
                 'text-decoration': 'none',
                 
-                'width' : '200px',
+                'width' : '180px',
             	'height' : '32px',
                 'line-height': '32px',
             	'display': 'block',
+            	'cursor': 'pointer',
             	'position' : 'absolute'
                 });
         }

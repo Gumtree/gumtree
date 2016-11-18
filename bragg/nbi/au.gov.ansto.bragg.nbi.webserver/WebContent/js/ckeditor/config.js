@@ -14,6 +14,8 @@ CKEDITOR.editorConfig = function( config ) {
 	// Define changes to default configuration here. For example:
 	// config.language = 'fr';
 	config.uiColor = '#909090';
+	config.fontSize_defaultLabel = '11px';
+	
 //	config.toolbarGroups = [
 //	                        { name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
 //	                        { name: 'editing',     groups: [ 'find', 'selection', 'spellchecker' ] },

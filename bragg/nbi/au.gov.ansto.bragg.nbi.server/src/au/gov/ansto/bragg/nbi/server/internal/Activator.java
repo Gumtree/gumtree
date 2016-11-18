@@ -5,12 +5,15 @@ import org.gumtree.util.eclipse.EclipseUtils;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
+import au.gov.ansto.bragg.nbi.server.catalog.CatalogCollectingService;
+
 public class Activator implements BundleActivator {
 
 	private static BundleContext context;
 	
 	private static Activator instance;
 
+	private static CatalogCollectingService catalogCollectingService;
 	
 	private IEclipseContext eclipseContext;
 	
@@ -27,6 +30,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
 		instance = this;
+		catalogCollectingService = new CatalogCollectingService();
 	}
 
 	/*
@@ -39,6 +43,7 @@ public class Activator implements BundleActivator {
 			eclipseContext = null;
 		}
 		instance = null;
+		catalogCollectingService.dispose();
 		Activator.context = null;
 	}
 

@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="icons/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="icons/apple-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="icons/apple-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="icons/apple-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-icon-180x180.png">
+	<link rel="icon" type="image/png" sizes="192x192"  href="icons/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+	<link rel="manifest" href="icons/manifest.json">
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
+	<meta name="theme-color" content="#ffffff">
+	
+
+<link rel="stylesheet" href="css/jquery/jquery-ui-1.11.1.min.css">
+<link rel="stylesheet" href="css/form.css" />
+<link rel="stylesheet" href="css/tabs.css" />
+<link rel="stylesheet" href="css/button.css" />
+<link rel="stylesheet" href="css/popup.css" />
+<link rel="stylesheet" href="css/scripting.css" />
+<link rel="stylesheet" href="css/navigate.css" />
+<link rel="stylesheet" href="css/home.css" />
+<link rel="stylesheet" href="css/account.css" />
+<link rel="stylesheet" href="css/catalog.css" />
+<script src="js/jquery/jquery-1.10.2.min.js"></script>
+<script src="js/jquery/jquery-ui-1.11.1.min.js"></script>
+<script src="js/jquery/js.cookie.js"></script>
+<script src="js/multiselect.js"></script>
+<script src="instrumentsetup.js"></script>
+<script src="js/catalog.js"></script>
+<script src="js/popup.js"></script>
+<script src="js/account.js"></script>
+<!--[if IE]>
+<style type="text/css">
+    .box { display: block; }
+    #box { overflow: hidden;position: relative; }
+    b { position: absolute; top: 0px; right: 0px; width:1px; height: 251px; overflow: hidden; text-indent: -9999px; }
+</style>
+<![endif]-->
+<title>Data Catalog</title>
+</head>
+<body>
+
+<div id="doc" class="yui-t7 ui-shadow">
+  <div id="hd">
+    <div id="header" class="ui-shadow"><h1 id="titleString">Data Catalog</h1>
+        <div id="id_div_headercorner"><a id="id_a_account">Sign Out</a></div>
+    </div>
+  </div>
+  <div id="bd">
+    <div id="yui-main">
+      <div class="yui-b">
+        <div class="yui-gb">
+          <div class="yui-u first ui-corner-all ui-shadow">
+            <div class="content cssmenu" id="cssmenu">
+            	<ul>
+            		<li><a id="id_a_update">Update</a>
+            		</li>
+            		<li class='active has-sub'><a id="id_a_column">Configure Columns</a>
+            			<ul id="id_ul_configure">
+            				<li><a id="id_a_allColumns">&nbsp;&nbsp;--&nbsp;Select All Columns</a></li>
+            				<li><a id="id_a_noColumns">&nbsp;&nbsp;--&nbsp;Deselect All Columns</a></li>
+            				<li><a id="id_a_invertColumns">&nbsp;&nbsp;--&nbsp;Invert Selection</a></li>
+            			</ul>
+            		</li>
+            		<!-- li class='active has-sub'><a id="id_a_download">Download Raw Data</a>
+            			<ul id="id_ul_download">
+            				<li><a id="id_a_downloadAll">&nbsp;&nbsp;--&nbsp;Download All</a></li>
+            				<li><a id="id_a_downloadSelected">&nbsp;&nbsp;--&nbsp;Download Selected</a></li>
+   						</ul>
+            		</li -->
+            		<li class='active has-sub'><a id="id_a_csv">Export to CSV</a>
+            			<ul id="id_ul_export">
+            				<li><a id="id_a_exportAll">&nbsp;&nbsp;--&nbsp;Export All</a></li>
+            				<li id="id_li_exportSelected"><a id="id_a_exportSelected">&nbsp;&nbsp;--&nbsp;Export Selected</a></li>
+   						</ul>
+            		</li>
+            		<li class='active has-sub'><a id="id_a_print">Print</a>
+            			<ul id="id_ul_print">
+            				<li><a id="id_a_printAll">&nbsp;&nbsp;--&nbsp;Print All</a></li>
+            				<li id="id_li_printSelected"><a id="id_a_printSelected">&nbsp;&nbsp;--&nbsp;Print Selected</a></li>
+   						</ul>
+            		</li>
+            	</ul>
+            </div>
+          </div>
+          <div class="yui-u second ui-corner-all ui-shadow">
+          	<div id="id_div_main" class="content">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable" id="id_table_catalog">
+                	<thead id="table_thead_catalog"></thead>
+                    <tbody class="scrollContent table_jython_content" id="table_body_catalog">
+                    </tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="ft">
+    <div id="footer" class="ui-widget ui-corner-all ui-shadow">
+       	<div class="div_footer">
+			<p class="class_footer_right">&#169;2016 ANSTO</p>
+		</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -19,8 +19,10 @@ Require-Bundle: org.json;bundle-version="1.0.0";visibility:=reexport,
  com.db4o.java5;bundle-version="8.0.184",
  com.db4o.osgi;bundle-version="8.0.184",
  au.gov.ansto.bragg.nbi.restlet,
- org.eclipse.jgit;bundle-version="2.2.0"
+ org.eclipse.jgit;bundle-version="2.2.0",
+ org.gumtree.data.core;bundle-version="1.12.0"
 Export-Package: au.gov.ansto.bragg.nbi.server,
+ au.gov.ansto.bragg.nbi.server.catalog,
  au.gov.ansto.bragg.nbi.server.db,
  au.gov.ansto.bragg.nbi.server.git,
  au.gov.ansto.bragg.nbi.server.image,

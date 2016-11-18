@@ -25,7 +25,7 @@ function changeHistmemType(i) {
 	var histmemList = histmemUrl.split(";");
 	var newHistmemUrl;
 	if (typeof histmemTypes !== 'undefined' && histmemTypes.length > 0) {
-		newHistmemUrl = histmemList[i].replace('$HISTMEM_TYPE', $('#histmem_type').val());
+		newHistmemUrl = histmemList[i].replace('$HISTMEM_TYPE', $('#histmem_type0').val());
 	} else {
 		newHistmemUrl = histmemList[i];
 	}
@@ -115,10 +115,10 @@ var refresh = function(){
 //							ct = ct.replace(/\n\n/g, '\n');
 							var range = obj.range;
 							var items = range.split("=");
-							var newCt = '<div class="div-highlight">' + ct.substring(0, Number(items[2])) + '</div>';
+							var newCt = '<div class="div-highlight">' + $("<div>").text(ct.substring(0, Number(items[2]))).html() + '</div>';
 							if (Number(items[2] < ct.length)) {
 								var torun = ct.substring(Number(items[2]) + 1, ct.length);
-								newCt += '<div class="div-normal">' + ct.substring(Number(items[2]) + 1, ct.length) + '</div>';
+								newCt += '<div class="div-normal">' + $("<div>").text(ct.substring(Number(items[2]) + 1, ct.length)).html() + '</div>';
 							}
 							$("#scriptContent").html(newCt);
 							var scrollPosition = Number(items[3]);
@@ -176,7 +176,7 @@ var refresh = function(){
 			for ( var i = 0; i < histmemList.length; i++) {
 				var newHistmemUrl;
 				if (typeof histmemTypes !== 'undefined' && histmemTypes.length > 0) {
-					newHistmemUrl = histmemList[i].replace('$HISTMEM_TYPE', $('#histmem_type').val());
+					newHistmemUrl = histmemList[i].replace('$HISTMEM_TYPE', $('#histmem_type0').val());
 				} else {
 					newHistmemUrl = histmemList[i];
 				}

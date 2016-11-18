@@ -77,11 +77,10 @@ public class UserHomeRestlet extends Restlet implements IDisposable{
 //							}
 //			    		}
 //			    	}
+			    	boolean allowCurrentCatalog = false;
 			    	if (UserSessionService.verifyService(session, UserSessionService.NAME_SERVICE_CURRENTPAGE)) {
 			    		addCurrentNotebook(menuJson, infoJson);
-			    	}
-			    	if (UserSessionService.verifyService(session, UserSessionService.NAME_SERVICE_NOTEBOOKMANAGER)){
-			    		addManageNotebook(menuJson, infoJson);
+			    		allowCurrentCatalog = true;
 			    	}
 			    	if (UserSessionService.verifyService(session, UserSessionService.NAME_SERVICE_NOTEBOOKADMIN)) {
 				    	JSONArray proposals = UserSessionService.getProposals(session);
@@ -89,6 +88,14 @@ public class UserHomeRestlet extends Restlet implements IDisposable{
 				    		addNotebookProposals(menuJson, infoJson, proposals);
 				    	}
 //			    		addPythonScript(menuJson, infoJson);
+			    	}
+			    	if (UserSessionService.verifyService(session, UserSessionService.NAME_SERVICE_NOTEBOOKMANAGER)){
+			    		addManageNotebook(menuJson, infoJson);
+			    		addManageCatalog(menuJson, infoJson);
+			    	} else {
+			    		if (allowCurrentCatalog) {
+			    			addCurrentCatalog(menuJson, infoJson);
+			    		}
 			    	}
 			    	jsonObject.put("menu", menuJson);
 			    	jsonObject.put("info", infoJson);
@@ -146,10 +153,21 @@ public class UserHomeRestlet extends Restlet implements IDisposable{
     	infoJson.put("notebookAdmin.html", "Manage Notebook: Instrument scientists can use this " +
     			"page to manage current and history notebook page.");		
 	}
-
+	
+	private void addManageCatalog(JSONObject menuJson, JSONObject infoJson) throws JSONException, IOException {
+    	menuJson.put("catalogAdmin.html", "Manage Data Catalog");
+    	infoJson.put("catalogAdmin.html", "Manage Data Catalog: Instrument scientists can use this " +
+    			"page to manage data catalogs of the current and history proposals.");		
+	}
+	
 	private void addCurrentNotebook(JSONObject menuJson, JSONObject infoJson) throws JSONException, IOException {
     	menuJson.put("notebook.html", "Current Notebook Page");
     	infoJson.put("notebook.html", "Current Notebook Page: Access to edit current notebook page.");		
+	}
+
+	private void addCurrentCatalog(JSONObject menuJson, JSONObject infoJson) throws JSONException, IOException {
+    	menuJson.put("catalog.html", "Data Catalog Page");
+    	infoJson.put("catalog.html", "Data Catalog Page: Access to data catalog of the current proposal.");		
 	}
 
 	private void addPythonScript(JSONObject menuJson, JSONObject infoJson) throws JSONException {

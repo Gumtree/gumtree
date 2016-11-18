@@ -40,6 +40,12 @@
                path="/notebook">
          </resource-mapping>
       </httpcontext>
+      <httpcontext
+            id="catalogRestlet">
+         <resource-mapping
+               path="/catalog">
+         </resource-mapping>
+      </httpcontext>
       <!-- httpcontext
             id="NBRedirectRestlet">
          <resource-mapping
@@ -120,6 +126,15 @@
          <init-param
                name="org.restlet.application"
                value="au.gov.ansto.bragg.nbi.server.notebook.NotebookApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/catalog"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="catalogRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.catalog.CatalogApplication">
          </init-param>
       </servlet>
       <servlet

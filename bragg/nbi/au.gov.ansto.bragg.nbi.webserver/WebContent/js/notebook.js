@@ -300,6 +300,315 @@ function getPdf() {
 	}
 }
 
+// ********** below functions are for data catalogs ********** 
+
+var CLASS_HIDDEN_COLUMN = "class_column_disable";
+var CLASS_DISABLE_ITEM = 'class_a_disable';
+var HIDDEN_DIV_ID = "_hiddenCopyText_";
+var COLUMN_NAMES;
+var TABLE_SIZE;
+var COOKIE_PREFIX = 'notebook_catalog_column_';
+var checkNewFileIntervalId = null;
+var checkNewFileIntervalSeconds = 10;
+
+
+function startCheckNewFile() {
+	checkNewFileIntervalId = setInterval(function(){
+		updateCatalogTable();
+		}, checkNewFileIntervalSeconds * 1000);
+}
+
+function stopCheckNewFile() {
+	if (checkNewFileIntervalId != null) {
+		clearInterval(checkNewFileIntervalId);
+	}
+}
+
+function escapeSpace(value) {
+	if (value != null) {
+		return value.replace(/([ /])/g, '_');
+	}
+	return null;
+}
+
+function updateCatalogTable() {
+	var getUrl = "catalog/read?start=" + TABLE_SIZE + "&" + (new Date()).getTime();
+	$.get(getUrl, function(data, status) {
+		var size = data["size"];
+		if (size > 0) {
+			$('.class_tr_new').removeClass('class_tr_new');
+			var items = $('<div/>').html(makeTableBody(COLUMN_NAMES, data["body"])).children();
+			$.each(items, function(idx, val) {
+				$(this).find("th").addClass('class_tr_new');
+			});
+			$("#id_table_catalog > tbody").prepend(items);
+//			$("#id_table_catalog > tbody").prepend(data["body"]);
+			TABLE_SIZE += size;
+		}
+	}).fail(function(e) {
+	}).always(function() {
+	});
+}
+
+function makeTableHeader(columnNames) {
+	var html = '<tr class="class_tr_header"><th class="class_column_key">File Number</th>';
+	for ( var i = 0; i < columnNames.length; i++) {
+		var name = escapeSpace(columnNames[i]);
+		var ck = Cookies.get(COOKIE_PREFIX + name);
+		html += '<th class="class_column_' + name + (ck == 'disabled' ? ' ' + CLASS_HIDDEN_COLUMN : '') + '">' + columnNames[i] + '</th>';
+	}
+	html += '</tr>';
+	return html;
+}
+
+function makeTableBody(columnNames, rowArray) {
+	rowArray.sort(function(a, b){
+		return(b['_key_'] - a['_key_']);
+	});
+	var html = '';
+	for ( var i = 0; i < rowArray.length; i++) {
+		var row = rowArray[i];
+		html += '<tr class="class_tr_body">';
+		html += '<th class="class_column_key">' + rowArray[i]['_key_'] + '</th>';
+		for ( var j = 0; j < columnNames.length; j++) {
+			var name = escapeSpace(columnNames[j]);
+			var ck = Cookies.get(COOKIE_PREFIX + name);
+			var cv = rowArray[i][columnNames[j]];
+			if (cv == null) {
+				cv = "";
+			}
+			html += '<td class="class_column_' + name + (ck == 'disabled' ? ' ' + CLASS_HIDDEN_COLUMN : '') + '">' + cv + '</td>';
+		}
+		html += '</tr>';
+	}
+	return html;
+}
+
+function selectElementContents(el) {
+	var body = document.body, range, sel;
+	if (document.createRange && window.getSelection) {
+		range = document.createRange();
+		sel = window.getSelection();
+		sel.removeAllRanges();
+		try {
+			range.selectNodeContents(el);
+			sel.addRange(range);
+		} catch (e) {
+			range.selectNode(el);
+			sel.addRange(range);
+		}
+	} else if (body.createTextRange) {
+		range = body.createTextRange();
+		range.moveToElementText(el);
+		range.select();
+	}
+}
+
+function exportTableToCSV($table, filename) {
+
+	var $rows = $table.find('tr:has(td,th)'),
+
+	// Temporary delimiter characters unlikely to be typed by keyboard
+	// This is to avoid accidentally splitting the actual contents
+	tmpColDelim = String.fromCharCode(11), // vertical tab character
+	tmpRowDelim = String.fromCharCode(0), // null character
+
+	// actual delimiter characters for CSV format
+//	colDelim = '","',
+	colDelim = ', ',
+//	rowDelim = '"\r\n"',
+	rowDelim = '\r\n',
+
+// Grab text from table into CSV formatted string
+//	csv = '"' + $rows.map(function (i, row) {
+	csv = $rows.map(function (i, row) {
+		var $row = $(row),
+		$cols = $row.find('th,td').not('.' + CLASS_HIDDEN_COLUMN);
+
+		return $cols.map(function (j, col) {
+			var $col = $(col),
+			text = $col.text();
+			return text;
+//			return text.replace(/"/g, '""'); // escape double quotes
+
+		}).get().join(tmpColDelim);
+
+	}).get().join(tmpRowDelim)
+	.split(tmpRowDelim).join(rowDelim)
+//	.split(tmpColDelim).join(colDelim) + '"',
+	.split(tmpColDelim).join(colDelim) + '',
+
+	// Data URI
+	csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csv);
+
+	$(this)
+	.attr({
+		'download': filename,
+		'href': csvData,
+		'target': '_blank'
+	});
+	
+}
+
+function copyToHiddenTable(items) {
+	
+	var html = '<table border="1" cellpadding="2" cellspacing="0" width="100%" class="scrollTable" id="tableTemp"><tbody class="scrollContent">';
+	html += $("#table_thead_catalog").html();
+	$.each(items, function(idx, val) {
+		html += val.outerHTML;
+	});
+	html += '</tbody></table>';
+	target = document.getElementById(HIDDEN_DIV_ID);
+	if (!target) {
+		var target = document.createElement("div");
+		target.style.position = "absolute";
+		target.style.left = "-9999px";
+		target.style.top = "0";
+		target.id = HIDDEN_DIV_ID;
+		document.body.appendChild(target);
+	}
+
+	$('#' + HIDDEN_DIV_ID).html(html);
+    
+	selectElementContents( document.getElementById(HIDDEN_DIV_ID) );
+
+	return true;
+}
+
+function toggleColumn(name) {
+	name = escapeSpace(name);
+	$('#id_a_' + name + ' >span').toggleClass(CLASS_DISABLE_ITEM);
+	$('.class_column_' + name).toggleClass(CLASS_HIDDEN_COLUMN);
+	if ($('#id_a_' + name + ' >span').hasClass(CLASS_DISABLE_ITEM)) {
+		Cookies.set(COOKIE_PREFIX + name, 'disabled');
+	} else {
+		Cookies.set(COOKIE_PREFIX + name, 'enabled');
+	}
+}
+
+function prepareColumnMenu() {
+	for ( var i = 0; i < COLUMN_NAMES.length; i++) {
+		var name = escapeSpace(COLUMN_NAMES[i]);
+		var ck = Cookies.get(COOKIE_PREFIX + name);
+		if (ck == 'disabled') {
+			$('#id_a_' + name + ' >span').addClass(CLASS_DISABLE_ITEM);
+		}
+	}
+}
+
+$(function(){
+    $('#id_table_catalog > tbody').selectable({
+//  	filter:'td,th',
+    	filter:'tr',
+    	selected: function(event, ui){
+//  		console.log(event);
+//  		console.log(ui);
+    		var s=$(this).find('.ui-selected');
+//  		$.each(s, function(idx, val){
+//  		console.log(val.outerHTML);
+//  		});
+    		if (s.size() == 0) {
+    			$('#id_li_printSelected').hide();
+    			$('#id_li_exportSelected').hide();
+    		} else {
+    			$('#id_li_printSelected').show();
+    			$('#id_li_exportSelected').show();
+    		}
+    		copyToHiddenTable(s);
+    	},
+    	unselected: function (event, ui) {
+    		var s=$(this).find('.ui-selected');
+    		if (s.size() == 0) {
+    			$('#id_li_printSelected').hide();
+    			$('#id_li_exportSelected').hide();
+    		} else {
+    			$('#id_li_printSelected').show();
+    			$('#id_li_exportSelected').show();
+    		}
+    		copyToHiddenTable(s);
+    	}
+    });
+    
+    $('#id_div_catalogInsert').click(function(e) {
+    	var s=$('#id_table_catalog').find('.ui-selected');
+		if (s.size() > 0) {
+			var cp = $('<div>').append($('#' + HIDDEN_DIV_ID).html());
+			cp.find('.' + CLASS_HIDDEN_COLUMN).remove();
+//			CKEDITOR.instances.id_editable_inner.insertHtml('<p>' + $('#' + HIDDEN_DIV_ID).html() + '</p>');
+			CKEDITOR.instances.id_editable_inner.insertHtml('<p>' + cp.html() + '</p>');
+		} else {
+			alert('Please select at least one entry.');
+		}
+	});
+    
+//	$('#id_a_exportAll').on('click', function(e) {
+//		exportTableToCSV.apply(this, [$("#id_table_catalog"), 'export.csv']);
+//	});
+
+	$('#id_a_catalogExport').on('click', function(e) {
+		var s=$('#id_table_catalog').find('.ui-selected');
+		if (s.size() > 0) {
+			exportTableToCSV.apply(this, [$('#' + HIDDEN_DIV_ID + '>table'), 'export.csv']);
+		} else {
+			exportTableToCSV.apply(this, [$("#id_table_catalog"), 'export.csv']);
+		}
+	});
+	
+	$('#id_a_noColumns').on('click', function(e) {
+		for ( var i = 0; i < COLUMN_NAMES.length; i++) {
+			var name = escapeSpace(COLUMN_NAMES[i]);
+			var columnItems = $('#id_a_' + name + ' >span');
+			$.each(columnItems, function() {
+				if (!$( this ).hasClass(CLASS_DISABLE_ITEM)) {
+					$( this ).addClass(CLASS_DISABLE_ITEM);
+				}
+			});
+			var columns = $('.class_column_' + name);
+			$.each(columns, function() {
+				if (!$( this ).hasClass(CLASS_HIDDEN_COLUMN)) {
+					$( this ).addClass(CLASS_HIDDEN_COLUMN);
+				}
+			});
+			Cookies.set(COOKIE_PREFIX + name, 'disabled');
+		}
+	});
+	
+	$('#id_a_allColumns').on('click', function(e) {
+		for ( var i = 0; i < COLUMN_NAMES.length; i++) {
+			var name = escapeSpace(COLUMN_NAMES[i]);
+			var columnItems = $('#id_a_' + name + ' >span');
+			$.each(columnItems, function() {
+				if ($( this ).hasClass(CLASS_DISABLE_ITEM)) {
+					$( this ).removeClass(CLASS_DISABLE_ITEM);
+				}
+			});
+			var columns = $('.class_column_' + name);
+			$.each(columns, function() {
+				if ($( this ).hasClass(CLASS_HIDDEN_COLUMN)) {
+					$( this ).removeClass(CLASS_HIDDEN_COLUMN);
+				}
+			});
+			Cookies.set(COOKIE_PREFIX + name, 'enabled');
+		}
+	});
+	
+	$('#id_a_invertColumns').on('click', function(e) {
+		for ( var i = 0; i < COLUMN_NAMES.length; i++) {
+			var name = escapeSpace(COLUMN_NAMES[i]);
+			$('#id_a_' + name + ' >span').toggleClass(CLASS_DISABLE_ITEM);
+			$('.class_column_' + name).toggleClass(CLASS_HIDDEN_COLUMN);
+			if ($('#id_a_' + name + ' >span').hasClass(CLASS_DISABLE_ITEM)) {
+				Cookies.set(COOKIE_PREFIX + name, 'disabled');
+			} else {
+				Cookies.set(COOKIE_PREFIX + name, 'enabled');
+			}
+		}
+	});
+	
+});
+
+//********** end of functions for data catalogs ********** 
+
 function makeNewPage(){
 	$('<div></div>').appendTo('body')
 	  .html('<div class="class_confirm_dialog"><p>Do you want to save the current page and make a new one? '
@@ -706,11 +1015,11 @@ $(function(){
     $('.slide-out-div').tabSlideOut({
     	tabHandleClass: '.a_sidebar_handle',
     	tabBlockClass: '.div_sidebar_block',
-        tabHandles: ['#a_sidebar_database', '#a_sidebar_template', '#a_sidebar_canvas'],                     //class of the element that will become your tab
-        tabBlocks: ['#div_sidebar_database', '#div_sidebar_template', '#div_sidebar_canvas'],
-        tabHandleSize: 200,
-        pathToTabImage: $('html').hasClass('ie9') ? ['images/Database.GIF', 'images/Canvas.GIF', 'images/Template.GIF'] : null, //path to the image for the tab //Optionally can be set using css
-        imageHeight: '218px',                     //height of tab image           //Optionally can be set using css
+        tabHandles: ['#a_sidebar_database', '#a_sidebar_template', '#a_sidebar_canvas', '#a_sidebar_catalog'],                     //class of the element that will become your tab
+        tabBlocks: ['#div_sidebar_database', '#div_sidebar_template', '#div_sidebar_canvas', '#div_sidebar_catalog'],
+        tabHandleSize: 180,
+        pathToTabImage: $('html').hasClass('ie9') ? ['images/Database.GIF', 'images/Template.GIF', 'images/Canvas.GIF', 'images/Catalog.GIF'] : null, //path to the image for the tab //Optionally can be set using css
+        imageHeight: '198px',                     //height of tab image           //Optionally can be set using css
         imageWidth: '33px',                       //width of tab image            //Optionally can be set using css
         tabLocation: 'right',                      //side of screen where tab lives, top, right, bottom, or left
         speed: 300,                               //speed of animation
@@ -766,6 +1075,7 @@ $(function(){
     		return 'You have unsaved changes in the editor.';
     	}
     };
+    
 });
 
 jQuery(document).ready(function() {
@@ -1008,6 +1318,31 @@ jQuery(document).ready(function() {
 	.fail(function(e) {
 	});
 	
+	var getUrl = "catalog/read?" + (new Date()).getTime();
+	$.get(getUrl, function(data, status) {
+		if (status == "success") {
+			var re = data["status"];
+			if (re == "OK") {
+	        	COLUMN_NAMES = data["header"];
+	        	
+	        	$("#id_table_catalog > thead").append(makeTableHeader(COLUMN_NAMES));
+	        	$("#id_table_catalog > tbody").append(makeTableBody(COLUMN_NAMES, data["body"]));
+	        	TABLE_SIZE = data["size"];
+	        	
+	        	for ( var i = 0; i < COLUMN_NAMES.length; i++) {
+		        	$("#id_div_catalogDropdown").append('<a id="id_a_' + escapeSpace(COLUMN_NAMES[i]) 
+		        			+ '" onclick="toggleColumn(\'' + escapeSpace(COLUMN_NAMES[i]) 
+		        			+ '\')"' + '>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="class_a_columns">[' 
+		        			+ COLUMN_NAMES[i] + ']</span></a>');
+				}
+	        	prepareColumnMenu();
+			}
+		}
+	}).fail(function(e) {
+	}).always(function() {
+	});
+	
+	
 	getUrl = "notebook/user";
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
@@ -1148,4 +1483,5 @@ jQuery(document).ready(function() {
 	});
 	
 	startValidateUser();
+	startCheckNewFile();
 });
