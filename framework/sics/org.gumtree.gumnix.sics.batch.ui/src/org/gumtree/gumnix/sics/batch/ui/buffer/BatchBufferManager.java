@@ -454,18 +454,21 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	
 	// Handle range message
 	private void handleExecutionEvent(String message) {
-		String[] rangeInfos = message.split("=");
-		for (int i = 0; i < rangeInfos.length; i++) {
-			rangeInfos[i] = rangeInfos[i].trim(); 
+		try {
+			String[] rangeInfos = message.split("=");
+			for (int i = 0; i < rangeInfos.length; i++) {
+				rangeInfos[i] = rangeInfos[i].trim(); 
+			}
+			// remove ".range" to get buffername
+			String buffername = rangeInfos[0].substring(0, rangeInfos[0].length() - 6);
+			long startPosition = Long.parseLong(rangeInfos[1]);
+			long endPosition = Long.parseLong(rangeInfos[1]);
+			// Fire event
+			PlatformUtils.getPlatformEventBus().postEvent(
+					new BatchBufferManagerExecutionEvent(this, buffername,
+							startPosition, endPosition));
+		} catch (Exception e) {
 		}
-		// remove ".range" to get buffername
-		String buffername = rangeInfos[0].substring(0, rangeInfos[0].length() - 6);
-		long startPosition = Long.parseLong(rangeInfos[1]);
-		long endPosition = Long.parseLong(rangeInfos[1]);
-		// Fire event
-		PlatformUtils.getPlatformEventBus().postEvent(
-				new BatchBufferManagerExecutionEvent(this, buffername,
-						startPosition, endPosition));
 	}
 	
 	/***************************************************************

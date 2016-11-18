@@ -77,6 +77,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	
 	private static final String CLEAR_LOT_FOR_NEW_SCRIPT = "gumtree.sics.clearLogForNewScript";
 	
+	private static final String PROP_REMOVE_DOUBLELINEFEED = "gumtree.sics.escapeDoubleLineFeed";
+	
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	private IBatchBufferManager batchBufferManager;
@@ -94,6 +96,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	private boolean clearLog;
 	
 	private SashForm sashForm;
+	
+	private boolean needRemoveDoubleLinefeed = false;
 	
 	// Listener to the batch buffer queue and auto run
 	private PropertyChangeListener propertyChangeListener;
@@ -136,6 +140,13 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		String prop = System.getProperty(CLEAR_LOT_FOR_NEW_SCRIPT);
 		if (prop != null) {
 			clearLog = Boolean.parseBoolean(prop);
+		}
+		prop = System.getProperty(PROP_REMOVE_DOUBLELINEFEED);
+		if (prop != null) {
+			try {
+				needRemoveDoubleLinefeed = Boolean.valueOf(prop);
+			} catch (Exception e) {
+			}
 		}
 	}
 
@@ -479,7 +490,9 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 						String bufferContent = getBatchBufferManager().getRunningBufferContent();
 						String rangeString = getBatchBufferManager().getRunningBufferRangeString();
 						if (bufferContent != null && rangeString != null) {
-//							bufferContent = bufferContent.replaceAll("\n\n", "\n");
+							if (needRemoveDoubleLinefeed) {
+								bufferContent = bufferContent.replaceAll("\n\n", "\n");
+							}
 							context.editorText.setText(bufferContent);
 							highlightBuffer(rangeString);
 						}
@@ -502,7 +515,9 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					// this is available for highlight)
 					String bufferContent = getBatchBufferManager().getRunningBufferContent();
 					if (bufferContent != null) {
-//						bufferContent = bufferContent.replaceAll("\n\n", "\n");
+						if (needRemoveDoubleLinefeed) {
+							bufferContent = bufferContent.replaceAll("\n\n", "\n");
+						}
 						context.editorText.setText(bufferContent);
 					}
 					// Clear log
