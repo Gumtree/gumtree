@@ -26,6 +26,7 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * @author nxi
  *
@@ -36,6 +37,7 @@ public class CatalogCollectingService {
 	private static final String PROP_SICS_DATAFOLDER = "gumtree.sics.dataPath";
 	private static final String PROP_ANALYSIS_DICTIONARY = "gumtree.analysis.dictionary";
 	private static final String PROP_CATALOG_TITLES = "gumtree.catalog.columnTitles";
+	private static final String PREF_DBKEY_LASTMODIFIED = "catalog_lastModified";
 	private static Thread collectingThread;
 	private static Logger logger = LoggerFactory.getLogger(CatalogCollectingService.class);
 	
@@ -68,6 +70,13 @@ public class CatalogCollectingService {
 			catalogColumns = Arrays.asList(System.getProperty(PROP_CATALOG_TITLES).split(","));
 			proposalDb = ProposalDB.getInstance();
 			controlDb = ControlDB.getInstance();
+			try {
+				String savedValue = controlDb.getControlEntry(PREF_DBKEY_LASTMODIFIED);
+				if (savedValue != null) {
+					lastModifiedTimestamp = Long.valueOf(savedValue);
+				}
+			} catch (Exception e) {
+			}
 			startCollectingThread();
 	}
 
@@ -144,6 +153,7 @@ public class CatalogCollectingService {
 			CatalogDB catalogDb = CatalogDB.getInstance(currentProposal);
 			catalogDb.updateEntry(file.getName(), dict);
 			lastModifiedTimestamp = file.lastModified();
+			controlDb.addControlEntry(PREF_DBKEY_LASTMODIFIED, String.valueOf(lastModifiedTimestamp));
 		} finally {
 			if (ds != null) {
 				ds.close();
@@ -154,4 +164,5 @@ public class CatalogCollectingService {
 	public void dispose() {
 		collectingThread.interrupt();
 	}
+		
 }

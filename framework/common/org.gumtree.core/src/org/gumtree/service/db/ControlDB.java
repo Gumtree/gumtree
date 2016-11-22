@@ -50,6 +50,14 @@ public class ControlDB {
 		}
 	}
 
+	public String getControlEntry(String entryKey) throws ClassNotFoundException, RecordsFileException, IOException {
+		Object entry = db.getEntry(entryKey);
+		if (entry != null) {
+			return entry.toString();
+		} 
+		return null;
+	}
+	
 	public void removeControlEntry(String entryKey) throws IOException, RecordsFileException {
 			db.removeEntry(entryKey);
 	}

@@ -26,20 +26,24 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+
 public class CatalogDB {
 	
 	private static final String PROP_CATALOG_TITLES = "gumtree.catalog.columnTitles";
+	private static final String NAME_DB_CATALOGINDEX = "catalogIndex";
+	private static final String NAME_COLUMN_TIMESTAMP = "_update_timestamp_";
 	private static final String SPAN_FREFIX = "<span class=\"class_span_search_highlight\">";
 	private static final String SPAN_END = "</span>";
 	private static final String PROP_CATALOG_SAVEPATH = "gumtree.catalog.savePath";
 
 	private ObjectDBService db;
+	private ObjectDBService indexDb;
 	private boolean inSearch = false;
 	private CatalogProvider provider;
 	
 	public CatalogDB(String dbName) {
 		db = ObjectDBService.getDb(System.getProperty(PROP_CATALOG_SAVEPATH), dbName);
-		
+		indexDb = ObjectDBService.getDb(System.getProperty(PROP_CATALOG_SAVEPATH), NAME_DB_CATALOGINDEX);
 		String[] columns = System.getProperty(PROP_CATALOG_TITLES).split(",");
 		for (int i = 0; i < columns.length; i++) {
 			columns[i] = columns[i].split(":")[1].trim();
@@ -102,6 +106,7 @@ public class CatalogDB {
 		for (String columnName : provider.getColumnNames()){
 			json.put(columnName, valueList.get(i));
 		}
+		json.put(NAME_COLUMN_TIMESTAMP, System.currentTimeMillis());
 		updateHtmlEntry(key, json.toString());
 
 //		if (valueList == null || valueList.size() != provider.getColumnNames().size()) {
@@ -128,6 +133,7 @@ public class CatalogDB {
 		for (String columnName : provider.getColumnNames()){
 			json.put(columnName, values[i++]);
 		}
+		json.put(NAME_COLUMN_TIMESTAMP, System.currentTimeMillis());
 		updateHtmlEntry(key, json.toString());
 //		StringBuilder html = new StringBuilder("<tr>");
 //		html.append("<th>" + key + "</th>");
@@ -197,7 +203,8 @@ public class CatalogDB {
 				json.put(columnName, value);
 			}
 		}
-		
+		json.put(NAME_COLUMN_TIMESTAMP, System.currentTimeMillis());
+
 //		StringBuilder html = new StringBuilder("<tr>");
 //		html.append("<th>" + key + "</th>");
 //		for (String name : provider.getColumnNames()) {
@@ -221,6 +228,7 @@ public class CatalogDB {
 		} else {
 			json = values;
 		}
+		json.put(NAME_COLUMN_TIMESTAMP, System.currentTimeMillis());
 		updateHtmlEntry(key, json.toString());
 	}
 	
@@ -230,18 +238,40 @@ public class CatalogDB {
 		} else {
 			db.appendEntry(key, html);
 		}
+		indexDb.appendEntry(String.valueOf(System.currentTimeMillis()), key);
 	}
 
 	public String getEntry(String key) throws ClassNotFoundException, RecordsFileException, IOException {
 		return String.valueOf(db.getEntry(key));
 	}
 	
-	public LinkedHashMap<String, Object> getNew(int start) throws ClassNotFoundException, RecordsFileException, IOException {
+	public LinkedHashMap<String, Object> getNew(int start, String timestamp) throws ClassNotFoundException, RecordsFileException, IOException, JSONException {
 		int num = db.getNumRecords();
+		LinkedHashMap<String, Object> result;
 		if (num > start) {
-			return db.getKeyEntryPairs(num -1, num - start);
+			result = db.getKeyEntryPairs(num - 1, num - start);
+		} else {
+			result = new LinkedHashMap<String, Object>();
 		}
-		return new LinkedHashMap<String, Object>();
+		if (timestamp != null) {
+			int indexLen = indexDb.getNumRecords();
+			for (int i = indexLen - 1; i >=0; i--) {
+				String indexKey = indexDb.indexToKey(i);
+				try {
+					if (Long.valueOf(indexKey) > Long.valueOf(timestamp)) {
+						String key = indexDb.getEntry(indexKey).toString();
+						Object entry = db.getEntry(key);
+						result.put(key, entry);
+					} else {
+						break;
+					}
+				} catch (Exception e) {
+					break;
+				}
+				
+			}
+		}
+		return result;
 	}
 	
 	public LinkedHashMap<String, Object> getAll() throws ClassNotFoundException, RecordsFileException, IOException {

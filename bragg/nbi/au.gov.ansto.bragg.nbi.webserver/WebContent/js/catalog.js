@@ -10,6 +10,8 @@ var CLASS_DISABLE_ITEM = 'class_a_disable';
 var COOKIE_PREFIX = 'catalog_column_';
 var checkNewFileIntervalId = null;
 var checkNewFileIntervalSeconds = 10;
+var NAME_COLUMN_TIMESTAMP = "_update_timestamp_";
+var update_timestamp = "0";
 
 
 function startCheckNewFile() {
@@ -251,7 +253,7 @@ function exportTableToCSV($table, filename) {
 }
 
 function updateCatalogTable() {
-	var getUrl = "catalog/read?proposal=" + CURRENT_PROPOSALID + "&start=" + TABLE_SIZE + "&" + (new Date()).getTime();
+	var getUrl = "catalog/read?proposal=" + CURRENT_PROPOSALID + "&start=" + TABLE_SIZE + "&timestamp=" + update_timestamp + "&" + (new Date()).getTime();
 	$.get(getUrl, function(data, status) {
 		var size = data["size"];
 		if (size > 0) {
@@ -264,6 +266,7 @@ function updateCatalogTable() {
 //			$("#id_table_catalog > tbody").prepend(data["body"]);
 			TABLE_SIZE += size;
 		}
+		update_timestamp = data["timestamp"];
 		updateUserArea(true);
 	}).fail(function(e) {
 	}).always(function() {
@@ -299,7 +302,7 @@ function printSelected() {
 
 function escapeSpace(value) {
 	if (value != null) {
-		return value.replace(/([ /])/g, '_');
+		return value.replace(/([ /])|\./g, '_');
 	}
 	return null;
 }
@@ -317,13 +320,14 @@ function makeTableHeader(columnNames) {
 
 function makeTableBody(columnNames, rowArray) {
 	rowArray.sort(function(a, b){
-		return(b['_key_'] - a['_key_']);
+		if(b['_key_'] < a['_key_']) return -1;
+	    if(b['_key_'] > a['_key_']) return 1;
+	    return 0;
 	});
 	var html = '';
 	for ( var i = 0; i < rowArray.length; i++) {
 		var row = rowArray[i];
-		html += '<tr class="class_tr_body">';
-		html += '<th class="class_column_key">' + rowArray[i]['_key_'] + '</th>';
+		var innerHtml = '<th class="class_column_key class_tr_new">' + rowArray[i]['_key_'] + '</th>';
 		for ( var j = 0; j < columnNames.length; j++) {
 			var name = escapeSpace(columnNames[j]);
 			var ck = Cookies.get(COOKIE_PREFIX + name);
@@ -332,9 +336,16 @@ function makeTableBody(columnNames, rowArray) {
 			if (cv == null) {
 				cv = "";
 			}
-			html += '<td class="class_column_' + name + (ck == 'disabled' ? ' ' + CLASS_HIDDEN_COLUMN : '') + '">' + cv + '</td>';
+			innerHtml += '<td class="class_column_' + name + (ck == 'disabled' ? ' ' + CLASS_HIDDEN_COLUMN : '') + '">' + cv + '</td>';
 		}
-		html += '</tr>';
+
+		var keyString = escapeSpace(rowArray[i]['_key_']);
+		if ($('#id_tr_' + keyString).length > 0) {
+			$('#id_tr_' + keyString).html(innerHtml);
+		} else {
+			html += '<tr class="class_tr_body" id="id_tr_' + keyString + '">' + innerHtml;
+			html += '</tr>';
+		}
 	}
 	return html;
 }
@@ -526,6 +537,7 @@ jQuery(document).ready(function(){
 		        			+ COLUMN_NAMES[i] + ']</span></a></li>');
 				}
 	        	prepareColumnMenu();
+	        	update_timestamp = data["timestamp"];
 //	        	loadColumnConfig();
 				updateUserArea(true);
 				startCheckUser();

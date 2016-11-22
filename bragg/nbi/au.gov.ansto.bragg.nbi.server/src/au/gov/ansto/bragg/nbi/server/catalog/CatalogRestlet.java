@@ -40,6 +40,7 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 	private static final String QUERY_ENTRY_PROPOSALID = "proposal";
 	private static final String QUERY_ENTRY_VALUES = "values";
 	private static final String QUERY_ENTRY_COLUMNS = "columns";
+	private static final String QUERY_ENTRY_TIMESTAMP = "timestamp";
 	private static final String QUERY_ENTRY_KEY = "key";
 	private static final String QUERY_ENTRY_START = "start";
 	
@@ -196,7 +197,8 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 								jsonObject.put("header", headerArray);
 								jsonObject.put("body", entryArray);
 							} else {
-								LinkedHashMap<String, Object> items = catalogDb.getNew(Integer.valueOf(start));
+								String timestamp = form.getValues(QUERY_ENTRY_TIMESTAMP);
+								LinkedHashMap<String, Object> items = catalogDb.getNew(Integer.valueOf(start), timestamp);
 								for (String entryKey : items.keySet()) {
 									JSONObject json = new JSONObject(items.get(entryKey).toString());
 									json.put("_key_", entryKey);
@@ -206,6 +208,7 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 								jsonObject.put("body", entryArray);
 							}
 						}
+						jsonObject.put("timestamp", System.currentTimeMillis());
 						jsonObject.put("status", "OK");
 						jsonObject.put("proposal", proposalId);
 						response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
