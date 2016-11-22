@@ -211,6 +211,7 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 						jsonObject.put("timestamp", System.currentTimeMillis());
 						jsonObject.put("status", "OK");
 						jsonObject.put("proposal", proposalId);
+						jsonObject.put("current_proposal", currentProposal);
 						response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
 //						response.setEntity(html, MediaType.TEXT_PLAIN);
 						response.setStatus(Status.SUCCESS_OK);

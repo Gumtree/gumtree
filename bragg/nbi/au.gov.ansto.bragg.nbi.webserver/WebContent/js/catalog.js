@@ -252,9 +252,35 @@ function exportTableToCSV($table, filename) {
 
 }
 
+function refreshPageToNewProposalId() {
+	$('<div></div>').appendTo('body')
+	  .html('<div class="class_confirm_dialog"><p>The current '
+			  + 'catalog page is expired because a new proposal was created by the administrator. '
+			  + '</p><p>You must reload to the new page. </p></div>')
+	  .dialog({
+	      modal: true, title: 'Confirm Refreshing Page to New Proposal', zIndex: 10000, autoOpen: true,
+	      width: 'auto', resizable: false,
+	      buttons: {
+	          OK: function () {
+	        	  location.reload();
+	          }
+	      },
+	      close: function (event, ui) {
+	    	  location.reload();
+	          $(this).remove();
+	      }
+	});
+}
+
 function updateCatalogTable() {
 	var getUrl = "catalog/read?proposal=" + CURRENT_PROPOSALID + "&start=" + TABLE_SIZE + "&timestamp=" + update_timestamp + "&" + (new Date()).getTime();
 	$.get(getUrl, function(data, status) {
+		var currentProposal = data["current_proposal"];
+		if (currentProposal != null && currentProposal != CURRENT_PROPOSALID) {
+			console.log(currentProposal);
+			stopCheckNewFile();
+			refreshPageToNewProposalId();
+		}
 		var size = data["size"];
 		if (size > 0) {
 			$('.class_tr_new').removeClass('class_tr_new');

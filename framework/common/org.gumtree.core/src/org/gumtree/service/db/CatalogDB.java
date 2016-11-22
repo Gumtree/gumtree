@@ -70,7 +70,8 @@ public class CatalogDB {
 				
 				@Override
 				public boolean accept(File dir, String name) {
-					if (name.toLowerCase().endsWith(".rdf")) {
+					if (name.toLowerCase().endsWith(".rdf") 
+							&& name.substring(0, name.indexOf(".rdf")).matches("\\d+")) {
 						return true;
 					} else {
 						return false;						
