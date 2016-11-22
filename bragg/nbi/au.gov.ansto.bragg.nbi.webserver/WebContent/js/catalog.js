@@ -16,7 +16,10 @@ var update_timestamp = "0";
 
 function startCheckNewFile() {
 	checkNewFileIntervalId = setInterval(function(){
-		updateCatalogTable();
+		try {
+			updateCatalogTable();
+		} catch (e) {
+		}
 		}, checkNewFileIntervalSeconds * 1000);
 }
 
@@ -253,15 +256,22 @@ function exportTableToCSV($table, filename) {
 }
 
 function refreshPageToNewProposalId() {
-	$('<div></div>').appendTo('body')
+	$('<div class="no_print"></div>').appendTo('body')
 	  .html('<div class="class_confirm_dialog"><p>The current '
 			  + 'catalog page is expired because a new proposal was created by the administrator. '
-			  + '</p><p>You must reload to the new page. </p></div>')
+			  + '</p><p>You must reload to the new page. Do you want to print the current page before leaving?</p></div>')
 	  .dialog({
 	      modal: true, title: 'Confirm Refreshing Page to New Proposal', zIndex: 10000, autoOpen: true,
 	      width: 'auto', resizable: false,
 	      buttons: {
-	          OK: function () {
+	    	  Print: function() {
+	    		  try {
+	    			  window.print();
+	    		  } finally {
+	    			  location.reload();
+	    		  }
+	    	  },
+	          Leave: function () {
 	        	  location.reload();
 	          }
 	      },
