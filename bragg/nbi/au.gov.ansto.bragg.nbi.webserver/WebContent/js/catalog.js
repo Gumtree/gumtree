@@ -6,12 +6,15 @@ var LOADED_PROPOSALID;
 var HIDDEN_DIV_ID = "_hiddenCopyText_";
 var TABLE_SIZE = 0;
 var CLASS_HIDDEN_COLUMN = "class_column_disable";
+var CLASS_SEARCH_MADE = "class_search_made";
 var CLASS_DISABLE_ITEM = 'class_a_disable';
 var COOKIE_PREFIX = 'catalog_column_';
 var checkNewFileIntervalId = null;
 var checkNewFileIntervalSeconds = 10;
 var NAME_COLUMN_TIMESTAMP = "_update_timestamp_";
 var update_timestamp = "0";
+var search_pattern;
+var CLASS_SPAN_FOUND = "class_span_highlight";
 
 
 function startCheckNewFile() {
@@ -234,7 +237,6 @@ function exportTableToCSV($table, filename) {
 //		});
 //	}
 
-	console.log(csv);
 	var version = detectIE();
 
 	if (version === false || version >= 12) {
@@ -407,6 +409,57 @@ function prepareColumnMenu() {
 	}
 }
 
+function hightlightText(text, pattern) {
+	var re = new RegExp(pattern,"ig");
+	return text.replace(re, '<span class="' + CLASS_SPAN_FOUND +'">$&</span>');
+}
+
+function filterPatter(pattern) {
+//	$("#table_body_catalog >tr.item").each(function() {
+//		var tr = $(this); 
+//	  var tds = .find("td");
+//	  
+//	});
+	if (search_pattern == pattern) {
+		console.log('skip searching');
+		return;
+	}
+	$("span." + CLASS_SPAN_FOUND).removeClass(CLASS_SPAN_FOUND);
+	var $rows = $("#table_body_catalog").find('tr:has(td,th)');
+	$.each($rows, function(itr, val) {
+		var $row = $(this);
+		var found = false;
+		var $cols = $(this).find('th,td').not('.' + CLASS_HIDDEN_COLUMN);
+		$.each($cols, function(itd, $col) {
+			var text = $(this).text();
+			var re = new RegExp(pattern,"i");
+			if (text != null && text.match(re) != null) {
+				found = true;
+				$(this).html(hightlightText(text, pattern));
+			}
+		});
+		if (found) {
+			$row.removeClass("class_search_none");
+			$row.addClass("class_search_found");
+		} else {
+			$row.removeClass("class_search_found");
+			$row.addClass("class_search_none");
+		}
+	});
+
+	search_pattern = pattern;
+	$('#id_a_clearSearch >img').css('visibility', 'visible');
+	$('#id_a_search').addClass(CLASS_SEARCH_MADE);
+}
+
+function removeFilter() {
+	$("span." + CLASS_SPAN_FOUND).removeClass(CLASS_SPAN_FOUND);
+	$('.class_search_none').removeClass('class_search_none');
+	$('.class_search_found').removeClass('class_search_found');
+	$('#id_a_clearSearch >img').css('visibility', 'hidden');
+	$('#id_a_search').removeClass(CLASS_SEARCH_MADE);
+}
+
 $(function() {
 	$('#id_table_catalog > tbody').selectable({
 //        filter:'td,th',
@@ -519,6 +572,43 @@ $(function() {
 	$('#id_a_downloadAll').on('click', function(e) {
 		download('flot/QKK0115497.nx.hdf', 'flot/QKK0115498.nx.hdf');
 	})
+	
+	$('#id_a_search').on('click', function(e) {
+		if ($('#id_input_search').val().trim().length == 0) {
+			removeFilter();
+		} else {
+			filterPatter($('#id_input_search').val());
+		}
+	});
+
+	$('#id_input_search').keyup(function (e) {
+		if (typeof e.which == "undefined") {
+	        return true;
+	    }
+		try {
+			if ($('#id_input_search').val() == '') {
+				removeFilter();
+			} else {
+				if ($('#id_input_search').val().trim().length > 2) {
+					filterPatter($('#id_input_search').val());
+				} else {
+					if(e.which == 13) {
+						filterPatter($('#id_input_search').val());
+					}
+				}
+			}
+		} catch (e) {
+			console.log(e);
+		} finally {
+			return false;  
+		}
+	});   
+
+	$('#id_a_clearSearch').on('click', function(e) {
+		removeFilter();
+	});
+
+	$('#id_a_clearSearch >img').css('visibility', 'hidden');
 });
 
 

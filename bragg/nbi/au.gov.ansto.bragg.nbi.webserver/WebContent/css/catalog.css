@@ -122,4 +122,32 @@ table.scrollTable tr.ui-selected th{
 	background-color: #96b9d2;
 }
 
+.class_input_holder input[type="text"] {
+	padding: 8px 10px;
+	border: solid 1px #dcdcdc;
+	transition: box-shadow 0.3s, border 0.3s;
+	background-color: #ddd;
+	-webkit-border-radius: 6px;
+	border-radius: 4px;
+	/*padding-bottom: 8px;*/
+}
 
+.class_input_holder input[type="text"]:focus,
+.class_input_holder input[type="text"].focus {
+	border: solid 1px #707070;
+	box-shadow: 0 0 5px 1px #969696;
+	background-color: #fff;
+}
+
+img .class_image_highlight {
+	opacity: 1.0;
+}
+
+.class_search_none {
+	display: none;
+}
+
+.class_span_highlight {
+	background: #000;
+	color: #ff0;
+}

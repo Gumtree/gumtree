@@ -3,6 +3,10 @@
  */
 package au.gov.ansto.bragg.nbi.server.catalog;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,20 +37,24 @@ import au.gov.ansto.bragg.nbi.server.login.UserSessionObject;
  */
 public class CatalogRestlet extends AbstractUserControlRestlet implements IDisposable {
 
+	private static final String PROP_CATALOG_SAVEPATH = "gumtree.catalog.savePath";
 	private static final String SEG_NAME_APPEND = "append";
 	private static final String SEG_NAME_UPDATE = "update";
 	private static final String SEG_NAME_READ = "read";
 	private static final String SEG_NAME_LIST = "list";
+	private final static String SEG_NAME_HELP = "help";
 	private static final String QUERY_ENTRY_PROPOSALID = "proposal";
 	private static final String QUERY_ENTRY_VALUES = "values";
 	private static final String QUERY_ENTRY_COLUMNS = "columns";
 	private static final String QUERY_ENTRY_TIMESTAMP = "timestamp";
 	private static final String QUERY_ENTRY_KEY = "key";
 	private static final String QUERY_ENTRY_START = "start";
+	private static final String CATALOG_HELPFILENAME = "guide.xml";
 	
 	
 	private ProposalDB proposalDb;
 	private ControlDB controlDb;
+	private String helpFilePath;
 	
 	public CatalogRestlet(){
 		this(null);
@@ -58,6 +66,7 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 		super(context);
 		proposalDb = ProposalDB.getInstance();
 		controlDb = ControlDB.getInstance();
+		helpFilePath = System.getProperty(PROP_CATALOG_SAVEPATH) + "/" + CATALOG_HELPFILENAME;
 	}
 
 	@Override
@@ -261,7 +270,20 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
 					return;
 				}
-			}
+			} else if (SEG_NAME_HELP.equals(seg)) {
+				try {
+					File helpFile = new File(helpFilePath);
+					if (helpFile.exists()) {
+						byte[] bytes = Files.readAllBytes(Paths.get(helpFilePath));
+						response.setEntity(new String(bytes), MediaType.TEXT_HTML);
+					} else {
+						response.setEntity("can't find the help file.", MediaType.TEXT_PLAIN);
+					}
+				} catch (IOException e) {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+					return;
+				}
+			} 
 		} else {
 			response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "<span style=\"color:red\">Error: invalid user session.</span>");
 		}
