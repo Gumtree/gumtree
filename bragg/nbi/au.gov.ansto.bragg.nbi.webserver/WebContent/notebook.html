@@ -117,7 +117,7 @@
 	        		<div class="class_catalog_insert class_catalog_dropdown" id="id_div_catalogConfig">
 	        			<a id="id_a_configMenu">
 	        				<img alt="Columns" src="images/config_16.png">
-	        				<span>Configure Columns</span>
+	        				<span>Columns</span>
 	        			</a>
 					   <div class='class_catalog_dropdownContent' id="id_div_catalogDropdown">
 					         <a id='id_a_allColumns'><span>Select All Columns</span></a>
@@ -125,12 +125,19 @@
 					         <a id='id_a_invertColumns'><span>Invert Selection</span></a>
 					   </div>
 	        		</div>
+	        		<div class="class_catalog_insert" id="id_div_catalogSearch">
+			    		<input type="text" id="id_input_search" placeholder="search catalog"/>
+			    		<a class="class_div_button" id="id_a_searchButton" onclick="searchCatalog()">Search</a>
+			    		<input type="submit" id="id_a_clearSearch" class="class_input_search_close" value="" title="Click to close search result."/>
+	        		</div>
 		    	</div>
-        		<table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable" id="id_table_catalog">
-                	<thead id="table_thead_catalog"></thead>
-                    <tbody class="scrollContent table_jython_content" id="table_body_catalog">
-                    </tbody>
-                </table>
+		    	<div class="class_div_tableHolder">
+	        		<table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable" id="id_table_catalog">
+	                	<thead id="table_thead_catalog"></thead>
+	                    <tbody class="scrollContent table_jython_content" id="table_body_catalog">
+	                    </tbody>
+	                </table>
+                </div>
         	</div>
         </div>
     </div>    

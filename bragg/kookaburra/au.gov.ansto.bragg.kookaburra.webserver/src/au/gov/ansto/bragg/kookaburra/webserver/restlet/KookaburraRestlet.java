@@ -49,7 +49,7 @@ public class KookaburraRestlet extends Restlet {
 	
 	private ImageCache imageCache;
 
-	private JythonRunner jythonRunner;
+	private static JythonRunner jythonRunner;
 	
 	public KookaburraRestlet() {
 		delayedInit();
@@ -71,11 +71,10 @@ public class KookaburraRestlet extends Restlet {
 		initThread.start();
 	}
 	
-	public void initJythonRunner() {
+	public synchronized void initJythonRunner() {
 		if (jythonRunner == null) {
-			JythonRunner runner = (new JythonRunnerManager()).getNewRunner();
-			init(runner);
-			this.jythonRunner = runner;
+			jythonRunner = (new JythonRunnerManager()).getNewRunner();
+			init(jythonRunner);
 		}
 	}
 	

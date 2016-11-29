@@ -441,7 +441,7 @@ th {
     color: #000;
     cursor: pointer;
 }
-*/
+
 #id_div_catalogInsert, #id_div_catalogExport, #id_div_catalogConfig {
 	position:inherit; 
 	float: left;
@@ -451,24 +451,17 @@ th {
 	text-decoration: none;
 	color: inherit;
 }
-/*
-#id_div_catalogConfig {
-	padding: 0px;
-	padding-top: 0px;
+*/
+.class_catalog_insert {
+	position:inherit; 
+	float: left;
+	margin: 2px 0px 2px 2px;
 }
-#id_div_catalogConfig ul {
-	background: inherit;
-	padding-top: 0px;
-	width: 180px;
-}
-#id_div_catalogConfig ul li a {
-	padding: 6px 26px;
+.class_catalog_insert a {
+	text-decoration: none;
 	color: inherit;
 }
-#id_div_catalogConfig ul ul li a {
-	width: 180px;
-}
-*/
+
 /* The container <div> - needed to position the dropdown content */
 #id_div_catalogConfig {
     /*position: relative;*/
@@ -507,3 +500,33 @@ th {
     display: block;
 }
 
+.class_div_tableHolder {
+	overflow: scroll;
+	clear: both;
+	/*height:96%;*/
+}
+#id_input_search {
+	width: 100px;
+}
+#id_a_searchButton {
+	font-size: 14px;
+	padding-top: 2px;
+	margin-bottom: 2px;
+}
+#id_div_catalogSearch {
+	padding: 2px 2px 2px 4px;
+}
+#id_a_clearSearch {
+	background:url('../images/cross_12.png') no-repeat;
+	background-position: 3px 3px;
+	border: none;
+	cursor: pointer;
+}
+#id_a_clearSearch:HOVER {
+	border: 2px #ddd outset;
+}
+#id_a_clearSearch:ACTIVE {
+	background:url('../images/cross_12_white.png') no-repeat;
+	background-position: 3px 3px;
+	border-style: inset;
+}

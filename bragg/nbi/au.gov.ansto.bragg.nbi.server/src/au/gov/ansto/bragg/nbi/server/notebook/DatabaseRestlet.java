@@ -87,6 +87,13 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 		}
 		String directIp = request.getClientInfo().getUpstreamAddress();
 		if (directIp != null) {
+			if (directIp != null && directIp.equals("127.0.0.1")) {
+				UserSessionObject session = new UserSessionObject();
+				session.setDAV(true);
+				session.setUserName(System.getenv("gumtree.instrument.id"));
+				session.setValid(true);
+				return session;
+			}
 			for (int i = 0; i < allowedDavIps.length; i++) {
 				if (directIp.equals(allowedDavIps[i])) {
 					UserSessionObject session = new UserSessionObject();

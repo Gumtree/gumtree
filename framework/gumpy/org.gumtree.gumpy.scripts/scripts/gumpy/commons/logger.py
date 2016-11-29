@@ -88,7 +88,7 @@ class CatalogLogger():
         try:
             self.logger.updateEntry(filename, columns)
         except:
-            print 'failed to send text to notebook db'
+            print 'failed to send text to catalog db'
         
 n_logger = NotebookLogger()
 c_logger = CatalogLogger()

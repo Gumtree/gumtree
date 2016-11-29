@@ -139,15 +139,37 @@ table.scrollTable tr.ui-selected th{
 	background-color: #fff;
 }
 
-img .class_image_highlight {
-	opacity: 1.0;
-}
-
 .class_search_none {
 	display: none;
 }
 
-.class_span_highlight {
-	background: #000;
-	color: #ff0;
+@media screen {
+	.class_span_highlight {
+		background: #000;
+		color: #ff0;
+	}	
+}
+
+#id_div_clearSearch {
+	display: inline;
+}
+
+#id_div_clearSearch a img {
+	opacity: 1.0;
+}
+#id_table_catalog input[type="text"] {
+	padding: 2px 2px;
+	border: solid 1px #dcdcdc;
+	transition: box-shadow 0.3s, border 0.3s;
+	-webkit-border-radius: 2px;
+	width: 48px;
+	border-radius: 2px;
+	/*padding-bottom: 8px;*/
+}
+
+#id_table_catalog input[type="text"]:focus,
+#id_table_catalog input[type="text"].focus {
+	border: solid 1px #707070;
+	box-shadow: 0 0 5px 1px #969696;
+	background-color: #fff;
 }

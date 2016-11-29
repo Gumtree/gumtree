@@ -2,6 +2,8 @@ package au.gov.ansto.bragg.nbi.server.internal;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.gumtree.service.db.MapDatabase;
 import org.gumtree.service.db.RecordsFileException;
@@ -13,6 +15,8 @@ import org.restlet.Response;
 import org.restlet.data.Cookie;
 import org.restlet.data.CookieSetting;
 import org.restlet.data.Form;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.nbi.server.login.UserSessionObject;
 
@@ -30,10 +34,13 @@ public class UserSessionService {
 	public static final String NAME_SERVICE_NOTEBOOKMANAGER = "notebook_manager";
 	public static final String NAME_SERVICE_NOTEBOOKPROPOSALS = "notebook_proposals";
 	public static final String NAME_SERVICE_CURRENTPAGE = "current_page";
+	private static final String PROP_REMOTE_USER = "$REMOTE_USER";
 
 	private static MapDatabase sessionDb = MapDatabase.getInstance(ID_USER_SESSION_DATABASE);
 	private static MapDatabase serviceDb = MapDatabase.getInstance(ID_SESSION_SERVICE_DATABASE);
 	private static MapDatabase timestampDb = MapDatabase.getInstance(ID_SESSION_TIME_DATABASE);
+	
+	private static Logger logger = LoggerFactory.getLogger(UserSessionService.class);
 	
 	public static UserSessionObject validateCookie(String userCookie) throws ClassNotFoundException, RecordsFileException, IOException {
 		UserSessionObject session = new UserSessionObject();
@@ -116,6 +123,17 @@ public class UserSessionService {
 		String userCookie = null;
 		Cookie cookie = request.getCookies().getFirst(UserSessionService.COOKIE_NAME_UUID + "." 
 				+ System.getProperty(UserSessionService.PROPERTY_INSTRUMENT_ID));
+//		Form queryForm = request.getResourceRef().getQueryAsForm();
+//		String remoteUser = queryForm.getValues(PROP_REMOTE_USER);
+//		if (remoteUser != null) {
+//			logger.error("found remote user :" + remoteUser);
+//		}else {
+////			Map<String, Object> attributes = request.getAttributes();
+////			for (String key : attributes.keySet()) {
+////				logger.error(key + " : " + attributes.get(key).toString());
+////			}
+//			logger.error(request.getEntity().getText());
+//		}
 		if (cookie != null) {
 			userCookie = cookie.getValue();
 			if (userCookie != null) {
