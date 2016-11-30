@@ -4,27 +4,35 @@
 	<extension
          point="org.eclipse.equinox.http.registry.resources">
       <resource
-            alias="/wombat.html"
+            alias="/status/wombat.html"
             base-name="/WebContent/wombat.html">
       </resource>
       <resource
-            alias="/"
+            alias="/status"
             base-name="/WebContent/wombat.html">
       </resource>
       <resource
-            alias="/index.html"
+            alias="/status/index.html"
             base-name="/WebContent/wombat.html">
       </resource>
       <resource
-            alias="/wombat.swf"
+            alias="/status/wombat.swf"
             base-name="/WebContent/wombat.swf">
       </resource>
       <resource
-            alias="/instrumentsetup.js"
+            alias="/status/js/instrumentsetup.js"
             base-name="/WebContent/instrumentsetup.js">
       </resource>
       <resource
-            alias="/assets/wombat_dash.jpg"
+            alias="/user/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/user/doc/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/status/assets/wombat_dash.jpg"
             base-name="/WebContent/assets/wombat_dash.jpg">
       </resource>
    </extension>

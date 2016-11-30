@@ -33,7 +33,7 @@ public class NotebookApplication extends Application {
 	public NotebookApplication(Context parentContext) {
 		super(parentContext);
 		context = Activator.getDefault().getEclipseContext()
-				.createChild("notebookRestlet");
+				.createChild("notebookDocRestlet").createChild("notebookAdminRestlet");
 	}
 
 	/**

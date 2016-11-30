@@ -33,7 +33,7 @@ public class DatabaseApplication extends Application {
 	public DatabaseApplication(Context parentContext) {
 		super(parentContext);
 		context = Activator.getDefault().getEclipseContext()
-				.createChild("databaseRestlet");
+				.createChild("databaseDocRestlet").createChild("databaseAdminRestlet");
 	}
 
 	/**

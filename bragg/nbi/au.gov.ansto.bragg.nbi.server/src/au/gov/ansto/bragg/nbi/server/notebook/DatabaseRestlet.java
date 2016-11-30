@@ -218,7 +218,7 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 			} else if (SEG_NAME_SEARCH_ALL.equals(seg)) {
 				try {
 					if (!NotebookRestlet.isManager(session)) {
-						response.setStatus(Status.SERVER_ERROR_INTERNAL, "Error: your privilege does not allow creating new page.");
+						response.setStatus(Status.SERVER_ERROR_INTERNAL, "Error: your privilege does not allow this.");
 						return;
 					}
 					Form queryForm = request.getResourceRef().getQueryAsForm();
@@ -269,7 +269,7 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 			} else if (SEG_NAME_SEARCH_MINE.equals(seg)) {
 				try {
 					if (!NotebookRestlet.isManager(session)) {
-						response.setStatus(Status.SERVER_ERROR_INTERNAL, "Error: your privilege does not allow creating new page.");
+						response.setStatus(Status.SERVER_ERROR_INTERNAL, "Error: your privilege does not allow this.");
 						return;
 					}
 					Form queryForm = request.getResourceRef().getQueryAsForm();

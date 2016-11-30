@@ -33,7 +33,7 @@ public class CatalogApplication extends Application {
 	public CatalogApplication(Context parentContext) {
 		super(parentContext);
 		context = Activator.getDefault().getEclipseContext()
-				.createChild("catalogRestlet");
+				.createChild("catalogDocRestlet").createChild("catalogAdminRestlet");
 	}
 
 	/**

@@ -7,7 +7,7 @@
       <httpcontext
             id="taipan">
          <resource-mapping
-               path="/taipan/rest">
+               path="/status/taipan/rest">
          </resource-mapping>
       </httpcontext>
    </extension>
@@ -15,7 +15,7 @@
          id="taipanRestlet"
          point="org.eclipse.equinox.http.registry.servlets">
       <servlet
-            alias="/taipan/rest"
+            alias="/status/taipan/rest"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="taipan">
          <init-param
@@ -27,23 +27,31 @@
    <extension
          point="org.eclipse.equinox.http.registry.resources">
       <resource
-            alias="/"
+            alias="/status"
             base-name="/WebContent/taipan.html">
       </resource>
       <resource
-            alias="/taipan.html"
+            alias="/status/taipan.html"
             base-name="/WebContent/taipan.html">
       </resource>
       <resource
-            alias="/index.html"
+            alias="/status/index.html"
             base-name="/WebContent/index.html">
       </resource>
       <resource
-            alias="/taipan.swf"
+            alias="/status/taipan.swf"
             base-name="/WebContent/taipan.swf">
       </resource>               
       <resource
-            alias="/instrumentsetup.js"
+            alias="/status/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/user/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/user/doc/js/instrumentsetup.js"
             base-name="/WebContent/instrumentsetup.js">
       </resource>
    </extension>

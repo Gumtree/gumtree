@@ -7,7 +7,7 @@
       <httpcontext
             id="kookaburra">
          <resource-mapping
-               path="/kookaburra/rest">
+               path="/status/kookaburra/rest">
          </resource-mapping>
       </httpcontext>
    </extension>
@@ -15,7 +15,7 @@
          id="kookaburraRestlet"
          point="org.eclipse.equinox.http.registry.servlets">
       <servlet
-            alias="/kookaburra/rest"
+            alias="/status/kookaburra/rest"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="kookaburra">
          <init-param
@@ -27,19 +27,27 @@
    <extension
          point="org.eclipse.equinox.http.registry.resources">
       <resource
-            alias="/"
+            alias="/status"
             base-name="/WebContent/kookaburra.html">
       </resource>
       <resource
-            alias="/kookaburra.html"
+            alias="/status/kookaburra.html"
             base-name="/WebContent/kookaburra.html">
       </resource>
       <resource
-            alias="/kookaburra.swf"
+            alias="/status/kookaburra.swf"
             base-name="/WebContent/kookaburra.swf">
       </resource>
       <resource
-            alias="/instrumentsetup.js"
+            alias="/status/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/user/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/user/doc/js/instrumentsetup.js"
             base-name="/WebContent/instrumentsetup.js">
       </resource>
    </extension>

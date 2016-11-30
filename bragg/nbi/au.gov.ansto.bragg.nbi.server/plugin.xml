@@ -7,43 +7,55 @@
       <httpcontext
             id="ns">
          <resource-mapping
-               path="/ns/rest">
+               path="/status/ns/rest">
          </resource-mapping>
       </httpcontext>
       <httpcontext
             id="statisticRestlet">
          <resource-mapping
-               path="/st/rest">
+               path="/status/st/rest">
          </resource-mapping>
       </httpcontext>
       <httpcontext
             id="jythonRestlet">
          <resource-mapping
-               path="/jython/rest">
+               path="/user/doc/jython/rest">
          </resource-mapping>
       </httpcontext>
       <httpcontext
             id="jythonRunnerRestlet">
          <resource-mapping
-               path="/jython/runner">
+               path="/user/doc/jython/runner">
          </resource-mapping>
       </httpcontext>
       <httpcontext
             id="userManagerRestlet">
          <resource-mapping
-               path="/jython/user">
+               path="/user/doc/jython/user">
          </resource-mapping>
       </httpcontext>
       <httpcontext
-            id="notebookRestlet">
+            id="notebookDocRestlet">
          <resource-mapping
-               path="/notebook">
+               path="/user/doc/notebook">
          </resource-mapping>
       </httpcontext>
       <httpcontext
-            id="catalogRestlet">
+            id="notebookAdminRestlet">
          <resource-mapping
-               path="/catalog">
+               path="/user/notebook">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="catalogDocRestlet">
+         <resource-mapping
+               path="/user/doc/catalog">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="catalogAdminRestlet">
+         <resource-mapping
+               path="/user/catalog">
          </resource-mapping>
       </httpcontext>
       <!-- httpcontext
@@ -53,21 +65,27 @@
          </resource-mapping>
       </httpcontext -->
       <httpcontext
-            id="databaseRestlet">
+            id="databaseDocRestlet">
          <resource-mapping
-               path="/db">
+               path="/user/doc/db">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="databaseAdminRestlet">
+         <resource-mapping
+               path="/user/db">
          </resource-mapping>
       </httpcontext>
       <httpcontext
             id="signinRestlet">
          <resource-mapping
-               path="/signin">
+               path="/user/signin">
          </resource-mapping>
       </httpcontext>
       <httpcontext
             id="userHomeRestlet">
          <resource-mapping
-               path="/home">
+               path="/user/home">
          </resource-mapping>
       </httpcontext>
    </extension>
@@ -75,7 +93,7 @@
          id="nsRestlet"
          point="org.eclipse.equinox.http.registry.servlets">
       <servlet
-            alias="/ns/rest"
+            alias="/status/ns/rest"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="ns">
          <init-param
@@ -84,7 +102,7 @@
          </init-param>
       </servlet>
       <servlet
-            alias="/st/rest"
+            alias="/status/st/rest"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="statisticRestlet">
          <init-param
@@ -93,7 +111,7 @@
          </init-param>
       </servlet>
       <servlet
-            alias="/jython/rest"
+            alias="/user/doc/jython/rest"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="jythonRestlet">
          <init-param
@@ -102,7 +120,7 @@
          </init-param>
       </servlet>
       <servlet
-            alias="/jython/runner"
+            alias="/user/doc/jython/runner"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="jythonRunnerRestlet">
          <init-param
@@ -111,7 +129,7 @@
          </init-param>
       </servlet>
       <servlet
-            alias="/jython/user"
+            alias="/user/doc/jython/user"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="userManagerRestlet">
          <init-param
@@ -120,43 +138,61 @@
          </init-param>
       </servlet>
       <servlet
-            alias="/notebook"
+            alias="/user/doc/notebook"
             class="org.restlet.ext.servlet.ServerServlet"
-            httpcontextId="notebookRestlet">
+            httpcontextId="notebookDocRestlet">
          <init-param
                name="org.restlet.application"
                value="au.gov.ansto.bragg.nbi.server.notebook.NotebookApplication">
          </init-param>
       </servlet>
       <servlet
-            alias="/catalog"
+            alias="/user/notebook"
             class="org.restlet.ext.servlet.ServerServlet"
-            httpcontextId="catalogRestlet">
+            httpcontextId="notebookAdminRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.notebook.NotebookApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/user/doc/catalog"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="catalogDocRestlet">
          <init-param
                name="org.restlet.application"
                value="au.gov.ansto.bragg.nbi.server.catalog.CatalogApplication">
          </init-param>
       </servlet>
       <servlet
-            alias="/admin/notebookAdmin.html"
+            alias="/user/catalog"
             class="org.restlet.ext.servlet.ServerServlet"
-            httpcontextId="NBRedirectRestlet">
+            httpcontextId="catalogAdminRestlet">
          <init-param
                name="org.restlet.application"
-               value="au.gov.ansto.bragg.nbi.server.notebook.NBManagerRedirectApplication">
+               value="au.gov.ansto.bragg.nbi.server.catalog.CatalogApplication">
          </init-param>
       </servlet>
       <servlet
-            alias="/db"
+            alias="/user/doc/db"
             class="org.restlet.ext.servlet.ServerServlet"
-            httpcontextId="databaseRestlet">
+            httpcontextId="databaseDocRestlet">
          <init-param
                name="org.restlet.application"
                value="au.gov.ansto.bragg.nbi.server.notebook.DatabaseApplication">
          </init-param>
       </servlet>
       <servlet
-            alias="/signin"
+            alias="/user/db"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="databaseAdminRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.notebook.DatabaseApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/user/signin"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="signinRestlet">
          <init-param
@@ -165,7 +201,7 @@
          </init-param>
       </servlet>
       <servlet
-            alias="/home"
+            alias="/user/home"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="userHomeRestlet">
          <init-param
@@ -173,7 +209,15 @@
                value="au.gov.ansto.bragg.nbi.server.login.UserHomeApplication">
          </init-param>
       </servlet>
+      <!-- servlet
+            alias="/user/admin/notebookAdmin.html"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="NBRedirectRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.notebook.NBManagerRedirectApplication">
+         </init-param>
+      </servlet -->
    </extension>
-
 
 </plugin>

@@ -118,11 +118,11 @@ function loadCurrent(id, name, proposal) {
 			currentPath = currentPath.substr(0, currentPath.lastIndexOf('/') + 1);
 //			currentPath = currentPath.substr(0, currentPath.lastIndexOf('/') + 1);
 			if (typeof(proposal) !== "undefined" && $.isNumeric(proposal)) {
-				$('#id_content_header').html('<a href="' + currentPath + 'notebook.html?session=' + id 
-						+ '">P' + proposal + '</a>: <div class="class_span_currentpath">' + currentPath + 'notebook.html?session=' + id + '</div>');
+				$('#id_content_header').html('<a href="' + currentPath + 'doc/notebook.html?session=' + id 
+						+ '">P' + proposal + '</a>: <div class="class_span_currentpath">' + currentPath + 'doc/notebook.html?session=' + id + '</div>');
 			} else {			
-				$('#id_content_header').html('<a href="' + currentPath + 'notebook.html?session=' + id 
-						+ '">Link</a>: <div class="class_span_currentpath">' + currentPath + 'notebook.html?session=' + id + '</div>');
+				$('#id_content_header').html('<a href="' + currentPath + 'doc/notebook.html?session=' + id 
+						+ '">Link</a>: <div class="class_span_currentpath">' + currentPath + 'doc/notebook.html?session=' + id + '</div>');
 			}
 			$('#id_div_content').html(data);
 		}
@@ -138,11 +138,11 @@ function loadCurrent(id, name, proposal) {
 
 function edit(id) {
 	if (id == null) {
-		getUrl = "notebook.html";
+		getUrl = "doc/notebook.html";
 		var win = window.open(getUrl, '_blank');
 		win.focus();
 	} else {
-		getUrl = "notebook.html?session=" + id;
+		getUrl = "doc/notebook.html?session=" + id;
 		var win = window.open(getUrl, '_blank');
 		win.focus();
 	}

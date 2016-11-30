@@ -4,153 +4,185 @@
 	<extension
          point="org.eclipse.equinox.http.registry.resources">
       <resource
-            alias="/AC_OETags.js"
+            alias="/status/AC_OETags.js"
             base-name="/WebContent/AC_OETags.js">
       </resource>
       <resource
-            alias="/playerProductInstall.swf"
+            alias="/status/playerProductInstall.swf"
             base-name="/WebContent/playerProductInstall.swf">
       </resource>
       <resource
-            alias="/history/history.css"
+            alias="/status/history/history.css"
             base-name="/WebContent/history/history.css">
       </resource>
       <resource
-            alias="/history/history.js"
+            alias="/status/history/history.js"
             base-name="/WebContent/history/history.js">
       </resource>
       <resource
-            alias="/history/historyFrame.html"
+            alias="/status/history/historyFrame.html"
             base-name="/WebContent/history/historyFrame.html">
       </resource>
       <resource
-            alias="/home.html"
+            alias="/user/home.html"
             base-name="/WebContent/home.html">
       </resource>
       <resource
-            alias="/catalog.html"
+            alias="/user/doc/catalog.html"
             base-name="/WebContent/catalog.html">
       </resource>
       <resource
-            alias="/catalogAdmin.html"
+            alias="/user/admin/catalogAdmin.html"
             base-name="/WebContent/catalogAdmin.html">
       </resource>
       <resource
-            alias="/mobile.html"
+            alias="/status/mobile.html"
             base-name="/WebContent/mobile.html">
+      </resource>
+      <resource
+            alias="/status/manager.html"
+            base-name="/WebContent/manager.html">
+      </resource>
+      <resource
+            alias="/status/mobilehistmem.html"
+            base-name="/WebContent/mobilehistmem.html">
+      </resource>
+      <resource
+            alias="/user/doc/scripting.html"
+            base-name="/WebContent/scripting.html">
+      </resource>
+      <resource
+            alias="/user/login.html"
+            base-name="/WebContent/login.html">
+      </resource>
+      <resource
+            alias="/user/signin.html"
+            base-name="/WebContent/signin.html">
+      </resource>
+      <resource
+            alias="/user/admin.html"
+            base-name="/WebContent/admin.html">
+      </resource>
+      <resource
+            alias="/user/SystemAdmin.html"
+            base-name="/WebContent/pyadmin.html">
+      </resource>
+      <resource
+            alias="/user/register.html"
+            base-name="/WebContent/register.html">
+      </resource>
+      <resource
+            alias="/user/reset.html"
+            base-name="/WebContent/reset.html">
+      </resource>
+      <resource
+            alias="/user/password.html"
+            base-name="/WebContent/password.html">
+      </resource>
+      <resource
+            alias="/user/doc/pyscript.html"
+            base-name="/WebContent/pyscript.html">
+      </resource>
+      <resource
+            alias="/user/doc/notebook.html"
+            base-name="/WebContent/notebook.html">
+      </resource>
+      <resource
+            alias="/user/doc/logbook.html"
+            base-name="/WebContent/logbook.html">
+      </resource>
+      <resource
+            alias="/user/notebookAdmin.html"
+            base-name="/WebContent/notebookAdmin.html">
+      </resource>
+      <resource
+            alias="/user/myNotebook.html"
+            base-name="/WebContent/myNotebook.html">
+      </resource>
+      <resource
+            alias="/status/workshop.html"
+            base-name="/WebContent/workshop.html">
+      </resource>
+      <resource
+            alias="/status/css"
+            base-name="/WebContent/css">
+      </resource>
+      <resource
+            alias="/user/css"
+            base-name="/WebContent/css">
+      </resource>
+      <resource
+            alias="/user/doc/css"
+            base-name="/WebContent/css">
+      </resource>
+      <resource
+            alias="/status/js"
+            base-name="/WebContent/js">
+      </resource>
+      <resource
+            alias="/user/js"
+            base-name="/WebContent/js">
+      </resource>
+      <resource
+            alias="/user/doc/js"
+            base-name="/WebContent/js">
+      </resource>
+      <resource
+            alias="/status/images"
+            base-name="/WebContent/images">
+      </resource>
+      <resource
+            alias="/user/images"
+            base-name="/WebContent/images">
+      </resource>
+      <resource
+            alias="/user/doc/images"
+            base-name="/WebContent/images">
+      </resource>
+      <resource
+            alias="/status/icons"
+            base-name="/WebContent/icons">
+      </resource>
+      <resource
+            alias="/user/icons"
+            base-name="/WebContent/icons">
+      </resource>
+      <resource
+            alias="/user/doc/icons"
+            base-name="/WebContent/icons">
+      </resource>
+      <!-- resource
+            alias="/status/mobile.css"
+            base-name="/WebContent/mobile.css">
       </resource>
       <resource
             alias="/mobile.js"
             base-name="/WebContent/mobile.js">
       </resource>
       <resource
-            alias="/manager.html"
-            base-name="/WebContent/manager.html">
-      </resource>
-      <resource
-            alias="/manager.js"
+            alias="/status/manager.js"
             base-name="/WebContent/manager.js">
       </resource>
       <resource
-            alias="/mobile.css"
-            base-name="/WebContent/mobile.css">
-      </resource>
-      <resource
-            alias="/mobilehistmem.html"
-            base-name="/WebContent/mobilehistmem.html">
-      </resource>
-      <resource
-            alias="/scripting.html"
-            base-name="/WebContent/scripting.html">
-      </resource>
-      <resource
-            alias="/scripting.js"
+            alias="/user/doc/scripting.js"
             base-name="/WebContent/scripting.js">
       </resource>
       <resource
-            alias="/login.html"
-            base-name="/WebContent/login.html">
-      </resource>
-      <resource
-            alias="/signin.html"
-            base-name="/WebContent/signin.html">
-      </resource>
-      <resource
-            alias="/admin.html"
-            base-name="/WebContent/admin.html">
-      </resource>
-      <resource
-            alias="/SystemAdmin.html"
-            base-name="/WebContent/pyadmin.html">
-      </resource>
-      <resource
-            alias="/register.html"
-            base-name="/WebContent/register.html">
-      </resource>
-      <resource
-            alias="/reset.html"
-            base-name="/WebContent/reset.html">
-      </resource>
-      <resource
-            alias="/login.js"
+            alias="/user/login.js"
             base-name="/WebContent/login.js">
       </resource>
       <resource
-            alias="/password.html"
-            base-name="/WebContent/password.html">
-      </resource>
-      <resource
-            alias="/pyscript.html"
-            base-name="/WebContent/pyscript.html">
-      </resource>
-      <resource
-            alias="/notebook.html"
-            base-name="/WebContent/notebook.html">
-      </resource>
-      <resource
-            alias="/logbook.html"
-            base-name="/WebContent/logbook.html">
-      </resource>
-      <resource
-            alias="/mobilehistmem.js"
+            alias="/status/mobilehistmem.js"
             base-name="/WebContent/mobilehistmem.js">
       </resource>
       <resource
-            alias="/flot"
+            alias="/status/flot"
             base-name="/WebContent/flot">
       </resource>
       <resource
-            alias="/css"
-            base-name="/WebContent/css">
-      </resource>
-      <resource
-            alias="/js"
-            base-name="/WebContent/js">
-      </resource>
-      <resource
-            alias="/images"
-            base-name="/WebContent/images">
-      </resource>
-      <resource
-            alias="/favicon.ico"
+            alias="/status/favicon.ico"
             base-name="/WebContent/icons/favicon.ico">
-      </resource>
-      <resource
-            alias="/icons"
-            base-name="/WebContent/icons">
-      </resource>
-      <resource
-            alias="/notebookAdmin.html"
-            base-name="/WebContent/notebookAdmin.html">
-      </resource>
-      <resource
-            alias="/myNotebook.html"
-            base-name="/WebContent/myNotebook.html">
-      </resource>
-      <resource
-            alias="/workshop.html"
-            base-name="/WebContent/workshop.html">
-      </resource>
+      </resource -->
    </extension>
 
 </plugin>

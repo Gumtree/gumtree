@@ -289,7 +289,6 @@ function updateCatalogTable() {
 	$.get(getUrl, function(data, status) {
 		var currentProposal = data["current_proposal"];
 		if (currentProposal != null && currentProposal != CURRENT_PROPOSALID) {
-			console.log(currentProposal);
 			stopCheckNewFile();
 			refreshPageToNewProposalId();
 		}
@@ -304,7 +303,6 @@ function updateCatalogTable() {
 //			$("#id_table_catalog > tbody").prepend(data["body"]);
 			TABLE_SIZE += size;
 		}
-		console.log('updated');
 		registerListeners(data["body"]);
 		update_timestamp = data["timestamp"];
 		updateUserArea(true);
@@ -665,13 +663,9 @@ $(function() {
 
 	$('#id_a_clearSearch >img').css('visibility', 'hidden');
 	
-	$('.class_column_Comments').on('click', function(e) {
-		console.log($(this).text());
-	});
 });
 
 function updateEntry(key, column, val, $item) {
-	console.log('update is called');
 	var obj = {};
 	obj[column] = val;
 	var form = {key: key, columns: JSON.stringify(obj)};
@@ -719,9 +713,9 @@ jQuery(document).ready(function(){
 				$("#id_div_main").html("<div class=\"id_span_infoText\">Status: <span style=\"color:red\">" 
 					+ re + "</span>. Now jump to the sign in page. "
 	        		+ "If the browser doesn't redirect automatically, please click "
-	        		+ "<a href=\"signin.html\">here</a>.</div>");
+	        		+ "<a href=\"../signin.html\">here</a>.</div>");
 	            setTimeout(function() {
-	            	window.location = "signin.html?redirect=catalog.html";
+	            	window.location = "../signin.html?redirect=doc/catalog.html";
 				}, 2000);
 	        } else {
 //				$.each(data["menu"], function(link, text) {
@@ -786,7 +780,7 @@ jQuery(document).ready(function(){
 			}
 		}
 	}).fail(function(e) {
-		window.location = "signin.html?redirect=catalog.html";
+		window.location = "../signin.html?redirect=doc/catalog.html";
 	}).always(function() {
 	});
 	

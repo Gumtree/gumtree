@@ -1318,7 +1318,7 @@ jQuery(document).ready(function() {
 	})
 	.fail(function(e) {
 		if (e.status == 401) {
-			window.location = "signin.html?redirect=notebook.html";
+			window.location = "../signin.html?redirect=doc/notebook.html";
 		}
 	});
 
