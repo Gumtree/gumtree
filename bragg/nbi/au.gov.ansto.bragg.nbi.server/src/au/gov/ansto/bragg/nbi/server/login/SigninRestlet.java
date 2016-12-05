@@ -37,14 +37,13 @@ public class SigninRestlet extends Restlet implements IDisposable{
 	private static final String QUERY_USER_PASSWORD = "login_password";
 	private static final String SEG_NAME_LOGIN = "LOGIN";
 	private static final String SEG_NAME_LOGOUT = "LOGOUT";
-	private LDAPService service;
+	private static final String SEG_NAME_CLEAR = "CLEAR";
 	private MapDatabase sessionDb;
 	private MapDatabase timestampDb;
 	private MapDatabase serviceDb;
 	private TardisService tardisService;
 
 	public SigninRestlet() {
-		service = new LDAPService();
 		sessionDb = MapDatabase.getInstance(UserSessionService.ID_USER_SESSION_DATABASE);
 		timestampDb = MapDatabase.getInstance(UserSessionService.ID_SESSION_TIME_DATABASE);
 		serviceDb = MapDatabase.getInstance(UserSessionService.ID_SESSION_SERVICE_DATABASE);
@@ -53,7 +52,6 @@ public class SigninRestlet extends Restlet implements IDisposable{
 
 	public SigninRestlet(Context context) {
 		super(context);
-		service = new LDAPService();
 		sessionDb = MapDatabase.getInstance(UserSessionService.ID_USER_SESSION_DATABASE);
 		timestampDb = MapDatabase.getInstance(UserSessionService.ID_SESSION_TIME_DATABASE);
 		serviceDb = MapDatabase.getInstance(UserSessionService.ID_SESSION_SERVICE_DATABASE);
@@ -72,35 +70,26 @@ public class SigninRestlet extends Restlet implements IDisposable{
 			Representation entity = request.getEntity();
 			Form form = new Form(entity);
 			String username = form.getValues(QUERY_USER_ID);
-			if (username != null && !username.contains("@")) {
-				username += "@nbi.ansto.gov.au";
-			}
+//			if (username != null && !username.contains("@")) {
+//				username += "@nbi.ansto.gov.au";
+//			}
 			String password = form.getValues(QUERY_USER_PASSWORD);
 			final JSONObject result = new JSONObject();
-			GroupLevel level = checkLogin(username, password);
-			if (level != GroupLevel.INVALID) {
-				try {
-					String uuidString = UUID.randomUUID().toString();
-					CookieSetting cookie = createUUIDCookie(username, uuidString);
-
-					persistServiceList(username, uuidString, level);
-
-					response.getCookieSettings().add(cookie);
+			try {
+				boolean isValid = UserSessionService.signIn(request, response, username, password);
+				if (isValid) {
 					result.put("result", "OK");
 					response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
 					response.setStatus(Status.SUCCESS_OK);
-				} catch (Exception e) {
-					e.printStackTrace();
-					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
-				}
-			} else {
-				try {
+				} else {
 					result.put("result", "Login failed");
 					response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
-				} catch (JSONException e) {
-					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 			}
+
 		} else if (SEG_NAME_LOGOUT.equals(seg)) {
 			String userCookie = null;
 			final JSONObject result = new JSONObject();
@@ -122,6 +111,8 @@ public class SigninRestlet extends Restlet implements IDisposable{
 			}
 			response.setStatus(Status.SUCCESS_OK);
 			response.setEntity(result.toString(), MediaType.APPLICATION_JSON);
+		} else if (SEG_NAME_CLEAR.equals(seg)) {
+			response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 		}
 	}
 
@@ -139,51 +130,9 @@ public class SigninRestlet extends Restlet implements IDisposable{
 	public void disposeObject() {
 
 	}
-	
-	private CookieSetting createUUIDCookie(String username, String uuidString) throws IOException, RecordsFileException {
-		CookieSetting cookie = new CookieSetting(0, UserSessionService.COOKIE_NAME_UUID + "." 
-					+ System.getProperty(UserSessionService.PROPERTY_INSTRUMENT_ID), username + ":" + uuidString, 
-					"/", null, UserSessionService.COOKIE_COMMENT_UUID, UserSessionService.COOKIE_EXP_SECONDS, false);
-		sessionDb.put(username, uuidString);
-		timestampDb.put(uuidString, String.valueOf(System.currentTimeMillis()));
-		return cookie;
-	}
 
-	private void persistServiceList(String username, String uuidString, GroupLevel level) throws IOException, RecordsFileException, JSONException {
-		JSONObject serviceList = new JSONObject();
-//		if (verifyInstrumentManager(username)) {
-//
-//		}
-		switch (level) {
-		case ADMIN:
-			serviceList.put(UserSessionService.NAME_SERVICE_NOTEBOOKADMIN, true);
-			serviceList.put(UserSessionService.NAME_SERVICE_NOTEBOOKMANAGER, true);
-			serviceList.put(UserSessionService.NAME_SERVICE_CURRENTPAGE, true);
-			serviceList.put(UserSessionService.NAME_SERVICE_NOTEBOOKPROPOSALS, getUserProposals(username));				
-			break;
-		case MANAGER:
-			serviceList.put(UserSessionService.NAME_SERVICE_NOTEBOOKMANAGER, true);
-			serviceList.put(UserSessionService.NAME_SERVICE_CURRENTPAGE, true);
-			serviceList.put(UserSessionService.NAME_SERVICE_NOTEBOOKPROPOSALS, getUserProposals(username));				
-			break;
-		case USER:
-			serviceList.put(UserSessionService.NAME_SERVICE_NOTEBOOKPROPOSALS, getUserProposals(username));				
-			break;
-		default:
-			break;
-		}
-		serviceList.put(UserSessionService.NAME_SERVICE_SIGNIN, true);
-		serviceDb.put(uuidString, serviceList.toString());
-	}
 	
-	private GroupLevel checkLogin(String username, String password) {
-		GroupLevel level = GroupLevel.INVALID;
-		try {
-			level = service.validateUser(username, password);
-		} catch (Exception e) {
-		}
-		return level;
-	}
+
 
 	private boolean verifyInstrumentManager(String username) throws IOException, JSONException {
 		boolean flag = false;
@@ -199,20 +148,5 @@ public class SigninRestlet extends Restlet implements IDisposable{
 		return flag;
 	}
 	
-	private JSONArray getUserProposals(String username) throws JSONException, IOException {
-		JSONArray proposals = new JSONArray();
-		String proposalString = tardisService.listProposalsForUser(username);
-		if (proposalString != null) {
-			JSONObject json = new JSONObject(proposalString);
-			Object jstring = json.get(TardisService.NAME_USERS_PROPOSAL);
-			if (jstring instanceof JSONArray) {
-				proposals = (JSONArray) jstring;
-			}
-//			String defaultProp = System.getProperty(PROP_DEFAULT_PROPOSAL);
-//			if (String.valueOf(jstring).contains("\"" + defaultProp + "\"")){
-//				flag = true;
-//			}
-		}
-		return proposals;
-	}
+
 }

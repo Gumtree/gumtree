@@ -28,11 +28,15 @@
             base-name="/WebContent/home.html">
       </resource>
       <resource
-            alias="/user/doc/catalog.html"
+            alias="/user/catalog.html"
             base-name="/WebContent/catalog.html">
       </resource>
       <resource
-            alias="/user/admin/catalogAdmin.html"
+            alias="/doc/catalog.html"
+            base-name="/WebContent/catalog.html">
+      </resource>
+      <resource
+            alias="/user/catalogAdmin.html"
             base-name="/WebContent/catalogAdmin.html">
       </resource>
       <resource
@@ -48,7 +52,7 @@
             base-name="/WebContent/mobilehistmem.html">
       </resource>
       <resource
-            alias="/user/doc/scripting.html"
+            alias="/user/scripting.html"
             base-name="/WebContent/scripting.html">
       </resource>
       <resource
@@ -80,15 +84,19 @@
             base-name="/WebContent/password.html">
       </resource>
       <resource
-            alias="/user/doc/pyscript.html"
+            alias="/user/pyscript.html"
             base-name="/WebContent/pyscript.html">
       </resource>
       <resource
-            alias="/user/doc/notebook.html"
+            alias="/user/notebook.html"
             base-name="/WebContent/notebook.html">
       </resource>
       <resource
-            alias="/user/doc/logbook.html"
+            alias="/doc/notebook.html"
+            base-name="/WebContent/notebook.html">
+      </resource>
+      <resource
+            alias="/user/logbook.html"
             base-name="/WebContent/logbook.html">
       </resource>
       <resource
@@ -112,7 +120,7 @@
             base-name="/WebContent/css">
       </resource>
       <resource
-            alias="/user/doc/css"
+            alias="/doc/css"
             base-name="/WebContent/css">
       </resource>
       <resource
@@ -124,7 +132,7 @@
             base-name="/WebContent/js">
       </resource>
       <resource
-            alias="/user/doc/js"
+            alias="/doc/js"
             base-name="/WebContent/js">
       </resource>
       <resource
@@ -136,7 +144,7 @@
             base-name="/WebContent/images">
       </resource>
       <resource
-            alias="/user/doc/images"
+            alias="/doc/images"
             base-name="/WebContent/images">
       </resource>
       <resource
@@ -148,7 +156,7 @@
             base-name="/WebContent/icons">
       </resource>
       <resource
-            alias="/user/doc/icons"
+            alias="/doc/icons"
             base-name="/WebContent/icons">
       </resource>
       <!-- resource

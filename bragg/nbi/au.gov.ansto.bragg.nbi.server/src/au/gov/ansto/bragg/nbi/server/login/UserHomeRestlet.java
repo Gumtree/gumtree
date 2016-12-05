@@ -77,10 +77,9 @@ public class UserHomeRestlet extends Restlet implements IDisposable{
 //							}
 //			    		}
 //			    	}
-			    	boolean allowCurrentCatalog = false;
 			    	if (UserSessionService.verifyService(session, UserSessionService.NAME_SERVICE_CURRENTPAGE)) {
 			    		addCurrentNotebook(menuJson, infoJson);
-			    		allowCurrentCatalog = true;
+		    			addCurrentCatalog(menuJson, infoJson);
 			    	}
 			    	if (UserSessionService.verifyService(session, UserSessionService.NAME_SERVICE_NOTEBOOKADMIN)) {
 				    	JSONArray proposals = UserSessionService.getProposals(session);
@@ -92,11 +91,7 @@ public class UserHomeRestlet extends Restlet implements IDisposable{
 			    	if (UserSessionService.verifyService(session, UserSessionService.NAME_SERVICE_NOTEBOOKMANAGER)){
 			    		addManageNotebook(menuJson, infoJson);
 			    		addManageCatalog(menuJson, infoJson);
-			    	} else {
-			    		if (allowCurrentCatalog) {
-			    			addCurrentCatalog(menuJson, infoJson);
-			    		}
-			    	}
+			    	} 
 			    	jsonObject.put("menu", menuJson);
 			    	jsonObject.put("info", infoJson);
 			    	response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
@@ -144,8 +139,8 @@ public class UserHomeRestlet extends Restlet implements IDisposable{
 	}
 
 	private void addInstrumentStatus(JSONObject menuJson, JSONObject infoJson) throws JSONException {
-    	menuJson.put("mobile.html", "Instrument Status");
-    	infoJson.put("mobile.html", "Instrument Status: The online dashboard for the instrument.");		
+    	menuJson.put("../status/mobile.html", "Instrument Status");
+    	infoJson.put("../status/mobile.html", "Instrument Status: The online dashboard for the instrument.");		
 	}
 	
 	private void addManageNotebook(JSONObject menuJson, JSONObject infoJson) throws JSONException, IOException {

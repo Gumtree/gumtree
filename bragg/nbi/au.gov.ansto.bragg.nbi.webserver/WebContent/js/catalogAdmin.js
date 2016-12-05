@@ -12,13 +12,44 @@ function loadProposal(pid) {
 		if (status == "success") {
 			var re = data["status"];
 			if (re == "OK") {
-
+				console.log(data["body"]);
 	        	$("#id_table_catalog > thead").html(makeTableHeader(COLUMN_NAMES));
+	        	$("#id_table_catalog > tbody").empty();
 	        	$("#id_table_catalog > tbody").html(makeTableBody(COLUMN_NAMES, data["body"]));
 	        	$('#titleString').text(titleText + ' Proposal ' + data["proposal"]);
 	        	TABLE_SIZE = data["size"];
 	        	LOADED_PROPOSALID = pid;
-
+	        	$('.class_column_Comments').mousedown(function(e) {
+					$(this).children('input:first').show();
+					$(this).children('span:first').hide();
+					$(this).children('input:first').focus();
+				});
+				$('.class_input_comments').keypress(function(e) {
+					if(e.which === 13) {
+						var span = $(this).parent().children('span:first');
+						if (span.text().trim() != $(this).val().trim()) {
+							updateEntry(LOADED_PROPOSALID, $(this).closest('tr').children('th:first').text(), 'Comments', $(this).val(), $(this));
+						} else {
+							$(this).hide();
+							span.show();
+						}
+					}
+					if(e.keyCode === 27) {
+						$(this).hide();
+						var span = $(this).parent().children('span:first');
+						$(this).val(span.text());
+						span.show();
+					}
+				});
+				$('.class_input_comments').blur(function(e) {
+					var span = $(this).parent().children('span:first');
+					if (span.text().trim() != $(this).val().trim()) {
+						updateEntry(LOADED_PROPOSALID, $(this).closest('tr').children('th:first').text(), 'Comments', $(this).val(), $(this));
+					} else {
+						$(this).hide();
+						span.show();
+					}
+				});
 			}
 		}
 	}).fail(function(e) {

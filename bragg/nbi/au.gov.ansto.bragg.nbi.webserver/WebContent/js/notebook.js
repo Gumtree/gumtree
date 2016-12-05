@@ -341,7 +341,7 @@ function escapeSpace(value) {
 
 function updateCatalogTable() {
 	
-	var getUrl = "catalog/read?proposal=" + CURRENT_PROPOSALID + "&start=" + TABLE_SIZE + "&timestamp=" + update_timestamp + "&" + (new Date()).getTime();
+	var getUrl= "catalog/read?proposal=" + CURRENT_PROPOSALID + "&start=" + TABLE_SIZE + "&timestamp=" + update_timestamp + "&" + (new Date()).getTime();
 	$.get(getUrl, function(data, status) {
 		var size = data["size"];
 		if (size > 0) {
@@ -1318,7 +1318,7 @@ jQuery(document).ready(function() {
 	})
 	.fail(function(e) {
 		if (e.status == 401) {
-			window.location = "../signin.html?redirect=doc/notebook.html";
+			window.location = "../user/signin.html?redirect=notebook.html";
 		}
 	});
 
@@ -1445,8 +1445,14 @@ jQuery(document).ready(function() {
 	})
 	.fail(function(e) {
 	});
+
 	
-	var getUrl = "catalog/read?" + (new Date()).getTime();
+    var getUrl;
+    if (session == null) {
+    	getUrl = "catalog/read?" + (new Date()).getTime();;
+    } else {
+    	getUrl = "catalog/read?session=" + session + "&" + (new Date()).getTime();;
+    }
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
 			var re = data["status"];

@@ -40,15 +40,22 @@ public class CatalogDB {
 	private ObjectDBService indexDb;
 	private boolean inSearch = false;
 	private CatalogProvider provider;
+	private static String dbFolder = System.getProperty(PROP_CATALOG_SAVEPATH);
+	private static Map<String, CatalogDB> dbMap = new HashMap<String, CatalogDB>();
+	private static List<String> genericColumnNames;
 	
-	public CatalogDB(String dbName) {
-		db = ObjectDBService.getDb(System.getProperty(PROP_CATALOG_SAVEPATH), dbName);
-		indexDb = ObjectDBService.getDb(System.getProperty(PROP_CATALOG_SAVEPATH), NAME_DB_CATALOGINDEX);
+	static {
 		String[] columns = System.getProperty(PROP_CATALOG_TITLES).split(",");
 		for (int i = 0; i < columns.length; i++) {
 			columns[i] = columns[i].split(":")[1].trim();
 		}
-		setProvider(new CatalogProvider(Arrays.asList(columns)));
+		genericColumnNames = Arrays.asList(columns);
+	}
+	
+	public CatalogDB(String dbName) {
+		db = ObjectDBService.getDb(System.getProperty(PROP_CATALOG_SAVEPATH), dbName);
+		indexDb = ObjectDBService.getDb(System.getProperty(PROP_CATALOG_SAVEPATH), NAME_DB_CATALOGINDEX);
+		setProvider(new CatalogProvider(genericColumnNames));
 	}
 
 	public void setProvider(CatalogProvider provider) {
@@ -56,9 +63,19 @@ public class CatalogDB {
 	}
 	
 	public synchronized static CatalogDB getInstance(String dbName){
-		return new CatalogDB(dbName);
+		if (dbMap.containsKey(dbName)) {
+			return dbMap.get(dbName);
+		} else {
+			CatalogDB db = new CatalogDB(dbName);
+			dbMap.put(dbName, db);
+			return db;
+		}
 	}
 
+	public static boolean dbExist(String dbName) {
+		return (new File(dbFolder + "/" + dbName + ".rdf")).exists();
+	}
+	
 	public static List<String> listDbNames() {
 		String path = System.getProperty(PROP_CATALOG_SAVEPATH);
 		File folder = new File(path);
@@ -302,6 +319,10 @@ public class CatalogDB {
 //		}
 //		return "";
 		return provider.getColumnNames();
+	}
+	
+	public static List<String> getGenericColumnNames() {
+		return genericColumnNames;
 	}
 	
 	public static String ConvertXmlToHtmlTable(String xml) {

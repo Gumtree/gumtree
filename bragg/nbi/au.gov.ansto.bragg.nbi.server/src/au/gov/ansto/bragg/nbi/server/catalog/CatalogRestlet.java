@@ -44,6 +44,7 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 	private static final String SEG_NAME_LIST = "list";
 	private final static String SEG_NAME_HELP = "help";
 	private static final String QUERY_ENTRY_PROPOSALID = "proposal";
+	private static final String QUERY_ENTRY_SESSIONID = "session";
 	private static final String QUERY_ENTRY_VALUES = "values";
 	private static final String QUERY_ENTRY_COLUMNS = "columns";
 	private static final String QUERY_ENTRY_TIMESTAMP = "timestamp";
@@ -99,7 +100,7 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 					String currentProposal = proposalDb.findProposalId(sessionId);
 					boolean allowAccess = false;
 					if (proposalId == null || proposalId.equals(currentProposal)) {
-						if (allowAccessCurrentPage(session, sessionId, proposalDb)) {
+						if (allowEditHistoryProposal(session, currentProposal)) {
 							allowAccess = true;
 						}
 						proposalId = currentProposal;
@@ -128,9 +129,11 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 				try {
 					Representation entity = request.getEntity();
 			    	Form form = new Form(entity);
-//			    	String proposalId = form.getValues(QUERY_ENTRY_PROPOSALID);
-					String sessionId = controlDb.getCurrentSessionId();
-					String currentProposal = proposalDb.findProposalId(sessionId);
+			    	String proposalId = form.getValues(QUERY_ENTRY_PROPOSALID);
+			    	if (proposalId == null) {
+						String sessionId = controlDb.getCurrentSessionId();
+						proposalId = proposalDb.findProposalId(sessionId);
+			    	}
 					boolean allowAccess = true;
 //					if (proposalId == null || proposalId.equals(currentProposal)) {
 //						if (allowAccessCurrentPage(session, sessionId, proposalDb)) {
@@ -143,7 +146,7 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 //						}
 //					}
 					if (allowAccess){
-						CatalogDB catalogDb = CatalogDB.getInstance(currentProposal);
+						CatalogDB catalogDb = CatalogDB.getInstance(proposalId);
 						String columns = form.getValues(QUERY_ENTRY_COLUMNS);
 						String key = form.getValues(QUERY_ENTRY_KEY);
 //						String[] valueArray = values.split(",");
@@ -162,59 +165,73 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 			} else if (SEG_NAME_READ.equalsIgnoreCase(seg)) {
 				try {
 					Form form = request.getResourceRef().getQueryAsForm();
-					String proposalId = form.getValues(QUERY_ENTRY_PROPOSALID);
-					String sessionId = controlDb.getCurrentSessionId();
-					String currentProposal = proposalDb.findProposalId(sessionId);
 					boolean allowAccess = false;
-					if (proposalId == null || proposalId.equals(currentProposal)) {
-						if (allowAccessCurrentPage(session, sessionId, proposalDb)) {
+					String sessionId = form.getValues(QUERY_ENTRY_SESSIONID);
+					String proposalId = form.getValues(QUERY_ENTRY_PROPOSALID);
+					String currentSessionId = controlDb.getCurrentSessionId();
+					String currentProposal = proposalDb.findProposalId(currentSessionId);
+					if (proposalId != null && !proposalId.equals("undefined")) {
+						if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
 							allowAccess = true;
 						}
-						proposalId = currentProposal;
+					} else if (sessionId != null) {
+						proposalId = proposalDb.findProposalId(sessionId);
+						if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
+							allowAccess = true;
+						}
 					} else {
-						if (allowEditHistoryProposal(session, proposalId)) {
+						sessionId = currentSessionId;
+						proposalId = currentProposal;
+						if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
 							allowAccess = true;
 						}
 					}
 					if (allowAccess){
-						CatalogDB catalogDb = CatalogDB.getInstance(proposalId);
-						String key = form.getValues(QUERY_ENTRY_KEY);
 						JSONArray headerArray;
 						JSONArray entryArray = new JSONArray();
 						JSONObject jsonObject = new JSONObject();
-						if (key != null) {
-							List<String> columnNames = catalogDb.getColumnNames();
-							headerArray = new JSONArray(columnNames);
-							String value = catalogDb.getEntry(key);
-							entryArray.put(value);
+						if (!CatalogDB.dbExist(proposalId)) {
+							headerArray = new JSONArray(CatalogDB.getGenericColumnNames());
 							jsonObject.put("header", headerArray);
-							jsonObject.put("size", 1);
+							jsonObject.put("size", 0);
 							jsonObject.put("body", entryArray);
 						} else {
-							String start = form.getValues(QUERY_ENTRY_START);
-							if (start == null) {
+							CatalogDB catalogDb = CatalogDB.getInstance(proposalId);
+							String key = form.getValues(QUERY_ENTRY_KEY);
+							if (key != null) {
 								List<String> columnNames = catalogDb.getColumnNames();
 								headerArray = new JSONArray(columnNames);
-								LinkedHashMap<String, Object> items = catalogDb.getAll();
-								for (String entryKey : items.keySet()) {
-//									html += item.toString();
-									JSONObject json = new JSONObject(items.get(entryKey).toString());
-									json.put("_key_", entryKey);
-									entryArray.put(json);
-								}
-								jsonObject.put("size", items.size());
+								String value = catalogDb.getEntry(key);
+								entryArray.put(value);
 								jsonObject.put("header", headerArray);
+								jsonObject.put("size", 1);
 								jsonObject.put("body", entryArray);
 							} else {
-								String timestamp = form.getValues(QUERY_ENTRY_TIMESTAMP);
-								LinkedHashMap<String, Object> items = catalogDb.getNew(Integer.valueOf(start), timestamp);
-								for (String entryKey : items.keySet()) {
-									JSONObject json = new JSONObject(items.get(entryKey).toString());
-									json.put("_key_", entryKey);
-									entryArray.put(json);
+								String start = form.getValues(QUERY_ENTRY_START);
+								if (start == null) {
+									List<String> columnNames = catalogDb.getColumnNames();
+									headerArray = new JSONArray(columnNames);
+									LinkedHashMap<String, Object> items = catalogDb.getAll();
+									for (String entryKey : items.keySet()) {
+										//									html += item.toString();
+										JSONObject json = new JSONObject(items.get(entryKey).toString());
+										json.put("_key_", entryKey);
+										entryArray.put(json);
+									}
+									jsonObject.put("size", items.size());
+									jsonObject.put("header", headerArray);
+									jsonObject.put("body", entryArray);
+								} else {
+									String timestamp = form.getValues(QUERY_ENTRY_TIMESTAMP);
+									LinkedHashMap<String, Object> items = catalogDb.getNew(Integer.valueOf(start), timestamp);
+									for (String entryKey : items.keySet()) {
+										JSONObject json = new JSONObject(items.get(entryKey).toString());
+										json.put("_key_", entryKey);
+										entryArray.put(json);
+									}
+									jsonObject.put("size", items.size());
+									jsonObject.put("body", entryArray);
 								}
-								jsonObject.put("size", items.size());
-								jsonObject.put("body", entryArray);
 							}
 						}
 						jsonObject.put("timestamp", System.currentTimeMillis());

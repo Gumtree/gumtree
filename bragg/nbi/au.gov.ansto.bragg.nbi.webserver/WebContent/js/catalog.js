@@ -315,17 +315,16 @@ function registerListeners(rows) {
 	for ( var i = 0; i < rows.length; i++) {
 		var key = escapeSpace(rows[i]["_key_"]);
 		var $row = $('#id_tr_' + key);
-		$row.find('td.class_column_Comments').on('click', function(e) {
+		$row.find('td.class_column_Comments').mousedown(function(e) {
 			$(this).children('input:first').show();
 			$(this).children('span:first').hide();
 			$(this).children('input:first').focus();
-			return false;
 		});
 		$row.find('input.class_input_comments').keypress(function(e) {
 			if(e.which === 13) {
 				var span = $(this).parent().children('span:first');
 				if (span.text().trim() != $(this).val().trim()) {
-					updateEntry($(this).closest('tr').children('th:first').text(), 'Comments', $(this).val(), $(this));
+					updateEntry(CURRENT_PROPOSALID, $(this).closest('tr').children('th:first').text(), 'Comments', $(this).val(), $(this));
 				} else {
 					$(this).hide();
 					span.show();
@@ -341,7 +340,7 @@ function registerListeners(rows) {
 		$row.find('input.class_input_comments').blur(function(e) {
 			var span = $(this).parent().children('span:first');
 			if (span.text().trim() != $(this).val().trim()) {
-				updateEntry($(this).closest('tr').children('th:first').text(), 'Comments', $(this).val(), $(this));
+				updateEntry(CURRENT_PROPOSALID, $(this).closest('tr').children('th:first').text(), 'Comments', $(this).val(), $(this));
 			} else {
 				$(this).hide();
 				span.show();
@@ -425,7 +424,7 @@ function makeTableBody(columnNames, rowArray) {
 		}
 
 		var keyString = escapeSpace(rowArray[i]['_key_']);
-		if ($('#id_tr_' + keyString).length > 0) {
+		if ($('#id_table_catalog > tbody > #id_tr_' + keyString).length > 0) {
 			$('#id_tr_' + keyString).html(innerHtml);
 		} else {
 			html += '<tr class="class_tr_body" id="id_tr_' + keyString + '">' + innerHtml;
@@ -665,10 +664,10 @@ $(function() {
 	
 });
 
-function updateEntry(key, column, val, $item) {
+function updateEntry(proposal, key, column, val, $item) {
 	var obj = {};
 	obj[column] = val;
-	var form = {key: key, columns: JSON.stringify(obj)};
+	var form = {proposal: proposal, key: key, columns: JSON.stringify(obj)};
 	var postUrl = "catalog/update";
 	$.post(postUrl, form, function(data, status) {
 		if (status == "success") {
@@ -713,9 +712,9 @@ jQuery(document).ready(function(){
 				$("#id_div_main").html("<div class=\"id_span_infoText\">Status: <span style=\"color:red\">" 
 					+ re + "</span>. Now jump to the sign in page. "
 	        		+ "If the browser doesn't redirect automatically, please click "
-	        		+ "<a href=\"../signin.html\">here</a>.</div>");
+	        		+ "<a href=\"../user/signin.html\">here</a>.</div>");
 	            setTimeout(function() {
-	            	window.location = "../signin.html?redirect=doc/catalog.html";
+	            	window.location = "../user/signin.html?redirect=catalog.html";
 				}, 2000);
 	        } else {
 //				$.each(data["menu"], function(link, text) {
@@ -745,17 +744,16 @@ jQuery(document).ready(function(){
 //	        	loadColumnConfig();
 				updateUserArea(true);
 				startCheckUser();
-				$('.class_column_Comments').on('click', function(e) {
+				$('.class_column_Comments').mousedown(function(e) {
 					$(this).children('input:first').show();
 					$(this).children('span:first').hide();
 					$(this).children('input:first').focus();
-					return false;
 				});
 				$('.class_input_comments').keypress(function(e) {
 					if(e.which === 13) {
 						var span = $(this).parent().children('span:first');
 						if (span.text().trim() != $(this).val().trim()) {
-							updateEntry($(this).closest('tr').children('th:first').text(), 'Comments', $(this).val(), $(this));
+							updateEntry(CURRENT_PROPOSALID, $(this).closest('tr').children('th:first').text(), 'Comments', $(this).val(), $(this));
 						} else {
 							$(this).hide();
 							span.show();
@@ -771,7 +769,7 @@ jQuery(document).ready(function(){
 				$('.class_input_comments').blur(function(e) {
 					var span = $(this).parent().children('span:first');
 					if (span.text().trim() != $(this).val().trim()) {
-						updateEntry($(this).closest('tr').children('th:first').text(), 'Comments', $(this).val(), $(this));
+						updateEntry(CURRENT_PROPOSALID, $(this).closest('tr').children('th:first').text(), 'Comments', $(this).val(), $(this));
 					} else {
 						$(this).hide();
 						span.show();
@@ -780,7 +778,7 @@ jQuery(document).ready(function(){
 			}
 		}
 	}).fail(function(e) {
-		window.location = "../signin.html?redirect=doc/catalog.html";
+		window.location = "../user/signin.html?redirect=catalog.html";
 	}).always(function() {
 	});
 	

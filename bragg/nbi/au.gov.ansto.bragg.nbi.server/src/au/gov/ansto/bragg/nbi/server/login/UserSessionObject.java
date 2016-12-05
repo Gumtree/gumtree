@@ -11,6 +11,7 @@ public class UserSessionObject {
 	private boolean isICS = false;
 	private GroupLevel level = GroupLevel.INVALID;
 	private String message = "";
+	private boolean isRemoteUser = false;
 	
 	public UserSessionObject(){
 	}
@@ -76,4 +77,11 @@ public class UserSessionObject {
 		this.isICS = isICS;
 	}
 
+	public void setRemoteUserFlag(boolean flag) {
+		this.isRemoteUser  = flag;
+	}
+
+	public boolean isRemoteUser() {
+		return isRemoteUser;
+	}
 }
