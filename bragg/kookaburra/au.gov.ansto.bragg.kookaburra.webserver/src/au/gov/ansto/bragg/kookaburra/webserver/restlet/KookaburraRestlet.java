@@ -133,7 +133,7 @@ public class KookaburraRestlet extends Restlet {
 					handlePlotRequest(request, response, queryForm);
 				} catch (Exception e) {
 					e.printStackTrace();
-		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+		    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
 				}
 			} else if (pathTokens[0].equals("status")) {
 				if (jythonRunner == null) {
@@ -221,7 +221,11 @@ public class KookaburraRestlet extends Restlet {
 		File lastModifiedFile = lastFileModified(filepath);
 		if (lastModifiedFile != null) {
 			long fileTimestamp = lastModifiedFile.lastModified();
-			long lastRunTimestamp = jythonRunner.getUIHandler().getScriptModel().getLastModifiedTimestamp();
+			long lastRunTimestamp = 0;
+			try {
+				lastRunTimestamp = jythonRunner.getUIHandler().getScriptModel().getLastModifiedTimestamp();
+			} catch (Exception e) {
+			}
 			boolean isPlotAvailable = jythonRunner.getPlot1().isUpdated(false);
 			if (fileTimestamp > lastRunTimestamp || !isPlotAvailable) {
 				jythonRunner.runScriptLine("__selected_files__ = ['" + lastModifiedFile.getAbsolutePath().replace("\\", "/") + "']");

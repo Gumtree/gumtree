@@ -30,9 +30,32 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
 		instance = this;
-		catalogCollectingService = new CatalogCollectingService();
+		scheduleDelayedTask();
+//		catalogCollectingService = new CatalogCollectingService();
 	}
 
+	private void scheduleDelayedTask(){
+//		final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+//		executor.schedule(new Runnable() {
+//		  @Override
+//		  public void run() {
+//			  catalogCollectingService = new CatalogCollectingService();
+//		  }
+//		}, 1, TimeUnit.MINUTES);
+		Thread thread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(60000);
+				} catch (InterruptedException e) {
+				}
+				catalogCollectingService = new CatalogCollectingService();
+			}
+		});
+		thread.start();
+	};
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
