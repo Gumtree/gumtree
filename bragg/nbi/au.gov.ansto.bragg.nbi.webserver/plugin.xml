@@ -4,6 +4,10 @@
 	<extension
          point="org.eclipse.equinox.http.registry.resources">
       <resource
+            alias="/status/manuals.html"
+            base-name="/WebContent/manuals.html">
+      </resource>
+      <resource
             alias="/status/AC_OETags.js"
             base-name="/WebContent/AC_OETags.js">
       </resource>

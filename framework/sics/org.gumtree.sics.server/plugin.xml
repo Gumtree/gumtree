@@ -7,7 +7,7 @@
       <httpcontext
             id="sics">
          <resource-mapping
-               path="/sics/rest">
+               path="/status/sics/rest">
          </resource-mapping>
       </httpcontext>
    </extension>
@@ -15,7 +15,7 @@
          id="sicsRestlet"
          point="org.eclipse.equinox.http.registry.servlets">
       <servlet
-            alias="/sics/rest"
+            alias="/status/sics/rest"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="sics">
          <init-param
