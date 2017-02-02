@@ -95,11 +95,13 @@ public class ScriptingManager implements IScriptingManager {
 //		}
 		int timeout = 20;
 		int wait = 0;
+		logger.info("Creating scripting engine {}.", shortName);
 		while (engine == null && wait < timeout) {
 			try {
-				logger.info("Creating scripting engine {}.", shortName);
 				engine = getScriptEngineManager().getEngineByName(shortName);
-				logger.info("Created scripting engine {}.", shortName);
+				if (engine != null) {
+					logger.info("Created scripting engine {}.", shortName);
+				}
 			} catch (Throwable throwable) {
 //				try {
 //					Thread.sleep(1000);

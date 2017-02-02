@@ -257,7 +257,7 @@ public class UserSessionService {
 //				}
 		    }
 		} 
-		if (session == null){
+		if (session == null || !session.isValid()){
 			Object header = request.getAttributes().get("org.restlet.http.headers");
 			if (header != null) {
 				Form qform = (Form) header;

@@ -189,7 +189,7 @@ function getHistoryPdf(session) {
 	if (session == null || session.trim().length == 0) {
 		return;
 	}
-	var getUrl = "notebook/pdf?session=" + session;
+	var getUrl = "notebook/pdf?session=" + session + "&" + (new Date()).getTime();
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
 			var pair = data.split(":");
@@ -232,7 +232,9 @@ function getPdf() {
 		        				  var getUrl = "notebook/pdf";
 		        				  var session = getParam("session");
 		        				  if (session != null) { 
-		        					  getUrl += "?session=" + session;
+		        					  getUrl += "?session=" + session + "&" + (new Date()).getTime();
+		        				  } else {
+		        					  getUrl +=  "?" + (new Date()).getTime()
 		        				  }
 //		        				  window.location.href = getUrl;
 		        				  $.get(getUrl, function(data, status) {
@@ -277,7 +279,9 @@ function getPdf() {
 		var getUrl = "notebook/pdf";
 		var session = getParam("session");
 		if (session != null) { 
-			getUrl += "?session=" + session;
+			getUrl += "?session=" + session + "&" + (new Date()).getTime();
+		} else {
+			getUrl +=  "?" + (new Date()).getTime()
 		}
 //		window.location.href = getUrl;
 		$.get(getUrl, function(data, status) {

@@ -22,7 +22,9 @@ function getParam(sParam) {
 function getPdf(page, session){
 	var getUrl = "notebook/pdf";
 	if (typeof(session) !== "undefined") { 
-		 getUrl += "?session=" + session;
+		 getUrl += "?session=" + session + "&" + (new Date()).getTime();
+	} else {
+		getUrl +=  "?" + (new Date()).getTime();
 	}
 //    window.location.href = getUrl;
 	$.get(getUrl, function(data, status) {
@@ -48,7 +50,9 @@ function getPdf(page, session){
 function getWord(page, session) {
 	var getUrl = "notebook/load";
 	if (typeof(session) !== "undefined") { 
-		 getUrl += "?session=" + session;
+		 getUrl += "?session=" + session + "&" + (new Date()).getTime();
+	} else {
+		getUrl += "?" + (new Date()).getTime()
 	}
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
