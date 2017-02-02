@@ -350,6 +350,12 @@ class GPlot:
         else :
             self.pv.getPlot().removeMask(obj)
         self.pv.getPlot().repaint()
+    
+    def clear_masks(self):
+        masks = self.pv.getPlot().getMasks()
+        for mask in masks :
+            self.pv.getPlot().removeMask(mask)
+        self.pv.getPlot().repaint()
         
     def update(self):
         self.pv.getPlot().updatePlot()
