@@ -24,7 +24,7 @@
             base-name="/WebContent/instrumentsetup.js">
       </resource>
       <resource
-            alias="/user/doc/js/instrumentsetup.js"
+            alias="/doc/js/instrumentsetup.js"
             base-name="/WebContent/instrumentsetup.js">
       </resource>
       <resource
