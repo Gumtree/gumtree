@@ -1210,11 +1210,12 @@ class Array:
 #     Array utilities
 #********************************************************************************
     
-    def __repr__(self, indent = None):
+    def __repr__(self, indent = None, skip = True):
         if self.size == 0 :
             return 'Array([], shape=' + str(self.shape) + \
                     ', dtype=' + self.dtype.__name__ + ')'
-        skip = self.size > Array.threshold
+        if skip :
+            skip = self.size > Array.threshold
         amax = 0
         amin = 0
         if self.dtype is int or self.dtype is long :
@@ -1229,12 +1230,13 @@ class Array:
         return 'Array(' + self.__string__(0, skip, True, indent = nindent, \
                                           max = amax, min = amin) + ')'
     
-    def __str__(self, indent = ''):
+    def __str__(self, indent = '', skip = True):
         if self.dtype is str :
             return self.__iArray__.toString()
         if self.size == 0 :
             return indent + '[]'
-        skip = self.size > Array.threshold
+        if skip :
+            skip = self.size > Array.threshold
         amax = 0
         amin = 0
         if self.dtype is int or self.dtype is long :

@@ -838,43 +838,57 @@ public class ScriptControlViewer extends Composite {
 			}
 		});
 		ScriptPageRegister.getRegister(scriptRegisterID).setScriptModel(scriptModel);
-		IScriptExecutor executor = getScriptExecutor();
+		final IScriptExecutor executor = getScriptExecutor();
 		if (executor != null) {
 			executor.runScript("__script_model_id__ = " + scriptRegisterID);
 		}
-//		IScriptBlock preBlock = new ScriptBlock();
-//		for (String line : PRE_RUN_SCRIPT) {
-//			preBlock.append(line);
-//		}
-//		executor.runScript(preBlock);
-		try {
-			String fn = FileLocator.toFileURL(Activator.getDefault().getBundle().getEntry(PRE_RUN_SCRIPT)).getFile();
-			executor.runScript(new FileReader(fn));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		String initFile = getScriptFilename();
-		if (initFile != null) {
-			try {
-				FileReader reader = new FileReader(initFile);
-				executor.runScript(reader);
-				executor.runScript("print '<' + str(__script__.title) + '> loaded'");
-			} catch (Exception e) {
-				executor.runScript("print 'failed to load " + initFile + "'");
+		
+		Thread launchThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					String fn = FileLocator.toFileURL(Activator.getDefault().getBundle().getEntry(PRE_RUN_SCRIPT)).getFile();
+					executor.runScript(new FileReader(fn));
+					while (executor.isBusy()) {
+						Thread.sleep(200);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				String initFile = getScriptFilename();
+				if (initFile != null) {
+					try {
+						FileReader reader = new FileReader(initFile);
+						executor.runScript(reader);
+						executor.runScript("logln( '<' + str(__script__.title) + '> loaded')");
+						while(executor.isBusy()) {
+							Thread.sleep(200);
+						}
+					} catch (Exception e) {
+						executor.runScript("logln( 'failed to load " + initFile + "')");
+					}
+				}
+//				IScriptBlock postBlock = new ScriptBlock();
+//				for (String line : POST_RUN_SCRIPT) {
+//					postBlock.append(line);
+//				}
+//				executor.runScript(postBlock);
+				try {
+					String fn = FileLocator.toFileURL(Activator.getDefault().getBundle().getEntry(POST_RUN_SCRIPT)).getFile();
+					FileReader reader = new FileReader(fn);
+					executor.runScript(reader);
+					while(executor.isBusy()) {
+						Thread.sleep(200);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				executor.runScript("time.sleep(0.1)");
+				executor.runScript("auto_run()");				
 			}
-		}
-//		IScriptBlock postBlock = new ScriptBlock();
-//		for (String line : POST_RUN_SCRIPT) {
-//			postBlock.append(line);
-//		}
-//		executor.runScript(postBlock);
-		try {
-			String fn = FileLocator.toFileURL(Activator.getDefault().getBundle().getEntry(POST_RUN_SCRIPT)).getFile();
-			FileReader reader = new FileReader(fn);
-			executor.runScript(reader);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		});
+		launchThread.start();
 		if (datasetActivityListener == null) {
 			datasetActivityListener = new IActivityListener() {
 				
@@ -898,8 +912,7 @@ public class ScriptControlViewer extends Composite {
 				getDataSourceViewer().addActivityListener(datasetActivityListener);
 			}
 		}
-		executor.runScript("time.sleep(0.1)");
-		executor.runScript("auto_run()");
+
 	}
 	
 	public void updateUI() {
@@ -2188,7 +2201,6 @@ public class ScriptControlViewer extends Composite {
 							progressBar.setSelection(Integer.valueOf(parameter.getProperty("selection")));
 						}						
 					} catch (Exception e) {
-						// TODO: handle exception
 					}
 				}
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {

@@ -433,18 +433,18 @@ class SimpleData:
 #     Array utilities
 #********************************************************************************
     
-    def __repr__(self, indent = ''):
+    def __repr__(self, indent = '', skip = True):
         indent += '           '
-        res = 'SimpleData(' + self.storage.__repr__(indent) + ', \n' \
+        res = 'SimpleData(' + self.storage.__repr__(indent, skip) + ', \n' \
                 + indent + 'title=\'' + self.title + '\''
         if not self.units is None :
             res += ',\n' + indent + 'units=\'' + self.units + '\''
         res += ')'
         return res
     
-    def __str__(self, indent = ''):
+    def __str__(self, indent = '', skip = True):
         if self.dtype is str :
-            return indent + self.storage.__str__(indent)
+            return indent + self.storage.__str__(indent, skip)
         res = 'title: ' + self.title + '\n' + indent
         if not self.units is None and len(self.units) > 0:
             res += 'units: ' + self.units + '\n' + indent

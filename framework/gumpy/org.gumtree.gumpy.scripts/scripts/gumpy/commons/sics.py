@@ -108,7 +108,15 @@ def drive(deviceId, value):
                 time.sleep(0.3)
             cnt += 1
     if cnt >= 20:
-        raise Exception, 'timeout to drive ' + str(deviceId) + ' to ' + str(value)
+        is_done = false
+        try:
+            cval = controller.getValue()
+            if abs(float(value) - cval.getFloatData()) <= controller.getChildController("/precision").getValue().getFloatData():
+                is_done = true;
+        except:
+            pass
+        if not is_done:
+            raise Exception, 'timeout to drive ' + str(deviceId) + ' to ' + str(value)
     while not getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
                 time.sleep(0.3)
     handleInterrupt()

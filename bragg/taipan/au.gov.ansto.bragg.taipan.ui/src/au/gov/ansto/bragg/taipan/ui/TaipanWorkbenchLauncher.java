@@ -27,8 +27,12 @@ import org.gumtree.ui.service.multimonitor.support.MultiMonitorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import au.gov.ansto.bragg.taipan.ui.befilter.BFAnalysisPerspective;
+import au.gov.ansto.bragg.taipan.ui.befilter.BFLivePerspective;
+
 public class TaipanWorkbenchLauncher extends AbstractLauncher {
 
+	private static final String PROP_INSTRUMENT_MODE = "gumtree.taipan.mode";
 	
 	private static final String ID_PERSPECTIVE_SCRIPTING = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
 	
@@ -36,9 +40,13 @@ public class TaipanWorkbenchLauncher extends AbstractLauncher {
 	
 	// Use the default as buffer to hold the editor
 	private static final String ID_PERSPECTIVE_DEFAULT = "au.gov.ansto.bragg.nbi.ui.EmptyPerspective";
-	
+
 	private static Logger logger = LoggerFactory.getLogger(TaipanWorkbenchLauncher.class);
 	
+	enum TaipanMode {
+		TP, 
+		BF
+	}
 	
 	public TaipanWorkbenchLauncher() {
 	}
@@ -63,7 +71,15 @@ public class TaipanWorkbenchLauncher extends AbstractLauncher {
 	}
 	
 	public void launch() throws LauncherException {
-		{			
+		{		
+			boolean isBfMode = false;
+			try {
+				String mode = System.getProperty(PROP_INSTRUMENT_MODE);
+				if (mode != null && TaipanMode.valueOf(mode) == TaipanMode.BF) {
+					isBfMode = true; 
+				}
+			} catch (Exception e) {
+			}
 			// TODO: move this logic to experiment UI manager service
 			final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			hideMenus((WorkbenchWindow) activeWorkbenchWindow);
@@ -158,11 +174,21 @@ public class TaipanWorkbenchLauncher extends AbstractLauncher {
 			// Attempt to close intro
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
 			
-			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
-				// open new window as editor buffer
-				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_SCRIPTING, 1, true);
+			if (isBfMode) {
+				if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
+					// open new window as editor buffer
+					mmManager.openWorkbenchWindow(BFAnalysisPerspective.ID_PERSPECTIVE_BFANALYSIS, 1, true);
+				} else {
+					mmManager.showPerspectiveOnOpenedWindow(BFAnalysisPerspective.ID_PERSPECTIVE_BFANALYSIS, 1, 1, mmManager.isMultiMonitorSystem());
+				}
+				mmManager.showPerspectiveOnOpenedWindow(BFLivePerspective.ID_PERSPECTIVE_BFLIVE, 1, 1, mmManager.isMultiMonitorSystem());
 			} else {
-				mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
+				if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
+					// open new window as editor buffer
+					mmManager.openWorkbenchWindow(ID_PERSPECTIVE_SCRIPTING, 1, true);
+				} else {
+					mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
+				}
 			}
 //			// position it
 //			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());

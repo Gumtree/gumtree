@@ -21,6 +21,8 @@ public class CommandController extends ComplexController implements ICommandCont
 	
 	protected static final int TIME_INTERVAL = 100;
 	
+	protected static final int FORCE_UPDATE_TIME_INTERVAL = 60000;
+	
 	private static Logger logger = LoggerFactory.getLogger(CommandController.class);
 	
 	private IDynamicController statusController;
@@ -76,8 +78,17 @@ public class CommandController extends ComplexController implements ICommandCont
 				}
 			}
 //			while (getCommandStatus().equals(CommandStatus.BUSY) || getCommandStatus().equals(CommandStatus.STARTING)) {
+			int timeCount = 0;
 			while (!getCommandStatus().equals(CommandStatus.IDLE)) {
 				sleep("Error occured while waiting for IDLE state");
+				timeCount += TIME_INTERVAL;
+				if (timeCount >= FORCE_UPDATE_TIME_INTERVAL) {
+					try {
+						getStatusController().getValue(true);
+					} catch (Exception e) {
+					}
+					timeCount = 0;
+				}
 			}
 		}
 		// Check if this device is interrupted
