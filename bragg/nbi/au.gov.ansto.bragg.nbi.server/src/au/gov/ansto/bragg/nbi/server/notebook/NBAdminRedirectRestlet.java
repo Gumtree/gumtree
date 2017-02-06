@@ -13,19 +13,19 @@ import org.restlet.Restlet;
  * @author nxi
  *
  */
-public class NBManagerRedirectRestlet extends Restlet implements IDisposable {
+public class NBAdminRedirectRestlet extends Restlet implements IDisposable {
 
 	/**
 	 * 
 	 */
-	public NBManagerRedirectRestlet() {
+	public NBAdminRedirectRestlet() {
 		// TODO Auto-generated constructor stub
 	}
 
 	/**
 	 * @param context
 	 */
-	public NBManagerRedirectRestlet(Context context) {
+	public NBAdminRedirectRestlet(Context context) {
 		super(context);
 		// TODO Auto-generated constructor stub
 	}

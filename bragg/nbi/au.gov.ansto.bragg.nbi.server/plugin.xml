@@ -58,12 +58,24 @@
                path="/user/catalog">
          </resource-mapping>
       </httpcontext>
-      <!-- httpcontext
+      <httpcontext
+            id="NBPageRedirectRestlet">
+         <resource-mapping
+               path="/status/notebook.html">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="NBAdminRedirectRestlet">
+         <resource-mapping
+               path="/status/admin/notebookAdmin.html">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
             id="NBRedirectRestlet">
          <resource-mapping
-               path="/admin/notebookAdmin.html">
+               path="/status/notebookAdmin.html">
          </resource-mapping>
-      </httpcontext -->
+      </httpcontext>
       <httpcontext
             id="databaseDocRestlet">
          <resource-mapping
@@ -209,15 +221,33 @@
                value="au.gov.ansto.bragg.nbi.server.login.UserHomeApplication">
          </init-param>
       </servlet>
-      <!-- servlet
-            alias="/user/admin/notebookAdmin.html"
+      <servlet
+            alias="/status/notebook.html"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="NBPageRedirectRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.notebook.NBPageRedirectApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/status/notebookAdmin.html"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="NBRedirectRestlet">
          <init-param
                name="org.restlet.application"
                value="au.gov.ansto.bragg.nbi.server.notebook.NBManagerRedirectApplication">
          </init-param>
-      </servlet -->
+      </servlet>
+      <servlet
+            alias="/status/admin/notebookAdmin.html"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="NBAdminRedirectRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.notebook.NBAdminRedirectApplication">
+         </init-param>
+      </servlet>
    </extension>
 
 </plugin>
