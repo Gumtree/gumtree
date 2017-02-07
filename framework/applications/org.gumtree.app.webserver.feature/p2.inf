@@ -1,4 +1,6 @@
 instructions.install = \
+	removeProgramArg(programArg:-showSplash); \
+	removeProgramArg(programArg:splash.bmp); \
 	removeProgramArg(programArg:-console); \
 	addProgramArg(programArg:-console); \
 	addProgramArg(programArg:60053); \
