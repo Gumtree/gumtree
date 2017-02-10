@@ -6,6 +6,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 import au.gov.ansto.bragg.nbi.server.catalog.CatalogCollectingService;
+import au.gov.ansto.bragg.nbi.server.notebook.ProposalSyncService;
 
 public class Activator implements BundleActivator {
 
@@ -14,6 +15,8 @@ public class Activator implements BundleActivator {
 	private static Activator instance;
 
 	private static CatalogCollectingService catalogCollectingService;
+	
+	private static ProposalSyncService proposalSyncService;
 	
 	private IEclipseContext eclipseContext;
 	
@@ -51,6 +54,7 @@ public class Activator implements BundleActivator {
 				} catch (InterruptedException e) {
 				}
 				catalogCollectingService = new CatalogCollectingService();
+				proposalSyncService = new ProposalSyncService();
 			}
 		});
 		thread.start();

@@ -321,12 +321,12 @@ th {
 
 .a_sidebar_handle {
 	background-color: #999;
-	color: white;
+	color: #ddd;
 }
 .div_handle_highlight {
 	background-color: #ddd;
 	color: #000;
-	text-shadow: 1px 1px #444;
+	text-shadow: 1px 1px #888;
 }
 
 #id_canvas_inner {

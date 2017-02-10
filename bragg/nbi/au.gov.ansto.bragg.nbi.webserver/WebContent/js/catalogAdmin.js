@@ -1,6 +1,7 @@
 var LAST_MODIFIED_PROPOSALS;
 var SORTED_PROPOSALS;
 var HIGHLIGHTED_PROPOSAL_CLASS = "class_proposal_highlighted";
+var URL_PAGE_NAME = "catalogAdmin.html";
 
 function startCheckNewFile() {
 }
@@ -12,7 +13,6 @@ function loadProposal(pid) {
 		if (status == "success") {
 			var re = data["status"];
 			if (re == "OK") {
-				console.log(data["body"]);
 	        	$("#id_table_catalog > thead").html(makeTableHeader(COLUMN_NAMES));
 	        	$("#id_table_catalog > tbody").empty();
 	        	$("#id_table_catalog > tbody").html(makeTableBody(COLUMN_NAMES, data["body"]));
@@ -53,6 +53,9 @@ function loadProposal(pid) {
 			}
 		}
 	}).fail(function(e) {
+		if (e.status == 401) {
+			alert("Your session has timed out. Please sign in again.");
+		}
 	}).always(function() {
 	});
 

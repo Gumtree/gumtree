@@ -128,7 +128,7 @@
                 'margin-top': '1px',
                 'border': '1px solid #000',
                 'font-family': '"Palatino Linotype", "Book Antiqua", Palatino, serif',
-                'font-size': '20px',
+                'font-size': '18px',
                 'vertical-align': 'middle',
                 'font-weight': 'bold',
             	'font-variant': 'small-caps',

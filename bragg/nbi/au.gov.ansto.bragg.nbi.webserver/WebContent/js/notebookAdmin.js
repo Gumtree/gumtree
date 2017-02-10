@@ -293,7 +293,7 @@ $(function() {
     	tabBlockClass: '.div_sidebar_block',
         tabHandles: ['#a_sidebar_search', '#a_sidebar_search_db'],                     //class of the element that will become your tab
         tabBlocks: ['#div_sidebar_search', '#div_sidebar_search_db'],
-        tabHandleSize: 200,
+        tabHandleSize: 180,
         pathToTabImage: $('html').hasClass('ie9') ? ['images/Database.GIF', 'images/Database.GIF'] : null, //path to the image for the tab //Optionally can be set using css
         imageHeight: '218px',                     //height of tab image           //Optionally can be set using css
         imageWidth: '33px',                       //width of tab image            //Optionally can be set using css

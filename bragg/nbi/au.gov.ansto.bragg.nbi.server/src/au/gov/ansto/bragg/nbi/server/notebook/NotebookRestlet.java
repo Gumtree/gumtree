@@ -131,32 +131,36 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 			+ "$EXTENSION"
 			+ "</tbody></table></div><p/>";
 	
-	private String currentFileFolder;
+	private static String currentFileFolder;
+	private static String instrumentId;
+	private static NotebookPDFService pdfService;
+	private static String pdfFolder;
+	
 	private String currentDBFolder;
 	private String templateFilePath;
 	private String helpFilePath;
 	private SessionDB sessionDb;
 	private ControlDB controlDb;
 	private ProposalDB proposalDb;
-	private String pdfFolder;
-	private NotebookPDFService pdfService;
 	private IHttpClient externalHttpClient;
 	private IHttpClient internalHttpClient;
 	private String daeHost;
 	private String daeLogin;
 	private String daePassword;
 	private GitService gitService;
-	private String instrumentId;
 	private String[] allowedDavIps;
 	private String[] allowedIcsIps;
 	
+	static {
+		instrumentId = System.getProperty(PROP_INSTRUMENT_ID);
+		currentFileFolder = System.getProperty(PROP_NOTEBOOK_SAVEPATH);
+		pdfService = new NotebookPDFService(pdfFolder);
+	}
 	/**
 	 * @param context
 	 */
 	public NotebookRestlet(Context context) {
 		super(context);
-		instrumentId = System.getProperty(PROP_INSTRUMENT_ID);
-		currentFileFolder = System.getProperty(PROP_NOTEBOOK_SAVEPATH);
 		currentDBFolder = System.getProperty(PROP_DATABASE_SAVEPATH);
 		templateFilePath = System.getProperty(PROP_NOTEBOOK_SAVEPATH) + "/" + NOTEBOOK_TEMPLATEFILENAME;
 		helpFilePath = System.getProperty(PROP_NOTEBOOK_SAVEPATH) + "/" + NOTEBOOK_HELPFILENAME;
@@ -164,7 +168,6 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		controlDb = ControlDB.getInstance();
 		proposalDb = ProposalDB.getInstance();
 		pdfFolder = System.getProperty(PROP_PDF_FOLDER);
-		pdfService = new NotebookPDFService(pdfFolder);
 		IHttpClientFactory clienntFactory = new HttpClientFactory();
 		externalHttpClient = clienntFactory.createHttpClient(1);
 		internalHttpClient = clienntFactory.createHttpClient(1);
@@ -1238,6 +1241,109 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	    return;
 	}
 	
+	public static void switchToNewProposal(String proposalId) throws IOException, RecordsFileException {
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
+		String newName = PREFIX_NOTEBOOK_FILES + format.format(new Date());
+		File newFile = new File(currentFileFolder + "/" + newName + ".xml");
+		if (!newFile.createNewFile()) {
+			throw new IOException("failed to create new file " + newFile.getCanonicalPath());
+		}
+		try {
+			saveOldPagePdf();					
+		} catch (Exception e) {
+		}
+		PrintWriter pw = null;
+		String html = "";
+		try {
+			pw = new PrintWriter(new FileWriter(newFile));
+			if (proposalId != null) {
+				html += "<h1>" + instrumentId.substring(0, 1).toUpperCase() + instrumentId.substring(1) 
+						+ " Notebook Page: " + proposalId + "</h1><p/>";
+				int proposalInt = 0;
+				try {
+					proposalInt = Integer.valueOf(proposalId);
+				} catch (Exception e) {
+				}
+				if (proposalInt > 0) {
+					Map<ProposalItems, String> proposalInfo = ProposalDBSOAPService.getProposalInfo(proposalInt, instrumentId);
+					String space = "&nbsp;";
+					if (proposalInfo != null) {
+						String tableHtml = EXPERIMENT_TABLE_HTML.replace("$" + ProposalItems.ID.name(), proposalId);
+						String user = proposalInfo.get(ProposalItems.PRINCIPAL_SCIENTIST);
+						if (user == null) {
+							user = space;
+						}
+						tableHtml = tableHtml.replace("$" + ProposalItems.PRINCIPAL_SCIENTIST.name(), user);
+						String email = proposalInfo.get(ProposalItems.PRINCIPAL_EMAIL);
+						if (email == null) {
+							email = space;
+						}
+						tableHtml = tableHtml.replace("$" + ProposalItems.PRINCIPAL_EMAIL.name(), email);
+						String title = proposalInfo.get(ProposalItems.EXPERIMENT_TITLE);
+						if (title == null) {
+							title = space;
+						}
+						tableHtml = tableHtml.replace("$" + ProposalItems.EXPERIMENT_TITLE.name(), title);
+						String text = proposalInfo.get(ProposalItems.TEXT);
+						if (text == null) {
+							text = space;
+						}
+						tableHtml = tableHtml.replace("$" + ProposalItems.TEXT.name(), text);
+						String start = proposalInfo.get(ProposalItems.START_DATE);
+						if (start == null) {
+							start = space;
+						}
+						tableHtml = tableHtml.replace("$" + ProposalItems.START_DATE.name(), start);
+						String end = proposalInfo.get(ProposalItems.END_DATE);
+						if (end == null) {
+							end = space;
+						}
+						tableHtml = tableHtml.replace("$" + ProposalItems.END_DATE.name(), end);
+						String contact = proposalInfo.get(ProposalItems.LOCAL_CONTACT);
+						if (contact == null) {
+							contact = space;
+						}
+						tableHtml = tableHtml.replace("$" + ProposalItems.LOCAL_CONTACT.name(), contact);
+						String extension = System.getProperty(PROP_NOTEBOOK_TABLEEXTENSION);
+						if (extension == null) {
+							extension = "";
+						}
+						tableHtml = tableHtml.replace(EXPERIMENT_TABLE_HTML_EXTENSION, extension);
+						html += tableHtml;
+					}
+				}
+			} else {
+				html += "<h1>" + instrumentId.substring(0, 1).toUpperCase() + instrumentId.substring(1) + " Notebook</h1><p/>";
+			}
+			pw.write(html);
+			pw.close();					
+		} finally {
+			if (pw != null) {
+				pw.close();
+			}
+		}
+//		String oldSession = "";
+//		String oldName = "";
+//		String oldProposal = "";
+//		try {
+//			oldSession = ControlDB.getInstance().getCurrentSessionId();
+//			oldName = SessionDB.getInstance().getSessionValue(oldSession);
+//			oldProposal = ProposalDB.getInstance().findProposalId(oldSession);
+//			//					LoggingDB db = LoggingDB.getInstance(oldName);
+//			//					db.close();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+		String sessionId = SessionDB.getInstance().createNewSessionId(newName);
+		ControlDB.getInstance().updateCurrentSessionId(sessionId);
+		if (proposalId != null) {
+			try {
+				ProposalDB.getInstance().putSession(proposalId, sessionId);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	public static boolean validateService(UserSessionObject session, String[] services) 
 			throws ClassNotFoundException, JSONException, RecordsFileException, IOException {
@@ -1320,15 +1426,15 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		return false;
 	}
 
-	private void saveOldPagePdf() throws Exception {
+	private static void saveOldPagePdf() throws Exception {
 		String reportPath = System.getProperty(PROPERTY_SERVER_REPORTPATH);
 		if (reportPath == null) {
 			return;
 		}
 		try {
-			String sessionId = controlDb.getCurrentSessionId();
-			String pageId = sessionDb.getSessionValue(sessionId);
-			String proposalId = proposalDb.findProposalId(sessionId);
+			String sessionId = ControlDB.getInstance().getCurrentSessionId();
+			String pageId = SessionDB.getInstance().getSessionValue(sessionId);
+			String proposalId = ProposalDB.getInstance().findProposalId(sessionId);
 			int lengthDiff = 5 - proposalId.length();
 			for (int i = 0; i < lengthDiff; i ++) {
 				proposalId = "0" + proposalId;

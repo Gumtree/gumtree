@@ -15,7 +15,7 @@ var NAME_COLUMN_TIMESTAMP = "_update_timestamp_";
 var update_timestamp = "0";
 var search_pattern;
 var CLASS_SPAN_FOUND = "class_span_highlight";
-
+var URL_PAGE_NAME = "catalog.html";
 
 function startCheckNewFile() {
 	checkNewFileIntervalId = setInterval(function(){
@@ -714,7 +714,7 @@ jQuery(document).ready(function(){
 	        		+ "If the browser doesn't redirect automatically, please click "
 	        		+ "<a href=\"../user/signin.html\">here</a>.</div>");
 	            setTimeout(function() {
-	            	window.location = "../user/signin.html?redirect=catalog.html";
+	            	window.location = "../user/signin.html?redirect=" + URL_PAGE_NAME;
 				}, 2000);
 	        } else {
 //				$.each(data["menu"], function(link, text) {
@@ -778,7 +778,7 @@ jQuery(document).ready(function(){
 			}
 		}
 	}).fail(function(e) {
-		window.location = "../user/signin.html?redirect=catalog.html";
+		window.location = "../user/signin.html?redirect=" + URL_PAGE_NAME;
 	}).always(function() {
 	});
 	
