@@ -168,8 +168,19 @@ h6{font-size:16px;font-weight:400;margin:10px 0;font-weight:inherit;font-family:
     padding: 4px;
     box-shadow:0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19)!important;
     
-    overflow-y: scroll;
+    
 }
+
+#id_div_searchResult {
+	overflow-y: auto;
+	max-height: 450px;
+/*	border-width: thin;
+	border-radius: 2px;
+	border-style:dotted;
+	border-width: 1px; */
+}
+
+
 #id_div_clearSearch {
 	float: right;
 	display: inline;

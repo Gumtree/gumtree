@@ -38,6 +38,7 @@ function searchForPattern(pattern, force) {
 				for (var i = 0; i < arr.length; i++) {
 					$('#id_div_searchResult').append(arr[i]["found"]);
 				}
+				$('.class_div_search_file').attr("title", "Double click to open in the new tab.");
 				$('.class_div_search_file').hover(function() {
 					$(this).append('<div class="class_div_openPage"><img alt="open" src="images/new-tabx16.png"><span>OPEN in New Tab</span></div>');
 					var h = $(this).height();
@@ -47,22 +48,14 @@ function searchForPattern(pattern, force) {
 						'left': w - 140
 					});
 					$('.class_div_openPage').click(function(e) {
-						loadManual($(this).parent().attr("path"));
+						loadManual($(this).parent().attr("path") + "&highlight=" + $(this).parent().attr("pattern") + "#first_match");
 					});
 				}, function() {
 					$('div').remove('.class_div_openPage');
 				});
 				
-				$('.class_template_object').dblclick(function() {
-//					if (!editorDocumentPage.isEditing()) {
-//						editorDocumentPage.enableEditing();
-//						editorPastePlugin.insertContent('<br>' + $(this).convertTemplateToEditor() + '<br>');
-//					} else {
-//						editorPastePlugin.insertContent('<br>' + $(this).convertTemplateToEditor() + '<br>');
-//					}
-					CKEDITOR.instances.id_editable_inner.insertHtml('<p>' + $(this).convertTemplateToEditor() + '</p>');
-//					var element = CKEDITOR.dom.element.createFromHtml($(this).convertTemplateToEditor());
-//					CKEDITOR.instances.id_editable_inner.insertElement(element);
+				$('.class_div_search_file').dblclick(function() {
+					loadManual($(this).attr("path") + "&highlight=" + $(this).attr("pattern") + "#first_match");
 				});
 			} else {
 				$('#id_div_searchResult').text("Not found.");

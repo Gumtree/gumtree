@@ -33,7 +33,7 @@ public class ManualsRestlet extends AbstractUserControlRestlet implements IDispo
 
 	private static final String PROP_MANUALS_SAVEPATH = "gumtree.manuals.path";
 	private static final String PROP_MANUALS_ITEMS = "gumtree.manuals.items";
-	private static final String FILE_FREFIX = "<div class=\"class_div_search_file\" title=\"$title\" path=\"$path\">";
+	private static final String FILE_FREFIX = "<div class=\"class_div_search_file\" title=\"$title\" path=\"$path\" pattern=\"$pattern\">";
 	private static final String SPAN_SEARCH_RESULT_HEADER = "<h4>";
 	private static final String DIV_END = "</div>";
 	private static final String SPAN_END = "</h4>";
@@ -47,6 +47,7 @@ public class ManualsRestlet extends AbstractUserControlRestlet implements IDispo
 	private static final String NAME_JSON_PATH = "path";
 	private static final String NAME_JSON_FOUND = "found";
 	private static final String NAME_JSON_LENGTH = "length";
+	private static final String QUERY_HIGHLIGHT_NAME = "highlight";
 
 	private static String manualItems;
 	private static String manualFolder;
@@ -111,8 +112,19 @@ public class ManualsRestlet extends AbstractUserControlRestlet implements IDispo
 						}
 					} else if (baseFilename.toLowerCase().endsWith(".html") || baseFilename.toLowerCase().endsWith(".htm")) {
 						try {
-							byte[] bytes = Files.readAllBytes(Paths.get(targetPath));
-							response.setEntity(new String(bytes), MediaType.TEXT_HTML);
+							String highlight = queryForm.getValues(QUERY_HIGHLIGHT_NAME);
+							if (highlight != null && highlight.trim().length() > 0) {
+								String res = highlightPattern(targetPath, highlight);
+								if (res != null) {
+									response.setEntity(res, MediaType.TEXT_HTML);
+								} else {
+									response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to load file " + baseFilename);
+									return;
+								}
+							} else {
+								byte[] bytes = Files.readAllBytes(Paths.get(targetPath));
+								response.setEntity(new String(bytes), MediaType.TEXT_HTML);
+							}
 						} catch (IOException e) {
 							response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 							return;
@@ -175,7 +187,7 @@ public class ManualsRestlet extends AbstractUserControlRestlet implements IDispo
 										JSONObject item = new JSONObject();
 										item.put(NAME_JSON_TITLE, title);
 										item.put(NAME_JSON_PATH, path);
-										found = FILE_FREFIX.replace("$title", title).replace("$path", path) 
+										found = FILE_FREFIX.replace("$title", title).replace("$path", path).replace("$pattern", pattern) 
 												+ SPAN_SEARCH_RESULT_HEADER + title + SPAN_END + found + DIV_END;
 										item.put(NAME_JSON_FOUND, found);
 										jsonArray.put(item);
@@ -203,6 +215,21 @@ public class ManualsRestlet extends AbstractUserControlRestlet implements IDispo
 		}
 	}
 
+	private String highlightPattern(String path, String pattern) {
+		File targetFile = new File(path);
+		if (targetFile.exists()) {
+			HtmlSearchHelper helper = new HtmlSearchHelper(targetFile);
+			try {
+				String searchRes = helper.highlightSearch(pattern);
+				if (searchRes.length() > 0){
+					return searchRes;
+				}
+			} catch (Exception e) {
+			}
+		}
+		return null;
+	}
+	
 	private String searchForPattern(String path, String pattern) {
 		File targetFile = new File(manualFolder + "/" + path);
 		if (targetFile.exists()) {

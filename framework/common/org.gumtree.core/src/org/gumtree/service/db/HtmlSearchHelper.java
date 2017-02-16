@@ -22,7 +22,8 @@ public class HtmlSearchHelper {
 	private static final int DEFAULT_NUMBER_OF_APPERANCE = 3;
 	private static final int LENGTH_OF_BUFFER = 200;
 	
-	private static final String SPAN_FREFIX = "<span class=\"class_span_search_highlight\">";
+	private static final String SPAN_FREFIX = "<span class=\"class_span_search_highlight\" style=\"color:#ff8;background-color:black;\">";
+	private static final String BOOKMARK_HTML = "<a name=\"first_match\"/>";
 	private static final String SPAN_END = "</span>";
 	private static final String DIV_FREFIX = "<div class=\"class_div_search_line\">";
 	private static final String DIV_END = "</div>";
@@ -34,6 +35,7 @@ public class HtmlSearchHelper {
 	
 	private String headBuffer;
 	private String tailBuffer;
+	private boolean toBookmark = false;
 	
 	/**
 	 * 
@@ -67,6 +69,7 @@ public class HtmlSearchHelper {
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		String line;
 		inSearch = true;
+		toBookmark = true;;
 		try {
 			while (true) {
 				try {
@@ -91,6 +94,7 @@ public class HtmlSearchHelper {
 		String line;
 		String text = "";
 		inSearch = true;
+		toBookmark = true;
 		try {
 			while (true) {
 				try {
@@ -119,6 +123,8 @@ public class HtmlSearchHelper {
 				text += highlightPart(part, pattern);
 				inSearch = false;
 				text += highlightLine(line.substring(nextOff), pattern);
+			} else {
+				text += line;
 			}
 		} else {
 			int nextOn = line.indexOf(">");
@@ -128,6 +134,8 @@ public class HtmlSearchHelper {
 				if (nextOn < line.length()) {
 					text += highlightLine(line.substring(nextOn + 1), pattern);
 				}
+			} else {
+				text += line;
 			}
 		}
 		return text;
@@ -142,7 +150,12 @@ public class HtmlSearchHelper {
 	        StringBuffer stringBuffer = new StringBuffer();
 	        while(matcher.find()){
 	        	String found = matcher.group();
-	            matcher.appendReplacement(stringBuffer, SPAN_FREFIX + found + SPAN_END);
+	        	if (toBookmark) {
+		            matcher.appendReplacement(stringBuffer, BOOKMARK_HTML + SPAN_FREFIX + found + SPAN_END);
+		            toBookmark = false;
+	        	} else {
+		            matcher.appendReplacement(stringBuffer, SPAN_FREFIX + found + SPAN_END);
+	        	}
 	        }
             matcher.appendTail(stringBuffer);
             newPart = stringBuffer.toString();
