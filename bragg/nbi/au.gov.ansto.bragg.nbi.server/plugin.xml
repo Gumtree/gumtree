@@ -17,6 +17,12 @@
          </resource-mapping>
       </httpcontext>
       <httpcontext
+            id="manualsRestlet">
+         <resource-mapping
+               path="/status/manuals">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
             id="jythonRestlet">
          <resource-mapping
                path="/user/jython/rest">
@@ -111,6 +117,15 @@
          <init-param
                name="org.restlet.application"
                value="au.gov.ansto.bragg.nbi.server.restlet.NSRestletApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/status/manuals"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="manualsRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.restlet.ManualsApplication">
          </init-param>
       </servlet>
       <servlet

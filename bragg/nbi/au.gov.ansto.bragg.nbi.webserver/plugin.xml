@@ -163,6 +163,18 @@
             alias="/doc/icons"
             base-name="/WebContent/icons">
       </resource>
+      <resource
+            alias="/doc/templates"
+            base-name="/WebContent/templates">
+      </resource>
+      <resource
+            alias="/status/templates"
+            base-name="/WebContent/templates">
+      </resource>
+      <resource
+            alias="/user/templates"
+            base-name="/WebContent/templates">
+      </resource>
       <!-- resource
             alias="/status/mobile.css"
             base-name="/WebContent/mobile.css">
