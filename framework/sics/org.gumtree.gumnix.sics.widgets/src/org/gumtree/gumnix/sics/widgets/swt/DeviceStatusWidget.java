@@ -620,7 +620,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 					}
 					label.setText(text);
 					// TODO: does it have any performance hit?
-					label.getParent().layout(true, true);
+//					label.getParent().layout(true, true);
 				}
 			}
 		});

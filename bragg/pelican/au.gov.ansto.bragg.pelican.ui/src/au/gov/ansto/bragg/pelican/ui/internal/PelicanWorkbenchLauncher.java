@@ -217,7 +217,7 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_STATUS, 1, 1, mmManager.isMultiMonitorSystem());
+//			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_STATUS, 1, 1, mmManager.isMultiMonitorSystem());
 //			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
 //			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 //			for (IPerspectiveDescriptor perspective: page.getOpenPerspectives()) {
