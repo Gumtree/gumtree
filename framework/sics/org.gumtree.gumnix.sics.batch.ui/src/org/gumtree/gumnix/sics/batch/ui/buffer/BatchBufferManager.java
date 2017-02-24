@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -40,6 +41,8 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	private static final String TCL_SCRIPT_COPY_FOLDER_PROPERTY = "gumtree.sics.tclScriptCopyFolder";
 	
 	private static final String TCL_ESCAPE_CURLY_BRACKETS_PROPERTY = "gumtree.sics.escapeCurlyBrackets";
+	
+	private static final String TCL_BATCH_FOLDER_PROPERTY = "gumtree.sics.tclBatchFolder";
 	
 	// Schedule to check queue every 500ms
 	private static final int SCHEDULING_INTERVAL = 500;
@@ -79,9 +82,12 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	
 	private boolean escapeBrackets = false;
 	
+	private String batchFolderPath;
+	
 	public BatchBufferManager() {
 		super();
 		batchBufferQueue = new BatchBufferQueue(this, "batchBufferQueue");
+		batchFolderPath = System.getProperty(TCL_BATCH_FOLDER_PROPERTY);
 		ContextInjectionFactory.inject(batchBufferQueue, Activator.getDefault()
 				.getEclipseContext());
 		setStatus(BatchBufferManagerStatus.DISCONNECTED);
@@ -142,7 +148,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 							IBatchBuffer buffer = (IBatchBuffer) getBatchBufferQueue().remove(0);
 							execute(buffer);
 						} catch (Exception e) {
-							handleExecutionEvent("failed to execute buffer");
+							handleExecutionEvent("failed to execute buffer: " + e.getMessage());
 						}
 					} else {
 						asyncSend("hset /experiment/gumtree_time_estimate 0", null);
@@ -288,30 +294,65 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	
 	/***************************************************************
 	 * Operations
+	 * @throws IOException 
 	 ***************************************************************/
-	private void execute(IBatchBuffer buffer) {
+	private void execute(IBatchBuffer buffer) throws IOException {
 		synchronized (executionLock) {
 			// Go to preparing mode
-			setStatus(BatchBufferManagerStatus.PREPARING);
-			// Ready to upload
-			asyncSend("exe clear", null, ISicsProxy.CHANNEL_RAW_BATCH);
-			asyncSend("exe clearupload", null, ISicsProxy.CHANNEL_RAW_BATCH);
-			asyncSend("exe upload", null, ISicsProxy.CHANNEL_RAW_BATCH);
-			// Upload
+//			setStatus(BatchBufferManagerStatus.PREPARING);
+			
+//	Modified by nxi. Change the uploading strategy. Save the script in the mounted folder instead.			
+//			// Ready to upload
+//			asyncSend("exe clear", null, ISicsProxy.CHANNEL_RAW_BATCH);
+//			asyncSend("exe clearupload", null, ISicsProxy.CHANNEL_RAW_BATCH);
+//			asyncSend("exe upload", null, ISicsProxy.CHANNEL_RAW_BATCH);
+//			// Upload
+//			BufferedReader reader = new BufferedReader(new StringReader(buffer.getContent()));
+//			String line = null;
+//			try {
+//				while((line = reader.readLine()) != null) {
+//					if (escapeBrackets) {
+//						line = line.replace("{", "\\{").replace("}", "\\}").replace("\"", "\\\"");
+//					}
+//					asyncSend("exe append " + line, null, ISicsProxy.CHANNEL_RAW_BATCH);
+//				}
+//			} catch (Exception e) {
+//				handleExecutionEvent("failed to append line: " + line);
+//			}
+//			// Save
+//			asyncSend("exe forcesave " + buffer.getName(), null, ISicsProxy.CHANNEL_RAW_BATCH);
+			
+			File folderFolder = new File(batchFolderPath);
+			if (folderFolder.exists() && !folderFolder.isDirectory()) {
+				throw new IOException("batch folder doesn't exist.");
+			} 
+			if (!folderFolder.exists()) {
+				if (!folderFolder.mkdirs()) {
+					throw new IOException("failed to create batch folder.");
+				}
+			}
+			String newTCLFilePath = batchFolderPath + "/" + buffer.getName();
 			BufferedReader reader = new BufferedReader(new StringReader(buffer.getContent()));
+
+			BufferedWriter batchWriter = new BufferedWriter(new FileWriter(newTCLFilePath, false));
+			
 			String line = null;
 			try {
 				while((line = reader.readLine()) != null) {
-					if (escapeBrackets) {
-						line = line.replace("{", "\\{").replace("}", "\\}").replace("\"", "\\\"");
-					}
-					asyncSend("exe append " + line, null, ISicsProxy.CHANNEL_RAW_BATCH);
+//					if (escapeBrackets) {
+//						line = line.replace("{", "\\{").replace("}", "\\}").replace("\"", "\\\"");
+//					}
+//					asyncSend("exe append " + line, null, ISicsProxy.CHANNEL_RAW_BATCH);
+					batchWriter.write(line + "\n");
 				}
 			} catch (Exception e) {
 				handleExecutionEvent("failed to append line: " + line);
+			} finally {
+				batchWriter.flush();
+				batchWriter.close();
+				reader.close();
 			}
-			// Save
-			asyncSend("exe forcesave " + buffer.getName(), null, ISicsProxy.CHANNEL_RAW_BATCH);
+			
 			// Enqueue (due to the delay in general channel, wait until it is ready)
 			final boolean[] enqueued = new boolean[] { false };
 			asyncSend("exe enqueue " + buffer.getName(), new SicsCallbackAdapter() {

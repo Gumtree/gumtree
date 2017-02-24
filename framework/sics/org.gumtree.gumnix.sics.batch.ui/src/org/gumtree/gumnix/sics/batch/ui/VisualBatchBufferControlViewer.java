@@ -80,14 +80,20 @@ public class VisualBatchBufferControlViewer extends AbstractWorkflowViewerCompon
 	public static final String EXPERIMENT_PROJECT = "Experiment";
 	public static final String GUMTREE_FOLDER = "GumtreeOnly";
 	public static final String AUTOSAVE_FOLDER = "AutoSaves";
+	private static final String PROP_SICS_UNIQUE_BATCH_NAME = "gumtree.sics.uniqueBatchName";
 
 	private Label estimationText;
 	protected static String fileDialogPath;
 	private IEventHandler<WorkflowEvent> workfloEventHandler;
 	private IEventHandler<TaskEvent> taskEventHandler;
+	private boolean uniqueBatchName = true;
 
 	public VisualBatchBufferControlViewer(Composite parent, int style) {
 		super(parent, style);
+		try {
+			uniqueBatchName = Boolean.valueOf(System.getProperty(PROP_SICS_UNIQUE_BATCH_NAME));
+		} catch (Exception e) {
+		}
 	}
 
 	protected void componentDispose() {
@@ -149,7 +155,7 @@ public class VisualBatchBufferControlViewer extends AbstractWorkflowViewerCompon
 				// Ask for buffer name input
 				InputDialog dialog = new InputDialog(getShell(),
 						"New Batch Buffer", "Enter new batch buffer name:",
-						"Batch" + String.valueOf(System.currentTimeMillis()).substring(6), new IInputValidator() {
+						"Batch" + (uniqueBatchName ? String.valueOf(System.currentTimeMillis()).substring(6) : ""), new IInputValidator() {
 							public String isValid(String newText) {
 								if (newText == null || newText.length() == 0) {
 									return "Buffer name is empty";
