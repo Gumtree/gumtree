@@ -823,6 +823,7 @@ public class ScriptControlViewer extends Composite {
 			runButton.setEnabled(true);
 		}
 		setScriptFilename(filePath);
+		dynamicComposite.setData(filePath);
 		scriptModel = new ScriptModel(scriptRegisterID);
 		scriptModel.addChangeListener(new ScriptModel.IModelChangeListener() {
 			
@@ -832,6 +833,7 @@ public class ScriptControlViewer extends Composite {
 					
 					@Override
 					public void run() {
+						System.err.println("model " + scriptRegisterID + ": " + getScriptFilename() + ", " + dynamicComposite.getData());
 						updateControlUI();
 					}
 				});

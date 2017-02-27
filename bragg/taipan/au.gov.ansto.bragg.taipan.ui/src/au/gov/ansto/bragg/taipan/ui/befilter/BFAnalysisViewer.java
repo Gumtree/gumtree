@@ -7,6 +7,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.gumtree.data.ui.viewers.PlotViewer;
 import org.gumtree.scripting.ScriptExecutor;
 import org.gumtree.ui.scripting.viewer.CommandLineViewer;
@@ -20,7 +21,7 @@ import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptInfoViewer;
 public class BFAnalysisViewer extends Composite {
 
 	private final static String PROPERTY_SHOW_CONSOLE = "gumtree.scripting.showConsole";
-	private final static String PROPERTY_SCRIPT_BFINITIALISE = "gumtree.scripting.BFInitialiseScript";
+	private final static String PROPERTY_SCRIPT_BFINITIALISE = "gumtree.scripting.BFAnalysisScript";
 	private ScriptControlViewer controlViewer;
 	private CommandLineViewer consoleViewer;
 	private ScriptDataSourceViewer dataSourceViewer;
@@ -83,7 +84,6 @@ public class BFAnalysisViewer extends Composite {
 		try {
 			controlViewer.initScriptControl(ScriptControlViewer.getFullScriptPath(System.getProperty(PROPERTY_SCRIPT_BFINITIALISE)));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

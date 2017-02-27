@@ -22,7 +22,7 @@ import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptInfoViewer;
 public class BFLiveViewer extends Composite {
 
 	private ScriptExecutor Jython_Executor;
-	private static final String BF_LIVESCRIPT_NAME = "gumtree.scripting.BFLiveScript";
+	private static final String BF_LIVESCRIPT_NAME = "gumtree.scripting.BFInitialiseScript";
 	private static final String BF_REDUCTIONSCRIPT_NAME = "gumtree.scripting.reductionScript";
 	
 	private ScriptControlViewer controlViewer;
@@ -73,12 +73,31 @@ public class BFLiveViewer extends Composite {
 		register.registerObject("Plot3", plot3Viewer);
 		controlViewer.runNativeInitScript();
 //		controlViewer.loadScript(ScriptControlViewer.getFullScriptPath(System.getProperty(BF_LIVESCRIPT_NAME)));
-		try {
-			controlViewer.initScriptControl(ScriptControlViewer.getFullScriptPath(System.getProperty(BF_LIVESCRIPT_NAME)));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Thread delayedThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+				}
+				Display.getDefault().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							controlViewer.initScriptControl(ScriptControlViewer.getFullScriptPath(System.getProperty(BF_LIVESCRIPT_NAME)));
+						} catch (FileNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
+			}
+		});
+		delayedThread.start();
+
 	}
 
 	private void createControlArea(SashForm parent) {
