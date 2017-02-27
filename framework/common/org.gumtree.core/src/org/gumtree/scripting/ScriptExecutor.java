@@ -252,7 +252,6 @@ public class ScriptExecutor implements IScriptExecutor {
 						// The actual behaviour of this slience mode is dependent on the implementation of the scripting engine.
 //						engine.getContext().getBindings(ScriptContext.ENGINE_SCOPE).put(VAR_SILENCE_MODE, false);
 //						setBusy(true);
-						System.err.println(script);
 						engine.eval(script);
 					} catch (Exception e) {
 						try {
