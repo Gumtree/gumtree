@@ -114,28 +114,63 @@ public class HtmlSearchHelper {
 		return text;
 	}
 	
+//	private String highlightLine(String line, String pattern) {
+//		String text = "";
+//		if (inSearch) {
+//			int nextOff = line.indexOf("<");
+//			if (nextOff >= 0) {
+//				String part = line.substring(0, nextOff);
+//				text += highlightPart(part, pattern);
+//				inSearch = false;
+//				text += highlightLine(line.substring(nextOff), pattern);
+//			} else {
+//				text += line;
+//			}
+//		} else {
+//			int nextOn = line.indexOf(">");
+//			if (nextOn >= 0) {
+//				inSearch = true;
+//				text += line.substring(0, nextOn + 1);
+//				if (nextOn < line.length()) {
+//					text += highlightLine(line.substring(nextOn + 1), pattern);
+//				}
+//			} else {
+//				text += line;
+//			}
+//		}
+//		return text;
+//	}
+	
 	private String highlightLine(String line, String pattern) {
 		String text = "";
-		if (inSearch) {
-			int nextOff = line.indexOf("<");
-			if (nextOff >= 0) {
-				String part = line.substring(0, nextOff);
-				text += highlightPart(part, pattern);
-				inSearch = false;
-				text += highlightLine(line.substring(nextOff), pattern);
-			} else {
-				text += line;
-			}
-		} else {
-			int nextOn = line.indexOf(">");
-			if (nextOn >= 0) {
-				inSearch = true;
-				text += line.substring(0, nextOn + 1);
-				if (nextOn < line.length()) {
-					text += highlightLine(line.substring(nextOn + 1), pattern);
+		while (line.length() > 0) {
+			if (inSearch) {
+				int nextOff = line.indexOf("<");
+				if (nextOff >= 0) {
+					String part = line.substring(0, nextOff);
+					text += highlightPart(part, pattern);
+					inSearch = false;
+//					text += highlightLine(line.substring(nextOff), pattern);
+					line = line.substring(nextOff);
+				} else {
+					text += highlightPart(line, pattern);
+					break;
 				}
 			} else {
-				text += line;
+				int nextOn = line.indexOf(">");
+				if (nextOn >= 0) {
+					inSearch = true;
+					text += line.substring(0, nextOn + 1);
+					if (nextOn < line.length()) {
+//						text += highlightLine(line.substring(nextOn + 1), pattern);
+						line = line.substring(nextOn + 1);
+					} else {
+						break;
+					}
+				} else {
+					text += line;
+					break;
+				}
 			}
 		}
 		return text;
@@ -174,29 +209,60 @@ public class HtmlSearchHelper {
 		return "";
 	}
 
-	private void searchLine(String line, String pattern) {
-//		if (numberOfFound >= DEFAULT_NUMBER_OF_APPERANCE) {
-//			return;
+//	private void searchLine(String line, String pattern) {
+////		if (numberOfFound >= DEFAULT_NUMBER_OF_APPERANCE) {
+////			return;
+////		}
+//		if (inSearch) {
+//			int nextOff = line.indexOf("<");
+//			if (nextOff >= 0) {
+//				String part = line.substring(0, nextOff);
+//				searchPart(part, pattern);
+//				inSearch = false;
+//				searchLine(line.substring(nextOff), pattern);
+//			} else {
+//				searchPart(line, pattern);
+//			}
+//		} else {
+//			int nextOn = line.indexOf(">");
+//			if (nextOn >= 0) {
+//				inSearch = true;
+//				if (nextOn < line.length()) {
+//					searchLine(line.substring(nextOn + 1), pattern);
+//				}
+//			}
 //		}
-		if (inSearch) {
-			int nextOff = line.indexOf("<");
-			if (nextOff >= 0) {
-				String part = line.substring(0, nextOff);
-				searchPart(part, pattern);
-				inSearch = false;
-				searchLine(line.substring(nextOff), pattern);
-			}
-		} else {
-			int nextOn = line.indexOf(">");
-			if (nextOn >= 0) {
-				inSearch = true;
-				if (nextOn < line.length()) {
-					searchLine(line.substring(nextOn + 1), pattern);
+//	}
+
+	private void searchLine(String line, String pattern) {
+			while(line.length() > 0) {
+				if (inSearch) {
+					int nextOff = line.indexOf("<");
+					if (nextOff >= 0) {
+						String part = line.substring(0, nextOff);
+						searchPart(part, pattern);
+						inSearch = false;
+						line = line.substring(nextOff);
+					} else {
+						searchPart(line, pattern);
+						break;
+					}
+				} else {
+					int nextOn = line.indexOf(">");
+					if (nextOn >= 0) {
+						inSearch = true;
+						if (nextOn < line.length()) {
+							line = line.substring(nextOn + 1);
+						} else {
+							break;
+						}
+					} else {
+						break;
+					}
 				}
 			}
-		}
 	}
-
+	
 	private void searchPart(String part, String pattern) {
 		pattern = pattern.replaceAll("\\s+", " ");
 		String[] patterns = pattern.split(" ");

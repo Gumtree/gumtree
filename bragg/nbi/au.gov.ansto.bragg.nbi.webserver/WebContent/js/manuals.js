@@ -17,6 +17,7 @@ function hideSearchResult() {
 
 function removeSearchResult() {
 	$('#id_div_searchResult').empty();
+	search_pattern = null;
 }
 
 function searchForPattern(pattern, force) {
@@ -38,7 +39,7 @@ function searchForPattern(pattern, force) {
 				for (var i = 0; i < arr.length; i++) {
 					$('#id_div_searchResult').append(arr[i]["found"]);
 				}
-				$('.class_div_search_file').attr("title", "Double click to open in the new tab.");
+				$('.class_div_search_file').attr("title", "Double click to open in a new tab.");
 				$('.class_div_search_file').hover(function() {
 					$(this).append('<div class="class_div_openPage"><img alt="open" src="images/new-tabx16.png"><span>OPEN in New Tab</span></div>');
 					var h = $(this).height();
@@ -92,11 +93,13 @@ $(function () {
 			if ($('#id_input_search').val() == '') {
 				removeSearchResult();
 			} else {
-				if (search_pattern != null || $('#id_input_search').val().trim().length > 2) {
+				if ($('#id_input_search').val().trim().length > 2) {
 					searchForPattern($('#id_input_search').val());
 				} else {
 					if(e.which == 13) {
 						searchForPattern($('#id_input_search').val(), true);
+					} else {
+						removeSearchResult();
 					}
 				}
 			}
