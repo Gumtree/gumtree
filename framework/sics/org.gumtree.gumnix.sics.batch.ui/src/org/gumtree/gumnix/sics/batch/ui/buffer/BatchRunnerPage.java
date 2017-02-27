@@ -109,6 +109,10 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 			public void handleEvent(final BatchBufferManagerEvent event) {
 				if (event instanceof BatchBufferManagerStatusEvent) {
 					updateStatus(((BatchBufferManagerStatusEvent) event).getStatus());
+					String message = ((BatchBufferManagerStatusEvent) event).getMessage();
+					if (message != null) {
+						updateLogText(message);
+					}
 				}
 			}
 		};
@@ -464,6 +468,10 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 				}
 				context.statusLabel.setText("\n" + status.name() + "\n");
 				if (status.equals(BatchBufferManagerStatus.DISCONNECTED)) {
+					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+					context.currentBuffer.setText("");
+					context.timerWidget.clearTimerUI();
+				} else if (status.equals(BatchBufferManagerStatus.ERROR)) {
 					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 					context.currentBuffer.setText("");
 					context.timerWidget.clearTimerUI();

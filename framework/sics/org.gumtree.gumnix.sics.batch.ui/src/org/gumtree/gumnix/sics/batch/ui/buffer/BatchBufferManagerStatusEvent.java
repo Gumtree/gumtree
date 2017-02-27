@@ -3,6 +3,7 @@ package org.gumtree.gumnix.sics.batch.ui.buffer;
 public class BatchBufferManagerStatusEvent extends BatchBufferManagerEvent {
 
 	private BatchBufferManagerStatus status;
+	private String message;
 	
 	public BatchBufferManagerStatusEvent(IBatchBufferManager manager,
 			BatchBufferManagerStatus status) {
@@ -14,4 +15,11 @@ public class BatchBufferManagerStatusEvent extends BatchBufferManagerEvent {
 		return status;
 	}
 	
+	public String getMessage() {
+		return message;
+	}
+	
+	public void setMessage(String message) {
+		this.message = message;
+	}
 }

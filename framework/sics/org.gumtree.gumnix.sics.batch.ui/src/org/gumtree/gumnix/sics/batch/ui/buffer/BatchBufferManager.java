@@ -34,6 +34,7 @@ import org.gumtree.util.LoopRunner;
 import org.gumtree.util.LoopRunnerStatus;
 import org.gumtree.util.PlatformUtils;
 import org.gumtree.util.bean.AbstractModelObject;
+import org.gumtree.util.messaging.SafeListenerRunnable;
 
 @SuppressWarnings("restriction")
 public class BatchBufferManager extends AbstractModelObject implements IBatchBufferManager {
@@ -98,7 +99,6 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			@Override
 			public void queueChanged() {
 				if (isAutoRun()){
-					System.err.println("**************************try to update time estimation");
 					updateTimeEstimation();
 				}
 			}
@@ -148,7 +148,8 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 							IBatchBuffer buffer = (IBatchBuffer) getBatchBufferQueue().remove(0);
 							execute(buffer);
 						} catch (Exception e) {
-							handleExecutionEvent("failed to execute buffer: " + e.getMessage());
+							handleException(e.getMessage());
+//							handleExecutionEvent("failed to execute buffer: " + e.getMessage());
 						}
 					} else {
 						asyncSend("hset /experiment/gumtree_time_estimate 0", null);
@@ -282,7 +283,6 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		if (!autoRun) {
 			estimatedTimeForBuffer = 0;
 			timestampOnEstimation = 0;
-			System.err.println("************************ clear time estimation");
 			asyncSend("hset /experiment/gumtree_time_estimate 0", null);
 		}
 		firePropertyChange("autoRun", oldValue, autoRun);
@@ -346,7 +346,8 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 					batchWriter.write(line + "\n");
 				}
 			} catch (Exception e) {
-				handleExecutionEvent("failed to append line: " + line);
+//				handleExecutionEvent("failed to append line: " + line);
+				handleException("failed to append line: " + line);
 			} finally {
 				batchWriter.flush();
 				batchWriter.close();
@@ -493,6 +494,13 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		PlatformUtils.getPlatformEventBus().unsubscribe(this, eventHandler);
 	}
 	
+	private void handleException(String err) {
+		
+		BatchBufferManagerStatusEvent event = new BatchBufferManagerStatusEvent(this, BatchBufferManagerStatus.ERROR);
+		event.setMessage(err);
+		PlatformUtils.getPlatformEventBus().postEvent(event);
+	}
+	
 	// Handle range message
 	private void handleExecutionEvent(String message) {
 		try {
@@ -502,13 +510,19 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			}
 			// remove ".range" to get buffername
 			String buffername = rangeInfos[0].substring(0, rangeInfos[0].length() - 6);
-			long startPosition = Long.parseLong(rangeInfos[1]);
-			long endPosition = Long.parseLong(rangeInfos[1]);
+			long startPosition = 0;
+			long endPosition = 0;
+			try {
+				startPosition = Long.parseLong(rangeInfos[1]);
+				endPosition = Long.parseLong(rangeInfos[1]);
+			} catch (Exception e) {
+			}
 			// Fire event
 			PlatformUtils.getPlatformEventBus().postEvent(
 					new BatchBufferManagerExecutionEvent(this, buffername,
 							startPosition, endPosition));
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
