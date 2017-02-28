@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>org.codehaus.gumtree</groupId>
 		<artifactId>org.gumtree.maven.tycho</artifactId>
-		<version>1.12.0-SNAPSHOT</version>
+		<version>1.13.0-SNAPSHOT</version>
 		<relativePath>../../../parent/org.gumtree.maven.tycho</relativePath>
 	</parent>
 
