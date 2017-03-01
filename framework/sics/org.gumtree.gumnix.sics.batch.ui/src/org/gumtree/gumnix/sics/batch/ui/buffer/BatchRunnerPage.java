@@ -416,6 +416,9 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					previousSelection[0] = isAutoRun;
 				}
 				getBatchBufferManager().setAutoRun(isAutoRun);
+				if (!isAutoRun) {
+					getBatchBufferManager().resetBufferManagerStatus();
+				}
 			}
 		});
 		context.autoRunButton.addPaintListener(new PaintListener() {

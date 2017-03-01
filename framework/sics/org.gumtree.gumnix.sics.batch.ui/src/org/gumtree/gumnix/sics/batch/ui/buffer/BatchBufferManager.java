@@ -34,7 +34,6 @@ import org.gumtree.util.LoopRunner;
 import org.gumtree.util.LoopRunnerStatus;
 import org.gumtree.util.PlatformUtils;
 import org.gumtree.util.bean.AbstractModelObject;
-import org.gumtree.util.messaging.SafeListenerRunnable;
 
 @SuppressWarnings("restriction")
 public class BatchBufferManager extends AbstractModelObject implements IBatchBufferManager {
@@ -45,8 +44,8 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	
 	private static final String TCL_BATCH_FOLDER_PROPERTY = "gumtree.sics.tclBatchFolder";
 	
-	// Schedule to check queue every 500ms
-	private static final int SCHEDULING_INTERVAL = 500;
+	// Schedule to check queue every 1s
+	private static final int SCHEDULING_INTERVAL = 1000;
 	
 	// The batch buffer container
 	private BatchBufferQueue batchBufferQueue;
@@ -299,7 +298,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	private void execute(IBatchBuffer buffer) throws IOException {
 		synchronized (executionLock) {
 			// Go to preparing mode
-//			setStatus(BatchBufferManagerStatus.PREPARING);
+			setStatus(BatchBufferManagerStatus.PREPARING);
 			
 //	Modified by nxi. Change the uploading strategy. Save the script in the mounted folder instead.			
 //			// Ready to upload
@@ -495,10 +494,13 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	}
 	
 	private void handleException(String err) {
-		
-		BatchBufferManagerStatusEvent event = new BatchBufferManagerStatusEvent(this, BatchBufferManagerStatus.ERROR);
-		event.setMessage(err);
-		PlatformUtils.getPlatformEventBus().postEvent(event);
+//		setStatus(BatchBufferManagerStatus.ERROR);
+		synchronized (this.status) {
+			this.status = BatchBufferManagerStatus.ERROR;
+			BatchBufferManagerStatusEvent event = new BatchBufferManagerStatusEvent(this, status);
+			event.setMessage(err);
+			PlatformUtils.getPlatformEventBus().postEvent(event);
+		}
 	}
 	
 	// Handle range message
@@ -584,4 +586,11 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		}
 	}
 
+	@Override
+	public void resetBufferManagerStatus() {
+		
+		if (getStatus() == BatchBufferManagerStatus.PREPARING || getStatus() == BatchBufferManagerStatus.ERROR){
+			setStatus(BatchBufferManagerStatus.IDLE);
+		}
+	}
 }
