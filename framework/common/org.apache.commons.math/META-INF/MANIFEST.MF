@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Apache Commons Math
 Bundle-SymbolicName: org.apache.commons.math
-Bundle-Version: 3.6.1
+Bundle-Version: 3.6.1.qualifier
 Bundle-ClassPath: commons-math3-3.6.1-tools.jar,
  commons-math3-3.6.1.jar
 Export-Package: org.apache.commons.math3,
