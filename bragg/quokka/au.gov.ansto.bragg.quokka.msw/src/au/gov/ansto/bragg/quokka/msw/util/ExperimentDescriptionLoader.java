@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
@@ -15,16 +16,21 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Shell;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class ExperimentDescriptionLoader {
 	// finals
-	private final static String SOAP_URL =
+	private static final String BUSY_ID_NAME = ExperimentDescriptionLoader.class.getSimpleName();
+	private static final AtomicInteger BUSY_ID = new AtomicInteger();
+	
+	private static final String SOAP_URL =
 			"http://neutron.ansto.gov.au/WebServices/WebServiceAppServiceSoapHttpPort?invoke=";
 	
-	private final static String SOAP_XML =
+	private static final String SOAP_XML =
 			"<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
 			"  <soap:Body xmlns:ns1=\"http://au/gov/ansto/bragg/web/model/webService/server/webservice/WebServiceAppServer.wsdl\">" +
 			"    <ns1:getBraggInfoElement/>" +
@@ -45,23 +51,45 @@ public class ExperimentDescriptionLoader {
 		listeners = new ArrayList<>();
 	}
 
+	// properties
+	public boolean isBusy() {
+		return busy.get();
+	}
+	
 	// methods
-	public void load() {
+	public void load(final Shell shell) {
 		if (!busy.compareAndSet(false, true))
 			return;
+
+		final Integer busyId = BUSY_ID.incrementAndGet();
+		shell.setData(BUSY_ID_NAME, busyId);
+		shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_APPSTARTING));
 		
 		try {
 			Thread thread = new Thread(new Runnable() {
 				@Override
 				public void run() {
-					Map<String, String> response;
+					Map<String, String> response = null;
 					try {
 						response = load(instrument);
 					}
 					finally {
-						busy.set(false);
+						busy.set(false); // allow load to run again
+						
+						final Map<String, String> tmp = response;
+						shell.getDisplay().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								if (busyId == shell.getData(BUSY_ID_NAME)) {
+									shell.setCursor(null);
+									shell.setData(BUSY_ID_NAME, null);
+								}
+								
+								if (tmp != null)
+									raiseOnLoaded(tmp);
+							}
+						});
 					}
-					raiseOnLoaded(response);
 				}
 			});
 			thread.start();

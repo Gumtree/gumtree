@@ -6,7 +6,7 @@ public interface ICommand {
 	public boolean isUndo();
 	
 	// methods
-	public ICommand execute(IModel model); // returns null if unsuccessful
+	public ICommand execute(IModel model); // returns null if unsuccessful (!!! should throw exception if unsuccessful)
 	
 	// if command is not reversible, execute should return IRREVERSIBLE
 	public final ICommand IRREVERSIBLE = new ICommand() {

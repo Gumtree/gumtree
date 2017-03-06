@@ -81,9 +81,9 @@ public class SampleList extends ElementList<Sample> {
 	public void addSample(int index) {
 		add(Sample.class, index);
 	}
-	public void replaceSamples(ExperimentDescription experimentDescription, Iterable<Map<IDependencyProperty, String>> samples, IDependencyProperty ... persistentProperties) {
+	public void replaceSamples(ExperimentDescription experimentDescription, Iterable<Map<IDependencyProperty, Object>> samples, IDependencyProperty ... persistentProperties) {
 		String sampleStage;
-		List<Map<IDependencyProperty, String>> newSamples;
+		List<Map<IDependencyProperty, Object>> newSamples;
 		
 		try (INotificationLock lock = getModelProxy().suspendNotifications()) {
 			sampleStage = experimentDescription.getSampleStage();
@@ -96,7 +96,7 @@ public class SampleList extends ElementList<Sample> {
 			Collections.sort(oldSamples, Element.INDEX_COMPARATOR);
 			
 			newSamples = new ArrayList<>();
-			for (Map<IDependencyProperty, String> newSampleInfo : samples)
+			for (Map<IDependencyProperty, Object> newSampleInfo : samples)
 				newSamples.add(newSampleInfo);
 			
 			if (!ExperimentDescription.MANUAL_POSITIONS.equals(sampleStage)) {
@@ -105,9 +105,9 @@ public class SampleList extends ElementList<Sample> {
 				
 				while ((newSamples.size() < defaultCount) && (newSamples.size() < oldSamples.size())) {
 					Sample oldSample = oldSamples.get(newSamples.size());
-					Map<IDependencyProperty, String> newSampleInfo = new HashMap<>();
+					Map<IDependencyProperty, Object> newSampleInfo = new HashMap<>();
 					for (IDependencyProperty property : persistentProperties)
-						newSampleInfo.put(property, String.valueOf(oldSample.get(property)));
+						newSampleInfo.put(property, oldSample.get(property));
 					newSamples.add(newSampleInfo);
 				}
 			}
@@ -128,7 +128,7 @@ public class SampleList extends ElementList<Sample> {
 
 		int index = 0;
 		String className = Sample.class.getSimpleName();
-		for (Map<IDependencyProperty, String> elementInfo : newSamples) {
+		for (Map<IDependencyProperty, Object> elementInfo : newSamples) {
 			String elementName = className + nextId().toString();
 			ElementPath elementPath = new ElementPath(path, elementName);
 			
@@ -138,13 +138,12 @@ public class SampleList extends ElementList<Sample> {
 					elementName,
 					index++));
 			
-			for (Map.Entry<IDependencyProperty, String> entry : elementInfo.entrySet())
+			for (Map.Entry<IDependencyProperty, Object> entry : elementInfo.entrySet())
 				commands.add(new ChangePropertyCommand(
 						id,
 						elementPath,
 						entry.getKey().getName(),
-						entry.getValue(),
-						true)); // parse
+						entry.getValue()));
 		}
 		
 		command(new BatchCommand(id, commands.toArray(new Command[commands.size()])));
@@ -168,9 +167,17 @@ public class SampleList extends ElementList<Sample> {
 
 		setSampleCount(experimentDescription, sampleStage);
 	}
+	/*
+	public void setSampleCount(ExperimentDescription experimentDescription, String sampleStage) {
+		setSampleCount(experimentDescription, sampleStage);
+	}*/
 	public void setSampleCount(ExperimentDescription experimentDescription, String sampleStage) {
 		if (!DEFAULT_SAMPLE_POSITIONS.containsKey(sampleStage))
 			return;
+		
+		List<Sample> oldSamples = new ArrayList<>();
+		fetchElements(oldSamples);
+		Collections.sort(oldSamples, Element.INDEX_COMPARATOR);
 		
 		RefId id = nextId();
 		ElementPath path = getPath();
@@ -186,29 +193,53 @@ public class SampleList extends ElementList<Sample> {
 				id,
 				path));
 
-		int index = 0;
 		String sampleClassName = Sample.class.getSimpleName();
-		for (int i = 0; i < count; i++) {
+		for (int index = 0; index < count; index++) {
 			String elementName = sampleClassName + nextId().toString();
+			ElementPath elementPath = new ElementPath(path, elementName);
 			
 			commands.add(new AddListElementCommand(
 					id,
 					path,
 					elementName,
-					index++));
-			
+					index));
+
 			commands.add(new ChangePropertyCommand(
 					id,
-					new ElementPath(path, elementName),
+					elementPath,
 					Sample.POSITION.getName(),
-					1.0 + i));
-
-			if (count != 1)
+					1.0 + index));
+			
+			if (index < oldSamples.size()) {
+				Sample oldSample = oldSamples.get(index);
 				commands.add(new ChangePropertyCommand(
 						id,
-						new ElementPath(path, elementName),
+						elementPath,
+						Sample.ENABLED.getName(),
+						oldSample.getEnabled()));
+				commands.add(new ChangePropertyCommand(
+						id,
+						elementPath,
+						Sample.NAME.getName(),
+						oldSample.getName()));
+				commands.add(new ChangePropertyCommand(
+						id,
+						elementPath,
+						Sample.DESCRIPTION.getName(),
+						oldSample.getDescription()));
+				commands.add(new ChangePropertyCommand(
+						id,
+						elementPath,
+						Sample.THICKNESS.getName(),
+						oldSample.getThickness()));
+			}
+			else if (count != 1) {
+				commands.add(new ChangePropertyCommand(
+						id,
+						elementPath,
 						Sample.ENABLED.getName(),
 						false));
+			}
 		}
 		
 		command(new BatchCommand(id, commands.toArray(new Command[commands.size()])));

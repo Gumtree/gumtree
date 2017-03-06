@@ -2,16 +2,20 @@ package au.gov.ansto.bragg.quokka.msw.converters;
 
 import org.gumtree.msw.ui.ModelValueConverterAdapter;
 
-public class PositionValueConverter extends ModelValueConverterAdapter<Double, String> {
+public class TrimmedDoubleValueConverter extends ModelValueConverterAdapter<Double, String> {
+	// finals
+	public static final TrimmedDoubleValueConverter DEFAULT = new TrimmedDoubleValueConverter();
+	
 	// construction
-	public PositionValueConverter() {
+	public TrimmedDoubleValueConverter() {
 		super(Double.class, String.class);
 	}
 	
 	// methods
 	@Override
 	public String fromModelValue(Double value) {
-		return String.format("%.0f", (double)value);
+		return ValueConverterUtil.trimScientificNotation(
+				value.toString());
 	}
 	@Override
 	public Double toModelValue(String value) {

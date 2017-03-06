@@ -2,9 +2,9 @@ package au.gov.ansto.bragg.quokka.msw.composites;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.swt.SWT;
@@ -20,30 +20,31 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.gumtree.msw.elements.IDependencyProperty;
+import org.gumtree.msw.ui.IModelBinding;
 import org.gumtree.msw.ui.ModelBinder;
 import org.gumtree.msw.ui.Resources;
 import org.gumtree.msw.ui.ktable.ButtonInfo;
 import org.gumtree.msw.ui.ktable.CheckableCellRenderer;
-import org.gumtree.msw.ui.ktable.IButtonListener;
 import org.gumtree.msw.ui.ktable.ElementTableModel;
 import org.gumtree.msw.ui.ktable.ElementTableModel.ColumnDefinition;
-import org.gumtree.msw.ui.ktable.NameCellRenderer;
-
-import au.gov.ansto.bragg.quokka.msw.ExperimentDescription;
-import au.gov.ansto.bragg.quokka.msw.ModelProvider;
-import au.gov.ansto.bragg.quokka.msw.User;
-import au.gov.ansto.bragg.quokka.msw.UserList;
-import au.gov.ansto.bragg.quokka.msw.util.CsvTableExporter;
-import au.gov.ansto.bragg.quokka.msw.util.CsvTableImporter;
-import au.gov.ansto.bragg.quokka.msw.util.ExperimentDescriptionLoader;
-import au.gov.ansto.bragg.quokka.msw.util.IExperimentDescriptionLoaderListener;
+import org.gumtree.msw.ui.ktable.IButtonListener;
 import org.gumtree.msw.ui.ktable.KTable;
 import org.gumtree.msw.ui.ktable.KTableCellEditor;
+import org.gumtree.msw.ui.ktable.NameCellRenderer;
 import org.gumtree.msw.ui.ktable.SWTX;
 import org.gumtree.msw.ui.ktable.editors.KTableCellEditorCheckbox;
 import org.gumtree.msw.ui.ktable.editors.KTableCellEditorText2;
 import org.gumtree.msw.ui.ktable.renderers.DefaultCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.TextCellRenderer;
+
+import au.gov.ansto.bragg.quokka.msw.ExperimentDescription;
+import au.gov.ansto.bragg.quokka.msw.IModelProviderListener;
+import au.gov.ansto.bragg.quokka.msw.ModelProvider;
+import au.gov.ansto.bragg.quokka.msw.User;
+import au.gov.ansto.bragg.quokka.msw.UserList;
+import au.gov.ansto.bragg.quokka.msw.util.CsvTable;
+import au.gov.ansto.bragg.quokka.msw.util.ExperimentDescriptionLoader;
+import au.gov.ansto.bragg.quokka.msw.util.IExperimentDescriptionLoaderListener;
 
 public class ExperimentComposite extends Composite {
 	// finals
@@ -54,16 +55,14 @@ public class ExperimentComposite extends Composite {
 	private static final String localSci = "localSci";
 	
 	// fields
-	private final KTable tblUsers;
-	private final Menu menu;
-	private ExperimentDescription experimentDescription;
-	private UserList userList;
-	private Text txtProposalNumber;
-	private Text txtExperimentTitle;
+	private final Text txtProposalNumber;
+	private final Text txtExperimentTitle;
+	private final ElementTableModel<UserList, User> tableModel;
 
 	// construction
-	public ExperimentComposite(Composite parent, ModelProvider provider) {
+	public ExperimentComposite(Composite parent, final ModelProvider modelProvider) {
 		super(parent, SWT.BORDER);
+		
 		GridLayout gridLayout = new GridLayout(1, false);
 		gridLayout.verticalSpacing = 0;
 		gridLayout.marginWidth = 10;
@@ -81,22 +80,17 @@ public class ExperimentComposite extends Composite {
 		experimentLoader.addListener(new IExperimentDescriptionLoaderListener() {
 			@Override
 			public void onLoaded(final Map<String, String> response) {
-				getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						if (response.containsKey(proposalCode))
-							experimentDescription.setProposalNumber(response.get(proposalCode));
-						if (response.containsKey(exptTitle))
-							experimentDescription.setExperimentTitle(response.get(exptTitle));
+				if (response.containsKey(proposalCode))
+					modelProvider.getExperimentDescription().setProposalNumber(response.get(proposalCode));
+				if (response.containsKey(exptTitle))
+					modelProvider.getExperimentDescription().setExperimentTitle(response.get(exptTitle));
 
-						List<Map<IDependencyProperty, Object>> users = new ArrayList<>();
-						addUser(response, users, principalSci);
-						addUser(response, users, otherSci);
-						addUser(response, users, localSci);
+				List<Map<IDependencyProperty, Object>> users = new ArrayList<>();
+				addUser(response, users, principalSci);
+				addUser(response, users, otherSci);
+				addUser(response, users, localSci);
 
-						userList.replaceUsers(users);
-					}
-				});
+				modelProvider.getUserList().replaceUsers(users);
 			}
 			// helper
 			private void addUser(Map<String, String> response, List<Map<IDependencyProperty, Object>> users, String type) {
@@ -104,7 +98,7 @@ public class ExperimentComposite extends Composite {
 					return;
 
 				String name = response.get(type);
-				if ((name == null) || "".equals(name))
+				if ((name == null) || name.isEmpty())
 					return;
 
 				Map<IDependencyProperty, Object> properties = new HashMap<>();
@@ -141,7 +135,7 @@ public class ExperimentComposite extends Composite {
 		btnAutofill.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				experimentLoader.load();
+				experimentLoader.load(getShell());
 			}
 		});
 		
@@ -161,12 +155,12 @@ public class ExperimentComposite extends Composite {
 		lblUsers.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 		lblUsers.setText("Users");
 
-		tblUsers = new KTable(cmpContent, SWTX.EDIT_ON_KEY | SWT.V_SCROLL | SWT.H_SCROLL);
+		KTable tblUsers = new KTable(cmpContent, SWTX.EDIT_ON_KEY | SWT.V_SCROLL | SWT.H_SCROLL);
 		tblUsers.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, true, 1, 1));
 		tblUsers.setBackground(SWTResourceManager.getColor(SWT.COLOR_LIST_BACKGROUND));
 		
 		// menu
-	    menu = new Menu(this);
+		Menu menu = new Menu(this);
 	    MenuItem menuItem;
 
 	    // add new/saved
@@ -176,21 +170,22 @@ public class ExperimentComposite extends Composite {
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				userList.addUser();
+				modelProvider.getUserList().addUser();
 			}
 		});
 
-	    menuItem = new MenuItem(menu, SWT.NONE);
-	    menuItem.setText("Add Saved...");
-	    menuItem.setImage(Resources.IMAGE_IMPORT_FILE);
-	    menuItem.setEnabled(false);
+	    // TODO user lookup
+	    //menuItem = new MenuItem(menu, SWT.NONE);
+	    //menuItem.setText("Add Saved...");
+	    //menuItem.setImage(Resources.IMAGE_IMPORT_FILE);
+	    //menuItem.setEnabled(false);
 
 	    menuItem = new MenuItem(menu, SWT.NONE);
 	    menuItem.setText("Remove All");
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				userList.clear();
+				modelProvider.getUserList().clear();
 			}
 		});
 	    
@@ -202,7 +197,7 @@ public class ExperimentComposite extends Composite {
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				userList.enableAll();
+				modelProvider.getUserList().enableAll();
 			}
 		});
 	    menuItem = new MenuItem(menu, SWT.NONE);
@@ -211,7 +206,7 @@ public class ExperimentComposite extends Composite {
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				userList.disableAll();
+				modelProvider.getUserList().disableAll();
 			}
 		});
 	    
@@ -223,16 +218,15 @@ public class ExperimentComposite extends Composite {
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				List<Map<IDependencyProperty, String>> content = CsvTableImporter.showDialog(
+				List<Map<IDependencyProperty, Object>> content = CsvTable.showImportDialog(
 						getShell(),
-						userList,
 						User.ENABLED,
 						User.NAME,
 						User.PHONE,
 						User.EMAIL);
 				
 				if (content != null)
-					userList.replaceUsers(content, true);
+					modelProvider.getUserList().replaceUsers(content);
 			}
 		});
 	    menuItem = new MenuItem(menu, SWT.NONE);
@@ -241,45 +235,62 @@ public class ExperimentComposite extends Composite {
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				CsvTableExporter.showDialog(
+				CsvTable.showExportDialog(
 						getShell(),
-						userList,
+						modelProvider.getUserList(),
 						User.ENABLED,
 						User.NAME,
 						User.PHONE,
 						User.EMAIL);
 			}
 		});
+
+	    tableModel = createTableModel(tblUsers, menu, modelProvider);
 	    
-	    initDataBindings(provider);
+	    modelProvider.addListener(new IModelProviderListener() {
+	    	// fields
+		    final List<IModelBinding> modelBindings = new ArrayList<>();
+		    final DataBindingContext bindingContext = new DataBindingContext();
+
+		    // event handling
+			@Override
+			public void onReset() {
+				// clear all previous bindings
+				for (IModelBinding binding : modelBindings)
+					binding.dispose();
+				
+				modelBindings.clear();
+				
+				initDataBindings(modelProvider, bindingContext, modelBindings);
+			}
+		});
 	}
 	
 	// methods
-	private void initDataBindings(ModelProvider provider) {
-		if (provider == null)
-			return;
-		
-		experimentDescription = provider.getExperimentDescription();
-		userList = provider.getUserList();
+	private void initDataBindings(ModelProvider modelProvider, DataBindingContext bindingContext, List<IModelBinding> modelBindings) {
+		// source
+		ExperimentDescription experimentDescription = modelProvider.getExperimentDescription();
+		UserList userList = modelProvider.getUserList();
 
 		// setup table
-		createTableModel(tblUsers, userList, menu);
-		
+		tableModel.updateSource(userList);
+
 		// data binding
-		DataBindingContext bindingContext = new DataBindingContext();
-		
-		ModelBinder.createTextBinding(
-				bindingContext,
-				txtProposalNumber,
-				experimentDescription,
-				ExperimentDescription.PROPOSAL_NUMBER);
-		ModelBinder.createTextBinding(
-				bindingContext,
-				txtExperimentTitle,
-				experimentDescription,
-				ExperimentDescription.EXPERIMENT_TITLE);
+		modelBindings.add(
+			ModelBinder.createTextBinding(
+					bindingContext,
+					txtProposalNumber,
+					experimentDescription,
+					ExperimentDescription.PROPOSAL_NUMBER));
+
+		modelBindings.add(
+			ModelBinder.createTextBinding(
+					bindingContext,
+					txtExperimentTitle,
+					experimentDescription,
+					ExperimentDescription.EXPERIMENT_TITLE));
 	}
-	private static ElementTableModel<UserList, User> createTableModel(KTable table, final UserList userList, Menu menu) {
+	private static ElementTableModel<UserList, User> createTableModel(final KTable table, Menu menu, final ModelProvider modelProvider) {
 		// cell rendering
     	DefaultCellRenderer checkableRenderer = new CheckableCellRenderer(CheckableCellRenderer.INDICATION_FOCUS | TextCellRenderer.INDICATION_COPYABLE);
     	DefaultCellRenderer nameRenderer = new NameCellRenderer(TextCellRenderer.INDICATION_FOCUS | TextCellRenderer.INDICATION_COPYABLE); 
@@ -293,7 +304,7 @@ public class ExperimentComposite extends Composite {
     	IButtonListener<User> addButtonListener = new IButtonListener<User>() {
 			@Override
 			public void onClicked(int col, int row, User user) {
-				userList.addUser(user.getIndex());
+				modelProvider.getUserList().addUser(user.getIndex());
 			}
 		};
     	IButtonListener<User> duplicateButtonListener = new IButtonListener<User>() {
@@ -312,7 +323,6 @@ public class ExperimentComposite extends Composite {
     	// construction
     	ElementTableModel<UserList, User> model = new ElementTableModel<UserList, User>(
     			table,
-    			userList,
     			menu,
 				"add, duplicate or delete user details",
 		    	Arrays.asList(
@@ -320,13 +330,14 @@ public class ExperimentComposite extends Composite {
 		    			new ButtonInfo<User>(Resources.IMAGE_COPY_SMALL_GRAY, Resources.IMAGE_COPY_SMALL, duplicateButtonListener),
 		    			new ButtonInfo<User>(Resources.IMAGE_MINUS_SMALL_GRAY, Resources.IMAGE_MINUS_SMALL, deleteButtonListener)),
 		    	Arrays.asList(
-		    			new ColumnDefinition(User.ENABLED, "", 30, checkableRenderer, checkableEditor),
-		    			new ColumnDefinition(User.NAME, "Name", 200, nameRenderer, textEditor),
-		    			new ColumnDefinition(User.PHONE, "Phone", 200, textRenderer, textEditor),
-		    			new ColumnDefinition(User.EMAIL, "Email", 200, textRenderer, textEditor)));
+		    			new ColumnDefinition("", 30, User.ENABLED, checkableRenderer, checkableEditor),
+		    			new ColumnDefinition("Name", 200, User.NAME, nameRenderer, textEditor),
+		    			new ColumnDefinition("Phone", 200, User.PHONE, textRenderer, textEditor),
+		    			new ColumnDefinition("Email", 200, User.EMAIL, textRenderer, textEditor)));
     	
     	table.setModel(model);
     	table.setNumRowsVisibleInPreferredSize(8);
+    	
     	return model;
 	}
 }

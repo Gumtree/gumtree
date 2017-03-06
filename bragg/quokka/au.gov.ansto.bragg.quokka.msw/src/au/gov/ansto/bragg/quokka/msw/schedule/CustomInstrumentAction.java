@@ -8,11 +8,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.gumtree.msw.schedule.execution.Summary;
 
+import au.gov.ansto.bragg.quokka.msw.report.LogbookReportGenerator.TableInfo;
+
 public class CustomInstrumentAction {
-	// finals
+	// samples
+	public static final String GET_SAMPLE_POSITIONS = "GetSamplePositions";
 	public static final String DRIVE_TO_LOAD_POSITION = "DriveToLoadPosition";
 	public static final String DRIVE_TO_SAMPLE_POSITION = "DriveToSamplePosition";
+	// configurations
 	public static final String TEST_DRIVE = "TestDrive";
+	// environments
+	public static final String ENVIRONMENT_SETUP = "EnvironmentSetup";
+	public static final String ENVIRONMENT_DRIVE = "EnvironmentDrive";
+	// acquisition
+	public static final String PUBLISH_FINISH_TIME = "PublishFinishTime";
+	public static final String PUBLISH_TABLES = "PublishTables";
 	
 	// fields
 	private final AtomicBoolean busy;
@@ -39,6 +49,12 @@ public class CustomInstrumentAction {
 	}
 	
 	// methods
+	public boolean requestSamplePositions() {
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("SamplePositions", null);
+		
+		return launch(GET_SAMPLE_POSITIONS, parameters);
+	}
 	public boolean driveToLoadPosition(String sampleStage) {
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("SampleStage", sampleStage);
@@ -57,6 +73,31 @@ public class CustomInstrumentAction {
 		parameters.put("Script", script);
 		
 		return launch(TEST_DRIVE, parameters);
+	}
+	public boolean environmentSetup(String script) {
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("Script", script);
+		
+		return launch(ENVIRONMENT_SETUP, parameters);
+	}
+	public boolean environmentDrive(String script, double value) {
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("Script", script);
+		parameters.put("Value", value);
+		
+		return launch(ENVIRONMENT_DRIVE, parameters);
+	}
+	public boolean publishFinishTime(long time) {
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("Time", time);
+		
+		return launch(PUBLISH_FINISH_TIME, parameters);
+	}
+	public boolean publishTables(Iterable<TableInfo> tables) {
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("Tables", tables);
+		
+		return launch(PUBLISH_TABLES, parameters);
 	}
 	// listeners
 	public synchronized void addListener(ICustomInstrumentActionListener listener) {

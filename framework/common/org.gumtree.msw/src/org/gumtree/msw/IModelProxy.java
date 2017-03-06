@@ -1,5 +1,6 @@
 package org.gumtree.msw;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.gumtree.msw.model.DataSource;
@@ -12,6 +13,7 @@ public interface IModelProxy {
 	public boolean hasControl();
 	// use IModelListener to listen for updates
 	public Object getProperty(Iterable<String> elementPath, String property);
+	public boolean validateProperty(Iterable<String> elementPath, String property, Object newValue); // information is specified in XSD
 	// can only be called if notifications are suspended to ensure that no changes are missed
 	public Iterable<String> getListElements(Iterable<String> listPath);
 	
@@ -19,6 +21,8 @@ public interface IModelProxy {
 	public void command(ICommand command);
 
 	// serialization
+	public void reset();
+	public boolean deserializeFrom(InputStream stream);
 	public boolean serializeTo(Iterable<String> elementPath, OutputStream stream);
 	
 	// listeners (are called with suspended notifications to make getProperty/getListElements safe)

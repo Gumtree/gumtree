@@ -1,5 +1,6 @@
 package org.gumtree.msw.model;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -90,7 +91,7 @@ public class Model implements IModel {
 	// content
 	@Override
 	public boolean reset() {
-		return deserializeFrom(xmlSource);
+		return load(xmlSource);
 	}
 	// properties
 	@Override
@@ -112,22 +113,27 @@ public class Model implements IModel {
 		return modelNode.getProperties();
 	}
 	@Override
-	public boolean changeProperty(Iterable<String> elementPath, String property, Object newValue, boolean parseValue) {
+	public boolean validateProperty(Iterable<String> elementPath, String property, Object newValue) {
 		// find node
 		IModelNode modelNode = root.findNode(elementPath);
 		if (modelNode == null)
 			return false; // node doesn't exist
 		
-		// return false if property doesn't exist, cannot be changed or new value coudn't be parsed 
-		if (parseValue) {
-			if (!(newValue instanceof String) || !modelNode.parseProperty(property, (String)newValue))
-				return false;
-		}
-		else {
-			if (!modelNode.changeProperty(property, newValue))
-				return false; // property doesn't exist or cannot be changed
-		}
-	
+		if (!modelNode.validateProperty(property, newValue))
+			return false; // property doesn't exist, cannot be changed or is invalid
+
+		return true;
+	}
+	@Override
+	public boolean changeProperty(Iterable<String> elementPath, String property, Object newValue) {
+		// find node
+		IModelNode modelNode = root.findNode(elementPath);
+		if (modelNode == null)
+			return false; // node doesn't exist
+		
+		if (!modelNode.changeProperty(property, newValue))
+			return false; // property doesn't exist, cannot be changed or is invalid
+
 		return true;
 	}
 	// list elements
@@ -243,38 +249,31 @@ public class Model implements IModel {
 		
 		try (Writer writer = new OutputStreamWriter(stream)) {
 			return new ModelSaver(modelNode).serializeTo(writer);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 		}
 		return false;
 	}
-	//@Override
-	//public boolean deserializeFrom(InputStream stream) {
-	//	return deserializeFrom(new DataSource(stream));
-	//}
-	public boolean deserializeFrom(DataSource xmlSource) {
-		/*
-		DataSource xmlSource = new DataSource(stream);
-		IModelNode content = ModelLoader.load(idProvider, xsdSource, xmlSource, modelNode.getNodeInfo().getName());
-		if (content == null)
-			return false;
-		
-		modelNode.assign(content);
-		return true;*/
-
+	@Override
+	public boolean deserializeFrom(InputStream stream) {
+		return load(new DataSource(stream));
+	}
+	private boolean load(DataSource xmlSource) {
 		// reload everything from files
 		IModelNode newRoot = ModelLoader.load(idProvider, xsdSource, xmlSource);
 		
 		if (newRoot == null)
 			return false;
-		
+
 		if (root != null)
 			root.dispose();
-		
+
 		root = newRoot;
+		root.addListener(nodeListener);
+		
 		for (IModelListener listener : listeners)
 			listener.onReset();
 		
-		root.addListener(nodeListener);
 		return true;
 	}
 	

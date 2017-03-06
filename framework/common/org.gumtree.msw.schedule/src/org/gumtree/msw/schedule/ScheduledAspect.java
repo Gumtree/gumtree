@@ -17,6 +17,8 @@ public class ScheduledAspect {
 	private boolean isDisposed = false;
 	private final ScheduledNode node;
 	private final Map<ScheduledNode, ScheduledAspect> links;
+	 // only applicable for last level
+	private boolean isAcquisitionAspect;
 	// listening support
 	private final List<IAspectListener> listeners = new ArrayList<>();
 	
@@ -31,20 +33,29 @@ public class ScheduledAspect {
 	private ScheduledAspect(ScheduledAspect reference) {
 		this(reference.node.clone());
 
-		// copy links
+		// this clone cannot set acquisition details, because it doesn't know its parent yet
+		
+		// clone links
 		List<ScheduledNode> referenceLeafNodes = new ArrayList<>();
 		List<ScheduledNode> newLeafNodes = new ArrayList<>();
 		collectLeafNodes(reference.node, referenceLeafNodes);
 		collectLeafNodes(node, newLeafNodes);
 
-		for (int i = 0, n = referenceLeafNodes.size(); i != n; i++)
-			links.put(
-					newLeafNodes.get(i),
-					reference.links.get(referenceLeafNodes.get(i)));
+		for (int i = 0, n = referenceLeafNodes.size(); i != n; i++) {
+			ScheduledAspect subReference = reference.links.get(referenceLeafNodes.get(i));
+			if (subReference != null) {
+				ScheduledNode leafNode = newLeafNodes.get(i);
+				ScheduledAspect subAspect = new ScheduledAspect(subReference);
+				subAspect.setParent(this);
+				
+				links.put(leafNode, subAspect);
+			}
+		}
 	}
 	private ScheduledAspect(ScheduledNode node) {
 		this.node = node;
 		this.links = new HashMap<>();
+		this.isAcquisitionAspect = false;
 		
 		node.addListener(new BranchNodeListener(this));
 	}
@@ -90,12 +101,18 @@ public class ScheduledAspect {
 		return links.get(leafNode);
 	}
 	public void setLinkAt(ScheduledNode leafNode, ScheduledAspect value) {
+		setLinkAt(leafNode, value, false);
+	}
+	public void setLinkAt(ScheduledNode leafNode, ScheduledAspect value, boolean updateAcquisitionDetailProvider) {
 		if (!links.containsKey(leafNode))
 			throw new Error("doesn't contain leaf node");
 
 		links.put(leafNode, value);
-		if (value != null)
+		if (value != null) {
 			value.setParent(this);
+			if (updateAcquisitionDetailProvider)
+				value.resetAcquisitionDetailProvider(leafNode.getAcquisitionDetailProvider());
+		}
 	}
 	public ScheduledAspect getParent() {
 		return parent;
@@ -123,6 +140,44 @@ public class ScheduledAspect {
 			throw new Error("already disposed");
 		
 		return new ScheduledAspect(this);
+	}
+	public void enableAll() {
+		if (isDisposed)
+			throw new Error("already disposed");
+		
+		node.enableAll();
+		
+		for (ScheduledAspect link : links.values())
+			if (link != null)
+				link.enableAll();
+	}
+	public void disableAll() {
+		if (isDisposed)
+			throw new Error("already disposed");
+
+		node.disableAll();
+		
+		for (ScheduledAspect link : links.values())
+			if (link != null)
+				link.disableAll();
+	}
+	// acquisition details
+	public void resetAcquisitionDetailProvider(AcquisitionDetailProvider acquisitionDetailProvider) {
+		node.resetAcquisitionDetailProvider(acquisitionDetailProvider);
+
+		for (Entry<ScheduledNode, ScheduledAspect> entry : links.entrySet()) {
+			ScheduledAspect aspect = entry.getValue();
+			if (aspect != null)
+				aspect.resetAcquisitionDetailProvider(entry.getKey().getAcquisitionDetailProvider());
+		}
+	}
+	public void updateAcquisitionState(boolean isAcquisitionAspect) {
+		if (this.isAcquisitionAspect == isAcquisitionAspect)
+			return;
+		
+		this.isAcquisitionAspect = isAcquisitionAspect;
+		for (ScheduledNode node : links.keySet())
+			node.updateAcquisitionState(isAcquisitionAspect);
 	}
 	// event handling
 	private void onAddedSubNode(ScheduledNode subNode) {
@@ -261,6 +316,8 @@ public class ScheduledAspect {
 					ignoreAddedSubNode = oldValue;
 				}
 			}
+			else if (aspect.isAcquisitionAspect)
+				subNode.updateAcquisitionState(true);
 			
 			if (!ignoreAddedSubNode)
 				aspect.onAddedSubNode(subNode);

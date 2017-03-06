@@ -5,20 +5,20 @@ import java.util.List;
 
 import org.gumtree.msw.elements.Element;
 import org.gumtree.msw.elements.IDependencyProperty;
-import org.gumtree.msw.elements.IElementPropertyListener;
+import org.gumtree.msw.elements.IElementListener;
 
 public class ProxyElement<TElement extends Element> {
 	// fields
 	private final List<IProxyElementListener<TElement>> listeners;
-	private final List<IElementPropertyListener> targetListeners;
-	private final ElementListener<TElement> proxyListener;
+	private final List<IElementListener> targetListeners;
+	private final ElementListener proxyListener;
 	private TElement target;
 	
 	// construction
 	public ProxyElement() {
 		listeners = new ArrayList<IProxyElementListener<TElement>>();
-		targetListeners = new ArrayList<IElementPropertyListener>();
-		proxyListener = new ElementListener<TElement>(targetListeners);
+		targetListeners = new ArrayList<IElementListener>();
+		proxyListener = new ElementListener();
 		target = null;
 	}
 	
@@ -34,7 +34,7 @@ public class ProxyElement<TElement extends Element> {
 			return;
 		
 		if ((this.target != null) && this.target.isValid())
-			this.target.removePropertyListener(proxyListener);
+			this.target.removeElementListener(proxyListener);
 	
 		TElement oldTarget = this.target;
 		this.target = newTarget;
@@ -43,12 +43,12 @@ public class ProxyElement<TElement extends Element> {
 			listener.onTargetChange(oldTarget, newTarget);
 		
 		if (this.target != null) {
-			this.target.addPropertyListener(proxyListener);
+			this.target.addElementListener(proxyListener);
 			
 			for (IDependencyProperty property : newTarget.getProperties()) {
 				Object oldValue = oldTarget != null ? oldTarget.get(property) : null;
 				Object newValue = newTarget.get(property);
-				for (IElementPropertyListener listener : targetListeners)
+				for (IElementListener listener : targetListeners)
 					listener.onChangedProperty(property, oldValue, newValue);
 			}
 		}
@@ -60,6 +60,12 @@ public class ProxyElement<TElement extends Element> {
 			return null;
 		
 		return target.get(property);
+	}
+	public boolean validate(IDependencyProperty property, Object newValue) {
+		if (target == null)
+			return false;
+		
+		return target.validate(property, newValue);
 	}
 	public void set(IDependencyProperty property, Object newValue) {
 		if (target == null)
@@ -80,31 +86,27 @@ public class ProxyElement<TElement extends Element> {
 	public boolean removeListener(IProxyElementListener<TElement> listener) {
 		return listeners.remove(listener);
 	}
-	public void addListener(IElementPropertyListener listener) {
+	public void addListener(IElementListener listener) {
 		if (targetListeners.contains(listener))
 			throw new Error("listener already exists");
 		
 		targetListeners.add(listener);
 	}
-	public boolean removeListener(IElementPropertyListener listener) {
+	public boolean removeListener(IElementListener listener) {
 		return targetListeners.remove(listener);
 	}
 
 	// helper
-	private static class ElementListener<TElement extends Element> implements IElementPropertyListener {
-		// fields
-		private final List<IElementPropertyListener> listeners;
-
-		// construction
-		public ElementListener(List<IElementPropertyListener> listeners) {
-			this.listeners = listeners;
-		}
-		
+	private class ElementListener implements IElementListener {
 		// methods
 		@Override
 		public void onChangedProperty(IDependencyProperty property, Object oldValue, Object newValue) {
-			for (IElementPropertyListener listener : listeners)
+			for (IElementListener listener : targetListeners)
 				listener.onChangedProperty(property, oldValue, newValue);
+		}
+		@Override
+		public void onDisposed() {
+			setTarget(null);
 		}
 	}
 }

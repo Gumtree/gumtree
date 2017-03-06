@@ -34,7 +34,7 @@ class ModelNodePropertyInfo implements IModelNodePropertyInfo {
 		Class<?> valueClass = typeDefinition.getValueClass();
 
 		if (defaultValue == null)
-			defaultValue = new Value(valueClass);
+			defaultValue = new Value(valueClass, typeDefinition.getFacets());
 		else if (defaultValue.getValueClass() != valueClass)
 			System.out.println(String.format(
 					"WARNING: inconsistent value type (type: %s, defaultValue-type: %s)",
@@ -79,21 +79,24 @@ class ModelNodePropertyInfo implements IModelNodePropertyInfo {
 		return value.get();
 	}
 	@Override
-	public boolean set(Object newValue) {
+	public boolean validate(Object newValue) {
+		if (Objects.equals(value.get(), newValue))
+			return true;
+		
 		if (constraint == ConstraintType.FIXED)
 			return false;
 		
-		if (!Objects.equals(value.get(), newValue))			
-			return value.set(newValue);
-
-		return true;
+		return value.validate(newValue);
 	}
 	@Override
-	public boolean parse(String newValue) {
+	public boolean set(Object newValue) {
+		if (Objects.equals(value.get(), newValue))
+			return true;
+		
 		if (constraint == ConstraintType.FIXED)
 			return false;
 		
-		return value.deserialize(newValue);
+		return value.set(newValue);
 	}
 	@Override
 	public ModelNodePropertyInfo clone() {

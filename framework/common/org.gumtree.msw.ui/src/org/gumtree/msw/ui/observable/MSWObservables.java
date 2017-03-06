@@ -5,7 +5,7 @@ import org.eclipse.core.databinding.observable.value.AbstractObservableValue;
 import org.gumtree.msw.elements.DependencyProperty;
 import org.gumtree.msw.elements.Element;
 import org.gumtree.msw.elements.IDependencyProperty;
-import org.gumtree.msw.elements.IElementPropertyListener;
+import org.gumtree.msw.elements.IElementListener;
 
 final public class MSWObservables {
 	// methods
@@ -19,7 +19,7 @@ final public class MSWObservables {
 	}
 	
 	// helpers
-	private static class ObservableValue<TElement extends Element> extends AbstractObservableValue implements IMSWObservableValue, IElementPropertyListener {
+	private static class ObservableValue<TElement extends Element> extends AbstractObservableValue implements IMSWObservableValue, IElementListener {
 		// fields
 		private final TElement element;
 		private final IDependencyProperty property;
@@ -29,11 +29,11 @@ final public class MSWObservables {
 			this.element = element;
 			this.property = property;
 			
-			element.addPropertyListener(this);
+			element.addElementListener(this);
 		}
 		@Override
 		public synchronized void dispose() {
-			element.removePropertyListener(this);
+			element.removeElementListener(this);
 			super.dispose();
 		}
 
@@ -49,11 +49,22 @@ final public class MSWObservables {
 		// protected
 		@Override
 		protected Object doGetValue() {
-			return element.get(property);
+			if (element.isValid())
+				return element.get(property);
+			else
+				return null;
+		}
+		@Override
+		public boolean validateValue(Object newValue) {
+			if (element.isValid())
+				return element.validate(property, newValue);
+			else
+				return false;
 		}
 		@Override
 		protected void doSetValue(Object newValue) {
-			element.set(property, newValue);
+			if (element.isValid())
+				element.set(property, newValue);
 		}
 		
 		// methods
@@ -62,8 +73,12 @@ final public class MSWObservables {
 			if (property == p)
 				fireValueChange(Diffs.createValueDiff(oldValue, newValue));
 		}
+		@Override
+		public void onDisposed() {
+			// ignore (element.isValid() is always checked when element is accessed)
+		}
 	}
-	private static class ObservableProxyValue<TElement extends Element> extends AbstractObservableValue implements IMSWObservableValue, IElementPropertyListener {
+	private static class ObservableProxyValue<TElement extends Element> extends AbstractObservableValue implements IMSWObservableValue, IElementListener {
 		// fields
 		private final ProxyElement<? extends TElement> proxyElement;
 		private final IDependencyProperty property;
@@ -96,6 +111,10 @@ final public class MSWObservables {
 			return proxyElement.get(property);
 		}
 		@Override
+		public boolean validateValue(Object newValue) {
+			return proxyElement.validate(property, newValue);
+		}
+		@Override
 		protected void doSetValue(Object newValue) {
 			proxyElement.set(property, newValue);
 		}
@@ -105,6 +124,10 @@ final public class MSWObservables {
 		public void onChangedProperty(IDependencyProperty p, Object oldValue, Object newValue) {
 			if (property == p)
 				fireValueChange(Diffs.createValueDiff(oldValue, newValue));
+		}
+		@Override
+		public void onDisposed() {
+			// ignore (proxy will take care of this)
 		}
 	}
 }

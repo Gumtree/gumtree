@@ -3,6 +3,7 @@ package org.gumtree.msw.schedule.execution;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.gumtree.msw.elements.Element;
 import org.gumtree.msw.elements.ElementPath;
 import org.gumtree.msw.elements.IDependencyProperty;
 import org.gumtree.msw.schedule.ScheduledNode;
@@ -50,8 +51,15 @@ public class ScheduleStep {
 	// helpers
 	private static Map<String, Object> createPropertyMap(ScheduledNode scheduledNode) {
 		Map<String, Object> result = new HashMap<>();
+		
+		Element element = scheduledNode.getSourceElement();
+		result.put("ElementName", element.getPath().getElementName());
+		result.put("ElementPath", element.getPath().toString());
+		result.put("ElementRoot", element.getPath().getRoot().toString());
+		
 		for (IDependencyProperty property : scheduledNode.getProperties())
 			result.put(property.getName(), scheduledNode.get(property));
+		
 		return result;
 	}
 }

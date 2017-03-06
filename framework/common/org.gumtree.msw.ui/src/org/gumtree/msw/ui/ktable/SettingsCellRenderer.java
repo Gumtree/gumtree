@@ -19,7 +19,6 @@ class SettingsCellRenderer extends ButtonRenderer {
 		super(
 				table,
 				optimalWidth,
-				null,
 				Arrays.asList(
 						new ButtonInfo<Element>(Resources.IMAGE_SETTINGS_DROPDOWN, Resources.IMAGE_SETTINGS_DROPDOWN, null)));
 

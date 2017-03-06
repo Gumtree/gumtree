@@ -9,7 +9,7 @@ public interface IModelNodePropertyInfo {
 	// methods
 	public void reset();
 	public Object get();
+	public boolean validate(Object newValue);
 	public boolean set(Object newValue);
-	public boolean parse(String newValue);
 	public IModelNodePropertyInfo clone();
 }

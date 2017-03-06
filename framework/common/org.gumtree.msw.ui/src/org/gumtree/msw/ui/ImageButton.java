@@ -42,7 +42,7 @@ public class ImageButton extends Canvas {
             	if (images[state.index] != null)
             		e.gc.drawImage(images[state.index], 0, 0);
             	
-            	if ((text != null) && !"".equals(text)) {
+            	if ((text != null) && !text.isEmpty()) {
                 	Font oldFont = e.gc.getFont();
                     e.gc.setFont(getFont());
                 	

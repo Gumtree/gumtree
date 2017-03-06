@@ -16,13 +16,13 @@ import org.gumtree.msw.elements.Element;
 import org.gumtree.msw.elements.ElementList;
 import org.gumtree.msw.elements.IDependencyProperty;
 import org.gumtree.msw.elements.IElementListListener;
-import org.gumtree.msw.elements.IElementPropertyListener;
+import org.gumtree.msw.elements.IElementListener;
 import org.gumtree.msw.elements.IElementVisitor;
 
 public class ScheduledNode {
 	// finals
-	private static final Comparator<Integer> ASCENDING_COMPARATOR;
-	private static final Comparator<Integer> DESCENDING_COMPARATOR;
+	public static final Comparator<Integer> ASCENDING_COMPARATOR;
+	public static final Comparator<Integer> DESCENDING_COMPARATOR;
 	
 	// fields
 	private boolean isDisposed = false;
@@ -33,6 +33,12 @@ public class ScheduledNode {
 	private final Map<IDependencyProperty, Object> values; // TODO values should come from model
 	private final Map<IDependencyProperty, Object> defaults;
 	private final IDependencyProperty enabledProperty;
+	// TODO only applicable for last level (e.g. min/max time and detector counts)
+	private Set<IDependencyProperty> readableProperties;
+	private Set<IDependencyProperty> modifiableProperties; // writable properties and may include acquisition details
+	private boolean ownsAcquisitionDetailProvider = false;
+	private AcquisitionDetailProvider acquisitionDetailProvider;	// only nodes that provide requested properties should own a new provider (e.g. Transmission/Scattering)
+	private Map<IDependencyProperty, Object> acquisitionValues;		// if a value is not set, get it from acquisitionDetailProvider
 	// locked
 	private boolean propertiesLocked = false;
 	private boolean orderLocked = false;
@@ -67,8 +73,14 @@ public class ScheduledNode {
 		this.owner = owner;
 		this.sourceElement = sourceElement;
 		this.properties = properties;
+		this.readableProperties = sourceElement.getProperties();
+		this.modifiableProperties = properties;
 		this.acquisitionEntries = acquisitionEntries;
 		this.enabledProperty = findEnabledProperty(sourceElement.getProperties());
+		
+		for (IDependencyProperty property : properties)
+			if (!readableProperties.contains(property))
+				throw new Error("unknown property");
 		
 		values = new HashMap<>();
 		defaults = new HashMap<>();
@@ -84,19 +96,27 @@ public class ScheduledNode {
 			listOrder = new ArrayList<>();
 			elementIndices = new HashMap<>();
 		}
-
+		
 		attachListeners();
 	}
 	private ScheduledNode(ScheduledNode owner, ScheduledNode reference) {
 		this.owner = owner;
 		sourceElement = reference.sourceElement;
 		properties = reference.properties;
+		readableProperties = reference.readableProperties;
+		modifiableProperties = reference.modifiableProperties;
 		acquisitionEntries = reference.acquisitionEntries;
 		enabledProperty = reference.enabledProperty;
 		
 		values = new HashMap<>(reference.values);
 		defaults = new HashMap<>(reference.defaults);
 		lockedValues = new HashMap<>();
+
+		// reference.isAcquisitionNode
+		if (reference.acquisitionValues != null)
+			acquisitionValues = new HashMap<>(reference.acquisitionValues); // copy all optional values
+		else
+			acquisitionValues = null;
 		
 		if (reference.subNodes == null) {
 			subNodes = null;
@@ -110,7 +130,7 @@ public class ScheduledNode {
 			subNodes = new HashMap<>(referenceSubNodes.size());
 			listOrder = new ArrayList<>(Collections.<ScheduledNode>nCopies(
 					referenceListOrder.size(), null));
-			elementIndices = new HashMap<>(referenceSubNodes.size());
+			elementIndices = new HashMap<>(reference.elementIndices);
 			
 			for (Entry<Element, Set<ScheduledNode>> entry : referenceSubNodes.entrySet()) {
 				Set<ScheduledNode> subNodeSet = new HashSet<>();
@@ -147,6 +167,11 @@ public class ScheduledNode {
 			listOrder.clear();
 			elementIndices.clear();
 		}
+
+		if (ownsAcquisitionDetailProvider) {
+			acquisitionDetailProvider.dispose();
+			ownsAcquisitionDetailProvider = false;
+		}
 		
 		isDisposed = true;
 	}
@@ -159,7 +184,10 @@ public class ScheduledNode {
 		return null;
 	}
 	private void attachListeners() {
-		sourceElement.addPropertyListener(propertyListener = new SourcePropertyListener(this));
+		if (propertyListener != null)
+			throw new Error();
+
+		sourceElement.addElementListener(propertyListener = new SourcePropertyListener(this));
 		sourceElement.accept(new IElementVisitor() {
 			@Override
 			public <TElement extends Element>
@@ -181,7 +209,7 @@ public class ScheduledNode {
 		});
 	}
 	private void detachListeners() {
-		sourceElement.removePropertyListener(propertyListener);
+		sourceElement.removeElementListener(propertyListener);
 		sourceElement.accept(new IElementVisitor() {
 			@Override
 			public <TElement extends Element>
@@ -234,10 +262,10 @@ public class ScheduledNode {
 		return sourceElement;
 	}
 	public Set<IDependencyProperty> getProperties() {
-		return sourceElement.getProperties();
+		return readableProperties;
 	}
 	public Set<IDependencyProperty> getModifiableProperties() {
-		return properties;
+		return modifiableProperties;
 	}
 	public int getIndex() {
 		return isAspectRoot() ? 0 : owner.listOrder.indexOf(this);
@@ -296,10 +324,16 @@ public class ScheduledNode {
 					lockedValues.get(property),
 					getDefault(property));
 		else
-			return values.containsKey(property);
+			return values.containsKey(property) ||
+					// isAcquisitionNode => all acquisition details can be modified
+					(acquisitionValues != null) && acquisitionValues.containsKey(property);
 	}
 	public Iterable<ScheduledNode> getNodes() {
 		return listOrder;
+	}
+	// acquisition details
+	public AcquisitionDetailProvider getAcquisitionDetailProvider() {
+		return acquisitionDetailProvider;
 	}
 	// getter/setter
 	public Object get(IDependencyProperty property) {
@@ -313,12 +347,41 @@ public class ScheduledNode {
 		if (defaults.containsKey(property))
 			return defaults.get(property);
 
+		if (acquisitionValues != null) { // isAcquisitionNode
+			if (acquisitionValues.containsKey(property))
+				return acquisitionValues.get(property);
+			
+			ScheduledNode sourceNode = acquisitionDetailProvider.getNode(property);
+			if ((sourceNode != null) && (sourceNode != this))
+				return sourceNode.get(property);
+		}
+
 		return sourceElement.get(property);
 	}
-	public boolean set(IDependencyProperty property, Object newValue) {
+	public boolean validate(IDependencyProperty property, Object newValue) {
 		if (propertiesLocked)
 			return false;
-		if (!properties.contains(property))
+		if (!modifiableProperties.contains(property))
+			return false;
+		
+		if (property == Element.INDEX)
+			return owner.validateIndex(this, newValue);
+		
+		newValue = property.getPropertyType().cast(newValue);
+		
+		if (sourceElement.getProperties().contains(property))
+			return sourceElement.validate(property, newValue);
+
+		if (acquisitionValues != null) { // isAcquisitionNode
+			ScheduledNode sourceNode = acquisitionDetailProvider.getNode(property);
+			if ((sourceNode != null) && (sourceNode != this))
+				return sourceNode.validate(property, newValue);
+		}
+		
+		return false;
+	}
+	public boolean set(IDependencyProperty property, Object newValue) {
+		if (!validate(property, newValue))
 			return false;
 		
 		if (property == Element.INDEX)
@@ -328,22 +391,36 @@ public class ScheduledNode {
 		newValue = property.getPropertyType().cast(newValue);
 		
 		boolean modified = false;
-		if (!values.containsKey(property)) {
-			oldValue = getDefault(property);
-			if (!Objects.equals(newValue, oldValue)) {
-				values.put(property, newValue);
-				modified = true;
-			}
-		}
-		else {
+		if (values.containsKey(property)){
 			oldValue = values.put(property, newValue);
 			modified = !Objects.equals(newValue, oldValue);
 		}
+		else if ((acquisitionValues != null) && acquisitionValues.containsKey(property)) {
+			oldValue = acquisitionValues.put(property, newValue);
+			modified = !Objects.equals(newValue, oldValue);
+		}
+		else {
+			oldValue = getDefault(property);
+			modified = !Objects.equals(newValue, oldValue);
+			if (modified)
+				// if this node is an acquisition node and provides an acquisition detail, then store it in values
+				if ((acquisitionValues != null) &&
+						(acquisitionDetailProvider.getProperties().contains(property)) &&
+						(acquisitionDetailProvider.getNode(property) != this))
+					acquisitionValues.put(property, newValue);
+				else
+					values.put(property, newValue);
+		}
 
 		if (modified) {
-			for (INodeListener listener : listeners)
-				listener.onChangedProperty(this, property, oldValue, newValue);
-
+			// check if property has been "unmodified"
+			if (Objects.equals(newValue, getDefault(property))) {
+				values.remove(property);
+				if (acquisitionValues != null)
+					acquisitionValues.remove(property);
+			}
+			
+			raiseOnChangedProperty(this, property, oldValue, newValue);
 			return true;
 		}
 		else
@@ -353,9 +430,16 @@ public class ScheduledNode {
 		if (defaults.containsKey(property))
 			return defaults.get(property);
 		
+		if (acquisitionValues != null) { // isAcquisitionNode
+			ScheduledNode sourceNode = acquisitionDetailProvider.getNode(property);
+			if ((sourceNode != null) && (sourceNode != this))
+				return sourceNode.get(property);
+		}
+		
 		return sourceElement.get(property);
 	}
 	public boolean setDefault(IDependencyProperty property, Object newDefault) {
+		// defaults for acquisition details cannot be set, that's why properties is used and not modifiableProperties
 		if (!properties.contains(property))
 			return false;
 		if (property == Element.INDEX)
@@ -368,8 +452,7 @@ public class ScheduledNode {
 		Object newValue = get(property);
 		
 		if (!Objects.equals(oldValue, newValue))
-			for (INodeListener listener : listeners)
-				listener.onChangedProperty(this, property, oldValue, newValue);
+			raiseOnChangedProperty(this, property, oldValue, newValue);
 
 		return true;
 	}
@@ -382,8 +465,7 @@ public class ScheduledNode {
 		Object newValue = get(property);
 		
 		if (!Objects.equals(oldValue, newValue))
-			for (INodeListener listener : listeners)
-				listener.onChangedProperty(this, property, oldValue, newValue);
+			raiseOnChangedProperty(this, property, oldValue, newValue);
 		
 		return true;
 	}
@@ -394,7 +476,18 @@ public class ScheduledNode {
 			return;
 		
 		propertiesLocked = true;
+		
+		lockedValues.clear();
 		lockedValues.putAll(values);
+		if (acquisitionValues != null) {
+			lockedValues.putAll(acquisitionValues);
+			for (IDependencyProperty property : acquisitionDetailProvider.getProperties())
+				if (!lockedValues.containsKey(property)) {
+					ScheduledNode node = acquisitionDetailProvider.getNode(property);
+					if ((node != null) && (node != this))
+						lockedValues.put(property, node.get(property));
+				}
+		}
 		
 		for (IDependencyProperty property : sourceElement.getProperties())
 			if ((property != Element.INDEX) && !lockedValues.containsKey(property))
@@ -423,9 +516,8 @@ public class ScheduledNode {
 		orderLocked = false;
 		
 		try {
-			for (IDependencyProperty property : lockedValues.keySet()) 
-				for (INodeListener listener : listeners)
-					listener.onChangedProperty(this, property, lockedValues.get(property), get(property));
+			for (IDependencyProperty property : lockedValues.keySet())
+				raiseOnChangedProperty(this, property, lockedValues.get(property), get(property));
 		}
 		finally {
 			lockedValues.clear();
@@ -470,8 +562,15 @@ public class ScheduledNode {
 			values.clear();
 			
 			for (IDependencyProperty property : oldValues.keySet())
-				for (INodeListener listener : listeners)
-					listener.onChangedProperty(this, property, oldValues.get(property), getDefault(property));
+				raiseOnChangedProperty(this, property, oldValues.get(property), getDefault(property));
+		}
+		
+		if ((acquisitionValues != null) && !acquisitionValues.isEmpty()) {
+			Map<IDependencyProperty, Object> oldValues = new HashMap<>(acquisitionValues);
+			acquisitionValues.clear();
+
+			for (IDependencyProperty property : oldValues.keySet())
+				raiseOnChangedProperty(this, property, oldValues.get(property), acquisitionDetailProvider.get(property));
 		}
 		
 		// a branch-node needs to reset all child-nodes
@@ -495,7 +594,7 @@ public class ScheduledNode {
 				// rebuild list order
 				for (Element element : elements) {
 					// each Element needs to link to one ScheduledNode
-					ScheduledNode subNode = createNode(element);
+					ScheduledNode subNode = createSubNode(element);
 					
 					subNodes.get(element).add(subNode);
 					listOrder.add(subNode);
@@ -507,7 +606,112 @@ public class ScheduledNode {
 		
 		return true;
 	}
+	public void enableAll() {
+		setEnabled(true);
+		
+		if (!isAspectLeaf())
+			for (Set<ScheduledNode> subSet : subNodes.values())
+				for (ScheduledNode subNode : subSet)
+					subNode.enableAll();
+	}
+	public void disableAll() {
+		setEnabled(false);
+
+		if (!isAspectLeaf())
+			for (Set<ScheduledNode> subSet : subNodes.values())
+				for (ScheduledNode subNode : subSet)
+					subNode.disableAll();
+	}
+	// acquisition details
+	public void resetAcquisitionDetailProvider(AcquisitionDetailProvider provider) {
+		if (provider == null) {
+			throw new Error(); // TODO just for testing
+		}
+		
+		boolean oldOwnsAcquisitionDetailProvider = ownsAcquisitionDetailProvider;
+		AcquisitionDetailProvider oldAcquisitionDetailProvider = acquisitionDetailProvider;
+		
+		if (provider.containsAny(sourceElement.getProperties())) {
+			// this node can change acquisition details for sub-nodes (e.g. a transmission-node can change TargetMonitorCounts for all containing leaf nodes)
+			acquisitionDetailProvider = new AcquisitionDetailProvider(provider, this);
+			ownsAcquisitionDetailProvider = true;
+		}
+		else {
+			acquisitionDetailProvider = provider;
+			ownsAcquisitionDetailProvider = false;
+		}
+
+		if (!isAspectLeaf())
+			for (Set<ScheduledNode> subSet : subNodes.values())
+				for (ScheduledNode subNode : subSet)
+					subNode.resetAcquisitionDetailProvider(acquisitionDetailProvider);
+		
+		if (oldOwnsAcquisitionDetailProvider)
+			oldAcquisitionDetailProvider.dispose();
+	}
+	public void updateAcquisitionState(boolean isAcquisitionNode) {
+		if (acquisitionDetailProvider == null) {
+			throw new Error(); // TODO just for testing
+		}
+		
+		if (isAcquisitionNode == (acquisitionValues != null))
+			return; // nothing changes
+		
+		if (isAcquisitionNode) {
+			acquisitionValues = new HashMap<>();
+			readableProperties = new HashSet<>(sourceElement.getProperties());
+			readableProperties.addAll(acquisitionDetailProvider.getProperties());
+			modifiableProperties = new HashSet<>(properties);
+			modifiableProperties.addAll(acquisitionDetailProvider.getProperties());
+
+			for (IDependencyProperty property : acquisitionDetailProvider.getProperties())
+				if (!properties.contains(property))
+					raiseOnChangedProperty(this, property, null, acquisitionDetailProvider.get(property));
+		}
+		else {
+			Map<IDependencyProperty, Object> acquisitionValues = this.acquisitionValues;
+			
+			this.acquisitionValues = null;
+			this.readableProperties = sourceElement.getProperties();
+			this.modifiableProperties = properties;
+			
+			for (IDependencyProperty property : acquisitionDetailProvider.getProperties())
+				if (!properties.contains(property))
+					if (acquisitionValues.containsKey(property))
+						raiseOnChangedProperty(this, property, acquisitionValues.get(property), null);
+					else
+						raiseOnChangedProperty(this, property, acquisitionDetailProvider.get(property), null);
+		}
+	}
 	// order
+	public boolean sort(final Comparator<Integer> comparator) {
+		if (orderLocked || propertiesLocked)
+			return false;
+
+		// backup old indices (only used for onChangedProperty)
+		Map<ScheduledNode, Integer> oldIndices = backupIndices();
+		
+		// sort
+		Collections.sort(listOrder, new Comparator<ScheduledNode>() {
+			@Override
+			public int compare(ScheduledNode x, ScheduledNode y) {
+				return comparator.compare(
+						elementIndices.get(x.getSourceElement()),
+						elementIndices.get(y.getSourceElement()));
+			}
+		});
+
+		// notify listeners
+		for (int newIndex = 0, n = listOrder.size(); newIndex < n; newIndex++) {
+			ScheduledNode changedNode = listOrder.get(newIndex);
+			int oldIndex = oldIndices.get(changedNode);
+			if (oldIndex != newIndex)
+				for (INodeListener listener : changedNode.listeners)
+					listener.onChangedProperty(changedNode, Element.INDEX, oldIndex, newIndex);
+		}
+		
+		return true;
+	}
 	private int getMinIndex() {
 		int result = 0;
 		if (propertiesLocked)
@@ -528,6 +732,25 @@ public class ScheduledNode {
 				result++;
 		
 		return -1;
+	}
+	private boolean validateIndex(ScheduledNode subNode, Object newValue) {
+		if (orderLocked)
+			return false;
+		
+		if (!(newValue instanceof Integer))
+			return false;
+		
+		int newIndex = (int)newValue;
+		if (newIndex < getMinIndex())
+			return false;
+		else if (newIndex >= getVisibleSize())
+			return false;
+
+		int oldIndex = getVisibleIndex(subNode);
+		if (oldIndex == -1)
+			return false;
+		
+		return true;
 	}
 	private boolean setIndex(ScheduledNode subNode, Object newValue) {
 		if (orderLocked)
@@ -599,6 +822,7 @@ public class ScheduledNode {
 		Set<ScheduledNode> nodeSet = subNodes.get(element);
 		
 		ScheduledNode subNode = reference.clone();
+		subNode.resetAcquisitionDetailProvider(acquisitionDetailProvider);
 		
 		int minIndex = getMinIndex();
 		if (index < minIndex)
@@ -661,7 +885,7 @@ public class ScheduledNode {
 			// e.g. SampleList has no owner, but the source element can change its index
 			// which results in reordering of aspects (which is handled in the scheduler)
 			if (!propertiesLocked && (owner != null))
-				owner.onChangedIndex(ScheduledNode.this);
+				owner.onChangedIndex(this);
 		}
 		else {
 			if (!propertiesLocked &&
@@ -705,7 +929,7 @@ public class ScheduledNode {
 		Map<Element, Integer> oldElementIndices = new HashMap<>(elementIndices);
 		rebuildElementIndices();
 		
-		// backup old node indices
+		// backup old node indices (only used for onChangedProperty)
 		Map<ScheduledNode, Integer> oldIndices = backupIndices();
 
 		// check current order
@@ -736,7 +960,7 @@ public class ScheduledNode {
 		if (orderLocked)
 			return;
 		
-		ScheduledNode subNode = createNode(element);
+		ScheduledNode subNode = createSubNode(element);
 		subNodeSet.add(subNode);
 
 		// backup old node indices
@@ -815,7 +1039,7 @@ public class ScheduledNode {
 		}
 	}
 	// helpers
-	private ScheduledNode createNode(Element element) {
+	private ScheduledNode createSubNode(Element element) {
 		// create aspect template for element
 		ScheduledNode subNode = null;
 		String elementName = element.getPath().getElementName();
@@ -826,6 +1050,10 @@ public class ScheduledNode {
 						element,
 						entry.properties,
 						entry.entries);
+
+				if (acquisitionDetailProvider != null)
+					subNode.resetAcquisitionDetailProvider(acquisitionDetailProvider);
+
 				break;
 			}
 		
@@ -883,6 +1111,17 @@ public class ScheduledNode {
 			oldIndices.put(listOrder.get(index), index);
 		return oldIndices;
 	}
+	// to string
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		if (owner != null)
+			sb.append(owner.toString()).append('/');
+		
+		sb.append(sourceElement.getClass().getSimpleName());
+
+		return sb.toString();
+	}
 	
 	// listeners
 	public void addListener(INodeListener listener) {
@@ -898,9 +1137,14 @@ public class ScheduledNode {
 	public boolean removeListener(INodeListener listener) {
 		return listeners.remove(listener);
 	}
-
+	// helpers
+	private void raiseOnChangedProperty(ScheduledNode owner, IDependencyProperty property, Object oldValue, Object newValue) {
+		for (INodeListener listener : listeners)
+			listener.onChangedProperty(owner, property, oldValue, newValue);
+	}
+	
 	// property listener
-	private static class SourcePropertyListener implements IElementPropertyListener {
+	private static class SourcePropertyListener implements IElementListener {
 		// fields
 		private final ScheduledNode node;
 		
@@ -913,6 +1157,10 @@ public class ScheduledNode {
 		@Override
 		public void onChangedProperty(IDependencyProperty property, Object oldValue, Object newValue) {
 			node.onChangedProperty(property, oldValue, newValue);
+		}
+		@Override
+		public void onDisposed() {
+			// ignore
 		}
 	}
 

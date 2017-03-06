@@ -24,6 +24,7 @@ public final class Resources {
     
 	public static final Image IMAGE_LOCK_OPEN = load("/icons/lock_open.png");
 	public static final Image IMAGE_LOCK_CLOSED = load("/icons/lock_closed.png");
+	public static final Image IMAGE_LOCK_SMALL = load("/icons/lock_small.gif");
 
 	public static final Image IMAGE_UNDO = load("/icons/arrow-curve-180-left.png");
 	public static final Image IMAGE_REDO = load("/icons/arrow-curve.png");
@@ -45,6 +46,8 @@ public final class Resources {
 	public static final Image IMAGE_MINUS_SMALL_GRAY = load("/icons/minus-small-gray.png");
 	public static final Image IMAGE_COPY_SMALL = load("/icons/copy-small.png");
 	public static final Image IMAGE_COPY_SMALL_GRAY = load("/icons/copy-small-gray.png");
+	public static final Image IMAGE_PLAY_SMALL = load("/icons/control-small.png");
+	public static final Image IMAGE_PLAY_SMALL_GRAY = load("/icons/control-small-gray.png");
 
 	public static final Image IMAGE_CHECKED = load("/icons/ui-check.png");
 	public static final Image IMAGE_BOX_CHECKED = load("/icons/ui-check-box.png");
@@ -68,8 +71,11 @@ public final class Resources {
 
 	public static final Image IMAGE_FOLDER = load("/icons/folder-small-horizontal.png");
 	public static final Image IMAGE_CONFIGURATION = load("/icons/document-small-list.png");
-	
+
 	public static final Image IMAGE_AUTOFILL = load("/icons/wand.png");
+	public static final Image IMAGE_REFRESH = load("/icons/arrow-circle-double-135.png");
+	public static final Image IMAGE_OPTIMIZE = load("/icons/chart-up-color.png");
+	public static final Image IMAGE_GENERATE = load("/icons/generate.png");
 	
 	// helpers
 	public static Image load(String name) {

@@ -6,4 +6,7 @@ import org.gumtree.msw.elements.IDependencyProperty;
 public interface IMSWObservableValue extends IObservableValue {
 	// properties
 	public IDependencyProperty getProperty();
+	
+	// methods
+	public boolean validateValue(Object newValue);
 }

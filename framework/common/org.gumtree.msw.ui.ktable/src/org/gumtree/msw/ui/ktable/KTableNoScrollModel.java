@@ -67,7 +67,7 @@ public abstract class KTableNoScrollModel extends KTableSortedModel {
      *  (Kein Javadoc)
      * @see de.kupzog.ktable.KTableModel#getColumnWidth(int)
      */
-    public int getColumnWidth(int col) {        
+    public int getColumnWidth(int col) {
         double percent = super.getColumnWidth(col)/((double)FACTOR); 
         if (_table!=null && !_table.isDisposed()) {
             return (int)((_table.getClientArea().width-1)*percent);

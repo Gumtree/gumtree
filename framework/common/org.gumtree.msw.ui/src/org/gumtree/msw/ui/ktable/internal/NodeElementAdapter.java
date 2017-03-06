@@ -4,60 +4,86 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.gumtree.msw.elements.IDependencyProperty;
-import org.gumtree.msw.elements.IElementPropertyListener;
+import org.gumtree.msw.elements.IElementListener;
 import org.gumtree.msw.schedule.INodeListener;
 import org.gumtree.msw.schedule.ScheduledNode;
 
 public class NodeElementAdapter implements IElementAdapter {
 	// fields
-	private final ScheduledNode node;
 	private final NodeListener nodeListener;
 	
 	// construction
 	public NodeElementAdapter(ScheduledNode node) {
-		this.node = node;
-		this.nodeListener = new NodeListener();
-		
-		node.addListener(nodeListener);
+		nodeListener = new NodeListener(node);
 	}
 	
-	// properties
+	// methods
+	@Override
 	public Object get(IDependencyProperty property) {
-		return node.get(property);
+		return nodeListener.getNode().get(property);
+	}
+	@Override
+	public boolean validate(IDependencyProperty property, Object newValue) {
+		return nodeListener.getNode().validate(property, newValue);
 	}
 	
 	// listeners
-	public void addPropertyListener(IElementPropertyListener listener) {
+	@Override
+	public void addPropertyListener(IElementListener listener) {
 		nodeListener.addPropertyListener(listener);
 	}
-	public boolean removePropertyListener(IElementPropertyListener listener) {
+	@Override
+	public boolean removePropertyListener(IElementListener listener) {
 		return nodeListener.removePropertyListener(listener);
 	}
 	
 	// helper
 	private static class NodeListener implements INodeListener {
 		// fields
-		private List<IElementPropertyListener> listeners;
+		private final ScheduledNode node;
+		private final List<IElementListener> listeners;
 		
 		// construction
-		public NodeListener() {
-			listeners = new ArrayList<>();
+		public NodeListener(ScheduledNode node) {
+			this.node = node;
+			this.listeners = new ArrayList<>();
+		}
+		
+		// properties
+		public ScheduledNode getNode() {
+			return node;
 		}
 		
 		// methods
-		public void addPropertyListener(IElementPropertyListener listener) {
-			if (listeners.contains(listener))
+		public void addPropertyListener(IElementListener listener) {
+			if (listeners.size() == 0)
+				node.addListener(this);
+			else if (listeners.contains(listener))
 				throw new Error("listener already exists");
 			
-			listeners.add(listener);
+			try {
+				listeners.add(listener);
+			}
+			finally {
+				if (listeners.size() == 0)
+					node.removeListener(this);
+			}
 		}
-		public boolean removePropertyListener(IElementPropertyListener listener) {
-			return listeners.remove(listener);
+		public boolean removePropertyListener(IElementListener listener) {
+			try {
+				return listeners.remove(listener);
+			}
+			finally {
+				// ensure that this NodeListener is removed from the target node
+				// after all listeners have been removed
+				if (listeners.size() == 0)
+					node.removeListener(this);
+			}
 		}
 		// listening
 		@Override
 		public void onChangedProperty(ScheduledNode owner, IDependencyProperty property, Object oldValue, Object newValue) {
-			for (IElementPropertyListener listener : listeners)
+			for (IElementListener listener : listeners)
 				listener.onChangedProperty(property, oldValue, newValue);
 		}
 		// ignored

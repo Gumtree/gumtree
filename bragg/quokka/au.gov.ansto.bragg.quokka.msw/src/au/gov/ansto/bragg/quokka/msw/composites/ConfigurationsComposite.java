@@ -1,16 +1,30 @@
 package au.gov.ansto.bragg.quokka.msw.composites;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -24,6 +38,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -35,8 +50,10 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.gumtree.msw.elements.IDependencyProperty;
 import org.gumtree.msw.elements.IElementListListener;
-import org.gumtree.msw.ui.IModelValueConverter;
+import org.gumtree.msw.elements.IElementListener;
+import org.gumtree.msw.ui.IModelBinding;
 import org.gumtree.msw.ui.ModelBinder;
 import org.gumtree.msw.ui.Resources;
 import org.gumtree.msw.ui.ktable.ButtonInfo;
@@ -44,33 +61,43 @@ import org.gumtree.msw.ui.ktable.CheckableCellRenderer;
 import org.gumtree.msw.ui.ktable.ElementTableModel;
 import org.gumtree.msw.ui.ktable.ElementTableModel.ColumnDefinition;
 import org.gumtree.msw.ui.ktable.IButtonListener;
-import org.gumtree.msw.ui.ktable.NameCellRenderer;
-import org.gumtree.msw.ui.observable.IProxyElementListener;
-import org.gumtree.msw.ui.observable.ProxyElement;
-
-import au.gov.ansto.bragg.quokka.msw.Configuration;
-import au.gov.ansto.bragg.quokka.msw.ConfigurationList;
-import au.gov.ansto.bragg.quokka.msw.Measurement;
-import au.gov.ansto.bragg.quokka.msw.ModelProvider;
-import au.gov.ansto.bragg.quokka.msw.converters.CountValueConverter;
-import au.gov.ansto.bragg.quokka.msw.converters.IndexValueConverter;
-import au.gov.ansto.bragg.quokka.msw.converters.TimeValueConverter;
-import au.gov.ansto.bragg.quokka.msw.schedule.CustomInstrumentAction;
-import au.gov.ansto.bragg.quokka.msw.util.ConfigurationCatalogDialog;
 import org.gumtree.msw.ui.ktable.KTable;
 import org.gumtree.msw.ui.ktable.KTableCellEditor;
+import org.gumtree.msw.ui.ktable.NameCellRenderer;
 import org.gumtree.msw.ui.ktable.SWTX;
 import org.gumtree.msw.ui.ktable.editors.KTableCellEditorCheckbox;
 import org.gumtree.msw.ui.ktable.editors.KTableCellEditorText2;
 import org.gumtree.msw.ui.ktable.renderers.DefaultCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.TextCellRenderer;
+import org.gumtree.msw.ui.observable.IProxyElementListener;
+import org.gumtree.msw.ui.observable.ProxyElement;
+
+import au.gov.ansto.bragg.quokka.msw.Configuration;
+import au.gov.ansto.bragg.quokka.msw.ConfigurationList;
+import au.gov.ansto.bragg.quokka.msw.IModelProviderListener;
+import au.gov.ansto.bragg.quokka.msw.Measurement;
+import au.gov.ansto.bragg.quokka.msw.ModelProvider;
+import au.gov.ansto.bragg.quokka.msw.converters.AttenuationAngleConverter;
+import au.gov.ansto.bragg.quokka.msw.converters.CountValueConverter;
+import au.gov.ansto.bragg.quokka.msw.converters.GroupTrimConverter;
+import au.gov.ansto.bragg.quokka.msw.converters.IndexValueConverter;
+import au.gov.ansto.bragg.quokka.msw.converters.StringTrimConverter;
+import au.gov.ansto.bragg.quokka.msw.converters.TimeValueConverter;
+import au.gov.ansto.bragg.quokka.msw.schedule.CustomInstrumentAction;
+import au.gov.ansto.bragg.quokka.msw.util.ConfigurationCatalogDialog;
+import au.gov.ansto.bragg.quokka.msw.util.ScriptCodeFont;
 
 public class ConfigurationsComposite extends Composite {
+	// finals
+	private static final Map<IDependencyProperty, Boolean> EXPAND_CONDITIONS;
+	private static final String[] ATTENUATION_ANGLES = new String[] {"330°", "300°", "270°", "240°", "210°", "180°", "150°", "120°", "90°", "60°", "30°", "0°"};
+	
 	// fields
-	private final KTable tblConfigurations;
-	private final Menu menu;
-	private ConfigurationList configurationList;
+	private final ElementTableModel<ConfigurationList, Configuration> tableModel;
 	private Text txtName;
+	private Combo cmbGroup;
+	private Button btnSave;
+	private Text txtDescription;
 	private Text txtInitializeScript;
 	private Text txtPretransmissionScript;
 	private Text txtPrescatteringScript;
@@ -94,14 +121,43 @@ public class ConfigurationsComposite extends Composite {
 	private Label lblScatteringMaxTime;
 	private Text txtScatteringMaxTime;
 	private Label lblScatteringMaxTimeUnit;
-	
+	// expanding (used for advanced users)
 	private Composite cmpExpand;
 	private Button btnExpand;
 	private Label lblExpand;
-	
+
+	private Button chkTransmissionMinTime;
+	private Button chkTransmissionMaxTime;
+	private Button chkTransmissionMonitorCounts;
+	private Button chkTransmissionDetectorCounts;
+	private Text txtTransmissionMinTime;
+	private Label lblTransmissionMinTimeUnit;
+	private Text txtTransmissionMonitorCounts;
+	private Text txtTransmissionDetectorCounts;
+
+	private Button chkScatteringMinTime;
+	private Button chkScatteringMaxTime;
+	private Button chkScatteringMonitorCounts;
+	private Button chkScatteringDetectorCounts;
+	private Text txtScatteringMinTime;
+	private Label lblScatteringMinTimeUnit;
+	private Text txtScatteringMonitorCounts;
+	private Text txtScatteringDetectorCounts;
+		
 	// construction
-	public ConfigurationsComposite(Composite parent, ModelProvider provider) {
+	static {
+		// if any condition is fulfilled, show expanded UI 
+		Map<IDependencyProperty, Boolean> map = new HashMap<>();
+		map.put(Measurement.MIN_TIME_ENABLED, Boolean.TRUE);
+		map.put(Measurement.MAX_TIME_ENABLED, Boolean.FALSE);
+		map.put(Measurement.TARGET_MONITOR_COUNTS_ENABLED, Boolean.TRUE);
+		map.put(Measurement.TARGET_DETECTOR_COUNTS_ENABLED, Boolean.TRUE);
+		
+		EXPAND_CONDITIONS = Collections.unmodifiableMap(map);
+	}
+	public ConfigurationsComposite(Composite parent, final ModelProvider modelProvider) {
 		super(parent, SWT.BORDER);
+		
 		GridLayout gridLayout = new GridLayout(1, false);
 		gridLayout.verticalSpacing = 0;
 		gridLayout.marginWidth = 10;
@@ -125,16 +181,12 @@ public class ConfigurationsComposite extends Composite {
 		cmpLeft.setLayout(gl_cmpLeft);
 		cmpLeft.setBackground(getBackground());
 		
-		
-		tblConfigurations = new KTable(cmpLeft, SWTX.EDIT_ON_KEY | SWT.V_SCROLL | SWT.H_SCROLL);
-		tblConfigurations.setBackground(SWTResourceManager.getColor(SWT.COLOR_LIST_BACKGROUND));
+		KTable tblConfigurations = new KTable(cmpLeft, SWTX.EDIT_ON_KEY | SWT.V_SCROLL | SWT.H_SCROLL);
 		tblConfigurations.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
+		tblConfigurations.setBackground(SWTResourceManager.getColor(SWT.COLOR_LIST_BACKGROUND));
 
-		
 		Composite cmpRight = new Composite(cmpContent, SWT.NONE);
-		GridData gd_cmpRight = new GridData(SWT.LEFT, SWT.FILL, false, true, 1, 1);
-		gd_cmpRight.widthHint = 560;
-		cmpRight.setLayoutData(gd_cmpRight);
+		cmpRight.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 		GridLayout gl_cmpRight = new GridLayout(2, true);
 		gl_cmpRight.marginHeight = 0;
 		gl_cmpRight.marginWidth = 0;
@@ -142,8 +194,8 @@ public class ConfigurationsComposite extends Composite {
 		cmpRight.setBackground(getBackground());
 		
 		Group grpConfiguration = new Group(cmpRight, SWT.NONE);
+		grpConfiguration.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 2, 1));
 		grpConfiguration.setLayout(new GridLayout(1, false));
-		grpConfiguration.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
 		grpConfiguration.setText("Configuration");
 		
 		Composite cmpConfiguration = new Composite(grpConfiguration, SWT.NONE);
@@ -154,7 +206,6 @@ public class ConfigurationsComposite extends Composite {
 		cmpConfiguration.setLayout(gl_cmpConfiguration);
 		cmpConfiguration.setBackground(getBackground());
 		
-
 		Label lblName = new Label(cmpConfiguration, SWT.NONE);
 		lblName.setText("Name:");
 
@@ -164,33 +215,23 @@ public class ConfigurationsComposite extends Composite {
 		Label lblGroup = new Label(cmpConfiguration, SWT.NONE);
 		lblGroup.setText("Group:");
 
-		Combo cmbGroup = new Combo(cmpConfiguration, SWT.BORDER);
+		cmbGroup = new Combo(cmpConfiguration, SWT.BORDER | SWT.DROP_DOWN);
 		cmbGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-
-		Composite cmpButtons = new Composite(cmpConfiguration, SWT.DROP_DOWN);
-		cmpButtons.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		GridLayout gl_cmpButtons = new GridLayout(2, true);
-		gl_cmpButtons.marginWidth = 0;
-		gl_cmpButtons.marginHeight = 0;
-		cmpButtons.setLayout(gl_cmpButtons);
-		cmpButtons.setBackground(getBackground());
-
-		Button btnReset = new Button(cmpButtons, SWT.NONE);
-		btnReset.setToolTipText("reset this configuration to its original state");
-		GridData gd_btnReset = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
-		gd_btnReset.heightHint = 21;
-		btnReset.setLayoutData(gd_btnReset);
-		btnReset.setImage(Resources.IMAGE_RESET);
-		btnReset.setText("Reset");
-
-		Button btnSave = new Button(cmpButtons, SWT.NONE);
+		cmbGroup.setItems(listGroups());
+		
+		btnSave = new Button(cmpConfiguration, SWT.NONE);
 		btnSave.setToolTipText("save this configuration in specified group");
 		GridData gd_btnSave = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
 		gd_btnSave.heightHint = 21;
 		btnSave.setLayoutData(gd_btnSave);
 		btnSave.setImage(Resources.IMAGE_DISK);
 		btnSave.setText("Save");
+
+		Label lblDescription = new Label(cmpConfiguration, SWT.NONE);
+		lblDescription.setText("Description:");
 		
+		txtDescription = new Text(cmpConfiguration, SWT.BORDER);
+		txtDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
 		
 		Group grpScripts = new Group(cmpRight, SWT.NONE);
 		grpScripts.setLayout(new GridLayout(1, false));
@@ -226,6 +267,7 @@ public class ConfigurationsComposite extends Composite {
 		
 		txtInitializeScript = new Text(tbtInitializeComposite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.CANCEL | SWT.MULTI);
 		txtInitializeScript.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		txtInitializeScript.setFont(ScriptCodeFont.get());
 
 		btnInitializeScriptApply = new Button(tbtInitializeComposite, SWT.NONE);
 		GridData gd_btnInitializeScriptApply = new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1);
@@ -260,6 +302,7 @@ public class ConfigurationsComposite extends Composite {
 		
 		txtPretransmissionScript = new Text(tbtPretransmissionComposite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.CANCEL | SWT.MULTI);
 		txtPretransmissionScript.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		txtPretransmissionScript.setFont(ScriptCodeFont.get());
 		
 		btnPretransmissionScriptApply = new Button(tbtPretransmissionComposite, SWT.NONE);
 		GridData gd_btnPretransmissionScriptApply = new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1);
@@ -277,8 +320,7 @@ public class ConfigurationsComposite extends Composite {
 		btnPretransmissionScriptTestDrive.setLayoutData(gd_btnPretransmissionScriptTestDrive);
 		btnPretransmissionScriptTestDrive.setImage(Resources.IMAGE_PLAY);
 		btnPretransmissionScriptTestDrive.setText("Test Drive");
-		
-		
+	
 		TabItem tbtPrescattering = new TabItem(tabScripts, SWT.NONE);
 		tbtPrescattering.setText("Pre-Scattering");
 
@@ -295,6 +337,7 @@ public class ConfigurationsComposite extends Composite {
 		
 		txtPrescatteringScript = new Text(tbtPrescatteringComposite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.CANCEL | SWT.MULTI);
 		txtPrescatteringScript.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		txtPrescatteringScript.setFont(ScriptCodeFont.get());
 
 		btnPrescatteringScriptApply = new Button(tbtPrescatteringComposite, SWT.NONE);
 		GridData gd_btnPrescatteringScriptApply = new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1);
@@ -327,14 +370,14 @@ public class ConfigurationsComposite extends Composite {
 		cmpTransmission.setLayout(gl_cmpTransmission);
 		cmpTransmission.setBackground(getBackground());
 
-		cmbTransmissionAttAlgo = new Combo(cmpTransmission, SWT.DROP_DOWN | SWT.READ_ONLY);
+		cmbTransmissionAttAlgo = new Combo(cmpTransmission, SWT.BORDER | SWT.DROP_DOWN | SWT.READ_ONLY);
 		GridData gd_cmbTransmissionAlgoType = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_cmbTransmissionAlgoType.widthHint = 110;
 		cmbTransmissionAttAlgo.setLayoutData(gd_cmbTransmissionAlgoType);
 		cmbTransmissionAttAlgo.setItems(new String[] {"fixed attenuation"});
 		cmbTransmissionAttAlgo.setText("fixed attenuation");
-		cmbTransmissionAttAngle = new Combo(cmpTransmission, SWT.DROP_DOWN | SWT.READ_ONLY | SWT.RIGHT);
-		cmbTransmissionAttAngle.setItems(new String[] {"330°", "300°", "270°", "240°", "210°", "180°", "150°", "120°", "90°", "60°", "30°", "0°"});
+		cmbTransmissionAttAngle = new Combo(cmpTransmission, SWT.BORDER | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.RIGHT);
+		cmbTransmissionAttAngle.setItems(ATTENUATION_ANGLES);
 		cmbTransmissionAttAngle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		cmbTransmissionAttAngle.setText("150°");
 		new Label(cmpTransmission, SWT.NONE);
@@ -363,14 +406,14 @@ public class ConfigurationsComposite extends Composite {
 		cmpScattering.setLayout(gl_cmpScattering);
 		cmpScattering.setBackground(getBackground());
 
-		cmbScatteringAttAlgo = new Combo(cmpScattering, SWT.DROP_DOWN | SWT.READ_ONLY);
+		cmbScatteringAttAlgo = new Combo(cmpScattering, SWT.BORDER | SWT.DROP_DOWN | SWT.READ_ONLY);
 		GridData gd_cmbScatteringAlgoType = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_cmbScatteringAlgoType.widthHint = 110;
 		cmbScatteringAttAlgo.setLayoutData(gd_cmbScatteringAlgoType);
 		cmbScatteringAttAlgo.setItems(new String[] {"fixed attenuation", "iterative attenuation", "smart attenuation"});
 		cmbScatteringAttAlgo.setText("iterative attenuation");
-		cmbScatteringAttAngle = new Combo(cmpScattering, SWT.DROP_DOWN | SWT.READ_ONLY | SWT.RIGHT);
-		cmbScatteringAttAngle.setItems(new String[] {"330°", "300°", "270°", "240°", "210°", "180°", "150°", "120°", "90°", "60°", "30°", "0°"});
+		cmbScatteringAttAngle = new Combo(cmpScattering, SWT.BORDER | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.RIGHT);
+		cmbScatteringAttAngle.setItems(ATTENUATION_ANGLES);
 		cmbScatteringAttAngle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		cmbScatteringAttAngle.setText("90°");
 		new Label(cmpScattering, SWT.NONE);
@@ -411,7 +454,7 @@ public class ConfigurationsComposite extends Composite {
 
 
 		// menu
-	    menu = new Menu(this);
+		Menu menu = new Menu(this);
 	    MenuItem menuItem;
 
 	    // add new/saved
@@ -421,7 +464,7 @@ public class ConfigurationsComposite extends Composite {
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				configurationList.addConfiguration();
+				modelProvider.getConfigurationList().addConfiguration();
 			}
 		});
 
@@ -430,11 +473,18 @@ public class ConfigurationsComposite extends Composite {
 	    menuItem.setImage(Resources.IMAGE_IMPORT_FILE);
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
+			@SuppressWarnings("static-access")
 			public void widgetSelected(SelectionEvent e) {
 				ConfigurationCatalogDialog dialog = new ConfigurationCatalogDialog(getShell());
-				dialog.create();
 				if (dialog.open() == Window.OK)
-					configurationList.addConfigurations(dialog.getConfigurations());
+					modelProvider.getConfigurationList().addConfigurations(
+							dialog.INSTRUMENT_CONFIG_ROOT,
+							dialog.getConfigurations());
+
+				// update list of groups
+				String tmp = cmbGroup.getText();
+				cmbGroup.setItems(listGroups());
+				cmbGroup.setText(tmp);
 			}
 		});
 
@@ -443,7 +493,7 @@ public class ConfigurationsComposite extends Composite {
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				configurationList.clear();
+				modelProvider.getConfigurationList().clear();
 			}
 		});
 	    
@@ -455,7 +505,7 @@ public class ConfigurationsComposite extends Composite {
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				configurationList.enableAll();
+				modelProvider.getConfigurationList().enableAll();
 			}
 		});
 	    
@@ -465,7 +515,7 @@ public class ConfigurationsComposite extends Composite {
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				configurationList.disableAll();
+				modelProvider.getConfigurationList().disableAll();
 			}
 		});
 	    
@@ -486,7 +536,7 @@ public class ConfigurationsComposite extends Composite {
 				if ((filename != null) && (filename.length() > 0)) {
 					boolean succeeded = false;
 					try (InputStream stream = new FileInputStream(filename)) {
-						succeeded = configurationList.replaceConfigurations(stream);
+						succeeded = modelProvider.getConfigurationList().replaceConfigurations(stream);
 					}
 					catch (Exception e2) {
 					}
@@ -514,7 +564,7 @@ public class ConfigurationsComposite extends Composite {
 				if ((filename != null) && (filename.length() > 0)) {
 					boolean succeeded = false;
 					try (OutputStream stream = new FileOutputStream(filename)) {
-						succeeded = configurationList.saveTo(stream);
+						succeeded = modelProvider.getConfigurationList().saveTo(stream);
 					}
 					catch (Exception e2) {
 					}
@@ -528,497 +578,788 @@ public class ConfigurationsComposite extends Composite {
 			}
 		});
 
-	    initDataBindings(provider);
+	    tableModel = createTableModel(tblConfigurations, menu, modelProvider);
+	    
+	    modelProvider.addListener(new IModelProviderListener() {
+	    	// fields
+		    final List<IModelBinding> modelBindings = new ArrayList<>();
+		    final DataBindingContext bindingContext = new DataBindingContext();
+		    
+		    // event handling
+			@Override
+			public void onReset() {
+				// clear all previous bindings
+				for (IModelBinding binding : modelBindings)
+					binding.dispose();
+				
+				modelBindings.clear();
+				
+				initDataBindings(modelProvider, bindingContext, modelBindings);
+			}
+		});
+	}
+	private void createExpandedUi() {
+		// check if UI is already expanded
+		if (cmpExpand.isDisposed())
+			return;
+		
+		cmpExpand.dispose();
+
+        final ToolTip toolTip = new ToolTip(getShell(), SWT.ICON_INFORMATION);
+        toolTip.setText("Information");
+        toolTip.setMessage(
+				"After the specified minimal time the acquisition is stopped when either the " +
+				"desired Detector Counts or Monitor Counts have been collected but at latest " +
+				"at the specified maximal time.");
+        toolTip.setAutoHide(false);
+		
+        final MouseTrackListener listener = new MouseTrackAdapter() {
+        	// finals
+		    final int TOOLTIP_HIDE_DELAY = 300; // ms
+		    final int MOUSE_OFFSET = 15;
+		    final int BOTTOM_OFFSET = 150;
+		    
+        	// methods
+			@Override
+			public void mouseHover(MouseEvent e) {
+				Display display = getDisplay();
+				
+				Point p = display.getCursorLocation();
+				p.x += MOUSE_OFFSET;
+				p.y += MOUSE_OFFSET;
+
+				Rectangle bounds = display.getBounds();
+				if (p.y > bounds.height - BOTTOM_OFFSET)
+					p.y = bounds.height - BOTTOM_OFFSET;
+				
+				toolTip.setLocation(p.x, p.y);
+				toolTip.setVisible(true);
+			}
+			@Override
+			public void mouseExit(MouseEvent e) {
+                getDisplay().timerExec(TOOLTIP_HIDE_DELAY, new Runnable() {
+                    public void run() {
+                        toolTip.setVisible(false);
+                    }
+                });
+			}
+		};
+        
+		cmpTransmission.addMouseTrackListener(listener);
+		
+		chkTransmissionMaxTime = new Button(cmpTransmission, SWT.CHECK);
+		chkTransmissionMaxTime.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+		chkTransmissionMaxTime.setText("Max Time:");
+		chkTransmissionMaxTime.setSelection(true);
+		chkTransmissionMaxTime.addMouseTrackListener(listener);
+		txtTransmissionMaxTime.addMouseTrackListener(listener);
+		lblTransmissionMaxTimeUnit.addMouseTrackListener(listener);
+		
+		chkTransmissionMaxTime.moveAbove(lblTransmissionMaxTime);
+		
+		chkTransmissionMinTime = new Button(cmpTransmission, SWT.CHECK);
+		chkTransmissionMinTime.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+		chkTransmissionMinTime.setText("Min Time:");
+		chkTransmissionMinTime.addMouseTrackListener(listener);
+		txtTransmissionMinTime = new Text(cmpTransmission, SWT.BORDER | SWT.RIGHT);
+		txtTransmissionMinTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		txtTransmissionMinTime.addMouseTrackListener(listener);
+		lblTransmissionMinTimeUnit = lblTransmissionMaxTime; // label is replaced by check-box, and then used as lblTransmissionMinTimeUnit
+		lblTransmissionMinTimeUnit.setText("sec");
+		lblTransmissionMinTimeUnit.addMouseTrackListener(listener);
+
+		chkTransmissionMinTime.moveAbove(chkTransmissionMaxTime);
+		txtTransmissionMinTime.moveAbove(chkTransmissionMaxTime);
+		lblTransmissionMinTimeUnit.moveAbove(chkTransmissionMaxTime);
+
+		chkTransmissionMonitorCounts = new Button(cmpTransmission, SWT.CHECK);
+		chkTransmissionMonitorCounts.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+		chkTransmissionMonitorCounts.setText("Monitor Counts:");
+		chkTransmissionMonitorCounts.addMouseTrackListener(listener);
+		txtTransmissionMonitorCounts = new Text(cmpTransmission, SWT.BORDER | SWT.RIGHT);
+		txtTransmissionMonitorCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		txtTransmissionMonitorCounts.addMouseTrackListener(listener);
+		Label blank1 = new Label(cmpTransmission, SWT.NONE);
+
+		chkTransmissionMonitorCounts.moveAbove(chkTransmissionMaxTime);
+		txtTransmissionMonitorCounts.moveAbove(chkTransmissionMaxTime);
+		blank1.moveAbove(chkTransmissionMaxTime);
+
+		chkTransmissionDetectorCounts = new Button(cmpTransmission, SWT.CHECK);
+		chkTransmissionDetectorCounts.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+		chkTransmissionDetectorCounts.setText("Detector Counts:");
+		chkTransmissionDetectorCounts.addMouseTrackListener(listener);
+		txtTransmissionDetectorCounts = new Text(cmpTransmission, SWT.BORDER | SWT.RIGHT);
+		txtTransmissionDetectorCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		txtTransmissionDetectorCounts.addMouseTrackListener(listener);
+		Label blank2 = new Label(cmpTransmission, SWT.NONE);
+
+		chkTransmissionDetectorCounts.moveAbove(chkTransmissionMaxTime);
+		txtTransmissionDetectorCounts.moveAbove(chkTransmissionMaxTime);
+		blank2.moveAbove(chkTransmissionMaxTime);
+		
+
+		cmpScattering.addMouseTrackListener(listener);
+		
+		chkScatteringMaxTime = new Button(cmpScattering, SWT.CHECK);
+		chkScatteringMaxTime.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+		chkScatteringMaxTime.setText("Max Time:");
+		chkScatteringMaxTime.setSelection(true);
+		chkScatteringMaxTime.addMouseTrackListener(listener);
+		txtScatteringMaxTime.addMouseTrackListener(listener);
+		lblScatteringMaxTimeUnit.addMouseTrackListener(listener);
+
+		chkScatteringMaxTime.moveAbove(lblScatteringMaxTime);
+		
+		chkScatteringMinTime = new Button(cmpScattering, SWT.CHECK);
+		chkScatteringMinTime.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+		chkScatteringMinTime.setText("Min Time:");
+		chkScatteringMinTime.addMouseTrackListener(listener);
+		txtScatteringMinTime = new Text(cmpScattering, SWT.BORDER | SWT.RIGHT);
+		txtScatteringMinTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		txtScatteringMinTime.addMouseTrackListener(listener);
+		lblScatteringMinTimeUnit = lblScatteringMaxTime;
+		lblScatteringMinTimeUnit.setText("sec");
+		lblScatteringMinTimeUnit.addMouseTrackListener(listener);
+
+		chkScatteringMinTime.moveAbove(chkScatteringMaxTime);
+		txtScatteringMinTime.moveAbove(chkScatteringMaxTime);
+		lblScatteringMinTimeUnit.moveAbove(chkScatteringMaxTime);
+		
+		chkScatteringMonitorCounts = new Button(cmpScattering, SWT.CHECK);
+		chkScatteringMonitorCounts.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+		chkScatteringMonitorCounts.setText("Monitor Counts:");
+		chkScatteringMonitorCounts.addMouseTrackListener(listener);
+		txtScatteringMonitorCounts = new Text(cmpScattering, SWT.BORDER | SWT.RIGHT);
+		txtScatteringMonitorCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		txtScatteringMonitorCounts.addMouseTrackListener(listener);
+		Label blank3 = new Label(cmpScattering, SWT.NONE);
+
+		chkScatteringMonitorCounts.moveAbove(chkScatteringMaxTime);
+		txtScatteringMonitorCounts.moveAbove(chkScatteringMaxTime);
+		blank3.moveAbove(chkScatteringMaxTime);
+		
+		chkScatteringDetectorCounts = new Button(cmpScattering, SWT.CHECK);
+		chkScatteringDetectorCounts.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+		chkScatteringDetectorCounts.setText("Detector Counts:");
+		chkScatteringDetectorCounts.addMouseTrackListener(listener);
+		txtScatteringDetectorCounts = new Text(cmpScattering, SWT.BORDER | SWT.RIGHT);
+		txtScatteringDetectorCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		txtScatteringDetectorCounts.addMouseTrackListener(listener);
+		Label blank4 = new Label(cmpScattering, SWT.NONE);
+
+		chkScatteringDetectorCounts.moveAbove(chkScatteringMaxTime);
+		txtScatteringDetectorCounts.moveAbove(chkScatteringMaxTime);
+		blank4.moveAbove(chkScatteringMaxTime);
+
+		layout(true, true);
 	}
 	
 	// methods
-	private void initDataBindings(final ModelProvider provider) {
-		if (provider == null)
-			return;
-		
-		configurationList = provider.getConfigurationList();
+	private void initDataBindings(final ModelProvider modelProvider, final DataBindingContext bindingContext, final List<IModelBinding> modelBindings) {
+		// source
+		ConfigurationList configurationList = modelProvider.getConfigurationList();
 		
 		// setup table
-		ElementTableModel<ConfigurationList, Configuration> tableModel = createTableModel(tblConfigurations, configurationList, menu);
-
+		tableModel.updateSource(configurationList);
+		
 		// selection
+		final AtomicBoolean expandedBindings = new AtomicBoolean(false);
 		final ProxyElement<Configuration> selectedConfiguration = tableModel.getSelectedElement();
 		final ProxyElement<Measurement> selectedTransmissionMeasurement = new ProxyElement<Measurement>();
 		final ProxyElement<Measurement> selectedScatteringMeasurement = new ProxyElement<Measurement>();
-		selectedConfiguration.addListener(new IProxyElementListener<Configuration>() {
-			// fields
-			private final IElementListListener<Measurement> listener = new IElementListListener<Measurement>() {
-				@Override
-				public void onAddedListElement(Measurement element) {
-					switch (element.getIndex()) {
-					case 0:
-						selectedTransmissionMeasurement.setTarget(element);
-						break;
-					case 1:
-						selectedScatteringMeasurement.setTarget(element);
-						break;
-					}
-				}
-				@Override
-				public void onDeletedListElement(Measurement element) {
-					if (selectedTransmissionMeasurement.getTarget() == element)
-						selectedTransmissionMeasurement.setTarget(null);
-					else if (selectedScatteringMeasurement.getTarget() == element)
-						selectedScatteringMeasurement.setTarget(null);
-				}
-			};
-			
+		final List<Configuration> observedConfigurations = new ArrayList<>(); // normally there shouldn't be more than 1 selected configuration
+
+		final IElementListListener<Measurement> configurationListener = new IElementListListener<Measurement>() {
+			@Override
+			public void onAddedListElement(Measurement element) {
+				if (element.getPath().getElementName().startsWith(Measurement.TRANSMISSION))
+					selectedTransmissionMeasurement.setTarget(element);
+				if (element.getPath().getElementName().startsWith(Measurement.SCATTERING))
+					selectedScatteringMeasurement.setTarget(element);
+			}
+			@Override
+			public void onDeletedListElement(Measurement element) {
+				if (selectedTransmissionMeasurement.getTarget() == element)
+					selectedTransmissionMeasurement.setTarget(null);
+				else if (selectedScatteringMeasurement.getTarget() == element)
+					selectedScatteringMeasurement.setTarget(null);
+			}
+		};
+		final IProxyElementListener<Configuration> configurationProxyListener = new IProxyElementListener<Configuration>() {
 			// methods
 			@Override
 			public void onTargetChange(Configuration oldTarget, Configuration newTarget) {
-				if (oldTarget != null)
-					oldTarget.removeListListener(listener);
+				if (oldTarget != null) {
+					oldTarget.removeListListener(configurationListener);
+					observedConfigurations.remove(oldTarget);
+				}
 				
 				selectedTransmissionMeasurement.setTarget(null);
 				selectedScatteringMeasurement.setTarget(null);
 				
+				if (newTarget != null) {
+					newTarget.addListListener(configurationListener);
+					observedConfigurations.add(newTarget);
+				}
+			}
+		};
+		// monitor when expanded UI is needed
+		final IElementListener measurementListener = new IElementListener() {
+			@Override
+			public void onChangedProperty(IDependencyProperty property, Object oldValue, Object newValue) {
+				if (EXPAND_CONDITIONS.containsKey(property) && Objects.equals(newValue, EXPAND_CONDITIONS.get(property)))
+					// don't expand now, because that will add listeners to proxy that called this listener (resulting in ConcurrentModificationException)
+					getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							// simulate expand click
+							if (!btnExpand.isDisposed())
+								btnExpand.notifyListeners(SWT.Selection, new Event());
+						}
+					});
+			}
+			@Override
+			public void onDisposed() {
+				// ignore
+			}
+		};
+		final IProxyElementListener<Measurement> measurementProxyListener = new IProxyElementListener<Measurement>() {
+			@Override
+			public void onTargetChange(Measurement oldTarget, Measurement newTarget) {
 				if (newTarget != null)
-					newTarget.addListListener(listener);
+					for (Entry<IDependencyProperty, Boolean> entry : EXPAND_CONDITIONS.entrySet())
+						if (Objects.equals(newTarget.get(entry.getKey()), entry.getValue())) {
+							// don't expand now, because that will add listeners to proxy that called this listener (resulting in ConcurrentModificationException)
+							getDisplay().asyncExec(new Runnable() {
+								@Override
+								public void run() {
+									// simulate expand click
+									if (!btnExpand.isDisposed())
+										btnExpand.notifyListeners(SWT.Selection, new Event());
+								}
+							});
+							return;
+						}
+			}
+		};
+		selectedTransmissionMeasurement.addListener(measurementListener);
+		selectedTransmissionMeasurement.addListener(measurementProxyListener);
+		selectedScatteringMeasurement.addListener(measurementListener);
+		selectedScatteringMeasurement.addListener(measurementProxyListener);
+		
+		selectedConfiguration.addListener(configurationProxyListener);
+		modelBindings.add(new IModelBinding() {
+			@Override
+			public void dispose() {
+				for (Configuration configuration : observedConfigurations)
+					configuration.removeListListener(configurationListener);
+				observedConfigurations.clear();
+				
+				selectedConfiguration.removeListener(configurationProxyListener);
+				
+				selectedTransmissionMeasurement.setTarget(null);
+				selectedScatteringMeasurement.setTarget(null);
 			}
 		});
 
-		// converters
-		final IModelValueConverter<Long, String> timeValueConverter = new TimeValueConverter();
-		final IModelValueConverter<Long, String> countValueConverter = new CountValueConverter();
-
 		// data binding
-		final DataBindingContext bindingContext = new DataBindingContext();
-		
-		ModelBinder.createTextBinding(
-				bindingContext,
-				txtName,
-				selectedConfiguration,
-				Configuration.NAME);
-		
-		// Scripts
-		ModelBinder.createMultiLineBinding(
-				bindingContext,
-				txtInitializeScript,
-				selectedConfiguration,
-				Configuration.SETUP_SCRIPT);
-		ModelBinder.createMultiLineBinding(
-				bindingContext,
-				txtPretransmissionScript,
-				selectedTransmissionMeasurement,
-				Measurement.SETUP_SCRIPT);
-		ModelBinder.createMultiLineBinding(
-				bindingContext,
-				txtPrescatteringScript,
-				selectedScatteringMeasurement,
-				Measurement.SETUP_SCRIPT);
-		
-		// Apply / Test Drive
-		ModelBinder.createEnabledBinding(
-				btnInitializeScriptApply,
-				selectedConfiguration);
-		ModelBinder.createEnabledBinding(
-				btnInitializeScriptTestDrive,
-				selectedConfiguration);
-		ModelBinder.createEnabledBinding(
-				btnPretransmissionScriptApply,
-				selectedTransmissionMeasurement);
-		ModelBinder.createEnabledBinding(
-				btnPretransmissionScriptTestDrive,
-				selectedTransmissionMeasurement);
-		ModelBinder.createEnabledBinding(
-				btnPrescatteringScriptApply,
-				selectedScatteringMeasurement);
-		ModelBinder.createEnabledBinding(
-				btnPrescatteringScriptTestDrive,
-				selectedScatteringMeasurement);
-		
-		// Transmission - Attenuation
-		ModelBinder.createComboBinding(
-				bindingContext,
-				cmbTransmissionAttAlgo,
-				selectedTransmissionMeasurement,
-				Measurement.ATTENUATION_ALGORITHM);
-		ModelBinder.createComboBinding(
-				bindingContext,
-				cmbTransmissionAttAngle,
-				selectedTransmissionMeasurement,
-				Measurement.ATTENUATION_ANGLE);
+		modelBindings.add(
+			ModelBinder.createTextBinding(
+					bindingContext,
+					txtName,
+					selectedConfiguration,
+					Configuration.NAME,
+					StringTrimConverter.DEFAULT));
 
-		// Transmission - MaxTime
-		ModelBinder.createEnabledBinding(
-				bindingContext,
-				txtTransmissionMaxTime,
-				selectedTransmissionMeasurement,
-				Measurement.MAX_TIME_ENABLED);
-		ModelBinder.createTextBinding(
-				bindingContext,
-				txtTransmissionMaxTime,
-				selectedTransmissionMeasurement,
-				Measurement.MAX_TIME,
-				timeValueConverter);
+		modelBindings.add(
+			ModelBinder.createComboBinding(
+					bindingContext,
+					cmbGroup,
+					selectedConfiguration,
+					Configuration.GROUP,
+					GroupTrimConverter.DEFAULT));
 
-		// Scattering - Attenuation
-		ModelBinder.createComboBinding(
-				bindingContext,
-				cmbScatteringAttAlgo,
-				selectedScatteringMeasurement,
-				Measurement.ATTENUATION_ALGORITHM);
-		ModelBinder.createComboBinding(
-				bindingContext,
-				cmbScatteringAttAngle,
-				selectedScatteringMeasurement,
-				Measurement.ATTENUATION_ANGLE);
-
-		// Scattering - MaxTime
-		ModelBinder.createEnabledBinding(
-				bindingContext,
-				txtScatteringMaxTime,
-				selectedScatteringMeasurement,
-				Measurement.MAX_TIME_ENABLED);
-		ModelBinder.createTextBinding(
-				bindingContext,
-				txtScatteringMaxTime,
-				selectedScatteringMeasurement,
-				Measurement.MAX_TIME,
-				timeValueConverter);
-
-		// buttons
-		final SelectionListener expandClick = new SelectionAdapter() {
+		modelBindings.add(
+			ModelBinder.createTextBinding(
+					bindingContext,
+					txtDescription,
+					selectedConfiguration,
+					Configuration.DESCRIPTION,
+					StringTrimConverter.DEFAULT));
+		
+		// save button
+		modelBindings.add(ModelBinder.createEnabledBinding(
+				btnSave,
+				selectedConfiguration));
+		
+		final SelectionListener btnSaveListener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				cmpExpand.dispose();
+				Configuration configuration = selectedConfiguration.getTarget();
+				if (configuration != null) {
+					File root = ConfigurationCatalogDialog.INSTRUMENT_CONFIG_ROOT.toFile();
+					File group = new File(root, configuration.getGroup());
+					File file = new File(group, configuration.getName() + ".xml");
+					
+					if (!checkPath(file))
+						showError("specified group is invalid");
+					else if (!mkdirs(group))
+						showError("unable to create group");
+					else {
+						if (file.exists()) {
+							MessageBox dialog = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+							dialog.setText("Question");
+							dialog.setMessage(String.format(
+									"%s\n\n%s",
+									"A configuration with the same name in the specified group already exists.",
+									"Would you like to replace it?"));
+							if (dialog.open() != SWT.YES)
+								return;
+						}
 
-		        final ToolTip toolTip = new ToolTip(getShell(), SWT.ICON_INFORMATION);
-		        toolTip.setText("Information");
-		        toolTip.setMessage(
-		        		// "\"Min Time\" and \"Max Time\" provide a time window for the acquisition.\r\n" +
-						"After the specified minimal time the acquisition is stopped when either the " +
-						"desired Detector Counts or Monitor Counts have been collected but at latest " +
-						"at the specified maximal time.");
-		        toolTip.setAutoHide(false);
-				
-		        MouseTrackListener listener = new MouseTrackAdapter() {
-		        	// finals
-				    final int TOOLTIP_HIDE_DELAY = 300; // ms
-				    final int MOUSE_OFFSET = 15;
-				    final int BOTTOM_OFFSET = 150;
-				    
-		        	// methods
-					@Override
-					public void mouseHover(MouseEvent e) {
-						Display display = getDisplay();
-						
-						Point p = display.getCursorLocation();
-						p.x += MOUSE_OFFSET;
-						p.y += MOUSE_OFFSET;
-
-						Rectangle bounds = display.getBounds();
-						if (p.y > bounds.height - BOTTOM_OFFSET)
-							p.y = bounds.height - BOTTOM_OFFSET;
-						
-						toolTip.setLocation(p.x, p.y);
-						toolTip.setVisible(true);
+						if (!save(file, configuration))
+							showError("unable to save configuration");
 					}
-					@Override
-					public void mouseExit(MouseEvent e) {
-		                getDisplay().timerExec(TOOLTIP_HIDE_DELAY, new Runnable() {
-		                    public void run() {
-		                        toolTip.setVisible(false);
-		                    }
-		                });
+				}
+			}
+			// helpers
+			private boolean checkPath(File file) {
+				try {
+					// check if path is valid
+					file.toPath();
+					return true;
+				}
+				catch (Exception e) {
+					return false;
+				}
+			}
+			private boolean mkdirs(File file) {
+				try {
+					return file.isDirectory() || file.mkdirs();
+				}
+				catch (Exception e) {
+					return false;
+				}
+			}
+			private boolean save(File file, Configuration configuration) {
+				try (OutputStream stream = new FileOutputStream(file.toString())) {
+					return configuration.saveTo(stream);
+				}
+				catch (Exception e) {
+					return false;
+				}
+			}
+			private void showError(String message) {
+				MessageBox dialog = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
+				dialog.setText("Error");
+				dialog.setMessage(message);
+				dialog.open();
+			}
+		};
+		
+		btnSave.addSelectionListener(btnSaveListener);
+		
+		modelBindings.add(new IModelBinding() {
+			@Override
+			public void dispose() {
+				btnSave.removeSelectionListener(btnSaveListener);
+			}
+		});
+		
+		// Scripts
+		modelBindings.add(
+			ModelBinder.createMultiLineBinding(
+					bindingContext,
+					txtInitializeScript,
+					selectedConfiguration,
+					Configuration.SETUP_SCRIPT,
+					StringTrimConverter.DEFAULT));
+		modelBindings.add(
+			ModelBinder.createMultiLineBinding(
+					bindingContext,
+					txtPretransmissionScript,
+					selectedTransmissionMeasurement,
+					Measurement.SETUP_SCRIPT,
+					StringTrimConverter.DEFAULT));
+		modelBindings.add(
+			ModelBinder.createMultiLineBinding(
+					bindingContext,
+					txtPrescatteringScript,
+					selectedScatteringMeasurement,
+					Measurement.SETUP_SCRIPT,
+					StringTrimConverter.DEFAULT));
+		
+		// Apply / Test Drive
+		modelBindings.add(ModelBinder.createEnabledBinding(
+				btnInitializeScriptApply,
+				selectedConfiguration));
+		modelBindings.add(ModelBinder.createEnabledBinding(
+				btnInitializeScriptTestDrive,
+				selectedConfiguration));
+		modelBindings.add(ModelBinder.createEnabledBinding(
+				btnPretransmissionScriptApply,
+				selectedTransmissionMeasurement));
+		modelBindings.add(ModelBinder.createEnabledBinding(
+				btnPretransmissionScriptTestDrive,
+				selectedTransmissionMeasurement));
+		modelBindings.add(ModelBinder.createEnabledBinding(
+				btnPrescatteringScriptApply,
+				selectedScatteringMeasurement));
+		modelBindings.add(ModelBinder.createEnabledBinding(
+				btnPrescatteringScriptTestDrive,
+				selectedScatteringMeasurement));
+		
+		// Transmission - Attenuation
+		modelBindings.add(
+				ModelBinder.createComboBinding(
+					bindingContext,
+					cmbTransmissionAttAlgo,
+					selectedTransmissionMeasurement,
+					Measurement.ATTENUATION_ALGORITHM));
+		modelBindings.add(
+				ModelBinder.createComboBinding(
+					bindingContext,
+					cmbTransmissionAttAngle,
+					selectedTransmissionMeasurement,
+					Measurement.ATTENUATION_ANGLE,
+					AttenuationAngleConverter.DEFAULT));
+
+		// Transmission - MaxTime
+		modelBindings.add(
+				ModelBinder.createEnabledBinding(
+						lblTransmissionMaxTime,
+						selectedTransmissionMeasurement));
+		modelBindings.add(
+				ModelBinder.createEnabledBinding(
+						bindingContext,
+						txtTransmissionMaxTime,
+						selectedTransmissionMeasurement,
+						Measurement.MAX_TIME_ENABLED));
+		modelBindings.add(
+				ModelBinder.createTextBinding(
+						bindingContext,
+						txtTransmissionMaxTime,
+						selectedTransmissionMeasurement,
+						Measurement.MAX_TIME,
+						TimeValueConverter.DEFAULT));
+		modelBindings.add(
+				ModelBinder.createEnabledBinding(
+						lblTransmissionMaxTimeUnit,
+						selectedConfiguration));
+
+		// Scattering - Attenuation
+		modelBindings.add(
+				ModelBinder.createComboBinding(
+						bindingContext,
+						cmbScatteringAttAlgo,
+						selectedScatteringMeasurement,
+						Measurement.ATTENUATION_ALGORITHM));
+		modelBindings.add(
+				ModelBinder.createComboBinding(
+						bindingContext,
+						cmbScatteringAttAngle,
+						selectedScatteringMeasurement,
+						Measurement.ATTENUATION_ANGLE,
+						AttenuationAngleConverter.DEFAULT));
+
+		// Scattering - MaxTime
+		modelBindings.add(
+				ModelBinder.createEnabledBinding(
+						lblScatteringMaxTime,
+						selectedScatteringMeasurement));
+		modelBindings.add(
+				ModelBinder.createEnabledBinding(
+						bindingContext,
+						txtScatteringMaxTime,
+						selectedScatteringMeasurement,
+						Measurement.MAX_TIME_ENABLED));
+		modelBindings.add(
+				ModelBinder.createTextBinding(
+						bindingContext,
+						txtScatteringMaxTime,
+						selectedScatteringMeasurement,
+						Measurement.MAX_TIME,
+						TimeValueConverter.DEFAULT));
+		modelBindings.add(
+				ModelBinder.createEnabledBinding(
+						lblScatteringMaxTimeUnit,
+						selectedConfiguration));
+
+		// expand buttons (force expansion)
+		if (!cmpExpand.isDisposed()) {
+			final SelectionListener btnExpandListener = new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					createExpandedUi();
+					initExpandedBindings(modelProvider, bindingContext, modelBindings, expandedBindings, selectedTransmissionMeasurement, selectedScatteringMeasurement);
+				}
+			};
+			final MouseListener lblExpandListener = new MouseAdapter() {
+				@Override
+				public void mouseUp(MouseEvent e) {
+					createExpandedUi();
+					initExpandedBindings(modelProvider, bindingContext, modelBindings, expandedBindings, selectedTransmissionMeasurement, selectedScatteringMeasurement);
+				}
+			};
+			
+			btnExpand.addSelectionListener(btnExpandListener);
+			lblExpand.addMouseListener(lblExpandListener);
+	
+			modelBindings.add(new IModelBinding() {
+				@Override
+				public void dispose() {
+					if (!cmpExpand.isDisposed()) {
+						btnExpand.removeSelectionListener(btnExpandListener);
+						lblExpand.removeMouseListener(lblExpandListener);
 					}
-				};
-		        
-				cmpTransmission.addMouseTrackListener(listener);
+				}
+			});
+		}
+		
+		// test drive buttons
+		
+		final SelectionListener initializeScriptTestDrivelistener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Configuration configuration = selectedConfiguration.getTarget();
+				if (configuration == null)
+					return;
+
+				String script = configuration.getSetupScript();
+				CustomInstrumentAction customAction = modelProvider.getCustomInstrumentAction();
 				
-				Button chkTransmissionMaxTime = new Button(cmpTransmission, SWT.CHECK);
-				chkTransmissionMaxTime.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-				chkTransmissionMaxTime.setText("Max Time:");
-				chkTransmissionMaxTime.setSelection(true);
-				chkTransmissionMaxTime.addMouseTrackListener(listener);
-				txtTransmissionMaxTime.addMouseTrackListener(listener);
-				lblTransmissionMaxTimeUnit.addMouseTrackListener(listener);
-				
-				chkTransmissionMaxTime.moveAbove(lblTransmissionMaxTime);
-				lblTransmissionMaxTime.dispose();
-				
-				Button chkTransmissionMinTime = new Button(cmpTransmission, SWT.CHECK);
-				chkTransmissionMinTime.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-				chkTransmissionMinTime.setText("Min Time:");
-				chkTransmissionMinTime.addMouseTrackListener(listener);
-				Text txtTransmissionMinTime = new Text(cmpTransmission, SWT.BORDER | SWT.RIGHT);
-				txtTransmissionMinTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-				txtTransmissionMinTime.addMouseTrackListener(listener);
-				Label lblTransmissionMinTimeUnit = new Label(cmpTransmission, SWT.NONE);
-				lblTransmissionMinTimeUnit.setText("sec");
-				lblTransmissionMinTimeUnit.addMouseTrackListener(listener);
+				if (!customAction.testDrive(script)) {
+					MessageBox dialog = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
+					dialog.setText("Information");
+					dialog.setMessage("busy");
+					dialog.open();
+				}
+			}
+		};
+		final SelectionListener pretransmissionScriptTestDrive = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Measurement transmissionMeasurement = selectedTransmissionMeasurement.getTarget();
+				if (transmissionMeasurement == null)
+					return;
 
-				chkTransmissionMinTime.moveAbove(chkTransmissionMaxTime);
-				txtTransmissionMinTime.moveAbove(chkTransmissionMaxTime);
-				lblTransmissionMinTimeUnit.moveAbove(chkTransmissionMaxTime);
+				String script = transmissionMeasurement.getSetupScript();
+				CustomInstrumentAction customAction = modelProvider.getCustomInstrumentAction();
 
-				Button chkTransmissionMonitorCounts = new Button(cmpTransmission, SWT.CHECK);
-				chkTransmissionMonitorCounts.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-				chkTransmissionMonitorCounts.setText("Monitor Counts:");
-				chkTransmissionMonitorCounts.addMouseTrackListener(listener);
-				Text txtTransmissionMonitorCounts = new Text(cmpTransmission, SWT.BORDER | SWT.RIGHT);
-				txtTransmissionMonitorCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-				txtTransmissionMonitorCounts.addMouseTrackListener(listener);
-				Label blank1 = new Label(cmpTransmission, SWT.NONE);
+				if (!customAction.testDrive(script)) {
+					MessageBox dialog = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
+					dialog.setText("Information");
+					dialog.setMessage("busy");
+					dialog.open();
+				}
+			}
+		};
+		final SelectionListener prescatteringScriptTestDrive = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Measurement scatteringMeasurement = selectedScatteringMeasurement.getTarget();
+				if (scatteringMeasurement == null)
+					return;
 
-				chkTransmissionMonitorCounts.moveAbove(chkTransmissionMaxTime);
-				txtTransmissionMonitorCounts.moveAbove(chkTransmissionMaxTime);
-				blank1.moveAbove(chkTransmissionMaxTime);
+				String script = scatteringMeasurement.getSetupScript();
+				CustomInstrumentAction customAction = modelProvider.getCustomInstrumentAction();
 
-				Button chkTransmissionDetectorCounts = new Button(cmpTransmission, SWT.CHECK);
-				chkTransmissionDetectorCounts.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-				chkTransmissionDetectorCounts.setText("Detector Counts:");
-				chkTransmissionDetectorCounts.addMouseTrackListener(listener);
-				Text txtTransmissionDetectorCounts = new Text(cmpTransmission, SWT.BORDER | SWT.RIGHT);
-				txtTransmissionDetectorCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-				txtTransmissionDetectorCounts.addMouseTrackListener(listener);
-				Label blank2 = new Label(cmpTransmission, SWT.NONE);
+				if (!customAction.testDrive(script)) {
+					MessageBox dialog = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
+					dialog.setText("Information");
+					dialog.setMessage("busy");
+					dialog.open();
+				}
+			}
+		};
+		
+		btnInitializeScriptTestDrive.addSelectionListener(initializeScriptTestDrivelistener);
+		btnPretransmissionScriptTestDrive.addSelectionListener(pretransmissionScriptTestDrive);
+		btnPrescatteringScriptTestDrive.addSelectionListener(prescatteringScriptTestDrive);
+		
+		modelBindings.add(new IModelBinding() {
+			@Override
+			public void dispose() {
+				btnInitializeScriptTestDrive.removeSelectionListener(initializeScriptTestDrivelistener);
+				btnPretransmissionScriptTestDrive.removeSelectionListener(pretransmissionScriptTestDrive);
+				btnPrescatteringScriptTestDrive.removeSelectionListener(prescatteringScriptTestDrive);
+			}
+		});
 
-				chkTransmissionDetectorCounts.moveAbove(chkTransmissionMaxTime);
-				txtTransmissionDetectorCounts.moveAbove(chkTransmissionMaxTime);
-				blank2.moveAbove(chkTransmissionMaxTime);
-				
-
-				cmpScattering.addMouseTrackListener(listener);
-				
-				Button chkScatteringMaxTime = new Button(cmpScattering, SWT.CHECK);
-				chkScatteringMaxTime.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-				chkScatteringMaxTime.setText("Max Time:");
-				chkScatteringMaxTime.setSelection(true);
-				chkScatteringMaxTime.addMouseTrackListener(listener);
-				txtScatteringMaxTime.addMouseTrackListener(listener);
-				lblScatteringMaxTimeUnit.addMouseTrackListener(listener);
-
-				chkScatteringMaxTime.moveAbove(lblScatteringMaxTime);
-				lblScatteringMaxTime.dispose();
-				
-				Button chkScatteringMinTime = new Button(cmpScattering, SWT.CHECK);
-				chkScatteringMinTime.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-				chkScatteringMinTime.setText("Min Time:");
-				chkScatteringMinTime.addMouseTrackListener(listener);
-				Text txtScatteringMinTime = new Text(cmpScattering, SWT.BORDER | SWT.RIGHT);
-				txtScatteringMinTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-				txtScatteringMinTime.addMouseTrackListener(listener);
-				Label lblScatteringMinTimeUnit = new Label(cmpScattering, SWT.NONE);
-				lblScatteringMinTimeUnit.setText("sec");
-				lblScatteringMinTimeUnit.addMouseTrackListener(listener);
-
-				chkScatteringMinTime.moveAbove(chkScatteringMaxTime);
-				txtScatteringMinTime.moveAbove(chkScatteringMaxTime);
-				lblScatteringMinTimeUnit.moveAbove(chkScatteringMaxTime);
-				
-				Button chkScatteringMonitorCounts = new Button(cmpScattering, SWT.CHECK);
-				chkScatteringMonitorCounts.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-				chkScatteringMonitorCounts.setText("Monitor Counts:");
-				chkScatteringMonitorCounts.addMouseTrackListener(listener);
-				Text txtScatteringMonitorCounts = new Text(cmpScattering, SWT.BORDER | SWT.RIGHT);
-				txtScatteringMonitorCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-				txtScatteringMonitorCounts.addMouseTrackListener(listener);
-				Label blank3 = new Label(cmpScattering, SWT.NONE);
-
-				chkScatteringMonitorCounts.moveAbove(chkScatteringMaxTime);
-				txtScatteringMonitorCounts.moveAbove(chkScatteringMaxTime);
-				blank3.moveAbove(chkScatteringMaxTime);
-				
-				Button chkScatteringDetectorCounts = new Button(cmpScattering, SWT.CHECK);
-				chkScatteringDetectorCounts.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-				chkScatteringDetectorCounts.setText("Detector Counts:");
-				chkScatteringDetectorCounts.addMouseTrackListener(listener);
-				Text txtScatteringDetectorCounts = new Text(cmpScattering, SWT.BORDER | SWT.RIGHT);
-				txtScatteringDetectorCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-				txtScatteringDetectorCounts.addMouseTrackListener(listener);
-				Label blank4 = new Label(cmpScattering, SWT.NONE);
-
-				chkScatteringDetectorCounts.moveAbove(chkScatteringMaxTime);
-				txtScatteringDetectorCounts.moveAbove(chkScatteringMaxTime);
-				blank4.moveAbove(chkScatteringMaxTime);
-				
-				// Transmission - MaxTime
+		initExpandedBindings(modelProvider, bindingContext, modelBindings, expandedBindings, selectedTransmissionMeasurement, selectedScatteringMeasurement);
+	}
+	private void initExpandedBindings(
+			final ModelProvider modelProvider,
+			final DataBindingContext bindingContext,
+			final List<IModelBinding> modelBindings,
+			final AtomicBoolean expandedBindings,
+			final ProxyElement<Measurement> selectedTransmissionMeasurement,
+			final ProxyElement<Measurement> selectedScatteringMeasurement) {
+	
+		// check that UI is expanded
+		if (!cmpExpand.isDisposed())
+			return;
+		
+		// check if already bound
+		if (!expandedBindings.compareAndSet(false, true))
+			return;
+		
+		// Transmission - MaxTime
+		modelBindings.add(
 				ModelBinder.createCheckedBinding(
 						bindingContext,
 						chkTransmissionMaxTime,
 						selectedTransmissionMeasurement,
-						Measurement.MAX_TIME_ENABLED);
+						Measurement.MAX_TIME_ENABLED));
 
-				// Transmission - MinTime
+		// Transmission - MinTime
+		modelBindings.add(
 				ModelBinder.createCheckedBinding(
 						bindingContext,
 						chkTransmissionMinTime,
 						selectedTransmissionMeasurement,
-						Measurement.MIN_TIME_ENABLED);
+						Measurement.MIN_TIME_ENABLED));
+		modelBindings.add(
 				ModelBinder.createEnabledBinding(
 						bindingContext,
 						txtTransmissionMinTime,
 						selectedTransmissionMeasurement,
-						Measurement.MIN_TIME_ENABLED);
+						Measurement.MIN_TIME_ENABLED));
+		modelBindings.add(
 				ModelBinder.createTextBinding(
 						bindingContext,
 						txtTransmissionMinTime,
 						selectedTransmissionMeasurement,
 						Measurement.MIN_TIME,
-						timeValueConverter);
+						TimeValueConverter.DEFAULT));
+		
+		// lblTransmissionMinTimeUnit is lblTransmissionMaxTime, which is already bound
+		//modelBindings.add(
+		//		ModelBinder.createEnabledBinding(
+		//				lblTransmissionMinTimeUnit,
+		//				selectedTransmissionMeasurement));
 
-				// Transmission - MonitorCounts
+		// Transmission - MonitorCounts
+		modelBindings.add(
 				ModelBinder.createCheckedBinding(
 						bindingContext,
 						chkTransmissionMonitorCounts,
 						selectedTransmissionMeasurement,
-						Measurement.TARGET_MONITOR_COUNTS_ENABLED);
+						Measurement.TARGET_MONITOR_COUNTS_ENABLED));
+		modelBindings.add(
 				ModelBinder.createEnabledBinding(
 						bindingContext,
 						txtTransmissionMonitorCounts,
 						selectedTransmissionMeasurement,
-						Measurement.TARGET_MONITOR_COUNTS_ENABLED);
+						Measurement.TARGET_MONITOR_COUNTS_ENABLED));
+		modelBindings.add(
 				ModelBinder.createTextBinding(
 						bindingContext,
 						txtTransmissionMonitorCounts,
 						selectedTransmissionMeasurement,
 						Measurement.TARGET_MONITOR_COUNTS,
-						countValueConverter);
+						CountValueConverter.DEFAULT));
 
-				// Transmission - DetectorCounts
-				ModelBinder.createCheckedBinding(
-						bindingContext,
-						chkTransmissionDetectorCounts,
-						selectedTransmissionMeasurement,
-						Measurement.TARGET_DETECTOR_COUNTS_ENABLED);
+		// Transmission - DetectorCounts
+		modelBindings.add(
+			ModelBinder.createCheckedBinding(
+					bindingContext,
+					chkTransmissionDetectorCounts,
+					selectedTransmissionMeasurement,
+					Measurement.TARGET_DETECTOR_COUNTS_ENABLED));
+		modelBindings.add(
 				ModelBinder.createEnabledBinding(
 						bindingContext,
 						txtTransmissionDetectorCounts,
 						selectedTransmissionMeasurement,
-						Measurement.TARGET_DETECTOR_COUNTS_ENABLED);
+						Measurement.TARGET_DETECTOR_COUNTS_ENABLED));
+		modelBindings.add(
 				ModelBinder.createTextBinding(
 						bindingContext,
 						txtTransmissionDetectorCounts,
 						selectedTransmissionMeasurement,
 						Measurement.TARGET_DETECTOR_COUNTS,
-						countValueConverter);
-				
-				// Scattering - MaxTime
+						CountValueConverter.DEFAULT));
+		
+		// Scattering - MaxTime
+		modelBindings.add(
 				ModelBinder.createCheckedBinding(
 						bindingContext,
 						chkScatteringMaxTime,
 						selectedScatteringMeasurement,
-						Measurement.MAX_TIME_ENABLED);
-				
-				// Scattering - MinTime
+						Measurement.MAX_TIME_ENABLED));
+		
+		// Scattering - MinTime
+		modelBindings.add(
 				ModelBinder.createCheckedBinding(
 						bindingContext,
 						chkScatteringMinTime,
 						selectedScatteringMeasurement,
-						Measurement.MIN_TIME_ENABLED);
+						Measurement.MIN_TIME_ENABLED));
+		modelBindings.add(
 				ModelBinder.createEnabledBinding(
 						bindingContext,
 						txtScatteringMinTime,
 						selectedScatteringMeasurement,
-						Measurement.MIN_TIME_ENABLED);
+						Measurement.MIN_TIME_ENABLED));
+		modelBindings.add(
 				ModelBinder.createTextBinding(
 						bindingContext,
 						txtScatteringMinTime,
 						selectedScatteringMeasurement,
 						Measurement.MIN_TIME,
-						timeValueConverter);
-				
-				// Scattering - MonitorCounts
+						TimeValueConverter.DEFAULT));
+		
+		// lblScatteringMinTimeUnit is lblScatteringMaxTime, which is already bound
+		//modelBindings.add(
+		//		ModelBinder.createEnabledBinding(
+		//				lblScatteringMinTimeUnit,
+		//				selectedScatteringMeasurement));
+		
+		// Scattering - MonitorCounts
+		modelBindings.add(
 				ModelBinder.createCheckedBinding(
 						bindingContext,
 						chkScatteringMonitorCounts,
 						selectedScatteringMeasurement,
-						Measurement.TARGET_MONITOR_COUNTS_ENABLED);
+						Measurement.TARGET_MONITOR_COUNTS_ENABLED));
+		modelBindings.add(
 				ModelBinder.createEnabledBinding(
 						bindingContext,
 						txtScatteringMonitorCounts,
 						selectedScatteringMeasurement,
-						Measurement.TARGET_MONITOR_COUNTS_ENABLED);
+						Measurement.TARGET_MONITOR_COUNTS_ENABLED));
+		modelBindings.add(
 				ModelBinder.createTextBinding(
 						bindingContext,
 						txtScatteringMonitorCounts,
 						selectedScatteringMeasurement,
 						Measurement.TARGET_MONITOR_COUNTS,
-						countValueConverter);
-				
-				// Scattering - DetectorCounts
+						CountValueConverter.DEFAULT));
+		
+		// Scattering - DetectorCounts
+		modelBindings.add(
 				ModelBinder.createCheckedBinding(
 						bindingContext,
 						chkScatteringDetectorCounts,
 						selectedScatteringMeasurement,
-						Measurement.TARGET_DETECTOR_COUNTS_ENABLED);
+						Measurement.TARGET_DETECTOR_COUNTS_ENABLED));
+		modelBindings.add(
 				ModelBinder.createEnabledBinding(
 						bindingContext,
 						txtScatteringDetectorCounts,
 						selectedScatteringMeasurement,
-						Measurement.TARGET_DETECTOR_COUNTS_ENABLED);
+						Measurement.TARGET_DETECTOR_COUNTS_ENABLED));
+		modelBindings.add(
 				ModelBinder.createTextBinding(
 						bindingContext,
 						txtScatteringDetectorCounts,
 						selectedScatteringMeasurement,
 						Measurement.TARGET_DETECTOR_COUNTS,
-						countValueConverter);
-
-				layout(true, true);
-			}
-		};
-		
-		btnExpand.addSelectionListener(expandClick);
-		lblExpand.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseUp(MouseEvent e) {
-				expandClick.widgetSelected(null);
-			}
-		});
-		
-
-		btnInitializeScriptTestDrive.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				CustomInstrumentAction customAction = provider.getCustomInstrumentAction();
-
-				String script = selectedConfiguration.getTarget().getSetupScript();
-				if (!customAction.testDrive(script)) {
-					MessageBox dialog = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
-					dialog.setText("Information");
-					dialog.setMessage("busy");
-					dialog.open();
-				}
-			}
-		});
-
-		btnPretransmissionScriptTestDrive.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				CustomInstrumentAction customAction = provider.getCustomInstrumentAction();
-
-				String script = selectedTransmissionMeasurement.getTarget().getSetupScript();
-				if (!customAction.testDrive(script)) {
-					MessageBox dialog = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
-					dialog.setText("Information");
-					dialog.setMessage("busy");
-					dialog.open();
-				}
-			}
-		});
-
-		btnPrescatteringScriptTestDrive.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				CustomInstrumentAction customAction = provider.getCustomInstrumentAction();
-
-				String script = selectedScatteringMeasurement.getTarget().getSetupScript();
-				if (!customAction.testDrive(script)) {
-					MessageBox dialog = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
-					dialog.setText("Information");
-					dialog.setMessage("busy");
-					dialog.open();
-				}
-			}
-		});
+						CountValueConverter.DEFAULT));
 	}
-	private static ElementTableModel<ConfigurationList, Configuration> createTableModel(KTable table, final ConfigurationList configurationList, Menu menu) {
+	private static ElementTableModel<ConfigurationList, Configuration> createTableModel(final KTable table, Menu menu, final ModelProvider modelProvider) {
 		// cell rendering
 		DefaultCellRenderer indexRenderer = new TextCellRenderer(TextCellRenderer.INDICATION_FOCUS);
     	DefaultCellRenderer checkableRenderer = new CheckableCellRenderer(CheckableCellRenderer.INDICATION_FOCUS | CheckableCellRenderer.INDICATION_COPYABLE);
@@ -1035,7 +1376,7 @@ public class ConfigurationsComposite extends Composite {
     	IButtonListener<Configuration> addButtonListener = new IButtonListener<Configuration>() {
 			@Override
 			public void onClicked(int col, int row, Configuration configuration) {
-				configurationList.addConfiguration(configuration.getIndex());
+				modelProvider.getConfigurationList().addConfiguration(configuration.getIndex());
 			}
 		};
     	IButtonListener<Configuration> duplicateButtonListener = new IButtonListener<Configuration>() {
@@ -1054,7 +1395,6 @@ public class ConfigurationsComposite extends Composite {
     	// construction
     	ElementTableModel<ConfigurationList, Configuration> model = new ElementTableModel<ConfigurationList, Configuration>(
     			table,
-    			configurationList,
     			menu,
 		    	"add, duplicate or delete configuration",
 		    	Arrays.asList(
@@ -1062,11 +1402,37 @@ public class ConfigurationsComposite extends Composite {
 		    			new ButtonInfo<Configuration>(Resources.IMAGE_COPY_SMALL_GRAY, Resources.IMAGE_COPY_SMALL, duplicateButtonListener),
 		    			new ButtonInfo<Configuration>(Resources.IMAGE_MINUS_SMALL_GRAY, Resources.IMAGE_MINUS_SMALL, deleteButtonListener)),
 		    	Arrays.asList(
-		    			new ColumnDefinition(Configuration.ENABLED, "", 30, checkableRenderer, checkableEditor),
-		    			new ColumnDefinition(Configuration.INDEX, "", 30, indexRenderer, indexEditor, new IndexValueConverter()),
-		    			new ColumnDefinition(Configuration.NAME, "Name", 200, nameRenderer, nameEditor)));
-    	
+		    			new ColumnDefinition("", 30, Configuration.ENABLED, checkableRenderer, checkableEditor),
+		    			new ColumnDefinition("", 30, Configuration.INDEX, indexRenderer, indexEditor, IndexValueConverter.DEFAULT),
+		    			new ColumnDefinition("Name", 200, Configuration.NAME, nameRenderer, nameEditor)));
+
     	table.setModel(model);
+    	
     	return model;
+	}
+
+	// helpers
+	private static String[] listGroups() {
+		ArrayList<String> result = new ArrayList<>();
+		
+		listGroups(
+				result,
+				ConfigurationCatalogDialog.INSTRUMENT_CONFIG_ROOT,
+				ConfigurationCatalogDialog.INSTRUMENT_CONFIG_ROOT);
+		
+		return result.toArray(new String[result.size()]);
+	}
+	private static void listGroups(List<String> groups, Path root, Path directory) {
+	    try(DirectoryStream<Path> stream = Files.newDirectoryStream(directory)) {
+	        for (Path p : stream) {
+	            if(Files.isDirectory(p)) {
+	            	groups.add(GroupTrimConverter.DEFAULT.toModelValue(root.relativize(p).toString()));
+	            	listGroups(groups, root, p);
+	            }
+	        }
+	    }
+	    catch (IOException e) {
+	    	// ignore
+		}
 	}
 }

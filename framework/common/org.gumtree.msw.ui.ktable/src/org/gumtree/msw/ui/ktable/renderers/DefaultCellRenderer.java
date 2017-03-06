@@ -178,7 +178,7 @@ public class DefaultCellRenderer implements KTableCellRenderer {
      * @see de.kupzog.ktable.KTableCellRenderer#drawCell(GC, Rectangle, int, int, Object, boolean, boolean, boolean, KTableModel)
      */
     public void drawCell(GC gc, Rectangle rect, int col, int row, Object content, 
-            boolean focus, boolean fixed, boolean clicked, KTableModel model) {        
+            boolean focus, boolean fixed, boolean clicked, KTableModel model) {
         if (fixed) {
             m_FixedRenderer.drawCell(gc, rect, col, row, content, 
                     focus, fixed, clicked, model);

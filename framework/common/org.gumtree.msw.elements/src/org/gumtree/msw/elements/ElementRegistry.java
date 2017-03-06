@@ -1,6 +1,8 @@
 package org.gumtree.msw.elements;
 
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,6 +17,7 @@ public class ElementRegistry {
 	private final IElementVisitor registrant;
 	private final Map<String, IRegisteredElement> pathToElement;
 	private final Map<String, IRegisteredElementList> pathToElementList;
+	private final Deque<IRegisteredElement> elementOrder;
 	// helper
 	private final Map<Set<IDependencyProperty>, Map<String, IDependencyProperty>> propertyCache;
 
@@ -25,16 +28,21 @@ public class ElementRegistry {
 		
 		pathToElement = new HashMap<String, IRegisteredElement>();
 		pathToElementList = new HashMap<String, IRegisteredElementList>();
+		elementOrder = new LinkedList<>();
 		propertyCache = new HashMap<Set<IDependencyProperty>, Map<String, IDependencyProperty>>();
 		
-		modelProxy.addListener(new ModelContentListener(
-				pathToElement,
-				pathToElementList));
+		modelProxy.addListener(new ModelContentListener(this));
 	}
 
 	// properties
 	public int getCount() {
 		return pathToElement.size();
+	}
+	private IRegisteredElement getElement(String path) {
+		return pathToElement.get(path);
+	}
+	private IRegisteredElementList getElementList(String path) {
+		return pathToElementList.get(path);
 	}
 	
 	// methods
@@ -49,13 +57,15 @@ public class ElementRegistry {
 	// it is not needed (e.g. when ModelContentListener is called which locks the proxy)
 	private void addElement(IRegisteredElement element) {
 		String pathStr = element.getPath().toString();
-		pathToElement.put(pathStr, element);	
+		pathToElement.put(pathStr, element);
+		elementOrder.add(element);
 	}
 	private void addElement(IRegisteredElementList elementList) {
 		ElementPath path = elementList.getPath();
 		String pathStr = path.toString();
 		pathToElement.put(pathStr, elementList);
 		pathToElementList.put(pathStr, elementList);
+		elementOrder.add(elementList);
 		
 		for (String elementName : modelProxy.getListElements(path))
 			elementList.notifyAddedListElement(elementName);
@@ -65,9 +75,24 @@ public class ElementRegistry {
 		if (registeredElement != null) {
 			// in case that path points to an ElementList
 			pathToElementList.remove(pathStr);
+			elementOrder.remove(registeredElement);
 			
 			registeredElement.dispose();
 		}
+	}
+	private void disposeElements() {
+		// dispose in reverse order of creation
+		while (!elementOrder.isEmpty())
+			//elementOrder.removeFirst().dispose();
+			elementOrder.removeLast().dispose();
+		
+		// because all elements are disposed in reverse order, by the time the ElementLists are
+		// disposed all sub-elements are already disposed and have lost thier path information
+		// therefore, pathTo-lists have to be cleared manually
+		
+		pathToElement.clear();
+		pathToElementList.clear();
+		elementOrder.clear();
 	}
 	// helper
 	private Map<String, IDependencyProperty> getPropertyLookup(Set<IDependencyProperty> properties) {
@@ -85,50 +110,49 @@ public class ElementRegistry {
 	// listen to content changes
 	private static class ModelContentListener extends ModelListenerAdapter {
 		// fields
-		private final Map<String, IRegisteredElement> pathToElement;
-		private final Map<String, IRegisteredElementList> pathToElementList;
+		private final ElementRegistry registry;
 		
 		// construction
-		public ModelContentListener(Map<String, IRegisteredElement> pathToElement, Map<String, IRegisteredElementList> pathToElementList) {
-			this.pathToElement = pathToElement;
-			this.pathToElementList = pathToElementList;
+		public ModelContentListener(ElementRegistry registry) {
+			this.registry = registry;
 		}
 		
 		// content
 		@Override
 		public void onReset() {
-			// TODO Auto-generated method stub
+			// clear all elements/elementLists
+			registry.disposeElements();
 		}
 		// properties
 		@Override
 		public void onChangedProperty(Iterable<String> elementPath, String property, Object oldValue, Object newValue) {
-			IRegisteredElement element = pathToElement.get(ElementPath.toString(elementPath));
+			IRegisteredElement element = registry.getElement(ElementPath.toString(elementPath));
 			if (element != null)
 				element.notifyChangedProperty(property, oldValue, newValue);
 		}
 		// list elements
 		@Override
 		public void onAddedListElement(Iterable<String> listPath, String elementName) {
-			IRegisteredElementList elementList = pathToElementList.get(ElementPath.toString(listPath));
+			IRegisteredElementList elementList = registry.getElementList(ElementPath.toString(listPath));
 			if (elementList != null)
 				elementList.notifyAddedListElement(elementName);
 		}
 		@Override
 		public void onDeletedListElement(Iterable<String> listPath, String elementName) {
-			IRegisteredElementList elementList = pathToElementList.get(ElementPath.toString(listPath));
+			IRegisteredElementList elementList = registry.getElementList(ElementPath.toString(listPath));
 			if (elementList != null)
 				elementList.notifyDeletedListElement(elementName);
 		}
 		@Override
 		public void onRecoveredListElement(Iterable<String> listPath, String elementName) {
-			IRegisteredElementList elementList = pathToElementList.get(ElementPath.toString(listPath));
+			IRegisteredElementList elementList = registry.getElementList(ElementPath.toString(listPath));
 			if (elementList != null)
 				elementList.notifyAddedListElement(elementName);
 		}
 	}
 	
 	// used to register elements
-	private class ElementRegistrant implements IElementVisitor {	
+	private class ElementRegistrant implements IElementVisitor {
 		// methods
 		@Override
 		public <TElement extends Element>
@@ -161,7 +185,7 @@ public class ElementRegistry {
 		private final TElement element;
 		
 		// construction
-		public RegisteredElement(TElement element) {			
+		public RegisteredElement(TElement element) {
 			this.properties = getPropertyLookup(element.getProperties());
 			this.element = element;
 		}
@@ -208,11 +232,12 @@ public class ElementRegistry {
 		@Override
 		public void dispose() {
 			for (TListElement listElement : listElements.values())
-				removeElement(listElement.getPath().toString());
+				if (listElement.isValid())
+					removeElement(listElement.getPath().toString()); // removeElement will also dispose element
 			
 			super.dispose();
 		}
-
+		
 		// methods
 		@Override
 		public void notifyAddedListElement(String elementName) {

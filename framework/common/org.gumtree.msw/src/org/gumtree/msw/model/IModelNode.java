@@ -24,8 +24,8 @@ public interface IModelNode {
 	// properties
 	public Object getProperty(String property);
 	public Map<String, Object> getProperties();
+	public boolean validateProperty(String property, Object newValue);
 	public boolean changeProperty(String property, Object newValue);
-	public boolean parseProperty(String property, String newValue);
 	// list elements
 	public Iterable<String> getListElements();
 	public boolean addListElement(String elementName, int targetIndex);

@@ -97,43 +97,12 @@ public abstract class ElementList<TListElement extends Element> extends Element 
 						entry.getValue()));
 		}
 		
-		command(new BatchCommand(id, commands.toArray(new Command[commands.size()])));
-	}
-	protected <TElement extends TListElement>
-	void replaceAll(Class<TElement> elementType, Iterable<Map<IDependencyProperty, String>> content, boolean parse) {
-		RefId id = nextId();
-		ElementPath path = getPath();
-		
-		List<Command> commands = new ArrayList<>();
-		commands.add(new ClearElementListCommand(id, path));
-
-		int index = 0;
-		String className = elementType.getSimpleName();
-		for (Map<IDependencyProperty, String> elementInfo : content) {
-			String elementName = className + nextId().toString();
-			ElementPath elementPath = new ElementPath(path, elementName);
-			
-			commands.add(new AddListElementCommand(
-					id,
-					path,
-					elementName,
-					index++));
-			
-			for (Map.Entry<IDependencyProperty, String> entry : elementInfo.entrySet())
-				commands.add(new ChangePropertyCommand(
-						id,
-						elementPath,
-						entry.getKey().getName(),
-						entry.getValue(),
-						parse));
-		}
-		
-		command(new BatchCommand(id, commands.toArray(new Command[commands.size()])));
+		command(new BatchCommand(id, commands.toArray(new ICommand[commands.size()])));
 	}
 	// batch process
 	protected boolean batchSet(IDependencyProperty property, Object newValue) {
 		RefId id = nextId();
-		List<ICommand> commands = new ArrayList<>();
+		List<Command> commands = new ArrayList<>();
 		boolean applicable = false;
 		
 		try (INotificationLock lock = getModelProxy().suspendNotifications()) {

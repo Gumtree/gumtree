@@ -2,9 +2,12 @@ package au.gov.ansto.bragg.quokka.msw.converters;
 
 import org.gumtree.msw.ui.ModelValueConverterAdapter;
 
-public class ThicknessValueConverter extends ModelValueConverterAdapter<Double, String> {
+public class DoubleValueConverter extends ModelValueConverterAdapter<Double, String> {
+	// finals
+	public static final DoubleValueConverter DEFAULT = new DoubleValueConverter();
+	
 	// construction
-	public ThicknessValueConverter() {
+	public DoubleValueConverter() {
 		super(Double.class, String.class);
 	}
 	

@@ -40,7 +40,6 @@ import org.gumtree.msw.ui.Resources;
 import org.gumtree.msw.ui.ktable.internal.NodeElementAdapter;
 import org.gumtree.msw.ui.ktable.internal.TableCellEditorListener;
 import org.gumtree.msw.ui.ktable.internal.TextModifyListener;
-
 import org.gumtree.msw.ui.ktable.ITableCellEditorListener;
 import org.gumtree.msw.ui.ktable.KTable;
 import org.gumtree.msw.ui.ktable.KTableCellEditor;
@@ -51,19 +50,22 @@ import org.gumtree.msw.ui.ktable.editors.KTableCellEditorCheckbox;
 import org.gumtree.msw.ui.ktable.editors.KTableCellEditorText2;
 import org.gumtree.msw.ui.ktable.renderers.BarDiagramCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.DefaultCellRenderer;
+import org.gumtree.msw.ui.ktable.renderers.EmptyCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.FixedCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.TextCellRenderer;
 
 public class ScheduleTableModel extends KTableDefaultModel {
 	// finals
-	private static final int PROGRESS_COLUMNSPAN = 4;
 	private static final ARGB PROGRESS_RGB = new ARGB(255, 113, 163, 244); // new ARGB(150, 0, 65, 200);
 	
-	// fields
+	// source
+	private Scheduler scheduler;
+	private ScheduleWalker walker;
 	private final SchedulerListener schedulerListener;
-	private final NodeListener nodeListener;
+	private final IScheduleWalkerListener walkerListener;
 	// nodes
 	private NodeInfo rootNode;
+	private final NodeListener nodeListener;
 	private final List<NodeInfo> rows;
 	private final Map<ScheduledNode, NodeInfo> nodes;
 	//
@@ -73,25 +75,36 @@ public class ScheduleTableModel extends KTableDefaultModel {
     private final List<Integer> dr2vr;	// data-row -> visual-row 
     private final Set<NodeInfo> collapsedNodes;
 	private final Map<Class<?>, RowDefinition> rowDefinitions;
+	private final AcquisitionDetailManager acquisitionDetails;
+	private final List<IAuxiliaryColumnInfo> auxiliaryColumns;
     // used to update text background
     private final TextModifyListener textModifyListener;
 	// table
 	private final KTable table;
     private final KTableCellRenderer columnHeaderRenderer;
     private final Map<Class<?>, KTableCellRenderer> rowHeaderRenderers;
+    private final KTableCellRenderer rowRunRenderer;
     private final KTableCellRenderer settingsCellRenderer;
+    private final EmptyCellRenderer emptyCellRenderer;
     private final TextCellRenderer textCellRenderer;
     private final KTableCellRenderer collapsableCellRenderer;
     private final KTableCellRenderer checkableCellRenderer;
     private final DefaultCellRenderer clearCellRenderer;
     private final DefaultCellRenderer endOfLineCellRenderer;
     private final KTableCellEditor checkableCellEditor;
+    private final KTableCellEditor readonlyTextCellEditor;
     private final DefaultCellRenderer barDiagramCellRenderer;
     private final ModifiedCellRenderer modifiedCellRenderer;
-    private final KTableCellEditor readonlyTextCellEditor;
-	
+	// drawing
+    private int suspendRedrawCounter;
+    //private boolean redrawAll;
+    //private int redrawX;
+    //private int redrawY;
+    //private int redrawWidth;
+    //private int redrawHeight;
+    
     // construction
-    public ScheduleTableModel(final KTable table, Scheduler scheduler, ScheduleWalker walker, final Menu menu, Iterable<RowDefinition> rowDefinitions) {
+    public ScheduleTableModel(final KTable table, final Menu menu, final ButtonInfo<ScheduledNode> runButton, Iterable<RowDefinition> rowDefinitions, Iterable<AcquisitionDetail> acquisitionDetails) {
         initialize();
 
         textModifyListener = new TextModifyListener();
@@ -103,14 +116,114 @@ public class ScheduleTableModel extends KTableDefaultModel {
         	this.rowDefinitions.put(rowDefinition.getElementType(), rowDefinition);
         	
         	for (CellDefinition cellDefinition : rowDefinition.getCells())
-        		if (cellDefinition instanceof IModelCellDefinition) {
-        			KTableCellEditor editor = ((IModelCellDefinition)cellDefinition).getCellEditor();
+        		if (cellDefinition instanceof PropertyCellDefinition) {
+        			KTableCellEditor editor = cellDefinition.getCellEditor();
         			if (TableCellEditorListener.isValidEditor(editor) && !editors.contains(editor)) {
                 		editor.addListener(cellEditorListener);
                 		editors.add(editor);
             		}
         		}
         }
+
+        // e.g. min/max time, detector/monitor counts
+        this.acquisitionDetails = new AcquisitionDetailManager(acquisitionDetails);
+        
+        // auxiliary columns (progress and notes)
+    	auxiliaryColumns = new ArrayList<IAuxiliaryColumnInfo>();
+    	auxiliaryColumns.add(new IAuxiliaryColumnInfo() {
+			@Override
+			public String getTitle() {
+				return "Progress";
+			}
+			@Override
+			public int getWidth() {
+				return 80;
+			}
+			@Override
+			public Object getContent(NodeInfo nodeInfo) {
+				return nodeInfo.getProgress();
+			}
+			@Override
+			public KTableCellEditor getCellEditor(NodeInfo nodeInfo) {
+				if (nodeInfo.getProgress() instanceof String)
+					return readonlyTextCellEditor;
+				else
+					return null; // if bar-diagram (progress-bar) cannot be edited
+			}
+			@Override
+			public KTableCellRenderer getCellRenderer(NodeInfo nodeInfo) {
+	    		if (nodeInfo.hasRowDefinition()) {
+	    			Object progress = nodeInfo.getProgress();
+	    			RowDefinition rowDefinition = nodeInfo.getRowDefinition();
+	    			RGB color = rowDefinition.getColor();
+	    			
+	    			DefaultCellRenderer cellRenderer;
+	    			
+	    			if (progress instanceof String) {
+	    				cellRenderer = textCellRenderer;
+						if (nodeInfo.isTreeEnabled())
+							cellRenderer.setForeground(null);
+						else
+							cellRenderer.setForeground(KTableResources.COLOR_DISABLED);
+	    			}
+	    			else {
+	    				cellRenderer = barDiagramCellRenderer;
+	        			if (color != null)
+	        				cellRenderer.setForeground(SWTResourceManager.getColor(PROGRESS_RGB.overlay(color)));
+	        			else
+	        				cellRenderer.setForeground(SWTResourceManager.getColor(PROGRESS_RGB.overlay(new RGB(255, 255, 255))));
+	    			}
+
+					if (color != null)
+						cellRenderer.setBackground(SWTResourceManager.getColor(color));
+					else
+						cellRenderer.setBackground(null);
+	    			
+	        		return cellRenderer;
+	    		}
+	    		return clearCellRenderer;
+			}
+		});
+    	auxiliaryColumns.add(new IAuxiliaryColumnInfo() {
+			@Override
+			public String getTitle() {
+				return "Notes";
+			}
+			@Override
+			public int getWidth() {
+				return 120;
+			}
+			@Override
+			public Object getContent(NodeInfo nodeInfo) {
+				String notes = nodeInfo.getNotes();
+				return notes != null ? notes : "";
+			}
+			@Override
+			public KTableCellEditor getCellEditor(NodeInfo nodeInfo) {
+	    		return readonlyTextCellEditor;
+			}
+			@Override
+			public KTableCellRenderer getCellRenderer(NodeInfo nodeInfo) {
+	    		if (nodeInfo.hasRowDefinition()) {
+	    			RowDefinition rowDefinition = nodeInfo.getRowDefinition();
+	    			RGB color = rowDefinition.getColor();
+	    			
+	    			DefaultCellRenderer cellRenderer = textCellRenderer;
+					if (nodeInfo.isTreeEnabled())
+						cellRenderer.setForeground(null);
+					else
+						cellRenderer.setForeground(KTableResources.COLOR_DISABLED);
+	 
+					if (color != null)
+						cellRenderer.setBackground(SWTResourceManager.getColor(color));
+					else
+						cellRenderer.setBackground(null);
+	    			
+	        		return cellRenderer;
+	    		}
+	    		return clearCellRenderer;
+			}
+		});
 
         // final
         this.table = table;
@@ -121,18 +234,19 @@ public class ScheduleTableModel extends KTableDefaultModel {
 
     	columnHeaderRenderer = new FixedCellRenderer(FixedCellRenderer.STYLE_FLAT);
     	rowHeaderRenderers = new HashMap<>();
-        for (RowDefinition rowDefinition : rowDefinitions)
+        for (RowDefinition rowDefinition : rowDefinitions) {
+        	final Class<? extends Element> elementType = rowDefinition.getElementType();
         	rowHeaderRenderers.put(
         			rowDefinition.getElementType(),
         			new ButtonRenderer(
         	    			table,
         	    			firstColumnWidth,
-        	    			rowDefinition.getElementType(),
         	    			rowDefinition.getButtons()) {
         				@Override
         				protected int isValidColumn(int x, int y) {
         					Rectangle rect = table.getCellRect(0, 0);
-        					return (0 <= x) && (x < rect.width) ? 0 : -1;
+        					x -= rect.x;
+        					return (-1 <= x) && (x < rect.width) ? 0 : -1;
         				}
         				@Override
         				protected int isValidRow(int x, int y) {
@@ -157,7 +271,39 @@ public class ScheduleTableModel extends KTableDefaultModel {
         					}
         				}
         	    	});
+        }
+        rowRunRenderer = new ButtonRenderer(
+            	table,
+            	15,
+            	Arrays.asList(runButton)) {
+					@Override
+					protected int isValidColumn(int x, int y) {
+    					Rectangle rect = table.getCellRect(1, 0);
+    					x -= rect.x;
+    					return (-1 <= x) && (x <= rect.width) ? 1 : -1;
+					}
+					@Override
+					protected int isValidRow(int x, int y) {
+    					int row = table.getRowForY(y);
+    					if (row > 0)
+    						return row;
+
+    					return -1;
+					}
+					@Override
+					protected void clicked(int col, int row, int index) {
+    					if (col != 1)
+    						return;
+    					
+    					NodeInfo nodeInfo = getNodeInfo(row);
+						runButton.getListener().onClicked(
+								col,
+								row,
+								nodeInfo.getNode());
+					}
+        };
     	settingsCellRenderer = new SettingsCellRenderer(table, firstColumnWidth, menu);
+    	emptyCellRenderer = new EmptyCellRenderer(EmptyCellRenderer.INDICATION_FOCUS);
     	textCellRenderer = new TextCellRenderer(TextCellRenderer.INDICATION_FOCUS);
     	
     	Color backgroundColor = SWTResourceManager.getColor(SWT.COLOR_LIST_BACKGROUND);
@@ -179,7 +325,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	
     	barDiagramCellRenderer = new BarDiagramCellRenderer(SWT.None);
     	modifiedCellRenderer = new ModifiedCellRenderer();
-
+    	
     	// load nodes
     	nodes = new HashMap<>();
     	rows = new ArrayList<>();
@@ -190,207 +336,27 @@ public class ScheduleTableModel extends KTableDefaultModel {
         collapsedNodes = new HashSet<>();
         
         schedulerListener = new SchedulerListener(this);
+        walkerListener = new ScheduleWalkerListener(table, nodes);
     	nodeListener = new NodeListener(this);
-    	scheduler.addListener(schedulerListener);
     	
-    	walker.addListener(new IScheduleWalkerListener() {
-    		// methods
-    		private Display getDisplay() {
-				try {
-					if (!table.isDisposed())
-						return table.getDisplay();
-				}
-				catch (Exception e) {
-				}
-				return null;
-    		}
-			// schedule
-			@Override
-			public void onBeginSchedule() {
-				Display display = getDisplay();
-				if (display != null)
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							for (NodeInfo nodeInfo : nodes.values())
-								nodeInfo.resetProgress(true);
-							
-							table.redraw();
-						}
-					});
-			}
-			@Override
-			public void onEndSchedule() {
-				Display display = getDisplay();
-				if (display != null)
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							for (NodeInfo nodeInfo : nodes.values())
-								nodeInfo.resetProgress(false);
-							
-							table.redraw();
-						}
-					});
-			}
-			// step
-			@Override
-			public void onBeginStep(ScheduleStep step) {
-			}
-			@Override
-			public void onEndStep(final ScheduleStep step) {
-				Display display = getDisplay();
-				if (display != null)
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
-							if (nodeInfo != null) {
-								nodeInfo.completed();
-								
-								if (step.isEnabled())
-									table.redraw();
-							}
-						}
-					});
-			}
-			// parameters
-			@Override
-			public void onBeginChangeParameter(final ScheduleStep step) {
-				Display display = getDisplay();
-				if (display != null)
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
-							if (nodeInfo != null) {
-								nodeInfo.beginChangeParameter();
-								table.redraw();
-							}
-						}
-					});
-			}
-			@Override
-			public void onEndChangeParameters(final ScheduleStep step, final ParameterChangeSummary summary) {
-				Display display = getDisplay();
-				if (display != null)
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
-							if (nodeInfo != null) {
-								nodeInfo.endChangeParameter(summary);
-								table.redraw();
-							}
-						}
-					});
-			}
-			// acquisition
-			@Override
-			public void onBeginPreAcquisition(final ScheduleStep step) {
-				Display display = getDisplay();
-				if (display != null)
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
-							if (nodeInfo != null) {
-								nodeInfo.beginPreAcquisition();
-								table.redraw();
-							}
-						}
-					});
-			}
-			@Override
-			public void onEndPreAcquisition(final ScheduleStep step, final Summary summary) {
-				Display display = getDisplay();
-				if (display != null)
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
-							if (nodeInfo != null) {
-								nodeInfo.endPreAcquisition(summary);
-								table.redraw();
-							}
-						}
-					});
-			}
-			@Override
-			public void onBeginDoAcquisition(final ScheduleStep step) {
-				Display display = getDisplay();
-				if (display != null)
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
-							if (nodeInfo != null) {
-								nodeInfo.beginDoAcquisition();
-								table.redraw();
-							}
-						}
-					});
-			}
-			@Override
-			public void onEndDoAcquisition(final ScheduleStep step, final AcquisitionSummary summary) {
-				Display display = getDisplay();
-				if (display != null)
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
-							if (nodeInfo != null) {
-								nodeInfo.endDoAcquisition(summary);
-								table.redraw();
-							}
-						}
-					});
-			}
-			@Override
-			public void onBeginPostAcquisition(final ScheduleStep step) {
-				Display display = getDisplay();
-				if (display != null)
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
-							if (nodeInfo != null) {
-								nodeInfo.beginPostAcquisition();
-								table.redraw();
-							}
-						}
-					});
-			}
-			@Override
-			public void onEndPostAcquisition(final ScheduleStep step, final Summary summary) {
-				Display display = getDisplay();
-				if (display != null)
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
-							if (nodeInfo != null) {
-								nodeInfo.endPostAcquisition(summary);
-								table.redraw();
-							}
-						}
-					});
-			}
-		});
+    	updateSource(null, null);
     }
 
     // nodes
     private void onNewRoot(ScheduledAspect root) {
-    	if (rootNode != null)
+    	if (rootNode != null) {
     		removeNodeTree(null, rootNode);
+    		rootNode = null;
+    	}
+
+    	if (!nodes.isEmpty())
+    		throw new IllegalStateException();
     	
     	if (root != null)
     		rootNode = insertAspect(null, root);
-    	else
-    		rootNode = null;
     	
     	rebuildIndicesAndCounts();
-    	table.redraw();
+    	redraw();
 	}
 	private void onNewLayer(Set<ScheduledAspect> owners) {
 		for (ScheduledAspect owner : owners)
@@ -398,7 +364,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
 				insertAspect(leafNode, owner.getLinkAt(leafNode));
 
     	rebuildIndicesAndCounts();
-    	table.redraw();
+    	redraw();
 	}
 	private void onDeletedLayer(Set<ScheduledAspect> owners) {
 		for (ScheduledAspect owner : owners)
@@ -430,7 +396,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
 			}
 		
     	rebuildIndicesAndCounts();
-    	table.redraw();
+    	redraw();
 	}
 	// aspect
 	private void onNewAspects(ScheduledAspect owner, Iterable<ScheduledAspect> aspects) {
@@ -440,16 +406,15 @@ public class ScheduleTableModel extends KTableDefaultModel {
 		NodeInfo ownerInfo = nodes.get(owner.getNode());
 		if (ownerInfo == null)
 			throw new Error("node not found");
-		
-		for (ScheduledAspect aspect : aspects) {
-			// in case owner aspect hasn't been updated yet  
-			loadNodeTree(ownerInfo.getOwner(), owner.getNode());
 
+		// in case owner aspect hasn't been updated yet  
+		loadNodeTree(ownerInfo.getOwner(), owner.getNode());
+		
+		for (ScheduledAspect aspect : aspects)
 			insertAspect(owner.getLeafNode(aspect), aspect);
-		}
 
     	rebuildIndicesAndCounts();
-    	table.redraw();
+    	redraw();
 	}
 	private void onDeletedAspects(ScheduledAspect owner, Iterable<ScheduledAspect> aspects) {
 		for (ScheduledAspect aspect : aspects) {
@@ -462,7 +427,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
 		}
 
     	rebuildIndicesAndCounts();
-    	table.redraw();
+    	redraw();
 	}
     // node
 	private void onChangedNodeProperty(ScheduledNode owner, IDependencyProperty property) {
@@ -479,17 +444,12 @@ public class ScheduleTableModel extends KTableDefaultModel {
 			
 			// sort() returns true, if list had to be sorted
 			if (ownerInfo.sort()) {
-				//updateNodes(
-				//		ownerInfo.getIndex(),
-				//		ownerInfo.getDepth(),
-				//		ownerInfo);
-				
-				int index = ownerInfo.getIndex() + 1;		// index of next node
+				int index = ownerInfo.getIndex() + 1; // index of next node
 				for (NodeInfo subNode : ownerInfo.getNodes())
-					index += updateNodes(index, subNode.getDepth(), subNode);
+					index += updateNodes(rows, subNode, index, subNode.getDepth());
 
 				cleanCollapsedNodes();
-				table.redraw();
+				redraw();
 			}
 		}
 		else {
@@ -497,7 +457,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
 			int row = dr2vr.get(nodeInfo.getIndex());
 			if (row != -1)
 				// redraw complete row
-				table.redraw(0, getFixedRowCount() + row, getColumnCount(), 1);
+				redraw(0, getFixedRowCount() + row, getColumnCount(), 1);
 		}
 	}
 	private void onVisibilityChanged(ScheduledNode owner) {
@@ -506,12 +466,12 @@ public class ScheduleTableModel extends KTableDefaultModel {
 			throw new Error("node not found");
 		
 		cleanCollapsedNodes();
-		table.redraw();
+		redraw();
 	}
 	private void onAddedSubNode(ScheduledNode owner, ScheduledNode newNode) {
 		NodeInfo ownerInfo = nodes.get(owner);
 		if (ownerInfo == null)
-			throw new Error("node not found");
+			throw new Error("owner node not found");
 		
 		if (nodes.containsKey(newNode))
 			return; // subNode may have been handled when new aspects were created
@@ -519,42 +479,40 @@ public class ScheduleTableModel extends KTableDefaultModel {
 		loadNodeTree(ownerInfo, newNode);
 
     	rebuildIndicesAndCounts();
-    	table.redraw();
+    	redraw();
 	}
 	private void onDeletedSubNode(ScheduledNode owner, ScheduledNode subNode) {
 		NodeInfo ownerInfo = nodes.get(owner);
 		if (ownerInfo == null)
-			throw new Error("node not found");
+			throw new Error("owner not found");
 		
 		NodeInfo nodeInfo = nodes.get(subNode);
 		if (nodeInfo == null)
-			throw new Error("node not found");
+			throw new Error("subNode not found");
 
 		// remove node and node ancestors
 		removeNodeTree(ownerInfo, nodeInfo);
 		
     	rebuildIndicesAndCounts();
-    	table.redraw();
+    	redraw();
 	}
 	// determine depth, index and count for each node
 	private void rebuildIndicesAndCounts() {
 		rows.clear();
 		
-		updateNodes(0, 0, rootNode);
+		if (rootNode != null)
+			updateNodes(rows, rootNode, 0, 0);
+		
 		cleanCollapsedNodes();
 		
-		// determine how many columns are needed
-		int columnSpan = 0;
-		for (NodeInfo nodeInfo : rows)
-			if (nodeInfo.hasRowDefinition())
-				columnSpan = Math.max(columnSpan, nodeInfo.getDepth() + nodeInfo.getRowDefinition().getColumnSpan());
-			
+		int columnSpan = updateColumnSpans();
+		
 		if (dataColumnSpan != columnSpan) {
 			dataColumnSpan = columnSpan;
 			table.setNumColsVisibleInPreferredSize(getColumnCount());
 		}
 	}
-	private int updateNodes(int index, int depth, NodeInfo node) {
+	private static int updateNodes(List<NodeInfo> rows, NodeInfo node, int index, int depth) {
 		int nodeIndex = index;
 		if (index == rows.size())
 			rows.add(node);
@@ -567,7 +525,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
 		
 		int nextDepth = node.hasRowDefinition() ? depth + 1 : depth;
 		for (NodeInfo subNode : node.getNodes())
-			index += updateNodes(index, nextDepth, subNode);
+			index += updateNodes(rows, subNode, index, nextDepth);
 
 		int totalCount = index - nodeIndex;
 		int ancestorCount = totalCount - 1;
@@ -613,6 +571,50 @@ public class ScheduleTableModel extends KTableDefaultModel {
         collapsedNodes.clear();
     	for (NodeInfo node : newCollapsedNodes.values())
     		collapsedNode(node, false);
+	}
+	private int updateColumnSpans() {
+		// determine how many columns are needed
+		int dataColumnSpan = 0;
+		for (NodeInfo nodeInfo : rows)
+			if (nodeInfo.hasRowDefinition())
+				dataColumnSpan = Math.max(
+						dataColumnSpan,
+						nodeInfo.getDepth() + nodeInfo.getRowDefinition().getColumnSpan() + (nodeInfo.canBeDisabled() ? 1 : 0));
+		
+		// depth => cell definition => final column span
+		Map<Integer, Map<CellDefinition, Integer>> columnSpansLookup = new HashMap<>();
+		for (NodeInfo nodeInfo : rows)
+			if (nodeInfo.hasRowDefinition())
+				if (columnSpansLookup.containsKey(nodeInfo.getDepth()))
+				    nodeInfo.setColumnSpans(columnSpansLookup.get(nodeInfo.getDepth()));
+				else {
+					RowDefinition rowDefinition = nodeInfo.getRowDefinition();
+					List<CellDefinition> cells = rowDefinition.getCells();
+
+					boolean sizable = false;
+					Map<CellDefinition, Integer> columnSpans = new HashMap<>();
+					for (CellDefinition cell : cells) {
+						columnSpans.put(cell, cell.getColumnSpan());
+						sizable |= cell.isSizable(); // check if any column size can be increased
+					}
+
+					if (sizable) {
+						int available = dataColumnSpan - (nodeInfo.getDepth() + nodeInfo.getRowDefinition().getColumnSpan() + (nodeInfo.canBeDisabled() ? 1 : 0));
+						while (available > 0)
+							for (CellDefinition cell : cells)
+								if (cell.isSizable()) {
+									// increase column span
+									columnSpans.put(cell, columnSpans.get(cell) + 1);
+									if (--available == 0)
+										break;
+								}
+					}
+					
+					columnSpansLookup.put(nodeInfo.getDepth(), columnSpans);
+				    nodeInfo.setColumnSpans(columnSpans);
+				}
+		
+		return dataColumnSpan;
 	}
 	
 	
@@ -767,18 +769,61 @@ public class ScheduleTableModel extends KTableDefaultModel {
 			
 			// System.out.println("collapsedNode");
 			if (refresh)
-				table.redraw();
+				redraw();
 		}
 	}
 	private void expandNode(NodeInfo node, boolean refresh) {
 		if (collapsedNodes.remove(node)) {
 			cleanCollapsedNodes();
 			if (refresh)
-				table.redraw();
+				redraw();
 		}
 	}
 	
 	// methods
+	public void updateSource(Scheduler scheduler, ScheduleWalker walker) {
+		try {
+			beginUpdate();
+			
+			if (this.scheduler != null) {
+				this.scheduler.removeListener(schedulerListener);
+				this.scheduler = null;
+			}
+			if (this.walker != null) {
+				this.walker.removeListener(walkerListener);
+				this.walker = null;
+			}
+
+			for (ScheduledNode node : nodes.keySet())
+				node.removeListener(nodeListener);
+			nodes.clear();
+			rootNode = null;
+
+			rebuildIndicesAndCounts();
+			table.clearSelection();
+			
+			if (scheduler != null) {
+				this.scheduler = scheduler;
+				this.scheduler.addListener(schedulerListener);
+				table.setBackground(Resources.COLOR_DEFAULT);
+				table.setEnabled(true);
+			}
+			else {
+				table.setBackground(Resources.COLOR_DISABLED);
+				table.setEnabled(false);
+			}
+			if (walker != null) {
+				this.walker = walker;
+				this.walker.addListener(walkerListener);
+			}
+
+			table.clearSelection();
+			redraw();
+		}
+		finally {
+			endUpdate();
+		}
+	}
     @Override
     public int doGetRowCount() {
         return getFixedRowCount() + vr2dr.size();
@@ -787,27 +832,33 @@ public class ScheduleTableModel extends KTableDefaultModel {
     public int doGetColumnCount() {
         return
         		getFixedColumnCount()
-        		+ 2						// collapsed + enabled
-        		+ dataColumnSpan
-        		+ PROGRESS_COLUMNSPAN;	// progress
+        		+ 1						// collapsed
+        		+ dataColumnSpan		// includes "enabled"
+        		+ acquisitionDetails.getColumnSpan()
+        		+ auxiliaryColumns.size();
     }
     @Override
     public Point doBelongsToCell(int col, int row) {
     	if (!isValid(col, row))
     		return new Point(col, row);
 
-    	int progressColumn = doGetColumnCount() - PROGRESS_COLUMNSPAN;
+		int acqCol = col - (getColumnCount() - auxiliaryColumns.size() - acquisitionDetails.getColumnSpan());
+		int auxCol = col - (getColumnCount() - auxiliaryColumns.size());
+
+    	if (auxCol >= 0)
+    		return new Point(col, row);
+    	if (acqCol >= 0)
+    		return acquisitionDetails.belongsToCell(col - acqCol, acqCol, row);
     	
-    	if (col == 0)
-    		return new Point(0, row);
-    	if (col >= progressColumn)
-    		return new Point(progressColumn, row);
+    	if (col < getFixedColumnCount())
+    		return new Point(col, row);
     	if (row == 0)
-    		return new Point(1, row);
+    		return new Point(getFixedColumnCount(), row); // "Acquisition Tree"
 
     	NodeInfo nodeInfo = getNodeInfo(row);
 
 		int colTarget = col;
+		col -= getFixedColumnCount() - 1;
 		if ((col -= nodeInfo.getDepth()) > 0) {
 			switch (col) {
 			case 1:
@@ -834,7 +885,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
 				RowDefinition rowDefinition = nodeInfo.getRowDefinition();
 				if (rowDefinition != null)
 					for (CellDefinition cell : rowDefinition.getCells()) {
-						int span = cell.getColumnSpan();
+						int span = nodeInfo.getColumnSpan(cell);
 						if (col < span)
 							break;
 						col -= span;
@@ -851,21 +902,36 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	if (!isValid(col, row))
     		return null;
 
-    	if (col == 0)
-    		return null;
+		int acqCol = col - (getColumnCount() - auxiliaryColumns.size() - acquisitionDetails.getColumnSpan());
+		int auxCol = col - (getColumnCount() - auxiliaryColumns.size());
+
     	if (row == 0) {
-        	int progressColumn = doGetColumnCount() - PROGRESS_COLUMNSPAN;
-        	if (col >= progressColumn)
-        		return "Progress";
-        	else
-        		return "Acquisition Tree";
+    		switch (col) {
+    		case 0:
+    			return null;
+    		case 1:
+    			return "Run";
+    		case 2:
+    			return "Acquisition Tree";
+    		}
+    		if ((acqCol >= 0) && (acqCol < acquisitionDetails.getColumnSpan()))
+    			return acquisitionDetails.getTitle(acqCol);
+        	if ((auxCol >= 0) && (auxCol < auxiliaryColumns.size()))
+        		return auxiliaryColumns.get(auxCol).getTitle();
+
+        	return null;
     	}
 
+    	if (col < getFixedColumnCount())
+    		return null;
+
     	NodeInfo nodeInfo = getNodeInfo(row);
-    	
-    	if (col == doGetColumnCount() - PROGRESS_COLUMNSPAN)
-    		return nodeInfo.getProgress();
-	
+		if ((acqCol >= 0) && (acqCol < acquisitionDetails.getColumnSpan()))
+			return acquisitionDetails.getContentAt(nodeInfo, acqCol);
+    	if ((auxCol >= 0) && (auxCol < auxiliaryColumns.size()))
+    		return auxiliaryColumns.get(auxCol).getContent(nodeInfo);
+
+		col -= getFixedColumnCount() - 1;
 		if ((col -= nodeInfo.getDepth()) > 0) {
 			switch (col) {
 			case 1:
@@ -899,7 +965,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
 					else if (col == 0)
 						return cell.getValue(nodeInfo.getNode());
 					else
-						col -= cell.getColumnSpan();
+						col -= nodeInfo.getColumnSpan(cell);
 
 			if (col >= 0)
 				return "";
@@ -913,11 +979,18 @@ public class ScheduleTableModel extends KTableDefaultModel {
 	public void doSetContentAt(int col, int row, Object value) {
     	if (!isValid(col, row))
     		return;
-    	if ((col == 0) || (row == 0))
+
+    	if ((row == 0) || (col < getFixedColumnCount()))
     		return;
 
     	NodeInfo nodeInfo = getNodeInfo(row);
+		int acqCol = col - (getColumnCount() - auxiliaryColumns.size() - acquisitionDetails.getColumnSpan());
+		if ((acqCol >= 0) && (acqCol < acquisitionDetails.getColumnSpan())) {
+			acquisitionDetails.setContentAt(nodeInfo, acqCol, value);
+			return;
+		}
 
+		col -= getFixedColumnCount() - 1;
 		if ((col -= nodeInfo.getDepth()) > 0) {
 			switch (col) {
 			case 1:
@@ -964,23 +1037,47 @@ public class ScheduleTableModel extends KTableDefaultModel {
 						return;
 					}
 					else
-						col -= cell.getColumnSpan();
+						col -= nodeInfo.getColumnSpan(cell);
 		}
+	}
+	private KTableCellEditor prepareCellEditor(NodeInfo nodeInfo, CellDefinition cell) {
+		if (!cell.isEnabled(nodeInfo.getNode()))
+			return null;
+
+		KTableCellEditor cellEditor = cell.getCellEditor();
+		if ((cellEditor != null) && (cell instanceof PropertyCellDefinition)) {
+			// e.g. for AcquisitionDetails not all properties are supported by every node
+			if (!nodeInfo.getNode().getProperties().contains(((PropertyCellDefinition)cell).getProperty()))
+				return null;
+
+	    	textModifyListener.update(
+	    			(PropertyCellDefinition)cell,
+	    			new NodeElementAdapter(nodeInfo.getNode()));
+		}
+		
+		return cellEditor;
 	}
 	@Override
 	public KTableCellEditor doGetCellEditor(int col, int row) {
     	if (!isValid(col, row))
     		return null;
-    	if ((col == 0) || (row == 0))
+
+    	if (row == 0)
     		return null;
+    	
+		int acqCol = col - (getColumnCount() - auxiliaryColumns.size() - acquisitionDetails.getColumnSpan());
+		int auxCol = col - (getColumnCount() - auxiliaryColumns.size());
 
     	NodeInfo nodeInfo = getNodeInfo(row);
-
-    	if (col == doGetColumnCount() - PROGRESS_COLUMNSPAN) {
-			if (nodeInfo.getProgress() instanceof String)
-				return readonlyTextCellEditor;
-    	}
+		if ((acqCol >= 0) && (acqCol < acquisitionDetails.getColumnSpan()))
+			return acquisitionDetails.getCellEditor(nodeInfo, acqCol);
+    	if ((auxCol >= 0) && (auxCol < auxiliaryColumns.size()))
+    		return auxiliaryColumns.get(auxCol).getCellEditor(nodeInfo);
     	
+    	if (col < getFixedColumnCount())
+    		return null;
+    	
+    	col -= getFixedColumnCount() - 1;
 		if ((col -= nodeInfo.getDepth()) > 0) {
 			switch (col) {
 			case 1:
@@ -1016,20 +1113,44 @@ public class ScheduleTableModel extends KTableDefaultModel {
 				for (CellDefinition cell : rowDefinition.getCells())
 					if (col < 0)
 						break;
-					else if (col == 0) {
-						KTableCellEditor cellEditor = cell.getCellEditor();
-						if ((cellEditor != null) && (cell instanceof IModelCellDefinition))
-					    	textModifyListener.update(
-					    			(IModelCellDefinition)cell,
-					    			new NodeElementAdapter(nodeInfo.getNode()));
-						
-						return cellEditor;
-					}
+					else if (col == 0)
+						return prepareCellEditor(nodeInfo, cell);
 					else
-						col -= cell.getColumnSpan();
+						col -= nodeInfo.getColumnSpan(cell);
 		}
 		
 		return null;
+	}
+	private KTableCellRenderer prepareCellRenderer(NodeInfo nodeInfo, CellDefinition cell) {
+		DefaultCellRenderer cellRenderer = cell.getCellRenderer();
+		if (cellRenderer == null)
+			cellRenderer = textCellRenderer;
+		if (cell instanceof PropertyCellDefinition) {
+			// e.g. for AcquisitionDetails not all properties are supported by every node
+			if (!nodeInfo.getNode().getProperties().contains(((PropertyCellDefinition)cell).getProperty()))
+				cellRenderer = emptyCellRenderer;
+		}
+		
+		RGB color = nodeInfo.getRowDefinition().getColor();
+		if (color != null)
+			cellRenderer.setBackground(SWTResourceManager.getColor(color));
+		else
+			cellRenderer.setBackground(null);
+
+		if (nodeInfo.isTreeEnabled() && cell.isEnabled(nodeInfo.getNode()))
+			cellRenderer.setForeground(null);
+		else
+			cellRenderer.setForeground(KTableResources.COLOR_DISABLED);
+
+		if (cell instanceof PropertyCellDefinition) {
+			PropertyCellDefinition propertyCell = (PropertyCellDefinition)cell;
+			if (nodeInfo.getNode().isModified(propertyCell.getProperty())) {
+				modifiedCellRenderer.setCellRenderer(cellRenderer);
+				return modifiedCellRenderer;
+			}
+		}
+		
+		return cellRenderer;
 	}
 	@Override
 	public KTableCellRenderer doGetCellRenderer(int col, int row) {
@@ -1040,42 +1161,24 @@ public class ScheduleTableModel extends KTableDefaultModel {
         if (row == 0)
             return columnHeaderRenderer;
 
+		int acqCol = col - (getColumnCount() - auxiliaryColumns.size() - acquisitionDetails.getColumnSpan());
+		int auxCol = col - (getColumnCount() - auxiliaryColumns.size());
+
     	NodeInfo nodeInfo = getNodeInfo(row);
     	
-    	if (col == 0)
+    	switch (col) {
+    	case 0:
     		return rowHeaderRenderers.get(nodeInfo.getRowDefinition().getElementType());
-    	if (col == doGetColumnCount() - PROGRESS_COLUMNSPAN) {
-    		if (nodeInfo.hasRowDefinition()) {
-    			Object progress = nodeInfo.getProgress();
-    			RowDefinition rowDefinition = nodeInfo.getRowDefinition();
-    			RGB color = rowDefinition.getColor();
-    			
-    			DefaultCellRenderer cellRenderer;
-    			
-    			if (progress instanceof String) {
-    				cellRenderer = textCellRenderer;
-					if (nodeInfo.isTreeEnabled())
-						cellRenderer.setForeground(null);
-					else
-						cellRenderer.setForeground(KTableResources.COLOR_DISABLED);
-    			}
-    			else {
-    				cellRenderer = barDiagramCellRenderer;
-        			if (color != null)
-        				cellRenderer.setForeground(SWTResourceManager.getColor(PROGRESS_RGB.overlay(color)));
-        			else
-        				cellRenderer.setForeground(SWTResourceManager.getColor(PROGRESS_RGB.overlay(new RGB(255, 255, 255))));
-    			}
-
-				if (color != null)
-					cellRenderer.setBackground(SWTResourceManager.getColor(color));
-				else
-					cellRenderer.setBackground(null);
-    			
-        		return cellRenderer;
-    		}
+    	case 1:
+    		return rowRunRenderer;
     	}
-	
+
+		if ((acqCol >= 0) && (acqCol < acquisitionDetails.getColumnSpan()))
+			return acquisitionDetails.getCellRenderer(nodeInfo, acqCol);
+    	if ((auxCol >= 0) && (auxCol < auxiliaryColumns.size()))
+    		return auxiliaryColumns.get(auxCol).getCellRenderer(nodeInfo);
+
+		col -= getFixedColumnCount() - 1;
 		if ((col -= nodeInfo.getDepth()) > 0) {
 			switch (col) {
 			case 1:
@@ -1108,39 +1211,17 @@ public class ScheduleTableModel extends KTableDefaultModel {
 				for (CellDefinition cell : rowDefinition.getCells())
 					if (col < 0)
 						break;
-					else if (col == 0) {
-						DefaultCellRenderer cellRenderer = cell.getCellRenderer();
-						if (cellRenderer == null)
-							cellRenderer = textCellRenderer;
-						
-						if (rowDefinition.getColor() != null)
-							cellRenderer.setBackground(SWTResourceManager.getColor(rowDefinition.getColor()));
-						else
-							cellRenderer.setBackground(null);
-
-						if (nodeInfo.isTreeEnabled())
-							cellRenderer.setForeground(null);
-						else
-							cellRenderer.setForeground(KTableResources.COLOR_DISABLED);
-
-						if (cell instanceof PropertyCellDefinition) {
-							PropertyCellDefinition propertyCell = (PropertyCellDefinition)cell;
-							if (nodeInfo.getNode().isModified(propertyCell.getProperty())) {
-								modifiedCellRenderer.setCellRenderer(cellRenderer);
-								return modifiedCellRenderer;
-							}
-						}
-						
-						return cellRenderer;
-					}
+					else if (col == 0)
+						return prepareCellRenderer(nodeInfo, cell);
 					else
-						col -= cell.getColumnSpan();
+						col -= nodeInfo.getColumnSpan(cell);
 
 			if (col >= 0) {
 				if (rowDefinition.getColor() != null)
 					endOfLineCellRenderer.setBackground(SWTResourceManager.getColor(rowDefinition.getColor()));
 				else
 					endOfLineCellRenderer.setBackground(null);
+				
 				return endOfLineCellRenderer;
 			}
     	}
@@ -1151,17 +1232,21 @@ public class ScheduleTableModel extends KTableDefaultModel {
     public String doGetTooltipAt(int col, int row) {
     	if ((row == 0) && (col == 0))
     		return "click to expand menu";
-    	if (col == 0) {
+    	
+    	switch (col) {
+    	case 0:
         	NodeInfo nodeInfo = getNodeInfo(row);
     		return nodeInfo.getRowDefinition().getButtonHeader();
+    	case 1:
+    		return "start/stop from this row";
+		default:
+			return null;
     	}
-    	
-        return null;
     }
 	// fixed
     @Override
     public int getFixedHeaderColumnCount() {
-        return 1;
+        return 2;
     }
     @Override
     public int getFixedSelectableColumnCount() {
@@ -1182,9 +1267,17 @@ public class ScheduleTableModel extends KTableDefaultModel {
 	}
 	@Override
 	public int getInitialColumnWidth(int col) {
-    	if (col < getFixedColumnCount())
+		switch (col) {
+		case 0:
     		return KTableResources.ROW_HEADER_WIDTH;
-
+		case 1:
+    		return 29;
+		}
+    	
+		int auxCol = col - (getColumnCount() - auxiliaryColumns.size());
+    	if ((auxCol >= 0) && (auxCol < auxiliaryColumns.size()))
+    		return auxiliaryColumns.get(auxCol).getWidth();
+    	
     	return KTableResources.ROW_HEIGHT + 2;
 	}
 	@Override
@@ -1202,12 +1295,37 @@ public class ScheduleTableModel extends KTableDefaultModel {
     public boolean isRowResizable(int row) {
         return false;
     }
-
+    // drawing
+    public void beginUpdate() {
+    	if (suspendRedrawCounter++ == 0) {
+    		//redrawAll = false;
+    		//redrawX = -1;
+    		//redrawY = -1;
+    		//redrawWidth = -1;
+    		//redrawHeight = -1;
+    	}
+    }
+    public void endUpdate() {
+    	if (suspendRedrawCounter == 0)
+    		return;
+    	
+    	if (--suspendRedrawCounter == 0)
+        	table.redraw();
+    }
+	public void redraw() {
+		if (suspendRedrawCounter == 0)
+			table.redraw();
+	}
+	public void redraw(int firstCol, int firstRow, int numOfCols, int numOfRows) {
+		if (suspendRedrawCounter == 0)
+			table.redraw(firstCol, firstRow, numOfCols, numOfRows);
+	}
+    
     // bug check
     private boolean isValid(int col, int row) {
     	return
-    			(col >= 0) || (col < getColumnCount()) ||
-    			(row >= 0) || (row < getRowCount());
+    			(col >= 0) && (col < getColumnCount()) &&
+    			(row >= 0) && (row < getRowCount());
     }
     
 	//////////////////////////////////////////////
@@ -1246,6 +1364,215 @@ public class ScheduleTableModel extends KTableDefaultModel {
 		@Override
 		public void onDeletedAspects(ScheduledAspect owner, Iterable<ScheduledAspect> aspects) {
 			model.onDeletedAspects(owner, aspects);
+		}
+		@Override
+		public void onBeginUpdate() {
+			model.beginUpdate();
+		}
+		@Override
+		public void onEndUpdate() {
+			model.endUpdate();
+		}
+	}
+    private static class ScheduleWalkerListener implements IScheduleWalkerListener {
+    	// fields
+    	private final KTable table;
+    	private final Map<ScheduledNode, NodeInfo> nodes;
+    	
+    	// construction
+		public ScheduleWalkerListener(KTable table, Map<ScheduledNode, NodeInfo> nodes) {
+			this.table = table;
+			this.nodes = nodes;
+		}
+    	
+		// methods
+		private Display getDisplay() {
+			try {
+				if (!table.isDisposed())
+					return table.getDisplay();
+			}
+			catch (Exception e) {
+			}
+			return null;
+		}
+		// schedule
+		@Override
+		public void onBeginSchedule() {
+			Display display = getDisplay();
+			if (display != null)
+				display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						for (NodeInfo nodeInfo : nodes.values())
+							nodeInfo.beginSchedule();
+						
+						table.redraw();
+					}
+				});
+		}
+		@Override
+		public void onEndSchedule() {
+			Display display = getDisplay();
+			if (display != null)
+				display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						for (NodeInfo nodeInfo : nodes.values())
+							nodeInfo.endSchedule();
+						
+						table.redraw();
+					}
+				});
+		}
+		// initialization
+		@Override
+		public void onInitialized(Summary summary) {
+		}
+		@Override
+		public void onCleanedUp(Summary summary) {
+		}
+		// step
+		@Override
+		public void onBeginStep(ScheduleStep step) {
+		}
+		@Override
+		public void onEndStep(final ScheduleStep step) {
+			Display display = getDisplay();
+			if (display != null)
+				display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
+						if (nodeInfo != null) {
+							nodeInfo.completed();
+							
+							if (step.isEnabled())
+								table.redraw();
+						}
+					}
+				});
+		}
+		// parameters
+		@Override
+		public void onBeginChangeParameter(final ScheduleStep step) {
+			Display display = getDisplay();
+			if (display != null)
+				display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
+						if (nodeInfo != null) {
+							nodeInfo.beginChangeParameter();
+							table.redraw();
+						}
+					}
+				});
+		}
+		@Override
+		public void onEndChangeParameters(final ScheduleStep step, final ParameterChangeSummary summary) {
+			Display display = getDisplay();
+			if (display != null)
+				display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
+						if (nodeInfo != null) {
+							nodeInfo.endChangeParameter(summary);
+							table.redraw();
+						}
+					}
+				});
+		}
+		// acquisition
+		@Override
+		public void onBeginPreAcquisition(final ScheduleStep step) {
+			Display display = getDisplay();
+			if (display != null)
+				display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
+						if (nodeInfo != null) {
+							nodeInfo.beginPreAcquisition();
+							table.redraw();
+						}
+					}
+				});
+		}
+		@Override
+		public void onEndPreAcquisition(final ScheduleStep step, final Summary summary) {
+			Display display = getDisplay();
+			if (display != null)
+				display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
+						if (nodeInfo != null) {
+							nodeInfo.endPreAcquisition(summary);
+							table.redraw();
+						}
+					}
+				});
+		}
+		@Override
+		public void onBeginDoAcquisition(final ScheduleStep step) {
+			Display display = getDisplay();
+			if (display != null)
+				display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
+						if (nodeInfo != null) {
+							nodeInfo.beginDoAcquisition();
+							table.redraw();
+						}
+					}
+				});
+		}
+		@Override
+		public void onEndDoAcquisition(final ScheduleStep step, final AcquisitionSummary summary) {
+			Display display = getDisplay();
+			if (display != null)
+				display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
+						if (nodeInfo != null) {
+							nodeInfo.endDoAcquisition(summary);
+							table.redraw();
+						}
+					}
+				});
+		}
+		@Override
+		public void onBeginPostAcquisition(final ScheduleStep step) {
+			Display display = getDisplay();
+			if (display != null)
+				display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
+						if (nodeInfo != null) {
+							nodeInfo.beginPostAcquisition();
+							table.redraw();
+						}
+					}
+				});
+		}
+		@Override
+		public void onEndPostAcquisition(final ScheduleStep step, final Summary summary) {
+			Display display = getDisplay();
+			if (display != null)
+				display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						NodeInfo nodeInfo = nodes.get(step.getScheduledNode());
+						if (nodeInfo != null) {
+							nodeInfo.endPostAcquisition(summary);
+							table.redraw();
+						}
+					}
+				});
 		}
 	}
     
@@ -1316,9 +1643,11 @@ public class ScheduleTableModel extends KTableDefaultModel {
 		private int depth;
 		private int index;
 		private int ancestorCount; // count of all ancestors
-		// progress
+		private Map<CellDefinition, Integer> columnSpans;
+		// auxiliary
 		private double progress;
 		private String progressText;
+		private String notes;
 		
 		// construction
 		public NodeInfo(ScheduledNode node, RowDefinition rowDefinition) {
@@ -1379,6 +1708,9 @@ public class ScheduleTableModel extends KTableDefaultModel {
 		public Object getProgress() {
 			return progressText == null ? progress : progressText;
 		}
+		public String getNotes() {
+			return notes;
+		}
 
 		// methods
 		public void update(int depth, int index, int ancestorCount) {
@@ -1396,6 +1728,8 @@ public class ScheduleTableModel extends KTableDefaultModel {
 		public int addSubNode(NodeInfo subNode) {
 			if (subNode.owner != null)
 				throw new Error("subNode.owner != null");
+			if (nodes.contains(subNode))
+				throw new Error("nodes.contains(subNode)");
 
 		    Comparator<NodeInfo> comparator = ScheduledNodeComparator.DEFAULT;
 
@@ -1426,7 +1760,24 @@ public class ScheduleTableModel extends KTableDefaultModel {
 			ancestorCount--;
 			subNode.owner = null;
 		}
+		public void setColumnSpans(Map<CellDefinition, Integer> columnSpans) {
+			this.columnSpans = columnSpans;
+		}
+		public int getColumnSpan(CellDefinition cell) {
+			if ((columnSpans == null) || !columnSpans.containsKey(cell))
+				return 0;
+			
+			return columnSpans.get(cell);
+		}
 		// progress
+		public void beginSchedule() {
+			progress = 0.0;
+			progressText = null;
+			notes = null;
+		}
+		public void endSchedule() {
+			progress = 0.0;
+		}
 		public void beginChangeParameter() {
 			progressText = "setup";
 		}
@@ -1435,6 +1786,8 @@ public class ScheduleTableModel extends KTableDefaultModel {
 				progressText = "interrupted";
 			else
 				progressText = null;
+			
+			appendNotes(summary.getNotes());
 		}
 		public void beginPreAcquisition() {
 			progressText = "attenuation";
@@ -1442,6 +1795,8 @@ public class ScheduleTableModel extends KTableDefaultModel {
 		public void endPreAcquisition(Summary summary) {
 			if (summary.getInterrupted())
 				progressText = "interrupted";
+			
+			appendNotes(summary.getNotes());
 		}
 		public void beginDoAcquisition() {
 			progressText = "acquisition";
@@ -1451,9 +1806,10 @@ public class ScheduleTableModel extends KTableDefaultModel {
 				progressText = "interrupted";
 			else {
 				String filename = summary.getFilename();
-				if ((filename != null) && !"".equals(filename)) {
-					if (filename.endsWith(".nx.hdf"))
-						filename = filename.substring(0, filename.length() - ".nx.hdf".length());
+				if ((filename != null) && !filename.isEmpty()) {
+					final String NX_HDF = ".nx.hdf";
+					if (filename.toLowerCase().endsWith(NX_HDF))
+						filename = filename.substring(0, filename.length() - NX_HDF.length());
 
 					progressText = filename;
 				}
@@ -1461,6 +1817,8 @@ public class ScheduleTableModel extends KTableDefaultModel {
 					progressText = "completed";
 				}
 			}
+			
+			appendNotes(summary.getNotes());
 		}
 		public void beginPostAcquisition() {
 		}
@@ -1468,6 +1826,8 @@ public class ScheduleTableModel extends KTableDefaultModel {
 			// should be in notes !!!
 			//if (summary.getInterrupted())
 			//	progressText = "interrupted";
+			
+			appendNotes(summary.getNotes());
 		}
 		public void completed() {
 			if (nodes.isEmpty())
@@ -1475,11 +1835,6 @@ public class ScheduleTableModel extends KTableDefaultModel {
 			
 			if (owner != null)
 				owner.updateProgress();
-		}
-		public void resetProgress(boolean text) {
-			progress = 0.0;
-			if (text)
-				progressText = null;
 		}
 		private void updateProgress() {
 			int totalCount = 0;
@@ -1498,6 +1853,15 @@ public class ScheduleTableModel extends KTableDefaultModel {
 
 			if (owner != null)
 				owner.updateProgress();
+		}
+		private void appendNotes(String notes) {
+			if (notes == null)
+				return;
+			
+			if (this.notes == null)
+				this.notes = notes;
+			else
+				this.notes = this.notes + "; " + notes;
 		}
 		
 		// enabled is just a normal property and shouldn't be treated specially
@@ -1518,7 +1882,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
 			return true;
 		}
 	}
-	
+
 	private static class ScheduledNodeComparator implements Comparator<NodeInfo> {
 		// finals
 		public static final Comparator<NodeInfo> DEFAULT = new ScheduledNodeComparator();
@@ -1677,7 +2041,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
     		
     		int columnSpan = 0;
     		for (CellDefinition cell : cells)
-    			columnSpan += cell.columnSpan;
+    			columnSpan += cell.getColumnSpan();
     		this.columnSpan = columnSpan;
     	}
     	
@@ -1701,6 +2065,25 @@ public class ScheduleTableModel extends KTableDefaultModel {
     		return columnSpan;
     	}
     }
+    public static class AcquisitionDetail {
+    	// fields
+    	private final String title;
+    	private final List<CellDefinition> cells;
+
+    	// construction
+    	public AcquisitionDetail(String title, CellDefinition ... cells) {
+    		this.title = title;
+    		this.cells = Collections.unmodifiableList(Arrays.asList(cells));
+    	}
+    	
+    	// properties
+    	public String getTitle() {
+    		return title;
+    	}
+    	public List<CellDefinition> getCells() {
+    		return cells;
+    	}
+    }
     public static abstract class CellDefinition {
     	// fields
     	protected final int columnSpan;
@@ -1708,33 +2091,62 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	
     	// construction
     	protected CellDefinition(IModelValueConverter<?, ?> converter, int columnSpan) {
+			// a negative column span means that the final column span
+			// should be at least as big as the absolute value
     		this.columnSpan = columnSpan;
     		this.converter = converter;
     	}
     	
     	// properties
+    	public boolean isSizable() {
+    		return columnSpan < 0;
+    	}
     	public int getColumnSpan() {
-    		return columnSpan;
-    	}
-    	public DefaultCellRenderer getCellRenderer() {
-    		return null;
-    	}
-    	public KTableCellEditor getCellEditor() {
-    		return null;
+    		return Math.abs(columnSpan);
     	}
     	public IModelValueConverter<?, ?> getConverter() {
         	return converter;
     	}
     	
     	// methods
+    	public boolean isEnabled(ScheduledNode node) {
+    		return true;
+    	}
     	public abstract Object getValue(ScheduledNode node);
     	public abstract void setValue(ScheduledNode node, Object value);
+    	public KTableCellEditor getCellEditor() {
+    		return null;
+    	}
+    	public DefaultCellRenderer getCellRenderer() {
+    		return null;
+    	}
+    }
+    public static class FixedCellDefinition extends CellDefinition {
+		// fields
+    	protected final String value;
+
+    	// construction
+    	public FixedCellDefinition(String value, int columnSpan) {
+			super(null, columnSpan);
+			this.value = value;
+		}
+    	
+    	// methods
+		@Override
+		public String getValue(ScheduledNode node) {
+			return value;
+		}
+		@Override
+    	public void setValue(ScheduledNode node, Object value) {
+			// not supported
+		}
     }
     public static class PropertyCellDefinition extends CellDefinition implements IModelCellDefinition {
 		// fields
-    	private final IDependencyProperty property;
-    	private final DefaultCellRenderer cellRenderer;
-    	private final KTableCellEditor cellEditor;
+    	protected final IDependencyProperty property;
+    	protected final DefaultCellRenderer cellRenderer;
+    	protected final KTableCellEditor cellEditor;
+    	protected final IEnabledCondition enabledCondition;
 
     	// construction
     	public <TElement extends Element, TModel>
@@ -1742,11 +2154,20 @@ public class ScheduleTableModel extends KTableDefaultModel {
 			this(property, cellRenderer, cellEditor, null, columnSpan);
 		}
     	public <TElement extends Element, TModel>
+    	PropertyCellDefinition(DependencyProperty<TElement, TModel> property, DefaultCellRenderer cellRenderer, KTableCellEditor cellEditor, int columnSpan, IEnabledCondition enabledCondition) {
+			this(property, cellRenderer, cellEditor, null, columnSpan, enabledCondition);
+		}
+    	public <TElement extends Element, TModel>
     	PropertyCellDefinition(DependencyProperty<TElement, TModel> property, DefaultCellRenderer cellRenderer, KTableCellEditor cellEditor, IModelValueConverter<TModel, ?> converter, int columnSpan) {
+    		this(property, cellRenderer, cellEditor, converter, columnSpan, AlwaysEnabledCondition.DEFAULT);
+    	}
+    	public <TElement extends Element, TModel>
+    	PropertyCellDefinition(DependencyProperty<TElement, TModel> property, DefaultCellRenderer cellRenderer, KTableCellEditor cellEditor, IModelValueConverter<TModel, ?> converter, int columnSpan, IEnabledCondition enabledCondition) {
 			super(converter, columnSpan);
 			this.property = property;
 	    	this.cellRenderer = cellRenderer;
 	    	this.cellEditor = cellEditor;
+	    	this.enabledCondition = enabledCondition;
 		}
 
     	// properties
@@ -1754,16 +2175,12 @@ public class ScheduleTableModel extends KTableDefaultModel {
 		public IDependencyProperty getProperty() {
 			return property;
 		}
-		@Override
-		public DefaultCellRenderer getCellRenderer() {
-	    	return cellRenderer;
-		}
-		@Override
-		public KTableCellEditor getCellEditor() {
-	    	return cellEditor;
-		}
-		
+
     	// methods
+		@Override
+    	public boolean isEnabled(ScheduledNode node) {
+    		return enabledCondition.isFulfilled(node);
+    	}
 		@Override
 		public Object getValue(ScheduledNode node) {
 			return convertFromModel(node.get(property));
@@ -1772,7 +2189,15 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	public void setValue(ScheduledNode node, Object value) {
 			node.set(property, convertToModelValue(value));
 		}
-    	
+		@Override
+		public KTableCellEditor getCellEditor() {
+	    	return cellEditor;
+		}
+		@Override
+		public DefaultCellRenderer getCellRenderer() {
+	    	return cellRenderer;
+		}
+		
 		// helpers
 		@Override
     	@SuppressWarnings("unchecked")
@@ -1793,24 +2218,176 @@ public class ScheduleTableModel extends KTableDefaultModel {
     				converter.getTargetValueType().cast(value));
     	}
     }
-    public static class FixedCellDefinition extends CellDefinition {
+    public static interface IEnabledCondition {
+    	// methods
+		public boolean isFulfilled(ScheduledNode node);
+    }
+    public static class AlwaysEnabledCondition implements IEnabledCondition {
+		// finals
+		public static final AlwaysEnabledCondition DEFAULT = new AlwaysEnabledCondition();
+		
+    	// methods
+    	@Override
+		public boolean isFulfilled(ScheduledNode node) {
+			return true;
+		}
+    }
+    public static class PropertyEnabledCondition implements IEnabledCondition {
 		// fields
-    	private final String value;
+    	protected final IDependencyProperty property;
+    	protected final IModelValueConverter<?, ?> converter;
+    	protected final Object targetValue;
 
     	// construction
-    	public FixedCellDefinition(String value, int columnSpan) {
-			super(null, columnSpan);
-			this.value = value;
+    	public <TElement extends Element, TModel>
+    	PropertyEnabledCondition(DependencyProperty<TElement, TModel> property, TModel targetValue) {
+			this(property, null, targetValue);
 		}
+    	public <TElement extends Element, TModel, TValue>
+    	PropertyEnabledCondition(DependencyProperty<TElement, TModel> property, IModelValueConverter<TModel, TValue> converter, TValue targetValue) {
+			this.property = property;
+			this.converter = converter;
+	    	this.targetValue = targetValue;
+		}
+
+    	// methods
+    	@Override
+		public boolean isFulfilled(ScheduledNode node) {
+			return Objects.equals(
+					convertFromModel(node.get(property)),
+					targetValue);
+		}
+		
+		// helpers
+    	@SuppressWarnings("unchecked")
+    	private Object convertFromModel(Object value) {
+    		if (converter == null)
+    			return value;
+    		
+    		return ((IModelValueConverter<Object, Object>)converter).fromModelValue(
+    				converter.getModelValueType().cast(value));
+    	}
+    }
+
+    //
+    private class AcquisitionDetailManager {
+    	// fields
+    	private final Iterable<AcquisitionDetail> acquisitionDetails;
+    	private final int columnSpan;
+    	//
+    	private final List<String> titles;
+    	private final List<Integer> belongToColumnHeader;
+    	private final List<Integer> belongToColumnData;
+    	
+    	// construction
+    	public AcquisitionDetailManager(Iterable<AcquisitionDetail> acquisitionDetails) {
+    		this.acquisitionDetails = acquisitionDetails;
+    		this.titles = new ArrayList<>();
+    		this.belongToColumnHeader = new ArrayList<>();
+    		this.belongToColumnData = new ArrayList<>();
+
+    		int columnIndex = 0;
+    		int columnHeaderIndex, columnDataIndex;
+    		for (AcquisitionDetail detail : acquisitionDetails) {
+				columnHeaderIndex = columnIndex;
+				for (CellDefinition cell : detail.getCells()) {
+					columnDataIndex = columnIndex;
+					for (int columnEnd = columnIndex + cell.getColumnSpan(); columnIndex < columnEnd; columnIndex++) {
+						titles.add(columnIndex == columnHeaderIndex ? detail.getTitle() : null);
+						belongToColumnHeader.add(columnHeaderIndex);
+						belongToColumnData.add(columnDataIndex);
+					}
+				}
+    		}
+    		
+    		this.columnSpan = columnIndex;    		
+    	}
+
+    	// properties
+    	public String getTitle(int col) {
+			return titles.get(col);
+    	}
+    	public int getColumnSpan() {
+    		return columnSpan;
+    	}
     	
     	// methods
-		@Override
-		public String getValue(ScheduledNode node) {
-			return value;
-		}
-		@Override
-    	public void setValue(ScheduledNode node, Object value) {
-			// not supported
-		}
+    	public Point belongsToCell(int colOffset, int col, int row) {
+    		if (row == 0)
+    			return new Point(colOffset + belongToColumnHeader.get(col), 0);
+    		else
+    			return new Point(colOffset + belongToColumnData.get(col), row);
+    	}
+    	public Object getContentAt(NodeInfo nodeInfo, int col) {
+    		for (AcquisitionDetail detail : acquisitionDetails)
+				for (CellDefinition cell : detail.getCells())
+					if (col < 0)
+						break;
+					else if (col == 0) {
+						// e.g. for AcquisitionDetails not all properties are supported by every node
+						if (!nodeInfo.getNode().getProperties().contains(((PropertyCellDefinition)cell).getProperty()))
+							return null;
+
+						return cell.getValue(nodeInfo.getNode());
+					}
+					else
+						col -= cell.getColumnSpan();
+
+			if (col >= 0)
+				return "";
+			
+			return "?";
+    	}
+    	public void setContentAt(NodeInfo nodeInfo, int col, Object value) {
+    		for (AcquisitionDetail detail : acquisitionDetails)
+				for (CellDefinition cell : detail.getCells())
+					if (col < 0)
+						break;
+					else if (col == 0) {
+						try {
+							cell.setValue(nodeInfo.getNode(), value);
+						}
+						catch (Exception e) {
+							// ignore cast exceptions
+						}
+						return;
+					}
+					else
+						col -= cell.getColumnSpan();
+    	}
+    	public KTableCellEditor getCellEditor(NodeInfo nodeInfo, int col) {
+    		for (AcquisitionDetail detail : acquisitionDetails)
+				for (CellDefinition cell : detail.getCells())
+					if (col < 0)
+						break;
+					else if (col == 0)
+						return prepareCellEditor(nodeInfo, cell);
+					else
+						col -= cell.getColumnSpan();
+    		
+    		return null;
+    	}
+    	public KTableCellRenderer getCellRenderer(NodeInfo nodeInfo, int col) {
+    		for (AcquisitionDetail detail : acquisitionDetails)
+				for (CellDefinition cell : detail.getCells())
+					if (col < 0)
+						break;
+					else if (col == 0)
+						return prepareCellRenderer(nodeInfo, cell);
+					else
+						col -= cell.getColumnSpan();
+    		
+    		return null;
+    	}
+    	
+    }
+    
+    // auxiliary columns
+    private static interface IAuxiliaryColumnInfo {
+    	public String getTitle();
+    	public int getWidth();
+    	public Object getContent(NodeInfo nodeInfo);
+    	public KTableCellEditor getCellEditor(NodeInfo nodeInfo);
+		public KTableCellRenderer getCellRenderer(NodeInfo nodeInfo);
     }
 }

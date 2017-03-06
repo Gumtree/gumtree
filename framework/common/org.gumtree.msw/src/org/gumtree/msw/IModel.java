@@ -1,5 +1,6 @@
 package org.gumtree.msw;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
@@ -23,7 +24,8 @@ public interface IModel {
 	// properties
 	public Object getProperty(Iterable<String> elementPath, String propertyName);
 	public Map<String, Object> getProperties(Iterable<String> elementPath);
-	public boolean changeProperty(Iterable<String> elementPath, String property, Object newValue, boolean parseValue);
+	public boolean validateProperty(Iterable<String> elementPath, String property, Object newValue);
+	public boolean changeProperty(Iterable<String> elementPath, String property, Object newValue);
 	// list elements
 	public Iterable<String> getListElements(Iterable<String> listPath);
 	public boolean addListElement(Iterable<String> listPath, String elementName, int targetIndex);
@@ -41,6 +43,7 @@ public interface IModel {
 	
 	// serialization
 	public boolean serializeTo(Iterable<String> elementPath, OutputStream stream);
+	public boolean deserializeFrom(InputStream stream);
 	
 	// listeners
 	public void addListener(IModelListener listener);

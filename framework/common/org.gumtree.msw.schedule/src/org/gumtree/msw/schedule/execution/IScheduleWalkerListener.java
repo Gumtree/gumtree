@@ -4,6 +4,9 @@ public interface IScheduleWalkerListener {
 	// methods
 	public void onBeginSchedule();
 	public void onEndSchedule();
+	// initialization
+	public void onInitialized(Summary summary);
+	public void onCleanedUp(Summary summary);
 	// step
 	public void onBeginStep(ScheduleStep step);
 	public void onEndStep(ScheduleStep step);

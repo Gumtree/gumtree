@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="msw.xsl"?>
+<MSW xmlns="http://www.gumtree.org/msw">
+  <ExperimentDescription/>
+  <UserList>
+    <User Id="#0-1"/>
+  </UserList>
+  <LoopHierarchy>
+
+    <Environment Id="#3-a7a0" Name="Temperature">
+      <SetPoint Id="#3-a7a1" Value="300" WaitPeriod="10"/>
+      <SetPoint Id="#3-a7a2" Value="350" WaitPeriod="10"/>
+      <SetPoint Id="#3-a7a3" Value="400" WaitPeriod="10"/>
+    </Environment>
+    
+    <!-- Configurations -->
+    <ConfigurationList>
+      <!-- Configuration1 -->
+      <Configuration Id="#1-b7d8" Name="Configuration1">
+        <SetupScript>print "configuration"</SetupScript>
+        <!-- Transmission -->
+        <Transmission Id="#1-b7d7" AttenuationAngle="330°" MaxTime="10">
+          <SetupScript>print "transmission"</SetupScript>
+        </Transmission>
+        <!-- Scattering -->
+        <Scattering Id="#1-b7d6" MaxTime="10">
+          <SetupScript>print "scattering"</SetupScript>
+        </Scattering>
+      </Configuration>
+      <!-- Configuration2 -->
+      <Configuration Id="#2-b7d8" Name="Configuration1">
+        <SetupScript>print "configuration"</SetupScript>
+        <Transmission Id="#1-b7d7" MaxTime="10">
+          <SetupScript>print "transmission"</SetupScript>
+        </Transmission>
+        <Scattering Id="#2-b7d6" MaxTime="10">
+          <SetupScript>print "scattering"</SetupScript>
+        </Scattering>
+      </Configuration>
+    </ConfigurationList>
+
+    <SampleList>
+      <Sample Id="#0-2"  Position="1"  Enabled="false" Name=""/>
+      <Sample Id="#0-3"  Position="2"  Enabled="true" Name="Sample 1"/>
+      <Sample Id="#0-4"  Position="3"  Enabled="true" Name="Sample 2"/>
+      <Sample Id="#0-5"  Position="4"  Enabled="false" Name=""/>
+      <Sample Id="#0-6"  Position="5"  Enabled="false" Name=""/>
+      <Sample Id="#0-7"  Position="6"  Enabled="false" Name=""/>
+      <Sample Id="#0-8"  Position="7"  Enabled="false" Name=""/>
+      <Sample Id="#0-9"  Position="8"  Enabled="false" Name=""/>
+      <Sample Id="#0-10" Position="9"  Enabled="false" Name=""/>
+      <Sample Id="#0-11" Position="10" Enabled="false" Name=""/>
+      <Sample Id="#0-12" Position="11" Enabled="false" Name=""/>
+      <Sample Id="#0-13" Position="12" Enabled="false" Name=""/>
+      <Sample Id="#0-14" Position="13" Enabled="false" Name=""/>
+      <Sample Id="#0-15" Position="14" Enabled="false" Name=""/>
+      <Sample Id="#0-16" Position="15" Enabled="false" Name=""/>
+      <Sample Id="#0-17" Position="16" Enabled="false" Name=""/>
+      <Sample Id="#0-18" Position="17" Enabled="false" Name=""/>
+      <Sample Id="#0-19" Position="18" Enabled="false" Name=""/>
+      <Sample Id="#0-20" Position="19" Enabled="false" Name=""/>
+      <Sample Id="#0-21" Position="20" Enabled="false" Name=""/>
+    </SampleList>
+    
+    <Environment Id="#3-b7a0" Name="Magnet">
+      <SetPoint Id="#3-b7a1" Value="1.0" WaitPeriod="1"/>
+      <SetPoint Id="#3-b7a2" Value="2.0" WaitPeriod="2"/>
+      <SetPoint Id="#3-b7a3" Value="3.0" WaitPeriod="3"/>
+    </Environment>
+    
+  </LoopHierarchy>
+</MSW>

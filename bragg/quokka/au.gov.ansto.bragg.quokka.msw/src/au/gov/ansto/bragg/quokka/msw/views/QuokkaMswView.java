@@ -60,8 +60,7 @@ public class QuokkaMswView extends ViewPart {
 		ModelProvider modelProvider = workflowComposite.getModelProvider();
 		InstrumentActionExecuter.setDefault(new PythonInstrumentActionExecuter(
 				executor.getEngine(),
-				modelProvider.getExperimentDescription(),
-				modelProvider.getUserList()));
+				modelProvider));
 		
 		return cmpCmdViewer;
 	}

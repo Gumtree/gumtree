@@ -2,12 +2,14 @@ package org.gumtree.msw.model.structure;
 
 class SimpleTypeDefinition extends TypeDefinition {
 	// fields
-	private Class<?> valueClass;
+	private final Class<?> valueClass;
+	private final FacetList facets;
 	
 	// construction
-	SimpleTypeDefinition(String name, String namespace, Class<?> valueClass) {
+	SimpleTypeDefinition(String name, String namespace, Class<?> valueClass, FacetList facets) {
 		super(name, namespace);
 		this.valueClass = valueClass;
+		this.facets = facets;
 	}
 	
 	// properties
@@ -17,5 +19,8 @@ class SimpleTypeDefinition extends TypeDefinition {
 	}
 	public Class<?> getValueClass() {
 		return valueClass;
+	}
+	public FacetList getFacets() {
+		return facets;
 	}
 }

@@ -194,7 +194,7 @@ public abstract class KTableCellEditor {
 	}
 	
 	protected void onTraverse(TraverseEvent e)
-	{		
+	{
 		// set selection to the appropriate next element:
 		switch (e.keyCode) {
 			case SWT.ARROW_LEFT: 

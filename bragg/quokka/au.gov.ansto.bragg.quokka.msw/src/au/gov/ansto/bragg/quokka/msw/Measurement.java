@@ -17,7 +17,7 @@ public class Measurement extends Element {
 	public static final DependencyProperty<Measurement, String> DESCRIPTION = new DependencyProperty<>("Description", String.class);
 	public static final DependencyProperty<Measurement, String> SETUP_SCRIPT = new DependencyProperty<>("SetupScript", String.class);
 	public static final DependencyProperty<Measurement, String> ATTENUATION_ALGORITHM = new DependencyProperty<>("AttenuationAlgorithm", String.class);
-	public static final DependencyProperty<Measurement, String> ATTENUATION_ANGLE = new DependencyProperty<>("AttenuationAngle", String.class);
+	public static final DependencyProperty<Measurement, Integer> ATTENUATION_ANGLE = new DependencyProperty<>("AttenuationAngle", Integer.class);
 	public static final DependencyProperty<Measurement, Long> MIN_TIME = new DependencyProperty<>("MinTime", Long.class); // seconds
 	public static final DependencyProperty<Measurement, Long> MAX_TIME = new DependencyProperty<>("MaxTime", Long.class); // seconds
 	public static final DependencyProperty<Measurement, Boolean> MIN_TIME_ENABLED = new DependencyProperty<>("MinTimeEnabled", Boolean.class);
@@ -63,6 +63,18 @@ public class Measurement extends Element {
 	}
 	public void setSetupScript(String value) {
 		set(SETUP_SCRIPT, value);
+	}
+	public AttenuationAlgorithm getAttenuationAlgorithm() {
+		return AttenuationAlgorithm.from((String)get(ATTENUATION_ALGORITHM));
+	}
+	public void setAttenuationAlgorithm(AttenuationAlgorithm value) {
+		set(ATTENUATION_ALGORITHM, value.toString());
+	}
+	public int getAttenuationAngle() {
+		return (int)get(ATTENUATION_ANGLE);
+	}
+	public void setAttenuationAngle(int value) {
+		set(ATTENUATION_ANGLE, value);
 	}
 	public long getMinTime() {
 		return (long)get(MIN_TIME);

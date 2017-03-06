@@ -4,11 +4,11 @@ import java.util.Map;
 
 public interface IScheduleExecuter {
 	// methods
-	public boolean initiate();
-	public void release();
+	public Summary initiate();
+	public Summary cleanUp();
 	// steps
 	public ParameterChangeSummary setParameters(String name, Map<String, Object> parameters);
 	public Summary preAcquisition();
-	public AcquisitionSummary doAcquisition();
+	public AcquisitionSummary doAcquisition(Map<String, Object> parameters);
 	public Summary postAcquisition();
 }

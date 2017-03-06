@@ -1,5 +1,6 @@
 package org.gumtree.msw.util;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
@@ -56,9 +57,12 @@ public class SynchronizedModel implements IModel {
 	public synchronized Map<String, Object> getProperties(Iterable<String> elementPath) {
 		return model.getProperties(elementPath);
 	}
+	public synchronized boolean validateProperty(Iterable<String> elementPath, String property, Object newValue) {
+		return model.validateProperty(elementPath, property, newValue);
+	}
 	@Override
-	public synchronized boolean changeProperty(Iterable<String> elementPath, String property, Object newValue, boolean parseValue) {
-		return model.changeProperty(elementPath, property, newValue, parseValue);
+	public synchronized boolean changeProperty(Iterable<String> elementPath, String property, Object newValue) {
+		return model.changeProperty(elementPath, property, newValue);
 	}
 	// list elements
 	@Override
@@ -106,6 +110,10 @@ public class SynchronizedModel implements IModel {
 	@Override
 	public synchronized boolean serializeTo(Iterable<String> elementPath, OutputStream stream) {
 		return model.serializeTo(elementPath, stream);
+	}
+	@Override
+	public synchronized boolean deserializeFrom(InputStream stream) {
+		return model.deserializeFrom(stream);
 	}
 	
 	// listeners

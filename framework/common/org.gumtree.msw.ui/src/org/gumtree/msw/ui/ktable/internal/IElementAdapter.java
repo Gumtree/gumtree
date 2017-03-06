@@ -1,13 +1,14 @@
 package org.gumtree.msw.ui.ktable.internal;
 
 import org.gumtree.msw.elements.IDependencyProperty;
-import org.gumtree.msw.elements.IElementPropertyListener;
+import org.gumtree.msw.elements.IElementListener;
 
 public interface IElementAdapter {
-	// properties
+	// methods
 	public Object get(IDependencyProperty property);
+	public boolean validate(IDependencyProperty property, Object newValue);
 	
 	// listeners
-	public void addPropertyListener(IElementPropertyListener listener);
-	public boolean removePropertyListener(IElementPropertyListener listener);
+	public void addPropertyListener(IElementListener listener);
+	public boolean removePropertyListener(IElementListener listener);
 }

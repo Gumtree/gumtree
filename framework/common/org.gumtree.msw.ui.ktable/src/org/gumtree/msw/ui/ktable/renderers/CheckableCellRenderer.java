@@ -193,7 +193,7 @@ public class CheckableCellRenderer extends DefaultCellRenderer {
             }
             if (!(content instanceof Boolean))
                 drawCellContent(gc, rect, "?", null, getForeground(), bgColor);
-            else { 
+            else {
                 boolean checked = ((Boolean)content).booleanValue();
                 if (clicked && (m_Style & INDICATION_CLICKED)!=0)
                     drawCheckedSymbol(gc, rect, checked, bgColor, COLOR_FILL);

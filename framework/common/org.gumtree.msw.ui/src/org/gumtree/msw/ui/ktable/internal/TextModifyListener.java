@@ -9,7 +9,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 import org.gumtree.msw.elements.IDependencyProperty;
-import org.gumtree.msw.elements.IElementPropertyListener;
+import org.gumtree.msw.elements.IElementListener;
 import org.gumtree.msw.ui.Resources;
 import org.gumtree.msw.ui.ktable.IModelCellDefinition;
 
@@ -56,11 +56,10 @@ public class TextModifyListener implements ModifyListener {
         		
 				if (Objects.equals(newValue, oldValue))
 					text.setBackground(Resources.COLOR_DEFAULT);
-				else {
-					// check if value can be parsed
-					definition.convertToModelValue(newValue);
+				else if (element.validate(definition.getProperty(), definition.convertToModelValue(newValue)))
 					text.setBackground(Resources.COLOR_EDITING);
-				}
+				else
+					text.setBackground(Resources.COLOR_ERROR);
 			}
 			catch (Exception e) {
 				text.setBackground(Resources.COLOR_ERROR);
@@ -82,7 +81,7 @@ public class TextModifyListener implements ModifyListener {
 	}
 
 	// forward any changes from model to control
-	private static class ModelListener implements IElementPropertyListener {
+	private static class ModelListener implements IElementListener {
 		// fields
 		private IModelCellDefinition definition;
 		private ITextControlAdapter target;
@@ -99,6 +98,10 @@ public class TextModifyListener implements ModifyListener {
 				if (converted instanceof String)
 					target.setText((String)converted);
 			}
+		}
+		@Override
+		public void onDisposed() {
+			target = null;
 		}
 	}
 }

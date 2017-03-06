@@ -2,8 +2,10 @@ package org.gumtree.msw.ui.ktable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -15,7 +17,7 @@ import org.gumtree.msw.elements.Element;
 import org.gumtree.msw.elements.ElementList;
 import org.gumtree.msw.elements.IDependencyProperty;
 import org.gumtree.msw.elements.IElementListListener;
-import org.gumtree.msw.elements.IElementPropertyListener;
+import org.gumtree.msw.elements.IElementListener;
 import org.gumtree.msw.ui.IModelValueConverter;
 import org.gumtree.msw.ui.Resources;
 import org.gumtree.msw.ui.ktable.internal.ListElementAdapter;
@@ -29,19 +31,26 @@ import org.gumtree.msw.ui.ktable.KTableCellEditor;
 import org.gumtree.msw.ui.ktable.KTableCellRenderer;
 import org.gumtree.msw.ui.ktable.KTableCellSelectionAdapter;
 import org.gumtree.msw.ui.ktable.KTableDefaultModel;
+import org.gumtree.msw.ui.ktable.renderers.DefaultCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.FixedCellRenderer;
 
 public final class ElementTableModel<TElementList extends ElementList<TListElement>, TListElement extends Element> extends KTableDefaultModel {
     // fields
+	private TElementList elementList;
+	private final IElementListener disposedListener;
+	private final IElementListListener<TListElement> listListener;
+	// visible
     private final List<ColumnDefinition> columns; // e.g. INDEX, ENABLED, NAME, PHONE, EMAIL
     private final String buttonHeader;
     // if name was changed enabled is set to true
+    private final int nameColumnIndex;
     private final IDependencyProperty nameProperty;
     private final IDependencyProperty enabledProperty;
     // used to update text background
     private final TextModifyListener textModifyListener;
     // content
     private final List<TListElement> elements;
+    private final Map<TListElement, ElementListener> elementListeners;
     private final ProxyElement<TListElement> selectedElement;
 	// table
 	private final KTable table;
@@ -50,12 +59,14 @@ public final class ElementTableModel<TElementList extends ElementList<TListEleme
     private final KTableCellRenderer settingsCellRenderer;
 
     // construction
-    public ElementTableModel(final KTable table, TElementList elementList, final Menu menu, String buttonHeader, final List<ButtonInfo<TListElement>> buttons, Iterable<ColumnDefinition> columns) {
+    public ElementTableModel(final KTable table, final Menu menu, String buttonHeader, final List<ButtonInfo<TListElement>> buttons, Iterable<ColumnDefinition> columns) {
         initialize();
 
+        this.elementList = null;
         this.columns = new ArrayList<ColumnDefinition>();
         this.buttonHeader = buttonHeader;
 
+        int nameColumnIndex = -1;
         IDependencyProperty nameProperty = null;	
         IDependencyProperty enabledProperty = null;
         
@@ -64,27 +75,34 @@ public final class ElementTableModel<TElementList extends ElementList<TListEleme
         Set<KTableCellEditor> editors = new HashSet<>(); // editors being listened to
         
         for (ColumnDefinition column : columns) {
+        	for (CellDefinition cell : column.getCellDefinitions()) {
+            	IDependencyProperty cellProperty = cell.getProperty();
+            	if (cellProperty != null) {
+                	if (cellProperty.matches("name", String.class)) {
+                		nameColumnIndex = this.columns.size() + getFixedColumnCount();
+                		nameProperty = cellProperty;
+                	}
+                	if (cellProperty.matches("enabled", Boolean.class))
+                		enabledProperty = cellProperty;
+            	}
+            	
+            	KTableCellEditor editor = cell.getCellEditor();
+    			if (TableCellEditorListener.isValidEditor(editor) && !editors.contains(editor)) {
+            		editor.addListener(cellEditorListener);
+            		editors.add(editor);
+        		}
+        	}
         	this.columns.add(column);
-        	
-        	IDependencyProperty columnProperty = column.getProperty();
-        	if (columnProperty.matches("name", String.class))
-        		nameProperty = columnProperty;
-        	if (columnProperty.matches("enabled", Boolean.class))
-        		enabledProperty = columnProperty;
-        	
-        	KTableCellEditor editor = column.getCellEditor();
-			if (TableCellEditorListener.isValidEditor(editor) && !editors.contains(editor)) {
-        		editor.addListener(cellEditorListener);
-        		editors.add(editor);
-    		}
         }
         
+        this.nameColumnIndex = nameColumnIndex;
         this.nameProperty = nameProperty;
         this.enabledProperty = enabledProperty;
         
         // content
-        this.elements = new ArrayList<TListElement>();
-        this.selectedElement = new ProxyElement<TListElement>();
+        this.elements = new ArrayList<>();
+        this.elementListeners = new HashMap<>();
+        this.selectedElement = new ProxyElement<>();
         
         // final
         this.table = table;
@@ -97,7 +115,6 @@ public final class ElementTableModel<TElementList extends ElementList<TListEleme
     	rowHeaderRenderer = new ButtonRenderer(
     			table,
     			firstColumnWidth,
-    			null,
     			buttons) {
 			@Override
 			protected int isValidColumn(int x, int y) {
@@ -127,15 +144,63 @@ public final class ElementTableModel<TElementList extends ElementList<TListEleme
 		});
 
         // update model
-        elementList.addListListener(new ElementListListener());
+    	disposedListener = new IElementListener() {
+    		// methods
+			@Override
+			public void onDisposed() {
+				updateSource(null);
+			}
+			@Override
+			public void onChangedProperty(IDependencyProperty property, Object oldValue, Object newValue) {
+				// ignore
+			}
+    	};
+    	listListener = new ElementListListener();
+    	updateSource(null);
     }
-
+    
     // properties
     public ProxyElement<TListElement> getSelectedElement() {
     	return selectedElement;
     }
     
     // methods
+    public void updateSource(TElementList elementList) {
+    	if (this.elementList != null) {
+    		if (this.elementList.isValid()) {
+        		this.elementList.removeElementListener(disposedListener);
+    	    	this.elementList.removeListListener(listListener);
+    		}
+    		this.elementList = null;
+    	}
+
+    	// remove all element listeners
+    	for (ElementListener listener : elementListeners.values())
+    		listener.getElement().removeElementListener(listener);
+
+		elements.clear();
+    	elementListeners.clear();
+		selectedElement.setTarget(null);
+		table.clearSelection();
+		
+		if (elementList != null) {
+			table.setBackground(Resources.COLOR_DEFAULT);
+			table.setEnabled(true);
+			table.redraw();
+			
+			this.elementList = elementList;
+			this.elementList.addElementListener(disposedListener);
+			this.elementList.addListListener(listListener);
+		}
+		else {
+			table.setBackground(Resources.COLOR_DISABLED);
+			table.setEnabled(false);
+			table.redraw();
+		}
+
+		selectedElement.setTarget(null);
+		table.clearSelection();
+    }
     @Override
     public int doGetRowCount() {
         return getFixedRowCount() + elements.size();
@@ -155,11 +220,11 @@ public final class ElementTableModel<TElementList extends ElementList<TListEleme
 
     	int index = toElementIndex(row);
     	if (index < elements.size()) {
+    		TListElement element = elements.get(index);
     		ColumnDefinition column = columns.get(toPropertyIndex(col));
-    		IDependencyProperty property = column.getProperty();
+    		CellDefinition cell = column.getCellDefinition(element.getClass());
     		
-    		Object value = elements.get(index).get(property);
-    		return column.convertFromModel(value);
+    		return cell.getValue(element);
     	}
 
     	return null;
@@ -173,17 +238,17 @@ public final class ElementTableModel<TElementList extends ElementList<TListEleme
     	
     	int index = toElementIndex(row);
     	if (index < elements.size()) {
+    		TListElement element = elements.get(index);
     		ColumnDefinition column = columns.get(toPropertyIndex(col));
-    		IDependencyProperty property = column.getProperty();
+    		CellDefinition cell = column.getCellDefinition(element.getClass());
 			try {
-		    	if (Objects.equals(doGetContentAt(col, row), value))
+		    	if (Objects.equals(cell.getValue(element), value))
 		    		return;
-
-	    		TListElement element = elements.get(index);
-	    		element.set(property, column.convertToModelValue(value));
+		    	
+		    	cell.setValue(element, value);
 
 	    		// if name was changed set enabled to true
-	    		if ((property == nameProperty) && (enabledProperty != null))
+	    		if ((cell.getProperty() == nameProperty) && (enabledProperty != null))
 	    			element.set(enabledProperty, true);
 			}
 			catch (Exception e) {
@@ -198,9 +263,17 @@ public final class ElementTableModel<TElementList extends ElementList<TListEleme
     	if ((col == 0) || (row == 0))
     		return null;
 
-    	ColumnDefinition column = columns.get(toPropertyIndex(col));
-    	textModifyListener.update(column, new ListElementAdapter<>(toElement(row)));
-    	return column.getCellEditor();
+    	int index = toElementIndex(row);
+    	if (index < elements.size()) {
+    		TListElement element = elements.get(index);
+        	ColumnDefinition column = columns.get(toPropertyIndex(col));
+    		CellDefinition cell = column.getCellDefinition(element.getClass());
+    		
+    		textModifyListener.update(cell, new ListElementAdapter<>(element));
+    		return cell.getCellEditor();
+    	}
+
+    	return null;
     }
     @Override
     public KTableCellRenderer doGetCellRenderer(int col, int row) {
@@ -212,8 +285,24 @@ public final class ElementTableModel<TElementList extends ElementList<TListEleme
             return columnHeaderRenderer;
     	if (col == 0)
     		return rowHeaderRenderer;
+    	
+    	int index = toElementIndex(row);
+    	if (index < elements.size()) {
+    		TListElement element = elements.get(index);
+        	ColumnDefinition column = columns.get(toPropertyIndex(col));
+    		CellDefinition cell = column.getCellDefinition(element.getClass());
+    		
+    		return cell.getCellRenderer();
+    	}
+    	return null;
 
-    	return columns.get(toPropertyIndex(col)).getCellRenderer();
+    	/*
+    	int index = toElementIndex(row);
+    	if ((index < elements.size()) && Objects.equals(false, elements.get(index).get(enabledProperty)))
+			cellRenderer.setForeground(KTableResources.COLOR_DISABLED);
+    	else
+    		cellRenderer.setForeground(null);
+    	*/
     }
     @Override
     public String doGetTooltipAt(int col, int row) {
@@ -271,13 +360,6 @@ public final class ElementTableModel<TElementList extends ElementList<TListEleme
         return false;
     }
     // helpers
-    public int toColumnIndex(IDependencyProperty property) {
-    	for (int i = 0, n = columns.size(); i != n; i++)
-    		if (columns.get(i).getProperty() == property)
-    			return getFixedHeaderColumnCount() + i;
-    	
-    	return -1;
-    }
     public int toPropertyIndex(int col) {
     	int n = getFixedHeaderColumnCount();
     	if (col < n)
@@ -310,46 +392,68 @@ public final class ElementTableModel<TElementList extends ElementList<TListEleme
     // bug check
     private boolean isValid(int col, int row) {
     	return
-    			(col >= 0) || (col < getColumnCount()) ||
-    			(row >= 0) || (row < getRowCount());
+    			(col >= 0) && (col < getColumnCount()) &&
+    			(row >= 0) && (row < getRowCount());
     }
     
     // element/element-list listener
-    private class ElementListener implements IElementPropertyListener {
+    private class ElementListener implements IElementListener {
     	// fields
     	private final TListElement element;
+    	private final Map<IDependencyProperty, Integer> columnIndices;
     	
     	// construction
     	public ElementListener(TListElement element) {
     		this.element = element;
+    		
+    		columnIndices = new HashMap<>();
+    		int index = getFixedColumnCount();
+    		Class<? extends Element> elementType = element.getClass();
+    		for (ColumnDefinition column : columns) {
+    			CellDefinition cell = column.getCellDefinition(elementType);
+    			columnIndices.put(cell.getProperty(), index++);
+    		}
     	}
     	
+    	// properties
+		public TListElement getElement() {
+			return element;
+		}
+
 		// methods
 		@Override
 		public void onChangedProperty(IDependencyProperty property, Object oldValue, Object newValue) {
-			if (property != Element.INDEX)
-				table.updateCell(
-						toColumnIndex(property),
-						toRowIndex(element));
-			else {
+			if (property == Element.INDEX) {
 				Collections.sort(elements, Element.INDEX_COMPARATOR);
 				table.redraw();
 			}
+			else if (columnIndices.containsKey(property)) {
+				table.updateCell(
+						columnIndices.get(property),
+						toRowIndex(element));
+			}
+		}
+		@Override
+		public void onDisposed() {
+			// ignored (look at elementList-Listener)
 		}
     }
     private class ElementListListener implements IElementListListener<TListElement> {
 		// methods
 		@Override
 		public void onAddedListElement(TListElement element) {
+			ElementListener listener = new ElementListener(element);
 			elements.add(element);
-			element.addPropertyListener(new ElementListener(element));
+			elementListeners.put(element, listener);
+			
+			element.addElementListener(listener);
 			
 			Collections.sort(elements, Element.INDEX_COMPARATOR);
 			
 			if (table.getModel() == null)
 				return;
 
-			int col = Math.max(0, toColumnIndex(nameProperty));
+			int col = Math.max(0, nameColumnIndex);
 			int row = toRowIndex(element);
 			selectedElement.setTarget(element);
 			table.setSelection(col, row, true);
@@ -363,6 +467,9 @@ public final class ElementTableModel<TElementList extends ElementList<TListEleme
 			int i1 = elements.indexOf(element);
 
 			elements.remove(element);
+			ElementListener listener = elementListeners.get(element);
+			if (listener != null)
+				listener.getElement().removeElementListener(listener);
 			
 			if (i1 == i0) {
 				selectedElement.setTarget(null);
@@ -375,7 +482,7 @@ public final class ElementTableModel<TElementList extends ElementList<TListEleme
 				if (cellSelection.length > 0)
 					col = cellSelection[0].x;
 				else
-					col = Math.max(0, toColumnIndex(nameProperty));
+					col = Math.max(0, nameColumnIndex);
 					
 				row = toRowIndex(target);
 				
@@ -387,56 +494,43 @@ public final class ElementTableModel<TElementList extends ElementList<TListEleme
     }
 
     // definitions
-    public static class ColumnDefinition implements IModelCellDefinition {
+    public static class CellDefinition implements IModelCellDefinition {
     	// fields
     	private final IDependencyProperty property;
-    	private final String header;
-    	private final int width;
-    	// cell
-    	private final KTableCellRenderer cellRenderer;
+    	private final DefaultCellRenderer cellRenderer;
     	private final KTableCellEditor cellEditor;
     	// converter
     	private final IModelValueConverter<?, ?> converter;
-    	
+
     	// construction
     	public <TElement extends Element, TModel>
-    	ColumnDefinition(DependencyProperty<TElement, TModel> property, String header, int width, KTableCellRenderer cellRenderer) {
-    		this(property, header, width, cellRenderer, null, null);
+    	CellDefinition(DependencyProperty<TElement, TModel> property, DefaultCellRenderer cellRenderer) {
+    		this(property, cellRenderer, null, null);
     	}
     	public <TElement extends Element, TModel>
-    	ColumnDefinition(DependencyProperty<TElement, TModel> property, String header, int width, KTableCellRenderer cellRenderer, KTableCellEditor cellEditor) {
-    		this(property, header, width, cellRenderer, cellEditor, null);
+    	CellDefinition(DependencyProperty<TElement, TModel> property, DefaultCellRenderer cellRenderer, KTableCellEditor cellEditor) {
+    		this(property, cellRenderer, cellEditor, null);
     	}
     	public <TElement extends Element, TModel>
-    	ColumnDefinition(DependencyProperty<TElement, TModel> property, String header, int width, KTableCellRenderer cellRenderer, KTableCellEditor cellEditor, IModelValueConverter<TModel, ?> converter) {
+    	CellDefinition(DependencyProperty<TElement, TModel> property, DefaultCellRenderer cellRenderer, KTableCellEditor cellEditor, IModelValueConverter<TModel, ?> converter) {
         	this.property = property;
-        	this.header = header;
-        	this.width = width;
         	this.cellRenderer = cellRenderer;
         	this.cellEditor = cellEditor;
     		this.converter = converter;
     	}
-    	
+
     	// properties
-    	public String getHeader() {
-        	return header;
-    	}
-    	public int getWidth() {
-        	return width;
-    	}
     	@Override
     	public IDependencyProperty getProperty() {
         	return property;
     	}
-    	@Override
-    	public KTableCellRenderer getCellRenderer() {
+    	public DefaultCellRenderer getCellRenderer() {
         	return cellRenderer;
     	}
-    	@Override
     	public KTableCellEditor getCellEditor() {
         	return cellEditor;
     	}
-    	
+
     	// methods
     	@Override
     	@SuppressWarnings("unchecked")
@@ -455,6 +549,63 @@ public final class ElementTableModel<TElementList extends ElementList<TListEleme
     		
     		return ((IModelValueConverter<Object, Object>)converter).toModelValue(
     				converter.getTargetValueType().cast(value));
+    	}
+    	// helpers
+    	public <TElement extends Element>
+    	Object getValue(TElement element) {
+    		return convertFromModel(element.get(property));
+    	}
+    	public <TElement extends Element>
+    	void setValue(TElement element, Object value) {
+    		element.set(property, convertToModelValue(value));
+    	}
+    }
+    
+    public static class ColumnDefinition {
+    	// fields
+    	private final String header;
+    	private final int width;
+    	// cell definitions
+    	private final Map<Class<? extends Element>, CellDefinition> cellDefinitions;
+    	
+    	// construction
+    	public <TElement extends Element, TModel>
+    	ColumnDefinition(String header, int width, DependencyProperty<TElement, TModel> property, DefaultCellRenderer cellRenderer) {
+    		this(header, width, property, cellRenderer, null, null);
+    	}
+    	public <TElement extends Element, TModel>
+    	ColumnDefinition(String header, int width, DependencyProperty<TElement, TModel> property, DefaultCellRenderer cellRenderer, KTableCellEditor cellEditor) {
+    		this(header, width, property, cellRenderer, cellEditor, null);
+    	}
+    	public <TElement extends Element, TModel>
+    	ColumnDefinition(String header, int width, DependencyProperty<TElement, TModel> property, DefaultCellRenderer cellRenderer, KTableCellEditor cellEditor, IModelValueConverter<TModel, ?> converter) {
+        	this.header = header;
+        	this.width = width;
+        	this.cellDefinitions = new HashMap<>();
+        	this.cellDefinitions.put(null, new CellDefinition(property, cellRenderer, cellEditor, converter));
+    	}
+    	public ColumnDefinition(String header, int width, Map<Class<? extends Element>, CellDefinition> cellDefinitions) {
+        	this.header = header;
+        	this.width = width;
+        	this.cellDefinitions = new HashMap<>(cellDefinitions);
+    	}
+    	
+    	// properties
+    	public String getHeader() {
+        	return header;
+    	}
+    	public int getWidth() {
+        	return width;
+    	}
+    	public Iterable<CellDefinition> getCellDefinitions() {
+    		return cellDefinitions.values();
+    	}
+    	public CellDefinition getCellDefinition(Class<? extends Element> elementType) {
+    		CellDefinition result = cellDefinitions.get(elementType);
+    		if (result == null)
+    			return cellDefinitions.get(null);
+    		
+    		return result;
     	}
     }
 }

@@ -1,5 +1,7 @@
 package org.gumtree.msw.schedule.execution;
 
+import java.util.Map;
+
 public class AcquisitionSummary extends Summary {
 	// fields
 	private final String filename;
@@ -8,15 +10,12 @@ public class AcquisitionSummary extends Summary {
 	private final long monitorCounts;
 	
 	// construction
-	public AcquisitionSummary(String filename, long totalSeconds, long totalCounts, long monitorCounts, long processingTime) {
-		this(filename, totalSeconds, totalCounts, monitorCounts, processingTime, false);
+	public AcquisitionSummary(Map<String, Object> parameters, long processingTime, boolean interrupted, String notes) {
+		this(parameters, null, 0, 0, 0, processingTime, interrupted, notes);
 	}
-	public AcquisitionSummary(long processingTime, boolean interrupted) {
-		this(null, 0, 0, 0, processingTime, interrupted);
-	}
-	public AcquisitionSummary(String filename, long totalSeconds, long totalCounts, long monitorCounts, long processingTime, boolean interrupted) {
-		super(processingTime, interrupted);
-		
+	public AcquisitionSummary(Map<String, Object> parameters, String filename, long totalSeconds, long totalCounts, long monitorCounts, long processingTime, boolean interrupted, String notes) {
+		super(parameters, processingTime, interrupted, notes);
+
 		this.filename = filename;
 		this.totalSeconds = totalSeconds;
 		this.totalCounts = totalCounts;

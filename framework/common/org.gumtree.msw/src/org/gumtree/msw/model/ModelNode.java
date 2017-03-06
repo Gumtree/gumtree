@@ -12,7 +12,7 @@ import org.gumtree.msw.IModel;
 import org.gumtree.msw.RefId;
 
 // contains properties and sub elements
-class ModelNode implements IModelNode {	
+class ModelNode implements IModelNode {
 	// fields
 	private final IModelNodeInfo nodeInfo;
 	// hierarchy
@@ -154,6 +154,25 @@ class ModelNode implements IModelNode {
 		return result;
 	}
 	@Override
+	public boolean validateProperty(String property, Object newValue) {
+		if (ID.equals(property))
+			return false;
+		
+		if ((owner != null) && IModel.INDEX.equals(property))
+			if (newValue instanceof Integer)
+				return owner.validMove(this, (int)newValue);
+			else
+				return false;
+
+		// return true if property is valid
+		IModelNodePropertyInfo propertyInfo = pathToProperty.get(property);
+		if (propertyInfo == null)
+			return false;
+		
+		// validation
+		return propertyInfo.validate(newValue);
+	}
+	@Override
 	public boolean changeProperty(String property, Object newValue) {
 		if (ID.equals(property))
 			return false;
@@ -168,35 +187,13 @@ class ModelNode implements IModelNode {
 		IModelNodePropertyInfo propertyInfo = pathToProperty.get(property);
 		if (propertyInfo == null)
 			return false;
-
+		
+		// update value if it is different
 		Object oldValue = propertyInfo.get();
 		if (!Objects.equals(oldValue, newValue)) {
 			if (!propertyInfo.set(newValue))
 				return false;
 
-			for (IModelNodeListener listener : listeners)
-				listener.onChangedProperty(this, property, oldValue, newValue);
-		}
-		return true;
-	}
-	@Override
-	public boolean parseProperty(String property, String newValue) {
-		if (ID.equals(property))
-			return false;
-		
-		if ((owner != null) && IModel.INDEX.equals(property))
-			return owner.move(this, Integer.parseInt(newValue));
-
-		// return true if property is valid
-		IModelNodePropertyInfo propertyInfo = pathToProperty.get(property);
-		if (propertyInfo == null)
-			return false;
-
-		Object oldValue = propertyInfo.get();
-		if (!propertyInfo.parse(newValue))
-			return false;
-		
-		if (!Objects.equals(oldValue, propertyInfo.get())) {
 			for (IModelNodeListener listener : listeners)
 				listener.onChangedProperty(this, property, oldValue, newValue);
 		}
@@ -434,6 +431,18 @@ class ModelNode implements IModelNode {
 			return RefId.parse(name.substring(i));
 		else
 			return null;
+	}
+	private boolean validMove(ModelNode subNode, int newIndex) {
+		if (newIndex < 0)
+			return false;
+		else if (newIndex >= listOrder.size())
+			return false;
+		
+		int oldIndex = listOrder.indexOf(subNode);
+		if (oldIndex == -1)
+			return false;
+		
+		return true;
 	}
 	private boolean move(ModelNode subNode, int newIndex) {
 		if (newIndex < 0)

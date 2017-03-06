@@ -2,7 +2,7 @@ package org.gumtree.msw.ui.ktable.internal;
 
 import org.gumtree.msw.elements.Element;
 import org.gumtree.msw.elements.IDependencyProperty;
-import org.gumtree.msw.elements.IElementPropertyListener;
+import org.gumtree.msw.elements.IElementListener;
 
 public class ListElementAdapter<TListElement extends Element> implements IElementAdapter {
 	// fields
@@ -13,16 +13,23 @@ public class ListElementAdapter<TListElement extends Element> implements IElemen
 		this.element = element;
 	}
 	
-	// properties
+	// methods
+	@Override
 	public Object get(IDependencyProperty property) {
 		return element.get(property);
 	}
+	@Override
+	public boolean validate(IDependencyProperty property, Object newValue) {
+		return element.validate(property, newValue);
+	}
 	
 	// listeners
-	public void addPropertyListener(IElementPropertyListener listener) {
-		element.addPropertyListener(listener);
+	@Override
+	public void addPropertyListener(IElementListener listener) {
+		element.addElementListener(listener);
 	}
-	public boolean removePropertyListener(IElementPropertyListener listener) {
-		return element.removePropertyListener(listener);
+	@Override
+	public boolean removePropertyListener(IElementListener listener) {
+		return element.removeElementListener(listener);
 	}
 }

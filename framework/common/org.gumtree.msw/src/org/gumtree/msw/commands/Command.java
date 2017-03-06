@@ -28,7 +28,7 @@ public abstract class Command implements ICommand {
 	
 	// methods
 	@Override
-	public boolean equals(Object obj) {		
+	public boolean equals(Object obj) {
 		if (obj instanceof Command) {
 			Command other = (Command)obj;
 			return Objects.equals(other.id, id);

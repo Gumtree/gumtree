@@ -7,7 +7,7 @@ import org.gumtree.msw.ui.ktable.KTableCellEditor;
 import org.gumtree.msw.ui.ktable.editors.KTableCellEditorComboText;
 import org.gumtree.msw.ui.ktable.editors.KTableCellEditorText2;
 
-//used to bind text control to model (read-only)
+// used to bind text control to model (read-only)
 public class TableCellEditorListener implements ITableCellEditorListener {
 	// fields
 	private final TextModifyListener textModifyListener;

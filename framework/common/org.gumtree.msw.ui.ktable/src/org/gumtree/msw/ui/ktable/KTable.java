@@ -96,7 +96,7 @@ import org.gumtree.msw.ui.ktable.renderers.TextCellRenderer;
  * @see de.kupzog.ktable.KTableCellSelectionListener
  *  
  */
-public class KTable extends Canvas {    
+public class KTable extends Canvas {
     
     // Data and data editing facilities:
     protected KTableModel m_Model;
@@ -1955,7 +1955,7 @@ public class KTable extends Canvas {
             				// notify non-fixed cell listeners
             				fireCellSelection(orig.x, orig.y, stateMask);
             			}
-            		} else {           			
+            		} else {
             			
             			if (col>max.x) max.x=col;
                 		if (row>max.y) max.y=row;
@@ -2072,14 +2072,14 @@ public class KTable extends Canvas {
         return false;
     }
 
-    protected void onMouseMove(MouseEvent e) { 
+    protected void onMouseMove(MouseEvent e) {
         if (m_Model == null)
             return;
 
         // show resize cursor?
         checkCursorToDisplay(e.x, e.y);
         
-        if (e.stateMask == SWT.BUTTON1 && m_CellEditor==null && m_ResizeColumnIndex == -1) {            
+        if (e.stateMask == SWT.BUTTON1 && m_CellEditor==null && m_ResizeColumnIndex == -1) {
             // extend selection?
             if (m_ClickColumnIndex != -1 && isMultiSelectMode()) {
                 
@@ -2349,7 +2349,7 @@ public class KTable extends Canvas {
                     newFocusCol++;
                     Point next = m_Model.belongsToCell(newFocusCol, newFocusRow);
                     if (next==null) next = new Point(newFocusCol, newFocusRow);
-                    while (next.equals(old) && newFocusCol<m_Model.getColumnCount()-1) { 
+                    while (next.equals(old) && newFocusCol<m_Model.getColumnCount()-1) {
                         newFocusCol++;
                         next = m_Model.belongsToCell(newFocusCol, newFocusRow);
                         if (next==null) next = new Point(newFocusCol, newFocusRow);
@@ -2372,7 +2372,7 @@ public class KTable extends Canvas {
                 newFocusRow++;
                 Point next = m_Model.belongsToCell(newFocusCol, newFocusRow);
                 if (next==null) next = new Point(newFocusCol, newFocusRow);
-                while (next.equals(old)) { 
+                while (next.equals(old)) {
                     newFocusRow++;
                     next = m_Model.belongsToCell(newFocusCol, newFocusRow);
                     if (next==null) next = new Point(newFocusCol, newFocusRow);

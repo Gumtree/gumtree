@@ -1,5 +1,6 @@
 package org.gumtree.msw.elements;
 
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -23,7 +24,7 @@ public abstract class Element {
 	private ElementPath path;
 	private IModelProxy modelProxy;
 	private IRefIdProvider idProvider;
-	private final List<IElementPropertyListener> propertyListeners = new ArrayList<>();
+	private final List<IElementListener> elementListeners = new ArrayList<>();
 	
 	// construction
 	protected Element(IModelProxy modelProxy, String name) {
@@ -42,11 +43,15 @@ public abstract class Element {
 		this.idProvider = modelProxy.getIdProvider();
 	}
 	void dispose() {
-		propertyListeners.clear();
+		List<IElementListener> listeners = new ArrayList<>(elementListeners);
+		elementListeners.clear();
 		
 		idProvider = null;
 		modelProxy = null;
 		path = null;
+
+		for (IElementListener listener : listeners)
+			listener.onDisposed();
 	}
 	
 	// properties
@@ -75,6 +80,15 @@ public abstract class Element {
 				path,
 				property.getName());
 	}
+	public boolean validate(IDependencyProperty property, Object newValue) {
+		if (!getProperties().contains(property))
+			return false; // not applicable
+		
+		return modelProxy.validateProperty(
+				path,
+				property.getName(),
+				newValue);
+	}
 	public boolean set(IDependencyProperty property, Object newValue) {
 		if (!getProperties().contains(property))
 			return false; // not applicable
@@ -91,6 +105,9 @@ public abstract class Element {
 	//  methods
 	public void accept(IElementVisitor visitor) {
 		visitor.visit(this);
+	}
+	public boolean saveTo(OutputStream stream) {
+		return modelProxy.serializeTo(path, stream);
 	}
 	protected void duplicate() {
 		command(new DuplicateListElementCommand(
@@ -135,18 +152,18 @@ public abstract class Element {
 		}
 	}
 	// listeners
-	public void addPropertyListener(IElementPropertyListener listener) {
-		if (propertyListeners.contains(listener))
+	public void addElementListener(IElementListener listener) {
+		if (elementListeners.contains(listener))
 			throw new Error("listener already exists");
 		
-		propertyListeners.add(listener);
+		elementListeners.add(listener);
 	}
-	public boolean removePropertyListener(IElementPropertyListener listener) {
-		return propertyListeners.remove(listener);
+	public boolean removeElementListener(IElementListener listener) {
+		return elementListeners.remove(listener);
 	}
 	// internal
 	void notifyChangedProperty(IDependencyProperty property, Object oldValue, Object newValue) {
-		for (IElementPropertyListener listener : propertyListeners)
+		for (IElementListener listener : elementListeners)
 			listener.onChangedProperty(property, oldValue, newValue);
 	}
 	

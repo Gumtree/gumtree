@@ -10,19 +10,14 @@ public class ChangePropertyCommand extends TargetCommand {
 	// fields
 	private final String propertyName;
 	private final Object newValue;
-	private final boolean parseValue;
 	
 	// construction
 	public ChangePropertyCommand(RefId id, Iterable<String> elementPath, String propertyName, Object newValue) {
 		this(id, elementPath, propertyName, newValue, false);
 	}
-	public ChangePropertyCommand(RefId id, Iterable<String> elementPath, String propertyName, Object newValue, boolean parseValue) {
-		this(id, elementPath, propertyName, newValue, parseValue, false);
-	}
-	public ChangePropertyCommand(RefId id, Iterable<String> elementPath, String propertyName, Object newValue, boolean parseValue, boolean isUndo) {
+	public ChangePropertyCommand(RefId id, Iterable<String> elementPath, String propertyName, Object newValue, boolean isUndo) {
 		super(id, elementPath, isUndo);
 		this.propertyName = propertyName;
-		this.parseValue = parseValue;
 		this.newValue = newValue;
 	}
 	
@@ -33,18 +28,15 @@ public class ChangePropertyCommand extends TargetCommand {
 	public Object getNewValue() {
 		return newValue;
 	}
-	public boolean getParseValue() {
-		return parseValue;
-	}
 
 	// methods
 	@Override
 	public ICommand execute(IModel model) {
 		Object oldValue = model.getProperty(getTargetPath(), propertyName);
-		if (!model.changeProperty(getTargetPath(), propertyName, newValue, parseValue))
+		if (!model.changeProperty(getTargetPath(), propertyName, newValue))
 			return null;
 
-		return new ChangePropertyCommand(getId(), getTargetPath(), propertyName, oldValue, false, !isUndo());
+		return new ChangePropertyCommand(getId(), getTargetPath(), propertyName, oldValue, !isUndo());
 	}
 	@Override
 	public boolean equals(Object obj) {
@@ -53,8 +45,7 @@ public class ChangePropertyCommand extends TargetCommand {
 			return
 					super.equals(other) &&
 					Objects.equals(other.propertyName, propertyName) &&
-					Objects.equals(other.newValue, newValue) &&
-					Objects.equals(other.parseValue, parseValue);			
+					Objects.equals(other.newValue, newValue);			
 		}
 		return false;
 	}

@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -15,40 +14,39 @@ public class DataSource {
 	
 	// construction
 	public DataSource(InputStream stream) {
-		data = loadData(stream);
+		try {
+			data = loadData(stream);
+		} catch (IOException e) {
+			throw new Error("stream not readable");
+		}
 	}
 	public DataSource(File file) {
-		try {
-			data = loadData(new FileInputStream(file));
+		try (InputStream stream = new FileInputStream(file)) {
+			data = loadData(stream);
 		}
-		catch (FileNotFoundException e) {
-			throw new Error("file not found");
+		catch (IOException e) {
+			throw new Error("file not readable");
 		}
 	}
 	public DataSource(URL url) {
-		try {
-			data = loadData(url.openStream());
+		try (InputStream stream = url.openStream()) {
+			data = loadData(stream);
 		}
 		catch (IOException e) {
-			throw new Error("url not found");
+			throw new Error("url not readable");
 		}
 	}
-	private static byte[] loadData(InputStream stream) {
-		try {
-			int n;
-			byte[] buffer = new byte[4096];
-			ByteArrayOutputStream arrayStream = new ByteArrayOutputStream();
+	// helper
+	private static byte[] loadData(InputStream stream) throws IOException {
+		int n;
+		byte[] buffer = new byte[4096];
+		ByteArrayOutputStream arrayStream = new ByteArrayOutputStream();
 
-			while ((n = stream.read(buffer)) > -1)
-				arrayStream.write(buffer, 0, n);
+		while ((n = stream.read(buffer)) > -1)
+			arrayStream.write(buffer, 0, n);
 
-			arrayStream.flush();
-			return arrayStream.toByteArray();
-			
-		}
-		catch (IOException e) {
-			return null;
-		}
+		arrayStream.flush();
+		return arrayStream.toByteArray();
 	}
 	
 	// methods

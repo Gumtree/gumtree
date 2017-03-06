@@ -1,36 +1,39 @@
 package au.gov.ansto.bragg.quokka.msw;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
 import org.gumtree.msw.ICommand;
 import org.gumtree.msw.RefId;
 import org.gumtree.msw.commands.AddListElementCommand;
 import org.gumtree.msw.commands.BatchCommand;
 import org.gumtree.msw.commands.ChangePropertyCommand;
 import org.gumtree.msw.commands.ClearElementListCommand;
-import org.gumtree.msw.commands.Command;
 import org.gumtree.msw.elements.DependencyProperty;
 import org.gumtree.msw.elements.ElementList;
 import org.gumtree.msw.elements.ElementPath;
 import org.gumtree.msw.elements.IDependencyProperty;
 import org.gumtree.msw.elements.IListElementFactory;
+import org.gumtree.msw.model.DataSource;
 import org.gumtree.msw.model.ModelImporter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import au.gov.ansto.bragg.quokka.msw.converters.GroupTrimConverter;
 
 // ConfigurationList can only be created by server but can be moved (via index) by client 
 public class ConfigurationList extends ElementList<Configuration> {
@@ -103,11 +106,11 @@ public class ConfigurationList extends ElementList<Configuration> {
 						path,
 						Measurement.SCATTERING + nextId().toString())));
 	}
-	public void addConfigurations(Iterable<IFile> configurations) {
+	public void addConfigurations(Path rootPath, Iterable<Path> configurations) {
 		RefId id = nextId();
 		ElementPath path = getPath();
 
-		List<Command> commands = new ArrayList<>();
+		List<ICommand> commands = new ArrayList<>();
 		
 		DocumentBuilder documentBuilder;
 		try {
@@ -121,29 +124,88 @@ public class ConfigurationList extends ElementList<Configuration> {
 			return;
 		}
 		
-		for (IFile file : configurations) {
-			String name = null;
+		for (Path configuration : configurations) {
+			File file = rootPath.resolve(configuration).toFile();
+			if (!file.exists())
+				continue;
+
+			// determine name for new configuration (without file extension)
+			final String XML = ".xml";
+			
+			String configurationName = configuration.getFileName().toString();
+			if (configurationName.toLowerCase().endsWith(XML))
+				configurationName = configurationName.substring(0, configurationName.length() - XML.length());
+
+			String groupName = "";
+			if (configuration.getParent() != null)
+				groupName = GroupTrimConverter.DEFAULT.toModelValue(configuration.getParent().toString());
+
+			if (file.length() == 0) {
+				// if file is empty create new configuration
+				String elementName = Configuration.class.getSimpleName() + nextId().toString();
+				ElementPath elementPath = new ElementPath(path, elementName);
+				
+				BatchCommand loadCommand = new BatchCommand(
+						id,
+						new AddListElementCommand(
+								id,
+								path,
+								elementName),
+						new ChangePropertyCommand(
+								id,
+								elementPath,
+								Configuration.NAME.getName(),
+								configurationName),
+						new AddListElementCommand(
+								id,
+								elementPath,
+								Measurement.TRANSMISSION + nextId().toString()),
+						new AddListElementCommand(
+								id,
+								elementPath,
+								Measurement.SCATTERING + nextId().toString()));
+				
+				if (loadCommand != null)
+					commands.add(loadCommand);
+
+				continue;
+			}
+
 			String description = null;
 			String initScript = null;
 			String preTransmissionScript = null;
 			String preScatteringScript = null;
 			String startingAttenuation = null;
 			try {
-				Document document = documentBuilder.parse(file.getContents());
+				Document document = documentBuilder.parse(file);
 				
 				//get the root element
 				Element root = document.getDocumentElement();
 				if (!"au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfigTemplate".equals(root.getNodeName()) &&
-					!"au.gov.ansto.bragg.quokka2.experiment.model.InstrumentConfigTemplate".equals(root.getNodeName()))
+					!"au.gov.ansto.bragg.quokka2.experiment.model.InstrumentConfigTemplate".equals(root.getNodeName())) {
+					// it might be a new configuration file
+					
+					// set name for new configuration
+					Map<String, Object> overrideProperties = new HashMap<>();
+					overrideProperties.put(Configuration.NAME.getName(), configurationName);
+					overrideProperties.put(Configuration.GROUP.getName(), groupName);
+					
+					// try to load file
+					BatchCommand loadCommand = ModelImporter.buildLoadCommand(
+							getModelProxy(),
+							path,
+							Configuration.class.getSimpleName(),
+							false,		// isElementList (false because it's a single configuration)
+							new DataSource(file),
+							overrideProperties);
+					
+					if (loadCommand != null)
+						commands.add(loadCommand);
+
 					continue;
+				}
 
 				Node node;
-				// name (use filename to make it consistent with configuration catalog)
-				if ((name == null) || (name.length() == 0)) {
-					name = file.getName();
-					if (name.endsWith(".xml"))
-						name = name.substring(0, name.length() - ".xml".length());
-				}
 				// description
 				node = getFirstOrNull(root.getElementsByTagName("description"));
 				if (node != null)
@@ -170,7 +232,7 @@ public class ConfigurationList extends ElementList<Configuration> {
 						startingAttenuation = node.getTextContent();
 				}
 			}
-			catch (SAXException | IOException | CoreException | NumberFormatException e) {
+			catch (SAXException | IOException | NumberFormatException e) {
 				e.printStackTrace();
 				continue;
 			}
@@ -182,13 +244,18 @@ public class ConfigurationList extends ElementList<Configuration> {
 					id,
 					path,
 					elementName));
-			
-			if (name != null)
-				commands.add(new ChangePropertyCommand(
-						id,
-						elementPath,
-						Configuration.NAME.getName(),
-						name));
+		
+			commands.add(new ChangePropertyCommand(
+					id,
+					elementPath,
+					Configuration.NAME.getName(),
+					configurationName));
+		
+			commands.add(new ChangePropertyCommand(
+					id,
+					elementPath,
+					Configuration.GROUP.getName(),
+					groupName));
 			
 			if (description != null)
 				commands.add(new ChangePropertyCommand(
@@ -239,13 +306,13 @@ public class ConfigurationList extends ElementList<Configuration> {
 						id,
 						scatteringPath,
 						Measurement.ATTENUATION_ANGLE.getName(),
-						startingAttenuation + '°'));
+						Integer.parseInt(startingAttenuation)));
 		}
 		
 		if (commands.isEmpty())
 			return;
 		
-		command(new BatchCommand(id, commands.toArray(new Command[commands.size()])));
+		command(new BatchCommand(id, commands.toArray(new ICommand[commands.size()])));
 	}
 	private Node getFirstOrNull(NodeList list) {
 		if (list.getLength() == 0)
@@ -253,16 +320,13 @@ public class ConfigurationList extends ElementList<Configuration> {
 
 		return list.item(0);
 	}
-	public boolean saveTo(OutputStream stream) {
-		return getModelProxy().serializeTo(getPath(), stream);
-	}
 	public boolean replaceConfigurations(InputStream stream) {
 		ICommand loadCommand = ModelImporter.buildLoadCommand(
 				getModelProxy(),
 				getPath(),
 				ConfigurationList.class.getSimpleName(),
 				true,		// isElementList
-				stream);
+				new DataSource(stream));
 		
 		if (loadCommand == null)
 			return false;

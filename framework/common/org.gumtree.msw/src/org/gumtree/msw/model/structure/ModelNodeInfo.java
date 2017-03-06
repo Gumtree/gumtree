@@ -71,8 +71,7 @@ class ModelNodeInfo implements IModelNodeInfo {
 	}
 	@Override
 	public IModelNodePropertyInfo[] getProperties() {
-		IModelNodePropertyInfo[] result = new IModelNodePropertyInfo[properties.size()];
-		return properties.toArray(result);
+		return properties.toArray(new IModelNodePropertyInfo[properties.size()]);
 	}
 	
 	// methods

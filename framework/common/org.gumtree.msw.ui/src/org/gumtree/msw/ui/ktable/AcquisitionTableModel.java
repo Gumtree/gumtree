@@ -30,7 +30,7 @@ import org.gumtree.msw.elements.Element;
 import org.gumtree.msw.elements.ElementList;
 import org.gumtree.msw.elements.IDependencyProperty;
 import org.gumtree.msw.elements.IElementListListener;
-import org.gumtree.msw.elements.IElementPropertyListener;
+import org.gumtree.msw.elements.IElementListener;
 import org.gumtree.msw.elements.IElementVisitor;
 import org.gumtree.msw.ui.Resources;
 
@@ -45,6 +45,7 @@ import org.gumtree.msw.ui.ktable.renderers.DefaultCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.FixedCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.TextCellRenderer;
 
+// !!! don't use this !!! look at ScheduleTableModel
 public final class AcquisitionTableModel extends KTableDefaultModel {
 	
 	public static final Comparator<ElementNode> INDEX_COMPARATOR = new NodeIndexComparator();
@@ -165,13 +166,28 @@ public final class AcquisitionTableModel extends KTableDefaultModel {
     	linkNodes = new ArrayList<>();
     	lookup = new HashMap<>();
     	
+    	loopHierarchy.addElementListener(new IElementListener() {
+    		// methods
+			@Override
+			public void onChangedProperty(IDependencyProperty property, Object oldValue, Object newValue) {
+				// ignore
+			}
+			@Override
+			public void onDisposed() {
+				onDisposedLoopHierarchy();
+			}
+		});
     	loopHierarchy.addListListener(new IElementListListener<Element>() {
     		// fields
-        	private final IElementPropertyListener indexListener = new IElementPropertyListener() {
+        	private final IElementListener indexListener = new IElementListener() {
     			@Override
     			public void onChangedProperty(IDependencyProperty property, Object oldValue, Object newValue) {
     				if ((property == Element.INDEX) || property.matches("enabled", Boolean.class))
     					resetLinks();
+    			}
+    			@Override
+    			public void onDisposed() {
+    				// ignore
     			}
     		};
     		
@@ -180,7 +196,7 @@ public final class AcquisitionTableModel extends KTableDefaultModel {
 			public void onAddedListElement(Element element) {
 				ElementNode linkNode = new ElementNode(element);
 				
-				element.addPropertyListener(indexListener);
+				element.addElementListener(indexListener);
 				
 				linkNodes.add(linkNode);
 				lookup.put(element, linkNode);
@@ -190,7 +206,7 @@ public final class AcquisitionTableModel extends KTableDefaultModel {
 			public void onDeletedListElement(Element element) {
 				ElementNode linkNode = lookup.remove(element);
 				if (linkNode != null) {
-					element.removePropertyListener(indexListener);
+					element.removeElementListener(indexListener);
 					
 					linkNode.resetLink();
 					linkNodes.remove(linkNode);
@@ -200,6 +216,7 @@ public final class AcquisitionTableModel extends KTableDefaultModel {
 		});
 	}
 	
+	// helpers
 	private ElementNode getRootNode() {
 		for (ElementNode linkNode : linkNodes)
 			if (linkNode.getEnabled())
@@ -222,6 +239,9 @@ public final class AcquisitionTableModel extends KTableDefaultModel {
 			last.resetLink();
 		}
 		table.redraw();
+	}
+	private void onDisposedLoopHierarchy() {
+		
 	}
 	
 	// methods
@@ -874,7 +894,7 @@ public final class AcquisitionTableModel extends KTableDefaultModel {
 			index = element.getIndex();
 			enabled = (enabledProperty == null) || (boolean)element.get(enabledProperty);
 			
-			element.addPropertyListener(new IElementPropertyListener() {
+			element.addElementListener(new IElementListener() {
 				@Override
 				public void onChangedProperty(IDependencyProperty property, Object oldValue, Object newValue) {
 					if (property == Element.INDEX)
@@ -883,6 +903,12 @@ public final class AcquisitionTableModel extends KTableDefaultModel {
 						enabled = (boolean)newValue;
 					
 					table.redraw(); // !!! only redraw necessary cell
+				}
+
+				@Override
+				public void onDisposed() {
+					// TODO Auto-generated method stub
+					
 				}
 			});
 			

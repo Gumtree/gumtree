@@ -95,7 +95,7 @@ public class FixedCellRenderer extends DefaultCellRenderer {
         Color bottomBorderColor = COLOR_LINE_DARKGRAY;
         Color rightBorderColor = COLOR_LINE_DARKGRAY;
         Color fgColor = getForeground();
-        if (focus && (m_Style & INDICATION_FOCUS)!=0) { 
+        if (focus && (m_Style & INDICATION_FOCUS)!=0) {
             bgColor = COLOR_FIXEDHIGHLIGHT;
             bottomBorderColor = COLOR_TEXT;
             rightBorderColor = COLOR_TEXT;

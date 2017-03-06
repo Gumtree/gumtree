@@ -22,71 +22,80 @@ public class ScheduleWalker {
 		try {
 			raiseOnBeginSchedule();
 			try {
-				if (!provider.initiate() || !executer.initiate())
+				if (!provider.initiate())
 					return false;
+
+				Summary initializationSummary = executer.initiate();
+				raiseOnInitialized(initializationSummary);
+				if (!initializationSummary.getInterrupted()) {
+					for (ScheduleStep step = provider.firstStep(); step != null; step = provider.nextStep()) {
+						boolean interrupted = false;
+						
+						raiseOnBeginStep(step);
+						if (step.isEnabled()) {
+							// parameters
+							if (step.hasParameters()) {
+								raiseOnBeginChangeParameters(step);
+								
+								ParameterChangeSummary summary = executer.setParameters(
+										step.getElementPath().getElementName(),
+										step.getParameters());
 				
-				for (ScheduleStep step = provider.firstStep(); step != null; step = provider.nextStep()) {
-					boolean interrupted = false;
-					
-					raiseOnBeginStep(step);
-					if (step.isEnabled()) {
-						// parameters
-						if (step.hasParameters()) {
-							raiseOnBeginChangeParameters(step);
-							
-							ParameterChangeSummary summary = executer.setParameters(
-									step.getElementPath().getElementName(),
-									step.getParameters());
-			
-							raiseOnEndChangeParameters(step, summary);
-							interrupted |= summary.getInterrupted();
-						}
-			
-						// acquisition
-						if (step.isAcquisition()) {
-							// pre-acquisition
-							if (!interrupted) {
-								raiseOnBeginPreAcquisition(step);
-
-								Summary summary = executer.preAcquisition();
-
-								raiseOnEndPreAcquisition(step, summary);
+								raiseOnEndChangeParameters(step, summary);
 								interrupted |= summary.getInterrupted();
 							}
-							// do-acquisition
-							if (!interrupted) {
-								raiseOnBeginDoAcquisition(step);
-								
-								AcquisitionSummary summary = executer.doAcquisition();
-								
-								raiseOnEndDoAcquisition(step, summary);
-								interrupted |= summary.getInterrupted();
-							}
-							// post-acquisition
-							if (!interrupted) {
-								raiseOnBeginPostAcquisition(step);
-
-								Summary summary = executer.postAcquisition();
-
-								raiseOnEndPostAcquisition(step, summary);
-								interrupted |= summary.getInterrupted();
+				
+							// acquisition
+							if (step.isAcquisition()) {
+								// pre-acquisition
+								if (!interrupted) {
+									raiseOnBeginPreAcquisition(step);
+	
+									Summary summary = executer.preAcquisition();
+	
+									raiseOnEndPreAcquisition(step, summary);
+									interrupted |= summary.getInterrupted();
+								}
+								// do-acquisition
+								if (!interrupted) {
+									raiseOnBeginDoAcquisition(step);
+									
+									AcquisitionSummary summary = executer.doAcquisition(step.getParameters());
+									
+									raiseOnEndDoAcquisition(step, summary);
+									interrupted |= summary.getInterrupted();
+								}
+								// post-acquisition
+								if (!interrupted) {
+									raiseOnBeginPostAcquisition(step);
+	
+									Summary summary = executer.postAcquisition();
+	
+									raiseOnEndPostAcquisition(step, summary);
+									interrupted |= summary.getInterrupted();
+								}
 							}
 						}
+						raiseOnEndStep(step);
+						
+						if (interrupted)
+							return false;
 					}
-					raiseOnEndStep(step);
-					
-					if (interrupted)
-						return false;
 				}
 			}
 			finally {
 				try {
-					provider.release();
+					try {
+						provider.cleanUp();
+					}
+					finally {
+						Summary summary = executer.cleanUp();
+						raiseOnCleanedUp(summary);
+					}
 				}
 				finally {
-					executer.release();
+					raiseOnEndSchedule();
 				}
-				raiseOnEndSchedule();
 			}
 			return true;
 		}
@@ -113,6 +122,15 @@ public class ScheduleWalker {
 	private synchronized void raiseOnEndSchedule() {
 		for (IScheduleWalkerListener listener : listeners)
 			listener.onEndSchedule();
+	}
+	// initialization
+	private synchronized void raiseOnInitialized(Summary summary) {
+		for (IScheduleWalkerListener listener : listeners)
+			listener.onInitialized(summary);
+	}
+	private synchronized void raiseOnCleanedUp(Summary summary) {
+		for (IScheduleWalkerListener listener : listeners)
+			listener.onCleanedUp(summary);
 	}
 	// step
 	private synchronized void raiseOnBeginStep(ScheduleStep step) {

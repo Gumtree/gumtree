@@ -2,55 +2,54 @@
 <?xml-stylesheet type="text/xsl" href="msw-tree.xsl"?>
 <MSW xmlns="http://www.gumtree.org/msw" >
 
+  <ExperimentDescription/>
+  
   <!-- Users -->
   <UserList>
     <User Id="#1-b7d3" Name="David Mannicke" Email="test@test"/>
     <User Id="#1-b7d4" Name="David Mannicke" Email="test@test"/>
   </UserList>
+
+  <LoopHierarchy>
+    
+    <!-- Configurations -->
+    <ConfigurationList>
+      <!-- Configuration1 -->
+      <Configuration Id="#1-b7d8" Name="Configuration1">
+        <SetupScript>print "configuration"</SetupScript>
+        <!-- Transmission -->
+        <Measurement Id="#1-b7d7" Name="Transmission" MaxTime="10">
+          <SetupScript>print "transmission"</SetupScript>
+        </Measurement>
+        <!-- Scattering -->
+        <Measurement Id="#1-b7d6" Name="Scattering" MaxTime="10">
+          <SetupScript>print "scattering"</SetupScript>
+        </Measurement>
+      </Configuration>
+    </ConfigurationList>
   
-  <!-- Samples -->
-  <SampleList>
-    <Sample Id="#1-b7d5" Name="Sample 1" Thickness="1.0" />
-    <Sample Id="#2-aaa1" Name="Sample 2" Thickness="1.0" />
-  </SampleList>
+    <!-- Samples -->
+    <SampleList>
+      <Sample Id="#1-b7d5" Name="Sample 1" Thickness="1.0" />
+      <Sample Id="#2-aaa1" Name="Sample 2" Thickness="1.0" />
+    </SampleList>
 
-  <!-- Configurations -->
-  <ConfigurationList>
-    <!-- Configuration1 -->
-    <Configuration Id="#1-b7d8" Name="Configuration1">
-      <SetupScript>print "configuration"</SetupScript>
-      <!-- Transmission -->
-      <Measurement Id="#1-b7d7" Name="Transmission" MaxTime="10">
-        <SetupScript>print "transmission"</SetupScript>
-      </Measurement>
-      <!-- Scattering -->
-      <Measurement Id="#1-b7d6" Name="Scattering" MaxTime="10">
-        <SetupScript>print "scattering"</SetupScript>
-      </Measurement>
-    </Configuration>
-  </ConfigurationList>
 
-  <!-- Environments -->
-  <EnvironmentList>
     <!-- Temperature -->
     <Environment Id="#1-b7a0" Name="Temperature">
       <SetPoint Id="#1-b7a1" Value="15.0" WaitPeriod="1"/>
       <SetPoint Id="#1-b7a2" Value="30.0" WaitPeriod="2"/>
       <SetPoint Id="#1-b7a3" Value="45.0" WaitPeriod="3"/>
     </Environment>
-    
-    <Configurations/>
-    <Samples/>
-    
+        
     <!-- Magnet -->
     <Environment Id="#a-b7a0" Name="Magnet">
       <SetPoint Id="#a-b7a1" Value="1.0" WaitPeriod="10"/>
       <SetPoint Id="#a-b7a2" Value="2.0" WaitPeriod="20"/>
       <SetPoint Id="#a-b7a3" Value="3.0" WaitPeriod="30"/>
     </Environment>
-  </EnvironmentList>
-
-  
+    
+  </LoopHierarchy>
   
   
   

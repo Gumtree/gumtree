@@ -15,9 +15,7 @@ from bragg.quokka import quokka
 from bragg.quokka.quokka import *
 from time import sleep
 from org.gumtree.util.eclipse import WorkspaceUtils
-from xml.etree.ElementTree import Element, SubElement, ElementTree, tostring
-import traceback
-from time import strftime, localtime
+
 """
 Quokka Workflow module contains helper method to glue the Python code with 
 the Quokka scan Java workflow code.
@@ -92,92 +90,19 @@ def updateScatteringRunState(runId, running):
         
 def startAcquistion():
     if engineContext.getAttribute(ATT_STATE_MANAGER) != None:
-        try:
-            stateManager = engineContext.getAttribute(ATT_STATE_MANAGER)
-            stateManager.setAcquistionStarted()
-        except:
-            pass
+        stateManager = engineContext.getAttribute(ATT_STATE_MANAGER)
+        stateManager.setAcquistionStarted()
     
-def runQuokkaScan(acquisitionEntries, reserve=False, evnVal=None):
+def runQuokkaScan(acquisitionEntries, reserve=False):
     acquisitionList = list(acquisitionEntries)
     if reserve:
         acquisitionList.reverse()
-    isConfigRun = False
     for acquisitionGroup in acquisitionList:
         if acquisitionGroup['type'] == 'sampleEnv':
             runSampleEnvironmentScan(acquisitionGroup)
         if acquisitionGroup['type'] == 'config':
             runMultiConfigScan(acquisitionGroup)
-            isConfigRun = True
-    if isConfigRun :
-        stateManager = engineContext.getAttribute(ATT_STATE_MANAGER)
-        if stateManager != None:
-            try:
-                html = getAcqEntryHtml(list(acquisitionEntries), evnVal)
-                print html
-                stateManager.exportAcquisitionEntryHtml(html)
-            except:
-                traceback.print_exc(file=sys.stdout)
-                pass        
         
-def getAcqEntryHtml(acqEntry, evnVal):
-    stateManager = engineContext.getAttribute(ATT_STATE_MANAGER)
-    table = Element('table')
-    table.set('align', 'center')
-    table.set('border', '1')
-    table.set('cellpadding', '2')
-    table.set('cellspacing', '0')
-    table.set('class', 'xmlTable')
-    table.set('style', 'table-layout:fixed; width:100%; word-wrap:break-word')
-    tr = SubElement(table, 'tr')
-    th = SubElement(tr, 'th')
-    th.set('colspan', '2')
-    if not evnVal is None:
-        th.text = evnVal
-        
-    for configGroup in acqEntry:
-        configName = configs[configGroup['target']]['name']
-        th = SubElement(tr, 'th')
-#        t_idx = configSetting.find('-')
-#        th.text = configSetting[t_idx + 1: t_idx + 12]
-        th.text = configName
-    tr = SubElement(table, 'tr')
-    th = SubElement(tr, 'th')
-    th.text = 'Pos'
-    th.set('style', 'width: 5%;')
-    th = SubElement(tr, 'th')
-    th.set('style', 'width: 20%;')
-    th.text = 'Sample'
-    configWidth = 75 / len(acqEntry)
-    for i in xrange(len(acqEntry)):
-        th = SubElement(tr, 'th')
-        th.set('style', 'width: ' + str(configWidth) + '%;')
-        th.text = 'Scattering'
-    
-    sps = acqEntry[0]['contents']
-    for i in xrange(len(sps)):
-        sp = sps[i]
-        tr = SubElement(table, 'tr')
-        td = SubElement(tr, 'td')
-        td.text = str(sp['sample'])
-        td = SubElement(tr, 'td')
-        td.text = samples[sp['sample']]['name']
-        for configGroup in acqEntry:
-            item = configGroup['contents'][i]
-            run_id = item['runId']
-            td = SubElement(tr, 'td')
-            scatt = stateManager.getScatteringDetails(run_id)
-            if not scatt is None:
-                td.text = scatt
-    html = tostring(table)
-    span = Element('span')
-    span.set('class', 'class_span_tablefoot')
-    span.text = 'Scan report created at ' + strftime("%Y-%m-%dT%H:%M:%S", localtime())
-    if not evnVal is None:
-        span.text += ', ' + evnVal
-    html += tostring(span)
-    return html
-    
 def runSampleEnvironmentScan(sampleEvnGroup):
     # Gets the sample environment settings
     evnSetting = sampleEnvironments[sampleEvnGroup['target']]
@@ -202,9 +127,9 @@ def runSampleEnvironmentScan(sampleEvnGroup):
     
     # Recurrsively run (for effectiveness we reverse the configuration on every second run)
     if sampleEvnGroup['setting'] % 2 == 1:
-        runQuokkaScan(sampleEvnGroup['contents'], True, controller + '=' + str(preset))
+        runQuokkaScan(sampleEvnGroup['contents'], True)
     else:
-        runQuokkaScan(sampleEvnGroup['contents'], False, controller + '=' + str(preset))
+        runQuokkaScan(sampleEvnGroup['contents'], False)
     
 def runMultiConfigScan(configGroup):
     configSetting = configs[configGroup['target']]
@@ -244,11 +169,8 @@ def runMultiConfigScan(configGroup):
         log('Skip scattering mode')
         
     if engineContext.getAttribute(ATT_STATE_MANAGER) != None:
-        try:
-            stateManager = engineContext.getAttribute(ATT_STATE_MANAGER)
-            stateManager.setConfigSetFinished(acqEntries[len(acqEntries) - 1]['runId'])
-        except:
-            pass
+        stateManager = engineContext.getAttribute(ATT_STATE_MANAGER)
+        stateManager.setConfigSetFinished(acqEntries[len(acqEntries) - 1]['runId'])
         
 def runTransmission(acqEntries, configSetting):
     
@@ -308,7 +230,7 @@ def runScattering(acqEntries, configSetting):
             # Drive attenuation back safer value
             log('Drive attenuation back to safe value ...')
             if startingAttenuation is None:
-                startingAttenuation = 300
+                startingAttenuation = 180
             driveAtt(startingAttenuation)
             quokka.printQuokkaSettings()
 

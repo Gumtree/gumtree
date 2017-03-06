@@ -1,6 +1,8 @@
 package au.gov.ansto.bragg.quokka.msw.composites;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.eclipse.swt.SWT;
@@ -43,8 +45,8 @@ public class WorkflowComposite extends Composite {
     private static final Image CATEGORY_BTN_IMAGE_END = Resources.load("/icons/Button_end.png");
     private static final int CATEGORY_BTN_RADIUS = 21;
 	// xsd/xml
-	private final static String MSW_XSD = "resources/msw.xsd";
-	private final static String MSW_XML = "resources/msw.xml"; // "resources/example.xml"; // 
+	private static final String MSW_XSD = "resources/msw.xsd";
+	private static final String MSW_XML = "resources/msw.xml"; // "resources/example.xml"; // 
 
     // fields
     private ModelProvider modelProvider = new ModelProvider(
@@ -69,10 +71,41 @@ public class WorkflowComposite extends Composite {
 	    ToolItem btnNew = new ToolItem(toolBar, SWT.PUSH);
 		btnNew.setImage(Resources.IMAGE_NEW);
 		btnNew.setText("New");
+		btnNew.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				modelProvider.getModelProxy().reset();
+			}
+		});
 		
 		ToolItem btnLoad = new ToolItem(toolBar, SWT.PUSH);
 		btnLoad.setImage(Resources.IMAGE_LOAD);
 		btnLoad.setText("Load");
+		btnLoad.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				FileDialog fileDialog = new FileDialog(getShell(), SWT.OPEN);
+
+				fileDialog.setFilterNames(new String[] { "Extensible Markup Language (*.xml)", "All Files (*.*)" });
+				fileDialog.setFilterExtensions(new String[] { "*.xml", "*.*" });
+
+				String filename = fileDialog.open();
+				if ((filename != null) && (filename.length() > 0)) {
+					boolean succeeded = false;
+					try (InputStream stream = new FileInputStream(filename)) {
+						succeeded = modelProvider.getModelProxy().deserializeFrom(stream);
+					}
+					catch (Exception e2) {
+					}
+					if (!succeeded) {
+						MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.OK);
+						dialog.setText("Warning");
+						dialog.setMessage("Unable to load to selected xml file.");
+						dialog.open();
+					}
+				}
+			}
+		});
 		
 		ToolItem btnSave = new ToolItem(toolBar, SWT.PUSH);
 		btnSave.setImage(Resources.IMAGE_SAVE);
@@ -108,10 +141,11 @@ public class WorkflowComposite extends Composite {
 	    ToolItem btnUnlock = new ToolItem(toolBar, SWT.CHECK);
 		btnUnlock.setImage(Resources.IMAGE_LOCK_CLOSED);
 		btnUnlock.setText("Unlock");
+		btnUnlock.setEnabled(false);
 
 	    new ToolItem(toolBar, SWT.SEPARATOR);
 	    
-	    final ToolItem btnUndo = new ToolItem(toolBar, SWT.DROP_DOWN);
+	    final ToolItem btnUndo = new ToolItem(toolBar, SWT.PUSH); // SWT.DROP_DOWN);
 		btnUndo.setImage(Resources.IMAGE_UNDO);
 		btnUndo.setText("Undo");
 		btnUndo.addSelectionListener(new SelectionAdapter() {
@@ -121,7 +155,7 @@ public class WorkflowComposite extends Composite {
 			}
 		});
 		
-		ToolItem btnRedo = new ToolItem(toolBar, SWT.DROP_DOWN);
+		final ToolItem btnRedo = new ToolItem(toolBar, SWT.PUSH); // SWT.DROP_DOWN);
 		btnRedo.setImage(Resources.IMAGE_REDO);
 		btnRedo.setText("Redo");
 		btnRedo.addSelectionListener(new SelectionAdapter() {
@@ -263,7 +297,7 @@ public class WorkflowComposite extends Composite {
 		lblBar0.setImage(CATEGORY_BTN_IMAGE_BAR);
 		lblBar0.pack();
 		
-		ImageButton btnUsers = new ImageButton(cmpTabs, SWT.NONE);
+		final ImageButton btnUsers = new ImageButton(cmpTabs, SWT.NONE);
 		btnUsers.setBackground(getBackground());
 		btnUsers.setText("Experiment");
 		btnUsers.setFont(SWTResourceManager.getFont("Calibri", 10, SWT.BOLD));
@@ -277,7 +311,7 @@ public class WorkflowComposite extends Composite {
 		lblBar1.setImage(CATEGORY_BTN_IMAGE_BAR);
 		lblBar1.pack();
 
-		ImageButton btnSamples = new ImageButton(cmpTabs, SWT.NONE);
+		final ImageButton btnSamples = new ImageButton(cmpTabs, SWT.NONE);
 		btnSamples.setBackground(getBackground());
 		btnSamples.setText("Samples");
 		btnSamples.setFont(SWTResourceManager.getFont("Calibri", 10, SWT.BOLD));
@@ -347,6 +381,7 @@ public class WorkflowComposite extends Composite {
 		final ExperimentComposite cmpExperiment = new ExperimentComposite(cmpMain, modelProvider);
 		final SamplesComposite cmpSamples = new SamplesComposite(cmpMain, modelProvider);
 		final ConfigurationsComposite cmpConfigurations = new ConfigurationsComposite(cmpMain, modelProvider);
+		final EnvironmentsComposite cmpEnvironments = new EnvironmentsComposite(cmpMain, modelProvider);
 		final AcquisitionComposite cmpAcquisitions = new AcquisitionComposite(cmpMain, modelProvider);
 
 		cmpMain.setContent(cmpExperiment);
@@ -356,6 +391,9 @@ public class WorkflowComposite extends Composite {
 			@Override
 			public void handleEvent(Event event) {
 				if (cmpMain.getContent() != cmpExperiment) {
+					btnUndo.setEnabled(true);
+					btnRedo.setEnabled(true);
+
 					cmpMain.setContent(cmpExperiment);
 					cmpMain.setMinSize(cmpExperiment.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 				}
@@ -365,6 +403,9 @@ public class WorkflowComposite extends Composite {
 			@Override
 			public void handleEvent(Event event) {
 				if (cmpMain.getContent() != cmpSamples) {
+					btnUndo.setEnabled(true);
+					btnRedo.setEnabled(true);
+
 					cmpMain.setContent(cmpSamples);
 					cmpMain.setMinSize(cmpSamples.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 				}
@@ -372,19 +413,37 @@ public class WorkflowComposite extends Composite {
 		});
 		btnConfigurations.addListener(SWT.Selection, new Listener() {
 			@Override
-			public void handleEvent(Event event) {		
-				if (cmpMain.getContent() != cmpConfigurations) {		
+			public void handleEvent(Event event) {
+				if (cmpMain.getContent() != cmpConfigurations) {
+					btnUndo.setEnabled(true);
+					btnRedo.setEnabled(true);
+					
 					cmpMain.setContent(cmpConfigurations);
 					cmpMain.setMinSize(cmpConfigurations.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 				}
 			}
 		});
+		btnEnvironments.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (cmpMain.getContent() != cmpEnvironments) {
+					btnUndo.setEnabled(true);
+					btnRedo.setEnabled(true);
+					
+					cmpMain.setContent(cmpEnvironments);
+					cmpMain.setMinSize(cmpEnvironments.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+				}
+			}
+		});
 		btnAcquisitions.addListener(SWT.Selection, new Listener() {
 			@Override
-			public void handleEvent(Event event) {		
-				if (cmpMain.getContent() != cmpAcquisitions) {		
+			public void handleEvent(Event event) {
+				if (cmpMain.getContent() != cmpAcquisitions) {
+					btnUndo.setEnabled(false);
+					btnRedo.setEnabled(false);
+					
 					cmpMain.setContent(cmpAcquisitions);
-					// update acquisition table dimensions
+					// update acquisition table dimensions (may change depending on schedule-tree)
 					cmpAcquisitions.layout();
 					cmpMain.setMinSize(cmpAcquisitions.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 				}

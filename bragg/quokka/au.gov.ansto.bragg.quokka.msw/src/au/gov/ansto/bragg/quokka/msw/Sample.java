@@ -18,14 +18,9 @@ public class Sample extends Element {
 	public static final DependencyProperty<Sample, String> DESCRIPTION = new DependencyProperty<>("Description", String.class);
 	public static final DependencyProperty<Sample, Double> THICKNESS = new DependencyProperty<>("Thickness", Double.class);
 	public static final DependencyProperty<Sample, Double> POSITION = new DependencyProperty<>("Position", Double.class);
-	// optional property
-	public static final DependencyProperty<Sample, Long> MIN_TIME = new DependencyProperty<>("MinTime", Long.class); // seconds
-	public static final DependencyProperty<Sample, Long> MAX_TIME = new DependencyProperty<>("MaxTime", Long.class); // seconds
-	public static final DependencyProperty<Sample, Long> TARGET_MONITOR_COUNTS = new DependencyProperty<>("TargetMonitorCounts", Long.class);
-	public static final DependencyProperty<Sample, Long> TARGET_DETECTOR_COUNTS = new DependencyProperty<>("TargetDetectorCounts", Long.class);
 	// property set
 	public static final Set<IDependencyProperty> PROPERTIES = DependencyProperty.createSet(
-			INDEX, ENABLED, NAME, DESCRIPTION, THICKNESS, POSITION, MIN_TIME, MAX_TIME, TARGET_MONITOR_COUNTS, TARGET_DETECTOR_COUNTS);
+			INDEX, ENABLED, NAME, DESCRIPTION, THICKNESS, POSITION);
 	
 	// construction
 	Sample(SampleList parent, String elementName) {
@@ -66,31 +61,6 @@ public class Sample extends Element {
 	}
 	public void setPosition(double value) {
 		set(POSITION, value);
-	}
-	// optional
-	public long getMinTime() {
-		return (long)get(MIN_TIME);
-	}
-	public void setMinimalTime(long value) {
-		set(MIN_TIME, value);
-	}
-	public long getMaxTime() {
-		return (long)get(MAX_TIME);
-	}
-	public void setMaximalTime(long value) {
-		set(MAX_TIME, value);
-	}
-	public long getTargetMonitorCounts() {
-		return (long)get(TARGET_MONITOR_COUNTS);
-	}
-	public void setTargetMonitorCounts(long value) {
-		set(TARGET_MONITOR_COUNTS, value);
-	}
-	public long getTargetDetectorCounts() {
-		return (long)get(TARGET_DETECTOR_COUNTS);
-	}
-	public void setTargetDetectorCounts(long value) {
-		set(TARGET_DETECTOR_COUNTS, value);
 	}
 
 	// methods

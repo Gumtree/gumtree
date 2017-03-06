@@ -11,11 +11,12 @@ public class Configuration extends ElementList<Measurement> {
 	// property names
 	public static final DependencyProperty<Configuration, Boolean> ENABLED = new DependencyProperty<>("Enabled", Boolean.class);
 	public static final DependencyProperty<Configuration, String> NAME = new DependencyProperty<>("Name", String.class);
+	public static final DependencyProperty<Configuration, String> GROUP = new DependencyProperty<>("Group", String.class);
 	public static final DependencyProperty<Configuration, String> DESCRIPTION = new DependencyProperty<>("Description", String.class);
 	public static final DependencyProperty<Configuration, String> SETUP_SCRIPT = new DependencyProperty<>("SetupScript", String.class);
 	// property set
 	public static final Set<IDependencyProperty> PROPERTIES = DependencyProperty.createSet(
-			INDEX, ENABLED, NAME, DESCRIPTION, SETUP_SCRIPT);
+			INDEX, ENABLED, NAME, GROUP, DESCRIPTION, SETUP_SCRIPT);
 	
 	// fields
 	private final IListElementFactory<Measurement> elementFactory = new IListElementFactory<Measurement>() {
@@ -46,6 +47,12 @@ public class Configuration extends ElementList<Measurement> {
 	}
 	public void setName(String value) {
 		set(NAME, value);
+	}
+	public String getGroup() {
+		return (String)get(GROUP);
+	}
+	public void setGroup(String value) {
+		set(GROUP, value);
 	}
 	public String getDescription() {
 		return (String)get(DESCRIPTION);

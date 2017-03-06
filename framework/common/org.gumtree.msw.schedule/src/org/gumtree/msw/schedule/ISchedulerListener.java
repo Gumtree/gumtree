@@ -11,4 +11,7 @@ public interface ISchedulerListener {
 	public void onAddedAspects(ScheduledAspect owner, Iterable<ScheduledAspect> aspects);
 	public void onDuplicatedAspects(ScheduledAspect owner, Iterable<ScheduledAspect> aspects);
 	public void onDeletedAspects(ScheduledAspect owner, Iterable<ScheduledAspect> aspects);
+	// schedule provider
+	public void onBeginUpdate();
+	public void onEndUpdate();
 }

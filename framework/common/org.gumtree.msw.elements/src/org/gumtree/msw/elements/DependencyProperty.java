@@ -37,6 +37,14 @@ public class DependencyProperty<TOwner extends Element, T> implements IDependenc
 				this.name.equalsIgnoreCase(name) &&
 				this.propertyType.equals(propertyType);
 	}
+	// to string
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(getClass().getSimpleName());
+		sb.append('(').append(getName()).append(": ").append(getPropertyType().getSimpleName()).append(')');
+		return sb.toString();
+	}
 	
 	// helper
 	public static Set<IDependencyProperty> createSet(IDependencyProperty ... properties) {

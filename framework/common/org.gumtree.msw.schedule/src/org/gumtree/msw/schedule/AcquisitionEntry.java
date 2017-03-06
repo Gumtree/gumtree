@@ -1,17 +1,22 @@
 package org.gumtree.msw.schedule;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.gumtree.msw.elements.IDependencyProperty;
 
-public class AcquisitionEntry extends AcquisitionAspect {
-	// e.g. Configuration contains Transmission/Scattering but the modification is just called Measurement
-	public final String modificationName;
-
+public class AcquisitionEntry {
+	// fields
+	public final String name;
+	public final Set<IDependencyProperty> properties;	// not all properties can be changed
+	public final Set<AcquisitionEntry> entries;
+	
 	// construction
 	public AcquisitionEntry(String name, IDependencyProperty[] properties, AcquisitionEntry ... entries) {
-		this(name , name, properties, entries);
-	}
-	public AcquisitionEntry(String name, String modificationName, IDependencyProperty[] properties, AcquisitionEntry ... entries) {
-		super(name, properties, entries);
-		this.modificationName = modificationName;
+		this.name = name;
+		this.properties = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(properties)));
+		this.entries = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(entries)));
 	}
 }

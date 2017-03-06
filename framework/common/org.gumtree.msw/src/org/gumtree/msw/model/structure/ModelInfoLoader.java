@@ -209,21 +209,23 @@ public final class ModelInfoLoader {
 	private Attribute process(XSAttributeUse item) {
 		XSAttributeDeclaration declaration = item.getAttrDeclaration();
 
+		SimpleTypeDefinition typeDefinition = process(declaration.getTypeDefinition());
 		return new Attribute(
 				declaration.getName(),
-				process(declaration.getTypeDefinition()),
+				typeDefinition,
 				item.getRequired(),
 				ConstraintType.from(item.getConstraintType()),
-				Value.from(item.getActualVCType(), item.getActualVC()));
+				Value.from(item.getActualVCType(), item.getActualVC(), typeDefinition.getFacets()));
 	}
 	// types
 	private SimpleTypeDefinition process(XSSimpleTypeDefinition item) {
 		SimpleTypeDefinition result = simpleTypeMap.get(item);
-		if (result == null) {		
+		if (result == null) {
 			result = new SimpleTypeDefinition(
 					item.getName(),
 					item.getNamespace(),
-					Value.type(item.getBuiltInKind()));
+					XsTypeHelper.type(item.getBuiltInKind()),
+					FacetList.create(item));
 			
 			simpleTypeMap.put(item, result);
 		}
@@ -242,7 +244,7 @@ public final class ModelInfoLoader {
 			// attributes
 			XSObjectList objectList = item.getAttributeUses();
 			List<Attribute> attributes = new ArrayList<Attribute>(objectList.getLength());
-			for (int i = 0; i < objectList.getLength(); i ++) {
+			for (int i = 0; i < objectList.getLength(); i++) {
 				Attribute attribute = process((XSAttributeUse)objectList.item(i));
 				if (attribute != null)
 					attributes.add(attribute);
@@ -299,7 +301,7 @@ public final class ModelInfoLoader {
 			// particles
 			XSObjectList objectList = item.getParticles();
 			List<Particle> particles = new ArrayList<Particle>(objectList.getLength());
-			for (int i = 0; i < objectList.getLength(); i ++) {
+			for (int i = 0; i < objectList.getLength(); i++) {
 				Particle particle = process((XSParticle)objectList.item(i));
 				if (particle != null)
 					particles.add(particle);
@@ -323,8 +325,7 @@ public final class ModelInfoLoader {
 					item.getNamespace(),
 					minOccurs,
 					maxOccurs,
-					ConstraintType.from(item.getConstraintType()),
-					Value.from(item.getActualVCType(), item.getActualVC()));
+					ConstraintType.from(item.getConstraintType()));
 			
 			// allow recursive references 
 			elementMap.put(item, simpleElementDeclaration);
@@ -333,7 +334,9 @@ public final class ModelInfoLoader {
 			SimpleTypeDefinition simpleType = process((XSSimpleTypeDefinition)item.getTypeDefinition());
 
 			// finalization
-			if (!simpleElementDeclaration.finalize(simpleType))
+			if (!simpleElementDeclaration.finalize(
+					simpleType,
+					Value.from(item.getActualVCType(), item.getActualVC(), simpleType.getFacets())))
 				System.out.println("WARNING: finalization failed");
 
 			return simpleElementDeclaration;

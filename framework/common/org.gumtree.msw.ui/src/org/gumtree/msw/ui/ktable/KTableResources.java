@@ -12,6 +12,9 @@ class KTableResources {
 	public static final Color COLOR_DISABLED = SWTResourceManager.getColor(155, 155, 155);
 	
 	// fixed
+	//public static final int ROW_HEIGHT = 18 * 2;
+	//public static final int ROW_HEADER_WIDTH = 41;
+	//public static final int COLUMN_HEADER_HEIGHT = 22 * 2;
 	public static final int ROW_HEIGHT = 18;
 	public static final int ROW_HEADER_WIDTH = 41;
 	public static final int COLUMN_HEADER_HEIGHT = 22;

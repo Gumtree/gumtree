@@ -50,9 +50,6 @@ public class UserList extends ElementList<User> {
 	public void replaceUsers(Iterable<Map<IDependencyProperty, Object>> users) {
 		replaceAll(User.class, users);
 	}
-	public void replaceUsers(Iterable<Map<IDependencyProperty, String>> users, boolean parse) {
-		replaceAll(User.class, users, parse);
-	}
 	public void enableAll() {
 		batchSet(User.ENABLED, true);
 	}

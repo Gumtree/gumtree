@@ -1,10 +1,15 @@
 package au.gov.ansto.bragg.quokka.msw.composites;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -19,26 +24,16 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.gumtree.msw.elements.IDependencyProperty;
 import org.gumtree.msw.schedule.execution.Summary;
+import org.gumtree.msw.ui.IModelBinding;
 import org.gumtree.msw.ui.Resources;
 import org.gumtree.msw.ui.ktable.ButtonInfo;
 import org.gumtree.msw.ui.ktable.CheckableCellRenderer;
-import org.gumtree.msw.ui.ktable.IButtonListener;
 import org.gumtree.msw.ui.ktable.ElementTableModel;
 import org.gumtree.msw.ui.ktable.ElementTableModel.ColumnDefinition;
-import org.gumtree.msw.ui.ktable.NameCellRenderer;
-
-import au.gov.ansto.bragg.quokka.msw.ExperimentDescription;
-import au.gov.ansto.bragg.quokka.msw.ModelProvider;
-import au.gov.ansto.bragg.quokka.msw.Sample;
-import au.gov.ansto.bragg.quokka.msw.SampleList;
-import au.gov.ansto.bragg.quokka.msw.converters.PositionValueConverter;
-import au.gov.ansto.bragg.quokka.msw.converters.ThicknessValueConverter;
-import au.gov.ansto.bragg.quokka.msw.schedule.CustomInstrumentAction;
-import au.gov.ansto.bragg.quokka.msw.schedule.ICustomInstrumentActionListener;
-import au.gov.ansto.bragg.quokka.msw.util.CsvTableExporter;
-import au.gov.ansto.bragg.quokka.msw.util.CsvTableImporter;
+import org.gumtree.msw.ui.ktable.IButtonListener;
 import org.gumtree.msw.ui.ktable.KTable;
 import org.gumtree.msw.ui.ktable.KTableCellEditor;
+import org.gumtree.msw.ui.ktable.NameCellRenderer;
 import org.gumtree.msw.ui.ktable.SWTX;
 import org.gumtree.msw.ui.ktable.editors.KTableCellEditorCheckbox;
 import org.gumtree.msw.ui.ktable.editors.KTableCellEditorComboText;
@@ -46,19 +41,28 @@ import org.gumtree.msw.ui.ktable.editors.KTableCellEditorText2;
 import org.gumtree.msw.ui.ktable.renderers.DefaultCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.TextCellRenderer;
 
+import au.gov.ansto.bragg.quokka.msw.ExperimentDescription;
+import au.gov.ansto.bragg.quokka.msw.IModelProviderListener;
+import au.gov.ansto.bragg.quokka.msw.ModelProvider;
+import au.gov.ansto.bragg.quokka.msw.Sample;
+import au.gov.ansto.bragg.quokka.msw.SampleList;
+import au.gov.ansto.bragg.quokka.msw.converters.DoubleValueConverter;
+import au.gov.ansto.bragg.quokka.msw.converters.TrimmedDoubleValueConverter;
+import au.gov.ansto.bragg.quokka.msw.schedule.CustomInstrumentAction;
+import au.gov.ansto.bragg.quokka.msw.schedule.ICustomInstrumentActionListener;
+import au.gov.ansto.bragg.quokka.msw.util.CsvTable;
+
 public class SamplesComposite extends Composite {
 	// finals
 	private static final String SAMPLE_STAGE = "SampleStage";
 	
 	// fields
-	private final KTable tblSamples;
-	private final Menu menu;
-	private ExperimentDescription experimentDescription;
-	private SampleList sampleList;
+	private final ElementTableModel<SampleList, Sample>  tableModel;
 
     // construction
-	public SamplesComposite(Composite parent, final ModelProvider provider) {
+	public SamplesComposite(Composite parent, final ModelProvider modelProvider) {
 		super(parent, SWT.BORDER);
+		
 		GridLayout gridLayout = new GridLayout(1, false);
 		gridLayout.verticalSpacing = 0;
 		gridLayout.marginWidth = 10;
@@ -72,7 +76,7 @@ public class SamplesComposite extends Composite {
 		cmpContent.setLayout(new GridLayout(1, false));
 		cmpContent.setBackground(getBackground());
 
-		tblSamples = new KTable(cmpContent, SWTX.EDIT_ON_KEY | SWT.V_SCROLL | SWT.H_SCROLL);
+		KTable tblSamples = new KTable(cmpContent, SWTX.EDIT_ON_KEY | SWT.V_SCROLL | SWT.H_SCROLL);
 		tblSamples.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 		tblSamples.setBackground(SWTResourceManager.getColor(SWT.COLOR_LIST_BACKGROUND));
 		
@@ -86,11 +90,11 @@ public class SamplesComposite extends Composite {
 		btnDriveToLoad.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String sampleStage = experimentDescription.getSampleStage();
+				String sampleStage = modelProvider.getExperimentDescription().getSampleStage();
 				if (!verifySampleStage(getShell(), sampleStage))
 					return;
 				
-				CustomInstrumentAction customAction = provider.getCustomInstrumentAction();
+				CustomInstrumentAction customAction = modelProvider.getCustomInstrumentAction();
 
 				if (!customAction.driveToLoadPosition(sampleStage)) {
 					MessageBox dialog = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
@@ -100,14 +104,43 @@ public class SamplesComposite extends Composite {
 				}
 			}
 		});
-		provider.getCustomInstrumentAction().addListener(new ICustomInstrumentActionListener() {
+		modelProvider.getCustomInstrumentAction().addListener(new ICustomInstrumentActionListener() {
 			@Override
 			public void onActionFinished(String action, Summary summary) {
+				if (Objects.equals(action, CustomInstrumentAction.GET_SAMPLE_POSITIONS)) {
+					Object positions = summary.getParameters().get("SamplePositions");
+					if (positions instanceof Integer) {
+						final String sampleStage = ExperimentDescription.getSampleStage((Integer)positions);
+						if (sampleStage != null) {
+							getDisplay().asyncExec(new Runnable() {
+								@Override
+								public void run() {
+									if (!Objects.equals(sampleStage, modelProvider.getExperimentDescription().getSampleStage())) {
+										final String newLine = System.getProperty("line.separator");
+									
+										MessageBox dialog = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+										dialog.setText("Information");
+										dialog.setMessage(
+												"Sics reported that the following sample stage is available:" + newLine +
+												sampleStage + newLine + 
+												newLine +
+												"Would you like to acknowledge the adjustment?");
+										
+										if (dialog.open() == SWT.YES)
+											modelProvider.getSampleList().setSampleStage(modelProvider.getExperimentDescription(), sampleStage);
+									}
+								}
+							});
+						}
+					}
+					return;
+				}
+
 				final String message;
-				if (action == CustomInstrumentAction.DRIVE_TO_LOAD_POSITION)
-					message = "at load position";
-				else if (action == CustomInstrumentAction.DRIVE_TO_SAMPLE_POSITION)
-					message = "at sample position";
+				if (Objects.equals(action, CustomInstrumentAction.DRIVE_TO_LOAD_POSITION))
+					message = summary.getInterrupted() ? "command failed" : "at load position";
+				else if (Objects.equals(action, CustomInstrumentAction.DRIVE_TO_SAMPLE_POSITION))
+					message = summary.getInterrupted() ? "command failed" : "at sample position";
 				else
 					return;
 				
@@ -124,7 +157,7 @@ public class SamplesComposite extends Composite {
 		});
 
 		// menu
-	    menu = new Menu(this);
+		Menu menu = new Menu(this);
 	    MenuItem menuItem;
 
 	    // sample holders
@@ -133,7 +166,7 @@ public class SamplesComposite extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				Object sampleStage = e.widget.getData(SAMPLE_STAGE);
 				if (sampleStage instanceof String)
-					sampleList.setSampleStage(experimentDescription, (String)sampleStage);
+					modelProvider.getSampleList().setSampleStage(modelProvider.getExperimentDescription(), (String)sampleStage);
 			}
 		};
 	    
@@ -174,11 +207,11 @@ public class SamplesComposite extends Composite {
 	    menuItem.addSelectionListener(sampleHolderMenuListener);
 
 	    menuItem = new MenuItem(menu, SWT.NONE);
-	    menuItem.setText("Remove All");
+	    menuItem.setText("Clear All");
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				sampleList.clear(experimentDescription);
+				modelProvider.getSampleList().clear(modelProvider.getExperimentDescription());
 			}
 		});
 	    
@@ -190,7 +223,7 @@ public class SamplesComposite extends Composite {
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				sampleList.enableAll();
+				modelProvider.getSampleList().enableAll();
 			}
 		});
 	    
@@ -200,7 +233,7 @@ public class SamplesComposite extends Composite {
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				sampleList.disableAll();
+				modelProvider.getSampleList().disableAll();
 			}
 		});
 	    
@@ -212,9 +245,8 @@ public class SamplesComposite extends Composite {
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				List<Map<IDependencyProperty, String>> content = CsvTableImporter.showDialog(
+				List<Map<IDependencyProperty, Object>> content = CsvTable.showImportDialog(
 						getShell(),
-						sampleList,
 						Sample.ENABLED,
 						Sample.POSITION,
 						Sample.NAME,
@@ -222,8 +254,8 @@ public class SamplesComposite extends Composite {
 						Sample.DESCRIPTION);
 
 				if (content != null)
-					sampleList.replaceSamples(
-							experimentDescription,
+					modelProvider.getSampleList().replaceSamples(
+							modelProvider.getExperimentDescription(),
 							content,
 							// persistent properties of existing samples (in case loaded list is too short)
 							Sample.ENABLED,
@@ -240,9 +272,9 @@ public class SamplesComposite extends Composite {
 	    menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				CsvTableExporter.showDialog(
+				CsvTable.showExportDialog(
 						getShell(),
-						sampleList,
+						modelProvider.getSampleList(),
 						Sample.ENABLED,
 						Sample.POSITION,
 						Sample.NAME,
@@ -251,21 +283,46 @@ public class SamplesComposite extends Composite {
 			}
 		});
 
-	    initDataBindings(provider);
+	    tableModel = createTableModel(tblSamples, menu, modelProvider);
+	    
+	    modelProvider.addListener(new IModelProviderListener() {
+	    	// fields
+		    final List<IModelBinding> modelBindings = new ArrayList<>();
+		    final DataBindingContext bindingContext = new DataBindingContext();
+
+		    // event handling
+			@Override
+			public void onReset() {
+				// clear all previous bindings
+				for (IModelBinding binding : modelBindings)
+					binding.dispose();
+				
+				modelBindings.clear();
+				
+				initDataBindings(modelProvider, bindingContext, modelBindings);
+			}
+		});
+	    
+	    // request number of sample positions (once this composite becomes visible)
+	    addPaintListener(new PaintListener() {
+			@Override
+			public void paintControl(PaintEvent e) {
+			    CustomInstrumentAction customAction = modelProvider.getCustomInstrumentAction();
+			    customAction.requestSamplePositions();
+				SamplesComposite.this.removePaintListener(this);
+			}
+		});
 	}
 
 	// methods
-	private void initDataBindings(ModelProvider provider) {
-		if (provider == null)
-			return;
-		
-		experimentDescription = provider.getExperimentDescription();
-		sampleList = provider.getSampleList();
+	private void initDataBindings(ModelProvider modelProvider, DataBindingContext bindingContext, List<IModelBinding> modelBindings) {
+		// source
+		SampleList sampleList = modelProvider.getSampleList();
 
 		// setup table
-		createTableModel(provider, tblSamples, experimentDescription, sampleList, menu);
+		tableModel.updateSource(sampleList);
 	}
-	private static ElementTableModel<SampleList, Sample> createTableModel(final ModelProvider provider, final KTable table, final ExperimentDescription experimentDescription, SampleList sampleList, Menu menu) {
+	private static ElementTableModel<SampleList, Sample> createTableModel(final KTable table, Menu menu, final ModelProvider modelProvider) {
 		// cell rendering
 		DefaultCellRenderer positionRenderer = new TextCellRenderer(TextCellRenderer.INDICATION_FOCUS); // not copyable because the holder positions cannot be changed
     	DefaultCellRenderer checkableRenderer = new CheckableCellRenderer(CheckableCellRenderer.INDICATION_FOCUS | TextCellRenderer.INDICATION_COPYABLE);
@@ -286,11 +343,11 @@ public class SamplesComposite extends Composite {
     	IButtonListener<Sample> bullseyeButtonListener = new IButtonListener<Sample>() {
 			@Override
 			public void onClicked(int col, int row, Sample sample) {
-				String sampleStage = experimentDescription.getSampleStage();
+				String sampleStage = modelProvider.getExperimentDescription().getSampleStage();
 				if (!verifySampleStage(table.getShell(), sampleStage))
 					return;
 				
-				CustomInstrumentAction customAction = provider.getCustomInstrumentAction();
+				CustomInstrumentAction customAction = modelProvider.getCustomInstrumentAction();
 
 				if (!customAction.driveToSamplePosition(sampleStage, sample.getPosition())) {
 					MessageBox dialog = new MessageBox(table.getShell(), SWT.ICON_INFORMATION | SWT.OK);
@@ -304,20 +361,20 @@ public class SamplesComposite extends Composite {
     	// construction
     	ElementTableModel<SampleList, Sample> model = new ElementTableModel<SampleList, Sample>(
     			table,
-    			sampleList,
     			menu,
 				"drive sample holder to this position",
 		    	Arrays.asList(
 		    			new ButtonInfo<Sample>(Resources.IMAGE_BULLSEYE_GRAY, Resources.IMAGE_BULLSEYE, bullseyeButtonListener)),
 		    	Arrays.asList(
-		    			new ColumnDefinition(Sample.ENABLED, "", 30, checkableRenderer, checkableEditor),
-		    			new ColumnDefinition(Sample.POSITION, "", 30, positionRenderer, null, new PositionValueConverter()),
-		    			new ColumnDefinition(Sample.NAME, "Name", 250, nameRenderer, nameEditor),
-		    			new ColumnDefinition(Sample.THICKNESS, "Thickness", 60, thicknessRenderer, numberEditor, new ThicknessValueConverter()),
-		    			new ColumnDefinition(Sample.DESCRIPTION, "Description", 500, descriptionRenderer, textEditor)));
-    	
+		    			new ColumnDefinition("", 30, Sample.ENABLED, checkableRenderer, checkableEditor),
+		    			new ColumnDefinition("", 30, Sample.POSITION, positionRenderer, null, TrimmedDoubleValueConverter.DEFAULT),
+		    			new ColumnDefinition("Name", 250, Sample.NAME, nameRenderer, nameEditor),
+		    			new ColumnDefinition("Thickness", 60, Sample.THICKNESS, thicknessRenderer, numberEditor, DoubleValueConverter.DEFAULT),
+		    			new ColumnDefinition("Description", 500, Sample.DESCRIPTION, descriptionRenderer, textEditor)));
+    	    	
     	table.setModel(model);
     	table.setNumRowsVisibleInPreferredSize(20);
+    	
     	return model;
 	}
 	private static boolean verifySampleStage(Shell shell, String sampleStage) {

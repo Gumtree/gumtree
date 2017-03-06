@@ -1,6 +1,7 @@
 package au.gov.ansto.bragg.quokka.msw.schedule;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,21 +10,22 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.script.ScriptEngine;
 
 import org.gumtree.msw.RefId;
+import org.gumtree.msw.elements.Element;
 import org.gumtree.msw.schedule.execution.AcquisitionSummary;
 import org.gumtree.msw.schedule.execution.ParameterChangeSummary;
 import org.gumtree.msw.schedule.execution.Summary;
 
 import au.gov.ansto.bragg.quokka.msw.ExperimentDescription;
+import au.gov.ansto.bragg.quokka.msw.ModelProvider;
 import au.gov.ansto.bragg.quokka.msw.User;
-import au.gov.ansto.bragg.quokka.msw.UserList;
 
-public class PythonInstrumentActionExecuter implements IInstrumentActionExecuter {
+public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 	// finals
 	private static final String ID_TAG = "%%ID%%";
 	private static final String PY_IMPORT_MSW = "import bragg.quokka.msw as msw";
 	private static final String PY_SET_CONSOLE_WRITER = "msw.setConsoleWriter(%%ID%%)";
 	private static final String PY_INITIATE = "msw.initiate(%%ID%%)";
-	private static final String PY_CLEAN_UP = "msw.cleanUp()";
+	private static final String PY_CLEAN_UP = "msw.cleanUp(%%ID%%)";
 	private static final String PY_SET_PARAMETERS_SCRIPT = "msw.setParameters(%%ID%%)";
 	private static final String PY_PRE_ACQUISITION_SCRIPT = "msw.preAcquisition(%%ID%%)";
 	private static final String PY_DO_ACQUISITION_SCRIPT = "msw.doAcquisition(%%ID%%)";
@@ -32,17 +34,15 @@ public class PythonInstrumentActionExecuter implements IInstrumentActionExecuter
 	// java/python interface
 	private static final AtomicLong atomicId = new AtomicLong();
 	private static final Map<Long, Object> idMap = new HashMap<>();
+	
 	// fields
 	private final ScriptEngine engine;
-	// metadata
-	public final ExperimentDescription experimentDescription;
-	public final UserList userList;
+	private final ModelProvider modelProvider;
 	
 	// construction
-	public PythonInstrumentActionExecuter(ScriptEngine engine, ExperimentDescription experimentDescription, UserList userList) {
+	public PythonInstrumentActionExecuter(ScriptEngine engine, ModelProvider modelProvider) {
 		this.engine = engine;
-		this.experimentDescription = experimentDescription;
-		this.userList = userList;
+		this.modelProvider = modelProvider;
 
 		long id = atomicId.incrementAndGet();
 		setObject(id, engine.getContext().getWriter());
@@ -58,14 +58,22 @@ public class PythonInstrumentActionExecuter implements IInstrumentActionExecuter
 		}
 	}
 	
+	// helper
+	private long getPocessingTime(long startTime) {
+		long nano = System.nanoTime() - startTime;
+		return nano / 1000 / 1000 / 1000;
+	}
+	
 	// methods
 	@Override
-	public boolean initiate() {
+	public Summary initiate() {
 		PyInitiateInfo info = null;
+		long startTime = System.nanoTime();
 		
 		try {
 			List<User> users = new ArrayList<>();
-			userList.fetchElements(users);
+			modelProvider.getUserList().fetchElements(users);
+			Collections.sort(users, Element.INDEX_COMPARATOR);
 			
 			StringBuilder usersStr = new StringBuilder();
 			for (User user : users) {
@@ -77,6 +85,7 @@ public class PythonInstrumentActionExecuter implements IInstrumentActionExecuter
 				}
 			}
 
+			ExperimentDescription experimentDescription = modelProvider.getExperimentDescription();
 			info = new PyInitiateInfo(
 					experimentDescription.getProposalNumber(),
 					experimentDescription.getExperimentTitle(),
@@ -98,25 +107,62 @@ public class PythonInstrumentActionExecuter implements IInstrumentActionExecuter
 			e.printStackTrace();
 		}
 		
-		return (info != null) && !info.interrupted;
+		if (info == null)
+			return new Summary(
+					Collections.<String, Object>emptyMap(),
+					getPocessingTime(startTime),
+					true,
+					null);
+		else
+			return new Summary(
+					Collections.<String, Object>emptyMap(),
+					getPocessingTime(startTime),
+					info.interrupted,
+					info.notes);
 	}
 	@Override
-	public void release() {
+	public Summary cleanUp() {
+		PyInfo info = null;
+		long startTime = System.nanoTime();
+		
 		try {
-			engine.eval(PY_IMPORT_MSW);
-			engine.eval(PY_CLEAN_UP);
+			info = new PyInfo();
+
+			long id = atomicId.incrementAndGet();
+			setObject(id, info);
+			try {
+				engine.eval(PY_IMPORT_MSW);
+				engine.eval(PY_CLEAN_UP.replaceAll(ID_TAG, Long.toString(id) + 'L'));
+			}
+			finally {
+				removeObject(id);
+			}
 		}
 		catch (Exception e) {
+			info = null;
 			e.printStackTrace();
 		}
+		
+		if (info == null)
+			return new Summary(
+					Collections.<String, Object>emptyMap(),
+					getPocessingTime(startTime),
+					true,
+					null);
+		else
+			return new Summary(
+					Collections.<String, Object>emptyMap(),
+					getPocessingTime(startTime),
+					info.interrupted,
+					info.notes);
 	}
 	// steps
 	@Override
 	public ParameterChangeSummary setParameters(String name, Map<String, Object> parameters) {
 		PyParameterInfo info = null;
-		long processingTime = 100;
+		long startTime = System.nanoTime();
 		
-		try {			
+		try {
 			int indexId = name.indexOf(RefId.HASH);
 			if (indexId != -1)
 				name = name.substring(0, indexId);
@@ -138,16 +184,25 @@ public class PythonInstrumentActionExecuter implements IInstrumentActionExecuter
 			e.printStackTrace();
 		}
 		
-		return new ParameterChangeSummary(
-				name,
-				parameters,
-				processingTime,
-				info == null || info.interrupted);
+		if (info == null)
+			return new ParameterChangeSummary(
+					name,
+					parameters,
+					getPocessingTime(startTime),
+					true,
+					null);
+		else
+			return new ParameterChangeSummary(
+					name,
+					parameters,
+					getPocessingTime(startTime),
+					info.interrupted,
+					info.notes);
 	}
 	@Override
 	public Summary preAcquisition() {
 		PyInfo info = null;
-		long processingTime = 100;
+		long startTime = System.nanoTime();
 		
 		try {
 			info = new PyInfo();
@@ -166,17 +221,26 @@ public class PythonInstrumentActionExecuter implements IInstrumentActionExecuter
 			e.printStackTrace();
 		}
 
-		return new Summary(
-				processingTime,
-				info == null || info.interrupted);
+		if (info == null)
+			return new Summary(
+					Collections.<String, Object>emptyMap(),
+					getPocessingTime(startTime),
+					true,
+					null);
+		else
+			return new Summary(
+					Collections.<String, Object>emptyMap(),
+					getPocessingTime(startTime),
+					info.interrupted,
+					info.notes);
 	}
 	@Override
-	public AcquisitionSummary doAcquisition() {
+	public AcquisitionSummary doAcquisition(Map<String, Object> parameters) {
 		PyAcquisitionInfo info = null;
-		long processingTime = 100;
+		long startTime = System.nanoTime();
 		
 		try {
-			info = new PyAcquisitionInfo();
+			info = new PyAcquisitionInfo(parameters);
 
 			long id = atomicId.incrementAndGet();
 			setObject(id, info);
@@ -194,21 +258,25 @@ public class PythonInstrumentActionExecuter implements IInstrumentActionExecuter
 		
 		if (info == null)
 			return new AcquisitionSummary(
-					processingTime,
-					true);
+					parameters,
+					getPocessingTime(startTime),
+					true,
+					null);
 		else
 			return new AcquisitionSummary(
+					parameters,
 					info.filename,
 					info.totalSeconds,
 					info.totalCounts,
 					info.monitorCounts,
-					processingTime,
-					info.interrupted);
+					getPocessingTime(startTime),
+					info.interrupted,
+					info.notes);
 	}
 	@Override
 	public Summary postAcquisition() {
 		PyInfo info = null;
-		long processingTime = 100;
+		long startTime = System.nanoTime();
 		
 		try {
 			info = new PyInfo();
@@ -227,15 +295,24 @@ public class PythonInstrumentActionExecuter implements IInstrumentActionExecuter
 			e.printStackTrace();
 		}
 
-		return new Summary(
-				processingTime,
-				info == null || info.interrupted);
+		if (info == null)
+			return new Summary(
+					Collections.<String, Object>emptyMap(),
+					getPocessingTime(startTime),
+					true,
+					null);
+		else
+			return new Summary(
+					Collections.<String, Object>emptyMap(),
+					getPocessingTime(startTime),
+					info.interrupted,
+					info.notes);
 	}
 	// custom
 	@Override
 	public Summary customAction(String action, Map<String, Object> parameters) {
 		PyCustomActionInfo info = null;
-		long processingTime = 100;
+		long startTime = System.nanoTime();
 		
 		try {
 			info = new PyCustomActionInfo(action, parameters);
@@ -254,9 +331,18 @@ public class PythonInstrumentActionExecuter implements IInstrumentActionExecuter
 			e.printStackTrace();
 		}
 
-		return new Summary(
-				processingTime,
-				info == null || info.interrupted);
+		if (info == null)
+			return new Summary(
+					parameters,
+					getPocessingTime(startTime),
+					true,
+					null);
+		else
+			return new Summary(
+					parameters,
+					getPocessingTime(startTime),
+					info.interrupted,
+					info.notes);
 	}
 	
 	// java/python interface
@@ -273,10 +359,12 @@ public class PythonInstrumentActionExecuter implements IInstrumentActionExecuter
 	public static class PyInfo {
 		// fields
 		public boolean interrupted;
+		public String notes;
 		
 		// construction
 		public PyInfo() {
 			this.interrupted = false;
+			this.notes = null;
 		}
 	}
 
@@ -311,13 +399,15 @@ public class PythonInstrumentActionExecuter implements IInstrumentActionExecuter
 	
 	public static class PyAcquisitionInfo extends PyInfo {
 		// fields
+		public Map<String, Object> parameters; // optional: MinTime, MaxTime, Counts, BmCounts
 		public String filename;
 		public long totalSeconds;
 		public long totalCounts;
 		public long monitorCounts;
 		
 		// construction
-		public PyAcquisitionInfo() {
+		public PyAcquisitionInfo(Map<String, Object> parameters) {
+			this.parameters = parameters;
 			this.filename = null;
 			this.totalSeconds = 0;
 			this.totalCounts = 0;

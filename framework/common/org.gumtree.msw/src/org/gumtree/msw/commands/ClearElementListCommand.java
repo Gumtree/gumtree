@@ -30,7 +30,7 @@ public class ClearElementListCommand extends TargetCommand {
 		return batchCommand.execute(model);
 	}
 	@Override
-	public boolean equals(Object obj) {		
+	public boolean equals(Object obj) {
 		if (obj instanceof ClearElementListCommand)
 			return super.equals(obj);
 		

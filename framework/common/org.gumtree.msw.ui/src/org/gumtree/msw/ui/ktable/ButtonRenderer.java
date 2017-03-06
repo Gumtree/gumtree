@@ -60,7 +60,6 @@ abstract class ButtonRenderer implements KTableCellRenderer {
 	protected final KTable table;
 	protected final int optimalWidth;
 	protected final int buttonCount;
-	protected final Class<?> elementType;
 	private final Image[] imagesDefault;
 	private final Image[] imagesMouseOver;
     // state
@@ -70,11 +69,10 @@ abstract class ButtonRenderer implements KTableCellRenderer {
     private Point lastMousePosition;
 	
 	// construction
-	public <T> ButtonRenderer(final KTable table, int optimalWidth, Class<?> elementType, List<ButtonInfo<T>> buttons) {
+	public <T> ButtonRenderer(final KTable table, int optimalWidth, List<ButtonInfo<T>> buttons) {
 		this.table = table;
 		this.optimalWidth = optimalWidth;
 		this.buttonCount = buttons.size();
-		this.elementType = elementType;
 
 		imagesDefault = new Image[buttonCount];
 		imagesMouseOver = new Image[buttonCount];

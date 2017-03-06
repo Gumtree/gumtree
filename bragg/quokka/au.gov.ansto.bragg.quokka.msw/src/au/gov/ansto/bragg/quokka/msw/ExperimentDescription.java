@@ -54,4 +54,22 @@ public class ExperimentDescription extends Element {
 	public void setFixedSampleStage(String value) {
 		set(SAMPLE_STAGE, value);
 	}
+	
+	// helper
+	public static String getSampleStage(int samplePositions) {
+		switch (samplePositions) {
+		case 1:
+			return FIXED_POSITION;
+		case 5:
+			return ROTATING_5_POSITIONS;
+		case 10:
+			return LINEAR_10_POSITIONS;
+		case 12:
+			return LINEAR_12_POSITIONS;
+		case 20:
+			return LINEAR_20_POSITIONS;
+		default:
+			return null;
+		}
+	}
 }

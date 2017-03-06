@@ -4,20 +4,20 @@ class SimpleElementDeclaration extends ElementDeclaration {
 	// fields
 	private boolean finalized;
 	private SimpleTypeDefinition type;
+	private Value defaultValue;
 	private final ConstraintType constraint;
-	private final Value defaultValue;
 	
 	// construction
-	SimpleElementDeclaration(String name, String namespace, int minOccurs, int maxOccurs, ConstraintType constraint, Value defaultValue) {
+	SimpleElementDeclaration(String name, String namespace, int minOccurs, int maxOccurs, ConstraintType constraint) {
 		super(name, namespace, minOccurs, maxOccurs, false);
 		this.constraint = constraint;
-		this.defaultValue = defaultValue;
 	}
-	boolean finalize(SimpleTypeDefinition type) {
+	boolean finalize(SimpleTypeDefinition type, Value defaultValue) {
 		if (finalized)
 			return false;
 
 		this.type = type;
+		this.defaultValue = defaultValue;
 		return finalized = true;
 	}
 	

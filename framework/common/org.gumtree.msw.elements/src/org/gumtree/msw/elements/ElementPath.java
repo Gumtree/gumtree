@@ -88,6 +88,8 @@ public final class ElementPath implements Iterable<String> {
 		}
 		return pathStringCache;
 	}
+	
+	// static
 	public static String toString(Iterable<String> path) {
 		Iterator<String> itr = path.iterator();
 		if (!itr.hasNext())
@@ -100,6 +102,27 @@ public final class ElementPath implements Iterable<String> {
 
 		return sb.toString();
 	}
+	public static String getRoot(String path) {
+		if (path != null) {
+			int i = path.lastIndexOf(SEPARATOR);
+			if (i >= 0)
+				return path.substring(0, i);
+		}
+		
+		return "";
+	}
+	public static String getElementName(String path) {
+		if (path != null) {
+			int i = path.lastIndexOf(SEPARATOR);
+			if (i >= 0)
+				return path.substring(i + 1);
+			else
+				return path;
+		}
+		
+		return "";
+	}
+	
 	// helpers
 	private void appendPath(StringBuilder sb) {
 		if (root != null) {

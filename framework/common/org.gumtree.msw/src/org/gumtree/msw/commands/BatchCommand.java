@@ -22,6 +22,11 @@ public class BatchCommand extends Command {
 			
 		this.commands = Arrays.asList(commands);
 	}
+	
+	// properties
+	public Iterable<ICommand> getCommands() {
+		return commands;
+	}
 
 	// methods
 	@Override
@@ -53,7 +58,7 @@ public class BatchCommand extends Command {
 		return new BatchCommand(getId(), list, !isUndo());
 	}
 	@Override
-	public boolean equals(Object obj) {		
+	public boolean equals(Object obj) {
 		if (obj instanceof BatchCommand) {
 			BatchCommand other = (BatchCommand)obj;
 			if (!super.equals(other))

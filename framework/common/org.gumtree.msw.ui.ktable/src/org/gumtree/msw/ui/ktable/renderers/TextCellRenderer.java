@@ -36,7 +36,7 @@ import org.gumtree.msw.ui.ktable.SWTX;
  * @author Lorenz Maierhofer <lorenz.maierhofer@logicmindguide.com>
  */
 public class TextCellRenderer extends DefaultCellRenderer {
-	private IContentToTextConverter converter;
+	//private IContentToTextConverter converter;
 
     /**
      * Creates a cellrenderer that prints text in the cell.<p>
@@ -54,8 +54,9 @@ public class TextCellRenderer extends DefaultCellRenderer {
      * - SWT.ITALIC Makes the renderer draw italic text<br>
      */
     public TextCellRenderer(int style) {
-    	this(style, null);
+    	super(style);
     }
+    /*
     public TextCellRenderer(int style, IContentToTextConverter converter) {
         super(style);
         this.converter = converter;
@@ -68,6 +69,7 @@ public class TextCellRenderer extends DefaultCellRenderer {
     public void setContentToTextConverter(IContentToTextConverter value) {
     	converter = value;
     }
+    */
     
     /* (non-Javadoc)
      * @see de.kupzog.ktable.KTableCellRenderer#getOptimalWidth(org.eclipse.swt.graphics.GC, int, int, java.lang.Object, boolean)
@@ -89,8 +91,9 @@ public class TextCellRenderer extends DefaultCellRenderer {
          rect = drawSolidCellLines(gc, rect, vBorderColor, hBorderColor, 
          topWidth, bottomWidth, leftWidth, rightWidth);
          */
-        
-        String contentStr = converter != null ? converter.toText(content) : content.toString();
+
+        //String contentStr = converter != null ? converter.toText(content) : content.toString();
+        String contentStr = content.toString();
         
         // draw focus sign:
         if (focus && (m_Style & INDICATION_FOCUS)!=0) {

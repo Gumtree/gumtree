@@ -59,6 +59,8 @@ public class ModelSaver {
 			Transformer transformer = transformerFactory.newTransformer();
 		    transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 		    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		    //transformer.setOutputProperty(OutputKeys.ENCODING, "US-ASCII"); // is used to make '°' in AttenuationAngle work (for some reason transformer with UTF-8 doesn't seem to work properly)
 		    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
 		    // create string

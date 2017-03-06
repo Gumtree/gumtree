@@ -1,8 +1,15 @@
 package au.gov.ansto.bragg.quokka.msw;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
+import org.gumtree.msw.ICommand;
 import org.gumtree.msw.IModelProxy;
+import org.gumtree.msw.RefId;
+import org.gumtree.msw.commands.BatchCommand;
+import org.gumtree.msw.commands.Command;
+import org.gumtree.msw.commands.DeleteListElementCommand;
 import org.gumtree.msw.elements.DependencyProperty;
 import org.gumtree.msw.elements.Element;
 import org.gumtree.msw.elements.ElementList;
@@ -46,9 +53,25 @@ public class LoopHierarchy extends ElementList<Element> {
 	}
 	public void addEnvironment() {
 		// only environments can be added
-		add(Environment.class);
+		add(Environment.class, 0);
 	}
 	public void addEnvironment(int index) {
 		add(Environment.class, index);
+	}
+	public void removeAllEnvironments() {
+		List<Element> elements = new ArrayList<>();
+		super.fetchElements(elements);
+
+		RefId id = nextId();
+		List<Command> commands = new ArrayList<>();
+		for (Element element : elements)
+			if (element instanceof Environment) {
+				commands.add(new DeleteListElementCommand(
+						id,
+						element.getPath().getRoot(),
+						element.getPath().getElementName()));
+		}
+
+		command(new BatchCommand(id, commands.toArray(new ICommand[commands.size()])));
 	}
 }

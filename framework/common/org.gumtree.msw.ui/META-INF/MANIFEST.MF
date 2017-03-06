@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.ui,
  org.gumtree.msw.elements,
  org.gumtree.msw.schedule,
  org.eclipse.core.resources,
- org.gumtree.msw.ui.ktable;bundle-version="2.2.0"
+ org.gumtree.msw.ui.ktable;bundle-version="2.2.0",
+ org.apache.commons.io
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: org.gumtree.msw.ui;
@@ -30,4 +31,5 @@ Export-Package: org.gumtree.msw.ui;
    org.eclipse.swt.widgets,
    de.kupzog.ktable.renderers,
    de.kupzog.ktable",
- org.gumtree.msw.ui.observable;uses:="org.gumtree.msw.intf,org.eclipse.core.databinding.observable.value"
+ org.gumtree.msw.ui.observable;uses:="org.gumtree.msw.intf,org.eclipse.core.databinding.observable.value",
+ org.gumtree.msw.ui.util

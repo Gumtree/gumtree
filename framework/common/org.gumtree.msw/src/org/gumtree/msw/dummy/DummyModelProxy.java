@@ -1,5 +1,6 @@
 package org.gumtree.msw.dummy;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -58,7 +59,11 @@ public class DummyModelProxy implements IModelProxy {
 		return model.getProperty(elementPath, property);
 	}
 	@Override
-	public Iterable<String> getListElements(Iterable<String> listPath) {		
+	public boolean validateProperty(Iterable<String> elementPath, String property, Object newValue) {
+		return model.validateProperty(elementPath, property, newValue);
+	}
+	@Override
+	public Iterable<String> getListElements(Iterable<String> listPath) {
 		return model.getListElements(listPath);
 	}
 
@@ -70,10 +75,18 @@ public class DummyModelProxy implements IModelProxy {
 
 	// serialization
 	@Override
+	public void reset() {
+		model.reset();
+	}
+	@Override
 	public boolean serializeTo(Iterable<String> elementPath, OutputStream stream) {
 		return model.serializeTo(elementPath, stream);
 	}
-
+	@Override
+	public boolean deserializeFrom(InputStream stream) {
+		return model.deserializeFrom(stream);
+	}
+	
 	// listeners
 	@Override
 	public synchronized void addListener(IModelListener listener) {

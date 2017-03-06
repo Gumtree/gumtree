@@ -1,142 +1,107 @@
 package org.gumtree.msw.model.structure;
 
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.apache.xerces.xs.XSConstants;
 import org.apache.xerces.xs.datatypes.XSDecimal;
 import org.apache.xerces.xs.datatypes.XSDouble;
 import org.apache.xerces.xs.datatypes.XSFloat;
+import org.gumtree.msw.model.structure.XsTypeHelper.BigIntegerSerializer;
+import org.gumtree.msw.model.structure.XsTypeHelper.BooleanSerializer;
+import org.gumtree.msw.model.structure.XsTypeHelper.ByteSerializer;
+import org.gumtree.msw.model.structure.XsTypeHelper.DoubleSerializer;
+import org.gumtree.msw.model.structure.XsTypeHelper.FloatSerializer;
+import org.gumtree.msw.model.structure.XsTypeHelper.IntegerSerializer;
+import org.gumtree.msw.model.structure.XsTypeHelper.LongSerializer;
+import org.gumtree.msw.model.structure.XsTypeHelper.ShortSerializer;
+import org.gumtree.msw.model.structure.XsTypeHelper.StringSerializer;
 
 final class Value {
-	// finals
-	private static final Map<Class<?>, ISerializer> serializers;
-	
 	// fields
 	private Object value;
 	private final Class<?> valueClass;
-	private final ISerializer serializer;
+	private final XsTypeHelper.ISerializer serializer;
+	private final FacetList facets;
 	
 	// construction
-	static {
-		serializers = new HashMap<Class<?>, ISerializer>();
-		serializers.put(String.class, new StringSerializer());
-		serializers.put(Boolean.class, new BooleanSerializer());
-		serializers.put(Float.class, new FloatSerializer());
-		serializers.put(Double.class, new DoubleSerializer());
-		serializers.put(Byte.class, new ByteSerializer());
-		serializers.put(Short.class, new ShortSerializer());
-		serializers.put(Integer.class, new IntSerializer());
-		serializers.put(Long.class, new LongSerializer());
-		serializers.put(BigInteger.class, new BigIntegerSerializer());
-	}
-	public Value(Class<?> valueClass) {
+	public Value(Class<?> valueClass, FacetList facets) {
 		this.valueClass = valueClass;
-		this.serializer = serializers.get(valueClass);
+		this.serializer = XsTypeHelper.serializer(valueClass);
+		this.facets = facets;
 
 		this.value = serializer.defaultValue();
 	}
-	public Value(Object value, Class<?> valueClass) {
+	public <T> Value(Class<T> valueClass, T value, FacetList facets) {
 		this.valueClass = valueClass;
-		this.serializer = serializers.get(valueClass);
+		this.serializer = XsTypeHelper.serializer(valueClass);
+		this.facets = facets;
 		
 		this.value = serializer.clone(value);
 	}
+	private <T> Value(Class<T> valueClass, T value, XsTypeHelper.ISerializer serializer, FacetList facets) {
+		this.valueClass = valueClass;
+		this.serializer = serializer;
+		this.facets = facets;
+		
+		this.value = value;
+	}
 	private Value(Value reference) {
-		valueClass = reference.valueClass;
-		serializer = reference.serializer;
+		this.valueClass = reference.valueClass;
+		this.serializer = reference.serializer;
+		this.facets = reference.facets;
 
-		value = serializer.clone(reference.value);
+		this.value = serializer.clone(reference.value);
 	}
 	
 	// static
-	public static Value from(short valueType, Object value) {
+	public static Value from(short valueType, final Object value, final FacetList facets) {
 		if (value == null)
 			return null;
 		
-		switch (valueType) {
-		case XSConstants.STRING_DT:
-			return new Value((String)value, String.class);
-			
-		case XSConstants.BOOLEAN_DT:
-			return new Value((Boolean)value, Boolean.class);
-			
-		case XSConstants.FLOAT_DT:
-			return new Value(((XSFloat)value).getValue(), Float.class);
-			
-		case XSConstants.DOUBLE_DT:
-			return new Value(((XSDouble)value).getValue(), Double.class);
-						
-		case XSConstants.BYTE_DT:
-			return new Value(((XSDecimal)value).getByte(), Byte.class);
-			
-		case XSConstants.SHORT_DT:
-		case XSConstants.UNSIGNEDBYTE_DT:
-			return new Value(((XSDecimal)value).getShort(), Short.class);
+		final Value[] result = new Value[1];
+		boolean supported = XsTypeHelper.accept(valueType, new XsTypeHelper.IVisitor() {
+			@Override
+			public void visit(Class<String> clazz, StringSerializer serializer) {
+				result[0] = new Value(clazz, (String)value, serializer, facets);
+			}
+			@Override
+			public void visit(Class<Boolean> clazz, BooleanSerializer serializer) {
+				result[0] = new Value(clazz, (Boolean)value, serializer, facets);
+			}
+			@Override
+			public void visit(Class<Float> clazz, FloatSerializer serializer) {
+				result[0] = new Value(clazz, ((XSFloat)value).getValue(), serializer, facets);
+			}
+			@Override
+			public void visit(Class<Double> clazz, DoubleSerializer serializer) {
+				result[0] = new Value(clazz, ((XSDouble)value).getValue(), serializer, facets);
+			}
+			@Override
+			public void visit(Class<Byte> clazz, ByteSerializer serializer) {
+				result[0] = new Value(clazz, ((XSDecimal)value).getByte(), serializer, facets);
+			}
+			@Override
+			public void visit(Class<Short> clazz, ShortSerializer serializer) {
+				result[0] = new Value(clazz, ((XSDecimal)value).getShort(), serializer, facets);
+			}
+			@Override
+			public void visit(Class<Integer> clazz, IntegerSerializer serializer) {
+				result[0] = new Value(clazz, ((XSDecimal)value).getInt(), serializer, facets);
+			}
+			@Override
+			public void visit(Class<Long> clazz, LongSerializer serializer) {
+				result[0] = new Value(clazz, ((XSDecimal)value).getLong(), serializer, facets);
+			}
+			@Override
+			public void visit(Class<BigInteger> clazz, BigIntegerSerializer serializer) {
+				result[0] = new Value(clazz, ((XSDecimal)value).getBigInteger(), serializer, facets);
+			}
+		});
+		
+		if (supported)
+			return result[0];
 
-		case XSConstants.INT_DT:
-		case XSConstants.UNSIGNEDSHORT_DT:
-			return new Value(((XSDecimal)value).getInt(), Integer.class);
-
-		case XSConstants.LONG_DT:
-		case XSConstants.UNSIGNEDINT_DT:
-			return new Value(((XSDecimal)value).getLong(), Long.class);
-
-		case XSConstants.INTEGER_DT:
-		case XSConstants.UNSIGNEDLONG_DT:
-		case XSConstants.POSITIVEINTEGER_DT:
-		case XSConstants.NEGATIVEINTEGER_DT:
-		case XSConstants.NONPOSITIVEINTEGER_DT:
-		case XSConstants.NONNEGATIVEINTEGER_DT:
-			return new Value(((XSDecimal)value).getBigInteger(), BigInteger.class);
-
-		default:
-			unsupported(valueType);
-			return null;
-		}
-	}
-	public static Class<?> type(short valueType) {
-		switch (valueType) {
-		case XSConstants.STRING_DT:
-			return String.class;
-			
-		case XSConstants.BOOLEAN_DT:
-			return Boolean.class;
-			
-		case XSConstants.FLOAT_DT:
-			return Float.class;
-			
-		case XSConstants.DOUBLE_DT:
-			return Double.class;
-						
-		case XSConstants.BYTE_DT:
-			return Byte.class;
-			
-		case XSConstants.SHORT_DT:
-		case XSConstants.UNSIGNEDBYTE_DT:
-			return Short.class;
-
-		case XSConstants.INT_DT:
-		case XSConstants.UNSIGNEDSHORT_DT:
-			return Integer.class;
-
-		case XSConstants.LONG_DT:
-		case XSConstants.UNSIGNEDINT_DT:
-			return Long.class;
-
-		case XSConstants.INTEGER_DT:
-		case XSConstants.UNSIGNEDLONG_DT:
-		case XSConstants.POSITIVEINTEGER_DT:
-		case XSConstants.NEGATIVEINTEGER_DT:
-		case XSConstants.NONPOSITIVEINTEGER_DT:
-		case XSConstants.NONNEGATIVEINTEGER_DT:
-			return BigInteger.class;
-
-		default:
-			unsupported(valueType);
-			return null;
-		}
+		System.out.println(String.format("WARNING: unsupported value type (%d)", valueType));
+		return null;
 	}
 	
 	// properties
@@ -148,8 +113,14 @@ final class Value {
 	public Object get() {
 		return value;
 	}
-	public boolean set(Object value) {
+	public boolean validate(Object value) {
 		if (!valueClass.isInstance(value))
+			return false;
+		
+		return facets.validate(value);
+	}
+	public boolean set(Object value) {
+		if (!validate(value))
 			return false;
 		
 		this.value = value;
@@ -170,144 +141,6 @@ final class Value {
 		}
 		catch (IllegalArgumentException e) {
 			return false;
-		}
-	}
-	// helpers
-	private static void unsupported(short valueType) {
-		System.out.println(String.format("WARNING: unsupported value type (%d)", valueType));		
-	}
-
-	// Serialization
-	private static interface ISerializer {
-		public Object defaultValue();
-		public Object clone(Object value);
-		public String serialize(Object value);
-		public Object deserialize(String value) throws IllegalArgumentException;
-	}
-	// implementation
-	private static class StringSerializer implements ISerializer {
-		@Override
-		public Object defaultValue() {
-			return "";
-		}
-		@Override
-		public Object clone(Object value) {
-			return value; // immutable
-		}
-		@Override
-		public String serialize(Object value) {
-			return (String)value;
-		}
-		@Override
-		public Object deserialize(String value) {
-			return value;
-		}
-	}
-	private static class BooleanSerializer implements ISerializer {
-		@Override
-		public Object defaultValue() {
-			return false;
-		}
-		@Override
-		public Object clone(Object value) {
-			return value; // immutable
-		}
-		@Override
-		public String serialize(Object value) {
-			return (boolean)value ? "true" : "false";
-		}
-		@Override
-		public Object deserialize(String value) throws IllegalArgumentException {
-			if ("true".equalsIgnoreCase(value))
-				return Boolean.TRUE;
-			if ("false".equalsIgnoreCase(value))
-				return Boolean.FALSE;
-
-			throw new IllegalArgumentException();
-		}
-	}
-	// numeric
-	private static abstract class NumericSerializer implements ISerializer {
-		@Override
-		public Object clone(Object value) {
-			return value; // immutable
-		}
-		@Override
-		public String serialize(Object value) {
-			if (value != null)
-				return value.toString();
-			else
-				return null;
-		}
-	}
-	private static class FloatSerializer extends NumericSerializer {
-		@Override
-		public Object defaultValue() {
-			return (float)0;
-		}
-		@Override
-		public Object deserialize(String value) throws IllegalArgumentException {
-			return Float.parseFloat(value);
-		}
-	}
-	private static class DoubleSerializer extends NumericSerializer {
-		@Override
-		public Object defaultValue() {
-			return (double)0;
-		}
-		@Override
-		public Object deserialize(String value) throws IllegalArgumentException {
-			return Double.parseDouble(value);
-		}
-	}
-	private static class ByteSerializer extends NumericSerializer {
-		@Override
-		public Object defaultValue() {
-			return (byte)0;
-		}
-		@Override
-		public Object deserialize(String value) throws IllegalArgumentException {
-			return Byte.parseByte(value);
-		}
-	}
-	private static class ShortSerializer extends NumericSerializer {
-		@Override
-		public Object defaultValue() {
-			return (short)0;
-		}
-		@Override
-		public Object deserialize(String value) throws IllegalArgumentException {
-			return Short.parseShort(value);
-		}
-	}
-	private static class IntSerializer extends NumericSerializer {
-		@Override
-		public Object defaultValue() {
-			return (int)0;
-		}
-		@Override
-		public Object deserialize(String value) throws IllegalArgumentException {
-			return Integer.parseInt(value);
-		}
-	}
-	private static class LongSerializer extends NumericSerializer {
-		@Override
-		public Object defaultValue() {
-			return (long)0;
-		}
-		@Override
-		public Object deserialize(String value) throws IllegalArgumentException {
-			return Long.parseLong(value);
-		}
-	}
-	private static class BigIntegerSerializer extends NumericSerializer {
-		@Override
-		public Object defaultValue() {
-			return BigInteger.ZERO;
-		}
-		@Override
-		public Object deserialize(String value) throws IllegalArgumentException {
-			return new BigInteger(value);
 		}
 	}
 }
