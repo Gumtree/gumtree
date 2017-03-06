@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 public class QuokkaWorkbenchLauncher extends AbstractLauncher {
 
 	
-	private static final String ID_PERSPECTIVE_EXPERIMENT = "au.gov.ansto.bragg.quokka.ui.scanPerspective";
+	private static final String ID_PERSPECTIVE_EXPERIMENT = "au.gov.ansto.bragg.quokka.ui.QuokkaMSWPerspective";
 	private static final String ID_PERSPECTIVE_SCRIPTING = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
 	private static final String ID_PERSPECTIVE_DEFAULT = "au.gov.ansto.bragg.nbi.ui.EmptyPerspective";
 	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
