@@ -1050,8 +1050,9 @@ def driveBsRailOut():
 def getBsz(throw=True):
     return getFloatData('bsz', throw)
 
-def driveBsz(baseValue, offset):
-    loggedDrive('beamstop z', 'bsz', baseValue + offset, 'mm', getBsz)
+# Updated by nxi. Removed the second argument: offset
+def driveBsz(baseValue):
+    loggedDrive('beamstop z', 'bsz', baseValue, 'mm', getBsz)
 
 def selBsxz(beamstop, bx, bz):
     selBsHelper(beamstop, bx, bz, '/commands/beamstops/selbsxz')
