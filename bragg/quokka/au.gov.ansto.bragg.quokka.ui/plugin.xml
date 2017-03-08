@@ -40,6 +40,13 @@
             id="au.gov.ansto.bragg.quokka.ui.scanPerspective"
             name="Quokka Scan">
       </perspective>
+      <perspective
+            class="au.gov.ansto.bragg.quokka.ui.internal.QuokkaMSWPerspective"
+            fixed="true"
+            icon="icons/edu_science_16x16.png"
+            id="au.gov.ansto.bragg.quokka.ui.QuokkaMSWPerspective"
+            name="Quokka Workflow">
+      </perspective>
       <!--
       <perspective
             class="au.gov.ansto.bragg.quokka.ui.internal.AlignmentPerspective"

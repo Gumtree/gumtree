@@ -511,19 +511,20 @@ public class AcquisitionComposite extends Composite {
 		});
 	}
 	private static File getReportLocation() {
-		URI uri = null;
+		String uri = null;
 		String propertyValue = null;
 	    try {
-	    	propertyValue = System.getProperty("quokka.scan.report.location");
-	    	URI tmp = new URL(propertyValue).toURI();
-		    File target = new File(tmp);
+	    	propertyValue = System.getProperty("quokka.scan.mswReportPath");
+//	    	URI tmp = new URL(propertyValue).toURI();
+//		    File target = new File(tmp);
+	    	File target = new File(propertyValue);
 		    if (target.isDirectory())
-		    	uri = tmp;
+		    	uri = propertyValue;
 	    }
 	    catch (Exception e) {
     		System.out.println(String.format(
     				"%s=%s",
-    				"quokka.scan.report.location",
+    				"quokka.scan.mswReportPath",
     				propertyValue));
 	    	e.printStackTrace();
 	    }

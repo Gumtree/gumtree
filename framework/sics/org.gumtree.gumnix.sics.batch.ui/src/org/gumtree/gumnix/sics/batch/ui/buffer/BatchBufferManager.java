@@ -524,7 +524,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 					new BatchBufferManagerExecutionEvent(this, buffername,
 							startPosition, endPosition));
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 	}
 	
