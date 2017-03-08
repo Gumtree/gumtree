@@ -1284,6 +1284,9 @@ def scanBA(min_time, max_time, counts, bm_counts):
 
     sics.execute('hset ' + controllerPath + '/mode unlimited', 'scan')
 
+    # added by nxi: always reset the ba properties before setting up new values
+    sics.execute('histmem ba reset', 'scan')
+    
     sics.execute('histmem ba roi total', 'scan')
     sics.execute('histmem ba monitor 1', 'scan')
 
