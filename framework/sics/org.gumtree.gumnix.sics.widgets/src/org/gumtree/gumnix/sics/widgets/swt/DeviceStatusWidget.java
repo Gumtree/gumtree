@@ -198,6 +198,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 						new IDataHandler<String>() {
 							@Override
 							public void handleData(URI uri, String data) {
+								labelContext.data = data;
 								updateLabelText(labelContext.label, data, labelContext.converter);
 							}
 							@Override
@@ -317,7 +318,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 	
 	public DeviceStatusWidget addDevice(String path, String label, Image icon,
 			String unit, LabelConverter converter) {
-		return addDevice(path, label, icon, unit, null, false);
+		return addDevice(path, label, icon, unit, converter, false);
 	}
 	
 	public DeviceStatusWidget addDevice(String path, String label, Image icon,
@@ -334,6 +335,15 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		return this;
 	}
 
+	public String getDeviceData(String path) {
+		for (LabelContext context : labelContexts) {
+			if (context.path != null && context.path.equals(path)) {
+				return context.data;
+			}
+		}
+		return null;
+	}
+	
 	public DeviceStatusWidget addSeparator() {
 		DeviceContext context = new DeviceContext();
 		context.isSeparator = true;
@@ -381,6 +391,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 	private class LabelContext {
 		String path;
 		Label label;
+		String data;
 		String defaultText;
 		EventHandler handler;
 		LabelConverter converter;

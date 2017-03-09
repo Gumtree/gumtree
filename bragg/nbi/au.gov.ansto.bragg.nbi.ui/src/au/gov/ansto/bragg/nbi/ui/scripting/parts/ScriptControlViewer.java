@@ -833,7 +833,7 @@ public class ScriptControlViewer extends Composite {
 					
 					@Override
 					public void run() {
-						System.err.println("model " + scriptRegisterID + ": " + getScriptFilename() + ", " + dynamicComposite.getData());
+//						System.err.println("model " + scriptRegisterID + ": " + getScriptFilename() + ", " + dynamicComposite.getData());
 						updateControlUI();
 					}
 				});

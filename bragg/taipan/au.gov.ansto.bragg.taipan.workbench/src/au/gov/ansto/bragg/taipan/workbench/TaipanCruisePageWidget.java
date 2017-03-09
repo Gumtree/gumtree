@@ -38,6 +38,9 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 	private static final Logger logger = LoggerFactory
 			.getLogger(TaipanCruisePageWidget.class);
 
+	private static final String PROP_TAIPAN_MODE = "gumtree.taipan.mode";
+	private static final String VALUE_BF_MODE = "BF";
+	
 	private IDelayEventExecutor delayEventExecutor;
 
 	@Inject
@@ -45,9 +48,14 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 
 	@Inject
 	private IEclipseContext eclipseContext;
+	
+	private boolean isBfMode = false;
 
 	public TaipanCruisePageWidget(Composite parent, int style) {
 		super(parent, style);
+		if (VALUE_BF_MODE.equals(System.getProperty(PROP_TAIPAN_MODE))) {
+			isBfMode = true;
+		}
 	}
 
 	@PostConstruct
@@ -157,19 +165,58 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		// .grab(true, false).applyTo(interruptGadget);
 		// interruptGadget.afterParametersSet();
 
-		// Monitor Event Rate
-		PGroup monitorGroup = createGroup("BEAM MONITOR",
-				SharedImage.MONITOR.getImage());
-		CounterMeterWidget meterWidget = new CounterMeterWidget(monitorGroup, SWT.NONE);
-		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/monitor/bm1_counts", "Monitor Total", null, "")
-				.addDevice("/monitor/bm2_counts", "Detector Total", null, "")
-				.addDevice("/monitor/time", "Time Counted", null, "sec")
-				;
-		configureWidget(meterWidget);
-		configureWidget(deviceStatusWidget);
-		monitorGroup.setExpanded(true);
+		if (isBfMode) {
+			PGroup detectorGroup = createGroup("BEAM MONITOR",
+					SharedImage.MONITOR.getImage());
+			final DeviceStatusWidget detectorStatusWidget = new DeviceStatusWidget(detectorGroup, SWT.NONE);
+			detectorStatusWidget
+					.addDevice("/monitor/bm1_counts", "Monitor Total", null, "")
+					.addDevice("/instrument/detector/total_counts", "Raw Detector Total", null, "")
+					.addDevice("/instrument/detector/total_counts", "Detector Normalised", null, "", new LabelConverter() {
+						
+						@Override
+						public String convertValue(Object obj) {
+							if (obj != null) {
+								Double val = null;
+								try {
+									val = Double.valueOf(obj.toString());
+								} catch (Exception e) {
+								}
+								if (val != null) {
+									String monitorData = detectorStatusWidget.getDeviceData("/monitor/bm1_counts");
+									if (monitorData != null) {
+										Double monitorVal = null;
+										try {
+											monitorVal = Double.valueOf(monitorData.toString());
+										} catch (Exception e) {
+										}
+										if (monitorVal != null && monitorVal != 0) {
+											return String.format("%.4f", (val / monitorVal));
+										}
+									}
+								}
+							}
+							return "N/A";
+						}
+					})
+					;
+			configureWidget(detectorStatusWidget);
+			detectorGroup.setExpanded(true);
+		} else {
+			// Monitor Event Rate
+			PGroup monitorGroup = createGroup("BEAM MONITOR",
+					SharedImage.MONITOR.getImage());
+			CounterMeterWidget meterWidget = new CounterMeterWidget(monitorGroup, SWT.NONE);
+			deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
+			deviceStatusWidget
+					.addDevice("/monitor/bm1_counts", "Monitor Total", null, "")
+					.addDevice("/monitor/bm2_counts", "Detector Total", null, "")
+					.addDevice("/monitor/time", "Time Counted", null, "sec")
+					;
+			configureWidget(meterWidget);
+			configureWidget(deviceStatusWidget);
+			monitorGroup.setExpanded(true);
+		}
 		
 		// INSTRUMENT
 		PGroup instrumentGroup = createGroup("INSTRUMENT",
