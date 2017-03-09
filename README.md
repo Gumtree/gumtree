@@ -21,7 +21,8 @@ You must not remove this notice, or any other, from this software.
 
 ## Digital Object Identifier (DOI)
 
-Gumtree can be cited with a permanent DOI hosted by Zenodo. 
+Gumtree can be cited with a permanent DOI hosted by Zenodo.
+ 
 [![DOI](https://zenodo.org/badge/4881622.svg)](https://zenodo.org/badge/latestdoi/4881622)
 
 ## Contributors
