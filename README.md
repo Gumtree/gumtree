@@ -27,7 +27,7 @@ Gumtree can be cited with a permanent DOI hosted by Zenodo.
 
 ## Contributors
 
-* [Bragg Institute] (http://www.ansto.gov.au/research/bragg_institute)
+* [Australian Centre for Neutron Scattering] (http://www.ansto.gov.au/ResearchHub/OurInfrastructure/ACNS)
 * [SOLEIL] (http://www.synchrotron-soleil.fr/)
 
 ## Acknowledgements
