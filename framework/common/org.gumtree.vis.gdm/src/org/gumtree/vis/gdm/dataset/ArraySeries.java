@@ -82,7 +82,7 @@ public class ArraySeries extends Series implements Cloneable, Serializable, IXYE
 					> x.getDouble(index.set((int) x.getSize() - 1))) {
 				xArray = x.getArrayUtils().flip(0).getArray();
 				yArray = y.getArrayUtils().flip(0).getArray();
-				if (eArray != null) {
+				if (error != null) {
 					eArray = error.getArrayUtils().flip(0).getArray();
 				}
 			} else {
