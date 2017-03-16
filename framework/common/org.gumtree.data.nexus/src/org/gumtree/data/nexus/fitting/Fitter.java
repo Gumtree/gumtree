@@ -43,6 +43,7 @@ import org.gumtree.data.interfaces.IIndex;
 import org.gumtree.data.math.IArrayMath;
 import org.gumtree.data.nexus.IAxis;
 import org.gumtree.data.nexus.INXdata;
+import org.gumtree.data.nexus.INexusFitter;
 import org.gumtree.data.nexus.ISignal;
 import org.gumtree.data.nexus.IVariance;
 import org.gumtree.data.nexus.fitting.StaticField.EnginType;
@@ -57,7 +58,7 @@ import org.gumtree.data.nexus.utils.NexusFactory;
  * @author nxi
  * Created on 19/06/2008
  */
-public abstract class Fitter {
+public abstract class Fitter implements INexusFitter {
 
 	private static final String FITTER_PACKAGE_NAME = "org.gumtree.data.nexus.fitting";
 	protected static IAnalysisFactory  analysisFactory = IAnalysisFactory.create();
@@ -103,16 +104,16 @@ public abstract class Fitter {
 	protected double peakX = Double.NaN;
 	protected double peakY = Double.NaN;
 
-	public static Fitter getFitter(String name, int dimension) throws FitterException{
+	public static INexusFitter getFitter(String name, int dimension) throws FitterException{
 		FunctionType functionType = null;
 		try {
 			functionType = FunctionType.valueOf(name);			
 		} catch (Exception e) {
 			throw new FitterException("can not get such fitter function type: " + name);
 		}
-		Fitter fitter = null;
+		INexusFitter fitter = null;
 		try{
-			fitter = (Fitter) Class.forName(FITTER_PACKAGE_NAME + "." + functionType.getValue() 
+			fitter = (INexusFitter) Class.forName(FITTER_PACKAGE_NAME + "." + functionType.getValue() 
 					+ "Fitter").getConstructor(Integer.TYPE).newInstance(dimension);
 		}catch (Exception e) {
 			throw new FitterException("Can not create fitter : " + name);
@@ -120,7 +121,7 @@ public abstract class Fitter {
 		return fitter;		
 	}
 	
-	public static Fitter getFitter(String name, INXdata data) 
+	public static INexusFitter getFitter(String name, INXdata data) 
 	throws FitterException, DimensionNotSupportedException, IOException, InvalidArrayTypeException{
 		FunctionType functionType = null;
 		try {
@@ -128,9 +129,9 @@ public abstract class Fitter {
 		} catch (Exception e) {
 			throw new FitterException("can not get such fitter function type: " + name);
 		}
-		Fitter fitter = null;
+		INexusFitter fitter = null;
 		try{
-			fitter = (Fitter) Class.forName(FITTER_PACKAGE_NAME + "." + functionType.getValue() 
+			fitter = (INexusFitter) Class.forName(FITTER_PACKAGE_NAME + "." + functionType.getValue() 
 					+ "Fitter").getConstructor(INXdata.class).newInstance(data);
 		}catch (Exception e) {
 			throw new FitterException("Can not create fitter : " + name);
@@ -151,16 +152,28 @@ public abstract class Fitter {
 //		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#setDimension(int)
+	 */
+	@Override
 	public void setDimension(int dimension) throws FitterException{
 		if (dimension < 0)
 			throw new FitterException("illegal dimension: " + dimension);
 		this.dimension = dimension;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getDimension()
+	 */
+	@Override
 	public int getDimension(){
 		return dimension;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#parse(java.lang.String)
+	 */
+	@Override
 	public void parse(String functionText){
 		this.functionText = functionText;
 	}
@@ -175,54 +188,106 @@ public abstract class Fitter {
 		fitErrors.put(parameter, 0.);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getDescription()
+	 */
+	@Override
 	public String getDescription() {
 		return description;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#setDescription(java.lang.String)
+	 */
+	@Override
 	public void setDescription(String description) {
 		this.description = description;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getTitle()
+	 */
+	@Override
 	public String getTitle() {
 		return title;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#setTitle(java.lang.String)
+	 */
+	@Override
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getFitterType()
+	 */
+	@Override
 	public FitterType getFitterType() {
 		return fitterType;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getEnginType()
+	 */
+	@Override
 	public EnginType getEnginType() {
 		return enginType;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getFunctionText()
+	 */
+	@Override
 	public String getFunctionText() {
 		return functionText;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getParameters()
+	 */
+	@Override
 	public Map<String, Double> getParameters() {
 		return parameters;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getFitErrors()
+	 */
+	@Override
 	public Map<String, Double> getFitErrors() {
 		return fitErrors;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getParameterValue(java.lang.String)
+	 */
+	@Override
 	public double getParameterValue(String name){
 		return  parameters.get(name);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getFitError(java.lang.String)
+	 */
+	@Override
 	public double getFitError(String name){
 		return  fitErrors.get(name);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getFunctionType()
+	 */
+	@Override
 	public FunctionType getFunctionType() {
 		return functionType;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#setFunctionType(org.gumtree.data.nexus.fitting.StaticField.FunctionType)
+	 */
+	@Override
 	public void setFunctionType(FunctionType functionType) {
 		this.functionType = functionType;
 	}
@@ -234,6 +299,10 @@ public abstract class Fitter {
 				dimension + "D fitting");
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#createHistogram(org.gumtree.data.nexus.INXdata)
+	 */
+	@Override
 	public void createHistogram(INXdata data) throws IOException, FitterException{
 		createHistogram(data, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 //		this.data = data;
@@ -312,6 +381,10 @@ public abstract class Fitter {
 //		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#createHistogram(org.gumtree.data.nexus.INXdata, double, double)
+	 */
+	@Override
 	public void createHistogram(INXdata data, double minX, double maxX) 
 	throws IOException, FitterException{
 		minXValue = minX;
@@ -618,6 +691,10 @@ public abstract class Fitter {
 		this.functionText = functionText;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#setParameterValue(java.lang.String, double)
+	 */
+	@Override
 	public void setParameterValue(String name, double value){
 //		parameters.remove(name);
 		parameters.put(name, value);
@@ -625,6 +702,10 @@ public abstract class Fitter {
 		fitFunction.setParameter(name, value);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#setParameters()
+	 */
+	@Override
 	public abstract void setParameters();
 
 	protected String parameterNamesToString(){
@@ -639,6 +720,10 @@ public abstract class Fitter {
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#fit()
+	 */
+	@Override
 	public void fit() throws IOException, InvalidArrayTypeException{
 		try{
 			int status = 0;
@@ -661,11 +746,19 @@ public abstract class Fitter {
 		createPlotResult();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#setParameterBounds(java.lang.String, double, double)
+	 */
+	@Override
 	public void setParameterBounds(String name, double lowest, double highest) {
 		fitter.fitParameterSettings(name).removeBounds();
 		fitter.fitParameterSettings(name).setBounds(lowest, highest);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#setParameterFixed(java.lang.String, boolean)
+	 */
+	@Override
 	public void setParameterFixed(String name, boolean isFixed) {
 		fitter.fitParameterSettings(name).setFixed(isFixed);
 	}
@@ -679,6 +772,9 @@ public abstract class Fitter {
 	
 	protected void addParameterSetting(){}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#updatePlotResult()
+	 */
 	public void updatePlotResult() throws IOException, InvalidArrayTypeException {
 		if (fitResult == null)
 			return;
@@ -848,6 +944,10 @@ public abstract class Fitter {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#createPlotResult()
+	 */
+	@Override
 	public void createPlotResult() 
 	throws IOException, InvalidArrayTypeException {
 		if (fitResult == null)
@@ -1019,14 +1119,26 @@ public abstract class Fitter {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getResult()
+	 */
+	@Override
 	public INXdata getResult() throws IOException{
 		return resultData;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getResolutionMultiple()
+	 */
+	@Override
 	public int getResolutionMultiple() {
 		return resolutionMultiple;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#setResolutionMultiple(int)
+	 */
+	@Override
 	public void setResolutionMultiple(int resolutionMultiple) {
 		this.resolutionMultiple = resolutionMultiple;
 	}
@@ -1088,12 +1200,21 @@ public abstract class Fitter {
 //		return evaluator.getValue();
 //	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getQuality()
+	 */
+	@Override
 	public double getQuality(){
 		if (fitResult == null)
 			return Double.NaN;
-		return fitResult.quality() / histogram.entries();
+//		return fitResult.quality() / histogram.entries();
+		return fitResult.quality();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#isInverse()
+	 */
+	@Override
 	public boolean isInverse() {
 //		if (isInverseAllowed)
 //			return inverse;
@@ -1102,6 +1223,10 @@ public abstract class Fitter {
 		return isInverseAllowed && inverse;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#setInverse(boolean)
+	 */
+	@Override
 	public void setInverse(boolean inverse) throws DimensionNotSupportedException, 
 	IOException, FitterException {
 		if (this.inverse != inverse){
@@ -1110,6 +1235,10 @@ public abstract class Fitter {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#isInverseAllowed()
+	 */
+	@Override
 	public boolean isInverseAllowed(){
 		return isInverseAllowed;
 	}
@@ -1118,10 +1247,18 @@ public abstract class Fitter {
 		isInverseAllowed = isAllowed;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#toGDMGroup()
+	 */
+	@Override
 	public IGroup toGDMGroup(){
 		return null;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#reset()
+	 */
+	@Override
 	public void reset(){
 		if (fitter != null){
 			fitter.resetConstraints();
@@ -1129,10 +1266,16 @@ public abstract class Fitter {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getRawFitter()
+	 */
 	public IFitter getRawFitter() {
 		return fitter;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.gumtree.data.nexus.fitting.IFitter#getFitFunction()
+	 */
 	public IFunction getFitFunction() {
 		return fitFunction;
 	}

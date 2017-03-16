@@ -1,4 +1,5 @@
 from org.gumtree.data.nexus.fitting import Fitter, UserDefinedFitter
+from org.gumtree.data.nexus.fitting.apache import GaussianCommonsFitter, GaussianWithBackgroundFitter
 from gumpy.nexus.simpledata import arange
 from gumpy.nexus.dataset import Dataset
 from gumpy.nexus.data import Data
@@ -10,9 +11,20 @@ CUBIC_FITTING = 'Cubic'
 GAUSSIAN_LORENTZIAN_FITTING = 'GaussianLorentzian'
 POWER_FITTING = 'Power'
 
+APACHE_GAUSSIAN_FITTING = 'Apache_Gaussian'
+GAUSSIAN_WITH_BACKGROUND_FITTING = 'Gaussian_with_background'
+        
+        
 class Fitting():
     def __init__(self, name, ndim = 1):
-        self.fitter = Fitter.getFitter(name, ndim)
+        if name == APACHE_GAUSSIAN_FITTING:
+            self.fitter = GaussianCommonsFitter()
+        elif name == GAUSSIAN_WITH_BACKGROUND_FITTING :
+            self.fitter = GaussianWithBackgroundFitter()
+        elif name == GAUSSIAN_FITTING and ndim == 1:
+            self.fitter = GaussianWithBackgroundFitter()
+        else :
+            self.fitter = Fitter.getFitter(name, ndim)
         self.name = name
         self.data = None
         self.axis = None
