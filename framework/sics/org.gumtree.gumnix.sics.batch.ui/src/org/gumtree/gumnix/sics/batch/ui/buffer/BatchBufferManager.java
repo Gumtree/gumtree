@@ -355,7 +355,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			
 			// Enqueue (due to the delay in general channel, wait until it is ready)
 			final boolean[] enqueued = new boolean[] { false };
-			asyncSend("exe enqueue " + buffer.getName(), new SicsCallbackAdapter() {
+			asyncSend("exe enqueue {" + buffer.getName() + "}", new SicsCallbackAdapter() {
 				public void receiveReply(ISicsReplyData data) {
 					enqueued[0] = true;
 				}
