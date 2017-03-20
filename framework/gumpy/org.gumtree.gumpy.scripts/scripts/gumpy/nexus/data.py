@@ -928,6 +928,16 @@ class Data(SimpleData):
     def __prod__(self, axis = None):
         return self.__new__(self.storage.__prod__(axis))
     
+    def matrix_invert(self):
+        d = SimpleData.matrix_invert(self)
+        d.var.fill(float('nan'))
+        return d
+    
+    def matrix_dot(self, obj):
+        d = SimpleData.matrix_dot(self, obj)
+        d.var.fill(float('nan'))
+        return d
+        
     def max(self, axis = None, out = None):
         if axis is None :
             return self.storage.max()
@@ -1346,6 +1356,9 @@ def new(storage, var = None, axes = None, anames = None, \
 #####################################################################################    
 def zeros(shape, dtype = float, default_var = True, default_axes = True): 
     return new(array.zeros(shape, dtype), default_var = default_var, default_axes = default_axes)
+
+def diagflat(obj, k = 0, default_var = True, default_axes = True):
+    return new(array.diagflat(obj, k), default_var = default_var, default_axes = default_axes)
 
 def zeros_like(obj, default_var = True, default_axes = True):
     if isinstance(obj, SimpleData) :

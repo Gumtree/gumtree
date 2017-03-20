@@ -306,6 +306,17 @@ class SimpleData:
     def __invert__(self):
         return self.__new__(self.storage.__invert__())
     
+    def matrix_invert(self):
+        return self.__new__(self.storage.matrix_invert())
+    
+    def matrix_dot(self, obj):
+        if isinstance(obj, Array) :
+            return self.__new__(self.storage.matrix_dot(obj))
+        elif isinstance(obj, SimpleData):
+            return self.__new__(self.storage.matrix_dot(obj.storage))
+        else :
+            raise Exception, 'obj must be a gumpy array or dataset'
+        
     def __pow__(self, obj):
         if isinstance(obj, SimpleData) :
             obj = obj.storage
@@ -650,7 +661,10 @@ def zeros_like(obj):
         units = obj.units
         obj = obj.storage
     return new(array.zeros_like(obj), name, units)
-    
+
+def diagflat(obj, k = 0):
+    return new(array.diagflat(obj, k))
+        
 def ones(shape, dtype = float):
     return new(array.ones(shape, dtype))
     

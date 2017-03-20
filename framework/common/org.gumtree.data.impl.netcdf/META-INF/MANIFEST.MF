@@ -29,4 +29,5 @@ Export-Package: org.gumtree.data.impl;uses:="org.gumtree.data.utils,org.gumtree.
    ucar.ma2"
 Require-Bundle: org.gumtree.data.core;bundle-version="1.8.0";visibility:=reexport,
  ucar.netcdf;bundle-version="4.0.48";visibility:=reexport,
- ncsa.hdf;bundle-version="2.7.0";resolution:=optional;visibility:=reexport
+ ncsa.hdf;bundle-version="2.7.0";resolution:=optional;visibility:=reexport,
+ org.apache.commons.math;bundle-version="3.6.1"

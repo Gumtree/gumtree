@@ -5,7 +5,7 @@ from symbol import except_clause
 import copy
 import math
 import random
-
+import itertools
 
 gdm_factory = FactoryManager().getFactory()
 
@@ -1013,6 +1013,24 @@ class Array:
                 riter.set_next(~siter.next())
             return res
             
+    def matrix_invert(self):
+        if self.ndim != 2:
+            raise Exception, 'array dimention must be 2, got ' + str(self.ndim)
+        if self.shape[0] != self.shape[1]:
+            raise Exception, 'array is not square '
+        return Array(self.__iArray__.getArrayMath().matInverse().getArray())
+    
+    def matrix_dot(self, arr):
+        if not hasattr(arr, 'ndim'):
+            raise Exception, 'argument arr must be a gumpy array'
+        if self.ndim != 2:
+            raise Exception, 'array dimention must be 2, got ' + str(self.ndim)
+        if arr.ndim != 2:
+            raise Exception, 'argument array dimention must be 2, got ' + str(arr.ndim)
+        if self.shape[1] != arr.shape[0]:
+            raise Exception, 'array dimensions do not match'
+        return Array(self.__iArray__.getArrayMath().matMultiply(arr.__iArray__).getArray())
+    
     def __pow__(self, obj):
         res = zeros(self.shape, self.__match_type__(obj))
         riter = res.item_iter()
@@ -2130,7 +2148,84 @@ def zeros(shape, dtype = float):
 
 def zeros_like(array):
     return instance(array.shape, 0, array.dtype)
-    
+
+'''
+Create a two-dimensional array with the flattened input as a diagonal.
+Parameters:    
+obj : array_like
+    Input data, which is flattened and set as the k-th diagonal of the output.
+k : int, optional
+    Diagonal to set; 0, the default, corresponds to the "main" diagonal, a positive (negative) k giving the number of the diagonal above (below) the main.
+Returns:    
+out : ndarray    
+    The 2-D output array.
+Examples
+>>> np.diagflat([[1,2], [3,4]])
+array([[1, 0, 0, 0],
+       [0, 2, 0, 0],
+       [0, 0, 3, 0],
+       [0, 0, 0, 4]])
+
+>>> np.diagflat([1,2], 1)
+array([[0, 1, 0],
+       [0, 0, 2],
+       [0, 0, 0]])
+'''
+def diagflat(obj, k = 0):
+    if hasattr(obj, 'item_iter') and hasattr(obj, 'size'):
+        dim = obj.size() + abs(k)
+        arr = zeros([dim, dim])
+        oiter = obj.item_iter()
+        if k == 0:
+            idx = 0
+            while True:
+                try:
+                    arr[idx, idx] = oiter.next()
+                    idx += 1
+                except:
+                    break
+        elif k > 0:
+            idx = 0
+            while True:
+                try:
+                    arr[idx, idx + k] = oiter.next()
+                    idx += 1
+                except:
+                    break
+        else:
+            k = -k
+            idx = 0
+            while True:
+                try:
+                    arr[idx + k, idx] = oiter.next()
+                    idx += 1
+                except:
+                    break
+        return arr
+    elif type(obj) is list :
+        ndim = get_ndim(obj)
+        if ndim > 1:
+            obj = list(itertools.chain(*obj))
+        dim = len(obj) + abs(k)
+        arr = zeros([dim, dim])
+        if k == 0:
+            idx = 0
+            for item in obj :
+                arr[idx, idx] = item
+                idx += 1
+        elif k > 0:
+            idx = 0
+            for item in obj :
+                arr[idx, idx + k] = item
+                idx += 1
+        else:
+            k = -k
+            idx = 0
+            for item in obj :
+                arr[idx + k, idx] = item
+                idx += 1
+        return arr
+        
 def ones(shape, dtype = float):
     if type(shape) is int :
         shape = [shape]

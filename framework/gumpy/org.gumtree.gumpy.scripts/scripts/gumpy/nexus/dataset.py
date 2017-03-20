@@ -668,6 +668,9 @@ def zeros_like(obj, default_var = True, default_axes = True):
     return new(array.zeros_like(obj), default_var = default_var, \
                default_axes = default_axes)
     
+def diagflat(obj, k = 0, default_var = True, default_axes = True):
+    return new(array.diagflat(obj, k), default_var = default_var, default_axes = default_axes)
+
 def ones(shape, dtype = float, default_var = True, default_axes = True):
     return new(array.ones(shape, dtype), default_var = default_var, \
                default_axes = default_axes)
