@@ -43,7 +43,7 @@ public class RemoteTextDbService {
 		byte[] base64bytes = Base64.encodeBase64(bytes);
 		String html = "<img src=\"data:image/png;base64," + new String(base64bytes) + "\" alt=\"" + name + "\">";
 		if (footer != null) {
-			html += "<span class=\"class_span_tablefoot\">" + footer + "</span><br>";			
+			html += "<br><span class=\"class_span_tablefoot\">" + footer + "</span><br>";			
 		}
 		String className = "class_db_image";
 		appendClassEntry(name, className, html);
@@ -53,7 +53,7 @@ public class RemoteTextDbService {
 			throws IOException, RecordsFileException {
 		String html = "<img src=\"data:image/png;base64," + imageText + "\" alt=\"" + name + "\">";
 		if (footer != null) {
-			html += "<span class=\"class_span_tablefoot\">" + footer + "</span><br>";			
+			html += "<br><span class=\"class_span_tablefoot\">" + footer + "</span><br>";			
 		}
 		String className = "class_db_image";
 		appendClassEntry(name, className, html);
