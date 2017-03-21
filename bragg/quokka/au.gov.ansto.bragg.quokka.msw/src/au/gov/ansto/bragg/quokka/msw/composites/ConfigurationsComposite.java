@@ -90,7 +90,7 @@ import au.gov.ansto.bragg.quokka.msw.util.ScriptCodeFont;
 public class ConfigurationsComposite extends Composite {
 	// finals
 	private static final Map<IDependencyProperty, Boolean> EXPAND_CONDITIONS;
-	private static final String[] ATTENUATION_ANGLES = new String[] {"330°", "300°", "270°", "240°", "210°", "180°", "150°", "120°", "90°", "60°", "30°", "0°"};
+	private static final String[] ATTENUATION_ANGLES = new String[] {"330ï¿½", "300ï¿½", "270ï¿½", "240ï¿½", "210ï¿½", "180ï¿½", "150ï¿½", "120ï¿½", "90ï¿½", "60ï¿½", "30ï¿½", "0ï¿½"};
 	
 	// fields
 	private final ElementTableModel<ConfigurationList, Configuration> tableModel;
@@ -379,7 +379,7 @@ public class ConfigurationsComposite extends Composite {
 		cmbTransmissionAttAngle = new Combo(cmpTransmission, SWT.BORDER | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.RIGHT);
 		cmbTransmissionAttAngle.setItems(ATTENUATION_ANGLES);
 		cmbTransmissionAttAngle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		cmbTransmissionAttAngle.setText("150°");
+		cmbTransmissionAttAngle.setText("150ï¿½");
 		new Label(cmpTransmission, SWT.NONE);
 
 		lblTransmissionMaxTime = new Label(cmpTransmission, SWT.NONE);
@@ -415,7 +415,7 @@ public class ConfigurationsComposite extends Composite {
 		cmbScatteringAttAngle = new Combo(cmpScattering, SWT.BORDER | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.RIGHT);
 		cmbScatteringAttAngle.setItems(ATTENUATION_ANGLES);
 		cmbScatteringAttAngle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		cmbScatteringAttAngle.setText("90°");
+		cmbScatteringAttAngle.setText("90ï¿½");
 		new Label(cmpScattering, SWT.NONE);
 
 		lblScatteringMaxTime = new Label(cmpScattering, SWT.NONE);
@@ -1140,14 +1140,21 @@ public class ConfigurationsComposite extends Composite {
 		final SelectionListener pretransmissionScriptTestDrive = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+//				modified by nxi on 21 Mar. User requires the configuration script to run first
+//				when testing the transmission setup script.
 				Measurement transmissionMeasurement = selectedTransmissionMeasurement.getTarget();
 				if (transmissionMeasurement == null)
 					return;
 
 				String script = transmissionMeasurement.getSetupScript();
+				
+				Configuration configuration = selectedConfiguration.getTarget();
+				String configurationScript = configuration == null ? null :
+						configuration.getSetupScript();
+				
 				CustomInstrumentAction customAction = modelProvider.getCustomInstrumentAction();
-
-				if (!customAction.testDrive(script)) {
+				if (!customAction.testDrive(configurationScript == null ? script : 
+						configurationScript + "\n" + script)) {
 					MessageBox dialog = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
 					dialog.setText("Information");
 					dialog.setMessage("busy");
@@ -1158,19 +1165,27 @@ public class ConfigurationsComposite extends Composite {
 		final SelectionListener prescatteringScriptTestDrive = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+//				modified by nxi on 21 Mar. User requires the configuration script to run first
+//				when testing the scattering setup script.
 				Measurement scatteringMeasurement = selectedScatteringMeasurement.getTarget();
 				if (scatteringMeasurement == null)
 					return;
 
 				String script = scatteringMeasurement.getSetupScript();
-				CustomInstrumentAction customAction = modelProvider.getCustomInstrumentAction();
 
-				if (!customAction.testDrive(script)) {
+				Configuration configuration = selectedConfiguration.getTarget();
+				String configurationScript = configuration == null ? null : 
+					configuration.getSetupScript();
+				
+				CustomInstrumentAction customAction = modelProvider.getCustomInstrumentAction();
+				if (!customAction.testDrive(configurationScript == null ? script : 
+						configurationScript + "\n" + script)) {
 					MessageBox dialog = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
 					dialog.setText("Information");
 					dialog.setMessage("busy");
 					dialog.open();
 				}
+				
 			}
 		};
 		
