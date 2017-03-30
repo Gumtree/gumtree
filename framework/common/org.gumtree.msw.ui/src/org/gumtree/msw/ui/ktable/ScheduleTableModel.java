@@ -31,6 +31,7 @@ import org.gumtree.msw.schedule.ScheduledNode;
 import org.gumtree.msw.schedule.Scheduler;
 import org.gumtree.msw.schedule.execution.AcquisitionSummary;
 import org.gumtree.msw.schedule.execution.IScheduleWalkerListener;
+import org.gumtree.msw.schedule.execution.InitializationSummary;
 import org.gumtree.msw.schedule.execution.ParameterChangeSummary;
 import org.gumtree.msw.schedule.execution.ScheduleStep;
 import org.gumtree.msw.schedule.execution.ScheduleWalker;
@@ -1426,7 +1427,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
 		}
 		// initialization
 		@Override
-		public void onInitialized(Summary summary) {
+		public void onInitialized(InitializationSummary summary) {
 		}
 		@Override
 		public void onCleanedUp(Summary summary) {
@@ -2356,15 +2357,16 @@ public class ScheduleTableModel extends KTableDefaultModel {
 						col -= cell.getColumnSpan();
     	}
     	public KTableCellEditor getCellEditor(NodeInfo nodeInfo, int col) {
-    		for (AcquisitionDetail detail : acquisitionDetails)
-				for (CellDefinition cell : detail.getCells())
-					if (col < 0)
-						break;
-					else if (col == 0)
-						return prepareCellEditor(nodeInfo, cell);
-					else
-						col -= cell.getColumnSpan();
-    		
+	    	if (!nodeInfo.getNode().getPropertiesLocked()) {
+	    		for (AcquisitionDetail detail : acquisitionDetails)
+					for (CellDefinition cell : detail.getCells())
+						if (col < 0)
+							break;
+						else if (col == 0)
+							return prepareCellEditor(nodeInfo, cell);
+						else
+							col -= cell.getColumnSpan();
+	    	}
     		return null;
     	}
     	public KTableCellRenderer getCellRenderer(NodeInfo nodeInfo, int col) {

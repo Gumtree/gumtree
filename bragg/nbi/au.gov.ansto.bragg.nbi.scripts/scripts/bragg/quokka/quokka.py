@@ -171,6 +171,9 @@ def initiate(info):
     #sics.execute('hset /user/email ' + email) # !!!
     #sics.execute('hset /user/phone ' + phone)
 
+    # clear environment drive scripts
+    state.env_drive = dict()
+
     setSampleStage(sample_stage)
 
 def cleanUp(info):
@@ -319,7 +322,7 @@ def setupEnvironment(parameters):
     script_drive = parameters['DriveScript']
 
     # run configuration script
-    slog('Prepare instrument for environment: ' + name)
+    slog('Prepare instrument for environment: %s' % name)
 
     state.env_drive[env] = script_drive
 
@@ -332,7 +335,7 @@ def setupSetPoint(parameters):
     wait  = int(parameters['WaitPeriod'])
 
     # run configuration script
-    slog('Prepare instrument for next SetPoint')
+    slog('Prepare instrument for next SetPoint: %s' % value)
 
     exec state.env_drive[env] in globals(), dict(value=value)
 
@@ -438,7 +441,10 @@ def customAction(info):
     parameters = info.parameters
 
     if action == 'getsamplepositions':
-        parameters['SamplePositions'] = getSamplePositions()
+        try:
+            parameters['SamplePositions'] = getSamplePositions()
+        except:
+            pass # swallow exception # sics might not be available
 
     elif action == 'drivetoloadposition':
         setSampleStage(str(parameters['SampleStage']))
@@ -689,7 +695,7 @@ def smartAttenuationAlgo(start_angle):
     # second sampling
     driveAtt(att2)
     local_rate2, global_rate2 = determineAveragedRates()
-    thickness2 = thicknessTable[attenuation2]
+    thickness2 = thickness_table[att2]
 
     if hasTripped():
         return resolveTrip()
@@ -1050,9 +1056,9 @@ def driveBsRailOut():
 def getBsz(throw=True):
     return getFloatData('bsz', throw)
 
-# Updated by nxi. Removed the second argument: offset
 def driveBsz(baseValue):
-    loggedDrive('beamstop z', 'bsz', baseValue, 'mm', getBsz)
+    offset = 0 # scientists agreed to remove this argument and always set it to 0
+    loggedDrive('beamstop z', 'bsz', baseValue + offset, 'mm', getBsz)
 
 def selBsxz(beamstop, bx, bz):
     selBsHelper(beamstop, bx, bz, '/commands/beamstops/selbsxz')
@@ -1284,7 +1290,7 @@ def scanBA(min_time, max_time, counts, bm_counts):
 
     sics.execute('hset ' + controllerPath + '/mode unlimited', 'scan')
 
-    # added by nxi: always reset the ba properties before setting up new values
+    # always reset the ba properties before setting up new values
     sics.execute('histmem ba reset', 'scan')
     
     sics.execute('histmem ba roi total', 'scan')

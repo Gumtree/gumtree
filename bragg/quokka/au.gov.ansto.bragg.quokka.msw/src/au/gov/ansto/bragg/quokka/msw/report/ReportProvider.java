@@ -9,6 +9,7 @@ import org.gumtree.msw.elements.Element;
 import org.gumtree.msw.schedule.ScheduledNode;
 import org.gumtree.msw.schedule.execution.AcquisitionSummary;
 import org.gumtree.msw.schedule.execution.IScheduleWalkerListener;
+import org.gumtree.msw.schedule.execution.InitializationSummary;
 import org.gumtree.msw.schedule.execution.ParameterChangeSummary;
 import org.gumtree.msw.schedule.execution.ScheduleStep;
 import org.gumtree.msw.schedule.execution.ScheduleWalker;
@@ -48,8 +49,11 @@ public class ReportProvider {
 				complete();
 			}
 			@Override
-			public void onInitialized(Summary summary) {
-				// ignore
+			public void onInitialized(InitializationSummary summary) {
+				updateExperiment(
+						summary.getProposalNumber(),
+						summary.getExperimentTitle(),
+						summary.getSampleStage());
 			}
 			@Override
 			public void onCleanedUp(Summary summary) {
@@ -154,6 +158,9 @@ public class ReportProvider {
 		for (IListener listener : listeners)
 			listener.onReset(environmentRoot);
 	}
+	private void updateExperiment(String proposalNumber, String experimentTitle, String sampleStage) {
+		state.updateExperiment(proposalNumber, experimentTitle, sampleStage);
+	}
 	private void updateState(ScheduledNode node) {
 		state.update(node);
 	}
@@ -162,6 +169,7 @@ public class ReportProvider {
 			throw new Error("invalid state");
 		
 		ConfigurationReport configurationReport = findConfigurationReport(
+				state.getExperiment(),
 				state.getEnvironments(),
 				state.getConfiguration());
 		
@@ -187,18 +195,19 @@ public class ReportProvider {
 		for (IListener listener : listeners)
 			listener.onCompleted(environmentRoot);
 	}
-	private ConfigurationReport findConfigurationReport(Iterable<EnvironmentState> environments, ConfigurationState configuration) {
+	private ConfigurationReport findConfigurationReport(ExperimentState experiment, Iterable<EnvironmentState> environments, ConfigurationState configuration) {
 		EnvironmentReport environmentReport = environmentRoot;
 		for (EnvironmentState environment : environments)
 			environmentReport = environmentReport.getEnvironment(environment);
 		
-		return environmentReport.getConfiguration(configuration);
+		return environmentReport.getConfiguration(experiment, configuration);
 	}
 
 	// state
 
 	private static class State {
 		// fields
+		private ExperimentState lastExperiment;
 		private LinkedHashMap<Environment, EnvironmentState> environmentOrder; // LinkedHashMap is used to preserve order
 		private ConfigurationState lastConfiguration;
 		private MeasurementState lastMeasurement;
@@ -208,6 +217,7 @@ public class ReportProvider {
 		public State() {
 			environmentOrder = new LinkedHashMap<>();
 			
+			lastExperiment = new ExperimentState();
 			lastConfiguration = new ConfigurationState();
 			lastMeasurement = new MeasurementState();
 			lastSample = new SampleState();
@@ -224,9 +234,13 @@ public class ReportProvider {
 			}
 
 			return
+					lastExperiment.isValid() &&
 					lastConfiguration.isValid() &&
 					lastMeasurement.isValid() &&
 					lastSample.isValid();
+		}
+		public ExperimentState getExperiment() {
+			return lastExperiment;
 		}
 		public Iterable<EnvironmentState> getEnvironments() {
 			return environmentOrder.values();
@@ -242,6 +256,9 @@ public class ReportProvider {
 		}
 		
 		// methods
+		public void updateExperiment(String proposalNumber, String experimentTitle, String sampleStage) {
+			lastExperiment.update(proposalNumber, experimentTitle, sampleStage);
+		}
 		public void update(ScheduledNode node) {
 			Element element = node.getSourceElement();
 			if (element == null)
@@ -297,6 +314,33 @@ public class ReportProvider {
 		}
 		public void invalidate() {
 			valid = false;
+		}
+	}
+	
+	private static class ExperimentState extends ElementState {
+		// fields
+		//private String proposalNumber;
+		//private String experimentTitle;
+		private String sampleStage;
+
+		// properties
+		//public String getProposalNumber() {
+		//	return proposalNumber;
+		//}
+		//public String getExperimentTitle() {
+		//	return experimentTitle;
+		//}
+		public String getSampleStage() {
+			return sampleStage;
+		}
+		
+		// methods
+		public void update(String proposalNumber, String experimentTitle, String sampleStage) {
+			//this.proposalNumber = proposalNumber;
+			//this.experimentTitle = experimentTitle;
+			this.sampleStage = sampleStage;
+
+			setValid();
 		}
 	}
 	
@@ -553,7 +597,7 @@ public class ReportProvider {
 				
 			return report;
 		}
-		private ConfigurationReport getConfiguration(ConfigurationState info) {
+		private ConfigurationReport getConfiguration(ExperimentState experiment, ConfigurationState info) {
 			if (containsEnvironments())
 				throw new Error("already contains environments");
 			
@@ -564,7 +608,7 @@ public class ReportProvider {
 			if (report == null)
 				configurations.put(
 						info.getNode(),
-						report = new ConfigurationReport(info));
+						report = new ConfigurationReport(experiment, info));
 			
 			return report;
 		}
@@ -573,12 +617,14 @@ public class ReportProvider {
 	public static class ConfigurationReport implements IReport {
 		// fields
 		private final String name;
+		private final String sampleStage;
 		private Map<ScheduledNode, ScatteringReport> scatteringReports;
 		private Map<ScheduledNode, TransmissionReport> transmissionReports;
 		
 		// construction (State is private)
-		private ConfigurationReport(ConfigurationState info) {
+		private ConfigurationReport(ExperimentState experiment, ConfigurationState info) {
 			name = info.getName();
+			sampleStage = experiment.getSampleStage();
 
 			scatteringReports = new LinkedHashMap<>();
 			transmissionReports = new LinkedHashMap<>();
@@ -588,6 +634,9 @@ public class ReportProvider {
 		@Override
 		public String getName() {
 			return name;
+		}
+		public String getSampleStage() {
+			return sampleStage;
 		}
 		@Override
 		public boolean isEmpty() {

@@ -12,6 +12,7 @@ import javax.script.ScriptEngine;
 import org.gumtree.msw.RefId;
 import org.gumtree.msw.elements.Element;
 import org.gumtree.msw.schedule.execution.AcquisitionSummary;
+import org.gumtree.msw.schedule.execution.InitializationSummary;
 import org.gumtree.msw.schedule.execution.ParameterChangeSummary;
 import org.gumtree.msw.schedule.execution.Summary;
 
@@ -66,7 +67,7 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 	
 	// methods
 	@Override
-	public Summary initiate() {
+	public InitializationSummary initiate() {
 		PyInitiateInfo info = null;
 		long startTime = System.nanoTime();
 		
@@ -108,14 +109,17 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 		}
 		
 		if (info == null)
-			return new Summary(
+			return new InitializationSummary(
 					Collections.<String, Object>emptyMap(),
 					getPocessingTime(startTime),
 					true,
 					null);
 		else
-			return new Summary(
+			return new InitializationSummary(
 					Collections.<String, Object>emptyMap(),
+					info.proposalNumber,
+					info.experimentTitle,
+					info.sampleStage,
 					getPocessingTime(startTime),
 					info.interrupted,
 					info.notes);

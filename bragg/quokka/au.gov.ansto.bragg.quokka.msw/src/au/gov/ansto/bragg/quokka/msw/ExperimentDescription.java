@@ -51,9 +51,6 @@ public class ExperimentDescription extends Element {
 	public String getSampleStage() {
 		return (String)get(SAMPLE_STAGE);
 	}
-	public void setFixedSampleStage(String value) {
-		set(SAMPLE_STAGE, value);
-	}
 	
 	// helper
 	public static String getSampleStage(int samplePositions) {

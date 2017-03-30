@@ -7,21 +7,19 @@ import org.gumtree.msw.elements.Element;
 import org.gumtree.msw.schedule.ScheduledAspect;
 import org.gumtree.msw.schedule.ScheduledNode;
 
-class Optimizer {
+class OrderOptimizer {
 	// fields
 	private final Map<Element, SortState> targets;
 	
 	// construction
-	public Optimizer(Iterable<Element> targets, ScheduledAspect aspect) {
+	public OrderOptimizer(Iterable<Element> targets) {
 		this.targets = new HashMap<>();
 		for (Element element : targets)
 			this.targets.put(element, new SortState());
-		
-		apply(aspect);
 	}
 
 	// methods
-	private void apply(ScheduledAspect aspect) {
+	public void apply(ScheduledAspect aspect) {
 		if (aspect != null)
 			apply(aspect, aspect.getNode());
 	}

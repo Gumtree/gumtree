@@ -63,7 +63,7 @@ public class WorkflowComposite extends Composite {
 		gridLayout.marginWidth = 0;
 		gridLayout.verticalSpacing = 0;
 		setLayout(gridLayout);
-		setBackground(parent.getBackground());
+		setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		
 		final ToolBar toolBar = new ToolBar(this, SWT.HORIZONTAL);
 		toolBar.setBackground(getBackground());

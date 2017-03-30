@@ -1,8 +1,6 @@
 package au.gov.ansto.bragg.quokka.msw.composites;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +45,7 @@ import org.gumtree.msw.schedule.Scheduler;
 import org.gumtree.msw.schedule.execution.AcquisitionSummary;
 import org.gumtree.msw.schedule.execution.IScheduleProvider;
 import org.gumtree.msw.schedule.execution.IScheduleWalkerListener;
+import org.gumtree.msw.schedule.execution.InitializationSummary;
 import org.gumtree.msw.schedule.execution.ParameterChangeSummary;
 import org.gumtree.msw.schedule.execution.ScheduleStep;
 import org.gumtree.msw.schedule.execution.ScheduleWalker;
@@ -86,6 +85,7 @@ import au.gov.ansto.bragg.quokka.msw.converters.IndexValueConverter;
 import au.gov.ansto.bragg.quokka.msw.converters.StringTrimConverter;
 import au.gov.ansto.bragg.quokka.msw.converters.TimeValueConverter;
 import au.gov.ansto.bragg.quokka.msw.converters.TrimmedDoubleValueConverter;
+import au.gov.ansto.bragg.quokka.msw.internal.QuokkaProperties;
 import au.gov.ansto.bragg.quokka.msw.report.LogbookReportGenerator;
 import au.gov.ansto.bragg.quokka.msw.report.LogbookReportGenerator.TableInfo;
 import au.gov.ansto.bragg.quokka.msw.report.ReductionReportGenerator;
@@ -260,6 +260,14 @@ public class AcquisitionComposite extends Composite {
 				}
 			}
 		});
+	    menuItem = new MenuItem(menu, SWT.NONE);
+	    menuItem.setText("Reset Order");
+	    menuItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				optimizer.reset();
+			}
+		});
 	    
 	    // export
 	    new MenuItem(menu, SWT.SEPARATOR);
@@ -292,18 +300,22 @@ public class AcquisitionComposite extends Composite {
 			private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
 			private File intermediateReport = null;
 			private File finalReport = null;
+			private File finalHtml = null;
 			
 			// methods
 			@Override
 			public void onReset(EnvironmentReport rootReport) {
-			    String intermediateName = "QKK_current_report.xml";
-			    String finalName = "QKK_" + format.format(Calendar.getInstance().getTime()) + "_report.xml";
+			    String intermediateName = "QKK_current_report";
+			    String finalName = "QKK_" + format.format(Calendar.getInstance().getTime()) + "_report";
 			    
 			    intermediateReport =
-			    		reportFolder == null ? null : new File(reportFolder, "current/" + intermediateName);
+			    		reportFolder == null ? null : new File(reportFolder, String.format("current/%s.xml", intermediateName));
 			    
 				finalReport =
-						reportFolder == null ? null : new File(reportFolder, finalName);
+						reportFolder == null ? null : new File(reportFolder, String.format("%s.xml", finalName));
+
+				finalHtml =
+						reportFolder == null ? null : new File(reportFolder, String.format("%s.html", finalName));
 				
 				ReductionReportGenerator.save(rootReport, intermediateReport);
 			}
@@ -315,15 +327,20 @@ public class AcquisitionComposite extends Composite {
 			public void onCompleted(EnvironmentReport rootReport) {
 				try {
 					try {
-						ReductionReportGenerator.save(rootReport, finalReport);
+						ReductionReportGenerator.save(rootReport, intermediateReport);
 					}
 					finally {
-						ReductionReportGenerator.save(rootReport, intermediateReport);
+						ReductionReportGenerator.save(rootReport, finalReport);
 					}
 				}
 				finally {
-					Iterable<TableInfo> tables = LogbookReportGenerator.createHtmlTables(rootReport);
-					modelProvider.getCustomInstrumentAction().publishTables(tables);
+					Iterable<TableInfo> tables = LogbookReportGenerator.create(rootReport);
+					try {
+						LogbookReportGenerator.save(tables, finalHtml);
+					}
+					finally {
+						modelProvider.getCustomInstrumentAction().publishTables(tables);
+					}
 				}
 			}
 		});
@@ -511,32 +528,23 @@ public class AcquisitionComposite extends Composite {
 		});
 	}
 	private static File getReportLocation() {
-		String uri = null;
 		String propertyValue = null;
 	    try {
-	    	propertyValue = System.getProperty("quokka.scan.mswReportPath");
-//	    	URI tmp = new URL(propertyValue).toURI();
-//		    File target = new File(tmp);
-	    	File target = new File(propertyValue);
-		    if (target.isDirectory())
-		    	uri = propertyValue;
+	    	propertyValue = QuokkaProperties.getReportLocation();
+	    	if (propertyValue != null) {
+			    File target = new File(propertyValue);
+			    if (target.isDirectory())
+			    	return target;
+	    	}
 	    }
 	    catch (Exception e) {
     		System.out.println(String.format(
     				"%s=%s",
-    				"quokka.scan.mswReportPath",
+    				"quokka.scan.report.location",
     				propertyValue));
 	    	e.printStackTrace();
 	    }
-	    
-	    try {
-		    if (uri != null)
-				return new File(uri);
-	    }
-	    catch (Exception e) {
-	    	e.printStackTrace();
-	    }
-	    
+
 	    propertyValue = null;
 	    try {
 	    	propertyValue = System.getProperty("user.home");
@@ -631,7 +639,7 @@ public class AcquisitionComposite extends Composite {
 			}
 			// initialization
 			@Override
-			public void onInitialized(Summary summary) {
+			public void onInitialized(InitializationSummary summary) {
 				// System.out.println("onInitialized");
 			}
 			@Override
@@ -1617,10 +1625,7 @@ public class AcquisitionComposite extends Composite {
 		}
 	}
 	*/
-	private static class TimeEstimator {
-		// finals
-		private static final long EXPECTED_MONITOR_RATE = 48000;
-		
+	private static class TimeEstimator {		
 		// fields
 		private final Element lastElement; // element of last aspect (ConfigurationList, SampleList or Environments)
 		// seconds
@@ -1700,7 +1705,7 @@ public class AcquisitionComposite extends Composite {
 				// acquisition time
 				if ((Boolean)node.get(Measurement.TARGET_MONITOR_COUNTS_ENABLED)) {
 					long monitorCounts = (Long)node.get(Measurement.TARGET_MONITOR_COUNTS);
-					long expectedTime = monitorCounts / EXPECTED_MONITOR_RATE;
+					long expectedTime = monitorCounts / QuokkaProperties.getExpectedMonitorRate();
 					
 					if ((Boolean)node.get(Measurement.MAX_TIME_ENABLED)) {
 						long maxTime = (Long)node.get(Measurement.MAX_TIME);

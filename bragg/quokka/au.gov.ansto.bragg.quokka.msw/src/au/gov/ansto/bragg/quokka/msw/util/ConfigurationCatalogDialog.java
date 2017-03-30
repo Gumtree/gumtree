@@ -24,6 +24,8 @@ import org.gumtree.msw.ui.ktable.KTable;
 import org.gumtree.msw.ui.ktable.SWTX;
 import org.gumtree.util.eclipse.WorkspaceUtils;
 
+import au.gov.ansto.bragg.quokka.msw.internal.QuokkaProperties;
+
 public class ConfigurationCatalogDialog extends TitleAreaDialog {
 	// finals
 	public final static Path INSTRUMENT_CONFIG_ROOT;
@@ -121,12 +123,14 @@ public class ConfigurationCatalogDialog extends TitleAreaDialog {
 	}
 	@Override
 	protected void okPressed() {
-		if (model.getSelectedCount() > 32) {
-			final String newLine = System.getProperty("line.separator");
-			
+		if (model.getSelectedCount() > QuokkaProperties.getMaxConfigurationImport()) {
 			MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.OK);
 			dialog.setText("Warning");
-			dialog.setMessage("You have selected more than 32 configurations!" + newLine + newLine + "Please reduce the number of selected configurations.");
+			dialog.setMessage(String.format(
+					"%s%n%n%s",
+					String.format("You have selected more than %d configurations!", QuokkaProperties.getMaxConfigurationImport()),
+					"Please reduce the number of selected configurations."));
+			
 			dialog.open();
 			return;
 		}

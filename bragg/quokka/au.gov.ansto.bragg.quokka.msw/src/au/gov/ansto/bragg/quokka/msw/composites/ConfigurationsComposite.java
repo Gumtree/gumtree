@@ -22,6 +22,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
@@ -45,11 +47,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.gumtree.msw.elements.Element;
 import org.gumtree.msw.elements.IDependencyProperty;
 import org.gumtree.msw.elements.IElementListListener;
 import org.gumtree.msw.elements.IElementListener;
@@ -90,7 +94,7 @@ import au.gov.ansto.bragg.quokka.msw.util.ScriptCodeFont;
 public class ConfigurationsComposite extends Composite {
 	// finals
 	private static final Map<IDependencyProperty, Boolean> EXPAND_CONDITIONS;
-	private static final String[] ATTENUATION_ANGLES = new String[] {"330�", "300�", "270�", "240�", "210�", "180�", "150�", "120�", "90�", "60�", "30�", "0�"};
+	private static final String[] ATTENUATION_ANGLES = new String[] {"330°", "300°", "270°", "240°", "210°", "180°", "150°", "120°", "90°", "60°", "30°", "0°"};
 	
 	// fields
 	private final ElementTableModel<ConfigurationList, Configuration> tableModel;
@@ -379,7 +383,7 @@ public class ConfigurationsComposite extends Composite {
 		cmbTransmissionAttAngle = new Combo(cmpTransmission, SWT.BORDER | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.RIGHT);
 		cmbTransmissionAttAngle.setItems(ATTENUATION_ANGLES);
 		cmbTransmissionAttAngle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		cmbTransmissionAttAngle.setText("150�");
+		cmbTransmissionAttAngle.setText("150°");
 		new Label(cmpTransmission, SWT.NONE);
 
 		lblTransmissionMaxTime = new Label(cmpTransmission, SWT.NONE);
@@ -415,7 +419,7 @@ public class ConfigurationsComposite extends Composite {
 		cmbScatteringAttAngle = new Combo(cmpScattering, SWT.BORDER | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.RIGHT);
 		cmbScatteringAttAngle.setItems(ATTENUATION_ANGLES);
 		cmbScatteringAttAngle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		cmbScatteringAttAngle.setText("90�");
+		cmbScatteringAttAngle.setText("90°");
 		new Label(cmpScattering, SWT.NONE);
 
 		lblScatteringMaxTime = new Label(cmpScattering, SWT.NONE);
@@ -536,7 +540,7 @@ public class ConfigurationsComposite extends Composite {
 				if ((filename != null) && (filename.length() > 0)) {
 					boolean succeeded = false;
 					try (InputStream stream = new FileInputStream(filename)) {
-						succeeded = modelProvider.getConfigurationList().replaceConfigurations(stream);
+						succeeded = modelProvider.getConfigurationList().importConfiguration(stream);
 					}
 					catch (Exception e2) {
 					}
@@ -911,7 +915,7 @@ public class ConfigurationsComposite extends Composite {
 							MessageBox dialog = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
 							dialog.setText("Question");
 							dialog.setMessage(String.format(
-									"%s\n\n%s",
+									"%s%n%n%s",
 									"A configuration with the same name in the specified group already exists.",
 									"Would you like to replace it?"));
 							if (dialog.open() != SWT.YES)
@@ -990,22 +994,13 @@ public class ConfigurationsComposite extends Composite {
 					Measurement.SETUP_SCRIPT,
 					StringTrimConverter.DEFAULT));
 		
-		// Apply / Test Drive
-		modelBindings.add(ModelBinder.createEnabledBinding(
-				btnInitializeScriptApply,
-				selectedConfiguration));
+		// Test Drive
 		modelBindings.add(ModelBinder.createEnabledBinding(
 				btnInitializeScriptTestDrive,
 				selectedConfiguration));
 		modelBindings.add(ModelBinder.createEnabledBinding(
-				btnPretransmissionScriptApply,
-				selectedTransmissionMeasurement));
-		modelBindings.add(ModelBinder.createEnabledBinding(
 				btnPretransmissionScriptTestDrive,
 				selectedTransmissionMeasurement));
-		modelBindings.add(ModelBinder.createEnabledBinding(
-				btnPrescatteringScriptApply,
-				selectedScatteringMeasurement));
 		modelBindings.add(ModelBinder.createEnabledBinding(
 				btnPrescatteringScriptTestDrive,
 				selectedScatteringMeasurement));
@@ -1117,77 +1112,93 @@ public class ConfigurationsComposite extends Composite {
 			});
 		}
 		
+		// apply buttons
+
+		modelBindings.add(new ApplyButtonBinding<Configuration>(
+				txtInitializeScript,
+				btnInitializeScriptApply,
+				selectedConfiguration,
+				Configuration.SETUP_SCRIPT));
+
+		modelBindings.add(new ApplyButtonBinding<Measurement>(
+				txtPretransmissionScript,
+				btnPretransmissionScriptApply,
+				selectedTransmissionMeasurement,
+				Measurement.SETUP_SCRIPT));
+
+		modelBindings.add(new ApplyButtonBinding<Measurement>(
+				txtPrescatteringScript,
+				btnPrescatteringScriptApply,
+				selectedScatteringMeasurement,
+				Measurement.SETUP_SCRIPT));
+
 		// test drive buttons
+		final Shell shell = getShell();
+		final CustomInstrumentAction customAction = modelProvider.getCustomInstrumentAction();
 		
-		final SelectionListener initializeScriptTestDrivelistener = new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				Configuration configuration = selectedConfiguration.getTarget();
-				if (configuration == null)
-					return;
+		final SelectionListener initializeScriptTestDrivelistener = new TestDriveAction(
+				shell,
+				customAction,
+				new IScriptProvider() {
+					@Override
+					public String generateScript() {
+						Configuration configuration = selectedConfiguration.getTarget();
+						if (configuration == null)
+							return null;
+						
+						return configuration.getSetupScript();
+					}
+				});
 
-				String script = configuration.getSetupScript();
-				CustomInstrumentAction customAction = modelProvider.getCustomInstrumentAction();
+		final SelectionListener pretransmissionScriptTestDrive = new TestDriveAction(
+				shell,
+				customAction,
+				new IScriptProvider() {
+					@Override
+					public String generateScript() {
+						Configuration configuration = selectedConfiguration.getTarget();
+						Measurement transmissionMeasurement = selectedTransmissionMeasurement.getTarget();
+						if ((configuration == null) || (transmissionMeasurement == null))
+							return null;
+						
+						MessageBox dialog = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+						dialog.setText("Question");
+						dialog.setMessage("Would you like to run the initialization script before the pre-transmission script?");
+						switch (dialog.open()) {
+						case SWT.YES:
+							return String.format("%s%n%s", configuration.getSetupScript(), transmissionMeasurement.getSetupScript());
+						case SWT.NO:
+							return transmissionMeasurement.getSetupScript();
+						default:
+							return null;
+						}
+					}
+				});
 				
-				if (!customAction.testDrive(script)) {
-					MessageBox dialog = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
-					dialog.setText("Information");
-					dialog.setMessage("busy");
-					dialog.open();
-				}
-			}
-		};
-		final SelectionListener pretransmissionScriptTestDrive = new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-//				modified by nxi on 21 Mar. User requires the configuration script to run first
-//				when testing the transmission setup script.
-				Measurement transmissionMeasurement = selectedTransmissionMeasurement.getTarget();
-				if (transmissionMeasurement == null)
-					return;
-
-				String script = transmissionMeasurement.getSetupScript();
-				
-				Configuration configuration = selectedConfiguration.getTarget();
-				String configurationScript = configuration == null ? null :
-						configuration.getSetupScript();
-				
-				CustomInstrumentAction customAction = modelProvider.getCustomInstrumentAction();
-				if (!customAction.testDrive(configurationScript == null ? script : 
-						configurationScript + "\n" + script)) {
-					MessageBox dialog = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
-					dialog.setText("Information");
-					dialog.setMessage("busy");
-					dialog.open();
-				}
-			}
-		};
-		final SelectionListener prescatteringScriptTestDrive = new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-//				modified by nxi on 21 Mar. User requires the configuration script to run first
-//				when testing the scattering setup script.
-				Measurement scatteringMeasurement = selectedScatteringMeasurement.getTarget();
-				if (scatteringMeasurement == null)
-					return;
-
-				String script = scatteringMeasurement.getSetupScript();
-
-				Configuration configuration = selectedConfiguration.getTarget();
-				String configurationScript = configuration == null ? null : 
-					configuration.getSetupScript();
-				
-				CustomInstrumentAction customAction = modelProvider.getCustomInstrumentAction();
-				if (!customAction.testDrive(configurationScript == null ? script : 
-						configurationScript + "\n" + script)) {
-					MessageBox dialog = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
-					dialog.setText("Information");
-					dialog.setMessage("busy");
-					dialog.open();
-				}
-				
-			}
-		};
+		final SelectionListener prescatteringScriptTestDrive = new TestDriveAction(
+				shell,
+				customAction,
+				new IScriptProvider() {
+					@Override
+					public String generateScript() {
+						Configuration configuration = selectedConfiguration.getTarget();
+						Measurement scatteringMeasurement = selectedScatteringMeasurement.getTarget();
+						if ((configuration == null) || (scatteringMeasurement == null))
+							return null;
+						
+						MessageBox dialog = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+						dialog.setText("Question");
+						dialog.setMessage("Would you like to run the initialization script before the pre-scattering script?");
+						switch (dialog.open()) {
+						case SWT.YES:
+							return String.format("%s%n%s", configuration.getSetupScript(), scatteringMeasurement.getSetupScript());
+						case SWT.NO:
+							return scatteringMeasurement.getSetupScript();
+						default:
+							return null;
+						}
+					}
+				});
 		
 		btnInitializeScriptTestDrive.addSelectionListener(initializeScriptTestDrivelistener);
 		btnPretransmissionScriptTestDrive.addSelectionListener(pretransmissionScriptTestDrive);
@@ -1448,6 +1459,112 @@ public class ConfigurationsComposite extends Composite {
 	    }
 	    catch (IOException e) {
 	    	// ignore
+		}
+	}
+	
+	// enable apply button when script has been modified
+	private static class ApplyButtonBinding<TElement extends Element> implements IModelBinding {
+		// fields
+		private boolean enabled = false;
+		// ui
+		private final Text text;
+		private final ModifyListener textModifyListener;
+		private final IElementListener elementListener;
+		private final IProxyElementListener<TElement> proxyListener;
+		// deferred update
+		private final Runnable updater;
+		
+		// construction
+		public ApplyButtonBinding(final Text text, final Button button, final ProxyElement<TElement> proxy, final IDependencyProperty property) {
+			this.text = text;
+			
+			updater = new Runnable() {
+				@Override
+				public void run() {
+					if (!button.isDisposed())
+						button.setEnabled(enabled);
+				}
+			};
+			
+			textModifyListener = new ModifyListener() {
+				@Override
+				public void modifyText(ModifyEvent e) {
+					TElement element = proxy.getTarget();
+					
+					enabled =
+							(element != null) &&
+							!Objects.equals(text.getText(), element.get(property));
+					
+					text.getDisplay().asyncExec(updater);
+				}
+			};
+			
+			elementListener = new IElementListener() {
+				@Override
+				public void onChangedProperty(IDependencyProperty p, Object oldValue, Object newValue) {
+					if (p == property) {
+						enabled = !Objects.equals(text.getText(), newValue);
+						text.getDisplay().asyncExec(updater);
+					}
+				}
+				@Override
+				public void onDisposed() {
+					// ignore
+				}
+			};
+			
+			proxyListener = new IProxyElementListener<TElement>() {
+				@Override
+				public void onTargetChange(TElement oldTarget, TElement newTarget) {
+					enabled =
+							(newTarget != null) &&
+							!Objects.equals(text.getText(), newTarget.get(property));
+					
+					text.getDisplay().asyncExec(updater);
+				}
+			};
+			
+			text.addModifyListener(textModifyListener);
+			proxy.addListener(elementListener);
+			proxy.addListener(proxyListener);
+		}
+		@Override
+		public void dispose() {
+			text.removeModifyListener(textModifyListener);
+		}
+	}
+	
+	// test drive button
+	private static interface IScriptProvider {
+		// methods
+		public String generateScript();
+	}
+	private static class TestDriveAction extends SelectionAdapter {
+		// fields
+		private final Shell shell;
+		private final CustomInstrumentAction customAction;
+		private final IScriptProvider scriptProvider;
+		
+		// construction
+		public TestDriveAction(Shell shell, CustomInstrumentAction customAction, IScriptProvider scriptProvider) {
+			this.shell = shell;
+			this.customAction = customAction;
+			this.scriptProvider = scriptProvider;
+		}
+		
+		// event handling
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			String script = scriptProvider.generateScript();
+			if (script == null)
+				return;
+			
+			if (!customAction.testDrive(script)) {
+				MessageBox dialog = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
+				dialog.setText("Information");
+				dialog.setMessage("busy");
+				dialog.open();
+			}
 		}
 	}
 }

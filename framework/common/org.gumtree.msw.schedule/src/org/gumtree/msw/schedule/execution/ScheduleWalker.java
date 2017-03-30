@@ -25,7 +25,7 @@ public class ScheduleWalker {
 				if (!provider.initiate())
 					return false;
 
-				Summary initializationSummary = executer.initiate();
+				InitializationSummary initializationSummary = executer.initiate();
 				raiseOnInitialized(initializationSummary);
 				if (!initializationSummary.getInterrupted()) {
 					for (ScheduleStep step = provider.firstStep(); step != null; step = provider.nextStep()) {
@@ -124,7 +124,7 @@ public class ScheduleWalker {
 			listener.onEndSchedule();
 	}
 	// initialization
-	private synchronized void raiseOnInitialized(Summary summary) {
+	private synchronized void raiseOnInitialized(InitializationSummary summary) {
 		for (IScheduleWalkerListener listener : listeners)
 			listener.onInitialized(summary);
 	}

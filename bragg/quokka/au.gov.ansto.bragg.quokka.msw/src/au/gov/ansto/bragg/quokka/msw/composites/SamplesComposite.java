@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.swt.SWT;
@@ -52,16 +53,23 @@ import au.gov.ansto.bragg.quokka.msw.schedule.CustomInstrumentAction;
 import au.gov.ansto.bragg.quokka.msw.schedule.ICustomInstrumentActionListener;
 import au.gov.ansto.bragg.quokka.msw.util.CsvTable;
 
+import org.gumtree.gumnix.sics.core.SicsCore;
+import org.gumtree.gumnix.sics.io.ISicsProxyListener;
+import org.gumtree.gumnix.sics.io.SicsProxyListenerAdapter;
+
 public class SamplesComposite extends Composite {
 	// finals
 	private static final String SAMPLE_STAGE = "SampleStage";
 	
 	// fields
 	private final ElementTableModel<SampleList, Sample>  tableModel;
+	private final AtomicBoolean requestSamplePositions;
 
     // construction
 	public SamplesComposite(Composite parent, final ModelProvider modelProvider) {
 		super(parent, SWT.BORDER);
+		
+		requestSamplePositions = new AtomicBoolean(true);
 		
 		GridLayout gridLayout = new GridLayout(1, false);
 		gridLayout.verticalSpacing = 0;
@@ -116,15 +124,13 @@ public class SamplesComposite extends Composite {
 								@Override
 								public void run() {
 									if (!Objects.equals(sampleStage, modelProvider.getExperimentDescription().getSampleStage())) {
-										final String newLine = System.getProperty("line.separator");
-									
 										MessageBox dialog = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
 										dialog.setText("Information");
-										dialog.setMessage(
-												"Sics reported that the following sample stage is available:" + newLine +
-												sampleStage + newLine + 
-												newLine +
-												"Would you like to acknowledge the adjustment?");
+										dialog.setMessage(String.format(
+												"%s%n%s%n%n%s",
+												"Sics reported that the following sample stage is available:",
+												sampleStage,
+												"Would you like to acknowledge the adjustment?"));
 										
 										if (dialog.open() == SWT.YES)
 											modelProvider.getSampleList().setSampleStage(modelProvider.getExperimentDescription(), sampleStage);
@@ -307,9 +313,10 @@ public class SamplesComposite extends Composite {
 	    addPaintListener(new PaintListener() {
 			@Override
 			public void paintControl(PaintEvent e) {
-			    CustomInstrumentAction customAction = modelProvider.getCustomInstrumentAction();
-			    customAction.requestSamplePositions();
-				SamplesComposite.this.removePaintListener(this);
+				if (requestSamplePositions.compareAndSet(true, false)) {
+				    CustomInstrumentAction customAction = modelProvider.getCustomInstrumentAction();
+				    customAction.requestSamplePositions();
+				}
 			}
 		});
 	}
@@ -321,6 +328,28 @@ public class SamplesComposite extends Composite {
 
 		// setup table
 		tableModel.updateSource(sampleList);
+		
+		// sics listener
+		final ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
+			@Override
+			public void proxyConnected() {
+				requestSamplePositions.set(true);
+			}
+		};
+
+		try {
+			SicsCore.getSicsManager().proxy().addProxyListener(proxyListener);
+			modelBindings.add(new IModelBinding() {
+				@Override
+				public void dispose() {
+					SicsCore.getSicsManager().proxy().removeProxyListener(proxyListener);
+				}
+			});
+		}
+		catch (Exception e) {
+			System.out.println("Failed to add listener to sics proxy for connect signal.");  
+			e.printStackTrace();
+		}
 	}
 	private static ElementTableModel<SampleList, Sample> createTableModel(final KTable table, Menu menu, final ModelProvider modelProvider) {
 		// cell rendering

@@ -1,5 +1,10 @@
 package au.gov.ansto.bragg.quokka.msw.report;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -7,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -22,6 +28,7 @@ import org.gumtree.msw.ui.util.AlphanumericComparator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import au.gov.ansto.bragg.quokka.msw.ExperimentDescription;
 import au.gov.ansto.bragg.quokka.msw.report.ReportProvider.ConfigurationReport;
 import au.gov.ansto.bragg.quokka.msw.report.ReportProvider.EnvironmentReport;
 import au.gov.ansto.bragg.quokka.msw.report.ReportProvider.SampleReport;
@@ -37,7 +44,7 @@ public class LogbookReportGenerator {
 	}
 	
 	// methods (returns map: name->table
-	public static Iterable<TableInfo> createHtmlTables(EnvironmentReport rootReport) {
+	public static Iterable<TableInfo> create(EnvironmentReport rootReport) {
 		Iterable<EnvironmentInfo> summary = analyze(rootReport);
 
 		List<TableInfo> result = new ArrayList<>();
@@ -69,24 +76,68 @@ public class LogbookReportGenerator {
 		}
 		return result;
 	}
-
+	public static boolean save(Iterable<TableInfo> tables, File file) {
+		try (FileOutputStream stream = new FileOutputStream(file)) {
+			try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stream))) {
+				writeln(writer, "<!DOCTYPE html>");
+				writeln(writer, "<html>");
+				writeln(writer, "<head>");
+				writeln(writer, "<style>");
+				writeln(writer, "body {");
+				writeln(writer, "    font-family: Arial, Helvetica, sans-serif;");
+				writeln(writer, "}");
+				writeln(writer, "table, th, td {");
+				writeln(writer, "    border-collapse: collapse;");
+				writeln(writer, "    border: 1px solid black;");
+				writeln(writer, "    font-size: 9px;");
+				writeln(writer, "}");
+				writeln(writer, "table {");
+				writeln(writer, "    margin-top: 15px;");
+				writeln(writer, "}");
+				writeln(writer, "td, th {");
+				writeln(writer, "    text-align: left;");
+				writeln(writer, "    padding: 0.2rem 2px;");
+				writeln(writer, "}");
+				writeln(writer, "th {");
+				writeln(writer, "    background-color: #DDDDDD;");
+				writeln(writer, "}");
+				writeln(writer, "</style>");
+				writeln(writer, "</head>");
+				writeln(writer, "<body>");
+				for (TableInfo table : tables)
+					writeln(writer, table.getContent());
+				writeln(writer, "</body>");
+				writeln(writer, "</html>");
+			}
+			return true;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	private static void writeln(BufferedWriter writer, String line) throws IOException {
+		writer.write(line);
+		writer.newLine();
+	}
+	
 	// configuration table
 	private static TableInfo createConfigurationTable(DocumentBuilder documentBuilder, EnvironmentInfo environment, ConfigurationInfo configuration) {
 		Document document = documentBuilder.newDocument();
 		document.setXmlStandalone(true);
-		
-		Element root = document.createElement("table");
-		serializeConfigurationTableHeader(document, root, environment, configuration);
-		serializeConfigurationTableContent(document, root, configuration);
-		document.appendChild(decorateTable(document, root));
 
-		String name = configuration.getName();
+		String name = getStringOrEmpty(configuration.getName());
 		if (!environment.getName().isEmpty())
 			name = environment.getName() + "/" + name;
 		
+		Element root = document.createElement("table");
+		serializeConfigurationTableHeader(document, root, environment, configuration, name);
+		serializeConfigurationTableContent(document, root, configuration);
+		document.appendChild(decorateTable(document, root));
+
 		return createTableInfo(name, document);
 	}
-	private static void serializeConfigurationTableHeader(Document document, Element root, EnvironmentInfo environment, ConfigurationInfo configuration) {
+	private static void serializeConfigurationTableHeader(Document document, Element root, EnvironmentInfo environment, ConfigurationInfo configuration, String name) {
 		if (!environment.getName().isEmpty()) {
 			int colspan =
 					3 + // sample
@@ -97,11 +148,13 @@ public class LogbookReportGenerator {
 			Element header0 = document.createElement("tr");
 			Element cell = document.createElement("th");
 			cell.setAttribute("colspan", String.valueOf(colspan));
-			cell.setTextContent(getStringOrEmpty(environment.getName()));
+			cell.setAttribute("style", "text-align: center");
+			cell.setTextContent(name);
 			header0.appendChild(cell);
 			root.appendChild(header0);
 		}
 
+		/*
 		Element header1 = document.createElement("tr");
 		{
 			Element cell = document.createElement("th");
@@ -120,6 +173,7 @@ public class LogbookReportGenerator {
 			header1.appendChild(cell);
 		}
 		root.appendChild(header1);
+		*/
 		
 		Element header2 = document.createElement("tr");
 		{
@@ -169,7 +223,10 @@ public class LogbookReportGenerator {
 				SampleInfo sample = samples.get(position);
 				
 				Element positionCell = document.createElement("td");
-				positionCell.setTextContent(String.valueOf(position));
+				if (Objects.equals(ExperimentDescription.MANUAL_POSITIONS, configuration.getSampleStage()))
+					positionCell.setTextContent(String.valueOf(position));
+				else
+					positionCell.setTextContent(String.valueOf(position.intValue()));
 				row.appendChild(positionCell);
 
 				Element nameCell = document.createElement("td");
@@ -213,6 +270,7 @@ public class LogbookReportGenerator {
 			Element header0 = document.createElement("tr");
 			Element cell = document.createElement("th");
 			cell.setAttribute("colspan", String.valueOf(colspan));
+			cell.setAttribute("style", "text-align: center");
 			cell.setTextContent(getStringOrEmpty(environment.getName()));
 			header0.appendChild(cell);
 			root.appendChild(header0);
@@ -265,9 +323,14 @@ public class LogbookReportGenerator {
 		Map<Double, SampleInfo> samples = new HashMap<>();
 		List<Map<Double, String>> content = new ArrayList<>();
 
-		for (ConfigurationInfo configuration : environment.getConfigurations())
+		String sampleStage = null;
+		for (ConfigurationInfo configuration : environment.getConfigurations()) {
 			for (MeasurementInfo scattering : configuration.getScatteringRuns())
 				content.add(createConfigurationTableColumn(samples, scattering));
+
+			if (sampleStage == null)
+				sampleStage = configuration.getSampleStage();
+		}
 
 		List<Double> positions = new ArrayList<>(samples.keySet());
 		Collections.sort(positions);
@@ -279,7 +342,10 @@ public class LogbookReportGenerator {
 				SampleInfo sample = samples.get(position);
 				
 				Element positionCell = document.createElement("td");
-				positionCell.setTextContent(String.valueOf(position));
+				if (Objects.equals(ExperimentDescription.MANUAL_POSITIONS, sampleStage))
+					positionCell.setTextContent(String.valueOf(position));
+				else
+					positionCell.setTextContent(String.valueOf(position.intValue()));
 				row.appendChild(positionCell);
 
 				Element nameCell = document.createElement("td");
@@ -399,7 +465,7 @@ public class LogbookReportGenerator {
 	private static void analyzeConfigurationReports(EnvironmentInfo environment, Iterable<ConfigurationReport> reports) {
 		for (ConfigurationReport report : reports)
 			if (!report.isEmpty()) {
-				ConfigurationInfo info = new ConfigurationInfo(report.getName());
+				ConfigurationInfo info = new ConfigurationInfo(report.getName(), report.getSampleStage());
 				analyzeTransmissionReports(info, report.getTransmissionReports());
 				analyzeScatteringReports(info, report.getScatteringReports());
 				environment.addConfiguration(info);
@@ -484,20 +550,25 @@ public class LogbookReportGenerator {
 	private static class ConfigurationInfo {
 		// fields
 		private final String name;
+		private final String sampleStage;
 		private final List<MeasurementInfo> transmissionRuns;
 		private final List<MeasurementInfo> scatteringRuns;
 		
 		// construction
-		public ConfigurationInfo(String name) {
+		public ConfigurationInfo(String name, String sampleStage) {
 			this.name = name;
+			this.sampleStage = sampleStage;
 
 			transmissionRuns = new ArrayList<>();
 			scatteringRuns = new ArrayList<>();
 		}
-		
+
 		// properties
 		public String getName() {
 			return name;
+		}
+		public String getSampleStage() {
+			return sampleStage;
 		}
 		public boolean isEmpty() {
 			for (MeasurementInfo info : transmissionRuns)

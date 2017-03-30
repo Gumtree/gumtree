@@ -359,15 +359,16 @@ public class ScheduledNode {
 		return sourceElement.get(property);
 	}
 	public boolean validate(IDependencyProperty property, Object newValue) {
-		if (propertiesLocked)
-			return false;
 		if (!modifiableProperties.contains(property))
 			return false;
 		
 		if (property == Element.INDEX)
-			return owner.validateIndex(this, newValue);
+			return !propertiesLocked && owner.validateIndex(this, newValue);
 		
 		newValue = property.getPropertyType().cast(newValue);
+		
+		if (propertiesLocked)
+			return Objects.equals(newValue, lockedValues.get(property));
 		
 		if (sourceElement.getProperties().contains(property))
 			return sourceElement.validate(property, newValue);
@@ -375,7 +376,7 @@ public class ScheduledNode {
 		if (acquisitionValues != null) { // isAcquisitionNode
 			ScheduledNode sourceNode = acquisitionDetailProvider.getNode(property);
 			if ((sourceNode != null) && (sourceNode != this))
-				return sourceNode.validate(property, newValue);
+				return sourceNode.sourceElement.validate(property, newValue);
 		}
 		
 		return false;

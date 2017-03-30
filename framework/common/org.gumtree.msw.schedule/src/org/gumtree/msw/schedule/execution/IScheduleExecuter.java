@@ -4,7 +4,7 @@ import java.util.Map;
 
 public interface IScheduleExecuter {
 	// methods
-	public Summary initiate();
+	public InitializationSummary initiate();
 	public Summary cleanUp();
 	// steps
 	public ParameterChangeSummary setParameters(String name, Map<String, Object> parameters);

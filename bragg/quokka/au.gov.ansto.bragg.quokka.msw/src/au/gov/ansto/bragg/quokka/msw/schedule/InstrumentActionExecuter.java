@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.gumtree.msw.schedule.execution.AcquisitionSummary;
+import org.gumtree.msw.schedule.execution.InitializationSummary;
 import org.gumtree.msw.schedule.execution.ParameterChangeSummary;
 import org.gumtree.msw.schedule.execution.Summary;
 
@@ -39,7 +40,7 @@ public class InstrumentActionExecuter {
 		// helper
 		private void sleep() {
 			try {
-				Thread.sleep(500);
+				Thread.sleep(0); // 500
 			}
 			catch (InterruptedException e) {
 				e.printStackTrace();
@@ -48,8 +49,8 @@ public class InstrumentActionExecuter {
 		
 		// methods
 		@Override
-		public Summary initiate() {
-			return new Summary(Collections.<String, Object>emptyMap(), 100, false, null);
+		public InitializationSummary initiate() {
+			return new InitializationSummary(Collections.<String, Object>emptyMap(), 100, false, null);
 		}
 		@Override
 		public Summary cleanUp() {

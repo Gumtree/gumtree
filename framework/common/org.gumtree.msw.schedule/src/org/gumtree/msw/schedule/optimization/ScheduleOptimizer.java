@@ -33,7 +33,12 @@ public class ScheduleOptimizer {
 			if (!sortableLists.contains(element.getClass()))
 				throw new IllegalArgumentException();
 		
-		new Optimizer(targets, scheduler.getRoot());
+		OrderOptimizer optimizer = new OrderOptimizer(targets);
+		optimizer.apply(scheduler.getRoot());
+	}
+	public void reset() {
+		OrderReseter reseter = new OrderReseter(sortableLists);
+		reseter.apply(scheduler.getRoot());
 	}
 
 	// helper

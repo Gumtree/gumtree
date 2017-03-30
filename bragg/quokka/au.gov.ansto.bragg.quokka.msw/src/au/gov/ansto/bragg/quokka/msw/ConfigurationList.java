@@ -19,7 +19,6 @@ import org.gumtree.msw.RefId;
 import org.gumtree.msw.commands.AddListElementCommand;
 import org.gumtree.msw.commands.BatchCommand;
 import org.gumtree.msw.commands.ChangePropertyCommand;
-import org.gumtree.msw.commands.ClearElementListCommand;
 import org.gumtree.msw.elements.DependencyProperty;
 import org.gumtree.msw.elements.ElementList;
 import org.gumtree.msw.elements.ElementPath;
@@ -213,15 +212,15 @@ public class ConfigurationList extends ElementList<Configuration> {
 				// initScript
 				node = getFirstOrNull(root.getElementsByTagName("initScript"));
 				if (node != null)
-					initScript = node.getTextContent();
+					initScript = updateScript(node.getTextContent());
 				// preTransmissionScript
 				node = getFirstOrNull(root.getElementsByTagName("preTransmissionScript"));
 				if (node != null)
-					preTransmissionScript = node.getTextContent();
+					preTransmissionScript = updateScript(node.getTextContent());
 				// preScatteringScript
 				node = getFirstOrNull(root.getElementsByTagName("preScatteringScript"));
 				if (node != null)
-					preScatteringScript = node.getTextContent();
+					preScatteringScript = updateScript(node.getTextContent());
 				// startingAttenuation
 				node = getFirstOrNull(root.getElementsByTagName("startingAttenuation"));
 				if (node != null)
@@ -320,8 +319,8 @@ public class ConfigurationList extends ElementList<Configuration> {
 
 		return list.item(0);
 	}
-	public boolean replaceConfigurations(InputStream stream) {
-		ICommand loadCommand = ModelImporter.buildLoadCommand(
+	public boolean importConfiguration(InputStream stream) {
+		BatchCommand loadCommand = ModelImporter.buildLoadCommand(
 				getModelProxy(),
 				getPath(),
 				ConfigurationList.class.getSimpleName(),
@@ -330,23 +329,48 @@ public class ConfigurationList extends ElementList<Configuration> {
 		
 		if (loadCommand == null)
 			return false;
-
-		RefId id = nextId();
-		command(new BatchCommand(
-				id,
-				new ClearElementListCommand(id, getPath()),
-				loadCommand));
 		
+		command(loadCommand);
 		return true;
-	}
-	public boolean importConfiguration(InputStream stream) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 	public void enableAll() {
 		batchSet(Configuration.ENABLED, true);
 	}
 	public void disableAll() {
 		batchSet(Configuration.ENABLED, false);
+	}
+	
+	// helpers
+	private static String updateScript(String script) {
+		final String newLine = System.getProperty("line.separator");
+		final String[] guideConfigs = new String[] {
+			    "ga", "mt", "lp", "lens",
+			    "p1", "p1lp", "p1lens", "g1",
+			    "p2", "g2", "p3", "g3", "p4", "g4", "p5", "g5",
+			    "p6", "g6", "p7", "g7", "p8", "g8", "p9", "g9"
+		};
+		
+		StringBuilder sb = new StringBuilder();
+		for (String line : script.split("(\r\n)|(\n\r)|\n|\r")) {
+			String trimmedLine = line.trim();
+			// driveAtt(...)
+			if (trimmedLine.startsWith("driveAtt(")) {
+				line += " # !!! Warning: it is not recommended to manually drive the attenuator";
+			}
+			// driveGuide(...)
+			else if (trimmedLine.startsWith("driveGuide(guideConfig.")) {
+				for (String config : guideConfigs) {
+					String old = "driveGuide(guideConfig." + config + ")";
+					if (trimmedLine.startsWith(old)) {
+						line = line.replace(old, "driveGuide('" + config + "')");
+						break;
+					}
+				}
+			}
+			
+			sb.append(line);
+			sb.append(newLine);
+		}
+		return sb.toString();
 	}
 }

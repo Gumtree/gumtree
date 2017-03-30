@@ -72,16 +72,17 @@ import au.gov.ansto.bragg.quokka.msw.converters.DoubleValueConverter;
 import au.gov.ansto.bragg.quokka.msw.converters.IndexValueConverter;
 import au.gov.ansto.bragg.quokka.msw.converters.LongValueConverter;
 import au.gov.ansto.bragg.quokka.msw.converters.StringTrimConverter;
+import au.gov.ansto.bragg.quokka.msw.internal.QuokkaProperties;
 import au.gov.ansto.bragg.quokka.msw.schedule.CustomInstrumentAction;
 import au.gov.ansto.bragg.quokka.msw.util.CsvTable;
 import au.gov.ansto.bragg.quokka.msw.util.ScriptCodeFont;
 
 public class EnvironmentsComposite extends Composite {
 	// finals
-	private static final Map<String, String> ENVIRONMENT_TEMPLATES;
 	private static final String[] EMPTY_STRING_ARRAY = {};
 	
 	// fields
+	private final Map<String, String> environmentTemplates;
 	private final ProxyElement<Environment> selectedEnvironment;
 	private final ElementTableModel<LoopHierarchy, Element> elementsModel;
 	private final ElementTableModel<Environment, SetPoint> setPointsModel;
@@ -101,33 +102,10 @@ public class EnvironmentsComposite extends Composite {
 	private Text txtWait;
 	
 	// construction
-	static {
-		final String sample_format = "sics.drive(\"%s\", value)";
-		
-		Map<String, String> map = new HashMap<>();
-		map.put("Dummy Motor",
-				String.format(sample_format, "dummy_motor"));
-		map.put("High Voltage",
-				String.format(sample_format, "highvoltage"));
-		map.put("ips120",
-				String.format(sample_format, "/sample/ips120/setpoint"));
-		map.put("magnet",
-				String.format(sample_format, "/sample/ma1/magnet/setpoint"));
-		map.put("tc1",
-				String.format(sample_format, "/sample/tc1/setpoint"));
-		map.put("tc1 loops",
-				String.format(sample_format, "/sample/tc1/Loop1/setpoint"));
-		map.put("tc3",
-				String.format(sample_format, "/sample/tc3/sensor/setpoint1"));
-		map.put("watlow_rm",
-				String.format(sample_format, "/sample/watlow_rm/setpoint"));
-		map.put("xcs",
-				String.format(sample_format, "/sample/xcs/humidity"));
-
-		ENVIRONMENT_TEMPLATES = Collections.unmodifiableMap(map);
-	}
 	public EnvironmentsComposite(Composite parent, final ModelProvider modelProvider) {
 		super(parent, SWT.BORDER);
+		
+		environmentTemplates = QuokkaProperties.getEnvironmentTemplates();
 		
 		GridLayout gridLayout = new GridLayout(1, false);
 		gridLayout.verticalSpacing = 0;
@@ -697,9 +675,9 @@ public class EnvironmentsComposite extends Composite {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				String selection = cmbTemplate.getText();
-				if (ENVIRONMENT_TEMPLATES.containsKey(selection)) {
+				if (environmentTemplates.containsKey(selection)) {
 					String setupScript = "";
-					String driveScript = ENVIRONMENT_TEMPLATES.get(selection);
+					String driveScript = environmentTemplates.get(selection);
 					if (
 							!Objects.equals(setupScript, selectedEnvironment.get(Environment.SETUP_SCRIPT)) ||
 							!Objects.equals(driveScript, selectedEnvironment.get(Environment.DRIVE_SCRIPT)))
@@ -717,11 +695,11 @@ public class EnvironmentsComposite extends Composite {
 						Object setupScript = selectedEnvironment.get(Environment.SETUP_SCRIPT);
 						Object driveScript = selectedEnvironment.get(Environment.DRIVE_SCRIPT);
 
-						if (!Objects.equals("", setupScript) || !ENVIRONMENT_TEMPLATES.containsValue(driveScript)) {
+						if (!Objects.equals("", setupScript) || !environmentTemplates.containsValue(driveScript)) {
 							clearTemplateCombo();
 						}
 						else {
-							for (Entry<String, String> entry : ENVIRONMENT_TEMPLATES.entrySet())
+							for (Entry<String, String> entry : environmentTemplates.entrySet())
 								if (Objects.equals(entry.getValue(), driveScript)) {
 									if (!Objects.equals(cmbTemplate.getText(), entry.getKey()))
 										cmbTemplate.setText(entry.getKey());
@@ -962,7 +940,7 @@ public class EnvironmentsComposite extends Composite {
 	private void clearTemplateCombo() {
 		String[] items = cmbTemplate.getItems();
 		if ((items == null) || (items.length == 0)) {
-			ArrayList<String> result = new ArrayList<>(ENVIRONMENT_TEMPLATES.keySet());
+			ArrayList<String> result = new ArrayList<>(environmentTemplates.keySet());
 			Collections.sort(result);
 			items = result.toArray(new String[result.size()]);
 		}
