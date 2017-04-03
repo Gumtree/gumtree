@@ -97,6 +97,9 @@ import au.gov.ansto.bragg.quokka.msw.schedule.SyncScheduleProvider;
 import au.gov.ansto.bragg.quokka.msw.util.TertiaryShutter;
 
 public class AcquisitionComposite extends Composite {
+	// fields
+	private final Button btnRun;
+	
 	// construction
 	public AcquisitionComposite(Composite parent, final ModelProvider modelProvider) {
 		super(parent, SWT.BORDER);
@@ -186,7 +189,7 @@ public class AcquisitionComposite extends Composite {
 		Label lblSpace = new Label(cmpBottom, SWT.NONE);
 		lblSpace.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 		
-		Button btnRun = new Button(cmpBottom, SWT.NONE);
+		btnRun = new Button(cmpBottom, SWT.NONE);
 		GridData gd_btnRun = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_btnRun.widthHint = 90;
 		gd_btnRun.heightHint = 23;
@@ -629,13 +632,19 @@ public class AcquisitionComposite extends Composite {
 									
 				Arrays.<IDependencyProperty>asList(Measurement.MIN_TIME, Measurement.MAX_TIME, Measurement.TARGET_MONITOR_COUNTS, Measurement.TARGET_DETECTOR_COUNTS, Measurement.MIN_TIME_ENABLED, Measurement.MAX_TIME_ENABLED, Measurement.TARGET_MONITOR_COUNTS_ENABLED, Measurement.TARGET_DETECTOR_COUNTS_ENABLED));
 	}
-	private static ScheduleWalker createScheduleWalker(final ModelProvider modelProvider) {
+	private ScheduleWalker createScheduleWalker(final ModelProvider modelProvider) {
 		ScheduleWalker walker = new ScheduleWalker();
 		walker.addListener(new IScheduleWalkerListener() {
 			// schedule
 			@Override
 			public void onBeginSchedule() {
 				modelProvider.getCustomInstrumentAction().setEnabled(false);
+				btnRun.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						btnRun.setEnabled(false);
+					}
+				});
 
 				//System.out.println("onBeginSchedule");
 				//display.asyncExec(new Runnable() {
@@ -651,6 +660,12 @@ public class AcquisitionComposite extends Composite {
 			@Override
 			public void onEndSchedule() {
 				modelProvider.getCustomInstrumentAction().setEnabled(true);
+				btnRun.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						btnRun.setEnabled(true);
+					}
+				});
 
 				//System.out.println("onEndSchedule");
 				//display.asyncExec(new Runnable() {
