@@ -16,12 +16,12 @@ public class AttenuationAngleConverter extends ModelValueConverterAdapter<Intege
 	public String fromModelValue(Integer value) {
 		if (value == null)
 			return "";
-		
-		return String.format("%d°", value);
+
+		return String.format("%d\u00B0", value);
 	}
 	@Override
 	public Integer toModelValue(String value) {
-		// drop trailing '°'
+		// drop trailing degree symbol
 		return Integer.parseInt(value.substring(0, value.length() - 1));
 	}
 }

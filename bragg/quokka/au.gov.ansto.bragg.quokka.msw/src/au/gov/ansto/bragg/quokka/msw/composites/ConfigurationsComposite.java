@@ -92,7 +92,20 @@ import au.gov.ansto.bragg.quokka.msw.util.ScriptCodeFont;
 public class ConfigurationsComposite extends Composite {
 	// finals
 	private static final Map<IDependencyProperty, Boolean> EXPAND_CONDITIONS;
-	private static final String[] ATTENUATION_ANGLES = new String[] {"330°", "300°", "270°", "240°", "210°", "180°", "150°", "120°", "90°", "60°", "30°", "0°"};
+	private static final char DEGREE_SYMBOL = '\u00B0';
+	private static final String[] ATTENUATION_ANGLES = new String[] {
+			"330" + DEGREE_SYMBOL,
+			"300" + DEGREE_SYMBOL,
+			"270" + DEGREE_SYMBOL,
+			"240" + DEGREE_SYMBOL,
+			"210" + DEGREE_SYMBOL,
+			"180" + DEGREE_SYMBOL,
+			"150" + DEGREE_SYMBOL,
+			"120" + DEGREE_SYMBOL,
+			"90" + DEGREE_SYMBOL,
+			"60" + DEGREE_SYMBOL,
+			"30" + DEGREE_SYMBOL,
+			"0" + DEGREE_SYMBOL};
 	
 	// fields
 	private final ElementTableModel<ConfigurationList, Configuration> tableModel;
@@ -381,7 +394,6 @@ public class ConfigurationsComposite extends Composite {
 		cmbTransmissionAttAngle = new Combo(cmpTransmission, SWT.BORDER | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.RIGHT);
 		cmbTransmissionAttAngle.setItems(ATTENUATION_ANGLES);
 		cmbTransmissionAttAngle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		cmbTransmissionAttAngle.setText("150°");
 		new Label(cmpTransmission, SWT.NONE);
 
 		lblTransmissionMaxTime = new Label(cmpTransmission, SWT.NONE);
@@ -417,7 +429,6 @@ public class ConfigurationsComposite extends Composite {
 		cmbScatteringAttAngle = new Combo(cmpScattering, SWT.BORDER | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.RIGHT);
 		cmbScatteringAttAngle.setItems(ATTENUATION_ANGLES);
 		cmbScatteringAttAngle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		cmbScatteringAttAngle.setText("90°");
 		new Label(cmpScattering, SWT.NONE);
 
 		lblScatteringMaxTime = new Label(cmpScattering, SWT.NONE);
