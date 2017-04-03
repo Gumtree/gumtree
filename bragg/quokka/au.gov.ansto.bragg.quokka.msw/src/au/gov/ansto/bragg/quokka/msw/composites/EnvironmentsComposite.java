@@ -74,6 +74,7 @@ import au.gov.ansto.bragg.quokka.msw.converters.LongValueConverter;
 import au.gov.ansto.bragg.quokka.msw.converters.StringTrimConverter;
 import au.gov.ansto.bragg.quokka.msw.internal.QuokkaProperties;
 import au.gov.ansto.bragg.quokka.msw.schedule.CustomInstrumentAction;
+import au.gov.ansto.bragg.quokka.msw.util.ApplyButtonBinding;
 import au.gov.ansto.bragg.quokka.msw.util.CsvTable;
 import au.gov.ansto.bragg.quokka.msw.util.ScriptCodeFont;
 
@@ -645,15 +646,9 @@ public class EnvironmentsComposite extends Composite {
 					Environment.DRIVE_SCRIPT,
 					StringTrimConverter.DEFAULT));
 
-		// Apply / Test Drive
-		modelBindings.add(ModelBinder.createEnabledBinding(
-				btnInitializeScriptApply,
-				selectedEnvironment));
+		// Test Drive
 		modelBindings.add(ModelBinder.createEnabledBinding(
 				btnInitializeScriptTestDrive,
-				selectedEnvironment));
-		modelBindings.add(ModelBinder.createEnabledBinding(
-				btnDriveScriptApply,
 				selectedEnvironment));
 		modelBindings.add(ModelBinder.createEnabledBinding(
 				btnDriveScriptTestDrive,
@@ -663,7 +658,6 @@ public class EnvironmentsComposite extends Composite {
 		modelBindings.add(ModelBinder.createEnabledBinding(
 				btnGenerate,
 				selectedEnvironment));
-		
 		
 		// save button
 		modelBindings.add(ModelBinder.createEnabledBinding(
@@ -732,6 +726,18 @@ public class EnvironmentsComposite extends Composite {
 			}
 		});
 		
+		// apply buttons
+		modelBindings.add(new ApplyButtonBinding<Environment>(
+				txtInitializeScript,
+				btnInitializeScriptApply,
+				selectedEnvironment,
+				Environment.SETUP_SCRIPT));
+		modelBindings.add(new ApplyButtonBinding<Environment>(
+				txtDriveScript,
+				btnDriveScriptApply,
+				selectedEnvironment,
+				Environment.DRIVE_SCRIPT));
+
 		// test drive buttons
 
 		final SelectionListener initializeScriptTestDrivelistener = new SelectionAdapter() {

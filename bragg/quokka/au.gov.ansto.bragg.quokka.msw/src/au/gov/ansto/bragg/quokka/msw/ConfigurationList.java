@@ -342,7 +342,6 @@ public class ConfigurationList extends ElementList<Configuration> {
 	
 	// helpers
 	private static String updateScript(String script) {
-		final String newLine = System.getProperty("line.separator");
 		final String[] guideConfigs = new String[] {
 			    "ga", "mt", "lp", "lens",
 			    "p1", "p1lp", "p1lens", "g1",
@@ -368,8 +367,7 @@ public class ConfigurationList extends ElementList<Configuration> {
 				}
 			}
 			
-			sb.append(line);
-			sb.append(newLine);
+			sb.append(String.format("%s%n", line));
 		}
 		return sb.toString();
 	}

@@ -37,13 +37,18 @@ import au.gov.ansto.bragg.quokka.msw.internal.Activator;
 
 public class WorkflowComposite extends Composite {
 	// resources
-    private static final Image CATEGORY_BTN_IMAGE_UP = Resources.load("/icons/Button_up.png");
-    private static final Image CATEGORY_BTN_IMAGE_OVER = Resources.load("/icons/Button_over.png");
-    private static final Image CATEGORY_BTN_IMAGE_DOWN = Resources.load("/icons/Button_down.png");
     private static final Image CATEGORY_BTN_IMAGE_BAR = Resources.load("/icons/Button_bar.png", 40, -1);
     private static final Image CATEGORY_BTN_IMAGE_BEGIN = Resources.load("/icons/Button_begin.png");
     private static final Image CATEGORY_BTN_IMAGE_END = Resources.load("/icons/Button_end.png");
     private static final int CATEGORY_BTN_RADIUS = 21;
+    // green
+    private static final Image CATEGORY_BTN_IMAGE_GREEN_UP = Resources.load("/icons/Button_green_up.png");
+    private static final Image CATEGORY_BTN_IMAGE_GREEN_OVER = Resources.load("/icons/Button_green_over.png");
+    private static final Image CATEGORY_BTN_IMAGE_GREEN_DOWN = Resources.load("/icons/Button_green_down.png");
+    // blue
+    private static final Image CATEGORY_BTN_IMAGE_BLUE_UP = Resources.load("/icons/Button_blue_up.png");
+    private static final Image CATEGORY_BTN_IMAGE_BLUE_OVER = Resources.load("/icons/Button_blue_over.png");
+    private static final Image CATEGORY_BTN_IMAGE_BLUE_DOWN = Resources.load("/icons/Button_blue_down.png");
 	// xsd/xml
 	private static final String MSW_XSD = "resources/msw.xsd";
 	private static final String MSW_XML = "resources/msw.xml"; // "resources/example.xml"; // 
@@ -301,9 +306,7 @@ public class WorkflowComposite extends Composite {
 		btnUsers.setBackground(getBackground());
 		btnUsers.setText("Experiment");
 		btnUsers.setFont(SWTResourceManager.getFont("Calibri", 10, SWT.BOLD));
-		btnUsers.setImageUp(CATEGORY_BTN_IMAGE_UP);
-		btnUsers.setImageOver(CATEGORY_BTN_IMAGE_OVER);
-		btnUsers.setImageDown(CATEGORY_BTN_IMAGE_DOWN);
+		unselectedButton(btnUsers);
 		addTriggerAreas(btnUsers);
 
 		Label lblBar1 = new Label(cmpTabs, SWT.NONE);
@@ -315,9 +318,7 @@ public class WorkflowComposite extends Composite {
 		btnSamples.setBackground(getBackground());
 		btnSamples.setText("Samples");
 		btnSamples.setFont(SWTResourceManager.getFont("Calibri", 10, SWT.BOLD));
-		btnSamples.setImageUp(CATEGORY_BTN_IMAGE_UP);
-		btnSamples.setImageOver(CATEGORY_BTN_IMAGE_OVER);
-		btnSamples.setImageDown(CATEGORY_BTN_IMAGE_DOWN);
+		unselectedButton(btnSamples);
 		addTriggerAreas(btnSamples);
 
 		Label lblBar2 = new Label(cmpTabs, SWT.NONE);
@@ -325,13 +326,11 @@ public class WorkflowComposite extends Composite {
 		lblBar2.setImage(CATEGORY_BTN_IMAGE_BAR);
 		lblBar2.pack();
 
-		ImageButton btnConfigurations = new ImageButton(cmpTabs, SWT.NONE);
+		final ImageButton btnConfigurations = new ImageButton(cmpTabs, SWT.NONE);
 		btnConfigurations.setBackground(getBackground());
 		btnConfigurations.setText("Configurations");
 		btnConfigurations.setFont(SWTResourceManager.getFont("Calibri", 10, SWT.BOLD));
-		btnConfigurations.setImageUp(CATEGORY_BTN_IMAGE_UP);
-		btnConfigurations.setImageOver(CATEGORY_BTN_IMAGE_OVER);
-		btnConfigurations.setImageDown(CATEGORY_BTN_IMAGE_DOWN);
+		unselectedButton(btnConfigurations);
 		addTriggerAreas(btnConfigurations);
 
 		Label lblBar3 = new Label(cmpTabs, SWT.NONE);
@@ -339,13 +338,11 @@ public class WorkflowComposite extends Composite {
 		lblBar3.setImage(CATEGORY_BTN_IMAGE_BAR);
 		lblBar3.pack();
 
-		ImageButton btnEnvironments = new ImageButton(cmpTabs, SWT.NONE);
+		final ImageButton btnEnvironments = new ImageButton(cmpTabs, SWT.NONE);
 		btnEnvironments.setBackground(getBackground());
 		btnEnvironments.setText("Environments");
 		btnEnvironments.setFont(SWTResourceManager.getFont("Calibri", 10, SWT.BOLD));
-		btnEnvironments.setImageUp(CATEGORY_BTN_IMAGE_UP);
-		btnEnvironments.setImageOver(CATEGORY_BTN_IMAGE_OVER);
-		btnEnvironments.setImageDown(CATEGORY_BTN_IMAGE_DOWN);
+		unselectedButton(btnEnvironments);
 		addTriggerAreas(btnEnvironments);
 
 		Label lblBar4 = new Label(cmpTabs, SWT.NONE);
@@ -353,13 +350,11 @@ public class WorkflowComposite extends Composite {
 		lblBar4.setImage(CATEGORY_BTN_IMAGE_BAR);
 		lblBar4.pack();
 
-		ImageButton btnAcquisitions = new ImageButton(cmpTabs, SWT.NONE);
+		final ImageButton btnAcquisitions = new ImageButton(cmpTabs, SWT.NONE);
 		btnAcquisitions.setBackground(getBackground());
 		btnAcquisitions.setText("Acquisition");
 		btnAcquisitions.setFont(SWTResourceManager.getFont("Calibri", 10, SWT.BOLD));
-		btnAcquisitions.setImageUp(CATEGORY_BTN_IMAGE_UP);
-		btnAcquisitions.setImageOver(CATEGORY_BTN_IMAGE_OVER);
-		btnAcquisitions.setImageDown(CATEGORY_BTN_IMAGE_DOWN);
+		unselectedButton(btnAcquisitions);
 		addTriggerAreas(btnAcquisitions);
 
 		Label lblBar5 = new Label(cmpTabs, SWT.NONE);
@@ -384,71 +379,47 @@ public class WorkflowComposite extends Composite {
 		final EnvironmentsComposite cmpEnvironments = new EnvironmentsComposite(cmpMain, modelProvider);
 		final AcquisitionComposite cmpAcquisitions = new AcquisitionComposite(cmpMain, modelProvider);
 
-		cmpMain.setContent(cmpExperiment);
-		cmpMain.setMinSize(cmpExperiment.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		btnUsers.addListener(
+				SWT.Selection,
+				new ButtonListener(
+						cmpMain, cmpExperiment,
+						btnUndo, btnRedo, true,
+						btnUsers,
+						btnSamples, btnConfigurations, btnEnvironments, btnAcquisitions));
 
-		btnUsers.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				if (cmpMain.getContent() != cmpExperiment) {
-					btnUndo.setEnabled(true);
-					btnRedo.setEnabled(true);
+		btnSamples.addListener(
+				SWT.Selection,
+				new ButtonListener(
+						cmpMain, cmpSamples,
+						btnUndo, btnRedo, true,
+						btnSamples,
+						btnUsers, btnConfigurations, btnEnvironments, btnAcquisitions));
 
-					cmpMain.setContent(cmpExperiment);
-					cmpMain.setMinSize(cmpExperiment.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-				}
-			}
-		});
-		btnSamples.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				if (cmpMain.getContent() != cmpSamples) {
-					btnUndo.setEnabled(true);
-					btnRedo.setEnabled(true);
+		btnConfigurations.addListener(
+				SWT.Selection,
+				new ButtonListener(
+						cmpMain, cmpConfigurations,
+						btnUndo, btnRedo, true,
+						btnConfigurations,
+						btnUsers, btnSamples, btnEnvironments, btnAcquisitions));
 
-					cmpMain.setContent(cmpSamples);
-					cmpMain.setMinSize(cmpSamples.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-				}
-			}
-		});
-		btnConfigurations.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				if (cmpMain.getContent() != cmpConfigurations) {
-					btnUndo.setEnabled(true);
-					btnRedo.setEnabled(true);
-					
-					cmpMain.setContent(cmpConfigurations);
-					cmpMain.setMinSize(cmpConfigurations.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-				}
-			}
-		});
-		btnEnvironments.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				if (cmpMain.getContent() != cmpEnvironments) {
-					btnUndo.setEnabled(true);
-					btnRedo.setEnabled(true);
-					
-					cmpMain.setContent(cmpEnvironments);
-					cmpMain.setMinSize(cmpEnvironments.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-				}
-			}
-		});
-		btnAcquisitions.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				if (cmpMain.getContent() != cmpAcquisitions) {
-					btnUndo.setEnabled(false);
-					btnRedo.setEnabled(false);
-					
-					cmpMain.setContent(cmpAcquisitions);
-					// update acquisition table dimensions (may change depending on schedule-tree)
-					cmpAcquisitions.layout();
-					cmpMain.setMinSize(cmpAcquisitions.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-				}
-			}
-		});
+		btnEnvironments.addListener(
+				SWT.Selection,
+				new ButtonListener(
+						cmpMain, cmpEnvironments,
+						btnUndo, btnRedo, true,
+						btnEnvironments,
+						btnUsers, btnSamples, btnConfigurations, btnAcquisitions));
+
+		btnAcquisitions.addListener(
+				SWT.Selection,
+				new ButtonListener(
+						cmpMain, cmpAcquisitions,
+						btnUndo, btnRedo, false,
+						btnAcquisitions,
+						btnUsers, btnSamples, btnConfigurations, btnEnvironments));
+
+		btnUsers.notifyListeners(SWT.Selection, new Event());
 	}
 
 	// properties
@@ -462,12 +433,70 @@ public class WorkflowComposite extends Composite {
 		// Disable the check that prevents subclassing of SWT components
 	}
 	// helpers
+	private static void updateSelectedButton(ImageButton selected, ImageButton ... unselected) {
+		selectedButton(selected);
+		for (ImageButton button : unselected)
+			unselectedButton(button);
+	}
+	private static void selectedButton(ImageButton btn) {
+		btn.setImageUp(CATEGORY_BTN_IMAGE_BLUE_UP);
+		btn.setImageOver(CATEGORY_BTN_IMAGE_BLUE_OVER);
+		btn.setImageDown(CATEGORY_BTN_IMAGE_BLUE_DOWN);
+		btn.redraw();
+	}
+	private static void unselectedButton(ImageButton btn) {
+		btn.setImageUp(CATEGORY_BTN_IMAGE_GREEN_UP);
+		btn.setImageOver(CATEGORY_BTN_IMAGE_GREEN_OVER);
+		btn.setImageDown(CATEGORY_BTN_IMAGE_GREEN_DOWN);
+		btn.redraw();
+	}
 	private static void addTriggerAreas(ImageButton btn) {
 		btn.addCircularTriggerArea(25, 25, CATEGORY_BTN_RADIUS);
 		btn.addCircularTriggerArea(76, 25, CATEGORY_BTN_RADIUS);
 		btn.addRectangularTriggerArea(25, 25 - CATEGORY_BTN_RADIUS, 51, 2 * CATEGORY_BTN_RADIUS);
 	}
+	
+	class ButtonListener implements Listener {
+		// fields
+		private final ScrolledComposite cmpMain;
+		private final Composite cmpTarget;
+		// undo/redo
+		private final ToolItem btnUndo;
+		private final ToolItem btnRedo;
+		private final boolean undoRedo;
+		// buttons
+		private final ImageButton btnSelected;
+		private final ImageButton[] btnUnselected;
+		
+		// construction
+		public ButtonListener(ScrolledComposite cmpMain, Composite cmpTarget, ToolItem btnUndo, ToolItem btnRedo, boolean undoRedo, ImageButton btnSelected, ImageButton ... btnUnselected) {
+			this.cmpMain = cmpMain;
+			this.cmpTarget = cmpTarget;
+			
+			this.btnUndo = btnUndo;
+			this.btnRedo = btnRedo;
+			this.undoRedo = undoRedo;
 
+			this.btnSelected = btnSelected;
+			this.btnUnselected = btnUnselected;
+		}
+		
+		// event handling
+		@Override
+		public void handleEvent(Event event) {
+			if (cmpMain.getContent() != cmpTarget) {
+				btnUndo.setEnabled(undoRedo);
+				btnRedo.setEnabled(undoRedo);
+
+				updateSelectedButton(btnSelected, btnUnselected);
+				
+				cmpMain.setContent(cmpTarget);
+				
+				cmpTarget.layout();
+				cmpMain.setMinSize(cmpTarget.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+			}
+		}
+	}
 
 	class DropdownSelectionListener extends SelectionAdapter {
 		private ToolItem dropdown;

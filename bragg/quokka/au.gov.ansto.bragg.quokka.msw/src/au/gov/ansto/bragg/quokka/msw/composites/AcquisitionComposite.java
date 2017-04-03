@@ -94,6 +94,7 @@ import au.gov.ansto.bragg.quokka.msw.report.ReportProvider.EnvironmentReport;
 import au.gov.ansto.bragg.quokka.msw.schedule.CustomInstrumentAction;
 import au.gov.ansto.bragg.quokka.msw.schedule.InstrumentActionExecuter;
 import au.gov.ansto.bragg.quokka.msw.schedule.SyncScheduleProvider;
+import au.gov.ansto.bragg.quokka.msw.util.TertiaryShutter;
 
 public class AcquisitionComposite extends Composite {
 	// construction
@@ -488,6 +489,31 @@ public class AcquisitionComposite extends Composite {
 						
 					default:
 						return;
+					}
+				}
+				
+				if (QuokkaProperties.checkTertiaryShutter()) {
+					MessageBox dialog;
+					switch (TertiaryShutter.acquireState()) {
+					case OPEN:
+						// ignore
+						break;
+						
+					case CLOSED:
+						dialog = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK | SWT.CANCEL);
+						dialog.setText("Information");
+						dialog.setMessage("Tertiary shutter is closed. Please open the shutter and press OK to continue.");
+						if (dialog.open() != SWT.OK)
+							return;
+						break;
+						
+					default: // UNKNOWN
+						dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+						dialog.setText("Warning");
+						dialog.setMessage("The state of the tertiary shutter is unknown. Please ensure that the shutter is open and press OK to continue.");
+						if (dialog.open() != SWT.OK)
+							return;
+						break;
 					}
 				}
 

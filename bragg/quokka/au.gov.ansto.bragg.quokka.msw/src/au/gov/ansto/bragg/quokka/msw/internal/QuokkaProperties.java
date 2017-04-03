@@ -9,6 +9,19 @@ public final class QuokkaProperties {
 	}
 	
 	// properties
+	public static boolean checkTertiaryShutter() {
+		String property;
+		
+		property = System.getProperty("quokka.msw.checkTertiaryShutter");
+		if (property != null)
+			return Boolean.parseBoolean(property);
+		
+		property = System.getProperty("quokka.scan.checkTertiaryShutter");
+		if (property != null)
+			return Boolean.parseBoolean(property);
+		
+		return true;
+	}
 	public static String getReportLocation() {
 		String property;
 		
