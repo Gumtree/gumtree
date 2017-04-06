@@ -1509,14 +1509,15 @@ public class ScriptControlViewer extends Composite {
 
 							@Override
 							public void run() {
+								Object value = parameter.getValue();
 								comboBox.setInput(parameter.getOptions());
-								if (parameter.getValue() == null) {
+								comboBox.refresh();
+								if (value == null) {
 									comboBox.setSelection(null);
 								} else {
 									comboBox.setSelection(new StructuredSelection(
-											parameter.getValue()));
+											value));
 								}
-								comboBox.refresh();
 							}
 						});
 					} else if (evt.getPropertyName().equals("enabled")) {
