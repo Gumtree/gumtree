@@ -16,6 +16,8 @@ import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -25,6 +27,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -311,32 +314,40 @@ public class AcquisitionComposite extends Composite {
 	    }
 	    
 	    // export
+	    //new MenuItem(menu, SWT.SEPARATOR);
+	    //menuItem = new MenuItem(menu, SWT.NONE);
+	    //menuItem.setText("CSV Export");
+	    //menuItem.setImage(Resources.IMAGE_EXPORT);
+	    //menuItem.setEnabled(false);
+	    //menuItem = new MenuItem(menu, SWT.NONE);
+	    //menuItem.setText("PDF Export");
+	    //menuItem.setImage(Resources.IMAGE_EXPORT);
+	    //menuItem.setEnabled(false);
+	    //menuItem = new MenuItem(menu, SWT.NONE);
+	    //menuItem.setText("PNG Export");
+	    //menuItem.setImage(Resources.IMAGE_EXPORT);
+	    //menuItem.setEnabled(false);
+	    
 	    new MenuItem(menu, SWT.SEPARATOR);
-	    menuItem = new MenuItem(menu, SWT.NONE);
-	    menuItem.setText("CSV Export");
-	    menuItem.setImage(Resources.IMAGE_EXPORT);
-	    menuItem.setEnabled(false);
-	    menuItem = new MenuItem(menu, SWT.NONE);
-	    menuItem.setText("PDF Export");
-	    menuItem.setImage(Resources.IMAGE_EXPORT);
-	    menuItem.setEnabled(false);
-	    menuItem = new MenuItem(menu, SWT.NONE);
-	    menuItem.setText("PNG Export");
-	    menuItem.setImage(Resources.IMAGE_EXPORT);
-	    menuItem.setEnabled(false);
+	    final MenuItem summaryExportItem = new MenuItem(menu, SWT.NONE);
+	    summaryExportItem.setText("Summary Export");
+	    summaryExportItem.setImage(Resources.IMAGE_EXPORT);
 	    
 	    model.updateSource(scheduler, walker);
 	    //notifier.updateSource(scheduler);
 	    
 	    final File reportFolder = getReportLocation();
 
-		ReportProvider reportProvider = new ReportProvider();
+		final ReportProvider reportProvider = new ReportProvider();
 		reportProvider.bind(walker);
 		reportProvider.addListener(new ReportProvider.IListener() {
 			// fields
 			private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
+			// data reduction report (used for Igor)
 			private File intermediateReport = null;
 			private File finalReport = null;
+			// html
+			private File intermediateHtml = null;
 			private File finalHtml = null;
 			
 			// methods
@@ -350,15 +361,24 @@ public class AcquisitionComposite extends Composite {
 			    
 				finalReport =
 						reportFolder == null ? null : new File(reportFolder, String.format("%s.xml", finalName));
+				
+				intermediateHtml =
+						reportFolder == null ? null : new File(reportFolder, String.format("current/%s.html", finalName));
 
 				finalHtml =
 						reportFolder == null ? null : new File(reportFolder, String.format("%s.html", finalName));
 				
-				ReductionReportGenerator.save(rootReport, intermediateReport);
+				onUpdated(rootReport);
 			}
 			@Override
 			public void onUpdated(EnvironmentReport rootReport) {
-				ReductionReportGenerator.save(rootReport, intermediateReport);
+				try {
+					ReductionReportGenerator.save(rootReport, intermediateReport);
+				}
+				finally {
+					Iterable<TableInfo> tables = LogbookReportGenerator.create(rootReport);
+					LogbookReportGenerator.save(tables, intermediateHtml);
+				}
 			}
 			@Override
 			public void onCompleted(EnvironmentReport rootReport) {
@@ -373,10 +393,57 @@ public class AcquisitionComposite extends Composite {
 				finally {
 					Iterable<TableInfo> tables = LogbookReportGenerator.create(rootReport);
 					try {
-						LogbookReportGenerator.save(tables, finalHtml);
+						try {
+							LogbookReportGenerator.save(tables, intermediateHtml);
+						}
+						finally {
+							LogbookReportGenerator.save(tables, finalHtml);
+						}
 					}
 					finally {
 						modelProvider.getCustomInstrumentAction().publishTables(tables);
+					}
+				}
+			}
+		});
+
+	    menu.addMenuListener(new MenuListener() {
+			@Override
+			public void menuShown(MenuEvent e) {
+				EnvironmentReport rootReport = reportProvider.getRootReport();
+				Iterable<TableInfo> tables = LogbookReportGenerator.create(rootReport);
+				summaryExportItem.setEnabled(tables.iterator().hasNext());
+			}
+			@Override
+			public void menuHidden(MenuEvent e) {
+			}
+		});
+	    summaryExportItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				FileDialog fileDialog = new FileDialog(getShell(), SWT.SAVE);
+
+				fileDialog.setFilterNames(new String[] { "Hypertext Markup Language (*.html)", "All Files (*.*)" });
+				fileDialog.setFilterExtensions(new String[] { "*.html", "*.*" });
+
+				String filename = fileDialog.open();
+				if ((filename != null) && (filename.length() > 0)) {
+					boolean succeeded = false;
+					try {
+						EnvironmentReport rootReport = reportProvider.getRootReport();
+						Iterable<TableInfo> tables = LogbookReportGenerator.create(rootReport);
+						
+
+						LogbookReportGenerator.save(tables, new File(filename));
+						succeeded = true;
+					}
+					catch (Exception e2) {
+					}
+					if (!succeeded) {
+						MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.OK);
+						dialog.setText("Warning");
+						dialog.setMessage("Unable to export to selected html file.");
+						dialog.open();
 					}
 				}
 			}

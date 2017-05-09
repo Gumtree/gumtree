@@ -636,34 +636,42 @@ def iterativeAttenuationAlgo(start_angle):
     slog('Iterative attenuation algorithm ...')
 
     # loop from the safe range of attenuation
+    skip = False
     for level in xrange(start_level, len(ATT_VALUES)):
-        # drive the attenuator
-        driveAtt(ATT_VALUES[level])
+        if skip:
+            slog('skip this iteration')
+        else:
+            # drive the attenuator
+            driveAtt(ATT_VALUES[level])
 
-        # count bin rate
-        if not hasTripped():
-            info = determineDetRates(5)
+            # count bin rate
+            if not hasTripped():
+                info = determineDetRates(5)
 
-        # check if detector has tripped
-        if hasTripped():
-            resolveTrip()
-            break
+            # check if detector has tripped
+            if hasTripped():
+                resolveTrip()
+                break
 
-        # check if rates are too high
-        elif (info.local_rate > LOCAL_RATE_SAFE) or (info.global_rate > GLOBAL_RATE_SAFE):
-            if level > 0:
-                # move to higher attenuation
-                driveAtt(ATT_VALUES[level - 1])
+            # check if rates are too high
+            elif (info.local_rate > LOCAL_RATE_SAFE) or (info.global_rate > GLOBAL_RATE_SAFE):
+                if level > 0:
+                    # move to higher attenuation
+                    driveAtt(ATT_VALUES[level - 1])
 
-                if hasTripped():
-                    resetTrip(increase_att=False) # after increasing attenuation detector shouldn't trip
+                    if hasTripped():
+                        resetTrip(increase_att=False) # after increasing attenuation detector shouldn't trip
 
-            break
+                break
 
-        # check if within tolerance ([11/06/2015] 2.8 is a better approximation)
-        elif (info.local_rate >= LOCAL_RATE_SAFE / 2) or (info.global_rate >= GLOBAL_RATE_SAFE / 2.8):
-            slog('exit loop')
-            break
+            # check if within tolerance ([11/06/2015] 2.8 is a better approximation)
+            elif (info.local_rate >= LOCAL_RATE_SAFE / 2) or (info.global_rate >= GLOBAL_RATE_SAFE / 2.8):
+                slog('exit loop')
+                break
+
+            # check if next iteration can be skipped
+            elif (info.local_rate < LOCAL_RATE_SAFE / 5) and (info.global_rate < GLOBAL_RATE_SAFE / 5):
+                skip = level < len(ATT_VALUES) - 2
 
     # print info
     slog('Attenuation is set to %i' % getAtt())

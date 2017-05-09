@@ -8,6 +8,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -135,7 +136,17 @@ public class CsvTable {
 		String filename = fileDialog.open();
 		if ((filename != null) && (filename.length() > 0))
 			try (FileReader reader = new FileReader(filename)) {
-				return importFrom(reader, properties);
+				ImportResult result = importFrom(reader, properties);
+				if (!result.getFaultyProperties().isEmpty()) {
+					MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
+					dialog.setText("Warning");
+					dialog.setMessage(String.format(
+							"%s\n\n%s",
+							"Some rows contained invalid cells and could not be loaded:",
+							result.generateFaultyPropertyList()));
+					dialog.open();
+				}
+				return result.getData();
 			}
 			catch (Exception e) {
 				MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
@@ -146,8 +157,7 @@ public class CsvTable {
 		
 		return null;
 	}
-	public static <TElement extends Element>
-	List<Map<IDependencyProperty, Object>> importFrom(FileReader reader, IDependencyProperty ... properties) throws IOException {
+	public static ImportResult importFrom(FileReader reader, IDependencyProperty ... properties) throws IOException {
 		CSVParser parser = new CSVParser(reader);
 
 		// header
@@ -175,6 +185,7 @@ public class CsvTable {
 
 		// content
 		List<Map<IDependencyProperty, Object>> content = new ArrayList<>();
+		Set<IDependencyProperty> faultyProperties = new HashSet<>();
 		for (String[] line = parser.getLine(); line != null; line = parser.getLine()) {
 			if (line.length != lookup.size())
 				throw new IOException();
@@ -182,14 +193,26 @@ public class CsvTable {
 			Map<IDependencyProperty, Object> values = new HashMap<>();
 			for (int i = 0; i != line.length; i++) {
 				PropertySerializer l = lookup.get(i);
-				if (l != null)
-					values.put(l.property, l.serializer.deserialize(line[i]));
+				if (l != null) {
+					String cell = line[i];
+					
+					Object value;
+					try {
+						value = l.serializer.deserialize(cell);
+					}
+					catch (Exception e) {
+						faultyProperties.add(l.property);
+						continue;
+					}
+
+					values.put(l.property, value);
+				}
 			}
 			
 			content.add(values);
 		}
 		
-		return content;
+		return new ImportResult(content, faultyProperties);
 	}
 
 	// Serialization
@@ -287,6 +310,45 @@ public class CsvTable {
 		@Override
 		public BigInteger deserialize(String value) throws IllegalArgumentException {
 			return new BigInteger(value);
+		}
+	}
+	
+	private static class ImportResult {
+		// fields
+		private final List<Map<IDependencyProperty, Object>> data;
+		private final List<IDependencyProperty> faultyProperties;
+		
+		// construction
+		public ImportResult(List<Map<IDependencyProperty, Object>> data, Set<IDependencyProperty> faultyProperties) {
+			this.data = data;
+			this.faultyProperties = new ArrayList<>(faultyProperties);
+			
+			Collections.sort(this.faultyProperties, new Comparator<IDependencyProperty>() {
+				@Override
+				public int compare(IDependencyProperty p1, IDependencyProperty p2) {
+					return p1.getName().compareTo(p2.getName());
+				}
+			});
+		}
+
+		// properties
+		public List<Map<IDependencyProperty, Object>> getData() {
+			return data;
+		}
+		public List<IDependencyProperty> getFaultyProperties() {
+			return faultyProperties;
+		}
+		
+		// methods
+		public String generateFaultyPropertyList() {
+			StringBuilder sb = new StringBuilder();
+			for (IDependencyProperty property : faultyProperties) {
+				if (sb.length() == 0)
+					sb.append(property.getName());
+				else
+					sb.append(", ").append(property.getName());
+			}
+			return sb.toString();
 		}
 	}
 }
