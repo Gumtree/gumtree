@@ -13,10 +13,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.core.databinding.DataBindingContext;
@@ -51,6 +53,13 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.gumtree.msw.ICommand;
+import org.gumtree.msw.IModelProxyFilter;
+import org.gumtree.msw.RefId;
+import org.gumtree.msw.commands.BatchCommand;
+import org.gumtree.msw.commands.ChangePropertyCommand;
+import org.gumtree.msw.commands.ClearElementListCommand;
+import org.gumtree.msw.commands.ListElementCommand;
 import org.gumtree.msw.elements.IDependencyProperty;
 import org.gumtree.msw.elements.IElementListListener;
 import org.gumtree.msw.elements.IElementListener;
@@ -76,6 +85,7 @@ import org.gumtree.msw.ui.observable.ProxyElement;
 import au.gov.ansto.bragg.quokka.msw.Configuration;
 import au.gov.ansto.bragg.quokka.msw.ConfigurationList;
 import au.gov.ansto.bragg.quokka.msw.IModelProviderListener;
+import au.gov.ansto.bragg.quokka.msw.LoopHierarchy;
 import au.gov.ansto.bragg.quokka.msw.Measurement;
 import au.gov.ansto.bragg.quokka.msw.ModelProvider;
 import au.gov.ansto.bragg.quokka.msw.converters.AttenuationAngleConverter;
@@ -87,6 +97,7 @@ import au.gov.ansto.bragg.quokka.msw.converters.TimeValueConverter;
 import au.gov.ansto.bragg.quokka.msw.schedule.CustomInstrumentAction;
 import au.gov.ansto.bragg.quokka.msw.util.ApplyButtonBinding;
 import au.gov.ansto.bragg.quokka.msw.util.ConfigurationCatalogDialog;
+import au.gov.ansto.bragg.quokka.msw.util.LockStateManager;
 import au.gov.ansto.bragg.quokka.msw.util.ScriptCodeFont;
 
 public class ConfigurationsComposite extends Composite {
@@ -170,7 +181,7 @@ public class ConfigurationsComposite extends Composite {
 		
 		EXPAND_CONDITIONS = Collections.unmodifiableMap(map);
 	}
-	public ConfigurationsComposite(Composite parent, final ModelProvider modelProvider) {
+	public ConfigurationsComposite(Composite parent, final ModelProvider modelProvider, final LockStateManager lockStateManager) {
 		super(parent, SWT.BORDER);
 		
 		GridLayout gridLayout = new GridLayout(1, false);
@@ -215,18 +226,12 @@ public class ConfigurationsComposite extends Composite {
 		
 		Composite cmpConfiguration = new Composite(grpConfiguration, SWT.NONE);
 		cmpConfiguration.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		GridLayout gl_cmpConfiguration = new GridLayout(5, false);
+		GridLayout gl_cmpConfiguration = new GridLayout(3, false);
 		gl_cmpConfiguration.marginWidth = 0;
 		gl_cmpConfiguration.marginHeight = 0;
 		cmpConfiguration.setLayout(gl_cmpConfiguration);
 		cmpConfiguration.setBackground(getBackground());
-		
-		Label lblName = new Label(cmpConfiguration, SWT.NONE);
-		lblName.setText("Name:");
 
-		txtName = new Text(cmpConfiguration, SWT.BORDER);
-		txtName.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
 		Label lblGroup = new Label(cmpConfiguration, SWT.NONE);
 		lblGroup.setText("Group:");
 
@@ -241,12 +246,18 @@ public class ConfigurationsComposite extends Composite {
 		btnSave.setLayoutData(gd_btnSave);
 		btnSave.setImage(Resources.IMAGE_DISK);
 		btnSave.setText("Save");
+		
+		Label lblName = new Label(cmpConfiguration, SWT.NONE);
+		lblName.setText("Name:");
+
+		txtName = new Text(cmpConfiguration, SWT.BORDER);
+		txtName.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 
 		Label lblDescription = new Label(cmpConfiguration, SWT.NONE);
 		lblDescription.setText("Description:");
 		
 		txtDescription = new Text(cmpConfiguration, SWT.BORDER);
-		txtDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
+		txtDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 		
 		Group grpScripts = new Group(cmpRight, SWT.NONE);
 		grpScripts.setLayout(new GridLayout(1, false));
@@ -468,23 +479,22 @@ public class ConfigurationsComposite extends Composite {
 
 		// menu
 		Menu menu = new Menu(this);
-	    MenuItem menuItem;
 
 	    // add new/saved
-	    menuItem = new MenuItem(menu, SWT.NONE);
-	    menuItem.setText("Add New");
-	    menuItem.setImage(Resources.IMAGE_PLUS);
-	    menuItem.addSelectionListener(new SelectionAdapter() {
+	    final MenuItem miAddNew = new MenuItem(menu, SWT.NONE);
+	    miAddNew.setText("Add New");
+	    miAddNew.setImage(Resources.IMAGE_PLUS);
+	    miAddNew.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				modelProvider.getConfigurationList().addConfiguration();
 			}
 		});
 
-	    menuItem = new MenuItem(menu, SWT.NONE);
-	    menuItem.setText("Add Saved...");
-	    menuItem.setImage(Resources.IMAGE_IMPORT_FILE);
-	    menuItem.addSelectionListener(new SelectionAdapter() {
+	    final MenuItem miAddSaved = new MenuItem(menu, SWT.NONE);
+	    miAddSaved.setText("Add Saved...");
+	    miAddSaved.setImage(Resources.IMAGE_IMPORT_FILE);
+	    miAddSaved.addSelectionListener(new SelectionAdapter() {
 			@Override
 			@SuppressWarnings("static-access")
 			public void widgetSelected(SelectionEvent e) {
@@ -495,15 +505,13 @@ public class ConfigurationsComposite extends Composite {
 							dialog.getConfigurations());
 
 				// update list of groups
-				String tmp = cmbGroup.getText();
-				cmbGroup.setItems(listGroups());
-				cmbGroup.setText(tmp);
+				updateGroups();
 			}
 		});
 
-	    menuItem = new MenuItem(menu, SWT.NONE);
-	    menuItem.setText("Remove All");
-	    menuItem.addSelectionListener(new SelectionAdapter() {
+	    final MenuItem miRemoveAll = new MenuItem(menu, SWT.NONE);
+	    miRemoveAll.setText("Remove All");
+	    miRemoveAll.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				modelProvider.getConfigurationList().clear();
@@ -512,20 +520,20 @@ public class ConfigurationsComposite extends Composite {
 	    
 	    // enable/disable
 	    new MenuItem(menu, SWT.SEPARATOR);
-	    menuItem = new MenuItem(menu, SWT.NONE);
-	    menuItem.setText("Enable All");
-	    menuItem.setImage(Resources.IMAGE_BOX_CHECKED);
-	    menuItem.addSelectionListener(new SelectionAdapter() {
+	    MenuItem miEnableAll = new MenuItem(menu, SWT.NONE);
+	    miEnableAll.setText("Enable All");
+	    miEnableAll.setImage(Resources.IMAGE_BOX_CHECKED);
+	    miEnableAll.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				modelProvider.getConfigurationList().enableAll();
 			}
 		});
 	    
-	    menuItem = new MenuItem(menu, SWT.NONE);
-	    menuItem.setText("Disable All");
-	    menuItem.setImage(Resources.IMAGE_BOX_UNCHECKED);
-	    menuItem.addSelectionListener(new SelectionAdapter() {
+	    MenuItem miDisableAll = new MenuItem(menu, SWT.NONE);
+	    miDisableAll.setText("Disable All");
+	    miDisableAll.setImage(Resources.IMAGE_BOX_UNCHECKED);
+	    miDisableAll.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				modelProvider.getConfigurationList().disableAll();
@@ -534,10 +542,10 @@ public class ConfigurationsComposite extends Composite {
 	    
 	    // import/export
 	    new MenuItem(menu, SWT.SEPARATOR);
-	    menuItem = new MenuItem(menu, SWT.NONE);
-	    menuItem.setText("XML Import");
-	    menuItem.setImage(Resources.IMAGE_IMPORT);
-	    menuItem.addSelectionListener(new SelectionAdapter() {
+	    final MenuItem miXmlImport = new MenuItem(menu, SWT.NONE);
+	    miXmlImport.setText("XML Import");
+	    miXmlImport.setImage(Resources.IMAGE_IMPORT);
+	    miXmlImport.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog fileDialog = new FileDialog(getShell(), SWT.OPEN);
@@ -562,10 +570,10 @@ public class ConfigurationsComposite extends Composite {
 				}
 			}
 		});
-	    menuItem = new MenuItem(menu, SWT.NONE);
-	    menuItem.setText("XML Export");
-	    menuItem.setImage(Resources.IMAGE_EXPORT);
-	    menuItem.addSelectionListener(new SelectionAdapter() {
+	    MenuItem miXmlExport = new MenuItem(menu, SWT.NONE);
+	    miXmlExport.setText("XML Export");
+	    miXmlExport.setImage(Resources.IMAGE_EXPORT);
+	    miXmlExport.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog fileDialog = new FileDialog(getShell(), SWT.SAVE);
@@ -591,6 +599,48 @@ public class ConfigurationsComposite extends Composite {
 			}
 		});
 
+	    // locked widgets
+	    lockStateManager.addListener(new LockStateManager.IListener() {
+	    	// fields
+	    	private final IModelProxyFilter filter = new LockedModelProxyFilter(lockStateManager);
+	    	
+	    	// methods
+			@Override
+			public void onLocked() {
+				txtName.setEditable(false);
+				txtDescription.setEditable(false);
+				txtInitializeScript.setEditable(false);
+				txtPretransmissionScript.setEditable(false);
+				txtPrescatteringScript.setEditable(false);
+
+				miAddNew.setEnabled(false);
+				miAddSaved.setEnabled(false);
+				miRemoveAll.setEnabled(false);
+				miXmlImport.setEnabled(false);
+
+				// btnSave.setEnabled(false);
+				
+				modelProvider.getModelProxy().addFilter(filter);
+			}
+			@Override
+			public void onUnlocked() {
+				txtName.setEditable(true);
+				txtDescription.setEditable(true);
+				txtInitializeScript.setEditable(true);
+				txtPretransmissionScript.setEditable(true);
+				txtPrescatteringScript.setEditable(true);
+
+				miAddNew.setEnabled(true);
+				miAddSaved.setEnabled(true);
+				miRemoveAll.setEnabled(true);
+				miXmlImport.setEnabled(true);
+
+				// btnSave.setEnabled(true);
+
+				modelProvider.getModelProxy().removeFilter(filter);
+			}
+		});
+	    
 	    tableModel = createTableModel(tblConfigurations, menu, modelProvider);
 	    
 	    modelProvider.addListener(new IModelProviderListener() {
@@ -933,6 +983,9 @@ public class ConfigurationsComposite extends Composite {
 
 						if (!save(file, configuration))
 							showError("unable to save configuration");
+
+						// update list of groups
+						updateGroups();
 					}
 				}
 			}
@@ -1444,6 +1497,12 @@ public class ConfigurationsComposite extends Composite {
 	}
 
 	// helpers
+	private void updateGroups() {
+		// update list of groups
+		String tmp = cmbGroup.getText();
+		cmbGroup.setItems(listGroups());
+		cmbGroup.setText(tmp);
+	}
 	private static String[] listGroups() {
 		ArrayList<String> result = new ArrayList<>();
 		
@@ -1498,6 +1557,198 @@ public class ConfigurationsComposite extends Composite {
 				dialog.setText("Information");
 				dialog.setMessage("busy");
 				dialog.open();
+			}
+		}
+	}
+
+	// locked filter
+	private static class LockedModelProxyFilter implements IModelProxyFilter {
+		// fields
+		private final LockStateManager lockStateManager;
+		private final Map<List<String>, Set<String>> allowedProperties; // path -> properties
+		private final Map<Class<? extends ICommand>, ICommandEvaluator<?>> commandEvaluators;
+		
+		// construction
+		public LockedModelProxyFilter(LockStateManager lockStateManager) {
+			this.lockStateManager = lockStateManager;
+			this.allowedProperties = new HashMap<>();
+			this.commandEvaluators = new HashMap<>();
+			
+			String loopHierarchy = LoopHierarchy.class.getSimpleName();
+			String configurationList = ConfigurationList.class.getSimpleName();
+			String configuration = Configuration.class.getSimpleName();
+
+			List<String> configurationListPath = Arrays.asList(loopHierarchy, configurationList);
+			List<String> configurationPath = Arrays.asList(loopHierarchy, configurationList, configuration);
+			List<String> transmissionPath = Arrays.asList(loopHierarchy, configurationList, configuration, Measurement.TRANSMISSION);
+			List<String> scatteringPath = Arrays.asList(loopHierarchy, configurationList, configuration, Measurement.SCATTERING);
+			
+			registerAllowedProperty(
+					configurationPath,
+					Arrays.<IDependencyProperty>asList(
+							Configuration.INDEX,
+							Configuration.ENABLED));
+			registerAllowedProperty(
+					transmissionPath,
+					Arrays.<IDependencyProperty>asList(
+							Measurement.INDEX,
+							Measurement.ENABLED));
+			registerAllowedProperty(
+					scatteringPath,
+					Arrays.<IDependencyProperty>asList(
+							Measurement.INDEX,
+							Measurement.ENABLED,
+							Measurement.NAME,
+							Measurement.DESCRIPTION,
+							// Measurement.SETUP_SCRIPT, // user cannot change scripts
+							Measurement.ATTENUATION_ALGORITHM,
+							Measurement.ATTENUATION_ANGLE,
+							Measurement.MIN_TIME,
+							Measurement.MAX_TIME,
+							Measurement.TARGET_MONITOR_COUNTS,
+							Measurement.TARGET_DETECTOR_COUNTS,
+							Measurement.MIN_TIME_ENABLED,
+							Measurement.MAX_TIME_ENABLED,
+							Measurement.TARGET_MONITOR_COUNTS_ENABLED,
+							Measurement.TARGET_DETECTOR_COUNTS_ENABLED));
+			
+			commandEvaluators.put(BatchCommand.class, new BatchCommandEvaluator(this));
+			commandEvaluators.put(ChangePropertyCommand.class, new ChangePropertyCommandEvaluator(allowedProperties));
+			
+			commandEvaluators.put(ListElementCommand.class, new ListElementCommandEvaluator(configurationListPath));
+			commandEvaluators.put(ClearElementListCommand.class, new ClearElementListCommandEvaluator(configurationListPath));
+		}
+		
+		// methods
+		@Override
+		public boolean validateProperty(Iterable<String> elementPath, String property, Object newValue) {
+			for (Entry<List<String>, Set<String>> entry : allowedProperties.entrySet())
+				if (isPath(elementPath, entry.getKey()) && !entry.getValue().contains(property))
+					return false;
+			
+			return true;
+		}
+		@Override
+		public boolean command(ICommand command) {
+			return commandImp(command, command.getClass());
+		}
+		private boolean commandImp(ICommand command, Class<?> commandClass) {
+			ICommandEvaluator<?> evaluator = commandEvaluators.get(commandClass);
+			if (evaluator == null) {
+				Class<?> superClass = commandClass.getSuperclass();
+				if (ICommand.class.isAssignableFrom(superClass))
+					return commandImp(command, superClass);
+			}
+			else if (callEvaluate(evaluator, command)) {
+				return true;
+			}
+		
+			lockStateManager.showDeniedDialog();
+			return false;
+		}
+		// helper
+		@SuppressWarnings("unchecked")
+		private static <T extends ICommand>
+		boolean callEvaluate(ICommandEvaluator<T> evaluator, ICommand command) {
+			return evaluator.evaluate((T)command);
+		}
+		
+		// registry
+		private void registerAllowedProperty(List<String> path, List<IDependencyProperty> properties) {
+			Set<String> values = new HashSet<>();
+			for (IDependencyProperty property : properties)
+				values.add(property.getName());
+				
+			allowedProperties.put(path, values);
+		}
+		// helpers
+		private static boolean isPath(Iterable<String> elementPath, List<String> expectedPath) {
+			int i = 0;
+			int n = expectedPath.size();
+			
+			for (String p : elementPath) {
+				if (i == n)
+					return false;
+					
+				String e = expectedPath.get(i++);
+				if (!Objects.equals(p, e) && !p.startsWith(e + RefId.HASH))
+					return false;
+			}
+			
+			return i == n;
+		}
+		
+		// command evaluators
+		private static interface ICommandEvaluator<T extends ICommand> {
+			// methods
+			public boolean evaluate(T command);
+		}
+		private static class ListElementCommandEvaluator implements ICommandEvaluator<ListElementCommand> {
+			// fields
+			private final List<String> targetPath;
+			
+			// construction
+			ListElementCommandEvaluator(List<String> targetPath) {
+				this.targetPath = targetPath;
+			}
+			
+			// don't allow to add to element list of given path
+			@Override
+			public boolean evaluate(ListElementCommand command) {
+				return !isPath(command.getTargetPath(), targetPath);
+			}
+		}
+		private static class BatchCommandEvaluator implements ICommandEvaluator<BatchCommand> {
+			// fields
+			private final LockedModelProxyFilter filter;
+			
+			// construction
+			BatchCommandEvaluator(LockedModelProxyFilter filter) {
+				this.filter = filter;
+			}
+
+			// methods
+			@Override
+			public boolean evaluate(BatchCommand command) {
+				for (ICommand cmd : command.getCommands())
+					if (!filter.command(cmd))
+						return false;
+
+				return true;
+			}
+		}
+		private static class ChangePropertyCommandEvaluator implements ICommandEvaluator<ChangePropertyCommand> {
+			// fields
+			private final Map<List<String>, Set<String>> allowedProperties;
+			
+			// construction
+			ChangePropertyCommandEvaluator(Map<List<String>, Set<String>> allowedProperties) {
+				this.allowedProperties = allowedProperties;
+			}
+			
+			// only allow properties to change that are in the list
+			@Override
+			public boolean evaluate(ChangePropertyCommand command) {
+				for (Entry<List<String>, Set<String>> entry : allowedProperties.entrySet())
+					if (isPath(command.getTargetPath(), entry.getKey()) && !entry.getValue().contains(command.getPropertyName()))
+						return false;
+				
+				return true;
+			}
+		}
+		private static class ClearElementListCommandEvaluator implements ICommandEvaluator<ClearElementListCommand> {
+			// fields
+			private final List<String> targetPath;
+			
+			// construction
+			ClearElementListCommandEvaluator(List<String> targetPath) {
+				this.targetPath = targetPath;
+			}
+			
+			// don't allow to clear element list of given path
+			@Override
+			public boolean evaluate(ClearElementListCommand command) {
+				return !isPath(command.getTargetPath(), targetPath);
 			}
 		}
 	}

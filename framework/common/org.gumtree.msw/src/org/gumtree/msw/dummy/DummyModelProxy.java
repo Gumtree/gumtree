@@ -11,6 +11,7 @@ import org.gumtree.msw.ICommand;
 import org.gumtree.msw.IModel;
 import org.gumtree.msw.IModelListener;
 import org.gumtree.msw.IModelProxy;
+import org.gumtree.msw.IModelProxyFilter;
 import org.gumtree.msw.INotificationLock;
 import org.gumtree.msw.IRefIdProvider;
 import org.gumtree.msw.model.DataSource;
@@ -19,6 +20,7 @@ public class DummyModelProxy implements IModelProxy {
 	// fields
 	private IModel model;
 	private IRefIdProvider idProvider;
+	private List<IModelProxyFilter> filters;
 	// notification chain
 	private int notificationSuspendCount;
 	private final Queue<Runnable> notifications;
@@ -28,6 +30,8 @@ public class DummyModelProxy implements IModelProxy {
 	public DummyModelProxy(IModel model) {
 		this.model = model;
 		this.idProvider = model.getIdProvider();
+		
+		filters = new ArrayList<>();
 		
 		notificationSuspendCount = 0;
 		notifications = new LinkedList<>();
@@ -60,6 +64,10 @@ public class DummyModelProxy implements IModelProxy {
 	}
 	@Override
 	public boolean validateProperty(Iterable<String> elementPath, String property, Object newValue) {
+		for (IModelProxyFilter filter : filters)
+			if (!filter.validateProperty(elementPath, property, newValue))
+				return false;
+		
 		return model.validateProperty(elementPath, property, newValue);
 	}
 	@Override
@@ -70,7 +78,23 @@ public class DummyModelProxy implements IModelProxy {
 	// communication
 	@Override
 	public void command(ICommand command) {
+		for (IModelProxyFilter filter : filters)
+			if (!filter.command(command))
+				return;
+		
 		model.command(command);
+	}
+	// filters
+	@Override
+	public synchronized void addFilter(IModelProxyFilter filter) {
+		if (filters.contains(filter))
+			throw new Error("filter already exists");
+		
+		filters.add(filter);
+	}
+	@Override
+	public synchronized boolean removeFilter(IModelProxyFilter filter) {
+		return filters.remove(filter);
 	}
 
 	// serialization

@@ -62,6 +62,7 @@ import org.gumtree.msw.ui.ktable.NameCellRenderer;
 import org.gumtree.msw.ui.ktable.SWTX;
 import org.gumtree.msw.ui.ktable.ScheduleTableModel;
 import org.gumtree.msw.ui.ktable.ScheduleTableModel.AcquisitionDetail;
+import org.gumtree.msw.ui.ktable.ScheduleTableModel.CellDefinition;
 import org.gumtree.msw.ui.ktable.ScheduleTableModel.FixedCellDefinition;
 import org.gumtree.msw.ui.ktable.ScheduleTableModel.PropertyCellDefinition;
 import org.gumtree.msw.ui.ktable.ScheduleTableModel.PropertyEnabledCondition;
@@ -94,6 +95,7 @@ import au.gov.ansto.bragg.quokka.msw.report.ReportProvider.EnvironmentReport;
 import au.gov.ansto.bragg.quokka.msw.schedule.CustomInstrumentAction;
 import au.gov.ansto.bragg.quokka.msw.schedule.InstrumentActionExecuter;
 import au.gov.ansto.bragg.quokka.msw.schedule.SyncScheduleProvider;
+import au.gov.ansto.bragg.quokka.msw.util.LockStateManager;
 import au.gov.ansto.bragg.quokka.msw.util.TertiaryShutter;
 
 public class AcquisitionComposite extends Composite {
@@ -101,7 +103,7 @@ public class AcquisitionComposite extends Composite {
 	private final Button btnRun;
 	
 	// construction
-	public AcquisitionComposite(Composite parent, final ModelProvider modelProvider) {
+	public AcquisitionComposite(Composite parent, final ModelProvider modelProvider, final LockStateManager lockStateManager) {
 		super(parent, SWT.BORDER);
 		
 		GridLayout gridLayout = new GridLayout(1, false);
@@ -273,6 +275,41 @@ public class AcquisitionComposite extends Composite {
 			}
 		});
 	    
+	    final ScheduleWalker walker = createScheduleWalker(modelProvider);
+	    final ScheduleTableModel model = createTableModel(tblAcquisitions, walker, menu);
+	    //final ScheduleChangeNotifier notifier = new ScheduleChangeNotifier();
+
+	    // additional menu items
+	    new MenuItem(menu, SWT.SEPARATOR);
+	    final Map<IDependencyProperty, MenuItem> detailProperties = new HashMap<>();
+	    for (final AcquisitionDetail detail : model.getAcquisitionDetails()) {
+	    	menuItem = new MenuItem(menu, SWT.NONE);
+	    	menuItem.setData(detail);
+	    	menuItem.setText(detail.getTitle());
+		    //item.setImage(Resources.IMAGE_CHECKED);
+	    	menuItem.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					MenuItem item = (MenuItem)e.widget;
+					updateAcquisitionDetail(model, detail, item, item.getImage() == null);
+				}
+			});
+		    
+		    // initially don't show any details
+		    model.hideDetail(detail);
+		    
+		    // once a detail-property was enabled update table
+		    for (CellDefinition cellDefinition : detail.getCells())
+			    if (cellDefinition instanceof PropertyCellDefinition) {
+			    	IDependencyProperty property = ((PropertyCellDefinition)cellDefinition).getProperty();
+			    	// look for enabled-property
+			    	if (property.getName().endsWith("Enabled")) {
+				    	detailProperties.put(property, menuItem);
+				    	break;
+			    	}
+			    }
+	    }
+	    
 	    // export
 	    new MenuItem(menu, SWT.SEPARATOR);
 	    menuItem = new MenuItem(menu, SWT.NONE);
@@ -288,10 +325,6 @@ public class AcquisitionComposite extends Composite {
 	    menuItem.setImage(Resources.IMAGE_EXPORT);
 	    menuItem.setEnabled(false);
 	    
-	    final ScheduleWalker walker = createScheduleWalker(modelProvider);
-	    final ScheduleTableModel model = createTableModel(tblAcquisitions, walker, menu);
-	    //final ScheduleChangeNotifier notifier = new ScheduleChangeNotifier();
-
 	    model.updateSource(scheduler, walker);
 	    //notifier.updateSource(scheduler);
 	    
@@ -553,6 +586,12 @@ public class AcquisitionComposite extends Composite {
 								modelProvider.getSampleList(),
 								modelProvider.getConfigurationList(),
 								scheduler));
+
+			    modelBindings.add(
+					    updateVisibleDetails(
+					    		model,
+					    		modelProvider.getConfigurationList(),
+					    		detailProperties));
 			}
 		});
 	}
@@ -889,7 +928,7 @@ public class AcquisitionComposite extends Composite {
 		    					new PropertyCellDefinition(Sample.NAME, nameRenderer, textEditor, -7),
 		    					new FixedCellDefinition("Position:", 3),
 		    					new PropertyCellDefinition(Sample.POSITION, positionRenderer, null, TrimmedDoubleValueConverter.DEFAULT, 2))),
-		    					
+
 		    	Arrays.asList(
 		    			new AcquisitionDetail(
 		    					"Min Time",
@@ -918,6 +957,21 @@ public class AcquisitionComposite extends Composite {
 		return model;
 	}
 
+	// helpers
+	private void updateAcquisitionDetail(ScheduleTableModel model, AcquisitionDetail detail, MenuItem item, boolean show) {
+		if (show) {
+			model.showDetail(detail);
+			item.setImage(Resources.IMAGE_CHECKED);
+		}
+		else {
+			model.hideDetail(detail);
+			item.setImage(null);
+		}
+		
+		update();
+		layout();
+	}
+	
 	// set enabled defaults for samples: "BLOCKED_BEAM", "EMPTY_BEAM", "EMPTY_CELL"
 	private static IModelBinding updateSampleNodesEnabledDefault(final SampleList sampleList, final ConfigurationList configurationList, final Scheduler scheduler) {
 		sampleList.addListListener(new IElementListListener<Sample>() {
@@ -937,6 +991,58 @@ public class AcquisitionComposite extends Composite {
 			@Override
 			public void dispose() {
 				scheduler.removeListener(schedulerListener);
+			}
+		};
+	}
+	private IModelBinding updateVisibleDetails(final ScheduleTableModel model, ConfigurationList configurationList, Map<IDependencyProperty, MenuItem> targets) {
+		final Map<IDependencyProperty, MenuItem> map = new HashMap<>(targets);
+		
+		final IElementListener measurementListener = new IElementListener() {
+			@Override
+			public void onChangedProperty(IDependencyProperty property, Object oldValue, Object newValue) {
+				MenuItem menuItem = map.get(property);
+				if ((menuItem != null) && Boolean.TRUE.equals(newValue) && (menuItem.getData() instanceof AcquisitionDetail))
+					updateAcquisitionDetail(model, (AcquisitionDetail)menuItem.getData(), menuItem, true);
+			}
+			@Override
+			public void onDisposed() {
+			}
+		};
+
+		final IElementListListener<Measurement> configurationListener = new IElementListListener<Measurement>() {
+			@Override
+			public void onAddedListElement(Measurement measurement) {
+				for (Entry<IDependencyProperty, MenuItem> entry : map.entrySet()) {
+					IDependencyProperty property = entry.getKey();
+					MenuItem menuItem = entry.getValue();
+					if (Boolean.TRUE.equals(measurement.get(property)) && (menuItem.getData() instanceof AcquisitionDetail))
+						updateAcquisitionDetail(model, (AcquisitionDetail)menuItem.getData(), menuItem, true);
+				}
+				measurement.addElementListener(measurementListener);
+			}
+			@Override
+			public void onDeletedListElement(Measurement measurement) {
+				measurement.removeElementListener(measurementListener);
+			}
+		};
+		
+		final IElementListListener<Configuration> configurationListListener = new IElementListListener<Configuration>() {
+			@Override
+			public void onAddedListElement(final Configuration configuration) {
+				configuration.addListListener(configurationListener);
+			}
+			@Override
+			public void onDeletedListElement(Configuration configuration) {
+				configuration.removeListListener(configurationListener);
+			}
+		};
+		
+		configurationList.addListListener(configurationListListener);
+
+		return new IModelBinding() {
+			@Override
+			public void dispose() {
+				map.clear();
 			}
 		};
 	}

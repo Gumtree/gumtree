@@ -76,6 +76,7 @@ import au.gov.ansto.bragg.quokka.msw.internal.QuokkaProperties;
 import au.gov.ansto.bragg.quokka.msw.schedule.CustomInstrumentAction;
 import au.gov.ansto.bragg.quokka.msw.util.ApplyButtonBinding;
 import au.gov.ansto.bragg.quokka.msw.util.CsvTable;
+import au.gov.ansto.bragg.quokka.msw.util.LockStateManager;
 import au.gov.ansto.bragg.quokka.msw.util.ScriptCodeFont;
 
 public class EnvironmentsComposite extends Composite {
@@ -103,7 +104,7 @@ public class EnvironmentsComposite extends Composite {
 	private Text txtWait;
 	
 	// construction
-	public EnvironmentsComposite(Composite parent, final ModelProvider modelProvider) {
+	public EnvironmentsComposite(Composite parent, final ModelProvider modelProvider, final LockStateManager lockStateManager) {
 		super(parent, SWT.BORDER);
 		
 		environmentTemplates = QuokkaProperties.getEnvironmentTemplates();

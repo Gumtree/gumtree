@@ -8,6 +8,8 @@ import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.conversion.IConverter;
 import org.eclipse.core.databinding.observable.ChangeEvent;
 import org.eclipse.core.databinding.observable.IChangeListener;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.databinding.swt.ISWTObservableValue;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.SWT;
@@ -375,7 +377,19 @@ public final class ModelBinder {
 	IModelBinding createCheckedBinding(DataBindingContext bindingContext, final Button control, final IMSWObservableValue observable, final IModelValueConverter<TModel, Boolean> converter) {
 		final Class<?> propertyType = observable.getProperty().getPropertyType();
 		
-		UpdateValueStrategy targetToModel = new UpdateValueStrategy(UpdateValueStrategy.POLICY_UPDATE);		
+		final Binding[] targetBinding = new Binding[1];
+		
+		UpdateValueStrategy targetToModel = new UpdateValueStrategy(UpdateValueStrategy.POLICY_UPDATE) {
+			@Override
+			protected IStatus doSet(IObservableValue observableValue, Object value) {
+				IStatus result = super.doSet(observableValue, value);
+				// in case command failed, target needs to be updated
+				if (targetBinding[0] != null)
+					targetBinding[0].updateModelToTarget();
+				
+				return result;
+			}
+		};
 		targetToModel.setConverter(new IConverter() {
 			@Override
 			public Object getFromType() {
@@ -425,6 +439,8 @@ public final class ModelBinder {
 				observable,
 				targetToModel,
 				modelToTarget);
+		
+		targetBinding[0] = binding;
 		
 		final IModelBinding enabledStateBinding = appendEnabledStateListener(control, new IEnabledStateListener() {
 			@Override

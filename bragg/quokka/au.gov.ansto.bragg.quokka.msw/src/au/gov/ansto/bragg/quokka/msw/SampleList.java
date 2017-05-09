@@ -159,19 +159,15 @@ public class SampleList extends ElementList<Sample> {
 		if (!DEFAULT_SAMPLE_POSITIONS.containsKey(sampleStage))
 			sampleStage = ExperimentDescription.DEFAULT_SAMPLE_STAGE;
 		
-		setSampleCount(experimentDescription, sampleStage);
+		setSampleCount(experimentDescription, sampleStage, true);
 	}
 	public void setSampleStage(ExperimentDescription experimentDescription, String sampleStage) {
 		if (Objects.equals(experimentDescription.getSampleStage(), sampleStage))
 			return;
 
-		setSampleCount(experimentDescription, sampleStage);
+		setSampleCount(experimentDescription, sampleStage, false);
 	}
-	/*
-	public void setSampleCount(ExperimentDescription experimentDescription, String sampleStage) {
-		setSampleCount(experimentDescription, sampleStage);
-	}*/
-	public void setSampleCount(ExperimentDescription experimentDescription, String sampleStage) {
+	private void setSampleCount(ExperimentDescription experimentDescription, String sampleStage, boolean clear) {
 		if (!DEFAULT_SAMPLE_POSITIONS.containsKey(sampleStage))
 			return;
 		
@@ -210,7 +206,7 @@ public class SampleList extends ElementList<Sample> {
 					Sample.POSITION.getName(),
 					1.0 + index));
 			
-			if (index < oldSamples.size()) {
+			if (!clear && (index < oldSamples.size())) {
 				Sample oldSample = oldSamples.get(index);
 				commands.add(new ChangePropertyCommand(
 						id,

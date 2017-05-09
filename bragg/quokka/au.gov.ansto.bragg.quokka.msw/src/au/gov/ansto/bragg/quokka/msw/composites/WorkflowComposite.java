@@ -34,6 +34,7 @@ import org.gumtree.msw.util.SynchronizedModel;
 
 import au.gov.ansto.bragg.quokka.msw.ModelProvider;
 import au.gov.ansto.bragg.quokka.msw.internal.Activator;
+import au.gov.ansto.bragg.quokka.msw.util.LockStateManager;
 
 public class WorkflowComposite extends Composite {
 	// resources
@@ -54,7 +55,8 @@ public class WorkflowComposite extends Composite {
 	private static final String MSW_XML = "resources/msw.xml"; // "resources/example.xml"; // 
 
     // fields
-    private ModelProvider modelProvider = new ModelProvider(
+    private final LockStateManager lockStateManager;
+    private final ModelProvider modelProvider = new ModelProvider(
     		new DummyModelProxy(new SynchronizedModel(new Model(
     				DummyRefIdProvider.DEFAULT,
     				Activator.getEntry(MSW_XSD),
@@ -63,6 +65,9 @@ public class WorkflowComposite extends Composite {
     // construction
 	public WorkflowComposite(Composite parent, int style) {
 		super(parent, style);
+		
+		lockStateManager = new LockStateManager(getShell());
+		
 		GridLayout gridLayout = new GridLayout(1, false);
 		gridLayout.marginHeight = 0;
 		gridLayout.marginWidth = 0;
@@ -143,10 +148,28 @@ public class WorkflowComposite extends Composite {
 	    
 	    new ToolItem(toolBar, SWT.SEPARATOR);
 		
-	    ToolItem btnUnlock = new ToolItem(toolBar, SWT.CHECK);
-		btnUnlock.setImage(Resources.IMAGE_LOCK_CLOSED);
-		btnUnlock.setText("Unlock");
-		btnUnlock.setEnabled(false);
+	    final ToolItem btnUnlock = new ToolItem(toolBar, SWT.PUSH);
+		btnUnlock.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (!lockStateManager.isLocked())
+					lockStateManager.lock();
+				else
+					lockStateManager.unlock();
+			}
+		});
+		lockStateManager.addListener(new LockStateManager.IListener() {
+			@Override
+			public void onLocked() {
+				btnUnlock.setImage(Resources.IMAGE_LOCK_CLOSED);
+				btnUnlock.setText("unlock");
+			}
+			@Override
+			public void onUnlocked() {
+				btnUnlock.setImage(Resources.IMAGE_LOCK_OPEN);
+				btnUnlock.setText("lock");
+			}
+		});
 
 	    new ToolItem(toolBar, SWT.SEPARATOR);
 	    
@@ -373,11 +396,11 @@ public class WorkflowComposite extends Composite {
 		cmpMain.setExpandHorizontal(true);
 		cmpMain.setExpandVertical(true);
 		
-		final ExperimentComposite cmpExperiment = new ExperimentComposite(cmpMain, modelProvider);
-		final SamplesComposite cmpSamples = new SamplesComposite(cmpMain, modelProvider);
-		final ConfigurationsComposite cmpConfigurations = new ConfigurationsComposite(cmpMain, modelProvider);
-		final EnvironmentsComposite cmpEnvironments = new EnvironmentsComposite(cmpMain, modelProvider);
-		final AcquisitionComposite cmpAcquisitions = new AcquisitionComposite(cmpMain, modelProvider);
+		final ExperimentComposite cmpExperiment = new ExperimentComposite(cmpMain, modelProvider, lockStateManager);
+		final SamplesComposite cmpSamples = new SamplesComposite(cmpMain, modelProvider, lockStateManager);
+		final ConfigurationsComposite cmpConfigurations = new ConfigurationsComposite(cmpMain, modelProvider, lockStateManager);
+		final EnvironmentsComposite cmpEnvironments = new EnvironmentsComposite(cmpMain, modelProvider, lockStateManager);
+		final AcquisitionComposite cmpAcquisitions = new AcquisitionComposite(cmpMain, modelProvider, lockStateManager);
 
 		btnUsers.addListener(
 				SWT.Selection,

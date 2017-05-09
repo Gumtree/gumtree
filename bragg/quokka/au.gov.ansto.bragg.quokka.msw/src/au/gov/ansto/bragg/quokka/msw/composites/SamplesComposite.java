@@ -52,6 +52,7 @@ import au.gov.ansto.bragg.quokka.msw.converters.TrimmedDoubleValueConverter;
 import au.gov.ansto.bragg.quokka.msw.schedule.CustomInstrumentAction;
 import au.gov.ansto.bragg.quokka.msw.schedule.ICustomInstrumentActionListener;
 import au.gov.ansto.bragg.quokka.msw.util.CsvTable;
+import au.gov.ansto.bragg.quokka.msw.util.LockStateManager;
 
 import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.io.ISicsProxyListener;
@@ -66,7 +67,7 @@ public class SamplesComposite extends Composite {
 	private final AtomicBoolean requestSamplePositions;
 
     // construction
-	public SamplesComposite(Composite parent, final ModelProvider modelProvider) {
+	public SamplesComposite(Composite parent, final ModelProvider modelProvider, final LockStateManager lockStateManager) {
 		super(parent, SWT.BORDER);
 		
 		requestSamplePositions = new AtomicBoolean(true);

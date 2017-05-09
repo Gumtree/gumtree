@@ -19,6 +19,9 @@ public interface IModelProxy {
 	
 	// communication
 	public void command(ICommand command);
+	// filters
+	public void addFilter(IModelProxyFilter filter);
+	public boolean removeFilter(IModelProxyFilter filter);
 
 	// serialization
 	public void reset();

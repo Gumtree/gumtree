@@ -14,6 +14,7 @@ import math
 
 from collections import OrderedDict
 from datetime import datetime, timedelta
+from functools import partial
 
 class Enumeration(object):
     def __init__(self, *keys):
@@ -59,7 +60,25 @@ def slog(text):
     global __CONSOLE_WRITER__
     log(text, __CONSOLE_WRITER__)
 
-class QuokkaState:
+class RateInfo(object):
+    def __init__(self, local_rate=0.0, local_err=0.0, global_rate=0.0, global_err=0.0):
+        self.local_rate  = local_rate
+        self.local_err   = local_err
+        self.global_rate = global_rate
+        self.global_err  = global_err
+
+    def __gt__(self, other):
+        return (self.local_rate  - math.sqrt(self.local_err ) > other.local_rate  + math.sqrt(other.local_err )) and \
+               (self.global_rate - math.sqrt(self.global_err) > other.global_rate + math.sqrt(other.global_err))
+
+    def __rmul__(self, factor):
+        return RateInfo(
+            factor * self.local_rate,
+            factor * self.local_err,
+            factor * self.global_rate,
+            factor * self.global_err)
+
+class QuokkaState(object):
     def __init__(self):
         self.env_drive = dict()
 
@@ -70,14 +89,16 @@ class QuokkaState:
         self.att_algo  = ATTENUATION_ALGO.fixed
         self.att_angle = 330
 
+        self.bkg_info  = RateInfo()
+
         self.meas_mode = MEASUREMENT_MODE.scattering
         self.acq_mode  = ACQUISITION_MODE.unlimited
-        self.min_time  = None
-        self.max_time  = None
-        self.counts    = None
-        self.bm_counts = None
 
 state = QuokkaState()
+
+def strOrDefault(value, default=str("")):
+    s = str(value)
+    return s if s else default
 
 def sleep(secs, dt=0.1):
     # interruptable sleep
@@ -158,9 +179,11 @@ def resetTrip(increase_att=True):
 
 def initiate(info):
     # parameters
-    title        = info.experimentTitle
-    pnumber      = str(info.proposalNumber)
-    users        = str(info.users)
+    title        = strOrDefault(info.experimentTitle, "Unknown")
+    pnumber      = strOrDefault(info.proposalNumber, "0")
+    users        = strOrDefault(info.users, "Unknown")
+    emails       = strOrDefault(info.emails, "Unknown")
+    phones       = strOrDefault(info.phones, "Unknown")
     sample_stage = str(info.sampleStage)
 
     # update sics
@@ -168,8 +191,8 @@ def initiate(info):
     sics.execute('hset /experiment/experiment_identifier ' + pnumber)
 
     sics.set('user', users)
-    #sics.execute('hset /user/email ' + email) # !!!
-    #sics.execute('hset /user/phone ' + phone)
+    sics.execute('hset /user/email "%s"' % emails)
+    sics.execute('hset /user/phone "%s"' % phones)
 
     # clear environment drive scripts
     state.env_drive = dict()
@@ -216,8 +239,8 @@ def setParameters(info):
 
 def setupConfiguration(parameters):
     # parameters
-    name   = parameters['Name']
-    script = parameters['SetupScript']
+    name   = strOrDefault(parameters['Name'])
+    script = strOrDefault(parameters['SetupScript'])
 
     # run configuration script
     slog('Set instrument to configuration: ' + name)
@@ -228,33 +251,17 @@ def setupConfiguration(parameters):
     exec script in globals()
 
 def setupMeasurement(parameters, meas_mode):
-    def lookup(parameters, name):
-        if name in parameters:
-            value = parameters[name]
-            if value is not None:
-                return int(value)
-            else:
-                return None # e.g. for ba mode parameters can be set to None
-
-        return None
-
     # parameters
-    script    = parameters['SetupScript']
-
+    script    = strOrDefault(parameters['SetupScript'])
     att_algo  = str(parameters['AttenuationAlgorithm']).lower()
     att_angle = int(parameters['AttenuationAngle'])
-
-    acq_mode  = ACQUISITION_MODE.ba
-    min_time  = lookup(parameters, 'MinTime')
-    max_time  = lookup(parameters, 'MaxTime')
-    counts    = lookup(parameters, 'Counts')
-    bm_counts = lookup(parameters, 'BmCounts')
+    acq_mode  = ACQUISITION_MODE.ba  # all acquisitions are done via ba mode
 
     # ATTENUATION_ALGO = Enumeration('fixed', 'iterative', 'smart')
     att_algos = dict()
-    att_algos["fixed attenuation"]       = ATTENUATION_ALGO.fixed
-    att_algos["iterative attenuation"]   = ATTENUATION_ALGO.iterative
-    att_algos["smart attenuation"]       = ATTENUATION_ALGO.smart
+    att_algos["fixed attenuation"]     = ATTENUATION_ALGO.fixed
+    att_algos["iterative attenuation"] = ATTENUATION_ALGO.iterative
+    att_algos["smart attenuation"]     = ATTENUATION_ALGO.smart
 
     # check parameters
     if att_algo not in att_algos:
@@ -272,10 +279,6 @@ def setupMeasurement(parameters, meas_mode):
 
     state.meas_mode = meas_mode
     state.acq_mode  = acq_mode
-    state.min_time  = min_time
-    state.max_time  = max_time
-    state.counts    = counts
-    state.bm_counts = bm_counts
 
     if state.meas_mode == MEASUREMENT_MODE.transmission:
         # set transmission flag
@@ -294,10 +297,22 @@ def setupMeasurement(parameters, meas_mode):
     # run configuration script
     exec script in globals()
 
+    # determine background for smart attenuation algorithm
+    if state.att_algo == ATTENUATION_ALGO.smart:
+        slog('Determine background rates for smart attenuation algorithm')
+
+        driveToSafeAtt()
+        for counter in xrange(5):
+            state.bkg_info = determineDetRates(10)
+            if hasTripped():
+                resetTrip()
+            else:
+                break
+
 def setupSample(parameters):
     # parameters
-    name        = parameters['Name']
-    description = parameters['Description']
+    name        = strOrDefault(parameters['Name'], "Unknown")
+    description = strOrDefault(parameters['Description'])
     thickness   = float(parameters['Thickness'])
     position    = float(parameters['Position'])
 
@@ -316,10 +331,10 @@ def setupSample(parameters):
 
 def setupEnvironment(parameters):
     # parameters
-    name  = parameters['Name']
-    env   = parameters['ElementPath']
-    script_setup = parameters['SetupScript']
-    script_drive = parameters['DriveScript']
+    name         = strOrDefault(parameters['Name'])
+    env          = strOrDefault(parameters['ElementPath'])
+    script_setup = strOrDefault(parameters['SetupScript'])
+    script_drive = strOrDefault(parameters['DriveScript'])
 
     # run configuration script
     slog('Prepare instrument for environment: %s' % name)
@@ -330,7 +345,7 @@ def setupEnvironment(parameters):
 
 def setupSetPoint(parameters):
     # parameters
-    env   = parameters['ElementRoot']
+    env   = strOrDefault(parameters['ElementRoot'])
     value = float(parameters['Value'])
     wait  = int(parameters['WaitPeriod'])
 
@@ -363,34 +378,40 @@ def preAcquisition(info):
         slog('unexpected attenuation algorithm: ' + att_algo)
 
 def doAcquisition(info):
-    def lookup(parameters, name, default):
-        if name in parameters:
-            value = parameters[name]
-            if value is not None:
-                return int(value)
-            else:
-                return None # e.g. for ba mode parameters can be set to None
-
-        return default
-
     slog('Start %s run on %s (position: %s, sample stage: %s)' % (state.meas_mode, state.sample_name, state.sample_position, state.sample_stage))
 
     parameters = info.parameters
 
-    acq_mode  = state.acq_mode
-    min_time  = lookup(parameters, 'MinTime', state.min_time)
-    max_time  = lookup(parameters, 'MaxTime', state.max_time)
-    counts    = lookup(parameters, 'TargetDetectorCounts', state.counts)
-    bm_counts = lookup(parameters, 'TargetMonitorCounts', state.bm_counts)
+    def lookup(name, enabled, default=None):
+        if name not in parameters:
+            slog('[WARNING] parameter (%s) not found in parameter-list' % name)
+            return default
 
-    tripCount = 0
+        value = parameters[name]
+
+        if enabled not in parameters:
+            slog('[WARNING] enabled-parameter (%s) not found in parameter-list' % enabled)
+            return value
+
+        if parameters[enabled]:
+            return value
+        else:
+            return default # e.g. for ba mode parameters can be set to None
+
+    acq_mode  = state.acq_mode
+    min_time  = lookup('MinTime'             , 'MinTimeEnabled')
+    max_time  = lookup('MaxTime'             , 'MaxTimeEnabled')
+    counts    = lookup('TargetDetectorCounts', 'TargetDetectorCountsEnabled')
+    bm_counts = lookup('TargetMonitorCounts' , 'TargetMonitorCountsEnabled')
+
+    trips = 0
 
     if acq_mode == ACQUISITION_MODE.ba:
         slog('Bound Acquisition (min-time: %s, max-time: %s, counts: %s, bm_counts: %s)' % (min_time, max_time, counts, bm_counts))
         scanBA(min_time, max_time, counts, bm_counts)
 
         while hasTripped():
-            tripCount += 1
+            trips += 1
             if not resetTrip(increase_att=True):
                 break
 
@@ -411,7 +432,7 @@ def doAcquisition(info):
         scan(acq_mode, preset)
 
         while hasTripped():
-            tripCount += 1
+            trips += 1
             if not resetTrip(increase_att=True):
                 break
 
@@ -420,8 +441,8 @@ def doAcquisition(info):
 
     # feedback
     info.filename = getDataFilename()
-    if tripCount > 0:
-        info.notes = str('trips: %i' % tripCount)
+    if trips > 0:
+        info.notes = str('trips: %i' % trips)
 
     # print instrument state
     printSettings()
@@ -530,7 +551,7 @@ def driveToSamplePosition(position):
 
     counter = 0
     position = int(position)
-    tolerance = 0.1
+    tolerance = 0.05
     while True:
         try:
             counter += 1
@@ -547,15 +568,15 @@ def driveToSamplePosition(position):
             if isInterruptException(e) or (counter >= 20):
                 raise
             
-            if abs(controller.getValue(True).getFloatData() - position) <= tolerance:
+            if abs(controller.getValue(True).getFloatData() - position) < tolerance:
                 break
 
             slog('Retry driving sampleNum')
             time.sleep(1)
 
     # wait until
-    for counter in xrange(10):
-        if abs(controller.getValue(True).getFloatData() - position) > tolerance:
+    for counter in xrange(50):
+        if abs(controller.getValue(True).getFloatData() - position) >= tolerance:
             time.sleep(0.1)
         else:
             break
@@ -605,16 +626,11 @@ def printSettings():
 
 def resolveTrip():
     while hasTripped() and resetTrip(increase_att=True):
-        local_rate, global_rate = determineAveragedRates(max_samples=3, log_success=False)
-        slog('local rate = %s' % local_rate)
-        slog('global rate = %s' % global_rate)
+        info = determineDetRates(samples=3)
+        slog('local rate = %s' % info.local_rate)
+        slog('global rate = %s' % info.global_rate)
 
 def iterativeAttenuationAlgo(start_angle):
-    local_rate  = 0.0
-    global_rate = 0.0
-    pre_local_rate  = 0.0
-    pre_global_rate = 0.0
-
     start_level = ATT_VALUES.index(start_angle)
 
     slog('Iterative attenuation algorithm ...')
@@ -626,9 +642,7 @@ def iterativeAttenuationAlgo(start_angle):
 
         # count bin rate
         if not hasTripped():
-            local_rate, global_rate = determineAveragedRates(max_samples=5, log_success=False)
-            slog('local rate = %s' % local_rate)
-            slog('global rate = %s' % global_rate)
+            info = determineDetRates(5)
 
         # check if detector has tripped
         if hasTripped():
@@ -636,7 +650,7 @@ def iterativeAttenuationAlgo(start_angle):
             break
 
         # check if rates are too high
-        elif (local_rate > LOCAL_RATE_SAFE) or (global_rate > GLOBAL_RATE_SAFE):
+        elif (info.local_rate > LOCAL_RATE_SAFE) or (info.global_rate > GLOBAL_RATE_SAFE):
             if level > 0:
                 # move to higher attenuation
                 driveAtt(ATT_VALUES[level - 1])
@@ -644,145 +658,177 @@ def iterativeAttenuationAlgo(start_angle):
                 if hasTripped():
                     resetTrip(increase_att=False) # after increasing attenuation detector shouldn't trip
 
-                local_rate  = pre_local_rate
-                global_rate = pre_global_rate
-
             break
 
-        # check if within tolerance ([11/06/2015:davidm] 2.8 is a better approximation)
-        elif (local_rate >= LOCAL_RATE_SAFE / 2) or (global_rate >= GLOBAL_RATE_SAFE / 2.8):
+        # check if within tolerance ([11/06/2015] 2.8 is a better approximation)
+        elif (info.local_rate >= LOCAL_RATE_SAFE / 2) or (info.global_rate >= GLOBAL_RATE_SAFE / 2.8):
             slog('exit loop')
             break
 
-        # repeat
-        else:
-            pre_local_rate  = local_rate
-            pre_global_rate = global_rate
-
     # print info
-    slog('Attenuation is set to %i (local rate = %.1f, global rate = %.1f)' % (getAtt(), local_rate, global_rate))
+    slog('Attenuation is set to %i' % getAtt())
 
 def smartAttenuationAlgo(start_angle):
+    return iterativeAttenuationAlgo(start_angle)
+
     slog('Smart attenuation algorithm ...')
 
+    # safety margin (2 percent)
+    safety_margin = 1.02
+
     # attenuator thicknesses
-    thickness_table = OrderedDict([(0, 0.0), (30, 0.13), (60, 0.326),
-                                  (90, 0.49), (120, 0.64), (150, 0.82),
-                                  (180, 0.965), (210, 1.115), (240, 1.305),
-                                  (270, 1.5), (300, 1.8), (330, 2.5)])
+    thickness_table = OrderedDict([(  0, 0.000), ( 30, 0.130), ( 60, 0.326),
+                                   ( 90, 0.490), (120, 0.640), (150, 0.820),
+                                   (180, 0.965), (210, 1.115), (240, 1.305),
+                                   (270, 1.500), (300, 1.800), (330, 2.500)])
 
+    # background rates
+    bkg_info = state.bkg_info
+
+    def go(level, provider):
+        # drive the attenuator
+        driveAtt(ATT_VALUES[level])
+
+        # count bin rate
+        if not hasTripped():
+            info = determineDetRates(5)
+
+        if hasTripped():
+            return resolveTrip()
+
+        # check if rates are too high
+        elif (info.local_rate > LOCAL_RATE_SAFE) or (info.global_rate > GLOBAL_RATE_SAFE):
+            if level > 0:
+                # move to higher attenuation
+                driveAtt(ATT_VALUES[level - 1])
+
+                if hasTripped():
+                    resetTrip(increase_att=False) # after increasing attenuation detector shouldn't trip
+
+            return
+
+        # check if rates can be improved ([11/06/2015] 2.8 is a better approximation)
+        elif (level+1 < len(ATT_VALUES)) and \
+                (info.local_rate < LOCAL_RATE_SAFE / 2) and (info.global_rate < GLOBAL_RATE_SAFE / 2.8):
+            level, provider = provider(level, info)
+            return go(level, provider)
+
+    def iterative_provider(level, info):
+        # move to next level, and continue with iterative provider
+        return level+1, iterative_provider
+
+    def initial_provider(level, info):
+        # move to next level, and then predict ideal attenuation
+        return level+1, partial(predictive_provider, level, info)
+
+    def predictive_provider(level1, info1, level2, info2):
+        # check if measurements were insufficient
+        if not info2 > safety_margin * info1 or not info1 > safety_margin * bkg_info:
+            return level2+1, partial(predictive_provider, level2, info2)
+
+        att1 = ATT_VALUES[level1]
+        att2 = ATT_VALUES[level2]
+
+        x1 = thickness_table[att1]
+        x2 = thickness_table[att2]
+
+        x3a, xe3a = esitmation(
+                x1, info1.local_rate, info1.local_err,
+                x2, info2.local_rate, info2.local_err,
+                LOCAL_RATE_SAFE)
+
+        x3b, xe3b = esitmation(
+                x1, info1.global_rate, info1.global_err,
+                x2, info2.global_rate, info2.global_err,
+                GLOBAL_RATE_SAFE)
+
+        # take upper bound
+        x3a += xe3a
+        x3b += xe3b
+
+        # check that both estimations are valid
+        if not isfinite(x3a) or not isfinite(x3b):
+            slog('prediction failed and has to be improved')
+            return level2+1, partial(predictive_provider, level2, info2)
+
+        # take thickest safe attenuator
+        x3 = max(0.0, x3a, x3b) # prediction can be negative if no attenuation is necessary to stay within safe rates
+        slog('predicted safe thickness = %s' % x3)
+
+        level3 = next(
+                (ATT_VALUES.index(att) for att, x in thickness_table.items() if x >= x3),
+                default=level2)
+
+        if level3 <= level2+1:
+            # move on with next attenuation angle
+            return level2+1, partial(predictive_provider, level2, info2)
+
+        # move to predicted attenuation and restart algorithm
+        return level3, inital_provider
+
+    # helpers
+    def sqr(x):
+        return x * x
+
+    def isfinite(x):
+        return not math.isinf(x) and not math.isnan(x)
+
+    def esitmation(x1, y1, e1, x2, y2, e2, y3):
+        # conversion to log-scale
+        y1 = log(y1)
+        y2 = log(y2)
+        y3 = log(y3)
+
+        e1 = 1/sqr(y1) * e1
+        e2 = 1/sqr(y2) * e2
+
+        # calculate target thickness (via linear extrapolation)
+        p = (x2-x1)*y3 - (x2*y1 - x1*y2)
+        q = y2 - y1
+        x3 = p / q
+
+        df_y1 = (x1-x2)*(y2-y3)/sqr(y2-y1)
+        df_y2 = (x1-x2)*(y1-y3)/sqr(y2-y1)
+        xe3 = sqr(df_y1) * e1 + sqr(df_y2) * e2
+
+        return x3, xe3
+
+    # initiate algorithm with background data
     start_level = ATT_VALUES.index(start_angle)
-    if start_level >= len(ATT_VALUES) - 4:
-        # it doesn't make sense to run smart attenuation algo from such a low angle
-        slog('switching to iterative attenuation algorithm because start angle is sufficiently low ...')
-        return iterativeAttenuationAlgo(start_angle)
+    return go(start_level, inital_provider)
 
-    # start attenuation
-    att1 = ATT_VALUES[start_level]
-    att2 = ATT_VALUES[start_level + 1]
-
-    # safety margin (ratio)
-    safety_margin = 1.02  # 2 percent
-
-    # first sampling
-    driveAtt(att1)
-    local_rate1, global_rate1 = determineAveragedRates()
-    thickness1 = thickness_table[att1]
-
-    if hasTripped():
-        return resolveTrip()
-
-    # second sampling
-    driveAtt(att2)
-    local_rate2, global_rate2 = determineAveragedRates()
-    thickness2 = thickness_table[att2]
-
-    if hasTripped():
-        return resolveTrip()
-
-    # check that statistics is sufficient
-    if (local_rate2 < local_rate1 * safety_margin) and (global_rate2 < global_rate1 * safety_margin):
-        slog('insufficient statistics - switching to iterative attenuation algorithm ...')
-        if (local_rate2 < LOCAL_RATE_SAFE) and (global_rate2 < GLOBAL_RATE_SAFE):
-            return iterativeAttenuationAlgo(att2)
-        else:
-            return iterativeAttenuationAlgo(att1)
-
-    # find safe thickness
-    if local_rate2 > local_rate1 * safety_margin:
-        # offset should be negative, and means how much thickness can be removed to get to ideal attenuation
-        local_ratio = math.log(local_rate2 / local_rate1) / (thickness1 - thickness2)
-        local_offset = math.log(local_rate1 / LOCAL_RATE_SAFE) / local_ratio # LOCAL_RATE_SAFE should never be zero
-
-        if local_offset < 0:
-            local_thickness_safe = thickness1 + local_offset * 0.90  # 90% for safety
-        else:
-            local_thickness_safe = thickness1
-
-        slog('local ratio = %s' % local_ratio)
-    else:
-        local_thickness_safe = 0
-
-    if global_rate2 > global_rate1 * safety_margin:
-        global_ratio = math.log(global_rate2 / global_rate1) / (thickness1 - thickness2)
-        global_offset = math.log(global_rate1 / GLOBAL_RATE_SAFE) / global_ratio
-
-        if global_offset < 0:
-            global_thickness_safe = thickness1 + global_offset * 0.90  # 90% for safety
-        else:
-            global_thickness_safe = thickness1
-
-        slog('global ratio = %s' % global_ratio)
-    else:
-        global_thickness_safe = 0
-
-    # take thickest safe attenuator
-    thickness_safe = max([0, local_thickness_safe, global_thickness_safe])
-    slog('suggested safe thickness = %s' % thickness_safe)
-
-    # find corresponding attenuation angle
-    att_safe = 330
-    for att, thickness in thickness_table.items():
-        if thickness >= thickness_safe:
-            att_safe = att
-            break
-
-    slog('suggested attenuation angle: %s' % att_safe)
-
-    # drive to suggested attenuation angle and try to improve it if possible
-    slog('continue with iterative attenuation algorithm ...')
-    return iterativeAttenuationAlgo(att_safe)
-
-def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_success=True):
-
-    def determineStandardDeviation(sum, sqr_sum, n): # n = sample count
-        if n <= 1:
-            return float('inf')
-
-        s_sqr = sqr_sum/n - sum*sum/(n*n)
-        return math.sqrt(s_sqr)
+def determineDetRates(samples, timeout=60.0):
 
     def getStudentsFactor(n): # n = sample count
         # 90% confidence
-        f = [float('inf'), 6.314, 2.92, 2.353, 2.132, 2.015, 1.943, 1.895, 1.86, 1.833, 1.812, 1.796, 1.782, 1.771, 1.761, 1.753, 1.746, 1.74, 1.734, 1.729, 1.725, 1.721, 1.717, 1.714, 1.711, 1.708, 1.706, 1.703, 1.701, 1.699, 1.697]
+        f = [float('inf'), 6.314, 2.920, 2.353, 2.132, 2.015, 1.943, 1.895, 1.860, 1.833,
+             1.812, 1.796, 1.782, 1.771, 1.761, 1.753, 1.746, 1.740, 1.734, 1.729, 1.725,
+             1.721, 1.717, 1.714, 1.711, 1.708, 1.706, 1.703, 1.701, 1.699, 1.697]
+
         if n <= len(f):
             return f[n - 1] # n to zero based index
         else:
             return f[-1]    # use last element
 
-    def removeOutlier(v_min, v_max, avg, sum2, n):
+    def removeOutlier(v_min, v_max, avg, sqr_sum, n):
         # effectively remove min or max value
         if (v_max - avg) > (avg - v_min):
             avg2 = (n * avg - v_max) / (n - 1)
-            var2 = (sum2 - v_max * v_max) / (n - 1) - avg2 * avg2
+            err2 = (sqr_sum - v_max * v_max) / (n - 1) - avg2 * avg2
         else:
             avg2 = (n * avg - v_min) / (n - 1)
-            var2 = (sum2 - v_min * v_min) / (n - 1) - avg2 * avg2
+            err2 = (sqr_sum - v_min * v_min) / (n - 1) - avg2 * avg2
 
-        return (avg2, math.sqrt(var2)) # var -> std
+        # unbiased sample variance factor
+        f = float(n - 1) / (n - 2) # after outlier is removed, we have n-1 samples
 
-    if max_samples < 1:
-        max_samples = 1
+        return avg2, err2 * f
+
+    def minmax(min0, max0, val):
+        return min(min0, val), max(max0, val)
+
+    if samples < 3:
+        samples = 3
 
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
 
@@ -790,96 +836,68 @@ def determineAveragedRates(max_samples=60, interval=0.2, timeout=30.0, log_succe
     try:
         time.sleep(1.0)
 
-        local_rate = getMaxBinRate()
-        global_rate = getGlobalMapRate()
+        local_rate, global_rate = getMaxBinRate(), getGlobalMapRate()
 
-        n = 0 # sample count
-        local_rate_sum      = 0.0
-        global_rate_sum     = 0.0
-        local_rate_sqr_sum  = 0.0 # sum of squared rate
-        global_rate_sqr_sum = 0.0
+        local_rate_sum, global_rate_sum = 0.0, 0.0
+        local_rate_sqr_sum, global_rate_sqr_sum = 0.0, 0.0 # sum of squared rate
 
-        local_rate_min  = +float('inf')
-        local_rate_max  = -float('inf')
-        global_rate_min = +float('inf')
-        global_rate_max = -float('inf')
+        local_rate_min, global_rate_min = +float('inf'), +float('inf')
+        local_rate_max, global_rate_max = -float('inf'), -float('inf')
 
-        local_rate_mean  = 0.0
-        global_rate_mean = 0.0
+        local_rate_avg, global_rate_avg = 0.0, 0.0
+        local_rate_err, global_rate_err = 0.0, 0.0 # variance
 
-        for i in xrange(max_samples):
+        for n in xrange(1, samples+1): # n: sample count
 
-            new_local_rate  = getMaxBinRate()
-            new_global_rate = getGlobalMapRate()
+            new_local_rate, new_global_rate = getMaxBinRate(), getGlobalMapRate()
 
             start = time.time()
-            while (new_local_rate == local_rate) or (new_local_rate == 0) or (new_global_rate == global_rate) or (new_global_rate == 0):
+            while (new_local_rate == local_rate) or (new_local_rate == 0) or \
+                    (new_global_rate == global_rate) or (new_global_rate == 0):
+
                 # check if detector has tripped
                 if hasTripped():
-                    return 0.0, 0.0
+                    return RateInfo()
 
                 if time.time() - start >= timeout:
-                    raise Exception('Timeout in determineAveragedRates')
+                    raise Exception('Timeout during detector local/global rate estimation')
 
                 time.sleep(0.5)
-                new_local_rate = getMaxBinRate()
-                new_global_rate = getGlobalMapRate()
+                new_local_rate, new_global_rate = getMaxBinRate(), getGlobalMapRate()
 
-            local_rate  = new_local_rate
-            global_rate = new_global_rate
+            local_rate, global_rate = new_local_rate, new_global_rate
             slog('measurement:  local rate = %10.3f          global rate = %10.3f' % (local_rate, global_rate))
 
-            if local_rate_min > local_rate:
-                local_rate_min = local_rate
-            if local_rate_max < local_rate:
-                local_rate_max = local_rate
+            local_rate_min, local_rate_max = minmax(local_rate_min, local_rate_max, local_rate)
+            global_rate_min, global_rate_max = minmax(global_rate_min, global_rate_max, global_rate)
 
-            if global_rate_min > global_rate:
-                global_rate_min = global_rate
-            if global_rate_max < global_rate:
-                global_rate_max = global_rate
-
-            n += 1 # increase sample count
             local_rate_sum      += local_rate
             global_rate_sum     += global_rate
             local_rate_sqr_sum  += (local_rate * local_rate)
             global_rate_sqr_sum += (global_rate * global_rate)
 
-            local_rate_mean  = local_rate_sum / n
-            global_rate_mean = global_rate_sum / n
+            local_rate_avg  = local_rate_sum / n
+            global_rate_avg = global_rate_sum / n
 
-            if n > 2:
-                # https://de.wikipedia.org/wiki/Vertrauensintervall#Beispiele_f.C3.BCr_ein_Konfidenzintervall
+            if n >= 3:
+                local_rate_avg, local_rate_err = removeOutlier(
+                        local_rate_min, local_rate_max, local_rate_avg, local_rate_sqr_sum, n)
 
-                #local_rate_std  = determineStandardDeviation(local_rate_sum , local_rate_sqr_sum , n)
-                #global_rate_std = determineStandardDeviation(global_rate_sum, global_rate_sqr_sum, n)
+                global_rate_avg, global_rate_err = removeOutlier(
+                        global_rate_min, global_rate_max, global_rate_avg, global_rate_sqr_sum, n)
 
-                # remove outlier
-                local_rate_mean , local_rate_std  = removeOutlier(local_rate_min , local_rate_max , local_rate_mean , local_rate_sqr_sum , n)
-                global_rate_mean, global_rate_std = removeOutlier(global_rate_min, global_rate_max, global_rate_mean, global_rate_sqr_sum, n)
+                # apply student's factor (to variance)
+                factor = getStudentsFactor(n - 1)**2 / (n - 1)
+                local_rate_err  *= factor
+                global_rate_err *= factor
 
-                factor = getStudentsFactor(n-1) / math.sqrt(n-1)
-
-                local_rate_err  = factor * local_rate_std
-                global_rate_err = factor * global_rate_std
-
-                slog('estimation:   local rate = %10.3f+-%-7.3f global rate = %10.3f+-%-7.3f' % (local_rate_mean, local_rate_err, global_rate_mean, global_rate_err))
-
-                local_rate_intvl  = 2 * local_rate_err
-                global_rate_intvl = 2 * global_rate_err
-
-                if (local_rate_intvl < interval * local_rate_mean) and (global_rate_intvl < interval * global_rate_mean):
-                    if log_success:
-                        slog('successful estimation')
-                    break
-
-                if (n == max_samples) and log_success:
-                    slog('unsuccessful estimation')
+                slog('estimation:   local rate = %10.3f+-%-7.3f global rate = %10.3f+-%-7.3f' %
+                     (local_rate_avg, math.sqrt(local_rate_err), global_rate_avg, math.sqrt(global_rate_err)))
 
     finally:
         stopHistmem()
 
-    return local_rate_mean, global_rate_mean
+    return RateInfo(local_rate_avg, local_rate_err, global_rate_avg, global_rate_err)
 
 def checkedDrive(motor, value, useController=False):
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
@@ -1280,11 +1298,23 @@ def scan(mode, preset):
     syncScan(controllerPath)
 
 def scanBA(min_time, max_time, counts, bm_counts):
-    def getIntOrDefault(value, default):
+    def intOrNone(value):
         if value is not None:
             return int(value)
         else:
-            return default
+            return None
+
+    min_time  = intOrNone(min_time )
+    max_time  = intOrNone(max_time )
+    counts    = intOrNone(counts   )
+    bm_counts = intOrNone(bm_counts)
+
+    # if min_time >= max_time: run histmem for max_time
+    if (min_time is not None) and (max_time is not None) and (min_time >= max_time) and (max_time >= 0):
+        slog('[WARNING] min-time (%s) is to high for given max-time (%s) and has to be reset' % (min_time, max_time))
+        min_time  = None
+        counts    = None
+        bm_counts = None
 
     controllerPath = '/commands/scan/runscan'
 
@@ -1292,14 +1322,13 @@ def scanBA(min_time, max_time, counts, bm_counts):
 
     # always reset the ba properties before setting up new values
     sics.execute('histmem ba reset', 'scan')
-    
     sics.execute('histmem ba roi total', 'scan')
     sics.execute('histmem ba monitor 1', 'scan')
 
-    sics.execute('histmem ba mintime %i'     % getIntOrDefault(min_time ,  0), 'scan')
-    sics.execute('histmem ba maxtime %i'     % getIntOrDefault(max_time , -1), 'scan')
-    sics.execute('histmem ba maxdetcount %i' % getIntOrDefault(counts   , -1), 'scan')
-    sics.execute('histmem ba maxbmcount %i'  % getIntOrDefault(bm_counts, -1), 'scan')
+    if min_time  is not None: sics.execute('histmem ba mintime %i'     % min_time , 'scan')
+    if max_time  is not None: sics.execute('histmem ba maxtime %i'     % max_time , 'scan')
+    if counts    is not None: sics.execute('histmem ba maxdetcount %i' % counts   , 'scan')
+    if bm_counts is not None: sics.execute('histmem ba maxbmcount %i'  % bm_counts, 'scan')
 
     try:
         sics.execute('histmem ba enable', 'scan')

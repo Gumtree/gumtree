@@ -77,13 +77,24 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 			Collections.sort(users, Element.INDEX_COMPARATOR);
 			
 			StringBuilder usersStr = new StringBuilder();
-			for (User user : users) {
-				String name = user.getName();
-				if ((name != null) && (name.length() > 0)) {
-					if (usersStr.length() != 0)
-						usersStr.append(", ");
-					usersStr.append(name);
+			StringBuilder emails = new StringBuilder();
+			StringBuilder phones = new StringBuilder();
+			final Procedure2<StringBuilder, String> merger = new Procedure2<StringBuilder, String>() {
+				@Override
+				public void apply(StringBuilder sb, String str) {
+					if ((str != null) && (str.length() > 0)) {
+						if (sb.length() > 0)
+							sb.append("; ");
+						
+						sb.append(str);
+					}
 				}
+			};
+			
+			for (User user : users) {
+				merger.apply(usersStr, user.getName());
+				merger.apply(emails, user.getEmail());
+				merger.apply(phones, user.getPhone());
 			}
 
 			ExperimentDescription experimentDescription = modelProvider.getExperimentDescription();
@@ -91,7 +102,9 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 					experimentDescription.getProposalNumber(),
 					experimentDescription.getExperimentTitle(),
 					experimentDescription.getSampleStage(),
-					usersStr.toString());
+					usersStr.toString(),
+					emails.toString(),
+					phones.toString());
 			
 			long id = atomicId.incrementAndGet();
 			setObject(id, info);
@@ -379,13 +392,17 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 		public String sampleStage;
 		// others
 		public String users;
+		public String emails;
+		public String phones;
 		
 		// construction
-		public PyInitiateInfo(String proposalNumber, String experimentTitle, String sampleStage, String users) {
+		public PyInitiateInfo(String proposalNumber, String experimentTitle, String sampleStage, String users, String emails, String phones) {
 			this.proposalNumber = proposalNumber;
 			this.experimentTitle = experimentTitle;
 			this.sampleStage = sampleStage;
 			this.users = users;
+			this.emails = emails;
+			this.phones = phones;
 		}
 	}
 	
@@ -403,7 +420,7 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 	
 	public static class PyAcquisitionInfo extends PyInfo {
 		// fields
-		public Map<String, Object> parameters; // optional: MinTime, MaxTime, Counts, BmCounts
+		public Map<String, Object> parameters; // optional: MinTime, MaxTime, TargetDetectorCounts, TargetMonitorCounts
 		public String filename;
 		public long totalSeconds;
 		public long totalCounts;
@@ -429,5 +446,10 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 			this.action = action;
 			this.parameters = parameters;
 		}
+	}
+	
+	private static interface Procedure2<A0, A1> {
+		// methods
+		public void apply(A0 a0, A1 a1);
 	}
 }

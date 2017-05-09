@@ -45,6 +45,7 @@ import au.gov.ansto.bragg.quokka.msw.UserList;
 import au.gov.ansto.bragg.quokka.msw.util.CsvTable;
 import au.gov.ansto.bragg.quokka.msw.util.ExperimentDescriptionLoader;
 import au.gov.ansto.bragg.quokka.msw.util.IExperimentDescriptionLoaderListener;
+import au.gov.ansto.bragg.quokka.msw.util.LockStateManager;
 
 public class ExperimentComposite extends Composite {
 	// finals
@@ -60,7 +61,7 @@ public class ExperimentComposite extends Composite {
 	private final ElementTableModel<UserList, User> tableModel;
 
 	// construction
-	public ExperimentComposite(Composite parent, final ModelProvider modelProvider) {
+	public ExperimentComposite(Composite parent, final ModelProvider modelProvider, final LockStateManager lockStateManager) {
 		super(parent, SWT.BORDER);
 		
 		GridLayout gridLayout = new GridLayout(1, false);
