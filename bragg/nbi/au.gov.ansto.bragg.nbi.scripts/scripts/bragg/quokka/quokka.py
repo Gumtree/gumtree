@@ -640,6 +640,7 @@ def iterativeAttenuationAlgo(start_angle):
     for level in xrange(start_level, len(ATT_VALUES)):
         if skip:
             slog('skip this iteration')
+            skip = False
         else:
             # drive the attenuator
             driveAtt(ATT_VALUES[level])

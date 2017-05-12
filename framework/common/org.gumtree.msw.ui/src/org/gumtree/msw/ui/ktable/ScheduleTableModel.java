@@ -140,6 +140,23 @@ public class ScheduleTableModel extends KTableDefaultModel {
 				return nodeInfo.getProgress();
 			}
 			@Override
+			public Object getExportableContent(NodeInfo nodeInfo) {
+				Object progress = nodeInfo.getProgress();
+				if (progress instanceof String) {
+					return progress;
+				}
+				else if (progress instanceof Double) {
+					double value = ((Double)progress).doubleValue();
+					if (value > 0.0)
+						return String.format("%.0f%%", 100.0 * value);
+					else
+						return null;
+				}
+				else {
+					return null;
+				}
+			}
+			@Override
 			public KTableCellEditor getCellEditor(NodeInfo nodeInfo) {
 				if (nodeInfo.getProgress() instanceof String)
 					return readonlyTextCellEditor;
@@ -193,6 +210,10 @@ public class ScheduleTableModel extends KTableDefaultModel {
 			public Object getContent(NodeInfo nodeInfo) {
 				String notes = nodeInfo.getNotes();
 				return notes != null ? notes : "";
+			}
+			@Override
+			public Object getExportableContent(NodeInfo nodeInfo) {
+				return getContent(nodeInfo);
 			}
 			@Override
 			public KTableCellEditor getCellEditor(NodeInfo nodeInfo) {
@@ -340,7 +361,22 @@ public class ScheduleTableModel extends KTableDefaultModel {
 
     // properties
     public Iterable<AcquisitionDetail> getAcquisitionDetails() {
-    	return acquisitionDetails.getAcquisitionDetails();
+    	return acquisitionDetails.getAllDetails();
+    }
+    Iterable<AcquisitionDetail> getVisibleDetails() {
+    	return acquisitionDetails.getVisibleDetails();
+    }
+    Iterable<IAuxiliaryColumnInfo> getAuxiliaryColumns() {
+    	return auxiliaryColumns;
+    }
+    Map<ScheduledNode, NodeInfo> getNodes() {
+    	return nodes;
+    }
+    public Scheduler getScheduler() {
+    	return scheduler;
+    }
+    public Map<Class<?>, RowDefinition> getRowDefinitions() {
+    	return rowDefinitions;
     }
     
     // nodes
@@ -600,15 +636,13 @@ public class ScheduleTableModel extends KTableDefaultModel {
 					}
 
 					if (sizable) {
-						int available = dataColumnSpan - (nodeInfo.getDepth() + nodeInfo.getRowDefinition().getColumnSpan() + (nodeInfo.canBeDisabled() ? 1 : 0));
-						while (available > 0)
-							for (CellDefinition cell : cells)
-								if (cell.isSizable()) {
-									// increase column span
-									columnSpans.put(cell, columnSpans.get(cell) + 1);
-									if (--available == 0)
-										break;
-								}
+						int available = dataColumnSpan - (nodeInfo.getDepth() + rowDefinition.getColumnSpan() + (nodeInfo.canBeDisabled() ? 1 : 0));
+						for (CellDefinition cell : cells)
+							if (cell.isSizable()) {
+								// increase column span
+								columnSpans.put(cell, columnSpans.get(cell) + available);
+								break;
+							}
 					}
 					
 					columnSpansLookup.put(nodeInfo.getDepth(), columnSpans);
@@ -1643,7 +1677,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
 		}
 	}
 	
-	private static class NodeInfo {
+	static class NodeInfo {
 		// fields
 		private final RowDefinition rowDefinition;
 		// nodes
@@ -2333,8 +2367,11 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	public int getColumnSpan() {
     		return columnSpan;
     	}
-    	public Iterable<AcquisitionDetail> getAcquisitionDetails() {
+    	public Iterable<AcquisitionDetail> getAllDetails() {
     		return acquisitionDetails;
+    	}
+    	public Iterable<AcquisitionDetail> getVisibleDetails() {
+    		return visibleDetails;
     	}
     	
     	// methods
@@ -2428,10 +2465,11 @@ public class ScheduleTableModel extends KTableDefaultModel {
     }
     
     // auxiliary columns
-    private static interface IAuxiliaryColumnInfo {
+    static interface IAuxiliaryColumnInfo {
     	public String getTitle();
     	public int getWidth();
     	public Object getContent(NodeInfo nodeInfo);
+    	public Object getExportableContent(NodeInfo nodeInfo);
     	public KTableCellEditor getCellEditor(NodeInfo nodeInfo);
 		public KTableCellRenderer getCellRenderer(NodeInfo nodeInfo);
     }
