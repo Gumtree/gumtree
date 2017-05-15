@@ -2,11 +2,11 @@ package org.gumtree.msw.ui.ktable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -2318,7 +2318,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
     private class AcquisitionDetailManager {
     	// fields
     	private final Iterable<AcquisitionDetail> acquisitionDetails;
-    	private final Set<AcquisitionDetail> visibleDetails;
+    	private final TreeMap<Integer, AcquisitionDetail> visibleDetails;
     	//
     	private int columnSpan;
     	private final List<String> titles;
@@ -2328,11 +2328,16 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	// construction
     	public AcquisitionDetailManager(Iterable<AcquisitionDetail> acquisitionDetails) {
     		this.acquisitionDetails = acquisitionDetails;
-    		this.visibleDetails = new HashSet<>((Collection<AcquisitionDetail>)acquisitionDetails);
+    		this.visibleDetails = new TreeMap<>();
     		
     		titles = new ArrayList<>();
     		belongToColumnHeader = new ArrayList<>();
     		belongToColumnData = new ArrayList<>();
+    		
+    		// all details are visible
+    		int index = 0;
+    		for (Iterator<AcquisitionDetail> itr = acquisitionDetails.iterator(); itr.hasNext(); index++)
+    			visibleDetails.put(index, itr.next());
   		
     		update();
     	}
@@ -2345,7 +2350,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
     		belongToColumnData.clear();
     		
     		for (AcquisitionDetail detail : acquisitionDetails)
-    			if (visibleDetails.contains(detail)) {
+    			if (visibleDetails.containsValue(detail)) {
 					columnHeaderIndex = columnIndex;
 					for (CellDefinition cell : detail.getCells()) {
 						columnDataIndex = columnIndex;
@@ -2371,23 +2376,29 @@ public class ScheduleTableModel extends KTableDefaultModel {
     		return acquisitionDetails;
     	}
     	public Iterable<AcquisitionDetail> getVisibleDetails() {
-    		return visibleDetails;
+    		return visibleDetails.values();
     	}
     	
     	// methods
 		public void hideDetail(AcquisitionDetail detail) {
-			for (AcquisitionDetail d : acquisitionDetails)
+    		int index = 0;
+    		for (Iterator<AcquisitionDetail> itr = acquisitionDetails.iterator(); itr.hasNext(); index++) {
+    			AcquisitionDetail d = itr.next();
 				if (d == detail) {
-					visibleDetails.remove(detail);
+					visibleDetails.remove(index);
 					update();
 				}
+    		}
 		}
 		public void showDetail(AcquisitionDetail detail) {
-			for (AcquisitionDetail d : acquisitionDetails)
+    		int index = 0;
+    		for (Iterator<AcquisitionDetail> itr = acquisitionDetails.iterator(); itr.hasNext(); index++) {
+    			AcquisitionDetail d = itr.next();
 				if (d == detail) {
-					visibleDetails.add(detail);
+					visibleDetails.put(index, detail);
 					update();
 				}
+    		}
 		}
 		// internal
     	public Point belongsToCell(int colOffset, int col, int row) {
@@ -2398,7 +2409,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	}
     	public Object getContentAt(NodeInfo nodeInfo, int col) {
     		for (AcquisitionDetail detail : acquisitionDetails)
-    			if (visibleDetails.contains(detail))
+    			if (visibleDetails.containsValue(detail))
 					for (CellDefinition cell : detail.getCells())
 						if (col < 0)
 							break;
@@ -2419,7 +2430,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	}
     	public void setContentAt(NodeInfo nodeInfo, int col, Object value) {
     		for (AcquisitionDetail detail : acquisitionDetails)
-    			if (visibleDetails.contains(detail))
+    			if (visibleDetails.containsValue(detail))
 					for (CellDefinition cell : detail.getCells())
 						if (col < 0)
 							break;
@@ -2438,7 +2449,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	public KTableCellEditor getCellEditor(NodeInfo nodeInfo, int col) {
 	    	if (!nodeInfo.getNode().getPropertiesLocked()) {
 	    		for (AcquisitionDetail detail : acquisitionDetails)
-	    			if (visibleDetails.contains(detail))
+	    			if (visibleDetails.containsValue(detail))
 						for (CellDefinition cell : detail.getCells())
 							if (col < 0)
 								break;
@@ -2451,7 +2462,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	}
     	public KTableCellRenderer getCellRenderer(NodeInfo nodeInfo, int col) {
     		for (AcquisitionDetail detail : acquisitionDetails)
-    			if (visibleDetails.contains(detail))
+    			if (visibleDetails.containsValue(detail))
 					for (CellDefinition cell : detail.getCells())
 						if (col < 0)
 							break;
