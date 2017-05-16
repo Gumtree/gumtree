@@ -2,11 +2,11 @@ package org.gumtree.msw.ui.ktable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -140,6 +140,23 @@ public class ScheduleTableModel extends KTableDefaultModel {
 				return nodeInfo.getProgress();
 			}
 			@Override
+			public Object getExportableContent(NodeInfo nodeInfo) {
+				Object progress = nodeInfo.getProgress();
+				if (progress instanceof String) {
+					return progress;
+				}
+				else if (progress instanceof Double) {
+					double value = ((Double)progress).doubleValue();
+					if (value > 0.0)
+						return String.format("%.0f%%", 100.0 * value);
+					else
+						return null;
+				}
+				else {
+					return null;
+				}
+			}
+			@Override
 			public KTableCellEditor getCellEditor(NodeInfo nodeInfo) {
 				if (nodeInfo.getProgress() instanceof String)
 					return readonlyTextCellEditor;
@@ -193,6 +210,10 @@ public class ScheduleTableModel extends KTableDefaultModel {
 			public Object getContent(NodeInfo nodeInfo) {
 				String notes = nodeInfo.getNotes();
 				return notes != null ? notes : "";
+			}
+			@Override
+			public Object getExportableContent(NodeInfo nodeInfo) {
+				return getContent(nodeInfo);
 			}
 			@Override
 			public KTableCellEditor getCellEditor(NodeInfo nodeInfo) {
@@ -340,7 +361,22 @@ public class ScheduleTableModel extends KTableDefaultModel {
 
     // properties
     public Iterable<AcquisitionDetail> getAcquisitionDetails() {
-    	return acquisitionDetails.getAcquisitionDetails();
+    	return acquisitionDetails.getAllDetails();
+    }
+    Iterable<AcquisitionDetail> getVisibleDetails() {
+    	return acquisitionDetails.getVisibleDetails();
+    }
+    Iterable<IAuxiliaryColumnInfo> getAuxiliaryColumns() {
+    	return auxiliaryColumns;
+    }
+    Map<ScheduledNode, NodeInfo> getNodes() {
+    	return nodes;
+    }
+    public Scheduler getScheduler() {
+    	return scheduler;
+    }
+    public Map<Class<?>, RowDefinition> getRowDefinitions() {
+    	return rowDefinitions;
     }
     
     // nodes
@@ -600,15 +636,13 @@ public class ScheduleTableModel extends KTableDefaultModel {
 					}
 
 					if (sizable) {
-						int available = dataColumnSpan - (nodeInfo.getDepth() + nodeInfo.getRowDefinition().getColumnSpan() + (nodeInfo.canBeDisabled() ? 1 : 0));
-						while (available > 0)
-							for (CellDefinition cell : cells)
-								if (cell.isSizable()) {
-									// increase column span
-									columnSpans.put(cell, columnSpans.get(cell) + 1);
-									if (--available == 0)
-										break;
-								}
+						int available = dataColumnSpan - (nodeInfo.getDepth() + rowDefinition.getColumnSpan() + (nodeInfo.canBeDisabled() ? 1 : 0));
+						for (CellDefinition cell : cells)
+							if (cell.isSizable()) {
+								// increase column span
+								columnSpans.put(cell, columnSpans.get(cell) + available);
+								break;
+							}
 					}
 					
 					columnSpansLookup.put(nodeInfo.getDepth(), columnSpans);
@@ -1643,7 +1677,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
 		}
 	}
 	
-	private static class NodeInfo {
+	static class NodeInfo {
 		// fields
 		private final RowDefinition rowDefinition;
 		// nodes
@@ -2284,7 +2318,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
     private class AcquisitionDetailManager {
     	// fields
     	private final Iterable<AcquisitionDetail> acquisitionDetails;
-    	private final Set<AcquisitionDetail> visibleDetails;
+    	private final TreeMap<Integer, AcquisitionDetail> visibleDetails;
     	//
     	private int columnSpan;
     	private final List<String> titles;
@@ -2294,11 +2328,16 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	// construction
     	public AcquisitionDetailManager(Iterable<AcquisitionDetail> acquisitionDetails) {
     		this.acquisitionDetails = acquisitionDetails;
-    		this.visibleDetails = new HashSet<>((Collection<AcquisitionDetail>)acquisitionDetails);
+    		this.visibleDetails = new TreeMap<>();
     		
     		titles = new ArrayList<>();
     		belongToColumnHeader = new ArrayList<>();
     		belongToColumnData = new ArrayList<>();
+    		
+    		// all details are visible
+    		int index = 0;
+    		for (Iterator<AcquisitionDetail> itr = acquisitionDetails.iterator(); itr.hasNext(); index++)
+    			visibleDetails.put(index, itr.next());
   		
     		update();
     	}
@@ -2311,7 +2350,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
     		belongToColumnData.clear();
     		
     		for (AcquisitionDetail detail : acquisitionDetails)
-    			if (visibleDetails.contains(detail)) {
+    			if (visibleDetails.containsValue(detail)) {
 					columnHeaderIndex = columnIndex;
 					for (CellDefinition cell : detail.getCells()) {
 						columnDataIndex = columnIndex;
@@ -2333,24 +2372,33 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	public int getColumnSpan() {
     		return columnSpan;
     	}
-    	public Iterable<AcquisitionDetail> getAcquisitionDetails() {
+    	public Iterable<AcquisitionDetail> getAllDetails() {
     		return acquisitionDetails;
+    	}
+    	public Iterable<AcquisitionDetail> getVisibleDetails() {
+    		return visibleDetails.values();
     	}
     	
     	// methods
 		public void hideDetail(AcquisitionDetail detail) {
-			for (AcquisitionDetail d : acquisitionDetails)
+    		int index = 0;
+    		for (Iterator<AcquisitionDetail> itr = acquisitionDetails.iterator(); itr.hasNext(); index++) {
+    			AcquisitionDetail d = itr.next();
 				if (d == detail) {
-					visibleDetails.remove(detail);
+					visibleDetails.remove(index);
 					update();
 				}
+    		}
 		}
 		public void showDetail(AcquisitionDetail detail) {
-			for (AcquisitionDetail d : acquisitionDetails)
+    		int index = 0;
+    		for (Iterator<AcquisitionDetail> itr = acquisitionDetails.iterator(); itr.hasNext(); index++) {
+    			AcquisitionDetail d = itr.next();
 				if (d == detail) {
-					visibleDetails.add(detail);
+					visibleDetails.put(index, detail);
 					update();
 				}
+    		}
 		}
 		// internal
     	public Point belongsToCell(int colOffset, int col, int row) {
@@ -2361,7 +2409,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	}
     	public Object getContentAt(NodeInfo nodeInfo, int col) {
     		for (AcquisitionDetail detail : acquisitionDetails)
-    			if (visibleDetails.contains(detail))
+    			if (visibleDetails.containsValue(detail))
 					for (CellDefinition cell : detail.getCells())
 						if (col < 0)
 							break;
@@ -2382,7 +2430,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	}
     	public void setContentAt(NodeInfo nodeInfo, int col, Object value) {
     		for (AcquisitionDetail detail : acquisitionDetails)
-    			if (visibleDetails.contains(detail))
+    			if (visibleDetails.containsValue(detail))
 					for (CellDefinition cell : detail.getCells())
 						if (col < 0)
 							break;
@@ -2401,7 +2449,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	public KTableCellEditor getCellEditor(NodeInfo nodeInfo, int col) {
 	    	if (!nodeInfo.getNode().getPropertiesLocked()) {
 	    		for (AcquisitionDetail detail : acquisitionDetails)
-	    			if (visibleDetails.contains(detail))
+	    			if (visibleDetails.containsValue(detail))
 						for (CellDefinition cell : detail.getCells())
 							if (col < 0)
 								break;
@@ -2414,7 +2462,7 @@ public class ScheduleTableModel extends KTableDefaultModel {
     	}
     	public KTableCellRenderer getCellRenderer(NodeInfo nodeInfo, int col) {
     		for (AcquisitionDetail detail : acquisitionDetails)
-    			if (visibleDetails.contains(detail))
+    			if (visibleDetails.containsValue(detail))
 					for (CellDefinition cell : detail.getCells())
 						if (col < 0)
 							break;
@@ -2428,10 +2476,11 @@ public class ScheduleTableModel extends KTableDefaultModel {
     }
     
     // auxiliary columns
-    private static interface IAuxiliaryColumnInfo {
+    static interface IAuxiliaryColumnInfo {
     	public String getTitle();
     	public int getWidth();
     	public Object getContent(NodeInfo nodeInfo);
+    	public Object getExportableContent(NodeInfo nodeInfo);
     	public KTableCellEditor getCellEditor(NodeInfo nodeInfo);
 		public KTableCellRenderer getCellRenderer(NodeInfo nodeInfo);
     }

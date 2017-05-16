@@ -58,7 +58,9 @@ public final class Resources {
 	public static final Image IMAGE_EXPORT = load("/icons/exportpref_obj.gif");
 	public static final Image IMAGE_IMPORT = load("/icons/importpref_obj.gif");
 	public static final Image IMAGE_IMPORT_FILE = load("/icons/import_file_16x16.png");
-
+	
+	public static final Image IMAGE_REPORT = load("/icons/report.png");
+	
 	public static final Image IMAGE_BIN = load("/icons/bin.png");
 	public static final Image IMAGE_LOAD_POSITION = load("/icons/drive-download-green.png");
 

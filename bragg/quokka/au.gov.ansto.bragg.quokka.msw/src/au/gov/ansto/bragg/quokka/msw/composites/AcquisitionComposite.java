@@ -63,6 +63,7 @@ import org.gumtree.msw.ui.ktable.KTable;
 import org.gumtree.msw.ui.ktable.KTableCellEditor;
 import org.gumtree.msw.ui.ktable.NameCellRenderer;
 import org.gumtree.msw.ui.ktable.SWTX;
+import org.gumtree.msw.ui.ktable.ScheduleTableExporter;
 import org.gumtree.msw.ui.ktable.ScheduleTableModel;
 import org.gumtree.msw.ui.ktable.ScheduleTableModel.AcquisitionDetail;
 import org.gumtree.msw.ui.ktable.ScheduleTableModel.CellDefinition;
@@ -329,9 +330,12 @@ public class AcquisitionComposite extends Composite {
 	    //menuItem.setEnabled(false);
 	    
 	    new MenuItem(menu, SWT.SEPARATOR);
-	    final MenuItem summaryExportItem = new MenuItem(menu, SWT.NONE);
-	    summaryExportItem.setText("Summary Export");
-	    summaryExportItem.setImage(Resources.IMAGE_EXPORT);
+	    final MenuItem tableExportItem = new MenuItem(menu, SWT.NONE);
+	    tableExportItem.setText("Table Export");
+	    tableExportItem.setImage(Resources.IMAGE_EXPORT);
+	    final MenuItem reportExportItem = new MenuItem(menu, SWT.NONE);
+	    reportExportItem.setText("Report Export");
+	    reportExportItem.setImage(Resources.IMAGE_REPORT);
 	    
 	    model.updateSource(scheduler, walker);
 	    //notifier.updateSource(scheduler);
@@ -412,13 +416,39 @@ public class AcquisitionComposite extends Composite {
 			public void menuShown(MenuEvent e) {
 				EnvironmentReport rootReport = reportProvider.getRootReport();
 				Iterable<TableInfo> tables = LogbookReportGenerator.create(rootReport);
-				summaryExportItem.setEnabled(tables.iterator().hasNext());
+				reportExportItem.setEnabled(tables.iterator().hasNext());
 			}
 			@Override
 			public void menuHidden(MenuEvent e) {
 			}
 		});
-	    summaryExportItem.addSelectionListener(new SelectionAdapter() {
+	    tableExportItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				FileDialog fileDialog = new FileDialog(getShell(), SWT.SAVE);
+
+				fileDialog.setFilterNames(new String[] { "Hypertext Markup Language (*.html)", "All Files (*.*)" });
+				fileDialog.setFilterExtensions(new String[] { "*.html", "*.*" });
+
+				String filename = fileDialog.open();
+				if ((filename != null) && (filename.length() > 0)) {
+					boolean succeeded = false;
+					try {
+						ScheduleTableExporter.save(model, new File(filename));
+						succeeded = true;
+					}
+					catch (Exception e2) {
+					}
+					if (!succeeded) {
+						MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.OK);
+						dialog.setText("Warning");
+						dialog.setMessage("Unable to export to selected html file.");
+						dialog.open();
+					}
+				}
+			}
+	    });
+	    reportExportItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog fileDialog = new FileDialog(getShell(), SWT.SAVE);
@@ -433,7 +463,6 @@ public class AcquisitionComposite extends Composite {
 						EnvironmentReport rootReport = reportProvider.getRootReport();
 						Iterable<TableInfo> tables = LogbookReportGenerator.create(rootReport);
 						
-
 						LogbookReportGenerator.save(tables, new File(filename));
 						succeeded = true;
 					}
