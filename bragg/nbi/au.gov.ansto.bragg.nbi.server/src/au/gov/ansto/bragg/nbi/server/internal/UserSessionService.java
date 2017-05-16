@@ -40,12 +40,35 @@ public class UserSessionService {
 	public static final String NAME_SERVICE_NOTEBOOKPROPOSALS = "notebook_proposals";
 	public static final String NAME_SERVICE_CURRENTPAGE = "current_page";
 	private static final String PROP_REMOTE_USER = "X-REMOTE-USER";
+	private static final String PROPERTY_NOTEBOOK_DAVIP = "gumtree.notebook.dav";
+	private static final String PROPERTY_NOTEBOOK_ICSIP = "gumtree.notebook.ics";
+	private static final String PROPERTY_NOTEBOOK_IPPREFIX = "137.157.";
 
 	private static MapDatabase sessionDb = MapDatabase.getInstance(ID_USER_SESSION_DATABASE);
 	private static MapDatabase serviceDb = MapDatabase.getInstance(ID_SESSION_SERVICE_DATABASE);
 	private static MapDatabase timestampDb = MapDatabase.getInstance(ID_SESSION_TIME_DATABASE);
 	
 	private static Logger logger = LoggerFactory.getLogger(UserSessionService.class);
+
+	private static String[] allowedDavIps;
+	private static String[] allowedIcsIps;
+
+	static {
+		String ips = System.getProperty(PROPERTY_NOTEBOOK_DAVIP);
+		if (ips != null) {
+			allowedDavIps = ips.split(",");
+			for (int i = 0; i < allowedDavIps.length; i++) {
+				allowedDavIps[i] = PROPERTY_NOTEBOOK_IPPREFIX + allowedDavIps[i].replaceAll("/", ".").trim();
+			}
+		}
+		String icsips = System.getProperty(PROPERTY_NOTEBOOK_ICSIP);
+		if (icsips != null) {
+			allowedIcsIps = icsips.split(",");
+			for (int i = 0; i < allowedIcsIps.length; i++) {
+				allowedIcsIps[i] = PROPERTY_NOTEBOOK_IPPREFIX + allowedIcsIps[i].replaceAll("/", ".").trim();
+			}
+		}
+	}
 	
 	public static boolean signIn(Request request, Response response, String username, String password) {
 		GroupLevel level = checkLogin(username, password);
@@ -229,6 +252,129 @@ public class UserSessionService {
 		} else {
 			return null;
 		}
+	}
+	
+	private static UserSessionObject checkDavSession(Request request) {
+		if (allowedDavIps == null) {
+			return null;
+		}
+		String directIp = request.getClientInfo().getUpstreamAddress();
+		if (directIp != null) {
+			for (int i = 0; i < allowedDavIps.length; i++) {
+				if (directIp.equals(allowedDavIps[i])) {
+					UserSessionObject session = new UserSessionObject();
+					session.setDAV(true);
+					session.setUserName(System.getenv("gumtree.instrument.id"));
+					session.setValid(true);
+					return session;
+				}
+			}
+		}
+		Object header = request.getAttributes().get("org.restlet.http.headers");
+		if (header != null) {
+			Form qform = (Form) header;
+			String forwardedIp = qform.getFirstValue("X-Forwarded-For");
+			if (forwardedIp != null) {
+				if (forwardedIp.contains(",")) {
+					forwardedIp = forwardedIp.split(",")[0].trim();
+				} else {
+					forwardedIp = forwardedIp.split(" ")[0].trim();
+				}
+				for (int i = 0; i < allowedDavIps.length; i++) {
+					if (forwardedIp.equals(allowedDavIps[i])) {
+						UserSessionObject session = new UserSessionObject();
+						session.setDAV(true);
+						session.setUserName(System.getenv("gumtree.instrument.id"));
+						session.setValid(true);
+						return session;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	private static UserSessionObject checkIcsSession(Request request) {
+		if (allowedIcsIps == null) {
+			return null;
+		}
+		String directIp = request.getClientInfo().getUpstreamAddress();
+		if (directIp != null) {
+			logger.error("direct ip = " + directIp);
+			logger.error("allowed ips = " + Arrays.toString(allowedIcsIps));
+			for (int i = 0; i < allowedIcsIps.length; i++) {
+				if (directIp.equals(allowedIcsIps[i])) {
+					UserSessionObject session = new UserSessionObject();
+					session.setICS(true);
+					session.setUserName(System.getenv("gumtree.instrument.id"));
+					session.setValid(true);
+					return session;
+				}
+			}
+		}
+		Object header = request.getAttributes().get("org.restlet.http.headers");
+		if (header != null) {
+			Form qform = (Form) header;
+			String forwardedIp = qform.getFirstValue("X-Forwarded-For");
+			if (forwardedIp != null) {
+				logger.error("forwarded ip = " + forwardedIp);
+				logger.error("header = " + header);
+				if (forwardedIp.contains(",")) {
+					forwardedIp = forwardedIp.split(",")[0].trim();
+				} else {
+					forwardedIp = forwardedIp.split(" ")[0].trim();
+				}
+				for (int i = 0; i < allowedIcsIps.length; i++) {
+					if (forwardedIp.equals(allowedIcsIps[i])) {
+						UserSessionObject session = new UserSessionObject();
+						session.setICS(true);
+						session.setUserName(System.getenv("gumtree.instrument.id"));
+						session.setValid(true);
+						return session;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static UserSessionObject getUniversalSession(Request request, Response response) 
+			throws ClassNotFoundException, RecordsFileException, IOException, JSONException {
+		UserSessionObject session = null;
+		String userCookie = null;
+		Cookie cookie = request.getCookies().getFirst(UserSessionService.COOKIE_NAME_UUID + "." 
+				+ System.getProperty(UserSessionService.PROPERTY_INSTRUMENT_ID));
+		if (cookie != null) {
+			session = validateCookie(userCookie);
+		}
+		if (session == null || !session.isValid()){
+			Object header = request.getAttributes().get("org.restlet.http.headers");
+			if (header != null) {
+				Form qform = (Form) header;
+				String remoteUser = qform.getFirstValue(PROP_REMOTE_USER);
+				if (remoteUser != null && remoteUser.trim().length() > 0) {
+					session = setUpRemoteUserSession(request, response, remoteUser);
+				}
+			}
+		}
+		if (session == null || !session.isValid()) {
+			try {
+				session = checkDavSession(request);
+			} catch (Exception e) {
+			}
+		}
+
+		if (session == null || !session.isValid()) {
+			try {
+				session = checkIcsSession(request);
+			} catch (Exception e) {
+			}
+		}
+		if (session == null || !session.isValid()) {
+			session = new UserSessionObject();
+			session.appendMessage("sign in required");
+		}
+		return session;
 	}
 	
 	public static UserSessionObject getSession(Request request, Response response) 
