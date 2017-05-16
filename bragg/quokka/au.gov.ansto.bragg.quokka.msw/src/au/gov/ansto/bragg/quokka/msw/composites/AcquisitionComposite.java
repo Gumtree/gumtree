@@ -1935,9 +1935,6 @@ public class AcquisitionComposite extends Composite {
 					// attenuation is in 30deg steps and we assume each step takes 35sec
 					lastAttenuationTime = (measurement.getAttenuationAngle() / 30) * 35;
 					break;
-				case SMART_ATTENUATION:
-					lastAttenuationTime = 120;
-					break;
 				}
 			}
 			

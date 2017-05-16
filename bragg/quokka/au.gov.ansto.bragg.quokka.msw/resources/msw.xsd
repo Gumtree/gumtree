@@ -160,7 +160,6 @@
     <xsd:restriction base="msw:SicsString">
       <xsd:enumeration value="fixed attenuation"    />
       <xsd:enumeration value="iterative attenuation"/>
-      <xsd:enumeration value="smart attenuation"    />
     </xsd:restriction>
   </xsd:simpleType>
   
