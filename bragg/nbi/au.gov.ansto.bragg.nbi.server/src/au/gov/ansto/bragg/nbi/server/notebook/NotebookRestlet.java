@@ -302,33 +302,38 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 
 		UserSessionObject session = null;
 		
+//		try {
+//			session = UserSessionService.getSession(request, response);
+//			if (session.isValid()) {
+//				if (!SEG_NAME_CURRENTPAGE.equals(seg) && !SEG_NAME_USER.equals(seg) && !SEG_NAME_DB.equals(seg)) {
+//					UserSessionService.renewCookie(session, response);
+//				}
+//			}
+////			isSessionValid = UserSessionService.controlSession(request, response);
+//		} catch (Exception e1) {
+//			response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, e1.toString());
+//			return;
+//		}
+//		
+//		if (session == null || !session.isValid()) {
+//			try {
+//				session = checkDavSession(request);
+//			} catch (Exception e) {
+//			}
+//		}
+//
+//		if (session == null || !session.isValid()) {
+//			try {
+//				session = checkIcsSession(request);
+//			} catch (Exception e) {
+//			}
+//		}
+		
 		try {
-			session = UserSessionService.getSession(request, response);
-			if (session.isValid()) {
-				if (!SEG_NAME_CURRENTPAGE.equals(seg) && !SEG_NAME_USER.equals(seg) && !SEG_NAME_DB.equals(seg)) {
-					UserSessionService.renewCookie(session, response);
-				}
-			}
-//			isSessionValid = UserSessionService.controlSession(request, response);
-		} catch (Exception e1) {
-			response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, e1.toString());
-			return;
+			session = UserSessionService.getUniversalSession(request, response);
+		} catch (Exception e) {
 		}
 		
-		if (session == null || !session.isValid()) {
-			try {
-				session = checkDavSession(request);
-			} catch (Exception e) {
-			}
-		}
-
-		if (session == null || !session.isValid()) {
-			try {
-				session = checkIcsSession(request);
-			} catch (Exception e) {
-			}
-		}
-
 		if (session != null && session.isValid()) {
 
 

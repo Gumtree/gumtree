@@ -11,7 +11,7 @@ import org.gumtree.service.pdf.HtmlPDFService;
 public class NotebookPDFService {
 
 	private final static String[] CSS_FILENAMES = new String[]{"raptor-front-end.css", "theme.css", "theme-icons.css", "notebook.css"};
-	private final static String HTML_HEADER = "<html><head><title>Instrument Notebook - Quokka</title></head><body>" +
+	private final static String HTML_HEADER = "<html><head><title>ACNS Instrument Notebook</title></head><body>" +
     		"<div class=\"class_editable_page\" id=\"id_editable_page\" data-id=\"data_editable_page\">";
 	private final static String HTML_FOOTER = "</div></body></html>";
 	
