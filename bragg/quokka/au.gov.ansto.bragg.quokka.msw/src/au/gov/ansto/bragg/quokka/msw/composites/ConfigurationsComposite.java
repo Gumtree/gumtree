@@ -435,7 +435,7 @@ public class ConfigurationsComposite extends Composite {
 		GridData gd_cmbScatteringAlgoType = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_cmbScatteringAlgoType.widthHint = 110;
 		cmbScatteringAttAlgo.setLayoutData(gd_cmbScatteringAlgoType);
-		cmbScatteringAttAlgo.setItems(new String[] {"fixed attenuation", "iterative attenuation", "smart attenuation"});
+		cmbScatteringAttAlgo.setItems(new String[] {"fixed attenuation", "iterative attenuation"});
 		cmbScatteringAttAlgo.setText("iterative attenuation");
 		cmbScatteringAttAngle = new Combo(cmpScattering, SWT.BORDER | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.RIGHT);
 		cmbScatteringAttAngle.setItems(ATTENUATION_ANGLES);

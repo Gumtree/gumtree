@@ -38,7 +38,7 @@ GLOBAL_RATE_SAFE = 40000.0
 ATT_VALUES = [330, 300, 270, 240, 210, 180, 150, 120, 90, 60, 30, 0]
 
 SAMPLE_STAGE = Enumeration('fixed', 'manual', 'lookup')
-ATTENUATION_ALGO = Enumeration('fixed', 'iterative', 'smart')
+ATTENUATION_ALGO = Enumeration('fixed', 'iterative')
 MEASUREMENT_MODE = Enumeration('transmission', 'scattering')
 ACQUISITION_MODE = Enumeration('unlimited', 'time', 'counts', 'bm_counts', 'ba') # ba: bounded acquisition
 
@@ -88,8 +88,6 @@ class QuokkaState(object):
 
         self.att_algo  = ATTENUATION_ALGO.fixed
         self.att_angle = 330
-
-        self.bkg_info  = RateInfo()
 
         self.meas_mode = MEASUREMENT_MODE.scattering
         self.acq_mode  = ACQUISITION_MODE.unlimited
@@ -257,11 +255,10 @@ def setupMeasurement(parameters, meas_mode):
     att_angle = int(parameters['AttenuationAngle'])
     acq_mode  = ACQUISITION_MODE.ba  # all acquisitions are done via ba mode
 
-    # ATTENUATION_ALGO = Enumeration('fixed', 'iterative', 'smart')
+    # ATTENUATION_ALGO = Enumeration('fixed', 'iterative')
     att_algos = dict()
     att_algos["fixed attenuation"]     = ATTENUATION_ALGO.fixed
     att_algos["iterative attenuation"] = ATTENUATION_ALGO.iterative
-    att_algos["smart attenuation"]     = ATTENUATION_ALGO.smart
 
     # check parameters
     if att_algo not in att_algos:
@@ -296,18 +293,6 @@ def setupMeasurement(parameters, meas_mode):
 
     # run configuration script
     exec script in globals()
-
-    # determine background for smart attenuation algorithm
-    if state.att_algo == ATTENUATION_ALGO.smart:
-        slog('Determine background rates for smart attenuation algorithm')
-
-        driveToSafeAtt()
-        for counter in xrange(5):
-            state.bkg_info = determineDetRates(10)
-            if hasTripped():
-                resetTrip()
-            else:
-                break
 
 def setupSample(parameters):
     # parameters
@@ -370,9 +355,6 @@ def preAcquisition(info):
 
     elif att_algo == ATTENUATION_ALGO.iterative:
         iterativeAttenuationAlgo(att_angle)
-
-    elif att_algo == ATTENUATION_ALGO.smart:
-        smartAttenuationAlgo(att_angle)
 
     else:
         slog('unexpected attenuation algorithm: ' + att_algo)
@@ -676,135 +658,6 @@ def iterativeAttenuationAlgo(start_angle):
 
     # print info
     slog('Attenuation is set to %i' % getAtt())
-
-def smartAttenuationAlgo(start_angle):
-    return iterativeAttenuationAlgo(start_angle)
-
-    slog('Smart attenuation algorithm ...')
-
-    # safety margin (2 percent)
-    safety_margin = 1.02
-
-    # attenuator thicknesses
-    thickness_table = OrderedDict([(  0, 0.000), ( 30, 0.130), ( 60, 0.326),
-                                   ( 90, 0.490), (120, 0.640), (150, 0.820),
-                                   (180, 0.965), (210, 1.115), (240, 1.305),
-                                   (270, 1.500), (300, 1.800), (330, 2.500)])
-
-    # background rates
-    bkg_info = state.bkg_info
-
-    def go(level, provider):
-        # drive the attenuator
-        driveAtt(ATT_VALUES[level])
-
-        # count bin rate
-        if not hasTripped():
-            info = determineDetRates(5)
-
-        if hasTripped():
-            return resolveTrip()
-
-        # check if rates are too high
-        elif (info.local_rate > LOCAL_RATE_SAFE) or (info.global_rate > GLOBAL_RATE_SAFE):
-            if level > 0:
-                # move to higher attenuation
-                driveAtt(ATT_VALUES[level - 1])
-
-                if hasTripped():
-                    resetTrip(increase_att=False) # after increasing attenuation detector shouldn't trip
-
-            return
-
-        # check if rates can be improved ([11/06/2015] 2.8 is a better approximation)
-        elif (level+1 < len(ATT_VALUES)) and \
-                (info.local_rate < LOCAL_RATE_SAFE / 2) and (info.global_rate < GLOBAL_RATE_SAFE / 2.8):
-            level, provider = provider(level, info)
-            return go(level, provider)
-
-    def iterative_provider(level, info):
-        # move to next level, and continue with iterative provider
-        return level+1, iterative_provider
-
-    def initial_provider(level, info):
-        # move to next level, and then predict ideal attenuation
-        return level+1, partial(predictive_provider, level, info)
-
-    def predictive_provider(level1, info1, level2, info2):
-        # check if measurements were insufficient
-        if not info2 > safety_margin * info1 or not info1 > safety_margin * bkg_info:
-            return level2+1, partial(predictive_provider, level2, info2)
-
-        att1 = ATT_VALUES[level1]
-        att2 = ATT_VALUES[level2]
-
-        x1 = thickness_table[att1]
-        x2 = thickness_table[att2]
-
-        x3a, xe3a = esitmation(
-                x1, info1.local_rate, info1.local_err,
-                x2, info2.local_rate, info2.local_err,
-                LOCAL_RATE_SAFE)
-
-        x3b, xe3b = esitmation(
-                x1, info1.global_rate, info1.global_err,
-                x2, info2.global_rate, info2.global_err,
-                GLOBAL_RATE_SAFE)
-
-        # take upper bound
-        x3a += xe3a
-        x3b += xe3b
-
-        # check that both estimations are valid
-        if not isfinite(x3a) or not isfinite(x3b):
-            slog('prediction failed and has to be improved')
-            return level2+1, partial(predictive_provider, level2, info2)
-
-        # take thickest safe attenuator
-        x3 = max(0.0, x3a, x3b) # prediction can be negative if no attenuation is necessary to stay within safe rates
-        slog('predicted safe thickness = %s' % x3)
-
-        level3 = next(
-                (ATT_VALUES.index(att) for att, x in thickness_table.items() if x >= x3),
-                default=level2)
-
-        if level3 <= level2+1:
-            # move on with next attenuation angle
-            return level2+1, partial(predictive_provider, level2, info2)
-
-        # move to predicted attenuation and restart algorithm
-        return level3, inital_provider
-
-    # helpers
-    def sqr(x):
-        return x * x
-
-    def isfinite(x):
-        return not math.isinf(x) and not math.isnan(x)
-
-    def esitmation(x1, y1, e1, x2, y2, e2, y3):
-        # conversion to log-scale
-        y1 = log(y1)
-        y2 = log(y2)
-        y3 = log(y3)
-
-        e1 = 1/sqr(y1) * e1
-        e2 = 1/sqr(y2) * e2
-
-        # calculate target thickness (via linear extrapolation)
-        p = (x2-x1)*y3 - (x2*y1 - x1*y2)
-        q = y2 - y1
-        x3 = p / q
-
-        df_y1 = (x1-x2)*(y2-y3)/sqr(y2-y1)
-        df_y2 = (x1-x2)*(y1-y3)/sqr(y2-y1)
-        xe3 = sqr(df_y1) * e1 + sqr(df_y2) * e2
-
-        return x3, xe3
-
-    # initiate algorithm with background data
-    start_level = ATT_VALUES.index(start_angle)
-    return go(start_level, inital_provider)
 
 def determineDetRates(samples, timeout=60.0):
 

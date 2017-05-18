@@ -131,14 +131,14 @@ public class LogbookReportGenerator {
 			name = environment.getName() + "/" + name;
 		
 		Element root = document.createElement("table");
-		serializeConfigurationTableHeader(document, root, environment, configuration, name);
+		serializeConfigurationTableHeader(document, root, configuration, name);
 		serializeConfigurationTableContent(document, root, configuration);
 		document.appendChild(decorateTable(document, root));
 
 		return createTableInfo(name, document);
 	}
-	private static void serializeConfigurationTableHeader(Document document, Element root, EnvironmentInfo environment, ConfigurationInfo configuration, String name) {
-		if (!environment.getName().isEmpty()) {
+	private static void serializeConfigurationTableHeader(Document document, Element root, ConfigurationInfo configuration, String name) {
+		if (!name.isEmpty()) {
 			int colspan =
 					3 + // sample
 					Math.max(
@@ -153,27 +153,6 @@ public class LogbookReportGenerator {
 			header0.appendChild(cell);
 			root.appendChild(header0);
 		}
-
-		/*
-		Element header1 = document.createElement("tr");
-		{
-			Element cell = document.createElement("th");
-			cell.setAttribute("colspan", "3"); // (position, name, thickness)
-			cell.setTextContent("Sample");
-			header1.appendChild(cell);
-		}
-		{
-			int colspan = Math.max(
-					1,
-					configuration.getTransmissionRuns().size() + configuration.getScatteringRuns().size());
-
-			Element cell = document.createElement("th");
-			cell.setAttribute("colspan", String.valueOf(colspan));
-			cell.setTextContent(getStringOrEmpty(configuration.getName()));
-			header1.appendChild(cell);
-		}
-		root.appendChild(header1);
-		*/
 		
 		Element header2 = document.createElement("tr");
 		{
