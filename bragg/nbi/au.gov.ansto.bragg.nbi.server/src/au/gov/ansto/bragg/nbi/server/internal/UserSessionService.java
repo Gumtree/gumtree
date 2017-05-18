@@ -345,6 +345,7 @@ public class UserSessionService {
 		Cookie cookie = request.getCookies().getFirst(UserSessionService.COOKIE_NAME_UUID + "." 
 				+ System.getProperty(UserSessionService.PROPERTY_INSTRUMENT_ID));
 		if (cookie != null) {
+			userCookie = cookie.getValue();
 			session = validateCookie(userCookie);
 		}
 		if (session == null || !session.isValid()){
