@@ -523,7 +523,8 @@ $(function() {
 
 });
 
-jQuery(document).ready(function() {
+//jQuery(document).ready(function() {
+jQuery(window).load(function () {
 	
 	jQuery(document).ajaxStart(function () {
 		//show ajax indicator
@@ -679,7 +680,8 @@ jQuery(document).ready(function() {
 	})
 	.fail(function(e) {
 		if (e.status == 401) {
-			window.location = "signin.html?redirect=notebookAdmin.html";
+//			window.location = "signin.html?redirect=notebookAdmin.html";
+			console.log(e);
 		}
 	});
 	
@@ -728,7 +730,8 @@ jQuery(document).ready(function() {
 	})
 	.fail(function(e) {
 		if (e.status == 401) {
-			window.location = "signin.html?redirect=notebookAdmin.html";
+//			window.location = "signin.html?redirect=notebookAdmin.html";
+			console.log(e);
 		}
 	});
 

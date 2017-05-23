@@ -25,7 +25,7 @@ function signout(redirect){
     });
     logout();
     setTimeout(function() {
-    	window.location = new_loc;
+//    	window.location = new_loc;
     }, 500);
 }
 

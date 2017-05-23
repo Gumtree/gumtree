@@ -96,6 +96,7 @@ function validateUser() {
 		}
 	})
 	.fail(function(e) {
+		console.log(e);
 		updateUserArea(false);
 	});
 }
@@ -106,7 +107,9 @@ function checkNewPage() {
 		if (status == "success") {
 			try {
 				var newPageId = data.split(':')[1];
-				if (pageId != newPageId) {
+				if (newPageId != null && newPageId.length > 0 && pageId != newPageId) {
+					console.log(newPageId, pageId);
+					
 					stopCheckNewPage();
 					$('<div></div>').appendTo('body')
 					  .html('<div class="class_confirm_dialog"><p>The current '
@@ -150,6 +153,7 @@ function checkNewPage() {
 		}
 	})
 	.fail(function(e) {
+		console.log(e);
 	}).always(function() {
 	});
 	
@@ -1202,15 +1206,12 @@ $(function(){
         }
     });
     
-    document.body.onbeforeunload = function() {
-    	if (CKEDITOR.instances.id_editable_inner.checkDirty()) {
-    		return 'You have unsaved changes in the editor.';
-    	}
-    };
-    
 });
 
-jQuery(document).ready(function() {
+//jQuery(document).ready(function() {
+//	return;
+jQuery(window).load(function () {
+	console.log('finished loading');
 //	define scroll div with auto height
 	if (typeof title !== 'undefined') {
 		var titleString = "Instrument Notebook - " + title;
@@ -1250,6 +1251,7 @@ jQuery(document).ready(function() {
 				}
 			}) 
 			.fail(function(e) {
+				console.log(e);
 			});
 
 			$.get(historyUrl, function(data, status) {
@@ -1315,6 +1317,12 @@ jQuery(document).ready(function() {
 				}
 			});
 
+		    document.body.onbeforeunload = function() {
+		    	if (CKEDITOR.instances.id_editable_inner.checkDirty()) {
+		    		return 'You have unsaved changes in the editor.';
+		    	}
+		    };
+		    
 //			$('#id_editable_inner').ckeditor().on('save', function(event, editor, data) {
 //				alert("save");
 //			});
@@ -1322,7 +1330,8 @@ jQuery(document).ready(function() {
 	})
 	.fail(function(e) {
 		if (e.status == 401) {
-			window.location = "../user/signin.html?redirect=notebook.html";
+//			window.location = "../user/signin.html?redirect=notebook.html";
+			console.log(e);
 		}
 	});
 
@@ -1395,6 +1404,7 @@ jQuery(document).ready(function() {
 		}
 	})
 	.fail(function(e) {
+		console.log(e);
 	});
 
 	// load templates

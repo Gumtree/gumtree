@@ -90,6 +90,22 @@ public class UserSessionService {
 
 	}
 	
+	
+	public static String getCurrentSessionString(String userName) {
+		try {
+			String uuidString = sessionDb.get(userName);
+			String timeString = timestampDb.get(uuidString);
+			long time = Long.valueOf(timeString);
+			if (System.currentTimeMillis() - time < UserSessionService.COOKIE_EXP_SECONDS * 1000) {
+				return uuidString;
+			} else {
+				return null;
+			}
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
 	public static UserSessionObject validateCookie(String userCookie) throws ClassNotFoundException, RecordsFileException, IOException {
 		UserSessionObject session = new UserSessionObject();
 		String[] pair = userCookie.split(":");
@@ -119,6 +135,7 @@ public class UserSessionService {
 				}
 			}
 		}
+		logger.error("validate cookie:" + String.valueOf(session.isValid()));
 		return session;
 	}
 
@@ -128,7 +145,10 @@ public class UserSessionService {
 		session.setUserName(remoteUser);
 		session.setRemoteUserFlag(true);
 		session.setValid(true);
-		String uuidString = UUID.randomUUID().toString();
+		String uuidString = getCurrentSessionString(remoteUser);
+		if (uuidString == null) {
+			uuidString = UUID.randomUUID().toString();
+		}
 		session.setSessionId(uuidString);
 		CookieSetting cookie = createUUIDCookie(remoteUser, uuidString, sessionDb, timestampDb);
 
@@ -353,13 +373,16 @@ public class UserSessionService {
 			if (header != null) {
 				Form qform = (Form) header;
 				String remoteUser = qform.getFirstValue(PROP_REMOTE_USER);
+				logger.error("found remote user: "  + remoteUser);
 				if (remoteUser != null && remoteUser.trim().length() > 0) {
 					session = setUpRemoteUserSession(request, response, remoteUser);
+					logger.error("remote user setup finished");
 				}
 			}
 		}
 		if (session == null || !session.isValid()) {
 			try {
+				logger.error("check dav session");
 				session = checkDavSession(request);
 			} catch (Exception e) {
 			}
@@ -367,6 +390,7 @@ public class UserSessionService {
 
 		if (session == null || !session.isValid()) {
 			try {
+				logger.error("check ics session");
 				session = checkIcsSession(request);
 			} catch (Exception e) {
 			}
