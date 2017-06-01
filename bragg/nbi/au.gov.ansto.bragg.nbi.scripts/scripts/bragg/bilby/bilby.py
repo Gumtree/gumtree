@@ -469,15 +469,22 @@ def scan(deviceName, start, stop, numpoints, scanMode, dataType, preset, force='
     sics.execute('hset ' + controllerPath + '/savetype ' + saveType.key, 'scan')
     sics.execute('hset ' + controllerPath + '/force ' + force, 'scan')
 
-    # repeat until successful
-    while True:
+    # wait for instrument ready
+    time.sleep(1)
+    while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+        time.sleep(0.1)
 
-        time.sleep(1)
-        while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-            time.sleep(0.1)
-            
+    try:       
         scanController.syncExecute()
-        break
+    except Exception as e:
+        if sics.isInterrupt():
+            raise
+        else:
+            if sics.getSicsController().getServerStatus().equals(ServerStatus.COUNTING):
+                while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+                    time.sleep(1)
+            else:
+                raise
 
     # Get output filename
     filenameController = sicsController.findDeviceController('datafilename')
@@ -504,15 +511,22 @@ def count(mode, dataType, preset, force='true', saveType=saveType.save):
     sics.execute('hset ' + controllerPath + '/savetype ' + saveType.key, 'scan')
     sics.execute('hset ' + controllerPath + '/force ' + force, 'scan')
 
-    # repeat until successful
-    while True:
-
-        time.sleep(1)
-        while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-            time.sleep(0.1)
-            
+    # wait for instrument ready
+    time.sleep(1)
+    while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+        time.sleep(0.1)
+        
+    try:       
         scanController.syncExecute()
-        break
+    except Exception as e:
+        if sics.isInterrupt():
+            raise
+        else:
+            if sics.getSicsController().getServerStatus().equals(ServerStatus.COUNTING):
+                while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+                    time.sleep(1)
+            else:
+                raise
 
     # Get output filename
     filenameController = sicsController.findDeviceController('datafilename')
