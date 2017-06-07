@@ -24,6 +24,7 @@ public abstract class BatchBuffer extends AbstractModelObject implements IBatchB
 	private int timeEstimation = -1;
 	
 	public BatchBuffer(String name) {
+		name = name.replaceAll(" ", "_");
 		this.name = name;
 	}
 
