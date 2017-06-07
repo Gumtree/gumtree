@@ -28,6 +28,7 @@ public abstract class BatchBuffer extends AbstractModelObject implements IBatchB
 	}
 
 	public void setName(String name) {
+		name = name.replaceAll(" ", "_");
 		String oldValue = this.name;
 		this.name = name;
 		firePropertyChange("name", oldValue, name);
