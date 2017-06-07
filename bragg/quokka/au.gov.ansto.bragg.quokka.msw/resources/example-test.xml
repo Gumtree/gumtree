@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="msw.xsl"?>
+<ConfigurationList Id="#0-3">
+  <Configuration Id="#0-b7d8" Name="Configuration1">
+    <SetupScript>print "configuration"</SetupScript>
+    <Measurement Id="#0-b7d7" Name="Transmission" MaxTime="10">
+      <SetupScript>print "transmission"</SetupScript>
+    </Measurement>
+    <Measurement Id="#0-b7d6" Name="Scattering" MaxTime="10">
+      <SetupScript>print "scattering"</SetupScript>
+    </Measurement>
+  </Configuration>
+</ConfigurationList>

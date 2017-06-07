@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Echidna Experiment
 Bundle-SymbolicName: au.gov.ansto.bragg.echidna.exp;singleton:=true
-Bundle-Version: 1.10.0.qualifier
+Bundle-Version: 1.13.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.echidna.exp.internal.Activator
 Bundle-ActivationPolicy: lazy
 Export-Package: au.gov.ansto.bragg.echidna.exp.command,

@@ -33,6 +33,20 @@
             id="au.gov.ansto.bragg.taipan.ui.TaipanCalibrationPerspective"
             name="Taipan Calibration">
       </perspective>
+      <perspective
+            class="au.gov.ansto.bragg.taipan.ui.befilter.BFLivePerspective"
+            fixed="true"
+            icon="icons/compass_16x16.png"
+            id="au.gov.ansto.bragg.nbi.taipan.BFLivePerspective"
+            name="BF Live">
+      </perspective>
+      <perspective
+            class="au.gov.ansto.bragg.taipan.ui.befilter.BFAnalysisPerspective"
+            fixed="true"
+            icon="icons/compass_16x16.png"
+            id="au.gov.ansto.bragg.nbi.taipan.BFAnalysisPerspective"
+            name="BF Analysis">
+      </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -67,6 +81,20 @@
             class="au.gov.ansto.bragg.taipan.ui.align.TaipanCalibrationView"
             id="au.gov.ansto.bragg.taipan.ui.TaipanCalibrationView"
             name="Calibration View"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            class="au.gov.ansto.bragg.taipan.ui.befilter.BFLiveView"
+            id="au.gov.ansto.bragg.nbi.taipan.BFLiveView"
+            name="BF Live View"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            class="au.gov.ansto.bragg.taipan.ui.befilter.BFAnalysisView"
+            id="au.gov.ansto.bragg.nbi.taipan.BFAnalysisView"
+            name="BF Analysis View"
             restorable="true">
       </view>
    </extension>

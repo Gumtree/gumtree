@@ -165,27 +165,41 @@ public class SicsProxy implements ISicsProxy {
 		connectionMonitor = new Thread(new Runnable() {
 			public void run() {
 				while (getProxyState().equals(ProxyState.CONNECTED)) {
-					Socket socket = null;
+//					Socket socket = null;
+//					try {
+//						// System.out.println("Checking heat beat...");
+//						socket = new Socket(getConnectionContext().getHost(),
+//								getConnectionContext().getPort());
+//					} catch (IOException ioe) {
+//						try {
+//							// disconnect the proxy if network is unavailable
+//							disconnect();
+//						} catch (SicsIOException e) {
+//							logger.error("Error in proxy disconnection.",
+//									e);
+//						}
+//					} finally {
+//						// clean up
+//						if (socket != null) {
+//							try {
+//								socket.close();
+//								socket = null;
+//							} catch (IOException e) {
+//							}
+//						}
+//					}
+//					try {
+//						Thread.sleep(HEART_BEAT_PERIOD);
+//					} catch (InterruptedException e) {
+//						Thread.currentThread().interrupt();
+//					}
 					try {
-						// System.out.println("Checking heat beat...");
-						socket = new Socket(getConnectionContext().getHost(),
-								getConnectionContext().getPort());
-					} catch (IOException ioe) {
+						send("Poch", null, "status");
+					} catch (SicsIOException e1) {
+						e1.printStackTrace();
 						try {
-							// disconnect the proxy if network is unavailable
 							disconnect();
-						} catch (SicsIOException e) {
-							logger.error("Error in proxy disconnection.",
-									e);
-						}
-					} finally {
-						// clean up
-						if (socket != null) {
-							try {
-								socket.close();
-								socket = null;
-							} catch (IOException e) {
-							}
+						} catch (Exception e) {
 						}
 					}
 					try {

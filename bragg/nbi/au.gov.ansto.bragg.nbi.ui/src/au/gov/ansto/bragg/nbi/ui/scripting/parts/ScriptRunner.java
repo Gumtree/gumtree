@@ -5,6 +5,7 @@ package au.gov.ansto.bragg.nbi.ui.scripting.parts;
 
 import java.util.List;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -150,38 +151,7 @@ public class ScriptRunner {
 	}
 	
 	public String selectSaveFile(final List<String> extNames){
-		setActionPerformed(false);
-		shell.getDisplay().asyncExec(new Runnable() {
-			
-			@Override
-			public void run() {
-				FileDialog dialog = new FileDialog(shell, SWT.SINGLE);
- 				if (fileDialogPath == null){
- 					IWorkspace workspace= ResourcesPlugin.getWorkspace();
- 					IWorkspaceRoot root = workspace.getRoot();
- 					dialog.setFilterPath(root.getLocation().toOSString());
- 				} else {
- 					dialog.setFilterPath(fileDialogPath);
- 				}
- 				if (extNames != null && extNames.size() > 0) {
- 					String[] extArray = new String[extNames.size()];
- 					dialog.setFilterExtensions(extNames.toArray(extArray));
- 				}
- 				String filePath = dialog.open();
- 				setFilePath(filePath);
- 				fileDialogPath = filePath;
-				setActionPerformed(true);
-			}
-		});
-		
-		while (!isActionPerformed()){
-			try {
-				Thread.sleep(200);
-			} catch (InterruptedException e) {
-				System.out.println("can't wait");
-			}
-		}
-		return getFilePath();
+		return selectSaveFile(extNames, null, null);
 	}
 
 	public String selectSaveFolder(){
@@ -215,6 +185,103 @@ public class ScriptRunner {
 		return getFolderPath();
 	}
 
+	public String selectLoadFile(final List<String> extNames) {
+		return selectLoadFile(extNames, null);
+	}
+	
+	public String selectLoadFile(final List<String> extNames, final String workspacePath) {
+		setActionPerformed(false);
+		shell.getDisplay().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				FileDialog dialog = new FileDialog(shell, SWT.SINGLE);
+				IWorkspace workspace= ResourcesPlugin.getWorkspace();
+				IWorkspaceRoot root = workspace.getRoot();
+				IResource resource = null;
+				if (workspacePath != null) {
+					resource = root.findMember(workspacePath);					
+				}
+				if (resource != null) {
+					dialog.setFilterPath(resource.getLocation().toOSString());
+				} else {
+					if (fileDialogPath == null){
+	 					dialog.setFilterPath(root.getLocation().toOSString());						
+					} else {
+						dialog.setFilterPath(fileDialogPath);
+					}
+				}
+ 				if (extNames != null && extNames.size() > 0) {
+ 					String[] extArray = new String[extNames.size()];
+ 					dialog.setFilterExtensions(extNames.toArray(extArray));
+ 				}
+ 				String filePath = dialog.open();
+ 				setFilePath(filePath);
+ 				if (workspacePath == null){
+ 	 				fileDialogPath = filePath; 					
+ 				}
+				setActionPerformed(true);
+			}
+		});
+		
+		while (!isActionPerformed()){
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				System.out.println("can't wait");
+			}
+		}
+		return getFilePath();
+	}
+	
+	public String selectSaveFile(final List<String> extNames, final String workspacePath, final String filename) {
+		setActionPerformed(false);
+		shell.getDisplay().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+				IWorkspace workspace= ResourcesPlugin.getWorkspace();
+				IWorkspaceRoot root = workspace.getRoot();
+				IResource resource = null;
+				if (workspacePath != null) {
+					resource = root.findMember(workspacePath);					
+				}
+				if (resource != null) {
+					dialog.setFilterPath(resource.getLocation().toOSString());
+				} else {
+					if (fileDialogPath == null){
+	 					dialog.setFilterPath(root.getLocation().toOSString());						
+					} else {
+						dialog.setFilterPath(fileDialogPath);
+					}
+				}
+ 				if (extNames != null && extNames.size() > 0) {
+ 					String[] extArray = new String[extNames.size()];
+ 					dialog.setFilterExtensions(extNames.toArray(extArray));
+ 				}
+ 				if (filename != null) {
+ 					dialog.setFileName(filename);
+ 				}
+ 				String filePath = dialog.open();
+ 				setFilePath(filePath);
+ 				if (workspacePath == null){
+ 	 				fileDialogPath = filePath; 					
+ 				}
+				setActionPerformed(true);
+			}
+		});
+		
+		while (!isActionPerformed()){
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				System.out.println("can't wait");
+			}
+		}
+		return getFilePath();
+	}
+	
 	public boolean isActionPerformed() {
 		return actionPerformed;
 	}

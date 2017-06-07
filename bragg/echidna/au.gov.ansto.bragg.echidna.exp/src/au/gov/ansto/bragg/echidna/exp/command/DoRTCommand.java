@@ -23,13 +23,13 @@ public class DoRTCommand extends AbstractSicsCommand {
 	private final static String DEFAULT_OVERLAPS_NAME = "command.default.overlaps";
 	private final static String DEFAULT_STEPSIZE_NAME = "command.default.stepsize";
 	private final static String DEFAULT_TOT_TIME_NAME = "command.default.tot-time";
-	private final static String DEFAULT_ROTATE_NAME = "command.default.rotate";
+//	private final static String DEFAULT_ROTATE_NAME = "command.default.rotate";
 	private final static String DEFAULT_SIZE_NAME = "command.default.size";
 //	private float startang = 2.75f;
 //	private float finishang = 5.2f;
 	private String overlaps = "0";
 	private float stepsize = 0.05f;
-	private float rotate = 0f;
+//	private float rotate = 0f;
 	private String size = "9mm can";
 	private String sampname;
 	private String sampposAB;
@@ -56,7 +56,7 @@ public class DoRTCommand extends AbstractSicsCommand {
 		try{
 			overlaps = System.getProperty(DEFAULT_OVERLAPS_NAME);
 		} catch (Exception e) {
-			overlaps = "0";
+			overlaps = "1";
 		}
 		try{
 			stepsize = Float.valueOf(System.getProperty(DEFAULT_STEPSIZE_NAME));
@@ -66,10 +66,10 @@ public class DoRTCommand extends AbstractSicsCommand {
 			tot_time = Float.valueOf(System.getProperty(DEFAULT_TOT_TIME_NAME));
 		} catch (Exception e) {
 		}
-		try{
-			rotate = Float.valueOf(System.getProperty(DEFAULT_ROTATE_NAME));
-		} catch (Exception e) {
-		}
+//		try{
+//			rotate = Float.valueOf(System.getProperty(DEFAULT_ROTATE_NAME));
+//		} catch (Exception e) {
+//		}
 	}
 	/**
 	 * @return the startang
@@ -125,20 +125,20 @@ public class DoRTCommand extends AbstractSicsCommand {
 		this.stepsize = stepsize;
 		firePropertyChange("stepsize", oldValue, stepsize);
 	}
-	/**
-	 * @return the rotate
-	 */
-	public float getRotate() {
-		return rotate;
-	}
-	/**
-	 * @param nosteps the rotate to set
-	 */
-	public void setRotate(float rotate) {
-		float oldValue = this.rotate;
-		this.rotate = rotate;
-		firePropertyChange("rotate", oldValue, rotate);
-	}
+//	/**
+//	 * @return the rotate
+//	 */
+//	public float getRotate() {
+//		return rotate;
+//	}
+//	/**
+//	 * @param nosteps the rotate to set
+//	 */
+//	public void setRotate(float rotate) {
+//		float oldValue = this.rotate;
+//		this.rotate = rotate;
+//		firePropertyChange("rotate", oldValue, rotate);
+//	}
 	/**
 	 * @return the size
 	 */
@@ -224,7 +224,8 @@ public class DoRTCommand extends AbstractSicsCommand {
 			(overlaps != null && sampposNumber.trim().length() > 0 ? overlaps.trim() + " ": "") +
 			(stepsize != 0 ? String.valueOf(stepsize) + " " : "") +
 			(tot_time != Float.NaN ? String.valueOf(tot_time) + " " : "") +
-			(rotate != Float.NaN ? String.valueOf(rotate) + " " : "");
+//			(rotate != Float.NaN ? String.valueOf(rotate) + " " : "");
+			"0 ";
 		return script;
 	}
 

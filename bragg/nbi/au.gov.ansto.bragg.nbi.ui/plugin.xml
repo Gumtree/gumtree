@@ -261,6 +261,11 @@
             id="au.gov.ansto.bragg.nbi.ui.prefDialog"
             name="Open Preference Dialog">
       </command>
+      <command
+            defaultHandler="au.gov.ansto.bragg.nbi.ui.preference.ShowScriptingConsoleHandler"
+            id="au.gov.ansto.bragg.nbi.ui.toggleConsole"
+            name="Toggle Scripting Console">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -313,6 +318,13 @@
                   label="Open Preference Dialog"
                   style="push"
                   tooltip="Open Preference Dialog">
+            </command>
+            <command
+                  commandId="au.gov.ansto.bragg.nbi.ui.toggleConsole"
+                  icon="icons/terminal_32x16.png"
+                  label="Toggle Scripting Console"
+                  style="push"
+                  tooltip="Toggle Showing Script Console">
             </command>
          </toolbar>
       </menuContribution>

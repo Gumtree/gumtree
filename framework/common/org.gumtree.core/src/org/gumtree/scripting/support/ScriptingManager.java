@@ -82,16 +82,42 @@ public class ScriptingManager implements IScriptingManager {
 			shortName = getDefaultEngineName();
 		}
 		ScriptEngine engine = null;
-		try {
-			logger.info("Creating scripting engine {}.", shortName);
-			engine = getScriptEngineManager().getEngineByName(shortName);
-			logger.info("Created scripting engine {}.", shortName);
-		} catch (Throwable throwable) {
-			engine = createDefaultEngine();
-			logger.error("Cannot create engine for " + shortName
-					+ ".  GumTree will use the default engine "
-					+ engine.getFactory().getEngineName() + " instead.",
-					throwable);
+//		try {
+//			logger.info("Creating scripting engine {}.", shortName);
+//			engine = getScriptEngineManager().getEngineByName(shortName);
+//			logger.info("Created scripting engine {}.", shortName);
+//		} catch (Throwable throwable) {
+//			engine = createDefaultEngine();
+//			logger.error("Cannot create engine for " + shortName
+//					+ ".  GumTree will use the default engine "
+//					+ engine.getFactory().getEngineName() + " instead.",
+//					throwable);
+//		}
+		int timeout = 20;
+		int wait = 0;
+		logger.info("Creating scripting engine {}.", shortName);
+		while (engine == null && wait < timeout) {
+			try {
+				engine = getScriptEngineManager().getEngineByName(shortName);
+				if (engine != null) {
+					logger.info("Created scripting engine {}.", shortName);
+				}
+			} catch (Throwable throwable) {
+//				try {
+//					Thread.sleep(1000);
+//					wait += 1;
+//				} catch (InterruptedException e) {
+//				}
+//				logger.info("failed to create scripting engine " + shortName + " in trial #" + wait);
+			}
+			if (engine == null) {
+				try {
+					Thread.sleep(1000);
+					wait += 1;
+				} catch (InterruptedException e) {
+				}
+				logger.info("failed to create scripting engine " + shortName + " in trial #" + wait);
+			}
 		}
 		if (engine == null) {
 			engine = createDefaultEngine();

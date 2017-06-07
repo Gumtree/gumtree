@@ -1,0 +1,219 @@
+<br>
+<div class="class_template_table class_template_object" id="template_ec_1">
+<table border="1" cellpadding="2" cellspacing="0" class="xmlTable" style="width:100%">
+	<caption>Experiment Setup</caption>
+	<tbody>
+		<tr>
+			<th>Start Date</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>Number of approved days</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>Proposal #</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>Proposal Name</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>Investigators</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>Contact Number(s)</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>Affiliation</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>Local contact</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>Wavelength</th>
+			<td>A</td>
+		</tr>
+		<tr>
+			<th>Wavelength Resolution</th>
+			<td>0.10</td>
+		</tr>
+		<tr>
+			<th>Standard / High res&rsquo;n NVS</th>
+			<td>Standard</td>
+		</tr>
+		<tr>
+			<th>Apx softzero</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>Samx softzero</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>samy</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>samz</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>Sample Environment</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>T / P / field set-point</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>Cells used</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>Sample alignment date</th>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<th>Sensitivity file date</th>
+			<td>&nbsp;</td>
+		</tr>
+	</tbody>
+</table>
+</div><br>
+<div class="class_template_table class_template_object" id="template_sc_1">
+<table border="1" cellpadding="2" cellspacing="0" style="width:100%">
+	<caption>Experiment Configuration</caption>
+	<thead>
+		<tr>
+			<th>Configurations</th>
+			<th>low q</th>
+			<th>med q</th>
+			<th>high q</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Name of config</td>
+			<td>L1=L2=20m_central_apx5mm_EPG</td>
+			<td>L1=L2=8m_central_apx5mm</td>
+			<td>L1=12m_L2=1.3m_apx5mm_offset</td>
+		</tr>
+		<tr>
+			<td>L<sub>1</sub></td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>L<sub>2</sub></td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td># guides</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Det y</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Det offset</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Source ap diameter</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Guard ap diameter</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>apx diameter</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Beamstop #</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>bsx</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>bsz</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Beam centre (x,z)</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Qmin</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Qmax</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>H<sub>2</sub>O or buffer S rate</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>D<sub>2</sub>O or buffer S rate</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>MT cell S rate</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>MT beam T rate</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+<br>
+

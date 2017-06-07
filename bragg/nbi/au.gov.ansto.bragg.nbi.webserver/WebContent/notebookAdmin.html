@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">    
+	<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="icons/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="icons/apple-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="icons/apple-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="icons/apple-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-icon-180x180.png">
+	<link rel="icon" type="image/png" sizes="192x192"  href="icons/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+	<link rel="manifest" href="icons/manifest.json">
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
+	<meta name="theme-color" content="#ffffff">
+	
+
+<link rel="stylesheet" href="css/jquery/jquery-ui-1.11.1.min.css" />
+<link rel="stylesheet" href="css/tabs.css" />
+<link rel="stylesheet" href="css/navigate.css" />
+<link type='text/css' rel='stylesheet'	href='js/raptor/libraries/raptor-front-end.css' />
+<link type='text/css' rel='stylesheet' href='js/raptor/libraries/theme.css' />
+<link type='text/css' rel='stylesheet' href='js/raptor/libraries/theme-icons.css' />
+<link type="text/css" rel='stylesheet' href='css/notebook.css' />
+<link rel="stylesheet" href="css/notebookAdmin.css" />
+<script type="text/javascript" src="js/jquery/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery-ui-1.11.1.min.js"></script>
+<script type="text/javascript" src="js/FileSaver.js"></script>
+<script type="text/javascript" src="js/html-docx.js"></script>
+<script type="text/javascript" src="js/jquery.fileDownload.js"></script>
+<script type="text/javascript" src="js/instrumentsetup.js"></script>
+<script type="text/javascript" src="js/SlideOutTabs.js"></script>    
+<script type="text/javascript" src="js/notebookAdmin.js"></script>
+<script type="text/javascript" src="js/account.js"></script>
+<!--[if IE]>
+<style type="text/css">
+    .box { display: block; }
+    #box { overflow: hidden;position: relative; }
+    b { position: absolute; top: 0px; right: 0px; width:1px; height: 251px; overflow: hidden; text-indent: -9999px; }
+</style>
+<![endif]-->
+<title>Manage Notebook</title>
+</head>
+<body>
+
+    <div class="class_div_header" id="id_div_header">
+		<span id="id_span_header">Manage Notebook</span>
+		<div id="id_div_headercorner"><a id="id_a_home" href="home.html"><img src="images/home-icon.png"/><span>Home</span></a><a id="id_a_account"><img src="images/signout_blue.png"/><span>Sign Out</span></a></div>
+    </div>
+    <div class="class_div_print_header" id="id_div_print_header">
+    	<h1>Instrument Notebook </h1>
+    </div>
+  <div class = "class_div_sidemenu">
+    <div class="cssmenu" id="cssmenu">
+        <ul id="id_ul_controlList">
+           <li><a id="id_a_newbook">Create New Page</a></li>
+           <li><a id="id_a_manageGuide">User's Guide</a></li>
+           <li class='active has-sub'><a id="id_a_reviewCurrent">Current Page</a>
+               	<ul id="id_ul_currentpage">
+   				</ul>
+           </li>
+           <!-- li><a href="notebook.html">Go to Current Editor Page</a></li -->
+ 		   <li class='active has-sub'><a>Sorted with Proposal ID:</a>
+ 		   		<ul id="id_ul_archiveList">
+        		</ul>
+ 		   </li>
+ 		   <li class='active has-sub'><a>Sorted with Timestamp:</a>
+ 		   		<ul id="id_ul_timeSorted">
+        		</ul>
+ 		   </li>
+        </ul>
+    </div>
+  </div>
+  <div class="class_div_content ">
+  		<div class="class_div_content_header" id="id_content_header"><span>User's Guide</span></div>
+  		<div class="class_editable_page ui-corner-all ui-shadow" id="id_div_content"></div>
+  </div>
+  <div class="slide-out-div">
+	    <a class="a_sidebar_handle" id="a_sidebar_search">Search Notebook</a>
+	    <a class="a_sidebar_handle" id="a_sidebar_search_db">Search Database</a>
+        <div class="div_sidebar_block" id="div_sidebar_search">
+		    <div class="div_sidebar_header" id="id_sidebar_search_header">
+			    <input type="text" id="id_input_search" placeholder="search text">
+			    <a class="class_div_button" onclick="searchNotebook()">Search</a>
+		    </div>
+        	<div class="div_sidebar_inner" id="id_search_inner"></div>
+        </div>
+        <div class="div_sidebar_block" id="div_sidebar_search_db">
+		    <div class="div_sidebar_header" id="id_sidebar_searchDB_header">
+			    <input type="text" id="id_input_search_db" placeholder="search text">
+			    <a class="class_div_button" onclick="searchDatabase()">DB Search</a>
+		    </div>
+        	<div class="div_sidebar_inner" id="id_search_db_inner"></div>
+        </div>
+  </div>
+  <footer class="div_shiftable">
+		<hr>
+		<div class="div_footer">
+			<p class="class_footer_right">&#169;2017 ANSTO</p>
+		</div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry exported="true" kind="lib" path="xmlworker-5.5.6.jar" sourcepath="/com.itext.src/xmlworker-master.zip"/>
+	<classpathentry exported="true" kind="lib" path="itextpdf-5.5.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="itext-xtra-5.5.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="itext-pdfa-5.5.6.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

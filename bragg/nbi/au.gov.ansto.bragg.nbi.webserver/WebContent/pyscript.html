@@ -1,21 +1,42 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="icons/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="icons/apple-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="icons/apple-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="icons/apple-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-icon-180x180.png">
+	<link rel="icon" type="image/png" sizes="192x192"  href="icons/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+	<link rel="manifest" href="icons/manifest.json">
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
+	<meta name="theme-color" content="#ffffff">
+	
+<link rel="stylesheet" href="css/jquery/jquery-ui-1.11.1.min.css">
 <link rel="stylesheet" href="css/form.css" />
 <link rel="stylesheet" href="css/table.css" />
 <link rel="stylesheet" href="css/tabs.css" />
 <link rel="stylesheet" href="css/button.css" />
 <link rel="stylesheet" href="css/popup.css" />
 <link rel="stylesheet" href="css/pyscript.css" />
-<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-<script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="css/codemirror.css">
+<script src="js/jquery/jquery-1.10.2.min.js"></script>
+<script src="js/jquery/jquery-ui-1.11.1.min.js"></script>
 <script src="js/jquery.confirm.min.js"></script>
-<script src="js/busy.js"></script>
-<script src="instrumentsetup.js"></script>
-<script src="pyscript.js"></script>
+<script src="js/busy_light.js"></script>
+<script src="js/instrumentsetup.js"></script>
+<script src="js/pyscript.js"></script>
 <script src="js/popup.js"></script>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script src="js/codemirror.js"></script>
+<script src="js/python_mode.js"></script>
 <!--[if IE]>
 <style type="text/css">
     .box { display: block; }
@@ -119,7 +140,7 @@
                             <div id="cid_8" class="form-all">
                                 <form action="jython/rest/res?type=START" method="post" name="script_form" id="script_form" accept-charset="utf-8">
                                     <input type="hidden" name="script_input" id="script_input" value="textArea" />
-                                    <textarea id="script_text" name="script_text" cols="40" rows="6" wrap='off'></textarea>
+                                    <textarea id="script_text" name="script_text" cols="40" rows="8" wrap='off'></textarea>
                                 </form>
                             </div>
                         <!--[if IE]><b>.</b><![endif]-->

@@ -79,6 +79,7 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 	public static final Color MASK_INCLUSIVE_COLOR = new Color(0, 220, 0, 30);
 	public static final Color MASK_EXCLUSIVE_COLOR = new Color(0, 0, 220, 30);
 	private static final long serialVersionUID = -5212815744540142881L;
+	private static final String PROPERTY_INDEX_IN_TOOLTIP = "gumtree.plot.indexintooltip";
 	private static final String LEGEND_NONE_COMMAND = "legendNone";
 	private static final String LEGEND_INTERNAL_COMMAND = "legendInternal";
 	private static final String LEGEND_BOTTOM_COMMAND = "legendBottom";
@@ -95,6 +96,7 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 	private JMenuItem legendInternal;
     private int selectedSeriesIndex = -1;
     private double chartError;
+    private boolean indexInTooltip;
     
     /** Remove the selected mask command. */
     public static final String UNFOCUS_CURVE_COMMAND = "FOCUS_NONE";
@@ -114,6 +116,8 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 	private boolean isInternalLegendSelected;
 	private int mouseFollowerXPrecision;
 	private int mouseFollowerYPrecision;
+	private int itemIndex;
+	private int seriesIndex;
     
 	/**
 	 * @param chart
@@ -247,6 +251,14 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 		isInternalLegendSelected = false;
 		mouseFollowerXPrecision = 2;
 		mouseFollowerYPrecision = 2;
+		indexInTooltip = false;
+		String indexInTooltipProperty = System.getProperty(PROPERTY_INDEX_IN_TOOLTIP);
+		if (indexInTooltipProperty != null) {
+			try {
+				indexInTooltip = Boolean.valueOf(indexInTooltipProperty);
+			} catch (Exception e) {
+			}
+		}
 	}
 
 	@Override
@@ -656,6 +668,8 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 	                			new Point2D.Double(chartX, chartY), getScreenDataArea(), getChart());
 	                	setChartX(chartX);
 	                	setChartY(chartY);
+	                	setSeriesIndex(seriesIndex);
+	                	setItemIndex(item);
 	                	if (dataset instanceof IXYErrorDataset) {
 		                	setChartError(((IXYErrorDataset) dataset).getYError(seriesIndex, item));
 		                	
@@ -807,6 +821,8 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
                 			new Point2D.Double(chartX, chartY), getScreenDataArea(), getChart());
                 	setChartX(chartX);
                 	setChartY(chartY);
+                	setSeriesIndex(seriesIndex);
+                	setItemIndex(item);
                 	if (dataset instanceof IXYErrorDataset) {
 	                	setChartError(((IXYErrorDataset) dataset).getYError(seriesIndex, item));
 	                	
@@ -1241,6 +1257,8 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
     				new Point2D.Double(chartX, chartY), getScreenDataArea(), getChart());
     		setChartX(chartX);
     		setChartY(chartY);
+    		setSeriesIndex(seriesIndex);
+    		setItemIndex(itemIndex);
     		if (dataset instanceof IXYErrorDataset) {
             	setChartError(((IXYErrorDataset) dataset).getYError(seriesIndex, itemIndex));
             	
@@ -1256,6 +1274,22 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
     	return -1;
     }
     
+	private void setItemIndex(int index) {
+		this.itemIndex = index;
+	}
+	
+	private void setSeriesIndex(int index) {
+		this.seriesIndex = index;
+	}
+	
+	private int getItemIndex(){
+		return itemIndex;
+	}
+	
+	private int getSeriesIndex() {
+		return seriesIndex;
+	}
+	
 	@Override
     public void moveSelectedMask(int direction) {
 		if (getSelectedMask() == null) {
@@ -1500,6 +1534,12 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
 			((LogarithmizableAxis) axis).setLogarithmic(enabled);
 			axis.setAutoRange(true);
 		}
+//		ValueAxis oldAxis = getXYPlot().getRangeAxis();
+//		LogarithmicAxis logAxis = new LogarithmicAxis(oldAxis.getLabel());
+//		logAxis.setRange(oldAxis.getRange());
+////		logAxis.setAllowNegativesFlag(true);
+//		getXYPlot().setRangeAxis(logAxis);
+//		updatePlot();
 	}
 
 	@Override
@@ -1535,7 +1575,11 @@ public class Plot1DPanel extends JChartPanel implements IPlot1D {
     	Rectangle2D dataArea = getScreenDataArea();
     	if (((int) dataArea.getMinX() <= x) && (x <= (int) dataArea.getMaxX()) && 
     			((int) dataArea.getMinY() <= y) && (y <= (int) dataArea.getMaxY())) {
-    		String text = String.format("(%." + mouseFollowerXPrecision + "f, %." + mouseFollowerYPrecision + "f", getChartX(), 
+    		String text = "";
+    		if (indexInTooltip) {
+    			text += "#" + getItemIndex() + ", ";
+    		}
+    		text += String.format("(%." + mouseFollowerXPrecision + "f, %." + mouseFollowerYPrecision + "f", getChartX(), 
     				getChartY());
     		boolean isErrorEnabled = false;
     		XYItemRenderer renderer = getXYPlot().getRenderer();

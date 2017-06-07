@@ -1,0 +1,260 @@
+
+<!DOCTYPE HTML>
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<title>Decode and Encode Base64 (using JavaScript)</title>
+<link rel="stylesheet" type="text/css" href="media/css/basic.css" media="screen">
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
+<script type="text/javascript" language="javascript">
+function minimize() {
+    $(".header").fadeOut();
+    $(".description").fadeOut();
+    $(".footer").fadeOut();
+}
+
+$(document).ready(function() {
+    $("#minimize").bind("click",minimize);
+});
+</script>
+<script type="text/javascript">
+window.google_analytics_uacct = "UA-7783568-2";
+</script>
+<script type="text/javascript" language="javascript">
+<!-- 
+var b64array = "ABCDEFGHIJKLMNOP" +
+           "QRSTUVWXYZabcdef" +
+           "ghijklmnopqrstuv" +
+           "wxyz0123456789+/" +
+           "=";
+
+function encodePlain() {
+    input = $("#plain").val();
+    var base64 = "";
+    var hex = "";
+    var chr1, chr2, chr3 = "";
+    var enc1, enc2, enc3, enc4 = "";
+    var i = 0;
+
+    do {
+        chr1 = input.charCodeAt(i++);
+        chr2 = input.charCodeAt(i++);
+        chr3 = input.charCodeAt(i++);
+    
+        enc1 = chr1 >> 2;
+        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+        enc4 = chr3 & 63;
+    
+        if (isNaN(chr2)) {
+            enc3 = enc4 = 64;
+        } else if (isNaN(chr3)) {
+            enc4 = 64;
+        }
+
+        base64  = base64  +
+            b64array.charAt(enc1) +
+            b64array.charAt(enc2) +
+            b64array.charAt(enc3) +
+            b64array.charAt(enc4);
+        chr1 = chr2 = chr3 = "";
+        enc1 = enc2 = enc3 = enc4 = "";
+    } while (i < input.length);
+
+    $("#base64").val(base64 );
+
+    encodeHex();
+    encodeImage();
+}
+
+function decode64() {
+    var input = $("#base64").val();
+    var output = "";
+    var hex = "";
+    var chr1, chr2, chr3 = "";
+    var enc1, enc2, enc3, enc4 = "";
+    var i = 0;
+
+    var base64test = /[^A-Za-z0-9\+\/\=]/g;
+    if (base64test.exec(input)) {
+        $("#message").html("There were invalid base64 characters in the input text.\n" +
+              "Valid base64 characters are A-Z, a-z, 0-9, '+', '/',and '='\n" +
+              "Expect errors in decoding.");
+    } else {
+        $("#message").html("");
+    }
+    input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+    do {
+        enc1 = b64array.indexOf(input.charAt(i++));
+        enc2 = b64array.indexOf(input.charAt(i++));
+        enc3 = b64array.indexOf(input.charAt(i++));
+        enc4 = b64array.indexOf(input.charAt(i++));
+        
+        chr1 = (enc1 << 2) | (enc2 >> 4);
+        chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+        chr3 = ((enc3 & 3) << 6) | enc4;
+        
+        output = output + String.fromCharCode(chr1);
+        
+        if (enc3 != 64) {
+            output = output + String.fromCharCode(chr2);
+        }
+        if (enc4 != 64) {
+            output = output + String.fromCharCode(chr3);
+        }
+    
+        chr1 = chr2 = chr3 = "";
+        enc1 = enc2 = enc3 = enc4 = "";
+    
+    } while (i < input.length);
+
+    $("#plain").val(unescape(output));
+    encodeHex();
+    encodeImage();
+}
+
+function encodeHex() {
+    var hex="";
+    var input = $("#plain").val();
+    for (i=0; i<input.length; i++)
+        hex += '%' + input.charCodeAt(i).toString(16);
+
+    $("#hex").val(hex);
+}
+
+function encodeImage() {
+    var src = "data:image;base64,";
+    src = src + $("#base64").val();
+    $("#b64_img").attr("src",src);
+}
+
+function showImage() {
+    $("#as_image").dialog();
+}
+
+$(document).ready(function() {
+    $("#plain").bind("keyup",encodePlain);
+    $("#base64").bind("keyup",decode64);
+    $("#as_image_link").bind("click",showImage);
+});
+//-->
+</script>
+</head>
+<body>
+<div class="wrap">
+<div class="content">
+<div class="header">
+<h1 id="title">Decode and Encode Base64 (using JavaScript)</h1>
+<div class="ads">
+<script type="text/javascript"><!--
+google_ad_client = "pub-8439490324871070";
+/* 728x90, created 6/30/09 */
+google_ad_slot = "1605096053";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>
+</div>
+<div class="body">
+<div id="message"></div>
+<div style="text-align:center;">
+<p>
+Base64 (automatically decoded)<br />
+<textarea id="base64" rows="3" style="width: 700px;"></textarea>
+
+<p>
+ASCII Plain Text (automatically encoded)<br />
+<textarea id="plain" rows="3" style="width: 700px;"></textarea>
+
+<p>
+Hex<br />
+<textarea id="hex" rows="3" style="width: 700px;" readonly="readonly"></textarea>
+
+<p>
+Options<br />
+<a id="as_image_link" href="#">Decode as Image</a>
+</div>
+
+<div id="as_image" style="display:none;" title="Decoded as Image (IE not supported)">
+<img id="b64_img"/>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-7783568-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+<script type="text/javascript">
+//<![CDATA[
+(function() {
+	var links = document.getElementsByTagName('a');
+	var query = '?';
+	for(var i = 0; i < links.length; i++) {
+	if(links[i].href.indexOf('#disqus_thread') >= 0) {
+		query += 'url' + i + '=' + encodeURIComponent(links[i].href) + '&';
+	}
+	}
+	document.write('<script charset="utf-8" type="text/javascript" src="http://disqus.com/forums/decodebase64/get_num_replies.js' + query + '"></' + 'script>');
+})();
+//]]>
+</script>
+</div>
+<div class="description">
+<p><p>This is a simple online base 64 encoder and decoder. This page was designed to be helpful to developers and anyone doing programming work. Base64 is a common format used for the web and email. It allows binary data to be transmitted in plain text format without risk of the data being clobbered by an intermediate server that does not handle certain binary characters. The number system has a base of 64, which means that each character requires 6 bits of storage.
+<p>This page should be useful to anyone who occasionally comes across a base64 string that they want to decode. This includes things like HTTP basic authentication passwords. This app is helpful to PHP, Ruby on Rails, and other developers. It is also helpful for new programmers who are trying to understand base64 encoding.</p>
+
+<p>Please let me know below if you have any ideas on how I can improve the functionality or usability of this page.</p>
+
+<div id="disqus_thread"></div>
+
+<script type="text/javascript">
+  (function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = 'http://decodebase64.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+</div>
+
+<div class="footer">
+
+Other Tools:</br>
+<a href="http://eqgraph.com">Equation Grapher</a> | 
+<a href="http://asciito.com">ASCII to hex/decimal/base64 Converter</a> | 
+<a href="http://decodebase64.com">Base64 Decoder</a>
+
+<div class="ads">
+<script type="text/javascript"><!--
+google_ad_client = "pub-8439490324871070";
+/* 728x90, created 6/30/09 */
+google_ad_slot = "1605096053";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>
+
+<a href="#" id="minimize">Minimize</a><br />
+
+</div>
+</div>
+</div>
+</body>
+</html>

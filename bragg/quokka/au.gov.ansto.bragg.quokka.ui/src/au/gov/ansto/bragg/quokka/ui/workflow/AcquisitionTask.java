@@ -169,7 +169,6 @@ public class AcquisitionTask extends AbstractExperimentTask {
 		IExperimentStateListener listener = new IExperimentStateListener() {
 			@Override
 			public void stateUpdated(int runId) {
-				System.err.println("Updated " + runId);
 				Acquisition acquisition = stateManager.getAcquisition(runId);
 				view.updateUI(acquisition);
 			}
@@ -1186,7 +1185,6 @@ public class AcquisitionTask extends AbstractExperimentTask {
 				if (sicsManager != null) {
 					sicsManager.proxy().send(command, callback, channelId);					
 				}
-				System.err.println(command);
 		}
 
 		private void fireLiveReductionRequest(int col, int row) {

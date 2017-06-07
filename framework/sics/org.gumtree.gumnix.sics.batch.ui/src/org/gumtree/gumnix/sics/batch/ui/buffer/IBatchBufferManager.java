@@ -53,4 +53,6 @@ public interface IBatchBufferManager extends IService {
 	
 	public void removeEventHandler(IEventHandler<BatchBufferManagerEvent> eventHandler);
 	
+	public void resetBufferManagerStatus();
+	
 }

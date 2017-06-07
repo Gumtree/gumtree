@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -41,8 +42,10 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	
 	private static final String TCL_ESCAPE_CURLY_BRACKETS_PROPERTY = "gumtree.sics.escapeCurlyBrackets";
 	
-	// Schedule to check queue every 500ms
-	private static final int SCHEDULING_INTERVAL = 500;
+	private static final String TCL_BATCH_FOLDER_PROPERTY = "gumtree.sics.tclBatchFolder";
+	
+	// Schedule to check queue every 1s
+	private static final int SCHEDULING_INTERVAL = 1000;
 	
 	// The batch buffer container
 	private BatchBufferQueue batchBufferQueue;
@@ -79,9 +82,12 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	
 	private boolean escapeBrackets = false;
 	
+	private String batchFolderPath;
+	
 	public BatchBufferManager() {
 		super();
 		batchBufferQueue = new BatchBufferQueue(this, "batchBufferQueue");
+		batchFolderPath = System.getProperty(TCL_BATCH_FOLDER_PROPERTY);
 		ContextInjectionFactory.inject(batchBufferQueue, Activator.getDefault()
 				.getEclipseContext());
 		setStatus(BatchBufferManagerStatus.DISCONNECTED);
@@ -92,7 +98,6 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			@Override
 			public void queueChanged() {
 				if (isAutoRun()){
-					System.err.println("**************************try to update time estimation");
 					updateTimeEstimation();
 				}
 			}
@@ -142,7 +147,8 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 							IBatchBuffer buffer = (IBatchBuffer) getBatchBufferQueue().remove(0);
 							execute(buffer);
 						} catch (Exception e) {
-							handleExecutionEvent("failed to execute buffer");
+							handleException(e.getMessage());
+//							handleExecutionEvent("failed to execute buffer: " + e.getMessage());
 						}
 					} else {
 						asyncSend("hset /experiment/gumtree_time_estimate 0", null);
@@ -213,8 +219,6 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		// Listen to interrupt event
 		sicsListener = new ISicsListener() {
 			public void interrupted(int level) {
-				System.err.println("******************" + level);
-
 				if (level >= 3) {
 					// Batch is interrupt with level 3 or above
 					setStatus(BatchBufferManagerStatus.IDLE);
@@ -278,7 +282,6 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		if (!autoRun) {
 			estimatedTimeForBuffer = 0;
 			timestampOnEstimation = 0;
-			System.err.println("************************ clear time estimation");
 			asyncSend("hset /experiment/gumtree_time_estimate 0", null);
 		}
 		firePropertyChange("autoRun", oldValue, autoRun);
@@ -290,33 +293,69 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	
 	/***************************************************************
 	 * Operations
+	 * @throws IOException 
 	 ***************************************************************/
-	private void execute(IBatchBuffer buffer) {
+	private void execute(IBatchBuffer buffer) throws IOException {
 		synchronized (executionLock) {
 			// Go to preparing mode
 			setStatus(BatchBufferManagerStatus.PREPARING);
-			// Ready to upload
-			asyncSend("exe clear", null, ISicsProxy.CHANNEL_RAW_BATCH);
-			asyncSend("exe clearupload", null, ISicsProxy.CHANNEL_RAW_BATCH);
-			asyncSend("exe upload", null, ISicsProxy.CHANNEL_RAW_BATCH);
-			// Upload
+			
+//	Modified by nxi. Change the uploading strategy. Save the script in the mounted folder instead.			
+//			// Ready to upload
+//			asyncSend("exe clear", null, ISicsProxy.CHANNEL_RAW_BATCH);
+//			asyncSend("exe clearupload", null, ISicsProxy.CHANNEL_RAW_BATCH);
+//			asyncSend("exe upload", null, ISicsProxy.CHANNEL_RAW_BATCH);
+//			// Upload
+//			BufferedReader reader = new BufferedReader(new StringReader(buffer.getContent()));
+//			String line = null;
+//			try {
+//				while((line = reader.readLine()) != null) {
+//					if (escapeBrackets) {
+//						line = line.replace("{", "\\{").replace("}", "\\}").replace("\"", "\\\"");
+//					}
+//					asyncSend("exe append " + line, null, ISicsProxy.CHANNEL_RAW_BATCH);
+//				}
+//			} catch (Exception e) {
+//				handleExecutionEvent("failed to append line: " + line);
+//			}
+//			// Save
+//			asyncSend("exe forcesave " + buffer.getName(), null, ISicsProxy.CHANNEL_RAW_BATCH);
+			
+			File folderFolder = new File(batchFolderPath);
+			if (folderFolder.exists() && !folderFolder.isDirectory()) {
+				throw new IOException("batch folder doesn't exist.");
+			} 
+			if (!folderFolder.exists()) {
+				if (!folderFolder.mkdirs()) {
+					throw new IOException("failed to create batch folder.");
+				}
+			}
+			String newTCLFilePath = batchFolderPath + "/" + buffer.getName();
 			BufferedReader reader = new BufferedReader(new StringReader(buffer.getContent()));
+
+			BufferedWriter batchWriter = new BufferedWriter(new FileWriter(newTCLFilePath, false));
+			
 			String line = null;
 			try {
 				while((line = reader.readLine()) != null) {
-					if (escapeBrackets) {
-						line = line.replace("{", "\\{").replace("}", "\\}");
-					}
-					asyncSend("exe append " + line, null, ISicsProxy.CHANNEL_RAW_BATCH);
+//					if (escapeBrackets) {
+//						line = line.replace("{", "\\{").replace("}", "\\}").replace("\"", "\\\"");
+//					}
+//					asyncSend("exe append " + line, null, ISicsProxy.CHANNEL_RAW_BATCH);
+					batchWriter.write(line + "\n");
 				}
 			} catch (Exception e) {
-				handleExecutionEvent("failed to append line: " + line);
+//				handleExecutionEvent("failed to append line: " + line);
+				handleException("failed to append line: " + line);
+			} finally {
+				batchWriter.flush();
+				batchWriter.close();
+				reader.close();
 			}
-			// Save
-			asyncSend("exe forcesave " + buffer.getName(), null, ISicsProxy.CHANNEL_RAW_BATCH);
+			
 			// Enqueue (due to the delay in general channel, wait until it is ready)
 			final boolean[] enqueued = new boolean[] { false };
-			asyncSend("exe enqueue " + buffer.getName(), new SicsCallbackAdapter() {
+			asyncSend("exe enqueue {" + buffer.getName() + "}", new SicsCallbackAdapter() {
 				public void receiveReply(ISicsReplyData data) {
 					enqueued[0] = true;
 				}
@@ -454,20 +493,39 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		PlatformUtils.getPlatformEventBus().unsubscribe(this, eventHandler);
 	}
 	
+	private void handleException(String err) {
+//		setStatus(BatchBufferManagerStatus.ERROR);
+		synchronized (this.status) {
+			this.status = BatchBufferManagerStatus.ERROR;
+			BatchBufferManagerStatusEvent event = new BatchBufferManagerStatusEvent(this, status);
+			event.setMessage(err);
+			PlatformUtils.getPlatformEventBus().postEvent(event);
+		}
+	}
+	
 	// Handle range message
 	private void handleExecutionEvent(String message) {
-		String[] rangeInfos = message.split("=");
-		for (int i = 0; i < rangeInfos.length; i++) {
-			rangeInfos[i] = rangeInfos[i].trim(); 
+		try {
+			String[] rangeInfos = message.split("=");
+			for (int i = 0; i < rangeInfos.length; i++) {
+				rangeInfos[i] = rangeInfos[i].trim(); 
+			}
+			// remove ".range" to get buffername
+			String buffername = rangeInfos[0].substring(0, rangeInfos[0].length() - 6);
+			long startPosition = 0;
+			long endPosition = 0;
+			try {
+				startPosition = Long.parseLong(rangeInfos[1]);
+				endPosition = Long.parseLong(rangeInfos[1]);
+			} catch (Exception e) {
+			}
+			// Fire event
+			PlatformUtils.getPlatformEventBus().postEvent(
+					new BatchBufferManagerExecutionEvent(this, buffername,
+							startPosition, endPosition));
+		} catch (Exception e) {
+//			e.printStackTrace();
 		}
-		// remove ".range" to get buffername
-		String buffername = rangeInfos[0].substring(0, rangeInfos[0].length() - 6);
-		long startPosition = Long.parseLong(rangeInfos[1]);
-		long endPosition = Long.parseLong(rangeInfos[1]);
-		// Fire event
-		PlatformUtils.getPlatformEventBus().postEvent(
-				new BatchBufferManagerExecutionEvent(this, buffername,
-						startPosition, endPosition));
 	}
 	
 	/***************************************************************
@@ -528,4 +586,11 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		}
 	}
 
+	@Override
+	public void resetBufferManagerStatus() {
+		
+		if (getStatus() == BatchBufferManagerStatus.PREPARING || getStatus() == BatchBufferManagerStatus.ERROR){
+			setStatus(BatchBufferManagerStatus.IDLE);
+		}
+	}
 }

@@ -28,7 +28,6 @@ public class OpenNewWindowHandler extends AbstractHandler {
 	 */
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		System.err.println("new winodw button clicked");
 		IMultiMonitorManager mmManager = new MultiMonitorManager();
 		
 		mmManager.openWorkbenchWindow(System.getProperty(ID_DEFAULT_NEW_WINDOW), 0, false);

@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+  targetNamespace="http://www.gumtree.org/msw"
+  xmlns:msw="http://www.gumtree.org/msw"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified"
+  version="1.0">
+
+  <xsd:annotation>
+    <xsd:documentation xml:lang="en">
+      
+      DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+      Copyright 2014-2015 ANSTO, all rights reserved.
+
+      The contents of this file are subject to the terms of either the
+      GNU General Public License Version 2 only ("GPL") or the Common
+      Development and Distribution License("CDDL") (collectively, the
+      "License").  You may not use this file except in compliance with
+      the License.
+
+      Contributor(s): David Mannicke
+
+    </xsd:documentation>
+  </xsd:annotation>
+
+  
+  <!-- id -->
+
+  <xsd:simpleType name="Id">
+    <xsd:restriction base="xsd:string">
+      <!-- no leading zeros -->
+      <xsd:pattern value="#[a-f1-9][a-f0-9]*[-][a-f1-9][a-f0-9]*"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+
+  <!-- users -->
+  
+  <xsd:element name="User">
+    <xsd:complexType>
+      <xsd:attribute name="Id"      type="msw:Id"      use="required"/>
+      <xsd:attribute name="Enabled" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="Name"    type="xsd:string"  default="User"/>
+      <xsd:attribute name="Phone"   type="xsd:string"  default=""    />
+      <xsd:attribute name="Email"   type="xsd:string"  default=""    />
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:element name="UserList">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="msw:User" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+    <!-- SampleId -->
+    <xsd:key name='UserId'>
+      <xsd:selector xpath="msw:User"/>
+      <xsd:field xpath="@Id"/>
+    </xsd:key>
+  </xsd:element>
+
+
+  <!-- samples -->
+  
+  <xsd:element name="Sample">
+    <xsd:complexType>
+      <xsd:attribute name="Id"                   type="msw:Id"      use="required"  />
+      <xsd:attribute name="Enabled"              type="xsd:boolean" default="true"  />
+      <xsd:attribute name="Name"                 type="xsd:string"  default="Sample"/>
+      <xsd:attribute name="Thickness"            type="xsd:double"  default="1.0"   />
+      <xsd:attribute name="Description"          type="xsd:string"  default=""      />
+      <!-- if any values are provided for a Sample then they will overwrite the defaults given by a Measurement node -->
+      <xsd:attribute name="MinTime"              type="xsd:int"/>
+      <xsd:attribute name="MaxTime"              type="xsd:int"/>
+      <xsd:attribute name="TargetMonitorCounts"  type="xsd:int"/>
+      <xsd:attribute name="TargetDetectorCounts" type="xsd:int"/>
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:complexType name="SampleReference">
+    <xsd:choice minOccurs="0">
+      <xsd:element name="Environment"   type="msw:EnvironmentReference"   maxOccurs="unbounded"/>
+      <xsd:element name="Configuration" type="msw:ConfigurationReference" maxOccurs="unbounded"/>
+    </xsd:choice>
+    <xsd:attribute name="Id"                   type="msw:Id"      use="required"/>
+    <xsd:attribute name="BasedOn"              type="msw:Id"      use="required"/>
+    <xsd:attribute name="Enabled"              type="xsd:boolean" default="true"/>
+    <xsd:attribute name="Name"                 type="xsd:string"/>
+    <xsd:attribute name="Thickness"            type="xsd:double"/>
+    <xsd:attribute name="Description"          type="xsd:string"/>
+    <xsd:attribute name="MinTime"              type="xsd:int"   />
+    <xsd:attribute name="MaxTime"              type="xsd:int"   />
+    <xsd:attribute name="TargetMonitorCounts"  type="xsd:int"   />
+    <xsd:attribute name="TargetDetectorCounts" type="xsd:int"   />
+  </xsd:complexType>
+
+  <xsd:element name="SampleList">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="msw:Sample" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+    <!-- SampleId -->
+    <xsd:key name='SampleId'>
+      <xsd:selector xpath="msw:Sample"/>
+      <xsd:field xpath="@Id"/>
+    </xsd:key>
+  </xsd:element>
+  
+  
+  <!-- configurations -->
+  
+  <xsd:element name="Measurement">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="SetupScript" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute name="Id"                   type="msw:Id"      use="required"/>
+      <xsd:attribute name="Enabled"              type="xsd:boolean" default="true"/>
+      <xsd:attribute name="Name"                 type="xsd:string"  default=""    />
+      <!-- may be overwritten by Sample values -->
+      <xsd:attribute name="MinTime"              type="xsd:int"     default="0"   />
+      <xsd:attribute name="MaxTime"              type="xsd:int"     default="0"   />
+      <xsd:attribute name="TargetMonitorCounts"  type="xsd:int"     default="0"   />
+      <xsd:attribute name="TargetDetectorCounts" type="xsd:int"     default="0"   />
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:complexType name="MeasurementReference">
+    <xsd:choice minOccurs="0">
+      <xsd:element name="Environment"   type="msw:EnvironmentReference"   maxOccurs="unbounded"/>
+      <xsd:element name="Sample"        type="msw:SampleReference"        maxOccurs="unbounded"/>
+    </xsd:choice>
+    <!-- SetupScript cannot be overwritten -->
+    <xsd:attribute name="Id"                   type="msw:Id"      use="required"/>
+    <xsd:attribute name="BasedOn"              type="msw:Id"      use="required"/>
+    <xsd:attribute name="Enabled"              type="xsd:boolean" default="true"/>
+    <xsd:attribute name="Name"                 type="xsd:string"/>
+    <xsd:attribute name="MinTime"              type="xsd:int"   />
+    <xsd:attribute name="MaxTime"              type="xsd:int"   />
+    <xsd:attribute name="TargetMonitorCounts"  type="xsd:int"   />
+    <xsd:attribute name="TargetDetectorCounts" type="xsd:int"   />
+  </xsd:complexType>
+
+  <xsd:element name="Configuration">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="SetupScript" type="xsd:string" minOccurs="0" maxOccurs="1"        />
+        <xsd:element ref="msw:Measurement"                minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attribute name="Id"          type="msw:Id"      use="required"         />
+      <xsd:attribute name="Enabled"     type="xsd:boolean" default="true"         />
+      <xsd:attribute name="Name"        type="xsd:string"  default="Configuration"/>
+      <xsd:attribute name="Description" type="xsd:string"  default=""             />
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:complexType name="ConfigurationReference">
+    <!-- Name and Description cannot be overwritten -->
+    <xsd:sequence>
+      <xsd:element name="Measurement" type="msw:MeasurementReference" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="Id"          type="msw:Id"      use="required"/>
+    <xsd:attribute name="BasedOn"     type="msw:Id"      use="required"/>
+    <xsd:attribute name="Enabled"     type="xsd:boolean" default="true"/>
+  </xsd:complexType>
+
+  <xsd:element name="ConfigurationList">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="msw:Configuration" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+    <!-- MeasurementId -->
+    <xsd:key name='MeasurementId'>
+      <xsd:selector xpath="msw:Configuration/msw:Measurement"/>
+      <xsd:field xpath="@Id"/>
+    </xsd:key>
+    <!-- ConfigurationId -->
+    <xsd:key name='ConfigurationId'>
+      <xsd:selector xpath="msw:Configuration"/>
+      <xsd:field xpath="@Id"/>
+    </xsd:key>
+  </xsd:element>
+  
+  
+  <!-- environments -->
+
+  <xsd:element name="SetPoint">
+    <xsd:complexType>
+      <xsd:attribute name="Id"         type="msw:Id"      use="required"/>
+      <xsd:attribute name="Enabled"    type="xsd:boolean" default="true"/>
+      <xsd:attribute name="Value"      type="xsd:double"  default="0.0" />
+      <xsd:attribute name="WaitPeriod" type="xsd:double"  default="0.0" />
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:complexType name="SetPointReference">
+    <xsd:choice minOccurs="0">
+      <xsd:element name="Environment"   type="msw:EnvironmentReference"   maxOccurs="unbounded"/>
+      <xsd:element name="Configuration" type="msw:ConfigurationReference" maxOccurs="unbounded"/>
+      <xsd:element name="Sample"        type="msw:SampleReference"        maxOccurs="unbounded"/>
+    </xsd:choice>
+    <xsd:attribute name="Id"         type="msw:Id"      use="required"/>
+    <xsd:attribute name="BasedOn"    type="msw:Id"      use="required"/>
+    <xsd:attribute name="Enabled"    type="xsd:boolean" default="true"/>
+    <xsd:attribute name="Value"      type="xsd:double"/>
+    <xsd:attribute name="WaitPeriod" type="xsd:double"/>
+  </xsd:complexType>
+
+  <xsd:element name="Environment">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="msw:SetPoint" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attribute name="Id"   type="msw:Id"     use="required"       />
+      <xsd:attribute name="Name" type="xsd:string" default="Environment"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="EnvironmentReference">
+    <!-- Name cannot be overwritten -->
+    <xsd:sequence>
+      <xsd:element name="SetPoint" type="msw:SetPointReference" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="Id"          type="msw:Id"      use="required"/>
+    <xsd:attribute name="BasedOn"     type="msw:Id"      use="required"/>
+    <xsd:attribute name="Enabled"     type="xsd:boolean" default="true"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="ConfigurationLoop"/>
+  <xsd:complexType name="SampleLoop"/>
+  
+  <xsd:element name="EnvironmentList">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="msw:Environment" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:choice>
+          <xsd:sequence>
+            <xsd:element name="Configurations" type="msw:ConfigurationLoop"/>
+            <xsd:element ref="msw:Environment" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="Samples"        type="msw:SampleLoop"/>
+          </xsd:sequence>
+          <xsd:sequence>
+            <xsd:element name="Samples"        type="msw:SampleLoop"/>
+            <xsd:element ref="msw:Environment" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="Configurations" type="msw:ConfigurationLoop"/>
+          </xsd:sequence>
+        </xsd:choice>
+        <xsd:element ref="msw:Environment" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+    <!-- SetPointId -->
+    <xsd:key name='SetPointId'>
+      <xsd:selector xpath="msw:Environment/msw:SetPoint"/>
+      <xsd:field xpath="@Id"/>
+    </xsd:key>
+    <!-- EnvironmentId -->
+    <xsd:key name='EnvironmentId'>
+      <xsd:selector xpath="msw:Environment"/>
+      <xsd:field xpath="@Id"/>
+    </xsd:key>
+  </xsd:element>
+  
+  
+  <!-- loop hierarchy -->
+
+  <xsd:element name="Schedule">
+    <xsd:annotation>
+      <xsd:appinfo>
+        schedule-root
+      </xsd:appinfo>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="Environment"   type="msw:EnvironmentReference"   maxOccurs="unbounded"/>
+        <xsd:element name="Configuration" type="msw:ConfigurationReference" maxOccurs="unbounded"/>
+        <xsd:element name="Sample"        type="msw:SampleReference"        maxOccurs="unbounded"/>
+      </xsd:choice>
+    </xsd:complexType>
+  </xsd:element>
+
+  
+  <!-- root -->
+  
+  <xsd:element name="MSW">
+    <xsd:annotation>
+      <xsd:appinfo>
+        model-root
+      </xsd:appinfo>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="msw:UserList"          minOccurs="0"/>
+        <xsd:element ref="msw:SampleList"        minOccurs="0"/>
+        <xsd:element ref="msw:ConfigurationList" minOccurs="0"/>
+        <xsd:element ref="msw:EnvironmentList"   minOccurs="0"/>
+        <xsd:element ref="msw:Schedule"          minOccurs="0"/>
+      </xsd:sequence>
+    </xsd:complexType>
+    <!-- Id -->
+    <xsd:key name='UniqueId'>
+      <xsd:selector xpath="msw:UserList/msw:User|.//msw:Sample|.//msw:Measurement|.//msw:Configuration|.//msw:SetPoint|.//msw:Environment"/>
+      <xsd:field xpath="@Id"/>
+    </xsd:key>
+  </xsd:element>
+</xsd:schema>

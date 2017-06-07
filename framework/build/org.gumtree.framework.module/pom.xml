@@ -5,7 +5,7 @@
 
 	<groupId>org.codehaus.gumtree</groupId>
 	<artifactId>org.gumtree.framework.module</artifactId>
-	<version>1.10.0-SNAPSHOT</version>
+	<version>1.13.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
 		<data.path>../../data</data.path>
@@ -23,6 +23,8 @@
 		<module>${common.path}/org.gumtree.data.core</module>
 		<module>${common.path}/ucar.netcdf</module>
 		<module>${common.path}/org.gumtree.data.impl.netcdf</module>
+		
+		<module>${common.path}/com.itext.pdf</module>
 		
 		<module>${common.path}/com.db4o.osgi</module>
 		<module>${common.path}/com.google.gson</module>
@@ -52,6 +54,7 @@
 		<module>${common.path}/org.eclipse.nebula.widgets</module>
 		<module>${common.path}/org.eclipse.nebula.jface</module>
 		<module>${common.path}/net.sourceforge.nattable</module>
+		<module>${common.path}/org.apache.commons.math</module>
 		<module>${common.path}/org.apache.commons.io</module>
 		<module>${common.path}/org.gumtree.widgets</module>
 		<module>${common.path}/org.gumtree.vis.gdm</module>
@@ -62,7 +65,12 @@
 		<module>${common.path}/org.gumtree.data.ui</module>
 		<module>${common.path}/org.gumtree.data.nexus.ui</module>
 		<module>${common.path}/org.gumtree.common.ui.feature</module>
-
+		
+		<module>${common.path}/org.gumtree.msw</module>
+		<module>${common.path}/org.gumtree.msw.elements</module>
+		<module>${common.path}/org.gumtree.msw.schedule</module>
+		<module>${common.path}/org.gumtree.msw.ui</module>
+		<module>${common.path}/org.gumtree.msw.ui.ktable</module>
 
 
 		<module>${extensions.path}/org.beanshell</module>
@@ -81,6 +89,8 @@
 
 		<module>${extensions.path}/org.gumtree.tcl.feature</module>
 
+		<module>${extensions.path}/org.gumtree.egit.feature</module>
+		
 		<module>${extensions.path}/org.gumtree.xml.feature</module>
 
 		<module>${extensions.path}/org.gumtree.passerelle.feature</module>

@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg NBI TAS Powder Documentation
 Bundle-SymbolicName: au.gov.ansto.bragg.nbi.doc.sics.tas;singleton:=true
-Bundle-Version: 1.10.0.qualifier
+Bundle-Version: 1.13.0.qualifier
 Bundle-Vendor: Bragg Institute

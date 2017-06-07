@@ -380,37 +380,37 @@ class Dataset(Data):
         res.__copy_metadata__(self)
         return res
     
-    def __repr__(self, indent = None):
+    def __repr__(self, indent = None, skip = True):
         if indent is None :
             indent = ' ' * 8
         else :
             indent += ' ' * 8
-        res = 'Dataset(' + self.storage.__repr__(indent) + str(', \n' \
+        res = 'Dataset(' + self.storage.__repr__(indent, skip) + str(', \n' \
                 + indent + 'title=\'' + self.title + '\'')
         if not self.var is None :
-            res += ',\n' + indent + 'var=' + self.var.storage.__repr__(indent + ' ' * 4)
+            res += ',\n' + indent + 'var=' + self.var.storage.__repr__(indent + ' ' * 4, skip)
         if len(self.axes) > 0 :
             res += ',\n' + indent + 'axes=['
             for i in xrange(len(self.axes)) :
-                res += str(self.axes[i].__repr__(indent + ' ' * 6))
+                res += str(self.axes[i].__repr__(indent + ' ' * 6, skip))
                 if i < len(self.axes) - 1 :
                     res += ',\n' + indent + ' ' * 6
             res += ']'
         res += ')'
         return res
     
-    def __str__(self, indent = ''):
+    def __str__(self, indent = '', skip = True):
         res = 'title: ' + self.title + '\n' + indent
         if not self.units is None and len(self.units) > 0 :
             res += 'units: ' + self.units + '\n' + indent
-        res = str(res + 'storage: ') + self.storage.__str__(indent + ' ' * 9)
+        res = str(res + 'storage: ') + self.storage.__str__(indent + ' ' * 9, skip)
         if not self.var is None :
             res += '\n' + indent + 'error: ' + \
-                    (self.var ** 0.5).storage.__str__(indent + ' ' * 7)
+                    (self.var ** 0.5).storage.__str__(indent + ' ' * 7, skip)
         if len(self.axes) > 0 :
             res += '\n' + indent + 'axes:\n' + indent + ' ' * 2
             for i in xrange(len(self.axes)) :
-                res += str(i) + '. ' + str(self.axes[i].__str__(indent + ' ' * 5))
+                res += str(i) + '. ' + str(self.axes[i].__str__(indent + ' ' * 5, skip))
                 if i < len(self.axes) - 1 :
                     res += '\n' + indent + ' ' * 2
         return res
@@ -567,7 +567,13 @@ class Dataset(Data):
             self.__iNXDataset__.saveTo(path)
         except :
             raise IOError, 'failed to write to: ' + path
-    
+
+#    def argmax(self, axis = None):
+#        return self.storage.argmax(axis)
+#
+#    def argmin(self, axis = None):
+#        return self.storage.argmin(axis)
+        
     def normalise(self, attr_name): 
         if hasattr(self, attr_name) :
             attr = eval('self.' + attr_name)
@@ -662,6 +668,9 @@ def zeros_like(obj, default_var = True, default_axes = True):
     return new(array.zeros_like(obj), default_var = default_var, \
                default_axes = default_axes)
     
+def diagflat(obj, k = 0, default_var = True, default_axes = True):
+    return new(array.diagflat(obj, k), default_var = default_var, default_axes = default_axes)
+
 def ones(shape, dtype = float, default_var = True, default_axes = True):
     return new(array.ones(shape, dtype), default_var = default_var, \
                default_axes = default_axes)

@@ -150,44 +150,44 @@ public class DoRTScanTask extends AbstractEchidnaScanTask {
 					SWT.FILL, SWT.CENTER).grab(true, false).applyTo(tot_timeText);
 			addValidator(tot_timeText, floatValidator);
 			
-			final Text rotateText = getToolkit().createText(parent, "");
-			GridDataFactory.swtDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(
-					SWT.FILL, SWT.CENTER).grab(true, false).applyTo(rotateText);
-			Validator limitValidator = new Validator() {
-				
-				private float lower = 0;
-				private float upper = 50;
-				public boolean isValid(String text) {
-					if (text == null || text.trim().length() == 0)
-						return false;
-					try{
-						float value = Float.valueOf(text);
-						if (value >= lower && value <= upper) {
-							return true;
-						} else {
-							return false;
-						}
-					}catch (Exception e) {
-						return false;
-					}
-				}
-				
-				public String getErrorMessage() {
-					return "Input must be a number within (" + lower + ", " + upper + ")";
-				}
-				
-//				public void setLimit(float lower, float upper) {
-//					if (lower < upper) {
-//						this.lower = lower;
-//						this.upper = upper;
-//					}else {
-//						this.upper = lower;
-//						this.lower = upper;
+//			final Text rotateText = getToolkit().createText(parent, "");
+//			GridDataFactory.swtDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(
+//					SWT.FILL, SWT.CENTER).grab(true, false).applyTo(rotateText);
+//			Validator limitValidator = new Validator() {
+//				
+//				private float lower = 0;
+//				private float upper = 50;
+//				public boolean isValid(String text) {
+//					if (text == null || text.trim().length() == 0)
+//						return false;
+//					try{
+//						float value = Float.valueOf(text);
+//						if (value >= lower && value <= upper) {
+//							return true;
+//						} else {
+//							return false;
+//						}
+//					}catch (Exception e) {
+//						return false;
 //					}
 //				}
-			};
-			addValidator(rotateText, limitValidator);
-			rotateText.setToolTipText("0 for stationary sample");
+//				
+//				public String getErrorMessage() {
+//					return "Input must be a number within (" + lower + ", " + upper + ")";
+//				}
+//				
+////				public void setLimit(float lower, float upper) {
+////					if (lower < upper) {
+////						this.lower = lower;
+////						this.upper = upper;
+////					}else {
+////						this.upper = lower;
+////						this.lower = upper;
+////					}
+////				}
+//			};
+//			addValidator(rotateText, limitValidator);
+//			rotateText.setToolTipText("0 for stationary sample");
 			
 			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
@@ -219,9 +219,9 @@ public class DoRTScanTask extends AbstractEchidnaScanTask {
 					bindingContext.bindValue(SWTObservables.observeText(tot_timeText, SWT.Modify),
 							BeansObservables.observeValue(command, "tot_time"),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(rotateText, SWT.Modify),
-							BeansObservables.observeValue(command, "rotate"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
+//					bindingContext.bindValue(SWTObservables.observeText(rotateText, SWT.Modify),
+//							BeansObservables.observeValue(command, "rotate"),
+//							new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});
 
@@ -243,7 +243,7 @@ public class DoRTScanTask extends AbstractEchidnaScanTask {
 					newCommand.setOverlaps(command.getOverlaps());
 					newCommand.setStepsize(command.getStepsize());
 					newCommand.setTot_time(command.getTot_time());
-					newCommand.setRotate(command.getRotate());
+//					newCommand.setRotate(command.getRotate());
 					getDataModel().insertCommand(getDataModel().indexOf(command) + 1, newCommand);
 					refreshUI(parent);
 					notifyPropertyChanged(newCommand, null);
@@ -270,7 +270,7 @@ public class DoRTScanTask extends AbstractEchidnaScanTask {
 		}
 		
 		public void createPartControl(Composite parent) {
-			GridLayoutFactory.swtDefaults().numColumns(11).applyTo(parent);
+			GridLayoutFactory.swtDefaults().numColumns(10).applyTo(parent);
 			if (getDataModel().getCommands().length == 0){
 				DoRTCommand newCommand = new DoRTCommand();
 				newCommand.setSampposAB("A");
@@ -292,7 +292,7 @@ public class DoRTScanTask extends AbstractEchidnaScanTask {
 			getToolkit().createLabel(parent, "Overlaps");
 			getToolkit().createLabel(parent, "Step size");
 			getToolkit().createLabel(parent, "Total");
-			getToolkit().createLabel(parent, "Rotate");
+//			getToolkit().createLabel(parent, "Rotate");
 //			Label sampposLabel = getToolkit().createLabel(parent, "sample_position");
 			GridDataFactory.fillDefaults().span(2, 1).applyTo(sampposLabel);
 //			getToolkit().createLabel(parent, "start_angle");
@@ -311,7 +311,7 @@ public class DoRTScanTask extends AbstractEchidnaScanTask {
 			getToolkit().createLabel(parent, "");
 			getToolkit().createLabel(parent, "(deg)");
 			getToolkit().createLabel(parent, "time (h)");
-			getToolkit().createLabel(parent, "(deg/s)");
+//			getToolkit().createLabel(parent, "(deg/s)");
 //			Label sampposLabel = getToolkit().createLabel(parent, "sample_position");
 			GridDataFactory.fillDefaults().span(2, 1).applyTo(sampposLabel2);
 //			getToolkit().createLabel(parent, "start_angle");

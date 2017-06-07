@@ -1,0 +1,28 @@
+.id_span_infoText {
+    height: 32px;
+    font-size: 14px;
+    color: #555;
+    font-weight: bold;
+    margin: 16px 8px 2px 8px;
+}
+
+#header {
+	height: 40px;
+	font-size: 20px;
+	padding: 6px 4px 2px 8px;
+}
+
+#titleString {
+	font-size: 32px;
+}
+
+.div_footer {
+	float: right;
+	margin-top: 6px;
+	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.35);
+}
+.class_div_imageholder img {
+	padding:1px;
+   	border:1px groove #1682ba;
+   	background-color:#fff;
+}

@@ -29,6 +29,8 @@ import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.nbi.server.db.INbiPersistenceManager;
 import au.gov.ansto.bragg.nbi.server.db.NbiPersistenceManager;
@@ -80,6 +82,7 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 			
 	private JythonRunnerManager runnerManager;
 	private INbiPersistenceManager persistence;
+	private static Logger logger = LoggerFactory.getLogger(UserManagerRestlet.class);
 	
 	enum QueryType {
 		INFO,
@@ -114,6 +117,20 @@ public class UserManagerRestlet extends Restlet implements IDisposable {
 		
         Form queryForm = request.getResourceRef().getQueryAsForm();
 	    String typeString = queryForm.getValues(QUERY_TYPE);
+	    
+	    String directIp = request.getClientInfo().getUpstreamAddress();
+		logger.error("direct IP = " + directIp);
+		Object header = request.getAttributes().get("org.restlet.http.headers");
+		if (header != null) {
+			Form qform = (Form) header;
+			logger.error("Form = " + header.toString());
+			String forwardedIp = qform.getFirstValue("X-Forwarded-For");
+			if (forwardedIp != null) {
+				forwardedIp = forwardedIp.split(" ")[0].trim();
+				logger.error("forward ip = " + forwardedIp);
+			}
+		}
+		
 //	    String uuidString = queryForm.getValues(QUERY_UUID);
 //	    JythonRunner runner = null;
 //	    if (uuidString != null) {

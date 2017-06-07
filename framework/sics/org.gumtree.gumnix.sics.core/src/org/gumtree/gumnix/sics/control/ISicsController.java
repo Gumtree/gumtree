@@ -39,6 +39,7 @@ public interface ISicsController {
 	
 	public ServerStatus getServerStatus();
 	
+	public void refreshServerStatus();
 	/**
 	 * Finds the device controller of a SICS device.
 	 * 

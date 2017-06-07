@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Banksia Workbench
+Bundle-SymbolicName: au.gov.ansto.bragg.banksia.workbench
+Bundle-Version: 1.13.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.banksia.workbench.Activator
+Require-Bundle: au.gov.ansto.bragg.banksia.ui;bundle-version="1.12.0",
+ au.gov.ansto.bragg.nbi.workbench;bundle-version="1.12.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

@@ -18,6 +18,8 @@ public final class QuokkaUIConstants {
 	 */
 	public static final String ID_VIEW_QUOKKA_SCAN = "au.gov.ansto.bragg.quokka.ui.scanView";
 	
+	public static final String ID_VIEW_QUOKKA_MSW = "au.gov.ansto.bragg.quokka.msw.views.QuokkaMswView";
+	
 	/**
 	 * Unique ID for Quokka scan perspective.
 	 */

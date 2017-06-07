@@ -1,4 +1,4 @@
-var title = "Taipan Status";
+var title = "Taipan";
 var batchEnabled = true;
 var devices = [
                {"group":"BEAM STATUS", 
@@ -18,6 +18,8 @@ var devices = [
                },
                {"group":"PARAMETERS", 
             	   "items":[{"classId":"ei", "deviceId":"ei", "title":"ei", "units":"meV"},
+            		   		{"classId":"vei", "deviceId":"vei", "title":"vei", "units":"meV"},
+            		   		{"classId":"vei_1", "deviceId":"vei_1", "title":"vei_1", "units":"meV"},
             	            {"classId":"ef", "deviceId":"ef", "title":"ef", "units":"meV"}, 
             	            {"classId":"en", "deviceId":"en", "title":"en", "units":"meV"}, 
             	            {"classId":"qh", "deviceId":"qh", "title":"qh", "units":""}, 

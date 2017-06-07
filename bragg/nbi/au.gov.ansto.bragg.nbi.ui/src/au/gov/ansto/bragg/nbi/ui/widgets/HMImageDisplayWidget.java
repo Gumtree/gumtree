@@ -48,6 +48,7 @@ public class HMImageDisplayWidget extends ScalableImageDisplayWidget {
 	private static final String IS_SCALE_ENABLED = "gumtree.hm.isScaleEnabled";
 	private HMImageMode imageMode;
 	private boolean isScaleEnabled;
+	private ComboViewer comboViewer;
 	
 	public HMImageDisplayWidget(Composite parent, int style) {
 		super(parent, style);
@@ -65,7 +66,7 @@ public class HMImageDisplayWidget extends ScalableImageDisplayWidget {
 		Label label = getToolkit().createLabel(this, "Mode: ");
 		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
 		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).grab(true, false).applyTo(label);
-		ComboViewer comboViewer = new ComboViewer(this, SWT.READ_ONLY);
+		comboViewer = new ComboViewer(this, SWT.READ_ONLY);
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
 		comboViewer.setInput(getImageMode().getValues());
@@ -204,5 +205,11 @@ public class HMImageDisplayWidget extends ScalableImageDisplayWidget {
 	
 	public String getScaleEnabledQuery() {
 		return "&open_annotations=" + SCALE_INPUT[isScaleEnabled ? 0 : 1];
+	}
+	
+	public void setImageModeOptions(HMImageMode[] modes) {
+		if (comboViewer != null) {
+			comboViewer.setInput(modes);
+		}
 	}
 }

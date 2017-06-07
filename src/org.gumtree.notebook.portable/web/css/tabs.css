@@ -1,0 +1,95 @@
+h1 { font: 20px Georgia, Serif; margin: 20px 0; }
+.group:after { visibility: hidden; display: block; font-size: 0; content: " "; clear: both; height: 0; }
+p { margin: 0 0 10px 0; }
+
+/*
+.tabs { list-style: none; }
+.tabs li { display: inline; }
+.tabs li a { color: black; float: left; display: block; padding: 4px 10px; margin-left: -1px; position: relative; left: 1px; background: white; text-decoration: none; }
+.tabs li a:hover { background: #ccc; }
+
+
+        .tabbed-area { margin: 0 0 120px 0; }
+        .box-wrap { position: relative; min-height: 250px; }
+        .tabbed-area div div { background: white; padding: 20px; min-height: 250px; position: absolute; top: -1px; left: 0; width: 100%; }
+        .tabbed-area div div, .tabs li a { border: 1px solid #ccc; }
+        #box-one:target, #box-two:target, #box-three:target { z-index: 1; }
+*/
+
+.div-ie-tab { 
+    position: relative; width: 100%; 
+    border: 1px solid #ccc; 
+}
+.ul_tabs { 
+    list-style: none; 
+    overflow: hidden; 
+    padding: 0;
+    margin: 0;
+    color: #BBBBBB;
+}
+.ul_tabs li {
+    display: inline; 
+}
+.ul_tabs li a {
+    padding: 4px 4px; 
+    text-decoration: none; 
+    border-right: 1px solid #ccc; 
+    font: 14px Georgia, Serif;
+    text-shadow: 1px 1px #bababa;
+    float: left; 
+    display: block; 
+    margin-left: -1px; 
+    position: relative; 
+    left: 1px; 
+    min-width: 100px;
+}
+.ul_tabs li a:hover { 
+    color: #fff; 
+    background: #000; 
+    border: none;
+}
+.tabSelected{
+    background-color: #faf2eb;
+    color: black;
+    border-right: 1px solid #ccc; 
+}
+.tabUnselected{
+    background-color: inherit;
+    color: #BBBBBB;
+    border-right: 1px solid #ccc; 
+}
+#box { 
+    height: 412px; 
+    overflow: hidden; 
+    padding: 0px 2px 0px 2px; 
+    position: relative; 
+    top: -1px; 
+    background-color: #faf2eb;
+}
+#box2 { 
+    height: 444px; 
+    overflow: hidden; 
+    padding: 0px 2px 0px 2px; 
+    position: relative; 
+    top: -1px; 
+    background-color: #faf2eb;
+}
+.box { 
+    display: none; 
+    height: 412px; 
+    overflow: auto; 
+    display: block; 
+    position: relative; 
+    overflow-x: hidden; 
+}
+.box2 { 
+    display: none; 
+    height: 444px; 
+    overflow: auto; 
+    display: block; 
+    position: relative; 
+    overflow-x: hidden; 
+}
+#div_script_gui:target, #div_script_text:target {
+    display: block;
+}

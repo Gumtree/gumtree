@@ -228,6 +228,50 @@ public class ScriptExecutor implements IScriptExecutor {
 		}
 	}
 	
+	public void runIndependentTask(Runnable task) {
+		ExecutorService service = Executors.newCachedThreadPool();
+		synchronized (futures) {
+			List<Future<?>> futureList = new ArrayList<Future<?>>(futures.size());
+			Collections.copy(futures, futureList);
+			for (Future<?> future : futureList) {
+				if (future.isCancelled() || future.isDone()) {
+					futures.remove(future);
+				}
+			}
+			Future<?> future = service.submit(task);
+			futures.add(future);
+		}
+	}
+	
+	public void runIndependentScript(final String script) {
+		runIndependentTask(new Runnable() {
+			public void run() {
+				if (engine != null) {
+					try {
+						// This gives hint to the engine either echo the script in UI or not.
+						// The actual behaviour of this slience mode is dependent on the implementation of the scripting engine.
+//						engine.getContext().getBindings(ScriptContext.ENGINE_SCOPE).put(VAR_SILENCE_MODE, false);
+//						setBusy(true);
+						engine.eval(script);
+					} catch (Exception e) {
+						try {
+							engine.getContext().getErrorWriter().write(e.getMessage());
+						} catch (IOException ioe) {
+							// Nothing more that I can do about
+							logger.error("Reporting error has encountered problem.", ioe);
+						}
+					} finally {
+//						setBusy(false);	
+					}
+//					getEventBus().postEvent(new ScriptExecutorCompletionEvent(ScriptExecutor.this));
+//					new EventBuilder(EVENT_TOPIC_SCRIPT_EXECUTOR_COMPLETED)
+//							.append(EVENT_PROP_EXECUTOR_ID, getId())
+//							.post();
+				}
+			}
+		});
+	}
+	
 	public void interrupt() {
 		synchronized (futures) {
 			for (Future<?> future : futures) {

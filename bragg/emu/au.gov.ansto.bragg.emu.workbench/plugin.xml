@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.emu.ui"
+            class="au.gov.ansto.bragg.emu.workbench.internal.EmuHMView"
+            icon="icons/dashboard.png"
+            id="au.gov.ansto.bragg.emu.ui.views.EmuHMView"
+            name="Histogram Image">
+      </view>
+   </extension>
 
 </plugin>

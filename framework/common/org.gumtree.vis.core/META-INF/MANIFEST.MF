@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree Visualisation
 Bundle-SymbolicName: org.gumtree.vis.core
-Bundle-Version: 1.10.0.qualifier
+Bundle-Version: 1.13.0.qualifier
 Bundle-Activator: org.gumtree.vis.core.internal.Activator
 Bundle-Vendor: Bragg Institute
 Require-Bundle: org.jfree.chart;bundle-version="1.0.13";visibility:=reexport,

@@ -49,6 +49,10 @@ class Par:
     def __repr__(self):
         return 'au.gov.ansto.bragg.wombat.ui.script.pyobj.ScriptParameter'
     
+    def dispose(self):
+        if not Par.__model__ is None:
+            Par.__model__.removeControl(self.__par__)
+    
 def is_par(__name__to__test__):
     return eval('isinstance(' + __name__to__test__ + ', Par)')
 
@@ -96,7 +100,29 @@ class Act:
     
     def __repr__(self):
         return 'au.gov.ansto.bragg.wombat.ui.script.pyobj.ScriptAction'
-    
+
+    def moveBeforeObject(self, obj):
+        if isinstance(obj, Par):
+            tgt = obj.__par__
+        elif isinstance(obj, Act):
+            tgt = obj.__act__
+        elif isinstance(obj, Group):
+            tgt = obj.__group__
+        else:
+            raise Exception, 'Illegal type: target object must be a PyScript object'
+        Group.__model__.moveObject1BeforeObject2(self.__group__, tgt)
+
+    def moveAfterObject(self, obj):
+        if isinstance(obj, Par):
+            tgt = obj.__par__
+        elif isinstance(obj, Act):
+            tgt = obj.__act__
+        elif isinstance(obj, Group):
+            tgt = obj.__group__
+        else:
+            raise Exception, 'Illegal type: target object must be a PyScript object'
+        Group.__model__.moveObject1AfterObject2(self.__group__, tgt)
+            
     def set_running_status(self):
         self.__act__.setBusyStatus()
         
@@ -121,6 +147,10 @@ class Act:
         exec(str(self.command))
         self.set_done_status()
         
+    def dispose(self):
+        if not Act.__model__ is None:
+            Act.__model__.removeControl(self.__act__)
+
 def is_act(__name__to__test__):
     return eval('isinstance(' + __name__to__test__ + ', Act)')
 
@@ -148,6 +178,28 @@ class Group():
     def remove(self, obj):
         self.__group__.removeObject(obj)
         
+    def moveBeforeObject(self, obj):
+        if isinstance(obj, Par):
+            tgt = obj.__par__
+        elif isinstance(obj, Act):
+            tgt = obj.__act__
+        elif isinstance(obj, Group):
+            tgt = obj.__group__
+        else:
+            raise Exception, 'Illegal type: target object must be a PyScript object'
+        Group.__model__.moveObject1BeforeObject2(self.__group__, tgt)
+
+    def moveAfterObject(self, obj):
+        if isinstance(obj, Par):
+            tgt = obj.__par__
+        elif isinstance(obj, Act):
+            tgt = obj.__act__
+        elif isinstance(obj, Group):
+            tgt = obj.__group__
+        else:
+            raise Exception, 'Illegal type: target object must be a PyScript object'
+        Group.__model__.moveObject1AfterObject2(self.__group__, tgt)
+        
     def __getattr__(self, name):
         if name == 'name' :
             return self.__group__.getName()
@@ -167,4 +219,9 @@ class Group():
     
     def __repr__(self):
         return 'au.gov.ansto.bragg.wombat.ui.script.pyobj.ScriptObjectGroup'
+    
+    def dispose(self):
+        if not Group.__model__ is None:
+            Group.__model__.removeControl(self.__group__)
+    
         

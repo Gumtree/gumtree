@@ -31,7 +31,7 @@ public class KowariWorkbenchLauncher extends AbstractLauncher {
 
 	
 	private static final String ID_PERSPECTIVE_EXPERIMENT = "au.gov.ansto.bragg.kowari.ui.internal.TCLRunnerPerspective";
-	private static final String ID_PERSPECTIVE_ANALYSIS = "au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingPerspective";
+	public static final String ID_PERSPECTIVE_ANALYSIS = "au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingPerspective";
 	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
 	
 	private static Logger logger = LoggerFactory.getLogger(KowariWorkbenchLauncher.class);
@@ -50,13 +50,14 @@ public class KowariWorkbenchLauncher extends AbstractLauncher {
 		  item.setVisible(false);
 		}
 		menuManager.setVisible(false);
+		menuManager.setRemoveAllWhenShown(true);
 	    
 	    IContributionItem[] menubarItems = ((WorkbenchWindow) window).getMenuBarManager().getItems();
 	    for (IContributionItem item : menubarItems) {
 	    	item.setVisible(false);
 	    }
 	    ((WorkbenchWindow) window).getMenuBarManager().setVisible(false);
-	    
+	    ((WorkbenchWindow) window).getMenuBarManager().setRemoveAllWhenShown(true);
 	}
 	
 	public void launch() throws LauncherException {

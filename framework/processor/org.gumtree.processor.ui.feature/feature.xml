@@ -2,7 +2,7 @@
 <feature
       id="org.gumtree.processor.ui.feature"
       label="Gumtree Processor UI"
-      version="1.10.0.qualifier"
+      version="1.13.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">

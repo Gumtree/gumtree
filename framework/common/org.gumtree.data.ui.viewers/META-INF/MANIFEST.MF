@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree Data Viewers
 Bundle-SymbolicName: org.gumtree.data.ui.viewers
-Bundle-Version: 1.10.0.qualifier
+Bundle-Version: 1.13.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.gumtree.data.ui.viewers;
   uses:="org.gumtree.ui.util.widgets,
@@ -15,7 +15,8 @@ Export-Package: org.gumtree.data.ui.viewers;
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.gumtree.data.ui.viewers.internal.Activator
 Require-Bundle: net.sourceforge.nattable;bundle-version="2.1.0";resolution:=optional,
- org.gumtree.vis.gdm;bundle-version="1.7.0";visibility:=reexport
+ org.gumtree.vis.gdm;bundle-version="1.7.0";visibility:=reexport,
+ org.gumtree.core;bundle-version="1.10.0"
 Eclipse-BundleShape: jar
 Import-Package: org.osgi.framework;version="1.5.0";resolution:=optional
 Bundle-Vendor: Bragg Institute

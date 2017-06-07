@@ -4,8 +4,11 @@ import java.net.URI;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.eclipse.core.net.proxy.IProxyData;
 import org.eclipse.core.net.proxy.IProxyService;
@@ -41,6 +44,33 @@ public class DefaultHttpClient implements IHttpClient {
 			public void run() {
 				HttpClient client = getHttpClient();
 				GetMethod getMethod = new GetMethod(uri.toString());
+				try {
+					int statusCode = client.executeMethod(getMethod);
+					if (statusCode != HttpStatus.SC_OK) {
+						logger.error("HTTP GET failed: "
+								+ getMethod.getStatusLine());
+						getMethod.releaseConnection();
+					}
+					if (callback != null) {
+						callback.handleResponse(getMethod
+								.getResponseBodyAsStream());
+					}
+				} catch (Exception e) {
+					logger.error("HTTP GET failed: " + uri.toString(), e);
+				}
+			}
+		});
+	}
+
+	public void performGet(final URI uri, final IHttpClientCallback callback, final String username, final String passwd) {
+		executor.execute(new Runnable() {
+			@Override
+			public void run() {
+				HttpClient client = getHttpClient();
+				GetMethod getMethod = new GetMethod(uri.toString());
+			    client.getParams().setAuthenticationPreemptive(true);
+			    Credentials defaultcreds = new UsernamePasswordCredentials(username, passwd);
+			    client.getState().setCredentials(AuthScope.ANY, defaultcreds);
 				try {
 					int statusCode = client.executeMethod(getMethod);
 					if (statusCode != HttpStatus.SC_OK) {
@@ -97,6 +127,11 @@ public class DefaultHttpClient implements IHttpClient {
 
 	public void setProxyService(IProxyService proxyService) {
 		this.proxyService = proxyService;
+	}
+
+	@Override
+	public void setProxy(String hostName, int port) {
+		getHttpClient().getHostConfiguration().setProxy(hostName, port);
 	}
 
 }

@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema
+  targetNamespace="http://www.gumtree.org/cmd"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:cmd="http://www.gumtree.org/cmd"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified"
+  version="1.0">
+
+  <xsd:complexType name="Argument">
+    <xsd:attribute name="Name" type="xsd:string" use="required"/>
+    <xsd:attribute name="Type" type="xsd:QName" use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="Command">
+    <xsd:sequence>
+      <xsd:element name="Argument" type="cmd:Argument" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="Name" type="xsd:string" use="required"/>
+  </xsd:complexType>
+  
+</xsd:schema>

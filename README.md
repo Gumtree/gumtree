@@ -19,9 +19,15 @@ By using this software in any fashion, you are agreeing to be bound by
 the terms of this license.
 You must not remove this notice, or any other, from this software.
 
+## Digital Object Identifier (DOI)
+
+Gumtree can be cited with a permanent DOI hosted by Zenodo.
+ 
+[![DOI](https://zenodo.org/badge/4881622.svg)](https://zenodo.org/badge/latestdoi/4881622)
+
 ## Contributors
 
-* [Bragg Institute] (http://www.ansto.gov.au/research/bragg_institute)
+* [Australian Centre for Neutron Scattering] (http://www.ansto.gov.au/ResearchHub/OurInfrastructure/ACNS)
 * [SOLEIL] (http://www.synchrotron-soleil.fr/)
 
 ## Acknowledgements

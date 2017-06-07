@@ -306,6 +306,17 @@ class SimpleData:
     def __invert__(self):
         return self.__new__(self.storage.__invert__())
     
+    def matrix_invert(self):
+        return self.__new__(self.storage.matrix_invert())
+    
+    def matrix_dot(self, obj):
+        if isinstance(obj, Array) :
+            return self.__new__(self.storage.matrix_dot(obj))
+        elif isinstance(obj, SimpleData):
+            return self.__new__(self.storage.matrix_dot(obj.storage))
+        else :
+            raise Exception, 'obj must be a gumpy array or dataset'
+        
     def __pow__(self, obj):
         if isinstance(obj, SimpleData) :
             obj = obj.storage
@@ -390,6 +401,12 @@ class SimpleData:
                 self.storage.min(axis, obj)
                 return out
     
+    def argmax(self, axis = None):
+        return self.storage.argmax(axis)
+
+    def argmin(self, axis = None):
+        return self.storage.argmin(axis)
+        
     def sum(self, axis = None, dtype = None, out = None):
         if axis is None :
             return self.storage.sum(dtype = dtype)
@@ -427,18 +444,18 @@ class SimpleData:
 #     Array utilities
 #********************************************************************************
     
-    def __repr__(self, indent = ''):
+    def __repr__(self, indent = '', skip = True):
         indent += '           '
-        res = 'SimpleData(' + self.storage.__repr__(indent) + ', \n' \
+        res = 'SimpleData(' + self.storage.__repr__(indent, skip) + ', \n' \
                 + indent + 'title=\'' + self.title + '\''
         if not self.units is None :
             res += ',\n' + indent + 'units=\'' + self.units + '\''
         res += ')'
         return res
     
-    def __str__(self, indent = ''):
+    def __str__(self, indent = '', skip = True):
         if self.dtype is str :
-            return indent + self.storage.__str__(indent)
+            return indent + self.storage.__str__(indent, skip)
         res = 'title: ' + self.title + '\n' + indent
         if not self.units is None and len(self.units) > 0:
             res += 'units: ' + self.units + '\n' + indent
@@ -644,7 +661,10 @@ def zeros_like(obj):
         units = obj.units
         obj = obj.storage
     return new(array.zeros_like(obj), name, units)
-    
+
+def diagflat(obj, k = 0):
+    return new(array.diagflat(obj, k))
+        
 def ones(shape, dtype = float):
     return new(array.ones(shape, dtype))
     

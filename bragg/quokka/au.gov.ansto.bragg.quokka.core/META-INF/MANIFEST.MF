@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Quokka Core Library
 Bundle-SymbolicName: au.gov.ansto.bragg.quokka.core;singleton:=true
-Bundle-Version: 1.10.0.qualifier
+Bundle-Version: 1.13.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.quokka.core.internal.Activator
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

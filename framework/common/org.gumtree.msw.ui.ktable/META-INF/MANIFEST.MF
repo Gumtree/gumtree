@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ktable
+Bundle-SymbolicName: org.gumtree.msw.ui.ktable
+Bundle-Version: 2.2.0.qualifier
+Bundle-Activator: org.gumtree.msw.ui.ktable.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Export-Package: org.gumtree.msw.ui.ktable,
+ org.gumtree.msw.ui.ktable.editors,
+ org.gumtree.msw.ui.ktable.renderers

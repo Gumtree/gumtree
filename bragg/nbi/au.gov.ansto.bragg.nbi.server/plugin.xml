@@ -7,31 +7,103 @@
       <httpcontext
             id="ns">
          <resource-mapping
-               path="/ns/rest">
+               path="/status/ns/rest">
          </resource-mapping>
       </httpcontext>
       <httpcontext
             id="statisticRestlet">
          <resource-mapping
-               path="/st/rest">
+               path="/status/st/rest">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="manualsRestlet">
+         <resource-mapping
+               path="/status/manuals">
          </resource-mapping>
       </httpcontext>
       <httpcontext
             id="jythonRestlet">
          <resource-mapping
-               path="/jython/rest">
+               path="/user/jython/rest">
          </resource-mapping>
       </httpcontext>
       <httpcontext
             id="jythonRunnerRestlet">
          <resource-mapping
-               path="/jython/runner">
+               path="/user/jython/runner">
          </resource-mapping>
       </httpcontext>
       <httpcontext
             id="userManagerRestlet">
          <resource-mapping
-               path="/jython/user">
+               path="/user/jython/user">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="notebookDocRestlet">
+         <resource-mapping
+               path="/doc/notebook">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="notebookAdminRestlet">
+         <resource-mapping
+               path="/user/notebook">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="catalogDocRestlet">
+         <resource-mapping
+               path="/doc/catalog">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="catalogAdminRestlet">
+         <resource-mapping
+               path="/user/catalog">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="NBPageRedirectRestlet">
+         <resource-mapping
+               path="/status/notebook.html">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="NBAdminRedirectRestlet">
+         <resource-mapping
+               path="/status/admin/notebookAdmin.html">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="NBRedirectRestlet">
+         <resource-mapping
+               path="/status/notebookAdmin.html">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="databaseDocRestlet">
+         <resource-mapping
+               path="/doc/db">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="databaseAdminRestlet">
+         <resource-mapping
+               path="/user/db">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="signinRestlet">
+         <resource-mapping
+               path="/user/signin">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="userHomeRestlet">
+         <resource-mapping
+               path="/user/home">
          </resource-mapping>
       </httpcontext>
    </extension>
@@ -39,7 +111,7 @@
          id="nsRestlet"
          point="org.eclipse.equinox.http.registry.servlets">
       <servlet
-            alias="/ns/rest"
+            alias="/status/ns/rest"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="ns">
          <init-param
@@ -48,7 +120,16 @@
          </init-param>
       </servlet>
       <servlet
-            alias="/st/rest"
+            alias="/status/manuals"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="manualsRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.restlet.ManualsApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/status/st/rest"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="statisticRestlet">
          <init-param
@@ -57,7 +138,7 @@
          </init-param>
       </servlet>
       <servlet
-            alias="/jython/rest"
+            alias="/user/jython/rest"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="jythonRestlet">
          <init-param
@@ -66,7 +147,7 @@
          </init-param>
       </servlet>
       <servlet
-            alias="/jython/runner"
+            alias="/user/jython/runner"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="jythonRunnerRestlet">
          <init-param
@@ -75,7 +156,7 @@
          </init-param>
       </servlet>
       <servlet
-            alias="/jython/user"
+            alias="/user/jython/user"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="userManagerRestlet">
          <init-param
@@ -83,7 +164,105 @@
                value="au.gov.ansto.bragg.nbi.server.restlet.UserManagerApplication">
          </init-param>
       </servlet>
+      <servlet
+            alias="/doc/notebook"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="notebookDocRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.notebook.NotebookApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/user/notebook"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="notebookAdminRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.notebook.NotebookApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/doc/catalog"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="catalogDocRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.catalog.CatalogApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/user/catalog"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="catalogAdminRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.catalog.CatalogApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/doc/db"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="databaseDocRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.notebook.DatabaseApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/user/db"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="databaseAdminRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.notebook.DatabaseApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/user/signin"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="signinRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.login.SigninApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/user/home"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="userHomeRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.login.UserHomeApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/status/notebook.html"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="NBPageRedirectRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.notebook.NBPageRedirectApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/status/notebookAdmin.html"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="NBRedirectRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.notebook.NBManagerRedirectApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/status/admin/notebookAdmin.html"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="NBAdminRedirectRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.notebook.NBAdminRedirectApplication">
+         </init-param>
+      </servlet>
    </extension>
-
 
 </plugin>

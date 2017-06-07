@@ -2,7 +2,7 @@
 <feature
       id="org.gumtree.common.ui.feature"
       label="Gumtree Framework Common UI"
-      version="1.10.0.qualifier"
+      version="1.13.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">
@@ -374,6 +374,18 @@
 
    <plugin
          id="org.gumtree.widgets"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.gumtree.msw.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.gumtree.msw.ui.ktable"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

@@ -80,6 +80,9 @@ public class VisualBatchBufferComposer extends AbstractWorkflowViewerComponent {
 	}
 	
 	protected void createUI() {
+		if (isDisposed()) {
+			return;
+		}
 		GridLayoutFactory.swtDefaults().applyTo(this);
 		
 		SashForm sashForm = new SashForm(this, SWT.HORIZONTAL);

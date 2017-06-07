@@ -1,4 +1,7 @@
 import time
+import os
+import sys
+import traceback
 from org.gumtree.gumnix.sics.core import SicsCore
 from org.gumtree.gumnix.sics.control.controllers import ComponentData
 from org.gumtree.gumnix.sics.control.controllers import CommandStatus
@@ -41,15 +44,28 @@ def set(name, value):
 def setpos(device, value, real_value):
 	execute('setpos ' + device + ' ' + str(value) + ' ' + str(real_value))
 
-def getValue(name):
+def getValue(name, refresh = False):
     controller = getDeviceController(name)
     if (controller == None):
         raise SicsError('Device / Path ' + name + ' not found')
     else:
-        return controller.getValue()
+        return controller.getValue(refresh)
     
 def getFilename():
-    return getValue('/experiment/file_name')
+    fn = None
+    timeout = 5
+    count = 0
+    while fn is None and count < timeout :
+        try:
+            fn = getValue('/experiment/file_name', True)
+        except SicsError:
+            raise
+        except:
+            time.sleep(0.5)
+            count += 0.5
+    if fn is None:
+        fn = getValue('/experiment/file_name', False)
+    return fn
     
 # Asynchronously set any hipadaba node to a given value
 def hset(parentController, relativePath, value):
@@ -67,6 +83,9 @@ def run(deviceId, value):
     handleInterrupt()
     logger.log("Run " + device.getPath() + " OK")
 
+def isIdle():
+    return getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE)
+     
 # Synchronously set (drive) any device to a given value
 def drive(deviceId, value):
     sicsController = getSicsController()
@@ -79,7 +98,9 @@ def drive(deviceId, value):
             break
         except SicsExecutionException, e:
             em = str(e.getMessage())
-            if em.__contains__('Interrupted'):
+#            if em.__contains__('Interrupted'):
+#                raise e
+            if not em.lower().__contains__('time out'):
                 raise e
             logger.log('retry driving ' + str(deviceId))
             time.sleep(1)
@@ -87,7 +108,17 @@ def drive(deviceId, value):
                 time.sleep(0.3)
             cnt += 1
     if cnt >= 20:
-        raise Exception, 'timeout to drive ' + str(deviceId) + ' to ' + str(value)
+        is_done = false
+        try:
+            cval = controller.getValue()
+            if abs(float(value) - cval.getFloatData()) <= controller.getChildController("/precision").getValue().getFloatData():
+                is_done = true;
+        except:
+            pass
+        if not is_done:
+            raise Exception, 'timeout to drive ' + str(deviceId) + ' to ' + str(value)
+    while not getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+                time.sleep(0.3)
     handleInterrupt()
 
 # Synchronously drive a number of devices to a given value
@@ -98,6 +129,8 @@ def multiDrive(entries):
         drivable = getSicsController().findDeviceController(key)
         runner.addDrivable(drivable, entries[key])
     runner.drive()
+    while not getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+                time.sleep(0.3)
     handleInterrupt()
 
 def runbmonscan(scan_variable, scan_start, scan_increment, NP, mode, preset, channel):
@@ -188,8 +221,11 @@ def count(mode, preset):
     handleInterrupt()
     logger.log('Count completed')
 
-def interrupt():
-    SicsCore.getSicsController().interrupt()
+def interrupt(channel = None):
+    if channel == None:
+        SicsCore.getSicsController().interrupt()
+    else:
+        SicsCore.getDefaultProxy().send('INT1712 3', None, channel)
     logger.log("Sent SICS interrupt")
 
 def isInterrupt():
@@ -240,39 +276,66 @@ class SicsError(Exception):
     def __str__(self):
         return repr(self.value)
     
-__status__ = None
 __time_out__ = 1
 class __SICS_Callback__(SicsCallbackAdapter):
     
+    def __init__(self, use_full_feedback = False):
+        self.__status__ = None
+        self.__use_full_feedback__ = use_full_feedback
+    
+    def receiveError(self, data):
+        self.__status__ = data.getString()
+        self.setCallbackCompleted(True)
+    
+    def receiveFinish(self, data):
+        self.__status__ = data.getString()
+        self.setCallbackCompleted(True)
+        
     def receiveReply(self, data):
-        global __status__
         try:
             rt = data.getString()
-            if rt.__contains__('='):
-                __status__ = data.getString().split("=")[1].strip()
-            elif rt.__contains__(':'):
-                __status__ = data.getString().split(":")[1].strip()
-                if __status__.__contains__('}'):
-                    __status__ = __status__[:__status__.index('}')]
+            if self.__use_full_feedback__:
+                status = rt
             else :
-                __status__ = rt
+                if rt.__contains__('='):
+                    status = data.getString().split("=")[1].strip()
+                elif rt.__contains__(':'):
+                    status = data.getString().split(":")[1].strip()
+                    if status.__contains__('}'):
+                        status = status[:status.index('}')]
+                else :
+                    status = rt
+            self.__status__ = status
             self.setCallbackCompleted(True)
         except:
+            self.__status__ = data
             traceback.print_exc(file = sys.stdout)
             self.setCallbackCompleted(True)
 
-def run_command(cmd):
-    global __status__
-    __status__ = None
-    call_back = __SICS_Callback__()
+def run_command(cmd, use_full_feedback = False):
+    call_back = __SICS_Callback__(use_full_feedback)
     SicsCore.getDefaultProxy().send(cmd, call_back)
     acc_time = 0
-    while __status__ is None and acc_time < 2:
+#    while call_back.__status__ is None and acc_time < 20:
+    while call_back.__status__ is None:
         time.sleep(0.2)
         acc_time += 0.2
-    if __status__ is None:
+    if call_back.__status__ is None:
         raise Exception, 'time out in running the command'
-    return __status__
+    return call_back.__status__
+
+def run_command_timeout(cmd, use_full_feedback = False, timeout = None):
+    logger.log('using timeout command')
+    call_back = __SICS_Callback__(use_full_feedback)
+    SicsCore.getDefaultProxy().send(cmd, call_back)
+    acc_time = 0
+    while call_back.__status__ is None and (timeout is None or acc_time < timeout) :
+#    while call_back.__status__ is None:
+        time.sleep(0.2)
+        acc_time += 0.2
+    if call_back.__status__ is None:
+        raise Exception, 'time out in running the command'
+    return call_back.__status__
 
 def get_raw_value(comm, dtype = float):
     global __time_out__
@@ -294,3 +357,50 @@ def get_raw_value(comm, dtype = float):
             time.sleep(0.2)
     logger.log('time out in running ' + comm_str)
     return None
+
+def get_raw_feedback(comm):
+    global __time_out__
+    __count__ = 0
+    comm_str = str(comm)
+    while __count__ < __time_out__:
+        try:
+            item = run_command(comm_str, True)
+            return str(item)
+        except:
+            __count__ += 0.2
+            time.sleep(0.2)
+    logger.log('time out in running ' + comm_str)
+    return None
+
+def get_base_filename():
+    return os.path.basename(str(getFilename()))
+
+def get_stable_value(dev):
+    val = None
+    while (True):
+        controller = getDeviceController(dev)
+        new_val = controller.getValue(True).getFloatData()
+        if new_val == val :
+            return getValue(dev)
+        else:
+            val = new_val
+            time.sleep(1)
+        
+def getStatus():
+    controller = getSicsController()
+    if not controller is None:
+        t = controller.getServerStatus().getText()
+        if t == "UNKNOW":
+            return "UNKNOWN"
+        else:
+            return t
+    else:
+        return "UNKNOWN"
+
+def get_status():
+    controller = getSicsController()
+    if not controller is None:
+        controller.refreshServerStatus()
+        return controller.getServerStatus()
+    else:
+        return ServerStatus.UNKNOWN

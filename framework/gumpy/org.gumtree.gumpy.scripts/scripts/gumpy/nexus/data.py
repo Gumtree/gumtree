@@ -275,37 +275,37 @@ class Data(SimpleData):
         return new(storage, var, axes, anames, aunits, parent, \
                    default_var = False, default_axes = False, title = self.title)
     
-    def __repr__(self, indent = None):
+    def __repr__(self, indent = None, skip = True):
         if indent is None :
             indent = ' ' * 5
         else :
             indent += ' ' * 5
-        res = 'Data(' + self.storage.__repr__(indent) + ', \n' \
+        res = 'Data(' + self.storage.__repr__(indent, skip) + ', \n' \
                 + indent + 'title=\'' + self.title + '\''
         if not self.var is None :
-            res += ',\n' + indent + 'var=' + self.var.storage.__repr__(indent + ' ' * 4)
+            res += ',\n' + indent + 'var=' + self.var.storage.__repr__(indent + ' ' * 4, skip)
         if len(self.axes) > 0 :
             res += ',\n' + indent + 'axes=['
             for i in xrange(len(self.axes)) :
-                res += self.axes[i].__repr__(indent + ' ' * 6)
+                res += self.axes[i].__repr__(indent + ' ' * 6, skip)
                 if i < len(self.axes) - 1 :
                     res += ',\n' + indent + ' ' * 6
             res += ']'
         res += ')'
         return res
     
-    def __str__(self, indent = ''):
+    def __str__(self, indent = '', skip = True):
         res = 'title: ' + self.title + '\n' + indent
         if not self.units is None and len(self.units) > 0:
             res += 'units: ' + self.units + '\n' + indent
-        res += 'storage: ' + self.storage.__str__(indent + ' ' * 9)
+        res += 'storage: ' + self.storage.__str__(indent + ' ' * 9, skip)
         if not self.var is None :
             res += '\n' + indent + 'error: ' + \
-                    (self.var ** 0.5).storage.__str__(indent + ' ' * 7)
+                    (self.var ** 0.5).storage.__str__(indent + ' ' * 7, skip)
         if len(self.axes) > 0 :
             res += '\n' + indent + 'axes:\n' + indent + ' ' * 2
             for i in xrange(len(self.axes)) :
-                res += str(i) + '. ' + self.axes[i].__str__(indent + ' ' * 5)
+                res += str(i) + '. ' + self.axes[i].__str__(indent + ' ' * 5, skip)
                 if i < len(self.axes) - 1 :
                     res += '\n' + indent + ' ' * 2
         return res
@@ -928,6 +928,16 @@ class Data(SimpleData):
     def __prod__(self, axis = None):
         return self.__new__(self.storage.__prod__(axis))
     
+    def matrix_invert(self):
+        d = SimpleData.matrix_invert(self)
+        d.var.fill(float('nan'))
+        return d
+    
+    def matrix_dot(self, obj):
+        d = SimpleData.matrix_dot(self, obj)
+        d.var.fill(float('nan'))
+        return d
+        
     def max(self, axis = None, out = None):
         if axis is None :
             return self.storage.max()
@@ -1346,6 +1356,9 @@ def new(storage, var = None, axes = None, anames = None, \
 #####################################################################################    
 def zeros(shape, dtype = float, default_var = True, default_axes = True): 
     return new(array.zeros(shape, dtype), default_var = default_var, default_axes = default_axes)
+
+def diagflat(obj, k = 0, default_var = True, default_axes = True):
+    return new(array.diagflat(obj, k), default_var = default_var, default_axes = default_axes)
 
 def zeros_like(obj, default_var = True, default_axes = True):
     if isinstance(obj, SimpleData) :

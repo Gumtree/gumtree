@@ -8,7 +8,7 @@
       <httpcontext
             id="dae">
          <resource-mapping
-               path="/dae/rest">
+               path="/status/dae/rest">
          </resource-mapping>
       </httpcontext>
    </extension>
@@ -17,7 +17,7 @@
          id="anstohmRestlet"
          point="org.eclipse.equinox.http.registry.servlets">
       <servlet
-            alias="/dae/rest"
+            alias="/status/dae/rest"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="dae">
          <init-param

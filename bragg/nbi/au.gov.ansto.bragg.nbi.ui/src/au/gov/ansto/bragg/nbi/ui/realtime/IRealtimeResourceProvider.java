@@ -27,4 +27,6 @@ public interface IRealtimeResourceProvider {
 	public abstract void clear();
 
 	public abstract void removeResourceFromUpdateList(IRealtimeResource resource);
+	
+	public abstract IRealtimeResource getResource(String name);
 }

@@ -77,6 +77,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	
 	private static final String CLEAR_LOT_FOR_NEW_SCRIPT = "gumtree.sics.clearLogForNewScript";
 	
+	private static final String PROP_REMOVE_DOUBLELINEFEED = "gumtree.sics.escapeDoubleLineFeed";
+	
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	private IBatchBufferManager batchBufferManager;
@@ -95,6 +97,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	
 	private SashForm sashForm;
 	
+	private boolean needRemoveDoubleLinefeed = false;
+	
 	// Listener to the batch buffer queue and auto run
 	private PropertyChangeListener propertyChangeListener;
 	
@@ -105,6 +109,10 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 			public void handleEvent(final BatchBufferManagerEvent event) {
 				if (event instanceof BatchBufferManagerStatusEvent) {
 					updateStatus(((BatchBufferManagerStatusEvent) event).getStatus());
+					String message = ((BatchBufferManagerStatusEvent) event).getMessage();
+					if (message != null) {
+						updateLogText(message);
+					}
 				}
 			}
 		};
@@ -136,6 +144,13 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		String prop = System.getProperty(CLEAR_LOT_FOR_NEW_SCRIPT);
 		if (prop != null) {
 			clearLog = Boolean.parseBoolean(prop);
+		}
+		prop = System.getProperty(PROP_REMOVE_DOUBLELINEFEED);
+		if (prop != null) {
+			try {
+				needRemoveDoubleLinefeed = Boolean.valueOf(prop);
+			} catch (Exception e) {
+			}
 		}
 	}
 
@@ -401,6 +416,9 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					previousSelection[0] = isAutoRun;
 				}
 				getBatchBufferManager().setAutoRun(isAutoRun);
+				if (!isAutoRun) {
+					getBatchBufferManager().resetBufferManagerStatus();
+				}
 			}
 		});
 		context.autoRunButton.addPaintListener(new PaintListener() {
@@ -456,6 +474,10 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 					context.currentBuffer.setText("");
 					context.timerWidget.clearTimerUI();
+				} else if (status.equals(BatchBufferManagerStatus.ERROR)) {
+					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+					context.currentBuffer.setText("");
+					context.timerWidget.clearTimerUI();
 				} else if (status.equals(BatchBufferManagerStatus.IDLE)) {
 					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
 					context.currentBuffer.setText("");
@@ -479,7 +501,9 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 						String bufferContent = getBatchBufferManager().getRunningBufferContent();
 						String rangeString = getBatchBufferManager().getRunningBufferRangeString();
 						if (bufferContent != null && rangeString != null) {
-							bufferContent = bufferContent.replaceAll("\n\n", "\n");
+							if (needRemoveDoubleLinefeed) {
+								bufferContent = bufferContent.replaceAll("\n\n", "\n");
+							}
 							context.editorText.setText(bufferContent);
 							highlightBuffer(rangeString);
 						}
@@ -502,7 +526,9 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					// this is available for highlight)
 					String bufferContent = getBatchBufferManager().getRunningBufferContent();
 					if (bufferContent != null) {
-						bufferContent = bufferContent.replaceAll("\n\n", "\n");
+						if (needRemoveDoubleLinefeed) {
+							bufferContent = bufferContent.replaceAll("\n\n", "\n");
+						}
 						context.editorText.setText(bufferContent);
 					}
 					// Clear log
@@ -538,11 +564,18 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		String[] charCounts = rangeString.split("=");
 		StyleRange styleRange = new StyleRange();
 		styleRange.start = 0;
-		styleRange.length = Integer.parseInt(charCounts[2].trim());
+		int length = Integer.parseInt(charCounts[2].trim());
+		if (length > context.editorText.getText().length()){
+			length = context.editorText.getText().length();
+		}
+		styleRange.length = length;
 		styleRange.background = PlatformUI.getWorkbench()
 				.getDisplay().getSystemColor(
 						SWT.COLOR_YELLOW);
-		context.editorText.setStyleRange(styleRange);
+		try {
+			context.editorText.setStyleRange(styleRange);			
+		} catch (Exception e) {
+		}
 	}
 	
 

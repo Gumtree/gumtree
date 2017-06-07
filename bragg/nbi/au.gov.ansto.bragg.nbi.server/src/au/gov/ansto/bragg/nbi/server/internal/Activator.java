@@ -5,12 +5,18 @@ import org.gumtree.util.eclipse.EclipseUtils;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
+import au.gov.ansto.bragg.nbi.server.catalog.CatalogCollectingService;
+import au.gov.ansto.bragg.nbi.server.notebook.ProposalSyncService;
+
 public class Activator implements BundleActivator {
 
 	private static BundleContext context;
 	
 	private static Activator instance;
 
+	private static CatalogCollectingService catalogCollectingService;
+	
+	private static ProposalSyncService proposalSyncService;
 	
 	private IEclipseContext eclipseContext;
 	
@@ -27,8 +33,33 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
 		instance = this;
+		scheduleDelayedTask();
+//		catalogCollectingService = new CatalogCollectingService();
 	}
 
+	private void scheduleDelayedTask(){
+//		final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+//		executor.schedule(new Runnable() {
+//		  @Override
+//		  public void run() {
+//			  catalogCollectingService = new CatalogCollectingService();
+//		  }
+//		}, 1, TimeUnit.MINUTES);
+		Thread thread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(60000);
+				} catch (InterruptedException e) {
+				}
+				catalogCollectingService = new CatalogCollectingService();
+				proposalSyncService = new ProposalSyncService();
+			}
+		});
+		thread.start();
+	};
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
@@ -39,6 +70,7 @@ public class Activator implements BundleActivator {
 			eclipseContext = null;
 		}
 		instance = null;
+		catalogCollectingService.dispose();
 		Activator.context = null;
 	}
 

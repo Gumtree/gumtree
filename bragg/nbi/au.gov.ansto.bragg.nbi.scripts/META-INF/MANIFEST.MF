@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg NBI Scripts
 Bundle-SymbolicName: au.gov.ansto.bragg.nbi.scripts
-Bundle-Version: 1.10.0.qualifier
+Bundle-Version: 1.13.0.qualifier
 Gumtree-Scripts-Jython: scripts
 Bundle-Vendor: Bragg Institute
 Eclipse-BundleShape: dir

@@ -61,6 +61,9 @@ public class VisualBatchBufferToolViewer extends AbstractWorkflowViewerComponent
 	}
 
 	protected void createUI() {
+		if (isDisposed()) {
+			return;
+		}
 		GridLayoutFactory.swtDefaults().applyTo(this);
 
 		Group toolGroup = new Group(this, SWT.NONE);

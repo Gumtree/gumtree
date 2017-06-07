@@ -8,17 +8,10 @@
 .form-label-right{
     width:200px;
 }
-/*
-body, html{
-    background:rgb(153, 153, 153) url(http://jotform.co/images/brushed.png) 50% 50%;
-}
-*/
 
 .form-all{
     margin:2px auto;
     padding-top:0px;
-/*    width:690px;*/
-/*    background:rgb(153, 153, 153) url(http://jotform.co/images/brushed.png) 50% 50%;*/
     color:black;
 /*    font-family:'Arial Black';*/
     font-size:12px;

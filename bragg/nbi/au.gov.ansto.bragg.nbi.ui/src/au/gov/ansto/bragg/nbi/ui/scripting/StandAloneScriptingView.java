@@ -10,12 +10,15 @@ import au.gov.ansto.bragg.nbi.ui.scripting.parts.StandAloneScriptingViewer;
 
 public class StandAloneScriptingView extends ViewPart {
 
+	public final static String ID_VIEW_STANDALONESCRIPTING = "au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingView";
+	private StandAloneScriptingViewer viewer;
+	
 	public StandAloneScriptingView() {
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-		StandAloneScriptingViewer viewer = new StandAloneScriptingViewer(parent, SWT.NONE);
+		viewer = new StandAloneScriptingViewer(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().applyTo(viewer);
 	}
 
@@ -23,4 +26,7 @@ public class StandAloneScriptingView extends ViewPart {
 	public void setFocus() {
 	}
 
+	public StandAloneScriptingViewer getViewer() {
+		return viewer;
+	}
 }

@@ -3,8 +3,15 @@
  */
 package au.gov.ansto.bragg.nbi.server.image;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import org.gumtree.vis.awt.PlotFactory;
 import org.gumtree.vis.hist2d.ColorPaintScale;
@@ -179,6 +186,17 @@ public class ChartImage {
 			imageCache = out.toByteArray();
 		} 
 	}
+	
+	public void saveImage(String path, String type) throws IOException {
+		File file = new File(path);
+		OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
+		if (type != null && type.toLowerCase().contains("png")) {
+			ChartUtilities.writeChartAsPNG(out, chart, width, height);
+		} else if (type != null && (type.toLowerCase().contains("jpg") || type.toLowerCase().contains("jpeg"))) {
+			ChartUtilities.writeChartAsJPEG(out, chart, width, height);
+		}
+	}
+	
 	public byte[] getImageCache(){
 		if (imageCache == null) {
 			return new byte[]{};

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree Framework Core
 Bundle-Vendor: Bragg Institute
 Bundle-SymbolicName: org.gumtree.core;singleton:=true
-Bundle-Version: 1.10.0.qualifier
+Bundle-Version: 1.13.0.qualifier
 Bundle-Activator: org.gumtree.core.internal.Activator
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -22,6 +22,7 @@ Export-Package: org.gumtree.core,
  org.gumtree.service.dataaccess.converters,
  org.gumtree.service.dataaccess.providers,
  org.gumtree.service.dataaccess.support,
+ org.gumtree.service.db,
  org.gumtree.service.directory,
  org.gumtree.service.directory.support,
  org.gumtree.service.eventbus,
@@ -30,6 +31,7 @@ Export-Package: org.gumtree.core,
  org.gumtree.service.httpclient.support,
  org.gumtree.service.notification,
  org.gumtree.service.notification.support,
+ org.gumtree.service.pdf,
  org.gumtree.service.persistence,
  org.gumtree.service.persistence.support,
  org.gumtree.service.preferences,
@@ -71,5 +73,7 @@ Require-Bundle: org.slf4j.api;bundle-version="1.6.4";visibility:=reexport,
  org.gumtree.data.core;bundle-version="1.8.0";resolution:=optional,
  akka.remote;bundle-version="2.0.3";resolution:=optional,
  akka.slf4j;bundle-version="2.0.3";resolution:=optional,
- com.google.gson;bundle-version="2.2.0";resolution:=optional
+ com.google.gson;bundle-version="2.2.0";resolution:=optional,
+ com.itext.pdf;bundle-version="5.5.6";resolution:=optional;visibility:=reexport,
+ org.json;bundle-version="1.0.0"
 Eclipse-BuddyPolicy: global

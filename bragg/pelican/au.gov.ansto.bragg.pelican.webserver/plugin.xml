@@ -4,23 +4,31 @@
    <extension
          point="org.eclipse.equinox.http.registry.resources">
       <resource
-            alias="/pelican.html"
+            alias="/status/pelican.html"
             base-name="/WebContent/pelican.html">
       </resource>
       <resource
-            alias="/"
+            alias="/status"
             base-name="/WebContent/pelican.html">
       </resource>
       <resource
-            alias="/pelican.swf"
+            alias="/status/pelican.swf"
             base-name="/WebContent/pelican.swf">
       </resource>
       <resource
-            alias="/assetsPelican.png"
+            alias="/status/assetsPelican.png"
             base-name="/WebContent/assets/Pelican.png">
       </resource>
       <resource
-            alias="/instrumentsetup.js"
+            alias="/status/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/user/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/doc/js/instrumentsetup.js"
             base-name="/WebContent/instrumentsetup.js">
       </resource>
    </extension>

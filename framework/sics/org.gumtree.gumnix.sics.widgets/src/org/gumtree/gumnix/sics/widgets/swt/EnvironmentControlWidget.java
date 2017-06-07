@@ -1,5 +1,11 @@
 package org.gumtree.gumnix.sics.widgets.swt;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.gumtree.gumnix.sics.control.controllers.IComponentController;
@@ -20,7 +26,16 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 			IComponentController controlFolder = SicsCore.getSicsController().findComponentController("/control");
 			if (controlFolder != null) {
 				IComponentController[] items = controlFolder.getChildControllers();
-				for (IComponentController item : items) {
+				List<IComponentController> itemList = Arrays.asList(items);
+				Collections.sort(itemList, new Comparator<IComponentController>() {
+
+					@Override
+					public int compare(IComponentController o1,
+							IComponentController o2) {
+						return o1.getId().compareTo(o2.getId());
+					}
+				});
+				for (IComponentController item : itemList) {
 					String id = item.getId();
 					String label = id;
 					String units = "";
@@ -41,8 +56,8 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 						label = id.replace("S", " Sensor");
 					}
 					try {
-//						addDevice(item.getPath(), label, null, units);
-						addDevice(item.getPath(), label, null, null);
+						addDevice(item.getPath(), label, null, units);
+//						addDevice(item.getPath(), label, null, null);
 					} catch (Exception e) {
 						// TODO: handle exception
 					}

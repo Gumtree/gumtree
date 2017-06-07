@@ -59,13 +59,14 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 		  item.setVisible(false);
 		}
 		menuManager.setVisible(false);
+		menuManager.setRemoveAllWhenShown(true);
 	    
 	    IContributionItem[] menubarItems = ((WorkbenchWindow) window).getMenuBarManager().getItems();
 	    for (IContributionItem item : menubarItems) {
 	    	item.setVisible(false);
 	    }
 	    ((WorkbenchWindow) window).getMenuBarManager().setVisible(false);
-	    
+	    ((WorkbenchWindow) window).getMenuBarManager().setRemoveAllWhenShown(true);
 	}
 	
 	public void launch() throws LauncherException {
@@ -216,7 +217,7 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_STATUS, 1, 1, mmManager.isMultiMonitorSystem());
+//			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_STATUS, 1, 1, mmManager.isMultiMonitorSystem());
 //			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
 //			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 //			for (IPerspectiveDescriptor perspective: page.getOpenPerspectives()) {

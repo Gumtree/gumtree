@@ -2,7 +2,7 @@
 <feature
       id="au.gov.ansto.bragg.nbi.webserver.feature"
       label="Bragg NBI Webserver"
-      version="1.10.0.qualifier"
+      version="1.13.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">
@@ -146,6 +146,27 @@
 
    <plugin
          id="au.gov.ansto.bragg.nbi.restlet"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.itext.pdf"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.jgit"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.jcraft.jsch"
          download-size="0"
          install-size="0"
          version="0.0.0"

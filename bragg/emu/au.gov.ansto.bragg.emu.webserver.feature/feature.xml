@@ -2,7 +2,7 @@
 <feature
       id="au.gov.ansto.bragg.emu.webserver.feature"
       label="Bragg Emu Webserver"
-      version="1.10.0.qualifier"
+      version="1.13.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">

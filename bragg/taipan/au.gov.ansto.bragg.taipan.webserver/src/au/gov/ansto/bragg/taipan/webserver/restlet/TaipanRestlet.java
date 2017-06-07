@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.gumtree.data.interfaces.IArray;
+import org.gumtree.data.interfaces.IDataItem;
 import org.gumtree.data.nexus.IAxis;
 import org.gumtree.data.nexus.INXDataset;
 import org.gumtree.data.nexus.INXdata;
@@ -116,10 +117,22 @@ public class TaipanRestlet extends Restlet {
 				}
 				INXDataset ds = null;
 				try {
+					IArray dataArray;
 					ds = NexusUtils.readNexusDataset(lastModifiedFile.toURI());
-					IArray dataArray = ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm2_counts").getData();
+					if (ds.getNXroot().getFirstEntry().getGroup("data").getDataItem("total_counts") != null) {
+						dataArray = ds.getNXroot().getFirstEntry().getGroup("data").getDataItem("total_counts").getData();
+						if (ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm1_counts") != null) {
+							IArray bm1_counts = ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm1_counts").getData();
+							if (bm1_counts.getSize() > 0) {
+								double avg = bm1_counts.getArrayMath().sum() * 1.0 / bm1_counts.getSize();
+								dataArray = dataArray.getArrayMath().toScale(avg).eltDivide(bm1_counts).getArray();
+							}
+						}
+					} else {
+						dataArray = ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm2_counts").getData();
+					}
 					INXdata data = ds.getNXroot().getFirstEntry().getData();
-					IAxis hAxis = data.getAxisList().get(0);
+					IDataItem hAxis = data.getAxisList().get(0);
 					List<IAxis> axes = data.getAxisList();
 					if (axes.size() > 1) {
 						for (IAxis axis : axes) {
@@ -144,6 +157,15 @@ public class TaipanRestlet extends Restlet {
 				            }
 				            hAxis= axis;
 				            break;
+						}
+					} 
+					if (hAxis.getShortName().equals("ei")) {
+						try {
+							IDataItem vei = ds.getNXroot().getFirstEntry().getGroup("sample").getDataItem("vei_1");
+							if (vei != null) {
+								hAxis = vei;
+							}
+						} catch (Exception e) {
 						}
 					}
 					IArray axisArray = hAxis.getData();

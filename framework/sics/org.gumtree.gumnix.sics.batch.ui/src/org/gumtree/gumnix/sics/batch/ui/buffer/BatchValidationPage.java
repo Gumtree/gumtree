@@ -308,6 +308,7 @@ public class BatchValidationPage extends ExtendedFormComposite {
 			String line = null;
 			try {
 				while((line = reader.readLine()) != null) {
+					line = line.replace("{", "\\{").replace("}", "\\}").replace("\"", "\\\"");
 					send("exe append " + line, outputStream);
 				}
 			} catch (Exception e) {

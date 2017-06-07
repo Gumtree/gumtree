@@ -1,0 +1,325 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+  targetNamespace="http://www.gumtree.org/msw"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:msw="http://www.gumtree.org/msw"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified"
+  version="1.0">
+
+  <xsd:annotation>
+    <xsd:documentation xml:lang="en">
+      
+      DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+      Copyright 2014-2017 ANSTO, all rights reserved.
+
+      The contents of this file are subject to the terms of either the
+      GNU General Public License Version 2 only ("GPL") or the Common
+      Development and Distribution License("CDDL") (collectively, the
+      "License").  You may not use this file except in compliance with
+      the License.
+
+      Contributor(s): David Mannicke
+
+    </xsd:documentation>
+  </xsd:annotation>
+  
+  
+  <!-- id -->
+  
+  <xsd:simpleType name="Id">
+    <xsd:restriction base="xsd:string">
+      <!-- no leading zeros -->
+      <!-- ids don't have to be unique, but the path of every element has to be (that allows DuplicateListElementCommand) -->
+      <xsd:pattern value="#(0|[a-f1-9][a-f0-9]*)-[a-f1-9][a-f0-9]*"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  
+  <!-- support sics text -->
+  
+  <xsd:simpleType name="SicsString">
+    <xsd:restriction base="xsd:string">
+      <!-- \w_\s\/()|[]^,.:;?!#%$=+-*@<>& -->
+      <xsd:pattern value="[\w_\s\\/\(\)\[\]\|^,.:;?!#%$=\+\-*@&lt;&gt;&amp;]*"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  
+  <!-- configurations may be saved, and therefore their names/groups need to compliant with the underlying file system -->
+  
+  <xsd:simpleType name="ConfigurationName">
+    <xsd:restriction base="xsd:string">
+      <!-- \w_()[],;!#%$=+- spaces and full stops are not allowed as first and last character -->
+      <xsd:pattern value="[\w_\(\)\[\],;!#%$=\+\-]([\w_\(\)\[\],;!#%$=\+\-\s.]*[\w_\(\)\[\],;!#%$=\+\-])?"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:simpleType name="ConfigurationGroup">
+    <xsd:restriction base="xsd:string">
+      <!-- includes sub folders e.g. FolderA(/FolderB)* -->
+      <xsd:pattern value="([\w_\(\)\[\],;!#%$=\+\-]([\w_\(\)\[\],;!#%$=\+\-\s.]*[\w_\(\)\[\],;!#%$=\+\-])?(/[\w_\(\)\[\],;!#%$=\+\-]([\w_\(\)\[\],;!#%$=\+\-\s.]*[\w_\(\)\[\],;!#%$=\+\-])?)*)?"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  
+  <!-- Script -->
+  
+  <xsd:simpleType name="Script">
+    <xsd:restriction base="xsd:string">
+      <xsd:whiteSpace value="preserve"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  
+  <!-- experiment -->
+
+  <xsd:simpleType name="SampleStage">
+    <xsd:restriction base="msw:SicsString">
+      <xsd:enumeration value="Manual Position"           />
+      <xsd:enumeration value="Fixed Position"            />
+      <xsd:enumeration value="Rheometer"                 />
+      <xsd:enumeration value="5 Position Rotating Holder"/>
+      <xsd:enumeration value="10 Position Holder"        />
+      <xsd:enumeration value="12 Position Holder"        />
+      <xsd:enumeration value="20 Position Holder"        />
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:element name="ExperimentDescription">
+    <xsd:complexType>
+      <xsd:attribute name="ProposalNumber"  type="msw:SicsString"  default="1"                 />
+      <xsd:attribute name="ExperimentTitle" type="msw:SicsString"  default=""                  />
+      <xsd:attribute name="SampleStage"     type="msw:SampleStage" default="20 Position Holder"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  
+  <!-- users -->
+  
+  <xsd:element name="User">
+    <xsd:complexType>
+      <xsd:attribute name="Id"      type="msw:Id"         use="required"   />
+      <xsd:attribute name="Enabled" type="xsd:boolean"    default="true"   />
+      <xsd:attribute name="Name"    type="msw:SicsString" default="Unknown"/>
+      <xsd:attribute name="Phone"   type="msw:SicsString" default=""       />
+      <xsd:attribute name="Email"   type="msw:SicsString" default=""       />
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:element name="UserList">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="msw:User" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+
+    <!-- UserId -->
+    <xsd:key name="UserId">
+      <xsd:selector xpath="msw:User"/>
+      <xsd:field xpath="@Id"/>
+    </xsd:key>
+
+  </xsd:element>
+
+
+  <!-- samples -->
+  
+  <xsd:element name="Sample">
+    <xsd:complexType>
+      <xsd:attribute name="Id"          type="msw:Id"         use="required"/>
+      <xsd:attribute name="Enabled"     type="xsd:boolean"    default="true"/>
+      <xsd:attribute name="Name"        type="msw:SicsString" default=""    />
+      <xsd:attribute name="Description" type="msw:SicsString" default=""    />
+      <xsd:attribute name="Thickness"   type="xsd:double"     default="1.0" />
+      <xsd:attribute name="Position"    type="xsd:double"     default="0.0" />
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="SampleList">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="msw:Sample" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attribute name="Description" type="msw:SicsString" default=""/>
+    </xsd:complexType>
+    
+    <!-- SampleId -->
+    <xsd:key name="SampleId">
+      <xsd:selector xpath="msw:Sample"/>
+      <xsd:field xpath="@Id"/>
+    </xsd:key>
+  
+  </xsd:element>
+  
+  
+  <!-- configurations -->
+
+  <xsd:simpleType name="AttenuationAlgorithm">
+    <xsd:restriction base="msw:SicsString">
+      <xsd:enumeration value="fixed attenuation"    />
+      <xsd:enumeration value="iterative attenuation"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:simpleType name="AttenuationAngle">
+    <xsd:restriction base="xsd:int">
+      <xsd:pattern value="(0|30|60|90|120|150|180|210|240|270|300|330)"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:complexType name="Transmission">
+    <xsd:sequence>
+      <xsd:element name="SetupScript" type="msw:Script" minOccurs="0" maxOccurs="1"/>
+    </xsd:sequence>
+    <xsd:attribute name="Id"                          type="msw:Id"         use="required"        />
+    <xsd:attribute name="Enabled"                     type="xsd:boolean"    default="true"        />
+    <xsd:attribute name="Name"                        type="msw:SicsString" default="Transmission"/>
+    <xsd:attribute name="Description"                 type="msw:SicsString" default=""            />
+    <xsd:attribute name="MinTime"                     type="xsd:long"   />
+    <xsd:attribute name="MinTimeEnabled"              type="xsd:boolean"/>
+    <xsd:attribute name="MaxTime"                     type="xsd:long"       default="120" />
+    <xsd:attribute name="MaxTimeEnabled"              type="xsd:boolean"    default="true"/>
+    <xsd:attribute name="TargetMonitorCounts"         type="xsd:long"   />
+    <xsd:attribute name="TargetMonitorCountsEnabled"  type="xsd:boolean"/>
+    <xsd:attribute name="TargetDetectorCounts"        type="xsd:long"   />
+    <xsd:attribute name="TargetDetectorCountsEnabled" type="xsd:boolean"/>
+    <!-- algorithm to find attenuation angle -->
+    <xsd:attribute name="AttenuationAlgorithm" type="msw:AttenuationAlgorithm" fixed="fixed attenuation"/>
+    <xsd:attribute name="AttenuationAngle"     type="msw:AttenuationAngle"     default="300"            />
+  </xsd:complexType>
+
+  <xsd:complexType name="Scattering">
+    <xsd:sequence>
+      <xsd:element name="SetupScript" type="msw:Script" minOccurs="0" maxOccurs="1"/>
+    </xsd:sequence>
+    <xsd:attribute name="Id"                          type="msw:Id"         use="required"      />
+    <xsd:attribute name="Enabled"                     type="xsd:boolean"    default="true"      />
+    <xsd:attribute name="Name"                        type="msw:SicsString" default="Scattering"/>
+    <xsd:attribute name="Description"                 type="msw:SicsString" default=""          />
+    <xsd:attribute name="MinTime"                     type="xsd:long"   />
+    <xsd:attribute name="MinTimeEnabled"              type="xsd:boolean"/>
+    <xsd:attribute name="MaxTime"                     type="xsd:long"       default="600" />
+    <xsd:attribute name="MaxTimeEnabled"              type="xsd:boolean"    default="true"/>
+    <xsd:attribute name="TargetMonitorCounts"         type="xsd:long"   />
+    <xsd:attribute name="TargetMonitorCountsEnabled"  type="xsd:boolean"/>
+    <xsd:attribute name="TargetDetectorCounts"        type="xsd:long"   />
+    <xsd:attribute name="TargetDetectorCountsEnabled" type="xsd:boolean"/>
+    <!-- algorithm to find attenuation angle -->
+    <xsd:attribute name="AttenuationAlgorithm" type="msw:AttenuationAlgorithm" default="iterative attenuation"/>
+    <xsd:attribute name="AttenuationAngle"     type="msw:AttenuationAngle"     default="90"                   />
+  </xsd:complexType>
+  
+  <xsd:element name="Configuration">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="SetupScript"  type="msw:Script" minOccurs="0" maxOccurs="1"/>
+        <xsd:element name="Transmission" type="msw:Transmission"/>
+        <xsd:element name="Scattering"   type="msw:Scattering"  />
+      </xsd:sequence>
+      <xsd:attribute name="Id"          type="msw:Id"                 use="required"         />
+      <xsd:attribute name="Enabled"     type="xsd:boolean"            default="true"         />
+      <xsd:attribute name="Name"        type="msw:ConfigurationName"  default="Configuration"/>
+      <xsd:attribute name="Group"       type="msw:ConfigurationGroup" default=""             />
+      <xsd:attribute name="Description" type="msw:SicsString"         default=""             />
+    </xsd:complexType>
+  
+    <!-- MeasurementId -->
+    <xsd:key name="MeasurementId">
+      <xsd:selector xpath="msw:Transmission|msw:Scattering"/>
+      <xsd:field xpath="@Id"/>
+    </xsd:key>
+  
+  </xsd:element>
+  
+  <xsd:element name="ConfigurationList">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="msw:Configuration" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attribute name="Description" type="msw:SicsString" default=""/>
+    </xsd:complexType>
+  
+    <!-- ConfigurationId -->
+    <xsd:key name="ConfigurationId">
+      <xsd:selector xpath="msw:Configuration"/>
+      <xsd:field xpath="@Id"/>
+    </xsd:key>
+
+  </xsd:element>
+  
+  
+  <!-- environments -->
+
+  <xsd:element name="SetPoint">
+    <xsd:complexType>
+      <xsd:attribute name="Id"         type="msw:Id"      use="required"/>
+      <xsd:attribute name="Enabled"    type="xsd:boolean" default="true"/>
+      <xsd:attribute name="Value"      type="xsd:double"  default="0.0" />
+      <xsd:attribute name="WaitPeriod" type="xsd:long"    default="0"   />
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:element name="Environment">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="SetupScript" type="msw:Script" minOccurs="0" maxOccurs="1"        />
+        <xsd:element name="DriveScript" type="msw:Script" minOccurs="0" maxOccurs="1"        />
+        <xsd:element ref="msw:SetPoint"                   minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attribute name="Id"          type="msw:Id"         use="required"       />
+      <xsd:attribute name="Name"        type="msw:SicsString" default="Environment"/>
+      <xsd:attribute name="Description" type="msw:SicsString" default=""           />
+    </xsd:complexType>
+    
+    <!-- SetPointId -->
+    <xsd:key name="SetPointId">
+      <xsd:selector xpath="msw:SetPoint"/>
+      <xsd:field xpath="@Id"/>
+    </xsd:key>
+  
+  </xsd:element>
+  
+  
+  <!-- loop hierarchy -->
+  
+  <xsd:element name="LoopHierarchy">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="msw:Environment" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:choice>
+          <xsd:sequence>
+            <xsd:element ref="msw:SampleList"/>
+            <xsd:element ref="msw:Environment" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="msw:ConfigurationList"/>
+          </xsd:sequence>
+          <xsd:sequence>
+            <xsd:element ref="msw:ConfigurationList"/>
+            <xsd:element ref="msw:Environment" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="msw:SampleList"/>
+          </xsd:sequence>
+        </xsd:choice>
+        <xsd:element ref="msw:Environment" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
+  
+  <!-- root -->
+  
+  <xsd:element name="MSW">
+    <xsd:annotation>
+      <xsd:appinfo>
+        model-root
+      </xsd:appinfo>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="msw:ExperimentDescription"/>
+        <xsd:element ref="msw:UserList"             />
+        <xsd:element ref="msw:LoopHierarchy"        />
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+</xsd:schema>

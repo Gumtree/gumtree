@@ -1,0 +1,36 @@
+body {
+  font-family: verdana,arial,sans-serif;
+  font-size: 11px;
+}
+p {
+  display: block;
+  font-weight: bold;
+  margin: 0px;
+  margin-top: 1em;
+}
+table {
+  font-family: verdana,arial,sans-serif;
+  font-size: 11px;
+  color: #333333;
+  border-width: 1px;
+  border-color: #666666;
+  border-collapse: collapse;
+}
+th {
+  border-width: 1px;
+  padding: 4px;
+  border-style: solid;
+  border-color: #666666;
+  background-color: #dedede;
+}
+td {
+  border-width: 1px;
+  padding: 4px;
+  border-style: solid;
+  border-color: #666666;
+  background-color: #ffffff;
+}
+td.tree {
+  padding-left: 40px;
+  padding-top: 0px;
+}

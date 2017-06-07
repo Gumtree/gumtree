@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
+import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget.LabelConverter;
 import org.gumtree.gumnix.sics.widgets.swt.EnvironmentControlWidget;
 import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
 import org.gumtree.gumnix.sics.widgets.swt.SicsStatusWidget;
@@ -96,27 +97,28 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 //		hmWidget.setDataURI(path);
 //		configureWidget(hmWidget);
 
-		// Devices
-		PGroup monochromatorGroup = createGroup("DEVICES",
-				SharedImage.SPIN.getImage());
+		// Premonochromator
+		PGroup monochromatorGroup = createGroup("PREMONOCHROMATOR",
+				SharedImage.MONOCHROMATOR.getImage());
 		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/collimator/att", "att", null, null)
-				.addDevice("/instrument/cdd", "cdd", null, null)
-				.addDevice("/instrument/cdr", "cdr", null, null)
-				.addDevice("/instrument/sdh", "sdh", null, null)
-				;
-		configureWidget(deviceStatusWidget);
-
-		// Detector
-		PGroup detectorGroup = createGroup("DETECTOR",
-				SharedImage.POWER.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(detectorGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/instrument/detector/total_counts", "total counts", null, "cts")
-				.addDevice("/instrument/detector/cdl", "cdl", null, null)
-				.addDevice("/instrument/detector/cdu", "cdu", null, null)
-				.addDevice("/instrument/det", "det", null, "")
+				.addDevice("/instrument/crystal/lambda", "Wavelength", null, "\u212B", new LabelConverter() {
+					
+					@Override
+					public String convertValue(Object obj) {
+						String data = obj.toString();
+						try {
+							double value = Double.valueOf(data);
+							if (data.contains(".")) {
+								return String.format("%.5f", value);
+							}
+						} catch (Exception e) {
+						}
+						return data;
+					}
+				})
+				.addDevice("/instrument/crystal/momto", "Take-off angle", null, "\u00b0")
+				.addDevice("/instrument/crystal/mom", "Premono Omega", null, "\u00b0")
 				;
 		configureWidget(deviceStatusWidget);
 
@@ -126,7 +128,10 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "cts")
-				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "cts");
+//				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "cts")
+				.addDevice("/instrument/detector/total_counts", "Detector counts", null, "cts")
+				.addDevice("/instrument/detector/time", "Time of counting", null, "s")
+				;
 		configureWidget(deviceStatusWidget);
 
 		// Choppers
@@ -134,18 +139,34 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.POSITIONER.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(chopperGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/master_chopper_id", "master chopper", null, "")
+				.addDevice("/instrument/chom", "Graphite chopper omega", null, "\u00b0")
+				.addDevice("/instrument/crystal/chomto", "Graphite chopper take-off angle", null, "\u00b0")
+				.addDevice("/instrument/chpr/graphite/actspeed", "Graphite chopper speed", null, "rpm")
+				.addDevice("/instrument/chpr/background/actspeed", "Background chopper speed", null, "rpm")
+				.addDevice("/instrument/chpr/background/actphase", "Background chopper phase", null, "\u00b0")
+				.addDevice("/instrument/chpr/background/actgear", "Background chopper ratio", null, "")
+				;
+		configureWidget(deviceStatusWidget);
+
+		// Doppler
+		PGroup dopplerGroup = createGroup("DOPPLER",
+				SharedImage.SPIN.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(dopplerGroup, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/instrument/doppler/ctrl/amplitude", "Amplitude", null, "mm")
+				.addDevice("/instrument/doppler/ctrl/velocity", "Velocity", null, "m/s")
 				;
 		configureWidget(deviceStatusWidget);
 
 		// Sample Info
-		PGroup sampleGroup = createGroup("SAMPLE",
-				SharedImage.BEAKER.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(sampleGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/sample/name", "Name", null, "")
-				;
-		configureWidget(deviceStatusWidget);
+//		PGroup beFilterGroup = createGroup("Be FILTER",
+//				SharedImage.SLITS.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(beFilterGroup, SWT.NONE);
+//		deviceStatusWidget
+//				.addDevice("/instrument/be/temp", "Temperature", null, "K")
+//				.addDevice("/instrument/be/vac", "Vacuum", null, "mbar")
+//				;
+//		configureWidget(deviceStatusWidget);
 
 
 		// Furnace Temp

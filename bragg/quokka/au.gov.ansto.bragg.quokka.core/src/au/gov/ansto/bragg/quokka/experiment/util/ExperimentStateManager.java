@@ -8,6 +8,7 @@ import java.util.Map;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.gumtree.core.service.ServiceUtils;
+import org.gumtree.service.db.RemoteTextDbService;
 import org.gumtree.service.directory.IDirectoryService;
 import org.gumtree.util.messaging.IListenerManager;
 import org.gumtree.util.messaging.ListenerManager;
@@ -19,6 +20,7 @@ import au.gov.ansto.bragg.quokka.core.internal.QuokkaCoreProperties;
 import au.gov.ansto.bragg.quokka.experiment.model.Acquisition;
 import au.gov.ansto.bragg.quokka.experiment.model.AcquisitionSetting;
 import au.gov.ansto.bragg.quokka.experiment.model.Experiment;
+import au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfig;
 import au.gov.ansto.bragg.quokka.experiment.model.Sample;
 import au.gov.ansto.bragg.quokka.experiment.report.ExperimentUserReport;
 import au.gov.ansto.bragg.quokka.experiment.report.ExperimentUserReportUtils;
@@ -158,7 +160,40 @@ public class ExperimentStateManager implements IExperimentStateManager {
 		setting.setScatteringL2(l2);
 		fireUpdate(runId);
 	}
+	
+	public String getScatteringDetails(final int runId) {
+		AcquisitionSetting setting = settings.get(runId);
+		return setting.getScatteringDataFile();
+	}
+	
+	public void setConfigSetFinished(final int runId){
+		AcquisitionSetting setting = settings.get(runId);
+		InstrumentConfig config = setting.getConfig();
+		try {
+			RemoteTextDbService.getInstance().appendTableEntry("MSW result", ExperimentUserReportUtils.exportAcquisitionTable(getAcquisition(runId), config));
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
 		
+	public void setAcquistionStarted(){
+		try {
+			RemoteTextDbService.getInstance().appendTableEntry("MSW result", ExperimentUserReportUtils.createExperimentInfoTable(experiment));
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
+	
+	public void exportAcquisitionEntryHtml(final String html) {
+//		AcquisitionSetting setting = settings.get(runId);
+//		InstrumentConfig config = setting.getConfig();
+		try {
+			RemoteTextDbService.getInstance().appendTableEntry("MSW result", html);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
+	
 	private void fireUpdate(final int runId) {
 		logger.info("Generating intermediate report for run " + runId + ".");
 		// Update result object

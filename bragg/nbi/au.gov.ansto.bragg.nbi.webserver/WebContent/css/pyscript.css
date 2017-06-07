@@ -128,6 +128,7 @@ body{
     height: 18px;
     vertical-align: middle;
     text-shadow: 1px 1px #959595;
+	font-variant: small-caps;
     margin-left: 2px;
     margin-top: 4px;
 }

@@ -2,7 +2,7 @@
 <feature
       id="org.gumtree.common.core.feature"
       label="Gumtree Framework Common Core"
-      version="1.10.0.qualifier"
+      version="1.13.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">
@@ -120,7 +120,7 @@
          id="javax.annotation"
          download-size="0"
          install-size="0"
-         version="1.0.0.v20101115-0725"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
@@ -668,6 +668,38 @@
 
    <plugin
          id="org.gumtree.vis.nexus"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.itext.pdf"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.gumtree.msw"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.gumtree.msw.elements"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.gumtree.msw.schedule"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.commons.math"
          download-size="0"
          install-size="0"
          version="0.0.0"

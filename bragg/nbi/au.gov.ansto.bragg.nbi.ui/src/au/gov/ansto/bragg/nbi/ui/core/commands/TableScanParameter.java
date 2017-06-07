@@ -219,7 +219,6 @@ public class TableScanParameter extends AbstractScanParameter {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				System.err.println("clicked");
 				Control[] children = parameterComposite.getChildren();
 				for (Control child : children) {
 					if (child instanceof Text) {

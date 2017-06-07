@@ -4,20 +4,32 @@
    <extension
          point="org.eclipse.equinox.http.registry.resources">
       <resource
-            alias="/"
+            alias="/status"
             base-name="/WebContent/bilby.html">
       </resource>
       <resource
-            alias="/bilby.html"
+            alias="/status/bilby.html"
             base-name="/WebContent/bilby.html">
       </resource>
       <resource
-            alias="/bilby.swf"
+            alias="/status/bilby.swf"
             base-name="/WebContent/bilby.swf">
       </resource>
       <resource
-            alias="/instrumentsetup.js"
+            alias="/status/js/instrumentsetup.js"
             base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/user/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/doc/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/status/assets/bilby_model.JPG"
+            base-name="/WebContent/assets/bilby_model.JPG">
       </resource>
    </extension>
 

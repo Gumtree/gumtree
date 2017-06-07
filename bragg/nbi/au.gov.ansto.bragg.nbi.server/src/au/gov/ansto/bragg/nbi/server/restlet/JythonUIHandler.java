@@ -291,6 +291,19 @@ public class JythonUIHandler {
 	}
 	
 	public String getScriptControlHtml(String filePath) throws FileNotFoundException {
+//		if (isRunnerBusy()){
+//			return "<div class=\"div_error_message\">Failed to load script UI. Jython engine is busy.</div>";
+//		}
+		int time = 0;
+		int timeToWait = 200;
+		while(isRunnerBusy() && time < RUNNER_TIMEOUT) {
+			try {
+				Thread.sleep(timeToWait);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			time += timeToWait;
+		}
 		if (isRunnerBusy()){
 			return "<div class=\"div_error_message\">Failed to load script UI. Jython engine is busy.</div>";
 		}
@@ -309,6 +322,7 @@ public class JythonUIHandler {
 			}
 		});
 //		ScriptPageRegister.getRegister(scriptRegisterID).setScriptModel(scriptModel);
+		JythonModelRegister.getRegister(scriptRegisterID).setScriptModel(scriptModel);
 		runScriptLine("__script_model_id__ = " + scriptRegisterID);
 //		IScriptBlock preBlock = new ScriptBlock();
 //		for (String line : PRE_RUN_SCRIPT) {
@@ -520,4 +534,8 @@ public class JythonUIHandler {
 		return null;
 	}
 
+	public ScriptModel getScriptModel() {
+		return scriptModel;
+	}
+	
 }

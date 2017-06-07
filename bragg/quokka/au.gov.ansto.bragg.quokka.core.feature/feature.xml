@@ -2,7 +2,7 @@
 <feature
       id="au.gov.ansto.bragg.quokka.core.feature"
       label="Bragg Quokka Core"
-      version="1.10.0.qualifier"
+      version="1.13.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">
@@ -37,13 +37,6 @@
 
    <plugin
          id="au.gov.ansto.bragg.quokka.dra"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="au.gov.ansto.bragg.quokka.model"
          download-size="0"
          install-size="0"
          version="0.0.0"

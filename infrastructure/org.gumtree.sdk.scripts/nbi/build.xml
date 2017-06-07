@@ -15,7 +15,7 @@
 	############################################################################
 	-->
 
-	<property name="version" value="1.10.7" />
+	<property name="version" value="1.13.2" />
 	<property name="exportDirectory" value="${buildDirectory}/export" />
 	<property name="repositoryProject" value="org.gumtree.maven.repository" />
 	<property name="repositoryPath" value="infrastructure/${repositoryProject}/target" />
@@ -350,6 +350,7 @@
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="bilby" applicationLabel="BilbyWebserver" />
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="dingo" applicationLabel="DingoWebserver" />
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="emu" applicationLabel="EmuWebserver" />
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="banksia" applicationLabel="BanksiaWebserver" />
 	</target>
 
 	<!--
@@ -373,8 +374,313 @@
 		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="bilby" applicationLabel="BilbyWorkbench" />
 		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="dingo" applicationLabel="DingoWorkbench" />
 		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="emu" applicationLabel="EmuWorkbench" />
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="banksia" applicationLabel="BanksiaWorkbench" />
 	</target>
 
+	<!--
+	############################################################################
+	#
+	# Build individual product tasks
+	#
+	############################################################################
+	-->
+	
+	<!--
+		Build Bragg application
+		Paramaters:
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			applicationType 		(eg. workbench)
+			applicationName 		(eg. echidna)
+			osType					(eg. win32)
+			os						(eg. win32)
+			ws						(eg. win32)
+			arch					(eg. x86)
+		-->
+	<macrodef name="quickBuildApplication">
+		<attribute name="applicationType" />
+		<attribute name="applicationName" />
+		<attribute name="applicationLabel" />
+		<sequential>
+		    <delete failonerror="false">
+		        <dirset dir="${exportDirectory}/products/@{applicationType}" includes="@{applicationName}" />
+	    		<fileset dir="${exportDirectory}/products/@{applicationType}" includes="@{applicationLabel}*.tar.gz" />
+			</delete>
+			<buildBraggApplicationMultiOS applicationType="@{applicationType}" applicationName="@{applicationName}" applicationLabel="@{applicationLabel}" />
+		</sequential>
+	</macrodef>
+	
+	<!--
+		Build Echidna Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildEchidnaWebserver">
+		<quickBuildApplication applicationType="webserver" applicationName="echidna" applicationLabel="EchidnaWebserver" />
+	</target>
+
+	<!--
+		Build Wombat Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildWombatWebserver">
+		<quickBuildApplication applicationType="webserver" applicationName="wombat" applicationLabel="WombatWebserver" />
+	</target>
+
+	<!--
+		Build Kowari Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildKowariWebserver">
+		<quickBuildApplication applicationType="webserver" applicationName="kowari" applicationLabel="KowariWebserver" />
+	</target>
+	
+	<!--
+		Build Quokka Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildQuokkaWebserver">
+		<quickBuildApplication applicationType="webserver" applicationName="quokka" applicationLabel="QuokkaWebserver" />
+	</target>
+	
+	<!--
+		Build Platypus Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildPlatypusWebserver">
+		<quickBuildApplication applicationType="webserver" applicationName="platypus" applicationLabel="PlatypusWebserver" />
+	</target>
+	
+	<!--
+		Build Pelican Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildPelicanWebserver">
+		<quickBuildApplication applicationType="webserver" applicationName="pelican" applicationLabel="PelicanWebserver" />
+	</target>
+	
+	<!--
+		Build Taipan Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildTaipanWebserver">
+		<quickBuildApplication applicationType="webserver" applicationName="taipan" applicationLabel="TaipanWebserver" />
+	</target>
+	
+	<!--
+		Build Kookaburra Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildKookaburraWebserver">
+		<quickBuildApplication applicationType="webserver" applicationName="kookaburra" applicationLabel="KookaburraWebserver" />
+	</target>
+	
+	<!--
+		Build Bilby Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildBilbyWebserver">
+		<quickBuildApplication applicationType="webserver" applicationName="bilby" applicationLabel="BilbyWebserver" />
+	</target>
+	
+	<!--
+		Build Dingo Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildDingoWebserver">
+		<quickBuildApplication applicationType="webserver" applicationName="dingo" applicationLabel="DingoWebserver" />
+	</target>
+	
+	<!--
+		Build Emu Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildEmuWebserver">
+		<quickBuildApplication applicationType="webserver" applicationName="emu" applicationLabel="EmuWebserver" />
+	</target>
+			
+	<!--
+		Build Banksia Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildBanksiaWebserver">
+		<quickBuildApplication applicationType="webserver" applicationName="banksia" applicationLabel="BanksiaWebserver" />
+	</target>
+		
+	<!--
+	############################################################################
+	#
+	# Build individual product tasks
+	#
+	############################################################################
+	-->
+	<!--
+		Build Echidna Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildEchidnaWorkbench">
+		<quickBuildApplication applicationType="workbench" applicationName="echidna" applicationLabel="EchidnaWorkbench" />
+	</target>
+
+	<!--
+		Build Wombat Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildWombatWorkbench">
+		<quickBuildApplication applicationType="workbench" applicationName="wombat" applicationLabel="WombatWorkbench" />
+	</target>
+
+	<!--
+		Build Kowari Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildKowariWorkbench">
+		<quickBuildApplication applicationType="workbench" applicationName="kowari" applicationLabel="KowariWorkbench" />
+	</target>
+	
+	<!--
+		Build Quokka Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildQuokkaWorkbench">
+		<quickBuildApplication applicationType="workbench" applicationName="quokka" applicationLabel="QuokkaWorkbench" />
+	</target>
+	
+	<!--
+		Build Platypus Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildPlatypusWorkbench">
+		<quickBuildApplication applicationType="workbench" applicationName="platypus" applicationLabel="PlatypusWorkbench" />
+	</target>
+	
+	<!--
+		Build Pelican Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildPelicanWorkbench">
+		<quickBuildApplication applicationType="workbench" applicationName="pelican" applicationLabel="PelicanWorkbench" />
+	</target>
+	
+	<!--
+		Build Taipan Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildTaipanWorkbench">
+		<quickBuildApplication applicationType="workbench" applicationName="taipan" applicationLabel="TaipanWorkbench" />
+	</target>
+	
+	<!--
+		Build Kookaburra Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildKookaburraWorkbench">
+		<quickBuildApplication applicationType="workbench" applicationName="kookaburra" applicationLabel="KookaburraWorkbench" />
+	</target>
+	
+	<!--
+		Build Bilby Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildBilbyWorkbench">
+		<quickBuildApplication applicationType="workbench" applicationName="bilby" applicationLabel="BilbyWorkbench" />
+	</target>
+	
+	<!--
+		Build Dingo Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildDingoWorkbench">
+		<quickBuildApplication applicationType="workbench" applicationName="dingo" applicationLabel="DingoWorkbench" />
+	</target>
+	
+	<!--
+		Build Emu Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildEmuWorkbench">
+		<quickBuildApplication applicationType="workbench" applicationName="emu" applicationLabel="EmuWorkbench" />
+	</target>
+
+	<!--
+		Build Banksia Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildBanksiaWorkbench">
+		<quickBuildApplication applicationType="workbench" applicationName="banksia" applicationLabel="BanksiaWorkbench" />
+	</target>
+	
 	<!--
 	############################################################################
 	#
@@ -466,6 +772,7 @@
 		<buildWin32Installer applicationName="bilby" applicationLabel="Bilby" applicationShortcut="Bilby Workbench" />
 		<buildWin32Installer applicationName="dingo" applicationLabel="Dingo" applicationShortcut="Dingo Workbench" />
 		<buildWin32Installer applicationName="emu" applicationLabel="Emu" applicationShortcut="Emu Workbench" />
+		<buildWin32Installer applicationName="banksia" applicationLabel="Banksia" applicationShortcut="Banksia Workbench" />
 	</target>
 
 	<target name="buildBraggWin64Installers">
@@ -481,6 +788,7 @@
 		<buildWin64Installer applicationName="bilby" applicationLabel="Bilby" applicationShortcut="Bilby Workbench" />
 		<buildWin64Installer applicationName="dingo" applicationLabel="Dingo" applicationShortcut="Dingo Workbench" />
 		<buildWin64Installer applicationName="emu" applicationLabel="Emu" applicationShortcut="Emu Workbench" />
+		<buildWin64Installer applicationName="banksia" applicationLabel="Banksia" applicationShortcut="Banksia Workbench" />
 	</target>
 
 	<!-- Helper targets -->

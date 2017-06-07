@@ -1,4 +1,4 @@
-var title = "Pelican Status";
+var title = "Pelican";
 var batchEnabled = true;
 var devices = [
                {"group":"BEAM STATUS", 
@@ -17,7 +17,7 @@ var devices = [
             	            ]
                },
                {"group":"MONOCHROMATOR", 
-            	   "items":[{"classId":"vwi", "deviceId":"vwi", "title":"wavelength", "units":"Å"},  
+            	   "items":[{"classId":"vwi", "deviceId":"vwi", "title":"wavelength", "units":"\u212B"},  
             	            {"classId":"mom", "deviceId":"mom", "title":"mom", "units":"deg"},
             	            {"classId":"mtth", "deviceId":"mtth", "title":"mtth", "units":"deg"},
             	            {"classId":"moma", "deviceId":"moma", "title":"moma", "units":"deg"},
@@ -41,4 +41,13 @@ var nsItems = [
                {"classId":"cnsOutTemp", "deviceId":"cnsOutTemp", "title":"CNS Out Temp", "units":"K"}
                ];
 
-var histmemUrl = "dae/rest/image?type=TOTAL_HISTOGRAM_XT&screen_size_x=760&screen_size_y=760";
+var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE";
+
+var histmemTypes = [
+                    {"id" : "TOTAL_HISTOGRAM_XY", "text" : "Total x-y histogram"},
+                    {"id" : "TOTAL_HISTOGRAM_XT", "text" : "Total x-t histogram", "isDefault" : true},
+                    {"id" : "TOTAL_HISTOGRAM_YT", "text" : "Total y-t histogram"},
+                    {"id" : "TOTAL_HISTOGRAM_X", "text" : "Total x histogram"},
+                    {"id" : "TOTAL_HISTOGRAM_Y", "text" : "Total y histogram"},
+                    {"id" : "TOTAL_HISTOGRAM_T", "text" : "Total t histogram"}
+                    ];

@@ -1,4 +1,4 @@
-var title = "Echidna Status";
+var title = "Echidna";
 var batchEnabled = true;
 var devices = [
                {"group":"BEAM STATUS", 

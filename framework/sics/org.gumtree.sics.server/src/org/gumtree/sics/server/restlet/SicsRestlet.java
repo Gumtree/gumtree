@@ -1,7 +1,10 @@
 package org.gumtree.sics.server.restlet;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.annotation.PreDestroy;
@@ -135,7 +138,15 @@ public class SicsRestlet extends Restlet implements IDisposable {
 			ISicsController controller = getSicsManager()
 					.getServerController().findChild(devicesQuery);
 			ISicsController[] children = controller.getChildren();
-			for (ISicsController child : children){
+			List<ISicsController> childList = Arrays.asList(children);
+			Collections.sort(childList, new Comparator<ISicsController>(){
+
+				@Override
+				public int compare(ISicsController o1, ISicsController o2) {
+					return o1.getId().compareTo(o2.getId());
+				}
+			});
+			for (ISicsController child : childList){
 				try {
 					JSONObject controllerValues = createComponentJSONRepresentation(
 							request, child, false);

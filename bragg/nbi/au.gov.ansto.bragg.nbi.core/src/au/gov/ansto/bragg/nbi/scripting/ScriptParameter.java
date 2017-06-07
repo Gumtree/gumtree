@@ -65,7 +65,12 @@ public class ScriptParameter extends PyObjectImp {
 			this.value = Integer.valueOf(String.valueOf(value));
 			break;
 		case FLOAT:
-			this.value = Float.valueOf(String.valueOf(value));
+			String str = String.valueOf(value);
+			if (str == null || str.trim().isEmpty() || str.trim().toLowerCase().equals("nan")) {
+				this.value = Float.NaN;
+			} else {
+				this.value = Float.valueOf(String.valueOf(value));
+			}
 			break;
 		case BOOL:
 			this.value = Boolean.valueOf(String.valueOf(value));

@@ -5,7 +5,7 @@ from symbol import except_clause
 import copy
 import math
 import random
-
+import itertools
 
 gdm_factory = FactoryManager().getFactory()
 
@@ -1013,6 +1013,24 @@ class Array:
                 riter.set_next(~siter.next())
             return res
             
+    def matrix_invert(self):
+        if self.ndim != 2:
+            raise Exception, 'array dimention must be 2, got ' + str(self.ndim)
+        if self.shape[0] != self.shape[1]:
+            raise Exception, 'array is not square '
+        return Array(self.__iArray__.getArrayMath().matInverse().getArray())
+    
+    def matrix_dot(self, arr):
+        if not hasattr(arr, 'ndim'):
+            raise Exception, 'argument arr must be a gumpy array'
+        if self.ndim != 2:
+            raise Exception, 'array dimention must be 2, got ' + str(self.ndim)
+        if arr.ndim != 2:
+            raise Exception, 'argument array dimention must be 2, got ' + str(arr.ndim)
+        if self.shape[1] != arr.shape[0]:
+            raise Exception, 'array dimensions do not match'
+        return Array(self.__iArray__.getArrayMath().matMultiply(arr.__iArray__).getArray())
+    
     def __pow__(self, obj):
         res = zeros(self.shape, self.__match_type__(obj))
         riter = res.item_iter()
@@ -1210,11 +1228,12 @@ class Array:
 #     Array utilities
 #********************************************************************************
     
-    def __repr__(self, indent = None):
+    def __repr__(self, indent = None, skip = True):
         if self.size == 0 :
             return 'Array([], shape=' + str(self.shape) + \
                     ', dtype=' + self.dtype.__name__ + ')'
-        skip = self.size > Array.threshold
+        if skip :
+            skip = self.size > Array.threshold
         amax = 0
         amin = 0
         if self.dtype is int or self.dtype is long :
@@ -1229,12 +1248,13 @@ class Array:
         return 'Array(' + self.__string__(0, skip, True, indent = nindent, \
                                           max = amax, min = amin) + ')'
     
-    def __str__(self, indent = ''):
+    def __str__(self, indent = '', skip = True):
         if self.dtype is str :
             return self.__iArray__.toString()
         if self.size == 0 :
             return indent + '[]'
-        skip = self.size > Array.threshold
+        if skip :
+            skip = self.size > Array.threshold
         amax = 0
         amin = 0
         if self.dtype is int or self.dtype is long :
@@ -1315,6 +1335,86 @@ class Array:
                 l.append(part)
         return l
             
+#####################################################################################
+# Returns the indices of the maximum values along an axis.
+# Parameters:    
+#     axis : int, optional
+#        By default, the index is into the flattened array, otherwise along the specified axis.
+#
+# Returns:    
+#    index_array : ndarray of ints
+#    Array of indices into the array. It has the same shape as a.shape with the dimension along axis removed.
+#####################################################################################
+    def argmax(self, axis = None):
+        if axis is None:
+            val = float("-inf")
+            found = -1
+            idx = 0
+            iter = self.item_iter()
+            while iter.has_next():
+                nv = iter.next()
+                if nv > val:
+                    val = nv
+                    found = idx
+                idx += 1
+            return found
+        else:
+            if axis >= self.ndim:
+                raise Exception, 'axis out of range'
+            if self.ndim == 1:
+                return self.argmax()
+            res_shape = copy.copy(self.shape)
+            res_shape.pop(axis)
+            res = zeros(res_shape, int)
+            res_iter = res.item_iter()
+            sec_iter_shape = [1] * self.ndim
+            sec_iter_shape[axis] = self.shape[axis]
+            sec_iter = self.section_iter(sec_iter_shape)
+            while sec_iter.has_next():
+                sec = sec_iter.next()
+                res_iter.set_next(sec.argmax())
+            return res
+        
+#####################################################################################
+# Returns the indices of the minimum values along an axis.
+# Parameters:    
+#     axis : int, optional
+#        By default, the index is into the flattened array, otherwise along the specified axis.
+#
+# Returns:    
+#    index_array : ndarray of ints
+#    Array of indices into the array. It has the same shape as a.shape with the dimension along axis removed.
+#####################################################################################
+    def argmin(self, axis = None):
+        if axis is None:
+            val = float("inf")
+            found = -1
+            idx = 0
+            iter = self.item_iter()
+            while iter.has_next():
+                nv = iter.next()
+                if nv < val:
+                    val = nv
+                    found = idx
+                idx += 1
+            return found
+        else:
+            if axis >= self.ndim:
+                raise Exception, 'axis out of range'
+            if self.ndim == 1:
+                return self.argmin()
+            res_shape = copy.copy(self.shape)
+            res_shape.pop(axis)
+            res = zeros(res_shape, int)
+            res_iter = res.item_iter()
+            sec_iter_shape = [1] * self.ndim
+            sec_iter_shape[axis] = self.shape[axis]
+            sec_iter = self.section_iter(sec_iter_shape)
+            while sec_iter.has_next():
+                sec = sec_iter.next()
+                res_iter.set_next(sec.argmin())
+            return res
+        
 #####################################################################################
 #   Array modification
 #####################################################################################    
@@ -1876,8 +1976,8 @@ class ArraySectionIter():
             return True
         else :
             return False
-        
-    
+
+
 #####################################################################################
 # Array utilities
 #####################################################################################
@@ -2048,7 +2148,84 @@ def zeros(shape, dtype = float):
 
 def zeros_like(array):
     return instance(array.shape, 0, array.dtype)
-    
+
+'''
+Create a two-dimensional array with the flattened input as a diagonal.
+Parameters:    
+obj : array_like
+    Input data, which is flattened and set as the k-th diagonal of the output.
+k : int, optional
+    Diagonal to set; 0, the default, corresponds to the "main" diagonal, a positive (negative) k giving the number of the diagonal above (below) the main.
+Returns:    
+out : ndarray    
+    The 2-D output array.
+Examples
+>>> np.diagflat([[1,2], [3,4]])
+array([[1, 0, 0, 0],
+       [0, 2, 0, 0],
+       [0, 0, 3, 0],
+       [0, 0, 0, 4]])
+
+>>> np.diagflat([1,2], 1)
+array([[0, 1, 0],
+       [0, 0, 2],
+       [0, 0, 0]])
+'''
+def diagflat(obj, k = 0):
+    if hasattr(obj, 'item_iter') and hasattr(obj, 'size'):
+        dim = obj.size() + abs(k)
+        arr = zeros([dim, dim])
+        oiter = obj.item_iter()
+        if k == 0:
+            idx = 0
+            while True:
+                try:
+                    arr[idx, idx] = oiter.next()
+                    idx += 1
+                except:
+                    break
+        elif k > 0:
+            idx = 0
+            while True:
+                try:
+                    arr[idx, idx + k] = oiter.next()
+                    idx += 1
+                except:
+                    break
+        else:
+            k = -k
+            idx = 0
+            while True:
+                try:
+                    arr[idx + k, idx] = oiter.next()
+                    idx += 1
+                except:
+                    break
+        return arr
+    elif type(obj) is list :
+        ndim = get_ndim(obj)
+        if ndim > 1:
+            obj = list(itertools.chain(*obj))
+        dim = len(obj) + abs(k)
+        arr = zeros([dim, dim])
+        if k == 0:
+            idx = 0
+            for item in obj :
+                arr[idx, idx] = item
+                idx += 1
+        elif k > 0:
+            idx = 0
+            for item in obj :
+                arr[idx, idx + k] = item
+                idx += 1
+        else:
+            k = -k
+            idx = 0
+            for item in obj :
+                arr[idx + k, idx] = item
+                idx += 1
+        return arr
+        
 def ones(shape, dtype = float):
     if type(shape) is int :
         shape = [shape]
@@ -2544,6 +2721,7 @@ def dstack(*tup):
             id += 1
     return arr
 
+    
 #####################################################################################
 # Splitting arrays
 #####################################################################################

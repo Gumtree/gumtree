@@ -23,8 +23,12 @@ __DATASOURCE__ = __register__.getDataSourceViewer()
 #__script__.version = 'unknown'
 __runner__ = __UI__.getRunner()
 __writer__ = __UI__.getScriptExecutor().getEngine().getContext().getWriter()
+__err_writer__ = __UI__.getScriptExecutor().getEngine().getContext().getErrorWriter()
 def logln(text):
-    log(text, __writer__)
+    return log(text, __writer__)
+def logErr(text):
+    return log(text, __err_writer__)
+    
 clear = script.clear
 
 class ScriptingDatasetFactory(DatasetFactory):
@@ -100,14 +104,26 @@ def open_error(msg):
 def open_question(msg): 
     return __runner__.openQuestion(msg)
 
+def pause(msg = None):
+    if msg is None:
+        msg = 'Paused, please press OK to continue.'
+    else:
+        msg = 'Paused, please press OK to continue.\n' + str(msg)
+    return __runner__.openInformation(msg)
+    
 def selectSaveFolder():
     return __runner__.selectSaveFolder()
 
-def selectSaveFile(ext = None):
+def selectSaveFile(ext = None, ws_path = None, fn = None):
     if ext is None:
         ext = []
-    return __runner__.selectSaveFile(ext)
+    return __runner__.selectSaveFile(ext, ws_path, fn)
 
+def selectLoadFile(ext = None, ws_path = None):
+    if ext is None:
+        ext = []
+    return __runner__.selectLoadFile(ext, ws_path)
+    
 if '__dispose__' in globals() :
     __dispose__()
     
@@ -127,8 +143,9 @@ def run_action(act):
         act.set_error_status()
         traceback.print_exc(file = sys.stdout)
         raise Exception, 'Error in running <' + act.text + '>'
-    if sics.getSicsController() != None:
-        sics.handleInterrupt()
+    if not act.no_interrupt_check == 'True':
+        if sics.getSicsController() != None:
+            sics.handleInterrupt()
     
 def get_pref_value(name):
     value = __UI__.getPreference(name)
@@ -152,7 +169,7 @@ def set_prof_value(name, value):
 def save_pref():
     __UI__.savePreferenceStore()
 
-def __dataset_added__():
+def __dataset_added__(fns = None):
     pass
 
 __selected_dataset__ = []

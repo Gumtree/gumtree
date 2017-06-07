@@ -1,10 +1,15 @@
 package org.gumtree.data.impl.math;
 
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealMatrix;
 import org.gumtree.data.IFactory;
 import org.gumtree.data.exception.InvalidRangeException;
 import org.gumtree.data.exception.ShapeNotMatchException;
+import org.gumtree.data.impl.NcFactory;
 import org.gumtree.data.impl.netcdf.NcArray;
 import org.gumtree.data.interfaces.IArray;
+import org.gumtree.data.interfaces.IArrayIterator;
 import org.gumtree.data.interfaces.ISliceIterator;
 import org.gumtree.data.math.ArrayMath;
 import org.gumtree.data.math.IArrayMath;
@@ -135,9 +140,32 @@ public class NcArrayMath extends ArrayMath {
      * @see org.gumtree.data.interfaces.IArray#matInverse()
      */
     public IArrayMath matInverse() throws ShapeNotMatchException {
-        MAMatrix matrix = new MAMatrix(getNcArray().getArray());
-        matrix = matrix.inverse();
-        return new NcArray(matrix.getArrayStorage()).getArrayMath();
+    	if (getArray().getRank() != 2) {
+    		throw new ShapeNotMatchException("matrix must be 2D, got " + getArray().getRank() + ".");
+    	}
+    	int[] shape = getArray().getShape();
+    	if (shape[0] != shape[1]) {
+    		throw new ShapeNotMatchException("matrix is not square.");
+    	}
+    	double[][] array2D = null;
+    	try {
+    		if (getArray().getElementType() == Double.TYPE) {
+    			array2D = (double[][]) getArray().getArrayUtils().copyToNDJavaArray();
+    		} else {
+    			array2D = new double[shape[0]][shape[1]];
+    			IArrayIterator iter = getArray().getIterator();
+    			for (int i = 0; i < shape[0]; i++) {
+					for (int j = 0; j < shape[1]; j++) {
+						array2D[i][j] = iter.getDoubleNext();
+					}
+				}
+    		}
+		} catch (Exception e) {
+			throw new ShapeNotMatchException("failed to conver the matrix to 2D double array.", e);
+		}
+    	RealMatrix matrix = new Array2DRowRealMatrix(array2D);
+    	RealMatrix inverse = MatrixUtils.inverse(matrix);
+    	return new NcFactory().createArray(inverse.getData()).getArrayMath();
     }
 
     /**

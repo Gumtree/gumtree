@@ -5,6 +5,7 @@ package au.gov.ansto.bragg.nbi.scripting;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 
 /**
@@ -22,6 +23,7 @@ public class ScriptModel {
 	private int numColumns = 1;
 	private boolean isEqualWidth = false;
 	private boolean isDirty = false;
+	private long lastModifiedTimestamp;
 	
 //	public static ScriptModel getModel(int id) {
 //		return modelRegistry.get(id);
@@ -61,6 +63,48 @@ public class ScriptModel {
 	
 	public void addControl(IPyObject control) {
 		this.controls.add(control);
+	}
+
+	public void removeControl(IPyObject control) {
+		this.controls.remove(control);
+	}
+
+	public void moveObject1BeforeObject2(IPyObject obj1, IPyObject obj2) {
+		int idx1 = controls.indexOf(obj1);
+		if (idx1 < 0) {
+			throw new NoSuchElementException("movable object not found");
+		}
+		int idx2 = controls.indexOf(obj2);
+		if (idx2 < 0) {
+			throw new NoSuchElementException("target object not found");
+		}
+		if (controls.remove(obj1)) {
+			if (idx1 < idx2) {
+				controls.add(idx2 - 1, obj1);
+			} else {
+				controls.add(idx2, obj1);
+			}
+		}
+	}
+	
+	public void moveObject1AfterObject2(IPyObject obj1, IPyObject obj2) {
+		int idx1 = controls.indexOf(obj1);
+		if (idx1 < 0) {
+			throw new NoSuchElementException("movable object not found");
+		}
+		int idx2 = controls.indexOf(obj2);
+		if (idx2 < 0) {
+			throw new NoSuchElementException("target object not found");
+		}
+		if (controls.remove(obj1)) {
+			if (idx1 < idx2) {
+				controls.add(idx2, obj1);
+			} else {
+				controls.add(idx2 + 1, obj1);
+			}
+		} else {
+			throw new IllegalAccessError("failed to remove object from list");
+		}
 	}
 	
 	public List<IPyObject> getControlList() {
@@ -130,4 +174,13 @@ public class ScriptModel {
 	public void setEqualWidth(boolean isEqualWidth) {
 		this.isEqualWidth = isEqualWidth;
 	}
+
+	public long getLastModifiedTimestamp() {
+		return lastModifiedTimestamp;
+	}
+
+	public void setLastModifiedTimestamp(long lastModifiedTimestamp) {
+		this.lastModifiedTimestamp = lastModifiedTimestamp;
+	}
+		
 }

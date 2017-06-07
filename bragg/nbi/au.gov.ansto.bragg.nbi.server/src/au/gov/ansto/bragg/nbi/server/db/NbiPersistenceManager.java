@@ -31,6 +31,9 @@ public class NbiPersistenceManager implements INbiPersistenceManager {
 	public static final String ID_ADMIN_DATABASE = "admin";
 	public static final String ID_SESSION_EMAIL_DATABASE = "session";
 	public static final String ID_EMAIL_SESSION_DATABASE = "esession";
+	public static final String ID_USER_SESSION_DATABASE = "usession";
+	public static final String ID_SESSION_USER_DATABASE = "suser";
+	public static final String ID_USER_TIME_DATABASE = "utime";
 	
 	private IObjectContainerManager objectContainerManager;
 	

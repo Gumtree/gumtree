@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Gumtree" uid="au.gov.ansto.bragg.kookaburra.webserver.product" id="org.gumtree.app.osgi.product" application="org.gumtree.app.osgi.application" version="1.10.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="Gumtree" uid="au.gov.ansto.bragg.kookaburra.webserver.product" id="org.gumtree.app.osgi.product" application="org.gumtree.app.osgi.application" version="1.13.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.gumtree.app.runtime/images/earth.png"/>
       <text>
          Gumtree
 
-(c) Copyright Bragg Institute and others 2012.  All rights reserved.
-Visit http://gumtree.codehaus.org/
+(c) Copyright ANSTO and others 2017.  All rights reserved.
+Visit https://github.com/Gumtree/gumtree
 
 This product includes software developed by the
 Eclipse Foundation http://www.eclipse.org/
@@ -28,7 +28,7 @@ Eclipse Foundation http://www.eclipse.org/
 -Dorg.eclipse.update.reconcile=false
 -Dlogback.configurationFile=logback.xml
 -Dlogback.logFileLocation=logs
--Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime
+-Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime,org.gumtree.sics.server,au.gov.ansto.bragg.nbi.server
 -Dgumtree.runtime.configBundle=au.gov.ansto.bragg.nbi.webserver
 -Dgumtree.runtime.configEnv.instr=kookaburra
 -Dgumtree.runtime.configEnv.env=dev
@@ -61,8 +61,10 @@ Eclipse Foundation http://www.eclipse.org/
       </win>
    </launcher>
 
+
    <vm>
    </vm>
+
 
    <plugins>
    </plugins>

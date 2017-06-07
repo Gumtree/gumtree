@@ -188,9 +188,25 @@ class GPlot:
     
     def set_x_range(self, min, max):
         self.pv.getPlot().getXYPlot().getDomainAxis().setRange(min, max)
+        
+    def set_x_min(self, min):
+        range = self.pv.getPlot().getXYPlot().getDomainAxis().getRange()
+        self.set_x_range(min, range.getUpperBound())
+    
+    def set_x_max(self, max):
+        range = self.pv.getPlot().getXYPlot().getDomainAxis().getRange()
+        self.set_x_range(range.getLowerBound(), max)
     
     def set_y_range(self, min, max):
         self.pv.getPlot().getXYPlot().getRangeAxis().setRange(min, max)
+
+    def set_y_min(self, min):
+        range = self.pv.getPlot().getXYPlot().getRangeAxis().getRange()
+        self.set_y_range(min, range.getUpperBound())
+    
+    def set_y_max(self, max):
+        range = self.pv.getPlot().getXYPlot().getRangeAxis().getRange()
+        self.set_y_range(range.getLowerBound(), max)
         
     def save_as_png(self, filename):
         self.pv.getPlot().saveTo(filename, 'png')
@@ -334,6 +350,12 @@ class GPlot:
         else :
             self.pv.getPlot().removeMask(obj)
         self.pv.getPlot().repaint()
+    
+    def clear_masks(self):
+        masks = self.pv.getPlot().getMasks()
+        for mask in masks :
+            self.pv.getPlot().removeMask(mask)
+        self.pv.getPlot().repaint()
         
     def update(self):
         self.pv.getPlot().updatePlot()
@@ -341,11 +363,20 @@ class GPlot:
             self.pv.getPlot().getDataset().update()
             self.restore_bounds()
 
-    def get_dataset(self):
+    def get_dataset(self, arg = None):
 #        pds = self.pv.getPlot().getDataset()
 #        if not pds is None :
 #            return pds.getNXDataset()
-        return self.ds
+        if arg is None or self.ds is None:
+            return self.ds
+        else:
+            if type(arg) is int :
+                return self.ds[arg]
+            else:
+                for d in self.ds:
+                    if d.title == arg:
+                        return d
+                return None
         
     def __setattr__(self, name, value):
         if name == 'title' :

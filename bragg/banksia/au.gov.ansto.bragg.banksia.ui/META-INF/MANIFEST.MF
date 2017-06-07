@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Banksia UI
+Bundle-SymbolicName: au.gov.ansto.bragg.banksia.ui;singleton:=true
+Bundle-Version: 1.13.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.banksia.ui.Activator
+Require-Bundle: au.gov.ansto.bragg.banksia.core;bundle-version="1.12.0",
+ au.gov.ansto.bragg.nbi.ui;bundle-version="1.12.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
