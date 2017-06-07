@@ -1,10 +1,10 @@
 from gumpy.commons import sics
-from gumpy.commons.logger import log
 from gumpy.commons.logger import n_logger
 
 from org.gumtree.gumnix.sics.control import ServerStatus
 from org.gumtree.gumnix.sics.io import SicsExecutionException
 
+from au.gov.ansto.bragg.quokka.msw.internal import QuokkaProperties
 from au.gov.ansto.bragg.quokka.sics import DetectorHighVoltageController
 from au.gov.ansto.bragg.quokka.sics import BeamStopController
 
@@ -12,9 +12,8 @@ import sys
 import time
 import math
 
-from collections import OrderedDict
 from datetime import datetime, timedelta
-from functools import partial
+
 
 class Enumeration(object):
     def __init__(self, *keys):
@@ -52,13 +51,48 @@ GUIDE_CONFIG = Enumeration(
 dhv1 = DetectorHighVoltageController()
 bsList = dict((index, BeamStopController(index)) for index in range(1, 6))
 
-def setConsoleWriter(writter):
-    global __CONSOLE_WRITER__
-    __CONSOLE_WRITER__ = writter
+def sinit():
+    try:
+        sclose()
+    except:
+        pass
 
-def slog(text):
-    global __CONSOLE_WRITER__
-    log(text, __CONSOLE_WRITER__)
+    global __LOG_FILES__
+    __LOG_FILES__ = []
+
+    root = str(QuokkaProperties.getReportLocation())
+    name = time.strftime("QKK_%Y-%m-%d_%H%M%S_log.txt", time.localtime())
+
+    try:
+        __LOG_FILES__.append(open(root + name, 'a'))
+    except Exception, e:
+        print >> sys.stderr, e
+
+def sclose():
+    global __LOG_FILES__
+
+    if "__LOG_FILES__" in globals():
+        for f in __LOG_FILES__:
+            try:
+                f.close()
+            except Exception, e:
+                print >> sys.stderr, e
+
+    __LOG_FILES__ = []
+
+def slog(text, f_err = False):
+    if not f_err:
+        line = logln(text)
+    else:
+        line = logErr(text)
+
+    global __LOG_FILES__
+    for file in __LOG_FILES__:
+        try:
+            file.write(line)
+            file.flush()
+        except Exception, e:
+            print >> sys.stderr, e
 
 class RateInfo(object):
     def __init__(self, local_rate=0.0, local_err=0.0, global_rate=0.0, global_err=0.0):
@@ -155,8 +189,7 @@ def hasTripped():
     if (trp is None) or (ack is None) or (int(trp) == int(ack)):
         return False # continue, assuming that detector has not tripped
 
-    slog('Detector has tripped')
-    print >> sys.stderr, 'Detector has tripped'
+    slog('Detector has tripped', f_err=True)
     return True
 
 def resetTrip(increase_att=True):

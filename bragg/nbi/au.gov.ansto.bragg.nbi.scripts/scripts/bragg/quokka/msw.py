@@ -1,24 +1,11 @@
 from au.gov.ansto.bragg.quokka.msw.schedule import PythonInstrumentActionExecuter
 
-from gumpy.commons.logger import log
-
 from bragg.quokka import quokka
 from bragg.quokka.config import ConfigSystem
 
 
 # create config system for multi drive
 quokka.config = ConfigSystem()
-
-
-def slog(text):
-    global __CONSOLE_WRITER__
-    log(text, __CONSOLE_WRITER__)
-
-
-def setConsoleWriter(id):
-    global __CONSOLE_WRITER__
-    __CONSOLE_WRITER__ = PythonInstrumentActionExecuter.getObject(id)
-    quokka.setConsoleWriter(__CONSOLE_WRITER__)
 
 
 def deferredCall(target, id):
@@ -31,15 +18,19 @@ def deferredCall(target, id):
             raise
 
     else:
-        slog('error: %s' % id)
+        quokka.slog('error: %s' % id, f_err=True)
 
 
 def initiate(id):
+    quokka.sinit()
     deferredCall(quokka.initiate, id)
 
 
 def cleanUp(id):
-    deferredCall(quokka.cleanUp, id)
+    try:
+        deferredCall(quokka.cleanUp, id)
+    finally:
+        quokka.sclose()
 
 
 def setParameters(id):

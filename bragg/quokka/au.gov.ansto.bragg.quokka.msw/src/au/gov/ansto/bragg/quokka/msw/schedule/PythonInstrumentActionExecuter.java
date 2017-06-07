@@ -24,7 +24,6 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 	// finals
 	private static final String ID_TAG = "%%ID%%";
 	private static final String PY_IMPORT_MSW = "import bragg.quokka.msw as msw";
-	private static final String PY_SET_CONSOLE_WRITER = "msw.setConsoleWriter(%%ID%%)";
 	private static final String PY_INITIATE = "msw.initiate(%%ID%%)";
 	private static final String PY_CLEAN_UP = "msw.cleanUp(%%ID%%)";
 	private static final String PY_SET_PARAMETERS_SCRIPT = "msw.setParameters(%%ID%%)";
@@ -45,17 +44,11 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 		this.engine = engine;
 		this.modelProvider = modelProvider;
 
-		long id = atomicId.incrementAndGet();
-		setObject(id, engine.getContext().getWriter());
 		try {
 			engine.eval(PY_IMPORT_MSW);
-			engine.eval(PY_SET_CONSOLE_WRITER.replaceAll(ID_TAG, Long.toString(id) + 'L'));
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
-			removeObject(id);
 		}
 	}
 	

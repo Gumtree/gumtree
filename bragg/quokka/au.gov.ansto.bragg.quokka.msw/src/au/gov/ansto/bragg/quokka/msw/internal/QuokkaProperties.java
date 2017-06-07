@@ -38,6 +38,11 @@ public final class QuokkaProperties {
     		else
     			return property;
 		}
+		
+		property = System.getProperty("user.home");
+		if (property != null) {
+			return property + "/Desktop";
+		}
 
 		return null;
 	}

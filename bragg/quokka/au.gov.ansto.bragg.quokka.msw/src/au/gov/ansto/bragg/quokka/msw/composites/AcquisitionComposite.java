@@ -729,25 +729,11 @@ public class AcquisitionComposite extends Composite {
 	    }
 	    catch (Exception e) {
     		System.out.println(String.format(
-    				"%s=%s",
-    				"quokka.scan.report.location",
+    				"propertyValue=%s",
     				propertyValue));
 	    	e.printStackTrace();
 	    }
 
-	    propertyValue = null;
-	    try {
-	    	propertyValue = System.getProperty("user.home");
-			return new File(propertyValue + "/Desktop");
-	    }
-	    catch (Exception e) {
-    		System.out.println(String.format(
-    				"%s=%s",
-    				"user.home",
-    				propertyValue));
-	    	e.printStackTrace();
-	    }
-	    
     	return null;
 	}
 
