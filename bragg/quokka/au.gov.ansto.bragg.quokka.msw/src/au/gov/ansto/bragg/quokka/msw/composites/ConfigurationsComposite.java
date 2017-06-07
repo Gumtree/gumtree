@@ -1623,8 +1623,10 @@ public class ConfigurationsComposite extends Composite {
 		@Override
 		public boolean validateProperty(Iterable<String> elementPath, String property, Object newValue) {
 			for (Entry<List<String>, Set<String>> entry : allowedProperties.entrySet())
-				if (isPath(elementPath, entry.getKey()) && !entry.getValue().contains(property))
+				if (isPath(elementPath, entry.getKey()) && !entry.getValue().contains(property)) {
+					lockStateManager.showDeniedDialog();
 					return false;
+				}
 			
 			return true;
 		}

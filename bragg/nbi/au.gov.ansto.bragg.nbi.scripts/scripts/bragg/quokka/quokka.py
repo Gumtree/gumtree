@@ -141,20 +141,23 @@ def hasTripped():
                 return str(sics.run_command('histmem textstatus ' + name))
 
             except (Exception, SicsExecutionException) as e:
-                if isInterruptException(e) or (counter >= 3):
+                if isInterruptException(e):
                     raise
+
+                if counter >= 5:
+                    return None # break loop
 
                 time.sleep(1)
 
-    trp = int(getHistmemTextstatus('detector_protect_num_trip'))
-    ack = int(getHistmemTextstatus('detector_protect_num_trip_ack'))
+    trp = getHistmemTextstatus('detector_protect_num_trip')
+    ack = getHistmemTextstatus('detector_protect_num_trip_ack')
 
-    value = trp != ack
-    if value:
-        slog('Detector has tripped')
-        print >> sys.stderr, 'Detector has tripped'
+    if (trp is None) or (ack is None) or (int(trp) == int(ack)):
+        return False # continue, assuming that detector has not tripped
 
-    return value
+    slog('Detector has tripped')
+    print >> sys.stderr, 'Detector has tripped'
+    return True
 
 def resetTrip(increase_att=True):
     slog('Reset trip')

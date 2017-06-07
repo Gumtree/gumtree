@@ -37,12 +37,14 @@ public class ReportProvider {
 	
 	// construction
 	public ReportProvider() {
-		reset();
+		// create dummy values, they will be replaced in begin()
+		state = new State();
+		environmentRoot = EnvironmentReport.createDummy();
 		
 		listener = new IScheduleWalkerListener() {
 			@Override
 			public void onBeginSchedule() {
-				reset();
+				begin();
 			}
 			@Override
 			public void onEndSchedule() {
@@ -151,12 +153,12 @@ public class ReportProvider {
 		return listeners.remove(listener);
 	}
 	// state
-	private void reset() {
+	private void begin() {
 		state = new State();
 		environmentRoot = EnvironmentReport.createDummy();
 		
 		for (IListener listener : listeners)
-			listener.onReset(environmentRoot);
+			listener.onBegin(environmentRoot);
 	}
 	private void updateExperiment(String proposalNumber, String experimentTitle, String sampleStage) {
 		state.updateExperiment(proposalNumber, experimentTitle, sampleStage);
@@ -767,7 +769,7 @@ public class ReportProvider {
 	
 	public static interface IListener {
 		// methods
-		void onReset(EnvironmentReport rootReport);
+		void onBegin(EnvironmentReport rootReport);
 		void onUpdated(EnvironmentReport rootReport);
 		void onCompleted(EnvironmentReport rootReport);
 	}

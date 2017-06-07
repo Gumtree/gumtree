@@ -162,12 +162,12 @@ public class WorkflowComposite extends Composite {
 			@Override
 			public void onLocked() {
 				btnUnlock.setImage(Resources.IMAGE_LOCK_CLOSED);
-				btnUnlock.setText("unlock");
+				btnUnlock.setText("Unlock");
 			}
 			@Override
 			public void onUnlocked() {
 				btnUnlock.setImage(Resources.IMAGE_LOCK_OPEN);
-				btnUnlock.setText("lock");
+				btnUnlock.setText("Lock");
 			}
 		});
 
