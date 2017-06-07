@@ -7,13 +7,15 @@ __global_writer__ = None
 def log(message, writer=None):
     global __global_writer__
     currentTime = time.localtime()
+    line = '[' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '] ' + str(message)
     if writer == None:
         if not __global_writer__ is None:
-            __global_writer__.write('[' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '] ' + message + '\n')
+            __global_writer__.write(line + '\n')
         else:
-            print '[' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '] ' + message
+            print line
     else:
-        writer.write('[' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '] ' + message + '\n')
+        writer.write(line + '\n')
+    return line + "\n"
 
 class Logger():
     
