@@ -139,6 +139,7 @@ public class AcquisitionComposite extends Composite {
 
 		Composite cmpBottom = new Composite(cmpContent, SWT.NONE);
 		cmpBottom.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
 		GridLayout gl_cmpBottom = new GridLayout(8, false);
 		gl_cmpBottom.marginWidth = 0;
 		gl_cmpBottom.marginHeight = 0;
@@ -350,62 +351,94 @@ public class AcquisitionComposite extends Composite {
 			// data reduction report (used for Igor)
 			private File intermediateReport = null;
 			private File finalReport = null;
-			// html
+			// log-book html
 			private File intermediateHtml = null;
 			private File finalHtml = null;
+			// acquisition table
+			private File intermediateAcqTable = null;
+			private File finalAcqTable = null;
 			
 			// methods
 			@Override
-			public void onReset(EnvironmentReport rootReport) {
-			    String intermediateName = "QKK_current_report";
-			    String finalName = "QKK_" + format.format(Calendar.getInstance().getTime()) + "_report";
-			    
-			    intermediateReport =
-			    		reportFolder == null ? null : new File(reportFolder, String.format("current/%s.xml", intermediateName));
-			    
-				finalReport =
-						reportFolder == null ? null : new File(reportFolder, String.format("%s.xml", finalName));
-				
-				intermediateHtml =
-						reportFolder == null ? null : new File(reportFolder, String.format("current/%s.html", finalName));
+			public void onBegin(EnvironmentReport rootReport) {
+			    String intermediateName = "QKK_current";
+			    String finalName = "QKK_" + format.format(Calendar.getInstance().getTime());
 
-				finalHtml =
-						reportFolder == null ? null : new File(reportFolder, String.format("%s.html", finalName));
+			    // initial table
+				File initialTable =
+						reportFolder == null ? null : new File(reportFolder, String.format("%s_table_initial.html", finalName));
 				
+			    // intermediate
+			    intermediateReport =
+			    		reportFolder == null ? null : new File(reportFolder, String.format("current/%s_report.xml", intermediateName));
+
+				intermediateHtml =
+						reportFolder == null ? null : new File(reportFolder, String.format("current/%s_report.html", intermediateName));
+
+				intermediateAcqTable =
+						reportFolder == null ? null : new File(reportFolder, String.format("current/%s_table.html", intermediateName));
+				
+				// final
+				finalReport =
+						reportFolder == null ? null : new File(reportFolder, String.format("%s_report.xml", finalName));
+				
+				finalHtml =
+						reportFolder == null ? null : new File(reportFolder, String.format("%s_report.html", finalName));
+				
+				finalAcqTable =
+						reportFolder == null ? null : new File(reportFolder, String.format("%s_table.html", finalName));
+				
+				// continue
+				ScheduleTableExporter.save(model, initialTable, false); // exclude progress and notes (because they are empty at the beginning)
 				onUpdated(rootReport);
 			}
 			@Override
 			public void onUpdated(EnvironmentReport rootReport) {
 				try {
-					ReductionReportGenerator.save(rootReport, intermediateReport);
+					try {
+						ReductionReportGenerator.save(rootReport, intermediateReport);
+					}
+					finally {
+						Iterable<TableInfo> tables = LogbookReportGenerator.create(rootReport);
+						LogbookReportGenerator.save(tables, intermediateHtml);
+					}
 				}
 				finally {
-					Iterable<TableInfo> tables = LogbookReportGenerator.create(rootReport);
-					LogbookReportGenerator.save(tables, intermediateHtml);
+					ScheduleTableExporter.save(model, intermediateAcqTable);
 				}
 			}
 			@Override
 			public void onCompleted(EnvironmentReport rootReport) {
 				try {
 					try {
-						ReductionReportGenerator.save(rootReport, intermediateReport);
+						try {
+							ReductionReportGenerator.save(rootReport, intermediateReport);
+						}
+						finally {
+							ReductionReportGenerator.save(rootReport, finalReport);
+						}
 					}
 					finally {
-						ReductionReportGenerator.save(rootReport, finalReport);
+						Iterable<TableInfo> tables = LogbookReportGenerator.create(rootReport);
+						try {
+							try {
+								LogbookReportGenerator.save(tables, intermediateHtml);
+							}
+							finally {
+								LogbookReportGenerator.save(tables, finalHtml);
+							}
+						}
+						finally {
+							modelProvider.getCustomInstrumentAction().publishTables(tables);
+						}
 					}
 				}
 				finally {
-					Iterable<TableInfo> tables = LogbookReportGenerator.create(rootReport);
 					try {
-						try {
-							LogbookReportGenerator.save(tables, intermediateHtml);
-						}
-						finally {
-							LogbookReportGenerator.save(tables, finalHtml);
-						}
+						ScheduleTableExporter.save(model, intermediateAcqTable);
 					}
 					finally {
-						modelProvider.getCustomInstrumentAction().publishTables(tables);
+						ScheduleTableExporter.save(model, finalAcqTable);
 					}
 				}
 			}
@@ -519,17 +552,10 @@ public class AcquisitionComposite extends Composite {
 				long m = t % 60;
 				t /= 60;
 				
-				long h = t % 24;
-				t /= 24;
-				
-				long d = t;
-				
-				if (d == 0)
-					return String.format("%d:%02d:%02d", h, m, s);
-				else
-					return String.format("%d.%d:%02d:%02d", d, h, m, s);
+				long h = t;
+
+				return String.format("%d:%02d:%02d", h, m, s);
 			}
-			
 		};
 
 		// only update time estimation after 100ms of last modification

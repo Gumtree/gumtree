@@ -49,6 +49,9 @@ public class ScheduleTableExporter {
 	
 	// methods
 	public static boolean save(ScheduleTableModel model, File file) {
+		return save(model, file, true);
+	}
+	public static boolean save(ScheduleTableModel model, File file, boolean inclAuxiliaryColumns) {
 		try (FileOutputStream stream = new FileOutputStream(file)) {
 			try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stream))) {
 				writeln(writer, "<!DOCTYPE html>");
@@ -76,7 +79,7 @@ public class ScheduleTableExporter {
 				writeln(writer, "</style>");
 				writeln(writer, "</head>");
 				writeln(writer, "<body>");
-				writeln(writer, createTable(model));
+				writeln(writer, createTable(model, inclAuxiliaryColumns));
 				writeln(writer, "</body>");
 				writeln(writer, "</html>");
 			}
@@ -93,15 +96,15 @@ public class ScheduleTableExporter {
 	}
 
 	// helper
-	private static String createTable(ScheduleTableModel model) throws ParserConfigurationException {
+	private static String createTable(ScheduleTableModel model, boolean inclAuxiliaryColumns) throws ParserConfigurationException {
 		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
 
-		Document table = createDocument(model, documentBuilder);
+		Document table = createDocument(model, inclAuxiliaryColumns, documentBuilder);
 		
 		return serialize(table);
 	}
-	private static Document createDocument(ScheduleTableModel model, DocumentBuilder documentBuilder) {
+	private static Document createDocument(ScheduleTableModel model, boolean inclAuxiliaryColumns, DocumentBuilder documentBuilder) {
 		Document document = documentBuilder.newDocument();
 		document.setXmlStandalone(true);
 		
@@ -114,7 +117,8 @@ public class ScheduleTableExporter {
 				root,
 				dataColumnSpan,
 				model.getVisibleDetails(),
-				model.getAuxiliaryColumns());
+				model.getAuxiliaryColumns(),
+				inclAuxiliaryColumns);
 		serializeTableContent(
 				document,
 				root,
@@ -124,6 +128,7 @@ public class ScheduleTableExporter {
 				model.getRowDefinitions(),
 				model.getNodes(),
 				model.getScheduler().getRoot(),
+				inclAuxiliaryColumns,
 				initialDepth);
 		document.appendChild(decorateTable(document, root));
 		
@@ -170,7 +175,7 @@ public class ScheduleTableExporter {
 		return root;
 	}
 	// table
-	private static void serializeTableHeader(Document document, Element root, int dataColumnSpan, Iterable<AcquisitionDetail> details, Iterable<IAuxiliaryColumnInfo> auxiliaryColumns) {
+	private static void serializeTableHeader(Document document, Element root, int dataColumnSpan, Iterable<AcquisitionDetail> details, Iterable<IAuxiliaryColumnInfo> auxiliaryColumns, boolean inclAuxiliaryColumns) {
 		Element row = document.createElement("tr");
 		
 		// acquisition tree
@@ -191,12 +196,13 @@ public class ScheduleTableExporter {
 			row.appendChild(column);
 		}
 		// auxiliary
-		for (IAuxiliaryColumnInfo auxiliary : auxiliaryColumns) {
-			Element column = document.createElement("th");
-			column.setAttribute("style", String.format("width:%dpx", auxiliary.getWidth()));
-			column.setTextContent(auxiliary.getTitle());
-			row.appendChild(column);
-		}
+		if (inclAuxiliaryColumns)
+			for (IAuxiliaryColumnInfo auxiliary : auxiliaryColumns) {
+				Element column = document.createElement("th");
+				column.setAttribute("style", String.format("width:%dpx", auxiliary.getWidth()));
+				column.setTextContent(auxiliary.getTitle());
+				row.appendChild(column);
+			}
 		
 		root.appendChild(row);
 	}
@@ -209,6 +215,7 @@ public class ScheduleTableExporter {
 			Map<Class<?>, RowDefinition> rowDefinitions,
 			Map<ScheduledNode, NodeInfo> nodeMap,
 			ScheduledAspect aspect,
+			boolean inclAuxiliaryColumns,
 			int depth) {
 		if (aspect != null)
 			serializeTableContent(
@@ -221,6 +228,7 @@ public class ScheduleTableExporter {
 					nodeMap,
 					aspect,
 					aspect.getNode(),
+					inclAuxiliaryColumns,
 					depth);
 	}
 	private static void serializeTableContent(
@@ -233,6 +241,7 @@ public class ScheduleTableExporter {
 			Map<ScheduledNode, NodeInfo> nodeMap,
 			ScheduledAspect aspect,
 			ScheduledNode node,
+			boolean inclAuxiliaryColumns,
 			int depth) {
 		RowDefinition rowDefinition = rowDefinitions.get(node.getSourceElement().getClass());
 
@@ -349,25 +358,26 @@ public class ScheduleTableExporter {
 			}
 			
 			// auxiliary
-			for (IAuxiliaryColumnInfo auxiliary : auxiliaryColumns) {
-				Element content = document.createElement("td");
-				content.setAttribute("bgcolor", bkgColor);
-				if (nodeInfo != null)
-					setTextContent(document, content, enabled, getStringOrEmpty(auxiliary.getExportableContent(nodeInfo)));
-				else
-					content.setTextContent(EMPTY_CELL_CONTENT);
-				row.appendChild(content);
-			}
+			if (inclAuxiliaryColumns)
+				for (IAuxiliaryColumnInfo auxiliary : auxiliaryColumns) {
+					Element content = document.createElement("td");
+					content.setAttribute("bgcolor", bkgColor);
+					if (nodeInfo != null)
+						setTextContent(document, content, enabled, getStringOrEmpty(auxiliary.getExportableContent(nodeInfo)));
+					else
+						content.setTextContent(EMPTY_CELL_CONTENT);
+					row.appendChild(content);
+				}
 			
 			root.appendChild(row);
 		}
 		
 		if (node.isAspectLeaf())
-			serializeTableContent(document, root, dataColumnSpan, details, auxiliaryColumns, rowDefinitions, nodeMap, aspect.getLinkAt(node), nextDepth);
+			serializeTableContent(document, root, dataColumnSpan, details, auxiliaryColumns, rowDefinitions, nodeMap, aspect.getLinkAt(node), inclAuxiliaryColumns, nextDepth);
 		else
 			for (ScheduledNode subNode : node.getNodes())
 				if (subNode.isThisVisible())
-					serializeTableContent(document, root, dataColumnSpan, details, auxiliaryColumns, rowDefinitions, nodeMap, aspect, subNode, nextDepth);
+					serializeTableContent(document, root, dataColumnSpan, details, auxiliaryColumns, rowDefinitions, nodeMap, aspect, subNode, inclAuxiliaryColumns, nextDepth);
 	}
 	private static int dataColumnSpan(ScheduledAspect aspect, Map<Class<?>, RowDefinition> rowDefinitions, int depth) {
 		if (aspect != null)
