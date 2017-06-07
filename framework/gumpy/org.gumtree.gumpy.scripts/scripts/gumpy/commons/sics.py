@@ -396,3 +396,11 @@ def getStatus():
             return t
     else:
         return "UNKNOWN"
+
+def get_status():
+    controller = getSicsController()
+    if not controller is None:
+        controller.refreshServerStatus()
+        return controller.getServerStatus()
+    else:
+        return ServerStatus.UNKNOWN

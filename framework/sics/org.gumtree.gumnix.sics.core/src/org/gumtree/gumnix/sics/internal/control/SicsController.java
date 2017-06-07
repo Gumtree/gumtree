@@ -94,6 +94,11 @@ public class SicsController implements ISicsController {
 		});
 	}
 
+	@Override
+	public void refreshServerStatus() {
+		fetchServerStatus();
+	}
+	
 	private void fetchServerStatus() {
 		try {
 			SicsCore.getDefaultProxy().send("status",
