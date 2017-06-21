@@ -863,12 +863,12 @@ public class ScriptControlViewer extends Composite {
 					try {
 						FileReader reader = new FileReader(initFile);
 						executor.runScript(reader);
-						executor.runScript("logln( '<' + str(__script__.title) + '> loaded')");
+						executor.runScript("t = logln( '<' + str(__script__.title) + '> loaded')");
 						while(executor.isBusy()) {
 							Thread.sleep(200);
 						}
 					} catch (Exception e) {
-						executor.runScript("logln( 'failed to load " + initFile + "')");
+						executor.runScript("t = logln( 'failed to load " + initFile + "')");
 					}
 				}
 //				IScriptBlock postBlock = new ScriptBlock();
