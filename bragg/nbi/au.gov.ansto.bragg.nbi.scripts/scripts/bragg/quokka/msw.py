@@ -21,6 +21,15 @@ def deferredCall(target, id):
         quokka.slog('error: %s' % id, f_err=True)
 
 
+def setContext(id):
+    context = PythonInstrumentActionExecuter.getObject(id)
+    if context is not None:
+        quokka.setContext(context)
+
+    else:
+        quokka.slog('error: %s' % id, f_err=True)
+
+
 def initiate(id):
     quokka.sinit()
     deferredCall(quokka.initiate, id)

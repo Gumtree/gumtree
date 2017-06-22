@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.script.ScriptEngine;
 
@@ -24,6 +23,7 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 	// finals
 	private static final String ID_TAG = "%%ID%%";
 	private static final String PY_IMPORT_MSW = "import bragg.quokka.msw as msw";
+	private static final String PY_CONTEXT = "msw.setContext(%%ID%%)";
 	private static final String PY_INITIATE = "msw.initiate(%%ID%%)";
 	private static final String PY_CLEAN_UP = "msw.cleanUp(%%ID%%)";
 	private static final String PY_SET_PARAMETERS_SCRIPT = "msw.setParameters(%%ID%%)";
@@ -32,8 +32,8 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 	private static final String PY_POST_ACQUISITION_SCRIPT = "msw.postAcquisition(%%ID%%)";
 	private static final String PY_CUSTOM_ACTION_SCRIPT = "msw.customAction(%%ID%%)";
 	// java/python interface
-	private static final AtomicLong atomicId = new AtomicLong();
 	private static final Map<Long, Object> idMap = new HashMap<>();
+	private static long objectId = 0;
 	
 	// fields
 	private final ScriptEngine engine;
@@ -45,7 +45,14 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 		this.modelProvider = modelProvider;
 
 		try {
-			engine.eval(PY_IMPORT_MSW);
+			long id = setObject(engine.getContext());
+			try {
+				engine.eval(PY_IMPORT_MSW);
+				engine.eval(PY_CONTEXT.replaceAll(ID_TAG, Long.toString(id) + 'L'));
+			}
+			finally {
+				removeObject(id);
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -99,8 +106,7 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 					emails.toString(),
 					phones.toString());
 			
-			long id = atomicId.incrementAndGet();
-			setObject(id, info);
+			long id = setObject(info);
 			try {
 				engine.eval(PY_IMPORT_MSW);
 				engine.eval(PY_INITIATE.replaceAll(ID_TAG, Long.toString(id) + 'L'));
@@ -138,8 +144,7 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 		try {
 			info = new PyInfo();
 
-			long id = atomicId.incrementAndGet();
-			setObject(id, info);
+			long id = setObject(info);
 			try {
 				engine.eval(PY_IMPORT_MSW);
 				engine.eval(PY_CLEAN_UP.replaceAll(ID_TAG, Long.toString(id) + 'L'));
@@ -179,8 +184,7 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 			
 			info = new PyParameterInfo(name, parameters);
 			
-			long id = atomicId.incrementAndGet();
-			setObject(id, info);
+			long id = setObject(info);
 			try {
 				engine.eval(PY_IMPORT_MSW);
 				engine.eval(PY_SET_PARAMETERS_SCRIPT.replaceAll(ID_TAG, Long.toString(id) + 'L'));
@@ -217,8 +221,7 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 		try {
 			info = new PyInfo();
 			
-			long id = atomicId.incrementAndGet();
-			setObject(id, info);
+			long id = setObject(info);
 			try {
 				engine.eval(PY_IMPORT_MSW);
 				engine.eval(PY_PRE_ACQUISITION_SCRIPT.replaceAll(ID_TAG, Long.toString(id) + 'L'));
@@ -252,8 +255,7 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 		try {
 			info = new PyAcquisitionInfo(parameters);
 
-			long id = atomicId.incrementAndGet();
-			setObject(id, info);
+			long id = setObject(info);
 			try {
 				engine.eval(PY_IMPORT_MSW);
 				engine.eval(PY_DO_ACQUISITION_SCRIPT.replaceAll(ID_TAG, Long.toString(id) + 'L'));
@@ -291,8 +293,7 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 		try {
 			info = new PyInfo();
 			
-			long id = atomicId.incrementAndGet();
-			setObject(id, info);
+			long id = setObject(info);
 			try {
 				engine.eval(PY_IMPORT_MSW);
 				engine.eval(PY_POST_ACQUISITION_SCRIPT.replaceAll(ID_TAG, Long.toString(id) + 'L'));
@@ -327,8 +328,7 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 		try {
 			info = new PyCustomActionInfo(action, parameters);
 			
-			long id = atomicId.incrementAndGet();
-			setObject(id, info);
+			long id = setObject(info);
 			try {
 				engine.eval(PY_IMPORT_MSW);
 				engine.eval(PY_CUSTOM_ACTION_SCRIPT.replaceAll(ID_TAG, Long.toString(id) + 'L'));
@@ -359,8 +359,10 @@ public class PythonInstrumentActionExecuter implements IInstrumentExecuter {
 	public static synchronized Object getObject(long id) {
 		return idMap.get(id);
 	}
-	private static synchronized void setObject(long id, Object object) {
+	private static synchronized long setObject(Object object) {
+		long id = ++objectId;
 		idMap.put(id, object);
+		return id;
 	}
 	private static synchronized void removeObject(long id) {
 		idMap.remove(id);

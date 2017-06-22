@@ -1,10 +1,10 @@
 from gumpy.commons import sics
-from gumpy.commons.logger import n_logger
+from gumpy.commons.logger import log, n_logger
 
 from org.gumtree.gumnix.sics.control import ServerStatus
 from org.gumtree.gumnix.sics.io import SicsExecutionException
 
-from au.gov.ansto.bragg.quokka.msw.internal import QuokkaProperties
+# from au.gov.ansto.bragg.quokka.msw.internal import QuokkaProperties # see getReportLocation()
 from au.gov.ansto.bragg.quokka.sics import DetectorHighVoltageController
 from au.gov.ansto.bragg.quokka.sics import BeamStopController
 
@@ -51,6 +51,31 @@ GUIDE_CONFIG = Enumeration(
 dhv1 = DetectorHighVoltageController()
 bsList = dict((index, BeamStopController(index)) for index in range(1, 6))
 
+def getReportLocation():
+    from java.lang import System
+
+    property = System.getProperty("quokka.msw.reportLocation")
+    if property is not None:
+        return property
+    
+    property = System.getProperty("quokka.scan.report.location")
+    if property is not None:
+        file = "file://"
+        if property.startswith(file):
+            return property[len(file):]
+        else:
+            return property
+
+    property = System.getProperty("user.home")
+    if property is not None:
+        return property + "/Desktop"
+
+    return None
+
+def setContext(context):
+    global __MSW_CONTEXT__
+    __MSW_CONTEXT__ = context
+
 def sinit():
     try:
         sclose()
@@ -60,7 +85,7 @@ def sinit():
     global __LOG_FILES__
     __LOG_FILES__ = []
 
-    root = str(QuokkaProperties.getReportLocation())
+    root = str(getReportLocation())
     name = time.strftime("QKK_%Y-%m-%d_%H%M%S_log.txt", time.localtime())
 
     try:
@@ -81,18 +106,30 @@ def sclose():
     __LOG_FILES__ = []
 
 def slog(text, f_err = False):
-    if not f_err:
-        line = logln(text)
+    global __MSW_CONTEXT__
+
+    if "__MSW_CONTEXT__" in globals():
+        if not f_err:
+            line = log(text, __MSW_CONTEXT__.getWriter())
+        else:
+            line = log(text, __MSW_CONTEXT__.getErrorWriter())
     else:
-        line = logErr(text)
+        if not f_err:
+            print text
+        else:
+            print >> sys.stderr, text
+
+        line = text
 
     global __LOG_FILES__
-    for file in __LOG_FILES__:
-        try:
-            file.write(line)
-            file.flush()
-        except Exception, e:
-            print >> sys.stderr, e
+
+    if "__LOG_FILES__" in globals():
+        for file in __LOG_FILES__:
+            try:
+                file.write(line)
+                file.flush()
+            except Exception, e:
+                print >> sys.stderr, e
 
 class RateInfo(object):
     def __init__(self, local_rate=0.0, local_err=0.0, global_rate=0.0, global_err=0.0):
