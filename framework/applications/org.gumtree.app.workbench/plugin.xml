@@ -6,10 +6,10 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.gumtree.app.workbench.application"
-            name="Gumtree 1.13.2">
+            name="Gumtree 1.13.3">
          <property
                name="appName"
-               value="Gumtree 1.13.2">
+               value="Gumtree 1.13.3">
          </property>
          <property
                name="aboutImage"
