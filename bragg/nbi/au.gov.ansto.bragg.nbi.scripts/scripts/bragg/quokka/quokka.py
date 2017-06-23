@@ -57,7 +57,7 @@ def getReportLocation():
     property = System.getProperty("quokka.msw.reportLocation")
     if property is not None:
         return property
-    
+
     property = System.getProperty("quokka.scan.report.location")
     if property is not None:
         file = "file://"
@@ -77,6 +77,8 @@ def setContext(context):
     __MSW_CONTEXT__ = context
 
 def sinit():
+    from os.path import join
+
     try:
         sclose()
     except:
@@ -87,9 +89,10 @@ def sinit():
 
     root = str(getReportLocation())
     name = time.strftime("QKK_%Y-%m-%d_%H%M%S_log.txt", time.localtime())
+    path = join(root, name)
 
     try:
-        __LOG_FILES__.append(open(root + name, 'a'))
+        __LOG_FILES__.append(open(path, 'a'))
     except Exception, e:
         print >> sys.stderr, e
 
@@ -272,7 +275,7 @@ def initiate(info):
 
 def cleanUp(info):
     slog('Cleaning up ...')
-    
+
     driveToSafeAtt()
     driveToLoadPosition()
 
@@ -283,7 +286,7 @@ def setParameters(info):
 
     if name == 'configurationlist':
         pass # configuration list doesn't have any parameters used for acquisition
-        
+
     elif name == 'configuration':
         setupConfiguration(parameters)
 
@@ -622,7 +625,7 @@ def driveToSamplePosition(position):
         except (Exception, SicsExecutionException) as e:
             if isInterruptException(e) or (counter >= 20):
                 raise
-            
+
             if abs(controller.getValue(True).getFloatData() - position) < tolerance:
                 break
 
