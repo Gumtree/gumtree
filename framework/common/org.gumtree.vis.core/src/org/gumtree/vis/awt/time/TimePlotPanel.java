@@ -761,23 +761,23 @@ public class TimePlotPanel extends JChartPanel implements ITimePlot {
 		String command = event.getActionCommand();
 		if (command.equals(LEGEND_NONE_COMMAND)) {
         	getChart().getLegend().setVisible(false);
-        	repaint();
+//        	repaint();
         } else if (command.equals(LEGEND_BOTTOM_COMMAND)) {
         	getChart().getLegend().setVisible(true);
         	getChart().getLegend().setPosition(RectangleEdge.BOTTOM);
-        	repaint();
+//        	repaint();
         } else if (command.startsWith(LEGEND_RIGHT_COMMAND)) {
         	getChart().getLegend().setVisible(true);
         	getChart().getLegend().setPosition(RectangleEdge.RIGHT);
-            repaint();
+//            repaint();
         } else if (command.equals(UNFOCUS_CURVE_COMMAND)) {
         	selectSeries(null, -1);
-        	repaint();
+//        	repaint();
         } else if (command.startsWith(FOCUS_ON_COMMAND)) {
         	String[] commands = command.split("-", 2);
         	if (commands.length > 1) {
         		selectSeries(commands[1]);
-            	repaint();
+//            	repaint();
         	}
         } else if (command.equals(RESET_ALL_CURVE_COMMAND)) {
         	clear();
@@ -794,6 +794,7 @@ public class TimePlotPanel extends JChartPanel implements ITimePlot {
         } else {
         	super.actionPerformed(event);
         }
+		updatePlot();
 	}
 	
 	public void selectSeries(String key) {
@@ -1021,5 +1022,17 @@ public class TimePlotPanel extends JChartPanel implements ITimePlot {
 				DatasetUtils.export(dataset, writer, ExportFormat.TIMESERIES);
 			}
 		}
+	}
+	
+	@Override
+	public void zoom(Rectangle2D selection) {
+		super.zoom(selection);
+		updatePlot();
+	}
+	
+	@Override
+	public void restoreAutoBounds() {
+		super.restoreAutoBounds();
+		updatePlot();
 	}
 }
