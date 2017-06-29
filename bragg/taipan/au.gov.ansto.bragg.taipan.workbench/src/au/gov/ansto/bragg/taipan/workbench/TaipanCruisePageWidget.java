@@ -241,7 +241,8 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		.addDevice("/sample/en", "en", null, "")
 		.addDevice("/sample/qh", "qh", null, "")
 		.addDevice("/sample/qk", "qk", null, "")
-		.addDevice("/sample/ql", "ql", null, "");
+		.addDevice("/sample/ql", "ql", null, "")
+		.addDevice("/sample/qm", "qm", null, "");
 		configureWidget(deviceStatusWidget);
 		
 		// Furnace Temp

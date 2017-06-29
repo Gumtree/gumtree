@@ -24,7 +24,8 @@ var devices = [
             	            {"classId":"en", "deviceId":"en", "title":"en", "units":"meV"}, 
             	            {"classId":"qh", "deviceId":"qh", "title":"qh", "units":""}, 
             	            {"classId":"qk", "deviceId":"qk", "title":"qk", "units":""}, 
-            	            {"classId":"ql", "deviceId":"ql", "title":"ql", "units":""}
+            	            {"classId":"ql", "deviceId":"ql", "title":"ql", "units":""},
+            	            {"classId":"qm", "deviceId":"qm", "title":"qm", "units":""}
             	            ]
                },
                {"group":"SCAN STATUS", 
