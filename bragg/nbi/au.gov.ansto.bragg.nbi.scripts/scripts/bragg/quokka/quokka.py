@@ -194,11 +194,11 @@ def waitUntilSicsIs(status, dt=0.2):
     while repeat:
         sics.handleInterrupt()
 
-        while not sics.getSicsController().getServerStatus().equals(status):
+        while not sics.get_status().equals(status):
             time.sleep(dt)
 
         time.sleep(dt)
-        repeat = not sics.getSicsController().getServerStatus().equals(status)
+        repeat = not sics.get_status().equals(status)
 
     sics.handleInterrupt()
 
@@ -373,7 +373,7 @@ def setupMeasurement(parameters, meas_mode):
 def setupSample(parameters):
     # parameters
     name        = strOrDefault(parameters['Name'], "Unknown")
-    description = strOrDefault(parameters['Description'])
+    description = strOrDefault(parameters['Description'], "N.A.")
     thickness   = float(parameters['Thickness'])
     position    = float(parameters['Position'])
 
