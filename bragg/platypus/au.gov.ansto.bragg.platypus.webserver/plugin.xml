@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.equinox.http.registry.resources">
+      <resource
+            alias="/status/platypus.html"
+            base-name="/WebContent/platypus.html">
+      </resource>
+      <resource
+            alias="/status"
+            base-name="/WebContent/platypus.html">
+      </resource>
+   </extension>
+
+</plugin>
