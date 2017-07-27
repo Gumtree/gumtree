@@ -86,7 +86,6 @@ public class SicsRealtimeResource implements IRealtimeResource {
 			value1 = value2;
 			value2 = doubleValue;
 		} catch (SicsCoreException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
