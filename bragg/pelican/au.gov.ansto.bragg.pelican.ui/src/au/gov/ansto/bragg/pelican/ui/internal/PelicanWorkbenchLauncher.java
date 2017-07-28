@@ -211,12 +211,12 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 			}
 //			// position it
 			ScriptPageRegister register = new ScriptPageRegister();
-			try {
-				ScriptingPerspective.registerViews(register);
-			} catch (PartInitException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+//				ScriptingPerspective.registerViews(register);
+//			} catch (PartInitException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 //			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_STATUS, 1, 1, mmManager.isMultiMonitorSystem());
 //			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
 //			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();

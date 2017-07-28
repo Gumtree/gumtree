@@ -2625,17 +2625,19 @@ public class ScriptControlViewer extends Composite {
 	}
 	
 	public void loadScript(final String filename) {
-		Display.getDefault().asyncExec(new Runnable() {
-			
-			@Override
-			public void run() {
-				try {
-					initScriptControl(filename);
-				} catch (FileNotFoundException e) {
-					handleException(e, "Failed to load script: " + e.getMessage());
+		if (!isDisposed()) {
+			Display.getDefault().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						initScriptControl(filename);
+					} catch (FileNotFoundException e) {
+						handleException(e, "Failed to load script: " + e.getMessage());
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 	public ScriptRunner getRunner() {
