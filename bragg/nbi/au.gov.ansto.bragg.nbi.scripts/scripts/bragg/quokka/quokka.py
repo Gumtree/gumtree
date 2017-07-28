@@ -13,6 +13,7 @@ import time
 import math
 
 from datetime import datetime, timedelta
+from functools import partial
 
 
 class Enumeration(object):
@@ -851,7 +852,7 @@ def loggedDrive(name, motor, value, unit, getter, useController=False):
     checkedDrive(motor, value, useController)
     slog('%s is now at %s %s' % (name, getter(), unit))
 
-def getData(getter, throw):
+def getData(getter, throw, default='???'):
     try:
         return getter()
 
@@ -859,7 +860,7 @@ def getData(getter, throw):
         if throw or isInterruptException(e):
             raise
         else:
-            return '???'
+            return default
 
 def getIntData(path, throw=True, useController=False, useRaw=False):
 
@@ -901,11 +902,25 @@ def getStringData(path, throw=True, useController=False, useRaw=False):
     return getData(getter, throw)
 
 def getDataFilename(throw=True):
-    name = getStringData('datafilename', throw)
-    if len(name) > 17:
-        return name[-17:] # only keep the name of the file e.g. QKK0000000.nx.hdf
-    else:
-        return name
+
+    def getter(refresh):
+        return sics.getValue('/experiment/file_name', refresh).getStringData()
+
+    def extractQkk(path):
+        if len(path) > 17:
+            return path[-17:]  # only keep the name of the file e.g. QKK0000000.nx.hdf
+        else:
+            return path
+
+    target = datetime.now() + timedelta(seconds=5)
+    while target > datetime.now():
+        name = getData(partial(getter, refresh=True), throw=False, default=None)
+        if name is not None:
+            return extractQkk(name)
+        else:
+            sleep(0.5)
+
+    return extractQkk(getData(partial(getter, refresh=False), throw=True))
 
 def getMaxBinRate(throw=True):
     return getFloatData('/instrument/detector/max_binrate', throw) # pixel count rate
