@@ -210,7 +210,7 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 				mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
 			}
 //			// position it
-			ScriptPageRegister register = new ScriptPageRegister();
+//			ScriptPageRegister register = new ScriptPageRegister();
 //			try {
 //				ScriptingPerspective.registerViews(register);
 //			} catch (PartInitException e) {
