@@ -1,5 +1,7 @@
 package au.gov.ansto.bragg.quokka.msw;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -133,6 +135,7 @@ public class Environment extends ElementList<SetPoint> {
 		for (int index = 0; index < steps; index++) {
 			String elementName = setPointClassName + nextId().toString();
 			ElementPath elementPath = new ElementPath(path, elementName);
+			BigDecimal value = new BigDecimal(from + (to - from) * index / Math.max(1, steps - 1));
 
 			commands.add(new AddListElementCommand(
 					id,
@@ -143,7 +146,7 @@ public class Environment extends ElementList<SetPoint> {
 					id,
 					elementPath,
 					SetPoint.VALUE.getName(),
-					from + (to - from) * index / Math.max(1, steps - 1)));
+					value.round(new MathContext(7)).doubleValue())); // keep only 7 significant decimal digits
 
 			commands.add(new ChangePropertyCommand(
 					id,
