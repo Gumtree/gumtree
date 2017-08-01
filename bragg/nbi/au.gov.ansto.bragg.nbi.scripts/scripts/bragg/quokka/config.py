@@ -82,7 +82,7 @@ class ConfigSystem :
             cmd += ' apx ' + str(self.apx)
         if not cmd == 'drive':
             log(cmd)
-            res = sics.run_command_timeout(cmd, 15*60)
+            res = sics.run_command_timeout(cmd, True, 15*60)
             if not res is None and res.find('Full Stop') >= 0:
                 raise Exception, res
             log('finished multi-drive')
