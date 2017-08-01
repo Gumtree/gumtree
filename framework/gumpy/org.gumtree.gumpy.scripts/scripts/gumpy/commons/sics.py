@@ -94,6 +94,16 @@ def drive(deviceId, value):
     cnt = 0
     while cnt < 20:
         try:
+            try:
+                c_val = controller.getValue().getFloatData()
+                tolerance = controller.getChildController('/precision').getValue().getFloatData()
+#                 logger.log('current value is ' + str(c_val))
+#                 logger.log('precision is ' + str(tolerance))
+                if abs(value - c_val) <= tolerance :
+                    logger.log(str(deviceId) + ' is already at ' + str(c_val))
+                    return
+            except:
+                pass
             controller.drive(float(value))
             break
         except SicsExecutionException, e:
