@@ -67,6 +67,8 @@ class ConfigSystem :
         self.__is_dirty__ = False
 
     def multi_drive(self):
+        if not self.wavelength is None:
+            self.run_nvs_lambda(self.wavelength)
         cmd = 'drive'
         if self.need_drive_det():
             cmd += ' det ' + str(self.det)
@@ -74,8 +76,8 @@ class ConfigSystem :
                 cmd += ' detoff ' + str(self.det_offset)
             else:
                 cmd += ' detoff 0'
-        if not self.wavelength is None:
-            cmd += ' nvs_lambda ' + str(self.wavelength)
+#         if not self.wavelength is None:
+#             cmd += ' nvs_lambda ' + str(self.wavelength)
         if not self.srce is None:
             cmd += ' srce ' + str(self.srce)
         if not self.apx is None:
@@ -86,7 +88,32 @@ class ConfigSystem :
             if not res is None and res.find('Full Stop') >= 0:
                 raise Exception, res
             log('finished multi-drive')
+        if not self.wavelength is None:
+            self.check_nvs_lambda(self.wavelength)
+                
 
+    def run_nvs_lambda(self, val):
+        sics.execute('run nvs_lambda ' + str(val))
+        
+    def check_nvs_lambda(self, val):
+        timeout = 600
+        interval = 10
+        count = 0
+        while count < timeout :
+            try:
+                cur = sics.get_raw_value('nvs_lambda')
+                pre = sics.get_raw_value('nvs_lambda precision')
+                if abs(cur - val) < pre:
+                    return True
+                else:
+                    time.sleep(interval)
+                    count += interval
+            except:
+                time.sleep(interval)
+                count += interval
+        sics.execute('stopexe nvs_lambda')
+        log('WARNING: timeout in driving nvs_lambda, but choose to continue.')
+        
     def multi_set(self):
         if not self.wavelength is None:
             log('set wavelength to ' + str(self.wavelength))

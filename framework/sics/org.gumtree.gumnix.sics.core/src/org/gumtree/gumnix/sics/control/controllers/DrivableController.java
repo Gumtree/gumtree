@@ -23,6 +23,8 @@ public class DrivableController extends DynamicController implements IDrivableCo
 	// 3 second state transition time out
 	private static final int TIME_OUT = 3000;
 	
+	private static final int DRIVING_TIME_OUT = 60000;
+	
 	private static final int TIME_INTERVAL = 10;
 	
 	private static final Logger logger = LoggerFactory.getLogger(DrivableController.class);
@@ -62,10 +64,10 @@ public class DrivableController extends DynamicController implements IDrivableCo
 
 	public void drive(float value) throws SicsIOException, SicsExecutionException {
 		synchronized (driveLock) {
-			logger.info("Start driving " + getPath() + " in the synchronized mode (value=" + value + ", status=" + getStatus().toString() + ").");
+			logger.error("Start driving " + getPath() + " in the synchronized mode (value=" + value + ", status=" + getStatus().toString() + ").");
 			// [GUMTREE-558] Give more time to make the device settle
 			if(getStatus() == ControllerStatus.RUNNING) {
-				logger.info("Device " + getPath() + " still busy, we will wait at most 2 seconds.");
+				logger.error("Device " + getPath() + " still busy, we will wait at most 2 seconds.");
 				LoopRunnerStatus status = LoopRunner.run(new ILoopExitCondition() {
 					public boolean getExitCondition() {
 						return getStatus() != ControllerStatus.RUNNING;
@@ -97,7 +99,7 @@ public class DrivableController extends DynamicController implements IDrivableCo
 			int count = 0;
 			
 			// Ensure the device does go to run
-			logger.info("Start waiting for " + getPath() + " state transition (dirtyFlag=" + dirtyFlag + ", status=" + getStatus().toString() + ").");
+			logger.error("Start waiting for " + getPath() + " state transition (dirtyFlag=" + dirtyFlag + ", status=" + getStatus().toString() + ").");
 			while(!dirtyFlag) {
 				try {
 					if (errorMessages[0] != null) {
@@ -114,17 +116,40 @@ public class DrivableController extends DynamicController implements IDrivableCo
 				}
 			}
 			
+			count = 0;
 			// Wait while it is running
-			logger.info("Start running " + getPath() + " (status=" + getStatus().toString() + ").");
+			logger.error("Start running " + getPath() + " (status=" + getStatus().toString() + ").");
 			while(getStatus() == ControllerStatus.RUNNING) {
 				try {
 					Thread.sleep(TIME_INTERVAL);
+					if (count > 3000) {
+						logger.error("timeout reached, checking current value ...");
+						IComponentController precision = getChildController("/precision");
+						if (precision != null && precision instanceof IDynamicController) {
+							try {
+								double precisionValue = ((IDynamicController) precision).getValue().getFloatData();
+								double currentValue = getValue(true).getFloatData();
+								logger.error("check if current value is within the tolerance: TARGET=" + value + 
+										", CURRENT=" + currentValue + ", PRECISION=" + precisionValue);
+								if (Math.abs(value - currentValue) < precisionValue) {
+									logger.error("target reached, break the waiting loop.");
+									Thread.sleep(1000);
+									setStatus(ControllerStatus.OK);
+									break;
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+						count = 0;
+					}
+					count += TIME_INTERVAL;
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
 					throw new SicsExecutionException("Interrupted Exception", e);
 				}
 			}
-			logger.info("Exit from running " + getPath() + "(status=" + getStatus().toString() + ").");
+			logger.error("Exit from running " + getPath() + "(status=" + getStatus().toString() + ").");
 			// Check if this device is interrupted
 			if (SicsCore.getSicsController().isInterrupted()) {
 				SicsCore.getSicsController().clearInterrupt();

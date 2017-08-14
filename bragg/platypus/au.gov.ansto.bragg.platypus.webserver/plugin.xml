@@ -4,6 +4,10 @@
    <extension
          point="org.eclipse.equinox.http.registry.resources">
       <resource
+            alias="/platypus.html"
+            base-name="/WebContent/platypus.html">
+      </resource>
+      <resource
             alias="/status/platypus.html"
             base-name="/WebContent/platypus.html">
       </resource>
