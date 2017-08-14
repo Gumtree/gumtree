@@ -323,6 +323,7 @@ def setupConfiguration(parameters):
     # before instrument can move to new configuration, move to safe attenuation angle
     driveToSafeAtt()
 
+    slog('Driving configuration script...')
     exec script in globals()
 
 def setupMeasurement(parameters, meas_mode):
@@ -369,6 +370,7 @@ def setupMeasurement(parameters, meas_mode):
     driveToSafeAtt()
 
     # run configuration script
+    slog('Driving configuration script...')
     exec script in globals()
 
 def setupSample(parameters):
@@ -403,7 +405,7 @@ def setupEnvironment(parameters):
 
     state.env_drive[env] = script_drive
 
-    exec script_setup in globals()
+    environmentSetup(script_setup)
 
 def setupSetPoint(parameters):
     # parameters
@@ -412,10 +414,7 @@ def setupSetPoint(parameters):
     wait  = int(parameters['WaitPeriod'])
 
     # run configuration script
-    slog('Prepare instrument for next SetPoint: %s' % value)
-
-    exec state.env_drive[env] in globals(), dict(value=value)
-
+    environmentDrive(state.env_drive[env], value)
     sleep(wait)
 
 def preAcquisition(info):
@@ -644,14 +643,17 @@ def driveToSamplePosition(position):
 
 def testDrive(script):
     # run script
+    slog('Driving configuration script...')
     exec script in globals()
 
 def environmentSetup(script):
     # run script
+    slog('Driving configuration script...')
     exec script in globals()
 
 def environmentDrive(script, value):
     # run script
+    slog('Driving configuration script... (value=%s)' % value)
     exec script in globals(), dict(value=value)
 
 def publishFinishTime(time):
@@ -944,6 +946,7 @@ def driveToSafeAtt():
             driveAtt(safe_att)
 
         except (Exception, SicsExecutionException) as e:
+            slog('error: %s' % str(e), f_err=True)
             if isInterruptException(e) or (counter >= 5):
                 raise
 
