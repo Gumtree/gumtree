@@ -122,7 +122,7 @@ public class DrivableController extends DynamicController implements IDrivableCo
 			while(getStatus() == ControllerStatus.RUNNING) {
 				try {
 					Thread.sleep(TIME_INTERVAL);
-					if (count > 3000) {
+					if (count > DRIVING_TIME_OUT) {
 						logger.error("timeout reached, checking current value ...");
 						IComponentController precision = getChildController("/precision");
 						if (precision != null && precision instanceof IDynamicController) {
