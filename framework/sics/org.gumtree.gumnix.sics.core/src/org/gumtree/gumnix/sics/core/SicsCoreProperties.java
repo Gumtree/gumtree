@@ -76,7 +76,7 @@ public final class SicsCoreProperties {
 			"gumtree.sics.useNonNIOChannel", "false");
 	
 	public static final ISystemProperty MESSAGE_DROP_ENABLE = new SystemProperty(
-			"gumtree.sics.messageDropEnable", "true");
+			"gumtree.sics.messageDropEnable", "false");
 
 	private SicsCoreProperties() {
 		super();
