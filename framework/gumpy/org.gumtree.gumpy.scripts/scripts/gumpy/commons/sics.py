@@ -118,11 +118,11 @@ def drive(deviceId, value):
                 time.sleep(0.3)
             cnt += 1
     if cnt >= 20:
-        is_done = false
+        is_done = False
         try:
             cval = controller.getValue()
             if abs(float(value) - cval.getFloatData()) <= controller.getChildController("/precision").getValue().getFloatData():
-                is_done = true;
+                is_done = True;
         except:
             pass
         if not is_done:
