@@ -31,7 +31,11 @@ var devices = [
                {"group":"FERMI CHOPPER", 
             	   "items":[{"classId":"mchs", "deviceId":"mchs", "title":"master chopper", "units":"rpm"},  
             	            {"classId":"schs", "deviceId":"schs", "title":"slave chopper", "units":"rpm"}
-            	   ]
+            	   			]
+               },
+               {"group":"SAMPLE", 
+            	   "items":[{"classId":"mscor", "deviceId":"mscor", "title":"mscor", "units":"degrees"}
+            	   			]
                }
                ];
 
