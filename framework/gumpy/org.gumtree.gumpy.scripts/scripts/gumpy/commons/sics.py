@@ -417,3 +417,70 @@ def get_status():
         return controller.getServerStatus()
     else:
         return ServerStatus.UNKNOWN
+    
+'''
+    Make the system wait until a device reaches a given value.
+    
+    :param device: name or path of the device, e.g., 'samx' or '/sample/samx'.
+    :type device: str
+    
+    :param value: a float number, can't be None
+    :type value: float
+    
+    :param precision: the precision or tolerance of the device. Once the value reaches within the 
+                      tolerance, it finishes waiting. Default value is 0.01.
+    :type precision: float
+    
+    :param timeout_if_not_change: the waiting will finish if the device value doesn't change in 
+                                  this number of seconds. If set to be None, there will be no
+                                  timeout. Default value is None.
+    :type timeout_if_not_change: float value in seconds
+    
+    :param interval: the system will check the device value for every given number of seconds.
+                     It can't be None or 0. Default value is 0.2 seconds.
+    :type interval: float
+    
+    :return: a boolean value if the target value has been reached.
+'''
+def wait_until_value_reached(device, value, precision = 0.01, timeout_if_not_change = None, interval = 0.2):
+    value_reached = False
+    controller = getDeviceController(device)
+    logger.log('start waiting for ' + str(device) + ' to reach ' + str(value))
+    if precision is None :
+        precision = 0.01
+    if interval is None or interval <= 0 :
+        interval = 0.2
+    if timeout_if_not_change == 0 or timeout_if_not_change is None :
+        timeout_if_not_change = float('nan')
+    old_val = float('nan')
+    update_interval = 5
+    update_count = 0
+    total_count = 0
+    not_change_count = 0
+    while not value_reached:
+        if update_count >= update_interval :
+            try :
+                new_val = controller.getValue(True).getFloatData()
+                update_count = 0
+            except:
+                new_val = controller.getValue(False).getFloatData()
+        else:
+            new_val = controller.getValue(False).getFloatData()
+        if abs(new_val - value) <= precision :
+            value_reached = True
+            break
+        else:
+            if not_change_count > timeout_if_not_change:
+                break
+            if abs(new_val - old_val) <= precision:
+                not_change_count += interval
+            else:
+                not_change_count = 0
+            old_val = new_val
+            update_count += interval
+            total_count += interval
+            time.sleep(interval)
+    if value_reached:
+        logger.log(str(device) + ' reached value ' + str(value) + ' in ' + str(total_count) + ' seconds')
+    else:
+        logger.log(str(device) + ' failed to reach value ' + str(value) + ' in ' + str(total_count) + ' seconds')
