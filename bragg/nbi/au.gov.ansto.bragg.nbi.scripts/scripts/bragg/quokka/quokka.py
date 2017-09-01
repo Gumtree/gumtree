@@ -657,8 +657,9 @@ def environmentDrive(script, value):
     slog('Driving configuration script... (value=%s)' % value)
     exec script in globals(), dict(value=value)
 
-def publishFinishTime(time):
-    sics.execute('hset /experiment/gumtree_time_estimate %i' % time, 'status')
+def publishFinishTime(value):
+    slog('Publishing estimated finish time... (%s)' % time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(value)))
+    sics.execute('hset /experiment/gumtree_time_estimate %i' % value, 'status')
 
 def publishTables(tables):
     # TableInfo { String getName(); String getContent(); }
