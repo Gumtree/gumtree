@@ -388,6 +388,9 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				}
 				try {
 					String text = rep.getText();
+					if (text == null || text.trim() == "") {
+						throw new Exception("Text can't be empty. Please add some content and try again.");
+					}
 					text = text == null ? "" : text;
 					if (text.contains(STRING_CONTENT_START)) {
 						int start = text.indexOf(STRING_CONTENT_START) + STRING_CONTENT_START.length();
