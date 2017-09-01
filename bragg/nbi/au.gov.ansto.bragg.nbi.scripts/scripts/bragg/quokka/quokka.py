@@ -36,6 +36,7 @@ GLOBAL_RATE_SAFE = 40000.0
 
 # attenuation values
 ATT_VALUES = [330, 300, 270, 240, 210, 180, 150, 120, 90, 60, 30, 0]
+ATT_SAFE = 300
 
 SAMPLE_STAGE = Enumeration('fixed', 'manual', 'lookup')
 ATTENUATION_ALGO = Enumeration('fixed', 'iterative')
@@ -427,7 +428,7 @@ def preAcquisition(info):
     att_angle = state.att_angle
 
     if att_algo == ATTENUATION_ALGO.fixed:
-        driveAtt(att_angle)
+        fixedAttenuationAlgo(att_angle)
 
     elif att_algo == ATTENUATION_ALGO.iterative:
         iterativeAttenuationAlgo(att_angle)
@@ -691,6 +692,31 @@ def resolveTrip():
         slog('local rate = %s' % info.local_rate)
         slog('global rate = %s' % info.global_rate)
 
+def fixedAttenuationAlgo(angle):
+    level = ATT_VALUES.index(angle)
+
+    slog('Fixed attenuation algorithm ...')
+
+    # drive the attenuator
+    driveAtt(ATT_VALUES[level])
+
+    # count bin rate
+    if not hasTripped():
+        determineDetRates(1)
+
+    # check if detector has tripped
+    if hasTripped():
+        if level > ATT_VALUES.index(ATT_SAFE):
+            # beamstop might be unaligned
+            driveAtt(ATT_SAFE)
+            resetTrip(increase_att=False)
+            return iterativeAttenuationAlgo(ATT_SAFE) # start with maximal protection
+        else:
+            resolveTrip()
+
+    # print info
+    slog('Attenuation is set to %i' % getAtt())
+
 def iterativeAttenuationAlgo(start_angle):
     start_level = ATT_VALUES.index(start_angle)
 
@@ -712,8 +738,14 @@ def iterativeAttenuationAlgo(start_angle):
 
             # check if detector has tripped
             if hasTripped():
-                resolveTrip()
-                break
+                if level == start_level and level > ATT_VALUES.index(ATT_SAFE):
+                    # beamstop might be unaligned
+                    driveAtt(ATT_SAFE)
+                    resetTrip(increase_att=False)
+                    return iterativeAttenuationAlgo(ATT_SAFE) # start with maximal protection
+                else:
+                    resolveTrip()
+                    break
 
             # check if rates are too high
             elif (info.local_rate > LOCAL_RATE_SAFE) or (info.global_rate > GLOBAL_RATE_SAFE):
