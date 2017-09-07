@@ -419,7 +419,7 @@ def get_status():
         return ServerStatus.UNKNOWN
     
 '''
-    Make the system wait until a device reaches a given value.
+    Make the system wait until a device reaching a given value.
     
     :param device: name or path of the device, e.g., 'samx' or '/sample/samx'.
     :type device: str
