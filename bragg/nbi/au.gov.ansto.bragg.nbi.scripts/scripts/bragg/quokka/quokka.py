@@ -1115,12 +1115,22 @@ def driveDhv1(action):
     slog('Driving dhv1 %s ...' % action)
 
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
+
     if action == ACTION.up:
         dhv1.up()
+        while getDhv1() < 800:  # ensure that dhv1 is actually moving before checking for EAGER_TO_EXECUTE
+            sleep(0.5)
+
     elif action == ACTION.down:
         dhv1.down()
+        while getDhv1() > 800:
+            sleep(0.5)
+
     elif action == 'reset':
         dhv1.reset()
+        sleep(5.0)
+
+    waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
 
     slog('dhv1 is now at %s' % getDhv1())
 
