@@ -596,7 +596,7 @@ def driveToSamplePosition(position):
         return
 
     # drive to position
-    slog('Driving sample holder to position %s ...' % position)
+    slog('Driving sample holder to position %d ...' % position)
 
     if state.sample_stage == SAMPLE_STAGE.manual:
         checkedDrive('samx', position)
@@ -605,42 +605,9 @@ def driveToSamplePosition(position):
     if state.sample_stage != SAMPLE_STAGE.lookup:
         raise Exception('unexpected sample stage configuration')
 
-    sicsController = sics.getSicsController()
-    controller = sicsController.findComponentController('/sample/sampleNum')
+    checkedDrive('samplenumber', position)
 
-    counter = 0
-    position = int(position)
-    tolerance = 0.05
-    while True:
-        try:
-            counter += 1
-
-            waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
-            sics.handleInterrupt()
-
-            controller.drive(position)
-            sics.handleInterrupt()
-
-            break
-
-        except (Exception, SicsExecutionException) as e:
-            if isInterruptException(e) or (counter >= 20):
-                raise
-
-            if abs(controller.getValue(True).getFloatData() - position) < tolerance:
-                break
-
-            slog('Retry driving sampleNum')
-            time.sleep(1)
-
-    # wait until
-    for counter in xrange(50):
-        if abs(controller.getValue(True).getFloatData() - position) >= tolerance:
-            time.sleep(0.1)
-        else:
-            break
-
-    slog('Position of sample holder: %s' % controller.getValue(True).getFloatData())
+    slog('Position of sample holder: %d' % getSampleNumber())
 
 def testDrive(script):
     # run script
@@ -1235,7 +1202,7 @@ def getSampleName(throw=True):
     return getStringData('samplename', throw)
 
 def getSampleNumber(throw=True):
-    return getIntData('/sample/sampleNum', throw, useController=True)
+    return getIntData('samplenumber', throw)
 
 def getSamplePositions(throw=True):
     return getIntData('samx posit_count', throw, useRaw=True)
