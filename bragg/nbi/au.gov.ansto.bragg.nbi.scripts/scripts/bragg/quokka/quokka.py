@@ -1169,9 +1169,17 @@ def driveGuide(value):
 
             waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
             sics.handleInterrupt()
-
+            
+            # for some reason t0 and t1 are of type java.sql.Timestamp
+            t0 = datetime.now()
             controller.syncExecute()
-            sics.handleInterrupt()
+            t1 = datetime.now()
+            
+            # time difference in milliseconds
+            ms = t1.getTime() - t0.getTime()
+            
+            # don't wait longer than two minutes
+            sleep(2 * 60 - int(ms / 1000))
             break
 
         except (Exception, SicsExecutionException) as e:
