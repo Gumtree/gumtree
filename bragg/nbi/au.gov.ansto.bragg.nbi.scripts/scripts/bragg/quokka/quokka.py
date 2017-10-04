@@ -1144,7 +1144,8 @@ def driveFlipper(value):
     slog('Flipper is set to %s' % getFlipper())
 
 def getGuideConfig(throw=True):
-    return getStringData('/commands/optics/guide/configuration', throw)
+    # return getStringData('/commands/optics/guide/configuration', throw)
+    return getStringData('guideconfig', throw) # get current driven to guide configuration
 
 def driveGuide(value):
     if value not in GUIDE_CONFIG:
@@ -1152,6 +1153,10 @@ def driveGuide(value):
 
     # set target configuration
     sics.set('/commands/optics/guide/configuration', value)
+
+    if getGuideConfig() == value:
+        slog('Guide was already moved to %s (no action is required)' % value)
+        return
 
     slog('Moving guide to ' + value)
 
@@ -1169,23 +1174,20 @@ def driveGuide(value):
 
             waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
             sics.handleInterrupt()
-            
-            # for some reason t0 and t1 are of type java.sql.Timestamp
-            t0 = datetime.now()
+
+            timeout = datetime.now() + timedelta(minutes=5)
             controller.syncExecute()
-            t1 = datetime.now()
-            
-            # time difference in milliseconds
-            ms = t1.getTime() - t0.getTime()
-            
-            # don't wait longer than two minutes
-            sleep(2 * 60 - int(ms / 1000))
+
+            while (getGuideConfig() != value) and (datetime.now() < timeout):
+                sleep(0.5)
+
             break
 
         except (Exception, SicsExecutionException) as e:
             if isInterruptException(e) or (counter >= 20):
                 raise
 
+            slog(str(e), f_err=True)
             slog('Retry moving guide')
             time.sleep(1)
 
