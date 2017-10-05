@@ -1043,13 +1043,13 @@ def getDetPosition(throw=True):
 def getDetOffset(throw=True):
     return getFloatData('detoff', throw)
 
-def driveDet(position, offset):
+def driveDet(position, offset=None):
     # tolerance: 5mm and 1mm
     position_delta = 5
     offset_delta = 1
 
     drive_position = abs(position - getDetPosition()) > position_delta
-    drive_offset = abs(offset - getDetOffset()) > offset_delta
+    drive_offset = (offset is not None) and (abs(offset - getDetOffset()) > offset_delta)
 
     # drive det only if we needed to
     if drive_position or drive_offset:
