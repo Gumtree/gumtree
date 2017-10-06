@@ -1074,9 +1074,13 @@ def driveDhv1(action):
     action = str(action)
 
     # don't drive if it is already in position
-    startingValue = getDhv1()
-    if (action == ACTION.up and startingValue >= 2350.0) or (action == ACTION.down and startingValue == 0.0):
-        slog('dhv1 is now at %s (no action is required)' % startingValue)
+    so_dhv1     = sics.getSicsController().findDeviceController('so_dhv1')
+    potval_up   = so_dhv1.getChildController('/params/potval_up').getValue().getFloatData()
+    potval_down = so_dhv1.getChildController('/params/potval_down').getValue().getFloatData()
+    potval      = getFloatData('dhv1_potval')
+
+    if (action == ACTION.up and potval >= potval_up) or (action == ACTION.down and potval <= potval_down):
+        slog('dhv1 is now at %s (no action is required)' % getDhv1())
         return
 
     slog('Driving dhv1 %s ...' % action)
@@ -1084,18 +1088,10 @@ def driveDhv1(action):
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
 
     if action == ACTION.up:
-        dhv1.up()
-        while getDhv1() < 800:  # ensure that dhv1 is actually moving before checking for EAGER_TO_EXECUTE
-            sleep(0.5)
+        sics.drive('dhv1_potval', potval_up)
 
     elif action == ACTION.down:
-        dhv1.down()
-        while getDhv1() > 800:
-            sleep(0.5)
-
-    elif action == 'reset':
-        dhv1.reset()
-        sleep(5.0)
+        sics.drive('dhv1_potval', potval_down)
 
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
 
