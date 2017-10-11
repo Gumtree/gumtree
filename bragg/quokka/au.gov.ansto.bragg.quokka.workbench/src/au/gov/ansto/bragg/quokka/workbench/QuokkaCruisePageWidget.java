@@ -126,7 +126,7 @@ public class QuokkaCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.BEAKER.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(sampleGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/sample/sampleNum", "Number", null, "")
+				.addDevice("/sample/samplenumber", "Number", null, "")
 				.addDevice("/sample/name", "Name", null, "")
 				;
 		configureWidget(deviceStatusWidget);
