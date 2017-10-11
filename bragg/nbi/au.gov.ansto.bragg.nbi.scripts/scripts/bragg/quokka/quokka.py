@@ -596,7 +596,7 @@ def driveToSamplePosition(position):
         return
 
     # drive to position
-    slog('Driving sample holder to position %s ...' % position)
+    slog('Driving sample holder to position %d ...' % position)
 
     if state.sample_stage == SAMPLE_STAGE.manual:
         checkedDrive('samx', position)
@@ -605,42 +605,9 @@ def driveToSamplePosition(position):
     if state.sample_stage != SAMPLE_STAGE.lookup:
         raise Exception('unexpected sample stage configuration')
 
-    sicsController = sics.getSicsController()
-    controller = sicsController.findComponentController('/sample/sampleNum')
+    checkedDrive('samplenumber', position)
 
-    counter = 0
-    position = int(position)
-    tolerance = 0.05
-    while True:
-        try:
-            counter += 1
-
-            waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
-            sics.handleInterrupt()
-
-            controller.drive(position)
-            sics.handleInterrupt()
-
-            break
-
-        except (Exception, SicsExecutionException) as e:
-            if isInterruptException(e) or (counter >= 20):
-                raise
-
-            if abs(controller.getValue(True).getFloatData() - position) < tolerance:
-                break
-
-            slog('Retry driving sampleNum')
-            time.sleep(1)
-
-    # wait until
-    for counter in xrange(50):
-        if abs(controller.getValue(True).getFloatData() - position) >= tolerance:
-            time.sleep(0.1)
-        else:
-            break
-
-    slog('Position of sample holder: %s' % controller.getValue(True).getFloatData())
+    slog('Position of sample holder: %d' % getSampleNumber())
 
 def testDrive(script):
     # run script
@@ -1076,13 +1043,13 @@ def getDetPosition(throw=True):
 def getDetOffset(throw=True):
     return getFloatData('detoff', throw)
 
-def driveDet(position, offset):
+def driveDet(position, offset=None):
     # tolerance: 5mm and 1mm
     position_delta = 5
     offset_delta = 1
 
     drive_position = abs(position - getDetPosition()) > position_delta
-    drive_offset = abs(offset - getDetOffset()) > offset_delta
+    drive_offset = (offset is not None) and (abs(offset - getDetOffset()) > offset_delta)
 
     # drive det only if we needed to
     if drive_position or drive_offset:
@@ -1107,20 +1074,26 @@ def driveDhv1(action):
     action = str(action)
 
     # don't drive if it is already in position
-    startingValue = getDhv1()
-    if (action == ACTION.up and startingValue >= 2350.0) or (action == ACTION.down and startingValue == 0.0):
-        slog('dhv1 is now at %s (no action is required)' % startingValue)
+    so_dhv1     = sics.getSicsController().findDeviceController('so_dhv1')
+    potval_up   = so_dhv1.getChildController('/params/potval_up').getValue().getFloatData()
+    potval_down = so_dhv1.getChildController('/params/potval_down').getValue().getFloatData()
+    potval      = getFloatData('dhv1_potval')
+
+    if (action == ACTION.up and potval >= potval_up) or (action == ACTION.down and potval <= potval_down):
+        slog('dhv1 is now at %s (no action is required)' % getDhv1())
         return
 
     slog('Driving dhv1 %s ...' % action)
 
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
+
     if action == ACTION.up:
-        dhv1.up()
+        sics.drive('dhv1_potval', potval_up)
+
     elif action == ACTION.down:
-        dhv1.down()
-    elif action == 'reset':
-        dhv1.reset()
+        sics.drive('dhv1_potval', potval_down)
+
+    waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
 
     slog('dhv1 is now at %s' % getDhv1())
 
@@ -1167,7 +1140,8 @@ def driveFlipper(value):
     slog('Flipper is set to %s' % getFlipper())
 
 def getGuideConfig(throw=True):
-    return getStringData('/commands/optics/guide/configuration', throw)
+    # return getStringData('/commands/optics/guide/configuration', throw)
+    return getStringData('guideconfig', throw) # get current driven to guide configuration
 
 def driveGuide(value):
     if value not in GUIDE_CONFIG:
@@ -1175,6 +1149,10 @@ def driveGuide(value):
 
     # set target configuration
     sics.set('/commands/optics/guide/configuration', value)
+
+    if getGuideConfig() == value:
+        slog('Guide was already moved to %s (no action is required)' % value)
+        return
 
     slog('Moving guide to ' + value)
 
@@ -1193,14 +1171,19 @@ def driveGuide(value):
             waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
             sics.handleInterrupt()
 
+            timeout = datetime.now() + timedelta(minutes=5)
             controller.syncExecute()
-            sics.handleInterrupt()
+
+            while (getGuideConfig() != value) and (datetime.now() < timeout):
+                sleep(0.5)
+
             break
 
         except (Exception, SicsExecutionException) as e:
             if isInterruptException(e) or (counter >= 20):
                 raise
 
+            slog(str(e), f_err=True)
             slog('Retry moving guide')
             time.sleep(1)
 
@@ -1225,7 +1208,7 @@ def getSampleName(throw=True):
     return getStringData('samplename', throw)
 
 def getSampleNumber(throw=True):
-    return getIntData('/sample/sampleNum', throw, useController=True)
+    return getIntData('samplenumber', throw)
 
 def getSamplePositions(throw=True):
     return getIntData('samx posit_count', throw, useRaw=True)
