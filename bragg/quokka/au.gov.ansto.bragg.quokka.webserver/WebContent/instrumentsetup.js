@@ -8,8 +8,8 @@ var devices = [
 //            	            ]
 //               },
                {"group":"GUMTREE MULTI-SAMPLE WORKFLOW", 
-            	   "items":[{"classId":"gumtree_version", "deviceId":"gumtree_version", "title":"Gumtree Version", "units":""},
-            	            {"classId":"gumtree_status", "deviceId":"gumtree_status", "title":"Status", "units":"", "colorList":{"BUSY":"#FFA500", "IDLE":"#00c400"}}
+            	   "items":[{"classId":"gumtree_version", "deviceId":"gumtree_version", "title":"Gumtree Version", "units":""}
+//            	            {"classId":"gumtree_status", "deviceId":"gumtree_status", "title":"Status", "units":"", "colorList":{"BUSY":"#FFA500", "IDLE":"#00c400"}}
             	            ]
                },
                {"group":"BEAM STATUS", 
@@ -32,7 +32,7 @@ var devices = [
             	            ]
                },
                {"group":"SAMPLE", 
-            	   "items":[{"classId":"sampleNum", "deviceId":"sampleNum", "title":"Sample Position", "units":""},  
+            	   "items":[{"classId":"samplenumber", "deviceId":"samplenumber", "title":"Sample Position", "units":""},  
             	            {"classId":"samplename", "deviceId":"samplename", "title":"Sample Name", "units":""}
             	   ]
                }
