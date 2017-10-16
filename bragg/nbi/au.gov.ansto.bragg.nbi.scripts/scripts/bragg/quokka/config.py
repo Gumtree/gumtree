@@ -253,7 +253,7 @@ class ConfigSystem :
                 self.multi_set()
         finally:
             self.clear()
-        while sics.getStatus() != 'EAGER TO EXECUTE':
+        while sics.get_status() != 'EAGER TO EXECUTE':
             time.sleep(0.3)
         sics.handleInterrupt()
         log('configuration is finished')
