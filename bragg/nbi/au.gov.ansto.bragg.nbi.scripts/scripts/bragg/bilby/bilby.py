@@ -542,7 +542,6 @@ def scan10(sample_position, collect_time, sample_name = None):
         if not sample_name is None:
             sics.execute('samplename ' + str(sample_name), 'scan')
         
-        cur_samx = __sampleMap__[__sampleNum__][sample_position]
 #        cur_samx = samx()
         time.sleep(1)
         log("Collection time set to " + str(collect_time) + " seconds")
@@ -561,7 +560,17 @@ def scan10(sample_position, collect_time, sample_name = None):
 #        time.sleep(1)
 #        log("Saving data")
 #        sics.execute('save')
-        scan('samx', cur_samx, cur_samx, 1, scanMode.time, dataType.HISTOGRAM_XYT, collect_time)
+        is_samx_fixed = True
+        try:
+            if sics.get_raw_value('samx fixed') == -1:
+                is_samx_fixed = False
+        except:
+            pass
+        if is_samx_fixed :
+            scan('dummy_motor', 0, 0, 1, scanMode.time, dataType.HISTOGRAM_XYT, collect_time)
+        else:
+            cur_samx = __sampleMap__[__sampleNum__][sample_position]
+            scan('samx', cur_samx, cur_samx, 1, scanMode.time, dataType.HISTOGRAM_XYT, collect_time)
         time.sleep(2)
         log(sics.get_base_filename() + ' updated')
         log("Scan completed")
