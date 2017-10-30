@@ -19,6 +19,7 @@ import au.gov.ansto.bragg.nbi.server.internal.UserSessionService;
 
 public class UserHomeRestlet extends Restlet implements IDisposable{
 
+	private static final String PROP_PATH_WEBSTATUS = "gumtree.status.webpath";
 	private static final String SEG_NAME_MENU = "menu";
 	private static final String SEG_NAME_INFO = "info";
 	private static final String SEG_NAME_USER = "user";
@@ -139,8 +140,17 @@ public class UserHomeRestlet extends Restlet implements IDisposable{
 	}
 
 	private void addInstrumentStatus(JSONObject menuJson, JSONObject infoJson) throws JSONException {
-    	menuJson.put("../status/mobile.html", "Instrument Status");
-    	infoJson.put("../status/mobile.html", "Instrument Status: The online dashboard for the instrument.");		
+		String path = null;
+		try {
+			path = System.getProperty(PROP_PATH_WEBSTATUS);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		if (path == null) {
+			path = "status/mobile.html";
+		}
+    	menuJson.put(path, "Instrument Status");
+    	infoJson.put(path, "Instrument Status: The online dashboard for the instrument.");		
 	}
 	
 	private void addManageNotebook(JSONObject menuJson, JSONObject infoJson) throws JSONException, IOException {
