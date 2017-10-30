@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.gumtree.data.IFactory;
 import org.gumtree.data.exception.FileAccessException;
+import org.gumtree.data.interfaces.IArray;
 import org.gumtree.data.interfaces.IDataItem;
 import org.gumtree.data.interfaces.IDataset;
 import org.gumtree.data.interfaces.IDictionary;
@@ -144,7 +145,16 @@ public class CatalogCollectingService {
 				if (pair[0].trim() != "#") {
 					IDataItem item = root.findDataItem(pair[0]);
 					if (item != null) {
-						dict.put(pair[1], item.getData().toString());
+						IArray data = item.getData();
+						String val = "";
+						if (data.getSize() > 1) {
+							val = data.getIterator().getObjectNext().toString();
+						} else {
+							val = data.toString();
+						}
+						dict.put(pair[1], val);
+					} else {
+						dict.put(pair[1], "");
 					}
 				}
 			}
