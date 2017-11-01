@@ -486,17 +486,20 @@ public class AcquisitionComposite extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog fileDialog = new FileDialog(getShell(), SWT.SAVE);
 
-				fileDialog.setFilterNames(new String[] { "Hypertext Markup Language (*.html)", "All Files (*.*)" });
-				fileDialog.setFilterExtensions(new String[] { "*.html", "*.*" });
+				fileDialog.setFilterNames(new String[] { "XML report for data reduction (*.xml)", "Webpage report (*.html)", "All Files (*.*)" });
+				fileDialog.setFilterExtensions(new String[] { "*.xml", "*.html", "*.*" });
 
 				String filename = fileDialog.open();
 				if ((filename != null) && (filename.length() > 0)) {
 					boolean succeeded = false;
 					try {
 						EnvironmentReport rootReport = reportProvider.getRootReport();
-						Iterable<TableInfo> tables = LogbookReportGenerator.create(rootReport);
-						
-						LogbookReportGenerator.save(tables, new File(filename));
+						if (filename.toLowerCase().endsWith(".html")) {
+							Iterable<TableInfo> tables = LogbookReportGenerator.create(rootReport);
+							LogbookReportGenerator.save(tables, new File(filename));
+						} else if (filename.toLowerCase().endsWith(".xml")) {
+							ReductionReportGenerator.save(rootReport, new File(filename));
+						}
 						succeeded = true;
 					}
 					catch (Exception e2) {
