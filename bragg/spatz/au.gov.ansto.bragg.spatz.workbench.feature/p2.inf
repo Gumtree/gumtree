@@ -1,0 +1,16 @@
+instructions.install = \
+    removeJvmArg(jvmArg:-Dgumtree.runtime.configBundle=org.gumtree.app.workbench); \
+    removeJvmArg(jvmArg:-Xmx512m); \
+	addJvmArg(jvmArg:-Dgumtree.runtime.configBundle=au.gov.ansto.bragg.nbi.workbench); \
+	addJvmArg(jvmArg:-Dgumtree.runtime.configEnv.instr=spatz); \
+	addJvmArg(jvmArg:-Dgumtree.runtime.configEnv.env=prod); \
+	addJvmArg(jvmArg:-Dgumtree.runtime.configEnv.mode=experiment); \
+	addJvmArg(jvmArg:-Dgumtree.sics.role=manager); \
+	addJvmArg(jvmArg:-Xdebug); \
+	addJvmArg(jvmArg:-Xrunjdwp:transport=dt_socket${#44}server=y${#44}suspend=n${#44}address=61472); \
+	addJvmArg(jvmArg:-Xmx800m);
+instructions.install.import= \
+	org.eclipse.equinox.p2.touchpoint.eclipse.addProgramArg, \
+	org.eclipse.equinox.p2.touchpoint.eclipse.removeProgramArg, \
+	org.eclipse.equinox.p2.touchpoint.eclipse.addJvmArg, \
+	org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg,
