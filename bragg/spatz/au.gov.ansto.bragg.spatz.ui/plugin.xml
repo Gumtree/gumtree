@@ -7,5 +7,28 @@
             class="au.gov.ansto.bragg.spatz.ui.SpatzWorkbenchSetup">
       </startup>
    </extension>
+   <extension
+         point="org.eclipse.ui.views">
+     <category
+           id="au.gov.ansto.bragg.spatz.ui"
+           name="Spatz Views">
+     </category>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.spatz.ui"
+            class="au.gov.ansto.bragg.spatz.ui.TclEditorView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.spatz.ui.TclEditorView"
+            name="① Batch Editor">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="au.gov.ansto.bragg.spatz.ui.TCLRunnerPerspective"
+            icon="icons/exp_per.gif"
+            id="au.gov.ansto.bragg.spatz.ui.TCLRunnerPerspective"
+            name="Spatz Experiment"/>
+   </extension>
 
 </plugin>

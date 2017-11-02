@@ -88,16 +88,34 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 
 		DeviceStatusWidget deviceStatusWidget;
 //		// Devices
-//		PGroup monochromatorGroup = createGroup("DEVICES",
-//				SharedImage.SPIN.getImage());
-//		DeviceStatusWidget deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup, SWT.NONE);
-//		deviceStatusWidget
-//				.addDevice("/instrument/collimator/att", "att", null, null)
-//				.addDevice("/instrument/cdd", "cdd", null, null)
-//				.addDevice("/instrument/cdr", "cdr", null, null)
-//				.addDevice("/instrument/sdh", "sdh", null, null)
-//				;
-//		configureWidget(deviceStatusWidget);
+		// Monitor Event Rate
+		PGroup monitorGroup = createGroup("NEUTRON COUNTS",
+				SharedImage.MONITOR.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "cts")
+				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "cts")
+				.addDevice("/instrument/detector/total_counts", "Detector counts", null, "cts")
+				;
+		configureWidget(deviceStatusWidget);
+
+
+		// Choppers
+		PGroup chopperGroup = createGroup("CHOPPERS",
+				SharedImage.POSITIONER.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(chopperGroup, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/instrument/chpr/cp1/actspeed", "Ch1 speed", null, "rpm")
+				.addDevice("/instrument/chpr/cp1/offset", "Ch1 phase offset", null, "\u00b0")
+				.addDevice("/instrument/chpr/cp2/actspeed", "Ch2 speed", null, "rpm")
+				.addDevice("/instrument/chpr/cp2/offset", "Ch2 phase offset", null, "\u00b0")
+				.addDevice("/instrument/chpr/cp2b/actspeed", "Ch2b speed", null, "rpm")
+				.addDevice("/instrument/chpr/cp2b/offset", "Ch2b phase offset", null, "\u00b0")
+				.addDevice("/instrument/chpr/cp3/actspeed", "Ch3 speed", null, "rpm")
+				.addDevice("/instrument/chpr/cp3/offset", "Ch3 phase offset", null, "\u00b0")
+				;
+		configureWidget(deviceStatusWidget);
+
 //
 //		// Detector
 //		PGroup detectorGroup = createGroup("DETECTOR",
@@ -110,15 +128,6 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 //				.addDevice("/instrument/det", "det", null, "")
 //				;
 //		configureWidget(deviceStatusWidget);
-
-		// Monitor Event Rate
-		PGroup monitorGroup = createGroup("NEUTRON COUNTS",
-				SharedImage.MONITOR.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "cts")
-				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "cts");
-		configureWidget(deviceStatusWidget);
 
 		// Choppers
 //		PGroup chopperGroup = createGroup("CHOPPERS",
@@ -139,15 +148,6 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 //		configureWidget(deviceStatusWidget);
 
 
-		// Furnace Temp
-//		PGroup furnaceGroup = createGroup("FURNACE TEMP",
-//				SharedImage.FURNACE.getImage());
-//		deviceStatusWidget = new DeviceStatusWidget(furnaceGroup, SWT.NONE);
-//		deviceStatusWidget
-//				.addDevice("/sample/tempone/sensorA/value", "temperature")
-//				.addDevice("/sample/tempone/setpoint", "set point");
-//		configureWidget(deviceStatusWidget);
-
 
 		// Temperature TC1 Control
 //		PGroup tempControlGroup = createGroup("TEMPERATURE CONTR",
@@ -163,6 +163,30 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 //				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D",
 //						SharedImage.D.getImage(), null);
 //		configureWidget(deviceStatusWidget);
+
+		// Slits Info
+		PGroup slits1Group = createGroup("SLITS",
+				SharedImage.ONE.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(slits1Group, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/instrument/slits/s2h", "s2h", null, "mm")
+				.addDevice("/instrument/slits/s2v", "s2v", null, "mm")
+				.addDevice("/instrument/slits/s3h", "s3h", null, "mm")
+				.addDevice("/instrument/slits/s3v", "s3v", null, "mm")
+				.addDevice("/instrument/slits/s4h", "s4h", null, "mm")
+				.addDevice("/instrument/slits/s4v", "s4v", null, "mm")
+				;
+		configureWidget(deviceStatusWidget);
+
+		// Monochromator
+		PGroup monochromatorGroup = createGroup("MONOCHROMATOR",
+				SharedImage.MONOCHROMATOR.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/instrument/crystal/mom", "mom", null, "deg")
+				.addDevice("/instrument/crystal/stth", "stth", null, "deg")
+				;
+		configureWidget(deviceStatusWidget);
 
 		// Environment Group
 		PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",

@@ -36,6 +36,7 @@ import org.gumtree.workflow.ui.util.WorkflowFactory;
 
 public abstract class AbstractWorkflowViewer extends FormControlWidget implements IWorkflowViewer {
 
+	private static final String PROP_SHOW_TASKLIB = "gumtree.sics.showTaskLib";
 	private IWorkflow workflow;
 	
 	private UIContext c;
@@ -101,7 +102,16 @@ public abstract class AbstractWorkflowViewer extends FormControlWidget implement
 			createMainArea(mainComposite);
 			
 			c.toolShown = true;
-			c.toolSashForm.setWeights(new int[] { 2, 9 });
+			boolean showTaskLib = true;
+			try {
+				showTaskLib = Boolean.valueOf(System.getProperty(PROP_SHOW_TASKLIB));
+			} catch (Exception e) {
+			}
+			if (showTaskLib) {
+				c.toolSashForm.setWeights(new int[] { 2, 9 });
+			} else {
+				c.toolSashForm.setWeights(new int[] { 0, 10 });
+			}
 		} else {
 			// Hide toolbar
 			Composite mainComposite = getToolkit().createComposite(this);

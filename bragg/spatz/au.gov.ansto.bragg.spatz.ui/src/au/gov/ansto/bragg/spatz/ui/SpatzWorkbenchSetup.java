@@ -100,6 +100,7 @@ public class SpatzWorkbenchSetup implements IStartup {
 					IMultiMonitorManager mmManager = new MultiMonitorManager();
 
 					mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SICS, 0, 0, mmManager.isMultiMonitorSystem());
+					mmManager.showPerspectiveOnOpenedWindow(TCLRunnerPerspective.EXPERIMENT_PERSPECTIVE_ID, 0, 0, mmManager.isMultiMonitorSystem());
 					
 					if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
 						// open new window as editor buffer
