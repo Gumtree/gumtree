@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Gumtree" uid="au.gov.ansto.bragg.spatz.workbench.product" id="org.gumtree.app.workbench.product" application="org.gumtree.app.workbench.application" version="1.13.0.qualifier" useFeatures="true" includeLaunchers="true">
+
+   <aboutInfo>
+      <image path="/org.gumtree.app.runtime/images/earth.png"/>
+      <text>
+         Gumtree
+
+(c) Copyright ANSTO and others 2017.  All rights reserved.
+Visit https://github.com/Gumtree/gumtree
+
+This product includes software developed by the
+Eclipse Foundation http://www.eclipse.org/
+      </text>
+   </aboutInfo>
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-consoleLog
+      </programArgs>
+      <vmArgs>-Dosgi.locking=none
+-Dorg.eclipse.update.reconcile=false
+-Dlogback.configurationFile=logback.xml
+-Dlogback.logFileLocation=logs
+-Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime
+-Dgumtree.runtime.configBundle=au.gov.ansto.bragg.nbi.workbench
+-Dgumtree.runtime.configEnv.instr=spatz
+-Dgumtree.runtime.configEnv.env=dev
+-Dgumtree.runtime.configEnv.mode=experiment
+-Dgumtree.sics.role=spy
+-Dgumtree.sics.password=007
+-Dgumtree.sics.loginMode=auto
+-Dsun.java2d.d3d=false
+-XX:MaxPermSize=256m
+-Xmx800m
+      </vmArgs>
+      <vmArgsMac>-Xdock:icon=../Resources/Eclipse.icns
+-XstartOnFirstThread
+-Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <windowImages i16="/org.gumtree.app.runtime/images/g-icon_16x16.png" i32="/org.gumtree.app.runtime/images/g-icon_32x32.png" i48="/org.gumtree.app.runtime/images/g-icon_48x48.png" i64="/org.gumtree.app.runtime/images/g-icon_64x64.png" i128="/org.gumtree.app.runtime/images/g-icon_128x128.png"/>
+
+   <splash
+      location="org.gumtree.app.osgi"
+      startupProgressRect="1,280,573,15"
+      startupMessageRect="5,257,571,17"
+      startupForegroundColor="FFFFFF" />
+   <launcher name="gumtree">
+      <macosx icon="/org.gumtree.app.runtime/images/g-icon.icns"/>
+      <win useIco="false">
+         <bmp
+            winSmallHigh="/org.gumtree.app.runtime/images/g-icon_16x16_32-bit.bmp"
+            winSmallLow="/org.gumtree.app.runtime/images/g-icon_16x16_8-bit.bmp"
+            winMediumHigh="/org.gumtree.app.runtime/images/g-icon_32x32_32-bit.bmp"
+            winMediumLow="/org.gumtree.app.runtime/images/g-icon_32x32_8-bit.bmp"
+            winLargeHigh="/org.gumtree.app.runtime/images/g-icon_48x48_32-bit.bmp"
+            winLargeLow="/org.gumtree.app.runtime/images/g-icon_48x48_8-bit.bmp"/>
+      </win>
+   </launcher>
+
+
+   <vm>
+   </vm>
+
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="au.gov.ansto.bragg.spatz.workbench.feature"/>
+   </features>
+
+   <configurations>
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <plugin id="org.gumtree.app.osgi" autoStart="true" startLevel="2" />
+   </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
+
+</product>

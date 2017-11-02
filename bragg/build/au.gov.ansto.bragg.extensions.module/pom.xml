@@ -20,6 +20,7 @@
 		<bilby.path>../../bilby</bilby.path>
 		<dingo.path>../../dingo</dingo.path>
 		<emu.path>../../emu</emu.path>
+		<spatz.path>../../spatz</spatz.path>
 		<banksia.path>../../banksia</banksia.path>
 		<build.path>../../build</build.path>
 	</properties>
@@ -207,6 +208,16 @@
 		<module>${emu.path}/au.gov.ansto.bragg.emu.workbench</module>
 		<module>${emu.path}/au.gov.ansto.bragg.emu.workbench.feature</module>
 		
+		<module>${spatz.path}/au.gov.ansto.bragg.spatz.core</module>
+		<module>${spatz.path}/au.gov.ansto.bragg.spatz.core.feature</module>
+		
+		<module>${spatz.path}/au.gov.ansto.bragg.spatz.server</module>
+		<module>${spatz.path}/au.gov.ansto.bragg.spatz.webserver</module>
+		<module>${spatz.path}/au.gov.ansto.bragg.spatz.webserver.feature</module>
+		
+		<module>${spatz.path}/au.gov.ansto.bragg.spatz.ui</module>
+		<module>${spatz.path}/au.gov.ansto.bragg.spatz.workbench</module>
+		<module>${spatz.path}/au.gov.ansto.bragg.spatz.workbench.feature</module>
 		
 		
 		<module>${banksia.path}/au.gov.ansto.bragg.banksia.core</module>

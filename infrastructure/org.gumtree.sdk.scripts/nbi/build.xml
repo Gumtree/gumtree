@@ -350,6 +350,7 @@
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="bilby" applicationLabel="BilbyWebserver" />
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="dingo" applicationLabel="DingoWebserver" />
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="emu" applicationLabel="EmuWebserver" />
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="spatz" applicationLabel="SpatzWebserver" />
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="banksia" applicationLabel="BanksiaWebserver" />
 	</target>
 
@@ -374,6 +375,7 @@
 		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="bilby" applicationLabel="BilbyWorkbench" />
 		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="dingo" applicationLabel="DingoWorkbench" />
 		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="emu" applicationLabel="EmuWorkbench" />
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="spatz" applicationLabel="SpatzWorkbench" />
 		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="banksia" applicationLabel="BanksiaWorkbench" />
 	</target>
 
@@ -532,6 +534,17 @@
 	</target>
 			
 	<!--
+		Build Spatz Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildSpatzWebserver">
+		<quickBuildApplication applicationType="webserver" applicationName="spatz" applicationLabel="SpatzWebserver" />
+	</target>
+
+	<!--
 		Build Banksia Webserver
 		Paramaters:	
 			exportDirectory 		(predefined)
@@ -671,6 +684,17 @@
 	</target>
 
 	<!--
+		Build Spatz Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildSpatzWorkbench">
+		<quickBuildApplication applicationType="workbench" applicationName="spatz" applicationLabel="SpatzWorkbench" />
+	</target>
+
+	<!--
 		Build Banksia Workbench
 		Paramaters:	
 			exportDirectory 		(predefined)
@@ -772,6 +796,7 @@
 		<buildWin32Installer applicationName="bilby" applicationLabel="Bilby" applicationShortcut="Bilby Workbench" />
 		<buildWin32Installer applicationName="dingo" applicationLabel="Dingo" applicationShortcut="Dingo Workbench" />
 		<buildWin32Installer applicationName="emu" applicationLabel="Emu" applicationShortcut="Emu Workbench" />
+		<buildWin32Installer applicationName="spatz" applicationLabel="Spatz" applicationShortcut="Spatz Workbench" />
 		<buildWin32Installer applicationName="banksia" applicationLabel="Banksia" applicationShortcut="Banksia Workbench" />
 	</target>
 
@@ -788,6 +813,7 @@
 		<buildWin64Installer applicationName="bilby" applicationLabel="Bilby" applicationShortcut="Bilby Workbench" />
 		<buildWin64Installer applicationName="dingo" applicationLabel="Dingo" applicationShortcut="Dingo Workbench" />
 		<buildWin64Installer applicationName="emu" applicationLabel="Emu" applicationShortcut="Emu Workbench" />
+		<buildWin64Installer applicationName="spatz" applicationLabel="Spatz" applicationShortcut="Spatz Workbench" />
 		<buildWin64Installer applicationName="banksia" applicationLabel="Banksia" applicationShortcut="Banksia Workbench" />
 	</target>
 
