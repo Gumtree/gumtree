@@ -7,5 +7,5 @@ Bundle-Activator: au.gov.ansto.bragg.spatz.webserver.Activator
 Bundle-Vendor: ANSTO
 Require-Bundle: au.gov.ansto.bragg.spatz.server;bundle-version="1.13.0",
  au.gov.ansto.bragg.nbi.webserver;bundle-version="1.13.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="au.gov.ansto.bragg.bilby.workbench.BilbyCruisePage">
-   <implementation class="au.gov.ansto.bragg.bilby.workbench.BanksiaCruisePage"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="au.gov.ansto.bragg.spatz.workbench.SpatzCruisePage">
+   <implementation class="au.gov.ansto.bragg.spatz.workbench.SpatzCruisePage"/>
    <service>
       <provide interface="org.gumtree.ui.cruise.ICruisePanelPage"/>
    </service>

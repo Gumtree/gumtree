@@ -8,3 +8,4 @@ Require-Bundle: au.gov.ansto.bragg.banksia.ui;bundle-version="1.12.0",
  au.gov.ansto.bragg.nbi.workbench;bundle-version="1.12.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: au.gov.ansto.bragg.banksia.workbench
