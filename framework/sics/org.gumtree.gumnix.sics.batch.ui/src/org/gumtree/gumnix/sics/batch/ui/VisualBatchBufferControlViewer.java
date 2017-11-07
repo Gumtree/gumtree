@@ -81,17 +81,41 @@ public class VisualBatchBufferControlViewer extends AbstractWorkflowViewerCompon
 	public static final String GUMTREE_FOLDER = "GumtreeOnly";
 	public static final String AUTOSAVE_FOLDER = "AutoSaves";
 	private static final String PROP_SICS_UNIQUE_BATCH_NAME = "gumtree.sics.uniqueBatchName";
+	private static final String PROP_TIME_ESTIMATION_ENABLED = "gumtree.workflow.timeEstimationEnabled";
+	private static final String PROP_NEW_BUTTON_ENABLED = "gumtree.workflow.newButtonEnabled";
+	private static final String PROP_APPEND_BUTTON_ENABLED = "gumtree.workflow.appendButtonEnabled";
+	private static final String PROP_LOAD_BUTTON_ENABLED = "gumtree.workflow.loadButtonEnabled";
 
 	private Label estimationText;
 	protected static String fileDialogPath;
 	private IEventHandler<WorkflowEvent> workfloEventHandler;
 	private IEventHandler<TaskEvent> taskEventHandler;
 	private boolean uniqueBatchName = true;
+	private boolean isTimeEstimationEnabled = true;
+	private boolean isNewButtonEnabed = true;
+	private boolean isAppendButtonEnabed = true;
+	private boolean isLoadButtonEnabed = true;
 
 	public VisualBatchBufferControlViewer(Composite parent, int style) {
 		super(parent, style);
 		try {
 			uniqueBatchName = Boolean.valueOf(System.getProperty(PROP_SICS_UNIQUE_BATCH_NAME));
+		} catch (Exception e) {
+		}
+		try {
+			isTimeEstimationEnabled = Boolean.valueOf(System.getProperty(PROP_TIME_ESTIMATION_ENABLED));
+		} catch (Exception e) {
+		}
+		try {
+			isNewButtonEnabed = Boolean.valueOf(System.getProperty(PROP_NEW_BUTTON_ENABLED));
+		} catch (Exception e) {
+		}
+		try {
+			isAppendButtonEnabed = Boolean.valueOf(System.getProperty(PROP_APPEND_BUTTON_ENABLED));
+		} catch (Exception e) {
+		}
+		try {
+			isLoadButtonEnabed = Boolean.valueOf(System.getProperty(PROP_LOAD_BUTTON_ENABLED));
 		} catch (Exception e) {
 		}
 	}
@@ -106,38 +130,44 @@ public class VisualBatchBufferControlViewer extends AbstractWorkflowViewerCompon
 	protected void createUI() {
 		GridLayoutFactory.swtDefaults().numColumns(6).margins(0, 0).applyTo(this);
 		
-		Group estimationGroup = new Group(this, SWT.NONE);
-		estimationGroup.setBackground(getBackground());
-		GridLayoutFactory.fillDefaults().applyTo(estimationGroup);
-		GridDataFactory.swtDefaults().minSize(150, SWT.DEFAULT).applyTo(estimationGroup);
-//		Label estimationLabel = getToolkit().createLabel(estimationGroup, "Est:");
-//		GridDataFactory.swtDefaults().applyTo(estimationLabel);
-		estimationGroup.setText("Estimation:");
-		estimationText = getToolkit().createLabel(estimationGroup, "-");
-		estimationText.setToolTipText(null);
-		GridDataFactory.swtDefaults().hint(140, SWT.DEFAULT).applyTo(estimationText);
-		/*********************************************************************
-		 * New
-		 *********************************************************************/
-		Button newButton = getToolkit().createButton(this, "Clear", SWT.PUSH);
-		newButton.setToolTipText("Clear current task contents.");
-		newButton.setImage(InternalImage.FILE.getImage());
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(newButton);
-		newButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				int numberOfTasks = getWorkflow().getTasks().size();
-				if (numberOfTasks == 0 || MessageDialog.openConfirm(getShell(), 
-						"Confirm clearing", "Are you sure to clear all the " 
-						+ "tasks?")) {
-					getWorkflowViewer().setWorkflow(WorkflowFactory.createEmptyWorkflow());
+		if (isTimeEstimationEnabled) {
+			Group estimationGroup = new Group(this, SWT.NONE);
+			estimationGroup.setBackground(getBackground());
+			GridLayoutFactory.fillDefaults().applyTo(estimationGroup);
+			GridDataFactory.swtDefaults().minSize(150, SWT.DEFAULT).applyTo(estimationGroup);
+	//		Label estimationLabel = getToolkit().createLabel(estimationGroup, "Est:");
+	//		GridDataFactory.swtDefaults().applyTo(estimationLabel);
+			estimationGroup.setText("Estimation:");
+			estimationText = getToolkit().createLabel(estimationGroup, "-");
+			estimationText.setToolTipText(null);
+			GridDataFactory.swtDefaults().hint(140, SWT.DEFAULT).applyTo(estimationText);
+			
+		}
+		
+		if (isNewButtonEnabed) {
+			/*********************************************************************
+			 * New
+			 *********************************************************************/
+			Button newButton = getToolkit().createButton(this, "Clear", SWT.PUSH);
+			newButton.setToolTipText("Clear current task contents.");
+			newButton.setImage(InternalImage.FILE.getImage());
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(newButton);
+			newButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent e) {
+					int numberOfTasks = getWorkflow().getTasks().size();
+					if (numberOfTasks == 0 || MessageDialog.openConfirm(getShell(), 
+							"Confirm clearing", "Are you sure to clear all the " 
+							+ "tasks?")) {
+						getWorkflowViewer().setWorkflow(WorkflowFactory.createEmptyWorkflow());
+					}
 				}
-			}
-		});
+			});
+		}
 		
 		/*********************************************************************
 		 * Add
 		 *********************************************************************/
-		Button addButton = getToolkit().createButton(this, "Put to Run Queue", SWT.PUSH);
+		Button addButton = getToolkit().createButton(this, "Put to Buffer Queue", SWT.PUSH);
 		addButton.setToolTipText("Put tasks into run queue.");
 		addButton.setImage(InternalImage.QUEUE.getImage());
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(addButton);
@@ -295,46 +325,92 @@ public class VisualBatchBufferControlViewer extends AbstractWorkflowViewerCompon
 //			}
 //		});
 		
-		/*********************************************************************
-		 * Append (routine filled by Norman 17/03/10) to end of workflow
-		 *********************************************************************/
-		Button appendButton = getToolkit().createButton(this, "Append", SWT.PUSH);
-		appendButton.setToolTipText("Load tasks from a file and append them to the end of " +
-				"current tasks.");
-		appendButton.setImage(InternalImage.APPEND.getImage());
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(appendButton);
-		appendButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
- 				if (fileDialogPath == null){
- 					IWorkspace workspace= ResourcesPlugin.getWorkspace();
- 					IWorkspaceRoot root = workspace.getRoot();
- 					dialog.setFilterPath(root.getLocation().toOSString());
- 				}else
- 					dialog.setFilterPath(fileDialogPath);
- 				dialog.setFilterExtensions(new String[]{"*.wml"});
- 				dialog.open();
-				String filePath = dialog.getFilterPath() + "/" + dialog.getFileName();
-				File pickedFile = new File(filePath);
-				if (!pickedFile.exists() || !pickedFile.isFile())
-					return;
-				fileDialogPath = pickedFile.getParent();
-				if (filePath != null) {
-					try {
-						InputStream input = new FileInputStream(filePath);
-						IWorkflow workflow = WorkflowFactory.createWorkflow(input);
-						input.close();
-//						getWorkflowViewer().setWorkflow(workflow);
-						getWorkflow().insertTasks(getWorkflow().getTasks().size(), 
-								workflow.getTasks());
-						refreshUI();
-					} catch (Exception error) {
-						MessageDialog.openError(getShell(), "Error", "Cannot open file " 
-								+ filePath + ": " + error.getLocalizedMessage());
+		if (isAppendButtonEnabed) {
+			/*********************************************************************
+			 * Append (routine filled by Norman 17/03/10) to end of workflow
+			 *********************************************************************/
+			Button appendButton = getToolkit().createButton(this, "Append", SWT.PUSH);
+			appendButton.setToolTipText("Load tasks from a file and append them to the end of " +
+					"current tasks.");
+			appendButton.setImage(InternalImage.APPEND.getImage());
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(appendButton);
+			appendButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent e) {
+					FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
+	 				if (fileDialogPath == null){
+	 					IWorkspace workspace= ResourcesPlugin.getWorkspace();
+	 					IWorkspaceRoot root = workspace.getRoot();
+	 					dialog.setFilterPath(root.getLocation().toOSString());
+	 				}else
+	 					dialog.setFilterPath(fileDialogPath);
+	 				dialog.setFilterExtensions(new String[]{"*.wml"});
+	 				dialog.open();
+					String filePath = dialog.getFilterPath() + "/" + dialog.getFileName();
+					File pickedFile = new File(filePath);
+					if (!pickedFile.exists() || !pickedFile.isFile())
+						return;
+					fileDialogPath = pickedFile.getParent();
+					if (filePath != null) {
+						try {
+							InputStream input = new FileInputStream(filePath);
+							IWorkflow workflow = WorkflowFactory.createWorkflow(input);
+							input.close();
+	//						getWorkflowViewer().setWorkflow(workflow);
+							getWorkflow().insertTasks(getWorkflow().getTasks().size(), 
+									workflow.getTasks());
+							refreshUI();
+						} catch (Exception error) {
+							MessageDialog.openError(getShell(), "Error", "Cannot open file " 
+									+ filePath + ": " + error.getLocalizedMessage());
+						}
 					}
 				}
-			}
-		});
+			});
+		}
+		
+		if (isLoadButtonEnabed) {
+			/*********************************************************************
+			 * Append (routine filled by Norman 17/03/10) to end of workflow
+			 *********************************************************************/
+			Button loadButton = getToolkit().createButton(this, "Load", SWT.PUSH);
+			loadButton.setToolTipText("Load tasks from a file that overwrite the " +
+					"current tasks.");
+			loadButton.setImage(InternalImage.APPEND.getImage());
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(loadButton);
+			loadButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent e) {
+					FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
+	 				if (fileDialogPath == null){
+	 					IWorkspace workspace= ResourcesPlugin.getWorkspace();
+	 					IWorkspaceRoot root = workspace.getRoot();
+	 					dialog.setFilterPath(root.getLocation().toOSString());
+	 				}else
+	 					dialog.setFilterPath(fileDialogPath);
+	 				dialog.setFilterExtensions(new String[]{"*.wml"});
+	 				dialog.open();
+					String filePath = dialog.getFilterPath() + "/" + dialog.getFileName();
+					File pickedFile = new File(filePath);
+					if (!pickedFile.exists() || !pickedFile.isFile())
+						return;
+					fileDialogPath = pickedFile.getParent();
+					if (filePath != null) {
+						try {
+							InputStream input = new FileInputStream(filePath);
+							IWorkflow workflow = WorkflowFactory.createWorkflow(input);
+							input.close();
+							getWorkflowViewer().setWorkflow(workflow);
+//							getWorkflow().insertTasks(getWorkflow().getTasks().size(), 
+//									workflow.getTasks());
+							refreshUI();
+						} catch (Exception error) {
+							MessageDialog.openError(getShell(), "Error", "Cannot open file " 
+									+ filePath + ": " + error.getLocalizedMessage());
+						}
+					}
+				}
+			});
+		}
+		
 		
 		/*********************************************************************
 		 * Print (routine filled by Norman 24/01/11) to end of workflow
@@ -433,6 +509,9 @@ public class VisualBatchBufferControlViewer extends AbstractWorkflowViewerCompon
 	}
 	
 	private void updateEstimation() {
+		if (!isTimeEstimationEnabled) {
+			return;
+		}
 		float time = 0;
 		float counts = 0;
 		for (ITask task : getWorkflow().getTasks()) {

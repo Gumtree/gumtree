@@ -30,5 +30,43 @@
             id="au.gov.ansto.bragg.spatz.ui.TCLRunnerPerspective"
             name="Spatz Experiment"/>
    </extension>
-
+<extension
+         point="org.gumtree.workflow.ui.tasks">
+      <task
+            class="au.gov.ansto.bragg.spatz.ui.tasks.AngleTableTask"
+            colour="DARK_GREEN"
+            icon="icons/tasks/table_row_16x16.png"
+            icon32="icons/tasks/table_row_32x32.png"
+            label="Angle Panel"
+            provider="ANSTO"
+            tags="tcl">
+            <description>
+            A table describing angle options.
+         	</description>
+      </task>
+      <task
+            class="au.gov.ansto.bragg.spatz.ui.tasks.PositionTableTask"
+            colour="DARK_BLUE"
+            icon="icons/tasks/twoDScan_16x16.gif"
+            icon32="icons/tasks/twoDScan_32x32.gif"
+            label="Position Panel"
+            provider="ANSTO"
+            tags="tcl">
+            <description>
+            A table describing sample positions.
+         	</description>
+      </task>
+      <task
+            class="au.gov.ansto.bragg.nbi.ui.tasks.SicsScriptTask"
+            colour="BLUE"
+            icon="icons/tasks/tcl16x16.png"
+            icon32="icons/tasks/tcl32x32.png"
+            label="SICS Script"
+            provider="ANSTO"
+            tags="tcl">
+         <description>
+            This task holds TCL script for SICS.
+         </description>
+      </task>
+   </extension>
 </plugin>

@@ -29,15 +29,22 @@ public class ScriptView extends AbstractSicsCommandView<ScriptCommand> {
 private DataBindingContext bindingContext;
 	
 	private static final int HEIGHT_TEXT = 100;
+	private static final String PROP_TEXT_HEIGHT = "gumtree.workflow.scriptTextHeight";
 	
 	private Text text;
 	
+	
 	@Override
 	public void createPartControl(Composite parent, ScriptCommand command) {
+		int textHeight = HEIGHT_TEXT;
+		try {
+			textHeight = Integer.valueOf(System.getProperty(PROP_TEXT_HEIGHT));
+		} catch (Exception e) {
+		}
 		GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(parent);
 		text = getToolkit().createText(parent, "", SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		text.setToolTipText("Enter script");
-		GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, HEIGHT_TEXT).applyTo(text);
+		GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, textHeight).applyTo(text);
 
 		/*********************************************************************
 		 * Data binding

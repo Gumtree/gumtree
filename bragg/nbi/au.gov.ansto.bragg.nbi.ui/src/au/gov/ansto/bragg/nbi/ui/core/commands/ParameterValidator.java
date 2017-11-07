@@ -40,7 +40,7 @@ public abstract class ParameterValidator {
 		}
 	};
 
-	protected final static ParameterValidator notEmptyValidator = new ParameterValidator() {
+	public final static ParameterValidator notEmptyValidator = new ParameterValidator() {
 		
 		public boolean isValid(String text) {
 			if (text == null || text.trim().length() == 0)
@@ -55,7 +55,7 @@ public abstract class ParameterValidator {
 		}
 	};
 
-	protected final static ParameterValidator integerValidator = new ParameterValidator() {
+	public final static ParameterValidator integerValidator = new ParameterValidator() {
 		
 		public boolean isValid(String text) {
 			if (text == null || text.trim().length() == 0)

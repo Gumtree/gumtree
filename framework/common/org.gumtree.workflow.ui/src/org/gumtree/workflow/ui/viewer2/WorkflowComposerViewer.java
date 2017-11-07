@@ -92,6 +92,9 @@ import com.richclientgui.toolbox.progressIndicator.ImageSequencer;
 
 public class WorkflowComposerViewer extends AbstractWorkflowViewerComponent {
 
+	private static final String PROP_KEEP_EXPANDED = "gumtree.workflow.keepAllExpanded";
+	private static final String PROP_MENU_ENABLED = "gumtree.workflow.menuEnabled";
+	private static final String PROP_TITLE_INDEX = "gumtree.workflow.indexInTitle";
 	private static final Logger logger = LoggerFactory.getLogger(WorkflowComposerViewer.class);
 	private static final String TITLE_CHANGER_DATA = "Title Changer Data";
 	private UIContext c;
@@ -106,11 +109,25 @@ public class WorkflowComposerViewer extends AbstractWorkflowViewerComponent {
 	
 	private boolean isStatusVisable = true;
 	private boolean keepAllExpanded = false;
+	private boolean isMenuEnabled = true;
+	private boolean indexInTitle = true;
 	
 	public WorkflowComposerViewer(Composite parent, int style) {
 		super(parent, style);
 		if ((style & SWT.Hide) > 0) {
 			isStatusVisable = false;
+		}
+		try {
+			keepAllExpanded = Boolean.valueOf(System.getProperty(PROP_KEEP_EXPANDED));
+		} catch (Exception e) {
+		}
+		try {
+			isMenuEnabled = Boolean.valueOf(System.getProperty(PROP_MENU_ENABLED));
+		} catch (Exception e) {
+		}
+		try {
+			indexInTitle = Boolean.valueOf(System.getProperty(PROP_TITLE_INDEX));
+		} catch (Exception e) {
 		}
 	}
 	
@@ -333,26 +350,6 @@ public class WorkflowComposerViewer extends AbstractWorkflowViewerComponent {
 		 * Create task holder
 		 *****************************************************************/
 		tc.group = new MenuBasedGroup(mainArea, SWT.SMOOTH);
-		Menu menu = tc.group.getMenu();
-		MenuItem item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Remove");
-		item.setImage(InternalImage.DELETE.getImage());
-		item.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				getWorkflow().removeTask(task);
-				// TODO: remove task listener
-			}
-		});
-		final MenuItem keepAllExpandedItem = new MenuItem(menu, SWT.PUSH);
-		keepAllExpandedItem.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				setAllExpanded(!keepAllExpanded);
-			}
-
-		});
-		keepAllExpandedItem.setText("Toggle Tasks Expanded/Folded");
-		keepAllExpandedItem.setImage(InternalImage.LIST_SHOWED.getImage());
-
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(tc.group);
 		tc.group.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		tc.group.setFont(c.headerFont);
@@ -369,76 +366,7 @@ public class WorkflowComposerViewer extends AbstractWorkflowViewerComponent {
 		tc.group.setImage(task.getIcon());
 		GridLayoutFactory.swtDefaults().margins(0, 0).spacing(3, 2).applyTo(tc.group);
 		
-//		tc.group.addMouseListener(new MouseAdapter() {
-//			public void mouseDown(MouseEvent e) {
-//				System.out.println("Down");
-//			}
-//		});
-		
-		// Drag support
-		DragSource dragSource = new DragSource(tc.group, DND.DROP_MOVE);
-		dragSource.setTransfer(new Transfer[] { LocalSelectionTransfer.getTransfer() });
-		dragSource.addDragListener(new DragSourceAdapter() {
-			public void dragFinished(DragSourceEvent event) {
-	    		LocalSelectionTransfer.getTransfer().setSelection(null);
-	    	}
-			public void dragSetData(DragSourceEvent event){
-				if (LocalSelectionTransfer.getTransfer().isSupportedType(event.dataType)) {
-					LocalSelectionTransfer.getTransfer().setSelection(new StructuredSelection(task));
-				}
-			}
-		});
-		// Drop support
-		DropTarget dropTarget = new DropTarget(tc.group, DND.DROP_MOVE);
-		dropTarget.setTransfer(new Transfer[] { LocalSelectionTransfer.getTransfer() });
-		dropTarget.addDropListener(new DropTargetAdapter() {
-			public void drop(DropTargetEvent event){
-				if (event.data instanceof IStructuredSelection) {
-					int index = getWorkflow().getTasks().indexOf(task);
-					Point relativePoint = tc.group.toControl(new Point(event.x, event.y));
-					int middlePos = tc.group.getBounds().height / 2;
-					if (relativePoint.y > middlePos) {
-						index = index + 1;
-					}
-					Object selection = ((IStructuredSelection) event.data).getFirstElement();
-					if (selection instanceof ITreeNode) {
-						selection = ((ITreeNode) selection).getOriginalObject();
-					}
-					
-					if (selection instanceof ITaskDescriptor) {
-						try {
-							WorkflowUtils.addNewTask(getWorkflow(), (ITaskDescriptor) selection, index);
-							if (!keepAllExpanded) {
-								for (TaskUIContext tc : taskUIContexts.values()) {
-									if (tc != null && !tc.group.isDisposed()) {
-										tc.group.setExpanded(false);
-									}
-								}
-							}
-//							getWorkflow().insertTask(index, ((ITaskDescriptor) selection).createNewTask());
-						} catch (ObjectCreateException e) {
-							logger.error("Failed to create task.", e);
-						}
-					} else if (selection instanceof ITask) {
-						getWorkflow().setTask(index, (ITask) selection);
-					} else if (selection instanceof IFile) {
-						try{
-							File selectionFile = ((IFile) selection).getLocation().toFile();
-							InputStream input = new FileInputStream(selectionFile);
-							IWorkflow workflow = WorkflowFactory.createWorkflow(input);
-							getWorkflow().insertTasks(index, workflow.getTasks());
-						} catch (Exception e) {
-							LoggerFactory.getLogger(this.getClass()).error(
-									"Cannot open file " + ((File) selection).getAbsolutePath(), e);
-						}
-					}
-					c.form.layout(true, true);
-					c.form.reflow(true);
-					c.form.forceFocus();
-				}
-			}
-		});
-		
+
 		/*****************************************************************
 		 * Create task UI
 		 *****************************************************************/
@@ -451,6 +379,130 @@ public class WorkflowComposerViewer extends AbstractWorkflowViewerComponent {
 			tc.taskView = taskView;
 		} else {
 			createErrorTaskView(groupBody);
+		}
+		
+		if (isMenuEnabled) {
+			Menu menu = tc.group.getMenu();
+			MenuItem item = new MenuItem(menu, SWT.PUSH);
+			item.setText("Remove");
+			item.setImage(InternalImage.DELETE.getImage());
+			item.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent e) {
+					getWorkflow().removeTask(task);
+					// TODO: remove task listener
+				}
+			});
+			final MenuItem keepAllExpandedItem = new MenuItem(menu, SWT.PUSH);
+			keepAllExpandedItem.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent e) {
+					setAllExpanded(!keepAllExpanded);
+				}
+	
+			});
+			keepAllExpandedItem.setText("Toggle Tasks Expanded/Folded");
+			keepAllExpandedItem.setImage(InternalImage.LIST_SHOWED.getImage());
+	
+	//		tc.group.addMouseListener(new MouseAdapter() {
+	//			public void mouseDown(MouseEvent e) {
+	//				System.out.println("Down");
+	//			}
+	//		});
+			
+			// Drag support
+			DragSource dragSource = new DragSource(tc.group, DND.DROP_MOVE);
+			dragSource.setTransfer(new Transfer[] { LocalSelectionTransfer.getTransfer() });
+			dragSource.addDragListener(new DragSourceAdapter() {
+				public void dragFinished(DragSourceEvent event) {
+		    		LocalSelectionTransfer.getTransfer().setSelection(null);
+		    	}
+				public void dragSetData(DragSourceEvent event){
+					if (LocalSelectionTransfer.getTransfer().isSupportedType(event.dataType)) {
+						LocalSelectionTransfer.getTransfer().setSelection(new StructuredSelection(task));
+					}
+				}
+			});
+			// Drop support
+			DropTarget dropTarget = new DropTarget(tc.group, DND.DROP_MOVE);
+			dropTarget.setTransfer(new Transfer[] { LocalSelectionTransfer.getTransfer() });
+			dropTarget.addDropListener(new DropTargetAdapter() {
+				public void drop(DropTargetEvent event){
+					if (event.data instanceof IStructuredSelection) {
+						int index = getWorkflow().getTasks().indexOf(task);
+						Point relativePoint = tc.group.toControl(new Point(event.x, event.y));
+						int middlePos = tc.group.getBounds().height / 2;
+						if (relativePoint.y > middlePos) {
+							index = index + 1;
+						}
+						Object selection = ((IStructuredSelection) event.data).getFirstElement();
+						if (selection instanceof ITreeNode) {
+							selection = ((ITreeNode) selection).getOriginalObject();
+						}
+						
+						if (selection instanceof ITaskDescriptor) {
+							try {
+								WorkflowUtils.addNewTask(getWorkflow(), (ITaskDescriptor) selection, index);
+								if (!keepAllExpanded) {
+									for (TaskUIContext tc : taskUIContexts.values()) {
+										if (tc != null && !tc.group.isDisposed()) {
+											tc.group.setExpanded(false);
+										}
+									}
+								}
+	//							getWorkflow().insertTask(index, ((ITaskDescriptor) selection).createNewTask());
+							} catch (ObjectCreateException e) {
+								logger.error("Failed to create task.", e);
+							}
+						} else if (selection instanceof ITask) {
+							getWorkflow().setTask(index, (ITask) selection);
+						} else if (selection instanceof IFile) {
+							try{
+								File selectionFile = ((IFile) selection).getLocation().toFile();
+								InputStream input = new FileInputStream(selectionFile);
+								IWorkflow workflow = WorkflowFactory.createWorkflow(input);
+								getWorkflow().insertTasks(index, workflow.getTasks());
+							} catch (Exception e) {
+								LoggerFactory.getLogger(this.getClass()).error(
+										"Cannot open file " + ((File) selection).getAbsolutePath(), e);
+							}
+						}
+						c.form.layout(true, true);
+						c.form.reflow(true);
+						c.form.forceFocus();
+					}
+				}
+			});
+
+			// mouse listener
+			tc.group.addMenuDetectListener(new MenuDetectListener() {
+				
+				public void menuDetected(MenuDetectEvent e) {
+					if (keepAllExpanded) {
+						keepAllExpandedItem.setText("Fold All Tasks");
+						keepAllExpandedItem.setImage(InternalImage.CONTEXT_SHOWN.getImage());
+					} else {
+						keepAllExpandedItem.setText("Keep All Tasks Expanded");
+						keepAllExpandedItem.setImage(InternalImage.LIST_SHOWED.getImage());
+					}
+					tc.group.layout();
+				}
+			});
+
+			MenuItem titleChangeItem = new MenuItem(menu, SWT.PUSH);
+			titleChangeItem.setText("Change Title");
+			titleChangeItem.setImage(InternalImage.LOG_SHOWED.getImage());
+			titleChangeItem.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent e) {
+					makeTitleChangerArea(tc, groupBody);
+				}
+			});
+			
+			tc.group.addListener(SWT.MouseUp, new Listener() {
+				public void handleEvent(Event event) {
+					onMouseClick(event, tc);
+				}
+
+			});
+			
 		}
 		
 		/*****************************************************************
@@ -518,27 +570,6 @@ public class WorkflowComposerViewer extends AbstractWorkflowViewerComponent {
 		/*****************************************************************
 		 * Event handling
 		 *****************************************************************/
-		// mouse listener
-		tc.group.addMenuDetectListener(new MenuDetectListener() {
-			
-			public void menuDetected(MenuDetectEvent e) {
-				if (keepAllExpanded) {
-					keepAllExpandedItem.setText("Fold All Tasks");
-					keepAllExpandedItem.setImage(InternalImage.CONTEXT_SHOWN.getImage());
-				} else {
-					keepAllExpandedItem.setText("Keep All Tasks Expanded");
-					keepAllExpandedItem.setImage(InternalImage.LIST_SHOWED.getImage());
-				}
-				tc.group.layout();
-			}
-		});
-		
-		tc.group.addListener(SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {
-				onMouseClick(event, tc);
-			}
-
-		});
 		
 		// mouse listener
 //		tc.group.addListener(SWT.MouseDoubleClick, new Listener() {
@@ -549,15 +580,7 @@ public class WorkflowComposerViewer extends AbstractWorkflowViewerComponent {
 //			}
 //
 //		});
-		MenuItem titleChangeItem = new MenuItem(menu, SWT.PUSH);
-		titleChangeItem.setText("Change Title");
-		titleChangeItem.setImage(InternalImage.LOG_SHOWED.getImage());
-		titleChangeItem.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				makeTitleChangerArea(tc, groupBody);
-			}
-		});
-		
+
 		task.addEventListener(taskEventHandler);
 		return tc;
 	}
@@ -672,7 +695,7 @@ public class WorkflowComposerViewer extends AbstractWorkflowViewerComponent {
 			((AbstractTask) task).setLabel(title);
 			int index = getWorkflow().getTasks().indexOf(tc.taskView.getTask());
 			String titleIndex = "";
-			if (index >= 0) {
+			if (indexInTitle && index >= 0) {
 				titleIndex = String.valueOf(index + 1) + " - ";
 			}
 //			String label = tc.taskView.getTask().getLabel();
@@ -690,7 +713,7 @@ public class WorkflowComposerViewer extends AbstractWorkflowViewerComponent {
 		if (tc != null) {
 			int index = getWorkflow().getTasks().indexOf(tc.taskView.getTask());
 			String titleIndex = "";
-			if (index >= 0) {
+			if (indexInTitle && index >= 0) {
 				titleIndex = String.valueOf(index + 1) + " - ";
 			}
 //			String label = task.getLabel();

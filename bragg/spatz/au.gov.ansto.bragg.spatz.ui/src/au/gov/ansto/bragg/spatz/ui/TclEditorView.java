@@ -15,6 +15,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.gumtree.gumnix.sics.batch.ui.VisualBatchBufferViewer;
+import org.gumtree.workflow.ui.IWorkflow;
+import org.gumtree.workflow.ui.util.WorkflowFactory;
+
+import au.gov.ansto.bragg.nbi.ui.tasks.SicsScriptTask;
+import au.gov.ansto.bragg.spatz.ui.tasks.AngleTableTask;
+import au.gov.ansto.bragg.spatz.ui.tasks.PositionTableTask;
 
 
 
@@ -38,6 +44,15 @@ public class TclEditorView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		viewer = new VisualBatchBufferViewer(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(viewer);
+		IWorkflow workflow = WorkflowFactory.createEmptyWorkflow();
+		AngleTableTask angleTableTask = new AngleTableTask();
+		angleTableTask.loadPreference();
+		workflow.addTask(angleTableTask);
+		PositionTableTask positionTableTask = new PositionTableTask();
+		positionTableTask.loadPreference();
+		workflow.addTask(positionTableTask);
+		workflow.addTask(new SicsScriptTask());
+		viewer.setWorkflow(workflow);
 		viewer.afterParametersSet();
 	}
 
