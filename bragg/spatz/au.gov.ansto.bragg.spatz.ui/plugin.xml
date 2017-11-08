@@ -57,6 +57,18 @@
          	</description>
       </task>
       <task
+            class="au.gov.ansto.bragg.nbi.ui.tasks.SicsBlockTask"
+            colour="DARK_GRAY"
+            icon="icons/tasks/tcl16x16.png"
+            icon32="icons/tasks/tcl32x32.png"
+            label="SICS Command"
+            provider="Bragg Institute"
+            tags="tcl">
+            <description>
+            This task helps to construct a SICS tcl script for batch execution.
+         	</description>
+      </task>
+      <task
             class="au.gov.ansto.bragg.nbi.ui.tasks.SicsScriptTask"
             colour="BLUE"
             icon="icons/tasks/tcl16x16.png"

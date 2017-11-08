@@ -42,7 +42,7 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 		factory.addPerspectiveShortcut(EXPERIMENT_PERSPECTIVE_ID);
 
 		factory.addStandaloneView(SICS_BUFFER_RUNNER_VIEW_ID, false, 
-				IPageLayout.RIGHT, 0.5f, factory.getEditorArea());
+				IPageLayout.RIGHT, 0.6f, factory.getEditorArea());
 		factory.addStandaloneView(SICS_TERMINAL_VIEW_ID, false, 
 				IPageLayout.BOTTOM, 0.75f, SICS_BUFFER_RUNNER_VIEW_ID);
 

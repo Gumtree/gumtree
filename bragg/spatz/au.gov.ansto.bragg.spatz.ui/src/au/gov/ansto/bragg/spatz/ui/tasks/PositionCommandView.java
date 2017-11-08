@@ -159,7 +159,7 @@ public class PositionCommandView extends AbstractScanCommandView {
 		return singleParameterComposite;
 	}
 	
-	private void resetBackground(final Composite composite, Color color, int wait) {
+	private void resetBackground(final Composite composite, final Color color, final int wait) {
 		JobRunner.run(new ILoopExitCondition() {
 			private int count = 0;
 			@Override

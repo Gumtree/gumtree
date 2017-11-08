@@ -121,7 +121,7 @@ public class SidebarActivator implements IStartup {
 		part.getProperties().put("type", "sidebar");
 		partSashContainer.getChildren().add(part);
 		// Set sash weight
-		originalContainer.setContainerData("8000");
-		part.setContainerData("2000");
+		originalContainer.setContainerData("8500");
+		part.setContainerData("1500");
 	}
 }

@@ -112,8 +112,12 @@ public class SicsScriptTask extends CommandBlockTask {
 //					}
 //				});
 //			}
-			Composite innerArea = getToolkit().createComposite(commandsArea);
-			addCommandUI(innerArea, SicsCommandType.SCRIPT, -1);
+			if (getDataModel().getCommands().length == 0) {
+				Composite innerArea = getToolkit().createComposite(commandsArea);
+				addCommandUI(innerArea, SicsCommandType.SCRIPT, -1);
+			} else {
+				reconstructUI(commandsArea);
+			}
 			
 			/*****************************************************************
 			 * UI reconstruction
@@ -224,21 +228,21 @@ public class SicsScriptTask extends CommandBlockTask {
 		}
 
 		// Reconstruct the whole UI
-//		private void reconstructUI(Composite parent) {
-//			for (ISicsCommandElement command : getDataModel().getCommands()) {
-//				Composite commandArea = getToolkit().createComposite(parent);
-//				try {
-//					// Create custom view
-//					ISicsCommandView<? extends ISicsCommandElement> commandView = 
-//						SicsBatchUIUtils.createCommandView(command);
-//					commandView.setTaskView(this);
-//					addCommandUI(commandArea, command, commandView);
-//				} catch (ObjectCreateException e) {
-//					createErrorUI(commandArea, SicsCommandType.getType(command.getClass()));
-//					logger.error("Failed to add command UI.", e);
-//				}
-//			}
-//		}
+		private void reconstructUI(Composite parent) {
+			for (ISicsCommandElement command : getDataModel().getCommands()) {
+				Composite commandArea = getToolkit().createComposite(parent);
+				try {
+					// Create custom view
+					ISicsCommandView<? extends ISicsCommandElement> commandView = 
+						SicsBatchUIUtils.createCommandView(command);
+					commandView.setTaskView(this);
+					addCommandUI(commandArea, command, commandView);
+				} catch (ObjectCreateException e) {
+					createErrorUI(commandArea, SicsCommandType.getType(command.getClass()));
+					logger.error("Failed to add command UI.", e);
+				}
+			}
+		}
 		
 		
 		/*********************************************************************
