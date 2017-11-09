@@ -1,20 +1,6 @@
 var title = "Spatz";
 var batchEnabled = false;
-var timeEstimationEnabled = true;
-var sampleMap = [
-					250,
-					210.500,
-					168.375,
-					126.250,
-					84.125,
-					42.000,
-					-39.750,
-					-81.875,
-					-124.000,
-					-166.125,
-					-208.250,
-					-250
-				];
+var timeEstimationEnabled = false;
 
 function adaptAtt(val) {
 	return String(Math.round(Number(val)));
@@ -54,20 +40,9 @@ function adaptSamNum(text) {
 
 var devices = [
                {"group":"NEUTRON BEAM", 
-            	   "items":[{"classId":"monitor_counts", "deviceId":"monitor_counts", "title":"Monitor", "units":"cts"}, 
-            	            {"classId":"detector_counts", "deviceId":"/instrument/detector/total_counts", "title":"Detector Counts", "units":"c"}, 
-            	            {"classId":"total_detector_rate", "deviceId":"::histogram_memory::ratemap_xy_total", "title":"Tot. Rate on Detector", "units":"c/t", "decimal":2}, 
-            	            {"classId":"xy_max_binrate", "deviceId":"::histogram_memory::ratemap_xy_max_bin", "title":"Max Rate on Pixel", "units":"c/t", "decimal":2}
-            	            ]
-               },
-               {"group":"ATTENUATOR", 
-            	   "items":[{"classId":"att_pos", "deviceId":"att_pos", "title":"att position", "units":"", "decimal":0}
-            	            ]
-               },
-               {"group":"VELOCITY SELECTOR", 
-            	   "items":[{"classId":"vs_pos", "deviceId":"vs_pos", "title":"position", "units":""},
-            	            {"classId":"vs_lambda", "deviceId":"/instrument/nvs067/lambda", "title":"wavelength", "units":"\u212B", "decimal":1},
-            	            {"classId":"vs_speed", "deviceId":"/instrument/nvs067/actspeed", "title":"speed", "units":"rpm", "decimal":1}
+            	   "items":[{"classId":"bm1_counts", "deviceId":"bm1_counts", "title":"Monitor 1", "units":"cts"},
+            		   		{"classId":"bm2_counts", "deviceId":"bm2_counts", "title":"Monitor 2", "units":"cts"}, 
+            	            {"classId":"detector_counts", "deviceId":"/instrument/detector/total_counts", "title":"Detector Counts", "units":"c"}
             	            ]
                },
                {"group":"CHOPPERS", 
@@ -78,32 +53,18 @@ var devices = [
             	            {"classId":"master_chopper_freq", "deviceId":"master_chopper_freq", "title":"master_chopper_frequency", "units":"Hz", "decimal":2}
             	            ]
                },
-               {"group":"DETECTORS", 
-            	   "items":[{"classId":"gs_l1", "deviceId":"gs_l1", "title":"L1", "units":"mm", "decimal":1},
-            	            {"classId":"gs_l2_curtainl", "deviceId":"gs_l2_curtainl", "title":"L2_curtaindet_left", "units":"mm", "decimal":1},
-            	            {"classId":"gs_l2_curtainr", "deviceId":"gs_l2_curtainr", "title":"L2_curtaindet_right", "units":"mm", "decimal":1},
-            	            {"classId":"gs_l2_curtainu", "deviceId":"gs_l2_curtainu", "title":"L2_curtaindet_up", "units":"mm", "decimal":1},
-            	            {"classId":"gs_l2_curtaind", "deviceId":"gs_l2_curtaind", "title":"L2_curtaindet_down", "units":"mm", "decimal":1},
-            	            {"classId":"curtainl", "deviceId":"curtainl", "title":"curtainl", "units":"mm", "decimal":1},
-            	            {"classId":"curtainr", "deviceId":"curtainr", "title":"curtainr", "units":"mm", "decimal":1},
-            	            {"classId":"curtainu", "deviceId":"curtainu", "title":"curtainu", "units":"mm", "decimal":1},
-            	            {"classId":"curtaind", "deviceId":"curtaind", "title":"curtaind", "units":"mm", "decimal":1},
-            	            {"classId":"gs_l2_det", "deviceId":"gs_l2_det", "title":"L2_det", "units":"mm", "decimal":1}
+               {"group":"SLITS", 
+            	   "items":[{"classId":"s2ho", "deviceId":"s2ho", "title":"S2 horizontal opening ", "units":"", "mm":0},
+            		   		{"classId":"s2vo", "deviceId":"s2vo", "title":"S2 vertical opening ", "units":"", "mm":0},
+            		   		{"classId":"s3ho", "deviceId":"s3ho", "title":"S3 horizontal opening ", "units":"", "mm":0},
+            		   		{"classId":"s3vo", "deviceId":"s3vo", "title":"S3 vertical opening ", "units":"", "mm":0},
+            		   		{"classId":"s4ho", "deviceId":"s4ho", "title":"S4 horizontal opening ", "units":"", "mm":0},
+            		   		{"classId":"s4vo", "deviceId":"s4vo", "title":"S4 vertical opening ", "units":"", "mm":0}
             	            ]
                },
-               {"group":"BEAM STOP", 
-            	   "items":[{"classId":"bs3", "deviceId":"bs3", "title":"BS3", "units":"", "adapt":adaptBs},
-            	            {"classId":"bs4", "deviceId":"bs4", "title":"BS4", "units":"", "adapt":adaptBs},
-            	            {"classId":"bs5", "deviceId":"bs5", "title":"BS5", "units":"", "adapt":adaptBs}
-            	            ]
-               },
-               {"group":"SAMPLE", 
-            	   "items":[{"classId":"samplename", "deviceId":"samplename", "title":"Sample Name", "units":""},
-            	            {"classId":"samx", "deviceId":"samx", "title":"Sample Number", "units":"", "adapt":adaptSamNum}
-            	            ]
-               },
-               {"group":"GUIDE", 
-            	   "items":[{"classId":"gs_nguide", "deviceId":"gs_nguide", "title":"Guide Setup", "units":""}
+               {"group":"MONOCHROMATOR", 
+            	   "items":[{"classId":"mom", "deviceId":"mom", "title":"Omega", "units":"deg"},
+            	            {"classId":"stth", "deviceId":"stth", "title":"wavelength", "units":"deg"}
             	            ]
                }
                ];
@@ -119,9 +80,6 @@ var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE&screen_size_x=800";
 
 var histmemTypes = [
                     {"id" : "TOTAL_HISTOGRAM_XY", "text" : "Total x-y histogram", "isDefault" : true},
-                    {"id" : "TOTAL_HISTOGRAM_XT", "text" : "Total x-t histogram"},
-                    {"id" : "TOTAL_HISTOGRAM_YT", "text" : "Total y-t histogram"},
                     {"id" : "TOTAL_HISTOGRAM_X", "text" : "Total x histogram"},
                     {"id" : "TOTAL_HISTOGRAM_Y", "text" : "Total y histogram"},
-                    {"id" : "TOTAL_HISTOGRAM_T", "text" : "Total t histogram"}
                     ];

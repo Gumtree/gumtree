@@ -61,9 +61,34 @@ __sampleMap5__ = {
        6 : -180.000
        }
 
+__sampleMap12__ = {
+       0 : 455.0,
+       1 : 385.0,
+       2 : 315.0,
+       3 : 245.0, 
+       4 : 175.0,
+       5 : 105.0,
+       6 : 35.0,
+       7 : -35.0,
+       8 : -105.0,
+       9 : -175.0,
+       10 : -245.0,
+       11 : -315.0,
+       12 : -385.0,
+       13 : -455.0
+       }
+
+__fixedStage__ = {
+       0 : 100000,
+       1 : 0.0,
+       2 : -100000,
+       }    
+
 __sampleMap__ = {
+                 1: __fixedStage__,
                  5: __sampleMap5__,
-                 10: __sampleMap10__
+                 10: __sampleMap10__,
+                 12: __sampleMap12__
                  }
 
 __sampleNum__ = 10
@@ -127,11 +152,13 @@ def sample(val = None):
     if not val is None :
         if not type(val) is int or not type(val) is float:
             val = float(str(val))
-        if val <=0 or val >= 11:
-            raise Exception, 'sample number not supported, must be within 1 to 10, got ' + str(val)
+        if val <=0 or val > __sampleNum__:
+            raise Exception, 'sample number not supported, must be within 1 to ' + str(__sampleNum__) +', got ' + str(val)
         else:
-#            sics.drive('samx', __sampleMap__[round(val)])
-            sics.drive('samx', __cal_samx__(val))
+            if __sampleNum__ == 1:
+                log('using fixed sample stage, skipped')
+            else:
+                sics.drive('samx', __cal_samx__(val))
     raw = sics.get_raw_value('samx')
     samNum = -1;
     for i in xrange(len(__sampleMap__[__sampleNum__])) :
@@ -536,8 +563,8 @@ def count(mode, dataType, preset, force='true', saveType=saveType.save):
 
 def scan10(sample_position, collect_time, sample_name = None):
     global __sampleMap__, __sampleNum__
-    if sample_position < 1 or sample_position > 10:
-        raise Exception, 'Invalid sample position, scan not run. Choose a position between 1 and 10 inclusive.'
+    if sample_position < 1 or sample_position > __sampleNum__:
+        raise Exception, 'Invalid sample position, scan not run. Choose a position between 1 and ' + str(__sampleNum__) + ' inclusive.'
     else:
         if not sample_name is None:
             sics.execute('samplename ' + str(sample_name), 'scan')
@@ -566,7 +593,7 @@ def scan10(sample_position, collect_time, sample_name = None):
                 is_samx_fixed = False
         except:
             pass
-        if is_samx_fixed :
+        if is_samx_fixed or __sampleNum__ == 1 :
             scan('dummy_motor', 0, 0, 1, scanMode.time, dataType.HISTOGRAM_XYT, collect_time)
         else:
             cur_samx = __sampleMap__[__sampleNum__][sample_position]
