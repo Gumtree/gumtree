@@ -1066,7 +1066,7 @@ class DatasetFactory:
     __prefix__ = ''
     __normalising_factor__ = None
     __path_sep__ = '/'
-    __cache_enabled__ = True
+    __cache_enabled__ = False
     
     def __init__(self, path = None, prefix = None, factor = None):
         if not path is None :
