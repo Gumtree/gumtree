@@ -230,7 +230,9 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.BEAKER.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(sampleGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/detector/stth", "angle", null, null);
+				.addDevice("/instrument/detector/stth", "angle", null, null)
+				.addDevice("/sample/mscor", "mscor", null, null)
+				;
 		sampleGroup.setExpanded(false);
 		deviceStatusWidget.setExpandingEnabled(false);
 		configureWidget(deviceStatusWidget);

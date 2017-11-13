@@ -195,7 +195,7 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 			IMultiMonitorManager mmManager = new MultiMonitorManager();
 			// Attempt to close intro
 			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SICS, 0, 0, mmManager.isMultiMonitorSystem());
-			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
+//			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
 //			try {
 //				activeWorkbenchWindow.getActivePage().showView("org.gumtree.app.workbench.cruisePanel", null, IWorkbenchPage.VIEW_ACTIVATE);
 //			} catch (PartInitException e) {
@@ -205,9 +205,11 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 			
 			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
 				// open new window as editor buffer
-				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_SCRIPTING, 1, true);
+//				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_SCRIPTING, 1, true);
+				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_EXPERIMENT, 1, true);
 			} else {
-				mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
+//				mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
+				mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 1, 1, mmManager.isMultiMonitorSystem());
 			}
 //			// position it
 //			ScriptPageRegister register = new ScriptPageRegister();

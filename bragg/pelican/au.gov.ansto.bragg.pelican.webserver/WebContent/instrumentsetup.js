@@ -9,23 +9,23 @@ var devices = [
             	            {"classId":"ratemap_xy_total", "deviceId":"::histogram_memory::ratemap_xy_total", "title":"Detector Rate", "units":"ct"}
             	            ]
                },
-               {"group":"APERTURE", 
-            	   "items":[{"classId":"sv1", "deviceId":"sv1", "title":"sv1", "units":"mm"},  
-            	            {"classId":"sh1", "deviceId":"sh1", "title":"sh1", "units":"mm"},
-            	            {"classId":"sv2", "deviceId":"sv2", "title":"sv2", "units":"mm"},
-            	            {"classId":"sh2", "deviceId":"sh2", "title":"sh2", "units":"mm"}
-            	            ]
-               },
+//               {"group":"APERTURE", 
+//            	   "items":[{"classId":"sv1", "deviceId":"sv1", "title":"sv1", "units":"mm"},  
+//            	            {"classId":"sh1", "deviceId":"sh1", "title":"sh1", "units":"mm"},
+//            	            {"classId":"sv2", "deviceId":"sv2", "title":"sv2", "units":"mm"},
+//            	            {"classId":"sh2", "deviceId":"sh2", "title":"sh2", "units":"mm"}
+//            	            ]
+//               },
                {"group":"MONOCHROMATOR", 
-            	   "items":[{"classId":"vwi", "deviceId":"vwi", "title":"wavelength", "units":"\u212B"},  
-            	            {"classId":"mom", "deviceId":"mom", "title":"mom", "units":"deg"},
-            	            {"classId":"mtth", "deviceId":"mtth", "title":"mtth", "units":"deg"},
-            	            {"classId":"moma", "deviceId":"moma", "title":"moma", "units":"deg"},
-            	            {"classId":"momb", "deviceId":"momb", "title":"momb", "units":"deg"},
-            	            {"classId":"momc", "deviceId":"momc", "title":"momc", "units":"deg"},
-            	            {"classId":"mra", "deviceId":"mra", "title":"mra", "units":"deg"},
-            	            {"classId":"mrb", "deviceId":"mrb", "title":"mrb", "units":"deg"},
-            	            {"classId":"mrc", "deviceId":"mrc", "title":"mrc", "units":"deg"}
+            	   "items":[{"classId":"vwi", "deviceId":"vwi", "title":"wavelength", "units":"\u212B"}  
+//            	            {"classId":"mom", "deviceId":"mom", "title":"mom", "units":"deg"},
+//            	            {"classId":"mtth", "deviceId":"mtth", "title":"mtth", "units":"deg"},
+//            	            {"classId":"moma", "deviceId":"moma", "title":"moma", "units":"deg"},
+//            	            {"classId":"momb", "deviceId":"momb", "title":"momb", "units":"deg"},
+//            	            {"classId":"momc", "deviceId":"momc", "title":"momc", "units":"deg"},
+//            	            {"classId":"mra", "deviceId":"mra", "title":"mra", "units":"deg"},
+//            	            {"classId":"mrb", "deviceId":"mrb", "title":"mrb", "units":"deg"},
+//            	            {"classId":"mrc", "deviceId":"mrc", "title":"mrc", "units":"deg"}
             	            ]
                },
                {"group":"FERMI CHOPPER", 
