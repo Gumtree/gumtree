@@ -115,6 +115,7 @@ def drive(deviceId, value):
 #                raise e
             if not em.lower().__contains__('time out'):
                 raise e
+            handleInterrupt()
             logger.log('retry driving ' + str(deviceId))
             time.sleep(1)
             while not getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
@@ -338,7 +339,6 @@ def run_command(cmd, use_full_feedback = False):
     return call_back.__status__
 
 def run_command_timeout(cmd, use_full_feedback = False, timeout = None):
-    logger.log('using timeout command')
     call_back = __SICS_Callback__(use_full_feedback)
     SicsCore.getDefaultProxy().send(cmd, call_back)
     acc_time = 0

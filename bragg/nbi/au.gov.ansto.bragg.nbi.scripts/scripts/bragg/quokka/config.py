@@ -4,6 +4,7 @@ from gumpy.commons.logger import log
 # import everything from bragg/quokka/quokka.py
 from bragg.quokka.quokka import *
 
+from org.gumtree.gumnix.sics.control import ServerStatus
 
 class ConfigSystem :
 
@@ -190,8 +191,8 @@ class ConfigSystem :
                 working_voltage = 2100
                 startingValue = getDhv1()
                 if startingValue > safe_voltage:
-                    self.test_dhv1('down')
-                    startingValue = getDhv1()
+#                     self.test_dhv1('down')
+#                     startingValue = getDhv1()
                     log('Driving dhv1 to down ...')
                     sics.execute('dhv1 down')
                     time.sleep(1)
@@ -209,6 +210,7 @@ class ConfigSystem :
                         raise Exception, 'failed to start dropping dhv1'
                     time_count = 0
                     time_out = 600
+                    log('waiting for voltage to drop down')
                     while getDhv1() > safe_voltage and time_count < time_out:
                         time.sleep(0.5)
                         time_count += 0.5
@@ -220,7 +222,7 @@ class ConfigSystem :
                 self.multi_drive()
 
                 ########### below code raise dhv1 and drive guide together ###########
-                self.test_dhv1('up')
+#                 self.test_dhv1('up')
                 startingValue = getDhv1()
                 log('Driving dhv1 to up ...')
                 sics.execute('dhv1 up')
@@ -236,6 +238,7 @@ class ConfigSystem :
                     raise Exception, 'failed to start raising dhv1'
                 time_count = 0
                 time_out = 600
+                log('waiting for voltage to rise up')
                 while getDhv1() < working_voltage and time_count < time_out:
                     time.sleep(0.5)
                     time_count += 0.5
@@ -253,7 +256,7 @@ class ConfigSystem :
                 self.multi_set()
         finally:
             self.clear()
-        while sics.get_status() != 'EAGER TO EXECUTE':
+        while not sics.get_status().equals(ServerStatus.EAGER_TO_EXECUTE) :
             time.sleep(0.3)
         sics.handleInterrupt()
         log('configuration is finished')
