@@ -591,6 +591,10 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						}
 						sessionValue = sessionDb.getSessionValue(sessionId);
 						sourceFilename = currentFileFolder + "/" + sessionValue + ".xml";
+						String proposalId = proposalDb.findProposalId(sessionId);
+						if (proposalId != null) {
+							sessionValue = sessionValue.replace("Page", "P" + proposalId);
+						}
 						targetFilename = sessionValue + "_" + expName + ".pdf";
 					} catch (Exception e) {
 						response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
@@ -604,6 +608,10 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						}
 						sessionValue = sessionDb.getSessionValue(sessionId);
 						sourceFilename = currentFileFolder + "/" + sessionDb.getSessionValue(sessionId) + ".xml";
+						String proposalId = proposalDb.findProposalId(sessionId);
+						if (proposalId != null) {
+							sessionValue = sessionValue.replace("Page", "P" + proposalId);
+						}
 						targetFilename = sessionValue + "_" + expName + ".pdf";
 					} catch (Exception e) {
 						response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
@@ -1192,11 +1200,11 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 							response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "<span style=\"color:red\">Error: your privilege does not allow accessing this page.</span>");
 							return;
 						}
-						String sessionValue = sessionDb.getSessionValue(sessionId);
-						if (!sessionValue.equals(pageId)) {
-							response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "<span style=\"color:red\">Illigal session.</span>");
-							return;
-						}
+//						String sessionValue = sessionDb.getSessionValue(sessionId);
+//						if (!sessionValue.equals(pageId)) {
+//							response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "<span style=\"color:red\">Illigal session.</span>");
+//							return;
+//						}
 						targetFilename = pageId + "_" + extName + ".pdf";
 					} catch (Exception e) {
 						response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());

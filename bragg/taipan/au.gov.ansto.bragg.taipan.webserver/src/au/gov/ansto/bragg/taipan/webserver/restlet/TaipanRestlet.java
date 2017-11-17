@@ -159,15 +159,15 @@ public class TaipanRestlet extends Restlet {
 				            break;
 						}
 					} 
-					if (hAxis.getShortName().equals("ei")) {
-						try {
-							IDataItem vei = ds.getNXroot().getFirstEntry().getGroup("sample").getDataItem("vei_1");
-							if (vei != null) {
-								hAxis = vei;
-							}
-						} catch (Exception e) {
-						}
-					}
+//					if (hAxis.getShortName().equals("ei")) {
+//						try {
+//							IDataItem vei = ds.getNXroot().getFirstEntry().getGroup("sample").getDataItem("vei_1");
+//							if (vei != null) {
+//								hAxis = vei;
+//							}
+//						} catch (Exception e) {
+//						}
+//					}
 					IArray axisArray = hAxis.getData();
 					NXDatasetSeries series = new NXDatasetSeries(lastModifiedFile.getName());
 					series.setData(axisArray, dataArray, dataArray.getArrayMath().toSqrt().getArray());

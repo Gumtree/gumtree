@@ -803,6 +803,9 @@ function getHistoryWord(session, pageId) {
 		    if (pageId != null) {
 		    	fn = pageId;
 		    }
+		    if (proposal != null) {
+		    	fn = fn.replace("Page", "P" + proposal);
+		    }
 		    fn += ".docx";
 		    saveAs(converted, fn);
 		} else {
@@ -822,6 +825,9 @@ function getWord(){
     var fn = title + "_Notebook";
     if (pageId != null) {
     	fn = pageId;
+    }
+    if (proposal != null) {
+    	fn = fn.replace("Page", "P" + proposal);
     }
     fn += ".docx";
     saveAs(converted, fn);
