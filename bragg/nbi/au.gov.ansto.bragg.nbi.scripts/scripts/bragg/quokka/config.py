@@ -69,6 +69,7 @@ class ConfigSystem :
 
     def multi_drive(self):
         if not self.wavelength is None:
+            log('run nvs_lambda ' + str(self.wavelength))
             self.run_nvs_lambda(self.wavelength)
         cmd = 'drive'
         if self.need_drive_det():
@@ -103,8 +104,10 @@ class ConfigSystem :
         while count < timeout :
             try:
                 cur = sics.get_raw_value('nvs_lambda')
-                pre = sics.get_raw_value('nvs_lambda precision')
+#                 pre = sics.get_raw_value('nvs_lambda precision')
+                pre = 0.1
                 if abs(cur - val) < pre:
+                    log('wavelength is ' + str(cur))
                     return True
                 else:
                     time.sleep(interval)
@@ -117,7 +120,6 @@ class ConfigSystem :
         
     def multi_set(self):
         if not self.wavelength is None:
-            log('set wavelength to ' + str(self.wavelength))
             sics.set('/instrument/velocity_selector/wavelength', self.wavelength)
         if not self.wavelength_spread is None:
             log('set wavelength_spread to ' + str(self.wavelength_spread))
