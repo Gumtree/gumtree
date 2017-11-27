@@ -118,8 +118,7 @@ def drive(deviceId, value):
             handleInterrupt()
             logger.log('retry driving ' + str(deviceId))
             time.sleep(1)
-            while not getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-                time.sleep(0.3)
+            wait_until_idle()
             cnt += 1
     if cnt >= 20:
         is_done = False
@@ -131,8 +130,7 @@ def drive(deviceId, value):
             pass
         if not is_done:
             raise Exception, 'timeout to drive ' + str(deviceId) + ' to ' + str(value)
-    while not getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-                time.sleep(0.3)
+    wait_until_idle()
     handleInterrupt()
 
 # Synchronously drive a number of devices to a given value
@@ -143,8 +141,7 @@ def multiDrive(entries):
         drivable = getSicsController().findDeviceController(key)
         runner.addDrivable(drivable, entries[key])
     runner.drive()
-    while not getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-                time.sleep(0.3)
+    wait_until_idle()
     handleInterrupt()
 
 def runbmonscan(scan_variable, scan_start, scan_increment, NP, mode, preset, channel):
@@ -417,7 +414,20 @@ def get_status():
         return controller.getServerStatus()
     else:
         return ServerStatus.UNKNOWN
-    
+
+def wait_until_idle():
+    controller = getSicsController()
+    if not controller is None:
+        cnt = 0
+        while not controller.getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+            time.sleep(0.5)
+            cnt += 0.5
+            if cnt >= 5:
+                controller.refreshServerStatus()
+                cnt = 0
+    else:
+        raise Exception, 'disconnected'
+        
 '''
     Make the system wait until a device reaching a given value.
     

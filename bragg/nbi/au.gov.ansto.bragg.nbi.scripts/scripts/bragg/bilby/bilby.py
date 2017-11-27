@@ -498,8 +498,7 @@ def scan(deviceName, start, stop, numpoints, scanMode, dataType, preset, force='
 
     # wait for instrument ready
     time.sleep(1)
-    while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-        time.sleep(0.1)
+    sics.wait_until_idle()
 
     try:       
         scanController.syncExecute()
@@ -508,8 +507,7 @@ def scan(deviceName, start, stop, numpoints, scanMode, dataType, preset, force='
             raise
         else:
             if sics.getSicsController().getServerStatus().equals(ServerStatus.COUNTING):
-                while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-                    time.sleep(1)
+                sics.wait_until_idle()
             else:
                 raise
 
@@ -540,8 +538,7 @@ def count(mode, dataType, preset, force='true', saveType=saveType.save):
 
     # wait for instrument ready
     time.sleep(1)
-    while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-        time.sleep(0.1)
+    sics.wait_until_idle()
         
     try:       
         scanController.syncExecute()
@@ -550,8 +547,7 @@ def count(mode, dataType, preset, force='true', saveType=saveType.save):
             raise
         else:
             if sics.getSicsController().getServerStatus().equals(ServerStatus.COUNTING):
-                while not sics.getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
-                    time.sleep(1)
+                sics.wait_until_idle()
             else:
                 raise
 
