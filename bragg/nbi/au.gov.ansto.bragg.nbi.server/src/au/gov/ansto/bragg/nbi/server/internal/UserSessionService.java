@@ -30,7 +30,7 @@ public class UserSessionService {
 	public final static String COOKIE_NAME_UUID = "nbi.cookie.uuid";
 	public final static String COOKIE_COMMENT_UUID = "ANSTO NBI experiment uuid";
 	public static final String PROPERTY_INSTRUMENT_ID = "gumtree.instrument.id";
-	public static final int COOKIE_EXP_SECONDS = 3600;
+	public static final int COOKIE_EXP_SECONDS = 3600 * 24;
 	public static final String ID_USER_SESSION_DATABASE = "usession";
 	public static final String ID_SESSION_SERVICE_DATABASE = "session_service";
 	public static final String ID_SESSION_TIME_DATABASE = "session_time";
