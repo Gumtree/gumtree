@@ -123,7 +123,7 @@ def drive(deviceId, value):
     if cnt >= 20:
         is_done = False
         try:
-            cval = controller.getValue()
+            cval = controller.getValue(True)
             if abs(float(value) - cval.getFloatData()) <= controller.getChildController("/precision").getValue().getFloatData():
                 is_done = True;
         except:
