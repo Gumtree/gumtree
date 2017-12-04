@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Control Core
+Bundle-SymbolicName: org.gumtree.control.core
+Bundle-Version: 1.13.0.qualifier
+Bundle-Vendor: ANSTO
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.zeromq.jeromq;bundle-version="4.1.7"
