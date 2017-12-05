@@ -16,6 +16,14 @@
             base-name="/WebContent/playerProductInstall.swf">
       </resource>
       <resource
+            alias="/mobile.html"
+            base-name="/WebContent/mobile.html">
+      </resource>
+      <resource
+            alias="/mobilehistmem.html"
+            base-name="/WebContent/mobilehistmem.html">
+      </resource>
+      <resource
             alias="/history/history.css"
             base-name="/WebContent/history/history.css">
       </resource>
