@@ -134,7 +134,7 @@ var refresh = function(){
 						$("#tclScript").text("--");
 						$("#runningCode").text("--");
 						$("#scriptContent").text("");
-						$("#scriptContent").setSelection(0, 0);
+//						$("#scriptContent").setSelection(0, 0);
 					}
 				} 
 			});

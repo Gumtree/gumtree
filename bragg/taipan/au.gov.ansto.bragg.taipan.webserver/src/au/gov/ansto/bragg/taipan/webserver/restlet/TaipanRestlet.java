@@ -18,7 +18,10 @@ import org.gumtree.vis.dataset.XYErrorDataset;
 import org.gumtree.vis.nexus.dataset.NXDatasetSeries;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.AxisLocation;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.restlet.Request;
@@ -89,9 +92,11 @@ public class TaipanRestlet extends Restlet {
 	private byte[] createPlot(int height, int width) {
 		
 		XYErrorDataset dataset = new XYErrorDataset();
+		XYErrorDataset dataset2 = new XYErrorDataset();
 		dataset.setTitle("Data plot not available");
 		dataset.setXTitle("Scan Variable");
-		dataset.setYTitle("Bean Monitor");
+		dataset.setYTitle("Detector Counts");
+		String yTitle = "Detector Counts";
 
 //		XYErrorSeries series1 = new XYErrorSeries("data");
 //		series1.add(1.0, 1.0, 0.0);
@@ -109,15 +114,21 @@ public class TaipanRestlet extends Restlet {
 
 			File[] files = dir.listFiles();
 			if (files.length > 0) {
-				File lastModifiedFile = files[0];
+				File lastModifiedFile = null;
 				for (int i = 1; i < files.length; i++) {
-					if (files[i].getName().toLowerCase().endsWith(".nx.hdf") && lastModifiedFile.lastModified() < files[i].lastModified() && files[i].isFile()) {
+					if (files[i].getName().toLowerCase().endsWith(".nx.hdf") 
+							&& (lastModifiedFile == null || lastModifiedFile.lastModified() < files[i].lastModified()) 
+							&& files[i].isFile()) {
 						lastModifiedFile = files[i];
 					}
+				}
+				if (lastModifiedFile == null) {
+					throw new Exception("No data is available");
 				}
 				INXDataset ds = null;
 				try {
 					IArray dataArray;
+					IArray monitorArray;
 					ds = NexusUtils.readNexusDataset(lastModifiedFile.toURI());
 					if (ds.getNXroot().getFirstEntry().getGroup("data").getDataItem("total_counts") != null) {
 						dataArray = ds.getNXroot().getFirstEntry().getGroup("data").getDataItem("total_counts").getData();
@@ -126,11 +137,13 @@ public class TaipanRestlet extends Restlet {
 							if (bm1_counts.getSize() > 0) {
 								double avg = bm1_counts.getArrayMath().sum() * 1.0 / bm1_counts.getSize();
 								dataArray = dataArray.getArrayMath().toScale(avg).eltDivide(bm1_counts).getArray();
+								yTitle = "Detector Counts (Normalised)";
 							}
 						}
 					} else {
 						dataArray = ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm2_counts").getData();
 					}
+					monitorArray = ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm1_counts").getData();
 					INXdata data = ds.getNXroot().getFirstEntry().getData();
 					IDataItem hAxis = data.getAxisList().get(0);
 					List<IAxis> axes = data.getAxisList();
@@ -169,12 +182,20 @@ public class TaipanRestlet extends Restlet {
 //						}
 //					}
 					IArray axisArray = hAxis.getData();
-					NXDatasetSeries series = new NXDatasetSeries(lastModifiedFile.getName());
+					NXDatasetSeries series = new NXDatasetSeries("Detector Counts");
 					series.setData(axisArray, dataArray, dataArray.getArrayMath().toSqrt().getArray());
 					dataset.addSeries(series);
 					dataset.setTitle(lastModifiedFile.getName());
 					dataset.setXTitle(hAxis.getShortName());
-					dataset.setYTitle("Detector Counts");
+					dataset.setYTitle(yTitle);
+					
+					dataset2.setTitle("Data plot not available");
+					dataset2.setXTitle("Scan Variable");
+					dataset2.setYTitle("Monitor Counts");
+					NXDatasetSeries series2 = new NXDatasetSeries("Monitor Counts");
+					series2.setData(axisArray, monitorArray, monitorArray.getArrayMath().toSqrt().getArray());
+					dataset2.addSeries(series2);
+					
 				} catch (Exception e) {
 					throw e;
 				} finally {
@@ -191,7 +212,7 @@ public class TaipanRestlet extends Restlet {
 		
 		
 		JFreeChart chart = PlotFactory.createXYErrorChart(dataset);
-		chart.getLegend().setVisible(false);
+		chart.getLegend().setVisible(true);
 		chart.setBackgroundPaint(Color.BLACK);
 		chart.getXYPlot().setBackgroundPaint(Color.DARK_GRAY);
 		chart.getTitle().setPaint(Color.WHITE);
@@ -208,6 +229,20 @@ public class TaipanRestlet extends Restlet {
 			renderer.setSeriesPaint(0, Color.CYAN);
 		}
 		
+        chart.getXYPlot().setDataset(1, dataset2);
+		final NumberAxis rangeAxis2 = new NumberAxis("Monitor Counts");
+        rangeAxis2.setAutoRangeIncludesZero(false);
+        rangeAxis2.setLabelPaint(Color.WHITE);
+        rangeAxis2.setTickLabelPaint(Color.LIGHT_GRAY);
+        rangeAxis2.setTickMarkPaint(Color.LIGHT_GRAY);
+        DefaultXYItemRenderer newRenderer = new DefaultXYItemRenderer();
+        newRenderer.setBaseShapesVisible(false);
+        chart.getXYPlot().setRenderer(1, newRenderer);
+        chart.getXYPlot().setRangeAxis(1, rangeAxis2);
+        chart.getXYPlot().mapDatasetToRangeAxis(1, 1);
+        chart.getXYPlot().setRangeAxisLocation(1, AxisLocation.BOTTOM_OR_RIGHT);
+        rangeAxis2.setVisible(true);
+        
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
 			ChartUtilities.writeChartAsPNG(out, chart, width, height);
