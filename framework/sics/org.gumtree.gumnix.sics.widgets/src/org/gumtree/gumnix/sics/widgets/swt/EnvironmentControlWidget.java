@@ -38,25 +38,25 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 				for (IComponentController item : itemList) {
 					String id = item.getId();
 					String label = id;
-					String units = "";
-					if (id.startsWith("T")) {
-						units = "K";
-					} else if (id.startsWith("P")) {
-						units = "psi";
-					} else if (id.startsWith("B")) {
-						units = "B";
-					} else if (id.startsWith("V")) {
-						units = "V";
-					} else if (id.startsWith("I")) {
-						units = "A";
-					}
+//					String units = "";
+//					if (id.startsWith("T")) {
+//						units = "K";
+//					} else if (id.startsWith("P")) {
+//						units = "psi";
+//					} else if (id.startsWith("B")) {
+//						units = "B";
+//					} else if (id.startsWith("V")) {
+//						units = "V";
+//					} else if (id.startsWith("I")) {
+//						units = "A";
+//					}
 					if (label.contains("SP")) {
 						label = id.replace("SP", " SetPoint");
 					} else if (label.contains("S")) {
 						label = id.replace("S", " Sensor");
 					}
 					try {
-						addDevice(item.getPath(), label, null, units);
+						addDevice(item.getPath(), label, null, null);
 //						addDevice(item.getPath(), label, null, null);
 					} catch (Exception e) {
 						// TODO: handle exception
