@@ -69,5 +69,10 @@ var nsItems = [
                {"classId":"reactorPower", "deviceId":"reactorPower", "title":"Reactor Power", "units":"MW"}
                ];
 
-var histmemUrl = "taipan/rest/plot?height=400&width=600;"
-				+ "dae/rest/image?type=TOTAL_HISTOGRAM_XY&screen_size_x=640&screen_size_y=600";
+var histmemUrl = "taipan/rest/plot1?height=400&width=600;"
+				+ "taipan/rest/plot2?height=400&width=600";
+// dae/rest/image?type=TOTAL_HISTOGRAM_XY&screen_size_x=640&screen_size_y=600
+
+$(document).ready(function (){
+	console.log('ready');
+});
