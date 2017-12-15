@@ -5,4 +5,9 @@ Bundle-SymbolicName: org.gumtree.control.core
 Bundle-Version: 1.13.0.qualifier
 Bundle-Vendor: ANSTO
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.zeromq.jeromq;bundle-version="4.1.7"
+Require-Bundle: org.json;bundle-version="1.0.0",
+ org.zeromq.jeromq;bundle-version="4.1.7"
+Export-Package: org.gumtree.control.core,
+ org.gumtree.control.events,
+ org.gumtree.control.exception,
+ org.gumtree.control.imp

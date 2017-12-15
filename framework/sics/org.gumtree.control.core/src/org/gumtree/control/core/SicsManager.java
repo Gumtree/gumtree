@@ -1,5 +1,7 @@
 package org.gumtree.control.core;
 
+import org.gumtree.control.imp.SicsProxy;
+
 public class SicsManager {
 
 	private static ISicsProxy sicsProxy;
@@ -14,7 +16,7 @@ public class SicsManager {
 	}
 
 	static {
-		
+		sicsProxy = new SicsProxy();
 	}
 	
 	
