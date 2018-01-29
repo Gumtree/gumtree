@@ -13,7 +13,7 @@ package org.gumtree.gumnix.sics.control;
 
 public enum ServerStatus {
 
-	UNKNOWN("UNKNOW"), EAGER_TO_EXECUTE("EAGER TO EXECUTE"), COUNTING("COUNTING"), DRIVING("DRIVING"), WAIT("WAIT"), PAUSED("PAUSED");
+	UNKNOWN("UNKNOW"), EAGER_TO_EXECUTE("EAGER TO EXECUTE"), COUNTING("COUNTING"), DRIVING("DRIVING"), WAIT("WAIT"), PAUSED("PAUSED"), RUNNING_A_SCAN("Running a scan");
 
 	private ServerStatus(String text) {
 		this.text = text;
@@ -36,6 +36,8 @@ public enum ServerStatus {
 			return DRIVING;
 		} else if (message.startsWith("Paused")) {
 			return PAUSED;
+		} else if (message.startsWith("Running a scan")) {
+			return RUNNING_A_SCAN;
 		} else if (message.startsWith("User requested Wait")) {
 			return WAIT;
 		} else {
