@@ -11,4 +11,8 @@ public class SicsModelException extends SicsException {
 		super(message);
 	}
 
+	public SicsModelException(String message, Exception e) {
+		super(message, e);
+	}
+
 }

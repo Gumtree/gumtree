@@ -15,17 +15,23 @@ import org.gumtree.control.exception.SicsException;
  */
 public class SicsProxy implements ISicsProxy {
 
-	private String server;
-	private ISicsChannel generalChannel;
-	private ISicsChannel statusChannel;
-	private ISicsChannel modelChannel;
+	private String serverAddress;
+	private String publisherAddress;
+	private ISicsChannel channel;
 	
 	/* (non-Javadoc)
 	 * @see org.gumtree.control.core.ISicsProxy#connect()
 	 */
 	@Override
-	public boolean connect(String server) {
-		this.server = server;
+	public boolean connect(String serverAddress, String publisherAddress) {
+		this.serverAddress = serverAddress;
+		this.publisherAddress = publisherAddress;
+		channel = new SicsChannel();
+		try {
+			channel.connect(serverAddress, publisherAddress);
+		} catch (Exception e) {
+			return false;
+		}
 		return true;
 	}
 
@@ -34,8 +40,9 @@ public class SicsProxy implements ISicsProxy {
 	 */
 	@Override
 	public void disconnect() {
-		// TODO Auto-generated method stub
-
+		if (channel != null) {
+			channel.disconnect();
+		}
 	}
 
 	/* (non-Javadoc)
@@ -44,16 +51,17 @@ public class SicsProxy implements ISicsProxy {
 	@Override
 	public boolean isConnected() {
 		// TODO Auto-generated method stub
-		return false;
+		return channel.isConnected();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.gumtree.control.core.ISicsProxy#send(java.lang.String, org.gumtree.control.core.ISicsCallback, java.lang.String)
 	 */
 	@Override
-	public void send(String command, ISicsCallback callback, String channelName) throws SicsCommunicationException {
-		// TODO Auto-generated method stub
-
+	public void send(String command, ISicsCallback callback, String channelName) throws SicsException {
+		if (channel != null) {
+			channel.send(command);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -65,4 +73,11 @@ public class SicsProxy implements ISicsProxy {
 		return null;
 	}
 
+	@Override
+	public ISicsChannel getSicsChannel() {
+		// TODO Auto-generated method stub
+		return channel;
+	}
+
+	
 }

@@ -10,4 +10,8 @@ public class SicsException extends Exception {
 	public SicsException(String message) {
 		super(message);
 	}
+
+	public SicsException(String message, Exception e) {
+		super(message, e);
+	}
 }

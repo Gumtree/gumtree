@@ -19,22 +19,59 @@ import org.zeromq.ZMQ;
  */
 public class SicsChannel implements ISicsChannel {
 	
+	public static final String JSON_KEY_STATUS = "status";
 	public static final String JSON_KEY_VALUE = "value";
 	public static final String JSON_KEY_ERROR = "error";
 	public static final String JSON_KEY_FINISHED = "finished";
 	
 	private ZMQ.Context context;
-
-    private ZMQ.Socket socket;
+    private ZMQ.Socket clientSocket;
+    private ZMQ.Socket subscriberSocket;
     
     private boolean isBusy;
     private boolean isConnected;
     
+    private String id;
+    
+    private MessageHandler messageHandler;
+    
 	public SicsChannel() {
-	    context = ZMQ.context(1);
-	    socket = context.socket(ZMQ.REQ);
+	    id = String.valueOf(System.currentTimeMillis());
+	    context = ZMQ.context(2);
+	    clientSocket = context.socket(ZMQ.DEALER);
+	    clientSocket.setIdentity(id.getBytes(ZMQ.CHARSET));
+	    messageHandler = new MessageHandler();
 	}
 	
+	private void subscribe(String publisherAddress) {
+
+		subscriberSocket = context.socket(ZMQ.SUB);
+	    subscriberSocket.connect(publisherAddress);
+	    subscriberSocket.subscribe("".getBytes());
+		
+		Thread subscribeThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				while(true) {
+					String msg = subscriberSocket.recvStr();
+//					System.out.println(msg);
+					JSONObject json;
+					try {
+						json = new JSONObject(msg);
+						messageHandler.process(json);
+					} catch (JSONException e) {
+						e.printStackTrace();
+					} finally {
+						// TODO: handle finally clause
+					}
+				}
+			}
+		});
+		
+		subscribeThread.start();
+	}
+
 	@Override
 	public String send(String command) throws SicsException {
 		if (!isConnected()) {
@@ -43,14 +80,13 @@ public class SicsChannel implements ISicsChannel {
 		isBusy = true;
 		String value = "";
 		try {
-			socket.send(command.getBytes(ZMQ.CHARSET), 0);
+			clientSocket.send(command);
 			boolean isStarted = false;
 			boolean isFinished = false;
 			int count = 0;
 			while (!isStarted && count < SicsStatic.TIMEOUT_COMMAND_START) {
-				byte[] reply = socket.recv(0);
-				if (reply != null) {
-					String received = new String(reply, ZMQ.CHARSET);
+				String received = clientSocket.recvStr();
+				if (received != null) {
 					JSONObject json = null;
 					try {
 						json = new JSONObject(received);	
@@ -74,20 +110,21 @@ public class SicsChannel implements ISicsChannel {
 						}
 					}
 				}
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					throw new SicsInterruptException("interrupted");
+				if (!isStarted) {
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						throw new SicsInterruptException("interrupted");
+					}
+					count += 50;
 				}
-				count += 50;
 			}
 			if (!isStarted) {
 				throw new SicsCommunicationException("failed to send the command");
 			}
 			while (!isFinished) {
-				byte[] reply = socket.recv(0);
-				if (reply != null) {
-					String received = new String(reply, ZMQ.CHARSET);
+				String received = clientSocket.recvStr();
+				if (received != null) {
 					JSONObject json = null;
 					try {
 						json = new JSONObject(received);	
@@ -95,7 +132,7 @@ public class SicsChannel implements ISicsChannel {
 						throw new SicsCommunicationException(received);
 					}
 					if (json != null) {
-						isStarted = true;
+						messageHandler.process(json);
 						try {
 							if (json.has(JSON_KEY_VALUE)) {
 								value = json.get(JSON_KEY_VALUE).toString();
@@ -111,12 +148,14 @@ public class SicsChannel implements ISicsChannel {
 						}
 					}
 				}
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					throw new SicsInterruptException("interrupted");
-				}
+//				try {
+//					Thread.sleep(50);
+//				} catch (InterruptedException e) {
+//					throw new SicsInterruptException("interrupted");
+//				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		} finally {
 			isBusy = false;
 		}
@@ -125,25 +164,25 @@ public class SicsChannel implements ISicsChannel {
 
 	@Override
 	public boolean isConnected() {
-		// TODO Auto-generated method stub
 		return isConnected;
 	}
 
 	@Override
-	public void connect(String server) throws SicsCommunicationException {
-	    socket.connect(server);
+	public void connect(String serverAddress, String publisherAddress) throws SicsCommunicationException {
+	    clientSocket.connect(serverAddress);
+	    subscribe(publisherAddress);
 		isConnected = true;
 	}
 
 	@Override
 	public void disconnect() {
-		socket.close();
+		clientSocket.close();
+		subscriberSocket.close();
         context.term();
 	}
 	
 	@Override
 	public boolean isBusy() {
-		// TODO Auto-generated method stub
 		return isBusy;
 	}
 }
