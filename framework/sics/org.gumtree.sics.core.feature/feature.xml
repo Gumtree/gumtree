@@ -97,4 +97,25 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="org.gumtree.control.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.zeromq.jeromq"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.neilalexander.jnacl"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>

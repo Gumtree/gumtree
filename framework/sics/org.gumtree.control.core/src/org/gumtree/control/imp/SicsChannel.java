@@ -4,6 +4,7 @@
 package org.gumtree.control.imp;
 
 import org.gumtree.control.core.ISicsChannel;
+import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.core.SicsStatic;
 import org.gumtree.control.exception.SicsCommunicationException;
 import org.gumtree.control.exception.SicsException;
@@ -22,6 +23,7 @@ public class SicsChannel implements ISicsChannel {
 	public static final String JSON_KEY_STATUS = "status";
 	public static final String JSON_KEY_VALUE = "value";
 	public static final String JSON_KEY_ERROR = "error";
+	public static final String JSON_KEY_INTERRUPT = "interrupt";
 	public static final String JSON_KEY_FINISHED = "finished";
 	
 	private ZMQ.Context context;
@@ -55,11 +57,11 @@ public class SicsChannel implements ISicsChannel {
 			public void run() {
 				while(true) {
 					String msg = subscriberSocket.recvStr();
-//					System.out.println(msg);
+//					System.out.println("subscribe " + msg);
 					JSONObject json;
 					try {
 						json = new JSONObject(msg);
-						messageHandler.process(json);
+						messageHandler.delayedProcess(json);
 					} catch (JSONException e) {
 						e.printStackTrace();
 					} finally {
@@ -87,26 +89,21 @@ public class SicsChannel implements ISicsChannel {
 			while (!isStarted && count < SicsStatic.TIMEOUT_COMMAND_START) {
 				String received = clientSocket.recvStr();
 				if (received != null) {
-					JSONObject json = null;
-					try {
-						json = new JSONObject(received);	
-					} catch (JSONException e) {
-						throw new SicsCommunicationException(received);
-					}
+					JSONObject json = new JSONObject(received);	
 					if (json != null) {
 						isStarted = true;
-						try {
-							if (json.has(JSON_KEY_VALUE)) {
-								value = json.get(JSON_KEY_VALUE).toString();
-							}
-							if (json.has(JSON_KEY_ERROR)) {
-								throw new SicsExecutionException(json.getString(JSON_KEY_ERROR));
-							}
-							if (json.has(JSON_KEY_FINISHED)) {
-								isFinished = true;
-							}
-						} catch (Exception e) {
-							throw new SicsCommunicationException(e.getMessage());
+						messageHandler.process(json);
+						if (json.has(JSON_KEY_VALUE)) {
+							value = json.get(JSON_KEY_VALUE).toString();
+						}
+						if (json.has(JSON_KEY_INTERRUPT)) {
+							throw new SicsInterruptException("interrupted");
+						}
+						if (json.has(JSON_KEY_ERROR)) {
+							throw new SicsExecutionException(json.getString(JSON_KEY_ERROR));
+						}
+						if (json.has(JSON_KEY_FINISHED)) {
+							isFinished = true;
 						}
 					}
 				}
@@ -126,25 +123,18 @@ public class SicsChannel implements ISicsChannel {
 				String received = clientSocket.recvStr();
 				if (received != null) {
 					JSONObject json = null;
-					try {
-						json = new JSONObject(received);	
-					} catch (JSONException e) {
-						throw new SicsCommunicationException(received);
-					}
+					json = new JSONObject(received);	
 					if (json != null) {
+//						System.out.println("inside command " + json);
 						messageHandler.process(json);
-						try {
-							if (json.has(JSON_KEY_VALUE)) {
-								value = json.get(JSON_KEY_VALUE).toString();
-							}
-							if (json.has(JSON_KEY_ERROR)) {
-								throw new SicsExecutionException(json.getString(JSON_KEY_ERROR));
-							}
-							if (json.has(JSON_KEY_FINISHED)) {
-								isFinished = true;
-							}
-						} catch (Exception e) {
-							throw new SicsCommunicationException(e.getMessage());
+						if (json.has(JSON_KEY_VALUE)) {
+							value = json.get(JSON_KEY_VALUE).toString();
+						}
+						if (json.has(JSON_KEY_ERROR)) {
+							throw new SicsExecutionException(json.getString(JSON_KEY_ERROR));
+						}
+						if (json.has(JSON_KEY_FINISHED)) {
+							isFinished = true;
 						}
 					}
 				}
@@ -154,8 +144,11 @@ public class SicsChannel implements ISicsChannel {
 //					throw new SicsInterruptException("interrupted");
 //				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (JSONException e) {
+			throw new SicsCommunicationException(e.getMessage());
+		} catch (SicsInterruptException e) {
+			SicsManager.getSicsProxy().labelInterruptFlag();
+			throw e;
 		} finally {
 			isBusy = false;
 		}

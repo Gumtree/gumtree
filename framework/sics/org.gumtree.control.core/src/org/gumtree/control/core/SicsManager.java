@@ -11,6 +11,16 @@ public class SicsManager {
 	private static ISicsProxy sicsProxy;
 	private static ISicsModel sicsModel;
 	
+	public static ISicsProxy getSicsProxy(String serverAddress, String publisherAddress) {
+		synchronized (sicsProxy) {
+			if (sicsProxy == null) {
+				sicsProxy = new SicsProxy();
+			}
+			sicsProxy.connect(serverAddress, publisherAddress);
+		}
+		return sicsProxy;
+	}
+	
 	public static ISicsProxy getSicsProxy() {
 		return sicsProxy;
 	}

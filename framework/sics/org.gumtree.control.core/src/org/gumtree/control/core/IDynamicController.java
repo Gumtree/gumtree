@@ -1,15 +1,24 @@
 package org.gumtree.control.core;
 
+import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsModelException;
 
 public interface IDynamicController extends ISicsController {
 
-	public IControllerData getValue() throws SicsModelException;
+	Object getValue() throws SicsModelException;
+	
+	IControllerData getControllerDataValue() throws SicsModelException;
 
-	public void updateValue(String value);
+	void updateModelValue(String value) throws SicsModelException;
 	
-	public void setTargetValue(IControllerData value);
+	void setTargetValue(Object value);
+
+	IControllerData getTargetValue();
 	
-	public IControllerData getTargetValue();
+	boolean commitTargetValue() throws SicsException;
+	
+	boolean isBusy();
+	
+	String getUnits();
 	
 }

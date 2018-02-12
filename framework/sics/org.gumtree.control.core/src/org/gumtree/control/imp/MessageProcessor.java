@@ -4,6 +4,7 @@ import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.PropertyConstants;
 import org.json.JSONObject;
 
@@ -52,7 +53,12 @@ public class MessageProcessor {
 		if (model != null) {
 			ISicsController controller = model.findController(path);
 			if (controller != null && controller instanceof IDynamicController) {
-				((IDynamicController) controller).updateValue(value);
+				try {
+					((IDynamicController) controller).updateModelValue(value);
+				} catch (SicsModelException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}

@@ -6,8 +6,57 @@ public class PropertyConstants {
 	public final static String PROP_UPDATE_PATH = "path";
 	public final static String PROP_UPDATE_VALUE = "value";
 
-	public final static String PROP_TYPE_UPDATE = "UPDATE";
+//	public final static String PROP_TYPE_UPDATE = "UPDATE";
+//	public final static String PROP_TYPE_STATE = "STATE";
+//	public final static String PROP_TYPE_STATUS = "STATUS";
 
+	public enum MessageType{
+		UPDATE("UPDATE"), STATE("STATE"), STATUS("STATUS");
+		
+		private MessageType(String id) {
+			this.id = id;
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public static MessageType getState(String id) {
+			for (MessageType type : values()) {
+				if (type.getId().equals(id)) {
+					return type;
+				}
+			}
+			return null;
+		}
+
+		private String id;
+	}
+	
+	
+	public enum ControllerState{
+		BUSY("BUSY"), IDLE("IDLE"), ERROR("ERROR");
+		
+		private ControllerState(String id) {
+			this.id = id;
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public static ControllerState getState(String id) {
+			for (ControllerState state : values()) {
+				if (state.getId().equals(id)) {
+					return state;
+				}
+			}
+			return null;
+		}
+
+		private String id;
+	}
+	
 	public enum PropertyType {
 		DIM("dim"), PRIVILEGE("privilege"), TYPE("type"), VIEWER("viewer"), SICS_DEV("sicsdev"), RANK("rank");
 

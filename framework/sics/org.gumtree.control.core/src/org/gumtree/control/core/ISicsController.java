@@ -3,6 +3,7 @@ package org.gumtree.control.core;
 import java.util.List;
 
 import org.gumtree.control.events.ISicsControllerListener;
+import org.gumtree.control.model.PropertyConstants.ControllerState;
 
 import ch.psi.sics.hipadaba.Component;
 
@@ -36,4 +37,14 @@ public interface ISicsController {
 	 */
 	String getDeviceId();
 
+	void setErrorMessage(String message);
+	
+	String getErrorMessage();
+	
+	void setState(ControllerState state);
+
+	ControllerState getState();
+	
+	ISicsController getChild(String childName);
+	
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.model.ModelUtils;
+import org.gumtree.control.model.PropertyConstants.ControllerState;
 
 import ch.psi.sics.hipadaba.Component;
 
@@ -14,9 +15,13 @@ public class SicsController implements ISicsController {
 	private Component model;
 	private List<ISicsController> childControllers;
 	private boolean enabled;
+	private String errorMessage;
+	private ControllerState state;
+	private List<ISicsControllerListener> listeners;
 	
 	public SicsController(Component model) {
 		this.model = model;
+		listeners = new ArrayList<ISicsControllerListener>();
 		createChildrenControllers();
 	}
 	
@@ -47,16 +52,30 @@ public class SicsController implements ISicsController {
 
 	@Override
 	public void addControllerListener(ISicsControllerListener listener) {
-		// TODO Auto-generated method stub
-
+		listeners.add(listener);
 	}
 
 	@Override
 	public void removeControllerListener(ISicsControllerListener listener) {
-		// TODO Auto-generated method stub
-
+		listeners.remove(listener);
 	}
 
+	protected List<ISicsControllerListener> getListeners() {
+		return listeners;
+	}
+	
+	protected void fireStateChangeEvent(ControllerState oldState, ControllerState newState) {
+		for (ISicsControllerListener listener : listeners) {
+			listener.updateState(oldState, newState);
+		}
+	}
+	
+	protected void fireEnabedEvent() {
+		for (ISicsControllerListener listener : listeners) {
+			listener.updateEnabled(isEnabled());
+		}
+	}
+	
 	public Component getModel() {
 		return model;
 	}
@@ -68,13 +87,43 @@ public class SicsController implements ISicsController {
 
 	@Override
 	public String getPath() {
-		// TODO Auto-generated method stub
 		return ModelUtils.getPath(model);
 	}
 
 	@Override
 	public String getDeviceId() {
-		// TODO Auto-generated method stub
 		return ModelUtils.getPropertyFirstValue(model, "sicsdev");
+	}
+	
+	@Override
+	public void setErrorMessage(String message) {
+		errorMessage = message;
+	}
+	
+	@Override
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+	
+	@Override
+	public void setState(ControllerState state) {
+		ControllerState oldState = this.state;
+		this.state = state;
+		fireStateChangeEvent(oldState, state);
+	}
+	
+	@Override
+	public ControllerState getState() {
+		return state;
+	}
+
+	@Override
+	public ISicsController getChild(String childName) {
+		for(ISicsController childController : childControllers) {
+			if(childController.getModel().getId().equals(childName)) {
+				return childController;
+			}
+		}
+		return null;
 	}
 }

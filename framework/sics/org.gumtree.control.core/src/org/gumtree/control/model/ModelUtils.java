@@ -19,6 +19,7 @@ import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.imp.CommandController;
 import org.gumtree.control.imp.DriveableController;
 import org.gumtree.control.imp.DynamicController;
+import org.gumtree.control.imp.GroupController;
 import org.gumtree.control.imp.SicsController;
 import org.gumtree.control.model.PropertyConstants.ComponentType;
 import org.gumtree.control.model.PropertyConstants.PropertyType;
@@ -80,14 +81,15 @@ public class ModelUtils {
 	}
 	
 	public static ISicsController createComponentController(Component component) {
-		return (ISicsController) getDefaultAdapter(component, ISicsController.class);
+		ISicsController controller = (ISicsController) getDefaultAdapter(component, ISicsController.class);
+//		System.out.println(controller.getId() + ":" + controller.getClass().getName());
+		return controller;
 	}
 	
 	protected static Object getDefaultAdapter(Object adaptableObject, Class adapterType) {
 		if(adaptableObject instanceof Component && adapterType.equals(ISicsController.class)) {
 			Component component = (Component)adaptableObject;
 //			IComponentController controller = null;
-
 			ComponentType type = getComponentType(component);
 			if (type != null) {
 				if (type.equals(ComponentType.COMMAND)) {
@@ -104,6 +106,7 @@ public class ModelUtils {
 			}
 
 			DataType dataType = component.getDataType();
+//			System.out.println(component.getId() + ":" + type + ":" + dataType);
 			if(dataType != null && !dataType.equals(DataType.NONE_LITERAL)) {
 //				Component parent = getComponentParent(component);
 				// TODO: use type instead of parent id
@@ -113,6 +116,8 @@ public class ModelUtils {
 				return new DynamicController(component);
 				// Testing
 //				return new DynamicController2(component);
+			} else if (dataType != null && component.getComponent().size() > 0) {
+				return new GroupController(component);
 			}
 
 			return new SicsController(component);

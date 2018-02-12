@@ -1,23 +1,13 @@
 package org.gumtree.control.model;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.core.runtime.Assert;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.events.ISicsModelListener;
-import org.w3c.dom.Document;
 
 import ch.psi.sics.hipadaba.Component;
 import ch.psi.sics.hipadaba.SICS;
@@ -139,7 +129,7 @@ public class SicsModel implements ISicsModel {
 	}
 
 	public ISicsController findControllerByPath(String path) {
-		return findComponentController(null, path);
+		return findChildController(null, path);
 	}
 
 	public ISicsController findControllerById(String deviceId) {
@@ -150,7 +140,7 @@ public class SicsModel implements ISicsModel {
 		return null;
 	}
 	
-	public ISicsController findComponentController(ISicsController controller, String relativePath) {
+	public ISicsController findChildController(ISicsController controller, String relativePath) {
 		Assert.isNotNull(relativePath);
 		String[] parts = relativePath.split("/");
 		if(parts.length <= 1) {
@@ -168,7 +158,7 @@ public class SicsModel implements ISicsModel {
 				if(relativePath.length() == 0) {
 					return childController;
 				} else {
-					return findComponentController(childController, relativePath);
+					return findChildController(childController, relativePath);
 				}
 			}
 		}

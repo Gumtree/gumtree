@@ -19,4 +19,7 @@ public interface ISicsModel {
 	ISicsController findControllerById(String deviceId);
 	
 	ISicsController findControllerByPath(String path);
+	
+	ISicsController findChildController(ISicsController controller, String relativePath);
+	
 }
