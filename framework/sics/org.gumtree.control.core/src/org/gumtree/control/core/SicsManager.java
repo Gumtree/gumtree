@@ -30,7 +30,7 @@ public class SicsManager {
 			if (sicsModel == null) {
 				ISicsChannel channel = sicsProxy.getSicsChannel();
 				try {
-					String msg = channel.send("getgumtreexml /");
+					String msg = channel.send("getgumtreexml /", null);
 					if (msg != null) {
 						sicsModel = new SicsModel();
 						sicsModel.loadFromString(msg);

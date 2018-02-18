@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
@@ -15,13 +17,16 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.sdo.EDataGraph;
 import org.eclipse.emf.ecore.sdo.SDOFactory;
 import org.eclipse.emf.ecore.sdo.util.SDOUtil;
+import org.gumtree.control.core.IDriveableController;
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.imp.CommandController;
 import org.gumtree.control.imp.DriveableController;
 import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.imp.GroupController;
 import org.gumtree.control.imp.SicsController;
 import org.gumtree.control.model.PropertyConstants.ComponentType;
+import org.gumtree.control.model.PropertyConstants.Privilege;
 import org.gumtree.control.model.PropertyConstants.PropertyType;
 
 import ch.psi.sics.hipadaba.Component;
@@ -35,6 +40,10 @@ import ch.psi.sics.hipadaba.util.HipadabaResourceFactoryImpl;
 import commonj.sdo.DataObject;
 
 public class ModelUtils {
+
+	private static List<IDriveableController> drivableCache;
+
+	private static List<String> drivableIdCache;
 
 	
 	public static SICS deserialiseSICSModel(byte[] data) throws IOException {
@@ -201,6 +210,11 @@ public class ModelUtils {
 		return null;
 	}
 	
+	public static Privilege getPrivilege(Component component) {
+		return Privilege.getPrivilege(getPropertyFirstValue(component,
+				PropertyType.PRIVILEGE));
+	}
+	
 	public static Component findComponentFromSingleProperty(SICS sics,
 			String propertyId, String propertyValue) {
 		Assert.isNotNull(sics);
@@ -239,5 +253,54 @@ public class ModelUtils {
 		return "";
 	}
 
+	public static List<String> getSicsDrivableIdList() {
+		if (drivableIdCache == null) {
+			// SICS proxy is not yet ready
+			if (SicsManager.getSicsModel() == null) {
+				return new ArrayList<String>(2);
+			}
+			List<String> buffer = new ArrayList<String>();
+			for (IDriveableController controller : getSicsDrivables()) {
+				if (controller.getDeviceId() != null) {
+					buffer.add(controller.getDeviceId());	
+				}
+			}
+			Collections.sort(buffer);
+			drivableIdCache = Collections.unmodifiableList(buffer);
+		}
+		return drivableIdCache;
+	}
 
+	public static String[] getSicsDrivableIds() {
+		return getSicsDrivableIdList().toArray(
+				new String[drivableIdCache.size()]);
+	}
+
+	// Note: this is not thread safe
+		private static IDriveableController[] getSicsDrivables() {
+			if (drivableCache == null) {
+				// SICS proxy is not yet ready
+				if (SicsManager.getSicsModel() == null) {
+					return new IDriveableController[0];
+				}
+				drivableCache = new ArrayList<IDriveableController>();
+				for (ISicsController childController : SicsManager
+						.getSicsModel().getSicsControllers()) {
+					findDrivableControllers(childController, drivableCache);
+				}
+			}
+			return drivableCache.toArray(new IDriveableController[drivableCache
+					.size()]);
+		}
+
+		private static void findDrivableControllers(
+				ISicsController controller, List<IDriveableController> buffer) {
+			if (controller instanceof IDriveableController) {
+				buffer.add((IDriveableController) controller);
+			}
+			for (ISicsController childController : controller
+					.getChildren()) {
+				findDrivableControllers(childController, buffer);
+			}
+		}
 }

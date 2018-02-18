@@ -21,4 +21,6 @@ public interface IDynamicController extends ISicsController {
 	
 	String getUnits();
 	
+	void refreshValue() throws SicsException;
+	
 }

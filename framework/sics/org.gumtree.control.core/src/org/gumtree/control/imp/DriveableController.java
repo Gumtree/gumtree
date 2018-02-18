@@ -2,6 +2,7 @@ package org.gumtree.control.imp;
 
 import org.gumtree.control.core.IDriveableController;
 import org.gumtree.control.core.IDynamicController;
+import org.gumtree.control.core.ISicsCallback;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.exception.SicsException;
@@ -17,16 +18,37 @@ public class DriveableController extends DynamicController implements IDriveable
 
 	@Override
 	public boolean drive() throws SicsException {
+		return commitTargetWithDrive(null);
+	}
+	
+	@Override
+	public boolean drive(double target) throws SicsException {
+		return drive(target, null);
+	}
+
+	@Override
+	public boolean drive(double target, ISicsCallback callback) throws SicsException {
+		setTarget(target);
+		return commitTargetWithDrive(callback);
+	}
+
+	@Override
+	public boolean commitTargetWithDrive(ISicsCallback callback) throws SicsException {
 		setBusy(true);
 		try {
 			SicsManager.getSicsProxy().send("drive " + getDeviceId() + " " 
-					+ getTargetValue().getSicsString(), null);
+					+ getTargetValue().getSicsString(), callback);
 		} finally {
 			setBusy(false);
 		}
-		return false;
+		return true;
 	}
 
+	@Override
+	public boolean commitTargetValue() throws SicsException {
+		return commitTargetWithDrive(null);
+	}
+	
 	@Override
 	public void run() throws SicsException {
 		setBusy(true);
@@ -36,6 +58,12 @@ public class DriveableController extends DynamicController implements IDriveable
 		} finally {
 			setBusy(false);
 		}
+	}
+	
+	@Override
+	public void run(double target) throws SicsException {
+		setTarget(target);
+		run();
 	}
 
 	@Override

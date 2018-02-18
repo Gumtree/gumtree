@@ -41,6 +41,8 @@ public interface ISicsController {
 	
 	String getErrorMessage();
 	
+	void clearError();
+	
 	void setState(ControllerState state);
 
 	ControllerState getState();

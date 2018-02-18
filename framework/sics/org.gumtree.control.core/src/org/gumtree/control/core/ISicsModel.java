@@ -3,6 +3,7 @@ package org.gumtree.control.core;
 import java.io.IOException;
 
 import org.gumtree.control.events.ISicsModelListener;
+import org.gumtree.control.model.ModelStatus;
 
 public interface ISicsModel {
 
@@ -22,4 +23,9 @@ public interface ISicsModel {
 	
 	ISicsController findChildController(ISicsController controller, String relativePath);
 	
+	ISicsController findParentController(ISicsController controller);
+	
+	ISicsController[] getSicsControllers();
+	
+	ModelStatus getStatus();
 }

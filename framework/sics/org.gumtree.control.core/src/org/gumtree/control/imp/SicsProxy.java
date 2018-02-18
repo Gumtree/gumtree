@@ -47,7 +47,7 @@ public class SicsProxy implements ISicsProxy {
 			return false;
 		}
 		try {
-			serverStatus = ServerStatus.parseStatus(channel.send("status"));
+			serverStatus = ServerStatus.parseStatus(channel.send("status", null));
 		} catch (SicsException e) {
 		}
 		fireConnectionEvent(true);
@@ -74,13 +74,18 @@ public class SicsProxy implements ISicsProxy {
 		return channel.isConnected();
 	}
 
+	@Override
+	public String send(String command) throws SicsException {
+		return send(command, null);
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.gumtree.control.core.ISicsProxy#send(java.lang.String, org.gumtree.control.core.ISicsCallback, java.lang.String)
 	 */
 	@Override
 	public String send(String command, ISicsCallback callback) throws SicsException {
 		if (channel != null && channel.isConnected()) {
-			return channel.send(command);
+			return channel.send(command, callback);
 		} else {
 			throw new SicsCommunicationException("not connected");
 		}

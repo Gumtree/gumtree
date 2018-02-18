@@ -1,5 +1,7 @@
 package org.gumtree.control.core;
 
+import org.json.JSONObject;
+
 public interface ISicsCallback {
 
 	/**
@@ -9,7 +11,7 @@ public interface ISicsCallback {
 	 * @param response
 	 *            output from sics in json format
 	 */
-	public void receiveReply(Object data);
+	public void receiveReply(JSONObject data);
 
 	/**
 	 * This method is called from client receives output with tag "ERROR".
@@ -17,7 +19,7 @@ public interface ISicsCallback {
 	 * @param response
 	 *            output from sics in json format
 	 */
-	public void receiveError(Object data);
+	public void receiveError(JSONObject data);
 
 	/**
 	 * This method is called from client receives output with tag "FINISH".
@@ -25,7 +27,7 @@ public interface ISicsCallback {
 	 * @param response
 	 *            output from sics in json format
 	 */
-	public void receiveFinish(Object data);
+	public void receiveFinish(JSONObject data);
 
 	/**
 	 * Returns whether this callback has encountered any error callback.

@@ -1,6 +1,7 @@
 import unittest
 import time
-from org.gumtree.control.core import SicsManager
+from org.gumtree.control.core import SicsManager, ISicsCallback
+from org.gumtree.control.exception import SicsInterruptException
 
 USE_LOCAL_SERVER = True;
 REMOTE_SERVER_ADDRESS = "tcp://ics1-bilby-test.nbi.ansto.gov.au:5555";
@@ -65,6 +66,39 @@ class TestControl(unittest.TestCase):
     def test_get_raw_value(self):
         val = control.get_raw_value('histmem preset')
         self.assertEqual(10, val, "histmem preset 10")
+        
+    def test_drive_interrupt(self):
+        try:
+            self.proxy.send("drive dummy_motor 0 interrupt")
+        except Exception as e:
+            self.assertTrue(isinstance(e, SicsInterruptException), "expecting interrupt exception")
+    
+    def test_callback(self):
+        cb = Callback()
+        self.proxy.send("drive dummy_motor 0", cb)
+        self.assertTrue(cb.replyReceived, "reply received")
+        self.assertTrue(cb.isFinished, "finish received")
+        self.assertTrue(not cb.isError, "no error")
+
+class Callback(ISicsCallback):
+    
+    def __init__(self):
+        self.replyReceived = False
+        self.isFinished = False
+        self.isError = False
+        
+    def receiveReply(self, data):
+        print("reply")
+        self.replyReceived = True
+        
+    def receiveFinish(self, data):
+        print("finish")
+        self.replyReceived = True
+        self.isFinished = True
+        
+    def receiveError(self, data):
+        self.isError = True
+    
         
 def run_test():
     suite = unittest.TestLoader().loadTestsFromTestCase(TestControl)

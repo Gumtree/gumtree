@@ -192,5 +192,14 @@ public class SicsModel implements ISicsModel {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
+	public ISicsController[] getSicsControllers() {
+		return getControllerList().toArray(new ISicsController[getControllerList().size()]);
+	}
+
+	public ModelStatus getStatus() {
+		return ModelStatus.OK;
+	}
 }
 

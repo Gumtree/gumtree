@@ -23,6 +23,8 @@ public class SicsController implements ISicsController {
 		this.model = model;
 		listeners = new ArrayList<ISicsControllerListener>();
 		createChildrenControllers();
+		state = ControllerState.IDLE;
+		enabled = true;
 	}
 	
 	private void createChildrenControllers() {
@@ -103,6 +105,11 @@ public class SicsController implements ISicsController {
 	@Override
 	public String getErrorMessage() {
 		return errorMessage;
+	}
+	
+	@Override
+	public void clearError() {
+		errorMessage = null;
 	}
 	
 	@Override

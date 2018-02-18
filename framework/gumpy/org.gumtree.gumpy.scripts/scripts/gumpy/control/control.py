@@ -2,6 +2,7 @@ from org.gumtree.control.core import SicsManager as manager
 from org.gumtree.control.core import ServerStatus, ISicsCallback
 from org.gumtree.control.events import ISicsControllerListener
 from gumpy.commons import logger
+import os
 
 model = manager.getSicsModel()
 proxy = manager.getSicsProxy()
@@ -102,62 +103,76 @@ class __ControllerEventHandler__(ISicsControllerListener):
     def updateEnabled(self, isEnabled):
         pass
     
-def runbmonscan(scan_variable, scan_start, scan_increment, NP, mode, preset, channel):
-    runscan('bmonscan', scan_variable, scan_start, scan_increment, NP, mode, preset, channel)
-
-def runhmscan(scan_variable, scan_start, scan_increment, NP, mode, preset, channel):
-    runscan('hmscan', scan_variable, scan_start, scan_increment, NP, mode, preset, channel)
-
-def runscan(type, scan_variable, scan_start, scan_increment, NP, mode, preset, channel):
-    # Initialisation
+def bmonscan(scan_variable, scan_start, scan_increment, NP, mode, preset):
     clear_interrupt()
-    scanController = get_controller('/commands/scan/' + type)
-    hset(scanController, '/scan_variable', scan_variable)
-    hset(scanController, '/scan_start', scan_start)
-    hset(scanController, '/scan_increment', scan_increment)
-    hset(scanController, '/NP', NP)
-    hset(scanController, '/mode', mode)
-    hset(scanController, '/preset', preset)
-    hset(scanController, '/channel', channel)
-    
+    controller = get_controller('/commands/scan/bmonscan')
+    p = dict()
+    p['scan_variable'] = scan_variable
+    p['scan_start'] = scan_start
+    p['scan_increment'] = scan_increment
+    p['NP'] = NP
+    p['mode'] = mode
+    p['preset'] = preset
+    __run__(controller, p)
+
+def runhmscan(scan_variable, scan_start, scan_increment, NP, mode, preset):
+    clear_interrupt()
+    controller = get_controller('/commands/scan/hmscan')
+    p = dict()
+    p['scan_variable'] = scan_variable
+    p['scan_start'] = scan_start
+    p['scan_increment'] = scan_increment
+    p['NP'] = NP
+    p['mode'] = mode
+    p['preset'] = preset
+    __run__(controller, p)
+
+def __run__(controller, pars):
     def log_step(old, new):
         if float(new) >= 0:
             logger.log("scan point " + str(new))
         
     listener = __ControllerEventHandler__()
     listener.updateValue = log_step
+    scv = controller.getChild('feedback')
+    if scv :
+        scv = scv.getChild('scan_variable_value')
+    if scv :
+        scv.addControllerListener(listener)
     # Run scan
-    logger.log('Scan started')
-    scanController.run()
-    
-    # Enter into normal sequence
-#     if (timeOut == False):
-#         scanpoint = -1;
-#         scanPointController = sicsController.findComponentController(scanController, '/feedback/scanpoint')
-#         countsController = sicsController.findComponentController(scanController, '/feedback/counts')
-#         logger.log('  NP  ' + '\t' + ' Counts')
-#         while (scanController.getCommandStatus().equals(CommandStatus.BUSY)):
-#             currentPoint = scanPointController.getValue().getIntData()
-#             if ((scanpoint == -1 and  currentPoint == 0) or (scanpoint != -1 and currentPoint != scanpoint)):
-#                 scanpoint = currentPoint
-#                 logger.log('%4d \t %d' % (scanpoint, countsController.getValue().getIntData()))
-#             time.sleep(0.1)
-    logger.log('Scan completed')
+    logger.log('scan started')
+    try :
+        controller.run(pars, None)
+    finally:
+        if scv:
+            scv.removeControllerListener(listener)
+    logger.log('scan completed')
     handle_interrupt()
+    
+def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, force = 'true', savetype = 'save'):
+    # Initialisation
+    clear_interrupt()
+    controller = get_controller('/commands/scan/runscan')
+    p = dict()
+    p['scan_variable'] = scan_variable
+    p['scan_start'] = scan_start
+    p['scan_stop'] = scan_stop
+    p['numpoints'] = numpoints
+    p['mode'] = mode
+    p['preset'] = preset
+    p['force'] = force
+    p['savetype'] = savetype
+    __run__(controller, p)
+
 
 def count(mode, preset):
     # Initialisation
-    countController = get_controller('/commands/monitor/count')
-    hset(countController, '/mode', mode)
-    hset(countController, '/preset', preset)
-    
-    # Run scan
-    logger.log('Count started')
-    countController.run()
-    
-    logger.log('Count completed')
-    # Enter into normal sequence
-    handle_interrupt()
+    clear_interrupt()
+    controller = get_controller('/commands/monitor/count')
+    p = dict()
+    p['mode'] = mode
+    p['preset'] = preset
+    __run__(controller, p)
 
 def interrupt():
     proxy.interrupt()
@@ -175,16 +190,13 @@ def handle_interrupt():
         raise Exception, 'SICS interrupted!'
     
 def histmem(cmd, mode, preset):
-    histmemController = get_controller('/commands/histogram/histmem')
-    hset(histmemController, '/cmd', cmd)
-    hset(histmemController, '/mode', mode)
-    hset(histmemController, '/preset', preset)
-    # start histmem command
-    logger.log(cmd + ' histogram acquisition') 
-    histmemController.run()
-    
-    handle_interrupt()
-    logger.log('Count completed')
+    clear_interrupt()
+    controller = get_controller('/commands/histogram/histmem')
+    p = dict()
+    p['cmd'] = cmd
+    p['mode'] = mode
+    p['preset'] = preset
+    __run__(controller, p)
     
     
 class SicsError(Exception):
@@ -249,8 +261,7 @@ def get_status():
 
 def wait_until_idle():
     if proxy.isConnected() :
-#         cnt = 0
-        while not proxy.getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
+        while not get_status() == ServerStatus.EAGER_TO_EXECUTE:
             time.sleep(0.5)
 #             cnt += 0.5
     else:
@@ -298,12 +309,12 @@ def wait_until_value_reached(device, value, precision = 0.01, timeout_if_not_cha
     while not value_reached:
         if update_count >= update_interval :
             try :
-                new_val = controller.getValue().getFloatData()
+                new_val = controller.getValue()
                 update_count = 0
             except:
-                new_val = controller.getValue().getFloatData()
+                new_val = controller.getValue()
         else:
-            new_val = controller.getValue().getFloatData()
+            new_val = controller.getValue()
         if abs(new_val - value) <= precision :
             value_reached = True
             break

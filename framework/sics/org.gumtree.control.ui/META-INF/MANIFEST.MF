@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Control UI
+Bundle-SymbolicName: org.gumtree.control.ui;singleton:=true
+Bundle-Version: 1.13.0.qualifier
+Bundle-Activator: org.gumtree.control.ui.internal.Activator
+Bundle-Vendor: ANSTO
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.gumtree.control.core;bundle-version="1.13.0",
+ org.slf4j.api;bundle-version="1.6.4",
+ org.gumtree.ui;bundle-version="1.13.0",
+ ch.psi.sics.hipadaba
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Export-Package: org.gumtree.control.ui,
+ org.gumtree.control.ui.viewer

@@ -1,7 +1,11 @@
 package org.gumtree.control.imp;
 
+import java.util.Map;
+
 import org.gumtree.control.core.ICommandController;
+import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsCallback;
+import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.exception.SicsException;
 
@@ -29,6 +33,18 @@ public class CommandController extends GroupController implements ICommandContro
 		return false;
 	}
 
+	@Override
+	public boolean run(Map<String, Object> parameters, ISicsCallback callback) throws SicsException {
+		for (String key : parameters.keySet()) {
+			ISicsController child = getChild(key);
+			if (child instanceof IDynamicController) {
+				((IDynamicController) child).setTargetValue(parameters.get(key));
+				((IDynamicController) child).commitTargetValue();
+			}
+		}
+		return run(callback);
+	}	
+	
 	@Override
 	public boolean isBusy() {
 		return isBusy;

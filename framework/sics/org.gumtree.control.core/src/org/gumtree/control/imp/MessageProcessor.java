@@ -6,6 +6,7 @@ import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.PropertyConstants;
+import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.json.JSONObject;
 
 public class MessageProcessor {
@@ -31,10 +32,15 @@ public class MessageProcessor {
 					
 					break;
 				case STATE:
-					break;
-				case UPDATE:
 					String path = json.get(PropertyConstants.PROP_UPDATE_PATH).toString();
 					String value = json.get(PropertyConstants.PROP_UPDATE_VALUE).toString();
+					if (path != null && value != null) {
+						updateModelState(path, value);
+					}
+					break;
+				case UPDATE:
+					path = json.get(PropertyConstants.PROP_UPDATE_PATH).toString();
+					value = json.get(PropertyConstants.PROP_UPDATE_VALUE).toString();
 					if (path != null && value != null) {
 						updateModelValue(path, value);
 					}
@@ -48,6 +54,21 @@ public class MessageProcessor {
 		}
 	}
 
+	private void updateModelState(String path, String value) {
+		ISicsModel model = SicsManager.getSicsModel();
+		if (model != null) {
+			ISicsController controller = model.findController(path);
+			if (controller != null && controller instanceof IDynamicController) {
+				try {
+					((IDynamicController) controller).setState(ControllerState.getState(value));
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
 	private void updateModelValue(String path, String value) {
 		ISicsModel model = SicsManager.getSicsModel();
 		if (model != null) {
