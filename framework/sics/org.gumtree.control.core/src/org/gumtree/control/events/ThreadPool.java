@@ -5,7 +5,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class ThreadPool {
 
-	private static final int POOL_SIZE = 10;
+	private static final int POOL_SIZE = 1;
 	
 	private ThreadPoolExecutor executor;
 	

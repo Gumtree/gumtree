@@ -16,8 +16,10 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelDecorator;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
@@ -205,26 +207,28 @@ public class ControlViewer {
 		});
 		final TargetEditingSupport editingSupport = new TargetEditingSupport(treeViewer, Column.TARGET.getIndex());
 		targetColumnViewer.setEditingSupport(editingSupport);
+		
 		// Allow edit on double click only
 		treeViewer.getTree().addListener(SWT.MouseDown, new Listener() {
 			public void handleEvent(Event event) {
-				editingSupport.setEnabled(false);
-			}
-		});
-		// Allow edit on double click only
-		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
-			public void doubleClick(DoubleClickEvent event) {
 				editingSupport.setEnabled(true);
-				Object selectedObject = ((IStructuredSelection)event.getSelection()).getFirstElement();
-				// Fix for [GUMTREE-44]
-				// both double click and enter key will trigger the "doubleClick" method
-				// and activate edit on the target value (if editable)
-				treeViewer.editElement(selectedObject, Column.TARGET.getIndex());
-				editingSupport.setEnabled(false);
-//				boolean previousExpandedState = treeViewer.getExpandedState(selectedObject);
-//				treeViewer.setExpandedState(selectedObject, !previousExpandedState);
 			}
 		});
+		
+		// Allow edit on double click only
+//		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
+//			public void doubleClick(DoubleClickEvent event) {
+//				editingSupport.setEnabled(true);
+//				Object selectedObject = ((IStructuredSelection)event.getSelection()).getFirstElement();
+//				// Fix for [GUMTREE-44]
+//				// both double click and enter key will trigger the "doubleClick" method
+//				// and activate edit on the target value (if editable)
+//				treeViewer.editElement(selectedObject, Column.TARGET.getIndex());
+//				editingSupport.setEnabled(false);
+////				boolean previousExpandedState = treeViewer.getExpandedState(selectedObject);
+////				treeViewer.setExpandedState(selectedObject, !previousExpandedState);
+//			}
+//		});
 		
 		TreeColumn targetColumn = targetColumnViewer.getColumn();
 		targetColumn.setText(Column.TARGET.getLabel());
