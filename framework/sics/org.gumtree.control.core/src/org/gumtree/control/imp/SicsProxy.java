@@ -71,7 +71,7 @@ public class SicsProxy implements ISicsProxy {
 	@Override
 	public boolean isConnected() {
 		// TODO Auto-generated method stub
-		return channel.isConnected();
+		return channel != null && channel.isConnected();
 	}
 
 	@Override
@@ -115,6 +115,7 @@ public class SicsProxy implements ISicsProxy {
 	@Override
 	public void setServerStatus(ServerStatus status) {
 		serverStatus = status;
+		fireStatusEvent(status);
 	}
 	
 	@Override
@@ -177,6 +178,12 @@ public class SicsProxy implements ISicsProxy {
 		}
 	}
 
+	private void fireStatusEvent(ServerStatus status) {
+		for (ISicsProxyListener listener : proxyListeners) {
+			listener.setStatus(status);
+		}
+	}
+	
 	@Override
 	public void clearInterruptFlag() {
 		isInterrupted = false;

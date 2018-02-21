@@ -4,6 +4,7 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
+import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
@@ -83,6 +84,11 @@ public abstract class ControlViewerContentProvider implements ITreeContentProvid
 		@Override
 		public void interrupt(boolean isInterrupted) {
 			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void setStatus(ServerStatus newStatus) {
 			
 		}
 	}
