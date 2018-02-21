@@ -6,7 +6,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
-import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.ui.viewer.model.INodeSet;
 import org.slf4j.Logger;

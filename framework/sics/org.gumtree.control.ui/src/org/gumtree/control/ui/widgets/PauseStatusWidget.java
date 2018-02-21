@@ -35,9 +35,9 @@ import org.gumtree.widgets.swt.util.UIResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PauseStatusGadget extends ExtendedWidgetComposite {
+public class PauseStatusWidget extends ExtendedWidgetComposite {
 
-	private static Logger logger = LoggerFactory.getLogger(PauseStatusGadget.class);
+	private static Logger logger = LoggerFactory.getLogger(PauseStatusWidget.class);
 	
 	private Label statusLabel;
 	
@@ -53,7 +53,7 @@ public class PauseStatusGadget extends ExtendedWidgetComposite {
 	
 	private boolean isRequested = false;
 	
-	public PauseStatusGadget(Composite parent, int style) {
+	public PauseStatusWidget(Composite parent, int style) {
 		super(parent, style);
 	}
 
