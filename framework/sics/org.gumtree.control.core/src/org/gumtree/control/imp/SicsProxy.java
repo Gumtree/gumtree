@@ -7,10 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.gumtree.control.core.ISicsCallback;
+import org.gumtree.control.batch.BatchControl;
+import org.gumtree.control.batch.IBatchControl;
 import org.gumtree.control.core.ISicsChannel;
 import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.ServerStatus;
+import org.gumtree.control.events.ISicsCallback;
+import org.gumtree.control.events.ISicsMessageListener;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.exception.SicsCommunicationException;
 import org.gumtree.control.exception.SicsException;
@@ -25,12 +28,16 @@ public class SicsProxy implements ISicsProxy {
 	private String publisherAddress;
 	private ISicsChannel channel;
 	private ServerStatus serverStatus;
+	private IBatchControl batchControl;
 	private boolean isInterrupted;
 	private List<ISicsProxyListener> proxyListeners;
+	private List<ISicsMessageListener> messageListeners;
 	
 	public SicsProxy() {
 		serverStatus = ServerStatus.UNKNOWN;
 		proxyListeners = new ArrayList<ISicsProxyListener>();
+		messageListeners = new ArrayList<ISicsMessageListener>();
+		batchControl = new BatchControl(this);
 	}
 	
 	/* (non-Javadoc)
@@ -47,13 +54,36 @@ public class SicsProxy implements ISicsProxy {
 			return false;
 		}
 		try {
-			serverStatus = ServerStatus.parseStatus(channel.send("status", null));
+			serverStatus = ServerStatus.parseStatus(channel.syncSend("status", null));
 		} catch (SicsException e) {
 		}
+//		try {
+//			batchStatus = BatchStatus.parseStatus(channel.send("exe info", null));
+//		} catch (SicsException e) {
+//		}
 		fireConnectionEvent(true);
 		return true;
 	}
 
+	public boolean reconnect() {
+		channel = new SicsChannel();
+		try {
+			channel.connect(serverAddress, publisherAddress);
+		} catch (Exception e) {
+			return false;
+		}
+		try {
+			serverStatus = ServerStatus.parseStatus(channel.syncSend("status", null));
+		} catch (SicsException e) {
+		}
+//		try {
+//			batchStatus = BatchStatus.parseStatus(channel.send("exe info", null));
+//		} catch (SicsException e) {
+//		}
+		fireConnectionEvent(true);
+		return true;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.gumtree.control.core.ISicsProxy#disconnect()
 	 */
@@ -70,45 +100,42 @@ public class SicsProxy implements ISicsProxy {
 	 */
 	@Override
 	public boolean isConnected() {
-		// TODO Auto-generated method stub
 		return channel != null && channel.isConnected();
 	}
 
 	@Override
-	public String send(String command) throws SicsException {
-		return send(command, null);
+	public String syncRun(String command) throws SicsException {
+		return syncRun(command, null);
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.gumtree.control.core.ISicsProxy#send(java.lang.String, org.gumtree.control.core.ISicsCallback, java.lang.String)
 	 */
 	@Override
-	public String send(String command, ISicsCallback callback) throws SicsException {
+	public String syncRun(String command, ISicsCallback callback) throws SicsException {
 		if (channel != null && channel.isConnected()) {
-			return channel.send(command, callback);
+			return channel.syncSend(command, callback);
 		} else {
 			throw new SicsCommunicationException("not connected");
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.gumtree.control.core.ISicsProxy#syncRun(java.lang.String)
-	 */
 	@Override
-	public String syncRun(String command) throws SicsException {
-		// TODO Auto-generated method stub
-		return null;
+	public void asyncRun(String command, ISicsCallback callback) throws SicsException {
+		if (channel != null && channel.isConnected()) {
+			channel.asyncSend(command, callback);
+		} else {
+			throw new SicsCommunicationException("not connected");
+		}
 	}
-
+	
 	@Override
 	public ISicsChannel getSicsChannel() {
-		// TODO Auto-generated method stub
 		return channel;
 	}
 
 	@Override
 	public ServerStatus getServerStatus() {
-		// TODO Auto-generated method stub
 		return serverStatus;
 	}
 
@@ -126,7 +153,7 @@ public class SicsProxy implements ISicsProxy {
 				Number value = devices.get(key);
 				command += " " + key + " " + value;
 			}
-			send(command, null);
+			syncRun(command, null);
 		}
 		return false;
 	}
@@ -134,7 +161,7 @@ public class SicsProxy implements ISicsProxy {
 	@Override
 	public void interrupt() {
 		try {
-			send("INT1712 3", null);
+			syncRun("INT1712 3", null);
 		} catch (SicsException e) {
 		}
 	}
@@ -188,6 +215,25 @@ public class SicsProxy implements ISicsProxy {
 	public void clearInterruptFlag() {
 		isInterrupted = false;
 		fireInterruptEvent(isInterrupted);
+	}
+
+	@Override
+	public IBatchControl getBatchControl() {
+		return batchControl;
+	}
+
+	public void addMessageListener(ISicsMessageListener listener) {
+		messageListeners.add(listener);
+	}
+	
+	public void removeMessageListener(ISicsMessageListener listener) {
+		messageListeners.remove(listener);
+	}
+	
+	public void fireMessageEvent(String message) {
+		for (ISicsMessageListener listener : messageListeners) {
+			listener.messageReceived(message);
+		}
 	}
 	
 }

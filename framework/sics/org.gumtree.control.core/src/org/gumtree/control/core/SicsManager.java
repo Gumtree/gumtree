@@ -2,6 +2,7 @@ package org.gumtree.control.core;
 
 import java.io.IOException;
 
+import org.gumtree.control.batch.IBatchControl;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.imp.SicsProxy;
 import org.gumtree.control.model.SicsModel;
@@ -11,10 +12,10 @@ public class SicsManager {
 	private static ISicsProxy sicsProxy;
 	private static ISicsModel sicsModel;
 	
-	public static ISicsProxy getSicsProxy(String serverAddress, String publisherAddress) {
-		synchronized (sicsProxy) {
-			if (sicsProxy == null) {
-				sicsProxy = new SicsProxy();
+	public synchronized static ISicsProxy getSicsProxy(String serverAddress, String publisherAddress) {
+		if (serverAddress != null) {
+			if (sicsProxy != null && sicsProxy.isConnected()) {
+				sicsProxy.disconnect();
 			}
 			sicsProxy.connect(serverAddress, publisherAddress);
 		}
@@ -22,15 +23,14 @@ public class SicsManager {
 	}
 	
 	public static ISicsProxy getSicsProxy() {
-		return sicsProxy;
+			return sicsProxy;
 	}
 
 	public static ISicsModel getSicsModel() {
-		synchronized (SicsManager.class) {
 			if (sicsModel == null) {
 				ISicsChannel channel = sicsProxy.getSicsChannel();
 				try {
-					String msg = channel.send("getgumtreexml /", null);
+					String msg = channel.syncSend("getgumtreexml /", null);
 					if (msg != null) {
 						sicsModel = new SicsModel();
 						sicsModel.loadFromString(msg);
@@ -43,8 +43,11 @@ public class SicsManager {
 					e.printStackTrace();
 				}
 			}
-		}
 		return sicsModel;
+	}
+	
+	public static IBatchControl getBatchControl() {
+		return sicsProxy.getBatchControl();
 	}
 
 	static {

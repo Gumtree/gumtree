@@ -81,7 +81,7 @@ public class DynamicController extends SicsController implements IDynamicControl
 	@Override
 	public void refreshValue() throws SicsException {
 		try {
-			SicsManager.getSicsProxy().send("hget " + getPath(), null);
+			SicsManager.getSicsProxy().syncRun("hget " + getPath(), null);
 		} finally {
 			isBusy = false;
 		}
@@ -91,7 +91,7 @@ public class DynamicController extends SicsController implements IDynamicControl
 	public boolean commitTargetValue() throws SicsException {
 		isBusy = true;
 		try {
-			SicsManager.getSicsProxy().send("hset " + getPath() + " " 
+			SicsManager.getSicsProxy().syncRun("hset " + getPath() + " " 
 					+ getTargetValue().getSicsString(), null);
 		} finally {
 			isBusy = false;

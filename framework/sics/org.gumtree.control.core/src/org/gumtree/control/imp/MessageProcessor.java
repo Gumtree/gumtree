@@ -14,7 +14,8 @@ public class MessageProcessor {
 	public enum MessageType{
 		STATUS,
 		STATE,
-		UPDATE
+		UPDATE, 
+		BATCH
 	}
 	
 	public MessageProcessor() {
@@ -33,14 +34,14 @@ public class MessageProcessor {
 					break;
 				case STATE:
 					String path = json.get(PropertyConstants.PROP_UPDATE_PATH).toString();
-					String value = json.get(PropertyConstants.PROP_UPDATE_VALUE).toString();
+					String value = json.get(PropertyConstants.PROP_UPDATE_DATA).toString();
 					if (path != null && value != null) {
 						updateModelState(path, value);
 					}
 					break;
 				case UPDATE:
 					path = json.get(PropertyConstants.PROP_UPDATE_PATH).toString();
-					value = json.get(PropertyConstants.PROP_UPDATE_VALUE).toString();
+					value = json.get(PropertyConstants.PROP_UPDATE_DATA).toString();
 					if (path != null && value != null) {
 						updateModelValue(path, value);
 					}

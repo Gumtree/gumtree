@@ -2,6 +2,10 @@ package org.gumtree.control.core;
 
 import java.util.Map;
 
+import org.gumtree.control.batch.IBatchListener;
+import org.gumtree.control.batch.IBatchControl;
+import org.gumtree.control.events.ISicsCallback;
+import org.gumtree.control.events.ISicsMessageListener;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.exception.SicsException;
 
@@ -10,9 +14,9 @@ public interface ISicsProxy {
 	boolean connect(String serverAddress, String publisherAddress);
 	void disconnect();
 	boolean isConnected();
-	String send(String command) throws SicsException;
-	String send(String command, ISicsCallback callback) throws SicsException;
 	String syncRun(String command) throws SicsException;
+	String syncRun(String command, ISicsCallback callback) throws SicsException;
+	void asyncRun(String command, ISicsCallback callback) throws SicsException;
 	ISicsChannel getSicsChannel();
 	ServerStatus getServerStatus();
 	void setServerStatus(ServerStatus status);
@@ -23,5 +27,9 @@ public interface ISicsProxy {
 	void clearInterruptFlag();
 	void addProxyListener(ISicsProxyListener listener);
 	void removeProxyListener(ISicsProxyListener listener);
-	
+	IBatchControl getBatchControl();
+	void addMessageListener(ISicsMessageListener listener);
+	void removeMessageListener(ISicsMessageListener listener);
+	void fireMessageEvent(String message);
+
 }

@@ -1,6 +1,6 @@
 from org.gumtree.control.core import SicsManager as manager
-from org.gumtree.control.core import ServerStatus, ISicsCallback
-from org.gumtree.control.events import ISicsControllerListener
+from org.gumtree.control.core import ServerStatus
+from org.gumtree.control.events import ISicsControllerListener, ISicsCallback
 from gumpy.commons import logger
 import os
 
@@ -28,7 +28,7 @@ def get_controller(id_or_path):
     return model.findController(id_or_path)
 
 def send_command(command):
-    return proxy.send(command, None)
+    return proxy.syncRun(command)
     
 # Asynchronously execute any (adhoc) SICS command (without feedback)
 def execute(command):
@@ -72,6 +72,33 @@ def run(deviceId, value):
     handle_interrupt()
     logger.log("run " + controller.getPath() + " OK")
 
+def pause(on_or_off = True):
+    flag = None
+    if type(on_or_off) is bool :
+        flag = on_or_off
+    elif type(on_or_off) is int :
+        flag = on_or_off > 0
+    elif type(on_or_off) is str :
+        if on_or_off.lower() == 'on' :
+            flag = True
+        elif on_or_off.lower() == 'off' :
+            flag = False
+    if flag == True :
+        status = get_status()
+        if status != ServerStatus.COUNTING and status != ServerStatus.PAUSED :
+            raise SicsError('pause is only available on COUNTING status')
+        else :
+            execute("pause on")
+            logger.log('pause on')
+    elif flag == False:
+        execute("pause off")
+        logger.log('pause off')
+    else :
+        raise SicsError('illegal argument')
+    
+def unpause():
+    pause(False)
+    
 def is_idle():
     return proxy.getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE)
      

@@ -4,14 +4,17 @@ public class PropertyConstants {
 
 	public final static String PROP_MESSAGE_TYPE = "type";
 	public final static String PROP_UPDATE_PATH = "path";
-	public final static String PROP_UPDATE_VALUE = "value";
+	public final static String PROP_UPDATE_DATA = "data";
+	public final static String PROP_BATCH_NAME = "batch_name";
+	public final static String PROP_BATCH_RANGE = "batch_range";
+	public final static String PROP_BATCH_TEXT = "batch_text";
 
 //	public final static String PROP_TYPE_UPDATE = "UPDATE";
 //	public final static String PROP_TYPE_STATE = "STATE";
 //	public final static String PROP_TYPE_STATUS = "STATUS";
 
 	public enum MessageType{
-		UPDATE("UPDATE"), STATE("STATE"), STATUS("STATUS");
+		UPDATE("UPDATE"), STATE("STATE"), STATUS("STATUS"), BATCH("BATCH");
 		
 		private MessageType(String id) {
 			this.id = id;

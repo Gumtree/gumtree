@@ -15,12 +15,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.gumtree.gumnix.sics.ui.widgets.BMVetoGadget;
-import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
-import org.gumtree.gumnix.sics.widgets.swt.EnvironmentControlWidget;
-import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
-import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget.LabelConverter;
-import org.gumtree.gumnix.sics.widgets.swt.SicsStatusWidget;
+import org.gumtree.control.ui.widgets.ControllerStatusWidget;
+import org.gumtree.control.ui.widgets.ControllerStatusWidget.LabelConverter;
+import org.gumtree.control.ui.widgets.EnvironmentStatusWidget;
+import org.gumtree.control.ui.widgets.PauseStatusWidget;
+import org.gumtree.control.ui.widgets.ServerStatusWidget;
+import org.gumtree.control.ui.widgets.ShutterGroupWidget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
 import org.gumtree.util.messaging.IDelayEventExecutor;
@@ -80,25 +80,27 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		// Shutter Status
 		PGroup shutterGroup = createGroup("SHUTTER STATUS",
 				SharedImage.SHUTTER.getImage());
-		ShutterStatusWidget shutterStatuswidget = new ShutterStatusWidget(
+		ShutterGroupWidget shutterStatuswidget = new ShutterGroupWidget(
 				shutterGroup, SWT.NONE);
 		configureWidget(shutterStatuswidget);
+		shutterStatuswidget.render();
 
 		// SICS status
 		PGroup statusGroup = createGroup("SERVER STATUS", null);
-		SicsStatusWidget statusWidget = new SicsStatusWidget(statusGroup,
+		ServerStatusWidget statusWidget = new ServerStatusWidget(statusGroup,
 				SWT.NONE);
 		ContextInjectionFactory.inject(statusWidget, getEclipseContext());
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(statusWidget);
+		statusWidget.render();
 
 		// Pause Counter
 		PGroup pauseGroup = createGroup("PAUSE COUNTING", null);
-		BMVetoGadget pauseStatuswidget = new BMVetoGadget(
+		PauseStatusWidget pauseStatuswidget = new PauseStatusWidget(
 				pauseGroup, SWT.NONE);
 		configureWidget(pauseStatuswidget);
+		pauseStatuswidget.render();
 		
-		DeviceStatusWidget deviceStatusWidget;
 //		// Beam monitor 1
 //		PGroup bm1Group = createGroup("BEAM MONITOR 1", null);
 //
@@ -168,7 +170,7 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		if (isBfMode) {
 			PGroup detectorGroup = createGroup("BEAM MONITOR",
 					SharedImage.MONITOR.getImage());
-			final DeviceStatusWidget detectorStatusWidget = new DeviceStatusWidget(detectorGroup, SWT.NONE);
+			final ControllerStatusWidget detectorStatusWidget = new ControllerStatusWidget(detectorGroup, SWT.NONE);
 			detectorStatusWidget
 					.addDevice("/monitor/bm1_counts", "Monitor Total", null, "")
 					.addDevice("/instrument/detector/total_counts", "Raw Detector Total", null, "")
@@ -201,41 +203,45 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 					})
 					;
 			configureWidget(detectorStatusWidget);
+			detectorStatusWidget.render();
 			detectorGroup.setExpanded(true);
 		} else {
 			// Monitor Event Rate
 			PGroup monitorGroup = createGroup("BEAM MONITOR",
 					SharedImage.MONITOR.getImage());
 			CounterMeterWidget meterWidget = new CounterMeterWidget(monitorGroup, SWT.NONE);
-			deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
-			deviceStatusWidget
+			ControllerStatusWidget bmStatusWidget = new ControllerStatusWidget(monitorGroup, SWT.NONE);
+			bmStatusWidget
 					.addDevice("/monitor/bm1_counts", "Monitor Total", null, "")
 					.addDevice("/monitor/bm2_counts", "Detector Total", null, "")
 					.addDevice("/monitor/time", "Time Counted", null, "sec")
 					;
 			configureWidget(meterWidget);
-			configureWidget(deviceStatusWidget);
+			configureWidget(bmStatusWidget);
+			bmStatusWidget.render();
 			monitorGroup.setExpanded(true);
 		}
 		
 		// INSTRUMENT
 		PGroup instrumentGroup = createGroup("INSTRUMENT",
 				SharedImage.MONOCHROMATOR.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(instrumentGroup, SWT.NONE);
-		deviceStatusWidget
+//		deviceStatusWidget = new DeviceStatusWidget(instrumentGroup, SWT.NONE);
+		ControllerStatusWidget controllerWidget = new ControllerStatusWidget(instrumentGroup, SWT.NONE);
+		controllerWidget
 		.addDevice("/instrument/crystal/m1", "m1", null, "")
 		.addDevice("/instrument/crystal/m2", "m2", null, "")
 		.addDevice("/sample/s1", "s1", null, "")
 		.addDevice("/sample/s2", "s2", null, "")
 		.addDevice("/instrument/crystal/a1", "a1", null, "")
 		.addDevice("/instrument/detector/a2", "a2", null, "");
-		configureWidget(deviceStatusWidget);
+		configureWidget(controllerWidget);
+		controllerWidget.render();
 		
 		// Virtual
 		PGroup virtualParaGroup = createGroup("VIRTUAL PARAMETERS",
 				SharedImage.CRADLE.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(virtualParaGroup, SWT.NONE);
-		deviceStatusWidget
+		ControllerStatusWidget paramStatusWidget = new ControllerStatusWidget(virtualParaGroup, SWT.NONE);
+		paramStatusWidget
 		.addDevice("/sample/ei", "ei", null, "")
 		.addDevice("/sample/ef", "ef", null, "")
 		.addDevice("/sample/en", "en", null, "")
@@ -243,7 +249,8 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		.addDevice("/sample/qk", "qk", null, "")
 		.addDevice("/sample/ql", "ql", null, "")
 		.addDevice("/sample/qm", "qm", null, "");
-		configureWidget(deviceStatusWidget);
+		configureWidget(paramStatusWidget);
+		paramStatusWidget.render();
 		
 		// Furnace Temp
 //		PGroup furnaceGroup = createGroup("FURNACE TEMPERATURE",
@@ -287,8 +294,8 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 		// Scan status
 		PGroup scanGroup = createGroup("SCAN STATUS",
 				SharedImage.EXPERIMENT_STATUS.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(scanGroup, SWT.NONE);
-		deviceStatusWidget.addDevice("/commands/scan/bmonscan/scan_variable", "variable", null, "")
+		ControllerStatusWidget scanStatusWidget = new ControllerStatusWidget(scanGroup, SWT.NONE);
+		scanStatusWidget.addDevice("/commands/scan/bmonscan/scan_variable", "variable", null, "")
 				.addDevice("/commands/scan/bmonscan/feedback/scan_variable_value", "value", null, "")
 				.addDevice("/experiment/currpoint", "scanpoint", null, "")
 				.addDevice("/experiment/file_name", "filename", null, "", new LabelConverter() {
@@ -305,23 +312,14 @@ public class TaipanCruisePageWidget extends AbstractCruisePageWidget {
 						return text;
 					}
 				});
-		configureWidget(deviceStatusWidget);
+		configureWidget(scanStatusWidget);
+		scanStatusWidget.render();
 		
 		PGroup tempControlGroup = createGroup("ENVIRONMENT CONTROLLERS",
 				SharedImage.FURNACE.getImage());
-//		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
-//		deviceStatusWidget
-//				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A-T/C",
-//						SharedImage.A.getImage(), null)
-//				.addDevice("/sample/tc1/sensor/sensorValueB", "TC1B-T/C",
-//						SharedImage.B.getImage(), null)
-//				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C-T/C",
-//						SharedImage.C.getImage(), null)
-//				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D-T/C",
-//						SharedImage.D.getImage(), null);
-		EnvironmentControlWidget controlWidget = new EnvironmentControlWidget(tempControlGroup, SWT.NONE);
+		EnvironmentStatusWidget controlWidget = new EnvironmentStatusWidget(tempControlGroup, SWT.NONE);
 		configureWidget(controlWidget);
-
+		controlWidget.render();
 	}
 
 	@Override

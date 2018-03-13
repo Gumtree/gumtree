@@ -170,22 +170,10 @@ public class PauseStatusWidget extends ExtendedWidgetComposite {
 	
 	private void updateUI(ServerStatus status) {
 		if (buttonLabel != null && !buttonLabel.isDisposed()) {
+			ISicsProxy proxy = SicsManager.getSicsProxy();
+			final ServerStatus curStatus = status != null ? status : proxy.getServerStatus();
 			SafeUIRunner.asyncExec(new SafeRunnable() {
 				public void run() throws Exception {
-					if (isDisposed() || buttonLabel == null) {
-						return;
-					}
-					ISicsProxy proxy = SicsManager.getSicsProxy();
-					if (proxy == null || !proxy.isConnected()) {
-						buttonLabel.setEnabled(false);
-						return;
-					}
-					ServerStatus curStatus;
-					if (status != null) {
-						curStatus = status;
-					} else {
-						curStatus = proxy.getServerStatus();
-					}
 					if (curStatus.equals(ServerStatus.COUNTING)) {
 						buttonLabel.setEnabled(true);
 						statusLabel.setText("Click to Pause Counting");
@@ -202,6 +190,7 @@ public class PauseStatusWidget extends ExtendedWidgetComposite {
 						buttonLabel.setToolTipText("Click to pause counting.");
 						statusLabel.setText("Pause on counting only");
 					}
+					layout(true, true);
 				}
 			});
 		}
@@ -210,9 +199,9 @@ public class PauseStatusWidget extends ExtendedWidgetComposite {
 	private void runVeto(boolean vetoFlag) throws Exception {
 		ISicsProxy proxy = SicsManager.getSicsProxy();
 		if (vetoFlag) {
-			proxy.send("pause on");
+			proxy.syncRun("pause on");
 		} else {
-			proxy.send("pause off");
+			proxy.syncRun("pause off");
 		}
 	}
 	

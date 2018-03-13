@@ -11,10 +11,17 @@ Require-Bundle: org.eclipse.ui,
  org.slf4j.api;bundle-version="1.6.4",
  org.gumtree.ui;bundle-version="1.13.0",
  ch.psi.sics.hipadaba,
- org.eclipse.nebula.widgets;bundle-version="1.0.0"
+ org.eclipse.nebula.widgets;bundle-version="1.0.0",
+ org.gumtree.workflow.ui;bundle-version="1.13.0",
+ org.eclipse.core.resources,
+ org.eclipse.ui.ide,
+ org.json;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: org.gumtree.control.ui,
+ org.gumtree.control.ui.batch,
+ org.gumtree.control.ui.batch.command,
+ org.gumtree.control.ui.batch.taskeditor,
  org.gumtree.control.ui.viewer,
  org.gumtree.control.ui.viewer.model,
  org.gumtree.control.ui.viewer.parts,

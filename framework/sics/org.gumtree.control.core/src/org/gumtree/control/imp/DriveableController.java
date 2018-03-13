@@ -2,9 +2,9 @@ package org.gumtree.control.imp;
 
 import org.gumtree.control.core.IDriveableController;
 import org.gumtree.control.core.IDynamicController;
-import org.gumtree.control.core.ISicsCallback;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.exception.SicsException;
 
 import ch.psi.sics.hipadaba.Component;
@@ -36,7 +36,7 @@ public class DriveableController extends DynamicController implements IDriveable
 	public boolean commitTargetWithDrive(ISicsCallback callback) throws SicsException {
 		setBusy(true);
 		try {
-			SicsManager.getSicsProxy().send("drive " + getDeviceId() + " " 
+			SicsManager.getSicsProxy().syncRun("drive " + getDeviceId() + " " 
 					+ getTargetValue().getSicsString(), callback);
 		} finally {
 			setBusy(false);
@@ -53,7 +53,7 @@ public class DriveableController extends DynamicController implements IDriveable
 	public void run() throws SicsException {
 		setBusy(true);
 		try {
-			SicsManager.getSicsProxy().send("run " + getDeviceId() + " " 
+			SicsManager.getSicsProxy().syncRun("run " + getDeviceId() + " " 
 					+ getTargetValue().getSicsString(), null);
 		} finally {
 			setBusy(false);

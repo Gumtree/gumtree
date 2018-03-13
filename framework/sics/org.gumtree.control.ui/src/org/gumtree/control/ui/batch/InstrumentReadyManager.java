@@ -1,0 +1,41 @@
+/*******************************************************************************
+ * Copyright (c) 2007 Australian Nuclear Science and Technology Organisation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Tony Lam (Bragg Institute) - initial API and implementation
+ *******************************************************************************/
+
+package org.gumtree.control.ui.batch;
+
+import org.gumtree.control.core.IDynamicController;
+import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.exception.SicsModelException;
+
+public class InstrumentReadyManager {
+
+	public static InstrumentReadyStatus isInstrumentReady() {
+		ISicsController controller = SicsManager.getSicsModel().findControllerById("plc_ready");
+		if (controller != null) {
+			if (controller instanceof IDynamicController) {
+				try {
+					if (String.valueOf(((IDynamicController) controller).getValue()).equalsIgnoreCase("True")) {
+						return new InstrumentReadyStatus(true, null);
+					} else {
+						return new InstrumentReadyStatus(false, "PLC not ready");
+					}
+				} catch (SicsModelException e) {
+					return new InstrumentReadyStatus(false, "illegal PLC value");
+				}
+			}
+			return new InstrumentReadyStatus(true, null);
+		} else {
+			return new InstrumentReadyStatus(false, "PLC not available");
+		}
+	}
+
+}

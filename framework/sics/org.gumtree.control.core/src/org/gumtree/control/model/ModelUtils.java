@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,30 +18,40 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.sdo.EDataGraph;
 import org.eclipse.emf.ecore.sdo.SDOFactory;
 import org.eclipse.emf.ecore.sdo.util.SDOUtil;
+import org.gumtree.control.batch.tasks.PropertySelectionCriterion;
 import org.gumtree.control.core.IDriveableController;
+import org.gumtree.control.core.ISicsConnectionContext;
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.SicsCoreProperties;
 import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.core.SicsRole;
 import org.gumtree.control.imp.CommandController;
 import org.gumtree.control.imp.DriveableController;
 import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.imp.GroupController;
+import org.gumtree.control.imp.SicsConnectionContext;
 import org.gumtree.control.imp.SicsController;
 import org.gumtree.control.model.PropertyConstants.ComponentType;
 import org.gumtree.control.model.PropertyConstants.Privilege;
 import org.gumtree.control.model.PropertyConstants.PropertyType;
+import org.gumtree.security.EncryptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.psi.sics.hipadaba.Component;
 import ch.psi.sics.hipadaba.DataType;
 import ch.psi.sics.hipadaba.DocumentRoot;
 import ch.psi.sics.hipadaba.Property;
 import ch.psi.sics.hipadaba.SICS;
-import ch.psi.sics.hipadaba.impl.HipadabaFactoryImpl;
 import ch.psi.sics.hipadaba.impl.HipadabaPackageImpl;
 import ch.psi.sics.hipadaba.util.HipadabaResourceFactoryImpl;
 import commonj.sdo.DataObject;
 
 public class ModelUtils {
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(ModelUtils.class);
+	
 	private static List<IDriveableController> drivableCache;
 
 	private static List<String> drivableIdCache;
@@ -277,30 +288,144 @@ public class ModelUtils {
 	}
 
 	// Note: this is not thread safe
-		private static IDriveableController[] getSicsDrivables() {
-			if (drivableCache == null) {
-				// SICS proxy is not yet ready
-				if (SicsManager.getSicsModel() == null) {
-					return new IDriveableController[0];
-				}
-				drivableCache = new ArrayList<IDriveableController>();
-				for (ISicsController childController : SicsManager
-						.getSicsModel().getSicsControllers()) {
-					findDrivableControllers(childController, drivableCache);
-				}
+	private static IDriveableController[] getSicsDrivables() {
+		if (drivableCache == null) {
+			// SICS proxy is not yet ready
+			if (SicsManager.getSicsModel() == null) {
+				return new IDriveableController[0];
 			}
-			return drivableCache.toArray(new IDriveableController[drivableCache
-					.size()]);
+			drivableCache = new ArrayList<IDriveableController>();
+			for (ISicsController childController : SicsManager
+					.getSicsModel().getSicsControllers()) {
+				findDrivableControllers(childController, drivableCache);
+			}
 		}
+		return drivableCache.toArray(new IDriveableController[drivableCache
+		                                                      .size()]);
+	}
 
-		private static void findDrivableControllers(
-				ISicsController controller, List<IDriveableController> buffer) {
-			if (controller instanceof IDriveableController) {
-				buffer.add((IDriveableController) controller);
+	private static void findDrivableControllers(
+			ISicsController controller, List<IDriveableController> buffer) {
+		if (controller instanceof IDriveableController) {
+			buffer.add((IDriveableController) controller);
+		}
+		for (ISicsController childController : controller
+				.getChildren()) {
+			findDrivableControllers(childController, buffer);
+		}
+	}
+	
+	public static ISicsConnectionContext createConnectionContext() {
+		ISicsConnectionContext connectionContext = new SicsConnectionContext();
+		// Set host
+		connectionContext.setHost(SicsCoreProperties.SERVER_HOST.getValue());
+		// Set port
+		connectionContext.setPort(SicsCoreProperties.SERVER_PORT.getInt());
+		// Set role
+		connectionContext.setRole(SicsRole.getRole(SicsCoreProperties.ROLE
+				.getValue()));
+		// Set password
+		if (SicsCoreProperties.PASSWORD_ENCRYPTED.getBoolean()) {
+			try {
+				connectionContext.setPassword(EncryptionUtils
+						.decryptBase64(SicsCoreProperties.PASSWORD.getValue()));
+			} catch (Exception e) {
+				logger.error("Cannot decrypt SICS password from system properties.");
 			}
-			for (ISicsController childController : controller
-					.getChildren()) {
-				findDrivableControllers(childController, buffer);
+		} else {
+			connectionContext.setPassword(SicsCoreProperties.PASSWORD
+					.getValue());
+		}
+		return connectionContext;
+	}
+	
+	public static Component[] findComponentsFromProperties(SICS sicsModel,
+			List<PropertySelectionCriterion> selectionCriteria) {
+		List<Component> result = new ArrayList<Component>();
+		for (Component childComponent : sicsModel.getComponent()) {
+			// Find components that matches with the provided property map
+			Component[] partialResult = findComponentsFromProperties(
+					childComponent, selectionCriteria);
+			// Append result
+			result.addAll(Arrays.asList(partialResult));
+		}
+		// Returns result in array form
+		return result.toArray(new Component[result.size()]);
+	}
+
+	public static Component[] findComponentsFromProperties(Component component,
+			List<PropertySelectionCriterion> selectionCriteria) {
+		List<Component> buffer = new ArrayList<Component>();
+		findComponentsFromProperties(component, selectionCriteria, buffer);
+		return buffer.toArray(new Component[buffer.size()]);
+	}
+
+	private static void findComponentsFromProperties(Component component,
+			List<PropertySelectionCriterion> selectionCriteria,
+			List<Component> buffer) {
+		// Assume properties are available
+		boolean found = true;
+		// Loop through provided selection conditions
+		for (PropertySelectionCriterion criterion : selectionCriteria) {
+			// We only interest in the first value for matching
+			String property = getPropertyFirstValue(component,
+					criterion.getPropertyId());
+			if (criterion.getSelectionType() == PropertySelectionType.EQUALS) {
+				if (property == null
+						|| !property.equals(criterion.getPropertyValue())) {
+					// We hit the counterexample
+					found = false;
+					break;
+				}
+			} else if (criterion.getSelectionType() == PropertySelectionType.NOT_EQUAL) {
+				if (property == null
+						|| property.equals(criterion.getPropertyValue())) {
+					found = false;
+					break;
+				}
+			} else if (criterion.getSelectionType() == PropertySelectionType.CONTAINS) {
+				if (property == null
+						|| !property.contains(criterion.getPropertyValue())) {
+					found = false;
+					break;
+				}
+			} else if (criterion.getSelectionType() == PropertySelectionType.NOT_CONTAIN) {
+				if (property == null
+						|| property.contains(criterion.getPropertyValue())) {
+					found = false;
+					break;
+				}
+			} else if (criterion.getSelectionType() == PropertySelectionType.STARTS_WITH) {
+				if (property == null
+						|| !property.startsWith(criterion.getPropertyValue())) {
+					found = false;
+					break;
+				}
+			} else if (criterion.getSelectionType() == PropertySelectionType.ENDS_WITH) {
+				if (property == null
+						|| !property.endsWith(criterion.getPropertyValue())) {
+					found = false;
+					break;
+				}
+			} else if (criterion.getSelectionType() == PropertySelectionType.EXISTS) {
+				if (property == null) {
+					found = false;
+					break;
+				}
+			} else if (criterion.getSelectionType() == PropertySelectionType.NOT_EXIST) {
+				if (property != null) {
+					found = false;
+					break;
+				}
 			}
 		}
+		// Add component to buffer if selection test is passed
+		if (found) {
+			buffer.add(component);
+		}
+		// Transverse to its child
+		for (Component child : (List<Component>) component.getComponent()) {
+			findComponentsFromProperties(child, selectionCriteria, buffer);
+		}
+	}
 }

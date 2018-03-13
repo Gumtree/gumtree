@@ -27,27 +27,29 @@ public class MessageHandler {
 			
 			@Override
 			public void run() {
-				try {
-					if (json.has(SicsChannel.JSON_KEY_STATUS)) {
-						String status = json.getString(SicsChannel.JSON_KEY_STATUS);
-						SicsManager.getSicsProxy().setServerStatus(ServerStatus.parseStatus(status));
-					}
-				} catch (JSONException e) {
-				}
-				try {
-					String type = json.getString(PropertyConstants.PROP_MESSAGE_TYPE);
-					System.out.println("subscribe " + json);
-					if (type.equals(MessageType.UPDATE.getId())) {
-						processUpdate(json.getString(PropertyConstants.PROP_UPDATE_PATH), 
-								json.getString(PropertyConstants.PROP_UPDATE_VALUE));
-					} else if (type.equals(MessageType.STATE.getId())) {
-						processState(json.getString(PropertyConstants.PROP_UPDATE_PATH), 
-								json.getString(PropertyConstants.PROP_UPDATE_VALUE));
-					}
-				} catch (JSONException e) {
-				}
+//				try {
+//					if (json.has(SicsChannel.JSON_KEY_STATUS)) {
+//						String status = json.getString(SicsChannel.JSON_KEY_STATUS);
+//						SicsManager.getSicsProxy().setServerStatus(ServerStatus.parseStatus(status));
+//					}
+//				} catch (JSONException e) {
+//				}
+//				try {
+//					String type = json.getString(PropertyConstants.PROP_MESSAGE_TYPE);
+//					System.out.println("subscribe " + json);
+//					if (type.equals(MessageType.UPDATE.getId())) {
+//						processUpdate(json.getString(PropertyConstants.PROP_UPDATE_PATH), 
+//								json.getString(PropertyConstants.PROP_UPDATE_DATA));
+//					} else if (type.equals(MessageType.STATE.getId())) {
+//						processState(json.getString(PropertyConstants.PROP_UPDATE_PATH), 
+//								json.getString(PropertyConstants.PROP_UPDATE_DATA));
+//					} 
+//				} catch (JSONException e) {
+//				}
+				process(json);
 			}
 		});
+		SicsManager.getSicsProxy().fireMessageEvent(json.toString());
 	}
 
 	public void process(JSONObject json) {
@@ -60,24 +62,43 @@ public class MessageHandler {
 		}
 		try {
 			String type = json.getString(PropertyConstants.PROP_MESSAGE_TYPE);
-//			System.out.println("command " + json);
 			if (type.equals(MessageType.UPDATE.getId())) {
 				processUpdate(json.getString(PropertyConstants.PROP_UPDATE_PATH), 
-						json.getString(PropertyConstants.PROP_UPDATE_VALUE));
+						json.getString(PropertyConstants.PROP_UPDATE_DATA));
 			} else if (type.equals(MessageType.STATE.getId())) {
 				processState(json.getString(PropertyConstants.PROP_UPDATE_PATH), 
-						json.getString(PropertyConstants.PROP_UPDATE_VALUE));
+						json.getString(PropertyConstants.PROP_UPDATE_DATA));
+			} else if (type.equals(MessageType.BATCH.getId())) {
+				processBatch(json);
 			}
 		} catch (JSONException e) {
 		}
 	}
 
+	public void processBatch(JSONObject json) {
+		try {
+			if (json.has(PropertyConstants.PROP_BATCH_NAME)) {
+				SicsManager.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_NAME, 
+						json.getString(PropertyConstants.PROP_BATCH_NAME));
+			}
+			if (json.has(PropertyConstants.PROP_BATCH_RANGE)) {
+				SicsManager.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_RANGE, 
+						json.getString(PropertyConstants.PROP_BATCH_RANGE));
+			}
+			if (json.has(PropertyConstants.PROP_BATCH_TEXT)) {
+				SicsManager.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_TEXT, 
+						json.getString(PropertyConstants.PROP_BATCH_TEXT));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void processUpdate(String path, String value) {
 		ISicsController controller = getModel().findControllerByPath(path);
 		try {
 			((IDynamicController) controller).updateModelValue(value);
 		} catch (SicsModelException e) {
-			// TODO Auto-generated catch block
 		}
 	}
 

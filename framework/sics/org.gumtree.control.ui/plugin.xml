@@ -7,10 +7,25 @@
       <view
             category="org.gumtree.gumnix.sics.ui"
             class="org.gumtree.control.ui.ControlTableView"
-            icon="icons/Stop-Normal-Red-16x16.png"
+            icon="icons/full/obj16/server.gif"
             id="org.gumtree.control.ui.ControlTableView"
-            name="SICS editor">
+            name="SICS Control Model">
+      </view>
+      <view
+            category="org.gumtree.control.ui"
+            class="org.gumtree.control.ui.SicsVisualBatchView"
+            icon="icons/showcategory_ps.gif"
+            id="org.gumtree.control.ui.SicsVisualBatchView"
+            name="Visual Batch Editor">
+      </view>
+      <view
+            category="org.gumtree.control.ui"
+            class="org.gumtree.control.ui.BatchManagerView"
+            icon="icons/script.GIF"
+            id="org.gumtree.control.ui.batchScriptManagerView"
+            name="Batch Script Manager"
+            restorable="true">
       </view>
    </extension>
-   
+      
 </plugin>

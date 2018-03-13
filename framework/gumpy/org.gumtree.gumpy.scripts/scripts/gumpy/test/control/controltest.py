@@ -1,13 +1,14 @@
 import unittest
 import time
-from org.gumtree.control.core import SicsManager, ISicsCallback
+from org.gumtree.control.core import SicsManager
+from org.gumtree.control.events import ISicsCallback
 from org.gumtree.control.exception import SicsInterruptException
 
 USE_LOCAL_SERVER = True;
-REMOTE_SERVER_ADDRESS = "tcp://ics1-bilby-test.nbi.ansto.gov.au:5555";
-REMOTE_PUBLISHER_ADDRESS = "tcp://ics1-bilby-test.nbi.ansto.gov.au:5556";
-LOCAL_SERVER_ADDRESS = "tcp://localhost:5555";
-LOCAL_PUBLISHER_ADDRESS = "tcp://localhost:5566";
+REMOTE_SERVER_ADDRESS = "tcp://ics1-bilby-test.nbi.ansto.gov.au:5555"
+REMOTE_PUBLISHER_ADDRESS = "tcp://ics1-bilby-test.nbi.ansto.gov.au:5556"
+LOCAL_SERVER_ADDRESS = "tcp://localhost:5555"
+LOCAL_PUBLISHER_ADDRESS = "tcp://localhost:5566"
 
 if USE_LOCAL_SERVER :
     SicsManager.getSicsProxy(LOCAL_SERVER_ADDRESS, LOCAL_PUBLISHER_ADDRESS)
@@ -69,13 +70,13 @@ class TestControl(unittest.TestCase):
         
     def test_drive_interrupt(self):
         try:
-            self.proxy.send("drive dummy_motor 0 interrupt")
+            self.proxy.syncRun("drive dummy_motor 0 interrupt")
         except Exception as e:
             self.assertTrue(isinstance(e, SicsInterruptException), "expecting interrupt exception")
     
     def test_callback(self):
         cb = Callback()
-        self.proxy.send("drive dummy_motor 0", cb)
+        self.proxy.syncRun("drive dummy_motor 0", cb)
         self.assertTrue(cb.replyReceived, "reply received")
         self.assertTrue(cb.isFinished, "finish received")
         self.assertTrue(not cb.isError, "no error")

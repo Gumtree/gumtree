@@ -5,6 +5,8 @@ import java.io.IOException;
 import org.gumtree.control.events.ISicsModelListener;
 import org.gumtree.control.model.ModelStatus;
 
+import ch.psi.sics.hipadaba.SICS;
+
 public interface ISicsModel {
 
 	void addModelListener(ISicsModelListener listener);
@@ -28,4 +30,6 @@ public interface ISicsModel {
 	ISicsController[] getSicsControllers();
 	
 	ModelStatus getStatus();
+	
+	SICS getBase();
 }

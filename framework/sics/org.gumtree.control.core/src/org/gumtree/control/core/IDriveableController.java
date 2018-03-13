@@ -1,5 +1,6 @@
 package org.gumtree.control.core;
 
+import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.exception.SicsException;
 
 public interface IDriveableController extends IDynamicController {
