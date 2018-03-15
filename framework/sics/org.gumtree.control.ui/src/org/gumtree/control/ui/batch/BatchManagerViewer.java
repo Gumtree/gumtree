@@ -30,12 +30,6 @@ public class BatchManagerViewer extends ExtendedFormComposite {
 		viwerStyle = style;
 
 		manager = BatchManager.getBatchScriptManager();
-		// Set up injection
-//		eclipseContext = Activator.getDefault().getEclipseContext()
-//				.createChild();
-//		IDNDHandler<IBatchScriptManager> dndHandler = ContextInjectionFactory
-//				.make(DNDHandler.class, eclipseContext);
-//		eclipseContext.set(IDNDHandler.class, dndHandler);
 
 		// Render
 		render();

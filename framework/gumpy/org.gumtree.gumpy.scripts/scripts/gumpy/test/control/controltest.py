@@ -9,6 +9,11 @@ REMOTE_SERVER_ADDRESS = "tcp://ics1-bilby-test.nbi.ansto.gov.au:5555"
 REMOTE_PUBLISHER_ADDRESS = "tcp://ics1-bilby-test.nbi.ansto.gov.au:5556"
 LOCAL_SERVER_ADDRESS = "tcp://localhost:5555"
 LOCAL_PUBLISHER_ADDRESS = "tcp://localhost:5566"
+TEST_SCRIPT = """
+s1=control.get_controller('s1')
+for i in xrange(3):
+    s1.drive(i)
+"""
 
 if USE_LOCAL_SERVER :
     SicsManager.getSicsProxy(LOCAL_SERVER_ADDRESS, LOCAL_PUBLISHER_ADDRESS)
@@ -80,6 +85,10 @@ class TestControl(unittest.TestCase):
         self.assertTrue(cb.replyReceived, "reply received")
         self.assertTrue(cb.isFinished, "finish received")
         self.assertTrue(not cb.isError, "no error")
+
+    def test_run_script(self):
+        exec(TEST_SCRIPT)
+        self.assertEqual(control.get_value('s1'), 2., 'assert s1 value to be 2')
 
 class Callback(ISicsCallback):
     

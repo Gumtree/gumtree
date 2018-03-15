@@ -46,6 +46,7 @@ public class MessageHandler {
 //					} 
 //				} catch (JSONException e) {
 //				}
+//				System.out.println("delayed");
 				process(json);
 			}
 		});
@@ -53,6 +54,7 @@ public class MessageHandler {
 	}
 
 	public void process(JSONObject json) {
+//		System.out.println("process " + json);
 		try {
 			if (json.has(SicsChannel.JSON_KEY_STATUS)) {
 				String status = json.getString(SicsChannel.JSON_KEY_STATUS);
