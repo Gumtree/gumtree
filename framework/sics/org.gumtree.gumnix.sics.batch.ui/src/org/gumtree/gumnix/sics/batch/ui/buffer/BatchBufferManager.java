@@ -330,7 +330,21 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 					throw new IOException("failed to create batch folder.");
 				}
 			}
-			String newTCLFilePath = batchFolderPath + "/" + buffer.getName();
+			String filename = buffer.getName();
+			String newTCLFilePath = batchFolderPath + "/" + filename;
+			File checkFile = new File(newTCLFilePath);
+			if (checkFile.exists()) {
+				if (!checkFile.delete()) {
+					String timeStamp = new SimpleDateFormat("yyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+					if (filename.contains(".")) {
+						int dotIndex = filename.lastIndexOf(".");
+						filename = filename.substring(0, dotIndex) + "_" + timeStamp + filename.substring(dotIndex, filename.length());
+					} else {
+						filename = filename + "_" + timeStamp;
+					}
+					newTCLFilePath = batchFolderPath + "/" + filename;
+				}
+			}
 			BufferedReader reader = new BufferedReader(new StringReader(buffer.getContent()));
 
 			BufferedWriter batchWriter = new BufferedWriter(new FileWriter(newTCLFilePath, false));
@@ -355,7 +369,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			
 			// Enqueue (due to the delay in general channel, wait until it is ready)
 			final boolean[] enqueued = new boolean[] { false };
-			asyncSend("exe enqueue {" + buffer.getName() + "}", new SicsCallbackAdapter() {
+			asyncSend("exe enqueue {" + filename + "}", new SicsCallbackAdapter() {
 				public void receiveReply(ISicsReplyData data) {
 					enqueued[0] = true;
 				}
