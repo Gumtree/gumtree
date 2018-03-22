@@ -17,9 +17,11 @@ public class MessageHandler {
 
 	private ISicsModel model;
 	private ThreadPool threadPool;
+	private SicsProxy sicsProxy;
 	
-	public MessageHandler() {
+	public MessageHandler(SicsProxy sicsProxy) {
 		threadPool = new ThreadPool();
+		this.sicsProxy = sicsProxy;
 	}
 	
 	public void delayedProcess(JSONObject json) {
@@ -50,7 +52,7 @@ public class MessageHandler {
 				process(json);
 			}
 		});
-		SicsManager.getSicsProxy().fireMessageEvent(json.toString());
+		sicsProxy.fireMessageEvent(json.toString());
 	}
 
 	public void process(JSONObject json) {
@@ -58,7 +60,7 @@ public class MessageHandler {
 		try {
 			if (json.has(SicsChannel.JSON_KEY_STATUS)) {
 				String status = json.getString(SicsChannel.JSON_KEY_STATUS);
-				SicsManager.getSicsProxy().setServerStatus(ServerStatus.parseStatus(status));
+				sicsProxy.setServerStatus(ServerStatus.parseStatus(status));
 			}
 		} catch (JSONException e) {
 		}
@@ -80,15 +82,15 @@ public class MessageHandler {
 	public void processBatch(JSONObject json) {
 		try {
 			if (json.has(PropertyConstants.PROP_BATCH_NAME)) {
-				SicsManager.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_NAME, 
+				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_NAME, 
 						json.getString(PropertyConstants.PROP_BATCH_NAME));
 			}
 			if (json.has(PropertyConstants.PROP_BATCH_RANGE)) {
-				SicsManager.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_RANGE, 
+				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_RANGE, 
 						json.getString(PropertyConstants.PROP_BATCH_RANGE));
 			}
 			if (json.has(PropertyConstants.PROP_BATCH_TEXT)) {
-				SicsManager.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_TEXT, 
+				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_TEXT, 
 						json.getString(PropertyConstants.PROP_BATCH_TEXT));
 			}
 		} catch (JSONException e) {
@@ -111,7 +113,7 @@ public class MessageHandler {
 
 	private ISicsModel getModel() {
 		if (model == null) {
-			model = SicsManager.getSicsModel();
+			model = sicsProxy.getSicsModel();
 		}
 		return model;
 	}

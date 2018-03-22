@@ -7,7 +7,9 @@ import java.util.List;
 import org.eclipse.core.runtime.Assert;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ISicsModel;
+import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.events.ISicsModelListener;
+import org.gumtree.control.imp.SicsProxy;
 
 import ch.psi.sics.hipadaba.Component;
 import ch.psi.sics.hipadaba.SICS;
@@ -19,9 +21,11 @@ public class SicsModel implements ISicsModel {
 	private String modelXML;
 	private List<ISicsController> controllers;
 	private SICS baseModel;
+	private ISicsProxy sicsProxy;
 	
-	public SicsModel() {
+	public SicsModel(ISicsProxy sicsProxy) {
 
+		this.sicsProxy = sicsProxy;
 //		File inputFile = new File("C:\\Gumtree\\docs\\GumtreeXML\\hipadaba.xml");
 //        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 //        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -82,7 +86,7 @@ public class SicsModel implements ISicsModel {
 					//				logger.debug("Creating top level child controller for " + childComponent.getId());
 					//				Object controller = Platform.getAdapterManager().getAdapter(childComponent, IComponentController.class);
 					//				IComponentController controller = ComponentControllerFactory1.createController(childComponent);
-					ISicsController controller = ModelUtils.createComponentController(childComponent);
+					ISicsController controller = ModelUtils.createComponentController(sicsProxy, childComponent);
 					if(controller != null) {
 						controllers.add(controller);
 						// Listen to status changes

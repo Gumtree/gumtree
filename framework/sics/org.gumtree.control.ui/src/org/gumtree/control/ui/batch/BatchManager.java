@@ -22,7 +22,6 @@ import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.ISicsReplyData;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsCommunicationConstants.JSONTag;
-import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsCallbackAdapter;
@@ -80,9 +79,11 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 	private List<IBatchManagerListener> batchManagerListeners;
 	
 	private String batchFolderPath;
+	private ISicsProxy sicsProxy;
 	
-	public BatchManager() {
+	public BatchManager(ISicsProxy sicsProxy) {
 		super();
+		this.sicsProxy = sicsProxy;
 		batchQueue = new BatchQueue(this, "batchBufferQueue");
 		batchFolderPath = System.getProperty(TCL_BATCH_FOLDER_PROPERTY);
 		batchManagerListeners = new ArrayList<IBatchManagerListener>();
@@ -125,10 +126,9 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 				handleSicsConnect();
 			}
 		};
-		ISicsProxy proxy = SicsManager.getSicsProxy();
-		proxy.addProxyListener(proxyListener);
-		if (proxy.isConnected()) {
-			BatchStatus batchStatus = proxy.getBatchControl().getStatus();
+		sicsProxy.addProxyListener(proxyListener);
+		if (sicsProxy.isConnected()) {
+			BatchStatus batchStatus = sicsProxy.getBatchControl().getStatus();
 			switch (batchStatus) {
 			case IDLE:
 				setBatchStatus(BatchManagerStatus.IDLE);
@@ -204,6 +204,9 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 			}
 		};
 		scheduler.setSystem(true);
+		if (sicsProxy.isConnected()) {
+			scheduler.schedule();
+		}
 	}
 	
 	private void updateTimeEstimation() {
@@ -576,7 +579,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 	 ***************************************************************/
 	public ISicsReplyData syncSend(String command) throws SicsBatchException {
 		try {
-			String val =  SicsManager.getSicsProxy().syncRun(command);
+			String val =  sicsProxy.syncRun(command);
 			JSONObject json = new JSONObject();
 			json.put(JSONTag.DATA.getText(), val);
 			return new SicsReplyData(json);
@@ -588,7 +591,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 	
 	public void asyncSend(String command, ISicsCallback callback) throws SicsBatchException {
 		try {
-			SicsManager.getSicsProxy().asyncRun(command, callback);
+			sicsProxy.asyncRun(command, callback);
 		} catch (SicsException e) {
 			throw new SicsBatchException("failed to send command", e);
 		}
@@ -607,16 +610,16 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		return status;
 	}
 	
-	public static IBatchManager getBatchScriptManager() {
+	public static IBatchManager getBatchScriptManager(ISicsProxy sicsProxy) {
 		if (batchManger == null) {
-			batchManger = new BatchManager();
+			batchManger = new BatchManager(sicsProxy);
 		}
 		return batchManger;
 	}
 
 	public void setMessageListener(SicsMessageAdapter messageListener) {
 		this.messageListener = messageListener;
-		SicsManager.getSicsProxy().addMessageListener(messageListener);
+		sicsProxy.addMessageListener(messageListener);
 	}
 	
 

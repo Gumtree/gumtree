@@ -1,20 +1,19 @@
 package org.gumtree.control.core;
 
-import java.io.IOException;
-
 import org.gumtree.control.batch.IBatchControl;
-import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.imp.SicsProxy;
-import org.gumtree.control.model.SicsModel;
 
 public class SicsManager {
 
 	private static ISicsProxy sicsProxy;
-	private static ISicsModel sicsModel;
 	
-	public synchronized static ISicsProxy getSicsProxy(String serverAddress, String publisherAddress) {
+	private static ISicsProxy validatorProxy;
+	
+	public static synchronized ISicsProxy getSicsProxy(String serverAddress, String publisherAddress) {
 		if (serverAddress != null) {
-			if (sicsProxy != null && sicsProxy.isConnected()) {
+			if (sicsProxy == null) {
+				sicsProxy = new SicsProxy();
+			} else if (sicsProxy.isConnected()) {
 				sicsProxy.disconnect();
 			}
 			sicsProxy.connect(serverAddress, publisherAddress);
@@ -23,36 +22,36 @@ public class SicsManager {
 	}
 	
 	public static ISicsProxy getSicsProxy() {
-			return sicsProxy;
+		if (sicsProxy == null) {
+			sicsProxy = new SicsProxy();
+		}
+		return sicsProxy;
 	}
 
-	public static ISicsModel getSicsModel() {
-			if (sicsModel == null) {
-				ISicsChannel channel = sicsProxy.getSicsChannel();
-				try {
-					String msg = channel.syncSend("getgumtreexml /", null);
-					if (msg != null) {
-						sicsModel = new SicsModel();
-						sicsModel.loadFromString(msg);
-					}
-				} catch (SicsException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+	public static synchronized ISicsProxy getValidatorProxy(String serverAddress, String publisherAddress) {
+		if (serverAddress != null) {
+			if (validatorProxy == null) {
+				validatorProxy = new SicsProxy();
+			} else if (validatorProxy.isConnected()) {
+				validatorProxy.disconnect();
 			}
-		return sicsModel;
+			validatorProxy.connect(serverAddress, publisherAddress);
+		}
+		return validatorProxy;
 	}
 	
-	public static IBatchControl getBatchControl() {
-		return sicsProxy.getBatchControl();
+	public static ISicsProxy getValidatorProxy() {
+		if (validatorProxy == null) {
+			validatorProxy = new SicsProxy();
+		}
+		return validatorProxy;
+	}
+	
+	public static ISicsModel getSicsModel() {
+		return getSicsProxy().getSicsModel();
 	}
 
-	static {
-		sicsProxy = new SicsProxy();
+	public static IBatchControl getBatchControl() {
+		return getSicsProxy().getBatchControl();
 	}
-	
-	
 }

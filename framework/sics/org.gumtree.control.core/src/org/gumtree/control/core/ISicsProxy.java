@@ -2,7 +2,6 @@ package org.gumtree.control.core;
 
 import java.util.Map;
 
-import org.gumtree.control.batch.IBatchListener;
 import org.gumtree.control.batch.IBatchControl;
 import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.events.ISicsMessageListener;
@@ -11,6 +10,7 @@ import org.gumtree.control.exception.SicsException;
 
 public interface ISicsProxy {
 
+	ISicsModel getSicsModel();
 	boolean connect(String serverAddress, String publisherAddress);
 	void disconnect();
 	boolean isConnected();

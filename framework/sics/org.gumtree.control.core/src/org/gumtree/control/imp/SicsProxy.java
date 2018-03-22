@@ -3,6 +3,7 @@
  */
 package org.gumtree.control.imp;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.Map;
 import org.gumtree.control.batch.BatchControl;
 import org.gumtree.control.batch.IBatchControl;
 import org.gumtree.control.core.ISicsChannel;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.events.ISicsCallback;
@@ -17,6 +19,7 @@ import org.gumtree.control.events.ISicsMessageListener;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.exception.SicsCommunicationException;
 import org.gumtree.control.exception.SicsException;
+import org.gumtree.control.model.SicsModel;
 
 /**
  * @author nxi
@@ -30,6 +33,7 @@ public class SicsProxy implements ISicsProxy {
 	private ServerStatus serverStatus;
 	private IBatchControl batchControl;
 	private boolean isInterrupted;
+	private ISicsModel sicsModel;
 	private List<ISicsProxyListener> proxyListeners;
 	private List<ISicsMessageListener> messageListeners;
 	
@@ -47,7 +51,7 @@ public class SicsProxy implements ISicsProxy {
 	public boolean connect(String serverAddress, String publisherAddress) {
 		this.serverAddress = serverAddress;
 		this.publisherAddress = publisherAddress;
-		channel = new SicsChannel();
+		channel = new SicsChannel(this);
 		try {
 			channel.connect(serverAddress, publisherAddress);
 		} catch (Exception e) {
@@ -66,7 +70,11 @@ public class SicsProxy implements ISicsProxy {
 	}
 
 	public boolean reconnect() {
-		channel = new SicsChannel();
+		if (channel != null && channel.isConnected()) {
+			channel.disconnect();
+		} else if (channel == null) {
+			channel = new SicsChannel(this);
+		}
 		try {
 			channel.connect(serverAddress, publisherAddress);
 		} catch (Exception e) {
@@ -236,4 +244,23 @@ public class SicsProxy implements ISicsProxy {
 		}
 	}
 	
+	@Override
+	public synchronized ISicsModel getSicsModel() {
+		if (sicsModel == null) {
+			try {
+				String msg = channel.syncSend("getgumtreexml /", null);
+				if (msg != null) {
+					sicsModel = new SicsModel(this);
+					sicsModel.loadFromString(msg);
+				}
+			} catch (SicsException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return sicsModel;
+	}
 }

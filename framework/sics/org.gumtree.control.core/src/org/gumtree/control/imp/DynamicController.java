@@ -4,10 +4,9 @@ import java.util.List;
 
 import org.gumtree.control.core.IControllerData;
 import org.gumtree.control.core.IDynamicController;
-import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.exception.SicsException;
-import org.gumtree.control.exception.SicsExecutionException;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.ControllerData;
 
@@ -21,8 +20,8 @@ public class DynamicController extends SicsController implements IDynamicControl
 	private IControllerData targetValue;
 	private boolean isBusy;
 	
-	public DynamicController(Component model) {
-		super(model);
+	public DynamicController(Component model, ISicsProxy sicsProxy) {
+		super(model, sicsProxy);
 		Value value = model.getValue();
 		if (value != null && value.getValue() != null) {
 			targetValue = new ControllerData(value.getValue(), getModel().getDataType());
@@ -81,7 +80,7 @@ public class DynamicController extends SicsController implements IDynamicControl
 	@Override
 	public void refreshValue() throws SicsException {
 		try {
-			SicsManager.getSicsProxy().syncRun("hget " + getPath(), null);
+			getSicsProxy().syncRun("hget " + getPath(), null);
 		} finally {
 			isBusy = false;
 		}
@@ -91,7 +90,7 @@ public class DynamicController extends SicsController implements IDynamicControl
 	public boolean commitTargetValue() throws SicsException {
 		isBusy = true;
 		try {
-			SicsManager.getSicsProxy().syncRun("hset " + getPath() + " " 
+			getSicsProxy().syncRun("hset " + getPath() + " " 
 					+ getTargetValue().getSicsString(), null);
 		} finally {
 			isBusy = false;

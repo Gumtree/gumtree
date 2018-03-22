@@ -9,6 +9,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.forms.widgets.Form;
+import org.gumtree.control.core.SicsManager;
 import org.gumtree.widgets.swt.forms.ExtendedFormComposite;
 
 @SuppressWarnings("restriction")
@@ -29,7 +30,7 @@ public class BatchManagerViewer extends ExtendedFormComposite {
 
 		viwerStyle = style;
 
-		manager = BatchManager.getBatchScriptManager();
+		manager = BatchManager.getBatchScriptManager(SicsManager.getSicsProxy());
 
 		// Render
 		render();

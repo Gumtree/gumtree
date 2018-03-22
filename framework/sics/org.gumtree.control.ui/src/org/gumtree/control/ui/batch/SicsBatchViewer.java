@@ -147,7 +147,7 @@ public class SicsBatchViewer extends AbstractPartControlProvider {
 		createBatchControlGroup(batchControlComposite);
 
 		// Update UI with initial SICS status
-		updateUI(SicsManager.getSicsProxy().getBatchControl().getStatus());
+		updateUI(SicsManager.getBatchControl().getStatus());
 
 		// add filename listener
 		filenameNotifyer = SicsManager.getSicsModel().findController(PATH_FILENAME_NOTIFYER);
@@ -188,7 +188,7 @@ public class SicsBatchViewer extends AbstractPartControlProvider {
 		}
 
 		batchListener = new BatchListener();
-		SicsManager.getSicsProxy().getBatchControl().addListener(batchListener);
+		SicsManager.getBatchControl().addListener(batchListener);
 		}
 
 	private void createBatchStatusGroup(Composite parent) {
@@ -290,7 +290,7 @@ public class SicsBatchViewer extends AbstractPartControlProvider {
 		controlButton.setImage(InternalImage.START.getImage());
 		controlButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				BatchStatus status = SicsManager.getSicsProxy().getBatchControl().getStatus();
+				BatchStatus status = SicsManager.getBatchControl().getStatus();
 				if (status.equals(BatchStatus.IDLE)) {
 					start();
 				} else if (status.equals(BatchStatus.RUNNING)) {
@@ -446,7 +446,7 @@ public class SicsBatchViewer extends AbstractPartControlProvider {
 	public void start() {
 		SafeUIRunner.asyncExec(new SafeRunnable() {
 			public void run() throws Exception {
-				BatchStatus status = SicsManager.getSicsProxy().getBatchControl().getStatus();
+				BatchStatus status = SicsManager.getBatchControl().getStatus();
 				String scriptName = DEFAULT_SCRIPT_NAME;
 				// [GUMTREE-76] Send file name instead of the whole path
 				if (scriptNameText.getText() != null && scriptNameText.getText().length() != 0) {
@@ -463,7 +463,7 @@ public class SicsBatchViewer extends AbstractPartControlProvider {
 				if (status.equals(BatchStatus.IDLE)) {
 					if (commands != null && commands.size() > 0) {
 						try {
-							SicsManager.getSicsProxy().getBatchControl().run(commands.toArray(new String[commands.size()]), scriptName);
+							SicsManager.getBatchControl().run(commands.toArray(new String[commands.size()]), scriptName);
 							
 							// Resets highlight colour
 							StyleRange styleRange = new StyleRange();
@@ -482,10 +482,10 @@ public class SicsBatchViewer extends AbstractPartControlProvider {
 	}
 	
 	public void interrupt() {
-		BatchStatus status = SicsManager.getSicsProxy().getBatchControl().getStatus();
+		BatchStatus status = SicsManager.getBatchControl().getStatus();
 		if (status.equals(BatchStatus.RUNNING)) {
 			try {
-				SicsManager.getSicsProxy().getBatchControl().interrupt();
+				SicsManager.getBatchControl().interrupt();
 			} catch (SicsException e1) {
 				logger.error("Error in interrupting batch from control view.", e1);
 			}
@@ -499,7 +499,7 @@ public class SicsBatchViewer extends AbstractPartControlProvider {
 			filenameNotifyer = null;
 		}
 		if (batchListener != null) {
-			SicsManager.getSicsProxy().getBatchControl().removeListener(batchListener);
+			SicsManager.getBatchControl().removeListener(batchListener);
 			batchListener = null;
 		}
 		if (toolkit != null) {

@@ -11,6 +11,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.gumtree.control.core.IControllerData;
 import org.gumtree.control.core.IDynamicController;
+import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.model.ControllerData;
 import org.gumtree.control.model.ModelUtils;
@@ -95,7 +96,7 @@ public class TargetEditingSupport extends EditingSupport {
 		} else {
 			String type = ModelUtils.getPropertyFirstValue(component, "argtype");
 			if (type != null && type.equals("drivable")) {
-				comboCellEditor.setItems(ModelUtils.getSicsDrivableIds());
+				comboCellEditor.setItems(ModelUtils.getSicsDrivableIds(SicsManager.getSicsProxy()));
 				return comboCellEditor;
 			}
 		}
@@ -128,7 +129,7 @@ public class TargetEditingSupport extends EditingSupport {
 			// Drivable args
 			String type = ModelUtils.getPropertyFirstValue(component, "argtype");
 			if (type != null && type.equals("drivable")) {
-				List<String> drivables = ModelUtils.getSicsDrivableIdList();
+				List<String> drivables = ModelUtils.getSicsDrivableIdList(SicsManager.getSicsProxy());
 				int index = drivables.indexOf(data.getStringData());
 				if (index == -1) {
 					index = 0;

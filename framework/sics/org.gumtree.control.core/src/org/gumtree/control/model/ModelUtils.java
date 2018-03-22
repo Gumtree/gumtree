@@ -22,8 +22,8 @@ import org.gumtree.control.batch.tasks.PropertySelectionCriterion;
 import org.gumtree.control.core.IDriveableController;
 import org.gumtree.control.core.ISicsConnectionContext;
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.SicsCoreProperties;
-import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.core.SicsRole;
 import org.gumtree.control.imp.CommandController;
 import org.gumtree.control.imp.DriveableController;
@@ -100,13 +100,13 @@ public class ModelUtils {
 		return (SICS) root;
 	}
 	
-	public static ISicsController createComponentController(Component component) {
-		ISicsController controller = (ISicsController) getDefaultAdapter(component, ISicsController.class);
+	public static ISicsController createComponentController(ISicsProxy sicsProxy, Component component) {
+		ISicsController controller = (ISicsController) getDefaultAdapter(sicsProxy, component, ISicsController.class);
 //		System.out.println(controller.getId() + ":" + controller.getClass().getName());
 		return controller;
 	}
 	
-	protected static Object getDefaultAdapter(Object adaptableObject, Class adapterType) {
+	protected static Object getDefaultAdapter(ISicsProxy sicsProxy, Object adaptableObject, Class adapterType) {
 		if(adaptableObject instanceof Component && adapterType.equals(ISicsController.class)) {
 			Component component = (Component)adaptableObject;
 //			IComponentController controller = null;
@@ -119,9 +119,9 @@ public class ModelUtils {
 //					} else {
 //						return new CommandController(component);
 //					}
-					return new CommandController(component);
+					return new CommandController(component, sicsProxy);
 				} else if (type.equals(ComponentType.DRIVABLE)) {
-					return new DriveableController(component);
+					return new DriveableController(component, sicsProxy);
 				} 
 			}
 
@@ -133,14 +133,14 @@ public class ModelUtils {
 //				if(parent != null && parent.getId().equals("plc")) {
 //					return new PLCStatusController(component);
 //				}
-				return new DynamicController(component);
+				return new DynamicController(component, sicsProxy);
 				// Testing
 //				return new DynamicController2(component);
 			} else if (dataType != null && component.getComponent().size() > 0) {
-				return new GroupController(component);
+				return new GroupController(component, sicsProxy);
 			}
 
-			return new SicsController(component);
+			return new SicsController(component, sicsProxy);
 
 //			if(component.getDataType().equals(DataType.NONE_LITERAL)) {
 //				// Assume this is an organisational controller
@@ -264,14 +264,14 @@ public class ModelUtils {
 		return "";
 	}
 
-	public static List<String> getSicsDrivableIdList() {
+	public static List<String> getSicsDrivableIdList(ISicsProxy sicsProxy) {
 		if (drivableIdCache == null) {
 			// SICS proxy is not yet ready
-			if (SicsManager.getSicsModel() == null) {
+			if (sicsProxy.getSicsModel() == null) {
 				return new ArrayList<String>(2);
 			}
 			List<String> buffer = new ArrayList<String>();
-			for (IDriveableController controller : getSicsDrivables()) {
+			for (IDriveableController controller : getSicsDrivables(sicsProxy)) {
 				if (controller.getDeviceId() != null) {
 					buffer.add(controller.getDeviceId());	
 				}
@@ -282,20 +282,20 @@ public class ModelUtils {
 		return drivableIdCache;
 	}
 
-	public static String[] getSicsDrivableIds() {
-		return getSicsDrivableIdList().toArray(
+	public static String[] getSicsDrivableIds(ISicsProxy sicsProxy) {
+		return getSicsDrivableIdList(sicsProxy).toArray(
 				new String[drivableIdCache.size()]);
 	}
 
 	// Note: this is not thread safe
-	private static IDriveableController[] getSicsDrivables() {
+	private static IDriveableController[] getSicsDrivables(ISicsProxy sicsProxy) {
 		if (drivableCache == null) {
 			// SICS proxy is not yet ready
-			if (SicsManager.getSicsModel() == null) {
+			if (sicsProxy.getSicsModel() == null) {
 				return new IDriveableController[0];
 			}
 			drivableCache = new ArrayList<IDriveableController>();
-			for (ISicsController childController : SicsManager
+			for (ISicsController childController : sicsProxy
 					.getSicsModel().getSicsControllers()) {
 				findDrivableControllers(childController, drivableCache);
 			}

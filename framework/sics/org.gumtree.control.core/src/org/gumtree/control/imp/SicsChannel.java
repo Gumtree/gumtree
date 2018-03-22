@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.gumtree.control.core.ISicsChannel;
-import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.exception.SicsCommunicationException;
 import org.gumtree.control.exception.SicsException;
@@ -48,12 +47,15 @@ public class SicsChannel implements ISicsChannel {
     private Thread clientThread;
     private Thread subscribeThread;
     
-	public SicsChannel() {
+    private SicsProxy sicsProxy;
+    
+	public SicsChannel(SicsProxy sicsProxy) {
 	    id = String.valueOf(System.currentTimeMillis()).substring(3);
+	    this.sicsProxy = sicsProxy;
 	    context = ZMQ.context(2);
 	    clientSocket = context.socket(ZMQ.DEALER);
 	    clientSocket.setIdentity(id.getBytes(ZMQ.CHARSET));
-	    messageHandler = new MessageHandler();
+	    messageHandler = new MessageHandler(sicsProxy);
 	    commandMap = new HashMap<Integer, SicsCommand>();
 	}
 	
@@ -287,7 +289,7 @@ public class SicsChannel implements ISicsChannel {
 			} catch (JSONException e) {
 				takeError(new SicsCommunicationException(e.getMessage()));
 			} catch (SicsInterruptException e) {
-				SicsManager.getSicsProxy().labelInterruptFlag();
+				sicsProxy.labelInterruptFlag();
 				takeError(e);;
 			} catch (SicsException e) {
 				takeError(e);

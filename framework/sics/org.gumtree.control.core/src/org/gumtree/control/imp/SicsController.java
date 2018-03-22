@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.model.ModelUtils;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
@@ -17,20 +18,26 @@ public class SicsController implements ISicsController {
 	private boolean enabled;
 	private String errorMessage;
 	private ControllerState state;
+	private ISicsProxy sicsProxy;
 	private List<ISicsControllerListener> listeners;
 	
-	public SicsController(Component model) {
+	public SicsController(Component model, ISicsProxy sicsProxy) {
 		this.model = model;
+		this.sicsProxy = sicsProxy;
 		listeners = new ArrayList<ISicsControllerListener>();
 		createChildrenControllers();
 		state = ControllerState.IDLE;
 		enabled = true;
 	}
 	
+	protected ISicsProxy getSicsProxy() {
+		return sicsProxy;
+	}
+	
 	private void createChildrenControllers() {
 		childControllers = new ArrayList<ISicsController>();
 		for(Component childComponent : (List<Component>) getModel().getComponent()) {
-			ISicsController controller = ModelUtils.createComponentController(childComponent);
+			ISicsController controller = ModelUtils.createComponentController(sicsProxy, childComponent);
 			if(controller != null) {
 				childControllers.add(controller);
 			}

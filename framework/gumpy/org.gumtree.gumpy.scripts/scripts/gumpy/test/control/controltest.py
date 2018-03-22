@@ -9,6 +9,9 @@ REMOTE_SERVER_ADDRESS = "tcp://ics1-bilby-test.nbi.ansto.gov.au:5555"
 REMOTE_PUBLISHER_ADDRESS = "tcp://ics1-bilby-test.nbi.ansto.gov.au:5556"
 LOCAL_SERVER_ADDRESS = "tcp://localhost:5555"
 LOCAL_PUBLISHER_ADDRESS = "tcp://localhost:5566"
+VALIDATOR_SERVER_ADDRESS = "tcp://localhost:5577";
+VALIDATOR_PUBLISHER_ADDRESS = "tcp://localhost:5588";
+
 TEST_SCRIPT = """
 s1=control.get_controller('s1')
 for i in xrange(3):
@@ -19,6 +22,7 @@ if USE_LOCAL_SERVER :
     SicsManager.getSicsProxy(LOCAL_SERVER_ADDRESS, LOCAL_PUBLISHER_ADDRESS)
 else:
     SicsManager.getSicsProxy(REMOTE_SERVER_ADDRESS, REMOTE_PUBLISHER_ADDRESS)
+SicsManager.getValidatorProxy(VALIDATOR_SERVER_ADDRESS, VALIDATOR_PUBLISHER_ADDRESS)
             
 from gumpy.control import control
 import random

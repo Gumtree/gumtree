@@ -4,8 +4,24 @@ from org.gumtree.control.events import ISicsControllerListener, ISicsCallback
 from gumpy.commons import logger
 import os
 
-model = manager.getSicsModel()
-proxy = manager.getSicsProxy()
+SICS_PROXY = manager.getSicsProxy()
+SICS_MODEL = manager.getSicsModel()
+
+VALIDATOR_PROXY = manager.getValidatorProxy()
+VALIDATOR_MODEL = VALIDATOR_PROXY.getSicsModel()
+
+proxy = SICS_PROXY
+model = SICS_MODEL
+
+def set_validator(flag):
+    global proxy
+    global model
+    if flag:
+        proxy = VALIDATOR_PROXY
+        model = VALIDATOR_MODEL
+    else:
+        proxy = SICS_PROXY
+        model = SICS_MODEL
 
 # class Controller():
 #     
@@ -25,7 +41,10 @@ def get_controller(id_or_path):
 #         return Controller(jcontroller)
 #     else :
 #         return None
-    return model.findController(id_or_path)
+    c = model.findController(id_or_path)
+    if c is None :
+        raise NameError('controller not found: ' + str(id_or_path))
+    return c
 
 def send_command(command):
     return proxy.syncRun(command)

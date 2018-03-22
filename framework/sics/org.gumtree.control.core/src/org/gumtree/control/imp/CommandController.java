@@ -5,7 +5,7 @@ import java.util.Map;
 import org.gumtree.control.core.ICommandController;
 import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
-import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.exception.SicsException;
 
@@ -15,8 +15,8 @@ public class CommandController extends GroupController implements ICommandContro
 
 	private boolean isBusy;
 	
-	public CommandController(Component model) {
-		super(model);
+	public CommandController(Component model, ISicsProxy sicsProxy) {
+		super(model, sicsProxy);
 	}
 
 	@Override
@@ -24,7 +24,7 @@ public class CommandController extends GroupController implements ICommandContro
 		isBusy = true;
 		setErrorMessage(null);
 		try {
-			SicsManager.getSicsProxy().syncRun("hset " + getDeviceId() + " start", null);
+			getSicsProxy().syncRun("hset " + getDeviceId() + " start", null);
 		} catch (SicsException e) {
 			setErrorMessage(e.getMessage());
 		}finally {
