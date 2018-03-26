@@ -116,6 +116,8 @@
 		<module>${sics.path}/org.gumtree.gumnix.sics.core</module>
 		<module>${sics.path}/org.gumtree.sics.core.feature</module>
 
+		<module>${sics.path}/com.neilalexander.jnacl</module>
+		<module>${sics.path}/org.zeromq.jeromq</module>
 		<module>${sics.path}/org.gumtree.control.core</module>
 		<module>${sics.path}/org.gumtree.control.ui</module>
 
