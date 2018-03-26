@@ -12,5 +12,5 @@
 		<relativePath>../../../parent/org.gumtree.maven.tycho</relativePath>
 	</parent>
 
-	<name>Gumtree Control Core Bundle</name>
+	<name>Gumtree Control Core</name>
 </project>

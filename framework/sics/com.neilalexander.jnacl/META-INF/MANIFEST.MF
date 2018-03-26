@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Jnacl
+Bundle-SymbolicName: com.neilalexander.jnacl
+Bundle-Version: 0.1.0.qualifier
+Bundle-Activator: com.neilalexander.jnacl.Activator
+Bundle-Vendor: NEILALEXANDER
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Export-Package: com.neilalexander.jnacl,
+ com.neilalexander.jnacl.crypto
