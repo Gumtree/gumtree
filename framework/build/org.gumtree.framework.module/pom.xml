@@ -116,6 +116,9 @@
 		<module>${sics.path}/org.gumtree.gumnix.sics.core</module>
 		<module>${sics.path}/org.gumtree.sics.core.feature</module>
 
+		<module>${sics.path}/org.gumtree.control.core</module>
+		<module>${sics.path}/org.gumtree.control.ui</module>
+
 		<module>${sics.path}/org.gumtree.sics.server</module>
 		<module>${sics.path}/org.gumtree.sics.server.feature</module>
 
