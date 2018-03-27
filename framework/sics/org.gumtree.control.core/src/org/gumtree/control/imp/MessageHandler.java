@@ -4,7 +4,6 @@ import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.ServerStatus;
-import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ThreadPool;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.PropertyConstants;
@@ -24,7 +23,7 @@ public class MessageHandler {
 		this.sicsProxy = sicsProxy;
 	}
 	
-	public void delayedProcess(JSONObject json) {
+	public void delayedProcess(final JSONObject json) {
 		threadPool.run(new Runnable() {
 			
 			@Override
@@ -55,7 +54,7 @@ public class MessageHandler {
 		sicsProxy.fireMessageEvent(json.toString());
 	}
 
-	public void process(JSONObject json) {
+	public void process(final JSONObject json) {
 //		System.out.println("process " + json);
 		try {
 			if (json.has(SicsChannel.JSON_KEY_STATUS)) {
@@ -79,7 +78,7 @@ public class MessageHandler {
 		}
 	}
 
-	public void processBatch(JSONObject json) {
+	public void processBatch(final JSONObject json) {
 		try {
 			if (json.has(PropertyConstants.PROP_BATCH_NAME)) {
 				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_NAME, 
