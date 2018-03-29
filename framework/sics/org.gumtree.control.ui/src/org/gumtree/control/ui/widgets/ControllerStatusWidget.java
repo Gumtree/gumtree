@@ -166,7 +166,7 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 //		return null;
 //	}
 
-	protected void updateWidgetState(Control widget, final ControllerState state) {
+	protected void updateWidgetState(final Control widget, final ControllerState state) {
 		SafeUIRunner.asyncExec(new SafeRunnable() {
 			@Override
 			public void run() throws Exception {

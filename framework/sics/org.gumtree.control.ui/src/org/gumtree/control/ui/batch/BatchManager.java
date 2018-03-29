@@ -471,7 +471,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		}
 	}
 	
-	public void getRunningBufferContent(ISicsCallback callback) {
+	public void getRunningBufferContent(final ISicsCallback callback) {
 		getRunningBuffername(new SicsCallbackAdapter() {
 			@Override
 			public void receiveFinish(ISicsReplyData data) {
