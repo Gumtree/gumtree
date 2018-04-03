@@ -50,7 +50,7 @@ g0.add(combine_tube0, combine_tube1, combine_tube2, combine_tube3, combine_tube4
 '''
 
 
-use_beammonitor = Par('bool', True)
+use_beammonitor = Par('bool', False)
 use_beammonitor.title = 'Use Beam Monitor'
 
 defaultMCR = Par('float', '8500')
