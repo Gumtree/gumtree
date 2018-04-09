@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Sika Webserver
+Bundle-SymbolicName: au.gov.ansto.bragg.sika.webserver;singleton:=true
+Bundle-Version: 1.13.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.sika.webserver.Activator
+Bundle-Vendor: ANSTO
+Require-Bundle: org.eclipse.core.runtime,
+ au.gov.ansto.bragg.nbi.webserver;bundle-version="1.13.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
