@@ -13,6 +13,8 @@ public class Activator implements BundleActivator {
 	private static BundleContext context;
 	
 	private static Activator instance;
+	
+	private static final String PROP_SICS_LOGINMODE = "gumtree.sics.loginMode";
 
 	private IEclipseContext eclipseContext;
 	
@@ -27,13 +29,16 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
 		instance = this;
-		try {
-			SicsStarter starter = ContextInjectionFactory.make(SicsStarter.class,
-					getEclipseContext());
-			ISicsManager sicsManager = starter.getSicsManager();
-			connect(sicsManager);
-		} catch (Exception e) {
-			e.printStackTrace();
+		String sicsLoginMode = System.getProperty(PROP_SICS_LOGINMODE);
+		if (!"skip".equals(sicsLoginMode)) {
+			try {
+				SicsStarter starter = ContextInjectionFactory.make(SicsStarter.class,
+						getEclipseContext());
+				ISicsManager sicsManager = starter.getSicsManager();
+				connect(sicsManager);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

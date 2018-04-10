@@ -21,6 +21,7 @@
 		<dingo.path>../../dingo</dingo.path>
 		<emu.path>../../emu</emu.path>
 		<spatz.path>../../spatz</spatz.path>
+		<sika.path>../../sika</sika.path>
 		<banksia.path>../../banksia</banksia.path>
 		<build.path>../../build</build.path>
 	</properties>
@@ -231,7 +232,8 @@
 		<module>${banksia.path}/au.gov.ansto.bragg.banksia.workbench</module>
 		<module>${banksia.path}/au.gov.ansto.bragg.banksia.workbench.feature</module>
 		
-		
+		<module>${sika.path}/au.gov.ansto.bragg.sika.webserver</module>
+		<module>${sika.path}/au.gov.ansto.bragg.sika.webserver.feature</module>
 		
 		<module>${build.path}/au.gov.ansto.bragg.extensions.sources.feature</module>
 	</modules>

@@ -351,6 +351,7 @@
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="dingo" applicationLabel="DingoWebserver" />
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="emu" applicationLabel="EmuWebserver" />
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="spatz" applicationLabel="SpatzWebserver" />
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="sika" applicationLabel="SikaWebserver" />
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="banksia" applicationLabel="BanksiaWebserver" />
 	</target>
 
@@ -542,6 +543,17 @@
 	-->
 	<target name="buildSpatzWebserver">
 		<quickBuildApplication applicationType="webserver" applicationName="spatz" applicationLabel="SpatzWebserver" />
+	</target>
+
+	<!--
+		Build Sika Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildSikaWebserver">
+		<quickBuildApplication applicationType="webserver" applicationName="sika" applicationLabel="SikaWebserver" />
 	</target>
 
 	<!--
