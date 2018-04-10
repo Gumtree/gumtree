@@ -30,7 +30,7 @@ public class Activator implements BundleActivator {
 		Activator.context = bundleContext;
 		instance = this;
 		String sicsLoginMode = System.getProperty(PROP_SICS_LOGINMODE);
-		if (!"skip".equals(sicsLoginMode)) {
+		if (!"skip".equalsIgnoreCase(sicsLoginMode)) {
 			try {
 				SicsStarter starter = ContextInjectionFactory.make(SicsStarter.class,
 						getEclipseContext());
