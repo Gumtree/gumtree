@@ -1,7 +1,9 @@
 package au.gov.ansto.bragg.quokka.sics;
 
 import org.gumtree.gumnix.sics.control.ControllerStatus;
+import org.gumtree.gumnix.sics.control.ISicsController;
 import org.gumtree.gumnix.sics.control.IStateMonitorListener;
+import org.gumtree.gumnix.sics.control.ServerStatus;
 import org.gumtree.gumnix.sics.control.controllers.CommandController;
 import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.io.SicsExecutionException;
@@ -48,11 +50,30 @@ public class BeamStopCommandController extends CommandController {
 				}
 			}
 //			while (getCommandStatus().equals(CommandStatus.BUSY) || getCommandStatus().equals(CommandStatus.STARTING)) {
+			counter = 0;
 			while (getStatus().equals(ControllerStatus.RUNNING)) {
 				if (SicsCore.getSicsController().isInterrupted()) {
 					break;
 				}
 				sleep("Error occured while waiting for IDLE state");
+				counter += TIME_INTERVAL;
+				if (counter > TIME_OUT) {
+					try {
+						ISicsController sicsController = SicsCore.getSicsController();
+						if (sicsController != null) {
+							sicsController.refreshServerStatus();
+							if (ServerStatus.EAGER_TO_EXECUTE.equals(sicsController.getServerStatus())) {
+								break;
+							} else {
+								counter = 0;
+							}
+						} else {
+							throw new SicsExecutionException("error in execution, possibly disconnected?");
+						}
+					} catch (Exception e) {
+						throw new SicsExecutionException("Time out on syncExecute() where status did not changed whiling execution");
+					}
+				}
 			}
 //		}
 		// Check if this device is interrupted

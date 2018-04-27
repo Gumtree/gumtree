@@ -13,6 +13,18 @@ VALIDATOR_MODEL = VALIDATOR_PROXY.getSicsModel()
 proxy = SICS_PROXY
 model = SICS_MODEL
 
+# if '__IS_VALIDATION_MODE__' in globals():
+#     print 'in globals'
+#     if __IS_VALIDATION_MODE__ :
+#         print 'is validation'
+#         proxy = VALIDATOR_PROXY
+#         model = VALIDATOR_MODEL
+# else:
+#     print 'not in globals'
+
+def get_proxy():
+    return proxy
+
 def set_validator(flag):
     global proxy
     global model

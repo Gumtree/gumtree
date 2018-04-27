@@ -999,6 +999,7 @@ def selBsHelper(beamstop, bx, bz, controller):
     while True:
         try:
             count += 1
+            slog('run beamstop selecting command ...')
             commandController.syncExecute()
             break
 
@@ -1013,6 +1014,7 @@ def selBsHelper(beamstop, bx, bz, controller):
     slog('beam stop is %s' % beamstop)
 
 def selBs(beamstop):
+    slog('select beamstop ' + str(beamstop))
     selBsHelper(beamstop, bx=None, bz=None, controller='/commands/beamstops/selbsn')
 
 def getBsx(throw=True):
@@ -1035,6 +1037,9 @@ def driveBsz(baseValue):
     loggedDrive('beamstop z', 'bsz', baseValue + offset, 'mm', getBsz)
 
 def selBsxz(beamstop, bx, bz):
+    slog('select beamstop ' + str(beamstop))
+    slog('set beamstop x to ' + str(bx))
+    slog('set beamstop z to ' + str(bz))
     selBsHelper(beamstop, bx, bz, '/commands/beamstops/selbsxz')
 
 def getDetPosition(throw=True):
