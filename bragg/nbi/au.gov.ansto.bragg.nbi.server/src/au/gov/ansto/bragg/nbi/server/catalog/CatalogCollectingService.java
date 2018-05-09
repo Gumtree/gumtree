@@ -147,10 +147,15 @@ public class CatalogCollectingService {
 					if (item != null) {
 						IArray data = item.getData();
 						String val = "";
-						if (data.getSize() > 1) {
-							val = data.getIterator().getObjectNext().toString();
-						} else {
+						Class<?> type = data.getElementType();
+						if (type == char.class || type == String.class) {
 							val = data.toString();
+						} else {
+							if (data.getSize() > 1) {
+								val = data.getIterator().getObjectNext().toString();
+							} else {
+								val = data.toString();
+							}
 						}
 						dict.put(pair[1], val);
 					} else {
