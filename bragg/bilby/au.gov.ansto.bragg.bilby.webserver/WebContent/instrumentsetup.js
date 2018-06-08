@@ -60,6 +60,12 @@ var devices = [
             	            {"classId":"xy_max_binrate", "deviceId":"::histogram_memory::ratemap_xy_max_bin", "title":"Max Rate on Pixel", "units":"c/t", "decimal":2}
             	            ]
                },
+               {"group":"SHUTTER STATUS", 
+            	   "items":[{"classId":"secondary", "deviceId":"/instrument/sis/status/secondary", "title":"Secondary Shutter", "units":""},
+            		   		{"classId":"tertiary", "deviceId":"/instrument/sis/status/tertiary", "title":"Tertiary Shutter", "units":""},
+            		   		{"classId":"fast_shutter", "deviceId":"/instrument/sis/status/fast_shutter", "title":"Fast Shutter", "units":""}
+            	            ]
+               },
                {"group":"ATTENUATOR", 
             	   "items":[{"classId":"att_pos", "deviceId":"att_pos", "title":"att position", "units":"", "decimal":0}
             	            ]
