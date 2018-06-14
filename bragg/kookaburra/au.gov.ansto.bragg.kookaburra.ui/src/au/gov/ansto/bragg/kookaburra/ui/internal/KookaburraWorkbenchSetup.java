@@ -30,9 +30,9 @@ public class KookaburraWorkbenchSetup implements IStartup {
 	private static Logger logger = LoggerFactory.getLogger(KookaburraWorkbenchSetup.class);
 	
 	public void earlyStartup() {
-		String launchTaipanLayout = System.getProperty(PROP_START_EXP_LAYOUT, "true");
+		String launchExperimentLayout = System.getProperty(PROP_START_EXP_LAYOUT, "true");
 		// [GT-73] Launch Taipan 2 monitor layout if required
-		if (Boolean.parseBoolean(launchTaipanLayout)) {
+		if (Boolean.parseBoolean(launchExperimentLayout)) {
 			SafeUIRunner.asyncExec(new ISafeRunnable() {
 				public void handleException(Throwable exception) {
 					logger.error("Failed to launch Taipan workbench layout during early startup.", exception);

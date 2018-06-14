@@ -10,9 +10,19 @@
             id="au.gov.ansto.bragg.kookaburra.ui.scanPerspective"
             name="Kookaburra Scan">
       </perspective>
+	  <perspective
+            class="au.gov.ansto.bragg.kookaburra.ui.internal.KKBScanPerspective"
+            icon="icons/target_16x16.png"
+            id="au.gov.ansto.bragg.kookaburra.ui.KKBScanPerspective"
+            name="KKB-Scan">
+      </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.views">
+      <category
+            name="Kookaburra"
+            id="au.gov.ansto.bragg.kookaburra">
+      </category>
       <view
             category="au.gov.ansto.bragg.kookaburra"
             class="au.gov.ansto.bragg.kookaburra.ui.internal.KookaburraScanView"
@@ -20,6 +30,14 @@
             id="au.gov.ansto.bragg.kookaburra.ui.scanView"
             name="kookaburra Scan">
       </view>
+      <view 
+	         id="au.gov.ansto.bragg.kookaburra.ui.KKBScanView" 
+	         name="KKB-Scan View"
+	         icon="icons/exp_per.gif"
+             category="au.gov.ansto.bragg.kookaburra"
+	         allowMultiple = "false" 
+	         class="au.gov.ansto.bragg.kookaburra.ui.internal.KKBScanView">
+	  </view>
    </extension>
    <extension
          point="org.eclipse.ui.startup">
