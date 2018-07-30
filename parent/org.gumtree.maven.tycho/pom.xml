@@ -114,7 +114,7 @@
 		<repository>
 			<id>eclipse_juno</id>
 			<layout>p2</layout>
-			<url>file:/x:/eclipse/p2/repo/eclipse/releases/juno</url>
+			<url>file:/c:/eclipse/p2/repo/eclipse/releases/juno</url>
 		</repository>
 		<!--
 		<repository>
@@ -128,7 +128,7 @@
 		<repository>
 			<id>gumtree_bundles</id>
 			<layout>p2</layout>
-			<url>file:/x:/eclipse/p2/repo/gumtree/bundles/1.8.x</url>
+			<url>file:/c:/eclipse/p2/repo/gumtree/bundles/1.8.x</url>
 		</repository>
 		<!--
 		<repository>
