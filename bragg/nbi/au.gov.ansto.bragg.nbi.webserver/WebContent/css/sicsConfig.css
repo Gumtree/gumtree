@@ -105,3 +105,108 @@ body {
 
 .border-top { border-top: 1px solid #e5e5e5; }
 .border-bottom { border-bottom: 1px solid #e5e5e5; }
+
+
+
+/* below is for the sidebar */
+.class_ul_hide {
+	display: none;
+}
+.class_li_subitem {
+	padding-left: 40px;
+	margin: 2px;
+}
+.class_li_subitem a {
+	padding: 0;
+	margin: 0px;
+}
+.class_span_mc_name {
+	color: #06002b;
+	font-weight: bolder;
+}
+.class_ul_folder > li.active {
+	background-color: #495057;
+}
+.class_ul_folder > li.active > a {
+	color: #ffe;
+}
+.btn-toolbar button{
+	min-width: 120px;
+}
+td.editable {
+  /*border-bottom:1pt solid #808a95;*/
+  padding: 0;
+  margin: 0;
+  vertical-align: middle;
+}
+td.editable input  {
+	background: transparent;
+	border-top: transparent;
+	border-left: transparent;
+	border-right: transparent;
+	border-bottom: 1pt solid #808a95;
+	color: #000; padding : 0;
+	margin: 0;
+	box-shadow: none !important;
+	padding: 0;
+	padding-left: 4px;
+}
+td.editable input.changed {
+	color: #0067ce;
+}
+tbody > tr.active td {
+	background: #ccc;
+}
+tbody > tr.warning td {
+	background: #fdb3bf;
+}
+#id_div_info {
+	min-height: 24px;
+}
+
+/* below layout for the pop up search result */
+.messagepop {
+  background-color:#eee;
+  border:2px solid #888;
+  border-top: none;
+  border-radius: 0 4px 4px 4px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0
+		rgba(0, 0, 0, 0.5);
+  cursor:default;
+  display:none;
+  margin: 0;
+  position:absolute;
+  text-align:left;
+  min-width: 480px;
+  width:480px;
+  z-index:50;
+  padding: 0px;
+}
+.messagepop ul {
+	padding: 0;
+}
+.messagepop li {
+  border-bottom: 1px solid #EFEFEF;
+  /*margin: 4px 0;*/
+  padding: 4px 8px;
+  font-size: 16px;
+  list-style: none;
+}
+.messagepop li.selected {
+	background-color: #aaa;
+}
+.messagepop li:NOT(.groupname):HOVER {
+	background-color: #aaa;
+	color: #fff;
+	cursor: pointer;
+}
+.messagepop li.selected .widget_text {
+	color: #fff;
+}
+.messagepop li.groupname {
+	background-color: #eee;
+	color: #888;
+	font-variant: small-caps;
+	font-weight: bold;
+	border-bottom: #ccc solid 1px;
+}

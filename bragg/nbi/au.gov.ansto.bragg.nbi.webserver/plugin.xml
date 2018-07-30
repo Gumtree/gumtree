@@ -180,6 +180,10 @@
             base-name="/WebContent/notebook.html">
       </resource>
       <resource
+            alias="/user/sicsConfig.html"
+            base-name="/WebContent/sicsConfig.html">
+      </resource>
+      <resource
             alias="/doc/notebook.html"
             base-name="/WebContent/notebook.html">
       </resource>
