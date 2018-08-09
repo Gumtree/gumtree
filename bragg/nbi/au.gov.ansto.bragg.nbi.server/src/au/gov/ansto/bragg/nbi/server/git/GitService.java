@@ -16,12 +16,15 @@ import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.NoMessageException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.api.errors.UnmergedPathsException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -39,6 +42,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepository;
+import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -46,13 +50,19 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.util.FileUtils;
 import org.eclipse.jgit.util.IO;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GitService {
 
+	private static Logger logger = LoggerFactory.getLogger(GitService.class);
 	private Git git;
+	private String repoPath;
+	private String remoteAddress;
 	
 	public GitService(String path) {
 		Repository repository;
+		repoPath = path;
 		try {
 			repository = new FileRepository(path + "/.git");
 			git = new Git(repository);
@@ -61,6 +71,14 @@ public class GitService {
 		}
 	}
 
+	public void setRemoteAddress(String remoteAddress) {
+		this.remoteAddress = remoteAddress;
+	}
+	
+	public String getRemoteAddress() {
+		return remoteAddress;
+	}
+	
 	public void applyChange() throws GitException {
 		if (git != null) {
 
@@ -78,6 +96,7 @@ public class GitService {
 					addCommand.addFilepattern(filePattern);					
 				}
 				addCommand.call();
+				logger.info("apply change to repository: " + String.valueOf(repoPath));
 			} catch (NoFilepatternException e) {
 				e.printStackTrace();
 				throw new GitException("Git error: no file pattern found.", e);
@@ -97,6 +116,7 @@ public class GitService {
 			try {
 				commit.setAuthor("gumtree","gumtree@ansto.gov.au");
 				commit.setMessage(message).call();
+				logger.info("commit change to repository: " + String.valueOf(repoPath) + " with message '" + message + "'");
 			} catch (NoHeadException e) {
 				throw new GitException("Git error: no head found.", e);
 			} catch (NoMessageException e) {
@@ -115,6 +135,27 @@ public class GitService {
 		}
 	}
 
+	public void push() throws GitException {
+		if (git != null) {
+			PushCommand push = git.push();
+			try {
+				Iterable<PushResult> results = push.setRemote(remoteAddress).call();
+				logger.info("push repository: " + String.valueOf(repoPath) + " to remote git at: " + remoteAddress);
+				for (PushResult result : results) {
+					logger.info("Pushed " + result.getMessages() + " " + result.getURI() + " updates: " + String.valueOf(result.getRemoteUpdates()));
+	            }
+			} catch (InvalidRemoteException e) {
+				throw new GitException("Git error: invalid remote repository.", e);
+			} catch (TransportException e) {
+				throw new GitException("Git error: network connection failed.", e);
+			} catch (GitAPIException e) {
+				throw new GitException("Git error: illegal API.", e);
+			}
+		} else {
+			throw new GitException("Git error: git repository not ready");
+		}
+	}
+	
 	public String fetchBlob(String revSpec, String path) throws MissingObjectException, IncorrectObjectTypeException,
 	IOException {
 		Repository repo = git.getRepository();

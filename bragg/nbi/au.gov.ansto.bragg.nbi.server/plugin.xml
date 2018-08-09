@@ -65,6 +65,12 @@
          </resource-mapping>
       </httpcontext>
       <httpcontext
+            id="yamlRestlet">
+         <resource-mapping
+               path="/user/yaml">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
             id="NBPageRedirectRestlet">
          <resource-mapping
                path="/status/notebook.html">
@@ -198,6 +204,15 @@
          <init-param
                name="org.restlet.application"
                value="au.gov.ansto.bragg.nbi.server.catalog.CatalogApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/user/yaml"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="yamlRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.yaml.YamlApplication">
          </init-param>
       </servlet>
       <servlet
