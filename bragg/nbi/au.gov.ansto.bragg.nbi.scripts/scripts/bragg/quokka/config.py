@@ -99,22 +99,37 @@ class ConfigSystem :
         
     def check_nvs_lambda(self, val):
         timeout = 600
-        interval = 10
+        interval = 2
         count = 0
         while count < timeout :
             try:
                 cur = sics.get_raw_value('nvs_lambda')
+                if sics.isInterrupt():
+                    break
 #                 pre = sics.get_raw_value('nvs_lambda precision')
                 pre = 0.1
                 if abs(cur - val) < pre:
                     log('wavelength is ' + str(cur))
                     return True
                 else:
+                    try:
+                        time.sleep(interval)
+                        count += interval
+                    except KeyboardInterrupt as ei:
+                        log('Interrupted')
+                        raise Exception, 'interrupted'
+                        break;
+            except:
+                try:
                     time.sleep(interval)
                     count += interval
-            except:
-                time.sleep(interval)
-                count += interval
+                except KeyboardInterrupt as ei:
+                    log('Interrupted')
+                    raise Exception, 'interrupted'
+                    break;
+        if sics.isInterrupt():
+            sics.clearInterrupt()
+            raise Exception, 'interrupted'
         sics.execute('stopexe nvs_lambda')
         log('WARNING: timeout in driving nvs_lambda, but choose to continue.')
         
@@ -258,6 +273,7 @@ class ConfigSystem :
                 self.multi_set()
         finally:
             self.clear()
+            sics.handleInterrupt()
         while not sics.get_status().equals(ServerStatus.EAGER_TO_EXECUTE) :
             time.sleep(0.3)
         sics.handleInterrupt()
