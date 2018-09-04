@@ -70,6 +70,12 @@ body {
   padding-top: 48px; /* Space for fixed navbar */
 }
 
+@media (max-width: 768px) {
+	[role="main"] {
+  		padding-top: 120px; /* Space for fixed navbar */
+	}
+}
+
 /*
  * Navbar
  */
@@ -99,6 +105,14 @@ body {
   box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
 }
 
+#id_a_instrument_name {
+	color: #eee;
+}
+#id_a_instrument_name:hover {
+	color: #fff;
+	box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
 /*
  * Utilities
  */
@@ -109,6 +123,13 @@ body {
 
 
 /* below is for the sidebar */
+.class_span_side_title {
+	padding: 24px 4px 4px 16px;
+	margin: 0;
+}
+.class_span_side_title h5 {
+	font-weight: bold;
+}
 .class_ul_hide {
 	display: none;
 }
@@ -209,4 +230,63 @@ tbody > tr.warning td {
 	font-variant: small-caps;
 	font-weight: bold;
 	border-bottom: #ccc solid 1px;
+}
+
+[role="main"] {
+    padding-right: 0px;
+}
+
+#id_div_main_area {
+	float: left;
+	width: 100%;
+	padding-right: 8px;
+}
+#id_div_right_bar {
+	display: none;
+	float: left;
+	width: 30%;
+	min-width:180px;
+	min-height: 480px;
+	background-color: #fafafa;
+	bottom: 10px;
+	
+	overflow-y: auto;
+	box-shadow: 1px 2px 4px rgba(0, 0, 0, .5);
+    padding: 10px;
+    
+}
+.class_div_bar_header {
+	vertical-align: middle;
+	margin:0;
+	padding: 0 0 4px 0;
+}
+.class_span_bar_title {
+	font-size: large;
+	vertical-align: middle;
+	margin: 0 12px 0 4px;
+}
+.class_div_commit_item {
+	border: 2px solid #aaa;
+	box-shadow: 1px 2px 4px rgba(0, 0, 0, .2);
+	padding: 4px;
+	margin-bottom: 4px;
+}
+.class_div_commit_item:hover {
+	background-color: #fff;
+	box-shadow: 2px 3px 5px rgba(0, 0, 0, .5);
+}
+.class_div_commit_item span{
+	display: block;
+	padding: 4px;
+}
+.class_button_instrument {
+	min-width: 360px;
+}
+.class_span_title {
+	color: #eee;
+	font-size: large;
+	padding-left: 8px;
+}
+.class_div_instrument_option {
+	padding: 8px;
 }

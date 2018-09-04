@@ -57,11 +57,11 @@ function login(){
             if (newUrl == null) {
             	newUrl = "home.html";
             }
-        	$("#login_result").html("You have signed in successfully. Now jump to the next page. "
+        	$("#login_result").html('You have signed in successfully. Now jump to the next page. '
         			+ "If the browser doesn't redirect automatically, please click <a href=\"" + newUrl + "\">here</a>.");
             setTimeout(function() {
             	window.location = newUrl;
-			}, 2000);
+			}, 1000);
         } else {
         	$("#login_result").html(data['result']);
         }

@@ -5,15 +5,20 @@ package au.gov.ansto.bragg.nbi.server.yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.httpclient.HttpClientError;
@@ -32,6 +37,7 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import au.gov.ansto.bragg.nbi.server.git.GitService;
+import au.gov.ansto.bragg.nbi.server.git.GitService.GitCommit;
 import au.gov.ansto.bragg.nbi.server.internal.AbstractUserControlRestlet;
 import au.gov.ansto.bragg.nbi.server.internal.UserSessionService;
 import au.gov.ansto.bragg.nbi.server.login.UserSessionObject;
@@ -44,14 +50,20 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 
 	private static final String QUERY_ENTRY_INSTRUMENT = "inst";
 	private static final String QUERY_ENTRY_MESSAGE = "msg";
+	private static final String QUERY_ENTRY_VERSION_ID = "version";
 	
 	private static final String SEG_NAME_MODEL = "model";
 	private static final String SEG_NAME_SAVE = "save";
+	private static final String SEG_NAME_LOAD = "load";
+	private static final String SEG_NAME_HISTORY = "history";
 	
 	private static final String PROPERTY_SICS_YAML_PATH = "gumtree.sics.yamlPath";
+	private static final String PROPERTY_SERVER_TEMP_PATH = "gumtree.server.temp";
+	private static final String PROPERTY_YAML_FOLDER = "yaml";
 	
 	private static String configPath;
-	private static GitService gitService;
+	private static String tempPath;
+	private static Map<String, GitService> gitServiceMap;
 	private static SimpleDateFormat formater;
 	private static String JSON_OK;
 
@@ -64,9 +76,11 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 	public YamlRestlet(Context context) {
 		super(context);
 		configPath = System.getProperty(PROPERTY_SICS_YAML_PATH);
-		if (configPath != null) {
-			gitService = new GitService(configPath);
-		}
+		tempPath = System.getProperty(PROPERTY_SERVER_TEMP_PATH);
+		gitServiceMap = new HashMap<String, GitService>();
+//		if (configPath != null) {
+//			gitService = new GitService(configPath);
+//		}
 		if (formater == null) {
 			formater = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
 		}
@@ -80,6 +94,16 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 		}
 	}
 
+	private synchronized static GitService getGitService(String instrumentId) {
+		if (gitServiceMap.containsKey(instrumentId)) {
+			return gitServiceMap.get(instrumentId);
+		} else {
+			GitService git = new GitService(configPath + "/" + instrumentId);
+			gitServiceMap.put(instrumentId, git);
+			return git;
+		}
+	}
+	
 	@Override
 	public void handle(Request request, Response response) {
 		String seg = request.getResourceRef().getLastSegment();
@@ -120,23 +144,72 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
 					return;
 				}
+			}  else if (SEG_NAME_HISTORY.equalsIgnoreCase(seg)){
+				try {
+					Form form = request.getResourceRef().getQueryAsForm();
+					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
+					List<GitCommit> commits = getGitService(instrumentId).getCommits(PROPERTY_YAML_FOLDER + '/' + instrumentId + ".yaml");
+//					JSONObject jsonObject = new JSONObject(new LinkedHashMap<String, Object>());
+					JSONArray jsonArray = new JSONArray();
+					int i = 0;
+					for (GitCommit commit : commits) {
+						JSONObject obj = new JSONObject();
+						obj.put("id", commit.getId());
+						obj.put("name", commit.getName());
+						obj.put("short message", commit.getShortMessage());
+						obj.put("message", commit.getMessage());
+						obj.put("timestamp", commit.getTimestamp());
+//						jsonObject.put(String.valueOf(i), obj);
+						jsonArray.put(obj);
+						i ++;
+					}
+//					JSONObject jsonObject = new JSONObject(model.toString());
+					response.setEntity(jsonArray.toString(), MediaType.TEXT_PLAIN);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					e.printStackTrace();
+//					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+					return;
+				}
+			}  else if (SEG_NAME_LOAD.equalsIgnoreCase(seg)){
+				try {
+					Form form = request.getResourceRef().getQueryAsForm();
+					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
+					String objectId = form.getValues(QUERY_ENTRY_VERSION_ID);
+					String text = getGitService(instrumentId).readRevisionOfFile(PROPERTY_YAML_FOLDER + "/" + instrumentId + ".yaml", objectId);
+					saveRevisionToTempFile(objectId, text);
+					Object model = loadConfigModelFromText(text);
+					JSONObject jsonObject = (JSONObject) _convertToJson(model);
+					response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					e.printStackTrace();
+//					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+					return;
+				}
 			}  else if (SEG_NAME_SAVE.equalsIgnoreCase(seg)){
 				try {
 					Representation rep = request.getEntity();
 					Form form = request.getResourceRef().getQueryAsForm();
 					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
 					String saveMessage = form.getValues(QUERY_ENTRY_MESSAGE);
+					String versionId = form.getValues(QUERY_ENTRY_VERSION_ID);
 					if (instrumentId == null) {
 						throw new Exception("need instrument name");
 					}
-	//				response.setEntity("Done", MediaType.TEXT_PLAIN);
 					String text = rep.getText();
 					try {
 						text = URLDecoder.decode(text, "UTF-8");
 					} catch (Exception e) {
 						throw new Exception("model can not be empty.");
 					}
-					saveConfigModel(instrumentId, text, saveMessage);
+					if (versionId != null && versionId.length() > 0) {
+						saveTempConfigModel(instrumentId, versionId, text, saveMessage, session);
+					} else {
+						saveConfigModel(instrumentId, text, saveMessage, session);
+					}
 					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
 					response.setStatus(Status.SUCCESS_OK);
 				} catch (Exception e) {
@@ -170,11 +243,12 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 
 	}
 
-	public static void saveConfigModel(String instrumentId, String text, String message) throws IOException, JSONException {
+	public static void saveConfigModel(String instrumentId, String text, String message, UserSessionObject session) 
+			throws IOException, JSONException {
 		if (text == null || text.trim().length() == 0) {
 			throw new JSONException("model can not be empty");
 		}
-		File file = new File(configPath + "/" + instrumentId + "/" + instrumentId + ".yaml");
+		File file = new File(getYamlFilePath(instrumentId));
 		String[] pair = text.split("&", 2);
 		String path = pair[0].substring(pair[0].indexOf("=") + 1).trim();
 		String modelString = pair[1].substring(pair[1].indexOf("=") + 1).trim();
@@ -209,21 +283,79 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			writer.close();
 		}
 		
-		if (gitService != null) {
+		GitService git = getGitService(instrumentId);
+		if (git != null) {
 			try {
-				gitService.applyChange();
+				git.applyChange();
 				if (message == null || message.length() == 0) {
-					message = instrumentId + ":" + formater.format(new Date());
+					message = session.getUserName().toUpperCase() + " updated " + path + ": " + formater.format(new Date());
 				} else {
-					message = instrumentId + ":" + message + ":" + formater.format(new Date());
+					message = session.getUserName().toUpperCase() + " updated " + path + ": " + message;
 				}
-				gitService.commit(message);
+				git.commit(message);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
-	
+
+	public static void saveTempConfigModel(String instrumentId, String versionId, String text, String message, UserSessionObject session) 
+			throws IOException, JSONException {
+		if (text == null || text.trim().length() == 0) {
+			throw new JSONException("model can not be empty");
+		}
+		File iFile = new File(tempPath + "/" + versionId);
+		String[] pair = text.split("&", 2);
+		String path = pair[0].substring(pair[0].indexOf("=") + 1).trim();
+		String modelString = pair[1].substring(pair[1].indexOf("=") + 1).trim();
+		JSONObject json = new JSONObject(modelString);
+//		System.out.println(json.get("path"));
+//		System.out.println(json.get("model"));
+	    DumperOptions options = new DumperOptions();
+	    options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(options);
+		Map<String, Object> model = null;
+		InputStream input = new FileInputStream(iFile);
+		try {
+			model = yaml.loadAs(input, Map.class);
+		} finally {
+			input.close();
+		}
+		String[] pathSeg = path.split("/");
+		Map<String, Object> device = (Map<String, Object>) model.get("GALIL_CONTROLLERS");
+		for (String seg : pathSeg) {
+			if (seg.length() > 0) {
+				device = (Map<String, Object>) device.get(seg);
+			}
+		}
+		updateMode(json, device);
+		File oFile = new File(getYamlFilePath(instrumentId));
+		FileWriter writer = new FileWriter(oFile);
+		try {
+			yaml.dump(model, writer);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}finally {
+			writer.close();
+		}
+		
+		GitService git = getGitService(instrumentId);
+		if (git != null) {
+			try {
+				git.applyChange();
+				if (message == null || message.length() == 0) {
+					message = session.getUserName().toUpperCase() + " updated " + path + ": " + formater.format(new Date());
+				} else {
+					message = session.getUserName().toUpperCase() + " updated " + path + ": " + message;
+				}
+				git.commit(message);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	private static void updateMode(JSONObject json, Map<String, Object> model) throws JSONException {
 		for (int i = 0; i < json.names().length(); i++) {
 			String key = json.names().getString(i);
@@ -249,18 +381,40 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 		}
 	}
 	
+	private static String getYamlFilePath(String instrumentId) {
+		return configPath + "/" + instrumentId + "/" + PROPERTY_YAML_FOLDER + "/" + instrumentId + ".yaml";
+	}
+	
 	public static Object loadConfigModel(String instrumentId) throws IOException {
 	    DumperOptions options = new DumperOptions();
 	    options.setPrettyFlow(true);
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         Yaml yaml = new Yaml(options);
-		InputStream input = new FileInputStream(new File(configPath + "/" + instrumentId + "/" + instrumentId + ".yaml"));
+		InputStream input = new FileInputStream(new File(getYamlFilePath(instrumentId)));
 		try {
 			Object data = yaml.load(input);
 			return data;
 		} finally {
 			input.close();
 		}
+	}
+	
+	public static Object loadConfigModelFromText(String text) throws IOException {
+	    DumperOptions options = new DumperOptions();
+	    options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(options);
+		try {
+			Object data = yaml.load(text);
+			return data;
+		} finally {
+		}
+	}
+	
+	public static void saveRevisionToTempFile(String id, String text) throws FileNotFoundException, UnsupportedEncodingException {
+		PrintWriter writer = new PrintWriter(tempPath + "/" + id, "UTF-8");
+		writer.write(text);
+		writer.close();
 	}
 	
 	private static Object _convertToJson(Object o) throws JSONException {

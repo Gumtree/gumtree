@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
@@ -36,9 +38,11 @@ import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepository;
@@ -46,7 +50,10 @@ import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
+import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FileUtils;
 import org.eclipse.jgit.util.IO;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
@@ -59,9 +66,9 @@ public class GitService {
 	private Git git;
 	private String repoPath;
 	private String remoteAddress;
+	private Repository repository;
 	
 	public GitService(String path) {
-		Repository repository;
 		repoPath = path;
 		try {
 			repository = new FileRepository(path + "/.git");
@@ -256,6 +263,49 @@ public class GitService {
 			e.printStackTrace();
 		} finally {
 			rw.dispose();			
+		}
+		return commits;
+	}
+	
+	public List<String> getFileHistory(String path) {
+		List<String> history = new ArrayList<String>();
+		try {
+			List<GitCommit> commits = getCommits(path);
+			for (GitCommit commit : commits) {
+				history.add(commit.getMessage());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return history;
+	}
+	
+	public List<GitCommit> getCommits(String path) throws RevisionSyntaxException, MissingObjectException, 
+	IncorrectObjectTypeException, AmbiguousObjectException, IOException, NoHeadException, GitAPIException {
+//		List<RevCommit> commits = new ArrayList<RevCommit>();
+//
+//		LogCommand logCommand = git.log()
+//		        .add(git.getRepository().resolve(Constants.HEAD))
+//		        .addPath(path);
+//
+//		for (RevCommit revCommit : logCommand.call()) {
+//		    commits.add(revCommit);
+//		}
+		List<GitCommit> commits = new ArrayList<GitCommit>();
+
+		RevWalk revWalk = new RevWalk(repository);
+		revWalk.setTreeFilter(
+		        AndTreeFilter.create(
+		                PathFilterGroup.createFromStrings(path),
+		                TreeFilter.ANY_DIFF)
+		);
+
+		RevCommit rootCommit = revWalk.parseCommit(repository.resolve(Constants.HEAD));
+		revWalk.sort(RevSort.COMMIT_TIME_DESC);
+		revWalk.markStart(rootCommit);
+
+		for (RevCommit revCommit : revWalk) {
+		    commits.add(new GitCommit(revCommit));
 		}
 		return commits;
 	}
@@ -532,5 +582,80 @@ public class GitService {
 				+ "\\ No newline at end of file\n";
 		res += "is expected ? " + (expected.toString().equals(actual)) + ";\n";
 		return res;
+	}
+	
+	public String readRevisionOfFile(String path, String id) {
+		ObjectId oid = ObjectId.fromString(id);
+		
+		try {
+			RevWalk revWalk = new RevWalk(repository);
+            RevCommit commit = revWalk.parseCommit(oid);
+            // and using commit's tree find the path
+            RevTree tree = commit.getTree();
+            System.out.println("Having tree: " + tree);
+
+            // now try to find a specific file
+            try  {
+            	TreeWalk treeWalk = new TreeWalk(repository);
+                treeWalk.addTree(tree);
+                treeWalk.setRecursive(true);
+                treeWalk.setFilter(PathFilter.create(path));
+                if (!treeWalk.next()) {
+                    throw new IllegalStateException("Did not find expected file 'README.md'");
+                }
+
+                ObjectId objectId = treeWalk.getObjectId(0);
+                ObjectLoader loader = repository.open(objectId);
+
+                // and then one can the loader to read the file
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                loader.copyTo(baos);
+                return new String(baos.toByteArray(), Charset.defaultCharset());
+            } catch (Exception e) {
+            	e.printStackTrace();
+            }
+            revWalk.dispose();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		return null;
+	}
+	
+	public class GitCommit {
+		
+		private String id;
+		private String name;
+		private String shortMessage;
+		private String message;
+		private int timestamp;
+		
+		public GitCommit(RevCommit revCommit) {
+			id = revCommit.getId().toString();
+			name = revCommit.getName();
+			shortMessage = revCommit.getShortMessage();
+			message = revCommit.getFullMessage();
+			timestamp = revCommit.getCommitTime();
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public int getTimestamp() {
+			return timestamp;
+		}
+		
+		public String getShortMessage() {
+			return shortMessage;
+		}
 	}
 }

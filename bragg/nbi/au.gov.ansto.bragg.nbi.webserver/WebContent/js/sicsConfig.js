@@ -1,3 +1,5 @@
+var PAR_INSTRUMENT_ID = "inst";
+var _inst = null;
 var _model = null;
 var GALIL_CONTROLLERS_NODE = "GALIL_CONTROLLERS";
 //var SICS_MOTORS_NODE = "SICS_MOTORS";
@@ -13,10 +15,13 @@ var _propertyTitle
 var _editor;
 var _property;
 var _motors;
-var _dirtyFlag;
+var _dirtyFlag = false;
+var _versionId = "";
 var KEY_MOTOR_NAME = "motor_name";
 var KEY_CONTROLLER_NAME = "asyncqueue";
 var KEY_AXIS_NAME = "encoderaxis";
+
+var historyBar;
 
 var IntValidator = function($ip) {
 	var $input = $ip;
@@ -100,71 +105,86 @@ var getGalilItem = function(path) {
 };
  var updateNode = function(key, val) {
 	var subMotor = _editorModel[keysOf(_editorModel)[0]];
+	var curVal = subMotor[key];
+	if (curVal.toString() != val.toString()){
+		_dirtyFlag = true;
+	}
 	subMotor[key] = val;
  };
  
 var loadGalilMotor = function(path) {
-	_curModel = getGalilItem(path);
-	if (_curModel) {
-		_editorModel = $.extend(true, {}, _curModel);
-		_curPath = path;
-//		_message.html(JSON.stringify(_curModel));
-		var subMotor = _editorModel[keysOf(_editorModel)[0]];
-		var motorName = subMotor[KEY_MOTOR_NAME];
-		var controller = subMotor[KEY_CONTROLLER_NAME];
-		var axis = subMotor[KEY_AXIS_NAME];
-		_title.text(controller + ":" + axis + "(SICS name:" + motorName + ")");
-		var html = '<table class="table table-striped table-sm"><thead><tr><th width="40%">Key</th><th width="60%">Value</th></tr></thead><tbody>';
-//		$.each(subMotor, function(key, val) {
-//			html += '<tr><td>' + key + '</td><td>' + val + "</td></tr>";
-//		});
-		$.each(_editable_tier_1, function(i, key) {
-			if (subMotor.hasOwnProperty(key)){
-				html += '<tr><td>' + key + '</td><td class="editable"><input type="text" key="' + key + '" class="form-control" value="' + subMotor[key] + '"></td></tr>';
-			}
-		});
-		$.each(_editable_tier_2, function(i, key) {
-			if (subMotor.hasOwnProperty(key)){
-				html += '<tr><td>' + key + '</td><td class="editable"><input type="text" key="' + key + '" class="form-control" value="' + subMotor[key] + '"></td></tr>';
-			}
-		});
-		html += '</tbody></table>';
-		_editorTitle.text('Encoder editable');
-		_editor.html(html);
-		var node = _editor.find('input[type="text"]');
-		node.focus(function() {
-			$(this).parent().parent().addClass("active");
-		}).blur(function() {
-			$(this).parent().parent().removeClass("active");
-			updateNode($(this).attr('key'), $(this).val());
-			$(this).addClass('changed');
-		}).keypress(function( event ) {
-			if ( event.which == 13 ) {
-				$(this).blur();
-			}
-		});
-		$.each(node, function(idx, n) {
-			var iv = new IntValidator($(this));
-		});
-
-
-		_propertyTitle.text('Other properties');
-		html = '<table class="table table-striped table-sm"><thead><tr><th width="40%">Key</th><th width="60%">Value</th></tr></thead><tbody>';
-		$.each(subMotor, function(key, val) {
-			if (typeof val === 'object') {
-				html += '<tr><td>' + key + '</td><td>' + 
-						'<table class="table table-striped table-sm"><thead><tr><th width="40%">Key</th><th width="60%">Value</th></tr></thead><tbody>';
-				$.each(val, function(subKey, subVal){
-					html += '<tr><td>' + subKey + '</td><td>' + subVal + "</td></tr>";
-				});
-				html += '</tbody></table></td></tr>';
-			} else {
-				html += '<tr><td>' + key + '</td><td>' + val + "</td></tr>";
-			}
-		});
-		html += '</tbody></table>';
-		_property.html(html);
+	var okToGo = true;
+	if (_curModel != null && _editorModel != null) {
+		if (_dirtyFlag) {
+			okToGo = confirm('You have unsaved changes in the current axis. If you load another axis, your change will be lost. Do you want to continue?');
+		}
 	}
+	if (okToGo) {
+		_dirtyFlag = false;
+		_curModel = getGalilItem(path);
+		if (_curModel) {
+			_editorModel = $.extend(true, {}, _curModel);
+			_curPath = path;
+	//		_message.html(JSON.stringify(_curModel));
+			var subMotor = _editorModel[keysOf(_editorModel)[0]];
+			var motorName = subMotor[KEY_MOTOR_NAME];
+			var controller = subMotor[KEY_CONTROLLER_NAME];
+			var axis = subMotor[KEY_AXIS_NAME];
+			_title.text(controller + ":" + axis + "(SICS name:" + motorName + ")");
+			var html = '<table class="table table-striped table-sm"><thead><tr><th width="40%">Key</th><th width="60%">Value</th></tr></thead><tbody>';
+	//		$.each(subMotor, function(key, val) {
+	//			html += '<tr><td>' + key + '</td><td>' + val + "</td></tr>";
+	//		});
+			$.each(_editable_tier_1, function(i, key) {
+				if (subMotor.hasOwnProperty(key)){
+					html += '<tr><td>' + key + '</td><td class="editable"><input type="text" key="' + key + '" class="form-control" value="' + subMotor[key] + '"></td></tr>';
+				}
+			});
+			$.each(_editable_tier_2, function(i, key) {
+				if (subMotor.hasOwnProperty(key)){
+					html += '<tr><td>' + key + '</td><td class="editable"><input type="text" key="' + key + '" class="form-control" value="' + subMotor[key] + '"></td></tr>';
+				}
+			});
+			html += '</tbody></table>';
+			_editorTitle.text('Axis editable');
+			_editor.html(html);
+			var node = _editor.find('input[type="text"]');
+			node.focus(function() {
+				$(this).parent().parent().addClass("active");
+			}).blur(function() {
+				$(this).parent().parent().removeClass("active");
+				updateNode($(this).attr('key'), $(this).val());
+				$(this).addClass('changed');
+			}).keypress(function( event ) {
+				if ( event.which == 13 ) {
+					$(this).blur();
+				}
+			});
+			$.each(node, function(idx, n) {
+				var iv = new IntValidator($(this));
+			});
+	
+	
+			_propertyTitle.text('Other properties');
+			html = '<table class="table table-striped table-sm"><thead><tr><th width="40%">Key</th><th width="60%">Value</th></tr></thead><tbody>';
+			$.each(subMotor, function(key, val) {
+				if (typeof val === 'object') {
+					html += '<tr><td>' + key + '</td><td>' + 
+							'<table class="table table-striped table-sm"><thead><tr><th width="40%">Key</th><th width="60%">Value</th></tr></thead><tbody>';
+					$.each(val, function(subKey, subVal){
+						html += '<tr><td>' + subKey + '</td><td>' + subVal + "</td></tr>";
+					});
+					html += '</tbody></table></td></tr>';
+				} else {
+					html += '<tr><td>' + key + '</td><td>' + val + "</td></tr>";
+				}
+			});
+			html += '</tbody></table>';
+			_property.html(html);
+			return true;
+		}
+	}
+	return false;
 };
 
 var showModelInSidebar = function() {
@@ -185,18 +205,22 @@ var showModelInSidebar = function() {
 		$div.find('a.class_a_axis').click(function() {
 			var path = $(this).attr('path');
 			if (path) {
-				loadGalilMotor(path);
+				var s = loadGalilMotor(path);
+				if (s) {
+					$('.class_ul_folder > li').removeClass('active');
+					$(this).parent().addClass('active');
+					$(this).blur();
+				}
+			} else {
+				showMsg('axis not found: ' + path, 'danger');
 			}
-			$('.class_ul_folder > li').removeClass('active');
-			$(this).parent().addClass('active');
-			$(this).blur();
 		});
 		$("#id_div_sidebar").append($div.children());
 	});
 };
 
 var getModel = function() {
-	var url = 'yaml/model?inst=bilby';
+	var url = 'yaml/model?inst=' + _inst + '&' + Date.now();
 	$.get(url, function(data) {
 		_model = data;
 		_galil = _model[GALIL_CONTROLLERS_NODE];
@@ -210,10 +234,12 @@ var getModel = function() {
 			});
 		});
 //		_sics = _model[SICS_MOTORS_NODE];
+		$("#id_div_sidebar").empty();
 		showModelInSidebar();
 	}).fail(function(e) {
 		if (e.status == 401) {
 			alert("sign in required");
+			window.location = 'signin.html?redirect=sicsConfigMenu.html';
 		} else {
 			alert(e.statusText);
 		}
@@ -223,11 +249,16 @@ var getModel = function() {
 var saveModel = function() {
 //	$('#id_modal_saveDialog').modal('hide');
 	_curModel = $.extend(true, _curModel, _editorModel);
-	var url = 'yaml/save?inst=bilby&msg=';
+	_dirtyFlag = false;
+	var url = 'yaml/save?inst=' + _inst + '&msg=';
 	var saveMsg = $('#id_input_saveMessage').val().replace(/^\s+|\s+$/gm,'');
 	if (saveMsg.length > 0) {
 		url += encodeURI(saveMsg);
 	}
+//	if (_versionId) {
+//		url += "&version=" + encodeURI(_versionId);
+//	}
+	url += "&" + Date.now();
 	var text = JSON.stringify(_editorModel);
 	$.post(url,  {path:_curPath, model:text}, function(data) {
 //		data = $.parseJSON(data);
@@ -235,8 +266,8 @@ var saveModel = function() {
 			if (data["status"] == "OK") {
 				showMsg("Saved in the server.");
 				$('td.editable input.changed').removeClass('changed');
+				setTimeout(historyBar.reload, 3000)
 			} else {
-				console.log(data);
 				showMsg(data["reason"], 'danger');
 			}
 		} catch (e) {
@@ -252,6 +283,7 @@ var saveModel = function() {
 
 var resetEditor = function($bt) {
 	if (_curPath) {
+		_dirtyFlag = false;
 		loadGalilMotor(_curPath);
 		showMsg('Reset successfully');
 	} else {
@@ -260,12 +292,15 @@ var resetEditor = function($bt) {
 };
 
 var addPageTitle = function(){
-	if (typeof title !== 'undefined') {
-		var titleString = "SICS Configuration - " + title;
-		$(document).attr("title", titleString);
-		$('#id_a_instrument_name').text(titleString);
-	}
-
+//	if (typeof title !== 'undefined') {
+//		var titleString = "SICS Configuration - " + title;
+//		$(document).attr("title", titleString);
+//		$('#id_a_instrument_name').text(titleString);
+//	}
+	var titleString = "SICS Configuration - " + _inst.charAt(0).toUpperCase() + _inst.slice(1);
+	$(document).attr("title", titleString);
+	var subTitle = _inst.toUpperCase() + " configuration";
+	$('#id_span_side_title').html('<h5>' + subTitle + '</h5>');
 };
 
 var SearchWidget = function($t) {
@@ -388,7 +423,127 @@ var SearchWidget = function($t) {
 	};
 };
 
+var getTimeString = function(timestamp) {
+	var a = new Date(timestamp * 1000);
+	  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+	  var year = a.getFullYear();
+	  var month = months[a.getMonth()];
+	  var date = a.getDate();
+	  var hour = a.getHours();
+	  var min = a.getMinutes();
+	  var sec = a.getSeconds();
+	  var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+	  return time;
+};
+
+var CommitItem = function(commit) {
+	var id = commit["id"];
+	var name = commit["name"];
+	var message = commit["message"];
+	var timestamp = commit["timestamp"];
+	
+	var control = $('<div/>').addClass("class_div_commit_item");
+	control.append('<span class="badge badge-secondary class_span_commit_timestamp">' + getTimeString(timestamp) + '</span>');
+	control.append('<span class="class_span_commit_message">' + message + '</span>');
+	var button = $('<span class="class_span_commit_button"><button class="class_button_load_commit btn btn-sm btn-block btn-outline-primary">Load this version</button></span>');
+	control.append(button);
+	button.find('button').click(function() {
+		var url = 'yaml/load?inst=' + _inst + '&version=' + encodeURI(name) + "&" + Date.now();
+		$.get(url, function(data) {
+			_model = data;
+			_versionId = name;
+			_galil = _model[GALIL_CONTROLLERS_NODE];
+			_motors = {}
+			$.each(_galil, function(key, mc) {
+				$.each(mc, function(id, encoder) {
+					var path = "/" + key + "/" + id;
+					var motor = encoder[keysOf(encoder)[0]];
+					var name = motor[KEY_MOTOR_NAME];
+					_motors[name] = path;
+				});
+			});
+//			_sics = _model[SICS_MOTORS_NODE];
+			$("#id_div_sidebar").empty();
+			_dirtyFlag = false;
+			_curModel = null;
+//			_curPath = null;
+			_editorModel = null;
+			showModelInSidebar();
+			showMsg('Successully loaded version: ' + message);
+			_editorTitle.empty();
+			_editor.empty();
+			_propertyTitle.empty();
+			_property.empty();
+			if (_curPath != null) {
+				var m = getGalilItem(_curPath);
+				if (m == null) {
+					alert('Axis ' + _curPath + " doesn't exist.");
+				}
+				var mc = _curPath.split('/')[1];
+				var axis = _curPath.split('/')[2];
+				$('.class_ul_folder').addClass('class_ul_hide');
+				$('#ul_mc_' + mc).removeClass('class_ul_hide');
+				$('.class_ul_folder > li').removeClass('active');
+				$('#li_' + mc + '_' + axis).addClass('active');
+				loadGalilMotor(_curPath);
+			}
+		}).fail(function() {
+			alert('failed to load the version');
+		});
+	});
+	
+	this.getControl = function() {
+		return control;
+	};
+};
+
+var HistoryBlock = function(main, side) {
+	var enabled = false;
+	
+	this.reload = function() {
+		if (enabled) {
+			$('.class_div_commit_item').remove();
+			var url = 'yaml/history?inst=' + _inst + '&' + Date.now();
+			$.get(url, function(data) {
+				data = $.parseJSON(data);
+				$.each(data, function(i, v) {
+					var commit = new CommitItem(v);
+					side.append(commit.getControl());
+				});
+			}).fail(function() {
+				alert('failed to get history.');
+			});
+		}
+	};
+	
+	this.toggle = function() {
+		enabled = !enabled;
+		if (enabled) {
+			main.css('width', '70%');
+			side.show();
+			var bodyHeight = $(window).height() - 150;
+			var mainHeight = $("#id_div_main_area").height();
+			var newHeight = bodyHeight > mainHeight ? bodyHeight : mainHeight;
+			side.height(newHeight);
+			this.reload();
+		} else {
+			side.hide();
+			main.css('width', '100%');
+		}
+	};
+};
+
+
 $(document).ready(function() {
+	_inst = getParam(PAR_INSTRUMENT_ID);
+	if (_inst == null) {
+		window.location = "sicsConfigMenu.html";
+	}
+	
+	$('#id_a_signout').click(function() {
+		signout("sicsConfigMenu.html");
+	});
+	
 	_message = $('#id_div_info');
 	_title = $('#id_device_title');
 	_editorTitle = $('#id_editor_subtitle');
@@ -410,10 +565,26 @@ $(document).ready(function() {
 		}
 	});
 	
+	$(window).resize(function() {
+		var bodyHeight = $(window).height() - 150;
+		var mainHeight = $("#id_div_main_area").height();
+		var newHeight = bodyHeight > mainHeight ? bodyHeight : mainHeight;
+		$('#id_div_right_bar').height(newHeight);
+	});
+	
 	$('#id_button_reset').click(function() {
 		resetEditor($(this));
 	});
 	
+	historyBar = new HistoryBlock($("#id_div_main_area"), $('#id_div_right_bar'));
+	
+	$('#id_button_history').click(function(){
+		historyBar.toggle();
+	})
+	
+	$('#id_button_reload_history').click(function() {
+		historyBar.reload();
+	});
 	var search = new SearchWidget($('#id_input_search_text'));
 	search.init();
 });
