@@ -93,6 +93,9 @@ public class UserHomeRestlet extends Restlet implements IDisposable{
 			    		addManageNotebook(menuJson, infoJson);
 			    		addManageCatalog(menuJson, infoJson);
 			    	} 
+			    	if (UserSessionService.verifyService(session, UserSessionService.NAME_SERVICE_MOTORCONFIGURATION)){
+			    		addConfiguration(menuJson, infoJson);
+			    	} 
 			    	jsonObject.put("menu", menuJson);
 			    	jsonObject.put("info", infoJson);
 			    	response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
@@ -164,7 +167,13 @@ public class UserHomeRestlet extends Restlet implements IDisposable{
     	infoJson.put("catalogAdmin.html", "Manage Data Catalog: Instrument scientists can use this " +
     			"page to manage data catalogs of the current and history proposals.");		
 	}
-	
+
+	private void addConfiguration(JSONObject menuJson, JSONObject infoJson) throws JSONException, IOException {
+    	menuJson.put("sicsConfigMenu.html", "Motor Configuration");
+    	infoJson.put("sicsConfigMenu.html", "Motor Configuration: Electrical team can use this page to change motor "
+    			+ "configuration. The configuration will be picked up by SICS to build motor control driver.");		
+	}
+
 	private void addCurrentNotebook(JSONObject menuJson, JSONObject infoJson) throws JSONException, IOException {
     	menuJson.put("notebook.html", "Current Notebook Page");
     	infoJson.put("notebook.html", "Current Notebook Page: Access to edit current notebook page.");		
