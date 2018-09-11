@@ -17,11 +17,12 @@ var _property;
 var _motors;
 var _dirtyFlag = false;
 var _versionId = "";
+var _timestamp = "";
 var KEY_MOTOR_NAME = "motor_name";
 var KEY_CONTROLLER_NAME = "asyncqueue";
 var KEY_AXIS_NAME = "encoderaxis";
 
-var historyBar;
+var _historyBar;
 
 var IntValidator = function($ip) {
 	var $input = $ip;
@@ -89,6 +90,27 @@ var keysOf = function(obj) {
 	return keys;
 };
 
+var updateModel = function(path, newModel){
+	if (_galil) {
+		console.log(path);
+		var segs = path.split('/');
+		var newObj = newModel[GALIL_CONTROLLERS_NODE];
+		var obj = _galil;
+		var l = segs.length;
+		if (l == 1) {
+			obj[segs[0]] = newObj[segs[0]];
+		} else {
+			for (var i = 0; i < l - 1; i++) {
+				if (segs[i].trim().length > 0) {
+					console.log(obj);
+					obj = obj[segs[i]];
+					newObj = newObj[segs[i]];
+				}
+			}
+			obj[segs[l - 1]] = newObj[segs[l - 1]]; 
+		}
+	}
+};
 var getGalilItem = function(path) {
 	if (_galil) {
 		var segs = path.split('/');
@@ -121,6 +143,18 @@ var loadGalilMotor = function(path) {
 	}
 	if (okToGo) {
 		_dirtyFlag = false;
+		if (path == null) {
+			_curModel = null;
+			_curPath = null;
+			_title.text('Home');
+			_editor.empty();
+			_editorTitle.empty();
+			_propertyTitle.empty();
+			_property.empty();
+			$('.class_ul_folder > li').removeClass('active');
+			_historyBar.reload();
+			return;
+		}
 		_curModel = getGalilItem(path);
 		if (_curModel) {
 			_editorModel = $.extend(true, {}, _curModel);
@@ -181,6 +215,7 @@ var loadGalilMotor = function(path) {
 			});
 			html += '</tbody></table>';
 			_property.html(html);
+			_historyBar.reload();
 			return true;
 		}
 	}
@@ -266,7 +301,7 @@ var saveModel = function() {
 			if (data["status"] == "OK") {
 				showMsg("Saved in the server.");
 				$('td.editable input.changed').removeClass('changed');
-				setTimeout(historyBar.reload, 3000)
+				setTimeout(_historyBar.reload, 3000)
 			} else {
 				showMsg(data["reason"], 'danger');
 			}
@@ -280,6 +315,10 @@ var saveModel = function() {
 		$('#id_modal_saveDialog').modal('hide');
 	});
 };
+
+var goHome = function() {
+	loadGalilMotor(null);
+}
 
 var resetEditor = function($bt) {
 	if (_curPath) {
@@ -450,34 +489,13 @@ var CommitItem = function(commit) {
 	button.find('button').click(function() {
 		var url = 'yaml/load?inst=' + _inst + '&version=' + encodeURI(name) + "&" + Date.now();
 		$.get(url, function(data) {
-			_model = data;
-			_versionId = name;
-			_galil = _model[GALIL_CONTROLLERS_NODE];
-			_motors = {}
-			$.each(_galil, function(key, mc) {
-				$.each(mc, function(id, encoder) {
-					var path = "/" + key + "/" + id;
-					var motor = encoder[keysOf(encoder)[0]];
-					var name = motor[KEY_MOTOR_NAME];
-					_motors[name] = path;
-				});
-			});
-//			_sics = _model[SICS_MOTORS_NODE];
-			$("#id_div_sidebar").empty();
 			_dirtyFlag = false;
-			_curModel = null;
-//			_curPath = null;
-			_editorModel = null;
-			showModelInSidebar();
-			showMsg('Successully loaded version: ' + message);
-			_editorTitle.empty();
-			_editor.empty();
-			_propertyTitle.empty();
-			_property.empty();
 			if (_curPath != null) {
-				var m = getGalilItem(_curPath);
-				if (m == null) {
+				try{
+					updateModel(_curPath, data);
+				} catch (e) {
 					alert('Axis ' + _curPath + " doesn't exist.");
+					return;
 				}
 				var mc = _curPath.split('/')[1];
 				var axis = _curPath.split('/')[2];
@@ -486,6 +504,37 @@ var CommitItem = function(commit) {
 				$('.class_ul_folder > li').removeClass('active');
 				$('#li_' + mc + '_' + axis).addClass('active');
 				loadGalilMotor(_curPath);
+			} else {
+				_model = data;
+				_versionId = name;
+				_timestamp = getTimeString(timestamp);
+				_galil = _model[GALIL_CONTROLLERS_NODE];
+				_motors = {}
+				$.each(_galil, function(key, mc) {
+					$.each(mc, function(id, encoder) {
+						var path = "/" + key + "/" + id;
+						var motor = encoder[keysOf(encoder)[0]];
+						var name = motor[KEY_MOTOR_NAME];
+						_motors[name] = path;
+					});
+				});
+	//			_sics = _model[SICS_MOTORS_NODE];
+				$("#id_div_sidebar").empty();
+				_curModel = null;
+	//			_curPath = null;
+				_editorModel = null;
+				showModelInSidebar();
+				showMsg('Successully loaded version: ' + message);
+				_editorTitle.empty();
+				_editor.empty();
+				_propertyTitle.empty();
+				_property.empty();
+				_editorTitle.text("History version '" + message + "' has been loaded back.");
+				var $b = $('<button class="btn btn-outline-primary">Apply this version</button>');
+				$b.click(function() {
+					applyCurrentVersion($(this));
+				});
+				_editor.append($b);
 			}
 		}).fail(function() {
 			alert('failed to load the version');
@@ -497,13 +546,38 @@ var CommitItem = function(commit) {
 	};
 };
 
+var applyCurrentVersion = function($b) {
+	var c = confirm('Do you want to overwrite the current configuration file with the history version?');
+	if (c && _inst && _versionId) {
+		var url = 'yaml/apply?inst=' + _inst + '&version=' + encodeURI(_versionId);
+		url += '&timestamp=' + encodeURI(_timestamp)  + '&' + Date.now();
+		$.get(url, function(data) {
+			if (data["status"] == "OK") {
+				showMsg("Successfully applied the history version. A new version ID has been created.");
+				$b.remove();
+				_historyBar.reload();
+			} else {
+				showMsg("failed to apply the history version.", 'danger');
+				alert(data["reason"]);
+			}
+		}).fail(function() {
+			showMsg("failed to apply the history version.", 'danger')
+			alert("Connection failed.");
+		});
+	}
+};
+
 var HistoryBlock = function(main, side) {
 	var enabled = false;
 	
 	this.reload = function() {
 		if (enabled) {
 			$('.class_div_commit_item').remove();
-			var url = 'yaml/history?inst=' + _inst + '&' + Date.now();
+			var url = 'yaml/history?inst=' + _inst;
+			if (_curPath) {
+				url += '&path=' + _curPath;
+			}
+			url += '&' + Date.now();
 			$.get(url, function(data) {
 				data = $.parseJSON(data);
 				$.each(data, function(i, v) {
@@ -576,14 +650,18 @@ $(document).ready(function() {
 		resetEditor($(this));
 	});
 	
-	historyBar = new HistoryBlock($("#id_div_main_area"), $('#id_div_right_bar'));
+	$('#id_span_side_home').click(function() {
+		goHome();
+	});
+	
+	_historyBar = new HistoryBlock($("#id_div_main_area"), $('#id_div_right_bar'));
 	
 	$('#id_button_history').click(function(){
-		historyBar.toggle();
+		_historyBar.toggle();
 	})
 	
 	$('#id_button_reload_history').click(function() {
-		historyBar.reload();
+		_historyBar.reload();
 	});
 	var search = new SearchWidget($('#id_input_search_text'));
 	search.init();

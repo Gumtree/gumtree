@@ -130,6 +130,11 @@ body {
 .class_span_side_title h5 {
 	font-weight: bold;
 }
+.class_span_side_home {
+	padding: 24px 4px 4px 16px;
+	margin: 0;
+	font-size: larger;
+}
 .class_ul_hide {
 	display: none;
 }

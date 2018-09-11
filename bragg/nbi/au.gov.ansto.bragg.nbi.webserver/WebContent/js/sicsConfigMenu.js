@@ -3,17 +3,17 @@ var INST_LIST = [
 	"dingo",
 	"echidna",
 	"emu",
-	"joey",
-	"koala",
+//	"joey",
+//	"koala",
 	"kookaburra",
 	"kowari",
 	"pelican",
 	"platypus",
 	"quokka",
-	"sika",
+//	"sika",
 	"spatz",
 	"taipan",
-	"wombat",
+	"wombat"
 ]
 
 $(document).ready(function() {

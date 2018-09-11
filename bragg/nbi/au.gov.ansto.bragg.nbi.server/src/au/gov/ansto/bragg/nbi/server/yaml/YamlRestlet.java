@@ -12,6 +12,9 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,13 +52,16 @@ import au.gov.ansto.bragg.nbi.server.login.UserSessionObject;
 public class YamlRestlet extends AbstractUserControlRestlet implements IDisposable {
 
 	private static final String QUERY_ENTRY_INSTRUMENT = "inst";
+	private static final String QUERY_ENTRY_PATH = "path";
 	private static final String QUERY_ENTRY_MESSAGE = "msg";
 	private static final String QUERY_ENTRY_VERSION_ID = "version";
+	private static final String QUERY_ENTRY_TIMESTAMP = "timestamp";
 	
 	private static final String SEG_NAME_MODEL = "model";
 	private static final String SEG_NAME_SAVE = "save";
 	private static final String SEG_NAME_LOAD = "load";
 	private static final String SEG_NAME_HISTORY = "history";
+	private static final String SEG_NAME_APPLY = "apply";
 	
 	private static final String PROPERTY_SICS_YAML_PATH = "gumtree.sics.yamlPath";
 	private static final String PROPERTY_SERVER_TEMP_PATH = "gumtree.server.temp";
@@ -148,11 +154,18 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 				try {
 					Form form = request.getResourceRef().getQueryAsForm();
 					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
+					String path = form.getValues(QUERY_ENTRY_PATH);
 					List<GitCommit> commits = getGitService(instrumentId).getCommits(PROPERTY_YAML_FOLDER + '/' + instrumentId + ".yaml");
 //					JSONObject jsonObject = new JSONObject(new LinkedHashMap<String, Object>());
 					JSONArray jsonArray = new JSONArray();
 					int i = 0;
 					for (GitCommit commit : commits) {
+						if (path != null && path.trim().length() > 0) {
+							String message = commit.getMessage();
+							if (!message.contains(path)) {
+								continue;
+							}
+						}
 						JSONObject obj = new JSONObject();
 						obj.put("id", commit.getId());
 						obj.put("name", commit.getName());
@@ -189,7 +202,27 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
 					return;
 				}
-			}  else if (SEG_NAME_SAVE.equalsIgnoreCase(seg)){
+			} else if (SEG_NAME_APPLY.equalsIgnoreCase(seg)){
+				try {
+					Form form = request.getResourceRef().getQueryAsForm();
+					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
+					String versionId = form.getValues(QUERY_ENTRY_VERSION_ID);
+					String ts = form.getValues(QUERY_ENTRY_TIMESTAMP);
+					if (instrumentId == null) {
+						throw new Exception("need instrument name");
+					}
+					if (versionId == null) {
+						throw new Exception("need version id");
+					}
+					applyHistoryVersion(instrumentId, versionId, ts, session);
+					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					e.printStackTrace();
+					response.setEntity(makeErrorJSON(e.getMessage()), MediaType.APPLICATION_JSON);
+					return;
+				}
+			} else if (SEG_NAME_SAVE.equalsIgnoreCase(seg)){
 				try {
 					Representation rep = request.getEntity();
 					Form form = request.getResourceRef().getQueryAsForm();
@@ -349,6 +382,28 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 				} else {
 					message = session.getUserName().toUpperCase() + " updated " + path + ": " + message;
 				}
+				git.commit(message);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static void applyHistoryVersion(String instrumentId, String versionId, String timestamp, UserSessionObject session) 
+			throws IOException, JSONException {
+//		File iFile = new File(tempPath + "/" + versionId);
+		
+//		File oFile = new File(getYamlFilePath(instrumentId));
+		
+		Files.copy(Paths.get(tempPath + "/" + versionId), 
+					Paths.get(getYamlFilePath(instrumentId)),
+					StandardCopyOption.REPLACE_EXISTING);
+		
+		GitService git = getGitService(instrumentId);
+		if (git != null) {
+			try {
+				git.applyChange();
+				String message = session.getUserName().toUpperCase() + " reversed version to" + ": " + timestamp;
 				git.commit(message);
 			} catch (Exception e) {
 				e.printStackTrace();
