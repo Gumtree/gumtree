@@ -94,7 +94,7 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "cts")
-				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "cts")
+				.addDevice("/monitor/bm1_event_rate", "BM1 counts rate", null, "cts/s")
 				.addDevice("/instrument/detector/total_counts", "Detector counts", null, "cts")
 				;
 		configureWidget(deviceStatusWidget);
@@ -169,22 +169,27 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.ONE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(slits1Group, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/slits/s2h", "s2h", null, "mm")
-				.addDevice("/instrument/slits/s2v", "s2v", null, "mm")
-				.addDevice("/instrument/slits/s3h", "s3h", null, "mm")
-				.addDevice("/instrument/slits/s3v", "s3v", null, "mm")
-				.addDevice("/instrument/slits/s4h", "s4h", null, "mm")
-				.addDevice("/instrument/slits/s4v", "s4v", null, "mm")
+				.addDevice("/instrument/slits/s2left", "s2 left", null, "mm")
+				.addDevice("/instrument/slits/s2right", "s2 right", null, "mm")
+				.addDevice("/instrument/slits/s2top", "s2 top", null, "mm")
+				.addDevice("/instrument/slits/s2bot", "s2 bottom", null, "mm")
+				.addDevice("/instrument/slits/s3left", "s3 left", null, "mm")
+				.addDevice("/instrument/slits/s3right", "s3 right", null, "mm")
+				.addDevice("/instrument/slits/s3top", "s3 top", null, "mm")
+				.addDevice("/instrument/slits/s3bot", "s3 bottom", null, "mm")
 				;
 		configureWidget(deviceStatusWidget);
 
 		// Monochromator
-		PGroup monochromatorGroup = createGroup("MONOCHROMATOR",
-				SharedImage.MONOCHROMATOR.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(monochromatorGroup, SWT.NONE);
+		PGroup sampleStageGroup = createGroup("SAMPLE STAGE",
+				SharedImage.POSITIONER.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(sampleStageGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/crystal/mom", "mom", null, "deg")
-				.addDevice("/instrument/crystal/stth", "stth", null, "deg")
+				.addDevice("/sample/som", "som", null, "deg")
+				.addDevice("/sample/stilt", "stilt", null, "mm")
+				.addDevice("/sample/sx", "sx", null, "mm")
+				.addDevice("/sample/sxtop", "sxtop", null, "mm")
+				.addDevice("/sample/sy", "sy", null, "mm")
 				;
 		configureWidget(deviceStatusWidget);
 

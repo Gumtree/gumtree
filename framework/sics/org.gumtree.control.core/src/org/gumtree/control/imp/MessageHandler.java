@@ -55,26 +55,37 @@ public class MessageHandler {
 	}
 
 	public void process(final JSONObject json) {
-//		System.out.println("process " + json);
+		System.out.println("process " + json);
+//		try {
+//			if (json.has(SicsChannel.JSON_KEY_STATUS)) {
+//				String status = json.getString(SicsChannel.JSON_KEY_STATUS);
+//				sicsProxy.setServerStatus(ServerStatus.parseStatus(status));
+//			}
+//		} catch (JSONException e) {
+//		}
 		try {
-			if (json.has(SicsChannel.JSON_KEY_STATUS)) {
-				String status = json.getString(SicsChannel.JSON_KEY_STATUS);
-				sicsProxy.setServerStatus(ServerStatus.parseStatus(status));
+			if (json.has(PropertyConstants.PROP_UPDATE_TYPE)) {
+				String type = json.getString(PropertyConstants.PROP_UPDATE_TYPE);
+				if (type.equalsIgnoreCase(MessageType.STATUS.getId())) {
+					String status = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
+					System.out.println("update status " + status);
+					sicsProxy.setServerStatus(ServerStatus.parseStatus(status));
+				} else if (type.equalsIgnoreCase(MessageType.VALUE.getId())) {
+					System.out.println("process update");
+					processUpdate(json.getString(PropertyConstants.PROP_UPDATE_NAME), 
+							json.getString(PropertyConstants.PROP_UPDATE_VALUE));
+				} else if (type.equalsIgnoreCase(MessageType.STATE.getId())) {
+					System.out.println("process state");
+					processState(json.getString(PropertyConstants.PROP_UPDATE_VALUE), 
+							json.getString(PropertyConstants.PROP_UPDATE_NAME));
+				} else if (type.equalsIgnoreCase(MessageType.BATCH.getId())) {
+					processBatch(json);
+				}
+			} else if (json.has(PropertyConstants.PROP_COMMAND_CMD)) {
+				System.out.println("cmd message for command: " + json.getString("text"));
 			}
 		} catch (JSONException e) {
-		}
-		try {
-			String type = json.getString(PropertyConstants.PROP_MESSAGE_TYPE);
-			if (type.equals(MessageType.UPDATE.getId())) {
-				processUpdate(json.getString(PropertyConstants.PROP_UPDATE_PATH), 
-						json.getString(PropertyConstants.PROP_UPDATE_DATA));
-			} else if (type.equals(MessageType.STATE.getId())) {
-				processState(json.getString(PropertyConstants.PROP_UPDATE_PATH), 
-						json.getString(PropertyConstants.PROP_UPDATE_DATA));
-			} else if (type.equals(MessageType.BATCH.getId())) {
-				processBatch(json);
-			}
-		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -98,7 +109,7 @@ public class MessageHandler {
 	}
 	
 	public void processUpdate(String path, String value) {
-		ISicsController controller = getModel().findControllerByPath(path);
+		ISicsController controller = getModel().findController(path);
 		try {
 			((IDynamicController) controller).updateModelValue(value);
 		} catch (SicsModelException e) {
@@ -106,8 +117,8 @@ public class MessageHandler {
 	}
 
 	public void processState(String path, String state) {
-		ISicsController controller = getModel().findControllerByPath(path);
-		controller.setState(ControllerState.valueOf(state));
+		ISicsController controller = getModel().findController(path);
+		controller.setState(ControllerState.getState(state));
 	}
 
 	private ISicsModel getModel() {

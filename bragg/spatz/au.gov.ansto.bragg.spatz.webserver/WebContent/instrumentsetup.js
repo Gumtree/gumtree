@@ -41,8 +41,8 @@ function adaptSamNum(text) {
 var devices = [
                {"group":"NEUTRON BEAM", 
             	   "items":[{"classId":"bm1_counts", "deviceId":"bm1_counts", "title":"Monitor 1", "units":"cts"},
-            		   		{"classId":"bm2_counts", "deviceId":"bm2_counts", "title":"Monitor 2", "units":"cts"}, 
-            	            {"classId":"detector_counts", "deviceId":"/instrument/detector/total_counts", "title":"Detector Counts", "units":"c"}
+            		   		{"classId":"bm1_event_rate", "deviceId":"bm1_event_rate", "title":"Monitor 1 rate", "units":"cts/s"}, 
+            	            {"classId":"detector_counts", "deviceId":"/instrument/detector/total_counts", "title":"Detector Counts", "units":"cts"}
             	            ]
                },
                {"group":"CHOPPERS", 
@@ -54,17 +54,22 @@ var devices = [
             	            ]
                },
                {"group":"SLITS", 
-            	   "items":[{"classId":"s2ho", "deviceId":"s2ho", "title":"S2 horizontal opening ", "units":"", "mm":0},
-            		   		{"classId":"s2vo", "deviceId":"s2vo", "title":"S2 vertical opening ", "units":"", "mm":0},
-            		   		{"classId":"s3ho", "deviceId":"s3ho", "title":"S3 horizontal opening ", "units":"", "mm":0},
-            		   		{"classId":"s3vo", "deviceId":"s3vo", "title":"S3 vertical opening ", "units":"", "mm":0},
-            		   		{"classId":"s4ho", "deviceId":"s4ho", "title":"S4 horizontal opening ", "units":"", "mm":0},
-            		   		{"classId":"s4vo", "deviceId":"s4vo", "title":"S4 vertical opening ", "units":"", "mm":0}
+            	   "items":[{"classId":"s2left", "deviceId":"s2left", "title":"s2 left", "units":"", "mm":0},
+            		   		{"classId":"s2right", "deviceId":"s2right", "title":"s2 right", "units":"", "mm":0},
+            		   		{"classId":"s2top", "deviceId":"s2top", "title":"s2 top", "units":"", "mm":0},
+            		   		{"classId":"s2bot", "deviceId":"s2bot", "title":"s2 bottom", "units":"", "mm":0},
+            		   		{"classId":"s3left", "deviceId":"s3left", "title":"s3 left", "units":"", "mm":0},
+            		   		{"classId":"s3right", "deviceId":"s3right", "title":"s3 right", "units":"", "mm":0},
+            		   		{"classId":"s3top", "deviceId":"s3top", "title":"s3 top", "units":"", "mm":0},
+            		   		{"classId":"s3bot", "deviceId":"s3bot", "title":"s3 bottom", "units":"", "mm":0}
             	            ]
                },
-               {"group":"MONOCHROMATOR", 
-            	   "items":[{"classId":"mom", "deviceId":"mom", "title":"Omega", "units":"deg"},
-            	            {"classId":"stth", "deviceId":"stth", "title":"wavelength", "units":"deg"}
+               {"group":"SAMPLE STAGE", 
+            	   "items":[{"classId":"som", "deviceId":"som", "title":"Sample Omega", "units":"deg"},
+            	            {"classId":"stilt", "deviceId":"stilt", "title":"Sample Tilt", "units":"mm"},
+            	            {"classId":"sx", "deviceId":"sx", "title":"Sample X", "units":"mm"},
+            	            {"classId":"sxtop", "deviceId":"sxtop", "title":"Sample X Top", "units":"mm"},
+            	            {"classId":"sy", "deviceId":"sy", "title":"Sample Y", "units":"mm"}
             	            ]
                }
                ];
