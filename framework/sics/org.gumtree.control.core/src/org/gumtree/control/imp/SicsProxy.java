@@ -58,7 +58,11 @@ public class SicsProxy implements ISicsProxy {
 			return false;
 		}
 		try {
-			serverStatus = ServerStatus.parseStatus(channel.syncSend("status", null));
+			String s = channel.syncSend("status", null);
+			if (s.contains("=")) {
+				s = s.split("=")[1].trim();
+			}
+			serverStatus = ServerStatus.parseStatus(s);
 		} catch (SicsException e) {
 		}
 //		try {
@@ -250,6 +254,8 @@ public class SicsProxy implements ISicsProxy {
 			try {
 				String msg = channel.syncSend("getgumtreexml /", null);
 				if (msg != null) {
+					int idx = msg.indexOf("<");
+					msg = msg.substring(idx);
 					sicsModel = new SicsModel(this);
 					sicsModel.loadFromString(msg);
 				}

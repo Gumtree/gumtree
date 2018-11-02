@@ -19,6 +19,16 @@ public enum ServerStatus {
 		if (message == null) {
 			return UNKNOWN;
 		}
+		if (message.contains("=")) {
+			String[] parts = message.split("=");
+			if (parts.length != 2) {
+				return UNKNOWN;
+			}
+			if (!"status".equals(parts[0].trim())) {
+				return UNKNOWN;
+			}
+			message = parts[1];
+		}
 		message = message.trim().toLowerCase();
 		if (message.startsWith("eager")) {
 			return EAGER_TO_EXECUTE;

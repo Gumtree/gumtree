@@ -7,16 +7,26 @@ import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.PropertyConstants;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
+import org.gumtree.control.model.PropertyConstants.MessageType;
 import org.json.JSONObject;
 
 public class MessageProcessor {
 
-	public enum MessageType{
-		STATUS,
-		STATE,
-		UPDATE, 
-		BATCH
-	}
+//	public enum MessageType{
+//		STATUS,
+//		STATE,
+//		VALUE, 
+//		BATCH,
+//		UNKNOWN;
+//		
+//		public static MessageType fromString(String text) {
+//			try {
+//				return MessageType.valueOf(text.toUpperCase());
+//			} catch (Exception e) {
+//				return MessageType.UNKNOWN;
+//			}
+//		}
+//	}
 	
 	public MessageProcessor() {
 	}
@@ -25,23 +35,23 @@ public class MessageProcessor {
 		JSONObject json;
 		try {
 			json = new JSONObject(message);
-			String messageTypeString = json.get(PropertyConstants.PROP_MESSAGE_TYPE).toString();
+			String messageTypeString = json.get(PropertyConstants.PROP_UPDATE_TYPE).toString();
 			if (messageTypeString != null) {
-				MessageType messageType = MessageType.valueOf(messageTypeString);
+				MessageType messageType = MessageType.parseString(messageTypeString);
 				switch (messageType) {
 				case STATUS:
 					
 					break;
 				case STATE:
-					String path = json.get(PropertyConstants.PROP_UPDATE_PATH).toString();
-					String value = json.get(PropertyConstants.PROP_UPDATE_DATA).toString();
+					String path = json.get(PropertyConstants.PROP_UPDATE_VALUE).toString();
+					String value = json.get(PropertyConstants.PROP_UPDATE_NAME).toString();
 					if (path != null && value != null) {
 						updateModelState(path, value);
 					}
 					break;
-				case UPDATE:
-					path = json.get(PropertyConstants.PROP_UPDATE_PATH).toString();
-					value = json.get(PropertyConstants.PROP_UPDATE_DATA).toString();
+				case VALUE:
+					path = json.get(PropertyConstants.PROP_UPDATE_NAME).toString();
+					value = json.get(PropertyConstants.PROP_UPDATE_VALUE).toString();
 					if (path != null && value != null) {
 						updateModelValue(path, value);
 					}
@@ -56,6 +66,7 @@ public class MessageProcessor {
 	}
 
 	private void updateModelState(String path, String value) {
+		System.out.println(path + ", " + value);
 		ISicsModel model = SicsManager.getSicsModel();
 		if (model != null) {
 			ISicsController controller = model.findController(path);
@@ -71,6 +82,7 @@ public class MessageProcessor {
 	}
 	
 	private void updateModelValue(String path, String value) {
+		System.out.println(path + ", " + value);
 		ISicsModel model = SicsManager.getSicsModel();
 		if (model != null) {
 			ISicsController controller = model.findController(path);

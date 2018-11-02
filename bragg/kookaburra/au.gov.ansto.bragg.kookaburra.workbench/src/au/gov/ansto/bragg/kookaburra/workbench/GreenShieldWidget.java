@@ -1,17 +1,9 @@
-package org.gumtree.gumnix.sics.widgets.swt;
+package au.gov.ansto.bragg.kookaburra.workbench;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -22,9 +14,9 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.gumtree.gumnix.sics.core.SicsEvents;
+import org.gumtree.gumnix.sics.widgets.swt.ExtendedSicsComposite;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.service.dataaccess.IDataHandler;
-import org.gumtree.service.directory.IDirectoryService;
 import org.gumtree.util.messaging.DelayEventHandler;
 import org.gumtree.util.messaging.EventHandler;
 import org.gumtree.util.messaging.IDelayEventExecutor;
@@ -32,19 +24,20 @@ import org.gumtree.widgets.swt.util.SafeUIRunner;
 import org.osgi.service.event.Event;
 
 @SuppressWarnings("restriction")
-public class ShutterStatusWidget extends ExtendedSicsComposite {
+public class GreenShieldWidget extends ExtendedSicsComposite {
 
+	private final static String DEVICE_TITLE = "Green Polyshield - ";
+	
 	private IDataAccessManager dataAccessManager;
 
 	private IDelayEventExecutor delayEventExecutor;
 
 	private EventHandler blindEventHandler;
 
-	private Set<Context> contexts;
+	private Context context;
 
-	public ShutterStatusWidget(Composite parent, int style) {
+	public GreenShieldWidget(Composite parent, int style) {
 		super(parent, style);
-		contexts = new HashSet<Context>();
 	}
 
 	@Override
@@ -52,104 +45,28 @@ public class ShutterStatusWidget extends ExtendedSicsComposite {
 		setBackgroundMode(SWT.INHERIT_FORCE);
 		GridLayoutFactory.swtDefaults().applyTo(this);
 
-		Label label = getWidgetFactory().createLabel(this, "Secondary - ",
-				SWT.CENTER | SWT.WRAP | SWT.BORDER);
-		label.setFont(JFaceResources.getFontRegistry().getBold(
-				JFaceResources.DEFAULT_FONT));
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
-				.grab(true, false).applyTo(label);
-		Context context = new Context();
-		context.path = "/instrument/status/secondary";
-		context.label = label;
-		context.originalForeground = label.getForeground();
-		context.handler = new HdbEventHandler(context, getDelayEventExecutor())
-				.activate();
-		contexts.add(context);
-
-		label = getWidgetFactory().createLabel(this, "Sample - ",
+		Label label = getWidgetFactory().createLabel(this, DEVICE_TITLE,
 				SWT.CENTER | SWT.WRAP | SWT.BORDER);
 		label.setFont(JFaceResources.getFontRegistry().getBold(
 				JFaceResources.DEFAULT_FONT));
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(label);
 		context = new Context();
-		context.path = "/instrument/status/tertiary";
+		context.path = "/instrument/GreenPolyShield/greenpolyshield";
 		context.label = label;
 		context.originalForeground = label.getForeground();
 		context.handler = new HdbEventHandler(context, getDelayEventExecutor())
 				.activate();
-		contexts.add(context);
 
-		// TODO: test this code
-		// [GUMTREE-141] Blinking
-		blindEventHandler = new EventHandler(IDirectoryService.EVENT_TOPIC_BIND) {
-			@Override
-			public void handleEvent(Event event) {
-				// TODO: use topic to filter
-				if (event.getProperty(IDirectoryService.EVENT_PROP_NAME)
-						.equals("shutterStatusCheckFailed")) {
-					if ((Boolean) event
-							.getProperty(IDirectoryService.EVENT_PROP_OBJECT)) {
-						final int[] counter = new int[] { 0 };
-						final Map<Label, Color> originalColourMap = new HashMap<Label, Color>();
-						Job job = new Job("") {
-							protected IStatus run(IProgressMonitor monitor) {
-								// Over 5 times ... exit
-								if (isDisposed() || counter[0] > 5) {
-									return Status.OK_STATUS;
-								}
-								SafeUIRunner.asyncExec(new SafeRunnable() {
-									public void run() throws Exception {
-										for (Context context : contexts) {
-											if (!context.isActivated) {
-												continue;
-											}
-											// Initialise and finalise
-											if (counter[0] == 0) {
-												originalColourMap
-														.put(context.label,
-																context.label
-																		.getBackground());
-											} else if (counter[0] >= 5) {
-												context.label
-														.setBackground(originalColourMap
-																.get(context.label));
-											}
-											// Blinking
-											if (counter[0] % 2 == 0) {
-												context.label
-														.setBackground(null);
-											} else {
-												context.label
-														.setBackground(originalColourMap
-																.get(context.label));
-											}
-										}
-										counter[0]++;
-									}
-								});
-								// Repeat every 0.5 sec
-								schedule(500);
-								return Status.OK_STATUS;
-							}
-						};
-						// Run now
-						job.schedule();
-					}
-				}
-
-			}
-		};
 	}
 
 	@Override
 	protected void handleSicsConnect() {
-		if (contexts == null) {
+		if (context == null) {
 			return;
 		}
 		checkSicsConnection();
 		try {
-			for (final Context context : contexts) {
 				getDataAccessManager().get(URI.create("sics://hdb" + context.path),
 						String.class, new IDataHandler<String>() {
 							@Override
@@ -161,7 +78,6 @@ public class ShutterStatusWidget extends ExtendedSicsComposite {
 							public void handleError(URI uri, Exception exception) {
 							}
 						});
-			}
 			if (blindEventHandler != null) {
 				blindEventHandler.activate();
 			}
@@ -173,7 +89,7 @@ public class ShutterStatusWidget extends ExtendedSicsComposite {
 
 	@Override
 	protected void handleSicsDisconnect() {
-		if (contexts == null) {
+		if (context == null) {
 			return;
 		}
 		if (blindEventHandler != null) {
@@ -182,19 +98,11 @@ public class ShutterStatusWidget extends ExtendedSicsComposite {
 		SafeUIRunner.asyncExec(new SafeRunnable() {
 			@Override
 			public void run() throws Exception {
-				for (final Context context : contexts) {
 					// Set label text
-					StringBuilder builder = new StringBuilder();
-					if (context.path.endsWith("secondary")) {
-						builder.append("Secondary - ");
-					} else if (context.path.endsWith("tertiary")) {
-						builder.append("Sample - ");
-					}
-					context.label.setText(builder.toString());
+					context.label.setText(DEVICE_TITLE);
 					context.label.setBackground(null);
 					context.label.setForeground(context.originalForeground);
 					context.isActivated = false;
-				}
 			}
 		});
 	}
@@ -205,14 +113,11 @@ public class ShutterStatusWidget extends ExtendedSicsComposite {
 			blindEventHandler.deactivate();
 			blindEventHandler = null;
 		}
-		if (contexts != null) {
-			for (Context context : contexts) {
-				if (context.handler != null) {
-					context.handler.deactivate();
-				}
+		if (context != null) {
+			if (context.handler != null) {
+				context.handler.deactivate();
 			}
-			contexts.clear();
-			contexts = null;
+			context = null;
 		}
 		dataAccessManager = null;
 		delayEventExecutor = null;
@@ -277,24 +182,16 @@ public class ShutterStatusWidget extends ExtendedSicsComposite {
 					return;
 				}
 				// Set label text
-				StringBuilder builder = new StringBuilder();
-				if (context.path.endsWith("secondary")) {
-					builder.append("Secondary - ");
-				} else if (context.path.endsWith("tertiary")) {
-					builder.append("Sample - ");
-				}
-				builder.append(data);
-				context.label.setText(builder.toString());
+				String text = DEVICE_TITLE + data.toUpperCase();
+				context.label.setText(text);
 				// Set colour based on status
-				if (data.equalsIgnoreCase("Opened")
-						| data.equalsIgnoreCase("OPEN")) {
+				if (data.equalsIgnoreCase("in")) {
 					context.label.setBackground(getDisplay().getSystemColor(
 							SWT.COLOR_GREEN));
 					context.label.setForeground(getDisplay().getSystemColor(
 							SWT.COLOR_BLACK));
 					context.isActivated = true;
-				} else if (data.equalsIgnoreCase("Closed")
-						| data.equalsIgnoreCase("CLOSE")) {
+				} else if (data.equalsIgnoreCase("out")) {
 					context.label.setBackground(getDisplay().getSystemColor(
 							SWT.COLOR_RED));
 					context.label.setForeground(getDisplay().getSystemColor(

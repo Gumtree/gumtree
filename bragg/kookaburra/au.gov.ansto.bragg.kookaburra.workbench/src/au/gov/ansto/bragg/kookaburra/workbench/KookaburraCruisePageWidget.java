@@ -70,6 +70,12 @@ public class KookaburraCruisePageWidget extends AbstractCruisePageWidget {
 				shutterGroup, SWT.NONE);
 		configureWidget(shutterStatuswidget);
 		shutterGroup.setExpanded(false);
+		GreenShieldWidget shieldWidget = new GreenShieldWidget(shutterGroup, 
+				SWT.NONE);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
+				.grab(true, false).applyTo(shieldWidget);
+		configureWidget(shieldWidget);
+		shutterGroup.setExpanded(true);
 
 		// Server Status
 		PGroup sicsStatusGroup = createGroup("SERVER STATUS", 

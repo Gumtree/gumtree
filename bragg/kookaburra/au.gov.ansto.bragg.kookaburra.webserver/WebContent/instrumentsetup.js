@@ -4,6 +4,7 @@ var devices = [
                {"group":"NEUTRON BEAM", 
             	   "items":[{"classId":"plc_secondary", "deviceId":"plc_secondary", "title":"Secondary Shutter", "units":""},
             	            {"classId":"plc_tertiary", "deviceId":"plc_tertiary", "title":"Sample Shutter", "units":""},
+            	            {"classId":"polyshield", "deviceId":"/instrument/GreenPolyShield/greenpolyshield", "title":"Green Polyshield", "units":""},
             	            {"classId":"bm1_counts", "deviceId":"bm1_counts", "title":"BM1 Counts", "units":"counts"},
             	            {"classId":"bm1_event_rate", "deviceId":"bm1_event_rate", "title":"BM1 Event Rate", "units":"counts/sec", "decimal":3},
             	            {"classId":"bm2_counts", "deviceId":"bm2_counts", "title":"BM2 Counts", "units":"counts"},

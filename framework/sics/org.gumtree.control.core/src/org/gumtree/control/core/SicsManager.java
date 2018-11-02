@@ -21,7 +21,7 @@ public class SicsManager {
 		return sicsProxy;
 	}
 	
-	public static ISicsProxy getSicsProxy() {
+	public static synchronized ISicsProxy getSicsProxy() {
 		if (sicsProxy == null) {
 			sicsProxy = new SicsProxy();
 		}

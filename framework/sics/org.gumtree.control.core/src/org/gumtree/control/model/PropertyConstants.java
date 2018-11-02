@@ -2,9 +2,15 @@ package org.gumtree.control.model;
 
 public class PropertyConstants {
 
-	public final static String PROP_MESSAGE_TYPE = "type";
-	public final static String PROP_UPDATE_PATH = "path";
-	public final static String PROP_UPDATE_DATA = "data";
+	public final static String PROP_COMMAND_CMD = "cmd";
+	public final static String PROP_COMMAND_FLAG = "flag";
+	public final static String PROP_COMMAND_REPLY = "reply";
+	
+	
+	public final static String PROP_UPDATE_TYPE = "type";
+	public final static String PROP_UPDATE_NAME = "name";
+	public final static String PROP_UPDATE_VALUE = "value";
+
 	public final static String PROP_BATCH_NAME = "batch_name";
 	public final static String PROP_BATCH_RANGE = "batch_range";
 	public final static String PROP_BATCH_TEXT = "batch_text";
@@ -14,7 +20,7 @@ public class PropertyConstants {
 //	public final static String PROP_TYPE_STATUS = "STATUS";
 
 	public enum MessageType{
-		UPDATE("UPDATE"), STATE("STATE"), STATUS("STATUS"), BATCH("BATCH");
+		VALUE("VALUE"), STATE("STATE"), STATUS("STATUS"), BATCH("BATCH");
 		
 		private MessageType(String id) {
 			this.id = id;
@@ -24,9 +30,9 @@ public class PropertyConstants {
 			return id;
 		}
 
-		public static MessageType getState(String id) {
+		public static MessageType parseString(String id) {
 			for (MessageType type : values()) {
-				if (type.getId().equals(id)) {
+				if (type.getId().equalsIgnoreCase(id)) {
 					return type;
 				}
 			}
@@ -38,7 +44,7 @@ public class PropertyConstants {
 	
 	
 	public enum ControllerState{
-		BUSY("BUSY"), IDLE("IDLE"), ERROR("ERROR");
+		BUSY("BUSY"), IDLE("IDLE"), ERROR("ERROR"), STARTED("STARTED"), FINISH("FINISH");
 		
 		private ControllerState(String id) {
 			this.id = id;
@@ -49,10 +55,16 @@ public class PropertyConstants {
 		}
 
 		public static ControllerState getState(String id) {
-			for (ControllerState state : values()) {
-				if (state.getId().equals(id)) {
-					return state;
-				}
+//			for (ControllerState state : values()) {
+//				if (state.getId().equals(id)) {
+//					return state;
+//				}
+//			}
+			if (id != null && (id.equalsIgnoreCase(BUSY.id) || id.equalsIgnoreCase(STARTED.id))) {
+				return BUSY;
+			}
+			if (id != null && (id.equalsIgnoreCase(IDLE.id) || id.equalsIgnoreCase(FINISH.id))) {
+				return IDLE;
 			}
 			return null;
 		}

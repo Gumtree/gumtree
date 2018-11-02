@@ -3,6 +3,8 @@
  */
 package org.gumtree.control.imp;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,10 +27,15 @@ public class SicsChannel implements ISicsChannel {
 	
 	public static final String JSON_KEY_STATUS = "status";
 	public static final String JSON_KEY_ERROR = "error";
+	public static final String JSON_KEY_FLAG = "flag";
 	public static final String JSON_KEY_INTERRUPT = "interrupt";
-	public static final String JSON_KEY_FINISHED = "finished";
-	public static final String JSON_KEY_CID = "cid";
-	public static final String JSON_KEY_COMMAND = "command";
+	public static final String JSON_KEY_FINISHED = "final";
+	public static final String JSON_KEY_CID = "trans";
+	public static final String JSON_KEY_COMMAND = "text";
+	public static final String JSON_KEY_TYPE = "cmd";
+	
+	public static final String JSON_VALUE_ERROR = "ERROR";
+	public static final String JSON_VALUE_OK = "OK";
 	
 	private static final int COMMAND_WAIT_TIME = 1;
 	
@@ -46,6 +53,9 @@ public class SicsChannel implements ISicsChannel {
     private MessageHandler messageHandler;
     private Thread clientThread;
     private Thread subscribeThread;
+    
+    private String serverAddress;
+    private String publisherAddress;
     
     private SicsProxy sicsProxy;
     
@@ -71,7 +81,7 @@ public class SicsChannel implements ISicsChannel {
 			public void run() {
 				while(true) {
 					String msg = subscriberSocket.recvStr();
-//					System.out.println("subscribe " + msg);
+					System.err.println("SUB " + msg);
 					JSONObject json;
 					try {
 						json = new JSONObject(msg);
@@ -123,24 +133,33 @@ public class SicsChannel implements ISicsChannel {
 	public void connect(String serverAddress, String publisherAddress) throws SicsCommunicationException {
 	    clientSocket.connect(serverAddress);
 	    subscribe(publisherAddress);
+	    this.serverAddress = serverAddress;
+	    this.publisherAddress = publisherAddress;
 		isConnected = true;
 		clientThread = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
 				while(isConnected) {
-					String received = clientSocket.recvStr();
-					JSONObject json = null;
 					try {
-						json = new JSONObject(received);	
-						if (json != null && json.has(JSON_KEY_CID)) {
-							int commandId = json.getInt(JSON_KEY_CID);
-							if (commandMap.containsKey(commandId)) {
-								commandMap.get(commandId).progress(json);
+						String received = clientSocket.recvStr();
+						String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
+						System.err.println(timeStamp + " Received: " + received);
+						JSONObject json = null;
+						try {
+							json = new JSONObject(received);	
+							if (json != null && json.has(JSON_KEY_CID)) {
+								int commandId = json.getInt(JSON_KEY_CID);
+								if (commandMap.containsKey(commandId)) {
+									commandMap.get(commandId).progress(json);
+								}
 							}
+						} catch (Exception e) {
+							e.printStackTrace();
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
+						System.err.println("disconnected");
+						break;
 					}
 				}
 			}
@@ -150,9 +169,13 @@ public class SicsChannel implements ISicsChannel {
 
 	@Override
 	public void disconnect() {
-		clientSocket.close();
-		subscriberSocket.close();
-        context.term();
+		if (serverAddress != null) {
+			clientSocket.disconnect(serverAddress);
+		}
+		if (publisherAddress != null) {
+			subscriberSocket.close();
+		}
+        clientThread.interrupt();
         isConnected = false;
 	}
 	
@@ -187,11 +210,14 @@ public class SicsChannel implements ISicsChannel {
 			isStarted = false;
 			JSONObject jcom = new JSONObject();
 			try {
+				jcom.put(JSON_KEY_TYPE, "sics");
 				jcom.put(JSON_KEY_CID, cid);
 				jcom.put(JSON_KEY_COMMAND, command);
 			} catch (JSONException e1) {
 				throw new SicsExecutionException("illegal command");
 			}
+			String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
+			System.err.println(timeStamp + " async send: " + jcom.toString());
 			clientSocket.send(jcom.toString());
 			while (!isFinished) {
 				try {
@@ -210,11 +236,14 @@ public class SicsChannel implements ISicsChannel {
 			isStarted = false;
 			JSONObject jcom = new JSONObject();
 			try {
+				jcom.put(JSON_KEY_TYPE, "sics");
 				jcom.put(JSON_KEY_CID, cid);
 				jcom.put(JSON_KEY_COMMAND, command);
 			} catch (JSONException e1) {
 				throw new SicsExecutionException("illegal command");
 			}
+			String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
+			System.err.println(timeStamp + " async send: " + jcom.toString());
 			clientSocket.send(jcom.toString());
 		}
 
@@ -233,8 +262,8 @@ public class SicsChannel implements ISicsChannel {
 				if (!isStarted) {
 					isStarted = true;
 					messageHandler.process(json);
-					if (json.has(PropertyConstants.PROP_UPDATE_DATA)) {
-						reply = json.get(PropertyConstants.PROP_UPDATE_DATA).toString();
+					if (json.has(PropertyConstants.PROP_COMMAND_REPLY)) {
+						reply = json.get(PropertyConstants.PROP_COMMAND_REPLY).toString();
 					}
 					if (json.has(JSON_KEY_INTERRUPT)) {
 						if (callback != null) {
@@ -242,16 +271,21 @@ public class SicsChannel implements ISicsChannel {
 						}
 						throw new SicsInterruptException("interrupted");
 					}
-					if (json.has(JSON_KEY_ERROR)) {
-						if (callback != null) {
-							callback.setError(true);
+					if (json.has(JSON_KEY_FLAG)) {
+						String flag = json.getString(JSON_KEY_FLAG);
+						if (JSON_VALUE_ERROR.equals(flag)) {
+							if (callback != null) {
+								callback.setError(true);
+							}
+							throw new SicsExecutionException(reply);
 						}
-						throw new SicsExecutionException(json.getString(JSON_KEY_ERROR));
 					}
 					if (json.has(JSON_KEY_FINISHED)) {
-						finish();
-						if (callback != null) {
-							callback.receiveFinish(new SicsReplyData(json));
+						if (json.getString(JSON_KEY_FINISHED).equals("true")) {
+							finish();
+							if (callback != null) {
+								callback.receiveFinish(new SicsReplyData(json));
+							}
 						}
 					} else {
 						if (callback != null) {
@@ -260,8 +294,8 @@ public class SicsChannel implements ISicsChannel {
 					}
 				} else {
 					messageHandler.process(json);
-					if (json.has(PropertyConstants.PROP_UPDATE_DATA)) {
-						reply = json.get(PropertyConstants.PROP_UPDATE_DATA).toString();
+					if (json.has(PropertyConstants.PROP_COMMAND_REPLY)) {
+						reply = json.get(PropertyConstants.PROP_COMMAND_REPLY).toString().trim();
 					}
 					if (json.has(JSON_KEY_INTERRUPT)) {
 						if (callback != null) {
@@ -269,16 +303,21 @@ public class SicsChannel implements ISicsChannel {
 						}
 						throw new SicsInterruptException("interrupted");
 					}
-					if (json.has(JSON_KEY_ERROR)) {
-						if (callback != null) {
-							callback.setError(true);
+					if (json.has(JSON_KEY_FLAG)) {
+						String flag = json.getString(JSON_KEY_FLAG);
+						if (JSON_VALUE_ERROR.equals(flag)) {
+							if (callback != null) {
+								callback.setError(true);
+							}
+							throw new SicsExecutionException(reply);
 						}
-						throw new SicsExecutionException(json.getString(JSON_KEY_ERROR));
 					}
 					if (json.has(JSON_KEY_FINISHED)) {
-						finish();
-						if (callback != null) {
-							callback.receiveFinish(new SicsReplyData(json));
+						if (json.getString(JSON_KEY_FINISHED).equals("true")) {
+							finish();
+							if (callback != null) {
+								callback.receiveFinish(new SicsReplyData(json));
+							}
 						}
 					} else {
 						if (callback != null) {
