@@ -105,14 +105,14 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.POSITIONER.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(chopperGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/chpr/cp1/actspeed", "Ch1 speed", null, "rpm")
-				.addDevice("/instrument/chpr/cp1/offset", "Ch1 phase offset", null, "\u00b0")
-				.addDevice("/instrument/chpr/cp2/actspeed", "Ch2 speed", null, "rpm")
-				.addDevice("/instrument/chpr/cp2/offset", "Ch2 phase offset", null, "\u00b0")
-				.addDevice("/instrument/chpr/cp2b/actspeed", "Ch2b speed", null, "rpm")
-				.addDevice("/instrument/chpr/cp2b/offset", "Ch2b phase offset", null, "\u00b0")
-				.addDevice("/instrument/chpr/cp3/actspeed", "Ch3 speed", null, "rpm")
-				.addDevice("/instrument/chpr/cp3/offset", "Ch3 phase offset", null, "\u00b0")
+				.addDevice("/instrument/chopper/c01/spee", "C01 speed", null, "rpm")
+				.addDevice("/instrument/chopper/c01/phas", "C01 phase offset", null, "\u00b0")
+				.addDevice("/instrument/chopper/c02/spee", "C02 speed", null, "rpm")
+				.addDevice("/instrument/chopper/c02/phas", "C02 phase offset", null, "\u00b0")
+				.addDevice("/instrument/chopper/c2b/spee", "C2b speed", null, "rpm")
+				.addDevice("/instrument/chopper/c2b/phas", "C2b phase offset", null, "\u00b0")
+				.addDevice("/instrument/chopper/c03/spee", "C03 speed", null, "rpm")
+				.addDevice("/instrument/chopper/c03/phas", "C03 phase offset", null, "\u00b0")
 				;
 		configureWidget(deviceStatusWidget);
 

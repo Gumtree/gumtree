@@ -46,11 +46,14 @@ var devices = [
             	            ]
                },
                {"group":"CHOPPERS", 
-            	   "items":[{"classId":"t0_chopper_id", "deviceId":"t0_chopper_id", "title":"T0_chopper_id", "units":""},
-            	            {"classId":"t0_chopper_freq", "deviceId":"t0_chopper_freq", "title":"T0_chopper_frequency", "units":"Hz", "decimal":2},
-            	            {"classId":"master1_chopper_id", "deviceId":"master1_chopper_id", "title":"master1_chopper_id", "units":""},
-            	            {"classId":"master2_chopper_id", "deviceId":"master2_chopper_id", "title":"master2_chopper_id", "units":""},
-            	            {"classId":"master_chopper_freq", "deviceId":"master_chopper_freq", "title":"master_chopper_frequency", "units":"Hz", "decimal":2}
+            	   "items":[{"classId":"c01_spee", "deviceId":"/instrument/chopper/c01/spee", "title":"C01 Speed", "units":"rpm"},
+            	            {"classId":"c01_phas", "deviceId":"/instrument/chopper/c01/phas", "title":"C01 phase offset", "units":"\u00B0", "decimal":2},
+            	            {"classId":"c02_spee", "deviceId":"/instrument/chopper/c02/spee", "title":"C02 Speed", "units":"rpm"},
+            	            {"classId":"c02_phas", "deviceId":"/instrument/chopper/c02/phas", "title":"C02 phase offset", "units":"\u00B0", "decimal":2},
+            	            {"classId":"c2b_spee", "deviceId":"/instrument/chopper/c2b/spee", "title":"C2b Speed", "units":"rpm"},
+            	            {"classId":"c2b_phas", "deviceId":"/instrument/chopper/c2b/phas", "title":"C2b phase offset", "units":"\u00B0", "decimal":2},
+            	            {"classId":"c03_spee", "deviceId":"/instrument/chopper/c03/spee", "title":"C03 Speed", "units":"rpm"},
+            	            {"classId":"c03_phas", "deviceId":"/instrument/chopper/c03/phas", "title":"C03 phase offset", "units":"\u00B0", "decimal":2}
             	            ]
                },
                {"group":"SLITS", 
