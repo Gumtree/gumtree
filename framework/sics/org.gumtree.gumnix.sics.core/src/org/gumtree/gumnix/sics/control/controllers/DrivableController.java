@@ -6,6 +6,7 @@ import org.gumtree.gumnix.sics.control.events.DynamicControllerCallbackAdapter;
 import org.gumtree.gumnix.sics.core.PropertyConstants.PropertyType;
 import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.core.SicsUtils;
+import org.gumtree.gumnix.sics.io.ISicsCallback;
 import org.gumtree.gumnix.sics.io.ISicsReplyData;
 import org.gumtree.gumnix.sics.io.SicsCallbackAdapter;
 import org.gumtree.gumnix.sics.io.SicsExecutionException;
@@ -69,6 +70,14 @@ public class DrivableController extends DynamicController implements IDrivableCo
 			if(getStatus() == ControllerStatus.RUNNING) {
 				logger.warn("Device " + getPath() + " still busy, we will wait at most 2 seconds.");
 				LoopRunnerStatus status = LoopRunner.run(new ILoopExitCondition() {
+					public boolean getExitCondition() {
+						return getStatus() != ControllerStatus.RUNNING;
+					}
+				}, 4000, 10);
+				if (status.equals(LoopRunnerStatus.TIMEOUT)) {
+					forceRefresh();
+				}
+				status = LoopRunner.run(new ILoopExitCondition() {
 					public boolean getExitCondition() {
 						return getStatus() != ControllerStatus.RUNNING;
 					}
@@ -164,6 +173,81 @@ public class DrivableController extends DynamicController implements IDrivableCo
 		}
 	}
 
+	public void forceRefresh() throws SicsIOException {
+		if (deviceName != null && !deviceName.equals("--")) {
+			SicsCore.getDefaultProxy().send(deviceName + " status", new ISicsCallback() {
+
+				@Override
+				public void receiveReply(ISicsReplyData data) {
+					String val = data.getString();
+					if (val.contains("=")) {
+						String[] pair = val.split("=");
+						if (pair.length == 2) {
+							String status = pair[1].trim();
+							if ("HWIdle".equalsIgnoreCase(status)) {
+								setStatus(ControllerStatus.OK);
+							} else if ("HWBusy".equalsIgnoreCase(status)) {
+								setStatus(ControllerStatus.RUNNING);
+							} else {
+								setStatus(ControllerStatus.ERROR);
+							}
+						}
+					}
+				}
+
+				@Override
+				public void receiveError(ISicsReplyData data) {
+					
+				}
+
+				@Override
+				public void receiveWarning(ISicsReplyData data) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void receiveFinish(ISicsReplyData data) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void receiveRawData(Object data) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public boolean isCallbackCompleted() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+
+				@Override
+				public void setCallbackCompleted(boolean completed) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public boolean hasError() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+
+				@Override
+				public void setError(boolean error) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+			});
+			
+		}
+		
+	}
+	
 	protected int getStateChangeTimeout() {
 		return TIME_OUT;
 	}
