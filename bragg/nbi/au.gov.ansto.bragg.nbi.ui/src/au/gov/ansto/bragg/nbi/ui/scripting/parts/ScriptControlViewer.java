@@ -259,6 +259,7 @@ public class ScriptControlViewer extends Composite {
 	private String scriptFilename;
 	private Button currentButton;
 	private IScriptExecutor scriptExecutor;
+//	private IScriptExecutor scriptValidator;
 	private IActivityListener datasetActivityListener;
 	private boolean groupAllowFolding = false;
 	private boolean editingEnabled = true;
@@ -763,6 +764,11 @@ public class ScriptControlViewer extends Composite {
 		IScriptExecutor executor = getScriptExecutor();
 		executor.runScript(command);
 	}
+	
+//	public void validateScript(String script) {
+//		IScriptExecutor executor = getScriptValidator();
+//		executor.runScript(script);
+//	}
 	
 	private void runIndependentCommand(String command) {
 		IScriptExecutor executor = getScriptExecutor();
@@ -1585,6 +1591,23 @@ public class ScriptControlViewer extends Composite {
 					parameter.removePropertyChangeListener(propertyListener);
 				}
 			});
+			
+			comboBox.getCombo().addFocusListener(new FocusListener() {
+				
+				@Override
+				public void focusLost(FocusEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void focusGained(FocusEvent e) {
+					String focusCommand = parameter.getProperty("focus");
+					if (focusCommand != null) {
+						runIndependentCommand(focusCommand);
+					}
+				}
+			});
 		} else {
 			PType type = parameter.getType();
 			switch (type) {
@@ -1703,6 +1726,10 @@ public class ScriptControlViewer extends Composite {
 					
 					@Override
 					public void focusGained(FocusEvent e) {
+						String focusCommand = parameter.getProperty("focus");
+						if (focusCommand != null) {
+							runIndependentCommand(focusCommand);
+						}
 					}
 				});
 				
@@ -1811,6 +1838,10 @@ public class ScriptControlViewer extends Composite {
 					
 					@Override
 					public void focusGained(FocusEvent e) {
+						String focusCommand = parameter.getProperty("focus");
+						if (focusCommand != null) {
+							runIndependentCommand(focusCommand);
+						}
 					}
 				});
 				break;
@@ -1922,6 +1953,10 @@ public class ScriptControlViewer extends Composite {
 					
 					@Override
 					public void focusGained(FocusEvent e) {
+						String focusCommand = parameter.getProperty("focus");
+						if (focusCommand != null) {
+							runIndependentCommand(focusCommand);
+						}
 					}
 				});
 				break;
@@ -2421,7 +2456,12 @@ public class ScriptControlViewer extends Composite {
 					
 					@Override
 					public void focusGained(FocusEvent e) {
+						String focusCommand = parameter.getProperty("focus");
+						if (focusCommand != null) {
+							runIndependentCommand(focusCommand);
+						}
 					}
+					
 				});
 				break;
 			}
@@ -2434,11 +2474,24 @@ public class ScriptControlViewer extends Composite {
 		}
 		ScriptPageRegister register = ScriptPageRegister.getRegister(scriptRegisterID);
 		if (register != null) {
-			return register.getConsoleViewer().getScriptExecutor();
+			scriptExecutor = register.getConsoleViewer().getScriptExecutor();
+			return scriptExecutor;
 		}
 		return null;
 	}
-	
+
+//	public IScriptExecutor getScriptValidator() {
+//		if (scriptValidator != null) {
+//			return scriptValidator;
+//		}
+//		ScriptPageRegister register = ScriptPageRegister.getRegister(scriptRegisterID);
+//		if (register != null) {
+//			scriptValidator = register.getScriptValidator();
+//			return scriptValidator;
+//		}
+//		return null;
+//	}
+
 	private ScriptDataSourceViewer getDataSourceViewer() {
 		return ScriptPageRegister.getRegister(scriptRegisterID).getDataSourceViewer();
 	}
