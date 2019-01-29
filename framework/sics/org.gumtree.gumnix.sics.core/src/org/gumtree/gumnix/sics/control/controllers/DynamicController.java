@@ -365,8 +365,17 @@ public class DynamicController extends ComponentController implements IDynamicCo
 		SicsCore.getDefaultProxy().send("hset " + getPath() + " " + getTargetValue().getSicsString(), new SicsCallbackAdapter() {
 			public void receiveReply(ISicsReplyData data) {
 				setCallbackCompleted(true);
-				if(callback != null) {
-					callback.handleOperationCompleted((IDynamicController)getComponentController());
+				String msg = data.getString();
+				if (msg.contains("ERROR:")) {
+					errorMessage = msg;
+					setStatus(ControllerStatus.ERROR);
+					if(callback != null) {
+						callback.handleOperationError((IDynamicController)getComponentController(), msg);
+					}
+				} else {
+					if(callback != null) {
+						callback.handleOperationCompleted((IDynamicController)getComponentController());
+					}
 				}
 			}
 			public void receiveError(ISicsReplyData data) {
