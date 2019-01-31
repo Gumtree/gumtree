@@ -182,16 +182,21 @@ public class GreenShieldWidget extends ExtendedSicsComposite {
 					return;
 				}
 				// Set label text
-				String text = DEVICE_TITLE + data.toUpperCase();
+				String text = DEVICE_TITLE;
+				if (data.equalsIgnoreCase("1")) {
+					text += "IN";
+				} else {
+					text += "OUT";
+				}
 				context.label.setText(text);
 				// Set colour based on status
-				if (data.equalsIgnoreCase("in")) {
+				if (data.equalsIgnoreCase("in") || data.equalsIgnoreCase("1")) {
 					context.label.setBackground(getDisplay().getSystemColor(
 							SWT.COLOR_GREEN));
 					context.label.setForeground(getDisplay().getSystemColor(
 							SWT.COLOR_BLACK));
 					context.isActivated = true;
-				} else if (data.equalsIgnoreCase("out")) {
+				} else if (data.equalsIgnoreCase("out") || data.equalsIgnoreCase("0")) {
 					context.label.setBackground(getDisplay().getSystemColor(
 							SWT.COLOR_RED));
 					context.label.setForeground(getDisplay().getSystemColor(

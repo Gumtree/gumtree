@@ -1,10 +1,50 @@
 var title = "Kookaburra";
 var batchEnabled = false;
+
+var apselMap = [
+	-65.5,
+	0,
+	65.5,
+	131,
+	196.5
+];
+
+function adaptApsel(text) {
+	var val = Number(text);
+	var samNum = -1;
+	for(var j = 0; j < apselMap.length; j++) {
+		if (val < apselMap[j]) {
+			if (j > 0) {
+				samNum = j - (apselMap[j] - val) / (apselMap[j] - apselMap[j - 1]);
+			}
+			break;
+		}
+	}
+	if (samNum < 0.05 || samNum > 3.95) {
+		return "out";
+	} else {
+		samNum = samNum.toFixed(1);
+		if (samNum == Math.round(samNum)) {
+			return String(Math.round(samNum));
+		} else {
+			return String(samNum);
+		}
+	}
+}
+
+function adaptPolyShield(text) {
+	if (text != null && (text == "1" || text.toLowerCase() == "in")) {
+		return "IN";
+	} else {
+		return "OUT";
+	}
+}
+
 var devices = [
                {"group":"NEUTRON BEAM", 
             	   "items":[{"classId":"plc_secondary", "deviceId":"plc_secondary", "title":"Secondary Shutter", "units":""},
             	            {"classId":"plc_tertiary", "deviceId":"plc_tertiary", "title":"Sample Shutter", "units":""},
-            	            {"classId":"polyshield", "deviceId":"/instrument/GreenPolyShield/greenpolyshield", "title":"Green Polyshield", "units":""},
+            	            {"classId":"polyshield", "deviceId":"/instrument/GreenPolyShield/greenpolyshield", "title":"Green Polyshield", "units":"", "adapt":adaptPolyShield},
             	            {"classId":"bm1_counts", "deviceId":"bm1_counts", "title":"BM1 Counts", "units":"counts"},
             	            {"classId":"bm1_event_rate", "deviceId":"bm1_event_rate", "title":"BM1 Event Rate", "units":"counts/sec", "decimal":3},
             	            {"classId":"bm2_counts", "deviceId":"bm2_counts", "title":"BM2 Counts", "units":"counts"},
@@ -46,6 +86,8 @@ var devices = [
                },
                {"group":"SAMPLE (pos-1 = 32, pos-2 = 177, pos-3 = 321.5, pos-4 = 468, pos-5 = 612.5)", 
             	   "items":[{"classId":"samz", "deviceId":"samz", "title":"samz", "units":"mm", "decimal":1},
+            		   		{"classId":"samx", "deviceId":"samx", "title":"samx", "units":"mm", "decimal":1},
+            	            {"classId":"apsel", "deviceId":"apsel", "title":"apselnum", "units":"", "adapt":adaptApsel},
             	            {"classId":"samplename", "deviceId":"samplename", "title":"Sample Name", "units":""},
             	            {"classId":"sampledescription", "deviceId":"sampledescription", "title":"Sample Description", "units":""}
             	            ]

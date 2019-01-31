@@ -21,6 +21,7 @@ import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
 import org.gumtree.gumnix.sics.widgets.swt.EnvironmentControlWidget;
 import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
 import org.gumtree.gumnix.sics.widgets.swt.SicsStatusWidget;
+import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget.LabelConverter;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
 import org.gumtree.util.messaging.IDelayEventExecutor;
@@ -35,6 +36,8 @@ public class KookaburraCruisePageWidget extends AbstractCruisePageWidget {
 	@Inject
 	private IEclipseContext eclipseContext;
 
+	private static final double[] apselPos = new double[] {-65.5, 0, 65.5, 131};
+	
 	private IDelayEventExecutor delayEventExecutor;
 
 	@Inject
@@ -148,6 +151,37 @@ public class KookaburraCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new DeviceStatusWidget(positionerGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/sample/samz", "samz", null, "mm")
+				.addDevice("/sample/samx", "samx", null, "mm")
+				.addDevice("/instrument/slits/apsel", "apselnum", null, "", new LabelConverter() {
+					
+					@Override
+					public String convertValue(Object obj) {
+						String data = obj.toString();
+						try {
+							double value = Double.valueOf(data);
+							double num = -1;
+							for (int i = 0; i < apselPos.length; i++) {
+								if (value < apselPos[i]) {
+									if (i > 0) {
+										num = i - (apselPos[i] - value) / (apselPos[i] - apselPos[i - 1]);
+									}
+									break;
+								}
+							}
+							if (num < 0.05 || num > 3.95) {
+								return "out";
+							} else {
+								if (Math.abs(num - Math.round(num)) < 0.05) {
+									return String.valueOf(Math.round(num));
+								} else {
+									return String.valueOf(Math.round(num * 10.0) / 10.0);
+								}
+							}
+						} catch (Exception e) {
+						}
+						return data;
+					}
+				})
 				;
 		configureWidget(deviceStatusWidget);
 
