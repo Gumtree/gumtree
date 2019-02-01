@@ -512,6 +512,7 @@ def scan(deviceName, start, stop, numpoints, scanMode, dataType, preset, force='
                 raise
 
     # Get output filename
+    sics.wait_until_idle()
     filenameController = sicsController.findDeviceController('datafilename')
     savedFilename = filenameController.getValue().getStringData()
     log('Saved to ' +  savedFilename)
