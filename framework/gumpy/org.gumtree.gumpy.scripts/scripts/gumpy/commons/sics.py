@@ -417,6 +417,7 @@ def get_status():
 
 def wait_until_idle():
     controller = getSicsController()
+    controller.refreshServerStatus()
     if not controller is None:
         cnt = 0
         while not controller.getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE):
