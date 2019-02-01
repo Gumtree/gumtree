@@ -500,16 +500,23 @@ def scan(deviceName, start, stop, numpoints, scanMode, dataType, preset, force='
     time.sleep(1)
     sics.wait_until_idle()
 
-    try:       
-        scanController.syncExecute()
-    except Exception as e:
-        if sics.isInterrupt():
-            raise
-        else:
-            if sics.getSicsController().getServerStatus().equals(ServerStatus.COUNTING):
-                sics.wait_until_idle()
-            else:
+    df = False
+    ct = 0
+    while not df :
+        try:       
+            scanController.syncExecute()
+            df = True
+        except Exception as e:
+            ct += 1
+            if sics.isInterrupt():
                 raise
+            else:
+                if sics.getSicsController().getServerStatus().equals(ServerStatus.COUNTING):
+                    sics.wait_until_idle()
+                    df = True
+                else:
+                    if ct >= 5:
+                        raise
 
     # Get output filename
     sics.wait_until_idle()
