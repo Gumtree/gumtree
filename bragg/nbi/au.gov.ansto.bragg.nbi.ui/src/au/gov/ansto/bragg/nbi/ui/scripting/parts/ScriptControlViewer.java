@@ -1104,7 +1104,9 @@ public class ScriptControlViewer extends Composite {
 
 									@Override
 									public void run() {
-										menuGroup.setText(objGroup.getProperty("title"));
+										if (!menuGroup.isDisposed()) {
+											menuGroup.setText(objGroup.getProperty("title"));
+										}
 									}
 								});
 							} else if (evt.getPropertyName().equals("folded")) {
@@ -1114,17 +1116,19 @@ public class ScriptControlViewer extends Composite {
 									public void run() {
 										String foldedProperty = objGroup.getProperty("folded");
 										boolean itemFolded = false;
-										if (foldedProperty != null) {
-											try {
-												itemFolded = Boolean.valueOf(foldedProperty);
-											} catch (Exception e) {
+										if (!menuGroup.isDisposed()) {
+											if (foldedProperty != null) {
+												try {
+													itemFolded = Boolean.valueOf(foldedProperty);
+												} catch (Exception e) {
+												}
 											}
-										}
-										if (itemFolded) {
-											editItem.setText("Expand");
-											menuGroup.setExpanded(false);
-										} else {
-											editItem.setText("Fold");
+											if (itemFolded) {
+												editItem.setText("Expand");
+												menuGroup.setExpanded(false);
+											} else {
+												editItem.setText("Fold");
+											}
 										}
 									}
 								});
@@ -1134,17 +1138,19 @@ public class ScriptControlViewer extends Composite {
 									@Override
 									public void run() {
 										boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
-										if (isHighlight) {
-											RectangleGroupStrategy strategy = (RectangleGroupStrategy) menuGroup.getStrategy();
-											strategy.setBackground(
-													new Color[]{Display.getCurrent().getSystemColor(SWT.COLOR_RED), 
-															Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW)}, 
-													new int[]{100});
-										} else {
-											Color g1 = Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT);
-									        Color g2 = Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_BACKGROUND);
-											RectangleGroupStrategy strategy = (RectangleGroupStrategy) menuGroup.getStrategy();
-									        strategy.setBackground(new Color[] {g1, g2 }, new int[] {100 }, true);
+										if (!menuGroup.isDisposed()) {
+											if (isHighlight) {
+												RectangleGroupStrategy strategy = (RectangleGroupStrategy) menuGroup.getStrategy();
+												strategy.setBackground(
+														new Color[]{Display.getCurrent().getSystemColor(SWT.COLOR_RED), 
+																Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW)}, 
+														new int[]{100});
+											} else {
+												Color g1 = Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT);
+												Color g2 = Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_BACKGROUND);
+												RectangleGroupStrategy strategy = (RectangleGroupStrategy) menuGroup.getStrategy();
+												strategy.setBackground(new Color[] {g1, g2 }, new int[] {100 }, true);
+											}
 										}
 									}
 								});
@@ -1355,7 +1361,9 @@ public class ScriptControlViewer extends Composite {
 
 						@Override
 						public void run() {
-							actionButton.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+							if (!actionButton.isDisposed()) {
+								actionButton.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+							}
 						}
 					});
 				} else if (evt.getPropertyName().toLowerCase().equals("tool_tip")) {
@@ -1363,11 +1371,13 @@ public class ScriptControlViewer extends Composite {
 
 						@Override
 						public void run() {
-							if (evt.getNewValue() != null && !evt.getNewValue().equals("None") 
-									&& evt.getNewValue().toString().trim().length() > 0) {
-								actionButton.setToolTipText(evt.getNewValue().toString());
-							} else {
-								actionButton.setToolTipText(null);
+							if (!actionButton.isDisposed()) {
+								if (evt.getNewValue() != null && !evt.getNewValue().equals("None") 
+										&& evt.getNewValue().toString().trim().length() > 0) {
+									actionButton.setToolTipText(evt.getNewValue().toString());
+								} else {
+									actionButton.setToolTipText(null);
+								}
 							}
 						}
 					});
@@ -1376,11 +1386,13 @@ public class ScriptControlViewer extends Composite {
 
 						@Override
 						public void run() {
-							boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
-							if (isHighlight) {
-								actionButton.setBackground(highlightColor);
-							} else {
-								actionButton.setBackground(defaultColor);
+							if (!actionButton.isDisposed()) {
+								boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+								if (isHighlight) {
+									actionButton.setBackground(highlightColor);
+								} else {
+									actionButton.setBackground(defaultColor);
+								}
 							}
 						}
 					});
@@ -1389,11 +1401,13 @@ public class ScriptControlViewer extends Composite {
 
 						@Override
 						public void run() {
-							if (evt.getNewValue() != null && !evt.getNewValue().equals("None") 
-									&& evt.getNewValue().toString().trim().length() > 0) {
-								actionButton.setText(evt.getNewValue().toString());
-							} else {
-								actionButton.setText(action.getText());
+							if (!actionButton.isDisposed()) {
+								if (evt.getNewValue() != null && !evt.getNewValue().equals("None") 
+										&& evt.getNewValue().toString().trim().length() > 0) {
+									actionButton.setText(evt.getNewValue().toString());
+								} else {
+									actionButton.setText(action.getText());
+								}
 							}
 						}
 					});
@@ -1402,11 +1416,13 @@ public class ScriptControlViewer extends Composite {
 
 						@Override
 						public void run() {
-							boolean isSelected = Boolean.valueOf(evt.getNewValue().toString());
-							if (isSelected) {
-								actionButton.setSelection(true);
-							} else {
-								actionButton.setSelection(false);
+							if (!actionButton.isDisposed()) {
+								boolean isSelected = Boolean.valueOf(evt.getNewValue().toString());
+								if (isSelected) {
+									actionButton.setSelection(true);
+								} else {
+									actionButton.setSelection(false);
+								}
 							}
 						}
 					});
@@ -1515,14 +1531,16 @@ public class ScriptControlViewer extends Composite {
 
 							@Override
 							public void run() {
-								Object value = parameter.getValue();
-								comboBox.setInput(parameter.getOptions());
-								comboBox.refresh();
-								if (value == null) {
-									comboBox.setSelection(null);
-								} else {
-									comboBox.setSelection(new StructuredSelection(
-											value));
+								if (!comboBox.getCombo().isDisposed()) {
+									Object value = parameter.getValue();
+									comboBox.setInput(parameter.getOptions());
+									comboBox.refresh();
+									if (value == null) {
+										comboBox.setSelection(null);
+									} else {
+										comboBox.setSelection(new StructuredSelection(
+												value));
+									}
 								}
 							}
 						});
@@ -1531,7 +1549,9 @@ public class ScriptControlViewer extends Composite {
 
 							@Override
 							public void run() {
-								comboBox.getCombo().setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+								if (!comboBox.getCombo().isDisposed()) {
+									comboBox.getCombo().setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+								}
 							}
 						});
 					} else if (evt.getPropertyName().equals("highlight")) {
@@ -1539,11 +1559,13 @@ public class ScriptControlViewer extends Composite {
 
 							@Override
 							public void run() {
-								boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
-								if (isHighlight) {
-									comboBox.getCombo().setForeground(highlightColor);
-								} else {
-									comboBox.getCombo().setForeground(defaultColor);
+								if (!comboBox.getCombo().isDisposed()) {
+									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+									if (isHighlight) {
+										comboBox.getCombo().setForeground(highlightColor);
+									} else {
+										comboBox.getCombo().setForeground(defaultColor);
+									}
 								}
 							}
 						});
@@ -1767,7 +1789,9 @@ public class ScriptControlViewer extends Composite {
 
 								@Override
 								public void run() {
-									intText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+									if (!intText.isDisposed()) {
+										intText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+									}
 								}
 							});
 						} else if (evt.getPropertyName().equals("highlight")) {
@@ -1775,11 +1799,13 @@ public class ScriptControlViewer extends Composite {
 
 								@Override
 								public void run() {
-									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
-									if (isHighlight) {
-										intText.setForeground(highlightColor);
-									} else {
-										intText.setForeground(defaultColor);
+									if (!intText.isDisposed()) {
+										boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+										if (isHighlight) {
+											intText.setForeground(highlightColor);
+										} else {
+											intText.setForeground(defaultColor);
+										}
 									}
 								}
 							});
@@ -1892,7 +1918,9 @@ public class ScriptControlViewer extends Composite {
 
 								@Override
 								public void run() {
-									floatText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+									if (!floatText.isDisposed()) {
+										floatText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+									}
 								}
 							});
 						} else if (evt.getPropertyName().equals("highlight")) {
@@ -1900,11 +1928,13 @@ public class ScriptControlViewer extends Composite {
 
 								@Override
 								public void run() {
-									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
-									if (isHighlight) {
-										floatText.setForeground(highlightColor);
-									} else {
-										floatText.setForeground(defaultColor);
+									if (!floatText.isDisposed()) {
+										boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+										if (isHighlight) {
+											floatText.setForeground(highlightColor);
+										} else {
+											floatText.setForeground(defaultColor);
+										}
 									}
 								}
 							});
@@ -1992,7 +2022,9 @@ public class ScriptControlViewer extends Composite {
 
 								@Override
 								public void run() {
-									selectBox.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+									if (!selectBox.isDisposed()) {
+										selectBox.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+									}
 								}
 							});
 						} else if (evt.getPropertyName().equals("highlight")) {
@@ -2000,11 +2032,13 @@ public class ScriptControlViewer extends Composite {
 
 								@Override
 								public void run() {
-									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
-									if (isHighlight) {
-										selectBox.setForeground(highlightColor);
-									} else {
-										selectBox.setForeground(defaultColor);
+									if (!selectBox.isDisposed()) {
+										boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+										if (isHighlight) {
+											selectBox.setForeground(highlightColor);
+										} else {
+											selectBox.setForeground(defaultColor);
+										}
 									}
 								}
 							});
@@ -2073,7 +2107,9 @@ public class ScriptControlViewer extends Composite {
 
 								@Override
 								public void run() {
-									fileText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+									if (!fileText.isDisposed()) {
+										fileText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+									}
 								}
 							});
 						} else if (evt.getPropertyName().equals("highlight")) {
@@ -2081,11 +2117,13 @@ public class ScriptControlViewer extends Composite {
 
 								@Override
 								public void run() {
-									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
-									if (isHighlight) {
-										fileText.setForeground(highlightColor);
-									} else {
-										fileText.setForeground(defaultColor);
+									if (!fileText.isDisposed()) {
+										boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+										if (isHighlight) {
+											fileText.setForeground(highlightColor);
+										} else {
+											fileText.setForeground(defaultColor);
+										}
 									}
 								}
 							});
@@ -2259,7 +2297,9 @@ public class ScriptControlViewer extends Composite {
 
 								@Override
 								public void run() {
-									progressBar.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+									if (!progressBar.isDisposed()) {
+										progressBar.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+									}
 								}
 							});
 						} else if (evt.getPropertyName().equals("max")) {
@@ -2267,7 +2307,9 @@ public class ScriptControlViewer extends Composite {
 
 								@Override
 								public void run() {
-									progressBar.setMaximum(Integer.valueOf(evt.getNewValue().toString()));
+									if (!progressBar.isDisposed()) {
+										progressBar.setMaximum(Integer.valueOf(evt.getNewValue().toString()));
+									}
 								}
 							});
 						} else if (evt.getPropertyName().equals("selection")) {
@@ -2275,7 +2317,9 @@ public class ScriptControlViewer extends Composite {
 
 								@Override
 								public void run() {
-									progressBar.setSelection(Integer.valueOf(evt.getNewValue().toString()));
+									if (!progressBar.isDisposed()) {
+										progressBar.setSelection(Integer.valueOf(evt.getNewValue().toString()));
+									}
 								}
 							});
 						} else if (evt.getPropertyName().equals("highlight")) {
@@ -2283,11 +2327,13 @@ public class ScriptControlViewer extends Composite {
 
 								@Override
 								public void run() {
-									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
-									if (isHighlight) {
-										progressBar.setForeground(highlightColor);
-									} else {
-										progressBar.setForeground(defaultColor);
+									if (!progressBar.isDisposed()) {
+										boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+										if (isHighlight) {
+											progressBar.setForeground(highlightColor);
+										} else {
+											progressBar.setForeground(defaultColor);
+										}
 									}
 								}
 							});
@@ -2328,11 +2374,13 @@ public class ScriptControlViewer extends Composite {
 
 								@Override
 								public void run() {
-									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
-									if (isHighlight) {
-										label.setForeground(highlightColor);
-									} else {
-										label.setForeground(defaultColor);
+									if (!label.isDisposed()) {
+										boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+										if (isHighlight) {
+											label.setForeground(highlightColor);
+										} else {
+											label.setForeground(defaultColor);
+										}
 									}
 								}
 							});
@@ -2385,7 +2433,9 @@ public class ScriptControlViewer extends Composite {
 
 								@Override
 								public void run() {
-									defaultText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+									if (!defaultText.isDisposed()) {
+										defaultText.setEditable(Boolean.valueOf(evt.getNewValue().toString()));
+									}
 								}
 							});
 						} else if (evt.getPropertyName().equals("highlight")) {
@@ -2393,11 +2443,13 @@ public class ScriptControlViewer extends Composite {
 
 								@Override
 								public void run() {
-									boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
-									if (isHighlight) {
-										defaultText.setForeground(highlightColor);
-									} else {
-										defaultText.setForeground(defaultColor);
+									if (!defaultText.isDisposed()) {
+										boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+										if (isHighlight) {
+											defaultText.setForeground(highlightColor);
+										} else {
+											defaultText.setForeground(defaultColor);
+										}
 									}
 								}
 							});
