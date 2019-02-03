@@ -333,11 +333,11 @@ public class SicsNonBlockingChannel extends AbstractSicsChannel {
 				MessageContainer container = new MessageContainer(getChannelId(), actualMessage);
 				// [GUMTREE-839] Message drop mechanism
 				// Drop previously queued message and append to the last
-				if (messageDropEnable) {
-					if (incomingMessageQueue.remove(container)) {
-						messageDropped++;
-					}
-				}
+//				if (messageDropEnable) {
+//					if (incomingMessageQueue.remove(container)) {
+//						messageDropped++;
+//					}
+//				}
 				incomingMessageQueue.offer(container);
 			}
 			clearStringBuffer();
