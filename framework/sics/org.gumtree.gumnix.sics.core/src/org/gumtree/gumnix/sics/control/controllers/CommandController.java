@@ -74,7 +74,14 @@ public class CommandController extends ComplexController implements ICommandCont
 				sleep("Error occured while waiting for BUSY state");
 				counter += TIME_INTERVAL;
 				if (counter > TIME_OUT) {
-					if (CommandStatus.valueOf(getStatusController().getValue(true).getStringData()) != CommandStatus.BUSY) {
+					String statusData = null;
+					try {
+						statusData = getStatusController().getValue(true).getStringData();
+					} catch (Exception e) {
+						sleep("wait for message queue to be available.");
+						continue;
+					}
+					if (CommandStatus.valueOf(statusData) != CommandStatus.BUSY) {
 						throw new SicsExecutionException("Time out on syncExecute() where status did not changed whiling execution");
 					} else {
 						statusChanged = true;
