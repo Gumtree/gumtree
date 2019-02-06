@@ -1639,6 +1639,7 @@ jQuery(window).load(function () {
 		dbFilter = null;
 	});
 	
+	validateUser();
 	startValidateUser();
 	startCheckNewFile();
 });
