@@ -5,9 +5,9 @@ var CURRENT_PATH = '';
 function signout(redirect){
 	var new_loc;
 	if (typeof redirect !== 'undefined') {
-		new_loc = HOME_PATH + "home.html?redirect=" + CURRENT_PATH + redirect;
+		new_loc = HOME_PATH + "signin.html?redirect=" + CURRENT_PATH + redirect;
 	} else {
-		new_loc = HOME_PATH + "home.html";
+		new_loc = HOME_PATH + "signin.html";
 	}
     var getUrl = HOME_PATH + "signin/LOGOUT";
     $.get(getUrl, function(data, status) {
@@ -23,7 +23,10 @@ function signout(redirect){
     .fail(function(e) {
     	alert( "error in signing out.");
     });
-    logout();
+    try {
+        logout();
+	} catch (e) {
+	}
     setTimeout(function() {
     	window.location = new_loc;
     }, 500);
@@ -54,6 +57,7 @@ function updateUserArea(loggedIn, redirect) {
 		try {
 			showLogoutMessage("User session is expired. Please sign in again.");
 		} catch (e) {
+			window.location = "signin.html?redirect=" + CURRENT_PATH + redirect;
 		}
 	}
 }

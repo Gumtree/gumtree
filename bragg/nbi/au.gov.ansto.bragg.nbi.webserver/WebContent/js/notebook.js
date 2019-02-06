@@ -97,7 +97,7 @@ function validateUser() {
 	})
 	.fail(function(e) {
 		console.log(e);
-		updateUserArea(false);
+		updateUserArea(false, 'notebook.html');
 	});
 }
 
