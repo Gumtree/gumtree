@@ -163,35 +163,6 @@ class ConfigSystem :
     def need_drive_guide(self):
         return self.guide != None and self.guide !=  getGuideConfig()
 
-    def test_dhv1(self, key):
-            # Test drive
-            startingValue = getDhv1()
-            precision = 20
-            log('Test drive dhv1 to ' + key + ' ...')
-            sics.getSicsController().clearInterrupt()
-            sics.execute('dhv1 ' + key)
-            # Wait for 6 sec
-            time.sleep(6)
-            hasInterrupted = sics.getSicsController().isInterrupted() == 1
-            # Stop test drive
-            log('Stopping test drive')
-            sics.execute('INT1712 3')
-            time.sleep(1)
-            currentValue = getDhv1()
-            # Don't go any further if someone has interrrupted the test drive
-            if hasInterrupted:
-#            log('Test drive was interrupted')
-                raise Exception, 'dhv1 ' + key + ' interrupted'
-#            print ('currentValue: ' + str(currentValue) + ', startingValue: ' +  str(startingValue));
-            # Test if the current value is within the precision (more than half of voltage step size, which is about half of 30V)
-            if (startingValue + precision >= currentValue) and (startingValue - precision <= currentValue):
-                log('Dhv1 needs to be reset')
-                sics.execute('dhv1 reset')
-                time.sleep(1)
-
-            # Actual drive
-            sics.getSicsController().clearInterrupt()
-
     def drive(self):
         if self.__is_dirty__ :
             driveAtt(330)
@@ -200,81 +171,18 @@ class ConfigSystem :
         try:
             sics.clearInterrupt()
             log('starting configuration')
-            if self.need_drive_det():
-
-                ########### below code drop dhv1 and select beam stop together ###########
-                precision = 20
-                safe_voltage = 800
-                working_voltage = 2100
-                startingValue = getDhv1()
-                if startingValue > safe_voltage:
-#                     self.test_dhv1('down')
-#                     startingValue = getDhv1()
-                    log('Driving dhv1 to down ...')
-                    sics.execute('dhv1 down')
-                    time.sleep(1)
-
-                if not self.bs is None:
-                    selBs(self.bs)
-
-                if startingValue > safe_voltage:
-                    time_count = 0
-                    time_out = 30
-                    while getDhv1() == startingValue and time_count < time_out:
-                        time.sleep(0.5)
-                        time_count += 0.5
-                    if getDhv1() == startingValue :
-                        raise Exception, 'failed to start dropping dhv1'
-                    time_count = 0
-                    time_out = 600
-                    log('waiting for voltage to drop down')
-                    while getDhv1() > safe_voltage and time_count < time_out:
-                        time.sleep(0.5)
-                        time_count += 0.5
-                    if getDhv1() > safe_voltage:
-                        raise Exception, 'time out dropping dhv1'
-                    log('dhv1 is now down')
-
-                ########### below drive det and other motors ###########
-                self.multi_drive()
-
-                ########### below code raise dhv1 and drive guide together ###########
-#                 self.test_dhv1('up')
-                startingValue = getDhv1()
-                log('Driving dhv1 to up ...')
-                sics.execute('dhv1 up')
-                time.sleep(1)
-                if self.need_drive_guide():
-                    driveGuide(self.guide)
-                time_count = 0
-                time_out = 30
-                while getDhv1() == startingValue and time_count < time_out:
-                    time.sleep(0.5)
-                    time_count += 0.5
-                if getDhv1() == startingValue :
-                    raise Exception, 'failed to start raising dhv1'
-                time_count = 0
-                time_out = 600
-                log('waiting for voltage to rise up')
-                while getDhv1() < working_voltage and time_count < time_out:
-                    time.sleep(0.5)
-                    time_count += 0.5
-                if getDhv1() < working_voltage :
-                    raise Exception, 'time out raising dhv1'
-                log('dhv1 is now up')
-
-                self.multi_set()
-            else:
-                if not self.bs is None:
-                    selBs(self.bs)
-                if self.need_drive_guide():
-                    driveGuide(self.guide)
-                self.multi_drive()
-                self.multi_set()
+            
+            if not self.bs is None:
+                selBs(self.bs)
+            if self.need_drive_guide():
+                driveGuide(self.guide)
+            self.multi_drive()
+            self.multi_set()
+            
         finally:
             self.clear()
-            sics.handleInterrupt()
-        while not sics.get_status().equals(ServerStatus.EAGER_TO_EXECUTE) :
-            time.sleep(0.3)
+        log('skipping status checking')
+#	while not sics.get_status().equals(ServerStatus.EAGER_TO_EXECUTE) :
+#            time.sleep(0.3)
         sics.handleInterrupt()
         log('configuration is finished')
