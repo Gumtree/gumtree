@@ -34,6 +34,7 @@ import org.eclipse.jgit.transport.JschSession;
 import org.eclipse.jgit.transport.OpenSshConfig;
 import org.eclipse.jgit.transport.SshSessionFactory;
 import org.gumtree.core.object.IDisposable;
+import org.gumtree.security.EncryptionUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -116,7 +117,11 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 		user = System.getProperty(PROPERTY_SSH_USER);
 		host = System.getProperty(PROPERTY_SSH_HOST);
 		keyPath = System.getProperty(PROPERTY_SSH_KEYPATH);
-		passphrase = System.getProperty(PROPERTY_SSH_PASSPHRASE);
+		try {
+			passphrase = EncryptionUtils.decryptBase64(System.getProperty(PROPERTY_SSH_PASSPHRASE));
+			System.err.println(passphrase);
+		} catch (Exception e1) {
+		}
 		remotePath = System.getProperty(PROPERTY_YAML_REMOTEPATH);
 		yamlName = System.getProperty(PROPERTY_YAML_FILENAME);
 		localPath = System.getProperty(PROPERTY_SERVER_SHARE);
@@ -497,6 +502,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 
 			JSch jsch = new JSch();
 			jsch.addIdentity(keyPath, passphrase);
+//			System.err.println(EncryptionUtils.encryptBase64(passphrase));
 			Session jschSession = jsch.getSession(user, host, 22);
 			jschSession.setConfig("StrictHostKeyChecking", "no"); 
 
