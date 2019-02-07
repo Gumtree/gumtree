@@ -2,6 +2,8 @@ from au.gov.ansto.bragg.quokka.msw.schedule import PythonInstrumentActionExecute
 
 from bragg.quokka import quokka
 from bragg.quokka.config import ConfigSystem
+import traceback
+import sys
 
 
 # create config system for multi drive
@@ -14,6 +16,7 @@ def deferredCall(target, id):
         try:
             target(info)
         except:
+            traceback.print_exc(file = sys.stderr)
             info.interrupted = True
             raise
 
