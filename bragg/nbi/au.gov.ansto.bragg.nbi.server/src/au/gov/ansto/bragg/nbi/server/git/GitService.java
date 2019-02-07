@@ -105,11 +105,9 @@ public class GitService {
 				addCommand.call();
 				logger.info("apply change to repository: " + String.valueOf(repoPath));
 			} catch (NoFilepatternException e) {
-				e.printStackTrace();
-				throw new GitException("Git error: no file pattern found.", e);
+//				e.printStackTrace();
+				throw new GitException("Git error: no change", e);
 			} catch (GitAPIException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 				throw new GitException("Git error: failed to add.", e);
 			}
 		} else {

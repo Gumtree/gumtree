@@ -6,9 +6,11 @@ package au.gov.ansto.bragg.nbi.server.yaml;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -25,6 +27,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.httpclient.HttpClientError;
+import org.apache.commons.io.FileUtils;
+import org.eclipse.jgit.api.errors.NoFilepatternException;
+import org.eclipse.jgit.transport.JschConfigSessionFactory;
+import org.eclipse.jgit.transport.JschSession;
+import org.eclipse.jgit.transport.OpenSshConfig;
+import org.eclipse.jgit.transport.SshSessionFactory;
 import org.gumtree.core.object.IDisposable;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,6 +47,12 @@ import org.restlet.representation.Representation;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
+
+import au.gov.ansto.bragg.nbi.server.git.GitException;
 import au.gov.ansto.bragg.nbi.server.git.GitService;
 import au.gov.ansto.bragg.nbi.server.git.GitService.GitCommit;
 import au.gov.ansto.bragg.nbi.server.internal.AbstractUserControlRestlet;
@@ -63,15 +77,31 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 	private static final String SEG_NAME_HISTORY = "history";
 	private static final String SEG_NAME_APPLY = "apply";
 	
-	private static final String PROPERTY_SICS_YAML_PATH = "gumtree.sics.yamlPath";
 	private static final String PROPERTY_SERVER_TEMP_PATH = "gumtree.server.temp";
+	private static final String PROPERTY_SERVER_YAML_PATH = "gumtree.server.yamlPath";
 	private static final String PROPERTY_YAML_FOLDER = "yaml";
+	private static final String PROPERTY_YAML_FILENAME = "gumtree.sics.yamlfile";
+	private static final String PROPERTY_YAML_REMOTEPATH = "gumtree.sics.yamlPath";
+	private static final String PROPERTY_SERVER_SHARE = "gumtree.server.sharePath";
+	
+	private static final String PROPERTY_SSH_USER = "gumtree.ssh.username";
+	private static final String PROPERTY_SSH_HOST = "gumtree.ssh.host";
+	private static final String PROPERTY_SSH_KEYPATH = "gumtree.ssh.keypath";
+	private static final String PROPERTY_SSH_PASSPHRASE = "gumtree.ssh.passphrase";
 	
 	private static String configPath;
 	private static String tempPath;
 	private static Map<String, GitService> gitServiceMap;
 	private static SimpleDateFormat formater;
 	private static String JSON_OK;
+	private static String user;
+	private static String host;
+	private static String keyPath;
+	private static String passphrase;
+	private static String remotePath;
+	private static String localPath;
+	private static String yamlName;
+	
 
 	public YamlRestlet(){
 		this(null);
@@ -81,8 +111,15 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 	 */
 	public YamlRestlet(Context context) {
 		super(context);
-		configPath = System.getProperty(PROPERTY_SICS_YAML_PATH);
+		configPath = System.getProperty(PROPERTY_SERVER_YAML_PATH);
 		tempPath = System.getProperty(PROPERTY_SERVER_TEMP_PATH);
+		user = System.getProperty(PROPERTY_SSH_USER);
+		host = System.getProperty(PROPERTY_SSH_HOST);
+		keyPath = System.getProperty(PROPERTY_SSH_KEYPATH);
+		passphrase = System.getProperty(PROPERTY_SSH_PASSPHRASE);
+		remotePath = System.getProperty(PROPERTY_YAML_REMOTEPATH);
+		yamlName = System.getProperty(PROPERTY_YAML_FILENAME);
+		localPath = System.getProperty(PROPERTY_SERVER_SHARE);
 		gitServiceMap = new HashMap<String, GitService>();
 //		if (configPath != null) {
 //			gitService = new GitService(configPath);
@@ -139,6 +176,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 						throw new Exception("need instrument name");
 					}
 //					response.setEntity("Done", MediaType.TEXT_PLAIN);
+					copyFromRemote(instrumentId, session);
 					Object model = loadConfigModel(instrumentId);
 					JSONObject jsonObject = (JSONObject) _convertToJson(model);
 //					JSONObject jsonObject = new JSONObject(model.toString());
@@ -155,7 +193,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 					Form form = request.getResourceRef().getQueryAsForm();
 					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
 					String path = form.getValues(QUERY_ENTRY_PATH);
-					List<GitCommit> commits = getGitService(instrumentId).getCommits(PROPERTY_YAML_FOLDER + '/' + instrumentId + ".yaml");
+					List<GitCommit> commits = getGitService(instrumentId).getCommits(PROPERTY_YAML_FOLDER + '/' + yamlName);
 //					JSONObject jsonObject = new JSONObject(new LinkedHashMap<String, Object>());
 					JSONArray jsonArray = new JSONArray();
 					int i = 0;
@@ -190,7 +228,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 					Form form = request.getResourceRef().getQueryAsForm();
 					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
 					String objectId = form.getValues(QUERY_ENTRY_VERSION_ID);
-					String text = getGitService(instrumentId).readRevisionOfFile(PROPERTY_YAML_FOLDER + "/" + instrumentId + ".yaml", objectId);
+					String text = getGitService(instrumentId).readRevisionOfFile(PROPERTY_YAML_FOLDER + "/" + yamlName, objectId);
 					saveRevisionToTempFile(objectId, text);
 					Object model = loadConfigModelFromText(text);
 					JSONObject jsonObject = (JSONObject) _convertToJson(model);
@@ -243,6 +281,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 					} else {
 						saveConfigModel(instrumentId, text, saveMessage, session);
 					}
+					copyToRemote(instrumentId);
 					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
 					response.setStatus(Status.SUCCESS_OK);
 				} catch (Exception e) {
@@ -277,7 +316,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 	}
 
 	public static void saveConfigModel(String instrumentId, String text, String message, UserSessionObject session) 
-			throws IOException, JSONException {
+			throws IOException, JSONException, GitException {
 		if (text == null || text.trim().length() == 0) {
 			throw new JSONException("model can not be empty");
 		}
@@ -318,17 +357,13 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 		
 		GitService git = getGitService(instrumentId);
 		if (git != null) {
-			try {
-				git.applyChange();
-				if (message == null || message.length() == 0) {
-					message = session.getUserName().toUpperCase() + " updated " + path + ": " + formater.format(new Date());
-				} else {
-					message = session.getUserName().toUpperCase() + " updated " + path + ": " + message;
-				}
-				git.commit(message);
-			} catch (Exception e) {
-				e.printStackTrace();
+			git.applyChange();
+			if (message == null || message.length() == 0) {
+				message = session.getUserName().toUpperCase() + " updated " + path + ": " + formater.format(new Date());
+			} else {
+				message = session.getUserName().toUpperCase() + " updated " + path + ": " + message;
 			}
+			git.commit(message);
 		}
 	}
 
@@ -437,9 +472,267 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 	}
 	
 	private static String getYamlFilePath(String instrumentId) {
-		return configPath + "/" + instrumentId + "/" + PROPERTY_YAML_FOLDER + "/" + instrumentId + ".yaml";
+		return configPath + "/" + instrumentId + "/" + PROPERTY_YAML_FOLDER + "/" + yamlName;
+	}
+
+	private static String getRemoteYamelPath(String instrumentId) {
+		return (remotePath + "/" + yamlName).replace("$INSTRUMENT", instrumentId);
+	}
+
+	private static String getTempFilePath(String instrumentId) {
+		return configPath + "/temp/" + instrumentId + "/" + yamlName;
+	}
+
+	public static void copyFromRemote(String instrumentId, UserSessionObject session) {
+		FileOutputStream fos=null;
+		try{
+
+			String rfile = getRemoteYamelPath(instrumentId); 
+			String lfile = getTempFilePath(instrumentId);
+
+//			String prefix = null;
+//			if(new File(lfile).isDirectory()){
+//				prefix = lfile + File.separator;
+//			}
+
+			JSch jsch = new JSch();
+			jsch.addIdentity(keyPath, passphrase);
+			Session jschSession = jsch.getSession(user, host, 22);
+			jschSession.setConfig("StrictHostKeyChecking", "no"); 
+
+			// username and password will be given via UserInfo interface.
+//			UserInfo ui=new MyUserInfo();
+//			session.setUserInfo(ui);
+			jschSession.connect();
+
+			// exec 'scp -f rfile' remotely
+//			rfile=rfile.replace("'", "'\"'\"'");
+//			rfile="'"+rfile+"'";
+			String command = "scp -f " + rfile;
+			Channel channel = jschSession.openChannel("exec");
+			((ChannelExec)channel).setCommand(command);
+
+			// get I/O streams for remote scp
+			OutputStream out = channel.getOutputStream();
+			InputStream in = channel.getInputStream();
+
+			channel.connect();
+
+			byte[] buf=new byte[1024];
+
+			// send '\0'
+			buf[0] = 0; 
+			out.write(buf, 0, 1); 
+			out.flush();
+
+			while(true){
+				int c = checkAck(in);
+				if (c!='C') {
+					break;
+				}
+
+				// read '0644 '
+				in.read(buf, 0, 5);
+
+				long filesize=0L;
+				while(true){
+					if(in.read(buf, 0, 1)<0){
+						// error
+						break; 
+					}
+					if(buf[0]==' ')break;
+					filesize=filesize*10L+(long)(buf[0]-'0');
+				}
+
+				String file = null;
+				for(int i=0;;i++){
+					in.read(buf, i, 1);
+					if(buf[i]==(byte)0x0a){
+						file = new String(buf, 0, i);
+						break;
+					}
+				}
+
+				//System.out.println("filesize="+filesize+", file="+file);
+
+				// send '\0'
+				buf[0]=0; out.write(buf, 0, 1); out.flush();
+
+				// read a content of lfile
+				fos = new FileOutputStream(lfile);
+				int foo;
+				while(true){
+					if(buf.length<filesize) foo=buf.length;
+					else foo=(int)filesize;
+					foo=in.read(buf, 0, foo);
+					if(foo<0){
+						// error 
+						break;
+					}
+					fos.write(buf, 0, foo);
+					filesize-=foo;
+					if(filesize==0L) break;
+				}
+				fos.close();
+				fos=null;
+
+				if(checkAck(in)!=0){
+					break;
+				}
+
+				// send '\0'
+				buf[0]=0; out.write(buf, 0, 1); out.flush();
+			}
+
+			jschSession.disconnect();
+			
+			File file1 = new File(getYamlFilePath(instrumentId));
+			File file2 = new File(getTempFilePath(instrumentId));
+			boolean isIdentical = FileUtils.contentEquals(file1, file2);
+			System.err.println(isIdentical);
+			if (!isIdentical) {
+				FileUtils.copyFile(file2, file1);
+				GitService git = getGitService(instrumentId);
+				if (git != null) {
+					try {
+						git.applyChange();
+						String message = session.getUserName().toUpperCase() + " fetch remote version" + ": " + formater.format(new Date());
+						git.commit(message);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		} catch(Exception e){
+			e.printStackTrace();
+			try{
+				if (fos!=null) {
+					fos.close();
+				}
+			} catch(Exception ee){
+				
+			}
+		}
 	}
 	
+	public static void copyToRemote(String instrumentId) {
+		FileInputStream fis=null;
+		try{
+
+			String rfile = getRemoteYamelPath(instrumentId); 
+			String lfile = getYamlFilePath(instrumentId);
+
+//			String prefix = null;
+//			if(new File(lfile).isDirectory()){
+//				prefix = lfile + File.separator;
+//			}
+
+			JSch jsch = new JSch();
+			jsch.addIdentity(keyPath, passphrase);
+			Session jschSession = jsch.getSession(user, host, 22);
+			jschSession.setConfig("StrictHostKeyChecking", "no"); 
+
+			// username and password will be given via UserInfo interface.
+//			UserInfo ui=new MyUserInfo();
+//			session.setUserInfo(ui);
+			jschSession.connect();
+
+			// exec 'scp -f rfile' remotely
+			String command="scp -t " + rfile;
+			Channel channel = jschSession.openChannel("exec");
+			((ChannelExec)channel).setCommand(command);
+
+			OutputStream out = channel.getOutputStream();
+			InputStream in = channel.getInputStream();
+
+			channel.connect();
+
+			if(checkAck(in)!=0){
+				throw new IOException("failed to read yaml file");
+			}
+
+			File _lfile = new File(lfile);
+
+			// send "C0644 filesize filename", where filename should not include '/'
+			long filesize = _lfile.length();
+			command = "C0644 " + filesize + " ";
+			if(lfile.lastIndexOf('/') > 0) {
+				command += lfile.substring(lfile.lastIndexOf('/') + 1);
+			}
+			else{
+				command += lfile;
+			}
+			command += "\n";
+			out.write(command.getBytes()); 
+			out.flush();
+			if(checkAck(in) != 0){
+				throw new IOException("failed to read file size");
+			}
+
+			// send a content of lfile
+			fis = new FileInputStream(lfile);
+			byte[] buf = new byte[1024];
+			while(true){
+				int len = fis.read(buf, 0, buf.length);
+				if(len <= 0) {
+					break;
+				}
+				out.write(buf, 0, len); //out.flush();
+			}
+			fis.close();
+			fis=null;
+			// send '\0'
+			buf[0] = 0; 
+			out.write(buf, 0, 1); 
+			out.flush();
+			
+			if(checkAck(in)!=0){
+				throw new IOException("failed to send file to SICS");
+			}
+			out.close();
+
+			channel.disconnect();
+			jschSession.disconnect();
+			
+		} catch(Exception e){
+			e.printStackTrace();
+			try{
+				if (fis!=null) {
+					fis.close();
+				}
+			} catch(Exception ee){
+				
+			}
+		}
+	}
+	
+	private static int checkAck(InputStream in) throws IOException{
+		int b=in.read();
+		// b may be 0 for success,
+		//          1 for error,
+		//          2 for fatal error,
+		//          -1
+		if(b==0) return b;
+		if(b==-1) return b;
+
+		if(b==1 || b==2){
+			StringBuffer sb=new StringBuffer();
+			int c;
+			do {
+				c=in.read();
+				sb.append((char)c);
+			}
+			while(c!='\n');
+//				if(b==1){ // error
+//					System.out.print(sb.toString());
+//				}
+//				if(b==2){ // fatal error
+//					System.out.print(sb.toString());
+//				}
+		}
+		return b;
+	}
+
 	public static Object loadConfigModel(String instrumentId) throws IOException {
 	    DumperOptions options = new DumperOptions();
 	    options.setPrettyFlow(true);

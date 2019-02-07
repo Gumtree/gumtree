@@ -55,6 +55,9 @@ var showMsg = function(msg, type, timeLast) {
 	}
 	if (typeof timeLast === 'undefined') {
 		timeLast = 10000;
+	} 
+	if (type == 'danger') {
+		timeLast = 100000;
 	}
 	_message.html('<span class="badge badge-' + type + '">' + msg + '</span>');
 	setTimeout(function () {
@@ -665,4 +668,5 @@ $(document).ready(function() {
 	});
 	var search = new SearchWidget($('#id_input_search_text'));
 	search.init();
+	_historyBar.toggle();
 });
