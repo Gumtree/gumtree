@@ -31,8 +31,8 @@ class Enumeration(object):
 
 
 # safe count rates
-LOCAL_RATE_SAFE  =    15.0
-GLOBAL_RATE_SAFE = 40000.0
+LOCAL_RATE_SAFE  =    150.0
+GLOBAL_RATE_SAFE = 400000.0
 
 # attenuation values
 ATT_VALUES = [330, 300, 270, 240, 210, 180, 150, 120, 90, 60, 30, 0]
@@ -50,7 +50,6 @@ GUIDE_CONFIG = Enumeration(
     'p2', 'g2', 'p3', 'g3', 'p4', 'g4', 'p5', 'g5',
     'p6', 'g6', 'p7', 'g7', 'p8', 'g8', 'p9', 'g9')
 
-dhv1 = DetectorHighVoltageController()
 bsList = dict((index, BeamStopController(index)) for index in range(1, 6))
 
 def getReportLocation():
@@ -192,15 +191,20 @@ def sleep(secs, dt=0.1):
     sics.handleInterrupt()
 
 def waitUntilSicsIs(status, dt=0.2):
-    repeat = True
-    while repeat:
+    controller = sics.getSicsController()
+    timeout = 5
+    while True:
         sics.handleInterrupt()
 
-        while not sics.get_status().equals(status):
+        count = 0
+        while not controller.getServerStatus().equals(status) and count < timeout:
             time.sleep(dt)
-
-        time.sleep(dt)
-        repeat = not sics.get_status().equals(status)
+            count += dt
+        
+        if controller.getServerStatus().equals(status):
+            break
+        else:
+            controller.refreshServerStatus()
 
     sics.handleInterrupt()
 
@@ -209,6 +213,9 @@ def isInterruptException(e):
 
 def hasTripped():
 
+    ''' disabled for the new detector. The Histogram server doesn't support over-counting protection yet. '''
+    return False
+    
     def getHistmemTextstatus(name):
         counter = 0
         while True:
@@ -914,15 +921,17 @@ def getDataFilename(throw=True):
         else:
             return path
 
-    target = datetime.now() + timedelta(seconds=5)
-    while target > datetime.now():
-        name = getData(partial(getter, refresh=True), throw=False, default=None)
-        if name is not None:
-            return extractQkk(name)
-        else:
-            sleep(0.5)
+#     target = datetime.now() + timedelta(seconds=5)
+#     while target > datetime.now():
+#         name = getData(partial(getter, refresh=True), throw=False, default=None)
+#         if name is not None:
+#             return extractQkk(name)
+#         else:
+#             sleep(0.5)
+    fn = sics.getFilename().getStringData()
 
-    return extractQkk(getData(partial(getter, refresh=False), throw=True))
+#     return extractQkk(getData(partial(getter, refresh=False), throw=True))
+    return extractQkk(fn)
 
 def getMaxBinRate(throw=True):
     return getFloatData('/instrument/detector/max_binrate', throw) # pixel count rate
@@ -1058,8 +1067,6 @@ def driveDet(position, offset=None):
 
     # drive det only if we needed to
     if drive_position or drive_offset:
-        driveDhv1(ACTION.down)
-
         if drive_position:
             slog('Driving detector position to %s mm ...' % position)
             checkedDrive('det', position)
@@ -1068,39 +1075,7 @@ def driveDet(position, offset=None):
             slog('Driving detector offset to %s mm ...' % position)
             checkedDrive('detoff', offset)
 
-    # always drive voltage up even if detector wasn't moved
-    driveDhv1(ACTION.up)
     slog('Detector is now at %s mm with offset %s mm' % (getDetPosition(), getDetOffset()))
-
-def getDhv1():
-    return dhv1.getValue()
-
-def driveDhv1(action):
-    action = str(action)
-
-    # don't drive if it is already in position
-    so_dhv1     = sics.getSicsController().findDeviceController('so_dhv1')
-    potval_up   = so_dhv1.getChildController('/params/potval_up').getValue().getFloatData()
-    potval_down = so_dhv1.getChildController('/params/potval_down').getValue().getFloatData()
-    potval      = getFloatData('dhv1_potval')
-
-    if (action == ACTION.up and potval >= potval_up) or (action == ACTION.down and potval <= potval_down):
-        slog('dhv1 is now at %s (no action is required)' % getDhv1())
-        return
-
-    slog('Driving dhv1 %s ...' % action)
-
-    waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
-
-    if action == ACTION.up:
-        sics.drive('dhv1_potval', potval_up)
-
-    elif action == ACTION.down:
-        sics.drive('dhv1_potval', potval_down)
-
-    waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
-
-    slog('dhv1 is now at %s' % getDhv1())
 
 def getEntRotAp(throw=True):
     return getIntData('srce', throw)

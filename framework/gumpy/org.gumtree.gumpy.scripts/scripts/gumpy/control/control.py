@@ -7,8 +7,8 @@ import os
 SICS_PROXY = manager.getSicsProxy()
 SICS_MODEL = manager.getSicsModel()
 
-VALIDATOR_PROXY = manager.getValidatorProxy()
-VALIDATOR_MODEL = VALIDATOR_PROXY.getSicsModel()
+# VALIDATOR_PROXY = manager.getValidatorProxy()
+# VALIDATOR_MODEL = VALIDATOR_PROXY.getSicsModel()
 
 proxy = SICS_PROXY
 model = SICS_MODEL
@@ -25,15 +25,15 @@ model = SICS_MODEL
 def get_proxy():
     return proxy
 
-def set_validator(flag):
-    global proxy
-    global model
-    if flag:
-        proxy = VALIDATOR_PROXY
-        model = VALIDATOR_MODEL
-    else:
-        proxy = SICS_PROXY
-        model = SICS_MODEL
+# def set_validator(flag):
+#     global proxy
+#     global model
+#     if flag:
+#         proxy = VALIDATOR_PROXY
+#         model = VALIDATOR_MODEL
+#     else:
+#         proxy = SICS_PROXY
+#         model = SICS_MODEL
 
 # class Controller():
 #     
@@ -207,7 +207,8 @@ def __run__(controller, pars):
     logger.log('scan completed')
     handle_interrupt()
     
-def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, force = 'true', savetype = 'save'):
+def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, datatype = 'HISTOGRAM_XY', 
+            force = 'true', savetype = 'save'):
     # Initialisation
     clear_interrupt()
     controller = get_controller('/commands/scan/runscan')
@@ -247,15 +248,20 @@ def handle_interrupt():
         clear_interrupt()
         raise Exception, 'SICS interrupted!'
     
-def histmem(cmd, mode, preset):
-    clear_interrupt()
-    controller = get_controller('/commands/histogram/histmem')
-    p = dict()
-    p['cmd'] = cmd
-    p['mode'] = mode
-    p['preset'] = preset
-    __run__(controller, p)
+# def histmem(cmd, mode, preset):
+#     clear_interrupt()
+#     controller = get_controller('/commands/histogram/histmem')
+#     p = dict()
+#     p['cmd'] = cmd
+#     p['mode'] = mode
+#     p['preset'] = preset
+#     __run__(controller, p)
     
+def histmem(mode, preset):
+    clear_interrupt()
+    execute('histmem mode {}'.format(mode))
+    execute('histmem preset {}'.format(preset))
+    execute('histmem start block')
     
 class SicsError(Exception):
     def __init__(self, value):
@@ -306,6 +312,9 @@ class __SICS_Callback__(ISicsCallback):
 
 def get_raw_value(cmd, dtype = float):
     res = execute(cmd)
+    if "=" in res:
+        pair = res.split("=")
+        res = pair[-1].strip()
     if dtype == float :
         return float(res)
     else :
