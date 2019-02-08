@@ -297,6 +297,7 @@ var saveModel = function() {
 //		url += "&version=" + encodeURI(_versionId);
 //	}
 	url += "&" + Date.now();
+	$('#id_modal_saveDialog').modal('hide');
 	var text = JSON.stringify(_editorModel);
 	$.post(url,  {path:_curPath, model:text}, function(data) {
 //		data = $.parseJSON(data);
@@ -630,6 +631,13 @@ $(document).ready(function() {
 	
 	addPageTitle();
 	
+	var $loading = $('#id_span_waiting').hide();
+	$(document).ajaxStart(function () {
+		$loading.show();
+	}).ajaxStop(function () {
+		$loading.hide();
+	});
+
 	getModel();
 	
 	$('#id_button_saveConfirm').click(function() {
@@ -669,4 +677,5 @@ $(document).ready(function() {
 	var search = new SearchWidget($('#id_input_search_text'));
 	search.init();
 	_historyBar.toggle();
+	
 });
