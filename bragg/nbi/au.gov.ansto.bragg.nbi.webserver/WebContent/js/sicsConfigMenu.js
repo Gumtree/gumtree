@@ -1,19 +1,16 @@
 var INST_LIST = [
-	"bilby",
-	"dingo",
-	"echidna",
-	"emu",
-//	"joey",
-//	"koala",
-	"kookaburra",
-	"kowari",
-	"pelican",
-	"platypus",
-	"quokka",
-//	"sika",
+//	"bilby",
+//	"dingo",
+//	"echidna",
+//	"emu",
+//	"kookaburra",
+//	"kowari",
+//	"pelican",
+//	"platypus",
+//	"quokka",
 	"spatz",
-	"taipan",
-	"wombat"
+//	"taipan",
+//	"wombat"
 ]
 
 $(document).ready(function() {
