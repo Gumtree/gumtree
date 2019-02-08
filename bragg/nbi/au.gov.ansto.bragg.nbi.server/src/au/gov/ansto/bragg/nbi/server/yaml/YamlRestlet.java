@@ -45,6 +45,8 @@ import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -89,6 +91,8 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 	private static final String PROPERTY_SSH_HOST = "gumtree.ssh.host";
 	private static final String PROPERTY_SSH_KEYPATH = "gumtree.ssh.keypath";
 	private static final String PROPERTY_SSH_PASSPHRASE = "gumtree.ssh.passphrase";
+	
+	private static final Logger logger = LoggerFactory.getLogger(YamlRestlet.class);
 	
 	private static String configPath;
 	private static String tempPath;
@@ -485,9 +489,14 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 	}
 
 	private static String getTempFilePath(String instrumentId) {
-		return configPath + "/temp/" + instrumentId + "/" + yamlName;
+//		return configPath + "/temp/" + instrumentId + "/" + yamlName;
+		return localPath + "/" + instrumentId + "/" + yamlName;
 	}
 
+	private static String getHostName(String instrumentId) {
+		return host.replace("$INSTRUMENT", instrumentId);
+	}
+	
 	public static void copyFromRemote(String instrumentId, UserSessionObject session) {
 		FileOutputStream fos=null;
 		try{
@@ -500,10 +509,14 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 //				prefix = lfile + File.separator;
 //			}
 
+			logger.debug(keyPath);
+			logger.debug(passphrase);
+			logger.debug(getHostName(instrumentId));
+			logger.debug(user);
 			JSch jsch = new JSch();
 			jsch.addIdentity(keyPath, passphrase);
 //			System.err.println(EncryptionUtils.encryptBase64(passphrase));
-			Session jschSession = jsch.getSession(user, host, 22);
+			Session jschSession = jsch.getSession(user, getHostName(instrumentId), 22);
 			jschSession.setConfig("StrictHostKeyChecking", "no"); 
 
 			// username and password will be given via UserInfo interface.
@@ -595,7 +608,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			File file1 = new File(getYamlFilePath(instrumentId));
 			File file2 = new File(getTempFilePath(instrumentId));
 			boolean isIdentical = FileUtils.contentEquals(file1, file2);
-			System.err.println(isIdentical);
+			logger.debug("isIdentical=" + isIdentical);
 			if (!isIdentical) {
 				FileUtils.copyFile(file2, file1);
 				GitService git = getGitService(instrumentId);
@@ -611,12 +624,12 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			}
 		} catch(Exception e){
 			e.printStackTrace();
+			logger.error(e.getMessage());
 			try{
 				if (fos!=null) {
 					fos.close();
 				}
 			} catch(Exception ee){
-				
 			}
 		}
 	}
@@ -628,6 +641,9 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			String rfile = getRemoteYamelPath(instrumentId); 
 			String lfile = getYamlFilePath(instrumentId);
 
+			logger.debug(rfile);
+			logger.debug(lfile);
+			
 //			String prefix = null;
 //			if(new File(lfile).isDirectory()){
 //				prefix = lfile + File.separator;
@@ -635,7 +651,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 
 			JSch jsch = new JSch();
 			jsch.addIdentity(keyPath, passphrase);
-			Session jschSession = jsch.getSession(user, host, 22);
+			Session jschSession = jsch.getSession(user, getHostName(instrumentId), 22);
 			jschSession.setConfig("StrictHostKeyChecking", "no"); 
 
 			// username and password will be given via UserInfo interface.
@@ -702,6 +718,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			
 		} catch(Exception e){
 			e.printStackTrace();
+			logger.error(e.getMessage());
 			try{
 				if (fis!=null) {
 					fis.close();
