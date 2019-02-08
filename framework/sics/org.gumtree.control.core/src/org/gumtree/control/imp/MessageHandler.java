@@ -11,9 +11,12 @@ import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.control.model.PropertyConstants.MessageType;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageHandler {
 
+	private static Logger logger = LoggerFactory.getLogger(MessageHandler.class);
 	private ISicsModel model;
 	private ThreadPool threadPool;
 	private SicsProxy sicsProxy;
@@ -55,7 +58,7 @@ public class MessageHandler {
 	}
 
 	public void process(final JSONObject json) {
-		System.out.println("process " + json);
+//		System.out.println("process " + json);
 //		try {
 //			if (json.has(SicsChannel.JSON_KEY_STATUS)) {
 //				String status = json.getString(SicsChannel.JSON_KEY_STATUS);
@@ -68,21 +71,23 @@ public class MessageHandler {
 				String type = json.getString(PropertyConstants.PROP_UPDATE_TYPE);
 				if (type.equalsIgnoreCase(MessageType.STATUS.getId())) {
 					String status = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
-					System.out.println("update status " + status);
+					logger.info("UPDATE status to " + status);
 					sicsProxy.setServerStatus(ServerStatus.parseStatus(status));
 				} else if (type.equalsIgnoreCase(MessageType.VALUE.getId())) {
-					System.out.println("process update");
-					processUpdate(json.getString(PropertyConstants.PROP_UPDATE_NAME), 
-							json.getString(PropertyConstants.PROP_UPDATE_VALUE));
+					String name = json.getString(PropertyConstants.PROP_UPDATE_NAME);
+					String value = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
+					logger.info("UPDATE value " + name + " = " + value);
+					processUpdate(name, value);
 				} else if (type.equalsIgnoreCase(MessageType.STATE.getId())) {
-					System.out.println("process state");
-					processState(json.getString(PropertyConstants.PROP_UPDATE_VALUE), 
-							json.getString(PropertyConstants.PROP_UPDATE_NAME));
+					String name = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
+					String state = json.getString(PropertyConstants.PROP_UPDATE_NAME);
+					logger.info("UPDATE state of " + name + " to " + state);
+					processState(name, state);
 				} else if (type.equalsIgnoreCase(MessageType.BATCH.getId())) {
 					processBatch(json);
 				}
 			} else if (json.has(PropertyConstants.PROP_COMMAND_CMD)) {
-				System.out.println("cmd message for command: " + json.getString("text"));
+				logger.info("PROCESS command message");
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();

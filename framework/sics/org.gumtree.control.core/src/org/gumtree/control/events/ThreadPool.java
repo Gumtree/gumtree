@@ -13,6 +13,10 @@ public class ThreadPool {
 		executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(POOL_SIZE);
 	}
 
+	public ThreadPool(int poolSize) {
+		executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize);
+	}
+
 	public void run(Runnable runnable) {
 		executor.submit(runnable);
 	}

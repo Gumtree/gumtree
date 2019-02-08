@@ -24,7 +24,7 @@ public class CommandController extends GroupController implements ICommandContro
 		isBusy = true;
 		setErrorMessage(null);
 		try {
-			getSicsProxy().syncRun("hset " + getDeviceId() + " start", null);
+			getSicsProxy().syncRun("hset " + getPath() + " start", null);
 		} catch (SicsException e) {
 			setErrorMessage(e.getMessage());
 		}finally {

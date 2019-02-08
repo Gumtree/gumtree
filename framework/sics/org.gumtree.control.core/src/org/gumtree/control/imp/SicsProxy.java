@@ -49,27 +49,29 @@ public class SicsProxy implements ISicsProxy {
 	 */
 	@Override
 	public boolean connect(String serverAddress, String publisherAddress) {
-		this.serverAddress = serverAddress;
-		this.publisherAddress = publisherAddress;
-		channel = new SicsChannel(this);
-		try {
-			channel.connect(serverAddress, publisherAddress);
-		} catch (Exception e) {
-			return false;
-		}
-		try {
-			String s = channel.syncSend("status", null);
-			if (s.contains("=")) {
-				s = s.split("=")[1].trim();
+		if (serverAddress != null && !serverAddress.equals(this.serverAddress)) {
+			this.serverAddress = serverAddress;
+			this.publisherAddress = publisherAddress;
+			channel = new SicsChannel(this);
+			try {
+				channel.connect(serverAddress, publisherAddress);
+			} catch (Exception e) {
+				return false;
 			}
-			serverStatus = ServerStatus.parseStatus(s);
-		} catch (SicsException e) {
+			try {
+				String s = channel.syncSend("status", null);
+				if (s.contains("=")) {
+					s = s.split("=")[1].trim();
+				}
+				serverStatus = ServerStatus.parseStatus(s);
+			} catch (SicsException e) {
+			}
+//			try {
+//				batchStatus = BatchStatus.parseStatus(channel.send("exe info", null));
+//			} catch (SicsException e) {
+//			}
+			fireConnectionEvent(true);
 		}
-//		try {
-//			batchStatus = BatchStatus.parseStatus(channel.send("exe info", null));
-//		} catch (SicsException e) {
-//		}
-		fireConnectionEvent(true);
 		return true;
 	}
 

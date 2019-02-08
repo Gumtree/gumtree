@@ -280,14 +280,14 @@ public class BatchValidationPage extends ExtendedFormComposite {
 															fontColor);
 											context.logText.append(message + "\n");
 											context.logText
-													.setStyleRange(styleRange);
+											.setStyleRange(styleRange);
 											// Auto scroll
 											StyledTextContent doc = context.logText
 													.getContent();
 											int docLength = doc.getCharCount();
 											if (docLength > 0) {
 												context.logText
-														.setCaretOffset(docLength);
+												.setCaretOffset(docLength);
 												context.logText.showSelection();
 											}
 										}

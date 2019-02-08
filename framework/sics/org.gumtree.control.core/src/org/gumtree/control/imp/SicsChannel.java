@@ -17,7 +17,10 @@ import org.gumtree.control.exception.SicsInterruptException;
 import org.gumtree.control.model.PropertyConstants;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
+import org.zeromq.ZMQException;
 
 /**
  * @author nxi
@@ -38,6 +41,7 @@ public class SicsChannel implements ISicsChannel {
 	public static final String JSON_VALUE_OK = "OK";
 	
 	private static final int COMMAND_WAIT_TIME = 1;
+	private static Logger logger = LoggerFactory.getLogger(SicsChannel.class);
 	
 	private ZMQ.Context context;
     private ZMQ.Socket clientSocket;
@@ -80,13 +84,18 @@ public class SicsChannel implements ISicsChannel {
 			@Override
 			public void run() {
 				while(true) {
-					String msg = subscriberSocket.recvStr();
-					System.err.println("SUB " + msg);
-					JSONObject json;
 					try {
+						String msg = subscriberSocket.recvStr();
+//						System.err.println("SUB " + msg);
+						logger.info("SUB: " + msg);
+						JSONObject json;
 						json = new JSONObject(msg);
 						messageHandler.delayedProcess(json);
+					} catch (ZMQException ze) {
+						logger.error("subscriber socket closed");
+						break;
 					} catch (JSONException e) {
+						logger.error(e.getMessage());
 						e.printStackTrace();
 					} finally {
 					}
@@ -109,8 +118,12 @@ public class SicsChannel implements ISicsChannel {
 		SicsCommand sicsCommand = new SicsCommand(cid, command, callback);
 		commandMap.put(cid, sicsCommand);
 		isBusy = true;
+//		logger.info("syncRun: " + command);
 		try {
 			return sicsCommand.syncRun();
+		} catch(Exception e) {
+			logger.error(e.getMessage());
+			throw e;
 		} finally {
 			isBusy = false;
 		}
@@ -119,6 +132,7 @@ public class SicsChannel implements ISicsChannel {
 	@Override
 	public void asyncSend(String command, ISicsCallback callback) throws SicsException {
 		cid++;
+		logger.info("asyncRun: " + command);
 		SicsCommand sicsCommand = new SicsCommand(cid, command, callback);
 		commandMap.put(cid, sicsCommand);
 		sicsCommand.asyncRun();
@@ -144,7 +158,8 @@ public class SicsChannel implements ISicsChannel {
 					try {
 						String received = clientSocket.recvStr();
 						String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
-						System.err.println(timeStamp + " Received: " + received);
+//						System.err.println(timeStamp + " Received: " + received);
+						logger.info("CMD: " + received);
 						JSONObject json = null;
 						try {
 							json = new JSONObject(received);	
@@ -158,7 +173,7 @@ public class SicsChannel implements ISicsChannel {
 							e.printStackTrace();
 						}
 					} catch (Exception e) {
-						System.err.println("disconnected");
+						logger.error("proxy disconnected");
 						break;
 					}
 				}
@@ -216,9 +231,11 @@ public class SicsChannel implements ISicsChannel {
 			} catch (JSONException e1) {
 				throw new SicsExecutionException("illegal command");
 			}
-			String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
-			System.err.println(timeStamp + " async send: " + jcom.toString());
-			clientSocket.send(jcom.toString());
+//			String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
+//			System.err.println(timeStamp + " async send: " + jcom.toString());
+			String msg = jcom.toString();
+			logger.info("syncSend: " + msg);
+			clientSocket.send(msg);
 			while (!isFinished) {
 				try {
 					Thread.sleep(COMMAND_WAIT_TIME);
@@ -242,9 +259,11 @@ public class SicsChannel implements ISicsChannel {
 			} catch (JSONException e1) {
 				throw new SicsExecutionException("illegal command");
 			}
-			String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
-			System.err.println(timeStamp + " async send: " + jcom.toString());
-			clientSocket.send(jcom.toString());
+//			String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
+//			System.err.println(timeStamp + " async send: " + jcom.toString());
+			String msg = jcom.toString();
+			logger.info("asyncSend: " + msg);
+			clientSocket.send(msg);
 		}
 
 		void takeError(SicsException error) {
@@ -314,10 +333,10 @@ public class SicsChannel implements ISicsChannel {
 					}
 					if (json.has(JSON_KEY_FINISHED)) {
 						if (json.getString(JSON_KEY_FINISHED).equals("true")) {
-							finish();
 							if (callback != null) {
 								callback.receiveFinish(new SicsReplyData(json));
 							}
+							finish();
 						}
 					} else {
 						if (callback != null) {

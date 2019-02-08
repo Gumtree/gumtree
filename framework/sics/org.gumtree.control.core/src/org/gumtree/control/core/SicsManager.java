@@ -13,9 +13,7 @@ public class SicsManager {
 		if (serverAddress != null) {
 			if (sicsProxy == null) {
 				sicsProxy = new SicsProxy();
-			} else if (sicsProxy.isConnected()) {
-				sicsProxy.disconnect();
-			}
+			} 
 			sicsProxy.connect(serverAddress, publisherAddress);
 		}
 		return sicsProxy;

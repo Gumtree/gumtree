@@ -33,7 +33,16 @@ public class TargetEditingSupport extends EditingSupport {
 	private ComboBoxCellEditor comboCellEditor;
 	
 	private RunDialogCellEditor runDialogCellEditor;
+	
+	private static ControlRunner controlRunner;
 
+	private static synchronized ControlRunner getControlRunner() {
+		if (controlRunner == null) {
+			controlRunner = new ControlRunner();
+		}
+		return controlRunner;
+	}
+	
 	public TargetEditingSupport(TreeViewer viewer, int coloumnIndex) {
 		super(viewer);
 		this.coloumnIndex = coloumnIndex;
@@ -161,14 +170,21 @@ public class TargetEditingSupport extends EditingSupport {
 			/*****************************************************************
 			 * Commit value
 			 *****************************************************************/
+			final IControllerData data = ControllerData.createStringData(newTargetValue);
 			if (shouldCommit) {
-				try {
-					IDynamicController controller = ((DynamicControllerNode) element).getDynamicController();
-					controller.setTargetValue(ControllerData.createStringData(newTargetValue));
-					controller.commitTargetValue();					
-				} catch (SicsException e) {
-					e.printStackTrace();
-				}
+				getControlRunner().delayedProcess(new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							IDynamicController controller = ((DynamicControllerNode) element).getDynamicController();
+							controller.setTargetValue(data);
+							controller.commitTargetValue();					
+						} catch (SicsException e) {
+							e.printStackTrace();
+						}
+					}
+				});
 			}
 			
 			/*****************************************************************
