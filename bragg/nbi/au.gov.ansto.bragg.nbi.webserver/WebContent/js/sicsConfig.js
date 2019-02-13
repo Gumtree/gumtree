@@ -277,7 +277,7 @@ var getModel = function() {
 	}).fail(function(e) {
 		if (e.status == 401) {
 			alert("sign in required");
-			window.location = 'signin.html?redirect=sicsConfigMenu.html';
+			window.location = 'signin.html?redirect=sicsConfig.html?inst=' + _inst;
 		} else {
 			alert(e.statusText);
 		}
@@ -589,7 +589,7 @@ var HistoryBlock = function(main, side) {
 					side.append(commit.getControl());
 				});
 			}).fail(function() {
-				alert('failed to get history.');
+				side.html('<span class="alert alert-danger">failed to get history.</span>');
 			});
 		}
 	};
