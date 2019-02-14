@@ -151,7 +151,7 @@ public class TargetEditingSupport extends EditingSupport {
 		return "";
 	}
 
-	protected void setValue(Object element, Object value) {
+	protected void setValue(final Object element, final Object value) {
 		if(element instanceof DynamicControllerNode) {
 			/*****************************************************************
 			 * Resolve value
