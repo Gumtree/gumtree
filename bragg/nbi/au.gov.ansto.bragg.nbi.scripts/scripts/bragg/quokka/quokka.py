@@ -808,7 +808,9 @@ def determineDetRates(samples, timeout=60.0):
                     return RateInfo()
 
                 if time.time() - start >= timeout:
-                    raise Exception('Timeout during detector local/global rate estimation')
+                    new_local_rate, new_global_rate = getMaxBinRate(refresh=True), getGlobalMapRate(refresh=True)
+                    break
+#                     raise Exception('Timeout during detector local/global rate estimation')
 
                 time.sleep(0.5)
                 new_local_rate, new_global_rate = getMaxBinRate(), getGlobalMapRate()
@@ -884,16 +886,18 @@ def getIntData(path, throw=True, useController=False, useRaw=False):
 
     return getData(getter, throw)
 
-def getFloatData(path, throw=True, useController=False, useRaw=False):
+def getFloatData(path, throw=True, useController=False, useRaw=False, refresh = False):
 
     def getter():
         if useController:
             controller = sics.getSicsController().findComponentController(path)
+            if refresh:
+                controller.getValue(True)
             return controller.getValue().getFloatData()
         elif useRaw:
             return float(sics.get_raw_value(path))
         else:
-            return sics.getValue(path).getFloatData()
+            return sics.getValue(path, refresh).getFloatData()
 
     return getData(getter, throw)
 
@@ -933,11 +937,11 @@ def getDataFilename(throw=True):
 #     return extractQkk(getData(partial(getter, refresh=False), throw=True))
     return extractQkk(fn)
 
-def getMaxBinRate(throw=True):
-    return getFloatData('/instrument/detector/max_binrate', throw) # pixel count rate
+def getMaxBinRate(throw=True, refresh = False):
+    return getFloatData('/instrument/detector/max_binrate', throw, refresh = refresh) # pixel count rate
 
-def getGlobalMapRate(throw=True):
-    return getFloatData('/instrument/detector/total_maprate', throw) # global count rate
+def getGlobalMapRate(throw=True, refresh = False):
+    return getFloatData('/instrument/detector/total_maprate', throw, refresh = refresh) # global count rate
 
 def getAtt(throw=True):
     return getIntData('att', throw)
