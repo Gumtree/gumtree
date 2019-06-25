@@ -7,8 +7,9 @@ from org.gumtree.gumnix.sics.io import SicsExecutionException
 # from au.gov.ansto.bragg.quokka.msw.internal import QuokkaProperties # see getReportLocation()
 from au.gov.ansto.bragg.quokka.sics import DetectorHighVoltageController
 from au.gov.ansto.bragg.quokka.sics import BeamStopController
+from org.gumtree.gumnix.sics.control.controllers import CommandStatus
 
-import sys
+import sys, traceback
 import time
 import math
 
@@ -30,9 +31,11 @@ class Enumeration(object):
         return key in self._keys
 
 
+DETECTOR_MONITOR_ENABLED = True
+
 # safe count rates
-LOCAL_RATE_SAFE  =    150.0
-GLOBAL_RATE_SAFE = 400000.0
+LOCAL_RATE_SAFE  =    200.0
+GLOBAL_RATE_SAFE = 500000.0
 
 # attenuation values
 ATT_VALUES = [330, 300, 270, 240, 210, 180, 150, 120, 90, 60, 30, 0]
@@ -212,10 +215,10 @@ def isInterruptException(e):
     return isinstance(e, SicsExecutionException) and ('Interrupted' in str(e.getMessage()))
 
 def hasTripped():
-
-    ''' disabled for the new detector. The Histogram server doesn't support over-counting protection yet. '''
+    ''' disable this for the new detector commissioning '''
+#    slog('trip recovery has been disabled')
     return False
-    
+
     def getHistmemTextstatus(name):
         counter = 0
         while True:
@@ -505,6 +508,9 @@ def doAcquisition(info):
             slog('Repeat Acquisition ...')
             scan(acq_mode, preset)
 
+#    slog('***** finished acquisition ')
+#    fn = getDataFilename()
+#    slog(fn)
     # feedback
     info.filename = getDataFilename()
     if trips > 0:
@@ -808,7 +814,12 @@ def determineDetRates(samples, timeout=60.0):
                     return RateInfo()
 
                 if time.time() - start >= timeout:
-                    new_local_rate, new_global_rate = getMaxBinRate(refresh=True), getGlobalMapRate(refresh=True)
+                    while True:
+                        try:
+                            new_local_rate, new_global_rate = getMaxBinRate(refresh=True), getGlobalMapRate(refresh=True)
+                            break
+                        except:
+                            time.sleep(1)
                     break
 #                     raise Exception('Timeout during detector local/global rate estimation')
 
@@ -925,13 +936,13 @@ def getDataFilename(throw=True):
         else:
             return path
 
-#     target = datetime.now() + timedelta(seconds=5)
-#     while target > datetime.now():
-#         name = getData(partial(getter, refresh=True), throw=False, default=None)
-#         if name is not None:
-#             return extractQkk(name)
-#         else:
-#             sleep(0.5)
+#    target = datetime.now() + timedelta(seconds=5)
+#    while target > datetime.now():
+#        name = getData(partial(getter, refresh=True), throw=False, default=None)
+#        if name is not None:
+#            return extractQkk(name)
+#        else:
+#            sleep(0.5)
     fn = sics.getFilename().getStringData()
 
 #     return extractQkk(getData(partial(getter, refresh=False), throw=True))
@@ -942,6 +953,9 @@ def getMaxBinRate(throw=True, refresh = False):
 
 def getGlobalMapRate(throw=True, refresh = False):
     return getFloatData('/instrument/detector/total_maprate', throw, refresh = refresh) # global count rate
+
+def getDetectorCounts(throw=True, refresh = False):
+    return getFloatData('/instrument/detector/total_counts', throw, refresh = refresh) # global count rate
 
 def getAtt(throw=True):
     return getIntData('att', throw)
@@ -1310,7 +1324,193 @@ def syncScan(controllerPath):
     time.sleep(1)
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
 
-    # synchronously run scan
+    global DETECTOR_MONITOR_ENABLED
+    if DETECTOR_MONITOR_ENABLED:
+        detector_rate_monitor_scan(controllerPath)
+    else:
+        # synchronously run scan
+        sicsController = sics.getSicsController()
+        scanController = sicsController.findComponentController(controllerPath)
+        scanController.syncExecute()
+
+def detector_rate_monitor_scan(controllerPath, redo = 0):
+    sics.execute('title NORMAL_SCAN', 'status')
+    slog('scan with detector map rate monitoring')
     sicsController = sics.getSicsController()
     scanController = sicsController.findComponentController(controllerPath)
-    scanController.syncExecute()
+    statusData = scanController.getStatusController().getValue().getStringData()
+    while CommandStatus.valueOf(statusData) != CommandStatus.IDLE :
+        statusData = scanController.getStatusController().getValue().getStringData()
+        time.sleep(0.5)
+    scanController.asyncExecute()
+    counter = 0.;
+    statusChanged = False
+    stime = 0.1
+    timeout = 60.
+    slog('starting scan')
+    while not statusChanged :
+        time.sleep(0.1)
+        counter += stime;
+        if counter > timeout :
+            statusData = None
+            try:
+                statusData = scanController.getStatusController().getValue(True).getStringData()
+            except Exception as e:
+                time.sleep(stime);
+                continue;
+            if CommandStatus.valueOf(statusData) != CommandStatus.BUSY :
+                raise Exception("Time out on syncExecute() where status did not changed whiling execution")
+            else :
+                statusChanged = True;
+        statusData = scanController.getStatusController().getValue().getStringData()
+        if CommandStatus.valueOf(statusData) == CommandStatus.BUSY :
+            statusChanged = True
+
+    slog('counting started')
+    count = 0.;
+    c2 = 0.
+    lstime = 5.
+    time.sleep(lstime * 4)
+    std_rate = None
+    rate1 = None
+    total1 = 0
+    rate2 = None
+    total2 = 0
+    rate3 = None
+    total3 = 0
+    scan_err = None
+    low_items = 0
+    l_toll = 5
+    while CommandStatus.valueOf(statusData) == CommandStatus.BUSY :
+        time.sleep(stime)
+        count += stime
+        c2 += stime
+        statusData = scanController.getStatusController().getValue().getStringData()
+        if c2 >= lstime :
+            c2 = 0.
+            if std_rate is None:
+                if rate1 is None:
+                    rate1 = getGlobalMapRate()
+                    total1 = getDetectorCounts()
+                elif rate2 is None:
+                    rate2 = getGlobalMapRate()
+                    total2 = getDetectorCounts()
+                elif rate3 is None:
+                    rate3 = getGlobalMapRate()
+                    total3 = getDetectorCounts()
+                    std_rate = (rate1 + rate2 + rate3) / 3.
+                    slog('standard detector map rate is {}'.format(int(std_rate)))
+                    try:
+                        fn = dump_hms_status('OK')
+                    except Exception as e :
+                        slog('failed to log HMS status: ' + str(e), f_err=True)
+            else:
+                crate = getGlobalMapRate()
+                total = getDetectorCounts()
+                if crate == rate1 and rate1 == rate2 and rate2 == rate3:
+                    while True:
+                        try :
+                            sics.execute('hget /instrument/detector/total_maprate', 'status')
+                            sics.execute('hget /instrument/detector/total_counts', 'status')
+                            time.sleep(3.)
+                            crate = getGlobalMapRate()
+                            total = getDetectorCounts()
+                            break
+                        except Exception as e :
+                            pass
+#                             time.sleep(stime)
+                    if crate == rate1 and rate1 == rate2 and rate2 == rate3:
+                        if total == total1 and total1 == total2 and total2 == total3:
+                            scan_err = 'detector map rate not changing for 20 seconds: stop, save and restart the scan'
+                            try:
+                                fn = dump_hms_status()
+                                slog('log HMS status in ' + fn)
+                            except Exception as e :
+                                slog('failed to log HMS status: ' + str(e), f_err=True)
+                            break
+                if crate < std_rate * 0.3 :
+                    low_items += 1
+                    slog('lower count rate found at {}'.format(crate))
+                    try:
+                        fn = dump_hms_status()
+                        slog('log HMS status in ' + fn)
+                    except Exception as e :
+                        slog('failed to log HMS status: ' + str(e), f_err=True)
+                    if low_items >= l_toll:
+                        scan_err = 'detector map rate dropped from {} to {}: stop, save and restart the scan'.format(std_rate, crate)
+                        break
+                else:
+                    low_items = 0
+#                 slog('detector map rate = {}'.format(crate))
+                rate1 = rate2
+                rate2 = rate3
+                rate3 = crate
+                total1 = total2
+                total2 = total3
+                total3 = total
+        if count >= timeout:
+            try :
+                statusData = scanController.getStatusController().getValue(True).getStringData()
+            except :
+                pass
+            count = 0.
+    
+    if not scan_err is None:
+        slog('error: {}'.format(scan_err), f_err=True)
+        sics.execute('title MISSING_COUNTS', 'status')
+        sics.execute('histmem stop', 'status')
+        time.sleep(20.)
+#         slog('finished with error')
+        redo += 1
+        if redo < 3:
+            detector_rate_monitor_scan(controllerPath, redo)
+        else :
+            slog('same scan has been repeated {} times, giving up'.format(redo), f_err=True)
+    else:
+        slog('scan was successful')
+        
+from java.io import File
+from java.io import FileOutputStream
+from org.apache.commons.httpclient import HttpClient
+from org.apache.commons.httpclient import Credentials
+from org.apache.commons.httpclient import UsernamePasswordCredentials
+from org.apache.commons.httpclient.auth import AuthScope
+from org.apache.commons.httpclient.methods import GetMethod
+from datetime import datetime
+import os
+def dump_hms_status(log_type = 'err'):
+    
+    # Initialisation
+    host = 'das4-quokka.nbi.ansto.gov.au'
+    port = 8081
+    user = 'Gumtree'
+    password = 'Gumtree'
+    directory = 'W:/data/current/reports/HMS'
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    
+    # Create new HTTP client
+    client = HttpClient()
+    client.getParams().setAuthenticationPreemptive(True)
+    defaultcreds = UsernamePasswordCredentials(user, password)
+    client.getState().setCredentials(AuthScope.ANY, defaultcreds)
+    
+    # Get data across HTTP
+    url = 'http://' + host + ':' + str(port) + '/admin/textstatus.egi'
+    getMethod = GetMethod(url)
+    getMethod.setDoAuthentication(True)
+    client.executeMethod(getMethod)
+    
+    # Save locally
+    now = datetime.now()
+    filename = 'HMS_' + log_type + '_' + now.strftime("%Y-%m-%d_%H%M%S") + '.log'
+    file = File(directory + '/' + filename)
+    out = FileOutputStream(file)
+    out.write(getMethod.getResponseBody())
+    out.close()
+    
+    # Clean up
+    getMethod.releaseConnection()
+
+    return filename
