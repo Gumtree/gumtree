@@ -61,6 +61,17 @@ __sampleMap5__ = {
        6 : -180.000
        }
 
+__sampleMap6__ = {
+       0 : 350.6,
+       1 : 245.4,
+       2 : 140.2,
+       3 : 35.0,
+       4 : -70.2,
+       5 : -175.4, 
+       6 : -280.6,
+       7 : -385.8
+       }
+
 __sampleMap12__ = {
        0 : 455.0,
        1 : 385.0,
@@ -87,8 +98,9 @@ __fixedStage__ = {
 __sampleMap__ = {
                  1: __fixedStage__,
                  5: __sampleMap5__,
+                 6: __sampleMap6__,
                  10: __sampleMap10__,
-                 12: __sampleMap12__
+                 12: __sampleMap12__, 
                  }
 
 __sampleNum__ = 10
@@ -565,7 +577,7 @@ def count(mode, dataType, preset, force='true', saveType=saveType.save):
     log('Saved to ' +  savedFilename)
     return savedFilename
 
-def scan10(sample_position, collect_time, sample_name = None):
+def scan10(sample_position, collect_time, sample_name = None, thickness = 0):
     global __sampleMap__, __sampleNum__
     if sample_position < 1 or sample_position > __sampleNum__:
         raise Exception, 'Invalid sample position, scan not run. Choose a position between 1 and ' + str(__sampleNum__) + ' inclusive.'
@@ -573,6 +585,7 @@ def scan10(sample_position, collect_time, sample_name = None):
         if not sample_name is None:
             sics.execute('samplename ' + str(sample_name), 'scan')
         
+        sics.execute('samplethickness ' + str(thickness), 'scan')
 #        cur_samx = samx()
         time.sleep(1)
         log("Collection time set to " + str(collect_time) + " seconds")
