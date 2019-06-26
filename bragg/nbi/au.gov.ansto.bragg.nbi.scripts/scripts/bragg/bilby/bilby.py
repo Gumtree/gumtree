@@ -483,6 +483,12 @@ def bs_att(bs_num, bs_angle, att_num):
         # Do not let the BS_Att command drive to an unsafe configuration
         raise Exception, 'No valid beamstop or attenuator has been selected  no movement of beamstop or attempted'
 
+def batch_set_temp(val, controller_name = 'tc1', loop_group = 'loop_%02d', setpoint_name = 'setpoint', number_of_loop = 12):
+    for i in range(1, number + 1) :
+        cmd = 'hset /sample/{}/{}/{} {}'.format(name, group % i, node, val)
+        log(cmd)
+        sics.execute(cmd)
+
 hmMode = enum.Enum('timer', 'monitor')
 scanMode = enum.Enum('time', 'count', 'monitor', 'unlimited', 'MONITOR_1')
 dataType = enum.Enum('HISTOGRAM_XYT')
