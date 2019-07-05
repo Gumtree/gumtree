@@ -99,6 +99,8 @@ def sinit():
         __LOG_FILES__.append(open(path, 'a'))
     except Exception, e:
         print >> sys.stderr, e
+    except:
+        pass
 
 def sclose():
     global __LOG_FILES__
@@ -109,6 +111,8 @@ def sclose():
                 f.close()
             except Exception, e:
                 print >> sys.stderr, e
+            except: 
+                pass
 
     __LOG_FILES__ = []
 
@@ -137,6 +141,8 @@ def slog(text, f_err = False):
                 file.flush()
             except Exception, e:
                 print >> sys.stderr, e
+            except:
+                pass
 
 class RateInfo(object):
     def __init__(self, local_rate=0.0, local_err=0.0, global_rate=0.0, global_err=0.0):
@@ -234,6 +240,8 @@ def hasTripped():
                     return None # break loop
 
                 time.sleep(1)
+            except:
+                pass
 
     trp = getHistmemTextstatus('detector_protect_num_trip')
     ack = getHistmemTextstatus('detector_protect_num_trip_ack')
@@ -883,6 +891,8 @@ def getData(getter, throw, default='???'):
             raise
         else:
             return default
+    except:
+        pass
 
 def getIntData(path, throw=True, useController=False, useRaw=False):
 
@@ -976,6 +986,8 @@ def driveToSafeAtt():
             slog('error: %s' % str(e), f_err=True)
             if isInterruptException(e) or (counter >= 5):
                 raise
+        except:
+            pass
 
 def getBsPosition(id):
     return bsList[id].getPosition().name()
@@ -1037,6 +1049,8 @@ def selBsHelper(beamstop, bx, bz, controller):
             slog('Retry selecting beam stop %s' % beamstop)
             time.sleep(1)
             waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
+        except:
+            pass
 
     slog('beam stop is %s' % beamstop)
 
@@ -1134,6 +1148,8 @@ def driveFlipper(value):
 
             slog('Retry setting Flipper')
             time.sleep(1)
+        except:
+            pass
 
     slog('Flipper is set to %s' % getFlipper())
 
@@ -1184,6 +1200,8 @@ def driveGuide(value):
             slog(str(e), f_err=True)
             slog('Retry moving guide')
             time.sleep(1)
+        except:
+            pass
 
     slog('Guide is moved to ' + getGuideConfig())
 
@@ -1358,6 +1376,8 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
             except Exception as e:
                 time.sleep(stime);
                 continue;
+            except:
+                pass
             if CommandStatus.valueOf(statusData) != CommandStatus.BUSY :
                 raise Exception("Time out on syncExecute() where status did not changed whiling execution")
             else :
@@ -1404,6 +1424,8 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
                         fn = dump_hms_status('OK')
                     except Exception as e :
                         slog('failed to log HMS status: ' + str(e), f_err=True)
+                    except:
+                        pass
             else:
                 crate = getGlobalMapRate()
                 total = getDetectorCounts()
@@ -1416,7 +1438,7 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
                             crate = getGlobalMapRate()
                             total = getDetectorCounts()
                             break
-                        except Exception as e :
+                        except :
                             pass
 #                             time.sleep(stime)
                     if crate == rate1 and rate1 == rate2 and rate2 == rate3:
@@ -1427,6 +1449,8 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
                                 slog('log HMS status in ' + fn)
                             except Exception as e :
                                 slog('failed to log HMS status: ' + str(e), f_err=True)
+                            except:
+                                pass
                             break
                 if crate < std_rate * 0.3 :
                     low_items += 1
@@ -1436,6 +1460,8 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
                         slog('log HMS status in ' + fn)
                     except Exception as e :
                         slog('failed to log HMS status: ' + str(e), f_err=True)
+                    except:
+                        pass
                     if low_items >= l_toll:
                         scan_err = 'detector map rate dropped from {} to {}: stop, save and restart the scan'.format(std_rate, crate)
                         break
