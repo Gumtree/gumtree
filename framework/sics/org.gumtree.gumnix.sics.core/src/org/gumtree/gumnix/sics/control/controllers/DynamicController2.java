@@ -89,6 +89,8 @@ public class DynamicController2 extends ComponentController implements IDynamicC
 		if (getStatus().equals(ControllerStatus.ERROR)) {
 			errorMessage = null;
 			setStatus(ControllerStatus.OK);
+		} else {
+			errorMessage = null;
 		}
 	}
 

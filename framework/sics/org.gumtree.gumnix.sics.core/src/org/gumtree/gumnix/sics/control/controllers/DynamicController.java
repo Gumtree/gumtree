@@ -402,6 +402,8 @@ public class DynamicController extends ComponentController implements IDynamicCo
 		if (getStatus().equals(ControllerStatus.ERROR)) {
 			errorMessage = null;
 			setStatus(ControllerStatus.OK);
+		} else {
+			errorMessage = null;
 		}
 	}
 	
