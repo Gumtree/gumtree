@@ -432,7 +432,8 @@ jQuery(document).ready(function(){
 						}
 					}]
 				});
-				refresh();
+//				refresh();
+				alert('Please select a time range to start up.')
 			} catch (e) {
 			}
 		}
