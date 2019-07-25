@@ -210,12 +210,12 @@ public class InstrumentContentProvider implements ITreeContentProvider,
 										}
 										IIntroPart introPart = PlatformUI.getWorkbench().getIntroManager().getIntro();
 										boolean wasStandby = PlatformUI.getWorkbench().getIntroManager().isIntroStandby(introPart);
-										if (page.isEditorAreaVisible()) {
+//										if (page.isEditorAreaVisible()) {
 											page.openEditor(
 													new SicsEditorInput(
 															SicsCore.getSicsController()),
 													SicsUIConstants.ID_EDITOR_SICS_CONTROL);
-										}
+//										}
 										// Restore intro if the editor caused the intro to standby
 										// Desirable behaviours when intro is available:
 										// 1. Intro has fully visible but openning editor causes to standby --> restore intro fully
