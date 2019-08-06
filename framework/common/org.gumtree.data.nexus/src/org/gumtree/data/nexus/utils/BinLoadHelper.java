@@ -248,9 +248,26 @@ public class BinLoadHelper {
 		try {
 			// remember path
 			_binPath = path;
-
+			boolean debug = false;
 			// skip header
-			f.skip(128);
+//			f.skip(128);
+			f.skip(64);
+			byte[] word = new byte[4];
+			final  int xLen = f.readUnsignedByte();
+			f.skip(3);
+			final int yLen = f.readUnsignedByte();
+			f.skip(3);
+			final int vLen = f.readUnsignedByte();
+			f.skip(3);
+			final int wLen = f.readUnsignedByte();
+			f.skip(51);
+			
+			System.err.println("xLen=" + xLen + ", yLen=" + yLen + ", vLen=" + vLen);
+			
+			// state 0: start
+			// state 1: x set
+			// state 2: y set
+			// state 3: dt set
 			int state = 0;
 
 			// valid time horizon
@@ -273,9 +290,239 @@ public class BinLoadHelper {
 			long timeBinEnd = timeBinLen;
 			IArray timeBin = factory.createArray(int.class, DetectorDimensions);
 			IIndex timeBinIndex = timeBin.getIndex();
+			long err = 0;
+			long tt = 0;
+
+			if (xLen == 10 && yLen == 9 && vLen == 4 && wLen == 0) {
+				try {
+					while (true) {
+						tt ++;
+						if (debug && tt > 200) {
+							break;
+						}
+						int c = f.readUnsignedByte();
+						// to unsigned char (8-bit)
+	//					if (c < 0)
+	//						c += 256;
+	
+						switch (state) {
+						case 0:
+							x = c;
+							state++;
+							break;
+	
+						case 1:
+							x |= (c & 0x03) << 8;
+							y  = c >> 2;
+							state++;
+							break;
+	
+						case 2:
+							y |= (c & 0x07) << 6;
+	//						v  = (c & 0x78) >> 3;
+							dt = (c & 0x80) >> 7;
+							state++;
+							break;
+	
+						default:
+							boolean event_ended = ((c & 0xC0) != 0xC0) || (state >= 8);
+							if (!event_ended)
+								c &= 0x3F;
+	
+							dt |= c << (1 + 6 * (state - 3));
+							if (!event_ended)
+								state++;
+							else {
+								state = 0;
+								if (x == 0 && y == 0 && dt == -1) {
+									t1          = t0;
+									_beamTime  += frameLengthSec;
+									timeBinEnd -= (long)FILE_FRAME_LENGTH;
+								} else {
+									int t1_new = t1 + dt;
+									if (t1_new < t0 || t1_new > t2) {
+										// jump error
+									} else {
+										t1 = t1_new;
+									}
+	
+									while (t1 > timeBinEnd) {
+										if (debug)
+											System.err.println("new time bin");
+										_timeBins.add(timeBin);
+										timeBin      = factory.createArray(int.class, DetectorDimensions);
+										timeBinIndex = timeBin.getIndex();
+										timeBinEnd  += timeBinLen;
+									}
+	
+									if (y >= DetectorDimensions[0] || x >= DetectorDimensions[1]) {
+										err ++;
+									} else {
+										if (debug)
+											System.err.println("add an event to (" + x + ", " + y + ", " + dt + ")");
+										timeBinIndex.set(y, x);
+										timeBin.setInt(timeBinIndex, 1 + timeBin.getInt(timeBinIndex));
+									}
+								}
+							}
+							break;
+						}
+						if (debug)
+							System.err.println("y=" + y + ", x=" + x + " dt=" + dt);
+					}
+				} catch (EOFException eof) {
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else if (xLen == 12 && yLen == 12 && vLen == 0 && wLen == 0) {
+				f.skip(9);
+				try {
+					while (true) {
+						tt ++;
+						if (debug && tt > 200) {
+							break;
+						}
+						int c = f.readUnsignedByte();
+						// to unsigned char (8-bit)
+	//					if (c < 0)
+	//						c += 256;
+	
+						switch (state) {
+						case 0:
+							x = c;
+							dt = 0;
+							state++;
+							break;
+	
+						case 1:
+							x |= (c & 0x0F) << 8;
+							y  = c >> 4;
+							state++;
+							break;
+	
+						case 2:
+							y |= c << 4;
+	//						v  = (c & 0x78) >> 3;
+//							dt = (c & 0x80) >> 7;
+							state++;
+							break;
+	
+						default:
+							boolean event_ended = ((c & 0xC0) != 0xC0) || (state >= 8);
+							if (!event_ended) {
+								c &= 0x3F;
+								dt |= c << (6 * (state - 3));
+								state++;
+							} else {
+								dt |= c << (6 * (state - 3));
+								state = 0;
+								if (dt > 100000) {
+									continue;
+								}
+								if (x == 0 && y == 0 && dt == -1) {
+									t1          = t0;
+									_beamTime  += frameLengthSec;
+									timeBinEnd -= (long)FILE_FRAME_LENGTH;
+								} else {
+									int t1_new = t1 + dt;
+									if (t1_new < t0 || t1_new > t2) {
+										// jump error
+									} else {
+										t1 = t1_new;
+									}
+	
+									while (t1 > timeBinEnd) {
+										if (debug)
+											System.err.println("new time bin");
+										_timeBins.add(timeBin);
+										timeBin      = factory.createArray(int.class, DetectorDimensions);
+										timeBinIndex = timeBin.getIndex();
+										timeBinEnd  += timeBinLen;
+									}
+	
+									if (y >= DetectorDimensions[0] || x >= DetectorDimensions[1]) {
+										err ++;
+									} else {
+										if (debug)
+											System.err.println("add an event to (" + x + ", " + y + ", " + dt + ")");
+										timeBinIndex.set(y, x);
+										timeBin.setInt(timeBinIndex, 1 + timeBin.getInt(timeBinIndex));
+									}
+								}
+							}
+							break;
+						}
+						if (debug)
+							System.err.println("y=" + y + ", x=" + x + " dt=" + dt);
+					}
+				} catch (EOFException eof) {
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				throw new IOException("detector configuration not supported");
+			}
+			
+			System.err.println("found " + err + " problems out of " + tt + " events");
+			// append last timeBin to timeBins
+			_timeBins.add(timeBin);
+		} finally {
+			f.close();
+		}
+	}
+	
+	public void loadFileDep(String path, int histo_bins_t) throws IOException {
+		File file = new File(path);
+		long fileLen = file.length();
+		if (histo_bins_t == -1)
+			HISTO_BINS_T = Math.max(1, (int)Math.floor(fileLen / (10.0 * (1000 * 1000)))); // estimation
+		else if (histo_bins_t > 0)
+			HISTO_BINS_T = histo_bins_t;
+		else
+			throw new IllegalArgumentException("histo_bins_t");
+
+		_timeBins = new ArrayList<IArray>();
+		DataInputStream f = new DataInputStream(new BufferedInputStream(new FileInputStream(path)));
+		try {
+			// remember path
+			_binPath = path;
+
+			// skip header
+			f.skip(128);
+			
+			int state = 0;
+
+			// valid time horizon
+			int t0 = 0 * FILE_FRAME_LENGTH;
+			int t2 = 2 * FILE_FRAME_LENGTH;
+
+			int t1 = 0; // current time
+			int dt = 0; // current time step
+
+			// beam time
+			double frameLengthSec = FILE_FRAME_LENGTH / (double)(1000 * 1000);
+			_beamTime = frameLengthSec;
+
+			// event
+			int x  = 0;
+			int y  = 0;
+			//int v  = 0;
+
+			long timeBinLen = (long)HISTO_BINS_T * (1000L * 1000L); // to microseconds
+			long timeBinEnd = timeBinLen;
+			IArray timeBin = factory.createArray(int.class, DetectorDimensions);
+			IIndex timeBinIndex = timeBin.getIndex();
+			long err = 0;
+			long tt = 0;
+			int ymax = 0;
+			int xmax = 0;
 
 			try {
 				while (true) {
+					tt ++;
+					if (tt > 200) {
+						break;
+					}
 					int c = f.readByte();
 					// to unsigned char (8-bit)
 					if (c < 0)
@@ -295,7 +542,7 @@ public class BinLoadHelper {
 
 					case 2:
 						y |= (c & 0x07) << 6;
-						//v  = (c & 0x78) >> 3;
+//						v  = (c & 0x78) >> 3;
 						dt = (c & 0x80) >> 7;
 						state++;
 						break;
@@ -323,28 +570,45 @@ public class BinLoadHelper {
 								}
 
 								while (t1 > timeBinEnd) {
+									System.err.println("new time bin");
 									_timeBins.add(timeBin);
 									timeBin      = factory.createArray(int.class, DetectorDimensions);
 									timeBinIndex = timeBin.getIndex();
 									timeBinEnd  += timeBinLen;
 								}
 
-								timeBinIndex.set(y, x);
-								timeBin.setInt(timeBinIndex, 1 + timeBin.getInt(timeBinIndex));
+								if (y > ymax) {
+									ymax = y;
+								}
+								if (x > xmax) {
+									xmax = x;
+								}
+								if (y >= DetectorDimensions[0] || x >= DetectorDimensions[1]) {
+									err ++;
+								} else {
+									System.err.println("add an event to (x, y)");
+									timeBinIndex.set(y, x);
+									timeBin.setInt(timeBinIndex, 1 + timeBin.getInt(timeBinIndex));
+								}
 							}
 						}
 						break;
 					}
+					System.err.println("y=" + y + ", x=" + x + " dt=" + dt);
 				}
 			} catch (EOFException eof) {
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-
+			System.err.println("found " + err + " problems out of " + tt + " events");
+			System.err.println("y_max=" + ymax + ", x_max=" + xmax);
 			// append last timeBin to timeBins
 			_timeBins.add(timeBin);
 		} finally {
 			f.close();
 		}
 	}
+	
 	public List<IArray> loadTimeBins(double[] timestamps) throws IOException {
 		if (_timeBins == null)
 			throw new IllegalStateException("no bin file has been loaded yet.");
@@ -353,8 +617,21 @@ public class BinLoadHelper {
 		DataInputStream f = new DataInputStream(new BufferedInputStream(new FileInputStream(_binPath)));
 		try {
 			// skip header
-			f.skip(128);
+//			f.skip(128);
+			f.skip(64);
+			final  int xLen = f.readUnsignedByte();
+			f.skip(3);
+			final int yLen = f.readUnsignedByte();
+			f.skip(3);
+			final int vLen = f.readUnsignedByte();
+			f.skip(3);
+			final int wLen = f.readUnsignedByte();
+			f.skip(51);
+			
+			System.err.println("xLen=" + xLen + ", yLen=" + yLen + ", vLen=" + vLen);
+
 			int state = 0;
+			boolean debug = false;
 
 			// valid time horizon
 			int t0 = 0 * FILE_FRAME_LENGTH;
@@ -362,6 +639,7 @@ public class BinLoadHelper {
 
 			int t1 = 0; // current time
 			int dt = 0; // current time step
+			long tt = 0;
 
 			// beam time
 			double frameLengthSec = FILE_FRAME_LENGTH / (double)(1000 * 1000);
@@ -385,78 +663,156 @@ public class BinLoadHelper {
 			IArray timeBin = factory.createArray(int.class, DetectorDimensions);
 			IIndex timeBinIndex = timeBin.getIndex();
 
-			try {
-				while (true) {
-					int c = f.readByte();
-					// to unsigned char (8-bit)
-					if (c < 0)
-						c += 256;
-
-					switch (state) {
-					case 0:
-						x = c;
-						state++;
-						break;
-
-					case 1:
-						x |= (c & 0x03) << 8;
-						y  = c >> 2;
-						state++;
-						break;
-
-					case 2:
-						y |= (c & 0x07) << 6;
-						// v  = (c & 0x78) >> 3;
-						dt = (c & 0x80) >> 7;
-						state++;
-						break;
-
-					default:
-						boolean event_ended = ((c & 0xC0) != 0xC0) || (state >= 8);
-						if (!event_ended)
-							c &= 0x3F;
-
-						dt |= c << (1 + 6 * (state - 3));
-						if (!event_ended)
+			if (xLen == 10 && yLen == 9 && vLen == 4 && wLen == 0) {
+				try {
+					while (true) {
+						int c = f.readByte();
+						// to unsigned char (8-bit)
+						if (c < 0)
+							c += 256;
+	
+						switch (state) {
+						case 0:
+							x = c;
 							state++;
-						else {
-							state = 0;
-							if (x == 0 && y == 0 && dt == -1) {
-								t1 = t0;
-								_beamTime += frameLengthSec;
-								if (timeBinEnd != 0x7FFFFFFFFFFFFFFFL)
-									timeBinEnd -= FILE_FRAME_LENGTH;
-							} else {
-								int t1_new = t1 + dt;
-								if (t1_new < t0 || t1_new > t2) {
-									// jump error
+							break;
+	
+						case 1:
+							x |= (c & 0x03) << 8;
+							y  = c >> 2;
+							state++;
+							break;
+	
+						case 2:
+							y |= (c & 0x07) << 6;
+							// v  = (c & 0x78) >> 3;
+							dt = (c & 0x80) >> 7;
+							state++;
+							break;
+	
+						default:
+							boolean event_ended = ((c & 0xC0) != 0xC0) || (state >= 8);
+							if (!event_ended)
+								c &= 0x3F;
+	
+							dt |= c << (1 + 6 * (state - 3));
+							if (!event_ended)
+								state++;
+							else {
+								state = 0;
+								if (x == 0 && y == 0 && dt == -1) {
+									t1 = t0;
+									_beamTime += frameLengthSec;
+									if (timeBinEnd != 0x7FFFFFFFFFFFFFFFL)
+										timeBinEnd -= FILE_FRAME_LENGTH;
 								} else {
-									t1 = t1_new;
-								}
-
-								while (t1 > timeBinEnd) {
-									resultingTimeBins.add(timeBin);
-									timeBin      = factory.createArray(int.class, DetectorDimensions);
-									timeBinIndex = timeBin.getIndex();
-									if ((timestamps != null) && (timestamps.length > timestampIndex)) {
-										timeBinEnd += (long)Math.round((1000 * 1000) * (
-												timestamps[timestampIndex] - timestamps[timestampIndex - 1]));
-										timestampIndex++;
+									int t1_new = t1 + dt;
+									if (t1_new < t0 || t1_new > t2) {
+										// jump error
 									} else {
-										timeBinEnd = 0x7FFFFFFFFFFFFFFFL;
+										t1 = t1_new;
 									}
+	
+									while (t1 > timeBinEnd) {
+										resultingTimeBins.add(timeBin);
+										timeBin      = factory.createArray(int.class, DetectorDimensions);
+										timeBinIndex = timeBin.getIndex();
+										if ((timestamps != null) && (timestamps.length > timestampIndex)) {
+											timeBinEnd += (long)Math.round((1000 * 1000) * (
+													timestamps[timestampIndex] - timestamps[timestampIndex - 1]));
+											timestampIndex++;
+										} else {
+											timeBinEnd = 0x7FFFFFFFFFFFFFFFL;
+										}
+									}
+	
+									timeBinIndex.set(y, x);
+									timeBin.setInt(timeBinIndex, 1 + timeBin.getInt(timeBinIndex));
 								}
-
-								timeBinIndex.set(y, x);
-								timeBin.setInt(timeBinIndex, 1 + timeBin.getInt(timeBinIndex));
 							}
+							break;
 						}
-						break;
 					}
+				} catch (EOFException eof) {
 				}
-			} catch (EOFException eof) {
+			} else if (xLen == 12 && yLen == 12 && vLen == 0 && wLen == 0) {
+				f.skip(9);
+				try {
+					while (true) {
+						tt ++;
+						if (debug && tt > 200) {
+							break;
+						}
+						int c = f.readUnsignedByte();
+						// to unsigned char (8-bit)
+	//					if (c < 0)
+	//						c += 256;
+	
+						switch (state) {
+						case 0:
+							x = c;
+							dt = 0;
+							state++;
+							break;
+	
+						case 1:
+							x |= (c & 0x0F) << 8;
+							y  = c >> 4;
+							state++;
+							break;
+	
+						case 2:
+							y |= c << 4;
+	//						v  = (c & 0x78) >> 3;
+//							dt = (c & 0x80) >> 7;
+							state++;
+							break;
+	
+						default:
+							boolean event_ended = ((c & 0xC0) != 0xC0) || (state >= 8);
+							if (!event_ended) {
+								c &= 0x3F;
+								dt |= c << (6 * (state - 3));
+								state++;
+							} else {
+								dt |= c << (6 * (state - 3));
+								state = 0;
+								if (x == 0 && y == 0 && dt == -1) {
+									t1 = t0;
+									_beamTime += frameLengthSec;
+									if (timeBinEnd != 0x7FFFFFFFFFFFFFFFL)
+										timeBinEnd -= FILE_FRAME_LENGTH;
+								} else {
+									int t1_new = t1 + dt;
+									if (t1_new < t0 || t1_new > t2) {
+										// jump error
+									} else {
+										t1 = t1_new;
+									}
+	
+									while (t1 > timeBinEnd) {
+										resultingTimeBins.add(timeBin);
+										timeBin      = factory.createArray(int.class, DetectorDimensions);
+										timeBinIndex = timeBin.getIndex();
+										if ((timestamps != null) && (timestamps.length > timestampIndex)) {
+											timeBinEnd += (long)Math.round((1000 * 1000) * (
+													timestamps[timestampIndex] - timestamps[timestampIndex - 1]));
+											timestampIndex++;
+										} else {
+											timeBinEnd = 0x7FFFFFFFFFFFFFFFL;
+										}
+									}
+	
+									timeBinIndex.set(y, x);
+									timeBin.setInt(timeBinIndex, 1 + timeBin.getInt(timeBinIndex));
+								}
+							}
+							break;
+						}
+					}
+				} catch (EOFException eof) {
+				}
 			}
-
 			// append last timeBin to result
 			resultingTimeBins.add(timeBin);
 		} finally {
