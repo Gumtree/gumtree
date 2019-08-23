@@ -57,22 +57,21 @@ var devices = [
             	            ]
                },
                {"group":"SLITS", 
-            	   "items":[{"classId":"s2left", "deviceId":"s2left", "title":"s2 left", "units":"", "mm":0},
-            		   		{"classId":"s2right", "deviceId":"s2right", "title":"s2 right", "units":"", "mm":0},
-            		   		{"classId":"s2top", "deviceId":"s2top", "title":"s2 top", "units":"", "mm":0},
-            		   		{"classId":"s2bot", "deviceId":"s2bot", "title":"s2 bottom", "units":"", "mm":0},
-            		   		{"classId":"s3left", "deviceId":"s3left", "title":"s3 left", "units":"", "mm":0},
-            		   		{"classId":"s3right", "deviceId":"s3right", "title":"s3 right", "units":"", "mm":0},
-            		   		{"classId":"s3top", "deviceId":"s3top", "title":"s3 top", "units":"", "mm":0},
-            		   		{"classId":"s3bot", "deviceId":"s3bot", "title":"s3 bottom", "units":"", "mm":0}
+            	   "items":[{"classId":"ss2hg", "deviceId":"ss2hg", "title":"s2 horizontal gap", "units":"mm", "decimal":2},
+            		   		{"classId":"ss2vg", "deviceId":"ss2vg", "title":"s2 vertical gap", "units":"mm", "decimal":2},
+            		   		{"classId":"ss3hg", "deviceId":"ss3hg", "title":"s3 horizontal gap", "units":"mm", "decimal":2},
+            		   		{"classId":"ss3vg", "deviceId":"ss3vg", "title":"s3 vertical gap", "units":"mm", "decimal":2},
+            		   		{"classId":"ss4hg", "deviceId":"ss4hg", "title":"s4 horizontal gap", "units":"mm", "decimal":2},
+            		   		{"classId":"ss4vg", "deviceId":"ss4vg", "title":"s4 vertical gap", "units":"mm", "decimal":2}
             	            ]
                },
                {"group":"SAMPLE STAGE", 
-            	   "items":[{"classId":"som", "deviceId":"som", "title":"Sample Omega", "units":"deg"},
-            	            {"classId":"stilt", "deviceId":"stilt", "title":"Sample Tilt", "units":"mm"},
-            	            {"classId":"sx", "deviceId":"sx", "title":"Sample X", "units":"mm"},
-            	            {"classId":"sxtop", "deviceId":"sxtop", "title":"Sample X Top", "units":"mm"},
-            	            {"classId":"sy", "deviceId":"sy", "title":"Sample Y", "units":"mm"}
+            	   "items":[{"classId":"som", "deviceId":"som", "title":"Sample Omega", "units":"degrees", "decimal":2},
+            	            {"classId":"stilt", "deviceId":"stilt", "title":"Sample Tilt", "units":"mm", "decimal":2},
+            	            {"classId":"sx", "deviceId":"sx", "title":"Sample X", "units":"mm", "decimal":2},
+            	            {"classId":"sxtop", "deviceId":"sxtop", "title":"Sample X Top", "units":"mm", "decimal":2},
+            	            {"classId":"sy", "deviceId":"sy", "title":"Sample Y", "units":"mm", "decimal":2},
+            	            {"classId":"detrot", "deviceId":"detrot", "title":"Detector Rotation", "units":"degrees", "decimal":2}
             	            ]
                }
                ];
