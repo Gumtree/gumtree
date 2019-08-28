@@ -22,7 +22,7 @@ public class BinLoadHelper {
 	
 	public final static int HISTO_BINS_X = 192; // pixel
 	public final static int HISTO_BINS_Y = 192; // pixel
-	private             int HISTO_BINS_T =   0; // seconds
+	private             float HISTO_BINS_T =   0; // seconds
 
 	private final static int[] DetectorDimensions = new int[]{HISTO_BINS_Y, HISTO_BINS_X};
 
@@ -41,7 +41,7 @@ public class BinLoadHelper {
 	private double _centerY;
 
 	// properties
-	public int getTimeBinLength() {
+	public float getTimeBinLength() {
 		return HISTO_BINS_T;
 	}
 	public double getCenterX() {
@@ -233,7 +233,7 @@ public class BinLoadHelper {
 	public void loadFile(String path) throws IOException {
 		loadFile(path, -1);
 	}
-	public void loadFile(String path, int histo_bins_t) throws IOException {
+	public void loadFile(String path, float histo_bins_t) throws IOException {
 		File file = new File(path);
 		long fileLen = file.length();
 		if (histo_bins_t == -1)
@@ -286,7 +286,7 @@ public class BinLoadHelper {
 			int y  = 0;
 			//int v  = 0;
 
-			long timeBinLen = (long)HISTO_BINS_T * (1000L * 1000L); // to microseconds
+			long timeBinLen = (long) (HISTO_BINS_T * (1000L * 1000L)); // to microseconds
 			long timeBinEnd = timeBinLen;
 			IArray timeBin = factory.createArray(int.class, DetectorDimensions);
 			IIndex timeBinIndex = timeBin.getIndex();
@@ -508,7 +508,7 @@ public class BinLoadHelper {
 			int y  = 0;
 			//int v  = 0;
 
-			long timeBinLen = (long)HISTO_BINS_T * (1000L * 1000L); // to microseconds
+			long timeBinLen = (long) (HISTO_BINS_T * 1000L * 1000L); // to microseconds
 			long timeBinEnd = timeBinLen;
 			IArray timeBin = factory.createArray(int.class, DetectorDimensions);
 			IIndex timeBinIndex = timeBin.getIndex();
