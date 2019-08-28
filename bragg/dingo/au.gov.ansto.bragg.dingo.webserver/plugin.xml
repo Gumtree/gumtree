@@ -19,6 +19,38 @@
             alias="/instrumentsetup.js"
             base-name="/WebContent/instrumentsetup.js">
       </resource>
+      <resource
+            alias="/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/status/dingo.html"
+            base-name="/WebContent/dingo.html">
+      </resource>
+      <resource
+            alias="/status"
+            base-name="/WebContent/dingo.html">
+      </resource>
+      <resource
+            alias="/status/dingo.swf"
+            base-name="/WebContent/dingo.swf">
+      </resource>
+      <resource
+            alias="/status/assets/dingo.jpg"
+            base-name="/WebContent/dingo.jpg">
+      </resource>
+      <resource
+            alias="/status/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/user/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/doc/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
          
    </extension>
 </plugin>
