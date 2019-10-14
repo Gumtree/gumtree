@@ -390,7 +390,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 						((Button) e.widget).setSelection(false);
 						return;
 					}
-				} else {
+				} else if (getBatchBufferManager().isAutoRun()) {
 					boolean confirm = MessageDialog.openConfirm(getShell(), "Confirm pausing the queue", "Please confirm if you want to pause the queue. " +
 							"The current script running in SICS will not be affected. If confirmed, the rest of the scripts in the " +
 							"buffer queue will not be processed.");
