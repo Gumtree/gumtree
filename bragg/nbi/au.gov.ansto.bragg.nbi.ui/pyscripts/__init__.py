@@ -131,6 +131,7 @@ def auto_run():
     pass
 
 def run_action(act):
+    logln('pressed on button: ' + str(act.text))
     act.set_running_status()
     try:
         exec(act.command)
@@ -146,6 +147,10 @@ def run_action(act):
     if not act.no_interrupt_check == 'True':
         if sics.getSicsController() != None:
             sics.handleInterrupt()
+    
+def validate_script(script):
+    print(script)
+    __UI__.validateScript(script)
     
 def get_pref_value(name):
     value = __UI__.getPreference(name)
