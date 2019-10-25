@@ -1,0 +1,34 @@
+.widget-toc{
+
+	display: table;
+	border: 1px solid #a2a9b1;
+	background-color: #f8f9fa;
+	padding-right: 1rem;
+	font-size: 95%;
+}
+
+.widget-toc  ol {
+	padding-right: 0px;
+	counter-reset: item;
+}
+.widget-toc ol li {
+	display: block;
+	position: relative;
+}
+.widget-toc  ol li:before {
+	content: counters(item, ".");
+	counter-increment: item;
+	position: absolute;
+	margin-right: 100%;
+	right: 0.5rem;
+}
+
+
+.toc-title{
+
+	text-align: center;
+	font-weight: 700;
+	margin: 0;
+	padding: 0;
+
+}
