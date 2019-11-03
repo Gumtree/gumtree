@@ -169,12 +169,12 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.ONE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(slits1Group, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/slits/slitgap/ss2hg", "s2 horizontal gap", null, "mm")
-				.addDevice("/instrument/slits/slitgap/ss2vg", "s2 vertical gap", null, "mm")
-				.addDevice("/instrument/slits/slitgap/ss3hg", "s3 horizontal gap", null, "mm")
-				.addDevice("/instrument/slits/slitgap/ss3vg", "s3 vertical gap", null, "mm")
-				.addDevice("/instrument/slits/slitgap/ss4hg", "s4 horizontal gap", null, "mm")
-				.addDevice("/instrument/slits/slitgap/ss4vg", "s4 vertical gap", null, "mm")
+				.addDevice("/instrument/slits/second/horizontal/gap", "s2 horizontal gap", null, "mm")
+				.addDevice("/instrument/slits/second/vertical/gap", "s2 vertical gap", null, "mm")
+				.addDevice("/instrument/slits/third/horizontal/gap", "s3 horizontal gap", null, "mm")
+				.addDevice("/instrument/slits/third/vertical/gap", "s3 vertical gap", null, "mm")
+				.addDevice("/instrument/slits/fourth/vertical/gap", "s4 horizontal gap", null, "mm")
+				.addDevice("/instrument/slits/fourth/vertical/gap", "s4 vertical gap", null, "mm")
 				;
 		configureWidget(deviceStatusWidget);
 
