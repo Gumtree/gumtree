@@ -7,8 +7,28 @@ CKEDITOR.editorConfig = function( config ) {
 	
 	// %REMOVE_START%
 	// The configuration options below are needed when running CKEditor from source files.
-	config.plugins = 'dialogui,dialog,about,a11yhelp,basicstyles,blockquote,notification,button,toolbar,clipboard,panel,floatpanel,menu,contextmenu,resize,elementspath,enterkey,entities,popup,filetools,filebrowser,floatingspace,listblock,richcombo,format,horizontalrule,htmlwriter,wysiwygarea,image,indent,indentlist,fakeobjects,link,list,magicline,maximize,pastetext,pastetools,pastefromgdocs,pastefromword,removeformat,showborders,sourcearea,specialchar,menubutton,scayt,stylescombo,tab,table,tabletools,tableselection,undo,lineutils,widgetselection,widget,notificationaggregator,uploadwidget,uploadimage,wsc,texzilla,allowsave,autosave,base64image,balloonpanel,btbutton,bt_table,zoom,ckeditor_wiris,tabletoolstoolbar,tableresizerowandcolumn,tableresize,contents,panelbutton,spacingsliders,SimpleImage,simplebutton,selectall,save-to-pdf,removespan,print,preview,pastebase64,pasteFromGoogleDoc,pastefromexcel,textindent,pagebreak,newpage,mathedit,lineheight,letterspacing,symbol,smiley,imageuploader,simage,imagerotate,imageresizerowandcolumn,imageresize,imagepaste,zsuploader,font,find,eqneditor,colordialog,docprops,docfont,custimage,colorbutton,pbckcode';
+	config.plugins = 'dialogui,dialog,about,a11yhelp,autogrow,basicstyles,blockquote,notification,button,'
+					+ 'toolbar,clipboard,panel,floatpanel,menu,contextmenu,resize,elementspath,enterkey,'
+					+ 'entities,popup,filetools,filebrowser,floatingspace,listblock,richcombo,format,'
+					+ 'horizontalrule,htmlwriter,wysiwygarea,indent,indentlist,fakeobjects,link,'
+					+ 'list,magicline,pastetext,pastetools,pastefromgdocs,pastefromword,removeformat,'
+					+ 'showborders,sourcearea,specialchar,menubutton,scayt,stylescombo,tab,table,tabletools,'
+					+ 'tableselection,undo,lineutils,widgetselection,widget,notificationaggregator,'
+					+ 'uploadwidget,wsc,allowsave,autosave,balloonpanel,btbutton,'
+					+ 'bt_table,zoom,tabletoolstoolbar,tableresizerowandcolumn,tableresize,contents,'
+					+ 'panelbutton,spacingsliders,simplebutton,selectall,removespan,print,preview,'
+					+ 'pastebase64,pasteFromGoogleDoc,pastefromexcel,textindent,pagebreak,newpage,'
+					+ 'lineheight,letterspacing,ckeditor_wiris,symbol,smiley,imagerotate,' 
+					+ 'imageresizerowandcolumn,imageresize,zsuploader,font,find,colordialog,'
+					+ 'docprops,docfont,colorbutton,pbckcode,mathjax';
 	config.skin = 'moono-lisa';
+	
+	// autogrow config
+	config.autoGrow_minHeight = 600;
+	config.resize_minHeight = 600;
+	config.autoGrow_maxHeight = 800;
+	config.resize_maxHeight = 800;
+	
 	// %REMOVE_END%
 
 	// Define changes to default configuration here.
@@ -17,29 +37,36 @@ CKEDITOR.editorConfig = function( config ) {
 
 	// The toolbar groups arrangement, optimized for two toolbar rows.
 	config.toolbarGroups = [
+		{ name: 'document',	   groups: [ 'mode', 'document', 'doctools' ] },
+		{ name: 'tools' },
 		{ name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
 		{ name: 'editing',     groups: [ 'find', 'selection', 'spellchecker' ] },
-		{ name: 'links' },
-		{ name: 'insert' },
-		{ name: 'forms' },
-		{ name: 'tools' },
-		{ name: 'document',	   groups: [ 'mode', 'document', 'doctools' ] },
-		{ name: 'others' },
-		'/',
+		{ name: 'colors' },
+		
+		{ name: 'styles' },
 		{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
 		{ name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
-		{ name: 'styles' },
-		{ name: 'colors' },
-		{ name: 'about' }
+		{ name: 'links' },
+		
+		{ name: 'insert' },
+		
 	];
 
 	// Remove some buttons provided by the standard plugins, which are
 	// not needed in the Standard(s) toolbar.
 	config.removeButtons = 'Underline,Subscript,Superscript';
 
+	config.extraPlugins = 'pdf,word';
+
 	// Set the most common block elements.
 	config.format_tags = 'p;h1;h2;h3;pre';
 
 	// Simplify the dialog windows.
 	config.removeDialogTabs = 'image:advanced;link:advanced';
+	
+	config.mathJaxLib = '//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML';
+	
+	CKEDITOR.config.imageResize = { maxWidth : 660, maxHeight : 880 };
+	
+
 };

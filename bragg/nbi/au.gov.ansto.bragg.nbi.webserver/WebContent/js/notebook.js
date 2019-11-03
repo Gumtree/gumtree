@@ -1149,7 +1149,8 @@ $(function(){
 		$(".div_sidebar_inner").height(bodyheight - 44);
 		
 		$(".div_canvas_slideout").height(bodyheight - 20);
-		$("#id_editable_page").height(bodyheight - 120);
+//		$("#id_editable_page").height(bodyheight - 120);
+//		$("#id_editable_page").css('height', bodyheight - 120);
 //		$(".div_canvas_inner").height(bodyheight - 80);
 	});
 
@@ -1229,7 +1230,10 @@ jQuery(window).load(function () {
 	$(".slide-out-div").height(bodyheight - 20);
 	$(".div_sidebar_inner").height(bodyheight - 44);
 	$(".div_canvas_slideout").height(bodyheight - 20);
-	$("#id_editable_page").height(bodyheight - 120);
+//	$("#id_editable_page").height(bodyheight - 120);
+//	$("#id_editable_page").css('height', bodyheight);
+//	$("#id_editable_page").find('.cke_contents').css('height', bodyheight - 320);
+	 
 
 	session = getParam('session');
 	

@@ -44,6 +44,7 @@
     }
 
     function readImageAsBase64(item, editor) {
+    	console.log('paste base64');
         if (!item || typeof item.getAsFile !== 'function') {
             return;
         }
