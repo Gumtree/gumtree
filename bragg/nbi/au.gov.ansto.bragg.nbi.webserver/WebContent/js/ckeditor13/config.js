@@ -7,8 +7,8 @@ CKEDITOR.editorConfig = function( config ) {
 	
 	// %REMOVE_START%
 	// The configuration options below are needed when running CKEditor from source files.
-	config.plugins = 'dialogui,dialog,about,a11yhelp,autogrow,basicstyles,blockquote,notification,button,'
-					+ 'toolbar,clipboard,panel,floatpanel,menu,contextmenu,resize,elementspath,enterkey,'
+	config.plugins = 'dialogui,dialog,about,a11yhelp,basicstyles,blockquote,notification,button,'
+					+ 'toolbar,clipboard,panel,floatpanel,menu,contextmenu,elementspath,enterkey,'
 					+ 'entities,popup,filetools,filebrowser,floatingspace,listblock,richcombo,format,'
 					+ 'horizontalrule,htmlwriter,wysiwygarea,indent,indentlist,fakeobjects,link,'
 					+ 'list,magicline,pastetext,pastetools,pastefromgdocs,pastefromword,removeformat,'
@@ -23,10 +23,12 @@ CKEDITOR.editorConfig = function( config ) {
 					+ 'docprops,docfont,colorbutton,pbckcode,mathjax';
 	config.skin = 'moono-lisa';
 	
+	config.height = '880';
+	
 	// autogrow config
-	config.autoGrow_minHeight = 600;
+//	config.autoGrow_minHeight = 600;
+//	config.autoGrow_maxHeight = 800;
 	config.resize_minHeight = 600;
-	config.autoGrow_maxHeight = 800;
 	config.resize_maxHeight = 800;
 	
 	// %REMOVE_END%
@@ -54,7 +56,7 @@ CKEDITOR.editorConfig = function( config ) {
 
 	// Remove some buttons provided by the standard plugins, which are
 	// not needed in the Standard(s) toolbar.
-	config.removeButtons = 'Underline,Subscript,Superscript';
+	config.removeButtons = 'Underline,Subscript,Superscript,resize';
 
 	config.extraPlugins = 'pdf,word';
 
