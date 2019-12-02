@@ -103,8 +103,12 @@ public class TardisService {
 				String resp = getMethod.getResponseBodyAsString();
 				return resp;
 			}			
+		} catch (Exception e) {
+			logger.error("tardis get link error", e);
+			return null;
 		} finally {
 			getMethod.releaseConnection();
+			logger.error("tardis get result");
 		}
 	}
 	

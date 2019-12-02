@@ -13,6 +13,9 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.gumtree.security.EncryptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class LDAPService {
 
@@ -38,7 +41,8 @@ public class LDAPService {
     public static final String SEARCH_GROUP_BY_GROUP_CN = "(&(objectclass=Group)(cn={0}))";
 
     private static LDAPService service;
-    
+	private static Logger logger = LoggerFactory.getLogger(LDAPService.class);
+
     public enum GroupLevel {
     	ADMIN,
     	MANAGER,
@@ -135,6 +139,7 @@ public class LDAPService {
 		try {
 			context = new InitialLdapContext(env, null);
 		} catch (NamingException e) {
+			logger.error("initial LDAP failed", e);
 		}
 		if (context != null) {
 			String userDistinguishedName = getDistinguishedName(context, username);
