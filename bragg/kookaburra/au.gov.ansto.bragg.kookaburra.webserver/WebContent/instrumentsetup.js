@@ -1,5 +1,6 @@
 var title = "Kookaburra";
 var batchEnabled = false;
+var LOCK_ENABLED = true;
 
 var apselMap = [
 	-65.5,
