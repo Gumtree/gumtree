@@ -51,10 +51,13 @@ public class ControlDB {
 	}
 
 	public String getControlEntry(String entryKey) throws ClassNotFoundException, RecordsFileException, IOException {
-		Object entry = db.getEntry(entryKey);
-		if (entry != null) {
-			return entry.toString();
-		} 
+		try {
+			Object entry = db.getEntry(entryKey);
+			if (entry != null) {
+				return entry.toString();
+			} 
+		} catch (Exception e) {
+		}
 		return null;
 	}
 	
