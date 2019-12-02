@@ -530,3 +530,17 @@ th {
 	background-position: 3px 3px;
 	border-style: inset;
 }
+input[type=password] {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  display: block;
+}
+.class_span_error {
+	color: #a00;
+	display: block;
+}

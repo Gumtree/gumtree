@@ -11,6 +11,7 @@ var validateUserIntervalId = null;
 var updateIntervalSeconds = 60;
 var checkNewIntervalSeconds = 6;
 var isLoggedIn = false;
+var currentPass = null;
 
 jQuery.fn.outerHTML = function() {
 	return jQuery('<div />').append(this.eq(0).clone()).html();
@@ -214,6 +215,88 @@ function getHistoryPdf(session) {
 		$(this).dialog("close");
 	});
 }
+
+var lockPage = function(){
+	var html;
+	if (currentPass) {
+		html = '<div class="class_confirm_dialog"><p>The page has already been locked. If you want to change the pass code, '
+			  + 'please type in the old pass code and provide a new one. </p>'
+			  + '<form id="pass_form" method="post" name="pass_form" accept-charset="utf-8">' 
+			  + '<label for="id_input_oldpass">Old pass code</label>'
+			  + '<input type="password" id="id_input_oldpass" name="old_pass">'
+			  + '<label for="id_input_newpass">New pass code</label>'
+			  + '<input type="password" id="id_input_newpass" name="new_pass">'
+			  + '<label for="id_input_repass">Repeat the new pass code</label>'
+			  + '<input type="password" id="id_input_repass" name="re_pass">'
+			  + '<span class="class_span_error"></span>'
+			  + '</form></div>';
+	} else {
+		html = '<div class="class_confirm_dialog"><p>Please provide a pass code for this page. You have to use this code '
+			  + 'to access this page in the future.</p>'
+			  + '<form id="pass_form" method="post" name="pass_form" accept-charset="utf-8">' 
+			  + '<label for="id_input_newpass">New pass code</label>'
+			  + '<input type="password" id="id_input_newpass" name="new_pass">'
+			  + '<label for="id_input_repass">Repeat the new pass code</label>'
+			  + '<input type="password" id="id_input_repass" name="re_pass">'
+			  + '<span class="class_span_error"></span>'
+			  + '</form></div>';
+	}
+	$('<div></div>').appendTo('body')
+	  .html(html)
+	  .dialog({
+	      modal: true, title: 'Add pass code', zIndex: 10000, autoOpen: true,
+	      width: 'auto', resizable: false,
+	      buttons: {
+	          Submit: function () {
+	        	  var op = null;
+	        	  var np = null;
+	        	  var rp = null;
+	        	  var $err = $('.class_span_error');
+	        	  if (currentPass) {
+	        		  op = $('#id_input_oldpass').val();
+	        		  if (op != currentPass) {
+	        			  $err.text('The old pass code you provided doesn\'t match our record.' );
+	        			  return;
+	        		  }
+	        	  } 
+	        	  np = $('#id_input_newpass').val();
+	        	  rp = $('#id_input_repass').val();
+	        	  if (np != rp) {
+	        		  $err.text('The new pass code doesn\'t match each other.');
+	        		  return;
+	        	  }
+	        	  
+	        	  var bt = $(this);
+	        	  var postUrl = 'notebook/addPass' + (session != null ? '?session=' + session : '?pageid=' + pageId);
+	        	  $.post( postUrl, $('form#pass_form').serialize(), function(data, status) {
+	        		  console.log(data);
+	        		  console.log(status);
+	        		  if (data == "OK") {
+	        			  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Pass code added.', type: 'success' } );
+	        			  notification.show();
+	        			  currentPass = np;
+	    	        	  bt.dialog("close");
+	        		  } else {
+//	        			  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: data, type: 'error' } );
+//	        			  notification.show();
+	        			  $err.text(data);
+	        		  }
+	        	  })
+	        	  .fail(function(e) {
+	        		  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to add pass code.', type: 'warning' } );
+	        		  notification.show();
+	        		  $err.text('Failed to add pass code.');
+	        	  });
+	          },
+	          Cancel: function () {
+	              $(this).dialog("close");
+	          }
+	      },
+	      close: function (event, ui) {
+	          $(this).remove();
+	      }
+	});
+};
 
 function getPdf() {
 	if (CKEDITOR.instances.id_editable_inner.checkDirty()) {
@@ -1217,10 +1300,10 @@ $(function(){
     
 });
 
+
 //jQuery(document).ready(function() {
 //	return;
 jQuery(window).load(function () {
-	console.log('finished loading');
 //	define scroll div with auto height
 	if (typeof title !== 'undefined') {
 		var titleString = "Instrument Notebook - " + title;
@@ -1241,109 +1324,164 @@ jQuery(window).load(function () {
 	session = getParam('session');
 	
 //	load current notebook content file
-	var getUrl = "notebook/load";
+	var loadUrl = "notebook/load";
 	var pageIdUrl = "notebook/pageid";
 	var historyUrl = "notebook/history";
 	if (session != null && session.trim().length > 0) {
-		getUrl += "?session=" + session;
+		loadUrl += "?session=" + session;
 		pageIdUrl += "?session=" + session;
 		historyUrl += "?session=" + session;
 	}
-	$.get(getUrl, function(data, status) {
-		if (status == "success") {
-//			$('#id_editable_page').html(decodeURIComponent(data.replace(/\+/g, ' ')));
-			if (data.trim().length == 0) {
-				$('#id_editable_inner').html("<p><br></p>");
-			} else {
-				$('#id_editable_inner').html(data);
-			}
-			
-			$.get(pageIdUrl, function(data, status) {
-				if (status == "success") {
-					pageId = data;
-				}
-			}) 
-			.fail(function(e) {
-				console.log(e);
-			});
 
-			$.get(historyUrl, function(data, status) {
-				if (status == "success") {
-					var brk = data.indexOf(";");
-					var proposalId = data.substring(0, brk);
-					var sessions = data.substring(brk + 1);
-					if (brk != "Unknown") {
-						$('#id_span_proposalId').text("History pages of Proposal " + proposalId);
-					}
-					proposal = proposalId;
-					if (sessions != "None") {
-						var sessionList = sessions.split(",");
-						for ( var i = 0; i < sessionList.length; i++) {
-							var sessionPair = sessionList[i].split(":");
-							var sessionId = sessionPair[0];
-							var subPageId = sessionPair[1];
-							if ((session != null && sessionId != session) || (session == null && subPageId != pageId)) {
-								var html = '<li class="active has-sub"><a id="history_' + sessionId + '"><span>' + subPageId + '</span></a>';
-								html += '<ul><li><a onclick="getHistoryPdf(\'' + sessionId + '\')"><img src="images/pdf.png"><span class="class_span_historyIcons">&nbsp;&nbsp;--&nbsp;Download PDF</span></a></li>'
-								+ '<li><a onclick="getHistoryWord(\'' + sessionId + '\', \'' + subPageId + '\')"><img src="images/word.png"><span class="class_span_historyIcons">&nbsp;&nbsp;--&nbsp;Download Word</span></a></li></ul>';
-								html += '</li>';
-								$('#id_ul_historyitems').append(html);
-							}
+	var loadData = function(data) {
+		if (data.trim().length == 0) {
+			$('#id_editable_inner').html("<p><br></p>");
+		} else {
+			$('#id_editable_inner').html(data);
+		}
+		
+		$.get(pageIdUrl, function(data, status) {
+			if (status == "success") {
+				pageId = data;
+			}
+		}) 
+		.fail(function(e) {
+			console.log(e);
+		});
+
+		$.get(historyUrl, function(data, status) {
+			if (status == "success") {
+				var brk = data.indexOf(";");
+				var proposalId = data.substring(0, brk);
+				var sessions = data.substring(brk + 1);
+				if (brk != "Unknown") {
+					$('#id_span_proposalId').text("History pages of Proposal " + proposalId);
+				}
+				proposal = proposalId;
+				if (sessions != "None") {
+					var sessionList = sessions.split(",");
+					for ( var i = 0; i < sessionList.length; i++) {
+						var sessionPair = sessionList[i].split(":");
+						var sessionId = sessionPair[0];
+						var subPageId = sessionPair[1];
+						if ((session != null && sessionId != session) || (session == null && subPageId != pageId)) {
+							var html = '<li class="active has-sub"><a id="history_' + sessionId + '"><span>' + subPageId + '</span></a>';
+							html += '<ul><li><a onclick="getHistoryPdf(\'' + sessionId + '\')"><img src="images/pdf.png"><span class="class_span_historyIcons">&nbsp;&nbsp;--&nbsp;Download PDF</span></a></li>'
+							+ '<li><a onclick="getHistoryWord(\'' + sessionId + '\', \'' + subPageId + '\')"><img src="images/word.png"><span class="class_span_historyIcons">&nbsp;&nbsp;--&nbsp;Download Word</span></a></li></ul>';
+							html += '</li>';
+							$('#id_ul_historyitems').append(html);
 						}
 					}
 				}
-			}) 
-			.fail(function(e) {
-			});
-			
-//			make editable page
-			CKEDITOR.replace( 'id_editable_inner' );
-			CKEDITOR.instances.id_editable_inner.on('save', function(event, editor, data) {
-//				alert(CKEDITOR.instances.id_editable_inner.getData());
-		        var postUrl = 'notebook/save' + (session != null ? '?session=' + session : '?pageid=' + pageId);
-		        $.post( postUrl, CKEDITOR.instances.id_editable_inner.getData(), function(data, status) {
-		            if (status == "success") {
-			        	var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Saved', type: 'success' } );
-			            notification.show();
-			            CKEDITOR.instances.id_editable_inner.resetDirty();
-			        }
-		        })
-		        .fail(function(e) {
-		        	var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to save the page.', type: 'warning' } );
-		            notification.show();
-        		    if (e.status == 401) {
-        			    updateUserArea(false);
-        		    }
-		        });
-		    });
-			
-			if (session == null) {
-				startCheckNewPage();				
 			}
-			CKEDITOR.instances.id_editable_inner.on("instanceReady", function(event) {
-				var sessionPar = getParam("session");
-				if (sessionPar != null) {
-					var newpageCommand = CKEDITOR.instances.id_editable_inner.getCommand('newpage');
-					if (newpageCommand != null) {
-						newpageCommand.disable();
-					}
+		}) 
+		.fail(function(e) {
+		});
+		
+//		make editable page
+		CKEDITOR.replace( 'id_editable_inner' );
+		CKEDITOR.instances.id_editable_inner.on('save', function(event, editor, data) {
+//			alert(CKEDITOR.instances.id_editable_inner.getData());
+	        var postUrl = 'notebook/save' + (session != null ? '?session=' + session : '?pageid=' + pageId);
+	        $.post( postUrl, CKEDITOR.instances.id_editable_inner.getData(), function(data, status) {
+	            if (status == "success") {
+		        	var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Saved', type: 'success' } );
+		            notification.show();
+		            CKEDITOR.instances.id_editable_inner.resetDirty();
+		        }
+	        })
+	        .fail(function(e) {
+	        	var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to save the page.', type: 'warning' } );
+	            notification.show();
+			    if (e.status == 401) {
+				    updateUserArea(false);
+			    }
+	        });
+	    });
+		
+		if (session == null) {
+			startCheckNewPage();				
+		}
+		CKEDITOR.instances.id_editable_inner.on("instanceReady", function(event) {
+			var sessionPar = getParam("session");
+			if (sessionPar != null) {
+				var newpageCommand = CKEDITOR.instances.id_editable_inner.getCommand('newpage');
+				if (newpageCommand != null) {
+					newpageCommand.disable();
 				}
-			    
-			    var page_height = (bodyheight - 120) + 'px';
-				var editor_height = (bodyheight - 240) + 'px';
-				$("#cke_1_contents").css('height', editor_height);
-			    $("#id_editable_page").css('height', page_height);
-			});
+			}
 
-		    document.body.onbeforeunload = function() {
-		    	if (CKEDITOR.instances.id_editable_inner.checkDirty()) {
-		    		return 'You have unsaved changes in the editor.';
-		    	}
-		    };
+			var lockCommand = CKEDITOR.instances.id_editable_inner.getCommand('lock');
+			if (lockCommand != null) {
+				if (typeof LOCK_ENABLED == 'undefined' || !LOCK_ENABLED) {
+					lockCommand.disable();
+				} else {
+					lockCommand.enable();
+				}
+			}
+		    
+		    var page_height = (bodyheight - 120) + 'px';
+			var editor_height = (bodyheight - 240) + 'px';
+			$("#cke_1_contents").css('height', editor_height);
+		    $("#id_editable_page").css('height', page_height);
+		});
 
-//			$('#id_editable_inner').ckeditor().on('save', function(event, editor, data) {
-//				alert("save");
-//			});
+	    document.body.onbeforeunload = function() {
+	    	if (CKEDITOR.instances.id_editable_inner.checkDirty()) {
+	    		return 'You have unsaved changes in the editor.';
+	    	}
+	    };
+
+//		$('#id_editable_inner').ckeditor().on('save', function(event, editor, data) {
+//			alert("save");
+//		});
+	}
+	
+	$.get(loadUrl, function(data, status) {
+		var newUrl = loadUrl;
+		if (status == "success") {
+//			$('#id_editable_page').html(decodeURIComponent(data.replace(/\+/g, ' ')));
+			if (data == 'PASSCODE?') {
+				$('<div></div>').appendTo('body')
+				  .html('<div class="class_confirm_dialog"><p>A passcode is required to load this page.</p><input type="password" id="id_input_passcode" placeholder="passcode?">'
+						  + '</div><div><p>To continue, press Submit button. </p></div>')
+				  .dialog({
+				      modal: true, title: 'Passcode required', zIndex: 10000, autoOpen: true,
+				      width: 'auto', resizable: false,
+				      buttons: {
+				          Submit: function () {
+				        	  	var pc = $('#id_input_passcode').val();
+				        	  	if (pc == null || pc.trim().length ==0 || isNaN(pc)) {
+				        	  		alert("A valid passcode is required.");
+				        	  		return;
+				        	  	}
+				        	  	if (newUrl.indexOf("?") > 0) {
+				        	  		newUrl += "&pc=" + encodeURI(pc) + "&" + Date.now();
+				        	  	} else {
+				        	  		newUrl += "?pc=" + encodeURI(pc) + "&" + Date.now();
+				        	  	}
+					    		$.get(newUrl, function(nd, ns) {
+					    			if (ns == "success") {
+					    				loadData(nd);
+					    			}
+					    		})
+					    		.fail(function(e) {
+						    		alert( "Invalid passcode. Please refresh this page to try again.");
+					    		});
+						    	$(this).dialog("close");
+				          },
+				          Cancel: function () {
+				              $(this).dialog("close");
+				          }
+				      },
+				      close: function (event, ui) {
+				          $(this).remove();
+				      }
+				});
+			} else {
+				loadData(data);
+			}
+
 		}
 	})
 	.fail(function(e) {
@@ -1354,14 +1492,14 @@ jQuery(window).load(function () {
 	});
 
 //	load db entries
-    var getUrl;
+    var dbUrl;
     if (session == null) {
-    	getUrl = "notebook/db?length=20";
+    	dbUrl = "notebook/db?length=20";
     } else {
-    	getUrl = "notebook/db?session=" + session + "&length=20";
+    	dbUrl = "notebook/db?session=" + session + "&length=20";
     }
 
-	$.get(getUrl, function(data, status) {
+	$.get(dbUrl, function(data, status) {
 		if (status == "success") {
 			if (data.trim().length == 0) {
 				$('#id_sidebar_inner').append("<p>End of Database</p>");
@@ -1426,8 +1564,8 @@ jQuery(window).load(function () {
 	});
 
 	// load templates
-	getUrl = "notebook/template";
-	$.get(getUrl, function(data, status) {
+	tempUrl = "notebook/template";
+	$.get(tempUrl, function(data, status) {
 		if (status == "success") {
 			if (data.trim().length == 0) {
 				return;
@@ -1479,13 +1617,13 @@ jQuery(window).load(function () {
 	});
 
 	
-    var getUrl;
+    var catUrl;
     if (session == null) {
-    	getUrl = "catalog/read?" + (new Date()).getTime();;
+    	catUrl = "catalog/read?" + (new Date()).getTime();;
     } else {
-    	getUrl = "catalog/read?session=" + session + "&" + (new Date()).getTime();;
+    	catUrl = "catalog/read?session=" + session + "&" + (new Date()).getTime();;
     }
-	$.get(getUrl, function(data, status) {
+	$.get(catUrl, function(data, status) {
 		if (status == "success") {
 			var re = data["status"];
 			if (re == "OK") {
@@ -1512,8 +1650,8 @@ jQuery(window).load(function () {
 	});
 	
 	
-	getUrl = "notebook/user";
-	$.get(getUrl, function(data, status) {
+	userUrl = "notebook/user";
+	$.get(userUrl, function(data, status) {
 		if (status == "success") {
 //			$('#id_a_signout').html("<img src=\"images/signout_blue.png\"/>Sign Out ");
 //			$("#id_a_signout").click(function() {

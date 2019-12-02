@@ -74,6 +74,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String SEG_NAME_DB = "db";
 	private final static String SEG_NAME_NEW = "new";
 	private final static String SEG_NAME_PDF = "pdf";
+	private final static String SEG_NAME_ADDPASS = "addPass";
 	private final static String SEG_NAME_DOWNLOAD = "download";
 	private final static String SEG_NAME_IMAGESERVICE = "imageService";
 	private final static String SEG_NAME_ARCHIVE = "archive";
@@ -95,10 +96,13 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private static final String QUERY_ENTRY_START = "start";
 	private static final String QUERY_ENTRY_LENGTH = "length";
 	private final static String QUERY_SESSION_ID = "session";
+	private final static String QUERY_OLD_PASS = "old_pass";
+	private final static String QUERY_NEW_PASS = "new_pass";
 	private final static String QUERY_PAGE_ID = "pageid";
 	private final static String QUERY_EXTNAME_ID = "ext";
 	private final static String QUERY_EXTERNAL_URL_ID = "url";
 	private static final String QUERY_PATTERN = "pattern";
+	private static final String QUERY_PASSCODE = "pc";
 	private static final String QUERY_PROPOSAL_ID = "proposal_id";
 	private static final String FILE_FREFIX = "<div class=\"class_div_search_file\" name=\"$filename\" session=\"$session\" proposal=\"$proposal\">";
 	private static final String SPAN_SEARCH_RESULT_HEADER = "<h4>";
@@ -523,6 +527,9 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				Form queryForm = request.getResourceRef().getQueryAsForm();
 				String sessionId = queryForm.getValues(QUERY_SESSION_ID);
 				String pattern = queryForm.getValues(QUERY_PATTERN);
+				String passcode = queryForm.getValues(QUERY_PASSCODE);
+
+				String pageName = null;
 				if (sessionId == null || sessionId.trim().length() == 0) {
 //					if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.") && !ip.startsWith("0:0")){
 //						response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);
@@ -535,15 +542,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 							response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "Error: your privilege does not allow loading the current page.");
 							return;
 						}
-						String sessionValue = sessionDb.getSessionValue(sessionId);
-						String filename = currentFileFolder + "/" + sessionValue + ".xml";
-						if (pattern == null || pattern.trim().length() == 0) {
-							byte[] bytes = Files.readAllBytes(Paths.get(filename));
-							response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
-						} else {
-							HtmlSearchHelper helper = new HtmlSearchHelper(new File(filename));
-							response.setEntity(helper.highlightSearch(pattern), MediaType.TEXT_PLAIN);
-						}
+						pageName = sessionDb.getSessionValue(sessionId);
 					} catch (Exception e) {
 						response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 						return;
@@ -554,21 +553,47 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 							response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "Error: your privilege does not allow accessing this page.");
 							return;
 						}
-						String filename = currentFileFolder + "/" + sessionDb.getSessionValue(sessionId) + ".xml";
-						File current = new File(filename);
-						if (current.exists()) {
-							if (pattern == null || pattern.trim().length() == 0) {
-								byte[] bytes = Files.readAllBytes(Paths.get(filename));
-								response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
-							} else {
-								HtmlSearchHelper helper = new HtmlSearchHelper(new File(filename));
-								response.setEntity(helper.highlightSearch(pattern), MediaType.TEXT_PLAIN);
-							}
-						}
+						pageName = sessionDb.getSessionValue(sessionId);
+//						String filename = currentFileFolder + "/" + pageName + ".xml";
+//						File current = new File(filename);
+//						if (current.exists()) {
+//							if (pattern == null || pattern.trim().length() == 0) {
+//								byte[] bytes = Files.readAllBytes(Paths.get(filename));
+//								response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
+//							} else {
+//								HtmlSearchHelper helper = new HtmlSearchHelper(new File(filename));
+//								response.setEntity(helper.highlightSearch(pattern), MediaType.TEXT_PLAIN);
+//							}
+//						}
 					} catch (Exception e) {
 						response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 						return;
 					}
+				}
+				try {
+					String needCode = controlDb.getControlEntry(pageName);
+					if (needCode != null) {
+						if (passcode == null) {
+							response.setEntity("PASSCODE?", MediaType.TEXT_PLAIN);
+							return;
+						} else {
+							if (!needCode.equals(passcode)) {
+								response.setStatus(Status.SERVER_ERROR_INTERNAL, "invalid passcode");
+								return;
+							}
+						}
+					}
+					String filename = currentFileFolder + "/" + pageName + ".xml";
+					if (pattern == null || pattern.trim().length() == 0) {
+						byte[] bytes = Files.readAllBytes(Paths.get(filename));
+						response.setEntity(new String(bytes), MediaType.TEXT_PLAIN);
+					} else {
+						HtmlSearchHelper helper = new HtmlSearchHelper(new File(filename));
+						response.setEntity(helper.highlightSearch(pattern), MediaType.TEXT_PLAIN);
+					}
+				} catch (Exception e) {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+					return;
 				}
 			} else if (SEG_NAME_PDF.equals(seg)) {
 				Form queryForm = request.getResourceRef().getQueryAsForm();
@@ -639,6 +664,55 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						return;
 					}
 				}
+			} else if (SEG_NAME_ADDPASS.equals(seg)) {
+				Form queryForm = request.getResourceRef().getQueryAsForm();
+				String sessionId = queryForm.getValues(QUERY_SESSION_ID);
+				String pageId = queryForm.getValues(QUERY_PAGE_ID);
+				Representation entity = request.getEntity();
+				Form form = new Form(entity);
+				String oldPass =  form.getValues(QUERY_OLD_PASS);
+				String newPass =  form.getValues(QUERY_NEW_PASS);
+				if (pageId == null) {
+					if (sessionId == null || sessionId.trim().length() == 0) {
+						try {
+							sessionId = controlDb.getCurrentSessionId();
+							if (!allowAccessCurrentPage(session, sessionId, proposalDb)){
+								response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "Error: your privilege does not allow access the current page.");
+								return;
+							}
+							pageId = sessionDb.getSessionValue(sessionId);
+						} catch (Exception e) {
+							response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+							return;
+						}
+					} else {
+						try {
+							if (!allowReadHistoryPage(session, sessionId, proposalDb)){
+								response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "Error: your privilege does not allow accessing this page.");
+								return;
+							}
+							pageId = sessionDb.getSessionValue(sessionId);
+						} catch (Exception e) {
+							response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+							return;
+						}
+					}
+				}
+				try {
+					String savedPass = controlDb.getControlEntry(pageId);
+					if (savedPass != null) {
+						if (!savedPass.equals(oldPass)) {
+							response.setStatus(Status.SERVER_ERROR_INTERNAL, "Old password doesn't match our record.");
+							return;
+						}
+					}
+					controlDb.addControlEntry(pageId, newPass);
+				} catch (Exception e) {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to set pass code");
+					return;
+				} 
+				response.setEntity("OK", MediaType.TEXT_PLAIN);
+				
 			} else if (SEG_NAME_CURRENTPAGE.equals(seg)) {
 //				if (!ip.startsWith("137.157.") && !ip.startsWith("127.0.") && !ip.startsWith("0:0")){
 //					response.setEntity("<span style=\"color:red\">The notebook page is not available to the public.</span>", MediaType.TEXT_PLAIN);

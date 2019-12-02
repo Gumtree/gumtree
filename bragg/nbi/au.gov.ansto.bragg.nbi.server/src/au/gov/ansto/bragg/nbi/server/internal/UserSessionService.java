@@ -83,6 +83,7 @@ public class UserSessionService {
 				response.getCookieSettings().add(cookie);
 				return true;
 			} catch (Exception e) {
+				logger.error("set cookie failed", e);
 				return false;
 			}
 		} else {
@@ -221,7 +222,9 @@ public class UserSessionService {
 		try {
 			level = LDAPService.getService().validateUser(username, password);
 		} catch (Exception e) {
+			logger.error("LDAP validation failed", e);
 		}
+		logger.error(level.toString());
 		return level;
 	}
 	
@@ -297,6 +300,7 @@ public class UserSessionService {
 		Object header = request.getAttributes().get("org.restlet.http.headers");
 		if (header != null) {
 			Form qform = (Form) header;
+			logger.error(qform.toString());
 			String forwardedIp = qform.getFirstValue("X-Forwarded-For");
 			if (forwardedIp != null) {
 				if (forwardedIp.contains(",")) {

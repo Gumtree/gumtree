@@ -23,6 +23,8 @@ import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.nbi.server.internal.UserSessionService;
 
@@ -42,6 +44,7 @@ public class SigninRestlet extends Restlet implements IDisposable{
 	private MapDatabase timestampDb;
 	private MapDatabase serviceDb;
 	private TardisService tardisService;
+	private static Logger logger = LoggerFactory.getLogger(SigninRestlet.class);
 
 	public SigninRestlet() {
 		sessionDb = MapDatabase.getInstance(UserSessionService.ID_USER_SESSION_DATABASE);
