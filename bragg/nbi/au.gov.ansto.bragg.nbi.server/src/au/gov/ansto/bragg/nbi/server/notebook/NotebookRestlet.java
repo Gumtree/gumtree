@@ -725,7 +725,11 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 							return;
 						}
 					}
-					controlDb.addControlEntry(pageId, newPass);
+					if (newPass == null || newPass.trim().length() == 0) {
+						controlDb.removeControlEntry(pageId);
+					} else {
+						controlDb.addControlEntry(pageId, newPass);
+					}
 				} catch (Exception e) {
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to set pass code");
 					return;

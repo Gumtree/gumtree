@@ -219,24 +219,24 @@ function getHistoryPdf(session) {
 var lockPage = function(){
 	var html;
 	if (currentPass) {
-		html = '<div class="class_confirm_dialog"><p>The page has already been locked. If you want to change the pass code, '
-			  + 'please type in the old pass code and provide a new one. </p>'
+		html = '<div class="class_confirm_dialog"><p>The page has already been locked. If you want to change the passcode, '
+			  + 'please type in the old passcode and provide a new one. </p>'
 			  + '<form id="pass_form" method="post" name="pass_form" accept-charset="utf-8">' 
-			  + '<label for="id_input_oldpass">Old pass code</label>'
+			  + '<label for="id_input_oldpass">Old passcode</label>'
 			  + '<input type="password" id="id_input_oldpass" name="old_pass">'
-			  + '<label for="id_input_newpass">New pass code</label>'
+			  + '<label for="id_input_newpass">New passcode</label>'
 			  + '<input type="password" id="id_input_newpass" name="new_pass">'
-			  + '<label for="id_input_repass">Repeat the new pass code</label>'
+			  + '<label for="id_input_repass">Repeat the new passcode</label>'
 			  + '<input type="password" id="id_input_repass" name="re_pass">'
 			  + '<span class="class_span_error"></span>'
 			  + '</form></div>';
 	} else {
-		html = '<div class="class_confirm_dialog"><p>Please provide a pass code for this page. You have to use this code '
+		html = '<div class="class_confirm_dialog"><p>Please provide a passcode for this page. You have to use this code '
 			  + 'to access this page in the future.</p>'
 			  + '<form id="pass_form" method="post" name="pass_form" accept-charset="utf-8">' 
-			  + '<label for="id_input_newpass">New pass code</label>'
+			  + '<label for="id_input_newpass">New passcode</label>'
 			  + '<input type="password" id="id_input_newpass" name="new_pass">'
-			  + '<label for="id_input_repass">Repeat the new pass code</label>'
+			  + '<label for="id_input_repass">Repeat the new passcode</label>'
 			  + '<input type="password" id="id_input_repass" name="re_pass">'
 			  + '<span class="class_span_error"></span>'
 			  + '</form></div>';
@@ -244,7 +244,7 @@ var lockPage = function(){
 	$('<div></div>').appendTo('body')
 	  .html(html)
 	  .dialog({
-	      modal: true, title: 'Add pass code', zIndex: 10000, autoOpen: true,
+	      modal: true, title: 'Add passcode', zIndex: 10000, autoOpen: true,
 	      width: 'auto', resizable: false,
 	      buttons: {
 	          Submit: function () {
@@ -255,26 +255,39 @@ var lockPage = function(){
 	        	  if (currentPass) {
 	        		  op = $('#id_input_oldpass').val();
 	        		  if (op != currentPass) {
-	        			  $err.text('The old pass code you provided doesn\'t match our record.' );
+	        			  $err.text('The old passcode you provided doesn\'t match our record.' );
 	        			  return;
 	        		  }
 	        	  } 
 	        	  np = $('#id_input_newpass').val();
 	        	  rp = $('#id_input_repass').val();
 	        	  if (np != rp) {
-	        		  $err.text('The new pass code doesn\'t match each other.');
+	        		  $err.text('The new passcode doesn\'t match each other.');
 	        		  return;
 	        	  }
 	        	  
+	        	  if (np == null) {
+	        		  np = "";
+	        	  } else {
+	        		  np = np.trim();
+	        	  }
+	        	  if (np.length > 0 && np.length < 4) {
+	        		  $err.text('Please input a valid passcode that has at least 4 characters.');
+	        		  return;
+	        	  }
 	        	  var bt = $(this);
 	        	  var postUrl = 'notebook/addPass' + (session != null ? '?session=' + session : '?pageid=' + pageId);
 	        	  $.post( postUrl, $('form#pass_form').serialize(), function(data, status) {
-	        		  console.log(data);
-	        		  console.log(status);
 	        		  if (data == "OK") {
-	        			  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Pass code added.', type: 'success' } );
-	        			  notification.show();
-	        			  currentPass = np;
+	        			  if (np.length == 0) {
+	        				  currentPass = null;
+		        			  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Passcode removed.', type: 'success' } );
+		        			  notification.show();
+	        			  } else {
+		        			  currentPass = np;
+		        			  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Passcode added.', type: 'success' } );
+		        			  notification.show();
+	        			  }
 	    	        	  bt.dialog("close");
 	        		  } else {
 //	        			  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: data, type: 'error' } );
@@ -283,9 +296,9 @@ var lockPage = function(){
 	        		  }
 	        	  })
 	        	  .fail(function(e) {
-	        		  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to add pass code.', type: 'warning' } );
+	        		  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Failed to add passcode.', type: 'warning' } );
 	        		  notification.show();
-	        		  $err.text('Failed to add pass code.');
+	        		  $err.text('Failed to add passcode.');
 	        	  });
 	          },
 	          Cancel: function () {
