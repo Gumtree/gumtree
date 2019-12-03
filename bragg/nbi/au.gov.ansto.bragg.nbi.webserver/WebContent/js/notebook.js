@@ -1445,8 +1445,9 @@ jQuery(window).load(function () {
 		if (status == "success") {
 //			$('#id_editable_page').html(decodeURIComponent(data.replace(/\+/g, ' ')));
 			if (data == 'PASSCODE?') {
-				$('<div></div>').appendTo('body')
-				  .html('<div class="class_confirm_dialog"><p>A passcode is required to load this page.</p><input type="password" id="id_input_passcode" placeholder="passcode?">'
+				var dia = $('<div></div>');
+				dia.appendTo('body')
+				  .html('<div class="class_confirm_dialog"><p>A passcode is required to load this page.</p><input type="password" id="id_input_passcode" placeholder="passcode?" autocomplete="off" val="">'
 						  + '</div><div><p>To continue, press Submit button. </p></div>')
 				  .dialog({
 				      modal: true, title: 'Passcode required', zIndex: 10000, autoOpen: true,
@@ -1454,7 +1455,7 @@ jQuery(window).load(function () {
 				      buttons: {
 				          Submit: function () {
 				        	  	var pc = $('#id_input_passcode').val();
-				        	  	if (pc == null || pc.trim().length ==0 || isNaN(pc)) {
+				        	  	if (pc == null || pc.trim().length == 0) {
 				        	  		alert("A valid passcode is required.");
 				        	  		return;
 				        	  	}
@@ -1481,6 +1482,31 @@ jQuery(window).load(function () {
 				      close: function (event, ui) {
 				          $(this).remove();
 				      }
+				});
+				$('#id_input_passcode').keypress(function( event ) {
+					if ( event.which == 13 ) {
+						event.preventDefault();
+		        	  	var pc = $('#id_input_passcode').val();
+		        	  	if (pc == null || pc.trim().length == 0) {
+		        	  		alert("A valid passcode is required.");
+		        	  		return;
+		        	  	}
+		        	  	if (newUrl.indexOf("?") > 0) {
+		        	  		newUrl += "&pc=" + encodeURI(pc) + "&" + Date.now();
+		        	  	} else {
+		        	  		newUrl += "?pc=" + encodeURI(pc) + "&" + Date.now();
+		        	  	}
+			    		$.get(newUrl, function(nd, ns) {
+			    			if (ns == "success") {
+			    				currentPass = pc;
+			    				loadData(nd);
+			    			}
+			    		})
+			    		.fail(function(e) {
+				    		alert( "Invalid passcode. Please refresh this page to try again.");
+			    		});
+				    	dia.dialog("close");
+					}
 				});
 			} else {
 				loadData(data);
