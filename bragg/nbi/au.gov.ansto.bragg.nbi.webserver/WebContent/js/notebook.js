@@ -309,6 +309,9 @@ function getPdf() {
 		      buttons: {
 		          Yes: function () {
 		        	  var postUrl = 'notebook/save' + (session != null ? '?session=' + session : '?pageid=' + pageId);
+		        	  if (currentPass){
+			        	  postUrl += "&pc=" + encodeURI(currentPass);
+		        	  }
 		        	  $.post( postUrl, CKEDITOR.instances.id_editable_inner.getData(), function(data, status) {
 		        		  if (status == "success") {
 		        			  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Saved', type: 'success' } );
@@ -1462,6 +1465,7 @@ jQuery(window).load(function () {
 				        	  	}
 					    		$.get(newUrl, function(nd, ns) {
 					    			if (ns == "success") {
+					    				currentPass = pc;
 					    				loadData(nd);
 					    			}
 					    		})

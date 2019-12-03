@@ -598,7 +598,9 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 			} else if (SEG_NAME_PDF.equals(seg)) {
 				Form queryForm = request.getResourceRef().getQueryAsForm();
 				String sessionId = queryForm.getValues(QUERY_SESSION_ID);
+				String passcode = queryForm.getValues(QUERY_PASSCODE);
 				String sourceFilename = null;
+				String pageId = null;
 				String sessionValue = null;
 				String targetFilename = null;
 				String expName = String.valueOf(System.currentTimeMillis());
@@ -614,11 +616,11 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 							response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "Error: your privilege does not allow access the current page.");
 							return;
 						}
-						sessionValue = sessionDb.getSessionValue(sessionId);
-						sourceFilename = currentFileFolder + "/" + sessionValue + ".xml";
+						pageId = sessionDb.getSessionValue(sessionId);
+						sourceFilename = currentFileFolder + "/" + pageId + ".xml";
 						String proposalId = proposalDb.findProposalId(sessionId);
 						if (proposalId != null) {
-							sessionValue = sessionValue.replace("Page", "P" + proposalId);
+							sessionValue = pageId.replace("Page", "P" + proposalId);
 						}
 						targetFilename = sessionValue + "_" + expName + ".pdf";
 					} catch (Exception e) {
@@ -631,17 +633,34 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 							response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "Error: your privilege does not allow accessing this page.");
 							return;
 						}
-						sessionValue = sessionDb.getSessionValue(sessionId);
+						pageId = sessionDb.getSessionValue(sessionId);
 						sourceFilename = currentFileFolder + "/" + sessionDb.getSessionValue(sessionId) + ".xml";
 						String proposalId = proposalDb.findProposalId(sessionId);
 						if (proposalId != null) {
-							sessionValue = sessionValue.replace("Page", "P" + proposalId);
+							sessionValue = pageId.replace("Page", "P" + proposalId);
 						}
 						targetFilename = sessionValue + "_" + expName + ".pdf";
 					} catch (Exception e) {
 						response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 						return;
 					}
+				}
+				try {
+					String needCode = controlDb.getControlEntry(pageId);
+					if (needCode != null) {
+						if (passcode == null) {
+							response.setStatus(Status.SERVER_ERROR_INTERNAL, "need passcode");
+							return;
+						} else {
+							if (!needCode.equals(passcode)) {
+								response.setStatus(Status.SERVER_ERROR_INTERNAL, "invalid passcode");
+								return;
+							}
+						}
+					}
+				} catch (Exception e) {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, "invalid passcode");
+					return;
 				}
 				File current = new File(sourceFilename);
 				if (current.exists()) {
@@ -727,6 +746,13 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					}
 					String sessionValue = sessionDb.getSessionValue(sessionId);
 					String proposalId = proposalDb.findProposalId(sessionId);
+					String needCode = controlDb.getControlEntry(sessionValue);
+					if (needCode != null) {
+						response.setEntity(sessionId + ":" + sessionValue + ":" + proposalId 
+								+ ":PASSCODE?<br>This page needs a passcode. To access this page, click on the above Edit button.", 
+								MediaType.TEXT_PLAIN);
+						return;
+					}
 					String filename = currentFileFolder + "/" + sessionValue + ".xml";
 					byte[] bytes = Files.readAllBytes(Paths.get(filename));
 					response.setEntity(sessionId + ":" + sessionValue + ":" + proposalId + ":" + new String(bytes), MediaType.TEXT_PLAIN);

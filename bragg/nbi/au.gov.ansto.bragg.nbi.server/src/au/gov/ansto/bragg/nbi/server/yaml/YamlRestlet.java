@@ -634,7 +634,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 		}
 	}
 	
-	public static void copyToRemote(String instrumentId) {
+	public static void copyToRemote(String instrumentId) throws Exception {
 		FileInputStream fis=null;
 		try{
 
@@ -726,6 +726,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			} catch(Exception ee){
 				
 			}
+			throw e;
 		}
 	}
 	

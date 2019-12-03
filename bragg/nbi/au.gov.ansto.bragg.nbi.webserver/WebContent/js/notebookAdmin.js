@@ -32,7 +32,7 @@ function getPdf(page, session){
 		if (status == "success") {
 			updateUserArea(true, 'notebookAdmin.html');
 			var pair = data.split(":");
-			var fileUrl = "notebook/download/" + page + ".pdf?ext=" + pair[1];
+			var fileUrl = "notebook/download/" + pair[0] + ".pdf?ext=" + pair[1];
 			if (typeof(session) !== "undefined") { 
 				 fileUrl += "&session=" + session;
 			}
@@ -41,9 +41,10 @@ function getPdf(page, session){
 			  .done(function () {})
 			  .fail(function () { alert('File download failed!'); });				
 		  }, 1500);
-		}
+		} 
 	})
 	.fail(function(e) {
+		console.log(e.statusText);
 		alert( "error creating PDF file for " + page + ".");
 	});
 }
