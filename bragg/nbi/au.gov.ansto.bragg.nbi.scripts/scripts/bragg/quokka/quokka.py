@@ -32,10 +32,11 @@ class Enumeration(object):
 
 
 DETECTOR_MONITOR_ENABLED = True
+DETECTOR_RATE_CHECK_ENABLED = True
 
 # safe count rates
-LOCAL_RATE_SAFE  =    200.0
-GLOBAL_RATE_SAFE = 500000.0
+LOCAL_RATE_SAFE  =    1000.0
+GLOBAL_RATE_SAFE = 1.0E6
 
 # attenuation values
 ATT_VALUES = [330, 300, 270, 240, 210, 180, 150, 120, 90, 60, 30, 0]
@@ -437,6 +438,9 @@ def setupSetPoint(parameters):
     sleep(wait)
 
 def preAcquisition(info):
+    
+    global DETECTOR_RATE_CHECK_ENABLED
+
     # make sure that detector has not tripped already
     if hasTripped():
         driveAtt(max(ATT_VALUES))
@@ -445,7 +449,7 @@ def preAcquisition(info):
     att_algo  = state.att_algo
     att_angle = state.att_angle
 
-    if att_algo == ATTENUATION_ALGO.fixed:
+    if not DETECTOR_RATE_CHECK_ENABLED or att_algo == ATTENUATION_ALGO.fixed:
         fixedAttenuationAlgo(att_angle)
 
     elif att_algo == ATTENUATION_ALGO.iterative:
@@ -456,7 +460,8 @@ def preAcquisition(info):
 
 def doAcquisition(info):
     slog('Start %s run on %s (position: %s, sample stage: %s)' % (state.meas_mode, state.sample_name, state.sample_position, state.sample_stage))
-
+    waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
+    
     parameters = info.parameters
 
     def lookup(name, enabled, default=None):
@@ -485,7 +490,38 @@ def doAcquisition(info):
 
     if acq_mode == ACQUISITION_MODE.ba:
         slog('Bound Acquisition (min-time: %s, max-time: %s, counts: %s, bm_counts: %s)' % (min_time, max_time, counts, bm_counts))
-        scanBA(min_time, max_time, counts, bm_counts)
+        sf = False
+        ct = 0
+        try:
+            scanBA(min_time, max_time, counts, bm_counts)
+            sf = True
+        except (Exception, SicsExecutionException) as e:
+            if isInterruptException(e):
+                raise
+            else:
+                slog(str(e), f_err = True)
+        except:
+            slog('failed to run collection', f_err = True)
+            sics.execute('hmm configure termination_condition')
+            
+        while not sf and ct < 5:
+            ct += 1
+            slog('wait for 20 seconds')
+            time.sleep(20)
+            try:
+                scanBA(min_time, max_time, counts, bm_counts)
+                sf = True
+            except (Exception, SicsExecutionException) as e:
+                if isInterruptException(e):
+                    raise
+                else:
+                    slog(str(e), f_err = True)
+                    sics.execute('hmm configure termination_condition')
+            except:
+                slog('failed to run collection', f_err = True)
+                sics.execute('hmm configure termination_condition')
+            
+            
 
         while hasTripped():
             trips += 1
@@ -760,7 +796,11 @@ def iterativeAttenuationAlgo(start_angle):
     slog('Attenuation is set to %i' % getAtt())
 
 def determineDetRates(samples, timeout=60.0):
-
+    
+    global DETECTOR_RATE_CHECK_ENABLED
+    if not DETECTOR_RATE_CHECK_ENABLED:
+        return RateInfo()
+        
     def getStudentsFactor(n): # n = sample count
         # 90% confidence
         f = [float('inf'), 6.314, 2.920, 2.353, 2.132, 2.015, 1.943, 1.895, 1.860, 1.833,
@@ -1191,10 +1231,12 @@ def driveGuide(value):
             while (getGuideConfig() != value) and (datetime.now() < timeout):
                 sleep(0.5)
 
+            if getGuideConfig() != value:
+                raise Exception('target not reached')
             break
 
         except (Exception, SicsExecutionException) as e:
-            if isInterruptException(e) or (counter >= 20):
+            if isInterruptException(e) or (counter >= 3):
                 raise
 
             slog(str(e), f_err=True)
