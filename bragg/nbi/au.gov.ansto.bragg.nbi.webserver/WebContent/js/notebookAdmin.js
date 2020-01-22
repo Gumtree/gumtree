@@ -30,7 +30,7 @@ function getPdf(page, session){
 //    window.location.href = getUrl;
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
-			updateUserArea(true, 'notebookAdmin.html');
+			updateUserArea(true, 'notebookAdmin.html', false);
 			var pair = data.split(":");
 			var fileUrl = "notebook/download/" + pair[0] + ".pdf?ext=" + pair[1];
 			if (typeof(session) !== "undefined") { 
@@ -94,7 +94,7 @@ function load(id, name, proposal, pattern) {
 	getUrl += "&" + (new Date()).getTime();
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
-			updateUserArea(true, 'notebookAdmin.html');
+			updateUserArea(true, 'notebookAdmin.html', false);
 			if (typeof(proposal) !== "undefined" && $.isNumeric(proposal)) { 
 				 var text = 'P' + proposal + ": " + name;
 			}			
@@ -107,7 +107,7 @@ function load(id, name, proposal, pattern) {
 	})
 	.fail(function(e) {
 		if (e.status == 401) {
-			updateUserArea(false);
+			updateUserArea(false, 'notebookAdmin.html', false);
 		} else {
 			alert( "error loading notebook file " + id + ".");
 		}
@@ -119,7 +119,7 @@ function loadCurrent(id, name, proposal) {
 	getUrl += "&" + (new Date()).getTime();
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
-			updateUserArea(true, 'notebookAdmin.html');
+			updateUserArea(true, 'notebookAdmin.html', false);
 			var currentPath = window.location.href;
 			currentPath = currentPath.substr(0, currentPath.lastIndexOf('/') + 1);
 //			currentPath = currentPath.substr(0, currentPath.lastIndexOf('/') + 1);
@@ -135,7 +135,7 @@ function loadCurrent(id, name, proposal) {
 	})
 	.fail(function(e) {
 		if (e.status == 401) {
-			updateUserArea(false);
+			updateUserArea(false, 'notebookAdmin.html', false);
 		} else {
 			alert( "error loading notebook file " + id + ".");
 		}
@@ -167,7 +167,7 @@ function searchNotebook() {
 	})
 	.fail(function(e) {
 		if (e.status == 401) {
-			updateUserArea(false);
+			updateUserArea(false, 'notebookAdmin.html', false);
 		} else {
 			alert( "error searching the notebook.");
 		}
@@ -179,7 +179,7 @@ function searchDatabase() {
 	getUrl = "db/searchAll?pattern=" + searchPattern + "&" + (new Date()).getTime();
 	$.get(getUrl, function(data, status) {
 		if (status == "success") {
-			updateUserArea(true, 'notebookAdmin.html');
+			updateUserArea(true, 'notebookAdmin.html', false);
 			$('#id_search_db_inner').html(data);
 //			$('.class_div_search_file').click(function(e) {
 //				load($(this).attr('session'), $(this).attr('name'), searchPattern);
@@ -188,7 +188,7 @@ function searchDatabase() {
 	})
 	.fail(function(e) {
 		if (e.status == 401) {
-			updateUserArea(false);
+			updateUserArea(false, 'notebookAdmin.html', false);
 		} else {
 			alert( "error searching the database.");
 		}
@@ -339,7 +339,7 @@ $(function() {
 			      		var getUrl = "notebook/new?proposal_id=" + proposalId + "&" + (new Date()).getTime();
 			    		$.get(getUrl, function(data, status) {
 			    			if (status == "success") {
-			    				updateUserArea(true, 'notebookAdmin.html');
+			    				updateUserArea(true, 'notebookAdmin.html', false);
 			    				var split = data.indexOf("=");
 			    				var header = data.substr(0, split);
 			    				var text = "";
@@ -452,7 +452,7 @@ $(function() {
 			    		})
 			    		.fail(function(e) {
 			    			if (e.status == 401) {
-			    				updateUserArea(false);
+			    				updateUserArea(false, 'notebookAdmin.html', false);
 			    			} else {
 				    			alert( "error creating new notebook file.");
 			    			}
@@ -487,7 +487,7 @@ $(function() {
 		var getUrl = "notebook/manageguide";
 		$.get(getUrl, function(data, status) {
 			if (status == "success") {
-				updateUserArea(true, 'notebookAdmin.html');
+				updateUserArea(true, 'notebookAdmin.html', false);
 				$('#id_content_header').html("<span>User's Guide</span>");
 				if (data.trim().length == 0) {
 					$('#id_div_content').html("<p><br></p>");
@@ -498,7 +498,7 @@ $(function() {
 		})
 		.fail(function(e) {
 			if (e.status == 401) {
-				updateUserArea(false);
+				updateUserArea(false, 'notebookAdmin.html', false);
 			} else {
 				alert( "error loading the guide.");
 			}
@@ -677,13 +677,15 @@ jQuery(window).load(function () {
 				}
 //				$('#id_ul_archiveList>li.has-sub>a').append('<span class="holder"></span>');
 			}
-			updateUserArea(true, 'notebookAdmin.html');
+			updateUserArea(true, 'notebookAdmin.html', false);
+		} else {
+			updateUserArea(false, 'notebookAdmin.html', false);
 		}
 	})
 	.fail(function(e) {
 		if (e.status == 401) {
 //			window.location = "signin.html?redirect=notebookAdmin.html";
-			console.log(e);
+			updateUserArea(false, 'notebookAdmin.html', false);
 		}
 	});
 	
@@ -733,7 +735,7 @@ jQuery(window).load(function () {
 	.fail(function(e) {
 		if (e.status == 401) {
 //			window.location = "signin.html?redirect=notebookAdmin.html";
-			console.log(e);
+//			updateUserArea(false, 'notebookAdmin.html', false);
 		}
 	});
 

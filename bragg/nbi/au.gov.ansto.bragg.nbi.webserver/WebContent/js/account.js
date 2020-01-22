@@ -32,7 +32,8 @@ function signout(redirect){
     }, 500);
 }
 
-function updateUserArea(loggedIn, redirect) {
+function updateUserArea(loggedIn, redirect, newTab) {
+	var newTab = (typeof newTab !== 'undefined') ? newTab : true;
 	var redirect = (typeof redirect !== 'undefined') ? redirect : HOME_PATH + 'home.html';
 	if (loggedIn == null) {
 		$('#id_a_account').html("");
@@ -51,8 +52,12 @@ function updateUserArea(loggedIn, redirect) {
 		$('#id_a_account').html("<img src=\"images/signin.png\"/>Sign In ");
 		$("#id_a_account").unbind("click");
 		$("#id_a_account").click(function() {
-			var win = window.open(HOME_PATH + "signin.html", '_blank');
-			win.focus();
+			if (newTab) {
+				var win = window.open(HOME_PATH + "signin.html?redirect=" + CURRENT_PATH + redirect, '_blank');
+				win.focus();
+			} else {
+				window.location = HOME_PATH + "signin.html?redirect=" + CURRENT_PATH + redirect;
+			}
 		});	
 		try {
 			showLogoutMessage("User session is expired. Please sign in again.");

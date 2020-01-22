@@ -10,6 +10,12 @@
                path="/status/sics/rest">
          </resource-mapping>
       </httpcontext>
+      <httpcontext
+            id="sicsRoot">
+         <resource-mapping
+               path="/sics/rest">
+         </resource-mapping>
+      </httpcontext>
    </extension>
    <extension
          id="sicsRestlet"
@@ -18,6 +24,15 @@
             alias="/status/sics/rest"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="sics">
+         <init-param
+               name="org.restlet.application"
+               value="org.gumtree.sics.server.restlet.SicsRestletApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/sics/rest"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="sicsRoot">
          <init-param
                name="org.restlet.application"
                value="org.gumtree.sics.server.restlet.SicsRestletApplication">

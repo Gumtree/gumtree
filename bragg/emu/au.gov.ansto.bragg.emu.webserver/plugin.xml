@@ -20,6 +20,10 @@
             base-name="/WebContent/assets/emu.jpg">
       </resource>
       <resource
+            alias="/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
             alias="/status/js/instrumentsetup.js"
             base-name="/WebContent/instrumentsetup.js">
       </resource>

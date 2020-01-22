@@ -1321,7 +1321,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				if (current.exists()) {
 					try {
 						//    				FileRepresentation representation = new FileRepresentation(targetPath, MediaType.register("application/x-pdf", "Adobe PDF document"));
-						FileRepresentation representation = new FileRepresentation(targetPath, MediaType.APPLICATION_OCTET_STREAM);
+						FileRepresentation representation = new FileRepresentation(targetPath, MediaType.APPLICATION_PDF);
 						Disposition disposition = new Disposition();
 						disposition.setFilename(baseFilename);
 						disposition.setType(Disposition.TYPE_ATTACHMENT);
