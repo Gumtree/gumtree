@@ -311,6 +311,15 @@ var lockPage = function(){
 	});
 };
 
+var downloadFile = function(file_path) {
+	var a = document.createElement('a');
+	a.href = file_path;
+	a.download = file_path.substr(file_path.lastIndexOf('/') + 1);
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);	
+};
+
 function getPdf() {
 	if (CKEDITOR.instances.id_editable_inner.checkDirty()) {
 		$('<div></div>').appendTo('body')
@@ -332,14 +341,25 @@ function getPdf() {
 		        			  CKEDITOR.instances.id_editable_inner.resetDirty();
 		        			  
 		        			  setTimeout(function() {
+		        				  var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Please wait for the PDF to be generated.', type: 'progress' } );
+			        			  notification.show();
 		        				  var getUrl = "notebook/pdf";
 		        				  var session = getParam("session");
 		        				  if (session != null) { 
-		        					  getUrl += "?session=" + session + "&" + (new Date()).getTime();
+		        					  getUrl += "?session=" + session;
+		        					  if (currentPass){
+		        						  getUrl += "&pc=" + encodeURI(currentPass);
+		        		        	  }
+		        					  getUrl += "&" + Date.now();
 		        				  } else {
-		        					  getUrl +=  "?" + (new Date()).getTime()
+		        					  if (currentPass){
+		        						  getUrl += "?pc=" + encodeURI(currentPass) + "&" + Date.now();
+		        		        	  } else {
+			        					  getUrl +=  "?" + Date.now();
+		        		        	  }
 		        				  }
 //		        				  window.location.href = getUrl;
+		        				  notification.update( { type: 'success', message: 'PDF created. Please wait for downloading the file.' } );
 		        				  $.get(getUrl, function(data, status) {
 		        					  if (status == "success") {
 		        						  var pair = data.split(":");
@@ -347,17 +367,27 @@ function getPdf() {
 		        						  if (session != null) { 
 		        							  fileUrl += "&session=" + session;
 		        						  }
+		        						  console.log(fileUrl);
 		        						  setTimeout(function() {
-		        							  $.fileDownload(fileUrl)
-		        							  .done(function () {})
-		        							  .fail(function () { alert('File download failed!'); });				
-		        						  }, 1000);
+//		        							  $.fileDownload(fileUrl)
+//		        							  .done(function () {
+//		  		        							notification.update( { type: 'success', message: 'PDF downloaded.' } );
+//		        							  })
+//		        							  .fail(function () { 
+//		        									notification.update( { type: 'warning', message: 'Error in downloading the PDF file.' } );
+//		        								  alert('File download failed!'); 
+//		        							  });
+//		        							  window.location.href = fileUrl;
+		        							  downloadFile(fileUrl);
+		        						  }, 3000);
+		        					  } else {
+		        							notification.update( { type: 'warning', message: 'Error in creating the PDF file.' } );
 		        					  }
 		        				  })
 		        				  .fail(function(e) {
+		      						notification.update( { type: 'warning', message: 'Error in creating the PDF file.' } );
 		        					  alert( "error creating PDF file.");
 		        				  }).always(function() {
-		        					  $(this).dialog("close");
 		        				  });
 		        			  }, 1000);
 		        			  
@@ -382,11 +412,21 @@ function getPdf() {
 		var getUrl = "notebook/pdf";
 		var session = getParam("session");
 		if (session != null) { 
-			getUrl += "?session=" + session + "&" + (new Date()).getTime();
+			getUrl += "?session=" + session;
+			if (currentPass){
+				getUrl += "&pc=" + encodeURI(currentPass);
+        	}
+			getUrl += "&" + Date.now();
 		} else {
-			getUrl +=  "?" + (new Date()).getTime()
+			  if (currentPass){
+				  getUrl += "?pc=" + encodeURI(currentPass) + "&" + Date.now();
+        	  } else {
+				  getUrl +=  "?" + Date.now();
+        	  }
 		}
 //		window.location.href = getUrl;
+		var notification = new CKEDITOR.plugins.notification( CKEDITOR.instances.id_editable_inner, { message: 'Please wait for the PDF to be generated.', type: 'progress' } );
+		notification.show();
 		$.get(getUrl, function(data, status) {
 			if (status == "success") {
 				var pair = data.split(":");
@@ -394,15 +434,26 @@ function getPdf() {
 				if (session != null) { 
 					fileUrl += "&session=" + session;
 				}
+				notification.update( { type: 'success', message: 'PDF created. Please wait for downloading the file.' } );
+				console.log(fileUrl);
 				setTimeout(function() {
-					$.fileDownload(fileUrl)
-					.done(function () {})
-					.fail(function () { alert('File download failed!'); });				
-				}, 1000);
+//					$.fileDownload(fileUrl)
+//					.done(function () {
+//						notification.update( { type: 'success', message: 'PDF downloaded.' } );
+//					})
+//					.fail(function () {
+//						notification.update( { type: 'warning', message: 'failed to download the PDF file.' } );
+//						alert('File download failed!'); 
+//					});	
+//					window.location = fileUrl;
+					downloadFile(fileUrl);
+				}, 3000);
+			} else {
+				notification.update( { type: 'warning', message: 'Error in creating the PDF file.' } );
 			}
 		})
 		.fail(function(e) {
-			alert( "error creating PDF file.");
+			notification.update( { type: 'warning', message: 'Error in creating the PDF file.' } );
 		});
 	}
 }
