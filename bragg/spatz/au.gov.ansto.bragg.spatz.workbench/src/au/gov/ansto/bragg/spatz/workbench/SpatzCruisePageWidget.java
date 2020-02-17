@@ -170,10 +170,10 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new DeviceStatusWidget(slits1Group, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/instrument/slits/second/horizontal/gap", "s2 horizontal gap", null, "mm")
-				.addDevice("/instrument/slits/second/vertical/gap", "s2 vertical gap", null, "mm")
 				.addDevice("/instrument/slits/third/horizontal/gap", "s3 horizontal gap", null, "mm")
+				.addDevice("/instrument/slits/fourth/horizontal/gap", "s4 horizontal gap", null, "mm")
+				.addDevice("/instrument/slits/second/vertical/gap", "s2 vertical gap", null, "mm")
 				.addDevice("/instrument/slits/third/vertical/gap", "s3 vertical gap", null, "mm")
-				.addDevice("/instrument/slits/fourth/vertical/gap", "s4 horizontal gap", null, "mm")
 				.addDevice("/instrument/slits/fourth/vertical/gap", "s4 vertical gap", null, "mm")
 				;
 		configureWidget(deviceStatusWidget);
@@ -183,12 +183,12 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.POSITIONER.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(sampleStageGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/sample/som", "som", null, "deg")
-				.addDevice("/sample/stilt", "stilt", null, "mm")
-				.addDevice("/sample/sx", "sx", null, "mm")
-				.addDevice("/sample/sxtop", "sxtop", null, "mm")
-				.addDevice("/sample/sy", "sy", null, "mm")
-				.addDevice("/instrument/detector/detrot", "detrot", null, "deg")
+				.addDevice("/sample/som", "som", null, "deg", new DeviceStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/stilt", "stilt", null, "mm", new DeviceStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/sx", "sx", null, "mm", new DeviceStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/sxtop", "sxtop", null, "mm", new DeviceStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/sy", "sy", null, "mm", new DeviceStatusWidget.PrecisionConverter(3))
+				.addDevice("/instrument/detector/detrot", "detrot", null, "deg", new DeviceStatusWidget.PrecisionConverter(3))
 				;
 		configureWidget(deviceStatusWidget);
 
