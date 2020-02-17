@@ -58,20 +58,20 @@ var devices = [
                },
                {"group":"SLITS", 
             	   "items":[{"classId":"ss2hg", "deviceId":"ss2hg", "title":"s2 horizontal gap", "units":"mm", "decimal":2},
-            		   		{"classId":"ss2vg", "deviceId":"ss2vg", "title":"s2 vertical gap", "units":"mm", "decimal":2},
             		   		{"classId":"ss3hg", "deviceId":"ss3hg", "title":"s3 horizontal gap", "units":"mm", "decimal":2},
-            		   		{"classId":"ss3vg", "deviceId":"ss3vg", "title":"s3 vertical gap", "units":"mm", "decimal":2},
             		   		{"classId":"ss4hg", "deviceId":"ss4hg", "title":"s4 horizontal gap", "units":"mm", "decimal":2},
+            		   		{"classId":"ss2vg", "deviceId":"ss2vg", "title":"s2 vertical gap", "units":"mm", "decimal":2},
+            		   		{"classId":"ss3vg", "deviceId":"ss3vg", "title":"s3 vertical gap", "units":"mm", "decimal":2},
             		   		{"classId":"ss4vg", "deviceId":"ss4vg", "title":"s4 vertical gap", "units":"mm", "decimal":2}
             	            ]
                },
                {"group":"SAMPLE STAGE", 
-            	   "items":[{"classId":"som", "deviceId":"som", "title":"Sample Omega", "units":"degrees", "decimal":2},
-            	            {"classId":"stilt", "deviceId":"stilt", "title":"Sample Tilt", "units":"mm", "decimal":2},
-            	            {"classId":"sx", "deviceId":"sx", "title":"Sample X", "units":"mm", "decimal":2},
-            	            {"classId":"sxtop", "deviceId":"sxtop", "title":"Sample X Top", "units":"mm", "decimal":2},
-            	            {"classId":"sy", "deviceId":"sy", "title":"Sample Y", "units":"mm", "decimal":2},
-            	            {"classId":"detrot", "deviceId":"detrot", "title":"Detector Rotation", "units":"degrees", "decimal":2}
+            	   "items":[{"classId":"som", "deviceId":"som", "title":"Sample Omega", "units":"degrees", "decimal":3},
+            	            {"classId":"stilt", "deviceId":"stilt", "title":"Sample Tilt", "units":"mm", "decimal":3},
+            	            {"classId":"sx", "deviceId":"sx", "title":"Sample X", "units":"mm", "decimal":3},
+            	            {"classId":"sxtop", "deviceId":"sxtop", "title":"Sample X Top", "units":"mm", "decimal":3},
+            	            {"classId":"sy", "deviceId":"sy", "title":"Sample Y", "units":"mm", "decimal":3},
+            	            {"classId":"detrot", "deviceId":"detrot", "title":"Detector Rotation", "units":"degrees", "decimal":3}
             	            ]
                }
                ];
