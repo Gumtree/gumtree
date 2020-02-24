@@ -484,8 +484,8 @@ def bs_att(bs_num, bs_angle, att_num):
         raise Exception, 'No valid beamstop or attenuator has been selected  no movement of beamstop or attempted'
 
 def batch_set_temp(val, controller_name = 'tc1', loop_group = 'loop_%02d', setpoint_name = 'setpoint', number_of_loop = 12):
-    for i in range(1, number + 1) :
-        cmd = 'hset /sample/{}/{}/{} {}'.format(name, group % i, node, val)
+    for i in range(1, number_of_loop + 1) :
+        cmd = 'hset /sample/{}/{}/{} {}'.format(controller_name, loop_group % i, setpoint_name, val)
         log(cmd)
         sics.execute(cmd)
 
