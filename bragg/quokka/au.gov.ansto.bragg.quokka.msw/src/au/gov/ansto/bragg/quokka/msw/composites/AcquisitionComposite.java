@@ -1929,12 +1929,16 @@ public class AcquisitionComposite extends Composite {
 				return;
 			
 			Element element = node.getSourceElement();
-			if (element instanceof Configuration) {
+			if (element instanceof SetPoint) {
+				SetPoint sp = (SetPoint) element;
+				configTime += sp.getWaitPeriod();
+			}
+			else if (element instanceof Configuration) {
 				// average of 20min for configuration change (5min voltage ramp x 2 + 15min 1/2 tank detector move)
-				configTime += 25 * 60;
+				configTime += 10 * 60;
 
 				// beamstop time (20sec up and down)
-				configTime += 20 * 2;
+//				configTime += 20 * 2;
 			}
 			else if (element instanceof Sample) {
 				// moving sample holder
