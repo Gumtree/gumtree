@@ -224,7 +224,8 @@ def isInterruptException(e):
 def hasTripped():
     ''' disable this for the new detector commissioning '''
 #    slog('trip recovery has been disabled')
-    return False
+# reenable the tripping handler
+#    return False
 
     def getHistmemTextstatus(name):
         counter = 0
@@ -496,6 +497,8 @@ def doAcquisition(info):
             scanBA(min_time, max_time, counts, bm_counts)
             sf = True
         except (Exception, SicsExecutionException) as e:
+            if sics.isInterrupt():
+                raise
             if isInterruptException(e):
                 raise
             else:
@@ -512,6 +515,9 @@ def doAcquisition(info):
                 scanBA(min_time, max_time, counts, bm_counts)
                 sf = True
             except (Exception, SicsExecutionException) as e:
+                if sics.isInterrupt():
+                    slog('sics.isInterrupt')
+                    raise
                 if isInterruptException(e):
                     raise
                 else:
@@ -1363,10 +1369,11 @@ def scanBA(min_time, max_time, counts, bm_counts):
     try:
         sics.execute('histmem ba enable', 'scan')
         syncScan(controllerPath)
-
+    except:
+        raise
     finally:
-        # ensure that ba is disabled afterwards
-        sics.execute('histmem ba disable', 'scan')
+#         ensure that ba is disabled afterwards
+        sics.send_command('histmem ba disable')
 
 def syncScan(controllerPath):
     # configuring scan properties
@@ -1535,7 +1542,10 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
         else :
             slog('same scan has been repeated {} times, giving up'.format(redo), f_err=True)
     else:
-        slog('scan was successful')
+        if sics.isInterrupt():
+            raise SicsExecutionException('Interrupted')
+        else:
+            slog('scan was successful')
         
 from java.io import File
 from java.io import FileOutputStream

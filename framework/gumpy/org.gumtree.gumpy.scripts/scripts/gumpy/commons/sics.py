@@ -90,18 +90,55 @@ def isIdle():
     return getSicsController().getServerStatus().equals(ServerStatus.EAGER_TO_EXECUTE)
      
 # Synchronously set (drive) any device to a given value
+# def drive(deviceId, value):
+#     sicsController = getSicsController()
+#     controller = getDeviceController(deviceId)
+#     cnt = 0
+#     while cnt < 20:
+#         try:
+#             try:
+#                 c_val = controller.getValue().getFloatData()
+#                 tolerance = controller.getChildController('/precision').getValue().getFloatData()
+#                 if abs(value - c_val) <= tolerance :
+#                     logger.log(str(deviceId) + ' is already at ' + str(c_val))
+#                     return
+#             except:
+#                 pass
+#             controller.drive(float(value))
+#             break
+#         except SicsExecutionException, e:
+#             em = str(e.getMessage())
+#             if not em.lower().__contains__('time out'):
+#                 raise e
+#             handleInterrupt()
+#             logger.log('retry driving ' + str(deviceId))
+#             time.sleep(1)
+#             wait_until_idle()
+#             cnt += 1
+#     if cnt >= 20:
+#         is_done = False
+#         try:
+#             cval = controller.getValue(True)
+#             if abs(float(value) - cval.getFloatData()) <= controller.getChildController("/precision").getValue().getFloatData():
+#                 is_done = True;
+#         except:
+#             pass
+#         if not is_done:
+#             raise Exception, 'timeout to drive ' + str(deviceId) + ' to ' + str(value)
+#     wait_until_idle()
+#     handleInterrupt()
+
+    
+    
 def drive(deviceId, value):
     sicsController = getSicsController()
     controller = getDeviceController(deviceId)
-#    controller.drive(float(value))
     cnt = 0
     while cnt < 20:
         try:
             try:
                 c_val = controller.getValue().getFloatData()
                 tolerance = controller.getChildController('/precision').getValue().getFloatData()
-#                 logger.log('current value is ' + str(c_val))
-#                 logger.log('precision is ' + str(tolerance))
                 if abs(value - c_val) <= tolerance :
                     logger.log(str(deviceId) + ' is already at ' + str(c_val))
                     return
@@ -111,14 +148,17 @@ def drive(deviceId, value):
             break
         except SicsExecutionException, e:
             em = str(e.getMessage())
-#            if em.__contains__('Interrupted'):
-#                raise e
             if not em.lower().__contains__('time out'):
                 raise e
             handleInterrupt()
             logger.log('retry driving ' + str(deviceId))
+            update_status()
             time.sleep(1)
             wait_until_idle()
+            try:
+                c_val = controller.getValue(True).getFloatData()
+            except:
+                pass
             cnt += 1
     if cnt >= 20:
         is_done = False
@@ -406,6 +446,11 @@ def getStatus():
             return t
     else:
         return "UNKNOWN"
+
+def update_status():
+    controller = getSicsController()
+    if not controller is None:
+        controller.refreshServerStatus()
 
 def get_status():
     controller = getSicsController()
