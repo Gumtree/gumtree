@@ -286,6 +286,7 @@ public class UserSessionService {
 			return null;
 		}
 		String directIp = request.getClientInfo().getUpstreamAddress();
+		logger.error("direct IP = " + directIp);
 		if (directIp != null) {
 			for (int i = 0; i < allowedDavIps.length; i++) {
 				if (directIp.equals(allowedDavIps[i])) {
@@ -302,6 +303,7 @@ public class UserSessionService {
 			Form qform = (Form) header;
 			logger.error(qform.toString());
 			String forwardedIp = qform.getFirstValue("X-Forwarded-For");
+			logger.error("forwarded IP = " + forwardedIp);
 			if (forwardedIp != null) {
 				if (forwardedIp.contains(",")) {
 					forwardedIp = forwardedIp.split(",")[0].trim();
@@ -309,11 +311,13 @@ public class UserSessionService {
 					forwardedIp = forwardedIp.split(" ")[0].trim();
 				}
 				for (int i = 0; i < allowedDavIps.length; i++) {
+					logger.error(allowedDavIps[i]);
 					if (forwardedIp.equals(allowedDavIps[i])) {
 						UserSessionObject session = new UserSessionObject();
 						session.setDAV(true);
 						session.setUserName(System.getenv("gumtree.instrument.id"));
 						session.setValid(true);
+						logger.error("confirm session is valid");
 						return session;
 					}
 				}
