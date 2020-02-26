@@ -1930,8 +1930,7 @@ public class AcquisitionComposite extends Composite {
 			
 			Element element = node.getSourceElement();
 			if (element instanceof SetPoint) {
-				SetPoint sp = (SetPoint) element;
-				configTime += sp.getWaitPeriod();
+				configTime += (long) node.get(SetPoint.WAIT_PERIOD);
 			}
 			else if (element instanceof Configuration) {
 				// average of 20min for configuration change (5min voltage ramp x 2 + 15min 1/2 tank detector move)
