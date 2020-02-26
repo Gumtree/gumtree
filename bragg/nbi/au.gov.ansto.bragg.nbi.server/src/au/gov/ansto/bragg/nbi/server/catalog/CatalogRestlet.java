@@ -77,20 +77,24 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 
 		UserSessionObject session = null;
 		
+//		try {
+//			session = UserSessionService.getSession(request, response);
+//		} catch (Exception e1) {
+//			response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, e1.toString());
+//			return;
+//		}
+//		
+//		if (session == null || !session.isValid()) {
+//			try {
+//				session = checkDavSession(request);
+//			} catch (Exception e) {
+//			}
+//		}
 		try {
-			session = UserSessionService.getSession(request, response);
-		} catch (Exception e1) {
-			response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, e1.toString());
-			return;
+			session = UserSessionService.getUniversalSession(request, response);
+		} catch (Exception e) {
 		}
 		
-		if (session == null || !session.isValid()) {
-			try {
-				session = checkDavSession(request);
-			} catch (Exception e) {
-			}
-		}
-
 		if (session != null && session.isValid()) {
 			if (SEG_NAME_APPEND.equalsIgnoreCase(seg)){
 				try {
@@ -173,6 +177,12 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 					if (proposalId != null && !proposalId.equals("undefined")) {
 						if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
 							allowAccess = true;
+						} else {
+							if (proposalId.equals(currentProposal)) {
+								if (allowAccessCurrentPage(session, sessionId, proposalDb)){
+									allowAccess = true;
+								}
+							}
 						}
 					} else if (sessionId != null) {
 						proposalId = proposalDb.findProposalId(sessionId);
@@ -182,7 +192,10 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 					} else {
 						sessionId = currentSessionId;
 						proposalId = currentProposal;
-						if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
+//						if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
+//							allowAccess = true;
+//						}
+						if (allowAccessCurrentPage(session, sessionId, proposalDb)){
 							allowAccess = true;
 						}
 					}
