@@ -2,7 +2,8 @@ var title = "Taipan";
 var batchEnabled = true;
 var devices = [
                {"group":"BEAM STATUS", 
-            	   "items":[{"classId":"monitor_time", "deviceId":"monitor_time", "title":"Time of Counting", "units":"s"}, 
+            	   "items":[{"classId":"reactorPower", "deviceId":"/instrument/source/power", "title":"Reactor Power", "units":"MW"},
+            		   		{"classId":"monitor_time", "deviceId":"monitor_time", "title":"Time of Counting", "units":"s"}, 
             	            {"classId":"bm1_counts", "deviceId":"bm1_counts", "title":"Monitor", "units":"ct"},
             	            {"classId":"bm2_counts", "deviceId":"bm2_counts", "title":"Detector", "units":"ct"}
             	            ]
@@ -66,7 +67,7 @@ var devices = [
                ];
 
 var nsItems = [
-               {"classId":"reactorPower", "deviceId":"reactorPower", "title":"Reactor Power", "units":"MW"}
+               
                ];
 
 var histmemUrl = "taipan/rest/plot1?height=400&width=600;"
