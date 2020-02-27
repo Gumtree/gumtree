@@ -4,29 +4,37 @@ Created on 01/02/2011
 @author: nxi
 '''
 
+import gumpy
 import array
 import copy
-from array import Array
+import math
+from array import Array, NexusException
 #from org.gumtree.data.utils import Utilities
 #from org.gumtree.data.utils import FactoryManager
 from org.gumtree.data.nexus.utils import NexusFactory
 from java.lang import String
+from gumpy.commons import jutils
+from org.gumtree.data import DataType
 
 #gdm_factory = FactoryManager().getFactory()
 nx_factory = NexusFactory()
 
 class SimpleData:
  
-    def __init__(self, storage, shape = None, dtype = None, units = None, title = None, skip_flaws = False, signal = None):
+    def __init__(self, storage, shape = None, dtype = None, units = None, title = None, skip_flaws = False, signal = None, 
+                 lazy_loading = False):
         '''
         Constructor
         '''
         if title is None :
             if hasattr(storage, 'title') :
                 title = storage.title
+        self.skip_flaws = skip_flaws
         if type(storage) is int or type(storage) is float or type(storage) is long or type(storage) is bool :
             storage = [storage]
+        lazy_flag = False
         if isinstance(storage, Array) :
+            self.stage = 1
             self.storage = storage
 #            self.name = name
             if signal :
@@ -40,6 +48,7 @@ class SimpleData:
             if not units is None :
                 self.__iDataItem__.setUnits(str(units))
         elif isinstance(storage, SimpleData) :
+            self.stage = 2
             name = storage.name
             self.storage = storage.storage
             if signal :
@@ -51,6 +60,7 @@ class SimpleData:
             if not units is None :
                 self.__iDataItem__.setUnits(str(units))
         elif hasattr(storage, '__len__') :
+            self.stage = 3
             self.storage = Array(storage, shape, dtype)
             if signal :
                 self.__iDataItem__ = nx_factory.\
@@ -63,18 +73,23 @@ class SimpleData:
             if not units is None :
                 self.__iDataItem__.setUnits(str(units))
         else :
+            self.stage = 4
             self.__iDataItem__ = storage
-            self.storage = Array(storage.getData(skip_flaws))
+            if not lazy_loading:
+                self.storage = Array(storage.getData(skip_flaws))
+            else:
+                self.storage = None
+                lazy_flag = True
             if not units is None :
                 ounits = self.__iDataItem__.getUnits()
                 if ounits is None or len(ounits) == 0 :
                     self.__iDataItem__.setUnits(str(units))
+        self.lazy_loading = lazy_flag
         if title is None :
             title = self.__iDataItem__.getTitle()
         if title is None :
             title = self.__iDataItem__.getShortName()
         self.__iDataItem__.setTitle(str(title))
-        self.skip_flaws = skip_flaws
 #            self.name = iDataItem.getShortName()
 
 
@@ -103,36 +118,238 @@ class SimpleData:
     #   Array indexing
     #####################################################################################
     def __getitem__(self, index):
-        nst = self.storage[index]
-        if isinstance(nst, Array) :
-            return self.__new__(nst)
-        else :
-            return nst
+        if self.lazy_loading:
+            if type(index) is int :
+                if index < 0 :
+                    index = self.shape[0] + index
+                if index >= self.shape[0] :
+                    raise Exception, 'out of range, ' + str(index) + " in " + \
+                        str(self.shape[0])
+                if self.ndim == 1 :
+                    return self.get_value(index)
+                else :
+                    return self.get_slice(0, index)
+            elif type(index) is slice :
+                start = index.start
+                stop = index.stop
+                step = index.step
+                if step is None :
+                    step = 1
+                if step <= 0 :
+                    raise ValueError, 'negative step is not supported: step=' + str(step)
+                if start is None :
+                    start = 0
+                if stop is None :
+                    stop = self.shape[0]
+                if start < 0 :
+                    start += self.shape[0]
+                    if start < 0 :
+                        start = 0
+                if start > self.shape[0] :
+                    return instance([0], self.dtype)
+                if stop > self.shape[0] :
+                    stop = self.shape[0]
+                if stop <= 0 :
+                    stop += self.shape[0]
+                    if stop <= 0 :
+                        return instance([0], self.dtype)
+                origin = [0] * self.ndim
+                origin[0] = start
+                shape = copy.copy(self.shape)
+                shape[0] = int(math.ceil(float(stop - start) / step))
+                if (shape[0] <= 0) :
+                    return instance([0], self.ndim)
+                if step == 1 :
+                    section = self.get_section(origin, shape)
+                else :
+                    stride = [1] * self.ndim
+                    stride[0] = step
+    #                if stride[0] > 1 :
+    #                    shape[0] = int(math.ceil(float(shape[0]) / stride[0]))
+                    section = self.get_section(origin, shape, stride)
+                return section
+            elif type(index) is list :
+    #            nshape = copy.copy(self.shape)
+    #            nshape[0] = len(index)
+    #            narr = instance(nshape, 0, self.dtype)
+    #            for i in xrange(len(index)) :
+    #                val = index[i]
+    #                if val < 0 :
+    #                    val += self.shape[0]
+    #                    if val < 0 :
+    #                        raise ValueError, 'index out of bound: ' + str(index[i]) + \
+    #                                ' in ' + str(self.shape[0])
+    #                if val >= self.shape[0] :
+    #                    raise ValueError, 'index out of bound: ' + str(index[i]) + \
+    #                                ' in ' + str(self.shape[0])
+    #                if self.ndim == 1 :
+    #                    narr[i] = self[index[i]]
+    #                else :
+    #                    narr[i].copy_from(self[index[i]])
+                raise TypeError, 'irregular slicing is not supported'
+            elif type(index) is tuple :
+                origin = [0] * self.ndim
+                shape = copy.copy(self.shape)
+                stride = [1] * self.ndim
+                if len(index) <= self.ndim :
+                    i = 0
+                    secflag = len(index) < self.ndim
+                    reducedim = 0
+                    for item in index :
+                        if type(item) is int :
+                            if item < 0 :
+                                item = self.shape[i] + item
+                            origin[i] = item
+                            shape[i] = 1
+                            if reducedim == i :
+                                reducedim = i + 1
+                        elif type(item) is slice :
+                            secflag = 1
+                            start = item.start
+                            stop = item.stop
+                            step = item.step
+                            if step is None :
+                                step = 1
+                            if step <= 0 :
+                                raise ValueError, 'negative step is not supported: step=' + str(step)
+                            if start is None :
+                                start = 0
+                            if stop is None :
+                                stop = self.shape[i]
+                            if start < 0 :
+                                start += self.shape[i]
+                                if start < 0 :
+                                    start = 0
+                            if start > self.shape[i] :
+                                return instance([0], self.dtype)
+                            if stop > self.shape[i] :
+                                stop = self.shape[i]
+                            if stop < 0 :
+                                stop += self.shape[i]
+                                if stop <= 0 :
+                                    return instance([0], self.dtype)
+                            origin[i] = start
+                            stride[i] = step
+                            if step > 1 :
+                                shape[i] = int(math.ceil(float(stop - start) / step))
+                            else :
+                                shape[i] = stop - start
+                        elif type(item) is list :
+                            raise TypeError, 'irregular slicing is not supported'
+                        i += 1
+                    if secflag :
+                        section =  self.get_section(origin, shape, stride)
+                        if reducedim > 0 :
+                            return section.get_reduced(range(reducedim))
+                        else :
+                            return section
+                    else :
+                        return self.get_value(origin)
+                else :
+                    raise Exception, 'dim=' + str(len(index)) + " in ndim=" + str(self.ndim)
+            elif hasattr(index, 'item_iter') :
+                if index.dtype is bool :
+                    ish = index.shape
+                    ash = self.shape
+                    if ish == ash :
+                        nlen = 0
+                        it1 = index.item_iter()
+                        while it1.has_next() :
+                            if it1.next() :
+                                nlen += 1
+                        if nlen > 0 :
+                            res = instance([nlen], dtype = self.dtype)
+                            it1 = index.item_iter()
+                            its = self.item_iter()
+                            itr = res.item_iter()
+                            while it1.has_next() :
+                                if it1.next() :
+                                    itr.set_next(its.next())
+                                else :
+                                    its.next()
+                            return res
+                        else :
+                            return instance([0], dtype = self.dtype)
+                raise Exception, 'index out of range'
+            else :
+                raise Exception, 'not supported'
+        else:
+            nst = self.storage[index]
+            if isinstance(nst, Array) :
+                return self.__new__(nst)
+            else :
+                return nst            
             
     def get_slice(self, dim, index):
-        return self.__new__(self.storage.get_slice(dim, index))
+        if self.lazy_loading:
+            origin = [0] * self.ndim
+            origin[dim] = index
+            shape = self.shape
+            shape[dim] = 1
+            _arr = self.__iDataItem__.getData(jutils.jintcopy(origin), jutils.jintcopy(shape))
+            _arr = _arr.getArrayUtils().reduce(dim).getArray()
+            return self.__new__(Array(_arr))
+        else:
+            return self.__new__(self.storage.get_slice(dim, index))
         
     
     def get_section(self, origin, shape, stride = None): 
-        return self.__new__(self.storage.get_section(origin, shape, stride))
+        if self.lazy_loading:
+            ranges = []
+            for i in xrange(len(origin)):
+                f = origin[i]
+                l = shape[i] + f - 1
+                if stride:
+                    s = stride[i]
+                else:
+                    s = 1
+                ranges.append(nx_factory.createRange(f, l, s))
+            _di = self.__iDataItem__.getSection(ranges)
+            _arr = _di.getData()
+            return self.__new__(Array(_arr))
+        else:
+            return self.__new__(self.storage.get_section(origin, shape, stride))
     
     def get_reduced(self, dim = None):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         return self.__new__(self.storage.get_reduced(dim))
         
     def section_iter(self, shape):
         return SimpledataSectionIter(self, shape)
-        self.storage.section_iter(shape)
+#         self.storage.section_iter(shape)
     
     def take(self, indices, axis=None, out=None, mode='raise'):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         return self.__new__(self.storage.take(indices, axis, out, mode))
 #####################################################################################
 # Array accessing
 #####################################################################################    
     def get_value(self, index) :
-        return self.storage.get_value(index)
+        if self.lazy_loading:
+#             if type(index) is int:
+#                 st = self.get_slice(0, index)
+#             elif type(index) is list:
+#                 st = self.get_
+#             return st.get_value(0)
+            if type(index) is int:
+                st = self.get_slice(0, index)
+                return st.get_value(0)
+            elif type(index) is list:
+                ndim = self.ndim
+                ns = [1] * ndim
+                ni = [0] * ndim
+                se = self.get_section(index, ns)
+                return se.get_value(ni)
+        else:
+            return self.storage.get_value(index)
     
     def __len__(self):
-        return len(self.storage)
+        if self.lazy_loading:
+            return self.shape[0]
+        else:
+            return len(self.storage)
     
     def __getattr__(self, name):
         if name == 'name' :
@@ -145,6 +362,57 @@ class SimpleData:
                 return self.name
             else :
                 return title
+#         elif name == 'lazy_loading' :
+#             return self.__dict__[name]
+        elif name == 'ndim' :
+            if self.lazy_loading:
+                return len(self.__iDataItem__.getDimensionList())
+            else :
+                return getattr(self.storage, name)
+        elif name == 'size' :
+            if self.lazy_loading:
+                dims = self.__iDataItem__.getDimensionList()
+                size = 1
+                for dim in dims:
+                    size *= dim.getLength()
+                return size
+            else :
+                return getattr(self.storage, name)
+        elif name == 'shape' :
+            if self.lazy_loading:
+                dims = self.__iDataItem__.getDimensionList()
+                shape = []
+                for dim in dims:
+                    shape.append(dim.getLength())
+                return shape
+            else :
+                return getattr(self.storage, name)
+        elif name == 'dtype' :
+            if self.lazy_loading:
+                try :
+                    tp = DataType.getType(self.__iDataItem__.getType())
+                except :
+                    tp = DataType.STRING
+                if tp.equals(DataType.INT) :
+                    return int
+                elif tp.equals(DataType.DOUBLE) :
+                    return float
+                elif tp.equals(DataType.BOOLEAN) :
+                    return bool
+                elif tp.equals(DataType.LONG) :
+                    return long
+                elif tp.equals(DataType.CHAR) :
+                    return str
+                elif tp.equals(DataType.BYTE) :
+                    return int
+                elif tp.equals(DataType.SHORT) :
+                    return int
+                elif tp.equals(DataType.FLOAT) :
+                    return float
+                else :
+                    return object
+            else :
+                return getattr(self.storage, name)
         else :
             att = self.__iDataItem__.findAttributeIgnoreCase(name)
             if att:
@@ -156,7 +424,12 @@ class SimpleData:
                     if arr.size == 1 :
                         return arr[0]
         return getattr(self.storage, name)
-    
+
+    def read_all(self):
+        if self.lazy_loading:
+            self.storage = Array(self.__iDataItem__.getData(self.skip_flaws))
+            self.lazy_loading = False
+        
     def get_attribute(self, name):
         att = self.__iDataItem__.findAttributeIgnoreCase(name)
         if att:
@@ -200,10 +473,16 @@ class SimpleData:
             return self.item_iter()
         
     def item_iter(self):
-        return self.storage.item_iter()
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode, use read_all() to cache data before calling iter_iter')
+        else:
+            return self.storage.item_iter()
     
     def set_value(self, index, value):
-        self.storage.set_value(index, value)
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode, use read_all() to cache data before calling set_value')
+        else:
+            self.storage.set_value(index, value)
         
 #********************************************************************************
 #     Array math
@@ -446,20 +725,31 @@ class SimpleData:
     
     def __repr__(self, indent = '', skip = True):
         indent += '           '
-        res = 'SimpleData(' + self.storage.__repr__(indent, skip) + ', \n' \
+        if self.lazy_loading:
+            res = 'SimpleData(shape=' + str(self.shape) + ', type=' + self.dtype.__name__ \
+                + ', storage=<lazy loading>, \n' \
                 + indent + 'title=\'' + self.title + '\''
+        else:
+            res = 'SimpleData(' + self.storage.__repr__(indent, skip) + ', \n' \
+                    + indent + 'title=\'' + self.title + '\''
         if not self.units is None :
             res += ',\n' + indent + 'units=\'' + self.units + '\''
         res += ')'
         return res
     
     def __str__(self, indent = '', skip = True):
-        if self.dtype is str :
-            return indent + self.storage.__str__(indent, skip)
         res = 'title: ' + self.title + '\n' + indent
+        if self.lazy_loading:
+            res += 'shape: ' + str(self.shape) + '\n' + indent
+            res += 'type: ' + self.dtype.__name__ + '\n' + indent
+            res += 'storage: <lazy loading>\n' + indent
+        else:
+            if self.dtype is str :
+                return indent + self.storage.__str__(indent, skip)
+            else:
+                res += 'storage: ' + self.storage.__str__(indent + ' ' * 9) 
         if not self.units is None and len(self.units) > 0:
             res += 'units: ' + self.units + '\n' + indent
-        res += 'storage: ' + self.storage.__str__(indent + ' ' * 9) 
         return res
     
     def tolist(self):
@@ -521,8 +811,18 @@ class SimpleData:
         return sd
 
     def __dir__(self):
-        dirs = self.storage.__dir__()
+        if self.lazy_loading:
+            dirs = ['dtype', 'ndim','shape', 'size']
+        else:
+            dirs = self.storage.__dir__()
+        dirs.append('delete_slice')
+        dirs.append('get_attribute')
+        dirs.append('get_flawed_indices')
+        dirs.append('get_value')
         dirs.append('name')
+        dirs.append('read_all')
+        dirs.append('set_attribute')
+        dirs.append('set_value')
         dirs.append('storage')
         dirs.append('title')
         dirs.append('units')

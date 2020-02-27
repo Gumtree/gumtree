@@ -14,9 +14,10 @@ from org.gumtree.data.utils import FactoryManager
 #from nexus.simpledata import SimpleData
 #from nexus import data
 #from nexus.data import Data
+import gumpy
 from gumpy.nexus import *
+from array import NexusException
 import os.path
-from copy import copy
 
 DEFAUT_ENTRY_NAME = "entry1"
 nx_factory = NexusFactory()
@@ -32,7 +33,8 @@ class Dataset(Data):
     
     def __init__(self, storage, shape = None, dtype = None, name = None, \
                  var = None, axes = None, anames = None, aunits = None, \
-                 default_var = True, default_axes = True, dic_path = None, title = None, skip_flaws = False):
+                 default_var = True, default_axes = True, dic_path = None, title = None, skip_flaws = False, 
+                 lazy_loading = False):
         '''
         Constructor
         '''
@@ -51,7 +53,8 @@ class Dataset(Data):
         else :
             self.__iNXDataset__ = storage
             self.__iNXroot__ = storage.getNXroot()
-            Data.__init__(self, self.__iNXroot__.getFirstEntry().getData(), skip_flaws = skip_flaws)
+            Data.__init__(self, self.__iNXroot__.getFirstEntry().getData(), skip_flaws = skip_flaws, 
+                          lazy_loading = lazy_loading)
         if not dic_path is None :
             self.__iDictionary__ = gdm_factory.openDictionary(dic_path)
             self.__iNXroot__.setDictionary(self.__iDictionary__)
@@ -82,6 +85,7 @@ class Dataset(Data):
             self.name = name
         if title is None :
             title = name
+        self.lazy_loading = lazy_loading
         self.set_title(title)
 
     
@@ -99,6 +103,8 @@ class Dataset(Data):
         elif name == 'axes' :
             self.set_axes(value)
         elif name == 'skip_flaws' :
+            self.__dict__[name] = value
+        elif name == 'lazy_loading' :
             self.__dict__[name] = value
         elif str(name).startswith('__') :
             self.__dict__[name] = value
@@ -237,6 +243,8 @@ class Dataset(Data):
             return self.__iNXDataset__.getLocation()
         elif name == 'skip_flaws' :
             return self.__dict__[name]
+        elif name == 'lazy_loading' :
+            return self.__dict__[name]
         elif name == 'metadata' :
             dirs = []
             if hasattr(self, '__iDictionary__') :
@@ -252,6 +260,8 @@ class Dataset(Data):
 #        elif hasattr(self, 'storage') and hasattr(self.storage, name) :
 #            return self.storage.__getattr__(name)
         elif name == '__iArray__' :
+            if self.lazy_loading:
+                raise NexusException('not supported in lazy loading mode, use read_all() to cache data before calling this')
             return self.storage.__iArray__
         elif str(name).startswith('__') :
             try :
@@ -385,10 +395,14 @@ class Dataset(Data):
             indent = ' ' * 8
         else :
             indent += ' ' * 8
-        res = 'Dataset(' + self.storage.__repr__(indent, skip) + str(', \n' \
-                + indent + 'title=\'' + self.title + '\'')
-        if not self.var is None :
-            res += ',\n' + indent + 'var=' + self.var.storage.__repr__(indent + ' ' * 4, skip)
+        if self.lazy_loading:
+            res = 'Dataset(shape=' + str(self.shape) + ', type=' + self.dtype.__name__ + ', storage=<lazy loading>, \n' \
+                    + indent + 'title=\'' + str(self.title) + '\''
+        else:
+            res = 'Dataset(' + self.storage.__repr__(indent, skip) + str(', \n' \
+                    + indent + 'title=\'' + self.title + '\'')
+            if not self.var is None :
+                res += ',\n' + indent + 'var=' + self.var.storage.__repr__(indent + ' ' * 4, skip)
         if len(self.axes) > 0 :
             res += ',\n' + indent + 'axes=['
             for i in xrange(len(self.axes)) :
@@ -400,13 +414,21 @@ class Dataset(Data):
         return res
     
     def __str__(self, indent = '', skip = True):
-        res = 'title: ' + self.title + '\n' + indent
-        if not self.units is None and len(self.units) > 0 :
-            res += 'units: ' + self.units + '\n' + indent
-        res = str(res + 'storage: ') + self.storage.__str__(indent + ' ' * 9, skip)
-        if not self.var is None :
-            res += '\n' + indent + 'error: ' + \
-                    (self.var ** 0.5).storage.__str__(indent + ' ' * 7, skip)
+        if self.lazy_loading:
+            res = 'title: ' + self.title + '\n' + indent
+            if not self.units is None and len(self.units) > 0 :
+                res += 'units: ' + self.units + '\n' + indent
+            res += 'shape:' + str(self.shape) + '\n' + indent
+            res += 'type: ' + self.dtype.__name__ + '\n' + indent
+            res += 'storage: ' + '<lazy loading>\n' + indent
+        else:
+            res = 'title: ' + self.title + '\n' + indent
+            if not self.units is None and len(self.units) > 0 :
+                res += 'units: ' + self.units + '\n' + indent
+            res = str(res + 'storage: ') + self.storage.__str__(indent + ' ' * 9, skip)
+            if not self.var is None :
+                res += '\n' + indent + 'error: ' + \
+                        (self.var ** 0.5).storage.__str__(indent + ' ' * 7, skip)
         if len(self.axes) > 0 :
             res += '\n' + indent + 'axes:\n' + indent + ' ' * 2
             for i in xrange(len(self.axes)) :
@@ -507,15 +529,18 @@ class Dataset(Data):
         return res
 
     def sum(self, axis = None, dtype = None, out = None):
-        if axis is None :
-            return self.storage.sum(dtype = dtype)
-        else :
-            if out is None :
-                res = Data.sum(self, axis, dtype)
-                res.__copy_metadata__(self)
-                return res
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            if axis is None :
+                return self.storage.sum(dtype = dtype)
             else :
-                return Data.sum(self, axis, dtype, out)
+                if out is None :
+                    res = Data.sum(self, axis, dtype)
+                    res.__copy_metadata__(self)
+                    return res
+                else :
+                    return Data.sum(self, axis, dtype, out)
         
     def reshape(self, shape): 
         res = Data.reshape(self, shape)
@@ -575,25 +600,42 @@ class Dataset(Data):
 #        return self.storage.argmin(axis)
         
     def normalise(self, attr_name): 
-        if hasattr(self, attr_name) :
-            attr = eval('self.' + attr_name)
-            if not attr is None :
-                self.storage = self.storage.float_copy()
-                amax = attr.max()
-                for i in xrange(len(attr)) :
-                    if attr[i] != 0 :
-                        norm = float(amax) / attr[i]
-                    else :
-                        norm = 1
-                    self[i] *= norm
-                self.norm_attr = attr_name
-                self.norm_value = amax
-                eval('self.' + attr_name + '.fill(amax)')
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            if hasattr(self, attr_name) :
+                attr = eval('self.' + attr_name)
+                if not attr is None :
+                    self.storage = self.storage.float_copy()
+                    amax = attr.max()
+                    for i in xrange(len(attr)) :
+                        if attr[i] != 0 :
+                            norm = float(amax) / attr[i]
+                        else :
+                            norm = 1
+                        self[i] *= norm
+                    self.norm_attr = attr_name
+                    self.norm_value = amax
+                    eval('self.' + attr_name + '.fill(amax)')
                 
     def __dir__(self):
         dirs = Data.__dir__(self)
+        dirs.append('add_metadata')
+        dirs.append('append_log')
+        dirs.append('close')
+        dirs.append('copy_metadata_deep')
+        dirs.append('copy_metadata_shallow')
+        dirs.append('get_metadata')
+        dirs.append('harvest_metadata')
+        dirs.append('lazy_loading')
         dirs.append('location')
         dirs.append('metadata')
+        dirs.append('normalise')
+        dirs.append('save')
+        dirs.append('save_copy')
+        dirs.append('set_data')
+        dirs.append('set_location')
+        dirs.append('set_title')
         dirs.append('title')
         if hasattr(self, '__iDictionary__') :
             keys = self.__iDictionary__.getAllKeys().toArray()
@@ -1111,7 +1153,8 @@ class DatasetFactory:
                     filepath = index
                     if not index.lower().endswith('.hdf') :
                         filepath += '.hdf'
-            ds = Dataset(NexusUtils.readNexusDataset(filepath))
+            ds = Dataset(NexusUtils.readNexusDataset(filepath), 
+                         lazy_loading = gumpy.LAZY_LOADING)
             if not self.normalising_factor is None :
                 if hasattr(ds, self.normalising_factor) :
                     ds.normalise(self.normalising_factor)
@@ -1133,7 +1176,8 @@ class DatasetFactory:
                 filepath = file_path
                 if not file_path.lower().endswith('.hdf') :
                     filepath += '.hdf'
-        ds = Dataset(NexusUtils.readNexusDataset(filepath), skip_flaws = skip_flaws)
+        ds = Dataset(NexusUtils.readNexusDataset(filepath), skip_flaws = skip_flaws, 
+                     lazy_loading = gumpy.LAZY_LOADING)
         if not self.normalising_factor is None :
             if hasattr(ds, self.normalising_factor) :
                 ds.normalise(self.normalising_factor)

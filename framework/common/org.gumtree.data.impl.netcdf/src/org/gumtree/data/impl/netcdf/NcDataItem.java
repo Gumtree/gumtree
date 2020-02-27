@@ -283,7 +283,7 @@ public class NcDataItem extends VariableDS implements IDataItem {
 			ncRangeList.add(((NcRange) range).getNetcdfRange());
 		}
 		try {
-			return (NcDataItem) super.section(ncRangeList);
+			return new NcDataItem((VariableDS) super.section(ncRangeList));
 		} catch (Exception e) {
 			throw new InvalidRangeException(e.getMessage());
 		}

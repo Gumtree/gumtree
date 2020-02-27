@@ -1593,12 +1593,46 @@ class Array:
     
     def __dir__(self):
         dirs = []
+        dirs.append('all')
+        dirs.append('any')
+        dirs.append('argmax')
+        dirs.append('argmin')
+        dirs.append('clip')
+        dirs.append('compress')
         dirs.append('copy_from')
-        dirs.append('dtype')
+        dirs.append('count_nonzero')
         dirs.append('exp')
+        dirs.append('dtype')
         dirs.append('fill')
         dirs.append('flatten')
         dirs.append('float_copy')
+        dirs.append('get_reduced')
+        dirs.append('get_section')
+        dirs.append('get_slice')
+        dirs.append('get_value')
+        dirs.append('intg')
+        dirs.append('item_iter')
+        dirs.append('ln')
+        dirs.append('log10')
+        dirs.append('matrix_dot')
+        dirs.append('matrix_invert')
+        dirs.append('max')
+        dirs.append('mean')
+        dirs.append('min')
+        dirs.append('ndim')
+        dirs.append('positive_float_copy')
+        dirs.append('put')
+        dirs.append('reshape')
+        dirs.append('section_iter')
+        dirs.append('set_value')
+        dirs.append('shape')
+        dirs.append('size')
+        dirs.append('sqrt')
+        dirs.append('sum')
+        dirs.append('take')
+        dirs.append('tolist')
+        dirs.append('transpose')
+        dirs.append('view_1d')
 #        if self.dtype is bool :
 #            dirs.append('get_bool')
 #            dirs.append('get_bool_current')
@@ -1623,27 +1657,6 @@ class Array:
 #            dirs.append('get_str')
 #            dirs.append('get_str_current')
 #            dirs.append('get_str_next')
-        dirs.append('get_reduced')
-        dirs.append('get_section')
-        dirs.append('get_slice')
-        dirs.append('item_iter')
-        dirs.append('ln')
-        dirs.append('log10')
-        dirs.append('max')
-        dirs.append('min')
-        dirs.append('ndim')
-        dirs.append('positive_float_copy')
-        dirs.append('put')
-        dirs.append('reshape')
-        dirs.append('section_iter')
-        dirs.append('set_value')
-        dirs.append('shape')
-        dirs.append('size')
-        dirs.append('sqrt')
-        dirs.append('sum')
-        dirs.append('take')
-        dirs.append('tolist')
-        dirs.append('view_1d')
         return dirs
 
 #    def remove_slices(self, indices):
@@ -3000,6 +3013,12 @@ class Slice_ :
 
 s_ = Slice_()
 
+class NexusException(Exception):
+    def __init__(self, t = ''):
+        self.t = t
+        
+    def __str__(self, *args, **kwargs):
+        return str(self.t)
 
 #####################################################################################
 # Numpy standards

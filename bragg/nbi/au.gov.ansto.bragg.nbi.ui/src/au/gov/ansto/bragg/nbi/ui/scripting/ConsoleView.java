@@ -16,8 +16,11 @@ import org.gumtree.ui.scripting.viewer.ICommandLineViewer;
  */
 public class ConsoleView extends ViewPart {
 
+	private static final String CONTENT_ASSISTANT_ENABLED = "gumtree.scripting.assistantEnabled";
+
 	private ICommandLineViewer viewer;
 	private IScriptExecutor executor;
+	private IScriptExecutor validator;
 	
 	/**
 	 * 
@@ -33,8 +36,16 @@ public class ConsoleView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		viewer = new CommandLineViewer();
 		viewer.setContentAssistEnabled(true);
+//		try {
+//			if (!Boolean.valueOf(System.getProperty(CONTENT_ASSISTANT_ENABLED))) {
+//				viewer.setContentAssistEnabled(false);
+//			}
+//		} catch (Exception e) {
+//		}
 		executor = new ScriptExecutor("jython");
+		validator = new ScriptExecutor("jython");
 		viewer.setScriptExecutor(executor);
+//		validator.getEngine().getContext().setErrorWriter(executor.getEngine().getContext().getErrorWriter());
 		viewer.createPartControl(parent, ICommandLineViewer.NO_UTIL_AREA);
 	}
 
@@ -55,4 +66,7 @@ public class ConsoleView extends ViewPart {
 		return executor;
 	}
 
+	public IScriptExecutor getValidator() {
+		return validator;
+	}
 }

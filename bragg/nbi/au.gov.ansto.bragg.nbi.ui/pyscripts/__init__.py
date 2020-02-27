@@ -89,6 +89,9 @@ def load_script(fname):
     fname = os.path.dirname(__UI__.getScriptFilename()) + '/' + fname
     __UI__.loadScript(fname)
     
+def set_content_assist_enabled(flag):
+    __register__.getConsoleViewer().setContentAssistEnabled(flag)
+    
 def confirm(msg): 
     return __runner__.openConfirm(msg)
 

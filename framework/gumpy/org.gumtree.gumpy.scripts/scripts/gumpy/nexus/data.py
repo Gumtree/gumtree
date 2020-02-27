@@ -12,7 +12,7 @@ from java.util import ArrayList
 from simpledata import SimpleData
 import array
 import simpledata
-from array import Array
+from array import Array, NexusException
 from gumpy.commons import jutils
 import copy
 #from nexus import *
@@ -26,7 +26,8 @@ class Data(SimpleData):
 
     def __init__(self, storage, shape = None, dtype = None, \
                  var = None, axes = None, anames = None, aunits = None, \
-                 default_var = True, default_axes = True, title = None, skip_flaws = False):
+                 default_var = True, default_axes = True, title = None, skip_flaws = False, 
+                 lazy_loading = False):
         '''
         Constructor
         '''
@@ -44,7 +45,8 @@ class Data(SimpleData):
             iSignal = nx_factory.createNXsignal(None, name, arr.__iArray__)
             iNXdata = nx_factory.createNXdata(None, DEFAUT_NXDATA_NAME, \
                                               iSignal, None)
-            SimpleData.__init__(self, iNXdata.getSignal(), title = title, skip_flaws = skip_flaws, signal = 1)
+            SimpleData.__init__(self, iNXdata.getSignal(), title = title, skip_flaws = skip_flaws, signal = 1, 
+                                lazy_loading = lazy_loading)
             self.__iNXdata__ = iNXdata
             self.var = None
             self.axes = __Axes__(self)
@@ -96,13 +98,17 @@ class Data(SimpleData):
 #                eval(line)
         else :
             iNXdata = storage
-            SimpleData.__init__(self, iNXdata.getSignal(), title = title, skip_flaws = skip_flaws, signal = 1)
+            SimpleData.__init__(self, iNXdata.getSignal(), title = title, skip_flaws = skip_flaws, signal = 1, 
+                                lazy_loading = lazy_loading)
             self.__iNXdata__ = iNXdata
-            iNXvariance = iNXdata.getVariance()
-            if not iNXvariance is None :
-                self.var = SimpleData(iNXvariance)
+            if not lazy_loading:
+                iNXvariance = iNXdata.getVariance()
+                if not iNXvariance is None :
+                    self.var = SimpleData(iNXvariance)
+                else :
+                    self.set_var(self.storage.positive_float_copy())
             else :
-                self.set_var(self.storage.positive_float_copy())
+                self.var = None
             axes = iNXdata.findAxes()
             self.axes = __Axes__(self)
             if not axes is None and axes.size() != 0 :
@@ -188,11 +194,25 @@ class Data(SimpleData):
                 axisList.add(iaxes[i])
             iNXdata.setAxes(axisList)
 
-    def __getattr__(self, name):
-        if name == 'err' or name == 'error' :
+    def get_err(self):
+        return self.get_error()
+    
+    def get_error(self):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
             err = self.var ** 0.5
             err.__set_name__('error')
             return err
+        
+    def __getattr__(self, name):
+        if name == 'err' or name == 'error' :
+            if self.lazy_loading:
+                return None
+            else:
+                err = self.var ** 0.5
+                err.__set_name__('error')
+                return err
         elif name == 'dict' :
             return self.__iNXdata__.findDictionary()
 #        elif name == 'title' :
@@ -270,38 +290,55 @@ class Data(SimpleData):
 #    def __deepcopy__(self, value):
 #        return self
     
+    def read_all(self):
+        SimpleData.read_all(self)
+        iNXvariance = self.__iNXdata__.getVariance()
+        if not iNXvariance is None :
+            self.var = SimpleData(iNXvariance)
+        else :
+            self.set_var(self.storage.positive_float_copy())
+            
     def __new__(self, storage, var = None, axes = None, \
                 anames = None, aunits = None, parent = None):
         return new(storage, var, axes, anames, aunits, parent, \
                    default_var = False, default_axes = False, title = self.title)
     
     def __repr__(self, indent = None, skip = True):
-        if indent is None :
-            indent = ' ' * 5
-        else :
-            indent += ' ' * 5
-        res = 'Data(' + self.storage.__repr__(indent, skip) + ', \n' \
-                + indent + 'title=\'' + self.title + '\''
-        if not self.var is None :
-            res += ',\n' + indent + 'var=' + self.var.storage.__repr__(indent + ' ' * 4, skip)
-        if len(self.axes) > 0 :
-            res += ',\n' + indent + 'axes=['
-            for i in xrange(len(self.axes)) :
-                res += self.axes[i].__repr__(indent + ' ' * 6, skip)
-                if i < len(self.axes) - 1 :
-                    res += ',\n' + indent + ' ' * 6
-            res += ']'
-        res += ')'
-        return res
+        if self.lazy_loading:
+            res = 'Data(shape=' + str(self.shape) + ', type=' + self.dtype.__name__ + ', storage=<lazy loading>, \n' \
+                    + indent + 'title=\'' + self.title + '\''
+        else:
+            if indent is None :
+                indent = ' ' * 5
+            else :
+                indent += ' ' * 5
+            res = 'Data(' + self.storage.__repr__(indent, skip) + ', \n' \
+                    + indent + 'title=\'' + self.title + '\''
+            if not self.var is None :
+                res += ',\n' + indent + 'var=' + self.var.storage.__repr__(indent + ' ' * 4, skip)
+            if len(self.axes) > 0 :
+                res += ',\n' + indent + 'axes=['
+                for i in xrange(len(self.axes)) :
+                    res += self.axes[i].__repr__(indent + ' ' * 6, skip)
+                    if i < len(self.axes) - 1 :
+                        res += ',\n' + indent + ' ' * 6
+                res += ']'
+            res += ')'
+            return res
     
     def __str__(self, indent = '', skip = True):
         res = 'title: ' + self.title + '\n' + indent
         if not self.units is None and len(self.units) > 0:
             res += 'units: ' + self.units + '\n' + indent
-        res += 'storage: ' + self.storage.__str__(indent + ' ' * 9, skip)
-        if not self.var is None :
-            res += '\n' + indent + 'error: ' + \
-                    (self.var ** 0.5).storage.__str__(indent + ' ' * 7, skip)
+        if self.lazy_loading:
+            res += 'shape: ' + str(self.shape) + '\n' + indent
+            res += 'type: ' + self.dtype.__name__ + '\n' + indent
+            res += 'storage: <lazy loading>\n' + indent
+        else:
+            res += 'storage: ' + self.storage.__str__(indent + ' ' * 9, skip)
+            if not self.var is None :
+                res += '\n' + indent + 'error: ' + \
+                        (self.var ** 0.5).storage.__str__(indent + ' ' * 7, skip)
         if len(self.axes) > 0 :
             res += '\n' + indent + 'axes:\n' + indent + ' ' * 2
             for i in xrange(len(self.axes)) :
@@ -311,33 +348,37 @@ class Data(SimpleData):
         return res
 
     def __getitem__(self, index):
-        nst = self.storage[index]
-        if not self.var is None :
-            var = self.var[index]
-        else :
-            var = None
-        if isinstance(nst, Array) :
-            res = self.__new__(nst)
-            res.set_var(var)
-            if not self.axes is None and not hasattr(index, 'ndim') :
-                axes = self.axes
-                storage = self.storage
-                naxes = []
-                nidx = self.__get_slice_index__(index)
-                if not len(nidx) == 0 :
-                    naxes = []
-                    for i in xrange(len(axes)) :
-                        axis = axes[i]
-                        idx = nidx[len(nidx) - len(axes) + i]
-                        if not idx is None :
-                            if idx.start is None and idx.stop is None and idx.step is None :
-                                naxes += [axis.__copy__()]
-                            else :
-                                naxes += [axis.__getitem__(idx)]
-                res.set_axes(naxes)
+        if self.lazy_loading:
+            res = SimpleData.__getitem__(self, index)
             return res
-        else :
-            return nst
+        else:
+            nst = self.storage[index]
+            if not self.var is None :
+                var = self.var[index]
+            else :
+                var = None
+            if isinstance(nst, Array) :
+                res = self.__new__(nst)
+                res.set_var(var)
+                if not self.axes is None and not hasattr(index, 'ndim') :
+                    axes = self.axes
+                    storage = self.storage
+                    naxes = []
+                    nidx = self.__get_slice_index__(index)
+                    if not len(nidx) == 0 :
+                        naxes = []
+                        for i in xrange(len(axes)) :
+                            axis = axes[i]
+                            idx = nidx[len(nidx) - len(axes) + i]
+                            if not idx is None :
+                                if idx.start is None and idx.stop is None and idx.step is None :
+                                    naxes += [axis.__copy__()]
+                                else :
+                                    naxes += [axis.__getitem__(idx)]
+                    res.set_axes(naxes)
+                return res
+            else :
+                return nst
                     
     def __get_slice_index__(self, index): 
         if type(index) is int :
@@ -376,7 +417,10 @@ class Data(SimpleData):
             raise TypeError, 'unsupported argument, must be int, slice or tuple'
         
     def get_slice(self, dim, index):
-        res = self.__new__(self.storage.get_slice(dim, index))
+        if self.lazy_loading:
+            res = SimpleData.get_slice(self, dim, index)
+        else:
+            res = self.__new__(self.storage.get_slice(dim, index))
         if not self.var is None :
             var = self.var.get_slice(dim, index)
             res.set_var(var)
@@ -390,10 +434,15 @@ class Data(SimpleData):
         return res
         
     def get_section(self, origin, shape, stride = None): 
-        res = self.__new__(self.storage.get_section(origin, shape, stride))
-        if not self.var is None :
-            var = self.var.get_section(origin, shape, stride)
+        if self.lazy_loading:
+            res = SimpleData.get_section(self, origin, shape, stride)
+            var = res.storage.float_copy()
             res.set_var(var)
+        else:
+            res = self.__new__(self.storage.get_section(origin, shape, stride))
+            if not self.var is None :
+                var = self.var.get_section(origin, shape, stride)
+                res.set_var(var)
         laxes = len(self.axes)
         if laxes > 0 :
             naxes = []
@@ -416,9 +465,11 @@ class Data(SimpleData):
                         s = slice(origin[i], origin[i] + shape[i] * stride[i], stride[i])
                         naxes += [self.axes[i - self.ndim + laxes][s]]
             res.set_axes(naxes)
-        return res
+            return res
     
     def get_reduced(self, dim = None):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         res = self.__new__(self.storage.get_reduced(dim))
         if not self.var is None :
             res.set_var(self.var.get_reduced(dim))
@@ -505,7 +556,7 @@ class Data(SimpleData):
 # Array accessing
 #####################################################################################    
     def get_value(self, index) :
-        return self.storage.get_value(index)
+        return SimpleData.get_value(self, index)
     
 #    def __iter__(self):
 #        self.storage.__iter__()
@@ -548,6 +599,8 @@ class Data(SimpleData):
 #        return self.var.current_value()
         
     def set_value(self, index, value, variance = None):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         self.storage.set_value(index, value)
         if not variance is None :
             if not self.var is None :
@@ -568,45 +621,48 @@ class Data(SimpleData):
 #********************************************************************************
     
     def __add__(self, obj):
-        ndtype = self.storage.__match_type__(obj)
-        if self.dtype is int and ndtype is float :
-            sarr = self.storage.float_copy().__iArray__
-        else :
-            sarr = self.storage.__iArray__
-        if not self.var is None :
-            svar = self.var.__iArray__
-        else :
-            svar = __make_default_var__(self.storage).__iArray__
-        if isinstance(obj, Data) :
-            if obj.size == 1:
-                isValue = True
-                oarr = float(obj[0])
-                if not obj.var is None:
-                    ovar = obj.var[0]
-                else:
-                    over = 0.
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            ndtype = self.storage.__match_type__(obj)
+            if self.dtype is int and ndtype is float :
+                sarr = self.storage.float_copy().__iArray__
             else :
-                oarr = obj.storage.__iArray__
-                if not obj.var is None :
-                    ovar = obj.var.__iArray__
+                sarr = self.storage.__iArray__
+            if not self.var is None :
+                svar = self.var.__iArray__
+            else :
+                svar = __make_default_var__(self.storage).__iArray__
+            if isinstance(obj, Data) :
+                if obj.size == 1:
+                    isValue = True
+                    oarr = float(obj[0])
+                    if not obj.var is None:
+                        ovar = obj.var[0]
+                    else:
+                        over = 0.
                 else :
-                    ovar = __make_default_var__(obj).__iArray__
-        elif isinstance(obj, SimpleData) :
-            oarr = obj.storage.__iArray__
-            ovar = None
-        elif isinstance(obj, Array) :
-            oarr = obj.__iArray__
-            ovar = None
-        elif hasattr(obj, '__len__') :
-            arr = Array(obj)
-            oarr = arr.__iArray__
-            ovar = None
-        else :
-            oarr = float(obj)
-            ovar = 0.
-        edata = EMath.add(sarr, oarr, svar, ovar)
-        return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
-                       axes = self.axes)
+                    oarr = obj.storage.__iArray__
+                    if not obj.var is None :
+                        ovar = obj.var.__iArray__
+                    else :
+                        ovar = __make_default_var__(obj).__iArray__
+            elif isinstance(obj, SimpleData) :
+                oarr = obj.storage.__iArray__
+                ovar = None
+            elif isinstance(obj, Array) :
+                oarr = obj.__iArray__
+                ovar = None
+            elif hasattr(obj, '__len__') :
+                arr = Array(obj)
+                oarr = arr.__iArray__
+                ovar = None
+            else :
+                oarr = float(obj)
+                ovar = 0.
+            edata = EMath.add(sarr, oarr, svar, ovar)
+            return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
+                           axes = self.axes)
             
     def __iadd__(self, obj):
         SimpleData.__iadd__(self, obj)
@@ -619,50 +675,53 @@ class Data(SimpleData):
         return self.__add__(obj)
             
     def __div__(self, obj):
-        isValue = False
-        ndtype = self.storage.__match_type__(obj)
-        if self.dtype is int and ndtype is float :
-            sarr = self.storage.float_copy().__iArray__
-        else :
-            sarr = self.storage.__iArray__
-        if not self.var is None :
-            svar = self.var.__iArray__
-        else :
-            svar = __make_default_var__(self.storage).__iArray__
-        if isinstance(obj, Data) :
-            if obj.size == 1:
-                isValue = True
-                oarr = 1. / obj[0]
-                if not obj.var is None:
-                    ovar = oarr ** 4 * obj.var[0]
-                else:
-                    over = 0.
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            isValue = False
+            ndtype = self.storage.__match_type__(obj)
+            if self.dtype is int and ndtype is float :
+                sarr = self.storage.float_copy().__iArray__
             else :
-                oarr = obj.storage.__iArray__
-                if not obj.var is None :
-                    ovar = obj.var.__iArray__
+                sarr = self.storage.__iArray__
+            if not self.var is None :
+                svar = self.var.__iArray__
+            else :
+                svar = __make_default_var__(self.storage).__iArray__
+            if isinstance(obj, Data) :
+                if obj.size == 1:
+                    isValue = True
+                    oarr = 1. / obj[0]
+                    if not obj.var is None:
+                        ovar = oarr ** 4 * obj.var[0]
+                    else:
+                        over = 0.
                 else :
-                    ovar = __make_default_var__(obj).__iArray__
-        elif isinstance(obj, SimpleData) :
-            oarr = obj.storage.__iArray__
-            ovar = None
-        elif isinstance(obj, Array) :
-            oarr = obj.__iArray__
-            ovar = None
-        elif hasattr(obj, '__len__') :
-            arr = Array(obj)
-            oarr = arr.__iArray__
-            ovar = None
-        else :
-            oarr = 1. / obj
-            ovar = 0.
-            isValue = True
-        if isValue :
-            edata= EMath.toScale(sarr, oarr, svar, ovar)
-        else :
-            edata = EMath.toEltDivideSkipZero(sarr, oarr, svar, ovar)
-        return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
-                       axes = self.axes)
+                    oarr = obj.storage.__iArray__
+                    if not obj.var is None :
+                        ovar = obj.var.__iArray__
+                    else :
+                        ovar = __make_default_var__(obj).__iArray__
+            elif isinstance(obj, SimpleData) :
+                oarr = obj.storage.__iArray__
+                ovar = None
+            elif isinstance(obj, Array) :
+                oarr = obj.__iArray__
+                ovar = None
+            elif hasattr(obj, '__len__') :
+                arr = Array(obj)
+                oarr = arr.__iArray__
+                ovar = None
+            else :
+                oarr = 1. / obj
+                ovar = 0.
+                isValue = True
+            if isValue :
+                edata= EMath.toScale(sarr, oarr, svar, ovar)
+            else :
+                edata = EMath.toEltDivideSkipZero(sarr, oarr, svar, ovar)
+            return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
+                           axes = self.axes)
     
     def __idiv__(self, obj):
         if isinstance(obj, Array) or isinstance(obj, SimpleData) :
@@ -677,92 +736,98 @@ class Data(SimpleData):
         return self.inverse() * obj
     
     def __mul__(self, obj):
-        isValue = False
-        ndtype = self.storage.__match_type__(obj)
-        if self.dtype is int and ndtype is float :
-            sarr = self.storage.float_copy().__iArray__
-        else :
-            sarr = self.storage.__iArray__
-        if not self.var is None :
-            svar = self.var.__iArray__
-        else :
-            svar = __make_default_var__(self.storage).__iArray__
-        if isinstance(obj, Data) :
-            if obj.size == 1:
-                isValue = True
-                oarr = float(obj[0])
-                if not obj.var is None:
-                    ovar = obj.var[0]
-                else:
-                    over = 0.
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            isValue = False
+            ndtype = self.storage.__match_type__(obj)
+            if self.dtype is int and ndtype is float :
+                sarr = self.storage.float_copy().__iArray__
             else :
-                oarr = obj.storage.__iArray__
-                if not obj.var is None :
-                    ovar = obj.var.__iArray__
+                sarr = self.storage.__iArray__
+            if not self.var is None :
+                svar = self.var.__iArray__
+            else :
+                svar = __make_default_var__(self.storage).__iArray__
+            if isinstance(obj, Data) :
+                if obj.size == 1:
+                    isValue = True
+                    oarr = float(obj[0])
+                    if not obj.var is None:
+                        ovar = obj.var[0]
+                    else:
+                        over = 0.
                 else :
-                    ovar = __make_default_var__(obj).__iArray__
-        elif isinstance(obj, SimpleData) :
-            oarr = obj.storage.__iArray__
-            ovar = None
-        elif isinstance(obj, Array) :
-            oarr = obj.__iArray__
-            ovar = None
-        elif hasattr(obj, '__len__') :
-            arr = Array(obj)
-            oarr = arr.__iArray__
-            ovar = None
-        else :
-            oarr = float(obj)
-            ovar = 0.
-            isValue = True
-        if isValue :
-            edata= EMath.toScale(sarr, oarr, svar, ovar)
-        else :
-            edata = EMath.toEltMultiply(sarr, oarr, svar, ovar)
-        return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
-                       axes = self.axes)
+                    oarr = obj.storage.__iArray__
+                    if not obj.var is None :
+                        ovar = obj.var.__iArray__
+                    else :
+                        ovar = __make_default_var__(obj).__iArray__
+            elif isinstance(obj, SimpleData) :
+                oarr = obj.storage.__iArray__
+                ovar = None
+            elif isinstance(obj, Array) :
+                oarr = obj.__iArray__
+                ovar = None
+            elif hasattr(obj, '__len__') :
+                arr = Array(obj)
+                oarr = arr.__iArray__
+                ovar = None
+            else :
+                oarr = float(obj)
+                ovar = 0.
+                isValue = True
+            if isValue :
+                edata= EMath.toScale(sarr, oarr, svar, ovar)
+            else :
+                edata = EMath.toEltMultiply(sarr, oarr, svar, ovar)
+            return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
+                           axes = self.axes)
     
     def __imul__(self, obj):
-        isValue = False
-        sarr = self.storage.__iArray__
-        if not self.var is None :
-            svar = self.var.__iArray__
-        else :
-            svar = __make_default_var__(self.storage).__iArray__
-        if isinstance(obj, Data) :
-            if obj.size == 1:
-                isValue = True
-                oarr = float(obj[0])
-                if not obj.var is None:
-                    ovar = obj.var[0]
-                else:
-                    over = 0.
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            isValue = False
+            sarr = self.storage.__iArray__
+            if not self.var is None :
+                svar = self.var.__iArray__
             else :
-                oarr = obj.storage.__iArray__
-                if not obj.var is None :
-                    ovar = obj.var.__iArray__
+                svar = __make_default_var__(self.storage).__iArray__
+            if isinstance(obj, Data) :
+                if obj.size == 1:
+                    isValue = True
+                    oarr = float(obj[0])
+                    if not obj.var is None:
+                        ovar = obj.var[0]
+                    else:
+                        over = 0.
                 else :
-                    ovar = __make_default_var__(obj).__iArray__
-        elif isinstance(obj, SimpleData) :
-            oarr = obj.storage.__iArray__
-            ovar = None
-        elif isinstance(obj, Array) :
-            oarr = obj.__iArray__
-            ovar = None
-        elif hasattr(obj, '__len__') :
-            arr = Array(obj)
-            oarr = arr.__iArray__
-            ovar = None
-        else :
-            oarr = float(obj)
-            ovar = 0.
-            isValue = True
-        if isValue :
-            edata= EMath.scale(sarr, oarr, svar, ovar)
-        else :
-            edata = EMath.eltMultiply(sarr, oarr, svar, ovar)
-        self.set_var(edata.getVariance())
-        return self
+                    oarr = obj.storage.__iArray__
+                    if not obj.var is None :
+                        ovar = obj.var.__iArray__
+                    else :
+                        ovar = __make_default_var__(obj).__iArray__
+            elif isinstance(obj, SimpleData) :
+                oarr = obj.storage.__iArray__
+                ovar = None
+            elif isinstance(obj, Array) :
+                oarr = obj.__iArray__
+                ovar = None
+            elif hasattr(obj, '__len__') :
+                arr = Array(obj)
+                oarr = arr.__iArray__
+                ovar = None
+            else :
+                oarr = float(obj)
+                ovar = 0.
+                isValue = True
+            if isValue :
+                edata= EMath.scale(sarr, oarr, svar, ovar)
+            else :
+                edata = EMath.eltMultiply(sarr, oarr, svar, ovar)
+            self.set_var(edata.getVariance())
+            return self
     
     def __rmul__(self, obj):
         return self.__mul__(obj)
@@ -771,34 +836,43 @@ class Data(SimpleData):
         return self * -1
     
     def __sub__(self, obj):
-        if isinstance(obj, Array) or isinstance(obj, SimpleData) :
-            obj = obj * -1
-        elif hasattr(obj, '__len__') :
-            obj = Array(obj) * -1
-        else :
-            obj = -obj
-        return self.__add__(obj)
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            if isinstance(obj, Array) or isinstance(obj, SimpleData) :
+                obj = obj * -1
+            elif hasattr(obj, '__len__') :
+                obj = Array(obj) * -1
+            else :
+                obj = -obj
+            return self.__add__(obj)
     
     def __isub__(self, obj):
-        if isinstance(obj, Array) or isinstance(obj, SimpleData) :
-            obj = obj * -1
-        elif hasattr(obj, '__len__') :
-            obj = Array(obj) * -1
-        else :
-            obj = -obj
-        return self.__iadd__(obj)
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            if isinstance(obj, Array) or isinstance(obj, SimpleData) :
+                obj = obj * -1
+            elif hasattr(obj, '__len__') :
+                obj = Array(obj) * -1
+            else :
+                obj = -obj
+            return self.__iadd__(obj)
     
     def __rsub__(self, obj):
         return self * -1 + obj
         
     def inverse(self):
-        if not self.var is None :
-            var = self.var.__iArray__
-        else :
-            var = __make_default_var__(self.storage).__iArray__
-        edata = EMath.toEltInverseSkipZero(self.storage.__iArray__, var)
-        return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
-                       axes = self.axes)
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            if not self.var is None :
+                var = self.var.__iArray__
+            else :
+                var = __make_default_var__(self.storage).__iArray__
+            edata = EMath.toEltInverseSkipZero(self.storage.__iArray__, var)
+            return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
+                           axes = self.axes)
 
 #    def __invert__(self):
 #        if not self.var is None :
@@ -810,123 +884,168 @@ class Data(SimpleData):
 #                       axes = self.axes)
     
     def __pow__(self, obj):
-        otype = type(obj)
-        if otype is int or otype is float or otype is long :
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            otype = type(obj)
+            if otype is int or otype is float or otype is long :
+                if not self.var is None :
+                    var = self.var.__iArray__
+                else :
+                    var = __make_default_var__(self.storage).__iArray__
+                edata = EMath.toPower(self.storage.__iArray__, float(obj), var)
+                return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
+                               axes = self.axes)
+            else :
+                raise TypeError, 'type not supported'
+    
+    def __exp__(self):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
             if not self.var is None :
                 var = self.var.__iArray__
             else :
                 var = __make_default_var__(self.storage).__iArray__
-            edata = EMath.toPower(self.storage.__iArray__, float(obj), var)
+            edata = EMath.toExp(self.storage.__iArray__, var)
             return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
                            axes = self.axes)
-        else :
-            raise TypeError, 'type not supported'
-    
-    def __exp__(self):
-        if not self.var is None :
-            var = self.var.__iArray__
-        else :
-            var = __make_default_var__(self.storage).__iArray__
-        edata = EMath.toExp(self.storage.__iArray__, var)
-        return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
-                       axes = self.axes)
 
     def __log10__(self):
-        if not self.var is None :
-            var = self.var.__iArray__
-        else :
-            var = __make_default_var__(self.storage).__iArray__
-        edata = EMath.toLog10(self.storage.__iArray__, var)
-        return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
-                       axes = self.axes)        
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            if not self.var is None :
+                var = self.var.__iArray__
+            else :
+                var = __make_default_var__(self.storage).__iArray__
+            edata = EMath.toLog10(self.storage.__iArray__, var)
+            return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
+                           axes = self.axes)        
     
     def __ln__(self):
-        if not self.var is None :
-            var = self.var.__iArray__
-        else :
-            var = __make_default_var__(self.storage).__iArray__
-        edata = EMath.toLn(self.storage.__iArray__, var)
-        return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
-                       axes = self.axes)
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            if not self.var is None :
+                var = self.var.__iArray__
+            else :
+                var = __make_default_var__(self.storage).__iArray__
+            edata = EMath.toLn(self.storage.__iArray__, var)
+            return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
+                           axes = self.axes)
 
     def __sqrt__(self):
-        if not self.var is None :
-            var = self.var.__iArray__
-        else :
-            var = __make_default_var__(self.storage).__iArray__
-        edata = EMath.toSqrt(self.storage.__iArray__, var)
-        return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
-                       axes = self.axes)
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            if not self.var is None :
+                var = self.var.__iArray__
+            else :
+                var = __make_default_var__(self.storage).__iArray__
+            edata = EMath.toSqrt(self.storage.__iArray__, var)
+            return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
+                           axes = self.axes)
 
     def __rpow__(self, obj):
-        return self.__new__(self.storage.__rpow__(obj), var = self.var, \
-                           axes = self.axes)
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            return self.__new__(self.storage.__rpow__(obj), var = self.var, \
+                               axes = self.axes)
     
     def __mod__(self, obj):
-        if isinstance(obj, SimpleData) :
-            obj = obj.storage
-        return self.__new__(self.storage % obj)
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            if isinstance(obj, SimpleData) :
+                obj = obj.storage
+            return self.__new__(self.storage % obj)
 
     def __rmod__(self, obj):
-        return self.__new__(self.storage.__rmod__(obj), var = self.var, \
-                           axes = self.axes)
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            return self.__new__(self.storage.__rmod__(obj), var = self.var, \
+                               axes = self.axes)
 
     def __sin__(self):
-        if not self.var is None :
-            var = self.var.__iArray__
-        else :
-            var = __make_default_var__(self.storage).__iArray__
-        edata = EMath.toSin(self.storage.__iArray__, var)
-        return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
-                       axes = self.axes)
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            if not self.var is None :
+                var = self.var.__iArray__
+            else :
+                var = __make_default_var__(self.storage).__iArray__
+            edata = EMath.toSin(self.storage.__iArray__, var)
+            return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
+                           axes = self.axes)
     
     def __cos__(self):
-        if not self.var is None :
-            var = self.var.__iArray__
-        else :
-            var = __make_default_var__(self.storage).__iArray__
-        edata = EMath.toCos(self.storage.__iArray__, var)
-        return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
-                       axes = self.axes)
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            if not self.var is None :
+                var = self.var.__iArray__
+            else :
+                var = __make_default_var__(self.storage).__iArray__
+            edata = EMath.toCos(self.storage.__iArray__, var)
+            return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
+                           axes = self.axes)
     
     def __tan__(self):
-        if not self.var is None :
-            var = self.var.__iArray__
-        else :
-            var = __make_default_var__(self.storage).__iArray__
-        edata = EMath.toTan(self.storage.__iArray__, var)
-        return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
-                       axes = self.axes)
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            if not self.var is None :
+                var = self.var.__iArray__
+            else :
+                var = __make_default_var__(self.storage).__iArray__
+            edata = EMath.toTan(self.storage.__iArray__, var)
+            return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
+                           axes = self.axes)
     
     def __arcsin__(self):
-        if not self.var is None :
-            var = self.var.__iArray__
-        else :
-            var = __make_default_var__(self.storage).__iArray__
-        edata = EMath.toAsin(self.storage.__iArray__, var)
-        return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
-                       axes = self.axes)
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            if not self.var is None :
+                var = self.var.__iArray__
+            else :
+                var = __make_default_var__(self.storage).__iArray__
+            edata = EMath.toAsin(self.storage.__iArray__, var)
+            return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
+                           axes = self.axes)
     
     def __arccos__(self):
-        if not self.var is None :
-            var = self.var.__iArray__
-        else :
-            var = __make_default_var__(self.storage).__iArray__
-        edata = EMath.toAcos(self.storage.__iArray__, var)
-        return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
-                       axes = self.axes)
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            if not self.var is None :
+                var = self.var.__iArray__
+            else :
+                var = __make_default_var__(self.storage).__iArray__
+            edata = EMath.toAcos(self.storage.__iArray__, var)
+            return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
+                           axes = self.axes)
     
     def __arctan__(self):
-        if not self.var is None :
-            var = self.var.__iArray__
-        else :
-            var = __make_default_var__(self.storage).__iArray__
-        edata = EMath.toAtan(self.storage.__iArray__, var)
-        return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
-                       axes = self.axes)
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            if not self.var is None :
+                var = self.var.__iArray__
+            else :
+                var = __make_default_var__(self.storage).__iArray__
+            edata = EMath.toAtan(self.storage.__iArray__, var)
+            return self.__new__(Array(edata.getData()), var = Array(edata.getVariance()), \
+                           axes = self.axes)
     
     def __prod__(self, axis = None):
-        return self.__new__(self.storage.__prod__(axis))
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
+        else:
+            return self.__new__(self.storage.__prod__(axis))
     
     def matrix_invert(self):
         d = SimpleData.matrix_invert(self)
@@ -939,6 +1058,8 @@ class Data(SimpleData):
         return d
         
     def max(self, axis = None, out = None):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         if axis is None :
             return self.storage.max()
         else :
@@ -967,6 +1088,8 @@ class Data(SimpleData):
             return out
     
     def min(self, axis = None, out = None):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         if axis is None :
             return self.storage.min()
         else :
@@ -995,6 +1118,8 @@ class Data(SimpleData):
             return out
     
     def sum(self, axis = None, dtype = None, out = None):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         if axis is None :
             return self.storage.sum(dtype = dtype)
         else :
@@ -1013,6 +1138,8 @@ class Data(SimpleData):
                 return out
 
     def transpose(self, axes = None):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         nstr = self.storage.transpose(axes)
         nvar = None
         if not self.var is None:
@@ -1035,6 +1162,8 @@ class Data(SimpleData):
         return self.__new__(nstr, var = nvar, axes = naxes)
 
     def compress(self, condition, axis = None, out = None):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         if axis is None:
             nstr = self.storage.compress(condition, axis, out)
             nvar = None
@@ -1059,6 +1188,8 @@ class Data(SimpleData):
             return self.__new__(nstr, var = nvar, axes = naxes)
 
     def clip(self, a_min, a_max, out = None):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         if out is None:
             nstr = self.storage.clip(a_min, a_max)
             nvar = None
@@ -1080,6 +1211,8 @@ class Data(SimpleData):
             return out
 
     def mean(self, axis = None, dtype = None, out = None):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         if axis is None :
             return self.storage.mean(dtype = dtype)
         else :
@@ -1114,6 +1247,8 @@ class Data(SimpleData):
 #####################################################################################    
 
     def __setitem__(self, index, value):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         if isinstance(value, SimpleData) :
             arr = value.storage
         else :
@@ -1126,6 +1261,8 @@ class Data(SimpleData):
             self.var[index] = arr
     
     def copy_from(self, value, length = -1):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         if isinstance(value, SimpleData) :
             value = value.storage
         self.storage.copy_from(value, length)
@@ -1142,6 +1279,8 @@ class Data(SimpleData):
                 self.set_var(self.storage.positive_float_copy())
                     
     def fill(self, val, variance = None):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         self.storage.fill(val)
         avar = abs(val)
         if not self.var is None :
@@ -1158,6 +1297,8 @@ class Data(SimpleData):
             self.set_var(var)
             
     def put(self, indices, values, vars = None, mode='raise') :
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         self.storage.put(indices, values, mode)
         if not self.var is None :
             if not vars is None :
@@ -1176,24 +1317,32 @@ class Data(SimpleData):
 #   Reinterpreting arrays
 #####################################################################################    
     def reshape(self, shape): 
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         res = self.__new__(self.storage.reshape(shape))
         if not self.var is None :
             res.set_var(self.var.reshape(shape))
         return res
     
     def flatten(self) :
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         res = self.__new__(self.storage.flatten())
         if not self.var is None :
             res.set_var(self.var.flatten())
         return res
 
     def view_1d(self):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         res = self.__new__(self.storage.view_1d())
         if not self.var is None :
             res.set_var(self.var.view_1d())
         return res
     
     def __copy__(self):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         res = self.__new__(self.storage.__copy__())
         if not self.var is None :
             res.set_var(self.var.__copy__())
@@ -1208,6 +1357,8 @@ class Data(SimpleData):
         return self.__copy__()
     
     def float_copy(self):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         res = self.__new__(self.storage.float_copy())
         if not self.var is None :
             res.set_var(self.var.float_copy())
@@ -1219,6 +1370,8 @@ class Data(SimpleData):
         return res
 
     def absolute_copy(self):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         res = self.__new__(self.storage.positive_float_copy())
         if not self.var is None :
             res.set_var(self.var.float_copy())
@@ -1231,9 +1384,13 @@ class Data(SimpleData):
     
     def __dir__(self):
         dirs = SimpleData.__dir__(self)
+        dirs.append('absolute_copy')
         dirs.append('axes')
-        dirs.append('err')
-        dirs.append('error')
+        dirs.append('get_err')
+        dirs.append('get_error')
+        dirs.append('set_axes')
+        dirs.append('set_var')
+        dirs.append('var')
         return sorted(dirs)
 
     def delete_slice(self, indices):
@@ -1254,6 +1411,8 @@ class Data(SimpleData):
         self.set_axes(naxes)
         
     def intg(self, axis = None, out = None, keepdims = False):
+        if self.lazy_loading:
+            raise NexusException('not supported in lazy loading mode')
         if axis is None :
             return self.storage.intg()
         else :

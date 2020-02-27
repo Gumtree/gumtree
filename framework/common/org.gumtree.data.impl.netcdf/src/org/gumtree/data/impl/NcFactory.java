@@ -26,6 +26,7 @@ import org.gumtree.data.dictionary.impl.Key;
 import org.gumtree.data.dictionary.impl.Path;
 import org.gumtree.data.exception.FileAccessException;
 import org.gumtree.data.exception.InvalidArrayTypeException;
+import org.gumtree.data.exception.InvalidRangeException;
 import org.gumtree.data.impl.netcdf.NcArray;
 import org.gumtree.data.impl.netcdf.NcAttribute;
 import org.gumtree.data.impl.netcdf.NcDataItem;
@@ -33,6 +34,7 @@ import org.gumtree.data.impl.netcdf.NcDataset;
 import org.gumtree.data.impl.netcdf.NcDictionary;
 import org.gumtree.data.impl.netcdf.NcGroup;
 import org.gumtree.data.impl.netcdf.NcIndex;
+import org.gumtree.data.impl.netcdf.NcRange;
 import org.gumtree.data.interfaces.IArray;
 import org.gumtree.data.interfaces.IAttribute;
 import org.gumtree.data.interfaces.IDataItem;
@@ -41,6 +43,7 @@ import org.gumtree.data.interfaces.IDictionary;
 import org.gumtree.data.interfaces.IGroup;
 import org.gumtree.data.interfaces.IIndex;
 import org.gumtree.data.interfaces.IKey;
+import org.gumtree.data.interfaces.IRange;
 import org.gumtree.data.utils.Utilities;
 import org.gumtree.data.utils.Utilities.ParameterType;
 
@@ -547,4 +550,19 @@ public class NcFactory implements IFactory {
 		return detector;
 	}
 	
+	/**
+	 * Create a range with a specified stride.
+	 * 
+	 * @param first
+	 *            first value in range
+	 * @param last
+	 *            last value in range, inclusive
+	 * @param stride
+	 *            stride between consecutive elements, must be > 0
+	 * @throws InvalidRangeException
+	 *             elements must be nonnegative: 0 <= first <= last, stride > 0
+	 */
+	public IRange createRange(final int first, final int last, final int stride) throws InvalidRangeException {
+		return new NcRange(first, last, stride);
+	}
 }

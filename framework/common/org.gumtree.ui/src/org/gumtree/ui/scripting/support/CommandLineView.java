@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 public class CommandLineView extends ViewPart implements ICommandLineView {
 	
 	private static Logger logger = LoggerFactory.getLogger(CommandLineView.class);
+	private static final String CONTENT_ASSISTANT_ENABLED = "gumtree.scripting.assistantEnabled";
 	
 	private ICommandLineViewer viewer;
 	
@@ -47,9 +48,16 @@ public class CommandLineView extends ViewPart implements ICommandLineView {
 	
 	private Lock setEngineLock;
 	
+	private boolean isAssistantEnabled;
+	
 	public CommandLineView() {
 		super();
 		setEngineLock = new ReentrantLock();
+		isAssistantEnabled = true;
+		try {
+			isAssistantEnabled = Boolean.valueOf(System.getProperty(CONTENT_ASSISTANT_ENABLED));
+		} catch (Exception e) {
+		}
 	}
 
 	@Override
@@ -106,16 +114,16 @@ public class CommandLineView extends ViewPart implements ICommandLineView {
 		/*********************************************************************
 		 * Enable content assist (code completion)
 		 *********************************************************************/
-		if ((viewer.getStyle() & ICommandLineViewer.NO_INPUT_TEXT) == 0) {
-			Action contentAssistAction = new Action("Enable Code Completion", IAction.AS_CHECK_BOX) {
-				public void run() {
-					viewer.setContentAssistEnabled(isChecked());
-				}
-			};
-			contentAssistAction.setImageDescriptor(InternalImage.CONTENT_ASSIST.getDescriptor());
-			viewer.setContentAssistEnabled(true);
-			contentAssistAction.setChecked(true);
-			getViewSite().getActionBars().getToolBarManager().add(contentAssistAction);
+		if (isAssistantEnabled && (viewer.getStyle() & ICommandLineViewer.NO_INPUT_TEXT) == 0) {
+				Action contentAssistAction = new Action("Enable Code Completion", IAction.AS_CHECK_BOX) {
+					public void run() {
+						viewer.setContentAssistEnabled(isChecked());
+					}
+				};
+				contentAssistAction.setImageDescriptor(InternalImage.CONTENT_ASSIST.getDescriptor());
+				viewer.setContentAssistEnabled(true);
+				contentAssistAction.setChecked(true);
+				getViewSite().getActionBars().getToolBarManager().add(contentAssistAction);
 		}
 		
 		/*********************************************************************
