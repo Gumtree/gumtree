@@ -34,7 +34,6 @@ class SimpleData:
             storage = [storage]
         lazy_flag = False
         if isinstance(storage, Array) :
-            self.stage = 1
             self.storage = storage
 #            self.name = name
             if signal :
@@ -48,7 +47,6 @@ class SimpleData:
             if not units is None :
                 self.__iDataItem__.setUnits(str(units))
         elif isinstance(storage, SimpleData) :
-            self.stage = 2
             name = storage.name
             self.storage = storage.storage
             if signal :
@@ -60,7 +58,6 @@ class SimpleData:
             if not units is None :
                 self.__iDataItem__.setUnits(str(units))
         elif hasattr(storage, '__len__') :
-            self.stage = 3
             self.storage = Array(storage, shape, dtype)
             if signal :
                 self.__iDataItem__ = nx_factory.\
@@ -73,7 +70,6 @@ class SimpleData:
             if not units is None :
                 self.__iDataItem__.setUnits(str(units))
         else :
-            self.stage = 4
             self.__iDataItem__ = storage
             if not lazy_loading:
                 self.storage = Array(storage.getData(skip_flaws))

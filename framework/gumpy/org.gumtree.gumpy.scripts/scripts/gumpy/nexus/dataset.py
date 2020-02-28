@@ -18,6 +18,7 @@ import gumpy
 from gumpy.nexus import *
 from array import NexusException
 import os.path
+from copy import copy
 
 DEFAUT_ENTRY_NAME = "entry1"
 nx_factory = NexusFactory()
