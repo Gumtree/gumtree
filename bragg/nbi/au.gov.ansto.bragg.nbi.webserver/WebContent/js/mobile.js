@@ -333,9 +333,11 @@ jQuery(document).ready(function(){
 		$("#deviceList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">Expected Finishing Time: </div> <div class="div-inlist" id="gumtree_time_estimate">--</div></li>');
 		$("#deviceList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">Count Down Timer: </div> <div class="div-inlist" id="gumtree_time_countdown">--</div></li>');
 	}
-	$("#deviceList").append('<li class="ui-li ui-li-divider ui-bar-d ui-first-child" role="heading" data-role="list-divider">NEUTRON SOURCE</li>');
-	for (i = 0; i < nsItems.length; i++) {
-		$("#deviceList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">' + nsItems[i].title + ': </div> <div class="div-inlist" id="' + nsItems[i].classId + '">--</div></li>');
+	if (nsItems.length > 0) {
+		$("#deviceList").append('<li class="ui-li ui-li-divider ui-bar-d ui-first-child" role="heading" data-role="list-divider">NEUTRON SOURCE</li>');
+		for (i = 0; i < nsItems.length; i++) {
+			$("#deviceList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">' + nsItems[i].title + ': </div> <div class="div-inlist" id="' + nsItems[i].classId + '">--</div></li>');
+		}
 	}
 	
 	for (i = 0; i < devices.length; i++) {

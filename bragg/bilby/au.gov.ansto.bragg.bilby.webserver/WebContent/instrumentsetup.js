@@ -53,6 +53,11 @@ function adaptSamNum(text) {
 }
 
 var devices = [
+			   {"group":"NEUTRON SOURCE", 
+			 	   "items":[{"classId":"reactorPower", "deviceId":"/instrument/source/power", "title":"Reactor Power", "units":"MW"},
+			 		   		{"classId":"cnsOutTemp", "deviceId":"/instrument/source/cns_out", "title":"CNS Out Temp", "units":"K"}
+			 	            ]
+			   },
                {"group":"NEUTRON BEAM", 
             	   "items":[{"classId":"monitor_counts", "deviceId":"monitor_counts", "title":"Monitor", "units":"cts"}, 
             	            {"classId":"detector_counts", "deviceId":"/instrument/detector/total_counts", "title":"Detector Counts", "units":"c"}, 
@@ -114,11 +119,14 @@ var devices = [
                }
                ];
 
+//var nsItems = [
+//               {"classId":"reactorPower", "deviceId":"/instrument/source/power", "title":"Reactor Power", "units":"MW"},
+//               {"classId":"cnsInTemp", "deviceId":"/instrument/source/", "title":"CNS In Temp", "units":"K"},
+//               {"classId":"cnsOutTemp", "deviceId":"/instrument/source/cns_out", "title":"CNS Out Temp", "units":"K"}
+//               ];
 var nsItems = [
-               {"classId":"reactorPower", "deviceId":"reactorPower", "title":"Reactor Power", "units":"MW"},
-               {"classId":"cnsInTemp", "deviceId":"cnsInTemp", "title":"CNS In Temp", "units":"K"},
-               {"classId":"cnsOutTemp", "deviceId":"cnsOutTemp", "title":"CNS Out Temp", "units":"K"}
-               ];
+    
+    ];
 
 //var histmemUrl = "dae/rest/image?type=TOTAL_HISTOGRAM_XY&screen_size_x=800&screen_size_y=600";
 var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE&screen_size_x=800";
