@@ -17,7 +17,8 @@ CKEDITOR.editorConfig = function( config ) {
 					+ 'uploadwidget,wsc,allowsave,autosave,balloonpanel,btbutton,'
 					+ 'bt_table,zoom,tabletoolstoolbar,tableresizerowandcolumn,tableresize,contents,'
 					+ 'panelbutton,spacingsliders,simplebutton,selectall,removespan,print,preview,'
-					+ 'pastebase64,pasteFromGoogleDoc,pastefromexcel,textindent,pagebreak,newpage,'
+//					+ 'pastebase64,pasteFromGoogleDoc,pastefromexcel,textindent,pagebreak,newpage,'
+					+ 'pasteFromGoogleDoc,pastefromexcel,textindent,pagebreak,newpage,'
 					+ 'lineheight,letterspacing,ckeditor_wiris,symbol,smiley,imagerotate,' 
 					+ 'imageresizerowandcolumn,imageresize,zsuploader,font,find,colordialog,'
 					+ 'docprops,docfont,colorbutton,pbckcode,mathjax';
@@ -54,6 +55,10 @@ CKEDITOR.editorConfig = function( config ) {
 		
 	];
 
+	config.keystrokes = [
+	    [ CKEDITOR.CTRL + 83, 'save' ],    // Ctrl+S
+	];
+	
 	// Remove some buttons provided by the standard plugins, which are
 	// not needed in the Standard(s) toolbar.
 	config.removeButtons = 'Underline,Subscript,Superscript,resize';
