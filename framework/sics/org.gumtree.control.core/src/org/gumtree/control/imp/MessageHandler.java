@@ -85,6 +85,8 @@ public class MessageHandler {
 					processState(name, state);
 				} else if (type.equalsIgnoreCase(MessageType.BATCH.getId())) {
 					processBatch(json);
+				} else {
+					logger.error(json.toString());
 				}
 			} else if (json.has(PropertyConstants.PROP_COMMAND_CMD)) {
 				logger.info("PROCESS command message");
@@ -118,12 +120,17 @@ public class MessageHandler {
 		try {
 			((IDynamicController) controller).updateModelValue(value);
 		} catch (SicsModelException e) {
+			logger.error("failed to update value of " + path + " " + value);
 		}
 	}
 
 	public void processState(String path, String state) {
 		ISicsController controller = getModel().findController(path);
-		controller.setState(ControllerState.getState(state));
+		try {
+			controller.setState(ControllerState.getState(state));
+		} catch (Exception e) {
+			logger.error("failed to set state for " + path + " " + state);
+		}
 	}
 
 	private ISicsModel getModel() {

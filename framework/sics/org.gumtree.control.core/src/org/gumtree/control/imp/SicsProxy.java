@@ -4,6 +4,8 @@
 package org.gumtree.control.imp;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,8 @@ import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.exception.SicsCommunicationException;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.model.SicsModel;
+
+import com.itextpdf.text.log.Logger;
 
 /**
  * @author nxi
@@ -78,9 +82,8 @@ public class SicsProxy implements ISicsProxy {
 	public boolean reconnect() {
 		if (channel != null && channel.isConnected()) {
 			channel.disconnect();
-		} else if (channel == null) {
-			channel = new SicsChannel(this);
-		}
+		} 
+		channel = new SicsChannel(this);
 		try {
 			channel.connect(serverAddress, publisherAddress);
 		} catch (Exception e) {
@@ -258,6 +261,11 @@ public class SicsProxy implements ISicsProxy {
 				if (msg != null) {
 					int idx = msg.indexOf("<");
 					msg = msg.substring(idx);
+					try {
+			            Files.write(Paths.get("C:\\Gumtree\\docs\\GumtreeXML\\new.xml"), msg.getBytes("UTF-8"));
+			        } catch (IOException e) {
+			            e.printStackTrace();
+			        }
 					sicsModel = new SicsModel(this);
 					sicsModel.loadFromString(msg);
 				}

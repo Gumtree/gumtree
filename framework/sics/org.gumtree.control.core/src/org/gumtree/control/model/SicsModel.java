@@ -47,7 +47,7 @@ public class SicsModel implements ISicsModel {
 	}
 
 	public void loadFromString(String xml) throws IOException {
-		baseModel = ModelUtils.deserialiseSICSModel(xml.getBytes());
+		baseModel = ModelUtils.deserialiseSICSModel(xml.getBytes("UTF-8"));
 		modelXML = xml;
 		getControllerList();
 	}

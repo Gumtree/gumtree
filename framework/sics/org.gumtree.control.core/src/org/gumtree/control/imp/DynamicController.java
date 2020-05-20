@@ -4,11 +4,13 @@ import java.util.List;
 
 import org.gumtree.control.core.IControllerData;
 import org.gumtree.control.core.IDynamicController;
+import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.ControllerData;
+import org.gumtree.control.model.PropertyConstants.ControllerState;
 
 import ch.psi.sics.hipadaba.Component;
 import ch.psi.sics.hipadaba.DataType;
@@ -17,14 +19,47 @@ import ch.psi.sics.hipadaba.Value;
 
 public class DynamicController extends SicsController implements IDynamicController {
 
+	private static final String TARGET_NODE = "target";
+	private static final String SOFTZERO_NODE = "softzero";
 	private IControllerData targetValue;
 	private boolean isBusy;
+	private TargetListener targetListener;
+
 	
+	class TargetListener implements ISicsControllerListener {
+		
+		@Override
+		public void updateValue(Object oldValue, Object newValue) {
+			if (newValue != null) {
+				double value = Double.valueOf(newValue.toString());
+				value = calculateTargetValue(value);
+				setTargetValue(value);
+			}
+		}
+		
+		@Override
+		public void updateTarget(Object oldValue, Object newValue) {
+		}
+		
+		@Override
+		public void updateState(ControllerState oldState, ControllerState newState) {
+		}
+		
+		@Override
+		public void updateEnabled(boolean isEnabled) {
+		}
+	}
+
 	public DynamicController(Component model, ISicsProxy sicsProxy) {
 		super(model, sicsProxy);
 		Value value = model.getValue();
 		if (value != null && value.getValue() != null) {
 			targetValue = new ControllerData(value.getValue(), getModel().getDataType());
+		}
+		ISicsController targetChild = getChild(TARGET_NODE);
+		if (targetChild != null && targetChild instanceof IDynamicController) {
+			targetListener = new TargetListener();
+			targetChild.addControllerListener(targetListener);
 		}
 	}
 
@@ -57,7 +92,9 @@ public class DynamicController extends SicsController implements IDynamicControl
 		Object oldValue = getValue();
 		getModel().getValue().setValue(value);
 		fireValueChangeEvent(oldValue, getValue());
-		
+		if (getChildren().size() == 0) {
+			setTargetValue(value);
+		}
 	}
 
 	@Override
@@ -84,6 +121,22 @@ public class DynamicController extends SicsController implements IDynamicControl
 		} finally {
 			isBusy = false;
 		}
+	}
+	
+	private double calculateTargetValue(double newValue) {
+		ISicsController softzeroController = getChild(SOFTZERO_NODE);
+		if (softzeroController != null && softzeroController instanceof IDynamicController) {
+			try {
+				double softzero = Double.valueOf(String.valueOf(
+						((IDynamicController) softzeroController).getValue()));
+				if (!Double.isNaN(softzero)) {
+					return newValue - softzero;
+				} 
+			} catch (NumberFormatException e) {
+			} catch (SicsModelException e) {
+			}
+		}
+		return newValue;
 	}
 	
 	@Override

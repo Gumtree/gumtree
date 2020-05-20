@@ -118,7 +118,7 @@ public class SicsChannel implements ISicsChannel {
 		SicsCommand sicsCommand = new SicsCommand(cid, command, callback);
 		commandMap.put(cid, sicsCommand);
 		isBusy = true;
-//		logger.info("syncRun: " + command);
+		logger.info("syncRun: " + command);
 		try {
 			return sicsCommand.syncRun();
 		} catch(Exception e) {
@@ -184,11 +184,33 @@ public class SicsChannel implements ISicsChannel {
 
 	@Override
 	public void disconnect() {
-		if (serverAddress != null) {
-			clientSocket.disconnect(serverAddress);
+		if (clientSocket != null) {
+			if (serverAddress != null) {
+				try {
+					clientSocket.disconnect(serverAddress);
+				} catch (Exception e) {
+					logger.error("failed to disconnect client socket, ", e);
+				}
+			}
+			try {
+				clientSocket.close();
+			} catch (Exception e) {
+				logger.error("failed to close client socket, ", e);
+			}
 		}
-		if (publisherAddress != null) {
-			subscriberSocket.close();
+		if (subscriberSocket != null) {
+			if (publisherAddress != null) {
+				try {
+					subscriberSocket.disconnect(publisherAddress);
+				} catch (Exception e) {
+					logger.error("failed to disconnect subscriber socket, ", e);
+				}
+			}
+			try {
+				subscriberSocket.close();
+			} catch (Exception e) {
+				logger.error("failed to close subscriber socket, ", e);
+			}
 		}
         clientThread.interrupt();
         isConnected = false;
