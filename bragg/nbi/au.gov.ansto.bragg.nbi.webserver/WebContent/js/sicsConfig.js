@@ -8,9 +8,11 @@ var _sics;
 var _message;
 var _editorModel;
 var _curModel;
+var _curIndex = -1;
 var _curPath;
 var _title;
 var _editorTitle;
+var _tabs;
 var _propertyTitle
 var _editor;
 var _property;
@@ -93,7 +95,7 @@ var keysOf = function(obj) {
 	return keys;
 };
 
-var updateModel = function(path, newModel){
+var updateModel = function(path, idx, newModel){
 	if (_galil) {
 		console.log(path);
 		var segs = path.split('/');
@@ -128,16 +130,20 @@ var getGalilItem = function(path) {
 		return null;
 	}
 };
- var updateNode = function(key, val) {
-	var subMotor = _editorModel[keysOf(_editorModel)[0]];
+ var updateNode = function($node, key, val) {
+//	var subMotor = _editorModel[keysOf(_editorModel)[0]];
+	var subMotor = _editorModel;
 	var curVal = subMotor[key];
-	if (curVal.toString() != val.toString()){
+	if (curVal.toString() != val.toString()) {
+		$node.addClass('changed');
 		_dirtyFlag = true;
+	} else {
+		$node.removeClass('changed');
 	}
 	subMotor[key] = val;
  };
  
-var loadGalilMotor = function(path) {
+var loadGalilMotor = function(path, idx) {
 	var okToGo = true;
 	if (_curModel != null && _editorModel != null) {
 		if (_dirtyFlag) {
@@ -149,8 +155,10 @@ var loadGalilMotor = function(path) {
 		if (path == null) {
 			_curModel = null;
 			_curPath = null;
+			_curIndex = -1;
 			_title.text('Home');
 			_editor.empty();
+			_tabs.empty();
 			_editorTitle.empty();
 			_propertyTitle.empty();
 			_property.empty();
@@ -158,20 +166,58 @@ var loadGalilMotor = function(path) {
 			_historyBar.reload();
 			return;
 		}
-		_curModel = getGalilItem(path);
-		if (_curModel) {
-			_editorModel = $.extend(true, {}, _curModel);
+		var modelGroup = getGalilItem(path);
+		if (modelGroup) {
+			var motors = modelGroup[keysOf(modelGroup)[0]];
+//			var motors = _editorModel[keysOf(_editorModel)[0]];
+			if (idx) {
+				if (idx >= motors.length) {
+					alert("index out of range");
+					return false;
+				}
+				_curIndex = idx;
+			} else {
+				_curIndex = 0;
+			}
+			_curModel = motors[_curIndex];
+			_tabs.empty();
+			$.each(motors, function(i, motor) {
+				var motorName = motor[KEY_MOTOR_NAME];
+				var $li = $('<li class="nav-item"><a class="nav-link" href="#">' + motorName + '</a></li>');
+				console.log(i);
+				console.log(_curIndex);
+				console.log(i == _curIndex);
+				if (i == _curIndex) {
+					$li.find('a').addClass("active");
+				} else {
+					$li.click(function() {
+						loadGalilMotor(path, i);
+					});					
+				}
+				_tabs.append($li);
+			});
 			_curPath = path;
+			_editorModel = $.extend(true, {}, _curModel);
+			
+			
 	//		_message.html(JSON.stringify(_curModel));
-			var subMotor = _editorModel[keysOf(_editorModel)[0]];
+//			var ulTab = $('<ul class="nav nav-tabs"/>');
+//			$.each(motors, function() {
+//				var motorName = motors[i][KEY_MOTOR_NAME];
+//				var li = $('<li class="nav-item"><a class="nav-link ' + motorName + '" href="#">Active</a></li>');
+//				ulTab.append(li);
+//			});
+			
+			
+			var subMotor = _curModel;
 			var motorName = subMotor[KEY_MOTOR_NAME];
 			var controller = subMotor[KEY_CONTROLLER_NAME];
 			var axis = subMotor[KEY_AXIS_NAME];
-			_title.text(controller + ":" + axis + "(SICS name:" + motorName + ")");
+			_title.text(controller + ":" + axis + " (SICS name:" + motorName + ")");
 			var html = '<table class="table table-striped table-sm"><thead><tr><th width="40%">Key</th><th width="60%">Value</th></tr></thead><tbody>';
-	//		$.each(subMotor, function(key, val) {
-	//			html += '<tr><td>' + key + '</td><td>' + val + "</td></tr>";
-	//		});
+			//		$.each(subMotor, function(key, val) {
+			//			html += '<tr><td>' + key + '</td><td>' + val + "</td></tr>";
+			//		});
 			$.each(_editable_tier_1, function(i, key) {
 				if (subMotor.hasOwnProperty(key)){
 					html += '<tr><td>' + key + '</td><td class="editable"><input type="text" key="' + key + '" class="form-control" value="' + subMotor[key] + '"></td></tr>';
@@ -190,8 +236,7 @@ var loadGalilMotor = function(path) {
 				$(this).parent().parent().addClass("active");
 			}).blur(function() {
 				$(this).parent().parent().removeClass("active");
-				updateNode($(this).attr('key'), $(this).val());
-				$(this).addClass('changed');
+				updateNode($(this), $(this).attr('key'), $(this).val());
 			}).keypress(function( event ) {
 				if ( event.which == 13 ) {
 					$(this).blur();
@@ -200,14 +245,14 @@ var loadGalilMotor = function(path) {
 			$.each(node, function(idx, n) {
 				var iv = new IntValidator($(this));
 			});
-	
-	
+
+
 			_propertyTitle.text('Other properties');
 			html = '<table class="table table-striped table-sm"><thead><tr><th width="40%">Key</th><th width="60%">Value</th></tr></thead><tbody>';
 			$.each(subMotor, function(key, val) {
 				if (typeof val === 'object') {
 					html += '<tr><td>' + key + '</td><td>' + 
-							'<table class="table table-striped table-sm"><thead><tr><th width="40%">Key</th><th width="60%">Value</th></tr></thead><tbody>';
+					'<table class="table table-striped table-sm"><thead><tr><th width="40%">Key</th><th width="60%">Value</th></tr></thead><tbody>';
 					$.each(val, function(subKey, subVal){
 						html += '<tr><td>' + subKey + '</td><td>' + subVal + "</td></tr>";
 					});
@@ -265,10 +310,13 @@ var getModel = function() {
 		_motors = {}
 		$.each(_galil, function(key, mc) {
 			$.each(mc, function(id, encoder) {
-				var path = "/" + key + "/" + id;
-				var motor = encoder[keysOf(encoder)[0]];
-				var name = motor[KEY_MOTOR_NAME];
-				_motors[name] = path;
+				var motors = encoder[keysOf(encoder)[0]];
+				$.each(motors, function(idx, motor){
+					var path = "/" + key + "/" + id;
+//					var motor = encoder[keysOf(encoder)[0]];
+					var name = motor[KEY_MOTOR_NAME];
+					_motors[name] = [path, idx];
+				});
 			});
 		});
 //		_sics = _model[SICS_MOTORS_NODE];
@@ -299,7 +347,7 @@ var saveModel = function() {
 	url += "&" + Date.now();
 	$('#id_modal_saveDialog').modal('hide');
 	var text = JSON.stringify(_editorModel);
-	$.post(url,  {path:_curPath, model:text}, function(data) {
+	$.post(url,  {path:_curPath, idx:_curIndex, model:text}, function(data) {
 //		data = $.parseJSON(data);
 		try {
 			if (data["status"] == "OK") {
@@ -327,7 +375,7 @@ var goHome = function() {
 var resetEditor = function($bt) {
 	if (_curPath) {
 		_dirtyFlag = false;
-		loadGalilMotor(_curPath);
+		loadGalilMotor(_curPath, _curIndex);
 		showMsg('Reset successfully');
 	} else {
 		showMsg('Model not found!', 'danger');
@@ -354,6 +402,7 @@ var SearchWidget = function($t) {
 	var show = function($li){
 		var name = $li.attr('name');
 		var path = $li.attr('path');
+		var idx = $li.attr('idx');
 		var mc = path.split('/')[1];
 		var axis = path.split('/')[2];
 		$m.hide();
@@ -361,7 +410,7 @@ var SearchWidget = function($t) {
 		$('#ul_mc_' + mc).removeClass('class_ul_hide');
 		$('.class_ul_folder > li').removeClass('active');
 		$('#li_' + mc + '_' + axis).addClass('active');
-		loadGalilMotor(path);
+		loadGalilMotor(path, idx);
 		$t.blur();
 	}
 	
@@ -372,10 +421,12 @@ var SearchWidget = function($t) {
 
 		var html = '';
 //		var found = {};
-		$.each(_motors, function(name, path) {
+		$.each(_motors, function(name, pair) {
 			if (name.indexOf($t.val()) >= 0) {
 //				found[name] = path;
-				html += '<li class="messageitem" href="#" name="' + name + '" path="' + path + '"><span class="widget_text">' + 
+				var path = pair[0];
+				var idx = pair[1];
+				html += '<li class="messageitem" href="#" name="' + name + '" path="' + path + '" idx="' + idx + '"><span class="widget_text">' + 
 						name + ' => ' + path + '</span></li>';
 			}
 		});
@@ -496,7 +547,7 @@ var CommitItem = function(commit) {
 			_dirtyFlag = false;
 			if (_curPath != null) {
 				try{
-					updateModel(_curPath, data);
+					updateModel(_curPath, _curIndex, data);
 				} catch (e) {
 					alert('Axis ' + _curPath + " doesn't exist.");
 					return;
@@ -507,7 +558,7 @@ var CommitItem = function(commit) {
 				$('#ul_mc_' + mc).removeClass('class_ul_hide');
 				$('.class_ul_folder > li').removeClass('active');
 				$('#li_' + mc + '_' + axis).addClass('active');
-				loadGalilMotor(_curPath);
+				loadGalilMotor(_curPath, _curIndex);
 			} else {
 				_model = data;
 				_versionId = name;
@@ -516,20 +567,29 @@ var CommitItem = function(commit) {
 				_motors = {}
 				$.each(_galil, function(key, mc) {
 					$.each(mc, function(id, encoder) {
-						var path = "/" + key + "/" + id;
-						var motor = encoder[keysOf(encoder)[0]];
-						var name = motor[KEY_MOTOR_NAME];
-						_motors[name] = path;
+						var motors = encoder[keysOf(encoder)[0]];
+						$.each(motors, function(idx, motor){
+							var path = "/" + key + "/" + id;
+//							var motor = encoder[keysOf(encoder)[0]];
+							var name = motor[KEY_MOTOR_NAME];
+							_motors[name] = [path, idx];
+						});
+//						var path = "/" + key + "/" + id;
+//						var motor = encoder[keysOf(encoder)[0]];
+//						var name = motor[KEY_MOTOR_NAME];
+//						_motors[name] = path;
 					});
 				});
 	//			_sics = _model[SICS_MOTORS_NODE];
 				$("#id_div_sidebar").empty();
 				_curModel = null;
+				_curIndex = -1;
 	//			_curPath = null;
 				_editorModel = null;
 				showModelInSidebar();
 				showMsg('Successully loaded version: ' + message);
 				_editorTitle.empty();
+				_tabs.empty();
 				_editor.empty();
 				_propertyTitle.empty();
 				_property.empty();
@@ -625,6 +685,7 @@ $(document).ready(function() {
 	_message = $('#id_div_info');
 	_title = $('#id_device_title');
 	_editorTitle = $('#id_editor_subtitle');
+	_tabs = $('#id_ul_tabs');
 	_editor = $('#id_div_editor_table');
 	_propertyTitle = $('#id_property_subtitle');
 	_property = $('#id_div_property_table');

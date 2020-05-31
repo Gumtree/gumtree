@@ -7,7 +7,7 @@ var INST_LIST = [
 //	"kowari",
 //	"pelican",
 //	"platypus",
-//	"quokka",
+	"quokka",
 	"spatz",
 //	"taipan",
 //	"wombat"

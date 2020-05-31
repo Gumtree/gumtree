@@ -193,6 +193,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 					response.setStatus(Status.SUCCESS_OK);
 				} catch (Exception e) {
 					e.printStackTrace();
+					logger.error("failed to load model", e);
 //					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
 					return;
@@ -228,6 +229,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 					response.setStatus(Status.SUCCESS_OK);
 				} catch (Exception e) {
 					e.printStackTrace();
+					logger.error("failed to load history", e);
 //					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
 					return;
@@ -244,6 +246,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 					response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
 					response.setStatus(Status.SUCCESS_OK);
 				} catch (Exception e) {
+					logger.error("failed to load yaml.", e);
 					e.printStackTrace();
 //					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
@@ -266,6 +269,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 					response.setStatus(Status.SUCCESS_OK);
 				} catch (Exception e) {
 					e.printStackTrace();
+					logger.error("failed to appy change", e);
 					response.setEntity(makeErrorJSON(e.getMessage()), MediaType.APPLICATION_JSON);
 					return;
 				}
@@ -295,7 +299,8 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 					response.setStatus(Status.SUCCESS_OK);
 				} catch (Exception e) {
 					e.printStackTrace();
-					response.setEntity(makeErrorJSON(e.getMessage()), MediaType.APPLICATION_JSON);
+					logger.error("failed to do save", e);
+					response.setEntity(makeErrorJSON("failed to save"), MediaType.APPLICATION_JSON);
 //					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
 //					response.setStatus(Status.CLIENT_ERROR_EXPECTATION_FAILED, e);
 					return;
@@ -330,9 +335,10 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			throw new JSONException("model can not be empty");
 		}
 		File file = new File(getYamlFilePath(instrumentId));
-		String[] pair = text.split("&", 2);
+		String[] pair = text.split("&", 3);
 		String path = pair[0].substring(pair[0].indexOf("=") + 1).trim();
-		String modelString = pair[1].substring(pair[1].indexOf("=") + 1).trim();
+		String idx = pair[1].substring(pair[1].indexOf("=") + 1).trim();
+		String modelString = pair[2].substring(pair[2].indexOf("=") + 1).trim();
 		JSONObject json = new JSONObject(modelString);
 //		System.out.println(json.get("path"));
 //		System.out.println(json.get("model"));
@@ -354,7 +360,10 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 				device = (Map<String, Object>) device.get(seg);
 			}
 		}
-		updateMode(json, device);
+		Object item = device.get("sics_motor");
+		int index = Integer.valueOf(idx);
+		item = ((ArrayList<Object>) item).get(index);
+		updateMode(json, (Map<String, Object>) item);
 		FileWriter writer = new FileWriter(file);
 		try {
 			yaml.dump(model, writer);
@@ -513,6 +522,9 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			logger.debug(passphrase);
 			logger.debug(getHostName(instrumentId));
 			logger.debug(user);
+			logger.debug(rfile);
+			logger.debug(lfile);
+			
 			JSch jsch = new JSch();
 			jsch.addIdentity(keyPath, passphrase);
 //			System.err.println(EncryptionUtils.encryptBase64(passphrase));
@@ -624,7 +636,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			}
 		} catch(Exception e){
 			e.printStackTrace();
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			try{
 				if (fos!=null) {
 					fos.close();
@@ -718,7 +730,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			
 		} catch(Exception e){
 			e.printStackTrace();
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 			try{
 				if (fis!=null) {
 					fis.close();

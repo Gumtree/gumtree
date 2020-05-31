@@ -60,6 +60,22 @@
             base-name="/WebContent/manuals.html">
       </resource>
       <resource
+            alias="/"
+            base-name="/WebContent/mobile.html">
+      </resource>
+      <resource
+            alias="/status"
+            base-name="/WebContent/mobile.html">
+      </resource>
+      <resource
+            alias="/bilby.html"
+            base-name="/WebContent/mobile.html">
+      </resource>
+      <resource
+            alias="/status/bilby.html"
+            base-name="/WebContent/mobile.html">
+      </resource>
+      <resource
             alias="/status/mobile.html"
             base-name="/WebContent/mobile.html">
       </resource>

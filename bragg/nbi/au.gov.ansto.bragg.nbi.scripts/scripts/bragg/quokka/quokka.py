@@ -1,11 +1,10 @@
 from gumpy.commons import sics
 from gumpy.commons.logger import log, n_logger
 
-from org.gumtree.gumnix.sics.control import ServerStatus
-from org.gumtree.gumnix.sics.io import SicsExecutionException
+from org.gumtree.control.core import ServerStatus
+from org.gumtree.control.exception import SicsInterruptException, SicsExecutionException
 
 # from au.gov.ansto.bragg.quokka.msw.internal import QuokkaProperties # see getReportLocation()
-from au.gov.ansto.bragg.quokka.sics import DetectorHighVoltageController
 from au.gov.ansto.bragg.quokka.sics import BeamStopController
 from org.gumtree.gumnix.sics.control.controllers import CommandStatus
 
@@ -200,29 +199,10 @@ def sleep(secs, dt=0.1):
 
     sics.handleInterrupt()
 
-def waitUntilSicsIs(status, dt=0.2):
-    controller = sics.getSicsController()
-    timeout = 5
-    while True:
-        sics.handleInterrupt()
-
-        count = 0
-        while not controller.getServerStatus().equals(status) and count < timeout:
-            time.sleep(dt)
-            count += dt
-        
-        if controller.getServerStatus().equals(status):
-            break
-        else:
-            controller.refreshServerStatus()
-
-    sics.handleInterrupt()
-
 def isInterruptException(e):
-    return isinstance(e, SicsExecutionException) and ('Interrupted' in str(e.getMessage()))
+    return isinstance(e, SicsInterruptException)
 
 def hasTripped():
-    ''' disable this for the new detector commissioning '''
 #    slog('trip recovery has been disabled')
 # reenable the tripping handler
 #    return False
@@ -639,12 +619,12 @@ def driveToLoadPosition():
         return
 
     slog('Driving sample holder to load position ...')
-    samx = sics.getSicsController().findDeviceController('samx')
+    samx = sics.getDeviceController('samx')
 
-    tolerance     = samx.getChildController('/precision').getValue().getFloatData()
-    soft_zero     = samx.getChildController('/softzero').getValue().getFloatData()
-    soft_upperlim = samx.getChildController('/softupperlim').getValue().getFloatData()
-    hard_upperlim = samx.getChildController('/hardupperlim').getValue().getFloatData()
+    tolerance     = samx.getChild('/precision').getValue()
+    soft_zero     = samx.getChildController('/softzero').getValue()
+    soft_upperlim = samx.getChildController('/softupperlim').getValue()
+    hard_upperlim = samx.getChildController('/hardupperlim').getValue()
 
     if soft_upperlim > hard_upperlim - soft_zero:
         soft_upperlim = hard_upperlim - soft_zero
@@ -916,12 +896,7 @@ def determineDetRates(samples, timeout=60.0):
 
 def checkedDrive(motor, value, useController=False):
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
-
-    if useController:
-        controller = sics.getSicsController().findComponentController(motor)
-        controller.drive(value)
-    else:
-        sics.drive(motor, value)
+    sics.drive(motor, value)
 
 def loggedDrive(name, motor, value, unit, getter, useController=False):
     slog('Driving %s to %s %s ...' % (name, value, unit))
@@ -943,66 +918,19 @@ def getData(getter, throw, default='???'):
 def getIntData(path, throw=True, useController=False, useRaw=False):
 
     def getter():
-        if useController:
-            controller = sics.getSicsController().findComponentController(path)
-            return controller.getValue().getIntData()
-        elif useRaw:
-            return int(sics.get_raw_value(path))
-        else:
-            return sics.getValue(path).getIntData()
+        return int(sics.getValue(path))
 
     return getData(getter, throw)
 
 def getFloatData(path, throw=True, useController=False, useRaw=False, refresh = False):
-
-    def getter():
-        if useController:
-            controller = sics.getSicsController().findComponentController(path)
-            if refresh:
-                controller.getValue(True)
-            return controller.getValue().getFloatData()
-        elif useRaw:
-            return float(sics.get_raw_value(path))
-        else:
-            return sics.getValue(path, refresh).getFloatData()
-
-    return getData(getter, throw)
+    return float(sics.getValue(path))
 
 def getStringData(path, throw=True, useController=False, useRaw=False):
-
-    def getter():
-        if useController:
-            controller = sics.getSicsController().findComponentController(path)
-            return controller.getValue().getStringData()
-        elif useRaw:
-            return str(sics.get_raw_value(path))
-        else:
-            return sics.getValue(path).getStringData()
-
-    return getData(getter, throw)
+    return str(sics.getValue(path))
 
 def getDataFilename(throw=True):
+    return sics.getFilename()
 
-    def getter(refresh):
-        return sics.getValue('/experiment/file_name', refresh).getStringData()
-
-    def extractQkk(path):
-        if len(path) > 17:
-            return path[-17:]  # only keep the name of the file e.g. QKK0000000.nx.hdf
-        else:
-            return path
-
-#    target = datetime.now() + timedelta(seconds=5)
-#    while target > datetime.now():
-#        name = getData(partial(getter, refresh=True), throw=False, default=None)
-#        if name is not None:
-#            return extractQkk(name)
-#        else:
-#            sleep(0.5)
-    fn = sics.getFilename().getStringData()
-
-#     return extractQkk(getData(partial(getter, refresh=False), throw=True))
-    return extractQkk(fn)
 
 def getMaxBinRate(throw=True, refresh = False):
     return getFloatData('/instrument/detector/max_binrate', throw, refresh = refresh) # pixel count rate
@@ -1021,19 +949,7 @@ def driveAtt(value):
 
 def driveToSafeAtt():
     safe_att = max(ATT_VALUES)
-
-    counter = 0
-    while getAtt() != safe_att:
-        try:
-            counter += 1
-            driveAtt(safe_att)
-
-        except (Exception, SicsExecutionException) as e:
-            slog('error: %s' % str(e), f_err=True)
-            if isInterruptException(e) or (counter >= 5):
-                raise
-        except:
-            pass
+    driveAtt(safe_att)
 
 def getBsPosition(id):
     return bsList[id].getPosition().name()
@@ -1062,8 +978,7 @@ def driveBs(ids, action):
 
 def selBsHelper(beamstop, bx, bz, controller):
     # get command controller
-    sicsController = sics.getSicsController()
-    commandController = sicsController.findComponentController(controller)
+    commandController = sics.getDeviceController(controller)
 
     # configuring command properties
     if bx is not None:
@@ -1073,30 +988,8 @@ def selBsHelper(beamstop, bx, bz, controller):
 
     sics.hset(commandController, '/bs', beamstop)
 
-    count = 0
-    while getIntData(controller + '/bs') != beamstop:
-        time.sleep(0.1)
-        count += 1
-        if count > 100:
-            raise Exception('Time out on receiving feedback on beam stop selection')
-
-    count = 0
-    while True:
-        try:
-            count += 1
-            slog('run beamstop selecting command ...')
-            commandController.syncExecute()
-            break
-
-        except (Exception, SicsExecutionException) as e:
-            if isInterruptException(e) or (count >= 20):
-                raise
-
-            slog('Retry selecting beam stop %s' % beamstop)
-            time.sleep(1)
-            waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
-        except:
-            pass
+    slog('run beamstop selecting command ...')
+    commandController.run(None)
 
     slog('beam stop is %s' % beamstop)
 
@@ -1166,36 +1059,12 @@ def getFlipper(throw=True):
 
 def driveFlipper(value):
     slog('Driving flipper to %s ...' % value)
-
-    # make sure that value is int
+    sics.handleInterrupt()
     value = int(value)
-
-    counter = 0
-    while True:
-        try:
-            counter += 1
-
-            waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
-            sics.handleInterrupt()
-
-            sics.set('/instrument/flipper/set_flip_on', value)
-
-            waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
-            sics.handleInterrupt()
-
-            if getFlipper() != value:
-                raise Exception('unable to set Flipper')
-
-            break
-
-        except (Exception, SicsExecutionException) as e:
-            if isInterruptException(e) or (counter >= 20):
-                raise
-
-            slog('Retry setting Flipper')
-            time.sleep(1)
-        except:
-            pass
+    waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
+    sics.set('/instrument/flipper/set_flip_on', value)
+    time.sleep(1)
+    waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
 
     slog('Flipper is set to %s' % getFlipper())
 
@@ -1216,41 +1085,14 @@ def driveGuide(value):
 
     slog('Moving guide to ' + value)
 
-    sicsController = sics.getSicsController()
-    controller = sicsController.findComponentController('/commands/optics/guide')
+    
+    controller = sics.getDeviceController('/commands/optics/guide')
 
+    waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
     # setting of configuration and starting a command are committed to SICS via different communication channels
     # in order to make those in sync, we need to wait for the configuration to settle
-    time.sleep(0.5)
-
-    counter = 0
-    while True:
-        try:
-            counter += 1
-
-            waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
-            sics.handleInterrupt()
-
-            timeout = datetime.now() + timedelta(minutes=5)
-            controller.syncExecute()
-
-            while (getGuideConfig() != value) and (datetime.now() < timeout):
-                sleep(0.5)
-
-            if getGuideConfig() != value:
-                raise Exception('target not reached')
-            break
-
-        except (Exception, SicsExecutionException) as e:
-            if isInterruptException(e) or (counter >= 3):
-                raise
-
-            slog(str(e), f_err=True)
-            slog('Retry moving guide')
-            time.sleep(1)
-        except:
-            pass
-
+    controller.run(None)
+    
     slog('Guide is moved to ' + getGuideConfig())
 
 def getJulabo(throw=True):
@@ -1396,15 +1238,13 @@ def syncScan(controllerPath):
         detector_rate_monitor_scan(controllerPath)
     else:
         # synchronously run scan
-        sicsController = sics.getSicsController()
-        scanController = sicsController.findComponentController(controllerPath)
-        scanController.syncExecute()
+        scanController = sics.getDeviceController(controllerPath)
+        scanController.run(None)
 
 def detector_rate_monitor_scan(controllerPath, redo = 0):
     sics.execute('title NORMAL_SCAN', 'status')
     slog('scan with detector map rate monitoring')
-    sicsController = sics.getSicsController()
-    scanController = sicsController.findComponentController(controllerPath)
+    scanController = sics.getDeviceController(controllerPath)
     statusData = scanController.getStatusController().getValue().getStringData()
     while CommandStatus.valueOf(statusData) != CommandStatus.IDLE :
         statusData = scanController.getStatusController().getValue().getStringData()
