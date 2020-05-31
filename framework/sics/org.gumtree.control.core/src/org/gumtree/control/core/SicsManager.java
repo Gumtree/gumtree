@@ -5,6 +5,11 @@ import org.gumtree.control.imp.SicsProxy;
 
 public class SicsManager {
 
+	private static final String PROP_SERVER_NAME = "gumtree.control.serverHost";
+	private static final String PROP_AUTO_CONNECT = "gumtree.control.autoConnect";
+	private static final String PROP_SUB_PORT = "gumtree.control.subPort";
+	private static final String PROP_DEALER_PORT = "gumtree.control.dealerPort";
+	
 	private static ISicsProxy sicsProxy;
 	
 	private static ISicsProxy validatorProxy;
@@ -52,4 +57,22 @@ public class SicsManager {
 	public static IBatchControl getBatchControl() {
 		return getSicsProxy().getBatchControl();
 	}
+	
+	public static void autoStartProxy() throws Exception {
+		boolean autoStart = false;
+		try {
+			autoStart = Boolean.valueOf(System.getProperty(PROP_AUTO_CONNECT));
+		} catch (Exception e) {
+		}
+		if (autoStart) {
+			String host = System.getProperty(PROP_SERVER_NAME);
+			if (host != null) {
+				String subAddress = host + ":" + System.getProperty(PROP_SUB_PORT);
+				String dealerAddress = host + ":" + System.getProperty(PROP_DEALER_PORT);
+				SicsManager.getSicsProxy(dealerAddress, subAddress);
+			}
+		}
+	}
+	
+
 }
