@@ -1,6 +1,11 @@
 package au.gov.ansto.bragg.nbi.ui.internal;
 
+import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.gumtree.control.core.SicsManager;
+import org.gumtree.gumnix.sics.core.SicsCore;
+import org.gumtree.gumnix.sics.io.ISicsProxyListener;
 import org.gumtree.ui.util.resource.SharedImage;
 import org.osgi.framework.BundleContext;
 
@@ -28,6 +33,43 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		SicsCore.getDefaultProxy().addProxyListener(new ISicsProxyListener() {
+			
+			@Override
+			public void proxyDisconnected() {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void proxyConnectionReqested() {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void proxyConnected() {
+				SafeRunner.run(new SafeRunnable() {
+					
+					@Override
+					public void run() throws Exception {
+						SicsManager.autoStartProxy();
+					}
+				});
+			}
+			
+			@Override
+			public void messageSent(String message, String channelId) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void messageReceived(String message, String channelId) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 	}
 
 	/*
