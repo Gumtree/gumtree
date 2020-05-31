@@ -11,6 +11,12 @@ REMOTE_SERVER_ADDRESS = "tcp://137.157.204.8:5555"
 REMOTE_PUBLISHER_ADDRESS = "tcp://137.157.204.8:5566"
 REMOTE_SERVER_ADDRESS = "tcp://ics3-build.nbi.ansto.gov.au:5555"
 REMOTE_PUBLISHER_ADDRESS = "tcp://ics3-build.nbi.ansto.gov.au:5566"
+REMOTE_SERVER_ADDRESS = "tcp://ics1-pelican-test.nbi.ansto.gov.au:5555"
+REMOTE_PUBLISHER_ADDRESS = "tcp://ics1-pelican-test.nbi.ansto.gov.au:5566"
+REMOTE_SERVER_ADDRESS = "tcp://ics1-wombat-test.nbi.ansto.gov.au:5555"
+REMOTE_PUBLISHER_ADDRESS = "tcp://ics1-wombat-test.nbi.ansto.gov.au:5566"
+REMOTE_SERVER_ADDRESS = "tcp://ics1-quokka-test.nbi.ansto.gov.au:5555"
+REMOTE_PUBLISHER_ADDRESS = "tcp://ics1-quokka-test.nbi.ansto.gov.au:5566"
 LOCAL_SERVER_ADDRESS = "tcp://localhost:5555"
 LOCAL_PUBLISHER_ADDRESS = "tcp://localhost:5566"
 VALIDATOR_SERVER_ADDRESS = "tcp://localhost:5577";
@@ -22,10 +28,10 @@ for i in xrange(3):
     s1.drive(i)
 """
 
-if USE_LOCAL_SERVER :
-    SicsManager.getSicsProxy(LOCAL_SERVER_ADDRESS, LOCAL_PUBLISHER_ADDRESS)
-else:
-    SicsManager.getSicsProxy(REMOTE_SERVER_ADDRESS, REMOTE_PUBLISHER_ADDRESS)
+# if USE_LOCAL_SERVER :
+#     SicsManager.getSicsProxy(LOCAL_SERVER_ADDRESS, LOCAL_PUBLISHER_ADDRESS)
+# else:
+#     SicsManager.getSicsProxy(REMOTE_SERVER_ADDRESS, REMOTE_PUBLISHER_ADDRESS)
 # SicsManager.getValidatorProxy(VALIDATOR_SERVER_ADDRESS, VALIDATOR_PUBLISHER_ADDRESS)
             
 from gumpy.control import control

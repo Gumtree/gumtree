@@ -173,7 +173,7 @@ def bmonscan(scan_variable, scan_start, scan_increment, NP, mode, preset):
     p['preset'] = preset
     __run__(controller, p)
 
-def runhmscan(scan_variable, scan_start, scan_increment, NP, mode, preset):
+def hmscan(scan_variable, scan_start, scan_increment, NP, mode, preset):
     clear_interrupt()
     controller = get_controller('/commands/scan/hmscan')
     p = dict()
@@ -257,11 +257,18 @@ def handle_interrupt():
 #     p['preset'] = preset
 #     __run__(controller, p)
     
-def histmem(mode, preset):
+def histmem(cmd, mode, preset):
     clear_interrupt()
-    execute('histmem mode {}'.format(mode))
-    execute('histmem preset {}'.format(preset))
-    execute('histmem start block')
+#     execute('histmem mode {}'.format(mode))
+#     execute('histmem preset {}'.format(preset))
+#     execute('histmem start block')
+    controller = get_controller('/commands/scan/runscan')
+    p = dict()
+    p['cmd'] = cmd
+    p['mode'] = mode
+    p['preset'] = preset
+    __run__(controller, p)
+    
     
 class SicsError(Exception):
     def __init__(self, value):
