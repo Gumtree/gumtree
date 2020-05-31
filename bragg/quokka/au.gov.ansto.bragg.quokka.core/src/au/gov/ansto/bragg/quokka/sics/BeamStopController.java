@@ -1,13 +1,14 @@
 package au.gov.ansto.bragg.quokka.sics;
 
-import org.gumtree.gumnix.sics.control.ControllerStatus;
-import org.gumtree.gumnix.sics.control.IStateMonitorListener;
-import org.gumtree.gumnix.sics.core.SicsCore;
-import org.gumtree.gumnix.sics.io.ISicsReplyData;
-import org.gumtree.gumnix.sics.io.SicsCallbackAdapter;
-import org.gumtree.gumnix.sics.io.SicsExecutionException;
-import org.gumtree.gumnix.sics.io.SicsIOException;
-import org.gumtree.gumnix.sics.io.SicsProxyListenerAdapter;
+import org.gumtree.control.core.ISicsReplyData;
+import org.gumtree.control.core.ServerStatus;
+import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.events.ISicsCallback;
+import org.gumtree.control.events.ISicsControllerListener;
+import org.gumtree.control.events.ISicsProxyListener;
+import org.gumtree.control.exception.SicsException;
+import org.gumtree.control.exception.SicsExecutionException;
+import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.LoopRunner;
 import org.slf4j.Logger;
@@ -33,16 +34,36 @@ public class BeamStopController {
 	// Used by getPosition method only
 	private volatile BeamStopPosition position = BeamStopPosition.unknown;
 	
-	private volatile ControllerStatus status;
+	private volatile ControllerState state;
 	
 	private Object statusLock = new Object();
 	
 	public BeamStopController(int id) {
 		deviceId = DEVICE_BS + id;
-		setStatus(ControllerStatus.OK);
-		if (!SicsCore.getDefaultProxy().isConnected()) {
-			SicsCore.getDefaultProxy().addProxyListener(new SicsProxyListenerAdapter() {
-				public void proxyConnected() {
+		setState(ControllerState.IDLE);
+		if (!SicsManager.getSicsProxy().isConnected()) {
+			SicsManager.getSicsProxy().addProxyListener(new ISicsProxyListener() {
+				
+				@Override
+				public void setStatus(ServerStatus newStatus) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void interrupt(boolean isInterrupted) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void disconnect() {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void connect() {
 					setupStateMonListener();
 				}
 			});
@@ -51,35 +72,35 @@ public class BeamStopController {
 		}
 	}
 
-	public ControllerStatus getStatus() {
-		return status; 
+	public ControllerState getState() {
+		return state; 
 	}
 
-	private void setStatus(ControllerStatus status) {
+	private void setState(ControllerState state) {
 		synchronized (statusLock) {
 			dirtyFlag = true;
-			this.status = status;
-			logger.info(deviceId + " status: " + status.name());
+			this.state = state;
+			logger.info(deviceId + " state: " + state.name());
 		}
 	}
 
-	public void up() throws SicsIOException, SicsExecutionException {
+	public void up() throws SicsException {
 		run("up");
 	}
 
-	public void down() throws SicsIOException, SicsExecutionException {
+	public void down() throws SicsException {
 		run("down");
 	}
 
-	private void run(String command) throws SicsIOException, SicsExecutionException {
-		SicsCore.getSicsController().clearInterrupt();
+	private void run(String command) throws SicsException {
+		SicsManager.getSicsProxy().clearInterruptFlag();
 		
 		// Return straight away under simulation mode
 		if (QuokkaCoreProperties.SICS_SIMULATION_MODE.getBoolean()) {
 			return;
 		}
 
-		if(getStatus() == ControllerStatus.RUNNING) {
+		if(getState() == ControllerState.BUSY) {
 			throw new SicsExecutionException(deviceId + " is already running.");
 		}
 		
@@ -87,7 +108,7 @@ public class BeamStopController {
 		
 		// Drive it
 		System.out.println("Sending action " + deviceId + " " + command);
-		SicsCore.getDefaultProxy().send("action " + deviceId + " " + command, null);
+		SicsManager.getSicsProxy().asyncRun("action " + deviceId + " " + command, null);
 
 		int count = 0;
 		// Ensure the device does go to run
@@ -100,41 +121,91 @@ public class BeamStopController {
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
-				throw new SicsExecutionException("Interrupted Exception", e);
+				throw new SicsExecutionException("Interrupted Exception");
 			}
 		}
 		
 		// Wait while it is running
-		while(getStatus() == ControllerStatus.RUNNING) {
+		while(getState() == ControllerState.BUSY) {
 			try {
 				Thread.sleep(TIME_INTERVAL);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
-				throw new SicsExecutionException("Interrupted Exception", e);
+				throw new SicsExecutionException("Interrupted Exception");
 			}
 		}
 		// Check interrupt
-		if (SicsCore.getSicsController().isInterrupted()) {
-			SicsCore.getSicsController().clearInterrupt();
+		if (SicsManager.getSicsProxy().isInterrupted()) {
+			SicsManager.getSicsProxy().clearInterruptFlag();
 			throw new SicsExecutionException("Interrupted");
 		}
 	}
 
 	// NOTE: This may not be thread safe!!!
-	public BeamStopPosition getPosition() throws SicsIOException {
+	public BeamStopPosition getPosition() throws SicsException {
 		// Return straight away under simulation mode
 		if (QuokkaCoreProperties.SICS_SIMULATION_MODE.getBoolean()) {
 			return BeamStopPosition.unknown;
 		}
 		synchronized (position) {
 			position = BeamStopPosition.unknown;
-			SicsCore.getDefaultProxy().send(deviceId + " status", new SicsCallbackAdapter() {
+			SicsManager.getSicsProxy().asyncRun(deviceId + " status", new ISicsCallback() {
+				
+				@Override
+				public void setError(boolean error) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void setCallbackCompleted(boolean completed) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void receiveWarning(ISicsReplyData data) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
 				public void receiveReply(ISicsReplyData data) {
 					String[] result = data.getString().split("=");
 					if (result.length == 2) {
 						position = BeamStopPosition.valueOf(result[1].trim());
 					}
 					setCallbackCompleted(true);
+				}
+				
+				@Override
+				public void receiveRawData(Object data) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void receiveFinish(ISicsReplyData data) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void receiveError(ISicsReplyData data) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public boolean isCallbackCompleted() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+				
+				@Override
+				public boolean hasError() {
+					// TODO Auto-generated method stub
+					return false;
 				}
 			});
 			// 5 sec time out
@@ -148,16 +219,31 @@ public class BeamStopController {
 	}
 	
 	private void setupStateMonListener() {
-		IStateMonitorListener stateMonListener = new IStateMonitorListener() {
-			public void stateChanged(SicsMonitorState state, String infoMessage) {
-				if (state.isRunning()) {
-					setStatus(ControllerStatus.RUNNING);
-				} else {
-					setStatus(ControllerStatus.OK);
-				}
+		SicsManager.getSicsModel().findControllerById(deviceId).addControllerListener(new ISicsControllerListener() {
+			
+			@Override
+			public void updateValue(Object oldValue, Object newValue) {
+				// TODO Auto-generated method stub
+				
 			}
-		};
-		SicsCore.getSicsController().addStateMonitor(deviceId, stateMonListener);
+			
+			@Override
+			public void updateTarget(Object oldValue, Object newValue) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void updateState(ControllerState oldState, ControllerState newState) {
+				setState(newState);
+			}
+			
+			@Override
+			public void updateEnabled(boolean isEnabled) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 	}
 
 }

@@ -23,6 +23,9 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.gumtree.control.core.ServerStatus;
+import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.msw.elements.IDependencyProperty;
 import org.gumtree.msw.schedule.execution.Summary;
 import org.gumtree.msw.ui.IModelBinding;
@@ -54,9 +57,6 @@ import au.gov.ansto.bragg.quokka.msw.schedule.ICustomInstrumentActionListener;
 import au.gov.ansto.bragg.quokka.msw.util.CsvTable;
 import au.gov.ansto.bragg.quokka.msw.util.LockStateManager;
 
-import org.gumtree.gumnix.sics.core.SicsCore;
-import org.gumtree.gumnix.sics.io.ISicsProxyListener;
-import org.gumtree.gumnix.sics.io.SicsProxyListenerAdapter;
 
 public class SamplesComposite extends Composite {
 	// finals
@@ -331,19 +331,38 @@ public class SamplesComposite extends Composite {
 		tableModel.updateSource(sampleList);
 		
 		// sics listener
-		final ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
+		final ISicsProxyListener proxyListener = new ISicsProxyListener() {
+
 			@Override
-			public void proxyConnected() {
-				requestSamplePositions.set(true);
+			public void connect() {
+				requestSamplePositions.set(true);				
+			}
+
+			@Override
+			public void disconnect() {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void interrupt(boolean isInterrupted) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void setStatus(ServerStatus newStatus) {
+				// TODO Auto-generated method stub
+				
 			}
 		};
 
 		try {
-			SicsCore.getSicsManager().proxy().addProxyListener(proxyListener);
+			SicsManager.getSicsProxy().addProxyListener(proxyListener);
 			modelBindings.add(new IModelBinding() {
 				@Override
 				public void dispose() {
-					SicsCore.getSicsManager().proxy().removeProxyListener(proxyListener);
+					SicsManager.getSicsProxy().removeProxyListener(proxyListener);
 				}
 			});
 		}

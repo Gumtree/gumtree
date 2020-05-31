@@ -11,11 +11,10 @@
 
 package au.gov.ansto.bragg.quokka.experiment.util;
 
-import org.gumtree.gumnix.sics.control.controllers.ComponentData;
-import org.gumtree.gumnix.sics.control.controllers.ComponentDataFormatException;
-import org.gumtree.gumnix.sics.control.controllers.IDynamicController;
-import org.gumtree.gumnix.sics.core.SicsCore;
-import org.gumtree.gumnix.sics.io.SicsIOException;
+import org.gumtree.control.core.IDynamicController;
+import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.exception.SicsException;
+import org.gumtree.control.model.ControllerData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,22 +33,25 @@ public final class InstrumentOperationHelper {
 	// Asynchronous
 	public static void setToSampleLoadPosition() {
 		try {
-			IDynamicController samx = (IDynamicController) SicsCore.getSicsController().findDeviceController("samx");
-			float softupperlim = ((IDynamicController) samx.getChildController("/softupperlim")).getValue().getFloatData();
-			float tolerance = ((IDynamicController) samx.getChildController("/precision")).getValue().getFloatData();
-			float hardupperlim = ((IDynamicController) samx.getChildController("/hardupperlim")).getValue().getFloatData();
-			float softzero = ((IDynamicController) samx.getChildController("/softzero")).getValue().getFloatData();
+			IDynamicController samx = (IDynamicController) SicsManager.getSicsModel(
+					).findControllerById("samx");
+			float softupperlim = ((IDynamicController) samx.getChild("/softupperlim")
+					).getControllerDataValue().getFloatData();
+			float tolerance = ((IDynamicController) samx.getChild("/precision")
+					).getControllerDataValue().getFloatData();
+			float hardupperlim = ((IDynamicController) samx.getChild("/hardupperlim")
+					).getControllerDataValue().getFloatData();
+			float softzero = ((IDynamicController) samx.getChild("/softzero")
+					).getControllerDataValue().getFloatData();
 			if (softupperlim > hardupperlim - softzero) {
 				softupperlim = hardupperlim - softzero;
 			}
-			samx.setTargetValue(ComponentData.createData(softupperlim - tolerance));
+			samx.setTargetValue(ControllerData.createData(softupperlim - tolerance));
 //			samx.setTargetValue(ComponentData.createData(System.getProperty(PROP_LOAD_POSITION)));
-			samx.commitTargetValue(null);
-		} catch (SicsIOException e) {
+			samx.commitTargetValue();
+		} catch (SicsException e) {
 			logger.error("Failed to drive samx to load position.", e);
-		} catch (ComponentDataFormatException e) {
-			logger.error("Failed to drive samx to load position.", e);
-		}
+		} 
 	}
 	
 	private InstrumentOperationHelper() {

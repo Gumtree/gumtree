@@ -12,7 +12,8 @@ Export-Package: au.gov.ansto.bragg.quokka.experiment.model,
  au.gov.ansto.bragg.quokka.experiment.util,
  au.gov.ansto.bragg.quokka.sics
 Bundle-Vendor: Bragg Institute
-Require-Bundle: au.gov.ansto.bragg.nbi.core;bundle-version="1.7.0";visibility:=reexport,
- com.thoughtworks.xstream;bundle-version="1.4.2";visibility:=reexport,
+Require-Bundle: com.thoughtworks.xstream;bundle-version="1.4.2";visibility:=reexport,
  com.ostermiller.util;bundle-version="1.7.0",
- org.apache.poi;bundle-version="3.8.0"
+ org.apache.poi;bundle-version="3.8.0",
+ org.gumtree.control.core;bundle-version="1.13.0",
+ au.gov.ansto.bragg.nbi.core;bundle-version="1.13.0"

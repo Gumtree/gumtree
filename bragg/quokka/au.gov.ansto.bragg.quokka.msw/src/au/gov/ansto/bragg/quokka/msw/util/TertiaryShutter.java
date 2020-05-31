@@ -1,9 +1,9 @@
 package au.gov.ansto.bragg.quokka.msw.util;
 
-import org.gumtree.gumnix.sics.control.controllers.IComponentController;
-import org.gumtree.gumnix.sics.control.controllers.IComponentData;
-import org.gumtree.gumnix.sics.control.controllers.IDynamicController;
-import org.gumtree.gumnix.sics.core.SicsCore;
+import org.gumtree.control.core.IControllerData;
+import org.gumtree.control.core.IDynamicController;
+import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.SicsManager;
 
 public class TertiaryShutter {
 	// finals
@@ -17,13 +17,12 @@ public class TertiaryShutter {
 	// methods
 	public static TertiaryShutterState acquireState() {
 		try {
-			IComponentController controller = SicsCore
-					.getSicsController()
-					.findDeviceController(ID_DEVICE_TERTIARY_SHUTTER);
+			ISicsController controller = SicsManager.getSicsModel().findControllerById(
+					ID_DEVICE_TERTIARY_SHUTTER);
 			
 			if (controller instanceof IDynamicController) {
 				IDynamicController shutterStatus = (IDynamicController)controller;
-				IComponentData data = shutterStatus.getValue();
+				IControllerData data = shutterStatus.getControllerDataValue();
 				if (data != null) {
 					String shutterStatusValue = data.getStringData();
 					if (shutterStatusValue != null)
