@@ -23,8 +23,6 @@ import org.gumtree.control.exception.SicsCommunicationException;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.model.SicsModel;
 
-import com.itextpdf.text.log.Logger;
-
 /**
  * @author nxi
  *
