@@ -5,14 +5,23 @@ from gumpy.commons import logger
 import os
 
 SICS_PROXY = manager.getSicsProxy()
-SICS_MODEL = manager.getSicsModel()
+# SICS_MODEL = manager.getSicsModel()
 
 # VALIDATOR_PROXY = manager.getValidatorProxy()
 # VALIDATOR_MODEL = VALIDATOR_PROXY.getSicsModel()
 
 proxy = SICS_PROXY
-model = SICS_MODEL
+# model = SICS_MODEL
 
+def is_connected():
+    return proxy.isConnected()
+
+def get_model():
+    if proxy.isConnected():
+        return proxy.getSicsModel()
+    else:
+        return None
+    
 # if '__IS_VALIDATION_MODE__' in globals():
 #     print 'in globals'
 #     if __IS_VALIDATION_MODE__ :
@@ -53,7 +62,7 @@ def get_controller(id_or_path):
 #         return Controller(jcontroller)
 #     else :
 #         return None
-    c = model.findController(id_or_path)
+    c = get_model().findController(id_or_path)
     if c is None :
         raise NameError('controller not found: ' + str(id_or_path))
     return c
@@ -78,7 +87,7 @@ def set_value(name, value):
         logger.log('Set ' + name + ' OK')
 
 def hset(parentController, relativePath, value):
-    controller = model.findChildController(parentController, relativePath);
+    controller = get_model().findChildController(parentController, relativePath);
     controller.setTargetValue(value)
     controller.commitTargetValue()
 

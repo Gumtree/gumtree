@@ -167,18 +167,20 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 //	}
 
 	protected void updateWidgetState(final Control widget, final ControllerState state) {
-		SafeUIRunner.asyncExec(new SafeRunnable() {
-			@Override
-			public void run() throws Exception {
-				if (state.equals(ControllerState.IDLE)) {
-					widget.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-				} else if (state.equals(ControllerState.BUSY)) {
-					widget.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
-				} else if (state.equals(ControllerState.ERROR)) {
-					widget.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+		if (widget != null && !widget.isDisposed()) {
+			SafeUIRunner.asyncExec(new SafeRunnable() {
+				@Override
+				public void run() throws Exception {
+					if (state.equals(ControllerState.IDLE)) {
+						widget.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+					} else if (state.equals(ControllerState.BUSY)) {
+						widget.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
+					} else if (state.equals(ControllerState.ERROR)) {
+						widget.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 	
 	@Override

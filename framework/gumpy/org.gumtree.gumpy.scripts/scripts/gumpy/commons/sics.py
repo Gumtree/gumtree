@@ -4,10 +4,30 @@ import sys
 import traceback
 from gumpy.commons import logger
 from gumpy.control import control 
+from org.gumtree.control.events import ISicsControllerListener
+
+class ControllerListener ( ISicsControllerListener ):
+        
+        def updateValue(oldValue, newValue):
+            pass
+        
+        def updateTarget(oldValue, newValue):
+            pass
+        
+        def updateState(oldState, newState):
+            pass
+        
+        def updateEnabled(isEnabled):
+            pass
 
 # Get SICS controller
 # def getSicsController():
 #     return SicsCore.getSicsController()
+def is_connected():
+    return control.is_connected()
+
+def get_model():
+    return control.get_model()
 
 # Get device controller from path or id
 def getDeviceController(deviceId):

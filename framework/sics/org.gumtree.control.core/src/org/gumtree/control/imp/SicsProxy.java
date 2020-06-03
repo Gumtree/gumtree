@@ -176,7 +176,8 @@ public class SicsProxy implements ISicsProxy {
 	@Override
 	public void interrupt() {
 		try {
-			syncRun("INT1712 3", null);
+			asyncRun("INT1712 3", null);
+			labelInterruptFlag();
 		} catch (SicsException e) {
 		}
 	}
@@ -259,11 +260,11 @@ public class SicsProxy implements ISicsProxy {
 				if (msg != null) {
 					int idx = msg.indexOf("<");
 					msg = msg.substring(idx);
-					try {
-			            Files.write(Paths.get("C:\\Gumtree\\docs\\GumtreeXML\\new.xml"), msg.getBytes("UTF-8"));
-			        } catch (IOException e) {
-			            e.printStackTrace();
-			        }
+//					try {
+//			            Files.write(Paths.get("C:\\Gumtree\\docs\\GumtreeXML\\new.xml"), msg.getBytes("UTF-8"));
+//			        } catch (IOException e) {
+//			            e.printStackTrace();
+//			        }
 					sicsModel = new SicsModel(this);
 					sicsModel.loadFromString(msg);
 				}

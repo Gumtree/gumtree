@@ -17,8 +17,6 @@ public abstract class ExtendedWidgetComposite extends ExtendedComposite {
 
 	private static final int SICS_CONNECTION_TIMEOUT = 5000;
 	
-	private ISicsProxy sicsProxy;
-
 	private EventHandler sicsProxyEventHandler;
 
 	public ExtendedWidgetComposite(Composite parent, int style) {
@@ -38,7 +36,6 @@ public abstract class ExtendedWidgetComposite extends ExtendedComposite {
 			sicsProxyEventHandler.deactivate();
 			sicsProxyEventHandler = null;
 		}
-		sicsProxy = null;
 	}
 
 	protected abstract void handleSicsConnect();
@@ -53,9 +50,9 @@ public abstract class ExtendedWidgetComposite extends ExtendedComposite {
 
 	protected void bindSicsProxy() {
 		ISicsProxy proxy = SicsManager.getSicsProxy();
-		if (!proxy.isConnected()) {
-			return;
-		}
+//		if (!proxy.isConnected()) {
+//			return;
+//		}
 		internalHandleSicsConnect();
 		proxy.addProxyListener(new ISicsProxyListener() {
 			
@@ -65,7 +62,7 @@ public abstract class ExtendedWidgetComposite extends ExtendedComposite {
 			
 			@Override
 			public void disconnect() {
-				handleSicsConnect();
+				handleSicsDisconnect();
 			}
 			
 			@Override
@@ -82,7 +79,7 @@ public abstract class ExtendedWidgetComposite extends ExtendedComposite {
 	protected void internalHandleSicsConnect() {
 		JobRunner.run(new ILoopExitCondition() {
 			public boolean getExitCondition() {
-				return sicsProxy != null && sicsProxy.isConnected();
+				return SicsManager.getSicsProxy().isConnected();
 			}
 		}, new Runnable() {
 			public void run() {

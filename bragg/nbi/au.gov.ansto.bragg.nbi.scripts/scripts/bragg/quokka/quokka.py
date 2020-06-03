@@ -6,7 +6,8 @@ from org.gumtree.control.exception import SicsInterruptException, SicsExecutionE
 
 # from au.gov.ansto.bragg.quokka.msw.internal import QuokkaProperties # see getReportLocation()
 from au.gov.ansto.bragg.quokka.sics import BeamStopController
-from org.gumtree.gumnix.sics.control.controllers import CommandStatus
+# from org.gumtree.gumnix.sics.control.controllers import CommandStatus
+from org.gumtree.control.model.PropertyConstants import ControllerState
 
 import sys, traceback
 import time
@@ -30,7 +31,7 @@ class Enumeration(object):
         return key in self._keys
 
 
-DETECTOR_MONITOR_ENABLED = True
+DETECTOR_MONITOR_ENABLED = False
 DETECTOR_RATE_CHECK_ENABLED = True
 
 # safe count rates
@@ -178,6 +179,11 @@ class QuokkaState(object):
 
 state = QuokkaState()
 
+def waitUntilSicsIs(status, dt=0.2):
+    while not sics.get_status().equals(status) :
+        time.sleep(dt)
+    sics.handleInterrupt()
+    
 def strOrDefault(value, default=str("")):
     s = str(value)
     return s if s else default
@@ -212,7 +218,11 @@ def hasTripped():
         while True:
             try:
                 counter += 1
-                return str(sics.run_command('histmem textstatus ' + name))
+                res = sics.run_command('histmem textstatus ' + name)
+                if res is None:
+                    return res
+                else:
+                    return str(res)
 
             except (Exception, SicsExecutionException) as e:
                 if isInterruptException(e):
@@ -228,8 +238,11 @@ def hasTripped():
     trp = getHistmemTextstatus('detector_protect_num_trip')
     ack = getHistmemTextstatus('detector_protect_num_trip_ack')
 
-    if (trp is None) or (ack is None) or (int(trp) == int(ack)):
+    if (trp is None) or (ack is None) \
+        or (len(trp.strip()) == 0) or (len(ack.strip()) == 0):
         return False # continue, assuming that detector has not tripped
+    if (int(trp) == int(ack)) :
+        return False
 
     slog('Detector has tripped', f_err=True)
     return True
@@ -621,10 +634,10 @@ def driveToLoadPosition():
     slog('Driving sample holder to load position ...')
     samx = sics.getDeviceController('samx')
 
-    tolerance     = samx.getChild('/precision').getValue()
-    soft_zero     = samx.getChildController('/softzero').getValue()
-    soft_upperlim = samx.getChildController('/softupperlim').getValue()
-    hard_upperlim = samx.getChildController('/hardupperlim').getValue()
+    tolerance     = samx.getChild('precision').getValue()
+    soft_zero     = samx.getChild('softzero').getValue()
+    soft_upperlim = samx.getChild('softupperlim').getValue()
+    hard_upperlim = samx.getChild('hardupperlim').getValue()
 
     if soft_upperlim > hard_upperlim - soft_zero:
         soft_upperlim = hard_upperlim - soft_zero
@@ -669,7 +682,7 @@ def environmentDrive(script, value):
 
 def publishFinishTime(value):
     slog('Publishing estimated finish time... (%s)' % time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(value)))
-    sics.execute('hset /experiment/gumtree_time_estimate %i' % value, 'status')
+    sics.execute('hset /experiment/gumtree_time_estimate %i' % value)
 
 def publishTables(tables):
     # TableInfo { String getName(); String getContent(); }
@@ -781,7 +794,7 @@ def iterativeAttenuationAlgo(start_angle):
     # print info
     slog('Attenuation is set to %i' % getAtt())
 
-def determineDetRates(samples, timeout=60.0):
+def determineDetRates(samples, timeout=5.0):
     
     global DETECTOR_RATE_CHECK_ENABLED
     if not DETECTOR_RATE_CHECK_ENABLED:
@@ -1141,14 +1154,12 @@ def startHistmem():
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
 
     sics.execute('histmem mode unlimited')
-    time.sleep(1.0)
     sics.execute('histmem start')
 
 def stopHistmem():
     slog('Stopping histmem ...')
 
     sics.execute('histmem stop')
-    time.sleep(0.5)
 
 def scan(mode, preset):
     controllerPath = '/commands/scan/runscan'
@@ -1245,10 +1256,10 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
     sics.execute('title NORMAL_SCAN', 'status')
     slog('scan with detector map rate monitoring')
     scanController = sics.getDeviceController(controllerPath)
-    statusData = scanController.getStatusController().getValue().getStringData()
-    while CommandStatus.valueOf(statusData) != CommandStatus.IDLE :
-        statusData = scanController.getStatusController().getValue().getStringData()
+    statusData = scanController.getState()
+    while statusData != ControllerState.IDLE :
         time.sleep(0.5)
+        statusData = scanController.getState()
     scanController.asyncExecute()
     counter = 0.;
     statusChanged = False
@@ -1256,23 +1267,23 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
     timeout = 60.
     slog('starting scan')
     while not statusChanged :
-        time.sleep(0.1)
+#         time.sleep(0.1)
         counter += stime;
         if counter > timeout :
             statusData = None
             try:
-                statusData = scanController.getStatusController().getValue(True).getStringData()
+                statusData = scanController.getState()
             except Exception as e:
                 time.sleep(stime);
                 continue;
             except:
                 pass
-            if CommandStatus.valueOf(statusData) != CommandStatus.BUSY :
+            if statusData != ControllerState.BUSY :
                 raise Exception("Time out on syncExecute() where status did not changed whiling execution")
             else :
                 statusChanged = True;
-        statusData = scanController.getStatusController().getValue().getStringData()
-        if CommandStatus.valueOf(statusData) == CommandStatus.BUSY :
+        statusData = scanController.getState()
+        if statusData == ControllerState.BUSY :
             statusChanged = True
 
     slog('counting started')
@@ -1290,11 +1301,11 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
     scan_err = None
     low_items = 0
     l_toll = 5
-    while CommandStatus.valueOf(statusData) == CommandStatus.BUSY :
+    while statusData == ControllerState.BUSY :
         time.sleep(stime)
         count += stime
         c2 += stime
-        statusData = scanController.getStatusController().getValue().getStringData()
+        statusData = scanController.getState()
         if c2 >= lstime :
             c2 = 0.
             if std_rate is None:
@@ -1365,7 +1376,7 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
                 total3 = total
         if count >= timeout:
             try :
-                statusData = scanController.getStatusController().getValue(True).getStringData()
+                statusData = scanController.getState()
             except :
                 pass
             count = 0.

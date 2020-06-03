@@ -42,7 +42,8 @@ public enum InternalImage {
 	LOCK("icons/lock.png"),
 	UNLOCK("icons/lock_open.png"),
 	TEXT_EDIT("icons/wordassist_co.gif"),
-	STOP_128("icons/stop_128x128.png");
+	STOP_128("icons/stop_128x128.png"),
+	STOP_64("icons/stop_64x64.png");
 	
 	private InternalImage(String path) {
 		this.path = path;
