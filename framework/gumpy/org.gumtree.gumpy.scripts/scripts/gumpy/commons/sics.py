@@ -26,6 +26,9 @@ class ControllerListener ( ISicsControllerListener ):
 def is_connected():
     return control.is_connected()
 
+def sleep(secs, dt=0.1):
+    control.sleep(secs, dt)
+    
 def get_model():
     return control.get_model()
 

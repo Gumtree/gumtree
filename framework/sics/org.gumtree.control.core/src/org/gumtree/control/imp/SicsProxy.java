@@ -230,7 +230,7 @@ public class SicsProxy implements ISicsProxy {
 	@Override
 	public void clearInterruptFlag() {
 		isInterrupted = false;
-		fireInterruptEvent(isInterrupted);
+//		fireInterruptEvent(isInterrupted);
 	}
 
 	@Override

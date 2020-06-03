@@ -3,6 +3,8 @@ from org.gumtree.control.core import ServerStatus
 from org.gumtree.control.events import ISicsControllerListener, ISicsCallback
 from gumpy.commons import logger
 import os
+from datetime import datetime, timedelta
+import time
 
 SICS_PROXY = manager.getSicsProxy()
 # SICS_MODEL = manager.getSicsModel()
@@ -67,13 +69,26 @@ def get_controller(id_or_path):
         raise NameError('controller not found: ' + str(id_or_path))
     return c
 
+def sleep(secs, dt=0.1):
+    target = datetime.now() + timedelta(seconds=secs)
+
+    while True:
+        if target < datetime.now():
+            break
+        else:
+            handle_interrupt()
+            time.sleep(dt)
+
+    handle_interrupt()
+    
 def send_command(command):
+    clear_interrupt()
     return proxy.syncRun(command)
     
 # Asynchronously execute any (adhoc) SICS command (without feedback)
 def execute(command):
     ret = send_command(command)
-    handle_interrupt()
+#     handle_interrupt()
     return ret
 
 # Asynchronously set any device or hipadaba node to a given value
@@ -106,10 +121,11 @@ def get_filename():
     
 # Asynchronously set (run) any device to a given value
 def run(deviceId, value):
+    clear_interrupt()
     controller = get_controller(deviceId)
     controller.setTarget(value)
     controller.run()
-    handle_interrupt()
+#     handle_interrupt()
     logger.log("run " + controller.getPath() + " OK")
 
 def pause(on_or_off = True):
@@ -144,17 +160,19 @@ def is_idle():
      
 # Synchronously set (drive) any device to a given value
 def drive(deviceId, value):
+    clear_interrupt()
     controller = get_controller(deviceId)
     controller.setTarget(value)
     controller.drive()
-    handle_interrupt()
+#     handle_interrupt()
     logger.log("drive " + controller.getPath() + " OK")
 
 # Synchronously drive a number of devices to a given value
 # Usage: multiDrive({'my':-10.0, 'mx':-5.0})
 def multi_drive(entries):
+    clear_interrupt()
     proxy.multiDrive(entries)
-    handle_interrupt()
+#     handle_interrupt()
 
 class __ControllerEventHandler__(ISicsControllerListener):
     
@@ -208,18 +226,18 @@ def __run__(controller, pars):
         scv.addControllerListener(listener)
     # Run scan
     logger.log('scan started')
+    clear_interrupt()
     try :
         controller.run(pars, None)
     finally:
         if scv:
             scv.removeControllerListener(listener)
     logger.log('scan completed')
-    handle_interrupt()
+#     handle_interrupt()
     
 def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, datatype = 'HISTOGRAM_XY', 
             force = 'true', savetype = 'save'):
     # Initialisation
-    clear_interrupt()
     controller = get_controller('/commands/scan/runscan')
     p = dict()
     p['scan_variable'] = scan_variable
@@ -235,7 +253,6 @@ def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, datat
 
 def count(mode, preset):
     # Initialisation
-    clear_interrupt()
     controller = get_controller('/commands/monitor/count')
     p = dict()
     p['mode'] = mode
@@ -345,7 +362,7 @@ def get_status():
 def wait_until_idle():
     if proxy.isConnected() :
         while not get_status() == ServerStatus.EAGER_TO_EXECUTE:
-            time.sleep(0.5)
+            sleep(0.5)
 #             cnt += 0.5
     else:
         raise Exception, 'disconnected'
@@ -411,7 +428,8 @@ def wait_until_value_reached(device, value, precision = 0.01, timeout_if_not_cha
             old_val = new_val
             update_count += interval
             total_count += interval
-            time.sleep(interval)
+            sleep(interval)
+        handle_interrupt()
     if value_reached:
         logger.log(str(device) + ' reached value ' + str(value) + ' in ' + str(total_count) + ' seconds')
     else:

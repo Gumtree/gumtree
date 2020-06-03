@@ -181,8 +181,7 @@ state = QuokkaState()
 
 def waitUntilSicsIs(status, dt=0.2):
     while not sics.get_status().equals(status) :
-        time.sleep(dt)
-    sics.handleInterrupt()
+        sleep(dt)
     
 def strOrDefault(value, default=str("")):
     s = str(value)
@@ -197,10 +196,6 @@ def sleep(secs, dt=0.1):
             break
         else:
             sics.handleInterrupt()
-
-        if target < datetime.now():
-            break
-        else:
             time.sleep(dt)
 
     sics.handleInterrupt()
@@ -231,7 +226,7 @@ def hasTripped():
                 if counter >= 5:
                     return None # break loop
 
-                time.sleep(1)
+                sleep(1)
             except:
                 pass
 
@@ -378,7 +373,7 @@ def setupMeasurement(parameters, meas_mode):
         slog('Set instrument to scattering mode')
         sics.set('transmissionflag', 0)
 
-    time.sleep(0.5)
+    sleep(0.5)
 
     # before instrument can move to new configuration, move to safe attenuation angle
     driveToSafeAtt()
@@ -503,7 +498,7 @@ def doAcquisition(info):
         while not sf and ct < 5:
             ct += 1
             slog('wait for 20 seconds')
-            time.sleep(20)
+            sleep(20)
             try:
                 scanBA(min_time, max_time, counts, bm_counts)
                 sf = True
@@ -794,7 +789,7 @@ def iterativeAttenuationAlgo(start_angle):
     # print info
     slog('Attenuation is set to %i' % getAtt())
 
-def determineDetRates(samples, timeout=5.0):
+def determineDetRates(samples, timeout=60.0):
     
     global DETECTOR_RATE_CHECK_ENABLED
     if not DETECTOR_RATE_CHECK_ENABLED:
@@ -835,7 +830,7 @@ def determineDetRates(samples, timeout=5.0):
 
     startHistmem()
     try:
-        time.sleep(1.0)
+        sleep(1.0)
 
         local_rate, global_rate = getMaxBinRate(), getGlobalMapRate()
 
@@ -866,11 +861,11 @@ def determineDetRates(samples, timeout=5.0):
                             new_local_rate, new_global_rate = getMaxBinRate(refresh=True), getGlobalMapRate(refresh=True)
                             break
                         except:
-                            time.sleep(1)
+                            sleep(1)
                     break
 #                     raise Exception('Timeout during detector local/global rate estimation')
 
-                time.sleep(0.5)
+                sleep(0.5)
                 new_local_rate, new_global_rate = getMaxBinRate(), getGlobalMapRate()
 
             local_rate, global_rate = new_local_rate, new_global_rate
@@ -1072,11 +1067,11 @@ def getFlipper(throw=True):
 
 def driveFlipper(value):
     slog('Driving flipper to %s ...' % value)
-    sics.handleInterrupt()
+#     sics.handleInterrupt()
     value = int(value)
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
     sics.set('/instrument/flipper/set_flip_on', value)
-    time.sleep(1)
+    sleep(1)
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
 
     slog('Flipper is set to %s' % getFlipper())
@@ -1241,7 +1236,7 @@ def syncScan(controllerPath):
     sics.execute('hset ' + controllerPath + '/numpoints '  + '1', 'scan')
 
     # wait to make the settings settle
-    time.sleep(1)
+    sleep(1)
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
 
     global DETECTOR_MONITOR_ENABLED
@@ -1258,7 +1253,7 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
     scanController = sics.getDeviceController(controllerPath)
     statusData = scanController.getState()
     while statusData != ControllerState.IDLE :
-        time.sleep(0.5)
+        sleep(0.5)
         statusData = scanController.getState()
     scanController.asyncExecute()
     counter = 0.;
@@ -1274,7 +1269,7 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
             try:
                 statusData = scanController.getState()
             except Exception as e:
-                time.sleep(stime);
+                sleep(stime);
                 continue;
             except:
                 pass
@@ -1290,7 +1285,7 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
     count = 0.;
     c2 = 0.
     lstime = 5.
-    time.sleep(lstime * 4)
+    sleep(lstime * 4)
     std_rate = None
     rate1 = None
     total1 = 0
@@ -1302,7 +1297,7 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
     low_items = 0
     l_toll = 5
     while statusData == ControllerState.BUSY :
-        time.sleep(stime)
+        sleep(stime)
         count += stime
         c2 += stime
         statusData = scanController.getState()
@@ -1334,7 +1329,7 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
                         try :
                             sics.execute('hget /instrument/detector/total_maprate', 'status')
                             sics.execute('hget /instrument/detector/total_counts', 'status')
-                            time.sleep(3.)
+                            sleep(3.)
                             crate = getGlobalMapRate()
                             total = getDetectorCounts()
                             break
@@ -1385,7 +1380,7 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
         slog('error: {}'.format(scan_err), f_err=True)
         sics.execute('title MISSING_COUNTS', 'status')
         sics.execute('histmem stop', 'status')
-        time.sleep(20.)
+        sleep(20.)
 #         slog('finished with error')
         redo += 1
         if redo < 3:
