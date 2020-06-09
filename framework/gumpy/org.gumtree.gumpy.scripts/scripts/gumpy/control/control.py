@@ -1,6 +1,7 @@
 from org.gumtree.control.core import SicsManager as manager
 from org.gumtree.control.core import ServerStatus
 from org.gumtree.control.events import ISicsControllerListener, ISicsCallback
+from org.gumtree.control.ui.batch import SicsBatchUIUtils
 from gumpy.commons import logger
 import os
 from datetime import datetime, timedelta
@@ -118,7 +119,7 @@ def get_value(name):
     
 def get_filename():
     return get_value('/experiment/file_name')
-    
+
 # Asynchronously set (run) any device to a given value
 def run(deviceId, value):
     clear_interrupt()
@@ -212,18 +213,30 @@ def hmscan(scan_variable, scan_start, scan_increment, NP, mode, preset):
     p['preset'] = preset
     __run__(controller, p)
 
-def __run__(controller, pars):
-    def log_step(old, new):
-        if float(new) >= 0:
-            logger.log("scan point " + str(new))
+def __run__(controller, pars, step_cmd = None, save_cmd = None):
+    def step_changed(old, new):
+        if not step_cmd is None:
+            step_cmd()
         
-    listener = __ControllerEventHandler__()
-    listener.updateValue = log_step
+    def save_changed(old, new):
+        try:
+            if float(new) > 0 and not save_cmd is None:
+                save_cmd()
+        except:
+            pass
+            
+    step_listener = __ControllerEventHandler__()
+    step_listener.updateValue = step_changed
     scv = controller.getChild('feedback')
     if scv :
         scv = scv.getChild('scan_variable_value')
     if scv :
-        scv.addControllerListener(listener)
+        scv.addControllerListener(step_listener)
+    save_listener = __ControllerEventHandler__()
+    save_listener.updateValue = save_changed
+    save_controller = get_controller('/experiment/save_count')
+    if save_controller:
+        save_controller.addControllerListener(save_listener)
     # Run scan
     logger.log('scan started')
     clear_interrupt()
@@ -231,12 +244,14 @@ def __run__(controller, pars):
         controller.run(pars, None)
     finally:
         if scv:
-            scv.removeControllerListener(listener)
+            scv.removeControllerListener(step_listener)
+        if save_controller:
+            save_controller.removeControllerListener(save_listener)
     logger.log('scan completed')
 #     handle_interrupt()
     
 def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, datatype = 'HISTOGRAM_XY', 
-            force = 'true', savetype = 'save'):
+            force = 'true', savetype = 'save', step_cmd = None, save_cmd = None):
     # Initialisation
     controller = get_controller('/commands/scan/runscan')
     p = dict()
@@ -248,7 +263,7 @@ def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, datat
     p['preset'] = preset
     p['force'] = force
     p['savetype'] = savetype
-    __run__(controller, p)
+    __run__(controller, p, step_cmd, save_cmd)
 
 
 def count(mode, preset):
@@ -288,7 +303,7 @@ def histmem(cmd, mode, preset):
 #     execute('histmem mode {}'.format(mode))
 #     execute('histmem preset {}'.format(preset))
 #     execute('histmem start block')
-    controller = get_controller('/commands/scan/runscan')
+    controller = get_controller('/commands/histogram/histmem')
     p = dict()
     p['cmd'] = cmd
     p['mode'] = mode
@@ -358,6 +373,15 @@ def get_base_filename():
 
 def get_status():
     return proxy.getServerStatus()
+
+def get_drivables():
+    arr = SicsBatchUIUtils.getSicsDrivableIds()
+    res = []
+    for i in xrange(len(arr)):
+        item = arr[i]
+        if not item is None:
+            res.append(item)
+    return res
 
 def wait_until_idle():
     if proxy.isConnected() :

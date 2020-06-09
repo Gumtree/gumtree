@@ -216,7 +216,8 @@ public class ScriptDataSourceViewer extends Composite {
 	}
 	
 	public void addDataset(String filePath, final boolean notifyListener) throws FileAccessException, IOException {
-		DatasetInfo datasetInfo = getDataset(filePath);
+		String absolutePath = (new File(filePath)).getAbsolutePath();
+		DatasetInfo datasetInfo = getDataset(absolutePath);
 		if (datasetInfo == null) {
 			URI fileURI = new File(filePath).toURI();
 			IDataset dataset = factoryManager.getFactory().openDataset(fileURI);

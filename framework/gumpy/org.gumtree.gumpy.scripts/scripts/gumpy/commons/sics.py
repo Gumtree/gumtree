@@ -81,7 +81,7 @@ def runbmonscan(scan_variable, scan_start, scan_increment, NP, mode, preset, cha
 def runhmscan(scan_variable, scan_start, scan_increment, NP, mode, preset, channel):
     control.hmscan(scan_variable, scan_start, scan_increment, NP, mode, preset)
 
-def runscan(type, scan_variable, scan_start, scan_increment, NP, mode, preset, channel):
+def runscan(type, scan_variable, scan_start, scan_increment, NP, mode, preset, channel = None):
     # Initialisation
     control.runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, datatype = 'HISTOGRAM_XY', 
             force = 'true', savetype = 'save')

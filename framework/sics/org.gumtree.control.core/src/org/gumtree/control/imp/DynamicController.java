@@ -1,6 +1,8 @@
 package org.gumtree.control.imp;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import org.gumtree.control.core.IControllerData;
 import org.gumtree.control.core.IDynamicController;
@@ -11,6 +13,8 @@ import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.ControllerData;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.psi.sics.hipadaba.Component;
 import ch.psi.sics.hipadaba.DataType;
@@ -19,12 +23,17 @@ import ch.psi.sics.hipadaba.Value;
 
 public class DynamicController extends SicsController implements IDynamicController {
 
+	private static Logger logger = LoggerFactory.getLogger(DynamicController.class);
 	private static final String TARGET_NODE = "target";
 	private static final String SOFTZERO_NODE = "softzero";
 	private IControllerData targetValue;
 	private boolean isBusy;
 	private TargetListener targetListener;
-
+	private static ThreadPoolExecutor executor;
+	
+	static {
+		executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(20);
+	}
 	
 	class TargetListener implements ISicsControllerListener {
 		
@@ -153,13 +162,33 @@ public class DynamicController extends SicsController implements IDynamicControl
 	
 	protected void fireValueChangeEvent(Object oldValue, Object newValue) {
 		for (ISicsControllerListener listener : getListeners()) {
-			listener.updateValue(oldValue, newValue);
+			executor.submit(new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						listener.updateValue(oldValue, newValue);
+					} catch (Exception e) {
+						logger.error("failed to fire value change", e);
+					}
+				}
+			});
 		}
 	}
 
 	protected void fireTargetChangeEvent(Object oldValue, Object newValue) {
 		for (ISicsControllerListener listener : getListeners()) {
-			listener.updateTarget(oldValue, newValue);
+			executor.submit(new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						listener.updateTarget(oldValue, newValue);
+					} catch (Exception e) {
+						logger.error("failed to fire target change", e);
+					}
+				}
+			});
 		}
 	}
 

@@ -12,7 +12,7 @@ from gumpy.vis.event import MouseListener
 from org.eclipse.core.resources import ResourcesPlugin
 from gumpy.commons.logger import log
 from au.gov.ansto.bragg.nbi.ui.scripting.parts import ScriptRunner
-from gumpy.commons import sics
+from gumpy.control import control
 import time
 __register__ = ScriptPageRegister.getRegister(__script_model_id__)
 __UI__ = __register__.getControlViewer()
@@ -134,7 +134,7 @@ def auto_run():
     pass
 
 def run_action(act):
-    logln('pressed on button: ' + str(act.text))
+    logln('Action: ' + str(act.text))
     act.set_running_status()
     try:
         exec(act.command)
@@ -142,14 +142,14 @@ def run_action(act):
 #    except Exception, e:
 #        raise e
     except:
-        if sics.getSicsController() != None: 
+        if control.is_connected(): 
             act.set_interrupt_status()
         act.set_error_status()
         traceback.print_exc(file = sys.stdout)
         raise Exception, 'Error in running <' + act.text + '>'
     if not act.no_interrupt_check == 'True':
-        if sics.getSicsController() != None:
-            sics.handleInterrupt()
+        if control.is_connected() :
+            control.handle_interrupt()
     
 def validate_script(script):
     print(script)

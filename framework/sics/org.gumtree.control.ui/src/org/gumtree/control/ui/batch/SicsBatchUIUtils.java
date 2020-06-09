@@ -95,7 +95,7 @@ public final class SicsBatchUIUtils {
 	}
 	
 	// Note: this is not thread safe
-	private static IDriveableController[] getSicsDrivables() {
+	public static IDriveableController[] getSicsDrivables() {
 		if (drivableCache == null) {
 			// SICS proxy is not yet ready
 			if (SicsManager.getSicsModel() == null) {
