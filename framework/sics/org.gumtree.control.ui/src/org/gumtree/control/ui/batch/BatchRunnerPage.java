@@ -62,6 +62,7 @@ import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsCallbackAdapter;
+import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.ui.viewer.InternalImage;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.ui.util.swt.IDNDHandler;
@@ -171,7 +172,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		};
 		
 		// Listen to sics batch log
-		batchChannelListener = new ISicsProxyListener() {
+		batchChannelListener = new SicsProxyListenerAdapter() {
 			
 			@Override
 			public void setStatus(ServerStatus newStatus) {

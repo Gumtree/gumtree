@@ -220,6 +220,12 @@ public class SicsProxy implements ISicsProxy {
 			}
 		}
 	}
+	
+	private void fireModelUpdatedEvent() {
+		for (ISicsProxyListener listener : proxyListeners) {
+			listener.modelUpdated();
+		}
+	}
 
 	private void fireStatusEvent(ServerStatus status) {
 		for (ISicsProxyListener listener : proxyListeners) {
@@ -267,6 +273,7 @@ public class SicsProxy implements ISicsProxy {
 //			        }
 					sicsModel = new SicsModel(this);
 					sicsModel.loadFromString(msg);
+					fireModelUpdatedEvent();
 				}
 			} catch (SicsException e) {
 				// TODO Auto-generated catch block

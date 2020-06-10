@@ -25,6 +25,7 @@ import org.gumtree.control.core.SicsCommunicationConstants.JSONTag;
 import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsCallbackAdapter;
+import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsBatchException;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.imp.SicsReplyData;
@@ -102,11 +103,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		batchQueue.addQueueEventListener(queueEventListener);
 		
 		// Handles proxy connect and disconnect events
-		proxyListener = new ISicsProxyListener() {
-			
-			@Override
-			public void setStatus(ServerStatus newStatus) {
-			}
+		proxyListener = new SicsProxyListenerAdapter() {
 			
 			@Override
 			public void interrupt(boolean isInterrupted) {

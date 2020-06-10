@@ -6,6 +6,7 @@ public interface ISicsProxyListener {
 
 	void connect();
 	void disconnect();
+	void modelUpdated();
 	void interrupt(boolean isInterrupted);
 	void setStatus(ServerStatus newStatus);
 }

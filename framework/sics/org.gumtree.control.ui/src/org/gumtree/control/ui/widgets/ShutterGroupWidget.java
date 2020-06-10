@@ -21,6 +21,7 @@ import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
+import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.service.dataaccess.IDataAccessManager;
@@ -133,11 +134,7 @@ public class ShutterGroupWidget extends ExtendedWidgetComposite {
 //			}
 //		};
 		
-		proxyListener = new ISicsProxyListener() {
-			
-			@Override
-			public void interrupt(boolean isInterrupted) {
-			}
+		proxyListener = new SicsProxyListenerAdapter() {
 			
 			@Override
 			public void disconnect() {
@@ -149,9 +146,6 @@ public class ShutterGroupWidget extends ExtendedWidgetComposite {
 				handleSicsConnect();
 			}
 
-			@Override
-			public void setStatus(ServerStatus newStatus) {
-			}
 		};
 		ISicsProxy proxy = SicsManager.getSicsProxy();
 		proxy.addProxyListener(proxyListener);

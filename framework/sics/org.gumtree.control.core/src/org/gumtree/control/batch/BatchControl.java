@@ -5,12 +5,11 @@ import java.util.List;
 
 import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.ISicsReplyData;
-import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsCommunicationConstants.JSONTag;
 import org.gumtree.control.core.SicsCoreProperties;
 import org.gumtree.control.events.ISicsCallback;
-import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsCallbackAdapter;
+import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsCommunicationException;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.model.PropertyConstants;
@@ -159,7 +158,7 @@ public class BatchControl implements IBatchControl {
 		synchronousSend("INT1712 3");
 	}
 
-	private class ProxyListener implements ISicsProxyListener {
+	private class ProxyListener extends SicsProxyListenerAdapter {
 
 		@Override
 		public void connect() {
@@ -173,16 +172,6 @@ public class BatchControl implements IBatchControl {
 		@Override
 		public void disconnect() {
 			setBatchStatus(BatchStatus.DISCONNECTED);
-		}
-		@Override
-		public void interrupt(boolean isInterrupted) {
-			// TODO Auto-generated method stub
-			
-		}
-		@Override
-		public void setStatus(ServerStatus newStatus) {
-			// TODO Auto-generated method stub
-			
 		}
 	}
 

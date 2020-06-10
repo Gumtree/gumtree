@@ -5,7 +5,7 @@ import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.events.ISicsControllerListener;
-import org.gumtree.control.events.ISicsProxyListener;
+import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsExecutionException;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
@@ -42,28 +42,10 @@ public class BeamStopController {
 		deviceId = DEVICE_BS + id;
 		setState(ControllerState.IDLE);
 		if (!SicsManager.getSicsProxy().isConnected()) {
-			SicsManager.getSicsProxy().addProxyListener(new ISicsProxyListener() {
+			SicsManager.getSicsProxy().addProxyListener(new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void setStatus(ServerStatus newStatus) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void interrupt(boolean isInterrupted) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void disconnect() {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void connect() {
+				public void modelUpdated() {
 					setupStateMonListener();
 				}
 			});

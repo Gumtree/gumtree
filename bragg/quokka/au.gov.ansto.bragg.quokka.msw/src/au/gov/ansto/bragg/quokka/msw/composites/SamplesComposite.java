@@ -23,9 +23,9 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.wb.swt.SWTResourceManager;
-import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsProxyListener;
+import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.msw.elements.IDependencyProperty;
 import org.gumtree.msw.schedule.execution.Summary;
 import org.gumtree.msw.ui.IModelBinding;
@@ -331,30 +331,13 @@ public class SamplesComposite extends Composite {
 		tableModel.updateSource(sampleList);
 		
 		// sics listener
-		final ISicsProxyListener proxyListener = new ISicsProxyListener() {
+		final ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 
 			@Override
 			public void connect() {
 				requestSamplePositions.set(true);				
 			}
 
-			@Override
-			public void disconnect() {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void interrupt(boolean isInterrupted) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void setStatus(ServerStatus newStatus) {
-				// TODO Auto-generated method stub
-				
-			}
 		};
 
 		try {

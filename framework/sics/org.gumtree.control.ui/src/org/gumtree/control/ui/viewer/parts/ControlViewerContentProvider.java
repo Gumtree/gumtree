@@ -7,6 +7,7 @@ import org.eclipse.ui.PlatformUI;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsProxyListener;
+import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.ui.viewer.model.INodeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,7 @@ public abstract class ControlViewerContentProvider implements ITreeContentProvid
 		return filter;
 	}
 
-	class ProxyListener implements ISicsProxyListener {
+	class ProxyListener extends SicsProxyListenerAdapter {
 		public void connect() {
 			logger.debug("Proxy connected");
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
@@ -74,22 +75,6 @@ public abstract class ControlViewerContentProvider implements ITreeContentProvid
 			});
 		}
 
-		@Override
-		public void disconnect() {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void interrupt(boolean isInterrupted) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void setStatus(ServerStatus newStatus) {
-			
-		}
 	}
 	
 }

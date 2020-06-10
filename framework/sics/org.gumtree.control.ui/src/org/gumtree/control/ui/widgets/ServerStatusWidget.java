@@ -15,6 +15,7 @@ import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsProxyListener;
+import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.widgets.swt.util.SafeUIRunner;
 import org.gumtree.widgets.swt.util.UIResources;
 
@@ -75,11 +76,7 @@ public class ServerStatusWidget extends ExtendedWidgetComposite {
 				
 			}
 		});
-		proxyListener = new ISicsProxyListener() {
-			
-			@Override
-			public void interrupt(boolean isInterrupted) {
-			}
+		proxyListener = new SicsProxyListenerAdapter() {
 			
 			@Override
 			public void disconnect() {
