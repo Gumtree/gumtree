@@ -161,7 +161,7 @@ public class DynamicController extends SicsController implements IDynamicControl
 	}
 	
 	protected void fireValueChangeEvent(Object oldValue, Object newValue) {
-		for (ISicsControllerListener listener : getListeners()) {
+		for (final ISicsControllerListener listener : getListeners()) {
 			executor.submit(new Runnable() {
 				
 				@Override
@@ -177,7 +177,7 @@ public class DynamicController extends SicsController implements IDynamicControl
 	}
 
 	protected void fireTargetChangeEvent(Object oldValue, Object newValue) {
-		for (ISicsControllerListener listener : getListeners()) {
+		for (final ISicsControllerListener listener : getListeners()) {
 			executor.submit(new Runnable() {
 				
 				@Override
