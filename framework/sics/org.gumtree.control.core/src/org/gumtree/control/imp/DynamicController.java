@@ -169,7 +169,7 @@ public class DynamicController extends SicsController implements IDynamicControl
 					try {
 						listener.updateValue(oldValue, newValue);
 					} catch (Exception e) {
-						logger.error("failed to fire value change", e);
+						logger.error("failed to fire value change " + getPath(), e);
 					}
 				}
 			});

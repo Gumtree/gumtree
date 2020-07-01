@@ -123,7 +123,11 @@ public class SicsChannel implements ISicsChannel {
 			return sicsCommand.syncRun();
 		} catch(Exception e) {
 			logger.error(e.getMessage());
-			throw e;
+			if (sicsProxy.isInterrupted()) {
+				throw new SicsInterruptException("user interrupted");
+			} else {
+				throw e;
+			}
 		} finally {
 			isBusy = false;
 		}

@@ -2,6 +2,7 @@ from org.gumtree.control.core import SicsManager as manager
 from org.gumtree.control.core import ServerStatus
 from org.gumtree.control.events import ISicsControllerListener, ISicsCallback
 from org.gumtree.control.ui.batch import SicsBatchUIUtils
+from org.gumtree.control.events import SicsCallbackAdapter
 from gumpy.commons import logger
 import os
 from datetime import datetime, timedelta
@@ -33,6 +34,23 @@ def get_model():
 #         model = VALIDATOR_MODEL
 # else:
 #     print 'not in globals'
+
+def print_reply(obj):
+    logger.log(obj.getString())
+    
+def print_error(obj):
+    logger.log(obj.getSting())
+
+class SicsCallback(SicsCallbackAdapter):
+    
+    def receiveReply(self, obj):
+        print_reply(obj)
+        
+    def receiveError(self, obj):
+        print_error('Error: ' + str(obj))
+    
+_callback = SicsCallbackAdapter()
+
 
 def get_proxy():
     return proxy
@@ -82,13 +100,14 @@ def sleep(secs, dt=0.1):
 
     handle_interrupt()
     
-def send_command(command):
-    clear_interrupt()
+def send_command(command, reset_intt = True, callback = _callback):
+    if reset_intt:
+        clear_interrupt()
     return proxy.syncRun(command)
     
 # Asynchronously execute any (adhoc) SICS command (without feedback)
-def execute(command):
-    ret = send_command(command)
+def execute(command, callback = _callback):
+    ret = send_command(command, callback = callback)
 #     handle_interrupt()
     return ret
 

@@ -32,7 +32,7 @@ class Enumeration(object):
 
 
 DETECTOR_MONITOR_ENABLED = False
-DETECTOR_RATE_CHECK_ENABLED = True
+DETECTOR_RATE_CHECK_ENABLED = False
 
 # safe count rates
 LOCAL_RATE_SAFE  =    1000.0
@@ -55,6 +55,7 @@ GUIDE_CONFIG = Enumeration(
     'p6', 'g6', 'p7', 'g7', 'p8', 'g8', 'p9', 'g9')
 
 bsList = dict((index, BeamStopController(index)) for index in range(1, 6))
+
 
 def getReportLocation():
     from java.lang import System
@@ -213,7 +214,7 @@ def hasTripped():
         while True:
             try:
                 counter += 1
-                res = sics.run_command('histmem textstatus ' + name)
+                res = sics.get_raw_feedback('histmem textstatus ' + name)
                 if res is None:
                     return res
                 else:
@@ -503,15 +504,19 @@ def doAcquisition(info):
                 scanBA(min_time, max_time, counts, bm_counts)
                 sf = True
             except (Exception, SicsExecutionException) as e:
+                slog("exception in scanBA")
                 if sics.isInterrupt():
                     slog('sics.isInterrupt')
                     raise
                 if isInterruptException(e):
+                    slog('is interrupt exception')
                     raise
                 else:
+                    slog('is not interrupt')
                     slog(str(e), f_err = True)
                     sics.execute('hmm configure termination_condition')
             except:
+                slog('unbound exception')
                 slog('failed to run collection', f_err = True)
                 sics.execute('hmm configure termination_condition')
             
@@ -523,7 +528,11 @@ def doAcquisition(info):
                 break
 
             slog('Repeat Bound Acquisition ...')
-            scanBA(min_time, max_time, counts, bm_counts)
+            try:
+                scanBA(min_time, max_time, counts, bm_counts)
+            except:
+                slog('makeup scanBA error')
+                raise
 
     else:
         if acq_mode == ACQUISITION_MODE.time:
@@ -937,7 +946,7 @@ def getStringData(path, throw=True, useController=False, useRaw=False):
     return str(sics.getValue(path))
 
 def getDataFilename(throw=True):
-    return sics.getFilename()
+    return sics.get_base_filename()
 
 
 def getMaxBinRate(throw=True, refresh = False):
@@ -1218,10 +1227,11 @@ def scanBA(min_time, max_time, counts, bm_counts):
         sics.execute('histmem ba enable', 'scan')
         syncScan(controllerPath)
     except:
+        slog('errors in bound acquisition')
         raise
     finally:
 #         ensure that ba is disabled afterwards
-        sics.send_command('histmem ba disable')
+        sics.send_command('histmem ba disable', reset_intt = False)
 
 def syncScan(controllerPath):
     # configuring scan properties
@@ -1236,7 +1246,6 @@ def syncScan(controllerPath):
     sics.execute('hset ' + controllerPath + '/numpoints '  + '1', 'scan')
 
     # wait to make the settings settle
-    sleep(1)
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
 
     global DETECTOR_MONITOR_ENABLED

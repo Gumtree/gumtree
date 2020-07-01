@@ -22,6 +22,8 @@ import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.exception.SicsCommunicationException;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.model.SicsModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author nxi
@@ -29,6 +31,7 @@ import org.gumtree.control.model.SicsModel;
  */
 public class SicsProxy implements ISicsProxy {
 
+	private static Logger logger = LoggerFactory.getLogger(SicsProxy.class);
 	private String serverAddress;
 	private String publisherAddress;
 	private ISicsChannel channel;
@@ -212,24 +215,40 @@ public class SicsProxy implements ISicsProxy {
 	private void fireConnectionEvent(boolean isConnected) {
 		if (isConnected) {
 			for (ISicsProxyListener listener : proxyListeners) {
-				listener.connect();
+				try {
+					listener.connect();
+				} catch (Exception e) {
+					logger.error("failed fire connecting event", e);
+				}
 			}
 		} else {
 			for (ISicsProxyListener listener : proxyListeners) {
-				listener.disconnect();
+				try {
+					listener.disconnect();
+				} catch (Exception e) {
+					logger.error("failed fire disconnecting event", e);
+				}
 			}
 		}
 	}
 	
 	private void fireModelUpdatedEvent() {
 		for (ISicsProxyListener listener : proxyListeners) {
-			listener.modelUpdated();
+			try {
+				listener.modelUpdated();
+			} catch (Exception e) {
+				logger.error("failed fire model updating event", e);
+			}
 		}
 	}
 
 	private void fireStatusEvent(ServerStatus status) {
 		for (ISicsProxyListener listener : proxyListeners) {
-			listener.setStatus(status);
+			try {
+				listener.setStatus(status);
+			} catch (Exception e) {
+				logger.error("failed fire status changing event", e);
+			}
 		}
 	}
 	
@@ -254,7 +273,11 @@ public class SicsProxy implements ISicsProxy {
 	
 	public void fireMessageEvent(String message) {
 		for (ISicsMessageListener listener : messageListeners) {
-			listener.messageReceived(message);
+			try {
+				listener.messageReceived(message);
+			} catch (Exception e) {
+				logger.error("failed fire message event", e);
+			}
 		}
 	}
 	

@@ -1,7 +1,6 @@
 package au.gov.ansto.bragg.quokka.sics;
 
 import org.gumtree.control.core.ISicsReplyData;
-import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.events.ISicsControllerListener;
@@ -46,7 +45,7 @@ public class BeamStopController {
 				
 				@Override
 				public void modelUpdated() {
-					setupStateMonListener();
+//					setupStateMonListener();
 				}
 			});
 		} else {

@@ -36,12 +36,12 @@ def get_model():
 def getDeviceController(deviceId):
     return control.get_controller(deviceId)
 
-def send_command(command, channel_id = 'general'):
-    control.send_command(command)
+def send_command(command, channel_id = 'general', reset_intt = True):
+    return control.send_command(command, reset_intt)
     
 # Asynchronously execute any (adhoc) SICS command (without feedback)
 def execute(command, channel_id = 'general'):
-    control.execute(command)
+    return control.execute(command)
 
 # Asynchronously set any device or hipadaba node to a given value
 def set(name, value):
