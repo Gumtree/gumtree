@@ -163,13 +163,22 @@ body {
 .btn-toolbar button{
 	min-width: 120px;
 }
-td.editable {
+td.editable_key,
+td.editable_type,
+td.editable_value, 
+td.pair_key,
+td.pair_value {
   /*border-bottom:1pt solid #808a95;*/
   padding: 0;
   margin: 0;
   vertical-align: middle;
 }
-td.editable input  {
+td.editable_value table {
+	margin: 2px 0;
+}
+td.editable_value input,
+td.pair_key input 
+td.pair_value input {
 	background: transparent;
 	border-top: transparent;
 	border-left: transparent;
@@ -177,17 +186,40 @@ td.editable input  {
 	border-bottom: 1pt solid #808a95;
 	color: #000; padding : 0;
 	margin: 0;
-	box-shadow: none !important;
-	padding: 0;
+/*	box-shadow: none !important; */
 	padding-left: 4px;
 }
-td.editable input.changed {
+td.pair_control {
+	min-width: 50px;
+}
+td.pair_control button {
+	padding: 0 8px 0 8px; 
+	font-family: monospace;
+	margin-right: 1px;
+}
+td.editable_value input.changed, 
+td.pair_key input.changed,
+td.pair_value input.changed {
 	color: #0067ce;
+}
+td.editable_type select {
+	background: transparent;
+	color: #000; padding : 0;
+	margin: 0;
+	width: auto;
+	max-width: 90%;
+	padding: 0;
+	padding-left: 4px;
+	font-size: small;
+	height: 28px !important;
 }
 tbody > tr.active td {
 	background: #ccc;
 }
 tbody > tr.warning td {
+	background: #fdb3bf;
+}
+tbody > tr > td.warning {
 	background: #fdb3bf;
 }
 #id_div_info {
@@ -298,4 +330,10 @@ tbody > tr.warning td {
 }
 .class_div_instrument_option {
 	padding: 8px;
+}
+tr.editable_row:hover {
+	background-color: #ddd;
+}
+.table-striped tbody tr.editable_row:hover {
+	background-color: #ddd;
 }

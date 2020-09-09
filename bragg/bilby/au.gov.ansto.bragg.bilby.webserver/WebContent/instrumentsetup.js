@@ -16,6 +16,24 @@ var sampleMap = [
 					-250
 				];
 
+sampleMap = [
+	       		455.0,
+	       		385.0,
+	       		315.0,
+	       		245.0, 
+	       		175.0,
+	       		105.0,
+	       		35.0,
+	       		-35.0,
+	       		-105.0,
+	       		-175.0,
+	       		-245.0,
+	       		-315.0,
+	       		-385.0,
+	       		-455.0
+	       ];
+
+
 function adaptAtt(val) {
 	return String(Math.round(Number(val)));
 }

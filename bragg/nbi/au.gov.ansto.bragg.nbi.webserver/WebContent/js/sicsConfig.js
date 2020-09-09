@@ -21,8 +21,15 @@ var _dirtyFlag = false;
 var _versionId = "";
 var _timestamp = "";
 var KEY_MOTOR_NAME = "motor_name";
+var KEY_MOTOR_DESC = "description";
 var KEY_CONTROLLER_NAME = "asyncqueue";
 var KEY_AXIS_NAME = "encoderaxis";
+var KEY_AXIS_NAME = "axis";
+var TABLE_TIER1_HEADER = '<table class="table table-striped table-sm"><thead><tr><th width="25%">Key</th><th width="25%">Type</th><th width="50%">Value</th></tr></thead><tbody>';
+var TABLE_TIER2_HEADER = '<table class="table table-striped table-sm"><thead><tr><th width="40%">Key</th><th width="40%">Value</th><th width="20%"></th></tr></thead><tbody>';
+var EMPTY_ROW_PART1 = '<tr class="tr_entry"><td class="pair_key"><input type="text" class="form-control" value="';
+var EMPTY_ROW_PART2 = '"></td><td class="pair_value"><input type="text" class="form-control" value="';
+var EMPTY_ROW_PART3 = '"></td><td class="pair_control input-group-btn"><button type="button" class="btn btn-outline-primary button_plus">+</button><button type="button" class="btn btn-outline-primary button_minus">-</button></td></tr>';
 
 var _historyBar;
 
@@ -130,7 +137,8 @@ var getGalilItem = function(path) {
 		return null;
 	}
 };
- var updateNode = function($node, key, val) {
+
+var updateNode = function($node, key, val) {
 //	var subMotor = _editorModel[keysOf(_editorModel)[0]];
 	var subMotor = _editorModel;
 	var curVal = subMotor[key];
@@ -141,8 +149,224 @@ var getGalilItem = function(path) {
 		$node.removeClass('changed');
 	}
 	subMotor[key] = val;
- };
- 
+};
+
+var updateT2Pair = function($node, key, tbody, oldVal) {
+	var tr = $node.parent().parent();
+	var $key = tr.find("td.pair_key > input");
+	var $value = tr.find("td.pair_value > input");
+	var isValid = true;
+	var kv = $key.val().trim();
+	if (!kv || !/^[a-z0-9_]+$/i.test(kv)) {
+		$key.parent().addClass("warning");
+		isValid = false;
+	} else {
+		$key.parent().removeClass("warning");
+	}
+	var vv = $value.val().trim();
+	if (!vv) {
+		$value.parent().addClass("warning");
+		isValid = false;
+	} else {
+		$value.parent().removeClass("warning");
+	}
+	
+	if (isValid) {
+		if ($node.val() != oldVal) {
+			$node.addClass("changed");
+		} else {
+			$node.removeClass("changed");
+		}
+		
+		var subMotor = _editorModel;
+		var curVal = subMotor[key];
+		var isChanged = true;
+		if (typeof curVal === 'object') {
+			if (curVal.hasOwnProperty(kv)) {
+				var cv = curVal[kv];
+				if (cv == vv) {
+					isChanged = false;
+				}
+			}
+		}
+		if (isChanged) {
+			_dirtyFlag = true;
+			var newVal = {};
+			var trs = tbody.find('tr');
+			trs.each(function() {
+				var rk = $(this).find('td.pair_key > input').val();
+				var rv = $(this).find('td.pair_value > input').val();
+				newVal[rk] = rv;
+				console.log('add ' + rk + ":" + rv);
+			});
+			subMotor[key] = newVal;
+		} 
+	}
+};
+
+var addRow = function(bt, key, t2Body) {
+	var nRow = $(EMPTY_ROW_PART1 + EMPTY_ROW_PART2 + EMPTY_ROW_PART3);
+	var cRow = bt.parent().parent();
+	nRow.insertAfter(cRow);
+	
+	var t2Key = nRow.find("td.pair_key > input");
+	var oldKV = t2Key.val();
+	
+	t2Key.focus(function() {
+		nRow.addClass("active");
+	}).blur(function() {
+		nRow.removeClass("active");
+		updateT2Pair($(this), key, t2Body, oldKV);
+	}).keypress(function( event ) {
+		if ( event.which == 13 ) {
+			$(this).blur();
+		}
+	});
+
+	var t2Value = nRow.find("td.pair_value > input");
+	var oldVV = t2Value.val();
+	t2Value.focus(function() {
+		nRow.addClass("active");
+	}).blur(function() {
+		nRow.removeClass("active");
+		updateT2Pair($(this), key, t2Body, oldVV);
+	}).keypress(function( event ) {
+		if ( event.which == 13 ) {
+			$(this).blur();
+		}
+	});
+	
+	var t2Add = nRow.find("td.pair_control > button.button_plus");
+	t2Add.click(function() {
+		addRow($(this), key, t2Body);
+	});
+	var t2Remove = nRow.find("td.pair_control > button.button_minus");
+	t2Remove.click(function() {
+		removeRow($(this), key, t2Body);
+	});
+
+	t2Key.focus();
+};
+
+var removeRow = function(bt, key, tbody) {
+	var cRow = bt.parent().parent();
+	cRow.remove();
+	
+	_dirtyFlag = true;
+	var subMotor = _editorModel;
+	var newVal = {};
+	var trs = tbody.find('tr');
+	trs.each(function() {
+		var rk = $(this).find('td.pair_key > input').val();
+		var rv = $(this).find('td.pair_value > input').val();
+		newVal[rk] = rv;
+	});
+	subMotor[key] = newVal;
+};
+
+var PropertyRow = function(tr) {
+	var colKey = tr.find('.editable_key');
+	var colType = tr.find('.editable_type');
+	var colValue = tr.find('.editable_value');
+	var sel = colType.find('select');
+	var key = tr.attr('key');
+	var oldVal = _curModel[key];
+	var newTextHtml;
+	var newPairHtml;
+	if (typeof oldVal === 'object') {
+		newPairHtml = TABLE_TIER2_HEADER;
+		$.each(oldVal, function(subKey, subVal){
+			newPairHtml += EMPTY_ROW_PART1 + subKey + EMPTY_ROW_PART2 + subVal + EMPTY_ROW_PART3;
+		});
+		newPairHtml += '</tbody></table>';
+		newTextHtml = '<input type="text" key="' + key + '" class="form-control" value="">';
+	} else {
+		newPairHtml = TABLE_TIER2_HEADER + EMPTY_ROW_PART1 + EMPTY_ROW_PART2 + EMPTY_ROW_PART3 + '</tbody></table>';
+		newTextHtml = '<input type="text" key="' + key + '" class="form-control" value="' + oldVal + '">';
+	}
+	sel.change(function() {
+		var selVal = sel.val();
+		if (selVal === 'text') {
+			colValue.html(newTextHtml);
+		} else {
+			colValue.html(newPairHtml);
+		}
+		addEventHandler();
+	});
+	
+	var addEventHandler = function() {
+		var t1Value = colValue.find("> input");
+		t1Value.focus(function() {
+			tr.addClass("active");
+		}).blur(function() {
+			tr.removeClass("active");
+			updateNode($(this), key, $(this).val());
+		}).keypress(function( event ) {
+			if ( event.which == 13 ) {
+				$(this).blur();
+			}
+		});
+		
+		var t2Body = colValue.find("tbody");
+		if (t2Body) {
+			var t2Key = t2Body.find("td.pair_key > input");
+			var oldKV = t2Key.val();
+			t2Key.focus(function() {
+				tr.addClass("active");
+			}).blur(function() {
+				tr.removeClass("active");
+				updateT2Pair($(this), key, t2Body, oldKV);
+			}).keypress(function( event ) {
+				if ( event.which == 13 ) {
+					$(this).blur();
+				}
+			});
+
+			var t2Value = t2Body.find("td.pair_value > input");
+			var oldVV = t2Value.val();
+			t2Value.focus(function() {
+				tr.addClass("active");
+			}).blur(function() {
+				tr.removeClass("active");
+				updateT2Pair($(this), key, t2Body, oldVV);
+			}).keypress(function( event ) {
+				if ( event.which == 13 ) {
+					$(this).blur();
+				}
+			});
+			
+			var t2Add = t2Body.find("td.pair_control > button.button_plus");
+			t2Add.click(function() {
+				addRow($(this), key, t2Body);
+			});
+			var t2Remove = t2Body.find("td.pair_control > button.button_minus");
+			t2Remove.click(function() {
+				removeRow($(this), key, t2Body);
+			});
+		}
+	}
+
+	addEventHandler();
+};
+
+var createRow = function(key, val) {
+	var html;
+	if (typeof val === 'object') {
+		html = '<tr class="editable_row" key="' + key + '"><td class="editable_key">' + key + '</td>' 
+		+ '<td class="editable_type"><select name="value_type" class="form-control"><option value="text">plain text</option><option value="pair" selected>name-value pair</option></select></td>'
+		+ '<td class="editable_value">' + TABLE_TIER2_HEADER;
+		$.each(val, function(subKey, subVal){
+			html += EMPTY_ROW_PART1 + subKey + EMPTY_ROW_PART2 + subVal + EMPTY_ROW_PART3;
+		});
+		html += '</tbody></table></td></tr>';
+	} else {
+		html = '<tr class="editable_row" key="' + key + '"><td class="editable_key">' + key + '</td>'
+		+ '<td class="editable_type"><select name="value_type" class="form-control"><option value="text">plain text</option><option value="pair">name-value pair</option></select></td>'
+		+ '<td class="editable_value"><input type="text" class="form-control" value="' + val + '"></td></tr>';
+	}
+	return html;
+};
+
 var loadGalilMotor = function(path, idx) {
 	var okToGo = true;
 	if (_curModel != null && _editorModel != null) {
@@ -214,55 +438,46 @@ var loadGalilMotor = function(path, idx) {
 			var controller = subMotor[KEY_CONTROLLER_NAME];
 			var axis = subMotor[KEY_AXIS_NAME];
 			_title.text(controller + ":" + axis + " (SICS name:" + motorName + ")");
-			var html = '<table class="table table-striped table-sm"><thead><tr><th width="40%">Key</th><th width="60%">Value</th></tr></thead><tbody>';
+			var html = TABLE_TIER1_HEADER;
 			//		$.each(subMotor, function(key, val) {
 			//			html += '<tr><td>' + key + '</td><td>' + val + "</td></tr>";
 			//		});
 			$.each(_editable_tier_1, function(i, key) {
 				if (subMotor.hasOwnProperty(key)){
-					html += '<tr><td>' + key + '</td><td class="editable"><input type="text" key="' + key + '" class="form-control" value="' + subMotor[key] + '"></td></tr>';
+					var val = subMotor[key];
+					html += createRow(key, val);
 				}
 			});
 			$.each(_editable_tier_2, function(i, key) {
 				if (subMotor.hasOwnProperty(key)){
-					html += '<tr><td>' + key + '</td><td class="editable"><input type="text" key="' + key + '" class="form-control" value="' + subMotor[key] + '"></td></tr>';
+					var val = subMotor[key];
+					html += createRow(key, val);
 				}
 			});
 			html += '</tbody></table>';
-			_editorTitle.text('Axis editable');
+			_editorTitle.text('Frequently changed');
 			_editor.html(html);
-			var node = _editor.find('input[type="text"]');
-			node.focus(function() {
-				$(this).parent().parent().addClass("active");
-			}).blur(function() {
-				$(this).parent().parent().removeClass("active");
-				updateNode($(this), $(this).attr('key'), $(this).val());
-			}).keypress(function( event ) {
-				if ( event.which == 13 ) {
-					$(this).blur();
-				}
-			});
-			$.each(node, function(idx, n) {
-				var iv = new IntValidator($(this));
-			});
+//			Below code disabled for allowing math expression 
+//			$.each(node, function(idx, n) {
+//				var iv = new IntValidator($(this));
+//			});
 
 
 			_propertyTitle.text('Other properties');
-			html = '<table class="table table-striped table-sm"><thead><tr><th width="40%">Key</th><th width="60%">Value</th></tr></thead><tbody>';
+			html = TABLE_TIER1_HEADER;
 			$.each(subMotor, function(key, val) {
-				if (typeof val === 'object') {
-					html += '<tr><td>' + key + '</td><td>' + 
-					'<table class="table table-striped table-sm"><thead><tr><th width="40%">Key</th><th width="60%">Value</th></tr></thead><tbody>';
-					$.each(val, function(subKey, subVal){
-						html += '<tr><td>' + subKey + '</td><td>' + subVal + "</td></tr>";
-					});
-					html += '</tbody></table></td></tr>';
-				} else {
-					html += '<tr><td>' + key + '</td><td>' + val + "</td></tr>";
+				if (!(key in _editable_tier_1 || key in _editable_tier_2)) {
+					html += createRow(key, val);
 				}
 			});
 			html += '</tbody></table>';
 			_property.html(html);
+
+			var trs = $("#id_div_main_area").find('tr.editable_row');
+			trs.each(function() {
+				var pr = new PropertyRow($(this));				
+			})
+			
 			_historyBar.reload();
 			return true;
 		}
@@ -315,7 +530,11 @@ var getModel = function() {
 					var path = "/" + key + "/" + id;
 //					var motor = encoder[keysOf(encoder)[0]];
 					var name = motor[KEY_MOTOR_NAME];
-					_motors[name] = [path, idx];
+					var desc = "";
+					if (KEY_MOTOR_DESC in motor){
+						desc = motor[KEY_MOTOR_DESC];
+					}
+					_motors[name] = [path, idx, desc];
 				});
 			});
 		});
@@ -422,12 +641,27 @@ var SearchWidget = function($t) {
 		var html = '';
 //		var found = {};
 		$.each(_motors, function(name, pair) {
-			if (name.indexOf($t.val()) >= 0) {
+			var word = $t.val().toLowerCase();
+			if (name.toLowerCase().indexOf(word) >= 0) {
 //				found[name] = path;
 				var path = pair[0];
 				var idx = pair[1];
+				var desc = pair[2];
+				if (desc) {
+					desc = '(' + desc + ')';
+				}
 				html += '<li class="messageitem" href="#" name="' + name + '" path="' + path + '" idx="' + idx + '"><span class="widget_text">' + 
-						name + ' => ' + path + '</span></li>';
+						name + ' => ' + path + ' ' + desc + '</span></li>';
+			} else {
+				var desc = pair[2];
+				if (desc && desc.toLowerCase().indexOf(word) >= 0) {
+//					found[name] = path;
+					var path = pair[0];
+					var idx = pair[1];
+					desc = '(' + desc + ')';
+					html += '<li class="messageitem" href="#" name="' + name + '" path="' + path + '" idx="' + idx + '"><span class="widget_text">' + 
+							name + ' => ' + path + ' ' + desc + '</span></li>';
+				} 
 			}
 		});
 //		$.each(found, function(name, path) {
@@ -530,16 +764,25 @@ var getTimeString = function(timestamp) {
 	  return time;
 };
 
-var CommitItem = function(commit) {
+var CommitItem = function(commit, index) {
 	var id = commit["id"];
 	var name = commit["name"];
 	var message = commit["message"];
 	var timestamp = commit["timestamp"];
+	var btText;
+	var star;
+	if (index == 0) {
+		btText = "Current version";
+		star = "* ";
+	} else {
+		btText = "Load this version";
+		star = "";
+	}
 	
 	var control = $('<div/>').addClass("class_div_commit_item");
-	control.append('<span class="badge badge-secondary class_span_commit_timestamp">' + getTimeString(timestamp) + '</span>');
+	control.append('<span class="badge badge-secondary class_span_commit_timestamp">' + star + getTimeString(timestamp) + '</span>');
 	control.append('<span class="class_span_commit_message">' + message + '</span>');
-	var button = $('<span class="class_span_commit_button"><button class="class_button_load_commit btn btn-sm btn-block btn-outline-primary">Load this version</button></span>');
+	var button = $('<span class="class_span_commit_button"><button class="class_button_load_commit btn btn-sm btn-block btn-outline-primary">' + btText + '</button></span>');
 	control.append(button);
 	button.find('button').click(function() {
 		var url = 'yaml/load?inst=' + _inst + '&version=' + encodeURI(name) + "&" + Date.now();
@@ -572,7 +815,11 @@ var CommitItem = function(commit) {
 							var path = "/" + key + "/" + id;
 //							var motor = encoder[keysOf(encoder)[0]];
 							var name = motor[KEY_MOTOR_NAME];
-							_motors[name] = [path, idx];
+							var desc = "";
+							if (KEY_MOTOR_DESC in motor){
+								desc = motor[KEY_MOTOR_DESC];
+							}
+							_motors[name] = [path, idx, desc];
 						});
 //						var path = "/" + key + "/" + id;
 //						var motor = encoder[keysOf(encoder)[0]];
@@ -645,7 +892,7 @@ var HistoryBlock = function(main, side) {
 			$.get(url, function(data) {
 				data = $.parseJSON(data);
 				$.each(data, function(i, v) {
-					var commit = new CommitItem(v);
+					var commit = new CommitItem(v, i);
 					side.append(commit.getControl());
 				});
 			}).fail(function() {

@@ -34,7 +34,7 @@
 
             // Construct default configuration
             var defaultConfig = {
-                delay: 10,
+                delay: 300,
                 messageType: "notification",
                 saveDetectionSelectors: "a[href^='javascript:__doPostBack'][id*='Save'],a[id*='Cancel']",
                 saveOnDestroy: false,
@@ -109,7 +109,7 @@
 
     var startTimer = function (configAutosave, editorInstance) {
         if (editorInstance.config.autosave_timeOutId == null) {
-            var delay = configAutosave.delay != null ? configAutosave.delay : 10;
+            var delay = configAutosave.delay != null ? configAutosave.delay : 300;
             editorInstance.config.autosave_timeOutId = setTimeout(function() {
                     onTimer(configAutosave, editorInstance);
                 },

@@ -65,6 +65,8 @@ CKEDITOR.editorConfig = function( config ) {
 
 	config.extraPlugins = 'pdf,word,lock';
 
+	config.autosave_delay = 300;
+
 	// Set the most common block elements.
 	config.format_tags = 'p;h1;h2;h3;pre';
 
