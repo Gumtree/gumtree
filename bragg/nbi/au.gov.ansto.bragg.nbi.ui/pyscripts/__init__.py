@@ -185,3 +185,5 @@ def __dataset_selected__(datasets):
     global __selected_dataset__
     __selected_dataset__ = datasets
     
+def update_group_ui(g):
+    __UI__.updateGroupUI(g.__group__)

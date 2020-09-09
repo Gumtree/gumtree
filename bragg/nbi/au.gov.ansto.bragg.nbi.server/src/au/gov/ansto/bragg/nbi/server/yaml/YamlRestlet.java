@@ -25,14 +25,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.httpclient.HttpClientError;
 import org.apache.commons.io.FileUtils;
-import org.eclipse.jgit.api.errors.NoFilepatternException;
-import org.eclipse.jgit.transport.JschConfigSessionFactory;
-import org.eclipse.jgit.transport.JschSession;
-import org.eclipse.jgit.transport.OpenSshConfig;
-import org.eclipse.jgit.transport.SshSessionFactory;
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.security.EncryptionUtils;
 import org.json.JSONArray;
@@ -211,7 +207,9 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 						if (path != null && path.trim().length() > 0) {
 							String message = commit.getMessage();
 							if (!message.contains(path)) {
-								continue;
+								if (!message.contains("fetch remote version")) {
+									continue;
+								}
 							}
 						}
 						JSONObject obj = new JSONObject();
@@ -300,7 +298,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 				} catch (Exception e) {
 					e.printStackTrace();
 					logger.error("failed to do save", e);
-					response.setEntity(makeErrorJSON("failed to save"), MediaType.APPLICATION_JSON);
+					response.setEntity(makeErrorJSON("failed to save, " + e.getMessage()), MediaType.APPLICATION_JSON);
 //					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
 //					response.setStatus(Status.CLIENT_ERROR_EXPECTATION_FAILED, e);
 					return;
@@ -469,20 +467,41 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			String key = json.names().getString(i);
 			Object val = json.get(key);
 			if (val instanceof JSONObject) {
-				Object sub = model.get(key);
+//				Object sub = model.get(key);
+//				if (sub == null || !(sub instanceof Map)) {
+				Map<String, Object> sub = new TreeMap<String, Object>();
+//				} else {
+//					((Map<String, Object>) sub).clear();
+//				}
 				updateMode((JSONObject) val, (Map<String, Object>) sub);
+				model.put(key, sub);
 			} else {
 				Object sub = model.get(key);
 				if (sub instanceof Double) {
-					val = Double.valueOf(val.toString());
+					try {
+						val = Double.valueOf(val.toString());
+					} catch (Exception e) {
+						val = String.valueOf(val);
+					}
 				} else if (sub instanceof Integer) {
-					val = Integer.valueOf(val.toString());
+					try {
+						val = Integer.valueOf(val.toString());
+					} catch (Exception e) {
+						val = String.valueOf(val);
+					}
 				} else if (sub instanceof String) {
 					val = String.valueOf(val);
 				} else if (sub instanceof LinkedHashSet) {
 					continue;
 				}
-				if (!sub.equals(val)) {
+				if (sub == null) {
+					try {
+						val = Float.valueOf(val.toString());
+					} catch (Exception e) {
+						val = String.valueOf(val);
+					}
+				}
+				if (sub == null || !sub.equals(val)) {
 					model.put(key, val);
 				}
 			}
@@ -627,7 +646,8 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 				if (git != null) {
 					try {
 						git.applyChange();
-						String message = session.getUserName().toUpperCase() + " fetch remote version" + ": " + formater.format(new Date());
+//						String message = session.getUserName().toUpperCase() + " fetch remote version" + ": " + formater.format(new Date());
+						String message = "System fetch remote version" + ": " + formater.format(new Date());
 						git.commit(message);
 					} catch (Exception e) {
 						e.printStackTrace();

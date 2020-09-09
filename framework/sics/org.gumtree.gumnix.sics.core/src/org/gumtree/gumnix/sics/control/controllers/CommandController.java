@@ -64,12 +64,18 @@ public class CommandController extends ComplexController implements ICommandCont
 			asyncExecute();
 		} else {
 			// Wait until command is available
+			int counter = 0;
 			while (getCommandStatus().equals(CommandStatus.BUSY)) {
 				sleep("Error occured while waiting for IDLE state");
+				counter += TIME_INTERVAL;
+				if (counter >= 2000) {
+					getStatusController().getValue(true);
+					counter = 0;
+				}
 			}
 			// Execute
 			asyncExecute();
-			int counter = 0;
+			counter = 0;
 			while (!statusChanged) {
 				sleep("Error occured while waiting for BUSY state");
 				counter += TIME_INTERVAL;

@@ -47,6 +47,13 @@
             id="au.gov.ansto.bragg.quokka.ui.QuokkaMSWPerspective"
             name="Quokka Workflow">
       </perspective>
+      <perspective
+            class="au.gov.ansto.bragg.quokka.ui.internal.GSOMWorkflowPerspective"
+            fixed="true"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.quokka.ui.GSOMWorkflowPerspective"
+            name="GSOM Workflow">
+      </perspective>
       <!--
       <perspective
             class="au.gov.ansto.bragg.quokka.ui.internal.AlignmentPerspective"
@@ -127,6 +134,13 @@
             id="au.gov.ansto.bragg.quokka.ui.resultView"
             name="Quokka Result Monitor"
             restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            class="au.gov.ansto.bragg.quokka.ui.internal.GSOMWorkflowView"
+            id="au.gov.ansto.bragg.quokka.ui.GSOMWorkflowView"
+            name="GSOM Workflow View"
+            restorable="false">
       </view>
    </extension>
    <extension
