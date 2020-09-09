@@ -26,6 +26,7 @@ public class ScriptParameter extends PyObjectImp {
 	};
 	
 	public ScriptParameter() {
+		super();
 	}
 	
 	private PType type = PType.STRING;

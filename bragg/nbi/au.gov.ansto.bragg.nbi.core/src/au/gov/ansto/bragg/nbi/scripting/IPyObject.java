@@ -22,4 +22,6 @@ public interface IPyObject {
 	public int getColSpan();
 	
 	public int getRowSpan();
+	
+	public int getId();
 }

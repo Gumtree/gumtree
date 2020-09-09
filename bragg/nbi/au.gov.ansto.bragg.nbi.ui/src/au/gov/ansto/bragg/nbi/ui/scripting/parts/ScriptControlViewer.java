@@ -12,7 +12,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
@@ -265,6 +267,8 @@ public class ScriptControlViewer extends Composite {
 	private boolean editingEnabled = true;
 	private Color highlightColor;
 	private Color defaultColor;
+	private Map<Integer, Composite> groupMap;
+
 	
 	/**
 	 * @param parent
@@ -291,6 +295,7 @@ public class ScriptControlViewer extends Composite {
 			} catch (Exception e) {
 			}
 		}
+		groupMap = new HashMap<Integer, Composite>();
 	}
 
 	private void createStaticArea() {
@@ -933,7 +938,18 @@ public class ScriptControlViewer extends Composite {
 		});
 	}
 	
+	public void updateGroupUI(final ScriptObjectGroup pyGroup) {
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				reloadGroup(pyGroup);
+			}
+		});
+	}
+	
 	private void updateControlUI() {
+		groupMap.clear();
 		for (Control control : dynamicComposite.getChildren()) {
 			control.dispose();
 		}
@@ -1006,7 +1022,6 @@ public class ScriptControlViewer extends Composite {
 	}
 
 	private void addGroup(final Composite parent, final ScriptObjectGroup objGroup) {
-//		Group group = new Group(parent, SWT.NONE);
 		Composite group;
 		String hideTitleString = objGroup.getProperty("hideTitle");
 		if (hideTitleString != null && Boolean.valueOf(hideTitleString)) {
@@ -1161,6 +1176,33 @@ public class ScriptControlViewer extends Composite {
 			});
 
 		}
+
+		loadGroup(group, objGroup);
+		groupMap.put(objGroup.getId(), group);
+	}
+	
+	private void reloadGroup(final ScriptObjectGroup objGroup) {
+		if (groupMap.containsKey(objGroup.getId())) {
+			Composite group = groupMap.get(objGroup.getId());
+			for (Control child : group.getChildren()) {
+				child.dispose();
+			}
+			loadGroup(group, objGroup);
+//			group.layout(true, true);
+//			group.update();
+//			group.redraw();
+			Rectangle r = scroll.getClientArea();
+			scroll.setMinSize(dynamicComposite.computeSize(r.width, SWT.DEFAULT));
+			scroll.layout(true, true);
+			scroll.update();
+			scroll.redraw();
+//			layout(true);
+//			update();
+//			redraw();
+		}
+	}
+	
+	private void loadGroup(final Composite group, final ScriptObjectGroup objGroup) {
 //		final MenuBasedGroup group = new MenuBasedGroup(parent, SWT.NONE);
 		int groupNumColumns = 1;
 		if (objGroup.getProperty("numColumns") != null) {
@@ -1212,7 +1254,6 @@ public class ScriptControlViewer extends Composite {
 				addGroup(group, (ScriptObjectGroup) control);
 			}
 		}
-
 	}
 
 	private void addAction(Composite parent, final ScriptAction action) {

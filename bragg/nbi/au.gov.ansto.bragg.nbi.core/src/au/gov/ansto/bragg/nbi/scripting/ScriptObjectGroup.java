@@ -16,6 +16,7 @@ public class ScriptObjectGroup extends PyObjectImp {
 	private List<IPyObject> objectList = new ArrayList<IPyObject>();
 	
 	public ScriptObjectGroup(String name) {
+		super();
 		setName(name);
 	}
 
@@ -28,6 +29,10 @@ public class ScriptObjectGroup extends PyObjectImp {
 
 	public void addObject(IPyObject object) {
 		objectList.add(object);
+	}
+	
+	public void insertObject(int idx, IPyObject object) {
+		objectList.add(idx, object);
 	}
 
 	public void removeObject(IPyObject object) {

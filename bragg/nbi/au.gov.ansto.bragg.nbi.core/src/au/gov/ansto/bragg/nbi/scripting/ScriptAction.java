@@ -19,6 +19,10 @@ public class ScriptAction extends PyObjectImp {
 	private String command;
 	private ActionStatus status;
 	
+	public ScriptAction() {
+		super();
+	}
+	
 	public String getText() {
 		return text;
 	}
