@@ -6,6 +6,7 @@ import copy
 import math
 import random
 import itertools
+from java.lang import Double
 
 gdm_factory = FactoryManager().getFactory()
 
@@ -24,6 +25,7 @@ class Array:
             obj = [obj]
         iArray = obj
         self.dtype = None
+        self.itemsize = 0
         if hasattr(obj, '__len__') :
 #            if len(obj) == 0 :
 #                raise Exception, 'empty list not allowed'
@@ -44,45 +46,58 @@ class Array:
                 for id in xrange(size) :
                     val = get_item(obj, id, rawshape)
                     if type(val) is int :
+                        self.itemsize = 4
                         continue
                     elif type(val) is float :
                         tp = DataType.DOUBLE
                         self.dtype = float
+                        self.itemsize = 8
                         break
                     elif type(val) is str :
                         tp = DataType.CHAR
                         self.dtype = str
+                        self.itemsize = 2
                         break
                     elif type(val) is bool :
                         tp = DataType.BOOLEAN
                         self.dtype = bool
+                        self.itemsize = 1
                         break
                     elif type(val) is long :
                         tp = DataType.LONG
                         self.dtype = long
+                        self.itemsize = 8
                         break
                     else :
                         tp = DataType.STRING
                         self.dtype = object
+                        self.itemsize = 0
                         break
                 if self.dtype is str :
                     if not type(obj) is str :
                         tp = DataType.STRING
                         self.dtype = object
+                        self.itemsize = 0
             else :
                 self.dtype = dtype
                 if dtype is int :
                     tp = DataType.INT
+                    self.itemsize = 4
                 elif dtype is float :
                     tp = DataType.DOUBLE
+                    self.itemsize = 8
                 elif dtype is long :
                     tp = DataType.LONG
+                    self.itemsize = 8
                 elif dtype is bool :
                     tp = DataType.BOOLEAN
+                    self.itemsize = 1
                 elif dtype is str :
                     tp = DataType.CHAR
+                    self.itemsize = 2
                 else :
                     tp = DataType.STRING
+                    self.itemsize = 0
             iArray = gdm_factory.createArray(tp.getPrimitiveClassType(), jshape)
             iter = iArray.getIterator()
             if self.dtype is int :
@@ -1082,7 +1097,7 @@ class Array:
         else :
             try :
                 while True :
-                    riter.set_next(obj ** self.next())
+                    riter.set_next(obj ** siter.next())
             except StopIteration:
                 pass
         return res
@@ -1473,12 +1488,19 @@ class Array:
                 siter.set_next(get_item(value, id))
                     
     def fill(self, val):
-        siter = self.item_iter()
-        try :
-            while True :
-                siter.set_next(val)
-        except StopIteration :
-            pass
+        if hasattr(val, '__len__'):
+            shape = get_shape(val)
+            si = self.section_iter(shape)
+            while si.has_next():
+                s = si.next()
+                s[:] = val
+        else:
+            siter = self.item_iter()
+            try :
+                while True :
+                    siter.set_next(val)
+            except StopIteration :
+                pass
             
     def put(self, indices, values, mode='raise') :
 #        v1 = self.view_1d()
@@ -1764,7 +1786,113 @@ class Array:
 #            
 #        if out is None:
 #            pass
-        
+    def diagonal(self, offset=0, axis1=0, axis2=1, out=None):
+        if self.ndim < 2:
+            raise Exception('diag requires an array of at least two dimensions')
+        elif self.ndim == 2:
+            if offset == 0:
+                s0 = self.shape[0]
+                s1 = self.shape[1]
+                s = s0 if s0 < s1 else s1
+                if not out:
+                    out = zeros([s], dtype = self.dtype)
+                for i in xrange(s):
+                    out[i] = self.get_value([i, i])
+            elif offset > 0:
+                s0 = self.shape[0]
+                s1 = self.shape[1] - offset
+                s = s0 if s0 < s1 else s1
+                if not out:
+                    out = zeros([s], dtype = self.dtype)
+                for i in xrange(s):
+                    out[i] = self.get_value([i, i + offset])
+            else :
+                s0 = self.shape[0] + offset
+                s1 = self.shape[1]
+                s = s0 if s0 < s1 else s1
+                if not out:
+                    out = zeros([s], dtype = self.dtype)
+                for i in xrange(s):
+                    out[i] = self.get_value([i - offset, i])
+            return out
+        else:
+            ss = self.shape
+            s1 = ss[axis1]
+            s2 = ss[axis2]
+            shape = [1] * self.ndim
+            shape[axis1] = s1
+            shape[axis2] = s2
+            if offset == 0:
+                s = s1 if s1 < s2 else s2
+            elif offset > 0:
+                s = s1 if s1 < s2 - offset else s2 - offset
+            else:
+                s = s1 + offset if s1 + offset < s2 else s2
+            # os is shape of out, ois is the shape of out iterator shape
+            os = []
+            ois = []
+            to_reduce = []
+            for i in xrange(self.ndim):
+                if i != axis1 and i != axis2:
+                    os.append(self.shape[i])
+                    ois.append(1)
+                    to_reduce.append(i)
+            to_reduce.sort(reverse = True)
+            os.append(s)
+            out = zeros(os, self.dtype)
+            ois.append(s)
+            si = self.section_iter(shape)
+            oi = out.section_iter(ois)
+            while si.has_next():
+                sec = si.next()
+                osec = oi.next()
+                for r in to_reduce:
+                    sec = sec.get_reduced(r)
+                for r in range(self.ndim - 3, -1, -1):
+                    osec = osec.get_reduced(r)
+                sec.diagonal(offset, out = osec)
+            return out
+    
+    def tril(self, k=0):
+        if self.ndim != 2:
+            raise Exception('dimension must be 2')
+        arr = zeros(self.shape, self.dtype)
+        N, M = self.shape
+        if k >= 0:
+            for i in xrange(N) :
+                l = i + k + 1 if i + k < M else M
+                for j in xrange(l):
+                    arr[i, j] = self.get_value([i, j])
+        else:
+            for i in xrange(-k, N):
+                l = i + k + 1 if i + k + 1 < M else M
+                for j in xrange(l):
+                    arr[i, j] = self.get_value([i, j])
+        return arr
+
+    def triu(self, k=0):
+        if self.ndim != 2:
+            raise Exception('dimension must be 2')
+        arr = zeros(self.shape, self.dtype)
+        N, M = self.shape
+        if k >= 0:
+            for i in xrange(N) :
+                s = i + k
+                if s >= M :
+                    break
+                for j in xrange(s, M):
+                    arr[i, j] = self.get_value([i, j])
+        else:
+            for i in xrange(N):
+                s = i + k
+                if s >= M :
+                    break
+                l = s if s >= 0 else 0
+                for j in xrange(l, M):
+                    arr[i, j] = self.get_value([i, j])
+        return arr
+
+
 #####################################################################################
 # Array slice iter class
 #####################################################################################
@@ -2238,6 +2366,50 @@ def diagflat(obj, k = 0):
                 arr[idx + k, idx] = item
                 idx += 1
         return arr
+
+def tri(N, M = None, k = 0, dtype = float):
+    if M is None :
+        M = N
+    arr = instance([N, M], dtype = dtype)
+    if k >= 0:
+        for i in xrange(N) :
+            l = i + k + 1 if i + k < M else M
+            for j in xrange(l):
+                arr[i, j] = 1
+    else:
+        for i in xrange(-k, N):
+            l = i + k + 1 if i + k + 1 < M else M
+            for j in xrange(l):
+                arr[i, j] = 1
+    return arr
+
+def vander(x, N=None, increasing=False):
+    l = len(x)
+    if N is None:
+        N = l
+    arr = zeros([l, N], x.dtype)
+    if increasing:
+        rid = 0
+        for row in arr :
+            v = x[rid]
+            ri = iter(row)
+            cid = 0
+            while ri.has_next():
+                ri.set_next(v ** cid)
+                cid += 1
+            rid += 1
+    else:
+        rid = 0
+        for row in arr :
+            v = x[rid]
+            ri = iter(row)
+            cid = N - 1
+            while ri.has_next():
+                ri.set_next(v ** cid)
+                cid -= 1
+            rid += 1
+    return arr
+    
         
 def ones(shape, dtype = float):
     if type(shape) is int :
@@ -2400,8 +2572,6 @@ def linspace(start, end, num, shape = None, endpoint=True, retstep=False):
             step = (float(end) - start) / int(num - 1)
         else :
             step = (float(end) - start) / int(num)
-    if retstep :
-        return step
     if shape is None :
         shape = [num]
     else :
@@ -2417,12 +2587,15 @@ def linspace(start, end, num, shape = None, endpoint=True, retstep=False):
             raise TypeError, 'size of the array does not match with the given shape, \
                 should be ' + str(num) + ', but ' + str(_size) + ' in the shape'
     arr = instance(shape, dtype = float)
-    iter(arr)
+    ai = arr.item_iter()
     i = 0
     while i < num :
-        arr.set_next_value(start + i * step)
+        ai.set_next(start + i * step)
         i += 1
-    return arr
+    if retstep :
+        return (arr, step)
+    else:
+        return arr
 
 #####################################################################################
 # Create array from existing data
@@ -3000,6 +3173,55 @@ def min(arr, axis = None, out = None):
     else :
         raise TypeError, 'type not supported: ' + str(type(arr))
 
+def array_equal(a1, a2, equal_nan=False):
+    if a1.shape != a2.shape:
+        return False
+    a1i = iter(a1)
+    a2i = iter(a2)
+    if equal_nan:
+        while a1i.has_next():
+            x = a1i.next()
+            y = a2i.next()
+            if x != y:
+                if Double.isNaN(x) and Double.isNaN(y) :
+                    continue
+                else:
+                    return False
+    else:
+        while a1i.has_next():
+            if a1i.next() == a2i.next():
+                continue
+            else:
+                return False
+    return True
+
+def allclose(a, b, rtol=1e-05, atol=1e-08, equal_nan=False):
+    if a.shape != b.shape:
+        return False
+    ai = iter(a)
+    bi = iter(b)
+    if equal_nan:
+        while ai.has_next():
+            x = ai.next()
+            y = bi.next()
+            if x != y:
+                if Double.isNaN(x) and Double.isNaN(y) :
+                    continue
+                if abs(x - y) > (atol + rtol * abs(y)) :
+                    continue
+                else:
+                    return False
+    else:
+        while ai.has_next():
+            x = ai.next()
+            y = bi.next()
+            if x != y:
+                if abs(x - y) < (atol + rtol * abs(y)) :
+                    continue
+                else:
+                    return False
+    return True
+    
 #####################################################################################
 # Other utility classes
 #####################################################################################

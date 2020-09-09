@@ -175,8 +175,24 @@ class Group():
             elif isinstance(obj, Group) :
                 self.__group__.addObject(obj.__group__)
         
-    def remove(self, obj):
-        self.__group__.removeObject(obj)
+    def insert(self, idx, *objs):
+        for obj in objs:
+            if isinstance(obj, Par) :
+                self.__group__.insertObject(idx, obj.__par__)
+            elif isinstance(obj, Act) :
+                self.__group__.insertObject(idx, obj.__act__)
+            elif isinstance(obj, Group) :
+                self.__group__.insertObject(idx, obj.__group__)
+            idx += 1
+
+    def remove(self, *objs):
+        for obj in objs:
+            if isinstance(obj, Par) :
+                self.__group__.removeObject(obj.__par__)
+            elif isinstance(obj, Act) :
+                self.__group__.removeObject(obj.__act__)
+            elif isinstance(obj, Group) :
+                self.__group__.removeObject(obj.__group__)
         
     def moveBeforeObject(self, obj):
         if isinstance(obj, Par):

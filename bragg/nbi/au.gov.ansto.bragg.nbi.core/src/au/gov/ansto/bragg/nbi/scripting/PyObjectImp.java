@@ -1,4 +1,5 @@
 /**
+
  * 
  */
 package au.gov.ansto.bragg.nbi.scripting;
@@ -19,10 +20,25 @@ public abstract class PyObjectImp implements IPyObject{
 	public final static String PROP_COLSPAN_NAME = "colspan";
 	public final static String PROP_ROWSPAN_NAME = "rowspan";
 	
+	private int id;
 	private String name;
 	private Map<String, String> properties;
+	
+	private static int nextId = 0;
 
 	private PropertyChangeSupport changeListener = new PropertyChangeSupport(this);
+	
+	protected PyObjectImp() {
+		id = getNextId();
+	}
+	
+	private static synchronized int getNextId() {
+		return nextId++;
+	}
+	
+	public int getId() {
+		return id;
+	}
 	
 	protected void firePropertyChange(String name, Object oldValue, Object newValue) {
 		changeListener.firePropertyChange(name, oldValue, newValue);
