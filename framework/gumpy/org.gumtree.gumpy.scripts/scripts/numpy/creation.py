@@ -2,7 +2,9 @@
     @author: nxi
 '''
 
+from utils import *
 from nparray import ndarray
+from npmatrix import matrix
 from gumpy.nexus import array as nxa
 from errorhandler import *
 
@@ -96,7 +98,7 @@ def empty_like(prototype, dtype=None, order=None, subok=True, shape=None):
 def eye(N, M=None, k=0, dtype=float, order=None):
     if M is None:
         M = N
-    out = empty([N, M], float)
+    out = empty([N, M], dtype)
     if k >= 0:
         for i in xrange(N):
             j = i + k
@@ -264,6 +266,8 @@ def zeros_like(a, dtype=None, order=None, subok=None, shape=None):
 
 '''
 def full(shape, fill_value, dtype=None, order=None):
+    if dtype is None:
+        dtype = nxa.get_type(fill_value)
     out = empty(shape, dtype)
     out.fill(fill_value)
     return out
@@ -332,11 +336,44 @@ def full_like(a, fill_value, dtype=None, order=None, subok=None, shape=None):
 
 '''
 def array(object, dtype=None, copy=True, order=None, subok=None, ndmin=0):
-    return ndarray(buffer = nxa.asarray(object, dtype))
+    if isinstance(object, ndarray):
+        return object
+    else:
+        return ndarray(buffer = nxa.asarray(object, dtype))
 
 ''' same function as array(). See above document for details.'''
 def Array(object, dtype=None, copy=True, order=None, subok=None, ndmin=0):
     return array(object, dtype, copy, ndmin=ndmin)
+
+''' Convert the input to an array.
+
+    Parameters
+
+        a : array_like
+            Input data, in any form that can be converted to an array. This includes 
+            lists, lists of tuples, tuples, tuples of tuples, tuples of lists and 
+            ndarrays.
+            
+        dtype : data-type, optional
+            By default, the data-type is inferred from the input data.
+        
+        order : not supported
+
+    Returns
+
+        out : ndarray
+            Array interpretation of a. No copy is performed if the input is already 
+            an ndarray with matching dtype and order. If a is a subclass of ndarray, 
+            a base class ndarray is returned.
+
+'''
+def asarray(a, dtype=None, order=None):
+    if isinstance(a, ndarray):
+        return ndarray(buffer = a.buffer)
+    elif isinstance(a, nxa.Array):
+        return ndarray(dtype, buffer = a)
+    else:
+        return ndarray(buffer = nxa.asarray(a, dtype))
     
     
 ''' Convert the input to an ndarray, but pass ndarray subclasses through.
@@ -368,10 +405,147 @@ def asanyarray(a, dtype=None, order=None):
     else:
         return ndarray(buffer = nxa.asarray(a, dtype))
 
+''' Interpret the input as a matrix.
+
+    Unlike matrix, asmatrix does not make a copy if the input is already a matrix or an ndarray. 
+    Equivalent to matrix(data, copy=False).
+
+    Parameters
+
+        data : array_like
+            Input data.
+
+        dtype : data-type
+            Data-type of the output matrix.
+
+    Returns
+
+        mat : matrix
+            data interpreted as a matrix.
+
+'''
+def asmatrix(data, dtype=None):
+    if isinstance(data, matrix):
+        return data
+    else:
+        return matrix(data, dtype, False)
+
+''' Return an array converted to a float type.
+
+    Parameters
+
+        a : array_like
+            The input array.
+
+        dtype : not supported
+
+    Returns
+
+        out : ndarray
+            The input a as a float ndarray.
+
+'''
+def asfarray(a, dtype=float):
+    if isinstance(a, ndarray):
+        if a.dtype is float:
+            return a
+        else:
+            return ndarray(buffer = a.buffer.float_copy())
+    elif isinstance(a, nxa.Array):
+        if a.dtype is float:
+            return ndarray(buffer = a)
+        else:
+            return ndarray(buffer = a.float_copy())
+    else:
+        return ndarray(buffer = nxa.asarray(a, float))
+    
+''' Not supported. Just for compatibility purpose. '''
+def asfortranarray(a, dtype=None):
+    print('warning: function asfortranarray is not supported')
+    return asarray(a, dtype)
+
 ''' Not supported. Just for compatibility purpose. '''
 def ascontiguousarray(a, dtype=None):
+    print('warning: function ascontiguousarray is not supported')
     return array(a, dtype)
 
+''' Not supported. Just for compatibility purpose. '''
+def require(a, dtype=None, requirements=None):
+    print('warning: function require is not supported')
+    return asarray(a, dtype)
+
+''' Convert the input to an array, checking for NaNs or Infs.
+
+    Parameters
+
+        a : array_like
+            Input data, in any form that can be converted to an array. 
+            This includes lists, lists of tuples, tuples, tuples of tuples, 
+            tuples of lists and ndarrays. Success requires no NaNs or Infs.
+        
+        dtype : data-type, optional
+            By default, the data-type is inferred from the input data.
+
+        order : not supported
+
+    Returns
+
+        out : ndarray
+            Array interpretation of a. No copy is performed if the input is 
+            already an ndarray. If a is a subclass of ndarray, a base class 
+            ndarray is returned.
+
+    Raises
+
+        ValueError
+            Raises ValueError if a contains NaN (Not a Number) or Inf (Infinity).
+
+'''
+def asarray_chkfinite(a, dtype=None, order=None):
+    if isinstance(a, ndarray):
+        _check_finite(a.buffer)
+        return ndarray(buffer = a.buffer)
+    elif isinstance(a, nxa.Array):
+        _check_finite(a)
+        return ndarray(dtype, buffer = a)
+    else:
+        a = nxa.asarray(a, dtype)
+        _check_finite(a)
+        return ndarray(buffer = a)
+
+''' Convert an array of size 1 to its scalar equivalent.
+
+    Parameters
+
+        a : ndarray
+            Input array of size 1.
+
+    Returns
+
+        out : scalar
+            Scalar representation of a. The output data type is the same type returned 
+            by the input's item method.
+
+'''
+def asscalar(a):
+    if not isinstance(a, ndarray) :
+        if hasattr(a, '__len__'):
+            a = asanyarray(a)
+        else:
+            return a
+    if a.size > 1:
+        raise ValueError('can only convert an array of size 1 to a Python scalar')
+    return a.item()
+    
+def _check_finite(a):
+    ai = a.item_iter()
+    try:
+        while True:
+            if not isfinite(ai.next()):
+                raise ValueError('inf or nan found')
+    except StopIteration :
+        pass
+    
 ''' Return an array copy of the given object.
 
     Parameters
@@ -381,7 +555,10 @@ def ascontiguousarray(a, dtype=None):
 
         order : not supported
 
-        subok : not supported
+        subok : bool, optional
+            If True, then sub-classes will be passed-through, 
+            otherwise the returned array will be forced to be 
+            a base-class array (defaults to True).
 
     Returns
 
@@ -389,8 +566,9 @@ def ascontiguousarray(a, dtype=None):
             Array interpretation of a.
 
 '''
-def copy(a, order=None, subok=None):
-    return array(a)
+def copy(a, order=None, subok=True):
+    a = asanyarray(a)
+    return a.copy(subok)
 
 ''' Interpret a buffer as a 1-dimensional array.
 
@@ -631,19 +809,13 @@ def meshgrid(xi, copy=True, sparse=False, indexing='xy'):
 
 '''
 def diag(v, k=0):
+#     return ndarray(buffer = diagflat(v, k))
     v = asanyarray(v)
-    s = v.shape
-    if len(s) == 1:
-        n = s[0]+abs(k)
-        res = zeros((n, n), v.dtype)
-        if k >= 0:
-            i = k
-        else:
-            i = (-k) * n
-        res[:n-k].flat[i::n+1] = v
-        return res
-    elif len(s) == 2:
-        return diagonal(v, k)
+    dim = v.ndim
+    if dim == 1:
+        return diagflat(v, k)
+    elif dim == 2:
+        return v.diagonal(k)
     else:
         raise ValueError("Input must be 1- or 2-d.")
     
@@ -666,7 +838,8 @@ def diag(v, k=0):
 
 '''
 def diagflat(v, k=0):
-    return ndarray(buffer = nxa.diagflat(v, k))
+    v = asanyarray(v)
+    return ndarray(buffer = nxa.diagflat(v.buffer, k))
 
 """ Return specified diagonals.
     If `a` is 2-D, returns the diagonal of `a` with the given offset,
@@ -806,3 +979,31 @@ def triu(m, k=0):
 def vander(x, N=None, increasing=False):
     return ndarray(buffer = nxa.vander(x, N, increasing))
 
+''' Interpret the input as a matrix.
+
+    Unlike matrix, asmatrix does not make a copy if the input is already a matrix or 
+    an ndarray. Equivalent to matrix(data, copy=False).
+
+    Parameters
+
+        data : array_like
+            Input data.
+
+        dtype : data-type
+            Data-type of the output matrix.
+
+    Returns
+
+        mat : matrix
+            data interpreted as a matrix.
+
+'''
+def mat(data, dtype=None):
+    return matrix(buffer = nxa.asarray(data, dtype))
+
+def bmat(obj, ldict=None, gdict=None):
+    raise NotImplementedError('not implemented yet')
+
+def compress(condition, a, axis=None, out=None):
+    a = asanyarray(a)
+    return a.compress(condition, axis, out)

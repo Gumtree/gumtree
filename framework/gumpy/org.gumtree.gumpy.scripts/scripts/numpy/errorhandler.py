@@ -13,3 +13,7 @@ class NotImplementedError(Exception):
 class IllegalArgumentError(Exception):
     def __init__(self, text = 'illegal argument', e = None):
         Exception(text, e)
+        
+class AxisError(Exception):
+    def __init__(self, text = 'axis error', e = None):
+        Exception(text, e)

@@ -24,11 +24,19 @@ class Array:
         if type(obj) is int or type(obj) is float or type(obj) is long or type(obj) is bool :
             obj = [obj]
         iArray = obj
-        self.dtype = None
-        self.itemsize = 0
+        self._dtype = None
+        self._itemsize = 0
         if hasattr(obj, '__len__') :
 #            if len(obj) == 0 :
 #                raise Exception, 'empty list not allowed'
+            if obj == []:
+                self._size = 0
+                self._dtype = float if dtype is None else dtype
+                self._shape = [0]
+                self._ndim = 1
+                self._itemsize = 8
+                self.__iArray__ = []
+                return
             rawrank = get_ndim(obj)
             rawshape = get_shape(obj, rawrank)
             if shape is None :
@@ -42,81 +50,81 @@ class Array:
             jshape = jutils.jintcopy(shape)
             tp = DataType.INT
             if dtype is None :
-                self.dtype = int
+                self._dtype = int
                 for id in xrange(size) :
                     val = get_item(obj, id, rawshape)
                     if type(val) is int :
-                        self.itemsize = 4
+                        self._itemsize = 4
                         continue
                     elif type(val) is float :
                         tp = DataType.DOUBLE
-                        self.dtype = float
-                        self.itemsize = 8
+                        self._dtype = float
+                        self._itemsize = 8
                         break
                     elif type(val) is str :
                         tp = DataType.CHAR
-                        self.dtype = str
-                        self.itemsize = 2
+                        self._dtype = str
+                        self._itemsize = 2
                         break
                     elif type(val) is bool :
                         tp = DataType.BOOLEAN
-                        self.dtype = bool
-                        self.itemsize = 1
+                        self._dtype = bool
+                        self._itemsize = 1
                         break
                     elif type(val) is long :
                         tp = DataType.LONG
-                        self.dtype = long
-                        self.itemsize = 8
+                        self._dtype = long
+                        self._itemsize = 8
                         break
                     else :
                         tp = DataType.STRING
-                        self.dtype = object
-                        self.itemsize = 0
+                        self._dtype = object
+                        self._itemsize = 0
                         break
-                if self.dtype is str :
+                if self._dtype is str :
                     if not type(obj) is str :
                         tp = DataType.STRING
-                        self.dtype = object
-                        self.itemsize = 0
+                        self._dtype = object
+                        self._itemsize = 0
             else :
-                self.dtype = dtype
+                self._dtype = dtype
                 if dtype is int :
                     tp = DataType.INT
-                    self.itemsize = 4
+                    self._itemsize = 4
                 elif dtype is float :
                     tp = DataType.DOUBLE
-                    self.itemsize = 8
+                    self._itemsize = 8
                 elif dtype is long :
                     tp = DataType.LONG
-                    self.itemsize = 8
+                    self._itemsize = 8
                 elif dtype is bool :
                     tp = DataType.BOOLEAN
-                    self.itemsize = 1
+                    self._itemsize = 1
                 elif dtype is str :
                     tp = DataType.CHAR
-                    self.itemsize = 2
+                    self._itemsize = 2
                 else :
                     tp = DataType.STRING
-                    self.itemsize = 0
+                    self._itemsize = 0
             iArray = gdm_factory.createArray(tp.getPrimitiveClassType(), jshape)
             iter = iArray.getIterator()
-            if self.dtype is int :
+            if self._dtype is int :
                 for id in xrange(size) :
                     val = get_item(obj, id, rawshape)
                     iter.next().setIntCurrent(val)
-            elif self.dtype is float :
+            elif self._dtype is float :
                 for id in xrange(size) :
                     val = get_item(obj, id, rawshape)
                     iter.next().setDoubleCurrent(float(val))
-            elif self.dtype is bool :
+            elif self._dtype is bool :
                 for id in xrange(size) :
                     val = get_item(obj, id, rawshape)
                     iter.next().setBooleanCurrent(bool(val))
-            elif self.dtype is long :
+            elif self._dtype is long :
                 for id in xrange(size) :
                     val = get_item(obj, id, rawshape)
                     iter.next().setLongCurrent(long(val))
-            elif self.dtype is str :
+            elif self._dtype is str :
                 for id in xrange(size) :
                     val = get_item(obj, id, rawshape)
                     iter.next().setCharCurrent(val)
@@ -128,13 +136,13 @@ class Array:
 #            if not dtype is None :
 #                raise TypeError, 'can not assign type to existing storage'
         self.__iArray__ = iArray
-        self.size = int(iArray.getSize())
-        self.ndim = iArray.getRank()
+        self._size = int(iArray.getSize())
+        self._ndim = iArray.getRank()
         jshape = iArray.getShape()
-        self.shape = []
-        for counter in range(self.ndim):
+        self._shape = []
+        for counter in range(self._ndim):
             dim = jshape[counter]
-            self.shape.append(dim)
+            self._shape.append(dim)
         try :
             tp = DataType.getType(iArray.getElementType())
         except :
@@ -142,39 +150,39 @@ class Array:
         if tp.equals(DataType.INT) :
             self.get_value = self.get_int
             self.set_prime_value = self.set_int_value
-            self.dtype = int
+            self._dtype = int
         elif tp.equals(DataType.DOUBLE) :
             self.get_value = self.get_float
             self.set_prime_value = self.set_float_value
-            self.dtype = float
+            self._dtype = float
         elif tp.equals(DataType.BOOLEAN) :
             self.get_value = self.get_bool
             self.set_prime_value = self.set_bool_value
-            self.dtype = bool
+            self._dtype = bool
         elif tp.equals(DataType.LONG) :
             self.get_value = self.get_long
             self.set_prime_value = self.set_long_value
-            self.dtype = long
+            self._dtype = long
         elif tp.equals(DataType.CHAR) :
             self.get_value = self.get_char
             self.set_prime_value = self.set_char_value
-            self.dtype = str
+            self._dtype = str
         elif tp.equals(DataType.BYTE) :
             self.get_value = self.get_int
             self.set_prime_value = self.set_int_value
-            self.dtype = int
+            self._dtype = int
         elif tp.equals(DataType.SHORT) :
             self.get_value = self.get_int
             self.set_prime_value = self.set_int_value
-            self.dtype = int
+            self._dtype = int
         elif tp.equals(DataType.FLOAT) :
             self.get_value = self.get_float
             self.set_prime_value = self.set_float_value
-            self.dtype = float
+            self._dtype = float
         else :
             self.get_value = self.get_str
             self.set_prime_value = self.set_str_value
-            self.dtype = object
+            self._dtype = object
     
 #####################################################################################
 #   Array indexing
@@ -182,11 +190,11 @@ class Array:
     def __getitem__(self, index):
         if type(index) is int :
             if index < 0 :
-                index = self.shape[0] + index
-            if index >= self.shape[0] :
+                index = self._shape[0] + index
+            if index >= self._shape[0] :
                 raise Exception, 'out of range, ' + str(index) + " in " + \
-                    str(self.shape[0])
-            if self.ndim == 1 :
+                    str(self._shape[0])
+            if self._ndim == 1 :
                 return self.get_value(index)
             else :
                 return self.get_slice(0, index)
@@ -201,65 +209,47 @@ class Array:
             if start is None :
                 start = 0
             if stop is None :
-                stop = self.shape[0]
+                stop = self._shape[0]
             if start < 0 :
-                start += self.shape[0]
+                start += self._shape[0]
                 if start < 0 :
                     start = 0
-            if start > self.shape[0] :
-                return instance([0], self.dtype)
-            if stop > self.shape[0] :
-                stop = self.shape[0]
+            if start > self._shape[0] :
+                return instance([0], self._dtype)
+            if stop > self._shape[0] :
+                stop = self._shape[0]
             if stop <= 0 :
-                stop += self.shape[0]
+                stop += self._shape[0]
                 if stop <= 0 :
-                    return instance([0], self.dtype)
-            origin = [0] * self.ndim
+                    return instance([0], self._dtype)
+            origin = [0] * self._ndim
             origin[0] = start
-            shape = copy.copy(self.shape)
+            shape = self.shape
             shape[0] = int(math.ceil(float(stop - start) / step))
             if (shape[0] <= 0) :
-                return instance([0], self.ndim)
+                return instance([0], self._ndim)
             if step == 1 :
                 section = self.get_section(origin, shape)
             else :
-                stride = [1] * self.ndim
+                stride = [1] * self._ndim
                 stride[0] = step
 #                if stride[0] > 1 :
 #                    shape[0] = int(math.ceil(float(shape[0]) / stride[0]))
                 section = self.get_section(origin, shape, stride)
             return section
-        elif type(index) is list :
-#            nshape = copy.copy(self.shape)
-#            nshape[0] = len(index)
-#            narr = instance(nshape, 0, self.dtype)
-#            for i in xrange(len(index)) :
-#                val = index[i]
-#                if val < 0 :
-#                    val += self.shape[0]
-#                    if val < 0 :
-#                        raise ValueError, 'index out of bound: ' + str(index[i]) + \
-#                                ' in ' + str(self.shape[0])
-#                if val >= self.shape[0] :
-#                    raise ValueError, 'index out of bound: ' + str(index[i]) + \
-#                                ' in ' + str(self.shape[0])
-#                if self.ndim == 1 :
-#                    narr[i] = self[index[i]]
-#                else :
-#                    narr[i].copy_from(self[index[i]])
-            raise TypeError, 'irregular slicing is not supported'
-        elif type(index) is tuple :
-            origin = [0] * self.ndim
-            shape = copy.copy(self.shape)
-            stride = [1] * self.ndim
-            if len(index) <= self.ndim :
+        elif hasattr(index, '__iter__') :
+            index = tuple(index)
+            origin = [0] * self._ndim
+            shape = self.shape
+            stride = [1] * self._ndim
+            if len(index) <= self._ndim :
                 i = 0
-                secflag = len(index) < self.ndim
+                secflag = len(index) < self._ndim
                 reducedim = 0
                 for item in index :
                     if type(item) is int :
                         if item < 0 :
-                            item = self.shape[i] + item
+                            item = self._shape[i] + item
                         origin[i] = item
                         shape[i] = 1
                         if reducedim == i :
@@ -276,19 +266,19 @@ class Array:
                         if start is None :
                             start = 0
                         if stop is None :
-                            stop = self.shape[i]
+                            stop = self._shape[i]
                         if start < 0 :
-                            start += self.shape[i]
+                            start += self._shape[i]
                             if start < 0 :
                                 start = 0
-                        if start > self.shape[i] :
-                            return instance([0], self.dtype)
-                        if stop > self.shape[i] :
-                            stop = self.shape[i]
+                        if start > self._shape[i] :
+                            return instance([0], self._dtype)
+                        if stop > self._shape[i] :
+                            stop = self._shape[i]
                         if stop < 0 :
-                            stop += self.shape[i]
+                            stop += self._shape[i]
                             if stop <= 0 :
-                                return instance([0], self.dtype)
+                                return instance([0], self._dtype)
                         origin[i] = start
                         stride[i] = step
                         if step > 1 :
@@ -307,11 +297,11 @@ class Array:
                 else :
                     return self.get_value(origin)
             else :
-                raise Exception, 'dim=' + str(len(index)) + " in ndim=" + str(self.ndim)
+                raise Exception, 'dim=' + str(len(index)) + " in ndim=" + str(self._ndim)
         elif hasattr(index, 'item_iter') :
             if index.dtype is bool :
                 ish = index.shape
-                ash = self.shape
+                ash = self._shape
                 if ish == ash :
                     nlen = 0
                     it1 = index.item_iter()
@@ -319,7 +309,7 @@ class Array:
                         if it1.next() :
                             nlen += 1
                     if nlen > 0 :
-                        res = instance([nlen], dtype = self.dtype)
+                        res = instance([nlen], dtype = self._dtype)
                         it1 = index.item_iter()
                         its = self.item_iter()
                         itr = res.item_iter()
@@ -330,11 +320,41 @@ class Array:
                                 its.next()
                         return res
                     else :
-                        return instance([0], dtype = self.dtype)
+                        return instance([0], dtype = self._dtype)
             raise Exception, 'index out of range'
         else :
             raise Exception, 'not supported'
-            
+    
+#     def __getattribute__(self, name):
+#         if some_predicate(name):
+#             if name == 'shape':
+#                 return self.shape
+#             elif name == 'size':
+#                 return self._size
+#             elif name == 'ndim':
+#                 return self._ndim
+#             elif name == 'itemsize':
+#                 return self._itemsize
+#             elif name == 'dtype':
+#                 return self._dtype
+#         else:
+#             return object.__getattribute__(self, name)
+        
+    def __getattr__(self, name):
+        if name == 'shape':
+            return copy.copy(self._shape)
+        elif name == 'size':
+            return self._size
+        elif name == 'ndim':
+            return self._ndim
+        elif name == 'itemsize':
+            return self._itemsize
+        elif name == 'dtype':
+            return self._dtype
+        else:
+            raise AttributeError('attribute error')
+#             return object.__getattribute__(self, name)
+                
     def get_slice(self, dim, index):
         return Array(self.__iArray__.getArrayUtils().slice(dim, index).getArray())
     
@@ -357,6 +377,34 @@ class Array:
             return Array(autils.getArray())
         else :
             return Array(self.__iArray__.getArrayUtils().reduce(dim).getArray())
+    
+    def squeeze(self, axis = None):
+        return self.get_reduced(axis)
+    
+    def item(self, *args):
+        if len(args) == 0:
+            idx = (0,) * self._ndim
+            return self.get_value(idx)
+        elif len(args) == 1:
+            arg = args[0]
+            if hasattr(arg, '__iter__'):
+                return self.get_value(arg)
+            else:
+                return self.get_value(self._1d_to_nd_index(arg))
+        else:
+            return self.get_value(args)
+        
+    def _1d_to_nd_index(self, idx_1d):
+        idx_1d = int(idx_1d)
+        shape = self._shape
+        idx_nd = ()
+        for i in xrange(self._ndim - 1):
+            cap = sum(shape[i + 1 :])
+            idx = idx_1d / cap
+            idx_1d = idx_1d - idx * cap
+            idx_nd += (idx,)
+        idx_nd += (idx_1d,)
+        return idx_nd
         
     def section_iter(self, shape):
         return ArraySectionIter(self, shape)
@@ -373,17 +421,17 @@ class Array:
             elif hasattr(indices, '__len__') :
                 nsize = len(indices)
                 if out is None :
-                    out = instance([nsize], 0, self.dtype)
+                    out = instance([nsize], 0, self._dtype)
                 for i in xrange(nsize) :
                     out[i] = afl[indices[i]]
                 return out
-        elif axis >= self.ndim :
+        elif axis >= self._ndim :
             raise ValueError, 'axis must be within the ndim of the array, ' + str(axis) \
-                        + ' in ' + str(self.ndim)
+                        + ' in ' + str(self._ndim)
         else :
             tp = ()
-            shape = self.shape
-            for i in xrange(self.ndim) :
+            shape = self._shape
+            for i in xrange(self._ndim) :
                 if i == axis :
                     tp += (indices,)
                 else :
@@ -396,11 +444,11 @@ class Array:
                     return out
             elif hasattr(indices, '__len__') :
                 nsize = len(indices)
-                osize = self.shape[axis]
-                nshape = copy.copy(self.shape)
+                osize = self._shape[axis]
+                nshape = self.shape
                 nshape[axis] = nsize
                 if out is None :
-                    out = instance(nshape, 0, self.dtype)
+                    out = instance(nshape, 0, self._dtype)
                 for i in xrange(nsize) :
                     val = indices[i]
                     if val < 0 :
@@ -421,7 +469,7 @@ class Array:
                         else :
                             raise ValueError, 'index out of range: ' + str(val) \
                                 + ' in ' + str(osize)
-                    if self.ndim == 1 :
+                    if self._ndim == 1 :
                         out[i] = self[indices[i]]
                     else :
                         out.get_slice(axis, i).copy_from(
@@ -432,14 +480,14 @@ class Array:
 # Array accessing
 #####################################################################################    
     def __len__(self):
-        return self.shape[0]
+        return self._shape[0]
     
 #    def __getattr__(self, name):
 ##        raise AttributeError(name + ' not exists')
 #        return None
     
     def __iter__(self):
-        if (self.ndim > 1) :
+        if (self._ndim > 1) :
             return ArraySliceIter(self)
         else :
             return ArrayItemIter(self)
@@ -519,7 +567,7 @@ class Array:
 #     Array math
 #********************************************************************************
     def __match_type__(self, obj, fdiv = False):
-        ntype = self.dtype
+        ntype = self._dtype
         if ntype is int or ntype is long :
             if fdiv :
                 if 3 / 2 > 1 :
@@ -632,14 +680,14 @@ class Array:
 
     def __or__(self, obj):
         if isinstance(obj, Array) :
-            if self.shape != obj.shape :
+            if self._shape != obj.shape :
                 raise ValueError, 'dimension does not match'
-            res = instance(self.shape, dtype = bool)
+            res = instance(self._shape, dtype = bool)
             siter = self.item_iter()
             oiter = obj.item_iter()
             riter = res.item_iter()
             try :
-                if self.dtype is float :
+                if self._dtype is float :
                     prc = 10 ** (-Array.precision)
                     while True :
                         riter.set_next(abs(siter.next() - oiter.next()) > prc)
@@ -653,11 +701,11 @@ class Array:
             if hasattr(obj, '__len__') :
                 return self == Array(obj)
             else :
-                res = instance(self.shape, dtype = bool)
+                res = instance(self._shape, dtype = bool)
             siter = self.item_iter()
             riter = res.item_iter()
             try :
-                if self.dtype is float :
+                if self._dtype is float :
                     prc = 10 ** (-Array.precision)
                     while True :
                         riter.set_next(abs(siter.next() - obj) > prc)
@@ -669,7 +717,7 @@ class Array:
             return res
         
     def count_nonzero(self):
-        dtype = self.dtype
+        dtype = self._dtype
         cnt = 0
         if dtype is float or dtype is int :
             siter = self.item_iter()
@@ -683,8 +731,8 @@ class Array:
         
     def transpose(self, axes = None):
         if axes is None:
-            dim1 = self.ndim - 1
-            dim2 = self.ndim - 2
+            dim1 = self._ndim - 1
+            dim2 = self._ndim - 2
         elif not hasattr(axes, '__len__'):
             raise Exception, 'axes parameter must be either a list or a tuple with length of 2'
         elif len(axes) != 2 :
@@ -692,50 +740,98 @@ class Array:
         else :
             dim1 = axes[0]
             dim2 = axes[1]
-        if dim2 >= self.ndim :
+        if dim2 >= self._ndim :
             raise Exception, 'dimension ' + str(dim2) + ' is not available'
-        if dim1 >= self.ndim :
+        if dim1 >= self._ndim :
             raise Exception, 'dimension ' + str(dim1) + ' is not available'
         return Array(self.__iArray__.getArrayUtils().transpose(dim1, dim2).getArray())
         
-    def compress(self, condition, axis = None, out = None):
-        if axis is None:
-            osize = self.size
-            if osize > len(condition):
-                osize = len(condition)
-            idx = 0
-            storage = []
-            it = self.item_iter()
-            while idx < osize:
-                if condition[idx] :
-                    storage.append(it.next())
-                else :
-                    it.next()
-                idx += 1
-            return Array(storage, dtype = self.dtype)
+    def flip(self, axes = None):
+        if axes is None:
+            axes = range(self._ndim)
+        if type(axes) is int:
+            return Array(self.__iArray__.getArrayUtils().flip(axes).getArray())
+        elif hasattr(axes, '__len__'):
+            au = self.__iArray__.getArrayUtils()
+            for i in axes:
+                au = au.flip(i)
+            return Array(au.getArray())
         else:
-            osize = self.shape[axis]
-            if osize > len(condition):
-                osize = len(condition)
-            nsize = 0
-            for i in xrange(osize) :
-                if condition[i] :
-                    nsize += 1
-            if nsize == 0:
-                return null
-            nshape = copy.copy(self.shape)
-            nshape[axis] = nsize
-            narr = instance(nshape, dtype = self.dtype)
-            idx = 0
-            for i in xrange(osize):
-                if condition[i] :
-                    narr.get_slice(axis, idx).copy_from(self.get_slice(axis, i))
-                    idx += 1
-            return narr
+            raise ValueError('axes must be int or a sequence of int values')
+        
+#     def compress(self, condition, axis = None, out = None):
+#         if axis is None:
+#             osize = self._size
+#             if osize > len(condition):
+#                 osize = len(condition)
+#             idx = 0
+#             storage = []
+#             it = self.item_iter()
+#             while idx < osize:
+#                 if condition[idx] :
+#                     storage.append(it.next())
+#                 else :
+#                     it.next()
+#                 idx += 1
+#             return Array(storage, dtype = self._dtype)
+#         else:
+#             osize = self._shape[axis]
+#             if osize > len(condition):
+#                 osize = len(condition)
+#             nsize = 0
+#             for i in xrange(osize) :
+#                 if condition[i] :
+#                     nsize += 1
+#             if nsize == 0:
+#                 return null
+#             nshape = self.shape
+#             nshape[axis] = nsize
+#             narr = instance(nshape, dtype = self._dtype)
+#             idx = 0
+#             for i in xrange(osize):
+#                 if condition[i] :
+#                     narr.get_slice(axis, idx).copy_from(self.get_slice(axis, i))
+#                     idx += 1
+#             return narr
+
+    def compress(self, condition, axis=None, out=None):
+        size = 0
+        for c in condition:
+            if c:
+                size += 1
+        if size == 0:
+            raise ValueError('empty selection')
+        ct = 0
+        if out is None:
+            if axis is None:
+                shape = [size]
+            else:
+                shape = self.shape
+                ss = self.shape
+                shape[axis] = size
+                ss[axis] = 1
+            out = zeros(shape, self.dtype)
+        if axis is None:
+            si = self.item_iter()
+            oi = out.item_iter()
+            for c in condition:
+                if c:
+                    oi.set_next(si.next())
+                else:
+                    si.next()
+        else:
+            si = self.section_iter(ss)
+            oi = out.section_iter(ss)
+            for c in condition:
+                ss = si.next()
+                if c:
+                    os = oi.next()
+                    os.copy_from(ss)
+        return out
     
     def clip(self, a_min, a_max, out = None):
         if out is None:
-            out = instance(self.shape, dtype = self.dtype)
+            out = instance(self._shape, dtype = self._dtype)
         it = self.item_iter()
         nit = out.item_iter()
         while it.has_next():
@@ -751,33 +847,71 @@ class Array:
     def mean(self, axis = None, dtype = None, out = None):
         dsum = self.sum(axis, dtype, out)
         if axis is None:
-            dsize = self.size
+            dsize = self._size
         else :
             dsize = 1
-            for i in xrange(self.ndim):
+            for i in xrange(self._ndim):
                 if i != axis:
-                    dsize *= self.shape[i]
+                    dsize *= self._shape[i]
         return dsum / dsize
     
-    def all(self):
-        siter = self.item_iter()
-        try :
-            while True :
-                if not siter.next() :
-                    return False
-        except :
-            pass
-        return True
+    def all(self, axis = None):
+        if axis is None or self.ndim == 1:
+            siter = self.item_iter()
+            try :
+                while True :
+                    if not siter.next() :
+                        return False
+            except :
+                pass
+            return True
+        else:
+            if type(axis) is int:
+                axis = (axis,)
+            if len(axis) == self._ndim:
+                return self.all()
+            ish = self.shape
+            rsh = []
+            for i in xrange(self.ndim):
+                if not i in axis:
+                    rsh.append(ish[i])
+                    ish[i] = 1
+            res = zeros(rsh, dtype = bool)
+            ri = res.item_iter()
+            si = self.section_iter(ish)
+            while ri.has_next():
+                se = si.next()
+                ri.set_next(se.all())
+            return res
     
-    def any(self):
-        siter = self.item_iter()
-        try :
-            while True :
-                if siter.next() :
-                    return True
-        except :
-            pass
-        return False
+    def any(self, axis = None):
+        if axis is None or self.ndim == 1:
+            siter = self.item_iter()
+            try :
+                while True :
+                    if siter.next() :
+                        return True
+            except :
+                pass
+            return False
+        else:
+            if type(axis) is int:
+                axis = (axis,)
+            if len(axis) == self._ndim:
+                return self.all()
+            ish = self.shape
+            rsh = []
+            for i in xrange(self.ndim):
+                if not i in axis:
+                    rsh.append(ish[i])
+                    ish[i] = 1
+            res = zeros(rsh, dtype = bool)
+            ri = res.item_iter()
+            si = self.section_iter(ish)
+            while ri.has_next():
+                se = si.next()
+                ri.set_next(se.any())
+            return res
     
         
     def __add__(self, obj):
@@ -795,13 +929,13 @@ class Array:
 #        if isinstance(obj, Array) :
 #            return Array(self.__iArray__.getArrayMath().toAdd(
 #                                obj.__iArray__).getArray());
-#        res = zeros(self.shape, self.__match_type__(obj))
+#        res = zeros(self._shape, self.__match_type__(obj))
 #        riter = res.item_iter()
 #        siter = self.item_iter()
 #        if hasattr(obj, '__len__') :
-#            if len(obj) < self.size :
+#            if len(obj) < self._size :
 #                raise Exception, 'resource should have at least ' + \
-#                    str(self.size) + ' items, got ' + str(len(obj))
+#                    str(self._size) + ' items, got ' + str(len(obj))
 #            try :
 #                rawshape = get_shape(obj)
 #                for id in xrange(get_size(obj, rawshape)) :
@@ -832,9 +966,9 @@ class Array:
             return self
 #        siter = self.item_iter()
 #        if hasattr(obj, '__len__') :
-#            if len(obj) < self.size :
+#            if len(obj) < self._size :
 #                raise Exception, 'resource should have at least ' + \
-#                    str(self.size) + ' items, got ' + str(len(obj))
+#                    str(self._size) + ' items, got ' + str(len(obj))
 #            try :
 #                rawshape = get_shape(obj)
 #                for id in xrange(get_size(obj, rawshape)) :
@@ -880,13 +1014,13 @@ class Array:
             return self
     
     def __rdiv__(self, obj):
-        res = zeros(self.shape, self.__match_type__(obj, True))
+        res = zeros(self._shape, self.__match_type__(obj, True))
         riter = res.item_iter()
         siter = self.item_iter()
         if hasattr(obj, '__len__') :
-            if len(obj) < self.size :
+            if len(obj) < self._size :
                 raise Exception, 'resource should have at least ' + \
-                    str(self.size) + ' items, got ' + str(len(obj))
+                    str(self._size) + ' items, got ' + str(len(obj))
             try :
                 rawshape = get_shape(obj)
                 for id in xrange(get_size(obj, rawshape)) :
@@ -920,13 +1054,13 @@ class Array:
             return Array(self.__iArray__.getArrayMath().toEltMultiply(iarr).getArray())
         else :
             return Array(self.__iArray__.getArrayMath().toScale(float(obj)).getArray())
-#        res = zeros(self.shape, self.__match_type__(obj))
+#        res = zeros(self._shape, self.__match_type__(obj))
 #        riter = res.item_iter()
 #        siter = self.item_iter()
 #        if hasattr(obj, '__len__') :
-#            if len(obj) < self.size :
+#            if len(obj) < self._size :
 #                raise Exception, 'resource should have at least ' + \
-#                    str(self.size) + ' items, got ' + str(len(obj))
+#                    str(self._size) + ' items, got ' + str(len(obj))
 #            try :
 #                rawshape = get_shape(obj)
 #                for id in xrange(get_size(obj, rawshape)) :
@@ -964,13 +1098,13 @@ class Array:
     
     def __sub__(self, obj):
         return self.__add__(obj * -1)
-#        res = zeros(self.shape, self.__match_type__(obj))
+#        res = zeros(self._shape, self.__match_type__(obj))
 #        riter = res.item_iter()
 #        siter = self.item_iter()
 #        if hasattr(obj, '__len__') :
-#            if len(obj) < self.size :
+#            if len(obj) < self._size :
 #                raise Exception, 'resource should have at least ' + \
-#                    str(self.size) + ' items, got ' + str(len(obj))
+#                    str(self._size) + ' items, got ' + str(len(obj))
 #            try :
 #                rawshape = get_shape(obj)
 #                for id in xrange(get_size(obj, rawshape)) :
@@ -990,13 +1124,13 @@ class Array:
         return self
     
     def __rsub__(self, obj):
-        res = zeros(self.shape, self.__match_type__(obj))
+        res = zeros(self._shape, self.__match_type__(obj))
         riter = res.item_iter()
         siter = self.item_iter()
         if hasattr(obj, '__len__') :
-            if len(obj) < self.size :
+            if len(obj) < self._size :
                 raise Exception, 'resource should have at least ' + \
-                    str(self.size) + ' items, got ' + str(len(obj))
+                    str(self._size) + ' items, got ' + str(len(obj))
             try :
                 rawshape = get_shape(obj)
                 for id in xrange(get_size(obj, rawshape)) :
@@ -1013,15 +1147,15 @@ class Array:
     
     def __invert__(self):
 #        return Array(self.__iArray__.getArrayMath().toEltInverse().getArray())
-        if self.dtype is bool :
-            res = instance(self.shape, dtype = bool)
+        if self._dtype is bool :
+            res = instance(self._shape, dtype = bool)
             siter = self.item_iter()
             riter = res.item_iter()
             while siter.has_next() :
                 riter.set_next(not siter.next())
             return res
         else :
-            res = instance(self.shape, dtype = self.dtype)
+            res = instance(self._shape, dtype = self._dtype)
             siter = self.item_iter()
             riter = res.item_iter()
             while siter.has_next() :
@@ -1029,31 +1163,31 @@ class Array:
             return res
             
     def matrix_invert(self):
-        if self.ndim != 2:
-            raise Exception, 'array dimention must be 2, got ' + str(self.ndim)
-        if self.shape[0] != self.shape[1]:
+        if self._ndim != 2:
+            raise Exception, 'array dimention must be 2, got ' + str(self._ndim)
+        if self._shape[0] != self._shape[1]:
             raise Exception, 'array is not square '
         return Array(self.__iArray__.getArrayMath().matInverse().getArray())
     
     def matrix_dot(self, arr):
         if not hasattr(arr, 'ndim'):
             raise Exception, 'argument arr must be a gumpy array'
-        if self.ndim != 2:
-            raise Exception, 'array dimention must be 2, got ' + str(self.ndim)
+        if self._ndim != 2:
+            raise Exception, 'array dimention must be 2, got ' + str(self._ndim)
         if arr.ndim != 2:
             raise Exception, 'argument array dimention must be 2, got ' + str(arr.ndim)
-        if self.shape[1] != arr.shape[0]:
+        if self._shape[1] != arr.shape[0]:
             raise Exception, 'array dimensions do not match'
         return Array(self.__iArray__.getArrayMath().matMultiply(arr.__iArray__).getArray())
     
     def __pow__(self, obj):
-        res = zeros(self.shape, self.__match_type__(obj))
+        res = zeros(self._shape, self.__match_type__(obj))
         riter = res.item_iter()
         siter = self.item_iter()
         if hasattr(obj, '__len__') :
-            if len(obj) < self.size :
+            if len(obj) < self._size :
                 raise Exception, 'resource should have at least ' + \
-                    str(self.size) + ' items, got ' + str(len(obj))
+                    str(self._size) + ' items, got ' + str(len(obj))
             try :
                 rawshape = get_shape(obj)
                 for id in xrange(get_size(obj, rawshape)) :
@@ -1081,13 +1215,13 @@ class Array:
         return Array(self.__iArray__.getArrayMath().toSqrt().getArray())
         
     def __rpow__(self, obj):
-        res = zeros(self.shape, self.__match_type__(obj))
+        res = zeros(self._shape, self.__match_type__(obj))
         riter = res.item_iter()
         siter = self.item_iter()
         if hasattr(obj, '__len__') :
-            if len(obj) < self.size :
+            if len(obj) < self._size :
                 raise Exception, 'resource should have at least ' + \
-                    str(self.size) + ' items, got ' + str(len(obj))
+                    str(self._size) + ' items, got ' + str(len(obj))
             try :
                 rawshape = get_shape(obj)
                 for id in xrange(get_size(obj, rawshape)) :
@@ -1103,13 +1237,13 @@ class Array:
         return res
     
     def __mod__(self, obj):
-        res = zeros(self.shape, self.__match_type__(obj, True))
+        res = zeros(self._shape, self.__match_type__(obj, True))
         riter = res.item_iter()
         siter = self.item_iter()
         if hasattr(obj, '__len__') :
-            if len(obj) < self.size :
+            if len(obj) < self._size :
                 raise Exception, 'resource should have at least ' + \
-                    str(self.size) + ' items, got ' + str(len(obj))
+                    str(self._size) + ' items, got ' + str(len(obj))
             try :
                 rawshape = get_shape(obj)
                 for id in xrange(get_size(obj, rawshape)) :
@@ -1130,13 +1264,13 @@ class Array:
         return res
 
     def __rmod__(self, obj):
-        res = zeros(self.shape, self.__match_type__(obj, True))
+        res = zeros(self._shape, self.__match_type__(obj, True))
         riter = res.item_iter()
         siter = self.item_iter()
         if hasattr(obj, '__len__') :
-            if len(obj) < self.size :
+            if len(obj) < self._size :
                 raise Exception, 'resource should have at least ' + \
-                    str(self.size) + ' items, got ' + str(len(obj))
+                    str(self._size) + ' items, got ' + str(len(obj))
             try :
                 rawshape = get_shape(obj)
                 for id in xrange(get_size(obj, rawshape)) :
@@ -1181,7 +1315,7 @@ class Array:
         return Array(self.__iArray__.getArrayMath().toExp().getArray())
 
     def __prod__(self, axis = None):
-        if self.size is 0 :
+        if self._size is 0 :
             return 0
         res = 1
         siter = self.item_iter()
@@ -1196,12 +1330,12 @@ class Array:
         if axis is None :
             return self.__iArray__.getArrayMath().getMaximum()
         else :
-            if axis >= self.ndim :
+            if axis >= self._ndim :
                 raise ValueError, 'axis index out of stack, ' + str(axis) + \
-                                    ' in ' + str(self.ndim)
-            asize = self.shape[axis]
+                                    ' in ' + str(self._ndim)
+            asize = self._shape[axis]
             if out is None :
-                out = instance([asize], 0, self.dtype)
+                out = instance([asize], 0, self._dtype)
                 for id in xrange(asize) :
                     out[id] = self.get_slice(axis, id).max()
             return out
@@ -1210,12 +1344,12 @@ class Array:
         if axis is None :
             return self.__iArray__.getArrayMath().getMinimum()
         else :
-            if axis >= self.ndim :
+            if axis >= self._ndim :
                 raise ValueError, 'axis index out of stack, ' + str(axis) + \
-                                    ' in ' + str(self.ndim)
-            asize = self.shape[axis]
+                                    ' in ' + str(self._ndim)
+            asize = self._shape[axis]
             if out is None :
-                out = instance([asize], 0, self.dtype)
+                out = instance([asize], 0, self._dtype)
                 for id in xrange(asize) :
                     out[id] = self.get_slice(axis, id).min()
             return out
@@ -1230,9 +1364,9 @@ class Array:
             else :
                 return s
         else :
-            if axis >= self.ndim :
-                raise ValueError, 'index out of bound, ' + str(axis) + ' in ' + str(self.ndim)
-            nsize = self.shape[axis]
+            if axis >= self._ndim :
+                raise ValueError, 'index out of bound, ' + str(axis) + ' in ' + str(self._ndim)
+            nsize = self._shape[axis]
             if out is None :
                 out = instance([nsize], 0, dtype = dtype)
             for i in xrange(nsize) :
@@ -1244,14 +1378,14 @@ class Array:
 #********************************************************************************
     
     def __repr__(self, indent = None, skip = True):
-        if self.size == 0 :
-            return 'Array([], shape=' + str(self.shape) + \
-                    ', dtype=' + self.dtype.__name__ + ')'
+        if self._size == 0 :
+            return 'Array([], shape=' + str(self._shape) + \
+                    ', dtype=' + self._dtype.__name__ + ')'
         if skip :
-            skip = self.size > Array.threshold
+            skip = self._size > Array.threshold
         amax = 0
         amin = 0
-        if self.dtype is int or self.dtype is long :
+        if self._dtype is int or self._dtype is long :
             amax = self.max()
             amin = self.min()
             if amax < 0 :
@@ -1264,15 +1398,15 @@ class Array:
                                           max = amax, min = amin) + ')'
     
     def __str__(self, indent = '', skip = True):
-        if self.dtype is str :
+        if self._dtype is str :
             return self.__iArray__.toString()
-        if self.size == 0 :
+        if self._size == 0 :
             return indent + '[]'
         if skip :
-            skip = self.size > Array.threshold
+            skip = self._size > Array.threshold
         amax = 0
         amin = 0
-        if self.dtype is int or self.dtype is long :
+        if self._dtype is int or self._dtype is long :
             amax = self.max()
             amin = self.min()
             if amax < 0 :
@@ -1280,16 +1414,16 @@ class Array:
         return self.__string__(0, skip, max = amax, min = amin, indent = indent)
     
     def __string__(self, level, skip = False, sep = False, indent = '', max = 0, min = 0):
-        if self.ndim > 1 :
+        if self._ndim > 1 :
             cmark = ''
             if sep :
                 cmark += ','
             cmark += '\n' + indent
-            if self.ndim >= 3 :
+            if self._ndim >= 3 :
                 cmark += '\n' + indent
             cmark += ' ' * (level + 1)
             abbrv = '...,'
-        elif sep or self.dtype is float :
+        elif sep or self._dtype is float :
             cmark = ', '
             abbrv = '...'
         else :
@@ -1298,19 +1432,19 @@ class Array:
         close = ']'
         result = '['
         fm = ''
-        if self.dtype is int or self.dtype is long:
+        if self._dtype is int or self._dtype is long:
             if max == 0 :
                 max = 1
             sign = 0
             if min < 0 :
                 sign = 1
             fm = '%#' + str(int(math.ceil(math.log10(max))) + sign) + 'i'
-        elif self.dtype is float :
+        elif self._dtype is float :
             fm = '%#.' + str(Array.precision) + 'f'
         else :
             fm = '%s'
-        size = self.shape[0]
-        if self.ndim <= 1 :
+        size = self._shape[0]
+        if self._ndim <= 1 :
             if skip and size > 6:
                 result += (fm % self[0]) + \
                     cmark + (fm % self[1]) + \
@@ -1364,9 +1498,8 @@ class Array:
         if axis is None:
             val = float("-inf")
             found = -1
-            idx = 0
             iter = self.item_iter()
-            while iter.has_next():
+            for idx in xrange(self.size):
                 nv = iter.next()
                 if nv > val:
                     val = nv
@@ -1374,16 +1507,16 @@ class Array:
                 idx += 1
             return found
         else:
-            if axis >= self.ndim:
+            if axis >= self._ndim:
                 raise Exception, 'axis out of range'
-            if self.ndim == 1:
+            if self._ndim == 1:
                 return self.argmax()
-            res_shape = copy.copy(self.shape)
+            res_shape = self.shape
             res_shape.pop(axis)
             res = zeros(res_shape, int)
             res_iter = res.item_iter()
-            sec_iter_shape = [1] * self.ndim
-            sec_iter_shape[axis] = self.shape[axis]
+            sec_iter_shape = [1] * self._ndim
+            sec_iter_shape[axis] = self._shape[axis]
             sec_iter = self.section_iter(sec_iter_shape)
             while sec_iter.has_next():
                 sec = sec_iter.next()
@@ -1406,24 +1539,23 @@ class Array:
             found = -1
             idx = 0
             iter = self.item_iter()
-            while iter.has_next():
+            for idx in xrange(self.size):
                 nv = iter.next()
                 if nv < val:
                     val = nv
                     found = idx
-                idx += 1
             return found
         else:
-            if axis >= self.ndim:
+            if axis >= self._ndim:
                 raise Exception, 'axis out of range'
-            if self.ndim == 1:
+            if self._ndim == 1:
                 return self.argmin()
-            res_shape = copy.copy(self.shape)
+            res_shape = self.shape
             res_shape.pop(axis)
             res = zeros(res_shape, int)
             res_iter = res.item_iter()
-            sec_iter_shape = [1] * self.ndim
-            sec_iter_shape[axis] = self.shape[axis]
+            sec_iter_shape = [1] * self._ndim
+            sec_iter_shape[axis] = self._shape[axis]
             sec_iter = self.section_iter(sec_iter_shape)
             while sec_iter.has_next():
                 sec = sec_iter.next()
@@ -1436,15 +1568,15 @@ class Array:
 
     def __setitem__(self, index, value):
         if type(index) is int :
-            if self.ndim == 1 :
+            if self._ndim == 1 :
                 self.set_value(index, value);
             else :
                 self.get_slice(0, index).copy_from(value)
         elif type(index) is slice :
             self.__getitem__(index).copy_from(value)
-        elif type(index) is tuple :
+        elif type(index) is tuple or type(index) is list :
             secflag = 0
-            if len(index) == self.ndim :
+            if len(index) == self._ndim :
                 for val in index :
                     if not type(val) is int :
                         secflag = 1
@@ -1468,24 +1600,127 @@ class Array:
         else :
             raise Exception, 'not supported'
     
-    def copy_from(self, value, length = -1):
-        if value.__class__ is Array :
-            Utilities.copyTo(value.__iArray__, self.__iArray__, length)
-        elif type(value) is int or type(value) is float or type(value) is long :
-            self.fill(value)
-        else :
-#            try :
-#                get_item(value, self.size - 1)
-#            except :
-#                raise Exception, 'resource should have at least ' + \
-#                    str(self.size) + ' items'
-            siter = self.item_iter()
-            if length <= 0 :
-                length = self.size
-            elif length > self.size :
-                length = self.size
-            for id in xrange(length) :
-                siter.set_next(get_item(value, id))
+    def astype(self, dtype):
+        if self.dtype == dtype:
+            return self
+        else:
+            out = instance(self.shape, dtype = dtype)
+            out.copy_from(self)
+            return out
+    
+    def clip(self, min=None, max=None, out=None):
+        if Double.isNaN(min) and Double.isNaN(max):
+            if out is None:
+                return self
+            else:
+                out.copy_from(self)
+                return out
+        if out is None:
+            out = zeros(self.shape, self.dtype)
+        if Double.isNaN(min):
+            si = self.item_iter()
+            oi = out.item_iter()
+            for i in xrange(self.size):
+                n = si.next()
+                if n > max:
+                    oi.set_next(max)
+                else:
+                    oi.set_next(n)
+        elif Double.isNaN(max):
+            si = self.item_iter()
+            oi = out.item_iter()
+            for i in xrange(self.size):
+                n = si.next()
+                if n < min:
+                    oi.set_next(min)
+                else:
+                    oi.set_next(n)
+        else:
+            si = self.item_iter()
+            oi = out.item_iter()
+            for i in xrange(self.size):
+                n = si.next()
+                if n > max:
+                    oi.set_next(max)
+                elif n < min:
+                    oi.set_next(min)
+                else:
+                    oi.set_next(n)
+        return out
+
+    def copy_from(self, value, length = -1, where = True):
+        if where is True:
+            if value.__class__ is Array :
+                Utilities.copyTo(value.__iArray__, self.__iArray__, length)
+            elif not hasattr(value, '__len__'):
+                self.fill(value)
+            else :
+    #            try :
+    #                get_item(value, self._size - 1)
+    #            except :
+    #                raise Exception, 'resource should have at least ' + \
+    #                    str(self._size) + ' items'
+                siter = self.item_iter()
+                if length <= 0 :
+                    length = self._size
+                elif length > self._size :
+                    length = self._size
+                for id in xrange(length) :
+                    siter.set_next(get_item(value, id))
+        else:
+            if value.__class__ is Array:
+                if where.__class__ is Array:
+                    siter = self.item_iter()
+                    fiter = value.item_iter()
+                    witer = where.item_iter()
+                    if length <= 0 :
+                        length = self._size
+                    elif length > self._size :
+                        length = self._size
+                    for id in xrange(length) :
+                        if witer.next():
+                            siter.set_next(fiter.next())
+                        else:
+                            siter.next()
+                            fiter.next()
+                else:
+                    siter = self.item_iter()
+                    fiter = value.item_iter()
+                    if length <= 0 :
+                        length = self._size
+                    elif length > self._size :
+                        length = self._size
+                    for id in xrange(length) :
+                        if get_item(where, id):
+                            siter.set_next(fiter.next())
+                        else:
+                            siter.next()
+                            fiter.next()
+            elif type(value) is int or type(value) is float or type(value) is long :
+                if where.__class__ is Array:
+                    siter = self.item_iter()
+                    witer = where.item_iter()
+                    if length <= 0 :
+                        length = self._size
+                    elif length > self._size :
+                        length = self._size
+                    for id in xrange(length) :
+                        if witer.next():
+                            siter.set_next(get_item(value, id))
+                        else:
+                            siter.next()
+                else:
+                    siter = self.item_iter()
+                    if length <= 0 :
+                        length = self._size
+                    elif length > self._size :
+                        length = self._size
+                    for id in xrange(length) :
+                        if get_item(where, id):
+                            siter.set_next(get_item(value, id))
+                        else:
+                            siter.next()
+                    
                     
     def fill(self, val):
         if hasattr(val, '__len__'):
@@ -1505,25 +1740,25 @@ class Array:
     def put(self, indices, values, mode='raise') :
 #        v1 = self.view_1d()
         if type(indices) is int :
-            if indices >= self.size :
+            if indices >= self._size :
                 if mode == 'clip' :
-                    indices = self.size - 1
+                    indices = self._size - 1
                 elif mode == 'wrap' :
-                    indices %= self.size
+                    indices %= self._size
                 else :
                     raise ValueError, 'index out of range: ' + str(indices) + ' in ' \
-                            + str(self.size)
+                            + str(self._size)
             if indices < 0 :
-                indices += self.size
+                indices += self._size
                 if indices < 0 :
                     if mode == 'clip' :
                         indices = 0
                     elif mode == 'wrap' :
-                        indices %= self.size
+                        indices %= self._size
                     else :
-                        raise ValueError, 'index out of range: ' + str(indices - self.size) \
-                            + ' in ' + str(self.size)
-            idx = jutils.jintcopy(get_index_1d_to_nd(indices, self.shape))
+                        raise ValueError, 'index out of range: ' + str(indices - self._size) \
+                            + ' in ' + str(self._size)
+            idx = jutils.jintcopy(get_index_1d_to_nd(indices, self._shape))
             if hasattr(values, '__len__') :
                 self.set_value(idx, values[0])
             else :
@@ -1532,21 +1767,21 @@ class Array:
             start = indices.start
             if start is None :
                 start = 0
-            elif start >= self.size :
+            elif start >= self._size :
                 raise ValueError, 'index out of range'
-            elif start <= -self.size :
-                start = -self.size
+            elif start <= -self._size :
+                start = -self._size
             stop = indices.stop
             if stop is None :
-                stop = self.size
-            elif stop > self.size :
-                stop = self.size
+                stop = self._size
+            elif stop > self._size :
+                stop = self._size
             step = indices.step
             if step is None :
                 step = 1
             vid = 0
             for i in xrange(start, stop, step) :
-                idx = jutils.jintcopy(get_index_1d_to_nd(i, self.shape))
+                idx = jutils.jintcopy(get_index_1d_to_nd(i, self._shape))
                 if hasattr(values, '__len__') :
                     self.set_value(idx, values[vid % len(values)])
                     vid += 1
@@ -1556,25 +1791,25 @@ class Array:
             vid = 0
             for i in xrange(len(indices)) :
                 val = indices[i]
-                if val >= self.size :
+                if val >= self._size :
                     if mode == 'clip' :
-                        val = self.size - 1
+                        val = self._size - 1
                     elif mode == 'wrap' :
-                        val %= self.size
+                        val %= self._size
                     else :
                         raise ValueError, 'index out of range: ' + str(val) + ' in ' \
-                                + str(self.size)
+                                + str(self._size)
                 if val < 0 :
-                    val += self.size
+                    val += self._size
                     if val < 0 :
                         if mode == 'clip' :
                             val = 0
                         elif mode == 'wrap' :
-                            val %= self.size
+                            val %= self._size
                         else :
                             raise ValueError, 'index out of range: ' + str(indices[i]) \
-                                + ' in ' + str(self.size)
-                idx = jutils.jintcopy(get_index_1d_to_nd(val, self.shape))
+                                + ' in ' + str(self._size)
+                idx = jutils.jintcopy(get_index_1d_to_nd(val, self._shape))
                 if hasattr(values, '__len__') :
                     self.set_value(idx, values[vid % len(values)])
                     vid += 1
@@ -1584,21 +1819,29 @@ class Array:
 #####################################################################################
 #   Reinterpreting arrays
 #####################################################################################    
-    def reshape(self, shape): 
-        if type(shape) is list :
+    def reshape(self, shape):
+        if type(shape) is int:
+            shape = [shape]
+        elif hasattr(shape, '__iter__'):
+            if not type(shape) is list:
+                shape = list(shape)
             jshape = jutils.jintcopy(shape)
             return Array(self.__iArray__.getArrayUtils().reshape(jshape).getArray())
         else :
             raise Exception, 'unsupported type : ' + str(type(shape))
-    
+
+    def permute(self, newshape): 
+        jshape = jutils.jintcopy(newshape)
+        return Array(self.__iArray__.getArrayUtils().permute(jshape).getArray())
+   
     def flatten(self) :
-        shape = [self.size]
-        arr = instance(shape, 0, self.dtype)
+        shape = [self._size]
+        arr = instance(shape, 0, self._dtype)
         arr.copy_from(self)
         return arr
 
     def view_1d(self):
-        ns = [self.size]
+        ns = [self._size]
         return self.reshape(ns)
     
     def __copy__(self):
@@ -1655,23 +1898,23 @@ class Array:
         dirs.append('tolist')
         dirs.append('transpose')
         dirs.append('view_1d')
-#        if self.dtype is bool :
+#        if self._dtype is bool :
 #            dirs.append('get_bool')
 #            dirs.append('get_bool_current')
 #            dirs.append('get_bool_next')
-#        elif self.dtype is str :
+#        elif self._dtype is str :
 #            dirs.append('get_char')
 #            dirs.append('get_char_current')
 #            dirs.append('get_char_next')
-#        elif self.dtype is float :
+#        elif self._dtype is float :
 #            dirs.append('get_float')
 #            dirs.append('get_float_current')
 #            dirs.append('get_float_next')
-#        elif self.dtype is int :
+#        elif self._dtype is int :
 #            dirs.append('get_int')
 #            dirs.append('get_int_current')
 #            dirs.append('get_int_next')
-#        elif self.dtype is long :
+#        elif self._dtype is long :
 #            dirs.append('get_long')
 #            dirs.append('get_long_current')
 #            dirs.append('get_long_next')
@@ -1690,7 +1933,7 @@ class Array:
 #        else :
 #            raise AttributeError, 'indices must be either integer value or integer list'
 #        if len(slices) > 0 :
-#            nshape = copy.copy(self.shape)
+#            nshape = self.shape
 #            include = range(nshape[0])
 #            for i in slices :
 #                include.remove(i)
@@ -1699,7 +1942,7 @@ class Array:
 #            nshape[0] = len(include)
 #            if nshape[0] == 0 :
 #                raise AttributeError, 'can not remove all slices from the dataset'
-#            narr = instance(nshape, dtype = self.dtype)
+#            narr = instance(nshape, dtype = self._dtype)
 #            counter = 0
 #            for i in include :
 #                narr[counter] = self[i]
@@ -1717,22 +1960,22 @@ class Array:
             return self.sum()
         axis_type = type(axis)
         if axis_type is int:
-            if axis >= self.ndim :
+            if axis >= self._ndim :
                 raise Exception, 'index out of bound, ' + str(axis)
         else :
             for i in xrange(len(axis)):
-                if axis[i] >= self.ndim:
+                if axis[i] >= self._ndim:
                     raise Exception, 'index out of bound, ' + str(axis)
-        if self.ndim == 1:
+        if self._ndim == 1:
             return self.sum()
-        sshape = [1] * self.ndim
+        sshape = [1] * self._ndim
         if axis_type is int:
-            sshape[axis] = self.shape[axis]
+            sshape[axis] = self._shape[axis]
         else:
             for i in xrange(len(axis)):
-                sshape[axis[i]] = self.shape[axis[i]]
+                sshape[axis[i]] = self._shape[axis[i]]
         if keepdims:
-            nshape = copy.copy(self.shape)
+            nshape = self.shape
             if axis_type is int:
                 nshape[axis] = 1
             else:
@@ -1740,13 +1983,13 @@ class Array:
                     nshape[axis[i]] = 1
         else:
             nshape = []
-            for i in xrange(self.ndim):
+            for i in xrange(self._ndim):
                 if axis_type is int:
                     if i != axis:
-                        nshape.append(self.shape[i])
+                        nshape.append(self._shape[i])
                 else:
                     if not axis.__contains__(i):
-                        nshape.append(self.shape[i])
+                        nshape.append(self._shape[i])
         sit = self.section_iter(sshape)
         if out is None:
             out = instance(nshape)
@@ -1757,16 +2000,16 @@ class Array:
 #        if axis is None :
 #            return self.sum(out = out)
 #        if hasattr(axis, '__len__'):
-#            if len(axis) >= self.ndim:
+#            if len(axis) >= self._ndim:
 #                raise Exception, 'index out of bound'
 #            for item in axis:
-#                if item >= self.ndim :
+#                if item >= self._ndim :
 #                    raise Exception, str(item) + ' does not exist'
 #        else :
-#            if axis >= self.ndim :
+#            if axis >= self._ndim :
 #                raise Exception, str(item) + ' does not exist'
 #        if keepdims:
-#            nshape = copy.copy(self.shape)
+#            nshape = self.shape
 #            if hasattr(axis, '__len__'):
 #                for item in axis:
 #                    nshape[item] = 1
@@ -1776,50 +2019,50 @@ class Array:
 #        else:
 #            nshape = []
 #            if hasattr(axis, '__len__'):
-#                for i in xrange(self.ndim):
+#                for i in xrange(self._ndim):
 #                    if not axis.__contains__(i):
-#                        nshape.append(self.shape[i])
+#                        nshape.append(self._shape[i])
 #            else:
-#                for i in xrange(self.ndim):
+#                for i in xrange(self._ndim):
 #                    if axis != i:
-#                        nshape.append(self.shape[i])
+#                        nshape.append(self._shape[i])
 #            
 #        if out is None:
 #            pass
     def diagonal(self, offset=0, axis1=0, axis2=1, out=None):
-        if self.ndim < 2:
+        if self._ndim < 2:
             raise Exception('diag requires an array of at least two dimensions')
-        elif self.ndim == 2:
+        elif self._ndim == 2:
             if offset == 0:
-                s0 = self.shape[0]
-                s1 = self.shape[1]
+                s0 = self._shape[0]
+                s1 = self._shape[1]
                 s = s0 if s0 < s1 else s1
                 if not out:
-                    out = zeros([s], dtype = self.dtype)
+                    out = zeros([s], dtype = self._dtype)
                 for i in xrange(s):
                     out[i] = self.get_value([i, i])
             elif offset > 0:
-                s0 = self.shape[0]
-                s1 = self.shape[1] - offset
+                s0 = self._shape[0]
+                s1 = self._shape[1] - offset
                 s = s0 if s0 < s1 else s1
                 if not out:
-                    out = zeros([s], dtype = self.dtype)
+                    out = zeros([s], dtype = self._dtype)
                 for i in xrange(s):
                     out[i] = self.get_value([i, i + offset])
             else :
-                s0 = self.shape[0] + offset
-                s1 = self.shape[1]
+                s0 = self._shape[0] + offset
+                s1 = self._shape[1]
                 s = s0 if s0 < s1 else s1
                 if not out:
-                    out = zeros([s], dtype = self.dtype)
+                    out = zeros([s], dtype = self._dtype)
                 for i in xrange(s):
                     out[i] = self.get_value([i - offset, i])
             return out
         else:
-            ss = self.shape
+            ss = self._shape
             s1 = ss[axis1]
             s2 = ss[axis2]
-            shape = [1] * self.ndim
+            shape = [1] * self._ndim
             shape[axis1] = s1
             shape[axis2] = s2
             if offset == 0:
@@ -1832,14 +2075,14 @@ class Array:
             os = []
             ois = []
             to_reduce = []
-            for i in xrange(self.ndim):
+            for i in xrange(self._ndim):
                 if i != axis1 and i != axis2:
-                    os.append(self.shape[i])
+                    os.append(self._shape[i])
                     ois.append(1)
                     to_reduce.append(i)
             to_reduce.sort(reverse = True)
             os.append(s)
-            out = zeros(os, self.dtype)
+            out = zeros(os, self._dtype)
             ois.append(s)
             si = self.section_iter(shape)
             oi = out.section_iter(ois)
@@ -1848,16 +2091,16 @@ class Array:
                 osec = oi.next()
                 for r in to_reduce:
                     sec = sec.get_reduced(r)
-                for r in range(self.ndim - 3, -1, -1):
+                for r in range(self._ndim - 3, -1, -1):
                     osec = osec.get_reduced(r)
                 sec.diagonal(offset, out = osec)
             return out
     
     def tril(self, k=0):
-        if self.ndim != 2:
+        if self._ndim != 2:
             raise Exception('dimension must be 2')
-        arr = zeros(self.shape, self.dtype)
-        N, M = self.shape
+        arr = zeros(self._shape, self._dtype)
+        N, M = self._shape
         if k >= 0:
             for i in xrange(N) :
                 l = i + k + 1 if i + k < M else M
@@ -1871,10 +2114,10 @@ class Array:
         return arr
 
     def triu(self, k=0):
-        if self.ndim != 2:
+        if self._ndim != 2:
             raise Exception('dimension must be 2')
-        arr = zeros(self.shape, self.dtype)
-        N, M = self.shape
+        arr = zeros(self._shape, self._dtype)
+        N, M = self._shape
         if k >= 0:
             for i in xrange(N) :
                 s = i + k
@@ -1920,6 +2163,10 @@ class ArraySliceIter():
 #####################################################################################
 class ArrayItemIter():
     def __init__(self, array):
+        if array.size == 0:
+            self.iter = iter(array.__iArray__)
+            self.next = self.iter.next
+            return
         self.iter = array.__iArray__.getIterator()
         dtype = array.dtype
         if dtype is int :
@@ -2143,7 +2390,7 @@ def get_ndim(obj, dep = 0) :
         return 0
 
 def get_type(obj):
-    if isinstance(obj, Array) :
+    if hasattr(obj, 'dtype'):
         return obj.dtype
     else :
         if type(obj) is str :
@@ -2199,8 +2446,8 @@ def __is_matrix__(obj):
     return True
     
 def get_shape(obj, rank = -1):
-    if isinstance(obj, Array) :
-        return obj.shape
+    if hasattr(obj, '_shape') :
+        return list(obj.shape)
     if rank < 0 :
         rank = get_ndim(obj)
         return get_shape(obj, rank)
@@ -2314,7 +2561,7 @@ array([[0, 1, 0],
 '''
 def diagflat(obj, k = 0):
     if hasattr(obj, 'item_iter') and hasattr(obj, 'size'):
-        dim = obj.size() + abs(k)
+        dim = obj.size + abs(k)
         arr = zeros([dim, dim])
         oiter = obj.item_iter()
         if k == 0:
@@ -2469,6 +2716,8 @@ def rand(shape, para = None, engine = None, dtype = float):
     return arr
     
 def instance(shape, init = 0, dtype = float):
+    if shape == 0 or shape == [0]:
+        return Array([], dtype = dtype)
     if type(shape) is int :
         shape = [shape]
     if dtype is float :
@@ -2647,57 +2896,256 @@ def append(obj, val, axis = None):
             arr.get_section(org, vshp).copy_from(val)
         return arr
 
-def concatenate(tup, axis = 0):
+def concatenate(tup, axis = 0, out = None):
     if len(tup) < 2 :
         raise ValueError, 'must have at least 2 arrays'
     dtype = bool
-    odim = -1
-    for obj in tup :
-        dtype = __compare_type__(get_type(obj), dtype)
-        if odim < 0 :
-            odim = get_ndim(obj)
-        else :
-            if odim != get_ndim(obj) :
-                raise ValueError, 'they must have the same dimension'
-    if axis >= odim :
-        raise ValueError, 'bad axis argument to swapaxes: ' + str(axis) + \
-            ', expecting axis < ' + str(odim)
-    oshp = None
-    shapes = []
-    alen = []
-    for obj in tup :
-        if oshp is None :
-            oshp = get_shape(obj, odim)
-            nshp = copy.copy(oshp)
-            alen.append(oshp[axis])
-            shapes.append(oshp)
-        else :
-            vshp = get_shape(obj, odim)
-            shapes.append(vshp)
-            for id in xrange(odim) :
-                if id == axis :
-                    nshp[id] += vshp[id]
-                    alen.append(vshp[id])
-                else :
-                    if (oshp[id] != vshp[id]) :
-                        raise ValueError, 'array dimensions must agree except for d_' + str(id)
-    arr = instance(nshp, 0, dtype)
-    if axis == 0 :
-        id = 0
+    if axis is None:
+        size = 0
+        sizes = []
+        for obj in tup :
+            dtype = __compare_type__(get_type(obj), dtype)
+            s = get_size(obj)
+            size += s
+            sizes.append(s)
+        if out is None:
+            arr = instance([size], 0, dtype)
+        else:
+            arr = out
         start = 0
+        for i in xrange(len(tup)):
+            obj = tup[i]
+            cs = sizes[i]
+            arr[start : start + cs].copy_from(obj)
+            start += cs
+    else:
+        odim = -1
         for obj in tup :
-            arr[start : start + alen[id]].copy_from(obj)
-            start += alen[id]
-            id += 1
-    else :
-        org = [0] * arr.ndim
-        id = 0
+            dtype = __compare_type__(get_type(obj), dtype)
+            if odim < 0 :
+                odim = get_ndim(obj)
+            else :
+                if odim != get_ndim(obj) :
+                    raise ValueError, 'they must have the same dimension'
+        if axis >= odim :
+            raise ValueError, 'bad axis argument to swapaxes: ' + str(axis) + \
+                ', expecting axis < ' + str(odim)
+        oshp = None
+        shapes = []
+        alen = []
         for obj in tup :
-            arr.get_section(org, shapes[id]).copy_from(obj)
-            org[axis] += alen[id]
-            id += 1
+            if oshp is None :
+                oshp = get_shape(obj, odim)
+                nshp = copy.copy(oshp)
+                alen.append(oshp[axis])
+                shapes.append(oshp)
+            else :
+                vshp = get_shape(obj, odim)
+                shapes.append(vshp)
+                for id in xrange(odim) :
+                    if id == axis :
+                        nshp[id] += vshp[id]
+                        alen.append(vshp[id])
+                    else :
+                        if (oshp[id] != vshp[id]) :
+                            raise ValueError, 'array dimensions must agree except for d_' + str(id)
+        if out is None:
+            arr = instance(nshp, 0, dtype)
+        else:
+            arr = out
+        if axis == 0 :
+            id = 0
+            start = 0
+            for obj in tup :
+                arr[start : start + alen[id]].copy_from(obj)
+                start += alen[id]
+                id += 1
+        else :
+            org = [0] * arr.ndim
+            id = 0
+            for obj in tup :
+                arr.get_section(org, shapes[id]).copy_from(obj)
+                org[axis] += alen[id]
+                id += 1
     return arr
+
+def resize(a, new_shape):
+    res = zeros(new_shape, a.dtype)
+    ai = a.item_iter()
+    ri = res.item_iter()
+    if res.size > a.size:
+        while ri.has_next():
+            if not ai.has_next():
+                ai = a.item_iter()
+            ri.set_next(ai.next())
+    else:
+        while ri.has_next():
+            ri.set_next(ai.next())
+    return res
+
+def trim_zeros(filt, trim='fb'):
+    first = 0
+    trim = trim.upper()
+    if 'F' in trim:
+        for i in filt:
+            if i != 0.:
+                break
+            else:
+                first = first + 1
+    last = len(filt)
+    if 'B' in trim:
+        for i in xrange(last):
+            if filt[last - i - 1] != 0.:
+                break
+        last = last - i
+    return filt[first:last]
+
+def flip(a, axis=None):
+    return a.flip(axis)
+
+def roll(a, shift, axis = None):
+    res = zeros(a.shape, a.dtype)
+    if axis is None or a.ndim == 1:
+        shift = shift % a.size
+        ai = a.item_iter()
+        ri = res.item_iter()
+        if shift > 0:
+            for i in xrange(shift):
+                ri.next()
+            for i in xrange(a.size - shift):
+                ri.set_next(ai.next())
+            ri = res.item_iter()
+            for i in xrange(shift):
+                ri.set_next(ai.next())
+        else:
+            for i in xrange(shift):
+                ai.next()
+            for i in xrange(a.size - shift):
+                ri.set_next(ai.next())
+            ai = a.item_iter()
+            for i in xrange(shift):
+                ri.set_next(ai.next())
+    else:
+        shape = a.shape
+        size = shape[axis]
+        shift = shift % size
+        sr = []
+        sa = []
+        for i in xrange(a.ndim):
+            if i != axis:
+                sr.append(slice(None, None, 1))
+                sa.append(slice(None, None, 1))
+            else :
+                sr.append(1)
+                sa.append(1)
+        if shift > 0:
+            for i in xrange(shift):
+                sr[axis] = i
+                sa[axis] = size - shift + i
+                res[sr] = a[sa]
+            for i in xrange(size - shift):
+                sr[axis] = shift + i
+                sa[axis] = i
+                res[sr] = a[sa]
+        else:
+            for i in xrange(size - shift):
+                sr[axis] = i
+                sa[axis] = shift + i
+                res[sr] = a[sa]
+            for i in xrange(shift):
+                sr[axis] = size - shift + i
+                sa[axis] = i
+                res[sr] = a[sa]
+    return res
             
+def rot90(m, k=1, axes=(0, 1)):
+    if m.ndim < 2:
+        raise ValueError('m must be at least 2D')
+    k = k % 4
+    if k == 0:
+        return copy.copy(m)
+    elif k == 1:
+        msh = m.shape
+        rsh = m.shape
+        rsh[axes[0]] = msh[axes[1]]
+        rsh[axes[1]] = msh[axes[0]]
+        res = zeros(rsh, m.dtype)
+        len = msh[axes[0]]
+        asl = []
+        rsl = []
+        for i in xrange(m.ndim):
+            if i == axes[0]:
+                rsl.append(1)
+                asl.append(slice(None, None, 1))
+            elif i == axes[1]:
+                rsl.append(slice(None, None, 1))
+                asl.append(1)
+            else:
+                rsl.append(slice(None, None, 1))
+                asl.append(slice(None, None, 1))
+        for i in xrange(len):
+            rsl[axes[0]] = i
+            asl[axes[1]] = len - 1 - i
+            res[rsl] = m[asl]
+    elif k == 2:
+        pass
+    return res
+        
+    
+def stack(tup, axis = 0, out = None):
+    length = -1
+    shape = None
+    dtype = bool
+    for item in tup :
+        itype = get_type(item)
+        dtype = __compare_type__(dtype, itype)
+        if shape is None :
+            shape = get_shape(item)
+            
+#             if len(shape) == 1:
+#                 if axis == 0:
+#                     shape = [1] + shape
+#                 elif axis == 1 or axis == -1:
+#                     shape = shape + [1]
+#                 else:
+#                     raise ValueError, 'out of bounds for array of dimension 2'
+        else:
+            s = get_shape(item)
+#             if len(s) == 1:
+#                 if axis == 0:
+#                     s = [1] + s
+#                 elif axis == 1 or axis == -1:
+#                     s = s + [1]
+#                 else:
+#                     raise ValueError, 'out of bounds for array of dimension 2'
+            if shape != s :
+                raise ValueError, 'all items must have the same shape'
+    if axis < 0:
+        axis += len(shape) + 1
+    if axis < 0 or axis > len(shape):
+        raise ValueError, 'axis out of bounds of dimensions'
+    nsh = shape[:axis] + [len(tup)] + shape[axis:]
+#     for i in xrange(len(shape)):
+#         if i == axis:
+#             nsh.append(shape[i] * len(tup))
+#         else:
+#             nsh.append(shape[i])
+    if out is None:
+        arr = instance(nsh, 0, dtype)
+    else:
+        arr = out
+    id = 0
+    for item in tup :
+        idx = ()
+        for i in xrange(len(nsh)):
+            if i == axis:
+                idx += (id,)
+            else:
+                idx += (slice(0, nsh[i]),)
+        arr[idx].copy_from(item)
+        id += 1
+    return arr
+  
 def column_stack(*tup):
     items = []
     for item in tup :
@@ -2724,59 +3172,89 @@ def column_stack(*tup):
     return arr
 
 def vstack(*tup):
-    items = []
-    ndim = 0
-    shape = []
-    for item in tup :
-        if type(item) is tuple :
-            for si in item :
-                items.append(si)
-                idim = get_ndim(si)
-                if idim > ndim :
-                    ndim = idim
-                    shape = get_shape(si, ndim)
-        else :
-            items.append(item)
-        idim = get_ndim(item)
-        if idim > ndim :
-            ndim = idim
-            shape = get_shape(item, ndim)
-    nshape = copy.copy(shape)
-    nshape[0] = 0
-    allshape = []
-    alldim = []
-    for item in items :
-        idim = get_ndim(item)
-        alldim.append(idim)
-        ishape = get_shape(item, idim)
-        allshape.append(ishape)
-        if idim < ndim :
-            if ndim - idim > 1 :
-                raise ValueError, 'rank does not match, must be same or at most 1 less'
-            else :
-                if ishape != shape[1:] :
-                    raise ValueError, 'shape does not match, must be same except for axis=0'
-            nshape[0] += 1
-        else :
-            if ishape[1:] != shape[1:] :
-                raise ValueError, 'shape does not match, must be same except for axis=0'
-            nshape[0] += ishape[0]
+    if len(tup) < 2 :
+        raise ValueError, 'must have at least 2 arrays'
     dtype = bool
-    for item in items :
-        itype = get_type(item)
-        dtype = __compare_type__(dtype, itype)
-    arr = instance(nshape, 0, dtype)
-    org = [0] * arr.ndim
-    id = 0
-    for item in items :
-        if alldim[id] < ndim :
-            ishape = [1]+ allshape[id]
+    oshp = None
+    shapes = []
+    alen = []
+    for obj in tup :
+        dtype = __compare_type__(get_type(obj), dtype)
+        if oshp is None :
+            oshp = get_shape(obj)
+            if len(oshp) == 1:
+                oshp = [1] + oshp
+            nshp = copy.copy(oshp)
+            alen.append(oshp[0])
+            shapes.append(oshp)
         else :
-            ishape = allshape[id]
-        arr.get_section(org, ishape).copy_from(item)
-        org[0] += ishape[0]
+            vshp = get_shape(obj)
+            if len(vshp) == 1:
+                vshp = [1] + vshp
+            shapes.append(vshp)
+            alen.append(vshp[0])
+            nshp[0] += vshp[0]
+    arr = instance(nshp, 0, dtype)
+    id = 0
+    start = 0
+    for obj in tup :
+        arr[start : start + alen[id]].copy_from(obj)
+        start += alen[id]
         id += 1
-    return arr
+    return arr            
+#     items = []
+#     ndim = 0
+#     shape = []
+#     for item in tup :
+#         if type(item) is tuple :
+#             for si in item :
+#                 items.append(si)
+#                 idim = get_ndim(si)
+#                 if idim > ndim :
+#                     ndim = idim
+#                     shape = get_shape(si, ndim)
+#         else :
+#             items.append(item)
+#         idim = get_ndim(item)
+#         if idim > ndim :
+#             ndim = idim
+#             shape = get_shape(item, ndim)
+#     nshape = copy.copy(shape)
+#     nshape[0] = 0
+#     allshape = []
+#     alldim = []
+#     for item in items :
+#         idim = get_ndim(item)
+#         alldim.append(idim)
+#         ishape = get_shape(item, idim)
+#         allshape.append(ishape)
+#         if idim < ndim :
+#             if ndim - idim > 1 :
+#                 raise ValueError, 'rank does not match, must be same or at most 1 less'
+#             else :
+#                 if ishape != shape[1:] :
+#                     raise ValueError, 'shape does not match, must be same except for axis=0'
+#             nshape[0] += 1
+#         else :
+#             if ishape[1:] != shape[1:] :
+#                 raise ValueError, 'shape does not match, must be same except for axis=0'
+#             nshape[0] += ishape[0]
+#     dtype = bool
+#     for item in items :
+#         itype = get_type(item)
+#         dtype = __compare_type__(dtype, itype)
+#     arr = instance(nshape, 0, dtype)
+#     org = [0] * arr.ndim
+#     id = 0
+#     for item in items :
+#         if alldim[id] < ndim :
+#             ishape = [1]+ allshape[id]
+#         else :
+#             ishape = allshape[id]
+#         arr.get_section(org, ishape).copy_from(item)
+#         org[0] += ishape[0]
+#         id += 1
+#     return arr
 
 def hstack(*tup):
     items = []
@@ -2919,16 +3397,19 @@ def array_split(arr, indices_or_sections, axis = 0):
     osize = arr.shape[axis]
     if type(indices_or_sections) is int :
         nsize = osize / indices_or_sections
-        if osize > nsize * indices_or_sections :
-            nsize += 1
+        rem = osize - nsize * indices_or_sections
         org = [0] * arr.ndim
         nshape = copy.copy(arr.shape)
-        nshape[axis] = nsize
-        for id in xrange(indices_or_sections - 1) :
+        for id in xrange(indices_or_sections) :
+            if rem > 0:
+                nshape[axis] = nsize + 1
+                rem -= 1
+            else:
+                nshape[axis] = nsize
             res += [arr.get_section(org, nshape)]
-            org[axis] += nsize
-        nshape[axis] = osize - nsize * (indices_or_sections - 1)
-        res += [arr.get_section(org, nshape)]
+            org[axis] += nshape[axis]
+#         nshape[axis] = osize - nsize * (indices_or_sections - 1)
+#         res += [arr.get_section(org, nshape)]
     elif hasattr(indices_or_sections, '__len__') :
         org = [0] * arr.ndim
         nshape = copy.copy(arr.shape)
@@ -3011,8 +3492,62 @@ def tile(obj, reps):
     return arr
 
 def repeat(obj, repeats, axis=None):
-    raise TypeError, 'not supported yet'
-    
+    if axis is None:
+        osize = obj.size
+        if type(repeats) is int:
+            nsize = osize * repeats
+            res = zeros([nsize], obj.dtype)
+            ri = res.item_iter()
+            oi = obj.item_iter()
+            for i in xrange(osize):
+                val = oi.next()
+                for j in xrange(repeats):
+                    ri.set_next(val)
+            return res
+        else:
+            nsize = sum(repeats)
+            res = zeros([nsize], obj.dtype)
+            ri = res.item_iter()
+            oi = obj.item_iter()
+            for i in xrange(osize):
+                val = oi.next()
+                for j in xrange(repeats[i]):
+                    ri.set_next(val)
+            return res
+    else:
+        oshape = obj.shape
+        olen = len(obj)
+        if type(repeats) is int:
+            nlen = olen * repeats
+            ns = copy.copy(oshape)
+            ss = copy.copy(oshape)
+            ns[axis] = nlen
+            ss[axis] = 1
+            res = zeros(ns, obj.dtype)
+            ri = res.section_iter(ss)
+            oi = obj.section_iter(ss)
+            for i in xrange(olen):
+                val = oi.next()
+                for j in xrange(repeats):
+                    r = ri.next()
+                    r[:] = val
+            return res
+        else:
+            nlen = sum(repeats)
+            ns = copy.copy(oshape)
+            ss = copy.copy(oshape)
+            ns[axis] = nlen
+            ss[axis] = 1
+            res = zeros(ns, obj.dtype)
+            ri = res.section_iter(ss)
+            oi = obj.section_iter(ss)
+            for i in xrange(olen):
+                val = oi.next()
+                for j in xrange(repeats[i]):
+                    r = ri.next()
+                    r[:] = val
+            return res
+        
     
 #####################################################################################
 # Adding and removing elements
@@ -3132,6 +3667,215 @@ def delete(arr, obj, axis=None) :
                         arr.get_slice(axis, nrange[i]))
             return narr
 
+def insert(arr, index, values, axis=None):
+    if axis is None:
+        osize = arr.size
+        if type(index) is int:
+            if hasattr(values, '__len__'):
+                dim = get_ndim(values)
+                if dim > 1:
+                    values = Array(values)
+                nsize = osize + len(values)
+                res = zeros([nsize], arr.dtype)
+                oi = arr.item_iter()
+                ri = res.item_iter()
+                vi = iter(values)
+                for i in xrange(index):
+                    ri.set_next(oi.next())
+                for i in xrange(len(values)):
+                    ri.set_next(vi.next())
+                for i in xrange(index, osize):
+                    ri.set_next(oi.next())
+                return res
+            else:
+                nsize = osize + 1
+                res = zeros([nsize], arr.dtype)
+                oi = arr.item_iter()
+                ri = res.item_iter()
+                for i in xrange(index):
+                    ri.set_next(oi.next())
+                ri.set_next(values)
+                for i in xrange(index, osize):
+                    ri.set_next(oi.next())
+                return res
+        elif hasattr(index, '__len__'):
+            if hasattr(values, '__len__'):
+                nsize = osize + len(index)
+                res = zeros([nsize], arr.dtype)
+                oi = arr.item_iter()
+                ri = res.item_iter()
+                start = 0
+                for i in xrange(len(index)):
+                    for j in xrange(start, index[i]):
+                        ri.set_next(oi.next())
+                    ri.set_next(values[i])
+                    start = index[i]
+                for i in xrange(start, osize):
+                    ri.set_next(oi.next())
+                return res
+            else:
+                nsize = osize + len(index)
+                res = zeros([nsize], arr.dtype)
+                oi = arr.item_iter()
+                ri = res.item_iter()
+                start = 0
+                for i in xrange(len(index)):
+                    for j in xrange(start, index[i]):
+                        ri.set_next(oi.next())
+                    ri.set_next(values)
+                    start = index[i]
+                for i in xrange(start, osize):
+                    ri.set_next(oi.next())
+                return res
+    else:
+        oshape = arr.shape
+        odim = arr.ndim
+        if type(index) is int:
+            if hasattr(values, '__len__'):
+                values = Array(values)
+                nshape = copy.copy(oshape)
+                ishape = copy.copy(oshape)
+                ishape[axis] = 1
+                olen = oshape[axis]
+                nshape[axis] = oshape[axis] + 1
+                res = zeros(nshape, arr.dtype)
+                oi = arr.section_iter(ishape)
+                ri = res.section_iter(ishape)
+                for i in xrange(index):
+                    os = oi.next()
+                    rs = ri.next()
+                    rs.copy_from(os)
+                rs = ri.next()
+                rs.copy_from(values)
+                for i in xrange(index, olen):
+                    os = oi.next()
+                    rs = ri.next()
+                    rs.copy_from(os)
+                return res
+            else:
+                nshape = copy.copy(oshape)
+                ishape = copy.copy(oshape)
+                ishape[axis] = 1
+                olen = oshape[axis]
+                nshape[axis] = oshape[axis] + 1
+                res = zeros(nshape, arr.dtype)
+                oi = arr.section_iter(ishape)
+                ri = res.section_iter(ishape)
+                for i in xrange(index):
+                    os = oi.next()
+                    rs = ri.next()
+                    rs.copy_from(os)
+                rs = ri.next()
+                rs.fill(values)
+                for i in xrange(index, olen):
+                    os = oi.next()
+                    rs = ri.next()
+                    rs.copy_from(os)
+                return res
+        elif hasattr(index, '__len__'):
+            if hasattr(values, '__len__'):
+                values = Array(values)
+                vshape = values.shape
+                vdim = values.ndim
+                nshape = copy.copy(oshape)
+                ishape = copy.copy(oshape)
+                ishape[axis] = 1
+                olen = oshape[axis]
+#                 if vdim == odim:
+#                     nlen = vshape[axis]
+#                 elif vdim == odim - 1:
+#                     nlen = 1
+                nlen = len(index)
+                nshape[axis] = oshape[axis] + nlen
+                res = zeros(nshape, arr.dtype)
+                oi = arr.section_iter(ishape)
+                ri = res.section_iter(ishape)
+                
+                if values.ndim == arr.ndim:
+                    if vshape[axis] == nlen:
+                        vi = values.section_iter(ishape)
+                        start = 0
+                        for i in xrange(len(index)):
+                            for j in xrange(start, index[i]):
+                                os = oi.next()
+                                rs = ri.next()
+                                rs.copy_from(os)
+                            rs = ri.next()
+                            vs = vi.next()
+                            rs.copy_from(vs)
+                            start = index[i]
+                        for i in xrange(start, olen):
+                            os = oi.next()
+                            rs = ri.next()
+                            rs.copy_from(os)
+                    elif vshape[axis] == 1:
+                        start = 0
+                        for i in xrange(len(index)):
+                            for j in xrange(start, index[i]):
+                                os = oi.next()
+                                rs = ri.next()
+                                rs.copy_from(os)
+                            rs = ri.next()
+                            rs.copy_from(values)
+                            start = index[i]
+                        for i in xrange(start, olen):
+                            os = oi.next()
+                            rs = ri.next()
+                            rs.copy_from(os)
+                elif values.ndim == 1 and len(values) == nlen:
+                    start = 0
+                    for i in xrange(len(index)):
+                        for j in xrange(start, index[i]):
+                            os = oi.next()
+                            rs = ri.next()
+                            rs.copy_from(os)
+                        rs = ri.next()
+                        rs.copy_from(values[i])
+                        start = index[i]
+                    for i in xrange(start, olen):
+                        os = oi.next()
+                        rs = ri.next()
+                        rs.copy_from(os)                     
+                elif values.ndim == arr.ndim - 1:
+                    start = 0
+                    for i in xrange(len(index)):
+                        for j in xrange(start, index[i]):
+                            os = oi.next()
+                            rs = ri.next()
+                            rs.copy_from(os)
+                        rs = ri.next()
+                        rs.copy_from(values)
+                        start = index[i]
+                    for i in xrange(start, olen):
+                        os = oi.next()
+                        rs = ri.next()
+                        rs.copy_from(os)   
+                return res
+            else:
+                nshape = copy.copy(oshape)
+                ishape = copy.copy(oshape)
+                ishape[axis] = 1
+                olen = oshape[axis]
+                nshape[axis] = oshape[axis] + len(index)
+                res = zeros(nshape, arr.dtype)
+                oi = arr.section_iter(ishape)
+                ri = res.section_iter(ishape)
+                start = 0
+                for i in xrange(len(index)):
+                    for j in xrange(start, index[i]):
+                        os = oi.next()
+                        rs = ri.next()
+                        rs.copy_from(os)
+                    rs = ri.next()
+                    rs.fill(values)
+                    start = index[i]
+                for i in xrange(start, olen):
+                    os = oi.next()
+                    rs = ri.next()
+                    rs.copy_from(os)
+                return res
+        
+        
 #####################################################################################
 # Array modification
 #####################################################################################
@@ -3176,8 +3920,8 @@ def min(arr, axis = None, out = None):
 def array_equal(a1, a2, equal_nan=False):
     if a1.shape != a2.shape:
         return False
-    a1i = iter(a1)
-    a2i = iter(a2)
+    a1i = a1.item_iter()
+    a2i = a2.item_iter()
     if equal_nan:
         while a1i.has_next():
             x = a1i.next()
