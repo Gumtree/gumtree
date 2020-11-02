@@ -79,6 +79,7 @@ import org.gumtree.msw.ui.ktable.renderers.TextCellRenderer;
 import au.gov.ansto.bragg.quokka.msw.Configuration;
 import au.gov.ansto.bragg.quokka.msw.ConfigurationList;
 import au.gov.ansto.bragg.quokka.msw.Environment;
+import au.gov.ansto.bragg.quokka.msw.ExperimentDescription;
 import au.gov.ansto.bragg.quokka.msw.IModelProviderListener;
 import au.gov.ansto.bragg.quokka.msw.Measurement;
 import au.gov.ansto.bragg.quokka.msw.ModelProvider;
@@ -100,6 +101,7 @@ import au.gov.ansto.bragg.quokka.msw.schedule.CustomInstrumentAction;
 import au.gov.ansto.bragg.quokka.msw.schedule.InstrumentActionExecuter;
 import au.gov.ansto.bragg.quokka.msw.schedule.SyncScheduleProvider;
 import au.gov.ansto.bragg.quokka.msw.util.LockStateManager;
+import au.gov.ansto.bragg.quokka.msw.util.SampleStage;
 import au.gov.ansto.bragg.quokka.msw.util.TertiaryShutter;
 
 public class AcquisitionComposite extends Composite {
@@ -675,6 +677,25 @@ public class AcquisitionComposite extends Composite {
 						if (dialog.open() != SWT.OK)
 							return;
 						break;
+					}
+				}
+
+				final String sampleStage = modelProvider.getExperimentDescription().getSampleStage();
+				if (ExperimentDescription.FIXED_POSITION.equals(sampleStage)) {
+					if (!SampleStage.isXYLocked()) {
+						MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+						dialog.setText("Warning");
+						dialog.setMessage("Sample stage motor X and Y must be locked. Press OK to lock them and continue.");
+						if (dialog.open() != SWT.OK)
+							return;
+						SampleStage.lockXY();
+					}
+				} else {
+					if (SampleStage.isXYLocked()) {
+						MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.OK);
+						dialog.setText("Warning");
+						dialog.setMessage("Sample stage motor X or Y has been locked. Please unlock them and try again.");
+						return;
 					}
 				}
 
