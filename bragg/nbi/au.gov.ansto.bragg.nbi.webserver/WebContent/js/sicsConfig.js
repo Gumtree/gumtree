@@ -438,33 +438,33 @@ var loadGalilMotor = function(path, idx) {
 			var controller = subMotor[KEY_CONTROLLER_NAME];
 			var axis = subMotor[KEY_AXIS_NAME];
 			_title.text(controller + ":" + axis + " (SICS name:" + motorName + ")");
-			var html = TABLE_TIER1_HEADER;
-			//		$.each(subMotor, function(key, val) {
-			//			html += '<tr><td>' + key + '</td><td>' + val + "</td></tr>";
-			//		});
-			$.each(_editable_tier_1, function(i, key) {
-				if (subMotor.hasOwnProperty(key)){
-					var val = subMotor[key];
-					html += createRow(key, val);
-				}
-			});
-			$.each(_editable_tier_2, function(i, key) {
-				if (subMotor.hasOwnProperty(key)){
-					var val = subMotor[key];
-					html += createRow(key, val);
-				}
-			});
-			html += '</tbody></table>';
-			_editorTitle.text('Frequently changed');
-			_editor.html(html);
+//			var html = TABLE_TIER1_HEADER;
+//			//		$.each(subMotor, function(key, val) {
+//			//			html += '<tr><td>' + key + '</td><td>' + val + "</td></tr>";
+//			//		});
+//			$.each(_editable_tier_1, function(i, key) {
+//				if (subMotor.hasOwnProperty(key)){
+//					var val = subMotor[key];
+//					html += createRow(key, val);
+//				}
+//			});
+//			$.each(_editable_tier_2, function(i, key) {
+//				if (subMotor.hasOwnProperty(key)){
+//					var val = subMotor[key];
+//					html += createRow(key, val);
+//				}
+//			});
+//			html += '</tbody></table>';
+//			_editorTitle.text('Frequently changed');
+//			_editor.html(html);
 //			Below code disabled for allowing math expression 
 //			$.each(node, function(idx, n) {
 //				var iv = new IntValidator($(this));
 //			});
 
 
-			_propertyTitle.text('Other properties');
-			html = TABLE_TIER1_HEADER;
+			_propertyTitle.text('Axis properties');
+			var html = TABLE_TIER1_HEADER;
 			$.each(subMotor, function(key, val) {
 				if (!(key in _editable_tier_1 || key in _editable_tier_2)) {
 					html += createRow(key, val);
