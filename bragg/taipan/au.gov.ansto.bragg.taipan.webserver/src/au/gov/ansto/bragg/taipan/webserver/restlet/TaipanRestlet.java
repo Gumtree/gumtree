@@ -20,10 +20,15 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.gumtree.data.interfaces.IArray;
+import org.gumtree.data.interfaces.IAttribute;
 import org.gumtree.data.interfaces.IDataItem;
+import org.gumtree.data.interfaces.IDictionary;
 import org.gumtree.data.nexus.IAxis;
 import org.gumtree.data.nexus.INXDataset;
 import org.gumtree.data.nexus.INXdata;
+import org.gumtree.data.nexus.ISignal;
+import org.gumtree.data.nexus.netcdf.NXConstants;
+import org.gumtree.data.nexus.utils.NexusFactory;
 import org.gumtree.data.nexus.utils.NexusUtils;
 import org.gumtree.security.EncryptionUtils;
 import org.gumtree.vis.awt.PlotFactory;
@@ -45,12 +50,18 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class TaipanRestlet extends Restlet {
 
+	private static final Logger logger = LoggerFactory.getLogger(TaipanRestlet.class);
 	private static final String QUERY_HEIGHT = "height";
 
 	private static final String QUERY_WIDTH = "width";
+	
+	private static final String DATA_DICT_PATH = "gumtree.data.dictpath";
 
 	private static final String SICS_DATA_PATH = "sics.data.path";
 	private static final String DEFAULT_QUERY = "open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO&open_annotations=ENABLE";
@@ -63,11 +74,23 @@ public class TaipanRestlet extends Restlet {
 	
 //	private volatile IHttpConnector connector;
 	private HttpClient client;
+	
+	private NexusFactory nxFactory;
+	private IDictionary dict;
 
 
 	public TaipanRestlet() {
 		imagedataCache = new HashMap<String, HMMCache>();
 		fetchLock = new ReentrantLock();
+		nxFactory = new NexusFactory();
+		String dictPath = System.getProperty(DATA_DICT_PATH);
+		if (dictPath != null) {
+			try {
+				dict = nxFactory.openDictionary(dictPath);
+			} catch (Exception e) {
+			}
+//            self.__iNXroot__.setDictionary(self.__iDictionary__)
+		}
 	}
 
 	public void handle(Request request, Response response) {
@@ -184,6 +207,9 @@ public class TaipanRestlet extends Restlet {
 					IArray dataArray;
 					IArray monitorArray;
 					ds = NexusUtils.readNexusDataset(lastModifiedFile.toURI());
+					if (dict != null) {
+						ds.getNXroot().setDictionary(dict);
+					}
 					if (ds.getNXroot().getFirstEntry().getGroup("data").getDataItem("total_counts") != null) {
 						isHmm = true;
 						dataArray = ds.getNXroot().getFirstEntry().getGroup("data").getDataItem("total_counts").getData();
@@ -200,9 +226,10 @@ public class TaipanRestlet extends Restlet {
 					}
 					monitorArray = ds.getNXroot().getFirstEntry().getGroup("monitor").getDataItem("bm1_counts").getData();
 					INXdata data = ds.getNXroot().getFirstEntry().getData();
-					IDataItem hAxis = data.getAxisList().get(0);
+					IDataItem hAxis = null;
 					List<IAxis> axes = data.getAxisList();
 					if (axes.size() > 1) {
+						hAxis = data.getAxisList().get(0);
 						for (IAxis axis : axes) {
 							if (axis.getSize() <= 1) {
 								continue;
@@ -226,7 +253,19 @@ public class TaipanRestlet extends Restlet {
 				            hAxis= axis;
 				            break;
 						}
-					} 
+					} else {
+						ISignal signal = data.getSignal();
+						IAttribute axesAttribute = signal.getAttribute(NXConstants.SIGNAL_AXES_LABEL);
+						if (axesAttribute != null) {
+							String value = axesAttribute.getStringValue();
+							String[] axisNames = value.split(":");
+							if (axisNames.length > 0) {
+								String haxisName = axisNames[0];
+								hAxis = data.getRootGroup().findDataItem(haxisName);
+							}
+						}
+
+					}
 //					if (hAxis.getShortName().equals("ei")) {
 //						try {
 //							IDataItem vei = ds.getNXroot().getFirstEntry().getGroup("sample").getDataItem("vei_1");
@@ -236,12 +275,27 @@ public class TaipanRestlet extends Restlet {
 //						} catch (Exception e) {
 //						}
 //					}
-					IArray axisArray = hAxis.getData();
+					IArray axisArray;
+					if (hAxis != null) {
+						axisArray = hAxis.getData();
+					} else {
+						int size = ((Long) dataArray.getSize()).intValue();
+						int[] shape = new int[] {size};
+						int[] storage = new int[size];
+						for (int i = 0; i < size; i++) {
+							storage[i] = i;
+						}
+						axisArray = nxFactory.createArray(int.class, shape, storage);
+					}
 					NXDatasetSeries series = new NXDatasetSeries("Detector Counts");
 					series.setData(axisArray, dataArray, dataArray.getArrayMath().toSqrt().getArray());
 					dataset.addSeries(series);
 					dataset.setTitle(lastModifiedFile.getName());
-					dataset.setXTitle(hAxis.getShortName());
+					if (hAxis != null) {
+						dataset.setXTitle(hAxis.getShortName());
+					} else {
+						dataset.setXTitle("run_number");
+					}
 					dataset.setYTitle(yTitle);
 					
 					if (isHmm) {
@@ -254,6 +308,7 @@ public class TaipanRestlet extends Restlet {
 					}
 					
 				} catch (Exception e) {
+					logger.error("failed to create plots", e);
 					throw e;
 				} finally {
 					if (ds != null) {
