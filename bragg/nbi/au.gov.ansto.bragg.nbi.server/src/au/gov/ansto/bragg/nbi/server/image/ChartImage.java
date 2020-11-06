@@ -13,6 +13,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import javax.imageio.ImageIO;
+
 import org.gumtree.vis.awt.PlotFactory;
 import org.gumtree.vis.hist2d.ColorPaintScale;
 import org.gumtree.vis.interfaces.IDataset;
@@ -36,12 +38,27 @@ public class ChartImage {
 
 	private final static int DEFAULT_WIDTH = 960;
 	private final static int DEFAULT_HEIGHT = 480;
+	private static final String JAVA_IMAGEIO_CACHE = "java.imageio.cache";
 	private JFreeChart chart;
 	private int width;
 	private int height;
 	private byte[] imageCache;
 	private boolean isUpdated;
 
+	static {
+		String cacheDir = System.getProperty(JAVA_IMAGEIO_CACHE);
+		if (cacheDir != null && cacheDir != "null") {
+			try {
+				File cache = new File(cacheDir);
+				if (!cache.exists()) {
+					cache.mkdirs();
+				}
+				ImageIO.setCacheDirectory(cache);
+			} catch (Exception e) {
+			}
+		}
+
+	}
 	/**
 	 * 
 	 */

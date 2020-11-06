@@ -66,6 +66,7 @@ public class TaipanRestlet extends Restlet {
 	private static final String DATA_DICT_PATH = "gumtree.data.dictpath";
 
 	private static final String SICS_DATA_PATH = "sics.data.path";
+	private static final String JAVA_IMAGEIO_CACHE = "java.imageio.cache";
 	private static final String DEFAULT_QUERY = "open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO&open_annotations=ENABLE";
 
 	private ImageCache imageCache;
@@ -82,7 +83,14 @@ public class TaipanRestlet extends Restlet {
 
 
 	public TaipanRestlet() {
-		ImageIO.setCacheDirectory(new File("/developer/gumtree/taipan/data/javacache"));
+		String cacheDir = System.getProperty(JAVA_IMAGEIO_CACHE);
+		if (cacheDir != null && cacheDir != "null") {
+			try {
+				ImageIO.setCacheDirectory(new File(cacheDir));
+			} catch (Exception e) {
+				logger.error("failed to set ImageIO cache directory");
+			}
+		}
 		imagedataCache = new HashMap<String, HMMCache>();
 		fetchLock = new ReentrantLock();
 		nxFactory = new NexusFactory();
