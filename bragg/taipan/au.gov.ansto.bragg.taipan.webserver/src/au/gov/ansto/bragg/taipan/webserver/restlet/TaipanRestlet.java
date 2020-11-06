@@ -13,6 +13,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.imageio.ImageIO;
+
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
@@ -80,11 +82,11 @@ public class TaipanRestlet extends Restlet {
 
 
 	public TaipanRestlet() {
+		ImageIO.setCacheDirectory(new File("/developer/gumtree/taipan/data/javacache"));
 		imagedataCache = new HashMap<String, HMMCache>();
 		fetchLock = new ReentrantLock();
 		nxFactory = new NexusFactory();
 		String dictPath = System.getProperty(DATA_DICT_PATH);
-		logger.error("create instance");
 		if (dictPath != null) {
 			try {
 				dict = nxFactory.openDictionary(dictPath);
@@ -95,7 +97,6 @@ public class TaipanRestlet extends Restlet {
 	}
 
 	public void handle(Request request, Response response) {
-		logger.error("handle");
 		// Get path + query (everything after http://<base url>)
 		String path = request.getResourceRef().getRemainingPart();
 		// Take the first '/' out
@@ -112,8 +113,6 @@ public class TaipanRestlet extends Restlet {
 		String[] pathTokens = path.split("/");
 		if (pathTokens.length > 0) {
 			if (pathTokens[0].equals("plot1")) {
-				logger.error("handle Plot1");
-
 				handlePlot1Request(request, response, queryForm);
 			} else if (pathTokens[0].equals("plot2")) {
 				handlePlot2Request(request, response, queryForm);
@@ -133,16 +132,11 @@ public class TaipanRestlet extends Restlet {
 				width = Integer.parseInt(queryForm.getValues(QUERY_WIDTH));
 			} catch (Exception e) {
 			}
-			logger.error("create Plot1");
 			imageCache = new ImageCache(createPlot(height, width), key);
-			logger.error(String.valueOf(imageCache));
-			logger.error("finished creating Plot1");
 		}
 		byte[] imageData = imageCache.imagedata;
-		logger.error(String.valueOf(imageData));
 		Representation result = new InputRepresentation(
 				new ByteArrayInputStream(imageData), MediaType.IMAGE_PNG);
-		logger.error(String.valueOf(result));
 		response.setEntity(result);
 	}
 
@@ -196,7 +190,6 @@ public class TaipanRestlet extends Restlet {
 			if (filepath == null) {
 				filepath = "/experiments/taipan/data/current";
 			}
-			logger.error(filepath);
 			File dir = new File(filepath);
 
 			File[] files = dir.listFiles();
@@ -210,17 +203,13 @@ public class TaipanRestlet extends Restlet {
 					}
 				}
 				if (lastModifiedFile == null) {
-					logger.error("no last file");
 					throw new Exception("No data is available");
 				}
 				INXDataset ds = null;
 				try {
 					IArray dataArray;
 					IArray monitorArray;
-					logger.error(lastModifiedFile.toString());
-
 					ds = NexusUtils.readNexusDataset(lastModifiedFile.toURI());
-					logger.error("dict " + dict);
 					if (dict != null) {
 						ds.getNXroot().setDictionary(dict);
 					}
@@ -242,7 +231,6 @@ public class TaipanRestlet extends Restlet {
 					INXdata data = ds.getNXroot().getFirstEntry().getData();
 					IDataItem hAxis = null;
 					List<IAxis> axes = data.getAxisList();
-					logger.error("axis number is " + axes.size());
 
 					if (axes.size() > 1) {
 						hAxis = data.getAxisList().get(0);
@@ -267,16 +255,12 @@ public class TaipanRestlet extends Restlet {
 				                }
 				            }
 				            hAxis= axis;
-							logger.error("axis is " + axis.getName());
 
 				            break;
 						}
 					} else if (axes.size() == 1) {
 						hAxis = axes.get(0);
-						logger.error("pick axis 0");
 					} else {
-						logger.error("no axis");
-
 						ISignal signal = data.getSignal();
 						IAttribute axesAttribute = signal.getAttribute(NXConstants.SIGNAL_AXES_LABEL);
 						if (axesAttribute != null) {
@@ -284,7 +268,6 @@ public class TaipanRestlet extends Restlet {
 							String[] axisNames = value.split(":");
 							if (axisNames.length > 0) {
 								String haxisName = axisNames[0];
-								logger.error(haxisName);
 
 								hAxis = data.getRootGroup().findDataItem(haxisName);
 							}
@@ -312,7 +295,6 @@ public class TaipanRestlet extends Restlet {
 						}
 						axisArray = nxFactory.createArray(int.class, shape, storage);
 					}
-					logger.error("create plot data");
 
 					NXDatasetSeries series = new NXDatasetSeries("Detector Counts");
 					series.setData(axisArray, dataArray, dataArray.getArrayMath().toSqrt().getArray());
@@ -324,7 +306,6 @@ public class TaipanRestlet extends Restlet {
 						dataset.setXTitle("run_number");
 					}
 					dataset.setYTitle(yTitle);
-					logger.error(filepath);
 					
 					if (isHmm) {
 						dataset2.setTitle("Data plot not available");
@@ -384,15 +365,14 @@ public class TaipanRestlet extends Restlet {
 	        chart.getXYPlot().setRangeAxisLocation(1, AxisLocation.BOTTOM_OR_RIGHT);
 	        rangeAxis2.setVisible(true);
 		}
-		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
 			ChartUtilities.writeChartAsPNG(out, chart, width, height);
 		} catch (IOException e) {
-			// TODO error handling
-			e.printStackTrace();
+			logger.error("failed to create chart", e);
 		}
-		return out.toByteArray();
+		byte[] outByte = out.toByteArray();
+		return outByte;
 	}
 
 	private byte[] createPlot2(int height, int width) {
@@ -474,8 +454,6 @@ public class TaipanRestlet extends Restlet {
 					} else if (axes.size() == 1) {
 						hAxis = axes.get(0);
 					} else {
-						logger.error("no axis");
-
 						ISignal signal = data.getSignal();
 						IAttribute axesAttribute = signal.getAttribute(NXConstants.SIGNAL_AXES_LABEL);
 						if (axesAttribute != null) {
@@ -483,8 +461,6 @@ public class TaipanRestlet extends Restlet {
 							String[] axisNames = value.split(":");
 							if (axisNames.length > 0) {
 								String haxisName = axisNames[0];
-								logger.error(haxisName);
-
 								hAxis = data.getRootGroup().findDataItem(haxisName);
 							}
 						}
