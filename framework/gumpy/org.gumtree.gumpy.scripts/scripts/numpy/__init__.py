@@ -3,6 +3,7 @@ from nparray import *
 from creation import *
 from manipulation import *
 from logic import *
+from npio import *
 import nprandom as random
 from npmath import *
 

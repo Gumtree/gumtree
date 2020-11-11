@@ -394,6 +394,16 @@ class Array:
         else:
             return self.get_value(args)
         
+    def itemset(self, *args):
+        if len(args) == 0:
+            raise ValueError('args can not be empty')
+        elif len(args) == 1:
+            self.fill(args[0])
+        elif len(args) == 2:
+            self.__setitem__(args[0], args[1])
+        else:
+            raise ValueError('too many args')
+        
     def _1d_to_nd_index(self, idx_1d):
         idx_1d = int(idx_1d)
         shape = self._shape
@@ -1180,6 +1190,76 @@ class Array:
             raise Exception, 'array dimensions do not match'
         return Array(self.__iArray__.getArrayMath().matMultiply(arr.__iArray__).getArray())
     
+    def dot(self, b, out = None):
+        if not hasattr(b, 'ndim'):
+            if out is None:
+                return self.__mul__(b)
+            else:
+                si = self.item_iter()
+                oi = out.item_iter()
+                oi.set_next(si.next() * b)
+                return out
+        elif self.ndim == 1 and b.ndim == 1:
+            if out is None:
+                return self.__mul__(b)
+            else:
+                si = self.item_iter()
+                bi = self.item_iter()
+                oi = out.item_iter()
+                oi.set_next(si.next() * bi.next())
+                return out
+        elif self.ndim == 2 and b.ndim == 2:
+            if out is None:
+                return self.matrix_dot(b)
+            else:
+                out.copy_from(self.matrix_dot(b))
+                return out
+        elif b.ndim == 1:
+            if self.shape[-1] != b.size:
+                raise ValueError('size of b must match the size of the last dimension')
+            oshape = self.shape[:-1]
+            ishape = [1] * self.ndim
+            ishape[-1] = self.shape[-1]
+            if out is None:
+                dtype = self.dtype
+                if b.dtype == float:
+                    dtype = float
+                out = zeros(oshape, dtype)
+            oi = out.item_iter()
+            si = self.section_iter(ishape)
+            while si.has_next():
+                ss = si.next()
+                oi.set_next((ss * b).sum())
+            return out
+        else:
+            ashape = self.shape[:-1]
+            bshape = b.shape
+            bshape = bshape[:-2] + [bshape[-1]]
+            oshape = ashape + bshape
+            if out is None:
+                dtype = self.dtype
+                if b.dtype == float:
+                    dtype = float
+                out = zeros(oshape, dtype)
+            aishape = [1] * self.ndim
+            aishape[-1] = self.shape[-1]
+            bishape = [1] * b.ndim
+            bishape[-2] = b.shape[-2]
+            ai = self.section_iter(aishape)
+            oi = out.item_iter()
+            while ai.has_next():
+                ss = ai.next()
+                bi = b.section_iter(bishape)
+                while bi.has_next():
+                    bs = bi.next()
+                    ssi = ss.item_iter()
+                    bsi = bs.item_iter()
+                    s = 0
+                    while ssi.has_next():
+                        s += ssi.next() * bsi.next()
+                    oi.set_next(s)
+            return out
+    
     def __pow__(self, obj):
         res = zeros(self._shape, self.__match_type__(obj))
         riter = res.item_iter()
@@ -1377,7 +1457,9 @@ class Array:
 #     Array utilities
 #********************************************************************************
     
-    def __repr__(self, indent = None, skip = True):
+    def __repr__(self, indent = None, skip = True, precision = None):
+        if precision is None:
+            precision = Array.precision
         if self._size == 0 :
             return 'Array([], shape=' + str(self._shape) + \
                     ', dtype=' + self._dtype.__name__ + ')'
@@ -1395,7 +1477,7 @@ class Array:
         else :
             nindent = indent + ' ' * 6;
         return 'Array(' + self.__string__(0, skip, True, indent = nindent, \
-                                          max = amax, min = amin) + ')'
+                                          max = amax, min = amin, precision = precision) + ')'
     
     def __str__(self, indent = '', skip = True):
         if self._dtype is str :
@@ -1413,7 +1495,10 @@ class Array:
                 amax = -amin
         return self.__string__(0, skip, max = amax, min = amin, indent = indent)
     
-    def __string__(self, level, skip = False, sep = False, indent = '', max = 0, min = 0):
+    def __string__(self, level, skip = False, sep = False, indent = '', 
+                   max = 0, min = 0, precision = None):
+        if precision is None:
+            precision = Array.precision
         if self._ndim > 1 :
             cmark = ''
             if sep :
@@ -1440,7 +1525,7 @@ class Array:
                 sign = 1
             fm = '%#' + str(int(math.ceil(math.log10(max))) + sign) + 'i'
         elif self._dtype is float :
-            fm = '%#.' + str(Array.precision) + 'f'
+            fm = '%#.' + str(precision) + 'f'
         else :
             fm = '%s'
         size = self._shape[0]
@@ -1460,19 +1545,19 @@ class Array:
             return result
         else :
             if skip and size > 6:
-                result += self[0].__string__(level + 1, skip, sep, indent, max, min) + \
-                    cmark + self[1].__string__(level + 1, skip, sep, indent, max, min) + \
-                    cmark + self[2].__string__(level + 1, skip, sep, indent, max, min) + \
+                result += self[0].__string__(level + 1, skip, sep, indent, max, min, precision) + \
+                    cmark + self[1].__string__(level + 1, skip, sep, indent, max, min, precision) + \
+                    cmark + self[2].__string__(level + 1, skip, sep, indent, max, min, precision) + \
                     cmark + abbrv + cmark + \
-                            self[size - 3].__string__(level + 1, skip, sep, indent, max, min) + \
-                    cmark + self[size - 2].__string__(level + 1, skip, sep, indent, max, min) + \
-                    cmark + self[size - 1].__string__(level + 1, skip, sep, indent, max, min) + close
+                            self[size - 3].__string__(level + 1, skip, sep, indent, max, min, precision) + \
+                    cmark + self[size - 2].__string__(level + 1, skip, sep, indent, max, min, precision) + \
+                    cmark + self[size - 1].__string__(level + 1, skip, sep, indent, max, min, precision) + close
             else :
                 for i in xrange(size - 1) :
 #                    if i > 0 :
 #                        result += '\t'
-                    result += self[i].__string__(level + 1, skip, sep,  indent, max, min) + cmark
-                result += self[size - 1].__string__(level + 1, skip, sep, indent, max, min) + close
+                    result += self[i].__string__(level + 1, skip, sep,  indent, max, min, precision) + cmark
+                result += self[size - 1].__string__(level + 1, skip, sep, indent, max, min, precision) + close
             return result        
     
     def tolist(self):
@@ -2135,6 +2220,64 @@ class Array:
                     arr[i, j] = self.get_value([i, j])
         return arr
 
+    def cumprod(self, axis=None, dtype=None, out=None):
+        if dtype is None:
+            dtype = self.dtype
+        if axis is None:
+            if out is None:
+                out = zeros([self.size], dtype)
+            si = self.item_iter()
+            oi = out.item_iter()
+            v = 1
+            while si.has_next():
+                v *= si.next()
+                oi.set_next(v)
+            return out
+        else:
+            shape = self.shape
+            if out is None:
+                out = zeros(shape, dtype)
+            ishape = copy.copy(shape)
+            ishape[axis] = 1
+            si = self.section_iter(ishape)
+            oi = out.section_iter(ishape)
+            fs = ones(ishape, dtype)
+            while si.has_next():
+                ss = si.next()
+                os = oi.next()
+                os[:] = fs * ss
+                fs = os
+            return out
+            
+    def cumsum(self, axis=None, dtype=None, out=None):
+        if dtype is None:
+            dtype = self.dtype
+        if axis is None:
+            if out is None:
+                out = zeros([self.size], dtype)
+            si = self.item_iter()
+            oi = out.item_iter()
+            v = 0
+            while si.has_next():
+                v += si.next()
+                oi.set_next(v)
+            return out
+        else:
+            shape = self.shape
+            if out is None:
+                out = zeros(shape, dtype)
+            ishape = copy.copy(shape)
+            ishape[axis] = 1
+            si = self.section_iter(ishape)
+            oi = out.section_iter(ishape)
+            fs = zeros(ishape, dtype)
+            while si.has_next():
+                ss = si.next()
+                os = oi.next()
+                os[:] = fs + ss
+                fs = os
+            return out
+            
 
 #####################################################################################
 # Array slice iter class
@@ -2773,7 +2916,12 @@ def arange(*args) :
     elif ll is 2 :
         start = nums[0]
         end = nums[1]
-        step = 1
+        if start < end:
+            step = 1
+        elif start > end:
+            step = -1
+        else:
+            raise ValueError, 'can not create empty array'
     else :
         start = nums[0]
         end = nums[1]

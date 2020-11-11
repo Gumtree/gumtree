@@ -123,6 +123,31 @@ class TestCreation(TestCase):
                      [0, 0, 0]])
         self.assertTrue(np.array_equal(x, res), 'diag_flat 2 value match')
         
+    def test_diagonal(self):
+        a = np.arange(4).reshape(2,2)
+        b = a.diagonal()
+        res = array([0, 3])
+        self.assertTrue(np.array_equal(b, res), 'diagonal 1 value match')
+        
+        b = a.diagonal(1)
+        res = array([1])
+        self.assertTrue(np.array_equal(b, res), 'diagonal 2 value match')
+
+        a = np.arange(8).reshape(2,2,2)
+        b = a.diagonal(0, 0, 1)
+        res = array([[0, 6],
+                     [1, 7]])
+        self.assertTrue(np.array_equal(b, res), 'diagonal 3 value match')
+        
+        a = np.arange(9).reshape(3, 3)
+        b = np.fliplr(a).diagonal()  # Horizontal flip
+        res = array([2, 4, 6])
+        self.assertTrue(np.array_equal(b, res), 'diagonal 4 value match')
+
+        b = np.flipud(a).diagonal()  # Vertical flip
+        res = array([6, 4, 2])
+        self.assertTrue(np.array_equal(b, res), 'diagonal 5 value match')
+        
     def test_creation(self):
         a = np.array([[1, 2], [3, 4], [5, 6]])
         b = np.compress([0, 1], a, axis=0)
@@ -144,6 +169,11 @@ class TestCreation(TestCase):
         res = array([2])
         self.assertTrue(np.array_equal(b, res), 'compress 4 value match')
 
+    def test_dumps_loads(self):
+        a = np.random.rand(2, 3, 4)
+        rr = a.dumps()
+        b = np.loads(rr)
+        self.assertTrue(np.array_equal(a, b), 'dumps and loads single array')
 
 class TestManipulation(TestCase):
     
@@ -805,12 +835,110 @@ class TestNDArray(TestCase):
     def setUp(self):
         pass
     
+    def test_fill(self):
+        a = np.array([1, 2])
+        a.fill(0)
+        res = array([0, 0])
+        self.assertTrue(np.array_equal(a, res), 'ndarray fill 1')
+        
+        a = np.empty(2)
+        a.fill(1)
+        res = array([1.,  1.])
+        self.assertTrue(np.array_equal(a, res), 'ndarray fill 2')
+        
+    def test_flatten(self):
+        a = np.array([[1,2], [3,4]])
+        b = a.flatten()
+        res = array([1, 2, 3, 4])
+        self.assertTrue(np.array_equal(b, res), 'ndarray flatten 1')
+
+    def test_item(self):
+        x = array([[2, 2, 6],
+                   [1, 3, 6],
+                   [1, 0, 1]])
+        a = x.item(3)
+        self.assertEqual(a, 1, 'ndarray item 0')
+
+        a = x.item(7)
+        self.assertEqual(a, 0, 'ndarray item 1')
+
+
+        a = x.item((0, 1))
+        self.assertEqual(a, 2, 'ndarray item 2')
+
+        a = x.item((2, 2))
+        self.assertEqual(a, 1, 'ndarray item 3')
+        
+    def test_itemset(self):
+        x = array([[2, 2, 6],
+                   [1, 3, 6],
+                   [1, 0, 1]])
+        x.itemset(4, 0)
+        x.itemset((2, 2), 9)
+        res = array([[2, 2, 6],
+                     [1, 0, 6],
+                     [1, 0, 9]])
+        self.assertTrue(np.array_equal(x, res), 'ndarray itemset 0')
+        
+class TestMath(TestCase):
+    def setUp(self):
+        pass
+    
+    def test_cumprod(self):
+        a = np.array([[1, 2, 3], [4, 5, 6]])
+        b = np.cumprod(a, dtype=float)
+        res = array([   1.,    2.,    6.,   24.,  120.,  720.])
+        self.assertTrue(np.array_equal(b, res), 'math cumprod None axis')
+        
+        b = np.cumprod(a, axis=0)
+        res = array([[ 1,  2,  3],
+                     [ 4, 10, 18]])
+        self.assertTrue(np.array_equal(b, res), 'math cumprod axis 0')
+    
+        b = np.cumprod(a,axis=1)
+        res = array([[  1,   2,   6],
+                     [  4,  20, 120]])
+        self.assertTrue(np.array_equal(b, res), 'math cumprod axis 1')
+
+    def test_cumsum(self):
+        a = np.array([[1, 2, 3], [4, 5, 6]])
+        b = np.cumsum(a, dtype=float)
+        res = array([  1.,   3.,   6.,  10.,  15.,  21.])
+        self.assertTrue(np.array_equal(b, res), 'math cumsum None axis')
+        
+        b = np.cumsum(a, axis=0)
+        res = array([[1, 2, 3],
+                     [5, 7, 9]])
+        self.assertTrue(np.array_equal(b, res), 'math cumsum axis 0')
+    
+        b = np.cumsum(a,axis=1)
+        res = array([[ 1,  3,  6],
+                     [ 4,  9, 15]])
+        self.assertTrue(np.array_equal(b, res), 'math cumsum axis 1')
+
+    def test_dot(self):
+        a = np.dot(3, 4)
+        self.assertEqual(a, 12, 'math dot scaler multiplication')
+        
+        a = [[1, 0], [0, 1]]
+        b = [[4, 1], [2, 2]]
+        c = np.dot(a, b)
+        res = array([[4, 1],
+                     [2, 2]])
+        self.assertTrue(np.array_equal(c, res), 'math dot matrix dot')
+        
+        a = np.arange(3*4*5*6).reshape((3,4,5,6))
+        b = np.arange(3*4*5*6 - 1, -1).reshape((5,4,6,3))
+        c = np.dot(a, b)[2,3,2,1,2,2]
+        self.assertEqual(c, 499128, 'math dot multi-dimension dot')
 
 def getSuite():
     return unittest.TestSuite([\
             unittest.TestLoader().loadTestsFromTestCase(TestCreation),\
+            unittest.TestLoader().loadTestsFromTestCase(TestNDArray),\
             unittest.TestLoader().loadTestsFromTestCase(TestLogic),\
             unittest.TestLoader().loadTestsFromTestCase(TestManipulation),\
+            unittest.TestLoader().loadTestsFromTestCase(TestMath),\
             ])
 
 def run_test():

@@ -4,6 +4,8 @@
 
 from gumpy.nexus import array as nxa
 from errorhandler import *
+import pickle
+import numpy as np
 
 class ndarray():
     def __init__(self, shape = None, dtype=float, buffer=None, offset=None, strides=None, order=None):
@@ -113,12 +115,15 @@ class ndarray():
     def __str__(self, indent = ''):
         return self.buffer.__str__(indent)
     
-    def __repr__(self, indent = ''):
-        out = self.buffer.__repr__(indent)
+    def __repr__(self, indent = '', skip = True, precision = nxa.Array.precision):
+        out = self.buffer.__repr__(indent, skip = skip, precision = precision)
         return 'a' + out[1:]
         
     def __len__(self):
         return self.shape[0]
+    
+    def __iter__(self):
+        pass
     
     ############## logic functions ##############
     
@@ -141,11 +146,33 @@ class ndarray():
     def item(self, *args):
         return self.buffer.item(*args)
         
+    def itemset(self, *args):
+        self.buffer.itemset(*args)
+        
     def copy(self, subok=True):
         if subok:
             return self._new(buffer = self.buffer.__copy__())
         else:
             return ndarray(buffer = self.buffer.__copy__())
+
+    ''' Dump a pickle of the array to the specified file. The array 
+        can be read back with pickle.load or numpy.load.
+
+        Parameters
+
+            file : str or Path
+                A string naming the dump file.
+
+    '''        
+    def dump(self, file):
+        file = open(file, 'wb')
+        try:
+            pickle.dump(self.dumps(), file)
+        finally:
+            file.close()
+            
+    def dumps(self):
+        return 'np.' + self.__repr__(skip = False, precision = len(repr(1./3)))
         
     def all(self, axis=None, out=None, keepdims=False):
         res = self.buffer.all(axis)
@@ -182,6 +209,20 @@ class ndarray():
             out.fill(res)
             return out
         return res
+        
+    def cumprod(self, axis=None, dtype=None, out=None):
+        return self._new(buffer = self.buffer.cumprod(axis, dtype, out))
+
+    def cumsum(self, axis=None, dtype=None, out=None):
+        return self._new(buffer = self.buffer.cumsum(axis, dtype, out))
+
+    def dot(self, b, out = None):
+        if np.iterable(b):
+            b = np.asanyarray(b).buffer
+        if not out is None:
+            out = np.asanyarray(out).buffer
+        return self._new(buffer = self.buffer.dot(b, out))
+            
         
     ''' Copy of the array, cast to a specified type.
     
@@ -366,5 +407,9 @@ class ndarray():
         conj()
         
         conjugate()
+        
+        getfield(dtype, offset=0)
+        
+        
     
     '''

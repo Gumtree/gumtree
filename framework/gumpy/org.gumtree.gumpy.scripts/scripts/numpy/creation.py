@@ -7,7 +7,7 @@ from nparray import ndarray
 from npmatrix import matrix
 from gumpy.nexus import array as nxa
 from errorhandler import *
-
+import numpy as np
 
 ''' Return a new array of given shape and type, without initializing entries.
 
@@ -1004,6 +1004,30 @@ def mat(data, dtype=None):
 def bmat(obj, ldict=None, gdict=None):
     raise NotImplementedError('not implemented yet')
 
+''' Return selected slices of an array along given axis.
+
+    When working along a given axis, a slice along that axis is returned in output for each index where condition evaluates to True. When working on a 1-D array, compress is equivalent to extract.
+
+    Parameters
+
+        condition : 1-D array of bools
+            Array that selects which entries to return. If len(condition) is less than the size of a along the given axis, then output is truncated to the length of the condition array.
+
+        a : array_like
+            Array from which to extract a part.
+        
+        axis : int, optional
+            Axis along which to take slices. If None (default), work on the flattened array.
+    
+        out : ndarray, optional
+            Output array. Its type is preserved and it must be of the right shape to hold the output.
+
+    Returns
+
+        compressed_array : ndarray
+            A copy of a without the slices along axis for which condition is false.
+'''
 def compress(condition, a, axis=None, out=None):
     a = asanyarray(a)
     return a.compress(condition, axis, out)
+
