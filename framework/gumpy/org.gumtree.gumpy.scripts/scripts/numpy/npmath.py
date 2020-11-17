@@ -173,7 +173,123 @@ def dot(a, b, out=None):
         return b.dot(a, out)
     else:
         return a * b
-    
+
+''' Return the maximum of an array or maximum along an axis.
+
+    Parameters
+
+        a : array_like
+            Input data.
+
+        axis : None or int or tuple of ints, optional
+            Axis or axes along which to operate. 
+            By default, flattened input is used.
+
+            If this is a tuple of ints, the maximum is selected over multiple axes, 
+            instead of a single axis or all the axes as before.
+
+        out : ndarray, optional
+            Alternative output array in which to place the result. Must be of the 
+            same shape and buffer length as the expected output. See ufuncs-output-type 
+            for more details.
+
+        keepdims : not supported
+        
+        initial : scalar, optional
+            The minimum value of an output element. Must be present to allow computation 
+            on empty slice. See reduce for details.
+
+        where : not supported
+
+    Returns
+
+        amax : ndarray or scalar
+            Maximum of a. If axis is None, the result is a scalar value. If axis is given, 
+            the result is an array of dimension a.ndim - 1.
+
+'''
+def amax(a, axis=None, out=None, keepdims=None, initial=None, where=None):
+    a = np.asanyarray(a)
+    return a.max(axis, out, initial = initial)
+
+''' Return the minimum of an array or minimum along an axis.
+
+    Parameters
+
+        a : array_like
+            Input data.
+
+        axis : None or int or tuple of ints, optional
+            Axis or axes along which to operate. By default, flattened input is used.
+            If this is a tuple of ints, the minimum is selected over multiple axes, 
+            instead of a single axis or all the axes as before.
+
+        out : ndarray, optional
+            Alternative output array in which to place the result. Must be of the same 
+            shape and buffer length as the expected output. See ufuncs-output-type for 
+            more details.
+        
+        keepdims : not supported
+
+        initial : scalar, optional
+            The maximum value of an output element. Must be present to allow computation 
+            on empty slice. See reduce for details.
+
+        where : not supported
+
+    Returns
+
+        amin : ndarray or scalar
+            Minimum of a. If axis is None, the result is a scalar value. If axis is given, 
+            the result is an array of dimension a.ndim - 1.
+
+'''
+def amin(a, axis=None, out=None, keepdims=None, initial=None, where=None):
+    a = np.asanyarray(a)
+    return a.min(axis, out, initial = initial)
+
+''' Compute the arithmetic mean along the specified axis.
+
+    Returns the average of the array elements. The average is taken over 
+    the flattened array by default, otherwise over the specified axis. 
+    float64 intermediate and return values are used for integer inputs.
+
+    Parameters
+
+        a : array_like
+            Array containing numbers whose mean is desired. If a is not 
+            an array, a conversion is attempted.
+            
+        axis : None or int or tuple of ints, optional
+            Axis or axes along which the means are computed. The default 
+            is to compute the mean of the flattened array.
+
+            If this is a tuple of ints, a mean is performed over multiple 
+            axes, instead of a single axis or all the axes as before.
+            
+        dtype : data-type, optional
+            Type to use in computing the mean. For integer inputs, the 
+            default is float64; for floating point inputs, it is the same 
+            as the input dtype.
+
+        out : ndarray, optional
+            Alternate output array in which to place the result. The 
+            default is None; if provided, it must have the same shape as 
+            the expected output, but the type will be cast if necessary. \
+            
+        keepdims : not supported
+
+    Returns
+
+        m : ndarray, see dtype parameter above
+            If out=None, returns a new array containing the mean values, 
+            otherwise a reference to the output array is returned.
+
+'''
+def mean(a, axis=None, dtype=None, out=None, keepdims=None):
+    a = np.asanyarray(a)
+    return a.mean(axis, dtype, out, keepdims)
+
 ''' Return the indices of the elements that are non-zero.
 
     Returns a tuple of arrays, one for each dimension of a, containing the 

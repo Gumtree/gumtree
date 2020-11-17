@@ -400,6 +400,12 @@ class Array:
         elif len(args) == 1:
             self.fill(args[0])
         elif len(args) == 2:
+            idx = args[0]
+            val = args[1]
+            if hasattr(idx, '__iter__'):
+                return self.set_value(idx, val)
+            else:
+                return self.set_value(self._1d_to_nd_index(idx), val)
             self.__setitem__(args[0], args[1])
         else:
             raise ValueError('too many args')
@@ -549,7 +555,7 @@ class Array:
     def set_value(self, index, value):
         if type(index) is int :
             i = index
-        elif type(index) is list :
+        elif type(index) is list or type(index) is tuple:
             i = jutils.jintcopy(index)
         else :
             i = index
@@ -879,6 +885,16 @@ class Array:
             for i in xrange(self._ndim):
                 if i != axis:
                     dsize *= self._shape[i]
+        return dsum / dsize
+
+    def amean(self, axis = None, dtype = None, out = None):
+        dsum = self.asum(axis, dtype, out)
+        if axis is None:
+            dsize = self._size
+        else :
+            if axis < 0:
+                axis = self._ndim + axis
+            dsize = self.shape[axis]
         return dsum / dsize
     
     def all(self, axis = None):
@@ -1434,32 +1450,130 @@ class Array:
             pass
         return res
         
-    def max(self, axis = None, out = None):
+    def max(self, axis = None, out = None, initial = None):
         if axis is None :
-            return self.__iArray__.getArrayMath().getMaximum()
+            if initial is None:
+                return self.__iArray__.getArrayMath().getMaximum()
+            else:
+                m = self.__iArray__.getArrayMath().getMaximum()
+                return m if m > initial else initial
         else :
             if axis >= self._ndim :
                 raise ValueError, 'axis index out of stack, ' + str(axis) + \
                                     ' in ' + str(self._ndim)
+            elif axis < 0:
+                axis = self._ndim + axis
             asize = self._shape[axis]
             if out is None :
                 out = instance([asize], 0, self._dtype)
                 for id in xrange(asize) :
-                    out[id] = self.get_slice(axis, id).max()
+                    out[id] = self.get_slice(axis, id).max(initial = initial)
             return out
     
-    def min(self, axis = None, out = None):
+    def amax(self, axis = None, out = None, initial = None):
         if axis is None :
-            return self.__iArray__.getArrayMath().getMinimum()
+            if initial is None:
+                return self.__iArray__.getArrayMath().getMaximum()
+            else:
+                m = self.__iArray__.getArrayMath().getMaximum()
+                return m if m > initial else initial
         else :
             if axis >= self._ndim :
                 raise ValueError, 'axis index out of stack, ' + str(axis) + \
                                     ' in ' + str(self._ndim)
+            elif axis < 0:
+                axis = self._ndim + axis
+            nshape = self.shape
+            nshape = nshape[:axis] + nshape[axis + 1:]
+            ishape = [1] * self._ndim
+            ishape[axis] = self.shape[axis]
+            si = self.section_iter(ishape)
+            if out is None :
+                out = instance(nshape, 0, self._dtype)
+            oi = out.item_iter()
+            while oi.has_next():
+                ss = si.next()
+                oi.set_next(ss.amax(initial = initial))
+            return out
+    
+    def min(self, axis = None, out = None, initial = None):
+        if axis is None :
+            if initial is None:
+                return self.__iArray__.getArrayMath().getMinimum()
+            else:
+                m = self.__iArray__.getArrayMath().getMinimum()
+                return m if m < initial else initial
+        else :
+            if axis >= self._ndim :
+                raise ValueError, 'axis index out of stack, ' + str(axis) + \
+                                    ' in ' + str(self._ndim)
+            elif axis < 0:
+                axis = self._ndim + axis
             asize = self._shape[axis]
             if out is None :
                 out = instance([asize], 0, self._dtype)
                 for id in xrange(asize) :
-                    out[id] = self.get_slice(axis, id).min()
+                    out[id] = self.get_slice(axis, id).min(initial = initial)
+            return out
+    
+    def amin(self, axis = None, out = None, initial = None):
+        if axis is None :
+            if initial is None:
+                return self.__iArray__.getArrayMath().getMinimum()
+            else:
+                m = self.__iArray__.getArrayMath().getMinimum()
+                return m if m < initial else initial
+        else :
+            if axis >= self._ndim :
+                raise ValueError, 'axis index out of stack, ' + str(axis) + \
+                                    ' in ' + str(self._ndim)
+            elif axis < 0:
+                axis = self._ndim + axis
+            nshape = self.shape
+            nshape = nshape[:axis] + nshape[axis + 1:]
+            ishape = [1] * self._ndim
+            ishape[axis] = self.shape[axis]
+            si = self.section_iter(ishape)
+            if out is None :
+                out = instance(nshape, 0, self._dtype)
+            oi = out.item_iter()
+            while oi.has_next():
+                ss = si.next()
+                oi.set_next(ss.amin(initial = initial))
+            return out
+
+    def asum(self, axis=None, dtype=None, out=None):
+        if axis is None :
+            s = self.__iArray__.getArrayMath().sum()
+            if dtype is int :
+                return int(s)
+            elif dtype is long :
+                return long(s)
+            else :
+                return s
+        else :
+            if axis >= self._ndim :
+                raise ValueError, 'index out of bound, ' + str(axis) + ' in ' + str(self._ndim)
+#             nsize = self._shape[axis]
+#             if out is None :
+#                 out = instance([nsize], 0, dtype = dtype)
+#             for i in xrange(nsize) :
+#                 out[i] = self.get_slice(axis, i).sum(dtype = dtype)
+#             return out
+
+            elif axis < 0:
+                axis = self._ndim + axis
+            nshape = self.shape
+            nshape = nshape[:axis] + nshape[axis + 1:]
+            ishape = [1] * self._ndim
+            ishape[axis] = self.shape[axis]
+            si = self.section_iter(ishape)
+            if out is None :
+                out = instance(nshape, 0, self._dtype)
+            oi = out.item_iter()
+            while oi.has_next():
+                ss = si.next()
+                oi.set_next(ss.sum())
             return out
     
     def sum(self, axis=None, dtype=None, out=None):

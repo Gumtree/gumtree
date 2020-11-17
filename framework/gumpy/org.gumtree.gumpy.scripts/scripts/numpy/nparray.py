@@ -141,7 +141,10 @@ class ndarray():
             return ndarray(buffer = self.buffer != obj)
     
     def _new(self, buffer):
-        return ndarray(buffer = buffer)
+        if np.iterable(buffer) :
+            return ndarray(buffer = buffer)
+        else:
+            return buffer
         
     def item(self, *args):
         return self.buffer.item(*args)
@@ -195,20 +198,39 @@ class ndarray():
         else:
             out.fill(res)
             return out
+    
+    ''' Return the maximum along a given axis. '''
+    def max(self, axis=None, out=None, keepdims=None, initial=None, where=None):
+        if not out is None:
+            out = np.asanyarray(out).buffer
+        return self._new(self.buffer.amax(axis, out, initial))
 
+    ''' Return the minimum along a given axis. '''
+    def min(self, axis=None, out=None, keepdims=None, initial=None, where=None):
+        if not out is None:
+            out = np.asanyarray(out).buffer
+        return self._new(self.buffer.amin(axis, out, initial))
+
+    def mean(self, axis=None, dtype=None, out=None, keepdims=False):
+        if not out is None:
+            out = np.asanyarray(out).buffer
+        return self._new(self.buffer.mean(axis, dtype, out))
+        
     def argmax(self, axis=None, out=None):
         res = self.buffer.argmax(axis)
         if not out is None:
             out.fill(res)
             return out
-        return res
+        else:
+            return self._new(res)
         
     def argmin(self, axis=None, out=None):
         res = self.buffer.argmin(axis)
         if not out is None:
             out.fill(res)
             return out
-        return res
+        else:
+            return self._new(res)
         
     def cumprod(self, axis=None, dtype=None, out=None):
         return self._new(buffer = self.buffer.cumprod(axis, dtype, out))

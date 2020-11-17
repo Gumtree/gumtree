@@ -879,16 +879,16 @@ class TestNDArray(TestCase):
         a = x.item((2, 2))
         self.assertEqual(a, 1, 'ndarray item 3')
         
-#     def test_itemset(self):
-#         x = array([[2, 2, 6],
-#                    [1, 3, 6],
-#                    [1, 0, 1]])
-#         x.itemset(4, 0)
-#         x.itemset((2, 2), 9)
-#         res = array([[2, 2, 6],
-#                      [1, 0, 6],
-#                      [1, 0, 9]])
-#         self.assertTrue(np.array_equal(x, res), 'ndarray itemset 0')
+    def test_itemset(self):
+        x = array([[2, 2, 6],
+                   [1, 3, 6],
+                   [1, 0, 1]])
+        x.itemset(4, 0)
+        x.itemset((2, 2), 9)
+        res = array([[2, 2, 6],
+                     [1, 0, 6],
+                     [1, 0, 9]])
+        self.assertTrue(np.array_equal(x, res), 'ndarray itemset 0')
         
 class TestMath(TestCase):
     def setUp(self):
@@ -953,8 +953,70 @@ class TestMath(TestCase):
 #         x[np.nonzero(x)]
 #         array([3, 4, 5, 6])
         
+    def test_amax(self):
+        a = np.arange(4).reshape((2,2))
+        m = np.amax(a)           # Maximum of the flattened array
+        self.assertEqual(m, 3, 'math amax 1')
 
+        m = np.amax(a, axis=0)   # Maxima along the first axis
+        res = array([2, 3])
+        self.assertTrue(np.array_equal(m, res), 'math max 2 with axis')
 
+        m = np.amax(a, axis=1)   # Maxima along the second axis
+        res = array([1, 3])
+        self.assertTrue(np.array_equal(m, res), 'math max 3 with axis')
+
+        m = np.amax(a, initial=3, axis=1)
+        res = array([3,  3])
+        self.assertTrue(np.array_equal(m, res), 'math max 4 with initial value')
+
+        b = np.arange(5, float)
+        b[2] = np.NaN
+        m = np.amax(b)
+        self.assertEqual(m, 4.0, 'math max 5 with NaN value')
+
+#         m = np.nanmax(b)
+#         self.assertEqual(m, 4.0, 'math max 6 with NaN support')
+
+    def test_amin(self):
+        a = np.arange(4).reshape((2,2))
+        m = np.amin(a)           # Minimum of the flattened array
+        self.assertEqual(m, 0, 'math min 1 flat array')
+
+        m = np.amin(a, axis=0)   # Minima along the first axis
+        res = array([0, 1])
+        self.assertTrue(np.array_equal(m, res), 'math max 2 with axis')
+
+        m = np.amin(a, axis=1)   # Minima along the second axis
+        res = array([0, 2])
+        self.assertTrue(np.array_equal(m, res), 'math min 3 with axis')
+
+        m = np.amin(a, initial=0, axis=0)
+        res = array([0,  0])
+        self.assertTrue(np.array_equal(m, res), 'math max 4 with initial')
+
+        b = np.arange(5, float)
+        b[2] = np.NaN
+        m = np.amin(b)
+        self.assertEqual(m, 0.0, 'math min 5 with nan value')
+
+        m = np.amin([[-50], [10]], axis=-1, initial=0)
+        res = array([-50,   0])
+        self.assertTrue(np.array_equal(m, res), 'math max 6 with axis and initial')
+
+    def test_mean(self):
+        a = np.array([[1, 2], [3, 4]])
+        m = np.mean(a)
+        self.assertEqual(m, 2.5, 'math mean 1')
+    
+        m = np.mean(a, axis=1)
+        res = array([2., 3.])
+        self.assertTrue(np.array_equal(m, res), 'math mean 2 with axis')
+    
+        m = np.mean(a, axis=0)
+        res = array([1.5, 3.5])
+        self.assertTrue(np.array_equal(m, res), 'math mean 3 with axis')
+    
 def getSuite():
     return unittest.TestSuite([\
             unittest.TestLoader().loadTestsFromTestCase(TestCreation),\

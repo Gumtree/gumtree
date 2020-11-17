@@ -5,6 +5,9 @@ from java.lang import Double
 
 nan = float('nan')
 inf = float('inf')
+NaN = nan
+NAN = nan
+Nan = nan
 
 def iterable(object):
     return hasattr(object, '__iter__')
