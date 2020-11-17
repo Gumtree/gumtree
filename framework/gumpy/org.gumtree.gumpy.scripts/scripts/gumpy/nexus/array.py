@@ -1422,6 +1422,18 @@ class Array:
             pass
         return res
     
+    def prod(self, axis=None, dtype=None, out=None, initial=1):
+        if self._size is 0 :
+            return 0
+        res = initial
+        siter = self.item_iter()
+        try :
+            while True :
+                res *= siter.next()
+        except StopIteration:
+            pass
+        return res
+        
     def max(self, axis = None, out = None):
         if axis is None :
             return self.__iArray__.getArrayMath().getMaximum()

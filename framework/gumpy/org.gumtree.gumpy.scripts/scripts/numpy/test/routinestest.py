@@ -741,7 +741,17 @@ class TestManipulation(TestCase):
                      [6, 7, 8, 9, 5]])
         self.assertTrue(np.array_equal(y, res), 'roll 8 value match')
 
-
+    def test_put(self):
+        a = np.arange(5)
+        np.put(a, [0, 2], [-44, -55])
+        res = array([-44,   1, -55,   3,   4])
+        self.assertTrue(np.array_equal(a, res), 'put 1')
+        
+        a = np.arange(5)
+        np.put(a, 22, -5, mode='clip')
+        res = array([ 0,  1,  2,  3, -5])
+        self.assertTrue(np.array_equal(a, res), 'put 2')
+        
 class TestLogic(TestCase):
 
     def test_array_equal(self):

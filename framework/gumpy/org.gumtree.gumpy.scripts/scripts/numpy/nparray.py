@@ -289,7 +289,9 @@ class ndarray():
             if not isinstance(out, ndarray):
                 out = np.asanyarray(out)
             return self._new(buffer = self.buffer.clip(min, max, out.buffer))
-            
+    
+    def put(self, indices, values, mode='raise'):
+        self.buffer.put(indices, values, mode)
         
     def moveaxis(self, source, destination):
         if type(source) is int:
