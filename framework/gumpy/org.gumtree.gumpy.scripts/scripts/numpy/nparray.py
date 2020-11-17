@@ -222,7 +222,13 @@ class ndarray():
         if not out is None:
             out = np.asanyarray(out).buffer
         return self._new(buffer = self.buffer.dot(b, out))
-            
+        
+    def nonzero(self):
+        out = self.buffer.nonzero()
+        return tuple([ndarray(buffer = x) for x in out])
+        
+    def prod(axis=None, dtype=None, out=None, keepdims=False, initial=1, where=True):
+        pass
         
     ''' Copy of the array, cast to a specified type.
     
@@ -410,6 +416,8 @@ class ndarray():
         
         getfield(dtype, offset=0)
         
+        newbyteorder(new_order='S')
         
+        partition(kth, axis=-1, kind='introselect', order=None)
     
     '''

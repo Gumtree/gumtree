@@ -739,6 +739,22 @@ class Array:
                 pass
         return cnt
         
+    def nonzero(self):
+        out = [[] for i in xrange(self._ndim)]
+        iter = self.item_iter()
+        try:
+            while True:
+                val = iter.next()
+                if not val == 0:
+                    idx = iter.iter.getCounter()
+                    for i in xrange(self._ndim) :
+                        out[i].append(idx[i])
+        except StopIteration, e:
+            pass
+        for i in xrange(len(out)):
+            out[i] = Array(out[i])
+        return tuple(out)
+        
     def transpose(self, axes = None):
         if axes is None:
             dim1 = self._ndim - 1
@@ -2453,6 +2469,10 @@ class ArrayItemIter():
         
     def has_next(self):
         return self.iter.hasNext()
+
+    def get_index(self):
+        idx = self.iter.getCounter()
+        return [i for i in idx]
 
 #####################################################################################
 # Array section iter class

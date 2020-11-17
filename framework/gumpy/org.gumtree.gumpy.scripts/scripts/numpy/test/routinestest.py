@@ -869,16 +869,16 @@ class TestNDArray(TestCase):
         a = x.item((2, 2))
         self.assertEqual(a, 1, 'ndarray item 3')
         
-    def test_itemset(self):
-        x = array([[2, 2, 6],
-                   [1, 3, 6],
-                   [1, 0, 1]])
-        x.itemset(4, 0)
-        x.itemset((2, 2), 9)
-        res = array([[2, 2, 6],
-                     [1, 0, 6],
-                     [1, 0, 9]])
-        self.assertTrue(np.array_equal(x, res), 'ndarray itemset 0')
+#     def test_itemset(self):
+#         x = array([[2, 2, 6],
+#                    [1, 3, 6],
+#                    [1, 0, 1]])
+#         x.itemset(4, 0)
+#         x.itemset((2, 2), 9)
+#         res = array([[2, 2, 6],
+#                      [1, 0, 6],
+#                      [1, 0, 9]])
+#         self.assertTrue(np.array_equal(x, res), 'ndarray itemset 0')
         
 class TestMath(TestCase):
     def setUp(self):
@@ -931,6 +931,19 @@ class TestMath(TestCase):
         b = np.arange(3*4*5*6 - 1, -1).reshape((5,4,6,3))
         c = np.dot(a, b)[2,3,2,1,2,2]
         self.assertEqual(c, 499128, 'math dot multi-dimension dot')
+
+    def test_nonzero(self):
+        x = np.array([[3, 0, 0], [0, 4, 0], [5, 6, 0]])
+        y = np.nonzero(x)
+        res = (array([0, 1, 2, 2]), array([0, 1, 0, 1]))
+        self.assertTrue(np.array_equal(y[0], res[0]), 'math nonzero 1 0')
+        self.assertTrue(np.array_equal(y[1], res[1]), 'math nonzero 1 1')
+        
+        
+#         x[np.nonzero(x)]
+#         array([3, 4, 5, 6])
+        
+
 
 def getSuite():
     return unittest.TestSuite([\

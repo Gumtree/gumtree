@@ -173,3 +173,23 @@ def dot(a, b, out=None):
         return b.dot(a, out)
     else:
         return a * b
+    
+''' Return the indices of the elements that are non-zero.
+
+    Returns a tuple of arrays, one for each dimension of a, containing the 
+    indices of the non-zero elements in that dimension.
+    
+    Parameters
+
+        a : array_like
+            Input array.
+
+    Returns
+
+        tuple_of_arrays : tuple
+            Indices of elements that are non-zero.
+
+'''
+def nonzero(a):
+    a = np.asanyarray(a)
+    return a.nonzero()
