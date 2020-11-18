@@ -309,3 +309,92 @@ def mean(a, axis=None, dtype=None, out=None, keepdims=None):
 def nonzero(a):
     a = np.asanyarray(a)
     return a.nonzero()
+
+''' Return the product of array elements over a given axis.
+
+    Parameters
+
+        a : array_like
+            Input data.
+        
+        axis : None or int or tuple of ints, optional
+            Axis or axes along which a product is performed. The default, axis=None, 
+            will calculate the product of all the elements in the input array. 
+            If axis is negative it counts from the last to the first axis.
+
+            If axis is a tuple of ints, a product is performed on all of the axes 
+            specified in the tuple instead of a single axis or all the axes as before.
+            
+        dtype : dtype, optional
+            The type of the returned array, as well as of the accumulator in which 
+            the elements are multiplied. The dtype of a is used by default unless a 
+            has an integer dtype of less precision than the default platform integer. 
+            In that case, if a is signed then the platform integer is used while if 
+            a is unsigned then an unsigned integer of the same precision as the 
+            platform integer is used.
+            
+        out : ndarray, optional
+            Alternative output array in which to place the result. It must have the 
+            same shape as the expected output, but the type of the output values 
+            will be cast if necessary.
+            
+        keepdims : not supported
+
+        initial : scalar, optional
+            The starting value for this product. 
+
+        where : not supported
+
+    Returns
+
+        product_along_axis : ndarray, see dtype parameter above.
+            An array shaped as a but with the specified axis removed. Returns a 
+            reference to out if specified.
+
+'''
+def prod(a, axis=None, dtype=None, out=None, keepdims=None, initial=1, where=None):
+    a = np.asanyarray(a)
+    return a.prod(axis, dtype, out, initial = initial)
+
+''' Range of values (maximum - minimum) along an axis.
+
+    The name of the function comes from the acronym for 'peak to peak'.
+
+    Parameters
+
+        a : array_like
+            Input values.
+
+        axis : None or int or tuple of ints, optional
+            Axis along which to find the peaks. By default, flatten the array. 
+            axis may be negative, in which case it counts from the last to the 
+            first axis.
+
+            If this is a tuple of ints, a reduction is performed on multiple 
+            axes, instead of a single axis or all the axes as before.
+            
+        out : array_like
+            Alternative output array in which to place the result. It must 
+            have the same shape and buffer length as the expected output, but 
+            the type of the output values will be cast if necessary.
+            
+        keepdims : bool, optional
+            If this is set to True, the axes which are reduced are left in the 
+            result as dimensions with size one. With this option, the result 
+            will broadcast correctly against the input array.
+
+            If the default value is passed, then keepdims will not be passed 
+            through to the ptp method of sub-classes of ndarray, however any 
+            non-default value will be. If the sub-class' method does not 
+            implement keepdims any exceptions will be raised.
+
+    Returns
+
+        ptp : ndarray
+            A new array holding the result, unless out was specified, in which 
+            case a reference to out is returned.
+
+'''
+def ptp(a, axis=None, out=None, keepdims=None):
+    a = np.asanyarray(a)
+    return a.ptp(axis, out)

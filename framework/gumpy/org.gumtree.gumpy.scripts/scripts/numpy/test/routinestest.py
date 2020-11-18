@@ -174,6 +174,27 @@ class TestCreation(TestCase):
         rr = a.dumps()
         b = np.loads(rr)
         self.assertTrue(np.array_equal(a, b), 'dumps and loads single array')
+        
+    def test_repeat(self):
+        r = np.repeat(3, 4)
+        res = array([3, 3, 3, 3])
+        self.assertTrue(np.array_equal(r, res), 'repeat 1')
+
+        x = np.array([[1,2],[3,4]])
+        r = np.repeat(x, 2)
+        res = array([1, 1, 2, 2, 3, 3, 4, 4])
+        self.assertTrue(np.array_equal(r, res), 'repeat 2')
+
+        r = np.repeat(x, 3, axis=1)
+        res = array([[1, 1, 1, 2, 2, 2],
+                     [3, 3, 3, 4, 4, 4]])
+        self.assertTrue(np.array_equal(r, res), 'repeat 3')
+
+        r = np.repeat(x, [1, 2], axis=0)
+        res = array([[1, 2],
+                     [3, 4],
+                     [3, 4]])
+        self.assertTrue(np.array_equal(r, res), 'repeat 4')
 
 class TestManipulation(TestCase):
     
@@ -752,6 +773,44 @@ class TestManipulation(TestCase):
         res = array([ 0,  1,  2,  3, -5])
         self.assertTrue(np.array_equal(a, res), 'put 2')
         
+    def test_ravel(self):
+        x = np.array([[1, 2, 3], [4, 5, 6]])
+        y = np.ravel(x)
+        res = array([1, 2, 3, 4, 5, 6])
+        self.assertTrue(np.array_equal(y, res), 'ravel 1')
+
+        y = np.ravel(x.T)
+        res = array([1, 4, 2, 5, 3, 6])
+        self.assertTrue(np.array_equal(y, res), 'ravel 2')
+
+    def test_reshape(self):
+        a = np.arange(6).reshape((3, 2))
+        res = array([[0, 1],
+                     [2, 3],
+                     [4, 5]])
+        self.assertTrue(np.array_equal(a, res), 'reshape 1')
+        
+        r = np.reshape(a, (2, 3))
+        res = array([[0, 1, 2],
+                     [3, 4, 5]])
+        self.assertTrue(np.array_equal(r, res), 'reshape 2')
+
+        r = np.reshape(np.ravel(a), (2, 3))
+        res = array([[0, 1, 2],
+                     [3, 4, 5]])
+        self.assertTrue(np.array_equal(r, res), 'reshape 3')
+        
+        a = np.array([[1,2,3], [4,5,6]])
+        r = np.reshape(a, 6)
+        res = array([1, 2, 3, 4, 5, 6])
+        self.assertTrue(np.array_equal(r, res), 'reshape 4')
+        
+        r = np.reshape(a, (3,-1))
+        res = array([[1, 2],
+                     [3, 4],
+                     [5, 6]])
+        self.assertTrue(np.array_equal(r, res), 'reshape 5')
+
 class TestLogic(TestCase):
 
     def test_array_equal(self):
@@ -1016,7 +1075,47 @@ class TestMath(TestCase):
         m = np.mean(a, axis=0)
         res = array([1.5, 3.5])
         self.assertTrue(np.array_equal(m, res), 'math mean 3 with axis')
-    
+        
+    def test_prod(self):
+        p = np.prod([1.,2.])
+        self.assertEqual(p, 2.0, 'math prod 1')
+        
+        p = np.prod([[1.,2.],[3.,4.]])
+        self.assertEqual(p, 24.0, 'math prod 2')
+        
+        p = np.prod([[1.,2.],[3.,4.]], axis=0)
+        res = array([ 3., 8.])
+        self.assertTrue(np.array_equal(p, res), 'math prod 3 with axis')
+
+        p = np.prod([[1.,2.],[3.,4.]], axis=1)
+        res = array([  2.,  12.])
+        self.assertTrue(np.array_equal(p, res), 'math prod 4 with axis')
+        
+        p = np.prod([1, 2], initial=5)
+        self.assertEqual(p, 10, 'math prod 5 with initial value')
+        
+    def test_ptp(self):
+        x = np.array([[4, 9, 2, 10],
+                      [6, 9, 7, 12]])
+        p = np.ptp(x, axis=1)
+        res = array([8, 6])
+        self.assertTrue(np.array_equal(p, res), 'math ptp 1 with axis')
+
+        p = np.ptp(x, axis=0)
+        res = array([2, 0, 5, 2])
+        self.assertTrue(np.array_equal(p, res), 'math ptp 2 with axis')
+
+        p = np.ptp(x)
+        self.assertEqual(p, 10, 'math ptp 3')
+        
+        y = np.array([[1, 127],
+                      [0, 127],
+                      [-1, 127],
+                      [-2, 127]])
+        p = np.ptp(y, axis=1)
+        res = array([ 126,  127, 128, 129])
+        self.assertTrue(np.array_equal(p, res), 'math ptp 4')
+        
 def getSuite():
     return unittest.TestSuite([\
             unittest.TestLoader().loadTestsFromTestCase(TestCreation),\

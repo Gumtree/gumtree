@@ -28,7 +28,11 @@ import numpy as np
 
 '''
 def reshape(a, newshape, order='C'):
-    return asanyarray(a).reshape(*newshape)
+    if np.iterable(newshape):
+        newshape = tuple(newshape)
+        return asanyarray(a).reshape(*newshape)
+    else:
+        return asanyarray(a).reshape((newshape))
 
 ''' Copies values from one array to another, broadcasting as necessary.
 
@@ -1235,3 +1239,25 @@ def put(a, ind, v, mode='raise'):
     a = np.asanyarray(a)
     a.put(ind, v, mode)
     
+''' Return a contiguous flattened array.
+
+    A 1-D array, containing the elements of the input, is returned. 
+    A copy is made only if needed.
+
+    Parameters
+
+        a : array_like
+            Input array. The elements in a are read in the order specified by order, 
+            and packed as a 1-D array.
+            
+        order : not supported
+
+    Returns
+
+        y : array_like
+            y is an array of the same subtype as a, with shape (a.size,). 
+
+'''
+def ravel(a, order=None):
+    a = np.asanyarray(a)
+    return a.ravel()

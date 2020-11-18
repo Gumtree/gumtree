@@ -175,7 +175,7 @@ class ndarray():
             file.close()
             
     def dumps(self):
-        return 'np.' + self.__repr__(skip = False, precision = len(repr(1./3)))
+        return 'np.' + self.__repr__(skip = False, precision = np.PRECISION)
         
     def all(self, axis=None, out=None, keepdims=False):
         res = self.buffer.all(axis)
@@ -249,8 +249,15 @@ class ndarray():
         out = self.buffer.nonzero()
         return tuple([ndarray(buffer = x) for x in out])
         
-    def prod(axis=None, dtype=None, out=None, keepdims=False, initial=1, where=True):
-        pass
+    def prod(self, axis=None, dtype=None, out=None, keepdims=None, initial=1, where=None):
+        if not out is None:
+            out = np.asanyarray(out).buffer
+        return self._new(self.buffer.prod(axis, dtype, out, initial))
+    
+    def ptp(self, axis=None, out=None, keepdims=None):
+        if not out is None:
+            out = np.asanyarray(out).buffer
+        return self._new(buffer = self.buffer.ptp(axis, out))
         
     ''' Copy of the array, cast to a specified type.
     
@@ -304,6 +311,12 @@ class ndarray():
     def flatten(self, order='C'):
         return ndarray(buffer=self.buffer.flatten())
     
+    def ravel(self):
+        return self._new(self.buffer.ravel())
+        
+    def repeat(self, repeats, axis=None):
+        return self._new(nxa.repeat(self.buffer, repeats, axis))
+        
     def clip(self, min=None, max=None, out=None):
         if out is None:
             return self._new(buffer = self.buffer.clip(min, max))
@@ -376,6 +389,8 @@ class ndarray():
         if len(shape) == 1 :
             if type(shape[0]) is list:
                 return self._new(buffer = self.buffer.reshape(shape[0]))
+            elif type(shape[0]) is int:
+                return self._new(buffer = self.buffer.reshape([shape[0]]))
             else:
                 return self._new(buffer = self.buffer.reshape(list(shape[0])))
         else:

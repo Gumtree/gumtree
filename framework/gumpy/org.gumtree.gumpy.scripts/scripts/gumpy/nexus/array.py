@@ -1449,6 +1449,38 @@ class Array:
         except StopIteration:
             pass
         return res
+
+    def prod(self, axis=None, dtype=None, out=None, initial=1):
+        if axis is None :
+            if self._size is 0 :
+                return initial
+            res = initial
+            siter = self.item_iter()
+            try :
+                while True :
+                    res *= siter.next()
+            except StopIteration:
+                pass
+            return res
+        else :
+            if axis >= self._ndim :
+                raise ValueError, 'index out of bound, ' + str(axis) + ' in ' + str(self._ndim)
+            elif axis < 0:
+                axis = self._ndim + axis
+            nshape = self.shape
+            nshape = nshape[:axis] + nshape[axis + 1:]
+            ishape = [1] * self._ndim
+            ishape[axis] = self.shape[axis]
+            si = self.section_iter(ishape)
+            if dtype is None:
+                dtype = self._dtype
+            if out is None :
+                out = instance(nshape, 0, dtype)
+            oi = out.item_iter()
+            while oi.has_next():
+                ss = si.next()
+                oi.set_next(ss.prod(initial = initial))
+            return out
         
     def max(self, axis = None, out = None, initial = None):
         if axis is None :
@@ -1542,6 +1574,66 @@ class Array:
                 oi.set_next(ss.amin(initial = initial))
             return out
 
+    def ptp(self, axis=None, out=None):
+        if axis is None:
+            min = float("inf")
+            max = float("-inf")
+            si = self.item_iter()
+            try:
+                while True:
+                    v = si.next()
+                    if v < min:
+                        min = v
+                    if v > max:
+                        max = v
+            except StopIteration:
+                pass
+            return max - min
+        else:
+            if type(axis) is int:
+                if axis >= self._ndim:
+                    raise ValueError('axis out of range')
+                if axis < 0:
+                    axis = self._ndim + axis
+                nshape = self.shape
+                nshape = nshape[:axis] + nshape[axis + 1:]
+                ishape = [1] * self._ndim
+                ishape[axis] = self.shape[axis]
+                si = self.section_iter(ishape)
+                if out is None :
+                    out = instance(nshape, 0, self._dtype)
+                oi = out.item_iter()
+                while oi.has_next():
+                    ss = si.next()
+                    oi.set_next(ss.ptp())
+                return out
+            elif hasattr(axis, '__iter__'):
+                axis = list(axis)
+                for i in xrange(len(axis)):
+                    if axis[i] >= self._ndim:
+                        raise ValueError('axis out of range')
+                    elif axis[i] < 0:
+                        axis[i] = self._ndim + axis
+                s = self.shape
+                nshape = []
+                ishape = [1] * self._ndim
+                for i in xrange(self._ndim):
+                    if not i in axis:
+                        nshape.append(s[i])
+                    else:
+                        ishape[i] = s[i]
+                si = self.section_iter(ishape)
+                if out is None :
+                    out = instance(nshape, 0, self._dtype)
+                oi = out.item_iter()
+                while oi.has_next():
+                    ss = si.next()
+                    oi.set_next(ss.ptp())
+                return out
+            else:
+                raise ValueError('invalid axis argument')
+                
+        
     def asum(self, axis=None, dtype=None, out=None):
         if axis is None :
             s = self.__iArray__.getArrayMath().sum()
@@ -2046,12 +2138,26 @@ class Array:
 #####################################################################################
 #   Reinterpreting arrays
 #####################################################################################    
+    def ravel(self):
+        return self.flatten()
+        
     def reshape(self, shape):
         if type(shape) is int:
+            if shape == -1:
+                shape = self.size
             shape = [shape]
         elif hasattr(shape, '__iter__'):
             if not type(shape) is list:
                 shape = list(shape)
+            de = -1
+            mul = 1
+            for i in xrange(len(shape)):
+                if shape[i] == -1:
+                    de = i
+                else:
+                    mul *= shape[i]
+            if de >= 0:
+                shape[de] = self.size / mul
             jshape = jutils.jintcopy(shape)
             return Array(self.__iArray__.getArrayUtils().reshape(jshape).getArray())
         else :
@@ -3786,6 +3892,11 @@ def tile(obj, reps):
     return arr
 
 def repeat(obj, repeats, axis=None):
+    if not isinstance(obj, Array):
+        if hasattr(obj, '__iter__'):
+            obj = Array(obj)
+        else:
+            obj = Array([obj])
     if axis is None:
         osize = obj.size
         if type(repeats) is int:

@@ -1031,3 +1031,29 @@ def compress(condition, a, axis=None, out=None):
     a = asanyarray(a)
     return a.compress(condition, axis, out)
 
+''' Repeat elements of an array.
+
+    Parameters
+
+        a : array_like
+            Input array.
+
+        repeats : int or array of ints
+            The number of repetitions for each element. repeats is broadcasted to 
+            fit the shape of the given axis.
+
+        axis : int, optional
+            The axis along which to repeat values. By default, use the flattened 
+            input array, and return a flat output array.
+
+    Returns
+
+        repeated_array : ndarray
+            Output array which has the same shape as a, except along the given axis.
+
+'''
+def repeat(a, repeats, axis=None):
+    if isinstance(a, ndarray):
+        return a.repeat(repeats, axis)
+    else:
+        return ndarray(buffer = nxa.repeat(a, repeats, axis))

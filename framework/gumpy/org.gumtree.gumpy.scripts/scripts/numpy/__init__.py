@@ -7,6 +7,7 @@ from npio import *
 import nprandom as random
 from npmath import *
 
+PRECISION = 18
 
 def unimplemented():
     l = []
