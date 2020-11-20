@@ -398,3 +398,144 @@ def prod(a, axis=None, dtype=None, out=None, keepdims=None, initial=1, where=Non
 def ptp(a, axis=None, out=None, keepdims=None):
     a = np.asanyarray(a)
     return a.ptp(axis, out)
+
+''' Evenly round to the given number of decimals.
+
+    Parameters
+
+        a : array_like
+            Input data.
+
+        decimals : int, optional
+            Number of decimal places to round to (default: 0). If decimals is negative, 
+            it specifies the number of positions to the left of the decimal point.
+        
+        out : ndarray, optional
+            Alternative output array in which to place the result. It must have the 
+            same shape as the expected output, but the type of the output values will 
+            be cast if necessary. 
+
+    Returns
+
+        rounded_array : ndarray
+            An array of the same type as a, containing the rounded values. Unless 
+            out was specified, a new array is created. A reference to the result is 
+            returned.
+
+            The real and imaginary parts of complex numbers are rounded separately. 
+            The result of rounding a float is a float.
+
+'''
+def around(a, decimals=0, out=None):
+    a = np.asanyarray(a)
+    return a.round(decimals, out)
+
+''' Compute the standard deviation along the specified axis.
+
+    Returns the standard deviation, a measure of the spread of a distribution, 
+    of the array elements. The standard deviation is computed for the flattened 
+    array by default, otherwise over the specified axis.
+
+    Parameters
+
+        a : array_like
+            Calculate the standard deviation of these values.
+        
+        axis : None or int or tuple of ints, optional
+            Axis or axes along which the standard deviation is computed. The 
+            default is to compute the standard deviation of the flattened array.
+
+            If this is a tuple of ints, a standard deviation is performed over 
+            multiple axes, instead of a single axis or all the axes as before.
+            
+        dtype : dtype, optional
+            Type to use in computing the standard deviation. For arrays of 
+            integer type the default is float64, for arrays of float types 
+            it is the same as the array type.
+
+        out : ndarray, optional
+            Alternative output array in which to place the result. It must 
+            have the same shape as the expected output but the type (of the 
+            calculated values) will be cast if necessary.
+
+        ddof : int, optional
+            Means Delta Degrees of Freedom. The divisor used in calculations 
+            is N - ddof, where N represents the number of elements. 
+            By default ddof is zero.
+
+        keepdims : bool, optional
+            If this is set to True, the axes which are reduced are left in 
+            the result as dimensions with size one. With this option, the 
+            result will broadcast correctly against the input array.
+
+            If the default value is passed, then keepdims will not be passed 
+            through to the std method of sub-classes of ndarray, however any 
+            non-default value will be. If the sub-class' method does not 
+            implement keepdims any exceptions will be raised.
+
+    Returns
+
+        standard_deviationndarray, see dtype parameter above.
+            If out is None, return a new array containing the standard 
+            deviation, otherwise return a reference to the output array.
+
+'''
+def std(a, axis=None, dtype=None, out=None, ddof=0, keepdims=None):
+    a = np.asanyarray(a)
+    return a.std(axis, dtype, out, ddof)
+
+''' Sum of array elements over a given axis.
+
+    Parameters
+
+        a : array_like
+            Elements to sum.
+            
+        axis : None or int or tuple of ints, optional
+            Axis or axes along which a sum is performed. The default, axis=None, 
+            will sum all of the elements of the input array. If axis is negative 
+            it counts from the last to the first axis.
+
+            If axis is a tuple of ints, a sum is performed on all of the axes 
+            specified in the tuple instead of a single axis or all the axes as 
+            before.
+            
+        dtype : dtype, optional
+            The type of the returned array and of the accumulator in which the 
+            elements are summed. The dtype of a is used by default unless a has 
+            an integer dtype of less precision than the default platform integer. 
+            In that case, if a is signed then the platform integer is used while 
+            if a is unsigned then an unsigned integer of the same precision as 
+            the platform integer is used.
+            
+        out : ndarray, optional
+            Alternative output array in which to place the result. It must have 
+            the same shape as the expected output, but the type of the output 
+            values will be cast if necessary.
+            
+        keepdims : bool, optional
+            If this is set to True, the axes which are reduced are left in the 
+            result as dimensions with size one. With this option, the result will 
+            broadcast correctly against the input array.
+
+            If the default value is passed, then keepdims will not be passed 
+            through to the sum method of sub-classes of ndarray, however any 
+            non-default value will be. If the sub-class' method does not implement 
+            keepdims any exceptions will be raised.
+            
+        initial : scalar, optional
+            Starting value for the sum. See reduce for details.
+
+        where : not supported
+
+    Returns
+
+        sum_along_axis : ndarray
+            An array with the same shape as a, with the specified axis removed. 
+            If a is a 0-d array, or if axis is None, a scalar is returned. If an 
+            output array is specified, a reference to out is returned.
+
+'''
+def sum(a, axis=None, dtype=None, out=None, keepdims=None, initial=0, where=None):
+    a = np.asanyarray(a)
+    return a.sum(axis, dtype, out, initial = initial)

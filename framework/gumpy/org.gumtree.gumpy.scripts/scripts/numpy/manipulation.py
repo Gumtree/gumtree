@@ -1261,3 +1261,43 @@ def put(a, ind, v, mode='raise'):
 def ravel(a, order=None):
     a = np.asanyarray(a)
     return a.ravel()
+
+''' Find indices where elements should be inserted to maintain order.
+
+    Find the indices into a sorted array a such that, if the corresponding 
+    elements in v were inserted before the indices, the order of a would 
+    be preserved.
+
+    Assuming that a is sorted:
+
+        side    returned index i satisfies
+        left    a[i-1] < v <= a[i]
+        right   a[i-1] <= v < a[i]
+
+    Parameters
+
+        a : 1-D array_like
+            Input array. If sorter is None, then it must be sorted in 
+            ascending order, otherwise sorter must be an array of indices 
+            that sort it.
+            
+        v : array_like
+            Values to insert into a.
+
+        side : {'left', 'right'}, optional
+            If 'left', the index of the first suitable location found is 
+            given. If 'right', return the last such index. If there is no 
+            suitable index, return either 0 or N (where N is the length 
+            of a).
+            
+        sorter : not supported
+
+    Returns
+
+        indices : array of ints
+            Array of insertion points with the same shape as v.
+
+'''
+def searchsorted(a, v, side='left', sorter=None):
+    a = np.asanyarray(a)
+    return a.searchsorted(v, side, sorter)

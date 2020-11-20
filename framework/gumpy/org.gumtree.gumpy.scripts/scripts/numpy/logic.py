@@ -208,3 +208,33 @@ def allclose(a, b, rtol=1e-05, atol=1e-08, equal_nan=False):
     a = asanyarray(a)
     b = asanyarray(b)
     return nxa.allclose(a.buffer, b.buffer, rtol, atol, equal_nan)
+
+''' Return a sorted copy of an array.
+
+    Parameters
+
+        a : array_like
+            Array to be sorted.
+
+        axis : int or None, optional
+            Axis along which to sort. If None, the array is flattened before 
+            sorting. The default is -1, which sorts along the last axis.
+            
+        kind : not supported
+
+        order {'asc', 'desc'}: str or list of str, optional
+            Ascending or descending
+
+    Returns
+
+        sorted_array : ndarray
+            Array of the same type and shape as a.
+
+'''
+def sort(a, axis=-1, kind=None, order='asc'):
+    a = asanyarray(a)
+    if order.lower() == 'asc':
+        reverse = False
+    elif order.lower() == 'desc':
+        reverse = True
+    a.sort(axis, reverse)

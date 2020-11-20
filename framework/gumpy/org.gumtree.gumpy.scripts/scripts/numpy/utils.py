@@ -24,5 +24,5 @@ class npslice():
     
     def __getitem__(self, s):
         return s
-    
+
 s_ = npslice()

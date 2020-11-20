@@ -173,7 +173,7 @@ class TestCreation(TestCase):
         a = np.random.rand(2, 3, 4)
         rr = a.dumps()
         b = np.loads(rr)
-        self.assertTrue(np.array_equal(a, b), 'dumps and loads single array')
+        self.assertTrue(np.array_equal(a, b), 'dumps and loads single array\na={}\nb={}'.format(a, b))
         
     def test_repeat(self):
         r = np.repeat(3, 4)
@@ -196,6 +196,18 @@ class TestCreation(TestCase):
                      [3, 4]])
         self.assertTrue(np.array_equal(r, res), 'repeat 4')
 
+    def test_take(self):
+        a = [4, 3, 5, 7, 6, 8]
+        indices = [0, 1, 4]
+        t = np.take(a, indices)
+        res = array([4, 3, 6])
+        self.assertTrue(np.array_equal(t, res), 'math take 1')
+
+        t = np.take(a, [[0, 1], [2, 3]])
+        res = array([[4, 3],
+                     [5, 7]])
+        self.assertTrue(np.array_equal(t, res), 'math take 2 with axis 1')
+        
 class TestManipulation(TestCase):
     
     def test_copy(self):
@@ -811,6 +823,38 @@ class TestManipulation(TestCase):
                      [5, 6]])
         self.assertTrue(np.array_equal(r, res), 'reshape 5')
 
+    def test_searchsorted(self):
+        s = np.searchsorted([1,2,3,4,5], 3)
+        self.assertEqual(s, 2, 'searchsorted 1')
+
+        s = np.searchsorted([1,2,3,4,5], 3, side='right')
+        self.assertEqual(s, 3, 'searchsorted 2')
+
+        s = np.searchsorted([1,2,3,4,5], [-10, 10, 2, 3])
+        res = array([0, 5, 1, 2])
+        self.assertTrue(np.array_equal(s, res), 'searchsorted 3')
+        
+    def test_squeeze(self):
+        x = np.array([[[0], [1], [2]]])
+        s = np.squeeze(x).shape
+        self.assertEqual(s, (3,), 'squeeze 1 shape')
+
+        s = np.squeeze(x, axis=0).shape
+        self.assertEqual(s, (3, 1), 'squeeze 2 shape')
+        
+        s = np.squeeze(x, axis=2).shape
+        self.assertEqual(s, (1, 3), 'squeeze 3 shape')
+
+#         x = np.array([[1234]])
+#         s = np.squeeze(x)
+#         res = array(1234)  # 0d array
+#         s = np.squeeze(x).shape
+#         self.assertEqual(s, (), 'squeeze 4 shape')
+#         s = np.squeeze(x)[()]
+#         self.assertEqual(s, 1234, 'squeeze 5')
+
+
+        
 class TestLogic(TestCase):
 
     def test_array_equal(self):
@@ -900,6 +944,22 @@ class TestLogic(TestCase):
         b[4] = 0
         self.assertEqual(np.argmin(b), 0, 'argmin only the first occurrence is returned')
         
+    def test_sort(self):
+        a = np.array([[1,4],[3,1]])
+        np.sort(a)                # sort along the last axis
+        res = array([[1, 4],
+                     [1, 3]])
+        self.assertTrue(np.array_equal(a, res), 'sort 1 axis = -1')
+
+        np.sort(a, axis=None)     # sort the flattened array
+        res = array([[1, 1], [3, 4]])
+        self.assertTrue(np.array_equal(a, res), 'sort 2 None axis')
+
+        np.sort(a, axis=0)        # sort along the first axis
+        res = array([[1, 1],
+                     [3, 4]])
+        self.assertTrue(np.array_equal(a, res), 'sort 3 axis = 0')
+
 class TestNDArray(TestCase):
     def setUp(self):
         pass
@@ -948,6 +1008,32 @@ class TestNDArray(TestCase):
                      [1, 0, 6],
                      [1, 0, 9]])
         self.assertTrue(np.array_equal(x, res), 'ndarray itemset 0')
+        
+    def test_tolist(self):
+        a = np.array([1, 2])
+        a_list = list(a)
+        res = [1, 2]
+        self.assertEqual(a_list, res, 'ndarray tolist 1')
+        
+        t = type(a_list[0])
+        self.assertEqual(t, int, 'ndarray tolist 2 type')
+        
+        a_tolist = a.tolist()
+        res = [1, 2]
+        self.assertEqual(a_tolist, res, 'ndarray tolist 3')
+        
+        t = type(a_tolist[0])
+        self.assertEqual(t, int, 'ndarray tolist 4 type')
+        
+        a = np.array([[1, 2], [3, 4]])
+        tl = list(a)
+        res = [array([1, 2]), array([3, 4])]
+        self.assertTrue(np.array_equal(tl[0], res[0]), 'ndarray tolist 5')
+        self.assertTrue(np.array_equal(tl[1], res[1]), 'ndarray tolist 5')
+        
+        tl = a.tolist()
+        res = [[1, 2], [3, 4]]
+        self.assertEqual(tl, res, 'ndarray tolist 6 2d')
         
 class TestMath(TestCase):
     def setUp(self):
@@ -1115,6 +1201,76 @@ class TestMath(TestCase):
         p = np.ptp(y, axis=1)
         res = array([ 126,  127, 128, 129])
         self.assertTrue(np.array_equal(p, res), 'math ptp 4')
+        
+    def test_round(self):
+        r = np.around([0.37, 1.64])
+        res = array([0.,  2.])
+        self.assertTrue(np.array_equal(r, res), 'math round 1')
+
+        r = np.around([0.37, 1.64], decimals=1)
+        res = array([0.4,  1.6])
+        self.assertTrue(np.array_equal(r, res), 'math round 2')
+
+        r = np.around([.5, 1.5, 2.5, 3.5, 4.5]) # rounds to nearest even value
+        res = array([1.,  2.,  3.,  4.,  5.])
+        self.assertTrue(np.array_equal(r, res), 'math round 3')
+        
+        r = np.around([1,2,3,11], decimals=1) # ndarray of ints is returned
+        res = array([ 1,  2,  3, 11])
+        self.assertTrue(np.array_equal(r, res), 'math round 4')
+        
+        r = np.around([1,2,3,11], decimals=-1)
+        res = array([ 0,  0,  0, 10])
+        self.assertTrue(np.array_equal(r, res), 'math round 5')
+        
+    def test_std(self):
+        a = np.array([[1, 2], [3, 4]])
+        s = np.std(a)
+        self.assertEqual(s, 1.1180339887498949, 'math std 1')
+        
+        s = np.std(a, axis=0)
+        res = array([1.,  1.])
+        self.assertTrue(np.array_equal(s, res), 'math std 2 axis 0')
+        
+        s = np.std(a, axis=1)
+        res = array([0.5,  0.5])
+        self.assertTrue(np.array_equal(s, res), 'math std 3 axis 1')
+        
+        a = np.arange(24).reshape(2, 3, 4)
+        s = np.std(a, axis = 0)
+        res = array([[6., 6., 6., 6.],
+                     [6., 6., 6., 6.],
+                     [6., 6., 6., 6.]])
+        self.assertTrue(np.array_equal(s, res), 'math std 4 axis 0')
+        
+        s = np.std(a, axis = 1)
+        res = array([[3.26598632, 3.26598632, 3.26598632, 3.26598632],
+                     [3.26598632, 3.26598632, 3.26598632, 3.26598632]])
+        self.assertTrue(np.allclose(s, res), 'math std 5 axis 1')
+        
+        s = np.std(a, axis = 2)
+        res = array([[1.11803399, 1.11803399, 1.11803399],
+                     [1.11803399, 1.11803399, 1.11803399]])
+        self.assertTrue(np.allclose(s, res), 'math std 6 axis 2')
+        
+        s = np.std(a, axis = (0,2))
+        res = array([6.10327781, 6.10327781, 6.10327781])
+        self.assertTrue(np.allclose(s, res), 'math std 6 axis (0,2)')
+        
+    def test_sum(self):
+        s = np.sum([0.5, 1.5])
+        self.assertEqual(s, 2.0, 'math sum 1')
+        
+        s = np.sum([[0, 1], [0, 5]])
+        self.assertEqual(s, 6, 'math sum 3')
+        
+        s = np.sum([[0, 1], [0, 5]], axis=0)
+        res = array([0, 6])
+        self.assertTrue(np.array_equal(s, res), 'math sum 4 with axis 0')
+        
+        s = np.sum([[0, 1], [0, 5]], axis=1)
+        res = array([1, 5])
+        self.assertTrue(np.array_equal(s, res), 'math sum 5 with axis 1')
         
 def getSuite():
     return unittest.TestSuite([\

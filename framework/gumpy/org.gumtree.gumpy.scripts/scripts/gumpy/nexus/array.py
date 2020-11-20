@@ -435,11 +435,17 @@ class Array:
                     out.copy_from(afl[indices])
                     return out
             elif hasattr(indices, '__len__') :
-                nsize = len(indices)
-                if out is None :
-                    out = instance([nsize], 0, self._dtype)
-                for i in xrange(nsize) :
-                    out[i] = afl[indices[i]]
+                nshape = get_shape(indices)
+                idx = Array(indices, dtype = int)
+                if out is None:
+                    out = zeros(idx.shape, self.dtype)
+                oi = out.item_iter()
+                ii = idx.item_iter()
+                try:
+                    while True:
+                        oi.set_next(afl[ii.next()])
+                except StopIteration:
+                    pass
                 return out
         elif axis >= self._ndim :
             raise ValueError, 'axis must be within the ndim of the array, ' + str(axis) \
@@ -887,6 +893,17 @@ class Array:
                     dsize *= self._shape[i]
         return dsum / dsize
 
+    def sqr_dev(self):
+        c = self.mean()
+        si = self.item_iter()
+        sd = 0
+        try:
+            while True:
+                sd += (si.next() - c) ** 2
+        except StopIteration:
+            pass
+        return sd
+
     def amean(self, axis = None, dtype = None, out = None):
         dsum = self.asum(axis, dtype, out)
         if axis is None:
@@ -896,7 +913,111 @@ class Array:
                 axis = self._ndim + axis
             dsize = self.shape[axis]
         return dsum / dsize
-    
+
+    def std(self, axis=None, dtype=None, out=None, ddof=0):
+        if axis is None:
+            n = self.size
+            if n < 2:
+                raise ValueError('variance requires at least two data points')
+            if n == ddof:
+                raise ValueError('invalid ddof, ddof can not be the size of the array')
+            ss = self.sqr_dev()
+            pvar = (ss / (n - ddof)) ** 0.5
+            if not out is None:
+                out[:] = pvar
+            else:
+                out = pvar
+            return out
+        elif type(axis) is int:
+            if dtype is None:
+                dtype = float
+            sshape = self.shape
+            sshape = sshape[:axis] + sshape[axis+1:]
+            ishape = [1] * self._ndim
+            ishape[axis] = self._shape[axis]
+            if out is None:
+                out = zeros(sshape, dtype)
+            si = self.section_iter(ishape)
+            oi = out.item_iter()
+            while si.has_next():
+                ss = si.next()
+                oi.set_next(ss.std(ddof = ddof))
+            return out
+        elif hasattr(axis, '__iter__'):
+            axis = list(axis)
+            if dtype is None:
+                dtype = float
+            s = self.shape
+            sshape = []
+            ishape = [1] * self._ndim
+            for i in xrange(self._ndim):
+                if i in axis:
+                    ishape[i] = s[i]
+                else:
+                    sshape.append(s[i])
+            if out is None:
+                out = zeros(sshape, dtype)
+            si = self.section_iter(ishape)
+            oi = out.item_iter()
+            while si.has_next():
+                ss = si.next()
+                oi.set_next(ss.std(ddof = ddof))
+            return out
+        else:
+            raise ValueError, 'invalid axis value, must be int or tuple of int'
+            
+    def var(self, axis=None, dtype=None, out=None, ddof=0):
+        if axis is None:
+            n = self.size
+            if n < 2:
+                raise ValueError('variance requires at least two data points')
+            if n == ddof:
+                raise ValueError('invalid ddof, ddof can not be the size of the array')
+            ss = self.sqr_dev()
+            pvar = ss / (n - ddof)
+            if not out is None:
+                out[:] = pvar
+            else:
+                out = pvar
+            return out
+        elif type(axis) is int:
+            if dtype is None:
+                dtype = float
+            sshape = self.shape
+            sshape = sshape[:axis] + sshape[axis+1:]
+            ishape = [1] * self._ndim
+            ishape[axis] = self._shape[axis]
+            if out is None:
+                out = zeros(sshape, dtype)
+            si = self.section_iter(ishape)
+            oi = out.item_iter()
+            while si.has_next():
+                ss = si.next()
+                oi.set_next(ss.var(ddof = ddof))
+            return out
+        elif hasattr(axis, '__iter__'):
+            axis = list(axis)
+            if dtype is None:
+                dtype = float
+            s = self.shape
+            sshape = []
+            ishape = [1] * self._ndim
+            for i in xrange(self._ndim):
+                if i in axis:
+                    ishape[i] = s[i]
+                else:
+                    sshape.append(s[i])
+            if out is None:
+                out = zeros(sshape, dtype)
+            si = self.section_iter(ishape)
+            oi = out.item_iter()
+            while si.has_next():
+                ss = si.next()
+                oi.set_next(ss.var(ddof = ddof))
+            return out
+        else:
+            raise ValueError, 'invalid axis value, must be int or tuple of int'
+
     def all(self, axis = None):
         if axis is None or self.ndim == 1:
             siter = self.item_iter()
@@ -955,6 +1076,20 @@ class Array:
                 ri.set_next(se.any())
             return res
     
+    def round(self, decimals=0, out=None):
+        if out is None:
+            out = zeros(self.shape, self.dtype)
+        else:
+            if out.size != self.size :
+                raise ValueError('out size needs to match')
+        si = self.item_iter()
+        oi = out.item_iter()
+        try:
+            while True:
+                oi.set_next(round(si.next(), decimals))
+        except StopIteration:
+            pass
+        return out
         
     def __add__(self, obj):
         if hasattr(obj, '__len__') :
@@ -1634,9 +1769,9 @@ class Array:
                 raise ValueError('invalid axis argument')
                 
         
-    def asum(self, axis=None, dtype=None, out=None):
+    def asum(self, axis=None, dtype=None, out=None, initial = 0):
         if axis is None :
-            s = self.__iArray__.getArrayMath().sum()
+            s = initial + self.__iArray__.getArrayMath().sum()
             if dtype is int :
                 return int(s)
             elif dtype is long :
@@ -1665,12 +1800,12 @@ class Array:
             oi = out.item_iter()
             while oi.has_next():
                 ss = si.next()
-                oi.set_next(ss.sum())
+                oi.set_next(ss.asum(initial = initial))
             return out
     
-    def sum(self, axis=None, dtype=None, out=None):
+    def sum(self, axis=None, dtype=None, out=None, initial=0):
         if axis is None :
-            s = self.__iArray__.getArrayMath().sum()
+            s = initial + self.__iArray__.getArrayMath().sum()
             if dtype is int :
                 return int(s)
             elif dtype is long :
@@ -1684,9 +1819,61 @@ class Array:
             if out is None :
                 out = instance([nsize], 0, dtype = dtype)
             for i in xrange(nsize) :
-                out[i] = self.get_slice(axis, i).sum(dtype = dtype)
+                out[i] = self.get_slice(axis, i).sum(dtype = dtype, initial = initial)
             return out
 
+    def searchsorted(self, v, side='left', sorter=None):
+        if hasattr(v, '__iter__'):
+            out = zeros([len(v)], int)
+            for i in xrange(len(v)):
+                out[i] = self.searchsorted(v[i], side, sorter)
+            return out
+        else:
+            si = self.item_iter()
+            idx = 0
+            if side == 'left':
+                try:
+                    while True:
+                        nv = si.next()
+                        if nv >= v:
+                            return idx
+                        else:
+                            idx += 1
+                except StopIteration:
+                    pass
+                return idx
+            elif side == 'right':
+                try:
+                    while True:
+                        nv = si.next()
+                        if nv > v:
+                            return idx
+                        else:
+                            idx += 1
+                except StopIteration:
+                    pass
+                return idx
+            else:
+                raise ValueError, 'invalid side parameter'
+            
+    def sort(self, axis=-1, reverse=False):
+        if axis is None:
+            f = self.flatten()
+            r = sorted(f)
+            self[:] = r
+            return
+        if axis < 0:
+            axis = self._ndim + axis
+        if axis < 0 or axis >= self._ndim:
+            raise ValueError, 'axis out of range'
+        sshape = [1] * self._ndim
+        sshape[axis] = self.shape[axis]
+        si = self.section_iter(sshape)
+        while si.has_next():
+            ss = si.next().get_reduced()
+            r = sorted(ss, reverse = reverse)
+            ss[:] = r
+        
 #********************************************************************************
 #     Array utilities
 #********************************************************************************
@@ -2526,7 +2713,7 @@ class Array:
                 fs = os
             return out
             
-
+        
 #####################################################################################
 # Array slice iter class
 #####################################################################################
@@ -4347,8 +4534,8 @@ def array_equal(a1, a2, equal_nan=False):
 def allclose(a, b, rtol=1e-05, atol=1e-08, equal_nan=False):
     if a.shape != b.shape:
         return False
-    ai = iter(a)
-    bi = iter(b)
+    ai = a.item_iter()
+    bi = b.item_iter()
     if equal_nan:
         while ai.has_next():
             x = ai.next()

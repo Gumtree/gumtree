@@ -123,7 +123,10 @@ class ndarray():
         return self.shape[0]
     
     def __iter__(self):
-        pass
+        if (self.ndim > 1) :
+            return SliceIter(self)
+        else :
+            return self.buffer.item_iter()
     
     ############## logic functions ##############
     
@@ -249,6 +252,11 @@ class ndarray():
         out = self.buffer.nonzero()
         return tuple([ndarray(buffer = x) for x in out])
         
+    def sum(self, axis=None, dtype=None, out=None, keepdims=None, initial=0, where=None):
+        if not out is None:
+            out = np.asanyarray(out).buffer
+        return self._new(self.buffer.asum(axis, dtype, out, initial))
+        
     def prod(self, axis=None, dtype=None, out=None, keepdims=None, initial=1, where=None):
         if not out is None:
             out = np.asanyarray(out).buffer
@@ -258,6 +266,19 @@ class ndarray():
         if not out is None:
             out = np.asanyarray(out).buffer
         return self._new(buffer = self.buffer.ptp(axis, out))
+        
+    def round(self, decimals=0, out=None):
+        if not out is None:
+            out = np.asanyarray(out).buffer
+        return self._new(self.buffer.round(decimals, out))
+    
+    def sort(self, axis=-1, reverse=False):
+        self.buffer.sort(axis, reverse)
+        
+    def std(self, axis=None, dtype=None, out=None, ddof=0):
+        if not out is None:
+            out = np.asanyarray(out).buffer
+        return self._new(self.buffer.std(axis, dtype, out, ddof))
         
     ''' Copy of the array, cast to a specified type.
     
@@ -396,8 +417,25 @@ class ndarray():
         else:
             return self._new(buffer = self.buffer.reshape(list(shape)))
         
+    def resize(self, *new_size):
+        if len(new_size) == 0:
+            raise IllegalArgumentError('new size must be provided')
+        if len(new_size) == 1 :
+            if type(new_size[0]) is list:
+                return self._new(buffer = self.buffer.resize(new_size[0]))
+            elif type(new_size[0]) is int:
+                return self._new(buffer = self.buffer.resize([new_size[0]]))
+            else:
+                return self._new(buffer = self.buffer.resize(list(new_size[0])))
+        else:
+            return self._new(buffer = self.buffer.resize(list(new_size)))
+        
+        
     def squeeze(self, axis = None):
         return ndarray(buffer = self.buffer.squeeze(axis))
+        
+    def searchsorted(self, v, side='left', sorter=None):
+        return self._new(buffer = self.buffer.searchsorted(v, side, sorter))
         
     def diagonal(self, offset=0, axis1=0, axis2=1):
         return ndarray(buffer = self.buffer.diagonal(offset, axis1, axis2))
@@ -407,6 +445,9 @@ class ndarray():
 
     def triu(self, k=0):
         return ndarray(buffer = self.buffer.triu(k))
+        
+    def take(self, indices, axis=None, out=None, mode=None):
+        return self._new(buffer = self.buffer.take(indices, axis, out))
         
     ''' Return the array as an a.ndim-levels deep nested list of Python scalars.
 
@@ -458,5 +499,38 @@ class ndarray():
         newbyteorder(new_order='S')
         
         partition(kth, axis=-1, kind='introselect', order=None)
-    
+
+        setfield(val, dtype, offset=0)
+        
+        setflags(write=None, align=None, uic=None)
+        
+        tobytes(order='C')
+        
+        tofile(fid, sep="", format="%s")
+        
+        view([dtype][, type])
+        
     '''
+
+#####################################################################################
+# Array slice iter class
+#####################################################################################
+class SliceIter():
+    def __init__(self, array):
+        self.array = array
+        self.cur_slice = -1
+    
+    def next(self):
+        if self.has_next() :
+            self.cur_slice += 1
+            arr = ndarray(buffer = self.array.buffer.get_slice(0, self.cur_slice))
+        else :
+            raise StopIteration
+        return arr
+        
+    def curr(self):
+        return ndarray(buffer = self.array.buffer.get_slice(0, self.cur_slice))
+    
+    def has_next(self):
+        return self.cur_slice < len(self.array) - 1
+        

@@ -1057,3 +1057,50 @@ def repeat(a, repeats, axis=None):
         return a.repeat(repeats, axis)
     else:
         return ndarray(buffer = nxa.repeat(a, repeats, axis))
+
+''' Take elements from an array along an axis.
+
+    When axis is not None, this function does the same thing as "fancy" indexing 
+    (indexing arrays using arrays); however, it can be easier to use if you need 
+    elements along a given axis. A call such as np.take(arr, indices, axis=3) is 
+    equivalent to arr[:,:,:,indices,...].
+
+    Explained without fancy indexing, this is equivalent to the following use of 
+    ndindex, which sets each of ii, jj, and kk to a tuple of indices:
+
+        Ni, Nk = a.shape[:axis], a.shape[axis+1:]
+        Nj = indices.shape
+        for ii in ndindex(Ni):
+            for jj in ndindex(Nj):
+                for kk in ndindex(Nk):
+                    out[ii + jj + kk] = a[ii + (indices[jj],) + kk]
+
+    Parameters
+
+        a : array_like (Ni ..., M, Nk...)
+            The source array.
+            
+        indices : array_like (Nj ...)
+            The indices of the values to extract.
+
+            Also allow scalars for indices.
+
+        axis : int, optional
+            The axis over which to select values. By default, the flattened input 
+            array is used.
+            
+        out : ndarray, optional (Ni ..., Nj ..., Nk ...)
+            If provided, the result will be placed in this array. It should be of 
+            the appropriate shape and dtype. 
+            
+        mode : not supported
+
+    Returns
+
+        out : ndarray (Ni ..., Nj ..., Nk ...)
+            The returned array has the same type as a.
+
+'''
+def take(a, indices, axis=None, out=None, mode=None):
+    a = asanyarray(a)
+    return a.take(indices, axis, out)
