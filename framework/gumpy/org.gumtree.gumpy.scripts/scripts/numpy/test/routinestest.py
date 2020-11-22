@@ -1272,6 +1272,19 @@ class TestMath(TestCase):
         res = array([1, 5])
         self.assertTrue(np.array_equal(s, res), 'math sum 5 with axis 1')
         
+    def test_var(self):
+        a = np.array([[1, 2], [3, 4]])
+        v = np.var(a)
+        self.assertEqual(v, 1.25, 'math var 1')
+        
+        v = np.var(a, axis=0)
+        res = array([1.,  1.])
+        self.assertTrue(np.allclose(v, res), 'math var 2 with axis 0')
+        
+        v = np.var(a, axis=1)
+        res = array([0.25,  0.25])
+        self.assertTrue(np.allclose(v, res), 'math var 3 with axis 1')
+        
 def getSuite():
     return unittest.TestSuite([\
             unittest.TestLoader().loadTestsFromTestCase(TestCreation),\

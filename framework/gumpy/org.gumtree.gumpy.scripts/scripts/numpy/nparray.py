@@ -280,6 +280,11 @@ class ndarray():
             out = np.asanyarray(out).buffer
         return self._new(self.buffer.std(axis, dtype, out, ddof))
         
+    def var(self, axis=None, dtype=None, out=None, ddof=0):
+        if not out is None:
+            out = np.asanyarray(out).buffer
+        return self._new(self.buffer.var(axis, dtype, out, ddof))
+
     ''' Copy of the array, cast to a specified type.
     
         Parameters

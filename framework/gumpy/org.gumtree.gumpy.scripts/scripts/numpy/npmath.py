@@ -539,3 +539,51 @@ def std(a, axis=None, dtype=None, out=None, ddof=0, keepdims=None):
 def sum(a, axis=None, dtype=None, out=None, keepdims=None, initial=0, where=None):
     a = np.asanyarray(a)
     return a.sum(axis, dtype, out, initial = initial)
+
+''' Compute the variance along the specified axis.
+
+    Returns the variance of the array elements, a measure of the spread of 
+    a distribution. The variance is computed for the flattened array by 
+    default, otherwise over the specified axis.
+
+    Parameters
+
+        a : array_like
+            Array containing numbers whose variance is desired. If a is not 
+            an array, a conversion is attempted.
+
+        axis : None or int or tuple of ints, optional
+
+            Axis or axes along which the variance is computed. The default 
+            is to compute the variance of the flattened array.
+
+            If this is a tuple of ints, a variance is performed over multiple 
+            axes, instead of a single axis or all the axes as before.
+            
+        dtype : data-type, optional
+            Type to use in computing the variance. For arrays of integer type 
+            the default is float64; for arrays of float types it is the same 
+            as the array type.
+            
+        out : ndarray, optional
+            Alternate output array in which to place the result. It must have 
+            the same shape as the expected output, but the type is cast if 
+            necessary.
+            
+        ddof : int, optional
+            "Delta Degrees of Freedom": the divisor used in the calculation 
+            is N - ddof, where N represents the number of elements. By default 
+            ddof is zero.
+        
+        keepdims : not support
+
+    Returns
+
+        variance : ndarray, see dtype parameter above
+            If out=None, returns a new array containing the variance; otherwise, 
+            a reference to the output array is returned.
+
+'''
+def var(a, axis=None, dtype=None, out=None, ddof=0, keepdims=None):
+    a = np.asanyarray(a)
+    return a.var(axis, dtype, out, ddof)
