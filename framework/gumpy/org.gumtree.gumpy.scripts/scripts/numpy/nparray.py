@@ -115,7 +115,9 @@ class ndarray():
     def __str__(self, indent = ''):
         return self.buffer.__str__(indent)
     
-    def __repr__(self, indent = '', skip = True, precision = nxa.Array.precision):
+    def __repr__(self, indent = '', skip = True, precision = None):
+        if precision is None:
+            precision = nxa.Array.precision
         out = self.buffer.__repr__(indent, skip = skip, precision = precision)
         return 'a' + out[1:]
         
@@ -128,21 +130,188 @@ class ndarray():
         else :
             return self.buffer.item_iter()
     
+    def __copy__(self):
+        return ndarray(buffer = self.buffer)
+        
+    def __deepcopy__(self):
+        return ndarray(buffer = self.buffer.__deepcopy__())
+        
     ############## logic functions ##############
     
     def __eq__(self, obj):
         if isinstance(obj, ndarray):
-            return ndarray(buffer = self.buffer == obj.buffer)
-        else :
-            return ndarray(buffer = self.buffer == obj) 
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__eq__(obj)) 
     
-    ############## math functions ###############
     def __ne__(self, obj):
         if isinstance(obj, ndarray):
-            return ndarray(buffer = self.buffer != obj.buffer)
-        else :
-            return ndarray(buffer = self.buffer != obj)
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__ne__(obj))
+        
+    def __lt__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__lt__(obj))
+
+    def __le__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__le__(obj))
+
+    def __gt__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__gt__(obj))
+
+    def __ge__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__ge__(obj))
+
+    def __not__(self):
+        return ndarray(buffer = self.buffer.__not__())
     
+    def __bool__(self):
+        return ndarray(buffer = self.buffer.__bool__())
+        
+    def __or__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__or__(obj))
+
+    def __xor__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__xor__(obj))
+        
+    def __and__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__and__(obj))
+
+    ############## math functions ###############
+    def __add__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__add__(obj))
+
+    def __iadd__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        self.buffer.__iadd__(obj)
+        return self
+
+    def __radd__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__radd__(obj))
+
+    def __div__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__div__(obj))
+
+    def __floordiv__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__floordiv__(obj))
+
+    def __truediv__(self, obj):
+        return self.__div__(obj)
+
+    def __mod__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__mod__(obj))
+    
+    def __rmod__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__rmod__(obj))
+            
+    def __divmod__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        out = self.buffer.__divmod__(obj)
+        return (ndarray(buffer = out[0]), ndarray(buffer = out[1]))
+        
+    def __idiv__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        self.buffer.__idiv__(obj)
+        return self
+
+    def __itruediv__(self, obj):
+        return self.__idiv__(obj)
+    
+    def __rdiv__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__rdiv__(obj))
+
+    def __mul__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__mul__(obj))
+
+    def __imul__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        self.buffer.__imul__(obj)
+        return self
+
+    def __rmul__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__rmul__(obj))
+
+    def __neg__(self):
+        return ndarray(buffer = self.buffer.__neg__())
+
+    def __pos__(self):
+        return ndarray(buffer = self.buffer.__pos__())
+    
+    def __sub__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__sub__(obj))
+
+    def __isub__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        self.buffer.__isub__(obj)
+        return self
+
+    def __rsub__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__rsub__(obj))
+
+    def __invert__(self):
+        return ndarray(buffer = self.buffer.__invert__())
+
+    def __abs__(self):
+        return ndarray(buffer = self.buffer.__abs__())
+
+    def __pow__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__pow__(obj))
+
+    def __rpow__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        return ndarray(buffer = self.buffer.__rpow__(obj))
+        
+    def __int__(self):
+        return self.buffer.__int__()
+
+    def __float__(self):
+        return self.buffer.__float__()
+
+    def __long__(self):
+        return self.buffer.__long__()
+        
     def _new(self, buffer):
         if np.iterable(buffer) :
             return ndarray(buffer = buffer)
@@ -445,6 +614,14 @@ class ndarray():
     def diagonal(self, offset=0, axis1=0, axis2=1):
         return ndarray(buffer = self.buffer.diagonal(offset, axis1, axis2))
     
+    def trace(self, offset=0, axis1=0, axis2=1, dtype=None, out=None):
+        if out is None:
+            return self._new(buffer = self.buffer.trace(offset, axis1, axis2, dtype))
+        else:
+            out = np.asanyarray(out).buffer
+            r = self.buffer.trace(offset, axis1, axis2, dtype, out)
+            return out            
+        
     def tril(self, k=0):
         return ndarray(buffer = self.buffer.tril(k))
 

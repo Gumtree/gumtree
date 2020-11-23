@@ -173,7 +173,7 @@ class TestCreation(TestCase):
         a = np.random.rand(2, 3, 4)
         rr = a.dumps()
         b = np.loads(rr)
-        self.assertTrue(np.array_equal(a, b), 'dumps and loads single array\na={}\nb={}'.format(a, b))
+        self.assertTrue(np.allclose(a, b), 'dumps and loads single array\na={}\nb={}'.format(a, b))
         
     def test_repeat(self):
         r = np.repeat(3, 4)
@@ -1037,7 +1037,7 @@ class TestNDArray(TestCase):
         
 class TestMath(TestCase):
     def setUp(self):
-        pass
+        TestCase.setUp(self)
     
     def test_cumprod(self):
         a = np.array([[1, 2, 3], [4, 5, 6]])
@@ -1285,6 +1285,94 @@ class TestMath(TestCase):
         res = array([0.25,  0.25])
         self.assertTrue(np.allclose(v, res), 'math var 3 with axis 1')
         
+    def test_trace(self):
+        t = np.trace(np.eye(3))
+        self.assertEqual(t, 3.0, 'math trace 1')
+
+        a = np.arange(8).reshape((2,2,2))
+        t = np.trace(a)
+        res = array([6, 8])
+        self.assertTrue(np.array_equal(t, res), 'math trace 2 with 3 dims')
+
+        a = np.arange(24).reshape((2,2,2,3))
+        t = np.trace(a)
+        self.assertEqual(t.shape, (2, 3), 'math trace 3 check shape')
+        res = array([[18, 20, 22],
+                     [24, 26, 28]])
+        self.assertTrue(np.array_equal(t, res), 'math trace 4 with 4 dims')        
+
+class TestOperator(TestCase):
+    
+    def setUp(self):
+        TestCase.setUp(self)
+        
+    def test_floordiv(self):
+        a = np.arange(12)
+        b = a // 3
+        res = array([0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3])
+        self.assertTrue(np.array_equal(b, res), 'operator floordiv 1 int scaler')
+        
+        a = np.arange(12.)
+        b = np.arange(12., 0, -1)
+        c = a // b
+        res = array([-0.,  0.,  0.,  0.,  0.,  0.,  1.,  1.,  2.,  3.,  5., 11.])
+        self.assertTrue(np.array_equal(c, res), 'operator floordiv 2 float')
+        
+        b = np.array([4])
+        c = a // b
+        res = array([-0.,  0.,  0.,  0.,  1.,  1.,  1.,  1.,  2.,  2.,  2.,  2.])
+        self.assertTrue(np.array_equal(c, res), 'operator floordiv 3 float')
+        
+    def test_ifloordiv(self):
+        a = np.arange(12.)
+        a //= 3
+        res = array([-0.,  0.,  0.,  1.,  1.,  1.,  2.,  2.,  2.,  3.,  3.,  3.])
+        self.assertTrue(np.array_equal(a, res), 'operator ifloordiv 1 float')
+        
+    def test_divmod(self):
+        a = np.arange(12.)
+        q, r = divmod(a, 3)
+        qres = array([-0.,  0.,  0.,  1.,  1.,  1.,  2.,  2.,  2.,  3.,  3.,  3.])
+        rres = array([0., 1., 2., 0., 1., 2., 0., 1., 2., 0., 1., 2.])
+        self.assertTrue(np.array_equal(q, qres), 'operator divmod 1 quotient')
+        self.assertTrue(np.array_equal(r, rres), 'operator divmod 2 remainder')
+        
+    def test_int(self):
+        a = np.array([3.3])
+        b = int(a)
+        self.assertEqual(b, 3, 'operator int 1')
+        
+        a = np.arange(2.)
+        try:
+            b = int(a)
+            raise 'error in exception test'
+        except Exception, e:
+            self.assertTrue(isinstance(e, TypeError), 'operator int 2 exception')
+
+    def test_float(self):
+        a = np.array([3])
+        b = float(a)
+        self.assertEqual(type(b), float, 'operator float 1')
+        
+        a = np.arange(2)
+        try:
+            b = float(a)
+            raise 'error in exception test'
+        except Exception, e:
+            self.assertTrue(isinstance(e, TypeError), 'operator float 2 exception')
+
+    def test_long(self):
+        a = np.array([3])
+        b = long(a)
+        self.assertEqual(type(b), long, 'operator long 1')
+        
+        a = np.arange(2)
+        try:
+            b = long(a)
+            raise 'error in exception test'
+        except Exception, e:
+            self.assertTrue(isinstance(e, TypeError), 'operator long 2 exception')
+        
 def getSuite():
     return unittest.TestSuite([\
             unittest.TestLoader().loadTestsFromTestCase(TestCreation),\
@@ -1292,6 +1380,7 @@ def getSuite():
             unittest.TestLoader().loadTestsFromTestCase(TestLogic),\
             unittest.TestLoader().loadTestsFromTestCase(TestManipulation),\
             unittest.TestLoader().loadTestsFromTestCase(TestMath),\
+            unittest.TestLoader().loadTestsFromTestCase(TestOperator),\
             ])
 
 def run_test():

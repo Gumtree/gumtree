@@ -700,6 +700,9 @@ class Array:
     def __not__(self):
         raise ValueError, 'The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()'
 
+    def __bool__(self):
+        raise ValueError, 'The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()'
+        
     def __or__(self, obj):
         if isinstance(obj, Array) :
             if self._shape != obj.shape :
@@ -709,35 +712,85 @@ class Array:
             oiter = obj.item_iter()
             riter = res.item_iter()
             try :
-                if self._dtype is float :
-                    prc = 10 ** (-Array.precision)
-                    while True :
-                        riter.set_next(abs(siter.next() - oiter.next()) > prc)
-                else :
-                    while True :
-                        riter.set_next(siter.next() > oiter.next())
-            except :
+                while True:
+                    s = siter.next() 
+                    o = oiter.next()
+                    riter.set_next(s | o)
+            except StopIteration:
                 pass
             return res
         else :
             if hasattr(obj, '__len__') :
-                return self == Array(obj)
+                return self or Array(obj)
             else :
                 res = instance(self._shape, dtype = bool)
+                siter = self.item_iter()
+                riter = res.item_iter()
+                try :
+                    while True:
+                        riter.set_next(siter.next() | obj)
+                except StopIteration:
+                    pass
+                return res
+
+    def __xor__(self, obj):
+        if isinstance(obj, Array) :
+            if self._shape != obj.shape :
+                raise ValueError, 'dimension does not match'
+            res = instance(self._shape, dtype = bool)
             siter = self.item_iter()
+            oiter = obj.item_iter()
             riter = res.item_iter()
             try :
-                if self._dtype is float :
-                    prc = 10 ** (-Array.precision)
-                    while True :
-                        riter.set_next(abs(siter.next() - obj) > prc)
-                else :
-                    while True :
-                        riter.set_next(siter.next() > obj)
-            except :
+                while True:
+                    s = siter.next() 
+                    o = oiter.next()
+                    riter.set_next(s ^ o)
+            except StopIteration:
                 pass
             return res
-        
+        else :
+            if hasattr(obj, '__len__') :
+                return self or Array(obj)
+            else :
+                res = instance(self._shape, dtype = bool)
+                siter = self.item_iter()
+                riter = res.item_iter()
+                try :
+                    while True:
+                        riter.set_next(siter.next() ^ obj)
+                except StopIteration:
+                    pass
+                return res
+            
+    def __and__(self, obj):
+        if isinstance(obj, Array) :
+            if self._shape != obj.shape :
+                raise ValueError, 'dimension does not match'
+            res = instance(self._shape, dtype = bool)
+            siter = self.item_iter()
+            oiter = obj.item_iter()
+            riter = res.item_iter()
+            try :
+                while True:
+                    riter.set_next(siter.next() & oiter.next())
+            except StopIteration:
+                pass
+            return res
+        else :
+            if hasattr(obj, '__len__') :
+                return self or Array(obj)
+            else :
+                res = instance(self._shape, dtype = bool)
+                siter = self.item_iter()
+                riter = res.item_iter()
+                try :
+                    while True:
+                        riter.set_next(siter.next() & obj)
+                except StopIteration:
+                    pass
+                return res
+                    
     def count_nonzero(self):
         dtype = self._dtype
         cnt = 0
@@ -1175,6 +1228,34 @@ class Array:
         else :
             return Array(self.__iArray__.getArrayMath().toScale(1.0/obj).getArray())
 
+    def __floordiv__(self, obj):
+        if hasattr(obj, '__len__') :
+            if hasattr(obj, '__iArray__') :
+                if obj.shape == [1]:
+                    return self.__floordiv__(obj[0])
+            else :
+                obj = Array(obj)
+            res = instance(self._shape, dtype = self._dtype)
+            si = self.item_iter()
+            oi = obj.item_iter()
+            ri = res.item_iter()
+            try:
+                while True:
+                    ri.set_next(si.next() // oi.next())
+            except StopIteration:
+                pass
+            return res
+        else :
+            res = instance(self._shape, dtype = self._dtype)
+            si = self.item_iter()
+            ri = res.item_iter()
+            try:
+                while True:
+                    ri.set_next(si.next() // obj)
+            except StopIteration:
+                pass
+            return res
+
     def __idiv__(self, obj):
         if hasattr(obj, '__len__') :
             if hasattr(obj, '__iArray__') :
@@ -1188,6 +1269,30 @@ class Array:
             return self
         else :
             self.__iArray__.getArrayMath().scale(1.0/obj)
+            return self
+    
+    def __ifloordiv__(self, obj):
+        if hasattr(obj, '__len__') :
+            if hasattr(obj, '__iArray__') :
+                if obj.shape == [1]:
+                    return self.__ifloordiv__(obj[0])
+            else :
+                obj = Array(obj)
+            si = self.item_iter()
+            oi = obj.item_iter()
+            try:
+                while True:
+                    si.set_current(si.next() // oi.next())
+            except StopIteration:
+                pass
+            return self
+        else :
+            si = self.item_iter()
+            try:
+                while True:
+                    si.set_current(si.next() // obj)
+            except StopIteration:
+                pass
             return self
     
     def __rdiv__(self, obj):
@@ -1271,8 +1376,27 @@ class Array:
         return self.__mul__(obj)
         
     def __neg__(self):
-        return self * -1
+        out = zeros(self._shape, self._dtype)
+        si = self.item_iter()
+        oi = out.item_iter()
+        try:
+            while True:
+                oi.set_next(-si.next())
+        except StopIteration:
+            pass
+        return out
     
+    def __pos__(self):
+        out = instance(shape, dtype = self._dtype)
+        si = self.item_iter()
+        oi = out.item_iter()
+        try:
+            while True:
+                oi.set_next(si.next())
+        except StopIteration:
+            pass
+        return out
+        
     def __sub__(self, obj):
         return self.__add__(obj * -1)
 #        res = zeros(self._shape, self.__match_type__(obj))
@@ -1339,6 +1463,17 @@ class Array:
                 riter.set_next(~siter.next())
             return res
             
+    def __abs__(self):
+        out = instance(shape, dtype = self._dtype)
+        si = self.item_iter()
+        oi = out.item_iter()
+        try:
+            while True:
+                oi.set_next(abs(si.next()))
+        except StopIteration:
+            pass
+        return out
+        
     def matrix_invert(self):
         if self._ndim != 2:
             raise Exception, 'array dimention must be 2, got ' + str(self._ndim)
@@ -1540,6 +1675,40 @@ class Array:
                 pass
         return res
 
+    def __divmod__(self, obj):
+        rem = zeros(self._shape, self.__match_type__(obj, True))
+        qt = zeros(self._shape, self.__match_type__(obj, True))
+        riter = rem.item_iter()
+        qiter = qt.item_iter()
+        siter = self.item_iter()
+        if hasattr(obj, '__len__') :
+            if len(obj) < self._size :
+                raise Exception, 'resource should have at least ' + \
+                    str(self._size) + ' items, got ' + str(len(obj))
+            try :
+                rawshape = get_shape(obj)
+                for id in xrange(get_size(obj, rawshape)) :
+                    val = get_item(obj, id, rawshape)
+                    if val != 0 :
+                        q, r = divmod(siter.next(), val)
+                        qiter.set_next(q)
+                        riter.set_next(r)
+                    else :
+                        qiter.next()
+                        riter.next()
+            except StopIteration:
+                pass                    
+        else :
+            if obj != 0 :
+                try :
+                    while True :
+                        q, r = divmod(siter.next(), obj)
+                        qiter.set_next(q)
+                        riter.set_next(r)
+                except StopIteration:
+                    pass
+        return (qt, rem)
+    
     def __sin__(self):
         return Array(self.__iArray__.getArrayMath().toSin().getArray())
     
@@ -1573,17 +1742,17 @@ class Array:
             pass
         return res
     
-    def prod(self, axis=None, dtype=None, out=None, initial=1):
-        if self._size is 0 :
-            return 0
-        res = initial
-        siter = self.item_iter()
-        try :
-            while True :
-                res *= siter.next()
-        except StopIteration:
-            pass
-        return res
+#     def prod(self, axis=None, dtype=None, out=None, initial=1):
+#         if self._size is 0 :
+#             return 0
+#         res = initial
+#         siter = self.item_iter()
+#         try :
+#             while True :
+#                 res *= siter.next()
+#         except StopIteration:
+#             pass
+#         return res
 
     def prod(self, axis=None, dtype=None, out=None, initial=1):
         if axis is None :
@@ -2370,6 +2539,21 @@ class Array:
     def __deepcopy__(self):
         return self.__copy__()
     
+    def __int__(self):
+        if self._size != 1:
+            raise TypeError, 'only size-1 arrays can be converted to Python scalars'
+        return int(self.get_value(0))
+
+    def __float__(self):
+        if self._size != 1:
+            raise TypeError, 'only size-1 arrays can be converted to Python scalars'
+        return float(self.get_value(0))
+
+    def __long__(self):
+        if self._size != 1:
+            raise TypeError, 'only size-1 arrays can be converted to Python scalars'
+        return long(self.get_value(0))
+        
     def float_copy(self):
         return Array(Utilities.copyToDoubleArray(self.__iArray__))
 
@@ -2616,6 +2800,55 @@ class Array:
                 sec.diagonal(offset, out = osec)
             return out
     
+    def trace(self, offset=0, axis1=0, axis2=1, dtype=None, out=None):
+        if self._ndim < 2:
+            raise Exception('diag requires an array of at least two dimensions')
+        elif self._ndim == 2:
+            o = 0
+            if offset == 0:
+                s0 = self._shape[0]
+                s1 = self._shape[1]
+                s = s0 if s0 < s1 else s1
+                for i in xrange(s):
+                    o += self.get_value([i, i])
+            elif offset > 0:
+                s0 = self._shape[0]
+                s1 = self._shape[1] - offset
+                s = s0 if s0 < s1 else s1
+                for i in xrange(s):
+                    o += self.get_value([i, i + offset])
+            else :
+                s0 = self._shape[0] + offset
+                s1 = self._shape[1]
+                s = s0 if s0 < s1 else s1
+                for i in xrange(s):
+                    o += self.get_value([i - offset, i])
+            if out is None:
+                out = o
+            else:
+                out[:] = o
+            return out
+        else:
+            os = []
+            to_reduce = []
+            ishape = [1] * self._ndim
+            for i in xrange(self._ndim):
+                if i != axis1 and i != axis2:
+                    os.append(self._shape[i])
+                    to_reduce.append(i)
+                else:
+                    ishape[i] = self._shape[i]
+            if out is None:
+                if dtype is None:
+                    dtype = self._dtype
+                out = zeros(os, dtype)
+            si = self.section_iter(ishape)
+            oi = out.item_iter()
+            while si.has_next():
+                sec = si.next().get_reduced(to_reduce)
+                oi.set_next(sec.trace(offset))
+            return out
+        
     def tril(self, k=0):
         if self._ndim != 2:
             raise Exception('dimension must be 2')
