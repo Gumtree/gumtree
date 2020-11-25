@@ -131,7 +131,7 @@ class ndarray():
             return self.buffer.item_iter()
     
     def __copy__(self):
-        return ndarray(buffer = self.buffer)
+        return self.copy()
         
     def __deepcopy__(self):
         return ndarray(buffer = self.buffer.__deepcopy__())
@@ -179,15 +179,33 @@ class ndarray():
             obj = obj.buffer
         return ndarray(buffer = self.buffer.__or__(obj))
 
+    def __ior__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        self.buffer.__ior__(obj)
+        return self
+
     def __xor__(self, obj):
         if isinstance(obj, ndarray):
             obj = obj.buffer
         return ndarray(buffer = self.buffer.__xor__(obj))
+
+    def __ixor__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        self.buffer.__ixor__(obj)
+        return self
         
     def __and__(self, obj):
         if isinstance(obj, ndarray):
             obj = obj.buffer
         return ndarray(buffer = self.buffer.__and__(obj))
+
+    def __iand__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        self.buffer.__iand__(obj)
+        return self
 
     ############## math functions ###############
     def __add__(self, obj):
@@ -241,8 +259,17 @@ class ndarray():
         self.buffer.__idiv__(obj)
         return self
 
+    def __imod__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        self.buffer.__imod__(obj)
+        return self
+
     def __itruediv__(self, obj):
         return self.__idiv__(obj)
+
+    def __ifloordiv__(self, obj):
+        return self.buffer.__ifloordiv__(obj)
     
     def __rdiv__(self, obj):
         if isinstance(obj, ndarray):
@@ -298,6 +325,12 @@ class ndarray():
             obj = obj.buffer
         return ndarray(buffer = self.buffer.__pow__(obj))
 
+    def __ipow__(self, obj):
+        if isinstance(obj, ndarray):
+            obj = obj.buffer
+        self.buffer.__ipow__(obj)
+        return self
+
     def __rpow__(self, obj):
         if isinstance(obj, ndarray):
             obj = obj.buffer
@@ -311,6 +344,11 @@ class ndarray():
 
     def __long__(self):
         return self.buffer.__long__()
+        
+    def __matmul__(self, value):
+        if isinstance(value, ndarray):
+            value = value.buffer
+        return self._new(self.buffer.matrix_dot(value))
         
     def _new(self, buffer):
         if np.iterable(buffer) :

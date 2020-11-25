@@ -1305,7 +1305,91 @@ class TestOperator(TestCase):
     
     def setUp(self):
         TestCase.setUp(self)
+
+    def test_add(self):
+        a=np.arange(12.).reshape(3,4)
+        b=np.arange(12.,0,-1).reshape(3,4)
+        c=a+b
+        res = array([[12., 12., 12., 12.],
+                     [12., 12., 12., 12.],
+                     [12., 12., 12., 12.]])
+        self.assertTrue(np.array_equal(c, res), 'math add 1 add')
         
+        a += c
+        res = array([[12., 13., 14., 15.],
+                     [16., 17., 18., 19.],
+                     [20., 21., 22., 23.]])
+        self.assertTrue(np.array_equal(a, res), 'math add 2 iadd')
+        
+        d=12+a
+        res = array([[24., 25., 26., 27.],
+                     [28., 29., 30., 31.],
+                     [32., 33., 34., 35.]])
+        self.assertTrue(np.array_equal(d, res), 'math add 3 radd')
+        
+    def test_sub(self):
+        a=np.arange(12.).reshape(3,4)
+        b=np.arange(12.,0,-1).reshape(3,4)
+        c=a-b
+        res = array([[-12., -10.,  -8.,  -6.],
+                     [ -4.,  -2.,   0.,   2.],
+                     [  4.,   6.,   8.,  10.]])
+        self.assertTrue(np.array_equal(c, res), 'math sub 1 sub')
+        
+        a -= c
+        res = array([[12., 11., 10.,  9.],
+                     [ 8.,  7.,  6.,  5.],
+                     [ 4.,  3.,  2.,  1.]])
+        self.assertTrue(np.array_equal(a, res), 'math sub 2 isub')
+        
+        d=12-a
+        res = array([[ 0.,  1.,  2.,  3.],
+                     [ 4.,  5.,  6.,  7.],
+                     [ 8.,  9., 10., 11.]])
+        self.assertTrue(np.array_equal(d, res), 'math sub 3 rsub')
+        
+    def test_mul(self):
+        a=np.arange(12.).reshape(3,4)
+        b=np.arange(12.,0,-1).reshape(3,4)
+        c=a*b
+        res = array([[ 0., 11., 20., 27.],
+                     [32., 35., 36., 35.],
+                     [32., 27., 20., 11.]])
+        self.assertTrue(np.array_equal(c, res), 'math mul 1 mul')
+        
+        a *= c
+        res = array([[  0.,  11.,  40.,  81.],
+                     [128., 175., 216., 245.],
+                     [256., 243., 200., 121.]])
+        self.assertTrue(np.array_equal(a, res), 'math mul 2 imul')
+        
+        d = 1.2 * a
+        res = array([[  0. ,  13.2,  48. ,  97.2],
+                     [153.6, 210. , 259.2, 294. ],
+                     [307.2, 291.6, 240. , 145.2]])
+        self.assertTrue(np.allclose(d, res), 'math mul 3 rmul')
+
+    def test_div(self):
+        a=np.arange(12.).reshape(3,4)
+        b=np.arange(12.,0,-1).reshape(3,4)
+        c = a / b
+        res = array([[ 0.        ,  0.09090909,  0.2       ,  0.33333333],
+                     [ 0.5       ,  0.71428571,  1.        ,  1.4       ],
+                     [ 2.        ,  3.        ,  5.        , 11.        ]])
+        self.assertTrue(np.allclose(c, res), 'math div 1 div')
+        
+        a /= (c + 1)
+        res = array([[0.        , 0.91666667, 1.66666667, 2.25      ],
+                     [2.66666667, 2.91666667, 3.        , 2.91666667],
+                     [2.66666667, 2.25      , 1.66666667, 0.91666667]])
+        self.assertTrue(np.allclose(a, res), 'math div 2 idiv')
+        
+        d = 1.2 / (a + 1)
+        res = array([[1.2       , 0.62608696, 0.45      , 0.36923077],
+                     [0.32727273, 0.30638298, 0.3       , 0.30638298],
+                     [0.32727273, 0.36923077, 0.45      , 0.62608696]])
+        self.assertTrue(np.allclose(d, res), 'math div 3 rdiv')
+                
     def test_floordiv(self):
         a = np.arange(12)
         b = a // 3
@@ -1337,6 +1421,82 @@ class TestOperator(TestCase):
         self.assertTrue(np.array_equal(q, qres), 'operator divmod 1 quotient')
         self.assertTrue(np.array_equal(r, rres), 'operator divmod 2 remainder')
         
+    def test_mod(self):
+        a = np.arange(12.)
+        b = a % 3
+        res = array([0., 1., 2., 0., 1., 2., 0., 1., 2., 0., 1., 2.])
+        self.assertTrue(np.array_equal(b, res), 'operator mod 1 ')
+        
+        a=np.arange(12.).reshape(3, 4)
+        b=np.arange(12.,0,-1).reshape(3, 4)
+        a %= b
+        res = array([0., 1., 2., 3., 4., 5., 0., 2., 0., 0., 0., 0.]).reshape(3, 4)
+        self.assertTrue(np.array_equal(a, res), 'operator imod 2 ')
+        
+        c = 20 % b
+        res = array([[8., 9., 0., 2.],
+                     [4., 6., 2., 0.],
+                     [0., 2., 0., 0.]])
+        self.assertTrue(np.array_equal(c, res), 'operator rmod 3 ')
+        
+    def test_pow(self):
+        a = np.arange(1.1, 1.5, 0.1)
+        b = a ** 2
+        res = array([1.21, 1.44, 1.69, 1.96])
+        self.assertTrue(np.allclose(b, res), 'operator pow 1 ')
+        
+        a **= 2
+        self.assertTrue(np.allclose(a, res), 'operator ipow 2 ')
+        
+        b = 2 ** a
+        res = array([2.31337637, 2.71320865, 3.22656704, 3.89061979])
+        self.assertTrue(np.allclose(b, res), 'operator rpow 3 ')
+        
+    def test_logic(self):
+        a = np.arange(12).reshape(3, 4)
+        b = a % 2 == 0
+        c = a % 3 == 0
+        d = b & c
+        res = array([[ True, False, False, False],
+                     [False, False,  True, False],
+                     [False, False, False, False]])
+        self.assertTrue(np.array_equal(d, res), 'operator and 1')
+        
+        d = b | c
+        res = array([[ True, False,  True,  True],
+                     [ True, False,  True, False],
+                     [ True,  True,  True, False]])
+        self.assertTrue(np.array_equal(d, res), 'operator or 2')
+
+        d = b ^ c
+        res = array([[False, False,  True,  True],
+                     [ True, False, False, False],
+                     [ True,  True,  True, False]])
+        self.assertTrue(np.array_equal(d, res), 'operator xor 3')
+
+    def test_ilogic(self):
+        a = np.arange(12).reshape(3, 4)
+        b = a % 2 == 0
+        c = a % 3 == 0
+        
+        b &= c
+        res = array([[ True, False, False, False],
+                     [False, False,  True, False],
+                     [False, False, False, False]])
+        self.assertTrue(np.array_equal(b, res), 'operator iand 1')
+        
+        b |= c
+        res = array([[ True, False, False,  True],
+                     [False, False,  True, False],
+                     [False,  True, False, False]])
+        self.assertTrue(np.array_equal(b, res), 'operator ior 2')
+
+        b ^= c
+        res = array([[False, False, False, False],
+                     [False, False, False, False],
+                     [False, False, False, False]])
+        self.assertTrue(np.array_equal(b, res), 'operator ixor 3')
+
     def test_int(self):
         a = np.array([3.3])
         b = int(a)

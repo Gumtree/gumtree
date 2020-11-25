@@ -632,3 +632,6 @@ def var(a, axis=None, dtype=None, out=None, ddof=0, keepdims=None):
 def trace(a, offset=0, axis1=0, axis2=1, dtype=None, out=None):
     a = np.asanyarray(a)
     return a.trace(offset, axis1, axis2, dtype, out)
+
+def matmul(x1, x2, out=None, dtype=None, subok=True):
+    return dot(x1, x2, out)
