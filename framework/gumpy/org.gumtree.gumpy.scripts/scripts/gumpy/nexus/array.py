@@ -1631,13 +1631,7 @@ class Array:
     
     def matmul(self, b, out = None, dtype = None):
         if not hasattr(b, 'ndim'):
-            if out is None:
-                return self.__mul__(b)
-            else:
-                si = self.item_iter()
-                oi = out.item_iter()
-                oi.set_next(si.next() * b)
-                return out
+            raise ValueError('matmul: Input operand 1 does not have enough dimensions ...')
         elif self.ndim == 1 and b.ndim == 1:
             if out is None:
                 return self.__mul__(b)
@@ -1671,32 +1665,35 @@ class Array:
                 oi.set_next((ss * b).sum())
             return out
         else:
-            ashape = self.shape[:-1]
-            bshape = b.shape
-            bshape = bshape[:-2] + [bshape[-1]]
-            oshape = ashape + bshape
+            s = self
+            sdim = s._ndim
+            bdim = b._ndim
+            if sdim > bdim:
+                b = broadcast_to(b, s.shape[:sdim - bdim] + b.shape)
+                odim = sdim
+            elif sdim < bdim:
+                s = broadcast_to(s, b.shape[:bdim - sdim] + s.shape)
+                odim = bdim
+#             ashape = self.shape[:-1]
+#             bshape = b.shape
+#             bshape = bshape[:-2] + [bshape[-1]]
+            oshape = s.shape[:sdim - 1] + [b.shape[-1]]
             if out is None:
                 dtype = self.dtype
                 if b.dtype == float:
                     dtype = float
                 out = zeros(oshape, dtype)
-            aishape = [1] * self.ndim
-            aishape[-1] = self.shape[-1]
-            bishape = [1] * b.ndim
-            bishape[-2] = b.shape[-2]
-            ai = self.section_iter(aishape)
-            oi = out.item_iter()
-            while ai.has_next():
-                ss = ai.next()
-                bi = b.section_iter(bishape)
-                while bi.has_next():
-                    bs = bi.next()
-                    ssi = ss.item_iter()
-                    bsi = bs.item_iter()
-                    s = 0
-                    while ssi.has_next():
-                        s += ssi.next() * bsi.next()
-                    oi.set_next(s)
+            sishape = [1] * (s.ndim - 2) + s.shape[-2:]
+            bishape = [1] * (b.ndim - 2) + b.shape[-2:]
+            oishape = [1] * (out.ndim - 2) + out.shape[-2:]
+            si = s.section_iter(sishape)
+            bi = b.section_iter(bishape)
+            oi = out.section_iter(oishape)
+            while si.has_next():
+                ss = si.next().get_reduced(range(s.ndim - 2))
+                bs = bi.next().get_reduced(range(b.ndim - 2))
+                os = oi.next().get_reduced(range(out.ndim - 2))
+                ss.matmul(bs, os)
             return out
         
     def __pow__(self, obj):
@@ -4989,6 +4986,16 @@ def allclose(a, b, rtol=1e-05, atol=1e-08, equal_nan=False):
                 else:
                     return False
     return True
+
+def broadcast_to(array, shape):
+    oshape = array.shape
+    ishape = [1] * (len(shape) - array.ndim) + oshape
+    res = zeros(shape, dtype = array.dtype)
+    si = res.section_iter(ishape)
+    while si.has_next():
+        sec = si.next()
+        sec.copy_from(array)
+    return res
     
 #####################################################################################
 # Other utility classes

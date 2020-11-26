@@ -1299,7 +1299,39 @@ class TestMath(TestCase):
         self.assertEqual(t.shape, (2, 3), 'math trace 3 check shape')
         res = array([[18, 20, 22],
                      [24, 26, 28]])
-        self.assertTrue(np.array_equal(t, res), 'math trace 4 with 4 dims')        
+        self.assertTrue(np.array_equal(t, res), 'math trace 4 with 4 dims')
+        
+    def test_matmul(self):
+        a = np.ones([9, 5, 7, 4])
+        c = np.ones([9, 5, 4, 3])
+        m = np.matmul(a, c)
+        res = (9, 5, 7, 3)
+        self.assertEqual(m.shape, res, 'math matmul 1 check shape')
+        
+        a = np.array([[1, 0],
+                      [0, 1]])
+        b = np.array([[4, 1],
+                      [2, 2]])
+        m = np.matmul(a, b)
+        res = array([[4, 1],
+                     [2, 2]])
+        self.assertTrue(np.array_equal(m, res), 'math matmul 2 with 2 dims')
+        
+        b = np.array([1, 2])
+        m = np.matmul(a, b)
+        res = array([1, 2])
+        self.assertTrue(np.array_equal(m, res), 'math matmul 3 2d x 1d')
+
+        m = np.matmul(b, a)
+        res = array([1, 2])
+        self.assertTrue(np.array_equal(m, res), 'math matmul 4 1d x 2d')
+        
+        a = np.arange(2 * 2 * 4).reshape((2, 2, 4))
+        b = np.arange(2 * 2 * 4).reshape((2, 4, 2))
+        m = np.matmul(a,b)
+        res = (2, 2, 2)
+        self.assertEqual(m.shape, res, 'math matmul 5 check shape')
+        self.assertEqual(m[0, 1, 1], 98, 'math matmul 6 check value')
 
 class TestOperator(TestCase):
     

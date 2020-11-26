@@ -634,4 +634,11 @@ def trace(a, offset=0, axis1=0, axis2=1, dtype=None, out=None):
     return a.trace(offset, axis1, axis2, dtype, out)
 
 def matmul(x1, x2, out=None, dtype=None, subok=True):
-    return dot(x1, x2, out)
+    x1 = np.asanyarray(x1)
+    x2 = np.asanyarray(x2)
+    if out is None:
+        return np.ndarray(buffer = x1.buffer.matmul(x2.buffer, dtype = dtype))
+    else:
+        out = asanyarray(out).buffer
+        x1.buffer.matmul(x2.buffer, out, dtype = dtype)
+        return out

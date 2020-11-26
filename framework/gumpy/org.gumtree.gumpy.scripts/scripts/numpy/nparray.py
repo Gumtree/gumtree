@@ -348,7 +348,7 @@ class ndarray():
     def __matmul__(self, value):
         if isinstance(value, ndarray):
             value = value.buffer
-        return self._new(self.buffer.matrix_dot(value))
+        return self._new(self.buffer.matmul(value))
         
     def _new(self, buffer):
         if np.iterable(buffer) :
