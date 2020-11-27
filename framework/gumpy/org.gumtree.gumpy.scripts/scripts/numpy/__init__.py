@@ -10,6 +10,8 @@ from npmath import *
 PRECISION = 18
 
 def unimplemented():
+    ''' Functions and fields not implemented in Gumtree
+    '''
     l = []
     l.append("conjugate(x, /, out=None, *, where=True, "
         + "casting='same_kind', order='K', dtype=None, "
