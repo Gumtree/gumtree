@@ -140,8 +140,6 @@ class ndarray():
     def __deepcopy__(self):
         return ndarray(buffer = self.buffer.__deepcopy__())
         
-    ############## logic functions ##############
-    
     def __eq__(self, obj):
         if isinstance(obj, ndarray):
             obj = obj.buffer
@@ -211,7 +209,6 @@ class ndarray():
         self.buffer.__iand__(obj)
         return self
 
-    ############## math functions ###############
     def __add__(self, obj):
         if isinstance(obj, ndarray):
             obj = obj.buffer
