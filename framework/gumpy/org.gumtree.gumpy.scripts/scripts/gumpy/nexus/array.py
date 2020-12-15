@@ -51,6 +51,7 @@ class Array:
             tp = DataType.INT
             if dtype is None :
                 self._dtype = int
+                self._itemsize = 4
                 for id in xrange(size) :
                     val = get_item(obj, id, rawshape)
                     if type(val) is int :
@@ -151,43 +152,54 @@ class Array:
             self.get_value = self.get_int
             self.set_prime_value = self.set_int_value
             self._dtype = int
+            self._itemsize = 4
         elif tp.equals(DataType.DOUBLE) :
             self.get_value = self.get_float
             self.set_prime_value = self.set_float_value
             self._dtype = float
+            self._itemsize = 8
         elif tp.equals(DataType.BOOLEAN) :
             self.get_value = self.get_bool
             self.set_prime_value = self.set_bool_value
             self._dtype = bool
+            self._itemsize = 1
         elif tp.equals(DataType.LONG) :
             self.get_value = self.get_long
             self.set_prime_value = self.set_long_value
             self._dtype = long
+            self._itemsize = 8
         elif tp.equals(DataType.CHAR) :
             self.get_value = self.get_char
             self.set_prime_value = self.set_char_value
             self._dtype = str
+            self._itemsize = 2
         elif tp.equals(DataType.BYTE) :
             self.get_value = self.get_int
             self.set_prime_value = self.set_int_value
             self._dtype = int
+            self._itemsize = 4
         elif tp.equals(DataType.SHORT) :
             self.get_value = self.get_int
             self.set_prime_value = self.set_int_value
             self._dtype = int
+            self._itemsize = 4
         elif tp.equals(DataType.FLOAT) :
             self.get_value = self.get_float
             self.set_prime_value = self.set_float_value
             self._dtype = float
+            self._itemsize = 8
         else :
             self.get_value = self.get_str
             self.set_prime_value = self.set_str_value
             self._dtype = object
+            self._itemsize = 0
     
 #####################################################################################
 #   Array indexing
 #####################################################################################
     def __getitem__(self, index):
+        if index is Ellipsis:
+            return self
         if type(index) is int :
             if index < 0 :
                 index = self._shape[0] + index
@@ -2438,7 +2450,9 @@ class Array:
 #####################################################################################    
 
     def __setitem__(self, index, value):
-        if type(index) is int :
+        if index is Ellipsis:
+            self.fill(value)
+        elif type(index) is int :
             if self._ndim == 1 :
                 self.set_value(index, value);
             else :
@@ -3280,6 +3294,7 @@ class ArrayItemIter():
             raise StopIteration()
     
     def __set_next_long__(self, value):
+        from java.math import BigInteger
         if self.iter.hasNext() :
             self.iter.next().setLongCurrent(long(value))
         else :

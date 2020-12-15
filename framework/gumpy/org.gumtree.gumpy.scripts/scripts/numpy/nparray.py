@@ -10,6 +10,23 @@ import numpy as np
 class ndarray():
     def __init__(self, shape = None, dtype=float, buffer=None, offset=None, strides=None, order=None):
         if buffer is None:
+            if type(dtype) is str or type(dtype) is unicode:
+                if dtype == "?":
+                    dtype = bool
+                elif dtype == "b":
+                    dtype = int
+                elif dtype == "B":
+                    dtype = int
+                elif dtype == "i":
+                    dtype = int
+                elif dtype == "u":
+                    dtype = int
+                elif dtype == "f":
+                    dtype = float
+                elif dtype == "l":
+                    dtype = long
+                elif dtype == "c":
+                    dtype = str                    
             self.buffer = nxa.instance(shape, dtype = dtype)
         else:
             if isinstance(buffer, ndarray):
@@ -96,7 +113,7 @@ class ndarray():
         elif name == 'itemsize':
             return self.buffer.itemsize
         elif name == 'nbytes':
-            return self.buffer.nbytes
+            return self.buffer.size * self.buffer.itemsize
         elif name == 'strides':
             return self.buffer.stride
         elif name == 'ctype':

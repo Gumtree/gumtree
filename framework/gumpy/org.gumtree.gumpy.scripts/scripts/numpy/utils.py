@@ -4,6 +4,9 @@
 from java.lang import Double
 import numbers
 
+float64 = float
+uint64 = long
+
 ''' Define NaN, Inf number for numpy '''
 nan = float('nan')
 inf = float('inf')

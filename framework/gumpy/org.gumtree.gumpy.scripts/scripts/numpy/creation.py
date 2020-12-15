@@ -337,9 +337,18 @@ def array(object, dtype=None, copy=True, order=None, subok=None, ndmin=0):
     
     '''
     if isinstance(object, ndarray):
-        return object
+        if copy:
+            return object.copy()
+        else:
+            return object
     else:
-        return ndarray(buffer = nxa.asarray(object, dtype))
+        if isinstance(object, nxa.Array):
+            if copy:
+                return ndarray(buffer = object.__copy__())
+            else:
+                return ndarray(buffer = object)
+        else:
+            return ndarray(buffer = nxa.asarray(object, dtype))
 
 def Array(object, dtype=None, copy=True, order=None, subok=None, ndmin=0):
     ''' same function as array(). See above document for details.'''
