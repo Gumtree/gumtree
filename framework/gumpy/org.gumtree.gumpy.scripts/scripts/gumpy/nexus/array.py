@@ -2609,6 +2609,9 @@ class Array:
                     
     def fill(self, val):
         if hasattr(val, '__len__'):
+            if self.size == get_size(val):
+                self.copy_from(val)
+                return
             shape = get_shape(val)
             si = self.section_iter(shape)
             while si.has_next():

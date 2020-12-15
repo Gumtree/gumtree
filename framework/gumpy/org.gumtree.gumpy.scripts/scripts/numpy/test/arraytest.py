@@ -218,11 +218,251 @@ class TestArrayConstruction(AbstractNumpyTest):
 #         assert_(np.ascontiguousarray(d).flags.c_contiguous)
 #         assert_(np.asfortranarray(d).flags.f_contiguous)
 
+class TestAssignment(AbstractNumpyTest):
+    
+    def test_assignment_broadcasting(self):
+        a = np.arange(6).reshape(2, 3)
+
+        # Broadcasting the input to the output
+        a[...] = np.arange(3)
+        self.assertEqual(a, [[0, 1, 2], [0, 1, 2]])
+        a[...] = np.arange(2).reshape(2, 1)
+        self.assertEqual(a, [[0, 0, 0], [1, 1, 1]])
+
+        # For compatibility with <= 1.5, a limited version of broadcasting
+        # the output to the input.
+        #
+        # This behavior is inconsistent with NumPy broadcasting
+        # in general, because it only uses one of the two broadcasting
+        # rules (adding a new "1" dimension to the left of the shape),
+        # applied to the output instead of an input. In NumPy 2.0, this kind
+        # of broadcasting assignment will likely be disallowed.
+        a[...] = np.arange(5, -1, -1).reshape(1, 2, 3)
+        self.assertEqual(a, [[5, 4, 3], [2, 1, 0]])
+        # The other type of broadcasting would require a reduction operation.
+
+        def assign(a, b):
+            a[...] = b
+
+        self.assertRaises(ValueError, assign, a, np.arange(12).reshape(2, 2, 3))
+
+    def test_assignment_errors(self):
+        # Address issue #2276
+        class C:
+            pass
+        a = np.zeros(1)
+
+        def assign(v):
+            a[0] = v
+
+        self.assertRaises((AttributeError, TypeError), assign, C())
+        self.assertRaises(TypeError, assign, [1])
+
+# class TestZeroRank:
+#     def setup(self):
+#         self.d = np.array(0), np.array('x', object)
+# 
+#     def test_ellipsis_subscript(self):
+#         a, b = self.d
+#         self.assertEqual(a[...], 0)
+#         self.assertEqual(b[...], 'x')
+#         assert_(a[...].base is a)  # `a[...] is a` in numpy <1.9.
+#         assert_(b[...].base is b)  # `b[...] is b` in numpy <1.9.
+# 
+#     def test_empty_subscript(self):
+#         a, b = self.d
+#         self.assertEqual(a[()], 0)
+#         self.assertEqual(b[()], 'x')
+#         assert_(type(a[()]) is a.dtype.type)
+#         assert_(type(b[()]) is str)
+# 
+#     def test_invalid_subscript(self):
+#         a, b = self.d
+#         self.assertRaises(IndexError, lambda x: x[0], a)
+#         self.assertRaises(IndexError, lambda x: x[0], b)
+#         self.assertRaises(IndexError, lambda x: x[np.array([], int)], a)
+#         self.assertRaises(IndexError, lambda x: x[np.array([], int)], b)
+# 
+#     def test_ellipsis_subscript_assignment(self):
+#         a, b = self.d
+#         a[...] = 42
+#         self.assertEqual(a, 42)
+#         b[...] = ''
+#         self.assertEqual(b.item(), '')
+# 
+#     def test_empty_subscript_assignment(self):
+#         a, b = self.d
+#         a[()] = 42
+#         self.assertEqual(a, 42)
+#         b[()] = ''
+#         self.assertEqual(b.item(), '')
+# 
+#     def test_invalid_subscript_assignment(self):
+#         a, b = self.d
+# 
+#         def assign(x, i, v):
+#             x[i] = v
+# 
+#         self.assertRaises(IndexError, assign, a, 0, 42)
+#         self.assertRaises(IndexError, assign, b, 0, '')
+#         self.assertRaises(ValueError, assign, a, (), '')
+# 
+#     def test_newaxis(self):
+#         a, b = self.d
+#         self.assertEqual(a[np.newaxis].shape, (1,))
+#         self.assertEqual(a[..., np.newaxis].shape, (1,))
+#         self.assertEqual(a[np.newaxis, ...].shape, (1,))
+#         self.assertEqual(a[..., np.newaxis].shape, (1,))
+#         self.assertEqual(a[np.newaxis, ..., np.newaxis].shape, (1, 1))
+#         self.assertEqual(a[..., np.newaxis, np.newaxis].shape, (1, 1))
+#         self.assertEqual(a[np.newaxis, np.newaxis, ...].shape, (1, 1))
+#         self.assertEqual(a[(np.newaxis,)*10].shape, (1,)*10)
+# 
+#     def test_invalid_newaxis(self):
+#         a, b = self.d
+# 
+#         def subscript(x, i):
+#             x[i]
+# 
+#         self.assertRaises(IndexError, subscript, a, (np.newaxis, 0))
+#         self.assertRaises(IndexError, subscript, a, (np.newaxis,)*50)
+# 
+#     def test_constructor(self):
+#         x = np.ndarray(())
+#         x[()] = 5
+#         self.assertEqual(x[()], 5)
+#         y = np.ndarray((), buffer=x)
+#         y[()] = 6
+#         self.assertEqual(x[()], 6)
+# 
+#         # strides and shape must be the same length
+#         with pytest.raises(ValueError):
+#             np.ndarray((2,), strides=())
+#         with pytest.raises(ValueError):
+#             np.ndarray((), strides=(2,))
+# 
+#     def test_output(self):
+#         x = np.array(2)
+#         self.assertRaises(ValueError, np.add, x, [1], x)
+# 
+#     def test_real_imag(self):
+#         # contiguity checks are for gh-11245
+#         x = np.array(1j)
+#         xr = x.real
+#         xi = x.imag
+# 
+#         self.assertEqual(xr, np.array(0))
+#         assert_(type(xr) is np.ndarray)
+#         self.assertEqual(xr.flags.contiguous, True)
+#         self.assertEqual(xr.flags.f_contiguous, True)
+# 
+#         self.assertEqual(xi, np.array(1))
+#         assert_(type(xi) is np.ndarray)
+#         self.assertEqual(xi.flags.contiguous, True)
+#         self.assertEqual(xi.flags.f_contiguous, True)
+
+class TestScalarIndexing(AbstractNumpyTest):
+    def setUp(self):
+        self.d = np.array([0, 1])[0]
+
+    def test_ellipsis_subscript(self):
+        a = self.d
+        self.assertEqual(a[...], 0)
+        self.assertEqual(a[...].shape, ())
+
+    def test_empty_subscript(self):
+        a = self.d
+        self.assertEqual(a[()], 0)
+        self.assertEqual(a[()].shape, ())
+
+    def test_invalid_subscript(self):
+        a = self.d
+        self.assertRaises(IndexError, lambda x: x[0], a)
+        self.assertRaises(IndexError, lambda x: x[np.array([], int)], a)
+
+    def test_invalid_subscript_assignment(self):
+        a = self.d
+
+        def assign(x, i, v):
+            x[i] = v
+
+        self.assertRaises(TypeError, assign, a, 0, 42)
+
+    def test_newaxis(self):
+        a = self.d
+        self.assertEqual(a[np.newaxis].shape, (1,))
+        self.assertEqual(a[..., np.newaxis].shape, (1,))
+        self.assertEqual(a[np.newaxis, ...].shape, (1,))
+        self.assertEqual(a[..., np.newaxis].shape, (1,))
+        self.assertEqual(a[np.newaxis, ..., np.newaxis].shape, (1, 1))
+        self.assertEqual(a[..., np.newaxis, np.newaxis].shape, (1, 1))
+        self.assertEqual(a[np.newaxis, np.newaxis, ...].shape, (1, 1))
+        self.assertEqual(a[(np.newaxis,)*10].shape, (1,)*10)
+
+    def test_invalid_newaxis(self):
+        a = self.d
+
+        def subscript(x, i):
+            x[i]
+
+        self.assertRaises(IndexError, subscript, a, (np.newaxis, 0))
+        self.assertRaises(IndexError, subscript, a, (np.newaxis,)*50)
+
+    def test_overlapping_assignment(self):
+        # With positive strides
+        a = np.arange(4)
+        a[:-1] = a[1:]
+        self.assertEqual(a, [1, 2, 3, 3])
+
+        a = np.arange(4)
+        a[1:] = a[:-1]
+        self.assertEqual(a, [0, 0, 1, 2])
+
+        # With positive and negative strides
+        a = np.arange(4)
+        a[:] = a[::-1]
+        self.assertEqual(a, [3, 2, 1, 0])
+
+        a = np.arange(6).reshape(2, 3)
+        a[::-1,:] = a[:, ::-1]
+        self.assertEqual(a, [[5, 4, 3], [2, 1, 0]])
+
+        a = np.arange(6).reshape(2, 3)
+        a[::-1, ::-1] = a[:, ::-1]
+        self.assertEqual(a, [[3, 4, 5], [0, 1, 2]])
+
+        # With just one element overlapping
+        a = np.arange(5)
+        a[:3] = a[2:]
+        self.assertEqual(a, [2, 3, 4, 3, 4])
+
+        a = np.arange(5)
+        a[2:] = a[:3]
+        self.assertEqual(a, [0, 1, 0, 1, 2])
+
+        a = np.arange(5)
+        a[2::-1] = a[2:]
+        self.assertEqual(a, [4, 3, 2, 3, 4])
+
+        a = np.arange(5)
+        a[2:] = a[2::-1]
+        self.assertEqual(a, [0, 1, 2, 1, 0])
+
+        a = np.arange(5)
+        a[2::-1] = a[:1:-1]
+        self.assertEqual(a, [2, 3, 4, 3, 4])
+
+        a = np.arange(5)
+        a[:1:-1] = a[2::-1]
+        self.assertEqual(a, [0, 1, 0, 1, 2])
+
 
 def getSuite():
     return unittest.TestSuite([\
             unittest.TestLoader().loadTestsFromTestCase(TestAttributes),\
             unittest.TestLoader().loadTestsFromTestCase(TestArrayConstruction),\
+            unittest.TestLoader().loadTestsFromTestCase(TestAssignment),\
+            unittest.TestLoader().loadTestsFromTestCase(TestScalarIndexing),\
             ])
 
 def run_test():
