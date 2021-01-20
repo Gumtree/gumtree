@@ -1094,9 +1094,28 @@ class TestMath(TestCase):
         self.assertTrue(np.array_equal(y[0], res[0]), 'math nonzero 1 0')
         self.assertTrue(np.array_equal(y[1], res[1]), 'math nonzero 1 1')
         
-        
-#         x[np.nonzero(x)]
-#         array([3, 4, 5, 6])
+    def test_count_nonzero(self):
+        c = np.count_nonzero(np.eye(4))
+        self.assertEqual(c, 4, 'count_nonzero 1 non axis')
+
+        a = np.array([[0, 1, 7, 0],
+                      [3, 0, 2, 19]])
+        c = np.count_nonzero(a)
+        self.assertEqual(c, 5, 'count_nonzero 2 non axis')
+
+        c = np.count_nonzero(a, axis=0)
+        res = array([1, 1, 2, 1])
+        self.assertTrue(np.array_equal(c, res), 'count_nonzero 3 axis=0')
+
+        c = np.count_nonzero(a, axis=1)
+        res = array([2, 3])
+        self.assertTrue(np.array_equal(c, res), 'count_nonzero 4 axis=1')
+
+#         c = np.count_nonzero(a, axis=1, keepdims=True)
+#         res = array([[2],
+#                      [3]])
+#         self.assertTrue(np.array_equal(c, res), 'count_nonzero 5 keepdim')
+            
         
     def test_amax(self):
         a = np.arange(4).reshape((2,2))

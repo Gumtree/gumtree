@@ -674,3 +674,33 @@ def matmul(x1, x2, out=None, dtype=None, subok=True):
         out = asanyarray(out).buffer
         x1.buffer.matmul(x2.buffer, out, dtype = dtype)
         return out
+    
+''' Counts the number of non-zero values in the array a.
+
+    Parameters
+
+        a : array_like
+            The array for which to count non-zeros.
+            
+        axis : int or tuple, optional
+            Axis or tuple of axes along which to count non-zeros. 
+            Default is None, meaning that non-zeros will be counted 
+            along a flattened version of a.
+
+        keepdims : bool, optional
+            If this is set to True, the axes that are counted are 
+            left in the result as dimensions with size one. With 
+            this option, the result will broadcast correctly against 
+            the input array.
+
+    Returns
+
+        count : int or array of int
+            Number of non-zero values in the array along a given axis. 
+            Otherwise, the total number of non-zero values in the 
+            array is returned.
+
+'''
+def count_nonzero(a, axis=None, keepdims=False):
+    a = np.asanyarray(a)
+    return a.count_nonzero(axis, keepdims)

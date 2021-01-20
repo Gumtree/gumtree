@@ -566,9 +566,9 @@ class Array:
 
     def get_str(self, index):
         if type(index) is int :
-            return self.__iArray__.getObject(self.__iArray__.getIndex().set(index)).toString()
+            return str(self.__iArray__.getObject(self.__iArray__.getIndex().set(index)))
         elif type(index) is list :
-            return self.__iArray__.getObject(self.__iArray__.getIndex().set(jutils.jintcopy(index))).toString()
+            return str(self.__iArray__.getObject(self.__iArray__.getIndex().set(jutils.jintcopy(index))))
 
     def set_value(self, index, value):
         if type(index) is int :
@@ -864,18 +864,41 @@ class Array:
                 pass
         return self
                                 
-    def count_nonzero(self):
+    def count_nonzero(self, axis = None):
         dtype = self._dtype
-        cnt = 0
-        if dtype is float or dtype is int :
-            siter = self.item_iter()
-            try :
-                while True :
-                    if siter.next():
-                        cnt += 1
-            except :
-                pass
-        return cnt
+        if axis is None:
+            cnt = 0
+            if dtype is float or dtype is int :
+                siter = self.item_iter()
+                try :
+                    while True :
+                        if siter.next():
+                            cnt += 1
+                except :
+                    pass
+            return cnt
+        else:
+            if type(axis) is int:
+                axis = [axis]
+            for i in axis:
+                if i >= self._ndim:
+                    raise ValueError('axis {} out of range'.format(i))
+            if len(axis) == self._ndim:
+                return self.count_nonzero()
+            oshape = []
+            ishape = [1] * self._ndim
+            for i in xrange(self._ndim):
+                if i in axis:
+                    ishape[i] = self._shape[i]
+                else:
+                    oshape.append(self._shape[i])
+            out = zeros(oshape, int)
+            oi = out.item_iter()
+            si = self.section_iter(ishape)
+            while oi.has_next():
+                ss = si.next()
+                oi.set_next(ss.count_nonzero())
+            return out
         
     def nonzero(self):
         out = [[] for i in xrange(self._ndim)]

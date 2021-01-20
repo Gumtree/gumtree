@@ -25,8 +25,10 @@ class ndarray():
                     dtype = float
                 elif dtype == "l":
                     dtype = long
+                elif dtype == "U":
+                    dtype = str
                 elif dtype == "c":
-                    dtype = str                    
+                    dtype = str
             self.buffer = nxa.instance(shape, dtype = dtype)
         else:
             if isinstance(buffer, ndarray):
@@ -923,7 +925,10 @@ class ndarray():
         if not out is None:
             out = np.asanyarray(out).buffer
         return self._new(self.buffer.asum(axis, dtype, out, initial))
-        
+    
+    def count_nonzero(self, axis=None, keepdims=None):
+        return self._new(self.buffer.count_nonzero(axis))
+            
     def prod(self, axis=None, dtype=None, out=None, keepdims=None, initial=1, where=None):
         ''' Return the product of array elements over a given axis.
         
