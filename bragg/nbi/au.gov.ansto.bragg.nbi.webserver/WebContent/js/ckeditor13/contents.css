@@ -99,6 +99,9 @@ pre
 	word-wrap: break-word; /* IE7 */
 	-moz-tab-size: 4;
 	tab-size: 4;
+	margin: 0;
+	text-align: left;
+	line-height: 1;
 }
 
 .marker
