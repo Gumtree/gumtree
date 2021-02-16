@@ -1,5 +1,5 @@
 var title = "Spatz";
-var batchEnabled = false;
+var batchEnabled = true;
 var timeEstimationEnabled = false;
 
 function adaptAtt(val) {
@@ -83,10 +83,19 @@ var nsItems = [
                ];
 
 //var histmemUrl = "dae/rest/image?type=TOTAL_HISTOGRAM_XY&screen_size_x=800&screen_size_y=600";
-var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE&screen_size_x=800";
+//var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE&screen_size_x=800";
+var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE";
 
+//var histmemTypes = [
+//                    {"id" : "TOTAL_HISTOGRAM_XY", "text" : "Total x-y histogram", "isDefault" : true},
+//                    {"id" : "TOTAL_HISTOGRAM_X", "text" : "Total x histogram"},
+//                    {"id" : "TOTAL_HISTOGRAM_Y", "text" : "Total y histogram"},
+//                    ];
 var histmemTypes = [
-                    {"id" : "TOTAL_HISTOGRAM_XY", "text" : "Total x-y histogram", "isDefault" : true},
-                    {"id" : "TOTAL_HISTOGRAM_X", "text" : "Total x histogram"},
-                    {"id" : "TOTAL_HISTOGRAM_Y", "text" : "Total y histogram"},
-                    ];
+    {"id" : "TOTAL_HISTOGRAM_XT", "text" : "Total x-t histogram", "isDefault" : true},
+//    {"id" : "TOTAL_HISTOGRAM_YT", "text" : "Total y-t histogram"},
+    {"id" : "TOTAL_HISTOGRAM_X", "text" : "Total x histogram"},
+//    {"id" : "TOTAL_HISTOGRAM_Y", "text" : "Total y histogram"},
+    {"id" : "TOTAL_HISTOGRAM_T", "text" : "Total t histogram"},
+    {"id" : "TOTAL_HISTOGRAM_XYT", "text" : "Histogram x,y,t period"}
+    ];
