@@ -69,8 +69,13 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -109,16 +114,20 @@ import org.gumtree.scripting.ScriptExecutor;
 import org.gumtree.ui.scripting.viewer.ICommandLineViewer;
 
 import au.gov.ansto.bragg.nbi.scripting.IPyObject;
+import au.gov.ansto.bragg.nbi.scripting.IPyObject.PyObjectType;
+import au.gov.ansto.bragg.nbi.scripting.PyObjectImp;
 import au.gov.ansto.bragg.nbi.scripting.ScriptAction;
 import au.gov.ansto.bragg.nbi.scripting.ScriptAction.ActionStatus;
 import au.gov.ansto.bragg.nbi.scripting.ScriptAction.IActionStatusListener;
 import au.gov.ansto.bragg.nbi.scripting.ScriptModel;
 import au.gov.ansto.bragg.nbi.scripting.ScriptObjectGroup;
+import au.gov.ansto.bragg.nbi.scripting.ScriptObjectTab;
 import au.gov.ansto.bragg.nbi.scripting.ScriptParameter;
 import au.gov.ansto.bragg.nbi.scripting.ScriptParameter.PType;
 import au.gov.ansto.bragg.nbi.ui.internal.Activator;
 import au.gov.ansto.bragg.nbi.ui.internal.InternalImage;
 import au.gov.ansto.bragg.nbi.ui.scripting.ScriptPageRegister;
+import au.gov.ansto.bragg.nbi.ui.scripting.parts.ImageButton.ButtonListener;
 import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptDataSourceViewer.IActivityListener;
 
 
@@ -131,6 +140,10 @@ public class ScriptControlViewer extends Composite {
 
 	private final static String FILENAME_NODE_PATH = "/experiment/file_name";
 	private final static String SAVE_COUNT_PATH = "/experiment/save_count";
+	private final static Image BTN_IMAGE_BEGIN = InternalImage.CATEGORY_BTN_IMAGE_BEGIN.getImage();
+	private final static Image BTN_IMAGE_BAR = InternalImage.CATEGORY_BTN_IMAGE_BAR.getImage(30, -1);
+	private final static Image BTN_IMAGE_END = InternalImage.CATEGORY_BTN_IMAGE_END.getImage();
+	
 	protected static String fileDialogPath;
 	private static int SCRIPT_REGISTER_ID = 0;
 	private static final String ID_PREFERENCE_RECENT_FILE = "org.gumtree.scripting.recent";
@@ -949,6 +962,14 @@ public class ScriptControlViewer extends Composite {
 	}
 	
 	private void updateControlUI() {
+//		for (Composite composite : groupMap.values()) {
+//			composite.dispose();
+//		}
+		for (int id : groupMap.keySet()) {
+			Composite composite = groupMap.get(id);
+			composite.dispose();
+		}
+		
 		groupMap.clear();
 		for (Control control : dynamicComposite.getChildren()) {
 			control.dispose();
@@ -972,19 +993,33 @@ public class ScriptControlViewer extends Composite {
 				equalWidth = scriptModel.isEqualWidth();
 			} catch (Exception e) {
 			}
-			GridLayoutFactory.fillDefaults().equalWidth(equalWidth).margins(2, 2).spacing(4, 4).numColumns(scriptModel.getNumColumns() * 2).applyTo(
+			GridLayoutFactory.fillDefaults().equalWidth(equalWidth).margins(2, 2).spacing(4, 
+					4).numColumns(scriptModel.getNumColumns() * 2).applyTo(
 					dynamicComposite);
+		} else {
+			GridLayoutFactory.fillDefaults().margins(2, 2).spacing(4, 
+					4).applyTo(dynamicComposite);
 		}
+		List<ScriptObjectTab> tabs = scriptModel.getTabs();
 		List<ScriptObjectGroup> groups = scriptModel.getGroups();
 		List<IPyObject> objs = scriptModel.getControlList();
-		List<IPyObject> controls = prepareControlList(objs, groups);
+		List<IPyObject> controls = prepareControlList(objs, tabs, groups);
+//		if (tabs.size() > 0) {
+//			addTabs(dynamicComposite, tabs);
+//		}
+		boolean tabsAdded = false;
 		for (final IPyObject control : controls) {
-			if (control instanceof ScriptParameter) {
+			if (control.getObjectType() == PyObjectType.PAR) {
 				addParameter(dynamicComposite, (ScriptParameter) control);
-			} else if (control instanceof ScriptAction) {
+			} else if (control.getObjectType() == PyObjectType.ACT) {
 				addAction(dynamicComposite, (ScriptAction) control);
-			} else if (control instanceof ScriptObjectGroup) {
+			} else if (control.getObjectType() == PyObjectType.GROUP) {
 				addGroup(dynamicComposite, (ScriptObjectGroup) control);
+			} else if (control.getObjectType() == PyObjectType.TAB) {
+				if (!tabsAdded) {
+					addTabs(dynamicComposite, tabs);
+					tabsAdded = true;
+				}
 			}
 		}
 		dynamicComposite.layout(true, true);
@@ -1000,11 +1035,20 @@ public class ScriptControlViewer extends Composite {
 		redraw();
 	}
 	
-	private List<IPyObject> prepareControlList(List<IPyObject> objs, List<ScriptObjectGroup> groups) {
+	private List<IPyObject> prepareControlList(List<IPyObject> objs, List<ScriptObjectTab> tabs, 
+			List<ScriptObjectGroup> groups) {
 		List<IPyObject> list = new ArrayList<IPyObject>();
 		for (IPyObject obj : objs) {
-			if (obj instanceof ScriptParameter || obj instanceof ScriptAction || obj instanceof ScriptObjectGroup) {
+//			if (obj instanceof ScriptParameter || obj instanceof ScriptAction 
+//					|| obj instanceof ScriptObjectGroup || obj instanceof ScriptObjectTab) {
+			if (obj instanceof PyObjectImp) {
 				boolean inGroup = false;
+				for (ScriptObjectTab tab : tabs) {
+					if (tab.getObjectList().contains(obj)) {
+						inGroup = true;
+						break;
+					}
+				}
 				for (ScriptObjectGroup group : groups) {
 					if (group.getObjectList().contains(obj)) {
 						inGroup = true;
@@ -1021,6 +1065,96 @@ public class ScriptControlViewer extends Composite {
 		return list;
 	}
 
+	private void addTabs(final Composite parent, final List<ScriptObjectTab> tabs) {
+		final Composite tabTitles = new Composite(parent, SWT.NONE);
+//		tabTitles.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(tabTitles);
+		GridLayoutFactory.fillDefaults().margins(4, 4).spacing(4, 4).applyTo(tabTitles);
+
+
+//		tabTitles.setBackground(getBackground());
+		
+		GridLayout gl_cmpTabs = new GridLayout(tabs.size() * 2 + 3, false);
+		gl_cmpTabs.marginWidth = 0;
+		gl_cmpTabs.marginHeight = 4;
+		gl_cmpTabs.horizontalSpacing = 0;
+		gl_cmpTabs.verticalSpacing = 0;
+		tabTitles.setLayout(gl_cmpTabs);
+
+		final Label barBegin = new Label(tabTitles, SWT.NONE);
+//		lblBarBegin.setBackground(getBackground());
+		barBegin.setImage(BTN_IMAGE_BEGIN);
+		barBegin.pack();
+
+		Label bar0 = new Label(tabTitles, SWT.NONE);
+//		lblBar0.setBackground(getBackground());
+		bar0.setImage(BTN_IMAGE_BAR);
+		bar0.pack();
+
+		final ImageButton[] buttons = new ImageButton[tabs.size()];
+		int i = 0;
+		for (ScriptObjectTab tab : tabs) {
+			final ImageButton btnUsers = new ImageButton(tabTitles, SWT.NONE);
+			buttons[i] = btnUsers;
+//			btnUsers.setBackground(getBackground());
+			btnUsers.setText(tab.getName());
+//			btnUsers.setFont(SWTResourceManager.getFont("Calibri", 10, SWT.BOLD));
+			btnUsers.setSelected(i == 0);
+			btnUsers.addCircularTriggerArea(25, 25, 21);
+			btnUsers.addCircularTriggerArea(76, 25, 21);
+			btnUsers.addRectangularTriggerArea(25, 4, 51, 42);
+
+			Label bar1 = new Label(tabTitles, SWT.NONE);
+			bar1.setImage(BTN_IMAGE_BAR);
+			bar1.pack();
+			i ++;
+		}
+		
+
+		Label barEnd = new Label(tabTitles, SWT.NONE);
+//		lblBarEnd.setBackground(getBackground());
+		barEnd.setImage(BTN_IMAGE_END);
+		barEnd.pack();
+		
+		final ScrolledComposite cmpMain = new ScrolledComposite(parent, SWT.NONE);
+		cmpMain.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+//		cmpMain.setBackground(getBackground());
+		cmpMain.setExpandHorizontal(true);
+		cmpMain.setExpandVertical(true);
+
+		i = 0;
+		for (ScriptObjectTab tab : tabs) {
+			final Composite tabComposite = new Composite(cmpMain, SWT.BORDER);
+			GridLayout mainLayout = new GridLayout(1, false);
+			mainLayout.marginWidth = 0;
+			mainLayout.marginHeight = 0;
+			mainLayout.verticalSpacing = 0;
+			mainLayout.horizontalSpacing = 0;
+			tabComposite.setLayout(mainLayout);
+
+//			GridLayout gridLayout = new GridLayout(1, false);
+//			gridLayout.verticalSpacing = 0;
+//			gridLayout.marginWidth = 10;
+//			gridLayout.marginHeight = 10;
+//			gridLayout.horizontalSpacing = 0;
+//			tabComposite.setLayout(gridLayout);
+
+			loadGroup(tabComposite, tab);
+			groupMap.put(tab.getId(), tabComposite);
+			
+			buttons[i].addListener(
+					SWT.Selection,
+					new ButtonListener(
+							cmpMain, tabComposite,
+							buttons[i],
+							buttons));
+			if (i == 0) {
+				cmpMain.setContent(tabComposite);
+			}
+			i ++;
+		}
+	}
+	
 	private void addGroup(final Composite parent, final ScriptObjectGroup objGroup) {
 		Composite group;
 		String hideTitleString = objGroup.getProperty("hideTitle");
@@ -1035,6 +1169,7 @@ public class ScriptControlViewer extends Composite {
 //			group.setClickExpandEnabled(false);
 			
 			String highlightProperty = objGroup.getProperty("highlight");
+			String tierProperty = objGroup.getProperty("tier");
 			if (highlightProperty != null) {
 				boolean isHighlight = Boolean.valueOf(highlightProperty);
 				if (isHighlight) {
@@ -1043,7 +1178,35 @@ public class ScriptControlViewer extends Composite {
 							new Color[]{Display.getCurrent().getSystemColor(SWT.COLOR_RED), 
 									Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW)}, 
 							new int[]{100});
-				} 			
+				} 
+			} else {
+				if (tierProperty != null) {
+					int tier = 1;
+					try {
+						tier = Integer.valueOf(tierProperty);
+					} catch (Exception e) {
+					}
+					Color color1 = null;
+					Color color2 = null;
+					if (tier == 2) {
+						color1 = Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_BACKGROUND);
+						color1 = Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT);
+					} else if (tier == 3) {
+						color1 = Display.getCurrent().getSystemColor(SWT.COLOR_LIST_BACKGROUND);
+						color1 = Display.getCurrent().getSystemColor(SWT.COLOR_LIST_FOREGROUND);
+					} else if (tier > 3) {
+						color1 = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
+						color1 = Display.getCurrent().getSystemColor(SWT.COLOR_BLUE);
+					}
+					if (color1 != null) {
+						RectangleGroupStrategy strategy = (RectangleGroupStrategy) menuGroup.getStrategy();
+						strategy.setBackground(
+								new Color[]{color1, color2}, 
+								new int[]{75}, 
+								true);
+						menuGroup.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW));
+					}
+				}
 			}
 			
 			final ExpandListener expandListener = new ExpandListener() {
@@ -1053,7 +1216,7 @@ public class ScriptControlViewer extends Composite {
 					menuGroup.layout(true, true);
 					menuGroup.update();
 					Rectangle r = scroll.getClientArea();
-					scroll.setMinSize(dynamicComposite.computeSize(r.width, SWT.DEFAULT));				
+					scroll.setMinSize(dynamicComposite.computeSize(r.width, SWT.DEFAULT));
 				}
 				
 				@Override
@@ -1061,7 +1224,7 @@ public class ScriptControlViewer extends Composite {
 					menuGroup.layout(true, true);
 					menuGroup.update();
 					Rectangle r = scroll.getClientArea();
-					scroll.setMinSize(dynamicComposite.computeSize(r.width, SWT.DEFAULT));				
+					scroll.setMinSize(dynamicComposite.computeSize(r.width, SWT.DEFAULT));
 				}
 			};
 			menuGroup.addExpandListener(expandListener);
@@ -1244,20 +1407,41 @@ public class ScriptControlViewer extends Composite {
 		GridDataFactory.fillDefaults().grab(true, false).span(groupColspan * 2, groupRowspan).applyTo(group);
 		group.setBackgroundMode(SWT.INHERIT_DEFAULT);
 		
+		List<ScriptObjectTab> tabs = objGroup.getTabList();
+//		if (tabs.size() > 0) {
+//			addTabs(group, tabs);
+//		}
 		List<IPyObject> controls = objGroup.getObjectList();
+		boolean tabsAdded = false;
 		for (final IPyObject control : controls) {
-			if (control instanceof ScriptParameter) {
+			if (control.getObjectType() == PyObjectType.PAR) {
 				addParameter(group, (ScriptParameter) control);
-			} else if (control instanceof ScriptAction) {
+			} else if (control.getObjectType() == PyObjectType.ACT) {
 				addAction(group, (ScriptAction) control);
-			} else if (control instanceof ScriptObjectGroup) {
+			} else if (control.getObjectType() == PyObjectType.GROUP) {
 				addGroup(group, (ScriptObjectGroup) control);
+			} else if (control.getObjectType() == PyObjectType.TAB) {
+				if (!tabsAdded) {
+					addTabs(group, tabs);
+					tabsAdded = true;
+				}
 			}
 		}
 	}
 
 	private void addAction(Composite parent, final ScriptAction action) {
 		
+		int width = SWT.DEFAULT;
+		int height = SWT.DEFAULT;
+		String widthProperty = action.getProperty("width");
+		if (widthProperty != null) {
+			width = Integer.valueOf(widthProperty);
+		}
+		String heightProperty = action.getProperty("height");
+		if (heightProperty != null) {
+			height = Integer.valueOf(heightProperty);
+		}
+
 		int actionColspan = 1;
 		if (action.getProperty("colspan") != null) {
 			try {
@@ -1314,7 +1498,8 @@ public class ScriptControlViewer extends Composite {
 		}
 //		actionButton.setBackground(new Color(Display.getDefault(), 240, 240, 255));
 //		actionButton.setForeground(new Color(Display.getDefault(), 0, 0, 255));
-		GridDataFactory.fillDefaults().grab(true, false).span(actionColspan * 2, actionRowspan).minSize(0, 32).applyTo(actionButton);
+		GridDataFactory.fillDefaults().grab(true, false).span(actionColspan * 2, actionRowspan
+				).minSize(0, 32).hint(width, height).applyTo(actionButton);
 		if (action.getProperty("highlight") != null) {
 			boolean isHighlight = Boolean.valueOf(action.getProperty("highlight"));
 			if (isHighlight) {
@@ -1537,9 +1722,9 @@ public class ScriptControlViewer extends Composite {
 			} else {
 				name.setText(parameter.getName());
 			}
-			GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
+			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
 			final ComboViewer comboBox = new ComboViewer(parent, SWT.DROP_DOWN);
-			GridDataFactory.fillDefaults().grab(false, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(comboBox.getControl());
+			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(comboBox.getControl());
 			comboBox.setContentProvider(new ArrayContentProvider());
 			comboBox.setLabelProvider(new LabelProvider());
 //			comboBox.setSelection(new StructuredSelection(parameter.getValue()));
@@ -1681,7 +1866,7 @@ public class ScriptControlViewer extends Composite {
 				} else {
 					name.setText(parameter.getName());
 				}
-				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
 				int vHeight = SWT.DEFAULT;
 				try {
 					String heightString = parameter.getProperty("height");
@@ -1696,7 +1881,7 @@ public class ScriptControlViewer extends Composite {
 				}
 				final Text stringText = new Text(parent, textType);
 				stringText.setText(String.valueOf(parameter.getValue()));
-				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).hint(width, vHeight).applyTo(stringText);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(parameterColspan, parameterRowspan).hint(width, vHeight).applyTo(stringText);
 				stringText.setEditable(itemEnabled);
 				if (isHighlight) {
 					stringText.setForeground(highlightColor);
@@ -1804,11 +1989,11 @@ public class ScriptControlViewer extends Composite {
 				} else {
 					name.setText(parameter.getName());
 				}
-				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER)
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER)
 					.span(parameterColspan, parameterRowspan).applyTo(name);
 				final Text intText = new Text(parent, SWT.BORDER);
 				intText.setText(String.valueOf(parameter.getValue()));
-				GridDataFactory.fillDefaults().grab(true, false).hint(width, height).span(parameterColspan, parameterRowspan).applyTo(intText);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(width, height).span(parameterColspan, parameterRowspan).applyTo(intText);
 				intText.setEditable(itemEnabled);
 				if (isHighlight) {
 					intText.setForeground(highlightColor);
@@ -1923,11 +2108,11 @@ public class ScriptControlViewer extends Composite {
 						name.setText("");
 					}
 				}
-				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER)
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER)
 					.span(parameterColspan, parameterRowspan).applyTo(name);
 				final Text floatText = new Text(parent, SWT.BORDER);
 				floatText.setText(String.valueOf(parameter.getValue()));
-				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(floatText);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(floatText);
 				floatText.setEditable(itemEnabled);
 				if (isHighlight) {
 					floatText.setForeground(highlightColor);
@@ -2038,10 +2223,10 @@ public class ScriptControlViewer extends Composite {
 				} else {
 					name.setText(parameter.getName());
 				}
-				GridDataFactory.fillDefaults().grab(false, false).minSize(40, SWT.DEFAULT).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).minSize(40, SWT.DEFAULT).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
 				final Button selectBox = new Button(parent, SWT.CHECK);
 				selectBox.setSelection(Boolean.valueOf(String.valueOf(parameter.getValue())));
-				GridDataFactory.fillDefaults().grab(false, false).span(parameterColspan, parameterRowspan).applyTo(selectBox);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).span(parameterColspan, parameterRowspan).applyTo(selectBox);
 				selectBox.setEnabled(itemEnabled);
 				if (isHighlight) {
 					selectBox.setForeground(highlightColor);
@@ -2117,7 +2302,7 @@ public class ScriptControlViewer extends Composite {
 				} else {
 					name.setText(parameter.getName());
 				}
-				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER)
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER)
 					.span(parameterColspan, parameterRowspan).applyTo(name);
 				Composite fileComposite = new Composite(parent, SWT.NONE);
 				GridLayoutFactory.fillDefaults().numColumns(2).applyTo(fileComposite);
@@ -2130,7 +2315,7 @@ public class ScriptControlViewer extends Composite {
 				if (isHighlight) {
 					fileText.setForeground(highlightColor);
 				} 
-				GridDataFactory.fillDefaults().grab(true, false).applyTo(fileText);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(fileText);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
@@ -2181,7 +2366,7 @@ public class ScriptControlViewer extends Composite {
 				});
 				final Button fileLocatorButton = new Button(fileComposite, SWT.PUSH);
 				fileLocatorButton.setText(">>");
-				GridDataFactory.fillDefaults().grab(false, true).applyTo(fileLocatorButton);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, true).applyTo(fileLocatorButton);
 				fileLocatorButton.setToolTipText("click to locate the " + parameter.getName());
 				fileLocatorButton.addSelectionListener(new SelectionListener() {
 
@@ -2306,7 +2491,7 @@ public class ScriptControlViewer extends Composite {
 			case PROGRESS:
 				final ProgressBar progressBar = new ProgressBar(parent, SWT.HORIZONTAL | SWT.NULL);
 				progressBar.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
-				GridDataFactory.fillDefaults().grab(true, false).minSize(labelWidth, 0).hint(width, height)
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).minSize(labelWidth, 0).hint(width, height)
 					.span(parameterColspan * 2, parameterRowspan).applyTo(progressBar);
 				if (isHighlight) {
 					progressBar.setForeground(highlightColor);
@@ -2393,7 +2578,15 @@ public class ScriptControlViewer extends Composite {
 			case LABEL:
 				final Label label = new Label(parent, SWT.NONE);
 				label.setText(String.valueOf(parameter.getValue()));
-				GridDataFactory.fillDefaults().grab(true, false).align(SWT.CENTER, SWT.CENTER).hint(width, height)
+				String fontSizeProp = parameter.getProperty("font_size");
+				if (fontSizeProp != null) {
+					int fontSize = Integer.valueOf(fontSizeProp);
+					FontData fd = label.getFont().getFontData()[0];
+					fd.setHeight(fontSize);
+					Font newFont = new Font(label.getDisplay(), fd);
+					label.setFont(newFont);
+				}
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(width, height)
 					.span(parameterColspan * 2, parameterRowspan).applyTo(label);
 				if (isHighlight) {
 					label.setForeground(highlightColor);
@@ -2439,7 +2632,7 @@ public class ScriptControlViewer extends Composite {
 				break;
 			case SPACE:
 				final Label spaceLabel = new Label(parent, SWT.NONE);
-				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan * 2, parameterRowspan).hint(width, height).applyTo(spaceLabel);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(parameterColspan * 2, parameterRowspan).hint(width, height).applyTo(spaceLabel);
 				break;
 			default:
 				name = new Label(parent, SWT.RIGHT);
@@ -2448,11 +2641,11 @@ public class ScriptControlViewer extends Composite {
 				} else {
 					name.setText(parameter.getName());
 				}
-				GridDataFactory.fillDefaults().grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER)
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER)
 					.span(parameterColspan, parameterRowspan).applyTo(name);
 				final Text defaultText = new Text(parent, SWT.BORDER);
 				defaultText.setText(String.valueOf(parameter.getValue()));
-				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(defaultText);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(defaultText);
 				defaultText.setEditable(itemEnabled);
 				if (isHighlight) {
 					defaultText.setForeground(highlightColor);

@@ -38,16 +38,51 @@ public enum InternalImage {
 	REFRESH_16("/icons/script/refresh.gif"),
 	DASHBOARD_16("/icons/everaldo/Dashboard16x16.png"), 
 	RECENT_16("/icons/script/recent_16.png"),
+	CATEGORY_BTN_IMAGE_BAR("/icons/script/Button_bar.png"),
+	CATEGORY_BTN_IMAGE_BEGIN("/icons/script/Button_begin.png"),
+	CATEGORY_BTN_IMAGE_END("/icons/script/Button_end.png"),
+	CATEGORY_BTN_IMAGE_BLUE_UP("/icons/script/Button_blue_up.png"),
+	CATEGORY_BTN_IMAGE_BLUE_DOWN("/icons/script/Button_blue_down.png"),
+	CATEGORY_BTN_IMAGE_BLUE_OVER("/icons/script/Button_blue_over.png"),
+	CATEGORY_BTN_IMAGE_GRAY_UP("/icons/script/Button_gray_up.png"),
+	CATEGORY_BTN_IMAGE_GRAY_DOWN("/icons/script/Button_gray_down.png"),
+	CATEGORY_BTN_IMAGE_GRAY_OVER("/icons/script/Button_gray_over.png"),
 	;
 	
 	private InternalImage(String path) {
 		this.path = path;
 	}
-	
+
 	public Image getImage() {
 		return getRegistry().get(name());
 	}
-	
+		
+	public Image getImage(int width, int height) {
+		Image img = getRegistry().get(name());
+		boolean scale = false;
+
+		if (width != -1)
+			scale = true;
+		else
+			width = img.getImageData().width;
+
+		if (height != -1)
+			scale = true;
+		else
+			height = img.getImageData().height;
+
+		if (!scale)
+			return img;
+		else
+			return new Image(
+					img.getDevice(),
+					img.getImageData().scaledTo(width, height));
+	}
+
+	public Image getImage(int width) {
+		return getRegistry().get(name());
+	}
+
 	public ImageDescriptor getDescriptor() {
 		return getRegistry().getDescriptor(name());
 	}

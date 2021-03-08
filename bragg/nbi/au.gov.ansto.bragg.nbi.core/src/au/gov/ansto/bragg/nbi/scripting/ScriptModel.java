@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import au.gov.ansto.bragg.nbi.scripting.IPyObject.PyObjectType;
+
 
 /**
  * @author nxi
@@ -132,8 +134,18 @@ public class ScriptModel {
 	public List<ScriptObjectGroup> getGroups() {
 		List<ScriptObjectGroup> list = new ArrayList<ScriptObjectGroup>();
 		for (IPyObject obj : controls) {
-			if (obj instanceof ScriptObjectGroup) {
+			if (obj.getObjectType() == PyObjectType.GROUP) {
 				list.add((ScriptObjectGroup) obj);
+			}
+		}
+		return list;
+	}
+
+	public List<ScriptObjectTab> getTabs() {
+		List<ScriptObjectTab> list = new ArrayList<ScriptObjectTab>();
+		for (IPyObject obj : controls) {
+			if (obj.getObjectType() == PyObjectType.TAB) {
+				list.add((ScriptObjectTab) obj);
 			}
 		}
 		return list;

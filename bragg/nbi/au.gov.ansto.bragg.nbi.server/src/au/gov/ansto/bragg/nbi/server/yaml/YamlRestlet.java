@@ -25,7 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.commons.httpclient.HttpClientError;
 import org.apache.commons.io.FileUtils;
@@ -55,6 +54,7 @@ import au.gov.ansto.bragg.nbi.server.git.GitException;
 import au.gov.ansto.bragg.nbi.server.git.GitService;
 import au.gov.ansto.bragg.nbi.server.git.GitService.GitCommit;
 import au.gov.ansto.bragg.nbi.server.internal.AbstractUserControlRestlet;
+import au.gov.ansto.bragg.nbi.server.internal.LinkedJSONObject;
 import au.gov.ansto.bragg.nbi.server.internal.UserSessionService;
 import au.gov.ansto.bragg.nbi.server.login.UserSessionObject;
 
@@ -343,7 +343,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 		String path = pair[0].substring(pair[0].indexOf("=") + 1).trim();
 		String idx = pair[1].substring(pair[1].indexOf("=") + 1).trim();
 		String modelString = pair[2].substring(pair[2].indexOf("=") + 1).trim();
-		JSONObject json = new JSONObject(modelString);
+		JSONObject json = new LinkedJSONObject(modelString);
 //		System.out.println(json.get("path"));
 //		System.out.println(json.get("model"));
 	    DumperOptions options = new DumperOptions();
@@ -398,7 +398,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 		String[] pair = text.split("&", 2);
 		String path = pair[0].substring(pair[0].indexOf("=") + 1).trim();
 		String modelString = pair[1].substring(pair[1].indexOf("=") + 1).trim();
-		JSONObject json = new JSONObject(modelString);
+		JSONObject json = new LinkedJSONObject(modelString);
 //		System.out.println(json.get("path"));
 //		System.out.println(json.get("model"));
 	    DumperOptions options = new DumperOptions();
@@ -475,7 +475,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			if (val instanceof JSONObject) {
 //				Object sub = model.get(key);
 //				if (sub == null || !(sub instanceof Map)) {
-				Map<String, Object> sub = new TreeMap<String, Object>();
+				Map<String, Object> sub = new LinkedHashMap<String, Object>();
 //				} else {
 //					((Map<String, Object>) sub).clear();
 //				}

@@ -106,4 +106,9 @@ public class ScriptAction extends PyObjectImp {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public PyObjectType getObjectType() {
+		return PyObjectType.ACT;
+	}
 }

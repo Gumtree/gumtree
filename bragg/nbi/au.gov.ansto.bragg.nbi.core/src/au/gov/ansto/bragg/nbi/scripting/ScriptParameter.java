@@ -300,4 +300,9 @@ public class ScriptParameter extends PyObjectImp {
 		}
 		return js;
 	}
+
+	@Override
+	public PyObjectType getObjectType() {
+		return PyObjectType.PAR;
+	}
 }

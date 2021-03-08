@@ -26,6 +26,16 @@ public class ScriptObjectGroup extends PyObjectImp {
 	public List<IPyObject> getObjectList() {
 		return objectList;
 	}
+	
+	public List<ScriptObjectTab> getTabList() {
+		List<ScriptObjectTab> list = new ArrayList<ScriptObjectTab>();
+		for (IPyObject obj : objectList) {
+			if (obj.getObjectType() == PyObjectType.TAB) {
+				list.add((ScriptObjectTab) obj);
+			}
+		}
+		return list;
+	}
 
 	public void addObject(IPyObject object) {
 		objectList.add(object);
@@ -96,5 +106,10 @@ public class ScriptObjectGroup extends PyObjectImp {
 			return Integer.valueOf(getProperty(PROP_NUM_COLUMNS_NAME));
 		}
 		return 1;
+	}
+
+	@Override
+	public PyObjectType getObjectType() {
+		return PyObjectType.GROUP;
 	}
 }

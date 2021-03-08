@@ -9,6 +9,12 @@ package au.gov.ansto.bragg.nbi.scripting;
  */
 public interface IPyObject {
 
+	public enum PyObjectType {
+		PAR, ACT, GROUP, TAB;
+	}
+	
+	public PyObjectType getObjectType();
+	
 	public String getName();
 	
 	public void setName(String name);
