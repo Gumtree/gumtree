@@ -1,6 +1,7 @@
 from au.gov.ansto.bragg.nbi.scripting import ScriptParameter
 from au.gov.ansto.bragg.nbi.scripting import ScriptAction
 from au.gov.ansto.bragg.nbi.scripting import ScriptObjectGroup
+from au.gov.ansto.bragg.nbi.scripting import ScriptObjectTab
 
 class Par:
     
@@ -174,6 +175,8 @@ class Group():
                 self.__group__.addObject(obj.__act__)
             elif isinstance(obj, Group) :
                 self.__group__.addObject(obj.__group__)
+            elif isinstance(obj, Tab) :
+                self.__group__.addObject(obj.__tab__)
         
     def insert(self, idx, *objs):
         for obj in objs:
@@ -183,6 +186,8 @@ class Group():
                 self.__group__.insertObject(idx, obj.__act__)
             elif isinstance(obj, Group) :
                 self.__group__.insertObject(idx, obj.__group__)
+            elif isinstance(obj, Tab) :
+                self.__group__.insertObject(idx, obj.__tab__)
             idx += 1
 
     def remove(self, *objs):
@@ -193,6 +198,8 @@ class Group():
                 self.__group__.removeObject(obj.__act__)
             elif isinstance(obj, Group) :
                 self.__group__.removeObject(obj.__group__)
+            elif isinstance(obj, Tab) :
+                self.__group__.removeObject(obj.__tab__)
         
     def moveBeforeObject(self, obj):
         if isinstance(obj, Par):
@@ -201,6 +208,8 @@ class Group():
             tgt = obj.__act__
         elif isinstance(obj, Group):
             tgt = obj.__group__
+        elif isinstance(obj, Tab):
+            tgt = obj.__tab__
         else:
             raise Exception, 'Illegal type: target object must be a PyScript object'
         Group.__model__.moveObject1BeforeObject2(self.__group__, tgt)
@@ -212,6 +221,8 @@ class Group():
             tgt = obj.__act__
         elif isinstance(obj, Group):
             tgt = obj.__group__
+        elif isinstance(obj, Tab):
+            tgt = obj.__tab__
         else:
             raise Exception, 'Illegal type: target object must be a PyScript object'
         Group.__model__.moveObject1AfterObject2(self.__group__, tgt)
@@ -239,5 +250,97 @@ class Group():
     def dispose(self):
         if not Group.__model__ is None:
             Group.__model__.removeControl(self.__group__)
+    
+
+class Tab():
+    __model__ = None
+    def __init__(self, name):
+        self.__tab__ = ScriptObjectTab(name)
+        if not Tab.__model__ is None:
+            Tab.__model__.addControl(self.__tab__)
+        
+    def add(self, *objs):
+        for obj in objs :
+            if isinstance(obj, Par) :
+                self.__tab__.addObject(obj.__par__)
+            elif isinstance(obj, Act) :
+                self.__tab__.addObject(obj.__act__)
+            elif isinstance(obj, Group) :
+                self.__tab__.addObject(obj.__group__)
+            elif isinstance(obj, Tab) :
+                self.__tab__.addObject(obj.__tab__)
+        
+    def insert(self, idx, *objs):
+        for obj in objs:
+            if isinstance(obj, Par) :
+                self.__tab__.insertObject(idx, obj.__par__)
+            elif isinstance(obj, Act) :
+                self.__tab__.insertObject(idx, obj.__act__)
+            elif isinstance(obj, Group) :
+                self.__tab__.insertObject(idx, obj.__group__)
+            elif isinstance(obj, Tab) :
+                self.__tab__.insertObject(idx, obj.__tab__)
+            idx += 1
+
+    def remove(self, *objs):
+        for obj in objs:
+            if isinstance(obj, Par) :
+                self.__tab__.removeObject(obj.__par__)
+            elif isinstance(obj, Act) :
+                self.__tab__.removeObject(obj.__act__)
+            elif isinstance(obj, Group) :
+                self.__tab__.removeObject(obj.__group__)
+            elif isinstance(obj, Tab) :
+                self.__tab__.removeObject(obj.__tab__)
+        
+    def moveBeforeObject(self, obj):
+        if isinstance(obj, Par):
+            tgt = obj.__par__
+        elif isinstance(obj, Act):
+            tgt = obj.__act__
+        elif isinstance(obj, Group):
+            tgt = obj.__group__
+        elif isinstance(obj, Tab):
+            tgt = obj.__tab__
+        else:
+            raise Exception, 'Illegal type: target object must be a PyScript object'
+        Tab.__model__.moveObject1BeforeObject2(self.__tab__, tgt)
+
+    def moveAfterObject(self, obj):
+        if isinstance(obj, Par):
+            tgt = obj.__par__
+        elif isinstance(obj, Act):
+            tgt = obj.__act__
+        elif isinstance(obj, Group):
+            tgt = obj.__group__
+        elif isinstance(obj, Tab):
+            tgt = obj.__tab__
+        else:
+            raise Exception, 'Illegal type: target object must be a PyScript object'
+        Tab.__model__.moveObject1AfterObject2(self.__tab__, tgt)
+        
+    def __getattr__(self, name):
+        if name == 'name' :
+            return self.__tab__.getName()
+        elif name != '__tab__' :
+            return self.__tab__.getProperty(name)
+            
+    def __setattr__(self, name, value):
+        if name == 'name' :
+            self.__tab__.setName(value)
+        elif name == '__tab__' :
+            self.__dict__[name] = value
+        else :
+            self.__tab__.setProperty(name, str(value))
+                        
+    def __str__(self):
+        return 'Tab_' + self.name
+    
+    def __repr__(self):
+        return 'au.gov.ansto.bragg.nbi.scripting.ScriptObjectGroup'
+    
+    def dispose(self):
+        if not Tab.__model__ is None:
+            Tab.__model__.removeControl(self.__tab__)
     
         
