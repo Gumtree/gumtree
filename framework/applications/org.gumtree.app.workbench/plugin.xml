@@ -6,18 +6,18 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.gumtree.app.workbench.application"
-            name="Gumtree">
+            name="Gumtree 1.13.7">
          <property
                name="appName"
-               value="Gumtree">
+               value="Gumtree 1.13.7">
          </property>
          <property
                name="aboutImage"
-               value="/org.gumtree.app.runtime/images/earth.png">
+               value="platform:/plugin/org.gumtree.app.runtime/images/earth.png">
          </property>
          <property
                name="windowImages"
-               value="/org.gumtree.app.runtime/images/g-icon_16x16.png,/org.gumtree.app.runtime/images/g-icon_32x32.png,/org.gumtree.app.runtime/images/g-icon_48x48.png,/org.gumtree.app.runtime/images/g-icon_64x64.png,/org.gumtree.app.runtime/images/g-icon_128x128.png">
+               value="platform:/plugin/org.gumtree.app.runtime/images/g-icon_16x16.png,platform:/plugin/org.gumtree.app.runtime/images/g-icon_32x32.png,platform:/plugin/org.gumtree.app.runtime/images/g-icon_48x48.png,platform:/plugin/org.gumtree.app.runtime/images/g-icon_64x64.png,platform:/plugin/org.gumtree.app.runtime/images/g-icon_128x128.png">
          </property>
          <property
                name="startupForegroundColor"
@@ -33,7 +33,7 @@
          </property>
          <property
                name="aboutText"
-               value="Gumtree&#x0A;&#x0A;(c) Copyright ANSTO and others 2017.  All rights reserved.&#x0A;Visit https://github.com/Gumtree/gumtree&#x0A;&#x0A;This product includes software developed by the&#x0A;Eclipse Foundation http://www.eclipse.org/">
+               value="Gumtree&#x0A;&#x0A;(c) Copyright ANSTO and others 2021.  All rights reserved.&#x0A;Visit https://github.com/Gumtree/gumtree&#x0A;&#x0A;This product includes software developed by the&#x0A;Eclipse Foundation http://www.eclipse.org/">
          </property>
          <property
                name="applicationXMI"
@@ -52,10 +52,6 @@
          <property
                name="applicationCSSResources"
                value="platform:/plugin/org.eclipse.platform/images/">
-         </property>
-         <property
-               name="preferenceCustomization"
-               value="plugin_customization.ini">
          </property>
       </product>
    </extension>
