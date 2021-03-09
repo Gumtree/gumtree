@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Koala Webserver
+Bundle-SymbolicName: au.gov.ansto.bragg.koala.webserver
+Bundle-Version: 1.13.0.qualifier
+Bundle-Activator: au.gov.ansto.bragg.koala.webserver.Activator
+Bundle-Vendor: ANSTO
+Require-Bundle: org.eclipse.core.runtime,
+ au.gov.ansto.bragg.koala.server
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy

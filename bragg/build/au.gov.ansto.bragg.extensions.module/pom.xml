@@ -22,6 +22,7 @@
 		<emu.path>../../emu</emu.path>
 		<spatz.path>../../spatz</spatz.path>
 		<sika.path>../../sika</sika.path>
+		<koala.path>../../koala</koala.path>
 		<banksia.path>../../banksia</banksia.path>
 		<build.path>../../build</build.path>
 	</properties>
@@ -219,6 +220,17 @@
 		<module>${spatz.path}/au.gov.ansto.bragg.spatz.ui</module>
 		<module>${spatz.path}/au.gov.ansto.bragg.spatz.workbench</module>
 		<module>${spatz.path}/au.gov.ansto.bragg.spatz.workbench.feature</module>
+		
+		<module>${koala.path}/au.gov.ansto.bragg.koala.core</module>
+		<module>${koala.path}/au.gov.ansto.bragg.koala.core.feature</module>
+		
+		<module>${koala.path}/au.gov.ansto.bragg.koala.server</module>
+		<module>${koala.path}/au.gov.ansto.bragg.koala.webserver</module>
+		<module>${koala.path}/au.gov.ansto.bragg.koala.webserver.feature</module>
+		
+		<module>${koala.path}/au.gov.ansto.bragg.koala.ui</module>
+		<module>${koala.path}/au.gov.ansto.bragg.koala.workbench</module>
+		<module>${koala.path}/au.gov.ansto.bragg.koala.workbench.feature</module>
 		
 		
 		<module>${banksia.path}/au.gov.ansto.bragg.banksia.core</module>

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Koala Core
+Bundle-SymbolicName: au.gov.ansto.bragg.koala.core
+Bundle-Version: 1.13.0.qualifier
+Bundle-Vendor: ANSTO
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.core.runtime
+Bundle-Activator: au.gov.ansto.bragg.koala.core.Activator

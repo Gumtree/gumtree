@@ -351,6 +351,7 @@
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="dingo" applicationLabel="DingoWebserver" />
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="emu" applicationLabel="EmuWebserver" />
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="spatz" applicationLabel="SpatzWebserver" />
+		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="koala" applicationLabel="KoalaWebserver" />
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="sika" applicationLabel="SikaWebserver" />
 		<buildBraggApplicationMultiOS applicationType="webserver" applicationName="banksia" applicationLabel="BanksiaWebserver" />
 	</target>
@@ -377,6 +378,7 @@
 		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="dingo" applicationLabel="DingoWorkbench" />
 		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="emu" applicationLabel="EmuWorkbench" />
 		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="spatz" applicationLabel="SpatzWorkbench" />
+		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="koala" applicationLabel="KoalaWorkbench" />
 		<buildBraggApplicationMultiOS applicationType="workbench" applicationName="banksia" applicationLabel="BanksiaWorkbench" />
 	</target>
 
@@ -546,6 +548,17 @@
 	</target>
 
 	<!--
+		Build Koala Webserver
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildKoalaWebserver">
+		<quickBuildApplication applicationType="webserver" applicationName="koala" applicationLabel="KoalaWebserver" />
+	</target>
+
+	<!--
 		Build Sika Webserver
 		Paramaters:	
 			exportDirectory 		(predefined)
@@ -707,6 +720,17 @@
 	</target>
 
 	<!--
+		Build Koala Workbench
+		Paramaters:	
+			exportDirectory 		(predefined)
+			equinoxJarLocation		(predefined)
+			version					(predefined)
+	-->
+	<target name="buildKoalaWorkbench">
+		<quickBuildApplication applicationType="workbench" applicationName="koala" applicationLabel="KoalaWorkbench" />
+	</target>
+
+	<!--
 		Build Banksia Workbench
 		Paramaters:	
 			exportDirectory 		(predefined)
@@ -809,6 +833,7 @@
 		<buildWin32Installer applicationName="dingo" applicationLabel="Dingo" applicationShortcut="Dingo Workbench" />
 		<buildWin32Installer applicationName="emu" applicationLabel="Emu" applicationShortcut="Emu Workbench" />
 		<buildWin32Installer applicationName="spatz" applicationLabel="Spatz" applicationShortcut="Spatz Workbench" />
+		<buildWin32Installer applicationName="koala" applicationLabel="Koala" applicationShortcut="Koala Workbench" />
 		<buildWin32Installer applicationName="banksia" applicationLabel="Banksia" applicationShortcut="Banksia Workbench" />
 	</target>
 
@@ -826,6 +851,7 @@
 		<buildWin64Installer applicationName="dingo" applicationLabel="Dingo" applicationShortcut="Dingo Workbench" />
 		<buildWin64Installer applicationName="emu" applicationLabel="Emu" applicationShortcut="Emu Workbench" />
 		<buildWin64Installer applicationName="spatz" applicationLabel="Spatz" applicationShortcut="Spatz Workbench" />
+		<buildWin64Installer applicationName="koala" applicationLabel="Koala" applicationShortcut="Koala Workbench" />
 		<buildWin64Installer applicationName="banksia" applicationLabel="Banksia" applicationShortcut="Banksia Workbench" />
 	</target>
 

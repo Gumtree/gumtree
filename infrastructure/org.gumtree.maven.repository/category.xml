@@ -204,6 +204,15 @@
    <feature url="features/au.gov.ansto.bragg.spatz.workbench.feature_1.13.0.qualifier.jar" id="au.gov.ansto.bragg.spatz.workbench.feature" version="1.13.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
+   <feature url="features/au.gov.ansto.bragg.koala.core.feature_1.13.0.qualifier.jar" id="au.gov.ansto.bragg.koala.core.feature" version="1.13.0.qualifier">
+      <category name="braggExtensions"/>
+   </feature>
+   <feature url="features/au.gov.ansto.bragg.koala.webserver.feature_1.13.0.qualifier.jar" id="au.gov.ansto.bragg.koala.webserver.feature" version="1.13.0.qualifier">
+      <category name="braggExtensions"/>
+   </feature>
+   <feature url="features/au.gov.ansto.bragg.koala.workbench.feature_1.13.0.qualifier.jar" id="au.gov.ansto.bragg.koala.workbench.feature" version="1.13.0.qualifier">
+      <category name="braggExtensions"/>
+   </feature>
    <feature url="features/au.gov.ansto.bragg.sika.webserver.feature_1.13.0.qualifier.jar" id="au.gov.ansto.bragg.sika.webserver.feature" version="1.13.0.qualifier">
       <category name="braggExtensions"/>
    </feature>
