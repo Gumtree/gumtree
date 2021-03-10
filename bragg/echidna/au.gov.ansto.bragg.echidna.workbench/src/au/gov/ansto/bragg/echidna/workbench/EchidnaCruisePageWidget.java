@@ -96,7 +96,7 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 		PGroup statusGroup = createGroup("EXPERIMENT STATUS",
 				InternalImage.EXPERIMENT_STATUS.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(statusGroup, SWT.NONE);
-		deviceStatusWidget.addDevice("/sample/azimuthal_angle", "stth")
+		deviceStatusWidget.addDevice("/sample/azimuthal_angle", "stth", null, null, new DeviceStatusWidget.PrecisionConverter(3))
 				.addDevice("/experiment/currpoint", "Currpoint", null, "");
 		configureWidget(deviceStatusWidget);
 
