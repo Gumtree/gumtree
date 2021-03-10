@@ -2002,6 +2002,8 @@ class Array:
                 raise ValueError, 'index out of bound, ' + str(axis) + ' in ' + str(self._ndim)
             elif axis < 0:
                 axis = self._ndim + axis
+            if self._ndim == 1:
+                return self.prod(dtype = dtype, initial = initial)
             nshape = self.shape
             nshape = nshape[:axis] + nshape[axis + 1:]
             ishape = [1] * self._ndim
@@ -2231,28 +2233,52 @@ class Array:
         else:
             si = self.item_iter()
             idx = 0
-            if side == 'left':
-                try:
-                    while True:
-                        nv = si.next()
-                        if nv >= v:
-                            return idx
-                        else:
-                            idx += 1
-                except StopIteration:
-                    pass
+            if side is None:
+                side = 'left'
+            if side == 'left' or side.lower().startswith('l'):
+                if Double.isNaN(v):
+                    try:
+                        while True:
+                            nv = si.next()
+                            if Double.isNaN(nv) :
+                                return idx
+                            else:
+                                idx += 1
+                    except StopIteration:
+                        pass
+                else:
+                    try:
+                        while True:
+                            nv = si.next()
+                            if nv >= v:
+                                return idx
+                            else:
+                                idx += 1
+                    except StopIteration:
+                        pass
                 return idx
-            elif side == 'right':
-                try:
-                    while True:
-                        nv = si.next()
-                        if nv > v:
-                            return idx
-                        else:
-                            idx += 1
-                except StopIteration:
-                    pass
-                return idx
+            elif side == 'right' or side.lower().startswith('r'):
+                if Double.isNaN(v):
+                    try:
+                        while True:
+                            nv = si.next()
+                            if Double.isNaN(nv) :
+                                return idx + 1
+                            else:
+                                idx += 1
+                    except StopIteration:
+                        pass
+                else:
+                    try:
+                        while True:
+                            nv = si.next()
+                            if nv > v:
+                                return idx
+                            else:
+                                idx += 1
+                    except StopIteration:
+                        pass
+                    return idx
             else:
                 raise ValueError, 'invalid side parameter'
             
@@ -4578,8 +4604,9 @@ def repeat(obj, repeats, axis=None):
             return res
     else:
         oshape = obj.shape
-        olen = len(obj)
+#         olen = len(obj)
         if type(repeats) is int:
+            olen = oshape[axis]
             nlen = olen * repeats
             ns = copy.copy(oshape)
             ss = copy.copy(oshape)
@@ -4596,6 +4623,7 @@ def repeat(obj, repeats, axis=None):
             return res
         else:
             nlen = sum(repeats)
+            rlen = len(repeats)
             ns = copy.copy(oshape)
             ss = copy.copy(oshape)
             ns[axis] = nlen
@@ -4603,7 +4631,7 @@ def repeat(obj, repeats, axis=None):
             res = zeros(ns, obj.dtype)
             ri = res.section_iter(ss)
             oi = obj.section_iter(ss)
-            for i in xrange(olen):
+            for i in xrange(rlen):
                 val = oi.next()
                 for j in xrange(repeats[i]):
                     r = ri.next()
@@ -4937,7 +4965,26 @@ def insert(arr, index, values, axis=None):
                     rs.copy_from(os)
                 return res
         
-        
+def sort(arr, axis=-1, reverse=False):
+    out = instance(arr.shape, dtype = arr.dtype)
+    if axis is None:
+        f = arr.flatten()
+        r = sorted(f)
+        out[:] = r
+        return out
+    if axis < 0:
+        axis = arr._ndim + axis
+    if axis < 0 or axis >= arr._ndim:
+        raise ValueError, 'axis out of range'
+    sshape = [1] * arr._ndim
+    sshape[axis] = arr.shape[axis]
+    si = out.section_iter(sshape)
+    while si.has_next():
+        ss = si.next().get_reduced()
+        r = sorted(ss, reverse = reverse)
+        ss[:] = r
+    return out
+                
 #####################################################################################
 # Array modification
 #####################################################################################
