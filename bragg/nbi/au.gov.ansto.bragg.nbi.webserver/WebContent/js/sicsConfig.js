@@ -408,9 +408,6 @@ var loadGalilMotor = function(path, idx) {
 			$.each(motors, function(i, motor) {
 				var motorName = motor[KEY_MOTOR_NAME];
 				var $li = $('<li class="nav-item"><a class="nav-link" href="#">' + motorName + '</a></li>');
-				console.log(i);
-				console.log(_curIndex);
-				console.log(i == _curIndex);
 				if (i == _curIndex) {
 					$li.find('a').addClass("active");
 				} else {
@@ -531,7 +528,8 @@ var getModel = function() {
 //					var motor = encoder[keysOf(encoder)[0]];
 					var name = motor[KEY_MOTOR_NAME];
 					var desc = "";
-					if (KEY_MOTOR_DESC in motor){
+//					if (KEY_MOTOR_DESC in motor){
+					if (motor.hasOwnProperty(KEY_MOTOR_DESC)) {
 						desc = motor[KEY_MOTOR_DESC];
 					}
 					_motors[name] = [path, idx, desc];
@@ -816,7 +814,8 @@ var CommitItem = function(commit, index) {
 //							var motor = encoder[keysOf(encoder)[0]];
 							var name = motor[KEY_MOTOR_NAME];
 							var desc = "";
-							if (KEY_MOTOR_DESC in motor){
+//							if (KEY_MOTOR_DESC in motor){
+							if (motor.hasOwnProperty(KEY_MOTOR_DESC)) {
 								desc = motor[KEY_MOTOR_DESC];
 							}
 							_motors[name] = [path, idx, desc];
