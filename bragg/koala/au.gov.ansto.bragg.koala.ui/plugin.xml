@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="au.gov.ansto.bragg.koala.ui.KoalaWorkbenchSetup">
+      </startup>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+     <category
+           id="au.gov.ansto.bragg.koala.ui"
+           name="Koala Views">
+     </category>
+      <view
+            allowMultiple="false"
+            category="au.gov.ansto.bragg.koala.ui"
+            class="au.gov.ansto.bragg.koala.ui.KoalaWorkflowView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.koala.ui.KoalaWorkflowView"
+            name="Koala Workflow Control">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="au.gov.ansto.bragg.koala.ui.KoalaWorkflowPerspective"
+            icon="icons/exp_per.gif"
+            id="au.gov.ansto.bragg.koala.ui.KoalaWorkflowPerspective"
+            name="Koala Workflow"/>
+   </extension>
+</plugin>

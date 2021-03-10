@@ -9,3 +9,5 @@ Require-Bundle: au.gov.ansto.bragg.koala.ui,
  au.gov.ansto.bragg.nbi.workbench
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/cruise/KoalaCruisePage.xml
+Export-Package: au.gov.ansto.bragg.koala.workbench

@@ -1,12 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Koala UI
-Bundle-SymbolicName: au.gov.ansto.bragg.koala.ui
+Bundle-SymbolicName: au.gov.ansto.bragg.koala.ui;singleton:=true
 Bundle-Version: 1.13.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.koala.ui.Activator
 Bundle-Vendor: ANSTO
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- au.gov.ansto.bragg.koala.core
+Require-Bundle: au.gov.ansto.bragg.koala.core,
+ au.gov.ansto.bragg.nbi.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

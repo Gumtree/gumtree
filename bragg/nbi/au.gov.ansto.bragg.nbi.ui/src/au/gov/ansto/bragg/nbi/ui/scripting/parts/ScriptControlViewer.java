@@ -2366,7 +2366,7 @@ public class ScriptControlViewer extends Composite {
 				});
 				final Button fileLocatorButton = new Button(fileComposite, SWT.PUSH);
 				fileLocatorButton.setText(">>");
-				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, true).applyTo(fileLocatorButton);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).applyTo(fileLocatorButton);
 				fileLocatorButton.setToolTipText("click to locate the " + parameter.getName());
 				fileLocatorButton.addSelectionListener(new SelectionListener() {
 
