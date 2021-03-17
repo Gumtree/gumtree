@@ -24,7 +24,7 @@ public class KoalaWorkflowViewer extends Composite {
 	
 	private ScriptControlViewer controlViewer;
 	private CommandLineViewer consoleViewer;
-	private ScriptExecutor scriptValidator;
+//	private ScriptExecutor scriptValidator;
 	private ScriptDataSourceViewer dataSourceViewer;
 	private ScriptInfoViewer infoViewer;
 	
@@ -65,7 +65,7 @@ public class KoalaWorkflowViewer extends Composite {
 		ScriptPageRegister.registPage(controlViewer.getScriptRegisterID(), register);
 		register.setControlViewer(controlViewer);
 		register.setConsoleViewer(consoleViewer);
-		register.setScriptValidator(getScriptValidator());
+//		register.setScriptValidator(getScriptValidator());
 		register.setDataSourceViewer(dataSourceViewer);
 		register.setInfoViewer(infoViewer);
 		register.registerObject("Plot1", plot1Viewer);
@@ -86,8 +86,8 @@ public class KoalaWorkflowViewer extends Composite {
 		consoleViewer.setScriptExecutor(scriptExecutor);
 		controlViewer = new ScriptControlViewer(parent, SWT.NONE);
 		controlViewer.setScriptExecutor(scriptExecutor);
-		ScriptExecutor validator = getScriptValidator();
-		validator.getEngine().getContext().setErrorWriter(scriptExecutor.getEngine().getContext().getErrorWriter());
+//		ScriptExecutor validator = getScriptValidator();
+//		validator.getEngine().getContext().setErrorWriter(scriptExecutor.getEngine().getContext().getErrorWriter());
 		Color whiteColor = Display.getDefault().getSystemColor(SWT.COLOR_WHITE);
 		controlViewer.setBackground(whiteColor);
 //		Label titleLabel = new Label(controlViewer, SWT.NONE);
@@ -117,14 +117,14 @@ public class KoalaWorkflowViewer extends Composite {
 		return Jython_Executor;
 	}
 
-	public ScriptExecutor getScriptValidator(){
-			scriptValidator = new ScriptExecutor("jython");
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-		return scriptValidator;
-	}
+//	public ScriptExecutor getScriptValidator(){
+//			scriptValidator = new ScriptExecutor("jython");
+//			try {
+//				Thread.sleep(100);
+//			} catch (InterruptedException e) {
+//			}
+//		return scriptValidator;
+//	}
 
 	
 	@Override
