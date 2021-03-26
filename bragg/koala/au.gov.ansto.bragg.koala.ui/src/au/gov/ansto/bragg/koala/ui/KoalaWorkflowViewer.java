@@ -40,20 +40,20 @@ public class KoalaWorkflowViewer extends Composite {
 
 //		SashForm level2Left = new SashForm(level1Form, SWT.VERTICAL);
 		SashForm level2Right = new SashForm(level1Form, SWT.VERTICAL);
-		level1Form.setWeights(new int[]{5, 5});
+		level1Form.setWeights(new int[]{6, 4});
 
 //		level2Left.setWeights(new int[]{21, 10});
 		
-		SashForm level3Form = new SashForm(level2Right, SWT.HORIZONTAL);
-		SashForm level4Left = new SashForm (level3Form, SWT.VERTICAL);
-		dataSourceViewer = new ScriptDataSourceViewer(level4Left, SWT.NONE);
-		infoViewer = new ScriptInfoViewer(level4Left, SWT.NONE);
-		level4Left.setWeights(new int[]{7, 1});
-		SashForm level4Right = new SashForm(level3Form, SWT.VERTICAL);
-		PlotViewer plot1Viewer = new PlotViewer(level4Right, SWT.NONE);
-		PlotViewer plot2Viewer = new PlotViewer(level4Right, SWT.NONE);
-		level4Right.setWeights(new int[]{1, 1});
-		level3Form.setWeights(new int[]{3, 7});
+		SashForm level3Form = new SashForm(level2Right, SWT.VERTICAL);
+//		SashForm level4Left = new SashForm (level3Form, SWT.VERTICAL);
+		SashForm level4Top = new SashForm(level3Form, SWT.HORIZONTAL);
+		dataSourceViewer = new ScriptDataSourceViewer(level4Top, SWT.NONE);
+//		level4Left.setWeights(new int[]{7, 1});
+		PlotViewer plot1Viewer = new PlotViewer(level3Form, SWT.NONE);
+		infoViewer = new ScriptInfoViewer(level4Top, SWT.NONE);
+//		PlotViewer plot2Viewer = new PlotViewer(level4Right, SWT.NONE);
+		level4Top.setWeights(new int[]{6, 4});
+		level3Form.setWeights(new int[]{7, 3});
 //		PlotViewer plot3Viewer = new PlotViewer(level2Right, SWT.NONE);
 		Composite consoleComposite = new Composite(level2Right, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(consoleComposite);
@@ -69,7 +69,7 @@ public class KoalaWorkflowViewer extends Composite {
 		register.setDataSourceViewer(dataSourceViewer);
 		register.setInfoViewer(infoViewer);
 		register.registerObject("Plot1", plot1Viewer);
-		register.registerObject("Plot2", plot2Viewer);
+//		register.registerObject("Plot2", plot2Viewer);
 //		register.registerObject("Plot3", plot3Viewer);
 		controlViewer.runNativeInitScript();
 		controlViewer.loadScript(ScriptControlViewer.getFullScriptPath(System.getProperty(WORKFLOW_SCRIPT_NAME)));

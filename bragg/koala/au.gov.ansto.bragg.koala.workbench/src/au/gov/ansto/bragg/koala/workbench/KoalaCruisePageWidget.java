@@ -123,6 +123,18 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 				;
 		configureWidget(deviceStatusWidget);
 
+		// Choppers
+		PGroup experimentGroup = createGroup("EXPERIMENT",
+				SharedImage.EXPERIMENT_INFO.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(experimentGroup, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/commands/scan/runscan/numpoints", "Current number of frame", null, "")
+				.addDevice("/experiment/file_name", "Current image file name", null, "")
+				.addDevice("/instrument/phase", "Instrument phase", null, "")
+				.addDevice("/tc1/sensor1", "Sample temperature", null, "\u00b0")
+				;
+		configureWidget(deviceStatusWidget);
+
 //
 //		// Detector
 //		PGroup detectorGroup = createGroup("DETECTOR",
