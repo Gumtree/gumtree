@@ -8,7 +8,7 @@ var _sics;
 var _message;
 var _editorModel;
 var _curModel;
-var _curIndex = -1;
+var _curName = null;
 var _curPath;
 var _title;
 var _editorTitle;
@@ -367,7 +367,7 @@ var createRow = function(key, val) {
 	return html;
 };
 
-var loadGalilMotor = function(path, idx) {
+var loadGalilMotor = function(path, name) {
 	var okToGo = true;
 	if (_curModel != null && _editorModel != null) {
 		if (_dirtyFlag) {
@@ -379,7 +379,7 @@ var loadGalilMotor = function(path, idx) {
 		if (path == null) {
 			_curModel = null;
 			_curPath = null;
-			_curIndex = -1;
+			_curName = null
 			_title.text('Home');
 			_editor.empty();
 			_tabs.empty();
@@ -392,27 +392,32 @@ var loadGalilMotor = function(path, idx) {
 		}
 		var modelGroup = getGalilItem(path);
 		if (modelGroup) {
-			var motors = modelGroup[keysOf(modelGroup)[0]];
+//			console.log(modelGroup);
+//			var motors = modelGroup[keysOf(modelGroup)[0]];
+			var motors = modelGroup;
 //			var motors = _editorModel[keysOf(_editorModel)[0]];
-			if (idx) {
-				if (idx >= motors.length) {
-					alert("index out of range");
+			if (name) {
+				if (!name in keysOf(modelGroup)) {
+					alert(name + "doesn't exist");
 					return false;
 				}
-				_curIndex = idx;
+				_curName = name;
 			} else {
-				_curIndex = 0;
+				_curName = keysOf(modelGroup)[0];
+				name = _curName;
 			}
-			_curModel = motors[_curIndex];
+			_curModel = motors[_curName];
 			_tabs.empty();
-			$.each(motors, function(i, motor) {
-				var motorName = motor[KEY_MOTOR_NAME];
+			$.each(motors, function(motorName, motor) {
+//				var motorName = motor[KEY_MOTOR_NAME];
 				var $li = $('<li class="nav-item"><a class="nav-link" href="#">' + motorName + '</a></li>');
-				if (i == _curIndex) {
+//				console.log(_curName);
+//				console.log(motorName == _curName);
+				if (motorName == _curName) {
 					$li.find('a').addClass("active");
 				} else {
 					$li.click(function() {
-						loadGalilMotor(path, i);
+						loadGalilMotor(path, motorName);
 					});					
 				}
 				_tabs.append($li);
@@ -431,7 +436,8 @@ var loadGalilMotor = function(path, idx) {
 			
 			
 			var subMotor = _curModel;
-			var motorName = subMotor[KEY_MOTOR_NAME];
+//			var motorName = subMotor[KEY_MOTOR_NAME];
+			var motorName = name;
 			var controller = subMotor[KEY_CONTROLLER_NAME];
 			var axis = subMotor[KEY_AXIS_NAME];
 			_title.text(controller + ":" + axis + " (SICS name:" + motorName + ")");
@@ -521,18 +527,20 @@ var getModel = function() {
 		_galil = _model[GALIL_CONTROLLERS_NODE];
 		_motors = {}
 		$.each(_galil, function(key, mc) {
-			$.each(mc, function(id, encoder) {
-				var motors = encoder[keysOf(encoder)[0]];
-				$.each(motors, function(idx, motor){
+			$.each(mc, function(id, axis) {
+//				var motors = encoder[keysOf(encoder)[0]];
+				$.each(axis, function(motorName, motor){
 					var path = "/" + key + "/" + id;
 //					var motor = encoder[keysOf(encoder)[0]];
-					var name = motor[KEY_MOTOR_NAME];
+//					var name = motor[KEY_MOTOR_NAME];
+					var name = motorName;
 					var desc = "";
 //					if (KEY_MOTOR_DESC in motor){
 					if (motor.hasOwnProperty(KEY_MOTOR_DESC)) {
 						desc = motor[KEY_MOTOR_DESC];
 					}
-					_motors[name] = [path, idx, desc];
+					_motors[name] = [path, motorName, desc];
+					console.log('add ' + name);
 				});
 			});
 		});
@@ -564,7 +572,7 @@ var saveModel = function() {
 	url += "&" + Date.now();
 	$('#id_modal_saveDialog').modal('hide');
 	var text = JSON.stringify(_editorModel);
-	$.post(url,  {path:_curPath, idx:_curIndex, model:text}, function(data) {
+	$.post(url,  {path:_curPath, name:_curName, model:text}, function(data) {
 //		data = $.parseJSON(data);
 		try {
 			if (data["status"] == "OK") {
@@ -592,7 +600,7 @@ var goHome = function() {
 var resetEditor = function($bt) {
 	if (_curPath) {
 		_dirtyFlag = false;
-		loadGalilMotor(_curPath, _curIndex);
+		loadGalilMotor(_curPath, _curName);
 		showMsg('Reset successfully');
 	} else {
 		showMsg('Model not found!', 'danger');
@@ -619,7 +627,7 @@ var SearchWidget = function($t) {
 	var show = function($li){
 		var name = $li.attr('name');
 		var path = $li.attr('path');
-		var idx = $li.attr('idx');
+		var motorName = $li.attr('motorName');
 		var mc = path.split('/')[1];
 		var axis = path.split('/')[2];
 		$m.hide();
@@ -627,7 +635,7 @@ var SearchWidget = function($t) {
 		$('#ul_mc_' + mc).removeClass('class_ul_hide');
 		$('.class_ul_folder > li').removeClass('active');
 		$('#li_' + mc + '_' + axis).addClass('active');
-		loadGalilMotor(path, idx);
+		loadGalilMotor(path, name);
 		$t.blur();
 	}
 	
@@ -643,12 +651,12 @@ var SearchWidget = function($t) {
 			if (name.toLowerCase().indexOf(word) >= 0) {
 //				found[name] = path;
 				var path = pair[0];
-				var idx = pair[1];
+				var motorName = pair[1];
 				var desc = pair[2];
 				if (desc) {
 					desc = '(' + desc + ')';
 				}
-				html += '<li class="messageitem" href="#" name="' + name + '" path="' + path + '" idx="' + idx + '"><span class="widget_text">' + 
+				html += '<li class="messageitem" href="#" name="' + name + '" path="' + path + '" motorName="' + motorName + '"><span class="widget_text">' + 
 						name + ' => ' + path + ' ' + desc + '</span></li>';
 			} else {
 				var desc = pair[2];
@@ -657,7 +665,7 @@ var SearchWidget = function($t) {
 					var path = pair[0];
 					var idx = pair[1];
 					desc = '(' + desc + ')';
-					html += '<li class="messageitem" href="#" name="' + name + '" path="' + path + '" idx="' + idx + '"><span class="widget_text">' + 
+					html += '<li class="messageitem" href="#" name="' + name + '" path="' + path + '" motorName="' + motorName + '"><span class="widget_text">' + 
 							name + ' => ' + path + ' ' + desc + '</span></li>';
 				} 
 			}
@@ -788,7 +796,7 @@ var CommitItem = function(commit, index) {
 			_dirtyFlag = false;
 			if (_curPath != null) {
 				try{
-					updateModel(_curPath, _curIndex, data);
+					updateModel(_curPath, _curName, data);
 				} catch (e) {
 					alert('Axis ' + _curPath + " doesn't exist.");
 					return;
@@ -799,7 +807,7 @@ var CommitItem = function(commit, index) {
 				$('#ul_mc_' + mc).removeClass('class_ul_hide');
 				$('.class_ul_folder > li').removeClass('active');
 				$('#li_' + mc + '_' + axis).addClass('active');
-				loadGalilMotor(_curPath, _curIndex);
+				loadGalilMotor(_curPath, _curName);
 			} else {
 				_model = data;
 				_versionId = name;
@@ -829,7 +837,7 @@ var CommitItem = function(commit, index) {
 	//			_sics = _model[SICS_MOTORS_NODE];
 				$("#id_div_sidebar").empty();
 				_curModel = null;
-				_curIndex = -1;
+				_curName = null;
 	//			_curPath = null;
 				_editorModel = null;
 				showModelInSidebar();
