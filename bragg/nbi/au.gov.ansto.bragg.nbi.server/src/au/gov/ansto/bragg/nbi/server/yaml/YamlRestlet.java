@@ -364,9 +364,10 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 				device = (Map<String, Object>) device.get(seg);
 			}
 		}
-		Object item = device.get("sics_motor");
-		int index = Integer.valueOf(idx);
-		item = ((ArrayList<Object>) item).get(index);
+//		Object item = device.get("sics_motor");
+//		int index = Integer.valueOf(idx);
+//		item = ((ArrayList<Object>) item).get(index);
+		Object item = device.get(idx);
 		updateMode(json, (Map<String, Object>) item);
 		FileWriter writer = new FileWriter(file);
 		try {
