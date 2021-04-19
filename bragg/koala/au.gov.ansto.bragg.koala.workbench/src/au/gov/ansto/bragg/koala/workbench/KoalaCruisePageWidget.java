@@ -95,7 +95,7 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget
 				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "cts")
 				.addDevice("/monitor/bm1_event_rate", "BM1 counts rate", null, "cts/s")
-				.addDevice("/instrument/detector/total_counts", "Detector counts", null, "cts")
+//				.addDevice("/instrument/detector/total_counts", "Detector counts", null, "cts")
 				;
 		configureWidget(deviceStatusWidget);
 
