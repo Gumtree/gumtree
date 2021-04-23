@@ -43,3 +43,4 @@ Export-Package: uk.co.caprica.vlcj.binding,
  uk.co.caprica.vlcj.player.renderer,
  uk.co.caprica.vlcj.player.renderer.events
 Require-Bundle: com.sun.jna;bundle-version="5.2.0"
+Bundle-Vendor: Caprica

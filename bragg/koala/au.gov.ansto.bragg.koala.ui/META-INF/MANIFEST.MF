@@ -6,6 +6,7 @@ Bundle-Version: 1.13.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.koala.ui.Activator
 Bundle-Vendor: ANSTO
 Require-Bundle: au.gov.ansto.bragg.koala.core,
- au.gov.ansto.bragg.nbi.ui
+ au.gov.ansto.bragg.nbi.ui,
+ uk.co.caprica.vlcj
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
