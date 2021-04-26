@@ -228,6 +228,8 @@
 		<module>${koala.path}/au.gov.ansto.bragg.koala.webserver</module>
 		<module>${koala.path}/au.gov.ansto.bragg.koala.webserver.feature</module>
 		
+		<module>${koala.path}/com.sun.jna</module>
+		<module>${koala.path}/uk.co.caprica.vlcj</module>
 		<module>${koala.path}/au.gov.ansto.bragg.koala.ui</module>
 		<module>${koala.path}/au.gov.ansto.bragg.koala.workbench</module>
 		<module>${koala.path}/au.gov.ansto.bragg.koala.workbench.feature</module>
