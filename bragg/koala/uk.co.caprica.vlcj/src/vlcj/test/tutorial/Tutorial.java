@@ -3,18 +3,12 @@
  */
 package vlcj.test.tutorial;
 
-/**
- * @author nxi
- *
- */
-import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
-import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
-
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
+
+import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
 
 public class Tutorial {
 

@@ -41,6 +41,12 @@ Export-Package: uk.co.caprica.vlcj.binding,
  uk.co.caprica.vlcj.player.list,
  uk.co.caprica.vlcj.player.list.events,
  uk.co.caprica.vlcj.player.renderer,
- uk.co.caprica.vlcj.player.renderer.events
+ uk.co.caprica.vlcj.player.renderer.events,
+ uk.co.caprica.vlcj.support,
+ uk.co.caprica.vlcj.support.eventmanager,
+ uk.co.caprica.vlcj.support.version,
+ uk.co.caprica.vlcj.waiter,
+ uk.co.caprica.vlcj.waiter.media,
+ uk.co.caprica.vlcj.waiter.mediaplayer
 Require-Bundle: com.sun.jna;bundle-version="5.2.0"
 Bundle-Vendor: Caprica
