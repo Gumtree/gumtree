@@ -52,6 +52,7 @@ class Data(SimpleData):
             self.axes = __Axes__(self)
             if var is None :
                 if hasattr(storage, 'var') and not storage.var is None :
+                    print(storage.var)
                     var = storage.var.__copy__()
                 elif self.storage.dtype is int or self.storage.dtype is float or self.storage.dtype is long :
                     var = arr.positive_float_copy()

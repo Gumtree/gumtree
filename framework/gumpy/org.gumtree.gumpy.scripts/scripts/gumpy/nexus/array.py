@@ -1115,7 +1115,7 @@ class Array:
         else:
             raise ValueError, 'invalid axis value, must be int or tuple of int'
             
-    def var(self, axis=None, dtype=None, out=None, ddof=0):
+    def variance(self, axis=None, dtype=None, out=None, ddof=0):
         if axis is None:
             n = self.size
             if n < 2:
@@ -1142,7 +1142,7 @@ class Array:
             oi = out.item_iter()
             while si.has_next():
                 ss = si.next()
-                oi.set_next(ss.var(ddof = ddof))
+                oi.set_next(ss.variance(ddof = ddof))
             return out
         elif hasattr(axis, '__iter__'):
             axis = list(axis)
@@ -1162,7 +1162,7 @@ class Array:
             oi = out.item_iter()
             while si.has_next():
                 ss = si.next()
-                oi.set_next(ss.var(ddof = ddof))
+                oi.set_next(ss.variance(ddof = ddof))
             return out
         else:
             raise ValueError, 'invalid axis value, must be int or tuple of int'

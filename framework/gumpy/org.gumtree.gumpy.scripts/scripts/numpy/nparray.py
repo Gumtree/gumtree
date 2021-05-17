@@ -1160,7 +1160,7 @@ class ndarray():
         '''
         if not out is None:
             out = np.asanyarray(out).buffer
-        return self._new(self.buffer.var(axis, dtype, out, ddof))
+        return self._new(self.buffer.variance(axis, dtype, out, ddof))
 
     def astype(self, dtype, order='K', casting='unsafe', subok=True, copy=True):
         ''' Copy of the array, cast to a specified type.
