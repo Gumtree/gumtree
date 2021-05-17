@@ -1,9 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: VLCJ Test
+Bundle-Name: VLCJ
 Bundle-SymbolicName: uk.co.caprica.vlcj
 Bundle-Version: 4.7.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: vlcj-4.7.0.jar,
+  vlcj-natives-4.1.0.jar
+Bundle-Vendor: Caprica
 Export-Package: uk.co.caprica.vlcj.binding,
  uk.co.caprica.vlcj.binding.internal,
  uk.co.caprica.vlcj.binding.support,
@@ -48,5 +50,5 @@ Export-Package: uk.co.caprica.vlcj.binding,
  uk.co.caprica.vlcj.waiter,
  uk.co.caprica.vlcj.waiter.media,
  uk.co.caprica.vlcj.waiter.mediaplayer
-Require-Bundle: com.sun.jna;bundle-version="5.2.0"
-Bundle-Vendor: Caprica
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.sun.jna;bundle-version="5.2.0";visibility:=reexport

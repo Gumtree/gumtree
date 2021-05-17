@@ -30,11 +30,13 @@ public enum InternalImage {
 	REMOVE_ITEM("/icons/script/rem_item.gif"),
 	REMOVE_ITEM_12("/icons/script/rem_item_12.gif"),
 	PLAY_16("/icons/script/Play-Normal-16x16.png"),
+	PAUSE_16("icons/player_pause16x16.png"),
 	DOWN_16("/icons/script/down_16.png"),
 	OPEN_16("/icons/script/toc_open.gif"),
 	NEW_16("/icons/script/new_con.gif"),
 	EDIT_16("/icons/script/edit_16.png"),
 	RELOAD_16("/icons/script/reload_page16x16.png"),
+	LOADING_16("/icons/script/loading16.gif"),
 	REFRESH_16("/icons/script/refresh.gif"),
 	DASHBOARD_16("/icons/everaldo/Dashboard16x16.png"), 
 	RECENT_16("/icons/script/recent_16.png"),
@@ -47,6 +49,7 @@ public enum InternalImage {
 	CATEGORY_BTN_IMAGE_GRAY_UP("/icons/script/Button_gray_up.png"),
 	CATEGORY_BTN_IMAGE_GRAY_DOWN("/icons/script/Button_gray_down.png"),
 	CATEGORY_BTN_IMAGE_GRAY_OVER("/icons/script/Button_gray_over.png"),
+	PLUS_64("/icons/plus64.png"),
 	;
 	
 	private InternalImage(String path) {

@@ -21,6 +21,14 @@
             id="au.gov.ansto.bragg.koala.ui.KoalaWorkflowView"
             name="Koala Workflow Control">
       </view>
+      <view
+            allowMultiple="true"
+            category="au.gov.ansto.bragg.koala.ui"
+            class="au.gov.ansto.bragg.koala.ui.vlcj.VlcjView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.koala.ui.vlcj.VlcjView"
+            name="Camera View">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
