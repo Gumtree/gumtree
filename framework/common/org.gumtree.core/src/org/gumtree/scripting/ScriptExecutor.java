@@ -277,8 +277,10 @@ public class ScriptExecutor implements IScriptExecutor {
 			for (Future<?> future : futures) {
 				future.cancel(true);
 			}
-			executorService.shutdown();
-			executorService.shutdownNow();
+			if (executorService != null) {
+				executorService.shutdown();
+				executorService.shutdownNow();
+			}
 		}
 	}
 	
