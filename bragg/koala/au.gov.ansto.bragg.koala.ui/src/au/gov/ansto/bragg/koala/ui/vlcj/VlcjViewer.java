@@ -228,7 +228,7 @@ public class VlcjViewer extends Composite {
 		}
 	}
 	
-	private void syncSetText(Button button, String text) {
+	private void syncSetText(final Button button, String text) {
 		Display.getDefault().syncExec(new Runnable() {
 			
 			@Override
@@ -238,7 +238,7 @@ public class VlcjViewer extends Composite {
 		});
 	}
 
-	private void syncSetImage(Button button, Image image) {
+	private void syncSetImage(final Button button, Image image) {
 		Display.getDefault().syncExec(new Runnable() {
 			
 			@Override
@@ -248,7 +248,7 @@ public class VlcjViewer extends Composite {
 		});
 	}
 
-	private void syncSetEnabled(Button button, boolean isEnabled) {
+	private void syncSetEnabled(final Button button, boolean isEnabled) {
 		Display.getDefault().syncExec(new Runnable() {
 			
 			@Override
