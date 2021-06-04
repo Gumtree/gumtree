@@ -35,7 +35,8 @@ class Array:
                 self._shape = [0]
                 self._ndim = 1
                 self._itemsize = 8
-                self.__iArray__ = []
+                self.__iArray__ = gdm_factory.createArray(DataType.INT.getPrimitiveClassType(), 
+                                                          jutils.jintcopy([0]))
                 return
             rawrank = get_ndim(obj)
             rawshape = get_shape(obj, rawrank)
