@@ -187,3 +187,13 @@ def __dataset_selected__(datasets):
     
 def update_group_ui(g):
     __UI__.updateGroupUI(g.__group__)
+    
+def update_ui(obj = None):
+    if obj is None:
+        __UI__.updateUI()
+    elif hasattr(obj, '__group__'):
+        __UI__.updateGroupUI(obj.__group__)
+    elif hasattr(obj, '__tab__'):
+        __UI__.updateGroupUI(obj.__tab__)
+    else:
+        raise Exception('failed to update UI for the object')
