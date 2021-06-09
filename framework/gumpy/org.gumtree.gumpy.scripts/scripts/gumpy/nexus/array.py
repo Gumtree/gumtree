@@ -29,7 +29,7 @@ class Array:
         if hasattr(obj, '__len__') :
 #            if len(obj) == 0 :
 #                raise Exception, 'empty list not allowed'
-            if obj == []:
+            if len(obj) == 0:
                 self._size = 0
                 self._dtype = float if dtype is None else dtype
                 self._shape = [0]

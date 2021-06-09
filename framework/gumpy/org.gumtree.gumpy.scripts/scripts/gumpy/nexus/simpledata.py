@@ -1138,9 +1138,9 @@ def new(storage, name = None, units = None, parent = None, title = None):
     iGroup = None
     if not parent is None :
         iGroup = parent.__iNXdata__
-    
+
     iDataItem = nx_factory.createNXDataItem(iGroup, 'null', \
-                                                           storage.__iArray__)
+                                            storage.__iArray__)
     if name is None :
         name = 'sd' + str(id(iDataItem))
     iDataItem.setShortName(name)
