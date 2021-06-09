@@ -554,8 +554,8 @@ function createGui(){
 
 jQuery(document).ready(function(){
 
-	$(document).attr("title", title + " - Jython Runner");
-	$('#titleString').text(title + " - Jython Runner");
+	$(document).attr("title", title + " - Online Data Treatment");
+	$('#titleString').text(title + " - Online Data Treatment");
 
     stripedTable();
 	$("#run_script").click(function() {

@@ -7,10 +7,12 @@
 <link rel="stylesheet" href="css/tabs.css" />
 <link rel="stylesheet" href="css/button.css" />
 <link rel="stylesheet" href="css/popup.css" />
+<link rel="stylesheet" href="css/account.css" />
 <link rel="stylesheet" href="css/scripting.css" />
 <script src="js/jquery/jquery-1.10.2.min.js"></script>
 <script src="js/jquery/jquery-ui-1.11.1.min.js"></script>
 <script src="js/instrumentsetup.js"></script>
+<script type="text/javascript" src="js/account.js"></script>
 <script src="js/scripting.js"></script>
 <script src="js/popup.js"></script>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -27,7 +29,11 @@
 
 <div id="doc" class="yui-t7 ui-shadow">
   <div id="hd">
-    <div id="header" class="ui-shadow"><h1 id="titleString">Jython Script Runner</h1></div>
+    <div id="header" class="ui-shadow"><h1 id="titleString">Jython Script Runner</h1>
+	    <div id="id_div_headercorner" class="class_input_holder">
+		    <a id="id_a_account"><img src="images/signout_blue.png">Sign Out</a>
+		</div>
+	</div>
   </div>
   <div id="bd">
     <div id="yui-main">
@@ -49,7 +55,7 @@
           <div class="yui-u second ui-corner-all ui-shadow">
           	<div class="content">
               <div id="ie-test" class="ui-corner-all ui-shadow">
-                <ul id="boxLinks" class="group">
+                <ul id="boxLinks" class="group ul_tabs group">
                     <li><a href="#div_script_text" id="tab1">Script Editor</a></li>
                     <li><a href="#div_script_gui" id="tab2">Auto GUI</a></li>
                 </ul>
@@ -106,7 +112,7 @@
     </div>
     <div class="yui-b ui-corner-all ui-shadow">
       <div id="secondary">
-          <div id="console"></div>
+          <div id="console"><pre class="consoleText">Java based Python 2.7.0</pre></div>
         </div>
     </div>
   </div>

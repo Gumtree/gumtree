@@ -16,8 +16,8 @@
 	position: relative;
 }
 .widget-toc  ol li:before {
-	content: counters(item, ".");
-	counter-increment: item;
+	/*content: counters(item, ".");
+	counter-increment: item;*/
 	position: absolute;
 	margin-right: 100%;
 	right: 0.5rem;

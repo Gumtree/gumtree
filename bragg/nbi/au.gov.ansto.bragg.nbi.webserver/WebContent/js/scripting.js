@@ -90,13 +90,25 @@ function setErrorWidgets(){
     $('#lineFeed').removeAttr("disabled");
 }
 
+function showLogoutMessage(msg) {
+	alert(msg);
+}
+
 function updateStatus(interval_id){
     var getUrl = jythonUrl + "?type=STATUS&timestamp=" + new Date().getTime();
     $.get(getUrl,function(data,status){
 		if (status == "success") {
+            updateUserArea(true, 'scripting.html');
             processStatus(data, interval_id);
+		} else {
+//			updateUserArea(false, 'scripting.html', true);
+			alert(status);
 		}
-    });
+    }).fail(function(e) {
+    	handleGetError(e);
+    	clearInterval(interval_id);
+	}).always(function() {
+	});
 }
 
 function updatePlot(id) {
@@ -154,26 +166,43 @@ function initUpdateStatus(){
     var getUrl = jythonUrl + "?type=STATUS";
     $.get(getUrl,function(data,status){
 		if (status == "success") {
+			updateUserArea(true, 'scripting.html');
             processStatus(data);
             if (data['status'] == "BUSY"){
                 setUpdateInterval();
             }
+		} else {
+			alert(status);
 		}
-    });
+    }).fail(function(e) {
+    	handleGetError(e);
+	}).always(function() {
+	});
+}
+
+function handleGetError(e) {
+	if (e.status == 401) {
+    	updateUserArea(false, 'scripting.html', true);
+	} else {
+		alert("Error in the scripting service. Please contact ACNS Gumtree app support.")
+	}	
 }
 
 function runScript(){
     var postUrl = jythonUrl + "?type=START";
     $.post( postUrl, $("form#script_form").serialize(), function(data, status) {
         if (status == "success") {
+        	updateUserArea(true, 'scripting.html');
             processStatus(data);
             if (data['status'] == "BUSY"){
                 setUpdateInterval();
             }
+        } else {
+        	alert(data["reason"]);
         }
     })
     .fail(function(e) {
-        alert( "error submitting the script");
+    	handleGetError(e);
     });
 }
 
@@ -416,8 +445,8 @@ function createGui(){
 }
 
 jQuery(document).ready(function(){
-	$(document).attr("title", title + " - Jython Runner");
-	$('#titleString').text(title + " - Jython Runner");
+	$(document).attr("title", title + " - Online Data Treatement");
+	$('#titleString').text(title + " - Online Data Treatement");
 
     stripedTable();
 	$("#run_script").click(function() {
@@ -552,34 +581,43 @@ jQuery(document).ready(function(){
             var postUrl = jythonUrl + "?type=START";
             $.post( postUrl, { script_text: $('#lineFeed').val(), script_input: "textInput" }, function(data, status) {
                 if (status == "success") {
+                	updateUserArea(true, 'scripting.html');
                     processStatus(data);
                     if (data['status'] == "BUSY"){
                         setUpdateInterval();
                     }
                 }
-            })
-            .fail(function(e) {
-                alert( "error submitting the command");
+            }).fail(function(e) {
+            	handleGetError(e);
             });
             $('#lineFeed').val('');
         } else if (keyCode == 38) {
             if (historyIdx > 0) {
+            	e.preventDefault();
                 historyIdx--;
                 if (historyIdx >= 0 && historyIdx < commandHistory.length){
-                    $('#lineFeed').val(commandHistory[historyIdx]);
+//                    $('#lineFeed').val(commandHistory[historyIdx]);
+//                    var strLength = $('#lineFeed').val().length;
+//                    $('#lineFeed').selectRange(strLength, strLength);
+//                    $('#lineFeed').setCursorPosition(strLength);
+//                    $('#lineFeed')[0].setSelectionRange(strLength, strLength);
+                	$('#lineFeed').val(commandHistory[historyIdx]);
                     var strLength = $('#lineFeed').val().length;
-                    $('#lineFeed').selectRange(strLength, strLength);
                     $('#lineFeed').setCursorPosition(strLength);
-                    $('#lineFeed')[0].setSelectionRange(strLength, strLength);
+                    $('#lineFeed')[0].setSelectionRange(0, strLength);
+                    console.log(38);
                 }
             }
         } else if (keyCode == 40) {
+        	e.preventDefault();
             if (historyIdx < commandHistory.length - 1){
                 historyIdx++;
                 if (historyIdx >= 0 && historyIdx < commandHistory.length){
                     $('#lineFeed').val(commandHistory[historyIdx]);
                     var strLength = $('#lineFeed').val().length;
-                    $('#lineFeed')[0].setSelectionRange(strLength, strLength);
+                    $('#lineFeed').setCursorPosition(strLength);
+                    $('#lineFeed')[0].setSelectionRange(0, strLength);
+                    console.log(40);
                 }
             } else if (historyIdx < commandHistory.length){
                 historyIdx++;

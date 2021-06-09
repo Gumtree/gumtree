@@ -8,12 +8,13 @@ import java.io.ByteArrayInputStream;
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.scripting.IScriptBlock;
 import org.gumtree.scripting.ScriptBlock;
+import org.gumtree.service.db.ControlDB;
+import org.gumtree.service.db.ProposalDB;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
-import org.restlet.Restlet;
 import org.restlet.data.Disposition;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
@@ -23,13 +24,16 @@ import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
 
 import au.gov.ansto.bragg.nbi.server.image.ChartImage;
+import au.gov.ansto.bragg.nbi.server.internal.AbstractUserControlRestlet;
+import au.gov.ansto.bragg.nbi.server.internal.UserSessionService;
+import au.gov.ansto.bragg.nbi.server.login.UserSessionObject;
 import au.gov.ansto.bragg.nbi.server.restlet.JythonExecutor.ExecutorStatus;
 
 /**
  * @author nxi
  *
  */
-public class JythonRestlet extends Restlet implements IDisposable {
+public class JythonRestlet extends AbstractUserControlRestlet implements IDisposable {
 
 	private final static String QUERY_SCRIPT_TEXT = "script_text";
 	private final static String QUERY_SCRIPT_INPUT_MODE = "script_input";
@@ -40,11 +44,16 @@ public class JythonRestlet extends Restlet implements IDisposable {
 	private final static String SCRIPT_START_FLAG = "Content-Type:";
 	private final static int IMAGE_WIDTH = 640;
 	private final static int IMAGE_HEIGHT = 320;
+	private static final String QUERY_ENTRY_PROPOSALID = "proposal";
+	private static final String QUERY_ENTRY_SESSIONID = "session";
 	
 	private static ChartImage plot1Cache;
 	private static ChartImage plot2Cache;
 	private static ChartImage plot3Cache;
 	
+	private ProposalDB proposalDb;
+	private ControlDB controlDb;
+
 	enum QueryType {
 		START,
 		STATUS,
@@ -72,6 +81,8 @@ public class JythonRestlet extends Restlet implements IDisposable {
 		plot1Cache = new ChartImage(IMAGE_WIDTH, IMAGE_HEIGHT);
 		plot2Cache = new ChartImage(IMAGE_WIDTH, IMAGE_HEIGHT);
 		plot3Cache = new ChartImage(IMAGE_WIDTH, IMAGE_HEIGHT);
+		proposalDb = ProposalDB.getInstance();
+		controlDb = ControlDB.getInstance();
 	}
 
 	/* (non-Javadoc)
@@ -84,34 +95,113 @@ public class JythonRestlet extends Restlet implements IDisposable {
 	@Override
 	public void handle(final Request request, final Response response) {
 		
-        Form queryForm = request.getResourceRef().getQueryAsForm();
-	    String typeString = queryForm.getValues(QUERY_TYPE);
+        Form form = request.getResourceRef().getQueryAsForm();
+	    String typeString = form.getValues(QUERY_TYPE);
 	    QueryType type = QueryType.valueOf(typeString);
 	    
+	    UserSessionObject session = null;
+	    try {
+	    	session = UserSessionService.getUniversalSession(request, response);
+	    } catch (Exception e) {
+	    }
+
+	    boolean allowAccess = false;
+	    String sessionId = form.getValues(QUERY_ENTRY_SESSIONID);
+	    String proposalId = form.getValues(QUERY_ENTRY_PROPOSALID);
+	    try {
+	    	String currentSessionId = controlDb.getCurrentSessionId();
+	    	String currentProposal = proposalDb.findProposalId(currentSessionId);
+	    	if (proposalId != null && !proposalId.equals("undefined")) {
+	    		if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
+	    			allowAccess = true;
+	    		} else {
+	    			if (proposalId.equals(currentProposal)) {
+	    				if (allowAccessCurrentPage(session, sessionId, proposalDb)){
+	    					allowAccess = true;
+	    				}
+	    			}
+	    		}
+	    	} else if (sessionId != null) {
+	    		proposalId = proposalDb.findProposalId(sessionId);
+	    		if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
+	    			allowAccess = true;
+	    		}
+	    	} else {
+	    		sessionId = currentSessionId;
+	    		proposalId = currentProposal;
+	    		//			if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
+	    		//				allowAccess = true;
+	    		//			}
+	    		if (allowAccessCurrentPage(session, sessionId, proposalDb)){
+	    			allowAccess = true;
+	    		}
+	    	}
+	    } catch (Exception e) {
+		}
+
 	    switch (type) {
 		case START:
 	    	//		Form form = request.getResourceRef().getQueryAsForm();
-	    	Representation entity = request.getEntity();
-	    	Form form = new Form(entity);
-	    	final String value = form.getValues(QUERY_SCRIPT_TEXT);
-	    	final String inputMode = form.getValues(QUERY_SCRIPT_INPUT_MODE);
+//	    	Representation entity = request.getEntity();
 	    	try {
-	    		final JSONObject result = new JSONObject();
-	    		result.put("script", value);
-	    		//			response.setEntity(result.toString(), MediaType.TEXT_PLAIN);
-	    		if ("textArea".equals(inputMode)) {
-	    			IScriptBlock block = new ScriptBlock(){
-	    				public String getScript() {
-	    					return value;
+	    		Form postForm = new Form(request.getEntity());
+//	    		boolean allowAccess = false;
+//	    		String sessionId = form.getValues(QUERY_ENTRY_SESSIONID);
+//	    		String proposalId = form.getValues(QUERY_ENTRY_PROPOSALID);
+//	    		String currentSessionId = controlDb.getCurrentSessionId();
+//	    		String currentProposal = proposalDb.findProposalId(currentSessionId);
+//	    		if (proposalId != null && !proposalId.equals("undefined")) {
+//	    			if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
+//	    				allowAccess = true;
+//	    			} else {
+//	    				if (proposalId.equals(currentProposal)) {
+//	    					if (allowAccessCurrentPage(session, sessionId, proposalDb)){
+//	    						allowAccess = true;
+//	    					}
+//	    				}
+//	    			}
+//	    		} else if (sessionId != null) {
+//	    			proposalId = proposalDb.findProposalId(sessionId);
+//	    			if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
+//	    				allowAccess = true;
+//	    			}
+//	    		} else {
+//	    			sessionId = currentSessionId;
+//	    			proposalId = currentProposal;
+//	    			//				if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
+//	    			//					allowAccess = true;
+//	    			//				}
+//	    			if (allowAccessCurrentPage(session, sessionId, proposalDb)){
+//	    				allowAccess = true;
+//	    			}
+//	    		}
+	    		if (allowAccess){
+	    			final String value = postForm.getValues(QUERY_SCRIPT_TEXT);
+	    			final String inputMode = postForm.getValues(QUERY_SCRIPT_INPUT_MODE);
+	    			try {
+	    				final JSONObject result = new JSONObject();
+	    				result.put("script", value);
+	    				//			response.setEntity(result.toString(), MediaType.TEXT_PLAIN);
+	    				if ("textArea".equals(inputMode)) {
+	    					IScriptBlock block = new ScriptBlock(){
+	    						public String getScript() {
+	    							return value;
+	    						}
+	    					};
+	    					JythonExecutor.runScriptBlock(block);
+	    				} else if ("textInput".equals(inputMode)){
+	    					JythonExecutor.runScriptLine(value);
 	    				}
-	    			};
-	    			JythonExecutor.runScriptBlock(block);
-	    		} else if ("textInput".equals(inputMode)){
-		    		JythonExecutor.runScriptLine(value);
+	    				Thread.sleep(200);
+	    				JSONObject jsonObject = getExecutorStatus();
+	    				response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+	    			} catch (Exception e) {
+	    				e.printStackTrace();
+	    				response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+	    			}
+	    		} else {
+	    			response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "<span style=\"color:red\">Error: invalid user session.</span>");
 	    		}
-	    		Thread.sleep(200);
-	    		JSONObject jsonObject = getExecutorStatus();
-	    		response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
 	    	} catch (Exception e) {
 	    		e.printStackTrace();
 	    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
@@ -130,84 +220,113 @@ public class JythonRestlet extends Restlet implements IDisposable {
 //			}
 			JSONObject jsonObject;
 			try {
-				jsonObject = getExecutorStatus();
-	    		response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
-			} catch (JSONException e) {
+				if (allowAccess){
+					jsonObject = getExecutorStatus();
+		    		response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} else {
+					response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "<span style=\"color:red\">Error: invalid user session.</span>");
+				}
+			} catch (Exception e) {
 	    		e.printStackTrace();
 	    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 			}
 			break;
 		case INTERRUPT:
-			JythonExecutor.interrupt();
-			try {
-				jsonObject = getExecutorStatus();
-	    		response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
-			} catch (JSONException e) {
-	    		e.printStackTrace();
-	    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+			if (allowAccess) {
+				JythonExecutor.interrupt();
+				try {
+					jsonObject = getExecutorStatus();
+					response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+				} catch (JSONException e) {
+					e.printStackTrace();
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+				}
+			} else {
+				response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "<span style=\"color:red\">Error: invalid user session.</span>");
 			}
 			break;
 		case READSCRIPT:
 			try {
-		    	Representation formEntity = request.getEntity();
-		    	
+				if (allowAccess) {
+					Representation formEntity = request.getEntity();
+
 //		    	RestletFileUpload upload = new RestletFileUpload(factory);
 //                List<FileItem> items;
 //
 //                // 3/ Request is parsed by the handler which generates a
 //                // list of FileItems
 //                items = upload.parseRequest(getRequest());
-		    	String text = formEntity.getText();
-		    	int start = text.indexOf(SCRIPT_START_FLAG);
-		    	start = text.indexOf("\n", start) + 3;
-		    	int end = text.lastIndexOf("\n", text.length() - 2) - 1;
-		    	text = text.substring(start, end);
-				response.setEntity(text, MediaType.TEXT_PLAIN);
+					String text = formEntity.getText();
+					int start = text.indexOf(SCRIPT_START_FLAG);
+					start = text.indexOf("\n", start) + 3;
+					int end = text.lastIndexOf("\n", text.length() - 2) - 1;
+					text = text.substring(start, end);
+					response.setEntity(text, MediaType.TEXT_PLAIN);
+				} else {
+					response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, 
+							"<span style=\"color:red\">Error: invalid user session.</span>");
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 	    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 			}
 			break;
 		case PLOT:
-			int plotId = Integer.valueOf(queryForm.getValues(QUERY_PLOT_ID));
-			if (plotId == 1) {
-				Representation result = new InputRepresentation(
-						new ByteArrayInputStream(getPlot1().getImageCache()), MediaType.IMAGE_PNG);
-				response.setEntity(result);
-			} else if (plotId == 2) {
-				Representation result = new InputRepresentation(
-						new ByteArrayInputStream(getPlot2().getImageCache()), MediaType.IMAGE_PNG);
-				response.setEntity(result);
-			} else if (plotId == 3) {
-				Representation result = new InputRepresentation(
-						new ByteArrayInputStream(getPlot3().getImageCache()), MediaType.IMAGE_PNG);
-				response.setEntity(result);
-			} 
+			if (allowAccess) {
+				int plotId = Integer.valueOf(form.getValues(QUERY_PLOT_ID));
+				if (plotId == 1) {
+					Representation result = new InputRepresentation(
+							new ByteArrayInputStream(getPlot1().getImageCache()), MediaType.IMAGE_PNG);
+					response.setEntity(result);
+				} else if (plotId == 2) {
+					Representation result = new InputRepresentation(
+							new ByteArrayInputStream(getPlot2().getImageCache()), MediaType.IMAGE_PNG);
+					response.setEntity(result);
+				} else if (plotId == 3) {
+					Representation result = new InputRepresentation(
+							new ByteArrayInputStream(getPlot3().getImageCache()), MediaType.IMAGE_PNG);
+					response.setEntity(result);
+				} 
+			} else {
+				response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "<span style=\"color:red\">Error: invalid user session.</span>");
+			}
 			break;
 		case GUI:
-	    	entity = request.getEntity();
-	    	form = new Form(entity);
-	    	String script = form.getValues(QUERY_SCRIPT_TEXT);
-	    	try {
-				String html = JythonExecutor.getScriptGUI(script);
-				jsonObject = getExecutorStatus();
-				jsonObject.put("html", html);
-				response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
-			} catch (JSONException e) {
-				e.printStackTrace();
+			if (allowAccess) {
+				Representation entity = request.getEntity();
+		    	Form textForm = new Form(entity);
+				String script = textForm.getValues(QUERY_SCRIPT_TEXT);
+				try {
+					String html = JythonExecutor.getScriptGUI(script);
+					jsonObject = getExecutorStatus();
+					jsonObject.put("html", html);
+					response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			} else {
+				response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, 
+						"<span style=\"color:red\">Error: invalid user session.</span>");
 			}
 			break;
 		case FILENAMES:
-			response.setEntity(JythonExecutor.getAllDataHtml(), MediaType.TEXT_PLAIN);
+			if (allowAccess) {
+				response.setEntity(JythonExecutor.getAllDataHtml(), MediaType.TEXT_PLAIN);
+			} else {
+				response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, 
+						"<span style=\"color:red\">Error: invalid user session.</span>");
+			}
 			break;
 		case FILE:
-			String folderString = queryForm.getValues(QUERY_FILE_FOLDER);
-			String filename = request.getResourceRef().getLastSegment();
-			if ("save".equals(folderString)){
-				folderString = JythonExecutor.getDataHandler().getSavePath();
-			} else if ("data".equals(folderString)){
-				folderString = JythonExecutor.getDataHandler().getDataPath();
-			}
+			if (allowAccess) {
+				String folderString = form.getValues(QUERY_FILE_FOLDER);
+				String filename = request.getResourceRef().getLastSegment();
+				if ("save".equals(folderString)){
+					folderString = JythonExecutor.getDataHandler().getSavePath();
+				} else if ("data".equals(folderString)){
+					folderString = JythonExecutor.getDataHandler().getDataPath();
+				}
 //			Path path = Paths.get(folderString + "/" + filename);
 //			byte[] data = null;
 //			try {
@@ -217,23 +336,37 @@ public class JythonRestlet extends Restlet implements IDisposable {
 //	    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 //			}
 //			Representation representation = new InputRepresentation(new ByteArrayInputStream(data), MediaType.APPLICATION_OCTET_STREAM);
-			FileRepresentation representation = new FileRepresentation(folderString + "/" + filename, MediaType.APPLICATION_ZIP);
-			Disposition disposition = new Disposition();
-			disposition.setFilename(filename);
-			representation.setDisposition(disposition);
-			response.setEntity(representation);
+				FileRepresentation representation = new FileRepresentation(folderString + "/" + filename, MediaType.APPLICATION_ZIP);
+				Disposition disposition = new Disposition();
+				disposition.setFilename(filename);
+				representation.setDisposition(disposition);
+				response.setEntity(representation);
+			} else {
+				response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, 
+						"<span style=\"color:red\">Error: invalid user session.</span>");
+			}
 			break;
 		case LISTSCRIPTS:
-			response.setEntity(JythonExecutor.getUIHandler().getAvailableScripts(), MediaType.TEXT_PLAIN);
+			if (allowAccess) {
+				response.setEntity(JythonExecutor.getUIHandler().getAvailableScripts(), MediaType.TEXT_PLAIN);
+			} else {
+				response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, 
+						"<span style=\"color:red\">Error: invalid user session.</span>");
+			}
 			break;
 		case SCRIPT:
-			String nameString = queryForm.getValues(QUERY_FILE_NAME);
-			try {
-				String text = JythonExecutor.getUIHandler().getScriptFileContent(nameString);
-				response.setEntity(text, MediaType.TEXT_PLAIN);
-			} catch (Exception e) {
-				e.printStackTrace();
-	    		response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+			if (allowAccess) {
+				String nameString = form.getValues(QUERY_FILE_NAME);
+				try {
+					String text = JythonExecutor.getUIHandler().getScriptFileContent(nameString);
+					response.setEntity(text, MediaType.TEXT_PLAIN);
+				} catch (Exception e) {
+					e.printStackTrace();
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+				}
+			} else {
+				response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, 
+						"<span style=\"color:red\">Error: invalid user session.</span>");
 			}
 			break;
 		default:

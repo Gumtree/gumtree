@@ -62,6 +62,12 @@ body{
 	background-color:#F3F2ED;
 	}
 	
+#id_a_account img {
+	width: 24px;
+	height: 24px;
+	margin: 2px;
+}
+
 .content{
 	height:470px;
 	background:#faf7f7;
