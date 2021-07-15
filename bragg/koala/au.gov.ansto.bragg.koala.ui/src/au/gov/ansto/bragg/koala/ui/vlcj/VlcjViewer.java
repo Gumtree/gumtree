@@ -56,6 +56,7 @@ public class VlcjViewer extends Composite {
 	private boolean isAddingMarker;
 	private boolean isPlayer1Ready;
 	private boolean isPlayer2Ready;
+	private Thread controlThread;
 			
 	public VlcjViewer(Composite parent, int style) {
 		super(parent, style);
@@ -106,12 +107,12 @@ public class VlcjViewer extends Composite {
 				logoSize, beamCentre);
 		mediaPlayer1 = mediaPanel1.getMediaPlayer();
 		
-        mediaPlayer1.media().start(cam1Url);
         mediaPlayer1.events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
         	@Override
         	public void error(MediaPlayer mediaPlayer) {
         		super.error(mediaPlayer);
         		System.err.println("Player 1 error caught");
+        		isPlayer1Ready = false;
         		mediaPlayer.release();
         	}
         	
@@ -167,13 +168,15 @@ public class VlcjViewer extends Composite {
         		logoSize, beamCentre);
         mediaPlayer2 = mediaPanel2.getMediaPlayer();
         
-        mediaPlayer2.media().start(cam2Url);
         mediaPlayer2.events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
         	@Override
         	public void error(MediaPlayer mediaPlayer) {
         		super.error(mediaPlayer);
         		System.err.println("Player 2 error caught");
-        		mediaPlayer.release();
+        		if (isPlayer2Ready) {
+        			mediaPlayer.controls().stop();
+        			isPlayer2Ready = false;
+        		}
         	}
         	
         	@Override
@@ -216,6 +219,19 @@ public class VlcjViewer extends Composite {
         		}
         	}
 		});
+
+		controlThread = new Thread() {
+			public void run() {
+				try {
+			        mediaPlayer1.media().start(cam1Url);
+			        mediaPlayer2.media().start(cam2Url);
+				} catch (Exception e) {
+					System.err.println("failed to start players");
+				}
+			};
+		};
+		controlThread.start();
+		
 
 	}
 
@@ -329,12 +345,50 @@ public class VlcjViewer extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				reloadButton.setImage(InternalImage.BUSY_STATUS_16.getImage());
 				reloadButton.setText("Loading ...");
-				mediaPlayer1.controls().stop();
-				mediaPlayer2.controls().stop();
-				isPlayer1Ready = false;
-				isPlayer2Ready = false;
-				mediaPlayer1.controls().start();
-				mediaPlayer2.controls().start();
+//				if (isPlayer1Ready && isPlayer2Ready) {
+//					mediaPlayer1.controls().stop();
+//					mediaPlayer2.controls().stop();
+//					isPlayer1Ready = false;
+//					isPlayer2Ready = false;
+//					mediaPlayer1.controls().start();
+//					mediaPlayer2.controls().start();					
+//				} else {
+//					if (isPlayer1Ready) {
+//						mediaPlayer1.controls().stop();
+//						isPlayer1Ready = false;
+//						mediaPlayer1.controls().start();
+//					} else {
+//						mediaPlayer1.release();
+//						mediaPlayer1.media().start(cam1Url);
+//					}
+//					if (isPlayer2Ready) {
+//						mediaPlayer2.controls().stop();
+//						isPlayer2Ready = false;
+//						mediaPlayer2.controls().start();
+//					} else {
+//						mediaPlayer2.release();
+//						mediaPlayer2.media().start(cam2Url);
+//					}
+//				}
+				if (controlThread != null && controlThread.isAlive()) {
+					System.err.println("interrupt sleeping thread");
+					controlThread.interrupt();
+				}
+				controlThread = new Thread() {
+					public void run() {
+						try {
+							mediaPlayer1.controls().stop();
+							mediaPlayer2.controls().stop();
+							isPlayer1Ready = false;
+							isPlayer2Ready = false;
+							mediaPlayer1.controls().play();
+							mediaPlayer2.controls().play();
+						} catch (Exception ex) {
+							System.err.println("failed to start player");
+						}
+					};
+				};
+				controlThread.start();
 			}
 			
 			@Override
