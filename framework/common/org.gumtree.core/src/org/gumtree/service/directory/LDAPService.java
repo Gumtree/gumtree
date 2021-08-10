@@ -26,9 +26,7 @@ public class LDAPService {
 	private static final String NAME_GROUP_EE = "eefatvpn_subnet";
 	private static final String NAME_MANAGER_ADMIN_POSTFIX = "_instrument_scientists";
 	private static final String ID_INSTRUMENT_NAME = "gumtree.instrument.id";
-	private static final String NAME_GROUP_USER = "proposal_users";
-	private static final String PROP_LDAP_SESSION1 = "gumtree.ldapSession1";
-	private static final String PROP_LDAP_SESSION2 = "gumtree.ldapSession2";
+//	private static final String NAME_GROUP_USER = "proposal_users";
 
 //	private LdapContext context;
 	private String managerGroupName;
@@ -90,43 +88,7 @@ public class LDAPService {
 //		}
 		return isPassed;
 	}
-	
-	public GroupLevel checkUsername(String username) throws Exception{
-		Hashtable<String, Object> env = new Hashtable<String, Object>();
-		env.put(Context.PROVIDER_URL, LDAP_SERVER_NAME);
-		env.put(Context.INITIAL_CONTEXT_FACTORY, LDAP_FACTORY_NAME);
-		env.put(Context.SECURITY_AUTHENTICATION, "simple");
-		env.put(Context.SECURITY_PRINCIPAL, EncryptionUtils.decryptBase64(System.getProperty(PROP_LDAP_SESSION1)));
-		env.put(Context.SECURITY_CREDENTIALS, EncryptionUtils.decryptBase64(System.getProperty(PROP_LDAP_SESSION2)));
-//		env.put(Context.SECURITY_CREDENTIALS, EncryptionUtils.decryptBase64(System.getProperty(PROP_LDAP_SESSION)));
-		LdapContext context = null;
-		try {
-			context = new InitialLdapContext(env, null);
-		} catch (NamingException e) {
-		}
-		if (context != null) {
-			String userDistinguishedName = getDistinguishedName(context, username);
-			try {
-				if (bindGroup(context, userDistinguishedName, NAME_GROUP_ADMIN)) {
-					return GroupLevel.ADMIN;
-				}
-			} catch (Exception e) {
-			}
-			try {
-				if (bindGroup(context, userDistinguishedName, managerGroupName)) {
-					return GroupLevel.MANAGER;
-				}
-			} catch (Exception e) {
-			}
-//				if (bindGroup(context, userDistinguishedName, NAME_GROUP_USER)) {
-//					return GroupLevel.USER;
-//				}
-			context.close();
-			return GroupLevel.USER;
-		}
-		return GroupLevel.INVALID;
-	}
-	
+		
 	public GroupLevel validateUser(String username, String password) throws NamingException{
 
 		Hashtable<String, Object> env = new Hashtable<String, Object>();

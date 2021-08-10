@@ -154,7 +154,7 @@ public class UserSessionService {
 		session.setSessionId(uuidString);
 		CookieSetting cookie = createUUIDCookie(remoteUser, uuidString, sessionDb, timestampDb);
 
-		persistServiceList(remoteUser, uuidString, checkUsername(remoteUser));
+//		persistServiceList(remoteUser, uuidString, checkUsername(remoteUser));
 
 		response.getCookieSettings().add(cookie);
 		return session;
@@ -207,15 +207,15 @@ public class UserSessionService {
 		return proposals;
 	}
 	
-	public static GroupLevel checkUsername(String username) {
-		GroupLevel level = GroupLevel.INVALID;
-		try {
-			level = LDAPService.getService().checkUsername(username);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return level;
-	}
+//	public static GroupLevel checkUsername(String username) {
+//		GroupLevel level = GroupLevel.INVALID;
+//		try {
+//			level = LDAPService.getService().checkUsername(username);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return level;
+//	}
 
 	public static GroupLevel checkLogin(String username, String password) {
 		GroupLevel level = GroupLevel.INVALID;
