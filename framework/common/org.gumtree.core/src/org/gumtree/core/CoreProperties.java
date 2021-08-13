@@ -17,18 +17,6 @@ import org.gumtree.util.SystemProperty;
 public final class CoreProperties {
 
 	/**
-	 * Default crypto key
-	 */
-	public static final ISystemProperty CRYPTO_KEY = new SystemProperty(
-			"gumtree.security.cryptoKey", "1A2r3uc1");
-
-	/**
-	 * Default crypto initialise vector
-	 */
-	public static final ISystemProperty CRYPTO_IV = new SystemProperty(
-			"gumtree.security.cryptoIV", "9P01slD6");
-
-	/**
 	 * The project name for GumTree component to use as workspace
 	 */
 	public static final ISystemProperty WORKSPACE_PROJECT = new SystemProperty(

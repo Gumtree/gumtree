@@ -122,7 +122,8 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 		host = System.getProperty(PROPERTY_SSH_HOST);
 		keyPath = System.getProperty(PROPERTY_SSH_KEYPATH);
 		try {
-			passphrase = EncryptionUtils.decryptBase64(System.getProperty(PROPERTY_SSH_PASSPHRASE));
+//			passphrase = EncryptionUtils.decryptBase64(System.getProperty(PROPERTY_SSH_PASSPHRASE));
+			passphrase = EncryptionUtils.decryptProperty(PROPERTY_SSH_PASSPHRASE);
 			System.err.println(passphrase);
 		} catch (Exception e1) {
 		}

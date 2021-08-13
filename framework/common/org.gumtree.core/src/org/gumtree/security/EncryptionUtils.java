@@ -11,19 +11,44 @@
 
 package org.gumtree.security;
 
+import java.io.FileInputStream;
+import java.util.Properties;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
-import org.gumtree.core.CoreProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // See: http://stackoverflow.com/questions/1205135/how-to-encrypt-string-in-java
 public final class EncryptionUtils {
+	
+	private static final String EXTRA_PROPERTIES_PATH = "gumtree.core.properties";
+	private static final String CRYPTO_KEY = "gumtree.security.cryptoKey";
+	private static final String CRYPTO_IV = "gumtree.security.cryptoIV";
+	
+	private static Logger logger = LoggerFactory.getLogger(EncryptionUtils.class);
+	
+	private static Properties properties = new Properties();
+	
+	static {
+		try {
+			String path = System.getProperty(EXTRA_PROPERTIES_PATH);
+			properties.load(new FileInputStream(path));
+//			System.setProperties(properties);
+			logger.error(properties.toString());
+		} catch (Exception e) {
+			logger.error("failed to load extra properties", e);
+		}
+	}
 
 	public static String encryptBase64(String input) throws Exception {
-		return encryptBase64(input, CoreProperties.CRYPTO_KEY.getValue(),
-				CoreProperties.CRYPTO_IV.getValue());
+//		return encryptBase64(input, CoreProperties.CRYPTO_KEY.getValue(),
+//				CoreProperties.CRYPTO_IV.getValue());
+		return encryptBase64(input, properties.getProperty(CRYPTO_KEY),
+				properties.getProperty(CRYPTO_IV));
 	}
 
 	public static String encryptBase64(String input, String key, String iv)
@@ -43,8 +68,20 @@ public final class EncryptionUtils {
 	public static String decryptBase64(String encrytedBase64String)
 			throws Exception {
 		return decryptBase64(encrytedBase64String,
-				CoreProperties.CRYPTO_KEY.getValue(),
-				CoreProperties.CRYPTO_IV.getValue());
+				properties.getProperty(CRYPTO_KEY),
+				properties.getProperty(CRYPTO_IV));
+	}
+	
+	public static String decryptProperty(String propertyName) throws Exception {
+		String value = properties.getProperty(propertyName);
+		logger.error(propertyName);
+		logger.error(value);
+		if (value != null) {
+			logger.error(decryptBase64(value));
+			return decryptBase64(value);
+		} else {
+			throw new Exception("property not found");
+		}
 	}
 
 	public static String decryptBase64(String encrytedBase64String, String key,
