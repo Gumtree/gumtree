@@ -104,6 +104,8 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 	
 	private int style = SWT.NONE;
 	
+	private boolean inputEnabled = true;
+	
 	private IScriptExecutor executor;
 	
 	// GumTree scripting API listener
@@ -156,6 +158,15 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 		return executor;
 	}
 
+	public CommandLineViewer() {
+		super();
+	}
+	
+	public CommandLineViewer(boolean isInputEnabled) {
+		this();
+		this.inputEnabled = isInputEnabled;
+	}
+	
 	public void setScriptExecutor(final IScriptExecutor executor) {
 		this.executor = executor;
 		// Wait for engine to be ready
@@ -406,7 +417,9 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 		if ((style & NO_INPUT_TEXT) == 0) {
 			createTerminalArea(consoleArea);
 			createProgressArea(consoleArea);
-			createInputArea(consoleArea);
+			if (inputEnabled) {
+				createInputArea(consoleArea);
+			}
 		} else {
 			createTerminalArea(consoleArea);
 			createProgressArea(consoleArea);
