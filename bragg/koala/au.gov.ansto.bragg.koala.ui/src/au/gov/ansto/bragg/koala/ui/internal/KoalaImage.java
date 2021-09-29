@@ -11,8 +11,6 @@ public enum KoalaImage {
 	
 	WEATHER16("/icons/weather_16.png"),
 	WEATHER64("/icons/weather_64.png"),
-	WEATHER96("/icons/weather_96.png"),
-	WEATHER128("/icons/weather_128.png"),
 	JOEY64("/icons/joey_64.png"),
 	COBRA("/icons/cobra_360.png"),
 	KOALA_V720("/icons/koala_v720.jpg"),
