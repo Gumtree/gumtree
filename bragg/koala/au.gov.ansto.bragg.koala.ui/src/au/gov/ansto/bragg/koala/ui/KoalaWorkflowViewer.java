@@ -12,6 +12,7 @@ import org.gumtree.scripting.ScriptExecutor;
 import org.gumtree.ui.scripting.viewer.CommandLineViewer;
 import org.gumtree.ui.scripting.viewer.ICommandLineViewer;
 
+import au.gov.ansto.bragg.koala.ui.vlcj.VlcjViewer;
 import au.gov.ansto.bragg.nbi.ui.scripting.ScriptPageRegister;
 import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptControlViewer;
 import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptDataSourceViewer;
@@ -27,20 +28,23 @@ public class KoalaWorkflowViewer extends Composite {
 //	private ScriptExecutor scriptValidator;
 	private ScriptDataSourceViewer dataSourceViewer;
 	private ScriptInfoViewer infoViewer;
+	private VlcjViewer cameraViewer;
+	private SashForm level1Form;
 	
 	public KoalaWorkflowViewer(Composite parent, int style) {
 		super(parent, style);
 		GridLayoutFactory.fillDefaults().applyTo(this);
 		ScriptPageRegister register = new ScriptPageRegister();
 		
-		SashForm level1Form = new SashForm(this, SWT.HORIZONTAL);
+		level1Form = new SashForm(this, SWT.HORIZONTAL);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(level1Form);
 
 		createControlArea(level1Form);
+		level1Form.setForeground(null);
 
 //		SashForm level2Left = new SashForm(level1Form, SWT.VERTICAL);
 		SashForm level2Right = new SashForm(level1Form, SWT.VERTICAL);
-		level1Form.setWeights(new int[]{6, 4});
+		level1Form.setWeights(new int[]{6, 4, 4});
 
 //		level2Left.setWeights(new int[]{21, 10});
 		
@@ -71,13 +75,15 @@ public class KoalaWorkflowViewer extends Composite {
 		register.registerObject("Plot1", plot1Viewer);
 //		register.registerObject("Plot2", plot2Viewer);
 //		register.registerObject("Plot3", plot3Viewer);
+		register.registerObject("Camera", cameraViewer);
+		register.registerObject("Window", this);
 		controlViewer.runNativeInitScript();
 		controlViewer.loadScript(ScriptControlViewer.getFullScriptPath(System.getProperty(WORKFLOW_SCRIPT_NAME)));
 	}
 
 	private void createControlArea(SashForm parent) {
 		ScriptExecutor scriptExecutor = getScriptExecutor();
-		consoleViewer = new CommandLineViewer();
+		consoleViewer = new CommandLineViewer(false);
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
@@ -103,7 +109,9 @@ public class KoalaWorkflowViewer extends Composite {
 		GridLayoutFactory.fillDefaults().applyTo(controlViewer);
 //		GridDataFactory.fillDefaults().grab(true, true).applyTo(controlViewer);
 		
-
+		cameraViewer = new VlcjViewer(parent, SWT.NONE);
+//		GridLayoutFactory.fillDefaults().applyTo(cameraViewer);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(cameraViewer);
 	}
 
 	public ScriptExecutor getScriptExecutor(){
@@ -126,6 +134,25 @@ public class KoalaWorkflowViewer extends Composite {
 //		return scriptValidator;
 //	}
 
+	public void showCameraView() {
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				level1Form.setWeights(new int[]{6, 4, 0});
+			}
+		});
+	}
+	
+	public void showDatasetView() {
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				level1Form.setWeights(new int[]{6, 0, 4});
+			}
+		});
+	}
 	
 	@Override
 	public void dispose() {

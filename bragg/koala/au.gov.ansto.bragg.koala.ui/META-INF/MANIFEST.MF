@@ -11,4 +11,5 @@ Require-Bundle: au.gov.ansto.bragg.koala.core,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: au.gov.ansto.bragg.koala.ui,
+ au.gov.ansto.bragg.koala.ui.parts,
  au.gov.ansto.bragg.koala.ui.vlcj

@@ -1,5 +1,10 @@
 package au.gov.ansto.bragg.koala.ui;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -14,6 +19,10 @@ public class Activator extends AbstractUIPlugin {
 	// The shared instance
 	private static Activator plugin;
 	
+	private static Font fontLarge;
+	private static Font fontMiddle;
+	private static Cursor handCursor;
+
 	/**
 	 * The constructor
 	 */
@@ -27,6 +36,14 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		Display currentDisplay = Display.getDefault();
+		Font systemFont = currentDisplay.getSystemFont();
+		FontData[] fD = systemFont.getFontData();
+		fD[0].setHeight(32);
+		fontLarge = new Font(currentDisplay, fD[0]);
+		fD[0].setHeight(16);
+		fontMiddle = new Font(currentDisplay, fD[0]);
+		handCursor = new Cursor(currentDisplay, SWT.CURSOR_HAND);
 	}
 
 	/*
@@ -47,4 +64,15 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
+	public static Font getLargeFont() {
+		return fontLarge;
+	}
+	
+	public static Font getMiddleFont() {
+		return fontMiddle;
+	}
+
+	public static Cursor getHandCursor() {
+		return handCursor;
+	}
 }

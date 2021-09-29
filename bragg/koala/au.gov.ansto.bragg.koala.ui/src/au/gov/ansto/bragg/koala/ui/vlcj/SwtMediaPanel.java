@@ -17,6 +17,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.co.caprica.vlcj.player.base.Logo;
+import uk.co.caprica.vlcj.player.base.LogoPosition;
 import uk.co.caprica.vlcj.player.base.Marquee;
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
@@ -53,7 +54,7 @@ public class SwtMediaPanel {
 		centre = Marquee.marquee();
 		centre.opacity(150);
 		centre.text("X");
-		centre.size(32);
+		centre.size(128);
 		centre.colour(Color.BLUE);
 		centre.location(centrePoint.x - 14, centrePoint.y - 14);
 		
@@ -64,7 +65,7 @@ public class SwtMediaPanel {
 		frame = SWT_AWT.new_Frame(parent);
 		
 		rootPane = new JRootPane();
-		rootPane.setBackground(Color.white);
+//		rootPane.setBackground(Color.white);
 		frame.add(rootPane);
 		
 //		mediaPlayerComponent = new CallbackMediaPlayerComponent();
@@ -152,7 +153,7 @@ public class SwtMediaPanel {
 	public void fixLogo(Point point) {
 		if (!isLogoFixed) {
 			logoCoordinate = drawLogo(point);
-			System.err.println(logoCoordinate);
+			System.err.println(String.format("fix logo at %d, %d", logo.getX(), logo.getY()));
 			isLogoFixed = true;
 		}
 	}
@@ -166,9 +167,13 @@ public class SwtMediaPanel {
     public Point drawLogo(Point point) {
     	if (!isLogoFixed) {
     		Point newPoint = getLogoPosition(point);
-    		logo.location(newPoint.x - logoSize / 2, newPoint.y - logoSize / 2);
+    		int x = newPoint.x - logoSize / 2;
+    		int y = newPoint.y - logoSize / 2;
+    		logo.location(x, y);
     		showLogo();
-    		logo.apply(mediaPlayer);
+//    		logo.apply(mediaPlayer);
+    		mediaPlayer.logo().set(logo);
+    		System.err.println(String.format("draw logo at %d, %d", logo.getX(), logo.getY()));
     		return newPoint;
     	}
     	return null;
@@ -224,6 +229,7 @@ public class SwtMediaPanel {
 	
 	public void showLogo() {
 		logo.opacity(255);
+		logo.enable();
 	}
 	
 	public void showCentre() {

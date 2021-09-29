@@ -31,6 +31,7 @@ public enum InternalImage {
 	REMOVE_ITEM_12("/icons/script/rem_item_12.gif"),
 	PLAY_16("/icons/script/Play-Normal-16x16.png"),
 	PAUSE_16("icons/player_pause16x16.png"),
+	STOP_16("icons/stop_16x16.png"),
 	DOWN_16("/icons/script/down_16.png"),
 	OPEN_16("/icons/script/toc_open.gif"),
 	NEW_16("/icons/script/new_con.gif"),

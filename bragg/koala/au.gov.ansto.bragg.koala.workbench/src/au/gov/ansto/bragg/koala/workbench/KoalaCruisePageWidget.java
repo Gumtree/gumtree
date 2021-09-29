@@ -54,9 +54,7 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		PGroup sourceGroup = createGroup("REACTOR SOURCE",
 				SharedImage.REACTOR.getImage());
 		ReactorStatusWidget reactorWidget = new ReactorStatusWidget(sourceGroup, SWT.NONE);
-		reactorWidget.addDevice("reactorPower", "Power", "MW")
-				.addDevice("cnsInTemp", "CNS Inlet Temp", "K")
-				.addDevice("cnsOutTemp", "CNS Outlet Temp", "K");
+		reactorWidget.addDevice("reactorPower", "Power", "MW");
 		reactorWidget.createWidgetArea();
 		configureWidget(reactorWidget);
 		sourceGroup.setExpanded(false);
@@ -89,15 +87,15 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		DeviceStatusWidget deviceStatusWidget;
 //		// Devices
 		// Monitor Event Rate
-		PGroup monitorGroup = createGroup("NEUTRON COUNTS",
-				SharedImage.MONITOR.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
-		deviceStatusWidget
-				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "cts")
-				.addDevice("/monitor/bm1_event_rate", "BM1 counts rate", null, "cts/s")
-//				.addDevice("/instrument/detector/total_counts", "Detector counts", null, "cts")
-				;
-		configureWidget(deviceStatusWidget);
+//		PGroup monitorGroup = createGroup("NEUTRON COUNTS",
+//				SharedImage.MONITOR.getImage());
+//		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
+//		deviceStatusWidget
+//				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "cts")
+//				.addDevice("/monitor/bm1_event_rate", "BM1 counts rate", null, "cts/s")
+////				.addDevice("/instrument/detector/total_counts", "Detector counts", null, "cts")
+//				;
+//		configureWidget(deviceStatusWidget);
 
 
 		// Sample

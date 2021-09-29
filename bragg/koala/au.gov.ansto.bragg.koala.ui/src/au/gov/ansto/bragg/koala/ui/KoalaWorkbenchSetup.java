@@ -8,14 +8,18 @@ import org.eclipse.ui.IPerspectiveListener;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.IWindowListener;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.internal.WorkbenchWindow;
 import org.gumtree.ui.service.multimonitor.IMultiMonitorManager;
 import org.gumtree.ui.service.multimonitor.support.MultiMonitorManager;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import au.gov.ansto.bragg.koala.ui.parts.KoalaMainPerspective;
 
 
 /**
@@ -44,7 +48,6 @@ public class KoalaWorkbenchSetup implements IStartup {
 				}
 				public void run() throws Exception {
 					final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-					hideMenus((WorkbenchWindow) activeWorkbenchWindow);
 					if (activeWorkbenchWindow instanceof WorkbenchWindow) {
 //						activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
 						IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
@@ -52,9 +55,13 @@ public class KoalaWorkbenchSetup implements IStartup {
 							try {
 								IPerspectiveDescriptor[] perspectives = page.getOpenPerspectives();
 								for (IPerspectiveDescriptor perspective : perspectives) {
-									if (!ID_PERSPECTIVE_SICS.equals(perspective.getId())){
-										activeWorkbenchWindow.getActivePage().closePerspective(perspective, false, true);
-									}
+//									if (!KoalaMainPerspective.ID_KOALA_MAIN_PERSPECTIVE.equals(perspective.getId())){
+//										activeWorkbenchWindow.getActivePage().closePerspective(perspective, false, true);
+//									} else {
+//										IWorkbenchPartReference myView = page.findViewReference(KoalaMainPerspective.ID_CRUISE_PANEL_VIEW);
+//										page.setPartState(myView, IWorkbenchPage.STATE_MINIMIZED);
+//									}
+									activeWorkbenchWindow.getActivePage().closePerspective(perspective, false, true);
 								}
 							} catch (Exception e) {
 								e.printStackTrace();
@@ -81,6 +88,7 @@ public class KoalaWorkbenchSetup implements IStartup {
 						@Override
 						public void windowOpened(IWorkbenchWindow window) {
 							hideMenus((WorkbenchWindow) window);
+							window.getShell().setMaximized(true);
 						}
 						
 						@Override
@@ -99,13 +107,14 @@ public class KoalaWorkbenchSetup implements IStartup {
 					
 					IMultiMonitorManager mmManager = new MultiMonitorManager();
 
-					mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SICS, 0, 0, mmManager.isMultiMonitorSystem());
+					mmManager.showPerspectiveOnOpenedWindow(KoalaMainPerspective.ID_KOALA_MAIN_PERSPECTIVE, 0, 0, true);
+//					
+//					if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
+//						// open new window as editor buffer
+//						mmManager.openWorkbenchWindow(KoalaMainPerspective.ID_KOALA_MAIN_PERSPECTIVE, 1, true);
+//					}
 					
-					if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
-						// open new window as editor buffer
-						mmManager.openWorkbenchWindow(KoalaWorkflowPerspective.ID_KOALA_WORKFLOW_PERSPECTIVE, 1, true);
-					}
-					
+					hideMenus((WorkbenchWindow) activeWorkbenchWindow);
 //					mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_ANALYSIS, 1, 1, mmManager.isMultiMonitorSystem());
 				}			
 			});
@@ -138,7 +147,7 @@ public class KoalaWorkbenchSetup implements IStartup {
 		}
 	}
 
-	private void hideMenus(WorkbenchWindow window){
+	public static void hideMenus(WorkbenchWindow window){
 		WorkbenchWindow workbenchWin = (WorkbenchWindow)PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		MenuManager menuManager = ((WorkbenchWindow) window).getMenuManager();
 		IContributionItem[] items = menuManager.getItems();
@@ -156,6 +165,12 @@ public class KoalaWorkbenchSetup implements IStartup {
 	    ((WorkbenchWindow) window).getMenuBarManager().setVisible(false);
 	    ((WorkbenchWindow) window).getMenuBarManager().setRemoveAllWhenShown(true);
 	    
+	    try {
+	        IHandlerService service = (IHandlerService) window.getService(IHandlerService.class);
+	        if (service != null)
+	            service.executeCommand("org.eclipse.ui.ToggleCoolbarAction", null);
+	    } catch (Exception e) {
+	    }
 	}
 	
 }

@@ -56,7 +56,10 @@ public class VlcjViewer extends Composite {
 	private boolean isAddingMarker;
 	private boolean isPlayer1Ready;
 	private boolean isPlayer2Ready;
-	private Thread controlThread;
+	private Thread controlThread1;
+	private Thread controlThread2;
+	private boolean isInitialised1;
+	private boolean isInitialised2;
 			
 	public VlcjViewer(Composite parent, int style) {
 		super(parent, style);
@@ -86,7 +89,11 @@ public class VlcjViewer extends Composite {
 		createControls(videoControlComposite);
 		
 		Composite videoComposite = new Composite(this, SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns(1).spacing(1, 1).applyTo(videoComposite);
+		int columns = 1;
+		if ((style & SWT.HORIZONTAL) != 0) {
+			columns = 2;
+		}
+		GridLayoutFactory.fillDefaults().numColumns(columns).spacing(1, 1).applyTo(videoComposite);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(videoComposite);
 		
 		Composite videoSurfaceComposite1 = new Composite(
@@ -121,10 +128,10 @@ public class VlcjViewer extends Composite {
         		// TODO Auto-generated method stub
         		super.videoOutput(mediaPlayer, newCount);
         		isPlayer1Ready = true;
-        		if (isPlayer1Ready && isPlayer2Ready) {
-        			syncSetText(reloadButton, "Reload Video");
-        			syncSetImage(reloadButton, InternalImage.REFRESH_16.getImage());
-        		}
+//        		if (isPlayer1Ready && isPlayer2Ready) {
+        			syncSetText(reloadButton, "Stop Video");
+        			syncSetImage(reloadButton, InternalImage.STOP_16.getImage());
+//        		}
         		mediaPanel1.showCentre();
         	}
         });
@@ -172,7 +179,6 @@ public class VlcjViewer extends Composite {
         	@Override
         	public void error(MediaPlayer mediaPlayer) {
         		super.error(mediaPlayer);
-        		System.err.println("Player 2 error caught");
         		if (isPlayer2Ready) {
         			mediaPlayer.controls().stop();
         			isPlayer2Ready = false;
@@ -183,10 +189,10 @@ public class VlcjViewer extends Composite {
         	public void videoOutput(MediaPlayer mediaPlayer, int newCount) {
         		super.videoOutput(mediaPlayer, newCount);
         		isPlayer2Ready = true;
-        		if (isPlayer1Ready && isPlayer2Ready) {
-        			syncSetText(reloadButton, "Reload Video");
-        			syncSetImage(reloadButton, InternalImage.REFRESH_16.getImage());
-        		}
+//        		if (isPlayer1Ready && isPlayer2Ready) {
+        			syncSetText(reloadButton, "Stop Video");
+        			syncSetImage(reloadButton, InternalImage.STOP_16.getImage());
+//        		}
         		mediaPanel2.showCentre();
         	}
         });
@@ -219,19 +225,6 @@ public class VlcjViewer extends Composite {
         		}
         	}
 		});
-
-		controlThread = new Thread() {
-			public void run() {
-				try {
-			        mediaPlayer1.media().start(cam1Url);
-			        mediaPlayer2.media().start(cam2Url);
-				} catch (Exception e) {
-					System.err.println("failed to start players");
-				}
-			};
-		};
-		controlThread.start();
-		
 
 	}
 
@@ -336,8 +329,8 @@ public class VlcjViewer extends Composite {
 		});
 
 		reloadButton = new Button(parent, SWT.PUSH);
-		reloadButton.setText("Reload Video");
-		reloadButton.setImage(InternalImage.BUSY_STATUS_16.getImage());
+		reloadButton.setText("Start Video");
+		reloadButton.setImage(InternalImage.PLAY_16.getImage());
 		GridDataFactory.fillDefaults().grab(true, false).minSize(0, 32).hint(100, 32).applyTo(reloadButton);
 		reloadButton.addSelectionListener(new SelectionListener() {
 			
@@ -370,25 +363,82 @@ public class VlcjViewer extends Composite {
 //						mediaPlayer2.media().start(cam2Url);
 //					}
 //				}
-				if (controlThread != null && controlThread.isAlive()) {
-					System.err.println("interrupt sleeping thread");
-					controlThread.interrupt();
+				if (controlThread1 != null && controlThread1.isAlive()) {
+					controlThread1.interrupt();
 				}
-				controlThread = new Thread() {
+				if (controlThread2 != null && controlThread1.isAlive()) {
+					controlThread2.interrupt();
+				}
+				controlThread1 = new Thread() {
 					public void run() {
-						try {
-							mediaPlayer1.controls().stop();
-							mediaPlayer2.controls().stop();
-							isPlayer1Ready = false;
-							isPlayer2Ready = false;
-							mediaPlayer1.controls().play();
-							mediaPlayer2.controls().play();
-						} catch (Exception ex) {
-							System.err.println("failed to start player");
+						if (isInitialised1) {
+							if (isPlayer1Ready) {
+								try {
+									mediaPlayer1.controls().stop();
+//									mediaPlayer2.controls().stop();
+									isPlayer1Ready = false;
+//									isPlayer2Ready = false;
+									if (!isPlayer1Ready && !isPlayer2Ready) {
+										syncSetText(reloadButton, "Start Video");
+										syncSetImage(reloadButton, InternalImage.PLAY_16.getImage());
+									}
+								} catch (Exception ex) {
+									System.err.println("failed to stop player");
+								}
+							} else {
+								try {
+									mediaPlayer1.controls().play();
+//									mediaPlayer2.controls().play();
+								} catch (Exception ex) {
+									System.err.println("failed to start player");
+								}
+							}
+							
+						} else {
+							try {
+								isInitialised1 = true;
+								mediaPlayer1.media().start(cam1Url);
+//								mediaPlayer2.media().start(cam2Url);
+							} catch (Exception e) {
+								System.err.println("failed to start players");
+							}
 						}
 					};
 				};
-				controlThread.start();
+				controlThread2 = new Thread() {
+					public void run() {
+						if (isInitialised2) {
+							if (isPlayer2Ready) {
+								try {
+									mediaPlayer2.controls().stop();
+									isPlayer2Ready = false;
+									if (!isPlayer1Ready && !isPlayer2Ready) {
+										syncSetText(reloadButton, "Start Video");
+										syncSetImage(reloadButton, InternalImage.PLAY_16.getImage());
+									}
+								} catch (Exception ex) {
+									System.err.println("failed to stop player");
+								}
+							} else {
+								try {
+									mediaPlayer2.controls().play();
+								} catch (Exception ex) {
+									System.err.println("failed to start player");
+								}
+							}
+							
+						} else {
+							try {
+								isInitialised2 = true;
+								mediaPlayer2.media().start(cam2Url);
+							} catch (Exception e) {
+								System.err.println("failed to start players");
+							}
+						}
+					};
+				};
+				controlThread1.start();
+				controlThread2.start();
 			}
 			
 			@Override
