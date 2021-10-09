@@ -10,6 +10,7 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
 
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
+import au.gov.ansto.bragg.koala.ui.scan.ScanTableModel;
 
 /**
  * @author nxi
@@ -32,11 +33,15 @@ public class MainPart extends Composite {
 	private AbstractControlPanel currentMainPanel;
 	private AbstractPanel currentPanel;
 //	private AbstractControlPanel nextPanel;
-	
+	private ScanTableModel scanModel;
+	private KoalaMode instrumentMode = KoalaMode.CHEMISTRY;
+
 	
 	public MainPart(Composite parent, int style) {
 		super(parent, style);
 		GridLayoutFactory.fillDefaults().applyTo(this);
+		
+		scanModel = new ScanTableModel();
 		
 		createPanels();
 	}
@@ -150,6 +155,7 @@ public class MainPart extends Composite {
 	}
 	
 	public void setMode(KoalaMode mode) {
+		instrumentMode = mode;
 		switch (mode) {
 		case CHEMISTRY:
 			getParentViewer().getFooterPart().enableChemistryButton();
@@ -160,10 +166,17 @@ public class MainPart extends Composite {
 			getParentViewer().getFooterPart().disableChemistryButton();
 			break;
 		default:
-			getParentViewer().getFooterPart().enableChemistryButton();
+			getParentViewer().getFooterPart().disableChemistryButton();
 			getParentViewer().getHeaderPart().disablePhysicsButton();
 			break;
 		}
 	}
 	
+	public ScanTableModel getScanModel() {
+		return scanModel;
+	}
+
+	public KoalaMode getInstrumentMode() {
+		return instrumentMode;
+	}
 }

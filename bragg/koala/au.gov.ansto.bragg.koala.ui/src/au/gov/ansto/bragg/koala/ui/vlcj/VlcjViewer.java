@@ -13,14 +13,20 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Slider;
+import org.eclipse.swt.widgets.Text;
 
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
+import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.nbi.ui.internal.InternalImage;
 import uk.co.caprica.vlcj.binding.RuntimeUtil;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
@@ -84,16 +90,16 @@ public class VlcjViewer extends Composite {
 		
 		GridLayoutFactory.fillDefaults().applyTo(this);
 		Composite videoControlComposite = new Composite(this, SWT.BORDER);
-		GridLayoutFactory.fillDefaults().spacing(1, 1).numColumns(3).applyTo(videoControlComposite);
+		GridLayoutFactory.fillDefaults().margins(0, 0).spacing(0, 0).numColumns(3).applyTo(videoControlComposite);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(videoControlComposite);
 		createControls(videoControlComposite);
 		
 		Composite videoComposite = new Composite(this, SWT.NONE);
 		int columns = 1;
 		if ((style & SWT.HORIZONTAL) != 0) {
-			columns = 2;
+			columns = 3;
 		}
-		GridLayoutFactory.fillDefaults().numColumns(columns).spacing(1, 1).applyTo(videoComposite);
+		GridLayoutFactory.fillDefaults().numColumns(columns).spacing(0, 0).applyTo(videoComposite);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(videoComposite);
 		
 		Composite videoSurfaceComposite1 = new Composite(
@@ -102,6 +108,129 @@ public class VlcjViewer extends Composite {
 		GridLayoutFactory.fillDefaults().margins(1, 1).applyTo(videoSurfaceComposite1);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(videoSurfaceComposite1);
 
+		Composite wrapComposite = new Composite(videoComposite, SWT.EMBEDDED);
+		wrapComposite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+		GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(wrapComposite);
+		GridDataFactory.fillDefaults().grab(false, true).applyTo(wrapComposite);
+		
+		Composite axesControlComposite = new Composite(wrapComposite, SWT.EMBEDDED);
+//		axesControlComposite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+		GridLayoutFactory.fillDefaults().margins(8, 8).numColumns(2).applyTo(axesControlComposite);
+		GridDataFactory.fillDefaults().grab(false, true).align(SWT.CENTER, SWT.CENTER).applyTo(axesControlComposite);
+//		axesControlComposite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, true, 1, 1));
+		
+		final Button phiSButton = new Button(axesControlComposite, SWT.PUSH);
+//		phiSButton.setImage(KoalaImage.PLAY48.getImage());
+		phiSButton.setText("Phi -90\u00b0");
+		phiSButton.setFont(Activator.getMiddleFont());
+		phiSButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).span(1, 3).hint(120, 48).applyTo(phiSButton);
+
+		final Button phiNButton = new Button(axesControlComposite, SWT.PUSH);
+//		phiNButton.setImage(KoalaImage.PLAY48.getImage());
+		phiNButton.setText("Phi +90\u00b0");
+		phiNButton.setFont(Activator.getMiddleFont());
+		phiNButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.END, SWT.CENTER).span(1, 3).hint(120, 48).applyTo(phiNButton);
+
+
+		Group xGroup = new Group(axesControlComposite, SWT.NONE);
+		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(3).applyTo(xGroup);
+		xGroup.setText("Sample X offset");
+		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).align(SWT.CENTER, SWT.CENTER).applyTo(xGroup);
+		
+		final Label curLabel = new Label(xGroup, SWT.NONE);
+		curLabel.setText("Current");
+		curLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(curLabel);
+		
+		final Text curText = new Text(xGroup, SWT.BORDER);
+		curText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(curText);
+		
+		final Button driveButton = new Button(xGroup, SWT.PUSH);
+		driveButton.setImage(KoalaImage.PLAY48.getImage());
+		driveButton.setText("Drive");
+		driveButton.setFont(Activator.getMiddleFont());
+		driveButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).span(1, 3).hint(180, 64).applyTo(driveButton);
+
+		final Label tarLabel = new Label(xGroup, SWT.NONE);
+		tarLabel.setText("Target");
+		tarLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(tarLabel);
+		
+		final Text tarText = new Text(xGroup, SWT.BORDER);
+		tarText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(tarText);
+		
+		final Slider slider = new Slider(xGroup, SWT.HORIZONTAL);
+//	    slider.setBounds(0, 0, 40, 200);
+	    slider.setMaximum(100);
+	    slider.setMinimum(0);
+	    slider.setIncrement(1);
+	    slider.setPageIncrement(5);
+	    slider.setThumb(4);
+	    slider.setSelection(48);
+	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(slider);
+	    
+		Group yGroup = new Group(axesControlComposite, SWT.NONE);
+		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(3).applyTo(yGroup);
+		yGroup.setText("Sample Y offset");
+		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).align(SWT.CENTER, SWT.CENTER).applyTo(yGroup);
+		
+		final Label curYLabel = new Label(yGroup, SWT.NONE);
+		curYLabel.setText("Current");
+		curYLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(curYLabel);
+		
+		final Text curYText = new Text(yGroup, SWT.BORDER);
+		curYText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(curYText);
+		
+		final Button driveYButton = new Button(yGroup, SWT.PUSH);
+		driveYButton.setImage(KoalaImage.PLAY48.getImage());
+		driveYButton.setText("Drive");
+		driveYButton.setFont(Activator.getMiddleFont());
+		driveYButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).span(1, 3).hint(180, 64).applyTo(driveYButton);
+
+		final Label tarYLabel = new Label(yGroup, SWT.NONE);
+		tarYLabel.setText("Target");
+		tarYLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(tarYLabel);
+		
+		final Text tarYText = new Text(yGroup, SWT.BORDER);
+		tarYText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(tarYText);
+		
+		final Slider sliderY = new Slider(yGroup, SWT.HORIZONTAL);
+//	    slider.setBounds(0, 0, 40, 200);
+		sliderY.setMaximum(100);
+		sliderY.setMinimum(0);
+		sliderY.setIncrement(1);
+		sliderY.setPageIncrement(5);
+		sliderY.setThumb(4);
+		sliderY.setSelection(48);
+	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(sliderY);
+	    
+		final Button phiEButton = new Button(axesControlComposite, SWT.PUSH);
+//		phiEButton.setImage(KoalaImage.PLAY48.getImage());
+		phiEButton.setText("Phi 0\u00b0");
+		phiEButton.setFont(Activator.getMiddleFont());
+		phiEButton.setCursor(Activator.getHandCursor());
+		phiEButton.setForeground(Activator.getLightColor());
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).span(1, 3).hint(120, 48).applyTo(phiEButton);
+
+		final Button phiWButton = new Button(axesControlComposite, SWT.PUSH);
+//		phiNButton.setImage(KoalaImage.PLAY48.getImage());
+		phiWButton.setText("Phi -180\u00b0");
+		phiWButton.setFont(Activator.getMiddleFont());
+		phiWButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.END, SWT.CENTER).span(1, 3).hint(120, 48).applyTo(phiWButton);
+
+
+		
 		Composite videoSurfaceComposite2 = new Composite(
 				videoComposite, SWT.EMBEDDED | SWT.NO_BACKGROUND);
 //		videoSurfaceComposite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
@@ -451,7 +580,22 @@ public class VlcjViewer extends Composite {
 	@Override
 	public void dispose() {
 		super.dispose();
-		mediaPlayer1.release();
-		mediaPlayer2.release();
+		Thread dispose1 = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				mediaPlayer1.release();
+			}
+		});
+		dispose1.start();
+		Thread dispose2 = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				mediaPlayer2.release();
+			}
+		});
+		dispose2.start();
+		System.err.println("Vlcj disposed successfully");
 	}
 }

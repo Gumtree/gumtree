@@ -23,6 +23,16 @@ public enum KoalaImage {
 	ALIGNED64("/icons/aligned_64.png"),
 	ORIENTATION64("/icons/orientation_64.png"),
 	PLAY48("/icons/play_48.png"),
+	COPY_EMPTY32("/icons/copy_emp_32.png"),
+	COPY_FILLED32("/icons/copy_fill_32.png"),
+	COPY32("/icons/copy_32.png"),
+	DELETE32("/icons/delete_32.png"),
+	COPY48("/icons/copy_48.png"),
+	DELETE48("/icons/delete_48.png"),
+	DELETE_INV32("/icons/delete_inv_32.png"),
+	PAUSE64("/icons/pause_64.png"),
+	STOP64("/icons/stop_64.png"),
+	IMAGE32("/icons/image_32.png"),
 	;
 	
 	private KoalaImage(String path) {

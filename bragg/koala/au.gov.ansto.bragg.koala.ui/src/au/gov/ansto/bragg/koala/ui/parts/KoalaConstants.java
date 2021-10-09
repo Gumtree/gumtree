@@ -5,6 +5,7 @@ public class KoalaConstants {
 	public enum KoalaMode {
 		CHEMISTRY,
 		PHYSICS,
+		JOEY,
 	}
 	
 	public KoalaConstants() {

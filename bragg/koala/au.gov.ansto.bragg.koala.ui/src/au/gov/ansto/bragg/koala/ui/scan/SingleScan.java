@@ -1,0 +1,268 @@
+package au.gov.ansto.bragg.koala.ui.scan;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+
+public class SingleScan {
+
+	private float start;
+	private float inc;
+	private int number;
+	private float end;
+	private int exposure = 60;
+	private int erasure = 10;
+	private float temp;
+	private float chi;
+	private String status;
+	private String comments;
+	private String filename;
+	private PropertyChangeSupport changeListener = new PropertyChangeSupport(this);
+	private InputType inputLast;
+	private InputType input2nd;
+
+	enum InputType {START, INC, NUMBER, END};
+	
+	public SingleScan() {
+	}
+
+	public float getStart() {
+		return start;
+	}
+	public void setStart(float start) {
+		Object old = this.start;
+		this.start = start;
+		firePropertyChange("start", old, start);
+		calculateEntries(InputType.START);
+	}
+	
+	public float getInc() {
+		return inc;
+	}
+	public void setInc(float inc) {
+		Object old = this.inc;
+		this.inc = inc;
+		firePropertyChange("inc", old, inc);
+		calculateEntries(InputType.INC);
+	}
+	
+	public int getNumber() {
+		return number;
+	}
+	public void setNumber(int number) {
+		Object old = this.number;
+		this.number = number;
+		firePropertyChange("number", old, number);
+		calculateEntries(InputType.NUMBER);
+	}
+	
+	public float getEnd() {
+		return end;
+	}
+	public void setEnd(float end) {
+		Object old = this.end;
+		this.end = end;
+		firePropertyChange("end", old, end);
+		calculateEntries(InputType.END);
+	}
+	
+	public int getErasure() {
+		return erasure;
+	}
+	public void setErasure(int erasure) {
+		Object old = this.erasure;
+		this.erasure = erasure;
+		firePropertyChange("erasure", old, erasure);
+	}
+
+	public int getExposure() {
+		return exposure;
+	}
+	public void setExposure(int exposure) {
+		Object old = exposure;
+		this.exposure = exposure;
+		firePropertyChange("exposure", old, exposure);
+	}
+	
+	public float getTemp() {
+		return temp;
+	}
+	public void setTemp(float temp) {
+		Object old = temp;
+		this.temp = temp;
+		firePropertyChange("temp", old, temp);
+	}
+	public float getChi() {
+		return chi;
+	}
+	public void setChi(float chi) {
+		Object old = chi;
+		this.chi = chi;
+		firePropertyChange("chi", old, chi);
+	}
+	public String getStatus() {
+		if (status != null) {
+			return status;
+		}
+		return "";
+	}
+	public void setStatus(String status) {
+		Object old = this.status;
+		this.status = status;
+		firePropertyChange("status", old, status);
+	}
+	
+	public String getComments() {
+		if (comments != null) {
+			return comments;
+		} else {
+			return "";
+		}
+	}
+	public void setComments(String comments) {
+		Object old = this.comments;
+		this.comments = comments;
+		firePropertyChange("comments", old, comments);
+	}
+	public String getFilename() {
+		if (filename != null) {
+			return filename;
+		} else {
+			return "";
+		}
+	}
+	public void setFilename(String filename) {
+		Object old = this.filename;
+		this.filename = filename;
+		firePropertyChange("filename", old, filename);
+	}
+	public SingleScan getCopy() {
+		SingleScan scan = new SingleScan();
+		scan.copyFrom(this);
+		return scan;
+	}
+	
+	public void copyFrom(SingleScan scan) {
+		start = scan.getStart();
+		inc = scan.getInc();
+		number = scan.getNumber();
+		end = scan.getEnd();
+		exposure = scan.getExposure();
+		erasure = scan.getErasure();
+		temp = scan.getTemp();
+		chi = scan.getChi();
+		comments = scan.getComments();
+	}
+	
+	private void calculateEntries(InputType input) {
+		if (input != InputType.START && input != inputLast) {
+			input2nd = inputLast;
+			inputLast = input;
+		}
+		if (inputLast == null || input2nd == null) {
+			calculateScanFinal();
+		} else if (inputLast == InputType.INC) {
+			if (input2nd == InputType.NUMBER) {
+				calculateScanFinal();
+			} else if (input2nd == InputType.END) {
+				calculateScanNumber();
+			}
+		} else if (inputLast == InputType.NUMBER) {
+			if (input2nd == InputType.INC) {
+				calculateScanFinal();
+			} else if (input2nd == InputType.END) {
+				calculateScanInc();
+			}
+		} else if (inputLast == InputType.END) {
+			if (input2nd == InputType.INC) {
+				calculateScanNumber();
+			} else if (input2nd == InputType.NUMBER) {
+				calculateScanInc();
+			}
+		}
+	}
+	
+    private void calculateScanInc() {
+    	float old = inc;
+        if (number == 0) {
+            return;
+        } else if (number == 1) {
+            inc = 0;
+        } else {
+            inc = (float) (Math.round((end - start) / (number - 1) * 1e5) / 1e5);
+        }
+        firePropertyChange("inc", old, inc);
+    }
+    
+    private void calculateScanNumber() {
+    	int old = number;
+    	if (inc == 0) {
+            number = 1;
+        } else if (start == end) {
+            number = 1;
+        } else if (inc > 0) {
+            number = 0;
+            float s = start;
+            while (s <= end) {
+                s += inc;
+                number += 1;
+            }
+            if (number == 0){
+                number = 1;
+            }
+        } else {
+            number = 0;
+            float s = start;
+            while (s >= end) {
+                s += inc;
+                number += 1;
+            }
+            if (number == 0) {
+            	number = 1;
+            }
+        }
+    	firePropertyChange("number", old, number);
+    }
+
+    private void calculateScanFinal() {
+    	float old = end;
+        if (number <= 0) {
+            return;
+        }
+        if (inc == 0) {
+            end = start;
+        } else if (number == 1) {
+            end = start;
+        } else {
+            end = Float.valueOf(start + (number - 1) * inc);
+        }
+        firePropertyChange("end", old, end);
+    }
+        
+//    private void createNumbers() {
+//        r = [start]
+//        if inc == 0:
+//            r.append(final)
+//        elif inc > 0:
+//            while start <= final:
+//                start += inc
+//                r.append(start)
+//        else :
+//            while start >= final:
+//                start += inc
+//                r.append(start)
+//        s = ', '.join([float_to_str(i) for i in r])
+//        self.psnumbers.value = s
+
+	protected void firePropertyChange(String name, Object oldValue, Object newValue) {
+		changeListener.firePropertyChange(name, oldValue, newValue);
+	}
+
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		changeListener.addPropertyChangeListener(listener);
+	}
+
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		changeListener.removePropertyChangeListener(listener);
+	}
+
+}

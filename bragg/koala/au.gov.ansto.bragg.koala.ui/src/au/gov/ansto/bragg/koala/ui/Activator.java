@@ -1,6 +1,7 @@
 package au.gov.ansto.bragg.koala.ui;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -22,6 +23,8 @@ public class Activator extends AbstractUIPlugin {
 	private static Font fontLarge;
 	private static Font fontMiddle;
 	private static Cursor handCursor;
+	private static Cursor defaultCursor;
+	private static Color lightColor;
 
 	/**
 	 * The constructor
@@ -44,6 +47,8 @@ public class Activator extends AbstractUIPlugin {
 		fD[0].setHeight(16);
 		fontMiddle = new Font(currentDisplay, fD[0]);
 		handCursor = new Cursor(currentDisplay, SWT.CURSOR_HAND);
+		defaultCursor = currentDisplay.getSystemCursor(SWT.CURSOR_ARROW);
+		lightColor = Display.getDefault().getSystemColor(SWT.COLOR_INFO_BACKGROUND);
 	}
 
 	/*
@@ -74,5 +79,11 @@ public class Activator extends AbstractUIPlugin {
 
 	public static Cursor getHandCursor() {
 		return handCursor;
+	}
+	public static Cursor getDefaultCursor() {
+		return defaultCursor;
+	}
+	public static Color getLightColor() {
+		return lightColor;
 	}
 }
