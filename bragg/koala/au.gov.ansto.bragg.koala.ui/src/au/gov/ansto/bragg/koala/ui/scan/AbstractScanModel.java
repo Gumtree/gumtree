@@ -72,7 +72,7 @@ public abstract class AbstractScanModel implements KTableModel {
 		highlightDelButtonRenderer.setImage(KoalaImage.DELETE_INV32.getImage());
 	}
 	
-	public void setTable(KTable table) {
+	public void setTable(final KTable table) {
 		this.table = table;
 		table.addMouseListener(new MouseListener() {
 			
@@ -260,8 +260,12 @@ public abstract class AbstractScanModel implements KTableModel {
 		}
 	}
 	
-	protected SingleScan getItem(int row) {
-		return scanList.get(row - 1);
+	public SingleScan getItem(int row) {
+		if (row <= scanList.size()) {
+			return scanList.get(row - 1);
+		} else {
+			return null;
+		}
 	}
 	
 	@Override

@@ -9,6 +9,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
@@ -21,6 +23,8 @@ import org.gumtree.msw.ui.ktable.SWTX;
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
+import au.gov.ansto.bragg.koala.ui.scan.ChemistryModel;
+import au.gov.ansto.bragg.koala.ui.scan.SingleScan;
 
 /**
  * @author nxi
@@ -210,6 +214,38 @@ public class ChemistryPanel extends AbstractControlPanel {
 		fnText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(180, 40).applyTo(fnText);
 
+	    final Button applyButton = new Button(batchGroup, SWT.PUSH);
+	    applyButton.setImage(KoalaImage.COPY48.getImage());
+	    applyButton.setText("Apply to Selected Entries");
+	    applyButton.setFont(Activator.getMiddleFont());
+	    applyButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).span(3, 1).hint(128, 64).applyTo(applyButton);
+
+		applyButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String com = comText.getText();
+				String fn = fnText.getText();
+				ChemistryModel model = mainPart.getChemistryModel();
+				int[] rows = table.getRowSelection();
+				for (int row : rows) {
+					SingleScan scan = model.getItem(row);
+					if (com != null && com.trim().length() > 0) {
+						scan.setComments(com);
+					}
+					if (fn != null && fn.trim().length() > 0) {
+						scan.setFilename(fn);
+					}
+				}
+				table.redraw();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
 		final Label estLabel = new Label(batchGroup, SWT.NONE);
 		estLabel.setText("Time estimation of selected");
 		estLabel.setFont(Activator.getMiddleFont());
@@ -251,6 +287,7 @@ public class ChemistryPanel extends AbstractControlPanel {
 					batchGroup.layout();
 //					batchHolder.setMinSize(batchGroup.computeSize(xHint, yHint));
 					batchHolder.getParent().layout();
+					mainPart.layout();
 				} else {
 					batchHolder.setContent(emptyPart);
 					emptyPart.layout();

@@ -187,11 +187,11 @@ public class MainPart extends Composite {
 		}
 	}
 	
-	public AbstractScanModel getChemistryModel() {
+	public ChemistryModel getChemistryModel() {
 		return chemModel;
 	}
 
-	public AbstractScanModel getPhysicsModel() {
+	public PhysicsModel getPhysicsModel() {
 		return physModel;
 	}
 
