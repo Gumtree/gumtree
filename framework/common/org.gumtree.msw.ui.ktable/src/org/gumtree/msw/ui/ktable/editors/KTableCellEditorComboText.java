@@ -21,6 +21,7 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
@@ -37,6 +38,7 @@ import org.gumtree.msw.ui.ktable.KTableCellEditor;
 public class KTableCellEditorComboText extends KTableCellEditor {
 	private CCombo m_Combo;
 	private String m_Items[];
+	private Font font;
 	private int visibleItemCount = -1;
 	
 	// construction
@@ -112,8 +114,13 @@ public class KTableCellEditorComboText extends KTableCellEditor {
 		super.close(save);
 	}
 
+	public void setFont(Font font) {
+		this.font = font;
+	}
+	
 	protected Control createControl() {
 		m_Combo = new CCombo(m_Table, SWT.NONE);
+		m_Combo.setFont(font);
 		m_Combo.addKeyListener(keyListener);        
 		m_Combo.addTraverseListener(travListener);
 		

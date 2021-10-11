@@ -20,13 +20,13 @@ import org.gumtree.msw.ui.ktable.SWTX;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
-import au.gov.ansto.bragg.koala.ui.scan.ScanTableModel;
+import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
 
 /**
  * @author nxi
  *
  */
-public class FullExpPanel extends AbstractControlPanel {
+public class PhysicsPanel extends AbstractControlPanel {
 
 	private static final int WIDTH_HINT = 1860;
 	private static final int HEIGHT_HINT = 720;
@@ -37,7 +37,7 @@ public class FullExpPanel extends AbstractControlPanel {
 	 * @param parent
 	 * @param style
 	 */
-	public FullExpPanel(Composite parent, int style, MainPart part) {
+	public PhysicsPanel(Composite parent, int style, MainPart part) {
 		super(parent, style);
 		mainPart = part;
 		GridLayoutFactory.fillDefaults().margins(8, 8).numColumns(2).applyTo(this);
@@ -60,7 +60,7 @@ public class FullExpPanel extends AbstractControlPanel {
 	    							| SWTX.FILL_WITH_LASTCOL
 	    							| SWT.FULL_SELECTION
 	    							);
-	    final ScanTableModel model = mainPart.getScanModel();
+	    final AbstractScanModel model = mainPart.getPhysicsModel();
 	    model.setFont(Activator.getMiddleFont());
 	    table.setFont(Activator.getMiddleFont());
 	    table.setCursor(Activator.getHandCursor());
@@ -323,7 +323,7 @@ public class FullExpPanel extends AbstractControlPanel {
 
 	@Override
 	public void show() {
-		ScanTableModel model = mainPart.getScanModel();
+		AbstractScanModel model = mainPart.getPhysicsModel();
 		if (model.getSize() == 0) {
 			model.insertScan(0);
 			table.redraw();

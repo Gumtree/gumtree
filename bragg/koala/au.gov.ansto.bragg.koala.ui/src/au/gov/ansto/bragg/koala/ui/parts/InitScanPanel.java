@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Text;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
+import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
 import au.gov.ansto.bragg.koala.ui.scan.SingleScan;
 import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptDataSourceViewer;
 
@@ -51,7 +52,10 @@ public class InitScanPanel extends AbstractControlPanel {
 	public InitScanPanel(Composite parent, int style, MainPart part) {
 		super(parent, style);
 		mainPart = part;
-		initScan = mainPart.getScanModel().getInitScan();
+		initScan = new SingleScan();
+//		initScan = mainPart.getScanModel().getInitScan();
+		mainPart.getChemistryModel().setInitScan(initScan);
+		mainPart.getPhysicsModel().setInitScan(initScan);
 		
 		GridLayoutFactory.fillDefaults().numColumns(3).margins(8, 8).applyTo(this);
 		GridDataFactory.swtDefaults().minSize(720, 720).align(SWT.CENTER, SWT.CENTER).applyTo(this);
@@ -300,7 +304,11 @@ public class InitScanPanel extends AbstractControlPanel {
 	 */
 	@Override
 	public void next() {
-		mainPart.showFullExpPanel();
+		if (mainPart.getInstrumentMode() == KoalaMode.CHEMISTRY) {
+			mainPart.showChemistryPanel();
+		} else if (mainPart.getInstrumentMode() == KoalaMode.PHYSICS) {
+			mainPart.showPhysicsPanel();
+		}
 	}
 
 	/* (non-Javadoc)

@@ -21,7 +21,7 @@ import org.gumtree.msw.ui.ktable.KTableModel;
 import org.gumtree.msw.ui.ktable.renderers.BorderPainter;
 import org.gumtree.msw.ui.ktable.renderers.DefaultCellRenderer;
 
-abstract class ButtonRenderer implements KTableCellRenderer {
+public abstract class ButtonRenderer implements KTableCellRenderer {
     
 	private static enum State {
 		DEFAULT, MOUSE_OVER, MOUSE_DOWN

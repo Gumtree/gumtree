@@ -321,6 +321,7 @@ public class KTable extends Canvas {
                 if (isHighlightSelectionInHeader() && (statemask & SWT.SHIFT) == 0) {
 					Point[] selections = getCellSelection();
 					GC gc = new GC(KTable.this);
+					gc.setFont(KTable.this.getFont());
 
 					repaintRelevantCells(gc, oldSelections);
 					repaintRelevantCells(gc, selections);
@@ -1267,6 +1268,7 @@ public class KTable extends Canvas {
         
         Rectangle clipRect = getClientArea();
         GC gc = new GC(this);
+        gc.setFont(this.getFont());
         Rectangle oldClip = setContentAreaClipping(gc);
         drawCells(gc, clipRect, firstCol, Math.min(firstCol + numOfCols, m_Model.getColumnCount()), firstRow, Math
 				.min(firstRow + numOfRows, m_Model.getRowCount()));
@@ -1450,6 +1452,7 @@ public class KTable extends Canvas {
         Point valid = getValidCell(col, row);
         // update it:
         GC gc = new GC(this);
+        gc.setFont(this.getFont());
         drawCell(gc, valid.x, valid.y);
         gc.dispose();
     }
@@ -1803,6 +1806,7 @@ public class KTable extends Canvas {
         }
         
         GC gc = new GC(this);
+        gc.setFont(this.getFont());
         
         // close cell editor if active
         closeCellEditor();
@@ -2646,6 +2650,7 @@ public class KTable extends Canvas {
         if (column >= 0 && column < m_Model.getColumnCount()) {
             int optWidth = 5;
             GC gc = new GC(this);
+            gc.setFont(this.getFont());
 			for (int i = 0; i < m_Model.getFixedHeaderRowCount(); i++) {
 				Point valid = getValidCell(column, i);
 				if (valid.x == column && valid.y == i) {

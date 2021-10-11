@@ -140,6 +140,12 @@ public class ProposalPanel extends AbstractControlPanel {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
+		
+		if (mainPart.getInstrumentMode() == KoalaMode.CHEMISTRY) {
+			chemButton.setSelection(true);
+		} else if (mainPart.getInstrumentMode() == KoalaMode.PHYSICS) {
+			physiButton.setSelection(true);
+		}
 	}
 
 	

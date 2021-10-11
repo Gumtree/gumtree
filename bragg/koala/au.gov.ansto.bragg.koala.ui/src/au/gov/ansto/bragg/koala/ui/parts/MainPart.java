@@ -10,7 +10,9 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
 
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
-import au.gov.ansto.bragg.koala.ui.scan.ScanTableModel;
+import au.gov.ansto.bragg.koala.ui.scan.ChemistryModel;
+import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
+import au.gov.ansto.bragg.koala.ui.scan.PhysicsModel;
 
 /**
  * @author nxi
@@ -28,12 +30,14 @@ public class MainPart extends Composite {
 	private ProposalPanel proposalPanel;
 	private CrystalPanel crystalPanel;
 	private InitScanPanel initScanPanel;
-	private FullExpPanel fullExpPanel;
+	private ChemistryPanel chemExpPanel;
+	private PhysicsPanel physicsPanel;
 	
 	private AbstractControlPanel currentMainPanel;
 	private AbstractPanel currentPanel;
 //	private AbstractControlPanel nextPanel;
-	private ScanTableModel scanModel;
+	private ChemistryModel chemModel;
+	private PhysicsModel physModel;
 	private KoalaMode instrumentMode = KoalaMode.CHEMISTRY;
 
 	
@@ -41,9 +45,11 @@ public class MainPart extends Composite {
 		super(parent, style);
 		GridLayoutFactory.fillDefaults().applyTo(this);
 		
-		scanModel = new ScanTableModel();
+		chemModel = new ChemistryModel();
+		physModel = new PhysicsModel();
 		
 		createPanels();
+		
 	}
 
 	private void createPanels() {
@@ -60,7 +66,8 @@ public class MainPart extends Composite {
 		proposalPanel = new ProposalPanel(holder, SWT.BORDER, this);
 		crystalPanel = new CrystalPanel(holder, SWT.BORDER, this);
 		initScanPanel = new InitScanPanel(holder, SWT.BORDER, this);
-		fullExpPanel = new FullExpPanel(holder, SWT.BORDER, this);
+		chemExpPanel = new ChemistryPanel(holder, SWT.BORDER, this);
+		physicsPanel = new PhysicsPanel(holder, SWT.BORDER, this);
 	}
 	
 
@@ -84,8 +91,12 @@ public class MainPart extends Composite {
 		initScanPanel.show();
 	}
 	
-	public void showFullExpPanel() {
-		fullExpPanel.show();
+	public void showChemistryPanel() {
+		chemExpPanel.show();
+	}
+
+	public void showPhysicsPanel() {
+		physicsPanel.show();
 	}
 
 	public void showPanel(AbstractPanel panel, int xHint, int yHint) {
@@ -154,6 +165,10 @@ public class MainPart extends Composite {
 		return crystalPanel;
 	}
 	
+	public PhysicsPanel getPhysicsPanel() {
+		return physicsPanel;
+	}
+	
 	public void setMode(KoalaMode mode) {
 		instrumentMode = mode;
 		switch (mode) {
@@ -172,8 +187,12 @@ public class MainPart extends Composite {
 		}
 	}
 	
-	public ScanTableModel getScanModel() {
-		return scanModel;
+	public AbstractScanModel getChemistryModel() {
+		return chemModel;
+	}
+
+	public AbstractScanModel getPhysicsModel() {
+		return physModel;
 	}
 
 	public KoalaMode getInstrumentMode() {

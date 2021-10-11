@@ -12,7 +12,7 @@ import org.gumtree.scripting.ScriptExecutor;
 import org.gumtree.ui.scripting.viewer.CommandLineViewer;
 import org.gumtree.ui.scripting.viewer.ICommandLineViewer;
 
-import au.gov.ansto.bragg.koala.ui.scan.ScanTableModel;
+import au.gov.ansto.bragg.koala.ui.scan.ChemistryModel;
 import au.gov.ansto.bragg.koala.ui.vlcj.VlcjViewer;
 import au.gov.ansto.bragg.nbi.ui.scripting.ScriptPageRegister;
 import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptControlViewer;

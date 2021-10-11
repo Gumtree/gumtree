@@ -3,8 +3,59 @@ package au.gov.ansto.bragg.koala.ui.scan;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
+enum ScanTarget {
+	PHI_LOOP,
+	PHI_POINTS,
+	TEMP_LOOP,
+	TEMP_POINTS;
+	
+	static String[] texts = {"PHI loop", "PHI points", "TEMP loop", "TEMP points"};
+	
+	public String getText() {
+		switch (this) {
+		case PHI_LOOP:
+			return texts[0];
+		case PHI_POINTS:
+			return texts[1];
+		case TEMP_LOOP:
+			return texts[2];
+		case TEMP_POINTS:
+			return texts[3];
+		default:
+			return texts[0];
+		}
+	}
+	
+	public static ScanTarget valueOfText(String text) {
+		if (texts[0].equals(text)) {
+			return PHI_LOOP;
+		} else if (texts[1].equals(text)) {
+			return PHI_POINTS;
+		} else if (texts[2].equals(text)) {
+			return TEMP_LOOP;
+		} else if (texts[3].equals(text)) {
+			return TEMP_POINTS;
+		} else {
+			return PHI_LOOP;
+		}
+	}
+	
+	public static String[] getAllText() {
+		return texts;
+	}
+	
+	public boolean isPoints() {
+		return this == PHI_POINTS || this == TEMP_POINTS;
+	}
+	
+	public boolean isTemperature() {
+		return this == TEMP_LOOP || this == TEMP_POINTS;
+	}
+};
+
 public class SingleScan {
 
+	private ScanTarget target;
 	private float start;
 	private float inc;
 	private int number;
@@ -19,12 +70,23 @@ public class SingleScan {
 	private PropertyChangeSupport changeListener = new PropertyChangeSupport(this);
 	private InputType inputLast;
 	private InputType input2nd;
+	private String points;
 
 	enum InputType {START, INC, NUMBER, END};
 	
 	public SingleScan() {
+		target = ScanTarget.PHI_LOOP;
+	}
+	public SingleScan(ScanTarget target) {
+		this.target = target;
 	}
 
+	public ScanTarget getTarget() {
+		return target;
+	}
+	public void setTarget(ScanTarget target) {
+		this.target = target;
+	}
 	public float getStart() {
 		return start;
 	}
@@ -135,13 +197,26 @@ public class SingleScan {
 		this.filename = filename;
 		firePropertyChange("filename", old, filename);
 	}
+	public String getPoints() {
+		if (points == null) {
+			return "";
+		} else {
+			return points;
+		}
+	}
+	public void setPoints(String points) {
+		Object old = this.points;
+		this.points = points;
+		firePropertyChange("points", old, points);
+	}
 	public SingleScan getCopy() {
-		SingleScan scan = new SingleScan();
+		SingleScan scan = new SingleScan(target);
 		scan.copyFrom(this);
 		return scan;
 	}
 	
 	public void copyFrom(SingleScan scan) {
+		target = scan.getTarget();
 		start = scan.getStart();
 		inc = scan.getInc();
 		number = scan.getNumber();
@@ -151,6 +226,7 @@ public class SingleScan {
 		temp = scan.getTemp();
 		chi = scan.getChi();
 		comments = scan.getComments();
+		points = scan.getPoints();
 	}
 	
 	private void calculateEntries(InputType input) {

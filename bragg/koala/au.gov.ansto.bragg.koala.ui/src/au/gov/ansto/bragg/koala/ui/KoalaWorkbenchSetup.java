@@ -46,8 +46,10 @@ public class KoalaWorkbenchSetup implements IStartup {
 				public void handleException(Throwable exception) {
 					logger.error("Failed to launch Koala workbench layout during early startup.", exception);
 				}
+				@SuppressWarnings("restriction")
 				public void run() throws Exception {
 					final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+					boolean perspectiveExist = false;
 					if (activeWorkbenchWindow instanceof WorkbenchWindow) {
 //						activeWorkbenchWindow.getActivePage().closeAllPerspectives(true, false);
 						IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
@@ -61,7 +63,14 @@ public class KoalaWorkbenchSetup implements IStartup {
 //										IWorkbenchPartReference myView = page.findViewReference(KoalaMainPerspective.ID_CRUISE_PANEL_VIEW);
 //										page.setPartState(myView, IWorkbenchPage.STATE_MINIMIZED);
 //									}
-									activeWorkbenchWindow.getActivePage().closePerspective(perspective, false, true);
+									if (!KoalaMainPerspective.ID_KOALA_MAIN_PERSPECTIVE.equals(perspective.getId())){
+										activeWorkbenchWindow.getActivePage().closePerspective(perspective, false, true);
+									} else {
+										perspectiveExist = true;
+										activeWorkbenchWindow.getActivePage().resetPerspective();
+										hideMenus((WorkbenchWindow) activeWorkbenchWindow);
+//										hideCoolBar((WorkbenchWindow) activeWorkbenchWindow);
+									}
 								}
 							} catch (Exception e) {
 								e.printStackTrace();
@@ -107,14 +116,16 @@ public class KoalaWorkbenchSetup implements IStartup {
 					
 					IMultiMonitorManager mmManager = new MultiMonitorManager();
 
-					mmManager.showPerspectiveOnOpenedWindow(KoalaMainPerspective.ID_KOALA_MAIN_PERSPECTIVE, 0, 0, true);
-//					
+					if (!perspectiveExist) {
+						mmManager.showPerspectiveOnOpenedWindow(KoalaMainPerspective.ID_KOALA_MAIN_PERSPECTIVE, 0, 0, true);
+					}
 //					if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
 //						// open new window as editor buffer
 //						mmManager.openWorkbenchWindow(KoalaMainPerspective.ID_KOALA_MAIN_PERSPECTIVE, 1, true);
 //					}
 					
 					hideMenus((WorkbenchWindow) activeWorkbenchWindow);
+//					hideCoolBar((WorkbenchWindow) activeWorkbenchWindow);
 //					mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_ANALYSIS, 1, 1, mmManager.isMultiMonitorSystem());
 				}			
 			});
@@ -165,12 +176,15 @@ public class KoalaWorkbenchSetup implements IStartup {
 	    ((WorkbenchWindow) window).getMenuBarManager().setVisible(false);
 	    ((WorkbenchWindow) window).getMenuBarManager().setRemoveAllWhenShown(true);
 	    
-	    try {
+	    
+	}
+	
+	public static void hideCoolBar(WorkbenchWindow window) {
+		try {
 	        IHandlerService service = (IHandlerService) window.getService(IHandlerService.class);
 	        if (service != null)
 	            service.executeCommand("org.eclipse.ui.ToggleCoolbarAction", null);
 	    } catch (Exception e) {
 	    }
 	}
-	
 }

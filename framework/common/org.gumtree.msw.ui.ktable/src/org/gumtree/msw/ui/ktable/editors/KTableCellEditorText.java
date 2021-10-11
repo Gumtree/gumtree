@@ -17,6 +17,7 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
@@ -57,6 +58,7 @@ public class KTableCellEditorText extends KTableCellEditor
 
 	public void open(KTable table, int col, int row, Rectangle rect) {
 		super.open(table, col, row, rect);
+		m_Text.setFont(table.getFont());
 		m_Text.setText(getEditorContent());
 		m_Text.selectAll();
 		m_Text.setVisible(true);

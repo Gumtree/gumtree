@@ -11,6 +11,8 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
+import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
+
 /**
  * @author nxi
  *
@@ -39,6 +41,8 @@ public class KoalaMainViewer extends Composite {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(getFooterPart());
 		
 		mainPart.showProposalPanel();
+		
+		mainPart.setMode(KoalaMode.CHEMISTRY);
 	}
 
 	public MainPart getMainPart() {
