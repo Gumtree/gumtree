@@ -226,6 +226,7 @@ public class SingleScan {
 		temp = scan.getTemp();
 		chi = scan.getChi();
 		comments = scan.getComments();
+		filename = scan.getFilename();
 		points = scan.getPoints();
 	}
 	

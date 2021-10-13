@@ -169,6 +169,7 @@ public class ProposalPanel extends AbstractControlPanel {
 		mainPart.showPanel(this, WIDTH_HINT, HEIGHT_HINT);
 		mainPart.disableBackButton();
 		mainPart.enableNextButton();
+		mainPart.setTitle("Experiment Setup");
 	}
 
 

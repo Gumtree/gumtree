@@ -77,6 +77,7 @@ public class JoeyPanel extends AbstractPanel {
 		mainPart.showPanel(this, WIDTH_HINT, HEIGHT_HINT);
 		mainPart.enableBackButton();
 		mainPart.disableNextButton();
+		mainPart.setTitle("Joey Mode Control");
 	}
 
 

@@ -11,6 +11,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartReference;
@@ -27,6 +28,7 @@ import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 public class HeaderPart extends Composite {
 
 	private Button physiButton;
+	private Label titleLabel;
 	
 	/**
 	 * @param parent
@@ -34,7 +36,7 @@ public class HeaderPart extends Composite {
 	 */
 	public HeaderPart(Composite parent, int style) {
 		super(parent, style);
-		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(this);
+		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(this);
 		addDashboardButton(this);
 	}
 
@@ -57,6 +59,11 @@ public class HeaderPart extends Composite {
 			}
 		});
 		
+		titleLabel = new Label(this, SWT.NONE);
+		titleLabel.setText("");
+		titleLabel.setFont(Activator.getLargeFont());
+		GridDataFactory.fillDefaults().grab(true, false).minSize(600, 36).align(SWT.BEGINNING, SWT.CENTER).applyTo(titleLabel);
+
 		final Button dashboardButton = new Button(parent, SWT.TOGGLE);
 		dashboardButton.setCursor(Activator.getHandCursor());
 		dashboardButton.setImage(KoalaImage.WEATHER64.getImage());
@@ -114,5 +121,9 @@ public class HeaderPart extends Composite {
 
 	private KoalaMainViewer getParentViewer() {
 		return (KoalaMainViewer) getParent();
+	}
+	
+	public void setTitle(String title) {
+		this.titleLabel.setText(title);
 	}
 }

@@ -137,6 +137,7 @@ public class PhysicsModel extends AbstractScanModel {
 		}
 		if (col == 2) {
 			KTableCellEditorComboText editor = new KTableCellEditorComboText();
+			editor.setVisibleItemCount(4);
 			editor.setFont(Activator.getMiddleFont());
 			editor.setItems(ScanTarget.getAllText());
 			return editor;

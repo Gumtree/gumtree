@@ -88,6 +88,7 @@ public class EnvironmentPanel extends AbstractPanel {
 		mainPart.showPanel(this, WIDTH_HINT, HEIGHT_HINT);
 		mainPart.enableBackButton();
 		mainPart.disableNextButton();
+		mainPart.setTitle("Sample Environment");
 	}
 
 
