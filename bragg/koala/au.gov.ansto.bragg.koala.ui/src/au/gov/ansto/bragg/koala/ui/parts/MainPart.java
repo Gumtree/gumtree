@@ -198,4 +198,8 @@ public class MainPart extends Composite {
 	public KoalaMode getInstrumentMode() {
 		return instrumentMode;
 	}
+	
+	public void setTitle(String title) {
+		getParentViewer().getHeaderPart().setTitle(title);
+	}
 }

@@ -40,10 +40,10 @@ public class CrystalPanel extends AbstractControlPanel {
 		GridLayoutFactory.fillDefaults().margins(8, 8).applyTo(this);
 		GridDataFactory.swtDefaults().minSize(720, 720).align(SWT.CENTER, SWT.CENTER).applyTo(this);
 		
-		final Label titleLabel = new Label(this, SWT.NONE);
-		titleLabel.setText("Crystal Mounting");
-		titleLabel.setFont(Activator.getLargeFont());
-		GridDataFactory.fillDefaults().grab(true, false).minSize(320, 36).applyTo(titleLabel);
+//		final Label titleLabel = new Label(this, SWT.NONE);
+//		titleLabel.setText("Crystal Mounting");
+//		titleLabel.setFont(Activator.getLargeFont());
+//		GridDataFactory.fillDefaults().grab(true, false).minSize(320, 36).applyTo(titleLabel);
 		
 		final TabFolder tabFolder = new TabFolder(this, SWT.NONE);
 		tabFolder.setFont(Activator.getMiddleFont());
@@ -172,6 +172,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		mainPart.showPanel(this, WIDTH_HINT, HEIGHT_HINT);
 		mainPart.enableBackButton();
 		mainPart.enableNextButton();
+		mainPart.setTitle("Crystal Mounting");
 	}
 
 
