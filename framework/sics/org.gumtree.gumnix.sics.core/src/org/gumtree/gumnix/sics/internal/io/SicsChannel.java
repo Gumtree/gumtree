@@ -250,6 +250,8 @@ public class SicsChannel extends AbstractSicsChannel {
 						callback.receiveWarning(new SicsReplyData(response));
 					} else if(flag.equalsIgnoreCase("LOG")) {
 						callback.receiveWarning(new SicsReplyData(response));
+					} else if(flag.equalsIgnoreCase(Flag.EVENT.toString())) {
+						callback.receiveWarning(new SicsReplyData(response));
 					} else if(flag.equalsIgnoreCase(Flag.FINISH.toString())){
 						callback.receiveFinish(new SicsReplyData(response));
 					} else {
