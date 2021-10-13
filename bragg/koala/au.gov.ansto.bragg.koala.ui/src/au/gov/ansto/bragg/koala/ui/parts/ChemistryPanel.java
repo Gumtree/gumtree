@@ -3,6 +3,9 @@
  */
 package au.gov.ansto.bragg.koala.ui.parts;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -215,7 +218,7 @@ public class ChemistryPanel extends AbstractControlPanel {
 		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(180, 40).applyTo(fnText);
 
 	    final Button applyButton = new Button(batchGroup, SWT.PUSH);
-	    applyButton.setImage(KoalaImage.COPY48.getImage());
+	    applyButton.setImage(KoalaImage.MULTI_APPLY48.getImage());
 	    applyButton.setText("Apply to Selected Entries");
 	    applyButton.setFont(Activator.getMiddleFont());
 	    applyButton.setCursor(Activator.getHandCursor());
@@ -267,6 +270,26 @@ public class ChemistryPanel extends AbstractControlPanel {
 	    dupButton.setCursor(Activator.getHandCursor());
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).hint(128, 64).applyTo(dupButton);
 
+		dupButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int[] rows = table.getRowSelection();
+				int rmax = 0;
+				List<SingleScan> items = new ArrayList<SingleScan>();
+				ChemistryModel model = mainPart.getChemistryModel();
+				for (int row : rows) {
+					items.add(model.getItem(row));
+				}
+				model.addScans(rows[rows.length - 1] + 1, items);
+				table.redraw();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
 	    final Button removeButton = new Button(ctrPart, SWT.PUSH);
 	    removeButton.setImage(KoalaImage.DELETE48.getImage());
 	    removeButton.setText("Remove Selected");
@@ -274,7 +297,27 @@ public class ChemistryPanel extends AbstractControlPanel {
 	    removeButton.setCursor(Activator.getHandCursor());
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).hint(128, 64).applyTo(removeButton);
 
-
+		removeButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int[] rows = table.getRowSelection();
+				List<SingleScan> items = new ArrayList<SingleScan>();
+				ChemistryModel model = mainPart.getChemistryModel();
+				for (int row : rows) {
+					items.add(model.getItem(row));
+				}
+				for (SingleScan scan : items) {
+					model.deleteScan(scan);
+				}
+				table.redraw();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
 	    batchHolder.setContent(emptyPart);
 	    
 	    table.addMouseListener(new MouseListener() {

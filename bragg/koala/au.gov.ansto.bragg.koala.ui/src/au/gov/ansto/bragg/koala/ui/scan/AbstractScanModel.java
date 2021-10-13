@@ -352,6 +352,14 @@ public abstract class AbstractScanModel implements KTableModel {
 		scanList.add(idx, newScan);
 	}
 	
+	public void deleteScan(SingleScan scan) {
+		scanList.remove(scan);
+	}
+	
+	public void addScans(int idx, List<SingleScan> scans) {
+		scanList.addAll(idx, scans);
+	}
+	
 	public void deleteScan(int idx) {
 		if (scanList.size() == 1 && idx == 0) {
 			if (initScan != null) {

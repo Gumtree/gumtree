@@ -33,6 +33,7 @@ public enum KoalaImage {
 	PAUSE64("/icons/pause_64.png"),
 	STOP64("/icons/stop_64.png"),
 	IMAGE32("/icons/image_32.png"),
+	MULTI_APPLY48("/icons/multitick_48.png"),
 	;
 	
 	private KoalaImage(String path) {
