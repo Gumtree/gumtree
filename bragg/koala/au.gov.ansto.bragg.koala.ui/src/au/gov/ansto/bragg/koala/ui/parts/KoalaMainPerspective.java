@@ -37,9 +37,9 @@ public class KoalaMainPerspective implements IPerspectiveFactory {
 				IPageLayout.LEFT, 1.f, layout.getEditorArea());
 		layout.setFixed(true);
 
-		IFolderLayout folder = layout.createFolder("stack_folder", IPageLayout.RIGHT, 0.85f, ID_KOALA_CONTROL_VIEW);
-		folder.addView(ID_CRUISE_PANEL_VIEW);
-		layout.getViewLayout(ID_CRUISE_PANEL_VIEW).setCloseable(false);
+//		IFolderLayout folder = layout.createFolder("stack_folder", IPageLayout.RIGHT, 0.85f, ID_KOALA_CONTROL_VIEW);
+//		folder.addView(ID_CRUISE_PANEL_VIEW);
+//		layout.getViewLayout(ID_CRUISE_PANEL_VIEW).setCloseable(false);
 		
 //		folder.addView(PROJECT_EXPLORER_VIEW_ID);
 //		factory.addView(PLOT_VIEW_ID, IPageLayout.RIGHT, 0.5f, SCRIPT_CONSOLE_VIEW_ID);

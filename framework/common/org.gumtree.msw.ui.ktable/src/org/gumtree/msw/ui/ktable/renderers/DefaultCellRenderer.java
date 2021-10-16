@@ -36,7 +36,8 @@ public class DefaultCellRenderer implements KTableCellRenderer {
     //  default colors:
     public Color COLOR_TEXT = Display.getDefault().getSystemColor(SWT.COLOR_LIST_FOREGROUND);
     public Color COLOR_BACKGROUND = Display.getDefault().getSystemColor(SWT.COLOR_LIST_BACKGROUND);
-    public static Color COLOR_LINE_LIGHTGRAY =  Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
+//    public static Color COLOR_LINE_LIGHTGRAY =  Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
+    public static Color COLOR_LINE_LIGHTGRAY =  Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
     public static Color COLOR_LINE_DARKGRAY = Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY);
     public static Color COLOR_BGFOCUS = SWTX.getColor(SWTX.COLOR_BGFOCUS);
     public static Color COLOR_COMMENTSIGN = Display.getDefault().getSystemColor(SWT.COLOR_DARK_BLUE);

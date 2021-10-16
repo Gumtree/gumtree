@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Display;
 import org.gumtree.msw.ui.ktable.KTable;
 import org.gumtree.msw.ui.ktable.KTableCellRenderer;
 import org.gumtree.msw.ui.ktable.KTableModel;
+import org.gumtree.msw.ui.ktable.SWTX;
 import org.gumtree.msw.ui.ktable.renderers.DefaultCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.FixedCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.ImageButtonCellRenderer;
@@ -48,6 +49,7 @@ public abstract class AbstractScanModel implements KTableModel {
 //		scanList.add(initScan);
 		oddTextRenderer = new TextCellRenderer(DefaultCellRenderer.INDICATION_FOCUS_ROW );
 		evenTextRenderer = new TextCellRenderer(DefaultCellRenderer.INDICATION_FOCUS_ROW );
+//		evenTextRenderer.setAlignment(SWTX.ALIGN_HORIZONTAL_CENTER);
 		evenTextRenderer.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
 		columnHeaderRenderer = new FixedCellRenderer(SWT.NONE);
 		oddDupButtonRenderer = new ImageButtonCellRenderer(DefaultCellRenderer.STYLE_PUSH 
@@ -90,12 +92,12 @@ public abstract class AbstractScanModel implements KTableModel {
 						isValidCell = true;
 		    			if (col == 0) {
 		    				if (dcol == col && drow == row) {
-		    					insertScan(row);
+		    					insertScan((row - 1) / 2 + 1);
 		    					table.redraw();
 		    				}
 		    			} else if (col == 1) {
 		    				if (dcol == col && drow == row) {
-		    					deleteScan(row - 1);
+		    					deleteScan((row - 1) / 2);
 		    					table.redraw();
 		    				}
 		    			}
@@ -219,7 +221,7 @@ public abstract class AbstractScanModel implements KTableModel {
 		if (row == 0) {
 			return columnHeaderRenderer;
 		}
-		if (row % 2 == 0) {
+		if ((row - 1) % 4 >= 2) {
 			if (col == 0) {
 				if (col == highlightCol && row == highlightRow) {
 					return highlightDupButtonRenderer;
@@ -261,25 +263,19 @@ public abstract class AbstractScanModel implements KTableModel {
 	}
 	
 	public SingleScan getItem(int row) {
-		if (row <= scanList.size()) {
-			return scanList.get(row - 1);
+		if (row <= scanList.size() * 2) {
+			return scanList.get((row - 1) / 2);
 		} else {
 			return null;
 		}
 	}
 	
 	@Override
-	public Point belongsToCell(int col, int row) {
-		if (row == 0 && col == 1) {
-			return new Point(0, 0);
-		} else {
-			return null;
-		}
-	}
+	public abstract Point belongsToCell(int col, int row);
 
 	@Override
 	public int getRowCount() {
-		return scanList.size() + 1;
+		return scanList.size() * 2 + 1;
 	}
 
 	@Override

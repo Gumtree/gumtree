@@ -26,7 +26,6 @@ import org.gumtree.msw.ui.ktable.SWTX;
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
-import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
 import au.gov.ansto.bragg.koala.ui.scan.SingleScan;
 
 /**
@@ -270,13 +269,19 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int[] rows = table.getRowSelection();
-				int rmax = 0;
 				List<SingleScan> items = new ArrayList<SingleScan>();
 				AbstractScanModel model = getModel();
 				for (int row : rows) {
-					items.add(model.getItem(row).getCopy());
+					SingleScan scan = model.getItem(row);
+					if (!items.contains(scan)) {
+						items.add(scan);
+					}
 				}
-				model.addScans(rows[rows.length - 1], items);
+				List<SingleScan> newItems = new ArrayList<SingleScan>();
+				for (SingleScan scan : items) {
+					newItems.add(scan.getCopy());
+				}
+				model.addScans((rows[rows.length - 1] / 2), newItems);
 				table.redraw();
 			}
 			
@@ -300,7 +305,10 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 				List<SingleScan> items = new ArrayList<SingleScan>();
 				AbstractScanModel model = getModel();
 				for (int row : rows) {
-					items.add(model.getItem(row));
+					SingleScan scan = model.getItem(row);
+					if (!items.contains(scan)) {
+						items.add(scan);
+					}
 				}
 				for (SingleScan scan : items) {
 					model.deleteScan(scan);
@@ -320,7 +328,35 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			@Override
 			public void mouseUp(MouseEvent e) {
 				int[] rows = table.getRowSelection();
-				if (rows.length > 1) {
+				if (rows.length > 0) {
+					for (int row : rows) {
+						if (row % 2 == 1) {
+							int oRow = row + 1;
+							boolean inArray = false;
+							for (int v : rows) {
+								if (v == oRow) {
+									inArray = true;
+									break;
+								}
+							}
+							if (!inArray) {
+								table.addToSelectionWithoutRedraw(3, oRow);
+							}
+						} else {
+							int oRow = row - 1;
+							boolean inArray = false;
+							for (int v : rows) {
+								if (v == oRow) {
+									inArray = true;
+									break;
+								}
+							}
+							if (!inArray) {
+								table.addToSelectionWithoutRedraw(0, oRow);
+							}
+						}
+					}
+					table.redraw();
 					batchHolder.setContent(batchGroup);
 					batchGroup.layout();
 //					batchHolder.setMinSize(batchGroup.computeSize(xHint, yHint));
@@ -330,6 +366,13 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 					batchHolder.setContent(emptyPart);
 					emptyPart.layout();
 					batchHolder.getParent().layout();
+					if (rows.length == 1) {
+						if (rows[0] % 2 == 1) {
+							table.addToSelection(3, rows[0] + 1);
+						} else {
+							table.addToSelection(0, rows[0] - 1);
+						}
+					}
 				}
 			}
 			

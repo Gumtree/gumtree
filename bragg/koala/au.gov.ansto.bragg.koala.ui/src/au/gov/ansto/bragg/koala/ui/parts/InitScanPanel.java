@@ -275,6 +275,10 @@ public class InitScanPanel extends AbstractControlPanel {
 				bindingContext.bindValue(SWTObservables.observeText(comText, SWT.Modify),
 						BeansObservables.observeValue(initScan, "comments"),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext = new DataBindingContext();
+				bindingContext.bindValue(SWTObservables.observeText(fileText, SWT.Modify),
+						BeansObservables.observeValue(initScan, "filename"),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});
 

@@ -102,6 +102,7 @@ public class KTableCellEditorComboText extends KTableCellEditor {
 		m_Combo.setText(content);
 		m_Combo.setSelection(new Point(0, content.length()));
 		m_Combo.setFocus();
+		m_Combo.setListVisible(true);
 	}
 	public void close(boolean save) {
 		if (save)

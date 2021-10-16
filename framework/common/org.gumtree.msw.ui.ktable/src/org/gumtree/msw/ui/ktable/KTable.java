@@ -2998,7 +2998,7 @@ public class KTable extends Canvas {
      * Works in both modes: Cell and Row Selection.
      * Has no redraw functionality!
      */
-    protected void addToSelectionWithoutRedraw(int col, int row) {
+    public void addToSelectionWithoutRedraw(int col, int row) {
         if (isMultiSelectMode()) {
             if (isRowSelectMode()) {
                 Integer o = new Integer(row);
@@ -3010,6 +3010,24 @@ public class KTable extends Canvas {
         }
     }
 
+    /**
+     * Works in both modes: Cell and Row Selection.
+     * Has no redraw functionality!
+     */
+    public void addToSelection(int col, int row) {
+        if (isMultiSelectMode()) {
+            if (isRowSelectMode()) {
+                Integer o = new Integer(row);
+                m_Selection.put(o, o);
+                redraw(0, row, getModel().getColumnCount(), 1);
+            } else {
+                Point o = new Point(col, row);
+                m_Selection.put(o, o);
+                redraw(col, row, 1, 1);
+            }
+        }
+    }
+    
     /**
      * Selects the given cell. If scroll is true, 
      * it scrolls to show this cell if neccessary.

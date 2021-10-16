@@ -72,37 +72,40 @@ public class HeaderPart extends Composite {
 			
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
-			    Display.getCurrent().asyncExec(new Runnable() {
-					
-					@Override
-					public void run() {
-						try {
-							getParentViewer().getMainPart().showEnvironmentPanel();
-						} catch (Exception e2) {
-						}
-						
-					    final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-						
-						IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
-						for (IWorkbenchPage page : pages) {
-							try {
-								IPerspectiveDescriptor[] perspectives = page.getOpenPerspectives();
-								for (IPerspectiveDescriptor perspective : perspectives) {
-									if (KoalaMainPerspective.ID_KOALA_MAIN_PERSPECTIVE.equals(perspective.getId())){
-										IWorkbenchPartReference myView = page.findViewReference(KoalaMainPerspective.ID_CRUISE_PANEL_VIEW);
-										if (dashboardButton.getSelection()) {
-											page.setPartState(myView, IWorkbenchPage.STATE_RESTORED);
-										} else {
-											page.setPartState(myView, IWorkbenchPage.STATE_MINIMIZED);
-										}
-									}
-								}
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
-					}
-				});
+				
+				getParentViewer().getMainPart().showEnvironmentPanel();
+				
+//			    Display.getCurrent().asyncExec(new Runnable() {
+//					
+//					@Override
+//					public void run() {
+//						try {
+//							getParentViewer().getMainPart().showEnvironmentPanel();
+//						} catch (Exception e2) {
+//						}
+//						
+//					    final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+//						
+//						IWorkbenchPage[] pages = activeWorkbenchWindow.getPages();
+//						for (IWorkbenchPage page : pages) {
+//							try {
+//								IPerspectiveDescriptor[] perspectives = page.getOpenPerspectives();
+//								for (IPerspectiveDescriptor perspective : perspectives) {
+//									if (KoalaMainPerspective.ID_KOALA_MAIN_PERSPECTIVE.equals(perspective.getId())){
+//										IWorkbenchPartReference myView = page.findViewReference(KoalaMainPerspective.ID_CRUISE_PANEL_VIEW);
+//										if (dashboardButton.getSelection()) {
+//											page.setPartState(myView, IWorkbenchPage.STATE_RESTORED);
+//										} else {
+//											page.setPartState(myView, IWorkbenchPage.STATE_MINIMIZED);
+//										}
+//									}
+//								}
+//							} catch (Exception e) {
+//								e.printStackTrace();
+//							}
+//						}
+//					}
+//				});
 			}
 			
 			@Override
