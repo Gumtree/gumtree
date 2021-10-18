@@ -27,6 +27,7 @@ public class Activator extends AbstractUIPlugin {
 	private static Cursor handCursor;
 	private static Cursor defaultCursor;
 	private static Color lightColor;
+	private static Color highlightColor;
 
 	/**
 	 * The constructor
@@ -57,6 +58,7 @@ public class Activator extends AbstractUIPlugin {
 				handCursor = new Cursor(currentDisplay, SWT.CURSOR_HAND);
 				defaultCursor = currentDisplay.getSystemCursor(SWT.CURSOR_ARROW);
 				lightColor = Display.getDefault().getSystemColor(SWT.COLOR_INFO_BACKGROUND);
+				highlightColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_RED);
 			}
 		});
 	}
@@ -95,5 +97,8 @@ public class Activator extends AbstractUIPlugin {
 	}
 	public static Color getLightColor() {
 		return lightColor;
+	}
+	public static Color getHighlightColor() {
+		return highlightColor;
 	}
 }

@@ -29,6 +29,7 @@ public class HeaderPart extends Composite {
 
 	private Button physiButton;
 	private Label titleLabel;
+	private Button dashboardButton;
 	
 	/**
 	 * @param parent
@@ -64,7 +65,7 @@ public class HeaderPart extends Composite {
 		titleLabel.setFont(Activator.getLargeFont());
 		GridDataFactory.fillDefaults().grab(true, false).minSize(600, 36).align(SWT.BEGINNING, SWT.CENTER).applyTo(titleLabel);
 
-		final Button dashboardButton = new Button(parent, SWT.TOGGLE);
+		dashboardButton = new Button(parent, SWT.TOGGLE);
 		dashboardButton.setCursor(Activator.getHandCursor());
 		dashboardButton.setImage(KoalaImage.WEATHER64.getImage());
 	    GridDataFactory.fillDefaults().grab(true, false).align(SWT.END, SWT.CENTER).applyTo(dashboardButton);
@@ -129,4 +130,10 @@ public class HeaderPart extends Composite {
 	public void setTitle(String title) {
 		this.titleLabel.setText(title);
 	}
+
+	public void setButtonEnabled(boolean isEnabled) {
+		physiButton.setEnabled(isEnabled);
+		dashboardButton.setEnabled(isEnabled);
+	}
+
 }

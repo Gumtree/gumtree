@@ -39,6 +39,8 @@ public class MainPart extends Composite {
 	private ChemistryModel chemModel;
 	private PhysicsModel physModel;
 	private KoalaMode instrumentMode = KoalaMode.CHEMISTRY;
+	
+	private boolean isJoeyMode;
 
 	
 	public MainPart(Composite parent, int style) {
@@ -201,5 +203,11 @@ public class MainPart extends Composite {
 	
 	public void setTitle(String title) {
 		getParentViewer().getHeaderPart().setTitle(title);
+	}
+	
+	public void setJoeyMode(boolean isEnabled) {
+		isJoeyMode = isEnabled;
+		getParentViewer().getHeaderPart().setButtonEnabled(!isEnabled);
+		getParentViewer().getFooterPart().setButtonEnabled(!isEnabled);
 	}
 }

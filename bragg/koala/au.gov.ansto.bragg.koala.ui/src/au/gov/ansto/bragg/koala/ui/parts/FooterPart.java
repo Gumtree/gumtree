@@ -24,6 +24,7 @@ public class FooterPart extends Composite {
 	private Button backButton;
 	private Button nextButton;
 	private Button chemButton;
+	private Button joeyButton;
 	
 	/**
 	 * @param parent
@@ -33,7 +34,7 @@ public class FooterPart extends Composite {
 		super(parent, style);
 		// TODO Auto-generated constructor stub
 		GridLayoutFactory.fillDefaults().numColumns(4).applyTo(this);
-		Button joeyButton = new Button(this, SWT.TOGGLE);
+		joeyButton = new Button(this, SWT.PUSH);
 		joeyButton.setText("JOEY Mode ");
 		joeyButton.setCursor(Activator.getHandCursor());
 		joeyButton.setFont(Activator.getMiddleFont());
@@ -138,4 +139,12 @@ public class FooterPart extends Composite {
 	private KoalaMainViewer getParentViewer() {
 		return (KoalaMainViewer) getParent();
 	}
+	
+	public void setButtonEnabled(boolean isEnabled) {
+		joeyButton.setEnabled(isEnabled);
+		backButton.setEnabled(isEnabled);
+		nextButton.setEnabled(isEnabled);
+		chemButton.setEnabled(isEnabled);
+	}
+
 }
