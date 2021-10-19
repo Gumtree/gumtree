@@ -19,6 +19,7 @@ public class ScriptParameter extends PyObjectImp {
 		FLOAT,
 		BOOL,
 		FILE,
+		LIST,
 		PROGRESS,
 		LABEL,
 		SPACE,
