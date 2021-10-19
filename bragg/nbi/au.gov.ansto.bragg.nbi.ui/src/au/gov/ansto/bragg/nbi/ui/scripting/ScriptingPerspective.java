@@ -269,6 +269,7 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 				register.setDataSourceViewer(((DataSourceView) view).getViewer());
 			} else if (SCRIPT_CONSOLE_VIEW_ID.equals(reference.getId())) {
 				register.setConsoleViewer(((ConsoleView) view).getCommandLineViewer());
+				register.setScriptValidator(((ConsoleView) view).getValidator());
 			} else if (SCRIPT_CONTROL_VIEW_ID.equals(reference.getId())) {
 				controlViewer = ((ControlView) view).getViewer();
 				ScriptPageRegister.registPage(controlViewer.getScriptRegisterID(), register);

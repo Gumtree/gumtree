@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.eclipse.ui.IWorkbenchPage;
 import org.gumtree.data.ui.part.PlotView;
+import org.gumtree.scripting.IScriptExecutor;
 import org.gumtree.ui.scripting.viewer.ICommandLineViewer;
 
 import au.gov.ansto.bragg.nbi.scripting.ScriptModel;
@@ -31,6 +32,7 @@ public class ScriptPageRegister {
 	private ScriptControlViewer controlViewer;
 	private ScriptDataSourceViewer dataSourceViewer;
 	private ICommandLineViewer consoleViewer;
+	private IScriptExecutor scriptValidator;
 	private ScriptInfoViewer infoViewer;
 	private PlotView plot1;
 	private PlotView plot2;
@@ -148,5 +150,13 @@ public class ScriptPageRegister {
 
 	public void setInfoViewer(ScriptInfoViewer infoViewer) {
 		this.infoViewer = infoViewer;
+	}
+
+	public IScriptExecutor getScriptValidator() {
+		return scriptValidator;
+	}
+
+	public void setScriptValidator(IScriptExecutor scriptValidator) {
+		this.scriptValidator = scriptValidator;
 	}
 }

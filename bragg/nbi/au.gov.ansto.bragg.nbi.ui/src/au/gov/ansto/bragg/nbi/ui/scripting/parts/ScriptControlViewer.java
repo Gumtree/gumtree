@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +66,8 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -1093,7 +1096,7 @@ public class ScriptControlViewer extends Composite {
 
 		final ImageButton[] buttons = new ImageButton[tabs.size()];
 		int i = 0;
-		for (ScriptObjectTab tab : tabs) {
+		for (final ScriptObjectTab tab : tabs) {
 			final ImageButton btnUsers = new ImageButton(tabTitles, SWT.NONE);
 			buttons[i] = btnUsers;
 //			btnUsers.setBackground(getBackground());
@@ -1104,6 +1107,34 @@ public class ScriptControlViewer extends Composite {
 			btnUsers.addCircularTriggerArea(76, 25, 21);
 			btnUsers.addRectangularTriggerArea(25, 4, 51, 42);
 
+			final MouseListener mouseListener = new MouseListener() {
+				
+				@Override
+				public void mouseUp(MouseEvent e) {
+					String command = tab.getProperty("command");
+					if (command != null) {
+						runIndependentCommand(command);
+					}
+				}
+				
+				@Override
+				public void mouseDown(MouseEvent e) {
+				}
+				
+				@Override
+				public void mouseDoubleClick(MouseEvent e) {
+				}
+			};
+			btnUsers.addMouseListener(mouseListener);
+			
+			btnUsers.addDisposeListener(new DisposeListener() {
+				
+				@Override
+				public void widgetDisposed(DisposeEvent e) {
+					btnUsers.removeMouseListener(mouseListener);
+				}
+			});
+			
 			Label bar1 = new Label(tabTitles, SWT.NONE);
 			bar1.setImage(BTN_IMAGE_BAR);
 			bar1.pack();
@@ -1192,8 +1223,8 @@ public class ScriptControlViewer extends Composite {
 						color1 = Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_BACKGROUND);
 						color1 = Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT);
 					} else if (tier == 3) {
-						color1 = Display.getCurrent().getSystemColor(SWT.COLOR_LIST_BACKGROUND);
-						color1 = Display.getCurrent().getSystemColor(SWT.COLOR_LIST_FOREGROUND);
+						color1 = Display.getCurrent().getSystemColor(SWT.COLOR_GRAY);
+						color1 = Display.getCurrent().getSystemColor(SWT.COLOR_GRAY);
 					} else if (tier > 3) {
 						color1 = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
 						color1 = Display.getCurrent().getSystemColor(SWT.COLOR_BLUE);
@@ -1713,9 +1744,35 @@ public class ScriptControlViewer extends Composite {
 		if (heightProperty != null) {
 			height = Integer.valueOf(heightProperty);
 		}
+//		int hAlign = SWT.FILL;
+//		String hAlignProperty = parameter.getProperty("h_align");
+//		if (hAlignProperty != null) {
+//			try {
+//				hAlign = SWT.class.getField(hAlignProperty.toUpperCase()).getInt(null);
+//			} catch (Exception e) {
+//			} 
+//		}
+//		int vAlign = SWT.CENTER;
+//		String vAlignProperty = parameter.getProperty("v_align");
+//		if (vAlignProperty != null) {
+//			try {
+//				vAlign = SWT.class.getField(vAlignProperty.toUpperCase()).getInt(null);
+//			} catch (Exception e) {
+//			} 
+//		}
+		boolean fillWidth = true;
+		String fillWidthProperty = parameter.getProperty("h_fill");
+		if (fillWidthProperty != null) {
+			fillWidth = Boolean.valueOf(fillWidthProperty);
+		}
+		boolean fillHeight = false;
+		String fillHeightProperty = parameter.getProperty("v_fill");
+		if (fillHeightProperty != null) {
+			fillHeight = Boolean.valueOf(fillHeightProperty);
+		}
 		int labelWidth = 40;
 		
-		if (parameter.getOptions() != null) {
+		if (parameter.getOptions() != null && parameter.getType() != PType.LIST) {
 			final Label name = new Label(parent, SWT.RIGHT);
 			if (parameter.getProperty("title") != null) {
 				name.setText(parameter.getProperty("title"));
@@ -1724,7 +1781,7 @@ public class ScriptControlViewer extends Composite {
 			}
 			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).indent(0, 3).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
 			final ComboViewer comboBox = new ComboViewer(parent, SWT.DROP_DOWN);
-			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(comboBox.getControl());
+			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(fillWidth, fillHeight).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(comboBox.getControl());
 			comboBox.setContentProvider(new ArrayContentProvider());
 			comboBox.setLabelProvider(new LabelProvider());
 //			comboBox.setSelection(new StructuredSelection(parameter.getValue()));
@@ -1844,8 +1901,6 @@ public class ScriptControlViewer extends Composite {
 				
 				@Override
 				public void focusLost(FocusEvent e) {
-					// TODO Auto-generated method stub
-					
 				}
 				
 				@Override
@@ -1881,7 +1936,7 @@ public class ScriptControlViewer extends Composite {
 				}
 				final Text stringText = new Text(parent, textType);
 				stringText.setText(String.valueOf(parameter.getValue()));
-				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(parameterColspan, parameterRowspan).hint(width, vHeight).applyTo(stringText);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(fillWidth, fillHeight).span(parameterColspan, parameterRowspan).hint(width, vHeight).applyTo(stringText);
 				stringText.setEditable(itemEnabled);
 				if (isHighlight) {
 					stringText.setForeground(highlightColor);
@@ -1993,7 +2048,7 @@ public class ScriptControlViewer extends Composite {
 					.span(parameterColspan, parameterRowspan).applyTo(name);
 				final Text intText = new Text(parent, SWT.BORDER);
 				intText.setText(String.valueOf(parameter.getValue()));
-				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(width, height).span(parameterColspan, parameterRowspan).applyTo(intText);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(fillWidth, fillHeight).hint(width, height).span(parameterColspan, parameterRowspan).applyTo(intText);
 				intText.setEditable(itemEnabled);
 				if (isHighlight) {
 					intText.setForeground(highlightColor);
@@ -2112,7 +2167,7 @@ public class ScriptControlViewer extends Composite {
 					.span(parameterColspan, parameterRowspan).applyTo(name);
 				final Text floatText = new Text(parent, SWT.BORDER);
 				floatText.setText(String.valueOf(parameter.getValue()));
-				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(floatText);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(fillWidth, fillHeight).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(floatText);
 				floatText.setEditable(itemEnabled);
 				if (isHighlight) {
 					floatText.setForeground(highlightColor);
@@ -2226,7 +2281,7 @@ public class ScriptControlViewer extends Composite {
 				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).minSize(40, SWT.DEFAULT).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan).applyTo(name);
 				final Button selectBox = new Button(parent, SWT.CHECK);
 				selectBox.setSelection(Boolean.valueOf(String.valueOf(parameter.getValue())));
-				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).span(parameterColspan, parameterRowspan).applyTo(selectBox);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(fillWidth, fillHeight).span(parameterColspan, parameterRowspan).applyTo(selectBox);
 				selectBox.setEnabled(itemEnabled);
 				if (isHighlight) {
 					selectBox.setForeground(highlightColor);
@@ -2306,7 +2361,7 @@ public class ScriptControlViewer extends Composite {
 					.span(parameterColspan, parameterRowspan).applyTo(name);
 				Composite fileComposite = new Composite(parent, SWT.NONE);
 				GridLayoutFactory.fillDefaults().numColumns(2).applyTo(fileComposite);
-				GridDataFactory.swtDefaults().grab(true, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(fileComposite);
+				GridDataFactory.fillDefaults().grab(true, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(fileComposite);
 				final Text fileText = new Text(fileComposite, SWT.BORDER);
 				String itemText = String.valueOf(parameter.getValue());
 				fileText.setText(itemText);
@@ -2315,7 +2370,7 @@ public class ScriptControlViewer extends Composite {
 				if (isHighlight) {
 					fileText.setForeground(highlightColor);
 				} 
-				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(fileText);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(fillWidth, fillHeight).applyTo(fileText);
 				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
@@ -2488,6 +2543,172 @@ public class ScriptControlViewer extends Composite {
 					}
 				});
 				break;
+			case LIST:
+				name = new Label(parent, SWT.RIGHT);
+				if (parameter.getProperty("title") != null) {
+					name.setText(parameter.getProperty("title"));
+				} else {
+					name.setText(parameter.getName());
+				}
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).indent(0, 3
+						).minSize(labelWidth, 0).align(SWT.END, SWT.CENTER).span(parameterColspan, parameterRowspan
+						).applyTo(name);
+
+				int swtOpt = SWT.V_SCROLL;
+				if (Boolean.valueOf(parameter.getProperty("isSingle"))) {
+					swtOpt = swtOpt | SWT.SINGLE;
+				} else {
+					swtOpt = swtOpt | SWT.MULTI;
+				}
+				final org.eclipse.swt.widgets.List list = new org.eclipse.swt.widgets.List(parent, swtOpt);
+				list.setBackground(getBackground());
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(fillWidth, fillHeight
+						).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(list);
+				for (Object item : parameter.getOptions()) {
+					list.add(String.valueOf(item));
+				}
+
+				if (isHighlight) {
+					list.setForeground(highlightColor);
+				} 			
+
+				
+				parameter.addPropertyChangeListener(new PropertyChangeListener() {
+					
+					@Override
+					public void propertyChange(PropertyChangeEvent evt) {
+						if (evt.getPropertyName().equals("value")) {
+							Object val = parameter.getValue();
+							if (val instanceof List) {
+								List<?> l = (List<?>) val;
+								final String[] res = new String[l.size()];
+								int i = 0;
+								for (Object item : l) {
+									res[i++] = String.valueOf(item);
+								}
+								Display.getDefault().asyncExec(new Runnable() {
+
+									@Override
+									public void run() {
+										if (!list.isDisposed()) {
+											list.setSelection(res);
+										}
+									}
+								});
+							}
+						}
+					}
+				});
+				
+				list.addSelectionListener(new SelectionListener() {
+					
+					String[] selection = list.getSelection();
+					
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						String[] newSel = list.getSelection();
+						if (newSel != null) {
+							parameter.setValue(Arrays.asList(newSel));
+						} else {
+							parameter.setValue(new ArrayList<String>());
+						}
+						if (!Arrays.equals(selection, newSel)) {
+							String command = parameter.getCommand();
+							if (command != null) {
+								runIndependentCommand(command);
+							}
+						}
+						selection = newSel;
+					}
+					
+					@Override
+					public void widgetDefaultSelected(SelectionEvent e) {
+					}
+				});
+				
+
+				final PropertyChangeListener propertyListener = new PropertyChangeListener() {
+
+					@Override
+					public void propertyChange(final PropertyChangeEvent evt) {
+						if (evt.getPropertyName().equals("options")) {
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									if (!list.isDisposed()) {
+										list.deselectAll();
+										list.removeAll();
+										List<Object> opts = parameter.getOptions();
+										for (Object opt : opts) {
+											list.add(String.valueOf(opt));
+										}
+										Object value = parameter.getValue();
+										if (value instanceof List) {
+											List<?> l = (List<?>) value;
+											String[] s = new String[l.size()];
+											int i = 0;
+											for (Object item : l) {
+												s[i++] = String.valueOf(item);
+											}
+										}
+//										comboBox.refresh();
+									}
+								}
+							});
+						} else if (evt.getPropertyName().equals("enabled")) {
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									if (!list.isDisposed()) {
+										list.setEnabled(Boolean.valueOf(evt.getNewValue().toString()));
+									}
+								}
+							});
+						} else if (evt.getPropertyName().equals("highlight")) {
+							Display.getDefault().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									if (!list.isDisposed()) {
+										boolean isHighlight = Boolean.valueOf(evt.getNewValue().toString());
+										if (isHighlight) {
+											list.setForeground(highlightColor);
+										} else {
+											list.setForeground(defaultColor);
+										}
+									}
+								}
+							});
+						}
+					}
+				};
+				parameter.addPropertyChangeListener(propertyListener);
+
+				list.addDisposeListener(new DisposeListener() {
+
+					@Override
+					public void widgetDisposed(DisposeEvent e) {
+						parameter.removePropertyChangeListener(propertyListener);
+					}
+				});
+
+				list.addFocusListener(new FocusListener() {
+
+					@Override
+					public void focusLost(FocusEvent e) {
+					}
+
+					@Override
+					public void focusGained(FocusEvent e) {
+						String focusCommand = parameter.getProperty("focus");
+						if (focusCommand != null) {
+							runIndependentCommand(focusCommand);
+						}
+					}
+				});
+				break;
 			case PROGRESS:
 				final ProgressBar progressBar = new ProgressBar(parent, SWT.HORIZONTAL | SWT.NULL);
 				progressBar.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
@@ -2586,7 +2807,7 @@ public class ScriptControlViewer extends Composite {
 					Font newFont = new Font(label.getDisplay(), fd);
 					label.setFont(newFont);
 				}
-				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(width, height)
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(fillWidth, fillHeight).hint(width, height)
 					.span(parameterColspan * 2, parameterRowspan).applyTo(label);
 				if (isHighlight) {
 					label.setForeground(highlightColor);
@@ -2645,7 +2866,7 @@ public class ScriptControlViewer extends Composite {
 					.span(parameterColspan, parameterRowspan).applyTo(name);
 				final Text defaultText = new Text(parent, SWT.BORDER);
 				defaultText.setText(String.valueOf(parameter.getValue()));
-				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(defaultText);
+				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(fillWidth, fillHeight).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(defaultText);
 				defaultText.setEditable(itemEnabled);
 				if (isHighlight) {
 					defaultText.setForeground(highlightColor);
@@ -2904,8 +3125,8 @@ public class ScriptControlViewer extends Composite {
 
 	    public NewConfigFileWizardPage(IStructuredSelection selection) {
 	        super("NewConfigFileWizardPage", selection);
-	        setTitle("Config File");
-	        setDescription("Creates a new Config File");
+	        setTitle("Script File");
+	        setDescription("Creates a new Script File");
 	        setFileExtension("py");
 	        IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			IWorkspaceRoot root = workspace.getRoot();
@@ -2930,7 +3151,7 @@ public class ScriptControlViewer extends Composite {
 	    private String filename;
 	 
 	    public NewConfigFileWizard() {
-	        setWindowTitle("New Config File");
+	        setWindowTitle("New Script File");
 	    } 
 
 	    @Override
@@ -3161,4 +3382,5 @@ public class ScriptControlViewer extends Composite {
 		}
 		
 	}
+	
 }
