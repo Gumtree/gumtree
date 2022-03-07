@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.SafeRunner;
 import org.gumtree.core.management.IManageableBean;
 import org.gumtree.gumnix.sics.core.SicsCoreProperties;
 import org.gumtree.gumnix.sics.core.SicsEvents;
+import org.gumtree.gumnix.sics.internal.io.SicsCommunicationConstants.Flag;
 import org.gumtree.gumnix.sics.internal.io.SicsCommunicationConstants.JSONTag;
 import org.gumtree.gumnix.sics.io.ISicsCallback;
 import org.gumtree.gumnix.sics.io.ISicsChannelMonitor;
@@ -26,6 +27,7 @@ import org.gumtree.gumnix.sics.io.ISicsReplyData;
 import org.gumtree.gumnix.sics.io.SicsCallbackAdapter;
 import org.gumtree.gumnix.sics.io.SicsExecutionException;
 import org.gumtree.gumnix.sics.io.SicsIOException;
+import org.gumtree.gumnix.sics.io.SicsReplyData;
 import org.gumtree.gumnix.sics.io.SicsRole;
 import org.gumtree.util.messaging.EventBuilder;
 import org.gumtree.util.messaging.IListenerManager;
@@ -464,10 +466,28 @@ public class SicsProxy implements ISicsProxy {
 								public void run(ISicsProxyListener listener)
 										throws Exception {
 									listener.messageReceived(replyMessage, channelId);
-									if (logAllInBatchChannel && !CHANNEL_RAW_BATCH.equals(channelId) && !replyMessage.trim().equalsIgnoreCase("Poch") 
-											&& !replyMessage.startsWith("{") && !replyMessage.endsWith("}")
-											&& !(replyMessage.startsWith("contextdo") && replyMessage.contains("hget"))){
-										listener.messageReceived(replyMessage, CHANNEL_RAW_BATCH);
+//									if (logAllInBatchChannel && !CHANNEL_RAW_BATCH.equals(channelId) && !replyMessage.trim().equalsIgnoreCase("Poch") 
+//											&& !replyMessage.startsWith("{") && !replyMessage.endsWith("}")
+//											&& !(replyMessage.startsWith("contextdo") && replyMessage.contains("hget"))){
+//										listener.messageReceived(replyMessage, CHANNEL_RAW_BATCH);
+//									}
+									if (logAllInBatchChannel 
+											&& !CHANNEL_RAW_BATCH.equals(channelId)) {
+										if (replyMessage.startsWith("{") && replyMessage.endsWith("}")) {
+											try {
+												JSONObject json = new JSONObject(replyMessage);
+												String flag = json.getString(JSONTag.FLAG.getText());
+												if(flag.equalsIgnoreCase(Flag.ERROR.toString())
+														|| flag.equalsIgnoreCase(Flag.WARNING.toString())
+														|| flag.equalsIgnoreCase(Flag.EVENT.toString())
+														|| flag.equalsIgnoreCase(Flag.FINISH.toString())) {
+													String data = json.getString(JSONTag.DATA.getText());
+													listener.messageReceived(data, CHANNEL_RAW_BATCH);
+													System.err.println(data);
+												}
+											} catch (Exception e) {
+											}
+										}
 									}
 								}
 							});
