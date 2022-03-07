@@ -23,7 +23,7 @@ public class ProposalSyncService {
 	private static final String PROP_PROPOSALSYNC_ENABLED = "gumtree.proposalSync.enabled";
 	private static final String PROP_PROPOSALSYNC_TIME = "gumtree.proposalSync.timeInHour";
 	private static final String PROP_INSTRUMENT_ID = "gumtree.instrument.id";
-	private static final String HOST = "http://tideland-test.nbi.ansto.gov.au";
+	private static final String HOST = "http://tideland.nbi.ansto.gov.au";
 	private static final String PATH = "/shim/proposal.php?instrument_name=";
 	private static Logger logger = LoggerFactory.getLogger(ProposalSyncService.class);
 	private boolean proposalSyncEnabled = false;
@@ -64,7 +64,7 @@ public class ProposalSyncService {
 		}
 	}
 
-	private void checkProposalFromServer() throws HttpException, IOException, RecordsFileException{
+	public void checkProposalFromServer() throws HttpException, IOException, RecordsFileException{
 		String newProposalId = getProposalId();
 		if (newProposalId != null) {
 			String oldSession = "";
@@ -82,7 +82,7 @@ public class ProposalSyncService {
 		}
 	}
 	
-	private String getProposalId() throws HttpException, IOException {
+	public String getProposalId() throws HttpException, IOException {
 		String instrumentName = System.getProperty(PROP_INSTRUMENT_ID);
 		GetMethod getMethod = new GetMethod(HOST);
 		getMethod.setDoAuthentication(true);
