@@ -17,8 +17,8 @@ CKEDITOR.editorConfig = function( config ) {
 					+ 'uploadwidget,wsc,allowsave,autosave,balloonpanel,btbutton,'
 					+ 'bt_table,zoom,tabletoolstoolbar,tableresizerowandcolumn,tableresize,contents,'
 					+ 'panelbutton,spacingsliders,simplebutton,selectall,removespan,print,preview,'
-//					+ 'pastebase64,pasteFromGoogleDoc,pastefromexcel,textindent,pagebreak,newpage,'
-					+ 'pasteFromGoogleDoc,pastefromexcel,textindent,pagebreak,newpage,'
+//					+ 'pasteFromGoogleDoc,pastefromexcel,textindent,pagebreak,newpage,'
+					+ 'pastebase64,pasteFromGoogleDoc,pastefromexcel,textindent,pagebreak,newpage,'
 					+ 'lineheight,letterspacing,ckeditor_wiris,symbol,smiley,imagerotate,' 
 					+ 'imageresizerowandcolumn,imageresize,zsuploader,font,find,colordialog,'
 					+ 'docprops,docfont,colorbutton,pbckcode,mathjax';
@@ -64,6 +64,10 @@ CKEDITOR.editorConfig = function( config ) {
 	config.removeButtons = 'Underline,Subscript,Superscript,resize';
 
 	config.extraPlugins = 'pdf,word,lock';
+	
+	config.pasteUploadFileApi = 'uploadimage';
+	
+	config.pasteUploadImageUrlApi = 'uploadimageurl';
 
 	config.autosave_delay = 300;
 

@@ -160,8 +160,9 @@
 					// If data empty check for image content inside data transfer. https://dev.ckeditor.com/ticket/16705
 					if ( !data && dataObj.method == 'paste' && dataTransfer && dataTransfer.getFilesCount() == 1 && latestId != dataTransfer.id ) {
 						var file = dataTransfer.getFile( 0 );
-
+						console.log("clipboard 163");
 						if ( CKEDITOR.tools.indexOf( supportedImageTypes, file.type ) != -1 ) {
+							console.log("using clipboard plugin 165");
 							var fileReader = new FileReader();
 
 							// Convert image file to img tag with base64 image.
@@ -191,6 +192,7 @@
 			}
 
 			editor.on( 'paste', function( evt ) {
+				console.log("clipboard 195");
 				// Init `dataTransfer` if `paste` event was fired without it, so it will be always available.
 				if ( !evt.data.dataTransfer ) {
 					evt.data.dataTransfer = new CKEDITOR.plugins.clipboard.dataTransfer();
@@ -221,6 +223,7 @@
 			}, null, null, 1 );
 
 			editor.on( 'paste', function( evt ) {
+				console.log("clipboard 226");
 				var data = evt.data.dataValue,
 					blockElements = CKEDITOR.dtd.$block;
 
@@ -299,6 +302,7 @@
 			}, null, null, 3 );
 
 			editor.on( 'paste', function( evt ) {
+				console.log("clipboard 305");
 				var dataObj = evt.data,
 					type = editor._.nextPasteType || dataObj.type,
 					data = dataObj.dataValue,
@@ -358,10 +362,21 @@
 			// Inserts processed data into the editor at the end of the
 			// events chain.
 			editor.on( 'paste', function( evt ) {
+				console.log("clipboard 365");
 				var data = evt.data;
 				if ( data.dataValue ) {
-					editor.insertHtml( data.dataValue, data.type, data.range );
-
+					var skip = false;
+					if (data.type == 'html') {
+						try {
+							if ($(data.dataValue).is('img')){
+								skip = true;
+							}
+						} catch (e) {
+						}
+					}
+					if (!skip) {
+						editor.insertHtml( data.dataValue, data.type, data.range );
+					}
 					// Defer 'afterPaste' so all other listeners for 'paste' will be fired first.
 					// Fire afterPaste only if paste inserted some HTML.
 					setTimeout( function() {

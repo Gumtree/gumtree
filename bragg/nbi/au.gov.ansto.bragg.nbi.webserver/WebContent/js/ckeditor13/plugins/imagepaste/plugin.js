@@ -39,6 +39,7 @@ CKEDITOR.plugins.add( 'imagepaste',
 
 		// Paste from clipboard:
 		editor.on( 'paste', function(e) {
+			console.log("using imagepaste plugin");
 			var data = e.data,
 				html = (data.html || ( data.type && data.type=='html' && data.dataValue));
 			if (!html)

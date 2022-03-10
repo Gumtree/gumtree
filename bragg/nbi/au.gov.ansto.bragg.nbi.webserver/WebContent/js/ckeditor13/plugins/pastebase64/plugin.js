@@ -21,6 +21,7 @@
     }
 
     function onPaste(event) {
+    	console.log("using pastebase64 plugin");
         var editor = event.listenerData && event.listenerData.editor;
         var $event = event.data.$;
         var clipboardData = $event.clipboardData;
@@ -30,7 +31,7 @@
         if (!clipboardData) {
             return;
         }
-
+        
         return Array.prototype.forEach.call(clipboardData.types, function (type, i) {
             if (found) {
                 return;

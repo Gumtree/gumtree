@@ -77,6 +77,12 @@ hr
 	border-top: 1px solid #ccc;
 }
 
+img
+{
+	max-width: 680px;
+	max-height: 510px;
+}
+
 img.right
 {
 	border: 1px solid #ccc;
