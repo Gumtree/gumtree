@@ -167,6 +167,7 @@
 
 							// Convert image file to img tag with base64 image.
 							fileReader.addEventListener( 'load', function() {
+								console.log("clipboard readfile");
 								evt.data.dataValue = '<img src="' + fileReader.result + '" />';
 								editor.fire( 'paste', evt.data );
 							}, false );
@@ -369,7 +370,9 @@
 					if (data.type == 'html') {
 						try {
 							if ($(data.dataValue).is('img')){
-								skip = true;
+								if (isChrome) {
+									skip = true;
+								}
 							}
 						} catch (e) {
 						}

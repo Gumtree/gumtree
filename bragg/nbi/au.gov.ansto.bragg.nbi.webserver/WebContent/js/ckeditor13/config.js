@@ -3,6 +3,25 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
+var isChromium = window.chrome;
+//var winNav = window.navigator;
+//var vendorName = winNav.vendor;
+//var isOpera = typeof window.opr !== "undefined";
+//var isIEedge = winNav.userAgent.indexOf("Edg") > -1;
+//var isIOSChrome = winNav.userAgent.match("CriOS");
+//var isChrome = false;
+//
+//if (isIOSChrome || 
+//		(isChromium !== null &&
+//			typeof isChromium !== "undefined" &&
+//			vendorName === "Google Inc." &&
+//			isOpera === false &&
+//			isIEedge === false)
+//) {
+//   isChrome = true;
+//}
+var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+
 CKEDITOR.editorConfig = function( config ) {
 	
 	// %REMOVE_START%
@@ -18,10 +37,16 @@ CKEDITOR.editorConfig = function( config ) {
 					+ 'bt_table,zoom,tabletoolstoolbar,tableresizerowandcolumn,tableresize,contents,'
 					+ 'panelbutton,spacingsliders,simplebutton,selectall,removespan,print,preview,'
 //					+ 'pasteFromGoogleDoc,pastefromexcel,textindent,pagebreak,newpage,'
-					+ 'pastebase64,pasteFromGoogleDoc,pastefromexcel,textindent,pagebreak,newpage,'
+//					+ 'pastebase64,'
+					+ 'pasteFromGoogleDoc,pastefromexcel,textindent,pagebreak,newpage,'
 					+ 'lineheight,letterspacing,ckeditor_wiris,symbol,smiley,imagerotate,' 
 					+ 'imageresizerowandcolumn,imageresize,zsuploader,font,find,colordialog,'
 					+ 'docprops,docfont,colorbutton,pbckcode,mathjax';
+	if (isChrome) {
+		console.log("is chrome");
+		config.plugins += ',pastebase64';
+	}
+	
 	config.skin = 'moono-lisa';
 	
 	config.height = '880';

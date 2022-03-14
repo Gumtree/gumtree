@@ -36,7 +36,6 @@
             if (found) {
                 return;
             }
-
             if (type.match(imageType) || clipboardData.items[i].type.match(imageType)) {
                 readImageAsBase64(clipboardData.items[i], editor);
                 return found = true;
