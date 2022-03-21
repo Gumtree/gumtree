@@ -49,9 +49,9 @@ public class NotebookPDFService {
 		}
 	}
 	
-	public boolean createPDF(String sourceFilename, String targetFilename) throws HtmlPDFException, IOException {
+	public boolean createPDF(String sourceFilename, String imageFolder, String targetFilename) throws HtmlPDFException, IOException {
 		String htmlString = new String(Files.readAllBytes(Paths.get(sourceFilename)));
 		htmlString = htmlString.replaceAll("<br>", "<p/>");
-		return pdfService.createPdf(HTML_HEADER + htmlString + HTML_FOOTER, targetFilename);
+		return pdfService.createPdf(HTML_HEADER + htmlString + HTML_FOOTER, imageFolder, targetFilename);
 	}
 }

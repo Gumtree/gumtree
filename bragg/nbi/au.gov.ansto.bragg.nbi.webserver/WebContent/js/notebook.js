@@ -967,11 +967,56 @@ function getHistoryWord(session, pageId) {
 	});
 }
 
-function getWord(){
-	var data = CKEDITOR.instances.id_editable_inner.getData();
-//	jQuery('<div />').append(data).wordExport();
+function convertImagesToBase64 (doc, callback) {
+//	contentDocument = tinymce.get('content').getDoc();
+//	var regularImages = contentDocument.querySelectorAll("img");
+	var div = $('<div/>').html(doc);
+	var regularImages = div.find('img');
+//	var canvas = document.createElement('canvas');
+//	var ctx = canvas.getContext('2d');
+	var numChange = regularImages.length;
+	if (numChange > 0) {
+		$.each(regularImages, function () {
+			// preparing canvas for drawing
+			var imgElement = $(this);
+			var img = new Image();
+			img.crossOrigin = 'Anonymous';
+			img.onload = function() {
+				var canvas = document.createElement('CANVAS');
+				var ctx = canvas.getContext('2d');
+				canvas.height = this.naturalHeight;
+				canvas.width = this.naturalWidth;
+				ctx.drawImage(this, 0, 0);
+				dataURL = canvas.toDataURL();
+				imgElement.attr('src', dataURL);
+				canvas.remove();
+				numChange --;
+				if (numChange <= 0) {
+					html_word(div.html());
+				}
+			};
+			img.src = this.src;
+	//		ctx.clearRect(0, 0, canvas.width, canvas.height);
+	//		canvas.width = this.width;
+	//		canvas.height = this.height;
+	//		console.log("width = " + canvas.width + ", height = " + canvas.height);
+	//		ctx.drawImage(this, 0, 0);
+	//		// by default toDataURL() produces png image, but you can also export to jpeg
+	//		// checkout function's documentation for more details
+	//		var dataURL = canvas.toDataURL();
+	//		imgElement.attr('src', dataURL);
+		});
+	} else {
+		html_word(doc);
+	}
 	
-    var converted = htmlDocx.asBlob(data);
+//	setTimeout(function(){
+//		callback(div.html());
+//		}, 1000);
+}
+
+function html_word(data){
+	var converted = htmlDocx.asBlob(data);
     var fn = title + "_Notebook";
     if (pageId != null) {
     	fn = pageId;
@@ -981,7 +1026,14 @@ function getWord(){
     }
     fn += ".docx";
     saveAs(converted, fn);
-    
+}
+
+function getWord(){
+	var data = CKEDITOR.instances.id_editable_inner.getData();
+//	jQuery('<div />').append(data).wordExport();
+
+	convertImagesToBase64(data, html_word);
+	
 //	$("#id_editable_page").wordExport();
 }
 

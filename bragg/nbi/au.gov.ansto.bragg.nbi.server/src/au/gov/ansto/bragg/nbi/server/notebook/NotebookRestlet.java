@@ -1,6 +1,7 @@
 package au.gov.ansto.bragg.nbi.server.notebook;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +51,8 @@ import org.restlet.representation.Representation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import au.gov.ansto.bragg.nbi.restlet.RestletFileUpload;
+import au.gov.ansto.bragg.nbi.restlet.fileupload.disk.DiskFileItemFactory;
 import au.gov.ansto.bragg.nbi.server.git.GitService;
 import au.gov.ansto.bragg.nbi.server.internal.UserSessionService;
 import au.gov.ansto.bragg.nbi.server.login.UserSessionObject;
@@ -66,6 +69,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String SEG_NAME_LOAD = "load";
 	private final static String SEG_NAME_HELP = "help";
 	private final static String SEG_NAME_USER = "user";
+	private final static String SEG_NAME_IMAGES = "images";
 	private final static String SEG_NAME_CURRENTPAGE = "currentpage";
 	private final static String SEG_NAME_SEARCH = "search";
 	private final static String SEG_NAME_SEARCHMINE = "searchMine";
@@ -76,6 +80,8 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String SEG_NAME_PDF = "pdf";
 	private final static String SEG_NAME_ADDPASS = "addPass";
 	private final static String SEG_NAME_DOWNLOAD = "download";
+	private final static String SEG_NAME_IMAGEUPLOAD = "imageupload";
+	private final static String SEG_NAME_IMAGEURL = "imageurl";
 	private final static String SEG_NAME_IMAGESERVICE = "imageService";
 	private final static String SEG_NAME_ARCHIVE = "archive";
 	private final static String SEG_NAME_MYARCHIVE = "myarchive";
@@ -88,6 +94,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String PROP_NOTEBOOK_TABLEEXTENSION = "gumtree.notebook.headerTableExtension";
 	private final static String PROP_DATABASE_SAVEPATH = "gumtree.loggingDB.savePath";
 	private final static String PROP_PDF_FOLDER = "gumtree.notebook.pdfPath";
+	private final static String PROP_IMAGE_FOLDER = "gumtree.notebook.imagePath";
 	private final static String NOTEBOOK_TEMPLATEFILENAME = "template.xml";
 	private final static String NOTEBOOK_HELPFILENAME = "guide.xml";
 	private final static String NOTEBOOK_MANAGEHELP_FILENAME = "ManagerUsersGuide.xml";
@@ -101,6 +108,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String QUERY_PAGE_ID = "pageid";
 	private final static String QUERY_EXTNAME_ID = "ext";
 	private final static String QUERY_EXTERNAL_URL_ID = "url";
+	private final static String QUERY_IMAGE_ID = "id";
 	private static final String QUERY_PATTERN = "pattern";
 	private static final String QUERY_PASSCODE = "pc";
 	private static final String QUERY_PROPOSAL_ID = "proposal_id";
@@ -139,6 +147,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private static String instrumentId;
 	private static NotebookPDFService pdfService;
 	private static String pdfFolder;
+	private static String imageFolder;
 	
 	private String currentDBFolder;
 	private String templateFilePath;
@@ -172,6 +181,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		controlDb = ControlDB.getInstance();
 		proposalDb = ProposalDB.getInstance();
 		pdfFolder = System.getProperty(PROP_PDF_FOLDER);
+		imageFolder = System.getProperty(PROP_IMAGE_FOLDER);
 		IHttpClientFactory clienntFactory = new HttpClientFactory();
 		externalHttpClient = clienntFactory.createHttpClient(1);
 		internalHttpClient = clienntFactory.createHttpClient(1);
@@ -666,7 +676,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				if (current.exists()) {
 					String targetPath = pdfFolder + "/" + targetFilename;
 					try {
-						boolean isSuccessful = pdfService.createPDF(sourceFilename, targetPath);
+						boolean isSuccessful = pdfService.createPDF(sourceFilename, imageFolder, targetPath);
 						if (isSuccessful) {
 							//    					FileRepresentation representation = new FileRepresentation(targetPath, MediaType.APPLICATION_ZIP);
 							//    					Disposition disposition = new Disposition();
@@ -1230,6 +1240,92 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 					return;
 				}
+			} else if (SEG_NAME_IMAGEUPLOAD.equals(seg)) {
+				Representation entity = request.getEntity();
+				Form form = new Form(entity);
+				String upload = form.getValues("upload");
+				System.err.println(upload);
+				String filename = String.valueOf(System.currentTimeMillis()) + ".png";
+				String targetPath = imageFolder + "/" + filename;
+				File file = new File(targetPath);
+				FileOutputStream fos = null;
+				try {
+					fos = new FileOutputStream(file);
+					fos.write(Base64.decode(upload));
+					response.setEntity("notebook/images?id=" + filename, MediaType.TEXT_PLAIN);
+				} catch (Exception e) {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to create file at the server");
+					return;
+				} finally {
+					if (fos != null) {
+						try {
+							fos.close();
+						} catch (Exception e2) {
+						}
+					}
+				}
+			} else if (SEG_NAME_IMAGEURL.equals(seg)) {
+		    	Form queryForm = request.getResourceRef().getQueryAsForm();
+		    	String externalUrl = queryForm.getValues("url");
+				if (externalUrl != null && externalUrl.trim().length() > 0) {
+					System.err.println(externalUrl);
+					final SaveCallbackAdapter callback = new SaveCallbackAdapter();
+					//			    if (externalUrl.contains(daeHost)) {
+					if (externalUrl.contains("das") && externalUrl.contains(".nbi.ansto.gov.au:808")) {
+						try {
+							internalHttpClient.performGet(URI.create(externalUrl), callback, daeLogin, EncryptionUtils.decryptBase64(daePassword));
+						} catch (Exception e) {
+							response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to convert image");
+							return;
+						}
+					} else {
+						externalHttpClient.performGet(URI.create(externalUrl), callback);			    	
+					}
+					LoopRunner.run(new ILoopExitCondition() {
+
+						@Override
+						public boolean getExitCondition() {
+							return callback.isReady;
+						}
+					}, 200000, 100);
+					if (callback.byteArray == null) {
+						response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to convert image");
+						return;
+					}
+					String filename = String.valueOf(System.currentTimeMillis()) + ".png";
+					String targetPath = imageFolder + "/" + filename;
+					File file = new File(targetPath);
+					FileOutputStream fos = null;
+					try {
+						fos = new FileOutputStream(file);
+						fos.write(callback.byteArray);
+						JSONObject jsonObject = new JSONObject();
+						jsonObject.put("filename", "file");
+						jsonObject.put("url", "notebook/images?id=" + filename);
+						jsonObject.put("uploaded", 1);
+						response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+					} catch (Exception e) {
+						response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to create file at the server");
+						return;
+					} finally {
+						if (fos != null) {
+							try {
+								fos.close();
+							} catch (Exception e2) {
+							}
+						}
+					}
+				}
+			} else if (SEG_NAME_IMAGES.equals(seg)) {
+				Form queryForm = request.getResourceRef().getQueryAsForm();
+				String id = queryForm.getValues(QUERY_IMAGE_ID);
+				String targetPath = imageFolder + "/" + id;
+				FileRepresentation representation = new FileRepresentation(targetPath, MediaType.IMAGE_ALL);
+				Disposition disposition = new Disposition();
+				disposition.setFilename(id);
+//				disposition.setType(Disposition.TYPE_ATTACHMENT);
+				representation.setDisposition(disposition);
+				response.setEntity(representation);
 			} else if (SEG_NAME_IMAGESERVICE.equals(seg)) {
 				Form queryForm = request.getResourceRef().getQueryAsForm();
 				String externalUrl = queryForm.getValues(QUERY_EXTERNAL_URL_ID);
@@ -1240,7 +1336,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						try {
 							internalHttpClient.performGet(URI.create(externalUrl), callback, daeLogin, EncryptionUtils.decryptBase64(daePassword));
 						} catch (Exception e) {
-							response.setStatus(Status.SERVER_ERROR_INTERNAL, "faied to convert image");
+							response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to convert image");
 							return;
 						}
 					} else {
@@ -1254,7 +1350,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						}
 					}, 200000, 100);
 					if (callback.base64 == null) {
-						response.setStatus(Status.SERVER_ERROR_INTERNAL, "faied to convert image");
+						response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to convert image");
 						return;
 					}
 					response.setEntity(callback.base64, MediaType.TEXT_PLAIN);
@@ -1565,7 +1661,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 			File current = new File(sourceFilename);
 			if (current.exists()) {
 				String targetPath = reportPath + "/" + targetFilename;
-				boolean isSuccessful = pdfService.createPDF(sourceFilename, targetPath);
+				boolean isSuccessful = pdfService.createPDF(sourceFilename, imageFolder, targetPath);
 				if (!isSuccessful) {
 					throw new Exception("failed to save pdf file for old page");
 				}
@@ -1604,4 +1700,30 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		}
 	}
 
+	class SaveCallbackAdapter implements IHttpClientCallback{
+		boolean isReady = false;
+		byte[] byteArray;
+    	
+		@Override
+		public void handleResponse(InputStream in) {
+			
+			if (in == null) {
+				System.err.println("empty response");
+				isReady = true;
+				return;
+			}
+			try {
+				byteArray = IOUtils.toByteArray(in);
+				isReady = true;
+			} catch (IOException e) {
+				System.err.println(e);
+				isReady = true;
+			}
+		}
+		
+		@Override
+		public void handleError() {
+			isReady = true;
+		}
+	}
 }
