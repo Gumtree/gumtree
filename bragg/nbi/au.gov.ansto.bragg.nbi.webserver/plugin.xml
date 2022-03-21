@@ -196,6 +196,10 @@
             base-name="/WebContent/notebook.html">
       </resource>
       <resource
+            alias="/user/test.html"
+            base-name="/WebContent/test.html">
+      </resource>
+      <resource
             alias="/user/sicsConfig.html"
             base-name="/WebContent/sicsConfig.html">
       </resource>
