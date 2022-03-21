@@ -1189,6 +1189,7 @@ public class ScriptControlViewer extends Composite {
 	private void addGroup(final Composite parent, final ScriptObjectGroup objGroup) {
 		Composite group;
 		String hideTitleString = objGroup.getProperty("hideTitle");
+		boolean needRefresh = false;
 		if (hideTitleString != null && Boolean.valueOf(hideTitleString)) {
 			group = new Composite(parent, SWT.BORDER);
 		} else {
@@ -1293,7 +1294,7 @@ public class ScriptControlViewer extends Composite {
 			}
 			if (itemFolded) {
 				editItem.setText("Expand");
-				menuGroup.setExpanded(false);
+				needRefresh = true;
 			} else {
 				editItem.setText("Fold");
 			}
@@ -1372,6 +1373,10 @@ public class ScriptControlViewer extends Composite {
 		}
 
 		loadGroup(group, objGroup);
+		if (needRefresh) {
+			((MenuBasedGroup) group).setExpanded(false);
+			group.layout(true, true);
+		}
 		groupMap.put(objGroup.getId(), group);
 	}
 	
