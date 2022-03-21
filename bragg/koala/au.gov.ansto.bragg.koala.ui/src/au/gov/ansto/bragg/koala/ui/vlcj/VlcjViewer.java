@@ -76,7 +76,7 @@ public class VlcjViewer extends Composite {
 		logoSize = Integer.valueOf(System.getProperty(LOGO_SIZE));
 		try {
 			logoFile = new File(FileLocator.toFileURL(Activator.getDefault().getBundle().getEntry(
-					"/icons/plus64.png")).getFile());
+					"/icons/plus_thin_red.png")).getFile());
 		} catch (IOException e1) {
 		}
 		String bc = System.getProperty(BEAM_CENTRE);
@@ -258,8 +258,8 @@ public class VlcjViewer extends Composite {
         		super.videoOutput(mediaPlayer, newCount);
         		isPlayer1Ready = true;
 //        		if (isPlayer1Ready && isPlayer2Ready) {
-        			syncSetText(reloadButton, "Stop Video");
-        			syncSetImage(reloadButton, InternalImage.STOP_16.getImage());
+        			syncSetText(reloadButton, "Pause Video");
+        			syncSetImage(reloadButton, InternalImage.PAUSE_16.getImage());
 //        		}
         		mediaPanel1.showCentre();
         	}
@@ -319,8 +319,8 @@ public class VlcjViewer extends Composite {
         		super.videoOutput(mediaPlayer, newCount);
         		isPlayer2Ready = true;
 //        		if (isPlayer1Ready && isPlayer2Ready) {
-        			syncSetText(reloadButton, "Stop Video");
-        			syncSetImage(reloadButton, InternalImage.STOP_16.getImage());
+        			syncSetText(reloadButton, "Pause Video");
+        			syncSetImage(reloadButton, InternalImage.PAUSE_16.getImage());
 //        		}
         		mediaPanel2.showCentre();
         	}
@@ -354,6 +354,21 @@ public class VlcjViewer extends Composite {
         		}
         	}
 		});
+
+//		controlThread1 = new Thread() {
+//			public void run() {
+//				try {
+//					isInitialised1 = true;
+//					mediaPlayer1.media().start(cam1Url, "network-caching=0");
+////						mediaPlayer2.media().start(cam2Url);
+//					syncSetText(reloadButton, "Pause Video");
+//					syncSetImage(reloadButton, InternalImage.STOP_16.getImage());
+//				} catch (Exception e) {
+//					System.err.println("failed to start players");
+//				}
+//			};
+//		};
+//		controlThread1.start();
 
 	}
 
@@ -467,13 +482,42 @@ public class VlcjViewer extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				reloadButton.setImage(InternalImage.BUSY_STATUS_16.getImage());
 				reloadButton.setText("Loading ...");
+				if (isInitialised1) {
+					if (isPlayer1Ready) {
+						mediaPlayer1.controls().setPause(true);
+						reloadButton.setImage(InternalImage.PLAY_16.getImage());
+						reloadButton.setText("Play Video");
+						isPlayer1Ready = false;
+					} else {
+						mediaPlayer1.controls().setPause(false);
+						reloadButton.setImage(InternalImage.PAUSE_16.getImage());
+						reloadButton.setText("Pause Video");
+						isPlayer1Ready = true;
+					}
+				} else {
+					controlThread1 = new Thread() {
+						public void run() {
+							try {
+								isInitialised1 = true;
+								mediaPlayer1.media().start(cam1Url, "network-caching=0", "live-caching=0");
+//									mediaPlayer2.media().start(cam2Url);
+								syncSetText(reloadButton, "Pause Video");
+								syncSetImage(reloadButton, InternalImage.STOP_16.getImage());
+							} catch (Exception e) {
+								System.err.println("failed to start players");
+							}
+						};
+					};
+					controlThread1.start();
+				}
+				
 //				if (isPlayer1Ready && isPlayer2Ready) {
-//					mediaPlayer1.controls().stop();
-//					mediaPlayer2.controls().stop();
+//					mediaPlayer1.controls().setPause(true);
+////					mediaPlayer2.controls().stop();
 //					isPlayer1Ready = false;
 //					isPlayer2Ready = false;
 //					mediaPlayer1.controls().start();
-//					mediaPlayer2.controls().start();					
+////					mediaPlayer2.controls().start();					
 //				} else {
 //					if (isPlayer1Ready) {
 //						mediaPlayer1.controls().stop();
@@ -483,91 +527,89 @@ public class VlcjViewer extends Composite {
 //						mediaPlayer1.release();
 //						mediaPlayer1.media().start(cam1Url);
 //					}
-//					if (isPlayer2Ready) {
-//						mediaPlayer2.controls().stop();
-//						isPlayer2Ready = false;
-//						mediaPlayer2.controls().start();
-//					} else {
-//						mediaPlayer2.release();
-//						mediaPlayer2.media().start(cam2Url);
-//					}
+////					if (isPlayer2Ready) {
+////						mediaPlayer2.controls().stop();
+////						isPlayer2Ready = false;
+////						mediaPlayer2.controls().start();
+////					} else {
+////						mediaPlayer2.release();
+////						mediaPlayer2.media().start(cam2Url);
+////					}
 //				}
-				if (controlThread1 != null && controlThread1.isAlive()) {
-					controlThread1.interrupt();
-				}
-				if (controlThread2 != null && controlThread1.isAlive()) {
-					controlThread2.interrupt();
-				}
-				controlThread1 = new Thread() {
-					public void run() {
-						if (isInitialised1) {
-							if (isPlayer1Ready) {
-								try {
-									mediaPlayer1.controls().stop();
+				
+				
+//				if (controlThread1 != null && controlThread1.isAlive()) {
+//					controlThread1.interrupt();
+//				}
+//				if (controlThread2 != null && controlThread1.isAlive()) {
+//					controlThread2.interrupt();
+//				}
+//				controlThread1 = new Thread() {
+//					public void run() {
+//						if (isInitialised1) {
+//							if (isPlayer1Ready) {
+//								try {
+//									mediaPlayer1.controls().stop();
+//									isPlayer1Ready = false;
+//									if (!isPlayer1Ready && !isPlayer2Ready) {
+//										syncSetText(reloadButton, "Start Video");
+//										syncSetImage(reloadButton, InternalImage.PLAY_16.getImage());
+//									}
+//								} catch (Exception ex) {
+//									System.err.println("failed to stop player");
+//								}
+//							} else {
+//								try {
+//									mediaPlayer1.controls().play();
+//								} catch (Exception ex) {
+//									System.err.println("failed to start player");
+//								}
+//							}
+//							
+//						} else {
+//							try {
+//								isInitialised1 = true;
+//								mediaPlayer1.media().start(cam1Url, "network-caching=0");
+//							} catch (Exception e) {
+//								System.err.println("failed to start players");
+//							}
+//						}
+//					};
+//				};
+//				controlThread2 = new Thread() {
+//					public void run() {
+//						if (isInitialised2) {
+//							if (isPlayer2Ready) {
+//								try {
 //									mediaPlayer2.controls().stop();
-									isPlayer1Ready = false;
 //									isPlayer2Ready = false;
-									if (!isPlayer1Ready && !isPlayer2Ready) {
-										syncSetText(reloadButton, "Start Video");
-										syncSetImage(reloadButton, InternalImage.PLAY_16.getImage());
-									}
-								} catch (Exception ex) {
-									System.err.println("failed to stop player");
-								}
-							} else {
-								try {
-									mediaPlayer1.controls().play();
+//									if (!isPlayer1Ready && !isPlayer2Ready) {
+//										syncSetText(reloadButton, "Start Video");
+//										syncSetImage(reloadButton, InternalImage.PLAY_16.getImage());
+//									}
+//								} catch (Exception ex) {
+//									System.err.println("failed to stop player");
+//								}
+//							} else {
+//								try {
 //									mediaPlayer2.controls().play();
-								} catch (Exception ex) {
-									System.err.println("failed to start player");
-								}
-							}
-							
-						} else {
-							try {
-								isInitialised1 = true;
-								mediaPlayer1.media().start(cam1Url);
-//								mediaPlayer2.media().start(cam2Url);
-							} catch (Exception e) {
-								System.err.println("failed to start players");
-							}
-						}
-					};
-				};
-				controlThread2 = new Thread() {
-					public void run() {
-						if (isInitialised2) {
-							if (isPlayer2Ready) {
-								try {
-									mediaPlayer2.controls().stop();
-									isPlayer2Ready = false;
-									if (!isPlayer1Ready && !isPlayer2Ready) {
-										syncSetText(reloadButton, "Start Video");
-										syncSetImage(reloadButton, InternalImage.PLAY_16.getImage());
-									}
-								} catch (Exception ex) {
-									System.err.println("failed to stop player");
-								}
-							} else {
-								try {
-									mediaPlayer2.controls().play();
-								} catch (Exception ex) {
-									System.err.println("failed to start player");
-								}
-							}
-							
-						} else {
-							try {
-								isInitialised2 = true;
-								mediaPlayer2.media().start(cam2Url);
-							} catch (Exception e) {
-								System.err.println("failed to start players");
-							}
-						}
-					};
-				};
-				controlThread1.start();
-				controlThread2.start();
+//								} catch (Exception ex) {
+//									System.err.println("failed to start player");
+//								}
+//							}
+//							
+//						} else {
+//							try {
+//								isInitialised2 = true;
+//								mediaPlayer2.media().start(cam2Url, "network-caching=0");
+//							} catch (Exception e) {
+//								System.err.println("failed to start players");
+//							}
+//						}
+//					};
+//				};
+//				controlThread1.start();
+////				controlThread2.start();
 			}
 			
 			@Override

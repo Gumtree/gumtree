@@ -26,7 +26,7 @@ import au.gov.ansto.bragg.koala.ui.vlcj.VlcjViewer;
  */
 public class CrystalPanel extends AbstractControlPanel {
 
-	private static final int WIDTH_HINT = 1800;
+	private static final int WIDTH_HINT = 1560;
 	private static final int HEIGHT_HINT = 720;
 	private MainPart mainPart;
 	
@@ -38,7 +38,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		super(parent, style);
 		mainPart = part;
 		GridLayoutFactory.fillDefaults().margins(8, 8).applyTo(this);
-		GridDataFactory.swtDefaults().minSize(720, 720).align(SWT.CENTER, SWT.CENTER).applyTo(this);
+		GridDataFactory.swtDefaults().minSize(WIDTH_HINT, HEIGHT_HINT).align(SWT.CENTER, SWT.CENTER).applyTo(this);
 		
 //		final Label titleLabel = new Label(this, SWT.NONE);
 //		titleLabel.setText("Crystal Mounting");

@@ -61,7 +61,8 @@ public class KoalaMainPerspective implements IPerspectiveFactory {
 								try {
 									IWorkbenchPartReference myView = page.findViewReference(ID_CRUISE_PANEL_VIEW);
 									page.setPartState(myView, IWorkbenchPage.STATE_MINIMIZED);
-//									KoalaWorkbenchSetup.hideMenus((WorkbenchWindow) workbenchWindow);
+									KoalaWorkbenchSetup.hideMenus((WorkbenchWindow) workbenchWindow);
+//									KoalaWorkbenchSetup.hideCoolBar((WorkbenchWindow) workbenchWindow);
 								} catch (Exception e) {
 								}
 							workbenchWindow.removePerspectiveListener(adapter);

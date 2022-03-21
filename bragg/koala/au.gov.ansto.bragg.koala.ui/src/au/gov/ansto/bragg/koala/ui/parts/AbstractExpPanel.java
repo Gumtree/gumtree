@@ -34,10 +34,27 @@ import au.gov.ansto.bragg.koala.ui.scan.SingleScan;
  */
 public abstract class AbstractExpPanel extends AbstractControlPanel {
 
-	private static final int WIDTH_HINT = 1860;
-	private static final int HEIGHT_HINT = 720;
+	private static final int WIDTH_HINT = 2200; //1860
+	private static final int HEIGHT_HINT = 960;
+	private static final int WIDTH_TABLE = 1580;
+	private static final int HEIGHT_TABLE = 880;
+	private static final int WIDTH_INFO = 480;
+	private static final int HEIGHT_INFO = 880;
+	
+	private static final int WIDTH_HINT_SMALL = 1560; //1860
+	private static final int HEIGHT_HINT_SMALL = 720;
+	private static final int WIDTH_TABLE_SMALL = 1080;
+	private static final int HEIGHT_TABLE_SMALL = 700;
+	private static final int WIDTH_INFO_SMALL = 480;
+	private static final int HEIGHT_INFO_SMALL = 800;
 	protected MainPart mainPart;
 	protected KTable table;
+	private int panelWidth = WIDTH_HINT;
+	private int panelHeight = HEIGHT_HINT;
+	private int tableWidth = WIDTH_TABLE;
+	private int tableHeight = HEIGHT_TABLE;
+	private int infoWidth = WIDTH_INFO;
+	private int infoHeight = HEIGHT_INFO;
 	
 	/**
 	 * @param parent
@@ -45,13 +62,21 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	 */
 	public AbstractExpPanel(Composite parent, int style, MainPart part) {
 		super(parent, style);
+		if (Activator.getMonitorWidth() < 2500) {
+			panelWidth = WIDTH_HINT_SMALL;
+			panelHeight = HEIGHT_HINT_SMALL;
+			tableWidth = WIDTH_TABLE_SMALL;
+			tableHeight = HEIGHT_TABLE_SMALL;
+			infoWidth = WIDTH_INFO_SMALL;
+			infoHeight = HEIGHT_INFO_SMALL;
+		}
 		mainPart = part;
 		GridLayoutFactory.fillDefaults().margins(8, 8).numColumns(2).applyTo(this);
-		GridDataFactory.swtDefaults().minSize(1860, 720).align(SWT.CENTER, SWT.FILL).applyTo(this);
+		GridDataFactory.swtDefaults().minSize(panelWidth, panelHeight).align(SWT.CENTER, SWT.FILL).applyTo(this);
 		
 		final Composite scanBlock = new Composite(this, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(1).applyTo(scanBlock);
-		GridDataFactory.fillDefaults().minSize(1200, 640).grab(true, true).align(SWT.FILL, SWT.BEGINNING).applyTo(scanBlock);
+		GridDataFactory.fillDefaults().minSize(tableWidth, tableHeight).grab(true, true).align(SWT.FILL, SWT.BEGINNING).applyTo(scanBlock);
 		
 	    table = new KTable(scanBlock, SWT.NONE 
 	    							| SWT.MULTI 
@@ -89,7 +114,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		
 	    Composite infoPart = new Composite(this, SWT.NONE);
 	    GridLayoutFactory.fillDefaults().applyTo(infoPart);
-	    GridDataFactory.fillDefaults().span(1, 2).grab(false, true).align(SWT.FILL, SWT.BEGINNING).minSize(480, 600).applyTo(infoPart);
+	    GridDataFactory.fillDefaults().span(1, 2).grab(false, true).align(SWT.FILL, SWT.BEGINNING).minSize(infoWidth, infoHeight).applyTo(infoPart);
 	    
 		final Group statusPart = new Group(infoPart, SWT.NONE);
 		statusPart.setText("Current scan status");
@@ -188,7 +213,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	    final Composite emptyPart = new Composite(batchHolder, SWT.NONE);
 	    
 	    final Group batchGroup = new Group(batchHolder, SWT.NONE);
-	    batchGroup.setText("Undate selected rows");
+	    batchGroup.setText("Batch update selected rows");
 	    batchGroup.setBackground(Activator.getLightColor());
 	    GridLayoutFactory.fillDefaults().numColumns(3).margins(4, 4).applyTo(batchGroup);
 	    GridDataFactory.fillDefaults().grab(true, false).applyTo(batchGroup);
@@ -244,7 +269,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		});
 		
 		final Label estLabel = new Label(batchGroup, SWT.NONE);
-		estLabel.setText("Time estimation of selected");
+		estLabel.setText("Estimation of selected");
 		estLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).span(2, 1).minSize(240, 40).applyTo(estLabel);
 		
@@ -329,50 +354,50 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			public void mouseUp(MouseEvent e) {
 				int[] rows = table.getRowSelection();
 				if (rows.length > 0) {
-					for (int row : rows) {
-						if (row % 2 == 1) {
-							int oRow = row + 1;
-							boolean inArray = false;
-							for (int v : rows) {
-								if (v == oRow) {
-									inArray = true;
-									break;
-								}
-							}
-							if (!inArray) {
-								table.addToSelectionWithoutRedraw(3, oRow);
-							}
-						} else {
-							int oRow = row - 1;
-							boolean inArray = false;
-							for (int v : rows) {
-								if (v == oRow) {
-									inArray = true;
-									break;
-								}
-							}
-							if (!inArray) {
-								table.addToSelectionWithoutRedraw(0, oRow);
-							}
-						}
-					}
-					table.redraw();
+//					for (int row : rows) {
+//						if (row % 2 == 1) {
+//							int oRow = row + 1;
+//							boolean inArray = false;
+//							for (int v : rows) {
+//								if (v == oRow) {
+//									inArray = true;
+//									break;
+//								}
+//							}
+//							if (!inArray) {
+//								table.addToSelectionWithoutRedraw(3, oRow);
+//							}
+//						} else {
+//							int oRow = row - 1;
+//							boolean inArray = false;
+//							for (int v : rows) {
+//								if (v == oRow) {
+//									inArray = true;
+//									break;
+//								}
+//							}
+//							if (!inArray) {
+//								table.addToSelectionWithoutRedraw(0, oRow);
+//							}
+//						}
+//					}
+//					table.redraw();
 					batchHolder.setContent(batchGroup);
-					batchGroup.layout();
-//					batchHolder.setMinSize(batchGroup.computeSize(xHint, yHint));
+					batchGroup.layout(true, true);
+					batchHolder.setMinSize(batchGroup.computeSize(440, 300));
 					batchHolder.getParent().layout();
 					mainPart.layout();
 				} else {
 					batchHolder.setContent(emptyPart);
 					emptyPart.layout();
 					batchHolder.getParent().layout();
-					if (rows.length == 1) {
-						if (rows[0] % 2 == 1) {
-							table.addToSelection(3, rows[0] + 1);
-						} else {
-							table.addToSelection(0, rows[0] - 1);
-						}
-					}
+//					if (rows.length == 1) {
+//						if (rows[0] % 2 == 1) {
+//							table.addToSelection(3, rows[0] + 1);
+//						} else {
+//							table.addToSelection(0, rows[0] - 1);
+//						}
+//					}
 				}
 			}
 			
@@ -448,7 +473,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			model.insertScan(0);
 			table.redraw();
 		}
-		mainPart.showPanel(this, WIDTH_HINT, HEIGHT_HINT);
+		mainPart.showPanel(this, panelWidth, panelHeight);
 		mainPart.enableBackButton();
 		mainPart.disableNextButton();
 		mainPart.setTitle("Full Experiment");

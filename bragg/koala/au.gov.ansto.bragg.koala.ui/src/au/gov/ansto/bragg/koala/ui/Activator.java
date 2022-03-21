@@ -8,6 +8,8 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.gumtree.ui.service.multimonitor.IMultiMonitorManager;
+import org.gumtree.ui.service.multimonitor.support.MultiMonitorManager;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.osgi.framework.BundleContext;
 
@@ -100,5 +102,10 @@ public class Activator extends AbstractUIPlugin {
 	}
 	public static Color getHighlightColor() {
 		return highlightColor;
+	}
+	
+	public static int getMonitorWidth() {
+		IMultiMonitorManager mmManager = new MultiMonitorManager();
+		return mmManager.getMonitorWidth();
 	}
 }

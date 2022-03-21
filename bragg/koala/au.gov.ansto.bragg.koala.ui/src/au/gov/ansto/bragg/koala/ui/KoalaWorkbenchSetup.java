@@ -1,8 +1,12 @@
 package au.gov.ansto.bragg.koala.ui;
 
 import org.eclipse.core.runtime.ISafeRunnable;
+import org.eclipse.jface.action.CoolBarManager;
 import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.ICoolBarManager;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.swt.widgets.CoolBar;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveListener;
 import org.eclipse.ui.IStartup;
@@ -76,6 +80,7 @@ public class KoalaWorkbenchSetup implements IStartup {
 								e.printStackTrace();
 							}
 						}
+						hideCoolBar((WorkbenchWindow) activeWorkbenchWindow);
 						activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
 							
 							@Override
@@ -175,12 +180,14 @@ public class KoalaWorkbenchSetup implements IStartup {
 	    }
 	    ((WorkbenchWindow) window).getMenuBarManager().setVisible(false);
 	    ((WorkbenchWindow) window).getMenuBarManager().setRemoveAllWhenShown(true);
-	    
+//	    ((WorkbenchWindow) window).getCoolBarManager().getControl().setVisible(false);
 	    
 	}
 	
 	public static void hideCoolBar(WorkbenchWindow window) {
 		try {
+			System.err.println("hide cool bar");
+
 	        IHandlerService service = (IHandlerService) window.getService(IHandlerService.class);
 	        if (service != null)
 	            service.executeCommand("org.eclipse.ui.ToggleCoolbarAction", null);

@@ -29,4 +29,7 @@ public interface IMultiMonitorManager extends IService{
 	// TODO: Need better decision making on non-triple-head-to-go system
 	public boolean isMultiMonitorSystem();
 	
+	public int getMonitorCounts();
+	
+	public int getMonitorWidth();
 }

@@ -78,8 +78,8 @@ public abstract class AbstractScanModel implements KTableModel {
 		this.table = table;
 		table.addMouseListener(new MouseListener() {
 			
-			int dcol = -1;
-			int drow = -1;
+//			int dcol = -1;
+//			int drow = -1;
 			
 			@Override
 			public void mouseUp(MouseEvent e) {
@@ -91,15 +91,17 @@ public abstract class AbstractScanModel implements KTableModel {
 					if (row > 0) {
 						isValidCell = true;
 		    			if (col == 0) {
-		    				if (dcol == col && drow == row) {
-		    					insertScan((row - 1) / 2 + 1);
+//		    				if (dcol == col && drow == row) {
+//		    					insertScan((row - 1) / 2 + 1);
+		    					insertScan(row);
 		    					table.redraw();
-		    				}
+//		    				}
 		    			} else if (col == 1) {
-		    				if (dcol == col && drow == row) {
-		    					deleteScan((row - 1) / 2);
+//		    				if (dcol == col && drow == row) {
+//		    					deleteScan((row - 1) / 2);
+		    					deleteScan(row - 1);
 		    					table.redraw();
-		    				}
+//		    				}
 		    			}
 		    		}
 				}
@@ -110,9 +112,9 @@ public abstract class AbstractScanModel implements KTableModel {
 			
 			@Override
 			public void mouseDown(MouseEvent e) {
-				Point cell = table.getCellForCoordinates(e.x, e.y);
-				dcol = cell.x;
-				drow = cell.y;
+//				Point cell = table.getCellForCoordinates(e.x, e.y);
+//				dcol = cell.x;
+//				drow = cell.y;
 			}
 			
 			@Override
@@ -221,7 +223,7 @@ public abstract class AbstractScanModel implements KTableModel {
 		if (row == 0) {
 			return columnHeaderRenderer;
 		}
-		if ((row - 1) % 4 >= 2) {
+		if (row % 2 == 0) {
 			if (col == 0) {
 				if (col == highlightCol && row == highlightRow) {
 					return highlightDupButtonRenderer;
@@ -263,8 +265,8 @@ public abstract class AbstractScanModel implements KTableModel {
 	}
 	
 	public SingleScan getItem(int row) {
-		if (row <= scanList.size() * 2) {
-			return scanList.get((row - 1) / 2);
+		if (row <= scanList.size()) {
+			return scanList.get(row - 1);
 		} else {
 			return null;
 		}
@@ -275,7 +277,7 @@ public abstract class AbstractScanModel implements KTableModel {
 
 	@Override
 	public int getRowCount() {
-		return scanList.size() * 2 + 1;
+		return scanList.size() + 1;
 	}
 
 	@Override
