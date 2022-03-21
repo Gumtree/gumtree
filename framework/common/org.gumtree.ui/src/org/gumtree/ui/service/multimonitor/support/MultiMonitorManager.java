@@ -132,5 +132,21 @@ public class MultiMonitorManager implements IMultiMonitorManager {
 		// false
 		System.out.println((firstMonitorWidth  / RESOLUTION_WIDTH > 1 && firstMonitorWidth % RESOLUTION_WIDTH == 0));
 	}
+
+	@Override
+	public int getMonitorCounts() {
+		Monitor[] monitors = Display.getDefault().getMonitors();
+		return monitors.length;
+	}
+
+	@Override
+	public int getMonitorWidth() {
+		Monitor[] monitors = Display.getDefault().getMonitors();
+		if (monitors.length > 0) {
+			return monitors[0].getBounds().width;
+		} else {
+			return 0;
+		}
+	}
 	
 }
