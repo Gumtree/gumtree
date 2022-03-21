@@ -104,6 +104,62 @@ public class HtmlPDFService {
         }
     }
 
+    class LocalImageProvider extends AbstractImageProvider {
+   	 
+    	private String folderPath;
+    	
+    	public LocalImageProvider(String folderPath) {
+    		super();
+    		this.folderPath = folderPath;
+		}
+    	
+        @Override
+        public Image retrieve(String src) {
+        	if (src == null || src.isEmpty()) {
+        		return null;
+        	}
+        	try {
+            	int start = src.indexOf("images?id=");
+            	if (start > 0) {
+            		String fn = folderPath + "/" + src.substring(start + 10);
+            		File f = new File(fn);
+            		if (f.exists()) {
+            			byte[] data = Files.readAllBytes(Paths.get(fn));
+            			return Image.getInstance(data);
+            		}
+            	} 
+            	start = src.indexOf("base64,");
+            	if (src.startsWith("data") && start > 0) {
+            		start = src.indexOf("base64,");
+            		byte[] img = Base64.decode(src.substring(start + 7));
+            		return Image.getInstance(img);
+            	} 
+            	return Image.getInstance(src);
+			} catch (Exception e) {
+				return null;
+			}
+        	
+//            int pos = src.indexOf("base64,");
+//            try {
+//                if (src.startsWith("data") && pos > 0) {
+//                    byte[] img = Base64.decode(src.substring(pos + 7));
+//                    return Image.getInstance(img);
+//                }
+//                else {
+//                    return Image.getInstance(src);
+//                }
+//            } catch (BadElementException ex) {
+//                return null;
+//            } catch (IOException ex) {
+//                return null;
+//            }
+        }
+ 
+        @Override
+        public String getImageRootPath() {
+            return null;
+        }
+    }
     
     /**
      * Create a PDF file from a given HTML file and a list of css files. 
@@ -239,5 +295,82 @@ public class HtmlPDFService {
 		}
 		return true;
   }
-    
+
+    /**
+     * Create a PDF file from a given HTML file and local path for images folder. 
+     * @param htmlString
+     * @param imageFolder
+     * @param targetFile
+     * @return is successful flag
+     * @throws FileNotFoundException
+     * @throws HtmlPDFException 
+     */
+    public boolean createPdf(final String htmlString, final String imageFolder, final String targetFile) throws FileNotFoundException, HtmlPDFException {
+
+              // step 1
+        final Document document = new Document();
+        Thread thread = null;
+		try {
+	        // step 2
+			final PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(targetFile));
+			writer.setPageLabels(new PdfPageLabels());
+			HeaderFooter event = new HeaderFooter();
+	        writer.setBoxSize("art", new Rectangle(36, 54, 559, 788));
+	        writer.setPageEvent(event);
+	        // step 3
+	        document.open();
+	    	thread = new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+
+			        try {
+				        // HTML
+				        HtmlPipelineContext htmlContext = new HtmlPipelineContext(null);
+				        htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
+				        htmlContext.setImageProvider(new LocalImageProvider(imageFolder));
+
+				        // Pipelines
+				        PdfWriterPipeline pdf = new PdfWriterPipeline(document, writer);
+				        HtmlPipeline html = new HtmlPipeline(htmlContext, pdf);
+				        CssResolverPipeline css = new CssResolverPipeline(cssResolver, html);
+
+				        // XML Worker
+				        XMLWorker worker = new XMLWorker(css, true);
+				        XMLParser p = new XMLParser(worker);
+						p.parse(new ByteArrayInputStream(htmlString.getBytes()));
+					} catch (Exception e) {
+						e.printStackTrace();
+					} finally {
+				        // step 5
+				        try {
+				        	document.close();
+						} catch (Exception e2) {
+						}
+					}
+				}
+			});
+	    	thread.start();
+		} catch (DocumentException e1) {
+			throw new HtmlPDFException(e1);
+		}
+		LoopRunner.run(new ILoopExitCondition() {
+			
+			@Override
+			public boolean getExitCondition() {
+				return !document.isOpen();
+			}
+		}, TIME_OUT_IN_MILLISECONDS, 100);
+		if (document.isOpen()) {
+			try {
+				thread.interrupt();
+				document.close();
+			} catch (Exception e) {
+			}
+			System.err.println("time out parsing the html");
+			return false;
+		}
+		return true;
+  }
+
 }
