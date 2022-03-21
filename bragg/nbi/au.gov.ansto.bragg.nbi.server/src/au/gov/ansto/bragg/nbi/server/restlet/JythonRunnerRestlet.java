@@ -97,6 +97,9 @@ public class JythonRunnerRestlet extends Restlet implements IDisposable {
     	UUID uuid = null;
 	    JythonRunner runner = null;
 	    if (uuidString != null) {
+	    	if (uuidString.contains(":")) {
+	    		uuidString = uuidString.split(":")[1];
+	    	}
 	    	uuid = UUID.fromString(uuidString);
 	    	runner = runnerManager.getJythonRunner(uuid);
 	    } 
