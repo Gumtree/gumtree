@@ -1,13 +1,13 @@
 from gumpy.commons import sics
 from gumpy.commons.logger import log, n_logger
 
-from org.gumtree.control.core import ServerStatus
-from org.gumtree.control.exception import SicsInterruptException, SicsExecutionException
+from org.gumtree.gumnix.sics.control import ServerStatus
+from org.gumtree.gumnix.sics.io import SicsExecutionException
 
 # from au.gov.ansto.bragg.quokka.msw.internal import QuokkaProperties # see getReportLocation()
+from au.gov.ansto.bragg.quokka.sics import DetectorHighVoltageController
 from au.gov.ansto.bragg.quokka.sics import BeamStopController
-# from org.gumtree.gumnix.sics.control.controllers import CommandStatus
-from org.gumtree.control.model.PropertyConstants import ControllerState
+from org.gumtree.gumnix.sics.control.controllers import CommandStatus
 
 import sys, traceback
 import time
@@ -31,8 +31,8 @@ class Enumeration(object):
         return key in self._keys
 
 
-DETECTOR_MONITOR_ENABLED = False
-DETECTOR_RATE_CHECK_ENABLED = False
+DETECTOR_MONITOR_ENABLED = True
+DETECTOR_RATE_CHECK_ENABLED = True
 
 # safe count rates
 LOCAL_RATE_SAFE  =    1000.0
@@ -55,7 +55,6 @@ GUIDE_CONFIG = Enumeration(
     'p6', 'g6', 'p7', 'g7', 'p8', 'g8', 'p9', 'g9')
 
 bsList = dict((index, BeamStopController(index)) for index in range(1, 6))
-
 
 def getReportLocation():
     from java.lang import System
@@ -180,10 +179,6 @@ class QuokkaState(object):
 
 state = QuokkaState()
 
-def waitUntilSicsIs(status, dt=0.2):
-    while not sics.get_status().equals(status) :
-        sleep(dt)
-    
 def strOrDefault(value, default=str("")):
     s = str(value)
     return s if s else default
@@ -197,14 +192,37 @@ def sleep(secs, dt=0.1):
             break
         else:
             sics.handleInterrupt()
+
+        if target < datetime.now():
+            break
+        else:
             time.sleep(dt)
 
     sics.handleInterrupt()
 
+def waitUntilSicsIs(status, dt=0.2):
+    controller = sics.getSicsController()
+    timeout = 5
+    while True:
+        sics.handleInterrupt()
+
+        count = 0
+        while not controller.getServerStatus().equals(status) and count < timeout:
+            time.sleep(dt)
+            count += dt
+        
+        if controller.getServerStatus().equals(status):
+            break
+        else:
+            controller.refreshServerStatus()
+
+    sics.handleInterrupt()
+
 def isInterruptException(e):
-    return isinstance(e, SicsInterruptException)
+    return isinstance(e, SicsExecutionException) and ('Interrupted' in str(e.getMessage()))
 
 def hasTripped():
+    ''' disable this for the new detector commissioning '''
 #    slog('trip recovery has been disabled')
 # reenable the tripping handler
 #    return False
@@ -214,11 +232,7 @@ def hasTripped():
         while True:
             try:
                 counter += 1
-                res = sics.get_raw_feedback('histmem textstatus ' + name)
-                if res is None:
-                    return res
-                else:
-                    return str(res)
+                return str(sics.run_command('histmem textstatus ' + name))
 
             except (Exception, SicsExecutionException) as e:
                 if isInterruptException(e):
@@ -227,18 +241,15 @@ def hasTripped():
                 if counter >= 5:
                     return None # break loop
 
-                sleep(1)
+                time.sleep(1)
             except:
                 pass
 
     trp = getHistmemTextstatus('detector_protect_num_trip')
     ack = getHistmemTextstatus('detector_protect_num_trip_ack')
 
-    if (trp is None) or (ack is None) \
-        or (len(trp.strip()) == 0) or (len(ack.strip()) == 0):
+    if (trp is None) or (ack is None) or (int(trp) == int(ack)):
         return False # continue, assuming that detector has not tripped
-    if (int(trp) == int(ack)) :
-        return False
 
     slog('Detector has tripped', f_err=True)
     return True
@@ -374,7 +385,7 @@ def setupMeasurement(parameters, meas_mode):
         slog('Set instrument to scattering mode')
         sics.set('transmissionflag', 0)
 
-    sleep(0.5)
+    time.sleep(0.5)
 
     # before instrument can move to new configuration, move to safe attenuation angle
     driveToSafeAtt()
@@ -425,7 +436,9 @@ def setupSetPoint(parameters):
 
     # run configuration script
     environmentDrive(state.env_drive[env], value)
-    sleep(wait)
+    if wait > 0:
+        slog('wait for {} seconds'.format(wait))
+        sleep(wait)
 
 def preAcquisition(info):
     
@@ -499,24 +512,20 @@ def doAcquisition(info):
         while not sf and ct < 5:
             ct += 1
             slog('wait for 20 seconds')
-            sleep(20)
+            time.sleep(20)
             try:
                 scanBA(min_time, max_time, counts, bm_counts)
                 sf = True
             except (Exception, SicsExecutionException) as e:
-                slog("exception in scanBA")
                 if sics.isInterrupt():
                     slog('sics.isInterrupt')
                     raise
                 if isInterruptException(e):
-                    slog('is interrupt exception')
                     raise
                 else:
-                    slog('is not interrupt')
                     slog(str(e), f_err = True)
                     sics.execute('hmm configure termination_condition')
             except:
-                slog('unbound exception')
                 slog('failed to run collection', f_err = True)
                 sics.execute('hmm configure termination_condition')
             
@@ -528,11 +537,7 @@ def doAcquisition(info):
                 break
 
             slog('Repeat Bound Acquisition ...')
-            try:
-                scanBA(min_time, max_time, counts, bm_counts)
-            except:
-                slog('makeup scanBA error')
-                raise
+            scanBA(min_time, max_time, counts, bm_counts)
 
     else:
         if acq_mode == ACQUISITION_MODE.time:
@@ -636,12 +641,12 @@ def driveToLoadPosition():
         return
 
     slog('Driving sample holder to load position ...')
-    samx = sics.getDeviceController('samx')
+    samx = sics.getSicsController().findDeviceController('samx')
 
-    tolerance     = samx.getChild('precision').getValue()
-    soft_zero     = samx.getChild('softzero').getValue()
-    soft_upperlim = samx.getChild('softupperlim').getValue()
-    hard_upperlim = samx.getChild('hardupperlim').getValue()
+    tolerance     = samx.getChildController('/precision').getValue().getFloatData()
+    soft_zero     = samx.getChildController('/softzero').getValue().getFloatData()
+    soft_upperlim = samx.getChildController('/softupperlim').getValue().getFloatData()
+    hard_upperlim = samx.getChildController('/hardupperlim').getValue().getFloatData()
 
     if soft_upperlim > hard_upperlim - soft_zero:
         soft_upperlim = hard_upperlim - soft_zero
@@ -686,7 +691,7 @@ def environmentDrive(script, value):
 
 def publishFinishTime(value):
     slog('Publishing estimated finish time... (%s)' % time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(value)))
-    sics.execute('hset /experiment/gumtree_time_estimate %i' % value)
+    sics.execute('hset /experiment/gumtree_time_estimate %i' % value, 'status')
 
 def publishTables(tables):
     # TableInfo { String getName(); String getContent(); }
@@ -839,7 +844,7 @@ def determineDetRates(samples, timeout=60.0):
 
     startHistmem()
     try:
-        sleep(1.0)
+        time.sleep(1.0)
 
         local_rate, global_rate = getMaxBinRate(), getGlobalMapRate()
 
@@ -870,11 +875,11 @@ def determineDetRates(samples, timeout=60.0):
                             new_local_rate, new_global_rate = getMaxBinRate(refresh=True), getGlobalMapRate(refresh=True)
                             break
                         except:
-                            sleep(1)
+                            time.sleep(1)
                     break
 #                     raise Exception('Timeout during detector local/global rate estimation')
 
-                sleep(0.5)
+                time.sleep(0.5)
                 new_local_rate, new_global_rate = getMaxBinRate(), getGlobalMapRate()
 
             local_rate, global_rate = new_local_rate, new_global_rate
@@ -913,7 +918,12 @@ def determineDetRates(samples, timeout=60.0):
 
 def checkedDrive(motor, value, useController=False):
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
-    sics.drive(motor, value)
+
+    if useController:
+        controller = sics.getSicsController().findComponentController(motor)
+        controller.drive(value)
+    else:
+        sics.drive(motor, value)
 
 def loggedDrive(name, motor, value, unit, getter, useController=False):
     slog('Driving %s to %s %s ...' % (name, value, unit))
@@ -935,19 +945,66 @@ def getData(getter, throw, default='???'):
 def getIntData(path, throw=True, useController=False, useRaw=False):
 
     def getter():
-        return int(sics.getValue(path))
+        if useController:
+            controller = sics.getSicsController().findComponentController(path)
+            return controller.getValue().getIntData()
+        elif useRaw:
+            return int(sics.get_raw_value(path))
+        else:
+            return sics.getValue(path).getIntData()
 
     return getData(getter, throw)
 
 def getFloatData(path, throw=True, useController=False, useRaw=False, refresh = False):
-    return float(sics.getValue(path))
+
+    def getter():
+        if useController:
+            controller = sics.getSicsController().findComponentController(path)
+            if refresh:
+                controller.getValue(True)
+            return controller.getValue().getFloatData()
+        elif useRaw:
+            return float(sics.get_raw_value(path))
+        else:
+            return sics.getValue(path, refresh).getFloatData()
+
+    return getData(getter, throw)
 
 def getStringData(path, throw=True, useController=False, useRaw=False):
-    return str(sics.getValue(path))
+
+    def getter():
+        if useController:
+            controller = sics.getSicsController().findComponentController(path)
+            return controller.getValue().getStringData()
+        elif useRaw:
+            return str(sics.get_raw_value(path))
+        else:
+            return sics.getValue(path).getStringData()
+
+    return getData(getter, throw)
 
 def getDataFilename(throw=True):
-    return sics.get_base_filename()
 
+    def getter(refresh):
+        return sics.getValue('/experiment/file_name', refresh).getStringData()
+
+    def extractQkk(path):
+        if len(path) > 17:
+            return path[-17:]  # only keep the name of the file e.g. QKK0000000.nx.hdf
+        else:
+            return path
+
+#    target = datetime.now() + timedelta(seconds=5)
+#    while target > datetime.now():
+#        name = getData(partial(getter, refresh=True), throw=False, default=None)
+#        if name is not None:
+#            return extractQkk(name)
+#        else:
+#            sleep(0.5)
+    fn = sics.getFilename().getStringData()
+
+#     return extractQkk(getData(partial(getter, refresh=False), throw=True))
+    return extractQkk(fn)
 
 def getMaxBinRate(throw=True, refresh = False):
     return getFloatData('/instrument/detector/max_binrate', throw, refresh = refresh) # pixel count rate
@@ -966,7 +1023,19 @@ def driveAtt(value):
 
 def driveToSafeAtt():
     safe_att = max(ATT_VALUES)
-    driveAtt(safe_att)
+
+    counter = 0
+    while getAtt() != safe_att:
+        try:
+            counter += 1
+            driveAtt(safe_att)
+
+        except (Exception, SicsExecutionException) as e:
+            slog('error: %s' % str(e), f_err=True)
+            if isInterruptException(e) or (counter >= 5):
+                raise
+        except:
+            pass
 
 def getBsPosition(id):
     return bsList[id].getPosition().name()
@@ -995,7 +1064,8 @@ def driveBs(ids, action):
 
 def selBsHelper(beamstop, bx, bz, controller):
     # get command controller
-    commandController = sics.getDeviceController(controller)
+    sicsController = sics.getSicsController()
+    commandController = sicsController.findComponentController(controller)
 
     # configuring command properties
     if bx is not None:
@@ -1005,8 +1075,33 @@ def selBsHelper(beamstop, bx, bz, controller):
 
     sics.hset(commandController, '/bs', beamstop)
 
-    slog('run beamstop selecting command ...')
-    commandController.run(None)
+    count = 0
+    while getIntData(controller + '/bs') != beamstop:
+        time.sleep(0.1)
+        count += 1
+        if count > 100:
+            raise Exception('Time out on receiving feedback on beam stop selection')
+
+    count = 0
+    while True:
+        try:
+            count += 1
+            slog('run beamstop selecting command ...')
+            commandController.syncExecute()
+#        add checking beamstop value and retrial
+            if getIntData('beamstop') != beamstop:
+                raise Exception('SICS finished driving bs with error')
+            break
+
+        except (Exception, SicsExecutionException) as e:
+            if isInterruptException(e) or (count >= 5):
+                raise
+
+            slog('Retry selecting beam stop %s' % beamstop)
+            time.sleep(1)
+            waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
+        except:
+            pass
 
     slog('beam stop is %s' % beamstop)
 
@@ -1076,12 +1171,36 @@ def getFlipper(throw=True):
 
 def driveFlipper(value):
     slog('Driving flipper to %s ...' % value)
-#     sics.handleInterrupt()
+
+    # make sure that value is int
     value = int(value)
-    waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
-    sics.set('/instrument/flipper/set_flip_on', value)
-    sleep(1)
-    waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
+
+    counter = 0
+    while True:
+        try:
+            counter += 1
+
+            waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
+            sics.handleInterrupt()
+
+            sics.set('/instrument/flipper/set_flip_on', value)
+
+            waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
+            sics.handleInterrupt()
+
+            if getFlipper() != value:
+                raise Exception('unable to set Flipper')
+
+            break
+
+        except (Exception, SicsExecutionException) as e:
+            if isInterruptException(e) or (counter >= 20):
+                raise
+
+            slog('Retry setting Flipper')
+            time.sleep(1)
+        except:
+            pass
 
     slog('Flipper is set to %s' % getFlipper())
 
@@ -1102,14 +1221,41 @@ def driveGuide(value):
 
     slog('Moving guide to ' + value)
 
-    
-    controller = sics.getDeviceController('/commands/optics/guide')
+    sicsController = sics.getSicsController()
+    controller = sicsController.findComponentController('/commands/optics/guide')
 
-    waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
     # setting of configuration and starting a command are committed to SICS via different communication channels
     # in order to make those in sync, we need to wait for the configuration to settle
-    controller.run(None)
-    
+    time.sleep(0.5)
+
+    counter = 0
+    while True:
+        try:
+            counter += 1
+
+            waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
+            sics.handleInterrupt()
+
+            timeout = datetime.now() + timedelta(minutes=5)
+            controller.syncExecute()
+
+            while (getGuideConfig() != value) and (datetime.now() < timeout):
+                sleep(0.5)
+
+            if getGuideConfig() != value:
+                raise Exception('target not reached')
+            break
+
+        except (Exception, SicsExecutionException) as e:
+            if isInterruptException(e) or (counter >= 3):
+                raise
+
+            slog(str(e), f_err=True)
+            slog('Retry moving guide')
+            time.sleep(1)
+        except:
+            pass
+
     slog('Guide is moved to ' + getGuideConfig())
 
 def getJulabo(throw=True):
@@ -1158,12 +1304,14 @@ def startHistmem():
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
 
     sics.execute('histmem mode unlimited')
+    time.sleep(1.0)
     sics.execute('histmem start')
 
 def stopHistmem():
     slog('Stopping histmem ...')
 
     sics.execute('histmem stop')
+    time.sleep(0.5)
 
 def scan(mode, preset):
     controllerPath = '/commands/scan/runscan'
@@ -1227,11 +1375,10 @@ def scanBA(min_time, max_time, counts, bm_counts):
         sics.execute('histmem ba enable', 'scan')
         syncScan(controllerPath)
     except:
-        slog('errors in bound acquisition')
         raise
     finally:
 #         ensure that ba is disabled afterwards
-        sics.send_command('histmem ba disable', reset_intt = False)
+        sics.send_command('histmem ba disable')
 
 def syncScan(controllerPath):
     # configuring scan properties
@@ -1246,6 +1393,7 @@ def syncScan(controllerPath):
     sics.execute('hset ' + controllerPath + '/numpoints '  + '1', 'scan')
 
     # wait to make the settings settle
+    time.sleep(1)
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
 
     global DETECTOR_MONITOR_ENABLED
@@ -1253,17 +1401,19 @@ def syncScan(controllerPath):
         detector_rate_monitor_scan(controllerPath)
     else:
         # synchronously run scan
-        scanController = sics.getDeviceController(controllerPath)
-        scanController.run(None)
+        sicsController = sics.getSicsController()
+        scanController = sicsController.findComponentController(controllerPath)
+        scanController.syncExecute()
 
 def detector_rate_monitor_scan(controllerPath, redo = 0):
     sics.execute('title NORMAL_SCAN', 'status')
     slog('scan with detector map rate monitoring')
-    scanController = sics.getDeviceController(controllerPath)
-    statusData = scanController.getState()
-    while statusData != ControllerState.IDLE :
-        sleep(0.5)
-        statusData = scanController.getState()
+    sicsController = sics.getSicsController()
+    scanController = sicsController.findComponentController(controllerPath)
+    statusData = scanController.getStatusController().getValue().getStringData()
+    while CommandStatus.valueOf(statusData) != CommandStatus.IDLE :
+        statusData = scanController.getStatusController().getValue().getStringData()
+        time.sleep(0.5)
     scanController.asyncExecute()
     counter = 0.;
     statusChanged = False
@@ -1271,30 +1421,30 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
     timeout = 60.
     slog('starting scan')
     while not statusChanged :
-#         time.sleep(0.1)
+        time.sleep(0.1)
         counter += stime;
         if counter > timeout :
             statusData = None
             try:
-                statusData = scanController.getState()
+                statusData = scanController.getStatusController().getValue(True).getStringData()
             except Exception as e:
-                sleep(stime);
+                time.sleep(stime);
                 continue;
             except:
                 pass
-            if statusData != ControllerState.BUSY :
+            if CommandStatus.valueOf(statusData) != CommandStatus.BUSY :
                 raise Exception("Time out on syncExecute() where status did not changed whiling execution")
             else :
                 statusChanged = True;
-        statusData = scanController.getState()
-        if statusData == ControllerState.BUSY :
+        statusData = scanController.getStatusController().getValue().getStringData()
+        if CommandStatus.valueOf(statusData) == CommandStatus.BUSY :
             statusChanged = True
 
     slog('counting started')
     count = 0.;
     c2 = 0.
     lstime = 5.
-    sleep(lstime * 4)
+    time.sleep(lstime * 4)
     std_rate = None
     rate1 = None
     total1 = 0
@@ -1305,11 +1455,11 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
     scan_err = None
     low_items = 0
     l_toll = 5
-    while statusData == ControllerState.BUSY :
-        sleep(stime)
+    while CommandStatus.valueOf(statusData) == CommandStatus.BUSY :
+        time.sleep(stime)
         count += stime
         c2 += stime
-        statusData = scanController.getState()
+        statusData = scanController.getStatusController().getValue().getStringData()
         if c2 >= lstime :
             c2 = 0.
             if std_rate is None:
@@ -1338,7 +1488,7 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
                         try :
                             sics.execute('hget /instrument/detector/total_maprate', 'status')
                             sics.execute('hget /instrument/detector/total_counts', 'status')
-                            sleep(3.)
+                            time.sleep(3.)
                             crate = getGlobalMapRate()
                             total = getDetectorCounts()
                             break
@@ -1380,16 +1530,26 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
                 total3 = total
         if count >= timeout:
             try :
-                statusData = scanController.getState()
+                statusData = scanController.getStatusController().getValue(True).getStringData()
             except :
                 pass
             count = 0.
+    try:
+        tt = sics.getValue('/instrument/detector/time').getFloatData()
+        if tt == 0:
+            scan_err = 'detector time was 0, blank collection detected'
+        else:
+            tt = sics.getValue('/instrument/detector/total_counts').getIntData()
+            if tt == 0:
+                scan_err = 'total_counts was 0, blank collection detected'
+    except:
+        pass
     
     if not scan_err is None:
         slog('error: {}'.format(scan_err), f_err=True)
         sics.execute('title MISSING_COUNTS', 'status')
         sics.execute('histmem stop', 'status')
-        sleep(20.)
+        time.sleep(20.)
 #         slog('finished with error')
         redo += 1
         if redo < 3:

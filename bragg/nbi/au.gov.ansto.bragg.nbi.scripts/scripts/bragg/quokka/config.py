@@ -182,7 +182,7 @@ class ConfigSystem :
         finally:
             self.clear()
         log('skipping status checking')
-#	while not sics.get_status().equals(ServerStatus.EAGER_TO_EXECUTE) :
+#    while not sics.get_status().equals(ServerStatus.EAGER_TO_EXECUTE) :
 #            time.sleep(0.3)
         sics.handleInterrupt()
         log('configuration is finished')

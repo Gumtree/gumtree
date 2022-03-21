@@ -25,7 +25,7 @@ except:
     INPUT
 
 '''
-
+BMTIME_NORMALISATION_ENABLED = False
 
 
 combine_tube0 = Par('bool', True)
@@ -564,12 +564,13 @@ class ReductionDataset:
             self.DetCtr[i]     = self.DetCts[i]    / ctTime
             self.ErrDetCtr[i]  = self.ErrDetCts[i] / ctTime
             self.TransCtr[i]   = self.TransCts[i]  / ctTime
-    
-        ctTimes = self.MonCountTimes
         
-        for i in xrange(len(ctTimes)):
-            ctTime = ctTimes[i]                  
-            self.MonCtr[i]     = self.MonCts[i]    / ctTime
+        if BMTIME_NORMALISATION_ENABLED:
+            ctTimes = self.MonCountTimes
+            
+            for i in xrange(len(ctTimes)):
+                ctTime = ctTimes[i]  
+                self.MonCtr[i]     = self.MonCts[i]    / ctTime
            
         # TAKE ACCOUNT OF BEAMMONITOR
         
@@ -1096,7 +1097,7 @@ class ReductionDataset:
                 
 def DeadtimeCorrection(counts, deadTime, countTimes):
     # x1 = x0 - (x0 - y*e^cx0) / (1 - cx0)
-        
+    
     for i in xrange(len(counts)):
         if countTimes[i] == 0:
             counts[i] = 0
