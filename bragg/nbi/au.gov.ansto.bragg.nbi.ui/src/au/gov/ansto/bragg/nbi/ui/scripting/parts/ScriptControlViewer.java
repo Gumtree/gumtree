@@ -84,8 +84,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ProgressBar;
@@ -1916,6 +1918,16 @@ public class ScriptControlViewer extends Composite {
 					}
 				}
 			});
+			
+			comboBox.getCombo().addListener(SWT.MouseVerticalWheel, new Listener() {
+
+				@Override
+				public void handleEvent(Event arg0)
+				{
+					arg0.doit = false;
+				}
+			});
+			
 		} else {
 			PType type = parameter.getType();
 			switch (type) {
