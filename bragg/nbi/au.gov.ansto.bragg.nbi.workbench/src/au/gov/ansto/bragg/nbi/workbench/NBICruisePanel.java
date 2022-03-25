@@ -8,8 +8,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.gumtree.control.ui.widgets.InterruptWidget;
-//import org.gumtree.gumnix.sics.widgets.swt.SicsInterruptWidget;
+import org.gumtree.gumnix.sics.widgets.swt.SicsInterruptWidget;
 import org.gumtree.ui.cruise.support.CruisePanel;
 import org.gumtree.ui.util.resource.SharedImage;
 
@@ -35,7 +34,7 @@ public class NBICruisePanel extends CruisePanel {
 				.grab(true, true).applyTo(originalComposite);
 		super.createCruisePanel(originalComposite);
 
-		InterruptWidget interruptWidget = new InterruptWidget(parent,
+		SicsInterruptWidget interruptWidget = new SicsInterruptWidget(parent,
 				SWT.NONE);
 		String useLargeStopButton = System.getProperty(GUMTREE_USE_LARGE_STOP_BUTTON, "true");
 		if (Boolean.parseBoolean(useLargeStopButton)) {
@@ -45,7 +44,6 @@ public class NBICruisePanel extends CruisePanel {
 		}
 		ContextInjectionFactory.inject(interruptWidget, Activator.getDefault()
 				.getEclipseContext());
-		interruptWidget.render();
 		interruptWidget.setBackgroundImage(SharedImage.CRUISE_BG.getImage());
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(interruptWidget);
