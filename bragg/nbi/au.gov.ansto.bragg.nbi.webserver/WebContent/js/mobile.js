@@ -46,28 +46,30 @@ var lastTimeEstimation = -1.;
 var evEnabled = false;
 var refresh = function(){
 	var url = "ns/rest/hdbs?devices=";
-	for (var i = 0; i < nsItems.length; i++) {
-		url += nsItems[i].deviceId;
-		if (i < nsItems.length - 1) {
-			url += ",";
-		}
-	}
-	$.get(url, function(data,status){
-		if (status == "success") {
-			try {
-				var obj = jQuery.parseJSON(data);
-				for (var i = 0; i < obj.hdbs.length; i++) {
-					for (var j = 0; j < nsItems.length; j++) {
-						if (nsItems[j].deviceId == obj.hdbs[i].id) {
-							$("#" + nsItems[j].classId).text(obj.hdbs[i].value + " " + nsItems[j].units);
-							break;
-						}
-					}
-				}
-			} catch (e) {
+	if (nsItems.length > 0) {
+		for (var i = 0; i < nsItems.length; i++) {
+			url += nsItems[i].deviceId;
+			if (i < nsItems.length - 1) {
+				url += ",";
 			}
 		}
-	});
+		$.get(url, function(data,status){
+			if (status == "success") {
+				try {
+					var obj = jQuery.parseJSON(data);
+					for (var i = 0; i < obj.hdbs.length; i++) {
+						for (var j = 0; j < nsItems.length; j++) {
+							if (nsItems[j].deviceId == obj.hdbs[i].id) {
+								$("#" + nsItems[j].classId).text(obj.hdbs[i].value + " " + nsItems[j].units);
+								break;
+							}
+						}
+					}
+				} catch (e) {
+				}
+			}
+		});
+	}
 	try{
 		$.get("sics/rest/status", {"timestamp" : new Date().getTime()}, function(data,status){
 			if (status == "success") {
