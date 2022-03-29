@@ -196,7 +196,7 @@ public class TaipanRestlet extends Restlet {
 		try {
 			String filepath = System.getProperty(SICS_DATA_PATH);
 			if (filepath == null) {
-				filepath = "/experiments/taipan/data/current";
+				filepath = "/experiments/taipan/cycle/current/data/sics";
 			}
 			File dir = new File(filepath);
 
@@ -401,7 +401,7 @@ public class TaipanRestlet extends Restlet {
 		try {
 			String filepath = System.getProperty(SICS_DATA_PATH);
 			if (filepath == null) {
-				filepath = "/experiments/taipan/data/current";
+				filepath = "/experiments/taipan/cycle/current/data/sics";
 			}
 			File dir = new File(filepath);
 
