@@ -18,7 +18,7 @@ import java.util.Map;
 
 import org.gumtree.core.management.IManageableBean;
 import org.gumtree.core.management.IManageableBeanProvider;
-import org.springframework.jmx.export.MBeanExporter;
+//import org.springframework.jmx.export.MBeanExporter;
 
 /**
  * ExtendedMBeanExporter makes MBeanExporter easier to use as it automatically
@@ -28,8 +28,8 @@ import org.springframework.jmx.export.MBeanExporter;
  * @author Tony Lam
  * @since 1.5
  */
-public class ExtendedMBeanExporter extends MBeanExporter {
-
+//public class ExtendedMBeanExporter extends MBeanExporter {
+public class ExtendedMBeanExporter {
 	private List<IManageableBeanProvider> beanProviders;
 
 	private List<IManageableBean> beans;
@@ -70,9 +70,9 @@ public class ExtendedMBeanExporter extends MBeanExporter {
 			}
 		}
 		// Update parent beans
-		super.setBeans(finalBeans);
+//		super.setBeans(finalBeans);
 		// Continue with the default behaviour
-		super.afterPropertiesSet();
+//		super.afterPropertiesSet();
 	}
 
 	public void addBeanProvider(IManageableBeanProvider beanProvider) {

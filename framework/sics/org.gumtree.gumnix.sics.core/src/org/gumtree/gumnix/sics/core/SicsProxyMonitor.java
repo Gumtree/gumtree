@@ -9,9 +9,9 @@ import org.gumtree.gumnix.sics.io.SicsProxyListenerAdapter;
 import org.gumtree.util.jmx.ExtendedMBeanExporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jmx.export.MBeanExportException;
-import org.springframework.jmx.export.MBeanExporter;
-import org.springframework.jmx.support.ObjectNameManager;
+//import org.springframework.jmx.export.MBeanExportException;
+//import org.springframework.jmx.export.MBeanExporter;
+//import org.springframework.jmx.support.ObjectNameManager;
 
 public class SicsProxyMonitor implements ISicsProxyMonitor {
 
@@ -42,40 +42,40 @@ public class SicsProxyMonitor implements ISicsProxyMonitor {
 	}
 	
 	private void registerConnectionMonitors() {
-		for (ISicsChannelMonitor monitor : SicsCore.getDefaultProxy()
-				.getChannelMonitors()) {
-			try {
-				getExporter().registerManagedResource(
-						monitor,
-						ObjectNameManager
-								.getInstance("org.gumtree.gumnix.sics:type=SicsChannel,name="
-										+ monitor.getChannelId()));
-			} catch (MBeanExportException e) {
-				logger.error("Failed to export mbean.", e);
-			} catch (MalformedObjectNameException e) {
-				logger.error("Failed to create name for mbean.", e);
-			}
-		}
+//		for (ISicsChannelMonitor monitor : SicsCore.getDefaultProxy()
+//				.getChannelMonitors()) {
+//			try {
+//				getExporter().registerManagedResource(
+//						monitor,
+//						ObjectNameManager
+//								.getInstance("org.gumtree.gumnix.sics:type=SicsChannel,name="
+//										+ monitor.getChannelId()));
+//			} catch (MBeanExportException e) {
+//				logger.error("Failed to export mbean.", e);
+//			} catch (MalformedObjectNameException e) {
+//				logger.error("Failed to create name for mbean.", e);
+//			}
+//		}
 	}
 
 	private void unregisterConnectionMonitors() {
-		MBeanExporter exporter = getExporter();
-		for (ISicsChannelMonitor monitor : SicsCore.getDefaultProxy()
-				.getChannelMonitors()) {
-			try {
-				exporter.getServer()
-						.unregisterMBean(
-								ObjectNameManager
-										.getInstance("org.gumtree.gumnix.sics:type=SicsChannel,name="
-												+ monitor.getChannelId()));
-			} catch (MBeanRegistrationException e) {
-				logger.warn("Failed to unregister mbean,", e);
-			} catch (InstanceNotFoundException e) {
-				logger.warn("Failed to unregister mbean,", e);
-			} catch (MalformedObjectNameException e) {
-				logger.warn("Failed to unregister mbean,", e);
-			}
-		}
+//		MBeanExporter exporter = getExporter();
+//		for (ISicsChannelMonitor monitor : SicsCore.getDefaultProxy()
+//				.getChannelMonitors()) {
+//			try {
+//				exporter.getServer()
+//						.unregisterMBean(
+//								ObjectNameManager
+//										.getInstance("org.gumtree.gumnix.sics:type=SicsChannel,name="
+//												+ monitor.getChannelId()));
+//			} catch (MBeanRegistrationException e) {
+//				logger.warn("Failed to unregister mbean,", e);
+//			} catch (InstanceNotFoundException e) {
+//				logger.warn("Failed to unregister mbean,", e);
+//			} catch (MalformedObjectNameException e) {
+//				logger.warn("Failed to unregister mbean,", e);
+//			}
+//		}
 	}
 	
 	private ExtendedMBeanExporter getExporter() {
