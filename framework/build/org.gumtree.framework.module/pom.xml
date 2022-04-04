@@ -156,6 +156,7 @@
 		<module>${processor.path}/au.gov.ansto.bragg.cicada</module>
 		<module>${processor.path}/au.gov.ansto.bragg.cicada.dra</module>
 		<module>${processor.path}/au.gov.ansto.bragg.cicada.dom</module>
+		<module>${processor.path}/org.dom4j</module>
 		<module>${processor.path}/org.gumtree.processor.core.feature</module>
 
 		<module>${processor.path}/au.gov.ansto.bragg.kakadu.core</module>
