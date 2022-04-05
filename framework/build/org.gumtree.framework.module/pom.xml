@@ -46,9 +46,6 @@
 		<module>${common.path}/org.gumtree.common.core.feature</module>
 
 		<module>${common.path}/com.github.wolfie.refresher</module>
-		<module>${common.path}/com.vaadin.addon</module>
-		<module>${common.path}/com.vaadin.touchkit</module>
-		<module>${common.path}/org.vaadin.osgi.touchkit</module>
 		<module>${common.path}/org.gumtree.server</module>
 		<module>${common.path}/org.gumtree.common.server.feature</module>
 

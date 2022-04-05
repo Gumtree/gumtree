@@ -47,14 +47,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="au.gov.ansto.bragg.nbi.vaadin"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
          id="org.gumtree.vis.nexus"
          download-size="0"
          install-size="0"
