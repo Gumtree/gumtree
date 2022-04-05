@@ -9,14 +9,10 @@ Import-Package: org.eclipse.equinox.http.jetty;version="1.1.0";resolution:=optio
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.gumtree.server,
  org.gumtree.server.restlet.jmx,
- org.gumtree.server.util.jetty,
- org.gumtree.server.util.vaadin
+ org.gumtree.server.util.jetty
 Require-Bundle: org.gumtree.core;bundle-version="1.7.0";visibility:=reexport,
- org.springframework.core;bundle-version="3.0.5";resolution:=optional,
- org.springframework.context;bundle-version="3.0.5";resolution:=optional,
  org.restlet;bundle-version="2.0.3";resolution:=optional,
  org.restlet.ext.servlet;bundle-version="2.0.11";resolution:=optional,
- org.eclipse.equinox.http.registry;bundle-version="1.1.100";resolution:=optional,
- com.vaadin;bundle-version="6.7.8";resolution:=optional
+ org.eclipse.equinox.http.registry;bundle-version="1.1.100";resolution:=optional
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Bragg Institute

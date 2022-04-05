@@ -5,6 +5,7 @@ import org.restlet.Context;
 import org.restlet.Restlet;
 import org.restlet.routing.Router;
 
+@Deprecated
 public class JmxRestletApplication extends Application {
 
 	public JmxRestletApplication(Context parentContext) {

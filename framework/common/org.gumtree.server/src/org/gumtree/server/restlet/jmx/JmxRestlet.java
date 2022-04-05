@@ -20,9 +20,8 @@ import org.restlet.Response;
 import org.restlet.data.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jmx.MBeanServerNotFoundException;
-import org.springframework.jmx.support.JmxUtils;
 
+@Deprecated
 public class JmxRestlet extends Restlet {
 
 	private static final String QUERY_FORMAT = "format";
@@ -186,14 +185,15 @@ public class JmxRestlet extends Restlet {
 		return array;
 	}
 	
+	@Deprecated
 	private MBeanServer getServer() {
-		if (server == null) {
-			try {
-				server = JmxUtils.locateMBeanServer();
-			} catch (MBeanServerNotFoundException e) {
-				logger.error("Failed to load MBean Server");
-			}
-		}
+//		if (server == null) {
+//			try {
+//				server = JmxUtils.locateMBeanServer();
+//			} catch (MBeanServerNotFoundException e) {
+//				logger.error("Failed to load MBean Server");
+//			}
+//		}
 		return server;
 	}
 	

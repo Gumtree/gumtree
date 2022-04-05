@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.gumtree.server.util.vaadin.OsgiResource;
 import org.gumtree.util.string.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -134,8 +133,8 @@ public class InstrumentStatutsNavigationView extends NavigationView {
 
 		Button refresh = new Button();
 		try {
-			refresh.setIcon(new OsgiResource(Activator.PLUGIN_ID,
-					"/images/reload-icon.png", application));
+//			refresh.setIcon(new OsgiResource(Activator.PLUGIN_ID,
+//					"/images/reload-icon.png", application));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
