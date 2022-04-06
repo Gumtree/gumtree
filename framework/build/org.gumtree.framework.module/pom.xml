@@ -45,7 +45,6 @@
 		<module>${common.path}/org.gumtree.vis.core</module>
 		<module>${common.path}/org.gumtree.common.core.feature</module>
 
-		<module>${common.path}/com.github.wolfie.refresher</module>
 		<module>${common.path}/org.gumtree.server</module>
 		<module>${common.path}/org.gumtree.common.server.feature</module>
 
