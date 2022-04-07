@@ -65,7 +65,7 @@ public class TaipanRestlet extends Restlet {
 	
 	private static final String DATA_DICT_PATH = "gumtree.data.dictpath";
 
-	private static final String SICS_DATA_PATH = "sics.data.path";
+	private static final String SICS_DATA_PATH = "gumtree.sics.dataPath";
 	private static final String JAVA_IMAGEIO_CACHE = "java.imageio.cache";
 	private static final String DEFAULT_QUERY = "open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO&open_annotations=ENABLE";
 

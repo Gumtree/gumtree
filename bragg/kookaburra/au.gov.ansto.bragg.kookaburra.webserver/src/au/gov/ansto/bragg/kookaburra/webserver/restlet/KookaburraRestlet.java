@@ -39,7 +39,7 @@ public class KookaburraRestlet extends Restlet {
 
 	private static final String ONLINE_SCRIPTING_INIT_SCRIPT = "gumtree.scripting.initscript";
 	
-	private static final String SICS_DATA_PATH = "sics.data.path";
+	private static final String SICS_DATA_PATH = "gumtree.sics.dataPath";
 	
 	private static final String QUERY_HEIGHT = "height";
 
