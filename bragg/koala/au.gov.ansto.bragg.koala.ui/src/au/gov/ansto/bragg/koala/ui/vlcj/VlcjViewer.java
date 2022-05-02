@@ -21,6 +21,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
@@ -29,11 +31,22 @@ import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.nbi.ui.internal.InternalImage;
 import uk.co.caprica.vlcj.binding.RuntimeUtil;
+import uk.co.caprica.vlcj.media.Media;
+import uk.co.caprica.vlcj.media.MediaEventListener;
+import uk.co.caprica.vlcj.media.MediaParsedStatus;
+import uk.co.caprica.vlcj.media.MediaRef;
+import uk.co.caprica.vlcj.media.Meta;
+import uk.co.caprica.vlcj.media.Picture;
+import uk.co.caprica.vlcj.media.TrackType;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
+import uk.co.caprica.vlcj.player.base.MediaPlayerEventListener;
+import uk.co.caprica.vlcj.player.base.State;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 
 public class VlcjViewer extends Composite {
+
+	private static final Logger logger = LoggerFactory.getLogger(VlcjViewer.class);
 
 	private static final String NATIVE_LIBRARY_SEARCH_PATH =  "gumtree.koala.vlcpath";
 	private static final String CAM1_URL = "gumtree.koala.cam1url";
@@ -42,6 +55,8 @@ public class VlcjViewer extends Composite {
 	private static final String CAM_SIZE = "gumtree.koala.camSize";
 	private static final String LOGO_SIZE = "gumtree.koala.logoSize";
 	private static final String BEAM_CENTRE = "gumtree.koala.beamCentre";
+	private static final String CAM1_CENTER_TEXT = "X";
+	private static final String CAM2_CENTER_TEXT = "Y";
 	
 	private String vlcPath;
 	private String cam1Url;
@@ -68,7 +83,7 @@ public class VlcjViewer extends Composite {
 	private boolean isInitialised2;
 			
 	public VlcjViewer(Composite parent, int style) {
-		super(parent, style);
+		super(parent, SWT.NONE);
 		Native.setProtected(true);
 		vlcPath = System.getProperty(NATIVE_LIBRARY_SEARCH_PATH);
 		cam1Url = System.getProperty(CAM1_URL);
@@ -240,40 +255,228 @@ public class VlcjViewer extends Composite {
 		NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), vlcPath);
 		
 		mediaPanel1 = new SwtMediaPanel(videoSurfaceComposite1, camWidth, camHeight, logoFile, 
-				logoSize, beamCentre);
+				logoSize, beamCentre, CAM1_CENTER_TEXT);
 		mediaPlayer1 = mediaPanel1.getMediaPlayer();
 		
         mediaPlayer1.events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
         	@Override
         	public void error(MediaPlayer mediaPlayer) {
         		super.error(mediaPlayer);
-        		System.err.println("Player 1 error caught");
+        		logger.error("Player 1 error caught");
         		isPlayer1Ready = false;
         		mediaPlayer.release();
         	}
         	
         	@Override
         	public void videoOutput(MediaPlayer mediaPlayer, int newCount) {
-        		// TODO Auto-generated method stub
         		super.videoOutput(mediaPlayer, newCount);
         		isPlayer1Ready = true;
 //        		if (isPlayer1Ready && isPlayer2Ready) {
-        			syncSetText(reloadButton, "Pause Video");
-        			syncSetImage(reloadButton, InternalImage.PAUSE_16.getImage());
+        			syncSetText(reloadButton, "Reset Video");
+        			syncSetImage(reloadButton, InternalImage.REFRESH_16.getImage());
 //        		}
         		mediaPanel1.showCentre();
         	}
+        	
+        	@Override
+        	public void stopped(MediaPlayer mediaPlayer) {
+        		super.stopped(mediaPlayer);
+        		isPlayer1Ready = false;
+        	}
+
+        	
         });
+        mediaPlayer1.events().addMediaEventListener(new MediaEventListener() {
+			
+			@Override
+			public void mediaThumbnailGenerated(Media media, Picture picture) {
+				logger.error("media thumbnail generated");
+			}
+			
+			@Override
+			public void mediaSubItemTreeAdded(Media media, MediaRef item) {
+				logger.error("media subitem tree added");
+			}
+			
+			@Override
+			public void mediaSubItemAdded(Media media, MediaRef newChild) {
+				logger.error("media subitem added");
+			}
+			
+			@Override
+			public void mediaStateChanged(Media media, State newState) {
+				logger.error("media state changed");
+			}
+			
+			@Override
+			public void mediaParsedChanged(Media media, MediaParsedStatus newStatus) {
+				logger.error("media parsed changed");
+			}
+			
+			@Override
+			public void mediaMetaChanged(Media media, Meta metaType) {
+				logger.error("media meta changed");
+			}
+			
+			@Override
+			public void mediaFreed(Media media, MediaRef mediaFreed) {
+				logger.error("media freed");
+			}
+			
+			@Override
+			public void mediaDurationChanged(Media media, long newDuration) {
+				logger.error("media duration changed");
+			}
+		});
+        mediaPlayer1.events().addMediaPlayerEventListener(new MediaPlayerEventListener() {
+			
+			@Override
+			public void volumeChanged(MediaPlayer mediaPlayer, float volume) {
+				logger.error("volume changed");
+			}
+			
+			@Override
+			public void videoOutput(MediaPlayer mediaPlayer, int newCount) {
+				logger.error("video output");
+			}
+			
+			@Override
+			public void titleChanged(MediaPlayer mediaPlayer, int newTitle) {
+				logger.error("title changed");
+			}
+			
+			@Override
+			public void timeChanged(MediaPlayer mediaPlayer, long newTime) {
+			}
+			
+			@Override
+			public void stopped(MediaPlayer mediaPlayer) {
+				logger.error("stopped");
+			}
+			
+			@Override
+			public void snapshotTaken(MediaPlayer mediaPlayer, String filename) {
+				logger.error("snapshot taken");
+			}
+			
+			@Override
+			public void seekableChanged(MediaPlayer mediaPlayer, int newSeekable) {
+				logger.error("seekable changed");
+			}
+			
+			@Override
+			public void scrambledChanged(MediaPlayer mediaPlayer, int newScrambled) {
+				logger.error("");
+			}
+			
+			@Override
+			public void positionChanged(MediaPlayer mediaPlayer, float newPosition) {
+			}
+			
+			@Override
+			public void playing(MediaPlayer mediaPlayer) {
+				logger.error("playing");
+			}
+			
+			@Override
+			public void paused(MediaPlayer mediaPlayer) {
+				logger.error("paused");
+			}
+			
+			@Override
+			public void pausableChanged(MediaPlayer mediaPlayer, int newPausable) {
+				logger.error("pausable changed");
+			}
+			
+			@Override
+			public void opening(MediaPlayer mediaPlayer) {
+				logger.error("opening");
+			}
+			
+			@Override
+			public void muted(MediaPlayer mediaPlayer, boolean muted) {
+				logger.error("muted");
+			}
+			
+			@Override
+			public void mediaPlayerReady(MediaPlayer mediaPlayer) {
+				logger.error("mediaplayer ready");
+			}
+			
+			@Override
+			public void mediaChanged(MediaPlayer mediaPlayer, MediaRef media) {
+				logger.error("media changed");
+			}
+			
+			@Override
+			public void lengthChanged(MediaPlayer mediaPlayer, long newLength) {
+				logger.error("length changed");
+			}
+			
+			@Override
+			public void forward(MediaPlayer mediaPlayer) {
+				logger.error("forward");
+			}
+			
+			@Override
+			public void finished(MediaPlayer mediaPlayer) {
+				logger.error("finished");
+			}
+			
+			@Override
+			public void error(MediaPlayer mediaPlayer) {
+				logger.error("error");
+			}
+			
+			@Override
+			public void elementaryStreamSelected(MediaPlayer mediaPlayer, TrackType type, int id) {
+				logger.error("elementary stream selected");
+			}
+			
+			@Override
+			public void elementaryStreamDeleted(MediaPlayer mediaPlayer, TrackType type, int id) {
+				logger.error("elementary stream deleted");
+			}
+			
+			@Override
+			public void elementaryStreamAdded(MediaPlayer mediaPlayer, TrackType type, int id) {
+				logger.error("elementary stream added");
+			}
+			
+			@Override
+			public void corked(MediaPlayer mediaPlayer, boolean corked) {
+				logger.error("corked");
+			}
+			
+			@Override
+			public void chapterChanged(MediaPlayer mediaPlayer, int newChapter) {
+				logger.error("chapter changed");
+			}
+			
+			@Override
+			public void buffering(MediaPlayer mediaPlayer, float newCache) {
+			}
+			
+			@Override
+			public void backward(MediaPlayer mediaPlayer) {
+				logger.error("backward");
+			}
+			
+			@Override
+			public void audioDeviceChanged(MediaPlayer mediaPlayer, String audioDevice) {
+				logger.error("audo device changed");
+			}
+		});
         mediaPlayer1.input().enableMouseInputHandling(false);
         mediaPlayer1.input().enableKeyInputHandling(false);
         mediaPanel1.addMouseListener(new MouseAdapter() {
         	@Override
         	public void mouseClicked(java.awt.event.MouseEvent e) {
-//        		System.err.println(String.format("panel size %d, %d", mediaPanel1.getWidth(), mediaPanel1.getHeigh()));
+//        		logger.error(String.format("panel size %d, %d", mediaPanel1.getWidth(), mediaPanel1.getHeigh()));
 //        		Dimension dim = mediaPanel1.getMediaPlayer().video().videoDimension();
-//        		System.err.println(String.format("video size %d, %d", dim.width, dim.height));
-//        		System.err.println(String.format("aspect ratio %s", mediaPanel1.getMediaPlayer().video().aspectRatio()));
-//        		System.err.println(String.format("clicked %d, %d", e.getX(), e.getY()));
+//        		logger.error(String.format("video size %d, %d", dim.width, dim.height));
+//        		logger.error(String.format("aspect ratio %s", mediaPanel1.getMediaPlayer().video().aspectRatio()));
+//        		logger.error(String.format("clicked %d, %d", e.getX(), e.getY()));
         		
         		super.mouseClicked(e);
         		if (isAddingMarker) {
@@ -301,17 +504,16 @@ public class VlcjViewer extends Composite {
 		});
         
         mediaPanel2 = new SwtMediaPanel(videoSurfaceComposite2, camWidth, camHeight, logoFile, 
-        		logoSize, beamCentre);
+        		logoSize, beamCentre, CAM2_CENTER_TEXT);
         mediaPlayer2 = mediaPanel2.getMediaPlayer();
         
         mediaPlayer2.events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
         	@Override
         	public void error(MediaPlayer mediaPlayer) {
         		super.error(mediaPlayer);
-        		if (isPlayer2Ready) {
-        			mediaPlayer.controls().stop();
-        			isPlayer2Ready = false;
-        		}
+        		logger.error("Player 2 error caught");
+        		isPlayer2Ready = false;
+        		mediaPlayer.release();
         	}
         	
         	@Override
@@ -319,11 +521,18 @@ public class VlcjViewer extends Composite {
         		super.videoOutput(mediaPlayer, newCount);
         		isPlayer2Ready = true;
 //        		if (isPlayer1Ready && isPlayer2Ready) {
-        			syncSetText(reloadButton, "Pause Video");
-        			syncSetImage(reloadButton, InternalImage.PAUSE_16.getImage());
+        			syncSetText(reloadButton, "Reset Video");
+        			syncSetImage(reloadButton, InternalImage.REFRESH_16.getImage());
 //        		}
         		mediaPanel2.showCentre();
         	}
+        	
+        	@Override
+        	public void stopped(MediaPlayer mediaPlayer) {
+        		super.stopped(mediaPlayer);
+        		isPlayer2Ready = false;
+        	}
+        	
         });
         mediaPlayer2.input().enableMouseInputHandling(false);
         mediaPlayer2.input().enableKeyInputHandling(false);
@@ -355,20 +564,33 @@ public class VlcjViewer extends Composite {
         	}
 		});
 
-//		controlThread1 = new Thread() {
-//			public void run() {
-//				try {
-//					isInitialised1 = true;
-//					mediaPlayer1.media().start(cam1Url, "network-caching=0");
-////						mediaPlayer2.media().start(cam2Url);
-//					syncSetText(reloadButton, "Pause Video");
-//					syncSetImage(reloadButton, InternalImage.STOP_16.getImage());
-//				} catch (Exception e) {
-//					System.err.println("failed to start players");
-//				}
-//			};
-//		};
-//		controlThread1.start();
+		controlThread1 = new Thread() {
+			public void run() {
+				try {
+					isInitialised1 = true;
+					mediaPlayer1.media().start(cam1Url, "network-caching=0");
+					syncSetText(reloadButton, "Loading ...");
+					syncSetImage(reloadButton, InternalImage.BUSY_STATUS_16.getImage());
+				} catch (Exception e) {
+					logger.error("failed to start players", e);
+				}
+			};
+		};
+		controlThread1.start();
+
+		controlThread2 = new Thread() {
+			public void run() {
+				try {
+					isInitialised2 = true;
+					mediaPlayer2.media().start(cam2Url, "network-caching=0");
+					syncSetText(reloadButton, "Loading ...");
+					syncSetImage(reloadButton, InternalImage.BUSY_STATUS_16.getImage());
+				} catch (Exception e) {
+					logger.error("failed to start players", e);
+				}
+			};
+		};
+		controlThread2.start();
 
 	}
 
@@ -482,34 +704,139 @@ public class VlcjViewer extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				reloadButton.setImage(InternalImage.BUSY_STATUS_16.getImage());
 				reloadButton.setText("Loading ...");
-				if (isInitialised1) {
-					if (isPlayer1Ready) {
-						mediaPlayer1.controls().setPause(true);
-						reloadButton.setImage(InternalImage.PLAY_16.getImage());
-						reloadButton.setText("Play Video");
-						isPlayer1Ready = false;
-					} else {
-						mediaPlayer1.controls().setPause(false);
-						reloadButton.setImage(InternalImage.PAUSE_16.getImage());
-						reloadButton.setText("Pause Video");
-						isPlayer1Ready = true;
-					}
-				} else {
-					controlThread1 = new Thread() {
-						public void run() {
+				
+				if (controlThread1 != null && controlThread1.isAlive()) {
+					controlThread1.interrupt();
+				}
+				if (controlThread2 != null && controlThread1.isAlive()) {
+					controlThread2.interrupt();
+				}
+				controlThread1 = new Thread() {
+					public void run() {
+						if (isInitialised1) {
+							if (isPlayer1Ready) {
+								try {
+									mediaPlayer1.controls().stop();
+								} catch (Exception ex) {
+									logger.error("failed to stop player 1");
+								}
+								try {
+									sleep(500);
+									logger.error("check player1 status");
+								} catch (InterruptedException e) {
+								}
+								while(isPlayer1Ready) {
+									try {
+										sleep(500);
+										logger.error("check player1 status");
+									} catch (InterruptedException e) {
+									}
+								}
+								try {
+									logger.error("start player 1");
+//									mediaPlayer1.controls().start();
+									mediaPlayer1.controls().play();
+//									mediaPlayer1.media().start(cam1Url, "network-caching=0", "live-caching=0");
+								} catch (Exception ex) {
+									logger.error("failed to stop player 1");
+								}
+							} else {
+								try {
+									mediaPlayer1.controls().play();
+								} catch (Exception ex) {
+									logger.error("failed to start player 2");
+								}
+							}
+
+						} else {
 							try {
 								isInitialised1 = true;
-								mediaPlayer1.media().start(cam1Url, "network-caching=0", "live-caching=0");
-//									mediaPlayer2.media().start(cam2Url);
-								syncSetText(reloadButton, "Pause Video");
-								syncSetImage(reloadButton, InternalImage.STOP_16.getImage());
+								mediaPlayer1.media().start(cam1Url, "network-caching=0");
 							} catch (Exception e) {
-								System.err.println("failed to start players");
+								logger.error("failed to start players", e);
 							}
-						};
+						}
 					};
-					controlThread1.start();
-				}
+				};
+				controlThread1.start();
+				
+				controlThread2 = new Thread() {
+					public void run() {
+						if (isInitialised2) {
+							if (isPlayer2Ready) {
+								try {
+									mediaPlayer2.controls().stop();
+								} catch (Exception ex) {
+									logger.error("failed to stop player 2");
+								}
+								try {
+									sleep(500);
+									logger.error("check player2 status");
+								} catch (InterruptedException e) {
+								}
+								while(isPlayer2Ready) {
+									try {
+										sleep(500);
+										logger.error("check player2 status");
+									} catch (InterruptedException e) {
+									}
+								}
+								try {
+									logger.error("start player 2");
+									mediaPlayer2.controls().play();
+//									mediaPlayer2.media().start(cam2Url, "network-caching=0", "live-caching=0");
+								} catch (Exception ex) {
+									logger.error("failed to stop player 2");
+								}
+							} else {
+								try {
+									mediaPlayer2.controls().play();
+								} catch (Exception ex) {
+									logger.error("failed to start player 2");
+								}
+							}
+
+						} else {
+							try {
+								isInitialised2 = true;
+								mediaPlayer2.media().start(cam2Url, "network-caching=0");
+							} catch (Exception e) {
+								logger.error("failed to start player 2", e);
+							}
+						}
+					};
+				};
+				controlThread2.start();
+				
+//				if (isInitialised1) {
+//					if (isPlayer1Ready) {
+//						mediaPlayer1.controls().setPause(true);
+//						reloadButton.setImage(InternalImage.PLAY_16.getImage());
+//						reloadButton.setText("Play Video");
+//						isPlayer1Ready = false;
+//					} else {
+//						mediaPlayer1.controls().skipPosition(1f);
+//						mediaPlayer1.controls().setPause(false);
+//						reloadButton.setImage(InternalImage.PAUSE_16.getImage());
+//						reloadButton.setText("Pause Video");
+//						isPlayer1Ready = true;
+//					}
+//				} else {
+//					controlThread1 = new Thread() {
+//						public void run() {
+//							try {
+//								isInitialised1 = true;
+//								mediaPlayer1.media().start(cam1Url, "network-caching=0", "live-caching=0");
+////									mediaPlayer2.media().start(cam2Url);
+//								syncSetText(reloadButton, "Pause Video");
+//								syncSetImage(reloadButton, InternalImage.STOP_16.getImage());
+//							} catch (Exception e) {
+//								logger.error("failed to start players");
+//							}
+//						};
+//					};
+//					controlThread1.start();
+//				}
 				
 //				if (isPlayer1Ready && isPlayer2Ready) {
 //					mediaPlayer1.controls().setPause(true);
@@ -556,13 +883,13 @@ public class VlcjViewer extends Composite {
 //										syncSetImage(reloadButton, InternalImage.PLAY_16.getImage());
 //									}
 //								} catch (Exception ex) {
-//									System.err.println("failed to stop player");
+//									logger.error("failed to stop player");
 //								}
 //							} else {
 //								try {
 //									mediaPlayer1.controls().play();
 //								} catch (Exception ex) {
-//									System.err.println("failed to start player");
+//									logger.error("failed to start player");
 //								}
 //							}
 //							
@@ -571,7 +898,7 @@ public class VlcjViewer extends Composite {
 //								isInitialised1 = true;
 //								mediaPlayer1.media().start(cam1Url, "network-caching=0");
 //							} catch (Exception e) {
-//								System.err.println("failed to start players");
+//								logger.error("failed to start players");
 //							}
 //						}
 //					};
@@ -588,13 +915,13 @@ public class VlcjViewer extends Composite {
 //										syncSetImage(reloadButton, InternalImage.PLAY_16.getImage());
 //									}
 //								} catch (Exception ex) {
-//									System.err.println("failed to stop player");
+//									logger.error("failed to stop player");
 //								}
 //							} else {
 //								try {
 //									mediaPlayer2.controls().play();
 //								} catch (Exception ex) {
-//									System.err.println("failed to start player");
+//									logger.error("failed to start player");
 //								}
 //							}
 //							
@@ -603,7 +930,7 @@ public class VlcjViewer extends Composite {
 //								isInitialised2 = true;
 //								mediaPlayer2.media().start(cam2Url, "network-caching=0");
 //							} catch (Exception e) {
-//								System.err.println("failed to start players");
+//								logger.error("failed to start players");
 //							}
 //						}
 //					};
@@ -638,6 +965,6 @@ public class VlcjViewer extends Composite {
 			}
 		});
 		dispose2.start();
-		System.err.println("Vlcj disposed successfully");
+		logger.error("Vlcj disposed successfully");
 	}
 }

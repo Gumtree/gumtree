@@ -3,6 +3,9 @@
  */
 package au.gov.ansto.bragg.koala.ui.parts;
 
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,6 +132,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		final Text fileText = new Text(statusPart, SWT.BORDER);
 		fileText.setFont(Activator.getMiddleFont());
 		fileText.setEditable(false);
+		fileText.setText("W:\\data\\koala\\d_14.tif");
 		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(fileText);
 		
 	    final Button openButton = new Button(statusPart, SWT.PUSH);
@@ -137,6 +141,28 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	    openButton.setCursor(Activator.getHandCursor());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(40, 40).applyTo(openButton);
 
+		openButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String fn = fileText.getText();
+				File f = new File(fn);
+				if (f.exists()) {
+					try {
+						Desktop.getDesktop().open(f);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				} else {
+					
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
 		final Label phiLabel = new Label(statusPart, SWT.NONE);
 		phiLabel.setText("Phi value");
 		phiLabel.setFont(Activator.getMiddleFont());

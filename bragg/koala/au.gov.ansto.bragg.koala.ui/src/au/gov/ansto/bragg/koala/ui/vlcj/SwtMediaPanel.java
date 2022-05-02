@@ -40,9 +40,10 @@ public class SwtMediaPanel {
 	private Logo logo;
 	private Marquee centre;
 	private Point logoCoordinate;
+	private String centreText;
 	
 	public SwtMediaPanel(Composite parent, int cameraWidth, int cameraHeight, 
-			File logoFile, int logoSize, Point centrePoint) {
+			File logoFile, int logoSize, Point centrePoint, String centreText) {
 		
 		camWidth = cameraWidth;
 		camHeight = cameraHeight;
@@ -51,9 +52,10 @@ public class SwtMediaPanel {
 		logo = Logo.logo();
 		logo.opacity(255);
 		logo.file(logoFile);
+		this.centreText = centreText;
 		centre = Marquee.marquee();
 		centre.opacity(150);
-		centre.text("X");
+		centre.text(centreText);
 		centre.size(128);
 		centre.colour(Color.BLUE);
 		centre.location(centrePoint.x - 14, centrePoint.y - 14);

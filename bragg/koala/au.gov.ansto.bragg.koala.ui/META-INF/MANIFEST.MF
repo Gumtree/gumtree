@@ -8,7 +8,8 @@ Bundle-Vendor: ANSTO
 Require-Bundle: au.gov.ansto.bragg.koala.core,
  au.gov.ansto.bragg.nbi.ui,
  uk.co.caprica.vlcj,
- org.gumtree.msw.ui.ktable
+ org.gumtree.msw.ui.ktable,
+ org.gumtree.control.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: au.gov.ansto.bragg.koala.ui,
