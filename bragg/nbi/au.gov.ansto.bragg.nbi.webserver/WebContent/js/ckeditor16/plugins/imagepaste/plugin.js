@@ -77,6 +77,24 @@ CKEDITOR.plugins.add( 'imagepaste',
 							theImage.data( 'cke-saved-src', ret);
 							theImage.setAttribute( 'src', ret);
 							theImage.removeAttribute( 'id' );
+							img = new Image();
+							img.onload = function() {
+							  console.log(this.width + 'x' + this.height);
+							  try {
+								  if (this.width / this.height > 660 / 880) {
+									  if (this.width > 660) {
+										  theImage.setAttribute( 'width', 660);										  
+									  }
+								  } else {
+									  if (this.height > 880) {
+										  theImage.setAttribute( 'height', 880);
+									  }
+								  }
+								} catch (e) {
+									console.log("failed to resize");
+								}
+							}
+							img.src = src;
 				        }
 			        })
 			        .fail(function(e) {
