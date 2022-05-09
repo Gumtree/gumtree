@@ -37,7 +37,6 @@ import org.gumtree.util.messaging.IDelayEventExecutor;
 import org.gumtree.widgets.swt.util.SafeUIRunner;
 import org.gumtree.widgets.swt.util.UIResources;
 import org.osgi.service.event.Event;
-import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 @SuppressWarnings("restriction")
 public class DeviceStatusWidget extends ExtendedSicsComposite {
