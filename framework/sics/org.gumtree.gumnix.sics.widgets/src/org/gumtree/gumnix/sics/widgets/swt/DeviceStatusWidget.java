@@ -1,6 +1,7 @@
 package org.gumtree.gumnix.sics.widgets.swt;
 
 import java.net.URI;
+import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,7 +15,9 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.nebula.widgets.pgroup.PGroup;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -34,6 +37,7 @@ import org.gumtree.util.messaging.IDelayEventExecutor;
 import org.gumtree.widgets.swt.util.SafeUIRunner;
 import org.gumtree.widgets.swt.util.UIResources;
 import org.osgi.service.event.Event;
+import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 @SuppressWarnings("restriction")
 public class DeviceStatusWidget extends ExtendedSicsComposite {
@@ -615,6 +619,20 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 					if (parent instanceof PGroup) {
 						if (isExpandingEnabled() && !((PGroup) parent).getExpanded()) {
 							((PGroup) parent).setExpanded(true);
+							
+							Composite form = parent.getParent().getParent().getParent();
+							form.setSize(form.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+							form.layout(true, true);
+							form.update();
+							form.redraw();
+							
+							ScrolledComposite scroll = (ScrolledComposite)form.getParent();
+							Rectangle r = scroll.getClientArea();
+							scroll.setMinSize(form.computeSize(r.width, SWT.DEFAULT));
+							scroll.layout(true, true);
+							scroll.update();
+							scroll.redraw();
+
 						}
 					}
 					String text = data;
