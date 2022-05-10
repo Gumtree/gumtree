@@ -200,14 +200,14 @@ def sleep(secs, dt=0.1):
 
     sics.handleInterrupt()
 
-def waitUntilSicsIs(status, dt=0.2):
+def waitUntilSicsIs(status, dt=0.2, timeout = 900):
     controller = sics.getSicsController()
-    timeout = 5
-    while True:
+    gap = 5
+    while timeout > 0:
         sics.handleInterrupt()
 
         count = 0
-        while not controller.getServerStatus().equals(status) and count < timeout:
+        while not controller.getServerStatus().equals(status) and count < gap:
             time.sleep(dt)
             count += dt
         
@@ -215,7 +215,11 @@ def waitUntilSicsIs(status, dt=0.2):
             break
         else:
             controller.refreshServerStatus()
+        timeout -= gap
 
+    if 0 >= timeout:
+        slog("timeout waiting for the status to be " + str(status), f_err = True)
+        
     sics.handleInterrupt()
 
 def isInterruptException(e):
@@ -843,6 +847,7 @@ def determineDetRates(samples, timeout=60.0):
     waitUntilSicsIs(ServerStatus.EAGER_TO_EXECUTE)
 
     startHistmem()
+    waitUntilSicsIs(ServerStatus.COUNTING, timeout=60)
     try:
         time.sleep(1.0)
 
