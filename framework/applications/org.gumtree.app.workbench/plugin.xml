@@ -33,7 +33,7 @@
          </property>
          <property
                name="aboutText"
-               value="Gumtree&#x0A;&#x0A;(c) Copyright ANSTO and others 2016.  All rights reserved.&#x0A;Visit https://github.com/Gumtree/gumtree&#x0A;&#x0A;This product includes software developed by the&#x0A;Eclipse Foundation http://www.eclipse.org/">
+               value="Gumtree&#x0A;&#x0A;(c) Copyright ANSTO and others 2022.  All rights reserved.&#x0A;Visit https://github.com/Gumtree/gumtree&#x0A;&#x0A;This product includes software developed by the&#x0A;Eclipse Foundation http://www.eclipse.org/">
          </property>
          <property
                name="applicationXMI"
