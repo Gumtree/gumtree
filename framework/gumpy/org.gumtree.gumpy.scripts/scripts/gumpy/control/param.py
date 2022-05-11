@@ -5,15 +5,15 @@ from au.gov.ansto.bragg.nbi.scripting import ScriptObjectTab
 
 class Par:
     
-    __model__ = None
-    def __init__(self, ptype, default = None, options = None, command = None):
+    def __init__(self, model, ptype, default = None, options = None, command = None):
         self.__par__ = ScriptParameter()
         self.__par__.setTypeName(ptype)
         self.__par__.setValue(default)
         self.__par__.setOptions(options)
         self.__par__.setCommand(command)
-        if not Par.__model__ is None:
-            Par.__model__.addControl(self.__par__)
+        self.__model__ = model
+        if not model is None:
+            model.addControl(self.__par__)
     
     def __getattr__(self, name):
         if name == 'name' :
@@ -39,10 +39,38 @@ class Par:
             self.__par__.setOptions(value)
         elif name == 'command' :
             self.__par__.setCommand(value)
-        elif name == '__par__' :
+        elif name == '__par__' or name == '__model__' :
             self.__dict__[name] = value
         else :
             self.__par__.setProperty(name, str(value))
+            
+    def moveBeforeObject(self, obj):
+        if isinstance(obj, Par):
+            tgt = obj.__par__
+        elif isinstance(obj, Act):
+            tgt = obj.__act__
+        elif isinstance(obj, Group):
+            tgt = obj.__group__
+        elif isinstance(obj, Tab):
+            tgt = obj.__tab__
+        else:
+            raise Exception, 'Illegal type: target object must be a PyScript object'
+        if not self.__model__ is None:
+            self.__model__.moveObject1BeforeObject2(self.__par__, tgt)
+
+    def moveAfterObject(self, obj):
+        if isinstance(obj, Par):
+            tgt = obj.__par__
+        elif isinstance(obj, Act):
+            tgt = obj.__act__
+        elif isinstance(obj, Group):
+            tgt = obj.__group__
+        elif isinstance(obj, Tab):
+            tgt = obj.__tab__
+        else:
+            raise Exception, 'Illegal type: target object must be a PyScript object'
+        if not self.__model__ is None:
+            self.__model__.moveObject1AfterObject2(self.__par__, tgt)
             
     def __str__(self):
         return 'Par_' + self.name
@@ -51,8 +79,8 @@ class Par:
         return 'au.gov.ansto.bragg.wombat.ui.script.pyobj.ScriptParameter'
     
     def dispose(self):
-        if not Par.__model__ is None:
-            Par.__model__.removeControl(self.__par__)
+        if not self.__model__ is None:
+            self.__model__.removeControl(self.__par__)
     
 def is_par(__name__to__test__):
     return eval('isinstance(' + __name__to__test__ + ', Par)')
@@ -66,13 +94,13 @@ def set_name_to_all_pars():
             set_name_to_par(name)
             
 class Act:
-    __model__ = None
-    def __init__(self, command, text = 'Run'):
+    def __init__(self, model, command, text = 'Run'):
         self.__act__ = ScriptAction()
         self.__act__.setCommand(command)
         self.__act__.setText(text)
-        if not Act.__model__ is None:
-            Act.__model__.addControl(self.__act__)
+        self.__model__ = model
+        if not model is None:
+            model.addControl(self.__act__)
     
     def __getattr__(self, name):
         if name == 'name' :
@@ -91,7 +119,7 @@ class Act:
             self.__act__.setText(value)
         elif name == 'command' :
             self.__act__.setCommand(value)
-        elif name == '__act__' :
+        elif name == '__act__' or name == '__model__' :
             self.__dict__[name] = value
         else :
             self.__act__.setProperty(name, str(value))
@@ -109,9 +137,12 @@ class Act:
             tgt = obj.__act__
         elif isinstance(obj, Group):
             tgt = obj.__group__
+        elif isinstance(obj, Tab):
+            tgt = obj.__tab__
         else:
             raise Exception, 'Illegal type: target object must be a PyScript object'
-        Group.__model__.moveObject1BeforeObject2(self.__group__, tgt)
+        if not self.__model__ is None:
+            self.__model__.moveObject1BeforeObject2(self.__act__, tgt)
 
     def moveAfterObject(self, obj):
         if isinstance(obj, Par):
@@ -120,9 +151,12 @@ class Act:
             tgt = obj.__act__
         elif isinstance(obj, Group):
             tgt = obj.__group__
+        elif isinstance(obj, Tab):
+            tgt = obj.__tab__
         else:
             raise Exception, 'Illegal type: target object must be a PyScript object'
-        Group.__model__.moveObject1AfterObject2(self.__group__, tgt)
+        if not self.__model__ is None:
+            self.__model__.moveObject1AfterObject2(self.__act__, tgt)
             
     def set_running_status(self):
         self.__act__.setBusyStatus()
@@ -149,8 +183,8 @@ class Act:
         self.set_done_status()
         
     def dispose(self):
-        if not Act.__model__ is None:
-            Act.__model__.removeControl(self.__act__)
+        if not self.__model__ is None:
+            self.__model__.removeControl(self.__act__)
 
 def is_act(__name__to__test__):
     return eval('isinstance(' + __name__to__test__ + ', Act)')
@@ -161,11 +195,11 @@ def set_name_to_all_acts():
             set_name_to_par(name)
                     
 class Group():
-    __model__ = None
-    def __init__(self, name):
+    def __init__(self, model, name):
         self.__group__ = ScriptObjectGroup(name)
-        if not Group.__model__ is None:
-            Group.__model__.addControl(self.__group__)
+        self.__model__ = model
+        if not model is None:
+            model.addControl(self.__group__)
         
     def add(self, *objs):
         for obj in objs :
@@ -212,7 +246,8 @@ class Group():
             tgt = obj.__tab__
         else:
             raise Exception, 'Illegal type: target object must be a PyScript object'
-        Group.__model__.moveObject1BeforeObject2(self.__group__, tgt)
+        if not self.__model__ is None:
+            self.__model__.moveObject1BeforeObject2(self.__group__, tgt)
 
     def moveAfterObject(self, obj):
         if isinstance(obj, Par):
@@ -225,7 +260,8 @@ class Group():
             tgt = obj.__tab__
         else:
             raise Exception, 'Illegal type: target object must be a PyScript object'
-        Group.__model__.moveObject1AfterObject2(self.__group__, tgt)
+        if not self.__model__ is None:
+            self.__model__.moveObject1AfterObject2(self.__group__, tgt)
         
     def __getattr__(self, name):
         if name == 'name' :
@@ -236,7 +272,7 @@ class Group():
     def __setattr__(self, name, value):
         if name == 'name' :
             self.__group__.setName(value)
-        elif name == '__group__' :
+        elif name == '__group__' or name == '__model__' :
             self.__dict__[name] = value
         else :
             self.__group__.setProperty(name, str(value))
@@ -248,16 +284,16 @@ class Group():
         return 'au.gov.ansto.bragg.wombat.ui.script.pyobj.ScriptObjectGroup'
     
     def dispose(self):
-        if not Group.__model__ is None:
-            Group.__model__.removeControl(self.__group__)
+        if not self.__model__ is None:
+            self.__model__.removeControl(self.__group__)
     
 
 class Tab():
-    __model__ = None
-    def __init__(self, name):
+    def __init__(self, model, name):
         self.__tab__ = ScriptObjectTab(name)
-        if not Tab.__model__ is None:
-            Tab.__model__.addControl(self.__tab__)
+        self.__model__ = model
+        if not model is None:
+            model.addControl(self.__tab__)
         
     def add(self, *objs):
         for obj in objs :
@@ -304,7 +340,8 @@ class Tab():
             tgt = obj.__tab__
         else:
             raise Exception, 'Illegal type: target object must be a PyScript object'
-        Tab.__model__.moveObject1BeforeObject2(self.__tab__, tgt)
+        if not self.__model__ is None:
+            self.__model__.moveObject1BeforeObject2(self.__tab__, tgt)
 
     def moveAfterObject(self, obj):
         if isinstance(obj, Par):
@@ -317,7 +354,8 @@ class Tab():
             tgt = obj.__tab__
         else:
             raise Exception, 'Illegal type: target object must be a PyScript object'
-        Tab.__model__.moveObject1AfterObject2(self.__tab__, tgt)
+        if not self.__model__ is None:
+            self.__model__.moveObject1AfterObject2(self.__tab__, tgt)
         
     def __getattr__(self, name):
         if name == 'name' :
@@ -328,7 +366,7 @@ class Tab():
     def __setattr__(self, name, value):
         if name == 'name' :
             self.__tab__.setName(value)
-        elif name == '__tab__' :
+        elif name == '__tab__' or name == '__model__' :
             self.__dict__[name] = value
         else :
             self.__tab__.setProperty(name, str(value))
@@ -340,7 +378,7 @@ class Tab():
         return 'au.gov.ansto.bragg.nbi.scripting.ScriptObjectGroup'
     
     def dispose(self):
-        if not Tab.__model__ is None:
-            Tab.__model__.removeControl(self.__tab__)
+        if not self.__model__ is None:
+            self.__model__.removeControl(self.__tab__)
     
         
