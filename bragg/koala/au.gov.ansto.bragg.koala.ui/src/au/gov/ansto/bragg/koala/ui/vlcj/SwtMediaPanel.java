@@ -56,7 +56,8 @@ public class SwtMediaPanel {
 		centre = Marquee.marquee();
 		centre.opacity(150);
 		centre.text(centreText);
-		centre.size(128);
+//		centre.size(128);
+		centre.size(logoSize);
 		centre.colour(Color.BLUE);
 		centre.location(centrePoint.x - 14, centrePoint.y - 14);
 		

@@ -55,6 +55,7 @@ public class VlcjViewer extends Composite {
 	private static final String CAM_SIZE = "gumtree.koala.camSize";
 	private static final String LOGO_SIZE = "gumtree.koala.logoSize";
 	private static final String BEAM_CENTRE = "gumtree.koala.beamCentre";
+	private static final String LOGO_FILE = "gumtree.koala.logofile";
 	private static final String CAM1_CENTER_TEXT = "X";
 	private static final String CAM2_CENTER_TEXT = "Y";
 	
@@ -91,7 +92,7 @@ public class VlcjViewer extends Composite {
 		logoSize = Integer.valueOf(System.getProperty(LOGO_SIZE));
 		try {
 			logoFile = new File(FileLocator.toFileURL(Activator.getDefault().getBundle().getEntry(
-					"/icons/plus_thin_red.png")).getFile());
+					System.getProperty(LOGO_FILE, "/icons/plus64.png"))).getFile());
 		} catch (IOException e1) {
 		}
 		String bc = System.getProperty(BEAM_CENTRE);
@@ -568,7 +569,7 @@ public class VlcjViewer extends Composite {
 			public void run() {
 				try {
 					isInitialised1 = true;
-					mediaPlayer1.media().start(cam1Url, "network-caching=0");
+					mediaPlayer1.media().start(cam1Url, "network-caching=0", ":loop");
 					syncSetText(reloadButton, "Loading ...");
 					syncSetImage(reloadButton, InternalImage.BUSY_STATUS_16.getImage());
 				} catch (Exception e) {
@@ -576,13 +577,13 @@ public class VlcjViewer extends Composite {
 				}
 			};
 		};
-		controlThread1.start();
+//		controlThread1.start();
 
 		controlThread2 = new Thread() {
 			public void run() {
 				try {
 					isInitialised2 = true;
-					mediaPlayer2.media().start(cam2Url, "network-caching=0");
+					mediaPlayer2.media().start(cam2Url, "network-caching=0", ":loop");
 					syncSetText(reloadButton, "Loading ...");
 					syncSetImage(reloadButton, InternalImage.BUSY_STATUS_16.getImage());
 				} catch (Exception e) {
@@ -590,7 +591,7 @@ public class VlcjViewer extends Composite {
 				}
 			};
 		};
-		controlThread2.start();
+//		controlThread2.start();
 
 	}
 
@@ -722,21 +723,25 @@ public class VlcjViewer extends Composite {
 								}
 								try {
 									sleep(500);
-									logger.error("check player1 status");
 								} catch (InterruptedException e) {
 								}
 								while(isPlayer1Ready) {
 									try {
+										logger.error("check player1 stopped");
 										sleep(500);
-										logger.error("check player1 status");
 									} catch (InterruptedException e) {
 									}
 								}
 								try {
-									logger.error("start player 1");
 //									mediaPlayer1.controls().start();
+									try {
+										logger.error("player 1 wait for 10 secs");
+										sleep(10000);
+									} catch (InterruptedException e) {
+									}
+									logger.error("start player 1");
 									mediaPlayer1.controls().play();
-//									mediaPlayer1.media().start(cam1Url, "network-caching=0", "live-caching=0");
+//									mediaPlayer1.media().start(cam1Url, "network-caching=0", ":loop");
 								} catch (Exception ex) {
 									logger.error("failed to stop player 1");
 								}
@@ -744,16 +749,16 @@ public class VlcjViewer extends Composite {
 								try {
 									mediaPlayer1.controls().play();
 								} catch (Exception ex) {
-									logger.error("failed to start player 2");
+									logger.error("failed to start player 1");
 								}
 							}
 
 						} else {
 							try {
 								isInitialised1 = true;
-								mediaPlayer1.media().start(cam1Url, "network-caching=0");
+								mediaPlayer1.media().start(cam1Url, "network-caching=0", ":loop");
 							} catch (Exception e) {
-								logger.error("failed to start players", e);
+								logger.error("failed to init player 1", e);
 							}
 						}
 					};
@@ -771,20 +776,25 @@ public class VlcjViewer extends Composite {
 								}
 								try {
 									sleep(500);
-									logger.error("check player2 status");
 								} catch (InterruptedException e) {
 								}
 								while(isPlayer2Ready) {
 									try {
+										logger.error("check player2 stopped");
 										sleep(500);
-										logger.error("check player2 status");
 									} catch (InterruptedException e) {
 									}
 								}
 								try {
+//									mediaPlayer2.media().start(cam2Url, "network-caching=0", "live-caching=0");
+									try {
+										logger.error("player 2 wait for 10 secs");
+										sleep(10000);
+									} catch (InterruptedException e) {
+									}
 									logger.error("start player 2");
 									mediaPlayer2.controls().play();
-//									mediaPlayer2.media().start(cam2Url, "network-caching=0", "live-caching=0");
+//									mediaPlayer2.media().start(cam2Url, "network-caching=0", ":loop");
 								} catch (Exception ex) {
 									logger.error("failed to stop player 2");
 								}
@@ -799,9 +809,9 @@ public class VlcjViewer extends Composite {
 						} else {
 							try {
 								isInitialised2 = true;
-								mediaPlayer2.media().start(cam2Url, "network-caching=0");
+								mediaPlayer2.media().start(cam2Url, "network-caching=0", ":loop");
 							} catch (Exception e) {
-								logger.error("failed to start player 2", e);
+								logger.error("failed to init player 2", e);
 							}
 						}
 					};

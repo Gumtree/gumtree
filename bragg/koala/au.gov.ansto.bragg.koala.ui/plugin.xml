@@ -40,6 +40,14 @@
       <view
             allowMultiple="true"
             category="au.gov.ansto.bragg.koala.ui"
+            class="au.gov.ansto.bragg.koala.ui.mjpeg.MjpegView"
+            icon="icons/workflow.gif"
+            id="au.gov.ansto.bragg.koala.ui.mjpeg.MjpegView"
+            name="Mjpeg View">
+      </view>
+      <view
+            allowMultiple="true"
+            category="au.gov.ansto.bragg.koala.ui"
             class="au.gov.ansto.bragg.koala.ui.parts.KoalaMainView"
             icon="icons/workflow.gif"
             id="au.gov.ansto.bragg.koala.ui.KoalaMainView"
