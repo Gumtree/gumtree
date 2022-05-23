@@ -13,6 +13,7 @@ import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
 import au.gov.ansto.bragg.koala.ui.scan.ChemistryModel;
 import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
 import au.gov.ansto.bragg.koala.ui.scan.PhysicsModel;
+import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
 /**
  * @author nxi
@@ -39,6 +40,7 @@ public class MainPart extends Composite {
 	private ChemistryModel chemModel;
 	private PhysicsModel physModel;
 	private KoalaMode instrumentMode = KoalaMode.CHEMISTRY;
+	private ControlHelper control;
 	
 	private boolean isJoeyMode;
 
@@ -47,6 +49,7 @@ public class MainPart extends Composite {
 		super(parent, style);
 		GridLayoutFactory.fillDefaults().applyTo(this);
 		
+		control = new ControlHelper();
 		chemModel = new ChemistryModel();
 		physModel = new PhysicsModel();
 		
@@ -110,6 +113,9 @@ public class MainPart extends Composite {
 
 		if (panel instanceof AbstractControlPanel) {
 			currentMainPanel = (AbstractControlPanel) panel;
+		}
+		if (!(panel instanceof CrystalPanel)) {
+			crystalPanel.pauseVideo();
 		}
 	}
 	

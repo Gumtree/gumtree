@@ -6,6 +6,8 @@ package au.gov.ansto.bragg.koala.ui.parts;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -18,6 +20,7 @@ import org.eclipse.swt.widgets.Text;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
+import au.gov.ansto.bragg.koala.ui.mjpeg.MjpegViewer;
 import au.gov.ansto.bragg.koala.ui.vlcj.VlcjViewer;
 
 /**
@@ -29,6 +32,8 @@ public class CrystalPanel extends AbstractControlPanel {
 	private static final int WIDTH_HINT = 1560;
 	private static final int HEIGHT_HINT = 720;
 	private MainPart mainPart;
+	private TabFolder tabFolder;
+	private MjpegViewer mjpegViewer;
 	
 	/**
 	 * @param parent
@@ -45,7 +50,7 @@ public class CrystalPanel extends AbstractControlPanel {
 //		titleLabel.setFont(Activator.getLargeFont());
 //		GridDataFactory.fillDefaults().grab(true, false).minSize(320, 36).applyTo(titleLabel);
 		
-		final TabFolder tabFolder = new TabFolder(this, SWT.NONE);
+		tabFolder = new TabFolder(this, SWT.NONE);
 		tabFolder.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, true).minSize(320, 64).applyTo(tabFolder);
 		
@@ -110,10 +115,12 @@ public class CrystalPanel extends AbstractControlPanel {
 		alignItem.setText("Alignment    ");
 		alignItem.setImage(KoalaImage.ALIGNED64.getImage());
 		
-		final VlcjViewer vlcjBlock = new VlcjViewer(tabFolder, SWT.HORIZONTAL);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(vlcjBlock);
+//		final VlcjViewer vlcjBlock = new VlcjViewer(tabFolder, SWT.HORIZONTAL);
+//		GridDataFactory.fillDefaults().grab(true, true).applyTo(vlcjBlock);
+		mjpegViewer = new MjpegViewer(tabFolder, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(mjpegViewer);
 		
-		alignItem.setControl(vlcjBlock);
+		alignItem.setControl(mjpegViewer);
 		
 		final TabItem oriItem = new TabItem(tabFolder, SWT.NULL);
 		oriItem.setText("Orientation  ");
@@ -148,6 +155,22 @@ public class CrystalPanel extends AbstractControlPanel {
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.CENTER, SWT.CENTER).span(2, 1).hint(480, 64).applyTo(applyButton);
 
 		oriItem.setControl(oriBlock);
+		
+		tabFolder.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (tabFolder.getSelectionIndex() == 2) {
+					mjpegViewer.setRunnerPaused(false);
+				} else {
+					mjpegViewer.setRunnerPaused(true);
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 	}
 
 	
@@ -167,12 +190,19 @@ public class CrystalPanel extends AbstractControlPanel {
 		mainPart.showProposalPanel();
 	}
 
+	public void pauseVideo() {
+		mjpegViewer.setRunnerPaused(true);
+	}
+	
 	@Override
 	public void show() {
 		mainPart.showPanel(this, WIDTH_HINT, HEIGHT_HINT);
 		mainPart.enableBackButton();
 		mainPart.enableNextButton();
 		mainPart.setTitle("Crystal Mounting");
+		if (tabFolder.getSelectionIndex() == 2) {
+			mjpegViewer.setRunnerPaused(false);
+		}
 	}
 
 

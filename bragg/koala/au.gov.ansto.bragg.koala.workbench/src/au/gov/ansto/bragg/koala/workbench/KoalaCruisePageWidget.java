@@ -16,11 +16,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
-import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
-import org.gumtree.gumnix.sics.widgets.swt.EnvironmentControlWidget;
-import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
-import org.gumtree.gumnix.sics.widgets.swt.SicsStatusWidget;
+import org.gumtree.control.ui.widgets.ControllerStatusWidget;
+import org.gumtree.control.ui.widgets.EnvironmentStatusWidget;
+import org.gumtree.control.ui.widgets.PauseStatusWidget;
+import org.gumtree.control.ui.widgets.ServerStatusWidget;
+import org.gumtree.control.ui.widgets.ShutterGroupWidget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
 import org.gumtree.util.messaging.IDelayEventExecutor;
@@ -63,7 +63,7 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		// Shutter Status
 		PGroup shutterGroup = createGroup("SHUTTER STATUS",
 				SharedImage.SHUTTER.getImage());
-		ShutterStatusWidget shutterStatuswidget = new ShutterStatusWidget(
+		ShutterGroupWidget shutterStatuswidget = new ShutterGroupWidget(
 				shutterGroup, SWT.NONE);
 		configureWidget(shutterStatuswidget);
 		shutterGroup.setExpanded(false);
@@ -71,20 +71,22 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		// Server Status
 		PGroup sicsStatusGroup = createGroup("SERVER STATUS", 
 				SharedImage.SERVER.getImage());
-		SicsStatusWidget statusWidget = new SicsStatusWidget(sicsStatusGroup,
+		ServerStatusWidget statusWidget = new ServerStatusWidget(sicsStatusGroup,
 				SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(statusWidget);
 		configureWidget(statusWidget);
+		statusWidget.render();
 
 		// Pause Counter
 		PGroup pauseGroup = createGroup("PAUSE COUNTING",
 				SharedImage.SHUTTER.getImage());
-		HMVetoGadget pauseStatuswidget = new HMVetoGadget(
+		PauseStatusWidget pauseStatuswidget = new PauseStatusWidget(
 				pauseGroup, SWT.NONE);
 		configureWidget(pauseStatuswidget);
+		pauseStatuswidget.render();
 
-		DeviceStatusWidget deviceStatusWidget;
+		ControllerStatusWidget deviceStatusWidget;
 //		// Devices
 		// Monitor Event Rate
 //		PGroup monitorGroup = createGroup("NEUTRON COUNTS",
@@ -101,30 +103,33 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		// Sample
 		PGroup sampleStageGroup = createGroup("SAMPLE",
 				SharedImage.POSITIONER.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(sampleStageGroup, SWT.NONE);
+		deviceStatusWidget = new ControllerStatusWidget(sampleStageGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/sample/height", "Sample Height", null, "mm", new DeviceStatusWidget.PrecisionConverter(3))
-				.addDevice("/sample/samphi", "Sample Phi", null, "\u00b0", new DeviceStatusWidget.PrecisionConverter(3))
-				.addDevice("/sample/sx", "Sample X", null, "mm", new DeviceStatusWidget.PrecisionConverter(3))
-				.addDevice("/sample/sy", "Sample Y", null, "mm", new DeviceStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/height", "Sample Height", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/samphi", "Sample Phi", null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/sx", "Sample X", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/sy", "Sample Y", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
 				;
 		configureWidget(deviceStatusWidget);
+		deviceStatusWidget.render();
 
 		// Choppers
 		PGroup chopperGroup = createGroup("INSTRUMENT",
 				SharedImage.POSITIONER.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(chopperGroup, SWT.NONE);
+		deviceStatusWidget = new ControllerStatusWidget(chopperGroup, SWT.NONE);
 		deviceStatusWidget
+				.addDevice("/instrument/dummy_motor", "Dummy Motor", null, "mm")		
 				.addDevice("/instrument/detector/dh", "Detector Height", null, "mm")
 				.addDevice("/instrument/reading_head", "Reading Head", null, "mm")
 				.addDevice("/instrument/drum", "Drum", null, "\u00b0")
 				;
 		configureWidget(deviceStatusWidget);
+		deviceStatusWidget.render();
 
 		// Choppers
 		PGroup experimentGroup = createGroup("EXPERIMENT",
 				SharedImage.EXPERIMENT_INFO.getImage());
-		deviceStatusWidget = new DeviceStatusWidget(experimentGroup, SWT.NONE);
+		deviceStatusWidget = new ControllerStatusWidget(experimentGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/commands/scan/runscan/numpoints", "Current number of frame", null, "")
 				.addDevice("/experiment/file_name", "Current image file name", null, "")
@@ -132,6 +137,7 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/tc1/sensor1", "Sample temperature", null, "\u00b0")
 				;
 		configureWidget(deviceStatusWidget);
+		deviceStatusWidget.render();
 
 //
 //		// Detector
@@ -198,8 +204,9 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		// Environment Group
 		PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",
 				SharedImage.FURNACE.getImage());
-		EnvironmentControlWidget controlWidget = new EnvironmentControlWidget(environmentGroup, SWT.NONE);
+		EnvironmentStatusWidget controlWidget = new EnvironmentStatusWidget(environmentGroup, SWT.NONE);
 		configureWidget(controlWidget);
+		controlWidget.render();
 	}
 
 	@Override
