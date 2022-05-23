@@ -1,0 +1,39 @@
+25.15.15.42.001 async send: {"cmd":"sics","text":"status","trans":2}
+25.15.15.42.004Received: { "cmd": "sics", "text": "status", "trans": 2, "final": false, "flag": "OK", "reply": "DEFERRED", "ts": 1527225591.220147 }
+25.15.15.42.006Received: { "cmd": "sics", "text": "status", "trans": 2, "final": false, "flag": "OK", "reply": "RUNNING", "ts": 1527225591.222056 }
+25.15.15.42.007Received: { "cmd": "sics", "text": "status", "trans": 2, "final": true, "flag": "OK", "reply": "status = Eager to execute commands\n\n", "ts": 1527225591.222823 }
+
+
+
+25.15.14.22.897 async send: {"cmd":"sics","text":"kareela","trans":1}
+25.15.14.22.901Received: { "cmd": "sics", "text": "kareela", "trans": 1, "final": false, "flag": "OK", "reply": "DEFERRED", "ts": 1527225512.116559 }
+25.15.14.22.903Received: { "cmd": "sics", "text": "kareela", "trans": 1, "final": false, "flag": "OK", "reply": "RUNNING", "ts": 1527225512.119079 }
+25.15.14.22.904Received: { "cmd": "sics", "text": "kareela", "trans": 1, "final": true, "flag": "ERROR", "reply": "ERROR: Object  -> kareela <- NOT found\n", "ts": 1527225512.120070 }
+
+25.15.53.40.297 async send: {"cmd":"sics","text":"drive dummy_motor 1","trans":13}
+25.15.53.40.299 Received: { "cmd": "sics", "text": "drive dummy_motor 1", "trans": 13, "final": false, "flag": "OK", "reply": "DEFERRED", "ts": 1527227869.539402 }
+25.15.53.40.301 Received: { "cmd": "sics", "text": "drive dummy_motor 1", "trans": 13, "final": false, "flag": "OK", "reply": "RUNNING", "ts": 1527227869.541211 }
+25.15.53.40.305 Received: { "cmd": "sics", "text": "drive dummy_motor 1", "trans": 13, "final": true, "flag": "OK", "reply": "New dummy_motor position:     1.000\nDriving finished successfully\n", "ts": 1527227869.545759 }
+
+
+01.10.20.03.890 async send: {"cmd":"sics","text":"drive dummy_motor 10","trans":1}
+01.10.20.04.322 Received: { "cmd": "sics", "text": "drive dummy_motor 10", "trans": 1, "final": false, "flag": "OK", "reply": "DEFERRED", "ts": 1527812646.923782 }
+01.10.20.04.325 Received: { "cmd": "sics", "text": "drive dummy_motor 10", "trans": 1, "final": false, "flag": "OK", "reply": "RUNNING", "ts": 1527812646.925866 }
+SUB { "type": "Value", "name": "\/instrument\/dummy_motor\/target", "value": "10", "seq": 1134, "ts": 1527812646.932852 }
+01.10.20.04.338 Received: { "cmd": "sics", "text": "drive dummy_motor 10", "trans": 1, "final": true, "flag": "OK", "reply": "New dummy_motor position:    10.000\nDriving finished successfully\n", "ts": 1527812646.939416 }
+SUB { "type": "Value", "name": "\/instrument\/dummy_motor\/hardlowerlim", "value": "-500", "seq": 1135, "ts": 1527812646.933516 }
+SUB { "type": "Value", "name": "\/instrument\/dummy_motor\/hardupperlim", "value": "500", "seq": 1136, "ts": 1527812646.933744 }
+SUB { "type": "Value", "name": "\/instrument\/dummy_motor\/softlowerlim", "value": "-500", "seq": 1137, "ts": 1527812646.933893 }
+SUB { "type": "Value", "name": "\/instrument\/dummy_motor\/softupperlim", "value": "500", "seq": 1138, "ts": 1527812646.934076 }
+SUB { "type": "Value", "name": "\/instrument\/dummy_motor\/fixed", "value": "-1", "seq": 1139, "ts": 1527812646.934196 }
+SUB { "type": "Value", "name": "\/instrument\/dummy_motor\/precision", "value": "0.01", "seq": 1140, "ts": 1527812646.934323 }
+SUB { "type": "Value", "name": "\/instrument\/dummy_motor\/accesscode", "value": "2", "seq": 1141, "ts": 1527812646.934452 }
+SUB { "type": "Value", "name": "\/instrument\/dummy_motor\/sign", "value": "1", "seq": 1142, "ts": 1527812646.934585 }
+SUB { "type": "Value", "name": "\/instrument\/dummy_motor\/failafter", "value": "3", "seq": 1143, "ts": 1527812646.934701 }
+SUB { "type": "Value", "name": "\/instrument\/dummy_motor\/maxretry", "value": "3", "seq": 1144, "ts": 1527812646.934837 }
+SUB { "type": "Value", "name": "\/instrument\/dummy_motor\/movecount", "value": "500", "seq": 1145, "ts": 1527812646.934983 }
+SUB { "type": "Status", "name": "Status", "value": "Driving", "seq": 1146, "ts": 1527812646.935114 }
+SUB { "type": "State", "name": "STARTED", "value": "dummy_motor", "seq": 1147, "ts": 1527812646.935234 }
+SUB { "type": "Value", "name": "\/instrument\/dummy_motor", "value": "10", "seq": 1148, "ts": 1527812646.935532 }
+SUB { "type": "State", "name": "FINISH", "value": "dummy_motor", "seq": 1149, "ts": 1527812646.935796 }
+SUB { "type": "Status", "name": "Status", "value": "Eager to execute commands", "seq": 1150, "ts": 1527812646.935980 }

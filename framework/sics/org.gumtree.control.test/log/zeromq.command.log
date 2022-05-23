@@ -1,0 +1,9 @@
+from org.gumtree.control.imp import SicsProxy,SicsChannel;p = SicsProxy();c=SicsChannel(p);c.connect("tcp://137.157.204.8:5555", "tcp://137.157.204.8:5566");
+
+c.asyncSend('status', None)
+
+c.syncSend('drive dummy_motor 10', None)
+
+xml = c.syncSend('getgumtreexml /', None)
+
+
