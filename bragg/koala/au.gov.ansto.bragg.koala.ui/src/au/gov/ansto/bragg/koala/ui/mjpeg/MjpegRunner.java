@@ -87,11 +87,11 @@ public class MjpegRunner implements Runnable {
                 long begin = System.currentTimeMillis();
                 byte[] imageBytes = retrieveNextImage();
                 long fetch = System.currentTimeMillis();   
-                System.out.println("set image bytes");
+//                System.out.println("set image bytes");
                 viewer.setImageBytes(imageBytes);
                 long paint = System.currentTimeMillis();
-                System.out.println(String.format("Fetch = %d, Paint = %d, other = %d", 
-                		fetch - begin, paint - fetch, begin - other));
+//                System.out.println(String.format("Fetch = %d, Paint = %d, other = %d", 
+//                		fetch - begin, paint - fetch, begin - other));
                 other = paint;
                 count += 1;
                 if (count % 10 == 0) {
@@ -188,12 +188,12 @@ public class MjpegRunner implements Runnable {
 
         int contentLength = 0;
 
-        System.out.println("begin next image");
+//        System.out.println("begin next image");
         while ((currByte = urlStream.read()) > -1) {
             if (captureContentLength) {
                 if (currByte == 10 || currByte == 13) {
                     contentLength = Integer.parseInt(contentLengthStringWriter.toString());
-                    System.out.println("content length is " + contentLength);
+//                    System.out.println("content length is " + contentLength);
                     break;
                 }
                 contentLengthStringWriter.write(currByte);
@@ -204,7 +204,7 @@ public class MjpegRunner implements Runnable {
                 int indexOf = tempString.indexOf(CONTENT_LENGTH);
                 if (indexOf > 0) {
                     captureContentLength = true;
-                    System.out.println("try to get content length");
+//                    System.out.println("try to get content length");
                 }
             }
         }
@@ -225,7 +225,7 @@ public class MjpegRunner implements Runnable {
         		throw new IOException("too many junk read");
         	}
         }
-        System.out.println(String.format("skipped totally %d count", count));
+//        System.out.println(String.format("skipped totally %d count", count));
 
 //        System.out.println("image started");
         // rest is the buffer
@@ -238,7 +238,7 @@ public class MjpegRunner implements Runnable {
                 && (numRead = urlStream.read(imageBytes, offset, imageBytes.length - offset)) >= 0) {
             offset += numRead;
         }
-        System.out.println("image finished");
+//        System.out.println("image finished");
         return imageBytes;
     }
 

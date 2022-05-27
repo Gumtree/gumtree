@@ -3,30 +3,53 @@
  */
 package au.gov.ansto.bragg.koala.ui.parts;
 
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
+import au.gov.ansto.bragg.nbi.service.soap.CurrentProposalSOAPService;
 
 /**
  * @author nxi
  *
  */
 public class ProposalPanel extends AbstractControlPanel {
-
+	
 	private static final int WIDTH_HINT = 720;
 	private static final int HEIGHT_HINT = 720;
+	private static final String ID_PROP_CODE = "proposalCode";
+	private static final String ID_PRCP_SCI = "principalSci";
+	private static final String ID_LOC_SCI = "localSci";
+	
+	private CurrentProposalSOAPService proposalService;
 	private MainPart mainPart;
+	private Text idText;
+	private Text nameText;
+	private Text isText;
+	private Button changeButton;
+	private Button resetButton;
+	private boolean isWaiting;
+	
+	private String propIdValue;
+	private String userNameValue;
+	private String localSciValue;
 	
 	/**
 	 * @param parent
@@ -34,6 +57,8 @@ public class ProposalPanel extends AbstractControlPanel {
 	 */
 	public ProposalPanel(Composite parent, int style, MainPart part) {
 		super(parent, style);
+		proposalService = new CurrentProposalSOAPService("KOALA");
+		
 		mainPart = part;
 		GridLayoutFactory.fillDefaults().numColumns(2).margins(8, 8).applyTo(this);
 		GridDataFactory.swtDefaults().minSize(720, 720).align(SWT.CENTER, SWT.CENTER).applyTo(this);
@@ -57,36 +82,125 @@ public class ProposalPanel extends AbstractControlPanel {
 		idLabel.setText("Proposal ID");
 		idLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 36).align(SWT.BEGINNING, SWT.CENTER).applyTo(idLabel);
-		Text idText = new Text(currentPropPanel, SWT.BORDER);
-		idText.setText("1234");
+		idText = new Text(currentPropPanel, SWT.BORDER);
+		idText.setText("");
 		idText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, true).minSize(320, 36).align(SWT.END, SWT.CENTER).applyTo(idText);
+		
+		idText.addModifyListener(new ModifyListener() {
+			
+			@Override
+			public void modifyText(ModifyEvent e) {
+				String text = idText.getText();
+				if (text != null && !text.trim().equals(propIdValue)) {
+					resetButton.setEnabled(true);
+					changeButton.setEnabled(true);
+				}
+			}
+		});
 		
 		Label nameLabel = new Label(currentPropPanel, SWT.NONE);
 		nameLabel.setText("User Name");
 		nameLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 36).align(SWT.BEGINNING, SWT.CENTER).applyTo(nameLabel);
-		Text nameText = new Text(currentPropPanel, SWT.BORDER);
-		nameText.setText("Test User");
+		nameText = new Text(currentPropPanel, SWT.BORDER);
+		nameText.setText("");
 		nameText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, true).minSize(320, 36).align(SWT.END, SWT.CENTER).applyTo(nameText);
 
+		nameText.addModifyListener(new ModifyListener() {
+			
+			@Override
+			public void modifyText(ModifyEvent e) {
+				String text = nameText.getText();
+				if (text != null && !text.trim().equals(userNameValue)) {
+					resetButton.setEnabled(true);
+					changeButton.setEnabled(true);
+				}
+			}
+		});
+		
 		Label isLabel = new Label(currentPropPanel, SWT.NONE);
 		isLabel.setText("Local Contact");
 		isLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 36).align(SWT.BEGINNING, SWT.CENTER).applyTo(isLabel);
-		Text isText = new Text(currentPropPanel, SWT.BORDER);
-		isText.setText("Instrument Scientist");
+		isText = new Text(currentPropPanel, SWT.BORDER);
+		isText.setText("");
 		isText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, true).minSize(320, 36).align(SWT.END, SWT.CENTER).applyTo(isText);
 
-		Button changeButton = new Button(currentPropPanel, SWT.PUSH);
-		changeButton.setText("Change");
+		isText.addModifyListener(new ModifyListener() {
+			
+			@Override
+			public void modifyText(ModifyEvent e) {
+				String text = isText.getText();
+				if (text != null && !text.trim().equals(localSciValue)) {
+					resetButton.setEnabled(true);
+					changeButton.setEnabled(true);
+				}
+			}
+		});
+		
+		Composite buttonComposite = new Composite(currentPropPanel, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(buttonComposite);
+		GridDataFactory.fillDefaults().span(2, 1).applyTo(buttonComposite);
+		
+		Button fillButton = new Button(buttonComposite, SWT.PUSH);
+		fillButton.setText("Auto fill");
+		fillButton.setCursor(Activator.getHandCursor());
+		fillButton.setToolTipText("Click here to retrieve proposal information from user portal");
+		fillButton.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(true, true).span(2, 1).minSize(240, 36).align(SWT.FILL, SWT.CENTER).applyTo(fillButton);
+		
+		fillButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				autoFill();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
+		resetButton = new Button(buttonComposite, SWT.PUSH);
+		resetButton.setText("Reset");
+		resetButton.setCursor(Activator.getHandCursor());
+		resetButton.setToolTipText("Click here to reset and discard all changes.");
+		resetButton.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(true, true).minSize(240, 36).align(SWT.CENTER, SWT.CENTER).applyTo(resetButton);
+		
+		resetButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				loadPref();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
+		changeButton = new Button(buttonComposite, SWT.PUSH);
+		changeButton.setText("Apply change");
 		changeButton.setCursor(Activator.getHandCursor());
-//		changeButton.setEnabled(false);
 		changeButton.setToolTipText("Click here to apply change.");
 		changeButton.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, true).minSize(320, 36).align(SWT.CENTER, SWT.CENTER).span(2, 1).applyTo(changeButton);
+		GridDataFactory.fillDefaults().grab(true, true).minSize(240, 36).align(SWT.CENTER, SWT.CENTER).applyTo(changeButton);
+		
+		changeButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				applyChange();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 		
 		propInputHolder.setContent(currentPropPanel);
 		
@@ -141,13 +255,113 @@ public class ProposalPanel extends AbstractControlPanel {
 			}
 		});
 		
-		if (mainPart.getInstrumentMode() == KoalaMode.CHEMISTRY) {
-			chemButton.setSelection(true);
-		} else if (mainPart.getInstrumentMode() == KoalaMode.PHYSICS) {
-			physiButton.setSelection(true);
+		String mode = Activator.getPreference(Activator.NAME_OP_MODE);
+		if (mode != null) {
+			try {
+				KoalaMode instrumentMode = KoalaMode.valueOf(mode);
+				if (instrumentMode == KoalaMode.CHEMISTRY) {
+					chemButton.setSelection(true);
+				} else if (instrumentMode == KoalaMode.PHYSICS) {
+					physiButton.setSelection(true);
+				}
+			} catch (Exception e) {
+			}
 		}
+
+		proposalService.addListener(new CurrentProposalSOAPService.IServiceListener() {
+			
+			@Override
+			public void onLoaded(final Map<String, String> response) {
+				if (response != null) {
+					Display.getDefault().asyncExec(new Runnable() {
+						
+						@Override
+						public void run() {
+							isWaiting = false;
+							boolean isChanged = false;
+							if (response.containsKey(ID_PROP_CODE)) {
+								idText.setText(response.get(ID_PROP_CODE));
+								isChanged = true;
+							}
+							if (response.containsKey(ID_PRCP_SCI)) {
+								nameText.setText(response.get(ID_PRCP_SCI));
+								isChanged = true;
+							}
+							if (response.containsKey(ID_LOC_SCI)) {
+								isText.setText(response.get(ID_LOC_SCI));
+								isChanged = true;
+							}
+							if (isChanged) {
+								changeButton.setEnabled(true);
+								resetButton.setEnabled(true);
+							}
+							getShell().setCursor(null);
+						}
+					});
+				}
+			}
+
+		});
+
+		loadPref();
 	}
 
+	private void autoFill() {
+		isWaiting = true;
+		getShell().setCursor(Activator.getBusyCursor());
+		proposalService.load();
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
+			
+			@Override
+			public void run() {
+				if (isWaiting) {
+					Display.getDefault().asyncExec(new Runnable() {
+						
+						@Override
+						public void run() {
+							idText.setText("Timeout connecting to server");
+						}
+					});
+				}
+			}
+		}, 10000);
+	}
+	
+	private void applyChange() {
+		Activator.setPreference(Activator.NAME_PROP_ID, idText.getText());
+		Activator.setPreference(Activator.NAME_USER_NAME, nameText.getText());
+		Activator.setPreference(Activator.NAME_LOCAL_SCI, isText.getText());
+		Activator.flushPreferenceStore();
+		changeButton.setEnabled(false);
+		resetButton.setEnabled(false);
+	}
+	
+	private void loadPref() {
+		String propId =  Activator.getPreference(Activator.NAME_PROP_ID);
+		if (propId != null) {
+			propIdValue = propId;
+			idText.setText(propId);
+		} else {
+			idText.setText("");
+		}
+		String userName = Activator.getPreference(Activator.NAME_USER_NAME);
+		if (userName != null) {
+			userNameValue = userName;
+			nameText.setText(userName);
+		} else {
+			nameText.setText("");
+		}
+		String localSci = Activator.getPreference(Activator.NAME_LOCAL_SCI);
+		if (localSci != null) {
+			localSciValue = localSci;
+			isText.setText(localSci);
+		} else {
+			isText.setText("");
+		}
+		changeButton.setEnabled(false);
+		resetButton.setEnabled(false);
+	}
 	
 	/* (non-Javadoc)
 	 * @see au.gov.ansto.bragg.koala.ui.parts.AbstractControlPart#next()

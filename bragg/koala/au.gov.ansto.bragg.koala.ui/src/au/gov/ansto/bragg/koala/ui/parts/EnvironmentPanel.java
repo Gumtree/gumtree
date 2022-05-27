@@ -38,32 +38,38 @@ public class EnvironmentPanel extends AbstractPanel {
 		controllerLabel.setText("Cobra Controller");
 		controllerLabel.setFont(Activator.getLargeFont());
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.CENTER, SWT.CENTER).applyTo(controllerLabel);
-		Button controllerButton = new Button(this, SWT.TOGGLE);
+		Button controllerButton = new Button(this, SWT.PUSH);
 		controllerButton.setImage(KoalaImage.COBRA.getImage());
-		controllerButton.setCursor(Activator.getHandCursor());
+//		controllerButton.setCursor(Activator.getHandCursor());
 		GridDataFactory.fillDefaults().grab(false, true).align(SWT.CENTER, SWT.CENTER).applyTo(controllerButton);
 		
 		final Composite statusPanel = new Composite(this, SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns(2).margins(8, 8).applyTo(statusPanel);
+		GridLayoutFactory.fillDefaults().numColumns(3).margins(8, 8).applyTo(statusPanel);
 		GridDataFactory.swtDefaults().minSize(560, 240).align(SWT.CENTER, SWT.CENTER).applyTo(statusPanel);
 
 		Label valueLabel = new Label(statusPanel, SWT.NONE);
-		valueLabel.setText("Current value");
+		valueLabel.setText("Current value (K)");
 		valueLabel.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 36).align(SWT.CENTER, SWT.CENTER).applyTo(valueLabel);
+		GridDataFactory.fillDefaults().grab(false, false).minSize(200, 36).align(SWT.CENTER, SWT.CENTER).applyTo(valueLabel);
 		Text valueText = new Text(statusPanel, SWT.READ_ONLY);
-		valueText.setText("120.5 K");
+		valueText.setText("");
 		valueText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, true).minSize(240, 36).align(SWT.END, SWT.CENTER).applyTo(valueText);
+		GridDataFactory.fillDefaults().grab(true, true).minSize(160, 36).align(SWT.CENTER, SWT.CENTER).applyTo(valueText);
 
+		Button runButton = new Button(statusPanel, SWT.TOGGLE);
+		runButton.setImage(KoalaImage.PLAY48.getImage());
+		runButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.fillDefaults().grab(true, true).minSize(80, 80
+				).span(1, 2).align(SWT.END, SWT.CENTER).applyTo(runButton);
+		
 		Label targetLabel = new Label(statusPanel, SWT.NONE);
-		targetLabel.setText("Target value");
+		targetLabel.setText("Target value (K)");
 		targetLabel.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 36).align(SWT.CENTER, SWT.CENTER).applyTo(targetLabel);
+		GridDataFactory.fillDefaults().grab(false, false).minSize(200, 36).align(SWT.CENTER, SWT.CENTER).applyTo(targetLabel);
 		Text targetText = new Text(statusPanel, SWT.BORDER);
 		targetText.setText("");
 		targetText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, true).minSize(240, 36).align(SWT.END, SWT.CENTER).applyTo(targetText);
+		GridDataFactory.fillDefaults().grab(true, true).minSize(160, 36).align(SWT.CENTER, SWT.CENTER).applyTo(targetText);
 
 	}
 

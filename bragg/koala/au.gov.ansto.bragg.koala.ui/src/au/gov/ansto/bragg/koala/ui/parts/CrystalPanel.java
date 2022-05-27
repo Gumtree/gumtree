@@ -79,7 +79,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		curLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(320, 40).applyTo(curLabel);
 		
-		final Text curText = new Text(phiBlock, SWT.BORDER);
+		final Label curText = new Label(phiBlock, SWT.BORDER);
 		curText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(240, 40).applyTo(curText);
 		

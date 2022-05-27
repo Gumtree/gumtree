@@ -344,7 +344,6 @@ public class MjpegViewer extends Composite {
 
 	public void startRunner() {
 		try {
-			System.out.println("Start runner");
 			runner1 = new MjpegRunner(mjpeg1.getPanel(), 
 					new URL(cam1Url));
 			new Thread(runner1).start();
@@ -359,7 +358,6 @@ public class MjpegViewer extends Composite {
 	
 	public void stopRunner() {
 		try {
-			System.out.println("Stop runner");
 			if (runner1 != null) {
 				runner1.stop();
 			}

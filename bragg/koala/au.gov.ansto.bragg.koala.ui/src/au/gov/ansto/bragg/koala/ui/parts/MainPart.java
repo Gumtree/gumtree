@@ -9,9 +9,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
 
+import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
 import au.gov.ansto.bragg.koala.ui.scan.ChemistryModel;
-import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
 import au.gov.ansto.bragg.koala.ui.scan.PhysicsModel;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
@@ -65,7 +65,7 @@ public class MainPart extends Composite {
 //		cmpMain.setBackground(getBackground());
 		holder.setExpandHorizontal(true);
 		holder.setExpandVertical(true);
-		
+
 		environmentPanel = new EnvironmentPanel(holder, SWT.BORDER, this);
 		joeyPanel = new JoeyPanel(holder, SWT.BORDER, this);
 		proposalPanel = new ProposalPanel(holder, SWT.BORDER, this);
@@ -73,9 +73,9 @@ public class MainPart extends Composite {
 		initScanPanel = new InitScanPanel(holder, SWT.BORDER, this);
 		chemExpPanel = new ChemistryPanel(holder, SWT.BORDER, this);
 		physicsPanel = new PhysicsPanel(holder, SWT.BORDER, this);
+
 	}
 	
-
 	public void showEnvironmentPanel() {
 		environmentPanel.show();
 	}
@@ -177,9 +177,8 @@ public class MainPart extends Composite {
 		return physicsPanel;
 	}
 	
-	public void setMode(KoalaMode mode) {
-		instrumentMode = mode;
-		switch (mode) {
+	public void applyMode() {
+		switch (instrumentMode) {
 		case CHEMISTRY:
 			getParentViewer().getFooterPart().enableChemistryButton();
 			getParentViewer().getHeaderPart().disablePhysicsButton();
@@ -193,6 +192,13 @@ public class MainPart extends Composite {
 			getParentViewer().getHeaderPart().disablePhysicsButton();
 			break;
 		}
+	}
+
+	public void setMode(KoalaMode mode) {
+		instrumentMode = mode;
+		applyMode();
+		Activator.setPreference(Activator.NAME_OP_MODE, instrumentMode.name());
+		Activator.flushPreferenceStore();
 	}
 	
 	public ChemistryModel getChemistryModel() {
