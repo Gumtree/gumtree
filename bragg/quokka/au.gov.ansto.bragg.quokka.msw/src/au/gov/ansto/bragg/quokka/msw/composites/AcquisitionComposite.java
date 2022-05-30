@@ -344,6 +344,15 @@ public class AcquisitionComposite extends Composite {
 	    //notifier.updateSource(scheduler);
 	    
 	    final File reportFolder = getReportLocation();
+	    if (reportFolder != null) {
+	    	try {
+		    	File currentFolder = new File(reportFolder.getPath() + "/current");
+				if (!currentFolder.exists()) {
+					currentFolder.mkdir();
+				}
+			} catch (Exception e) {
+			}
+	    }
 
 		final ReportProvider reportProvider = new ReportProvider();
 		reportProvider.bind(walker);
