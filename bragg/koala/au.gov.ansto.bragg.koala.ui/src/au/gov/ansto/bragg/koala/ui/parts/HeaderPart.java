@@ -20,6 +20,7 @@ import org.eclipse.ui.PlatformUI;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
+import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
 
 /**
  * @author nxi
@@ -27,7 +28,7 @@ import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
  */
 public class HeaderPart extends Composite {
 
-	private Button physiButton;
+	private Button modeButton;
 	private Label titleLabel;
 	private Button dashboardButton;
 	
@@ -42,13 +43,13 @@ public class HeaderPart extends Composite {
 	}
 
 	private void addDashboardButton(Composite parent) {
-		physiButton = new Button(this, SWT.PUSH);
-		physiButton.setImage(KoalaImage.PHYSICS64.getImage());
-		physiButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.fillDefaults().grab(false, true).align(SWT.BEGINNING, SWT.CENTER).applyTo(physiButton);
-		physiButton.setToolTipText("Current mode: Physics. Click here to change the mode.");
+		modeButton = new Button(this, SWT.PUSH);
+		modeButton.setImage(KoalaImage.CHEMISTRY64.getImage());
+		modeButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.fillDefaults().grab(false, true).align(SWT.BEGINNING, SWT.CENTER).applyTo(modeButton);
+		modeButton.setToolTipText("Current mode: Chemistry. Click here to change the mode.");
 
-		physiButton.addSelectionListener(new SelectionListener() {
+		modeButton.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -115,14 +116,24 @@ public class HeaderPart extends Composite {
 		});
 	}
 
-	public void enablePhysicsButton() {
-		physiButton.setVisible(true);
+//	public void enablePhysicsButton() {
+//		modeButton.setVisible(true);
+//	}
+//	
+//	public void disablePhysicsButton() {
+//		modeButton.setVisible(false);
+//	}
+
+	public void setMode(KoalaMode mode) {
+		if (mode == KoalaMode.PHYSICS) {
+			modeButton.setImage(KoalaImage.PHYSICS64.getImage());
+			modeButton.setToolTipText("Current mode: Physics. Click here to change the mode.");
+		} else {
+			modeButton.setImage(KoalaImage.CHEMISTRY64.getImage());
+			modeButton.setToolTipText("Current mode: Chemistry. Click here to change the mode.");
+		}
 	}
 	
-	public void disablePhysicsButton() {
-		physiButton.setVisible(false);
-	}
-
 	private KoalaMainViewer getParentViewer() {
 		return (KoalaMainViewer) getParent();
 	}
@@ -132,7 +143,7 @@ public class HeaderPart extends Composite {
 	}
 
 	public void setButtonEnabled(boolean isEnabled) {
-		physiButton.setEnabled(isEnabled);
+		modeButton.setEnabled(isEnabled);
 		dashboardButton.setEnabled(isEnabled);
 	}
 

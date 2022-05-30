@@ -18,6 +18,7 @@ public enum KoalaImage {
 	NEXT64("/icons/next_64.png"),
 	CHEMISTRY64("/icons/chemistry_64.png"),
 	PHYSICS64("/icons/physics_64.png"),
+	LOCK64("/icons/lock_64.png"),
 	TEMPERATURE64("/icons/temperature_64.png"),
 	PHI64("/icons/phi_64.png"),
 	ALIGNED64("/icons/aligned_64.png"),

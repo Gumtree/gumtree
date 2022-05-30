@@ -66,6 +66,7 @@ public class MessageHandler {
 //			}
 //		} catch (JSONException e) {
 //		}
+		System.err.println(json.toString());
 		try {
 			if (json.has(PropertyConstants.PROP_UPDATE_TYPE)) {
 				String type = json.getString(PropertyConstants.PROP_UPDATE_TYPE);

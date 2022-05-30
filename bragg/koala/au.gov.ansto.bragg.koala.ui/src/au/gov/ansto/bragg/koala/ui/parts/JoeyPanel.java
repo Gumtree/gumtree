@@ -28,7 +28,6 @@ import au.gov.ansto.bragg.koala.ui.Activator;
  */
 public class JoeyPanel extends AbstractPanel {
 
-	private static final String UNLOCK_TEXT = "koala123";
 	private static final int WIDTH_HINT = 600;
 	private static final int HEIGHT_HINT = 680;
 	private MainPart mainPart;
@@ -62,7 +61,7 @@ public class JoeyPanel extends AbstractPanel {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				String value = passText.getText();
-				if (UNLOCK_TEXT.equals(value)) {
+				if (MainPart.UNLOCK_TEXT.equals(value)) {
 					activeButton.setEnabled(true);
 					advButton.setVisible(true);
 				} else {

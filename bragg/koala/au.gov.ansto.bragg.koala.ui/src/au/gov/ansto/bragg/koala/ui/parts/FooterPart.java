@@ -3,8 +3,11 @@
  */
 package au.gov.ansto.bragg.koala.ui.parts;
 
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -23,7 +26,7 @@ public class FooterPart extends Composite {
 	private Composite controlPart;
 	private Button backButton;
 	private Button nextButton;
-	private Button chemButton;
+	private Button adminButton;
 	private Button joeyButton;
 	
 	/**
@@ -99,17 +102,28 @@ public class FooterPart extends Composite {
 			}
 		});
 
-		chemButton = new Button(this, SWT.PUSH);
-		chemButton.setCursor(Activator.getHandCursor());
-		chemButton.setImage(KoalaImage.CHEMISTRY64.getImage());
-		GridDataFactory.fillDefaults().grab(false, true).align(SWT.END, SWT.CENTER).applyTo(chemButton);
-		chemButton.setToolTipText("Current mode: Chemistry. Click here to change the mode.");
+		adminButton = new Button(this, SWT.PUSH);
+		adminButton.setCursor(Activator.getHandCursor());
+		adminButton.setImage(KoalaImage.LOCK64.getImage());
+		adminButton.setText("Admin Page");
+		adminButton.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, true).align(SWT.END, SWT.CENTER).applyTo(adminButton);
+		adminButton.setToolTipText("Click to unlock administrator page.");
 		
-		chemButton.addSelectionListener(new SelectionListener() {
+		adminButton.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getParentViewer().getMainPart().showProposalPanel();
+//				getParentViewer().getMainPart().showProposalPanel();
+				PasswordDialog dialog = new PasswordDialog(getShell());
+				if (dialog.open() == Window.OK) {
+		            String user = dialog.getUser();
+		            String pw = dialog.getPassword();
+		            if (MainPart.UNLOCK_TEXT.equals(pw)) {
+		            	getParentViewer().getMainPart().showAdminPanel();
+		            }
+		        }
+//				MessageDialog.openQuestion(getParentViewer(), "Administrator login", "");
 			}
 			
 			@Override
@@ -128,13 +142,13 @@ public class FooterPart extends Composite {
 		nextButton.setVisible(isEnabled);
 	}
 	
-	public void enableChemistryButton() {
-		chemButton.setVisible(true);
-	}
-	
-	public void disableChemistryButton() {
-		chemButton.setVisible(false);
-	}
+//	public void enableChemistryButton() {
+//		chemButton.setVisible(true);
+//	}
+//	
+//	public void disableChemistryButton() {
+//		chemButton.setVisible(false);
+//	}
 	
 	private KoalaMainViewer getParentViewer() {
 		return (KoalaMainViewer) getParent();
@@ -144,7 +158,7 @@ public class FooterPart extends Composite {
 		joeyButton.setEnabled(isEnabled);
 		backButton.setEnabled(isEnabled);
 		nextButton.setEnabled(isEnabled);
-		chemButton.setEnabled(isEnabled);
+		adminButton.setEnabled(isEnabled);
 	}
 
 }

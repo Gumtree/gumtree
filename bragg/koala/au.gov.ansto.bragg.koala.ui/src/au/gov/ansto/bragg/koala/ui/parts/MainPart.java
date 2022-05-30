@@ -25,6 +25,8 @@ public class MainPart extends Composite {
 	 * @param parent
 	 * @param style
 	 */
+	public static final String UNLOCK_TEXT = "koala123";
+
 	private ScrolledComposite holder;
 	private EnvironmentPanel environmentPanel;
 	private JoeyPanel joeyPanel;
@@ -33,6 +35,7 @@ public class MainPart extends Composite {
 	private InitScanPanel initScanPanel;
 	private ChemistryPanel chemExpPanel;
 	private PhysicsPanel physicsPanel;
+	private AdminPanel adminPanel;
 	
 	private AbstractControlPanel currentMainPanel;
 	private AbstractPanel currentPanel;
@@ -73,7 +76,7 @@ public class MainPart extends Composite {
 		initScanPanel = new InitScanPanel(holder, SWT.BORDER, this);
 		chemExpPanel = new ChemistryPanel(holder, SWT.BORDER, this);
 		physicsPanel = new PhysicsPanel(holder, SWT.BORDER, this);
-
+		adminPanel = new AdminPanel(holder, SWT.BORDER, this);
 	}
 	
 	public void showEnvironmentPanel() {
@@ -82,6 +85,10 @@ public class MainPart extends Composite {
 
 	public void showJoeyPanel() {
 		joeyPanel.show();
+	}
+
+	public void showAdminPanel() {
+		adminPanel.show();
 	}
 
 	public void showProposalPanel() {
@@ -178,20 +185,21 @@ public class MainPart extends Composite {
 	}
 	
 	public void applyMode() {
-		switch (instrumentMode) {
-		case CHEMISTRY:
-			getParentViewer().getFooterPart().enableChemistryButton();
-			getParentViewer().getHeaderPart().disablePhysicsButton();
-			break;
-		case PHYSICS:
-			getParentViewer().getHeaderPart().enablePhysicsButton();
-			getParentViewer().getFooterPart().disableChemistryButton();
-			break;
-		default:
-			getParentViewer().getFooterPart().disableChemistryButton();
-			getParentViewer().getHeaderPart().disablePhysicsButton();
-			break;
-		}
+		getParentViewer().getHeaderPart().setMode(instrumentMode);
+//		switch (instrumentMode) {
+//		case CHEMISTRY:
+//			getParentViewer().getFooterPart().enableChemistryButton();
+//			getParentViewer().getHeaderPart().disablePhysicsButton();
+//			break;
+//		case PHYSICS:
+//			getParentViewer().getHeaderPart().enablePhysicsButton();
+//			getParentViewer().getFooterPart().disableChemistryButton();
+//			break;
+//		default:
+//			getParentViewer().getFooterPart().disableChemistryButton();
+//			getParentViewer().getHeaderPart().disablePhysicsButton();
+//			break;
+//		}
 	}
 
 	public void setMode(KoalaMode mode) {
@@ -215,6 +223,10 @@ public class MainPart extends Composite {
 	
 	public void setTitle(String title) {
 		getParentViewer().getHeaderPart().setTitle(title);
+	}
+	
+	public ControlHelper getControl() {
+		return control;
 	}
 	
 	public void setJoeyMode(boolean isEnabled) {

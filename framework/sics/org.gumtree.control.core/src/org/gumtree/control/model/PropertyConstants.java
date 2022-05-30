@@ -5,11 +5,17 @@ public class PropertyConstants {
 	public final static String PROP_COMMAND_CMD = "cmd";
 	public final static String PROP_COMMAND_FLAG = "flag";
 	public final static String PROP_COMMAND_REPLY = "reply";
+	public final static String PROP_COMMAND_FINAL = "final";
+	public final static String PROP_COMMAND_TEXT = "text";
+	public final static String PROP_COMMAND_TRANS = "trans";
 	
 	
 	public final static String PROP_UPDATE_TYPE = "type";
 	public final static String PROP_UPDATE_NAME = "name";
 	public final static String PROP_UPDATE_VALUE = "value";
+	
+	public final static String PROP_UPDATE_SEQ = "seq";
+	public final static String PROP_UPDATE_TS = "ts";
 
 	public final static String PROP_BATCH_NAME = "batch_name";
 	public final static String PROP_BATCH_RANGE = "batch_range";
@@ -19,6 +25,29 @@ public class PropertyConstants {
 //	public final static String PROP_TYPE_STATE = "STATE";
 //	public final static String PROP_TYPE_STATUS = "STATUS";
 
+	public enum FlagType{
+		OK("OK"), ERROR("ERROR");
+		
+		private FlagType(String id) {
+			this.id = id;
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public static FlagType parseString(String id) {
+			for (FlagType type : values()) {
+				if (type.getId().equalsIgnoreCase(id)) {
+					return type;
+				}
+			}
+			return null;
+		}
+
+		private String id;
+	}
+	
 	public enum MessageType{
 		VALUE("VALUE"), STATE("STATE"), STATUS("STATUS"), BATCH("BATCH");
 		

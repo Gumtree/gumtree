@@ -307,6 +307,7 @@ public class SicsChannel implements ISicsChannel {
 				if (!isStarted) {
 					isStarted = true;
 					messageHandler.process(json);
+					System.err.println(json);
 					if (json.has(PropertyConstants.PROP_COMMAND_REPLY)) {
 						reply = json.get(PropertyConstants.PROP_COMMAND_REPLY).toString();
 					}
