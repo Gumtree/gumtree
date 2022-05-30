@@ -6,6 +6,8 @@ package au.gov.ansto.bragg.koala.ui.parts;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -59,11 +61,15 @@ public class PasswordDialog extends Dialog {
                 1, 1));
         txtUser.setText(user);
         txtUser.setFont(Activator.getMiddleFont());
-        txtUser.addModifyListener(e -> {
-            Text textWidget = (Text) e.getSource();
-            String userText = textWidget.getText();
-            user = userText;
-        });
+        txtUser.addModifyListener(new ModifyListener() {
+			
+			@Override
+			public void modifyText(ModifyEvent e) {
+	            Text textWidget = (Text) e.getSource();
+	            String userText = textWidget.getText();
+	            user = userText;
+			}
+		});
 
         Label lblPassword = new Label(container, SWT.NONE);
         GridData gridDataPasswordLabel = new GridData(SWT.LEFT, SWT.CENTER, false,false);
@@ -76,11 +82,15 @@ public class PasswordDialog extends Dialog {
         txtPassword.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         txtPassword.setText(password);
         txtPassword.setFont(Activator.getMiddleFont());
-        txtPassword.addModifyListener(e -> {
-            Text textWidget = (Text) e.getSource();
-            String passwordText = textWidget.getText();
-            password = passwordText;
-        });
+        txtPassword.addModifyListener(new ModifyListener() {
+			
+			@Override
+			public void modifyText(ModifyEvent e) {
+				Text textWidget = (Text) e.getSource();
+	            String passwordText = textWidget.getText();
+	            password = passwordText;
+			}
+		});
         return container;
     }
 
