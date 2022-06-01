@@ -20,7 +20,7 @@ public class MainTest {
 //	    Composite composite = new Composite(shell, SWT.EMBEDDED);
 //	    Frame frame = SWT_AWT.new_Frame(composite);
 	    
-	    MjpegComposite composite = new MjpegComposite(shell, SWT.NONE);
+	    final MjpegComposite composite = new MjpegComposite(shell, SWT.NONE);
 	    MjpegRunner runner = null;
 	    
 //	    Canvas canvas = new Canvas() {

@@ -47,7 +47,7 @@ public class ControlHelper {
 		return instance;
 	}
 	
-	public void observePath(String path, Label currentControl, Text targetControl) {
+	public void observePath(final String path, final Label currentControl, final Text targetControl) {
 		ISicsControllerListener listener = new ControllerListener(currentControl, targetControl);
 		final ISicsController controller = SicsManager.getSicsModel().findControllerByPath(path);
 		if (controller != null) {
@@ -56,7 +56,7 @@ public class ControlHelper {
 		targetControl.addDisposeListener(new DisposeListener() {
 			
 			@Override
-			public void widgetDisposed(DisposeEvent e) {
+			public void widgetDisposed(final DisposeEvent e) {
 				controller.removeControllerListener(listener);
 			}
 		});
