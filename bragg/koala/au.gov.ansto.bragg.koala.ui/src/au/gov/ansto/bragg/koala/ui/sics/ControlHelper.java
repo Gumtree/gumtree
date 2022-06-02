@@ -48,7 +48,7 @@ public class ControlHelper {
 	}
 	
 	public void observePath(final String path, final Label currentControl, final Text targetControl) {
-		ISicsControllerListener listener = new ControllerListener(currentControl, targetControl);
+		final ISicsControllerListener listener = new ControllerListener(currentControl, targetControl);
 		final ISicsController controller = SicsManager.getSicsModel().findControllerByPath(path);
 		if (controller != null) {
 			controller.addControllerListener(listener);
