@@ -131,10 +131,10 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.EXPERIMENT_INFO.getImage());
 		deviceStatusWidget = new ControllerStatusWidget(experimentGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/commands/scan/runscan/numpoints", "Current number of frame", null, "")
-				.addDevice("/experiment/file_name", "Current image file name", null, "")
-				.addDevice("/instrument/phase", "Instrument phase", null, "")
-				.addDevice("/tc1/sensor1", "Sample temperature", null, "\u00b0")
+				.addDevice("/commands/scan/runscan/numpoints", "Frame ID", null, "")
+				.addDevice("/experiment/file_name", "Filename", null, "")
+				.addDevice("/instrument/phase", "Phase", null, "")
+				.addDevice("/tc1/sensor1", "Temperature", null, "\u00b0")
 				;
 		configureWidget(deviceStatusWidget);
 		deviceStatusWidget.render();
