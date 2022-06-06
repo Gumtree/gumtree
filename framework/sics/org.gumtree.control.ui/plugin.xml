@@ -27,5 +27,12 @@
             restorable="true">
       </view>
    </extension>
+   <extension
+         point="org.gumtree.ui.communicationAdapters">
+      <communicationAdapter
+            class="org.gumtree.control.ui.internal.ZMQAdapter"
+            id="org.gumtree.control.ui.ZMQAdapter"
+            label="ZMQ Adapter"/>
+   </extension>
       
 </plugin>

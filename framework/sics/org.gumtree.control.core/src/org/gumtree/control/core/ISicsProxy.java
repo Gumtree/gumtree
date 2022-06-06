@@ -31,5 +31,5 @@ public interface ISicsProxy {
 	void addMessageListener(ISicsMessageListener listener);
 	void removeMessageListener(ISicsMessageListener listener);
 	void fireMessageEvent(String message);
-
+	ISicsConnectionContext getConnectionContext();
 }

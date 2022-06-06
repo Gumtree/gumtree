@@ -8,41 +8,41 @@ import org.gumtree.control.core.SicsRole;
 
 public class SicsConnectionContext implements ISicsConnectionContext {
 
-	private String host;
+	private String serverAddress;
 	
-	private int port;
+	private String publisherAddress;
 	
 	private SicsRole role;
 	
 	private String password;
 	
 	public SicsConnectionContext() {
-		this("", 0, SicsRole.UNDEF, "");
+		this("", "", SicsRole.UNDEF, "");
 	}
 	
-	public SicsConnectionContext(String host, int port, SicsRole role, String password) {
-		this.host = host;
-		this.port = port;
+	public SicsConnectionContext(String serverAddress, String publisherAddress, SicsRole role, String password) {
+		this.serverAddress = serverAddress;
+		this.publisherAddress = publisherAddress;
 		this.role = role;
 		this.password = password;
 	}
 	
-	public String getHost() {
-		return host;
+	public String getServerAddress() {
+		return serverAddress;
 	}
 
-	public void setHost(String host) {
-		this.host = host;
+	public void setServerAddress(String address) {
+		this.serverAddress = address;
 	}
 	
-	public int getPort() {
-		return port;
+	public String getPublisherAddress() {
+		return publisherAddress;
 	}
 
-	public void setPort(int port) {
-		this.port = port;
+	public void setPublisherAddress(String address) {
+		publisherAddress = address;
 	}
-	
+
 	public SicsRole getRole() {
 		return role;
 	}
@@ -69,8 +69,9 @@ public class SicsConnectionContext implements ISicsConnectionContext {
 	}
 	
 	public static ISicsConnectionContext createContextFromSystemProperties() {
-		return new SicsConnectionContext(SicsCoreProperties.SERVER_HOST.getValue(),
-				SicsCoreProperties.SERVER_PORT.getInt(),
+		return new SicsConnectionContext(
+				SicsCoreProperties.SERVER_HOST.getValue() + ":" + SicsCoreProperties.SERVER_PORT.getValue(),
+				SicsCoreProperties.SERVER_HOST.getValue() + ":" + SicsCoreProperties.PUBLISH_PORT.getValue(),
 				SicsRole.getRole(SicsCoreProperties.ROLE.getValue()),
 				SicsCoreProperties.PASSWORD.getValue());
 	}
@@ -78,12 +79,11 @@ public class SicsConnectionContext implements ISicsConnectionContext {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("SicsConnectionContext(");
-		builder.append("host=" + getHost() + ",");
-		builder.append("port=" + getPort() + ",");
+		builder.append("serverAddress=" + getServerAddress() + ",");
+		builder.append("publisherAddress=" + getPublisherAddress() + ",");
 		builder.append("role=" + getRole() + ",");
 		builder.append("password=xxxx");
 		builder.append(")");
 		return builder.toString();
 	}
-	
 }

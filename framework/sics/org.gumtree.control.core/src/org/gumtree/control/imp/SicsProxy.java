@@ -4,8 +4,6 @@
 package org.gumtree.control.imp;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +11,7 @@ import java.util.Map;
 import org.gumtree.control.batch.BatchControl;
 import org.gumtree.control.batch.IBatchControl;
 import org.gumtree.control.core.ISicsChannel;
+import org.gumtree.control.core.ISicsConnectionContext;
 import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.ServerStatus;
@@ -41,12 +40,14 @@ public class SicsProxy implements ISicsProxy {
 	private ISicsModel sicsModel;
 	private List<ISicsProxyListener> proxyListeners;
 	private List<ISicsMessageListener> messageListeners;
+	private ISicsConnectionContext connectionContext;
 	
 	public SicsProxy() {
 		serverStatus = ServerStatus.UNKNOWN;
 		proxyListeners = new ArrayList<ISicsProxyListener>();
 		messageListeners = new ArrayList<ISicsMessageListener>();
 		batchControl = new BatchControl(this);
+		connectionContext = new SicsConnectionContext();
 	}
 	
 	/* (non-Javadoc)
@@ -57,6 +58,8 @@ public class SicsProxy implements ISicsProxy {
 		if (serverAddress != null && !serverAddress.equals(this.serverAddress)) {
 			this.serverAddress = serverAddress;
 			this.publisherAddress = publisherAddress;
+			connectionContext.setServerAddress(serverAddress);
+			connectionContext.setPublisherAddress(publisherAddress);
 			channel = new SicsChannel(this);
 			try {
 				channel.connect(serverAddress, publisherAddress);
@@ -307,5 +310,10 @@ public class SicsProxy implements ISicsProxy {
 			}
 		}
 		return sicsModel;
+	}
+
+	@Override
+	public ISicsConnectionContext getConnectionContext() {
+		return connectionContext;
 	}
 }

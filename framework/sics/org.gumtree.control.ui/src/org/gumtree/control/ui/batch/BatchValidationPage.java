@@ -193,8 +193,12 @@ public class BatchValidationPage extends ExtendedFormComposite {
 	private ExtendedConnectionContext getConnectionContext() {
 		if (connContext == null) {
 			connContext = new ExtendedConnectionContext();
-			connContext.setHost(SicsCoreProperties.VALIDATION_HOST.getValue());
-			connContext.setPort(SicsCoreProperties.VALIDATION_PORT.getInt());
+			connContext.setServerAddress(
+					SicsCoreProperties.SERVER_HOST.getValue() 
+					+ ":" + SicsCoreProperties.SERVER_PORT.getValue());
+			connContext.setPublisherAddress(
+					SicsCoreProperties.SERVER_HOST.getValue() 
+					+ ":" + SicsCoreProperties.PUBLISH_PORT.getValue());
 			connContext.setLogin(SicsCoreProperties.ROLE.getValue());
 			connContext.setPassword(SicsCoreProperties.PASSWORD.getValue());
 //			ISicsConnectionContext currentContext = ModelUtils.createConnectionContext();
@@ -238,85 +242,85 @@ public class BatchValidationPage extends ExtendedFormComposite {
 		context.logText.setText("");
 		// Connect and login to SICS
 		try {
-			Socket socket = new Socket(getConnectionContext().getHost(),
-					getConnectionContext().getPort());
-			final BufferedReader inputStream = new BufferedReader(
-					new InputStreamReader(socket.getInputStream()));
-			PrintStream outputStream = new PrintStream(socket.getOutputStream());
-			Thread listenerThread = new Thread(new Runnable() {
-				public void run() {
-					try {
-						String replyMessage;
-						while ((replyMessage = inputStream.readLine()) != null) {
-							// little hack to sics telnet bug
-							while (replyMessage.startsWith("�")) {
-								replyMessage = replyMessage.substring(2);
-							}
-							if (context.logText == null || context.logText.isDisposed()) {
-								break;
-							}
-							final String message = replyMessage;
-							PlatformUI.getWorkbench().getDisplay().asyncExec(
-									new Runnable() {
-										public void run() {
-											if (context.logText == null
-													|| context.logText.isDisposed()) {
-												return;
-											}
-											int fontColor = SWT.COLOR_BLUE;
-											if (message.toLowerCase().startsWith("error")) {
-												fontColor = SWT.COLOR_RED;
-											}
-											StyleRange styleRange = new StyleRange();
-											styleRange.start = context.logText
-													.getCharCount();
-											styleRange.length = message
-													.length() + 1;
-											styleRange.fontStyle = SWT.BOLD;
-											styleRange.foreground = PlatformUI
-													.getWorkbench()
-													.getDisplay()
-													.getSystemColor(
-															fontColor);
-											context.logText.append(message + "\n");
-											context.logText
-											.setStyleRange(styleRange);
-											// Auto scroll
-											StyledTextContent doc = context.logText
-													.getContent();
-											int docLength = doc.getCharCount();
-											if (docLength > 0) {
-												context.logText
-												.setCaretOffset(docLength);
-												context.logText.showSelection();
-											}
-										}
-									});
-
-						}
-					} catch (IOException e) {
-					}
-				}
-			});
-			listenerThread.start();
-			send(getConnectionContext().getLogin() + " "
-					+ getConnectionContext().getPassword(), outputStream);
-			send("exe clear", outputStream);
-			send("exe upload", outputStream);
-			BufferedReader reader  = new BufferedReader(new StringReader(buffer.getContent()));
-			String line = null;
-			try {
-				while((line = reader.readLine()) != null) {
-					line = line.replace("{", "\\{").replace("}", "\\}").replace("\"", "\\\"");
-					send("exe append " + line, outputStream);
-				}
-			} catch (Exception e) {
-				// TODO
-			}
-			send("exe forcesave " + buffer.getName(), outputStream);
-			send("exe enqueue " + buffer.getName(), outputStream);
-			send("exe run", outputStream);
-		} catch (IOException e) {
+//			Socket socket = new Socket(getConnectionContext().getServerAddress(),
+//					getConnectionContext().getPublishPort());
+//			final BufferedReader inputStream = new BufferedReader(
+//					new InputStreamReader(socket.getInputStream()));
+//			PrintStream outputStream = new PrintStream(socket.getOutputStream());
+//			Thread listenerThread = new Thread(new Runnable() {
+//				public void run() {
+//					try {
+//						String replyMessage;
+//						while ((replyMessage = inputStream.readLine()) != null) {
+//							// little hack to sics telnet bug
+//							while (replyMessage.startsWith("�")) {
+//								replyMessage = replyMessage.substring(2);
+//							}
+//							if (context.logText == null || context.logText.isDisposed()) {
+//								break;
+//							}
+//							final String message = replyMessage;
+//							PlatformUI.getWorkbench().getDisplay().asyncExec(
+//									new Runnable() {
+//										public void run() {
+//											if (context.logText == null
+//													|| context.logText.isDisposed()) {
+//												return;
+//											}
+//											int fontColor = SWT.COLOR_BLUE;
+//											if (message.toLowerCase().startsWith("error")) {
+//												fontColor = SWT.COLOR_RED;
+//											}
+//											StyleRange styleRange = new StyleRange();
+//											styleRange.start = context.logText
+//													.getCharCount();
+//											styleRange.length = message
+//													.length() + 1;
+//											styleRange.fontStyle = SWT.BOLD;
+//											styleRange.foreground = PlatformUI
+//													.getWorkbench()
+//													.getDisplay()
+//													.getSystemColor(
+//															fontColor);
+//											context.logText.append(message + "\n");
+//											context.logText
+//											.setStyleRange(styleRange);
+//											// Auto scroll
+//											StyledTextContent doc = context.logText
+//													.getContent();
+//											int docLength = doc.getCharCount();
+//											if (docLength > 0) {
+//												context.logText
+//												.setCaretOffset(docLength);
+//												context.logText.showSelection();
+//											}
+//										}
+//									});
+//
+//						}
+//					} catch (IOException e) {
+//					}
+//				}
+//			});
+//			listenerThread.start();
+//			send(getConnectionContext().getLogin() + " "
+//					+ getConnectionContext().getPassword(), outputStream);
+//			send("exe clear", outputStream);
+//			send("exe upload", outputStream);
+//			BufferedReader reader  = new BufferedReader(new StringReader(buffer.getContent()));
+//			String line = null;
+//			try {
+//				while((line = reader.readLine()) != null) {
+//					line = line.replace("{", "\\{").replace("}", "\\}").replace("\"", "\\\"");
+//					send("exe append " + line, outputStream);
+//				}
+//			} catch (Exception e) {
+//				// TODO
+//			}
+//			send("exe forcesave " + buffer.getName(), outputStream);
+//			send("exe enqueue " + buffer.getName(), outputStream);
+//			send("exe run", outputStream);
+		} catch (Exception e) {
 			context.logText.setText("Cannot connect to server");
 		}
 		// Append batch
@@ -328,72 +332,72 @@ public class BatchValidationPage extends ExtendedFormComposite {
 		context.logText.setText("");
 		// Connect and login to SICS
 		try {
-			Socket socket = new Socket(getConnectionContext().getHost(),
-					getConnectionContext().getPort());
-			final BufferedReader inputStream = new BufferedReader(
-					new InputStreamReader(socket.getInputStream()));
-			PrintStream outputStream = new PrintStream(socket.getOutputStream());
-			Thread listenerThread = new Thread(new Runnable() {
-				public void run() {
-					try {
-						String replyMessage;
-						while ((replyMessage = inputStream.readLine()) != null) {
-							// little hack to sics telnet bug
-							while (replyMessage.startsWith("�")) {
-								replyMessage = replyMessage.substring(2);
-							}
-							if (context.logText == null || context.logText.isDisposed()) {
-								break;
-							}
-							final String message = replyMessage;
-							PlatformUI.getWorkbench().getDisplay().asyncExec(
-									new Runnable() {
-										public void run() {
-											if (context.logText == null
-													|| context.logText.isDisposed()) {
-												return;
-											}
-											StyleRange styleRange = new StyleRange();
-											styleRange.start = context.logText
-													.getCharCount();
-											styleRange.length = message
-													.length() + 1;
-											styleRange.fontStyle = SWT.BOLD;
-											styleRange.foreground = PlatformUI
-													.getWorkbench()
-													.getDisplay()
-													.getSystemColor(
-															SWT.COLOR_BLUE);
-											context.logText.append(message + "\n");
-											context.logText
-													.setStyleRange(styleRange);
-											// Auto scroll
-											StyledTextContent doc = context.logText
-													.getContent();
-											int docLength = doc.getCharCount();
-											if (docLength > 0) {
-												context.logText
-														.setCaretOffset(docLength);
-												context.logText.showSelection();
-											}
-										}
-									});
-
-						}
-					} catch (IOException e) {
-					}
-				}
-			});
-			listenerThread.start();
-			send(getConnectionContext().getLogin() + " "
-					+ getConnectionContext().getPassword(), outputStream);
-			send("exe clear", outputStream);
-//			send("exe upload", outputStream);
-			send("getlog value", outputStream);
-			send("getlog command", outputStream);
-			send("sync", outputStream);
-			send("getlog kill", outputStream);
-		} catch (IOException e) {
+//			Socket socket = new Socket(getConnectionContext().getServerAddress(),
+//					getConnectionContext().getPublishPort());
+//			final BufferedReader inputStream = new BufferedReader(
+//					new InputStreamReader(socket.getInputStream()));
+//			PrintStream outputStream = new PrintStream(socket.getOutputStream());
+//			Thread listenerThread = new Thread(new Runnable() {
+//				public void run() {
+//					try {
+//						String replyMessage;
+//						while ((replyMessage = inputStream.readLine()) != null) {
+//							// little hack to sics telnet bug
+//							while (replyMessage.startsWith("�")) {
+//								replyMessage = replyMessage.substring(2);
+//							}
+//							if (context.logText == null || context.logText.isDisposed()) {
+//								break;
+//							}
+//							final String message = replyMessage;
+//							PlatformUI.getWorkbench().getDisplay().asyncExec(
+//									new Runnable() {
+//										public void run() {
+//											if (context.logText == null
+//													|| context.logText.isDisposed()) {
+//												return;
+//											}
+//											StyleRange styleRange = new StyleRange();
+//											styleRange.start = context.logText
+//													.getCharCount();
+//											styleRange.length = message
+//													.length() + 1;
+//											styleRange.fontStyle = SWT.BOLD;
+//											styleRange.foreground = PlatformUI
+//													.getWorkbench()
+//													.getDisplay()
+//													.getSystemColor(
+//															SWT.COLOR_BLUE);
+//											context.logText.append(message + "\n");
+//											context.logText
+//													.setStyleRange(styleRange);
+//											// Auto scroll
+//											StyledTextContent doc = context.logText
+//													.getContent();
+//											int docLength = doc.getCharCount();
+//											if (docLength > 0) {
+//												context.logText
+//														.setCaretOffset(docLength);
+//												context.logText.showSelection();
+//											}
+//										}
+//									});
+//
+//						}
+//					} catch (IOException e) {
+//					}
+//				}
+//			});
+//			listenerThread.start();
+//			send(getConnectionContext().getLogin() + " "
+//					+ getConnectionContext().getPassword(), outputStream);
+//			send("exe clear", outputStream);
+////			send("exe upload", outputStream);
+//			send("getlog value", outputStream);
+//			send("getlog command", outputStream);
+//			send("sync", outputStream);
+//			send("getlog kill", outputStream);
+		} catch (Exception e) {
 			context.logText.setText("Cannot connect to server");
 		}
 		// Append batch

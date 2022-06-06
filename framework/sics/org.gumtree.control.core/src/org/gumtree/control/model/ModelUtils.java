@@ -318,9 +318,11 @@ public class ModelUtils {
 	public static ISicsConnectionContext createConnectionContext() {
 		ISicsConnectionContext connectionContext = new SicsConnectionContext();
 		// Set host
-		connectionContext.setHost(SicsCoreProperties.SERVER_HOST.getValue());
+		connectionContext.setServerAddress(SicsCoreProperties.SERVER_HOST.getValue() 
+				+ ":" + SicsCoreProperties.SERVER_PORT.getValue());
 		// Set port
-		connectionContext.setPort(SicsCoreProperties.SERVER_PORT.getInt());
+		connectionContext.setPublisherAddress(SicsCoreProperties.SERVER_HOST.getValue() 
+				+ ":" + SicsCoreProperties.PUBLISH_PORT.getValue());
 		// Set role
 		connectionContext.setRole(SicsRole.getRole(SicsCoreProperties.ROLE
 				.getValue()));

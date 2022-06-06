@@ -24,28 +24,28 @@ public interface ISicsConnectionContext {
 	 *
 	 * @return SICS host name for connection
 	 */
-	public String getHost();
+	public String getServerAddress();
 
 	/**
 	 * Sets the host name for SICS
 	 *
 	 * @param host SICS host name for connection
 	 */
-	public void setHost(String host);
+	public void setServerAddress(String address);
 
 	/**
-	 * Returns the SICS server port for connection.
+	 * Returns the SICS publisher port for connection.
 	 *
 	 * @return port number of the SICS server
 	 */
-	public int getPort();
+	public String getPublisherAddress();
 
 	/**
 	 * Sets the SICS server port for connection.
 	 *
 	 * @param port number of the SICS server
 	 */
-	public void setPort(int port);
+	public void setPublisherAddress(String address);
 
 	/**
 	 * Returns the role set in this context.

@@ -17,6 +17,7 @@ Export-Package: org.gumtree.control.batch,
  org.gumtree.control.events,
  org.gumtree.control.exception,
  org.gumtree.control.imp,
+ org.gumtree.control.imp.client,
  org.gumtree.control.model
 Bundle-Activator: org.gumtree.control.core.Activator
 Bundle-ActivationPolicy: lazy
