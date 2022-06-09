@@ -61,7 +61,7 @@ public abstract class ControlViewerContentProvider implements ITreeContentProvid
 	}
 
 	class ProxyListener extends SicsProxyListenerAdapter {
-		public void connect() {
+		public void modelUpdated() {
 			logger.debug("Proxy connected");
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				public void run() {

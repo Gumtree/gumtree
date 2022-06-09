@@ -72,6 +72,8 @@ public class ControlViewer {
 	private IAction runCommandAction;
 	
 	private IAction openSpyViewAction;
+	
+	private boolean initialised = false;
 
 	public ControlViewer() {
 		super();
@@ -85,13 +87,29 @@ public class ControlViewer {
 	public void createPartControl(Composite parent, INodeSet nodeSet) {
 		createTreeViewer(parent, nodeSet);
 		createContextMenu();
+		initialised = true;
 		// Adds listener to sics
 //		ISicsManager.INSTANCE.control().instrument().addListener(this);
 	}
 
 	public void dispose() {
+		if (treeViewer != null) {
+			treeViewer.getControl().dispose();
+		}
+	}
+	
+	public boolean isInitialised() {
+		return initialised;
 	}
 
+	public boolean isDisposed() {
+		if (treeViewer != null) {
+			return treeViewer.getControl().isDisposed();
+		} else {
+			return false;
+		}
+	}
+	
 	public void refresh() {
 		if(treeViewer != null && treeViewer.getTree().isDisposed()) {
 			treeViewer.refresh(true);

@@ -57,7 +57,7 @@ public class ServerStatusWidget extends ExtendedWidgetComposite {
 		statusLabel = getWidgetFactory().createLabel(this, "--", SWT.CENTER);
 		statusLabel.setFont(UIResources.getDefaultFont(SWT.BOLD));
 		statusLabel.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
-		GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, 18).align(SWT.FILL, SWT.CENTER).applyTo(statusLabel);
+		GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, 22).align(SWT.FILL, SWT.CENTER).applyTo(statusLabel);
 		reconnectButton = getWidgetFactory().createButton(this, "Connect", SWT.PUSH);
 		GridDataFactory.fillDefaults().indent(0, 0).hint(60, 18).applyTo(reconnectButton);
 		reconnectButton.addSelectionListener(new SelectionListener() {
@@ -80,12 +80,12 @@ public class ServerStatusWidget extends ExtendedWidgetComposite {
 			
 			@Override
 			public void disconnect() {
-				handleSicsDisconnect();
+//				handleSicsDisconnect();
 			}
 			
 			@Override
 			public void connect() {
-				handleSicsConnect();
+//				handleSicsConnect();
 			}
 
 			@Override
@@ -98,6 +98,7 @@ public class ServerStatusWidget extends ExtendedWidgetComposite {
 		
 		if (proxy.isConnected()) {
 			handleSicsConnect();
+//			internalHandleSicsConnect();
 		}
 	}
 

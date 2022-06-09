@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
+import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 
 /**
  * @author nxi
@@ -220,6 +221,7 @@ public class JoeyPanel extends AbstractPanel {
 		mainPart.enableBackButton();
 		mainPart.disableNextButton();
 		mainPart.setTitle("Joey Mode Control");
+		mainPart.setCurrentPanelName(PanelName.JOEY);
 	}
 
 

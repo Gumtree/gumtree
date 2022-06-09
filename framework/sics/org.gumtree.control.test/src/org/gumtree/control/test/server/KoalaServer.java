@@ -13,6 +13,7 @@ import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.exception.SicsModelException;
+import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.imp.SicsChannel;
 import org.gumtree.control.model.PropertyConstants;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
@@ -42,7 +43,7 @@ public class KoalaServer {
 	public static final String CMD_PAUSE = "pause";
 	
 	private static int MESSAGE_SEQ = 0;
-	private static int COMMAND_TRANS = 0;
+//	private static int COMMAND_TRANS = 0;
 
 	private static int COUNT_RATE = 1000;
 	private static final String MODEL_FILENAME = "C:\\Gumtree\\docs\\GumtreeXML\\koala.xml";
@@ -147,7 +148,11 @@ public class KoalaServer {
 	
 	private void respond(String client, String message) {
 //		socket.send(message.getBytes(ZMQ.CHARSET), 0);
-		System.out.println("send acknowledge: " + message);
+		if (message.length() > 200) {
+			System.err.println("respond to command: " + message.substring(0, 200));
+		} else {
+			System.err.println("respond to command: " + message);
+		}
 		serverSocket.sendMore(client);
 		serverSocket.send(message.getBytes(ZMQ.CHARSET));
 	}
@@ -212,7 +217,7 @@ public class KoalaServer {
 	private void drive(IDriveableController driveable, String target) throws JSONException, SicsModelException {
 		setStatus(ServerStatus.DRIVING);
 
-		publishValueUpdate(driveable.getPath(), target);
+		publishValueUpdate(driveable.getPath() + "/target", target);
 		publishState(driveable.getPath(), ControllerState.BUSY);
 		
 //		if (command.endsWith("interrupt")) {
@@ -221,17 +226,27 @@ public class KoalaServer {
 //		} else if (command.endsWith("wait")) {
 //			Thread.sleep(1000);
 //		}
-		
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-//			generateInterrupt(client, cid);
+		int steps = 3;
+		float org = Float.valueOf(driveable.getValue().toString());
+		float tgt = Float.valueOf(target);
+		float gap = (tgt - org) / steps;
+		for (int i = 0; i < steps; i++) {
+			
+			float cur = org + gap * i;
+			driveable.updateModelValue(String.valueOf(cur));
+			publishValueUpdate(driveable.getPath(), String.valueOf(cur));
+			
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+//				generateInterrupt(client, cid);
+			}
 		}
-		
+
+		driveable.updateModelValue(target);
+		publishValueUpdate(driveable.getPath(), target);
 		publishState(driveable.getPath(), ControllerState.IDLE);
 		
-		driveable.updateModelValue(target);
 		setStatus(ServerStatus.EAGER_TO_EXECUTE);
 	}
 	
@@ -261,7 +276,11 @@ public class KoalaServer {
 		} else if (command.equals(CMD_STATUS)) {
 			processStatus(client, cid, command);
 		} else {
-			sendInternalError(client, cid, "command not recognised");
+			if (!command.contains(" ")) {
+				processDevice(client, cid, command);
+			} else {
+				sendInternalError(client, cid, command, "command not recognised");
+			}
 		}
 	}
 	
@@ -275,18 +294,17 @@ public class KoalaServer {
 //	}
 	
 	private void processDrive(String client, String cid, String command) {
-		JSONObject json = new JSONObject();
 		try {
 			String[] parts = command.split(" ");
 			String dev = parts[1];
 			String target = parts[2];
 			ISicsController controller = model.findController(dev);
 			if (controller == null) {
-				sendInternalError(client, cid, "device " + String.valueOf(dev) + " not found");
+				sendInternalError(client, cid, command, "device " + String.valueOf(dev) + " not found");
 				return;
 			}
 			if (!(controller instanceof IDriveableController)) {
-				sendInternalError(client, cid, "device " + String.valueOf(dev) + " is not driveable");
+				sendInternalError(client, cid, command, "device " + String.valueOf(dev) + " is not driveable");
 				return;
 			}
 			IDriveableController driveable = (IDriveableController) controller;
@@ -308,16 +326,15 @@ public class KoalaServer {
 				}
 			}
 			
+			respondReply(client, cid, command, "start driving " + dev);
 			drive(driveable, target);
 			respondFinal(client, cid, command, dev + " = " + target);
 		} catch (JSONException e) {
-			sendInternalError(client, cid, "json exception");
+			sendInternalError(client, cid, command, "json exception");
 		} catch (SicsModelException e) {
-			// TODO Auto-generated catch block
-			sendInternalError(client, cid, "model exception");
+			sendInternalError(client, cid, command, "model exception");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			sendInternalError(client, cid, e.getMessage());
+			sendInternalError(client, cid, command, e.getMessage());
 		} finally {
 			status = ServerStatus.EAGER_TO_EXECUTE;
 		}
@@ -337,11 +354,11 @@ public class KoalaServer {
 			String target = parts[2];
 			ISicsController controller = model.findController(dev);
 			if (controller == null) {
-				sendInternalError(client, cid, "device " + String.valueOf(dev) + " not found");
+				sendInternalError(client, cid, command, "device " + String.valueOf(dev) + " not found");
 				return;
 			}
 			if (!(controller instanceof IDriveableController)) {
-				sendInternalError(client, cid, "device " + String.valueOf(dev) + " is not moveable");
+				sendInternalError(client, cid, command, "device " + String.valueOf(dev) + " is not moveable");
 				return;
 			}
 			final IDriveableController driveable = (IDriveableController) controller;
@@ -363,8 +380,8 @@ public class KoalaServer {
 				}
 			}
 			
-			setStatus(ServerStatus.DRIVING);
-			publishState(driveable.getPath(), ControllerState.BUSY);
+//			setStatus(ServerStatus.DRIVING);
+//			publishState(driveable.getPath(), ControllerState.BUSY);
 			
 
 			Thread runThread = new Thread(new Runnable() {
@@ -398,13 +415,11 @@ public class KoalaServer {
 			respondFinal(client, cid, command, "running " + dev + " to " + target);
 			
 		} catch (JSONException e) {
-			sendInternalError(client, cid, "json exception");
+			sendInternalError(client, cid, command, "json exception");
 		} catch (SicsModelException e) {
-			// TODO Auto-generated catch block
-			sendInternalError(client, cid, "model exception");
+			sendInternalError(client, cid, command, "model exception");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			sendInternalError(client, cid, e.getMessage());
+			sendInternalError(client, cid, command, e.getMessage());
 		} finally {
 			status = ServerStatus.EAGER_TO_EXECUTE;
 		}
@@ -427,7 +442,7 @@ public class KoalaServer {
 			json.put(SicsChannel.JSON_KEY_CID, cid);
 			respond(client, json.toString());
 		} catch (JSONException | IOException e) {
-			sendInternalError(client, cid, "json exception");
+			sendInternalError(client, cid, command, "json exception");
 		} 
 	}
 	
@@ -443,7 +458,7 @@ public class KoalaServer {
 			json.put(SicsChannel.JSON_KEY_CID, cid);
 			respond(client, json.toString());
 		} catch (JSONException e) {
-			sendInternalError(client, cid, "json exception");
+			sendInternalError(client, cid, command, "json exception");
 		}
 	}
 	
@@ -453,7 +468,7 @@ public class KoalaServer {
 			json.put(SicsChannel.JSON_KEY_STATUS, status);
 			publish(json);
 		} catch (JSONException e) {
-			sendInternalError(client, cid, "json exception");
+			sendInternalError(client, cid, command, "json exception");
 		}
 		try {
 			json = new JSONObject();
@@ -463,12 +478,11 @@ public class KoalaServer {
 			json.put(SicsChannel.JSON_KEY_CID, cid);
 			respond(client, json.toString());
 		} catch (JSONException e) {
-			sendInternalError(client, cid, "json exception");
+			sendInternalError(client, cid, command, "json exception");
 		}
 	}
 	
 	private void processHistmem(String client, String cid, String command) throws InterruptedException {
-		JSONObject json = new JSONObject();
 		try {
 			String[] parts = command.split(" ");
 			String prop = parts[1];
@@ -517,10 +531,10 @@ public class KoalaServer {
 			} else if ("pause".equals(prop)) {
 				respondFinal(client, cid, command, "OK");
 			} else {
-				sendInternalError(client, cid, "command not recognised");
+				sendInternalError(client, cid, command, "command not recognised");
 			}
 		} catch (JSONException e) {
-			sendInternalError(client, cid, "json exception");
+			sendInternalError(client, cid, command, "json exception");
 		}
 	}
 	
@@ -531,11 +545,11 @@ public class KoalaServer {
 			String target = parts[2];
 			ISicsController controller = model.findController(path);
 			if (controller == null) {
-				sendInternalError(client, cid, "device " + String.valueOf(path) + " not found");
+				sendInternalError(client, cid, command, "device " + String.valueOf(path) + " not found");
 				return;
 			}
 			if (!(controller instanceof IDynamicController)) {
-				sendInternalError(client, cid, "device " + String.valueOf(path) + " can not change");
+				sendInternalError(client, cid, command, "device " + String.valueOf(path) + " can not change");
 				return;
 			}
 			IDynamicController dynamic = (IDynamicController) controller;
@@ -558,9 +572,9 @@ public class KoalaServer {
 //			respond(client, json.toString());
 			respondFinal(client, cid, command, dynamic.getPath() + " = " + target);
 		} catch (JSONException e) {
-			sendInternalError(client, cid, "json exception");
+			sendInternalError(client, cid, command, "json exception");
 		} catch (Exception e) {
-			sendInternalError(client, cid, e.getMessage());
+			sendInternalError(client, cid, command, e.getMessage());
 		} finally {
 			status = ServerStatus.EAGER_TO_EXECUTE;
 		}
@@ -603,9 +617,9 @@ public class KoalaServer {
 			respond(client, json.toString());
 			
 		} catch (JSONException e) {
-			sendInternalError(client, cid, "json exception");
+			sendInternalError(client, cid, command, "json exception");
 		} catch (Exception e) {
-			sendInternalError(client, cid, e.getMessage());
+			sendInternalError(client, cid, command, e.getMessage());
 		} finally {
 			status = ServerStatus.EAGER_TO_EXECUTE;
 		}
@@ -644,18 +658,17 @@ public class KoalaServer {
 	}
 	
 	private void processHget(String client, String cid, String command) {
-		JSONObject json = new JSONObject();
 		try {
 			String[] parts = command.split(" ");
 			String path = parts[1];
 			String target;
 			ISicsController controller = model.findController(path);
 			if (controller == null) {
-				sendInternalError(client, cid, "device " + String.valueOf(path) + " not found");
+				sendInternalError(client, cid, command, "device " + String.valueOf(path) + " not found");
 				return;
 			}
 			if (!(controller instanceof IDynamicController)) {
-				sendInternalError(client, cid, "device " + String.valueOf(path) + " doesn't have value");
+				sendInternalError(client, cid, command, "device " + String.valueOf(path) + " doesn't have value");
 				return;
 			}
 			IDynamicController dynamic = (IDynamicController) controller;
@@ -678,9 +691,9 @@ public class KoalaServer {
 //			respond(client, json.toString());
 			respondFinal(client, cid, command, dynamic.getPath() + " = " + target);
 		} catch (JSONException e) {
-			sendInternalError(client, cid, "json exception");
+			sendInternalError(client, cid, command, "json exception");
 		} catch (Exception e) {
-			sendInternalError(client, cid, e.getMessage());
+			sendInternalError(client, cid, command, e.getMessage());
 		} finally {
 		}
 	}
@@ -690,10 +703,10 @@ public class KoalaServer {
 		try {
 			String[] parts = command.split(" ");
 			String prop = parts[1];
-			String target = null;
-			if (parts.length > 2) {
-				target = parts[2];
-			}
+//			String target = null;
+//			if (parts.length > 2) {
+//				target = parts[2];
+//			}
 
 			if ("on".equals(prop)) {
 				status = ServerStatus.PAUSED;
@@ -714,9 +727,9 @@ public class KoalaServer {
 				respond(client, json.toString());
 				return;
 			} 
-			sendInternalError(client, cid, "command not recognised");
+			sendInternalError(client, cid, command, "command not recognised");
 		} catch (JSONException e) {
-			sendInternalError(client, cid, "json exception");
+			sendInternalError(client, cid, command, "json exception");
 		}
 	}
 	
@@ -725,14 +738,14 @@ public class KoalaServer {
 		try {
 			String[] parts = command.split(" ");
 			String path = parts[1];
-			String target = parts[2];
+//			String target = parts[2];
 			ISicsController controller = model.findController(path);
 			if (controller == null) {
-				sendInternalError(client, cid, "device " + String.valueOf(path) + " not found");
+				sendInternalError(client, cid, command, "device " + String.valueOf(path) + " not found");
 				return;
 			}
 			if (!(controller instanceof ICommandController)) {
-				sendInternalError(client, cid, "device " + String.valueOf(path) + " is not runnable");
+				sendInternalError(client, cid, command, "device " + String.valueOf(path) + " is not runnable");
 				return;
 			}
 			ICommandController dynamic = (ICommandController) controller;
@@ -757,18 +770,51 @@ public class KoalaServer {
 			json.put(SicsChannel.JSON_KEY_CID, cid);
 			respond(client, json.toString());
 		} catch (JSONException e) {
-			sendInternalError(client, cid, "json exception");
+			sendInternalError(client, cid, command, "json exception");
 		} catch (Exception e) {
-			sendInternalError(client, cid, e.getMessage());
+			sendInternalError(client, cid, command, e.getMessage());
 		} finally {
 			status = ServerStatus.EAGER_TO_EXECUTE;
 		}
 	}
 	
-	private void sendInternalError(String client, String cid, String message) {
-		respond(client, "{ \"" + SicsChannel.JSON_KEY_ERROR + "\":\"internal error, " + message + "\","
-				+ " \"" + SicsChannel.JSON_KEY_FINISHED + "\":\"true\","
-				+ " \"" + SicsChannel.JSON_KEY_CID + "\":\"" + cid + "\" }");
+	private void processDevice(String client, String cid, String command) {
+		try {
+			String[] parts = command.split(" ");
+			String dev = parts[0];
+			ISicsController controller = model.findController(dev);
+			if (controller == null) {
+				sendInternalError(client, cid, command, "device " + String.valueOf(dev) + " not found");
+				return;
+			}
+			if (controller instanceof DynamicController) {
+				respondFinal(client, cid, command, ((DynamicController) controller).getValue().toString());
+			} 
+		} catch (JSONException e) {
+			sendInternalError(client, cid, command, "json exception");
+		} catch (SicsModelException e) {
+			sendInternalError(client, cid, command, "model exception");
+		} catch (Exception e) {
+			sendInternalError(client, cid, command, e.getMessage());
+		} finally {
+		}
+	}
+
+	private void sendInternalError(String client, String cid, String command, String message) {
+//		respond(client, "{ \"" + SicsChannel.JSON_KEY_ERROR + "\":\"internal error, " + message + "\","
+//				+ " \"" + SicsChannel.JSON_KEY_FINISHED + "\":\"true\","
+//				+ " \"" + SicsChannel.JSON_KEY_CID + "\":\"" + cid + "\" }");
+		try {
+			JSONObject json = new JSONObject();
+			json.put(PropertyConstants.PROP_COMMAND_FLAG, FlagType.ERROR);
+			json.put(PropertyConstants.PROP_COMMAND_FINAL, true);
+			json.put(PropertyConstants.PROP_COMMAND_CMD, command);
+			json.put(PropertyConstants.PROP_COMMAND_REPLY, message);
+			json.put(PropertyConstants.PROP_COMMAND_TEXT, command);
+			json.put(PropertyConstants.PROP_COMMAND_TRANS, cid);
+			respond(client, json.toString());
+		} catch (Exception e) {
+		}
 	}
 	
 	public void run() throws InterruptedException {
@@ -800,7 +846,6 @@ public class KoalaServer {
 						json = new JSONObject(commandText);
 		            	String command = json.getString(SicsChannel.JSON_KEY_COMMAND);
 		            	String cid = json.getString(SicsChannel.JSON_KEY_CID);
-		            	System.out.println(command);
 //		            	ExecutorService executor = Executors.newSingleThreadExecutor();
 //		            	executor.submit(new Runnable() {
 //							
@@ -812,10 +857,8 @@ public class KoalaServer {
 //						});
 		            	processCommand(client, cid, command);
 					} catch (JSONException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 		            

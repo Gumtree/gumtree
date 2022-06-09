@@ -13,6 +13,7 @@ import org.eclipse.swt.widgets.Text;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
+import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 
 /**
  * @author nxi
@@ -95,6 +96,7 @@ public class EnvironmentPanel extends AbstractPanel {
 		mainPart.enableBackButton();
 		mainPart.disableNextButton();
 		mainPart.setTitle("Sample Environment");
+		mainPart.setCurrentPanelName(PanelName.ENVIRONMENT);
 	}
 
 

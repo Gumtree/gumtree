@@ -19,14 +19,17 @@ public final class SicsCoreProperties {
 	public static final ISystemProperty LOGIN_MODE = new SystemProperty(
 			"gumtree.sics.loginMode", "normal");
 	
+	public static final ISystemProperty USE_NEW_PROXY = new SystemProperty(
+			"gumtree.sics.useNewProxy", "false");
+	
 	public static final ISystemProperty SERVER_HOST = new SystemProperty(
 			"gumtree.control.serverHost", "localhost");
 
 	public static final ISystemProperty SERVER_PORT = new SystemProperty(
-			"gumtree.control.subPort", "5555");
+			"gumtree.control.serverPort", "5555");
 
-	public static final ISystemProperty PUBLISH_PORT = new SystemProperty(
-			"gumtree.control.dealerPort", "5566");
+	public static final ISystemProperty PUBLISHER_PORT = new SystemProperty(
+			"gumtree.control.publisherPort", "5566");
 
 	public static final ISystemProperty ROLE = new SystemProperty(
 			"gumtree.sics.role", "user");

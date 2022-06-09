@@ -205,5 +205,13 @@ public class SicsModel implements ISicsModel {
 	public ModelStatus getStatus() {
 		return ModelStatus.OK;
 	}
+	
+	public int getSize() {
+		try {
+			return getBase().getComponent().size();
+		} catch (Exception e) {
+			return 0;
+		}
+	}
 }
 

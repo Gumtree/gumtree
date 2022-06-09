@@ -66,7 +66,8 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		ShutterGroupWidget shutterStatuswidget = new ShutterGroupWidget(
 				shutterGroup, SWT.NONE);
 		configureWidget(shutterStatuswidget);
-		shutterGroup.setExpanded(false);
+		shutterGroup.setExpanded(true);
+		shutterStatuswidget.render();
 
 		// Server Status
 		PGroup sicsStatusGroup = createGroup("SERVER STATUS", 
@@ -105,8 +106,8 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.POSITIONER.getImage());
 		deviceStatusWidget = new ControllerStatusWidget(sampleStageGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/sample/height", "Sample Height", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
-				.addDevice("/sample/samphi", "Sample Phi", null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/sheight", "Sample Height", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/sphi", "Sample Phi", null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(3))
 				.addDevice("/sample/sx", "Sample X", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
 				.addDevice("/sample/sy", "Sample Y", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
 				;
@@ -132,7 +133,20 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new ControllerStatusWidget(experimentGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/commands/scan/runscan/numpoints", "Frame ID", null, "")
-				.addDevice("/experiment/file_name", "Filename", null, "")
+				.addDevice("/experiment/file_name", "Filename", null, "", new ControllerStatusWidget.LabelConverter() {
+					
+					@Override
+					public String convertValue(Object obj) {
+						// TODO Auto-generated method stub
+						String text = obj.toString();
+						int idx = text.lastIndexOf("//");
+						if (idx >=0 ) {
+							return text.substring(idx + 2);
+						} else {
+							return text;
+						}
+					}
+				})
 				.addDevice("/instrument/phase", "Phase", null, "")
 				.addDevice("/tc1/sensor1", "Temperature", null, "\u00b0")
 				;

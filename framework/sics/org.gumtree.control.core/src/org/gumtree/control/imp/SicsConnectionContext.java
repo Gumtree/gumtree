@@ -71,7 +71,7 @@ public class SicsConnectionContext implements ISicsConnectionContext {
 	public static ISicsConnectionContext createContextFromSystemProperties() {
 		return new SicsConnectionContext(
 				SicsCoreProperties.SERVER_HOST.getValue() + ":" + SicsCoreProperties.SERVER_PORT.getValue(),
-				SicsCoreProperties.SERVER_HOST.getValue() + ":" + SicsCoreProperties.PUBLISH_PORT.getValue(),
+				SicsCoreProperties.SERVER_HOST.getValue() + ":" + SicsCoreProperties.PUBLISHER_PORT.getValue(),
 				SicsRole.getRole(SicsCoreProperties.ROLE.getValue()),
 				SicsCoreProperties.PASSWORD.getValue());
 	}

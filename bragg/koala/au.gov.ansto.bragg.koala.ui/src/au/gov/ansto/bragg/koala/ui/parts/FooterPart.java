@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
+import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 
 /**
  * @author nxi
@@ -115,12 +116,17 @@ public class FooterPart extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 //				getParentViewer().getMainPart().showProposalPanel();
+				if (getParentViewer().getMainPart().getCurrentPanelName() == PanelName.ADMIN) {
+					return;
+				}
 				PasswordDialog dialog = new PasswordDialog(getShell());
 				if (dialog.open() == Window.OK) {
-		            String user = dialog.getUser();
+//		            String user = dialog.getUser();
 		            String pw = dialog.getPassword();
 		            if (MainPart.UNLOCK_TEXT.equals(pw)) {
 		            	getParentViewer().getMainPart().showAdminPanel();
+		            } else {
+		            	MessageDialog.openWarning(getShell(), "Warning", "Invalid passcode");
 		            }
 		        }
 //				MessageDialog.openQuestion(getParentViewer(), "Administrator login", "");

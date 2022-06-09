@@ -71,11 +71,14 @@ public abstract class ExtendedWidgetComposite extends ExtendedComposite {
 	protected void internalHandleSicsConnect() {
 		JobRunner.run(new ILoopExitCondition() {
 			public boolean getExitCondition() {
-				return SicsManager.getSicsProxy().isConnected();
+//				return SicsManager.getSicsProxy().isConnected();
+				return true;
 			}
 		}, new Runnable() {
 			public void run() {
-				handleSicsConnect();
+				if (SicsManager.getSicsProxy().isConnected()) {
+					handleSicsConnect();
+				}
 			}
 		}, 500);
 	}

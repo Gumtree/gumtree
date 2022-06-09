@@ -91,13 +91,14 @@ public class ZMQAdapter implements ICommunicationAdapter {
 					if (json.has(PropertyConstants.PROP_COMMAND_REPLY)) {
 						try {
 							OutputStyle style = OutputStyle.NORMAL;
+							String text = json.getString(PropertyConstants.PROP_COMMAND_REPLY);
 							if (json.has(PropertyConstants.PROP_COMMAND_FLAG)) {
 								if (FlagType.parseString(json.getString(PropertyConstants.PROP_COMMAND_FLAG)) == FlagType.ERROR) {
 									style = OutputStyle.ERROR;
+									text = "ERROR: " + text;
 								}
 							}
-							getOutputBuffer().appendOutput(json.getString(PropertyConstants.PROP_COMMAND_REPLY), 
-									style);
+							getOutputBuffer().appendOutput(text, style);
 						} catch (JSONException e) {
 						}
 					}

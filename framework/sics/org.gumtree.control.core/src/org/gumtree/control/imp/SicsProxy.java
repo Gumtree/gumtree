@@ -78,7 +78,10 @@ public class SicsProxy implements ISicsProxy {
 //				batchStatus = BatchStatus.parseStatus(channel.send("exe info", null));
 //			} catch (SicsException e) {
 //			}
+			getGumtreeXML();
 			fireConnectionEvent(true);
+		} else {
+			return reconnect();
 		}
 		return true;
 	}
@@ -243,6 +246,7 @@ public class SicsProxy implements ISicsProxy {
 				logger.error("failed fire model updating event", e);
 			}
 		}
+		System.err.println("fire model updated");
 	}
 
 	private void fireStatusEvent(ServerStatus status) {
@@ -284,22 +288,20 @@ public class SicsProxy implements ISicsProxy {
 		}
 	}
 	
-	@Override
-	public synchronized ISicsModel getSicsModel() {
+	public synchronized void getGumtreeXML() {
 		if (sicsModel == null) {
 			try {
 				String msg = channel.syncSend("getgumtreexml /", null);
 				if (msg != null) {
 					int idx = msg.indexOf("<");
 					msg = msg.substring(idx);
-//					try {
-//			            Files.write(Paths.get("C:\\Gumtree\\docs\\GumtreeXML\\new.xml"), msg.getBytes("UTF-8"));
-//			        } catch (IOException e) {
-//			            e.printStackTrace();
-//			        }
+	//				try {
+	//		            Files.write(Paths.get("C:\\Gumtree\\docs\\GumtreeXML\\new.xml"), msg.getBytes("UTF-8"));
+	//		        } catch (IOException e) {
+	//		            e.printStackTrace();
+	//		        }
 					sicsModel = new SicsModel(this);
 					sicsModel.loadFromString(msg);
-					fireModelUpdatedEvent();
 				}
 			} catch (SicsException e) {
 				// TODO Auto-generated catch block
@@ -309,6 +311,33 @@ public class SicsProxy implements ISicsProxy {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public synchronized void updateGumtreeXML() {
+		try {
+			String msg = channel.syncSend("getgumtreexml /", null);
+			if (msg != null) {
+				int idx = msg.indexOf("<");
+				msg = msg.substring(idx);
+//				try {
+//		            Files.write(Paths.get("C:\\Gumtree\\docs\\GumtreeXML\\new.xml"), msg.getBytes("UTF-8"));
+//		        } catch (IOException e) {
+//		            e.printStackTrace();
+//		        }
+				sicsModel = new SicsModel(this);
+				sicsModel.loadFromString(msg);
+			}
+		} catch (SicsException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		fireModelUpdatedEvent();
+	}
+	@Override
+	public synchronized ISicsModel getSicsModel() {
 		return sicsModel;
 	}
 

@@ -28,6 +28,7 @@ import org.gumtree.msw.ui.ktable.SWTX;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
+import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
 import au.gov.ansto.bragg.koala.ui.scan.SingleScan;
 
@@ -503,6 +504,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		mainPart.enableBackButton();
 		mainPart.disableNextButton();
 		mainPart.setTitle("Full Experiment");
+		mainPart.setCurrentPanelName(PanelName.EXPERIMENT);
 	}
 
 

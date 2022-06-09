@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Text;
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
+import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.koala.ui.scan.SingleScan;
 import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptDataSourceViewer;
 
@@ -329,6 +330,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		mainPart.enableBackButton();
 		mainPart.enableNextButton();
 		mainPart.setTitle("Initial Scan");
+		mainPart.setCurrentPanelName(PanelName.INITSCAN);
 	}
 
 }

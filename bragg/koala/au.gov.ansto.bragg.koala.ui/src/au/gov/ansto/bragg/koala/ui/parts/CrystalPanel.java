@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Text;
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.mjpeg.MjpegViewer;
+import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.koala.ui.vlcj.VlcjViewer;
 
 /**
@@ -203,6 +204,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		if (tabFolder.getSelectionIndex() == 2) {
 			mjpegViewer.setRunnerPaused(false);
 		}
+		mainPart.setCurrentPanelName(PanelName.CRYSTAL);
 	}
 
 

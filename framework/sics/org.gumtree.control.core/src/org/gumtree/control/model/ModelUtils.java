@@ -322,7 +322,7 @@ public class ModelUtils {
 				+ ":" + SicsCoreProperties.SERVER_PORT.getValue());
 		// Set port
 		connectionContext.setPublisherAddress(SicsCoreProperties.SERVER_HOST.getValue() 
-				+ ":" + SicsCoreProperties.PUBLISH_PORT.getValue());
+				+ ":" + SicsCoreProperties.PUBLISHER_PORT.getValue());
 		// Set role
 		connectionContext.setRole(SicsRole.getRole(SicsCoreProperties.ROLE
 				.getValue()));

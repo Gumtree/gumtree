@@ -87,26 +87,26 @@ public class PauseStatusWidget extends ExtendedWidgetComposite {
 		});
 		this.layout(true, true);
 		// Set UI status
-		proxyListener = new SicsProxyListenerAdapter() {
-			
-			@Override
-			public void disconnect() {
-				handleSicsDisconnect();
-			}
-			
-			@Override
-			public void connect() {
-				handleSicsConnect();
-			}
-
-			@Override
-			public void setStatus(ServerStatus newStatus) {
-				handleStatusChange(newStatus);
-			}
-
-		};
+//		proxyListener = new SicsProxyListenerAdapter() {
+//			
+//			@Override
+//			public void disconnect() {
+//				handleSicsDisconnect();
+//			}
+//			
+//			@Override
+//			public void connect() {
+//				handleSicsConnect();
+//			}
+//
+//			@Override
+//			public void setStatus(ServerStatus newStatus) {
+//				handleStatusChange(newStatus);
+//			}
+//
+//		};
 		ISicsProxy proxy = SicsManager.getSicsProxy();
-		proxy.addProxyListener(proxyListener);
+//		proxy.addProxyListener(proxyListener);
 		
 		if (proxy.isConnected()) {
 			handleSicsConnect();

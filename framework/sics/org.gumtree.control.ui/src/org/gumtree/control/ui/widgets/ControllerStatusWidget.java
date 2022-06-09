@@ -102,21 +102,21 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 			}
 		}
 
-		proxyListener = new SicsProxyListenerAdapter() {
-			
-			@Override
-			public void disconnect() {
-				handleSicsDisconnect();
-			}
-			
-			@Override
-			public void connect() {
-				handleSicsConnect();
-			}
-
-		};
+//		proxyListener = new SicsProxyListenerAdapter() {
+//			
+//			@Override
+//			public void disconnect() {
+//				handleSicsDisconnect();
+//			}
+//			
+//			@Override
+//			public void connect() {
+//				handleSicsConnect();
+//			}
+//
+//		};
 		ISicsProxy proxy = SicsManager.getSicsProxy();
-		proxy.addProxyListener(proxyListener);
+//		proxy.addProxyListener(proxyListener);
 		
 		if (proxy.isConnected()) {
 			handleSicsConnect();

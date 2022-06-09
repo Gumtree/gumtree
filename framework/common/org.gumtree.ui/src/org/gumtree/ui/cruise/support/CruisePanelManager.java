@@ -39,8 +39,8 @@ public class CruisePanelManager implements ICruisePanelManager {
 			}
 		}
 		// Add remaining pages
-		orderedPage.addAll(pages);
-		return orderedPage.toArray(new ICruisePanelPage[pages.size()]);
+//		orderedPage.addAll(pages);
+		return orderedPage.toArray(new ICruisePanelPage[orderedPage.size()]);
 	}
 	
 	/*************************************************************************

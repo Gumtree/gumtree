@@ -198,7 +198,7 @@ public class BatchValidationPage extends ExtendedFormComposite {
 					+ ":" + SicsCoreProperties.SERVER_PORT.getValue());
 			connContext.setPublisherAddress(
 					SicsCoreProperties.SERVER_HOST.getValue() 
-					+ ":" + SicsCoreProperties.PUBLISH_PORT.getValue());
+					+ ":" + SicsCoreProperties.PUBLISHER_PORT.getValue());
 			connContext.setLogin(SicsCoreProperties.ROLE.getValue());
 			connContext.setPassword(SicsCoreProperties.PASSWORD.getValue());
 //			ISicsConnectionContext currentContext = ModelUtils.createConnectionContext();

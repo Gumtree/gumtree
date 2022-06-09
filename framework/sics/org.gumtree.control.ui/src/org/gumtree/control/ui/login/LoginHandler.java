@@ -1,13 +1,13 @@
-package org.gumtree.gumnix.sics.internal.ui.login;
+package org.gumtree.control.ui.login;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.gumtree.gumnix.sics.core.SicsCore;
-import org.gumtree.gumnix.sics.core.SicsCoreProperties;
-import org.gumtree.gumnix.sics.io.ISicsConnectionContext;
-import org.gumtree.gumnix.sics.io.SicsProxyListenerAdapter;
+import org.gumtree.control.core.ISicsConnectionContext;
+import org.gumtree.control.core.SicsCoreProperties;
+import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.events.SicsProxyListenerAdapter;
 
 public class LoginHandler extends SicsProxyListenerAdapter implements ILoginHandler {
 
@@ -29,9 +29,9 @@ public class LoginHandler extends SicsProxyListenerAdapter implements ILoginHand
 
 	public void login(final boolean forced) {
 
-//		Skip login if using new proxy in configuration
+//		Skip this if not set to use new proxy in the configuration
 		final String useNewProxy = SicsCoreProperties.USE_NEW_PROXY.getValue();
-		if (Boolean.valueOf(useNewProxy)) {
+		if (!Boolean.valueOf(useNewProxy)) {
 			return;
 		}
 		
@@ -104,10 +104,9 @@ public class LoginHandler extends SicsProxyListenerAdapter implements ILoginHand
 				}
 				
 				// [GT-72] Warn user for SICS problem
-				if (SicsCore.getDefaultProxy().isConnected()) {
+				if (SicsManager.getSicsProxy().isConnected()) {
 					try {
-						int componentSize = SicsCore.getSicsController()
-								.getSICSModel().getComponent().size();
+						int componentSize = SicsManager.getSicsModel().getSize();
 						// Empty hipadaba model detected
 						if (componentSize == 0) {
 							MessageDialog

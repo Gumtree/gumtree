@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Text;
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
+import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.nbi.service.soap.CurrentProposalSOAPService;
 
 /**
@@ -384,6 +385,7 @@ public class ProposalPanel extends AbstractControlPanel {
 		mainPart.disableBackButton();
 		mainPart.enableNextButton();
 		mainPart.setTitle("Experiment Setup");
+		mainPart.setCurrentPanelName(PanelName.PROPOSAL);
 	}
 
 

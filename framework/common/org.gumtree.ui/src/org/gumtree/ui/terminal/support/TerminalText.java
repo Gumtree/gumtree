@@ -87,6 +87,7 @@ public class TerminalText extends StyledText implements IWidget {
 	
 	public void appendOutputText(String text, OutputStyle style) {
 		int wrapNewLineCount = 0;
+		Color styleColor = style == OutputStyle.ERROR ? red : blue;
 		for(int i = 0; i < text.length(); i += wrapSize) {
 			StyleRange styleRange = new StyleRange();
 			if(i != 0) {
@@ -96,12 +97,12 @@ public class TerminalText extends StyledText implements IWidget {
 			if((i + wrapSize) >= text.length()) {
 				append(text.substring(i, text.length()) + "\n");
 				styleRange.length = text.length() - i + 1;
-				styleRange.foreground = blue;
+				styleRange.foreground = styleColor;
 				setStyleRange(styleRange);
 			} else {
 				append(text.substring(i, i + wrapSize) + "\n");
 				styleRange.length = wrapSize + 1;
-				styleRange.foreground = blue;
+				styleRange.foreground = styleColor;
 				setStyleRange(styleRange);
 			}
 			autoScroll();

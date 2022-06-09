@@ -18,7 +18,7 @@ public class EnvironmentStatusWidget extends ControllerStatusWidget {
 	}
 
 	@Override
-	protected void handleSicsConnect() {
+	protected synchronized void handleSicsConnect() {
 		if (!isInitialised) {
 			checkSicsConnection();
 			ISicsController controlFolder = SicsManager.getSicsModel().findControllerByPath("/control");

@@ -9,6 +9,8 @@ import ch.psi.sics.hipadaba.SICS;
 
 public interface ISicsModel {
 
+	int getSize();
+	
 	void addModelListener(ISicsModelListener listener);
 	
 	void removeModelListener(ISicsModelListener listener);

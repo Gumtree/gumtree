@@ -21,6 +21,15 @@ import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
  */
 public class MainPart extends Composite {
 
+	enum PanelName{
+		ENVIRONMENT,
+		JOEY,
+		PROPOSAL,
+		CRYSTAL,
+		INITSCAN,
+		EXPERIMENT,
+		ADMIN
+	}
 	/**
 	 * @param parent
 	 * @param style
@@ -46,6 +55,7 @@ public class MainPart extends Composite {
 	private ControlHelper control;
 	
 	private boolean isJoeyMode;
+	private PanelName currentPanelName;
 
 	
 	public MainPart(Composite parent, int style) {
@@ -77,6 +87,14 @@ public class MainPart extends Composite {
 		chemExpPanel = new ChemistryPanel(holder, SWT.BORDER, this);
 		physicsPanel = new PhysicsPanel(holder, SWT.BORDER, this);
 		adminPanel = new AdminPanel(holder, SWT.BORDER, this);
+	}
+	
+	public void setCurrentPanelName(PanelName name) {
+		currentPanelName = name;
+	}
+	
+	public PanelName getCurrentPanelName() {
+		return currentPanelName;
 	}
 	
 	public void showEnvironmentPanel() {

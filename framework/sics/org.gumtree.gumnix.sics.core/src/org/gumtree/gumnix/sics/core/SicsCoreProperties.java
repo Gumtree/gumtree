@@ -19,6 +19,9 @@ public final class SicsCoreProperties {
 	public static final ISystemProperty LOGIN_MODE = new SystemProperty(
 			"gumtree.sics.loginMode", "normal");
 	
+	public static final ISystemProperty USE_NEW_PROXY = new SystemProperty(
+			"gumtree.sics.useNewProxy", "false");
+	
 	public static final ISystemProperty SERVER_HOST = new SystemProperty(
 			"gumtree.sics.serverHost", "localhost");
 

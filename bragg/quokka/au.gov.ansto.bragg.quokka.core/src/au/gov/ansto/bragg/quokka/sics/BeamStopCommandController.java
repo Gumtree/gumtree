@@ -6,6 +6,7 @@ import org.gumtree.gumnix.sics.control.IStateMonitorListener;
 import org.gumtree.gumnix.sics.control.ServerStatus;
 import org.gumtree.gumnix.sics.control.controllers.CommandController;
 import org.gumtree.gumnix.sics.core.SicsCore;
+import org.gumtree.gumnix.sics.io.ISicsProxy;
 import org.gumtree.gumnix.sics.io.SicsExecutionException;
 import org.gumtree.gumnix.sics.io.SicsIOException;
 
@@ -29,6 +30,16 @@ public class BeamStopCommandController extends CommandController {
 		});
 	}
 	
+	public void asyncExecute() throws SicsIOException {
+		// Reset status change flag
+		// [TODO] This may not be thread safe if asyncExecute() is called
+		// multiple times when scan hasn't been finished
+		statusChanged = false;
+		// Send this to the blockable channel
+//		SicsCore.getDefaultProxy().send("hset " + getPath() + " start", null, ISicsProxy.CHANNEL_SCAN);
+		SicsCore.getDefaultProxy().send("hset " + getPath() + " start", null);
+	}
+
 	public void syncExecute() throws SicsIOException, SicsExecutionException {
 		SicsCore.getSicsController().clearInterrupt();
 //		if (getStatusController() == null) {
@@ -36,12 +47,22 @@ public class BeamStopCommandController extends CommandController {
 //		} else {
 			// Wait until command is available
 //			while (getCommandStatus().equals(CommandStatus.BUSY)) {
+			int counter = 0;
 			while (getStatus().equals(ControllerStatus.RUNNING)) {
 				sleep("Error occured while waiting for IDLE state");
+				counter += TIME_INTERVAL;
+				if (counter > 2000) {
+					if (ServerStatus.EAGER_TO_EXECUTE.equals(SicsCore.getSicsController().getServerStatus())) {
+						break;
+					} else {
+						SicsCore.getSicsController().refreshServerStatus();
+						counter = 0;
+					}
+				}
 			}
 			// Execute
 			asyncExecute();
-			int counter = 0;
+			counter = 0;
 			while (!getStatusDirtyFlag()) {
 				sleep("Error occured while waiting for BUSY state");
 				counter += TIME_INTERVAL;

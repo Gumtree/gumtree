@@ -12,7 +12,7 @@ public class EmuCruisePage implements ICruisePanelPage{
 
 	@Override
 	public String getName() {
-		return "Emu Instrument Status";
+		return "Emu";
 	}
 
 	@Override

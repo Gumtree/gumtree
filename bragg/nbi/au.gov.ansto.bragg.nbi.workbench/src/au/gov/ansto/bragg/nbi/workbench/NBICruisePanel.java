@@ -8,6 +8,8 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.gumtree.control.core.SicsCoreProperties;
+import org.gumtree.control.ui.widgets.InterruptWidget;
 import org.gumtree.gumnix.sics.widgets.swt.SicsInterruptWidget;
 import org.gumtree.ui.cruise.support.CruisePanel;
 import org.gumtree.ui.util.resource.SharedImage;
@@ -34,19 +36,42 @@ public class NBICruisePanel extends CruisePanel {
 				.grab(true, true).applyTo(originalComposite);
 		super.createCruisePanel(originalComposite);
 
-		SicsInterruptWidget interruptWidget = new SicsInterruptWidget(parent,
-				SWT.NONE);
-		String useLargeStopButton = System.getProperty(GUMTREE_USE_LARGE_STOP_BUTTON, "true");
-		if (Boolean.parseBoolean(useLargeStopButton)) {
-			interruptWidget.setButtonImage(InternalImage.STOP_128.getImage());
-		} else {
-			interruptWidget.setButtonImage(InternalImage.STOP_64.getImage());
+		boolean newProxy = false;
+		try {
+			newProxy = Boolean.valueOf(SicsCoreProperties.USE_NEW_PROXY.getValue());
+		} catch (Exception e) {
 		}
-		ContextInjectionFactory.inject(interruptWidget, Activator.getDefault()
-				.getEclipseContext());
-		interruptWidget.setBackgroundImage(SharedImage.CRUISE_BG.getImage());
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
-				.grab(true, false).applyTo(interruptWidget);
+
+		if (newProxy) {
+			InterruptWidget interruptWidget = new InterruptWidget(parent,
+					SWT.NONE);
+			String useLargeStopButton = System.getProperty(GUMTREE_USE_LARGE_STOP_BUTTON, "true");
+			if (Boolean.parseBoolean(useLargeStopButton)) {
+				interruptWidget.setButtonImage(InternalImage.STOP_128.getImage());
+			} else {
+				interruptWidget.setButtonImage(InternalImage.STOP_64.getImage());
+			}
+			ContextInjectionFactory.inject(interruptWidget, Activator.getDefault()
+					.getEclipseContext());
+			interruptWidget.render();
+			interruptWidget.setBackgroundImage(SharedImage.CRUISE_BG.getImage());
+			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
+			.grab(true, false).applyTo(interruptWidget);
+		} else {
+			SicsInterruptWidget interruptWidget = new SicsInterruptWidget(parent,
+					SWT.NONE);
+			String useLargeStopButton = System.getProperty(GUMTREE_USE_LARGE_STOP_BUTTON, "true");
+			if (Boolean.parseBoolean(useLargeStopButton)) {
+				interruptWidget.setButtonImage(InternalImage.STOP_128.getImage());
+			} else {
+				interruptWidget.setButtonImage(InternalImage.STOP_64.getImage());
+			}
+			ContextInjectionFactory.inject(interruptWidget, Activator.getDefault()
+					.getEclipseContext());
+			interruptWidget.setBackgroundImage(SharedImage.CRUISE_BG.getImage());
+			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
+			.grab(true, false).applyTo(interruptWidget);
+		}
 	}
 
 }

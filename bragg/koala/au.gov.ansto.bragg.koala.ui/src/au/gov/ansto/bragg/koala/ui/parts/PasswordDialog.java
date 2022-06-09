@@ -52,30 +52,30 @@ public class PasswordDialog extends Dialog {
         space.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
                 2, 1));
         
-        Label lblUser = new Label(container, SWT.NONE);
-        lblUser.setText("Username:");
-        lblUser.setFont(Activator.getMiddleFont());
-
-        txtUser = new Text(container, SWT.BORDER);
-        txtUser.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
-                1, 1));
-        txtUser.setText(user);
-        txtUser.setFont(Activator.getMiddleFont());
-        txtUser.addModifyListener(new ModifyListener() {
-			
-			@Override
-			public void modifyText(ModifyEvent e) {
-	            Text textWidget = (Text) e.getSource();
-	            String userText = textWidget.getText();
-	            user = userText;
-			}
-		});
+//        Label lblUser = new Label(container, SWT.NONE);
+//        lblUser.setText("Username:");
+//        lblUser.setFont(Activator.getMiddleFont());
+//
+//        txtUser = new Text(container, SWT.BORDER);
+//        txtUser.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+//                1, 1));
+//        txtUser.setText(user);
+//        txtUser.setFont(Activator.getMiddleFont());
+//        txtUser.addModifyListener(new ModifyListener() {
+//			
+//			@Override
+//			public void modifyText(ModifyEvent e) {
+//	            Text textWidget = (Text) e.getSource();
+//	            String userText = textWidget.getText();
+//	            user = userText;
+//			}
+//		});
 
         Label lblPassword = new Label(container, SWT.NONE);
         GridData gridDataPasswordLabel = new GridData(SWT.LEFT, SWT.CENTER, false,false);
         gridDataPasswordLabel.horizontalIndent = 1;
         lblPassword.setLayoutData(gridDataPasswordLabel);
-        lblPassword.setText("Password:");
+        lblPassword.setText("Passcode:");
         lblPassword.setFont(Activator.getMiddleFont());
 
         txtPassword = new Text(container, SWT.BORDER| SWT.PASSWORD);
@@ -110,7 +110,7 @@ public class PasswordDialog extends Dialog {
 
     @Override
     protected void okPressed() {
-        user = txtUser.getText();
+//        user = txtUser.getText();
         password = txtPassword.getText();
         super.okPressed();
     }

@@ -14,6 +14,7 @@ import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.ui.ControlTerminalView;
 import org.gumtree.control.ui.viewer.ControlViewer;
 
+import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.nbi.ui.realtime.control.ControlRealtimeDataViewer;
 import au.gov.ansto.bragg.nbi.ui.widgets.SicsRealtimeDataViewer;
 
@@ -78,11 +79,16 @@ public class AdminPanel extends AbstractPanel {
 					
 					@Override
 					public void run() {
-						controlViewer.createPartControl(left, null);
-						GridDataFactory.fillDefaults().grab(true, true).applyTo(
-								controlViewer.getTreeViewer().getControl());
-						left.update();
-						left.layout();
+						if (controlViewer.isDisposed()) {
+							controlViewer = new ControlViewer();
+						}
+						if (!controlViewer.isInitialised()) {
+							controlViewer.createPartControl(left, null);
+							GridDataFactory.fillDefaults().grab(true, true).applyTo(
+									controlViewer.getTreeViewer().getControl());
+							left.update();
+							left.layout();
+						}
 					}
 				});
 			}
@@ -110,6 +116,7 @@ public class AdminPanel extends AbstractPanel {
 		mainPart.enableBackButton();
 		mainPart.disableNextButton();
 		mainPart.setTitle("Administration Page");
+		mainPart.setCurrentPanelName(PanelName.ADMIN);
 	}
 
 

@@ -34,5 +34,8 @@
             id="org.gumtree.control.ui.ZMQAdapter"
             label="ZMQ Adapter"/>
    </extension>
-      
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup class="org.gumtree.control.ui.statusline.StatusLineStartup"/>
+   </extension>      
 </plugin>

@@ -1,6 +1,8 @@
 package org.gumtree.control.ui.internal;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.gumtree.control.ui.login.ILoginHandler;
+import org.gumtree.control.ui.login.LoginHandler;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -14,6 +16,7 @@ public class Activator extends AbstractUIPlugin {
 	// The shared instance
 	private static Activator plugin;
 	
+	private ILoginHandler loginHandler;
 	/**
 	 * The constructor
 	 */
@@ -47,4 +50,10 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
+	public ILoginHandler getLoginHandler() {
+		if(loginHandler == null) {
+			loginHandler = new LoginHandler();
+		}
+		return loginHandler;
+	}
 }
