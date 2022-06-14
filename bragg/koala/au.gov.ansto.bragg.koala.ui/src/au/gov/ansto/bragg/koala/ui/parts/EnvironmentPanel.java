@@ -14,6 +14,8 @@ import org.eclipse.swt.widgets.Text;
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
+import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
+import au.gov.ansto.bragg.koala.ui.sics.SimpleControlSuite;
 
 /**
  * @author nxi
@@ -57,7 +59,7 @@ public class EnvironmentPanel extends AbstractPanel {
 		valueText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, true).minSize(160, 36).align(SWT.CENTER, SWT.CENTER).applyTo(valueText);
 
-		Button runButton = new Button(statusPanel, SWT.TOGGLE);
+		Button runButton = new Button(statusPanel, SWT.PUSH);
 		runButton.setImage(KoalaImage.PLAY48.getImage());
 		runButton.setCursor(Activator.getHandCursor());
 		GridDataFactory.fillDefaults().grab(true, true).minSize(80, 80
@@ -72,6 +74,8 @@ public class EnvironmentPanel extends AbstractPanel {
 		targetText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, true).minSize(160, 36).align(SWT.CENTER, SWT.CENTER).applyTo(targetText);
 
+		SimpleControlSuite controlSuite = new SimpleControlSuite(System.getProperty(ControlHelper.ENV_VALUE), 
+				valueText, System.getProperty(ControlHelper.ENV_SETPOINT), targetText, runButton);
 	}
 
 	

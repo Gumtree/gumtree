@@ -30,6 +30,9 @@ public class Activator extends AbstractUIPlugin {
 	public static final String NAME_USER_NAME = "koala.userName";
 	public static final String NAME_LOCAL_SCI = "koala.localSci";
 	public static final String NAME_OP_MODE = "koala.operationMode";
+	public static final String NAME_SAMPLE_NAME = "koala.sampleName";
+	public static final String NAME_FILENAME = "koala.filename";
+	public static final String NAME_COMMENTS = "koala.comments";
 	
 	
 	// The shared instance
@@ -42,6 +45,8 @@ public class Activator extends AbstractUIPlugin {
 	private static Cursor defaultCursor;
 	private static Color lightColor;
 	private static Color highlightColor;
+	private static Color busyColor;
+	private static Color idleColor;
 
 	/**
 	 * The constructor
@@ -74,6 +79,8 @@ public class Activator extends AbstractUIPlugin {
 				defaultCursor = currentDisplay.getSystemCursor(SWT.CURSOR_ARROW);
 				lightColor = Display.getDefault().getSystemColor(SWT.COLOR_INFO_BACKGROUND);
 				highlightColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_RED);
+				busyColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_GREEN);
+				idleColor = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
 			}
 		});
 	}
@@ -119,7 +126,12 @@ public class Activator extends AbstractUIPlugin {
 	public static Color getHighlightColor() {
 		return highlightColor;
 	}
-	
+	public static Color getBusyColor() {
+		return busyColor;
+	}
+	public static Color getIdleColor() {
+		return idleColor;
+	}
 	public static int getMonitorWidth() {
 		IMultiMonitorManager mmManager = new MultiMonitorManager();
 		return mmManager.getMonitorWidth();

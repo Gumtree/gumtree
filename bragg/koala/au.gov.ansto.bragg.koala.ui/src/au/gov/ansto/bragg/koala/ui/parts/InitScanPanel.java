@@ -27,12 +27,20 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
+import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.events.ISicsControllerListener;
+import org.gumtree.control.events.ISicsProxyListener;
+import org.gumtree.control.events.SicsProxyListenerAdapter;
+import org.gumtree.control.imp.DynamicController;
+import org.gumtree.control.model.PropertyConstants.ControllerState;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.koala.ui.scan.SingleScan;
+import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptDataSourceViewer;
 
 /**
@@ -45,6 +53,13 @@ public class InitScanPanel extends AbstractControlPanel {
 	private static final int HEIGHT_HINT = 720;
 	private MainPart mainPart;
 	private SingleScan initScan;
+	private Text phiText;
+	private Text chiText;
+	private Text tempText;
+	private Text nameText;
+	private Text fileText;
+	private Text comText;
+	private ControlHelper controlHelper;
 	
 	/**
 	 * @param parent
@@ -52,6 +67,7 @@ public class InitScanPanel extends AbstractControlPanel {
 	 */
 	public InitScanPanel(Composite parent, int style, MainPart part) {
 		super(parent, style);
+		controlHelper = ControlHelper.getInstance();
 		mainPart = part;
 		initScan = new SingleScan();
 //		initScan = mainPart.getScanModel().getInitScan();
@@ -75,7 +91,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		nameLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(320, 40).applyTo(nameLabel);
 		
-		final Text nameText = new Text(infoBlock, SWT.BORDER);
+		nameText = new Text(infoBlock, SWT.BORDER);
 		nameText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(600, 40).applyTo(nameText);
 		
@@ -85,7 +101,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		GridDataFactory.fillDefaults().grab(false, false).span(1, 2).align(SWT.BEGINNING, SWT.BEGINNING
 				).minSize(320, 40).applyTo(comLabel);
 		
-		final Text comText = new Text(infoBlock, SWT.WRAP | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL);
+		comText = new Text(infoBlock, SWT.WRAP | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL);
 		comText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, false).span(1, 2).minSize(600, 88).applyTo(comText);
 		
@@ -94,7 +110,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		fileLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(320, 40).applyTo(fileLabel);
 		
-		final Text fileText = new Text(infoBlock, SWT.BORDER);
+		fileText = new Text(infoBlock, SWT.BORDER);
 		fileText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(fileText);
 
@@ -139,31 +155,31 @@ public class InitScanPanel extends AbstractControlPanel {
 		GridDataFactory.fillDefaults().grab(true, true).minSize(480, SWT.DEFAULT).applyTo(condGroup);
 		
 		final Label phiLabel = new Label(condGroup, SWT.NONE);
-		phiLabel.setText("Phi");
+		phiLabel.setText("Phi (\u00b0)");
 		phiLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(phiLabel);
 		
-		final Text phiText = new Text(condGroup, SWT.BORDER);
+		phiText = new Text(condGroup, SWT.READ_ONLY);
 		phiText.setFont(Activator.getMiddleFont());
 		phiText.setEditable(false);
 		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(phiText);
 		
 		final Label chiLabel = new Label(condGroup, SWT.NONE);
-		chiLabel.setText("Chi");
+		chiLabel.setText("Chi (\u00b0)");
 		chiLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(chiLabel);
 		
-		final Text chiText = new Text(condGroup, SWT.BORDER);
+		chiText = new Text(condGroup, SWT.READ_ONLY);
 		chiText.setEditable(false);
 		chiText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(chiText);
 		
 		final Label tempLabel = new Label(condGroup, SWT.NONE);
-		tempLabel.setText("Temperature");
+		tempLabel.setText("Temperature (K)");
 		tempLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(tempLabel);
 		
-		final Text tempText = new Text(condGroup, SWT.BORDER);
+		tempText = new Text(condGroup, SWT.READ_ONLY);
 		tempText.setEditable(false);
 		tempText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(tempText);
@@ -301,6 +317,8 @@ public class InitScanPanel extends AbstractControlPanel {
 		proBar.setSelection(10);
 		proBar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		
+		ConditionControl control = new ConditionControl();
+		loadPreference();
 	}
 
 	
@@ -309,6 +327,7 @@ public class InitScanPanel extends AbstractControlPanel {
 	 */
 	@Override
 	public void next() {
+		savePreference();
 		if (mainPart.getInstrumentMode() == KoalaMode.CHEMISTRY) {
 			mainPart.showChemistryPanel();
 		} else if (mainPart.getInstrumentMode() == KoalaMode.PHYSICS) {
@@ -321,9 +340,32 @@ public class InitScanPanel extends AbstractControlPanel {
 	 */
 	@Override
 	public void back() {
+		savePreference();
 		mainPart.showCrystalPanel();
 	}
 
+	private void loadPreference() {
+		String sampleName = Activator.getPreference(Activator.NAME_SAMPLE_NAME);
+		if (sampleName != null) {
+			nameText.setText(sampleName);
+		} 
+		String filename = Activator.getPreference(Activator.NAME_FILENAME);
+		if (filename != null) {
+			fileText.setText(filename);
+		} 
+		String comments = Activator.getPreference(Activator.NAME_COMMENTS);
+		if (comments != null) {
+			comText.setText(comments);
+		} 
+	}
+	
+	private void savePreference() {
+		Activator.setPreference(Activator.NAME_SAMPLE_NAME, nameText.getText());
+		Activator.setPreference(Activator.NAME_FILENAME, fileText.getText());
+		Activator.setPreference(Activator.NAME_COMMENTS, comText.getText());
+		Activator.flushPreferenceStore();
+	}
+	
 	@Override
 	public void show() {
 		mainPart.showPanel(this, WIDTH_HINT, HEIGHT_HINT);
@@ -333,4 +375,101 @@ public class InitScanPanel extends AbstractControlPanel {
 		mainPart.setCurrentPanelName(PanelName.INITSCAN);
 	}
 
+	class ConditionControl {
+		
+		public ConditionControl() {
+			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
+				
+				@Override
+				public void connect() {
+					final ISicsController phiController = SicsManager.getSicsModel().findControllerByPath(
+							System.getProperty(ControlHelper.SAMPLE_PHI));
+					final ISicsController chiController = SicsManager.getSicsModel().findControllerByPath(
+							System.getProperty(ControlHelper.SAMPLE_CHI));
+					final ISicsController tempController = SicsManager.getSicsModel().findControllerByPath(
+							System.getProperty(ControlHelper.ENV_VALUE));
+					if (phiController != null) {
+						phiController.addControllerListener(
+								new ControllerListener(phiText));
+					}
+					if (chiController != null) {
+						chiController.addControllerListener(
+								new ControllerListener(chiText));
+					}
+					if (tempController != null) {
+						tempController.addControllerListener(
+								new ControllerListener(tempText));
+					}
+					Display.getDefault().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							try {
+								if (phiController != null) {
+									phiText.setText(String.valueOf(
+											((DynamicController) phiController).getValue()));
+								}
+								if (chiController != null) {
+									chiText.setText(String.valueOf(
+											((DynamicController) chiController).getValue()));
+								}
+								if (tempController != null) {
+									tempText.setText(String.valueOf(
+											((DynamicController) tempController).getValue()));
+								}								
+							} catch (Exception e) {
+							}
+						}
+					});
+				}
+			};
+			controlHelper.addProxyListener(proxyListener);
+		}
+	}
+	
+	class ControllerListener implements ISicsControllerListener {
+		
+		private Text widget;
+//		private DynamicController controller;
+		
+		public ControllerListener(Text widget) {
+			this.widget = widget;
+//			this.controller = controller;
+		}
+		
+		@Override
+		public void updateState(ControllerState oldState, ControllerState newState) {
+			Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					if (newState == ControllerState.BUSY) {
+						widget.setForeground(Activator.getBusyColor());
+					} else {
+						widget.setForeground(Activator.getIdleColor());
+					}
+				}
+			});
+		}
+
+		@Override
+		public void updateValue(final Object oldValue, final Object newValue) {
+			Display.getDefault().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setText(String.valueOf(newValue));
+				}
+			});
+		}
+
+		@Override
+		public void updateEnabled(boolean isEnabled) {
+		}
+
+		@Override
+		public void updateTarget(Object oldValue, Object newValue) {
+		}
+		
+	}
 }

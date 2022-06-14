@@ -19,18 +19,28 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
+import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.events.ISicsControllerListener;
+import org.gumtree.control.events.ISicsProxyListener;
+import org.gumtree.control.events.SicsProxyListenerAdapter;
+import org.gumtree.control.imp.DynamicController;
+import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.msw.ui.ktable.KTable;
 import org.gumtree.msw.ui.ktable.SWTX;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
+import au.gov.ansto.bragg.koala.ui.parts.InitScanPanel.ConditionControl;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
 import au.gov.ansto.bragg.koala.ui.scan.SingleScan;
+import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
 /**
  * @author nxi
@@ -59,13 +69,18 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	private int tableHeight = HEIGHT_TABLE;
 	private int infoWidth = WIDTH_INFO;
 	private int infoHeight = HEIGHT_INFO;
-	
+	private Text phiText;
+	private Text fileText;
+	private Text numText;
+	private ControlHelper controlHelper;
+
 	/**
 	 * @param parent
 	 * @param style
 	 */
 	public AbstractExpPanel(Composite parent, int style, MainPart part) {
 		super(parent, style);
+		controlHelper = ControlHelper.getInstance();
 		if (Activator.getMonitorWidth() < 2500) {
 			panelWidth = WIDTH_HINT_SMALL;
 			panelHeight = HEIGHT_HINT_SMALL;
@@ -130,7 +145,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		fileLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(180, 40).applyTo(fileLabel);
 		
-		final Text fileText = new Text(statusPart, SWT.BORDER);
+		fileText = new Text(statusPart, SWT.BORDER);
 		fileText.setFont(Activator.getMiddleFont());
 		fileText.setEditable(false);
 		fileText.setText("W:\\data\\koala\\d_14.tif");
@@ -169,7 +184,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		phiLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(phiLabel);
 		
-		final Text phiText = new Text(statusPart, SWT.BORDER);
+		phiText = new Text(statusPart, SWT.BORDER);
 		phiText.setFont(Activator.getMiddleFont());
 		phiText.setEditable(false);
 		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(180, 40).applyTo(phiText);
@@ -179,7 +194,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		numLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(numLabel);
 		
-		final Text numText = new Text(statusPart, SWT.BORDER);
+		numText = new Text(statusPart, SWT.BORDER);
 		numText.setFont(Activator.getMiddleFont());
 		numText.setEditable(false);
 		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(180, 40).applyTo(numText);
@@ -473,6 +488,8 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		runButton.setCursor(Activator.getHandCursor());
 //		runButton.setSize(240, 64);
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.END, SWT.CENTER).hint(240, 64).applyTo(runButton);
+
+		StatusControl control = new StatusControl();
 	}
 
 	
@@ -507,5 +524,102 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		mainPart.setCurrentPanelName(PanelName.EXPERIMENT);
 	}
 
+	class StatusControl {
+		
+		public StatusControl() {
+			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
+				
+				@Override
+				public void connect() {
+					final ISicsController phiController = SicsManager.getSicsModel().findControllerByPath(
+							System.getProperty(ControlHelper.SAMPLE_PHI));
+					final ISicsController stepController = SicsManager.getSicsModel().findControllerByPath(
+							System.getProperty(ControlHelper.STEP_PATH));
+					final ISicsController fnController = SicsManager.getSicsModel().findControllerByPath(
+							System.getProperty(ControlHelper.FILENAME_PATH));
+					if (phiController != null) {
+						phiController.addControllerListener(
+								new ControllerListener(phiText));
+					}
+					if (stepController != null) {
+						stepController.addControllerListener(
+								new ControllerListener(numText));
+					}
+					if (fnController != null) {
+						fnController.addControllerListener(
+								new ControllerListener(fileText));
+					}
+					Display.getDefault().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							try {
+								if (phiController != null) {
+									phiText.setText(String.valueOf(
+											((DynamicController) phiController).getValue()));
+								}
+								if (stepController != null) {
+									numText.setText(String.valueOf(
+											((DynamicController) stepController).getValue()));
+								}
+								if (fnController != null) {
+									fileText.setText(String.valueOf(
+											((DynamicController) fnController).getValue()));
+								}								
+							} catch (Exception e) {
+							}
+						}
+					});
+				}
+			};
+			controlHelper.addProxyListener(proxyListener);
+		}
+	}
+	
+	class ControllerListener implements ISicsControllerListener {
+		
+		private Text widget;
+//		private DynamicController controller;
+		
+		public ControllerListener(Text widget) {
+			this.widget = widget;
+//			this.controller = controller;
+		}
+		
+		@Override
+		public void updateState(ControllerState oldState, ControllerState newState) {
+			Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					if (newState == ControllerState.BUSY) {
+						widget.setForeground(Activator.getBusyColor());
+					} else {
+						widget.setForeground(Activator.getIdleColor());
+					}
+				}
+			});
+		}
+
+		@Override
+		public void updateValue(final Object oldValue, final Object newValue) {
+			Display.getDefault().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setText(String.valueOf(newValue));
+				}
+			});
+		}
+
+		@Override
+		public void updateEnabled(boolean isEnabled) {
+		}
+
+		@Override
+		public void updateTarget(Object oldValue, Object newValue) {
+		}
+		
+	}
 
 }

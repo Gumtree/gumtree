@@ -11,18 +11,31 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
+import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.events.ISicsControllerListener;
+import org.gumtree.control.events.ISicsProxyListener;
+import org.gumtree.control.events.SicsProxyListenerAdapter;
+import org.gumtree.control.exception.SicsException;
+import org.gumtree.control.exception.SicsModelException;
+import org.gumtree.control.imp.DriveableController;
+import org.gumtree.control.model.PropertyConstants.ControllerState;
+import org.gumtree.util.ILoopExitCondition;
+import org.gumtree.util.JobRunner;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.mjpeg.MjpegViewer;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
-import au.gov.ansto.bragg.koala.ui.vlcj.VlcjViewer;
+import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
+import au.gov.ansto.bragg.koala.ui.sics.SimpleControlSuite;
 
 /**
  * @author nxi
@@ -35,6 +48,10 @@ public class CrystalPanel extends AbstractControlPanel {
 	private MainPart mainPart;
 	private TabFolder tabFolder;
 	private MjpegViewer mjpegViewer;
+	private Button chiZeroButton;
+	private Button chiHighButton;
+	private Button chiApplyButton;
+	private ControlHelper controlHelper;
 	
 	/**
 	 * @param parent
@@ -43,6 +60,7 @@ public class CrystalPanel extends AbstractControlPanel {
 	public CrystalPanel(Composite parent, int style, MainPart part) {
 		super(parent, style);
 		mainPart = part;
+		controlHelper = ControlHelper.getInstance();
 		GridLayoutFactory.fillDefaults().margins(8, 8).applyTo(this);
 		GridDataFactory.swtDefaults().minSize(WIDTH_HINT, HEIGHT_HINT).align(SWT.CENTER, SWT.CENTER).applyTo(this);
 		
@@ -76,11 +94,11 @@ public class CrystalPanel extends AbstractControlPanel {
 		phiBlock.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
 		
 		final Label curLabel = new Label(phiBlock, SWT.NONE);
-		curLabel.setText("Current phi value");
+		curLabel.setText("Current phi value (\u00b0)");
 		curLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(320, 40).applyTo(curLabel);
 		
-		final Label curText = new Label(phiBlock, SWT.BORDER);
+		final Text curText = new Text(phiBlock, SWT.READ_ONLY);
 		curText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(240, 40).applyTo(curText);
 		
@@ -92,7 +110,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		GridDataFactory.swtDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).span(1, 3).hint(240, 64).applyTo(driveButton);
 
 		final Label tarLabel = new Label(phiBlock, SWT.NONE);
-		tarLabel.setText("Target phi value");
+		tarLabel.setText("Target phi value (\u00b0)");
 		tarLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(320, 40).applyTo(tarLabel);
 		
@@ -136,24 +154,61 @@ public class CrystalPanel extends AbstractControlPanel {
 		GridLayoutFactory.fillDefaults().numColumns(2).margins(8, 8).spacing(4, 20).applyTo(innerBlock);
 		innerBlock.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
 
-		final Button zeroButton = new Button(innerBlock, SWT.RADIO);
-		zeroButton.setText("Zero");
-		zeroButton.setFont(Activator.getMiddleFont());
-		zeroButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(240, 40).applyTo(zeroButton);
+		chiZeroButton = new Button(innerBlock, SWT.RADIO);
+		chiZeroButton.setText("Zero");
+		chiZeroButton.setFont(Activator.getMiddleFont());
+		chiZeroButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(240, 40).applyTo(chiZeroButton);
+//		chiZeroButton.addSelectionListener(new SelectionListener() {
+//			
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				driveSchi(0);
+//			}
+//			
+//			@Override
+//			public void widgetDefaultSelected(SelectionEvent e) {
+//			}
+//		});
+
+		chiHighButton = new Button(innerBlock, SWT.RADIO);
+		chiHighButton.setText("High");
+		chiHighButton.setFont(Activator.getMiddleFont());
+		chiHighButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(240, 40).applyTo(chiHighButton);
+//		chiHighButton.addSelectionListener(new SelectionListener() {
+//			
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				driveSchi(90);
+//			}
+//			
+//			@Override
+//			public void widgetDefaultSelected(SelectionEvent e) {
+//			}
+//		});
 		
-		final Button highButton = new Button(innerBlock, SWT.RADIO);
-		highButton.setText("High");
-		highButton.setFont(Activator.getMiddleFont());
-		highButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(240, 40).applyTo(highButton);
-		
-		final Button applyButton = new Button(innerBlock, SWT.PUSH);
-		applyButton.setImage(KoalaImage.PLAY48.getImage());
-		applyButton.setText("Drive");
-		applyButton.setFont(Activator.getMiddleFont());
-		applyButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.swtDefaults().grab(true, false).align(SWT.CENTER, SWT.CENTER).span(2, 1).hint(480, 64).applyTo(applyButton);
+		chiApplyButton = new Button(innerBlock, SWT.PUSH);
+		chiApplyButton.setImage(KoalaImage.PLAY48.getImage());
+		chiApplyButton.setText("Drive");
+		chiApplyButton.setFont(Activator.getMiddleFont());
+		chiApplyButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.CENTER, SWT.CENTER).span(2, 1).hint(480, 64).applyTo(chiApplyButton);
+		chiApplyButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (chiZeroButton.getSelection()) {
+					driveSchi(0);					
+				} else if (chiHighButton.getSelection()) {
+					driveSchi(90);
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 
 		oriItem.setControl(oriBlock);
 		
@@ -172,6 +227,12 @@ public class CrystalPanel extends AbstractControlPanel {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
+		
+		String samplePhiPath = System.getProperty(ControlHelper.SAMPLE_PHI);
+		SimpleControlSuite controlSuite = new SimpleControlSuite(samplePhiPath, 
+				curText, samplePhiPath, tarText, driveButton);
+		
+		ChiControlSuite chiSuite = new ChiControlSuite();
 	}
 
 	
@@ -207,5 +268,152 @@ public class CrystalPanel extends AbstractControlPanel {
 		mainPart.setCurrentPanelName(PanelName.CRYSTAL);
 	}
 
+	private void driveSchi(final float value) {
+		if (controlHelper.isConnected()) {
+			final ISicsController schiController = SicsManager.getSicsModel().findControllerByPath(
+					System.getProperty(ControlHelper.SAMPLE_CHI));
+			if (schiController instanceof DriveableController) {
+				DriveableController driveable = (DriveableController) schiController;
+				JobRunner.run(new ILoopExitCondition() {
+					
+					@Override
+					public boolean getExitCondition() {
+						return true;
+					}
+				}, new Runnable() {
+					
+					@Override
+					public void run() {
+						driveable.setTargetValue(value);
+						try {
+							driveable.drive();
+						} catch (SicsException e1) {
+							e1.printStackTrace();
+						}
+					}
+				});
+			}
+		}
+	}
+	
+	class ChiControlSuite {
+		
+		public ChiControlSuite() {
+			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
+				
+				@Override
+				public void connect() {
+					final ISicsController chiController = SicsManager.getSicsModel().findControllerByPath(
+							System.getProperty(ControlHelper.SAMPLE_CHI));
+					if (chiController != null) {
+						if (chiController instanceof DriveableController) {
+							try {
+								float value = (Float) ((DriveableController) chiController).getValue();
+								double precision = ((DriveableController) chiController).getPrecision();
+								if (Double.isNaN(precision)) {
+									precision = 0;
+								} else {
+									precision = Math.abs(precision);
+								}
+								if (inRange(value, precision, 0)) {
+									chooseRange(chiZeroButton);
+								} else if (inRange(value, precision, 90)) {
+									chooseRange(chiHighButton);
+								} else {
+									chooseRange(null);
+								}
+							} catch (SicsModelException e) {
+							}
+							
+							chiController.addControllerListener(
+									new ChiControllerListener((DriveableController) chiController));
+						}
+					}
 
+				}
+			};
+			controlHelper.addProxyListener(proxyListener);
+		}
+	}
+
+	private boolean inRange(float value, double precision, float range) {
+		if (value >= range - precision && value <= range + precision) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	private void chooseRange(Button rangeButton) {
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				chiZeroButton.setSelection(false);
+				chiHighButton.setSelection(false);
+				if (rangeButton != null) {
+					rangeButton.setSelection(true);
+				}
+			}
+		});
+	}
+
+	class ChiControllerListener implements ISicsControllerListener {
+
+		private DriveableController chiController;
+		
+		public ChiControllerListener(DriveableController controller) {
+			chiController = controller;
+		}
+		
+		@Override
+		public void updateState(ControllerState oldState, ControllerState newState) {
+			Display.getDefault().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					if (newState == ControllerState.BUSY) {
+						chiZeroButton.setEnabled(false);
+						chiHighButton.setEnabled(false);
+						chiApplyButton.setEnabled(false);
+					} else {
+						try {
+							float value = (Float) chiController.getValue();
+							double precision = chiController.getPrecision();
+							if (Double.isNaN(precision)) {
+								precision = 0;
+							} else {
+								precision = Math.abs(precision);
+							}
+							if (inRange(value, precision, 0)) {
+								chooseRange(chiZeroButton);
+							} else if (inRange(value, precision, 90)) {
+								chooseRange(chiHighButton);
+							} else {
+								chooseRange(null);
+							}						
+						} catch (SicsModelException e) {
+							e.printStackTrace();
+						}
+						chiZeroButton.setEnabled(true);
+						chiHighButton.setEnabled(true);
+						chiApplyButton.setEnabled(true);
+					}
+				}
+			});
+		}
+
+		@Override
+		public void updateValue(final Object oldValue, final Object newValue) {
+		}
+
+		@Override
+		public void updateEnabled(boolean isEnabled) {
+		}
+
+		@Override
+		public void updateTarget(Object oldValue, Object newValue) {
+		}
+		
+	}
 }

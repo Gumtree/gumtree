@@ -22,7 +22,15 @@ import org.gumtree.control.model.PropertyConstants.ControllerState;
 
 public class ControlHelper {
 
-	private ISicsProxy sicsProxy;
+	public static final String SAMPLE_PHI = "gumtree.koala.samplephi";
+	public static final String SAMPLE_CHI = "gumtree.koala.samplechi";
+	public static final String ENV_VALUE = "gumtree.koala.environmentValue";
+	public static final String ENV_SETPOINT = "gumtree.koala.environmentSetpoint";
+	public static final String SX_PATH = "gumtree.koala.sx";
+	public static final String SY_PATH = "gumtree.koala.sy";
+	public static final String STEP_PATH = "gumtree.koala.currpoint";
+	public static final String FILENAME_PATH = "gumtree.koala.filename";
+
 	private final static Color BUSY_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
 	private final static Color IDLE_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
 	

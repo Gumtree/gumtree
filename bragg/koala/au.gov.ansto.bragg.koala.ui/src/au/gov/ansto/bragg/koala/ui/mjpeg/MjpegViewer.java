@@ -1,7 +1,5 @@
 package au.gov.ansto.bragg.koala.ui.mjpeg;
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Timer;
@@ -24,15 +22,29 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
+import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.events.ISicsControllerListener;
+import org.gumtree.control.events.ISicsProxyListener;
+import org.gumtree.control.events.SicsProxyListenerAdapter;
+import org.gumtree.control.exception.SicsException;
+import org.gumtree.control.exception.SicsModelException;
+import org.gumtree.control.imp.DriveableController;
+import org.gumtree.control.model.PropertyConstants.ControllerState;
+import org.gumtree.util.ILoopExitCondition;
+import org.gumtree.util.JobRunner;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
+import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
+import au.gov.ansto.bragg.koala.ui.sics.SimpleControlSuite;
 import au.gov.ansto.bragg.nbi.ui.internal.InternalImage;
 
 public class MjpegViewer extends Composite {
 
 	private static final String CAM1_URL = "gumtree.koala.mjpeg1Url";
 	private static final String CAM2_URL = "gumtree.koala.mjpeg2Url";
+	
 //	private static final String CAM_SIZE = "gumtree.koala.camSize";
 
 	private MjpegRunner runner1;
@@ -45,9 +57,15 @@ public class MjpegViewer extends Composite {
 	private Button reloadButton;
 	private Button alignButton;
 	private boolean isAddingMarker;
+	private Button phiSButton;
+	private Button phiNButton;
+	private Button phiEButton;
+	private Button phiWButton;
+	private ControlHelper controlHelper;
 	
 	public MjpegViewer(Composite parent, int style) {
 		super(parent, style);
+		controlHelper = ControlHelper.getInstance();
 		cam1Url = System.getProperty(CAM1_URL);
 		cam2Url = System.getProperty(CAM2_URL);
 
@@ -70,7 +88,7 @@ public class MjpegViewer extends Composite {
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(image1Composite);
 		mjpeg1 = new MjpegComposite(image1Composite, SWT.BORDER);
 		
-		createControlCOmposite(mainComposite);
+		createControlComposite(mainComposite);
 		
 		Composite image2Composite = new Composite(mainComposite, SWT.NONE);
 		image2Composite.setLayout(new FillLayout());
@@ -218,7 +236,7 @@ public class MjpegViewer extends Composite {
 		});
 	}
 
-	private void createControlCOmposite(Composite imageComposite) {
+	private void createControlComposite(Composite imageComposite) {
 		Composite wrapComposite = new Composite(imageComposite, SWT.BORDER);
 		wrapComposite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 		GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(wrapComposite);
@@ -230,19 +248,42 @@ public class MjpegViewer extends Composite {
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.CENTER).applyTo(axesControlComposite);
 //		axesControlComposite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, true, 1, 1));
 		
-		final Button phiSButton = new Button(axesControlComposite, SWT.PUSH);
+		phiSButton = new Button(axesControlComposite, SWT.RADIO);
 //		phiSButton.setImage(KoalaImage.PLAY48.getImage());
 		phiSButton.setText("Phi -90\u00b0");
 		phiSButton.setFont(Activator.getMiddleFont());
 		phiSButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.swtDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).span(1, 3).hint(120, 48).applyTo(phiSButton);
-
-		final Button phiNButton = new Button(axesControlComposite, SWT.PUSH);
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiSButton);
+		phiSButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				driveSphi(-90);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
+		phiNButton = new Button(axesControlComposite, SWT.RADIO);
 //		phiNButton.setImage(KoalaImage.PLAY48.getImage());
 		phiNButton.setText("Phi +90\u00b0");
 		phiNButton.setFont(Activator.getMiddleFont());
 		phiNButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.swtDefaults().grab(false, false).align(SWT.END, SWT.CENTER).span(1, 3).hint(120, 48).applyTo(phiNButton);
+		phiNButton.setForeground(Activator.getHighlightColor());
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.END, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiNButton);
+		phiNButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				driveSphi(90);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 
 
 		Group xGroup = new Group(axesControlComposite, SWT.NONE);
@@ -255,7 +296,7 @@ public class MjpegViewer extends Composite {
 		curLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(curLabel);
 		
-		final Text curText = new Text(xGroup, SWT.BORDER);
+		final Text curText = new Text(xGroup, SWT.READ_ONLY);
 		curText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(curText);
 		
@@ -285,6 +326,9 @@ public class MjpegViewer extends Composite {
 	    slider.setSelection(48);
 	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(slider);
 	    
+		String sxPath = System.getProperty(ControlHelper.SX_PATH);
+		SimpleControlSuite sxSuite = new SimpleControlSuite(sxPath, curText, sxPath, tarText, driveButton);
+		
 		Group yGroup = new Group(axesControlComposite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(3).applyTo(yGroup);
 		yGroup.setText("Sample Y offset");
@@ -295,7 +339,7 @@ public class MjpegViewer extends Composite {
 		curYLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(curYLabel);
 		
-		final Text curYText = new Text(yGroup, SWT.BORDER);
+		final Text curYText = new Text(yGroup, SWT.READ_ONLY);
 		curYText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(curYText);
 		
@@ -325,22 +369,77 @@ public class MjpegViewer extends Composite {
 		sliderY.setSelection(48);
 	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(sliderY);
 	    
-		final Button phiEButton = new Button(axesControlComposite, SWT.PUSH);
+		String syPath = System.getProperty(ControlHelper.SY_PATH);
+		SimpleControlSuite sySuite = new SimpleControlSuite(syPath, curYText, syPath, tarYText, driveYButton);
+
+		phiEButton = new Button(axesControlComposite, SWT.RADIO);
 //		phiEButton.setImage(KoalaImage.PLAY48.getImage());
 		phiEButton.setText("Phi 0\u00b0");
 		phiEButton.setFont(Activator.getMiddleFont());
 		phiEButton.setCursor(Activator.getHandCursor());
 		phiEButton.setForeground(Activator.getLightColor());
-		GridDataFactory.swtDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).span(1, 3).hint(120, 48).applyTo(phiEButton);
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiEButton);
+		phiEButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				driveSphi(0);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 
-		final Button phiWButton = new Button(axesControlComposite, SWT.PUSH);
+		phiWButton = new Button(axesControlComposite, SWT.RADIO);
 //		phiNButton.setImage(KoalaImage.PLAY48.getImage());
 		phiWButton.setText("Phi -180\u00b0");
 		phiWButton.setFont(Activator.getMiddleFont());
 		phiWButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.swtDefaults().grab(false, false).align(SWT.END, SWT.CENTER).span(1, 3).hint(120, 48).applyTo(phiWButton);
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.END, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiWButton);
+		phiWButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				driveSphi(180);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 		
+		PhiControlSuite phiSuite = new PhiControlSuite();
 	}
+
+	private void driveSphi(final float value) {
+		if (controlHelper.isConnected()) {
+			final ISicsController sphiController = SicsManager.getSicsModel().findControllerByPath(
+					System.getProperty(ControlHelper.SAMPLE_PHI));
+			if (sphiController instanceof DriveableController) {
+				DriveableController driveable = (DriveableController) sphiController;
+				JobRunner.run(new ILoopExitCondition() {
+					
+					@Override
+					public boolean getExitCondition() {
+						return true;
+					}
+				}, new Runnable() {
+					
+					@Override
+					public void run() {
+						driveable.setTargetValue(value);
+						try {
+							driveable.drive();
+						} catch (SicsException e1) {
+							e1.printStackTrace();
+						}
+					}
+				});
+			}
+		}
+	}
+	
 
 	public void startRunner() {
 		try {
@@ -469,5 +568,138 @@ public class MjpegViewer extends Composite {
 				display.sleep();
 		}
 		display.dispose();
+	}
+	
+	class PhiControlSuite {
+		
+		public PhiControlSuite() {
+			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
+				
+				@Override
+				public void connect() {
+					final ISicsController phiController = SicsManager.getSicsModel().findControllerByPath(
+							System.getProperty(ControlHelper.SAMPLE_PHI));
+					if (phiController != null) {
+						if (phiController instanceof DriveableController) {
+							try {
+								float value = (Float) ((DriveableController) phiController).getValue();
+								double precision = ((DriveableController) phiController).getPrecision();
+								if (Double.isNaN(precision)) {
+									precision = 0;
+								} else {
+									precision = Math.abs(precision);
+								}
+								if (inRange(value, precision, 90)) {
+									chooseRange(phiNButton);
+								} else if (inRange(value, precision, -90)) {
+									chooseRange(phiSButton);
+								} else if (inRange(value, precision, 0)) {
+									chooseRange(phiEButton);
+								} else if (inRange(value, precision, 180)) {
+									chooseRange(phiWButton);
+								} else {
+									chooseRange(null);
+								}
+							} catch (SicsModelException e) {
+							}
+							
+							phiController.addControllerListener(
+									new PhiControllerListener((DriveableController) phiController));
+						}
+					}
+
+				}
+			};
+			controlHelper.addProxyListener(proxyListener);
+		}
+	}
+
+	private boolean inRange(float value, double precision, float range) {
+		if (value >= range - precision && value <= range + precision) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	private void chooseRange(Button rangeButton) {
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				phiNButton.setSelection(false);
+				phiSButton.setSelection(false);
+				phiWButton.setSelection(false);
+				phiEButton.setSelection(false);
+				if (rangeButton != null) {
+					rangeButton.setSelection(true);
+				}
+			}
+		});
+	}
+
+	class PhiControllerListener implements ISicsControllerListener {
+
+		private DriveableController phiController;
+		
+		public PhiControllerListener(DriveableController controller) {
+			phiController = controller;
+		}
+		
+		@Override
+		public void updateState(ControllerState oldState, ControllerState newState) {
+			Display.getDefault().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					if (newState == ControllerState.BUSY) {
+						phiNButton.setEnabled(false);
+						phiSButton.setEnabled(false);
+						phiEButton.setEnabled(false);
+						phiWButton.setEnabled(false);
+					} else {
+						try {
+							float value = (Float) phiController.getValue();
+							double precision = phiController.getPrecision();
+							if (Double.isNaN(precision)) {
+								precision = 0;
+							} else {
+								precision = Math.abs(precision);
+							}
+							if (inRange(value, precision, 90)) {
+								chooseRange(phiNButton);
+							} else if (inRange(value, precision, -90)) {
+								chooseRange(phiSButton);
+							} else if (inRange(value, precision, 0)) {
+								chooseRange(phiEButton);
+							} else if (inRange(value, precision, 180)) {
+								chooseRange(phiWButton);
+							} else {
+								chooseRange(null);
+							}						
+						} catch (SicsModelException e) {
+							e.printStackTrace();
+						}
+						phiNButton.setEnabled(true);
+						phiSButton.setEnabled(true);
+						phiEButton.setEnabled(true);
+						phiWButton.setEnabled(true);
+					}
+				}
+			});
+		}
+
+		@Override
+		public void updateValue(final Object oldValue, final Object newValue) {
+		}
+
+		@Override
+		public void updateEnabled(boolean isEnabled) {
+		}
+
+		@Override
+		public void updateTarget(Object oldValue, Object newValue) {
+		}
+		
 	}
 }

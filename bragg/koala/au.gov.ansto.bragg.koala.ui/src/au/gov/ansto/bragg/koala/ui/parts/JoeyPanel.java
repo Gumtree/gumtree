@@ -152,10 +152,10 @@ public class JoeyPanel extends AbstractPanel {
 		});
 		
 		statusLabel = new Label(this, SWT.NONE);
-		statusLabel.setText("Inactive");
+		statusLabel.setText("DEACTIVATED");
 		statusLabel.setEnabled(false);
 		statusLabel.setFont(Activator.getLargeFont());
-		GridDataFactory.fillDefaults().grab(true, true).align(SWT.CENTER, SWT.CENTER).span(2, 1).applyTo(statusLabel);
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.CENTER, SWT.CENTER).minSize(360, 36).span(2, 1).applyTo(statusLabel);
 
 		activeButton = new Button(this, SWT.PUSH);
 		activeButton.setCursor(Activator.getHandCursor());
@@ -174,12 +174,12 @@ public class JoeyPanel extends AbstractPanel {
 				advButton.setVisible(false);
 				hideAdvPanel();
 				if (isActivated) {
-					statusLabel.setText("ACTIVE");
+					statusLabel.setText("ACTIVATED");
 					statusLabel.setEnabled(true);
 					statusLabel.setForeground(Activator.getHighlightColor());
 					activeButton.setText("Deactivate");
 				} else {
-					statusLabel.setText("Inactive");
+					statusLabel.setText("DEACTIVATED");
 					statusLabel.setEnabled(false);
 					statusLabel.setForeground(Activator.getLightColor());
 					activeButton.setText("Activate");

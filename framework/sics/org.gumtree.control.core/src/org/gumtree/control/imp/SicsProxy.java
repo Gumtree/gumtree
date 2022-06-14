@@ -73,6 +73,7 @@ public class SicsProxy implements ISicsProxy {
 				}
 				serverStatus = ServerStatus.parseStatus(s);
 			} catch (SicsException e) {
+				e.printStackTrace();
 			}
 //			try {
 //				batchStatus = BatchStatus.parseStatus(channel.send("exe info", null));

@@ -144,7 +144,7 @@ public class CurrentProposalSOAPService {
 							
 							result.put(name, value);
 
-							found |= "instrName".equals(name) && instrument.equals(value);
+							found |= "instrName".equals(name) && instrument.equals(value.toUpperCase());
 						}
 					}
 				}

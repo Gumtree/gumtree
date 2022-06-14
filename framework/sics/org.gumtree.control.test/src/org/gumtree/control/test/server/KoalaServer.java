@@ -839,7 +839,7 @@ public class KoalaServer {
 		            
 		            String commandText = serverSocket.recvStr();
 		            
-//		            System.out.println("command: " + command);
+		            System.out.println("command: " + commandText);
 		            
 		            JSONObject json = null;
 		            try {

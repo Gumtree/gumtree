@@ -55,7 +55,7 @@ public class ControlRealtimeDataViewer extends Composite {
 					@Override
 					public boolean getExitCondition() {
 						ISicsProxy proxy = SicsManager.getSicsProxy();
-						if (proxy != null && proxy.isConnected()) {
+						if (proxy != null && proxy.isConnected() && proxy.getSicsModel() != null) {
 							try {
 								Thread.sleep(1000);
 							} catch (InterruptedException e) {
