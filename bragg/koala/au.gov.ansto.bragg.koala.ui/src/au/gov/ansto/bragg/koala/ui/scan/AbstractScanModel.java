@@ -14,7 +14,6 @@ import org.eclipse.swt.widgets.Display;
 import org.gumtree.msw.ui.ktable.KTable;
 import org.gumtree.msw.ui.ktable.KTableCellRenderer;
 import org.gumtree.msw.ui.ktable.KTableModel;
-import org.gumtree.msw.ui.ktable.SWTX;
 import org.gumtree.msw.ui.ktable.renderers.DefaultCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.FixedCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.ImageButtonCellRenderer;
@@ -26,6 +25,12 @@ import au.gov.ansto.bragg.koala.ui.parts.ImageButtonHighlightRenderer;
 
 public abstract class AbstractScanModel implements KTableModel {
 
+	protected final int ERASURE_TIME = 10;
+	protected final int READING_TIME = 20;
+	protected final int TEMP_TIME = 300;
+	protected final int CHI_TIME = 10;
+	protected final int PHI_TIME = 10;
+	
 	private SingleScan initScan;
 	protected List<SingleScan> scanList;
 //	private Map<SingleScan, Button> dupButton;
@@ -119,8 +124,6 @@ public abstract class AbstractScanModel implements KTableModel {
 			
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 		});
 		table.addMouseMoveListener(new MouseMoveListener() {
@@ -192,8 +195,6 @@ public abstract class AbstractScanModel implements KTableModel {
 			
 			@Override
 			public void mouseEnter(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 		});
 	}
@@ -292,7 +293,6 @@ public abstract class AbstractScanModel implements KTableModel {
 
 	@Override
 	public int getFixedHeaderColumnCount() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -386,5 +386,7 @@ public abstract class AbstractScanModel implements KTableModel {
 		highlightCol = col;
 		highlightRow = row;
 	}
+	
+	public abstract int getTimeEstimation();
 	
 }

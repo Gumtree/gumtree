@@ -103,9 +103,9 @@ public class SimpleControlSuite {
 			
 			@Override
 			public void keyReleased(KeyEvent e) {
-				if (e.keyCode == 13) {
+				if (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == 16777296) {
 					commitTarget();
-				}
+				} 
 			}
 			
 			@Override

@@ -62,8 +62,8 @@ public class SingleScan {
 	private float end;
 	private int exposure = 60;
 	private int erasure = 10;
-	private float temp;
-	private float chi;
+	private float temp = Float.NaN;
+	private float chi = Float.NaN;
 	private String status;
 	private String comments;
 	private String filename;
@@ -205,6 +205,10 @@ public class SingleScan {
 		}
 	}
 	public void setPoints(String points) {
+		String[] items = points.split(",");
+		for (int i = 0; i < items.length; i++) {
+			Float.valueOf(items[i].trim());
+		}
 		Object old = this.points;
 		this.points = points;
 		firePropertyChange("points", old, points);
@@ -223,8 +227,8 @@ public class SingleScan {
 		end = scan.getEnd();
 		exposure = scan.getExposure();
 		erasure = scan.getErasure();
-		temp = scan.getTemp();
-		chi = scan.getChi();
+//		temp = scan.getTemp();
+//		chi = scan.getChi();
 		comments = scan.getComments();
 		filename = scan.getFilename();
 		points = scan.getPoints();
@@ -342,4 +346,10 @@ public class SingleScan {
 		changeListener.removePropertyChangeListener(listener);
 	}
 
+	public void dispose() {
+		PropertyChangeListener[] listeners = changeListener.getPropertyChangeListeners();
+		for (PropertyChangeListener listener : listeners) {
+			changeListener.removePropertyChangeListener(listener);
+		}
+	}
 }

@@ -273,7 +273,7 @@ public class CrystalPanel extends AbstractControlPanel {
 			final ISicsController schiController = SicsManager.getSicsModel().findControllerByPath(
 					System.getProperty(ControlHelper.SAMPLE_CHI));
 			if (schiController instanceof DriveableController) {
-				DriveableController driveable = (DriveableController) schiController;
+				final DriveableController driveable = (DriveableController) schiController;
 				JobRunner.run(new ILoopExitCondition() {
 					
 					@Override
@@ -367,7 +367,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		}
 		
 		@Override
-		public void updateState(ControllerState oldState, ControllerState newState) {
+		public void updateState(final ControllerState oldState, final ControllerState newState) {
 			Display.getDefault().asyncExec(new Runnable() {
 				
 				@Override

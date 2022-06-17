@@ -44,6 +44,8 @@ public class Activator extends AbstractUIPlugin {
 	private static Cursor busyCursor;
 	private static Cursor defaultCursor;
 	private static Color lightColor;
+	private static Color lightForgroundColor;
+	private static Color backgroundColor;
 	private static Color highlightColor;
 	private static Color busyColor;
 	private static Color idleColor;
@@ -78,9 +80,11 @@ public class Activator extends AbstractUIPlugin {
 				busyCursor = new Cursor(currentDisplay, SWT.CURSOR_WAIT);
 				defaultCursor = currentDisplay.getSystemCursor(SWT.CURSOR_ARROW);
 				lightColor = Display.getDefault().getSystemColor(SWT.COLOR_INFO_BACKGROUND);
+				backgroundColor = Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
 				highlightColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_RED);
 				busyColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_GREEN);
 				idleColor = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
+				lightForgroundColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY);
 			}
 		});
 	}
@@ -122,6 +126,12 @@ public class Activator extends AbstractUIPlugin {
 	}
 	public static Color getLightColor() {
 		return lightColor;
+	}
+	public static Color getBackgroundColor() {
+		return backgroundColor;
+	}
+	public static Color getLightForgroundColor() {
+		return lightForgroundColor;
 	}
 	public static Color getHighlightColor() {
 		return highlightColor;

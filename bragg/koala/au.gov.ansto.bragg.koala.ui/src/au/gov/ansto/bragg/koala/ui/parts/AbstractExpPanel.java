@@ -13,6 +13,8 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -36,7 +38,6 @@ import org.gumtree.msw.ui.ktable.SWTX;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
-import au.gov.ansto.bragg.koala.ui.parts.InitScanPanel.ConditionControl;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
 import au.gov.ansto.bragg.koala.ui.scan.SingleScan;
@@ -48,6 +49,12 @@ import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
  */
 public abstract class AbstractExpPanel extends AbstractControlPanel {
 
+	enum InstrumentPhase {
+		ERASURE,
+		EXPOSURE,
+		READING
+	};
+	
 	private static final int WIDTH_HINT = 2200; //1860
 	private static final int HEIGHT_HINT = 960;
 	private static final int WIDTH_TABLE = 1580;
@@ -72,6 +79,11 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	private Text phiText;
 	private Text fileText;
 	private Text numText;
+	private Label erasureButton;
+	private Label expoButton;
+	private Label readButton;
+	private Text timeTotalText;
+	private Text timeLeftText;
 	private ControlHelper controlHelper;
 
 	/**
@@ -204,18 +216,18 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	    GridLayoutFactory.fillDefaults().numColumns(3).margins(4, 4).applyTo(phasePart);
 	    GridDataFactory.fillDefaults().grab(true, false).applyTo(phasePart);
 	    
-	    final Label erasureButton = new Label(phasePart, SWT.BORDER);
+	    erasureButton = new Label(phasePart, SWT.NONE);
 	    erasureButton.setText("Erasure");
 	    erasureButton.setFont(Activator.getMiddleFont());
 	    erasureButton.setBackground(Activator.getLightColor());
 	    GridDataFactory.fillDefaults().grab(true, false).minSize(160, 32).applyTo(erasureButton);
 
-	    final Label expoButton = new Label(phasePart, SWT.NONE);
+	    expoButton = new Label(phasePart, SWT.NONE);
 	    expoButton.setText("Exposure");
 	    expoButton.setFont(Activator.getMiddleFont());
 	    GridDataFactory.fillDefaults().grab(true, false).minSize(160, 32).applyTo(expoButton);
 
-	    final Label readButton = new Label(phasePart, SWT.NONE);
+	    readButton = new Label(phasePart, SWT.NONE);
 	    readButton.setText("Reading");
 	    readButton.setFont(Activator.getMiddleFont());
 	    GridDataFactory.fillDefaults().grab(true, false).minSize(160, 32).applyTo(readButton);
@@ -441,18 +453,29 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 //						}
 //					}
 				}
+				updateTimeEstimation();
 			}
 			
 			@Override
 			public void mouseDown(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
+			}
+		});
+	    
+	    table.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == 16777296) {
+					updateTimeEstimation();
+				} 
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
 			}
 		});
 		
@@ -460,18 +483,46 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	    GridLayoutFactory.fillDefaults().margins(0, 0).numColumns(5).applyTo(runGroup);
 	    GridDataFactory.fillDefaults().grab(true, false).applyTo(runGroup);
 	    
-		final Label timeLabel = new Label(runGroup, SWT.NONE);
-		timeLabel.setText("Time estimation");
-		timeLabel.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 40).applyTo(timeLabel);
+		final Label timeTotalLabel = new Label(runGroup, SWT.NONE);
+		timeTotalLabel.setText("Total time");
+		timeTotalLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 40).applyTo(timeTotalLabel);
 		
-		final Text timeText = new Text(runGroup, SWT.BORDER);
-		timeText.setFont(Activator.getMiddleFont());
-		timeText.setEditable(false);
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).minSize(180, 40).applyTo(timeText);
+		timeTotalText = new Text(runGroup, SWT.BORDER);
+		timeTotalText.setFont(Activator.getMiddleFont());
+		timeTotalText.setEditable(false);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).minSize(180, 40).applyTo(timeTotalText);
+		
+		final Label startLabel = new Label(runGroup, SWT.NONE);
+		startLabel.setText("Started at");
+		startLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 40).applyTo(startLabel);
+		
+		final Text startText = new Text(runGroup, SWT.BORDER);
+		startText.setFont(Activator.getMiddleFont());
+		startText.setEditable(false);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).minSize(180, 40).applyTo(startText);
+	    
+	    final Button runButton = new Button(runGroup, SWT.PUSH);
+		runButton.setImage(KoalaImage.PLAY48.getImage());
+		runButton.setText("Run");
+		runButton.setFont(Activator.getMiddleFont());
+		runButton.setCursor(Activator.getHandCursor());
+//		runButton.setSize(240, 64);
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.END, SWT.CENTER).span(1, 2).hint(240, 64).applyTo(runButton);
+		
+		final Label timeLeftLabel = new Label(runGroup, SWT.NONE);
+		timeLeftLabel.setText("Time left");
+		timeLeftLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 40).applyTo(timeLeftLabel);
+		
+		timeLeftText = new Text(runGroup, SWT.BORDER);
+		timeLeftText.setFont(Activator.getMiddleFont());
+		timeLeftText.setEditable(false);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).minSize(180, 40).applyTo(timeTotalText);
 		
 		final Label finLabel = new Label(runGroup, SWT.NONE);
-		finLabel.setText("Finish at");
+		finLabel.setText("To finish at");
 		finLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 40).applyTo(finLabel);
 		
@@ -480,18 +531,44 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		finText.setEditable(false);
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).minSize(180, 40).applyTo(finText);
 
-	    
-	    final Button runButton = new Button(runGroup, SWT.PUSH);
-		runButton.setImage(KoalaImage.PLAY48.getImage());
-		runButton.setText("Run");
-		runButton.setFont(Activator.getMiddleFont());
-		runButton.setCursor(Activator.getHandCursor());
-//		runButton.setSize(240, 64);
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.END, SWT.CENTER).hint(240, 64).applyTo(runButton);
-
-		StatusControl control = new StatusControl();
+		new StatusControl();
+		updateTimeEstimation();
 	}
 
+	private void setPhase(String phase) {
+		if (phase != null) {
+			phase = phase.toUpperCase();
+		}
+		if (InstrumentPhase.ERASURE.name().equals(phase)) {
+			erasureButton.setBackground(Activator.getLightColor());
+			erasureButton.setForeground(Activator.getHighlightColor());
+			expoButton.setBackground(Activator.getBackgroundColor());
+			expoButton.setForeground(Activator.getIdleColor());
+			readButton.setBackground(Activator.getBackgroundColor());
+			readButton.setForeground(Activator.getIdleColor());
+		} else if (InstrumentPhase.EXPOSURE.name().equals(phase)) {
+			erasureButton.setBackground(Activator.getBackgroundColor());
+			erasureButton.setForeground(Activator.getIdleColor());
+			expoButton.setBackground(Activator.getLightColor());
+			expoButton.setForeground(Activator.getHighlightColor());
+			readButton.setBackground(Activator.getBackgroundColor());
+			readButton.setForeground(Activator.getIdleColor());
+		} else if (InstrumentPhase.READING.name().equals(phase)) {
+			erasureButton.setBackground(Activator.getBackgroundColor());
+			erasureButton.setForeground(Activator.getIdleColor());
+			expoButton.setBackground(Activator.getBackgroundColor());
+			expoButton.setForeground(Activator.getIdleColor());
+			readButton.setBackground(Activator.getLightColor());
+			readButton.setForeground(Activator.getHighlightColor());
+		} else {
+			erasureButton.setBackground(Activator.getBackgroundColor());
+			erasureButton.setForeground(Activator.getIdleColor());
+			expoButton.setBackground(Activator.getBackgroundColor());
+			expoButton.setBackground(Activator.getIdleColor());
+			readButton.setBackground(Activator.getBackgroundColor());
+			readButton.setBackground(Activator.getIdleColor());
+		}
+	}
 	
 	/* (non-Javadoc)
 	 * @see au.gov.ansto.bragg.koala.ui.parts.AbstractControlPart#next()
@@ -524,55 +601,93 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		mainPart.setCurrentPanelName(PanelName.EXPERIMENT);
 	}
 
+	private void updateTimeEstimation() {
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				timeTotalText.setText(String.valueOf(getModel().getTimeEstimation()));
+			}
+		});
+	}
+	
 	class StatusControl {
 		
+		ISicsController phiController;
+		ISicsController stepController;
+		ISicsController fnController;
+		ISicsController phaseController;
+		boolean initialised = false;
+		
 		public StatusControl() {
+			
+			if (controlHelper.isConnected()) {
+				initControllers();
+			}
+			
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 				
 				@Override
 				public void connect() {
-					final ISicsController phiController = SicsManager.getSicsModel().findControllerByPath(
-							System.getProperty(ControlHelper.SAMPLE_PHI));
-					final ISicsController stepController = SicsManager.getSicsModel().findControllerByPath(
-							System.getProperty(ControlHelper.STEP_PATH));
-					final ISicsController fnController = SicsManager.getSicsModel().findControllerByPath(
-							System.getProperty(ControlHelper.FILENAME_PATH));
-					if (phiController != null) {
-						phiController.addControllerListener(
-								new ControllerListener(phiText));
+					if (!initialised) {
+						initControllers();
 					}
-					if (stepController != null) {
-						stepController.addControllerListener(
-								new ControllerListener(numText));
-					}
-					if (fnController != null) {
-						fnController.addControllerListener(
-								new ControllerListener(fileText));
-					}
-					Display.getDefault().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							try {
-								if (phiController != null) {
-									phiText.setText(String.valueOf(
-											((DynamicController) phiController).getValue()));
-								}
-								if (stepController != null) {
-									numText.setText(String.valueOf(
-											((DynamicController) stepController).getValue()));
-								}
-								if (fnController != null) {
-									fileText.setText(String.valueOf(
-											((DynamicController) fnController).getValue()));
-								}								
-							} catch (Exception e) {
-							}
-						}
-					});
 				}
 			};
 			controlHelper.addProxyListener(proxyListener);
+		}
+		
+		public void initControllers() {
+
+			phiController = SicsManager.getSicsModel().findControllerByPath(
+					System.getProperty(ControlHelper.SAMPLE_PHI));
+			stepController = SicsManager.getSicsModel().findControllerByPath(
+					System.getProperty(ControlHelper.STEP_PATH));
+			fnController = SicsManager.getSicsModel().findControllerByPath(
+					System.getProperty(ControlHelper.FILENAME_PATH));
+			phaseController = SicsManager.getSicsModel().findControllerByPath(
+					System.getProperty(ControlHelper.PHASE_PATH));
+			
+			if (phiController != null) {
+				phiController.addControllerListener(
+						new ControllerListener(phiText));
+			}
+			if (stepController != null) {
+				stepController.addControllerListener(
+						new ControllerListener(numText));
+			}
+			if (fnController != null) {
+				fnController.addControllerListener(
+						new ControllerListener(fileText));
+			}
+			if (phaseController != null) {
+				phaseController.addControllerListener(new PhaseListener());
+			}
+			Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					try {
+						if (phiController != null) {
+							phiText.setText(String.valueOf(
+									((DynamicController) phiController).getValue()));
+						}
+						if (stepController != null) {
+							numText.setText(String.valueOf(
+									((DynamicController) stepController).getValue()));
+						}
+						if (fnController != null) {
+							fileText.setText(String.valueOf(
+									((DynamicController) fnController).getValue()));
+						}
+						if (phaseController != null) {
+							setPhase(String.valueOf(((DynamicController) phaseController).getValue()));
+						}
+					} catch (Exception e) {
+					}
+				}
+			});
+			initialised = true;
 		}
 	}
 	
@@ -587,7 +702,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		}
 		
 		@Override
-		public void updateState(ControllerState oldState, ControllerState newState) {
+		public void updateState(final ControllerState oldState, final ControllerState newState) {
 			Display.getDefault().asyncExec(new Runnable() {
 
 				@Override
@@ -622,4 +737,30 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		
 	}
 
+	class PhaseListener implements ISicsControllerListener {
+		
+		@Override
+		public void updateState(ControllerState oldState, ControllerState newState) {
+		}
+
+		@Override
+		public void updateValue(final Object oldValue, final Object newValue) {
+			Display.getDefault().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					setPhase(String.valueOf(newValue));
+				}
+			});
+		}
+
+		@Override
+		public void updateEnabled(boolean isEnabled) {
+		}
+
+		@Override
+		public void updateTarget(Object oldValue, Object newValue) {
+		}
+		
+	}
 }

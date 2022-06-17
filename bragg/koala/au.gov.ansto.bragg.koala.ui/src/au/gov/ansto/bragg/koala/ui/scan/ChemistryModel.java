@@ -65,34 +65,36 @@ public class ChemistryModel extends AbstractScanModel {
 			return scan.getExposure();
 		case 7:
 			float temp = scan.getTemp();
-			if (temp == 0) {
+			if (Float.isNaN(temp) || temp == 0) {
 				return "";
 			} 
-			if (row == 1) {
-				return temp;
-			} else {
-				float last = scanList.get(row - 2).getTemp();
-				if (temp == last) {
-					return "";
-				} else {
-					return temp;
-				}
-			}
+//			if (row == 1) {
+//				return temp;
+//			} else {
+//				float last = scanList.get(row - 2).getTemp();
+//				if (temp == last) {
+//					return "";
+//				} else {
+//					return temp;
+//				}
+//			}
 		case 8:
 			float chi = scan.getChi();
-			if (chi == 0) {
+			if (Float.isNaN(chi)) {
 				return "";
-			} 
-			if (row == 1) {
-				return chi;
 			} else {
-				float last = scanList.get(row - 2).getChi();
-				if (chi == last) {
-					return "";
-				} else {
-					return chi;
-				}
+				return chi;
 			}
+//			if (row == 1) {
+//				return chi;
+//			} else {
+//				float last = scanList.get(row - 2).getChi();
+//				if (chi == last) {
+//					return "";
+//				} else {
+//					return chi;
+//				}
+//			}
 		case 9:
 			return scan.getFilename();
 		case 10:
@@ -218,5 +220,26 @@ public class ChemistryModel extends AbstractScanModel {
 			}
 		} 
 		return null;
+	}
+	
+	@Override
+	public int getTimeEstimation() {
+		int time = 0;
+		for (SingleScan scan : scanList) {
+			if (scan.getExposure() > 0) {
+				time += scan.getNumber() * (
+						PHI_TIME + 
+						scan.getExposure() + 
+						ERASURE_TIME + 
+						READING_TIME);
+			}
+			if (!Float.isNaN(scan.getTemp())) {
+				time += TEMP_TIME;
+			}
+			if (!Float.isNaN(scan.getChi())) {
+				time += CHI_TIME;
+			}
+		}
+		return time;
 	}
 }

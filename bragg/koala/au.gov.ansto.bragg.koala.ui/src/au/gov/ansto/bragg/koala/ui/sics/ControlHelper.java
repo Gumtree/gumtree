@@ -30,6 +30,7 @@ public class ControlHelper {
 	public static final String SY_PATH = "gumtree.koala.sy";
 	public static final String STEP_PATH = "gumtree.koala.currpoint";
 	public static final String FILENAME_PATH = "gumtree.koala.filename";
+	public static final String PHASE_PATH = "gumtree.koala.phase";
 
 	private final static Color BUSY_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
 	private final static Color IDLE_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
