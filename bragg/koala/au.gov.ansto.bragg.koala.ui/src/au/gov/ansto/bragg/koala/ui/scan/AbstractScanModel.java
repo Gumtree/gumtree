@@ -45,6 +45,7 @@ public abstract class AbstractScanModel implements KTableModel {
 	private ImageButtonHighlightRenderer highlightDelButtonRenderer;
 	private int highlightRow = -1;
 	private int highlightCol = -1;
+	private long startTime;
 	
 	private KTable table;
 	
@@ -387,6 +388,18 @@ public abstract class AbstractScanModel implements KTableModel {
 		highlightRow = row;
 	}
 	
+	public void start() {
+		startTime = System.currentTimeMillis();
+	}
+	
 	public abstract int getTimeEstimation();
+	
+	public abstract int getTimeLeft();
+	
+	public String getStartedTime() {
+		return String.valueOf(startTime / 1000);
+	}
+	
+	public abstract int getFinishTime();
 	
 }

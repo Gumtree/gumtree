@@ -242,4 +242,16 @@ public class ChemistryModel extends AbstractScanModel {
 		}
 		return time;
 	}
+	
+	@Override
+	public int getTimeLeft() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	@Override
+	public int getFinishTime() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

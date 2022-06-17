@@ -190,7 +190,7 @@ public class SimpleControlSuite {
 	class TargetControllerListener implements ISicsControllerListener {
 
 		@Override
-		public void updateState(ControllerState oldState, ControllerState newState) {
+		public void updateState(final ControllerState oldState, final ControllerState newState) {
 			Display.getDefault().asyncExec(new Runnable() {
 				
 				@Override
@@ -207,7 +207,7 @@ public class SimpleControlSuite {
 		}
 
 		@Override
-		public void updateValue(Object oldValue, Object newValue) {
+		public void updateValue(final Object oldValue, final Object newValue) {
 			if (newValue != null) {
 				Display.getDefault().asyncExec(new Runnable() {
 					

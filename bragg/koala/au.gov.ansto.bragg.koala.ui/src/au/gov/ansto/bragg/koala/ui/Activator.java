@@ -49,6 +49,8 @@ public class Activator extends AbstractUIPlugin {
 	private static Color highlightColor;
 	private static Color busyColor;
 	private static Color idleColor;
+	private static Color runningBackgoundColor;
+	private static Color runningForgroundColor;
 
 	/**
 	 * The constructor
@@ -85,6 +87,8 @@ public class Activator extends AbstractUIPlugin {
 				busyColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_GREEN);
 				idleColor = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
 				lightForgroundColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY);
+				runningBackgoundColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_GREEN);
+				runningForgroundColor = Display.getDefault().getSystemColor(SWT.COLOR_WHITE);
 			}
 		});
 	}
@@ -141,6 +145,12 @@ public class Activator extends AbstractUIPlugin {
 	}
 	public static Color getIdleColor() {
 		return idleColor;
+	}
+	public static Color getRunningBackgoundColor() {
+		return runningBackgoundColor;
+	}
+	public static Color getRunningForgroundColor() {
+		return runningForgroundColor;
 	}
 	public static int getMonitorWidth() {
 		IMultiMonitorManager mmManager = new MultiMonitorManager();

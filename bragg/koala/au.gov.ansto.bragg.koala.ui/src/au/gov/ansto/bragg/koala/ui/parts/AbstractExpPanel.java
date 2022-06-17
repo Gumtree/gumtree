@@ -216,19 +216,19 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	    GridLayoutFactory.fillDefaults().numColumns(3).margins(4, 4).applyTo(phasePart);
 	    GridDataFactory.fillDefaults().grab(true, false).applyTo(phasePart);
 	    
-	    erasureButton = new Label(phasePart, SWT.NONE);
-	    erasureButton.setText("Erasure");
+	    erasureButton = new Label(phasePart, SWT.BORDER);
+	    erasureButton.setText(" Erasure");
 	    erasureButton.setFont(Activator.getMiddleFont());
 	    erasureButton.setBackground(Activator.getLightColor());
 	    GridDataFactory.fillDefaults().grab(true, false).minSize(160, 32).applyTo(erasureButton);
 
-	    expoButton = new Label(phasePart, SWT.NONE);
-	    expoButton.setText("Exposure");
+	    expoButton = new Label(phasePart, SWT.BORDER);
+	    expoButton.setText(" Exposure");
 	    expoButton.setFont(Activator.getMiddleFont());
 	    GridDataFactory.fillDefaults().grab(true, false).minSize(160, 32).applyTo(expoButton);
 
-	    readButton = new Label(phasePart, SWT.NONE);
-	    readButton.setText("Reading");
+	    readButton = new Label(phasePart, SWT.BORDER);
+	    readButton.setText(" Reading");
 	    readButton.setFont(Activator.getMiddleFont());
 	    GridDataFactory.fillDefaults().grab(true, false).minSize(160, 32).applyTo(readButton);
 
@@ -519,7 +519,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		timeLeftText = new Text(runGroup, SWT.BORDER);
 		timeLeftText.setFont(Activator.getMiddleFont());
 		timeLeftText.setEditable(false);
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).minSize(180, 40).applyTo(timeTotalText);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).minSize(180, 40).applyTo(timeLeftText);
 		
 		final Label finLabel = new Label(runGroup, SWT.NONE);
 		finLabel.setText("To finish at");
@@ -540,33 +540,33 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			phase = phase.toUpperCase();
 		}
 		if (InstrumentPhase.ERASURE.name().equals(phase)) {
-			erasureButton.setBackground(Activator.getLightColor());
-			erasureButton.setForeground(Activator.getHighlightColor());
+			erasureButton.setBackground(Activator.getRunningBackgoundColor());
+			erasureButton.setForeground(Activator.getRunningForgroundColor());
 			expoButton.setBackground(Activator.getBackgroundColor());
-			expoButton.setForeground(Activator.getIdleColor());
+			expoButton.setForeground(Activator.getLightForgroundColor());
 			readButton.setBackground(Activator.getBackgroundColor());
-			readButton.setForeground(Activator.getIdleColor());
+			readButton.setForeground(Activator.getLightForgroundColor());
 		} else if (InstrumentPhase.EXPOSURE.name().equals(phase)) {
 			erasureButton.setBackground(Activator.getBackgroundColor());
-			erasureButton.setForeground(Activator.getIdleColor());
-			expoButton.setBackground(Activator.getLightColor());
-			expoButton.setForeground(Activator.getHighlightColor());
+			erasureButton.setForeground(Activator.getLightForgroundColor());
+			expoButton.setBackground(Activator.getRunningBackgoundColor());
+			expoButton.setForeground(Activator.getRunningForgroundColor());
 			readButton.setBackground(Activator.getBackgroundColor());
-			readButton.setForeground(Activator.getIdleColor());
+			readButton.setForeground(Activator.getLightForgroundColor());
 		} else if (InstrumentPhase.READING.name().equals(phase)) {
 			erasureButton.setBackground(Activator.getBackgroundColor());
-			erasureButton.setForeground(Activator.getIdleColor());
+			erasureButton.setForeground(Activator.getLightForgroundColor());
 			expoButton.setBackground(Activator.getBackgroundColor());
-			expoButton.setForeground(Activator.getIdleColor());
-			readButton.setBackground(Activator.getLightColor());
-			readButton.setForeground(Activator.getHighlightColor());
+			expoButton.setForeground(Activator.getLightForgroundColor());
+			readButton.setBackground(Activator.getRunningBackgoundColor());
+			readButton.setForeground(Activator.getRunningForgroundColor());
 		} else {
 			erasureButton.setBackground(Activator.getBackgroundColor());
-			erasureButton.setForeground(Activator.getIdleColor());
+			erasureButton.setForeground(Activator.getLightForgroundColor());
 			expoButton.setBackground(Activator.getBackgroundColor());
-			expoButton.setBackground(Activator.getIdleColor());
+			expoButton.setForeground(Activator.getLightForgroundColor());
 			readButton.setBackground(Activator.getBackgroundColor());
-			readButton.setBackground(Activator.getIdleColor());
+			readButton.setForeground(Activator.getLightForgroundColor());
 		}
 	}
 	

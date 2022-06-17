@@ -417,7 +417,7 @@ public class MjpegViewer extends Composite {
 			final ISicsController sphiController = SicsManager.getSicsModel().findControllerByPath(
 					System.getProperty(ControlHelper.SAMPLE_PHI));
 			if (sphiController instanceof DriveableController) {
-				DriveableController driveable = (DriveableController) sphiController;
+				final DriveableController driveable = (DriveableController) sphiController;
 				JobRunner.run(new ILoopExitCondition() {
 					
 					@Override
@@ -622,7 +622,7 @@ public class MjpegViewer extends Composite {
 		}
 	}
 	
-	private void chooseRange(Button rangeButton) {
+	private void chooseRange(final Button rangeButton) {
 		Display.getDefault().asyncExec(new Runnable() {
 			
 			@Override
@@ -647,7 +647,7 @@ public class MjpegViewer extends Composite {
 		}
 		
 		@Override
-		public void updateState(ControllerState oldState, ControllerState newState) {
+		public void updateState(final ControllerState oldState, final ControllerState newState) {
 			Display.getDefault().asyncExec(new Runnable() {
 				
 				@Override

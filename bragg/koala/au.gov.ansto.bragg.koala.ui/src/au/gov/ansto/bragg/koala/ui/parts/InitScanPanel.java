@@ -438,7 +438,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		}
 		
 		@Override
-		public void updateState(ControllerState oldState, ControllerState newState) {
+		public void updateState(final ControllerState oldState, final ControllerState newState) {
 			Display.getDefault().asyncExec(new Runnable() {
 
 				@Override

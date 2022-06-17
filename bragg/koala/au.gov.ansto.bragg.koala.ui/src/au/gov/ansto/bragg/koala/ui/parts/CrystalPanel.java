@@ -344,7 +344,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		}
 	}
 	
-	private void chooseRange(Button rangeButton) {
+	private void chooseRange(final Button rangeButton) {
 		Display.getDefault().asyncExec(new Runnable() {
 			
 			@Override
