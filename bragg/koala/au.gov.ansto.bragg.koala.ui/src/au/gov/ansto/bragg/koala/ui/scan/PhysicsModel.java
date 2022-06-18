@@ -1,8 +1,5 @@
 package au.gov.ansto.bragg.koala.ui.scan;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
@@ -284,6 +281,8 @@ public class PhysicsModel extends AbstractScanModel {
 				String t = String.valueOf(value);
 				if (t.length() > 0) {
 					scan.setTemp(Float.parseFloat(t));
+				} else {
+					scan.setTemp(Float.NaN);
 				}
 			}
 			break;
@@ -294,6 +293,8 @@ public class PhysicsModel extends AbstractScanModel {
 				String t = String.valueOf(value);
 				if (t.length() > 0) {
 					scan.setChi(Float.parseFloat(t));
+				} else {
+					scan.setChi(Float.NaN);
 				}
 			}
 			break;
@@ -361,70 +362,4 @@ public class PhysicsModel extends AbstractScanModel {
 		return null;
 	}
 	
-	private List<Float> getPointValues(SingleScan scan) {
-		String[] items = scan.getPoints().split(",");
-		List<Float> values = new ArrayList<Float>();
-		for (int i = 0; i < items.length; i++) {
-			float v = Float.valueOf(items[i].trim());
-			if (!Float.isNaN(v)) {
-				values.add(v);
-			}
-		}
-		return values;
-	}
-	
-	@Override
-	public int getTimeEstimation() {
-		int time = 0;
-		for (SingleScan scan : scanList) {
-			if (scan.getTarget().isPoints()) {
-				List<Float> values = getPointValues(scan);
-				if (values.size() > 0) {
-					if (scan.getExposure() > 0) {
-						time += values.size() * (
-								PHI_TIME + 
-								scan.getExposure() + 
-								ERASURE_TIME + 
-								READING_TIME);
-					}
-					if (!Float.isNaN(scan.getTemp())) {
-						time += TEMP_TIME;
-					}
-					if (!Float.isNaN(scan.getChi())) {
-						time += CHI_TIME;
-					}
-				}
-			} else {
-				if (scan.getExposure() > 0) {
-					time += scan.getNumber() * (
-							PHI_TIME + 
-							scan.getExposure() + 
-							ERASURE_TIME + 
-							READING_TIME);
-				}
-				if (scan.getTarget() != ScanTarget.TEMP_LOOP 
-						&& scan.getTarget() != ScanTarget.TEMP_POINTS) {
-					if (!Float.isNaN(scan.getTemp())) {
-						time += TEMP_TIME;
-					}
-				}
-				if (!Float.isNaN(scan.getChi())) {
-					time += CHI_TIME;
-				}
-			}
-		}
-		return time;
-	}
-
-	@Override
-	public int getTimeLeft() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	
-	@Override
-	public int getFinishTime() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 }

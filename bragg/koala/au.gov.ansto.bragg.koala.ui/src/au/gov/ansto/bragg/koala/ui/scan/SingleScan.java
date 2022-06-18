@@ -2,6 +2,8 @@ package au.gov.ansto.bragg.koala.ui.scan;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
+import java.util.List;
 
 enum ScanTarget {
 	PHI_LOOP,
@@ -10,7 +12,7 @@ enum ScanTarget {
 	TEMP_POINTS;
 	
 	static String[] texts = {"PHI loop", "PHI points", "TEMP loop", "TEMP points"};
-	
+
 	public String getText() {
 		switch (this) {
 		case PHI_LOOP:
@@ -55,6 +57,12 @@ enum ScanTarget {
 
 public class SingleScan {
 
+	protected final int ERASURE_TIME = 10;
+	protected final int READING_TIME = 20;
+	protected final int TEMP_TIME = 300;
+	protected final int CHI_TIME = 10;
+	protected final int PHI_TIME = 10;
+	
 	private ScanTarget target;
 	private float start;
 	private float inc;
@@ -140,7 +148,7 @@ public class SingleScan {
 		return exposure;
 	}
 	public void setExposure(int exposure) {
-		Object old = exposure;
+		Object old = this.exposure;
 		this.exposure = exposure;
 		firePropertyChange("exposure", old, exposure);
 	}
@@ -149,7 +157,7 @@ public class SingleScan {
 		return temp;
 	}
 	public void setTemp(float temp) {
-		Object old = temp;
+		Object old = this.temp;
 		this.temp = temp;
 		firePropertyChange("temp", old, temp);
 	}
@@ -157,7 +165,7 @@ public class SingleScan {
 		return chi;
 	}
 	public void setChi(float chi) {
-		Object old = chi;
+		Object old = this.chi;
 		this.chi = chi;
 		firePropertyChange("chi", old, chi);
 	}
@@ -351,5 +359,62 @@ public class SingleScan {
 		for (PropertyChangeListener listener : listeners) {
 			changeListener.removePropertyChangeListener(listener);
 		}
+	}
+	
+	private List<Float> getPointValues() {
+		String[] items = getPoints().split(",");
+		List<Float> values = new ArrayList<Float>();
+		for (int i = 0; i < items.length; i++) {
+			float v = Float.valueOf(items[i].trim());
+			if (!Float.isNaN(v)) {
+				values.add(v);
+			}
+		}
+		return values;
+	}
+	
+	public int getTotalTime() {
+		int time = 0;
+		if (getTarget().isPoints()) {
+			List<Float> values = getPointValues();
+			if (values.size() > 0) {
+				if (getExposure() > 0) {
+					time += values.size() * (
+							PHI_TIME + 
+							getExposure() + 
+							ERASURE_TIME + 
+							READING_TIME);
+				}
+				if (!Float.isNaN(getTemp())) {
+					time += TEMP_TIME;
+				}
+				if (!Float.isNaN(getChi())) {
+					time += CHI_TIME;
+				}
+			}
+		} else {
+			if (getExposure() > 0) {
+				time += getNumber() * (
+						PHI_TIME + 
+						getExposure() + 
+						ERASURE_TIME + 
+						READING_TIME);
+			}
+			if (getTarget() != ScanTarget.TEMP_LOOP 
+					&& getTarget() != ScanTarget.TEMP_POINTS) {
+				if (!Float.isNaN(getTemp()) && getTemp() != 0) {
+					time += TEMP_TIME;
+				}
+			}
+			if (!Float.isNaN(getChi())) {
+				time += CHI_TIME;
+			}
+		}
+		return time;
+	}
+	
+	public int getTimeLeft() {
+		
+		return 0;
 	}
 }

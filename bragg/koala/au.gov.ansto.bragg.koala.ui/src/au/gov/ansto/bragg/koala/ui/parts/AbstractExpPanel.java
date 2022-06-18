@@ -13,8 +13,6 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -40,6 +38,8 @@ import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
+import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel.ModelStatus;
+import au.gov.ansto.bragg.koala.ui.scan.IModelListener;
 import au.gov.ansto.bragg.koala.ui.scan.SingleScan;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
@@ -65,7 +65,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	private static final int WIDTH_HINT_SMALL = 1560; //1860
 	private static final int HEIGHT_HINT_SMALL = 720;
 	private static final int WIDTH_TABLE_SMALL = 1080;
-	private static final int HEIGHT_TABLE_SMALL = 700;
+	private static final int HEIGHT_TABLE_SMALL = 640;
 	private static final int WIDTH_INFO_SMALL = 480;
 	private static final int HEIGHT_INFO_SMALL = 800;
 	protected MainPart mainPart;
@@ -84,6 +84,8 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	private Label readButton;
 	private Text timeTotalText;
 	private Text timeLeftText;
+	private Text startText;
+	private Text finText;
 	private ControlHelper controlHelper;
 
 	/**
@@ -453,7 +455,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 //						}
 //					}
 				}
-				updateTimeEstimation();
+//				updateTimeEstimation();
 			}
 			
 			@Override
@@ -465,21 +467,23 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			}
 		});
 	    
-	    table.addKeyListener(new KeyListener() {
-			
-			@Override
-			public void keyReleased(KeyEvent e) {
-				if (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == 16777296) {
-					updateTimeEstimation();
-				} 
-			}
-			
-			@Override
-			public void keyPressed(KeyEvent e) {
-			}
-		});
+//	    table.addKeyListener(new KeyListener() {
+//			
+//			@Override
+//			public void keyReleased(KeyEvent e) {
+//				if (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == 16777296) {
+//					updateTimeEstimation();
+//				} 
+//			}
+//			
+//			@Override
+//			public void keyPressed(KeyEvent e) {
+//			}
+//		});
 		
-		final Composite runGroup = new Composite(this, SWT.NONE);
+//		final Composite runGroup = new Composite(this, SWT.NONE);
+	    final Group runGroup = new Group(this, SWT.NONE);
+	    runGroup.setText("Time Estimation");
 	    GridLayoutFactory.fillDefaults().margins(0, 0).numColumns(5).applyTo(runGroup);
 	    GridDataFactory.fillDefaults().grab(true, false).applyTo(runGroup);
 	    
@@ -498,7 +502,8 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		startLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 40).applyTo(startLabel);
 		
-		final Text startText = new Text(runGroup, SWT.BORDER);
+		startText = new Text(runGroup, SWT.BORDER);
+		startText.setText("--");
 		startText.setFont(Activator.getMiddleFont());
 		startText.setEditable(false);
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).minSize(180, 40).applyTo(startText);
@@ -509,7 +514,19 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		runButton.setFont(Activator.getMiddleFont());
 		runButton.setCursor(Activator.getHandCursor());
 //		runButton.setSize(240, 64);
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.END, SWT.CENTER).span(1, 2).hint(240, 64).applyTo(runButton);
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.END, SWT.CENTER)
+					.span(1, 2).hint(240, 64).applyTo(runButton);
+		runButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				model.start();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 		
 		final Label timeLeftLabel = new Label(runGroup, SWT.NONE);
 		timeLeftLabel.setText("Time left");
@@ -526,12 +543,25 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		finLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 40).applyTo(finLabel);
 		
-		final Text finText = new Text(runGroup, SWT.BORDER);
+		finText = new Text(runGroup, SWT.BORDER);
 		finText.setFont(Activator.getMiddleFont());
 		finText.setEditable(false);
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).minSize(180, 40).applyTo(finText);
 
 		new StatusControl();
+		IModelListener modelListener = new IModelListener() {
+			
+			@Override
+			public void progressUpdated(final ModelStatus status) {
+				updateRuningProgress(status);
+			}
+			
+			@Override
+			public void modelChanged() {
+				updateTimeEstimation();
+			}
+		};
+		model.addModelListener(modelListener);
 		updateTimeEstimation();
 	}
 
@@ -607,6 +637,24 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			@Override
 			public void run() {
 				timeTotalText.setText(String.valueOf(getModel().getTimeEstimation()));
+				timeLeftText.setText(String.valueOf(getModel().getTimeEstimation()));
+				finText.setText(getModel().getFinishTime());
+			}
+		});
+	}
+	
+	private void updateRuningProgress(final ModelStatus status) {
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				if (ModelStatus.STARTED.equals(status)) {
+					startText.setText(getModel().getStartedTime());
+					finText.setText(getModel().getFinishTime());
+				} else if (ModelStatus.FINISHED.equals(status)) {
+					startText.setText("--");
+					finText.setText("--");
+				}
 			}
 		});
 	}

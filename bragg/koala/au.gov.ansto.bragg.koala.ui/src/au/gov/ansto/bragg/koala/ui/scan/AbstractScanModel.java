@@ -1,5 +1,10 @@
 package au.gov.ansto.bragg.koala.ui.scan;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,12 +30,6 @@ import au.gov.ansto.bragg.koala.ui.parts.ImageButtonHighlightRenderer;
 
 public abstract class AbstractScanModel implements KTableModel {
 
-	protected final int ERASURE_TIME = 10;
-	protected final int READING_TIME = 20;
-	protected final int TEMP_TIME = 300;
-	protected final int CHI_TIME = 10;
-	protected final int PHI_TIME = 10;
-	
 	private SingleScan initScan;
 	protected List<SingleScan> scanList;
 //	private Map<SingleScan, Button> dupButton;
@@ -45,12 +44,22 @@ public abstract class AbstractScanModel implements KTableModel {
 	private ImageButtonHighlightRenderer highlightDelButtonRenderer;
 	private int highlightRow = -1;
 	private int highlightCol = -1;
-	private long startTime;
+	private boolean isRunning;
+	private LocalDateTime startTime;
+	private List<IModelListener> modelListeners;
+	private PropertyChangeListener propertyListener;
 	
 	private KTable table;
 	
+	public enum ModelStatus {
+		STARTED,
+		RUNNING,
+		FINISHED
+	}
+	
 	public AbstractScanModel() {
 		scanList = new ArrayList<SingleScan>();
+		modelListeners = new ArrayList<IModelListener>();
 //		initScan = new SingleScan();
 //		scanList.add(initScan);
 		oddTextRenderer = new TextCellRenderer(DefaultCellRenderer.INDICATION_FOCUS_ROW );
@@ -78,6 +87,14 @@ public abstract class AbstractScanModel implements KTableModel {
 		highlightDelButtonRenderer = new ImageButtonHighlightRenderer(DefaultCellRenderer.STYLE_PUSH
 				| DefaultCellRenderer.INDICATION_CLICKED);
 		highlightDelButtonRenderer.setImage(KoalaImage.DELETE_INV32.getImage());
+		
+		propertyListener = new PropertyChangeListener() {
+			
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				fireModelChangeEvent();
+			}
+		};
 	}
 	
 	public void setTable(final KTable table) {
@@ -348,27 +365,42 @@ public abstract class AbstractScanModel implements KTableModel {
 		} else {
 			newScan = pre.getCopy();
 		}
+		newScan.addPropertyChangeListener(propertyListener);
 		scanList.add(idx, newScan);
+		fireModelChangeEvent();
 	}
 	
 	public void deleteScan(SingleScan scan) {
+		scan.removePropertyChangeListener(propertyListener);
 		scanList.remove(scan);
+		fireModelChangeEvent();
 	}
 	
 	public void addScans(int idx, List<SingleScan> scans) {
+		for (SingleScan scan : scans) {
+			scan.addPropertyChangeListener(propertyListener);
+		}
 		scanList.addAll(idx, scans);
+		fireModelChangeEvent();
 	}
 	
 	public void deleteScan(int idx) {
 		if (scanList.size() == 1 && idx == 0) {
+			SingleScan newScan;
 			if (initScan != null) {
-				scanList.add(initScan.getCopy());
+				newScan = initScan.getCopy();
 			} else {
-				scanList.add(new SingleScan());
+				newScan = new SingleScan();
 			}
+			newScan.addPropertyChangeListener(propertyListener);
+			scanList.add(newScan);
+		}
+		if (idx < scanList.size()) {
+			SingleScan toRemove = scanList.get(idx);
+			toRemove.removePropertyChangeListener(propertyListener);
 		}
 		scanList.remove(idx);
-		
+		fireModelChangeEvent();
 	}
 	
 	public SingleScan getInitScan() {
@@ -389,17 +421,87 @@ public abstract class AbstractScanModel implements KTableModel {
 	}
 	
 	public void start() {
-		startTime = System.currentTimeMillis();
+		startTime = LocalDateTime.now();
+		isRunning = true;
+		fireProgressUpdatedEvent(ModelStatus.STARTED);
 	}
 	
-	public abstract int getTimeEstimation();
+	public void finish() {
+		isRunning = false;
+		startTime = null;
+	}
 	
-	public abstract int getTimeLeft();
+	public boolean isRunning() {
+		return isRunning;
+	}
+	
+	public int getTimeEstimation() {
+		int time = 0;
+		for (SingleScan scan : scanList) {
+			time += scan.getTotalTime();
+		}
+		return time;
+	}
+
+	public int getTimeLeft() {
+		int time = 0;
+		for (SingleScan scan : scanList) {
+			time += scan.getTimeLeft();
+		}
+		return time;
+	}
 	
 	public String getStartedTime() {
-		return String.valueOf(startTime / 1000);
+		if (startTime != null) {
+			LocalDateTime now = LocalDateTime.now();
+			DateTimeFormatter timeFormat;
+			if (now.getDayOfMonth() == startTime.getDayOfMonth()) {
+				timeFormat = DateTimeFormatter.ofPattern("HH:mm");
+				return startTime.format(timeFormat);
+			} else {
+				timeFormat = DateTimeFormatter.ofPattern("HH:mm 'on' dd/MM");
+				return startTime.format(timeFormat);
+			}
+		} else {
+			return "--";
+		}
 	}
 	
-	public abstract int getFinishTime();
+	public String getFinishTime() {
+		if (startTime != null) {
+			int totalTime = getTimeEstimation();
+			LocalDateTime finish = startTime.plusSeconds(totalTime);
+			LocalDateTime now = LocalDateTime.now();
+			DateTimeFormatter timeFormat;
+			if (now.getDayOfMonth() == startTime.getDayOfMonth()) {
+				timeFormat = DateTimeFormatter.ofPattern("HH:mm");
+				return finish.format(timeFormat);
+			} else {
+				timeFormat = DateTimeFormatter.ofPattern("HH:mm 'on' dd/MM");
+				return finish.format(timeFormat);
+			}
+		} else {
+			return "--";
+		}
+	}
 	
+	public void addModelListener(IModelListener listener) {
+		modelListeners.add(listener);
+	}
+	
+	public void removeModelListener(IModelListener listener) {
+		modelListeners.remove(listener);
+	}
+	
+	protected void fireModelChangeEvent() {
+		for (IModelListener listener : modelListeners) {
+			listener.modelChanged();
+		}
+	}
+
+	protected void fireProgressUpdatedEvent(ModelStatus status) {
+		for (IModelListener listener : modelListeners) {
+			listener.progressUpdated(status);
+		}
+	}
 }
