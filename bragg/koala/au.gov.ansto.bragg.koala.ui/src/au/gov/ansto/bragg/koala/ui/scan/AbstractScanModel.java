@@ -3,9 +3,8 @@ package au.gov.ansto.bragg.koala.ui.scan;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -45,7 +44,7 @@ public abstract class AbstractScanModel implements KTableModel {
 	private int highlightRow = -1;
 	private int highlightCol = -1;
 	private boolean isRunning;
-	private LocalDateTime startTime;
+	private Calendar startTime;
 	private List<IModelListener> modelListeners;
 	private PropertyChangeListener propertyListener;
 	
@@ -421,7 +420,7 @@ public abstract class AbstractScanModel implements KTableModel {
 	}
 	
 	public void start() {
-		startTime = LocalDateTime.now();
+		startTime = Calendar.getInstance();
 		isRunning = true;
 		fireProgressUpdatedEvent(ModelStatus.STARTED);
 	}
@@ -453,15 +452,14 @@ public abstract class AbstractScanModel implements KTableModel {
 	
 	public String getStartedTime() {
 		if (startTime != null) {
-			LocalDateTime now = LocalDateTime.now();
-			DateTimeFormatter timeFormat;
-			if (now.getDayOfMonth() == startTime.getDayOfMonth()) {
-				timeFormat = DateTimeFormatter.ofPattern("HH:mm");
-				return startTime.format(timeFormat);
+			Calendar now = Calendar.getInstance();
+			SimpleDateFormat timeFormat;
+			if (now.get(Calendar.DAY_OF_MONTH) == startTime.get(Calendar.DAY_OF_MONTH)) {
+				timeFormat = new SimpleDateFormat("HH:mm");
 			} else {
-				timeFormat = DateTimeFormatter.ofPattern("HH:mm 'on' dd/MM");
-				return startTime.format(timeFormat);
+				timeFormat = new SimpleDateFormat("HH:mm 'on' dd/MM");
 			}
+			return timeFormat.format(startTime.getTime());
 		} else {
 			return "--";
 		}
@@ -470,16 +468,15 @@ public abstract class AbstractScanModel implements KTableModel {
 	public String getFinishTime() {
 		if (startTime != null) {
 			int totalTime = getTimeEstimation();
-			LocalDateTime finish = startTime.plusSeconds(totalTime);
-			LocalDateTime now = LocalDateTime.now();
-			DateTimeFormatter timeFormat;
-			if (now.getDayOfMonth() == startTime.getDayOfMonth()) {
-				timeFormat = DateTimeFormatter.ofPattern("HH:mm");
-				return finish.format(timeFormat);
+			Calendar finish = Calendar.getInstance();
+			finish.add(Calendar.SECOND, totalTime);
+			SimpleDateFormat timeFormat;
+			if (finish.get(Calendar.DAY_OF_MONTH) == startTime.get(Calendar.DAY_OF_MONTH)) {
+				timeFormat = new SimpleDateFormat("HH:mm");
 			} else {
-				timeFormat = DateTimeFormatter.ofPattern("HH:mm 'on' dd/MM");
-				return finish.format(timeFormat);
+				timeFormat = new SimpleDateFormat("HH:mm 'on' dd/MM");
 			}
+			return timeFormat.format(finish.getTime());
 		} else {
 			return "--";
 		}

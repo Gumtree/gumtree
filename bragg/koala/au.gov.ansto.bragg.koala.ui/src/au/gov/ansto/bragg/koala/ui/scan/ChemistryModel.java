@@ -203,7 +203,7 @@ public class ChemistryModel extends AbstractScanModel {
 		if (row <= 0) {
 			return null;
 		}
-		if (col > 1 && col < 11) {
+		if (col > 1 && col <= 11) {
 			KTableCellEditorText editor = new KTableCellEditorText();
 			return editor;
 		}

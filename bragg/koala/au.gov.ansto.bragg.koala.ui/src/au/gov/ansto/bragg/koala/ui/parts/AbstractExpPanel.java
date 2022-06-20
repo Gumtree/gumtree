@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -105,11 +106,13 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		}
 		mainPart = part;
 		GridLayoutFactory.fillDefaults().margins(8, 8).numColumns(2).applyTo(this);
-		GridDataFactory.swtDefaults().minSize(panelWidth, panelHeight).align(SWT.CENTER, SWT.FILL).applyTo(this);
+		GridDataFactory.swtDefaults().minSize(panelWidth, panelHeight)
+			.align(SWT.CENTER, SWT.FILL).applyTo(this);
 		
 		final Composite scanBlock = new Composite(this, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(1).applyTo(scanBlock);
-		GridDataFactory.fillDefaults().minSize(tableWidth, tableHeight).grab(true, true).align(SWT.FILL, SWT.BEGINNING).applyTo(scanBlock);
+		GridDataFactory.fillDefaults().minSize(tableWidth, tableHeight).grab(true, true)
+			.align(SWT.FILL, SWT.BEGINNING).applyTo(scanBlock);
 		
 	    table = new KTable(scanBlock, SWT.NONE 
 	    							| SWT.MULTI 
@@ -143,11 +146,13 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 //	    	
 //	    };
 //	    table.addCellSelectionListener(listener);
-	    GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(table);
+	    GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL)
+	    	.applyTo(table);
 		
 	    Composite infoPart = new Composite(this, SWT.NONE);
 	    GridLayoutFactory.fillDefaults().applyTo(infoPart);
-	    GridDataFactory.fillDefaults().span(1, 2).grab(false, true).align(SWT.FILL, SWT.BEGINNING).minSize(infoWidth, infoHeight).applyTo(infoPart);
+	    GridDataFactory.fillDefaults().span(1, 2).grab(false, true).align(SWT.FILL, SWT.BEGINNING)
+	    	.minSize(infoWidth, infoHeight).applyTo(infoPart);
 	    
 		final Group statusPart = new Group(infoPart, SWT.NONE);
 		statusPart.setText("Current scan status");
@@ -162,20 +167,21 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		fileText = new Text(statusPart, SWT.BORDER);
 		fileText.setFont(Activator.getMiddleFont());
 		fileText.setEditable(false);
-		fileText.setText("W:\\data\\koala\\d_14.tif");
+//		fileText.setText("W:\\data\\koala\\d_14.tif");
 		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(fileText);
 		
 	    final Button openButton = new Button(statusPart, SWT.PUSH);
 	    openButton.setImage(KoalaImage.IMAGE32.getImage());
 //	    openButton.setFont(Activator.getMiddleFont());
 	    openButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(40, 40).applyTo(openButton);
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER)
+			.hint(40, 40).applyTo(openButton);
 
 		openButton.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String fn = fileText.getText();
+				final String fn = fileText.getText();
 				File f = new File(fn);
 				if (f.exists()) {
 					try {
@@ -184,7 +190,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 						e1.printStackTrace();
 					}
 				} else {
-					
+					MessageDialog.openWarning(getShell(), "Warning", "File not found: " + fn);
 				}
 			}
 			
@@ -251,14 +257,16 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	    pauseButton.setText("PAUSE");
 	    pauseButton.setFont(Activator.getMiddleFont());
 	    pauseButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).hint(128, 80).applyTo(pauseButton);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER)
+			.hint(128, 80).applyTo(pauseButton);
 
 	    final Button stopButton = new Button(controlPart, SWT.PUSH);
 	    stopButton.setImage(KoalaImage.STOP64.getImage());
 	    stopButton.setText("STOP");
 	    stopButton.setFont(Activator.getMiddleFont());
 	    stopButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).hint(128, 80).applyTo(stopButton);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER)
+			.hint(128, 80).applyTo(stopButton);
 
 		final ScrolledComposite batchHolder = new ScrolledComposite(infoPart, SWT.NONE);
 	    GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(batchHolder);
@@ -297,7 +305,8 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	    applyButton.setText("Apply to Selected Entries");
 	    applyButton.setFont(Activator.getMiddleFont());
 	    applyButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).span(3, 1).hint(128, 64).applyTo(applyButton);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).span(3, 1)
+			.hint(128, 64).applyTo(applyButton);
 
 		applyButton.addSelectionListener(new SelectionListener() {
 			
@@ -327,12 +336,14 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		final Label estLabel = new Label(batchGroup, SWT.NONE);
 		estLabel.setText("Estimation of selected");
 		estLabel.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).span(2, 1).minSize(240, 40).applyTo(estLabel);
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER)
+			.span(2, 1).minSize(240, 40).applyTo(estLabel);
 		
 		final Text estText = new Text(batchGroup, SWT.BORDER);
 		estText.setFont(Activator.getMiddleFont());
 		estText.setEditable(false);
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).minSize(180, 40).applyTo(estText);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER)
+			.minSize(180, 40).applyTo(estText);
 		
 		final Composite ctrPart = new Composite(batchGroup, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(2).margins(0, 0).applyTo(ctrPart);
@@ -343,7 +354,8 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	    dupButton.setText("Duplicate");
 	    dupButton.setFont(Activator.getMiddleFont());
 	    dupButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).hint(128, 64).applyTo(dupButton);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER)
+			.hint(128, 64).applyTo(dupButton);
 
 		dupButton.addSelectionListener(new SelectionListener() {
 			
@@ -376,7 +388,8 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	    removeButton.setText("Remove");
 	    removeButton.setFont(Activator.getMiddleFont());
 	    removeButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).hint(128, 64).applyTo(removeButton);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER)
+			.hint(128, 64).applyTo(removeButton);
 
 		removeButton.addSelectionListener(new SelectionListener() {
 			
@@ -438,6 +451,25 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 //						}
 //					}
 //					table.redraw();
+					AbstractScanModel model = getModel();
+					if (rows.length == 1) {
+						SingleScan scan = model.getItem(rows[0]);
+						String com = scan.getComments();
+						if (com != null && com.trim().length() > 0) {
+							comText.setText(com);
+						} else {
+							comText.setText("");
+						}
+						String fn = scan.getFilename();
+						if (fn != null && fn.trim().length() > 0) {
+							fnText.setText(fn);
+						} else {
+							fnText.setText("");
+						}
+					} else {
+						comText.setText("");
+						fnText.setText("");
+					}
 					batchHolder.setContent(batchGroup);
 					batchGroup.layout(true, true);
 					batchHolder.setMinSize(batchGroup.computeSize(440, 300));
@@ -484,29 +516,33 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 //		final Composite runGroup = new Composite(this, SWT.NONE);
 	    final Group runGroup = new Group(this, SWT.NONE);
 	    runGroup.setText("Time Estimation");
-	    GridLayoutFactory.fillDefaults().margins(0, 0).numColumns(5).applyTo(runGroup);
+	    GridLayoutFactory.fillDefaults().margins(2, 0).numColumns(5).applyTo(runGroup);
 	    GridDataFactory.fillDefaults().grab(true, false).applyTo(runGroup);
 	    
 		final Label timeTotalLabel = new Label(runGroup, SWT.NONE);
 		timeTotalLabel.setText("Total time");
 		timeTotalLabel.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 40).applyTo(timeTotalLabel);
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER)
+			.minSize(240, 40).applyTo(timeTotalLabel);
 		
 		timeTotalText = new Text(runGroup, SWT.BORDER);
 		timeTotalText.setFont(Activator.getMiddleFont());
 		timeTotalText.setEditable(false);
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).minSize(180, 40).applyTo(timeTotalText);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER)
+			.minSize(180, 40).applyTo(timeTotalText);
 		
 		final Label startLabel = new Label(runGroup, SWT.NONE);
 		startLabel.setText("Started at");
 		startLabel.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 40).applyTo(startLabel);
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER)
+			.minSize(240, 40).applyTo(startLabel);
 		
 		startText = new Text(runGroup, SWT.BORDER);
 		startText.setText("--");
 		startText.setFont(Activator.getMiddleFont());
 		startText.setEditable(false);
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).minSize(180, 40).applyTo(startText);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER)
+			.minSize(180, 40).applyTo(startText);
 	    
 	    final Button runButton = new Button(runGroup, SWT.PUSH);
 		runButton.setImage(KoalaImage.PLAY48.getImage());
@@ -531,22 +567,26 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		final Label timeLeftLabel = new Label(runGroup, SWT.NONE);
 		timeLeftLabel.setText("Time left");
 		timeLeftLabel.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 40).applyTo(timeLeftLabel);
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER)
+			.minSize(240, 40).applyTo(timeLeftLabel);
 		
 		timeLeftText = new Text(runGroup, SWT.BORDER);
 		timeLeftText.setFont(Activator.getMiddleFont());
 		timeLeftText.setEditable(false);
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).minSize(180, 40).applyTo(timeLeftText);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER)
+			.minSize(180, 40).applyTo(timeLeftText);
 		
 		final Label finLabel = new Label(runGroup, SWT.NONE);
 		finLabel.setText("To finish at");
 		finLabel.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 40).applyTo(finLabel);
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER)
+			.minSize(240, 40).applyTo(finLabel);
 		
 		finText = new Text(runGroup, SWT.BORDER);
 		finText.setFont(Activator.getMiddleFont());
 		finText.setEditable(false);
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).minSize(180, 40).applyTo(finText);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER)
+			.minSize(180, 40).applyTo(finText);
 
 		new StatusControl();
 		IModelListener modelListener = new IModelListener() {

@@ -36,7 +36,6 @@ public class FooterPart extends Composite {
 	 */
 	public FooterPart(Composite parent, int style) {
 		super(parent, style);
-		// TODO Auto-generated constructor stub
 		GridLayoutFactory.fillDefaults().numColumns(4).applyTo(this);
 		joeyButton = new Button(this, SWT.PUSH);
 		joeyButton.setText("JOEY Mode ");
@@ -78,8 +77,6 @@ public class FooterPart extends Composite {
 			
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 		});
 		
@@ -134,8 +131,6 @@ public class FooterPart extends Composite {
 			
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 		});
 	}
