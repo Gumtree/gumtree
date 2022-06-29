@@ -53,7 +53,8 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	enum InstrumentPhase {
 		ERASURE,
 		EXPOSURE,
-		READING
+		READING,
+		IDLE
 	};
 	
 	private static final int WIDTH_HINT = 2200; //1860
@@ -66,7 +67,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	private static final int WIDTH_HINT_SMALL = 1560; //1860
 	private static final int HEIGHT_HINT_SMALL = 720;
 	private static final int WIDTH_TABLE_SMALL = 1080;
-	private static final int HEIGHT_TABLE_SMALL = 640;
+	private static final int HEIGHT_TABLE_SMALL = 620;
 	private static final int WIDTH_INFO_SMALL = 480;
 	private static final int HEIGHT_INFO_SMALL = 800;
 	protected MainPart mainPart;
@@ -87,6 +88,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	private Text timeLeftText;
 	private Text startText;
 	private Text finText;
+	private Button endButton;
 	private ControlHelper controlHelper;
 
 	/**
@@ -240,6 +242,10 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	    readButton.setFont(Activator.getMiddleFont());
 	    GridDataFactory.fillDefaults().grab(true, false).minSize(160, 32).applyTo(readButton);
 
+	    Label proLabel = new Label(phasePart, SWT.NONE);
+	    GridDataFactory.fillDefaults().grab(true, false).span(3, 1).applyTo(proLabel);
+	    proLabel.setText(" ");
+	    
 		final ProgressBar proBar = new ProgressBar(phasePart, SWT.HORIZONTAL);
 		proBar.setMaximum(100);
 		proBar.setMinimum(0);
@@ -252,21 +258,22 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	    GridLayoutFactory.fillDefaults().numColumns(2).margins(4, 4).applyTo(controlPart);
 	    GridDataFactory.fillDefaults().grab(true, false).applyTo(controlPart);
 	    
-	    final Button pauseButton = new Button(controlPart, SWT.PUSH);
-	    pauseButton.setImage(KoalaImage.PAUSE64.getImage());
-	    pauseButton.setText("PAUSE");
-	    pauseButton.setFont(Activator.getMiddleFont());
-	    pauseButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER)
-			.hint(128, 80).applyTo(pauseButton);
+	    endButton = new Button(controlPart, SWT.PUSH);
+	    endButton.setImage(KoalaImage.SKIP48.getImage());
+	    endButton.setText("End Exposure");
+	    endButton.setEnabled(false);
+	    endButton.setFont(Activator.getMiddleFont());
+	    endButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.FILL, SWT.CENTER)
+			.hint(230, 80).applyTo(endButton);
 
-	    final Button stopButton = new Button(controlPart, SWT.PUSH);
-	    stopButton.setImage(KoalaImage.STOP64.getImage());
-	    stopButton.setText("STOP");
-	    stopButton.setFont(Activator.getMiddleFont());
-	    stopButton.setCursor(Activator.getHandCursor());
+	    final Button abortButton = new Button(controlPart, SWT.PUSH);
+	    abortButton.setImage(KoalaImage.STOP48.getImage());
+	    abortButton.setText("Abort Experiment");
+	    abortButton.setFont(Activator.getMiddleFont());
+	    abortButton.setCursor(Activator.getHandCursor());
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER)
-			.hint(128, 80).applyTo(stopButton);
+			.hint(256, 80).applyTo(abortButton);
 
 		final ScrolledComposite batchHolder = new ScrolledComposite(infoPart, SWT.NONE);
 	    GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(batchHolder);
@@ -616,6 +623,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			expoButton.setForeground(Activator.getLightForgroundColor());
 			readButton.setBackground(Activator.getBackgroundColor());
 			readButton.setForeground(Activator.getLightForgroundColor());
+			endButton.setEnabled(false);
 		} else if (InstrumentPhase.EXPOSURE.name().equals(phase)) {
 			erasureButton.setBackground(Activator.getBackgroundColor());
 			erasureButton.setForeground(Activator.getLightForgroundColor());
@@ -623,6 +631,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			expoButton.setForeground(Activator.getRunningForgroundColor());
 			readButton.setBackground(Activator.getBackgroundColor());
 			readButton.setForeground(Activator.getLightForgroundColor());
+			endButton.setEnabled(true);
 		} else if (InstrumentPhase.READING.name().equals(phase)) {
 			erasureButton.setBackground(Activator.getBackgroundColor());
 			erasureButton.setForeground(Activator.getLightForgroundColor());
@@ -630,6 +639,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			expoButton.setForeground(Activator.getLightForgroundColor());
 			readButton.setBackground(Activator.getRunningBackgoundColor());
 			readButton.setForeground(Activator.getRunningForgroundColor());
+			endButton.setEnabled(false);
 		} else {
 			erasureButton.setBackground(Activator.getBackgroundColor());
 			erasureButton.setForeground(Activator.getLightForgroundColor());
@@ -637,6 +647,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			expoButton.setForeground(Activator.getLightForgroundColor());
 			readButton.setBackground(Activator.getBackgroundColor());
 			readButton.setForeground(Activator.getLightForgroundColor());
+			endButton.setEnabled(false);
 		}
 	}
 	

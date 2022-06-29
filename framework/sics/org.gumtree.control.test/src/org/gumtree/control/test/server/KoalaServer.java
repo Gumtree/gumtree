@@ -41,11 +41,15 @@ public class KoalaServer {
 	public static final String CMD_STATUS = "status";
 	public static final String CMD_HISTMEM = "histmem";
 	public static final String CMD_PAUSE = "pause";
+	public static final String CMD_COLLECT = "collect";
+	
+	public static final String PATH_INSTRUMENT_PHASE = "/instrument/instrument_phase";
 	
 	private static int MESSAGE_SEQ = 0;
 //	private static int COMMAND_TRANS = 0;
 
 	private static int COUNT_RATE = 1000;
+	private static int DUR_READING = 2000;
 	private static final String MODEL_FILENAME = "C:\\Gumtree\\docs\\GumtreeXML\\koala.xml";
 	private ServerStatus status;
 	private BatchStatus batchStatus = BatchStatus.IDLE;
@@ -62,6 +66,13 @@ public class KoalaServer {
     enum HistmemStatus{Counting, Stopped};
     enum HistmemMode{time, count, unlimited};
     
+	enum InstrumentPhase {
+		ERASURE,
+		EXPOSURE,
+		READING,
+		IDLE
+	};
+
     class HistmemServer {
     	
     	HistmemMode mode = HistmemMode.time;
@@ -267,6 +278,8 @@ public class KoalaServer {
 			processExe(client, cid, command);
 		} else if (command.startsWith(CMD_PAUSE)) {
 			processPause(client, cid, command);
+		} else if (command.startsWith(CMD_COLLECT)) {
+			processCollect(client, cid, command);
 		} else if (command.startsWith(CMD_HSET)) {
 			if (command.endsWith(" start")) {
 				processGroupCommand(client, cid, command);
@@ -336,7 +349,11 @@ public class KoalaServer {
 		} catch (Exception e) {
 			sendInternalError(client, cid, command, e.getMessage());
 		} finally {
-			status = ServerStatus.EAGER_TO_EXECUTE;
+			try {
+				setStatus(ServerStatus.EAGER_TO_EXECUTE);
+			} catch (JSONException e) {
+				status = ServerStatus.EAGER_TO_EXECUTE;
+			}
 		}
 	}
 
@@ -625,6 +642,49 @@ public class KoalaServer {
 		}
 	}
 
+	private void processCollect(String client, String cid, String command) {
+		try {
+			String[] parts = command.split(" ");
+			int exposure = Integer.valueOf(parts[1]);
+			int erasure = Integer.valueOf(parts[2]);
+			ISicsController controller = model.findController(PATH_INSTRUMENT_PHASE);
+			if (controller == null) {
+				sendInternalError(client, cid, command, "instrument phase node not found in the model");
+				return;
+			}
+			setStatus(ServerStatus.COUNTING);
+			IDynamicController dynamic = (IDynamicController) controller;
+			
+			dynamic.updateModelValue(InstrumentPhase.ERASURE.name());
+			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.ERASURE.name());
+			Thread.sleep(erasure * 1000);
+			
+			dynamic.updateModelValue(InstrumentPhase.EXPOSURE.name());
+			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.EXPOSURE.name());
+			Thread.sleep(exposure * 1000);
+
+			dynamic.updateModelValue(InstrumentPhase.READING.name());
+			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.READING.name());
+			Thread.sleep(erasure * 1000);
+
+			dynamic.updateModelValue(InstrumentPhase.IDLE.name());
+			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.IDLE.name());
+			
+			respondFinal(client, cid, command, "finished collecting");
+		} catch (JSONException e) {
+			sendInternalError(client, cid, command, "json exception");
+		} catch (Exception e) {
+			sendInternalError(client, cid, command, e.getMessage());
+		} finally {
+//			status = ServerStatus.EAGER_TO_EXECUTE;
+			try {
+				setStatus(ServerStatus.EAGER_TO_EXECUTE);
+			} catch (JSONException e) {
+				status = ServerStatus.EAGER_TO_EXECUTE;
+			}
+		}
+	}
+	
 	void runBatch() {
 //		Thread thread = new Thread(new Runnable() {
 //			

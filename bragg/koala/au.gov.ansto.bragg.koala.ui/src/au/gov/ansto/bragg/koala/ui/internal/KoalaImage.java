@@ -32,6 +32,8 @@ public enum KoalaImage {
 	DELETE48("/icons/delete_48.png"),
 	DELETE_INV32("/icons/delete_inv_32.png"),
 	PAUSE64("/icons/pause_64.png"),
+	SKIP48("/icons/skip_48.png"),
+	STOP48("/icons/stop_48.png"),
 	STOP64("/icons/stop_64.png"),
 	IMAGE32("/icons/image_32.png"),
 	MULTI_APPLY48("/icons/multitick_48.png"),

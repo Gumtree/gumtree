@@ -420,9 +420,30 @@ public abstract class AbstractScanModel implements KTableModel {
 	}
 	
 	public void start() {
-		startTime = Calendar.getInstance();
-		isRunning = true;
-		fireProgressUpdatedEvent(ModelStatus.STARTED);
+		Thread runnerThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				fireProgressUpdatedEvent(ModelStatus.STARTED);
+				startTime = Calendar.getInstance();
+				isRunning = true;
+				for (SingleScan scan : scanList) {
+					try {
+						scan.run();
+					} catch (KoalaInterruptionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (KoalaServerException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				startTime = null;
+				isRunning = false;
+				fireProgressUpdatedEvent(ModelStatus.FINISHED);
+			}
+		});
+		runnerThread.start();
 	}
 	
 	public void finish() {
@@ -468,7 +489,7 @@ public abstract class AbstractScanModel implements KTableModel {
 	public String getFinishTime() {
 		if (startTime != null) {
 			int totalTime = getTimeEstimation();
-			Calendar finish = Calendar.getInstance();
+			Calendar finish = (Calendar) startTime.clone();
 			finish.add(Calendar.SECOND, totalTime);
 			SimpleDateFormat timeFormat;
 			if (finish.get(Calendar.DAY_OF_MONTH) == startTime.get(Calendar.DAY_OF_MONTH)) {

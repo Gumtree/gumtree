@@ -7,18 +7,22 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.gumtree.control.core.IDriveableController;
 import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.ISicsProxy;
-import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsException;
+import org.gumtree.control.exception.SicsInterruptException;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
+
+import au.gov.ansto.bragg.koala.ui.scan.KoalaInterruptionException;
+import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
 
 public class ControlHelper {
 
@@ -31,12 +35,36 @@ public class ControlHelper {
 	public static final String STEP_PATH = "gumtree.koala.currpoint";
 	public static final String FILENAME_PATH = "gumtree.koala.filename";
 	public static final String PHASE_PATH = "gumtree.koala.phase";
-
+	
 	private final static Color BUSY_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
 	private final static Color IDLE_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
 	
+	public static String TEMP_DEVICE_NAME;
+	public static String CHI_DEVICE_NAME;
+	public static String PHI_DEVICE_NAME;
+	
+	static {
+		TEMP_DEVICE_NAME = System.getProperty(ENV_SETPOINT);
+		CHI_DEVICE_NAME = System.getProperty(SAMPLE_CHI);
+		PHI_DEVICE_NAME = System.getProperty(SAMPLE_PHI);
+	}
+	
 	public ControlHelper() {
-		
+	}
+
+	public static void driveTemperature(float value) 
+			throws KoalaServerException, KoalaInterruptionException {
+		syncDrive(TEMP_DEVICE_NAME, value);
+	}
+
+	public static void driveChi(float value) 
+			throws KoalaServerException, KoalaInterruptionException {
+		syncDrive(CHI_DEVICE_NAME, value);
+	}
+
+	public static void drivePhi(float value) 
+			throws KoalaServerException, KoalaInterruptionException {
+		syncDrive(PHI_DEVICE_NAME, value);
 	}
 
 	private static ISicsProxy getProxy() {
@@ -157,7 +185,49 @@ public class ControlHelper {
 		}
 	}
 	
-	public static String syncExec(String command) throws SicsException {
-		return getProxy().syncRun(command);
+	public static String syncExec(String command) throws KoalaServerException {
+		String res;
+		try {
+			res = getProxy().syncRun(command);
+		} catch (Exception e) {
+			throw new KoalaServerException(e);
+		}
+		return res;
+	}
+	
+	public static void syncDrive(String deviceName, float value) 
+			throws KoalaServerException, KoalaInterruptionException {
+		ISicsController device = getModel().findController(deviceName);
+		if (device instanceof IDriveableController) {
+			try {
+				((IDriveableController) device).drive(value);
+			} catch (SicsException e) {
+				if (e instanceof SicsInterruptException) {
+					throw new KoalaInterruptionException(e);
+				} else {
+					throw new KoalaServerException(e);
+				}
+			}
+		} else {
+			throw new KoalaServerException("device not driveable: " + deviceName);
+		}
+	}
+	
+	public static void syncCollect(int exposure, int erasure) 
+			throws KoalaServerException, KoalaInterruptionException {
+		try {
+			getProxy().syncRun(String.format("collect %d %d", exposure, erasure));
+		} catch (SicsException e) {
+			try {
+				getProxy().syncRun("save");
+			} catch (SicsException e1) {
+				throw new KoalaServerException(e1);
+			}
+			if (e instanceof SicsInterruptException) {
+				throw new KoalaInterruptionException(e);
+			} else {
+				throw new KoalaServerException(e);
+			}
+		}
 	}
 }

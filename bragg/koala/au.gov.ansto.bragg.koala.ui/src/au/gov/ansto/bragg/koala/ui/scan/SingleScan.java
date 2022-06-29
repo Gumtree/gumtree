@@ -5,6 +5,8 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 
+import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
+
 enum ScanTarget {
 	PHI_LOOP,
 	PHI_POINTS,
@@ -53,10 +55,17 @@ enum ScanTarget {
 	public boolean isTemperature() {
 		return this == TEMP_LOOP || this == TEMP_POINTS;
 	}
+	
+	public String getDeviceName() {
+		return this == TEMP_LOOP || this == ScanTarget.TEMP_POINTS ? 
+				ControlHelper.TEMP_DEVICE_NAME : ControlHelper.PHI_DEVICE_NAME;
+	}
 };
 
 public class SingleScan {
 
+	private final static int PAUSE_CHECK_INTERVAL = 20;
+	
 	protected final int ERASURE_TIME = 10;
 	protected final int READING_TIME = 20;
 	protected final int TEMP_TIME = 300;
@@ -79,6 +88,9 @@ public class SingleScan {
 	private InputType inputLast;
 	private InputType input2nd;
 	private String points;
+	private boolean isRunning;
+	private boolean paused;
+	private boolean isFinished;
 
 	enum InputType {START, INC, NUMBER, END};
 	
@@ -416,5 +428,64 @@ public class SingleScan {
 	public int getTimeLeft() {
 		
 		return 0;
+	}
+	
+	public boolean isRunning() {
+		return isRunning;
+	}
+	
+	public boolean isPaused() {
+		return paused;
+	}
+	
+	public boolean isFinished() {
+		return isFinished;
+	}
+	
+	private void evaluatePauseStatus() throws KoalaInterruptionException {
+		if (isPaused()) {
+			while (isPaused()) {
+				try {
+					Thread.sleep(PAUSE_CHECK_INTERVAL);
+				} catch (InterruptedException e) {
+					throw new KoalaInterruptionException("user interrupted");
+				}
+			}
+		}
+	}
+	public void run() throws KoalaInterruptionException, KoalaServerException  {
+		isRunning = true;
+		try {
+			evaluatePauseStatus();
+			if (!getTarget().isTemperature()) {
+				if (!Float.isNaN(getTemp())) {
+					ControlHelper.driveTemperature(getTemp());
+				}
+			}
+			evaluatePauseStatus();
+			if (!Float.isNaN(getChi())) {
+				ControlHelper.driveChi(getChi());
+			}
+			evaluatePauseStatus();
+			if (getTarget().isPoints()) {
+
+			} else {
+				if (getNumber() > 0) {
+					for (int i = 0; i < getNumber(); i++) {
+						evaluatePauseStatus();
+						ControlHelper.syncExec(String.format("hset %s %d", 
+								System.getProperty(ControlHelper.STEP_PATH), i));
+						float target = getStart() + getInc() * i;
+						ControlHelper.syncDrive(getTarget().getDeviceName(), target);
+						evaluatePauseStatus();
+						ControlHelper.syncCollect(getExposure(), getErasure());
+						evaluatePauseStatus();
+					}
+				}
+			}
+		} finally {
+			isFinished = true;
+			isRunning = false;
+		}
 	}
 }
