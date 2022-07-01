@@ -54,7 +54,7 @@ public class SicsProxy implements ISicsProxy {
 	 * @see org.gumtree.control.core.ISicsProxy#connect()
 	 */
 	@Override
-	public boolean connect(String serverAddress, String publisherAddress) {
+	public boolean connect(String serverAddress, String publisherAddress) throws SicsException {
 		if (serverAddress != null && !serverAddress.equals(this.serverAddress)) {
 			this.serverAddress = serverAddress;
 			this.publisherAddress = publisherAddress;
@@ -74,6 +74,7 @@ public class SicsProxy implements ISicsProxy {
 				serverStatus = ServerStatus.parseStatus(s);
 			} catch (SicsException e) {
 				e.printStackTrace();
+				throw e;
 			}
 //			try {
 //				batchStatus = BatchStatus.parseStatus(channel.send("exe info", null));
@@ -87,7 +88,7 @@ public class SicsProxy implements ISicsProxy {
 		return true;
 	}
 
-	public boolean reconnect() {
+	public boolean reconnect() throws SicsException {
 		if (channel != null && channel.isConnected()) {
 			channel.disconnect();
 		} 
@@ -97,10 +98,11 @@ public class SicsProxy implements ISicsProxy {
 		} catch (Exception e) {
 			return false;
 		}
-		try {
-			serverStatus = ServerStatus.parseStatus(channel.syncSend("status", null));
-		} catch (SicsException e) {
-		}
+//		try {
+		serverStatus = ServerStatus.parseStatus(channel.syncSend("status", null));
+//		} catch (SicsException e) {
+//			
+//		}
 //		try {
 //			batchStatus = BatchStatus.parseStatus(channel.send("exe info", null));
 //		} catch (SicsException e) {

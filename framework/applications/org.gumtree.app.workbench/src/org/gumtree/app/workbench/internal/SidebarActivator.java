@@ -24,6 +24,22 @@ import org.osgi.service.event.Event;
 @SuppressWarnings("restriction")
 public class SidebarActivator implements IStartup {
 
+	private static final String SIDEBAR_RATIO = "gumtree.cruise.widthRatio";
+	private static final String DEFAULT_SIDEBAR_RATIO = "8500:1500";
+	private String ratioLeft;
+	private String ratioRight;
+	
+	public SidebarActivator() {
+		super();
+		try {
+			String ratioText = System.getProperty(SIDEBAR_RATIO, DEFAULT_SIDEBAR_RATIO);
+			String[] ratio = ratioText.split(":");
+			ratioLeft = ratio[0];
+			ratioRight = ratio[1];
+		} catch (Exception e) {
+		}
+	}
+	
 	@Override
 	public void earlyStartup() {
 		// Initial check
@@ -121,7 +137,7 @@ public class SidebarActivator implements IStartup {
 		part.getProperties().put("type", "sidebar");
 		partSashContainer.getChildren().add(part);
 		// Set sash weight
-		originalContainer.setContainerData("8500");
-		part.setContainerData("1500");
+		originalContainer.setContainerData(ratioLeft);
+		part.setContainerData(ratioRight);
 	}
 }

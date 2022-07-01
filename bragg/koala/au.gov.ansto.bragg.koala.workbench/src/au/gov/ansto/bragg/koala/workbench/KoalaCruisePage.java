@@ -10,7 +10,7 @@ public class KoalaCruisePage implements ICruisePanelPage{
 
 	@Override
 	public String getName() {
-		return "Koala";
+		return "Instrument status";
 	}
 
 	@Override

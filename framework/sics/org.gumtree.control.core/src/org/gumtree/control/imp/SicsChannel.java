@@ -41,6 +41,7 @@ public class SicsChannel implements ISicsChannel {
 	public static final String JSON_VALUE_OK = "OK";
 	
 	private static final int COMMAND_WAIT_TIME = 1;
+	private static final int COMMAND_TIMEOUT = 5000;
 	private static Logger logger = LoggerFactory.getLogger(SicsChannel.class);
 	
 	private ZMQ.Context context;
@@ -125,6 +126,9 @@ public class SicsChannel implements ISicsChannel {
 			logger.error(e.getMessage());
 			if (sicsProxy.isInterrupted()) {
 				throw new SicsInterruptException("user interrupted");
+			} else if (e instanceof SicsCommunicationException) {
+				isConnected = false;
+				throw e;
 			} else {
 				throw e;
 			}
@@ -262,6 +266,18 @@ public class SicsChannel implements ISicsChannel {
 			String msg = jcom.toString();
 			logger.info("syncSend: " + msg);
 			clientSocket.send(msg);
+			int tc = 0;
+			while (!isStarted && !isFinished && tc < COMMAND_TIMEOUT) {
+				try {
+					Thread.sleep(COMMAND_WAIT_TIME);
+				} catch (InterruptedException e) {
+					throw new SicsExecutionException("interrupted");
+				}
+				tc += COMMAND_WAIT_TIME;
+			}
+			if (tc >= COMMAND_TIMEOUT) {
+				throw new SicsCommunicationException("connection is lost");
+			}
 			while (!isFinished) {
 				try {
 					Thread.sleep(COMMAND_WAIT_TIME);

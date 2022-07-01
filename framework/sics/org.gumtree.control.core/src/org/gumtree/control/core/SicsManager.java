@@ -1,6 +1,7 @@
 package org.gumtree.control.core;
 
 import org.gumtree.control.batch.IBatchControl;
+import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.imp.SicsProxy;
 
 public class SicsManager {
@@ -19,7 +20,11 @@ public class SicsManager {
 			if (sicsProxy == null) {
 				sicsProxy = new SicsProxy();
 			} 
-			sicsProxy.connect(serverAddress, publisherAddress);
+			try {
+				sicsProxy.connect(serverAddress, publisherAddress);
+			} catch (SicsException e) {
+				e.printStackTrace();
+			}
 		}
 		return sicsProxy;
 	}
@@ -38,7 +43,12 @@ public class SicsManager {
 			} else if (validatorProxy.isConnected()) {
 				validatorProxy.disconnect();
 			}
-			validatorProxy.connect(serverAddress, publisherAddress);
+			try {
+				validatorProxy.connect(serverAddress, publisherAddress);
+			} catch (SicsException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return validatorProxy;
 	}

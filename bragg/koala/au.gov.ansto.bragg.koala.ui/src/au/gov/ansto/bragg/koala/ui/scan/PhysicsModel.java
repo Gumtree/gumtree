@@ -20,7 +20,7 @@ public class PhysicsModel extends AbstractScanModel {
 	private TextCellRenderer liteEvenTextRenderer;
 	
 	private static final int COLUMN_COUNTS = 13;
-	private static final int[] COLUMN_WIDTH = {40, 40, 180, 120, 120, 80, 120, 80, 100, 120, 200, 80, 200};
+	private static final int[] COLUMN_WIDTH = {40, 40, 180, 120, 120, 80, 120, 80, 100, 120, 200, 90, 200};
 	private static final String[] COLUMN_TITLE = {
 			"", 
 			"", 

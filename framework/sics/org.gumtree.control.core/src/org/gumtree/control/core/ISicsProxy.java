@@ -11,7 +11,7 @@ import org.gumtree.control.exception.SicsException;
 public interface ISicsProxy {
 
 	ISicsModel getSicsModel();
-	boolean connect(String serverAddress, String publisherAddress);
+	boolean connect(String serverAddress, String publisherAddress) throws SicsException;
 	void disconnect();
 	boolean isConnected();
 	String syncRun(String command) throws SicsException;
