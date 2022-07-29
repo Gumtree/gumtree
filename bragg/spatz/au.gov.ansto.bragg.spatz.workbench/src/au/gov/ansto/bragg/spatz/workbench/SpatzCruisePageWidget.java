@@ -93,9 +93,8 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.MONITOR.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "cts")
 				.addDevice("/monitor/bm1_event_rate", "BM1 counts rate", null, "cts/s")
-				.addDevice("/instrument/detector/total_counts", "Detector counts", null, "cts")
+				.addDevice("/monitor/bm2_event_rate", "BM2 counts rate", null, "cts/s")
 				;
 		configureWidget(deviceStatusWidget);
 
@@ -184,11 +183,21 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new DeviceStatusWidget(sampleStageGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/sample/som", "som", null, "deg", new DeviceStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/sc", "sc", null, "mm", new DeviceStatusWidget.PrecisionConverter(3))
 				.addDevice("/sample/stilt", "stilt", null, "mm", new DeviceStatusWidget.PrecisionConverter(3))
 				.addDevice("/sample/sx", "sx", null, "mm", new DeviceStatusWidget.PrecisionConverter(3))
 				.addDevice("/sample/sxtop", "sxtop", null, "mm", new DeviceStatusWidget.PrecisionConverter(3))
 				.addDevice("/sample/sy", "sy", null, "mm", new DeviceStatusWidget.PrecisionConverter(3))
 				.addDevice("/instrument/detector/detrot", "detrot", null, "deg", new DeviceStatusWidget.PrecisionConverter(3))
+				;
+		configureWidget(deviceStatusWidget);
+
+		PGroup pumpStageGroup = createGroup("PUMP STATUS",
+				SharedImage.CRADLE.getImage());
+		deviceStatusWidget = new DeviceStatusWidget(pumpStageGroup, SWT.NONE);
+		deviceStatusWidget
+				.addDevice("/sample/mvp/Control/SetPoint", "mvp setpoint", null, "")
+				.addDevice("/sample/hplc/pump/status", "hplc status", null, "")
 				;
 		configureWidget(deviceStatusWidget);
 
