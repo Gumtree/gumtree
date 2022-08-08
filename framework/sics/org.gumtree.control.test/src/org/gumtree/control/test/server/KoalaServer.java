@@ -2,6 +2,8 @@ package org.gumtree.control.test.server;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -42,8 +44,11 @@ public class KoalaServer {
 	public static final String CMD_HISTMEM = "histmem";
 	public static final String CMD_PAUSE = "pause";
 	public static final String CMD_COLLECT = "collect";
+	public static final String CMD_SAVE = "save";
 	
 	public static final String PATH_INSTRUMENT_PHASE = "/instrument/instrument_phase";
+	public static final String PATH_FILENAME = "/experiment/file_name";
+	public static final String PATH_GUMTREE_STATUS = "/experiment/gumtree_status";
 	
 	private static int MESSAGE_SEQ = 0;
 //	private static int COMMAND_TRANS = 0;
@@ -51,6 +56,10 @@ public class KoalaServer {
 	private static int COUNT_RATE = 1000;
 	private static int DUR_READING = 2000;
 	private static final String MODEL_FILENAME = "C:\\Gumtree\\docs\\GumtreeXML\\koala.xml";
+	private static final String DATA_PATH = "W:/data/koala/";
+	private static final String ORG_FILE = "ORG.tif";
+	private static int fileID = 1;
+	
 	private ServerStatus status;
 	private BatchStatus batchStatus = BatchStatus.IDLE;
     private HistmemServer histmemServer;
@@ -60,6 +69,9 @@ public class KoalaServer {
 	private ZMQ.Socket serverSocket;
 	private ZMQ.Socket publisherSocket;
     private ZMQ.Context context;
+    
+    private File saveFolder = new File(DATA_PATH);
+    private File orgFile = new File(DATA_PATH + ORG_FILE);
 	
     private boolean isRunning;
     
@@ -67,10 +79,10 @@ public class KoalaServer {
     enum HistmemMode{time, count, unlimited};
     
 	enum InstrumentPhase {
-		ERASURE,
-		EXPOSURE,
-		READING,
-		IDLE
+		Erasure,
+		Exposure,
+		Reading,
+		Idle
 	};
 
     class HistmemServer {
@@ -262,6 +274,11 @@ public class KoalaServer {
 	}
 	
 	public void processCommand(String client, String cid, String command) throws InterruptedException {
+		try {
+			respondReply(client, cid, command, command);
+		} catch (JSONException e) {
+			sendInternalError(client, cid, command, "failed to start");
+		}
 		if (command.startsWith(CMD_MANAGER)) {
 			processLogin(client, cid, command);
 		} else if (command.startsWith(CMD_DRIVE)) {
@@ -280,6 +297,8 @@ public class KoalaServer {
 			processPause(client, cid, command);
 		} else if (command.startsWith(CMD_COLLECT)) {
 			processCollect(client, cid, command);
+		} else if (command.startsWith(CMD_SAVE)) {
+			processSave(client, cid, command);
 		} else if (command.startsWith(CMD_HSET)) {
 			if (command.endsWith(" start")) {
 				processGroupCommand(client, cid, command);
@@ -555,11 +574,24 @@ public class KoalaServer {
 		}
 	}
 	
+	private void hset(String path, String target) 
+			throws SicsModelException, JSONException {
+		IDynamicController dynamic = (IDynamicController) model.findController(path);
+		dynamic.updateModelValue(target);
+		publishValueUpdate(dynamic.getPath(), target);
+	}
+	
 	private void processHset(String client, String cid, String command) {
 		try {
 			String[] parts = command.split(" ");
 			String path = parts[1];
-			String target = parts[2];
+			String target = "";
+			for (int i = 2; i < parts.length; i++) {
+				target += parts[i];
+				if (i < parts.length - 1) {
+					target += " ";
+				}
+			}
 			ISicsController controller = model.findController(path);
 			if (controller == null) {
 				sendInternalError(client, cid, command, "device " + String.valueOf(path) + " not found");
@@ -569,25 +601,8 @@ public class KoalaServer {
 				sendInternalError(client, cid, command, "device " + String.valueOf(path) + " can not change");
 				return;
 			}
-			IDynamicController dynamic = (IDynamicController) controller;
-			
-			dynamic.updateModelValue(target);
-//			json = new JSONObject();
-//			json.put(PropertyConstants.PROP_UPDATE_TYPE, PropertyConstants.MessageType.VALUE);
-//			json.put(PropertyConstants.PROP_UPDATE_NAME, dynamic.getPath());
-//			json.put(PropertyConstants.PROP_COMMAND_REPLY, target);
-//			publish(json);
-			publishValueUpdate(dynamic.getPath(), target);
-			
-//			json = new JSONObject();
-//			json.put(SicsChannel.JSON_KEY_STATUS, ServerStatus.EAGER_TO_EXECUTE);
-//			json.put(SicsChannel.JSON_KEY_FINISHED, "true");
-//			json.put(PropertyConstants.PROP_UPDATE_TYPE, PropertyConstants.MessageType.VALUE);
-//			json.put(PropertyConstants.PROP_UPDATE_NAME, dynamic.getPath());
-//			json.put(PropertyConstants.PROP_COMMAND_REPLY, target);
-//			json.put(SicsChannel.JSON_KEY_CID, cid);
-//			respond(client, json.toString());
-			respondFinal(client, cid, command, dynamic.getPath() + " = " + target);
+			hset(path, target);
+			respondFinal(client, cid, command, String.valueOf(path) + " = " + target);
 		} catch (JSONException e) {
 			sendInternalError(client, cid, command, "json exception");
 		} catch (Exception e) {
@@ -655,20 +670,28 @@ public class KoalaServer {
 			setStatus(ServerStatus.COUNTING);
 			IDynamicController dynamic = (IDynamicController) controller;
 			
-			dynamic.updateModelValue(InstrumentPhase.ERASURE.name());
-			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.ERASURE.name());
+			hset(PATH_GUMTREE_STATUS, InstrumentPhase.Erasure.name());
+			dynamic.updateModelValue(InstrumentPhase.Erasure.name());
+			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.Erasure.name());
 			Thread.sleep(erasure * 1000);
 			
-			dynamic.updateModelValue(InstrumentPhase.EXPOSURE.name());
-			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.EXPOSURE.name());
+			hset(PATH_GUMTREE_STATUS, InstrumentPhase.Exposure.name());
+			dynamic.updateModelValue(InstrumentPhase.Exposure.name());
+			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.Exposure.name());
 			Thread.sleep(exposure * 1000);
 
-			dynamic.updateModelValue(InstrumentPhase.READING.name());
-			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.READING.name());
+			hset(PATH_GUMTREE_STATUS, InstrumentPhase.Reading.name());
+			dynamic.updateModelValue(InstrumentPhase.Reading.name());
+			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.Reading.name());
 			Thread.sleep(erasure * 1000);
 
-			dynamic.updateModelValue(InstrumentPhase.IDLE.name());
-			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.IDLE.name());
+			File newFile = new File(getNextFilename());
+			Files.copy(orgFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			publishValueUpdate(PATH_FILENAME, newFile.getPath());
+			
+			hset(PATH_GUMTREE_STATUS, InstrumentPhase.Idle.name());
+			dynamic.updateModelValue(InstrumentPhase.Idle.name());
+			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.Idle.name());
 			
 			respondFinal(client, cid, command, "finished collecting");
 		} catch (JSONException e) {
@@ -683,6 +706,17 @@ public class KoalaServer {
 				status = ServerStatus.EAGER_TO_EXECUTE;
 			}
 		}
+	}
+	
+	private void processSave(String client, String cid, String command) {
+		try {
+			File newFile = new File(getNextFilename());
+			Files.copy(orgFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			publishValueUpdate(PATH_FILENAME, newFile.getPath());
+			respondFinal(client, cid, command, newFile.getPath());
+		} catch (JSONException | IOException e) {
+			sendInternalError(client, cid, command, "json exception");
+		} 
 	}
 	
 	void runBatch() {
@@ -972,5 +1006,9 @@ public class KoalaServer {
 		json.put(PropertyConstants.PROP_UPDATE_VALUE, status);
 //		json.put(SicsChannel.JSON_KEY_CID, cid);
 		publish(json);
+	}
+	
+	private String getNextFilename() {
+		return DATA_PATH + String.format("KOA%07d.tif", fileID ++);
 	}
 }

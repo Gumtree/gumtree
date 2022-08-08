@@ -348,7 +348,7 @@ public class AcquisitionComposite extends Composite {
 	    	try {
 		    	File currentFolder = new File(reportFolder.getPath() + "/current");
 				if (!currentFolder.exists()) {
-					currentFolder.mkdir();
+					currentFolder.mkdirs();
 				}
 			} catch (Exception e) {
 			}

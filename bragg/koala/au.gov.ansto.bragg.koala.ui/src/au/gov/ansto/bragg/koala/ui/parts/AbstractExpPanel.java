@@ -29,7 +29,9 @@ import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
+import org.gumtree.control.events.SicsControllerAdapter;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
+import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.msw.ui.ktable.KTable;
@@ -57,14 +59,14 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		IDLE
 	};
 	
-	private static final int WIDTH_HINT = 2200; //1860
-	private static final int HEIGHT_HINT = 960;
+	private static final int WIDTH_HINT = 2200;
+	private static final int HEIGHT_HINT = 1080;
 	private static final int WIDTH_TABLE = 1580;
-	private static final int HEIGHT_TABLE = 880;
+	private static final int HEIGHT_TABLE = 1000;
 	private static final int WIDTH_INFO = 480;
 	private static final int HEIGHT_INFO = 880;
 	
-	private static final int WIDTH_HINT_SMALL = 1560; //1860
+	private static final int WIDTH_HINT_SMALL = 1560; 
 	private static final int HEIGHT_HINT_SMALL = 720;
 	private static final int WIDTH_TABLE_SMALL = 1080;
 	private static final int HEIGHT_TABLE_SMALL = 620;
@@ -245,7 +247,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	    GridDataFactory.fillDefaults().grab(true, false).minSize(160, 32).applyTo(readButton);
 
 	    proLabel = new Label(phasePart, SWT.NONE);
-	    proLabel.setText("Running an Experiment");
+//	    proLabel.setText("Running an Experiment");
 	    proLabel.setForeground(Activator.getBusyColor());
 	    GridDataFactory.fillDefaults().grab(false, false).span(3, 1).hint(360, SWT.DEFAULT).applyTo(proLabel);
 	    
@@ -734,6 +736,8 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		ISicsController stepController;
 		ISicsController fnController;
 		ISicsController phaseController;
+		ISicsController gumtreeStatusController;
+		
 		boolean initialised = false;
 		
 		public StatusControl() {
@@ -764,6 +768,8 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 					System.getProperty(ControlHelper.FILENAME_PATH));
 			phaseController = SicsManager.getSicsModel().findControllerByPath(
 					System.getProperty(ControlHelper.PHASE_PATH));
+			gumtreeStatusController = SicsManager.getSicsModel().findControllerByPath(
+					System.getProperty(ControlHelper.GUMTREE_STATUS_PATH));
 			
 			if (phiController != null) {
 				phiController.addControllerListener(
@@ -779,6 +785,23 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			}
 			if (phaseController != null) {
 				phaseController.addControllerListener(new PhaseListener());
+			}
+			if (gumtreeStatusController != null) {
+				gumtreeStatusController.addControllerListener(new SicsControllerAdapter() {
+					
+					@Override
+					public void updateValue(Object oldValue, Object newValue) {
+						Display.getDefault().asyncExec(new Runnable() {
+
+							@Override
+							public void run() {
+								proLabel.setText(String.valueOf(newValue));
+							}
+						});
+						
+					}
+
+				});
 			}
 			Display.getDefault().asyncExec(new Runnable() {
 
@@ -798,8 +821,13 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 									((DynamicController) fnController).getValue()));
 						}
 						if (phaseController != null) {
-							setPhase(String.valueOf(((DynamicController) phaseController).getValue()));
+							setPhase(String.valueOf(
+									((DynamicController) phaseController).getValue()));
 						}
+						if (gumtreeStatusController != null) {
+							proLabel.setText(String.valueOf(
+									((DynamicController) gumtreeStatusController).getValue()));
+						} 
 					} catch (Exception e) {
 					}
 				}

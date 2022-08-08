@@ -35,6 +35,7 @@ public class ControlHelper {
 	public static final String STEP_PATH = "gumtree.koala.currpoint";
 	public static final String FILENAME_PATH = "gumtree.koala.filename";
 	public static final String PHASE_PATH = "gumtree.koala.phase";
+	public static final String GUMTREE_STATUS_PATH = "gumtree.path.gumtreestatus";
 	
 	private final static Color BUSY_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
 	private final static Color IDLE_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
@@ -42,6 +43,8 @@ public class ControlHelper {
 	public static String TEMP_DEVICE_NAME;
 	public static String CHI_DEVICE_NAME;
 	public static String PHI_DEVICE_NAME;
+	
+	public static int ERASURE_TIME = 10;
 	
 	static {
 		TEMP_DEVICE_NAME = System.getProperty(ENV_SETPOINT);
@@ -67,6 +70,16 @@ public class ControlHelper {
 		syncDrive(PHI_DEVICE_NAME, value);
 	}
 
+	public static void scanPhi(float start, float inc, int numSteps, int erasure, int exposure) 
+			throws KoalaServerException, KoalaInterruptionException {
+		float pos;
+		for (int i = 0; i < numSteps; i++) {
+			pos = start + inc * i;
+			syncDrive(PHI_DEVICE_NAME, pos);
+			
+		}
+	}
+	
 	private static ISicsProxy getProxy() {
 		return SicsManager.getSicsProxy();
 	}
@@ -106,7 +119,6 @@ public class ControlHelper {
 						Object value = ((IDynamicController) controller).getValue();
 						currentControl.setText(String.valueOf(value));
 					} catch (SicsModelException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -166,11 +178,11 @@ public class ControlHelper {
 				});
 			}
 		}
+		
 		@Override
 		public void updateEnabled(boolean isEnabled) {
-			// TODO Auto-generated method stub
-			
 		}
+		
 		@Override
 		public void updateTarget(final Object oldValue, final Object newValue) {
 			if (newValue != null) {
@@ -193,6 +205,15 @@ public class ControlHelper {
 			throw new KoalaServerException(e);
 		}
 		return res;
+	}
+	
+	public static void publishGumtreeStatus(String status) throws KoalaServerException {
+		try {
+			getProxy().syncRun(String.format("hset %s %s", 
+					System.getProperty(ControlHelper.GUMTREE_STATUS_PATH), status));
+		} catch (Exception e) {
+			throw new KoalaServerException(e);
+		}
 	}
 	
 	public static void syncDrive(String deviceName, float value) 

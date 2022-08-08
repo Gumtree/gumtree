@@ -95,6 +95,7 @@ public class CatalogCollectingService {
 							break;
 						}
 						try {
+							logger.error("collect files");
 							collectFiles();
 						} catch (Exception e) {
 							logger.error(e.getMessage());
@@ -124,6 +125,7 @@ public class CatalogCollectingService {
 			Arrays.sort(newFiles);
 			for (File file : newFiles) {
 				try {
+					logger.error(file.getPath());
 					updateCatalog(file);
 				} catch (Exception e) {
 					logger.error(e.getMessage());

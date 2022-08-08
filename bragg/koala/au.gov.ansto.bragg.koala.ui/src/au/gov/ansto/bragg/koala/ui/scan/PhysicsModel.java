@@ -19,8 +19,8 @@ public class PhysicsModel extends AbstractScanModel {
 	private TextCellRenderer liteOddTextRenderer;
 	private TextCellRenderer liteEvenTextRenderer;
 	
-	private static final int COLUMN_COUNTS = 13;
-	private static final int[] COLUMN_WIDTH = {40, 40, 180, 120, 120, 80, 120, 80, 100, 120, 200, 90, 200};
+	private static final int COLUMN_COUNTS = 14;
+	private static final int[] COLUMN_WIDTH = {40, 40, 180, 112, 112, 80, 112, 72, 88, 100, 120, 200, 90, 200};
 	private static final String[] COLUMN_TITLE = {
 			"", 
 			"", 
@@ -29,7 +29,8 @@ public class PhysicsModel extends AbstractScanModel {
 			"INCR", 
 			"NUM", 
 			"Final", 
-			"EXPO",
+			"Era T",
+			"Exp T",
 			"TEMP",
 			"CHI",
 			"Filename",
@@ -126,8 +127,10 @@ public class PhysicsModel extends AbstractScanModel {
 				return scan.getEnd();
 //			}
 		case 7: 
+			return scan.getErasure();
+		case 8: 
 			return scan.getExposure();
-		case 8:
+		case 9:
 			float temp = scan.getTemp();
 			if (Float.isNaN(temp) || temp == 0) {
 				return "";
@@ -147,7 +150,7 @@ public class PhysicsModel extends AbstractScanModel {
 //					return temp;
 //				}
 //			}
-		case 9:
+		case 10:
 			float chi = scan.getChi();
 			if (Float.isNaN(chi)) {
 				return "";
@@ -164,11 +167,11 @@ public class PhysicsModel extends AbstractScanModel {
 //					return chi;
 //				}
 //			}
-		case 10:
-			return scan.getFilename();
 		case 11:
-			return scan.getStatus();
+			return scan.getFilename();
 		case 12:
+			return scan.getStatus();
+		case 13:
 			return scan.getComments();
 		default:
 			break;
@@ -193,13 +196,13 @@ public class PhysicsModel extends AbstractScanModel {
 			} else {
 				return new KTableCellEditorText();
 			}
-		} else if (col == 8) {
+		} else if (col == 9) {
 			if (getItem(row).getTarget().isTemperature()) {
 				return null;
 			} else {
 				return new KTableCellEditorText();
 			}
-		} else if (col > 1 && col != 10) {
+		} else if (col > 1 && col != 11) {
 			return new KTableCellEditorText();
 		} else {
 			return null;
@@ -266,6 +269,16 @@ public class PhysicsModel extends AbstractScanModel {
 			break;
 		case 7:
 			if (value instanceof Integer) {
+				scan.setErasure((Integer) value);
+			} else {
+				String t = String.valueOf(value);
+				if (t.length() > 0) {
+					scan.setErasure(Integer.parseInt(t));
+				}
+			}
+			break;
+		case 8:
+			if (value instanceof Integer) {
 				scan.setExposure((Integer) value);
 			} else {
 				String t = String.valueOf(value);
@@ -274,7 +287,7 @@ public class PhysicsModel extends AbstractScanModel {
 				}
 			}
 			break;
-		case 8:
+		case 9:
 			if (value instanceof Float) {
 				scan.setTemp((Float) value);
 			} else {
@@ -286,7 +299,7 @@ public class PhysicsModel extends AbstractScanModel {
 				}
 			}
 			break;
-		case 9:
+		case 10:
 			if (value instanceof Float) {
 				scan.setChi((Float) value);
 			} else {
@@ -298,12 +311,12 @@ public class PhysicsModel extends AbstractScanModel {
 				}
 			}
 			break;
-		case 10:
+		case 11:
 			scan.setFilename(String.valueOf(value));
 			break;
-		case 11:
-			break;
 		case 12:
+			break;
+		case 13:
 			scan.setComments(String.valueOf(value));
 			break;
 		default:
@@ -361,5 +374,10 @@ public class PhysicsModel extends AbstractScanModel {
 //		}
 		return null;
 	}
-	
+
+	@Override
+	protected int getStatusColumnId() {
+		// TODO Auto-generated method stub
+		return COLUMN_COUNTS - 2;
+	}
 }

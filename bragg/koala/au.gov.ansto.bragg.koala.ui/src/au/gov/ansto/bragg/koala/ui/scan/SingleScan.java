@@ -459,11 +459,13 @@ public class SingleScan {
 			evaluatePauseStatus();
 			if (!getTarget().isTemperature()) {
 				if (!Float.isNaN(getTemp())) {
+					ControlHelper.publishGumtreeStatus("drive sample temperature");
 					ControlHelper.driveTemperature(getTemp());
 				}
 			}
 			evaluatePauseStatus();
 			if (!Float.isNaN(getChi())) {
+				ControlHelper.publishGumtreeStatus("drive sample Chi");
 				ControlHelper.driveChi(getChi());
 			}
 			evaluatePauseStatus();
@@ -476,9 +478,12 @@ public class SingleScan {
 						ControlHelper.syncExec(String.format("hset %s %d", 
 								System.getProperty(ControlHelper.STEP_PATH), i));
 						float target = getStart() + getInc() * i;
+						ControlHelper.publishGumtreeStatus("driving sample Phi");
 						ControlHelper.syncDrive(getTarget().getDeviceName(), target);
 						evaluatePauseStatus();
+						ControlHelper.publishGumtreeStatus("starting collection");
 						ControlHelper.syncCollect(getExposure(), getErasure());
+						ControlHelper.publishGumtreeStatus("");
 						evaluatePauseStatus();
 					}
 				}

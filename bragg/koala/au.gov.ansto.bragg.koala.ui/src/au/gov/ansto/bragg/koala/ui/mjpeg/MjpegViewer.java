@@ -258,7 +258,7 @@ public class MjpegViewer extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				driveSphi(-90);
+				driveSphi(-90f);
 			}
 			
 			@Override
@@ -277,7 +277,7 @@ public class MjpegViewer extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				driveSphi(90);
+				driveSphi(90f);
 			}
 			
 			@Override
@@ -383,7 +383,7 @@ public class MjpegViewer extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				driveSphi(0);
+				driveSphi(0f);
 			}
 			
 			@Override
@@ -401,7 +401,7 @@ public class MjpegViewer extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				driveSphi(180);
+				driveSphi(-180f);
 			}
 			
 			@Override

@@ -11,3 +11,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/cruise/KoalaCruisePage.xml
 Export-Package: au.gov.ansto.bragg.koala.workbench
+Import-Package: org.json,
+ org.zeromq

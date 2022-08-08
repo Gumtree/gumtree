@@ -120,10 +120,10 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.POSITIONER.getImage());
 		deviceStatusWidget = new ControllerStatusWidget(chopperGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/instrument/dummy_motor", "Dummy Motor", null, "mm")		
+//				.addDevice("/instrument/dummy_motor", "Dummy Motor", null, "mm")		
 				.addDevice("/instrument/detector/dh", "Detector Height", null, "mm")
-				.addDevice("/instrument/reading_head", "Reading Head", null, "mm")
-				.addDevice("/instrument/drum", "Drum", null, "\u00b0")
+				.addDevice("/instrument/crystal/reading_head", "Reading Head", null, "mm")
+				.addDevice("/instrument/crystal/drum", "Drum", null, "\u00b0")
 				;
 		configureWidget(deviceStatusWidget);
 		deviceStatusWidget.render();
@@ -148,8 +148,8 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 						}
 					}
 				})
-				.addDevice("/instrument/phase", "Phase", null, "")
-				.addDevice("/tc1/sensor1", "Temperature", null, "\u00b0")
+				.addDevice("/instrument/instrument_phase", "Phase", null, "")
+				.addDevice("/sample/tc1/Sensor/value", "Temperature", null, "K")
 				;
 		configureWidget(deviceStatusWidget);
 		deviceStatusWidget.render();
@@ -217,11 +217,11 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 //		configureWidget(deviceStatusWidget);
 
 		// Environment Group
-		PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",
-				SharedImage.FURNACE.getImage());
-		EnvironmentStatusWidget controlWidget = new EnvironmentStatusWidget(environmentGroup, SWT.NONE);
-		configureWidget(controlWidget);
-		controlWidget.render();
+//		PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",
+//				SharedImage.FURNACE.getImage());
+//		EnvironmentStatusWidget controlWidget = new EnvironmentStatusWidget(environmentGroup, SWT.NONE);
+//		configureWidget(controlWidget);
+//		controlWidget.render();
 	}
 
 	@Override

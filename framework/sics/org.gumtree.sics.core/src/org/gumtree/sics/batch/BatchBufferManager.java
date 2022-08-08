@@ -19,6 +19,8 @@ import org.gumtree.util.LoopRunnerStatus;
 import org.gumtree.util.PlatformUtils;
 import org.gumtree.util.bean.AbstractModelObject;
 import org.osgi.service.event.Event;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BatchBufferManager extends AbstractModelObject implements IBatchBufferManager {
 
@@ -28,6 +30,8 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	
 	// Schedule to check queue every 500ms
 //	private static final int SCHEDULING_INTERVAL = 500;
+	
+	private static Logger logger = LoggerFactory.getLogger(BatchBufferManager.class);
 	
 	// The batch buffer container
 	private List<IBatchBuffer> batchBufferQueue;
@@ -136,7 +140,11 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		// Listen to exe interest on the status channel
 		exeInterestCallback = new SicsCallbackAdapter() {
 			public void receiveWarning(ISicsData data) {
-				if (data.getString().startsWith("BATCHSTART=")) {
+				if (data.getString().length() == 0) {
+					setStatus(BatchBufferManagerStatus.IDLE);
+				} else if (data.getString().equalsIgnoreCase("OK")) {
+					setStatus(BatchBufferManagerStatus.IDLE);
+				} else if (data.getString().startsWith("BATCHSTART=")) {
 					// Handle start
 					setStatus(BatchBufferManagerStatus.EXECUTING);
 				} else if (data.getString().startsWith("BATCHEND=")) {

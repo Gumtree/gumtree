@@ -16,6 +16,8 @@ import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -32,13 +34,18 @@ import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
+import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
+import org.gumtree.util.ILoopExitCondition;
+import org.gumtree.util.JobRunner;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
+import au.gov.ansto.bragg.koala.ui.scan.KoalaInterruptionException;
+import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
 import au.gov.ansto.bragg.koala.ui.scan.SingleScan;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptDataSourceViewer;
@@ -59,6 +66,9 @@ public class InitScanPanel extends AbstractControlPanel {
 	private Text nameText;
 	private Text fileText;
 	private Text comText;
+	private Text startText;
+	private Text incText;
+	private Text numText;
 	private ControlHelper controlHelper;
 	
 	/**
@@ -194,7 +204,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		startLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(startLabel);
 		
-		final Text startText = new Text(phiGroup, SWT.BORDER);
+		startText = new Text(phiGroup, SWT.BORDER);
 		startText.setFont(Activator.getMiddleFont());
 		startText.setText(String.valueOf(initScan.getStart()));
 		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(startText);
@@ -204,7 +214,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		incLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(incLabel);
 		
-		final Text incText = new Text(phiGroup, SWT.BORDER);
+		incText = new Text(phiGroup, SWT.BORDER);
 		incText.setText(String.valueOf(initScan.getInc()));
 		incText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(incText);
@@ -214,7 +224,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		numLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(numLabel);
 		
-		final Text numText = new Text(phiGroup, SWT.BORDER);
+		numText = new Text(phiGroup, SWT.BORDER);
 		numText.setFont(Activator.getMiddleFont());
 		numText.setText(String.valueOf(initScan.getNumber()));
 		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(numText);
@@ -256,6 +266,19 @@ public class InitScanPanel extends AbstractControlPanel {
 		final Text eraText = new Text(duriGroup, SWT.BORDER);
 		eraText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, false).minSize(180, 40).applyTo(eraText);
+		
+//		eraText.addModifyListener(new ModifyListener() {
+//			
+//			@Override
+//			public void modifyText(ModifyEvent e) {
+//				try {
+//					int era = Integer.valueOf(eraText.getText());
+//					ControlHelper.ERASURE_TIME = era;
+//				} catch (Exception e2) {
+//					handleError("invalid erasure time");
+//				}
+//			}
+//		});
 		
 		final Label unitsLabel2 = new Label(duriGroup, SWT.NONE);
 		unitsLabel2.setText("sec");
@@ -311,6 +334,20 @@ public class InitScanPanel extends AbstractControlPanel {
 //		runButton.setSize(240, 64);
 		GridDataFactory.fillDefaults().grab(false, false).hint(240, 64).applyTo(runButton);
 		
+		runButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				runPhiScan();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
 		ProgressBar proBar = new ProgressBar(runBlock, SWT.HORIZONTAL);
 		proBar.setMaximum(100);
 		proBar.setMinimum(0);
@@ -335,6 +372,62 @@ public class InitScanPanel extends AbstractControlPanel {
 		}
 	}
 
+	private void runPhiScan() {
+//		Display.getDefault().asyncExec(new Runnable() {
+//			
+//			@Override
+//			public void run() {
+//				float start, inc;
+//				int numStep;
+//				try {
+//					start = Float.valueOf(startText.getText());
+//				} catch (Exception e) {
+//					handleError("invalid start value");
+//				}
+//				try {
+//					inc = Float.valueOf(incText.getText());
+//				} catch (Exception e) {
+//					handleError("invalid increment value");
+//				}
+//				try {
+//					numStep = Integer.valueOf(numText.getText());
+//				} catch (Exception e) {
+//					handleError("invalid number of steps value");
+//				}
+//				try {
+//					initScan.run();
+//				} catch (KoalaInterruptionException ei) {
+//					handleError("user interrupted");
+//				} catch (KoalaServerException e) {
+//					handleError(e.getMessage());;
+//				}
+//			}
+//		});
+		
+		JobRunner.run(new ILoopExitCondition() {
+			
+			@Override
+			public boolean getExitCondition() {
+				return true;
+			}
+		}, new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					initScan.run();
+				} catch (KoalaInterruptionException ei) {
+					handleError("user interrupted");
+				} catch (KoalaServerException e) {
+					handleError(e.getMessage());;
+				}
+			}
+		});
+	}
+	
+	private void handleError(String errorText) {
+		
+	}
 	/* (non-Javadoc)
 	 * @see au.gov.ansto.bragg.koala.ui.parts.AbstractControlPart#back()
 	 */

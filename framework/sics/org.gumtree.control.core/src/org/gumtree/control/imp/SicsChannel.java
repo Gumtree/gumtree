@@ -67,7 +67,7 @@ public class SicsChannel implements ISicsChannel {
 	public SicsChannel(SicsProxy sicsProxy) {
 	    id = String.valueOf(System.currentTimeMillis()).substring(3);
 	    this.sicsProxy = sicsProxy;
-	    context = ZMQ.context(2);
+	    context = ZMQ.context(1);
 	    clientSocket = context.socket(ZMQ.DEALER);
 	    clientSocket.setIdentity(id.getBytes(ZMQ.CHARSET));
 	    messageHandler = new MessageHandler(sicsProxy);
@@ -127,7 +127,7 @@ public class SicsChannel implements ISicsChannel {
 			if (sicsProxy.isInterrupted()) {
 				throw new SicsInterruptException("user interrupted");
 			} else if (e instanceof SicsCommunicationException) {
-				isConnected = false;
+//				isConnected = false;
 				throw e;
 			} else {
 				throw e;
@@ -276,7 +276,9 @@ public class SicsChannel implements ISicsChannel {
 				tc += COMMAND_WAIT_TIME;
 			}
 			if (tc >= COMMAND_TIMEOUT) {
-				throw new SicsCommunicationException("connection is lost");
+//				disconnect();
+				System.err.println("timeout starting command: " + command);
+				throw new SicsCommunicationException("timeout starting command: " + command);
 			}
 			while (!isFinished) {
 				try {
