@@ -276,7 +276,7 @@ public class ScanStatusPart {
 	private void updateProgressBar() {
 		if (totalTimeExp > 0) {
 			long cur = System.currentTimeMillis();
-			long toGo = finishTimeExp - cur;
+			final long toGo = finishTimeExp - cur;
 			if (toGo >= 0) {
 				final int proVal = 100 - Double.valueOf(toGo / (totalTimeExp * 10.)).intValue();
 				Display.getDefault().asyncExec(new Runnable() {
