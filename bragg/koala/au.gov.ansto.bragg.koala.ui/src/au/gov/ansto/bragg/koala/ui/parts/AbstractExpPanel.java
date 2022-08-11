@@ -23,15 +23,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
-import org.gumtree.control.events.SicsControllerAdapter;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
-import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.msw.ui.ktable.KTable;
@@ -83,18 +80,13 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	private Text phiText;
 	private Text fileText;
 	private Text numText;
-	private Label erasureButton;
-	private Label expoButton;
-	private Label readButton;
 	private Text timeTotalText;
 	private Text timeLeftText;
 	private Text startText;
 	private Text finText;
-	private Button endButton;
-	private Label proLabel;
 	private Text estText;
 	private ControlHelper controlHelper;
-
+	
 	/**
 	 * @param parent
 	 * @param style
@@ -225,61 +217,8 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		numText.setEditable(false);
 		GridDataFactory.fillDefaults().grab(false, false).span(2, 1).minSize(180, 40).applyTo(numText);
 		
-		final Group phasePart = new Group(infoPart, SWT.NONE);
-	    phasePart.setText("Instrument Phase");
-	    GridLayoutFactory.fillDefaults().numColumns(3).margins(4, 4).applyTo(phasePart);
-	    GridDataFactory.fillDefaults().grab(false, false).applyTo(phasePart);
-	    
-	    erasureButton = new Label(phasePart, SWT.BORDER);
-	    erasureButton.setText(" Erasure");
-	    erasureButton.setFont(Activator.getMiddleFont());
-	    erasureButton.setBackground(Activator.getLightColor());
-	    GridDataFactory.fillDefaults().grab(true, false).minSize(160, 32).applyTo(erasureButton);
-
-	    expoButton = new Label(phasePart, SWT.BORDER);
-	    expoButton.setText(" Exposure");
-	    expoButton.setFont(Activator.getMiddleFont());
-	    GridDataFactory.fillDefaults().grab(true, false).minSize(160, 32).applyTo(expoButton);
-
-	    readButton = new Label(phasePart, SWT.BORDER);
-	    readButton.setText(" Reading");
-	    readButton.setFont(Activator.getMiddleFont());
-	    GridDataFactory.fillDefaults().grab(true, false).minSize(160, 32).applyTo(readButton);
-
-	    proLabel = new Label(phasePart, SWT.NONE);
-//	    proLabel.setText("Running an Experiment");
-	    proLabel.setForeground(Activator.getBusyColor());
-	    GridDataFactory.fillDefaults().grab(false, false).span(3, 1).hint(360, SWT.DEFAULT).applyTo(proLabel);
-	    
-		final ProgressBar proBar = new ProgressBar(phasePart, SWT.HORIZONTAL);
-		proBar.setMaximum(100);
-		proBar.setMinimum(0);
-		proBar.setSelection(10);
-//		proBar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		GridDataFactory.fillDefaults().grab(true, false).span(3, 1).applyTo(proBar);
-
-		final Group controlPart = new Group(infoPart, SWT.NONE);
-		controlPart.setText("Control");
-	    GridLayoutFactory.fillDefaults().numColumns(2).margins(4, 4).applyTo(controlPart);
-	    GridDataFactory.fillDefaults().grab(false, false).applyTo(controlPart);
-	    
-	    endButton = new Button(controlPart, SWT.PUSH);
-	    endButton.setImage(KoalaImage.SKIP48.getImage());
-	    endButton.setText("End Exposure");
-	    endButton.setEnabled(false);
-	    endButton.setFont(Activator.getMiddleFont());
-	    endButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.FILL, SWT.CENTER)
-			.hint(230, 80).applyTo(endButton);
-
-	    final Button abortButton = new Button(controlPart, SWT.PUSH);
-	    abortButton.setImage(KoalaImage.STOP48.getImage());
-	    abortButton.setText("Abort Experiment");
-	    abortButton.setFont(Activator.getMiddleFont());
-	    abortButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER)
-			.hint(256, 80).applyTo(abortButton);
-
+		new ScanStatusPart(infoPart);
+		
 		final ScrolledComposite batchHolder = new ScrolledComposite(infoPart, SWT.NONE);
 	    GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(batchHolder);
 	    GridDataFactory.fillDefaults().grab(false, false).applyTo(batchHolder);
@@ -622,47 +561,9 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		};
 		model.addModelListener(modelListener);
 		updateTimeEstimation();
+		
 	}
 
-	private void setPhase(String phase) {
-		if (phase != null) {
-			phase = phase.toUpperCase();
-		}
-		if (InstrumentPhase.ERASURE.name().equals(phase)) {
-			erasureButton.setBackground(Activator.getRunningBackgoundColor());
-			erasureButton.setForeground(Activator.getRunningForgroundColor());
-			expoButton.setBackground(Activator.getBackgroundColor());
-			expoButton.setForeground(Activator.getLightForgroundColor());
-			readButton.setBackground(Activator.getBackgroundColor());
-			readButton.setForeground(Activator.getLightForgroundColor());
-			endButton.setEnabled(false);
-		} else if (InstrumentPhase.EXPOSURE.name().equals(phase)) {
-			erasureButton.setBackground(Activator.getBackgroundColor());
-			erasureButton.setForeground(Activator.getLightForgroundColor());
-			expoButton.setBackground(Activator.getRunningBackgoundColor());
-			expoButton.setForeground(Activator.getRunningForgroundColor());
-			readButton.setBackground(Activator.getBackgroundColor());
-			readButton.setForeground(Activator.getLightForgroundColor());
-			endButton.setEnabled(true);
-		} else if (InstrumentPhase.READING.name().equals(phase)) {
-			erasureButton.setBackground(Activator.getBackgroundColor());
-			erasureButton.setForeground(Activator.getLightForgroundColor());
-			expoButton.setBackground(Activator.getBackgroundColor());
-			expoButton.setForeground(Activator.getLightForgroundColor());
-			readButton.setBackground(Activator.getRunningBackgoundColor());
-			readButton.setForeground(Activator.getRunningForgroundColor());
-			endButton.setEnabled(false);
-		} else {
-			erasureButton.setBackground(Activator.getBackgroundColor());
-			erasureButton.setForeground(Activator.getLightForgroundColor());
-			expoButton.setBackground(Activator.getBackgroundColor());
-			expoButton.setForeground(Activator.getLightForgroundColor());
-			readButton.setBackground(Activator.getBackgroundColor());
-			readButton.setForeground(Activator.getLightForgroundColor());
-			endButton.setEnabled(false);
-		}
-	}
-	
 	/* (non-Javadoc)
 	 * @see au.gov.ansto.bragg.koala.ui.parts.AbstractControlPart#next()
 	 */
@@ -735,8 +636,6 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		ISicsController phiController;
 		ISicsController stepController;
 		ISicsController fnController;
-		ISicsController phaseController;
-		ISicsController gumtreeStatusController;
 		
 		boolean initialised = false;
 		
@@ -766,10 +665,6 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 					System.getProperty(ControlHelper.STEP_PATH));
 			fnController = SicsManager.getSicsModel().findControllerByPath(
 					System.getProperty(ControlHelper.FILENAME_PATH));
-			phaseController = SicsManager.getSicsModel().findControllerByPath(
-					System.getProperty(ControlHelper.PHASE_PATH));
-			gumtreeStatusController = SicsManager.getSicsModel().findControllerByPath(
-					System.getProperty(ControlHelper.GUMTREE_STATUS_PATH));
 			
 			if (phiController != null) {
 				phiController.addControllerListener(
@@ -782,26 +677,6 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			if (fnController != null) {
 				fnController.addControllerListener(
 						new ControllerListener(fileText));
-			}
-			if (phaseController != null) {
-				phaseController.addControllerListener(new PhaseListener());
-			}
-			if (gumtreeStatusController != null) {
-				gumtreeStatusController.addControllerListener(new SicsControllerAdapter() {
-					
-					@Override
-					public void updateValue(Object oldValue, Object newValue) {
-						Display.getDefault().asyncExec(new Runnable() {
-
-							@Override
-							public void run() {
-								proLabel.setText(String.valueOf(newValue));
-							}
-						});
-						
-					}
-
-				});
 			}
 			Display.getDefault().asyncExec(new Runnable() {
 
@@ -820,14 +695,6 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 							fileText.setText(String.valueOf(
 									((DynamicController) fnController).getValue()));
 						}
-						if (phaseController != null) {
-							setPhase(String.valueOf(
-									((DynamicController) phaseController).getValue()));
-						}
-						if (gumtreeStatusController != null) {
-							proLabel.setText(String.valueOf(
-									((DynamicController) gumtreeStatusController).getValue()));
-						} 
 					} catch (Exception e) {
 					}
 				}
@@ -882,30 +749,4 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		
 	}
 
-	class PhaseListener implements ISicsControllerListener {
-		
-		@Override
-		public void updateState(ControllerState oldState, ControllerState newState) {
-		}
-
-		@Override
-		public void updateValue(final Object oldValue, final Object newValue) {
-			Display.getDefault().asyncExec(new Runnable() {
-				
-				@Override
-				public void run() {
-					setPhase(String.valueOf(newValue));
-				}
-			});
-		}
-
-		@Override
-		public void updateEnabled(boolean isEnabled) {
-		}
-
-		@Override
-		public void updateTarget(Object oldValue, Object newValue) {
-		}
-		
-	}
 }

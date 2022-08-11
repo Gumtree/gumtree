@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -14,6 +16,7 @@ import org.gumtree.control.core.IDriveableController;
 import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ServerStatus;
+import org.gumtree.control.exception.SicsInterruptException;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.imp.SicsChannel;
@@ -45,10 +48,13 @@ public class KoalaServer {
 	public static final String CMD_PAUSE = "pause";
 	public static final String CMD_COLLECT = "collect";
 	public static final String CMD_SAVE = "save";
+	public static final String CMD_INT = "INT1712";
 	
 	public static final String PATH_INSTRUMENT_PHASE = "/instrument/instrument_phase";
 	public static final String PATH_FILENAME = "/experiment/file_name";
 	public static final String PATH_GUMTREE_STATUS = "/experiment/gumtree_status";
+	public static final String PATH_GUMTREE_TIME = "/experiment/gumtree_time_estimate";
+	public static final int READING_TIME = 10;
 	
 	private static int MESSAGE_SEQ = 0;
 //	private static int COMMAND_TRANS = 0;
@@ -64,6 +70,7 @@ public class KoalaServer {
 	private BatchStatus batchStatus = BatchStatus.IDLE;
     private HistmemServer histmemServer;
     private String batchFile = null;
+    private ExecutorService executor;
 	
 	private SicsModel model;
 	private ZMQ.Socket serverSocket;
@@ -74,6 +81,8 @@ public class KoalaServer {
     private File orgFile = new File(DATA_PATH + ORG_FILE);
 	
     private boolean isRunning;
+    private boolean stopExposure = false;
+    private boolean interruptFlag = false;
     
     enum HistmemStatus{Counting, Stopped};
     enum HistmemMode{time, count, unlimited};
@@ -82,7 +91,9 @@ public class KoalaServer {
 		Erasure,
 		Exposure,
 		Reading,
-		Idle
+		Idle,
+		Interrupted,
+		Error
 	};
 
     class HistmemServer {
@@ -167,6 +178,8 @@ public class KoalaServer {
         publisherSocket.bind(pubAddress);
         
         histmemServer = new HistmemServer();
+        
+        executor = Executors.newFixedThreadPool(3);
 	}
 	
 	private void respond(String client, String message) {
@@ -237,7 +250,8 @@ public class KoalaServer {
 		respond(client, json.toString());
 	}
 
-	private void drive(IDriveableController driveable, String target) throws JSONException, SicsModelException {
+	private void drive(IDriveableController driveable, String target) 
+			throws JSONException, SicsModelException, SicsInterruptException {
 		setStatus(ServerStatus.DRIVING);
 
 		publishValueUpdate(driveable.getPath() + "/target", target);
@@ -263,6 +277,10 @@ public class KoalaServer {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 //				generateInterrupt(client, cid);
+			}
+			if (interruptFlag) {
+				publishState(driveable.getPath(), ControllerState.IDLE);
+				throw new SicsInterruptException("interrupted");
 			}
 		}
 
@@ -307,6 +325,8 @@ public class KoalaServer {
 			}
 		} else if (command.equals(CMD_STATUS)) {
 			processStatus(client, cid, command);
+		} else if (command.startsWith(CMD_INT)) {
+			processInt(client, cid, command);
 		} else {
 			if (!command.contains(" ")) {
 				processDevice(client, cid, command);
@@ -365,6 +385,8 @@ public class KoalaServer {
 			sendInternalError(client, cid, command, "json exception");
 		} catch (SicsModelException e) {
 			sendInternalError(client, cid, command, "model exception");
+		} catch (SicsInterruptException e) {
+			sendInterruptError(client, cid, command);
 		} catch (Exception e) {
 			sendInternalError(client, cid, command, e.getMessage());
 		} finally {
@@ -386,7 +408,7 @@ public class KoalaServer {
 //		JSONObject json = new JSONObject();
 		try {
 			String[] parts = command.split(" ");
-			String dev = parts[1];
+			final String dev = parts[1];
 			String target = parts[2];
 			ISicsController controller = model.findController(dev);
 			if (controller == null) {
@@ -441,7 +463,17 @@ public class KoalaServer {
 ////						jobj.put(PropertyConstants.PROP_COMMAND_REPLY, target);
 //						setStatus(ServerStatus.EAGER_TO_EXECUTE);
 						drive(driveable, target);
-					} catch (Exception e) {
+					} catch (SicsInterruptException e) {
+						try {
+							publishState(dev, ControllerState.ERROR);
+						} catch (JSONException e1) {
+						}
+					} catch (SicsModelException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 					
 				}
@@ -660,6 +692,11 @@ public class KoalaServer {
 	private void processCollect(String client, String cid, String command) {
 		try {
 			String[] parts = command.split(" ");
+			if ("stop".equals(parts[1])) {
+				stopExposure = true;
+				respondFinal(client, cid, command, "stop collection");
+				return;
+			}
 			int exposure = Integer.valueOf(parts[1]);
 			int erasure = Integer.valueOf(parts[2]);
 			ISicsController controller = model.findController(PATH_INSTRUMENT_PHASE);
@@ -673,22 +710,44 @@ public class KoalaServer {
 			hset(PATH_GUMTREE_STATUS, InstrumentPhase.Erasure.name());
 			dynamic.updateModelValue(InstrumentPhase.Erasure.name());
 			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.Erasure.name());
-			Thread.sleep(erasure * 1000);
+			hset(PATH_GUMTREE_TIME, String.valueOf(erasure));
+			for (int i = 0; i < erasure; i++) {
+				Thread.sleep(1000);
+				if (interruptFlag) {
+					throw new SicsInterruptException("interrupted");
+				}
+			}
 			
 			hset(PATH_GUMTREE_STATUS, InstrumentPhase.Exposure.name());
 			dynamic.updateModelValue(InstrumentPhase.Exposure.name());
 			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.Exposure.name());
-			Thread.sleep(exposure * 1000);
+			hset(PATH_GUMTREE_TIME, String.valueOf(exposure));
+			stopExposure = false;
+			int count = 0;
+			while (!stopExposure && count < exposure) {
+				Thread.sleep(1000);
+				if (interruptFlag) {
+					throw new SicsInterruptException("interrupted");
+				}
+				count += 1;
+			}
 
 			hset(PATH_GUMTREE_STATUS, InstrumentPhase.Reading.name());
 			dynamic.updateModelValue(InstrumentPhase.Reading.name());
 			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.Reading.name());
-			Thread.sleep(erasure * 1000);
+			hset(PATH_GUMTREE_TIME, String.valueOf(READING_TIME));
+			for (int i = 0; i < READING_TIME; i++) {
+				Thread.sleep(1000);
+				if (interruptFlag) {
+					throw new SicsInterruptException("interrupted");
+				}
+			}
 
 			File newFile = new File(getNextFilename());
 			Files.copy(orgFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			publishValueUpdate(PATH_FILENAME, newFile.getPath());
 			
+			hset(PATH_GUMTREE_TIME, "0");
 			hset(PATH_GUMTREE_STATUS, InstrumentPhase.Idle.name());
 			dynamic.updateModelValue(InstrumentPhase.Idle.name());
 			publishValueUpdate(PATH_INSTRUMENT_PHASE, InstrumentPhase.Idle.name());
@@ -696,15 +755,27 @@ public class KoalaServer {
 			respondFinal(client, cid, command, "finished collecting");
 		} catch (JSONException e) {
 			sendInternalError(client, cid, command, "json exception");
+		} catch (SicsInterruptException e) {
+			try {
+				hset(PATH_GUMTREE_STATUS, InstrumentPhase.Interrupted.name());
+			} catch (JSONException | SicsModelException e1) {
+			} 
+			sendInterruptError(client, cid, command);
 		} catch (Exception e) {
+			try {
+				hset(PATH_GUMTREE_STATUS, InstrumentPhase.Error.name());
+			} catch (JSONException | SicsModelException e1) {
+			} 
 			sendInternalError(client, cid, command, e.getMessage());
 		} finally {
 //			status = ServerStatus.EAGER_TO_EXECUTE;
 			try {
+				hset(PATH_GUMTREE_TIME, "0");
+				hset(PATH_INSTRUMENT_PHASE, InstrumentPhase.Idle.name());
 				setStatus(ServerStatus.EAGER_TO_EXECUTE);
-			} catch (JSONException e) {
+			} catch (JSONException | SicsModelException e) {
 				status = ServerStatus.EAGER_TO_EXECUTE;
-			}
+			} 
 		}
 	}
 	
@@ -719,6 +790,15 @@ public class KoalaServer {
 		} 
 	}
 	
+	private void processInt(String client, String cid, String command) {
+		try {
+			interruptFlag = true;
+			respondFinal(client, cid, command, "interrupted");
+		} catch (JSONException e) {
+			sendInternalError(client, cid, command, "json exception");
+		} 
+	}
+
 	void runBatch() {
 //		Thread thread = new Thread(new Runnable() {
 //			
@@ -910,7 +990,26 @@ public class KoalaServer {
 		} catch (Exception e) {
 		}
 	}
-	
+
+	private void sendInterruptError(String client, String cid, String command) {
+//		respond(client, "{ \"" + SicsChannel.JSON_KEY_ERROR + "\":\"internal error, " + message + "\","
+//				+ " \"" + SicsChannel.JSON_KEY_FINISHED + "\":\"true\","
+//				+ " \"" + SicsChannel.JSON_KEY_CID + "\":\"" + cid + "\" }");
+		try {
+			interruptFlag = false;
+			JSONObject json = new JSONObject();
+			json.put(PropertyConstants.PROP_COMMAND_FLAG, FlagType.ERROR);
+			json.put(PropertyConstants.PROP_COMMAND_FINAL, true);
+			json.put(PropertyConstants.PROP_COMMAND_CMD, command);
+			json.put(PropertyConstants.PROP_COMMAND_REPLY, "interrupted");
+			json.put(PropertyConstants.PROP_COMMAND_INTERRUPT, "true");
+			json.put(PropertyConstants.PROP_COMMAND_TEXT, command);
+			json.put(PropertyConstants.PROP_COMMAND_TRANS, cid);
+			respond(client, json.toString());
+		} catch (Exception e) {
+		}
+	}
+
 	public void run() throws InterruptedException {
 		
 		System.out.println("Simulation server started");
@@ -934,29 +1033,26 @@ public class KoalaServer {
 		            String commandText = serverSocket.recvStr();
 		            
 		            System.out.println("command: " + commandText);
+
 		            
-		            JSONObject json = null;
-		            try {
-						json = new JSONObject(commandText);
-		            	String command = json.getString(SicsChannel.JSON_KEY_COMMAND);
-		            	String cid = json.getString(SicsChannel.JSON_KEY_CID);
-//		            	ExecutorService executor = Executors.newSingleThreadExecutor();
-//		            	executor.submit(new Runnable() {
-//							
-//							@Override
-//							public void run() {
-//				                processCommand(client, cid, command);
-//							}
-//							
-//						});
-		            	processCommand(client, cid, command);
-					} catch (JSONException e) {
-						e.printStackTrace();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-		            
-//		            Thread.sleep(50); 
+		            executor.submit(new Runnable() {
+
+		            	@Override
+		            	public void run() {
+		            		JSONObject json = null;
+		            		try {
+		            			json = new JSONObject(commandText);
+		            			String command = json.getString(SicsChannel.JSON_KEY_COMMAND);
+		            			String cid = json.getString(SicsChannel.JSON_KEY_CID);
+		            			processCommand(client, cid, command);
+		            		} catch (JSONException e) {
+		            			e.printStackTrace();
+		            		} catch (InterruptedException e) {
+		            			e.printStackTrace();
+		            		}
+		            	}
+
+		            });
 		        }
 		        close();
 		        isRunning = false;

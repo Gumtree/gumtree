@@ -393,6 +393,9 @@ public class SicsChannel implements ISicsChannel {
 				takeError(new SicsCommunicationException(e.getMessage()));
 			} catch (SicsInterruptException e) {
 				sicsProxy.labelInterruptFlag();
+				if (callback != null) {
+					callback.receiveFinish(new SicsReplyData(json));
+				}
 				takeError(e);;
 			} catch (SicsException e) {
 				takeError(e);

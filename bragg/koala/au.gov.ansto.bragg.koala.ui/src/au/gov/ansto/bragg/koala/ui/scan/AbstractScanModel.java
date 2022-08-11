@@ -63,7 +63,8 @@ public abstract class AbstractScanModel implements KTableModel {
 	
 	public enum ScanStatus {
 		busy,
-		done
+		done,
+		error
 	}
 	
 	public AbstractScanModel() {
@@ -503,9 +504,13 @@ public abstract class AbstractScanModel implements KTableModel {
 						row++;
 					} catch (KoalaInterruptionException e) {
 						// TODO Auto-generated catch block
+						scan.setStatus(ScanStatus.error.name());
+						safeRedrawStatus(row);
 						e.printStackTrace();
 					} catch (KoalaServerException e) {
 						// TODO Auto-generated catch block
+						scan.setStatus(ScanStatus.error.name());
+						safeRedrawStatus(row);
 						e.printStackTrace();
 					}
 				}

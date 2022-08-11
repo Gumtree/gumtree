@@ -128,7 +128,8 @@ public class SimpleControlSuite {
 	
 	private void commitTarget() {
 		if (controlHelper.isConnected()) {
-			final ISicsController setpointController = SicsManager.getSicsModel().findControllerByPath(setpointPath);
+			final ISicsController setpointController = 
+					SicsManager.getSicsModel().findControllerByPath(setpointPath);
 			if (setpointController instanceof DynamicController) {
 				final String value = setpointControl.getText();
 				JobRunner.run(new ILoopExitCondition() {

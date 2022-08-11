@@ -36,6 +36,9 @@ public class ControlHelper {
 	public static final String FILENAME_PATH = "gumtree.koala.filename";
 	public static final String PHASE_PATH = "gumtree.koala.phase";
 	public static final String GUMTREE_STATUS_PATH = "gumtree.path.gumtreestatus";
+	public static final String GUMTREE_TIME_PATH = "gumtree.path.gumtreetime";
+	public static final String GUMTREE_SAMPLE_NAME = "gumtree.koala.samplename";
+	public static final String GUMTREE_COMMENTS = "gumtree.koala.comments";
 	
 	private final static Color BUSY_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
 	private final static Color IDLE_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
@@ -206,7 +209,15 @@ public class ControlHelper {
 		}
 		return res;
 	}
-	
+
+	public static void asyncExec(String command) throws KoalaServerException {
+		try {
+			getProxy().asyncRun(command, null);
+		} catch (Exception e) {
+			throw new KoalaServerException(e);
+		}
+	}
+
 	public static void publishGumtreeStatus(String status) throws KoalaServerException {
 		try {
 			getProxy().syncRun(String.format("hset %s %s", 
@@ -214,6 +225,10 @@ public class ControlHelper {
 		} catch (Exception e) {
 			throw new KoalaServerException(e);
 		}
+	}
+	
+	public static void interrupt() throws KoalaServerException {
+		asyncExec("INT1712 3");
 	}
 	
 	public static void syncDrive(String deviceName, float value) 

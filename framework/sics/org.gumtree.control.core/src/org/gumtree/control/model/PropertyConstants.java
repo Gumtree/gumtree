@@ -8,6 +8,7 @@ public class PropertyConstants {
 	public final static String PROP_COMMAND_FINAL = "final";
 	public final static String PROP_COMMAND_TEXT = "text";
 	public final static String PROP_COMMAND_TRANS = "trans";
+	public static final String PROP_COMMAND_INTERRUPT = "interrupt";
 	
 	
 	public final static String PROP_UPDATE_TYPE = "type";
