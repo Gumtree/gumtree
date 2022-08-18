@@ -3,14 +3,17 @@
  */
 package au.gov.ansto.bragg.koala.ui.parts;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
+import au.gov.ansto.bragg.koala.ui.parts.RecurrentScheduler.IRecurrentTask;
 import au.gov.ansto.bragg.koala.ui.scan.ChemistryModel;
 import au.gov.ansto.bragg.koala.ui.scan.PhysicsModel;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
@@ -35,6 +38,7 @@ public class MainPart extends Composite {
 	 * @param style
 	 */
 	public static final String UNLOCK_TEXT = "koala123";
+	private static final String PROP_RECURRENT_PERIOD = "gumtree.koala.recurrentPeriodMS";
 
 	private ScrolledComposite holder;
 	private EnvironmentPanel environmentPanel;
@@ -56,12 +60,20 @@ public class MainPart extends Composite {
 	
 	private boolean isJoeyMode;
 	private PanelName currentPanelName;
+	private RecurrentScheduler scheduler;
 
 	
 	public MainPart(Composite parent, int style) {
 		super(parent, style);
 		GridLayoutFactory.fillDefaults().applyTo(this);
 		
+		long recPeriod;
+		try {
+			recPeriod = Long.valueOf(System.getProperty(PROP_RECURRENT_PERIOD));
+		} finally {
+			recPeriod = 1000;
+		}
+		scheduler = new RecurrentScheduler(recPeriod);
 		control = new ControlHelper();
 		chemModel = new ChemistryModel();
 		physModel = new PhysicsModel();
@@ -251,5 +263,19 @@ public class MainPart extends Composite {
 		isJoeyMode = isEnabled;
 		getParentViewer().getHeaderPart().setButtonEnabled(!isEnabled);
 		getParentViewer().getFooterPart().setButtonEnabled(!isEnabled);
+	}
+	
+	public RecurrentScheduler getRecurrentScheduler() {
+		return scheduler;
+	}
+	
+	public void popupError(final String errorText) {
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				MessageDialog.openError(getShell(), "Error", errorText);
+			}
+		});
 	}
 }

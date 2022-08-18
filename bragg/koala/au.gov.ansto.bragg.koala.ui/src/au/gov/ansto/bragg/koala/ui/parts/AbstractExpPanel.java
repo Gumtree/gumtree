@@ -37,6 +37,7 @@ import org.gumtree.msw.ui.ktable.SWTX;
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
+import au.gov.ansto.bragg.koala.ui.parts.RecurrentScheduler.IRecurrentTask;
 import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
 import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel.ModelStatus;
 import au.gov.ansto.bragg.koala.ui.scan.IModelListener;
@@ -78,6 +79,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	private int infoWidth = WIDTH_INFO;
 	private int infoHeight = HEIGHT_INFO;
 	private Text phiText;
+	private Text tempText;
 	private Text fileText;
 	private Text numText;
 	private Text timeTotalText;
@@ -91,7 +93,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	 * @param parent
 	 * @param style
 	 */
-	public AbstractExpPanel(Composite parent, int style, MainPart part) {
+	public AbstractExpPanel(final Composite parent, int style, MainPart part) {
 		super(parent, style);
 		controlHelper = ControlHelper.getInstance();
 		if (Activator.getMonitorWidth() < 2500) {
@@ -207,6 +209,16 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		phiText.setEditable(false);
 		GridDataFactory.fillDefaults().grab(false, false).span(2, 1).minSize(180, 40).applyTo(phiText);
 		
+		final Label tempLabel = new Label(statusPart, SWT.NONE);
+		tempLabel.setText("Temperature (K)");
+		tempLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(tempLabel);
+		
+		tempText = new Text(statusPart, SWT.BORDER);
+		tempText.setEditable(false);
+		tempText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).span(2, 1).minSize(180, 40).applyTo(tempText);
+
 		final Label numLabel = new Label(statusPart, SWT.NONE);
 		numLabel.setText("Step number");
 		numLabel.setFont(Activator.getMiddleFont());
@@ -217,7 +229,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		numText.setEditable(false);
 		GridDataFactory.fillDefaults().grab(false, false).span(2, 1).minSize(180, 40).applyTo(numText);
 		
-		new ScanStatusPart(infoPart);
+		new ScanStatusPart(infoPart, mainPart);
 		
 		final ScrolledComposite batchHolder = new ScrolledComposite(infoPart, SWT.NONE);
 	    GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(batchHolder);
@@ -514,7 +526,15 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				model.start();
+				if (model.isRunning()) {
+					mainPart.popupError("The system is busy with the current experiment.");
+					return;
+				}
+				if (model.needToRun()) {
+					model.start();
+				} else {
+					mainPart.popupError("There is no collection defined. Please review the scan table.");
+				}
 			}
 			
 			@Override
@@ -562,6 +582,26 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		model.addModelListener(modelListener);
 		updateTimeEstimation();
 		
+		mainPart.getRecurrentScheduler().addTask(new IRecurrentTask() {
+			
+			@Override
+			public void run() {
+				final IRecurrentTask task = this;
+				
+				Display.getDefault().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						if (!parent.isDisposed()) {
+							updateTimeLeft();
+						} else {
+							mainPart.getRecurrentScheduler().removeTask(task);
+						}
+					}
+				});
+				
+			}
+		});
 	}
 
 	/* (non-Javadoc)
@@ -600,8 +640,8 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			
 			@Override
 			public void run() {
-				timeTotalText.setText(String.valueOf(getModel().getTimeEstimation()));
-				timeLeftText.setText(String.valueOf(getModel().getTimeEstimation()));
+				timeTotalText.setText(getModel().getTotalTimeText());
+				timeLeftText.setText(getModel().getTimeLeftText());
 				finText.setText(getModel().getFinishTime());
 				
 				int[] rows = table.getRowSelection();
@@ -621,6 +661,8 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			@Override
 			public void run() {
 				if (ModelStatus.STARTED.equals(status)) {
+					String start = getModel().getStartedTime();
+					System.err.println(start);
 					startText.setText(getModel().getStartedTime());
 					finText.setText(getModel().getFinishTime());
 				} else if (ModelStatus.FINISHED.equals(status)) {
@@ -631,9 +673,14 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		});
 	}
 	
+	private void updateTimeLeft() {
+		timeLeftText.setText(getModel().getTimeLeftText());
+	}
+	
 	class StatusControl {
 		
 		ISicsController phiController;
+		ISicsController tempController;
 		ISicsController stepController;
 		ISicsController fnController;
 		
@@ -661,6 +708,8 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 
 			phiController = SicsManager.getSicsModel().findControllerByPath(
 					System.getProperty(ControlHelper.SAMPLE_PHI));
+			tempController = SicsManager.getSicsModel().findControllerByPath(
+					System.getProperty(ControlHelper.ENV_VALUE));
 			stepController = SicsManager.getSicsModel().findControllerByPath(
 					System.getProperty(ControlHelper.STEP_PATH));
 			fnController = SicsManager.getSicsModel().findControllerByPath(
@@ -669,6 +718,10 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			if (phiController != null) {
 				phiController.addControllerListener(
 						new ControllerListener(phiText));
+			}
+			if (tempController != null) {
+				tempController.addControllerListener(
+						new ControllerListener(tempText));
 			}
 			if (stepController != null) {
 				stepController.addControllerListener(
@@ -686,6 +739,10 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 						if (phiController != null) {
 							phiText.setText(String.valueOf(
 									((DynamicController) phiController).getValue()));
+						}
+						if (tempController != null) {
+							tempText.setText(String.valueOf(
+									((DynamicController) tempController).getValue()));
 						}
 						if (stepController != null) {
 							numText.setText(String.valueOf(

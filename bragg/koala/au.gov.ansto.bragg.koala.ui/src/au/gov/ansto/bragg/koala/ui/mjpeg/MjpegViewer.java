@@ -61,6 +61,7 @@ public class MjpegViewer extends Composite {
 	private Button phiNButton;
 	private Button phiEButton;
 	private Button phiWButton;
+	private Label statusLabel;
 	private ControlHelper controlHelper;
 	
 	public MjpegViewer(Composite parent, int style) {
@@ -326,9 +327,6 @@ public class MjpegViewer extends Composite {
 	    slider.setSelection(48);
 	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(slider);
 	    
-		String sxPath = System.getProperty(ControlHelper.SX_PATH);
-		SimpleControlSuite sxSuite = new SimpleControlSuite(sxPath, curText, sxPath, tarText, driveButton);
-		
 		Group yGroup = new Group(axesControlComposite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(3).applyTo(yGroup);
 		yGroup.setText("Sample Y offset");
@@ -369,9 +367,6 @@ public class MjpegViewer extends Composite {
 		sliderY.setSelection(48);
 	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(sliderY);
 	    
-		String syPath = System.getProperty(ControlHelper.SY_PATH);
-		SimpleControlSuite sySuite = new SimpleControlSuite(syPath, curYText, syPath, tarYText, driveYButton);
-
 		phiEButton = new Button(axesControlComposite, SWT.RADIO);
 //		phiEButton.setImage(KoalaImage.PLAY48.getImage());
 		phiEButton.setText("Phi 0\u00b0");
@@ -408,8 +403,21 @@ public class MjpegViewer extends Composite {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		
+
+		statusLabel = new Label(axesControlComposite, SWT.NONE);
+		statusLabel.setFont(Activator.getMiddleFont());
+		statusLabel.setForeground(Activator.getHighlightColor());
+
+		String sxPath = System.getProperty(ControlHelper.SX_PATH);		
+		SimpleControlSuite sxSuite = new SimpleControlSuite(
+				sxPath, curText, sxPath, tarText, driveButton, statusLabel);
+
+		String syPath = System.getProperty(ControlHelper.SY_PATH);
+		SimpleControlSuite sySuite = new SimpleControlSuite(
+				syPath, curYText, syPath, tarYText, driveYButton, statusLabel);
+
 		PhiControlSuite phiSuite = new PhiControlSuite();
+		
 	}
 
 	private void driveSphi(final float value) {

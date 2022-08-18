@@ -48,6 +48,7 @@ public class CrystalPanel extends AbstractControlPanel {
 	private MainPart mainPart;
 	private TabFolder tabFolder;
 	private MjpegViewer mjpegViewer;
+	private Label chiStatusLabel;
 	private Button chiZeroButton;
 	private Button chiHighButton;
 	private Button chiApplyButton;
@@ -92,6 +93,11 @@ public class CrystalPanel extends AbstractControlPanel {
 		GridLayoutFactory.fillDefaults().numColumns(3).margins(8, 8).applyTo(phiBlock);
 //		GridDataFactory.swtDefaults().grab(true, true).hint(600, 480).align(SWT.CENTER, SWT.CENTER).applyTo(phiBlock);
 		phiBlock.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
+		
+		final Label phiStatusLabel = new Label(phiBlock, SWT.NONE);
+		phiStatusLabel.setFont(Activator.getMiddleFont());
+		phiStatusLabel.setForeground(Activator.getHighlightColor());
+		GridDataFactory.fillDefaults().span(3, 1).grab(true, false).applyTo(phiStatusLabel);
 		
 		final Label curLabel = new Label(phiBlock, SWT.NONE);
 		curLabel.setText("Current phi value (\u00b0)");
@@ -151,9 +157,14 @@ public class CrystalPanel extends AbstractControlPanel {
 		final Group innerBlock = new Group(oriBlock, SWT.NULL);
 		innerBlock.setText("Chi position");
 		innerBlock.setFont(Activator.getMiddleFont());
-		GridLayoutFactory.fillDefaults().numColumns(2).margins(8, 8).spacing(4, 20).applyTo(innerBlock);
+		GridLayoutFactory.fillDefaults().numColumns(2).margins(16, 16).spacing(4, 20).applyTo(innerBlock);
 		innerBlock.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
 
+		chiStatusLabel = new Label(innerBlock, SWT.NONE);
+		chiStatusLabel.setFont(Activator.getMiddleFont());
+		chiStatusLabel.setForeground(Activator.getHighlightColor());
+		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(chiStatusLabel);
+		
 		chiZeroButton = new Button(innerBlock, SWT.RADIO);
 		chiZeroButton.setText("Zero");
 		chiZeroButton.setFont(Activator.getMiddleFont());
@@ -230,7 +241,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		
 		String samplePhiPath = System.getProperty(ControlHelper.SAMPLE_PHI);
 		SimpleControlSuite controlSuite = new SimpleControlSuite(samplePhiPath, 
-				curText, samplePhiPath, tarText, driveButton);
+				curText, samplePhiPath, tarText, driveButton, phiStatusLabel);
 		
 		ChiControlSuite chiSuite = new ChiControlSuite();
 	}
@@ -273,6 +284,7 @@ public class CrystalPanel extends AbstractControlPanel {
 			final ISicsController schiController = SicsManager.getSicsModel().findControllerByPath(
 					System.getProperty(ControlHelper.SAMPLE_CHI));
 			if (schiController instanceof DriveableController) {
+				setChiStatusText(chiStatusLabel, "");
 				final DriveableController driveable = (DriveableController) schiController;
 				JobRunner.run(new ILoopExitCondition() {
 					
@@ -289,11 +301,22 @@ public class CrystalPanel extends AbstractControlPanel {
 							driveable.drive();
 						} catch (SicsException e1) {
 							e1.printStackTrace();
+							setChiStatusText(chiStatusLabel, e1.getMessage());
 						}
 					}
 				});
 			}
 		}
+	}
+	
+	private void setChiStatusText(Label statusLabel, String text) {
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				statusLabel.setText(text);
+			}
+		});
 	}
 	
 	class ChiControlSuite {

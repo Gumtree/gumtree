@@ -37,6 +37,7 @@ import org.gumtree.util.JobRunner;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
+import au.gov.ansto.bragg.koala.ui.parts.AbstractExpPanel.ControllerListener;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaInterruptionException;
@@ -58,6 +59,7 @@ public class InitScanPanel extends AbstractControlPanel {
 	private Text phiText;
 	private Text chiText;
 	private Text tempText;
+	private Text stepText;
 	private Text nameText;
 	private Text fileText;
 	private Text comText;
@@ -352,6 +354,16 @@ public class InitScanPanel extends AbstractControlPanel {
 		tempText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(tempText);
 		
+		final Label stepLabel = new Label(condGroup, SWT.NONE);
+		stepLabel.setText("Step number");
+		stepLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(numLabel);
+		
+		stepText = new Text(condGroup, SWT.READ_ONLY);
+		stepText.setFont(Activator.getMiddleFont());
+		stepText.setEditable(false);
+		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(stepText);
+		
 //		ProgressBar proBar = new ProgressBar(runBlock, SWT.HORIZONTAL);
 //		proBar.setMaximum(100);
 //		proBar.setMinimum(0);
@@ -362,7 +374,7 @@ public class InitScanPanel extends AbstractControlPanel {
 //	    GridLayoutFactory.fillDefaults().applyTo(statusComposite);
 //	    GridDataFactory.fillDefaults().grab(true, true).align(
 //	    		SWT.FILL, SWT.BEGINNING).applyTo(statusComposite);
-		new ScanStatusPart(rightMain);
+		new ScanStatusPart(rightMain, mainPart);
 		
 		control = new ConditionControl();
 		loadPreference();
@@ -426,7 +438,11 @@ public class InitScanPanel extends AbstractControlPanel {
 			@Override
 			public void run() {
 				try {
-					initScan.run();
+					if (initScan.needToRun()) {
+						initScan.run();
+					} else {
+						mainPart.popupError("The scan is empty. Please review the scan configuration.");
+					}
 				} catch (KoalaInterruptionException ei) {
 					handleError("user interrupted");
 				} catch (KoalaServerException e) {
@@ -501,6 +517,8 @@ public class InitScanPanel extends AbstractControlPanel {
 							System.getProperty(ControlHelper.SAMPLE_CHI));
 					final ISicsController tempController = SicsManager.getSicsModel().findControllerByPath(
 							System.getProperty(ControlHelper.ENV_VALUE));
+					final ISicsController stepController = SicsManager.getSicsModel().findControllerByPath(
+							System.getProperty(ControlHelper.STEP_PATH));
 					sampleController = SicsManager.getSicsModel().findControllerByPath(
 							System.getProperty(ControlHelper.GUMTREE_SAMPLE_NAME));
 					commentsController = SicsManager.getSicsModel().findControllerByPath(
@@ -516,6 +534,10 @@ public class InitScanPanel extends AbstractControlPanel {
 					if (tempController != null) {
 						tempController.addControllerListener(
 								new ControllerListener(tempText));
+					}
+					if (stepController != null) {
+						stepController.addControllerListener(
+								new ControllerListener(stepText));
 					}
 					if (sampleController != null) {
 						sampleController.addControllerListener(
@@ -541,6 +563,10 @@ public class InitScanPanel extends AbstractControlPanel {
 								if (tempController != null) {
 									tempText.setText(String.valueOf(
 											((DynamicController) tempController).getValue()));
+								}
+								if (stepController != null) {
+									stepText.setText(String.valueOf(
+											((DynamicController) stepController).getValue()));
 								}
 								if (sampleController != null) {
 									nameText.setText(String.valueOf(

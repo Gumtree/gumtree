@@ -89,6 +89,7 @@ public class SingleScan {
 	private InputType input2nd;
 	private String points;
 	private boolean isRunning;
+	private long startTimeMilSec;
 	private boolean paused;
 	private boolean isFinished;
 
@@ -426,8 +427,19 @@ public class SingleScan {
 	}
 	
 	public int getTimeLeft() {
-		
-		return 0;
+		if (isRunning) {
+			if (startTimeMilSec != 0) {
+				int totalTime = getTotalTime();
+				long now = System.currentTimeMillis();
+				return totalTime - Long.valueOf((now - startTimeMilSec) / 1000).intValue();
+			} else {
+				return getTotalTime();
+			}
+		} else if ("".equals(getStatus())) {
+			return getTotalTime();
+		} else {
+			return 0;
+		}
 	}
 	
 	public boolean isRunning() {
@@ -455,6 +467,7 @@ public class SingleScan {
 	}
 	public void run() throws KoalaInterruptionException, KoalaServerException  {
 		isRunning = true;
+		startTimeMilSec = System.currentTimeMillis();
 		try {
 			evaluatePauseStatus();
 			if (!getTarget().isTemperature()) {
@@ -468,29 +481,54 @@ public class SingleScan {
 				ControlHelper.publishGumtreeStatus("drive sample Chi");
 				ControlHelper.driveChi(getChi());
 			}
+			ControlHelper.syncExec(String.format("hset %s %s", 
+					System.getProperty(ControlHelper.GUMTREE_COMMENTS), getComments()));
 			evaluatePauseStatus();
 			if (getTarget().isPoints()) {
-
+				List<Float> points = getPointValues();
+				int i = 0;
+				for (Float value : points) {
+					collect(i++, value);
+				}
 			} else {
 				if (getNumber() > 0) {
 					for (int i = 0; i < getNumber(); i++) {
-						evaluatePauseStatus();
-						ControlHelper.syncExec(String.format("hset %s %d", 
-								System.getProperty(ControlHelper.STEP_PATH), i));
 						float target = getStart() + getInc() * i;
-						ControlHelper.publishGumtreeStatus("driving sample Phi");
-						ControlHelper.syncDrive(getTarget().getDeviceName(), target);
-						evaluatePauseStatus();
-						ControlHelper.publishGumtreeStatus("starting collection");
-						ControlHelper.syncCollect(getExposure(), getErasure());
-						ControlHelper.publishGumtreeStatus("");
-						evaluatePauseStatus();
+						collect(i, target);
 					}
 				}
 			}
 		} finally {
+			startTimeMilSec = 0;
 			isFinished = true;
 			isRunning = false;
+		}
+	}
+	
+	private void collect(final int index, final float target) 
+			throws KoalaInterruptionException, KoalaServerException {
+		evaluatePauseStatus();
+		ControlHelper.syncExec(String.format("hset %s %d", 
+				System.getProperty(ControlHelper.STEP_PATH), index + 1));
+		if (getTarget().isTemperature()) {
+			ControlHelper.publishGumtreeStatus("driving temperature");			
+		} else {
+			ControlHelper.publishGumtreeStatus("driving sample Phi");
+		}
+		ControlHelper.syncDrive(getTarget().getDeviceName(), target);
+		evaluatePauseStatus();
+		ControlHelper.publishGumtreeStatus("starting collection");
+		ControlHelper.syncCollect(getExposure(), getErasure());
+		ControlHelper.publishGumtreeStatus("Idle");
+		evaluatePauseStatus();		
+	}
+	
+	public boolean needToRun() {
+		if (getTarget().isPoints()) {
+			List<Float> values = getPointValues();
+			return values.size() > 0;
+		} else {
+			return getNumber() > 0;
 		}
 	}
 }

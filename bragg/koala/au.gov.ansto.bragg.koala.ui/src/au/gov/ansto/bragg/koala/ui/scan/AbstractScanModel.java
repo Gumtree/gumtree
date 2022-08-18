@@ -347,10 +347,12 @@ public abstract class AbstractScanModel implements KTableModel {
 	}
 	
 	public SingleScan getItem(int row) {
-		if (row <= scanList.size()) {
-			return scanList.get(row - 1);
-		} else {
-			return null;
+		synchronized (scanList) {
+			if (row <= scanList.size()) {
+				return scanList.get(row - 1);
+			} else {
+				return null;
+			}
 		}
 	}
 	
@@ -411,58 +413,66 @@ public abstract class AbstractScanModel implements KTableModel {
 	}
 
 	public void insertScan(int idx) {
-		if (idx > scanList.size()) {
-			idx = scanList.size();
-		} else if (idx < 0) {
-			idx = 0;
+		synchronized (initScan) {
+			if (idx > scanList.size()) {
+				idx = scanList.size();
+			} else if (idx < 0) {
+				idx = 0;
+			}
+			SingleScan pre;
+			if (idx > 0) {
+				pre = scanList.get(idx - 1);
+			} else {
+				pre = initScan;
+			}
+			SingleScan newScan;
+			if (pre == null) {
+				newScan = new SingleScan();
+			} else {
+				newScan = pre.getCopy();
+			}
+			newScan.addPropertyChangeListener(propertyListener);
+			scanList.add(idx, newScan);
 		}
-		SingleScan pre;
-		if (idx > 0) {
-			pre = scanList.get(idx - 1);
-		} else {
-			pre = initScan;
-		}
-		SingleScan newScan;
-		if (pre == null) {
-			newScan = new SingleScan();
-		} else {
-			newScan = pre.getCopy();
-		}
-		newScan.addPropertyChangeListener(propertyListener);
-		scanList.add(idx, newScan);
 		fireModelChangeEvent();
 	}
 	
 	public void deleteScan(SingleScan scan) {
-		scan.removePropertyChangeListener(propertyListener);
-		scanList.remove(scan);
-		fireModelChangeEvent();
+		synchronized (scanList) {
+			scan.removePropertyChangeListener(propertyListener);
+			scanList.remove(scan);
+			fireModelChangeEvent();
+		}
 	}
 	
 	public void addScans(int idx, List<SingleScan> scans) {
-		for (SingleScan scan : scans) {
-			scan.addPropertyChangeListener(propertyListener);
+		synchronized (scanList) {
+			for (SingleScan scan : scans) {
+				scan.addPropertyChangeListener(propertyListener);
+			}
+			scanList.addAll(idx, scans);
 		}
-		scanList.addAll(idx, scans);
 		fireModelChangeEvent();
 	}
 	
 	public void deleteScan(int idx) {
-		if (scanList.size() == 1 && idx == 0) {
-			SingleScan newScan;
-			if (initScan != null) {
-				newScan = initScan.getCopy();
-			} else {
-				newScan = new SingleScan();
+		synchronized (scanList) {
+			if (scanList.size() == 1 && idx == 0) {
+				SingleScan newScan;
+				if (initScan != null) {
+					newScan = initScan.getCopy();
+				} else {
+					newScan = new SingleScan();
+				}
+				newScan.addPropertyChangeListener(propertyListener);
+				scanList.add(newScan);
 			}
-			newScan.addPropertyChangeListener(propertyListener);
-			scanList.add(newScan);
+			if (idx < scanList.size()) {
+				SingleScan toRemove = scanList.get(idx);
+				toRemove.removePropertyChangeListener(propertyListener);
+			}
+			scanList.remove(idx);
 		}
-		if (idx < scanList.size()) {
-			SingleScan toRemove = scanList.get(idx);
-			toRemove.removePropertyChangeListener(propertyListener);
-		}
-		scanList.remove(idx);
 		fireModelChangeEvent();
 	}
 	
@@ -488,12 +498,14 @@ public abstract class AbstractScanModel implements KTableModel {
 			
 			@Override
 			public void run() {
-				fireProgressUpdatedEvent(ModelStatus.STARTED);
 				clearStatus();
 				startTime = Calendar.getInstance();
 				isRunning = true;
+				fireProgressUpdatedEvent(ModelStatus.STARTED);
 				int row = 1;
-				for (SingleScan scan : scanList) {
+//				for (SingleScan scan : scanList) {
+				while (hasNextScan()) {
+					SingleScan scan = getNextScan();
 					try {
 						scan.setStatus(ScanStatus.busy.name());
 //						table.redraw(getStatusColumnId(), row, 1, 1);
@@ -503,15 +515,15 @@ public abstract class AbstractScanModel implements KTableModel {
 						safeRedrawStatus(row);
 						row++;
 					} catch (KoalaInterruptionException e) {
-						// TODO Auto-generated catch block
 						scan.setStatus(ScanStatus.error.name());
 						safeRedrawStatus(row);
 						e.printStackTrace();
+						break;
 					} catch (KoalaServerException e) {
-						// TODO Auto-generated catch block
 						scan.setStatus(ScanStatus.error.name());
 						safeRedrawStatus(row);
 						e.printStackTrace();
+						break;
 					}
 				}
 				startTime = null;
@@ -520,6 +532,46 @@ public abstract class AbstractScanModel implements KTableModel {
 			}
 		});
 		runnerThread.start();
+	}
+	
+	private boolean hasNextScan() {
+//		ListIterator<SingleScan> iter = scanList.listIterator(scanList.size());
+//		while(iter.hasPrevious()) {
+//			SingleScan scan = iter.previous();
+//			if ("".equals(scan.getStatus())) {
+//				return true;
+//			}
+//		}
+		synchronized (scanList) {
+			for (SingleScan scan : scanList) {
+				if ("".equals(scan.getStatus())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private SingleScan getNextScan() {
+//		ListIterator<SingleScan> iter = scanList.listIterator(scanList.size());
+//		while(iter.hasPrevious()) {
+//			SingleScan scan = iter.previous();
+//			if ("".equals(scan.getStatus())) {
+//				next = scan;
+//			} else {
+//				break;
+//			}
+//		}
+		synchronized (scanList) {
+			SingleScan next = null;
+			for (SingleScan scan : scanList) {
+				if ("".equals(scan.getStatus())) {
+					next = scan;
+					break;
+				}
+			}
+			return next;
+		}
 	}
 	
 	public void finish() {
@@ -531,20 +583,63 @@ public abstract class AbstractScanModel implements KTableModel {
 		return isRunning;
 	}
 	
+	public boolean needToRun() {
+		synchronized (scanList) {
+			for (SingleScan scan : scanList) {
+				if (scan.needToRun()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	public int getTimeEstimation() {
 		int time = 0;
-		for (SingleScan scan : scanList) {
-			time += scan.getTotalTime();
+		synchronized (scanList) {
+			for (SingleScan scan : scanList) {
+				time += scan.getTotalTime();
+			}
 		}
 		return time;
 	}
 
+	public String getTotalTimeText() {
+		int time = getTimeEstimation();
+		if (time == 0) {
+			return "empty table";
+		} else {
+			return convertTimeString(time);
+		}
+	}
+	
 	public int getTimeLeft() {
 		int time = 0;
-		for (SingleScan scan : scanList) {
-			time += scan.getTimeLeft();
+		synchronized (scanList) {
+			for (SingleScan scan : scanList) {
+				time += scan.getTimeLeft();
+			}
 		}
 		return time;
+	}
+	
+	public String getTimeLeftText() {
+		if (isRunning) {
+			int time = getTimeLeft();
+			return convertTimeString(time);
+		} else {
+			return "--";
+		}
+	}
+	
+	private String convertTimeString(int time) {
+		if (time / 3600 > 0) {
+			return String.format("%dh ", time / 3600) + convertTimeString(time % 3600);
+		} else if (time / 60 > 0) {
+			return String.format("%02dm ", time / 60) + convertTimeString(time % 60);
+		} else {
+			return String.format("%02ds", time);
+		}
 	}
 	
 	public String getStartedTime() {
@@ -564,8 +659,9 @@ public abstract class AbstractScanModel implements KTableModel {
 	
 	public String getFinishTime() {
 		if (startTime != null) {
-			int totalTime = getTimeEstimation();
-			Calendar finish = (Calendar) startTime.clone();
+			int totalTime = getTimeLeft();
+//			Calendar finish = (Calendar) startTime.clone();
+			Calendar finish = Calendar.getInstance();
 			finish.add(Calendar.SECOND, totalTime);
 			SimpleDateFormat timeFormat;
 			if (finish.get(Calendar.DAY_OF_MONTH) == startTime.get(Calendar.DAY_OF_MONTH)) {
@@ -612,8 +708,10 @@ public abstract class AbstractScanModel implements KTableModel {
 	}
 	
 	private void clearStatus() {
-		for (SingleScan scan : scanList) {
-			scan.setStatus("");
+		synchronized (scanList) {
+			for (SingleScan scan : scanList) {
+				scan.setStatus("");
+			}
 		}
 		Display.getDefault().asyncExec(new Runnable() {
 			

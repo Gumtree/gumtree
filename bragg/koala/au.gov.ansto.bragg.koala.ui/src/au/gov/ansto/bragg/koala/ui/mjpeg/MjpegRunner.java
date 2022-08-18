@@ -28,7 +28,7 @@ public class MjpegRunner implements Runnable {
         this.viewer = viewer;
         this.url = url;
         listeners = new ArrayList<IRunnerListener>();
-        start(); //TODO remove from here
+//        start(); //TODO remove from here
     }
 
     private void start() throws IOException {
@@ -61,10 +61,16 @@ public class MjpegRunner implements Runnable {
      * @see java.lang.Runnable#run()
      */
     public void run() {
+    	try {
+			start();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			triggerError(e1);
+		}
     	viewer.start();
     	int count = 0;
-    	long start = System.currentTimeMillis();
-    	long other = 0;
+//    	long start = System.currentTimeMillis();
+//    	long other = 0;
         while (isRunning) {
         	while (isPaused) {
 				try {
@@ -84,21 +90,21 @@ public class MjpegRunner implements Runnable {
 				}
 			}
             try {
-                long begin = System.currentTimeMillis();
+//                long begin = System.currentTimeMillis();
                 byte[] imageBytes = retrieveNextImage();
-                long fetch = System.currentTimeMillis();   
+//                long fetch = System.currentTimeMillis();   
 //                System.out.println("set image bytes");
                 viewer.setImageBytes(imageBytes);
-                long paint = System.currentTimeMillis();
+//                long paint = System.currentTimeMillis();
 //                System.out.println(String.format("Fetch = %d, Paint = %d, other = %d", 
 //                		fetch - begin, paint - fetch, begin - other));
-                other = paint;
+//                other = paint;
                 count += 1;
                 if (count % 10 == 0) {
-                	long now = System.currentTimeMillis();
+//                	long now = System.currentTimeMillis();
 //                	System.out.println(String.format(url + " FPS = %f", (count / ((now - start) / 1000.))));
                 	count = 0;
-                	start = now;
+//                	start = now;
                 }
             } catch (SocketTimeoutException ste) {
                 System.err.println("failed stream read: SocketTimeout " + ste);
@@ -178,7 +184,7 @@ public class MjpegRunner implements Runnable {
     private byte[] retrieveNextImage() throws IOException {
         int currByte = -1;
 
-        String header = null;
+//        String header = null;
         // build headers
         // the DCS-930L stops it's headers
 

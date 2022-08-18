@@ -11,6 +11,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
@@ -38,6 +39,7 @@ public class SimpleControlSuite {
 	private Text currentControl;
 	private Text setpointControl;
 	private Button runButton;
+	private Label statusLabel;
 	private ControlHelper controlHelper;
 	/**
 	 * 
@@ -47,13 +49,14 @@ public class SimpleControlSuite {
 	}
 
 	public SimpleControlSuite(final String curPath, final Text current, 
-			final String targetPath, final Text target, final Button run) {
+			final String targetPath, final Text target, final Button run, final Label status) {
 		this();
 		this.currentPath = curPath;
 		this.setpointPath = targetPath;
 		currentControl = current;
 		setpointControl = target;
 		runButton = run;
+		statusLabel = status;
 		
 		ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 			
@@ -132,13 +135,36 @@ public class SimpleControlSuite {
 					SicsManager.getSicsModel().findControllerByPath(setpointPath);
 			if (setpointController instanceof DynamicController) {
 				final String value = setpointControl.getText();
-				JobRunner.run(new ILoopExitCondition() {
-					
-					@Override
-					public boolean getExitCondition() {
-						return true;
-					}
-				}, new Runnable() {
+//				JobRunner.run(new ILoopExitCondition() {
+//					
+//					@Override
+//					public boolean getExitCondition() {
+//						return true;
+//					}
+//				}, new Runnable() {
+//					
+//					@Override
+//					public void run() {
+//						((DynamicController) setpointController).setTargetValue(value);
+//						try {
+//							if (setpointController instanceof DriveableController) {
+//								((DriveableController) setpointController).drive();
+//							} else {
+//								((DynamicController) setpointController).commitTargetValue();
+//							}
+//						} catch (final SicsException e1) {
+//							Display.getDefault().asyncExec(new Runnable() {
+//								
+//								@Override
+//								public void run() {
+//									statusLabel.setText(e1.getMessage());
+//								}
+//							});
+//						}
+//					}
+//				});
+				setStatusText(statusLabel, "");
+				Thread runThread = new Thread(new Runnable() {
 					
 					@Override
 					public void run() {
@@ -149,13 +175,25 @@ public class SimpleControlSuite {
 							} else {
 								((DynamicController) setpointController).commitTargetValue();
 							}
-						} catch (SicsException e1) {
+						} catch (final SicsException e1) {
 							e1.printStackTrace();
+							setStatusText(statusLabel, e1.getMessage());
 						}
 					}
 				});
+				runThread.start();
 			}
 		}
+	}
+	
+	private void setStatusText(final Label statusLabel, final String text) {
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				statusLabel.setText(text);
+			}
+		});
 	}
 	
 	class CurrentControllerListener implements ISicsControllerListener {

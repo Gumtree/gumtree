@@ -13,7 +13,7 @@ public class ChemistryModel extends AbstractScanModel {
 
 	private FixedCellRenderer fixedRenderer;
 	private static final int COLUMN_COUNTS = 13;
-	private static final int[] COLUMN_WIDTH = {40, 40, 112, 112, 80, 112, 72, 88, 120, 120, 300, 90, 300};
+	private static final int[] COLUMN_WIDTH = {40, 40, 112, 112, 80, 112, 72, 88, 112, 112, 300, 90, 300};
 	private static final String[] COLUMN_TITLE = {
 			"", 
 			"", 

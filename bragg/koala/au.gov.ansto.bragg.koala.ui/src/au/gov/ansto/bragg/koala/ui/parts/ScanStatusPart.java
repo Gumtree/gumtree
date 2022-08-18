@@ -1,8 +1,5 @@
 package au.gov.ansto.bragg.koala.ui.parts;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -28,6 +25,7 @@ import org.gumtree.util.JobRunner;
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.AbstractExpPanel.InstrumentPhase;
+import au.gov.ansto.bragg.koala.ui.parts.RecurrentScheduler.IRecurrentTask;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
@@ -41,13 +39,14 @@ public class ScanStatusPart {
 	private Label proLabel;
 	private ProgressBar proBar;
 
-	private Timer statusTimer;
 	private int totalTimeExp;
 	private long finishTimeExp;
 	private String scanStatus = "";
 
+	protected MainPart mainPart;
 
-	public ScanStatusPart(Composite parent) {
+	public ScanStatusPart(final Composite parent, final MainPart main) {
+		mainPart = main;
 		controlHelper = ControlHelper.getInstance();
 		final Group phasePart = new Group(parent, SWT.NONE);
 	    phasePart.setText("Instrument Phase");
@@ -163,14 +162,43 @@ public class ScanStatusPart {
 		
 		new StatusControl();
 
-		statusTimer = new Timer(true);
-		statusTimer.schedule(new TimerTask() {
+//		statusTimer = new Timer(true);
+//		statusTimer.schedule(new TimerTask() {
+//			
+//			@Override
+//			public void run() {
+//				if (!parent.isDisposed()) {
+//					try {
+//						updateProgressBar();
+//					} catch (Exception e) {
+//					}
+//				} else {
+//					this.cancel();
+//				}
+//			}
+//		}, 1000, 1000);
+		mainPart.getRecurrentScheduler().addTask(new IRecurrentTask() {
 			
 			@Override
 			public void run() {
-				updateProgressBar();
+				final IRecurrentTask task = this;
+				
+				Display.getDefault().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						if (!parent.isDisposed()) {
+							try {
+								updateProgressBar();
+							} catch (Exception e) {
+							}
+						} else {
+							mainPart.getRecurrentScheduler().removeTask(task);
+						}
+					}
+				});
 			}
-		}, 1000, 1000);
+		});
 
 	}
 
@@ -226,7 +254,7 @@ public class ScanStatusPart {
 							@Override
 							public void run() {
 								scanStatus = String.valueOf(newValue);
-								proLabel.setText(scanStatus);
+								setStatusText(proLabel, scanStatus);
 							}
 						});
 						
@@ -249,7 +277,7 @@ public class ScanStatusPart {
 						if (gumtreeStatusController != null) {
 							scanStatus = String.valueOf(String.valueOf(
 									((DynamicController) gumtreeStatusController).getValue()));
-							proLabel.setText(scanStatus);
+							setStatusText(proLabel, scanStatus);
 						} 
 						if (gumtreeTimeController != null) {
 							int totalTime = Integer.valueOf(
@@ -273,21 +301,37 @@ public class ScanStatusPart {
 		}
 	}
 	
+	private void setStatusText(Label statusLabel, String text) {
+		if (text.equalsIgnoreCase("interrupted")) {
+			statusLabel.setForeground(Activator.getHighlightColor());
+		} else if (text.equalsIgnoreCase("idle")) {
+			statusLabel.setForeground(Activator.getIdleColor());
+		} else {
+			statusLabel.setForeground(Activator.getBusyColor());
+		}
+		statusLabel.setText(text);
+	}
+	
 	private void updateProgressBar() {
 		if (totalTimeExp > 0) {
 			long cur = System.currentTimeMillis();
 			final long toGo = finishTimeExp - cur;
 			if (toGo >= 0) {
 				final int proVal = 100 - Double.valueOf(toGo / (totalTimeExp * 10.)).intValue();
-				Display.getDefault().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						String statusValue = String.format("%s remaining time = %d", scanStatus, toGo / 1000);
-						proLabel.setText(statusValue);
-						proBar.setSelection(proVal);
-					}
-				});
+//				Display.getDefault().asyncExec(new Runnable() {
+//
+//					@Override
+//					public void run() {
+//						String statusValue = String.format("%s remaining time = %s", scanStatus, 
+//								getTimeString(toGo / 1000));
+//						setStatusText(proLabel, statusValue);
+//						proBar.setSelection(proVal);
+//					}
+//				});
+				String statusValue = String.format("%s remaining time = %s", scanStatus, 
+						getTimeString(toGo / 1000));
+				setStatusText(proLabel, statusValue);
+				proBar.setSelection(proVal);
 			}
 		}
 	}
@@ -380,6 +424,16 @@ public class ScanStatusPart {
 					}					
 				}
 			});
+		}
+	}
+
+	public static String getTimeString(long seconds) {
+		if (seconds > 3600) {
+			return String.valueOf(seconds / 3600) + "h " + getTimeString(seconds % 3600);
+		} else if (seconds > 60) {
+			return String.valueOf(seconds / 60) + "m " + getTimeString(seconds % 60);
+		} else {
+			return String.valueOf(seconds) + "s";
 		}
 	}
 
