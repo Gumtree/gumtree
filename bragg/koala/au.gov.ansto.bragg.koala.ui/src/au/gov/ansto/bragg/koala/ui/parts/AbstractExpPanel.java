@@ -252,7 +252,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		
 		final Text comText = new Text(batchGroup, SWT.BORDER);
 		comText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).span(2, 1).minSize(180, 40).hint(366, SWT.DEFAULT).applyTo(comText);
+		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(180, 40).hint(400, SWT.DEFAULT).applyTo(comText);
 		
 		final Label fnLabel = new Label(batchGroup, SWT.NONE);
 		fnLabel.setText("Filename");
@@ -261,7 +261,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		
 		final Text fnText = new Text(batchGroup, SWT.BORDER);
 		fnText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).span(2, 1).minSize(180, 40).hint(366, SWT.DEFAULT).applyTo(fnText);
+		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(180, 40).hint(400, SWT.DEFAULT).applyTo(fnText);
 
 	    final Button applyButton = new Button(batchGroup, SWT.PUSH);
 	    applyButton.setImage(KoalaImage.MULTI_APPLY48.getImage());

@@ -425,6 +425,7 @@ public class MjpegViewer extends Composite {
 			final ISicsController sphiController = SicsManager.getSicsModel().findControllerByPath(
 					System.getProperty(ControlHelper.SAMPLE_PHI));
 			if (sphiController instanceof DriveableController) {
+				statusLabel.setText("");
 				final DriveableController driveable = (DriveableController) sphiController;
 				JobRunner.run(new ILoopExitCondition() {
 					
@@ -439,8 +440,17 @@ public class MjpegViewer extends Composite {
 						driveable.setTargetValue(value);
 						try {
 							driveable.drive();
-						} catch (SicsException e1) {
-							e1.printStackTrace();
+						} catch (final SicsException e1) {
+//							e1.printStackTrace();
+							Display.getDefault().asyncExec(new Runnable() {
+								
+								@Override
+								public void run() {
+									statusLabel.setText(e1.getMessage());
+//									statusLabel.getParent().redraw();
+									getParent().forceFocus();
+								}
+							});
 						}
 					}
 				});

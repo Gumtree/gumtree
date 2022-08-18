@@ -302,6 +302,7 @@ public class CrystalPanel extends AbstractControlPanel {
 						} catch (SicsException e1) {
 							e1.printStackTrace();
 							setChiStatusText(chiStatusLabel, e1.getMessage());
+//							mainPart.popupError(e1.getMessage());
 						}
 					}
 				});
@@ -309,7 +310,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		}
 	}
 	
-	private void setChiStatusText(Label statusLabel, String text) {
+	private void setChiStatusText(final Label statusLabel, final String text) {
 		Display.getDefault().asyncExec(new Runnable() {
 			
 			@Override
