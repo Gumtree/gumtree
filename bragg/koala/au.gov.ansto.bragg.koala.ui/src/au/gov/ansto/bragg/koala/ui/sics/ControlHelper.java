@@ -228,7 +228,8 @@ public class ControlHelper {
 	}
 	
 	public static void interrupt() throws KoalaServerException {
-		asyncExec("INT1712 3");
+//		asyncExec("INT1712 3");
+		getProxy().interrupt();
 	}
 	
 	public static void syncDrive(String deviceName, float value) 

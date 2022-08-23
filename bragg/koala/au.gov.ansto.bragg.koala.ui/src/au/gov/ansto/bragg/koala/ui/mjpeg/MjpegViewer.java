@@ -249,7 +249,7 @@ public class MjpegViewer extends Composite {
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.CENTER).applyTo(axesControlComposite);
 //		axesControlComposite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, true, 1, 1));
 		
-		phiSButton = new Button(axesControlComposite, SWT.RADIO);
+		phiSButton = new Button(axesControlComposite, SWT.CHECK);
 //		phiSButton.setImage(KoalaImage.PLAY48.getImage());
 		phiSButton.setText("Phi -90\u00b0");
 		phiSButton.setFont(Activator.getMiddleFont());
@@ -267,7 +267,7 @@ public class MjpegViewer extends Composite {
 			}
 		});
 		
-		phiNButton = new Button(axesControlComposite, SWT.RADIO);
+		phiNButton = new Button(axesControlComposite, SWT.CHECK);
 //		phiNButton.setImage(KoalaImage.PLAY48.getImage());
 		phiNButton.setText("Phi +90\u00b0");
 		phiNButton.setFont(Activator.getMiddleFont());
@@ -367,7 +367,7 @@ public class MjpegViewer extends Composite {
 		sliderY.setSelection(48);
 	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(sliderY);
 	    
-		phiEButton = new Button(axesControlComposite, SWT.RADIO);
+		phiEButton = new Button(axesControlComposite, SWT.CHECK);
 //		phiEButton.setImage(KoalaImage.PLAY48.getImage());
 		phiEButton.setText("Phi 0\u00b0");
 		phiEButton.setFont(Activator.getMiddleFont());
@@ -386,7 +386,7 @@ public class MjpegViewer extends Composite {
 			}
 		});
 
-		phiWButton = new Button(axesControlComposite, SWT.RADIO);
+		phiWButton = new Button(axesControlComposite, SWT.CHECK);
 //		phiNButton.setImage(KoalaImage.PLAY48.getImage());
 		phiWButton.setText("Phi -180\u00b0");
 		phiWButton.setFont(Activator.getMiddleFont());
@@ -407,6 +407,7 @@ public class MjpegViewer extends Composite {
 		statusLabel = new Label(axesControlComposite, SWT.NONE);
 		statusLabel.setFont(Activator.getMiddleFont());
 		statusLabel.setForeground(Activator.getHighlightColor());
+		GridDataFactory.swtDefaults().grab(true, false).span(2, 1).hint(380, SWT.DEFAULT).applyTo(statusLabel);
 
 		String sxPath = System.getProperty(ControlHelper.SX_PATH);		
 		SimpleControlSuite sxSuite = new SimpleControlSuite(
@@ -449,6 +450,9 @@ public class MjpegViewer extends Composite {
 									statusLabel.setText(e1.getMessage());
 //									statusLabel.getParent().redraw();
 									getParent().forceFocus();
+//									statusLabel.redraw();
+//									statusLabel.forceFocus();
+//									statusLabel.update();
 								}
 							});
 						}
@@ -613,7 +617,7 @@ public class MjpegViewer extends Composite {
 									chooseRange(phiSButton);
 								} else if (inRange(value, precision, 0)) {
 									chooseRange(phiEButton);
-								} else if (inRange(value, precision, 180)) {
+								} else if (inRange(value, precision, -180)) {
 									chooseRange(phiWButton);
 								} else {
 									chooseRange(null);
@@ -690,7 +694,7 @@ public class MjpegViewer extends Composite {
 								chooseRange(phiSButton);
 							} else if (inRange(value, precision, 0)) {
 								chooseRange(phiEButton);
-							} else if (inRange(value, precision, 180)) {
+							} else if (inRange(value, precision, -180)) {
 								chooseRange(phiWButton);
 							} else {
 								chooseRange(null);

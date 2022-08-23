@@ -165,39 +165,39 @@ public class CrystalPanel extends AbstractControlPanel {
 		chiStatusLabel.setForeground(Activator.getHighlightColor());
 		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(chiStatusLabel);
 		
-		chiZeroButton = new Button(innerBlock, SWT.RADIO);
+		chiZeroButton = new Button(innerBlock, SWT.CHECK);
 		chiZeroButton.setText("Zero");
 		chiZeroButton.setFont(Activator.getMiddleFont());
 		chiZeroButton.setCursor(Activator.getHandCursor());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(240, 40).applyTo(chiZeroButton);
-//		chiZeroButton.addSelectionListener(new SelectionListener() {
-//			
-//			@Override
-//			public void widgetSelected(SelectionEvent e) {
-//				driveSchi(0);
-//			}
-//			
-//			@Override
-//			public void widgetDefaultSelected(SelectionEvent e) {
-//			}
-//		});
+		chiZeroButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				chiHighButton.setSelection(false);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 
-		chiHighButton = new Button(innerBlock, SWT.RADIO);
+		chiHighButton = new Button(innerBlock, SWT.CHECK);
 		chiHighButton.setText("High");
 		chiHighButton.setFont(Activator.getMiddleFont());
 		chiHighButton.setCursor(Activator.getHandCursor());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(240, 40).applyTo(chiHighButton);
-//		chiHighButton.addSelectionListener(new SelectionListener() {
-//			
-//			@Override
-//			public void widgetSelected(SelectionEvent e) {
-//				driveSchi(90);
-//			}
-//			
-//			@Override
-//			public void widgetDefaultSelected(SelectionEvent e) {
-//			}
-//		});
+		chiHighButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				chiZeroButton.setSelection(false);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 		
 		chiApplyButton = new Button(innerBlock, SWT.PUSH);
 		chiApplyButton.setImage(KoalaImage.PLAY48.getImage());
@@ -240,10 +240,10 @@ public class CrystalPanel extends AbstractControlPanel {
 		});
 		
 		String samplePhiPath = System.getProperty(ControlHelper.SAMPLE_PHI);
-		SimpleControlSuite controlSuite = new SimpleControlSuite(samplePhiPath, 
+		new SimpleControlSuite(samplePhiPath, 
 				curText, samplePhiPath, tarText, driveButton, phiStatusLabel);
 		
-		ChiControlSuite chiSuite = new ChiControlSuite();
+		new ChiControlSuite();
 	}
 
 	

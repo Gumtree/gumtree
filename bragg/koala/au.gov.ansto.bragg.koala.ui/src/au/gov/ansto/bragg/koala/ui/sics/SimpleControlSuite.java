@@ -192,6 +192,11 @@ public class SimpleControlSuite {
 			@Override
 			public void run() {
 				statusLabel.setText(text);
+//				statusLabel.forceFocus();
+//				statusLabel.getParent().forceFocus();
+//				statusLabel.update();
+//				statusLabel.setRedraw(true);
+				runButton.forceFocus();
 			}
 		});
 	}

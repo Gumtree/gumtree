@@ -66,7 +66,6 @@ public class MessageProcessor {
 	}
 
 	private void updateModelState(String path, String value) {
-		System.out.println(path + ", " + value);
 		ISicsModel model = SicsManager.getSicsModel();
 		if (model != null) {
 			ISicsController controller = model.findController(path);
@@ -82,7 +81,6 @@ public class MessageProcessor {
 	}
 	
 	private void updateModelValue(String path, String value) {
-		System.out.println(path + ", " + value);
 		ISicsModel model = SicsManager.getSicsModel();
 		if (model != null) {
 			ISicsController controller = model.findController(path);

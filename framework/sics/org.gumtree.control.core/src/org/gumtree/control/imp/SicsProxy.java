@@ -190,6 +190,9 @@ public class SicsProxy implements ISicsProxy {
 		try {
 			asyncRun("INT1712 3", null);
 			labelInterruptFlag();
+			if (channel != null) {
+				channel.reset();
+			}
 		} catch (SicsException e) {
 		}
 	}

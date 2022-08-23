@@ -87,8 +87,7 @@ public class SicsChannel implements ISicsChannel {
 				while(true) {
 					try {
 						String msg = subscriberSocket.recvStr();
-//						System.err.println("SUB " + msg);
-						logger.info("SUB: " + msg);
+//						logger.info("SUB: " + msg);
 						JSONObject json;
 						json = new JSONObject(msg);
 						messageHandler.delayedProcess(json);
@@ -115,6 +114,9 @@ public class SicsChannel implements ISicsChannel {
 //		} catch (Exception e) {
 //		}
 //		if (json != null && json.has(JSON_KEY_CID) && json.getInt(JSON_KEY_CID) == cid) {
+		if (isBusy) {
+			throw new SicsExecutionException("channel is busy with the current command");
+		}
 		cid++;
 		SicsCommand sicsCommand = new SicsCommand(cid, command, callback);
 		commandMap.put(cid, sicsCommand);
@@ -158,6 +160,7 @@ public class SicsChannel implements ISicsChannel {
 	    this.serverAddress = serverAddress;
 	    this.publisherAddress = publisherAddress;
 		isConnected = true;
+		isBusy = false;
 		clientThread = new Thread(new Runnable() {
 			
 			@Override
@@ -192,6 +195,7 @@ public class SicsChannel implements ISicsChannel {
 
 	@Override
 	public void disconnect() {
+		logger.warn("disconnection called");
 		if (clientSocket != null) {
 			if (serverAddress != null) {
 				try {
@@ -227,6 +231,10 @@ public class SicsChannel implements ISicsChannel {
 	@Override
 	public boolean isBusy() {
 		return isBusy;
+	}
+	
+	public void reset() {
+		isBusy = false;
 	}
 	
 	public void dropCommand(Integer cid) {
@@ -322,6 +330,7 @@ public class SicsChannel implements ISicsChannel {
 				return;
 			}
 			try {
+				logger.error(json.toString());
 				if (!isStarted) {
 					isStarted = true;
 					messageHandler.process(json);

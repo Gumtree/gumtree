@@ -97,7 +97,7 @@ public class ClientChannel implements ISicsChannel {
 					try {
 						String msg = subscriberSocket.recvStr();
 //						System.err.println("SUB " + msg);
-						logger.info("SUB: " + msg);
+//						logger.info("SUB: " + msg);
 						JSONObject json;
 						json = new JSONObject(msg);
 						messageHandler.delayedProcess(json);
@@ -229,6 +229,11 @@ public class ClientChannel implements ISicsChannel {
 		return isBusy;
 	}
 	
+	@Override
+	public void reset() {
+		isBusy = false;
+	}
+	
 	public void dropCommand(Integer cid) {
 		commandMap.remove(cid);
 	}
@@ -333,7 +338,6 @@ public class ClientChannel implements ISicsChannel {
 				if (!isStarted) {
 					isStarted = true;
 					messageHandler.process(json);
-					System.err.println(json);
 					if (json.has(PropertyConstants.PROP_COMMAND_REPLY)) {
 						reply = json.get(PropertyConstants.PROP_COMMAND_REPLY).toString();
 					}

@@ -63,22 +63,21 @@ public class ClientMessageHandler {
 //			}
 //		} catch (JSONException e) {
 //		}
-		System.err.println(json.toString());
 		try {
 			if (json.has(PropertyConstants.PROP_UPDATE_TYPE)) {
 				String type = json.getString(PropertyConstants.PROP_UPDATE_TYPE);
 				if (type.equalsIgnoreCase(MessageType.STATUS.getId())) {
 					String status = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
-					logger.info("UPDATE status to " + status);
+//					logger.info("UPDATE status to " + status);
 				} else if (type.equalsIgnoreCase(MessageType.VALUE.getId())) {
 					String name = json.getString(PropertyConstants.PROP_UPDATE_NAME);
 					String value = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
-					logger.info("UPDATE value " + name + " = " + value);
+//					logger.info("UPDATE value " + name + " = " + value);
 //					processUpdate(name, value);
 				} else if (type.equalsIgnoreCase(MessageType.STATE.getId())) {
 					String name = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
 					String state = json.getString(PropertyConstants.PROP_UPDATE_NAME);
-					logger.info("UPDATE state of " + name + " to " + state);
+//					logger.info("UPDATE state of " + name + " to " + state);
 //					processState(name, state);
 				} else if (type.equalsIgnoreCase(MessageType.BATCH.getId())) {
 					processBatch(json);

@@ -12,4 +12,5 @@ public interface ISicsChannel {
 	void connect(String serverAddress, String publisherAddress) throws SicsCommunicationException;
 	void disconnect();
 	boolean isBusy();
+	void reset();
 }
