@@ -33,6 +33,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String NAME_SAMPLE_NAME = "koala.sampleName";
 	public static final String NAME_FILENAME = "koala.filename";
 	public static final String NAME_COMMENTS = "koala.comments";
+	public static final String NAME_PROP_FOLDER = "koala.proposalFolder";
 	
 	
 	// The shared instance

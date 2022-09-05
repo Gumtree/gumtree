@@ -13,8 +13,8 @@ import org.eclipse.swt.widgets.Display;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
-import au.gov.ansto.bragg.koala.ui.parts.RecurrentScheduler.IRecurrentTask;
 import au.gov.ansto.bragg.koala.ui.scan.ChemistryModel;
+import au.gov.ansto.bragg.koala.ui.scan.ExperimentModel;
 import au.gov.ansto.bragg.koala.ui.scan.PhysicsModel;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
@@ -40,6 +40,7 @@ public class MainPart extends Composite {
 	public static final String UNLOCK_TEXT = "koala123";
 	private static final String PROP_RECURRENT_PERIOD = "gumtree.koala.recurrentPeriodMS";
 
+//	private String proposalFolder;
 	private ScrolledComposite holder;
 	private EnvironmentPanel environmentPanel;
 	private JoeyPanel joeyPanel;
@@ -61,7 +62,8 @@ public class MainPart extends Composite {
 	private boolean isJoeyMode;
 	private PanelName currentPanelName;
 	private RecurrentScheduler scheduler;
-
+	
+	private ExperimentModel experimentModel;
 	
 	public MainPart(Composite parent, int style) {
 		super(parent, style);
@@ -78,8 +80,13 @@ public class MainPart extends Composite {
 		chemModel = new ChemistryModel();
 		physModel = new PhysicsModel();
 		
+		experimentModel = new ExperimentModel();
+		experimentModel.setChemistryModel(chemModel);
+		experimentModel.setPhysicsModel(physModel);
 		createPanels();
-		
+		if (experimentModel.getProposalFolder() == null) {
+			popupError("No proposal folder found. Please add a proposal ID before commencing your experiment.");
+		}
 	}
 
 	private void createPanels() {
@@ -277,5 +284,13 @@ public class MainPart extends Composite {
 				MessageDialog.openError(getShell(), "Error", errorText);
 			}
 		});
+	}
+	
+	public String getProposalFolder() {
+		return getExperimentModel().getProposalFolder();
+	}
+	
+	public ExperimentModel getExperimentModel() {
+		return experimentModel;
 	}
 }

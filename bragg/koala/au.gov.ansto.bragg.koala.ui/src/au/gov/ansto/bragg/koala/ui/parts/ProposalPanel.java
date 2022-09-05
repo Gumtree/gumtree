@@ -25,6 +25,8 @@ import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
+import au.gov.ansto.bragg.koala.ui.scan.ExperimentModel;
+import au.gov.ansto.bragg.koala.ui.scan.KoalaModelException;
 import au.gov.ansto.bragg.nbi.service.soap.CurrentProposalSOAPService;
 
 /**
@@ -176,7 +178,7 @@ public class ProposalPanel extends AbstractControlPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				loadPref();
+				loadModel();
 			}
 			
 			@Override
@@ -304,7 +306,7 @@ public class ProposalPanel extends AbstractControlPanel {
 
 		});
 
-		loadPref();
+		loadModel();
 	}
 
 	private void autoFill() {
@@ -330,30 +332,44 @@ public class ProposalPanel extends AbstractControlPanel {
 	}
 	
 	private void applyChange() {
-		Activator.setPreference(Activator.NAME_PROP_ID, idText.getText());
-		Activator.setPreference(Activator.NAME_USER_NAME, nameText.getText());
-		Activator.setPreference(Activator.NAME_LOCAL_SCI, isText.getText());
-		Activator.flushPreferenceStore();
+		String propId = idText.getText();
+		if (propId == null || propId.trim().length() == 0) {
+			mainPart.popupError("Proposal ID can't be empty.");
+			return;
+		}
+		String userName = nameText.getText();
+		if (userName == null || userName.trim().length() == 0) {
+			mainPart.popupError("User name can't be empty.");
+			return;
+		}
+		ExperimentModel model = mainPart.getExperimentModel();
+		try {
+			model.setProposalInfo(idText.getText(), nameText.getText(), isText.getText());
+		} catch (KoalaModelException e) {
+			mainPart.popupError("Failed to apply change, " + e.getMessage());
+			return;
+		}
 		changeButton.setEnabled(false);
 		resetButton.setEnabled(false);
 	}
 	
-	private void loadPref() {
-		String propId =  Activator.getPreference(Activator.NAME_PROP_ID);
+	private void loadModel() {
+		ExperimentModel model = mainPart.getExperimentModel();
+		String propId =  model.getProposalId();
 		if (propId != null) {
 			propIdValue = propId;
 			idText.setText(propId);
 		} else {
 			idText.setText("");
 		}
-		String userName = Activator.getPreference(Activator.NAME_USER_NAME);
+		String userName = model.getUsername();
 		if (userName != null) {
 			userNameValue = userName;
 			nameText.setText(userName);
 		} else {
 			nameText.setText("");
 		}
-		String localSci = Activator.getPreference(Activator.NAME_LOCAL_SCI);
+		String localSci = model.getLocalContact();
 		if (localSci != null) {
 			localSciValue = localSci;
 			isText.setText(localSci);

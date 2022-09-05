@@ -65,6 +65,7 @@ enum ScanTarget {
 public class SingleScan {
 
 	private final static int PAUSE_CHECK_INTERVAL = 20;
+	private final static float DEVICE_VALUE_TOLERANCE = 0.00001f;
 	
 	protected final int ERASURE_TIME = 10;
 	protected final int READING_TIME = 20;
@@ -304,7 +305,7 @@ public class SingleScan {
         } else if (inc > 0) {
             number = 0;
             float s = start;
-            while (s <= end) {
+            while (s <= end + DEVICE_VALUE_TOLERANCE) {
                 s += inc;
                 number += 1;
             }
@@ -314,7 +315,7 @@ public class SingleScan {
         } else {
             number = 0;
             float s = start;
-            while (s >= end) {
+            while (s >= end - DEVICE_VALUE_TOLERANCE) {
                 s += inc;
                 number += 1;
             }

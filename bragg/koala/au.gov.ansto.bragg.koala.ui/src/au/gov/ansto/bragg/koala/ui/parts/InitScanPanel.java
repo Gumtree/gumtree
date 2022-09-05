@@ -61,6 +61,7 @@ public class InitScanPanel extends AbstractControlPanel {
 	private Text tempText;
 	private Text stepText;
 	private Text nameText;
+	private Text parentText;
 	private Text fileText;
 	private Text comText;
 	private Text startText;
@@ -91,7 +92,7 @@ public class InitScanPanel extends AbstractControlPanel {
 //		GridDataFactory.fillDefaults().grab(true, false).minSize(320, 36).applyTo(titleLabel);
 		
 		final Group infoBlock = new Group(this, SWT.SHADOW_OUT);
-		GridLayoutFactory.fillDefaults().numColumns(5).margins(8, 8).applyTo(infoBlock);
+		GridLayoutFactory.fillDefaults().numColumns(6).margins(8, 8).applyTo(infoBlock);
 		GridDataFactory.fillDefaults().grab(true, false).minSize(SWT.DEFAULT, 64).span(2, 1).applyTo(infoBlock);
 		
 		final Label nameLabel = new Label(infoBlock, SWT.NONE);
@@ -101,7 +102,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		
 		nameText = new Text(infoBlock, SWT.BORDER);
 		nameText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(600, 40).applyTo(nameText);
+		GridDataFactory.fillDefaults().grab(true, false).span(3, 1).minSize(700, 40).applyTo(nameText);
 		
 		final Label comLabel = new Label(infoBlock, SWT.NONE);
 		comLabel.setText(" Comments");
@@ -111,16 +112,22 @@ public class InitScanPanel extends AbstractControlPanel {
 		
 		comText = new Text(infoBlock, SWT.WRAP | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL);
 		comText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, false).span(1, 2).minSize(600, 88).applyTo(comText);
+		GridDataFactory.fillDefaults().grab(true, false).span(1, 2).minSize(500, 88).applyTo(comText);
 		
 		final Label fileLabel = new Label(infoBlock, SWT.NONE);
 		fileLabel.setText("Image filename");
 		fileLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(320, 40).applyTo(fileLabel);
 		
+		parentText = new Text(infoBlock, SWT.READ_ONLY);
+		parentText.setFont(Activator.getMiddleFont());
+		parentText.setText(mainPart.getProposalFolder());
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(parentText);
+		
 		fileText = new Text(infoBlock, SWT.BORDER);
 		fileText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(fileText);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).hint(300, SWT.DEFAULT
+				).applyTo(fileText);
 
 		final Button fileLocatorButton = new Button(infoBlock, SWT.PUSH);
 		fileLocatorButton.setText(">>");
@@ -132,23 +139,38 @@ public class InitScanPanel extends AbstractControlPanel {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog dialog = new FileDialog(getShell(), SWT.SAVE);
-				if (ScriptDataSourceViewer.fileDialogPath == null){
-					IWorkspace workspace= ResourcesPlugin.getWorkspace();
-					IWorkspaceRoot root = workspace.getRoot();
-					dialog.setFilterPath(root.getLocation().toOSString());
-				} else {
-					dialog.setFilterPath(ScriptDataSourceViewer.fileDialogPath);
-				}
+				String propFolder = mainPart.getProposalFolder();
+				propFolder = propFolder.substring(0, propFolder.length() - 1);
+//				if (ScriptDataSourceViewer.fileDialogPath == null){
+//					IWorkspace workspace= ResourcesPlugin.getWorkspace();
+//					IWorkspaceRoot root = workspace.getRoot();
+//					dialog.setFilterPath(root.getLocation().toOSString());
+//				} else {
+//					dialog.setFilterPath(ScriptDataSourceViewer.fileDialogPath);
+//				}
+				dialog.setFilterPath(propFolder);
 				String ext = "*.tif,*.TIF";
 				dialog.setFilterExtensions(ext.split(","));
 				dialog.open();
 				if (dialog.getFileName() == null || dialog.getFileName().trim().length() == 0) {
 					return;
 				}
-				String filePath = dialog.getFilterPath() + File.separator + dialog.getFileName();
-				if (filePath != null) {
-					fileText.setText(filePath);
-					fileText.setToolTipText(filePath);
+				String filterPath = dialog.getFilterPath();
+				if (!filterPath.startsWith(propFolder)) {
+					mainPart.popupError("File path must be inside of the proposal folder: " + propFolder);
+					return;
+				}
+				String text;
+				if (filterPath.equals(propFolder)) {
+					text = dialog.getFileName();
+				} else {
+					filterPath = filterPath.replace(propFolder + File.separator, "");
+					text = filterPath + File.separator + dialog.getFileName();
+				}
+//				String filePath = dialog.getFilterPath() + File.separator + dialog.getFileName();
+				if (text != null) {
+					fileText.setText(text);
+					fileText.setToolTipText(text);
 				}
 			}
 
@@ -473,9 +495,9 @@ public class InitScanPanel extends AbstractControlPanel {
 //		if (comments != null) {
 //			comText.setText(comments);
 //		} 
-		String filename = Activator.getPreference(Activator.NAME_FILENAME);
+		String filename = Activator.getPreference(Activator.NAME_PROP_FOLDER);
 		if (filename != null) {
-			fileText.setText(filename);
+//			fileText.setText(filename);
 		} 
 	}
 	
@@ -483,7 +505,7 @@ public class InitScanPanel extends AbstractControlPanel {
 	private void savePreference() {
 //		Activator.setPreference(Activator.NAME_SAMPLE_NAME, nameText.getText());
 //		Activator.setPreference(Activator.NAME_COMMENTS, comText.getText());
-		Activator.setPreference(Activator.NAME_FILENAME, fileText.getText());
+//		Activator.setPreference(Activator.NAME_FILENAME, fileText.getText());
 		Activator.flushPreferenceStore();
 	}
 	
@@ -497,7 +519,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		mainPart.showPanel(this, WIDTH_HINT, HEIGHT_HINT);
 		mainPart.enableBackButton();
 		mainPart.enableNextButton();
-		mainPart.setTitle("Initial Scan");
+		mainPart.setTitle("Test Scan");
 		mainPart.setCurrentPanelName(PanelName.INITSCAN);
 	}
 
