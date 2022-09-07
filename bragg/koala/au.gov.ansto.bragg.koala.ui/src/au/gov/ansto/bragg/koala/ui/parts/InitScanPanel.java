@@ -3,14 +3,16 @@
  */
 package au.gov.ansto.bragg.koala.ui.parts;
 
+import java.awt.Desktop;
 import java.io.File;
-
+import java.io.IOException;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -67,6 +69,7 @@ public class InitScanPanel extends AbstractControlPanel {
 	private Text startText;
 	private Text incText;
 	private Text numText;
+	private Text lastFileText;
 	private ConditionControl control;
 	private ControlHelper controlHelper;
 	private IExperimentModelListener experimentModelListener;
@@ -346,7 +349,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		
 		final Group condGroup = new Group(rightMain, SWT.SHADOW_OUT);
 		condGroup.setText("Current Condition");
-		GridLayoutFactory.fillDefaults().numColumns(2).margins(8, 8).applyTo(condGroup);
+		GridLayoutFactory.fillDefaults().numColumns(5).margins(8, 8).applyTo(condGroup);
 		GridDataFactory.fillDefaults().grab(true, true).minSize(480, SWT.DEFAULT).applyTo(condGroup);
 		
 		final Label phiLabel = new Label(condGroup, SWT.NONE);
@@ -354,40 +357,79 @@ public class InitScanPanel extends AbstractControlPanel {
 		phiLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(phiLabel);
 		
-		phiText = new Text(condGroup, SWT.READ_ONLY);
+		phiText = new Text(condGroup, SWT.BORDER);
 		phiText.setFont(Activator.getMiddleFont());
 		phiText.setEditable(false);
-		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(phiText);
+		GridDataFactory.fillDefaults().grab(false, false).minSize(300, 40).hint(300, SWT.DEFAULT).applyTo(phiText);
 		
 		final Label chiLabel = new Label(condGroup, SWT.NONE);
 		chiLabel.setText("Chi (\u00b0)");
 		chiLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(chiLabel);
 		
-		chiText = new Text(condGroup, SWT.READ_ONLY);
+		chiText = new Text(condGroup, SWT.BORDER);
 		chiText.setEditable(false);
 		chiText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(chiText);
+		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(180, 40).applyTo(chiText);
 		
 		final Label tempLabel = new Label(condGroup, SWT.NONE);
 		tempLabel.setText("Temperature (K)");
 		tempLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(tempLabel);
 		
-		tempText = new Text(condGroup, SWT.READ_ONLY);
+		tempText = new Text(condGroup, SWT.BORDER);
 		tempText.setEditable(false);
 		tempText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(tempText);
+		GridDataFactory.fillDefaults().grab(true, false).span(4, 1).minSize(240, 40).applyTo(tempText);
 		
 		final Label stepLabel = new Label(condGroup, SWT.NONE);
 		stepLabel.setText("Step number");
 		stepLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(numLabel);
 		
-		stepText = new Text(condGroup, SWT.READ_ONLY);
+		stepText = new Text(condGroup, SWT.BORDER);
 		stepText.setFont(Activator.getMiddleFont());
 		stepText.setEditable(false);
-		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(stepText);
+		GridDataFactory.fillDefaults().grab(true, false).span(4, 1).minSize(240, 40).applyTo(stepText);
+
+		final Label lastFileLabel = new Label(condGroup, SWT.NONE);
+		lastFileLabel.setText("Last file");
+		lastFileLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).minSize(180, 40).applyTo(fileLabel);
+		
+		lastFileText = new Text(condGroup, SWT.BORDER);
+		lastFileText.setFont(Activator.getMiddleFont());
+		lastFileText.setEditable(false);
+		GridDataFactory.fillDefaults().grab(true, false).span(3, SWT.DEFAULT).minSize(240, 40).applyTo(lastFileText);
+
+		final Button openButton = new Button(condGroup, SWT.PUSH);
+	    openButton.setImage(KoalaImage.IMAGE32.getImage());
+//	    openButton.setFont(Activator.getMiddleFont());
+	    openButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER)
+			.hint(40, 40).applyTo(openButton);
+
+		openButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				final String fn = lastFileText.getText();
+				File f = new File(fn);
+				if (f.exists()) {
+					try {
+						Desktop.getDesktop().open(f);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				} else {
+					MessageDialog.openWarning(getShell(), "Warning", "File not found: " + fn);
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 		
 //		ProgressBar proBar = new ProgressBar(runBlock, SWT.HORIZONTAL);
 //		proBar.setMaximum(100);
@@ -416,6 +458,17 @@ public class InitScanPanel extends AbstractControlPanel {
 						if (!parentText.isDisposed()) {
 							parentText.setText(model.getProposalFolder());
 						}
+					}
+				});
+			}
+			
+			@Override
+			public void updateLastFilename(final String filename) {
+				Display.getDefault().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						lastFileText.setText(filename);
 					}
 				});
 			}
