@@ -5,13 +5,11 @@ package au.gov.ansto.bragg.koala.ui.parts;
 
 import java.io.File;
 
+
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -30,6 +28,7 @@ import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
+import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.util.ILoopExitCondition;
@@ -37,14 +36,15 @@ import org.gumtree.util.JobRunner;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
-import au.gov.ansto.bragg.koala.ui.parts.AbstractExpPanel.ControllerListener;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
+import au.gov.ansto.bragg.koala.ui.scan.ExperimentModel;
+import au.gov.ansto.bragg.koala.ui.scan.ExperimentModelAdapter;
+import au.gov.ansto.bragg.koala.ui.scan.IExperimentModelListener;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaInterruptionException;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
 import au.gov.ansto.bragg.koala.ui.scan.SingleScan;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
-import au.gov.ansto.bragg.nbi.ui.scripting.parts.ScriptDataSourceViewer;
 
 /**
  * @author nxi
@@ -69,6 +69,7 @@ public class InitScanPanel extends AbstractControlPanel {
 	private Text numText;
 	private ConditionControl control;
 	private ControlHelper controlHelper;
+	private IExperimentModelListener experimentModelListener;
 	
 	/**
 	 * @param parent
@@ -121,13 +122,15 @@ public class InitScanPanel extends AbstractControlPanel {
 		
 		parentText = new Text(infoBlock, SWT.READ_ONLY);
 		parentText.setFont(Activator.getMiddleFont());
-		parentText.setText(mainPart.getProposalFolder());
+//		parentText.setText(mainPart.getProposalFolder());
+		parentText.setText(mainPart.getExperimentModel().getProposalFolder());
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(parentText);
 		
 		fileText = new Text(infoBlock, SWT.BORDER);
 		fileText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).hint(300, SWT.DEFAULT
 				).applyTo(fileText);
+//		fileText.setText(SingleScan.DATA_FILENAME);
 
 		final Button fileLocatorButton = new Button(infoBlock, SWT.PUSH);
 		fileLocatorButton.setText(">>");
@@ -400,6 +403,24 @@ public class InitScanPanel extends AbstractControlPanel {
 		
 		control = new ConditionControl();
 		loadPreference();
+		
+		final ExperimentModel model = mainPart.getExperimentModel();
+		experimentModelListener = new ExperimentModelAdapter() {
+			
+			@Override
+			public void proposalIdChanged(final String newId) {
+				Display.getDefault().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						if (!parentText.isDisposed()) {
+							parentText.setText(model.getProposalFolder());
+						}
+					}
+				});
+			}
+		};
+		model.addExperimentModelListener(experimentModelListener);
 	}
 
 	
@@ -468,15 +489,18 @@ public class InitScanPanel extends AbstractControlPanel {
 				} catch (KoalaInterruptionException ei) {
 					handleError("user interrupted");
 				} catch (KoalaServerException e) {
-					handleError(e.getMessage());;
+					handleError("server error: " + e.getMessage());;
+				} catch (Exception e) {
+					handleError("error: " + e.getMessage());
 				}
 			}
 		});
 	}
 	
 	private void handleError(String errorText) {
-		
+		mainPart.popupError(errorText);
 	}
+	
 	/* (non-Javadoc)
 	 * @see au.gov.ansto.bragg.koala.ui.parts.AbstractControlPart#back()
 	 */
@@ -510,7 +534,11 @@ public class InitScanPanel extends AbstractControlPanel {
 	}
 	
 	private void applySampleInfo() {
-		control.applyChange();
+		try {
+			control.applyChange();
+		} catch (SicsException e) {
+			mainPart.popupError("failed to save sample information");
+		}
 		savePreference();
 	}
 	
@@ -607,9 +635,9 @@ public class InitScanPanel extends AbstractControlPanel {
 			controlHelper.addProxyListener(proxyListener);
 		}
 		
-		public void applyChange() {
-			((DynamicController) sampleController).setTargetValue(nameText.getText());
-			((DynamicController) commentsController).setTargetValue(comText.getText());
+		public void applyChange() throws SicsException {
+			((DynamicController) sampleController).setValue(nameText.getText());
+			((DynamicController) commentsController).setValue(comText.getText());
 		}
 	}
 	
@@ -657,5 +685,12 @@ public class InitScanPanel extends AbstractControlPanel {
 		public void updateTarget(Object oldValue, Object newValue) {
 		}
 		
+	}
+	
+	@Override
+	public void dispose() {
+		super.dispose();
+		mainPart.getExperimentModel().removeExperimentModelListener(
+				experimentModelListener);
 	}
 }

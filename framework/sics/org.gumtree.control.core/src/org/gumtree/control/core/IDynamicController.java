@@ -17,6 +17,8 @@ public interface IDynamicController extends ISicsController {
 	
 	boolean commitTargetValue() throws SicsException;
 	
+	void setValue(Object value) throws SicsException;
+	
 	boolean isBusy();
 	
 	String getUnits();

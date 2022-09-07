@@ -230,4 +230,10 @@ public class DynamicController extends SicsController implements IDynamicControl
 		}
 		return null;
 	}
+	
+	public void setValue(Object value) throws SicsException {
+		setTargetValue(value);
+		commitTargetValue();
+	}
+
 }

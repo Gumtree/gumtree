@@ -21,6 +21,8 @@ import org.gumtree.control.exception.SicsInterruptException;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 
+import au.gov.ansto.bragg.koala.ui.Activator;
+import au.gov.ansto.bragg.koala.ui.scan.ExperimentModel;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaInterruptionException;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
 
@@ -39,6 +41,7 @@ public class ControlHelper {
 	public static final String GUMTREE_TIME_PATH = "gumtree.path.gumtreetime";
 	public static final String GUMTREE_SAMPLE_NAME = "gumtree.koala.samplename";
 	public static final String GUMTREE_COMMENTS = "gumtree.koala.comments";
+	public static final String GUMTREE_USER_NAME = "gumtree.koala.username";
 	
 	private final static Color BUSY_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
 	private final static Color IDLE_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
@@ -48,6 +51,8 @@ public class ControlHelper {
 	public static String PHI_DEVICE_NAME;
 	
 	public static int ERASURE_TIME = 10;
+	public static String proposalFolder;
+	public static ExperimentModel experimentModel;
 	
 	static {
 		TEMP_DEVICE_NAME = System.getProperty(ENV_SETPOINT);
@@ -230,6 +235,8 @@ public class ControlHelper {
 	public static void interrupt() throws KoalaServerException {
 //		asyncExec("INT1712 3");
 		getProxy().interrupt();
+		experimentModel.getPhysicsModel().finish();
+		experimentModel.getChemistryModel().finish();
 	}
 	
 	public static void syncDrive(String deviceName, float value) 
@@ -266,5 +273,12 @@ public class ControlHelper {
 				throw new KoalaServerException(e);
 			}
 		}
+	}
+	
+	public static String getProposalFolder() {
+		if (proposalFolder == null) {
+			proposalFolder = Activator.getPreference(Activator.NAME_PROP_FOLDER);
+		}
+		return proposalFolder;
 	}
 }

@@ -40,6 +40,8 @@ import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.koala.ui.parts.RecurrentScheduler.IRecurrentTask;
 import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
 import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel.ModelStatus;
+import au.gov.ansto.bragg.koala.ui.scan.ExperimentModelAdapter;
+import au.gov.ansto.bragg.koala.ui.scan.IExperimentModelListener;
 import au.gov.ansto.bragg.koala.ui.scan.IModelListener;
 import au.gov.ansto.bragg.koala.ui.scan.SingleScan;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
@@ -88,6 +90,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	private Text finText;
 	private Text estText;
 	private ControlHelper controlHelper;
+	private IExperimentModelListener experimentListener;
 	
 	/**
 	 * @param parent
@@ -160,7 +163,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	    GridDataFactory.fillDefaults().grab(false, false).applyTo(statusPart);
 	    	    
 		final Label fileLabel = new Label(statusPart, SWT.NONE);
-		fileLabel.setText("Filename");
+		fileLabel.setText("Last file");
 		fileLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(180, 40).applyTo(fileLabel);
 		
@@ -602,6 +605,22 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 				
 			}
 		});
+		
+		experimentListener = new ExperimentModelAdapter() {
+			
+			@Override
+			public void updateLastFilename(final String filename) {
+				Display.getDefault().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						fileText.setText(filename);
+					}
+				});
+			}
+			
+		};
+		ControlHelper.experimentModel.addExperimentModelListener(experimentListener);
 	}
 
 	/* (non-Javadoc)
@@ -682,7 +701,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		ISicsController phiController;
 		ISicsController tempController;
 		ISicsController stepController;
-		ISicsController fnController;
+//		ISicsController fnController;
 		
 		boolean initialised = false;
 		
@@ -712,8 +731,8 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 					System.getProperty(ControlHelper.ENV_VALUE));
 			stepController = SicsManager.getSicsModel().findControllerByPath(
 					System.getProperty(ControlHelper.STEP_PATH));
-			fnController = SicsManager.getSicsModel().findControllerByPath(
-					System.getProperty(ControlHelper.FILENAME_PATH));
+//			fnController = SicsManager.getSicsModel().findControllerByPath(
+//					System.getProperty(ControlHelper.FILENAME_PATH));
 			
 			if (phiController != null) {
 				phiController.addControllerListener(
@@ -727,10 +746,10 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 				stepController.addControllerListener(
 						new ControllerListener(numText));
 			}
-			if (fnController != null) {
-				fnController.addControllerListener(
-						new ControllerListener(fileText));
-			}
+//			if (fnController != null) {
+//				fnController.addControllerListener(
+//						new ControllerListener(fileText));
+//			}
 			Display.getDefault().asyncExec(new Runnable() {
 
 				@Override
@@ -748,10 +767,10 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 							numText.setText(String.valueOf(
 									((DynamicController) stepController).getValue()));
 						}
-						if (fnController != null) {
-							fileText.setText(String.valueOf(
-									((DynamicController) fnController).getValue()));
-						}
+//						if (fnController != null) {
+//							fileText.setText(String.valueOf(
+//									((DynamicController) fnController).getValue()));
+//						}
 					} catch (Exception e) {
 					}
 				}

@@ -15,6 +15,8 @@ import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
 import au.gov.ansto.bragg.koala.ui.scan.ChemistryModel;
 import au.gov.ansto.bragg.koala.ui.scan.ExperimentModel;
+import au.gov.ansto.bragg.koala.ui.scan.ExperimentModelAdapter;
+import au.gov.ansto.bragg.koala.ui.scan.IExperimentModelListener;
 import au.gov.ansto.bragg.koala.ui.scan.PhysicsModel;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
@@ -64,6 +66,7 @@ public class MainPart extends Composite {
 	private RecurrentScheduler scheduler;
 	
 	private ExperimentModel experimentModel;
+	private IExperimentModelListener modelListener;
 	
 	public MainPart(Composite parent, int style) {
 		super(parent, style);
@@ -81,12 +84,22 @@ public class MainPart extends Composite {
 		physModel = new PhysicsModel();
 		
 		experimentModel = new ExperimentModel();
+		ControlHelper.experimentModel = experimentModel;
 		experimentModel.setChemistryModel(chemModel);
 		experimentModel.setPhysicsModel(physModel);
 		createPanels();
 		if (experimentModel.getProposalFolder() == null) {
 			popupError("No proposal folder found. Please add a proposal ID before commencing your experiment.");
 		}
+		modelListener = new ExperimentModelAdapter() {
+			
+			@Override
+			public void onError(final String errorMessage) {
+				popupError(errorMessage);
+			}
+			
+		};
+		experimentModel.addExperimentModelListener(modelListener);
 	}
 
 	private void createPanels() {
@@ -292,5 +305,11 @@ public class MainPart extends Composite {
 	
 	public ExperimentModel getExperimentModel() {
 		return experimentModel;
+	}
+	
+	@Override
+	public void dispose() {
+		super.dispose();
+		experimentModel.removeExperimentModelListener(modelListener);
 	}
 }

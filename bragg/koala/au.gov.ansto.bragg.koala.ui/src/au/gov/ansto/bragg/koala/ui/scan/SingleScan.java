@@ -2,8 +2,17 @@ package au.gov.ansto.bragg.koala.ui.scan;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.gumtree.control.core.IDynamicController;
+import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.exception.SicsModelException;
 
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
@@ -64,11 +73,13 @@ enum ScanTarget {
 
 public class SingleScan {
 
+	private static final String SOURCE_FOLDER = "sics.data.path";
+	public static final String DATA_FILENAME = "data.tif";
 	private final static int PAUSE_CHECK_INTERVAL = 20;
 	private final static float DEVICE_VALUE_TOLERANCE = 0.00001f;
-	
+
 	protected final int ERASURE_TIME = 10;
-	protected final int READING_TIME = 20;
+	protected final int READING_TIME = 240;
 	protected final int TEMP_TIME = 300;
 	protected final int CHI_TIME = 10;
 	protected final int PHI_TIME = 10;
@@ -84,7 +95,7 @@ public class SingleScan {
 	private float chi = Float.NaN;
 	private String status;
 	private String comments;
-	private String filename;
+	private String filename = DATA_FILENAME;
 	private PropertyChangeSupport changeListener = new PropertyChangeSupport(this);
 	private InputType inputLast;
 	private InputType input2nd;
@@ -93,6 +104,8 @@ public class SingleScan {
 	private long startTimeMilSec;
 	private boolean paused;
 	private boolean isFinished;
+	private int fileIndex = 1;
+	private File currentFile;
 
 	enum InputType {START, INC, NUMBER, END};
 	
@@ -215,6 +228,8 @@ public class SingleScan {
 		}
 	}
 	public void setFilename(String filename) {
+		File test = new File(filename);
+		test.toPath();
 		Object old = this.filename;
 		this.filename = filename;
 		firePropertyChange("filename", old, filename);
@@ -470,6 +485,7 @@ public class SingleScan {
 		isRunning = true;
 		startTimeMilSec = System.currentTimeMillis();
 		try {
+			resetCurrentFile();
 			evaluatePauseStatus();
 			if (!getTarget().isTemperature()) {
 				if (!Float.isNaN(getTemp())) {
@@ -521,7 +537,77 @@ public class SingleScan {
 		ControlHelper.publishGumtreeStatus("starting collection");
 		ControlHelper.syncCollect(getExposure(), getErasure());
 		ControlHelper.publishGumtreeStatus("Idle");
+		copyFile();
 		evaluatePauseStatus();		
+	}
+	
+	private void copyFile() throws KoalaServerException {
+		ISicsController fnController = SicsManager.getSicsModel().findControllerByPath(
+				System.getProperty(ControlHelper.FILENAME_PATH));
+		try {
+			String source = String.valueOf(((IDynamicController) fnController).getValue());
+			source = source.replaceAll("/", "\\\\");
+			if (source.contains(File.separator)) {
+				source = System.getProperty(SOURCE_FOLDER) + source.substring(source.lastIndexOf(File.separator));
+			} else {
+				source = System.getProperty(SOURCE_FOLDER) + File.separator + source;
+			}
+//			String tn = this.filename;
+//			tn = tn.replaceAll("/", File.separator);
+//			if (tn.startsWith(File.separator)) {
+//				tn = tn.substring(1);
+//			}
+			Files.copy((new File(source)).toPath(), currentFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			ControlHelper.experimentModel.setLastFilename(currentFile.getAbsolutePath());
+			System.err.println(source);
+			System.err.println(currentFile.toString());
+			fileIndex++;
+			resetCurrentFile();
+		} catch (SicsModelException e) {
+			throw new KoalaServerException("failed to get filename from SICS", e);
+		} catch (IOException e) {
+			throw new KoalaServerException("failed to copy file to proposal folder", e);
+		} catch (Exception e) {
+			throw new KoalaServerException("failed to copy file", e);
+		}
+		
+	}
+	
+	private void resetCurrentFile() {
+		String tn = this.filename;
+		tn = tn.replaceAll("/", "\\\\");
+		if (tn.startsWith(File.separator)) {
+			tn = tn.substring(1);
+		}
+		String target;
+		if (tn.contains("*")) {
+			target = ControlHelper.proposalFolder 
+					+ tn.replaceAll("*", String.format("%03d", this.fileIndex));
+			if (!target.toLowerCase().endsWith(".tif")) {
+				target += ".tif";
+			}
+		} else {
+			if (tn.toLowerCase().endsWith(".tif")) {
+				target = ControlHelper.proposalFolder 
+						+ tn.substring(0, tn.length() - 4) 
+						+ String.format("%03d", this.fileIndex) 
+						+ ".tif";
+			} else {
+				target = ControlHelper.proposalFolder 
+						+ tn + String.format("%03d", this.fileIndex) + ".tif";
+			}
+		}
+		File f = new File(target);
+		File parent = f.getParentFile();
+		if (!parent.exists()) {
+			parent.mkdirs();
+		}
+		if (f.exists()) {
+			fileIndex++;
+			resetCurrentFile();
+		} else {
+			currentFile = f;
+		}
 	}
 	
 	public boolean needToRun() {

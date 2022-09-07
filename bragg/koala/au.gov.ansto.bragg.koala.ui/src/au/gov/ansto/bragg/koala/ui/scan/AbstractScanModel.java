@@ -26,6 +26,7 @@ import org.gumtree.msw.ui.ktable.renderers.TextCellRenderer;
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.ImageButtonHighlightRenderer;
+import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
 public abstract class AbstractScanModel implements KTableModel {
 
@@ -518,11 +519,19 @@ public abstract class AbstractScanModel implements KTableModel {
 						scan.setStatus(ScanStatus.error.name());
 						safeRedrawStatus(row);
 						e.printStackTrace();
+						handleError("user interrupted");
 						break;
 					} catch (KoalaServerException e) {
 						scan.setStatus(ScanStatus.error.name());
 						safeRedrawStatus(row);
 						e.printStackTrace();
+						handleError("server error: " + e.getMessage());
+						break;
+					} catch (Exception e) {
+						scan.setStatus(ScanStatus.error.name());
+						safeRedrawStatus(row);
+						e.printStackTrace();
+						handleError("error: " + e.getMessage());
 						break;
 					}
 				}
@@ -532,6 +541,10 @@ public abstract class AbstractScanModel implements KTableModel {
 			}
 		});
 		runnerThread.start();
+	}
+	
+	private void handleError(String errorText) {
+		ControlHelper.experimentModel.publishErrorMessage(errorText);
 	}
 	
 	private boolean hasNextScan() {
