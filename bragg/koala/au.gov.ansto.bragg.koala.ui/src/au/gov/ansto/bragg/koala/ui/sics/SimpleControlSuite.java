@@ -22,8 +22,8 @@ import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.imp.DriveableController;
 import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
-import org.gumtree.util.ILoopExitCondition;
-import org.gumtree.util.JobRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author nxi
@@ -33,6 +33,7 @@ public class SimpleControlSuite {
 
 	private final static Color BUSY_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
 	private final static Color IDLE_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
+	private static Logger logger = LoggerFactory.getLogger(SimpleControlSuite.class);
 
 	private String currentPath;
 	private String setpointPath;
@@ -107,6 +108,7 @@ public class SimpleControlSuite {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == 16777296) {
+					logger.info(String.format("enter key pressed to drive %s to %s", currentPath, setpointControl.getText()));
 					commitTarget();
 				} 
 			}
@@ -120,6 +122,7 @@ public class SimpleControlSuite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info(String.format("button clicked to drive %s to %s", currentPath, setpointControl.getText()));
 				commitTarget();
 			}
 			

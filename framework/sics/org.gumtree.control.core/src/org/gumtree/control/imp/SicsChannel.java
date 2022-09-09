@@ -330,13 +330,14 @@ public class SicsChannel implements ISicsChannel {
 				return;
 			}
 			try {
-				logger.error(json.toString());
+				logger.debug(json.toString());
 				if (!isStarted) {
 					isStarted = true;
 					messageHandler.process(json);
 //					System.err.println(json);
 					if (json.has(PropertyConstants.PROP_COMMAND_REPLY)) {
 						reply = json.get(PropertyConstants.PROP_COMMAND_REPLY).toString();
+						logger.info(reply);
 					}
 					if (json.has(JSON_KEY_INTERRUPT)) {
 						if (callback != null) {

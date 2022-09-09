@@ -105,6 +105,7 @@ public class SingleScan {
 	private boolean paused;
 	private boolean isFinished;
 	private int fileIndex = 1;
+	private int startIndex = 1;
 	private File currentFile;
 
 	enum InputType {START, INC, NUMBER, END};
@@ -228,10 +229,11 @@ public class SingleScan {
 		}
 	}
 	public void setFilename(String filename) {
-		File test = new File(filename);
+		File test = new File(filename.replaceAll("\\*", "a"));
 		test.toPath();
 		Object old = this.filename;
 		this.filename = filename;
+		fileIndex = startIndex;
 		firePropertyChange("filename", old, filename);
 	}
 	public String getPoints() {
@@ -254,6 +256,20 @@ public class SingleScan {
 		SingleScan scan = new SingleScan(target);
 		scan.copyFrom(this);
 		return scan;
+	}
+	
+	public int getStartIndex() {
+		return startIndex;
+	}
+	
+	public void setStartIndex(int startIndex) {
+		if (startIndex < 0) {
+			throw new IllegalArgumentException("must be larger or equal than 0");
+		}
+		Object old = this.startIndex;
+		this.startIndex = startIndex;
+		fileIndex = startIndex;
+		firePropertyChange("startIndex", old, startIndex);
 	}
 	
 	public void copyFrom(SingleScan scan) {
@@ -582,7 +598,7 @@ public class SingleScan {
 		String target;
 		if (tn.contains("*")) {
 			target = ControlHelper.proposalFolder 
-					+ tn.replaceAll("*", String.format("%03d", this.fileIndex));
+					+ tn.replaceAll("\\*", String.format("%03d", this.fileIndex));
 			if (!target.toLowerCase().endsWith(".tif")) {
 				target += ".tif";
 			}

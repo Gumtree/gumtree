@@ -10,6 +10,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
@@ -41,6 +43,8 @@ public class MainPart extends Composite {
 	 */
 	public static final String UNLOCK_TEXT = "koala123";
 	private static final String PROP_RECURRENT_PERIOD = "gumtree.koala.recurrentPeriodMS";
+	private static Logger logger = LoggerFactory.getLogger(MainPart.class);
+
 
 //	private String proposalFolder;
 	private ScrolledComposite holder;
@@ -295,6 +299,7 @@ public class MainPart extends Composite {
 			@Override
 			public void run() {
 				MessageDialog.openError(getShell(), "Error", errorText);
+				logger.error(errorText);
 			}
 		});
 	}

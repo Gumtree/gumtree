@@ -22,6 +22,8 @@ public class Activator extends AbstractUIPlugin {
 		super.start(bundleContext);
 		instance = this;
 		context = bundleContext;
+		KoalaServer server = new KoalaServer(ConstantSetup.LOCAL_SERVER_ADDRESS, ConstantSetup.LOCAL_PUBLISHER_ADDRESS);
+    	server.run();
 	}
 
 	@Override

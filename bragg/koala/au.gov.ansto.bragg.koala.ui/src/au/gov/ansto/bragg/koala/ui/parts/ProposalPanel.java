@@ -20,6 +20,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
@@ -40,6 +42,7 @@ public class ProposalPanel extends AbstractControlPanel {
 	private static final String ID_PROP_CODE = "proposalCode";
 	private static final String ID_PRCP_SCI = "principalSci";
 	private static final String ID_LOC_SCI = "localSci";
+	private static Logger logger = LoggerFactory.getLogger(ProposalPanel.class);
 	
 	private CurrentProposalSOAPService proposalService;
 	private MainPart mainPart;
@@ -230,6 +233,7 @@ public class ProposalPanel extends AbstractControlPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("Chemistry button clicked");
 				mainPart.setMode(KoalaMode.CHEMISTRY);
 			}
 			
@@ -250,6 +254,7 @@ public class ProposalPanel extends AbstractControlPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("Physics button clicked");
 				mainPart.setMode(KoalaMode.PHYSICS);
 			}
 			
@@ -313,6 +318,7 @@ public class ProposalPanel extends AbstractControlPanel {
 		isWaiting = true;
 		getShell().setCursor(Activator.getBusyCursor());
 		proposalService.load();
+		logger.info("Auto fill button clicked");
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			
@@ -323,6 +329,7 @@ public class ProposalPanel extends AbstractControlPanel {
 						
 						@Override
 						public void run() {
+							logger.error("failed to communicate with portal server");
 							idText.setText("Timeout connecting to server");
 						}
 					});
@@ -332,6 +339,7 @@ public class ProposalPanel extends AbstractControlPanel {
 	}
 	
 	private void applyChange() {
+		logger.info("Apply change button clicked");
 		String propId = idText.getText();
 		if (propId == null || propId.trim().length() == 0) {
 			mainPart.popupError("Proposal ID can't be empty.");
@@ -351,6 +359,8 @@ public class ProposalPanel extends AbstractControlPanel {
 		}
 		changeButton.setEnabled(false);
 		resetButton.setEnabled(false);
+		logger.info(String.format("proposalId = %s, username = %s, localContact = %s", 
+				idText.getText(), nameText.getText(), isText.getText()));
 	}
 	
 	private void loadModel() {

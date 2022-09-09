@@ -14,6 +14,8 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -64,7 +66,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	private static final int WIDTH_TABLE = 1580;
 	private static final int HEIGHT_TABLE = 1000;
 	private static final int WIDTH_INFO = 480;
-	private static final int HEIGHT_INFO = 880;
+	private static final int HEIGHT_INFO = 1080;
 	
 	private static final int WIDTH_HINT_SMALL = 1560; 
 	private static final int HEIGHT_HINT_SMALL = 720;
@@ -89,6 +91,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	private Text startText;
 	private Text finText;
 	private Text estText;
+	private Text comText;
 	private ControlHelper controlHelper;
 	private IExperimentModelListener experimentListener;
 	
@@ -253,9 +256,46 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		comLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(comLabel);
 		
-		final Text comText = new Text(batchGroup, SWT.BORDER);
+		if (Activator.getMonitorWidth() < 2500) {
+			comText = new Text(batchGroup, SWT.BORDER);
+			GridDataFactory.fillDefaults().grab(true, false).span(2, 1).hint(400, SWT.DEFAULT).applyTo(comText);
+		} else {
+			comText = new Text(batchGroup, SWT.WRAP | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL);	
+			GridDataFactory.fillDefaults().grab(true, false).span(2, 1).hint(400, 88).applyTo(comText);
+		}
 		comText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(180, 40).hint(400, SWT.DEFAULT).applyTo(comText);
+		
+		comText.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == 16777296) {
+					try {
+						String com = comText.getText();
+//						String fn = fnText.getText();
+						AbstractScanModel model = getModel();
+						int[] rows = table.getRowSelection();
+						for (int row : rows) {
+							SingleScan scan = model.getItem(row);
+							if (com != null && com.trim().length() > 0) {
+								scan.setComments(com);
+							}
+//							if (fn != null && fn.trim().length() > 0) {
+//								scan.setFilename(fn);
+//							}
+						}
+					} catch (Exception e2) {
+						mainPart.popupError("error in appling changes: " + e2.getMessage());
+					}
+					table.redraw();
+				} 
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			
+		});
 		
 		final Label fnLabel = new Label(batchGroup, SWT.NONE);
 		fnLabel.setText("Filename");
@@ -266,7 +306,72 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		fnText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(180, 40).hint(400, SWT.DEFAULT).applyTo(fnText);
 
-	    final Button applyButton = new Button(batchGroup, SWT.PUSH);
+		fnText.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == 16777296) {
+					try {
+						String fn = fnText.getText();
+						AbstractScanModel model = getModel();
+						int[] rows = table.getRowSelection();
+						for (int row : rows) {
+							SingleScan scan = model.getItem(row);
+							if (fn != null && fn.trim().length() > 0) {
+								scan.setFilename(fn);
+							}
+						}
+					} catch (Exception e2) {
+						mainPart.popupError("error in appling changes: " + e2.getMessage());
+					}
+					table.redraw();
+				} 
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			
+		});
+
+		final Label indexLabel = new Label(batchGroup, SWT.NONE);
+		indexLabel.setText("Start index");
+		indexLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(indexLabel);
+		
+		final Text indexText = new Text(batchGroup, SWT.BORDER);
+		indexText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(180, 40).hint(400, SWT.DEFAULT).applyTo(indexText);
+
+		indexText.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == 16777296) {
+					try {
+						String start = indexText.getText();
+						AbstractScanModel model = getModel();
+						int[] rows = table.getRowSelection();
+						for (int row : rows) {
+							SingleScan scan = model.getItem(row);
+							if (start != null && start.trim().length() > 0) {
+								scan.setStartIndex(Integer.valueOf(start));
+							}
+						}
+					} catch (Exception e2) {
+						mainPart.popupError("error in appling changes: " + e2.getMessage());
+					}
+					table.redraw();
+				} 
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			
+		});
+
+		final Button applyButton = new Button(batchGroup, SWT.PUSH);
 	    applyButton.setImage(KoalaImage.MULTI_APPLY48.getImage());
 	    applyButton.setText("Apply to Selected Entries");
 	    applyButton.setFont(Activator.getMiddleFont());
@@ -278,18 +383,22 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String com = comText.getText();
-				String fn = fnText.getText();
-				AbstractScanModel model = getModel();
-				int[] rows = table.getRowSelection();
-				for (int row : rows) {
-					SingleScan scan = model.getItem(row);
-					if (com != null && com.trim().length() > 0) {
-						scan.setComments(com);
+				try {
+					String com = comText.getText();
+					String fn = fnText.getText();
+					AbstractScanModel model = getModel();
+					int[] rows = table.getRowSelection();
+					for (int row : rows) {
+						SingleScan scan = model.getItem(row);
+						if (com != null && com.trim().length() > 0) {
+							scan.setComments(com);
+						}
+						if (fn != null && fn.trim().length() > 0) {
+							scan.setFilename(fn);
+						}
 					}
-					if (fn != null && fn.trim().length() > 0) {
-						scan.setFilename(fn);
-					}
+				} catch (Exception e2) {
+					mainPart.popupError("error in appling changes: " + e2.getMessage());
 				}
 				table.redraw();
 			}
@@ -432,10 +541,13 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 						} else {
 							fnText.setText("");
 						}
+						int startIndex = scan.getStartIndex();
+						indexText.setText(String.valueOf(startIndex));
 						estText.setText(String.valueOf(scan.getTotalTime()));
 					} else {
 						comText.setText("");
 						fnText.setText("");
+						indexText.setText("");
 						int time = 0;
 						for (int i = 0; i < rows.length; i++) {
 							SingleScan scan = model.getItem(rows[i]);

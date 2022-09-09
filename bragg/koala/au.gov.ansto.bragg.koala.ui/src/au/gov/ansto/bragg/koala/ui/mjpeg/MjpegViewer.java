@@ -33,6 +33,8 @@ import org.gumtree.control.imp.DriveableController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.JobRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
@@ -44,6 +46,7 @@ public class MjpegViewer extends Composite {
 
 	private static final String CAM1_URL = "gumtree.koala.mjpeg1Url";
 	private static final String CAM2_URL = "gumtree.koala.mjpeg2Url";
+	private static final Logger logger = LoggerFactory.getLogger(MjpegViewer.class);
 	
 //	private static final String CAM_SIZE = "gumtree.koala.camSize";
 
@@ -259,6 +262,7 @@ public class MjpegViewer extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("Phi -90 button clicked");
 				driveSphi(-90f);
 			}
 			
@@ -278,6 +282,7 @@ public class MjpegViewer extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("Phi 90 button clicked");
 				driveSphi(90f);
 			}
 			
@@ -378,6 +383,7 @@ public class MjpegViewer extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("Phi 0 button clicked");
 				driveSphi(0f);
 			}
 			
@@ -396,6 +402,7 @@ public class MjpegViewer extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("Phi -180 button clicked");
 				driveSphi(-180f);
 			}
 			

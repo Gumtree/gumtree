@@ -29,6 +29,8 @@ import org.gumtree.control.imp.DriveableController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.JobRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
@@ -47,6 +49,7 @@ public class CrystalPanel extends AbstractControlPanel {
 	private static final int HEIGHT_HINT = 1080;
 	private static final int WIDTH_HINT_SMALL = 1560;
 	private static final int HEIGHT_HINT_SMALL = 720;
+	private static Logger logger = LoggerFactory.getLogger(CrystalPanel.class);
 	private MainPart mainPart;
 	private int panelWidth;
 	private int panelHeight;
@@ -187,6 +190,7 @@ public class CrystalPanel extends AbstractControlPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("Zero Chi button clicked");
 				chiHighButton.setSelection(false);
 			}
 			
@@ -204,6 +208,7 @@ public class CrystalPanel extends AbstractControlPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("High Chi button clicked");
 				chiZeroButton.setSelection(false);
 			}
 			
@@ -222,6 +227,7 @@ public class CrystalPanel extends AbstractControlPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("Drive Chi button clicked");
 				if (chiZeroButton.getSelection()) {
 					driveSchi(0);					
 				} else if (chiHighButton.getSelection()) {
