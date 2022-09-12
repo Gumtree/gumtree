@@ -16,6 +16,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
@@ -35,6 +37,8 @@ import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.JobRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
@@ -56,6 +60,7 @@ public class InitScanPanel extends AbstractControlPanel {
 
 	private static final int WIDTH_HINT = 1440;
 	private static final int HEIGHT_HINT = 720;
+	private static final Logger logger = LoggerFactory.getLogger(InitScanPanel.class);
 	private MainPart mainPart;
 	private SingleScan initScan;
 	private Text phiText;
@@ -70,6 +75,9 @@ public class InitScanPanel extends AbstractControlPanel {
 	private Text incText;
 	private Text numText;
 	private Text lastFileText;
+	private boolean dirtyFlag = false;
+	private String curSampleName;
+	private String curComments;
 	private ConditionControl control;
 	private ControlHelper controlHelper;
 	private IExperimentModelListener experimentModelListener;
@@ -108,6 +116,17 @@ public class InitScanPanel extends AbstractControlPanel {
 		nameText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, false).span(3, 1).minSize(700, 40).applyTo(nameText);
 		
+		nameText.addModifyListener(new ModifyListener() {
+			
+			@Override
+			public void modifyText(ModifyEvent e) {
+				String text = nameText.getText();
+				if (text != null && !text.trim().equals(curSampleName)) {
+					dirtyFlag = true;
+				}
+			}
+		});
+		
 		final Label comLabel = new Label(infoBlock, SWT.NONE);
 		comLabel.setText(" Comments");
 		comLabel.setFont(Activator.getMiddleFont());
@@ -118,6 +137,17 @@ public class InitScanPanel extends AbstractControlPanel {
 		comText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, false).span(1, 2).minSize(500, 88).applyTo(comText);
 		
+		comText.addModifyListener(new ModifyListener() {
+			
+			@Override
+			public void modifyText(ModifyEvent e) {
+				String text = comText.getText();
+				if (text != null && !text.trim().equals(curComments)) {
+					dirtyFlag = true;
+				}
+			}
+		});
+
 		final Label fileLabel = new Label(infoBlock, SWT.NONE);
 		fileLabel.setText("Image filename");
 		fileLabel.setFont(Activator.getMiddleFont());
@@ -335,6 +365,7 @@ public class InitScanPanel extends AbstractControlPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("Start the scan button clicked");
 				runPhiScan();
 			}
 			
@@ -587,12 +618,15 @@ public class InitScanPanel extends AbstractControlPanel {
 	}
 	
 	private void applySampleInfo() {
-		try {
-			control.applyChange();
-		} catch (SicsException e) {
-			mainPart.popupError("failed to save sample information");
+		if (dirtyFlag) {
+			try {
+				logger.info("samplename and/or comments changed, apply the change to the server");
+				control.applyChange();
+			} catch (SicsException e) {
+				mainPart.popupError("failed to save sample information");
+			}
+			savePreference();
 		}
-		savePreference();
 	}
 	
 	@Override
@@ -672,12 +706,14 @@ public class InitScanPanel extends AbstractControlPanel {
 											((DynamicController) stepController).getValue()));
 								}
 								if (sampleController != null) {
-									nameText.setText(String.valueOf(
-											((DynamicController) sampleController).getValue()));
+									curSampleName = String.valueOf(
+											((DynamicController) sampleController).getValue());
+									nameText.setText(curSampleName);
 								}
 								if (commentsController != null) {
-									comText.setText(String.valueOf(
-											((DynamicController) commentsController).getValue()));
+									curComments = String.valueOf(
+											((DynamicController) commentsController).getValue());
+									comText.setText(curComments);
 								}
 							} catch (Exception e) {
 							}
@@ -689,8 +725,10 @@ public class InitScanPanel extends AbstractControlPanel {
 		}
 		
 		public void applyChange() throws SicsException {
-			((DynamicController) sampleController).setValue(nameText.getText());
-			((DynamicController) commentsController).setValue(comText.getText());
+			curSampleName = nameText.getText();
+			curComments = comText.getText();
+			((DynamicController) sampleController).setValue(curSampleName);
+			((DynamicController) commentsController).setValue(curComments);
 		}
 	}
 	

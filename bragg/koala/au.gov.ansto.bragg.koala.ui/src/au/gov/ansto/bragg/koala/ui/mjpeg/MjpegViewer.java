@@ -142,6 +142,7 @@ public class MjpegViewer extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("Add marker button clicked");
 				isAddingMarker = markerButton.getSelection();
 				if (isAddingMarker) {
 					mjpeg1.getPanel().unfixMarker();
@@ -172,6 +173,7 @@ public class MjpegViewer extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("Allign sample button clicked");
 				alignButton.setEnabled(false);
 				mjpeg1.getPanel().resetMarkerCoordinate();
 				mjpeg2.getPanel().resetMarkerCoordinate();
@@ -192,6 +194,7 @@ public class MjpegViewer extends Composite {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("Reset video button clicked");
 				resetRunner();
 			}
 

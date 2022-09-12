@@ -410,7 +410,7 @@ public class KoalaServer {
 		try {
 			String[] parts = command.split(" ");
 			final String dev = parts[1];
-			String target = parts[2];
+			final String target = parts[2];
 			ISicsController controller = model.findController(dev);
 			if (controller == null) {
 				sendInternalError(client, cid, command, "device " + String.valueOf(dev) + " not found");

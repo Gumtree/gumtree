@@ -10,6 +10,7 @@ public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "au.gov.ansto.bragg.koala.workbench"; //$NON-NLS-1$
+	private static final String ENABLE_VERTUAL_SERVER = "gumtree.koala.virtualServer";
 
 	private static BundleContext context;
 
@@ -22,8 +23,15 @@ public class Activator extends AbstractUIPlugin {
 		super.start(bundleContext);
 		instance = this;
 		context = bundleContext;
-		KoalaServer server = new KoalaServer(ConstantSetup.LOCAL_SERVER_ADDRESS, ConstantSetup.LOCAL_PUBLISHER_ADDRESS);
-    	server.run();
+		boolean virtualServer = false;
+		try {
+			virtualServer = Boolean.valueOf(System.getProperty(ENABLE_VERTUAL_SERVER));
+		} catch (Exception e) {
+		}
+		if (virtualServer) {
+			KoalaServer server = new KoalaServer(ConstantSetup.LOCAL_SERVER_ADDRESS, ConstantSetup.LOCAL_PUBLISHER_ADDRESS);
+	    	server.run();
+		}
 	}
 
 	@Override

@@ -21,6 +21,8 @@ import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.JobRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
@@ -31,6 +33,8 @@ import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
 public class ScanStatusPart {
 
+	private static final Logger logger = LoggerFactory.getLogger(ScanStatusPart.class);
+	
 	private ControlHelper controlHelper;
 	private Label erasureButton;
 	private Label expoButton;
@@ -100,6 +104,7 @@ public class ScanStatusPart {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("End Exposure button clicked");
 				JobRunner.run(new ILoopExitCondition() {
 					
 					@Override
@@ -136,6 +141,7 @@ public class ScanStatusPart {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("Abort Experiment button clicked");
 				JobRunner.run(new ILoopExitCondition() {
 					
 					@Override

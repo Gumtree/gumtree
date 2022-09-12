@@ -108,7 +108,7 @@ public class SimpleControlSuite {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == 16777296) {
-					logger.info(String.format("enter key pressed to drive %s to %s", currentPath, setpointControl.getText()));
+					logger.info(String.format("ENTER-key pressed to drive %s to %s", currentPath, setpointControl.getText()));
 					commitTarget();
 				} 
 			}
