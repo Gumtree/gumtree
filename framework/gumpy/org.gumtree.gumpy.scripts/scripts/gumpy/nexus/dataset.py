@@ -344,6 +344,8 @@ class Dataset(Data):
     def __getitem__(self, index):
         if type(index) is str :
             res = self.get_metadata(index)
+            if res is None:
+                return None
             if res.dtype is str:
                 return str(res)
             elif res.size == 1 :
