@@ -22,6 +22,8 @@ import org.gumtree.msw.ui.ktable.renderers.DefaultCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.FixedCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.ImageButtonCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.TextCellRenderer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
@@ -30,6 +32,8 @@ import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
 public abstract class AbstractScanModel implements KTableModel {
 
+	private static final Logger logger = LoggerFactory.getLogger(AbstractScanModel.class);
+	
 	private SingleScan initScan;
 	protected List<SingleScan> scanList;
 //	private Map<SingleScan, Button> dupButton;
@@ -141,17 +145,13 @@ public abstract class AbstractScanModel implements KTableModel {
 					if (row > 0) {
 						isValidCell = true;
 		    			if (col == 0) {
-//		    				if (dcol == col && drow == row) {
-//		    					insertScan((row - 1) / 2 + 1);
-		    					insertScan(row);
-		    					table.redraw();
-//		    				}
+		    				logger.info("duplicate-scan button clicked");
+		    				insertScan(row);
+		    				table.redraw();
 		    			} else if (col == 1) {
-//		    				if (dcol == col && drow == row) {
-//		    					deleteScan((row - 1) / 2);
-		    					deleteScan(row - 1);
-		    					table.redraw();
-//		    				}
+	    					logger.info("delete-scan button clicked");
+	    					deleteScan(row - 1);
+	    					table.redraw();
 		    			}
 		    		}
 				}
@@ -499,6 +499,8 @@ public abstract class AbstractScanModel implements KTableModel {
 			
 			@Override
 			public void run() {
+				logger.warn("experiment started");
+				logger.warn(String.format("estimatated time is {} seconds", getTimeEstimation()));
 				clearStatus();
 				startTime = Calendar.getInstance();
 				isRunning = true;
@@ -538,6 +540,7 @@ public abstract class AbstractScanModel implements KTableModel {
 				startTime = null;
 				isRunning = false;
 				fireProgressUpdatedEvent(ModelStatus.FINISHED);
+				logger.warn("experiment finished");;
 			}
 		});
 		runnerThread.start();

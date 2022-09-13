@@ -35,8 +35,13 @@ public class MjpegRunner implements Runnable {
 //        URLConnection urlConn = url.openConnection();
         HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
         // change the timeout to taste, I like 1 second
-        urlConn.setReadTimeout(5000);
-        urlConn.connect();
+        urlConn.setReadTimeout(1000);
+        try {
+            urlConn.connect();
+		} catch (Exception e) {
+			logger.error("failed to connect to video camera: " + url.getHost());
+			throw new IOException("failed to connect to camera server: " + url.getHost());
+		}
         try {
             urlStream = urlConn.getInputStream();
 		} catch (SocketTimeoutException e) {
@@ -44,6 +49,10 @@ public class MjpegRunner implements Runnable {
 		} catch (Exception e) {
 			logger.error("connection to MJpeg server failed", e);
 		}
+        if (urlStream == null) {
+        	logger.error("failed to create video stream from video camera: " + url.getHost());
+        	throw new IOException("failed to create video stream from video camera: " + url.getHost());
+        }
     }
 
     /**
@@ -63,9 +72,8 @@ public class MjpegRunner implements Runnable {
     public void run() {
     	try {
 			start();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			triggerError(e1);
+		} catch (Exception e1) {
+//			triggerError(e1);
 		}
     	viewer.start();
     	int count = 0;
@@ -107,40 +115,44 @@ public class MjpegRunner implements Runnable {
 //                	start = now;
                 }
             } catch (SocketTimeoutException ste) {
-                System.err.println("failed stream read: SocketTimeout " + ste);
+                logger.error("failed stream read: SocketTimeout " + ste);
                 viewer.setFailedString("Lost Camera connection: " + ste);
                 viewer.repaint();
                 ste.printStackTrace();
-                stop();
                 triggerError(ste);
+                stop();
             } catch (EOFException e) {
-            	e.printStackTrace();
+            	logger.error("failed stream read: EOF " + e.getLocalizedMessage());
             	triggerError(e);
+                stop();
             	handleException(e);
 			} catch (IOException e) {
-                System.err.println("failed stream read: IO " + e);
-                e.printStackTrace();
-                stop();
+				logger.error("failed stream read: IO " + e.getMessage());
                 triggerError(e);
+                stop();
             } catch (Exception e) {
-            	e.printStackTrace();
-            	System.err.println("failed load stream: other " + e);
-            	triggerError(e);
+            	if (e.getMessage() != null) {
+            		logger.error("failed to load stream on camera server: " + url.getHost() + "; " + e.getMessage());
+                	triggerError(new Exception("failed load stream on camera server: " + url.getHost() + "; " + e.getMessage()));
+            	} else {
+            		logger.error("failed to load stream on camera server: " + url.getHost());
+            		triggerError(new Exception("failed load stream on camera server: " + url.getHost()));
+            	}
             	stop();
 			}
         }
 
         if (!isRunning) {
-        	System.err.println("stop viewer");
         	viewer.setImageBytes(null);
         	viewer.stop();
         }
-        System.err.println("stop runner");
         // close streams
         try {
-            urlStream.close();
+        	if (urlStream != null) {
+        		urlStream.close();
+        	}
         } catch (IOException ioe) {
-            System.err.println("Failed to close the stream: " + ioe);
+            logger.error("Failed to close the stream: " + ioe.getMessage());
         }
     }
 
@@ -195,7 +207,7 @@ public class MjpegRunner implements Runnable {
         int contentLength = 0;
 
 //        System.out.println("begin next image");
-        while ((currByte = urlStream.read()) > -1) {
+        while (urlStream != null && (currByte = urlStream.read()) > -1) {
             if (captureContentLength) {
                 if (currByte == 10 || currByte == 13) {
                     contentLength = Integer.parseInt(contentLengthStringWriter.toString());

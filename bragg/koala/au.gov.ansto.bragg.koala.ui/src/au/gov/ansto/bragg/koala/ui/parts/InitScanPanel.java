@@ -566,6 +566,7 @@ public class InitScanPanel extends AbstractControlPanel {
 			public void run() {
 				try {
 					if (initScan.needToRun()) {
+						logger.warn("test scan started");
 						initScan.run();
 					} else {
 						mainPart.popupError("The scan is empty. Please review the scan configuration.");
@@ -576,6 +577,8 @@ public class InitScanPanel extends AbstractControlPanel {
 					handleError("server error: " + e.getMessage());;
 				} catch (Exception e) {
 					handleError("error: " + e.getMessage());
+				} finally {
+					logger.warn("test scan finished");
 				}
 			}
 		});

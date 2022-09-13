@@ -35,6 +35,8 @@ import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.msw.ui.ktable.KTable;
 import org.gumtree.msw.ui.ktable.SWTX;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
@@ -74,6 +76,8 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 	private static final int HEIGHT_TABLE_SMALL = 620;
 	private static final int WIDTH_INFO_SMALL = 480;
 	private static final int HEIGHT_INFO_SMALL = 800;
+	private static final Logger logger = LoggerFactory.getLogger(AbstractExpPanel.class);
+	
 	protected MainPart mainPart;
 	protected KTable table;
 	private int panelWidth = WIDTH_HINT;
@@ -187,6 +191,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("open-last-file button clicked");
 				final String fn = fileText.getText();
 				File f = new File(fn);
 				if (f.exists()) {
@@ -641,6 +646,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.info("Run-experiment button clicked");
 				if (model.isRunning()) {
 					mainPart.popupError("The system is busy with the current experiment.");
 					return;
@@ -792,8 +798,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			@Override
 			public void run() {
 				if (ModelStatus.STARTED.equals(status)) {
-					String start = getModel().getStartedTime();
-					System.err.println(start);
+//					String start = getModel().getStartedTime();
 					startText.setText(getModel().getStartedTime());
 					finText.setText(getModel().getFinishTime());
 				} else if (ModelStatus.FINISHED.equals(status)) {

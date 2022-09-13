@@ -122,7 +122,7 @@ public class SimpleControlSuite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				logger.info(String.format("button clicked to drive %s to %s", currentPath, setpointControl.getText()));
+				logger.warn(String.format("button clicked to drive %s to %s", currentPath, setpointControl.getText()));
 				commitTarget();
 			}
 			

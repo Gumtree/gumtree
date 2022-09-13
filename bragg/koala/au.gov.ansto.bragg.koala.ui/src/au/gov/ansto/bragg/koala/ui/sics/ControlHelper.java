@@ -20,6 +20,8 @@ import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsInterruptException;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.scan.ExperimentModel;
@@ -45,6 +47,7 @@ public class ControlHelper {
 	
 	private final static Color BUSY_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
 	private final static Color IDLE_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
+	private final static Logger logger = LoggerFactory.getLogger(ControlHelper.class);
 	
 	public static String TEMP_DEVICE_NAME;
 	public static String CHI_DEVICE_NAME;
@@ -65,28 +68,31 @@ public class ControlHelper {
 
 	public static void driveTemperature(float value) 
 			throws KoalaServerException, KoalaInterruptionException {
+		logger.warn(String.format("drive {} {}", TEMP_DEVICE_NAME, value));
 		syncDrive(TEMP_DEVICE_NAME, value);
 	}
 
 	public static void driveChi(float value) 
 			throws KoalaServerException, KoalaInterruptionException {
+		logger.warn(String.format("drive {} {}", CHI_DEVICE_NAME, value));
 		syncDrive(CHI_DEVICE_NAME, value);
 	}
 
 	public static void drivePhi(float value) 
 			throws KoalaServerException, KoalaInterruptionException {
+		logger.warn(String.format("drive {} {}", PHI_DEVICE_NAME, value));
 		syncDrive(PHI_DEVICE_NAME, value);
 	}
 
-	public static void scanPhi(float start, float inc, int numSteps, int erasure, int exposure) 
-			throws KoalaServerException, KoalaInterruptionException {
-		float pos;
-		for (int i = 0; i < numSteps; i++) {
-			pos = start + inc * i;
-			syncDrive(PHI_DEVICE_NAME, pos);
-			
-		}
-	}
+//	public static void scanPhi(float start, float inc, int numSteps, int erasure, int exposure) 
+//			throws KoalaServerException, KoalaInterruptionException {
+//		float pos;
+//		for (int i = 0; i < numSteps; i++) {
+//			pos = start + inc * i;
+//			syncDrive(PHI_DEVICE_NAME, pos);
+//			
+//		}
+//	}
 	
 	private static ISicsProxy getProxy() {
 		return SicsManager.getSicsProxy();
@@ -259,14 +265,17 @@ public class ControlHelper {
 	
 	public static void syncCollect(int exposure, int erasure) 
 			throws KoalaServerException, KoalaInterruptionException {
+		logger.warn(String.format("collect for {} seconds", exposure));
 		try {
 			getProxy().syncRun(String.format("collect %d %d", exposure, erasure));
+			logger.warn("collection finished");
 		} catch (SicsException e) {
 			try {
 				getProxy().syncRun("save");
 			} catch (SicsException e1) {
 				throw new KoalaServerException(e1);
 			}
+			logger.warn("collection finished with error");
 			if (e instanceof SicsInterruptException) {
 				throw new KoalaInterruptionException(e);
 			} else {

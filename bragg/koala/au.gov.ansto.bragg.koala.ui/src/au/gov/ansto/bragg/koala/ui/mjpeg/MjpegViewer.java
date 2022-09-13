@@ -66,6 +66,7 @@ public class MjpegViewer extends Composite {
 	private Button phiWButton;
 	private Label statusLabel;
 	private ControlHelper controlHelper;
+	private IRunnerListener mjpegListener;
 	
 	public MjpegViewer(Composite parent, int style) {
 		super(parent, style);
@@ -129,6 +130,14 @@ public class MjpegViewer extends Composite {
 			}
 		});
 
+		mjpegListener = new IRunnerListener() {
+			
+			@Override
+			public void onError(Exception e) {
+				ControlHelper.experimentModel.publishErrorMessage("Errors on video camera, " + e.getMessage());
+			}
+		};
+		
 		startRunner();
 	}
 
@@ -477,9 +486,11 @@ public class MjpegViewer extends Composite {
 		try {
 			runner1 = new MjpegRunner(mjpeg1.getPanel(), 
 					new URL(cam1Url));
+			runner1.addRunnerListener(mjpegListener);
 			new Thread(runner1).start();
 			runner2 = new MjpegRunner(mjpeg2.getPanel(), 
 					new URL(cam2Url));
+			runner2.addRunnerListener(mjpegListener);
 			new Thread(runner2).start();
         } catch (IOException e) {
             e.printStackTrace();
@@ -491,9 +502,11 @@ public class MjpegViewer extends Composite {
 		try {
 			if (runner1 != null) {
 				runner1.stop();
+				runner1.removeRunnerListener(mjpegListener);
 			}
 			if (runner2 != null) {
 				runner2.stop();
+				runner2.removeRunnerListener(mjpegListener);
 			}
         } catch (Exception e) {
             e.printStackTrace();
@@ -578,6 +591,18 @@ public class MjpegViewer extends Composite {
 //		});
 //				
 //	}
+	
+	@Override
+	public void dispose() {
+		// TODO Auto-generated method stub
+		super.dispose();
+		if (runner1 != null) {
+			runner1.removeRunnerListener(mjpegListener);
+		}
+		if (runner2 != null) {
+			runner2.removeRunnerListener(mjpegListener);
+		}
+	}
 	
 	public static void main(String[] args) {
 		System.setProperty(CAM1_URL, "http://192.168.0.9:2323/mimg");

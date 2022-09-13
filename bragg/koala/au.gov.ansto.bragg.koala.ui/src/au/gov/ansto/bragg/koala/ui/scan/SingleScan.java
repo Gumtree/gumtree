@@ -13,6 +13,8 @@ import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.exception.SicsModelException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
@@ -77,7 +79,8 @@ public class SingleScan {
 	public static final String DATA_FILENAME = "data.tif";
 	private final static int PAUSE_CHECK_INTERVAL = 20;
 	private final static float DEVICE_VALUE_TOLERANCE = 0.00001f;
-
+	private final static Logger logger = LoggerFactory.getLogger(SingleScan.class);
+	
 	protected final int ERASURE_TIME = 10;
 	protected final int READING_TIME = 240;
 	protected final int TEMP_TIME = 300;
@@ -497,9 +500,19 @@ public class SingleScan {
 			}
 		}
 	}
+	
+	@Override
+	public String toString() {
+		if (getTarget().isPoints()) {
+			return String.format("scan {} of {}", getTarget().getText(), getPoints());
+		}
+		return String.format("scan {} {} {} {} exposure {}", getTarget().getText(), start, end, number, exposure);
+	}
+	
 	public void run() throws KoalaInterruptionException, KoalaServerException  {
 		isRunning = true;
 		startTimeMilSec = System.currentTimeMillis();
+		logger.warn("start " + toString());
 		try {
 			resetCurrentFile();
 			evaluatePauseStatus();
