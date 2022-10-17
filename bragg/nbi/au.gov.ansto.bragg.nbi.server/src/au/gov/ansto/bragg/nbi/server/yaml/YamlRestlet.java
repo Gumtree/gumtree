@@ -83,7 +83,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 	private static final String PROPERTY_YAML_FILENAME = "gumtree.sics.yamlfile";
 	private static final String PROPERTY_YAML_REMOTEPATH = "gumtree.sics.yamlPath";
 	private static final String PROPERTY_YAML_REMOTEPATH_NEW = "gumtree.sics.yamlPathNew";
-	private static final String PROPERTY_YAML_NEW_CONFIG_INSTR = "gumtree.sics.newConfigInstr";
+//	private static final String PROPERTY_YAML_NEW_CONFIG_INSTR = "gumtree.sics.newConfigInstr";
 	
 	private static final String PROPERTY_SSH_USER = "gumtree.ssh.username";
 	private static final String PROPERTY_SSH_HOST = "gumtree.ssh.host";
@@ -103,7 +103,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 	private static String passphrase;
 	private static String remotePath;
 	private static String remotePathNew;
-	private static String newConfigInstr;
+//	private static String newConfigInstr;
 	private static String localPath;
 	private static String yamlName;
 	
@@ -129,7 +129,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 		}
 		remotePath = System.getProperty(PROPERTY_YAML_REMOTEPATH);
 		remotePathNew = System.getProperty(PROPERTY_YAML_REMOTEPATH_NEW);
-		newConfigInstr = System.getProperty(PROPERTY_YAML_NEW_CONFIG_INSTR, "");
+//		newConfigInstr = System.getProperty(PROPERTY_YAML_NEW_CONFIG_INSTR, "");
 		yamlName = System.getProperty(PROPERTY_YAML_FILENAME);
 		localPath = System.getProperty(PROPERTY_SERVER_SHARE);
 		gitServiceMap = new HashMap<String, GitService>();
@@ -521,11 +521,12 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 	}
 
 	private static String getRemoteYamelPath(String instrumentId) {
-		if (newConfigInstr.contains(instrumentId)) {
-			return (remotePathNew + "/" + yamlName).replace("$INSTRUMENT", instrumentId);
-		} else {
-			return (remotePath + "/" + yamlName).replace("$INSTRUMENT", instrumentId);
-		}
+//		if (newConfigInstr.contains(instrumentId)) {
+//			return (remotePathNew + "/" + yamlName).replace("$INSTRUMENT", instrumentId);
+//		} else {
+//			return (remotePath + "/" + yamlName).replace("$INSTRUMENT", instrumentId);
+//		}
+		return (remotePathNew + "/" + yamlName).replace("$INSTRUMENT", instrumentId);
 	}
 
 	private static String getTempFilePath(String instrumentId) {
