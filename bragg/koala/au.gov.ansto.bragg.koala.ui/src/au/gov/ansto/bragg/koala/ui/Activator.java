@@ -34,6 +34,8 @@ public class Activator extends AbstractUIPlugin {
 	public static final String NAME_FILENAME = "koala.filename";
 	public static final String NAME_COMMENTS = "koala.comments";
 	public static final String NAME_PROP_FOLDER = "koala.proposalFolder";
+	public static final String NAME_MJPEG_MMPERPIXEL_X = "koala.mmPerPixelX";
+	public static final String NAME_MJPEG_MMPERPIXEL_Y = "koala.mmPerPixelY";
 	
 	
 	// The shared instance

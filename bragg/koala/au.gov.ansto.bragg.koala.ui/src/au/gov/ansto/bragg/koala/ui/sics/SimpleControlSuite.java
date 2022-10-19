@@ -63,7 +63,7 @@ public class SimpleControlSuite {
 			
 			@Override
 			public void connect() {
-				final ISicsController currentController = SicsManager.getSicsModel().findControllerByPath(currentPath);
+				final ISicsController currentController = SicsManager.getSicsModel().findController(currentPath);
 				if (currentController != null) {
 					if (currentController instanceof DynamicController) {
 						try {
@@ -81,7 +81,7 @@ public class SimpleControlSuite {
 					currentController.addControllerListener(new CurrentControllerListener());
 				}
 				
-				final ISicsController setpointController = SicsManager.getSicsModel().findControllerByPath(targetPath);
+				final ISicsController setpointController = SicsManager.getSicsModel().findController(targetPath);
 				if (setpointController != null) {
 					if (setpointController instanceof DynamicController) {
 						try {
@@ -135,7 +135,7 @@ public class SimpleControlSuite {
 	private void commitTarget() {
 		if (controlHelper.isConnected()) {
 			final ISicsController setpointController = 
-					SicsManager.getSicsModel().findControllerByPath(setpointPath);
+					SicsManager.getSicsModel().findController(setpointPath);
 			if (setpointController instanceof DynamicController) {
 				final String value = setpointControl.getText();
 //				JobRunner.run(new ILoopExitCondition() {

@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.ImageButtonHighlightRenderer;
+import au.gov.ansto.bragg.koala.ui.parts.PanelUtils;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
 public abstract class AbstractScanModel implements KTableModel {
@@ -625,7 +626,7 @@ public abstract class AbstractScanModel implements KTableModel {
 		if (time == 0) {
 			return "empty table";
 		} else {
-			return convertTimeString(time);
+			return PanelUtils.convertTimeString(time);
 		}
 	}
 	
@@ -642,19 +643,9 @@ public abstract class AbstractScanModel implements KTableModel {
 	public String getTimeLeftText() {
 		if (isRunning) {
 			int time = getTimeLeft();
-			return convertTimeString(time);
+			return PanelUtils.convertTimeString(time);
 		} else {
 			return "--";
-		}
-	}
-	
-	private String convertTimeString(int time) {
-		if (time / 3600 > 0) {
-			return String.format("%dh ", time / 3600) + convertTimeString(time % 3600);
-		} else if (time / 60 > 0) {
-			return String.format("%02dm ", time / 60) + convertTimeString(time % 60);
-		} else {
-			return String.format("%02ds", time);
 		}
 	}
 	

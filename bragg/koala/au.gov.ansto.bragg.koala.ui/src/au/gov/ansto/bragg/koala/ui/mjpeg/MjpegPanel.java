@@ -28,6 +28,9 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import au.gov.ansto.bragg.koala.ui.Activator;
+import au.gov.ansto.bragg.koala.ui.scan.KoalaModelException;
+
 public class MjpegPanel extends JPanel implements IMjpegPanel {
     /**
 	 * 
@@ -37,7 +40,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 	public static final String MARKER_SIZE = "gumtree.koala.markerSize";
 	public static final String BEAM_CENTRE = "gumtree.koala.beamCentre";
 	public static final String CAM_SIZE = "gumtree.koala.camSize";
-	
+
 	private static final Stroke BEAM_CENTRE_STROKE = new BasicStroke(1.8f);
 	private static final Stroke MARKER_STROKE = new BasicStroke(1.5f);
 	
@@ -58,6 +61,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 	private Integer imageWidth;
 	private Integer imageHeight;
 	private int markerSize;
+	private boolean isCentreFixed = true;
 	private Point beamCentre;
 	private float imageScale = 1f;
 	private Dimension screenSize;
@@ -80,7 +84,10 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 		super();
 		this.parentFrame = parent;
 		markerSize = Integer.valueOf(System.getProperty(MARKER_SIZE));
-		String bc = System.getProperty(BEAM_CENTRE);
+		String bc = Activator.getPreference(BEAM_CENTRE);
+		if (bc == null || bc == "") {
+			bc = System.getProperty(BEAM_CENTRE);
+		}
 		String[] bcPair = bc.split(",");
 		beamCentre = new Point(Integer.valueOf(bcPair[0]), Integer.valueOf(bcPair[1]));
 		
@@ -114,7 +121,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 		emptyPanel.setBackground(Color.black);
 	}
 	
-    @Override
+	@Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
     	Dimension d = getSize();
@@ -152,7 +159,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 //        			centreX = Float.valueOf(beamCentre.x / imageScale).intValue();
 //        			centreY = y + Float.valueOf(beamCentre.y / imageScale).intValue();
 //        		}
-        		if (!d.equals(screenSize)) {
+        		if (!d.equals(screenSize) || !isCentreFixed) {
             		Integer screenWidth = getWidth();
             		Integer screenHeight = getHeight();
         			if (screenWidth.floatValue() / screenHeight >= imageWidth.floatValue() / imageHeight) {
@@ -355,6 +362,25 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 				}
 				markerCoordinate = new Point(x, y);
 				repaint();
+			} else if (!isCentreFixed && timer == null) {
+				Point p = e.getPoint();
+				int x, y;
+				if (p.x < relativeX) {
+					x = 0;
+				} else if (p.x > relativeX + relativeWidth) {
+					x = imageWidth;
+				} else {
+					x = Float.valueOf((p.x - relativeX) * imageScale).intValue();
+				}
+				if (p.y < relativeY) {
+					y = 0;
+				} else if (p.y > relativeY + relativeHeight) {
+					y = imageHeight;
+				} else {
+					y = Float.valueOf((p.y - relativeY) * imageScale).intValue();
+				}
+				beamCentre = new Point(x, y);
+				repaint();
 			}
 		}
 
@@ -383,6 +409,22 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 							timer = null;
 						}
 					}, clickInterval);
+				} else if (!isCentreFixed) {
+					timer = new Timer();
+					timer.schedule(new TimerTask() {
+
+						@Override
+						public void run() {
+							if (!isCentreFixed) {
+								isCentreFixed = true;
+								repaint();
+								for (IMjpegPanelListener listener : listeners) {
+									listener.centreSet();
+								}
+							}
+							timer = null;
+						}
+					}, clickInterval);
 				}
 			}
 		}
@@ -405,11 +447,21 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 		
 	}
 
-	public void unfixMarker() {
-		isMarkerFixed = false;
-		showMarker();
+	public void setMarkerFixed(boolean fixed) {
+		isMarkerFixed = fixed;
+		if (!fixed) {
+			showMarker();
+		}
 	}
 
+	public void setCentreFixed(boolean fixed) {
+		isCentreFixed = fixed;
+	}
+	
+	public boolean isCentreFixed() {
+		return isCentreFixed;
+	}
+	
 	public void toggleFullScreen() {
 		isFullScreen = !isFullScreen;
 		if (isFullScreen) {
@@ -490,4 +542,13 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 		public void windowActivated(WindowEvent e) {
 		}
 	}
+	
+	public Point getBeamCentre() {
+		return beamCentre;
+	}
+	
+	public void setBeamCentre(Point centre) {
+		this.beamCentre = centre;
+	}
+	
 }

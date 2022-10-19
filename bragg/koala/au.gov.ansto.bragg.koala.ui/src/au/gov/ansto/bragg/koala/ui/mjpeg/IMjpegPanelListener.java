@@ -10,5 +10,6 @@ package au.gov.ansto.bragg.koala.ui.mjpeg;
 public interface IMjpegPanelListener {
 
 	void markerSet();
-
+	void centreSet();
+	
 }

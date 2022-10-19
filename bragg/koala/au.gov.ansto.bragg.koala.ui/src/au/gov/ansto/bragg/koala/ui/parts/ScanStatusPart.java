@@ -13,12 +13,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
-import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsControllerAdapter;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.imp.DynamicController;
-import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.JobRunner;
 import org.slf4j.Logger;
@@ -26,10 +24,12 @@ import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
-import au.gov.ansto.bragg.koala.ui.parts.AbstractExpPanel.InstrumentPhase;
 import au.gov.ansto.bragg.koala.ui.parts.RecurrentScheduler.IRecurrentTask;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
+import au.gov.ansto.bragg.koala.ui.sics.CollectionHelper;
+import au.gov.ansto.bragg.koala.ui.sics.CollectionHelper.ICollectionListener;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
+import au.gov.ansto.bragg.koala.ui.sics.ControlHelper.InstrumentPhase;
 
 public class ScanStatusPart {
 
@@ -214,9 +214,9 @@ public class ScanStatusPart {
 		ISicsController phiController;
 		ISicsController stepController;
 		ISicsController fnController;
-		ISicsController phaseController;
+//		ISicsController phaseController;
 		ISicsController gumtreeStatusController;
-		ISicsController gumtreeTimeController;
+//		ISicsController gumtreeTimeController;
 		
 		boolean initialised = false;
 		
@@ -240,16 +240,18 @@ public class ScanStatusPart {
 		
 		public void initControllers() {
 
-			phaseController = SicsManager.getSicsModel().findControllerByPath(
-					System.getProperty(ControlHelper.PHASE_PATH));
-			gumtreeStatusController = SicsManager.getSicsModel().findControllerByPath(
+//			phaseController = SicsManager.getSicsModel().findController(
+//					System.getProperty(ControlHelper.PHASE_PATH));
+			gumtreeStatusController = SicsManager.getSicsModel().findController(
 					System.getProperty(ControlHelper.GUMTREE_STATUS_PATH));
-			gumtreeTimeController = SicsManager.getSicsModel().findControllerByPath(
-					System.getProperty(ControlHelper.GUMTREE_TIME_PATH));
+//			gumtreeTimeController = SicsManager.getSicsModel().findController(
+//					System.getProperty(ControlHelper.GUMTREE_TIME_PATH));
 			
-			if (phaseController != null) {
-				phaseController.addControllerListener(new PhaseListener());
-			}
+//			if (phaseController != null) {
+//				phaseController.addControllerListener(new PhaseListener());
+//			}
+			CollectionHelper.getInstance().addCollectionListener(new PhaseListener());
+			
 			if (gumtreeStatusController != null) {
 				gumtreeStatusController.addControllerListener(new SicsControllerAdapter() {
 					
@@ -268,37 +270,39 @@ public class ScanStatusPart {
 
 				});
 			}
-			if (gumtreeTimeController != null) {
-				gumtreeTimeController.addControllerListener(new TimeExpectation());
-			}
+//			if (gumtreeTimeController != null) {
+//				gumtreeTimeController.addControllerListener(new TimeExpectation());
+//			}
 			Display.getDefault().asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
 					try {
-						if (phaseController != null) {
-							setPhase(String.valueOf(
-									((DynamicController) phaseController).getValue()));
-						}
-						if (gumtreeStatusController != null) {
-							scanStatus = String.valueOf(String.valueOf(
-									((DynamicController) gumtreeStatusController).getValue()));
-							setStatusText(proLabel, scanStatus);
-						} 
-						if (gumtreeTimeController != null) {
-							int totalTime = Integer.valueOf(
-									((DynamicController) gumtreeStatusController).getValue().toString());
-							if (totalTime >= 0) {
-								totalTimeExp = totalTime;
-								finishTimeExp = System.currentTimeMillis() + totalTime * 1000;
-								proBar.setEnabled(true);
-								updateProgressBar();
-							} else {
-								totalTimeExp = -1;
-								proBar.setSelection(0);
-								proBar.setEnabled(false);
-							}	
-						}
+//						if (phaseController != null) {
+//							setPhase(String.valueOf(
+//									((DynamicController) phaseController).getValue()));
+//						}
+						setPhase(CollectionHelper.getInstance().getPhase());
+//						if (gumtreeStatusController != null) {
+//							scanStatus = String.valueOf(String.valueOf(
+//									((DynamicController) gumtreeStatusController).getValue()));
+//							setStatusText(proLabel, scanStatus);
+//						} 
+						setStatusText(proLabel, scanStatus);
+//						if (gumtreeTimeController != null) {
+//							int totalTime = Integer.valueOf(
+//									((DynamicController) gumtreeStatusController).getValue().toString());
+//							if (totalTime > 0) {
+//								totalTimeExp = totalTime;
+//								finishTimeExp = System.currentTimeMillis() + totalTime * 1000;
+//								proBar.setEnabled(true);
+//								updateProgressBar();
+//							} else {
+//								totalTimeExp = -1;
+//								proBar.setSelection(0);
+//								proBar.setEnabled(false);
+//							}	
+//						}
 					} catch (Exception e) {
 					}
 				}
@@ -308,7 +312,7 @@ public class ScanStatusPart {
 	}
 	
 	private void setStatusText(Label statusLabel, String text) {
-		if (text.equalsIgnoreCase("interrupted")) {
+		if (text.equalsIgnoreCase("interrupted") || text.equalsIgnoreCase("error")) {
 			statusLabel.setForeground(Activator.getHighlightColor());
 		} else if (text.equalsIgnoreCase("idle")) {
 			statusLabel.setForeground(Activator.getIdleColor());
@@ -339,14 +343,14 @@ public class ScanStatusPart {
 				setStatusText(proLabel, statusValue);
 				proBar.setSelection(proVal);
 			}
+		} else {
+			setStatusText(proLabel, scanStatus);
 		}
 	}
 	
-	private void setPhase(String phase) {
-		if (phase != null) {
-			phase = phase.toUpperCase();
-		}
-		if (InstrumentPhase.ERASURE.name().equals(phase)) {
+	private void setPhase(InstrumentPhase phase) {
+		scanStatus = phase.name();
+		if (InstrumentPhase.ERASE.equals(phase)) {
 			erasureButton.setBackground(Activator.getRunningBackgoundColor());
 			erasureButton.setForeground(Activator.getRunningForgroundColor());
 			expoButton.setBackground(Activator.getBackgroundColor());
@@ -354,7 +358,7 @@ public class ScanStatusPart {
 			readButton.setBackground(Activator.getBackgroundColor());
 			readButton.setForeground(Activator.getLightForgroundColor());
 			endButton.setEnabled(false);
-		} else if (InstrumentPhase.EXPOSURE.name().equals(phase)) {
+		} else if (InstrumentPhase.EXPOSE.equals(phase)) {
 			erasureButton.setBackground(Activator.getBackgroundColor());
 			erasureButton.setForeground(Activator.getLightForgroundColor());
 			expoButton.setBackground(Activator.getRunningBackgoundColor());
@@ -362,13 +366,21 @@ public class ScanStatusPart {
 			readButton.setBackground(Activator.getBackgroundColor());
 			readButton.setForeground(Activator.getLightForgroundColor());
 			endButton.setEnabled(true);
-		} else if (InstrumentPhase.READING.name().equals(phase)) {
+		} else if (InstrumentPhase.READ.equals(phase)) {
 			erasureButton.setBackground(Activator.getBackgroundColor());
 			erasureButton.setForeground(Activator.getLightForgroundColor());
 			expoButton.setBackground(Activator.getBackgroundColor());
 			expoButton.setForeground(Activator.getLightForgroundColor());
 			readButton.setBackground(Activator.getRunningBackgoundColor());
 			readButton.setForeground(Activator.getRunningForgroundColor());
+			endButton.setEnabled(false);
+		} else if (InstrumentPhase.ERROR.equals(phase)) {
+			erasureButton.setBackground(Activator.getBackgroundColor());
+			erasureButton.setForeground(Activator.getLightForgroundColor());
+			expoButton.setBackground(Activator.getBackgroundColor());
+			expoButton.setForeground(Activator.getLightForgroundColor());
+			readButton.setBackground(Activator.getBackgroundColor());
+			readButton.setForeground(Activator.getLightForgroundColor());
 			endButton.setEnabled(false);
 		} else {
 			erasureButton.setBackground(Activator.getBackgroundColor());
@@ -382,45 +394,18 @@ public class ScanStatusPart {
 	}
 	
 
-	class PhaseListener implements ISicsControllerListener {
-		
-		@Override
-		public void updateState(ControllerState oldState, ControllerState newState) {
-		}
+	class PhaseListener implements ICollectionListener {
 
 		@Override
-		public void updateValue(final Object oldValue, final Object newValue) {
+		public void phaseChanged(InstrumentPhase newPhase, int timeCost) {
 			Display.getDefault().asyncExec(new Runnable() {
 				
 				@Override
 				public void run() {
-					setPhase(String.valueOf(newValue));
-				}
-			});
-		}
-
-		@Override
-		public void updateEnabled(boolean isEnabled) {
-		}
-
-		@Override
-		public void updateTarget(Object oldValue, Object newValue) {
-		}
-		
-	}
-	
-	class TimeExpectation extends SicsControllerAdapter {
-		@Override
-		public void updateValue(final Object oldValue, final Object newValue) {
-//			super.updateValue(oldValue, newValue);
-			final int totalTime = Integer.valueOf(newValue.toString());
-			Display.getDefault().asyncExec(new Runnable() {
-				
-				@Override
-				public void run() {
-					if (totalTime > 0) {
-						totalTimeExp = totalTime;
-						finishTimeExp = System.currentTimeMillis() + totalTime * 1000;
+					setPhase(newPhase);
+					if (timeCost > 0) {
+						totalTimeExp = timeCost;
+						finishTimeExp = System.currentTimeMillis() + timeCost * 1000;
 						proBar.setEnabled(true);
 						updateProgressBar();
 					} else {
@@ -430,9 +415,48 @@ public class ScanStatusPart {
 					}					
 				}
 			});
-		}
-	}
 
+		}
+
+		@Override
+		public void collectionStarted() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void collectionFinished() {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		
+	}
+	
+//	class TimeExpectation extends SicsControllerAdapter {
+//		@Override
+//		public void updateValue(final Object oldValue, final Object newValue) {
+////			super.updateValue(oldValue, newValue);
+//			final int totalTime = Integer.valueOf(newValue.toString());
+//			Display.getDefault().asyncExec(new Runnable() {
+//				
+//				@Override
+//				public void run() {
+//					if (totalTime > 0) {
+//						totalTimeExp = totalTime;
+//						finishTimeExp = System.currentTimeMillis() + totalTime * 1000;
+//						proBar.setEnabled(true);
+//						updateProgressBar();
+//					} else {
+//						totalTimeExp = -1;
+//						proBar.setSelection(0);
+//						proBar.setEnabled(false);
+//					}					
+//				}
+//			});
+//		}
+//	}
+	
 	public static String getTimeString(long seconds) {
 		if (seconds > 3600) {
 			return String.valueOf(seconds / 3600) + "h " + getTimeString(seconds % 3600);

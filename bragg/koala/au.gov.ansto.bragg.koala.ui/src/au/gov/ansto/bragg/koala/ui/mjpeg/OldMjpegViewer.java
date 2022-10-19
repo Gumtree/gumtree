@@ -1,21 +1,18 @@
 package au.gov.ansto.bragg.koala.ui.mjpeg;
 
-import java.awt.Point;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -41,21 +38,16 @@ import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
-import au.gov.ansto.bragg.koala.ui.parts.MainPart;
-import au.gov.ansto.bragg.koala.ui.parts.PasswordDialog;
-import au.gov.ansto.bragg.koala.ui.scan.KoalaModelException;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 import au.gov.ansto.bragg.koala.ui.sics.SimpleControlSuite;
+import au.gov.ansto.bragg.nbi.ui.internal.InternalImage;
 
-public class MjpegViewer extends Composite {
+public class OldMjpegViewer extends Composite {
 
 	private static final String CAM1_URL = "gumtree.koala.mjpeg1Url";
 	private static final String CAM2_URL = "gumtree.koala.mjpeg2Url";
-	private static final Logger logger = LoggerFactory.getLogger(MjpegViewer.class);
-	public static final String BEAM_CENTRE_LEFT = "gumtree.koala.beamCentreLeft";
-	public static final String BEAM_CENTRE_RIGHT = "gumtree.koala.beamCentreRight";
-	private static final String TEXT_ALIGN_BUTTON = "Align sample in 5 steps";
-
+	private static final Logger logger = LoggerFactory.getLogger(OldMjpegViewer.class);
+	
 //	private static final String CAM_SIZE = "gumtree.koala.camSize";
 
 	private MjpegRunner runner1;
@@ -64,24 +56,19 @@ public class MjpegViewer extends Composite {
 	private MjpegComposite mjpeg2;
 	private String cam1Url;
 	private String cam2Url;
-	private ScrolledComposite holder;
-	private Composite manualComposite;
-	private AlignVideoPart alignComposite;
-	private CalibrateVideoPart calibComposite;
+	private Button markerButton;
+	private Button reloadButton;
 	private Button alignButton;
-	private Button resetButton;
-	private Button calibButton;
+	private boolean isAddingMarker;
 	private Button phiSButton;
 	private Button phiNButton;
 	private Button phiEButton;
 	private Button phiWButton;
-	private boolean isAddingMarker;
+	private Label statusLabel;
 	private ControlHelper controlHelper;
 	private IRunnerListener mjpegListener;
-	private double mmPerPixelX = Double.NaN;
-	private double mmPerPixelY = Double.NaN;
 	
-	public MjpegViewer(Composite parent, int style) {
+	public OldMjpegViewer(Composite parent, int style) {
 		super(parent, style);
 		controlHelper = ControlHelper.getInstance();
 		cam1Url = System.getProperty(CAM1_URL);
@@ -89,6 +76,13 @@ public class MjpegViewer extends Composite {
 
 		GridLayoutFactory.fillDefaults().margins(0, 0).spacing(0, 0).applyTo(this);
 		
+		Composite controlComposite = new Composite(this, SWT.NONE);
+//		controlComposite.setLayout(new FillLayout());
+		GridLayoutFactory.fillDefaults().numColumns(3).margins(1, 1).spacing(0, 0).applyTo(controlComposite);
+		GridDataFactory.fillDefaults().applyTo(controlComposite);
+		
+		createControls(controlComposite);
+
 		Composite mainComposite = new Composite(this, SWT.NONE);
 //		imageComposite.setLayout(new FillLayout());
 		GridLayoutFactory.fillDefaults().numColumns(3).spacing(1, 1).applyTo(mainComposite);
@@ -99,17 +93,12 @@ public class MjpegViewer extends Composite {
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(image1Composite);
 		mjpeg1 = new MjpegComposite(image1Composite, SWT.BORDER);
 		
-		Composite controlComposite = new Composite(mainComposite, SWT.NONE);
-		controlComposite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
-		GridLayoutFactory.fillDefaults().numColumns(2).margins(4, 4).spacing(1, 2).applyTo(controlComposite);
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.FILL, SWT.FILL).applyTo(controlComposite);
-
+		createControlComposite(mainComposite);
+		
 		Composite image2Composite = new Composite(mainComposite, SWT.NONE);
 		image2Composite.setLayout(new FillLayout());
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(image2Composite);
 		mjpeg2 = new MjpegComposite(image2Composite, SWT.BORDER);
-		
-		createControlComposite(controlComposite);
 		
 		addDisposeListener(new DisposeListener() {
 			
@@ -120,8 +109,6 @@ public class MjpegViewer extends Composite {
 				stopRunner();
 			}
 		});
-		
-		loadBeamCentres();
 		
 		mjpeg1.getPanel().addPanelListener(new IMjpegPanelListener() {
 			
@@ -134,6 +121,8 @@ public class MjpegViewer extends Composite {
 			
 			@Override
 			public void centreSet() {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 
@@ -148,6 +137,8 @@ public class MjpegViewer extends Composite {
 			
 			@Override
 			public void centreSet() {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 
@@ -160,55 +151,33 @@ public class MjpegViewer extends Composite {
 		};
 		
 		startRunner();
-		
-		showPanel(manualComposite);
-		loadPref();
 	}
 
-	private void showPanel(final Composite composite) {
-		holder.setContent(composite);
-		composite.layout();
-		holder.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		holder.getParent().layout();
-	}
-	
-	private void checkMarkers() {
-		if (mjpeg1.getPanel().getMarkerCoordinate() == null || mjpeg2.getPanel().getMarkerCoordinate() == null) {
-//			syncSetText(markerButton, "adding ...");
-		} else {
-//			syncSetText(markerButton, "Remove Markers");
-//			syncSetEnabled(alignButton, true);
-		}
-	}
-
-
-	private void createControlComposite(Composite controlComposite) {
-		
-//		Composite controlComposite = new Composite(imageComposite, SWT.NONE);
-//		controlComposite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
-//		GridLayoutFactory.fillDefaults().numColumns(2).margins(4, 4).spacing(1, 2).applyTo(controlComposite);
-//		GridDataFactory.fillDefaults().grab(false, false).align(SWT.FILL, SWT.FILL).applyTo(controlComposite);
-		
-//		createControls(controlComposite);
-		alignButton = new Button(controlComposite, SWT.TOGGLE);
-		alignButton.setText(TEXT_ALIGN_BUTTON);
-		alignButton.setFont(Activator.getMiddleFont());
-		alignButton.setImage(KoalaImage.TARGET48.getImage());
-		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).align(SWT.FILL, SWT.CENTER).hint(SWT.DEFAULT, 64).applyTo(alignButton);
-		alignButton.addSelectionListener(new SelectionListener() {
+	private void createControls(Composite controlComposite) {
+		markerButton = new Button(controlComposite, SWT.TOGGLE);
+		markerButton.setText("Add Markers");
+		markerButton.setImage(InternalImage.ADD_ITEM.getImage());
+		markerButton.setSelection(false);
+		GridDataFactory.fillDefaults().grab(true, false).minSize(0, 32).hint(100, 32).applyTo(markerButton);
+		markerButton.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (alignButton.getSelection()) {
-					alignButton.setText("Cancel alignment");
-					logger.info("alignment button clicked and enabling alignment");
-					alignComposite.reset();
-					alignComposite.setEnabled(true);
-					showPanel(alignComposite);
-					calibButton.setEnabled(false);
+				logger.info("Add marker button clicked");
+				isAddingMarker = markerButton.getSelection();
+				if (isAddingMarker) {
+					mjpeg1.getPanel().setMarkerFixed(false);
+					mjpeg1.getPanel().showMarker();
+					mjpeg2.getPanel().setMarkerFixed(false);
+					mjpeg2.getPanel().showMarker();
+					checkMarkers();
 				} else {
-					cancelAlignment();
+					mjpeg1.getPanel().resetMarkerCoordinate();
+					mjpeg2.getPanel().resetMarkerCoordinate();
+					markerButton.setText("Add Markers");
+					alignButton.setEnabled(false);
 				}
+				
 			}
 			
 			@Override
@@ -216,22 +185,33 @@ public class MjpegViewer extends Composite {
 			}
 		});
 
-		holder = new ScrolledComposite(controlComposite, SWT.NONE);
-		GridLayoutFactory.fillDefaults().applyTo(holder);
-		GridDataFactory.fillDefaults().grab(true, true).span(2, 1).align(SWT.FILL, SWT.CENTER).applyTo(holder);
-		holder.setExpandHorizontal(true);
-		holder.setExpandVertical(true);
+		alignButton = new Button(controlComposite, SWT.PUSH);
+		alignButton.setEnabled(false);
+		alignButton.setText("Align Sample");
+		alignButton.setImage(InternalImage.PLAY_16.getImage());
+		GridDataFactory.fillDefaults().grab(true, false).minSize(0, 32).hint(100, 32).applyTo(alignButton);
+		alignButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				logger.info("Allign sample button clicked");
+				alignButton.setEnabled(false);
+				mjpeg1.getPanel().resetMarkerCoordinate();
+				mjpeg2.getPanel().resetMarkerCoordinate();
+				markerButton.setText("Add Markers");
+				markerButton.setSelection(false);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 
-		createManualComposite(holder);
-		createAlignComposite(holder);
-		createCalibComposite(holder);
-		
-		resetButton = new Button(controlComposite, SWT.PUSH);
-		resetButton.setText("Reset video");
-		resetButton.setFont(Activator.getMiddleFont());
-		resetButton.setImage(KoalaImage.RELOAD48.getImage());
-		GridDataFactory.swtDefaults().grab(true, false).align(SWT.BEGINNING, SWT.END).hint(SWT.DEFAULT, 64).applyTo(resetButton);
-		resetButton.addSelectionListener(new SelectionListener() {
+		reloadButton = new Button(controlComposite, SWT.PUSH);
+		reloadButton.setText("Reset Video");
+		reloadButton.setImage(InternalImage.PLAY_16.getImage());
+		GridDataFactory.fillDefaults().grab(true, false).minSize(0, 32).hint(100, 32).applyTo(reloadButton);
+		reloadButton.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -243,74 +223,65 @@ public class MjpegViewer extends Composite {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}	
 		});			
+	}
 
+	private void checkMarkers() {
+		if (mjpeg1.getPanel().getMarkerCoordinate() == null || mjpeg2.getPanel().getMarkerCoordinate() == null) {
+			syncSetText(markerButton, "adding ...");
+		} else {
+			syncSetText(markerButton, "Remove Markers");
+			syncSetEnabled(alignButton, true);
+		}
+	}
 
-		calibButton = new Button(controlComposite, SWT.TOGGLE);
-		calibButton.setText("Calibrate cameras");
-		calibButton.setImage(KoalaImage.TOOLS48.getImage());
-		calibButton.setFont(Activator.getMiddleFont());
-		calibButton.setSelection(false);
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.END, SWT.END).hint(SWT.DEFAULT, 64).applyTo(calibButton);
-		calibButton.addSelectionListener(new SelectionListener() {
+	private void syncSetText(final Button button, final String text) {
+		Display.getDefault().syncExec(new Runnable() {
 			
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (calibButton.getSelection()) {
-					PasswordDialog dialog = new PasswordDialog(getShell());
-					if (dialog.open() == Window.OK) {
-			            String pw = dialog.getPassword();
-			            if (MainPart.UNLOCK_TEXT.equals(pw)) {
-							calibButton.setText("Cancel calibration");
-							logger.info("Calib button clicked and enabling calibration");
-							calibComposite.reset();
-							calibComposite.setEnabled(true);
-							showPanel(calibComposite);
-							alignButton.setEnabled(false);
-			            } else {
-			            	calibButton.setSelection(false);
-			            	MessageDialog.openWarning(getShell(), "Warning", "Invalid passcode");
-			            }
-			        } else {
-			        	calibButton.setSelection(false);
-			        }
-				} else {
-//					calibButton.setText("Calibrate cameras");
-//					logger.info("Calib button clicked and disabling calibration");
-//					showPanel(manualComposite);
-					cancelCalibration();
-				}
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
+			public void run() {
+				button.setText(text);
 			}
 		});
-		
 	}
-	
-	private void createManualComposite(Composite holder) {
-		manualComposite = new Composite(holder, SWT.BORDER);
-		manualComposite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
-		GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(manualComposite);
-		GridDataFactory.fillDefaults().grab(false, true).applyTo(manualComposite);
+
+	private void syncSetImage(final Button button, final Image image) {
+		Display.getDefault().syncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				button.setImage(image);
+			}
+		});
+	}
+
+	private void syncSetEnabled(final Button button, final boolean isEnabled) {
+		Display.getDefault().syncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				button.setEnabled(isEnabled);
+			}
+		});
+	}
+
+	private void createControlComposite(Composite imageComposite) {
+		Composite wrapComposite = new Composite(imageComposite, SWT.BORDER);
+		wrapComposite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+		GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(wrapComposite);
+		GridDataFactory.fillDefaults().grab(false, true).applyTo(wrapComposite);
 		
-		Composite axesControlComposite = new Composite(manualComposite, SWT.NONE);
+		Composite axesControlComposite = new Composite(wrapComposite, SWT.NONE);
 //		axesControlComposite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
-		GridLayoutFactory.fillDefaults().margins(8, 8).applyTo(axesControlComposite);
+		GridLayoutFactory.fillDefaults().margins(8, 8).numColumns(2).applyTo(axesControlComposite);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.CENTER).applyTo(axesControlComposite);
 //		axesControlComposite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, true, 1, 1));
 		
-		Group phiGroup = new Group(axesControlComposite, SWT.NONE);
-		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(2).applyTo(phiGroup);
-		phiGroup.setText("Phi positions");
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(phiGroup);
-		
-		phiSButton = new Button(phiGroup, SWT.CHECK);
+		phiSButton = new Button(axesControlComposite, SWT.CHECK);
 //		phiSButton.setImage(KoalaImage.PLAY48.getImage());
 		phiSButton.setText("Phi -90\u00b0");
 		phiSButton.setFont(Activator.getMiddleFont());
 		phiSButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.swtDefaults().grab(true, false).align(SWT.BEGINNING, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiSButton);
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiSButton);
 		phiSButton.addSelectionListener(new SelectionListener() {
 			
 			@Override
@@ -324,13 +295,13 @@ public class MjpegViewer extends Composite {
 			}
 		});
 		
-		phiNButton = new Button(phiGroup, SWT.CHECK);
+		phiNButton = new Button(axesControlComposite, SWT.CHECK);
 //		phiNButton.setImage(KoalaImage.PLAY48.getImage());
 		phiNButton.setText("Phi +90\u00b0");
 		phiNButton.setFont(Activator.getMiddleFont());
 		phiNButton.setCursor(Activator.getHandCursor());
 		phiNButton.setForeground(Activator.getHighlightColor());
-		GridDataFactory.swtDefaults().grab(true, false).align(SWT.END, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiNButton);
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.END, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiNButton);
 		phiNButton.addSelectionListener(new SelectionListener() {
 			
 			@Override
@@ -344,44 +315,6 @@ public class MjpegViewer extends Composite {
 			}
 		});
 
-		phiEButton = new Button(phiGroup, SWT.CHECK);
-//		phiEButton.setImage(KoalaImage.PLAY48.getImage());
-		phiEButton.setText("Phi 0\u00b0");
-		phiEButton.setFont(Activator.getMiddleFont());
-		phiEButton.setCursor(Activator.getHandCursor());
-		phiEButton.setForeground(Activator.getLightColor());
-		GridDataFactory.swtDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiEButton);
-		phiEButton.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				logger.info("Phi 0 button clicked");
-				driveSphi(0f);
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-
-		phiWButton = new Button(phiGroup, SWT.CHECK);
-//		phiNButton.setImage(KoalaImage.PLAY48.getImage());
-		phiWButton.setText("Phi -180\u00b0");
-		phiWButton.setFont(Activator.getMiddleFont());
-		phiWButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.swtDefaults().grab(false, false).align(SWT.END, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiWButton);
-		phiWButton.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				logger.info("Phi -180 button clicked");
-				driveSphi(-180f);
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
 
 		Group xGroup = new Group(axesControlComposite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(3).applyTo(xGroup);
@@ -463,91 +396,60 @@ public class MjpegViewer extends Composite {
 		sliderY.setSelection(48);
 	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(sliderY);
 	    
+		phiEButton = new Button(axesControlComposite, SWT.CHECK);
+//		phiEButton.setImage(KoalaImage.PLAY48.getImage());
+		phiEButton.setText("Phi 0\u00b0");
+		phiEButton.setFont(Activator.getMiddleFont());
+		phiEButton.setCursor(Activator.getHandCursor());
+		phiEButton.setForeground(Activator.getLightColor());
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiEButton);
+		phiEButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				logger.info("Phi 0 button clicked");
+				driveSphi(0f);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
+		phiWButton = new Button(axesControlComposite, SWT.CHECK);
+//		phiNButton.setImage(KoalaImage.PLAY48.getImage());
+		phiWButton.setText("Phi -180\u00b0");
+		phiWButton.setFont(Activator.getMiddleFont());
+		phiWButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.END, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiWButton);
+		phiWButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				logger.info("Phi -180 button clicked");
+				driveSphi(-180f);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
+		statusLabel = new Label(axesControlComposite, SWT.NONE);
+		statusLabel.setFont(Activator.getMiddleFont());
+		statusLabel.setForeground(Activator.getHighlightColor());
+		GridDataFactory.swtDefaults().grab(true, false).span(2, 1).hint(380, SWT.DEFAULT).applyTo(statusLabel);
+
 		String sxPath = System.getProperty(ControlHelper.SX_PATH);		
-		new SimpleControlSuite(sxPath, curText, sxPath, tarText, driveButton, null);
+		SimpleControlSuite sxSuite = new SimpleControlSuite(
+				sxPath, curText, sxPath, tarText, driveButton, statusLabel);
 
 		String syPath = System.getProperty(ControlHelper.SY_PATH);
-		new SimpleControlSuite(syPath, curYText, syPath, tarYText, driveYButton, null);
+		SimpleControlSuite sySuite = new SimpleControlSuite(
+				syPath, curYText, syPath, tarYText, driveYButton, statusLabel);
 
-		new PhiControlSuite();
+		PhiControlSuite phiSuite = new PhiControlSuite();
 		
-	}
-
-	private void createAlignComposite(Composite holder) {
-		alignComposite = new AlignVideoPart(holder, SWT.BORDER, this);
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, true).applyTo(alignComposite);
-	}
-
-	private void createCalibComposite(Composite holder) {
-//		calibComposite = new Composite(holder, SWT.BORDER);
-		calibComposite = new CalibrateVideoPart(holder, SWT.BORDER, this);
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, true).applyTo(calibComposite);
-		
-//		Composite beamCentreComposite = new Composite(calibComposite, SWT.NONE);
-//		GridLayoutFactory.fillDefaults().margins(8, 8).applyTo(beamCentreComposite);
-//		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.CENTER).applyTo(beamCentreComposite);
-
-
-//		final Button phiNButton = new Button(beamCentreGroup, SWT.TOGGLE);
-////		phiNButton.setImage(KoalaImage.PLAY48.getImage());
-//		phiNButton.setText("Phi +90\u00b0");
-//		phiNButton.setFont(Activator.getMiddleFont());
-//		phiNButton.setCursor(Activator.getHandCursor());
-//		phiNButton.setForeground(Activator.getHighlightColor());
-//		GridDataFactory.swtDefaults().grab(true, false).align(SWT.END, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiNButton);
-//		phiNButton.addSelectionListener(new SelectionListener() {
-//			
-//			@Override
-//			public void widgetSelected(SelectionEvent e) {
-//				logger.info("Phi 90 button clicked");
-//				driveSphi(90f);
-//			}
-//			
-//			@Override
-//			public void widgetDefaultSelected(SelectionEvent e) {
-//			}
-//		});
-	}
-		
-    private void loadPref() {
-		String perPixelX = Activator.getPreference(Activator.NAME_MJPEG_MMPERPIXEL_X);
-		if (perPixelX != null) {
-			try {
-				mmPerPixelX = Double.valueOf(perPixelX);
-			} catch (Exception e) {
-			}
-		}
-		String perPixelY = Activator.getPreference(Activator.NAME_MJPEG_MMPERPIXEL_Y);
-		if (perPixelY != null) {
-			try {
-				mmPerPixelY = Double.valueOf(perPixelY);
-			} catch (Exception e) {
-			}
-		}
-	}
-
-    public double getMmPerPixelX() throws KoalaModelException {
-    	if (Double.isNaN(mmPerPixelX)) {
-    		throw new KoalaModelException("Camera has not been calibrated. Please click on the Calibration button.");
-    	}
-		return mmPerPixelX;
-	}
-    
-    public double getMmPerPixelY() throws KoalaModelException {
-    	if (Double.isNaN(mmPerPixelY)) {
-    		throw new KoalaModelException("Camera has not been calibrated. Please click on the Calibration button.");
-    	}
-		return mmPerPixelY;
-	}
-    
-    public void setMmPerPixelX(double mmPerPixelX) {
-		this.mmPerPixelX = mmPerPixelX;
-		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_X, String.valueOf(mmPerPixelX));
-	}
-    
-    public void setMmPerPixelY(double mmPerPixelY) {
-		this.mmPerPixelY = mmPerPixelY;
-		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_Y, String.valueOf(mmPerPixelY));
 	}
 
 	private void driveSphi(final float value) {
@@ -555,6 +457,7 @@ public class MjpegViewer extends Composite {
 			final ISicsController sphiController = SicsManager.getSicsModel().findController(
 					System.getProperty(ControlHelper.SAMPLE_PHI));
 			if (sphiController instanceof DriveableController) {
+				statusLabel.setText("");
 				final DriveableController driveable = (DriveableController) sphiController;
 				JobRunner.run(new ILoopExitCondition() {
 					
@@ -575,7 +478,12 @@ public class MjpegViewer extends Composite {
 								
 								@Override
 								public void run() {
+									statusLabel.setText(e1.getMessage());
+//									statusLabel.getParent().redraw();
 									getParent().forceFocus();
+//									statusLabel.redraw();
+//									statusLabel.forceFocus();
+//									statusLabel.update();
 								}
 							});
 						}
@@ -585,7 +493,7 @@ public class MjpegViewer extends Composite {
 		}
 	}
 	
-	
+
 	public void startRunner() {
 		try {
 			runner1 = new MjpegRunner(mjpeg1.getPanel(), 
@@ -698,6 +606,7 @@ public class MjpegViewer extends Composite {
 	
 	@Override
 	public void dispose() {
+		// TODO Auto-generated method stub
 		super.dispose();
 		if (runner1 != null) {
 			runner1.removeRunnerListener(mjpegListener);
@@ -717,7 +626,7 @@ public class MjpegViewer extends Composite {
 	    final Shell shell = new Shell(display);
 	    shell.setLayout(new FillLayout());
 
-		MjpegViewer viewer = new MjpegViewer(shell, SWT.NONE);
+		OldMjpegViewer viewer = new OldMjpegViewer(shell, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer);
 
 		shell.open();
@@ -862,83 +771,4 @@ public class MjpegViewer extends Composite {
 		}
 		
 	}
-	
-	public MjpegPanel getPanel1() {
-		return mjpeg1.getPanel();
-	}
-	
-	public MjpegPanel getPanel2() {
-		return mjpeg2.getPanel();
-	}
-
-	public void saveBeamCentres() {
-		Point centre1 = getPanel1().getBeamCentre();
-		Point centre2 = getPanel2().getBeamCentre();
-		Activator.setPreference(BEAM_CENTRE_LEFT, String.format("%d,%d", centre1.x, centre1.y));
-		Activator.setPreference(BEAM_CENTRE_RIGHT, String.format("%d,%d", centre2.x, centre2.y));
-		Activator.flushPreferenceStore();
-	}
-	
-	private void loadBeamCentres() {
-		String bc = Activator.getPreference(BEAM_CENTRE_LEFT);
-		if (bc.length() > 0) {
-			String[] bcPair = bc.split(",");
-			Point beamCentre = new Point(Integer.valueOf(bcPair[0]), Integer.valueOf(bcPair[1]));
-			getPanel1().setBeamCentre(beamCentre);
-		}
-		bc = Activator.getPreference(BEAM_CENTRE_RIGHT);
-		if (bc.length() > 0) {
-			String[] bcPair = bc.split(",");
-			Point beamCentre = new Point(Integer.valueOf(bcPair[0]), Integer.valueOf(bcPair[1]));
-			getPanel2().setBeamCentre(beamCentre);
-		}
-	}
-	
-	public void finishCalibration() {
-		alignButton.setEnabled(true);
-		calibButton.setSelection(false);
-		calibButton.setText("Calibrate cameras");
-		logger.info("Calibration finished");
-		calibComposite.setEnabled(false);
-		showPanel(manualComposite);
-		getPanel1().hideMarker();
-		getPanel2().hideMarker();
-	}
-	
-	public void finishAlignment() {
-		calibButton.setEnabled(true);
-		alignButton.setSelection(false);
-		alignButton.setText(TEXT_ALIGN_BUTTON);
-		logger.info("Alignment finished");
-		alignComposite.setEnabled(false);
-		showPanel(manualComposite);
-		getPanel1().hideMarker();
-		getPanel2().hideMarker();
-	}
-	
-	public void cancelCalibration() {
-		alignButton.setEnabled(true);
-		calibButton.setSelection(false);
-		calibButton.setText("Calibrate cameras");
-		logger.info("Calibration cancelled");
-		calibComposite.setEnabled(false);
-		showPanel(manualComposite);
-		getPanel1().hideMarker();
-		getPanel2().hideMarker();
-		getPanel1().setCentreFixed(true);
-		getPanel2().setCentreFixed(true);
-		loadBeamCentres();
-	}
-	
-	public void cancelAlignment() {
-		calibButton.setEnabled(true);
-		alignButton.setSelection(false);
-		alignButton.setText(TEXT_ALIGN_BUTTON);
-		logger.info("alignment cancelled");
-		alignComposite.setEnabled(false);
-		showPanel(manualComposite);
-		getPanel1().hideMarker();
-		getPanel2().hideMarker();
-	}
-	
 }

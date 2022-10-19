@@ -3,6 +3,8 @@
  */
 package au.gov.ansto.bragg.koala.ui.scan;
 
+import au.gov.ansto.bragg.koala.ui.sics.ControlHelper.InstrumentPhase;
+
 /**
  * @author nxi
  *
@@ -21,4 +23,7 @@ public class ExperimentModelAdapter implements IExperimentModelListener {
 	public void onError(String errorMessage) {
 	}
 	
+	@Override
+	public void phaseChanged(InstrumentPhase newPhase, int time) {
+	}
 }

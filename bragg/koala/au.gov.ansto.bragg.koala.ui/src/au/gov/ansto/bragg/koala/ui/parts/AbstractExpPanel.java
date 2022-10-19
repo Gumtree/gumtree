@@ -56,13 +56,6 @@ import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
  */
 public abstract class AbstractExpPanel extends AbstractControlPanel {
 
-	enum InstrumentPhase {
-		ERASURE,
-		EXPOSURE,
-		READING,
-		IDLE
-	};
-	
 	private static final int WIDTH_HINT = 2200;
 	private static final int HEIGHT_HINT = 1080;
 	private static final int WIDTH_TABLE = 1580;
@@ -548,7 +541,13 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 						}
 						int startIndex = scan.getStartIndex();
 						indexText.setText(String.valueOf(startIndex));
-						estText.setText(String.valueOf(scan.getTotalTime()));
+//						estText.setText(String.valueOf(scan.getTotalTime()));
+						int time = scan.getTotalTime();
+						String timeString = PanelUtils.convertTimeString(time);
+						if (time > 0) {
+							timeString += String.format(" (%ds)", time);
+						}
+						estText.setText(timeString);
 					} else {
 						comText.setText("");
 						fnText.setText("");
@@ -558,7 +557,12 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 							SingleScan scan = model.getItem(rows[i]);
 							time += scan.getTotalTime();
 						}
-						estText.setText(String.valueOf(time));
+//						estText.setText(String.valueOf(time));
+						String timeString = PanelUtils.convertTimeString(time);
+						if (time > 0) {
+							timeString += String.format(" (%ds)", time);
+						}
+						estText.setText(timeString);
 					}
 					batchHolder.setContent(batchGroup);
 					batchGroup.layout(true, true);
@@ -787,7 +791,13 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 					SingleScan scan = getModel().getItem(rows[i]);
 					time += scan.getTotalTime();
 				}
-				estText.setText(String.valueOf(time));
+//				estText.setText(String.valueOf(time));
+//				estText.setText(PanelUtils.convertTimeString(time) + String.format(" (%ds)", time));
+				String timeString = PanelUtils.convertTimeString(time);
+				if (time > 0) {
+					timeString += String.format(" (%ds)", time);
+				}
+				estText.setText(timeString);
 			}
 		});
 	}
@@ -842,13 +852,13 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		
 		public void initControllers() {
 
-			phiController = SicsManager.getSicsModel().findControllerByPath(
+			phiController = SicsManager.getSicsModel().findController(
 					System.getProperty(ControlHelper.SAMPLE_PHI));
-			tempController = SicsManager.getSicsModel().findControllerByPath(
+			tempController = SicsManager.getSicsModel().findController(
 					System.getProperty(ControlHelper.ENV_VALUE));
-			stepController = SicsManager.getSicsModel().findControllerByPath(
+			stepController = SicsManager.getSicsModel().findController(
 					System.getProperty(ControlHelper.STEP_PATH));
-//			fnController = SicsManager.getSicsModel().findControllerByPath(
+//			fnController = SicsManager.getSicsModel().findController(
 //					System.getProperty(ControlHelper.FILENAME_PATH));
 			
 			if (phiController != null) {

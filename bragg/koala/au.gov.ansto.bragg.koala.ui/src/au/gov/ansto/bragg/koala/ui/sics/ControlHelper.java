@@ -1,11 +1,15 @@
 package au.gov.ansto.bragg.koala.ui.sics;
 
+import java.util.Map;
+
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.gumtree.control.core.IDriveableController;
 import org.gumtree.control.core.IDynamicController;
@@ -30,15 +34,26 @@ import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
 
 public class ControlHelper {
 
+	public enum InstrumentPhase {
+		ERASE,
+		EXPOSE,
+		READ,
+		SHUTTER,
+		IDLE,
+		ERROR
+	};
+	
 	public static final String SAMPLE_PHI = "gumtree.koala.samplephi";
 	public static final String SAMPLE_CHI = "gumtree.koala.samplechi";
 	public static final String ENV_VALUE = "gumtree.koala.environmentValue";
 	public static final String ENV_SETPOINT = "gumtree.koala.environmentSetpoint";
 	public static final String SX_PATH = "gumtree.koala.sx";
 	public static final String SY_PATH = "gumtree.koala.sy";
+	public static final String SZ_PATH = "gumtree.koala.sz";
 	public static final String STEP_PATH = "gumtree.koala.currpoint";
 	public static final String FILENAME_PATH = "gumtree.koala.filename";
 	public static final String PHASE_PATH = "gumtree.koala.phase";
+	public static final String IMAGE_STATE_PATH = "gumtree.path.imagestate";
 	public static final String GUMTREE_STATUS_PATH = "gumtree.path.gumtreestatus";
 	public static final String GUMTREE_TIME_PATH = "gumtree.path.gumtreetime";
 	public static final String GUMTREE_SAMPLE_NAME = "gumtree.koala.samplename";
@@ -53,7 +68,8 @@ public class ControlHelper {
 	public static String CHI_DEVICE_NAME;
 	public static String PHI_DEVICE_NAME;
 	
-	public static int ERASURE_TIME = 10;
+	public static int ERASURE_TIME = 30;
+	public static int READ_TIME = 240;
 	public static String proposalFolder;
 	public static ExperimentModel experimentModel;
 	
@@ -64,6 +80,7 @@ public class ControlHelper {
 	}
 	
 	public ControlHelper() {
+		CollectionHelper.getInstance();
 	}
 
 	public static void driveTemperature(float value) 
@@ -94,7 +111,7 @@ public class ControlHelper {
 //		}
 //	}
 	
-	private static ISicsProxy getProxy() {
+	public static ISicsProxy getProxy() {
 		return SicsManager.getSicsProxy();
 	}
 	
@@ -113,7 +130,7 @@ public class ControlHelper {
 	
 	public void observePath(final String path, final Label currentControl, final Text targetControl) {
 		final ISicsControllerListener listener = new ControllerListener(currentControl, targetControl);
-		final ISicsController controller = SicsManager.getSicsModel().findControllerByPath(path);
+		final ISicsController controller = SicsManager.getSicsModel().findController(path);
 		if (controller != null) {
 			controller.addControllerListener(listener);
 		}
@@ -262,20 +279,12 @@ public class ControlHelper {
 			throw new KoalaServerException("device not driveable: " + deviceName);
 		}
 	}
-	
-	public static void syncCollect(int exposure, int erasure) 
+
+	public static void syncMultiDrive(Map<String, Number> devices) 
 			throws KoalaServerException, KoalaInterruptionException {
-		logger.warn(String.format("collect for {} seconds", exposure));
 		try {
-			getProxy().syncRun(String.format("collect %d %d", exposure, erasure));
-			logger.warn("collection finished");
+			getProxy().multiDrive(devices);
 		} catch (SicsException e) {
-			try {
-				getProxy().syncRun("save");
-			} catch (SicsException e1) {
-				throw new KoalaServerException(e1);
-			}
-			logger.warn("collection finished with error");
 			if (e instanceof SicsInterruptException) {
 				throw new KoalaInterruptionException(e);
 			} else {
@@ -283,6 +292,12 @@ public class ControlHelper {
 			}
 		}
 	}
+
+	public static void syncCollect(int exposure) 
+			throws KoalaServerException, KoalaInterruptionException {
+		CollectionHelper.getInstance().collect(exposure);
+	}
+	
 	
 	public static String getProposalFolder() {
 		if (proposalFolder == null) {
@@ -290,4 +305,15 @@ public class ControlHelper {
 		}
 		return proposalFolder;
 	}
+	
+	public void popupInfo(final String title, final String text, final Shell shell) {
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				MessageDialog.openInformation(shell, title, text);
+			}
+		});
+	}
+
 }

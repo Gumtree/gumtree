@@ -300,7 +300,7 @@ public class CrystalPanel extends AbstractControlPanel {
 
 	private void driveSchi(final float value) {
 		if (controlHelper.isConnected()) {
-			final ISicsController schiController = SicsManager.getSicsModel().findControllerByPath(
+			final ISicsController schiController = SicsManager.getSicsModel().findController(
 					System.getProperty(ControlHelper.SAMPLE_CHI));
 			if (schiController instanceof DriveableController) {
 				setChiStatusText(chiStatusLabel, "");
@@ -346,7 +346,7 @@ public class CrystalPanel extends AbstractControlPanel {
 				
 				@Override
 				public void connect() {
-					final ISicsController chiController = SicsManager.getSicsModel().findControllerByPath(
+					final ISicsController chiController = SicsManager.getSicsModel().findController(
 							System.getProperty(ControlHelper.SAMPLE_CHI));
 					if (chiController != null) {
 						if (chiController instanceof DriveableController) {

@@ -35,6 +35,7 @@ public class ExperimentModel {
 	private String errorMessage;
 	private ControlHelper controlHelper;
 	private UserControl control;
+//	private InstrumentPhase instrumentPhase;
 	
 	private List<IExperimentModelListener> modelListeners;
 	
@@ -114,6 +115,13 @@ public class ExperimentModel {
 			listener.onError(errorMessage);
 		}
 	}
+	
+//	public void setPhase(final InstrumentPhase phase, final int time) {
+//		instrumentPhase = phase;
+//		for (IExperimentModelListener listener : modelListeners) {
+//			listener.phaseChanged(phase, time);
+//		}
+//	}
 	
 	private void loadPref() {
 		String propId =  Activator.getPreference(Activator.NAME_PROP_ID);

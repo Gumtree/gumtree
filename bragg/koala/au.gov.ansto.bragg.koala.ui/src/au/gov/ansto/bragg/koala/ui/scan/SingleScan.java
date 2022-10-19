@@ -564,7 +564,7 @@ public class SingleScan {
 		ControlHelper.syncDrive(getTarget().getDeviceName(), target);
 		evaluatePauseStatus();
 		ControlHelper.publishGumtreeStatus("starting collection");
-		ControlHelper.syncCollect(getExposure(), getErasure());
+		ControlHelper.syncCollect(getExposure());
 		ControlHelper.publishGumtreeStatus("Idle");
 		copyFile();
 		evaluatePauseStatus();		

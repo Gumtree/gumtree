@@ -651,17 +651,17 @@ public class InitScanPanel extends AbstractControlPanel {
 				
 				@Override
 				public void connect() {
-					final ISicsController phiController = SicsManager.getSicsModel().findControllerByPath(
+					final ISicsController phiController = SicsManager.getSicsModel().findController(
 							System.getProperty(ControlHelper.SAMPLE_PHI));
-					final ISicsController chiController = SicsManager.getSicsModel().findControllerByPath(
+					final ISicsController chiController = SicsManager.getSicsModel().findController(
 							System.getProperty(ControlHelper.SAMPLE_CHI));
-					final ISicsController tempController = SicsManager.getSicsModel().findControllerByPath(
+					final ISicsController tempController = SicsManager.getSicsModel().findController(
 							System.getProperty(ControlHelper.ENV_VALUE));
-					final ISicsController stepController = SicsManager.getSicsModel().findControllerByPath(
+					final ISicsController stepController = SicsManager.getSicsModel().findController(
 							System.getProperty(ControlHelper.STEP_PATH));
-					sampleController = SicsManager.getSicsModel().findControllerByPath(
+					sampleController = SicsManager.getSicsModel().findController(
 							System.getProperty(ControlHelper.GUMTREE_SAMPLE_NAME));
-					commentsController = SicsManager.getSicsModel().findControllerByPath(
+					commentsController = SicsManager.getSicsModel().findController(
 							System.getProperty(ControlHelper.GUMTREE_COMMENTS));
 					if (phiController != null) {
 						phiController.addControllerListener(
