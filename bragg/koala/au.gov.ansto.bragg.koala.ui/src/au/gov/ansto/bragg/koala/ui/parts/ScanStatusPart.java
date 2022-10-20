@@ -397,7 +397,7 @@ public class ScanStatusPart {
 	class PhaseListener implements ICollectionListener {
 
 		@Override
-		public void phaseChanged(InstrumentPhase newPhase, int timeCost) {
+		public void phaseChanged(final InstrumentPhase newPhase, final int timeCost) {
 			Display.getDefault().asyncExec(new Runnable() {
 				
 				@Override

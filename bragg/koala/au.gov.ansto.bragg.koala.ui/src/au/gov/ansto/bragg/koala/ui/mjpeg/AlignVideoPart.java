@@ -178,7 +178,7 @@ public class AlignVideoPart extends Composite {
 		IDrivable drivable;
 		String text;
 		
-		public StepDrive(Group parent, int id, String text, IDrivable drivable) {
+		public StepDrive(Group parent, final int id, final String text, final IDrivable drivable) {
 			this.text = text;
 			this.drivable = drivable;
 			label1 = new Label(parent, SWT.NONE);
