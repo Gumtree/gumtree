@@ -43,6 +43,7 @@ public class CollectionHelper {
 	
 	public enum ImageState {
 		IDLE,
+		EXPOSE_STARTING,
 		EXPOSE_STARTED,
 		EXPOSE_RUNNING,
 		EXPOSE_END,
@@ -120,12 +121,12 @@ public class CollectionHelper {
 	}
 	
 	private void setState(final String stateValue) {
+		System.err.println("state value = " + stateValue);
 		ImageState phase = ImageState.ERROR;
 		try {
 			phase = ImageState.valueOf(stateValue);
 		} catch (Exception e) {
 		}
-		System.err.println(phase.name());
 		if (!phase.equals(ImageState.IDLE)) {
 			if (isBusy && !isStarted) {
 				isStarted = true;
@@ -142,7 +143,8 @@ public class CollectionHelper {
 			setCollectionPhase(InstrumentPhase.ERASE, ERASE_TIME);
 			break;
 		case SHUTTER_CLOSE_RUNNING:
-			setCollectionPhase(InstrumentPhase.SHUTTER, -1);
+			setCollectionPhase(InstrumentPhase.SHUTTER_CLOSE, -1);
+			break;
 		case IDLE:
 			if (isBusy) {
 				isBusy = false;
@@ -216,6 +218,7 @@ public class CollectionHelper {
 			System.err.println("starting collection");
 			isStarted = false;
 			isBusy = true;
+			ControlHelper.setValue(System.getProperty(ControlHelper.EXPOSURE_TIME_PATH), exposure);
 			ControlHelper.getProxy().syncRun(String.format("hset /instrument/image/start 1"));
 			int ct = 0;
 			while (!isStarted && ct <= START_TIMEOUT) {
@@ -253,7 +256,7 @@ public class CollectionHelper {
 			}
 			logger.warn("collection finished");
 			System.err.println("collection finished");
-		} catch (SicsException e) {
+		} catch (Exception e) {
 			isStarted = false;
 			isBusy = false;
 			try {

@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.scan.ExperimentModel;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaInterruptionException;
+import au.gov.ansto.bragg.koala.ui.scan.KoalaModelException;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
 
 public class ControlHelper {
@@ -38,9 +39,28 @@ public class ControlHelper {
 		ERASE,
 		EXPOSE,
 		READ,
-		SHUTTER,
+		SHUTTER_CLOSE,
 		IDLE,
-		ERROR
+		ERROR;
+		
+		public String getText() {
+			switch (this) {
+			case ERASE:
+				return "Erasure";
+			case EXPOSE:
+				return "Exposure";
+			case READ:
+				return "Reading";
+			case SHUTTER_CLOSE:
+				return "Shutter closing";
+			case ERROR:
+				return "Error:";
+			case IDLE:
+				return "Idle";
+			default:
+				return "Idle";
+			}
+		}
 	};
 	
 	public static final String SAMPLE_PHI = "gumtree.koala.samplephi";
@@ -54,6 +74,7 @@ public class ControlHelper {
 	public static final String FILENAME_PATH = "gumtree.koala.filename";
 	public static final String PHASE_PATH = "gumtree.koala.phase";
 	public static final String IMAGE_STATE_PATH = "gumtree.path.imagestate";
+	public static final String EXPOSURE_TIME_PATH = "gumtree.path.exposuretime";
 	public static final String GUMTREE_STATUS_PATH = "gumtree.path.gumtreestatus";
 	public static final String GUMTREE_TIME_PATH = "gumtree.path.gumtreetime";
 	public static final String GUMTREE_SAMPLE_NAME = "gumtree.koala.samplename";
@@ -101,6 +122,22 @@ public class ControlHelper {
 		syncDrive(PHI_DEVICE_NAME, value);
 	}
 
+	public static void setValue(String idOrPath, Object value) throws KoalaModelException {
+		ISicsController device = getProxy().getSicsModel().findController(idOrPath);
+		if (device == null) {
+			throw new KoalaModelException("can't find model node: " + idOrPath);
+		}
+		if (device instanceof IDynamicController) {
+			try {
+				((IDynamicController) device).setValue(value);
+			} catch (SicsException e) {
+				throw new KoalaModelException("failed to set value to " + idOrPath);
+			}
+		} else {
+			throw new KoalaModelException("invalid model node: " + idOrPath);
+		}
+	}
+	
 //	public static void scanPhi(float start, float inc, int numSteps, int erasure, int exposure) 
 //			throws KoalaServerException, KoalaInterruptionException {
 //		float pos;

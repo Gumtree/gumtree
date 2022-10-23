@@ -107,7 +107,7 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new ControllerStatusWidget(sampleStageGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/sample/sheight", "Sample Height", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
-				.addDevice("/sample/sphi", "Sample Phi", null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/sr", "Sample Phi", null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(3))
 				.addDevice("/sample/schi", "Sample Chi", null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(3))
 				.addDevice("/sample/sx", "Sample X", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
 				.addDevice("/sample/sy", "Sample Y", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))

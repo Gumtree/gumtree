@@ -349,7 +349,7 @@ public class ScanStatusPart {
 	}
 	
 	private void setPhase(InstrumentPhase phase) {
-		scanStatus = phase.name();
+		scanStatus = phase.getText();
 		if (InstrumentPhase.ERASE.equals(phase)) {
 			erasureButton.setBackground(Activator.getRunningBackgoundColor());
 			erasureButton.setForeground(Activator.getRunningForgroundColor());
