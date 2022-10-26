@@ -1,38 +1,6 @@
 var title = "Koala";
 var batchEnabled = false;
 var timeEstimationEnabled = true;
-var sampleMap = [
-					250,
-					210.500,
-					168.375,
-					126.250,
-					84.125,
-					42.000,
-					-39.750,
-					-81.875,
-					-124.000,
-					-166.125,
-					-208.250,
-					-250
-				];
-
-sampleMap = [
-	       		455.0,
-	       		385.0,
-	       		315.0,
-	       		245.0, 
-	       		175.0,
-	       		105.0,
-	       		35.0,
-	       		-35.0,
-	       		-105.0,
-	       		-175.0,
-	       		-245.0,
-	       		-315.0,
-	       		-385.0,
-	       		-455.0
-	       ];
-
 
 function adaptAtt(val) {
 	return String(Math.round(Number(val)));
@@ -44,29 +12,6 @@ function adaptBs(val) {
 		return "in";
 	} else {
 		return "out";
-	}
-}
-
-function adaptSamNum(text) {
-	var val = Number(text);
-	var samNum = -1;
-	for(var j = 0; j < sampleMap.length; j++) {
-		if (val > sampleMap[j]) {
-			if (j > 0) {
-				samNum = j - (val - sampleMap[j]) / (sampleMap[j - 1] - sampleMap[j]);
-			}
-			break;
-		}
-	}
-	if (samNum < 0.05 || samNum > 10.95) {
-		return "out";
-	} else {
-		samNum = samNum.toFixed(1);
-		if (samNum == Math.round(samNum)) {
-			return String(Math.round(samNum));
-		} else {
-			return String(samNum);
-		}
 	}
 }
 

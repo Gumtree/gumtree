@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.equinox.http.registry.resources">
+      <resource
+            alias="/status"
+            base-name="/WebContent/koala.html">
+      </resource>
+      <resource
+            alias="/status/koala.html"
+            base-name="/WebContent/koala.html">
+      </resource>
+      <resource
+            alias="/status/koala.swf"
+            base-name="/WebContent/koala.swf">
+      </resource>
+      <resource
+            alias="/status/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/user/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/doc/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/status/assets/Koala.JPG"
+            base-name="/WebContent/assets/Koala.jpg">
+      </resource>
+   </extension>
+
+</plugin>
