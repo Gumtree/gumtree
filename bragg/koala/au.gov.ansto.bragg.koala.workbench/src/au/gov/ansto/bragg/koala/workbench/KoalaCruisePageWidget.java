@@ -134,21 +134,20 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new ControllerStatusWidget(experimentGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/experiment/currpoint", "Frame ID", null, "")
-//				.addDevice("/experiment/file_name", "Filename", null, "", new ControllerStatusWidget.LabelConverter() {
-//					
-//					@Override
-//					public String convertValue(Object obj) {
-//						// TODO Auto-generated method stub
-//						String text = obj.toString();
-//						int idx = text.lastIndexOf("//");
-//						if (idx >=0 ) {
-//							return text.substring(idx + 2);
-//						} else {
-//							return text;
-//						}
-//					}
-//				})
-				.addDevice("/instrument/image/state", "Phase", null, "")
+				.addDevice("/instrument/image/state", "Phase", null, "", 
+						new ControllerStatusWidget.LabelConverter() {
+					
+					@Override
+					public String convertValue(Object obj) {
+						// TODO Auto-generated method stub
+						String text = obj.toString();
+						if (text != null && text.contains("_")) {
+							return text.substring(0, text.indexOf("_"));
+						} else {
+							return text;
+						}
+					}
+				})
 				.addDevice("/sample/tc1/Sensor/value", "Temperature", null, "K")
 				;
 		configureWidget(deviceStatusWidget);

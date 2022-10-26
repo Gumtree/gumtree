@@ -234,6 +234,10 @@ public class ClientChannel implements ISicsChannel {
 		isBusy = false;
 	}
 	
+	@Override
+	public void syncPoch() throws SicsCommunicationException {
+	}
+	
 	public void dropCommand(Integer cid) {
 		commandMap.remove(cid);
 	}
