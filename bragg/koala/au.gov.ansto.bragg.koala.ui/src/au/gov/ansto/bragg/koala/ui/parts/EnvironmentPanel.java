@@ -54,7 +54,7 @@ public class EnvironmentPanel extends AbstractPanel {
 
 		Label statusLabel = new Label(statusPanel, SWT.NONE);
 		statusLabel.setFont(Activator.getMiddleFont());
-		statusLabel.setForeground(Activator.getHighlightColor());
+		statusLabel.setForeground(Activator.getWarningColor());
 		GridDataFactory.fillDefaults().span(3, 1).grab(true, false).align(SWT.CENTER, SWT.CENTER).applyTo(statusLabel);
 
 		Label valueLabel = new Label(statusPanel, SWT.NONE);

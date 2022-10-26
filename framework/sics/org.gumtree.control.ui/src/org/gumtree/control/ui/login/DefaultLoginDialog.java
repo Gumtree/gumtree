@@ -61,7 +61,7 @@ public class DefaultLoginDialog extends BaseLoginDialog {
 		createInstrumentSelectionGroup(instrumentSelectionGroup);
 
 		Group loginGroup = new Group(mainComposite, SWT.NONE);
-		loginGroup.setText("Login");
+		loginGroup.setText("SICS Server");
 		loginGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		createLoginGroup(loginGroup);
 

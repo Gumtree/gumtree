@@ -115,6 +115,7 @@ public class LoginHandler extends SicsProxyListenerAdapter implements ILoginHand
 											"SICS Warning",
 											"SICS may not be initialised correctly\n(Reason: Empty instrument model detected.)");
 						}
+						SicsManager.getSicsProxy().addProxyListener(instance);
 					} catch (Exception e) {
 						MessageDialog
 								.openError(
@@ -128,9 +129,10 @@ public class LoginHandler extends SicsProxyListenerAdapter implements ILoginHand
 		});
 	}
 	
+	@Override
 	public void proxyConnectionReqested() {
 		if (!processing) {
-			login(false);
+			login(true);
 		}
 	}
 

@@ -112,7 +112,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		
 		final Label phiStatusLabel = new Label(phiBlock, SWT.NONE);
 		phiStatusLabel.setFont(Activator.getMiddleFont());
-		phiStatusLabel.setForeground(Activator.getHighlightColor());
+		phiStatusLabel.setForeground(Activator.getWarningColor());
 		GridDataFactory.fillDefaults().span(3, 1).grab(true, false).applyTo(phiStatusLabel);
 		
 		final Label curLabel = new Label(phiBlock, SWT.NONE);

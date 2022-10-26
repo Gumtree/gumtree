@@ -38,6 +38,7 @@ public class ControlHelper {
 	public enum InstrumentPhase {
 		ERASE,
 		EXPOSE,
+		EXPOSE_ENDING,
 		READ,
 		SHUTTER_CLOSE,
 		IDLE,
@@ -46,13 +47,15 @@ public class ControlHelper {
 		public String getText() {
 			switch (this) {
 			case ERASE:
-				return "Erasure";
+				return "Erasing";
 			case EXPOSE:
-				return "Exposure";
+				return "Exposing";
+			case EXPOSE_ENDING:
+				return "Ending exposure";
 			case READ:
 				return "Reading";
 			case SHUTTER_CLOSE:
-				return "Shutter closing";
+				return "Closing shutter";
 			case ERROR:
 				return "Error:";
 			case IDLE:
@@ -75,6 +78,7 @@ public class ControlHelper {
 	public static final String PHASE_PATH = "gumtree.koala.phase";
 	public static final String IMAGE_STATE_PATH = "gumtree.path.imagestate";
 	public static final String EXPOSURE_TIME_PATH = "gumtree.path.exposuretime";
+	public static final String ABORT_COLLECTION_PATH = "gumtree.path.abortCollection";
 	public static final String GUMTREE_STATUS_PATH = "gumtree.path.gumtreestatus";
 	public static final String GUMTREE_TIME_PATH = "gumtree.path.gumtreetime";
 	public static final String GUMTREE_SAMPLE_NAME = "gumtree.koala.samplename";
@@ -88,6 +92,8 @@ public class ControlHelper {
 	public static String TEMP_DEVICE_NAME;
 	public static String CHI_DEVICE_NAME;
 	public static String PHI_DEVICE_NAME;
+	public static String EXPO_TIME_NAME;
+	public static String ABORT_COLLECTION_NAME;
 	
 	public static int ERASURE_TIME = 30;
 	public static int READ_TIME = 240;
@@ -98,6 +104,8 @@ public class ControlHelper {
 		TEMP_DEVICE_NAME = System.getProperty(ENV_SETPOINT);
 		CHI_DEVICE_NAME = System.getProperty(SAMPLE_CHI);
 		PHI_DEVICE_NAME = System.getProperty(SAMPLE_PHI);
+		EXPO_TIME_NAME = System.getProperty(EXPOSURE_TIME_PATH);
+		ABORT_COLLECTION_NAME = System.getProperty(ABORT_COLLECTION_PATH);
 	}
 	
 	public ControlHelper() {
@@ -295,6 +303,7 @@ public class ControlHelper {
 	public static void interrupt() throws KoalaServerException {
 //		asyncExec("INT1712 3");
 		getProxy().interrupt();
+		CollectionHelper.getInstance().abort();
 		experimentModel.getPhysicsModel().finish();
 		experimentModel.getChemistryModel().finish();
 	}
@@ -335,6 +344,21 @@ public class ControlHelper {
 		CollectionHelper.getInstance().collect(exposure);
 	}
 	
+	public static void endExposure() throws KoalaServerException {
+//		IDynamicController expTimeController = (IDynamicController) getModel().findController(EXPO_TIME_NAME);
+//		if (expTimeController != null) {
+//			try {
+//				expTimeController.setValue(0);
+//			} catch (SicsException e) {
+//				// TODO Auto-generated catch block
+//				throw new KoalaServerException("failed to end exposure: " + e.getMessage());
+//			}
+//		} else {
+//			throw new KoalaServerException(String.format("failed to end exposure: can't find %s node in model", 
+//					EXPO_TIME_NAME));
+//		}
+		CollectionHelper.getInstance().endExposure();
+	}
 	
 	public static String getProposalFolder() {
 		if (proposalFolder == null) {

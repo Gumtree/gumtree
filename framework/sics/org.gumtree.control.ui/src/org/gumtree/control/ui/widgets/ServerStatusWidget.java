@@ -138,6 +138,9 @@ public class ServerStatusWidget extends ExtendedWidgetComposite {
 					} else if (serverStatus.equals(ServerStatus.COUNTING)) {
 						statusLabel.setBackground(getDisplay().getSystemColor(
 								SWT.COLOR_YELLOW));
+					} else if (serverStatus.equals(ServerStatus.RUNNING_A_SCAN)) {
+						statusLabel.setBackground(getDisplay().getSystemColor(
+								SWT.COLOR_YELLOW));
 					} else if (serverStatus.equals(ServerStatus.WAIT)) {
 						statusLabel.setBackground(getDisplay().getSystemColor(
 								SWT.COLOR_YELLOW));

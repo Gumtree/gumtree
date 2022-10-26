@@ -16,8 +16,6 @@ public abstract class SicsProxyListenerAdapter implements ISicsProxyListener {
 	 */
 	@Override
 	public void connect() {
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
@@ -25,8 +23,6 @@ public abstract class SicsProxyListenerAdapter implements ISicsProxyListener {
 	 */
 	@Override
 	public void disconnect() {
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
@@ -34,8 +30,6 @@ public abstract class SicsProxyListenerAdapter implements ISicsProxyListener {
 	 */
 	@Override
 	public void modelUpdated() {
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
@@ -43,8 +37,6 @@ public abstract class SicsProxyListenerAdapter implements ISicsProxyListener {
 	 */
 	@Override
 	public void interrupt(boolean isInterrupted) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
@@ -52,8 +44,9 @@ public abstract class SicsProxyListenerAdapter implements ISicsProxyListener {
 	 */
 	@Override
 	public void setStatus(ServerStatus newStatus) {
-		// TODO Auto-generated method stub
-
 	}
 
+	@Override
+	public void proxyConnectionReqested() {
+	}
 }

@@ -116,9 +116,10 @@ public class ScanStatusPart {
 					@Override
 					public void run() {
 						try {
-							ControlHelper.asyncExec("collect stop");
+//							ControlHelper.asyncExec("collect stop");
+							ControlHelper.endExposure();
 						} catch (KoalaServerException e1) {
-							e1.printStackTrace();
+							ControlHelper.experimentModel.publishErrorMessage(e1.getMessage());
 						}
 					}
 				});
@@ -155,7 +156,7 @@ public class ScanStatusPart {
 						try {
 							ControlHelper.interrupt();
 						} catch (KoalaServerException e1) {
-							e1.printStackTrace();
+							ControlHelper.experimentModel.publishErrorMessage(e1.getMessage());
 						}
 					}
 				});
@@ -313,7 +314,7 @@ public class ScanStatusPart {
 	
 	private void setStatusText(Label statusLabel, String text) {
 		if (text.equalsIgnoreCase("interrupted") || text.equalsIgnoreCase("error")) {
-			statusLabel.setForeground(Activator.getHighlightColor());
+			statusLabel.setForeground(Activator.getWarningColor());
 		} else if (text.equalsIgnoreCase("idle")) {
 			statusLabel.setForeground(Activator.getIdleColor());
 		} else {

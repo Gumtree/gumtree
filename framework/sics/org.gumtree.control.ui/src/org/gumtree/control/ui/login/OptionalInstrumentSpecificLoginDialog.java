@@ -50,9 +50,9 @@ import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InstrumentSpecificLoginDialog extends BaseLoginDialog {
+public class OptionalInstrumentSpecificLoginDialog extends BaseLoginDialog {
 
-	private static final Logger logger = LoggerFactory.getLogger(InstrumentSpecificLoginDialog.class);
+	private static final Logger logger = LoggerFactory.getLogger(OptionalInstrumentSpecificLoginDialog.class);
 	
 	private Composite mainComposite;
 
@@ -68,7 +68,7 @@ public class InstrumentSpecificLoginDialog extends BaseLoginDialog {
 
 	private Text portText;
 
-	public InstrumentSpecificLoginDialog(Shell parentShell, ILoginHandler handler) {
+	public OptionalInstrumentSpecificLoginDialog(Shell parentShell, ILoginHandler handler) {
 		super(new Shell(parentShell, SWT.ON_TOP), handler);
 		Assert.isNotNull(handler);
 //		Assert.isNotNull(profile);
@@ -84,41 +84,39 @@ public class InstrumentSpecificLoginDialog extends BaseLoginDialog {
 
 		createImage(imageArea);
 
-//		Composite optionArea = new Composite(mainComposite, SWT.NONE);
-//		optionArea
-//				.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-//		createHiddenOptions(optionArea);
+		Composite optionArea = new Composite(mainComposite, SWT.NONE);
+		optionArea
+				.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		createHiddenOptions(optionArea);
 
 		Composite loginArea = new Composite(mainComposite, SWT.NONE);
 		loginArea
 				.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-//		createLoginBar(loginArea);
-		createConnectBar(loginArea);
+		createLoginBar(loginArea);
 
 		// Bind GUI for Eclipse 3.3
-//		Realm.runWithDefault(SWTObservables.getRealm(PlatformUI.getWorkbench()
-//				.getDisplay()), new Runnable() {
-//			public void run() {
-//				DataBindingContext bindingContext = new DataBindingContext();
-//				bindingContext.bindValue(SWTObservables.observeText(hostText,
-//						SWT.Modify), BeansObservables.observeValue(
-//						getConnectionContext(), "serverAddress"), new UpdateValueStrategy(), new UpdateValueStrategy());
-//				bindingContext.bindValue(SWTObservables.observeText(portText,
-//						SWT.Modify), BeansObservables.observeValue(
-//						getConnectionContext(), "publisherAddress"), new UpdateValueStrategy(), new UpdateValueStrategy());
-//				bindingContext.bindValue(SWTObservables.observeText(passwordText,
-//						SWT.Modify), BeansObservables.observeValue(
-//						getConnectionContext(), "password"), new UpdateValueStrategy(), new UpdateValueStrategy());
-//			}
-//		});
+		Realm.runWithDefault(SWTObservables.getRealm(PlatformUI.getWorkbench()
+				.getDisplay()), new Runnable() {
+			public void run() {
+				DataBindingContext bindingContext = new DataBindingContext();
+				bindingContext.bindValue(SWTObservables.observeText(hostText,
+						SWT.Modify), BeansObservables.observeValue(
+						getConnectionContext(), "serverAddress"), new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(SWTObservables.observeText(portText,
+						SWT.Modify), BeansObservables.observeValue(
+						getConnectionContext(), "publisherAddress"), new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(SWTObservables.observeText(passwordText,
+						SWT.Modify), BeansObservables.observeValue(
+						getConnectionContext(), "password"), new UpdateValueStrategy(), new UpdateValueStrategy());
+			}
+		});
 
-//		passwordText.setFocus();
+		passwordText.setFocus();
 
-		getShell().setText("SICS Server Connection");
+		getShell().setText("Login");
 
-//		setTitle("Welcome to the " + SicsCoreProperties.INSTRUMENT_NAME.getValue() + " instrument server!");
-		setTitle("SICS server disconnected. Please check the server before reconnecting.");
-		
+		setTitle("Welcome to the " + SicsCoreProperties.INSTRUMENT_NAME.getValue() + " instrument server!");
+
 		if(getInitialErrorMessage() != null) {
 			setErrorMessage(getInitialErrorMessage());
 		}
@@ -127,9 +125,7 @@ public class InstrumentSpecificLoginDialog extends BaseLoginDialog {
 	}
 
 	private void createImage(Composite parent) {
-		FillLayout lo = new FillLayout();
-		lo.marginHeight = 8;
-		parent.setLayout(lo);
+		parent.setLayout(new FillLayout());
 		Label label = new Label(parent, SWT.NONE);
 		try {
 			IDataAccessManager dam = ServiceUtils
@@ -144,14 +140,6 @@ public class InstrumentSpecificLoginDialog extends BaseLoginDialog {
 		}
 	}
 
-	private void createConnectBar(Composite parent) {
-		parent.setLayout(new GridLayout(1, false));
-
-//		Label infoLabel = new Label(parent, SWT.NONE);
-//		infoLabel.setText("SICS server disconnected. Please check the server before reconnecting.");
-
-	}
-	
 	private void createLoginBar(Composite parent) {
 		parent.setLayout(new GridLayout(2, false));
 

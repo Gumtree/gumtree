@@ -522,7 +522,7 @@ public abstract class AbstractScanModel implements KTableModel {
 						scan.setStatus(ScanStatus.error.name());
 						safeRedrawStatus(row);
 						e.printStackTrace();
-						handleError("user interrupted");
+						handleError("Experiment aborted");
 						break;
 					} catch (KoalaServerException e) {
 						scan.setStatus(ScanStatus.error.name());

@@ -121,7 +121,7 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new ControllerStatusWidget(chopperGroup, SWT.NONE);
 		deviceStatusWidget
 //				.addDevice("/instrument/dummy_motor", "Dummy Motor", null, "mm")		
-				.addDevice("/instrument/detector/dh", "Detector Height", null, "mm")
+				.addDevice("/instrument/dcz", "Detector Height", null, "mm")
 				.addDevice("/instrument/crystal/reading_head", "Reading Head", null, "mm")
 				.addDevice("/instrument/crystal/drum", "Drum", null, "\u00b0")
 				;
@@ -133,7 +133,7 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.EXPERIMENT_INFO.getImage());
 		deviceStatusWidget = new ControllerStatusWidget(experimentGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/commands/scan/runscan/numpoints", "Frame ID", null, "")
+				.addDevice("/experiment/currpoint", "Frame ID", null, "")
 //				.addDevice("/experiment/file_name", "Filename", null, "", new ControllerStatusWidget.LabelConverter() {
 //					
 //					@Override
@@ -148,7 +148,7 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 //						}
 //					}
 //				})
-				.addDevice("/instrument/instrument_phase", "Phase", null, "")
+				.addDevice("/instrument/image/state", "Phase", null, "")
 				.addDevice("/sample/tc1/Sensor/value", "Temperature", null, "K")
 				;
 		configureWidget(deviceStatusWidget);

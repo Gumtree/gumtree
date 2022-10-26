@@ -156,13 +156,13 @@ public abstract class BaseLoginDialog extends TitleAreaDialog {
 	protected void createButtonsForButtonBar(Composite parent) {
 		((GridLayout)parent.getLayout()).numColumns = 1;
 		noLoginButton = new Button(parent, SWT.CHECK);
-		noLoginButton.setText("Do not ask to login again");
+		noLoginButton.setText("Do not ask to connect again");
 		noLoginButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				handler.setNoMoreLogin(noLoginButton.getSelection());
 			}
 		});
-		createButton(parent, IDialogConstants.OK_ID, "Login", true);
+		createButton(parent, IDialogConstants.OK_ID, "Connect", true);
 		createButton(parent, IDialogConstants.CANCEL_ID,
 				IDialogConstants.CANCEL_LABEL, false);
 	}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.gumtree.control.core.IDynamicController;
+import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
@@ -28,16 +29,15 @@ public class CollectionHelper {
 	private static final int ERASE_TIME = 60;
 	
 	private static final Logger logger = LoggerFactory.getLogger(CollectionHelper.class);
-//	private int exposure;
 	private InstrumentPhase phase = InstrumentPhase.IDLE;
-	private int timeCost = -1;
+//	private int timeCost = -1;
 	private int exposure;
 	private boolean isBusy;
 	private boolean isStarted;
 	private boolean initialised;
 	private IDynamicController stateController;
-	private IDynamicController gumtreeStatusController;
-	private IDynamicController gumtreeTimeController;
+//	private IDynamicController gumtreeStatusController;
+//	private IDynamicController gumtreeTimeController;
 	private List<ICollectionListener> listeners;
 	private static CollectionHelper instance;
 	
@@ -79,10 +79,10 @@ public class CollectionHelper {
 	}
 	
 	public void initControllers() {
-		gumtreeStatusController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
-				System.getProperty(ControlHelper.GUMTREE_STATUS_PATH));
-		gumtreeTimeController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
-				System.getProperty(ControlHelper.GUMTREE_TIME_PATH));
+//		gumtreeStatusController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+//				System.getProperty(ControlHelper.GUMTREE_STATUS_PATH));
+//		gumtreeTimeController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+//				System.getProperty(ControlHelper.GUMTREE_TIME_PATH));
 		
 		stateController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
 				System.getProperty(ControlHelper.IMAGE_STATE_PATH));
@@ -101,27 +101,21 @@ public class CollectionHelper {
 			
 			@Override
 			public void updateTarget(Object oldValue, Object newValue) {
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override
 			public void updateState(ControllerState oldState, ControllerState newState) {
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override
 			public void updateEnabled(boolean isEnabled) {
-				// TODO Auto-generated method stub
-				
 			}
 		});
 		initialised = true;
 	}
 	
 	private void setState(final String stateValue) {
-		System.err.println("state value = " + stateValue);
+		System.err.println(stateValue);
 		ImageState phase = ImageState.ERROR;
 		try {
 			phase = ImageState.valueOf(stateValue);
@@ -172,9 +166,8 @@ public class CollectionHelper {
 	}
 	
 	private void setCollectionPhase(final InstrumentPhase phase, final int timeCost) {
-		System.err.println("set phase to " + phase);
 		this.phase = phase;
-		this.timeCost = timeCost;
+//		this.timeCost = timeCost;
 //		ControlHelper.experimentModel.setPhase(phase, timeCost);
 //		try {
 //			gumtreeStatusController.setValue(phase.name());
@@ -215,9 +208,9 @@ public class CollectionHelper {
 		logger.warn(String.format("start collecting for {} seconds", exposure));
 		this.exposure = exposure;
 		try {
-			System.err.println("starting collection");
 			isStarted = false;
 			isBusy = true;
+			ControlHelper.getProxy().setServerStatus(ServerStatus.RUNNING_A_SCAN);
 			ControlHelper.setValue(System.getProperty(ControlHelper.EXPOSURE_TIME_PATH), exposure);
 			ControlHelper.getProxy().syncRun(String.format("hset /instrument/image/start 1"));
 			int ct = 0;
@@ -234,7 +227,6 @@ public class CollectionHelper {
 //				throw new KoalaServerException("timeout in starting the collection");
 				handleError("timeout in starting the collection");
 			}
-			System.err.println("collection started");
 			ct = 0;
 			while (isBusy && ct <= (exposure + READ_TIME + ERASE_TIME) * 1000 + COLLECTION_TIMEOUT) {
 				try {
@@ -254,25 +246,68 @@ public class CollectionHelper {
 			if (InstrumentPhase.ERROR.equals(phase)) {
 				handleError("error in collection");
 			}
+			if (ControlHelper.getProxy().isInterrupted()) {
+				throw new KoalaInterruptionException("Experiment aborted.");
+			}
 			logger.warn("collection finished");
-			System.err.println("collection finished");
-		} catch (Exception e) {
-			isStarted = false;
-			isBusy = false;
-			try {
-				ControlHelper.getProxy().syncRun("save");
-			} catch (SicsException e1) {
-				throw new KoalaServerException(e1);
-			}
-			logger.warn("collection finished with error");
+		} catch (SicsInterruptException e) {
 			if (e instanceof SicsInterruptException) {
-				throw new KoalaInterruptionException(e);
-			} else {
-				throw new KoalaServerException(e);
-			}
+				throw new KoalaInterruptionException("user interrupted");
+			} 
+		} catch (KoalaInterruptionException e)  {
+			logger.warn("collection finished with error: interrupted");
+			throw e;
+		} catch (KoalaServerException e) {
+			logger.warn("collection finished with error: " + e.getMessage());
+			throw e;
+		} catch (Exception e) {
+//			isStarted = false;
+//			isBusy = false;
+//			try {
+//				ControlHelper.getProxy().syncRun("save");
+//			} catch (SicsException e1) {
+//				throw new KoalaServerException(e1);
+//			}
+			logger.warn("collection finished with error: " + e.getMessage());
+			throw new KoalaServerException(e);
 		} finally {
+			ControlHelper.getProxy().setServerStatus(ServerStatus.EAGER_TO_EXECUTE);
 			isBusy = false;
 			isStarted = false;
+		}
+	}
+	
+	public void endExposure() throws KoalaServerException {
+		IDynamicController expTimeController = (IDynamicController) SicsManager.getSicsModel()
+				.findController(ControlHelper.EXPO_TIME_NAME);
+		if (expTimeController != null) {
+			try {
+				expTimeController.setValue(0);
+				setCollectionPhase(InstrumentPhase.EXPOSE_ENDING, -1);
+			} catch (SicsException e) {
+				// TODO Auto-generated catch block
+				throw new KoalaServerException("failed to end exposure: " + e.getMessage());
+			}
+		} else {
+			throw new KoalaServerException(String.format("failed to end exposure: can't find %s node in model", 
+					ControlHelper.EXPO_TIME_NAME));
+		}
+	}
+	
+	public void abort() throws KoalaServerException {
+		IDynamicController abortController = (IDynamicController) SicsManager.getSicsModel()
+				.findController(ControlHelper.ABORT_COLLECTION_NAME);
+		if (abortController != null) {
+			try {
+				abortController.setValue(0);
+				setCollectionPhase(InstrumentPhase.EXPOSE_ENDING, -1);
+			} catch (SicsException e) {
+				// TODO Auto-generated catch block
+				throw new KoalaServerException("failed to abort collection: " + e.getMessage());
+			}
+		} else {
+			throw new KoalaServerException(String.format("failed to abort collection: can't find %s node in model", 
+					ControlHelper.ABORT_COLLECTION_NAME));
 		}
 	}
 	

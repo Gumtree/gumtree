@@ -15,6 +15,8 @@ import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsExecutionException;
 import org.gumtree.control.exception.SicsInterruptException;
 import org.gumtree.control.model.PropertyConstants;
+import org.gumtree.util.ILoopExitCondition;
+import org.gumtree.util.JobRunner;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -39,9 +41,11 @@ public class SicsChannel implements ISicsChannel {
 	
 	public static final String JSON_VALUE_ERROR = "ERROR";
 	public static final String JSON_VALUE_OK = "OK";
+	private static final String POCH_COMMAND = "Poch";
 	
 	private static final int COMMAND_WAIT_TIME = 1;
 	private static final int COMMAND_TIMEOUT = 5000;
+	
 	private static Logger logger = LoggerFactory.getLogger(SicsChannel.class);
 	
 	private ZMQ.Context context;
@@ -53,6 +57,7 @@ public class SicsChannel implements ISicsChannel {
     
     private String id;
     private int cid;
+    private int pochId;
     private Map<Integer, SicsCommand> commandMap;
     
     private MessageHandler messageHandler;
@@ -129,16 +134,31 @@ public class SicsChannel implements ISicsChannel {
 			if (sicsProxy.isInterrupted()) {
 				throw new SicsInterruptException("user interrupted");
 			} else if (e instanceof SicsCommunicationException) {
-//				isConnected = false;
 				throw e;
 			} else {
 				throw e;
 			}
 		} finally {
+			commandMap.remove(cid);
 			isBusy = false;
 		}
 	}
 
+	@Override
+	public void syncPoch() throws SicsCommunicationException {
+		pochId --;
+		SicsCommand sicsCommand = new SicsCommand(pochId, POCH_COMMAND, null);
+		commandMap.put(pochId, sicsCommand);
+		try {
+			sicsCommand.syncRun();
+		} catch(SicsCommunicationException e) {
+			throw e;
+		} catch (Exception e) {
+		} finally {
+			commandMap.remove(pochId);
+		}
+	}
+	
 	@Override
 	public void asyncSend(String command, ISicsCallback callback) throws SicsException {
 		cid++;
@@ -279,6 +299,7 @@ public class SicsChannel implements ISicsChannel {
 				try {
 					Thread.sleep(COMMAND_WAIT_TIME);
 				} catch (InterruptedException e) {
+					finish();
 					throw new SicsExecutionException("interrupted");
 				}
 				tc += COMMAND_WAIT_TIME;
@@ -286,6 +307,7 @@ public class SicsChannel implements ISicsChannel {
 			if (tc >= COMMAND_TIMEOUT) {
 //				disconnect();
 				System.err.println("timeout starting command: " + command);
+				finish();
 				throw new SicsCommunicationException("timeout starting command: " + command);
 			}
 			while (!isFinished) {

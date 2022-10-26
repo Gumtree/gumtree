@@ -21,6 +21,8 @@ import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.exception.SicsCommunicationException;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.model.SicsModel;
+import org.gumtree.util.ILoopExitCondition;
+import org.gumtree.util.JobRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,16 +33,20 @@ import org.slf4j.LoggerFactory;
 public class SicsProxy implements ISicsProxy {
 
 	private static Logger logger = LoggerFactory.getLogger(SicsProxy.class);
+	private static final int EPOCH_PERIOD = 5000;
+
 	private String serverAddress;
 	private String publisherAddress;
 	private ISicsChannel channel;
 	private ServerStatus serverStatus;
 	private IBatchControl batchControl;
 	private boolean isInterrupted;
+    private boolean isBroken;
 	private ISicsModel sicsModel;
 	private List<ISicsProxyListener> proxyListeners;
 	private List<ISicsMessageListener> messageListeners;
 	private ISicsConnectionContext connectionContext;
+	private Thread monitorThread;
 	
 	public SicsProxy() {
 		serverStatus = ServerStatus.UNKNOWN;
@@ -82,24 +88,71 @@ public class SicsProxy implements ISicsProxy {
 //			}
 			getGumtreeXML();
 			fireConnectionEvent(true);
+			
+			startMonitorThread();
 		} else {
 			return reconnect();
 		}
 		return true;
 	}
 
+	private void startMonitorThread() {
+		isBroken = false;
+		monitorThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				while(true) {
+					try {
+						Thread.sleep(EPOCH_PERIOD);
+					} catch (InterruptedException e1) {
+						break;
+					}
+					if (!isBroken && channel != null && channel.isConnected()) {
+						try {
+							channel.syncPoch();
+						} catch (SicsCommunicationException e) {
+							isBroken = true;
+							fireConnectionBrokenEvent();
+						} catch (Exception e) {
+						}
+					}
+				}
+			}
+		});
+		monitorThread.start();
+	}
+	
 	public boolean reconnect() throws SicsException {
-		if (channel != null && channel.isConnected()) {
-			channel.disconnect();
+//		if (channel != null && channel.isConnected()) {
+//			channel.disconnect();
+//		} 
+//		channel = new SicsChannel(this);
+//		try {
+//			channel.connect(serverAddress, publisherAddress);
+//		} catch (Exception e) {
+//			return false;
+//		}
+		if (channel == null || !channel.isConnected()) {
+			channel = new SicsChannel(this);
+			try {
+				channel.connect(serverAddress, publisherAddress);
+			} catch (Exception e) {
+				return false;
+			}
 		} 
-		channel = new SicsChannel(this);
-		try {
-			channel.connect(serverAddress, publisherAddress);
-		} catch (Exception e) {
-			return false;
-		}
 //		try {
 		serverStatus = ServerStatus.parseStatus(channel.syncSend("status", null));
+
+		if (sicsModel == null) {
+			getGumtreeXML();
+		}
+
+		fireConnectionEvent(true);
+		isBroken = false;
+		if (monitorThread == null) {
+			startMonitorThread();
+		}
 //		} catch (SicsException e) {
 //			
 //		}
@@ -107,7 +160,6 @@ public class SicsProxy implements ISicsProxy {
 //			batchStatus = BatchStatus.parseStatus(channel.send("exe info", null));
 //		} catch (SicsException e) {
 //		}
-		fireConnectionEvent(true);
 		return true;
 	}
 	
@@ -199,7 +251,12 @@ public class SicsProxy implements ISicsProxy {
 	
 	@Override
 	public boolean isInterrupted() {
-		return isInterrupted;
+		if (isInterrupted) {
+			clearInterruptFlag();
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	@Override
@@ -255,6 +312,17 @@ public class SicsProxy implements ISicsProxy {
 		System.err.println("fire model updated");
 	}
 
+	private void fireConnectionBrokenEvent() {
+		for (ISicsProxyListener listener : proxyListeners) {
+			try {
+				listener.proxyConnectionReqested();
+			} catch (Exception e) {
+				logger.error("failed fire connection broken event", e);
+			}
+		}
+		System.err.println("fire connection broken");
+	}
+	
 	private void fireStatusEvent(ServerStatus status) {
 		for (ISicsProxyListener listener : proxyListeners) {
 			try {
