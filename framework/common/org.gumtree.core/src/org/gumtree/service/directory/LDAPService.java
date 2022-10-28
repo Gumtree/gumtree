@@ -23,7 +23,7 @@ public class LDAPService {
 	private static final String LDAP_BASE_DN = "ou=nbiusers,dc=nbi,dc=ansto,dc=gov,dc=au";
 	private static final String LDAP_FACTORY_NAME = "com.sun.jndi.ldap.LdapCtxFactory";
 	private static final String NAME_GROUP_ADMIN = "notebook_admin";
-	private static final String NAME_GROUP_EE = "eefatvpn_subnet";
+	private static final String NAME_GROUP_EE = "ee_team";
 	private static final String NAME_MANAGER_ADMIN_POSTFIX = "_instrument_scientists";
 	private static final String ID_INSTRUMENT_NAME = "gumtree.instrument.id";
 //	private static final String NAME_GROUP_USER = "proposal_users";
@@ -90,7 +90,6 @@ public class LDAPService {
 	}
 		
 	public GroupLevel validateUser(String username, String password) throws NamingException{
-
 		Hashtable<String, Object> env = new Hashtable<String, Object>();
 		env.put(Context.PROVIDER_URL, LDAP_SERVER_NAME);
 		env.put(Context.INITIAL_CONTEXT_FACTORY, LDAP_FACTORY_NAME);

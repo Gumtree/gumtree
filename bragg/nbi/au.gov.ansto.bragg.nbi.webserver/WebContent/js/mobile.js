@@ -150,6 +150,10 @@ var refresh = function(){
 						try {
 							timeFloat = parseFloat(obj.value)
 						} catch (e) {
+							timeFloat = 0;
+						}
+						if (Number.isNaN(timeFloat)){
+							timeFloat = 0;
 						}
 						if (lastTimeEstimation == timeFloat){
 							return;

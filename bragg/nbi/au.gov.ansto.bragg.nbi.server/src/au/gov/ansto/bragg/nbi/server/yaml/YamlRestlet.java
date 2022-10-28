@@ -259,6 +259,9 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 				}
 			} else if (SEG_NAME_APPLY.equalsIgnoreCase(seg)){
 				try {
+					if (!hasMotorConfigurePrivilege(session)) {
+						throw new Exception("user not allowed to change motor configuration.");
+					}
 					Form form = request.getResourceRef().getQueryAsForm();
 					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
 					String versionId = form.getValues(QUERY_ENTRY_VERSION_ID);
@@ -280,6 +283,9 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 				}
 			} else if (SEG_NAME_SAVE.equalsIgnoreCase(seg)){
 				try {
+					if (!hasMotorConfigurePrivilege(session)) {
+						throw new Exception("user not allowed to change motor configuration.");
+					}
 					Representation rep = request.getEntity();
 					Form form = request.getResourceRef().getQueryAsForm();
 					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);

@@ -137,7 +137,6 @@ public class UserSessionService {
 				}
 			}
 		}
-		logger.error("validate cookie:" + String.valueOf(session.isValid()));
 		return session;
 	}
 
@@ -517,8 +516,9 @@ public class UserSessionService {
     		if (serviceString != null) {
     			JSONObject serviceList = new JSONObject(serviceString);
     			try {
-	    			isValid = Boolean.valueOf(String.valueOf(serviceList.get(
-	    					UserSessionService.NAME_SERVICE_NOTEBOOKMANAGER)));
+//	    			isValid = Boolean.valueOf(String.valueOf(serviceList.get(
+//	    					UserSessionService.NAME_SERVICE_NOTEBOOKMANAGER)));
+    				isValid = Boolean.valueOf(String.valueOf(serviceList.get(serviceName)));
 				} catch (Exception e) {
 				}
     		}

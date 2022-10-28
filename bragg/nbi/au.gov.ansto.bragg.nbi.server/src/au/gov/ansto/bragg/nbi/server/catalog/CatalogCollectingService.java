@@ -95,10 +95,9 @@ public class CatalogCollectingService {
 							break;
 						}
 						try {
-							logger.error("collect files");
 							collectFiles();
 						} catch (Exception e) {
-							logger.error(e.getMessage());
+							logger.error("failed to collect data files: " + e.getMessage());
 						}
 					}
 				}

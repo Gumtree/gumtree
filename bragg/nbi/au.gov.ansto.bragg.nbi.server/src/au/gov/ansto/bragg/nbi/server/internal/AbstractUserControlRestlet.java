@@ -10,6 +10,8 @@ import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Restlet;
 import org.restlet.data.Form;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.nbi.server.login.UserSessionObject;
 
@@ -20,6 +22,8 @@ public abstract class AbstractUserControlRestlet extends Restlet {
 	private static final String PROPERTY_NOTEBOOK_ICSIP = "gumtree.notebook.ics";
 	private static final String PROPERTY_NOTEBOOK_IPPREFIX = "137.157.";
 
+	private static final Logger logger = LoggerFactory.getLogger(AbstractUserControlRestlet.class);
+	
 	private String instrumentId;
 	private String[] allowedDavIps;
 	private String[] allowedIcsIps;
@@ -53,19 +57,20 @@ public abstract class AbstractUserControlRestlet extends Restlet {
 		}
 		String directIp = request.getClientInfo().getUpstreamAddress();
 		if (directIp != null) {
-			if (directIp != null && directIp.equals("127.0.0.1")) {
-				UserSessionObject session = new UserSessionObject();
-				session.setDAV(true);
-				session.setUserName(instrumentId);
-				session.setValid(true);
-				return session;
-			}
+//			if (directIp != null && directIp.equals("127.0.0.1")) {
+//				UserSessionObject session = new UserSessionObject();
+//				session.setDAV(true);
+//				session.setUserName(instrumentId);
+//				session.setValid(true);
+//				return session;
+//			}
 			for (int i = 0; i < allowedDavIps.length; i++) {
 				if (directIp.equals(allowedDavIps[i])) {
 					UserSessionObject session = new UserSessionObject();
 					session.setDAV(true);
 					session.setUserName(instrumentId);
 					session.setValid(true);
+					logger.info("direct IP allowed: " + directIp);
 					return session;
 				}
 			}
@@ -86,12 +91,15 @@ public abstract class AbstractUserControlRestlet extends Restlet {
 						session.setDAV(true);
 						session.setUserName(instrumentId);
 						session.setValid(true);
+						logger.info("forwarded IP allowed: " + forwardedIp);
 						return session;
 					}
 				}
 			}
 		}
-		return null;
+		UserSessionObject session = new UserSessionObject();
+		session.appendMessage("sign in required");
+		return session;
 	}
 	
 	protected UserSessionObject checkIcsSession(Request request) {
@@ -149,6 +157,13 @@ public abstract class AbstractUserControlRestlet extends Restlet {
 		return validateService(session, new String[] {
 				UserSessionService.NAME_SERVICE_NOTEBOOKADMIN,
 				UserSessionService.NAME_SERVICE_NOTEBOOKMANAGER
+		});
+	}
+	
+	protected boolean hasMotorConfigurePrivilege(UserSessionObject session) 
+			throws ClassNotFoundException, JSONException, RecordsFileException, IOException {
+		return validateService(session, new String[] {
+				UserSessionService.NAME_SERVICE_MOTORCONFIGURATION
 		});
 	}
 	

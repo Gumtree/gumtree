@@ -38,7 +38,6 @@ public final class EncryptionUtils {
 			String path = System.getProperty(EXTRA_PROPERTIES_PATH);
 			properties.load(new FileInputStream(path));
 //			System.setProperties(properties);
-			logger.error(properties.toString());
 		} catch (Exception e) {
 			logger.error("failed to load extra properties", e);
 		}
@@ -74,10 +73,7 @@ public final class EncryptionUtils {
 	
 	public static String decryptProperty(String propertyName) throws Exception {
 		String value = properties.getProperty(propertyName);
-		logger.error(propertyName);
-		logger.error(value);
 		if (value != null) {
-			logger.error(decryptBase64(value));
 			return decryptBase64(value);
 		} else {
 			throw new Exception("property not found");
