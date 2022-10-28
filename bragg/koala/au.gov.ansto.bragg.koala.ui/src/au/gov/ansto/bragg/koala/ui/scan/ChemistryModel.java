@@ -12,8 +12,8 @@ import au.gov.ansto.bragg.koala.ui.Activator;
 public class ChemistryModel extends AbstractScanModel {
 
 	private FixedCellRenderer fixedRenderer;
-	private static final int COLUMN_COUNTS = 13;
-	private static final int[] COLUMN_WIDTH = {40, 40, 112, 112, 80, 112, 72, 88, 112, 112, 300, 90, 300};
+	private static final int[] COLUMN_WIDTH = {40, 40, 112, 112, 80, 112, 112, 112, 112, 300, 90, 300};
+	private static final int COLUMN_COUNTS = COLUMN_WIDTH.length;
 	private static final String[] COLUMN_TITLE = {
 			"", 
 			"", 
@@ -21,8 +21,7 @@ public class ChemistryModel extends AbstractScanModel {
 			"INCR", 
 			"NUM", 
 			"Final",
-			"Era T",
-			"Exp T",
+			"Expose",
 			"TEMP",
 			"CHI",
 			"Filename",
@@ -63,10 +62,8 @@ public class ChemistryModel extends AbstractScanModel {
 		case 5:
 			return scan.getEnd();
 		case 6: 
-			return scan.getErasure();
-		case 7: 
 			return scan.getExposure();
-		case 8:
+		case 7:
 			float temp = scan.getTemp();
 			if (Float.isNaN(temp) || temp == 0) {
 				return "";
@@ -83,7 +80,7 @@ public class ChemistryModel extends AbstractScanModel {
 //					return temp;
 //				}
 //			}
-		case 9:
+		case 8:
 			float chi = scan.getChi();
 			if (Float.isNaN(chi)) {
 				return "";
@@ -100,11 +97,11 @@ public class ChemistryModel extends AbstractScanModel {
 //					return chi;
 //				}
 //			}
-		case 10:
+		case 9:
 			return scan.getFilename();
-		case 11:
+		case 10:
 			return scan.getStatus();
-		case 12:
+		case 11:
 			return scan.getComments();
 		default:
 			break;
@@ -163,19 +160,12 @@ public class ChemistryModel extends AbstractScanModel {
 			break;
 		case 6:
 			if (value instanceof Integer) {
-				scan.setErasure((Integer) value);
-			} else {
-				scan.setErasure(Integer.parseInt(value.toString()));
-			}
-			break;
-		case 7:
-			if (value instanceof Integer) {
 				scan.setExposure((Integer) value);
 			} else {
 				scan.setExposure(Integer.parseInt(value.toString()));
 			}
 			break;
-		case 8:
+		case 7:
 			if (value instanceof Float) {
 				scan.setTemp((Float) value);
 			} else {
@@ -186,7 +176,7 @@ public class ChemistryModel extends AbstractScanModel {
 				}
 			}
 			break;
-		case 9:
+		case 8:
 			if (value instanceof Float) {
 				scan.setChi((Float) value);
 			} else {
@@ -197,10 +187,10 @@ public class ChemistryModel extends AbstractScanModel {
 				}
 			}
 			break;
-		case 10:
+		case 9:
 			scan.setFilename(String.valueOf(value));
 			break;
-		case 12:
+		case 11:
 			scan.setComments(String.valueOf(value));
 			break;
 		default:
@@ -213,7 +203,7 @@ public class ChemistryModel extends AbstractScanModel {
 		if (row <= 0) {
 			return null;
 		}
-		if (col > 1 && col <= 12 && col != 11) {
+		if (col > 1 && col <= 11 && col != 10) {
 			KTableCellEditorText editor = new KTableCellEditorText();
 			return editor;
 		}

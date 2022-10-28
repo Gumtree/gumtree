@@ -681,7 +681,19 @@ public abstract class AbstractScanModel implements KTableModel {
 			return "--";
 		}
 	}
-	
+
+	public long getFinishInSeconds() {
+		if (startTime != null) {
+			int totalTime = getTimeLeft();
+//			Calendar finish = (Calendar) startTime.clone();
+			Calendar finish = Calendar.getInstance();
+			finish.add(Calendar.SECOND, totalTime);
+			return finish.getTimeInMillis() / 1000;
+		} else {
+			return 0;
+		}
+	}
+
 	public void addModelListener(IModelListener listener) {
 		modelListeners.add(listener);
 	}

@@ -17,8 +17,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.control.ui.widgets.ControllerStatusWidget;
-import org.gumtree.control.ui.widgets.EnvironmentStatusWidget;
-import org.gumtree.control.ui.widgets.PauseStatusWidget;
 import org.gumtree.control.ui.widgets.ServerStatusWidget;
 import org.gumtree.control.ui.widgets.ShutterGroupWidget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
@@ -80,25 +78,14 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		statusWidget.render();
 
 		// Pause Counter
-		PGroup pauseGroup = createGroup("PAUSE COUNTING",
-				SharedImage.SHUTTER.getImage());
-		PauseStatusWidget pauseStatuswidget = new PauseStatusWidget(
-				pauseGroup, SWT.NONE);
-		configureWidget(pauseStatuswidget);
-		pauseStatuswidget.render();
+//		PGroup pauseGroup = createGroup("PAUSE COUNTING",
+//				SharedImage.SHUTTER.getImage());
+//		PauseStatusWidget pauseStatuswidget = new PauseStatusWidget(
+//				pauseGroup, SWT.NONE);
+//		configureWidget(pauseStatuswidget);
+//		pauseStatuswidget.render();
 
 		ControllerStatusWidget deviceStatusWidget;
-//		// Devices
-		// Monitor Event Rate
-//		PGroup monitorGroup = createGroup("NEUTRON COUNTS",
-//				SharedImage.MONITOR.getImage());
-//		deviceStatusWidget = new DeviceStatusWidget(monitorGroup, SWT.NONE);
-//		deviceStatusWidget
-//				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "cts")
-//				.addDevice("/monitor/bm1_event_rate", "BM1 counts rate", null, "cts/s")
-////				.addDevice("/instrument/detector/total_counts", "Detector counts", null, "cts")
-//				;
-//		configureWidget(deviceStatusWidget);
 
 
 		// Sample
@@ -153,74 +140,7 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		configureWidget(deviceStatusWidget);
 		deviceStatusWidget.render();
 
-//
-//		// Detector
-//		PGroup detectorGroup = createGroup("DETECTOR",
-//				SharedImage.POWER.getImage());
-//		deviceStatusWidget = new DeviceStatusWidget(detectorGroup, SWT.NONE);
-//		deviceStatusWidget
-//				.addDevice("/instrument/detector/total_counts", "total counts", null, "cts")
-//				.addDevice("/instrument/detector/cdl", "cdl", null, null)
-//				.addDevice("/instrument/detector/cdu", "cdu", null, null)
-//				.addDevice("/instrument/det", "det", null, "")
-//				;
-//		configureWidget(deviceStatusWidget);
 
-		// Choppers
-//		PGroup chopperGroup = createGroup("CHOPPERS",
-//				SharedImage.POSITIONER.getImage());
-//		deviceStatusWidget = new DeviceStatusWidget(chopperGroup, SWT.NONE);
-//		deviceStatusWidget
-//				.addDevice("/instrument/master_chopper_id", "master chopper", null, "")
-//				;
-//		configureWidget(deviceStatusWidget);
-//
-//		// Sample Info
-//		PGroup sampleGroup = createGroup("SAMPLE",
-//				SharedImage.BEAKER.getImage());
-//		deviceStatusWidget = new DeviceStatusWidget(sampleGroup, SWT.NONE);
-//		deviceStatusWidget
-//				.addDevice("/sample/name", "Name", null, "")
-//				;
-//		configureWidget(deviceStatusWidget);
-
-
-
-		// Temperature TC1 Control
-//		PGroup tempControlGroup = createGroup("TEMPERATURE CONTR",
-//				SharedImage.FURNACE.getImage());
-//		deviceStatusWidget = new DeviceStatusWidget(tempControlGroup, SWT.NONE);
-//		deviceStatusWidget
-//				.addDevice("/sample/tc1/sensor/sensorValueA", "TC1A",
-//						SharedImage.A.getImage(), null)
-//				.addDevice("/sample/tc1/sensor/sensorValueB", "TC1B",
-//						SharedImage.B.getImage(), null)
-//				.addDevice("/sample/tc1/sensor/sensorValueC", "TC1C",
-//						SharedImage.C.getImage(), null)
-//				.addDevice("/sample/tc1/sensor/sensorValueD", "TC1D",
-//						SharedImage.D.getImage(), null);
-//		configureWidget(deviceStatusWidget);
-
-		// Slits Info
-//		PGroup slits1Group = createGroup("SLITS",
-//				SharedImage.ONE.getImage());
-//		deviceStatusWidget = new DeviceStatusWidget(slits1Group, SWT.NONE);
-//		deviceStatusWidget
-//				.addDevice("/instrument/slits/second/horizontal/gap", "s2 horizontal gap", null, "mm")
-//				.addDevice("/instrument/slits/third/horizontal/gap", "s3 horizontal gap", null, "mm")
-//				.addDevice("/instrument/slits/fourth/horizontal/gap", "s4 horizontal gap", null, "mm")
-//				.addDevice("/instrument/slits/second/vertical/gap", "s2 vertical gap", null, "mm")
-//				.addDevice("/instrument/slits/third/vertical/gap", "s3 vertical gap", null, "mm")
-//				.addDevice("/instrument/slits/fourth/vertical/gap", "s4 vertical gap", null, "mm")
-//				;
-//		configureWidget(deviceStatusWidget);
-
-		// Environment Group
-//		PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",
-//				SharedImage.FURNACE.getImage());
-//		EnvironmentStatusWidget controlWidget = new EnvironmentStatusWidget(environmentGroup, SWT.NONE);
-//		configureWidget(controlWidget);
-//		controlWidget.render();
 	}
 
 	@Override

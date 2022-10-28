@@ -19,20 +19,20 @@ public class PhysicsModel extends AbstractScanModel {
 	private TextCellRenderer liteOddTextRenderer;
 	private TextCellRenderer liteEvenTextRenderer;
 	
-	private static final int COLUMN_COUNTS = 14;
-	private static final int[] COLUMN_WIDTH = {40, 40, 180, 112, 112, 80, 112, 72, 88, 100, 120, 200, 90, 200};
+	private static final int[] COLUMN_WIDTH = {40, 40, 180, 108, 80, 80, 108, 108, 108, 100, 108, 200, 90, 200};
+	private static final int COLUMN_COUNTS = COLUMN_WIDTH.length;
 	private static final String[] COLUMN_TITLE = {
 			"", 
 			"", 
 			"Scan variable",
 			"Start", 
-			"INCR", 
-			"NUM", 
+			"Incr", 
+			"Num", 
 			"Final", 
-			"Era T",
-			"Exp T",
-			"TEMP",
-			"CHI",
+			"Expose",
+			"Phi",
+			"Temp",
+			"Chi",
 			"Filename",
 			"Status",
 			"Comments"
@@ -127,9 +127,18 @@ public class PhysicsModel extends AbstractScanModel {
 				return scan.getEnd();
 //			}
 		case 7: 
-			return scan.getErasure();
-		case 8: 
 			return scan.getExposure();
+		case 8: 
+			if (scan.getTarget().isTemperature()) {
+				float phi = scan.getPhi();
+				if (Float.isNaN(phi)) {
+					return "";
+				} else {
+					return phi;
+				}
+			} else {
+				return "";
+			}
 		case 9:
 			float temp = scan.getTemp();
 			if (Float.isNaN(temp) || temp == 0) {
@@ -195,6 +204,12 @@ public class PhysicsModel extends AbstractScanModel {
 				return null;
 			} else {
 				return new KTableCellEditorText();
+			}
+		} else if (col == 8) {
+			if (getItem(row).getTarget().isTemperature()) {
+				return new KTableCellEditorText();
+			} else {
+				return null;
 			}
 		} else if (col == 9) {
 			if (getItem(row).getTarget().isTemperature()) {
@@ -269,21 +284,21 @@ public class PhysicsModel extends AbstractScanModel {
 			break;
 		case 7:
 			if (value instanceof Integer) {
-				scan.setErasure((Integer) value);
-			} else {
-				String t = String.valueOf(value);
-				if (t.length() > 0) {
-					scan.setErasure(Integer.parseInt(t));
-				}
-			}
-			break;
-		case 8:
-			if (value instanceof Integer) {
 				scan.setExposure((Integer) value);
 			} else {
 				String t = String.valueOf(value);
 				if (t.length() > 0) {
 					scan.setExposure(Integer.parseInt(t));
+				}
+			}
+			break;
+		case 8:
+			if (value instanceof Float) {
+				scan.setPhi((Float) value);
+			} else {
+				String t = String.valueOf(value);
+				if (t.length() > 0) {
+					scan.setPhi(Float.parseFloat(t));
 				}
 			}
 			break;

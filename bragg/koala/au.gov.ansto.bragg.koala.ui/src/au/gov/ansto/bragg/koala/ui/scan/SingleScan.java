@@ -95,6 +95,7 @@ public class SingleScan {
 	private int exposure = 60;
 	private int erasure = 10;
 	private float temp = Float.NaN;
+	private float phi = Float.NaN;
 	private float chi = Float.NaN;
 	private String status;
 	private String comments;
@@ -192,6 +193,14 @@ public class SingleScan {
 		this.temp = temp;
 		firePropertyChange("temp", old, temp);
 	}
+	public float getPhi() {
+		return phi;
+	}
+	public void setPhi(float phi) {
+		Object old = this.phi;
+		this.phi = phi;
+		firePropertyChange("phi", old, phi);
+	}
 	public float getChi() {
 		return chi;
 	}
@@ -284,6 +293,7 @@ public class SingleScan {
 		exposure = scan.getExposure();
 		erasure = scan.getErasure();
 //		temp = scan.getTemp();
+//		phi = scan.getPhi();
 //		chi = scan.getChi();
 		comments = scan.getComments();
 		filename = scan.getFilename();
@@ -454,6 +464,11 @@ public class SingleScan {
 					time += TEMP_TIME;
 				}
 			}
+			if (getTarget().isTemperature()) {
+				if (!Float.isNaN(getPhi())) {
+					time += PHI_TIME;
+				}
+			}
 			if (!Float.isNaN(getChi())) {
 				time += CHI_TIME;
 			}
@@ -518,13 +533,19 @@ public class SingleScan {
 			evaluatePauseStatus();
 			if (!getTarget().isTemperature()) {
 				if (!Float.isNaN(getTemp())) {
-					ControlHelper.publishGumtreeStatus("drive sample temperature");
+					ControlHelper.publishGumtreeStatus("Scan - change temperature");
 					ControlHelper.driveTemperature(getTemp());
 				}
 			}
 			evaluatePauseStatus();
+			if (getTarget().isTemperature()) {
+				if (!Float.isNaN(getPhi())) {
+					ControlHelper.publishGumtreeStatus("Scan - drive sample Phi");
+					ControlHelper.drivePhi(getPhi());
+				}
+			}
 			if (!Float.isNaN(getChi())) {
-				ControlHelper.publishGumtreeStatus("drive sample Chi");
+				ControlHelper.publishGumtreeStatus("Scan - drive sample Chi");
 				ControlHelper.driveChi(getChi());
 			}
 			ControlHelper.syncExec(String.format("hset %s %s", 
@@ -548,6 +569,7 @@ public class SingleScan {
 			startTimeMilSec = 0;
 			isFinished = true;
 			isRunning = false;
+			ControlHelper.publishGumtreeStatus("Scan - finished");
 		}
 	}
 	
@@ -557,17 +579,17 @@ public class SingleScan {
 		ControlHelper.syncExec(String.format("hset %s %d", 
 				System.getProperty(ControlHelper.STEP_PATH), index + 1));
 		if (getTarget().isTemperature()) {
-			ControlHelper.publishGumtreeStatus("driving temperature");			
+			ControlHelper.publishGumtreeStatus("Scan - driving temperature");			
 		} else {
-			ControlHelper.publishGumtreeStatus("driving sample Phi");
+			ControlHelper.publishGumtreeStatus("Scan - driving sample Phi");
 		}
 		ControlHelper.syncDrive(getTarget().getDeviceName(), target);
 		evaluatePauseStatus();
-		ControlHelper.publishGumtreeStatus("starting collection");
+		ControlHelper.publishGumtreeStatus("Scan - image collection cycle");
 		ControlHelper.syncCollect(getExposure());
-		ControlHelper.publishGumtreeStatus("Idle");
+		ControlHelper.publishGumtreeStatus("Scan - image collection finished");
 		copyFile();
-		evaluatePauseStatus();		
+		evaluatePauseStatus();
 	}
 	
 	private void copyFile() throws KoalaServerException {

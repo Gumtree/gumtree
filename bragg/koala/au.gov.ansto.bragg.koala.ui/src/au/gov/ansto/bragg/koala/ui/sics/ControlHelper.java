@@ -300,6 +300,15 @@ public class ControlHelper {
 		}
 	}
 	
+	public static void publishFinishTime(long finishTime) {
+		try {
+			getProxy().syncRun(String.format("hset %s %s", 
+					System.getProperty(ControlHelper.GUMTREE_TIME_PATH), String.valueOf(finishTime)));
+		} catch (Exception e) {
+			logger.warn("failed to publish finish time estimation");
+		}
+	}
+	
 	public static void interrupt() throws KoalaServerException {
 //		asyncExec("INT1712 3");
 		getProxy().interrupt();

@@ -784,6 +784,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 				timeTotalText.setText(getModel().getTotalTimeText());
 				timeLeftText.setText(getModel().getTimeLeftText());
 				finText.setText(getModel().getFinishTime());
+				ControlHelper.publishFinishTime(getModel().getFinishInSeconds());
 				
 				int[] rows = table.getRowSelection();
 				int time = 0;
@@ -811,9 +812,11 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 //					String start = getModel().getStartedTime();
 					startText.setText(getModel().getStartedTime());
 					finText.setText(getModel().getFinishTime());
+					ControlHelper.publishFinishTime(getModel().getFinishInSeconds());
 				} else if (ModelStatus.FINISHED.equals(status)) {
 					startText.setText("--");
 					finText.setText("--");
+					ControlHelper.publishFinishTime(0L);
 				}
 			}
 		});

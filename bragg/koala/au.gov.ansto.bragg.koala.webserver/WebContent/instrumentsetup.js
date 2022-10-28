@@ -1,10 +1,7 @@
 var title = "Koala";
 var batchEnabled = false;
 var timeEstimationEnabled = true;
-
-function adaptAtt(val) {
-	return String(Math.round(Number(val)));
-}
+var histmemTypes = [];
 
 function adaptBs(val) {
 	var pos = Number(val);
@@ -15,84 +12,57 @@ function adaptBs(val) {
 	}
 }
 
+function adaptTime(val) {
+	try {
+		var t = parseInt(val);
+		return t > 0 ? t + " s" : "--";
+	} catch (e) {
+		return "";
+	}
+	
+}
+
 var devices = [
-			   {"group":"NEUTRON SOURCE", 
-			 	   "items":[{"classId":"reactorPower", "deviceId":"/instrument/source/power", "title":"Reactor Power", "units":"MW"},
-			 		   		{"classId":"cnsOutTemp", "deviceId":"/instrument/source/cns_out", "title":"CNS Out Temp", "units":"K"}
+			   {"group":"EXPERIMENT", 
+			 	   "items":[{"classId":"gumstatus", "deviceId":"/experiment/gumtree_status", "title":"Scan Status", "units":""},
+			 		   		{"classId":"currpoint", "deviceId":"/experiment/currpoint", "title":"Frame ID", "units":""},
+			 	            {"classId":"imagestate", "deviceId":"/instrument/image/state", "title":"Phase", "units":""},
+			 	            {"classId":"exporemain", "deviceId":"/instrument/image/timer_sec", "title":"Exposure time remaining", "units":"", "adapt":adaptTime},
+			 	            {"classId":"temperature", "deviceId":"/sample/tc1/sensor", "title":"Temperature", "units":"K"}
 			 	            ]
 			   },
-               {"group":"NEUTRON BEAM", 
-            	   "items":[{"classId":"monitor_counts", "deviceId":"monitor_counts", "title":"Monitor", "units":"cts"}, 
-            	            {"classId":"detector_counts", "deviceId":"/instrument/detector/total_counts", "title":"Detector Counts", "units":"c"}, 
-            	            {"classId":"total_detector_rate", "deviceId":"::histogram_memory::ratemap_xy_total", "title":"Tot. Rate on Detector", "units":"c/t", "decimal":2}, 
-            	            {"classId":"xy_max_binrate", "deviceId":"::histogram_memory::ratemap_xy_max_bin", "title":"Max Rate on Pixel", "units":"c/t", "decimal":2}
-            	            ]
-               },
+			   {"group":"NEUTRON SOURCE", 
+			 	   "items":[{"classId":"reactorPower", "deviceId":"/instrument/source/power", "title":"Reactor Power", "units":"MW"}
+			 	            ]
+			   },
                {"group":"SHUTTER STATUS", 
             	   "items":[{"classId":"secondary", "deviceId":"/instrument/sis/status/secondary", "title":"Secondary Shutter", "units":""},
             		   		{"classId":"tertiary", "deviceId":"/instrument/sis/status/tertiary", "title":"Tertiary Shutter", "units":""},
             		   		{"classId":"fast_shutter", "deviceId":"/instrument/sis/status/fast_shutter", "title":"Fast Shutter", "units":""}
             	            ]
                },
-               {"group":"ATTENUATOR", 
-            	   "items":[{"classId":"att_pos", "deviceId":"att_pos", "title":"att position", "units":"", "decimal":0}
-            	            ]
-               },
-               {"group":"VELOCITY SELECTOR", 
-            	   "items":[{"classId":"vs_pos", "deviceId":"vs_pos", "title":"position", "units":""},
-            	            {"classId":"vs_lambda", "deviceId":"/instrument/nvs067/lambda", "title":"wavelength", "units":"\u212B", "decimal":1},
-            	            {"classId":"vs_speed", "deviceId":"/instrument/nvs067/actspeed", "title":"speed", "units":"rpm", "decimal":1}
-            	            ]
-               },
-               {"group":"CHOPPERS", 
-            	   "items":[{"classId":"t0_chopper_id", "deviceId":"t0_chopper_id", "title":"T0_chopper_id", "units":""},
-            	            {"classId":"t0_chopper_freq", "deviceId":"t0_chopper_freq", "title":"T0_chopper_frequency", "units":"Hz", "decimal":2},
-            	            {"classId":"master1_chopper_id", "deviceId":"master1_chopper_id", "title":"master1_chopper_id", "units":""},
-            	            {"classId":"master2_chopper_id", "deviceId":"master2_chopper_id", "title":"master2_chopper_id", "units":""},
-            	            {"classId":"master_chopper_freq", "deviceId":"master_chopper_freq", "title":"master_chopper_frequency", "units":"Hz", "decimal":2}
-            	            ]
-               },
-               {"group":"DETECTORS", 
-            	   "items":[{"classId":"gs_l1", "deviceId":"gs_l1", "title":"L1", "units":"mm", "decimal":1},
-            	            {"classId":"gs_l2_curtainl", "deviceId":"gs_l2_curtainl", "title":"L2_curtaindet_left", "units":"mm", "decimal":1},
-            	            {"classId":"gs_l2_curtainr", "deviceId":"gs_l2_curtainr", "title":"L2_curtaindet_right", "units":"mm", "decimal":1},
-            	            {"classId":"gs_l2_curtainu", "deviceId":"gs_l2_curtainu", "title":"L2_curtaindet_up", "units":"mm", "decimal":1},
-            	            {"classId":"gs_l2_curtaind", "deviceId":"gs_l2_curtaind", "title":"L2_curtaindet_down", "units":"mm", "decimal":1},
-            	            {"classId":"curtainl", "deviceId":"curtainl", "title":"curtainl", "units":"mm", "decimal":1},
-            	            {"classId":"curtainr", "deviceId":"curtainr", "title":"curtainr", "units":"mm", "decimal":1},
-            	            {"classId":"curtainu", "deviceId":"curtainu", "title":"curtainu", "units":"mm", "decimal":1},
-            	            {"classId":"curtaind", "deviceId":"curtaind", "title":"curtaind", "units":"mm", "decimal":1},
-            	            {"classId":"gs_l2_det", "deviceId":"gs_l2_det", "title":"L2_det", "units":"mm", "decimal":1}
-            	            ]
-               },
-               {"group":"BEAM STOP", 
-            	   "items":[{"classId":"bs3", "deviceId":"bs3", "title":"BS3", "units":"", "adapt":adaptBs},
-            	            {"classId":"bs4", "deviceId":"bs4", "title":"BS4", "units":"", "adapt":adaptBs},
-            	            {"classId":"bs5", "deviceId":"bs5", "title":"BS5", "units":"", "adapt":adaptBs}
-            	            ]
-               },
                {"group":"SAMPLE", 
-            	   "items":[{"classId":"samplename", "deviceId":"samplename", "title":"Sample Name", "units":""},
-            	            {"classId":"samx", "deviceId":"samx", "title":"Sample Number", "units":"", "adapt":adaptSamNum}
+            	   "items":[{"classId":"sphi", "deviceId":"sr", "title":"Sample Phi", "units":"\u00B0"},
+            		   		{"classId":"schi", "deviceId":"schi", "title":"Sample Chi", "units":"degrees"},
+            	            {"classId":"samx", "deviceId":"sx", "title":"Sample X", "units":"mm"},
+            	            {"classId":"samy", "deviceId":"sy", "title":"Sample Y", "units":"mm"},
+            	            {"classId":"samz", "deviceId":"sz", "title":"Sample Z", "units":"mm"}
             	            ]
                },
-               {"group":"GUIDE", 
-            	   "items":[{"classId":"gs_nguide", "deviceId":"gs_nguide", "title":"Guide Setup", "units":""}
+               {"group":"INSTRUMENT", 
+            	   "items":[{"classId":"dcz", "deviceId":"dcz", "title":"Detector Height", "units":"mm"},
+            		   		{"classId":"rdz", "deviceId":"rdz", "title":"Reading Head", "units":"mm"}
             	            ]
                }
                ];
 
-//var nsItems = [
-//               {"classId":"reactorPower", "deviceId":"/instrument/source/power", "title":"Reactor Power", "units":"MW"},
-//               {"classId":"cnsInTemp", "deviceId":"/instrument/source/", "title":"CNS In Temp", "units":"K"},
-//               {"classId":"cnsOutTemp", "deviceId":"/instrument/source/cns_out", "title":"CNS Out Temp", "units":"K"}
-//               ];
 var nsItems = [
     
     ];
 
 //var histmemUrl = "dae/rest/image?type=TOTAL_HISTOGRAM_XY&screen_size_x=800&screen_size_y=600";
-var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE&screen_size_x=800";
+//var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE&screen_size_x=800";
+var histmemUrl = null;
 
 var histmemTypes = [
                     {"id" : "TOTAL_HISTOGRAM_XY", "text" : "Total x-y histogram", "isDefault" : true},
