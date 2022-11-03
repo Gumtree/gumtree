@@ -623,6 +623,30 @@ public class ScheduledNode {
 				for (ScheduledNode subNode : subSet)
 					subNode.disableAll();
 	}
+	public void setEnabledByPathName(String pathName, boolean isEnabled) {
+		System.err.println(getSourceElement().getPath().getElementName());
+		if (getSourceElement().getPath().getElementName().startsWith(pathName)){
+
+			setEnabled(isEnabled);
+
+			if (!isAspectLeaf())
+				for (Set<ScheduledNode> subSet : subNodes.values())
+					for (ScheduledNode subNode : subSet) {
+						if (isEnabled) {
+							subNode.enableAll();
+						} else {
+							subNode.disableAll();
+						}
+					}
+		} else {
+			if (!isAspectLeaf())
+				for (Set<ScheduledNode> subSet : subNodes.values())
+					for (ScheduledNode subNode : subSet) {
+						subNode.setEnabledByPathName(pathName, isEnabled);
+					}
+			
+		}
+	}
 	// acquisition details
 	public void resetAcquisitionDetailProvider(AcquisitionDetailProvider provider) {
 		if (provider == null) {

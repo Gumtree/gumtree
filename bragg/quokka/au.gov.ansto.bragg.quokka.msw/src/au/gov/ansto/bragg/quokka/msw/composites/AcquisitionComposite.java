@@ -250,6 +250,28 @@ public class AcquisitionComposite extends Composite {
 			}
 		});
 	    
+	    // enable / disable transmission entries
+	    new MenuItem(menu, SWT.SEPARATOR);
+	    menuItem = new MenuItem(menu, SWT.NONE);
+	    menuItem.setText("Enable All Transmission Entries");
+	    menuItem.setImage(Resources.IMAGE_BOX_CHECKED);
+	    menuItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				scheduler.setEnabledByPathName(Measurement.TRANSMISSION, true);
+			}
+		});
+	    
+	    menuItem = new MenuItem(menu, SWT.NONE);
+	    menuItem.setText("Disable All Transmission Entries");
+	    menuItem.setImage(Resources.IMAGE_BOX_UNCHECKED);
+	    menuItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				scheduler.setEnabledByPathName(Measurement.TRANSMISSION, false);
+			}
+		});
+
 	    // optimize order
 	    new MenuItem(menu, SWT.SEPARATOR);
 	    menuItem = new MenuItem(menu, SWT.NONE);

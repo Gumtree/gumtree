@@ -170,6 +170,19 @@ public class Scheduler {
 			raiseEndUpdate();
 		}
 	}
+	public void setEnabledByPathName(String pathName, boolean isEnabled) {
+		if (elements.isEmpty())
+			return;
+
+		try {
+			raiseOnBeginUpdate();
+			for (ScheduledAspect aspect : aspects.get(elements.get(0)))
+				aspect.setEnabledByPathName(pathName, isEnabled);
+		}
+		finally {
+			raiseEndUpdate();
+		}
+	}
 	public void updateSource(ElementList<? extends Element> acquisitionRoot) {
 		try {
 			raiseOnBeginUpdate();

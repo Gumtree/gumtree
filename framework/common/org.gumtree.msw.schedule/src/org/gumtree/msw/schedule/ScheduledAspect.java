@@ -161,6 +161,16 @@ public class ScheduledAspect {
 			if (link != null)
 				link.disableAll();
 	}
+	public void setEnabledByPathName(String pathName, boolean isEnabled) {
+		if (isDisposed)
+			throw new Error("already disposed");
+		
+		node.setEnabledByPathName(pathName, isEnabled);
+
+		for (ScheduledAspect link : links.values())
+			if (link != null)
+				link.setEnabledByPathName(pathName, isEnabled);
+	}
 	// acquisition details
 	public void resetAcquisitionDetailProvider(AcquisitionDetailProvider acquisitionDetailProvider) {
 		node.resetAcquisitionDetailProvider(acquisitionDetailProvider);
