@@ -137,6 +137,11 @@
 			<url>http://dist.codehaus.org/gumtree/sites/bundles/1.8.x</url>
 		</repository>
 		-->
+		  <repository>
+		    <id>central maven repo</id>
+		    <name>central maven repo https</name>
+		    <url>https://repo.maven.apache.org/maven2</url>
+		  </repository>
 	</repositories>
 	<profiles>
 		<profile>
