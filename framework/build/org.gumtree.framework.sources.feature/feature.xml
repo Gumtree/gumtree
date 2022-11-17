@@ -169,13 +169,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.vaadin.osgi.touchkit.source"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.hamcrest.core.source"
          download-size="0"
          install-size="0"
