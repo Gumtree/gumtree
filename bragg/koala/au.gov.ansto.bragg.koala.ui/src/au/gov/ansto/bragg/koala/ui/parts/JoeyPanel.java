@@ -193,6 +193,19 @@ public class JoeyPanel extends AbstractPanel {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
+		
+		boolean isJoeyMode = false;
+		try {
+			isJoeyMode = Boolean.valueOf(Activator.getPreference(Activator.NAME_JOEY_MODE));
+		} catch (Exception e) {
+		}
+		if (isJoeyMode) {
+			isActivated = true;
+			statusLabel.setText("ACTIVATED");
+			statusLabel.setEnabled(true);
+			statusLabel.setForeground(Activator.getHighlightColor());
+			activeButton.setText("Deactivate");
+		}
 	}
 
 	private void hideAdvPanel() {

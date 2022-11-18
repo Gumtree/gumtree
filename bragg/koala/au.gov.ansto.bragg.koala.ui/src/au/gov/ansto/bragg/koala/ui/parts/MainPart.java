@@ -287,6 +287,7 @@ public class MainPart extends Composite {
 		isJoeyMode = isEnabled;
 		getParentViewer().getHeaderPart().setButtonEnabled(!isEnabled);
 		getParentViewer().getFooterPart().setButtonEnabled(!isEnabled);
+		Activator.setPreference(Activator.NAME_JOEY_MODE, String.valueOf(isEnabled));
 	}
 	
 	public RecurrentScheduler getRecurrentScheduler() {

@@ -15,8 +15,6 @@ import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsExecutionException;
 import org.gumtree.control.exception.SicsInterruptException;
 import org.gumtree.control.model.PropertyConstants;
-import org.gumtree.util.ILoopExitCondition;
-import org.gumtree.util.JobRunner;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -54,6 +52,7 @@ public class SicsChannel implements ISicsChannel {
     
     private boolean isBusy;
     private boolean isConnected;
+    private String currentCommand;
     
     private String id;
     private int cid;
@@ -120,9 +119,10 @@ public class SicsChannel implements ISicsChannel {
 //		}
 //		if (json != null && json.has(JSON_KEY_CID) && json.getInt(JSON_KEY_CID) == cid) {
 		if (isBusy) {
-			throw new SicsExecutionException("channel is busy with the current command");
+			throw new SicsExecutionException("channel is busy with the current command: " + currentCommand);
 		}
 		cid++;
+		currentCommand = command;
 		SicsCommand sicsCommand = new SicsCommand(cid, command, callback);
 		commandMap.put(cid, sicsCommand);
 		isBusy = true;
@@ -130,6 +130,7 @@ public class SicsChannel implements ISicsChannel {
 		try {
 			return sicsCommand.syncRun();
 		} catch(Exception e) {
+			isBusy = false;
 			logger.error(e.getMessage());
 			if (sicsProxy.isInterrupted()) {
 				throw new SicsInterruptException("user interrupted");
@@ -292,7 +293,9 @@ public class SicsChannel implements ISicsChannel {
 //			String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
 //			System.err.println(timeStamp + " async send: " + jcom.toString());
 			String msg = jcom.toString();
-			logger.info("syncSend: " + msg);
+			if (!POCH_COMMAND.equals(command)) {
+				logger.info("syncSend: " + command);
+			}
 			clientSocket.send(msg);
 			int tc = 0;
 			while (!isStarted && !isFinished && tc < COMMAND_TIMEOUT) {
@@ -359,7 +362,9 @@ public class SicsChannel implements ISicsChannel {
 //					System.err.println(json);
 					if (json.has(PropertyConstants.PROP_COMMAND_REPLY)) {
 						reply = json.get(PropertyConstants.PROP_COMMAND_REPLY).toString();
-						logger.info(reply);
+						if (!POCH_COMMAND.equals(command)) {
+							logger.info(String.format("reply of %s: %s", command, reply));
+						}
 					}
 					if (json.has(JSON_KEY_INTERRUPT)) {
 						if (callback != null) {
@@ -405,6 +410,7 @@ public class SicsChannel implements ISicsChannel {
 							if (callback != null) {
 								callback.setError(true);
 							}
+							logger.error(String.format("Error in command '%s': %s", command, reply));
 							throw new SicsExecutionException(reply);
 						}
 					}

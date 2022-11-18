@@ -300,6 +300,13 @@ public class MjpegViewer extends Composite {
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.CENTER).applyTo(axesControlComposite);
 //		axesControlComposite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, true, 1, 1));
 		
+		Button ledButton = new Button(axesControlComposite, SWT.CHECK);
+		ledButton.setText("Light Source");
+		ledButton.setFont(Activator.getMiddleFont());
+		ledButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.BEGINNING, SWT.CENTER).hint(SWT.DEFAULT, 48).applyTo(ledButton);
+		
+
 		Group phiGroup = new Group(axesControlComposite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(2).applyTo(phiGroup);
 		phiGroup.setText("Phi positions");

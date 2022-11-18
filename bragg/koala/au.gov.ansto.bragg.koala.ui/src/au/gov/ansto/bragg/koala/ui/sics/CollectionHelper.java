@@ -299,8 +299,10 @@ public class CollectionHelper {
 				.findController(ControlHelper.ABORT_COLLECTION_NAME);
 		if (abortController != null) {
 			try {
-				abortController.setValue(0);
-				setCollectionPhase(InstrumentPhase.EXPOSE_ENDING, -1);
+				if (getPhase().equals(InstrumentPhase.EXPOSE)) {
+					setCollectionPhase(InstrumentPhase.EXPOSE_ENDING, -1);
+					abortController.setValue(0);
+				}
 			} catch (SicsException e) {
 				// TODO Auto-generated catch block
 				throw new KoalaServerException("failed to abort collection: " + e.getMessage());

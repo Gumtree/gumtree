@@ -43,7 +43,17 @@ public class KoalaMainViewer extends Composite {
 		
 		loadPref();
 
-		mainPart.showProposalPanel();
+		boolean isJoeyMode = false;
+		try {
+			isJoeyMode = Boolean.valueOf(Activator.getPreference(Activator.NAME_JOEY_MODE));
+		} catch (Exception e) {
+		}
+		if (isJoeyMode) {
+			mainPart.showJoeyPanel();
+			mainPart.setJoeyMode(true);
+		} else {
+			mainPart.showProposalPanel();
+		}
 	
 	}
 
