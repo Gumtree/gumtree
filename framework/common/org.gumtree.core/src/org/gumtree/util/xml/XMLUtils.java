@@ -3,6 +3,8 @@ package org.gumtree.util.xml;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -143,6 +145,11 @@ public class XMLUtils {
 			public void clear() {
 				throw new UnsupportedOperationException();
 			}
+			
+			@Override
+		    public Spliterator<Node> spliterator() {
+		    	return (Spliterator<Node>) Spliterators.spliterator(this, Spliterator.ORDERED);
+		    }
 		};
 	}
 

@@ -17,6 +17,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
 
 /**
  * Property list is an list with change notification support. This list is
@@ -203,5 +205,9 @@ public class PropertyList<E> implements List<E> {
     protected List<E> getStorage() {
     	return storage;
     }
-    
+
+    @Override
+    public Spliterator<E> spliterator() {
+    	return (Spliterator<E>) Spliterators.spliterator(this, Spliterator.ORDERED);
+    }
 }
