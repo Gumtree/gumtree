@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2008 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.interceptors;
 
-import com.google.gson.InstanceCreator;
+package com.google.gson.internal;
 
 /**
- * This interface is implemented by a class that wishes to inspect or modify an object
- * after it has been deserialized. You must define a no-args constructor or register an
- * {@link InstanceCreator} for such a class.
+ * Defines a generic object construction factory.  The purpose of this class
+ * is to construct a default instance of a class that can be used for object
+ * navigation while deserialization from its JSON representation.
  *
  * @author Inderjeet Singh
+ * @author Joel Leitch
  */
-public interface JsonPostDeserializer<T> {
+public interface ObjectConstructor<T> {
 
   /**
-   * This method is called by Gson after the object has been deserialized from Json.
+   * Returns a new instance.
    */
-  public void postDeserialize(T object);
+  public T construct();
 }
