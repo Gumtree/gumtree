@@ -47,22 +47,26 @@ public class PropertyList<E> implements List<E> {
 		return propertyName;
 	}
 	
+	@Override
 	public void clear() {
 		storage.clear();
 		modelObject.firePropertyChange(propertyName, null, null);
 	}
 
+	@Override
 	public boolean add(E e) {
 		boolean result = storage.add(e);
 		modelObject.firePropertyChange(propertyName, null, e);
 		return result;
 	}
 
+	@Override
 	public void add(int index, E element) {
 		storage.add(index, element);
 		modelObject.firePropertyChange(propertyName, null, element);
 	}
 
+	@Override
 	public boolean addAll(int index, Collection<? extends E> c) {
 		boolean result = storage.addAll(index, c);
 		if (result) {
@@ -71,6 +75,7 @@ public class PropertyList<E> implements List<E> {
 		return result;
 	}
 
+	@Override
 	public boolean addAll(Collection<? extends E> c) {
 		// Optimisation
 		if (storage instanceof AbstractCollection<?>) {
@@ -82,12 +87,14 @@ public class PropertyList<E> implements List<E> {
 		}
 	}
 
+	@Override
 	public E remove(int index) {
 		E result = storage.remove(index);
 		modelObject.firePropertyChange(propertyName, result, null);
 		return result;
 	}
 
+	@Override
 	public boolean removeAll(Collection<?> c) {
 		// Optimisation
 		if (storage instanceof AbstractCollection<?>) {
@@ -99,6 +106,7 @@ public class PropertyList<E> implements List<E> {
 		}
 	}
 	
+	@Override
 	public boolean remove(Object o) {
 		boolean result = storage.remove(o);
 		if (result) {
@@ -107,64 +115,79 @@ public class PropertyList<E> implements List<E> {
 		return result;
 	}
 
+	@Override
 	public E set(int index, E element) {
 		E result = storage.set(index, element);
 		modelObject.firePropertyChange(propertyName, result, element);
 		return result;
 	}
 
+	@Override
 	public boolean contains(Object o) {
 		return storage.contains(o);
 	}
 
+	@Override
 	public boolean containsAll(Collection<?> c) {
 		return storage.containsAll(c);
 	}
 
+	@Override
 	public E get(int index) {
 		return storage.get(index);
 	}
 
+	@Override
 	public int indexOf(Object o) {
 		return storage.indexOf(o);
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return storage.isEmpty();
 	}
 
+	@Override
 	public Iterator<E> iterator() {
 		return storage.iterator();
 	}
 
+	@Override
 	public int lastIndexOf(Object o) {
 		return storage.lastIndexOf(o);
 	}
 
+	@Override
 	public ListIterator<E> listIterator() {
 		return storage.listIterator();
 	}
 
+	@Override
 	public ListIterator<E> listIterator(int index) {
 		return storage.listIterator();
 	}
 
+	@Override
 	public boolean retainAll(Collection<?> c) {
 		return storage.retainAll(c);
 	}
 
+	@Override
 	public int size() {
 		return storage.size();
 	}
 
+	@Override
 	public List<E> subList(int fromIndex, int toIndex) {
 		return storage.subList(fromIndex, toIndex);
 	}
 
+	@Override
 	public Object[] toArray() {
 		return storage.toArray();
 	}
 
+	@Override
 	public <T> T[] toArray(T[] a) {
 		return storage.toArray(a);
 	}
@@ -172,7 +195,7 @@ public class PropertyList<E> implements List<E> {
 	// This swap method will only notify the structural change once
 	// Uses this method instead of Collectiions.swap() to avoid unnecessary
 	// property change calls from the set() method
-    public void swap(int i, int j) {
+	public void swap(int i, int j) {
     	storage.set(i, storage.set(j, get(i)));
     	modelObject.firePropertyChange(propertyName, null, null);
     }
