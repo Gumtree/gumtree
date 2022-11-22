@@ -10,6 +10,10 @@ package org.csstudio.swt.xygraph.dataprovider;
 import java.util.AbstractCollection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
+
+import org.w3c.dom.Node;
 
 /**A particular circular buffer. New arrived data will be appended to the tail of the buffer. 
  * When buffer is full, the oldest data will be deleted when new data arrived. 
@@ -145,6 +149,10 @@ public class CircularBuffer<T> extends AbstractCollection<T> {
 		return count;
 	}
 	
-	
+	@Override
+    public Spliterator<T> spliterator() {
+    	return (Spliterator<T>) Spliterators.spliterator(this, Spliterator.ORDERED);
+    }
+
 	
 }
