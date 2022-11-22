@@ -2,15 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Jeromq
 Bundle-SymbolicName: org.zeromq.jeromq
-Bundle-Version: 4.1.7.qualifier
-Bundle-Activator: org.zeromq.jeromq.Activator
+Bundle-Version: 5.2.0.qualifier
 Bundle-Vendor: Zeromq
 Require-Bundle: org.eclipse.core.runtime,
  com.neilalexander.jnacl;bundle-version="0.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ActivationPolicy: lazy
 Export-Package: org.zeromq,
- org.zeromq.jeromq,
+ org.zeromq.proto,
+ org.zeromq.timer,
  org.zeromq.util,
  zmq,
  zmq.io,
@@ -35,4 +34,6 @@ Export-Package: org.zeromq,
  zmq.socket.pipeline,
  zmq.socket.pubsub,
  zmq.socket.reqrep,
- zmq.util
+ zmq.util,
+ zmq.util.function
+Bundle-ClassPath: jeromq-0.5.2.jar
