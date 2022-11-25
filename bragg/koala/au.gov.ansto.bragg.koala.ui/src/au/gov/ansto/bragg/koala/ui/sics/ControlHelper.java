@@ -76,9 +76,12 @@ public class ControlHelper {
 	public static final String STEP_PATH = "gumtree.koala.currpoint";
 	public static final String FILENAME_PATH = "gumtree.koala.filename";
 	public static final String PHASE_PATH = "gumtree.koala.phase";
-	public static final String IMAGE_STATE_PATH = "gumtree.path.imagestate";
+	public static final String IMAGE_STATE_PATH = "gumtree.path.imageState";
+	public static final String IMAGE_ERROR_PATH = "gumtree.path.imageError";
 	public static final String EXPOSURE_TIME_PATH = "gumtree.path.exposuretime";
 	public static final String ABORT_COLLECTION_PATH = "gumtree.path.abortCollection";
+	public static final String TIFF_STATE_PATH = "gumtree.path.tiffStatus";
+	public static final String TIFF_ERROR_PATH = "gumtree.path.tiffError";
 	public static final String GUMTREE_STATUS_PATH = "gumtree.path.gumtreestatus";
 	public static final String GUMTREE_TIME_PATH = "gumtree.path.gumtreetime";
 	public static final String GUMTREE_SAMPLE_NAME = "gumtree.koala.samplename";

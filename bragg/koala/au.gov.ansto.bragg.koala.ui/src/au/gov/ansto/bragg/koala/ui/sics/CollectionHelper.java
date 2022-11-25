@@ -24,6 +24,7 @@ public class CollectionHelper {
 	
 	private static final int START_TIMEOUT = 50000;
 	private static final int COLLECTION_TIMEOUT = 60000;
+	private static final int TIFFSAVE_TIMEOUT = 30000;
 	private static final int CHECK_CYCLE = 50;
 	private static final int READ_TIME = 240;
 	private static final int ERASE_TIME = 60;
@@ -36,10 +37,14 @@ public class CollectionHelper {
 	private boolean isStarted;
 	private boolean initialised;
 	private IDynamicController stateController;
+	private IDynamicController errorController;
+	private IDynamicController tiffStatusController;
+	private IDynamicController tiffErrorController;
 //	private IDynamicController gumtreeStatusController;
 //	private IDynamicController gumtreeTimeController;
 	private List<ICollectionListener> listeners;
 	private static CollectionHelper instance;
+	private String errorMessage;
 	
 	public enum ImageState {
 		IDLE,
@@ -58,6 +63,12 @@ public class CollectionHelper {
 		SHUTTER_CLOSE_END,
 		ERROR
 	};
+	
+	public enum TiffStatus{
+		IDLE,
+		BUSY,
+		FAIL
+	}
 	
 	protected CollectionHelper() {
 //		controlHelper = ControlHelper.getInstance();
@@ -86,11 +97,18 @@ public class CollectionHelper {
 		
 		stateController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
 				System.getProperty(ControlHelper.IMAGE_STATE_PATH));
+		errorController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+				System.getProperty(ControlHelper.IMAGE_ERROR_PATH));
+		
 		try {
 			setState(stateController.getValue().toString().toUpperCase());
 		} catch (SicsModelException e) {
 			e.printStackTrace();
 		}
+		tiffStatusController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+				System.getProperty(ControlHelper.TIFF_STATE_PATH));
+		tiffErrorController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+				System.getProperty(ControlHelper.TIFF_ERROR_PATH));
 		
 		stateController.addControllerListener(new ISicsControllerListener() {
 			
@@ -141,12 +159,24 @@ public class CollectionHelper {
 			break;
 		case IDLE:
 			if (isBusy) {
+				try {
+					waitForTiff();
+					setCollectionPhase(InstrumentPhase.IDLE, -1);
+				} catch (KoalaServerException e) {
+					this.phase = InstrumentPhase.ERROR;
+					this.errorMessage = e.getMessage();
+					setCollectionPhase(InstrumentPhase.ERROR, -1);
+				}
 				isBusy = false;
 			}
-			setCollectionPhase(InstrumentPhase.IDLE, -1);
 			break;
 		case ERROR:
 			this.phase = InstrumentPhase.ERROR;
+			try {
+				this.errorMessage = errorController.getValue().toString();
+			} catch (SicsModelException e) {
+				this.errorMessage = e.getMessage();
+			}
 			if (isBusy) {
 				isBusy = false;
 			}
@@ -155,6 +185,33 @@ public class CollectionHelper {
 		default:
 			break;
 		}
+	}
+	
+	private void waitForTiff() throws KoalaServerException {
+		int ct = 0;
+		while (ct <= COLLECTION_TIMEOUT) {
+			try {
+				String tiffStatus = tiffStatusController.getValue().toString();
+				if (TiffStatus.IDLE.name().equalsIgnoreCase(tiffStatus)) {
+					break;
+				} else if (TiffStatus.FAIL.name().equalsIgnoreCase(tiffStatus)) {
+					String errorMsg = tiffErrorController.getValue().toString();
+					throw new KoalaServerException(errorMsg);
+				}
+			} catch (Exception e) {
+				throw new KoalaServerException("save_tiff status node not exist, please check SICS model");
+			}
+			try {
+				Thread.sleep(CHECK_CYCLE);
+				ct += CHECK_CYCLE;
+			} catch (Exception e) {
+				throw new KoalaServerException("waiting interrupted");
+			}
+		}
+		if (ct >= COLLECTION_TIMEOUT) {
+			throw new KoalaServerException("timeout in saving TIFF file");
+		}
+		isBusy = false;		
 	}
 	
 	public void addCollectionListener(ICollectionListener listener) {
@@ -207,6 +264,7 @@ public class CollectionHelper {
 		}
 		logger.warn(String.format("start collecting for {} seconds", exposure));
 		this.exposure = exposure;
+		this.errorMessage = null;
 		try {
 			isStarted = false;
 			isBusy = true;
@@ -244,7 +302,7 @@ public class CollectionHelper {
 						exposure + READ_TIME + ERASE_TIME + COLLECTION_TIMEOUT / 1000));
 			} 
 			if (InstrumentPhase.ERROR.equals(phase)) {
-				handleError("error in collection");
+				handleError("error in collection: " + this.errorMessage != null ? this.errorMessage : "unknown");
 			}
 			if (ControlHelper.getProxy().isInterrupted()) {
 				throw new KoalaInterruptionException("Experiment aborted.");
