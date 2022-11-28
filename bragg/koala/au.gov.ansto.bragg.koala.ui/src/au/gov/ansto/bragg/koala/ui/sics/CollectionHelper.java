@@ -134,7 +134,7 @@ public class CollectionHelper {
 	
 	private void setState(final String stateValue) {
 		System.err.println(stateValue);
-		ImageState phase = ImageState.ERROR;
+		ImageState phase = ImageState.IDLE;
 		try {
 			phase = ImageState.valueOf(stateValue);
 		} catch (Exception e) {
@@ -164,10 +164,13 @@ public class CollectionHelper {
 					setCollectionPhase(InstrumentPhase.IDLE, -1);
 				} catch (KoalaServerException e) {
 					this.phase = InstrumentPhase.ERROR;
-					this.errorMessage = e.getMessage();
+					this.errorMessage = "error in waiting for TIFF creation, " + e.getMessage();
 					setCollectionPhase(InstrumentPhase.ERROR, -1);
 				}
 				isBusy = false;
+			} else {
+				this.errorMessage = null;
+				setCollectionPhase(InstrumentPhase.IDLE, -1);
 			}
 			break;
 		case ERROR:

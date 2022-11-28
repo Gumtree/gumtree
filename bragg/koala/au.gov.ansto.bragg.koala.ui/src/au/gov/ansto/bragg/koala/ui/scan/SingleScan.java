@@ -608,6 +608,7 @@ public class SingleScan {
 //			if (tn.startsWith(File.separator)) {
 //				tn = tn.substring(1);
 //			}
+			logger.warn(String.format("copy %s to %s", source, currentFile));
 			Files.copy((new File(source)).toPath(), currentFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			ControlHelper.experimentModel.setLastFilename(currentFile.getAbsolutePath());
 			System.err.println(source);

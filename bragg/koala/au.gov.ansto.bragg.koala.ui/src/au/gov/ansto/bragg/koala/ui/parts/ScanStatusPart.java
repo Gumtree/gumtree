@@ -16,7 +16,6 @@ import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsControllerAdapter;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
-import org.gumtree.control.imp.DynamicController;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.JobRunner;
 import org.slf4j.Logger;

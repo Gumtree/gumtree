@@ -500,6 +500,16 @@ public class InitScanPanel extends AbstractControlPanel {
 					@Override
 					public void run() {
 						lastFileText.setText(filename);
+						File f = new File(filename);
+						if (f.exists()) {
+							try {
+								Desktop.getDesktop().open(f);
+							} catch (IOException e1) {
+								handleError("Failed to open file in image viewer: " + filename);
+							}
+						} else {
+							handleError("File not found: " + filename);
+						}
 					}
 				});
 			}
