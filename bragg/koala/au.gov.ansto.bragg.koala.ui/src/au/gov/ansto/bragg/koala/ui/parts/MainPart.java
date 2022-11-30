@@ -136,14 +136,18 @@ public class MainPart extends Composite {
 		} else {
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 
+				private boolean isEnabled = true;
+				
 				@Override
 				public void connect() {
-					final IDynamicController fnController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
-							System.getProperty(ControlHelper.FILENAME_PATH));
+					if (isEnabled) {
+						final IDynamicController fnController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+								System.getProperty(ControlHelper.FILENAME_PATH));
 
-					if (fnController != null) {
-						fnController.addControllerListener(new FilenameControllerListener());
-//						control.removeProxyListener(this);
+						if (fnController != null) {
+							fnController.addControllerListener(new FilenameControllerListener());
+							isEnabled = false;
+						}
 					}
 
 				}
