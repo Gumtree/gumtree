@@ -79,6 +79,7 @@ public class LoginHandler extends SicsProxyListenerAdapter implements ILoginHand
 						new LoginProgressMonitorDialog(shell).runDialog(context);
 						successed = true;
 					} catch (Exception e) {
+						e.printStackTrace();
 						dialog.setInitialErrorMessage(e.getMessage());
 					}
 				}
