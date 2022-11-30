@@ -33,6 +33,7 @@ public class ExperimentModel {
 	private String proposalFolder;
 	private String lastFilename;
 	private String errorMessage;
+	private SingleScan currentScan;
 	private ControlHelper controlHelper;
 	private UserControl control;
 //	private InstrumentPhase instrumentPhase;
@@ -194,6 +195,17 @@ public class ExperimentModel {
 		modelListeners.remove(listener);
 	}
 	
+	/**
+	 * @return the currentScan
+	 */
+	public SingleScan getCurrentScan() {
+		return currentScan;
+	}
+
+	public void setCurrentScan(SingleScan currentScan) {
+		this.currentScan = currentScan;
+	}
+
 	class UserControl {
 		
 		private ISicsController userController;
@@ -212,6 +224,15 @@ public class ExperimentModel {
 		
 		public void applyChange() throws SicsException {
 			((DynamicController) userController).setValue(username);
+		}
+	}
+
+	public void copyFile(String source) throws KoalaServerException {
+		if (currentScan != null) {
+			currentScan.copyFile(source);
+		} else {
+			SingleScan scan = new SingleScan();
+			scan.copyFile(source);
 		}
 	}
 

@@ -791,6 +791,10 @@ public class InitScanPanel extends AbstractControlPanel {
 		
 	}
 	
+	public SingleScan getInitScan() {
+		return initScan;
+	}
+	
 	@Override
 	public void dispose() {
 		super.dispose();

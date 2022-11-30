@@ -3,6 +3,11 @@
  */
 package au.gov.ansto.bragg.koala.ui.parts;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -10,6 +15,15 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.gumtree.control.core.IDynamicController;
+import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.events.ISicsControllerListener;
+import org.gumtree.control.events.ISicsProxyListener;
+import org.gumtree.control.events.SicsProxyListenerAdapter;
+import org.gumtree.control.exception.SicsModelException;
+import org.gumtree.control.imp.DynamicController;
+import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +33,9 @@ import au.gov.ansto.bragg.koala.ui.scan.ChemistryModel;
 import au.gov.ansto.bragg.koala.ui.scan.ExperimentModel;
 import au.gov.ansto.bragg.koala.ui.scan.ExperimentModelAdapter;
 import au.gov.ansto.bragg.koala.ui.scan.IExperimentModelListener;
+import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
 import au.gov.ansto.bragg.koala.ui.scan.PhysicsModel;
+import au.gov.ansto.bragg.koala.ui.scan.SingleScan;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
 /**
@@ -104,7 +120,40 @@ public class MainPart extends Composite {
 			
 		};
 		experimentModel.addExperimentModelListener(modelListener);
+		
+		addFileMonitor();
 	}
+
+	private void addFileMonitor() {
+		
+		if (control.isConnected()) {
+			final IDynamicController fnController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+					System.getProperty(ControlHelper.FILENAME_PATH));
+			if (fnController != null) {
+				fnController.addControllerListener(new FilenameControllerListener());
+			}
+			
+		} else {
+			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
+
+				@Override
+				public void connect() {
+					final IDynamicController fnController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+							System.getProperty(ControlHelper.FILENAME_PATH));
+
+					if (fnController != null) {
+						fnController.addControllerListener(new FilenameControllerListener());
+						control.removeProxyListener(this);
+					}
+
+				}
+			};
+
+			control.addProxyListener(proxyListener);
+		}
+	
+	}
+
 
 	private void createPanels() {
 		holder = new ScrolledComposite(this, SWT.NONE);
@@ -318,4 +367,40 @@ public class MainPart extends Composite {
 		super.dispose();
 		experimentModel.removeExperimentModelListener(modelListener);
 	}
+	
+	public SingleScan getInitScan() {
+		return initScanPanel.getInitScan();
+	}
+	
+	class FilenameControllerListener implements ISicsControllerListener {
+
+		private String currentValue;
+		
+		@Override
+		public void updateState(final ControllerState oldState, final ControllerState newState) {
+		}
+		
+		@Override
+		public void updateValue(final Object oldValue, final Object newValue) {
+			if (newValue != null && !newValue.toString().equals(currentValue)) {
+				currentValue = newValue.toString();
+				try {
+					if (currentValue != null && currentValue.trim().length() > 0) {
+						experimentModel.copyFile(currentValue);
+					}
+				} catch (KoalaServerException e) {
+					popupError(e.getMessage());
+				}
+			}
+		}
+		
+		@Override
+		public void updateEnabled(boolean isEnabled) {
+		}
+
+		@Override
+		public void updateTarget(final Object oldValue, final Object newValue) {
+		}
+	}
+
 }

@@ -529,7 +529,7 @@ public class SingleScan {
 		startTimeMilSec = System.currentTimeMillis();
 		logger.warn("start " + toString());
 		try {
-			resetCurrentFile();
+			ControlHelper.experimentModel.setCurrentScan(this);
 			evaluatePauseStatus();
 			if (!getTarget().isTemperature()) {
 				if (!Float.isNaN(getTemp())) {
@@ -588,16 +588,17 @@ public class SingleScan {
 		ControlHelper.publishGumtreeStatus("Scan - image collection cycle");
 		ControlHelper.syncCollect(getExposure());
 		ControlHelper.publishGumtreeStatus("Scan - image collection finished");
-		copyFile();
+//		copyFile();
 		evaluatePauseStatus();
 	}
 	
-	private void copyFile() throws KoalaServerException {
-		ISicsController fnController = SicsManager.getSicsModel().findControllerByPath(
-				System.getProperty(ControlHelper.FILENAME_PATH));
+	public void copyFile(final String filename) throws KoalaServerException {
+//		ISicsController fnController = SicsManager.getSicsModel().findControllerByPath(
+//				System.getProperty(ControlHelper.FILENAME_PATH));
+		resetCurrentFile();
 		try {
-			String source = String.valueOf(((IDynamicController) fnController).getValue());
-			source = source.replaceAll("/", "\\\\");
+//			String source = String.valueOf(((IDynamicController) fnController).getValue());
+			String source = filename.replaceAll("/", "\\\\");
 			if (source.contains(File.separator)) {
 				source = System.getProperty(SOURCE_FOLDER) + source.substring(source.lastIndexOf(File.separator));
 			} else {
@@ -614,9 +615,6 @@ public class SingleScan {
 			System.err.println(source);
 			System.err.println(currentFile.toString());
 			fileIndex++;
-			resetCurrentFile();
-		} catch (SicsModelException e) {
-			throw new KoalaServerException("failed to get filename from SICS", e);
 		} catch (IOException e) {
 			throw new KoalaServerException("failed to copy file to proposal folder", e);
 		} catch (Exception e) {
