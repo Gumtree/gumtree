@@ -133,7 +133,6 @@ public class CollectionHelper {
 	}
 	
 	private void setState(final String stateValue) {
-		System.err.println(stateValue);
 		ImageState phase = ImageState.IDLE;
 		try {
 			phase = ImageState.valueOf(stateValue);

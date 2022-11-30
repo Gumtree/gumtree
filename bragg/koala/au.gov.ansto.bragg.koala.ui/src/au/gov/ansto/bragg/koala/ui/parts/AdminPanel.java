@@ -14,6 +14,7 @@ import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.ui.ControlTerminalView;
 import org.gumtree.control.ui.viewer.ControlViewer;
 
+import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.nbi.ui.realtime.control.ControlRealtimeDataViewer;
 import au.gov.ansto.bragg.nbi.ui.widgets.SicsRealtimeDataViewer;
@@ -24,9 +25,14 @@ import au.gov.ansto.bragg.nbi.ui.widgets.SicsRealtimeDataViewer;
  */
 public class AdminPanel extends AbstractPanel {
 
-	private static final int WIDTH_HINT = 1560;
-	private static final int HEIGHT_HINT = 720;
+	private static final int WIDTH_HINT = 2200;
+	private static final int HEIGHT_HINT = 1080;
+	private static final int WIDTH_HINT_SMALL = 1560;
+	private static final int HEIGHT_HINT_SMALL = 720;
+
 	private MainPart mainPart;
+	private int panelWidth;
+	private int panelHeight;
 	private ControlViewer controlViewer;
 
 	/**
@@ -36,8 +42,15 @@ public class AdminPanel extends AbstractPanel {
 	public AdminPanel(Composite parent, int style, MainPart part) {
 		super(parent, style);
 		mainPart = part;
+		if (Activator.getMonitorWidth() < 2500) {
+			panelWidth = WIDTH_HINT_SMALL;
+			panelHeight = HEIGHT_HINT_SMALL;
+		} else {
+			panelWidth = WIDTH_HINT;
+			panelHeight = HEIGHT_HINT;			
+		}
 		GridLayoutFactory.fillDefaults().margins(1, 1).applyTo(this);
-		GridDataFactory.swtDefaults().minSize(1200, 800).align(SWT.FILL, SWT.FILL).applyTo(this);
+		GridDataFactory.swtDefaults().minSize(panelWidth, panelHeight).align(SWT.FILL, SWT.FILL).applyTo(this);
 		
 		SashForm level1Form = new SashForm(this, SWT.HORIZONTAL);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(level1Form);
@@ -112,7 +125,7 @@ public class AdminPanel extends AbstractPanel {
 
 	@Override
 	public void show() {
-		mainPart.showPanel(this, WIDTH_HINT, HEIGHT_HINT);
+		mainPart.showPanel(this, panelWidth, panelHeight);
 		mainPart.enableBackButton();
 		mainPart.disableNextButton();
 		mainPart.setTitle("Administration Page");

@@ -143,7 +143,7 @@ public class MainPart extends Composite {
 
 					if (fnController != null) {
 						fnController.addControllerListener(new FilenameControllerListener());
-						control.removeProxyListener(this);
+//						control.removeProxyListener(this);
 					}
 
 				}
