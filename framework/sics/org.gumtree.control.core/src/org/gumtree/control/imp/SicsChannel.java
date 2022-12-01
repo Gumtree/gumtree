@@ -39,7 +39,7 @@ public class SicsChannel implements ISicsChannel {
 	
 	public static final String JSON_VALUE_ERROR = "ERROR";
 	public static final String JSON_VALUE_OK = "OK";
-	private static final String POCH_COMMAND = "Poch";
+	private static final String POCH_COMMAND = "sics_version";
 	
 	private static final int COMMAND_WAIT_TIME = 1;
 	private static final int COMMAND_TIMEOUT = 5000;

@@ -26,6 +26,7 @@ public class CollectionHelper {
 	private static final int COLLECTION_TIMEOUT = 60000;
 	private static final int TIFFSAVE_TIMEOUT = 30000;
 	private static final int CHECK_CYCLE = 50;
+	private static final int FAIL_RETRY = 3;
 	private static final int READ_TIME = 240;
 	private static final int ERASE_TIME = 60;
 	
@@ -159,7 +160,7 @@ public class CollectionHelper {
 		case IDLE:
 			if (isBusy) {
 				try {
-					waitForTiff();
+					waitForTiff(FAIL_RETRY);
 					setCollectionPhase(InstrumentPhase.IDLE, -1);
 				} catch (KoalaServerException e) {
 					this.phase = InstrumentPhase.ERROR;
@@ -189,16 +190,29 @@ public class CollectionHelper {
 		}
 	}
 	
-	private void waitForTiff() throws KoalaServerException {
+	private void waitForTiff(int retry) throws KoalaServerException {
 		int ct = 0;
-		while (ct <= COLLECTION_TIMEOUT) {
+		while (ct <= TIFFSAVE_TIMEOUT) {
 			try {
 				String tiffStatus = tiffStatusController.getValue().toString();
 				if (TiffStatus.IDLE.name().equalsIgnoreCase(tiffStatus)) {
 					break;
 				} else if (TiffStatus.FAIL.name().equalsIgnoreCase(tiffStatus)) {
-					String errorMsg = tiffErrorController.getValue().toString();
-					throw new KoalaServerException(errorMsg);
+					if (retry > 0) {
+						ControlHelper.getProxy().asyncRun("hset /instrument/save_tiff/commands/save 1", null);
+						try {
+							Thread.sleep(CHECK_CYCLE);
+						} catch (Exception e) {
+							throw new KoalaServerException("waiting interrupted");
+						}
+						tiffStatusController.refreshValue();
+						waitForTiff(retry - 1);
+					} else {
+						String errorMsg = String.format("failed to save TIFF file in %d retries: %s", 
+								FAIL_RETRY,
+								tiffErrorController.getValue());
+						throw new KoalaServerException(errorMsg);
+					}
 				}
 			} catch (Exception e) {
 				throw new KoalaServerException("save_tiff status node not exist, please check SICS model");
