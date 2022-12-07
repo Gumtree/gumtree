@@ -1,11 +1,25 @@
 package au.gov.ansto.bragg.koala.webserver;
 
+import javax.imageio.spi.IIORegistry;
+import javax.imageio.spi.ImageReaderSpi;
+import javax.imageio.spi.ImageWriterSpi;
+
+import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.gumtree.util.eclipse.EclipseUtils;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
+import com.github.jaiimageio.impl.plugins.tiff.TIFFImageReaderSpi;
+import com.github.jaiimageio.impl.plugins.tiff.TIFFImageWriterSpi;
+
 public class Activator implements BundleActivator {
 
+	public static final String PLUGIN_ID = "au.gov.ansto.bragg.koala.webserver";
+
 	private static BundleContext context;
+	private static Activator instance;
+	private IEclipseContext eclipseContext;
+	
 
 	static BundleContext getContext() {
 		return context;
@@ -17,6 +31,11 @@ public class Activator implements BundleActivator {
 	 */
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
+		instance = this;
+		IIORegistry.getDefaultInstance().registerServiceProvider(
+	             new TIFFImageReaderSpi(), ImageReaderSpi.class);
+		IIORegistry.getDefaultInstance().registerServiceProvider(
+	             new TIFFImageWriterSpi(), ImageWriterSpi.class);
 	}
 
 	/*
@@ -24,7 +43,23 @@ public class Activator implements BundleActivator {
 	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
 	public void stop(BundleContext bundleContext) throws Exception {
+		if (eclipseContext != null) {
+			eclipseContext.dispose();
+			eclipseContext = null;
+		}
+		instance = null;
 		Activator.context = null;
+	}
+
+	public IEclipseContext getEclipseContext() {
+		if (eclipseContext == null) {
+			eclipseContext = EclipseUtils.createEclipseContext(context.getBundle());
+		}
+		return eclipseContext;
+	}
+	
+	public static Activator getDefault() {
+		return instance;
 	}
 
 }

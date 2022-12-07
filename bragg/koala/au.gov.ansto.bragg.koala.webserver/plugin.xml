@@ -2,6 +2,44 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
+         id="koalaHttpcontext"
+         point="org.eclipse.equinox.http.registry.httpcontexts">
+      <httpcontext
+            id="koala">
+         <resource-mapping
+               path="/kaola/rest">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="koalaStatus">
+         <resource-mapping
+               path="/status/koala/rest">
+         </resource-mapping>
+      </httpcontext>
+   </extension>
+   <extension
+         id="koalaRestlet"
+         point="org.eclipse.equinox.http.registry.servlets">
+      <servlet
+            alias="/koala/rest"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="koala">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.koala.webserver.restlet.KoalaRestletApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/status/koala/rest"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="koalaStatus">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.koala.webserver.restlet.KoalaRestletApplication">
+         </init-param>
+      </servlet>
+   </extension>
+   <extension
          point="org.eclipse.equinox.http.registry.resources">
       <resource
             alias="/status"

@@ -76,7 +76,8 @@ enum ScanTarget {
 public class SingleScan {
 
 	private static final String SOURCE_FOLDER = "sics.data.path";
-	public static final String DATA_FILENAME = "data.tif";
+	private static final String SERVER_FOLDER = "gumtree.server.dataPath";
+	public static final String DATA_FILENAME = "gumtree.server.dataName";
 	private final static int PAUSE_CHECK_INTERVAL = 20;
 	private final static float DEVICE_VALUE_TOLERANCE = 0.00001f;
 	private final static Logger logger = LoggerFactory.getLogger(SingleScan.class);
@@ -99,7 +100,7 @@ public class SingleScan {
 	private float chi = Float.NaN;
 	private String status;
 	private String comments;
-	private String filename = DATA_FILENAME;
+	private String filename = System.getProperty(DATA_FILENAME, "data.tif");
 	private PropertyChangeSupport changeListener = new PropertyChangeSupport(this);
 	private InputType inputLast;
 	private InputType input2nd;
@@ -612,9 +613,14 @@ public class SingleScan {
 			logger.warn(String.format("copy %s to %s", source, currentFile));
 			Files.copy((new File(source)).toPath(), currentFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			ControlHelper.experimentModel.setLastFilename(currentFile.getAbsolutePath());
-			System.err.println(source);
-			System.err.println(currentFile.toString());
 			fileIndex++;
+//			System.err.println(source);
+//			System.err.println(currentFile.toString());
+			File serverFolder = new File(System.getProperty(SERVER_FOLDER));
+			if (serverFolder.exists()) {
+				File cp = new File(serverFolder + "/" + System.getProperty(DATA_FILENAME, "data.tif"));
+				Files.copy((new File(source)).toPath(), cp.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			}
 		} catch (IOException e) {
 			throw new KoalaServerException("failed to copy file to proposal folder", e);
 		} catch (Exception e) {
