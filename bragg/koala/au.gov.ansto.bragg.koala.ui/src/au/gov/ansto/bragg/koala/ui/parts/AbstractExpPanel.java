@@ -204,7 +204,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		});
 		
 		final Label phiLabel = new Label(statusPart, SWT.NONE);
-		phiLabel.setText("Phi value");
+		phiLabel.setText(Activator.PHI + " value");
 		phiLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(phiLabel);
 		

@@ -17,13 +17,13 @@ public class ChemistryModel extends AbstractScanModel {
 	private static final String[] COLUMN_TITLE = {
 			"", 
 			"", 
-			"Start", 
+			Activator.PHI + " Start", 
 			"Incr", 
 			"Num", 
 			"Final",
 			"Expose",
 			"Temp",
-			"Chi",
+			Activator.CHI + " Value",
 			"Filename",
 			"Status",
 			"Comments"

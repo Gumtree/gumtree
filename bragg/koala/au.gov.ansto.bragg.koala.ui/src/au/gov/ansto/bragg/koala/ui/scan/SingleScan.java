@@ -16,6 +16,7 @@ import org.gumtree.control.exception.SicsModelException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
 enum ScanTarget {
@@ -24,7 +25,7 @@ enum ScanTarget {
 	TEMP_LOOP,
 	TEMP_POINTS;
 	
-	static String[] texts = {"PHI loop", "PHI points", "TEMP loop", "TEMP points"};
+	static String[] texts = {Activator.PHI + " loop", Activator.PHI + " points", " t loop", " t points"};
 
 	public String getText() {
 		switch (this) {

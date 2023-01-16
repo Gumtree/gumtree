@@ -24,6 +24,7 @@ import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
 import org.gumtree.util.messaging.IDelayEventExecutor;
 import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 
+import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
 import au.gov.ansto.bragg.nbi.workbench.ReactorStatusWidget;
 
@@ -94,10 +95,10 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new ControllerStatusWidget(sampleStageGroup, SWT.NONE);
 		deviceStatusWidget
 				.addDevice("/sample/sheight", "Sample Height", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
-				.addDevice("/sample/sr", "Sample Phi", null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(3))
-				.addDevice("/sample/schi", "Sample Chi", null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(3))
-				.addDevice("/sample/sx", "Sample X", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
-				.addDevice("/sample/sy", "Sample Y", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/sr", "Sample " + Activator.PHI, null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/schi", "Sample " + Activator.CHI, null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/sx", "sx", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/sy", "sy", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
 				;
 		configureWidget(deviceStatusWidget);
 		deviceStatusWidget.render();

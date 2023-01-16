@@ -99,7 +99,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		envItem.setControl(envPanel);
 		
 		final TabItem phiItem = new TabItem(tabFolder, SWT.NULL);
-		phiItem.setText("Phi Setup    ");
+		phiItem.setText("Place Crystal ");
 		phiItem.setImage(KoalaImage.PHI64.getImage());
 		
 		final Composite interBlock = new Composite(tabFolder, SWT.NONE);
@@ -116,7 +116,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		GridDataFactory.fillDefaults().span(3, 1).grab(true, false).applyTo(phiStatusLabel);
 		
 		final Label curLabel = new Label(phiBlock, SWT.NONE);
-		curLabel.setText("Current phi value (\u00b0)");
+		curLabel.setText("Current " + Activator.PHI + " (\u00b0)");
 		curLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(320, 40).applyTo(curLabel);
 		
@@ -132,7 +132,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		GridDataFactory.swtDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).span(1, 3).hint(240, 64).applyTo(driveButton);
 
 		final Label tarLabel = new Label(phiBlock, SWT.NONE);
-		tarLabel.setText("Target phi value (\u00b0)");
+		tarLabel.setText("Target " + Activator.PHI +" (\u00b0)");
 		tarLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(320, 40).applyTo(tarLabel);
 		
@@ -171,7 +171,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		GridLayoutFactory.swtDefaults().applyTo(oriBlock);
 		
 		final Group innerBlock = new Group(oriBlock, SWT.NULL);
-		innerBlock.setText("Chi position");
+		innerBlock.setText(Activator.CHI + " position");
 		innerBlock.setFont(Activator.getMiddleFont());
 		GridLayoutFactory.fillDefaults().numColumns(2).margins(16, 16).spacing(4, 20).applyTo(innerBlock);
 		innerBlock.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));

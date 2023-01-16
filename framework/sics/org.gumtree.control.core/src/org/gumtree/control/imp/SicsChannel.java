@@ -28,6 +28,13 @@ import org.zeromq.ZMQException;
  */
 public class SicsChannel implements ISicsChannel {
 	
+	public enum CommandType {
+		sics,
+		tcl,
+		POCH,
+		INT1712
+	}
+	
 	public static final String JSON_KEY_STATUS = "status";
 	public static final String JSON_KEY_ERROR = "error";
 	public static final String JSON_KEY_FLAG = "flag";
@@ -39,7 +46,7 @@ public class SicsChannel implements ISicsChannel {
 	
 	public static final String JSON_VALUE_ERROR = "ERROR";
 	public static final String JSON_VALUE_OK = "OK";
-	private static final String POCH_COMMAND = "sics_version";
+	private static final String POCH_COMMAND = "POCH";
 	
 	private static final int COMMAND_WAIT_TIME = 1;
 	private static final int COMMAND_TIMEOUT = 5000;
@@ -151,7 +158,7 @@ public class SicsChannel implements ISicsChannel {
 		SicsCommand sicsCommand = new SicsCommand(pochId, POCH_COMMAND, null);
 		commandMap.put(pochId, sicsCommand);
 		try {
-			sicsCommand.syncRun();
+			sicsCommand.syncRun(POCH_COMMAND);
 		} catch(SicsCommunicationException e) {
 			throw e;
 		} catch (Exception e) {
@@ -281,10 +288,14 @@ public class SicsChannel implements ISicsChannel {
 		}
 		
 		String syncRun() throws SicsException {
+			return syncRun("sics");
+		}
+		
+		String syncRun(String type) throws SicsException {
 			isStarted = false;
 			JSONObject jcom = new JSONObject();
 			try {
-				jcom.put(JSON_KEY_TYPE, "sics");
+				jcom.put(JSON_KEY_TYPE, type);
 				jcom.put(JSON_KEY_CID, cid);
 				jcom.put(JSON_KEY_COMMAND, command);
 			} catch (JSONException e1) {

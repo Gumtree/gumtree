@@ -220,7 +220,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(leftMain);
 		
 		final Group phiGroup = new Group(leftMain, SWT.SHADOW_ETCHED_OUT);
-		phiGroup.setText("Phi Setup");
+		phiGroup.setText(Activator.PHI + " Setup");
 		GridLayoutFactory.fillDefaults().numColumns(2).margins(8, 8).applyTo(phiGroup);
 		GridDataFactory.fillDefaults().grab(true, true).minSize(480, SWT.DEFAULT).applyTo(phiGroup);
 		
@@ -255,7 +255,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(numText);
 
 		final Label finalLabel = new Label(phiGroup, SWT.NONE);
-		finalLabel.setText("Final phi");
+		finalLabel.setText("Final " + Activator.PHI);
 		finalLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(finalLabel);
 		
@@ -384,7 +384,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		GridDataFactory.fillDefaults().grab(true, true).minSize(480, SWT.DEFAULT).applyTo(condGroup);
 		
 		final Label phiLabel = new Label(condGroup, SWT.NONE);
-		phiLabel.setText("Phi (\u00b0)");
+		phiLabel.setText(Activator.PHI + " (\u00b0)");
 		phiLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(phiLabel);
 		
@@ -394,7 +394,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		GridDataFactory.fillDefaults().grab(false, false).minSize(300, 40).hint(300, SWT.DEFAULT).applyTo(phiText);
 		
 		final Label chiLabel = new Label(condGroup, SWT.NONE);
-		chiLabel.setText("Chi (\u00b0)");
+		chiLabel.setText(Activator.CHI + " (\u00b0)");
 		chiLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(chiLabel);
 		

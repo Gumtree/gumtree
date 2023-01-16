@@ -71,10 +71,10 @@ public class MjpegViewer extends Composite {
 	private Button alignButton;
 	private Button resetButton;
 	private Button calibButton;
-	private Button phiSButton;
-	private Button phiNButton;
-	private Button phiEButton;
-	private Button phiWButton;
+	private Button phiNWButton;
+	private Button phiNEButton;
+	private Button phiSWButton;
+	private Button phiSEButton;
 	private boolean isAddingMarker;
 	private ControlHelper controlHelper;
 	private IRunnerListener mjpegListener;
@@ -307,93 +307,10 @@ public class MjpegViewer extends Composite {
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.BEGINNING, SWT.CENTER).hint(SWT.DEFAULT, 48).applyTo(ledButton);
 		
 
-		Group phiGroup = new Group(axesControlComposite, SWT.NONE);
-		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(2).applyTo(phiGroup);
-		phiGroup.setText("Phi positions");
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(phiGroup);
-		
-		phiSButton = new Button(phiGroup, SWT.CHECK);
-//		phiSButton.setImage(KoalaImage.PLAY48.getImage());
-		phiSButton.setText("Phi -90\u00b0");
-		phiSButton.setFont(Activator.getMiddleFont());
-		phiSButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.swtDefaults().grab(true, false).align(SWT.BEGINNING, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiSButton);
-		phiSButton.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				logger.info("Phi -90 button clicked");
-				driveSphi(-90f);
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-		
-		phiNButton = new Button(phiGroup, SWT.CHECK);
-//		phiNButton.setImage(KoalaImage.PLAY48.getImage());
-		phiNButton.setText("Phi +90\u00b0");
-		phiNButton.setFont(Activator.getMiddleFont());
-		phiNButton.setCursor(Activator.getHandCursor());
-		phiNButton.setForeground(Activator.getHighlightColor());
-		GridDataFactory.swtDefaults().grab(true, false).align(SWT.END, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiNButton);
-		phiNButton.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				logger.info("Phi 90 button clicked");
-				driveSphi(90f);
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-
-		phiEButton = new Button(phiGroup, SWT.CHECK);
-//		phiEButton.setImage(KoalaImage.PLAY48.getImage());
-		phiEButton.setText("Phi 0\u00b0");
-		phiEButton.setFont(Activator.getMiddleFont());
-		phiEButton.setCursor(Activator.getHandCursor());
-		phiEButton.setForeground(Activator.getLightColor());
-		GridDataFactory.swtDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiEButton);
-		phiEButton.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				logger.info("Phi 0 button clicked");
-				driveSphi(0f);
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-
-		phiWButton = new Button(phiGroup, SWT.CHECK);
-//		phiNButton.setImage(KoalaImage.PLAY48.getImage());
-		phiWButton.setText("Phi -180\u00b0");
-		phiWButton.setFont(Activator.getMiddleFont());
-		phiWButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.swtDefaults().grab(false, false).align(SWT.END, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiWButton);
-		phiWButton.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				logger.info("Phi -180 button clicked");
-				driveSphi(-180f);
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-
 		Group xGroup = new Group(axesControlComposite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(3).applyTo(xGroup);
 		xGroup.setText("Sample X offset");
-		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).align(SWT.CENTER, SWT.CENTER).applyTo(xGroup);
+		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).align(SWT.FILL, SWT.CENTER).applyTo(xGroup);
 		
 		final Label curLabel = new Label(xGroup, SWT.NONE);
 		curLabel.setText("Current");
@@ -402,7 +319,7 @@ public class MjpegViewer extends Composite {
 		
 		final Text curText = new Text(xGroup, SWT.READ_ONLY);
 		curText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(curText);
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.FILL, SWT.CENTER).hint(100, 40).applyTo(curText);
 		
 		final Button driveButton = new Button(xGroup, SWT.PUSH);
 		driveButton.setImage(KoalaImage.PLAY48.getImage());
@@ -418,7 +335,7 @@ public class MjpegViewer extends Composite {
 		
 		final Text tarText = new Text(xGroup, SWT.BORDER);
 		tarText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(tarText);
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.FILL, SWT.CENTER).hint(100, 40).applyTo(tarText);
 		
 		final Slider slider = new Slider(xGroup, SWT.HORIZONTAL);
 //	    slider.setBounds(0, 0, 40, 200);
@@ -433,7 +350,7 @@ public class MjpegViewer extends Composite {
 		Group yGroup = new Group(axesControlComposite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(3).applyTo(yGroup);
 		yGroup.setText("Sample Y offset");
-		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).align(SWT.CENTER, SWT.CENTER).applyTo(yGroup);
+		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).align(SWT.FILL, SWT.CENTER).applyTo(yGroup);
 		
 		final Label curYLabel = new Label(yGroup, SWT.NONE);
 		curYLabel.setText("Current");
@@ -442,7 +359,7 @@ public class MjpegViewer extends Composite {
 		
 		final Text curYText = new Text(yGroup, SWT.READ_ONLY);
 		curYText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(curYText);
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.FILL, SWT.CENTER).hint(100, 40).applyTo(curYText);
 		
 		final Button driveYButton = new Button(yGroup, SWT.PUSH);
 		driveYButton.setImage(KoalaImage.PLAY48.getImage());
@@ -458,7 +375,7 @@ public class MjpegViewer extends Composite {
 		
 		final Text tarYText = new Text(yGroup, SWT.BORDER);
 		tarYText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(tarYText);
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.FILL, SWT.CENTER).hint(100, 40).applyTo(tarYText);
 		
 		final Slider sliderY = new Slider(yGroup, SWT.HORIZONTAL);
 //	    slider.setBounds(0, 0, 40, 200);
@@ -475,6 +392,89 @@ public class MjpegViewer extends Composite {
 
 		String syPath = System.getProperty(ControlHelper.SY_PATH);
 		new SimpleControlSuite(syPath, curYText, syPath, tarYText, driveYButton, null);
+
+		Group phiGroup = new Group(axesControlComposite, SWT.NONE);
+		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(2).applyTo(phiGroup);
+		phiGroup.setText(Activator.PHI + " positions");
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(phiGroup);
+		
+		phiNWButton = new Button(phiGroup, SWT.CHECK);
+//		phiSButton.setImage(KoalaImage.PLAY48.getImage());
+		phiNWButton.setText(Activator.PHI + " = -45\u00b0");
+		phiNWButton.setFont(Activator.getMiddleFont());
+		phiNWButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.BEGINNING, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiNWButton);
+		phiNWButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				logger.info("Phi -45 button clicked");
+				driveSphi(-45f);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
+		phiNEButton = new Button(phiGroup, SWT.CHECK);
+//		phiNButton.setImage(KoalaImage.PLAY48.getImage());
+		phiNEButton.setText(Activator.PHI + " = +45\u00b0");
+		phiNEButton.setFont(Activator.getMiddleFont());
+		phiNEButton.setCursor(Activator.getHandCursor());
+		phiNEButton.setForeground(Activator.getHighlightColor());
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.END, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiNEButton);
+		phiNEButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				logger.info("Phi +45 button clicked");
+				driveSphi(45f);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
+		phiSWButton = new Button(phiGroup, SWT.CHECK);
+//		phiEButton.setImage(KoalaImage.PLAY48.getImage());
+		phiSWButton.setText(Activator.PHI + " = -135\u00b0");
+		phiSWButton.setFont(Activator.getMiddleFont());
+		phiSWButton.setCursor(Activator.getHandCursor());
+		phiSWButton.setForeground(Activator.getLightColor());
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiSWButton);
+		phiSWButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				logger.info("Phi -135 button clicked");
+				driveSphi(-135f);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
+		phiSEButton = new Button(phiGroup, SWT.CHECK);
+//		phiNButton.setImage(KoalaImage.PLAY48.getImage());
+		phiSEButton.setText(Activator.PHI + " = +135\u00b0");
+		phiSEButton.setFont(Activator.getMiddleFont());
+		phiSEButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.END, SWT.CENTER).span(1, 3).hint(150, 48).applyTo(phiSEButton);
+		phiSEButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				logger.info("Phi +135 button clicked");
+				driveSphi(135f);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 
 		new PhiControlSuite();
 		
@@ -756,14 +756,14 @@ public class MjpegViewer extends Composite {
 								} else {
 									precision = Math.abs(precision);
 								}
-								if (inRange(value, precision, 90)) {
-									chooseRange(phiNButton);
-								} else if (inRange(value, precision, -90)) {
-									chooseRange(phiSButton);
-								} else if (inRange(value, precision, 0)) {
-									chooseRange(phiEButton);
-								} else if (inRange(value, precision, -180)) {
-									chooseRange(phiWButton);
+								if (inRange(value, precision, -45)) {
+									chooseRange(phiNWButton);
+								} else if (inRange(value, precision, 45)) {
+									chooseRange(phiNEButton);
+								} else if (inRange(value, precision, -135)) {
+									chooseRange(phiSWButton);
+								} else if (inRange(value, precision, 135)) {
+									chooseRange(phiSEButton);
 								} else {
 									chooseRange(null);
 								}
@@ -794,10 +794,10 @@ public class MjpegViewer extends Composite {
 			
 			@Override
 			public void run() {
-				phiNButton.setSelection(false);
-				phiSButton.setSelection(false);
-				phiWButton.setSelection(false);
-				phiEButton.setSelection(false);
+				phiNEButton.setSelection(false);
+				phiNWButton.setSelection(false);
+				phiSEButton.setSelection(false);
+				phiSWButton.setSelection(false);
 				if (rangeButton != null) {
 					rangeButton.setSelection(true);
 				}
@@ -820,10 +820,10 @@ public class MjpegViewer extends Composite {
 				@Override
 				public void run() {
 					if (newState == ControllerState.BUSY) {
-						phiNButton.setEnabled(false);
-						phiSButton.setEnabled(false);
-						phiEButton.setEnabled(false);
-						phiWButton.setEnabled(false);
+						phiNEButton.setEnabled(false);
+						phiNWButton.setEnabled(false);
+						phiSWButton.setEnabled(false);
+						phiSEButton.setEnabled(false);
 					} else {
 						try {
 							float value = (Float) phiController.getValue();
@@ -833,24 +833,24 @@ public class MjpegViewer extends Composite {
 							} else {
 								precision = Math.abs(precision);
 							}
-							if (inRange(value, precision, 90)) {
-								chooseRange(phiNButton);
-							} else if (inRange(value, precision, -90)) {
-								chooseRange(phiSButton);
-							} else if (inRange(value, precision, 0)) {
-								chooseRange(phiEButton);
-							} else if (inRange(value, precision, -180)) {
-								chooseRange(phiWButton);
+							if (inRange(value, precision, -45)) {
+								chooseRange(phiNWButton);
+							} else if (inRange(value, precision, 45)) {
+								chooseRange(phiNEButton);
+							} else if (inRange(value, precision, -135)) {
+								chooseRange(phiSWButton);
+							} else if (inRange(value, precision, 135)) {
+								chooseRange(phiSEButton);
 							} else {
 								chooseRange(null);
-							}						
+							}					
 						} catch (SicsModelException e) {
 							e.printStackTrace();
 						}
-						phiNButton.setEnabled(true);
-						phiSButton.setEnabled(true);
-						phiEButton.setEnabled(true);
-						phiWButton.setEnabled(true);
+						phiNEButton.setEnabled(true);
+						phiNWButton.setEnabled(true);
+						phiSWButton.setEnabled(true);
+						phiSEButton.setEnabled(true);
 					}
 				}
 			});

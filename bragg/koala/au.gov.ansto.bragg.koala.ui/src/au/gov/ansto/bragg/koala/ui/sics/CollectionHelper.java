@@ -101,10 +101,14 @@ public class CollectionHelper {
 		errorController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
 				System.getProperty(ControlHelper.IMAGE_ERROR_PATH));
 		
-		try {
-			setState(stateController.getValue().toString().toUpperCase());
-		} catch (SicsModelException e) {
-			e.printStackTrace();
+		if (stateController != null) {
+			try {
+				setState(stateController.getValue().toString().toUpperCase());
+			} catch (SicsModelException e) {
+				e.printStackTrace();
+			}
+		} else {
+			setState(InstrumentPhase.ERROR.getText());
 		}
 		tiffStatusController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
 				System.getProperty(ControlHelper.TIFF_STATE_PATH));

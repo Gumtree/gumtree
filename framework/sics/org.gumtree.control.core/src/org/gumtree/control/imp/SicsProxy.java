@@ -5,6 +5,7 @@ package org.gumtree.control.imp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -272,37 +273,45 @@ public class SicsProxy implements ISicsProxy {
 	
 	@Override
 	public void removeProxyListener(ISicsProxyListener listener) {
-		proxyListeners.remove(listener);
+		synchronized (proxyListeners) {
+			proxyListeners.remove(listener);
+		}
 	}
 	
 	private void fireInterruptEvent(boolean isInterrupted) {
-		for (ISicsProxyListener listener : proxyListeners) {
+		for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
+			ISicsProxyListener listener = iter.next();
 			listener.interrupt(isInterrupted);
 		}
 	}
 	
 	private void fireConnectionEvent(boolean isConnected) {
-		if (isConnected) {
-			for (ISicsProxyListener listener : proxyListeners) {
-				try {
-					listener.connect();
-				} catch (Exception e) {
-					logger.error("failed fire connecting event", e);
+		synchronized (proxyListeners) {
+			if (isConnected) {
+				for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
+					ISicsProxyListener listener = iter.next();
+					try {
+						listener.connect();
+					} catch (Exception e) {
+						logger.error("failed fire connecting event", e);
+					}
 				}
-			}
-		} else {
-			for (ISicsProxyListener listener : proxyListeners) {
-				try {
-					listener.disconnect();
-				} catch (Exception e) {
-					logger.error("failed fire disconnecting event", e);
+			} else {
+				for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
+					ISicsProxyListener listener = iter.next();
+					try {
+						listener.disconnect();
+					} catch (Exception e) {
+						logger.error("failed fire disconnecting event", e);
+					}
 				}
 			}
 		}
 	}
 	
 	private void fireModelUpdatedEvent() {
-		for (ISicsProxyListener listener : proxyListeners) {
+		for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
+			ISicsProxyListener listener = iter.next();
 			try {
 				listener.modelUpdated();
 			} catch (Exception e) {
@@ -313,7 +322,8 @@ public class SicsProxy implements ISicsProxy {
 	}
 
 	private void fireConnectionBrokenEvent() {
-		for (ISicsProxyListener listener : proxyListeners) {
+		for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
+			ISicsProxyListener listener = iter.next();
 			try {
 				listener.proxyConnectionReqested();
 			} catch (Exception e) {
@@ -324,7 +334,8 @@ public class SicsProxy implements ISicsProxy {
 	}
 	
 	private void fireStatusEvent(ServerStatus status) {
-		for (ISicsProxyListener listener : proxyListeners) {
+		for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
+			ISicsProxyListener listener = iter.next();
 			try {
 				listener.setStatus(status);
 			} catch (Exception e) {

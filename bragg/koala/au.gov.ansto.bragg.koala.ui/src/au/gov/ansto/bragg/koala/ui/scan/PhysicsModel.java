@@ -30,9 +30,9 @@ public class PhysicsModel extends AbstractScanModel {
 			"Num", 
 			"Final", 
 			"Expose",
-			"Phi",
+			Activator.PHI + " Value",
 			"Temp",
-			"Chi",
+			Activator.CHI + " Value",
 			"Filename",
 			"Status",
 			"Comments"

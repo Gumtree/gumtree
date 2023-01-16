@@ -48,6 +48,7 @@ public class KoalaServer {
 	public static final String CMD_COLLECT = "collect";
 	public static final String CMD_SAVE = "save";
 	public static final String CMD_INT = "INT1712";
+	public static final String CMD_POCH = "POCH";
 	
 //	public static final String PATH_INSTRUMENT_PHASE = "/instrument/image/state";
 	public static final String PATH_FILENAME = "/experiment/file_name";
@@ -57,6 +58,7 @@ public class KoalaServer {
 	public static final String PATH_IMAGE_START = "/instrument/image/start";
 	public static final String PATH_IMAGE_STATE = "/instrument/image/state";
 	public static final String PATH_IMAGE_EXPTIME = "/instrument/image/exposure_time_sec";
+	public static final String PATH_TIFF_STATE = "/instrument/save_tiff/status/save_tiff";
 	public static final int READING_TIME = 10;
 	
 	private static int MESSAGE_SEQ = 0;
@@ -753,10 +755,12 @@ public class KoalaServer {
 					throw new SicsInterruptException("interrupted");
 				}
 			}
-
+			publishValueUpdate(PATH_TIFF_STATE, "busy");			
 			File newFile = new File(getNextFilename());
 			Files.copy(orgFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			publishValueUpdate(PATH_FILENAME, newFile.getPath());
+			Thread.sleep(2000);
+			publishValueUpdate(PATH_TIFF_STATE, "idle");			
 			
 			hset(PATH_GUMTREE_TIME, "0");
 			hset(PATH_GUMTREE_STATUS, InstrumentPhase.IDLE.name());
@@ -1053,9 +1057,14 @@ public class KoalaServer {
 		            		JSONObject json = null;
 		            		try {
 		            			json = new JSONObject(commandText);
+		            			String cType = json.getString(SicsChannel.JSON_KEY_TYPE);
 		            			String command = json.getString(SicsChannel.JSON_KEY_COMMAND);
 		            			String cid = json.getString(SicsChannel.JSON_KEY_CID);
-		            			processCommand(client, cid, command);
+		            			if (cType.equalsIgnoreCase(CMD_POCH)) {
+		            				respondFinal(client, cid, command, command);
+		            			} else {
+		            				processCommand(client, cid, command);
+		            			}
 		            		} catch (JSONException e) {
 		            			e.printStackTrace();
 		            		} catch (InterruptedException e) {
