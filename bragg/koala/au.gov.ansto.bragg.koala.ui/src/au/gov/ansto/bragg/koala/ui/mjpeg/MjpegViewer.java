@@ -843,7 +843,7 @@ public class MjpegViewer extends Composite {
 		}
 
 		@Override
-		public void updateValue(Object oldValue, Object newValue) {
+		public void updateValue(final Object oldValue, final Object newValue) {
 			Display.getDefault().asyncExec(new Runnable() {
 
 				@Override
