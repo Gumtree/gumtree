@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
+import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
@@ -33,6 +34,7 @@ import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.imp.DriveableController;
+import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.JobRunner;
@@ -44,6 +46,7 @@ import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart;
 import au.gov.ansto.bragg.koala.ui.parts.PasswordDialog;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaModelException;
+import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 import au.gov.ansto.bragg.koala.ui.sics.SimpleControlSuite;
 
@@ -68,6 +71,8 @@ public class MjpegViewer extends Composite {
 	private Composite manualComposite;
 	private AlignVideoPart alignComposite;
 	private CalibrateVideoPart calibComposite;
+	private Button ledButton;
+	private Button drumButton;
 	private Button alignButton;
 	private Button resetButton;
 	private Button calibButton;
@@ -155,7 +160,7 @@ public class MjpegViewer extends Composite {
 			
 			@Override
 			public void onError(Exception e) {
-				ControlHelper.experimentModel.publishErrorMessage("Errors on video camera, " + e.getMessage());
+//				ControlHelper.experimentModel.publishErrorMessage("Errors on video camera, " + e.getMessage());
 			}
 		};
 		
@@ -296,17 +301,67 @@ public class MjpegViewer extends Composite {
 		
 		Composite axesControlComposite = new Composite(manualComposite, SWT.NONE);
 //		axesControlComposite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
-		GridLayoutFactory.fillDefaults().margins(8, 8).applyTo(axesControlComposite);
+		GridLayoutFactory.fillDefaults().margins(8, 8).numColumns(2).applyTo(axesControlComposite);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.CENTER).applyTo(axesControlComposite);
 //		axesControlComposite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, true, 1, 1));
 		
-		Button ledButton = new Button(axesControlComposite, SWT.CHECK);
+		ledButton = new Button(axesControlComposite, SWT.CHECK);
 		ledButton.setText("Light Source");
 		ledButton.setFont(Activator.getMiddleFont());
 		ledButton.setCursor(Activator.getHandCursor());
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.BEGINNING, SWT.CENTER).hint(SWT.DEFAULT, 48).applyTo(ledButton);
-		
+		new LightSourceHelper();
 
+		ledButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					final ISicsController ledController = SicsManager.getSicsModel().findController(
+							System.getProperty(ControlHelper.LED_PATH));
+					if (ledController == null) {
+						throw new KoalaServerException("SICS server model not available");
+					}
+					if (ledButton.getSelection()) {
+						((IDynamicController) ledController).setValue(1);
+					} else {
+						((IDynamicController) ledController).setValue(0);
+					}
+				} catch (Exception e1) {
+					ControlHelper.experimentModel.publishErrorMessage(
+							"failed to control LED light, " + e1.getMessage());
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
+		drumButton = new Button(axesControlComposite, SWT.PUSH);
+		drumButton.setText("Move Drum Down");
+		drumButton.setFont(Activator.getMiddleFont());
+		drumButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.BEGINNING, SWT.CENTER).hint(SWT.DEFAULT, 48).applyTo(drumButton);
+		new LightSourceHelper();
+
+		drumButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					ControlHelper.syncDrive(System.getProperty(ControlHelper.DRUM_PATH), 
+							Float.valueOf(System.getProperty(ControlHelper.DRUM_DOWN_VALUE)));
+				} catch (Exception e1) {
+					ControlHelper.experimentModel.publishErrorMessage("failed to move the drum down, " + e1.getMessage());
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
 		Group xGroup = new Group(axesControlComposite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(3).applyTo(xGroup);
 		xGroup.setText("Sample X offset");
@@ -735,6 +790,82 @@ public class MjpegViewer extends Composite {
 				display.sleep();
 		}
 		display.dispose();
+	}
+	
+	class LightSourceHelper {
+		
+		public LightSourceHelper() {
+			if (controlHelper.isConnected()) {
+				final ISicsController ledController = SicsManager.getSicsModel().findController(
+						System.getProperty(ControlHelper.LED_PATH));	
+				ledController.addControllerListener(
+						new LedControllerListener());
+			}
+			ISicsProxyListener proxyLedListener = new SicsProxyListenerAdapter() {
+
+				@Override
+				public void connect() {
+					final ISicsController ledController = SicsManager.getSicsModel().findController(
+							System.getProperty(ControlHelper.LED_PATH));	
+					if (ledController != null) {
+						if (ledController instanceof DynamicController) {
+							try {
+								final float value = Float.valueOf(((DynamicController) ledController).getValue().toString());
+								Display.getDefault().asyncExec(new Runnable() {
+									
+									@Override
+									public void run() {
+										if (value == 1) {
+											ledButton.setSelection(true);
+										} else {
+											ledButton.setSelection(false);
+										}
+									}
+								});
+							} catch (SicsModelException e) {
+							}
+
+							ledController.addControllerListener(
+									new LedControllerListener());
+						}
+					}
+
+				}
+			};
+			controlHelper.addProxyListener(proxyLedListener);
+		}
+	}
+	
+	class LedControllerListener implements ISicsControllerListener {
+
+		@Override
+		public void updateState(ControllerState oldState, ControllerState newState) {
+		}
+
+		@Override
+		public void updateValue(Object oldValue, Object newValue) {
+			Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					if (Float.valueOf(String.valueOf(newValue)) == 1) {
+						ledButton.setSelection(true);
+					} else {
+						ledButton.setSelection(false);
+					}
+				}
+				
+			});
+		}
+
+		@Override
+		public void updateEnabled(boolean isEnabled) {
+		}
+
+		@Override
+		public void updateTarget(Object oldValue, Object newValue) {
+		}
+		
 	}
 	
 	class PhiControlSuite {

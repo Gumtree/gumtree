@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
+import au.gov.ansto.bragg.koala.ui.sics.CollectionHelper;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
 enum ScanTarget {
@@ -95,7 +96,7 @@ public class SingleScan {
 	private int number;
 	private float end;
 	private int exposure = 60;
-	private int erasure = 10;
+	private int erasure = CollectionHelper.ERASE_TIME;
 	private float temp = Float.NaN;
 	private float phi = Float.NaN;
 	private float chi = Float.NaN;

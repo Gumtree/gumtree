@@ -22,13 +22,13 @@ import au.gov.ansto.bragg.koala.ui.sics.ControlHelper.InstrumentPhase;
 
 public class CollectionHelper {
 	
-	private static final int START_TIMEOUT = 50000;
-	private static final int COLLECTION_TIMEOUT = 60000;
-	private static final int TIFFSAVE_TIMEOUT = 30000;
-	private static final int CHECK_CYCLE = 50;
+	private static final int START_TIMEOUT = 50;
+	private static final int COLLECTION_TIMEOUT = 180;
+	private static final int TIFFSAVE_TIMEOUT = 30;
+	private static final int CHECK_CYCLE = 50; // millisecond
 	private static final int FAIL_RETRY = 3;
-	private static final int READ_TIME = 240;
-	private static final int ERASE_TIME = 60;
+	private static final int READ_TIME = 280;
+	public static final int ERASE_TIME = 160;
 	
 	private static final Logger logger = LoggerFactory.getLogger(CollectionHelper.class);
 	private InstrumentPhase phase = InstrumentPhase.IDLE;
@@ -196,7 +196,7 @@ public class CollectionHelper {
 	
 	private void waitForTiff(int retry) throws KoalaServerException {
 		int ct = 0;
-		while (ct <= TIFFSAVE_TIMEOUT) {
+		while (ct <= TIFFSAVE_TIMEOUT * 1000) {
 			try {
 				String tiffStatus = tiffStatusController.getValue().toString();
 				if (TiffStatus.IDLE.name().equalsIgnoreCase(tiffStatus)) {
@@ -228,7 +228,7 @@ public class CollectionHelper {
 				throw new KoalaServerException("waiting interrupted");
 			}
 		}
-		if (ct >= COLLECTION_TIMEOUT) {
+		if (ct >= TIFFSAVE_TIMEOUT * 1000) {
 			throw new KoalaServerException("timeout in saving TIFF file");
 		}
 		isBusy = false;		
@@ -292,7 +292,7 @@ public class CollectionHelper {
 			ControlHelper.setValue(System.getProperty(ControlHelper.EXPOSURE_TIME_PATH), exposure);
 			ControlHelper.getProxy().syncRun(String.format("hset /instrument/image/start 1"));
 			int ct = 0;
-			while (!isStarted && ct <= START_TIMEOUT) {
+			while (!isStarted && ct <= START_TIMEOUT * 1000) {
 				try {
 					Thread.sleep(CHECK_CYCLE);
 					ct += CHECK_CYCLE;
@@ -306,7 +306,7 @@ public class CollectionHelper {
 				handleError("timeout in starting the collection");
 			}
 			ct = 0;
-			while (isBusy && ct <= (exposure + READ_TIME + ERASE_TIME) * 1000 + COLLECTION_TIMEOUT) {
+			while (isBusy && ct <= (exposure + READ_TIME + ERASE_TIME + COLLECTION_TIMEOUT) * 1000) {
 				try {
 					Thread.sleep(CHECK_CYCLE);
 					ct += CHECK_CYCLE;
@@ -319,7 +319,7 @@ public class CollectionHelper {
 //						exposure + READ_TIME + ERASE_TIME + COLLECTION_TIMEOUT / 1000));
 //				throw new KoalaServerException("collection timeout");
 				handleError(String.format("collection cycle lasted for more than %d seconds", 
-						exposure + READ_TIME + ERASE_TIME + COLLECTION_TIMEOUT / 1000));
+						exposure + READ_TIME + ERASE_TIME + COLLECTION_TIMEOUT));
 			} 
 			if (InstrumentPhase.ERROR.equals(phase)) {
 				handleError("error in collection: " + this.errorMessage != null ? this.errorMessage : "unknown");

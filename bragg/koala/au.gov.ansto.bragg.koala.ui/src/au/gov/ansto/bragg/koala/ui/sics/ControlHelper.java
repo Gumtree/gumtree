@@ -73,7 +73,10 @@ public class ControlHelper {
 	public static final String SX_PATH = "gumtree.koala.sx";
 	public static final String SY_PATH = "gumtree.koala.sy";
 	public static final String SZ_PATH = "gumtree.koala.sz";
+	public static final String LED_PATH = "gumtree.path.koalaLed";
 	public static final String STEP_PATH = "gumtree.koala.currpoint";
+	public static final String DRUM_PATH = "gumtree.path.koalaDrum";
+	public static final String DRUM_DOWN_VALUE = "gumtree.koala.drumDownValue";
 	public static final String FILENAME_PATH = "gumtree.koala.filename";
 	public static final String PHASE_PATH = "gumtree.koala.phase";
 	public static final String IMAGE_STATE_PATH = "gumtree.path.imageState";

@@ -94,11 +94,12 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.POSITIONER.getImage());
 		deviceStatusWidget = new ControllerStatusWidget(sampleStageGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/sample/sheight", "Sample Height", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
+//				.addDevice("/sample/sz", "Sample Height", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
 				.addDevice("/sample/sr", "Sample " + Activator.PHI, null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(3))
 				.addDevice("/sample/schi", "Sample " + Activator.CHI, null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(3))
 				.addDevice("/sample/sx", "sx", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
 				.addDevice("/sample/sy", "sy", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/sz", "sz", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
 				;
 		configureWidget(deviceStatusWidget);
 		deviceStatusWidget.render();
@@ -109,9 +110,9 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new ControllerStatusWidget(chopperGroup, SWT.NONE);
 		deviceStatusWidget
 //				.addDevice("/instrument/dummy_motor", "Dummy Motor", null, "mm")		
-				.addDevice("/instrument/dcz", "Detector Height", null, "mm")
-				.addDevice("/instrument/crystal/reading_head", "Reading Head", null, "mm")
-				.addDevice("/instrument/crystal/drum", "Drum", null, "\u00b0")
+//				.addDevice("/instrument/dcz", "Detector Height", null, "mm")
+//				.addDevice("/instrument/crystal/reading_head", "Reading Head", null, "mm")
+				.addDevice("/instrument/dcz", "Drum Position", null, "mm")
 				;
 		configureWidget(deviceStatusWidget);
 		deviceStatusWidget.render();

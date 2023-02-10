@@ -135,7 +135,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		
 		comText = new Text(infoBlock, SWT.WRAP | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL);
 		comText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, false).span(1, 2).minSize(500, 88).applyTo(comText);
+		GridDataFactory.fillDefaults().grab(true, false).span(1, 2).minSize(500, 88).hint(360, SWT.DEFAULT).applyTo(comText);
 		
 		comText.addModifyListener(new ModifyListener() {
 			
@@ -289,6 +289,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(eraLabel);
 		
 		final Text eraText = new Text(duriGroup, SWT.BORDER);
+		eraText.setEditable(false);
 		eraText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, false).minSize(180, 40).applyTo(eraText);
 		

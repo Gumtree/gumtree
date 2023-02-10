@@ -317,7 +317,9 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 								} else {
 									image = null;
 								}
-							} 
+							} else {
+								image = null;
+							}
 						} catch (Exception e) {
 							System.err.println("failed to convert image");
 							Thread.sleep(20);

@@ -120,16 +120,17 @@ public class MjpegRunner implements Runnable {
                 viewer.repaint();
                 ste.printStackTrace();
                 triggerError(ste);
-                stop();
+//                stop();
             } catch (EOFException e) {
             	logger.error("failed stream read: EOF " + e.getLocalizedMessage());
             	triggerError(e);
-                stop();
+//                stop();
             	handleException(e);
 			} catch (IOException e) {
 				logger.error("failed stream read: IO " + e.getMessage());
                 triggerError(e);
-                stop();
+//                stop();
+                reconnect();
             } catch (Exception e) {
             	if (e.getMessage() != null) {
             		logger.error("failed to load stream on camera server: " + url.getHost() + "; " + e.getMessage());
@@ -156,6 +157,19 @@ public class MjpegRunner implements Runnable {
         }
     }
 
+    private void reconnect() {
+    	viewer.setImageBytes(null);
+    	viewer.repaint();
+    	while (isRunning) {
+			try {
+				start();
+				return;
+			} catch (IOException e) {
+				logger.error("failed to reconnect, try again.");
+			}
+		}
+    }
+    
     private void handleException(Exception e) {
     	while(true) {
     		try {
