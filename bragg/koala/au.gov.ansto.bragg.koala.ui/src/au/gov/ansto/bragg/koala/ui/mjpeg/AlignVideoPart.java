@@ -41,6 +41,7 @@ import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 public class AlignVideoPart extends Composite {
 
 //	private static final String TEXT_SELECT_CENTRE = "2 Mark needle points on both videos";
+	private static final String TEXT_DRIVE_SZ = "sz to 0";
 	private static final String TEXT_DRIVE_PHI = "Phi to 45\u00b0";
 	private static final String TEXT_MARK_LEFT = "Mark sample centre on left video";
 	private static final String TEXT_MARK_RIGHT = "Mark sample centre on right video";
@@ -49,6 +50,7 @@ public class AlignVideoPart extends Composite {
 	private static final String SY_NAME = System.getProperty(ControlHelper.SY_PATH);
 	private static final float SPHI_ANGLE = 45;
 	
+	private static final int NUM_STEPS = 5;
 	private static final Logger logger = LoggerFactory.getLogger(AlignVideoPart.class);
 
 	private ControlHelper controlHelper;
@@ -71,22 +73,30 @@ public class AlignVideoPart extends Composite {
 		super(parent, style);
 		parentViewer = viewer;
 		controlHelper = ControlHelper.getInstance();
-		steps = new IStep[4];
+		steps = new IStep[NUM_STEPS];
 
 		setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 		GridLayoutFactory.fillDefaults().margins(0, 0).spacing(1, 2).applyTo(this);
 
 		final Group phiGroup = new Group(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(4).applyTo(phiGroup);
-		phiGroup.setText("Prepare sample Phi");
+		phiGroup.setText("Initialise sample position");
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(phiGroup);
 
 		
-		steps[0] = new StepDrive(phiGroup, 1, TEXT_DRIVE_PHI, new IDrivable() {
+		steps[0] = new StepDrive(phiGroup, 0, TEXT_DRIVE_SZ, new IDrivable() {
 			
 			@Override
 			public void drive() {
-				drivePhi();
+				driveSz(0);
+			}
+		});
+
+		steps[1] = new StepDrive(phiGroup, 1, TEXT_DRIVE_PHI, new IDrivable() {
+			
+			@Override
+			public void drive() {
+				drivePhi(1);
 			}
 		});
 
@@ -95,8 +105,8 @@ public class AlignVideoPart extends Composite {
 		markerGroup.setText("Add markers");
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(markerGroup);
 
-		steps[1] = new StepMark(markerGroup, 2, TEXT_MARK_LEFT);
-		steps[2] = new StepMark(markerGroup, 3, TEXT_MARK_RIGHT);
+		steps[2] = new StepMark(markerGroup, 2, TEXT_MARK_LEFT);
+		steps[3] = new StepMark(markerGroup, 3, TEXT_MARK_RIGHT);
 		
 //		pickBeamCentreButton = new Button(beamCentreGroup, SWT.TOGGLE);
 //		pickBeamCentreButton.setText("Next");
@@ -121,11 +131,11 @@ public class AlignVideoPart extends Composite {
 		alignGroup.setText("Align sample");
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(alignGroup);
 
-		steps[3] = new StepDrive(alignGroup, 4, TEXT_DRIVE_ALIGN, new IDrivable() {
+		steps[4] = new StepDrive(alignGroup, 4, TEXT_DRIVE_ALIGN, new IDrivable() {
 			
 			@Override
 			public void drive() {
-				driveAlign();
+				driveAlign(4);
 			}
 		});
 		
@@ -135,7 +145,7 @@ public class AlignVideoPart extends Composite {
 			@Override
 			public void markerSet() {
 				if (enabled) {
-					marker1Set();
+					marker1Set(2);
 				}
 			}
 			
@@ -149,7 +159,7 @@ public class AlignVideoPart extends Composite {
 			@Override
 			public void markerSet() {
 				if (enabled) {
-					marker2Set();
+					marker2Set(3);
 				}
 			}
 			
@@ -182,7 +192,7 @@ public class AlignVideoPart extends Composite {
 			this.text = text;
 			this.drivable = drivable;
 			label1 = new Label(parent, SWT.NONE);
-			label1.setText(String.format("%d. ", id));
+			label1.setText(String.format("%d. ", id + 1));
 			label1.setFont(Activator.getMiddleFont());
 			GridDataFactory.swtDefaults().grab(false, false).applyTo(label1);
 			
@@ -211,8 +221,27 @@ public class AlignVideoPart extends Composite {
 			
 			checkButton = new Button(parent, SWT.CHECK);
 			checkButton.setFont(Activator.getMiddleFont());
-			checkButton.setEnabled(false);
+//			checkButton.setEnabled(false);
 			GridDataFactory.swtDefaults().grab(true, false).align(SWT.END, SWT.CENTER).applyTo(checkButton);
+			
+			checkButton.addSelectionListener(new SelectionListener() {
+				
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (checkButton.getSelection()) {
+						steps[id].finish();
+						if (id < NUM_STEPS - 1) {
+							moveToStep(id + 1);
+						} else {
+							finishAll();
+						}
+					}
+				}
+				
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+				}
+			});
 		}
 		
 		@Override
@@ -236,7 +265,7 @@ public class AlignVideoPart extends Composite {
 	class StepMark implements IStep {
 		Label label1;
 		Button checkButton;
-		public StepMark(Group parent, int id, String text) {
+		public StepMark(Group parent, final int id, String text) {
 			label1 = new Label(parent, SWT.NONE);
 			label1.setText(String.format("%d. %s", id, text));
 			label1.setFont(Activator.getMiddleFont());
@@ -246,6 +275,25 @@ public class AlignVideoPart extends Composite {
 			checkButton.setFont(Activator.getMiddleFont());
 			checkButton.setEnabled(false);
 			GridDataFactory.swtDefaults().grab(true, false).align(SWT.END, SWT.CENTER).applyTo(checkButton);
+			
+			checkButton.addSelectionListener(new SelectionListener() {
+				
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (checkButton.getSelection()) {
+						steps[id].finish();
+						if (id < NUM_STEPS - 1) {
+							moveToStep(id + 1);
+						} else {
+							finishAll();
+						}
+					}
+				}
+				
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+				}
+			});
 		}
 		
 		@Override
@@ -266,30 +314,30 @@ public class AlignVideoPart extends Composite {
 	}
 	
 	
-	private void marker1Set() {
+	private void marker1Set(final int stepId) {
 		Display.getDefault().asyncExec(new Runnable() {
 			
 			@Override
 			public void run() {
-				steps[1].finish();
-				moveToStep(2);
+				steps[stepId].finish();
+				moveToStep(stepId + 1);
 			}
 		});
 	}
 
-	private void marker2Set() {
+	private void marker2Set(final int stepId) {
 		Display.getDefault().asyncExec(new Runnable() {
 			
 			@Override
 			public void run() {
-				steps[2].finish();
-				moveToStep(3);
+				steps[stepId].finish();
+				moveToStep(stepId + 1);
 			}
 		});
 	}
 
 	
-	private void drivePhi() {
+	private void drivePhi(final int stepId) {
 		if (controlHelper.isConnected()) {
 			final ISicsController sphiController = SicsManager.getSicsModel().findController(
 					System.getProperty(ControlHelper.SAMPLE_PHI));
@@ -312,8 +360,8 @@ public class AlignVideoPart extends Composite {
 								
 								@Override
 								public void run() {
-									steps[0].finish();
-									moveToStep(1);
+									steps[stepId].finish();
+									moveToStep(stepId + 1);
 								}
 							});
 						} catch (final SicsException e1) {
@@ -328,8 +376,48 @@ public class AlignVideoPart extends Composite {
 			}
 		}
 	}
-	
-	private void driveAlign() {
+
+	private void driveSz(final int stepId) {
+		if (controlHelper.isConnected()) {
+			final ISicsController szController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.SZ_PATH));
+			if (szController instanceof DriveableController) {
+				final DriveableController driveable = (DriveableController) szController;
+				JobRunner.run(new ILoopExitCondition() {
+					
+					@Override
+					public boolean getExitCondition() {
+						return true;
+					}
+				}, new Runnable() {
+					
+					@Override
+					public void run() {
+						driveable.setTargetValue(Float.valueOf(String.valueOf(System.getProperty(ControlHelper.SZ_ZERO))));
+						try {
+							driveable.drive();
+							Display.getDefault().asyncExec(new Runnable() {
+								
+								@Override
+								public void run() {
+									steps[stepId].finish();
+									moveToStep(stepId + 1);
+								}
+							});
+						} catch (final SicsException e1) {
+							if (e1 instanceof SicsInterruptException) {
+								ControlHelper.experimentModel.publishErrorMessage("user interrupted");
+							} else {
+								ControlHelper.experimentModel.publishErrorMessage("server error: " + e1.getMessage());
+							}
+						}
+					}
+				});
+			}
+		}
+	}
+
+	private void driveAlign(final int stepId) {
 		if (controlHelper.isConnected()) {
 			JobRunner.run(new ILoopExitCondition() {
 
@@ -370,8 +458,8 @@ public class AlignVideoPart extends Composite {
 
 							@Override
 							public void run() {
-								steps[3].finish();
-								finish();
+								steps[stepId].finish();
+								finishAll();
 							}
 						});
 					} catch (final KoalaServerException e1) {
@@ -404,7 +492,7 @@ public class AlignVideoPart extends Composite {
 		}
 	}
 	
-	public void finish() {
+	public void finishAll() {
 		Display.getDefault().asyncExec(new Runnable() {
 
 			@Override

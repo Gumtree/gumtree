@@ -23,6 +23,8 @@ import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsInterruptException;
 import org.gumtree.control.exception.SicsModelException;
+import org.gumtree.control.imp.DriveableController;
+import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +75,7 @@ public class ControlHelper {
 	public static final String SX_PATH = "gumtree.koala.sx";
 	public static final String SY_PATH = "gumtree.koala.sy";
 	public static final String SZ_PATH = "gumtree.koala.sz";
+	public static final String SZ_ZERO = "gumtree.koala.szZero";
 	public static final String LED_PATH = "gumtree.path.koalaLed";
 	public static final String STEP_PATH = "gumtree.koala.currpoint";
 	public static final String DRUM_PATH = "gumtree.path.koalaDrum";
@@ -341,6 +344,21 @@ public class ControlHelper {
 		}
 	}
 
+	public static void concurrentDrive(final String deviceName, final float value) {
+		Thread runThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					ControlHelper.syncDrive(deviceName, value);
+				} catch (Exception e1) {
+					ControlHelper.experimentModel.publishErrorMessage("failed to drive " + deviceName + ", " + e1.getMessage());
+				}
+			}
+		});
+		runThread.start();
+	}
+	
 	public static void syncMultiDrive(Map<String, Number> devices) 
 			throws KoalaServerException, KoalaInterruptionException {
 		try {

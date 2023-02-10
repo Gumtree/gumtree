@@ -264,7 +264,7 @@ public class MjpegViewer extends Composite {
 					PasswordDialog dialog = new PasswordDialog(getShell());
 					if (dialog.open() == Window.OK) {
 			            String pw = dialog.getPassword();
-			            if (MainPart.UNLOCK_TEXT.equals(pw)) {
+			            if (Activator.isPassDisabled() || MainPart.UNLOCK_TEXT.equals(pw)) {
 							calibButton.setText("Cancel calibration");
 							logger.info("Calib button clicked and enabling calibration");
 							calibComposite.reset();
@@ -309,7 +309,7 @@ public class MjpegViewer extends Composite {
 		ledButton.setText("Light Source");
 		ledButton.setFont(Activator.getMiddleFont());
 		ledButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.swtDefaults().grab(true, false).align(SWT.BEGINNING, SWT.CENTER).hint(SWT.DEFAULT, 48).applyTo(ledButton);
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).hint(SWT.DEFAULT, 48).applyTo(ledButton);
 		new LightSourceHelper();
 
 		ledButton.addSelectionListener(new SelectionListener() {
@@ -342,19 +342,28 @@ public class MjpegViewer extends Composite {
 		drumButton.setText("Move Drum Down");
 		drumButton.setFont(Activator.getMiddleFont());
 		drumButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.swtDefaults().grab(true, false).align(SWT.BEGINNING, SWT.CENTER).hint(SWT.DEFAULT, 48).applyTo(drumButton);
-		new LightSourceHelper();
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.END, SWT.CENTER).hint(SWT.DEFAULT, 48).applyTo(drumButton);
+		new DrumZHelper();
 
 		drumButton.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				try {
-					ControlHelper.syncDrive(System.getProperty(ControlHelper.DRUM_PATH), 
-							Float.valueOf(System.getProperty(ControlHelper.DRUM_DOWN_VALUE)));
-				} catch (Exception e1) {
-					ControlHelper.experimentModel.publishErrorMessage("failed to move the drum down, " + e1.getMessage());
-				}
+				Thread runThread = new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+//						try {
+//							ControlHelper.syncDrive(System.getProperty(ControlHelper.DRUM_PATH), 
+//									Float.valueOf(System.getProperty(ControlHelper.DRUM_DOWN_VALUE)));
+//						} catch (Exception e1) {
+//							ControlHelper.experimentModel.publishErrorMessage("failed to move the drum down, " + e1.getMessage());
+//						}
+						ControlHelper.concurrentDrive(System.getProperty(ControlHelper.DRUM_PATH), 
+									Float.valueOf(System.getProperty(ControlHelper.DRUM_DOWN_VALUE)));
+					}
+				});
+				runThread.start();
 			}
 			
 			@Override
@@ -451,7 +460,7 @@ public class MjpegViewer extends Composite {
 		Group phiGroup = new Group(axesControlComposite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(2).applyTo(phiGroup);
 		phiGroup.setText(Activator.PHI + " positions");
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(phiGroup);
+		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).align(SWT.FILL, SWT.CENTER).applyTo(phiGroup);
 		
 		phiNWButton = new Button(phiGroup, SWT.CHECK);
 //		phiSButton.setImage(KoalaImage.PLAY48.getImage());
@@ -852,6 +861,84 @@ public class MjpegViewer extends Composite {
 						ledButton.setSelection(true);
 					} else {
 						ledButton.setSelection(false);
+					}
+				}
+				
+			});
+		}
+
+		@Override
+		public void updateEnabled(boolean isEnabled) {
+		}
+
+		@Override
+		public void updateTarget(Object oldValue, Object newValue) {
+		}
+		
+	}
+	
+	class DrumZHelper {
+		
+		public DrumZHelper() {
+			if (controlHelper.isConnected()) {
+				final ISicsController drumController = SicsManager.getSicsModel().findController(
+						System.getProperty(ControlHelper.DRUM_PATH));	
+				drumController.addControllerListener(
+						new DrumZControllerListener());
+			}
+			ISicsProxyListener proxyDrumZListener = new SicsProxyListenerAdapter() {
+
+				@Override
+				public void connect() {
+					final ISicsController drumZController = SicsManager.getSicsModel().findController(
+							System.getProperty(ControlHelper.DRUM_PATH));	
+					if (drumZController != null) {
+						if (drumZController instanceof DynamicController) {
+							try {
+								final float value = Float.valueOf(((DynamicController) drumZController).getValue().toString());
+								final float limit = Float.valueOf(System.getProperty(ControlHelper.DRUM_DOWN_VALUE));
+								Display.getDefault().asyncExec(new Runnable() {
+									
+									@Override
+									public void run() {
+										if (value > limit + 1) {
+											drumButton.setEnabled(true);
+										} else {
+											drumButton.setEnabled(false);
+										}
+									}
+								});
+							} catch (SicsModelException e) {
+							}
+
+							drumZController.addControllerListener(
+									new LedControllerListener());
+						}
+					}
+
+				}
+			};
+			controlHelper.addProxyListener(proxyDrumZListener);
+		}
+	}
+	
+	class DrumZControllerListener implements ISicsControllerListener {
+
+		@Override
+		public void updateState(ControllerState oldState, ControllerState newState) {
+		}
+
+		@Override
+		public void updateValue(final Object oldValue, final Object newValue) {
+			final float limit = Float.valueOf(System.getProperty(ControlHelper.DRUM_DOWN_VALUE));
+			Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					if (Float.valueOf(String.valueOf(newValue)) > limit + 1) {
+						drumButton.setEnabled(true);
+					} else {
+						drumButton.setEnabled(false);
 					}
 				}
 				

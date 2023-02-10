@@ -37,6 +37,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String NAME_MJPEG_MMPERPIXEL_X = "koala.mmPerPixelX";
 	public static final String NAME_MJPEG_MMPERPIXEL_Y = "koala.mmPerPixelY";
 	public static final String NAME_JOEY_MODE = "koala.joeyMode";
+	public static final String NAME_PASS_DISABLED = "gumtree.koala.passDisabled";
 	public static final String PHI = "\u03A6".toLowerCase();
 	public static final String CHI = "\u03A7".toLowerCase();
 	public static final String TAU = "\u03C4";
@@ -196,5 +197,11 @@ public class Activator extends AbstractUIPlugin {
 		}
 	}
 	
-
+	public static boolean isPassDisabled() {
+		try {
+			return Boolean.valueOf(System.getProperty(NAME_PASS_DISABLED));
+		} catch (Exception e) {
+			return false;
+		}
+	}
 }
