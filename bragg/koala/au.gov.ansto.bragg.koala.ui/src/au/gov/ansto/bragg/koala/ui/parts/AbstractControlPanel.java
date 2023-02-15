@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Composite;
  */
 public abstract class AbstractControlPanel extends AbstractPanel {
 
-	AbstractControlPanel(Composite parent, int style) {
+	public AbstractControlPanel(Composite parent, int style) {
 		super(parent, style);
 	}
 

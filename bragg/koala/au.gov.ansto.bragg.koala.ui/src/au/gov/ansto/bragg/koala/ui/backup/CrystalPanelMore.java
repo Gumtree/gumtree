@@ -1,7 +1,4 @@
-/**
- * 
- */
-package au.gov.ansto.bragg.koala.ui.parts;
+package au.gov.ansto.bragg.koala.ui.backup;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -34,7 +31,9 @@ import org.slf4j.LoggerFactory;
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.mjpeg.MjpegViewer;
-import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
+import au.gov.ansto.bragg.koala.ui.parts.AbstractControlPanel;
+import au.gov.ansto.bragg.koala.ui.parts.EnvironmentPanel;
+import au.gov.ansto.bragg.koala.ui.parts.MainPart;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 import au.gov.ansto.bragg.koala.ui.sics.SimpleControlSuite;
 
@@ -42,13 +41,13 @@ import au.gov.ansto.bragg.koala.ui.sics.SimpleControlSuite;
  * @author nxi
  *
  */
-public class CrystalPanel extends AbstractControlPanel {
+public class CrystalPanelMore extends AbstractControlPanel {
 
 	private static final int WIDTH_HINT = 2200;
 	private static final int HEIGHT_HINT = 1080;
 	private static final int WIDTH_HINT_SMALL = 1560;
 	private static final int HEIGHT_HINT_SMALL = 720;
-	private static Logger logger = LoggerFactory.getLogger(CrystalPanel.class);
+	private static Logger logger = LoggerFactory.getLogger(CrystalPanelMore.class);
 	private MainPart mainPart;
 	private int panelWidth;
 	private int panelHeight;
@@ -64,7 +63,7 @@ public class CrystalPanel extends AbstractControlPanel {
 	 * @param parent
 	 * @param style
 	 */
-	public CrystalPanel(Composite parent, int style, MainPart part) {
+	public CrystalPanelMore(Composite parent, int style, MainPart part) {
 		super(parent, style);
 		mainPart = part;
 		
@@ -114,6 +113,71 @@ public class CrystalPanel extends AbstractControlPanel {
 		phiStatusLabel.setForeground(Activator.getWarningColor());
 		GridDataFactory.fillDefaults().span(3, 1).grab(true, false).applyTo(phiStatusLabel);
 
+		final Label szLabel = new Label(phiBlock, SWT.NONE);
+		szLabel.setText("Current sample z (mm)");
+		szLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(320, 40).applyTo(szLabel);
+		
+		final Text szText = new Text(phiBlock, SWT.READ_ONLY);
+		szText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(240, 40).applyTo(szText);
+		
+		final Button szButton = new Button(phiBlock, SWT.PUSH);
+		szButton.setImage(KoalaImage.PLAY48.getImage());
+		szButton.setText("Drive");
+		szButton.setFont(Activator.getMiddleFont());
+		szButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).span(1, 3).hint(240, 64).applyTo(szButton);
+
+		final Label szTarLabel = new Label(phiBlock, SWT.NONE);
+		szTarLabel.setText("Target sample z (mm)");
+		szTarLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(320, 40).applyTo(szTarLabel);
+		
+		final Text szTarText = new Text(phiBlock, SWT.BORDER);
+		szTarText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(240, 40).applyTo(szTarText);
+
+		Label emptyLable = new Label(phiBlock, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(emptyLable);
+
+		final Label dczLabel = new Label(phiBlock, SWT.NONE);
+		dczLabel.setText("Current drum z (mm)");
+		dczLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(320, 40).applyTo(dczLabel);
+		
+		final Text dczText = new Text(phiBlock, SWT.READ_ONLY);
+		dczText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(240, 40).applyTo(dczText);
+		
+		final Button dczButton = new Button(phiBlock, SWT.PUSH);
+		dczButton.setImage(KoalaImage.PLAY48.getImage());
+		dczButton.setText("Drive");
+		dczButton.setFont(Activator.getMiddleFont());
+		dczButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).span(1, 3).hint(240, 64).applyTo(dczButton);
+
+		final Label dczTarLabel = new Label(phiBlock, SWT.NONE);
+		dczTarLabel.setText("Target drum z (mm)");
+		dczTarLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(320, 40).applyTo(dczTarLabel);
+		
+		final Text dczTarText = new Text(phiBlock, SWT.BORDER);
+		dczTarText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(240, 40).applyTo(dczTarText);
+
+//		final Slider dczSlider = new Slider(phiBlock, SWT.HORIZONTAL);
+////	    slider.setBounds(0, 0, 40, 200);
+//		dczSlider.setMaximum(100);
+//		dczSlider.setMinimum(0);
+//		dczSlider.setIncrement(1);
+//		dczSlider.setPageIncrement(5);
+//		dczSlider.setThumb(4);
+//		dczSlider.setSelection(48);
+//	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(dczSlider);
+		emptyLable = new Label(phiBlock, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(emptyLable);
+
 		final Label curLabel = new Label(phiBlock, SWT.NONE);
 		curLabel.setText("Current sample " + Activator.PHI + " (\u00b0)");
 		curLabel.setFont(Activator.getMiddleFont());
@@ -148,7 +212,7 @@ public class CrystalPanel extends AbstractControlPanel {
 //	    slider.setThumb(4);
 //	    slider.setSelection(48);
 //	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(slider);
-		Label emptyLable = new Label(phiBlock, SWT.NONE);
+		emptyLable = new Label(phiBlock, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(emptyLable);
 	    
 	    phiItem.setControl(interBlock);
@@ -259,6 +323,12 @@ public class CrystalPanel extends AbstractControlPanel {
 			}
 		});
 		
+		String szPath = System.getProperty(ControlHelper.SZ_PATH);
+		new SimpleControlSuite(szPath, szText, szPath, szTarText, szButton, phiStatusLabel);
+		
+		String dczPath = System.getProperty(ControlHelper.DRUM_PATH);
+		new SimpleControlSuite(dczPath, dczText, dczPath, dczTarText, dczButton, phiStatusLabel);
+		
 		String samplePhiPath = System.getProperty(ControlHelper.SAMPLE_PHI);
 		new SimpleControlSuite(samplePhiPath, 
 				curText, samplePhiPath, tarText, driveButton, phiStatusLabel);
@@ -296,7 +366,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		if (tabFolder.getSelectionIndex() == 2) {
 			mjpegViewer.setRunnerPaused(false);
 		}
-		mainPart.setCurrentPanelName(PanelName.CRYSTAL);
+		mainPart.setCurrentPanelName(MainPart.PanelName.CRYSTAL);
 	}
 
 	private void driveSchi(final float value) {

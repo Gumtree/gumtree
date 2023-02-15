@@ -44,7 +44,7 @@ import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
  */
 public class MainPart extends Composite {
 
-	enum PanelName{
+	public enum PanelName{
 		ENVIRONMENT,
 		JOEY,
 		PROPOSAL,

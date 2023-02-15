@@ -41,7 +41,7 @@ import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 public class AlignVideoPart extends Composite {
 
 //	private static final String TEXT_SELECT_CENTRE = "2 Mark needle points on both videos";
-	private static final String TEXT_DRIVE_SZ = "sz to 0";
+	private static final String TEXT_DRIVE_SZ = "sz to " + System.getProperty(ControlHelper.SZ_ZERO);
 	private static final String TEXT_DRIVE_PHI = "Phi to 45\u00b0";
 	private static final String TEXT_MARK_LEFT = "Mark sample centre on left video";
 	private static final String TEXT_MARK_RIGHT = "Mark sample centre on right video";
@@ -50,6 +50,12 @@ public class AlignVideoPart extends Composite {
 	private static final String SY_NAME = System.getProperty(ControlHelper.SY_PATH);
 	private static final String SZ_NAME = System.getProperty(ControlHelper.SZ_PATH);
 	private static final float SPHI_ANGLE = 45;
+	
+	private static final int STEP_ID_DRIVEZ = 0;
+	private static final int STEP_ID_DRIVEPHI = 1;
+	private static final int STEP_ID_MARKLEFT = 2;
+	private static final int STEP_ID_MARKRIGHT = 3;
+	private static final int STEP_ID_DRIVEALL = 4;
 	
 	private static final int NUM_STEPS = 5;
 	private static final Logger logger = LoggerFactory.getLogger(AlignVideoPart.class);
@@ -84,20 +90,19 @@ public class AlignVideoPart extends Composite {
 		phiGroup.setText("Initialise sample position");
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(phiGroup);
 
-		
-		steps[0] = new StepDrive(phiGroup, 0, TEXT_DRIVE_SZ, new IDrivable() {
+		steps[STEP_ID_DRIVEZ] = new StepDrive(phiGroup, STEP_ID_DRIVEZ, TEXT_DRIVE_SZ, new IDrivable() {
 			
 			@Override
 			public void drive() {
-				driveSz(0);
+				driveSz(STEP_ID_DRIVEZ);
 			}
 		});
 
-		steps[1] = new StepDrive(phiGroup, 1, TEXT_DRIVE_PHI, new IDrivable() {
+		steps[STEP_ID_DRIVEPHI] = new StepDrive(phiGroup, STEP_ID_DRIVEPHI, TEXT_DRIVE_PHI, new IDrivable() {
 			
 			@Override
 			public void drive() {
-				drivePhi(1);
+				drivePhi(STEP_ID_DRIVEPHI);
 			}
 		});
 
@@ -230,12 +235,12 @@ public class AlignVideoPart extends Composite {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					if (checkButton.getSelection()) {
-						steps[id].finish();
-						if (id < NUM_STEPS - 1) {
-							moveToStep(id + 1);
-						} else {
-							finishAll();
-						}
+//						steps[id].finish();
+//						if (id < NUM_STEPS - 1) {
+//							moveToStep(id + 1);
+//						} else {
+//							finishAll();
+//						}
 					}
 				}
 				
