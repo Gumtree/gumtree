@@ -36,6 +36,8 @@ public class Activator extends AbstractUIPlugin {
 	public static final String NAME_PROP_FOLDER = "koala.proposalFolder";
 	public static final String NAME_MJPEG_MMPERPIXEL_X = "koala.mmPerPixelX";
 	public static final String NAME_MJPEG_MMPERPIXEL_Y = "koala.mmPerPixelY";
+	public static final String NAME_MJPEG_MMPERPIXEL_LEFTZ = "koala.mmPerPixelLeftZ";
+	public static final String NAME_MJPEG_MMPERPIXEL_RIGHTZ = "koala.mmPerPixelRightZ";
 	public static final String NAME_JOEY_MODE = "koala.joeyMode";
 	public static final String NAME_PASS_DISABLED = "gumtree.koala.passDisabled";
 	public static final String PHI = "\u03A6".toLowerCase();

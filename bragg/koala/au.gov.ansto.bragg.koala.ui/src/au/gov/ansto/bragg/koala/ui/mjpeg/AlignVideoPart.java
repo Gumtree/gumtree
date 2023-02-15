@@ -48,6 +48,7 @@ public class AlignVideoPart extends Composite {
 	private static final String TEXT_DRIVE_ALIGN = "sample to beam centre";
 	private static final String SX_NAME = System.getProperty(ControlHelper.SX_PATH);
 	private static final String SY_NAME = System.getProperty(ControlHelper.SY_PATH);
+	private static final String SZ_NAME = System.getProperty(ControlHelper.SZ_PATH);
 	private static final float SPHI_ANGLE = 45;
 	
 	private static final int NUM_STEPS = 5;
@@ -434,24 +435,33 @@ public class AlignVideoPart extends Composite {
 								SicsManager.getSicsModel().findController(SX_NAME);
 						final IDynamicController sy = (IDynamicController) 
 								SicsManager.getSicsModel().findController(SY_NAME);
+						final IDynamicController sz = (IDynamicController) 
+								SicsManager.getSicsModel().findController(SZ_NAME);
 						
 						float curX = Float.valueOf(sx.getValue().toString());
 						MjpegPanel p1 = parentViewer.getPanel1();
-						Point centre = p1.getBeamCentre();
-						Point marker = p1.getMarkerCoordinate();
+						Point centre1 = p1.getBeamCentre();
+						Point marker1 = p1.getMarkerCoordinate();
 						double mmPerPixelX = parentViewer.getMmPerPixelX();
-						float endX =  Double.valueOf(mmPerPixelX * (marker.x - centre.x) - curX).floatValue();
+						float endX =  Double.valueOf(mmPerPixelX * (marker1.x - centre1.x) + curX).floatValue();
 						
 						float curY = Float.valueOf(sy.getValue().toString());
 						MjpegPanel p2 = parentViewer.getPanel2();
-						centre = p2.getBeamCentre();
-						marker = p2.getMarkerCoordinate();
+						Point centre2 = p2.getBeamCentre();
+						Point marker2 = p2.getMarkerCoordinate();
 						double mmPerPixelY = parentViewer.getMmPerPixelY();
-						float endY =  Double.valueOf(mmPerPixelY * (marker.x - centre.x) - curY).floatValue();
+						float endY =  Double.valueOf(mmPerPixelY * (marker2.x - centre2.x) + curY).floatValue();
+						
+						float curZ = Float.valueOf(sz.getValue().toString());
+						double mmPerPixelLeftZ = parentViewer.getMmPerPixelLeftZ();
+						double mmPerPixelRightZ = parentViewer.getMmPerPixelRightZ();
+						float endLeftZ =  Double.valueOf(mmPerPixelLeftZ * (centre1.y - marker1.y) + curZ).floatValue();
+						float endRightZ =  Double.valueOf(mmPerPixelRightZ * (centre2.y - marker2.y) + curZ).floatValue();
 						
 						final Map<String, Number> devices = new HashMap<String, Number>();
 						devices.put(SX_NAME, endX);
 						devices.put(SY_NAME, endY);
+						devices.put(SZ_NAME, (endLeftZ + endRightZ) / 2);
 
 						ControlHelper.syncMultiDrive(devices);
 						Display.getDefault().asyncExec(new Runnable() {

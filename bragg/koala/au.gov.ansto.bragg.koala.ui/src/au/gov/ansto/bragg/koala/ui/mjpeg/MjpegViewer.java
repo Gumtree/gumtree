@@ -85,6 +85,8 @@ public class MjpegViewer extends Composite {
 	private IRunnerListener mjpegListener;
 	private double mmPerPixelX = Double.NaN;
 	private double mmPerPixelY = Double.NaN;
+	private double mmPerPixelLeftZ = Double.NaN;
+	private double mmPerPixelRightZ = Double.NaN;
 	
 	public MjpegViewer(Composite parent, int style) {
 		super(parent, style);
@@ -595,6 +597,20 @@ public class MjpegViewer extends Composite {
 			} catch (Exception e) {
 			}
 		}
+		String perPixelLeftZ = Activator.getPreference(Activator.NAME_MJPEG_MMPERPIXEL_LEFTZ);
+		if (perPixelLeftZ != null) {
+			try {
+				mmPerPixelLeftZ = Double.valueOf(perPixelLeftZ);
+			} catch (Exception e) {
+			}
+		}
+		String perPixelRightZ = Activator.getPreference(Activator.NAME_MJPEG_MMPERPIXEL_RIGHTZ);
+		if (perPixelRightZ != null) {
+			try {
+				mmPerPixelRightZ = Double.valueOf(perPixelRightZ);
+			} catch (Exception e) {
+			}
+		}
 	}
 
     public double getMmPerPixelX() throws KoalaModelException {
@@ -611,6 +627,20 @@ public class MjpegViewer extends Composite {
 		return mmPerPixelY;
 	}
     
+    public double getMmPerPixelLeftZ() throws KoalaModelException {
+    	if (Double.isNaN(mmPerPixelLeftZ)) {
+    		throw new KoalaModelException("Camera has not been calibrated. Please click on the Calibration button.");
+    	}
+		return mmPerPixelLeftZ;
+	}
+    
+    public double getMmPerPixelRightZ() throws KoalaModelException {
+    	if (Double.isNaN(mmPerPixelRightZ)) {
+    		throw new KoalaModelException("Camera has not been calibrated. Please click on the Calibration button.");
+    	}
+		return mmPerPixelRightZ;
+	}
+    
     public void setMmPerPixelX(double mmPerPixelX) {
 		this.mmPerPixelX = mmPerPixelX;
 		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_X, String.valueOf(mmPerPixelX));
@@ -619,6 +649,16 @@ public class MjpegViewer extends Composite {
     public void setMmPerPixelY(double mmPerPixelY) {
 		this.mmPerPixelY = mmPerPixelY;
 		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_Y, String.valueOf(mmPerPixelY));
+	}
+
+    public void setMmPerPixelLeftZ(double mmPerPixelZ) {
+		this.mmPerPixelLeftZ = mmPerPixelZ;
+		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_LEFTZ, String.valueOf(mmPerPixelZ));
+	}
+
+    public void setMmPerPixelRightZ(double mmPerPixelZ) {
+		this.mmPerPixelRightZ = mmPerPixelZ;
+		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_RIGHTZ, String.valueOf(mmPerPixelZ));
 	}
 
 	private void driveSphi(final float value) {
