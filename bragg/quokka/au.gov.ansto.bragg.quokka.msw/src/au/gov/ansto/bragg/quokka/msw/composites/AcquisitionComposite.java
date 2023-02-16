@@ -397,6 +397,14 @@ public class AcquisitionComposite extends Composite {
 			    String intermediateName = "QKK_current";
 			    String finalName = "QKK_" + format.format(Calendar.getInstance().getTime());
 
+			    try {
+			    	File currentFolder = new File(reportFolder.getPath() + "/current");
+					if (!currentFolder.exists()) {
+						currentFolder.mkdirs();
+					}
+				} catch (Exception e) {
+				}
+			    
 			    // initial table
 				File initialTable =
 						reportFolder == null ? null : new File(reportFolder, String.format("%s_table_initial.html", finalName));
@@ -1240,6 +1248,8 @@ public class AcquisitionComposite extends Composite {
 		public void onChangedProperty(IDependencyProperty property, Object oldValue, Object newValue) {
 			if (Sample.NAME != property)
 				return;
+			else if (true)
+				return;
 
 			String measurementNameEnabled = null;
 			if (Sample.BLOCKED_BEAM.equals(oldValue))
@@ -1388,7 +1398,7 @@ public class AcquisitionComposite extends Composite {
 			if (aspectNode.getSourceElement() != sampleList)
 				for (ScheduledAspect subAspect : aspect.getLinks())
 					updateSampleList(subAspect, measurementType);
-			else
+			else {
 				for (ScheduledNode sampleNode : aspectNode.getNodes())
 					if (Sample.BLOCKED_BEAM.equals(sampleNode.getSourceElement().get(Sample.NAME))) {
 						if (Measurement.TRANSMISSION.equals(measurementType))
@@ -1402,6 +1412,7 @@ public class AcquisitionComposite extends Composite {
 						else if (Measurement.TRANSMISSION.equals(measurementType))
 							sampleNode.clearDefault(Sample.ENABLED);
 					}
+			}
 		}
 		
 		@Override
