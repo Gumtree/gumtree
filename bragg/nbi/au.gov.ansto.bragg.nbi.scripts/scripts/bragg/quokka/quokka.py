@@ -35,7 +35,7 @@ DETECTOR_MONITOR_ENABLED = True
 DETECTOR_RATE_CHECK_ENABLED = True
 
 # safe count rates
-LOCAL_RATE_SAFE  =    1000.0
+LOCAL_RATE_SAFE  =    1500.0
 GLOBAL_RATE_SAFE = 1.0E6
 
 # attenuation values
@@ -223,7 +223,7 @@ def waitUntilSicsIs(status, dt=0.2, timeout = 900):
     sics.handleInterrupt()
 
 def isInterruptException(e):
-    return isinstance(e, SicsExecutionException) and ('Interrupted' in str(e.getMessage()))
+    return isinstance(e, SicsExecutionException) or ('interrupted' in str(e).lower())
 
 def hasTripped():
     ''' disable this for the new detector commissioning '''
@@ -515,6 +515,8 @@ def doAcquisition(info):
             
         while not sf and ct < 5:
             ct += 1
+            if sics.isInterrupt():
+                raise Exception, 'SICS interrupted! Quit collection.'
             slog('wait for 20 seconds')
             time.sleep(20)
             try:
@@ -873,17 +875,18 @@ def determineDetRates(samples, timeout=60.0):
                 # check if detector has tripped
                 if hasTripped():
                     return RateInfo()
-
+                sics.handleInterrupt()
                 if time.time() - start >= timeout:
                     while True:
                         try:
+                            sics.handleInterrupt()
                             new_local_rate, new_global_rate = getMaxBinRate(refresh=True), getGlobalMapRate(refresh=True)
                             break
                         except:
                             time.sleep(1)
                     break
 #                     raise Exception('Timeout during detector local/global rate estimation')
-
+                sics.handleInterrupt()
                 time.sleep(0.5)
                 new_local_rate, new_global_rate = getMaxBinRate(), getGlobalMapRate()
 
@@ -1025,6 +1028,7 @@ def getAtt(throw=True):
 
 def driveAtt(value):
     loggedDrive('attenuator', 'att', value, 'degree', getAtt)
+#    slog("virtually drive att to " + str(value))
 
 def driveToSafeAtt():
     safe_att = max(ATT_VALUES)
@@ -1099,7 +1103,7 @@ def selBsHelper(beamstop, bx, bz, controller):
             break
 
         except (Exception, SicsExecutionException) as e:
-            if isInterruptException(e) or (count >= 5):
+            if isInterruptException(e) or (count >= 20):
                 raise
 
             slog('Retry selecting beam stop %s' % beamstop)
@@ -1465,6 +1469,7 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
         count += stime
         c2 += stime
         statusData = scanController.getStatusController().getValue().getStringData()
+        sics.handleInterrupt()
         if c2 >= lstime :
             c2 = 0.
             if std_rate is None:
@@ -1551,6 +1556,8 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
         pass
     
     if not scan_err is None:
+        if 'interrupted' in scan_err.lower():
+            raise SicsExecutionException('Interrupted')
         slog('error: {}'.format(scan_err), f_err=True)
         sics.execute('title MISSING_COUNTS', 'status')
         sics.execute('histmem stop', 'status')
