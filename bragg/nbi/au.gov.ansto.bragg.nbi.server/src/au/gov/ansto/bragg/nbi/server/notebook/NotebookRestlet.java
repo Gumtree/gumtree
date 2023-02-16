@@ -1011,8 +1011,12 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 								String[] sessionArray = sessions.split(":");
 								for (String sessionId : sessionArray) {
 									if (!sessionId.equals(currentSessionId)) {
-										String pageId = sessionDb.getSessionValue(sessionId);
-										proposalObject.put(sessionId, pageId);
+										try {
+											String pageId = sessionDb.getSessionValue(sessionId);
+											proposalObject.put(sessionId, pageId);
+										} catch (Exception e) {
+											logger.error("missing page for session id " + sessionId + " of proposal " + proposalId, e);
+										}
 									}
 									sessionIds.remove(sessionId);
 								}
@@ -1024,8 +1028,13 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						if (sessionIds.size() > 0) {
 							JSONObject standaloneObject = new JSONObject(new LinkedHashMap<String, String>());
 							for (String sessionId : sessionIds) {
-								String pageId = sessionDb.getSessionValue(sessionId);
-								standaloneObject.put(sessionId, pageId);
+								try {
+									String pageId = sessionDb.getSessionValue(sessionId);
+									standaloneObject.put(sessionId, pageId);
+									System.err.println(pageId + ":" + sessionId);									
+								} catch (Exception e) {
+									logger.error("failed to add session, " + sessionId, e);
+								}
 							}
 							jsonObject.put("Stand Alone Pages", standaloneObject);
 						}
