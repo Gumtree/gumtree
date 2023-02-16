@@ -17,6 +17,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -101,20 +102,158 @@ public class MjpegViewer extends Composite {
 		GridLayoutFactory.fillDefaults().numColumns(3).spacing(1, 1).applyTo(mainComposite);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(mainComposite);
 		
-		Composite image1Composite = new Composite(mainComposite, SWT.NONE);
+		Composite leftComposite = new Composite(mainComposite, SWT.BORDER);
+		GridLayoutFactory.fillDefaults().spacing(0, 0).margins(1, 1).applyTo(leftComposite);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(leftComposite);
+		
+		Composite controlComposite1 = new Composite(leftComposite, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(4).spacing(2, 0).margins(2, 0).applyTo(controlComposite1);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(controlComposite1);
+		
+		Label zoomLabel = new Label(controlComposite1, SWT.NONE);
+		zoomLabel.setText("Zoom");
+//		zoomLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).applyTo(zoomLabel);
+//		zoomLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		
+		Button zoomInButton = new Button(controlComposite1, SWT.PUSH);
+		zoomInButton.setText("+");
+//		zoomInButton.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, true).align(SWT.BEGINNING, SWT.CENTER).hint(40, 40).applyTo(zoomInButton);
+		zoomInButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int zoomFactor = mjpeg1.getPanel().getZoomFactor();
+				mjpeg1.getPanel().setZoomFactor(++zoomFactor);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
+		Button zoomOutButton = new Button(controlComposite1, SWT.PUSH);
+		zoomOutButton.setText("-");
+//		zoomOutButton.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, true).align(SWT.BEGINNING, SWT.CENTER).hint(40, 40).applyTo(zoomOutButton);
+		zoomOutButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int zoomFactor = mjpeg1.getPanel().getZoomFactor();
+				if (zoomFactor > 1) {
+					mjpeg1.getPanel().setZoomFactor(--zoomFactor);
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
+		Button zoomResetButton = new Button(controlComposite1, SWT.PUSH);
+		zoomResetButton.setText("Reset");
+//		zoomResetButton.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, true).align(SWT.BEGINNING, SWT.CENTER).hint(80, 40).applyTo(zoomResetButton);
+		zoomResetButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int zoomFactor = mjpeg1.getPanel().getZoomFactor();
+				if (zoomFactor > 1) {
+					mjpeg1.getPanel().setZoomFactor(1);
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
+		Composite image1Composite = new Composite(leftComposite, SWT.NONE);
 		image1Composite.setLayout(new FillLayout());
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(image1Composite);
-		mjpeg1 = new MjpegComposite(image1Composite, SWT.BORDER);
+		mjpeg1 = new MjpegComposite(image1Composite, SWT.NONE);
 		
 		Composite controlComposite = new Composite(mainComposite, SWT.NONE);
 		controlComposite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 		GridLayoutFactory.fillDefaults().numColumns(2).margins(4, 4).spacing(1, 2).applyTo(controlComposite);
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.FILL, SWT.FILL).applyTo(controlComposite);
 
-		Composite image2Composite = new Composite(mainComposite, SWT.NONE);
+		Composite rightComposite = new Composite(mainComposite, SWT.BORDER);
+		GridLayoutFactory.fillDefaults().spacing(0, 0).margins(1, 1).applyTo(rightComposite);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(rightComposite);
+		
+		Composite controlComposite2 = new Composite(rightComposite, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(4).spacing(2, 0).margins(2, 0).applyTo(controlComposite2);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(controlComposite2);
+		
+		zoomLabel = new Label(controlComposite2, SWT.NONE);
+		zoomLabel.setText("Zoom");
+//		zoomLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).applyTo(zoomLabel);
+//		zoomLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		
+		zoomInButton = new Button(controlComposite2, SWT.PUSH);
+		zoomInButton.setText("+");
+//		zoomInButton.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, true).align(SWT.BEGINNING, SWT.CENTER).hint(40, 40).applyTo(zoomInButton);
+		zoomInButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int zoomFactor = mjpeg2.getPanel().getZoomFactor();
+				mjpeg2.getPanel().setZoomFactor(++zoomFactor);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
+		zoomOutButton = new Button(controlComposite2, SWT.PUSH);
+		zoomOutButton.setText("-");
+//		zoomOutButton.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, true).align(SWT.BEGINNING, SWT.CENTER).hint(40, 40).applyTo(zoomOutButton);
+		zoomOutButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int zoomFactor = mjpeg2.getPanel().getZoomFactor();
+				if (zoomFactor > 1) {
+					mjpeg2.getPanel().setZoomFactor(--zoomFactor);
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
+		zoomResetButton = new Button(controlComposite2, SWT.PUSH);
+		zoomResetButton.setText("Reset");
+//		zoomResetButton.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, true).align(SWT.BEGINNING, SWT.CENTER).hint(80, 40).applyTo(zoomResetButton);
+		zoomResetButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int zoomFactor = mjpeg2.getPanel().getZoomFactor();
+				if (zoomFactor > 1) {
+					mjpeg2.getPanel().setZoomFactor(1);
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
+		Composite image2Composite = new Composite(rightComposite, SWT.NONE);
 		image2Composite.setLayout(new FillLayout());
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(image2Composite);
-		mjpeg2 = new MjpegComposite(image2Composite, SWT.BORDER);
+		mjpeg2 = new MjpegComposite(image2Composite, SWT.NONE);
 		
 		createControlComposite(controlComposite);
 		
