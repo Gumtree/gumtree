@@ -99,19 +99,20 @@ public class MjpegViewer extends Composite {
 		
 		Composite mainComposite = new Composite(this, SWT.NONE);
 //		imageComposite.setLayout(new FillLayout());
-		GridLayoutFactory.fillDefaults().numColumns(3).spacing(1, 1).applyTo(mainComposite);
+		GridLayoutFactory.fillDefaults().numColumns(3).margins(0, 0).spacing(1, 1).applyTo(mainComposite);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(mainComposite);
 		
 		Composite leftComposite = new Composite(mainComposite, SWT.BORDER);
-		GridLayoutFactory.fillDefaults().spacing(0, 0).margins(1, 1).applyTo(leftComposite);
+		GridLayoutFactory.fillDefaults().spacing(0, 0).margins(0, 0).applyTo(leftComposite);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(leftComposite);
 		
 		Composite controlComposite1 = new Composite(leftComposite, SWT.NONE);
+//		controlComposite1.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 		GridLayoutFactory.swtDefaults().numColumns(4).spacing(2, 0).margins(2, 0).applyTo(controlComposite1);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(controlComposite1);
 		
 		Label zoomLabel = new Label(controlComposite1, SWT.NONE);
-		zoomLabel.setText("Zoom");
+		zoomLabel.setText(" Zoom");
 //		zoomLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).applyTo(zoomLabel);
 //		zoomLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
@@ -172,7 +173,11 @@ public class MjpegViewer extends Composite {
 		});
 
 		Composite image1Composite = new Composite(leftComposite, SWT.NONE);
-		image1Composite.setLayout(new FillLayout());
+		FillLayout layout = new FillLayout();
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		layout.spacing = 0;
+		image1Composite.setLayout(layout);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(image1Composite);
 		mjpeg1 = new MjpegComposite(image1Composite, SWT.NONE);
 		
@@ -182,7 +187,7 @@ public class MjpegViewer extends Composite {
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.FILL, SWT.FILL).applyTo(controlComposite);
 
 		Composite rightComposite = new Composite(mainComposite, SWT.BORDER);
-		GridLayoutFactory.fillDefaults().spacing(0, 0).margins(1, 1).applyTo(rightComposite);
+		GridLayoutFactory.fillDefaults().spacing(0, 0).margins(0, 0).applyTo(rightComposite);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(rightComposite);
 		
 		Composite controlComposite2 = new Composite(rightComposite, SWT.NONE);
@@ -190,7 +195,7 @@ public class MjpegViewer extends Composite {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(controlComposite2);
 		
 		zoomLabel = new Label(controlComposite2, SWT.NONE);
-		zoomLabel.setText("Zoom");
+		zoomLabel.setText(" Zoom");
 //		zoomLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).applyTo(zoomLabel);
 //		zoomLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
@@ -548,9 +553,24 @@ public class MjpegViewer extends Composite {
 	    slider.setMinimum(0);
 	    slider.setIncrement(1);
 	    slider.setPageIncrement(5);
-	    slider.setThumb(4);
-	    slider.setSelection(48);
+	    slider.setThumb(5);
+	    slider.setSelection(50);
 	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(slider);
+	    
+	    slider.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 	    
 		Group yGroup = new Group(axesControlComposite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(3).applyTo(yGroup);

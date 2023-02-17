@@ -151,7 +151,7 @@ public class AlignVideoPart extends Composite {
 			@Override
 			public void markerSet() {
 				if (enabled) {
-					marker1Set(2);
+					marker1Set(STEP_ID_MARKLEFT);
 				}
 			}
 			
@@ -165,7 +165,7 @@ public class AlignVideoPart extends Composite {
 			@Override
 			public void markerSet() {
 				if (enabled) {
-					marker2Set(3);
+					marker2Set(STEP_ID_MARKRIGHT);
 				}
 			}
 			
@@ -235,12 +235,12 @@ public class AlignVideoPart extends Composite {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					if (checkButton.getSelection()) {
-//						steps[id].finish();
-//						if (id < NUM_STEPS - 1) {
-//							moveToStep(id + 1);
-//						} else {
-//							finishAll();
-//						}
+						steps[id].finish();
+						if (id < NUM_STEPS - 1) {
+							moveToStep(id + 1);
+						} else {
+							finishAll();
+						}
 					}
 				}
 				
@@ -271,7 +271,9 @@ public class AlignVideoPart extends Composite {
 	class StepMark implements IStep {
 		Label label1;
 		Button checkButton;
+		int stepId;
 		public StepMark(Group parent, final int id, String text) {
+			stepId = id;
 			label1 = new Label(parent, SWT.NONE);
 			label1.setText(String.format("%d. %s", id, text));
 			label1.setFont(Activator.getMiddleFont());
@@ -287,9 +289,9 @@ public class AlignVideoPart extends Composite {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					if (checkButton.getSelection()) {
-						steps[id].finish();
-						if (id < NUM_STEPS - 1) {
-							moveToStep(id + 1);
+						finish();
+						if (stepId < NUM_STEPS - 1) {
+							moveToStep(stepId + 1);
 						} else {
 							finishAll();
 						}
@@ -310,11 +312,21 @@ public class AlignVideoPart extends Composite {
 		@Override
 		public void setEnabled(boolean enabled) {
 			label1.setEnabled(enabled);
+			if (stepId == STEP_ID_MARKLEFT) {
+				parentViewer.getPanel1().setMarkerFixed(!enabled);
+			} else if (stepId == STEP_ID_MARKRIGHT) {
+				parentViewer.getPanel2().setMarkerFixed(!enabled);
+			}
 		}
 
 		@Override
 		public void finish() {
 			checkButton.setSelection(true);
+			if (stepId == STEP_ID_MARKLEFT) {
+				parentViewer.getPanel1().setMarkerFixed(true);
+			} else if (stepId == STEP_ID_MARKRIGHT) {
+				parentViewer.getPanel2().setMarkerFixed(true);
+			}
 		}
 
 	}
@@ -492,11 +504,6 @@ public class AlignVideoPart extends Composite {
 	private void moveToStep(int id) {
 		for (int i = 0; i < steps.length; i ++) {
 			steps[i].setEnabled(id == i);
-			if (id == 1) {
-				parentViewer.getPanel1().setMarkerFixed(false);
-			} else if (id == 2) {
-				parentViewer.getPanel2().setMarkerFixed(false);
-			}
 		}
 	}
 	

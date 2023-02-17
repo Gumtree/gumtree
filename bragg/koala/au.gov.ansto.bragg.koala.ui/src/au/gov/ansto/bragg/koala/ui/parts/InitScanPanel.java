@@ -135,7 +135,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		
 		comText = new Text(infoBlock, SWT.WRAP | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL);
 		comText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, false).span(1, 2).minSize(500, 88).hint(360, SWT.DEFAULT).applyTo(comText);
+		GridDataFactory.fillDefaults().grab(true, false).span(1, 2).minSize(500, 88).hint(360, 88).applyTo(comText);
 		
 		comText.addModifyListener(new ModifyListener() {
 			
@@ -151,7 +151,8 @@ public class InitScanPanel extends AbstractControlPanel {
 		final Label fileLabel = new Label(infoBlock, SWT.NONE);
 		fileLabel.setText("Image filename");
 		fileLabel.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).minSize(320, 40).applyTo(fileLabel);
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, 
+				SWT.CENTER).minSize(320, 40).applyTo(fileLabel);
 		
 		parentText = new Text(infoBlock, SWT.READ_ONLY);
 		parentText.setFont(Activator.getMiddleFont());
@@ -656,86 +657,98 @@ public class InitScanPanel extends AbstractControlPanel {
 		
 		private ISicsController sampleController;
 		private ISicsController commentsController;
+		private ISicsController phiController;
+		private ISicsController chiController;
+		private ISicsController tempController;
+		private ISicsController stepController;
 		
 		public ConditionControl() {
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 				
 				@Override
 				public void connect() {
-					final ISicsController phiController = SicsManager.getSicsModel().findController(
-							System.getProperty(ControlHelper.SAMPLE_PHI));
-					final ISicsController chiController = SicsManager.getSicsModel().findController(
-							System.getProperty(ControlHelper.SAMPLE_CHI));
-					final ISicsController tempController = SicsManager.getSicsModel().findController(
-							System.getProperty(ControlHelper.ENV_VALUE));
-					final ISicsController stepController = SicsManager.getSicsModel().findController(
-							System.getProperty(ControlHelper.STEP_PATH));
-					sampleController = SicsManager.getSicsModel().findController(
-							System.getProperty(ControlHelper.GUMTREE_SAMPLE_NAME));
-					commentsController = SicsManager.getSicsModel().findController(
-							System.getProperty(ControlHelper.GUMTREE_COMMENTS));
-					if (phiController != null) {
-						phiController.addControllerListener(
-								new ControllerListener(phiText));
-					}
-					if (chiController != null) {
-						chiController.addControllerListener(
-								new ControllerListener(chiText));
-					}
-					if (tempController != null) {
-						tempController.addControllerListener(
-								new ControllerListener(tempText));
-					}
-					if (stepController != null) {
-						stepController.addControllerListener(
-								new ControllerListener(stepText));
-					}
-					if (sampleController != null) {
-						sampleController.addControllerListener(
-								new ControllerListener(nameText));
-					}
-					if (commentsController != null) {
-						commentsController.addControllerListener(
-								new ControllerListener(comText));
-					}
-					Display.getDefault().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							try {
-								if (phiController != null) {
-									phiText.setText(String.valueOf(
-											((DynamicController) phiController).getValue()));
-								}
-								if (chiController != null) {
-									chiText.setText(String.valueOf(
-											((DynamicController) chiController).getValue()));
-								}
-								if (tempController != null) {
-									tempText.setText(String.valueOf(
-											((DynamicController) tempController).getValue()));
-								}
-								if (stepController != null) {
-									stepText.setText(String.valueOf(
-											((DynamicController) stepController).getValue()));
-								}
-								if (sampleController != null) {
-									curSampleName = String.valueOf(
-											((DynamicController) sampleController).getValue());
-									nameText.setText(curSampleName);
-								}
-								if (commentsController != null) {
-									curComments = String.valueOf(
-											((DynamicController) commentsController).getValue());
-									comText.setText(curComments);
-								}
-							} catch (Exception e) {
-							}
-						}
-					});
+					init();
 				}
 			};
+			if (controlHelper.isConnected()) {
+				init();
+			}
 			controlHelper.addProxyListener(proxyListener);
+		}
+		
+		private void init() {
+			phiController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.SAMPLE_PHI));
+			chiController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.SAMPLE_CHI));
+			tempController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.ENV_VALUE));
+			stepController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.STEP_PATH));
+			sampleController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.GUMTREE_SAMPLE_NAME));
+			commentsController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.GUMTREE_COMMENTS));
+			if (phiController != null) {
+				phiController.addControllerListener(
+						new ControllerListener(phiText));
+			}
+			if (chiController != null) {
+				chiController.addControllerListener(
+						new ControllerListener(chiText));
+			}
+			if (tempController != null) {
+				tempController.addControllerListener(
+						new ControllerListener(tempText));
+			}
+			if (stepController != null) {
+				stepController.addControllerListener(
+						new ControllerListener(stepText));
+			}
+			if (sampleController != null) {
+				sampleController.addControllerListener(
+						new ControllerListener(nameText));
+			}
+			if (commentsController != null) {
+				commentsController.addControllerListener(
+						new ControllerListener(comText));
+			}
+			Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					try {
+						if (phiController != null) {
+							phiText.setText(String.valueOf(
+									((DynamicController) phiController).getValue()));
+						}
+						if (chiController != null) {
+							chiText.setText(String.valueOf(
+									((DynamicController) chiController).getValue()));
+						}
+						if (tempController != null) {
+							tempText.setText(String.valueOf(
+									((DynamicController) tempController).getValue()));
+						}
+						if (stepController != null) {
+							stepText.setText(String.valueOf(
+									((DynamicController) stepController).getValue()));
+						}
+						if (sampleController != null) {
+							curSampleName = String.valueOf(
+									((DynamicController) sampleController).getValue());
+							nameText.setText(curSampleName);
+						}
+						if (commentsController != null) {
+							curComments = String.valueOf(
+									((DynamicController) commentsController).getValue());
+							comText.setText(curComments);
+						}
+					} catch (Exception e) {
+					}
+				}
+			});
+
 		}
 		
 		public void applyChange() throws SicsException {

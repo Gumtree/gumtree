@@ -1,0 +1,11 @@
+<nodeset>
+    <title>Maintenance</title>
+    <type>subtree</type>
+    <include>/instrument/dcz</include>
+    <include>/sample/sz</include>
+    <include>/sample/sx</include>
+    <include>/sample/sy</include>
+    <include>/sample/sr</include>
+    <include>/sample/tc1</include>
+    <include>/instrument/save_tiff</include>
+</nodeset>

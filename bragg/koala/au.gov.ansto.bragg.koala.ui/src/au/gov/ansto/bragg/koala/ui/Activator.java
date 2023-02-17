@@ -16,6 +16,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.gumtree.ui.service.multimonitor.IMultiMonitorManager;
 import org.gumtree.ui.service.multimonitor.support.MultiMonitorManager;
 import org.gumtree.ui.util.SafeUIRunner;
+import org.gumtree.util.ISystemProperty;
+import org.gumtree.util.SystemProperty;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -43,6 +45,8 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PHI = "\u03A6".toLowerCase();
 	public static final String CHI = "\u03A7".toLowerCase();
 	public static final String TAU = "\u03C4";
+	public static final String MAINTENANCE_FILTER = "MaintenanceFilter.xml";
+
 	
 	// The shared instance
 	private static Activator plugin;

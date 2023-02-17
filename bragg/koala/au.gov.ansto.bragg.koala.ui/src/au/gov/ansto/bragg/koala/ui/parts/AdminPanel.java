@@ -3,6 +3,11 @@
  */
 package au.gov.ansto.bragg.koala.ui.parts;
 
+import java.net.URI;
+
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -10,9 +15,13 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.gumtree.control.core.SicsCoreProperties;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.ui.ControlTerminalView;
 import org.gumtree.control.ui.viewer.ControlViewer;
+import org.gumtree.control.ui.viewer.model.INodeSet;
+import org.gumtree.control.ui.viewer.model.NodeSet;
+import org.gumtree.util.string.StringUtils;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
@@ -33,6 +42,7 @@ public class AdminPanel extends AbstractPanel {
 	private MainPart mainPart;
 	private int panelWidth;
 	private int panelHeight;
+	private ControlViewer filterViewer;
 	private ControlViewer controlViewer;
 
 	/**
@@ -55,10 +65,16 @@ public class AdminPanel extends AbstractPanel {
 		SashForm level1Form = new SashForm(this, SWT.HORIZONTAL);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(level1Form);
 		
-		final Composite left = new Composite(level1Form, SWT.NONE);
-		GridLayoutFactory.fillDefaults().applyTo(left);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(left);
-		
+		SashForm level2Left = new SashForm(level1Form, SWT.VERTICAL);
+		final Composite leftUp = new Composite(level2Left, SWT.NONE);
+		GridLayoutFactory.fillDefaults().applyTo(leftUp);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(leftUp);
+
+		final Composite leftDown = new Composite(level2Left, SWT.NONE);
+		GridLayoutFactory.fillDefaults().applyTo(leftDown);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(leftDown);
+		level2Left.setWeights(new int[] {3, 7});
+
 //		final Composite right1 = new Composite(this, SWT.BORDER);
 //		GridLayoutFactory.fillDefaults().applyTo(right1);
 //		GridDataFactory.fillDefaults().grab(false, true).minSize(600, 400).applyTo(right1);
@@ -76,13 +92,27 @@ public class AdminPanel extends AbstractPanel {
 		ControlTerminalView terminal = new ControlTerminalView();
 		terminal.createPartControl(level2Right);
 		level2Right.setWeights(new int[] {5, 4});
-		
+		filterViewer = new ControlViewer();
 		controlViewer = new ControlViewer();
 		if (mainPart.getControl().isConnected()) {
-			controlViewer.createPartControl(left, null);
+			String filterPath = SicsCoreProperties.FILTER_PATH.getValue();
+			if (!StringUtils.isEmpty(filterPath)) {
+				try {
+					IFileStore filterFolder = EFS.getStore(new URI(filterPath));
+					IFileStore child = filterFolder.getChild(Activator.MAINTENANCE_FILTER);
+					INodeSet nodeSet = NodeSet.read(child.openInputStream(EFS.NONE, new NullProgressMonitor()));
+					filterViewer.createPartControl(leftUp, nodeSet);
+					GridDataFactory.fillDefaults().grab(true, true).applyTo(
+							filterViewer.getTreeViewer().getControl());
+				}catch (Exception e) {
+					e.printStackTrace();
+				}
+			}			
+			controlViewer.createPartControl(leftDown, null);
 			GridDataFactory.fillDefaults().grab(true, true).applyTo(
 					controlViewer.getTreeViewer().getControl());
 		}
+		
 		mainPart.getControl().addProxyListener(new SicsProxyListenerAdapter() {
 			@Override
 			public void connect() {
@@ -96,11 +126,31 @@ public class AdminPanel extends AbstractPanel {
 							controlViewer = new ControlViewer();
 						}
 						if (!controlViewer.isInitialised()) {
-							controlViewer.createPartControl(left, null);
+							controlViewer.createPartControl(leftDown, null);
 							GridDataFactory.fillDefaults().grab(true, true).applyTo(
 									controlViewer.getTreeViewer().getControl());
-							left.update();
-							left.layout();
+							leftDown.update();
+							leftDown.layout();
+						}
+						if (filterViewer.isDisposed()) {
+							filterViewer = new ControlViewer();
+						}
+						if (!filterViewer.isInitialised()) {
+							String filterPath = SicsCoreProperties.FILTER_PATH.getValue();
+							if (!StringUtils.isEmpty(filterPath)) {
+								try {
+									IFileStore filterFolder = EFS.getStore(new URI(filterPath));
+									IFileStore child = filterFolder.getChild(Activator.MAINTENANCE_FILTER);
+									INodeSet nodeSet = NodeSet.read(child.openInputStream(EFS.NONE, new NullProgressMonitor()));
+									filterViewer.createPartControl(leftUp, nodeSet);
+									GridDataFactory.fillDefaults().grab(true, true).applyTo(
+											filterViewer.getTreeViewer().getControl());
+								}catch (Exception e) {
+									e.printStackTrace();
+								}
+							}			
+							leftUp.update();
+							leftUp.layout();
 						}
 					}
 				});

@@ -84,6 +84,9 @@ public final class SicsCoreProperties {
 	public static final ISystemProperty MESSAGE_DROP_ENABLE = new SystemProperty(
 			"gumtree.sics.messageDropEnable", "false");
 
+	public static final ISystemProperty FILTER_PATH = new SystemProperty(
+			"gumtree.sics.filterPath", "");
+
 	private SicsCoreProperties() {
 		super();
 	}
