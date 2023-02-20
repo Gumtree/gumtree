@@ -52,10 +52,10 @@ public class EnvironmentPanel extends AbstractPanel {
 		GridLayoutFactory.fillDefaults().numColumns(3).margins(8, 8).applyTo(statusPanel);
 		GridDataFactory.swtDefaults().minSize(560, 240).align(SWT.CENTER, SWT.CENTER).applyTo(statusPanel);
 
-		Label statusLabel = new Label(statusPanel, SWT.NONE);
-		statusLabel.setFont(Activator.getMiddleFont());
-		statusLabel.setForeground(Activator.getWarningColor());
-		GridDataFactory.fillDefaults().span(3, 1).grab(true, false).align(SWT.CENTER, SWT.CENTER).applyTo(statusLabel);
+//		Label statusLabel = new Label(statusPanel, SWT.NONE);
+//		statusLabel.setFont(Activator.getMiddleFont());
+//		statusLabel.setForeground(Activator.getWarningColor());
+//		GridDataFactory.fillDefaults().span(3, 1).grab(true, false).align(SWT.BEGINNING, SWT.CENTER).minSize(360, 36).applyTo(statusLabel);
 
 		Label valueLabel = new Label(statusPanel, SWT.NONE);
 		valueLabel.setText("Current value (K)");
@@ -82,7 +82,7 @@ public class EnvironmentPanel extends AbstractPanel {
 		GridDataFactory.fillDefaults().grab(true, true).minSize(160, 36).align(SWT.CENTER, SWT.CENTER).applyTo(targetText);
 		
 		SimpleControlSuite controlSuite = new SimpleControlSuite(System.getProperty(ControlHelper.ENV_VALUE), 
-				valueText, System.getProperty(ControlHelper.ENV_SETPOINT), targetText, runButton, statusLabel);
+				valueText, System.getProperty(ControlHelper.ENV_SETPOINT), targetText, runButton, null);
 	}
 
 	

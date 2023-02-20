@@ -17,7 +17,6 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -846,6 +845,8 @@ public class MjpegViewer extends Composite {
 								@Override
 								public void run() {
 									getParent().forceFocus();
+									updatePhiButtons();
+									ControlHelper.experimentModel.publishErrorMessage(e1.getMessage());
 								}
 							});
 						}
@@ -1222,6 +1223,37 @@ public class MjpegViewer extends Composite {
 		});
 	}
 
+	private void updatePhiButtons() {
+		try {
+			final ISicsController phiController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.SAMPLE_PHI));
+			float value = (Float) ((DriveableController) phiController).getValue();
+			double precision = ((DriveableController) phiController).getPrecision();
+			if (Double.isNaN(precision)) {
+				precision = 0;
+			} else {
+				precision = Math.abs(precision);
+			}
+			if (inRange(value, precision, -45)) {
+				chooseRange(phiNWButton);
+			} else if (inRange(value, precision, 45)) {
+				chooseRange(phiNEButton);
+			} else if (inRange(value, precision, -135)) {
+				chooseRange(phiSWButton);
+			} else if (inRange(value, precision, 135)) {
+				chooseRange(phiSEButton);
+			} else {
+				chooseRange(null);
+			}					
+		} catch (SicsModelException e) {
+			e.printStackTrace();
+		}
+		phiNEButton.setEnabled(true);
+		phiNWButton.setEnabled(true);
+		phiSWButton.setEnabled(true);
+		phiSEButton.setEnabled(true);
+	}
+	
 	class PhiControllerListener implements ISicsControllerListener {
 
 		private DriveableController phiController;
@@ -1242,32 +1274,7 @@ public class MjpegViewer extends Composite {
 						phiSWButton.setEnabled(false);
 						phiSEButton.setEnabled(false);
 					} else {
-						try {
-							float value = (Float) phiController.getValue();
-							double precision = phiController.getPrecision();
-							if (Double.isNaN(precision)) {
-								precision = 0;
-							} else {
-								precision = Math.abs(precision);
-							}
-							if (inRange(value, precision, -45)) {
-								chooseRange(phiNWButton);
-							} else if (inRange(value, precision, 45)) {
-								chooseRange(phiNEButton);
-							} else if (inRange(value, precision, -135)) {
-								chooseRange(phiSWButton);
-							} else if (inRange(value, precision, 135)) {
-								chooseRange(phiSEButton);
-							} else {
-								chooseRange(null);
-							}					
-						} catch (SicsModelException e) {
-							e.printStackTrace();
-						}
-						phiNEButton.setEnabled(true);
-						phiNWButton.setEnabled(true);
-						phiSWButton.setEnabled(true);
-						phiSEButton.setEnabled(true);
+						updatePhiButtons();
 					}
 				}
 			});

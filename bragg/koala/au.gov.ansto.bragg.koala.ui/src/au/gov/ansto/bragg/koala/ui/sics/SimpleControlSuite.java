@@ -166,7 +166,9 @@ public class SimpleControlSuite {
 //						}
 //					}
 //				});
-				setStatusText(statusLabel, "");
+				if (statusLabel != null) {
+					setStatusText(statusLabel, "");
+				}
 				Thread runThread = new Thread(new Runnable() {
 					
 					@Override
@@ -194,12 +196,18 @@ public class SimpleControlSuite {
 			
 			@Override
 			public void run() {
-				statusLabel.setText(text);
+				if (statusLabel != null) {
+					statusLabel.setText(text);
+				} else {
+					ControlHelper.experimentModel.publishErrorMessage(text);
+				}
 //				statusLabel.forceFocus();
 //				statusLabel.getParent().forceFocus();
 //				statusLabel.update();
 //				statusLabel.setRedraw(true);
-				runButton.forceFocus();
+				if (runButton != null) {
+					runButton.forceFocus();
+				}
 			}
 		});
 	}

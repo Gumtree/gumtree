@@ -16,6 +16,7 @@ import org.gumtree.control.core.IDriveableController;
 import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ServerStatus;
+import org.gumtree.control.exception.SicsExecutionException;
 import org.gumtree.control.exception.SicsInterruptException;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.imp.DynamicController;
@@ -384,7 +385,8 @@ public class KoalaServer {
 					return;
 				}
 			}
-			
+			if (true) throw new SicsExecutionException("motion disabled");
+
 			respondReply(client, cid, command, "start driving " + dev);
 			drive(driveable, target);
 			respondFinal(client, cid, command, dev + " = " + target);

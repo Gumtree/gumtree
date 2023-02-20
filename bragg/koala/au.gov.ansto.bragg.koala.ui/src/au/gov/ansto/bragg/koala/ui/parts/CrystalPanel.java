@@ -59,6 +59,7 @@ public class CrystalPanel extends AbstractControlPanel {
 	private Button chiHighButton;
 	private Button chiApplyButton;
 	private ControlHelper controlHelper;
+	private ChiControllerListener chiListener;
 	
 	/**
 	 * @param parent
@@ -109,10 +110,10 @@ public class CrystalPanel extends AbstractControlPanel {
 //		GridDataFactory.swtDefaults().grab(true, true).hint(600, 480).align(SWT.CENTER, SWT.CENTER).applyTo(phiBlock);
 		phiBlock.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
 		
-		final Label phiStatusLabel = new Label(phiBlock, SWT.NONE);
-		phiStatusLabel.setFont(Activator.getMiddleFont());
-		phiStatusLabel.setForeground(Activator.getWarningColor());
-		GridDataFactory.fillDefaults().span(3, 1).grab(true, false).applyTo(phiStatusLabel);
+//		final Label phiStatusLabel = new Label(phiBlock, SWT.NONE);
+//		phiStatusLabel.setFont(Activator.getMiddleFont());
+//		phiStatusLabel.setForeground(Activator.getWarningColor());
+//		GridDataFactory.fillDefaults().span(3, 1).grab(true, false).applyTo(phiStatusLabel);
 
 		final Label curLabel = new Label(phiBlock, SWT.NONE);
 		curLabel.setText("Current sample " + Activator.PHI + " (\u00b0)");
@@ -261,7 +262,7 @@ public class CrystalPanel extends AbstractControlPanel {
 		
 		String samplePhiPath = System.getProperty(ControlHelper.SAMPLE_PHI);
 		new SimpleControlSuite(samplePhiPath, 
-				curText, samplePhiPath, tarText, driveButton, phiStatusLabel);
+				curText, samplePhiPath, tarText, driveButton, null);
 		
 		new ChiControlSuite();
 	}
@@ -321,7 +322,9 @@ public class CrystalPanel extends AbstractControlPanel {
 							driveable.drive();
 						} catch (SicsException e1) {
 							e1.printStackTrace();
-							setChiStatusText(chiStatusLabel, e1.getMessage());
+							chiListener.updateState(null, null);
+							ControlHelper.experimentModel.publishErrorMessage(e1.getMessage());
+//							setChiStatusText(chiStatusLabel, e1.getMessage());
 //							mainPart.popupError(e1.getMessage());
 						}
 					}
@@ -368,9 +371,8 @@ public class CrystalPanel extends AbstractControlPanel {
 								}
 							} catch (SicsModelException e) {
 							}
-							
-							chiController.addControllerListener(
-									new ChiControllerListener((DriveableController) chiController));
+							chiListener = new ChiControllerListener((DriveableController) chiController);
+							chiController.addControllerListener(chiListener);
 						}
 					}
 
