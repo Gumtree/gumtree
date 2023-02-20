@@ -334,9 +334,9 @@ public class ControlHelper {
 				((IDriveableController) device).drive(value);
 			} catch (SicsException e) {
 				if (e instanceof SicsInterruptException) {
-					throw new KoalaInterruptionException(e);
+					throw new KoalaInterruptionException("driving was interrupted", e);
 				} else {
-					throw new KoalaServerException(e);
+					throw new KoalaServerException("failed to drive " + deviceName + ": " + e.getMessage(), e);
 				}
 			}
 		} else {
