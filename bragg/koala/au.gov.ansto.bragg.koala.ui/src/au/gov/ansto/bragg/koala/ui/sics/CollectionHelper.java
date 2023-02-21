@@ -24,14 +24,15 @@ public class CollectionHelper {
 	
 	public static final String NAME_EXPOSURE_TIME = "gumtree.koala.exposureTime";
 	public static final String NAME_READING_TIME = "gumtree.koala.readingTime";
-
+	public static final String NAME_EXPIRATION_TIME = "gumtree.koala.collectionExp";
+	
 	private static final int START_TIMEOUT = 50;
-	private static final int COLLECTION_TIMEOUT = 180;
+	private static final int COLLECTION_TIMEOUT = Integer.valueOf(System.getProperty(NAME_EXPIRATION_TIME, "600"));
 	private static final int TIFFSAVE_TIMEOUT = 30;
 	private static final int CHECK_CYCLE = 50; // millisecond
 	private static final int FAIL_RETRY = 3;
 	private static final int READ_TIME = Integer.valueOf(System.getProperty(NAME_READING_TIME, "280"));
-	public static final int ERASE_TIME = Integer.valueOf(System.getProperty(NAME_EXPOSURE_TIME, "160"));;
+	public static final int ERASE_TIME = Integer.valueOf(System.getProperty(NAME_EXPOSURE_TIME, "160"));
 	
 	private static final Logger logger = LoggerFactory.getLogger(CollectionHelper.class);
 	private InstrumentPhase phase = InstrumentPhase.IDLE;
@@ -378,12 +379,15 @@ public class CollectionHelper {
 	public void abort() throws KoalaServerException {
 		IDynamicController abortController = (IDynamicController) SicsManager.getSicsModel()
 				.findController(ControlHelper.ABORT_COLLECTION_NAME);
+		IDynamicController expTimeController = (IDynamicController) SicsManager.getSicsModel()
+				.findController(ControlHelper.EXPO_TIME_NAME);
 		if (abortController != null) {
 			try {
 				if (getPhase().equals(InstrumentPhase.EXPOSE)) {
+					expTimeController.setValue(0);
 					setCollectionPhase(InstrumentPhase.EXPOSE_ENDING, -1);
-					abortController.setValue(1);
 				}
+				abortController.setValue(1);
 			} catch (SicsException e) {
 				// TODO Auto-generated catch block
 				throw new KoalaServerException("failed to abort collection: " + e.getMessage());
