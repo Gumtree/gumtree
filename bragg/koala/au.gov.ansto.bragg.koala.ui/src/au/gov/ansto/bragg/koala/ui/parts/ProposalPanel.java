@@ -353,7 +353,7 @@ public class ProposalPanel extends AbstractControlPanel {
 		try {
 			model.setProposalInfo(idText.getText(), nameText.getText(), isText.getText());
 		} catch (Exception e) {
-			mainPart.popupError("Failed to apply change, " + e.getMessage());
+			mainPart.popupError("Failed to apply change: " + e.getMessage());
 			return;
 		}
 		changeButton.setEnabled(false);

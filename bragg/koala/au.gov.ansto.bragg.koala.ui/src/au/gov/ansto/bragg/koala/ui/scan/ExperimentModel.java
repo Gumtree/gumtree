@@ -41,7 +41,10 @@ public class ExperimentModel {
 	private List<IExperimentModelListener> modelListeners;
 	
 	public ExperimentModel() {
-		loadPref();
+		try {
+			loadPref();
+		} catch (KoalaTaskException e) {
+		}
 		controlHelper = ControlHelper.getInstance();
 		modelListeners = new ArrayList<IExperimentModelListener>();
 		control = new UserControl();
@@ -124,7 +127,7 @@ public class ExperimentModel {
 //		}
 //	}
 	
-	private void loadPref() {
+	private void loadPref() throws KoalaTaskException {
 		String propId =  Activator.getPreference(Activator.NAME_PROP_ID);
 		if (propId != null) {
 			this.proposalId = propId;
@@ -142,15 +145,21 @@ public class ExperimentModel {
 			proposalFolder = pFolder;
 		} else {
 			if (propId != null) {
-				proposalFolder = System.getProperty(PROP_SAVING_PATH) + File.separator
-						+ propId.replaceAll("[\\D]", "") + File.separator;
-				File pf = new File(proposalFolder);
+				int pid = Integer.valueOf(propId.replaceAll("[\\D]", ""));
+				pFolder = System.getProperty(PROP_SAVING_PATH) + File.separator 
+						+ String.format("%05d", pid) + File.separator;
+				File pf = new File(pFolder);
 				if (!pf.exists()) {
-					pf.mkdir();
+//					pf.mkdir();
+					throw new KoalaTaskException("Proposal ID not found in DB, please use a "
+							+ "different one or contact your local contact. "
+							+ "For maintenance purpose use 155.");
 				}
+
+				proposalFolder = pFolder;
 			} else {
 //				popupError("No proposal folder found. Please add a proposal ID before commencing your experiment.");
-//				throw new KoalaModelException("No proposal folder found. Please add a proposal ID before commencing your experiment.");
+				throw new KoalaTaskException("No proposal folder found. Please add a proposal ID before commencing your experiment.");
 			}
 		}
 		ControlHelper.proposalFolder = proposalFolder;
@@ -164,7 +173,7 @@ public class ExperimentModel {
 		try {
 			int pid = Integer.valueOf(proposalId.replaceAll("[\\D]", ""));
 			String pFolder = System.getProperty(PROP_SAVING_PATH) + File.separator 
-					+ String.format("05d", pid) + File.separator;
+					+ String.format("%05d", pid) + File.separator;
 			File pf = new File(pFolder);
 			if (!pf.exists()) {
 //				pf.mkdir();
