@@ -157,21 +157,29 @@ public class ExperimentModel {
 	}
 
 	public void setProposalInfo(String proposalId, String username, String localContact) 
-	throws KoalaModelException {
+	throws KoalaModelException, KoalaTaskException {
 		this.proposalId = proposalId;
 		this.username = username;
 		this.localContact = localContact;
 		try {
+			int pid = Integer.valueOf(proposalId.replaceAll("[\\D]", ""));
 			String pFolder = System.getProperty(PROP_SAVING_PATH) + File.separator 
-					+ proposalId.replaceAll("[\\D]", "") + File.separator;
+					+ String.format("05d", pid) + File.separator;
 			File pf = new File(pFolder);
 			if (!pf.exists()) {
-				pf.mkdir();
+//				pf.mkdir();
+				throw new KoalaTaskException("Proposal ID not found in DB, please use a "
+						+ "different one or contact your local contact. "
+						+ "For maintenance purpose use 155.");
 			}
 			Activator.setPreference(Activator.NAME_PROP_FOLDER, pFolder);
 			this.proposalFolder = pFolder;
 			control.applyChange();
 //			mainPart.setProposalFolder(proposalFolder);
+		} catch (NumberFormatException ne) {
+			throw new KoalaModelException();
+		} catch (KoalaTaskException te) {
+			throw te;
 		} catch (Exception e) {
 //			mainPart.popupError("Failed to create proposal folder, " + e.getMessage());
 //			return;

@@ -28,7 +28,6 @@ import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.koala.ui.scan.ExperimentModel;
-import au.gov.ansto.bragg.koala.ui.scan.KoalaModelException;
 import au.gov.ansto.bragg.nbi.service.soap.CurrentProposalSOAPService;
 
 /**
@@ -353,7 +352,7 @@ public class ProposalPanel extends AbstractControlPanel {
 		ExperimentModel model = mainPart.getExperimentModel();
 		try {
 			model.setProposalInfo(idText.getText(), nameText.getText(), isText.getText());
-		} catch (KoalaModelException e) {
+		} catch (Exception e) {
 			mainPart.popupError("Failed to apply change, " + e.getMessage());
 			return;
 		}
