@@ -367,11 +367,13 @@ public abstract class BaseRecordsFile {
 				// the second record.
 				RecordHeader secondRecord = getRecordAt(delRec.dataPointer
 						+ (long) delRec.dataCapacity);
-				byte[] data = readRecordData(secondRecord);
-				secondRecord.dataPointer = delRec.dataPointer;
-				secondRecord.dataCapacity += delRec.dataCapacity;
-				writeRecordData(secondRecord, data);
-				writeRecordHeaderToIndex(secondRecord);
+				if (secondRecord != null) {
+					byte[] data = readRecordData(secondRecord);
+					secondRecord.dataPointer = delRec.dataPointer;
+					secondRecord.dataCapacity += delRec.dataCapacity;
+					writeRecordData(secondRecord, data);
+					writeRecordHeaderToIndex(secondRecord);
+				}
 			}
 		}
 		deleteEntryFromIndex(key, delRec, currentNumRecords);
@@ -400,11 +402,13 @@ public abstract class BaseRecordsFile {
 				// the second record.
 				RecordHeader secondRecord = getRecordAt(delRec.dataPointer
 						+ (long) delRec.dataCapacity);
-				byte[] data = readRecordData(secondRecord);
-				secondRecord.dataPointer = delRec.dataPointer;
-				secondRecord.dataCapacity += delRec.dataCapacity;
-				writeRecordData(secondRecord, data);
-				writeRecordHeaderToIndex(secondRecord);
+				if (secondRecord != null) {
+					byte[] data = readRecordData(secondRecord);
+					secondRecord.dataPointer = delRec.dataPointer;
+					secondRecord.dataCapacity += delRec.dataCapacity;
+					writeRecordData(secondRecord, data);
+					writeRecordHeaderToIndex(secondRecord);
+				}
 			}
 		}
 		deleteEntryFromIndex(key, delRec, currentNumRecords);

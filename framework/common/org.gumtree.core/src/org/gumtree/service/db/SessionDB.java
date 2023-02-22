@@ -30,11 +30,14 @@ public class SessionDB {
 	}
 	
 	public String getSessionValue(String sessionId) throws ClassNotFoundException, RecordsFileException, IOException {
+		try {
 			Object entry = db.getEntry(sessionId);
 			if (entry != null) {
 				return entry.toString();
 			} 
-			return null;
+		} catch (Exception e) {
+		}
+		return null;
 	}
 	
 	public String getSessiongId(String value) throws IOException, ClassNotFoundException, RecordsFileException {
