@@ -36,6 +36,8 @@ public class DrumDoorWidget extends ExtendedWidgetComposite {
 	
 	private static final String TEXT_LABEL = "Drum Door\n";
 	
+	private static boolean isClosed = false;
+	
 	private IDataAccessManager dataAccessManager;
 
 	private IDelayEventExecutor delayEventExecutor;
@@ -337,21 +339,27 @@ public class DrumDoorWidget extends ExtendedWidgetComposite {
 					context.label.setForeground(getDisplay().getSystemColor(
 							SWT.COLOR_WHITE));
 					context.isActivated = true;
+					isClosed = false;
 				} else if (dataLeft == 1 && dataRight == 1) {
 					context.label.setText(TEXT_LABEL + "CLOSED");
 					context.label.setBackground(getDisplay().getSystemColor(
 							SWT.COLOR_GREEN));
 					context.label.setForeground(getDisplay().getSystemColor(
 							SWT.COLOR_BLACK));
-					context.isActivated = true;					
+					context.isActivated = true;
+					isClosed = true;
 				} else {
 					context.label.setText(TEXT_LABEL + "--");
 					context.label.setBackground(null);
 					context.label.setForeground(context.originalForeground);
 					context.isActivated = false;
+					isClosed = false;
 				}				
 			}
 		});
 	}
 
+	public static boolean isClosed() {
+		return isClosed;
+	}
 }

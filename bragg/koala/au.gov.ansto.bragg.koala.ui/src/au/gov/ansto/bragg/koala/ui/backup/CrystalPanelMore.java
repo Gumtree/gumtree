@@ -324,14 +324,14 @@ public class CrystalPanelMore extends AbstractControlPanel {
 		});
 		
 		String szPath = System.getProperty(ControlHelper.SZ_PATH);
-		new SimpleControlSuite(szPath, szText, szPath, szTarText, szButton, phiStatusLabel);
+		new SimpleControlSuite(szPath, szText, szPath, szTarText, szButton, phiStatusLabel, null, 0f);
 		
 		String dczPath = System.getProperty(ControlHelper.DRUM_PATH);
-		new SimpleControlSuite(dczPath, dczText, dczPath, dczTarText, dczButton, phiStatusLabel);
+		new SimpleControlSuite(dczPath, dczText, dczPath, dczTarText, dczButton, phiStatusLabel, null, 0f);
 		
 		String samplePhiPath = System.getProperty(ControlHelper.SAMPLE_PHI);
 		new SimpleControlSuite(samplePhiPath, 
-				curText, samplePhiPath, tarText, driveButton, phiStatusLabel);
+				curText, samplePhiPath, tarText, driveButton, phiStatusLabel, null, 0f);
 		
 		new ChiControlSuite();
 	}

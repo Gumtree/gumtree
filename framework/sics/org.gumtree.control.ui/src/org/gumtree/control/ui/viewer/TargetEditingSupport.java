@@ -15,6 +15,7 @@ import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.model.ControllerData;
 import org.gumtree.control.model.ModelUtils;
+import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.control.ui.viewer.ControlViewerConstants.Column;
 import org.gumtree.control.ui.viewer.model.CommandControllerNode;
 import org.gumtree.control.ui.viewer.model.DynamicControllerNode;
@@ -46,7 +47,8 @@ public class TargetEditingSupport extends EditingSupport {
 	public TargetEditingSupport(TreeViewer viewer, int coloumnIndex) {
 		super(viewer);
 		this.coloumnIndex = coloumnIndex;
-		textCellEditor = new TextCellEditor(viewer.getTree());
+//		textCellEditor = new TextCellEditor(viewer.getTree());
+		textCellEditor = new ActionTextCellEditor(viewer.getTree());
 		// [GT-216] Mask out the following code to avoid the widget disappear bug
 		// It seems this bug appears after the Eclipse 3.5 migration.
 //		textCellEditor.addListener(new ICellEditorListener() {
@@ -177,11 +179,16 @@ public class TargetEditingSupport extends EditingSupport {
 					@Override
 					public void run() {
 						try {
+							((DynamicControllerNode) element).getDynamicController().setState(ControllerState.BUSY);
+							((DynamicControllerNode) element).getDynamicController().clearError();
 							IDynamicController controller = ((DynamicControllerNode) element).getDynamicController();
 							controller.setTargetValue(data);
-							controller.commitTargetValue();					
+							controller.commitTargetValue();
+							((DynamicControllerNode) element).getDynamicController().setState(ControllerState.IDLE);
 						} catch (SicsException e) {
 							e.printStackTrace();
+							((DynamicControllerNode) element).getDynamicController().setState(ControllerState.ERROR);
+							((DynamicControllerNode) element).getDynamicController().setErrorMessage(e.getMessage());
 						}
 					}
 				});

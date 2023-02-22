@@ -442,11 +442,13 @@ public class OldMjpegViewer extends Composite {
 
 		String sxPath = System.getProperty(ControlHelper.SX_PATH);		
 		SimpleControlSuite sxSuite = new SimpleControlSuite(
-				sxPath, curText, sxPath, tarText, driveButton, statusLabel);
+				sxPath, curText, sxPath, tarText, driveButton, statusLabel, 
+				slider, 5f);
 
 		String syPath = System.getProperty(ControlHelper.SY_PATH);
 		SimpleControlSuite sySuite = new SimpleControlSuite(
-				syPath, curYText, syPath, tarYText, driveYButton, statusLabel);
+				syPath, curYText, syPath, tarYText, driveYButton, statusLabel, 
+				sliderY, 5f);
 
 		PhiControlSuite phiSuite = new PhiControlSuite();
 		

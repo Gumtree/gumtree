@@ -717,18 +717,21 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 		} else {
 			this.zoomFactor = zoomFactor;
 		}
-		resetZoomCentre();
+//		resetZoomCentre();
 		isZoomChanged = true;
 		repaint();
 	}
 	
-	private void resetZoomCentre() {
-		if (zoomFactor == 1) {
-			zoomCentre = new Point(0, 0);
-			focusCentre = new Point(0, 0);
-		} else {
-			zoomCentre = new Point((imageStart.x + imageEnd.x) / 2 - imageWidth / 2, (imageStart.y + imageEnd.y) / 2 - imageHeight / 2);
-			focusCentre = new Point(0, 0);
-		}
+	public void resetZoomCentre() {
+		zoomCentre = new Point(0, 0);
+		focusCentre = new Point(0, 0);
+//		if (zoomFactor == 1) {
+//			zoomCentre = new Point(0, 0);
+//			focusCentre = new Point(0, 0);
+//		} 
+//		else {
+//			zoomCentre = new Point((imageStart.x + imageEnd.x) / 2 - imageWidth / 2, (imageStart.y + imageEnd.y) / 2 - imageHeight / 2);
+//			focusCentre = new Point(0, 0);
+//		}
 	}
 }

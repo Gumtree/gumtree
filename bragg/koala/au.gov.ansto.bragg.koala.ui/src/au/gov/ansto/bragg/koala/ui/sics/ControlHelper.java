@@ -352,7 +352,7 @@ public class ControlHelper {
 				try {
 					ControlHelper.syncDrive(deviceName, value);
 				} catch (Exception e1) {
-					ControlHelper.experimentModel.publishErrorMessage("failed to drive " + deviceName + ", " + e1.getMessage());
+					ControlHelper.experimentModel.publishErrorMessage(e1.getMessage());
 				}
 			}
 		});

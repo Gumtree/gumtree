@@ -37,6 +37,7 @@ import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
 import au.gov.ansto.bragg.koala.ui.scan.PhysicsModel;
 import au.gov.ansto.bragg.koala.ui.scan.SingleScan;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
+import au.gov.ansto.bragg.koala.ui.widgets.DrumDoorWidget;
 
 /**
  * @author nxi
@@ -352,7 +353,11 @@ public class MainPart extends Composite {
 
 			@Override
 			public void run() {
-				MessageDialog.openError(getShell(), "Error", errorText);
+				String text = errorText;
+				if (!DrumDoorWidget.isClosed()) {
+					text += " ** The drum door may not be closed well, please check the door status.";
+				}
+				MessageDialog.openError(getShell(), "Error", text);
 				logger.error(errorText);
 			}
 		});

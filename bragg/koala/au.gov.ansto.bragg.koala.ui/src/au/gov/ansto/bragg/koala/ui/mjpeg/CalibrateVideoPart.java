@@ -39,11 +39,11 @@ import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 public class CalibrateVideoPart extends Composite {
 
 //	private static final String TEXT_SELECT_CENTRE = "2 Mark needle points on both videos";
-	private static final String TEXT_DRIVE_1 = "sample X, Y and Z to zero";
+	private static final String TEXT_DRIVE_1 = "X, Y and Z to default centre";
 	private static final String TEXT_DRIVE_2 = "Phi to 45\u00b0 and X to 10mm";
 	private static final String TEXT_DRIVE_3 = "X to zero and Y to 10mm";
-	private static final String TEXT_MARK_LEFT = "Mark needle point on left video";
-	private static final String TEXT_MARK_RIGHT = "Mark needle point on right video";
+	private static final String TEXT_MARK_1 = "Mark needle points on both videos";
+	private static final String TEXT_MARK_2 = "Mark needle points on videos again";
 	
 	private static final String SX_NAME = System.getProperty(ControlHelper.SX_PATH);
 	private static final String SY_NAME = System.getProperty(ControlHelper.SY_PATH);
@@ -96,8 +96,8 @@ public class CalibrateVideoPart extends Composite {
 				driveXYZtoZero();
 			}
 		});
-		steps[1] = new StepMark(beamCentreGroup, 2, TEXT_MARK_LEFT);
-		steps[2] = new StepMark(beamCentreGroup, 3, TEXT_MARK_RIGHT);
+		steps[1] = new StepMark(beamCentreGroup, 2, TEXT_MARK_1);
+		steps[2] = new StepMark(beamCentreGroup, 3, TEXT_MARK_2);
 		
 //		pickBeamCentreButton = new Button(beamCentreGroup, SWT.TOGGLE);
 //		pickBeamCentreButton.setText("Next");
@@ -129,7 +129,7 @@ public class CalibrateVideoPart extends Composite {
 				driveSphiAndX();
 			}
 		});
-		steps[4] = new StepMark(leftVideoGroup, 5, TEXT_MARK_LEFT);
+		steps[4] = new StepMark(leftVideoGroup, 5, TEXT_MARK_1);
 		
 //		calPhiNEButton = new Button(leftVideoGroup, SWT.CHECK);
 ////		phiSButton.setImage(KoalaImage.PLAY48.getImage());
@@ -180,7 +180,7 @@ public class CalibrateVideoPart extends Composite {
 				driveXY();
 			}
 		});
-		steps[6] = new StepMark(rightVideoGroup, 7, TEXT_MARK_RIGHT);
+		steps[6] = new StepMark(rightVideoGroup, 7, TEXT_MARK_2);
 
 //		calSamYButton = new Button(rightVideoGroup, SWT.CHECK);
 ////		phiSButton.setImage(KoalaImage.PLAY48.getImage());

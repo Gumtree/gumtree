@@ -82,7 +82,7 @@ public class EnvironmentPanel extends AbstractPanel {
 		GridDataFactory.fillDefaults().grab(true, true).minSize(160, 36).align(SWT.CENTER, SWT.CENTER).applyTo(targetText);
 		
 		SimpleControlSuite controlSuite = new SimpleControlSuite(System.getProperty(ControlHelper.ENV_VALUE), 
-				valueText, System.getProperty(ControlHelper.ENV_SETPOINT), targetText, runButton, null);
+				valueText, System.getProperty(ControlHelper.ENV_SETPOINT), targetText, runButton, null, null, 0f);
 	}
 
 	

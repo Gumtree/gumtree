@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
@@ -48,6 +49,8 @@ public class CrystalPanel extends AbstractControlPanel {
 	private static final int HEIGHT_HINT = 1080;
 	private static final int WIDTH_HINT_SMALL = 1560;
 	private static final int HEIGHT_HINT_SMALL = 720;
+	private static final String VALUE_PHI_RANGE = "gumtree.koala.phiRange";
+
 	private static Logger logger = LoggerFactory.getLogger(CrystalPanel.class);
 	private MainPart mainPart;
 	private int panelWidth;
@@ -140,15 +143,15 @@ public class CrystalPanel extends AbstractControlPanel {
 		tarText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(240, 40).applyTo(tarText);
 		
-//		final Slider slider = new Slider(phiBlock, SWT.HORIZONTAL);
-////	    slider.setBounds(0, 0, 40, 200);
-//	    slider.setMaximum(100);
-//	    slider.setMinimum(0);
-//	    slider.setIncrement(1);
-//	    slider.setPageIncrement(5);
-//	    slider.setThumb(4);
-//	    slider.setSelection(48);
-//	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(slider);
+		final Slider slider = new Slider(phiBlock, SWT.HORIZONTAL);
+//	    slider.setBounds(0, 0, 40, 200);
+	    slider.setMaximum(100);
+	    slider.setMinimum(0);
+	    slider.setIncrement(1);
+	    slider.setPageIncrement(5);
+	    slider.setThumb(5);
+	    slider.setSelection(50);
+	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(slider);
 		Label emptyLable = new Label(phiBlock, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(emptyLable);
 	    
@@ -262,7 +265,8 @@ public class CrystalPanel extends AbstractControlPanel {
 		
 		String samplePhiPath = System.getProperty(ControlHelper.SAMPLE_PHI);
 		new SimpleControlSuite(samplePhiPath, 
-				curText, samplePhiPath, tarText, driveButton, null);
+				curText, samplePhiPath, tarText, driveButton, null, 
+				slider, Float.valueOf(System.getProperty(VALUE_PHI_RANGE, "5")));
 		
 		new ChiControlSuite();
 	}
@@ -329,6 +333,8 @@ public class CrystalPanel extends AbstractControlPanel {
 						}
 					}
 				});
+			} else {
+				ControlHelper.experimentModel.publishErrorMessage("failed to find sample Chi motor.");
 			}
 		}
 	}

@@ -12,6 +12,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
@@ -39,7 +40,10 @@ public class SimpleControlSuite {
 	private String setpointPath;
 	private Text currentControl;
 	private Text setpointControl;
+	private float targetValue = Float.NaN;
 	private Button runButton;
+	private Slider slider;
+	private float sliderRange;
 	private Label statusLabel;
 	private ControlHelper controlHelper;
 	/**
@@ -50,7 +54,8 @@ public class SimpleControlSuite {
 	}
 
 	public SimpleControlSuite(final String curPath, final Text current, 
-			final String targetPath, final Text target, final Button run, final Label status) {
+			final String targetPath, final Text target, final Button run, final Label status, 
+			final Slider slider, final float sliderRange) {
 		this();
 		this.currentPath = curPath;
 		this.setpointPath = targetPath;
@@ -58,6 +63,8 @@ public class SimpleControlSuite {
 		setpointControl = target;
 		runButton = run;
 		statusLabel = status;
+		this.slider = slider;
+		this.sliderRange = sliderRange;
 		
 		ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 			
@@ -85,12 +92,17 @@ public class SimpleControlSuite {
 				if (setpointController != null) {
 					if (setpointController instanceof DynamicController) {
 						try {
-							final Object value = ((DynamicController) setpointController).getValue();
+							final Object value = ((DynamicController) setpointController).getTargetValue().getSicsString();
 							Display.getDefault().asyncExec(new Runnable() {
 								
 								@Override
 								public void run() {
-									setpointControl.setText(value.toString());
+									try {
+										setpointControl.setText(value.toString());
+										targetValue = Float.valueOf(value.toString());
+									} catch (Exception e) {
+										targetValue = Float.NaN;
+									}
 								}
 							});
 						} catch (Exception e) {
@@ -130,6 +142,22 @@ public class SimpleControlSuite {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
+		
+		if (slider != null) {
+			slider.addSelectionListener(new SelectionListener() {
+				
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (!Float.isNaN(targetValue)) {
+						setpointControl.setText(String.valueOf(targetValue + (slider.getSelection() - 50) * sliderRange / 100));
+					}
+				}
+				
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+				}
+			});
+		}
 	}
 	
 	private void commitTarget() {
@@ -138,6 +166,12 @@ public class SimpleControlSuite {
 					SicsManager.getSicsModel().findController(setpointPath);
 			if (setpointController instanceof DynamicController) {
 				final String value = setpointControl.getText();
+				try {
+					targetValue = Float.valueOf(value);
+					slider.setSelection(50);
+				} catch (Exception e) {
+					setStatusText(statusLabel, "invalid target value, must be a number");
+				}
 //				JobRunner.run(new ILoopExitCondition() {
 //					
 //					@Override
@@ -187,6 +221,8 @@ public class SimpleControlSuite {
 					}
 				});
 				runThread.start();
+			} else {
+				setStatusText(statusLabel, "failed to find device: " + setpointPath);
 			}
 		}
 	}
@@ -263,15 +299,6 @@ public class SimpleControlSuite {
 
 		@Override
 		public void updateValue(final Object oldValue, final Object newValue) {
-			if (newValue != null) {
-				Display.getDefault().asyncExec(new Runnable() {
-					
-					@Override
-					public void run() {
-						setpointControl.setText(String.valueOf(newValue));
-					}
-				});
-			}
 		}
 
 		@Override
@@ -280,6 +307,20 @@ public class SimpleControlSuite {
 
 		@Override
 		public void updateTarget(Object oldValue, Object newValue) {
+			if (newValue != null) {
+				Display.getDefault().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							setpointControl.setText(newValue.toString());
+							targetValue = Float.valueOf(newValue.toString());
+						} catch (Exception e) {
+							targetValue = Float.NaN;
+						}
+					}
+				});
+			}
 		}
 		
 	}

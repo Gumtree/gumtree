@@ -58,6 +58,8 @@ public class MjpegViewer extends Composite {
 	public static final String BEAM_CENTRE_LEFT = "gumtree.koala.beamCentreLeft";
 	public static final String BEAM_CENTRE_RIGHT = "gumtree.koala.beamCentreRight";
 	private static final String TEXT_ALIGN_BUTTON = "Align sample in 5 steps";
+	private static final String VALUE_SX_RANGE = "gumtree.koala.sxRange";
+	private static final String VALUE_SY_RANGE = "gumtree.koala.syRange";
 
 //	private static final String CAM_SIZE = "gumtree.koala.camSize";
 
@@ -243,10 +245,11 @@ public class MjpegViewer extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int zoomFactor = mjpeg2.getPanel().getZoomFactor();
-				if (zoomFactor > 1) {
-					mjpeg2.getPanel().setZoomFactor(1);
-				}
+//				int zoomFactor = mjpeg2.getPanel().getZoomFactor();
+				mjpeg2.getPanel().resetZoomCentre();
+//				if (zoomFactor > 1) {
+				mjpeg2.getPanel().setZoomFactor(1);
+//				}
 			}
 			
 			@Override
@@ -546,30 +549,15 @@ public class MjpegViewer extends Composite {
 		tarText.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.FILL, SWT.CENTER).hint(100, 40).applyTo(tarText);
 		
-		final Slider slider = new Slider(xGroup, SWT.HORIZONTAL);
+		final Slider sliderX = new Slider(xGroup, SWT.HORIZONTAL);
 //	    slider.setBounds(0, 0, 40, 200);
-	    slider.setMaximum(100);
-	    slider.setMinimum(0);
-	    slider.setIncrement(1);
-	    slider.setPageIncrement(5);
-	    slider.setThumb(5);
-	    slider.setSelection(50);
-	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(slider);
-	    
-	    slider.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
+	    sliderX.setMaximum(100);
+	    sliderX.setMinimum(0);
+	    sliderX.setIncrement(1);
+	    sliderX.setPageIncrement(5);
+	    sliderX.setThumb(5);
+	    sliderX.setSelection(50);
+	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(sliderX);
 	    
 		Group yGroup = new Group(axesControlComposite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(3).applyTo(yGroup);
@@ -612,10 +600,12 @@ public class MjpegViewer extends Composite {
 	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(sliderY);
 	    
 		String sxPath = System.getProperty(ControlHelper.SX_PATH);		
-		new SimpleControlSuite(sxPath, curText, sxPath, tarText, driveButton, null);
+		new SimpleControlSuite(sxPath, curText, sxPath, tarText, driveButton, null, 
+				sliderX, Float.valueOf(System.getProperty(VALUE_SX_RANGE, "1")));
 
 		String syPath = System.getProperty(ControlHelper.SY_PATH);
-		new SimpleControlSuite(syPath, curYText, syPath, tarYText, driveYButton, null);
+		new SimpleControlSuite(syPath, curYText, syPath, tarYText, driveYButton, null, 
+				sliderY, Float.valueOf(System.getProperty(VALUE_SY_RANGE, "1")));
 
 		Group phiGroup = new Group(axesControlComposite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(2).applyTo(phiGroup);

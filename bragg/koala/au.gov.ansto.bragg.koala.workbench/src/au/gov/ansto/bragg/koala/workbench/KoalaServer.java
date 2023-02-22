@@ -385,7 +385,7 @@ public class KoalaServer {
 					return;
 				}
 			}
-			if (true) throw new SicsExecutionException("motion disabled");
+//			if (true) throw new SicsExecutionException("motion disabled");
 
 			respondReply(client, cid, command, "start driving " + dev);
 			drive(driveable, target);
