@@ -25,6 +25,7 @@ import org.gumtree.util.messaging.IDelayEventExecutor;
 import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
+import au.gov.ansto.bragg.koala.ui.widgets.DrumDoorWidget;
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
 import au.gov.ansto.bragg.nbi.workbench.ReactorStatusWidget;
 
@@ -60,13 +61,22 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		reactorWidget.setExpandingEnabled(true);
 
 		// Shutter Status
-		PGroup shutterGroup = createGroup("SHUTTER STATUS",
+//		PGroup shutterGroup = createGroup("SHUTTER STATUS",
+//				SharedImage.SHUTTER.getImage());
+//		ShutterGroupWidget shutterStatuswidget = new ShutterGroupWidget(
+//				shutterGroup, SWT.NONE);
+//		configureWidget(shutterStatuswidget);
+//		shutterGroup.setExpanded(true);
+//		shutterStatuswidget.render();
+		
+		// Drum door status
+		PGroup drumDoorGroup = createGroup("DRUM DOOR STATUS",
 				SharedImage.SHUTTER.getImage());
-		ShutterGroupWidget shutterStatuswidget = new ShutterGroupWidget(
-				shutterGroup, SWT.NONE);
-		configureWidget(shutterStatuswidget);
-		shutterGroup.setExpanded(true);
-		shutterStatuswidget.render();
+		DrumDoorWidget drumDoorWidget = new DrumDoorWidget(
+				drumDoorGroup, SWT.NONE);
+		configureWidget(drumDoorWidget);
+		drumDoorGroup.setExpanded(true);
+		drumDoorWidget.render();
 
 		// Server Status
 		PGroup sicsStatusGroup = createGroup("SERVER STATUS", 

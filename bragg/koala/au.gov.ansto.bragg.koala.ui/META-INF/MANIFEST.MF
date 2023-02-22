@@ -17,4 +17,5 @@ Export-Package: au.gov.ansto.bragg.koala.ui,
  au.gov.ansto.bragg.koala.ui.parts,
  au.gov.ansto.bragg.koala.ui.scan,
  au.gov.ansto.bragg.koala.ui.sics,
- au.gov.ansto.bragg.koala.ui.vlcj
+ au.gov.ansto.bragg.koala.ui.vlcj,
+ au.gov.ansto.bragg.koala.ui.widgets
