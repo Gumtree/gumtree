@@ -306,7 +306,7 @@ public class SimpleControlSuite {
 		}
 
 		@Override
-		public void updateTarget(Object oldValue, Object newValue) {
+		public void updateTarget(final Object oldValue, final Object newValue) {
 			if (newValue != null) {
 				Display.getDefault().asyncExec(new Runnable() {
 					
