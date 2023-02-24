@@ -42,11 +42,15 @@ public class RecurrentScheduler {
 	}
 
 	public void addTask(IRecurrentTask task) {
-		taskList.add(task);
+		synchronized (taskList) {
+			taskList.add(task);
+		}
 	}
 	
 	public void removeTask(IRecurrentTask task) {
-		taskList.remove(task);
+		synchronized (taskList) {
+			taskList.remove(task);
+		}
 	}
 	
 	public interface IRecurrentTask{

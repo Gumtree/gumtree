@@ -522,9 +522,9 @@ public class SingleScan {
 	@Override
 	public String toString() {
 		if (getTarget().isPoints()) {
-			return String.format("scan {} of {}", getTarget().getText(), getPoints());
+			return String.format("scan %s of $s", getTarget().getText(), getPoints());
 		}
-		return String.format("scan {} {} {} {} exposure {}", getTarget().getText(), start, end, number, exposure);
+		return String.format("scan %s %f %f %d exposure %d", getTarget().getText(), start, end, number, exposure);
 	}
 	
 	public void run() throws KoalaInterruptionException, KoalaServerException  {
