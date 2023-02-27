@@ -677,9 +677,21 @@ def driveToSamplePosition(position):
     if state.sample_stage != SAMPLE_STAGE.lookup:
         raise Exception('unexpected sample stage configuration')
 
-    checkedDrive('samplenumber', position)
-
-    slog('Position of sample holder: %d' % getSampleNumber())
+    done = False
+    retry = 0
+    while not done and retry < 3:
+        if retry > 0:
+            slog('retry driving samplenumber')
+        checkedDrive('samplenumber', position)
+        v = sics.getValue('samplenumber').getFloatData()
+        if abs(v - position) <= 0.01:
+            done = True
+        else:
+            slog('driving failed to reach target, stopped at %f', v)
+        retry += 1
+    
+    if done:
+        slog('Position of sample holder: %d' % getSampleNumber())
 
 def testDrive(script):
     # run script
