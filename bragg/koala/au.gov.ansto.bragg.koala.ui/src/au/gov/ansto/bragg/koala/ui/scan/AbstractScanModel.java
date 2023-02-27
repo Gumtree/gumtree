@@ -503,6 +503,7 @@ public abstract class AbstractScanModel implements KTableModel {
 				logger.warn("experiment started");
 				logger.warn(String.format("estimatated time is {} seconds", getTimeEstimation()));
 				clearStatus();
+				ControlHelper.getProxy().clearInterruptFlag();
 				startTime = Calendar.getInstance();
 				isRunning = true;
 				fireProgressUpdatedEvent(ModelStatus.STARTED);

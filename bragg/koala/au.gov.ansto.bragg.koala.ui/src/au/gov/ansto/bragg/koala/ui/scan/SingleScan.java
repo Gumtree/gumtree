@@ -27,7 +27,8 @@ enum ScanTarget {
 	TEMP_POINTS;
 	
 	static String[] texts = {Activator.PHI + " loop", Activator.PHI + " points", " t loop", " t points"};
-
+	static String[] plainTexts = {"Phi loop", "Phi points", "Temp loop", "Temp points"};
+	
 	public String getText() {
 		switch (this) {
 		case PHI_LOOP:
@@ -40,6 +41,21 @@ enum ScanTarget {
 			return texts[3];
 		default:
 			return texts[0];
+		}
+	}
+	
+	public String toString() {
+		switch (this) {
+		case PHI_LOOP:
+			return plainTexts[0];
+		case PHI_POINTS:
+			return plainTexts[1];
+		case TEMP_LOOP:
+			return plainTexts[2];
+		case TEMP_POINTS:
+			return plainTexts[3];
+		default:
+			return plainTexts[0];
 		}
 	}
 	
@@ -522,9 +538,9 @@ public class SingleScan {
 	@Override
 	public String toString() {
 		if (getTarget().isPoints()) {
-			return String.format("scan %s of $s", getTarget().getText(), getPoints());
+			return String.format("scan %s of $s", getTarget().toString(), getPoints());
 		}
-		return String.format("scan %s %f %f %d exposure %d", getTarget().getText(), start, end, number, exposure);
+		return String.format("scan %s %f %f %d exposure %d", getTarget().toString(), start, end, number, exposure);
 	}
 	
 	public void run() throws KoalaInterruptionException, KoalaServerException  {

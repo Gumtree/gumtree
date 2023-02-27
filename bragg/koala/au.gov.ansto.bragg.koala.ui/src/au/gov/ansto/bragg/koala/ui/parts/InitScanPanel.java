@@ -579,6 +579,7 @@ public class InitScanPanel extends AbstractControlPanel {
 				try {
 					if (initScan.needToRun()) {
 						logger.warn("test scan started");
+						ControlHelper.getProxy().clearInterruptFlag();
 						initScan.run();
 					} else {
 						mainPart.popupError("The scan is empty. Please review the scan configuration.");
