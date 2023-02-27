@@ -287,7 +287,7 @@ public class CollectionHelper {
 		if (isBusy) {
 			throw new KoalaServerException("server busy with current collection");
 		}
-		logger.warn(String.format("start collecting for {} seconds", exposure));
+		logger.warn(String.format("start collecting for %d seconds", exposure));
 		this.exposure = exposure;
 		this.errorMessage = null;
 		try {

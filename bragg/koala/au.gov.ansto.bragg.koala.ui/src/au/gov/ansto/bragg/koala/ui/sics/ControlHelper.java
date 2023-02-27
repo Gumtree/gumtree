@@ -123,19 +123,19 @@ public class ControlHelper {
 
 	public static void driveTemperature(float value) 
 			throws KoalaServerException, KoalaInterruptionException {
-		logger.warn(String.format("drive {} {}", TEMP_DEVICE_NAME, value));
+		logger.warn(String.format("drive %s %f", TEMP_DEVICE_NAME, value));
 		syncDrive(TEMP_DEVICE_NAME, value);
 	}
 
 	public static void driveChi(float value) 
 			throws KoalaServerException, KoalaInterruptionException {
-		logger.warn(String.format("drive {} {}", CHI_DEVICE_NAME, value));
+		logger.warn(String.format("drive %s %f", CHI_DEVICE_NAME, value));
 		syncDrive(CHI_DEVICE_NAME, value);
 	}
 
 	public static void drivePhi(float value) 
 			throws KoalaServerException, KoalaInterruptionException {
-		logger.warn(String.format("drive {} {}", PHI_DEVICE_NAME, value));
+		logger.warn(String.format("drive %s %f", PHI_DEVICE_NAME, value));
 		syncDrive(PHI_DEVICE_NAME, value);
 	}
 
