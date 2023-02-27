@@ -26,7 +26,8 @@ public class CollectionHelper {
 	public static final String NAME_READING_TIME = "gumtree.koala.readingTime";
 	public static final String NAME_EXPIRATION_TIME = "gumtree.koala.collectionExp";
 	
-	private static final int START_TIMEOUT = 50;
+	public static final int COLLECTION_RETRY = 3;
+	private static final int START_TIMEOUT = 20;
 	private static final int COLLECTION_TIMEOUT = Integer.valueOf(System.getProperty(NAME_EXPIRATION_TIME, "600"));
 	private static final int TIFFSAVE_TIMEOUT = 30;
 	private static final int CHECK_CYCLE = 50; // millisecond
@@ -282,7 +283,7 @@ public class CollectionHelper {
 		throw new KoalaServerException(message);
 	}
 	
-	public void collect(final int exposure) throws KoalaServerException, KoalaInterruptionException {
+	public void collect(final int exposure, final int retry) throws KoalaServerException, KoalaInterruptionException {
 		if (isBusy) {
 			throw new KoalaServerException("server busy with current collection");
 		}
@@ -307,7 +308,12 @@ public class CollectionHelper {
 			if (!isStarted) {
 //				logger.error("collection failed to start after 50 seconds");
 //				throw new KoalaServerException("timeout in starting the collection");
-				handleError("timeout in starting the collection");
+				if (retry > 0) {
+					collect(exposure, retry - 1);
+					return;
+				} else {
+					handleError("timeout in starting the collection");
+				}
 			}
 			ct = 0;
 			while (isBusy && ct <= (exposure + READ_TIME + ERASE_TIME + COLLECTION_TIMEOUT) * 1000) {

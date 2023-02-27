@@ -509,6 +509,12 @@ public abstract class AbstractScanModel implements KTableModel {
 				int row = 1;
 //				for (SingleScan scan : scanList) {
 				while (hasNextScan()) {
+					if (row > 1) {
+						try {
+							Thread.sleep(5000);
+						} catch (InterruptedException e) {
+						}
+					}
 					SingleScan scan = getNextScan();
 					try {
 						scan.setStatus(ScanStatus.busy.name());

@@ -374,7 +374,7 @@ public class ControlHelper {
 
 	public static void syncCollect(int exposure) 
 			throws KoalaServerException, KoalaInterruptionException {
-		CollectionHelper.getInstance().collect(exposure);
+		CollectionHelper.getInstance().collect(exposure, CollectionHelper.COLLECTION_RETRY);
 	}
 	
 	public static void endExposure() throws KoalaServerException {

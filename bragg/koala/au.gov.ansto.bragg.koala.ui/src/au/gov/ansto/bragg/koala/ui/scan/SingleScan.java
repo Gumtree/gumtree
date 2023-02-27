@@ -558,12 +558,26 @@ public class SingleScan {
 				List<Float> points = getPointValues();
 				int i = 0;
 				for (Float value : points) {
+					if (i > 0) {
+						try {
+							Thread.sleep(5000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
 					collect(i++, value);
 				}
 			} else {
 				if (getNumber() > 0) {
 					for (int i = 0; i < getNumber(); i++) {
 						float target = getStart() + getInc() * i;
+						if (i > 0) {
+							try {
+								Thread.sleep(5000);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
 						collect(i, target);
 					}
 				}

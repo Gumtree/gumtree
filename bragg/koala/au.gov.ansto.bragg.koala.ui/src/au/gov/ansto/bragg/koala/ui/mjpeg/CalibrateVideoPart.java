@@ -39,7 +39,7 @@ import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 public class CalibrateVideoPart extends Composite {
 
 //	private static final String TEXT_SELECT_CENTRE = "2 Mark needle points on both videos";
-	private static final String TEXT_DRIVE_1 = "X, Y and Z to default centre";
+	private static final String TEXT_DRIVE_1 = "to default centre, " + Activator.PHI + " to -45\u00b0";
 	private static final String TEXT_DRIVE_2 = "Phi to 45\u00b0 and X to 10mm";
 	private static final String TEXT_DRIVE_3 = "X to zero and Y to 10mm";
 	private static final String TEXT_MARK_1 = "Mark needle points on both videos";
