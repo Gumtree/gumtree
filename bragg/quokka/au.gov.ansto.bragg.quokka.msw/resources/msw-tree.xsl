@@ -132,12 +132,14 @@
         <th>Id</th>
         <th>Value</th>
         <th>WaitPeriod</th>
+        <th>TimeEstimate</th>
       </tr>
       <xsl:for-each select="msw:SetPoint">
         <tr>
           <td><xsl:value-of select="@Id"/></td>
           <td><xsl:value-of select="@Value"/></td>
           <td><xsl:value-of select="@WaitPeriod"/></td>
+          <td><xsl:value-of select="@TimeEstimate"/></td>
         </tr>
         <xsl:call-template name="msw:SubTree">
           <xsl:with-param name="index" select="$index"/>

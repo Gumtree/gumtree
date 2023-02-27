@@ -12,9 +12,11 @@ public class SetPoint extends Element {
 	public static final DependencyProperty<SetPoint, Boolean> ENABLED = new DependencyProperty<>("Enabled", Boolean.class);
 	public static final DependencyProperty<SetPoint, Double> VALUE = new DependencyProperty<>("Value", Double.class);
 	public static final DependencyProperty<SetPoint, Long> WAIT_PERIOD = new DependencyProperty<>("WaitPeriod", Long.class); // seconds
+	public static final DependencyProperty<SetPoint, Long> TIME_ESTIMATE = new DependencyProperty<>("TimeEstimate", Long.class); // seconds
+	
 	// property set
 	public static final Set<IDependencyProperty> PROPERTIES = DependencyProperty.createSet(
-			INDEX, ENABLED, VALUE, WAIT_PERIOD);
+			INDEX, ENABLED, VALUE, WAIT_PERIOD, TIME_ESTIMATE);
 
 	// construction
 	SetPoint(Environment parent, String elementName) {
@@ -43,6 +45,12 @@ public class SetPoint extends Element {
 	}
 	public void setWaitPeriod(long value) {
 		set(WAIT_PERIOD, value);
+	}
+	public long getTimeEstimate() {
+		return (long) get(TIME_ESTIMATE);
+	}
+	public void setTimeEstimate(long value) {
+		set(TIME_ESTIMATE, value);
 	}
 
 	// methods

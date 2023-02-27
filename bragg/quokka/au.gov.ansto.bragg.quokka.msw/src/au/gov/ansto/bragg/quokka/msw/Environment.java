@@ -153,6 +153,13 @@ public class Environment extends ElementList<SetPoint> {
 					elementPath,
 					SetPoint.WAIT_PERIOD.getName(),
 					wait));
+			
+			commands.add(new ChangePropertyCommand(
+					id,
+					elementPath,
+					SetPoint.TIME_ESTIMATE.getName(),
+					wait));
+			
 		}
 
 		command(new BatchCommand(id, commands.toArray(new ICommand[commands.size()])));

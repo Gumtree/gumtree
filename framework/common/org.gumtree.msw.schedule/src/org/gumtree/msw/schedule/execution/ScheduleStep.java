@@ -7,8 +7,13 @@ import org.gumtree.msw.elements.Element;
 import org.gumtree.msw.elements.ElementPath;
 import org.gumtree.msw.elements.IDependencyProperty;
 import org.gumtree.msw.schedule.ScheduledNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScheduleStep {
+	
+	private static final Logger logger = LoggerFactory.getLogger(ScheduleStep.class);
+	
 	// fields
 	private final ScheduledNode scheduledNode;
 	private final ElementPath elementPath; 
@@ -26,6 +31,7 @@ public class ScheduleStep {
 		
 		this.isEnabled = isEnabled;
 		this.isAcquisition = isAcquisition;
+		logger.error(String.format("%s, isEnabled=%b", this.elementPath, isEnabled));
 	}
 
 	// properties

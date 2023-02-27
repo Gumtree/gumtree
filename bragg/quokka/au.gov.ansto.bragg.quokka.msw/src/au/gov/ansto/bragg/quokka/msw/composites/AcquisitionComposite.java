@@ -838,7 +838,7 @@ public class AcquisitionComposite extends Composite {
 							// SetPoint
 							new AcquisitionEntry(
 									SetPoint.class.getSimpleName(),
-									new IDependencyProperty[] { SetPoint.INDEX, SetPoint.ENABLED, SetPoint.VALUE, SetPoint.WAIT_PERIOD }))),
+									new IDependencyProperty[] { SetPoint.INDEX, SetPoint.ENABLED, SetPoint.VALUE, SetPoint.WAIT_PERIOD, SetPoint.TIME_ESTIMATE}))),
 									
 				Arrays.<IDependencyProperty>asList(Measurement.MIN_TIME, Measurement.MAX_TIME, Measurement.TARGET_MONITOR_COUNTS, Measurement.TARGET_DETECTOR_COUNTS, Measurement.MIN_TIME_ENABLED, Measurement.MAX_TIME_ENABLED, Measurement.TARGET_MONITOR_COUNTS_ENABLED, Measurement.TARGET_DETECTOR_COUNTS_ENABLED));
 	}
@@ -1060,7 +1060,9 @@ public class AcquisitionComposite extends Composite {
 		    					new FixedCellDefinition("Value:", 3),
 		    					new PropertyCellDefinition(SetPoint.VALUE, numberRenderer, numberEditor, TrimmedDoubleValueConverter.DEFAULT, 2),
 		    					new FixedCellDefinition("Wait:", 3),
-		    					new PropertyCellDefinition(SetPoint.WAIT_PERIOD, numberRenderer, numberEditor, TimeValueConverter.DEFAULT, 2)),
+		    					new PropertyCellDefinition(SetPoint.WAIT_PERIOD, numberRenderer, numberEditor, TimeValueConverter.DEFAULT, 2),
+		    					new FixedCellDefinition("Estimation:", 3),
+		    					new PropertyCellDefinition(SetPoint.TIME_ESTIMATE, numberRenderer, numberEditor, TimeValueConverter.DEFAULT, 2)),
 		    			
 		    			// ConfigurationList
 		    			//new RowDefinition(
@@ -1993,7 +1995,15 @@ public class AcquisitionComposite extends Composite {
 			
 			Element element = node.getSourceElement();
 			if (element instanceof SetPoint) {
-				configTime += (long) node.get(SetPoint.WAIT_PERIOD);
+//				if (node.get(SetPoint.TIME) != null)
+				long est = (long) node.get(SetPoint.TIME_ESTIMATE);
+				if (est <= 0) {
+					est = (long) node.get(SetPoint.WAIT_PERIOD);
+					if (est <= 0) {
+						est += 60;
+					}
+				} 
+				configTime += est;
 			}
 			else if (element instanceof Configuration) {
 				// average of 20min for configuration change (5min voltage ramp x 2 + 15min 1/2 tank detector move)

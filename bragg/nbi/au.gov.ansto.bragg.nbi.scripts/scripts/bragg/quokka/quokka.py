@@ -437,6 +437,7 @@ def setupSetPoint(parameters):
     env   = strOrDefault(parameters['ElementRoot'])
     value = float(parameters['Value'])
     wait  = int(parameters['WaitPeriod'])
+    timeEst = int(parameters['TimeEstimate'])
 
     # run configuration script
     environmentDrive(state.env_drive[env], value)

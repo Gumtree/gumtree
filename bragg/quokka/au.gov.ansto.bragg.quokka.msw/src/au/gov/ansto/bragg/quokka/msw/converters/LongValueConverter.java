@@ -14,10 +14,16 @@ public class LongValueConverter extends ModelValueConverterAdapter<Long, String>
 	// methods
 	@Override
 	public String fromModelValue(Long value) {
+		if (value == null) {
+			return "";
+		}
 		return value.toString();
 	}
 	@Override
 	public Long toModelValue(String value) {
+		if (value == null) {
+			return 0L;
+		}
 		return Long.parseLong(value);
 	}
 }

@@ -194,6 +194,7 @@
       <xsd:attribute name="Enabled"    type="xsd:boolean" default="true"/>
       <xsd:attribute name="Value"      type="xsd:double"  default="0.0" />
       <xsd:attribute name="WaitPeriod" type="xsd:double"  default="0.0" />
+      <xsd:attribute name="TimeEstimate" type="xsd:double"  default="0.0" />
     </xsd:complexType>
   </xsd:element>
   
@@ -208,6 +209,7 @@
     <xsd:attribute name="Enabled"    type="xsd:boolean" default="true"/>
     <xsd:attribute name="Value"      type="xsd:double"/>
     <xsd:attribute name="WaitPeriod" type="xsd:double"/>
+    <xsd:attribute name="TimeEstimate" type="xsd:double"/>
   </xsd:complexType>
 
   <xsd:element name="Environment">

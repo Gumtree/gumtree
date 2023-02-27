@@ -544,7 +544,8 @@ public class EnvironmentsComposite extends Composite {
 							getShell(),
 							SetPoint.ENABLED,
 							SetPoint.VALUE,
-							SetPoint.WAIT_PERIOD);
+							SetPoint.WAIT_PERIOD, 
+							SetPoint.TIME_ESTIMATE);
 
 					if (content != null)
 						environment.replaceSetPoints(content);
@@ -565,7 +566,8 @@ public class EnvironmentsComposite extends Composite {
 							environment,
 							SetPoint.ENABLED,
 							SetPoint.VALUE,
-							SetPoint.WAIT_PERIOD);
+							SetPoint.WAIT_PERIOD, 
+							SetPoint.TIME_ESTIMATE);
 				}
 			}
 		});
@@ -936,7 +938,8 @@ public class EnvironmentsComposite extends Composite {
 		    			new ColumnDefinition("", 30, SetPoint.ENABLED, checkableRenderer, checkableEditor),
 		    			new ColumnDefinition("", 30, SetPoint.INDEX, indexRenderer, numberEditor, IndexValueConverter.DEFAULT),
 		    			new ColumnDefinition("Value", 80, SetPoint.VALUE, valueRenderer, numberEditor, DoubleValueConverter.DEFAULT),
-		    			new ColumnDefinition("Wait", 80, SetPoint.WAIT_PERIOD, valueRenderer, numberEditor, LongValueConverter.DEFAULT)));
+		    			new ColumnDefinition("Wait", 80, SetPoint.WAIT_PERIOD, valueRenderer, numberEditor, LongValueConverter.DEFAULT),
+    					new ColumnDefinition("Time Estimation", 128, SetPoint.TIME_ESTIMATE, valueRenderer, numberEditor, LongValueConverter.DEFAULT)));
 
     	table.setModel(model);
     	
