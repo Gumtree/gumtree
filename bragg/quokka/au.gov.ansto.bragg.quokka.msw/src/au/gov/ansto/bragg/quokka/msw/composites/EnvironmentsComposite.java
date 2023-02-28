@@ -102,6 +102,7 @@ public class EnvironmentsComposite extends Composite {
 	private Text txtTo;
 	private Text txtSteps;
 	private Text txtWait;
+	private Text txtEst;
 	
 	// construction
 	public EnvironmentsComposite(Composite parent, final ModelProvider modelProvider, final LockStateManager lockStateManager) {
@@ -288,20 +289,20 @@ public class EnvironmentsComposite extends Composite {
 
 		Composite cmpGenerate = new Composite(cmpValues, SWT.NONE);
 		cmpGenerate.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-		GridLayout gl_cmpGenerate = new GridLayout(9, false);
+		GridLayout gl_cmpGenerate = new GridLayout(6, false);
 		gl_cmpGenerate.marginWidth = 0;
 		gl_cmpGenerate.marginHeight = 0;
 		cmpGenerate.setLayout(gl_cmpGenerate);
 		cmpGenerate.setBackground(getBackground());
 		
-		final int widthHint = 35;
+		final int widthHint = 50;
 
 		Label lblFrom = new Label(cmpGenerate, SWT.NONE);
 		lblFrom.setText("From:");
 
 		txtFrom = new Text(cmpGenerate, SWT.BORDER | SWT.RIGHT);
-		GridData gd_txtFrom = new GridData(SWT.LEFT, SWT.BOTTOM, false, false, 1, 1);
-		gd_txtFrom.widthHint = widthHint;
+		GridData gd_txtFrom = new GridData(SWT.FILL, SWT.BOTTOM, true, false, 1, 1);
+//		gd_txtFrom.widthHint = widthHint;
 		txtFrom.setLayoutData(gd_txtFrom);
 		txtFrom.setText("0");
 		txtFrom.addModifyListener(new GenerateArgumentListener() {
@@ -316,8 +317,8 @@ public class EnvironmentsComposite extends Composite {
 		lblTo.setText("To:");
 
 		txtTo = new Text(cmpGenerate, SWT.BORDER | SWT.RIGHT);
-		GridData gd_txtTo = new GridData(SWT.LEFT, SWT.BOTTOM, false, false, 1, 1);
-		gd_txtTo.widthHint = widthHint;
+		GridData gd_txtTo = new GridData(SWT.FILL, SWT.BOTTOM, true, false, 1, 1);
+//		gd_txtTo.widthHint = widthHint;
 		txtTo.setLayoutData(gd_txtTo);
 		txtTo.setText("10");
 		txtTo.addModifyListener(new GenerateArgumentListener() {
@@ -332,8 +333,8 @@ public class EnvironmentsComposite extends Composite {
 		lblSteps.setText("Steps:");
 
 		txtSteps = new Text(cmpGenerate, SWT.BORDER | SWT.RIGHT);
-		GridData gd_txtSteps = new GridData(SWT.LEFT, SWT.BOTTOM, false, false, 1, 1);
-		gd_txtSteps.widthHint = widthHint;
+		GridData gd_txtSteps = new GridData(SWT.FILL, SWT.BOTTOM, true, false, 1, 1);
+//		gd_txtSteps.widthHint = widthHint;
 		txtSteps.setLayoutData(gd_txtSteps);
 		txtSteps.setText("11");
 		txtSteps.addModifyListener(new GenerateArgumentListener() {
@@ -343,10 +344,20 @@ public class EnvironmentsComposite extends Composite {
 			}
 		});
 
-		Label lblWait = new Label(cmpGenerate, SWT.NONE);
+		Composite cmpAction = new Composite(cmpValues, SWT.NONE);
+		GridData actionData = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		actionData.widthHint = 500;
+		cmpAction.setLayoutData(actionData);
+		gl_cmpGenerate = new GridLayout(5, false);
+		gl_cmpGenerate.marginWidth = 0;
+		gl_cmpGenerate.marginHeight = 0;
+		cmpAction.setLayout(gl_cmpGenerate);
+		cmpAction.setBackground(getBackground());
+
+		Label lblWait = new Label(cmpAction, SWT.NONE);
 		lblWait.setText("Wait:");
 
-		txtWait = new Text(cmpGenerate, SWT.BORDER | SWT.RIGHT);
+		txtWait = new Text(cmpAction, SWT.BORDER | SWT.RIGHT);
 		GridData gd_txtWait = new GridData(SWT.LEFT, SWT.BOTTOM, false, false, 1, 1);
 		gd_txtWait.widthHint = widthHint;
 		txtWait.setLayoutData(gd_txtWait);
@@ -358,11 +369,26 @@ public class EnvironmentsComposite extends Composite {
 			}
 		});
 
-		btnGenerate = new Button(cmpGenerate, SWT.NONE);
+		Label lblEst = new Label(cmpAction, SWT.NONE);
+		lblEst.setText("Time Estimation:");
+
+		txtEst = new Text(cmpAction, SWT.BORDER | SWT.RIGHT);
+		GridData gd_txtEst = new GridData(SWT.LEFT, SWT.BOTTOM, false, false, 1, 1);
+		gd_txtEst.widthHint = widthHint;
+		txtEst.setLayoutData(gd_txtEst);
+		txtEst.setText("0");
+		txtEst.addModifyListener(new GenerateArgumentListener() {
+			@Override
+			public boolean valuate(String value) {
+				return Long.parseLong(value) >= 0;
+			}
+		});
+
+		btnGenerate = new Button(cmpAction, SWT.NONE);
 		btnGenerate.setToolTipText("append a generated list of values to the environment");
-		GridData gd_btnGenerate = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
+		GridData gd_btnGenerate = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
 		gd_btnGenerate.heightHint = 21;
-		gd_btnGenerate.widthHint = 90;
+//		gd_btnGenerate.widthHint = 90;
 		btnGenerate.setLayoutData(gd_btnGenerate);
 		btnGenerate.setImage(Resources.IMAGE_GENERATE);
 		btnGenerate.setText("Generate");
@@ -804,11 +830,13 @@ public class EnvironmentsComposite extends Composite {
 					double to;
 					int steps;
 					long wait;
+					long est;
 					try {
 						from = Double.parseDouble(txtFrom.getText());
 						to = Double.parseDouble(txtTo.getText());
 						steps = Integer.parseInt(txtSteps.getText());
 						wait = Long.parseLong(txtWait.getText());
+						est = Long.parseLong(txtEst.getText());
 					}
 					catch (Exception exc) {
 						MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.OK);
@@ -818,7 +846,7 @@ public class EnvironmentsComposite extends Composite {
 						return;
 					}
 
-					selectedEnvironment.getTarget().generate(from, to, steps, wait);
+					selectedEnvironment.getTarget().generate(from, to, steps, wait, est);
 				}
 			}
 		};

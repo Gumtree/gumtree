@@ -125,7 +125,7 @@ public class Environment extends ElementList<SetPoint> {
 						DRIVE_SCRIPT.getName(),
 						driveScript)));
 	}
-	public void generate(double from, double to, int steps, long wait) {
+	public void generate(double from, double to, int steps, long wait, long timeEst) {
 		RefId id = nextId();
 		ElementPath path = getPath();
 		
@@ -158,7 +158,7 @@ public class Environment extends ElementList<SetPoint> {
 					id,
 					elementPath,
 					SetPoint.TIME_ESTIMATE.getName(),
-					wait));
+					timeEst));
 			
 		}
 
