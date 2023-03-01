@@ -14,6 +14,7 @@ import org.gumtree.core.management.IManageableBean;
 import org.gumtree.core.management.IManageableBeanProvider;
 import org.gumtree.dae.server.internal.SystemProperties;
 import org.gumtree.security.EncryptionUtils;
+import org.gumtree.util.SystemProperty;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
@@ -31,7 +32,10 @@ public class DaeRestlet extends Restlet implements IManageableBeanProvider {
 	
 	private static final String PART_IMAGE = "image";
 	
-	private static final String DEFAULT_QUERY = "open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO&open_annotations=ENABLE";
+	private static final SystemProperty HISTOGRAM_LOG_SCALING = new SystemProperty("gumtree.hm.imageLogScaling", "2");
+	
+	private static final String DEFAULT_QUERY = "open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO&open_annotations=ENABLE&scaling_type=LOG&log_scaling_range=" 
+			+ HISTOGRAM_LOG_SCALING.getValue();
 	
 	private static Logger logger = LoggerFactory.getLogger(DaeRestlet.class);
 	
