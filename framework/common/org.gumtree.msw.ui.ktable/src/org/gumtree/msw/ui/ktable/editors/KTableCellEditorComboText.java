@@ -40,6 +40,7 @@ public class KTableCellEditorComboText extends KTableCellEditor {
 	private String m_Items[];
 	private Font font;
 	private int visibleItemCount = -1;
+	private boolean isSelectionOnly = false;
 	
 	// construction
 	public KTableCellEditorComboText() {
@@ -102,7 +103,10 @@ public class KTableCellEditorComboText extends KTableCellEditor {
 		m_Combo.setText(content);
 		m_Combo.setSelection(new Point(0, content.length()));
 		m_Combo.setFocus();
-		m_Combo.setListVisible(true);
+		if (isSelectionOnly) {
+			m_Combo.setEditable(false);
+			m_Combo.setListVisible(true);
+		}
 	}
 	public void close(boolean save) {
 		if (save)
@@ -121,7 +125,9 @@ public class KTableCellEditorComboText extends KTableCellEditor {
 	
 	protected Control createControl() {
 		m_Combo = new CCombo(m_Table, SWT.NONE);
-		m_Combo.setFont(font);
+		if (font != null) {
+			m_Combo.setFont(font);
+		}
 		m_Combo.addKeyListener(keyListener);        
 		m_Combo.addTraverseListener(travListener);
 		
@@ -159,5 +165,13 @@ public class KTableCellEditorComboText extends KTableCellEditor {
 			break;
 		}
 		}
+	}
+	
+	public void setSelectionOnly(boolean isSelectionOnly) {
+		this.isSelectionOnly = isSelectionOnly;
+	}
+	
+	public boolean isSelectionOnly() {
+		return isSelectionOnly;
 	}
 }

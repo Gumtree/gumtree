@@ -198,6 +198,7 @@ public class PhysicsModel extends AbstractScanModel {
 			editor.setVisibleItemCount(4);
 			editor.setFont(Activator.getMiddleFont());
 			editor.setItems(ScanTarget.getAllText());
+			editor.setSelectionOnly(true);
 			return editor;
 		} else if (col == 3) {
 			if (getItem(row).getTarget().isPoints()) {
