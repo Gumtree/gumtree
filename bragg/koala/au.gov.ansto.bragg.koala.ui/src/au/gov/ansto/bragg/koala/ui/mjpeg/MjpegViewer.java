@@ -60,6 +60,8 @@ public class MjpegViewer extends Composite {
 	private static final String TEXT_ALIGN_BUTTON = "Align sample in 5 steps";
 	private static final String VALUE_SX_RANGE = "gumtree.koala.sxRange";
 	private static final String VALUE_SY_RANGE = "gumtree.koala.syRange";
+	
+	public static final float DEFAULT_SZ_ZERO = Float.valueOf(String.valueOf(System.getProperty(ControlHelper.SZ_ZERO)));
 
 //	private static final String CAM_SIZE = "gumtree.koala.camSize";
 
@@ -85,10 +87,10 @@ public class MjpegViewer extends Composite {
 	private boolean isAddingMarker;
 	private ControlHelper controlHelper;
 	private IRunnerListener mjpegListener;
-	private double mmPerPixelX = Double.NaN;
-	private double mmPerPixelY = Double.NaN;
-	private double mmPerPixelLeftZ = Double.NaN;
-	private double mmPerPixelRightZ = Double.NaN;
+	private double mmPerPixelLeft = Double.NaN;
+	private double mmPerPixelRight = Double.NaN;
+//	private double mmPerPixelLeftZ = Double.NaN;
+//	private double mmPerPixelRightZ = Double.NaN;
 	
 	public MjpegViewer(Composite parent, int style) {
 		super(parent, style);
@@ -316,6 +318,8 @@ public class MjpegViewer extends Composite {
 		
 		showPanel(manualComposite);
 		loadPref();
+		
+		new SzHelper();
 	}
 
 	private void showPanel(final Composite composite) {
@@ -731,83 +735,83 @@ public class MjpegViewer extends Composite {
 	}
 		
     private void loadPref() {
-		String perPixelX = Activator.getPreference(Activator.NAME_MJPEG_MMPERPIXEL_X);
-		if (perPixelX != null) {
+		String perPixelLeft = Activator.getPreference(Activator.NAME_MJPEG_MMPERPIXEL_LEFT);
+		if (perPixelLeft != null) {
 			try {
-				mmPerPixelX = Double.valueOf(perPixelX);
+				mmPerPixelLeft = Double.valueOf(perPixelLeft);
 			} catch (Exception e) {
 			}
 		}
-		String perPixelY = Activator.getPreference(Activator.NAME_MJPEG_MMPERPIXEL_Y);
-		if (perPixelY != null) {
+		String perPixelRight = Activator.getPreference(Activator.NAME_MJPEG_MMPERPIXEL_RIGHT);
+		if (perPixelRight != null) {
 			try {
-				mmPerPixelY = Double.valueOf(perPixelY);
+				mmPerPixelRight = Double.valueOf(perPixelRight);
 			} catch (Exception e) {
 			}
 		}
-		String perPixelLeftZ = Activator.getPreference(Activator.NAME_MJPEG_MMPERPIXEL_LEFTZ);
-		if (perPixelLeftZ != null) {
-			try {
-				mmPerPixelLeftZ = Double.valueOf(perPixelLeftZ);
-			} catch (Exception e) {
-			}
-		}
-		String perPixelRightZ = Activator.getPreference(Activator.NAME_MJPEG_MMPERPIXEL_RIGHTZ);
-		if (perPixelRightZ != null) {
-			try {
-				mmPerPixelRightZ = Double.valueOf(perPixelRightZ);
-			} catch (Exception e) {
-			}
-		}
+//		String perPixelLeftZ = Activator.getPreference(Activator.NAME_MJPEG_MMPERPIXEL_LEFTZ);
+//		if (perPixelLeftZ != null) {
+//			try {
+//				mmPerPixelLeftZ = Double.valueOf(perPixelLeftZ);
+//			} catch (Exception e) {
+//			}
+//		}
+//		String perPixelRightZ = Activator.getPreference(Activator.NAME_MJPEG_MMPERPIXEL_RIGHTZ);
+//		if (perPixelRightZ != null) {
+//			try {
+//				mmPerPixelRightZ = Double.valueOf(perPixelRightZ);
+//			} catch (Exception e) {
+//			}
+//		}
 	}
 
-    public double getMmPerPixelX() throws KoalaModelException {
-    	if (Double.isNaN(mmPerPixelX)) {
+    public double getMmPerPixelLeft() throws KoalaModelException {
+    	if (Double.isNaN(mmPerPixelLeft)) {
     		throw new KoalaModelException("Camera has not been calibrated. Please click on the Calibration button.");
     	}
-		return mmPerPixelX;
+		return Math.abs(mmPerPixelLeft);
 	}
     
-    public double getMmPerPixelY() throws KoalaModelException {
-    	if (Double.isNaN(mmPerPixelY)) {
+    public double getMmPerPixelRight() throws KoalaModelException {
+    	if (Double.isNaN(mmPerPixelRight)) {
     		throw new KoalaModelException("Camera has not been calibrated. Please click on the Calibration button.");
     	}
-		return mmPerPixelY;
+		return Math.abs(mmPerPixelRight);
 	}
     
-    public double getMmPerPixelLeftZ() throws KoalaModelException {
-    	if (Double.isNaN(mmPerPixelLeftZ)) {
-    		throw new KoalaModelException("Camera has not been calibrated. Please click on the Calibration button.");
-    	}
-		return mmPerPixelLeftZ;
+//    public double getMmPerPixelLeftZ() throws KoalaModelException {
+//    	if (Double.isNaN(mmPerPixelLeftZ)) {
+//    		throw new KoalaModelException("Camera has not been calibrated. Please click on the Calibration button.");
+//    	}
+//		return mmPerPixelLeftZ;
+//	}
+//    
+//    public double getMmPerPixelRightZ() throws KoalaModelException {
+//    	if (Double.isNaN(mmPerPixelRightZ)) {
+//    		throw new KoalaModelException("Camera has not been calibrated. Please click on the Calibration button.");
+//    	}
+//		return mmPerPixelRightZ;
+//	}
+    
+    public void setMmPerPixelLeft(double mmPerPixel) {
+		this.mmPerPixelLeft = Math.abs(mmPerPixel);
+		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_LEFT, String.valueOf(mmPerPixel));
 	}
     
-    public double getMmPerPixelRightZ() throws KoalaModelException {
-    	if (Double.isNaN(mmPerPixelRightZ)) {
-    		throw new KoalaModelException("Camera has not been calibrated. Please click on the Calibration button.");
-    	}
-		return mmPerPixelRightZ;
-	}
-    
-    public void setMmPerPixelX(double mmPerPixelX) {
-		this.mmPerPixelX = mmPerPixelX;
-		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_X, String.valueOf(mmPerPixelX));
-	}
-    
-    public void setMmPerPixelY(double mmPerPixelY) {
-		this.mmPerPixelY = mmPerPixelY;
-		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_Y, String.valueOf(mmPerPixelY));
+    public void setMmPerPixelRight(double mmPerPixel) {
+		this.mmPerPixelRight = Math.abs(mmPerPixel);
+		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_RIGHT, String.valueOf(mmPerPixel));
 	}
 
-    public void setMmPerPixelLeftZ(double mmPerPixelZ) {
-		this.mmPerPixelLeftZ = mmPerPixelZ;
-		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_LEFTZ, String.valueOf(mmPerPixelZ));
-	}
-
-    public void setMmPerPixelRightZ(double mmPerPixelZ) {
-		this.mmPerPixelRightZ = mmPerPixelZ;
-		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_RIGHTZ, String.valueOf(mmPerPixelZ));
-	}
+//    public void setMmPerPixelLeftZ(double mmPerPixelZ) {
+//		this.mmPerPixelLeftZ = mmPerPixelZ;
+//		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_LEFTZ, String.valueOf(mmPerPixelZ));
+//	}
+//
+//    public void setMmPerPixelRightZ(double mmPerPixelZ) {
+//		this.mmPerPixelRightZ = mmPerPixelZ;
+//		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_RIGHTZ, String.valueOf(mmPerPixelZ));
+//	}
 
 	private void driveSphi(final float value) {
 		if (controlHelper.isConnected()) {
@@ -1051,6 +1055,82 @@ public class MjpegViewer extends Composite {
 						ledButton.setSelection(true);
 					} else {
 						ledButton.setSelection(false);
+					}
+				}
+				
+			});
+		}
+
+		@Override
+		public void updateEnabled(boolean isEnabled) {
+		}
+
+		@Override
+		public void updateTarget(Object oldValue, Object newValue) {
+		}
+		
+	}
+	
+	public void setZOffset(float zPosition) throws KoalaModelException {
+		double xMmPerPixel = getMmPerPixelLeft();
+		double yMmPerPixel = getMmPerPixelRight();
+		float gap = DEFAULT_SZ_ZERO - zPosition;
+		getPanel1().setCentreYOffset(Double.valueOf(gap / xMmPerPixel).intValue());
+		getPanel2().setCentreYOffset(Double.valueOf(gap / yMmPerPixel).intValue());
+	}
+	
+	class SzHelper {
+		public SzHelper() {
+			if (controlHelper.isConnected()) {
+				final ISicsController szController = SicsManager.getSicsModel().findController(
+						System.getProperty(ControlHelper.SZ_PATH));	
+				szController.addControllerListener(
+						new DrumZControllerListener());
+			}
+			ISicsProxyListener proxySzListener = new SicsProxyListenerAdapter() {
+
+				@Override
+				public void connect() {
+					final ISicsController szController = SicsManager.getSicsModel().findController(
+							System.getProperty(ControlHelper.SZ_PATH));	
+					if (szController != null) {
+						if (szController instanceof DynamicController) {
+							try {
+								final float value = Float.valueOf(((DynamicController) szController
+										).getValue().toString());
+								setZOffset(value);
+							} catch (SicsModelException e) {
+							} catch (KoalaModelException e) {
+								e.printStackTrace();
+							}
+
+							szController.addControllerListener(new SzControllerListener());
+						}
+					}
+
+				}
+			};
+			controlHelper.addProxyListener(proxySzListener);
+		}
+	}
+	
+	class SzControllerListener implements ISicsControllerListener {
+
+		@Override
+		public void updateState(ControllerState oldState, ControllerState newState) {
+		}
+
+		@Override
+		public void updateValue(final Object oldValue, final Object newValue) {
+			Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					Float value = Float.valueOf(String.valueOf(newValue));
+					try {
+						setZOffset(value);
+					} catch (KoalaModelException e) {
+						e.printStackTrace();
 					}
 				}
 				

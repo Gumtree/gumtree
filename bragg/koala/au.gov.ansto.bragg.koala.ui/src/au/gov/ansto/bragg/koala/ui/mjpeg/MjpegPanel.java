@@ -66,6 +66,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 	private int markerSize;
 	private boolean isCentreFixed = true;
 	private Point beamCentre;
+	private int centreYOffset;
 	private float imageScale = 1f;
 	private boolean isZoomChanged = false;
 	private Point panningStart;
@@ -190,7 +191,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
                 		imageEnd.y = (int) (zoomCentre.y + imageHeight / 2f + (relativeHeight / 2f - 
                 				focusCentre.y) * imageScale / getZoomFactor());
             			relativeCentreX = relativeX + Float.valueOf((beamCentre.x - imageStart.x) * getZoomFactor() / imageScale).intValue();
-            			relativeCentreY = Float.valueOf((beamCentre.y - imageStart.y) * getZoomFactor() / imageScale).intValue();
+            			relativeCentreY = Float.valueOf((beamCentre.y + centreYOffset - imageStart.y) * getZoomFactor() / imageScale).intValue();
             		} else {
             			imageScale = imageWidth.floatValue() / screenWidth;
             			relativeWidth = Float.valueOf(imageWidth / imageScale).intValue();
@@ -206,7 +207,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
                 		imageEnd.y = (int) (zoomCentre.y + imageHeight / 2f + (relativeHeight / 2f - 
                 				focusCentre.y) * imageScale / getZoomFactor());
             			relativeCentreX = Float.valueOf((beamCentre.x - imageStart.x) * getZoomFactor() / imageScale).intValue();
-            			relativeCentreY = relativeY + Float.valueOf((beamCentre.y - imageStart.y) * getZoomFactor() / imageScale).intValue();
+            			relativeCentreY = relativeY + Float.valueOf((beamCentre.y + centreYOffset - imageStart.y) * getZoomFactor() / imageScale).intValue();
             		}
         			screenSize = d;
         			isZoomChanged = false;
@@ -252,7 +253,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
         				}
             			relativeCentreX = relativeX + Float.valueOf((beamCentre.x - imageStart.x) * 
             					getZoomFactor() / imageScale).intValue();
-            			relativeCentreY = relativeY + Float.valueOf((beamCentre.y - imageStart.y) * 
+            			relativeCentreY = relativeY + Float.valueOf((beamCentre.y + centreYOffset - imageStart.y) * 
             					getZoomFactor() / imageScale).intValue();
         			}
         			isPanning = false;
@@ -482,6 +483,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 					y = p.y;
 				}
 				beamCentre = screenToImage(new Point(x, y));
+				beamCentre.y -= centreYOffset;
 				repaint();
 			}
 //			System.err.println(e.getPoint() + " -> " + screenToImage(e.getPoint()));
@@ -701,6 +703,16 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 		this.beamCentre = centre;
 	}
 
+	public void setCentreYOffset(int yOffset) {
+		this.centreYOffset = yOffset;
+		isZoomChanged = true;
+		repaint();
+	}
+	
+	public int getCentreYOffset() {
+		return centreYOffset;
+	}
+	
 	/**
 	 * @return the zoomFactor
 	 */

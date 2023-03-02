@@ -356,40 +356,42 @@ public class KoalaServer {
 	private void processDrive(String client, String cid, String command) {
 		try {
 			String[] parts = command.split(" ");
-			String dev = parts[1];
-			String target = parts[2];
-			ISicsController controller = model.findController(dev);
-			if (controller == null) {
-				sendInternalError(client, cid, command, "device " + String.valueOf(dev) + " not found");
-				return;
-			}
-			if (!(controller instanceof IDriveableController)) {
-				sendInternalError(client, cid, command, "device " + String.valueOf(dev) + " is not driveable");
-				return;
-			}
-			IDriveableController driveable = (IDriveableController) controller;
-			double precision = Double.NaN;
-			for (ISicsController child : driveable.getChildren()) {
-				if ("precision".equals(child.getId())) {
-					try {
-						precision = (float) ((IDynamicController) child).getValue();
-					} catch (Exception e) {
-					}
-				}
-			}
-			if (! Double.isNaN(precision)) {
-				double targetValue = Double.valueOf(target);
-				double currentValue = (float) driveable.getValue();
-				if (Math.abs(targetValue - currentValue) <= precision) {
-					respondFinal(client, cid, command, dev + " is already at " + currentValue);
+			for (int i = 0; i < (parts.length - 1) / 2; i++) {
+				String dev = parts[1 + i * 2];
+				String target = parts[2 + i * 2];
+				ISicsController controller = model.findController(dev);
+				if (controller == null) {
+					sendInternalError(client, cid, command, "device " + String.valueOf(dev) + " not found");
 					return;
 				}
-			}
-//			if (true) throw new SicsExecutionException("motion disabled");
+				if (!(controller instanceof IDriveableController)) {
+					sendInternalError(client, cid, command, "device " + String.valueOf(dev) + " is not driveable");
+					return;
+				}
+				IDriveableController driveable = (IDriveableController) controller;
+				double precision = Double.NaN;
+				for (ISicsController child : driveable.getChildren()) {
+					if ("precision".equals(child.getId())) {
+						try {
+							precision = (float) ((IDynamicController) child).getValue();
+						} catch (Exception e) {
+						}
+					}
+				}
+				if (! Double.isNaN(precision)) {
+					double targetValue = Double.valueOf(target);
+					double currentValue = (float) driveable.getValue();
+					if (Math.abs(targetValue - currentValue) <= precision) {
+						respondReply(client, cid, command, dev + " is already at " + currentValue);
+//						return;
+					}
+				}
+				//			if (true) throw new SicsExecutionException("motion disabled");
 
-			respondReply(client, cid, command, "start driving " + dev);
-			drive(driveable, target);
-			respondFinal(client, cid, command, dev + " = " + target);
+				respondReply(client, cid, command, "start driving " + dev);
+				drive(driveable, target);
+			}
+			respondFinal(client, cid, command, "finished driving");
 		} catch (JSONException e) {
 			sendInternalError(client, cid, command, "json exception");
 		} catch (SicsModelException e) {

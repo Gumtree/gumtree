@@ -370,7 +370,7 @@ public class CalibrateVideoPart extends Composite {
 				Point centre = p1.getBeamCentre();
 				Point marker = p1.getMarkerCoordinate();
 				double scale = ((double) xGap) / (marker.x - centre.x);
-				parentViewer.setMmPerPixelX(scale);
+				parentViewer.setMmPerPixelLeft(scale);
 
 				steps[4].finish();
 				moveToStep(5);
@@ -387,7 +387,7 @@ public class CalibrateVideoPart extends Composite {
 				Point centre = p2.getBeamCentre();
 				Point marker = p2.getMarkerCoordinate();
 				double scale = ((double) yGap) / (marker.x - centre.x);
-				parentViewer.setMmPerPixelY(scale);
+				parentViewer.setMmPerPixelRight(scale);
 
 				steps[6].finish();
 				finish();
@@ -498,6 +498,7 @@ public class CalibrateVideoPart extends Composite {
 			devices.put(SX_NAME, 0f);
 			devices.put(SY_NAME, 0f);
 			devices.put(SZ_NAME, 0f);
+			devices.put(SPHI_NAME, -45);
 			JobRunner.run(new ILoopExitCondition() {
 
 				@Override
