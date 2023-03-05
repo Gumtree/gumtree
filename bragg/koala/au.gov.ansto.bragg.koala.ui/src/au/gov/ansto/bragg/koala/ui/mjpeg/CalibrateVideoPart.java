@@ -50,7 +50,7 @@ public class CalibrateVideoPart extends Composite {
 	private static final String SZ_NAME = System.getProperty(ControlHelper.SZ_PATH);
 	private static final String SPHI_NAME = System.getProperty(ControlHelper.SAMPLE_PHI);
 	
-	private static final float DRIVE_GAP = 10;
+	private static final float DRIVE_GAP = 5;
 	private static final float SPHI_ANGLE = 45;
 	
 	private static final Logger logger = LoggerFactory.getLogger(CalibrateVideoPart.class);

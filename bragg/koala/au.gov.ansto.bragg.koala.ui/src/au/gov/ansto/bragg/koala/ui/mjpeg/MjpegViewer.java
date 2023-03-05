@@ -1071,10 +1071,10 @@ public class MjpegViewer extends Composite {
 		
 	}
 	
-	public void setZOffset(float zPosition) throws KoalaModelException {
+	public void setZOffset(final float zPosition) throws KoalaModelException {
 		double xMmPerPixel = getMmPerPixelLeft();
 		double yMmPerPixel = getMmPerPixelRight();
-		float gap = DEFAULT_SZ_ZERO - zPosition;
+		float gap = zPosition - DEFAULT_SZ_ZERO;
 		getPanel1().setCentreYOffset(Double.valueOf(gap / xMmPerPixel).intValue());
 		getPanel2().setCentreYOffset(Double.valueOf(gap / yMmPerPixel).intValue());
 	}

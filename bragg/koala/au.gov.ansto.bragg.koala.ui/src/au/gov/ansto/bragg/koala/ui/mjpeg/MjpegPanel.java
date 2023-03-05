@@ -209,6 +209,9 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
             			relativeCentreX = Float.valueOf((beamCentre.x - imageStart.x) * getZoomFactor() / imageScale).intValue();
             			relativeCentreY = relativeY + Float.valueOf((beamCentre.y + centreYOffset - imageStart.y) * getZoomFactor() / imageScale).intValue();
             		}
+        			System.err.println(String.format("imageScale=%f, zoomCentre=%s, focusCentre=%s, imageStart=%s, imageEnd=%s", 
+        					imageScale, zoomCentre, focusCentre, imageStart, imageEnd));
+        			
         			screenSize = d;
         			isZoomChanged = false;
         		} else if (isPanning) {
@@ -218,9 +221,11 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 	        				if (imageEnd.x - gap > imageWidth) {
 	        					imageStart.x = imageWidth - imageEnd.x + imageStart.x;
 	        					imageEnd.x = imageWidth;
+	        					
 	        				} else {
 	        					imageStart.x -= gap;
 	        					imageEnd.x -= gap;
+	        					focusCentre.x += panningMovement.x;
 	        				}
         				} else if (panningMovement.x > 0) {
         					int gap = (int) (panningMovement.x * imageScale / getZoomFactor());
@@ -230,6 +235,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
         					} else {
         						imageStart.x -= gap;
 	        					imageEnd.x -= gap;
+	        					focusCentre.x += panningMovement.x;
         					}
         				}
         				if (panningMovement.y < 0) {
@@ -240,6 +246,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
         					} else {
         						imageStart.y -= gap;
         		        		imageEnd.y -= gap;
+        		        		focusCentre.y += panningMovement.y;
         					}
         				} else if (panningMovement.y > 0) {
         					int gap = (int) (panningMovement.y * imageScale / getZoomFactor());
@@ -249,12 +256,15 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
         					} else {
         						imageStart.y -= gap;
         		        		imageEnd.y -= gap;
+        		        		focusCentre.y += panningMovement.y;
         					}
         				}
             			relativeCentreX = relativeX + Float.valueOf((beamCentre.x - imageStart.x) * 
             					getZoomFactor() / imageScale).intValue();
             			relativeCentreY = relativeY + Float.valueOf((beamCentre.y + centreYOffset - imageStart.y) * 
             					getZoomFactor() / imageScale).intValue();
+            			System.err.println(String.format("imageScale=%f, zoomCentre=%s, focusCentre=%s, imageStart=%s, imageEnd=%s", 
+            					imageScale, zoomCentre, focusCentre, imageStart, imageEnd));
         			}
         			isPanning = false;
         		}
@@ -437,7 +447,6 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 				panningMovement = new Point(newPoint.x - panningStart.x, newPoint.y - panningStart.y);
 				panningStart = newPoint;
 				isPanning = true;
-				System.err.println(panningMovement);
 				repaint();
 			}
 		}

@@ -6,6 +6,8 @@ package au.gov.ansto.bragg.koala.ui.sics;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
@@ -45,6 +47,7 @@ public class SimpleControlSuite {
 	private Slider slider;
 	private float sliderRange;
 	private Label statusLabel;
+	private boolean targetChanged;
 	private ControlHelper controlHelper;
 	/**
 	 * 
@@ -144,12 +147,15 @@ public class SimpleControlSuite {
 		});
 		
 		if (slider != null) {
+			slider.setDragDetect(false);
 			slider.addSelectionListener(new SelectionListener() {
 				
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					if (!Float.isNaN(targetValue)) {
+						targetChanged = true;
 						setpointControl.setText(String.valueOf(targetValue + (slider.getSelection() - 50) * sliderRange / 100));
+//						commitTarget();
 					}
 				}
 				
@@ -157,18 +163,37 @@ public class SimpleControlSuite {
 				public void widgetDefaultSelected(SelectionEvent e) {
 				}
 			});
+			
+			slider.addMouseListener(new MouseListener() {
+				
+				@Override
+				public void mouseUp(MouseEvent e) {
+					if (targetChanged) {
+						targetChanged = false;
+						commitTarget();
+					}
+				}
+				
+				@Override
+				public void mouseDown(MouseEvent e) {
+				}
+				
+				@Override
+				public void mouseDoubleClick(MouseEvent e) {
+				}
+			});
 		}
 	}
 	
 	private void commitTarget() {
 		if (controlHelper.isConnected()) {
+			slider.setEnabled(false);
 			final ISicsController setpointController = 
 					SicsManager.getSicsModel().findController(setpointPath);
 			if (setpointController instanceof DynamicController) {
 				final String value = setpointControl.getText();
 				try {
 					targetValue = Float.valueOf(value);
-					slider.setSelection(50);
 				} catch (Exception e) {
 					setStatusText(statusLabel, "invalid target value, must be a number");
 				}
@@ -217,6 +242,8 @@ public class SimpleControlSuite {
 						} catch (final SicsException e1) {
 							e1.printStackTrace();
 							setStatusText(statusLabel, e1.getMessage());
+						} finally {
+							resetSlider();
 						}
 					}
 				});
@@ -225,6 +252,17 @@ public class SimpleControlSuite {
 				setStatusText(statusLabel, "failed to find device: " + setpointPath);
 			}
 		}
+	}
+	
+	private void resetSlider() {
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				slider.setSelection(50);
+				slider.setEnabled(true);
+			}
+		});
 	}
 	
 	private void setStatusText(final Label statusLabel, final String text) {

@@ -459,21 +459,21 @@ public class AlignVideoPart extends Composite {
 						MjpegPanel p1 = parentViewer.getPanel1();
 						Point centre1 = p1.getBeamCentre();
 						Point marker1 = p1.getMarkerCoordinate();
-						double mmPerPixelX = parentViewer.getMmPerPixelLeft();
-						float endX =  Double.valueOf(mmPerPixelX * (marker1.x - centre1.x) + curX).floatValue();
+						double mmPerPixelLeft = parentViewer.getMmPerPixelLeft();
+						float endX =  Double.valueOf(mmPerPixelLeft * (marker1.x - centre1.x) + curX).floatValue();
 						
 						float curY = Float.valueOf(sy.getValue().toString());
 						MjpegPanel p2 = parentViewer.getPanel2();
 						Point centre2 = p2.getBeamCentre();
 						Point marker2 = p2.getMarkerCoordinate();
-						double mmPerPixelY = parentViewer.getMmPerPixelRight();
-						float endY =  Double.valueOf(mmPerPixelY * (marker2.x - centre2.x) + curY).floatValue();
+						double mmPerPixelRight = parentViewer.getMmPerPixelRight();
+						float endY =  Double.valueOf(mmPerPixelRight * (marker2.x - centre2.x) + curY).floatValue();
 						
 						float curZ = Float.valueOf(sz.getValue().toString());
 //						double mmPerPixelLeftZ = parentViewer.getMmPerPixelLeftZ();
 //						double mmPerPixelRightZ = parentViewer.getMmPerPixelRightZ();
-						float endLeftZ =  Double.valueOf(mmPerPixelX * (centre1.y - marker1.y) + curZ).floatValue();
-						float endRightZ =  Double.valueOf(mmPerPixelY * (centre2.y - marker2.y) + curZ).floatValue();
+						float endLeftZ =  Double.valueOf(mmPerPixelLeft * (marker1.y - centre1.y) + curZ).floatValue();
+						float endRightZ =  Double.valueOf(mmPerPixelRight * (marker2.y - centre2.y) + curZ).floatValue();
 						
 						final Map<String, Number> devices = new HashMap<String, Number>();
 						devices.put(SX_NAME, endX);
