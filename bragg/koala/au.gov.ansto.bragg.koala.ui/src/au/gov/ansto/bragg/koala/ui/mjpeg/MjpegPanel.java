@@ -92,6 +92,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 	private Timer timer;
 	private List<IMjpegPanelListener> listeners;
 	private JPanel emptyPanel;
+	private String title = "";
 
 	public MjpegPanel(Frame parent) {
 		super();
@@ -301,12 +302,20 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
         		
         		g2d.setColor(Color.WHITE);
     			g2d.drawString(lastTimestamp, 10, getHeight()-50);
+    			if (title != null) {
+    				g2d.setFont(getFont().deriveFont(32F));
+    				g2d.drawString(title, 32, 50);
+    			}
         	} finally {
         		g2d.dispose();
         	}
         }
     }
 
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	
 	@Override
 	public void setFailedString(String s) {
 		this.failedString = s;

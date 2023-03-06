@@ -49,6 +49,7 @@ public class SimpleControlSuite {
 	private Label statusLabel;
 	private boolean targetChanged;
 	private ControlHelper controlHelper;
+	private boolean isForward = true;
 	/**
 	 * 
 	 */
@@ -154,7 +155,7 @@ public class SimpleControlSuite {
 				public void widgetSelected(SelectionEvent e) {
 					if (!Float.isNaN(targetValue)) {
 						targetChanged = true;
-						setpointControl.setText(String.valueOf(targetValue + (slider.getSelection() - 50) * sliderRange / 100));
+						setpointControl.setText(String.valueOf(targetValue + (isForward ? 1 : -1) * (slider.getSelection() - 50) * sliderRange / 100));
 //						commitTarget();
 					}
 				}
@@ -361,6 +362,10 @@ public class SimpleControlSuite {
 			}
 		}
 		
+	}
+	
+	public void setForward(boolean isFoward) {
+		this.isForward = isFoward;
 	}
 	
 }

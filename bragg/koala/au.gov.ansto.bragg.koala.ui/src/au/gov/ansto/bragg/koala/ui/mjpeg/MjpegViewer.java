@@ -52,6 +52,10 @@ import au.gov.ansto.bragg.koala.ui.sics.SimpleControlSuite;
 
 public class MjpegViewer extends Composite {
 
+	private static final String TITLE_VIEW_FORWARD = " forward view";
+	private static final String TITLE_VIEW_BACKWARD = " backward view";
+	private static final String TITLE_VIEW_NOTINLINE = "Not inline with any axis";
+	
 	private static final String CAM1_URL = "gumtree.koala.mjpeg1Url";
 	private static final String CAM2_URL = "gumtree.koala.mjpeg2Url";
 	private static final Logger logger = LoggerFactory.getLogger(MjpegViewer.class);
@@ -84,6 +88,8 @@ public class MjpegViewer extends Composite {
 	private Button phiNEButton;
 	private Button phiSWButton;
 	private Button phiSEButton;
+	private SimpleControlSuite sxSuite;
+	private SimpleControlSuite sySuite;
 	private boolean isAddingMarker;
 	private ControlHelper controlHelper;
 	private IRunnerListener mjpegListener;
@@ -604,11 +610,11 @@ public class MjpegViewer extends Composite {
 	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(sliderY);
 	    
 		String sxPath = System.getProperty(ControlHelper.SX_PATH);		
-		new SimpleControlSuite(sxPath, curText, sxPath, tarText, driveButton, null, 
+		sxSuite = new SimpleControlSuite(sxPath, curText, sxPath, tarText, driveButton, null, 
 				sliderX, Float.valueOf(System.getProperty(VALUE_SX_RANGE, "1")));
 
 		String syPath = System.getProperty(ControlHelper.SY_PATH);
-		new SimpleControlSuite(syPath, curYText, syPath, tarYText, driveYButton, null, 
+		sySuite = new SimpleControlSuite(syPath, curYText, syPath, tarYText, driveYButton, null, 
 				sliderY, Float.valueOf(System.getProperty(VALUE_SY_RANGE, "1")));
 
 		Group phiGroup = new Group(axesControlComposite, SWT.NONE);
@@ -1246,14 +1252,19 @@ public class MjpegViewer extends Composite {
 								}
 								if (inRange(value, precision, -45)) {
 									chooseRange(phiNWButton);
+									setTitle(-45);
 								} else if (inRange(value, precision, 45)) {
 									chooseRange(phiNEButton);
+									setTitle(45);
 								} else if (inRange(value, precision, -135)) {
 									chooseRange(phiSWButton);
+									setTitle(-135);
 								} else if (inRange(value, precision, 135)) {
 									chooseRange(phiSEButton);
+									setTitle(135);
 								} else {
 									chooseRange(null);
+									setTitle(-1);
 								}
 							} catch (SicsModelException e) {
 							}
@@ -1306,15 +1317,20 @@ public class MjpegViewer extends Composite {
 			}
 			if (inRange(value, precision, -45)) {
 				chooseRange(phiNWButton);
+				setTitle(-45);
 			} else if (inRange(value, precision, 45)) {
 				chooseRange(phiNEButton);
+				setTitle(45);
 			} else if (inRange(value, precision, -135)) {
 				chooseRange(phiSWButton);
+				setTitle(-135);
 			} else if (inRange(value, precision, 135)) {
 				chooseRange(phiSEButton);
+				setTitle(135);
 			} else {
 				chooseRange(null);
-			}					
+				setTitle(-1);
+			}
 		} catch (SicsModelException e) {
 			e.printStackTrace();
 		}
@@ -1322,6 +1338,35 @@ public class MjpegViewer extends Composite {
 		phiNWButton.setEnabled(true);
 		phiSWButton.setEnabled(true);
 		phiSEButton.setEnabled(true);
+	}
+	
+	private void setTitle(int phi) {
+		if (phi == 45) {
+			getPanel1().setTitle("sx" + TITLE_VIEW_BACKWARD);
+			sxSuite.setForward(false);
+			getPanel2().setTitle("sy" + TITLE_VIEW_BACKWARD);
+			sySuite.setForward(false);
+		} else if (phi == -45) {
+			getPanel2().setTitle("sx" + TITLE_VIEW_BACKWARD);
+			sxSuite.setForward(false);
+			getPanel1().setTitle("sy" + TITLE_VIEW_FORWARD);
+			sySuite.setForward(true);
+		} else if (phi == 135) {
+			getPanel2().setTitle("sx" + TITLE_VIEW_FORWARD);
+			sxSuite.setForward(true);
+			getPanel1().setTitle("sy" + TITLE_VIEW_BACKWARD);
+			sySuite.setForward(false);
+		} else if (phi == -135) {
+			getPanel1().setTitle("sx" + TITLE_VIEW_FORWARD);
+			sxSuite.setForward(true);
+			getPanel2().setTitle("sy" + TITLE_VIEW_FORWARD);
+			sySuite.setForward(true);
+		} else {
+			getPanel1().setTitle(TITLE_VIEW_NOTINLINE);
+			sxSuite.setForward(true);
+			getPanel2().setTitle(TITLE_VIEW_NOTINLINE);
+			sySuite.setForward(true);
+		}
 	}
 	
 	class PhiControllerListener implements ISicsControllerListener {
