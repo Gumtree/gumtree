@@ -268,7 +268,9 @@ public class SicsProxy implements ISicsProxy {
 	
 	@Override
 	public void addProxyListener(ISicsProxyListener listener) {
-		proxyListeners.add(listener);
+		synchronized (proxyListeners) {
+			proxyListeners.add(listener);
+		}
 	}
 	
 	@Override
