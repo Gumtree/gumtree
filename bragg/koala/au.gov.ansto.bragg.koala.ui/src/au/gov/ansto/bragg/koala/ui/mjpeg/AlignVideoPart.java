@@ -57,7 +57,7 @@ public class AlignVideoPart extends Composite {
 	private static final int STEP_ID_MARKRIGHT = 3;
 	private static final int STEP_ID_DRIVEALL = 4;
 	
-	private static final int NUM_STEPS = 5;
+	private static final int NUM_STEPS = STEP_ID_DRIVEALL + 1;
 	private static final Logger logger = LoggerFactory.getLogger(AlignVideoPart.class);
 
 	private ControlHelper controlHelper;
@@ -260,6 +260,7 @@ public class AlignVideoPart extends Composite {
 			label1.setEnabled(enabled);
 			label2.setEnabled(enabled);
 			driveButton.setEnabled(enabled);
+			checkButton.setEnabled(enabled);
 		}
 		
 		@Override
@@ -275,7 +276,7 @@ public class AlignVideoPart extends Composite {
 		public StepMark(Group parent, final int id, String text) {
 			stepId = id;
 			label1 = new Label(parent, SWT.NONE);
-			label1.setText(String.format("%d. %s", id, text));
+			label1.setText(String.format("%d. %s", id + 1, text));
 			label1.setFont(Activator.getMiddleFont());
 			GridDataFactory.swtDefaults().grab(false, false).span(3, 1).applyTo(label1);
 			
@@ -312,6 +313,7 @@ public class AlignVideoPart extends Composite {
 		@Override
 		public void setEnabled(boolean enabled) {
 			label1.setEnabled(enabled);
+			checkButton.setEnabled(enabled);
 			if (stepId == STEP_ID_MARKLEFT) {
 				parentViewer.getPanel1().setMarkerFixed(!enabled);
 			} else if (stepId == STEP_ID_MARKRIGHT) {
