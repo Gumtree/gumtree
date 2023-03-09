@@ -18,7 +18,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.exception.SicsException;
@@ -32,10 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
-import au.gov.ansto.bragg.koala.ui.mjpeg.AlignVideoPart.IDrivable;
-import au.gov.ansto.bragg.koala.ui.mjpeg.AlignVideoPart.IStep;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaInterruptionException;
-import au.gov.ansto.bragg.koala.ui.scan.KoalaModelException;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
@@ -50,7 +46,7 @@ public class CalibrateVideoPart extends Composite {
 	private static final String TEXT_DRIVE_ALL = "to default centre, " + Activator.PHI + " to 45\u00b0";
 	private static final String TEXT_DRIVE_PHI = Activator.PHI + " to -45\u00b0";
 	private static final String TEXT_DRIVE_X = "X to 5mm";
-	private static final String TEXT_DRIVE_PHIBACK = Activator.PHI + "back to 45\u00b0";
+	private static final String TEXT_DRIVE_PHIBACK = Activator.PHI + " back to 45\u00b0";
 	private static final String TEXT_CALCULATE_CENTRE = "to calculated beam centre";
 	
 	private static final String TEXT_MARK = "Mark needle points on both videos";
@@ -83,7 +79,7 @@ public class CalibrateVideoPart extends Composite {
 	private MjpegViewer parentViewer;
 
 	private float sxValue1;
-	private float sxValue2;
+	private float syValue1;
 	private float scaleLeft;
 	private float scaleRight;
 	private int currentStepId;
@@ -106,7 +102,6 @@ public class CalibrateVideoPart extends Composite {
 	private IStep[] steps;
 	private boolean enabled;
 	private float xGap;
-	private float yGap;
 	private float centreX;
 	private float centreY;
 	
@@ -144,7 +139,7 @@ public class CalibrateVideoPart extends Composite {
 			
 			@Override
 			public void drive() {
-				driveSphi(SPHI_ANGLE, STEP_DRIVE_PHI);
+				driveSphi(SPHI_ANGLE_CHANGE, STEP_DRIVE_PHI);
 			}
 		});
 		
@@ -170,7 +165,7 @@ public class CalibrateVideoPart extends Composite {
 			
 			@Override
 			public void drive() {
-				driveSphi(SPHI_ANGLE_CHANGE, STEP_DRIVE_PHIBACK);
+				driveSphi(SPHI_ANGLE, STEP_DRIVE_PHIBACK);
 			}
 		});
 		
@@ -284,6 +279,8 @@ public class CalibrateVideoPart extends Composite {
 						} else {
 							finishAll();
 						}
+					} else {
+						setEnabled(true);
 					}
 				}
 				
@@ -303,7 +300,7 @@ public class CalibrateVideoPart extends Composite {
 			label1.setEnabled(enabled);
 			label2.setEnabled(enabled);
 			driveButton.setEnabled(enabled);
-			checkButton.setEnabled(enabled);
+//			checkButton.setEnabled(enabled);
 		}
 		
 		@Override
@@ -330,7 +327,7 @@ public class CalibrateVideoPart extends Composite {
 			
 			checkButton = new Button(parent, SWT.CHECK);
 			checkButton.setFont(Activator.getMiddleFont());
-			checkButton.setEnabled(false);
+//			checkButton.setEnabled(false);
 			GridDataFactory.swtDefaults().grab(true, false).align(SWT.END, SWT.CENTER).applyTo(checkButton);
 			
 			checkButton.addSelectionListener(new SelectionListener() {
@@ -343,6 +340,17 @@ public class CalibrateVideoPart extends Composite {
 							moveToStep(stepId + 1);
 						} else {
 							finishAll();
+						}
+					} else {
+						setEnabled(true);
+						if (stepId == STEP_MARK_1) {
+							markerLeft1 = markerRight1 = null;
+						} else if (stepId == STEP_MARK_2) {
+							markerLeft2 = markerRight2 = null;
+						} else if (stepId == STEP_MARK_3) {
+							markerLeft3 = markerRight3 = null;
+						} else if (stepId == STEP_MARK_4) {
+							markerLeft4 = markerRight4 = null;
 						}
 					}
 				}
@@ -364,7 +372,7 @@ public class CalibrateVideoPart extends Composite {
 			label1.setEnabled(enabled);
 			parentViewer.getPanel1().setMarkerFixed(!enabled);
 			parentViewer.getPanel2().setMarkerFixed(!enabled);
-			checkButton.setEnabled(enabled);
+//			checkButton.setEnabled(enabled);
 		}
 
 		@Override
@@ -394,7 +402,7 @@ public class CalibrateVideoPart extends Composite {
 			
 			checkButton = new Button(parent, SWT.CHECK);
 			checkButton.setFont(Activator.getMiddleFont());
-			checkButton.setEnabled(false);
+//			checkButton.setEnabled(false);
 			GridDataFactory.swtDefaults().grab(true, false).align(SWT.END, SWT.CENTER).applyTo(checkButton);
 			
 			checkButton.addSelectionListener(new SelectionListener() {
@@ -408,6 +416,8 @@ public class CalibrateVideoPart extends Composite {
 						} else {
 							finishAll();
 						}
+					} else {
+						setEnabled(true);
 					}
 				}
 				
@@ -425,7 +435,7 @@ public class CalibrateVideoPart extends Composite {
 		@Override
 		public void setEnabled(boolean enabled) {
 			label1.setEnabled(enabled);
-			checkButton.setEnabled(enabled);
+//			checkButton.setEnabled(enabled);
 		}
 
 		@Override
@@ -439,7 +449,12 @@ public class CalibrateVideoPart extends Composite {
 
 	}
 	
-	
+	private void moveOn(boolean isFinished) {
+		if (isFinished) {
+			steps[currentStepId].finish();
+			moveToStep(currentStepId + 1);	
+		}
+	}
 	
 	private void marker1Set() {
 		Display.getDefault().asyncExec(new Runnable() {
@@ -450,12 +465,16 @@ public class CalibrateVideoPart extends Composite {
 				Point marker = p1.getMarkerCoordinate();
 				if (currentStepId == STEP_MARK_1) {
 					markerLeft1 = marker;
+					moveOn(markerLeft1 != null && markerRight1 != null);
 				} else if (currentStepId == STEP_MARK_2) {
 					markerLeft2 = marker;
+					moveOn(markerLeft2 != null && markerRight2 != null);
 				} else if (currentStepId == STEP_MARK_3) {
 					markerLeft3 = marker;
+					moveOn(markerLeft3 != null && markerRight3 != null);
 				} else if (currentStepId == STEP_MARK_4) {
 					markerLeft4 = marker;
+					moveOn(markerLeft4 != null && markerRight4 != null);
 				} 
 //				double scale = ((double) xGap) / (marker.x - centre.x);
 //				parentViewer.setMmPerPixelLeft(scale);
@@ -476,20 +495,16 @@ public class CalibrateVideoPart extends Composite {
 				Point marker = p2.getMarkerCoordinate();
 				if (currentStepId == STEP_MARK_1) {
 					markerRight1 = marker;
-					steps[currentStepId].finish();
-					moveToStep(currentStepId + 1);
+					moveOn(markerLeft1 != null && markerRight1 != null);
 				} else if (currentStepId == STEP_MARK_2) {
 					markerRight2 = marker;
-					steps[currentStepId].finish();
-					moveToStep(currentStepId + 1);
+					moveOn(markerLeft2 != null && markerRight2 != null);
 				} else if (currentStepId == STEP_MARK_3) {
 					markerRight3 = marker;
-					steps[currentStepId].finish();
-					moveToStep(currentStepId + 1);
+					moveOn(markerLeft3 != null && markerRight3 != null);
 				} else if (currentStepId == STEP_MARK_4) {
 					markerRight4 = marker;
-					steps[currentStepId].finish();
-					moveToStep(currentStepId + 1);
+					moveOn(markerLeft4 != null && markerRight4 != null);
 				} 
 //				double scale = ((double) yGap) / (marker.x - centre.x);
 //				parentViewer.setMmPerPixelRight(scale);
@@ -615,20 +630,24 @@ public class CalibrateVideoPart extends Composite {
 	}
 	
 	private void calculateBeamCentre() {
-		scaleRight = xGap / (markerRight3.x - markerRight2.x);
-		scaleLeft = xGap / (markerRight4.x - markerRight1.x);
+		scaleRight = Math.abs(xGap / (markerRight3.x - markerRight2.x));
+		scaleLeft = Math.abs(xGap / (markerLeft1.x - markerLeft4.x));
 		parentViewer.setMmPerPixelRight(scaleRight);
 		parentViewer.setMmPerPixelLeft(scaleLeft);
-		float dx = (markerLeft2.x - markerLeft1.x) * Math.abs(scaleLeft);
-		float dy = markerRight2.x - markerRight1.x * Math.abs(scaleRight);
+		float dx = (markerLeft2.x - markerLeft1.x) * scaleLeft;
+		float dy = (markerRight2.x - markerRight1.x) * scaleRight;
 		centreX = (dy - dx) / 2;
 		centreY = -(dy + dx) / 2;
 		int centreZLeftInt = (markerLeft1.y + markerLeft2.y + markerLeft3.y + markerLeft4.y) / 4;
 		int centreZRightInt = (markerRight1.y + markerRight2.y + markerRight3.y + markerRight4.y) / 4;
-		int centreXint = markerLeft1.x + Float.valueOf((centreX - sxValue1) / scaleLeft).intValue();
-		int centreYint = markerRight2.x + Float.valueOf((centreY - sxValue1) / scaleRight).intValue();
+		int centreXint = markerLeft1.x - Float.valueOf((centreX - sxValue1) / scaleLeft).intValue();
+		int centreYint = markerRight1.x - Float.valueOf((centreY - syValue1) / scaleRight).intValue();
 		parentViewer.getPanel1().setBeamCentre(new Point(centreXint, centreZLeftInt));
 		parentViewer.getPanel2().setBeamCentre(new Point(centreYint, centreZRightInt));
+		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_LEFT, String.valueOf(scaleLeft));
+		Activator.setPreference(Activator.NAME_MJPEG_MMPERPIXEL_LEFT, String.valueOf(scaleRight));
+		Activator.setPreference(Activator.BEAM_CENTRE_LEFT, String.format("%d,%d", centreXint, centreZLeftInt));
+		Activator.setPreference(Activator.BEAM_CENTRE_RIGHT, String.format("%d,%d", centreYint, centreZRightInt));
 	}
 	
 	private void driveXY(final int stepId) {
@@ -683,10 +702,10 @@ public class CalibrateVideoPart extends Composite {
 					
 					@Override
 					public void run() {
-						driveable.setTargetValue(Float.valueOf(String.valueOf(System.getProperty(ControlHelper.SZ_ZERO))));
+						driveable.setTargetValue(DRIVE_GAP);
 						try {
 							driveable.drive();
-							sxValue2 = Float.valueOf(driveable.getValue().toString());
+							float sxValue2 = Float.valueOf(driveable.getValue().toString());
 							xGap = sxValue2 - sxValue1;
 							Display.getDefault().asyncExec(new Runnable() {
 								
@@ -736,6 +755,14 @@ public class CalibrateVideoPart extends Composite {
 		for (int i = 1; i < NUM_STEPS; i ++) {
 			steps[i].setEnabled(false);
 		}
+		markerLeft1 = null;
+		markerLeft2 = null;
+		markerLeft3 = null;
+		markerLeft4 = null;
+		markerRight1 = null;
+		markerRight2 = null;
+		markerRight3 = null;
+		markerRight4 = null;
 	}
 	
 	public void finishAll() {

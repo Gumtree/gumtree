@@ -59,8 +59,6 @@ public class MjpegViewer extends Composite {
 	private static final String CAM1_URL = "gumtree.koala.mjpeg1Url";
 	private static final String CAM2_URL = "gumtree.koala.mjpeg2Url";
 	private static final Logger logger = LoggerFactory.getLogger(MjpegViewer.class);
-	public static final String BEAM_CENTRE_LEFT = "gumtree.koala.beamCentreLeft";
-	public static final String BEAM_CENTRE_RIGHT = "gumtree.koala.beamCentreRight";
 	private static final String TEXT_ALIGN_BUTTON = "Align sample in 5 steps";
 	private static final String VALUE_SX_RANGE = "gumtree.koala.sxRange";
 	private static final String VALUE_SY_RANGE = "gumtree.koala.syRange";
@@ -1420,19 +1418,19 @@ public class MjpegViewer extends Composite {
 	public void saveBeamCentres() {
 		Point centre1 = getPanel1().getBeamCentre();
 		Point centre2 = getPanel2().getBeamCentre();
-		Activator.setPreference(BEAM_CENTRE_LEFT, String.format("%d,%d", centre1.x, centre1.y));
-		Activator.setPreference(BEAM_CENTRE_RIGHT, String.format("%d,%d", centre2.x, centre2.y));
+		Activator.setPreference(Activator.BEAM_CENTRE_LEFT, String.format("%d,%d", centre1.x, centre1.y));
+		Activator.setPreference(Activator.BEAM_CENTRE_RIGHT, String.format("%d,%d", centre2.x, centre2.y));
 		Activator.flushPreferenceStore();
 	}
 	
 	private void loadBeamCentres() {
-		String bc = Activator.getPreference(BEAM_CENTRE_LEFT);
+		String bc = Activator.getPreference(Activator.BEAM_CENTRE_LEFT);
 		if (bc.length() > 0) {
 			String[] bcPair = bc.split(",");
 			Point beamCentre = new Point(Integer.valueOf(bcPair[0]), Integer.valueOf(bcPair[1]));
 			getPanel1().setBeamCentre(beamCentre);
 		}
-		bc = Activator.getPreference(BEAM_CENTRE_RIGHT);
+		bc = Activator.getPreference(Activator.BEAM_CENTRE_RIGHT);
 		if (bc.length() > 0) {
 			String[] bcPair = bc.split(",");
 			Point beamCentre = new Point(Integer.valueOf(bcPair[0]), Integer.valueOf(bcPair[1]));

@@ -523,10 +523,13 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 						@Override
 						public void run() {
 							if (!hideMarker && ! isMarkerFixed) {
-								isMarkerFixed = true;
-								repaint();
-								for (IMjpegPanelListener listener : listeners) {
-									listener.markerSet();
+								Point p = e.getPoint();
+								if (p.x >= 0 && p.x <= screenSize.width && p.y >= 0 && p.y <= screenSize.height) {
+									isMarkerFixed = true;
+									repaint();
+									for (IMjpegPanelListener listener : listeners) {
+										listener.markerSet();
+									}
 								}
 							}
 							timer = null;
@@ -539,10 +542,13 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 						@Override
 						public void run() {
 							if (!isCentreFixed) {
-								isCentreFixed = true;
-								repaint();
-								for (IMjpegPanelListener listener : listeners) {
-									listener.centreSet();
+								Point p = e.getPoint();
+								if (p.x >= 0 && p.x <= screenSize.width && p.y >= 0 && p.y <= screenSize.height) {
+									isCentreFixed = true;
+									repaint();
+									for (IMjpegPanelListener listener : listeners) {
+										listener.centreSet();
+									}
 								}
 							}
 							timer = null;
