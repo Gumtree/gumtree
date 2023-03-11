@@ -1340,23 +1340,23 @@ public class MjpegViewer extends Composite {
 	
 	private void setTitle(int phi) {
 		if (phi == 45) {
-			getPanel1().setTitle("sx" + TITLE_VIEW_BACKWARD);
-			sxSuite.setForward(false);
+			getPanel1().setTitle("sx" + TITLE_VIEW_FORWARD);
+			sxSuite.setForward(true);
 			getPanel2().setTitle("sy" + TITLE_VIEW_BACKWARD);
 			sySuite.setForward(false);
 		} else if (phi == -45) {
-			getPanel2().setTitle("sx" + TITLE_VIEW_BACKWARD);
-			sxSuite.setForward(false);
+			getPanel2().setTitle("sx" + TITLE_VIEW_FORWARD);
+			sxSuite.setForward(true);
 			getPanel1().setTitle("sy" + TITLE_VIEW_FORWARD);
 			sySuite.setForward(true);
 		} else if (phi == 135) {
-			getPanel2().setTitle("sx" + TITLE_VIEW_FORWARD);
-			sxSuite.setForward(true);
+			getPanel2().setTitle("sx" + TITLE_VIEW_BACKWARD);
+			sxSuite.setForward(false);
 			getPanel1().setTitle("sy" + TITLE_VIEW_BACKWARD);
 			sySuite.setForward(false);
 		} else if (phi == -135) {
-			getPanel1().setTitle("sx" + TITLE_VIEW_FORWARD);
-			sxSuite.setForward(true);
+			getPanel1().setTitle("sx" + TITLE_VIEW_BACKWARD);
+			sxSuite.setForward(false);
 			getPanel2().setTitle("sy" + TITLE_VIEW_FORWARD);
 			sySuite.setForward(true);
 		} else {

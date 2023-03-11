@@ -636,7 +636,7 @@ public class CalibrateVideoPart extends Composite {
 		parentViewer.setMmPerPixelLeft(scaleLeft);
 		float dx = (markerLeft2.x - markerLeft1.x) * scaleLeft;
 		float dy = (markerRight2.x - markerRight1.x) * scaleRight;
-		centreX = (dy - dx) / 2;
+		centreX = (dx - dy) / 2;
 		centreY = -(dy + dx) / 2;
 		int centreZLeftInt = (markerLeft1.y + markerLeft2.y + markerLeft3.y + markerLeft4.y) / 4;
 		int centreZRightInt = (markerRight1.y + markerRight2.y + markerRight3.y + markerRight4.y) / 4;
