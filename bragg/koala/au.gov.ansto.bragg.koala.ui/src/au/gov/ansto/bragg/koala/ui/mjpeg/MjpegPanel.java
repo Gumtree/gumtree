@@ -452,7 +452,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 	MouseWheelListener {
 
 		@Override
-		public void mouseDragged(MouseEvent arg0) {
+		public void mouseDragged(final MouseEvent arg0) {
 			if(SwingUtilities.isLeftMouseButton(arg0) && panningStart != null) {
 				Point newPoint = arg0.getPoint();
 				panningMovement = new Point(newPoint.x - panningStart.x, newPoint.y - panningStart.y);
@@ -463,7 +463,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 		}
 
 		@Override
-		public void mouseMoved(MouseEvent e) {
+		public void mouseMoved(final MouseEvent e) {
 			if (!hideMarker && !isMarkerFixed && timer == null) {
 				Point p = e.getPoint();
 				int x, y;
@@ -510,7 +510,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 		}
 
 		@Override
-		public void mouseClicked(MouseEvent e) {
+		public void mouseClicked(final MouseEvent e) {
 			if (e.getClickCount() >= 2) {
 				if (timer != null) {
 					timer.cancel();
@@ -569,12 +569,12 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 		}
 
 		@Override
-		public void mousePressed(MouseEvent e) {
+		public void mousePressed(final MouseEvent e) {
 			panningStart = e.getPoint();
 		}
 
 		@Override
-		public void mouseReleased(MouseEvent e) {
+		public void mouseReleased(final MouseEvent e) {
 			if (isPanning) {
 				System.err.println("panning finished");
 			}
@@ -582,7 +582,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 		}
 
 		@Override
-		public void mouseWheelMoved(MouseWheelEvent e) {
+		public void mouseWheelMoved(final MouseWheelEvent e) {
             if (e.getWheelRotation() < 0) {
                 System.out.println("mouse wheel Up");
                 setZoomCentre(e.getPoint());

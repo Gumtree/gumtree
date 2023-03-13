@@ -473,15 +473,18 @@ public class MjpegViewer extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
+					final String ledPath = System.getProperty(ControlHelper.LED_PATH);
 					final ISicsController ledController = SicsManager.getSicsModel().findController(
-							System.getProperty(ControlHelper.LED_PATH));
+							ledPath);
 					if (ledController == null) {
 						throw new KoalaServerException("SICS server model not available");
 					}
 					if (ledButton.getSelection()) {
-						((IDynamicController) ledController).setValue(1);
+//						((IDynamicController) ledController).setValue(1);
+						ControlHelper.asyncExec("hset " + ledPath + " 1");
 					} else {
-						((IDynamicController) ledController).setValue(0);
+//						((IDynamicController) ledController).setValue(0);
+						ControlHelper.asyncExec("hset " + ledPath + " 0");
 					}
 				} catch (Exception e1) {
 					ControlHelper.experimentModel.publishErrorMessage(
