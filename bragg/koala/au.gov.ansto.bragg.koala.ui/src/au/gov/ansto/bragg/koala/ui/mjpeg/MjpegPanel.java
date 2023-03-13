@@ -69,6 +69,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 	private int centreYOffset;
 	private float imageScale = 1f;
 	private boolean isZoomChanged = false;
+	private boolean isCentreChanged = false;
 	private Point panningStart;
 	private Point panningMovement;
 	private boolean isPanning = false;
@@ -174,7 +175,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 //        			centreX = Float.valueOf(beamCentre.x / imageScale).intValue();
 //        			centreY = y + Float.valueOf(beamCentre.y / imageScale).intValue();
 //        		}
-        		if (!d.equals(screenSize) || !isCentreFixed || isZoomChanged) {
+        		if (!d.equals(screenSize) || !isCentreFixed || isZoomChanged || isCentreChanged) {
             		Integer screenWidth = getWidth();
             		Integer screenHeight = getHeight();
         			if (screenWidth.floatValue() / screenHeight >= imageWidth.floatValue() / imageHeight) {
@@ -215,6 +216,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
         			
         			screenSize = d;
         			isZoomChanged = false;
+        			isCentreChanged = false;
         		} else if (isPanning) {
         			if (panningMovement != null) {
         				if (panningMovement.x < 0) {
@@ -725,6 +727,7 @@ public class MjpegPanel extends JPanel implements IMjpegPanel {
 	
 	public void setBeamCentre(Point centre) {
 		this.beamCentre = centre;
+		isCentreChanged = true;
 	}
 
 	public void setCentreYOffset(int yOffset) {

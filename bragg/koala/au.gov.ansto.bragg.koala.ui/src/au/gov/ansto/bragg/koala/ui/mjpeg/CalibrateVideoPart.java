@@ -640,7 +640,7 @@ public class CalibrateVideoPart extends Composite {
 		centreY = -(dy + dx) / 2;
 		int centreZLeftInt = (markerLeft1.y + markerLeft2.y + markerLeft3.y + markerLeft4.y) / 4;
 		int centreZRightInt = (markerRight1.y + markerRight2.y + markerRight3.y + markerRight4.y) / 4;
-		int centreXint = markerLeft1.x - Float.valueOf((centreX - sxValue1) / scaleLeft).intValue();
+		int centreXint = markerLeft1.x + Float.valueOf((centreX - sxValue1) / scaleLeft).intValue();
 		int centreYint = markerRight1.x - Float.valueOf((centreY - syValue1) / scaleRight).intValue();
 		parentViewer.getPanel1().setBeamCentre(new Point(centreXint, centreZLeftInt));
 		parentViewer.getPanel2().setBeamCentre(new Point(centreYint, centreZRightInt));

@@ -462,14 +462,14 @@ public class AlignVideoPart extends Composite {
 						Point centre1 = p1.getBeamCentre();
 						Point marker1 = p1.getMarkerCoordinate();
 						double mmPerPixelLeft = parentViewer.getMmPerPixelLeft();
-						float endX =  Double.valueOf(mmPerPixelLeft * (marker1.x - centre1.x) + curX).floatValue();
+						float endX =  Double.valueOf(curX + mmPerPixelLeft * (marker1.x - centre1.x)).floatValue();
 						
 						float curY = Float.valueOf(sy.getValue().toString());
 						MjpegPanel p2 = parentViewer.getPanel2();
 						Point centre2 = p2.getBeamCentre();
 						Point marker2 = p2.getMarkerCoordinate();
 						double mmPerPixelRight = parentViewer.getMmPerPixelRight();
-						float endY =  Double.valueOf(mmPerPixelRight * (marker2.x - centre2.x) + curY).floatValue();
+						float endY =  Double.valueOf(curY - mmPerPixelRight * (marker2.x - centre2.x)).floatValue();
 						
 						float curZ = Float.valueOf(sz.getValue().toString());
 //						double mmPerPixelLeftZ = parentViewer.getMmPerPixelLeftZ();
