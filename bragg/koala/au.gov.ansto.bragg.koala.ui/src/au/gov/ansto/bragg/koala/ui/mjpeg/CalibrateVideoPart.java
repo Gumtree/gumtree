@@ -18,6 +18,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.exception.SicsException;
@@ -31,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
+import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaInterruptionException;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
@@ -45,9 +48,13 @@ public class CalibrateVideoPart extends Composite {
 	private static final String TEXT_PRESETUP = "Install the calibration cone";
 	private static final String TEXT_DRIVE_ALL = "to default centre, " + Activator.PHI + " to 45\u00b0";
 	private static final String TEXT_DRIVE_PHI = Activator.PHI + " to -45\u00b0";
-	private static final String TEXT_DRIVE_X = "X to 5mm";
+	private static final String TEXT_DRIVE_X = "sx to 5mm";
 	private static final String TEXT_DRIVE_PHIBACK = Activator.PHI + " back to 45\u00b0";
 	private static final String TEXT_CALCULATE_CENTRE = "to calculated beam centre";
+	
+	private static final String TEXT_DRIVE_Z = "sz to default centre";
+	private static final String TEXT_MARK_CENTRE = "Set beam centre on videos";
+	
 	
 	private static final String TEXT_MARK = "Mark needle points on both videos";
 	
@@ -91,6 +98,8 @@ public class CalibrateVideoPart extends Composite {
 	private Point markerRight2;
 	private Point markerRight3;
 	private Point markerRight4;
+	private Point centreLeft;
+	private Point centreRight;
 	
 //	private Button allZerosButton;
 //	private Button pickBeamCentreButton;
@@ -100,6 +109,8 @@ public class CalibrateVideoPart extends Composite {
 //	private Button pickRightCentreButton;
 	
 	private IStep[] steps;
+	private IStep samZStep;
+	private IStep setCentreStep;
 	private boolean enabled;
 	private float xGap;
 	private float centreX;
@@ -118,10 +129,24 @@ public class CalibrateVideoPart extends Composite {
 		setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 		GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(this);
 
-		final Group beamCentreGroup = new Group(this, SWT.NONE);
+		TabFolder tabFolder = new TabFolder(this, SWT.NONE);
+		tabFolder.setFont(Activator.getMiddleFont());
+		GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(tabFolder);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(tabFolder);
+		
+		final TabItem autoItem = new TabItem(tabFolder, SWT.NULL);
+		autoItem.setText("Automatic");
+//		autoItem.setImage(KoalaImage.TEMPERATURE64.getImage());
+		final TabItem manualItem = new TabItem(tabFolder, SWT.NULL);
+		manualItem.setText("Manual");
+	    
+
+		final Composite beamCentreGroup = new Composite(tabFolder, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(4).applyTo(beamCentreGroup);
-		beamCentreGroup.setText("Redefine beam centre");
+//		beamCentreGroup.setText("Redefine beam centre");
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(beamCentreGroup);
+		autoItem.setControl(beamCentreGroup);
+
 
 		steps[STEP_PRE_SETUP] = new StepSetup(beamCentreGroup, STEP_PRE_SETUP, TEXT_PRESETUP);
 		
@@ -190,6 +215,8 @@ public class CalibrateVideoPart extends Composite {
 			
 			@Override
 			public void centreSet() {
+				centreLeft = parentViewer.getPanel1().getBeamCentre();
+				setCentre();
 			}
 		});
 
@@ -204,9 +231,47 @@ public class CalibrateVideoPart extends Composite {
 			
 			@Override
 			public void centreSet() {
+				centreRight = parentViewer.getPanel2().getBeamCentre();
+				setCentre();
 			}
 		});
 
+		
+		final Composite manualGroup = new Composite(tabFolder, SWT.NONE);
+		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(4).applyTo(manualGroup);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(manualGroup);
+		manualItem.setControl(manualGroup);
+		
+		
+//		Button enableButton = new Button(manualGroup, SWT.PUSH);
+//		enableButton.setText(TEXT_MANUAL_ENABLE);
+//		enableButton.setFont(Activator.getMiddleFont());
+//		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(enableButton);
+//
+//		enableButton.addSelectionListener(new SelectionListener() {
+//			
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				parentViewer.getPanel1().hideMarker();
+//				parentViewer.getPanel2().hideMarker();
+//				parentViewer.getPanel1().setCentreFixed(false);
+//				parentViewer.getPanel2().setCentreFixed(false);
+//			}
+//			
+//			@Override
+//			public void widgetDefaultSelected(SelectionEvent e) {
+//			}
+//		});
+
+		samZStep = new StepDrive(manualGroup, 0, TEXT_DRIVE_Z, new IDrivable() {
+			
+			@Override
+			public void drive() {
+				driveSz();
+			}
+		});
+
+		setCentreStep = new StepCentre(manualGroup, 1, TEXT_MARK_CENTRE);
 	}
 
 	interface IStep {
@@ -229,7 +294,7 @@ public class CalibrateVideoPart extends Composite {
 		IDrivable drivable;
 		String text;
 		
-		public StepDrive(Group parent, final int id, final String text, final IDrivable drivable) {
+		public StepDrive(Composite parent, final int id, final String text, final IDrivable drivable) {
 			this.stepId = id;
 			this.text = text;
 			this.drivable = drivable;
@@ -273,12 +338,10 @@ public class CalibrateVideoPart extends Composite {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					if (checkButton.getSelection()) {
-						steps[id].finish();
+						finish();
 						if (id < NUM_STEPS - 1) {
 							moveToStep(id + 1);
-						} else {
-							finishAll();
-						}
+						} 
 					} else {
 						setEnabled(true);
 					}
@@ -305,6 +368,7 @@ public class CalibrateVideoPart extends Composite {
 		
 		@Override
 		public void finish() {
+			setEnabled(false);
 			checkButton.setSelection(true);
 		}
 
@@ -318,7 +382,7 @@ public class CalibrateVideoPart extends Composite {
 		Label label1;
 		Button checkButton;
 		int stepId;
-		public StepMark(Group parent, final int id, String text) {
+		public StepMark(Composite parent, final int id, String text) {
 			stepId = id;
 			label1 = new Label(parent, SWT.NONE);
 			label1.setText(String.format("%d. %s", id + 1, text));
@@ -368,7 +432,9 @@ public class CalibrateVideoPart extends Composite {
 		
 		@Override
 		public void setEnabled(boolean enabled) {
-			currentStepId = stepId;
+			if (enabled) {
+				currentStepId = stepId;
+			}
 			label1.setEnabled(enabled);
 			parentViewer.getPanel1().setMarkerFixed(!enabled);
 			parentViewer.getPanel2().setMarkerFixed(!enabled);
@@ -378,8 +444,7 @@ public class CalibrateVideoPart extends Composite {
 		@Override
 		public void finish() {
 			checkButton.setSelection(true);
-			parentViewer.getPanel1().setMarkerFixed(true);
-			parentViewer.getPanel2().setMarkerFixed(true);
+			setEnabled(false);
 		}
 
 		@Override
@@ -393,7 +458,7 @@ public class CalibrateVideoPart extends Composite {
 		Label label1;
 		Button checkButton;
 		int stepId;
-		public StepSetup(Group parent, final int id, String text) {
+		public StepSetup(Composite parent, final int id, String text) {
 			stepId = id;
 			label1 = new Label(parent, SWT.NONE);
 			label1.setText(String.format("%d. %s", id + 1, text));
@@ -440,6 +505,69 @@ public class CalibrateVideoPart extends Composite {
 
 		@Override
 		public void finish() {
+			setEnabled(false);
+		}
+
+		@Override
+		public int getStepId() {
+			return stepId;
+		}
+
+	}
+	
+	class StepCentre implements IStep {
+		Label label1;
+		Button checkButton;
+		int stepId;
+		public StepCentre(Composite parent, final int id, String text) {
+			stepId = id;
+			label1 = new Label(parent, SWT.NONE);
+			label1.setText(String.format("%d. %s", id + 1, text));
+			label1.setFont(Activator.getMiddleFont());
+			GridDataFactory.swtDefaults().grab(false, false).span(3, 1).applyTo(label1);
+			
+			checkButton = new Button(parent, SWT.CHECK);
+			checkButton.setFont(Activator.getMiddleFont());
+//			checkButton.setEnabled(false);
+			GridDataFactory.swtDefaults().grab(true, false).align(SWT.END, SWT.CENTER).applyTo(checkButton);
+			
+			checkButton.addSelectionListener(new SelectionListener() {
+				
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (checkButton.getSelection()) {
+						finish();
+						finishAll();
+					} else {
+						setEnabled(true);
+					}
+				}
+				
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+				}
+			});
+		}
+		
+		@Override
+		public void reset() {
+			checkButton.setSelection(false);
+		}
+		
+		@Override
+		public void setEnabled(boolean enabled) {
+			label1.setEnabled(enabled);
+			if (enabled) {
+				currentStepId = stepId;
+			}
+			parentViewer.getPanel1().setCentreFixed(!enabled);
+			parentViewer.getPanel2().setCentreFixed(!enabled);
+		}
+
+		@Override
+		public void finish() {
+			checkButton.setSelection(true);
+			setEnabled(false);
 		}
 
 		@Override
@@ -650,6 +778,14 @@ public class CalibrateVideoPart extends Composite {
 		Activator.setPreference(Activator.BEAM_CENTRE_RIGHT, String.format("%d,%d", centreYint, centreZRightInt));
 	}
 	
+	private void setCentre() {
+		if (currentStepId == setCentreStep.getStepId() && centreLeft != null && centreRight != null) {
+			Activator.setPreference(Activator.BEAM_CENTRE_LEFT, String.format("%d,%d", centreLeft.x, centreLeft.y));
+			Activator.setPreference(Activator.BEAM_CENTRE_RIGHT, String.format("%d,%d", centreRight.x, centreRight.y));
+			finishAll();
+		}
+	}
+	
 	private void driveXY(final int stepId) {
 		calculateBeamCentre();
 		if (controlHelper.isConnected()) {
@@ -728,10 +864,50 @@ public class CalibrateVideoPart extends Composite {
 		}
 	}
 
-	private void moveToStep(int id) {
-		if (id > 0) {
-			steps[id - 1].setEnabled(false);
+	private void driveSz() {
+		if (controlHelper.isConnected()) {
+			final ISicsController szController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.SZ_PATH));
+			if (szController instanceof DriveableController) {
+				final DriveableController driveable = (DriveableController) szController;
+				JobRunner.run(new ILoopExitCondition() {
+					
+					@Override
+					public boolean getExitCondition() {
+						return true;
+					}
+				}, new Runnable() {
+					
+					@Override
+					public void run() {
+						driveable.setTargetValue(Float.valueOf(System.getProperty(ControlHelper.SZ_ZERO)));
+						try {
+							driveable.drive();
+							Display.getDefault().asyncExec(new Runnable() {
+								
+								@Override
+								public void run() {
+									samZStep.finish();
+									setCentreStep.setEnabled(true);
+								}
+							});
+						} catch (final SicsException e1) {
+							if (e1 instanceof SicsInterruptException) {
+								ControlHelper.experimentModel.publishErrorMessage("user interrupted");
+							} else {
+								ControlHelper.experimentModel.publishErrorMessage("server error: " + e1.getMessage());
+							}
+						}
+					}
+				});
+			}
 		}
+	}
+	
+	private void moveToStep(int id) {
+//		if (id > 0) {
+//			steps[id - 1].setEnabled(false);
+//		}
 		steps[id].setEnabled(true);
 //		for (int i = 0; i < steps.length; i ++) {
 //			steps[i].setEnabled(id == i);
@@ -755,6 +931,12 @@ public class CalibrateVideoPart extends Composite {
 		for (int i = 1; i < NUM_STEPS; i ++) {
 			steps[i].setEnabled(false);
 		}
+		samZStep.reset();
+		samZStep.setEnabled(true);
+		setCentreStep.reset();
+		setCentreStep.setEnabled(false);
+		parentViewer.getPanel1().setCentreFixed(true);
+		parentViewer.getPanel2().setCentreFixed(true);
 		markerLeft1 = null;
 		markerLeft2 = null;
 		markerLeft3 = null;

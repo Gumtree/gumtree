@@ -19,11 +19,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.gumtree.control.core.IDynamicController;
-import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
-import org.gumtree.control.exception.SicsException;
-import org.gumtree.control.exception.SicsInterruptException;
-import org.gumtree.control.imp.DriveableController;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.JobRunner;
 import org.slf4j.Logger;
@@ -41,23 +37,24 @@ import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 public class AlignVideoPart extends Composite {
 
 //	private static final String TEXT_SELECT_CENTRE = "2 Mark needle points on both videos";
-	private static final String TEXT_DRIVE_SZ = "sz to " + System.getProperty(ControlHelper.SZ_ZERO);
-	private static final String TEXT_DRIVE_PHI = "Phi to 45\u00b0";
+	private static final String TEXT_DRIVE_SZ_PHI = "sz to " + System.getProperty(ControlHelper.SZ_ZERO) + ", " + Activator.PHI + " to 45\u00b0";
+//	private static final String TEXT_DRIVE_PHI = "Phi to 45\u00b0";
 	private static final String TEXT_MARK_LEFT = "Mark sample centre on left video";
 	private static final String TEXT_MARK_RIGHT = "Mark sample centre on right video";
 	private static final String TEXT_DRIVE_ALIGN = "sample to beam centre";
 	private static final String SX_NAME = System.getProperty(ControlHelper.SX_PATH);
 	private static final String SY_NAME = System.getProperty(ControlHelper.SY_PATH);
 	private static final String SZ_NAME = System.getProperty(ControlHelper.SZ_PATH);
+	private static final String SPHI_NAME = System.getProperty(ControlHelper.SAMPLE_PHI);
 	private static final float SPHI_ANGLE = 45;
 	
-	private static final int STEP_ID_DRIVEZ = 0;
-	private static final int STEP_ID_DRIVEPHI = 1;
-	private static final int STEP_ID_MARKLEFT = 2;
-	private static final int STEP_ID_MARKRIGHT = 3;
-	private static final int STEP_ID_DRIVEALL = 4;
+	private static final int STEP_ID_DRIVEZPHI = 0;
+//	private static final int STEP_ID_DRIVEPHI = 1;
+	private static final int STEP_ID_MARKLEFT = 1;
+	private static final int STEP_ID_MARKRIGHT = 2;
+	private static final int STEP_ID_DRIVEALL = 3;
 	
-	private static final int NUM_STEPS = STEP_ID_DRIVEALL + 1;
+	public static final int NUM_STEPS = STEP_ID_DRIVEALL + 1;
 	private static final Logger logger = LoggerFactory.getLogger(AlignVideoPart.class);
 
 	private ControlHelper controlHelper;
@@ -90,29 +87,29 @@ public class AlignVideoPart extends Composite {
 		phiGroup.setText("Initialise sample position");
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(phiGroup);
 
-		steps[STEP_ID_DRIVEZ] = new StepDrive(phiGroup, STEP_ID_DRIVEZ, TEXT_DRIVE_SZ, new IDrivable() {
+		steps[STEP_ID_DRIVEZPHI] = new StepDrive(phiGroup, STEP_ID_DRIVEZPHI, TEXT_DRIVE_SZ_PHI, new IDrivable() {
 			
 			@Override
 			public void drive() {
-				driveSz(STEP_ID_DRIVEZ);
+				driveSzPhi(STEP_ID_DRIVEZPHI);
 			}
 		});
 
-		steps[STEP_ID_DRIVEPHI] = new StepDrive(phiGroup, STEP_ID_DRIVEPHI, TEXT_DRIVE_PHI, new IDrivable() {
-			
-			@Override
-			public void drive() {
-				drivePhi(STEP_ID_DRIVEPHI);
-			}
-		});
+//		steps[STEP_ID_DRIVEPHI] = new StepDrive(phiGroup, STEP_ID_DRIVEPHI, TEXT_DRIVE_PHI, new IDrivable() {
+//			
+//			@Override
+//			public void drive() {
+//				drivePhi(STEP_ID_DRIVEPHI);
+//			}
+//		});
 
 		final Group markerGroup = new Group(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(4).applyTo(markerGroup);
 		markerGroup.setText("Add markers");
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(markerGroup);
 
-		steps[2] = new StepMark(markerGroup, 2, TEXT_MARK_LEFT);
-		steps[3] = new StepMark(markerGroup, 3, TEXT_MARK_RIGHT);
+		steps[STEP_ID_MARKLEFT] = new StepMark(markerGroup, STEP_ID_MARKLEFT, TEXT_MARK_LEFT);
+		steps[STEP_ID_MARKRIGHT] = new StepMark(markerGroup, STEP_ID_MARKRIGHT, TEXT_MARK_RIGHT);
 		
 //		pickBeamCentreButton = new Button(beamCentreGroup, SWT.TOGGLE);
 //		pickBeamCentreButton.setText("Next");
@@ -137,11 +134,11 @@ public class AlignVideoPart extends Composite {
 		alignGroup.setText("Align sample");
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(alignGroup);
 
-		steps[4] = new StepDrive(alignGroup, 4, TEXT_DRIVE_ALIGN, new IDrivable() {
+		steps[STEP_ID_DRIVEALL] = new StepDrive(alignGroup, STEP_ID_DRIVEALL, TEXT_DRIVE_ALIGN, new IDrivable() {
 			
 			@Override
 			public void drive() {
-				driveAlign(4);
+				driveAlign(STEP_ID_DRIVEALL);
 			}
 		});
 		
@@ -357,83 +354,78 @@ public class AlignVideoPart extends Composite {
 	}
 
 	
-	private void drivePhi(final int stepId) {
-		if (controlHelper.isConnected()) {
-			final ISicsController sphiController = SicsManager.getSicsModel().findController(
-					System.getProperty(ControlHelper.SAMPLE_PHI));
-			if (sphiController instanceof DriveableController) {
-				final DriveableController driveable = (DriveableController) sphiController;
-				JobRunner.run(new ILoopExitCondition() {
-					
-					@Override
-					public boolean getExitCondition() {
-						return true;
-					}
-				}, new Runnable() {
-					
-					@Override
-					public void run() {
-						driveable.setTargetValue(SPHI_ANGLE);
-						try {
-							driveable.drive();
-							Display.getDefault().asyncExec(new Runnable() {
-								
-								@Override
-								public void run() {
-									steps[stepId].finish();
-									moveToStep(stepId + 1);
-								}
-							});
-						} catch (final SicsException e1) {
-							if (e1 instanceof SicsInterruptException) {
-								ControlHelper.experimentModel.publishErrorMessage("user interrupted");
-							} else {
-								ControlHelper.experimentModel.publishErrorMessage("server error: " + e1.getMessage());
-							}
-						}
-					}
-				});
-			}
-		}
-	}
+//	private void drivePhi(final int stepId) {
+//		if (controlHelper.isConnected()) {
+//			final ISicsController sphiController = SicsManager.getSicsModel().findController(
+//					System.getProperty(ControlHelper.SAMPLE_PHI));
+//			if (sphiController instanceof DriveableController) {
+//				final DriveableController driveable = (DriveableController) sphiController;
+//				JobRunner.run(new ILoopExitCondition() {
+//					
+//					@Override
+//					public boolean getExitCondition() {
+//						return true;
+//					}
+//				}, new Runnable() {
+//					
+//					@Override
+//					public void run() {
+//						driveable.setTargetValue(SPHI_ANGLE);
+//						try {
+//							driveable.drive();
+//							Display.getDefault().asyncExec(new Runnable() {
+//								
+//								@Override
+//								public void run() {
+//									steps[stepId].finish();
+//									moveToStep(stepId + 1);
+//								}
+//							});
+//						} catch (final SicsException e1) {
+//							if (e1 instanceof SicsInterruptException) {
+//								ControlHelper.experimentModel.publishErrorMessage("user interrupted");
+//							} else {
+//								ControlHelper.experimentModel.publishErrorMessage("server error: " + e1.getMessage());
+//							}
+//						}
+//					}
+//				});
+//			}
+//		}
+//	}
 
-	private void driveSz(final int stepId) {
+	private void driveSzPhi(final int stepId) {
 		if (controlHelper.isConnected()) {
-			final ISicsController szController = SicsManager.getSicsModel().findController(
-					System.getProperty(ControlHelper.SZ_PATH));
-			if (szController instanceof DriveableController) {
-				final DriveableController driveable = (DriveableController) szController;
-				JobRunner.run(new ILoopExitCondition() {
-					
-					@Override
-					public boolean getExitCondition() {
-						return true;
-					}
-				}, new Runnable() {
-					
-					@Override
-					public void run() {
-						driveable.setTargetValue(Float.valueOf(String.valueOf(System.getProperty(ControlHelper.SZ_ZERO))));
-						try {
-							driveable.drive();
-							Display.getDefault().asyncExec(new Runnable() {
-								
-								@Override
-								public void run() {
-									steps[stepId].finish();
-									moveToStep(stepId + 1);
-								}
-							});
-						} catch (final SicsException e1) {
-							if (e1 instanceof SicsInterruptException) {
-								ControlHelper.experimentModel.publishErrorMessage("user interrupted");
-							} else {
-								ControlHelper.experimentModel.publishErrorMessage("server error: " + e1.getMessage());
+			final Map<String, Number> devices = new HashMap<String, Number>();
+			devices.put(SZ_NAME, Float.valueOf(String.valueOf(System.getProperty(ControlHelper.SZ_ZERO))));
+			devices.put(SPHI_NAME, SPHI_ANGLE);
+			JobRunner.run(new ILoopExitCondition() {
+
+				@Override
+				public boolean getExitCondition() {
+					return true;
+				}
+			}, new Runnable() {
+
+				@Override
+				public void run() {
+					try {
+						ControlHelper.syncMultiDrive(devices);
+						Display.getDefault().asyncExec(new Runnable() {
+
+							@Override
+							public void run() {
+								steps[stepId].finish();
+								moveToStep(stepId + 1);
 							}
-						}
+						});
+					} catch (final KoalaServerException e1) {
+						ControlHelper.experimentModel.publishErrorMessage("server error: " + e1.getMessage());
+					} catch (KoalaInterruptionException e) {
+						ControlHelper.experimentModel.publishErrorMessage("user interrupted");
 					}
-				});
-			}
+				}
+			});
 		}
 	}
 
@@ -462,14 +454,14 @@ public class AlignVideoPart extends Composite {
 						Point centre1 = p1.getBeamCentre();
 						Point marker1 = p1.getMarkerCoordinate();
 						double mmPerPixelLeft = parentViewer.getMmPerPixelLeft();
-						float endX =  Double.valueOf(curX + mmPerPixelLeft * (marker1.x - centre1.x)).floatValue();
+						float endX =  Double.valueOf(curX - mmPerPixelLeft * (marker1.x - centre1.x)).floatValue();
 						
 						float curY = Float.valueOf(sy.getValue().toString());
 						MjpegPanel p2 = parentViewer.getPanel2();
 						Point centre2 = p2.getBeamCentre();
 						Point marker2 = p2.getMarkerCoordinate();
 						double mmPerPixelRight = parentViewer.getMmPerPixelRight();
-						float endY =  Double.valueOf(curY - mmPerPixelRight * (marker2.x - centre2.x)).floatValue();
+						float endY =  Double.valueOf(curY + mmPerPixelRight * (marker2.x - centre2.x)).floatValue();
 						
 						float curZ = Float.valueOf(sz.getValue().toString());
 //						double mmPerPixelLeftZ = parentViewer.getMmPerPixelLeftZ();
