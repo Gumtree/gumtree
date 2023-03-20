@@ -2,10 +2,25 @@ package au.gov.ansto.bragg.koala.ui.scan;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
@@ -15,6 +30,7 @@ import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.gumtree.msw.ui.ktable.KTable;
 import org.gumtree.msw.ui.ktable.KTableCellRenderer;
 import org.gumtree.msw.ui.ktable.KTableModel;
@@ -24,6 +40,10 @@ import org.gumtree.msw.ui.ktable.renderers.ImageButtonCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.TextCellRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
@@ -35,6 +55,10 @@ public abstract class AbstractScanModel implements KTableModel {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractScanModel.class);
 	
+	private final static String XML_NAME_TITLE = "workflow";
+	private final static String XML_ATTR_MODELTYPE = "model_type";
+	
+	
 	private SingleScan initScan;
 	protected List<SingleScan> scanList;
 //	private Map<SingleScan, Button> dupButton;
@@ -44,6 +68,10 @@ public abstract class AbstractScanModel implements KTableModel {
 //	private TextCellRenderer evenTextHighlightRenderer;
 	private TextCellRenderer highlightRender;
 	private FixedCellRenderer columnHeaderRenderer;
+	private ImageButtonCellRenderer saveButtonRenderer;
+	private ImageButtonCellRenderer loadButtonRenderer;
+	private ImageButtonHighlightRenderer highlightLoadButtonRenderer;
+	private ImageButtonHighlightRenderer highlightSaveButtonRenderer;
 	private ImageButtonCellRenderer oddDupButtonRenderer;
 	private ImageButtonCellRenderer evenDupButtonRenderer;
 	private ImageButtonCellRenderer greenDupButtonRenderer;
@@ -60,6 +88,11 @@ public abstract class AbstractScanModel implements KTableModel {
 	private PropertyChangeListener propertyListener;
 	
 	private KTable table;
+	
+	public enum ModelType {
+		PHYSICS,
+		CHEMISTRY
+	}
 	
 	public enum ModelStatus {
 		STARTED,
@@ -78,6 +111,20 @@ public abstract class AbstractScanModel implements KTableModel {
 		modelListeners = new ArrayList<IModelListener>();
 //		initScan = new SingleScan();
 //		scanList.add(initScan);
+		saveButtonRenderer = new ImageButtonCellRenderer(DefaultCellRenderer.STYLE_PUSH 
+				| DefaultCellRenderer.INDICATION_CLICKED);
+		saveButtonRenderer.setImage(KoalaImage.SAVE32.getImage());
+		saveButtonRenderer.setBackground(FixedCellRenderer.COLOR_FIXEDBACKGROUND);
+		loadButtonRenderer = new ImageButtonCellRenderer(DefaultCellRenderer.STYLE_PUSH 
+				| DefaultCellRenderer.INDICATION_CLICKED);
+		loadButtonRenderer.setImage(KoalaImage.OPEN32.getImage());
+		loadButtonRenderer.setBackground(FixedCellRenderer.COLOR_FIXEDBACKGROUND);
+		highlightSaveButtonRenderer = new ImageButtonHighlightRenderer(DefaultCellRenderer.STYLE_PUSH
+				| DefaultCellRenderer.INDICATION_CLICKED);
+		highlightSaveButtonRenderer.setImage(KoalaImage.SAVE32.getImage());
+		highlightLoadButtonRenderer = new ImageButtonHighlightRenderer(DefaultCellRenderer.STYLE_PUSH
+				| DefaultCellRenderer.INDICATION_CLICKED);
+		highlightLoadButtonRenderer.setImage(KoalaImage.OPEN32.getImage());
 		oddTextRenderer = new TextCellRenderer(DefaultCellRenderer.INDICATION_FOCUS_ROW );
 		evenTextRenderer = new TextCellRenderer(DefaultCellRenderer.INDICATION_FOCUS_ROW );
 //		oddTextHighlightRenderer = new TextCellRenderer(DefaultCellRenderer.INDICATION_FOCUS_ROW );
@@ -143,7 +190,13 @@ public abstract class AbstractScanModel implements KTableModel {
 				if (cell != null) {
 					int row = cell.y;
 					int col = cell.x;
-					if (row > 0) {
+					if (row == 0) {
+						if (col == 0) {
+							saveTable(table);
+						} else if (col == 1) {
+							loadTable(table);
+						}
+					} else if (row > 0) {
 						isValidCell = true;
 		    			if (col == 0) {
 		    				logger.info("duplicate-scan button clicked");
@@ -181,7 +234,10 @@ public abstract class AbstractScanModel implements KTableModel {
 				if (cell != null) {
 					int row = cell.y;
 					int col = cell.x;
-					if (row > 0 && col >= 0 && col <= 1) {
+//					if (row == 0 && col <= 1) {
+//						isButtonCell = true;
+//					}
+					if (col >= 0 && col <= 1) {
 						isButtonCell = true;
 						if (highlightCol != col || highlightRow != row) {
 							int hCol = highlightCol;
@@ -257,11 +313,15 @@ public abstract class AbstractScanModel implements KTableModel {
 	@Override
 	public String getTooltipAt(int col, int row) {
 		if (col == 0) {
-			if (row > 0) {
+			if (row == 0) {
+				return "click to save the current workflow to an XML file";
+			} else if (row > 0) {
 				return "click to duplicate this entry";
 			}
 		} else if (col == 1) {
-			if (row > 0) {
+			if (row == 0) {
+				return "click to load entries from XML file and append to the current workflow";
+			} else if (row > 0) {
 				return "click to delete this entry";
 			}
 		}
@@ -271,7 +331,21 @@ public abstract class AbstractScanModel implements KTableModel {
 	@Override
 	public KTableCellRenderer getCellRenderer(int col, int row) {
 		if (row == 0) {
-			return columnHeaderRenderer;
+			if (col == 0) {
+				if (col == highlightCol && row == highlightRow) {
+					return highlightSaveButtonRenderer;
+				} else {
+					return saveButtonRenderer;
+				}
+			} else if (col == 1) {
+				if (col == highlightCol && row == highlightRow) {
+					return highlightLoadButtonRenderer;
+				} else {
+					return loadButtonRenderer;
+				}
+			} else {
+				return columnHeaderRenderer;
+			}
 		}
 		SingleScan scan = getItem(row);
 		if (scan != null) {
@@ -747,4 +821,135 @@ public abstract class AbstractScanModel implements KTableModel {
 			}
 		});
 	}
+	
+	public abstract ModelType getModelType();
+	
+	private void saveTable(final KTable table) {
+		FileDialog dialog = new FileDialog(table.getShell(), SWT.SAVE);
+		String propFolder = ControlHelper.experimentModel.getProposalFolder();
+		propFolder = propFolder.substring(0, propFolder.length() - 1);
+		dialog.setFilterPath(propFolder);
+		String ext = "*.xml,*.XML";
+		dialog.setFilterExtensions(ext.split(","));
+		dialog.open();
+		if (dialog.getFileName() == null || dialog.getFileName().trim().length() == 0) {
+			return;
+		}
+		String filterPath = dialog.getFilterPath();
+		final String filePath = filterPath + File.separator + dialog.getFileName();
+		try {
+			DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
+
+			Document document = documentBuilder.newDocument();
+			document.setXmlStandalone(true);
+			
+			Element root = document.createElement(XML_NAME_TITLE);
+			root.setAttribute(XML_ATTR_MODELTYPE, getModelType().name());
+			serialize(document, root);
+			document.appendChild(root);
+
+			// write to buffer
+			Writer stringWriter = new StringWriter();
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();			
+			Transformer transformer = transformerFactory.newTransformer();
+			
+		    transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+		    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+		    
+			transformer.transform(
+					new DOMSource(document),
+					new StreamResult(stringWriter));
+			
+			try (FileOutputStream stream = new FileOutputStream(new File(filePath))) {
+				try (Writer writer = new OutputStreamWriter(stream)) {
+					// quick fix: ensure that every xml element starts on a new line
+					BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
+					final String newLine = System.getProperty("line.separator");
+					
+					String line = reader.readLine();
+					if (line != null) {
+						writer.append(line.replace("><", '>' + newLine + '<'));
+						while (null != (line = reader.readLine())) {
+							writer.append(newLine);
+							writer.append(line);
+						}
+					}
+				}
+			}
+			ControlHelper.experimentModel.publishSystemMessage("Successfully exported to " + filePath);
+		} catch (Exception e) {
+			handleError("failed to write to file: " + filePath + ", " + e.getMessage());
+		}
+	}
+	
+	public void loadTable(KTable table) {
+		FileDialog dialog = new FileDialog(table.getShell(), SWT.OPEN);
+		String propFolder = ControlHelper.experimentModel.getProposalFolder();
+		propFolder = propFolder.substring(0, propFolder.length() - 1);
+		dialog.setFilterPath(propFolder);
+		String ext = "*.xml,*.XML";
+		dialog.setFilterExtensions(ext.split(","));
+		dialog.open();
+		if (dialog.getFileName() == null || dialog.getFileName().trim().length() == 0) {
+			return;
+		}
+		String filterPath = dialog.getFilterPath();
+		final String filePath = filterPath + File.separator + dialog.getFileName();
+		try {
+			DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
+
+			File file = new File(filePath);
+			if (!file.exists()) {
+				throw new KoalaModelException("file not found");
+			}
+			Document document = documentBuilder.parse(file);
+			Node root = document.getFirstChild();
+			if (root == null || !root.getNodeName().equals(XML_NAME_TITLE)) {
+				throw new KoalaModelException("invalid XML file format");
+			}
+			Node modelType = root.getAttributes().getNamedItem(XML_ATTR_MODELTYPE);
+			if (modelType == null) {
+				throw new KoalaModelException("invalid XML file format");
+			}
+			String typeValue = modelType.getTextContent();
+			ModelType loadType = null;
+			try {
+				loadType = ModelType.valueOf(typeValue);
+			} catch (Exception e) {
+				throw new KoalaModelException("invalid XML file format");
+			}
+			if (getModelType() != loadType) {
+				throw new KoalaModelException("the workflow of the XML file is in " 
+						+ typeValue + " mode and not suitable for the current experiment mode.");
+			}
+			NodeList nodeList = root.getChildNodes();
+			List<SingleScan> newList = new ArrayList<SingleScan>();
+			for (int i = 0; i < nodeList.getLength(); i ++) {
+				Node item = nodeList.item(i);
+				String nodeName = item.getNodeName();
+				if (SingleScan.NAME_SCAN.equals(nodeName)) {
+					SingleScan scan = new SingleScan();
+					scan.fromNode(item);
+					newList.add(scan);
+				}
+			}
+			scanList.addAll(newList);
+			fireModelChangeEvent();
+		} catch (Exception e) {
+			handleError("failed to load file: " + filePath + ", " + e.getMessage());
+		}
+	}
+	
+	public void serialize(final Document document, final Element root) {
+		synchronized (scanList) {
+			for (SingleScan scan : scanList) {
+				root.appendChild(scan.serialize(document));
+			}
+		}
+	}
+	
 }

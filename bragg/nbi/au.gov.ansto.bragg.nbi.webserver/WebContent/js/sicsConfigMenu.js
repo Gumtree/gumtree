@@ -3,6 +3,7 @@ var INST_LIST = [
 	"dingo",
 	"echidna",
 	"emu",
+	"koala",
 	"kookaburra",
 	"kowari",
 	"pelican",
@@ -11,7 +12,6 @@ var INST_LIST = [
 	"spatz",
 	"taipan",
 	"wombat",
-//	"koala",
 //	"joey"
 ]
 

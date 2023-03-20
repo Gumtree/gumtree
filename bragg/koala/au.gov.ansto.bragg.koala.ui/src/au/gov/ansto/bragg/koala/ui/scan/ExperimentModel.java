@@ -120,6 +120,12 @@ public class ExperimentModel {
 		}
 	}
 	
+	public void publishSystemMessage(final String systemMessage) {
+		for (IExperimentModelListener listener : modelListeners) {
+			listener.onNotice(systemMessage);
+		}
+	}
+	
 //	public void setPhase(final InstrumentPhase phase, final int time) {
 //		instrumentPhase = phase;
 //		for (IExperimentModelListener listener : modelListeners) {

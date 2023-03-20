@@ -119,6 +119,10 @@ public class MainPart extends Composite {
 				popupError(errorMessage);
 			}
 			
+			@Override
+			public void onNotice(String noticeMessage) {
+				popupNotice(noticeMessage);
+			}
 		};
 		experimentModel.addExperimentModelListener(modelListener);
 		
@@ -359,6 +363,17 @@ public class MainPart extends Composite {
 				}
 				MessageDialog.openError(getShell(), "Error", text);
 				logger.error(errorText);
+			}
+		});
+	}
+	
+	public void popupNotice(final String noticeText) {
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				MessageDialog.openInformation(getShell(), "System Message", noticeText);
+				logger.warn(noticeText);
 			}
 		});
 	}

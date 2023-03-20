@@ -37,6 +37,11 @@ public class ChemistryModel extends AbstractScanModel {
 	}
 	
 	@Override
+	public ModelType getModelType() {
+		return ModelType.CHEMISTRY;
+	}
+	
+	@Override
 	public KTableCellRenderer getCellRenderer(int col, int row) {
 //		if (row > 0 && col == 2 && row % 2 == 0 ) {
 //			return fixedRenderer;
@@ -235,13 +240,13 @@ public class ChemistryModel extends AbstractScanModel {
 
 	@Override
 	public Point belongsToCell(int col, int row) {
-		if (row == 0) {
-			if (col == 1) {
-				return new Point(0, 0);
-			} else {
-				return null;
-			}
-		} 
+//		if (row == 0) {
+//			if (col == 1) {
+//				return new Point(0, 0);
+//			} else {
+//				return null;
+//			}
+//		} 
 		return null;
 	}
 	

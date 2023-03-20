@@ -332,42 +332,42 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			
 		});
 
-		final Label indexLabel = new Label(batchGroup, SWT.NONE);
-		indexLabel.setText("Start index");
-		indexLabel.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(indexLabel);
-		
-		final Text indexText = new Text(batchGroup, SWT.BORDER);
-		indexText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(180, 40).hint(400, SWT.DEFAULT).applyTo(indexText);
-
-		indexText.addKeyListener(new KeyListener() {
-			
-			@Override
-			public void keyReleased(KeyEvent e) {
-				if (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == 16777296) {
-					try {
-						String start = indexText.getText();
-						AbstractScanModel model = getModel();
-						int[] rows = table.getRowSelection();
-						for (int row : rows) {
-							SingleScan scan = model.getItem(row);
-							if (start != null && start.trim().length() > 0) {
-								scan.setStartIndex(Integer.valueOf(start));
-							}
-						}
-					} catch (Exception e2) {
-						mainPart.popupError("error in appling changes: " + e2.getMessage());
-					}
-					table.redraw();
-				} 
-			}
-			
-			@Override
-			public void keyPressed(KeyEvent e) {
-			}
-			
-		});
+//		final Label indexLabel = new Label(batchGroup, SWT.NONE);
+//		indexLabel.setText("Start index");
+//		indexLabel.setFont(Activator.getMiddleFont());
+//		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(indexLabel);
+//		
+//		final Text indexText = new Text(batchGroup, SWT.BORDER);
+//		indexText.setFont(Activator.getMiddleFont());
+//		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(180, 40).hint(400, SWT.DEFAULT).applyTo(indexText);
+//
+//		indexText.addKeyListener(new KeyListener() {
+//			
+//			@Override
+//			public void keyReleased(KeyEvent e) {
+//				if (e.keyCode == SWT.LF || e.keyCode == SWT.CR || e.keyCode == 16777296) {
+//					try {
+//						String start = indexText.getText();
+//						AbstractScanModel model = getModel();
+//						int[] rows = table.getRowSelection();
+//						for (int row : rows) {
+//							SingleScan scan = model.getItem(row);
+//							if (start != null && start.trim().length() > 0) {
+//								scan.setStartIndex(Integer.valueOf(start));
+//							}
+//						}
+//					} catch (Exception e2) {
+//						mainPart.popupError("error in appling changes: " + e2.getMessage());
+//					}
+//					table.redraw();
+//				} 
+//			}
+//			
+//			@Override
+//			public void keyPressed(KeyEvent e) {
+//			}
+//			
+//		});
 
 		final Button applyButton = new Button(batchGroup, SWT.PUSH);
 	    applyButton.setImage(KoalaImage.MULTI_APPLY48.getImage());
@@ -384,12 +384,12 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 				try {
 					String com = comText.getText();
 					String fn = fnText.getText();
-					int si = -1;
-					String startIndex = indexText.getText();
-					try {
-						si = Integer.valueOf(startIndex);
-					} catch (Exception e2) {
-					}
+//					int si = -1;
+//					String startIndex = indexText.getText();
+//					try {
+//						si = Integer.valueOf(startIndex);
+//					} catch (Exception e2) {
+//					}
 					AbstractScanModel model = getModel();
 					int[] rows = table.getRowSelection();
 					for (int row : rows) {
@@ -400,9 +400,9 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 						if (fn != null && fn.trim().length() > 0) {
 							scan.setFilename(fn);
 						}
-						if (si >= 0) {
-							scan.setStartIndex(si);
-						}
+//						if (si >= 0) {
+//							scan.setStartIndex(si);
+//						}
 					}
 				} catch (Exception e2) {
 					mainPart.popupError("error in appling changes: " + e2.getMessage());
@@ -549,8 +549,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 							fnText.setText("");
 						}
 						int startIndex = scan.getStartIndex();
-						indexText.setText(String.valueOf(startIndex));
-//						estText.setText(String.valueOf(scan.getTotalTime()));
+//						indexText.setText(String.valueOf(startIndex));
 						int time = scan.getTotalTime();
 						String timeString = PanelUtils.convertTimeString(time);
 						if (time > 0) {
@@ -560,7 +559,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 					} else {
 						comText.setText("");
 						fnText.setText("");
-						indexText.setText("");
+//						indexText.setText("");
 						int time = 0;
 						for (int i = 0; i < rows.length; i++) {
 							SingleScan scan = model.getItem(rows[i]);

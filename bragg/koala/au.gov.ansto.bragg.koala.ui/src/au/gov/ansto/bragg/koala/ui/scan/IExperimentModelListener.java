@@ -15,5 +15,6 @@ public interface IExperimentModelListener {
 	public void updateLastFilename(String filename);
 	public void onError(String errorMessage);
 	public void phaseChanged(InstrumentPhase newPhase, int time);
+	public void onNotice(String noticeMessage);
 	
 }

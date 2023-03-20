@@ -26,4 +26,8 @@ public class ExperimentModelAdapter implements IExperimentModelListener {
 	@Override
 	public void phaseChanged(InstrumentPhase newPhase, int time) {
 	}
+	
+	@Override
+	public void onNotice(String noticeMessage) {
+	}
 }

@@ -55,6 +55,11 @@ public class PhysicsModel extends AbstractScanModel {
 		fixedRenderer.setFont(Activator.getMiddleFont());
 	}
 	
+	@Override
+	public ModelType getModelType() {
+		return ModelType.PHYSICS;
+	}
+	
 //	@Override
 //	public KTableCellRenderer getCellRenderer(int col, int row) {
 //		if (row > 0) {
@@ -365,13 +370,13 @@ public class PhysicsModel extends AbstractScanModel {
 
 	@Override
 	public Point belongsToCell(int col, int row) {
-		if (row == 0) {
-			if (col == 1) {
-				return new Point(0, 0);
-			} else {
-				return null;
-			}
-		} else {
+		if (row > 0) {
+//			if (col == 1) {
+//				return new Point(0, 0);
+//			} else {
+//				return null;
+//			}
+//		} else {
 			if (col > 4 && col <= 6) {
 				SingleScan scan = scanList.get(row - 1);
 				if (scan.getTarget().isPoints()) {

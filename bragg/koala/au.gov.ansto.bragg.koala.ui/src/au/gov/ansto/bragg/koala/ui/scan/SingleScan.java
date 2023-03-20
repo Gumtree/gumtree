@@ -9,12 +9,12 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.gumtree.control.core.IDynamicController;
-import org.gumtree.control.core.ISicsController;
-import org.gumtree.control.core.SicsManager;
-import org.gumtree.control.exception.SicsModelException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.sics.CollectionHelper;
@@ -100,6 +100,8 @@ public class SingleScan {
 	private final static float DEVICE_VALUE_TOLERANCE = 0.00001f;
 	private final static Logger logger = LoggerFactory.getLogger(SingleScan.class);
 	
+	public static final String NAME_SCAN = "scan";
+	
 	protected final int ERASURE_TIME = 10;
 	protected final int READING_TIME = 240;
 	protected final int TEMP_TIME = 300;
@@ -119,6 +121,7 @@ public class SingleScan {
 	private String status;
 	private String comments;
 	private String filename = System.getProperty(DATA_FILENAME, "data.tif");
+	private int startIndex = 1;
 	private PropertyChangeSupport changeListener = new PropertyChangeSupport(this);
 	private InputType inputLast;
 	private InputType input2nd;
@@ -128,7 +131,6 @@ public class SingleScan {
 	private boolean paused;
 	private boolean isFinished;
 	private int fileIndex = 1;
-	private int startIndex = 1;
 	private File currentFile;
 
 	enum InputType {START, INC, NUMBER, END};
@@ -705,5 +707,65 @@ public class SingleScan {
 		} else {
 			return getNumber() > 0;
 		}
+	}
+	
+	public Element serialize(final Document document) {
+		Element scan = document.createElement(NAME_SCAN);
+		scan.appendChild(createChild(document, "target", target.name()));
+		scan.appendChild(createChild(document, "start", start));
+		scan.appendChild(createChild(document, "inc", inc));
+		scan.appendChild(createChild(document, "number", number));
+		scan.appendChild(createChild(document, "end", end));
+		scan.appendChild(createChild(document, "exposure", exposure));
+		scan.appendChild(createChild(document, "erasure", erasure));
+		scan.appendChild(createChild(document, "temp", temp));
+		scan.appendChild(createChild(document, "phi", phi));
+		scan.appendChild(createChild(document, "chi", chi));
+		scan.appendChild(createChild(document, "comments", comments));
+		scan.appendChild(createChild(document, "filename", filename));
+		scan.appendChild(createChild(document, "startIndex", startIndex));
+		return scan;
+	}
+	
+	private Element createChild(final Document document, final String name, final Object value) {
+		Element child = document.createElement(name);
+		child.setTextContent(value.toString());
+		return child;
+	}
+	
+	public void fromNode(final Node node) {
+		NodeList nodeList = node.getChildNodes();
+		for (int i = 0; i < nodeList.getLength(); i ++) {
+			Node item = nodeList.item(i);
+			String name = item.getNodeName();
+			if ("target".equals(name)) {
+				target = ScanTarget.valueOf(item.getTextContent());
+			} else if ("start".equals(name)) {
+				start = Float.valueOf(item.getTextContent());
+			} else if ("inc".equals(name)) {
+				inc = Float.valueOf(item.getTextContent());
+			} else if ("number".equals(name)) {
+				number = Integer.valueOf(item.getTextContent());
+			} else if ("end".equals(name)) {
+				end = Float.valueOf(item.getTextContent());
+			} else if ("exposure".equals(name)) {
+				exposure = Integer.valueOf(item.getTextContent());
+			} else if ("erasure".equals(name)) {
+				erasure = Integer.valueOf(item.getTextContent());
+			} else if ("temp".equals(name)) {
+				temp = Float.valueOf(item.getTextContent());
+			} else if ("phi".equals(name)) {
+				phi = Float.valueOf(item.getTextContent());
+			} else if ("chi".equals(name)) {
+				chi = Float.valueOf(item.getTextContent());
+			} else if ("comments".equals(name)) {
+				comments = item.getTextContent();
+			} else if ("filename".equals(name)) {
+				filename = item.getTextContent();
+			} else if ("startIndex".equals(name)) {
+				startIndex = Integer.valueOf(item.getTextContent());
+			} 
+		}
+
 	}
 }
