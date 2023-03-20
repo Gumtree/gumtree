@@ -12,7 +12,7 @@ import au.gov.ansto.bragg.koala.ui.Activator;
 public class ChemistryModel extends AbstractScanModel {
 
 	private FixedCellRenderer fixedRenderer;
-	private static final int[] COLUMN_WIDTH = {40, 40, 112, 112, 80, 112, 112, 112, 112, 300, 90, 300};
+	private static final int[] COLUMN_WIDTH = {40, 40, 112, 112, 80, 112, 112, 112, 112, 260, 90, 90, 250};
 	private static final int COLUMN_COUNTS = COLUMN_WIDTH.length;
 	private static final String[] COLUMN_TITLE = {
 			"", 
@@ -25,6 +25,7 @@ public class ChemistryModel extends AbstractScanModel {
 			"Temp",
 			Activator.CHI + " Value",
 			"Filename",
+			"Index",
 			"Status",
 			"Comments"
 	};
@@ -100,8 +101,10 @@ public class ChemistryModel extends AbstractScanModel {
 		case 9:
 			return scan.getFilename();
 		case 10:
-			return scan.getStatus();
+			return scan.getStartIndex();
 		case 11:
+			return scan.getStatus();
+		case 12:
 			return scan.getComments();
 		default:
 			break;
@@ -190,7 +193,17 @@ public class ChemistryModel extends AbstractScanModel {
 		case 9:
 			scan.setFilename(String.valueOf(value));
 			break;
-		case 11:
+		case 10:
+			if (value instanceof Integer) {
+				scan.setStartIndex((Integer) value);
+			} else {
+				String t = String.valueOf(value);
+				if (t.length() > 0) {
+					scan.setStartIndex(Integer.parseInt(t));
+				}
+			}
+			break;
+		case 12:
 			scan.setComments(String.valueOf(value));
 			break;
 		default:

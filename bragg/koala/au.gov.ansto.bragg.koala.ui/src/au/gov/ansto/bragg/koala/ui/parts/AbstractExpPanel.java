@@ -384,6 +384,12 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 				try {
 					String com = comText.getText();
 					String fn = fnText.getText();
+					int si = -1;
+					String startIndex = indexText.getText();
+					try {
+						si = Integer.valueOf(startIndex);
+					} catch (Exception e2) {
+					}
 					AbstractScanModel model = getModel();
 					int[] rows = table.getRowSelection();
 					for (int row : rows) {
@@ -393,6 +399,9 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 						}
 						if (fn != null && fn.trim().length() > 0) {
 							scan.setFilename(fn);
+						}
+						if (si >= 0) {
+							scan.setStartIndex(si);
 						}
 					}
 				} catch (Exception e2) {

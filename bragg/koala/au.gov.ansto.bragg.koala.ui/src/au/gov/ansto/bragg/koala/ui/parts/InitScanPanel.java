@@ -70,6 +70,7 @@ public class InitScanPanel extends AbstractControlPanel {
 	private Text nameText;
 	private Text parentText;
 	private Text fileText;
+	private Text indexText;
 	private Text comText;
 	private Text startText;
 	private Text incText;
@@ -130,12 +131,12 @@ public class InitScanPanel extends AbstractControlPanel {
 		final Label comLabel = new Label(infoBlock, SWT.NONE);
 		comLabel.setText(" Comments");
 		comLabel.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).span(1, 2).align(SWT.BEGINNING, SWT.BEGINNING
+		GridDataFactory.fillDefaults().grab(false, false).span(1, 3).align(SWT.BEGINNING, SWT.BEGINNING
 				).minSize(320, 40).applyTo(comLabel);
 		
 		comText = new Text(infoBlock, SWT.WRAP | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL);
 		comText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, false).span(1, 2).minSize(500, 88).hint(360, 88).applyTo(comText);
+		GridDataFactory.fillDefaults().grab(true, false).span(1, 3).minSize(500, 88).hint(360, 88).applyTo(comText);
 		
 		comText.addModifyListener(new ModifyListener() {
 			
@@ -215,6 +216,16 @@ public class InitScanPanel extends AbstractControlPanel {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
+		
+		Label indexLebel = new Label(infoBlock, SWT.NONE);
+		indexLebel.setText("Starting index");
+		indexLebel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).minSize(320, 40).applyTo(indexLebel);
+		
+		indexText = new Text(infoBlock, SWT.BORDER);
+		indexText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(true, false).span(3, 1).minSize(700, 40).applyTo(indexText); 
+		
 		
 		Composite leftMain = new Composite(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(leftMain);
@@ -345,6 +356,10 @@ public class InitScanPanel extends AbstractControlPanel {
 				bindingContext = new DataBindingContext();
 				bindingContext.bindValue(SWTObservables.observeText(fileText, SWT.Modify),
 						BeansObservables.observeValue(initScan, "filename"),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext = new DataBindingContext();
+				bindingContext.bindValue(SWTObservables.observeText(indexText, SWT.Modify),
+						BeansObservables.observeValue(initScan, "startIndex"),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});

@@ -19,7 +19,7 @@ public class PhysicsModel extends AbstractScanModel {
 	private TextCellRenderer liteOddTextRenderer;
 	private TextCellRenderer liteEvenTextRenderer;
 	
-	private static final int[] COLUMN_WIDTH = {40, 40, 180, 108, 80, 80, 108, 108, 108, 100, 108, 200, 90, 200};
+	private static final int[] COLUMN_WIDTH = {40, 40, 180, 108, 80, 80, 108, 108, 108, 100, 108, 150, 90, 90, 160};
 	private static final int COLUMN_COUNTS = COLUMN_WIDTH.length;
 	private static final String[] COLUMN_TITLE = {
 			"", 
@@ -34,6 +34,7 @@ public class PhysicsModel extends AbstractScanModel {
 			"Temp",
 			Activator.CHI + " Value",
 			"Filename",
+			"Index",
 			"Status",
 			"Comments"
 	};
@@ -179,8 +180,10 @@ public class PhysicsModel extends AbstractScanModel {
 		case 11:
 			return scan.getFilename();
 		case 12:
-			return scan.getStatus();
+			return scan.getStartIndex();
 		case 13:
+			return scan.getStatus();
+		case 14:
 			return scan.getComments();
 		default:
 			break;
@@ -331,8 +334,18 @@ public class PhysicsModel extends AbstractScanModel {
 			scan.setFilename(String.valueOf(value));
 			break;
 		case 12:
+			if (value instanceof Integer) {
+				scan.setStartIndex((Integer) value);
+			} else {
+				String t = String.valueOf(value);
+				if (t.length() > 0) {
+					scan.setStartIndex(Integer.parseInt(t));
+				}
+			}
 			break;
 		case 13:
+			break;
+		case 14:
 			scan.setComments(String.valueOf(value));
 			break;
 		default:
