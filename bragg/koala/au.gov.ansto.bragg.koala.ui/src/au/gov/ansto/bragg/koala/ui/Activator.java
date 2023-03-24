@@ -44,6 +44,10 @@ public class Activator extends AbstractUIPlugin {
 	public static final String NAME_PASS_DISABLED = "gumtree.koala.passDisabled";
 	public static final String PHI = "\u03A6".toLowerCase();
 	public static final String CHI = "\u03A7".toLowerCase();
+//	public static final String PHI_HTML = "&#632;";
+//	public static final String CHI_HTML = "&#967;";
+	public static final String PHI_HTML = "&phi;";
+	public static final String CHI_HTML = "&chi;";
 	public static final String TAU = "\u03C4";
 	public static final String MAINTENANCE_FILTER = "MaintenanceFilter.xml";
 

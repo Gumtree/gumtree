@@ -33,6 +33,7 @@ public class ExperimentModel {
 	private String proposalFolder;
 	private String lastFilename;
 	private String errorMessage;
+	private String sampleName;
 	private SingleScan currentScan;
 	private ControlHelper controlHelper;
 	private UserControl control;
@@ -257,6 +258,20 @@ public class ExperimentModel {
 			SingleScan scan = new SingleScan();
 			scan.copyFile(source);
 		}
+	}
+
+	/**
+	 * @return the sampleName
+	 */
+	public String getSampleName() {
+		return sampleName;
+	}
+
+	/**
+	 * @param sampleName the sampleName to set
+	 */
+	public void setSampleName(String sampleName) {
+		this.sampleName = sampleName;
 	}
 
 }

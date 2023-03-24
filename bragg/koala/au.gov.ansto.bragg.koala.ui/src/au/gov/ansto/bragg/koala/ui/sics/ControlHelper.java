@@ -2,6 +2,10 @@ package au.gov.ansto.bragg.koala.ui.sics;
 
 import java.util.Map;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -23,9 +27,8 @@ import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsInterruptException;
 import org.gumtree.control.exception.SicsModelException;
-import org.gumtree.control.imp.DriveableController;
-import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
+import org.gumtree.service.db.RemoteTextDbService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,6 +100,9 @@ public class ControlHelper {
 	private final static Color BUSY_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
 	private final static Color IDLE_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
 	private final static Logger logger = LoggerFactory.getLogger(ControlHelper.class);
+	
+	private static DocumentBuilder documentBuilder;
+	private static RemoteTextDbService logbookService;
 	
 	public static String TEMP_DEVICE_NAME;
 	public static String CHI_DEVICE_NAME;
@@ -300,21 +306,33 @@ public class ControlHelper {
 		}
 	}
 
-	public static void publishGumtreeStatus(String status) throws KoalaServerException {
+	public static void publishGumtreeStatus(String status) {
+//		try {
+//			getProxy().syncRun(String.format("hset %s %s", 
+//					System.getProperty(ControlHelper.GUMTREE_STATUS_PATH), status));
+//		} catch (Exception e) {
+//			throw new KoalaServerException(e);
+//		}
 		try {
-			getProxy().syncRun(String.format("hset %s %s", 
-					System.getProperty(ControlHelper.GUMTREE_STATUS_PATH), status));
-		} catch (Exception e) {
-			throw new KoalaServerException(e);
+			asyncExec(String.format("hset %s %s", 
+						System.getProperty(ControlHelper.GUMTREE_STATUS_PATH), status));
+		} catch (KoalaServerException e) {
+			logger.error("failed to publish gumtree status");
 		}
 	}
 	
 	public static void publishFinishTime(long finishTime) {
+//		try {
+//			getProxy().syncRun(String.format("hset %s %s", 
+//					System.getProperty(ControlHelper.GUMTREE_TIME_PATH), String.valueOf(finishTime)));
+//		} catch (Exception e) {
+//			logger.warn("failed to publish finish time estimation");
+//		}
 		try {
-			getProxy().syncRun(String.format("hset %s %s", 
-					System.getProperty(ControlHelper.GUMTREE_TIME_PATH), String.valueOf(finishTime)));
-		} catch (Exception e) {
-			logger.warn("failed to publish finish time estimation");
+			asyncExec(String.format(String.format("hset %s %s", 
+					System.getProperty(ControlHelper.GUMTREE_TIME_PATH), String.valueOf(finishTime))));
+		} catch (KoalaServerException e) {
+			logger.error("failed to publish finish time estimation");
 		}
 	}
 	
@@ -383,7 +401,6 @@ public class ControlHelper {
 //			try {
 //				expTimeController.setValue(0);
 //			} catch (SicsException e) {
-//				// TODO Auto-generated catch block
 //				throw new KoalaServerException("failed to end exposure: " + e.getMessage());
 //			}
 //		} else {
@@ -410,4 +427,21 @@ public class ControlHelper {
 		});
 	}
 
+	public static DocumentBuilder getDocumentBuilder() {
+		if (documentBuilder == null) {
+			DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+			try {
+				documentBuilder = builderFactory.newDocumentBuilder();
+			} catch (ParserConfigurationException e) {
+			}
+		}
+		return documentBuilder;
+	}
+	
+	public static RemoteTextDbService getLogbookService() {
+		if (logbookService == null) {
+			logbookService = RemoteTextDbService.getInstance();
+		}
+		return logbookService;
+	}
 }

@@ -87,7 +87,7 @@ public class RemoteTextDbService {
 	public synchronized void appendHtmlEntry(String key, String html) throws HttpException {
 		HttpClient httpClient = new HttpClient();
 		PostMethod postMethod = new PostMethod(loggingDbURL + "append");
-		System.err.println(key);
+		System.err.println(html);
 		postMethod.addParameter("key", key);
 		postMethod.addParameter("html", html);
 		try {
@@ -100,8 +100,7 @@ public class RemoteTextDbService {
 
 		if (postMethod.getStatusCode() == HttpStatus.SC_OK) {
 			try {
-				String resp = postMethod.getResponseBodyAsString();
-				System.err.println(resp);
+				postMethod.getResponseBodyAsString();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

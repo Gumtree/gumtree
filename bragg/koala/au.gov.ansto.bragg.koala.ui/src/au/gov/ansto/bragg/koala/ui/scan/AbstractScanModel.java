@@ -12,6 +12,7 @@ import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -55,6 +56,7 @@ public abstract class AbstractScanModel implements KTableModel {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractScanModel.class);
 	
+	private final static String PROP_BACKUPFOLDER = "gumtree.koala.backupFolder";
 	private final static String XML_NAME_TITLE = "workflow";
 	private final static String XML_ATTR_MODELTYPE = "model_type";
 	
@@ -86,6 +88,7 @@ public abstract class AbstractScanModel implements KTableModel {
 	private Calendar startTime;
 	private List<IModelListener> modelListeners;
 	private PropertyChangeListener propertyListener;
+	private String backupFolder;
 	
 	private KTable table;
 	
@@ -174,6 +177,11 @@ public abstract class AbstractScanModel implements KTableModel {
 				fireModelChangeEvent();
 			}
 		};
+		String folderPath = System.getProperty(PROP_BACKUPFOLDER);
+		File folder = new File(folderPath);
+		if (folder.exists()) {
+			backupFolder = folderPath;
+		}
 	}
 	
 	public void setTable(final KTable table) {
@@ -570,6 +578,21 @@ public abstract class AbstractScanModel implements KTableModel {
 	}
 	
 	public void start() {
+		if (backupFolder != null) {
+			try {
+				SimpleDateFormat timeFormat = new SimpleDateFormat("yyMM");
+				String folderPath = backupFolder + "/" + timeFormat.format(Calendar.getInstance().getTime());
+				File folder = new File(folderPath);
+				if (!folder.exists()) {
+					folder.mkdir();
+				}
+				String pid = ControlHelper.experimentModel.getProposalId();
+				String filename = folderPath + "/" + pid + "_" + (System.currentTimeMillis() / 1000) + ".xml";
+				serialize(filename);
+			} catch (Exception e2) {
+				logger.error("failed to backup workflow: " + e2.getMessage());
+			}
+		}
 		Thread runnerThread = new Thread(new Runnable() {
 			
 			@Override
@@ -596,6 +619,7 @@ public abstract class AbstractScanModel implements KTableModel {
 //						table.redraw(getStatusColumnId(), row, 1, 1);
 						safeRedrawStatus(row);
 						scan.run();
+						System.err.println(scan.getHtml());
 						scan.setStatus(ScanStatus.done.name());
 						safeRedrawStatus(row);
 						row++;
@@ -835,54 +859,9 @@ public abstract class AbstractScanModel implements KTableModel {
 		if (dialog.getFileName() == null || dialog.getFileName().trim().length() == 0) {
 			return;
 		}
-		String filterPath = dialog.getFilterPath();
-		final String filePath = filterPath + File.separator + dialog.getFileName();
-		try {
-			DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
-
-			Document document = documentBuilder.newDocument();
-			document.setXmlStandalone(true);
-			
-			Element root = document.createElement(XML_NAME_TITLE);
-			root.setAttribute(XML_ATTR_MODELTYPE, getModelType().name());
-			serialize(document, root);
-			document.appendChild(root);
-
-			// write to buffer
-			Writer stringWriter = new StringWriter();
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();			
-			Transformer transformer = transformerFactory.newTransformer();
-			
-		    transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-		    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-		    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-		    
-			transformer.transform(
-					new DOMSource(document),
-					new StreamResult(stringWriter));
-			
-			try (FileOutputStream stream = new FileOutputStream(new File(filePath))) {
-				try (Writer writer = new OutputStreamWriter(stream)) {
-					// quick fix: ensure that every xml element starts on a new line
-					BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
-					final String newLine = System.getProperty("line.separator");
-					
-					String line = reader.readLine();
-					if (line != null) {
-						writer.append(line.replace("><", '>' + newLine + '<'));
-						while (null != (line = reader.readLine())) {
-							writer.append(newLine);
-							writer.append(line);
-						}
-					}
-				}
-			}
-			ControlHelper.experimentModel.publishSystemMessage("Successfully exported to " + filePath);
-		} catch (Exception e) {
-			handleError("failed to write to file: " + filePath + ", " + e.getMessage());
-		}
+		final String filePath = dialog.getFilterPath() + File.separator + dialog.getFileName();
+		serialize(filePath);
+		ControlHelper.experimentModel.publishSystemMessage("Successfully exported to " + filePath);
 	}
 	
 	public void loadTable(KTable table) {
@@ -944,12 +923,55 @@ public abstract class AbstractScanModel implements KTableModel {
 		}
 	}
 	
-	public void serialize(final Document document, final Element root) {
-		synchronized (scanList) {
-			for (SingleScan scan : scanList) {
-				root.appendChild(scan.serialize(document));
+	public void serialize(String filename) {
+		try {
+//			DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+//			DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
+			DocumentBuilder documentBuilder = ControlHelper.getDocumentBuilder();
+			Document document = documentBuilder.newDocument();
+			document.setXmlStandalone(true);
+			
+			Element root = document.createElement(XML_NAME_TITLE);
+			root.setAttribute(XML_ATTR_MODELTYPE, getModelType().name());
+			synchronized (scanList) {
+				for (SingleScan scan : scanList) {
+					root.appendChild(scan.serialize(document));
+				}
 			}
+			document.appendChild(root);
+
+			// write to buffer
+			Writer stringWriter = new StringWriter();
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();			
+			Transformer transformer = transformerFactory.newTransformer();
+			
+		    transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+		    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+		    
+			transformer.transform(
+					new DOMSource(document),
+					new StreamResult(stringWriter));
+			
+			try (FileOutputStream stream = new FileOutputStream(new File(filename))) {
+				try (Writer writer = new OutputStreamWriter(stream)) {
+					// quick fix: ensure that every xml element starts on a new line
+					BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
+					final String newLine = System.getProperty("line.separator");
+					
+					String line = reader.readLine();
+					if (line != null) {
+						writer.append(line.replace("><", '>' + newLine + '<'));
+						while (null != (line = reader.readLine())) {
+							writer.append(newLine);
+							writer.append(line);
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			handleError("failed to write to file: " + filename + ", " + e.getMessage());
 		}
 	}
-	
 }

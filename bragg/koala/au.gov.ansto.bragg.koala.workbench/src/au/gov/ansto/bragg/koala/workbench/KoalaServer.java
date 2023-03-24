@@ -760,7 +760,9 @@ public class KoalaServer {
 				}
 			}
 			publishValueUpdate(PATH_TIFF_STATE, "busy");			
-			File newFile = new File(getNextFilename());
+			File newFile = new File(getNextLowgainFilename());
+			Files.copy(orgFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			newFile = new File(getNextFilename());
 			Files.copy(orgFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			publishValueUpdate(PATH_FILENAME, newFile.getPath());
 			Thread.sleep(2000);
@@ -1129,6 +1131,10 @@ public class KoalaServer {
 	}
 	
 	private String getNextFilename() {
-		return System.getProperty(DATA_PATH) + File.separator + String.format("KOA%07d.tif", fileID ++);
+		return System.getProperty(DATA_PATH) + File.separator + "higain" + File.separator + String.format("KOA%07d.tif", fileID ++);
+	}
+	
+	private String getNextLowgainFilename() {
+		return System.getProperty(DATA_PATH) + File.separator + "logain" + File.separator + String.format("KOA%07d.tif", fileID);
 	}
 }

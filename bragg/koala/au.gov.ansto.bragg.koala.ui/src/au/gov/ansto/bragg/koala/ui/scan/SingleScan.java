@@ -4,10 +4,21 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +39,7 @@ enum ScanTarget {
 	
 	static String[] texts = {Activator.PHI + " loop", Activator.PHI + " points", " t loop", " t points"};
 	static String[] plainTexts = {"Phi loop", "Phi points", "Temp loop", "Temp points"};
+	static String[] htmls = {Activator.PHI_HTML + " loop", Activator.PHI_HTML + " points", " t loop", " t points"};
 	
 	public String getText() {
 		switch (this) {
@@ -41,6 +53,21 @@ enum ScanTarget {
 			return texts[3];
 		default:
 			return texts[0];
+		}
+	}
+	
+	public String getHtml() {
+		switch (this) {
+		case PHI_LOOP:
+			return htmls[0];
+		case PHI_POINTS:
+			return htmls[1];
+		case TEMP_LOOP:
+			return htmls[2];
+		case TEMP_POINTS:
+			return htmls[3];
+		default:
+			return htmls[0];
 		}
 	}
 	
@@ -96,9 +123,17 @@ public class SingleScan {
 	private static final String SOURCE_FOLDER = "sics.data.path";
 	private static final String SERVER_FOLDER = "gumtree.server.dataPath";
 	public static final String DATA_FILENAME = "gumtree.server.dataName";
+	private final static int WAIT_BETWEEN_COLLECTION = 5000;
+	private final static int WAIT_AFTER_SCAN = 1000;
 	private final static int PAUSE_CHECK_INTERVAL = 20;
 	private final static float DEVICE_VALUE_TOLERANCE = 0.00001f;
 	private final static Logger logger = LoggerFactory.getLogger(SingleScan.class);
+	private final static String FOLDER_HIGHGAIN = "higain";
+	private final static String FOLDER_LOWGAIN = "logain";
+	private final static String FOLDER_LOWGAIN_COPY = "lowgain";
+	private final static String NAME_LOWGAIN_EXTENSION = "_lowgain";
+	private final static String NAME_PREFIX_HIGHGAIN = "HIKOL";
+	private final static String NAME_PREFIX_LOWGAIN = "LOKOL";
 	
 	public static final String NAME_SCAN = "scan";
 	
@@ -111,7 +146,7 @@ public class SingleScan {
 	private ScanTarget target;
 	private float start;
 	private float inc;
-	private int number;
+	private int number = 1;
 	private float end;
 	private int exposure = 60;
 	private int erasure = CollectionHelper.ERASE_TIME;
@@ -132,14 +167,17 @@ public class SingleScan {
 	private boolean isFinished;
 	private int fileIndex = 1;
 	private File currentFile;
+	private File currentLowFile;
+	private List<String> tiffFiles;
 
 	enum InputType {START, INC, NUMBER, END};
 	
 	public SingleScan() {
-		target = ScanTarget.PHI_LOOP;
+		this(ScanTarget.PHI_LOOP);
 	}
 	public SingleScan(ScanTarget target) {
 		this.target = target;
+		tiffFiles = new ArrayList<String>();
 	}
 
 	public ScanTarget getTarget() {
@@ -547,6 +585,7 @@ public class SingleScan {
 	
 	public void run() throws KoalaInterruptionException, KoalaServerException  {
 		isRunning = true;
+		tiffFiles.clear();
 		startTimeMilSec = System.currentTimeMillis();
 		logger.warn("start " + toString());
 		try {
@@ -569,7 +608,7 @@ public class SingleScan {
 				ControlHelper.publishGumtreeStatus("Scan - drive sample Chi");
 				ControlHelper.driveChi(getChi());
 			}
-			ControlHelper.syncExec(String.format("hset %s %s", 
+			ControlHelper.asyncExec(String.format("hset %s %s", 
 					System.getProperty(ControlHelper.GUMTREE_COMMENTS), getComments()));
 			evaluatePauseStatus();
 			if (getTarget().isPoints()) {
@@ -591,7 +630,7 @@ public class SingleScan {
 						float target = getStart() + getInc() * i;
 						if (i > 0) {
 							try {
-								Thread.sleep(5000);
+								Thread.sleep(WAIT_BETWEEN_COLLECTION);
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}
@@ -600,18 +639,35 @@ public class SingleScan {
 					}
 				}
 			}
+			try {
+				Thread.sleep(WAIT_AFTER_SCAN);
+			} catch (InterruptedException e) {
+			}
 		} finally {
 			startTimeMilSec = 0;
 			isFinished = true;
 			isRunning = false;
 			ControlHelper.publishGumtreeStatus("Scan - finished");
+			publishScanResult();
+		}
+	}
+	
+	
+	private void publishScanResult() {
+		try {
+			ControlHelper.getLogbookService().appendTableEntry(
+					ControlHelper.experimentModel.getSampleName(), 
+					getHtml());
+		} catch (Exception e) {
+			ControlHelper.experimentModel.publishErrorMessage(
+					"failed to publish scan result: " + e.getMessage());
 		}
 	}
 	
 	private void collect(final int index, final float target) 
 			throws KoalaInterruptionException, KoalaServerException {
 		evaluatePauseStatus();
-		ControlHelper.syncExec(String.format("hset %s %d", 
+		ControlHelper.asyncExec(String.format("hset %s %d", 
 				System.getProperty(ControlHelper.STEP_PATH), index + 1));
 		if (getTarget().isTemperature()) {
 			ControlHelper.publishGumtreeStatus("Scan - driving temperature");			
@@ -634,11 +690,15 @@ public class SingleScan {
 		try {
 //			String source = String.valueOf(((IDynamicController) fnController).getValue());
 			String source = filename.replaceAll("/", "\\\\");
+			String lowSource;
 			if (source.contains(File.separator)) {
-				source = System.getProperty(SOURCE_FOLDER) + source.substring(source.lastIndexOf(File.separator));
+				source = System.getProperty(SOURCE_FOLDER) + File.separator + FOLDER_HIGHGAIN + source.substring(source.lastIndexOf(File.separator));
+				lowSource = System.getProperty(SOURCE_FOLDER) + File.separator + FOLDER_LOWGAIN + source.substring(source.lastIndexOf(File.separator));
 			} else {
-				source = System.getProperty(SOURCE_FOLDER) + File.separator + source;
+				source = System.getProperty(SOURCE_FOLDER) + File.separator + FOLDER_HIGHGAIN + File.separator + source;
+				lowSource = System.getProperty(SOURCE_FOLDER) + File.separator + FOLDER_LOWGAIN + File.separator + source;
 			}
+			lowSource = lowSource.replaceAll(NAME_PREFIX_HIGHGAIN, NAME_PREFIX_LOWGAIN);
 //			String tn = this.filename;
 //			tn = tn.replaceAll("/", File.separator);
 //			if (tn.startsWith(File.separator)) {
@@ -646,7 +706,10 @@ public class SingleScan {
 //			}
 			logger.warn(String.format("copy %s to %s", source, currentFile));
 			Files.copy((new File(source)).toPath(), currentFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			logger.warn(String.format("copy %s to %s", lowSource, currentLowFile));
+			Files.copy((new File(lowSource)).toPath(), currentLowFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			ControlHelper.experimentModel.setLastFilename(currentFile.getAbsolutePath());
+			addTiffFile(currentFile.getPath());
 			fileIndex++;
 //			System.err.println(source);
 //			System.err.println(currentFile.toString());
@@ -697,6 +760,19 @@ public class SingleScan {
 			resetCurrentFile();
 		} else {
 			currentFile = f;
+			File lowFolder = new File(parent.getPath() + File.separator + FOLDER_LOWGAIN_COPY);
+			if (!lowFolder.exists()) {
+				lowFolder.mkdir();
+			}
+			String fname = f.getName();
+			String lowFName = fname.substring(0, fname.length() - 4) + NAME_LOWGAIN_EXTENSION + ".tif";
+			currentLowFile = new File(lowFolder.getPath() + File.separator + lowFName);
+		}
+	}
+	
+	private void addTiffFile(String filename) {
+		synchronized (tiffFiles) {
+			tiffFiles.add(filename);
 		}
 	}
 	
@@ -766,6 +842,205 @@ public class SingleScan {
 				startIndex = Integer.valueOf(item.getTextContent());
 			} 
 		}
+	}
+	
+	
+	public String getHtml() {
+		DocumentBuilder documentBuilder = ControlHelper.getDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+		document.setXmlStandalone(true);
 
+		Element root = document.createElement("table");
+		root.setAttribute("border", "1");
+		root.setAttribute("cellpadding", "2");
+		root.setAttribute("cellspacing", "0");
+		root.setAttribute("style", "width:100%; text-align: center");
+		
+		Element header = document.createElement("tr");
+		
+		Element cell;
+		Element row;
+		if (!getTarget().isPoints()) {
+			cell = document.createElement("th");
+			cell.setTextContent("Scan setup");
+			cell.setAttribute("rowspan", "3");
+			header.appendChild(cell);
+
+			cell = document.createElement("th");
+			cell.setAttribute("colspan", "4");
+			cell.setTextContent(getTarget().getHtml());
+
+			Node disableEscaping = document.createProcessingInstruction(StreamResult.PI_DISABLE_OUTPUT_ESCAPING, "&");
+			header.appendChild(disableEscaping);
+			header.appendChild(cell);
+			cell = document.createElement("th");
+			cell.setAttribute("rowspan", "2");
+			cell.setTextContent(getTarget().isTemperature() ? Activator.PHI_HTML : "Temperature");
+			header.appendChild(cell);
+
+			cell = document.createElement("th");
+			cell.setAttribute("rowspan", "2");
+			cell.setTextContent(Activator.CHI_HTML);
+			header.appendChild(cell);
+
+			root.appendChild(header);
+
+			header = document.createElement("tr");
+			cell = document.createElement("th");
+			cell.setTextContent("start");
+			header.appendChild(cell);
+			cell = document.createElement("th");
+			cell.setTextContent("increment");
+			header.appendChild(cell);
+			cell = document.createElement("th");
+			cell.setTextContent("steps");
+			header.appendChild(cell);
+			cell = document.createElement("th");
+			cell.setTextContent("final");
+			header.appendChild(cell);
+			root.appendChild(header);
+
+			row = document.createElement("tr");
+			cell = document.createElement("td");
+			cell.setTextContent(String.valueOf(start));
+			row.appendChild(cell);
+
+			cell = document.createElement("td");
+			cell.setTextContent(String.valueOf(inc));
+			row.appendChild(cell);
+
+			cell = document.createElement("td");
+			cell.setTextContent(String.valueOf(number));
+			row.appendChild(cell);
+
+			cell = document.createElement("td");
+			cell.setTextContent(String.valueOf(end));
+			row.appendChild(cell);
+
+			cell = document.createElement("td");
+			if (getTarget().isTemperature()) {
+				cell.setTextContent(String.valueOf(Float.isNaN(phi) ? "" : phi));
+			} else {
+				cell.setTextContent(String.valueOf(Float.isNaN(temp) ? "" : temp));
+			}
+			row.appendChild(cell);
+
+			cell = document.createElement("td");
+			cell.setTextContent(String.valueOf(Float.isNaN(chi) ? "" : chi));
+			row.appendChild(cell);
+			root.appendChild(row);
+		} else {
+			cell = document.createElement("th");
+			cell.setTextContent("Scan setup");
+			cell.setAttribute("rowspan", "2");
+			header.appendChild(cell);
+
+			cell = document.createElement("th");
+			cell.setAttribute("colspan", "4");
+			cell.setTextContent(getTarget().getHtml());
+
+			Node disableEscaping = document.createProcessingInstruction(StreamResult.PI_DISABLE_OUTPUT_ESCAPING, "&");
+			header.appendChild(disableEscaping);
+			header.appendChild(cell);
+			cell = document.createElement("th");
+			cell.setTextContent(getTarget().isTemperature() ? Activator.PHI_HTML : "Temperature");
+			header.appendChild(cell);
+
+			cell = document.createElement("th");
+			cell.setTextContent(Activator.CHI_HTML);
+			header.appendChild(cell);
+
+			root.appendChild(header);
+
+			row = document.createElement("tr");
+			cell = document.createElement("td");
+			cell.setAttribute("colspan", "4");
+			cell.setTextContent(getPoints());
+			row.appendChild(cell);
+
+			cell = document.createElement("td");
+			if (getTarget().isTemperature()) {
+				cell.setTextContent(String.valueOf(Float.isNaN(phi) ? "" : phi));
+			} else {
+				cell.setTextContent(String.valueOf(Float.isNaN(temp) ? "" : temp));
+			}
+			row.appendChild(cell);
+
+			cell = document.createElement("td");
+			cell.setTextContent(String.valueOf(Float.isNaN(chi) ? "" : chi));
+			row.appendChild(cell);
+			root.appendChild(row);
+			
+		}
+
+		row = document.createElement("tr");
+		cell = document.createElement("th");
+		cell.setTextContent("Comments");
+		row.appendChild(cell);
+		
+		cell = document.createElement("td");
+		cell.setAttribute("style", "text-align: left");
+		cell.setAttribute("colspan", "6");
+		cell.setTextContent(comments);
+		row.appendChild(cell);
+		root.appendChild(row);
+		
+		row = document.createElement("tr");
+		cell = document.createElement("th");
+		cell.setTextContent("TIFF files");
+		if (tiffFiles.size() == 1) {
+			row.appendChild(cell);
+			cell = document.createElement("td");
+			cell.setAttribute("colspan", "6");
+			cell.setTextContent(tiffFiles.get(0));
+			row.appendChild(cell);
+			root.appendChild(row);
+		} else if (tiffFiles.size() > 1) {
+			cell.setAttribute("rowspan", String.valueOf(tiffFiles.size()));
+			row.appendChild(cell);
+			cell = document.createElement("td");
+			cell.setAttribute("colspan", "6");
+			cell.setTextContent(tiffFiles.get(0));
+			row.appendChild(cell);
+			root.appendChild(row);
+			synchronized (tiffFiles) {
+				for (int i = 1; i < tiffFiles.size(); i++) {
+					row = document.createElement("tr");
+					cell = document.createElement("td");
+					cell.setAttribute("colspan", "6");
+					cell.setTextContent(tiffFiles.get(i));
+					row.appendChild(cell);
+					root.appendChild(row);
+				}
+			}
+		} else {
+			cell = document.createElement("td");
+			cell.setTextContent("none");
+			row.appendChild(cell);
+			root.appendChild(row);
+		}
+		
+		
+		document.appendChild(root);
+		try {
+			// write to buffer
+			Writer stringWriter = new StringWriter();
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();			
+			Transformer transformer = transformerFactory.newTransformer();
+			
+		    transformer.setOutputProperty(OutputKeys.METHOD, "html");
+		    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+		    
+			transformer.transform(
+					new DOMSource(document),
+					new StreamResult(stringWriter));
+
+			return stringWriter.toString();
+		} catch (TransformerException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
