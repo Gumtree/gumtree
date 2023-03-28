@@ -2,6 +2,10 @@ package au.gov.ansto.bragg.koala.ui;
 
 import java.io.IOException;
 
+import javax.imageio.spi.IIORegistry;
+import javax.imageio.spi.ImageReaderSpi;
+import javax.imageio.spi.ImageWriterSpi;
+
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
@@ -19,6 +23,9 @@ import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.util.ISystemProperty;
 import org.gumtree.util.SystemProperty;
 import org.osgi.framework.BundleContext;
+
+import com.github.jaiimageio.impl.plugins.tiff.TIFFImageReaderSpi;
+import com.github.jaiimageio.impl.plugins.tiff.TIFFImageWriterSpi;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -110,6 +117,12 @@ public class Activator extends AbstractUIPlugin {
 				runningForgroundColor = Display.getDefault().getSystemColor(SWT.COLOR_WHITE);
 			}
 		});
+		
+		IIORegistry.getDefaultInstance().registerServiceProvider(
+	             new TIFFImageReaderSpi(), ImageReaderSpi.class);
+		IIORegistry.getDefaultInstance().registerServiceProvider(
+	             new TIFFImageWriterSpi(), ImageWriterSpi.class);
+
 	}
 
 	/*

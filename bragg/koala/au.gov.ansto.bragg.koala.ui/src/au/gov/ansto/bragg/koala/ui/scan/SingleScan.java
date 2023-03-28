@@ -1,8 +1,11 @@
 package au.gov.ansto.bragg.koala.ui.scan;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -12,6 +15,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -120,6 +124,7 @@ enum ScanTarget {
 
 public class SingleScan {
 
+	private static final int SERVER_IMAGE_WIDTH = 800;
 	private static final String SOURCE_FOLDER = "sics.data.path";
 	private static final String SERVER_FOLDER = "gumtree.server.dataPath";
 	public static final String DATA_FILENAME = "gumtree.server.dataName";
@@ -713,17 +718,40 @@ public class SingleScan {
 			fileIndex++;
 //			System.err.println(source);
 //			System.err.println(currentFile.toString());
-			File serverFolder = new File(System.getProperty(SERVER_FOLDER));
-			if (serverFolder.exists()) {
-				File cp = new File(serverFolder + "/" + System.getProperty(DATA_FILENAME, "data.tif"));
-				Files.copy((new File(source)).toPath(), cp.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			}
+			convertTiffToPng(source);
 		} catch (IOException e) {
 			throw new KoalaServerException("failed to copy file to proposal folder", e);
 		} catch (Exception e) {
 			throw new KoalaServerException("failed to copy file", e);
 		}
 		
+	}
+	
+	private void convertTiffToPng(final String source) {
+		Thread convertThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					File f = new File(source);
+					File serverFolder = new File(System.getProperty(SERVER_FOLDER));
+					if (f.exists() && serverFolder.exists()) {
+						BufferedImage image = ImageIO.read(f);
+						int width = SERVER_IMAGE_WIDTH;
+						int height = image.getHeight() * width / image.getWidth();
+						BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
+						Graphics2D g2 = newImage.createGraphics();
+						g2.drawImage(image, 0, 0, width, height, null);
+						File cp = new File(serverFolder + "/" + System.getProperty(DATA_FILENAME, "data.png"));
+						FileOutputStream out = new FileOutputStream(cp);
+						ImageIO.write(newImage, "png", out);
+					}
+				} catch (Exception e) {
+					logger.error("failed to convert tiff file to png version", e);
+				}
+			}
+		});
+		convertThread.start();
 	}
 	
 	private void resetCurrentFile() {
