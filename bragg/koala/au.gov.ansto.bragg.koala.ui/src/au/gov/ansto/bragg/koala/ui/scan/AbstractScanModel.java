@@ -619,7 +619,6 @@ public abstract class AbstractScanModel implements KTableModel {
 //						table.redraw(getStatusColumnId(), row, 1, 1);
 						safeRedrawStatus(row);
 						scan.run();
-						System.err.println(scan.getHtml());
 						scan.setStatus(ScanStatus.done.name());
 						safeRedrawStatus(row);
 						row++;

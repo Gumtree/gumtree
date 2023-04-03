@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.gumtree.control.core.IDynamicController;
+import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
@@ -25,6 +26,10 @@ public class CollectionHelper {
 	public static final String NAME_EXPOSURE_TIME = "gumtree.koala.exposureTime";
 	public static final String NAME_READING_TIME = "gumtree.koala.readingTime";
 	public static final String NAME_EXPIRATION_TIME = "gumtree.koala.collectionExp";
+	public static final String NAME_TEMP_START = "gumtree.koala.tempStart";
+	public static final String NAME_TEMP_END = "gumtree.koala.tempEnd";
+	public static final String NAME_TEMP_MAX = "gumtree.koala.tempMax";
+	public static final String NAME_TEMP_MIN = "gumtree.koala.tempMin";
 	
 	public static final int COLLECTION_RETRY = 3;
 	private static final int START_TIMEOUT = 20;
@@ -51,6 +56,7 @@ public class CollectionHelper {
 	private List<ICollectionListener> listeners;
 	private static CollectionHelper instance;
 	private String errorMessage;
+	private TempReporter reporter;
 	
 	public enum ImageState {
 		IDLE,
@@ -93,6 +99,10 @@ public class CollectionHelper {
 			}
 		};
 		ControlHelper.getProxy().addProxyListener(proxyListener);
+		
+		reporter = new TempReporter();
+		Thread tempThread = new Thread(reporter);
+		tempThread.start();
 	}
 	
 	public void initControllers() {
@@ -156,9 +166,11 @@ public class CollectionHelper {
 		switch (phase) {
 		case EXPOSE_RUNNING:
 			setCollectionPhase(InstrumentPhase.EXPOSE, exposure);
+			reporter.start();
 			break;
 		case READ_RUNNING:
 			setCollectionPhase(InstrumentPhase.READ, READ_TIME);
+			reporter.end();
 			break;
 		case ERASE_RUNNING:
 			setCollectionPhase(InstrumentPhase.ERASE, ERASE_TIME);
@@ -167,6 +179,9 @@ public class CollectionHelper {
 			setCollectionPhase(InstrumentPhase.SHUTTER_CLOSE, -1);
 			break;
 		case IDLE:
+			if (reporter.isRunning()) {
+				reporter.end();
+			}
 			if (isBusy) {
 				try {
 					waitForTiff(FAIL_RETRY);
@@ -183,6 +198,9 @@ public class CollectionHelper {
 			}
 			break;
 		case ERROR:
+			if (reporter.isRunning()) {
+				reporter.end();
+			}
 			this.phase = InstrumentPhase.ERROR;
 			try {
 				this.errorMessage = errorController.getValue().toString();
@@ -420,5 +438,160 @@ public class CollectionHelper {
 	
 	public InstrumentPhase getPhase() {
 		return phase;
+	}
+	
+	class TempReporter implements Runnable{
+
+		static final int SLEEP_MILSEC = 250;
+		static final float ERROR_VALUE = -9999f;
+		
+		boolean runningFlag;
+//		boolean initFlag;
+		boolean endFlag;
+		boolean isStartSaved;
+		boolean isEndSaved;
+//		float startTemp;
+//		float endTemp;
+		float maxTemp = Float.MIN_VALUE;
+		float minTemp = Float.MAX_VALUE;
+		IDynamicController sensorController;
+		IDynamicController startController;
+		IDynamicController endController;
+		IDynamicController maxController;
+		IDynamicController minController;
+		
+		private void initController() {
+			ISicsController controller = ControlHelper.getProxy().getSicsModel().findController(
+					System.getProperty(ControlHelper.ENV_VALUE));
+			if (controller != null) {
+				sensorController = (IDynamicController) controller;
+			}
+			controller = ControlHelper.getProxy().getSicsModel().findController(
+					System.getProperty(NAME_TEMP_START));
+			if (controller != null) {
+				startController = (IDynamicController) controller;
+			}
+			controller = ControlHelper.getProxy().getSicsModel().findController(
+					System.getProperty(NAME_TEMP_END));
+			if (controller != null) {
+				endController = (IDynamicController) controller;
+			}
+			controller = ControlHelper.getProxy().getSicsModel().findController(
+					System.getProperty(NAME_TEMP_MAX));
+			if (controller != null) {
+				maxController = (IDynamicController) controller;
+			}
+			controller = ControlHelper.getProxy().getSicsModel().findController(
+					System.getProperty(NAME_TEMP_MIN));
+			if (controller != null) {
+				minController = (IDynamicController) controller;
+			}
+		}
+		
+		public TempReporter() {
+			if (ControlHelper.getProxy().isConnected()) {
+				initController();
+			} else {
+				ControlHelper.getProxy().addProxyListener(new SicsProxyListenerAdapter() {
+					
+					@Override
+					public void connect() {
+						initController();
+					}
+				});
+			}
+		}
+		
+		@Override
+		public void run() {
+			while (true) {
+				if (runningFlag) {
+					if (sensorController != null) {
+						try {
+							float value = sensorController.getControllerDataValue().getFloatData();
+							if (!isStartSaved) {
+								if (startController != null) {
+									startController.setTargetValue(value);
+									startController.asyncCommitTarget();
+								}
+							} 
+							if (value > maxTemp) {
+								maxTemp = value;
+								if (maxController != null) {
+									maxController.setTargetValue(value);
+									maxController.asyncCommitTarget();
+								}
+							} 
+							if (value < minTemp) {
+								minTemp = value;
+								if (minController != null) {
+									minController.setTargetValue(value);
+									minController.asyncCommitTarget();
+								}
+							}
+							if (endFlag) {
+								if (!isEndSaved) {
+									if (endController != null) {
+										endController.setTargetValue(value);
+										endController.asyncCommitTarget();
+										reset();
+									}
+								}
+							}
+						} catch (SicsException e) {
+							logger.error("failed to report temperature: ", e);
+						}
+					} else {
+						try {
+							if (startController != null) {
+								startController.setTargetValue(ERROR_VALUE);
+								startController.asyncCommitTarget();
+							}
+							if (maxController != null) {
+								maxController.setTargetValue(ERROR_VALUE);
+								maxController.asyncCommitTarget();
+							}
+							if (minController != null) {
+								minController.setTargetValue(ERROR_VALUE);
+								minController.asyncCommitTarget();
+							}
+							if (endController != null) {
+								endController.setTargetValue(ERROR_VALUE);
+								endController.asyncCommitTarget();
+								reset();
+							}
+						} catch (SicsException e) {
+						}
+						reset();
+					}
+				}
+				try {
+					Thread.sleep(SLEEP_MILSEC);
+				} catch (InterruptedException e) {
+					break;
+				}
+			}
+		}
+		
+		public void start() {
+			runningFlag = true;
+		}
+		
+		public void end() {
+			endFlag = true;
+		}
+		
+		public boolean isRunning() {
+			return runningFlag;
+		}
+		
+		private void reset() {
+			runningFlag = false;
+			endFlag = false;
+			isStartSaved = false;
+			isEndSaved = false;
+			maxTemp = Float.MIN_VALUE;
+			minTemp = Float.MAX_VALUE;
+		}
 	}
 }

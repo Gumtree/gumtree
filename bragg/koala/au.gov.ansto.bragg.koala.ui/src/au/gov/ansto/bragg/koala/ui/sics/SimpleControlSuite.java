@@ -188,7 +188,9 @@ public class SimpleControlSuite {
 	
 	private void commitTarget() {
 		if (controlHelper.isConnected()) {
-			slider.setEnabled(false);
+			if (slider != null) {
+				slider.setEnabled(false);
+			}
 			final ISicsController setpointController = 
 					SicsManager.getSicsModel().findController(setpointPath);
 			if (setpointController instanceof DynamicController) {
@@ -260,8 +262,10 @@ public class SimpleControlSuite {
 			
 			@Override
 			public void run() {
-				slider.setSelection(50);
-				slider.setEnabled(true);
+				if (slider != null) {
+					slider.setSelection(50);
+					slider.setEnabled(true);
+				}
 			}
 		});
 	}

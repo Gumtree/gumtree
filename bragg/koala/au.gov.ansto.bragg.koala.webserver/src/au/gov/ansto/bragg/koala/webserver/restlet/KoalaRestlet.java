@@ -1,12 +1,5 @@
 package au.gov.ansto.bragg.koala.webserver.restlet;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
-
-import javax.imageio.ImageIO;
-
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
@@ -27,26 +20,26 @@ public class KoalaRestlet extends Restlet {
 	
 
 	private static final String GUMTREE_IMAGE_FILE = "gumtree.server.imageFile";
-	private static final String JAVA_IMAGEIO_CACHE = "java.imageio.cache";
-	private static final String DEFAULT_QUERY = "open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO&open_annotations=ENABLE";
+//	private static final String JAVA_IMAGEIO_CACHE = "java.imageio.cache";
+//	private static final String DEFAULT_QUERY = "open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO&open_annotations=ENABLE";
 
-	private ImageCache imageCache;
+//	private ImageCache imageCache;
 	
-	private Map<String, HMMCache> imagedataCache;
+//	private Map<String, HMMCache> imagedataCache;
 	
-	private Lock fetchLock;
+//	private Lock fetchLock;
 	
 
 	public KoalaRestlet() {
-		String cacheDir = System.getProperty(JAVA_IMAGEIO_CACHE);
-		if (cacheDir != null && cacheDir != "null") {
-			try {
-				ImageIO.setCacheDirectory(new File(cacheDir));
-			} catch (Exception e) {
-				logger.error("failed to set ImageIO cache directory");
-			}
-		}
-		imagedataCache = new HashMap<String, HMMCache>();
+//		String cacheDir = System.getProperty(JAVA_IMAGEIO_CACHE);
+//		if (cacheDir != null && cacheDir != "null") {
+//			try {
+//				ImageIO.setCacheDirectory(new File(cacheDir));
+//			} catch (Exception e) {
+//				logger.error("failed to set ImageIO cache directory");
+//			}
+//		}
+//		imagedataCache = new HashMap<String, HMMCache>();
 	}
 
 	public void handle(Request request, Response response) {
@@ -117,34 +110,34 @@ public class KoalaRestlet extends Restlet {
 //		}
 //	}
 	
-	class ImageCache {
-		long timestamp;
-		byte[] imagedata;
-		Comparable<?> key;
+//	class ImageCache {
+//		long timestamp;
+//		byte[] imagedata;
+//		Comparable<?> key;
+//
+//		ImageCache(byte[] imagedata, Comparable<?> key) {
+//			this.imagedata = imagedata;
+//			this.key = key;
+//			timestamp = System.currentTimeMillis();
+//		}
+//
+//		boolean isExpired() {
+//			return System.currentTimeMillis() > (timestamp + 1000 * 5);
+//		}
+//	}
 
-		ImageCache(byte[] imagedata, Comparable<?> key) {
-			this.imagedata = imagedata;
-			this.key = key;
-			timestamp = System.currentTimeMillis();
-		}
-
-		boolean isExpired() {
-			return System.currentTimeMillis() > (timestamp + 1000 * 5);
-		}
-	}
-
-	class HMMCache {
-		long timestamp;
-		byte[] imagedata;
-		String uri;
-		HMMCache(long timestamp, byte[] imagedata, String uri) {
-			this.timestamp = timestamp;
-			this.imagedata = imagedata;
-			this.uri = uri;
-		}
-		boolean isExpired() {
-			return System.currentTimeMillis() > (timestamp + 5000);  
-		}
-	}
+//	class HMMCache {
+//		long timestamp;
+//		byte[] imagedata;
+//		String uri;
+//		HMMCache(long timestamp, byte[] imagedata, String uri) {
+//			this.timestamp = timestamp;
+//			this.imagedata = imagedata;
+//			this.uri = uri;
+//		}
+//		boolean isExpired() {
+//			return System.currentTimeMillis() > (timestamp + 5000);  
+//		}
+//	}
 
 }

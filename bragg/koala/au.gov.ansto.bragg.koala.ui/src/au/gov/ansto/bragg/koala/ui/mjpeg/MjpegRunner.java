@@ -87,7 +87,9 @@ public class MjpegRunner implements Runnable {
 						viewer.setImageBytes(null);
 			        	viewer.stop();
 			        	try {
-			                urlStream.close();
+			        		if ( urlStream != null) {
+			        			urlStream.close();
+			        		}
 			            } catch (IOException ioe) {
 			                System.err.println("Failed to close the stream: " + ioe);
 			            }

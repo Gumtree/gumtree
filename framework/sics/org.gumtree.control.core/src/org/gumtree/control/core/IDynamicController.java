@@ -25,4 +25,5 @@ public interface IDynamicController extends ISicsController {
 	
 	void refreshValue() throws SicsException;
 	
+	void asyncCommitTarget() throws SicsException;
 }
