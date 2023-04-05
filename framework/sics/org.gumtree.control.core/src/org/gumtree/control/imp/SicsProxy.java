@@ -116,6 +116,7 @@ public class SicsProxy implements ISicsProxy {
 							channel.syncPoch();
 						} catch (SicsCommunicationException e) {
 							isBroken = true;
+							disconnect();
 							fireConnectionBrokenEvent();
 						} catch (Exception e) {
 						}
