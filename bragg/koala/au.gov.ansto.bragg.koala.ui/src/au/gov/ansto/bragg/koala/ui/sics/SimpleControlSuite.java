@@ -73,48 +73,22 @@ public class SimpleControlSuite {
 		ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 			
 			@Override
-			public void connect() {
-				final ISicsController currentController = SicsManager.getSicsModel().findController(currentPath);
-				if (currentController != null) {
-					if (currentController instanceof DynamicController) {
-						try {
-							final Object value = ((DynamicController) currentController).getValue();
-							Display.getDefault().asyncExec(new Runnable() {
-								
-								@Override
-								public void run() {
-									currentControl.setText(value.toString());
-								}
-							});
-						} catch (Exception e) {
-						}
-					}
-					currentController.addControllerListener(new CurrentControllerListener());
-				}
-				
-				final ISicsController setpointController = SicsManager.getSicsModel().findController(targetPath);
-				if (setpointController != null) {
-					if (setpointController instanceof DynamicController) {
-						try {
-							final Object value = ((DynamicController) setpointController).getTargetValue().getSicsString();
-							Display.getDefault().asyncExec(new Runnable() {
-								
-								@Override
-								public void run() {
-									try {
-										setpointControl.setText(value.toString());
-										targetValue = Float.valueOf(value.toString());
-									} catch (Exception e) {
-										targetValue = Float.NaN;
-									}
-								}
-							});
-						} catch (Exception e) {
-						}
-					}
-					setpointController.addControllerListener(new TargetControllerListener());
-				}
+			public void modelUpdated() {
+				initialise();
 			}
+			
+			@Override
+			public void disconnect() {
+				Display.getDefault().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						currentControl.setText("");
+						setpointControl.setText("");
+					}
+				});
+			}
+			
 		};
 		
 		controlHelper.addProxyListener(proxyListener);
@@ -183,6 +157,49 @@ public class SimpleControlSuite {
 				public void mouseDoubleClick(MouseEvent e) {
 				}
 			});
+		}
+	}
+	
+	private void initialise() {
+		final ISicsController currentController = SicsManager.getSicsModel().findController(currentPath);
+		if (currentController != null) {
+			if (currentController instanceof DynamicController) {
+				try {
+					final Object value = ((DynamicController) currentController).getValue();
+					Display.getDefault().asyncExec(new Runnable() {
+						
+						@Override
+						public void run() {
+							currentControl.setText(value.toString());
+						}
+					});
+				} catch (Exception e) {
+				}
+			}
+			currentController.addControllerListener(new CurrentControllerListener());
+		}
+		
+		final ISicsController setpointController = SicsManager.getSicsModel().findController(setpointPath);
+		if (setpointController != null) {
+			if (setpointController instanceof DynamicController) {
+				try {
+					final Object value = ((DynamicController) setpointController).getTargetValue().getSicsString();
+					Display.getDefault().asyncExec(new Runnable() {
+						
+						@Override
+						public void run() {
+							try {
+								setpointControl.setText(value.toString());
+								targetValue = Float.valueOf(value.toString());
+							} catch (Exception e) {
+								targetValue = Float.NaN;
+							}
+						}
+					});
+				} catch (Exception e) {
+				}
+			}
+			setpointController.addControllerListener(new TargetControllerListener());
 		}
 	}
 	

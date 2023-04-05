@@ -49,4 +49,5 @@ public interface ISicsController {
 	
 	ISicsController getChild(String childName);
 	
+	void dispose();
 }

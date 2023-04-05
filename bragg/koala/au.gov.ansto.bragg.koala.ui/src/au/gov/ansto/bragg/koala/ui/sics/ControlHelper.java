@@ -189,31 +189,65 @@ public class ControlHelper {
 	}
 	
 	public void observePath(final String path, final Label currentControl, final Text targetControl) {
-		final ISicsControllerListener listener = new ControllerListener(currentControl, targetControl);
-		final ISicsController controller = SicsManager.getSicsModel().findController(path);
-		if (controller != null) {
-			controller.addControllerListener(listener);
-		}
-		targetControl.addDisposeListener(new DisposeListener() {
-			
-			@Override
-			public void widgetDisposed(final DisposeEvent e) {
-				controller.removeControllerListener(listener);
+		if (isConnected()) {
+			final ISicsControllerListener listener = new ControllerListener(currentControl, targetControl);
+			final ISicsController controller = SicsManager.getSicsModel().findController(path);
+			if (controller != null) {
+				controller.addControllerListener(listener);
 			}
-		});
+			targetControl.addDisposeListener(new DisposeListener() {
+				
+				@Override
+				public void widgetDisposed(final DisposeEvent e) {
+					controller.removeControllerListener(listener);
+				}
+			});
+		}
 		getProxy().addProxyListener(new SicsProxyListenerAdapter() {
 			
 			@Override
-			public void connect() {
-				if (controller instanceof IDynamicController) {
-					try {
-						Object value = ((IDynamicController) controller).getValue();
-						currentControl.setText(String.valueOf(value));
-					} catch (SicsModelException e) {
-						e.printStackTrace();
-					}
+			public void modelUpdated() {
+//				if (controller instanceof IDynamicController) {
+//					try {
+//						Object value = ((IDynamicController) controller).getValue();
+//						currentControl.setText(String.valueOf(value));
+//					} catch (SicsModelException e) {
+//						e.printStackTrace();
+//					}
+//				}
+				final ISicsControllerListener listener = new ControllerListener(currentControl, targetControl);
+				final ISicsController controller = SicsManager.getSicsModel().findController(path);
+				if (controller != null) {
+					controller.addControllerListener(listener);
 				}
+				targetControl.addDisposeListener(new DisposeListener() {
+					
+					@Override
+					public void widgetDisposed(final DisposeEvent e) {
+						controller.removeControllerListener(listener);
+					}
+				});
 			}
+			
+			@Override
+			public void disconnect() {
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						try {
+							if (currentControl != null) {
+								currentControl.setText("unknown");
+							}
+							if (targetControl != null) {
+								targetControl.setText("");
+							}
+						} catch (Exception e) {
+						}
+					}
+				});
+			}
+			
 		});
 	}
 	

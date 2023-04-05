@@ -678,16 +678,41 @@ public class InitScanPanel extends AbstractControlPanel {
 		private ISicsController stepController;
 		
 		public ConditionControl() {
-			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
-				
-				@Override
-				public void connect() {
-					init();
-				}
-			};
 			if (controlHelper.isConnected()) {
 				init();
 			}
+			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
+				
+				@Override
+				public void modelUpdated() {
+					init();
+				}
+				
+				@Override
+				public void disconnect() {
+					Display.getDefault().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							try {
+								if (phiText != null) {
+									phiText.setText("");
+								}
+								if (chiText != null) {
+									chiText.setText("");
+								}
+								if (tempText != null) {
+									tempText.setText("");
+								}
+								if (stepText != null) {
+									stepText.setText("");
+								}
+							} catch (Exception e) {
+							}
+						}
+					});
+				}
+			};
 			controlHelper.addProxyListener(proxyListener);
 		}
 		

@@ -45,8 +45,9 @@ public class BeamStopController {
 				
 				@Override
 				public void modelUpdated() {
-//					setupStateMonListener();
+					setupStateMonListener();
 				}
+				
 			});
 		} else {
 			setupStateMonListener();

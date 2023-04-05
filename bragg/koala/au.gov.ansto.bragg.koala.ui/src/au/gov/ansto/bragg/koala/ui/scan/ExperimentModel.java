@@ -235,19 +235,36 @@ public class ExperimentModel {
 		private ISicsController userController;
 		
 		public UserControl() {
+			if (controlHelper.isConnected()) {
+				initialise();
+			}
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void connect() {
-					userController = SicsManager.getSicsModel().findControllerByPath(
-							System.getProperty(ControlHelper.GUMTREE_USER_NAME));
+				public void modelUpdated() {
+					initialise();
 				}
+				
+				@Override
+				public void disconnect() {
+					userController = null;
+				}
+				
 			};
 			controlHelper.addProxyListener(proxyListener);
 		}
 		
+		private void initialise() {
+			userController = SicsManager.getSicsModel().findControllerByPath(
+					System.getProperty(ControlHelper.GUMTREE_USER_NAME));
+		}
+		
 		public void applyChange() throws SicsException {
-			((DynamicController) userController).setValue(username);
+			if (userController != null) {
+				((DynamicController) userController).setValue(username);
+			} else {
+				throw new SicsException("SICS is not connected");
+			}
 		}
 	}
 

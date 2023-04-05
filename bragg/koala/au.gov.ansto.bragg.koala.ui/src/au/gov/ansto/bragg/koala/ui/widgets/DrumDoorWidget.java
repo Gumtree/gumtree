@@ -141,7 +141,7 @@ public class DrumDoorWidget extends ExtendedWidgetComposite {
 			}
 			
 			@Override
-			public void connect() {
+			public void modelUpdated() {
 				handleSicsConnect();
 			}
 

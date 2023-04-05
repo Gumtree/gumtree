@@ -218,27 +218,35 @@ public class ScanStatusPart {
 		ISicsController gumtreeStatusController;
 //		ISicsController gumtreeTimeController;
 		
-		boolean initialised = false;
-		
 		public StatusControl() {
 			
 			if (controlHelper.isConnected()) {
-				initControllers();
+				initialise();
 			}
 			
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void connect() {
-					if (!initialised) {
-						initControllers();
-					}
+				public void modelUpdated() {
+					initialise();
 				}
+				
+				@Override
+				public void disconnect() {
+					Display.getDefault().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							setStatusText(proLabel, "");
+						}
+					});
+				}
+				
 			};
 			controlHelper.addProxyListener(proxyListener);
 		}
 		
-		public void initControllers() {
+		public void initialise() {
 
 //			phaseController = SicsManager.getSicsModel().findController(
 //					System.getProperty(ControlHelper.PHASE_PATH));
@@ -307,7 +315,6 @@ public class ScanStatusPart {
 					}
 				}
 			});
-			initialised = true;
 		}
 	}
 	

@@ -413,40 +413,52 @@ public class CrystalPanelMore extends AbstractControlPanel {
 	class ChiControlSuite {
 		
 		public ChiControlSuite() {
+			if (controlHelper.isConnected()) {
+				initialise();
+			}
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void connect() {
-					final ISicsController chiController = SicsManager.getSicsModel().findController(
-							System.getProperty(ControlHelper.SAMPLE_CHI));
-					if (chiController != null) {
-						if (chiController instanceof DriveableController) {
-							try {
-								float value = (Float) ((DriveableController) chiController).getValue();
-								double precision = ((DriveableController) chiController).getPrecision();
-								if (Double.isNaN(precision)) {
-									precision = 0;
-								} else {
-									precision = Math.abs(precision);
-								}
-								if (inRange(value, precision, 0)) {
-									chooseRange(chiZeroButton);
-								} else if (inRange(value, precision, 90)) {
-									chooseRange(chiHighButton);
-								} else {
-									chooseRange(null);
-								}
-							} catch (SicsModelException e) {
-							}
-							
-							chiController.addControllerListener(
-									new ChiControllerListener((DriveableController) chiController));
-						}
-					}
-
+				public void modelUpdated() {
+					initialise();
 				}
+				
+				@Override
+				public void disconnect() {
+					chooseRange(null);
+				}
+				
 			};
 			controlHelper.addProxyListener(proxyListener);
+		}
+		
+		private void initialise() {
+			final ISicsController chiController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.SAMPLE_CHI));
+			if (chiController != null) {
+				if (chiController instanceof DriveableController) {
+					try {
+						float value = (Float) ((DriveableController) chiController).getValue();
+						double precision = ((DriveableController) chiController).getPrecision();
+						if (Double.isNaN(precision)) {
+							precision = 0;
+						} else {
+							precision = Math.abs(precision);
+						}
+						if (inRange(value, precision, 0)) {
+							chooseRange(chiZeroButton);
+						} else if (inRange(value, precision, 90)) {
+							chooseRange(chiHighButton);
+						} else {
+							chooseRange(null);
+						}
+					} catch (SicsModelException e) {
+					}
+					
+					chiController.addControllerListener(
+							new ChiControllerListener((DriveableController) chiController));
+				}
+			}
 		}
 	}
 

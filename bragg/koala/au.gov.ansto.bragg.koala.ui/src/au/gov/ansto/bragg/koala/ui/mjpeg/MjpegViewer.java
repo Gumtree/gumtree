@@ -1006,43 +1006,55 @@ public class MjpegViewer extends Composite {
 		
 		public LightSourceHelper() {
 			if (controlHelper.isConnected()) {
-				final ISicsController ledController = SicsManager.getSicsModel().findController(
-						System.getProperty(ControlHelper.LED_PATH));	
-				ledController.addControllerListener(
-						new LedControllerListener());
+				initialise();
 			}
 			ISicsProxyListener proxyLedListener = new SicsProxyListenerAdapter() {
 
 				@Override
-				public void connect() {
-					final ISicsController ledController = SicsManager.getSicsModel().findController(
-							System.getProperty(ControlHelper.LED_PATH));	
-					if (ledController != null) {
-						if (ledController instanceof DynamicController) {
-							try {
-								final float value = Float.valueOf(((DynamicController) ledController).getValue().toString());
-								Display.getDefault().asyncExec(new Runnable() {
-									
-									@Override
-									public void run() {
-										if (value == 1) {
-											ledButton.setSelection(true);
-										} else {
-											ledButton.setSelection(false);
-										}
-									}
-								});
-							} catch (SicsModelException e) {
-							}
-
-							ledController.addControllerListener(
-									new LedControllerListener());
-						}
-					}
-
+				public void modelUpdated() {
+					initialise();
 				}
+				
+				@Override
+				public void disconnect() {
+					Display.getDefault().asyncExec(new Runnable() {
+						
+						@Override
+						public void run() {
+							ledButton.setSelection(false);
+						}
+					});
+				}
+				
 			};
 			controlHelper.addProxyListener(proxyLedListener);
+		}
+		
+		private void initialise() {
+			final ISicsController ledController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.LED_PATH));	
+			if (ledController != null) {
+				if (ledController instanceof DynamicController) {
+					try {
+						final float value = Float.valueOf(((DynamicController) ledController).getValue().toString());
+						Display.getDefault().asyncExec(new Runnable() {
+							
+							@Override
+							public void run() {
+								if (value == 1) {
+									ledButton.setSelection(true);
+								} else {
+									ledButton.setSelection(false);
+								}
+							}
+						});
+					} catch (SicsModelException e) {
+					}
+
+					ledController.addControllerListener(
+							new LedControllerListener());
+				}
+			}
 		}
 	}
 	
@@ -1089,35 +1101,48 @@ public class MjpegViewer extends Composite {
 	class SzHelper {
 		public SzHelper() {
 			if (controlHelper.isConnected()) {
-				final ISicsController szController = SicsManager.getSicsModel().findController(
-						System.getProperty(ControlHelper.SZ_PATH));	
-				szController.addControllerListener(
-						new DrumZControllerListener());
+//				final ISicsController szController = SicsManager.getSicsModel().findController(
+//						System.getProperty(ControlHelper.SZ_PATH));	
+//				szController.addControllerListener(
+//						new DrumZControllerListener());
+				initialise();
 			}
 			ISicsProxyListener proxySzListener = new SicsProxyListenerAdapter() {
 
 				@Override
-				public void connect() {
-					final ISicsController szController = SicsManager.getSicsModel().findController(
-							System.getProperty(ControlHelper.SZ_PATH));	
-					if (szController != null) {
-						if (szController instanceof DynamicController) {
-							try {
-								final float value = Float.valueOf(((DynamicController) szController
-										).getValue().toString());
-								setZOffset(value);
-							} catch (SicsModelException e) {
-							} catch (KoalaModelException e) {
-								e.printStackTrace();
-							}
-
-							szController.addControllerListener(new SzControllerListener());
-						}
-					}
-
+				public void modelUpdated() {
+					initialise();
 				}
+				
+				@Override
+				public void disconnect() {
+					try {
+						setZOffset(Float.MAX_VALUE);
+					} catch (KoalaModelException e) {
+					}
+				}
+				
 			};
 			controlHelper.addProxyListener(proxySzListener);
+		}
+		
+		private void initialise() {
+			final ISicsController szController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.SZ_PATH));	
+			if (szController != null) {
+				if (szController instanceof DynamicController) {
+					try {
+						final float value = Float.valueOf(((DynamicController) szController
+								).getValue().toString());
+						setZOffset(value);
+					} catch (SicsModelException e) {
+					} catch (KoalaModelException e) {
+						e.printStackTrace();
+					}
+					szController.addControllerListener(new SzControllerListener());
+				}
+			}
+
 		}
 	}
 	
@@ -1158,44 +1183,54 @@ public class MjpegViewer extends Composite {
 		
 		public DrumZHelper() {
 			if (controlHelper.isConnected()) {
-				final ISicsController drumController = SicsManager.getSicsModel().findController(
-						System.getProperty(ControlHelper.DRUM_PATH));	
-				drumController.addControllerListener(
-						new DrumZControllerListener());
+				initialise();
 			}
 			ISicsProxyListener proxyDrumZListener = new SicsProxyListenerAdapter() {
 
 				@Override
-				public void connect() {
-					final ISicsController drumZController = SicsManager.getSicsModel().findController(
-							System.getProperty(ControlHelper.DRUM_PATH));	
-					if (drumZController != null) {
-						if (drumZController instanceof DynamicController) {
-							try {
-								final float value = Float.valueOf(((DynamicController) drumZController).getValue().toString());
-								final float limit = Float.valueOf(System.getProperty(ControlHelper.DRUM_DOWN_VALUE));
-								Display.getDefault().asyncExec(new Runnable() {
-									
-									@Override
-									public void run() {
-										if (value > limit + 1) {
-											drumButton.setEnabled(true);
-										} else {
-											drumButton.setEnabled(false);
-										}
-									}
-								});
-							} catch (SicsModelException e) {
-							}
-
-							drumZController.addControllerListener(
-									new LedControllerListener());
+				public void modelUpdated() {
+					initialise();
+				}
+				
+				@Override
+				public void disconnect() {
+					Display.getDefault().asyncExec(new Runnable() {
+						
+						@Override
+						public void run() {
+							drumButton.setEnabled(false);
 						}
-					}
-
+					});
 				}
 			};
 			controlHelper.addProxyListener(proxyDrumZListener);
+		}
+		
+		private void initialise() {
+			final ISicsController drumZController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.DRUM_PATH));	
+			if (drumZController != null) {
+				if (drumZController instanceof DynamicController) {
+					try {
+						final float value = Float.valueOf(((DynamicController) drumZController).getValue().toString());
+						final float limit = Float.valueOf(System.getProperty(ControlHelper.DRUM_DOWN_VALUE));
+						Display.getDefault().asyncExec(new Runnable() {
+							
+							@Override
+							public void run() {
+								if (value > limit + 1) {
+									drumButton.setEnabled(true);
+								} else {
+									drumButton.setEnabled(false);
+								}
+							}
+						});
+					} catch (SicsModelException e) {
+					}
+
+					drumZController.addControllerListener(new LedControllerListener());
+				}
+			}
 		}
 	}
 	
@@ -1235,49 +1270,62 @@ public class MjpegViewer extends Composite {
 	class PhiControlSuite {
 		
 		public PhiControlSuite() {
+			if (controlHelper.isConnected()) {
+				initialise();
+			}
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void connect() {
-					final ISicsController phiController = SicsManager.getSicsModel().findController(
-							System.getProperty(ControlHelper.SAMPLE_PHI));
-					if (phiController != null) {
-						if (phiController instanceof DriveableController) {
-							try {
-								float value = (Float) ((DriveableController) phiController).getValue();
-								double precision = ((DriveableController) phiController).getPrecision();
-								if (Double.isNaN(precision)) {
-									precision = 0;
-								} else {
-									precision = Math.abs(precision);
-								}
-								if (inRange(value, precision, -45)) {
-									chooseRange(phiNWButton);
-									setTitle(-45);
-								} else if (inRange(value, precision, 45)) {
-									chooseRange(phiNEButton);
-									setTitle(45);
-								} else if (inRange(value, precision, -135)) {
-									chooseRange(phiSWButton);
-									setTitle(-135);
-								} else if (inRange(value, precision, 135)) {
-									chooseRange(phiSEButton);
-									setTitle(135);
-								} else {
-									chooseRange(null);
-									setTitle(-1);
-								}
-							} catch (SicsModelException e) {
-							}
-							
-							phiController.addControllerListener(
-									new PhiControllerListener((DriveableController) phiController));
-						}
-					}
-
+				public void modelUpdated() {
+					initialise();
+				}
+				
+				@Override
+				public void disconnect() {
+					chooseRange(null);
+					setTitle(-1);
 				}
 			};
 			controlHelper.addProxyListener(proxyListener);
+		}
+		
+		private void initialise() {
+			final ISicsController phiController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.SAMPLE_PHI));
+			if (phiController != null) {
+				if (phiController instanceof DriveableController) {
+					try {
+						float value = (Float) ((DriveableController) phiController).getValue();
+						double precision = ((DriveableController) phiController).getPrecision();
+						if (Double.isNaN(precision)) {
+							precision = 0;
+						} else {
+							precision = Math.abs(precision);
+						}
+						if (inRange(value, precision, -45)) {
+							chooseRange(phiNWButton);
+							setTitle(-45);
+						} else if (inRange(value, precision, 45)) {
+							chooseRange(phiNEButton);
+							setTitle(45);
+						} else if (inRange(value, precision, -135)) {
+							chooseRange(phiSWButton);
+							setTitle(-135);
+						} else if (inRange(value, precision, 135)) {
+							chooseRange(phiSEButton);
+							setTitle(135);
+						} else {
+							chooseRange(null);
+							setTitle(-1);
+						}
+					} catch (SicsModelException e) {
+					}
+					
+					phiController.addControllerListener(
+							new PhiControllerListener((DriveableController) phiController));
+				}
+			}
+
 		}
 	}
 

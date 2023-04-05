@@ -34,4 +34,6 @@ public interface ISicsModel {
 	ModelStatus getStatus();
 	
 	SICS getBase();
+	
+	void dispose();
 }

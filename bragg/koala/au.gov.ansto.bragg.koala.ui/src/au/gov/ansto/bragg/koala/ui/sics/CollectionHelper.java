@@ -46,7 +46,6 @@ public class CollectionHelper {
 	private int exposure;
 	private boolean isBusy;
 	private boolean isStarted;
-	private boolean initialised;
 	private IDynamicController stateController;
 	private IDynamicController errorController;
 	private IDynamicController tiffStatusController;
@@ -92,11 +91,15 @@ public class CollectionHelper {
 		ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 			
 			@Override
-			public void connect() {
-				if (!initialised) {
-					initControllers();
-				}
+			public void modelUpdated() {
+				initControllers();
 			}
+			
+			@Override
+			public void disconnect() {
+				setState(InstrumentPhase.ERROR.getText());
+			}
+			
 		};
 		ControlHelper.getProxy().addProxyListener(proxyListener);
 		
@@ -149,7 +152,6 @@ public class CollectionHelper {
 			public void updateEnabled(boolean isEnabled) {
 			}
 		});
-		initialised = true;
 	}
 	
 	private void setState(final String stateValue) {
@@ -495,9 +497,19 @@ public class CollectionHelper {
 				ControlHelper.getProxy().addProxyListener(new SicsProxyListenerAdapter() {
 					
 					@Override
-					public void connect() {
+					public void modelUpdated() {
 						initController();
 					}
+					
+					@Override
+					public void disconnect() {
+						sensorController = null;
+						startController = null;
+						endController = null;
+						maxController = null;
+						minController = null;
+					}
+					
 				});
 			}
 		}

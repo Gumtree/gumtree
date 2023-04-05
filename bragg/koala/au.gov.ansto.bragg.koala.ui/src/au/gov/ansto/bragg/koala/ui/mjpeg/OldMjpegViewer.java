@@ -644,44 +644,56 @@ public class OldMjpegViewer extends Composite {
 	class PhiControlSuite {
 		
 		public PhiControlSuite() {
+			if (controlHelper.isConnected()) {
+				initialise();
+			}
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void connect() {
-					final ISicsController phiController = SicsManager.getSicsModel().findController(
-							System.getProperty(ControlHelper.SAMPLE_PHI));
-					if (phiController != null) {
-						if (phiController instanceof DriveableController) {
-							try {
-								float value = (Float) ((DriveableController) phiController).getValue();
-								double precision = ((DriveableController) phiController).getPrecision();
-								if (Double.isNaN(precision)) {
-									precision = 0;
-								} else {
-									precision = Math.abs(precision);
-								}
-								if (inRange(value, precision, 90)) {
-									chooseRange(phiNButton);
-								} else if (inRange(value, precision, -90)) {
-									chooseRange(phiSButton);
-								} else if (inRange(value, precision, 0)) {
-									chooseRange(phiEButton);
-								} else if (inRange(value, precision, -180)) {
-									chooseRange(phiWButton);
-								} else {
-									chooseRange(null);
-								}
-							} catch (SicsModelException e) {
-							}
-							
-							phiController.addControllerListener(
-									new PhiControllerListener((DriveableController) phiController));
-						}
-					}
-
+				public void modelUpdated() {
+					initialise();
 				}
+				
+				@Override
+				public void disconnect() {
+					chooseRange(null);
+				}
+				
 			};
 			controlHelper.addProxyListener(proxyListener);
+		}
+		
+		private void initialise() {
+			final ISicsController phiController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.SAMPLE_PHI));
+			if (phiController != null) {
+				if (phiController instanceof DriveableController) {
+					try {
+						float value = (Float) ((DriveableController) phiController).getValue();
+						double precision = ((DriveableController) phiController).getPrecision();
+						if (Double.isNaN(precision)) {
+							precision = 0;
+						} else {
+							precision = Math.abs(precision);
+						}
+						if (inRange(value, precision, 90)) {
+							chooseRange(phiNButton);
+						} else if (inRange(value, precision, -90)) {
+							chooseRange(phiSButton);
+						} else if (inRange(value, precision, 0)) {
+							chooseRange(phiEButton);
+						} else if (inRange(value, precision, -180)) {
+							chooseRange(phiWButton);
+						} else {
+							chooseRange(null);
+						}
+					} catch (SicsModelException e) {
+					}
+					
+					phiController.addControllerListener(
+							new PhiControllerListener((DriveableController) phiController));
+				}
+			}
 		}
 	}
 

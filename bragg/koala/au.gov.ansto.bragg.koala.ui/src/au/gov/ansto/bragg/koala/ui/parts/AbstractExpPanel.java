@@ -852,11 +852,32 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void connect() {
-					if (!initialised) {
-						initControllers();
-					}
+				public void modelUpdated() {
+					initControllers();
 				}
+				
+				@Override
+				public void disconnect() {
+					Display.getDefault().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							try {
+								if (phiText != null) {
+									phiText.setText("");
+								}
+								if (tempText != null) {
+									tempText.setText("");
+								}
+								if (numText != null) {
+									numText.setText("");
+								}
+							} catch (Exception e) {
+							}
+						}
+					});
+				}
+				
 			};
 			controlHelper.addProxyListener(proxyListener);
 		}

@@ -21,6 +21,7 @@ import org.gumtree.control.events.ISicsMessageListener;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.exception.SicsCommunicationException;
 import org.gumtree.control.exception.SicsException;
+import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.SicsModel;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.JobRunner;
@@ -88,6 +89,7 @@ public class SicsProxy implements ISicsProxy {
 //			} catch (SicsException e) {
 //			}
 			getGumtreeXML();
+			
 			fireConnectionEvent(true);
 			
 			startMonitorThread();
@@ -145,9 +147,9 @@ public class SicsProxy implements ISicsProxy {
 //		try {
 		serverStatus = ServerStatus.parseStatus(channel.syncSend("status", null));
 
-		if (sicsModel == null) {
+//		if (sicsModel == null) {
 			getGumtreeXML();
-		}
+//		}
 
 		fireConnectionEvent(true);
 		isBroken = false;
@@ -375,53 +377,44 @@ public class SicsProxy implements ISicsProxy {
 		}
 	}
 	
-	public synchronized void getGumtreeXML() {
-		if (sicsModel == null) {
+	public synchronized void getGumtreeXML() throws SicsException {
+//		if (sicsModel == null) {
+			if (sicsModel != null) {
+				sicsModel.dispose();
+				sicsModel = null;
+			}
 			try {
 				String msg = channel.syncSend("getgumtreexml /", null);
 				if (msg != null) {
 					int idx = msg.indexOf("<");
 					msg = msg.substring(idx);
-	//				try {
-	//		            Files.write(Paths.get("C:\\Gumtree\\docs\\GumtreeXML\\new.xml"), msg.getBytes("UTF-8"));
-	//		        } catch (IOException e) {
-	//		            e.printStackTrace();
-	//		        }
 					sicsModel = new SicsModel(this);
 					sicsModel.loadFromString(msg);
+					fireModelUpdatedEvent();
 				}
-			} catch (SicsException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new SicsModelException("failed to interpret SICS model text");
 			}
-		}
+//		}
 	}
 	
-	public synchronized void updateGumtreeXML() {
+	public synchronized void updateGumtreeXML() throws SicsException {
 		try {
 			String msg = channel.syncSend("getgumtreexml /", null);
 			if (msg != null) {
 				int idx = msg.indexOf("<");
 				msg = msg.substring(idx);
-//				try {
-//		            Files.write(Paths.get("C:\\Gumtree\\docs\\GumtreeXML\\new.xml"), msg.getBytes("UTF-8"));
-//		        } catch (IOException e) {
-//		            e.printStackTrace();
-//		        }
+				if (sicsModel != null) {
+					sicsModel.dispose();
+				}
 				sicsModel = new SicsModel(this);
 				sicsModel.loadFromString(msg);
+				fireModelUpdatedEvent();
 			}
-		} catch (SicsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SicsModelException("failed to interpret SICS model text");
+		} finally {
 		}
-		fireModelUpdatedEvent();
 	}
 	@Override
 	public synchronized ISicsModel getSicsModel() {

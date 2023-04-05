@@ -114,9 +114,9 @@ public class AdminPanel extends AbstractPanel {
 		}
 		
 		mainPart.getControl().addProxyListener(new SicsProxyListenerAdapter() {
+			
 			@Override
-			public void connect() {
-				// TODO Auto-generated method stub
+			public void modelUpdated() {
 				super.connect();
 				Display.getDefault().asyncExec(new Runnable() {
 					
@@ -155,6 +155,23 @@ public class AdminPanel extends AbstractPanel {
 					}
 				});
 			}
+			
+			@Override
+			public void disconnect() {
+				Display.getDefault().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						if (controlViewer != null && !controlViewer.isDisposed()) {
+							controlViewer.dispose();
+						}
+						if (filterViewer != null && !filterViewer.isDisposed()) {
+							filterViewer.dispose();
+						}
+					}
+				});
+			}
+			
 		});
 	}
 

@@ -61,12 +61,16 @@ public class SicsController implements ISicsController {
 
 	@Override
 	public void addControllerListener(ISicsControllerListener listener) {
-		listeners.add(listener);
+		synchronized (listeners) {
+			listeners.add(listener);
+		}
 	}
 
 	@Override
 	public void removeControllerListener(ISicsControllerListener listener) {
-		listeners.remove(listener);
+		synchronized (listeners) {
+			listeners.remove(listener);
+		}
 	}
 
 	protected List<ISicsControllerListener> getListeners() {
@@ -74,14 +78,18 @@ public class SicsController implements ISicsController {
 	}
 	
 	protected void fireStateChangeEvent(ControllerState oldState, ControllerState newState) {
-		for (ISicsControllerListener listener : listeners) {
-			listener.updateState(oldState, newState);
+		synchronized (listeners) {
+			for (ISicsControllerListener listener : listeners) {
+				listener.updateState(oldState, newState);
+			}
 		}
 	}
 	
 	protected void fireEnabedEvent() {
-		for (ISicsControllerListener listener : listeners) {
-			listener.updateEnabled(isEnabled());
+		synchronized (listeners) {
+			for (ISicsControllerListener listener : listeners) {
+				listener.updateEnabled(isEnabled());
+			}
 		}
 	}
 	
@@ -133,11 +141,28 @@ public class SicsController implements ISicsController {
 
 	@Override
 	public ISicsController getChild(String childName) {
-		for(ISicsController childController : childControllers) {
-			if(childController.getModel().getId().equals(childName)) {
-				return childController;
+		synchronized (childControllers) {
+			for(ISicsController childController : childControllers) {
+				if(childController.getModel().getId().equals(childName)) {
+					return childController;
+				}
 			}
 		}
 		return null;
+	}
+	
+	@Override
+	public void dispose() {
+		if (listeners != null) {
+			synchronized (listeners) {
+				listeners.clear();
+			}
+		}
+		synchronized (childControllers) {
+			for(ISicsController childController : childControllers) {
+				childController.dispose();
+			}
+			childControllers.clear();
+		}
 	}
 }

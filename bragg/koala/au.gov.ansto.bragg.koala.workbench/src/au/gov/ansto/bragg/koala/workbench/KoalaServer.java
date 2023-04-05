@@ -187,7 +187,7 @@ public class KoalaServer {
         
         histmemServer = new HistmemServer();
         
-        executor = Executors.newFixedThreadPool(10);
+        executor = Executors.newFixedThreadPool(20);
 	}
 	
 	private void respond(String client, String message) {

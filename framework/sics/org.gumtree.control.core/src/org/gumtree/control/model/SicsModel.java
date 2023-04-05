@@ -213,5 +213,14 @@ public class SicsModel implements ISicsModel {
 			return 0;
 		}
 	}
+	
+	@Override
+	public void dispose() {
+		List<ISicsController> childControllers = getControllerList();
+		for (ISicsController controller : childControllers) {
+			controller.dispose();
+		}
+		childControllers.clear();
+	}
 }
 
