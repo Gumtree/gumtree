@@ -42,6 +42,7 @@ public class SicsProxy implements ISicsProxy {
 	private ISicsChannel channel;
 	private ServerStatus serverStatus;
 	private IBatchControl batchControl;
+	private boolean isConnected;
 	private boolean isInterrupted;
     private boolean isBroken;
 	private ISicsModel sicsModel;
@@ -183,7 +184,8 @@ public class SicsProxy implements ISicsProxy {
 	 */
 	@Override
 	public boolean isConnected() {
-		return channel != null && channel.isConnected();
+//		return channel != null && channel.isConnected();
+		return isConnected;
 	}
 
 	@Override
@@ -291,6 +293,7 @@ public class SicsProxy implements ISicsProxy {
 	}
 	
 	private void fireConnectionEvent(boolean isConnected) {
+		this.isConnected = isConnected;
 		synchronized (proxyListeners) {
 			if (isConnected) {
 				for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
