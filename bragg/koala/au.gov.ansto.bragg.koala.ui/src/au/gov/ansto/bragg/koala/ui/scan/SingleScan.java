@@ -696,11 +696,12 @@ public class SingleScan {
 //			String source = String.valueOf(((IDynamicController) fnController).getValue());
 			String source = filename.replaceAll("/", "\\\\");
 			String lowSource;
+			String hiSource;
 			if (source.contains(File.separator)) {
-				source = System.getProperty(SOURCE_FOLDER) + File.separator + FOLDER_HIGHGAIN + source.substring(source.lastIndexOf(File.separator));
+				hiSource = System.getProperty(SOURCE_FOLDER) + File.separator + FOLDER_HIGHGAIN + source.substring(source.lastIndexOf(File.separator));
 				lowSource = System.getProperty(SOURCE_FOLDER) + File.separator + FOLDER_LOWGAIN + source.substring(source.lastIndexOf(File.separator));
 			} else {
-				source = System.getProperty(SOURCE_FOLDER) + File.separator + FOLDER_HIGHGAIN + File.separator + source;
+				hiSource = System.getProperty(SOURCE_FOLDER) + File.separator + FOLDER_HIGHGAIN + File.separator + source;
 				lowSource = System.getProperty(SOURCE_FOLDER) + File.separator + FOLDER_LOWGAIN + File.separator + source;
 			}
 			lowSource = lowSource.replaceAll(NAME_PREFIX_HIGHGAIN, NAME_PREFIX_LOWGAIN);
@@ -709,8 +710,8 @@ public class SingleScan {
 //			if (tn.startsWith(File.separator)) {
 //				tn = tn.substring(1);
 //			}
-			logger.warn(String.format("copy %s to %s", source, currentFile));
-			Files.copy((new File(source)).toPath(), currentFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			logger.warn(String.format("copy %s to %s", hiSource, currentFile));
+			Files.copy((new File(hiSource)).toPath(), currentFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			logger.warn(String.format("copy %s to %s", lowSource, currentLowFile));
 			Files.copy((new File(lowSource)).toPath(), currentLowFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			ControlHelper.experimentModel.setLastFilename(currentFile.getAbsolutePath());
