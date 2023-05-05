@@ -213,11 +213,17 @@ public class EnvironmentPanel extends AbstractPanel {
 								
 								@Override
 								public void updateValue(final Object oldValue, final Object newValue) {
-									if (newValue != null) {
-										valueText.setText(String.valueOf(newValue));
-									} else {
-										valueText.setText("");
-									}
+									Display.getDefault().asyncExec(new Runnable() {
+										
+										@Override
+										public void run() {
+											if (newValue != null) {
+												valueText.setText(String.valueOf(newValue));
+											} else {
+												valueText.setText("");
+											}
+										}
+									});
 								}
 								
 							});
@@ -226,11 +232,17 @@ public class EnvironmentPanel extends AbstractPanel {
 								
 								@Override
 								public void updateValue(final Object oldValue, final Object newValue) {
-									if (newValue != null) {
-										targetText.setText(String.valueOf(newValue));
-									} else {
-										targetText.setText("");
-									}
+									Display.getDefault().asyncExec(new Runnable() {
+										
+										@Override
+										public void run() {
+											if (newValue != null) {
+												targetText.setText(String.valueOf(newValue));
+											} else {
+												targetText.setText("");
+											}
+										}
+									});
 								}
 								
 							});
@@ -257,7 +269,12 @@ public class EnvironmentPanel extends AbstractPanel {
 					@Override
 					public void run() {
 						try {
-							((DynamicController) setpointController).setValue(targetValue);
+							if (setpointController instanceof DriveableController) {
+								((DriveableController) setpointController).setTargetValue(targetValue);
+								((DriveableController) setpointController).run();
+							} else {
+								((DynamicController) setpointController).setValue(targetValue);
+							}
 						} catch (final SicsException e1) {
 							e1.printStackTrace();
 							ControlHelper.experimentModel.publishErrorMessage(e1.getMessage());

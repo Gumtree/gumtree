@@ -27,6 +27,7 @@ import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsInterruptException;
 import org.gumtree.control.exception.SicsModelException;
+import org.gumtree.control.imp.DriveableController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.service.db.RemoteTextDbService;
 import org.slf4j.Logger;
@@ -129,8 +130,34 @@ public class ControlHelper {
 
 	public static void driveTemperature(float value) 
 			throws KoalaServerException, KoalaInterruptionException {
-		logger.warn(String.format("drive %s %f", TEMP_DEVICE_NAME, value));
-		syncDrive(TEMP_DEVICE_NAME, value);
+//		logger.warn(String.format("drive %s %f", TEMP_DEVICE_NAME, value));
+//		syncDrive(TEMP_DEVICE_NAME, value);
+		String pathValues = System.getProperty(ControlHelper.ENV_SETPOINT);
+		String[] paths = pathValues.split(",");
+		ISicsController controller = null;
+		for (int i = 0; i < paths.length; i++) {
+			controller = SicsManager.getSicsModel().findController(paths[i]);
+			if (controller != null) {
+				break;
+			}
+		}
+		final ISicsController targetController = controller;
+		
+		if (targetController != null) {
+			if (targetController instanceof DriveableController) {
+				logger.warn(String.format("drive %s %f", targetController.getDeviceId(), value));
+				try {
+					((DriveableController) targetController).drive();
+				} catch (SicsException e) {
+					logger.error("failed to drive " + targetController.getDeviceId(), e);
+					throw new KoalaServerException("falied to drive " + targetController.getDeviceId(), e);
+				}
+			} else {
+				throw new KoalaServerException("device " + targetController.getDeviceId() + " is not driveable");
+			}
+		} else {
+			throw new KoalaServerException("unable to find temperature controller");
+		}
 	}
 
 	public static void driveChi(float value) 
