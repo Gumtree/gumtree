@@ -135,9 +135,10 @@ public class MessageHandler {
 	}
 
 	private ISicsModel getModel() {
-		if (model == null) {
-			model = sicsProxy.getSicsModel();
-		}
-		return model;
+//		if (model == null) {
+//			model = sicsProxy.getSicsModel();
+//		}
+//		return model;
+		return sicsProxy.getSicsModel();
 	}
 }
