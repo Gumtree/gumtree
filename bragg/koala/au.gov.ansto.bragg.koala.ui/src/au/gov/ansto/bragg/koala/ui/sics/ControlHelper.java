@@ -390,8 +390,8 @@ public class ControlHelper {
 //			logger.warn("failed to publish finish time estimation");
 //		}
 		try {
-			asyncExec(String.format(String.format("hset %s %s", 
-					System.getProperty(ControlHelper.GUMTREE_TIME_PATH), String.valueOf(finishTime))));
+			asyncExec(String.format("hset %s %s", 
+					System.getProperty(ControlHelper.GUMTREE_TIME_PATH), String.valueOf(finishTime)));
 		} catch (KoalaServerException e) {
 			logger.error("failed to publish finish time estimation");
 		}
