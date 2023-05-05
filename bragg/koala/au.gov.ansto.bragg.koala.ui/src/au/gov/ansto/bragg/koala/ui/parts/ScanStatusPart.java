@@ -103,7 +103,7 @@ public class ScanStatusPart {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				logger.info("End Exposure button clicked");
+				logger.warn("End Exposure button clicked");
 				JobRunner.run(new ILoopExitCondition() {
 					
 					@Override
@@ -141,7 +141,7 @@ public class ScanStatusPart {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				logger.info("Abort Experiment button clicked");
+				logger.warn("Abort Experiment button clicked");
 				JobRunner.run(new ILoopExitCondition() {
 					
 					@Override

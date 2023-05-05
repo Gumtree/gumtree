@@ -414,6 +414,23 @@ public class CollectionHelper {
 					setCollectionPhase(InstrumentPhase.EXPOSE_ENDING, -1);
 				}
 				abortController.setValue(1);
+				if (stateController != null) {
+					try {
+						String stateValue = stateController.getValue().toString().toUpperCase();
+						ImageState state = ImageState.valueOf(stateValue);
+						if (ImageState.IDLE.equals(state)) {
+							if (reporter.isRunning()) {
+								reporter.end();
+							}
+							if (isBusy) {
+								setCollectionPhase(InstrumentPhase.IDLE, -1);
+								isBusy = false;
+							}
+						}
+					} catch (SicsModelException e) {
+						setState(ImageState.ERROR.name());
+					}
+				}
 			} catch (SicsException e) {
 				// TODO Auto-generated catch block
 				throw new KoalaServerException("failed to abort collection: " + e.getMessage());
