@@ -129,8 +129,12 @@ public class EnvironmentPanel extends AbstractPanel {
 						public void run() {
 							valueText.setText("");
 							targetText.setText("");
-							targetText.removeKeyListener(targetKeyListner);
-							runButton.removeSelectionListener(runButtonListener);
+							if (targetKeyListner != null) {
+								targetText.removeKeyListener(targetKeyListner);
+							}
+							if (runButtonListener != null) {
+								runButton.removeSelectionListener(runButtonListener);
+							}
 						}
 					});
 				}
