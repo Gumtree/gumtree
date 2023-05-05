@@ -329,6 +329,7 @@ public class CollectionHelper {
 //				logger.error("collection failed to start after 50 seconds");
 //				throw new KoalaServerException("timeout in starting the collection");
 				if (retry > 0) {
+					isBusy = false;
 					collect(exposure, retry - 1);
 					return;
 				} else {
