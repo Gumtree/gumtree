@@ -664,8 +664,9 @@ public class SingleScan {
 					ControlHelper.experimentModel.getSampleName(), 
 					getHtml());
 		} catch (Exception e) {
-			ControlHelper.experimentModel.publishErrorMessage(
-					"failed to publish scan result: " + e.getMessage());
+//			ControlHelper.experimentModel.publishErrorMessage(
+//					"failed to publish scan result: server is donw?");
+			logger.error("failed to publish scan result: server is donw?", e);
 		}
 	}
 	
@@ -1043,8 +1044,9 @@ public class SingleScan {
 				}
 			}
 		} else {
+			row.appendChild(cell);
 			cell = document.createElement("td");
-			cell.setTextContent("none");
+			cell.setTextContent("No file was recorded, check with the computing team");
 			row.appendChild(cell);
 			root.appendChild(row);
 		}
