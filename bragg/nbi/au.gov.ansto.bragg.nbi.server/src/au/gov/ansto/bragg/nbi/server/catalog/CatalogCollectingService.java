@@ -122,12 +122,13 @@ public class CatalogCollectingService {
 				}
 			});
 			Arrays.sort(newFiles);
+			logger.error("update " + newFiles.length + " files");
 			for (File file : newFiles) {
 				try {
-					logger.error(file.getPath());
+//					logger.error(file.getPath());
 					updateCatalog(file);
 				} catch (Exception e) {
-					logger.error(e.getMessage());
+					logger.error(file.getPath(), e);
 				}
 			}
 		}
@@ -168,8 +169,10 @@ public class CatalogCollectingService {
 			String currentProposal = proposalDb.findProposalId(sessionId);
 			CatalogDB catalogDb = CatalogDB.getInstance(currentProposal);
 			catalogDb.updateEntry(file.getName(), dict);
-			lastModifiedTimestamp = file.lastModified();
-			controlDb.addControlEntry(PREF_DBKEY_LASTMODIFIED, String.valueOf(lastModifiedTimestamp));
+			if (file.lastModified() > lastModifiedTimestamp) {
+				lastModifiedTimestamp = file.lastModified();
+				controlDb.addControlEntry(PREF_DBKEY_LASTMODIFIED, String.valueOf(lastModifiedTimestamp));
+			}
 		} finally {
 			if (ds != null) {
 				ds.close();
