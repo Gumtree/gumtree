@@ -12,7 +12,9 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -892,10 +894,19 @@ public class SingleScan {
 		root.setAttribute("cellspacing", "0");
 		root.setAttribute("style", "width:100%; text-align: center");
 		
-		Element header = document.createElement("tr");
-		
 		Element cell;
 		Element row;
+		row = document.createElement("tr");
+		cell = document.createElement("th");
+		Calendar now = Calendar.getInstance();
+		SimpleDateFormat timeFormat = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss");
+		cell.setTextContent(timeFormat.format(now.getTime()));
+		cell.setAttribute("colspan", "7");
+		row.appendChild(cell);
+		root.appendChild(row);
+		
+		Element header = document.createElement("tr");
+		
 		if (!getTarget().isPoints()) {
 			cell = document.createElement("th");
 			cell.setTextContent("Scan setup");
