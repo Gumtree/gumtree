@@ -252,9 +252,12 @@ def hasTripped():
     trp = getHistmemTextstatus('detector_protect_num_trip')
     ack = getHistmemTextstatus('detector_protect_num_trip_ack')
 
-    if (trp is None) or (ack is None) or (int(trp) == int(ack)):
-        return False # continue, assuming that detector has not tripped
-
+    try:
+        if (trp is None) or (ack is None) or (int(trp) == int(ack)):
+            return False # continue, assuming that detector has not tripped
+    except:
+        return False
+    
     slog('Detector has tripped', f_err=True)
     return True
 
