@@ -535,6 +535,7 @@ def wait_until_value_reached(device, value, precision = 0.01, timeout_if_not_cha
             old_val = new_val
             update_count += interval
             total_count += interval
+            handleInterrupt()
             time.sleep(interval)
     if value_reached:
         logger.log(str(device) + ' reached value ' + str(value) + ' in ' + str(total_count) + ' seconds')
