@@ -224,7 +224,7 @@ public class CollectionHelper {
 		while (ct <= TIFFSAVE_TIMEOUT * 1000) {
 			try {
 				String tiffStatus = tiffStatusController.getValue().toString();
-				if (TiffStatus.IDLE.name().equalsIgnoreCase(tiffStatus)) {
+				if (TiffStatus.IDLE.name().equalsIgnoreCase(tiffStatus) && ControlHelper.experimentModel.isTiffLabelled()) {
 					break;
 				} else if (TiffStatus.FAIL.name().equalsIgnoreCase(tiffStatus)) {
 					if (retry > 0) {
@@ -236,6 +236,7 @@ public class CollectionHelper {
 						}
 						tiffStatusController.refreshValue();
 						waitForTiff(retry - 1);
+						break;
 					} else {
 						String errorMsg = String.format("failed to save TIFF file in %d retries: %s", 
 								FAIL_RETRY,
@@ -313,6 +314,7 @@ public class CollectionHelper {
 		try {
 			isStarted = false;
 			isBusy = true;
+			ControlHelper.experimentModel.setTiffLabelled(false);
 			ControlHelper.getProxy().setServerStatus(ServerStatus.RUNNING_A_SCAN);
 			ControlHelper.setValue(System.getProperty(ControlHelper.EXPOSURE_TIME_PATH), exposure);
 			ControlHelper.getProxy().syncRun(String.format("hset /instrument/image/start 1"));

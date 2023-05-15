@@ -37,6 +37,7 @@ public class ExperimentModel {
 	private SingleScan currentScan;
 	private ControlHelper controlHelper;
 	private UserControl control;
+	private boolean tiffLabelled;
 //	private InstrumentPhase instrumentPhase;
 	
 	private List<IExperimentModelListener> modelListeners;
@@ -270,6 +271,8 @@ public class ExperimentModel {
 
 	public void copyFile(String source) throws KoalaServerException {
 		if (currentScan != null) {
+			currentScan.labelTiffFile();
+			setTiffLabelled(true);
 			currentScan.copyFile(source);
 		} else {
 			SingleScan scan = new SingleScan();
@@ -289,6 +292,20 @@ public class ExperimentModel {
 	 */
 	public void setSampleName(String sampleName) {
 		this.sampleName = sampleName;
+	}
+
+	/**
+	 * @return the tiffLabelled
+	 */
+	public boolean isTiffLabelled() {
+		return tiffLabelled;
+	}
+
+	/**
+	 * @param tiffLabelled the tiffLabelled to set
+	 */
+	public void setTiffLabelled(boolean tiffLabelled) {
+		this.tiffLabelled = tiffLabelled;
 	}
 
 }

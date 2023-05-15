@@ -128,6 +128,7 @@ public class SingleScan {
 	private static final String SOURCE_FOLDER = "sics.data.path";
 	private static final String SERVER_FOLDER = "gumtree.server.dataPath";
 	public static final String DATA_FILENAME = "gumtree.server.dataName";
+	public static final String LIVEPNG_FILENAME = "gumtree.server.livePNGName";
 	private final static int WAIT_BETWEEN_COLLECTION = 5000;
 	private final static int WAIT_AFTER_SCAN = 1000;
 	private final static int PAUSE_CHECK_INTERVAL = 20;
@@ -692,7 +693,7 @@ public class SingleScan {
 	public void copyFile(final String filename) throws KoalaServerException {
 //		ISicsController fnController = SicsManager.getSicsModel().findControllerByPath(
 //				System.getProperty(ControlHelper.FILENAME_PATH));
-		resetCurrentFile();
+//		resetCurrentFile();
 		try {
 //			String source = String.valueOf(((IDynamicController) fnController).getValue());
 			String source = filename.replaceAll("/", "\\\\");
@@ -716,7 +717,6 @@ public class SingleScan {
 			logger.warn(String.format("copy %s to %s", lowSource, currentLowFile));
 			Files.copy((new File(lowSource)).toPath(), currentLowFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			ControlHelper.experimentModel.setLastFilename(currentFile.getAbsolutePath());
-			addTiffFile(currentFile.getPath());
 			fileIndex++;
 //			System.err.println(source);
 //			System.err.println(currentFile.toString());
@@ -744,7 +744,7 @@ public class SingleScan {
 						BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
 						Graphics2D g2 = newImage.createGraphics();
 						g2.drawImage(image, 0, 0, width, height, null);
-						File cp = new File(serverFolder + "/" + System.getProperty(DATA_FILENAME, "data.png"));
+						File cp = new File(serverFolder + "/" + System.getProperty(LIVEPNG_FILENAME, "live.png"));
 						FileOutputStream out = new FileOutputStream(cp);
 						ImageIO.write(newImage, "png", out);
 					}
@@ -802,8 +802,14 @@ public class SingleScan {
 	
 	private void addTiffFile(String filename) {
 		synchronized (tiffFiles) {
+			logger.warn("record file: " + filename);
 			tiffFiles.add(filename);
 		}
+	}
+	
+	public void labelTiffFile() {
+		resetCurrentFile();
+		addTiffFile(currentFile.getPath());
 	}
 	
 	public boolean needToRun() {
@@ -1046,6 +1052,7 @@ public class SingleScan {
 		} else {
 			row.appendChild(cell);
 			cell = document.createElement("td");
+			cell.setAttribute("colspan", "6");
 			cell.setTextContent("No file was recorded, check with the computing team");
 			row.appendChild(cell);
 			root.appendChild(row);
