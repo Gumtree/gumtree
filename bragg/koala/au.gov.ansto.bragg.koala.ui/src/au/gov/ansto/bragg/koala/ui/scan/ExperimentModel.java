@@ -276,6 +276,8 @@ public class ExperimentModel {
 			currentScan.copyFile(source);
 		} else {
 			SingleScan scan = new SingleScan();
+			scan.labelTiffFile();
+			setTiffLabelled(true);
 			scan.copyFile(source);
 		}
 	}

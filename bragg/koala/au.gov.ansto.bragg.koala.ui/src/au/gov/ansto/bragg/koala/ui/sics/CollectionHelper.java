@@ -46,6 +46,7 @@ public class CollectionHelper {
 	private int exposure;
 	private boolean isBusy;
 	private boolean isStarted;
+	private boolean isAborting;
 	private IDynamicController stateController;
 	private IDynamicController errorController;
 	private IDynamicController tiffStatusController;
@@ -186,7 +187,9 @@ public class CollectionHelper {
 			}
 			if (isBusy) {
 				try {
-					waitForTiff(FAIL_RETRY);
+					if (!isAborting) {
+						waitForTiff(FAIL_RETRY);
+					}
 					setCollectionPhase(InstrumentPhase.IDLE, -1);
 				} catch (KoalaServerException e) {
 					this.phase = InstrumentPhase.ERROR;
@@ -313,6 +316,7 @@ public class CollectionHelper {
 		this.errorMessage = null;
 		try {
 			isStarted = false;
+			isAborting = false;
 			isBusy = true;
 			ControlHelper.experimentModel.setTiffLabelled(false);
 			ControlHelper.getProxy().setServerStatus(ServerStatus.RUNNING_A_SCAN);
@@ -416,6 +420,7 @@ public class CollectionHelper {
 					expTimeController.setValue(0);
 					setCollectionPhase(InstrumentPhase.EXPOSE_ENDING, -1);
 				}
+				isAborting = true;
 				abortController.setValue(1);
 				if (stateController != null) {
 					try {

@@ -126,7 +126,7 @@ enum ScanTarget {
 
 public class SingleScan {
 
-	private static final int SERVER_IMAGE_WIDTH = 800;
+	private static final int SERVER_IMAGE_WIDTH = 1440;
 	private static final String SOURCE_FOLDER = "sics.data.path";
 	private static final String SERVER_FOLDER = "gumtree.server.dataPath";
 	public static final String DATA_FILENAME = "gumtree.server.dataName";
@@ -662,14 +662,16 @@ public class SingleScan {
 	
 	
 	private void publishScanResult() {
-		try {
-			ControlHelper.getLogbookService().appendTableEntry(
-					ControlHelper.experimentModel.getSampleName(), 
-					getHtml());
-		} catch (Exception e) {
-//			ControlHelper.experimentModel.publishErrorMessage(
+		if (tiffFiles.size() > 0) {
+			try {
+				ControlHelper.getLogbookService().appendTableEntry(
+						ControlHelper.experimentModel.getSampleName(), 
+						getHtml());
+			} catch (Exception e) {
+//				ControlHelper.experimentModel.publishErrorMessage(
 //					"failed to publish scan result: server is donw?");
-			logger.error("failed to publish scan result: server is donw?", e);
+				logger.error("failed to publish scan result: server is donw?", e);
+			}
 		}
 	}
 	
@@ -722,7 +724,7 @@ public class SingleScan {
 			fileIndex++;
 //			System.err.println(source);
 //			System.err.println(currentFile.toString());
-			convertTiffToPng(source);
+			convertTiffToPng(hiSource);
 		} catch (IOException e) {
 			throw new KoalaServerException("failed to copy file to proposal folder", e);
 		} catch (Exception e) {
@@ -747,6 +749,7 @@ public class SingleScan {
 						Graphics2D g2 = newImage.createGraphics();
 						g2.drawImage(image, 0, 0, width, height, null);
 						File cp = new File(serverFolder + "/" + System.getProperty(LIVEPNG_FILENAME, "live.png"));
+						logger.warn("create live PNG: " + cp.getPath());
 						FileOutputStream out = new FileOutputStream(cp);
 						ImageIO.write(newImage, "png", out);
 					}
