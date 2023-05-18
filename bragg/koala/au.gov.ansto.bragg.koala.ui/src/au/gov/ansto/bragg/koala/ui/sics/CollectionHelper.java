@@ -37,7 +37,7 @@ public class CollectionHelper {
 	private static final int TIFFSAVE_TIMEOUT = 30;
 	private static final int CHECK_CYCLE = 50; // millisecond
 	private static final int FAIL_RETRY = 3;
-	private static final int READ_TIME = Integer.valueOf(System.getProperty(NAME_READING_TIME, "280"));
+	public static final int READ_TIME = Integer.valueOf(System.getProperty(NAME_READING_TIME, "280"));
 	public static final int ERASE_TIME = Integer.valueOf(System.getProperty(NAME_EXPOSURE_TIME, "160"));
 	
 	private static final Logger logger = LoggerFactory.getLogger(CollectionHelper.class);

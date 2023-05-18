@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
@@ -145,8 +144,8 @@ public class SingleScan {
 	
 	public static final String NAME_SCAN = "scan";
 	
-	protected final int ERASURE_TIME = 10;
-	protected final int READING_TIME = 240;
+//	protected final int ERASURE_TIME = 10;
+//	protected final int READING_TIME = 240;
 	protected final int TEMP_TIME = 300;
 	protected final int CHI_TIME = 10;
 	protected final int PHI_TIME = 10;
@@ -507,8 +506,8 @@ public class SingleScan {
 					time += values.size() * (
 							PHI_TIME + 
 							getExposure() + 
-							ERASURE_TIME + 
-							READING_TIME);
+							CollectionHelper.ERASE_TIME + 
+							CollectionHelper.READ_TIME);
 				}
 				if (!Float.isNaN(getTemp())) {
 					time += TEMP_TIME;
@@ -522,8 +521,8 @@ public class SingleScan {
 				time += getNumber() * (
 						PHI_TIME + 
 						getExposure() + 
-						ERASURE_TIME + 
-						READING_TIME);
+						CollectionHelper.ERASE_TIME + 
+						CollectionHelper.READ_TIME);
 			}
 			if (getTarget() != ScanTarget.TEMP_LOOP 
 					&& getTarget() != ScanTarget.TEMP_POINTS) {
