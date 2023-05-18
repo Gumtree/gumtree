@@ -1101,10 +1101,6 @@ public class MjpegViewer extends Composite {
 	class SzHelper {
 		public SzHelper() {
 			if (controlHelper.isConnected()) {
-//				final ISicsController szController = SicsManager.getSicsModel().findController(
-//						System.getProperty(ControlHelper.SZ_PATH));	
-//				szController.addControllerListener(
-//						new DrumZControllerListener());
 				initialise();
 			}
 			ISicsProxyListener proxySzListener = new SicsProxyListenerAdapter() {
@@ -1228,7 +1224,7 @@ public class MjpegViewer extends Composite {
 					} catch (SicsModelException e) {
 					}
 
-					drumZController.addControllerListener(new LedControllerListener());
+					drumZController.addControllerListener(new DrumZControllerListener());
 				}
 			}
 		}
@@ -1321,8 +1317,7 @@ public class MjpegViewer extends Composite {
 					} catch (SicsModelException e) {
 					}
 					
-					phiController.addControllerListener(
-							new PhiControllerListener((DriveableController) phiController));
+					phiController.addControllerListener(new PhiControllerListener());
 				}
 			}
 
@@ -1420,12 +1415,6 @@ public class MjpegViewer extends Composite {
 	
 	class PhiControllerListener implements ISicsControllerListener {
 
-		private DriveableController phiController;
-		
-		public PhiControllerListener(DriveableController controller) {
-			phiController = controller;
-		}
-		
 		@Override
 		public void updateState(final ControllerState oldState, final ControllerState newState) {
 			Display.getDefault().asyncExec(new Runnable() {

@@ -759,8 +759,8 @@ public class InitScanPanel extends AbstractControlPanel {
 				public void run() {
 					try {
 						if (phiController != null) {
-							phiText.setText(String.valueOf(
-									((DynamicController) phiController).getValue()));
+							phiText.setText(String.format("%.3f",
+									((DynamicController) phiController).getControllerDataValue().getFloatData()));
 						}
 						if (chiController != null) {
 							chiText.setText(String.valueOf(
