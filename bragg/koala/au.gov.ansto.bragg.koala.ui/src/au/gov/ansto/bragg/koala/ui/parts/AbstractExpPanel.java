@@ -969,7 +969,14 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 				
 				@Override
 				public void run() {
-					widget.setText(String.valueOf(newValue));
+//					widget.setText(String.valueOf(newValue));
+					String res;
+					if (newValue instanceof Float) {
+						res = String.format("%.4f", newValue);
+					} else {
+						res = String.valueOf(newValue);
+					}
+					widget.setText(res);
 				}
 			});
 		}
