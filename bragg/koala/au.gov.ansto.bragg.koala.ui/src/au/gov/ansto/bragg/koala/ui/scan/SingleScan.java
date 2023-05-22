@@ -2,6 +2,7 @@ package au.gov.ansto.bragg.koala.ui.scan;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
@@ -737,11 +738,15 @@ public class SingleScan {
 			
 			@Override
 			public void run() {
+				FileOutputStream out = null;
 				try {
 					File f = new File(source);
 					File serverFolder = new File(System.getProperty(SERVER_FOLDER));
 					if (f.exists() && serverFolder.exists()) {
 						BufferedImage image = ImageIO.read(f);
+						float scaleFactor = 5.0f;
+						RescaleOp op = new RescaleOp(scaleFactor, 0, null);
+						image = op.filter(image, null);
 						int width = SERVER_IMAGE_WIDTH;
 						int height = image.getHeight() * width / image.getWidth();
 						BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
@@ -749,11 +754,18 @@ public class SingleScan {
 						g2.drawImage(image, 0, 0, width, height, null);
 						File cp = new File(serverFolder + "/" + System.getProperty(LIVEPNG_FILENAME, "live.png"));
 						logger.warn("create live PNG: " + cp.getPath());
-						FileOutputStream out = new FileOutputStream(cp);
+						out = new FileOutputStream(cp);
 						ImageIO.write(newImage, "png", out);
 					}
 				} catch (Exception e) {
 					logger.error("failed to convert tiff file to png version", e);
+				} finally {
+					if (out != null) {
+						try {
+							out.close();
+						} catch (IOException e1) {
+						}
+					}
 				}
 			}
 		});
