@@ -4,7 +4,7 @@ __script__.title = 'KKB Realtime Reduction'
 __script__.version = '1.0'
 
 
-
+from java.io import File
 from math import sqrt, sin, exp
 from datetime import datetime
 from bisect import bisect_left
@@ -145,6 +145,7 @@ def __run_script__(fns):
         
     # get name of first sample file
     filepath = dsFilePaths[0]
+    jmtime = File(filepath).lastModified()
     mtime = os.path.getmtime(filepath)
     mtime_str = datetime.fromtimestamp(int(mtime)).strftime('%Y-%m-%dT%H:%M:%S')
     filename = os.path.basename(filepath)
@@ -158,7 +159,7 @@ def __run_script__(fns):
             Plot1.title = filename + ': number of scan point is ' + str(len(rds)) + ', I-Q plot is not available.'
             Plot1.x_label = 'q (1/Angstrom)'
             Plot1.y_label = 'intensity (counts/sec)'
-            __script__.model.setLastModifiedTimestamp(long((mtime + 1) * 1000))
+            __script__.model.setLastModifiedTimestamp(long(long(jmtime) + 1000))
         finally:
             rds.close()
             df.datasets.clear()
