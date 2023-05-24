@@ -1590,7 +1590,7 @@ public class ScriptControlViewer extends Composite {
 							actionButton.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_RED));
 							break;
 						case ERROR:
-							actionButton.setImage(InternalImage.ERROR_STATUS_12.getImage());
+							actionButton.setImage(InternalImage.INTERRUPT_STATUS_12.getImage());
 							actionButton.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 							actionButton.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
 							break;
@@ -3239,7 +3239,7 @@ public class ScriptControlViewer extends Composite {
 						currentButton.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
 						break;
 					case ERROR:
-						currentButton.setImage(InternalImage.ERROR_STATUS_16.getImage());
+						currentButton.setImage(InternalImage.INTERRUPT_STATUS_16.getImage());
 						currentButton.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 						currentButton.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
 						break;
