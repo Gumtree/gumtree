@@ -356,6 +356,8 @@ public class MainPart extends Composite {
 				String text = errorText;
 				if (!DrumDoorWidget.isClosed()) {
 					text += " ** The drum door may not be closed well, please check the door status.";
+				} else {
+					text += ControlHelper.getMCError();
 				}
 				MessageDialog.openError(getShell(), "Error", text);
 				logger.error(errorText);
