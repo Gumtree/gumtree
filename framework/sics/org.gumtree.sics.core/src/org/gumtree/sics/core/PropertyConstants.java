@@ -1,9 +1,15 @@
 package org.gumtree.sics.core;
 
+import org.gumtree.util.ISystemProperty;
+import org.gumtree.util.SystemProperty;
+
 public class PropertyConstants {
 
 	public static final String SICS_KEEP_CONNECTION = "gumtree.sics.keepConnection";
 	
+	public static final ISystemProperty USE_NEW_PROXY = new SystemProperty(
+			"gumtree.sics.useNewProxy", "false");
+
 	public enum PropertyType {
 		DIM("dim"), PRIVILEGE("privilege"), TYPE("type"), VIEWER("viewer"), SICS_DEV("sicsdev"), RANK("rank"), DATA_TYPE("dataType");
 

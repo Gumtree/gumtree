@@ -125,6 +125,12 @@ public class SicsProxy implements ISicsProxy {
 	@Override
 	public void login(ISicsConnectionContext context)
 			throws SicsExecutionException, SicsIOException {
+		
+		final String useNewProxy = PropertyConstants.USE_NEW_PROXY.getValue();
+		if (Boolean.valueOf(useNewProxy)) {
+			throw new SicsIOException("SICS connection disabled");
+		}
+
 		if (getProxyState() != ProxyState.DISCONNECTED) {
 			throw new SicsIOException("Server has already been connected.");
 		}

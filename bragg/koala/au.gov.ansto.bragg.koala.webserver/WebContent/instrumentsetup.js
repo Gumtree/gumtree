@@ -2,6 +2,8 @@ var title = "Koala";
 var batchEnabled = false;
 var timeEstimationEnabled = true;
 var histmemTypes = [];
+var useNewProxy = true;
+var disableStatus = true;
 
 function adaptBs(val) {
 	var pos = Number(val);
@@ -35,12 +37,12 @@ var devices = [
 			 	   "items":[{"classId":"reactorPower", "deviceId":"/instrument/source/power", "title":"Reactor Power", "units":"MW"}
 			 	            ]
 			   },
-               {"group":"SHUTTER STATUS", 
-            	   "items":[{"classId":"secondary", "deviceId":"/instrument/sis/status/secondary", "title":"Secondary Shutter", "units":""},
-            		   		{"classId":"tertiary", "deviceId":"/instrument/sis/status/tertiary", "title":"Tertiary Shutter", "units":""},
-            		   		{"classId":"fast_shutter", "deviceId":"/instrument/sis/status/fast_shutter", "title":"Fast Shutter", "units":""}
-            	            ]
-               },
+//               {"group":"SHUTTER STATUS", 
+//            	   "items":[{"classId":"secondary", "deviceId":"/instrument/sis/status/secondary", "title":"Secondary Shutter", "units":""},
+//            		   		{"classId":"tertiary", "deviceId":"/instrument/sis/status/tertiary", "title":"Tertiary Shutter", "units":""},
+//            		   		{"classId":"fast_shutter", "deviceId":"/instrument/sis/status/fast_shutter", "title":"Fast Shutter", "units":""}
+//            	            ]
+//               },
                {"group":"SAMPLE", 
             	   "items":[{"classId":"sphi", "deviceId":"sr", "title":"Sample Phi", "units":"\u00B0"},
             		   		{"classId":"schi", "deviceId":"schi", "title":"Sample Chi", "units":"degrees"},
@@ -51,7 +53,7 @@ var devices = [
                },
                {"group":"INSTRUMENT", 
             	   "items":[{"classId":"dcz", "deviceId":"dcz", "title":"Detector Height", "units":"mm"},
-            		   		{"classId":"rdz", "deviceId":"rdz", "title":"Reading Head", "units":"mm"}
+//            		   		{"classId":"rdz", "deviceId":"rdz", "title":"Reading Head", "units":"mm"}
             	            ]
                }
                ];

@@ -3,6 +3,7 @@ package org.gumtree.sics.server.internal;
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.gumtree.sics.core.ISicsManager;
+import org.gumtree.sics.core.PropertyConstants;
 import org.gumtree.sics.io.ISicsProxy.ProxyState;
 import org.gumtree.util.eclipse.EclipseUtils;
 import org.osgi.framework.BundleActivator;
@@ -29,15 +30,22 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
 		instance = this;
-		String sicsLoginMode = System.getProperty(PROP_SICS_LOGINMODE);
-		if (!"skip".equalsIgnoreCase(sicsLoginMode)) {
-			try {
-				SicsStarter starter = ContextInjectionFactory.make(SicsStarter.class,
-						getEclipseContext());
-				ISicsManager sicsManager = starter.getSicsManager();
-				connect(sicsManager);
-			} catch (Exception e) {
-				e.printStackTrace();
+		boolean newProxy = false;
+		try {
+			newProxy = Boolean.valueOf(PropertyConstants.USE_NEW_PROXY.getValue());
+		} catch (Exception e) {
+		}
+		if (!newProxy) {
+			String sicsLoginMode = System.getProperty(PROP_SICS_LOGINMODE);
+			if (!"skip".equalsIgnoreCase(sicsLoginMode)) {
+				try {
+					SicsStarter starter = ContextInjectionFactory.make(SicsStarter.class,
+							getEclipseContext());
+					ISicsManager sicsManager = starter.getSicsManager();
+					connect(sicsManager);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

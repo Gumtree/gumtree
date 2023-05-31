@@ -117,6 +117,7 @@
 		<module>${sics.path}/org.zeromq.jeromq</module>
 		<module>${sics.path}/org.gumtree.control.core</module>
 		<module>${sics.path}/org.gumtree.control.ui</module>
+		<module>${sics.path}/org.gumtree.control.server</module>
 
 		<module>${sics.path}/org.gumtree.sics.server</module>
 		<module>${sics.path}/org.gumtree.sics.server.feature</module>

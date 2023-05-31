@@ -7,10 +7,10 @@ Bundle-Vendor: ANSTO
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.json;bundle-version="1.0.0",
  org.zeromq.jeromq;bundle-version="4.1.7",
- ch.psi.sics.hipadaba;bundle-version="1.13.0",
+ ch.psi.sics.hipadaba;bundle-version="1.13.0";visibility:=reexport,
  org.slf4j.api;bundle-version="1.6.4",
  org.eclipse.core.runtime;bundle-version="3.8.0",
- org.gumtree.core;bundle-version="1.13.0"
+ org.gumtree.core;bundle-version="1.13.0";visibility:=reexport
 Export-Package: org.gumtree.control.batch,
  org.gumtree.control.batch.tasks,
  org.gumtree.control.core,
