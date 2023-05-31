@@ -34,7 +34,7 @@ public class PhysicsModel extends AbstractScanModel {
 			"Temp",
 			Activator.CHI + " Value",
 			"Filename",
-			"Index",
+			"FileIdx",
 			"Status",
 			"Comments"
 	};
@@ -226,7 +226,7 @@ public class PhysicsModel extends AbstractScanModel {
 			} else {
 				return new KTableCellEditorText();
 			}
-		} else if (col > 1 && col != 11) {
+		} else if (col > 1 && col != 13) {
 			return new KTableCellEditorText();
 		} else {
 			return null;

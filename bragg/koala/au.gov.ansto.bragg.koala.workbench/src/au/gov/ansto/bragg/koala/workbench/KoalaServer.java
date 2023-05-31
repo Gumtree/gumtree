@@ -724,10 +724,10 @@ public class KoalaServer {
 			setStatus(ServerStatus.COUNTING);
 			IDynamicController dynamic = (IDynamicController) controller;
 			
-			hset(PATH_GUMTREE_STATUS, InstrumentPhase.ERASE_RUNNING.name());
+//			hset(PATH_GUMTREE_STATUS, InstrumentPhase.ERASE_RUNNING.name());
 			dynamic.updateModelValue(InstrumentPhase.ERASE_RUNNING.name());
 			publishValueUpdate(PATH_IMAGE_STATE, InstrumentPhase.ERASE_RUNNING.name());
-			hset(PATH_GUMTREE_TIME, String.valueOf(erasure));
+//			hset(PATH_GUMTREE_TIME, String.valueOf(erasure));
 			for (int i = 0; i < erasure; i++) {
 				Thread.sleep(1000);
 				if (interruptFlag) {
@@ -735,10 +735,10 @@ public class KoalaServer {
 				}
 			}
 			
-			hset(PATH_GUMTREE_STATUS, InstrumentPhase.EXPOSE_RUNNING.name());
+//			hset(PATH_GUMTREE_STATUS, InstrumentPhase.EXPOSE_RUNNING.name());
 			dynamic.updateModelValue(InstrumentPhase.EXPOSE_RUNNING.name());
 			publishValueUpdate(PATH_IMAGE_STATE, InstrumentPhase.EXPOSE_RUNNING.name());
-			hset(PATH_GUMTREE_TIME, String.valueOf(exposure));
+//			hset(PATH_GUMTREE_TIME, String.valueOf(exposure));
 			stopExposure = false;
 			int count = 0;
 			while (!stopExposure && count < exposure) {
@@ -749,10 +749,10 @@ public class KoalaServer {
 				count += 1;
 			}
 
-			hset(PATH_GUMTREE_STATUS, InstrumentPhase.READ_RUNNING.name());
+//			hset(PATH_GUMTREE_STATUS, InstrumentPhase.READ_RUNNING.name());
 			dynamic.updateModelValue(InstrumentPhase.READ_RUNNING.name());
 			publishValueUpdate(PATH_IMAGE_STATE, InstrumentPhase.READ_RUNNING.name());
-			hset(PATH_GUMTREE_TIME, String.valueOf(READING_TIME));
+//			hset(PATH_GUMTREE_TIME, String.valueOf(READING_TIME));
 			for (int i = 0; i < READING_TIME; i++) {
 				Thread.sleep(1000);
 				if (interruptFlag) {
@@ -768,8 +768,8 @@ public class KoalaServer {
 			Thread.sleep(2000);
 			publishValueUpdate(PATH_TIFF_STATE, "idle");			
 			
-			hset(PATH_GUMTREE_TIME, "0");
-			hset(PATH_GUMTREE_STATUS, InstrumentPhase.IDLE.name());
+//			hset(PATH_GUMTREE_TIME, "0");
+//			hset(PATH_GUMTREE_STATUS, InstrumentPhase.IDLE.name());
 			dynamic.updateModelValue(InstrumentPhase.IDLE.name());
 			publishValueUpdate(PATH_IMAGE_STATE, InstrumentPhase.IDLE.name());
 			
@@ -791,7 +791,7 @@ public class KoalaServer {
 		} finally {
 //			status = ServerStatus.EAGER_TO_EXECUTE;
 			try {
-				hset(PATH_GUMTREE_TIME, "0");
+//				hset(PATH_GUMTREE_TIME, "0");
 				hset(PATH_IMAGE_STATE, InstrumentPhase.IDLE.name());
 				setStatus(ServerStatus.EAGER_TO_EXECUTE);
 			} catch (JSONException | SicsModelException e) {
