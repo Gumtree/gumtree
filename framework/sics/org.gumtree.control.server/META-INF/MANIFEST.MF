@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gumtree Control Server
+Bundle-SymbolicName: org.gumtree.control.server;singleton:=true
+Bundle-Version: 1.13.0.qualifier
+Bundle-Activator: org.gumtree.control.server.Activator
+Bundle-Vendor: ANSTO
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.equinox.http.registry;bundle-version="1.1.200",
+ org.json;bundle-version="1.0.0",
+ org.gumtree.control.core;bundle-version="1.13.0",
+ org.restlet;bundle-version="2.0.11",
+ org.restlet.ext.servlet;bundle-version="2.0.11"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Import-Package: org.slf4j
+Export-Package: org.gumtree.control.server.restlet

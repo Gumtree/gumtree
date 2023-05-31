@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="controlHttpcontext"
+         point="org.eclipse.equinox.http.registry.httpcontexts">
+      <httpcontext
+            id="control">
+         <resource-mapping
+               path="/status/control/rest">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="controlRoot">
+         <resource-mapping
+               path="/control/rest">
+         </resource-mapping>
+      </httpcontext>
+   </extension>
+   <extension
+         id="controlRestlet"
+         point="org.eclipse.equinox.http.registry.servlets">
+      <servlet
+            alias="/status/control/rest"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="control">
+         <init-param
+               name="org.restlet.application"
+               value="org.gumtree.control.server.restlet.ControlRestletApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/control/rest"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="controlRoot">
+         <init-param
+               name="org.restlet.application"
+               value="org.gumtree.control.server.restlet.ControlRestletApplication">
+         </init-param>
+      </servlet>
+   </extension>
+</plugin>
