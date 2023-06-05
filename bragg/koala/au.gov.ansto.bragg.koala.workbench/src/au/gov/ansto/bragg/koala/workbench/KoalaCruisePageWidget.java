@@ -13,12 +13,12 @@ import org.eclipse.nebula.widgets.pgroup.ChevronsToggleRenderer;
 import org.eclipse.nebula.widgets.pgroup.PGroup;
 import org.eclipse.nebula.widgets.pgroup.SimpleGroupStrategy;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.control.ui.widgets.ControllerStatusWidget;
 import org.gumtree.control.ui.widgets.ServerStatusWidget;
-import org.gumtree.control.ui.widgets.ShutterGroupWidget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
 import org.gumtree.util.messaging.IDelayEventExecutor;
@@ -141,9 +141,42 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 						// TODO Auto-generated method stub
 						String text = obj.toString();
 						if (text != null && text.contains("_")) {
-							return text.substring(0, text.indexOf("_"));
+							text = text.substring(0, text.indexOf("_"));
+						}
+						if (text != null && text.length() > 23) {
+							return text.substring(0, 23);
 						} else {
 							return text;
+						}
+					}
+				})
+				.addDevice("/instrument/image/error_msg", "State", null, "", new ControllerStatusWidget.LabelConverter() {
+					
+					@Override
+					public String convertValue(Object obj) {
+						if (obj != null) {
+							String text = obj.toString();
+							if (text.trim().length() == 0 || text.equalsIgnoreCase("OK")) {
+								return text;
+							} else {
+								if (text.length() > 16) {
+									return "Error: " + text.substring(0, 16);
+								} else {
+									return "Error: " + text;
+ 								}
+							}
+						} else {
+							return "";
+						}
+					}
+				}, false, new ControllerStatusWidget.ColorConverter() {
+					
+					@Override
+					public Color convertColor(Object value) {
+						if (value != null && value.toString().trim().length() > 0 && !"OK".equalsIgnoreCase(value.toString())) {
+							return Activator.getWarningColor();
+						} else {
+							return Activator.getRunningForgroundColor();
 						}
 					}
 				})

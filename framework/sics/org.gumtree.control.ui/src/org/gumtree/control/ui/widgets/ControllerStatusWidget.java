@@ -13,6 +13,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.nebula.widgets.pgroup.PGroup;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -21,11 +22,9 @@ import org.eclipse.swt.widgets.Label;
 import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ISicsProxy;
-import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
-import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.service.dataaccess.IDataAccessManager;
@@ -84,9 +83,9 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 				label.setFont(UIResources.getDefaultFont(SWT.BOLD));
 				// Part 3: Value
 				label = createDeviceLabel(this, deviceContext.path, "--",
-						SWT.RIGHT, deviceContext.converter, deviceContext.showSoftLimits);
-//				GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
-//						.grab(true, false).applyTo(label);
+						SWT.RIGHT, deviceContext.converter, deviceContext.showSoftLimits, deviceContext.colorConverter);
+				label.setToolTipText("--");
+//				GridDataFactory.swtDefaults().hint(120, SWT.DEFAULT).applyTo(label);
 				label.setFont(UIResources.getDefaultFont(SWT.BOLD));
 				// Part 4: Separator
 //				String labelSep = (deviceContext.unit == null) ? "" : " ";
@@ -160,17 +159,21 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 //		return null;
 //	}
 
-	protected void updateWidgetState(final Control widget, final ControllerState state) {
+	protected void updateWidgetState(final Control widget, final ControllerState state, final Color currentColor) {
 		if (widget != null && !widget.isDisposed()) {
 			SafeUIRunner.asyncExec(new SafeRunnable() {
 				@Override
 				public void run() throws Exception {
-					if (state.equals(ControllerState.IDLE)) {
-						widget.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-					} else if (state.equals(ControllerState.BUSY)) {
-						widget.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
-					} else if (state.equals(ControllerState.ERROR)) {
-						widget.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+					if (currentColor == null) {
+						if (state.equals(ControllerState.IDLE)) {
+							widget.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+						} else if (state.equals(ControllerState.BUSY)) {
+							widget.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
+						} else if (state.equals(ControllerState.ERROR)) {
+							widget.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+						}
+					} else {
+						widget.setForeground(currentColor);
 					}
 				}
 			});
@@ -186,14 +189,14 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 		try {
 			for (final LabelContext labelContext : labelContexts) {
 				labelContext.listener = initiateLabel(labelContext.path, 
-						labelContext.label, labelContext.converter);
+						labelContext.label, labelContext.converter, labelContext.colorConverter);
 				if (labelContext.showSoftLimits) {
 					labelContext.lowerlimListener = initiateLabel(labelContext.path + "/softlowerlim", 
-						labelContext.lowerlimLabel, null);
+						labelContext.lowerlimLabel, null, labelContext.colorConverter);
 					labelContext.upperlimListener = initiateLabel(labelContext.path + "/softupperlim", 
-							labelContext.upperlimLabel, null);
+							labelContext.upperlimLabel, null, labelContext.colorConverter);
 					labelContext.softzeroListener = initiateLabel(labelContext.path + "/softzero", 
-							labelContext.softzeroLabel, null);
+							labelContext.softzeroLabel, null, labelContext.colorConverter);
 				}
 			}
 		} catch (Exception e) {
@@ -201,7 +204,7 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 		}
 	}
 
-	private ISicsControllerListener initiateLabel(String path, Label label, LabelConverter converter) {
+	private ISicsControllerListener initiateLabel(String path, Label label, LabelConverter converter, ColorConverter colorConverter) {
 		ISicsController controller = SicsManager.getSicsModel().findControllerByPath(path);
 		if (controller != null && controller instanceof IDynamicController) {
 			String data;
@@ -210,7 +213,7 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 				updateLabelText(label, data, converter);
 			} catch (SicsModelException e) {
 			}
-			return createListener(path, label, converter);
+			return createListener(path, label, converter, colorConverter);
 		}
 		return null;
 	}
@@ -288,6 +291,11 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 	
 	public ControllerStatusWidget addDevice(String path, String label, Image icon,
 			String unit, LabelConverter converter, boolean showSoftLimits) {
+		return addDevice(path, label, icon, unit, converter, false, null);
+	}
+	
+	public ControllerStatusWidget addDevice(String path, String label, Image icon,
+			String unit, LabelConverter converter, boolean showSoftLimits, ColorConverter colorConverter) {
 		DeviceContext context = new DeviceContext();
 		context.path = path;
 		context.icon = icon;
@@ -296,6 +304,7 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 		context.isSeparator = false;
 		context.converter = converter;
 		context.showSoftLimits = showSoftLimits;
+		context.colorConverter = colorConverter;
 		deviceContexts.add(context);
 		return this;
 	}
@@ -350,6 +359,7 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 		String unit;
 		boolean isSeparator;
 		LabelConverter converter;
+		ColorConverter colorConverter;
 		boolean showSoftLimits;
 	}
 
@@ -367,10 +377,15 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 		ISicsControllerListener upperlimListener;
 		Label softzeroLabel;
 		ISicsControllerListener softzeroListener;
+		ColorConverter colorConverter;
 	}
 
 	public interface LabelConverter {
 		String convertValue(Object obj);
+	}
+
+	public interface ColorConverter {
+		Color convertColor(Object obj);
 	}
 
 	static class UnitsConverter implements LabelConverter{
@@ -434,15 +449,22 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 		
 		Label widget;
 		LabelConverter converter;
+		ColorConverter colorConverter;
+		Color currentColor;
 		
-		public SicsControllerListener(Label widget, LabelConverter converter) {
+		public SicsControllerListener(Label widget, LabelConverter converter, ColorConverter colorConverter) {
 			this.widget = widget;
 			this.converter = converter;
+			this.colorConverter = colorConverter;
 		}
 		
 		@Override
 		public void updateValue(Object oldValue, Object newValue) {
 			updateLabelText(widget, String.valueOf(newValue), converter);
+			if (colorConverter != null) {
+				currentColor = colorConverter.convertColor(newValue);
+				updateWidgetState(widget, null, currentColor);
+			}
 		}
 		
 		@Override
@@ -451,7 +473,7 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 		
 		@Override
 		public void updateState(ControllerState oldState, ControllerState newState) {
-			updateWidgetState(widget, newState);
+			updateWidgetState(widget, newState, currentColor);
 		}
 		
 		@Override
@@ -472,8 +494,8 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 		return label;
 	}
 
-	private ISicsControllerListener createListener(String path, Label label, LabelConverter converter) {
-		ISicsControllerListener listener = new SicsControllerListener(label, converter);
+	private ISicsControllerListener createListener(String path, Label label, LabelConverter converter, ColorConverter colorConverter) {
+		ISicsControllerListener listener = new SicsControllerListener(label, converter, colorConverter);
 		ISicsController controller = SicsManager.getSicsModel().findControllerByPath(path);
 		if (controller != null) {
 			controller.addControllerListener(listener);
@@ -491,7 +513,8 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 	}
 	
 	private Label createDeviceLabel(Composite parent, String path,
-			String defaultText, int style, LabelConverter converter, boolean showSoftLimits) {
+			String defaultText, int style, LabelConverter converter, boolean showSoftLimits, 
+			ColorConverter colorConverter) {
 		Label label = getWidgetFactory()
 				.createLabel(parent, defaultText, style);
 		LabelContext context = new LabelContext();
@@ -499,6 +522,7 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 		context.label = label;
 		context.showSoftLimits = showSoftLimits;
 		context.converter = converter;
+		context.colorConverter = colorConverter;
 		if (showSoftLimits) {
 			Label lowerlimLabel = getWidgetFactory().createLabel(parent, "");
 			context.lowerlimLabel = lowerlimLabel;
@@ -536,11 +560,15 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 								text = String.format("%.2f", value);
 							} 
 						} catch (Exception e) {
+							if (text != null && text.length() > 24) {
+								text = text.substring(0, 24);
+							}
 						} 
 					} else {
 						text = converter.convertValue(data);
 					}
 					label.setText(text);
+					label.setToolTipText(data);
 					// TODO: does it have any performance hit?
 //					label.getParent().layout(true, true);
 				}

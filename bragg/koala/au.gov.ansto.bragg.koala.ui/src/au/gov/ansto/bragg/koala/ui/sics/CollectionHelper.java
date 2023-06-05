@@ -9,6 +9,7 @@ import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
+import org.gumtree.control.events.SicsControllerAdapter;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsInterruptException;
@@ -153,6 +154,7 @@ public class CollectionHelper {
 			public void updateEnabled(boolean isEnabled) {
 			}
 		});
+		
 	}
 	
 	private void setState(final String stateValue) {
@@ -307,6 +309,15 @@ public class CollectionHelper {
 		throw new KoalaServerException(message);
 	}
 	
+	private String getErrorMessage() throws SicsModelException {
+		String errMsg = errorController.getValue().toString();
+		if (errMsg != null && errMsg.trim().length() > 0 && !"OK".equalsIgnoreCase(errMsg)) {
+			return errMsg;
+		} else {
+			return "";
+		}
+	}
+	
 	public void collect(final int exposure, final int retry) throws KoalaServerException, KoalaInterruptionException {
 		if (isBusy) {
 			throw new KoalaServerException("server busy with current collection");
@@ -339,7 +350,12 @@ public class CollectionHelper {
 					collect(exposure, retry - 1);
 					return;
 				} else {
-					handleError("timeout in starting the collection");
+					String errMsg = getErrorMessage();
+					if (errMsg.length() > 0) {
+						handleError("error in starting the collection: " + errMsg);
+					} else {
+						handleError("timeout in starting the collection");
+					}
 				}
 			}
 			ct = 0;
@@ -356,7 +372,7 @@ public class CollectionHelper {
 //						exposure + READ_TIME + ERASE_TIME + COLLECTION_TIMEOUT / 1000));
 //				throw new KoalaServerException("collection timeout");
 				handleError(String.format("collection cycle lasted for more than %d seconds", 
-						exposure + READ_TIME + ERASE_TIME + COLLECTION_TIMEOUT));
+						exposure + READ_TIME + ERASE_TIME + COLLECTION_TIMEOUT) + "; " + getErrorMessage());
 			} 
 			if (InstrumentPhase.ERROR.equals(phase)) {
 				handleError("error in collection: " + this.errorMessage != null ? this.errorMessage : "unknown");
@@ -400,7 +416,6 @@ public class CollectionHelper {
 				expTimeController.setValue(0);
 				setCollectionPhase(InstrumentPhase.EXPOSE_ENDING, -1);
 			} catch (SicsException e) {
-				// TODO Auto-generated catch block
 				throw new KoalaServerException("failed to end exposure: " + e.getMessage());
 			}
 		} else {
@@ -440,7 +455,6 @@ public class CollectionHelper {
 					}
 				}
 			} catch (SicsException e) {
-				// TODO Auto-generated catch block
 				throw new KoalaServerException("failed to abort collection: " + e.getMessage());
 			}
 		} else {

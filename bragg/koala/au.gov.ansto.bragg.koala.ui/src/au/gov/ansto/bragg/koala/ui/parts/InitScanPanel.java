@@ -158,7 +158,8 @@ public class InitScanPanel extends AbstractControlPanel {
 		parentText = new Text(infoBlock, SWT.READ_ONLY);
 		parentText.setFont(Activator.getMiddleFont());
 //		parentText.setText(mainPart.getProposalFolder());
-		parentText.setText(mainPart.getExperimentModel().getProposalFolder());
+//		parentText.setText(mainPart.getExperimentModel().getProposalFolder());
+		parentText.setText("File Prefix");
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(parentText);
 		
 		fileText = new Text(infoBlock, SWT.BORDER);
@@ -503,9 +504,9 @@ public class InitScanPanel extends AbstractControlPanel {
 					
 					@Override
 					public void run() {
-						if (!parentText.isDisposed()) {
-							parentText.setText(model.getProposalFolder());
-						}
+//						if (!parentText.isDisposed()) {
+//							parentText.setText(model.getProposalFolder());
+//						}
 					}
 				});
 			}
