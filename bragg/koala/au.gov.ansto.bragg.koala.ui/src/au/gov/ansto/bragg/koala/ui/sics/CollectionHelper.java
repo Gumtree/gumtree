@@ -9,7 +9,6 @@ import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
-import org.gumtree.control.events.SicsControllerAdapter;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsInterruptException;
@@ -249,8 +248,10 @@ public class CollectionHelper {
 						throw new KoalaServerException(errorMsg);
 					}
 				}
-			} catch (Exception e) {
-				throw new KoalaServerException("save_tiff status node not exist, please check SICS model");
+			} catch (SicsModelException e) {
+				throw new KoalaServerException("invalid tiff status value, " + e.getMessage(), e);
+			} catch (SicsException e) {
+				throw new KoalaServerException("failed to send command to SICS, " + e.getMessage(), e);
 			}
 			try {
 				Thread.sleep(CHECK_CYCLE);
@@ -260,7 +261,17 @@ public class CollectionHelper {
 			}
 		}
 		if (ct >= TIFFSAVE_TIMEOUT * 1000) {
-			throw new KoalaServerException("timeout in saving TIFF file");
+			String errMsg = "";
+			try {
+				errMsg = tiffErrorController.getValue().toString();
+			} catch (Exception e) {
+			}
+			if (errMsg.length() > 0 && !"OK".equalsIgnoreCase(errMsg)) {
+				throw new KoalaServerException(String.format("timeout in saving TIFF file, %s", 
+						errMsg));
+			} else {
+				throw new KoalaServerException("timeout in saving TIFF file");
+			}
 		}
 		isBusy = false;		
 	}
