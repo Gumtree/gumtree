@@ -39,6 +39,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String NAME_USER_NAME = "koala.userName";
 	public static final String NAME_LOCAL_SCI = "koala.localSci";
 	public static final String NAME_OP_MODE = "koala.operationMode";
+	public static final String NAME_ERASURE_TIME = "koala.erasureTime";
 	public static final String NAME_SAMPLE_NAME = "koala.sampleName";
 	public static final String NAME_FILENAME = "koala.filename";
 	public static final String NAME_COMMENTS = "koala.comments";

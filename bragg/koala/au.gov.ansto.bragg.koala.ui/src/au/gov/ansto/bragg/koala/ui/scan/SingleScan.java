@@ -157,7 +157,7 @@ public class SingleScan {
 	private int number = 1;
 	private float end;
 	private int exposure = 60;
-	private int erasure = CollectionHelper.ERASE_TIME;
+	private int erasure;
 	private float temp = Float.NaN;
 	private float phi = Float.NaN;
 	private float chi = Float.NaN;
@@ -185,6 +185,7 @@ public class SingleScan {
 	}
 	public SingleScan(ScanTarget target) {
 		this.target = target;
+		erasure = CollectionHelper.getErasureTime();
 		tiffFiles = new ArrayList<String>();
 	}
 

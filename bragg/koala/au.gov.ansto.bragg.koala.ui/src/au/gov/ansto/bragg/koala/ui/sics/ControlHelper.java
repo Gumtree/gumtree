@@ -26,7 +26,6 @@ import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsInterruptException;
-import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.imp.DriveableController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.service.db.RemoteTextDbService;
@@ -557,4 +556,5 @@ public class ControlHelper {
 		}
 		return err;
 	}
+	
 }

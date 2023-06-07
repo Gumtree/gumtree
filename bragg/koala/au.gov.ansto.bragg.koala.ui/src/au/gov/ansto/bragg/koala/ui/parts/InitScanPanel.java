@@ -4,6 +4,8 @@
 package au.gov.ansto.bragg.koala.ui.parts;
 
 import java.awt.Desktop;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 
@@ -75,6 +77,7 @@ public class InitScanPanel extends AbstractControlPanel {
 	private Text startText;
 	private Text incText;
 	private Text numText;
+	private Text estText;
 	private Text lastFileText;
 	private boolean dirtyFlag = false;
 	private String curSampleName;
@@ -159,12 +162,13 @@ public class InitScanPanel extends AbstractControlPanel {
 		parentText.setFont(Activator.getMiddleFont());
 //		parentText.setText(mainPart.getProposalFolder());
 //		parentText.setText(mainPart.getExperimentModel().getProposalFolder());
-		parentText.setText("File Prefix");
+		parentText.setText("Proposal Folder \\");
+		
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(parentText);
 		
 		fileText = new Text(infoBlock, SWT.BORDER);
 		fileText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).hint(300, SWT.DEFAULT
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).hint(480, SWT.DEFAULT
 				).applyTo(fileText);
 //		fileText.setText(SingleScan.DATA_FILENAME);
 
@@ -296,15 +300,15 @@ public class InitScanPanel extends AbstractControlPanel {
 		unitsLabel1.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(60, 40).applyTo(unitsLabel1);
 
-		final Label eraLabel = new Label(duriGroup, SWT.NONE);
-		eraLabel.setText("Erasure");
-		eraLabel.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(eraLabel);
+		final Label estLabel = new Label(duriGroup, SWT.NONE);
+		estLabel.setText("Time Estimation");
+		estLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(estLabel);
 		
-		final Text eraText = new Text(duriGroup, SWT.BORDER);
-		eraText.setEditable(false);
-		eraText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, false).minSize(180, 40).applyTo(eraText);
+		estText = new Text(duriGroup, SWT.BORDER);
+		estText.setEditable(false);
+		estText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(true, false).minSize(180, 40).applyTo(estText);
 		
 //		eraText.addModifyListener(new ModifyListener() {
 //			
@@ -346,10 +350,10 @@ public class InitScanPanel extends AbstractControlPanel {
 				bindingContext.bindValue(SWTObservables.observeText(expText, SWT.Modify),
 						BeansObservables.observeValue(initScan, "exposure"),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(eraText, SWT.Modify),
-						BeansObservables.observeValue(initScan, "erasure"),
-						new UpdateValueStrategy(), new UpdateValueStrategy());
+//				bindingContext = new DataBindingContext();
+//				bindingContext.bindValue(SWTObservables.observeText(estText, SWT.Modify),
+//						BeansObservables.observeValue(initScan, "erasure"),
+//						new UpdateValueStrategy(), new UpdateValueStrategy());
 				bindingContext = new DataBindingContext();
 				bindingContext.bindValue(SWTObservables.observeText(comText, SWT.Modify),
 						BeansObservables.observeValue(initScan, "comments"),
@@ -533,8 +537,33 @@ public class InitScanPanel extends AbstractControlPanel {
 			}
 		};
 		model.addExperimentModelListener(experimentModelListener);
+		
+		initScan.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			@Override
+			public void propertyChange(PropertyChangeEvent e) {
+				updateTimeEstimation();
+			}
+		});
 	}
 
+	private void updateTimeEstimation() {
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					int total = initScan.getTotalTime();
+					if (total == 0) {
+						estText.setText("empty scan");
+					} else {
+						estText.setText(PanelUtils.convertTimeString(total));
+					}
+				} catch (Exception e) {
+				}
+			}
+		});
+	}
 	
 	/* (non-Javadoc)
 	 * @see au.gov.ansto.bragg.koala.ui.parts.AbstractControlPart#next()
@@ -758,34 +787,49 @@ public class InitScanPanel extends AbstractControlPanel {
 
 				@Override
 				public void run() {
-					try {
-						if (phiController != null) {
-							phiText.setText(String.format("%.3f",
+					if (phiController != null) {
+						try {
+							phiText.setText(String.format("%.2f",
 									((DynamicController) phiController).getControllerDataValue().getFloatData()));
+						} catch (Exception e) {
 						}
-						if (chiController != null) {
-							chiText.setText(String.valueOf(
-									((DynamicController) chiController).getValue()));
+					}
+					if (chiController != null) {
+						try {
+							chiText.setText(String.format("%.2f",
+									((DynamicController) chiController).getControllerDataValue().getFloatData()));
+						} catch (Exception e) {
 						}
-						if (tempController != null) {
-							tempText.setText(String.valueOf(
-									((DynamicController) tempController).getValue()));
+					}
+					if (tempController != null) {
+						try {
+							tempText.setText(String.format("%.2f",
+									((DynamicController) tempController).getControllerDataValue().getFloatData()));
+						} catch (Exception e) {
 						}
-						if (stepController != null) {
+					}
+					if (stepController != null) {
+						try {
 							stepText.setText(String.valueOf(
 									((DynamicController) stepController).getValue()));
+						} catch (Exception e) {
 						}
-						if (sampleController != null) {
+					}
+					if (sampleController != null) {
+						try {
 							curSampleName = String.valueOf(
 									((DynamicController) sampleController).getValue());
 							nameText.setText(curSampleName);
+						} catch (Exception e) {
 						}
-						if (commentsController != null) {
+					}
+					if (commentsController != null) {
+						try {
 							curComments = String.valueOf(
 									((DynamicController) commentsController).getValue());
 							comText.setText(curComments);
+						} catch (Exception e) {
 						}
-					} catch (Exception e) {
 					}
 				}
 			});
@@ -833,7 +877,7 @@ public class InitScanPanel extends AbstractControlPanel {
 				public void run() {
 					String res;
 					if (newValue instanceof Float) {
-						res = String.format("%.4f", newValue);
+						res = String.format("%.2f", newValue);
 					} else {
 						res = String.valueOf(newValue);
 					}

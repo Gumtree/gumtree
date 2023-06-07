@@ -972,7 +972,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 //					widget.setText(String.valueOf(newValue));
 					String res;
 					if (newValue instanceof Float) {
-						res = String.format("%.4f", newValue);
+						res = String.format("%.2f", newValue);
 					} else {
 						res = String.valueOf(newValue);
 					}

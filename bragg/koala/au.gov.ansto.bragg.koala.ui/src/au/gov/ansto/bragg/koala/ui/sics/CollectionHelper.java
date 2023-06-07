@@ -17,6 +17,7 @@ import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaInterruptionException;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper.InstrumentPhase;
@@ -33,6 +34,7 @@ public class CollectionHelper {
 	
 	public static final int COLLECTION_RETRY = 3;
 	private static final int START_TIMEOUT = 20;
+	private static final int WAITING_FOR_ERROR_TIMEOUT = 20;
 	private static final int COLLECTION_TIMEOUT = Integer.valueOf(System.getProperty(NAME_EXPIRATION_TIME, "600"));
 	private static final int TIFFSAVE_TIMEOUT = 30;
 	private static final int CHECK_CYCLE = 50; // millisecond
@@ -41,22 +43,6 @@ public class CollectionHelper {
 	public static final int ERASE_TIME = Integer.valueOf(System.getProperty(NAME_EXPOSURE_TIME, "160"));
 	
 	private static final Logger logger = LoggerFactory.getLogger(CollectionHelper.class);
-	private InstrumentPhase phase = InstrumentPhase.IDLE;
-//	private int timeCost = -1;
-	private int exposure;
-	private boolean isBusy;
-	private boolean isStarted;
-	private boolean isAborting;
-	private IDynamicController stateController;
-	private IDynamicController errorController;
-	private IDynamicController tiffStatusController;
-	private IDynamicController tiffErrorController;
-//	private IDynamicController gumtreeStatusController;
-//	private IDynamicController gumtreeTimeController;
-	private List<ICollectionListener> listeners;
-	private static CollectionHelper instance;
-	private String errorMessage;
-	private TempReporter reporter;
 	
 	public enum ImageState {
 		IDLE,
@@ -73,7 +59,11 @@ public class CollectionHelper {
 		SHUTTER_CLOSE_STARTED,
 		SHUTTER_CLOSE_RUNNING,
 		SHUTTER_CLOSE_END,
-		ERROR
+		CLOSE_SHUTTER_STARTED,
+		CLOSE_SHUTTER_RUNNING,
+		CLOSE_SHUTTER_END,
+		ERROR,
+		UNKNOWN
 	};
 	
 	public enum TiffStatus{
@@ -81,6 +71,24 @@ public class CollectionHelper {
 		BUSY,
 		FAIL
 	}
+		
+	private InstrumentPhase phase = InstrumentPhase.IDLE;
+//	private int timeCost = -1;
+	private int exposure;
+	private boolean isBusy;
+	private boolean isStarted;
+	private boolean isAborting;
+	private IDynamicController stateController;
+	private IDynamicController errorController;
+	private IDynamicController tiffStatusController;
+	private IDynamicController tiffErrorController;
+//	private IDynamicController gumtreeStatusController;
+//	private IDynamicController gumtreeTimeController;
+	private List<ICollectionListener> listeners;
+	private static CollectionHelper instance;
+	private String errorMessage;
+	private TempReporter reporter;
+	private ImageState imageState;
 	
 	protected CollectionHelper() {
 //		controlHelper = ControlHelper.getInstance();
@@ -124,10 +132,11 @@ public class CollectionHelper {
 			try {
 				setState(stateController.getValue().toString().toUpperCase());
 			} catch (SicsModelException e) {
-				e.printStackTrace();
+				ControlHelper.experimentModel.publishErrorMessage("failed to initiate image collection controller");
 			}
 		} else {
-			setState(InstrumentPhase.ERROR.getText());
+			setState(ImageState.UNKNOWN.name());
+			ControlHelper.experimentModel.publishErrorMessage("failed to load image collection model");
 		}
 		tiffStatusController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
 				System.getProperty(ControlHelper.TIFF_STATE_PATH));
@@ -157,17 +166,18 @@ public class CollectionHelper {
 	}
 	
 	private void setState(final String stateValue) {
-		ImageState phase = ImageState.IDLE;
+		imageState = ImageState.IDLE;
 		try {
-			phase = ImageState.valueOf(stateValue);
+			imageState = ImageState.valueOf(stateValue);
 		} catch (Exception e) {
+			imageState = ImageState.UNKNOWN;
 		}
-		if (!phase.equals(ImageState.IDLE)) {
+		if (!imageState.equals(ImageState.IDLE)) {
 			if (isBusy && !isStarted) {
 				isStarted = true;
 			}
 		}
-		switch (phase) {
+		switch (imageState) {
 		case EXPOSE_RUNNING:
 			setCollectionPhase(InstrumentPhase.EXPOSE, exposure);
 			reporter.start();
@@ -320,8 +330,12 @@ public class CollectionHelper {
 		throw new KoalaServerException(message);
 	}
 	
-	private String getErrorMessage() throws SicsModelException {
-		String errMsg = errorController.getValue().toString();
+	private String getErrorMessage() {
+		String errMsg = null;
+		try {
+			errMsg = errorController.getValue().toString();
+		} catch (SicsModelException e) {
+		}
 		if (errMsg != null && errMsg.trim().length() > 0 && !"OK".equalsIgnoreCase(errMsg)) {
 			return errMsg;
 		} else {
@@ -332,6 +346,22 @@ public class CollectionHelper {
 	public void collect(final int exposure, final int retry) throws KoalaServerException, KoalaInterruptionException {
 		if (isBusy) {
 			throw new KoalaServerException("server busy with current collection");
+		}
+		if (imageState != ImageState.IDLE && imageState != ImageState.ERROR) {
+			logger.warn("waiting for state to become IDLE, currently it is " + imageState.name());
+			int ct = 0;
+			while (imageState != ImageState.IDLE && imageState != ImageState.ERROR && ct <= WAITING_FOR_ERROR_TIMEOUT * 1000) {
+				try {
+					Thread.sleep(CHECK_CYCLE);
+					ct += CHECK_CYCLE;
+				} catch (Exception e) {
+					throw new KoalaServerException("waiting interrupted");
+				}
+			}
+			logger.warn(String.format("waited for %s milliseconds", ct));
+			if (imageState != ImageState.IDLE && imageState != ImageState.ERROR) {
+				throw new KoalaServerException("timeout waiting for image collection service to get ready; " + getErrorMessage());
+			}
 		}
 		logger.warn(String.format("start collecting for %d seconds", exposure));
 		this.exposure = exposure;
@@ -491,7 +521,19 @@ public class CollectionHelper {
 	public InstrumentPhase getPhase() {
 		return phase;
 	}
-	
+
+	public static int getErasureTime() {
+		int t = ControlHelper.ERASURE_TIME;
+		String eraTimeProp = Activator.getPreference(Activator.NAME_ERASURE_TIME);
+		if (eraTimeProp != null) {
+			try {
+				t = Integer.valueOf(eraTimeProp);
+			} catch (Exception e) {
+			}
+		}
+		return t;
+	}
+
 	class TempReporter implements Runnable{
 
 		static final int SLEEP_MILSEC = 250;
