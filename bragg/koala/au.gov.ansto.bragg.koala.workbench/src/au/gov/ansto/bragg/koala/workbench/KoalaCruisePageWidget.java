@@ -105,11 +105,11 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		deviceStatusWidget = new ControllerStatusWidget(sampleStageGroup, SWT.NONE);
 		deviceStatusWidget
 //				.addDevice("/sample/sz", "Sample Height", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
-				.addDevice("/sample/sr", "Sample " + Activator.PHI, null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(3))
-				.addDevice("/sample/schi", "Sample " + Activator.CHI, null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(3))
-				.addDevice("/sample/sx", "sx", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
-				.addDevice("/sample/sy", "sy", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
-				.addDevice("/sample/sz", "sz", null, "mm", new ControllerStatusWidget.PrecisionConverter(3))
+				.addDevice("/sample/sr", "Sample " + Activator.PHI, null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(2))
+				.addDevice("/sample/schi", "Sample " + Activator.CHI, null, "\u00b0", new ControllerStatusWidget.PrecisionConverter(2))
+				.addDevice("/sample/sx", "sx", null, "mm", new ControllerStatusWidget.PrecisionConverter(2))
+				.addDevice("/sample/sy", "sy", null, "mm", new ControllerStatusWidget.PrecisionConverter(2))
+				.addDevice("/sample/sz", "sz", null, "mm", new ControllerStatusWidget.PrecisionConverter(2))
 				;
 		configureWidget(deviceStatusWidget);
 		deviceStatusWidget.render();
