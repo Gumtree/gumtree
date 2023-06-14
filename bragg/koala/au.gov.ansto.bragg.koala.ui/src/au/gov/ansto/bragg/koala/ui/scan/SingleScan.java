@@ -313,9 +313,8 @@ public class SingleScan {
 		test.toPath();
 		Object old = this.filename;
 		this.filename = filename;
-		fileIndex = 1;
 		firePropertyChange("filename", old, filename);
-		resetCurrentFile();
+		fileIndex = calculateStartIndex(1);
 		if (fileIndex != startIndex) {
 			setStartIndex(fileIndex);
 		}
@@ -599,6 +598,15 @@ public class SingleScan {
 	public void run() throws KoalaInterruptionException, KoalaServerException  {
 		isRunning = true;
 		tiffFiles.clear();
+		if (currentFile != null) {
+			File parent = currentFile.getParentFile();
+			if (!parent.exists()) {
+				try {
+					parent.mkdirs();
+				} catch (Exception e) {
+				}
+			}
+		}
 		startTimeMilSec = System.currentTimeMillis();
 		logger.warn("start " + toString());
 		try {
@@ -834,6 +842,58 @@ public class SingleScan {
 			String fname = f.getName();
 			String lowFName = fname.substring(0, fname.length() - 4) + NAME_LOWGAIN_EXTENSION + ".tif";
 			currentLowFile = new File(lowFolder.getPath() + File.separator + lowFName);
+		}
+	}
+	
+	private int calculateStartIndex(int start) {
+		String tn = this.filename;
+		tn = tn.replaceAll("/", "\\\\");
+		if (tn.startsWith(File.separator)) {
+			tn = tn.substring(1);
+		}
+		String target;
+		if (tn.contains("_*")) {
+			target = ControlHelper.proposalFolder 
+					+ tn.replaceAll("_\\*", String.format("_%03d", start));
+			if (!target.toLowerCase().endsWith(".tif")) {
+				target += ".tif";
+			}
+		} else if (tn.contains("*")) {
+			target = ControlHelper.proposalFolder 
+					+ tn.replaceAll("\\*", String.format("_%03d", start));
+			if (!target.toLowerCase().endsWith(".tif")) {
+				target += ".tif";
+			}
+		} else {
+			if (tn.toLowerCase().endsWith("_.tif")) {
+				target = ControlHelper.proposalFolder 
+						+ tn.substring(0, tn.length() - 5) 
+						+ String.format("_%03d", start) 
+						+ ".tif";
+			} else if (tn.toLowerCase().endsWith(".tif")) {
+				target = ControlHelper.proposalFolder 
+						+ tn.substring(0, tn.length() - 4) 
+						+ String.format("_%03d", start) 
+						+ ".tif";
+			} else if (tn.toLowerCase().endsWith("_")) {
+				target = ControlHelper.proposalFolder 
+						+ tn
+						+ String.format("%03d", start) 
+						+ ".tif";
+			} else {
+				target = ControlHelper.proposalFolder 
+						+ tn + String.format("_%03d", start) + ".tif";
+			}
+		}
+		File f = new File(target);
+		File parent = f.getParentFile();
+		if (!parent.exists()) {
+			return 1;
+		}
+		if (f.exists()) {
+			return calculateStartIndex(start + 1);
+		} else {
+			return start;
 		}
 	}
 	
