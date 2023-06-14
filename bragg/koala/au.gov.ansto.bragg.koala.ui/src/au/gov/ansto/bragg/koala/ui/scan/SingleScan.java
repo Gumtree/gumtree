@@ -139,7 +139,7 @@ public class SingleScan {
 	private final static String FOLDER_HIGHGAIN = "higain";
 	private final static String FOLDER_LOWGAIN = "logain";
 	private final static String FOLDER_LOWGAIN_COPY = "lowgain";
-	private final static String NAME_LOWGAIN_EXTENSION = "_lowgain";
+	private final static String NAME_LOWGAIN_EXTENSION = "L";
 	private final static String NAME_PREFIX_HIGHGAIN = "HIKOL";
 	private final static String NAME_PREFIX_LOWGAIN = "LOKOL";
 	
@@ -313,8 +313,12 @@ public class SingleScan {
 		test.toPath();
 		Object old = this.filename;
 		this.filename = filename;
-		fileIndex = startIndex;
+		fileIndex = 1;
 		firePropertyChange("filename", old, filename);
+		resetCurrentFile();
+		if (fileIndex != startIndex) {
+			setStartIndex(fileIndex);
+		}
 	}
 	public String getPoints() {
 		if (points == null) {
@@ -780,21 +784,37 @@ public class SingleScan {
 			tn = tn.substring(1);
 		}
 		String target;
-		if (tn.contains("*")) {
+		if (tn.contains("_*")) {
 			target = ControlHelper.proposalFolder 
-					+ tn.replaceAll("\\*", String.format("%03d", this.fileIndex));
+					+ tn.replaceAll("_\\*", String.format("_%03d", this.fileIndex));
+			if (!target.toLowerCase().endsWith(".tif")) {
+				target += ".tif";
+			}
+		} else if (tn.contains("*")) {
+			target = ControlHelper.proposalFolder 
+					+ tn.replaceAll("\\*", String.format("_%03d", this.fileIndex));
 			if (!target.toLowerCase().endsWith(".tif")) {
 				target += ".tif";
 			}
 		} else {
-			if (tn.toLowerCase().endsWith(".tif")) {
+			if (tn.toLowerCase().endsWith("_.tif")) {
+				target = ControlHelper.proposalFolder 
+						+ tn.substring(0, tn.length() - 5) 
+						+ String.format("_%03d", this.fileIndex) 
+						+ ".tif";
+			} else if (tn.toLowerCase().endsWith(".tif")) {
 				target = ControlHelper.proposalFolder 
 						+ tn.substring(0, tn.length() - 4) 
+						+ String.format("_%03d", this.fileIndex) 
+						+ ".tif";
+			} else if (tn.toLowerCase().endsWith("_")) {
+				target = ControlHelper.proposalFolder 
+						+ tn
 						+ String.format("%03d", this.fileIndex) 
 						+ ".tif";
 			} else {
 				target = ControlHelper.proposalFolder 
-						+ tn + String.format("%03d", this.fileIndex) + ".tif";
+						+ tn + String.format("_%03d", this.fileIndex) + ".tif";
 			}
 		}
 		File f = new File(target);

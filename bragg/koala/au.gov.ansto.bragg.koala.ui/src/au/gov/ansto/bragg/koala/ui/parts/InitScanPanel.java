@@ -212,6 +212,16 @@ public class InitScanPanel extends AbstractControlPanel {
 				}
 //				String filePath = dialog.getFilterPath() + File.separator + dialog.getFileName();
 				if (text != null) {
+					String lower = text.toLowerCase();
+					if (lower.matches("^.*_\\d{3}\\.tif$")) {
+						text = text.substring(0, text.length() - 8);
+					} else if (lower.matches("^.*\\d{3}\\.tif")) {
+						text = text.substring(0, text.length() - 7);
+					} else if (lower.matches("^.*_\\.tif")) {
+						text = text.substring(0, text.length() - 5);
+					} else if (lower.matches("^.*\\.tif")) {
+						text = text.substring(0, text.length() - 4);
+					} 
 					fileText.setText(text);
 					fileText.setToolTipText(text);
 				}
