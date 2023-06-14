@@ -606,7 +606,7 @@ class Array:
         if ntype is int or ntype is long :
             if fdiv :
                 if 3 / 2 > 1 :
-                    print '__future__.division'
+#                     print '__future__.division'
                     return float
             if isinstance(obj, Array) :
                 ntype = obj.dtype
