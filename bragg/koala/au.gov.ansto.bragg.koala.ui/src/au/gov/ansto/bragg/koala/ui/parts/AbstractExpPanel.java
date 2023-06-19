@@ -224,7 +224,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 		GridDataFactory.fillDefaults().grab(false, false).span(2, 1).minSize(180, 40).applyTo(tempText);
 
 		final Label numLabel = new Label(statusPart, SWT.NONE);
-		numLabel.setText("Step number");
+		numLabel.setText("Step");
 		numLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(numLabel);
 		
@@ -889,7 +889,7 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 			tempController = SicsManager.getSicsModel().findController(
 					System.getProperty(ControlHelper.ENV_VALUE));
 			stepController = SicsManager.getSicsModel().findController(
-					System.getProperty(ControlHelper.STEP_PATH));
+					System.getProperty(ControlHelper.STEP_TEXT_PATH));
 //			fnController = SicsManager.getSicsModel().findController(
 //					System.getProperty(ControlHelper.FILENAME_PATH));
 			

@@ -446,7 +446,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		GridDataFactory.fillDefaults().grab(true, false).span(4, 1).minSize(240, 40).applyTo(tempText);
 		
 		final Label stepLabel = new Label(condGroup, SWT.NONE);
-		stepLabel.setText("Step number");
+		stepLabel.setText("Step");
 		stepLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(240, 40).applyTo(numLabel);
 		
@@ -764,7 +764,7 @@ public class InitScanPanel extends AbstractControlPanel {
 			tempController = SicsManager.getSicsModel().findController(
 					System.getProperty(ControlHelper.ENV_VALUE));
 			stepController = SicsManager.getSicsModel().findController(
-					System.getProperty(ControlHelper.STEP_PATH));
+					System.getProperty(ControlHelper.STEP_TEXT_PATH));
 			sampleController = SicsManager.getSicsModel().findController(
 					System.getProperty(ControlHelper.GUMTREE_SAMPLE_NAME));
 			commentsController = SicsManager.getSicsModel().findController(

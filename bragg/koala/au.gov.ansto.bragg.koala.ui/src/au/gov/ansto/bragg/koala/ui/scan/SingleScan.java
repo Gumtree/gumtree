@@ -643,7 +643,7 @@ public class SingleScan {
 							e.printStackTrace();
 						}
 					}
-					collect(i++, value);
+					collect(String.format("%d of %d", ++i, getNumber()), value);
 				}
 			} else {
 				if (getNumber() > 0) {
@@ -656,7 +656,7 @@ public class SingleScan {
 								e.printStackTrace();
 							}
 						}
-						collect(i, target);
+						collect(String.format("%d of %d", i + 1, getNumber()), target);
 					}
 				}
 			}
@@ -688,11 +688,11 @@ public class SingleScan {
 		}
 	}
 	
-	private void collect(final int index, final float target) 
+	private void collect(final String stepText, final float target) 
 			throws KoalaInterruptionException, KoalaServerException {
 		evaluatePauseStatus();
-		ControlHelper.asyncExec(String.format("hset %s %d", 
-				System.getProperty(ControlHelper.STEP_PATH), index + 1));
+		ControlHelper.asyncExec(String.format("hset %s %s", 
+				System.getProperty(ControlHelper.STEP_TEXT_PATH), stepText));
 		if (getTarget().isTemperature()) {
 			ControlHelper.publishGumtreeStatus("Scan - driving temperature");			
 		} else {

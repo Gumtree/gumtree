@@ -81,6 +81,7 @@ public class ControlHelper {
 	public static final String SZ_ZERO = "gumtree.koala.szZero";
 	public static final String LED_PATH = "gumtree.path.koalaLed";
 	public static final String STEP_PATH = "gumtree.koala.currpoint";
+	public static final String STEP_TEXT_PATH = "gumtree.koala.stepText";
 	public static final String DRUM_PATH = "gumtree.path.koalaDrum";
 	public static final String DRUM_DOWN_VALUE = "gumtree.koala.drumDownValue";
 	public static final String FILENAME_PATH = "gumtree.koala.filename";
