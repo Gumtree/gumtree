@@ -70,7 +70,7 @@ public class InitScanPanel extends AbstractControlPanel {
 	private Text tempText;
 	private Text stepText;
 	private Text nameText;
-	private Text parentText;
+//	private Text parentText;
 	private Text fileText;
 	private Text indexText;
 	private Text comText;
@@ -108,7 +108,7 @@ public class InitScanPanel extends AbstractControlPanel {
 //		GridDataFactory.fillDefaults().grab(true, false).minSize(320, 36).applyTo(titleLabel);
 		
 		final Group infoBlock = new Group(this, SWT.SHADOW_OUT);
-		GridLayoutFactory.fillDefaults().numColumns(6).margins(8, 8).applyTo(infoBlock);
+		GridLayoutFactory.fillDefaults().numColumns(5).margins(8, 8).applyTo(infoBlock);
 		GridDataFactory.fillDefaults().grab(true, false).minSize(SWT.DEFAULT, 64).span(2, 1).applyTo(infoBlock);
 		
 		final Label nameLabel = new Label(infoBlock, SWT.NONE);
@@ -118,7 +118,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		
 		nameText = new Text(infoBlock, SWT.BORDER);
 		nameText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, false).span(3, 1).minSize(700, 40).applyTo(nameText);
+		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(360, 40).applyTo(nameText);
 		
 		nameText.addModifyListener(new ModifyListener() {
 			
@@ -139,7 +139,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		
 		comText = new Text(infoBlock, SWT.WRAP | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL);
 		comText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, false).span(1, 3).minSize(500, 88).hint(360, 88).applyTo(comText);
+		GridDataFactory.fillDefaults().grab(true, false).span(1, 3).minSize(600, 88).hint(660, 88).applyTo(comText);
 		
 		comText.addModifyListener(new ModifyListener() {
 			
@@ -153,22 +153,22 @@ public class InitScanPanel extends AbstractControlPanel {
 		});
 
 		final Label fileLabel = new Label(infoBlock, SWT.NONE);
-		fileLabel.setText("Image filename");
+		fileLabel.setText("File Prefix");
 		fileLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, 
 				SWT.CENTER).minSize(320, 40).applyTo(fileLabel);
 		
-		parentText = new Text(infoBlock, SWT.READ_ONLY);
-		parentText.setFont(Activator.getMiddleFont());
-//		parentText.setText(mainPart.getProposalFolder());
-//		parentText.setText(mainPart.getExperimentModel().getProposalFolder());
-		parentText.setText("Proposal Folder \\");
+//		parentText = new Text(infoBlock, SWT.READ_ONLY);
+//		parentText.setFont(Activator.getMiddleFont());
+////		parentText.setText(mainPart.getProposalFolder());
+////		parentText.setText(mainPart.getExperimentModel().getProposalFolder());
+//		parentText.setText("Proposal Folder \\");
 		
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(parentText);
+//		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(parentText);
 		
 		fileText = new Text(infoBlock, SWT.BORDER);
 		fileText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).hint(480, SWT.DEFAULT
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).hint(320, SWT.DEFAULT
 				).applyTo(fileText);
 //		fileText.setText(SingleScan.DATA_FILENAME);
 
@@ -239,7 +239,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		
 		indexText = new Text(infoBlock, SWT.BORDER);
 		indexText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, false).span(3, 1).minSize(700, 40).applyTo(indexText); 
+		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(360, 40).applyTo(indexText); 
 		
 		
 		Composite leftMain = new Composite(this, SWT.NONE);
