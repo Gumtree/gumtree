@@ -673,9 +673,9 @@ public class InitScanPanel extends AbstractControlPanel {
 //		if (comments != null) {
 //			comText.setText(comments);
 //		} 
-		String filename = Activator.getPreference(Activator.NAME_PROP_FOLDER);
+		String filename = Activator.getPreference(Activator.NAME_FILENAME);
 		if (filename != null) {
-//			fileText.setText(filename);
+			fileText.setText(filename);
 		} 
 	}
 	
@@ -683,7 +683,7 @@ public class InitScanPanel extends AbstractControlPanel {
 	private void savePreference() {
 //		Activator.setPreference(Activator.NAME_SAMPLE_NAME, nameText.getText());
 //		Activator.setPreference(Activator.NAME_COMMENTS, comText.getText());
-//		Activator.setPreference(Activator.NAME_FILENAME, fileText.getText());
+		Activator.setPreference(Activator.NAME_FILENAME, fileText.getText());
 		Activator.flushPreferenceStore();
 	}
 	
