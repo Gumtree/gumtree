@@ -85,6 +85,9 @@ public class ControlHelper {
 	public static final String DRUM_PATH = "gumtree.path.koalaDrum";
 	public static final String DRUM_DOWN_VALUE = "gumtree.koala.drumDownValue";
 	public static final String FILENAME_PATH = "gumtree.koala.filename";
+	public static final String GUMTREE_VERSION_PATH = "gumtree.sics.gumtreeVersionPath";
+	public static final String GUMTREE_VERSION_PROP = "gumtree.client.version";
+	
 	public static final String PHASE_PATH = "gumtree.koala.phase";
 	public static final String IMAGE_STATE_PATH = "gumtree.path.imageState";
 	public static final String IMAGE_ERROR_PATH = "gumtree.path.imageError";

@@ -249,9 +249,17 @@ public class DrumDoorWidget extends ExtendedWidgetComposite {
 		@Override
 		public void updateValue(Object oldValue, Object newValue) {
 			if (isLeft) {
-				dataLeft = Float.valueOf(String.valueOf(newValue));
+				try {
+					dataLeft = Float.valueOf(String.valueOf(newValue));
+				} catch (Exception e) {
+					dataLeft = Float.NaN;
+				}
 			} else {
-				dataRight = Float.valueOf(String.valueOf(newValue));
+				try {
+					dataRight = Float.valueOf(String.valueOf(newValue));
+				} catch (Exception e) {
+					dataRight = Float.NaN;
+				}
 			}
 			updateLabel(context);
 		}
@@ -331,8 +339,15 @@ public class DrumDoorWidget extends ExtendedWidgetComposite {
 				if (isDisposed()) {
 					return;
 				}
-				
-				if ((dataLeft == 0 && dataRight >=0) || (dataRight == 0 && dataLeft >= 0)) {
+				if (Float.isNaN(dataLeft) || Float.isNaN(dataRight)) {
+					context.label.setText(TEXT_LABEL + "UNKNOWN");
+					context.label.setBackground(getDisplay().getSystemColor(
+							SWT.COLOR_GRAY));
+					context.label.setForeground(getDisplay().getSystemColor(
+							SWT.COLOR_WHITE));
+					context.isActivated = false;
+					isClosed = false;
+				} else if ((dataLeft == 0 && dataRight >=0) || (dataRight == 0 && dataLeft >= 0)) {
 					context.label.setText(TEXT_LABEL + "OPEN");
 					context.label.setBackground(getDisplay().getSystemColor(
 							SWT.COLOR_RED));

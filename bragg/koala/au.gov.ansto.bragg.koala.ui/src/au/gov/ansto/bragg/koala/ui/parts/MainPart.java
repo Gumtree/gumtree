@@ -150,7 +150,21 @@ public class MainPart extends Composite {
 					if (fnController != null) {
 						fnController.addControllerListener(new FilenameControllerListener());
 					}
-
+					
+					final IDynamicController versionController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+							System.getProperty(ControlHelper.GUMTREE_VERSION_PATH));
+					if (versionController != null) {
+						String version = System.getProperty(ControlHelper.GUMTREE_VERSION_PROP);
+						try {
+							if (version != null) {
+								versionController.setValue(version);
+							} else {
+								versionController.setValue("UNKNOWN");
+							}
+						} catch (Exception e) {
+							logger.error("failed set gumtree version in SICS", e);
+						}
+					}
 				}
 			};
 
