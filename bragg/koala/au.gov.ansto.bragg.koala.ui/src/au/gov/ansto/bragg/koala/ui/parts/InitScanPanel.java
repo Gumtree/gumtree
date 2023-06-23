@@ -3,18 +3,15 @@
  */
 package au.gov.ansto.bragg.koala.ui.parts;
 
-import java.awt.Desktop;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.IOException;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -46,8 +43,6 @@ import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
-import au.gov.ansto.bragg.koala.ui.scan.ExperimentModel;
-import au.gov.ansto.bragg.koala.ui.scan.ExperimentModelAdapter;
 import au.gov.ansto.bragg.koala.ui.scan.IExperimentModelListener;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaInterruptionException;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
@@ -78,7 +73,7 @@ public class InitScanPanel extends AbstractControlPanel {
 	private Text incText;
 	private Text numText;
 	private Text estText;
-	private Text lastFileText;
+//	private Text lastFileText;
 	private boolean dirtyFlag = false;
 	private String curSampleName;
 	private String curComments;
@@ -412,7 +407,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		
 		final Group condGroup = new Group(rightMain, SWT.SHADOW_OUT);
 		condGroup.setText("Current Condition");
-		GridLayoutFactory.fillDefaults().numColumns(5).margins(8, 8).applyTo(condGroup);
+		GridLayoutFactory.fillDefaults().numColumns(2).margins(8, 8).applyTo(condGroup);
 		GridDataFactory.fillDefaults().grab(true, true).minSize(480, SWT.DEFAULT).applyTo(condGroup);
 		
 		final Label phiLabel = new Label(condGroup, SWT.NONE);
@@ -433,7 +428,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		chiText = new Text(condGroup, SWT.BORDER);
 		chiText.setEditable(false);
 		chiText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).minSize(180, 40).applyTo(chiText);
+		GridDataFactory.fillDefaults().grab(true, false).minSize(180, 40).applyTo(chiText);
 		
 		final Label tempLabel = new Label(condGroup, SWT.NONE);
 		tempLabel.setText("Temperature (K)");
@@ -443,7 +438,7 @@ public class InitScanPanel extends AbstractControlPanel {
 		tempText = new Text(condGroup, SWT.BORDER);
 		tempText.setEditable(false);
 		tempText.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(true, false).span(4, 1).minSize(240, 40).applyTo(tempText);
+		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(tempText);
 		
 		final Label stepLabel = new Label(condGroup, SWT.NONE);
 		stepLabel.setText("Step");
@@ -453,46 +448,46 @@ public class InitScanPanel extends AbstractControlPanel {
 		stepText = new Text(condGroup, SWT.BORDER);
 		stepText.setFont(Activator.getMiddleFont());
 		stepText.setEditable(false);
-		GridDataFactory.fillDefaults().grab(true, false).span(4, 1).minSize(240, 40).applyTo(stepText);
+		GridDataFactory.fillDefaults().grab(true, false).minSize(240, 40).applyTo(stepText);
 
-		final Label lastFileLabel = new Label(condGroup, SWT.NONE);
-		lastFileLabel.setText("Last file");
-		lastFileLabel.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, false).minSize(180, 40).applyTo(fileLabel);
-		
-		lastFileText = new Text(condGroup, SWT.BORDER);
-		lastFileText.setFont(Activator.getMiddleFont());
-		lastFileText.setEditable(false);
-		GridDataFactory.fillDefaults().grab(true, false).span(3, SWT.DEFAULT).minSize(240, 40).applyTo(lastFileText);
-
-		final Button openButton = new Button(condGroup, SWT.PUSH);
-	    openButton.setImage(KoalaImage.IMAGE32.getImage());
-//	    openButton.setFont(Activator.getMiddleFont());
-	    openButton.setCursor(Activator.getHandCursor());
-		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER)
-			.hint(40, 40).applyTo(openButton);
-
-		openButton.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				final String fn = lastFileText.getText();
-				File f = new File(fn);
-				if (f.exists()) {
-					try {
-						Desktop.getDesktop().open(f);
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-				} else {
-					MessageDialog.openWarning(getShell(), "Warning", "File not found: " + fn);
-				}
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
+//		final Label lastFileLabel = new Label(condGroup, SWT.NONE);
+//		lastFileLabel.setText("Last file");
+//		lastFileLabel.setFont(Activator.getMiddleFont());
+//		GridDataFactory.fillDefaults().grab(false, false).minSize(180, 40).applyTo(fileLabel);
+//		
+//		lastFileText = new Text(condGroup, SWT.BORDER);
+//		lastFileText.setFont(Activator.getMiddleFont());
+//		lastFileText.setEditable(false);
+//		GridDataFactory.fillDefaults().grab(true, false).span(3, SWT.DEFAULT).minSize(240, 40).applyTo(lastFileText);
+//
+//		final Button openButton = new Button(condGroup, SWT.PUSH);
+//	    openButton.setImage(KoalaImage.IMAGE32.getImage());
+////	    openButton.setFont(Activator.getMiddleFont());
+//	    openButton.setCursor(Activator.getHandCursor());
+//		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER)
+//			.hint(40, 40).applyTo(openButton);
+//
+//		openButton.addSelectionListener(new SelectionListener() {
+//			
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				final String fn = lastFileText.getText();
+//				File f = new File(fn);
+//				if (f.exists()) {
+//					try {
+//						Desktop.getDesktop().open(f);
+//					} catch (IOException e1) {
+//						e1.printStackTrace();
+//					}
+//				} else {
+//					MessageDialog.openWarning(getShell(), "Warning", "File not found: " + fn);
+//				}
+//			}
+//			
+//			@Override
+//			public void widgetDefaultSelected(SelectionEvent e) {
+//			}
+//		});
 		
 //		ProgressBar proBar = new ProgressBar(runBlock, SWT.HORIZONTAL);
 //		proBar.setMaximum(100);
@@ -509,44 +504,45 @@ public class InitScanPanel extends AbstractControlPanel {
 		control = new ConditionControl();
 		loadPreference();
 		
-		final ExperimentModel model = mainPart.getExperimentModel();
-		experimentModelListener = new ExperimentModelAdapter() {
-			
-			@Override
-			public void proposalIdChanged(final String newId) {
-				Display.getDefault().asyncExec(new Runnable() {
-					
-					@Override
-					public void run() {
-//						if (!parentText.isDisposed()) {
-//							parentText.setText(model.getProposalFolder());
+// Remove model listener that monitors file creation
+//		final ExperimentModel model = mainPart.getExperimentModel();
+//		experimentModelListener = new ExperimentModelAdapter() {
+//			
+//			@Override
+//			public void proposalIdChanged(final String newId) {
+//				Display.getDefault().asyncExec(new Runnable() {
+//					
+//					@Override
+//					public void run() {
+////						if (!parentText.isDisposed()) {
+////							parentText.setText(model.getProposalFolder());
+////						}
+//					}
+//				});
+//			}
+//			
+//			@Override
+//			public void updateLastFilename(final String filename) {
+//				Display.getDefault().asyncExec(new Runnable() {
+//					
+//					@Override
+//					public void run() {
+//						lastFileText.setText(filename);
+//						File f = new File(filename);
+//						if (f.exists()) {
+//							try {
+//								Desktop.getDesktop().open(f);
+//							} catch (IOException e1) {
+//								handleError("Failed to open file in image viewer: " + filename);
+//							}
+//						} else {
+//							handleError("File not found: " + filename);
 //						}
-					}
-				});
-			}
-			
-			@Override
-			public void updateLastFilename(final String filename) {
-				Display.getDefault().asyncExec(new Runnable() {
-					
-					@Override
-					public void run() {
-						lastFileText.setText(filename);
-						File f = new File(filename);
-						if (f.exists()) {
-							try {
-								Desktop.getDesktop().open(f);
-							} catch (IOException e1) {
-								handleError("Failed to open file in image viewer: " + filename);
-							}
-						} else {
-							handleError("File not found: " + filename);
-						}
-					}
-				});
-			}
-		};
-		model.addExperimentModelListener(experimentModelListener);
+//					}
+//				});
+//			}
+//		};
+//		model.addExperimentModelListener(experimentModelListener);
 		
 		initScan.addPropertyChangeListener(new PropertyChangeListener() {
 			
