@@ -36,6 +36,7 @@ public enum KoalaImage {
 	STOP48("/icons/stop_48.png"),
 	STOP64("/icons/stop_64.png"),
 	IMAGE32("/icons/image_32.png"),
+	IMAGE64("/icons/image_64.png"),
 	MULTI_APPLY48("/icons/multitick_48.png"),
 	TARGET48("/icons/target_48.gif"),
 	TOOLS48("/icons/tools_48.png"),
@@ -43,6 +44,9 @@ public enum KoalaImage {
 	SAVE32("/icons/save_32.png"),
 	LOAD32("/icons/load_32.png"),
 	OPEN32("/icons/open_32.png"),
+	OPEN64("/icons/open_64.png"),
+	UP64("/icons/up_64.png"),
+	DOWN64("/icons/down_64.png"),
 	;
 	
 	private KoalaImage(String path) {

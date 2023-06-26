@@ -70,7 +70,10 @@ public class Activator extends AbstractUIPlugin {
 	private static Cursor defaultCursor;
 	private static Color lightColor;
 	private static Color lightForgroundColor;
+	private static Color veryLightForgroundColor;
 	private static Color backgroundColor;
+	private static Color highlightBackgroundColor;
+	private static Color forgroundColor;
 	private static Color highlightColor;
 	private static Color warningColor;
 	private static Color busyColor;
@@ -109,11 +112,14 @@ public class Activator extends AbstractUIPlugin {
 				defaultCursor = currentDisplay.getSystemCursor(SWT.CURSOR_ARROW);
 				lightColor = Display.getDefault().getSystemColor(SWT.COLOR_INFO_BACKGROUND);
 				backgroundColor = Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
+				highlightBackgroundColor = new Color(Display.getDefault(), 161, 194, 241);
+				forgroundColor = Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_FOREGROUND);
 				highlightColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_RED);
 				warningColor = Display.getDefault().getSystemColor(SWT.COLOR_RED);
 				busyColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_GREEN);
 				idleColor = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
 				lightForgroundColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY);
+				veryLightForgroundColor = Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
 				runningBackgoundColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_GREEN);
 				runningForgroundColor = Display.getDefault().getSystemColor(SWT.COLOR_WHITE);
 			}
@@ -167,8 +173,17 @@ public class Activator extends AbstractUIPlugin {
 	public static Color getBackgroundColor() {
 		return backgroundColor;
 	}
+	public static Color getHighlightBackgroundColor() {
+		return highlightBackgroundColor;
+	}
+	public static Color getForgroundColor() {
+		return forgroundColor;
+	}
 	public static Color getLightForgroundColor() {
 		return lightForgroundColor;
+	}
+	public static Color getVeryLightForgroundColor() {
+		return veryLightForgroundColor;
 	}
 	public static Color getHighlightColor() {
 		return highlightColor;

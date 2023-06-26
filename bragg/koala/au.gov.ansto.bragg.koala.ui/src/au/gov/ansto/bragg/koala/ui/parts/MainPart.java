@@ -246,6 +246,7 @@ public class MainPart extends Composite {
 		if (!(panel instanceof CrystalPanel)) {
 			crystalPanel.pauseVideo();
 		}
+		getParentViewer().getFooterPart().setJoeyPartVisible(panel instanceof AdminPanel);
 	}
 	
 	public void showCurrentMainPanel() {
