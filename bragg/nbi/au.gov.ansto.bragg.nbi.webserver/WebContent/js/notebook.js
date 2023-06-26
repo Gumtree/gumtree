@@ -12,6 +12,13 @@ var updateIntervalSeconds = 60;
 var checkNewIntervalSeconds = 6;
 var isLoggedIn = false;
 var currentPass = null;
+var REVERSE_CATALOG_LIST = false;
+
+if (typeof REVERSE_CATALOG_ENABLED == 'undefined' || !REVERSE_CATALOG_ENABLED) {
+	REVERSE_CATALOG_LIST = false;
+} else {
+	REVERSE_CATALOG_LIST = true;
+}
 
 jQuery.fn.outerHTML = function() {
 	return jQuery('<div />').append(this.eq(0).clone()).html();
@@ -508,7 +515,11 @@ function updateCatalogTable() {
 			$.each(items, function(idx, val) {
 				$(this).find("th").addClass('class_tr_new');
 			});
-			$("#id_table_catalog > tbody").prepend(items);
+			if (REVERSE_CATALOG_LIST){
+				$("#id_table_catalog > tbody").append(items);
+			} else {
+				$("#id_table_catalog > tbody").prepend(items);
+			}
 			TABLE_SIZE += size;
 		}
 		update_timestamp = data["timestamp"];
@@ -546,11 +557,19 @@ function makeTableHeader(columnNames) {
 }
 
 function makeTableBody(columnNames, rowArray) {
-	rowArray.sort(function(a, b){
-		if(b['_key_'] < a['_key_']) return -1;
-	    if(b['_key_'] > a['_key_']) return 1;
-	    return 0;
-	});
+	if (REVERSE_CATALOG_LIST){
+		rowArray.sort(function(a, b){
+			if(b['_key_'] < a['_key_']) return 1;
+			if(b['_key_'] > a['_key_']) return -1;
+			return 0;
+		});
+	} else {
+		rowArray.sort(function(a, b){
+			if(b['_key_'] < a['_key_']) return -1;
+			if(b['_key_'] > a['_key_']) return 1;
+			return 0;
+		});
+	}
 	var html = '';
 	for ( var i = 0; i < rowArray.length; i++) {
 		var row = rowArray[i];

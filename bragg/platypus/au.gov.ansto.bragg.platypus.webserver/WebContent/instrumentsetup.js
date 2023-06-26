@@ -1,5 +1,6 @@
 var title = "Platypus";
 var batchEnabled = true;
+var REVERSE_CATALOG_ENABLED = true;
 var devices = [
                {"group":"NEUTRON COUNTS", 
             	   "items":[{"classId":"total_counts", "deviceId":"::histogram_memory::total_counts", "title":"Detector Counts", "units":"ct"}, 

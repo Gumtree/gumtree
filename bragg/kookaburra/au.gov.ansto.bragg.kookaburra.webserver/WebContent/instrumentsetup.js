@@ -1,6 +1,7 @@
 var title = "Kookaburra";
 var batchEnabled = false;
 var LOCK_ENABLED = true;
+var REVERSE_CATALOG_ENABLED = true;
 
 var apselMap = [
 	-65.5,

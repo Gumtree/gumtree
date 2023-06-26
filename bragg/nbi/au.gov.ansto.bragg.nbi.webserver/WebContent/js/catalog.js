@@ -16,6 +16,13 @@ var update_timestamp = "0";
 var search_pattern;
 var CLASS_SPAN_FOUND = "class_span_highlight";
 var URL_PAGE_NAME = "catalog.html";
+var REVERSE_CATALOG_LIST = false;
+
+if (typeof REVERSE_CATALOG_ENABLED == 'undefined' || !REVERSE_CATALOG_ENABLED) {
+	REVERSE_CATALOG_LIST = false;
+} else {
+	REVERSE_CATALOG_LIST = true;
+}
 
 function startCheckNewFile() {
 	checkNewFileIntervalId = setInterval(function(){
@@ -147,7 +154,7 @@ function stopCheckUser() {
 function detectIE() {
 	var ua = window.navigator.userAgent;
 
-	// Test values; Uncomment to check result ¡­
+	// Test values; Uncomment to check result ï¿½ï¿½
 
 	// IE 10
 	// ua = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)';
@@ -299,7 +306,11 @@ function updateCatalogTable() {
 			$.each(items, function(idx, val) {
 				$(this).find("th").addClass('class_tr_new');
 			});
-			$("#id_table_catalog > tbody").prepend(items);
+			if (REVERSE_CATALOG_LIST){
+				$("#id_table_catalog > tbody").append(items);
+			} else {
+				$("#id_table_catalog > tbody").prepend(items);
+			}
 //			$("#id_table_catalog > tbody").prepend(data["body"]);
 			TABLE_SIZE += size;
 		}
@@ -395,11 +406,19 @@ function makeTableHeader(columnNames) {
 }
 
 function makeTableBody(columnNames, rowArray) {
-	rowArray.sort(function(a, b){
-		if(b['_key_'] < a['_key_']) return -1;
-	    if(b['_key_'] > a['_key_']) return 1;
-	    return 0;
-	});
+	if (REVERSE_CATALOG_LIST){
+		rowArray.sort(function(a, b){
+			if(b['_key_'] < a['_key_']) return 1;
+			if(b['_key_'] > a['_key_']) return -1;
+			return 0;
+		});
+	} else {
+		rowArray.sort(function(a, b){
+			if(b['_key_'] < a['_key_']) return -1;
+			if(b['_key_'] > a['_key_']) return 1;
+			return 0;
+		});
+	}
 	var html = '';
 	for ( var i = 0; i < rowArray.length; i++) {
 		var row = rowArray[i];
