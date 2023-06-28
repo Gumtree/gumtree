@@ -10,8 +10,11 @@ import au.gov.ansto.bragg.koala.ui.Activator;
 public enum KoalaImage {
 	
 	WEATHER16("/icons/weather_16.png"),
+	WEATHER32("/icons/weather_32.png"),
 	WEATHER64("/icons/weather_64.png"),
 	JOEY64("/icons/joey_64.png"),
+	JOEY32("/icons/joey_32.png"),
+	DRUM32("/icons/drum_blue_32.png"),
 	COBRA("/icons/cobra_360.png"),
 	KOALA_V720("/icons/koala_v720.jpg"),
 	BACK64("/icons/back_64.png"),
@@ -47,6 +50,8 @@ public enum KoalaImage {
 	OPEN64("/icons/open_64.png"),
 	UP64("/icons/up_64.png"),
 	DOWN64("/icons/down_64.png"),
+	UP32("/icons/up_32.png"),
+	DOWN32("/icons/down_32.png"),
 	;
 	
 	private KoalaImage(String path) {

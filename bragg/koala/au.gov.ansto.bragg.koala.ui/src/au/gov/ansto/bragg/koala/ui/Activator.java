@@ -44,6 +44,9 @@ public class Activator extends AbstractUIPlugin {
 	public static final String NAME_FILENAME = "koala.filename";
 	public static final String NAME_COMMENTS = "koala.comments";
 	public static final String NAME_PROP_FOLDER = "koala.proposalFolder";
+	public static final String NAME_SX_ALIGN = "koala.sxAlignValue";
+	public static final String NAME_SY_ALIGN = "koala.syAlignValue";
+	public static final String NAME_SZ_ALIGN = "koala.szAlignValue";
 	public static final String NAME_MJPEG_MMPERPIXEL_LEFT = "koala.mmPerPixelX";
 	public static final String NAME_MJPEG_MMPERPIXEL_RIGHT = "koala.mmPerPixelY";
 	public static final String BEAM_CENTRE_LEFT = "gumtree.koala.beamCentreLeft";

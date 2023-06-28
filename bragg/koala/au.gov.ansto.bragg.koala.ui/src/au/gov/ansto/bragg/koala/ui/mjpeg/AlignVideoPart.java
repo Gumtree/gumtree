@@ -468,12 +468,17 @@ public class AlignVideoPart extends Composite {
 //						double mmPerPixelRightZ = parentViewer.getMmPerPixelRightZ();
 						float endLeftZ =  Double.valueOf(mmPerPixelLeft * (marker1.y - centre1.y) + curZ).floatValue();
 						float endRightZ =  Double.valueOf(mmPerPixelRight * (marker2.y - centre2.y) + curZ).floatValue();
+						float endZ = (endLeftZ + endRightZ) / 2;
 						
 						final Map<String, Number> devices = new HashMap<String, Number>();
 						devices.put(SX_NAME, endX);
 						devices.put(SY_NAME, endY);
-						devices.put(SZ_NAME, (endLeftZ + endRightZ) / 2);
+						devices.put(SZ_NAME, endZ);
 
+						Activator.setPreference(Activator.NAME_SX_ALIGN, String.valueOf(endX));
+						Activator.setPreference(Activator.NAME_SY_ALIGN, String.valueOf(endY));
+						Activator.setPreference(Activator.NAME_SZ_ALIGN, String.valueOf(endZ));
+						
 						ControlHelper.syncMultiDrive(devices);
 						Display.getDefault().asyncExec(new Runnable() {
 

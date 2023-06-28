@@ -46,11 +46,11 @@ public class FooterPart extends Composite {
 		GridLayoutFactory.fillDefaults().numColumns(6).applyTo(this);
 		
 		browseFolderButton = new Button(this, SWT.PUSH);
-		browseFolderButton.setText("Open Image Folder");
+		browseFolderButton.setText("Open Image Folder ");
 		browseFolderButton.setCursor(Activator.getHandCursor());
 		browseFolderButton.setFont(Activator.getMiddleFont());
-		browseFolderButton.setImage(KoalaImage.OPEN64.getImage());
-		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, true).minSize(240, 0).applyTo(browseFolderButton);
+		browseFolderButton.setImage(KoalaImage.OPEN32.getImage());
+		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, true).minSize(240, 64).applyTo(browseFolderButton);
 		
 		browseFolderButton.addSelectionListener(new SelectionListener() {
 			
@@ -87,11 +87,11 @@ public class FooterPart extends Composite {
 		});
 		
 		openImageButton = new Button(this, SWT.PUSH);
-		openImageButton.setText("Show Last Image");
+		openImageButton.setText("Show Last Image ");
 		openImageButton.setCursor(Activator.getHandCursor());
 		openImageButton.setFont(Activator.getMiddleFont());
-		openImageButton.setImage(KoalaImage.IMAGE64.getImage());
-		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, true).minSize(240, 0).applyTo(openImageButton);
+		openImageButton.setImage(KoalaImage.IMAGE32.getImage());
+		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, true).minSize(240, 64).applyTo(openImageButton);
 
 		openImageButton.addSelectionListener(new SelectionListener() {
 			
@@ -124,10 +124,10 @@ public class FooterPart extends Composite {
 
 		temperatureButton = new Button(this, SWT.PUSH);
 		temperatureButton.setCursor(Activator.getHandCursor());
-		temperatureButton.setImage(KoalaImage.WEATHER64.getImage());
-		temperatureButton.setText("Environment Control");
+		temperatureButton.setImage(KoalaImage.WEATHER32.getImage());
+		temperatureButton.setText("Environment Control ");
 		temperatureButton.setFont(Activator.getMiddleFont());
-		GridDataFactory.fillDefaults().grab(false, true).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 0).applyTo(temperatureButton);
+		GridDataFactory.fillDefaults().grab(false, true).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 64).applyTo(temperatureButton);
 		temperatureButton.setToolTipText("Click to unlock administrator page.");
 		
 		temperatureButton.addSelectionListener(new SelectionListener() {
@@ -143,49 +143,29 @@ public class FooterPart extends Composite {
 		});
 
 		samZButton = new Button(this, SWT.PUSH);
-		samZButton.setText("Move Sample Z Up");
+		samZButton.setText(ControlHelper.SampleZHelper.MOVE_Z_UP);
 		samZButton.setCursor(Activator.getHandCursor());
 		samZButton.setFont(Activator.getMiddleFont());
-		samZButton.setImage(KoalaImage.UP64.getImage());
-		GridDataFactory.fillDefaults().grab(false, true).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 0).applyTo(samZButton);
+		samZButton.setImage(KoalaImage.UP32.getImage());
+		GridDataFactory.fillDefaults().grab(false, true).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 64).applyTo(samZButton);
 		
-		samZButton.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(final SelectionEvent e) {
-				getParentViewer().getMainPart().showJoeyPanel();
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
+		new ControlHelper.SampleZHelper(samZButton);
 		
 		drumDownButton = new Button(this, SWT.PUSH);
-		drumDownButton.setText("Move Drum Down");
+		drumDownButton.setText("Move Drum Down ");
 		drumDownButton.setCursor(Activator.getHandCursor());
 		drumDownButton.setFont(Activator.getMiddleFont());
-		drumDownButton.setImage(KoalaImage.DOWN64.getImage());
-		GridDataFactory.fillDefaults().grab(false, true).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 0).applyTo(drumDownButton);
+		drumDownButton.setImage(KoalaImage.DRUM32.getImage());
+		GridDataFactory.fillDefaults().grab(false, true).align(SWT.BEGINNING, SWT.CENTER).minSize(240, 64).applyTo(drumDownButton);
 		
-		drumDownButton.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(final SelectionEvent e) {
-				getParentViewer().getMainPart().showJoeyPanel();
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
+		new ControlHelper.DrumZHelper(drumDownButton);
 		
 		joeyButton = new Button(this, SWT.PUSH);
 		joeyButton.setText("JOEY Mode ");
 		joeyButton.setCursor(Activator.getHandCursor());
 		joeyButton.setFont(Activator.getMiddleFont());
-		joeyButton.setImage(KoalaImage.JOEY64.getImage());
-		GridDataFactory.fillDefaults().grab(true, true).align(SWT.END, SWT.CENTER).minSize(240, 0).applyTo(joeyButton);
+		joeyButton.setImage(KoalaImage.JOEY32.getImage());
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.END, SWT.CENTER).minSize(240, 64).applyTo(joeyButton);
 		joeyButton.setVisible(false);
 		joeyButton.addSelectionListener(new SelectionListener() {
 			
@@ -233,5 +213,6 @@ public class FooterPart extends Composite {
 	public void setJoeyPartVisible(boolean isVisible) {
 		joeyButton.setVisible(isVisible);
 	}
+	
 	
 }

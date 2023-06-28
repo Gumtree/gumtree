@@ -10,7 +10,10 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -26,13 +29,16 @@ import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsInterruptException;
+import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.imp.DriveableController;
+import org.gumtree.control.imp.DynamicController;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.service.db.RemoteTextDbService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
+import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.scan.ExperimentModel;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaInterruptionException;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaModelException;
@@ -79,6 +85,7 @@ public class ControlHelper {
 	public static final String SY_PATH = "gumtree.koala.sy";
 	public static final String SZ_PATH = "gumtree.koala.sz";
 	public static final String SZ_ZERO = "gumtree.koala.szZero";
+	public static final String SZ_UP_VALUE = "gumtree.koala.szUp";
 	public static final String LED_PATH = "gumtree.path.koalaLed";
 	public static final String STEP_PATH = "gumtree.koala.currpoint";
 	public static final String STEP_TEXT_PATH = "gumtree.koala.stepText";
@@ -559,6 +566,300 @@ public class ControlHelper {
 		} catch (Exception e) {
 		}
 		return err;
+	}
+
+	public static class DrumZHelper {
+		
+		private Button drumButton;
+		
+		public DrumZHelper(final Button drumButton) {
+			this.drumButton = drumButton;
+			drumButton.addSelectionListener(new SelectionListener() {
+				
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					Thread runThread = new Thread(new Runnable() {
+
+						@Override
+						public void run() {
+							ControlHelper.concurrentDrive(System.getProperty(ControlHelper.DRUM_PATH), 
+										Float.valueOf(System.getProperty(ControlHelper.DRUM_DOWN_VALUE)));
+						}
+					});
+					runThread.start();
+				}
+				
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+				}
+			});
+			
+			if (getProxy().isConnected()) {
+				initialise();
+			}
+			ISicsProxyListener proxyDrumZListener = new SicsProxyListenerAdapter() {
+
+				@Override
+				public void modelUpdated() {
+					initialise();
+				}
+				
+				@Override
+				public void disconnect() {
+					Display.getDefault().asyncExec(new Runnable() {
+						
+						@Override
+						public void run() {
+							drumButton.setEnabled(false);
+						}
+					});
+				}
+			};
+			getProxy().addProxyListener(proxyDrumZListener);
+		}
+		
+		private void initialise() {
+			final ISicsController drumZController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.DRUM_PATH));	
+			if (drumZController != null) {
+				if (drumZController instanceof DynamicController) {
+					try {
+						final float value = Float.valueOf(((DynamicController) drumZController).getValue().toString());
+						final float limit = Float.valueOf(System.getProperty(ControlHelper.DRUM_DOWN_VALUE));
+						Display.getDefault().asyncExec(new Runnable() {
+							
+							@Override
+							public void run() {
+								if (value > limit + 1) {
+									drumButton.setEnabled(true);
+								} else {
+									drumButton.setEnabled(false);
+								}
+							}
+						});
+					} catch (SicsModelException e) {
+					}
+
+					drumZController.addControllerListener(new DrumZControllerListener(drumButton));
+				}
+			}
+		}
+		
+		class DrumZControllerListener implements ISicsControllerListener {
+
+			private Button drumButton;
+			private ControllerState state = ControllerState.IDLE;
+			
+			public DrumZControllerListener(final Button drumButton) {
+				this.drumButton = drumButton;
+			}
+			
+			@Override
+			public void updateState(ControllerState oldState, ControllerState newState) {
+				state = newState;
+				
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						if (ControllerState.BUSY == newState) {
+							drumButton.setEnabled(false);
+						} else {
+							drumButton.setEnabled(true);
+						}
+					}
+
+				});
+
+			}
+
+			@Override
+			public void updateValue(final Object oldValue, final Object newValue) {
+				final float limit = Float.valueOf(System.getProperty(ControlHelper.DRUM_DOWN_VALUE));
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						if (Float.valueOf(String.valueOf(newValue)) > limit + 1) {
+							if (state != ControllerState.BUSY) {
+								drumButton.setEnabled(true);
+							}
+						} else {
+							drumButton.setEnabled(false);
+						}
+					}
+					
+				});
+			}
+
+			@Override
+			public void updateEnabled(boolean isEnabled) {
+			}
+
+			@Override
+			public void updateTarget(Object oldValue, Object newValue) {
+			}
+			
+		}
+
+	}
+	
+	
+	public static class SampleZHelper {
+		
+		public static final String MOVE_Z_UP 	= "Move Sample Z Up to 250 ";
+		public static final String MOVE_Z_BACK 	= "Move Sample Z to Beam ";
+		
+		private Button samzButton;
+		private boolean isUp = false;
+		
+		public SampleZHelper(final Button samzButton) {
+			this.samzButton = samzButton;
+			samzButton.addSelectionListener(new SelectionListener() {
+				
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					Thread runThread = new Thread(new Runnable() {
+
+						@Override
+						public void run() {
+							float target;
+							if (isUp) {
+								String value = Activator.getPreference(Activator.NAME_SZ_ALIGN);
+								if (value == null || value.length() == 0) {
+									value = System.getProperty(SZ_ZERO);
+								}
+								if (value == null || value.length() == 0) {
+									target = 0;									
+								} else {
+									target = Float.valueOf(value);
+								}
+							} else {
+								target = Float.valueOf(System.getProperty(ControlHelper.SZ_UP_VALUE));
+							}
+							ControlHelper.concurrentDrive(System.getProperty(ControlHelper.SZ_PATH), 
+										target);
+						}
+					});
+					runThread.start();
+				}
+				
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+				}
+			});
+			
+			if (getProxy().isConnected()) {
+				initialise();
+			}
+			ISicsProxyListener proxySamZListener = new SicsProxyListenerAdapter() {
+
+				@Override
+				public void modelUpdated() {
+					initialise();
+				}
+				
+				@Override
+				public void disconnect() {
+					Display.getDefault().asyncExec(new Runnable() {
+						
+						@Override
+						public void run() {
+							samzButton.setEnabled(false);
+						}
+					});
+				}
+			};
+			getProxy().addProxyListener(proxySamZListener);
+		}
+		
+		private void initialise() {
+			final ISicsController samZController = SicsManager.getSicsModel().findController(
+					System.getProperty(ControlHelper.SZ_PATH));	
+			if (samZController != null) {
+				if (samZController instanceof DynamicController) {
+					try {
+						final float value = Float.valueOf(((DynamicController) samZController).getValue().toString());
+						final float limit = Float.valueOf(System.getProperty(ControlHelper.SZ_UP_VALUE)) / 2;
+						Display.getDefault().asyncExec(new Runnable() {
+							
+							@Override
+							public void run() {
+								if (value >= limit) {
+									isUp = true;
+									samzButton.setImage(KoalaImage.DOWN32.getImage());
+									samzButton.setText(MOVE_Z_BACK);
+								} else {
+									isUp = false;
+									samzButton.setImage(KoalaImage.UP32.getImage());
+									samzButton.setText(MOVE_Z_UP);
+								}
+							}
+						});
+					} catch (SicsModelException e) {
+					}
+
+					samZController.addControllerListener(new SampleZControllerListener(samzButton));
+				}
+			}
+		}
+
+		class SampleZControllerListener implements ISicsControllerListener {
+
+			private Button samzButton;
+			
+			public SampleZControllerListener(final Button samzButton) {
+				this.samzButton = samzButton;
+			}
+			
+			@Override
+			public void updateState(final ControllerState oldState, final ControllerState newState) {
+				
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						if (ControllerState.BUSY == newState) {
+							samzButton.setEnabled(false);
+						} else {
+							samzButton.setEnabled(true);
+						}
+					}
+
+				});
+			}
+
+			@Override
+			public void updateValue(final Object oldValue, final Object newValue) {
+				final float limit = Float.valueOf(System.getProperty(ControlHelper.SZ_UP_VALUE)) / 2;
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						if (Float.valueOf(String.valueOf(newValue)) >= limit) {
+							isUp = true;
+							samzButton.setImage(KoalaImage.DOWN32.getImage());
+							samzButton.setText(MOVE_Z_BACK);
+						} else {
+							isUp = false;
+							samzButton.setImage(KoalaImage.UP32.getImage());
+							samzButton.setText(MOVE_Z_UP);
+						}
+					}
+					
+				});
+			}
+
+			@Override
+			public void updateEnabled(boolean isEnabled) {
+			}
+
+			@Override
+			public void updateTarget(Object oldValue, Object newValue) {
+			}
+			
+		}
+
 	}
 	
 }
