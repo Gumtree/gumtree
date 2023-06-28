@@ -915,16 +915,25 @@ public abstract class AbstractExpPanel extends AbstractControlPanel {
 				public void run() {
 					try {
 						if (phiController != null) {
-							phiText.setText(String.valueOf(
-									((DynamicController) phiController).getValue()));
+							try {
+								phiText.setText(String.format("%.2f",
+										((DynamicController) phiController).getControllerDataValue().getFloatData()));
+							} catch (Exception e) {
+							}
 						}
 						if (tempController != null) {
-							tempText.setText(String.valueOf(
-									((DynamicController) tempController).getValue()));
+							try {
+								tempText.setText(String.format("%.2f",
+										((DynamicController) tempController).getControllerDataValue().getFloatData()));
+							} catch (Exception e) {
+							}
 						}
 						if (stepController != null) {
-							numText.setText(String.valueOf(
-									((DynamicController) stepController).getValue()));
+							try {
+								numText.setText(String.valueOf(
+										((DynamicController) stepController).getValue()));
+							} catch (Exception e) {
+							}
 						}
 //						if (fnController != null) {
 //							fileText.setText(String.valueOf(

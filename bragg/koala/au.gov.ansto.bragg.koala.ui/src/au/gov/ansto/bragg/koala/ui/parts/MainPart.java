@@ -203,10 +203,12 @@ public class MainPart extends Composite {
 	
 	public void showEnvironmentPanel() {
 		environmentPanel.show();
+		getParentViewer().getHeaderPart().buttonSelected(null);
 	}
 
 	public void showJoeyPanel() {
 		joeyPanel.show();
+		getParentViewer().getHeaderPart().buttonSelected(null);
 	}
 
 	public void showAdminPanel() {

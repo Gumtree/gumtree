@@ -9,16 +9,15 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
@@ -29,6 +28,7 @@ import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
  */
 public class JoeyPanel extends AbstractPanel {
 
+	private final static Logger logger = LoggerFactory.getLogger(JoeyPanel.class);
 	private static final int WIDTH_HINT = 600;
 	private static final int HEIGHT_HINT = 680;
 	private MainPart mainPart;
@@ -63,6 +63,7 @@ public class JoeyPanel extends AbstractPanel {
 			public void keyReleased(KeyEvent e) {
 				String value = passText.getText();
 				if (MainPart.UNLOCK_TEXT.equals(value)) {
+					logger.warn("password correctly input to Joey panel");
 					activeButton.setEnabled(true);
 					advButton.setVisible(true);
 				} else {
@@ -150,7 +151,13 @@ public class JoeyPanel extends AbstractPanel {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		
+
+		Label titleLabel = new Label(this, SWT.NONE);
+		titleLabel.setText("JOEY Mode");
+		titleLabel.setForeground(Activator.getBusyColor());
+		titleLabel.setFont(Activator.getLargeFont());
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.CENTER, SWT.CENTER).minSize(360, 36).span(2, 1).applyTo(titleLabel);
+
 		statusLabel = new Label(this, SWT.NONE);
 		statusLabel.setText("DEACTIVATED");
 		statusLabel.setEnabled(false);
@@ -170,6 +177,7 @@ public class JoeyPanel extends AbstractPanel {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				isActivated = !isActivated;
+				logger.warn("Activate/deactivate button clicked to set Joey mode to " + String.valueOf(isActivated));
 				passText.setText("");
 				advButton.setVisible(false);
 				hideAdvPanel();

@@ -29,6 +29,7 @@ public class HeaderPart extends Composite {
 	private Label adminPageButton;
 	private Label[] buttons;
 	private Label selectedButton;
+	private boolean isEnabled = true;
 	
 	/**
 	 * @param parent
@@ -55,8 +56,10 @@ public class HeaderPart extends Composite {
 			
 			@Override
 			public void mouseUp(final MouseEvent e) {
-				buttonSelected(experimentSetupButton);
-				getParentViewer().getMainPart().showProposalPanel();
+				if (isEnabled) {
+					buttonSelected(experimentSetupButton);
+					getParentViewer().getMainPart().showProposalPanel();
+				}
 			}
 		});
 		
@@ -64,14 +67,14 @@ public class HeaderPart extends Composite {
 			
 			@Override
 			public void mouseEnter(MouseEvent e) {
-				if (selectedButton != experimentSetupButton) {
+				if (isEnabled && selectedButton != experimentSetupButton) {
 					highlightButton(experimentSetupButton, true);
 				}
 			}
 			
 			@Override
 			public void mouseExit(MouseEvent e) {
-				if (selectedButton != experimentSetupButton) {
+				if (isEnabled && selectedButton != experimentSetupButton) {
 					highlightButton(experimentSetupButton, false);
 				}
 			}
@@ -86,8 +89,10 @@ public class HeaderPart extends Composite {
 			
 			@Override
 			public void mouseUp(final MouseEvent e) {
-				buttonSelected(crystalAlignButton);
-				getParentViewer().getMainPart().showCrystalPanel();
+				if (isEnabled) {
+					buttonSelected(crystalAlignButton);
+					getParentViewer().getMainPart().showCrystalPanel();
+				}
 			}
 		});
 		
@@ -95,14 +100,14 @@ public class HeaderPart extends Composite {
 			
 			@Override
 			public void mouseEnter(MouseEvent e) {
-				if (selectedButton != crystalAlignButton) {
+				if (isEnabled && selectedButton != crystalAlignButton) {
 					highlightButton(crystalAlignButton, true);
 				}
 			}
 			
 			@Override
 			public void mouseExit(MouseEvent e) {
-				if (selectedButton != crystalAlignButton) {
+				if (isEnabled && selectedButton != crystalAlignButton) {
 					highlightButton(crystalAlignButton, false);
 				}
 			}
@@ -119,9 +124,10 @@ public class HeaderPart extends Composite {
 			@Override
 			public void mouseUp(final MouseEvent e) {
 				
-				buttonSelected(testImageButton);
-				getParentViewer().getMainPart().showInitScanPanel();
-				
+				if (isEnabled) {
+					buttonSelected(testImageButton);
+					getParentViewer().getMainPart().showInitScanPanel();
+				}				
 //			    Display.getCurrent().asyncExec(new Runnable() {
 //					
 //					@Override
@@ -161,14 +167,14 @@ public class HeaderPart extends Composite {
 			
 			@Override
 			public void mouseEnter(MouseEvent e) {
-				if (selectedButton != testImageButton) {
+				if (isEnabled && selectedButton != testImageButton) {
 					highlightButton(testImageButton, true);
 				}
 			}
 			
 			@Override
 			public void mouseExit(MouseEvent e) {
-				if (selectedButton != testImageButton) {
+				if (isEnabled && selectedButton != testImageButton) {
 					highlightButton(testImageButton, false);
 				}
 			}
@@ -183,12 +189,14 @@ public class HeaderPart extends Composite {
 			
 			@Override
 			public void mouseUp(final MouseEvent e) {
-				buttonSelected(fullExperimentButton);
-				getParentViewer().getMainPart().showPhysicsPanel();
-				if (getParentViewer().getMainPart().getInstrumentMode() == KoalaMode.CHEMISTRY) {
-					getParentViewer().getMainPart().showChemistryPanel();
-				} else {
+				if (isEnabled) {
+					buttonSelected(fullExperimentButton);
 					getParentViewer().getMainPart().showPhysicsPanel();
+					if (getParentViewer().getMainPart().getInstrumentMode() == KoalaMode.CHEMISTRY) {
+						getParentViewer().getMainPart().showChemistryPanel();
+					} else {
+						getParentViewer().getMainPart().showPhysicsPanel();
+					}
 				}
 			}
 		});
@@ -197,14 +205,14 @@ public class HeaderPart extends Composite {
 			
 			@Override
 			public void mouseEnter(MouseEvent e) {
-				if (selectedButton != fullExperimentButton) {
+				if (isEnabled && selectedButton != fullExperimentButton) {
 					highlightButton(fullExperimentButton, true);
 				}
 			}
 			
 			@Override
 			public void mouseExit(MouseEvent e) {
-				if (selectedButton != fullExperimentButton) {
+				if (isEnabled && selectedButton != fullExperimentButton) {
 					highlightButton(fullExperimentButton, false);
 				}
 			}
@@ -219,8 +227,10 @@ public class HeaderPart extends Composite {
 			
 			@Override
 			public void mouseUp(final MouseEvent e) {
-				buttonSelected(adminPageButton);
-				getParentViewer().getMainPart().showAdminPanel();
+				if (isEnabled) {
+					buttonSelected(adminPageButton);
+					getParentViewer().getMainPart().showAdminPanel();
+				}
 			}
 		});
 		
@@ -228,14 +238,14 @@ public class HeaderPart extends Composite {
 			
 			@Override
 			public void mouseEnter(MouseEvent e) {
-				if (selectedButton != adminPageButton) {
+				if (isEnabled && selectedButton != adminPageButton) {
 					highlightButton(adminPageButton, true);
 				}
 			}
 			
 			@Override
 			public void mouseExit(MouseEvent e) {
-				if (selectedButton != adminPageButton) {
+				if (isEnabled && selectedButton != adminPageButton) {
 					highlightButton(adminPageButton, false);
 				}
 			}
@@ -284,9 +294,20 @@ public class HeaderPart extends Composite {
 	public void setButtonEnabled(boolean isEnabled) {
 //		experimentSetupButton.setEnabled(isEnabled);
 //		testImageButton.setEnabled(isEnabled);
+		this.isEnabled = isEnabled;
+		if (isEnabled) {
+			buttonSelected(selectedButton);
+		} else {
+			for (int i = 0; i < buttons.length; i++) {
+				Label button = buttons[i];
+				button.setBackground(Activator.getRunningForgroundColor());
+				button.setForeground(Activator.getVeryLightForgroundColor());
+				button.setCursor(Activator.getDefaultCursor());
+			}
+		}
 	}
 
-	private void buttonSelected(final Label selectedButton) {
+	public void buttonSelected(final Label selectedButton) {
 		this.selectedButton = selectedButton;
 		for (int i = 0; i < buttons.length; i++) {
 			Label button = buttons[i];
