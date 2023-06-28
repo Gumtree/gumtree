@@ -655,7 +655,7 @@ public class ControlHelper {
 			}
 			
 			@Override
-			public void updateState(ControllerState oldState, ControllerState newState) {
+			public void updateState(final ControllerState oldState, final ControllerState newState) {
 				state = newState;
 				
 				Display.getDefault().asyncExec(new Runnable() {
