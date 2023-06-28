@@ -36,6 +36,7 @@ public class FooterPart extends Composite {
 	private Button samZButton;
 	private Button drumDownButton;
 	private Button joeyButton;
+	private boolean isEnabled;
 	
 	/**
 	 * @param parent
@@ -202,12 +203,20 @@ public class FooterPart extends Composite {
 	}
 	
 	public void setButtonEnabled(boolean isEnabled) {
+		this.isEnabled = isEnabled;
 		joeyButton.setEnabled(isEnabled);
 		browseFolderButton.setEnabled(isEnabled);
 		openImageButton.setEnabled(isEnabled);
 		temperatureButton.setEnabled(isEnabled);
 		samZButton.setEnabled(isEnabled);
 		drumDownButton.setEnabled(isEnabled);
+		if (isEnabled) {
+			samZButton.setVisible(true);
+			drumDownButton.setVisible(true);
+		} else {
+			samZButton.setVisible(false);
+			drumDownButton.setVisible(false);
+		}
 	}
 
 	public void setJoeyPartVisible(boolean isVisible) {
