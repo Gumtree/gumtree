@@ -35,6 +35,7 @@ public class FooterPart extends Composite {
 	private Button temperatureButton;
 	private Button samZButton;
 	private Button drumDownButton;
+	private Button passButton;
 	private Button joeyButton;
 	private boolean isEnabled;
 	
@@ -44,7 +45,7 @@ public class FooterPart extends Composite {
 	 */
 	public FooterPart(Composite parent, int style) {
 		super(parent, style);
-		GridLayoutFactory.fillDefaults().numColumns(6).applyTo(this);
+		GridLayoutFactory.fillDefaults().numColumns(7).applyTo(this);
 		
 		browseFolderButton = new Button(this, SWT.PUSH);
 		browseFolderButton.setText("Open Image Folder ");
@@ -180,6 +181,25 @@ public class FooterPart extends Composite {
 			}
 		});
 
+		passButton = new Button(this, SWT.PUSH);
+		passButton.setText("Passcode ");
+		passButton.setCursor(Activator.getHandCursor());
+		passButton.setFont(Activator.getMiddleFont());
+		passButton.setImage(KoalaImage.JOEY32.getImage());
+		GridDataFactory.fillDefaults().grab(false, true).align(SWT.END, SWT.CENTER).minSize(240, 64).applyTo(passButton);
+		passButton.setVisible(false);
+		passButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(final SelectionEvent e) {
+				getParentViewer().getMainPart().showJoeyPanel();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
 	}
 
 	public void setBackButtonEnabled(boolean isEnabled) {
@@ -220,6 +240,7 @@ public class FooterPart extends Composite {
 	}
 
 	public void setJoeyPartVisible(boolean isVisible) {
+		passButton.setVisible(isVisible);
 		joeyButton.setVisible(isVisible);
 	}
 	

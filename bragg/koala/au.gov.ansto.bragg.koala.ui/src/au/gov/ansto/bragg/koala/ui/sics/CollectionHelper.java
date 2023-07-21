@@ -79,6 +79,7 @@ public class CollectionHelper {
 	private boolean isStarted;
 	private boolean isAborting;
 	private IDynamicController stateController;
+	private IDynamicController galilStateController;
 	private IDynamicController errorController;
 	private IDynamicController tiffStatusController;
 	private IDynamicController tiffErrorController;
@@ -127,6 +128,8 @@ public class CollectionHelper {
 				System.getProperty(ControlHelper.IMAGE_STATE_PATH));
 		errorController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
 				System.getProperty(ControlHelper.IMAGE_ERROR_PATH));
+		galilStateController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+				System.getProperty(ControlHelper.GALIL_STATE));
 		
 		if (stateController != null) {
 			try {
@@ -373,9 +376,16 @@ public class CollectionHelper {
 			ControlHelper.experimentModel.setTiffLabelled(false);
 			ControlHelper.getProxy().setServerStatus(ServerStatus.RUNNING_A_SCAN);
 			ControlHelper.setValue(System.getProperty(ControlHelper.EXPOSURE_TIME_PATH), exposure);
+//			ControlHelper.getProxy().syncRun(String.format("hset /instrument/image/error_msg OK"));
+			errorController.setValue("OK");
 			ControlHelper.getProxy().syncRun(String.format("hset /instrument/image/start 1"));
 			int ct = 0;
 			while (!isStarted && ct <= START_TIMEOUT * 1000) {
+				String err = getErrorMessage();
+				if (err != null && err.length() > 0) {
+					String galilState = galilStateController.getValue().toString();
+					throw new KoalaServerException(err + ", galil state = " + (galilState.length() == 0 ? "<EMPTY>" : galilState));
+				}
 				try {
 					Thread.sleep(CHECK_CYCLE);
 					ct += CHECK_CYCLE;

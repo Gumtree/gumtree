@@ -3,9 +3,12 @@
  */
 package au.gov.ansto.bragg.koala.ui.parts;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
@@ -13,7 +16,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
+import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
+import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 
 /**
  * @author nxi
@@ -22,13 +27,13 @@ import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
 public class HeaderPart extends Composite {
 
 	private final static int NUM_BUTTONS = 5;
-	private Label experimentSetupButton;
-	private Label crystalAlignButton;
-	private Label testImageButton;
-	private Label fullExperimentButton;
-	private Label adminPageButton;
-	private Label[] buttons;
-	private Label selectedButton;
+	private CLabel experimentSetupButton;
+	private CLabel crystalAlignButton;
+	private CLabel testImageButton;
+	private CLabel fullExperimentButton;
+	private CLabel adminPageButton;
+	private CLabel[] buttons;
+	private CLabel selectedButton;
 	private boolean isEnabled = true;
 	
 	/**
@@ -44,8 +49,8 @@ public class HeaderPart extends Composite {
 	private void addDashboardButton(Composite parent) {
 		
 	
-		experimentSetupButton = new Label(this, SWT.PUSH);
-//		experimentSetupButton.setImage(KoalaImage.CHEMISTRY64.getImage());
+		experimentSetupButton = new CLabel(this, SWT.NONE);
+		experimentSetupButton.setImage(KoalaImage.HOME64.getImage());
 		experimentSetupButton.setText(" Experiment Setup  ");
 		experimentSetupButton.setCursor(Activator.getHandCursor());
 		experimentSetupButton.setFont(Activator.getLargeFont());
@@ -80,9 +85,10 @@ public class HeaderPart extends Composite {
 			}
 		});
 		
-		crystalAlignButton = new Label(this, SWT.NONE);
+		crystalAlignButton = new CLabel(this, SWT.NONE);
 		crystalAlignButton.setText(" Crystal Align  ");
 		crystalAlignButton.setFont(Activator.getLargeFont());
+		crystalAlignButton.setToolTipText("Show crystal alignment panel.");
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).applyTo(crystalAlignButton);
 
 		crystalAlignButton.addMouseListener(new MouseAdapter() {
@@ -113,10 +119,11 @@ public class HeaderPart extends Composite {
 			}
 		});
 		
-		testImageButton = new Label(parent, SWT.NONE);
+		testImageButton = new CLabel(parent, SWT.NONE);
 		testImageButton.setCursor(Activator.getHandCursor());
 		testImageButton.setText(" Test Image  ");
 		testImageButton.setFont(Activator.getLargeFont());
+		testImageButton.setToolTipText("Show the panel to test image collection.");
 //		testImageButton.setImage(KoalaImage.WEATHER64.getImage());
 	    GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).applyTo(testImageButton);
 	    testImageButton.addMouseListener(new MouseAdapter() {
@@ -180,8 +187,9 @@ public class HeaderPart extends Composite {
 			}
 		});
 		
-	    fullExperimentButton = new Label(this, SWT.NONE);
+	    fullExperimentButton = new CLabel(this, SWT.NONE);
 	    fullExperimentButton.setText(" Full Experiment  ");
+	    fullExperimentButton.setImage(KoalaImage.CHEMISTRY64.getImage());
 	    fullExperimentButton.setFont(Activator.getLargeFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).applyTo(fullExperimentButton);
 
@@ -218,9 +226,10 @@ public class HeaderPart extends Composite {
 			}
 		});
 		
-		adminPageButton = new Label(this, SWT.NONE);
+		adminPageButton = new CLabel(this, SWT.NONE);
 		adminPageButton.setText(" Admin Page  ");
 		adminPageButton.setFont(Activator.getLargeFont());
+		adminPageButton.setToolTipText("Show administration panel. You'll be prompted to login as instrument scientist.");
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).applyTo(adminPageButton);
 
 		adminPageButton.addMouseListener(new MouseAdapter() {
@@ -228,8 +237,20 @@ public class HeaderPart extends Composite {
 			@Override
 			public void mouseUp(final MouseEvent e) {
 				if (isEnabled) {
-					buttonSelected(adminPageButton);
-					getParentViewer().getMainPart().showAdminPanel();
+					if (getParentViewer().getMainPart().getCurrentPanelName() == PanelName.ADMIN) {
+						return;
+					}
+					PasswordDialog dialog = new PasswordDialog(getShell());
+					if (dialog.open() == Window.OK) {
+//			            String user = dialog.getUser();
+			            String pw = dialog.getPassword();
+			            if (Activator.isPassDisabled() || MainPart.UNLOCK_TEXT.equals(pw)) {
+			            	buttonSelected(adminPageButton);
+			            	getParentViewer().getMainPart().showAdminPanel();
+			            } else {
+			            	MessageDialog.openWarning(getShell(), "Warning", "Invalid passcode");
+			            }
+			        }
 				}
 			}
 		});
@@ -254,7 +275,7 @@ public class HeaderPart extends Composite {
 		Label emptySpace = new Label(this, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(emptySpace);
 		
-		buttons = new Label[] {
+		buttons = new CLabel[] {
 			experimentSetupButton, 
 			crystalAlignButton,
 			testImageButton,
@@ -274,13 +295,21 @@ public class HeaderPart extends Composite {
 //	}
 
 	public void setMode(KoalaMode mode) {
-//		if (mode == KoalaMode.PHYSICS) {
-//			experimentSetupButton.setImage(KoalaImage.PHYSICS64.getImage());
-//			experimentSetupButton.setToolTipText("Current mode: Physics. Click here to change the mode.");
-//		} else {
-//			experimentSetupButton.setImage(KoalaImage.CHEMISTRY64.getImage());
-//			experimentSetupButton.setToolTipText("Current mode: Chemistry. Click here to change the mode.");
-//		}
+		if (mode == KoalaMode.PHYSICS) {
+			if (selectedButton == fullExperimentButton) {
+				fullExperimentButton.setImage(KoalaImage.PHYSICS64.getImage());
+			} else {
+				fullExperimentButton.setImage(KoalaImage.PHYSICS_GRAY64.getImage());
+			}
+			fullExperimentButton.setToolTipText("Current mode: Physics.");
+		} else {
+			if (selectedButton == fullExperimentButton) {
+				fullExperimentButton.setImage(KoalaImage.CHEMISTRY64.getImage());
+			} else {
+				fullExperimentButton.setImage(KoalaImage.CHEMISTRY_GRAY64.getImage());
+			}
+			fullExperimentButton.setToolTipText("Current mode: Chemistry.");
+		}
 	}
 	
 	private KoalaMainViewer getParentViewer() {
@@ -299,7 +328,7 @@ public class HeaderPart extends Composite {
 			buttonSelected(selectedButton);
 		} else {
 			for (int i = 0; i < buttons.length; i++) {
-				Label button = buttons[i];
+				CLabel button = buttons[i];
 				button.setBackground(Activator.getRunningForgroundColor());
 				button.setForeground(Activator.getVeryLightForgroundColor());
 				button.setCursor(Activator.getDefaultCursor());
@@ -307,27 +336,49 @@ public class HeaderPart extends Composite {
 		}
 	}
 
-	public void buttonSelected(final Label selectedButton) {
+	public void buttonSelected(final CLabel selectedButton) {
 		this.selectedButton = selectedButton;
 		for (int i = 0; i < buttons.length; i++) {
-			Label button = buttons[i];
+			CLabel button = buttons[i];
 			setButtonFront(button, button == selectedButton);
 		}
 	}
 	
-	private void setButtonFront(Label button, boolean isFront) {
+	private void setButtonFront(CLabel button, boolean isFront) {
 		if (isFront) {
 			button.setBackground(getBackground());
 			button.setForeground(Activator.getForgroundColor());
 			button.setCursor(Activator.getDefaultCursor());
+			if (button == experimentSetupButton) {
+				experimentSetupButton.setImage(KoalaImage.HOME64.getImage());
+			} else if (button == fullExperimentButton) {
+				if (getParentViewer().getMainPart().getInstrumentMode() == KoalaMode.CHEMISTRY) {
+					fullExperimentButton.setImage(KoalaImage.CHEMISTRY64.getImage());
+				} else {
+					fullExperimentButton.setImage(KoalaImage.PHYSICS64.getImage());
+				}
+			}
 		} else {
 			button.setBackground(Activator.getRunningForgroundColor());
 			button.setForeground(Activator.getVeryLightForgroundColor());
 			button.setCursor(Activator.getHandCursor());
+			if (button == experimentSetupButton) {
+				experimentSetupButton.setImage(KoalaImage.HOME_GRAY64.getImage());
+			} else if (button == fullExperimentButton) {
+				if (getParentViewer().getMainPart() != null) {
+					if (getParentViewer().getMainPart().getInstrumentMode() == KoalaMode.CHEMISTRY) {
+						fullExperimentButton.setImage(KoalaImage.CHEMISTRY_GRAY64.getImage());
+					} else {
+						fullExperimentButton.setImage(KoalaImage.PHYSICS_GRAY64.getImage());
+					}
+				} else {
+					fullExperimentButton.setImage(KoalaImage.CHEMISTRY_GRAY64.getImage());
+				}
+			}
 		}
 	}
 	
-	private void highlightButton(Label button, boolean isHighlighted) {
+	private void highlightButton(CLabel button, boolean isHighlighted) {
 		if (isHighlighted) {
 			button.setBackground(Activator.getHighlightBackgroundColor());
 			button.setForeground(Activator.getLightForgroundColor());

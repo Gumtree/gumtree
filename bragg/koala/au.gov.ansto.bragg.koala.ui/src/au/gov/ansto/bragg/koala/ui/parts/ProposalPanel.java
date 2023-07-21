@@ -220,7 +220,7 @@ public class ProposalPanel extends AbstractControlPanel {
 		modeLabel.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).align(SWT.BEGINNING, SWT.CENTER).applyTo(modeLabel);
 
-		Button chemButton = new Button(selectPanel, SWT.RADIO);
+		final Button chemButton = new Button(selectPanel, SWT.RADIO);
 		chemButton.setCursor(Activator.getHandCursor());
 		chemButton.setImage(KoalaImage.CHEMISTRY64.getImage());
 		chemButton.setText("Chemistry");
@@ -232,8 +232,10 @@ public class ProposalPanel extends AbstractControlPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				logger.info("Chemistry button clicked");
-				mainPart.setMode(KoalaMode.CHEMISTRY);
+				if (chemButton.getSelection()) {
+					logger.warn("Chemistry mode selected");
+					mainPart.setMode(KoalaMode.CHEMISTRY);
+				}
 			}
 			
 			@Override
@@ -241,7 +243,7 @@ public class ProposalPanel extends AbstractControlPanel {
 			}
 		});
 
-		Button physiButton = new Button(selectPanel, SWT.RADIO);
+		final Button physiButton = new Button(selectPanel, SWT.RADIO);
 		physiButton.setCursor(Activator.getHandCursor());
 		physiButton.setImage(KoalaImage.PHYSICS64.getImage());
 		physiButton.setText("Physics");
@@ -253,8 +255,10 @@ public class ProposalPanel extends AbstractControlPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				logger.info("Physics button clicked");
-				mainPart.setMode(KoalaMode.PHYSICS);
+				if (physiButton.getSelection()) {
+					logger.info("Physics mode selected");
+					mainPart.setMode(KoalaMode.PHYSICS);
+				}
 			}
 			
 			@Override
