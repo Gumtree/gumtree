@@ -286,9 +286,11 @@ public class SicsProxy implements ISicsProxy {
 	}
 	
 	private void fireInterruptEvent(boolean isInterrupted) {
-		for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
-			ISicsProxyListener listener = iter.next();
-			listener.interrupt(isInterrupted);
+		synchronized (proxyListeners) {
+			for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
+				ISicsProxyListener listener = iter.next();
+				listener.interrupt(isInterrupted);
+			}
 		}
 	}
 	
@@ -318,36 +320,42 @@ public class SicsProxy implements ISicsProxy {
 	}
 	
 	private void fireModelUpdatedEvent() {
-		for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
-			ISicsProxyListener listener = iter.next();
-			try {
-				listener.modelUpdated();
-			} catch (Exception e) {
-				logger.error("failed fire model updating event", e);
+		synchronized (proxyListeners) {
+			for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
+				ISicsProxyListener listener = iter.next();
+				try {
+					listener.modelUpdated();
+				} catch (Exception e) {
+					logger.error("failed fire model updating event", e);
+				}
 			}
+//			System.err.println("fire model updated");
 		}
-		System.err.println("fire model updated");
 	}
 
 	private void fireConnectionBrokenEvent() {
-		for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
-			ISicsProxyListener listener = iter.next();
-			try {
-				listener.proxyConnectionReqested();
-			} catch (Exception e) {
-				logger.error("failed fire connection broken event", e);
+		synchronized (proxyListeners) {
+			for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
+				ISicsProxyListener listener = iter.next();
+				try {
+					listener.proxyConnectionReqested();
+				} catch (Exception e) {
+					logger.error("failed fire connection broken event", e);
+				}
 			}
+//		System.err.println("fire connection broken");
 		}
-		System.err.println("fire connection broken");
 	}
 	
 	private void fireStatusEvent(ServerStatus status) {
-		for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
-			ISicsProxyListener listener = iter.next();
-			try {
-				listener.setStatus(status);
-			} catch (Exception e) {
-				logger.error("failed fire status changing event", e);
+		synchronized (proxyListeners) {
+			for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
+				ISicsProxyListener listener = iter.next();
+				try {
+					listener.setStatus(status);
+				} catch (Exception e) {
+					logger.error("failed fire status changing event", e);
+				}
 			}
 		}
 	}
