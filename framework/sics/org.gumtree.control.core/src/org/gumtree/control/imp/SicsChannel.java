@@ -160,6 +160,7 @@ public class SicsChannel implements ISicsChannel {
 		try {
 			sicsCommand.syncRun(POCH_COMMAND);
 		} catch(SicsCommunicationException e) {
+			logger.error("failed to PING server, ", e);
 			throw e;
 		} catch (Exception e) {
 		} finally {

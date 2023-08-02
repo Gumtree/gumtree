@@ -146,7 +146,8 @@ public class CollectionHelper {
 		tiffErrorController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
 				System.getProperty(ControlHelper.TIFF_ERROR_PATH));
 		
-		stateController.addControllerListener(new ISicsControllerListener() {
+		if (stateController != null)
+			stateController.addControllerListener(new ISicsControllerListener() {
 			
 			@Override
 			public void updateValue(Object oldValue, Object newValue) {

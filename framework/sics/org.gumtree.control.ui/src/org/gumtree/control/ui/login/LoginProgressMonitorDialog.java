@@ -42,7 +42,8 @@ public class LoginProgressMonitorDialog extends ProgressMonitorDialog {
 					SicsManager.getSicsProxy().connect(context.getServerAddress(), 
 							context.getPublisherAddress());
 				} catch (Exception e) {
-					throw new InvocationTargetException(e, e.getMessage());
+//					throw new InvocationTargetException(e, e.getMessage());
+					e.printStackTrace();
 				}
 //				monitor.subTask("Setting instrument profile");
 //				SicsCore.getSicsManager().service().setCurrentInstrumentProfile(profile);
