@@ -119,6 +119,9 @@ public class ControlHelper {
 	public static String TEMP_DEVICE_NAME;
 	public static String CHI_DEVICE_NAME;
 	public static String PHI_DEVICE_NAME;
+	public static String SX_DEVICE_NAME;
+	public static String SY_DEVICE_NAME;
+	public static String SZ_DEVICE_NAME;
 	public static String EXPO_TIME_NAME;
 	public static String ABORT_COLLECTION_NAME;
 	
@@ -131,6 +134,9 @@ public class ControlHelper {
 		TEMP_DEVICE_NAME = System.getProperty(ENV_SETPOINT);
 		CHI_DEVICE_NAME = System.getProperty(SAMPLE_CHI);
 		PHI_DEVICE_NAME = System.getProperty(SAMPLE_PHI);
+		SX_DEVICE_NAME = System.getProperty(SX_PATH);
+		SY_DEVICE_NAME = System.getProperty(SY_PATH);
+		SZ_DEVICE_NAME = System.getProperty(SZ_PATH);
 		EXPO_TIME_NAME = System.getProperty(EXPOSURE_TIME_PATH);
 		ABORT_COLLECTION_NAME = System.getProperty(ABORT_COLLECTION_PATH);
 	}

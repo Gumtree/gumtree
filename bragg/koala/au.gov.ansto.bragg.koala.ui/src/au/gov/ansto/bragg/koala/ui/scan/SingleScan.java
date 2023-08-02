@@ -41,11 +41,21 @@ enum ScanTarget {
 	PHI_LOOP,
 	PHI_POINTS,
 	TEMP_LOOP,
-	TEMP_POINTS;
+	TEMP_POINTS, 
+	SX_LOOP,
+	SX_POINTS,
+	SY_LOOP,
+	SY_POINTS,
+	SZ_LOOP,
+	SZ_POINTS,
+	;
 	
-	static String[] texts = {Activator.PHI + " loop", Activator.PHI + " points", " t loop", " t points"};
-	static String[] plainTexts = {"Phi loop", "Phi points", "Temp loop", "Temp points"};
-	static String[] htmls = {Activator.PHI_HTML + " loop", Activator.PHI_HTML + " points", " t loop", " t points"};
+	static String[] texts = {Activator.PHI + " loop", Activator.PHI + " points", " t loop", " t points", 
+			"sx loop", "sx points", "sy loop", "sy points", "sz loop", "sz points"};
+	static String[] plainTexts = {"Phi loop", "Phi points", "Temp loop", "Temp points", 
+			"sx loop", "sx points", "sy loop", "sy points", "sz loop", "sz points"};
+	static String[] htmls = {Activator.PHI_HTML + " loop", Activator.PHI_HTML + " points", " t loop", 
+			" t points", "sx loop", "sx points", "sy loop", "sy points", "sz loop", "sz points"};
 	
 	public String getText() {
 		switch (this) {
@@ -57,6 +67,18 @@ enum ScanTarget {
 			return texts[2];
 		case TEMP_POINTS:
 			return texts[3];
+		case SX_LOOP:
+			return texts[4];
+		case SX_POINTS:
+			return texts[5];
+		case SY_LOOP:
+			return texts[6];
+		case SY_POINTS:
+			return texts[7];
+		case SZ_LOOP:
+			return texts[8];
+		case SZ_POINTS:
+			return texts[9];
 		default:
 			return texts[0];
 		}
@@ -72,6 +94,18 @@ enum ScanTarget {
 			return htmls[2];
 		case TEMP_POINTS:
 			return htmls[3];
+		case SX_LOOP:
+			return htmls[4];
+		case SX_POINTS:
+			return htmls[5];
+		case SY_LOOP:
+			return htmls[6];
+		case SY_POINTS:
+			return htmls[7];
+		case SZ_LOOP:
+			return htmls[8];
+		case SZ_POINTS:
+			return htmls[9];
 		default:
 			return htmls[0];
 		}
@@ -87,6 +121,18 @@ enum ScanTarget {
 			return plainTexts[2];
 		case TEMP_POINTS:
 			return plainTexts[3];
+		case SX_LOOP:
+			return plainTexts[4];
+		case SX_POINTS:
+			return plainTexts[5];
+		case SY_LOOP:
+			return plainTexts[6];
+		case SY_POINTS:
+			return plainTexts[7];
+		case SZ_LOOP:
+			return plainTexts[8];
+		case SZ_POINTS:
+			return plainTexts[9];
 		default:
 			return plainTexts[0];
 		}
@@ -101,6 +147,18 @@ enum ScanTarget {
 			return TEMP_LOOP;
 		} else if (texts[3].equals(text)) {
 			return TEMP_POINTS;
+		} else if (texts[4].equals(text)) {
+			return SX_LOOP;
+		} else if (texts[5].equals(text)) {
+			return SX_POINTS;
+		} else if (texts[6].equals(text)) {
+			return SY_LOOP;
+		} else if (texts[7].equals(text)) {
+			return SY_POINTS;
+		} else if (texts[8].equals(text)) {
+			return SZ_LOOP;
+		} else if (texts[9].equals(text)) {
+			return SZ_POINTS;
 		} else {
 			return PHI_LOOP;
 		}
@@ -111,16 +169,27 @@ enum ScanTarget {
 	}
 	
 	public boolean isPoints() {
-		return this == PHI_POINTS || this == TEMP_POINTS;
+		return this == PHI_POINTS || this == TEMP_POINTS || this == SX_POINTS || this == SY_POINTS || this == SZ_POINTS;
 	}
 	
 	public boolean isTemperature() {
 		return this == TEMP_LOOP || this == TEMP_POINTS;
 	}
-	
+
 	public String getDeviceName() {
-		return this == TEMP_LOOP || this == ScanTarget.TEMP_POINTS ? 
-				ControlHelper.TEMP_DEVICE_NAME : ControlHelper.PHI_DEVICE_NAME;
+		if (this == PHI_LOOP || this == PHI_POINTS) {
+			return ControlHelper.PHI_DEVICE_NAME;
+		} else if (this == TEMP_LOOP || this == TEMP_POINTS) {
+			return ControlHelper.TEMP_DEVICE_NAME;
+		} else if (this == SX_LOOP || this == SX_POINTS) {
+			return ControlHelper.SX_DEVICE_NAME;
+		} else if (this == SY_LOOP || this == SY_POINTS) {
+			return ControlHelper.SY_DEVICE_NAME;
+		} else if (this == SZ_LOOP || this == SZ_POINTS) {
+			return ControlHelper.SZ_DEVICE_NAME;
+		} else {
+			return ControlHelper.PHI_DEVICE_NAME;
+		}
 	}
 };
 
@@ -693,11 +762,12 @@ public class SingleScan {
 		evaluatePauseStatus();
 		ControlHelper.asyncExec(String.format("hset %s %s", 
 				System.getProperty(ControlHelper.STEP_TEXT_PATH), stepText));
-		if (getTarget().isTemperature()) {
-			ControlHelper.publishGumtreeStatus("Scan - driving temperature");			
-		} else {
-			ControlHelper.publishGumtreeStatus("Scan - driving sample Phi");
-		}
+//		if (getTarget().isTemperature()) {
+//			ControlHelper.publishGumtreeStatus("Scan - driving temperature");			
+//		} else {
+//			ControlHelper.publishGumtreeStatus("Scan - driving sample Phi");
+//		}
+		ControlHelper.publishGumtreeStatus("Scan - driving " + getTarget().getDeviceName());
 		ControlHelper.syncDrive(getTarget().getDeviceName(), target);
 		evaluatePauseStatus();
 		ControlHelper.publishGumtreeStatus("Scan - image collection cycle");
