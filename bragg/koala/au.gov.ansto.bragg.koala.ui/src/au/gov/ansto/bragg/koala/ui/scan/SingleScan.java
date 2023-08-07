@@ -712,7 +712,7 @@ public class SingleScan {
 							e.printStackTrace();
 						}
 					}
-					collect(String.format("%d of %d", ++i, getNumber()), value);
+					collect(String.format("%d of %d", ++i, points.size()), value);
 				}
 			} else {
 				if (getNumber() > 0) {
