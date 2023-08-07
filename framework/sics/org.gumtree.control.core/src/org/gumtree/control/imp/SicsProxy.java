@@ -35,7 +35,8 @@ import org.slf4j.LoggerFactory;
 public class SicsProxy implements ISicsProxy {
 
 	private static Logger logger = LoggerFactory.getLogger(SicsProxy.class);
-	private static final int EPOCH_PERIOD = 5000;
+	private static final int EPOCH_PERIOD = 3000;
+	private static final int EPOCH_RETRY = 3;
 
 	private String serverAddress;
 	private String publisherAddress;
@@ -106,6 +107,7 @@ public class SicsProxy implements ISicsProxy {
 			
 			@Override
 			public void run() {
+				int fct = 0;
 				while(true) {
 					try {
 						Thread.sleep(EPOCH_PERIOD);
@@ -115,10 +117,17 @@ public class SicsProxy implements ISicsProxy {
 					if (!isBroken && channel != null && channel.isConnected()) {
 						try {
 							channel.syncPoch();
+							fct = 0;
 						} catch (SicsCommunicationException e) {
-							isBroken = true;
-							disconnect();
-							fireConnectionBrokenEvent();
+							fct++;
+							if (fct >= EPOCH_RETRY) {
+								isBroken = true;
+								logger.error(String.format("POCH failed for %d times, disconnect", fct));
+								disconnect();
+								fireConnectionBrokenEvent();
+							} else {
+								logger.error(String.format("POCH failed for %d time(s), retry in %d milliseconds", fct, EPOCH_PERIOD));
+							}
 						} catch (Exception e) {
 						}
 					}

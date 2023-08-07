@@ -49,7 +49,7 @@ public class SicsChannel implements ISicsChannel {
 	private static final String POCH_COMMAND = "POCH";
 	
 	private static final int COMMAND_WAIT_TIME = 1;
-	private static final int COMMAND_TIMEOUT = 5000;
+	private static final int COMMAND_TIMEOUT = 10000;
 	
 	private static Logger logger = LoggerFactory.getLogger(SicsChannel.class);
 	
@@ -198,7 +198,7 @@ public class SicsChannel implements ISicsChannel {
 					try {
 						String received = clientSocket.recvStr();
 						String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
-//						System.err.println(timeStamp + " Received: " + received);
+						System.err.println(timeStamp + " Received: [" + received);
 //						logger.info("CMD: " + received);
 						JSONObject json = null;
 						try {
@@ -321,7 +321,7 @@ public class SicsChannel implements ISicsChannel {
 			}
 			if (tc >= COMMAND_TIMEOUT) {
 //				disconnect();
-				System.err.println("timeout starting command: " + command);
+//				System.err.println("timeout starting command: " + command);
 				finish();
 				throw new SicsCommunicationException("timeout starting command: " + command);
 			}
