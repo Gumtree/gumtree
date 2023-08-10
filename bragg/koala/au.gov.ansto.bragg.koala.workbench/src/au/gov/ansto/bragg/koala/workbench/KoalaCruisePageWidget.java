@@ -159,10 +159,10 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 							if (text.trim().length() == 0 || text.equalsIgnoreCase("OK")) {
 								return text;
 							} else {
-								if (text.length() > 16) {
-									return "Error: " + text.substring(0, 16);
+								if (text.length() > 24) {
+									return text.substring(0, 24);
 								} else {
-									return "Error: " + text;
+									return text;
  								}
 							}
 						} else {
