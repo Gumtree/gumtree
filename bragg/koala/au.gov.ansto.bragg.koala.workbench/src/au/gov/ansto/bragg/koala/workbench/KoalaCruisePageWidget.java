@@ -98,6 +98,19 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 
 		ControllerStatusWidget deviceStatusWidget;
 
+		// Beam monitor
+		PGroup monitorGroup = createGroup("BEAM MONITOR",
+				SharedImage.MONITOR.getImage());
+		deviceStatusWidget = new ControllerStatusWidget(monitorGroup, SWT.NONE);
+		deviceStatusWidget
+//				.addDevice("/instrument/dummy_motor", "Dummy Motor", null, "mm")		
+//				.addDevice("/instrument/dcz", "Detector Height", null, "mm")
+//				.addDevice("/instrument/crystal/reading_head", "Reading Head", null, "mm")
+				.addDevice("/monitor/bm1_counts", "BM1 Counts", null, "")
+				.addDevice("/monitor/bm1_time", "BM1 Time", null, "s", new ControllerStatusWidget.PrecisionConverter(0))
+				;
+		configureWidget(deviceStatusWidget);
+		deviceStatusWidget.render();
 
 		// Sample
 		PGroup sampleStageGroup = createGroup("SAMPLE",
