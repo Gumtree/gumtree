@@ -827,7 +827,7 @@ public class SingleScan {
 					File serverFolder = new File(System.getProperty(SERVER_FOLDER));
 					if (f.exists() && serverFolder.exists()) {
 						BufferedImage image = ImageIO.read(f);
-						float scaleFactor = 5.0f;
+						float scaleFactor = 10.0f;
 						RescaleOp op = new RescaleOp(scaleFactor, 0, null);
 						image = op.filter(image, null);
 						int width = SERVER_IMAGE_WIDTH;
