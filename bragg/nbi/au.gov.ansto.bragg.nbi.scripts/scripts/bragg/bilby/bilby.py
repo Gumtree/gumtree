@@ -103,7 +103,7 @@ __sampleMap__ = {
                  12: __sampleMap12__, 
                  }
 
-__sampleNum__ = 10
+__sampleNum__ = 12
 
 def att_pos(val = None):
     if not val is None :
