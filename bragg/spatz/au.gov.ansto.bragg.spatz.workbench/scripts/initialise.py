@@ -18,5 +18,5 @@ from gumpy.commons import sics
 from gumpy.commons.logger import log
 
 # Import all
-from bragg.bilby import bilby
-from bragg.bilby.bilby import *
+# from bragg.bilby import bilby
+# from bragg.bilby.bilby import *
