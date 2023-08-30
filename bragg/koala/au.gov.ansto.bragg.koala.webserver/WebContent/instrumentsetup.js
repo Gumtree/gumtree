@@ -43,6 +43,11 @@ var devices = [
 //            		   		{"classId":"fast_shutter", "deviceId":"/instrument/sis/status/fast_shutter", "title":"Fast Shutter", "units":""}
 //            	            ]
 //               },
+               {"group":"BEAM MONITOR", 
+            	   "items":[{"classId":"bm1_counts", "deviceId":"/monitor/bm1_counts", "title":"BM1 Counts", "units":"ct"},
+            	            {"classId":"bm1_time", "deviceId":"/monitor/bm1_time", "title":"BM1 Time", "units":"s"}
+            	            ]
+               },
                {"group":"SAMPLE", 
             	   "items":[{"classId":"sphi", "deviceId":"sr", "title":"Sample Phi", "units":"\u00B0"},
             		   		{"classId":"schi", "deviceId":"schi", "title":"Sample Chi", "units":"degrees"},
