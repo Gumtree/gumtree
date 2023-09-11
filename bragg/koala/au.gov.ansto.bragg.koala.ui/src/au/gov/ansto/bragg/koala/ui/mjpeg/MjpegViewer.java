@@ -17,6 +17,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -62,6 +63,7 @@ public class MjpegViewer extends Composite {
 	private static final String TEXT_ALIGN_BUTTON = "Align sample in " + AlignVideoPart.NUM_STEPS + " steps";
 	private static final String VALUE_SX_RANGE = "gumtree.koala.sxRange";
 	private static final String VALUE_SY_RANGE = "gumtree.koala.syRange";
+	private static final String VALUE_SZ_RANGE = "gumtree.koala.szRange";
 	
 	public static final float DEFAULT_SZ_ZERO = Float.valueOf(String.valueOf(System.getProperty(ControlHelper.SZ_ZERO)));
 
@@ -88,6 +90,7 @@ public class MjpegViewer extends Composite {
 	private Button phiSEButton;
 	private SimpleControlSuite sxSuite;
 	private SimpleControlSuite sySuite;
+	private SimpleControlSuite szSuite;
 	private boolean isAddingMarker;
 	private ControlHelper controlHelper;
 	private IRunnerListener mjpegListener;
@@ -610,6 +613,46 @@ public class MjpegViewer extends Composite {
 		sliderY.setSelection(48);
 	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(sliderY);
 	    
+		Group zGroup = new Group(axesControlComposite, SWT.NONE);
+		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(3).applyTo(zGroup);
+		zGroup.setText("Sample Z offset");
+		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).align(SWT.FILL, SWT.CENTER).applyTo(zGroup);
+		
+		final Label curZLabel = new Label(zGroup, SWT.NONE);
+		curZLabel.setText("Current");
+		curZLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(curZLabel);
+		
+		final Text curZText = new Text(zGroup, SWT.READ_ONLY);
+		curZText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.FILL, SWT.CENTER).hint(100, 40).applyTo(curZText);
+		
+		final Button driveZButton = new Button(zGroup, SWT.PUSH);
+		driveZButton.setImage(KoalaImage.PLAY48.getImage());
+		driveZButton.setText("Drive");
+		driveZButton.setFont(Activator.getMiddleFont());
+		driveZButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).span(1, 3).hint(180, 64).applyTo(driveZButton);
+
+		final Label tarZLabel = new Label(zGroup, SWT.NONE);
+		tarZLabel.setText("Target");
+		tarZLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(tarZLabel);
+		
+		final Text tarZText = new Text(zGroup, SWT.BORDER);
+		tarZText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.FILL, SWT.CENTER).hint(100, 40).applyTo(tarZText);
+		
+		final Slider sliderZ = new Slider(zGroup, SWT.HORIZONTAL);
+//	    slider.setBounds(0, 0, 40, 200);
+		sliderZ.setMaximum(100);
+		sliderZ.setMinimum(0);
+		sliderZ.setIncrement(1);
+		sliderZ.setPageIncrement(5);
+		sliderZ.setThumb(4);
+		sliderZ.setSelection(48);
+	    GridDataFactory.fillDefaults().grab(false, false).span(2, 1).applyTo(sliderZ);
+	    
 		String sxPath = System.getProperty(ControlHelper.SX_PATH);		
 		sxSuite = new SimpleControlSuite(sxPath, curText, sxPath, tarText, driveButton, null, 
 				sliderX, Float.valueOf(System.getProperty(VALUE_SX_RANGE, "1")));
@@ -617,6 +660,10 @@ public class MjpegViewer extends Composite {
 		String syPath = System.getProperty(ControlHelper.SY_PATH);
 		sySuite = new SimpleControlSuite(syPath, curYText, syPath, tarYText, driveYButton, null, 
 				sliderY, Float.valueOf(System.getProperty(VALUE_SY_RANGE, "1")));
+
+		String szPath = System.getProperty(ControlHelper.SZ_PATH);
+		szSuite = new SimpleControlSuite(szPath, curZText, szPath, tarZText, driveZButton, null, 
+				sliderZ, Float.valueOf(System.getProperty(VALUE_SZ_RANGE, "1")));
 
 		Group phiGroup = new Group(axesControlComposite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(4, 4).numColumns(2).applyTo(phiGroup);
@@ -703,6 +750,45 @@ public class MjpegViewer extends Composite {
 
 		new PhiControlSuite();
 		
+		final Composite phiBlock = new Composite(phiGroup, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(3).margins(0, 0).applyTo(phiBlock);
+//		GridDataFactory.swtDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).span(2, 1).applyTo(phiBlock);
+		phiBlock.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 2, 1));
+		
+//		final Label phiStatusLabel = new Label(phiBlock, SWT.NONE);
+//		phiStatusLabel.setFont(Activator.getMiddleFont());
+//		phiStatusLabel.setForeground(Activator.getWarningColor());
+//		GridDataFactory.fillDefaults().span(3, 1).grab(true, false).applyTo(phiStatusLabel);
+
+		final Label curPhiLabel = new Label(phiBlock, SWT.NONE);
+		curPhiLabel.setText("Current " + Activator.PHI);
+		curPhiLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(120, 40).applyTo(curPhiLabel);
+		
+		final Text curPhiText = new Text(phiBlock, SWT.READ_ONLY);
+		curPhiText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(curPhiText);
+		
+		final Button drivePhiButton = new Button(phiBlock, SWT.PUSH);
+		drivePhiButton.setImage(KoalaImage.PLAY48.getImage());
+		drivePhiButton.setText("Drive");
+		drivePhiButton.setFont(Activator.getMiddleFont());
+		drivePhiButton.setCursor(Activator.getHandCursor());
+		GridDataFactory.swtDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).span(1, 3).hint(180, 64).applyTo(drivePhiButton);
+
+		final Label tarPhiLabel = new Label(phiBlock, SWT.NONE);
+		tarPhiLabel.setText("Target " + Activator.PHI);
+		tarPhiLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(120, 40).applyTo(tarPhiLabel);
+		
+		final Text tarPhiText = new Text(phiBlock, SWT.BORDER);
+		tarPhiText.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.CENTER).hint(100, 40).applyTo(tarPhiText);
+		
+		String samplePhiPath = System.getProperty(ControlHelper.SAMPLE_PHI);
+		new SimpleControlSuite(samplePhiPath, 
+				curPhiText, samplePhiPath, tarPhiText, drivePhiButton, null, null, 0);
+	    
 	}
 
 	private void createAlignComposite(Composite holder) {

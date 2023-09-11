@@ -744,7 +744,7 @@ public class ControlHelper {
 	
 	public static class SampleZHelper {
 		
-		public static final String MOVE_Z_UP 	= "Move Sample Z Up to 250 ";
+		public static final String MOVE_Z_UP 	= "Sample Stage Up ";
 		public static final String MOVE_Z_BACK 	= "Move Sample Z to Beam ";
 		
 		private Button samzButton;

@@ -47,6 +47,7 @@ public class MainPart extends Composite {
 
 	public enum PanelName{
 		ENVIRONMENT,
+		SAMPLECHI,
 		JOEY,
 		PROPOSAL,
 		CRYSTAL,
@@ -69,6 +70,7 @@ public class MainPart extends Composite {
 	private JoeyPanel joeyPanel;
 	private ProposalPanel proposalPanel;
 	private CrystalPanel crystalPanel;
+	private SampleChiPanel sampleChiPanel;
 	private InitScanPanel initScanPanel;
 	private ChemistryPanel chemExpPanel;
 	private PhysicsPanel physicsPanel;
@@ -184,6 +186,7 @@ public class MainPart extends Composite {
 		holder.setExpandVertical(true);
 
 		environmentPanel = new EnvironmentPanel(holder, SWT.BORDER, this);
+		sampleChiPanel = new SampleChiPanel(holder, SWT.BORDER, this);
 		joeyPanel = new JoeyPanel(holder, SWT.BORDER, this);
 		proposalPanel = new ProposalPanel(holder, SWT.BORDER, this);
 		crystalPanel = new CrystalPanel(holder, SWT.BORDER, this);
@@ -221,6 +224,11 @@ public class MainPart extends Composite {
 	
 	public void showCrystalPanel() {
 		crystalPanel.show();
+	}
+	
+	public void showSampleChiPanel() {
+		sampleChiPanel.show();
+		getParentViewer().getHeaderPart().buttonSelected(null);
 	}
 	
 	public void showInitScanPanel() {
@@ -303,6 +311,10 @@ public class MainPart extends Composite {
 	
 	public CrystalPanel getCrystalPanel() {
 		return crystalPanel;
+	}
+	
+	public SampleChiPanel getSampleChiPanel() {
+		return sampleChiPanel;
 	}
 	
 	public PhysicsPanel getPhysicsPanel() {

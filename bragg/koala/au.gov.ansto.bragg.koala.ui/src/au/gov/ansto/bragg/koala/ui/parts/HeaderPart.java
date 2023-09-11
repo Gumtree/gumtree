@@ -121,7 +121,7 @@ public class HeaderPart extends Composite {
 		
 		testImageButton = new CLabel(parent, SWT.NONE);
 		testImageButton.setCursor(Activator.getHandCursor());
-		testImageButton.setText(" Test Image  ");
+		testImageButton.setText(" Data Collection  ");
 		testImageButton.setFont(Activator.getLargeFont());
 		testImageButton.setToolTipText("Show the panel to test image collection.");
 //		testImageButton.setImage(KoalaImage.WEATHER64.getImage());
@@ -188,8 +188,8 @@ public class HeaderPart extends Composite {
 		});
 		
 	    fullExperimentButton = new CLabel(this, SWT.NONE);
-	    fullExperimentButton.setText(" Full Experiment  ");
-	    fullExperimentButton.setImage(KoalaImage.CHEMISTRY64.getImage());
+	    fullExperimentButton.setText(" Batch Queue  ");
+//	    fullExperimentButton.setImage(KoalaImage.CHEMISTRY64.getImage());
 	    fullExperimentButton.setFont(Activator.getLargeFont());
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.BEGINNING, SWT.CENTER).applyTo(fullExperimentButton);
 
@@ -200,11 +200,11 @@ public class HeaderPart extends Composite {
 				if (isEnabled) {
 					buttonSelected(fullExperimentButton);
 					getParentViewer().getMainPart().showPhysicsPanel();
-					if (getParentViewer().getMainPart().getInstrumentMode() == KoalaMode.CHEMISTRY) {
-						getParentViewer().getMainPart().showChemistryPanel();
-					} else {
-						getParentViewer().getMainPart().showPhysicsPanel();
-					}
+//					if (getParentViewer().getMainPart().getInstrumentMode() == KoalaMode.CHEMISTRY) {
+//						getParentViewer().getMainPart().showChemistryPanel();
+//					} else {
+//						getParentViewer().getMainPart().showPhysicsPanel();
+//					}
 				}
 			}
 		});
@@ -295,21 +295,21 @@ public class HeaderPart extends Composite {
 //	}
 
 	public void setMode(KoalaMode mode) {
-		if (mode == KoalaMode.PHYSICS) {
-			if (selectedButton == fullExperimentButton) {
-				fullExperimentButton.setImage(KoalaImage.PHYSICS64.getImage());
-			} else {
-				fullExperimentButton.setImage(KoalaImage.PHYSICS_GRAY64.getImage());
-			}
-			fullExperimentButton.setToolTipText("Current mode: Physics.");
-		} else {
-			if (selectedButton == fullExperimentButton) {
-				fullExperimentButton.setImage(KoalaImage.CHEMISTRY64.getImage());
-			} else {
-				fullExperimentButton.setImage(KoalaImage.CHEMISTRY_GRAY64.getImage());
-			}
-			fullExperimentButton.setToolTipText("Current mode: Chemistry.");
-		}
+//		if (mode == KoalaMode.PHYSICS) {
+//			if (selectedButton == fullExperimentButton) {
+//				fullExperimentButton.setImage(KoalaImage.PHYSICS64.getImage());
+//			} else {
+//				fullExperimentButton.setImage(KoalaImage.PHYSICS_GRAY64.getImage());
+//			}
+//			fullExperimentButton.setToolTipText("Current mode: Physics.");
+//		} else {
+//			if (selectedButton == fullExperimentButton) {
+//				fullExperimentButton.setImage(KoalaImage.CHEMISTRY64.getImage());
+//			} else {
+//				fullExperimentButton.setImage(KoalaImage.CHEMISTRY_GRAY64.getImage());
+//			}
+//			fullExperimentButton.setToolTipText("Current mode: Chemistry.");
+//		}
 	}
 	
 	private KoalaMainViewer getParentViewer() {
@@ -351,30 +351,32 @@ public class HeaderPart extends Composite {
 			button.setCursor(Activator.getDefaultCursor());
 			if (button == experimentSetupButton) {
 				experimentSetupButton.setImage(KoalaImage.HOME64.getImage());
-			} else if (button == fullExperimentButton) {
-				if (getParentViewer().getMainPart().getInstrumentMode() == KoalaMode.CHEMISTRY) {
-					fullExperimentButton.setImage(KoalaImage.CHEMISTRY64.getImage());
-				} else {
-					fullExperimentButton.setImage(KoalaImage.PHYSICS64.getImage());
-				}
-			}
+			} 
+//			else if (button == fullExperimentButton) {
+//				if (getParentViewer().getMainPart().getInstrumentMode() == KoalaMode.CHEMISTRY) {
+//					fullExperimentButton.setImage(KoalaImage.CHEMISTRY64.getImage());
+//				} else {
+//					fullExperimentButton.setImage(KoalaImage.PHYSICS64.getImage());
+//				}
+//			}
 		} else {
 			button.setBackground(Activator.getRunningForgroundColor());
 			button.setForeground(Activator.getVeryLightForgroundColor());
 			button.setCursor(Activator.getHandCursor());
 			if (button == experimentSetupButton) {
 				experimentSetupButton.setImage(KoalaImage.HOME_GRAY64.getImage());
-			} else if (button == fullExperimentButton) {
-				if (getParentViewer().getMainPart() != null) {
-					if (getParentViewer().getMainPart().getInstrumentMode() == KoalaMode.CHEMISTRY) {
-						fullExperimentButton.setImage(KoalaImage.CHEMISTRY_GRAY64.getImage());
-					} else {
-						fullExperimentButton.setImage(KoalaImage.PHYSICS_GRAY64.getImage());
-					}
-				} else {
-					fullExperimentButton.setImage(KoalaImage.CHEMISTRY_GRAY64.getImage());
-				}
-			}
+			} 
+//			else if (button == fullExperimentButton) {
+//				if (getParentViewer().getMainPart() != null) {
+//					if (getParentViewer().getMainPart().getInstrumentMode() == KoalaMode.CHEMISTRY) {
+//						fullExperimentButton.setImage(KoalaImage.CHEMISTRY_GRAY64.getImage());
+//					} else {
+//						fullExperimentButton.setImage(KoalaImage.PHYSICS_GRAY64.getImage());
+//					}
+//				} else {
+//					fullExperimentButton.setImage(KoalaImage.CHEMISTRY_GRAY64.getImage());
+//				}
+//			}
 		}
 	}
 	

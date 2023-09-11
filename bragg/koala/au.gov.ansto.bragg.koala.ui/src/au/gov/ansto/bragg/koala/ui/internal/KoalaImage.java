@@ -30,6 +30,7 @@ public enum KoalaImage {
 	PHI64("/icons/phi_64.png"),
 	ALIGNED64("/icons/aligned_64.png"),
 	ORIENTATION64("/icons/orientation_64.png"),
+	ORIENTATION32("/icons/orientation_32.png"),
 	PLAY48("/icons/play_48.png"),
 	COPY_EMPTY32("/icons/copy_emp_32.png"),
 	COPY_FILLED32("/icons/copy_fill_32.png"),
