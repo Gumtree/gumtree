@@ -57,6 +57,7 @@ public enum KoalaImage {
 	DOWN64("/icons/down_64.png"),
 	UP32("/icons/up_32.png"),
 	DOWN32("/icons/down_32.png"),
+	PASS32("/icons/pass_32.png"),
 	;
 	
 	private KoalaImage(String path) {

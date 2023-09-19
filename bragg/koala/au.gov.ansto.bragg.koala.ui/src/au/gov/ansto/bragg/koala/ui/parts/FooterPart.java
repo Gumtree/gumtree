@@ -212,7 +212,7 @@ public class FooterPart extends Composite {
 		passButton.setText("Passcode ");
 		passButton.setCursor(Activator.getHandCursor());
 		passButton.setFont(Activator.getMiddleFont());
-		passButton.setImage(KoalaImage.JOEY32.getImage());
+		passButton.setImage(KoalaImage.PASS32.getImage());
 		passButton.setToolTipText("Click to change administrator passcode.");
 		GridDataFactory.fillDefaults().grab(false, true).align(SWT.END, SWT.CENTER).minSize(240, 64).applyTo(passButton);
 		passButton.setVisible(false);
