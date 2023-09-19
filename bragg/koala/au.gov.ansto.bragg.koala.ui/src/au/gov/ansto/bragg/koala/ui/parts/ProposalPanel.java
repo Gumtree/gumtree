@@ -210,6 +210,7 @@ public class ProposalPanel extends AbstractControlPanel {
 		propInputHolder.setContent(currentPropPanel);
 		
 		final Composite selectPanel = new Composite(this, SWT.NONE);
+		selectPanel.setVisible(false);
 		GridLayoutFactory.fillDefaults().numColumns(2).margins(8, 8).applyTo(selectPanel);
 //		GridDataFactory.fillDefaults().minSize(320, 560).grab(true, false).align(SWT.CENTER, SWT.CENTER).applyTo(selectPanel);
 //		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(selectPanel);

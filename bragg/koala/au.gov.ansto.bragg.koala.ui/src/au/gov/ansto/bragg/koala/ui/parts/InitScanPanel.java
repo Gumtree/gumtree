@@ -43,6 +43,8 @@ import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
+import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
+import au.gov.ansto.bragg.koala.ui.scan.ExperimentModel;
 import au.gov.ansto.bragg.koala.ui.scan.IExperimentModelListener;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaInterruptionException;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
@@ -379,6 +381,28 @@ public class InitScanPanel extends AbstractControlPanel {
 		GridDataFactory.fillDefaults().grab(true, false).minSize(SWT.DEFAULT, 64).span(3, 1).applyTo(runBlock);
 		runBlock.setText("Run");
 		
+		final Button copyButton = new Button(runBlock, SWT.PUSH);
+		copyButton.setImage(KoalaImage.COPY48.getImage());
+		copyButton.setText("Copy to Batch Queue");
+		copyButton.setFont(Activator.getMiddleFont());
+		copyButton.setCursor(Activator.getHandCursor());
+//		runButton.setSize(240, 64);
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.BEGINNING)
+				.hint(240, 80).applyTo(copyButton);
+		
+		copyButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				logger.info("Copy to Batch Queue button clicked");
+				copyToQueue();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
 		final Button runButton = new Button(runBlock, SWT.PUSH);
 		runButton.setImage(KoalaImage.PLAY48.getImage());
 		runButton.setText("Start the scan");
@@ -553,6 +577,11 @@ public class InitScanPanel extends AbstractControlPanel {
 		});
 	}
 
+	private void copyToQueue() {
+		AbstractScanModel model = mainPart.getCurrentScanModel();
+		model.appendScan(initScan.getCopy());
+	}
+	
 	private void updateTimeEstimation() {
 		Display.getDefault().asyncExec(new Runnable() {
 

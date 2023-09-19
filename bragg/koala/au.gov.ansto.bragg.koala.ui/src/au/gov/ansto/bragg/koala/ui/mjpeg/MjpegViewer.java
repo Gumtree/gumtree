@@ -60,7 +60,8 @@ public class MjpegViewer extends Composite {
 	private static final String CAM1_URL = "gumtree.koala.mjpeg1Url";
 	private static final String CAM2_URL = "gumtree.koala.mjpeg2Url";
 	private static final Logger logger = LoggerFactory.getLogger(MjpegViewer.class);
-	private static final String TEXT_ALIGN_BUTTON = "Align sample in " + AlignVideoPart.NUM_STEPS + " steps";
+//	private static final String TEXT_ALIGN_BUTTON = "Align sample in " + AlignVideoPart.NUM_STEPS + " steps";
+	private static final String TEXT_ALIGN_BUTTON = "Align by Mouse";
 	private static final String VALUE_SX_RANGE = "gumtree.koala.sxRange";
 	private static final String VALUE_SY_RANGE = "gumtree.koala.syRange";
 	private static final String VALUE_SZ_RANGE = "gumtree.koala.szRange";

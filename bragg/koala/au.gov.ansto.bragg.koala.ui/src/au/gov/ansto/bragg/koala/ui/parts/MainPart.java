@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
+import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
 import au.gov.ansto.bragg.koala.ui.scan.ChemistryModel;
 import au.gov.ansto.bragg.koala.ui.scan.ExperimentModel;
 import au.gov.ansto.bragg.koala.ui.scan.ExperimentModelAdapter;
@@ -354,6 +355,16 @@ public class MainPart extends Composite {
 		return physModel;
 	}
 
+	public AbstractScanModel getCurrentScanModel() {
+		if (KoalaMode.PHYSICS.equals(instrumentMode)) {
+			return physModel;
+		} else if (KoalaMode.CHEMISTRY.equals(instrumentMode)) {
+			return chemModel;
+		} else {
+			return physModel;
+		}
+	}
+	
 	public KoalaMode getInstrumentMode() {
 		return instrumentMode;
 	}

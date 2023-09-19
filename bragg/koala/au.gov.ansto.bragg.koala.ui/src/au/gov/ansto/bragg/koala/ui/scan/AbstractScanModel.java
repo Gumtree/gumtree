@@ -535,10 +535,18 @@ public abstract class AbstractScanModel implements KTableModel {
 				scan.addPropertyChangeListener(propertyListener);
 			}
 			scanList.addAll(idx, scans);
+			fireModelChangeEvent();
 		}
-		fireModelChangeEvent();
 	}
 	
+	public void appendScan(SingleScan scan) {
+		synchronized (scanList) {
+			scan.addPropertyChangeListener(propertyListener);
+			scanList.add(scan);
+			fireModelChangeEvent();
+		}
+	}
+
 	public void deleteScan(int idx) {
 		synchronized (scanList) {
 			if (scanList.size() == 1 && idx == 0) {
