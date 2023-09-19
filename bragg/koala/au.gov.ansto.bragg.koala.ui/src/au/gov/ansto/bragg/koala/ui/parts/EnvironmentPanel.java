@@ -62,7 +62,7 @@ public class EnvironmentPanel extends AbstractPanel {
 		GridDataFactory.swtDefaults().minSize(480, 320).align(SWT.CENTER, SWT.CENTER).applyTo(this);
 		
 		Label controllerLabel = new Label(this, SWT.NONE);
-		controllerLabel.setText("Cobra Controller");
+		controllerLabel.setText("Temperature Controller");
 		controllerLabel.setFont(Activator.getLargeFont());
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.CENTER, SWT.CENTER).applyTo(controllerLabel);
 		Button controllerButton = new Button(this, SWT.PUSH);

@@ -31,6 +31,9 @@ import au.gov.ansto.bragg.nbi.workbench.ReactorStatusWidget;
 
 public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 
+	private static final String PROP_CF2_PATH = "gumtree.koala.cf2Sensor";
+	private static final String PROP_COBRA_PATH = "gumtree.koala.cobraSensor";
+	
 	@Inject
 	private IEclipseContext eclipseContext;
 
@@ -193,7 +196,8 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 						}
 					}
 				})
-				.addDevice("/sample/tc1/Sensor/value", "Temperature", null, "K")
+				.addDevice(System.getProperty(PROP_COBRA_PATH), "Cobra Controller", null, "K")
+				.addDevice(System.getProperty(PROP_CF2_PATH), "CF-2 Lakeshore", null, "K")
 				;
 		configureWidget(deviceStatusWidget);
 		deviceStatusWidget.render();
