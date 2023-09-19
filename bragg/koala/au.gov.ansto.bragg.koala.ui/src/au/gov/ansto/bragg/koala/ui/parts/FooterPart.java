@@ -256,8 +256,9 @@ public class FooterPart extends Composite {
 		browseFolderButton.setEnabled(isEnabled);
 		openImageButton.setEnabled(isEnabled);
 		temperatureButton.setEnabled(isEnabled);
-		samZButton.setEnabled(isEnabled);
-		drumDownButton.setEnabled(isEnabled);
+//		samZButton.setEnabled(isEnabled);
+//		drumDownButton.setEnabled(isEnabled);
+		sampleChiButton.setEnabled(isEnabled);
 		if (isEnabled) {
 			samZButton.setVisible(true);
 			drumDownButton.setVisible(true);

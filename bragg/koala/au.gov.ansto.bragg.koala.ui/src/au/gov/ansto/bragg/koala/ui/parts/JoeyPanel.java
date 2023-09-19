@@ -16,11 +16,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.gumtree.util.ILoopExitCondition;
+import org.gumtree.util.LoopRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
+import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
+import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
 /**
  * @author nxi
@@ -31,10 +35,12 @@ public class JoeyPanel extends AbstractPanel {
 	private final static Logger logger = LoggerFactory.getLogger(JoeyPanel.class);
 	private static final int WIDTH_HINT = 600;
 	private static final int HEIGHT_HINT = 680;
+	private static final int DRUMDOWN_TIMEOUT = 600000;
 	private MainPart mainPart;
 	private Button activeButton;
 	private Button advButton;
 	private Label statusLabel;
+	private Label infoLabel;
 	private boolean isActivated;
 	private ScrolledComposite advHolder;
 	private Group passPart;
@@ -176,8 +182,19 @@ public class JoeyPanel extends AbstractPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				isActivated = !isActivated;
 				logger.warn("Activate/deactivate button clicked to set Joey mode to " + String.valueOf(isActivated));
+				if (!isActivated) {
+					activeButton.setEnabled(false);
+					try {
+						DrumDownHelper helper = new DrumDownHelper();
+						helper.run();
+					} catch (KoalaServerException e1) {
+						ControlHelper.experimentModel.publishErrorMessage(e1.getMessage());
+						activeButton.setEnabled(true);
+						return;
+					}
+				}
+				isActivated = !isActivated;
 				passText.setText("");
 				advButton.setVisible(false);
 				hideAdvPanel();
@@ -201,7 +218,14 @@ public class JoeyPanel extends AbstractPanel {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		
+
+		infoLabel = new Label(this, SWT.NONE);
+		infoLabel.setText("");
+		infoLabel.setForeground(Activator.getWarningColor());
+//		infoLabel.setEnabled(false);
+		infoLabel.setFont(Activator.getMiddleFont());
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.CENTER, SWT.CENTER).minSize(360, 24).span(2, 1).applyTo(infoLabel);
+
 		boolean isJoeyMode = false;
 		try {
 			isJoeyMode = Boolean.valueOf(Activator.getPreference(Activator.NAME_JOEY_MODE));
@@ -245,5 +269,56 @@ public class JoeyPanel extends AbstractPanel {
 		mainPart.setCurrentPanelName(PanelName.JOEY);
 	}
 
+	class DrumDownHelper {
+		
+		boolean isBusy;
+		String errorMsg;
+		
+		public DrumDownHelper() {
+			isBusy = false;
+		}
+		
+		public void run() throws KoalaServerException {
+			if (isBusy) {
+				throw new KoalaServerException("System busy with dropping the drum.");
+			}
+			isBusy = true;
+			errorMsg = null;
+			infoLabel.setText("driving drum down ...");
+			Thread runThread = new Thread(new Runnable() {
 
+				@Override
+				public void run() {
+					try {
+						ControlHelper.syncDrive(System.getProperty(ControlHelper.DRUM_PATH), 
+								Float.valueOf(System.getProperty(ControlHelper.DRUM_DOWN_VALUE)));
+					} catch (Exception e1) {
+						errorMsg = "Failed to drop the drum. " + e1.getMessage();
+					} finally {
+						isBusy = false;
+					}
+				}
+			});
+			runThread.start();
+
+			LoopRunner.run(new ILoopExitCondition() {
+				
+				@Override
+				public boolean getExitCondition() {
+					return !isBusy;
+				}
+			}, DRUMDOWN_TIMEOUT);
+			infoLabel.setText("");
+			if (isBusy) {
+				isBusy = false;
+				if (runThread != null && runThread.isAlive()) {
+					runThread.interrupt();
+				}
+				throw new KoalaServerException("Timeout in dropping the drum.");
+			}
+			if (errorMsg != null) {
+				throw new KoalaServerException(errorMsg);
+			}
+		}
+	}
 }
