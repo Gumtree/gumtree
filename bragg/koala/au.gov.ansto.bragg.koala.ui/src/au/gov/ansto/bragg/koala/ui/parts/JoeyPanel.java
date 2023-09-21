@@ -3,6 +3,9 @@
  */
 package au.gov.ansto.bragg.koala.ui.parts;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -186,7 +189,7 @@ public class JoeyPanel extends AbstractPanel {
 				if (!isActivated) {
 					activeButton.setEnabled(false);
 					try {
-						DrumDownHelper helper = new DrumDownHelper();
+						JoeyModeHelper helper = new JoeyModeHelper();
 						helper.run();
 					} catch (KoalaServerException e1) {
 						ControlHelper.experimentModel.publishErrorMessage(e1.getMessage());
@@ -269,31 +272,37 @@ public class JoeyPanel extends AbstractPanel {
 		mainPart.setCurrentPanelName(PanelName.JOEY);
 	}
 
-	class DrumDownHelper {
+	class JoeyModeHelper {
 		
 		boolean isBusy;
 		String errorMsg;
 		
-		public DrumDownHelper() {
+		public JoeyModeHelper() {
 			isBusy = false;
 		}
 		
 		public void run() throws KoalaServerException {
 			if (isBusy) {
-				throw new KoalaServerException("System busy with dropping the drum.");
+				throw new KoalaServerException("System busy with current driving.");
 			}
 			isBusy = true;
 			errorMsg = null;
-			infoLabel.setText("driving drum down ...");
+			infoLabel.setText("driving drum down and sz up ...");
 			Thread runThread = new Thread(new Runnable() {
 
 				@Override
 				public void run() {
 					try {
-						ControlHelper.syncDrive(System.getProperty(ControlHelper.DRUM_PATH), 
-								Float.valueOf(System.getProperty(ControlHelper.DRUM_DOWN_VALUE)));
+						String drumMotor = System.getProperty(ControlHelper.DRUM_PATH);
+						String szMotor = System.getProperty(ControlHelper.SZ_DEVICE_NAME);
+						String drumDownValue = System.getProperty(ControlHelper.DRUM_DOWN_VALUE);
+						String szUpValue = System.getProperty(ControlHelper.SZ_DEVICE_NAME);
+						Map<String, Number> devices = new HashMap<String, Number>();
+						devices.put(drumMotor, Float.valueOf(drumDownValue));
+						devices.put(szMotor, Float.valueOf(szUpValue));
+						ControlHelper.syncMultiDrive(devices);
 					} catch (Exception e1) {
-						errorMsg = "Failed to drop the drum. " + e1.getMessage();
+						errorMsg = "Failed to drive drum or sz. " + e1.getMessage();
 					} finally {
 						isBusy = false;
 					}
@@ -314,7 +323,7 @@ public class JoeyPanel extends AbstractPanel {
 				if (runThread != null && runThread.isAlive()) {
 					runThread.interrupt();
 				}
-				throw new KoalaServerException("Timeout in dropping the drum.");
+				throw new KoalaServerException("Timeout in driving motors for Joey mode.");
 			}
 			if (errorMsg != null) {
 				throw new KoalaServerException(errorMsg);
