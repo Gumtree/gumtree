@@ -294,9 +294,9 @@ public class JoeyPanel extends AbstractPanel {
 				public void run() {
 					try {
 						String drumMotor = System.getProperty(ControlHelper.DRUM_PATH);
-						String szMotor = System.getProperty(ControlHelper.SZ_DEVICE_NAME);
+						String szMotor = ControlHelper.SZ_DEVICE_NAME;
 						String drumDownValue = System.getProperty(ControlHelper.DRUM_DOWN_VALUE);
-						String szUpValue = System.getProperty(ControlHelper.SZ_DEVICE_NAME);
+						String szUpValue = System.getProperty(ControlHelper.SZ_UP_VALUE);
 						Map<String, Number> devices = new HashMap<String, Number>();
 						devices.put(drumMotor, Float.valueOf(drumDownValue));
 						devices.put(szMotor, Float.valueOf(szUpValue));
