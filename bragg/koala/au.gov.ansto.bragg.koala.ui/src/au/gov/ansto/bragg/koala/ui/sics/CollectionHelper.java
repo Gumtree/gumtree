@@ -24,7 +24,7 @@ import au.gov.ansto.bragg.koala.ui.sics.ControlHelper.InstrumentPhase;
 
 public class CollectionHelper {
 	
-	public static final String NAME_EXPOSURE_TIME = "gumtree.koala.exposureTime";
+	public static final String NAME_ERASURE_TIME = "gumtree.koala.erasureTime";
 	public static final String NAME_READING_TIME = "gumtree.koala.readingTime";
 	public static final String NAME_EXPIRATION_TIME = "gumtree.koala.collectionExp";
 	public static final String NAME_TEMP_START = "gumtree.koala.tempStart";
@@ -40,7 +40,7 @@ public class CollectionHelper {
 	private static final int CHECK_CYCLE = 50; // millisecond
 	private static final int FAIL_RETRY = 3;
 	public static final int READ_TIME = Integer.valueOf(System.getProperty(NAME_READING_TIME, "280"));
-	public static final int ERASE_TIME = Integer.valueOf(System.getProperty(NAME_EXPOSURE_TIME, "160"));
+	public static final int ERASE_TIME = Integer.valueOf(System.getProperty(NAME_ERASURE_TIME, "160"));
 	
 	private static final Logger logger = LoggerFactory.getLogger(CollectionHelper.class);
 	

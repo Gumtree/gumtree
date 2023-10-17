@@ -164,6 +164,7 @@ public class ControlHelper {
 			if (targetController instanceof DriveableController) {
 				logger.warn(String.format("drive %s %f", targetController.getDeviceId(), value));
 				try {
+					((DriveableController) targetController).setTarget(value);
 					((DriveableController) targetController).drive();
 				} catch (SicsException e) {
 					logger.error("failed to drive " + targetController.getDeviceId(), e);
