@@ -1,6 +1,8 @@
 package au.gov.ansto.bragg.koala.ui.scan;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.beans.PropertyChangeListener;
@@ -698,8 +700,12 @@ public class SingleScan {
 				ControlHelper.publishGumtreeStatus("Scan - drive sample Chi");
 				ControlHelper.driveChi(getChi());
 			}
+			String comments = getComments();
+			if (comments == null || comments.trim().length() == 0) {
+				comments = "None";
+			}
 			ControlHelper.asyncExec(String.format("hset %s %s", 
-					System.getProperty(ControlHelper.GUMTREE_COMMENTS), getComments()));
+					System.getProperty(ControlHelper.GUMTREE_COMMENTS), comments));
 			evaluatePauseStatus();
 			if (getTarget().isPoints()) {
 				List<Float> points = getPointValues();
@@ -767,8 +773,13 @@ public class SingleScan {
 //		} else {
 //			ControlHelper.publishGumtreeStatus("Scan - driving sample Phi");
 //		}
-		ControlHelper.publishGumtreeStatus("Scan - driving " + getTarget().getDeviceName());
-		ControlHelper.syncDrive(getTarget().getDeviceName(), target);
+		if (getTarget().isTemperature()) {
+			ControlHelper.publishGumtreeStatus("Scan - driving temperature to " + target);
+			ControlHelper.driveTemperature(target);
+		} else {
+			ControlHelper.publishGumtreeStatus("Scan - driving " + getTarget().getDeviceName());
+			ControlHelper.syncDrive(getTarget().getDeviceName(), target);
+		}
 		evaluatePauseStatus();
 		ControlHelper.publishGumtreeStatus("Scan - image collection cycle");
 		ControlHelper.syncCollect(getExposure());
@@ -827,8 +838,14 @@ public class SingleScan {
 					File serverFolder = new File(System.getProperty(SERVER_FOLDER));
 					if (f.exists() && serverFolder.exists()) {
 						BufferedImage image = ImageIO.read(f);
-						float scaleFactor = 10.0f;
-						RescaleOp op = new RescaleOp(scaleFactor, 0, null);
+						
+//						Dynamic scaling
+						Point range = getImageRange(image);
+						float multScale = 5.0f;
+						float scaleFactor = (256 - range.x) / (range.y - range.x) * multScale;
+						float offset = - range.x / scaleFactor;
+						RescaleOp op = new RescaleOp(scaleFactor, offset, null);
+
 						image = op.filter(image, null);
 						int width = SERVER_IMAGE_WIDTH;
 						int height = image.getHeight() * width / image.getWidth();
@@ -853,6 +870,26 @@ public class SingleScan {
 			}
 		});
 		convertThread.start();
+	}
+	
+	private Point getImageRange(BufferedImage image) {
+		int min = Integer.MAX_VALUE;
+		int max = Integer.MIN_VALUE;
+		int rgb;
+		for (int y = 0; y < image.getHeight(); y++) {
+			for (int x = 0; x < image.getWidth(); x++) {
+				rgb = image.getRGB(x, y);
+				Color c = new Color(rgb);
+				rgb = (c.getRed() + c.getGreen() + c.getBlue()) / 3; 
+				if (rgb < min) {
+					min = rgb;
+				}
+				if (rgb > max) {
+					max = rgb;
+				}
+			}
+		}
+		return new Point(min, max);
 	}
 	
 	private void resetCurrentFile() {
