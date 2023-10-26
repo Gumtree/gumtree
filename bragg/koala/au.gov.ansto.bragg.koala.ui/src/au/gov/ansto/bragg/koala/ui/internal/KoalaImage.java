@@ -57,6 +57,12 @@ public enum KoalaImage {
 	DOWN64("/icons/down_64.png"),
 	UP32("/icons/up_32.png"),
 	DOWN32("/icons/down_32.png"),
+	PLUS32("/icons/plus_32.png"),
+	PLUS_INV32("/icons/plus_inv_32.png"),
+	MOVE_UP32("/icons/move_up_32.png"),
+	MOVE_DOWN32("/icons/move_down_32.png"),
+	MOVE_UP_INV32("/icons/move_up_inv_32.png"),
+	MOVE_DOWN_INV32("/icons/move_down_inv_32.png"),
 	PASS32("/icons/pass_32.png"),
 	;
 	

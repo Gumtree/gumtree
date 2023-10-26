@@ -36,28 +36,48 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
+import au.gov.ansto.bragg.koala.ui.parts.PanelUtils;
+import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel.ScanStatus;
 import au.gov.ansto.bragg.koala.ui.sics.CollectionHelper;
 import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
 
 enum ScanTarget {
 	PHI_LOOP,
 	PHI_POINTS,
+	DRIVE_PHI,
 	TEMP_LOOP,
-	TEMP_POINTS, 
+	TEMP_POINTS,
+	DRIVE_TEMP,
 	SX_LOOP,
 	SX_POINTS,
+	DRIVE_SX,
 	SY_LOOP,
 	SY_POINTS,
+	DRIVE_SY,
 	SZ_LOOP,
 	SZ_POINTS,
+	DRIVE_SZ,
+	DRIVE_CHI
 	;
 	
-	static String[] texts = {Activator.PHI + " loop", Activator.PHI + " points", " t loop", " t points", 
-			"sx loop", "sx points", "sy loop", "sy points", "sz loop", "sz points"};
-	static String[] plainTexts = {"Phi loop", "Phi points", "Temp loop", "Temp points", 
-			"sx loop", "sx points", "sy loop", "sy points", "sz loop", "sz points"};
-	static String[] htmls = {Activator.PHI_HTML + " loop", Activator.PHI_HTML + " points", " t loop", 
-			" t points", "sx loop", "sx points", "sy loop", "sy points", "sz loop", "sz points"};
+	static String[] texts = {Activator.PHI + " loop", Activator.PHI + " points", "drive " + Activator.PHI, 
+			" t loop", " t points", "drive t",
+			"sx loop", "sx points", "drive sx",
+			"sy loop", "sy points", "drive sy",
+			"sz loop", "sz points", "drive sz", 
+			"drive " + Activator.CHI};
+	static String[] plainTexts = {"Phi loop", "Phi points", "drive Phi",
+			"Temp loop", "Temp points", "drive Temp",
+			"sx loop", "sx points", "drive sx",
+			"sy loop", "sy points", "drive sy",
+			"sz loop", "sz points", "drive sz", 
+			"drive Chi"};
+	static String[] htmls = {Activator.PHI_HTML + " loop", Activator.PHI_HTML + " points", "drive " + Activator.PHI, 
+			" t loop", " t points", "drive t", 
+			"sx loop", "sx points", "drive sx",
+			"sy loop", "sy points", "drive sy",
+			"sz loop", "sz points", "drive sz", 
+			"drive " + Activator.CHI_HTML};
 	
 	public String getText() {
 		switch (this) {
@@ -65,22 +85,34 @@ enum ScanTarget {
 			return texts[0];
 		case PHI_POINTS:
 			return texts[1];
-		case TEMP_LOOP:
+		case DRIVE_PHI:
 			return texts[2];
-		case TEMP_POINTS:
+		case TEMP_LOOP:
 			return texts[3];
-		case SX_LOOP:
+		case TEMP_POINTS:
 			return texts[4];
-		case SX_POINTS:
+		case DRIVE_TEMP:
 			return texts[5];
-		case SY_LOOP:
+		case SX_LOOP:
 			return texts[6];
-		case SY_POINTS:
+		case SX_POINTS:
 			return texts[7];
-		case SZ_LOOP:
+		case DRIVE_SX:
 			return texts[8];
-		case SZ_POINTS:
+		case SY_LOOP:
 			return texts[9];
+		case SY_POINTS:
+			return texts[10];
+		case DRIVE_SY:
+			return texts[11];
+		case SZ_LOOP:
+			return texts[12];
+		case SZ_POINTS:
+			return texts[13];
+		case DRIVE_SZ:
+			return texts[14];
+		case DRIVE_CHI:
+			return texts[15];
 		default:
 			return texts[0];
 		}
@@ -92,22 +124,34 @@ enum ScanTarget {
 			return htmls[0];
 		case PHI_POINTS:
 			return htmls[1];
-		case TEMP_LOOP:
+		case DRIVE_PHI:
 			return htmls[2];
-		case TEMP_POINTS:
+		case TEMP_LOOP:
 			return htmls[3];
-		case SX_LOOP:
+		case TEMP_POINTS:
 			return htmls[4];
-		case SX_POINTS:
+		case DRIVE_TEMP:
 			return htmls[5];
-		case SY_LOOP:
+		case SX_LOOP:
 			return htmls[6];
-		case SY_POINTS:
+		case SX_POINTS:
 			return htmls[7];
-		case SZ_LOOP:
+		case DRIVE_SX:
 			return htmls[8];
-		case SZ_POINTS:
+		case SY_LOOP:
 			return htmls[9];
+		case SY_POINTS:
+			return htmls[10];
+		case DRIVE_SY:
+			return htmls[11];
+		case SZ_LOOP:
+			return htmls[12];
+		case SZ_POINTS:
+			return htmls[13];
+		case DRIVE_SZ:
+			return htmls[14];
+		case DRIVE_CHI:
+			return htmls[15];
 		default:
 			return htmls[0];
 		}
@@ -119,22 +163,34 @@ enum ScanTarget {
 			return plainTexts[0];
 		case PHI_POINTS:
 			return plainTexts[1];
-		case TEMP_LOOP:
+		case DRIVE_PHI:
 			return plainTexts[2];
-		case TEMP_POINTS:
+		case TEMP_LOOP:
 			return plainTexts[3];
-		case SX_LOOP:
+		case TEMP_POINTS:
 			return plainTexts[4];
-		case SX_POINTS:
+		case DRIVE_TEMP:
 			return plainTexts[5];
-		case SY_LOOP:
+		case SX_LOOP:
 			return plainTexts[6];
-		case SY_POINTS:
+		case SX_POINTS:
 			return plainTexts[7];
-		case SZ_LOOP:
+		case DRIVE_SX:
 			return plainTexts[8];
-		case SZ_POINTS:
+		case SY_LOOP:
 			return plainTexts[9];
+		case SY_POINTS:
+			return plainTexts[10];
+		case DRIVE_SY:
+			return plainTexts[11];
+		case SZ_LOOP:
+			return plainTexts[12];
+		case SZ_POINTS:
+			return plainTexts[13];
+		case DRIVE_SZ:
+			return plainTexts[14];
+		case DRIVE_CHI:
+			return plainTexts[15];
 		default:
 			return plainTexts[0];
 		}
@@ -146,21 +202,33 @@ enum ScanTarget {
 		} else if (texts[1].equals(text)) {
 			return PHI_POINTS;
 		} else if (texts[2].equals(text)) {
-			return TEMP_LOOP;
+			return DRIVE_PHI;
 		} else if (texts[3].equals(text)) {
-			return TEMP_POINTS;
+			return TEMP_LOOP;
 		} else if (texts[4].equals(text)) {
-			return SX_LOOP;
+			return TEMP_POINTS;
 		} else if (texts[5].equals(text)) {
-			return SX_POINTS;
+			return DRIVE_TEMP;
 		} else if (texts[6].equals(text)) {
-			return SY_LOOP;
+			return SX_LOOP;
 		} else if (texts[7].equals(text)) {
-			return SY_POINTS;
+			return SX_POINTS;
 		} else if (texts[8].equals(text)) {
-			return SZ_LOOP;
+			return DRIVE_SX;
 		} else if (texts[9].equals(text)) {
+			return SY_LOOP;
+		} else if (texts[10].equals(text)) {
+			return SY_POINTS;
+		} else if (texts[11].equals(text)) {
+			return DRIVE_SY;
+		} else if (texts[12].equals(text)) {
+			return SZ_LOOP;
+		} else if (texts[13].equals(text)) {
 			return SZ_POINTS;
+		} else if (texts[14].equals(text)) {
+			return DRIVE_SZ;
+		} else if (texts[15].equals(text)) {
+			return DRIVE_CHI;
 		} else {
 			return PHI_LOOP;
 		}
@@ -177,18 +245,29 @@ enum ScanTarget {
 	public boolean isTemperature() {
 		return this == TEMP_LOOP || this == TEMP_POINTS;
 	}
+	
+	public boolean isChi() {
+		return this == DRIVE_CHI;
+	}
+	
+	public boolean isDrive() {
+		return this == DRIVE_PHI || this == DRIVE_TEMP || this == DRIVE_SX 
+				|| this == DRIVE_SY || this == DRIVE_SZ || this == DRIVE_CHI;
+	}
 
 	public String getDeviceName() {
-		if (this == PHI_LOOP || this == PHI_POINTS) {
+		if (this == PHI_LOOP || this == PHI_POINTS || this == DRIVE_PHI) {
 			return ControlHelper.PHI_DEVICE_NAME;
-		} else if (this == TEMP_LOOP || this == TEMP_POINTS) {
+		} else if (this == TEMP_LOOP || this == TEMP_POINTS || this == DRIVE_TEMP) {
 			return ControlHelper.TEMP_DEVICE_NAME;
-		} else if (this == SX_LOOP || this == SX_POINTS) {
+		} else if (this == SX_LOOP || this == SX_POINTS || this == DRIVE_SX) {
 			return ControlHelper.SX_DEVICE_NAME;
-		} else if (this == SY_LOOP || this == SY_POINTS) {
+		} else if (this == SY_LOOP || this == SY_POINTS || this == DRIVE_SY) {
 			return ControlHelper.SY_DEVICE_NAME;
-		} else if (this == SZ_LOOP || this == SZ_POINTS) {
+		} else if (this == SZ_LOOP || this == SZ_POINTS || this == DRIVE_SZ) {
 			return ControlHelper.SZ_DEVICE_NAME;
+		} else if (this == DRIVE_CHI) {
+			return ControlHelper.CHI_DEVICE_NAME;
 		} else {
 			return ControlHelper.PHI_DEVICE_NAME;
 		}
@@ -219,8 +298,9 @@ public class SingleScan {
 //	protected final int ERASURE_TIME = 10;
 //	protected final int READING_TIME = 240;
 	protected final int TEMP_TIME = 300;
-	protected final int CHI_TIME = 10;
+	protected final int CHI_TIME = 5;
 	protected final int PHI_TIME = 10;
+	protected final int MOTOR_TIME = 5;
 	
 	private ScanTarget target;
 	private float start;
@@ -240,6 +320,7 @@ public class SingleScan {
 	private InputType inputLast;
 	private InputType input2nd;
 	private String points;
+	private float driveValue = Float.NaN;
 	private boolean isRunning;
 	private long startTimeMilSec;
 	private boolean paused;
@@ -266,6 +347,17 @@ public class SingleScan {
 	public void setTarget(ScanTarget target) {
 		this.target = target;
 	}
+	
+	public float getDriveValue() {
+		return driveValue;
+	}
+	
+	public void setDriveValue(float value) {
+		Object old = this.driveValue;
+		this.driveValue = value;
+		firePropertyChange("driveValue", old, value);
+	}
+
 	public float getStart() {
 		return start;
 	}
@@ -428,6 +520,7 @@ public class SingleScan {
 	
 	public void copyFrom(SingleScan scan) {
 		target = scan.getTarget();
+		driveValue = scan.getDriveValue();
 		start = scan.getStart();
 		inc = scan.getInc();
 		number = scan.getNumber();
@@ -562,8 +655,12 @@ public class SingleScan {
 	}
 	
 	private List<Float> getPointValues() {
-		String[] items = getPoints().split(",");
 		List<Float> values = new ArrayList<Float>();
+		String points = getPoints();
+		if (points == null || points.trim().length() == 0) {
+			return values;
+		}
+		String[] items = getPoints().split(",");
 		for (int i = 0; i < items.length; i++) {
 			float v = Float.valueOf(items[i].trim());
 			if (!Float.isNaN(v)) {
@@ -591,6 +688,12 @@ public class SingleScan {
 				if (!Float.isNaN(getChi())) {
 					time += CHI_TIME;
 				}
+			}
+		} else if (getTarget().isDrive()) {
+			if (getTarget().isTemperature()) {
+				return TEMP_TIME;
+			} else {
+				return MOTOR_TIME;
 			}
 		} else {
 			if (getExposure() > 0) {
@@ -627,11 +730,19 @@ public class SingleScan {
 			} else {
 				return getTotalTime();
 			}
-		} else if ("".equals(getStatus())) {
-			return getTotalTime();
 		} else {
-			return 0;
+			return getTotalTime();
 		}
+//		else if ("".equals(getStatus())) {
+//			return getTotalTime();
+//		} else {
+//			return 0;
+//		}
+	}
+	
+	public String getTimeEstimation() {
+		int t = getTotalTime();
+		return PanelUtils.convertTimeString(t);
 	}
 	
 	public boolean isRunning() {
@@ -667,6 +778,23 @@ public class SingleScan {
 	}
 	
 	public void run() throws KoalaInterruptionException, KoalaServerException  {
+		if (getTarget().isDrive()) {
+			setStatus(ScanStatus.busy.name());
+			if (!Float.isNaN(getDriveValue())) {
+				logger.warn("step: drive " + getTarget().getDeviceName() + " " + getDriveValue());
+				ControlHelper.publishGumtreeStatus("Drive " + getTarget().getDeviceName());
+				if (getTarget().isTemperature()) {
+					ControlHelper.driveTemperature(getDriveValue());
+				} else {
+					ControlHelper.syncDrive(getTarget().getDeviceName(), getDriveValue());
+				}
+				setStatus(ScanStatus.done.name());
+			} else {
+				logger.error("step: drive " + getTarget().getDeviceName() + " to invalid value (NaN)");
+				setStatus(ScanStatus.error.name());
+			}
+			return;
+		}
 		isRunning = true;
 		tiffFiles.clear();
 		if (currentFile != null) {
@@ -748,7 +876,6 @@ public class SingleScan {
 		}
 	}
 	
-	
 	private void publishScanResult() {
 		if (tiffFiles.size() > 0) {
 			try {
@@ -766,6 +893,7 @@ public class SingleScan {
 	private void collect(final String stepText, final float target) 
 			throws KoalaInterruptionException, KoalaServerException {
 		evaluatePauseStatus();
+		setStatus(stepText);
 		ControlHelper.asyncExec(String.format("hset %s %s", 
 				System.getProperty(ControlHelper.STEP_TEXT_PATH), stepText));
 //		if (getTarget().isTemperature()) {
@@ -1028,6 +1156,7 @@ public class SingleScan {
 	public Element serialize(final Document document) {
 		Element scan = document.createElement(NAME_SCAN);
 		scan.appendChild(createChild(document, "target", target.name()));
+		scan.appendChild(createChild(document, "driveValue", driveValue));
 		scan.appendChild(createChild(document, "start", start));
 		scan.appendChild(createChild(document, "inc", inc));
 		scan.appendChild(createChild(document, "number", number));
@@ -1056,6 +1185,8 @@ public class SingleScan {
 			String name = item.getNodeName();
 			if ("target".equals(name)) {
 				target = ScanTarget.valueOf(item.getTextContent());
+			} else if ("driveValue".equals(name)) {
+				driveValue = Float.valueOf(item.getTextContent());
 			} else if ("start".equals(name)) {
 				start = Float.valueOf(item.getTextContent());
 			} else if ("inc".equals(name)) {
@@ -1109,7 +1240,64 @@ public class SingleScan {
 		
 		Element header = document.createElement("tr");
 		
-		if (!getTarget().isPoints()) {
+		if (getTarget().isPoints()) {
+			cell = document.createElement("th");
+			cell.setTextContent("Scan setup");
+			cell.setAttribute("rowspan", "2");
+			header.appendChild(cell);
+
+			cell = document.createElement("th");
+			cell.setAttribute("colspan", "4");
+			cell.setTextContent(getTarget().getHtml());
+
+			Node disableEscaping = document.createProcessingInstruction(StreamResult.PI_DISABLE_OUTPUT_ESCAPING, "&");
+			header.appendChild(disableEscaping);
+			header.appendChild(cell);
+			cell = document.createElement("th");
+			cell.setTextContent(getTarget().isTemperature() ? Activator.PHI_HTML : "Temperature");
+			header.appendChild(cell);
+
+			cell = document.createElement("th");
+			cell.setTextContent(Activator.CHI_HTML);
+			header.appendChild(cell);
+
+			root.appendChild(header);
+
+			row = document.createElement("tr");
+			cell = document.createElement("td");
+			cell.setAttribute("colspan", "4");
+			cell.setTextContent(getPoints());
+			row.appendChild(cell);
+
+			cell = document.createElement("td");
+			if (getTarget().isTemperature()) {
+				cell.setTextContent(String.valueOf(Float.isNaN(phi) ? "" : phi));
+			} else {
+				cell.setTextContent(String.valueOf(Float.isNaN(temp) ? "" : temp));
+			}
+			row.appendChild(cell);
+
+			cell = document.createElement("td");
+			cell.setTextContent(String.valueOf(Float.isNaN(chi) ? "" : chi));
+			row.appendChild(cell);
+			root.appendChild(row);
+			
+		} else if (getTarget().isDrive()) {
+			cell = document.createElement("th");
+			cell.setTextContent("Drive");
+			header.appendChild(cell);
+
+			cell = document.createElement("td");
+			cell.setAttribute("colspan", "4");
+			cell.setTextContent(getTarget().getDeviceName());
+			header.appendChild(cell);
+			
+			cell = document.createElement("td");
+			cell.setAttribute("colspan", "2");
+			cell.setTextContent(String.valueOf(getEnd()));
+			header.appendChild(cell);
+			
+		} else {
 			cell = document.createElement("th");
 			cell.setTextContent("Scan setup");
 			cell.setAttribute("rowspan", "3");
@@ -1178,49 +1366,7 @@ public class SingleScan {
 			cell.setTextContent(String.valueOf(Float.isNaN(chi) ? "" : chi));
 			row.appendChild(cell);
 			root.appendChild(row);
-		} else {
-			cell = document.createElement("th");
-			cell.setTextContent("Scan setup");
-			cell.setAttribute("rowspan", "2");
-			header.appendChild(cell);
-
-			cell = document.createElement("th");
-			cell.setAttribute("colspan", "4");
-			cell.setTextContent(getTarget().getHtml());
-
-			Node disableEscaping = document.createProcessingInstruction(StreamResult.PI_DISABLE_OUTPUT_ESCAPING, "&");
-			header.appendChild(disableEscaping);
-			header.appendChild(cell);
-			cell = document.createElement("th");
-			cell.setTextContent(getTarget().isTemperature() ? Activator.PHI_HTML : "Temperature");
-			header.appendChild(cell);
-
-			cell = document.createElement("th");
-			cell.setTextContent(Activator.CHI_HTML);
-			header.appendChild(cell);
-
-			root.appendChild(header);
-
-			row = document.createElement("tr");
-			cell = document.createElement("td");
-			cell.setAttribute("colspan", "4");
-			cell.setTextContent(getPoints());
-			row.appendChild(cell);
-
-			cell = document.createElement("td");
-			if (getTarget().isTemperature()) {
-				cell.setTextContent(String.valueOf(Float.isNaN(phi) ? "" : phi));
-			} else {
-				cell.setTextContent(String.valueOf(Float.isNaN(temp) ? "" : temp));
-			}
-			row.appendChild(cell);
-
-			cell = document.createElement("td");
-			cell.setTextContent(String.valueOf(Float.isNaN(chi) ? "" : chi));
-			row.appendChild(cell);
-			root.appendChild(row);
-			
-		}
+		} 
 
 		row = document.createElement("tr");
 		cell = document.createElement("th");

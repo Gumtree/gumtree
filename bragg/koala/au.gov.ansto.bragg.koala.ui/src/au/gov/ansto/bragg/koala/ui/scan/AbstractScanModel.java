@@ -12,7 +12,7 @@ import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -36,6 +36,7 @@ import org.gumtree.msw.ui.ktable.KTable;
 import org.gumtree.msw.ui.ktable.KTableCellRenderer;
 import org.gumtree.msw.ui.ktable.KTableModel;
 import org.gumtree.msw.ui.ktable.renderers.DefaultCellRenderer;
+import org.gumtree.msw.ui.ktable.renderers.EmptyCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.FixedCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.ImageButtonCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.TextCellRenderer;
@@ -69,11 +70,22 @@ public abstract class AbstractScanModel implements KTableModel {
 //	private TextCellRenderer oddTextHighlightRenderer;
 //	private TextCellRenderer evenTextHighlightRenderer;
 	private TextCellRenderer highlightRender;
+	private KTableCellRenderer emptyHeaderRenderer;
 	private FixedCellRenderer columnHeaderRenderer;
 	private ImageButtonCellRenderer saveButtonRenderer;
 	private ImageButtonCellRenderer loadButtonRenderer;
+	private ImageButtonCellRenderer addButtonRenderer;
 	private ImageButtonHighlightRenderer highlightLoadButtonRenderer;
 	private ImageButtonHighlightRenderer highlightSaveButtonRenderer;
+	private ImageButtonHighlightRenderer highlightAddButtonRenderer;
+	private ImageButtonCellRenderer oddUpButtonRenderer;
+	private ImageButtonCellRenderer evenUpButtonRenderer;
+	private ImageButtonCellRenderer greenUpButtonRenderer;
+	private ImageButtonCellRenderer oddDownButtonRenderer;
+	private ImageButtonCellRenderer evenDownButtonRenderer;
+	private ImageButtonCellRenderer greenDownButtonRenderer;
+	private ImageButtonHighlightRenderer highlightUpButtonRenderer;
+	private ImageButtonHighlightRenderer highlightDownButtonRenderer;
 	private ImageButtonCellRenderer oddDupButtonRenderer;
 	private ImageButtonCellRenderer evenDupButtonRenderer;
 	private ImageButtonCellRenderer greenDupButtonRenderer;
@@ -105,6 +117,7 @@ public abstract class AbstractScanModel implements KTableModel {
 	
 	public enum ScanStatus {
 		busy,
+		waiting,
 		done,
 		error
 	}
@@ -122,12 +135,19 @@ public abstract class AbstractScanModel implements KTableModel {
 				| DefaultCellRenderer.INDICATION_CLICKED);
 		loadButtonRenderer.setImage(KoalaImage.OPEN32.getImage());
 		loadButtonRenderer.setBackground(FixedCellRenderer.COLOR_FIXEDBACKGROUND);
+		addButtonRenderer = new ImageButtonCellRenderer(DefaultCellRenderer.STYLE_PUSH 
+				| DefaultCellRenderer.INDICATION_CLICKED);
+		addButtonRenderer.setImage(KoalaImage.PLUS32.getImage());
+		addButtonRenderer.setBackground(FixedCellRenderer.COLOR_FIXEDBACKGROUND);
 		highlightSaveButtonRenderer = new ImageButtonHighlightRenderer(DefaultCellRenderer.STYLE_PUSH
 				| DefaultCellRenderer.INDICATION_CLICKED);
 		highlightSaveButtonRenderer.setImage(KoalaImage.SAVE32.getImage());
 		highlightLoadButtonRenderer = new ImageButtonHighlightRenderer(DefaultCellRenderer.STYLE_PUSH
 				| DefaultCellRenderer.INDICATION_CLICKED);
 		highlightLoadButtonRenderer.setImage(KoalaImage.OPEN32.getImage());
+		highlightAddButtonRenderer = new ImageButtonHighlightRenderer(DefaultCellRenderer.STYLE_PUSH
+				| DefaultCellRenderer.INDICATION_CLICKED);
+		highlightAddButtonRenderer.setImage(KoalaImage.PLUS_INV32.getImage());
 		oddTextRenderer = new TextCellRenderer(DefaultCellRenderer.INDICATION_FOCUS_ROW );
 		evenTextRenderer = new TextCellRenderer(DefaultCellRenderer.INDICATION_FOCUS_ROW );
 //		oddTextHighlightRenderer = new TextCellRenderer(DefaultCellRenderer.INDICATION_FOCUS_ROW );
@@ -140,7 +160,38 @@ public abstract class AbstractScanModel implements KTableModel {
 //		evenTextHighlightRenderer.setForeground(Activator.getHighlightColor());
 		highlightRender.setBackground(Activator.getBusyColor());
 		highlightRender.setForeground(Activator.getRunningForgroundColor());
+		emptyHeaderRenderer = new DefaultCellRenderer(SWT.NONE);
 		columnHeaderRenderer = new FixedCellRenderer(SWT.NONE);
+
+		oddUpButtonRenderer = new ImageButtonCellRenderer(DefaultCellRenderer.STYLE_PUSH 
+				| DefaultCellRenderer.INDICATION_CLICKED);
+		oddUpButtonRenderer.setImage(KoalaImage.MOVE_UP32.getImage());
+		evenUpButtonRenderer = new ImageButtonCellRenderer(DefaultCellRenderer.STYLE_PUSH
+				| DefaultCellRenderer.INDICATION_CLICKED);
+		evenUpButtonRenderer.setImage(KoalaImage.MOVE_UP32.getImage());
+		evenUpButtonRenderer.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
+		greenUpButtonRenderer = new ImageButtonCellRenderer(DefaultCellRenderer.STYLE_PUSH 
+				| DefaultCellRenderer.INDICATION_CLICKED);
+		greenUpButtonRenderer.setImage(KoalaImage.MOVE_UP32.getImage());
+		greenUpButtonRenderer.setBackground(Activator.getBusyColor());
+		oddDownButtonRenderer = new ImageButtonCellRenderer(DefaultCellRenderer.STYLE_PUSH
+				| DefaultCellRenderer.INDICATION_CLICKED);
+		oddDownButtonRenderer.setImage(KoalaImage.MOVE_DOWN32.getImage());
+		evenDownButtonRenderer = new ImageButtonCellRenderer(DefaultCellRenderer.STYLE_PUSH
+				| DefaultCellRenderer.INDICATION_CLICKED);
+		evenDownButtonRenderer.setImage(KoalaImage.MOVE_DOWN32.getImage());
+		evenDownButtonRenderer.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
+		greenDownButtonRenderer = new ImageButtonCellRenderer(DefaultCellRenderer.STYLE_PUSH
+				| DefaultCellRenderer.INDICATION_CLICKED);
+		greenDownButtonRenderer.setImage(KoalaImage.MOVE_DOWN32.getImage());
+		greenDownButtonRenderer.setBackground(Activator.getBusyColor());
+		highlightUpButtonRenderer = new ImageButtonHighlightRenderer(DefaultCellRenderer.STYLE_PUSH
+				| DefaultCellRenderer.INDICATION_CLICKED);
+		highlightUpButtonRenderer.setImage(KoalaImage.MOVE_UP_INV32.getImage());
+		highlightDownButtonRenderer = new ImageButtonHighlightRenderer(DefaultCellRenderer.STYLE_PUSH
+				| DefaultCellRenderer.INDICATION_CLICKED);
+		highlightDownButtonRenderer.setImage(KoalaImage.MOVE_DOWN_INV32.getImage());
+
 		oddDupButtonRenderer = new ImageButtonCellRenderer(DefaultCellRenderer.STYLE_PUSH 
 				| DefaultCellRenderer.INDICATION_CLICKED);
 		oddDupButtonRenderer.setImage(KoalaImage.COPY32.getImage());
@@ -203,14 +254,24 @@ public abstract class AbstractScanModel implements KTableModel {
 							saveTable(table);
 						} else if (col == 1) {
 							loadTable(table);
+						} else if (col == 2) {
+							insertScan(getSize());
 						}
 					} else if (row > 0) {
 						isValidCell = true;
 		    			if (col == 0) {
 		    				logger.info("duplicate-scan button clicked");
-		    				insertScan(row);
+		    				swapRows(row - 2, row - 1);
 		    				table.redraw();
 		    			} else if (col == 1) {
+	    					logger.info("delete-scan button clicked");
+	    					swapRows(row - 1, row);
+	    					table.redraw();
+		    			} else if (col == 2) {
+		    				logger.info("duplicate-scan button clicked");
+		    				insertScan(row);
+		    				table.redraw();
+		    			} else if (col == 3) {
 	    					logger.info("delete-scan button clicked");
 	    					deleteScan(row - 1);
 	    					table.redraw();
@@ -245,7 +306,7 @@ public abstract class AbstractScanModel implements KTableModel {
 //					if (row == 0 && col <= 1) {
 //						isButtonCell = true;
 //					}
-					if (col >= 0 && col <= 1) {
+					if ((row > 0 && col >= 0 && col <= 3) || (row ==0 && col >= 0 && col <= 2)) {
 						isButtonCell = true;
 						if (highlightCol != col || highlightRow != row) {
 							int hCol = highlightCol;
@@ -324,12 +385,22 @@ public abstract class AbstractScanModel implements KTableModel {
 			if (row == 0) {
 				return "click to save the current workflow to an XML file";
 			} else if (row > 0) {
-				return "click to duplicate this entry";
+				return "click to shift this entry up";
 			}
 		} else if (col == 1) {
 			if (row == 0) {
 				return "click to load entries from XML file and append to the current workflow";
 			} else if (row > 0) {
+				return "click to shift this entry down";
+			}
+		} else if (col == 2) {
+			if (row == 0) {
+				return "click to add new entry to the end of the queue";
+			} else {
+				return "click to duplicate this entry";
+			}
+		} else if (col == 3) {
+			if (row > 0) {
 				return "click to delete this entry";
 			}
 		}
@@ -351,20 +422,40 @@ public abstract class AbstractScanModel implements KTableModel {
 				} else {
 					return loadButtonRenderer;
 				}
+			} else if (col == 2) {
+				if (col == highlightCol && row == highlightRow) {
+					return highlightAddButtonRenderer;
+				} else {
+					return addButtonRenderer;
+				}
+			} else if (col == 3) {
+				return emptyHeaderRenderer;
 			} else {
 				return columnHeaderRenderer;
 			}
-		}
+		} else {
 		SingleScan scan = getItem(row);
 		if (scan != null) {
 			if (ScanStatus.busy.name().equals(scan.getStatus())) {
 				if (col == 0) {
 					if (col == highlightCol && row == highlightRow) {
+						return highlightUpButtonRenderer;
+					} else {
+						return greenUpButtonRenderer;
+					}
+				} else if (col == 1) { 
+					if (col == highlightCol && row == highlightRow) {
+						return highlightDownButtonRenderer;
+					} else {
+						return greenDownButtonRenderer;
+					}
+				} else if (col == 2) {
+					if (col == highlightCol && row == highlightRow) {
 						return highlightDupButtonRenderer;
 					} else {
 						return greenDupButtonRenderer;
 					}
-				} else if (col == 1) { 
+				} else if (col == 3) { 
 					if (col == highlightCol && row == highlightRow) {
 						return highlightDelButtonRenderer;
 					} else {
@@ -378,11 +469,23 @@ public abstract class AbstractScanModel implements KTableModel {
 		if (row % 2 == 0) {
 			if (col == 0) {
 				if (col == highlightCol && row == highlightRow) {
+					return highlightUpButtonRenderer;
+				} else {
+					return evenUpButtonRenderer;
+				}
+			} else if (col == 1) { 
+				if (col == highlightCol && row == highlightRow) {
+					return highlightDownButtonRenderer;
+				} else {
+					return evenDownButtonRenderer;
+				}
+			} else if (col == 2) {
+				if (col == highlightCol && row == highlightRow) {
 					return highlightDupButtonRenderer;
 				} else {
 					return evenDupButtonRenderer;
 				}
-			} else if (col == 1) { 
+			} else if (col == 3) { 
 				if (col == highlightCol && row == highlightRow) {
 					return highlightDelButtonRenderer;
 				} else {
@@ -401,11 +504,23 @@ public abstract class AbstractScanModel implements KTableModel {
 		} else {
 			if (col == 0) {
 				if (col == highlightCol && row == highlightRow) {
+					return highlightUpButtonRenderer;
+				} else {
+					return oddUpButtonRenderer;
+				}
+			} else if (col == 1) { 
+				if (col == highlightCol && row == highlightRow) {
+					return highlightDownButtonRenderer;
+				} else {
+					return oddDownButtonRenderer;
+				}
+			} else if (col == 2) {
+				if (col == highlightCol && row == highlightRow) {
 					return highlightDupButtonRenderer;
 				} else {
 					return oddDupButtonRenderer;
 				}
-			} else if (col == 1) { 
+			} else if (col == 3) { 
 				if (col == highlightCol && row == highlightRow) {
 					return highlightDelButtonRenderer;
 				} else {
@@ -422,6 +537,7 @@ public abstract class AbstractScanModel implements KTableModel {
 				return oddTextRenderer;
 			}
 		}
+		}
 	}
 	
 	protected void redrawRow(int row) {
@@ -432,7 +548,7 @@ public abstract class AbstractScanModel implements KTableModel {
 	
 	public SingleScan getItem(int row) {
 		synchronized (scanList) {
-			if (row <= scanList.size()) {
+			if (row > 0 && row <= scanList.size()) {
 				return scanList.get(row - 1);
 			} else {
 				return null;
@@ -450,7 +566,7 @@ public abstract class AbstractScanModel implements KTableModel {
 
 	@Override
 	public int getFixedHeaderRowCount() {
-		return 1;
+		return 0;
 	}
 
 	@Override
@@ -496,8 +612,27 @@ public abstract class AbstractScanModel implements KTableModel {
 	public void setRowHeight(int row, int value) {
 	}
 
+	public void swapRows(int idx1, int idx2) {
+		if (idx1 == idx2) {
+			return;
+		} else if (idx1 > idx2) {
+			int i = idx1;
+			idx1 = idx2;
+			idx2 = i;
+		}
+		if (idx1 < 0) {
+			return;
+		}
+		if (idx2 >= getSize()) {
+			return;
+		}
+		synchronized (scanList) {
+			Collections.swap(scanList, idx1, idx2);
+		}
+	}
+	
 	public void insertScan(int idx) {
-		synchronized (initScan) {
+		synchronized (scanList) {
 			if (idx > scanList.size()) {
 				idx = scanList.size();
 			} else if (idx < 0) {
@@ -514,6 +649,9 @@ public abstract class AbstractScanModel implements KTableModel {
 				newScan = new SingleScan();
 			} else {
 				newScan = pre.getCopy();
+			}
+			if (isRunning) {
+				newScan.setStatus(ScanStatus.waiting.name());
 			}
 			newScan.addPropertyChangeListener(propertyListener);
 			scanList.add(idx, newScan);
@@ -532,6 +670,9 @@ public abstract class AbstractScanModel implements KTableModel {
 	public void addScans(int idx, List<SingleScan> scans) {
 		synchronized (scanList) {
 			for (SingleScan scan : scans) {
+				if (isRunning) {
+					scan.setStatus(ScanStatus.waiting.name());
+				}
 				scan.addPropertyChangeListener(propertyListener);
 			}
 			scanList.addAll(idx, scans);
@@ -541,6 +682,9 @@ public abstract class AbstractScanModel implements KTableModel {
 	
 	public void appendScan(SingleScan scan) {
 		synchronized (scanList) {
+			if (isRunning) {
+				scan.setStatus(ScanStatus.waiting.name());
+			}
 			scan.addPropertyChangeListener(propertyListener);
 			scanList.add(scan);
 			fireModelChangeEvent();
@@ -549,16 +693,16 @@ public abstract class AbstractScanModel implements KTableModel {
 
 	public void deleteScan(int idx) {
 		synchronized (scanList) {
-			if (scanList.size() == 1 && idx == 0) {
-				SingleScan newScan;
-				if (initScan != null) {
-					newScan = initScan.getCopy();
-				} else {
-					newScan = new SingleScan();
-				}
-				newScan.addPropertyChangeListener(propertyListener);
-				scanList.add(newScan);
-			}
+//			if (scanList.size() == 1 && idx == 0) {
+//				SingleScan newScan;
+//				if (initScan != null) {
+//					newScan = initScan.getCopy();
+//				} else {
+//					newScan = new SingleScan();
+//				}
+//				newScan.addPropertyChangeListener(propertyListener);
+//				scanList.add(newScan);
+//			}
 			if (idx < scanList.size()) {
 				SingleScan toRemove = scanList.get(idx);
 				toRemove.removePropertyChangeListener(propertyListener);
@@ -607,7 +751,7 @@ public abstract class AbstractScanModel implements KTableModel {
 			public void run() {
 				logger.warn("experiment started");
 				logger.warn(String.format("estimatated time is %d seconds", getTimeEstimation()));
-				clearStatus();
+				prepareStatus();
 				ControlHelper.getProxy().clearInterruptFlag();
 				startTime = Calendar.getInstance();
 				isRunning = true;
@@ -621,14 +765,29 @@ public abstract class AbstractScanModel implements KTableModel {
 						} catch (InterruptedException e) {
 						}
 					}
-					SingleScan scan = getNextScan();
+					SingleScan scan = getFirstScan();
+					if (scan == null) {
+						break;
+					}
+					scan.addPropertyChangeListener(new PropertyChangeListener() {
+						
+						@Override
+						public void propertyChange(PropertyChangeEvent evt) {
+							if ("status".equals(evt.getPropertyName())){
+								safeRedrawStatus(0);
+							}
+						}
+					});
 					try {
-						scan.setStatus(ScanStatus.busy.name());
+//						scan.setStatus(ScanStatus.busy.name());
 //						table.redraw(getStatusColumnId(), row, 1, 1);
 						safeRedrawStatus(row);
 						scan.run();
 						scan.setStatus(ScanStatus.done.name());
-						safeRedrawStatus(row);
+//						popFirstScan();
+						deleteScan(0);
+						safeRedrawTable();
+//						safeRedrawStatus(row);
 						row++;
 					} catch (KoalaInterruptionException e) {
 						scan.setStatus(ScanStatus.error.name());
@@ -663,6 +822,24 @@ public abstract class AbstractScanModel implements KTableModel {
 		ControlHelper.experimentModel.publishErrorMessage(errorText);
 	}
 	
+	private SingleScan getFirstScan() {
+		synchronized (scanList) {
+			if (scanList.size() > 0) {
+				return scanList.get(0);
+			} else {
+				return null;
+			}
+		}
+	}
+	
+	private void popFirstScan() {
+		synchronized (scanList) {
+			if (scanList.size() > 0) {
+				scanList.remove(0);
+			}
+		}
+	}
+	
 	private boolean hasNextScan() {
 //		ListIterator<SingleScan> iter = scanList.listIterator(scanList.size());
 //		while(iter.hasPrevious()) {
@@ -672,36 +849,36 @@ public abstract class AbstractScanModel implements KTableModel {
 //			}
 //		}
 		synchronized (scanList) {
-			for (SingleScan scan : scanList) {
-				if ("".equals(scan.getStatus())) {
-					return true;
-				}
-			}
+//			for (SingleScan scan : scanList) {
+//				if ("".equals(scan.getStatus())) {
+//					return true;
+//				}
+//			}
+			return scanList.size() > 0;
 		}
-		return false;
 	}
 	
-	private SingleScan getNextScan() {
-//		ListIterator<SingleScan> iter = scanList.listIterator(scanList.size());
-//		while(iter.hasPrevious()) {
-//			SingleScan scan = iter.previous();
-//			if ("".equals(scan.getStatus())) {
-//				next = scan;
-//			} else {
-//				break;
+//	private SingleScan getNextScan() {
+////		ListIterator<SingleScan> iter = scanList.listIterator(scanList.size());
+////		while(iter.hasPrevious()) {
+////			SingleScan scan = iter.previous();
+////			if ("".equals(scan.getStatus())) {
+////				next = scan;
+////			} else {
+////				break;
+////			}
+////		}
+//		synchronized (scanList) {
+//			SingleScan next = null;
+//			for (SingleScan scan : scanList) {
+//				if ("".equals(scan.getStatus())) {
+//					next = scan;
+//					break;
+//				}
 //			}
+//			return next;
 //		}
-		synchronized (scanList) {
-			SingleScan next = null;
-			for (SingleScan scan : scanList) {
-				if ("".equals(scan.getStatus())) {
-					next = scan;
-					break;
-				}
-			}
-			return next;
-		}
-	}
+//	}
 	
 	public void finish() {
 		isRunning = false;
@@ -724,13 +901,13 @@ public abstract class AbstractScanModel implements KTableModel {
 	}
 	
 	public int getTimeEstimation() {
-		int time = 0;
 		synchronized (scanList) {
+			int time = 0;
 			for (SingleScan scan : scanList) {
 				time += scan.getTotalTime();
 			}
+			return time;
 		}
-		return time;
 	}
 
 	public String getTotalTimeText() {
@@ -777,21 +954,27 @@ public abstract class AbstractScanModel implements KTableModel {
 	}
 	
 	public String getFinishTime() {
+		int totalTime;
+		Calendar start;
 		if (startTime != null) {
-			int totalTime = getTimeLeft();
-//			Calendar finish = (Calendar) startTime.clone();
-			Calendar finish = Calendar.getInstance();
-			finish.add(Calendar.SECOND, totalTime);
-			SimpleDateFormat timeFormat;
-			if (finish.get(Calendar.DAY_OF_MONTH) == startTime.get(Calendar.DAY_OF_MONTH)) {
-				timeFormat = new SimpleDateFormat("HH:mm");
-			} else {
-				timeFormat = new SimpleDateFormat("HH:mm 'on' dd/MM");
-			}
-			return timeFormat.format(finish.getTime());
+			totalTime = getTimeLeft();
+			start = startTime;
 		} else {
+			totalTime = getTimeEstimation();
+			start = Calendar.getInstance();
+		}
+		if (totalTime == 0) {
 			return "--";
 		}
+		Calendar finish = Calendar.getInstance();
+		finish.add(Calendar.SECOND, totalTime);
+		SimpleDateFormat timeFormat;
+		if (finish.get(Calendar.DAY_OF_MONTH) == start.get(Calendar.DAY_OF_MONTH)) {
+			timeFormat = new SimpleDateFormat("HH:mm");
+		} else {
+			timeFormat = new SimpleDateFormat("HH:mm 'on' dd/MM");
+		}
+		return timeFormat.format(finish.getTime());
 	}
 
 	public long getFinishInSeconds() {
@@ -838,10 +1021,20 @@ public abstract class AbstractScanModel implements KTableModel {
 		});
 	}
 	
-	private void clearStatus() {
+	private void safeRedrawTable() {
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				table.redraw();
+			}
+		});
+	}
+	
+	private void prepareStatus() {
 		synchronized (scanList) {
 			for (SingleScan scan : scanList) {
-				scan.setStatus("");
+				scan.setStatus(ScanStatus.waiting.name());
 			}
 		}
 		Display.getDefault().asyncExec(new Runnable() {

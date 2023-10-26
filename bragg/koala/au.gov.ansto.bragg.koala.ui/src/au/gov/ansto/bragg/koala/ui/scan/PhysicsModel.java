@@ -19,23 +19,26 @@ public class PhysicsModel extends AbstractScanModel {
 	private TextCellRenderer liteOddTextRenderer;
 	private TextCellRenderer liteEvenTextRenderer;
 	
-	private static final int[] COLUMN_WIDTH = {40, 40, 180, 108, 80, 80, 108, 108, 108, 100, 108, 150, 90, 90, 160};
+	private static final int[] COLUMN_WIDTH = {40, 40, 40, 40, 120, 180, 108, 80, 80, 108, 108, 150, 90, 150, 300};
 	private static final int COLUMN_COUNTS = COLUMN_WIDTH.length;
 	private static final String[] COLUMN_TITLE = {
+			"",
+			"",
+			"",
 			"", 
-			"", 
+			"Status",
 			"Scan variable",
 			"Start", 
 			"Incr", 
 			"Num", 
 			"Final", 
 			"Expose",
-			Activator.PHI + " Value",
-			"Temp",
-			Activator.CHI + " Value",
+//			Activator.PHI + " Value",
+//			"Temp",
+//			Activator.CHI + " Value",
 			"Filename",
 			"FileIdx",
-			"Status",
+			"Duration",
 			"Comments"
 	};
 	
@@ -76,19 +79,26 @@ public class PhysicsModel extends AbstractScanModel {
 //	}
 	@Override
 	public KTableCellRenderer getCellRenderer(int col, int row) {
-		if (row > 0) {
-			if (col == 4) {
-				SingleScan scan = scanList.get(row - 1);
-				if (scan.getTarget().isPoints() && scan.getPoints().trim().length() == 0) {
-					if (row % 2 == 0) {
-						return liteEvenTextRenderer;
-					} else {
-						return liteOddTextRenderer;
+		try {
+			if (row > 0) {
+				if (col == 4) {
+					SingleScan scan = scanList.get(row - 1);
+					if (scan.getTarget().isPoints() && scan.getPoints().trim().length() == 0) {
+						if (row % 2 == 0) {
+							return liteEvenTextRenderer;
+						} else {
+							return liteOddTextRenderer;
+						}
 					}
 				}
+			} else if (row > 1) {
+				System.err.println(row);
 			}
+			return super.getCellRenderer(col, row);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		return super.getCellRenderer(col, row);
+		return null;
 	}
 	
 	@Override
@@ -101,16 +111,22 @@ public class PhysicsModel extends AbstractScanModel {
 		}
 		SingleScan scan = scanList.get(row - 1);
 		switch (col) {
-		case 2:
+		case 4:
+			return scan.getStatus();
+		case 5:
 			return scan.getTarget().getText();
-		case 3:
-			if (scan.getTarget().isPoints()) {
+		case 6:
+			if (scan.getTarget().isDrive()) {
+				return "to:";
+			} else if (scan.getTarget().isPoints()) {
 				return "values:";
 			} else {
 				return scan.getStart();
 			}
-		case 4:
-			if (scan.getTarget().isPoints()) {
+		case 7:
+			if (scan.getTarget().isDrive()) {
+				return scan.getDriveValue();
+			} else if (scan.getTarget().isPoints()) {
 				String points = scan.getPoints();
 				if (points.trim().length() == 0) {
 					return "#, #, ...";
@@ -120,74 +136,26 @@ public class PhysicsModel extends AbstractScanModel {
 			} else {
 				return scan.getInc();
 			}
-		case 5:
+		case 8:
 //			if (scan.getTarget().isPoints()) {
 //				return "";
 //			} else {
 				return scan.getNumber();
 //			}
-		case 6:
+		case 9:
 //			if (scan.getTarget().isPoints()) {
 //				return "";
 //			} else {
 				return scan.getEnd();
 //			}
-		case 7: 
+		case 10: 
 			return scan.getExposure();
-		case 8: 
-			if (scan.getTarget().isTemperature()) {
-				float phi = scan.getPhi();
-				if (Float.isNaN(phi)) {
-					return "";
-				} else {
-					return phi;
-				}
-			} else {
-				return "";
-			}
-		case 9:
-			float temp = scan.getTemp();
-			if (Float.isNaN(temp) || temp == 0) {
-				return "";
-			} else {
-				return temp;
-			}
-//			if (row == 1) {
-//				return temp;
-//			} else {
-//				if (getItem(row).getTarget().isTemperature()) {
-//					return "";
-//				}
-//				float last = scanList.get(row - 2).getTemp();
-//				if (temp == last) {
-//					return "";
-//				} else {
-//					return temp;
-//				}
-//			}
-		case 10:
-			float chi = scan.getChi();
-			if (Float.isNaN(chi)) {
-				return "";
-			} else {
-				return chi;
-			}
-//			if (row == 1) {
-//				return chi;
-//			} else {
-//				float last = scanList.get(row - 2).getChi();
-//				if (chi == last) {
-//					return "";
-//				} else {
-//					return chi;
-//				}
-//			}
 		case 11:
 			return scan.getFilename();
 		case 12:
 			return scan.getStartIndex();
 		case 13:
-			return scan.getStatus();
+			return scan.getTimeEstimation();
 		case 14:
 			return scan.getComments();
 		default:
@@ -201,32 +169,29 @@ public class PhysicsModel extends AbstractScanModel {
 		if (row <= 0) {
 			return null;
 		}
-		if (col == 2) {
+		if (col == 5) {
 			KTableCellEditorComboText editor = new KTableCellEditorComboText();
 			editor.setVisibleItemCount(4);
 			editor.setFont(Activator.getMiddleFont());
 			editor.setItems(ScanTarget.getAllText());
 			editor.setSelectionOnly(true);
 			return editor;
-		} else if (col == 3) {
-			if (getItem(row).getTarget().isPoints()) {
+		} else if (col == 6) {
+			if (getItem(row).getTarget().isDrive()) {
+				return null;
+			} else if (getItem(row).getTarget().isPoints()) {
 				return null;
 			} else {
 				return new KTableCellEditorText();
 			}
-		} else if (col == 8) {
-			if (getItem(row).getTarget().isTemperature()) {
-				return new KTableCellEditorText();
-			} else {
-				return null;
-			}
-		} else if (col == 9) {
-			if (getItem(row).getTarget().isTemperature()) {
-				return null;
-			} else {
-				return new KTableCellEditorText();
-			}
-		} else if (col > 1 && col != 13) {
+		} else if (col == 7) {
+//			if (getItem(row).getTarget().isPoints()) {
+//				return new KTableCellEditorText();
+//			} else {
+//				return new KTableCellEditorText();
+//			}
+			return new KTableCellEditorText();
+		} else if (col > 7 && col != 13) {
 			return new KTableCellEditorText();
 		} else {
 			return null;
@@ -240,11 +205,11 @@ public class PhysicsModel extends AbstractScanModel {
 		}
 		SingleScan scan = scanList.get(row - 1);
 		switch (col) {
-		case 2:
+		case 5:
 			scan.setTarget(ScanTarget.valueOfText(String.valueOf(value)));
 			redrawRow(row);
 			break;
-		case 3:
+		case 6:
 			if (value instanceof Float) {
 				scan.setStart((Float) value);
 			} else {
@@ -254,8 +219,17 @@ public class PhysicsModel extends AbstractScanModel {
 				}
 			}
 			break;
-		case 4:
-			if (scan.getTarget().isPoints()) {
+		case 7:
+			if (scan.getTarget().isDrive()) {
+				if (value instanceof Float) {
+					scan.setDriveValue((Float) value);
+				} else {
+					String v = String.valueOf(value);
+					if (v.length() > 0) {
+						scan.setDriveValue(Float.parseFloat(v));
+					}
+				}
+			} else if (scan.getTarget().isPoints()) {
 				scan.setPoints(String.valueOf(value));
 			} else {
 				if (value instanceof Float) {
@@ -269,7 +243,7 @@ public class PhysicsModel extends AbstractScanModel {
 			}
 			redrawRow(row);
 			break;
-		case 5:
+		case 8:
 			if (value instanceof Integer) {
 				scan.setNumber((Integer) value);
 			} else {
@@ -280,7 +254,7 @@ public class PhysicsModel extends AbstractScanModel {
 			}
 			redrawRow(row);
 			break;
-		case 6:
+		case 9:
 			if (value instanceof Float) {
 				scan.setEnd((Float) value);
 			} else {
@@ -291,47 +265,13 @@ public class PhysicsModel extends AbstractScanModel {
 			}
 			redrawRow(row);
 			break;
-		case 7:
+		case 10:
 			if (value instanceof Integer) {
 				scan.setExposure((Integer) value);
 			} else {
 				String t = String.valueOf(value);
 				if (t.length() > 0) {
 					scan.setExposure(Integer.parseInt(t));
-				}
-			}
-			break;
-		case 8:
-			if (value instanceof Float) {
-				scan.setPhi((Float) value);
-			} else {
-				String t = String.valueOf(value);
-				if (t.length() > 0) {
-					scan.setPhi(Float.parseFloat(t));
-				}
-			}
-			break;
-		case 9:
-			if (value instanceof Float) {
-				scan.setTemp((Float) value);
-			} else {
-				String t = String.valueOf(value);
-				if (t.length() > 0) {
-					scan.setTemp(Float.parseFloat(t));
-				} else {
-					scan.setTemp(Float.NaN);
-				}
-			}
-			break;
-		case 10:
-			if (value instanceof Float) {
-				scan.setChi((Float) value);
-			} else {
-				String t = String.valueOf(value);
-				if (t.length() > 0) {
-					scan.setChi(Float.parseFloat(t));
-				} else {
-					scan.setChi(Float.NaN);
 				}
 			}
 			break;
@@ -347,8 +287,6 @@ public class PhysicsModel extends AbstractScanModel {
 					scan.setStartIndex(Integer.parseInt(t));
 				}
 			}
-			break;
-		case 13:
 			break;
 		case 14:
 			scan.setComments(String.valueOf(value));
@@ -370,17 +308,20 @@ public class PhysicsModel extends AbstractScanModel {
 
 	@Override
 	public Point belongsToCell(int col, int row) {
-		if (row > 0) {
-//			if (col == 1) {
-//				return new Point(0, 0);
-//			} else {
-//				return null;
-//			}
-//		} else {
-			if (col > 4 && col <= 6) {
+		if (row == 0) {
+			if (col == 3) {
+				return new Point(2, 0);
+			}
+		} else {
+			if (col > 7 && col <= 9) {
 				SingleScan scan = scanList.get(row - 1);
-				if (scan.getTarget().isPoints()) {
-					return new Point(4, row);
+				if (scan.getTarget().isDrive() || scan.getTarget().isPoints()) {
+					return new Point(7, row);
+				}
+			} else if (col > 9) {
+				SingleScan scan = scanList.get(row - 1);
+				if (scan.getTarget().isDrive()) {
+					return new Point(7, row);
 				}
 			}
 		}
@@ -411,7 +352,6 @@ public class PhysicsModel extends AbstractScanModel {
 
 	@Override
 	protected int getStatusColumnId() {
-		// TODO Auto-generated method stub
-		return COLUMN_COUNTS - 2;
+		return 4;
 	}
 }

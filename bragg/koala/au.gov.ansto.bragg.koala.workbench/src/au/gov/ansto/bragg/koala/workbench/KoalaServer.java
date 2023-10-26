@@ -175,7 +175,7 @@ public class KoalaServer {
 		
 //		setStatus(ServerStatus.EAGER_TO_EXECUTE);
 		status = ServerStatus.EAGER_TO_EXECUTE;
-		context = ZMQ.context(2);
+		context = ZMQ.context(1);
         //  Socket to talk to clients
         serverSocket = context.socket(ZMQ.ROUTER);
 //        serverSocket.bind(ConstantSetup.LOCAL_SERVER_ADDRESS);
@@ -193,9 +193,9 @@ public class KoalaServer {
 	private void respond(String client, String message) {
 //		socket.send(message.getBytes(ZMQ.CHARSET), 0);
 		if (message.length() > 200) {
-			System.err.println("respond to command: " + message.substring(0, 200));
+			System.err.println("@@@@ respond to command: " + message.substring(0, 200));
 		} else {
-			System.err.println("respond to command: " + message);
+			System.err.println("@@@@ respond to command: " + message);
 		}
 		serverSocket.sendMore(client);
 		serverSocket.send(message.getBytes(ZMQ.CHARSET));
@@ -243,7 +243,7 @@ public class KoalaServer {
 		json.put(PropertyConstants.PROP_UPDATE_SEQ, MESSAGE_SEQ ++);
 		json.put(PropertyConstants.PROP_UPDATE_TS, System.currentTimeMillis());
 		String message = json.toString();
-		System.out.println("publish update: " + message);
+//		System.out.println("publish update: " + message);
 		publisherSocket.send(message.getBytes(ZMQ.CHARSET));
 	}
 
@@ -1053,7 +1053,7 @@ public class KoalaServer {
 		            
 		            final String commandText = serverSocket.recvStr();
 		            
-		            System.out.println("command: " + commandText);
+		            System.err.println("#### command received: " + commandText);
 
 		            
 		            executor.submit(new Runnable() {
