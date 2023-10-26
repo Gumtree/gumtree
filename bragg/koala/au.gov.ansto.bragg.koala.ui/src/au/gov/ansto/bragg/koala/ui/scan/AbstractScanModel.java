@@ -943,9 +943,9 @@ public abstract class AbstractScanModel implements KTableModel {
 			Calendar now = Calendar.getInstance();
 			SimpleDateFormat timeFormat;
 			if (now.get(Calendar.DAY_OF_MONTH) == startTime.get(Calendar.DAY_OF_MONTH)) {
-				timeFormat = new SimpleDateFormat("HH:mm");
+				timeFormat = new SimpleDateFormat("hh:mma");
 			} else {
-				timeFormat = new SimpleDateFormat("HH:mm 'on' dd/MM");
+				timeFormat = new SimpleDateFormat("hh:mma 'on' dd/MM");
 			}
 			return timeFormat.format(startTime.getTime());
 		} else {
@@ -970,9 +970,9 @@ public abstract class AbstractScanModel implements KTableModel {
 		finish.add(Calendar.SECOND, totalTime);
 		SimpleDateFormat timeFormat;
 		if (finish.get(Calendar.DAY_OF_MONTH) == start.get(Calendar.DAY_OF_MONTH)) {
-			timeFormat = new SimpleDateFormat("HH:mm");
+			timeFormat = new SimpleDateFormat("hh:mma");
 		} else {
-			timeFormat = new SimpleDateFormat("HH:mm 'on' dd/MM");
+			timeFormat = new SimpleDateFormat("hh:mma dd/MM");
 		}
 		return timeFormat.format(finish.getTime());
 	}
