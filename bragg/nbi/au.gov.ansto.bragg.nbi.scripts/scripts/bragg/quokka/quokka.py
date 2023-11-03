@@ -994,7 +994,7 @@ def getFloatData(path, throw=True, useController=False, useRaw=False, refresh = 
 
     return getData(getter, throw)
 
-def getStringData(path, throw=True, useController=False, useRaw=False):
+def getStringData(path, throw=True, useController=False, useRaw=False, refresh = False):
 
     def getter():
         if useController:
@@ -1003,7 +1003,7 @@ def getStringData(path, throw=True, useController=False, useRaw=False):
         elif useRaw:
             return str(sics.get_raw_value(path))
         else:
-            return sics.getValue(path).getStringData()
+            return sics.getValue(path, refresh).getStringData()
 
     return getData(getter, throw)
 
@@ -1229,9 +1229,9 @@ def driveFlipper(value):
 
     slog('Flipper is set to %s' % getFlipper())
 
-def getGuideConfig(throw=True):
+def getGuideConfig(throw=True, refresh = False):
     # return getStringData('/commands/optics/guide/configuration', throw)
-    return getStringData('guideconfig', throw) # get current driven to guide configuration
+    return getStringData('guideconfig', throw, refresh = refresh) # get current driven to guide configuration
 
 def driveGuide(value):
     if value not in GUIDE_CONFIG:
@@ -1267,7 +1267,7 @@ def driveGuide(value):
             while (getGuideConfig() != value) and (datetime.now() < timeout):
                 sleep(0.5)
 
-            if getGuideConfig() != value:
+            if getGuideConfig(refresh = True) != value:
                 raise Exception('target not reached')
             break
 
