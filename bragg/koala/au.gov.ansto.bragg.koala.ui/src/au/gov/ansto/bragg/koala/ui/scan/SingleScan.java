@@ -243,7 +243,7 @@ enum ScanTarget {
 	}
 	
 	public boolean isTemperature() {
-		return this == TEMP_LOOP || this == TEMP_POINTS;
+		return this == TEMP_LOOP || this == TEMP_POINTS || this == DRIVE_TEMP;
 	}
 	
 	public boolean isChi() {
@@ -781,11 +781,12 @@ public class SingleScan {
 		if (getTarget().isDrive()) {
 			setStatus(ScanStatus.busy.name());
 			if (!Float.isNaN(getDriveValue())) {
-				logger.warn("step: drive " + getTarget().getDeviceName() + " " + getDriveValue());
 				ControlHelper.publishGumtreeStatus("Drive " + getTarget().getDeviceName());
 				if (getTarget().isTemperature()) {
+					logger.warn("step: drive temperature to " + getDriveValue());
 					ControlHelper.driveTemperature(getDriveValue());
 				} else {
+					logger.warn("step: drive " + getTarget().getDeviceName() + " " + getDriveValue());
 					ControlHelper.syncDrive(getTarget().getDeviceName(), getDriveValue());
 				}
 				setStatus(ScanStatus.done.name());
@@ -1161,6 +1162,7 @@ public class SingleScan {
 		scan.appendChild(createChild(document, "inc", inc));
 		scan.appendChild(createChild(document, "number", number));
 		scan.appendChild(createChild(document, "end", end));
+		scan.appendChild(createChild(document, "points", points));
 		scan.appendChild(createChild(document, "exposure", exposure));
 		scan.appendChild(createChild(document, "erasure", erasure));
 		scan.appendChild(createChild(document, "temp", temp));
@@ -1195,6 +1197,8 @@ public class SingleScan {
 				number = Integer.valueOf(item.getTextContent());
 			} else if ("end".equals(name)) {
 				end = Float.valueOf(item.getTextContent());
+			} else if ("points".equals(name)) {
+				points = item.getTextContent();
 			} else if ("exposure".equals(name)) {
 				exposure = Integer.valueOf(item.getTextContent());
 			} else if ("erasure".equals(name)) {

@@ -24,8 +24,6 @@ public class KoalaMainView extends ViewPart {
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer);
 		container.setContent(viewer);
 		container.setMinSize(SCROLL_WIDTH, SCROLL_HEIGHT);
-
-	    // Expand both horizontally and vertically
 		container.setExpandHorizontal(true);
 		container.setExpandVertical(true);
 	}
