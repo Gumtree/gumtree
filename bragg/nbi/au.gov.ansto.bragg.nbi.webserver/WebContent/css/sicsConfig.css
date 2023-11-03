@@ -8,6 +8,18 @@ body {
   vertical-align: text-bottom;
 }
 
+.float_right {
+  float: right;
+}
+.padding_right_4 {
+  padding-right: 4px!important;
+}
+.darker_background {
+	background-color: #e9ecef;
+}
+.dark_background {
+	background-color: #adb5bd !important;
+}
 /*
  * Sidebar
  */
@@ -29,6 +41,14 @@ body {
   padding-top: .5rem;
   overflow-x: hidden;
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+}
+
+.sidebar-half-top {
+	height: calc(50vh - 24px);
+}
+
+.sidebar-half-buttom {
+	height: calc(50vh - 48px);
 }
 
 @supports ((position: -webkit-sticky) or (position: sticky)) {
@@ -58,8 +78,32 @@ body {
 }
 
 .sidebar-heading {
-  font-size: .75rem;
+  font-size: .85rem;
   text-transform: uppercase;
+}
+
+.sidebar-subheading {
+  font-size: .80rem;
+  text-transform: capitalize;
+}
+
+.class_a_axis {
+	font-size: .75rem;
+}
+
+.class_ul_folder {
+	background-color: #9ca5af;
+}
+
+.class_span_mc_input {
+	line-height: inherit;
+}
+
+.class_mc_input {
+	line-height: 1em;
+	padding-top: 0;
+	padding-bottom: 0.1em;
+	font-size: small;
 }
 
 /*
@@ -139,9 +183,20 @@ body {
 	margin: 0;
 	font-size: larger;
 }
+.class_span_side_database {
+	padding: 24px 4px 4px 16px;
+	margin: 0;
+	font-size: larger;
+}
+
 .class_ul_hide {
 	display: none;
 }
+
+.class_span_hide {
+	display: none;
+}
+
 .class_li_subitem {
 	padding-left: 40px;
 	margin: 2px;
@@ -172,6 +227,7 @@ td.pair_value {
   padding: 0;
   margin: 0;
   vertical-align: middle;
+  text-align: left;
 }
 td.editable_value table {
 	margin: 2px 0;
@@ -188,6 +244,10 @@ td.pair_value input {
 	margin: 0;
 /*	box-shadow: none !important; */
 	padding-left: 4px;
+	padding-right: 2px;
+}
+td.editable_value input[type='checkbox'] {
+	width: auto;
 }
 td.pair_control {
 	min-width: 50px;

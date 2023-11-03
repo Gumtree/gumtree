@@ -208,6 +208,18 @@
             base-name="/WebContent/sicsConfigMenu.html">
       </resource>
       <resource
+            alias="/user/sedbConfig.html"
+            base-name="/WebContent/sedbConfig.html">
+      </resource>
+      <resource
+            alias="/user/seConfigMenu.html"
+            base-name="/WebContent/seConfigMenu.html">
+      </resource>
+      <resource
+            alias="/user/seConfig.html"
+            base-name="/WebContent/seConfig.html">
+      </resource>
+      <resource
             alias="/doc/notebook.html"
             base-name="/WebContent/notebook.html">
       </resource>
