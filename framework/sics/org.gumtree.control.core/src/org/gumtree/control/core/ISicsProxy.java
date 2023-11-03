@@ -12,6 +12,7 @@ public interface ISicsProxy {
 
 	ISicsModel getSicsModel();
 	boolean connect(String serverAddress, String publisherAddress) throws SicsException;
+	boolean reconnect() throws SicsException; 
 	void disconnect();
 	boolean isConnected();
 	String syncRun(String command) throws SicsException;
@@ -31,5 +32,6 @@ public interface ISicsProxy {
 	void addMessageListener(ISicsMessageListener listener);
 	void removeMessageListener(ISicsMessageListener listener);
 	void fireMessageEvent(String message);
+	void updateGumtreeXML() throws SicsException;
 	ISicsConnectionContext getConnectionContext();
 }

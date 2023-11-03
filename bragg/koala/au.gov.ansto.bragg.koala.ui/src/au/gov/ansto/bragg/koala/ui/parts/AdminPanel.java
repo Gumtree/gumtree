@@ -12,11 +12,15 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.gumtree.control.core.SicsCoreProperties;
+import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
+import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.ui.ControlTerminalView;
 import org.gumtree.control.ui.viewer.ControlViewer;
 import org.gumtree.control.ui.viewer.model.INodeSet;
@@ -26,7 +30,6 @@ import org.gumtree.util.string.StringUtils;
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.nbi.ui.realtime.control.ControlRealtimeDataViewer;
-import au.gov.ansto.bragg.nbi.ui.widgets.SicsRealtimeDataViewer;
 
 /**
  * @author nxi
@@ -61,6 +64,70 @@ public class AdminPanel extends AbstractPanel {
 		}
 		GridLayoutFactory.fillDefaults().margins(1, 1).applyTo(this);
 		GridDataFactory.swtDefaults().minSize(panelWidth, panelHeight).align(SWT.FILL, SWT.FILL).applyTo(this);
+		
+		Composite controlComposite = new Composite(this, SWT.BORDER);
+		GridLayoutFactory.fillDefaults().numColumns(2).margins(1, 1).applyTo(controlComposite);
+		
+		Button reloadButton = new Button(controlComposite, SWT.PUSH);
+		reloadButton.setText("Reload SICS Model");
+		reloadButton.setFont(Activator.getMiddleFont());
+		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.BEGINNING).hint(320, SWT.DEFAULT).applyTo(reloadButton);
+
+		reloadButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Thread reloadThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							SicsManager.getSicsProxy().updateGumtreeXML();
+						} catch (SicsException e) {
+							mainPart.popupError("failed to update SICS model, " + e.getMessage());
+						}
+					}
+				});
+				reloadThread.start();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
+		Button reconnectButton = new Button(controlComposite, SWT.PUSH);
+		reconnectButton.setText("Reconnect to SICS");
+		reconnectButton.setFont(Activator.getMiddleFont());
+		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.BEGINNING).hint(320, SWT.DEFAULT).applyTo(reconnectButton);
+
+		reconnectButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Thread reconnectThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						SicsManager.getSicsProxy().disconnect();
+						try {
+							Thread.sleep(2000);
+						} catch (InterruptedException e1) {
+						}
+						try {
+							SicsManager.getSicsProxy().reconnect();
+						} catch (SicsException e) {
+							mainPart.popupError("failed to reconnect to SICS, " + e.getMessage());
+						}
+					}
+				});
+				reconnectThread.start();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 		
 		SashForm level1Form = new SashForm(this, SWT.HORIZONTAL);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(level1Form);
@@ -122,9 +189,10 @@ public class AdminPanel extends AbstractPanel {
 					
 					@Override
 					public void run() {
-						if (controlViewer.isDisposed()) {
-							controlViewer = new ControlViewer();
+						if (!controlViewer.isDisposed()) {
+							controlViewer.dispose();
 						}
+						controlViewer = new ControlViewer();
 						if (!controlViewer.isInitialised()) {
 							controlViewer.createPartControl(leftDown, null);
 							GridDataFactory.fillDefaults().grab(true, true).applyTo(
@@ -132,9 +200,10 @@ public class AdminPanel extends AbstractPanel {
 							leftDown.update();
 							leftDown.layout();
 						}
-						if (filterViewer.isDisposed()) {
-							filterViewer = new ControlViewer();
+						if (!filterViewer.isDisposed()) {
+							filterViewer.dispose();
 						}
+						filterViewer = new ControlViewer();
 						if (!filterViewer.isInitialised()) {
 							String filterPath = SicsCoreProperties.FILTER_PATH.getValue();
 							if (!StringUtils.isEmpty(filterPath)) {

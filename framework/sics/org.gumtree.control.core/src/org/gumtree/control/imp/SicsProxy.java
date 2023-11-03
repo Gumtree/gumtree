@@ -156,6 +156,7 @@ public class SicsProxy implements ISicsProxy {
 			}
 		} 
 //		try {
+		logger.warn("connection reestablished");
 		serverStatus = ServerStatus.parseStatus(channel.syncSend("status", null));
 
 //		if (sicsModel == null) {
