@@ -28,6 +28,7 @@ import org.gumtree.control.ui.viewer.model.NodeSet;
 import org.gumtree.util.string.StringUtils;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
+import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.nbi.ui.realtime.control.ControlRealtimeDataViewer;
 
@@ -65,12 +66,13 @@ public class AdminPanel extends AbstractPanel {
 		GridLayoutFactory.fillDefaults().margins(1, 1).applyTo(this);
 		GridDataFactory.swtDefaults().minSize(panelWidth, panelHeight).align(SWT.FILL, SWT.FILL).applyTo(this);
 		
-		Composite controlComposite = new Composite(this, SWT.BORDER);
+		Composite controlComposite = new Composite(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(2).margins(1, 1).applyTo(controlComposite);
 		
 		Button reloadButton = new Button(controlComposite, SWT.PUSH);
 		reloadButton.setText("Reload SICS Model");
 		reloadButton.setFont(Activator.getMiddleFont());
+		reloadButton.setImage(KoalaImage.RELOAD32.getImage());
 		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.BEGINNING).hint(320, SWT.DEFAULT).applyTo(reloadButton);
 
 		reloadButton.addSelectionListener(new SelectionListener() {
@@ -99,6 +101,7 @@ public class AdminPanel extends AbstractPanel {
 		Button reconnectButton = new Button(controlComposite, SWT.PUSH);
 		reconnectButton.setText("Reconnect to SICS");
 		reconnectButton.setFont(Activator.getMiddleFont());
+		reconnectButton.setImage(KoalaImage.CONNECT32.getImage());
 		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.BEGINNING).hint(320, SWT.DEFAULT).applyTo(reconnectButton);
 
 		reconnectButton.addSelectionListener(new SelectionListener() {

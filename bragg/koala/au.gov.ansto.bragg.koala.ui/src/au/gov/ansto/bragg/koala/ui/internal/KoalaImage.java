@@ -49,6 +49,8 @@ public enum KoalaImage {
 	TARGET48("/icons/target_48.gif"),
 	TOOLS48("/icons/tools_48.png"),
 	RELOAD48("/icons/reload_48.png"),
+	RELOAD32("/icons/reload_32.png"),
+	CONNECT32("/icons/connect_32.png"),
 	SAVE32("/icons/save_32.png"),
 	LOAD32("/icons/load_32.png"),
 	OPEN32("/icons/open_32.png"),
