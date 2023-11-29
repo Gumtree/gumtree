@@ -50,13 +50,14 @@ public class DriveableController extends DynamicController implements IDriveable
 	
 	@Override
 	public void run() throws SicsException {
-		setBusy(true);
-		try {
-			getSicsProxy().syncRun("run " + getDeviceId() + " " 
-					+ getTargetValue().getSicsString(), null);
-		} finally {
-			setBusy(false);
-		}
+//		setBusy(true);
+//		try {
+//			getSicsProxy().syncRun("run " + getDeviceId() + " " 
+//					+ getTargetValue().getSicsString(), null);
+//		} finally {
+//			setBusy(false);
+//		}
+		super.commitTargetValue();
 	}
 	
 	@Override
