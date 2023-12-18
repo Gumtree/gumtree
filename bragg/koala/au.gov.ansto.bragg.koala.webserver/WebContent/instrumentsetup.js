@@ -60,6 +60,11 @@ var devices = [
             	   "items":[{"classId":"dcz", "deviceId":"dcz", "title":"Detector Height", "units":"mm"},
 //            		   		{"classId":"rdz", "deviceId":"rdz", "title":"Reading Head", "units":"mm"}
             	            ]
+               },
+               {"group":"TEMPERATURE CONTROLLER", 
+            	   "items":[{"classId":"cobra", "deviceId":"/sample/cs800/sensor", "title":"Cobra sensor", "units":"K"},
+            		   		{"classId":"cf2", "deviceId":"/sample/tc1/sensor/sensorValueA", "title":"CF-2 sensor", "units":"K"}
+            	            ]
                }
                ];
 
