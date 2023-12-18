@@ -57,6 +57,8 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 	private static final String QUERY_ENTRY_INSTRUMENT = "inst";
 	private static final String QUERY_ENTRY_DEVICEID = "did";
 	private static final String QUERY_ENTRY_MESSAGE = "msg";
+	private static final String QUERY_ENTRY_OLDDID = "oldDid";
+	private static final String QUERY_ENTRY_NEWDID = "newDid";
 	private static final String QUERY_ENTRY_VERSION_ID = "version";
 	private static final String QUERY_ENTRY_TIMESTAMP = "timestamp";
 
@@ -65,7 +67,10 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 	private static final String SEG_NAME_DBHISTORY = "dbhistory";
 	private static final String SEG_NAME_CONFIGHISTORY = "confighistory";
 	private static final String SEG_NAME_DBSAVE = "dbsave";
+	private static final String SEG_NAME_DBREMOVE = "dbremove";
+	private static final String SEG_NAME_DBLOAD = "dbload";
 	private static final String SEG_NAME_CONFIGSAVE = "configsave";
+	private static final String SEG_NAME_CHANGENAME = "changeName";
 	
 	private static final String QUERY_ENTRY_PATH = "path";
 
@@ -132,7 +137,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		if (session != null && session.isValid()) {
 			if (SEG_NAME_SEDB.equalsIgnoreCase(seg)){
 				try {
-					Form form = request.getResourceRef().getQueryAsForm();
+//					Form form = request.getResourceRef().getQueryAsForm();
 //					response.setEntity("Done", MediaType.TEXT_PLAIN);
 //					copyFromRemote(instrumentId, session);
 					Object model = loadSEDB();
@@ -170,16 +175,16 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 			} else if (SEG_NAME_DBHISTORY.equalsIgnoreCase(seg)) {
 				try {
 					Form form = request.getResourceRef().getQueryAsForm();
+//					String did = form.getValues(QUERY_ENTRY_DEVICEID);
 					String did = form.getValues(QUERY_ENTRY_DEVICEID);
-					String path = form.getValues(QUERY_ENTRY_PATH);
 					List<GitCommit> commits = getSEDBGitService().getCommits(dbName);
 //					JSONObject jsonObject = new JSONObject(new LinkedHashMap<String, Object>());
 					JSONArray jsonArray = new JSONArray();
-					int i = 0;
+//					int i = 0;
 					for (GitCommit commit : commits) {
-						if (path != null && path.trim().length() > 0) {
+						if (did != null && did.trim().length() > 0) {
 							String message = commit.getMessage();
-							if (!message.contains(path)) {
+							if (!message.contains(did)) {
 								if (!message.contains("fetch remote version")) {
 									continue;
 								}
@@ -193,7 +198,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 						obj.put("timestamp", commit.getTimestamp());
 //						jsonObject.put(String.valueOf(i), obj);
 						jsonArray.put(obj);
-						i ++;
+//						i ++;
 					}
 //					JSONObject jsonObject = new JSONObject(model.toString());
 					response.setEntity(jsonArray.toString(), MediaType.TEXT_PLAIN);
@@ -208,13 +213,13 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 			}  else if (SEG_NAME_CONFIGHISTORY.equalsIgnoreCase(seg)) {
 				try {
 					Form form = request.getResourceRef().getQueryAsForm();
-					String did = form.getValues(QUERY_ENTRY_DEVICEID);
+//					String did = form.getValues(QUERY_ENTRY_DEVICEID);
 					String path = form.getValues(QUERY_ENTRY_PATH);
 					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
 					List<GitCommit> commits = getSEConfigGitService(instrumentId).getCommits(configName);
 //					JSONObject jsonObject = new JSONObject(new LinkedHashMap<String, Object>());
 					JSONArray jsonArray = new JSONArray();
-					int i = 0;
+//					int i = 0;
 					for (GitCommit commit : commits) {
 						if (path != null && path.trim().length() > 0) {
 							String message = commit.getMessage();
@@ -232,7 +237,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 						obj.put("timestamp", commit.getTimestamp());
 //						jsonObject.put(String.valueOf(i), obj);
 						jsonArray.put(obj);
-						i ++;
+//						i ++;
 					}
 //					JSONObject jsonObject = new JSONObject(model.toString());
 					response.setEntity(jsonArray.toString(), MediaType.TEXT_PLAIN);
@@ -252,7 +257,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 					Representation rep = request.getEntity();
 					Form form = request.getResourceRef().getQueryAsForm();
 					String saveMessage = form.getValues(QUERY_ENTRY_MESSAGE);
-					String versionId = form.getValues(QUERY_ENTRY_VERSION_ID);
+//					String versionId = form.getValues(QUERY_ENTRY_VERSION_ID);
 					String text = rep.getText();
 					try {
 						text = URLDecoder.decode(text, "UTF-8");
@@ -273,6 +278,78 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 					response.setStatus(Status.SUCCESS_OK);
 					return;
 				}
+			} else if (SEG_NAME_DBLOAD.equalsIgnoreCase(seg)){
+				try {
+					Form form = request.getResourceRef().getQueryAsForm();
+					String objectId = form.getValues(QUERY_ENTRY_VERSION_ID);
+					String text = getSEDBGitService().readRevisionOfFile(dbName, objectId);
+					YamlRestlet.saveRevisionToTempFile(objectId, text);
+					Object model = YamlRestlet.loadConfigModelFromText(text);
+					JSONObject jsonObject = (JSONObject) _convertToJson(model);
+					response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					logger.error("failed to load yaml.", e);
+					e.printStackTrace();
+//					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+					return;
+				}
+			} else if (SEG_NAME_CHANGENAME.equalsIgnoreCase(seg)){
+				try {
+					if (!hasMotorConfigurePrivilege(session)) {
+						throw new Exception("user not allowed to change motor configuration.");
+					}
+					Representation rep = request.getEntity();
+					Form query = request.getResourceRef().getQueryAsForm();
+					String saveMessage = query.getValues(QUERY_ENTRY_MESSAGE);
+					Form form = new Form(rep);
+					String oldDid = form.getValues(QUERY_ENTRY_OLDDID);
+					String newDid = form.getValues(QUERY_ENTRY_NEWDID);
+//					String versionId = form.getValues(QUERY_ENTRY_VERSION_ID);
+//					String text = rep.getText();
+//					try {
+//						text = URLDecoder.decode(text, "UTF-8");
+//					} catch (Exception e) {
+//						throw new Exception("model can not be empty.");
+//					}
+//					if (versionId != null && versionId.length() > 0) {
+//						saveTempConfigModel(versionId, text, saveMessage, session);
+//					} else {
+					changeDBDeviceName(oldDid, newDid, saveMessage, session);
+//					}
+//					copyToRemote();
+					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					logger.error("failed to change device name", e);
+					response.setEntity(makeErrorJSON("failed to change, " + e.getLocalizedMessage()), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
+			} else if (SEG_NAME_DBREMOVE.equalsIgnoreCase(seg)){
+				try {
+					if (!hasMotorConfigurePrivilege(session)) {
+						throw new Exception("user not allowed to change configuration.");
+					}
+					Representation rep = request.getEntity();
+					Form form = request.getResourceRef().getQueryAsForm();
+					String did = form.getValues(QUERY_ENTRY_DEVICEID);
+					String saveMessage = form.getValues(QUERY_ENTRY_MESSAGE);
+//					if (versionId != null && versionId.length() > 0) {
+//						saveTempConfigModel(versionId, text, saveMessage, session);
+//					} else {
+					deleteDBConfigModel(did, saveMessage, session);
+//					}
+//					copyToRemote();
+					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					logger.error("failed to delete", e);
+					response.setEntity(makeErrorJSON("failed to delete, " + e.getLocalizedMessage()), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
 			} else if (SEG_NAME_CONFIGSAVE.equalsIgnoreCase(seg)){
 				try {
 					if (!hasMotorConfigurePrivilege(session)) {
@@ -282,7 +359,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 					Form form = request.getResourceRef().getQueryAsForm();
 					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
 					String saveMessage = form.getValues(QUERY_ENTRY_MESSAGE);
-					String versionId = form.getValues(QUERY_ENTRY_VERSION_ID);
+//					String versionId = form.getValues(QUERY_ENTRY_VERSION_ID);
 					String text = rep.getText();
 					try {
 						text = URLDecoder.decode(text, "UTF-8");
@@ -318,6 +395,105 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		}
 	}
 
+	public static void changeDBDeviceName(String oldDid, String newDid, String message, UserSessionObject session) 
+			throws IOException, JSONException, GitException {
+		String userName = session.getUserName().toUpperCase();
+		String filePath = getSEDBPath();
+		GitService git = getSEDBGitService();
+//		saveModel(filePath, text, message, userName, git);
+		if (oldDid == null || oldDid.trim().length() == 0 || newDid == null || newDid.trim().length() == 0) {
+			throw new JSONException("device name can not be empty");
+		}
+		File file = new File(filePath);
+
+		DumperOptions options = new DumperOptions();
+	    options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(options);
+		Map<String, Object> model = null;
+		InputStream input = new FileInputStream(file);
+		try {
+			model = yaml.loadAs(input, Map.class);
+		} finally {
+			input.close();
+		}
+		Map<String, Object> device = (Map<String, Object>) model.get(oldDid);
+		if (device == null) {
+			throw new JSONException("device with the old name not found");
+		}
+		model.remove(oldDid);
+		model.put(newDid, device);
+		FileWriter writer = new FileWriter(file);
+		try {
+			yaml.dump(model, writer);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}finally {
+			writer.close();
+		}
+		
+//		GitService git = getSEDBGitService();
+		if (git != null) {
+			git.applyChange();
+			if (message == null || message.length() == 0) {
+				message = userName + " updated " + newDid + ": " + formater.format(new Date());
+			} else {
+				message = userName + " updated " + newDid + ": " + message;
+			}
+			git.commit(message);
+		}
+
+	}
+
+	public static void deleteDBConfigModel(String did, String message, UserSessionObject session) 
+			throws IOException, JSONException, GitException {
+		String userName = session.getUserName().toUpperCase();
+		String filePath = getSEDBPath();
+		GitService git = getSEDBGitService();
+//		saveModel(filePath, text, message, userName, git);
+		if (did == null || did.trim().length() == 0 ) {
+			throw new JSONException("device name can not be empty");
+		}
+		File file = new File(filePath);
+
+		DumperOptions options = new DumperOptions();
+	    options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(options);
+		Map<String, Object> model = null;
+		InputStream input = new FileInputStream(file);
+		try {
+			model = yaml.loadAs(input, Map.class);
+		} finally {
+			input.close();
+		}
+		Map<String, Object> device = (Map<String, Object>) model.get(did);
+		if (device == null) {
+			throw new JSONException("device with the name not found");
+		}
+		model.remove(did);
+		FileWriter writer = new FileWriter(file);
+		try {
+			yaml.dump(model, writer);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}finally {
+			writer.close();
+		}
+		
+//		GitService git = getSEDBGitService();
+		if (git != null) {
+			git.applyChange();
+			if (message == null || message.length() == 0) {
+				message = userName + " deleted " + did + ": " + formater.format(new Date());
+			} else {
+				message = userName + " deleted " + did + ": " + message;
+			}
+			git.commit(message);
+		}
+
+	}
+	
 	public static void saveDBConfigModel(String text, String message, UserSessionObject session) 
 			throws IOException, JSONException, GitException {
 		String userName = session.getUserName().toUpperCase();
@@ -341,7 +517,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		}
 		File file = new File(yamlFilePath);
 		String[] pair = text.split("&", 2);
-		String path = pair[0].substring(pair[0].indexOf("=") + 1).trim();
+		String did = pair[0].substring(pair[0].indexOf("=") + 1).trim();
 //		String idx = pair[1].substring(pair[1].indexOf("=") + 1).trim();
 		String modelString = pair[1].substring(pair[1].indexOf("=") + 1).trim();
 		JSONObject json = new LinkedJSONObject(modelString);
@@ -358,19 +534,27 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		} finally {
 			input.close();
 		}
-		String[] pathSeg = path.split("/");
+//		String[] pathSeg = path.split("/");
 //		Map<String, Object> device = (Map<String, Object>) model.get("GALIL_CONTROLLERS");
-		Map<String, Object> device = model;
-		for (String seg : pathSeg) {
-			if (seg.length() > 0) {
-				device = (Map<String, Object>) device.get(seg);
-			}
-		}
+		Map<String, Object> device = (Map<String, Object>) model.get(did);
+//		for (String seg : pathSeg) {
+//			if (seg.length() > 0) {
+//				device = (Map<String, Object>) device.get(seg);
+//			}
+//		}
+		
 //		Object item = device.get("sics_motor");
 //		int index = Integer.valueOf(idx);
 //		item = ((ArrayList<Object>) item).get(index);
 //		Object item = device.get(idx);
-		updateModel(json, (Map<String, Object>) device);
+		if (device == null) {
+			Map<String, Object> map = YamlRestlet.toMap(json);
+			model.put(did, map);
+		} else {
+//			updateModel(json, (Map<String, Object>) device);
+			Map<String, Object> map = YamlRestlet.toMap(json);
+			model.put(did, map);
+		}
 		FileWriter writer = new FileWriter(file);
 		try {
 			yaml.dump(model, writer);
@@ -384,9 +568,9 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		if (git != null) {
 			git.applyChange();
 			if (message == null || message.length() == 0) {
-				message = userName + " updated " + path + ": " + formater.format(new Date());
+				message = userName + " updated " + did + ": " + formater.format(new Date());
 			} else {
-				message = userName + " updated " + path + ": " + message;
+				message = userName + " updated " + did + ": " + message;
 			}
 			git.commit(message);
 		}

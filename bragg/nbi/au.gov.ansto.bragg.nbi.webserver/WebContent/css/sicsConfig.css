@@ -14,6 +14,10 @@ body {
 .padding_right_4 {
   padding-right: 4px!important;
 }
+.clickable {
+	color: #007bff;
+	cursor: pointer;
+}
 .darker_background {
 	background-color: #e9ecef;
 }
@@ -45,10 +49,16 @@ body {
 
 .sidebar-half-top {
 	height: calc(50vh - 24px);
+	overflow-y: auto;
 }
 
 .sidebar-half-buttom {
-	height: calc(50vh - 48px);
+	height: calc(50vh - 180px);
+	overflow-y: auto;
+}
+
+.class_span_cid_label {
+	cursor: pointer;
 }
 
 @supports ((position: -webkit-sticky) or (position: sticky)) {
@@ -99,11 +109,19 @@ body {
 	line-height: inherit;
 }
 
+div.class_a_mc {
+	cursor: pointer;
+}
+
 .class_mc_input {
 	line-height: 1em;
 	padding-top: 0;
 	padding-bottom: 0.1em;
 	font-size: small;
+}
+
+h6.sidebar-subheading {
+	text-transform: none;
 }
 
 /*
@@ -396,4 +414,48 @@ tr.editable_row:hover {
 }
 .table-striped tbody tr.editable_row:hover {
 	background-color: #ddd;
+}
+.class_div_device_canvas {
+  border: 2px dashed #bbb;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  padding: 24px;
+  text-align: center;
+  background-color: #fafafa;
+  min-height: 400px;
+/*  margin: 4px;*/
+}
+
+.class_div_device_item {
+  font: 1.4em bold arial;
+  color: #333;
+  /*text-align: center;*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+}
+
+.class_div_device_page {
+  width: 240px;
+  display: inline-block;
+  border: 2px medium #aaa;
+  box-shadow: 2px 3px #888888;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+  background-color: #e0e0e0;
+  margin: 12px;
+}
+
+.main_footer {
+	margin: 8px 0px;
+}
+a.class_a_cid_delete {
+  float: right;
+  margin-right: 4px;
+  font-size: 1.2em;
+  color: #400 !important;
+}
+a.class_a_cid_delete:hover {
+  color: #F00 !important;
 }
