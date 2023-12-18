@@ -68,9 +68,14 @@ class ConfigSystem :
         self.__is_dirty__ = False
 
     def multi_drive(self):
+        wavelengthFlag = False
         if not self.wavelength is None:
-            log('run nvs_lambda ' + str(self.wavelength))
-            self.run_nvs_lambda(self.wavelength)
+            if (self.need_drive_lambda(self.wavelength)):
+                wavelengthFlag = True
+                log('run nvs_lambda ' + str(self.wavelength))
+                self.run_nvs_lambda(self.wavelength)
+            else :
+                log('lambda is already at ' + str(self.wavelength) + ', skip driving nvs_lambda')
         cmd = 'drive'
         if self.need_drive_det():
             cmd += ' det ' + str(self.det)
@@ -90,12 +95,28 @@ class ConfigSystem :
             if not res is None and res.find('Full Stop') >= 0:
                 raise Exception, res
             log('finished multi-drive')
-        if not self.wavelength is None:
+        if wavelengthFlag:
             self.check_nvs_lambda(self.wavelength)
                 
 
     def run_nvs_lambda(self, val):
         sics.execute('run nvs_lambda ' + str(val))
+        
+    def need_drive_lambda(self, val):
+        try:
+            cur = sics.get_raw_value('nvs_lambda')
+#           pre = sics.get_raw_value('nvs_lambda precision')
+            if cur is None:
+                log('timeout getting current wavelength, drive it anyway')
+                return True
+            pre = 0.1
+            if abs(cur - val) < pre:
+                return False
+            else:
+                return True
+        except:
+            log('failed to get current wavelength, drive it anyway')
+            return True
         
     def check_nvs_lambda(self, val):
         timeout = 600
@@ -109,6 +130,7 @@ class ConfigSystem :
 #                 pre = sics.get_raw_value('nvs_lambda precision')
                 pre = 0.1
                 if abs(cur - val) < pre:
+                    sics.execute('stopexe nvs_lambda')
                     log('wavelength is ' + str(cur))
                     return True
                 else:
