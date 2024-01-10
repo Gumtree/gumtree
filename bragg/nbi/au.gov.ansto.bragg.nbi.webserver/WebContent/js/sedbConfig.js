@@ -608,7 +608,7 @@ var updateT2Pair = function($node, key, tbody, oldVal) {
 					newVal[rk] = rv;
 					console.log('add ' + rk + ":" + rv);
 				});
-				config[key] = newVal;
+				_editorModel[_curCid][key] = newVal;
 			} else {
 				newVal = [];
 				var trs = tbody.find('tr');
@@ -617,7 +617,7 @@ var updateT2Pair = function($node, key, tbody, oldVal) {
 					newVal.push(rv);
 					console.log('add ' + rv);
 				});
-				config[key] = newVal;
+				_editorModel[_curCid][key] = newVal;
 			}
 		} 
 	}
@@ -894,7 +894,9 @@ var DeviceGroup = function($div) {
 				_model[newDid] = device;
 				if (_curDeviceModel.did == did) {
 					_curDeviceModel.did = newDid;
+					_curDeviceModel.model = device;
 				}
+				_curDid = newDid;
 				did = newDid;
 			} else {
 				_saveObj = deviceItem;
@@ -1002,6 +1004,10 @@ var showModelInSidebar = function() {
           		cid + '<span class="sr-only">(current)</span></a></li>';
 			}
 		});
+		if (datype != "C") {
+			html += '<li id="li_menu_' + did + '_NEW_DEVICE' + '" class="nav-item class_li_subitem">'
+				+ '<a class="nav-link class_a_add_axis" did="' + did + '" href="#"><i class="fas fa-plus"> </a></li>';
+		}
 		html += "</ul>";
 		var $div = $('<div/>').append(html);
 		new DeviceGroup($div.find('div.class_a_mc'));
@@ -1081,6 +1087,17 @@ var showModelInSidebar = function() {
 				showMsg('device not found: ' + did, 'danger');
 			}
 		});
+		$div.find('a.class_a_add_axis').click(function() {
+			var btn = $(this);
+			var adid = btn.attr('did');
+			var lastEnt = btn.prev().find('a.class_a_axis');
+			if (lastEnt == null) {
+				showMsg("Failed to create new configuration: no existing one to be copied", "danger");
+			}
+			var lastCid = lastEnt.attr('cid');
+			
+		});
+		
 		if (datype != 'C'){
 //			var ulName = 'ul_device_' + datype;
 //			var folderName;
@@ -1148,14 +1165,14 @@ var loadCompositeDevice = function(did) {
 		
 		var $li = $('<li class="nav-item active"><a class="nav-link active" href="#">Root view</a></li>');
 		$li.click(function() {
-			loadCompositeDevice(did);
+			loadCompositeDevice(_curDeviceModel.did);
 		});
 		_tabs.append($li);
 		$.each(device, function(cid, config) {
 			if (! (PROPERTY_KEYWORDS.includes(cid))){
 				var $li = $('<li class="nav-item" id="li_tab_' + did + '_' + cid + '"><a class="nav-link" href="#">' + cid + '</a></li>');
 				$li.click(function() {
-					loadDeviceConfig(did, cid);
+					loadDeviceConfig(_curDeviceModel.did, cid);
 				});					
 				_tabs.append($li);
 				ct++;
@@ -1195,7 +1212,7 @@ var loadCompositeDevice = function(did) {
 		$div.on("drop", function(ev){
 			ev.preventDefault();
 			var subDid = ev.originalEvent.dataTransfer.getData("text");
-			var newSubDevice = makeSubDevice(did, subDid);
+			var newSubDevice = makeSubDevice(_curDeviceModel.did, subDid);
 			var item = $(newSubDevice["html"]);
 			item.find('a.class_a_cid_label').click(function(){
 				var adid = $(this).attr('did');
@@ -1615,7 +1632,6 @@ var saveModel = function() {
 	$('#id_modal_saveDialog').modal('hide');
 	var text = JSON.stringify(_editorModel);
 	$.post(url,  {did:_curDeviceModel.did, model:text}, function(data) {
-		console.log(data);
 //		data = $.parseJSON(data);
 		try {
 			if (data["status"] == "OK") {
