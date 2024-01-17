@@ -150,6 +150,44 @@
 	  </div>
 	</div>
 	
+	<div class="modal" tabindex="-1" role="dialog" id="id_modal_newConfigDialog">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Make a copy of a previous configuration.</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        <p>Please give a new configuration name.</p>
+	        <input id="id_input_newConfigName" class="form-control" type="text" placeholder="single_word_name" aria-label="config_name">
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" id="id_button_newConfig">Make copy</button>
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="id_modal_deleteConfigDialog">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Please confirm deleting the selected configuration from the device.</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" id="id_button_deleteConfigConfirm">Confirm delete</button>
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+		
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->

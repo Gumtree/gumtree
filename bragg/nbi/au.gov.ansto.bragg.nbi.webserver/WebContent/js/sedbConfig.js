@@ -845,6 +845,7 @@ var DeviceGroup = function($div) {
 	var textbox = input.find('input');
 	var did = label.attr('did');
 	var datype = label.attr('datype');
+//	var plus = $div.find('a.class_a_add_axis');
 	
 	if (datype != 'C') {
 		label.attr("draggable", true);
@@ -922,6 +923,10 @@ var DeviceGroup = function($div) {
 		label.removeClass('class_span_hide');
 		control.removeClass('class_span_hide');
 	});
+	
+//	plus.click(function() {
+//		alert('plus');
+//	});
 	
 	this.resetChange = function() {
 		textbox.val(did);
@@ -1089,13 +1094,28 @@ var showModelInSidebar = function() {
 		});
 		$div.find('a.class_a_add_axis').click(function() {
 			var btn = $(this);
-			var adid = btn.attr('did');
-			var lastEnt = btn.prev().find('a.class_a_axis');
-			if (lastEnt == null) {
-				showMsg("Failed to create new configuration: no existing one to be copied", "danger");
+			var copyDid = btn.attr('did');
+//			var lastEnt = btn.prev().find('a.class_a_axis');
+//			if (lastEnt == null) {
+//				showMsg("Failed to create new configuration: no existing one to be copied", "danger");
+//			}
+//			var lastCid = lastEnt.attr('cid');
+			var copyCid = null;
+			if (copyDid == _curDid && _curCid != null) {
+				copyCid = _curCid;
+			} else {
+				var cidArray = getConfigArray(copyDid);
+				if (cidArray.length > 0) {
+					copyCid = cidArray[cidArray.length - 1];
+				} else {
+					showMsg("Failed to create new configuration: no existing one to copy", "danger");
+					return;
+				}
 			}
-			var lastCid = lastEnt.attr('cid');
-			
+			$('#id_modal_newConfigDialog').find('.modal-title').text('Make a copy of configuration "' + copyCid + '"');
+			$('#id_modal_newConfigDialog').attr('did', copyDid);
+			$('#id_modal_newConfigDialog').attr('cid', copyCid);
+			$('#id_modal_newConfigDialog').modal('show');
 		});
 		
 		if (datype != 'C'){
@@ -1231,14 +1251,14 @@ var loadCompositeDevice = function(did) {
 		_property.empty();
 		_property.append($div);
 		
-		$del = $('<div class="main_footer"><span id="id_button_del" class="btn btn-outline-primary btn-block " href="#"><i class="fas fa-remove"></i> Remove This Device</span></div>');
+		var $del = $('<div class="main_footer"><span id="id_button_del" class="btn btn-outline-primary btn-block " href="#"><i class="fas fa-remove"></i> Remove This Device</span></div>');
 		$del.find('span').click(function() {
 			$('#id_modal_deleteDialog').modal('show');
 		});
 		_property.append($del);
 		$('#id_div_sidebuttom>.class_ul_folder').addClass('class_ul_hide');
 		$('#ul_mc_' + did).removeClass('class_ul_hide');
-
+		$('.class_li_subitem').removeClass('active');
 //		var trs = $("#id_div_main_area").find('tr.editable_row');
 //		trs.each(function() {
 //			var pr = new PropertyRow($(this));				
@@ -1300,16 +1320,57 @@ var removeCurrentDevice = function() {
 	});
 }
 
+var deleteConfig = function() {
+	$('#id_modal_deleteConfigDialog').modal('hide');
+	var did = $('#id_modal_deleteConfigDialog').attr('did');
+	var cid = $('#id_modal_deleteConfigDialog').attr('cid');
+	
+	_dirtyFlag = true;
+	var cDevice = _model[did];
+	if (cDevice == null) {
+		showMsg('Fatal error, invalid device: ' + did + ', please reload this page', 'danger');
+		return;
+	}
+	
+	var configs = getConfigArray(did);
+	if (configs.length <= 1) {
+		showMsg('Falied to delete configuration: ' + did + '/' + cid + ', there must be more than one configurations before deleting', 'danger');
+		return;
+	}
+	
+	var config = cDevice[cid];
+	if (config == null) {
+		showMsg('Configuration not found: ' + cid, 'danger');
+		return;
+	}
+
+	delete cDevice[cid];
+	delete _editorModel[cid];
+	
+	var liMenuItem = $('#li_menu_' + did + '_' + cid);
+	liMenuItem.remove();
+	
+	var liTabItem = $('#li_tab_' + did + '_'  + cid);
+	liTabItem.remove();
+	
+	var configs = getConfigArray(did);
+	if (configs.length > 0) {
+		loadDeviceConfig(did, configs[0]);
+	}
+}
+
 var deleteSubDevice = function(did, subDid) {
 	_dirtyFlag = true;
 	var cDevice = _model[did];
 	if (cDevice == null) {
 		showMsg('Fatal error, invalid device: ' + did + ', please reload this page', 'danger');
+		return;
 	}
 	
 	var subDevice = cDevice[subDid];
 	if (subDevice == null) {
 		showMsg('sub device not found: ' + subDid, 'danger');
+		return;
 	}
 	var rmType = subDevice[KEY_DATYPE];
 	var rmId = subDevice[ID_PROP_ID];
@@ -1344,10 +1405,12 @@ var makeSubDevice = function(did, subDid) {
 	var cDevice = _model[did];
 	if (cDevice == null) {
 		showMsg('Fatal error, invalid device: ' + did + ', please reload this page', 'danger');
+		return;
 	}
 	var device = _model[subDid];
 	if (device == null) {
 		showMsg('device not found: ' + subDid, 'danger');
+		return;
 	}
 	var subType = device['datype'].toUpperCase();
 	var idx = 1;
@@ -1460,7 +1523,7 @@ class DeviceConfig {
 			}
 			$.each(modelGroup, function(key, config) {
 				if (! (PROPERTY_KEYWORDS.includes(key))){
-					var $li = $('<li class="nav-item" id="li_tab_"' + did + '_' + key + '><a class="nav-link" href="#">' + key + '</a></li>');
+					var $li = $('<li class="nav-item" id="li_tab_' + did + '_' + key + '"><a class="nav-link" href="#">' + key + '</a></li>');
 					if (key == _curCid) {
 						$li.find('a').addClass("active");
 					} else {
@@ -1495,6 +1558,14 @@ class DeviceConfig {
 					 $tbody.append(createRow(cid, key, val).getUI());
 				});
 				_property.append($table);
+				var $del = $('<div class="main_footer"><span id="id_button_del_config" class="btn btn-outline-primary btn-block " href="#"><i class="fas fa-remove"></i> Remove This Configuration from Device ' + did + '</span></div>');
+				$del.find('span').click(function() {
+					$('#id_modal_deleteConfigDialog').find('.modal-title').text("Please confirm deleting the configuration '" + cid + "' from device '" + did + "'.");
+					$('#id_modal_deleteConfigDialog').attr('did', did);
+					$('#id_modal_deleteConfigDialog').attr('cid', cid);
+					$('#id_modal_deleteConfigDialog').modal('show');
+				});
+				_property.append($del);
 			}
 
 //			var trs = $("#id_div_main_area").find('tr.editable_row');
@@ -1502,7 +1573,8 @@ class DeviceConfig {
 //				var pr = new PropertyRow(cid, $(this));				
 //			});
 			
-			$('#ul_mc_' + did + '>li').removeClass('active');
+//			$('#ul_mc_' + did + '>li').removeClass('active');
+			$('.class_li_subitem').removeClass('active');
 			$('#li_menu_' + did + '_' + cid).addClass("active");
 			_historyBar.reload();
 			return true;
@@ -1651,6 +1723,49 @@ var saveModel = function() {
 		$('#id_modal_saveDialog').modal('hide');
 	});
 };
+
+var copyConfig = function() {
+	$('#id_modal_newConfigDialog').modal('hide');
+	var newName = $('#id_input_newConfigName').val().trim();
+	newName = newName.replace(/\W/g, '_');
+	var oDid = $('#id_modal_newConfigDialog').attr('did');
+	var oCid = $('#id_modal_newConfigDialog').attr('cid');
+	var device = _model[oDid];
+	if (device === undefined) {
+		showMsg("Faied to copy: " + oDid + "/" + oCid + ", device not found", "danger");
+		return;
+	}
+	var config = device[oCid];
+	if (config === undefined) {
+		showMsg("Faied to copy: " + oDid + "/" + oCid + ", config not found", "danger");
+		return;
+	}
+	var newConfig = $.extend(true, {}, config);
+	device[newName] = newConfig;
+	if (_curDid == oDid) {
+		_editorModel[newName] = newConfig;
+	}
+	var $li = $('<li id="li_menu_' + oDid + '_' + newName + '" class="nav-item class_li_subitem"><a class="nav-link class_a_axis" did="' 
+			+ oDid + '" cid="' + newName + '" href="#">' + newName + '<span class="sr-only">(current)</span></a></li>');
+	var $add = $('#li_menu_' + oDid + '_NEW_DEVICE');
+	$li.find('a').click(function() {
+//		var adid = $(this).attr('did');
+//		var acid = $(this).attr('cid');
+//		if (adid) {
+//			var s = loadDeviceConfig(adid, acid);
+//			if (s) {
+//				$('.class_ul_folder > li').removeClass('active');
+//				$(this).parent().addClass('active');
+//				$(this).blur();
+//			}
+//		} else {
+//			showMsg('device not found: ' + did, 'danger');
+//		}
+		loadDeviceConfig(oDid, newName);
+	});
+	$li.insertBefore($add);
+	loadDeviceConfig(oDid, newName);
+}
 
 //var saveDeviceNameChange = function(oldName, newName, deviceItem) {
 //	$('#id_modal_saveDialog').modal('show');
@@ -1830,6 +1945,20 @@ $(document).ready(function() {
 		if ( event.which == 13 ) {
 			removeCurrentDevice();
 		}
+	});
+
+	$('#id_button_newConfig').click(function() {
+		copyConfig();
+	});
+
+	$('#id_input_newConfigName').keypress(function(event) {
+		if ( event.which == 13 ) {
+			copyConfig();
+		}
+	});
+	
+	$('#id_button_deleteConfigConfirm').click(function() {
+		deleteConfig();
 	});
 	
 	$(window).resize(function() {
