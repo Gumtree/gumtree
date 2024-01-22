@@ -24,6 +24,7 @@ public class LDAPService {
 	private static final String LDAP_FACTORY_NAME = "com.sun.jndi.ldap.LdapCtxFactory";
 	private static final String NAME_GROUP_ADMIN = "notebook_admin";
 	private static final String NAME_GROUP_EE = "ee_team";
+	private static final String NAME_GROUP_SE = "sample_env_admin";
 	private static final String NAME_MANAGER_ADMIN_POSTFIX = "_instrument_scientists";
 	private static final String ID_INSTRUMENT_NAME = "gumtree.instrument.id";
 //	private static final String NAME_GROUP_USER = "proposal_users";
@@ -46,6 +47,7 @@ public class LDAPService {
     	MANAGER,
     	USER,
     	EE,
+    	SE,
     	INVALID,
     }
     
@@ -119,6 +121,12 @@ public class LDAPService {
 			try {
 				if (bindGroup(context, userDistinguishedName, NAME_GROUP_EE)) {
 					return GroupLevel.EE;
+				}
+			} catch (Exception e) {
+			}
+			try {
+				if (bindGroup(context, userDistinguishedName, NAME_GROUP_SE)) {
+					return GroupLevel.SE;
 				}
 			} catch (Exception e) {
 			}
