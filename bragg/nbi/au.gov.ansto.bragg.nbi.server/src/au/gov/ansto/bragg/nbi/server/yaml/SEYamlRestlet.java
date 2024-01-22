@@ -251,7 +251,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 				}
 			} else if (SEG_NAME_DBSAVE.equalsIgnoreCase(seg)){
 				try {
-					if (!hasMotorConfigurePrivilege(session)) {
+					if (!hasSEConfigurePrivilege(session)) {
 						throw new Exception("user not allowed to change motor configuration.");
 					}
 					Representation rep = request.getEntity();
@@ -297,7 +297,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 				}
 			} else if (SEG_NAME_CHANGENAME.equalsIgnoreCase(seg)){
 				try {
-					if (!hasMotorConfigurePrivilege(session)) {
+					if (!hasSEConfigurePrivilege(session)) {
 						throw new Exception("user not allowed to change motor configuration.");
 					}
 					Representation rep = request.getEntity();
@@ -329,7 +329,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 				}
 			} else if (SEG_NAME_DBREMOVE.equalsIgnoreCase(seg)){
 				try {
-					if (!hasMotorConfigurePrivilege(session)) {
+					if (!hasSEConfigurePrivilege(session)) {
 						throw new Exception("user not allowed to change configuration.");
 					}
 					Representation rep = request.getEntity();
@@ -352,7 +352,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 				}
 			} else if (SEG_NAME_CONFIGSAVE.equalsIgnoreCase(seg)){
 				try {
-					if (!hasMotorConfigurePrivilege(session)) {
+					if (!hasSEConfigurePrivilege(session)) {
 						throw new Exception("user not allowed to change motor configuration.");
 					}
 					Representation rep = request.getEntity();

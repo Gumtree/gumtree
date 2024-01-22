@@ -38,6 +38,7 @@ public class UserSessionService {
 	public static final String NAME_SERVICE_NOTEBOOKADMIN = "notebook_admin";
 	public static final String NAME_SERVICE_NOTEBOOKMANAGER = "notebook_manager";
 	public static final String NAME_SERVICE_MOTORCONFIGURATION = "motor_configuration";
+	public static final String NAME_SERVICE_SECONFIGURATION = "SE_configuration";
 	public static final String NAME_SERVICE_NOTEBOOKPROPOSALS = "notebook_proposals";
 	public static final String NAME_SERVICE_CURRENTPAGE = "current_page";
 	private static final String PROP_REMOTE_USER = "X-REMOTE-USER";
@@ -169,6 +170,7 @@ public class UserSessionService {
 			serviceList.put(UserSessionService.NAME_SERVICE_NOTEBOOKADMIN, true);
 			serviceList.put(UserSessionService.NAME_SERVICE_NOTEBOOKMANAGER, true);
 			serviceList.put(UserSessionService.NAME_SERVICE_MOTORCONFIGURATION, true);
+			serviceList.put(UserSessionService.NAME_SERVICE_SECONFIGURATION, true);
 			serviceList.put(UserSessionService.NAME_SERVICE_CURRENTPAGE, true);
 			serviceList.put(UserSessionService.NAME_SERVICE_NOTEBOOKPROPOSALS, getUserProposals(username));				
 			break;
@@ -179,6 +181,8 @@ public class UserSessionService {
 			break;
 		case EE:
 			serviceList.put(UserSessionService.NAME_SERVICE_MOTORCONFIGURATION, true);
+		case SE:
+			serviceList.put(UserSessionService.NAME_SERVICE_SECONFIGURATION, true);
 		case USER:
 			serviceList.put(UserSessionService.NAME_SERVICE_NOTEBOOKPROPOSALS, getUserProposals(username));				
 			break;

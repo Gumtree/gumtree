@@ -1,4 +1,4 @@
-var title = "Banksia";
+var title = "NBI Instrument";
 var batchEnabled = false;
 var timeEstimationEnabled = true;
 var sampleMap = [

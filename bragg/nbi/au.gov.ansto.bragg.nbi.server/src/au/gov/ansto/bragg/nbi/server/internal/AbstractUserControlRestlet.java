@@ -166,7 +166,14 @@ public abstract class AbstractUserControlRestlet extends Restlet {
 				UserSessionService.NAME_SERVICE_MOTORCONFIGURATION
 		});
 	}
-	
+
+	protected boolean hasSEConfigurePrivilege(UserSessionObject session) 
+			throws ClassNotFoundException, JSONException, RecordsFileException, IOException {
+		return validateService(session, new String[] {
+				UserSessionService.NAME_SERVICE_SECONFIGURATION
+		});
+	}
+
 	protected boolean allowAccessCurrentPage(UserSessionObject session, String pageId, ProposalDB proposalDb) 
 			throws ClassNotFoundException, JSONException, RecordsFileException, IOException {
 		if (session != null && session.isDAV()) {
