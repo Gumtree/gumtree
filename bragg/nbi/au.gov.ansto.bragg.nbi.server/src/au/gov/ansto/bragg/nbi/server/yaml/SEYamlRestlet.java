@@ -252,7 +252,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 			} else if (SEG_NAME_DBSAVE.equalsIgnoreCase(seg)){
 				try {
 					if (!hasSEConfigurePrivilege(session)) {
-						throw new Exception("user not allowed to change motor configuration.");
+						throw new Exception("user not allowed to change SE DB configuration.");
 					}
 					Representation rep = request.getEntity();
 					Form form = request.getResourceRef().getQueryAsForm();

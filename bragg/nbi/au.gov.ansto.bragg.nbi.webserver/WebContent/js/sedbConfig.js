@@ -54,11 +54,10 @@ var _model = null;
 var _configs;
 var _firstConfig;
 var _editorModel;
-var _saveObj;
+var _deviceItem;
 var _curDeviceModel;
 //var _curModel;
 var _curDevice;
-var _initNewDevice = false;
 var _dirtyFlag = false;
 var _curCid = null;
 var _curDid;
@@ -400,7 +399,7 @@ var PropertyRow = function(cid, tr) {
 					tr.addClass("active");
 				}).blur(function() {
 					tr.removeClass("active");
-					updateT2Pair($(this), key, t2Body, oldKV);
+					updateT2Pair($(this), key, t2Body, oldKV, isPair);
 				}).keypress(function( event ) {
 					if ( event.which == 13 ) {
 						$(this).blur();
@@ -414,7 +413,7 @@ var PropertyRow = function(cid, tr) {
 				tr.addClass("active");
 			}).blur(function() {
 				tr.removeClass("active");
-				updateT2Pair($(this), key, t2Body, oldVV);
+				updateT2Pair($(this), key, t2Body, oldVV, isPair);
 			}).keypress(function( event ) {
 				if ( event.which == 13 ) {
 					$(this).blur();
@@ -427,7 +426,7 @@ var PropertyRow = function(cid, tr) {
 			});
 			var t2Remove = t2Body.find("td.pair_control > button.button_minus");
 			t2Remove.click(function() {
-				removeRow($(this), key, t2Body);
+				removeRow($(this), key, t2Body, isPair);
 			});
 		}
 	}
@@ -493,7 +492,7 @@ var addRow = function(bt, key, t2Body, isPair) {
 			nRow.addClass("active");
 		}).blur(function() {
 			nRow.removeClass("active");
-			updateT2Pair($(this), key, t2Body, oldKV);
+			updateT2Pair($(this), key, t2Body, oldKV, isPair);
 		}).keypress(function( event ) {
 			if ( event.which == 13 ) {
 				$(this).blur();
@@ -520,7 +519,7 @@ var addRow = function(bt, key, t2Body, isPair) {
 	});
 	var t2Remove = nRow.find("td.pair_control > button.button_minus");
 	t2Remove.click(function() {
-		removeRow($(this), key, t2Body);
+		removeRow($(this), key, t2Body, isPair);
 	});
 
 	if (isPair) {
@@ -530,18 +529,27 @@ var addRow = function(bt, key, t2Body, isPair) {
 	}
 };
 
-var removeRow = function(bt, key, tbody) {
+var removeRow = function(bt, key, tbody, isPair) {
 	var cRow = bt.parent().parent();
 	cRow.remove();
 	
 	_dirtyFlag = true;
-	var newVal = {};
-	var trs = tbody.find('tr');
-	trs.each(function() {
-		var rk = $(this).find('td.pair_key > input').val();
-		var rv = $(this).find('td.pair_value > input').val();
-		newVal[rk] = rv;
-	});
+	if (isPair) {
+		var newVal = {};
+		var trs = tbody.find('tr');
+		trs.each(function() {
+			var rk = $(this).find('td.pair_key > input').val();
+			var rv = $(this).find('td.pair_value > input').val();
+			newVal[rk] = rv;
+		});
+	} else {
+		newVal = [];
+		var trs = tbody.find('tr');
+		trs.each(function() {
+			var rv = $(this).find('td.pair_value > input').val();
+			newVal.push(rv);
+		});
+	}
 	_editorModel[_curCid][key] = newVal;
 };
 
@@ -556,11 +564,11 @@ var updateNode = function($node, key, val) {
 	_editorModel[_curCid][key] = val;
 };
 
-var updateT2Pair = function($node, key, tbody, oldVal) {
+var updateT2Pair = function($node, key, tbody, oldVal, isPair) {
 	var tr = $node.parent().parent();
 	var $key = tr.find("td.pair_key > input");
 	var $value = tr.find("td.pair_value > input");
-	var isPair = !$key.prop('disabled');
+//	var isPair = !$key.prop('disabled');
 	var isValid = true;
 	if (isPair) {
 		var kv = $key.val().trim();
@@ -615,7 +623,6 @@ var updateT2Pair = function($node, key, tbody, oldVal) {
 				trs.each(function() {
 					var rv = $(this).find('td.pair_value > input').val();
 					newVal.push(rv);
-					console.log('add ' + rv);
 				});
 				_editorModel[_curCid][key] = newVal;
 			}
@@ -836,7 +843,10 @@ function drop(ev) {
 	ev.target.appendChild(document.getElementById(data));
 }
 
-var DeviceGroup = function($div) {
+var DeviceGroup = function($div, init) {
+	if (typeof init === 'undefined') {
+		init = false;
+	}
 	var deviceItem = this;
 	var label = $div.find('span.class_span_mc_name');
 	var input = $div.find('span.class_span_mc_input');
@@ -887,21 +897,33 @@ var DeviceGroup = function($div) {
 			input.addClass('class_span_hide');
 			label.removeClass('class_span_hide');
 			control.removeClass('class_span_hide');
-			if (_initNewDevice) {
-				_initNewDevice = false;
-				_saveObj = null;
-				var device = _model[did];
-				delete _model[did];
-				_model[newDid] = device;
-				if (_curDeviceModel.did == did) {
-					_curDeviceModel.did = newDid;
-					_curDeviceModel.model = device;
-				}
+			var device = _model[did];
+			delete _model[did];
+			_model[newDid] = device;
+			var $ul = $("#ul_mc_" + did);
+			$ul.attr("id", "ul_mc_" + newDid);
+			$.each($ul.find("li"), function(idx, val) {
+				var $li = $(this);
+				var $a = $li.find("a");
+				var oCid = $a.attr("cid");
+				$li.attr("id", "li_menu_" + newDid + "_" + oCid);
+				$a.attr("did", newDid);
+				$a.off("click");
+				$a.on("click", function(){
+					loadDeviceConfig(newDid, oCid);
+				});
+			});
+			if (_curDeviceModel != null && _curDeviceModel.did == did) {
+				_curDeviceModel.did = newDid;
+				_curDeviceModel.model = device;
 				_curDid = newDid;
-				did = newDid;
+				_title.text(newDid + " (Composite Device)");
+			}
+			_deviceItem = deviceItem;
+			if (!init) {
+				$('#id_modal_changeNameDialog').modal('show');
 			} else {
-				_saveObj = deviceItem;
-				$('#id_modal_saveDialog').modal('show');
+				did = newDid;
 			}
 //			} else {
 //				textbox.val(did);
@@ -910,14 +932,12 @@ var DeviceGroup = function($div) {
 //				control.removeClass('class_span_hide');
 //			}
 		} else if ( event.which == 27) {
-			_initNewDevice = false;
 			textbox.val(label.attr(did));
 			input.addClass('class_span_hide');
 			label.removeClass('class_span_hide');
 			control.removeClass('class_span_hide');
 		}
 	}).blur(function() {
-		_initNewDevice = false;
 		textbox.val(label.attr(did));
 		input.addClass('class_span_hide');
 		label.removeClass('class_span_hide');
@@ -934,35 +954,69 @@ var DeviceGroup = function($div) {
 		label.html('<i class="fas fa-caret-down"></i> ' + did);
 	}
 	
+	this.cancelSave = function() {
+//		if (saveDeviceNameChange(did, val)) {
+//			saveDeviceNameChange(did, val, deviceItem);
+		var newDid = label.attr('did');
+		label.attr('did', did);
+		label.html('<i class="fas fa-caret-down"></i> ' + did);
+		var device = _model[newDid];
+		delete _model[newDid];
+		_model[did] = device;
+		var $ul = $("#ul_mc_" + newDid);
+		$ul.attr("id", "ul_mc_" + did);
+		$.each($ul.find("li"), function(idx, val) {
+			var $li = $(this);
+			var $a = $li.find("a");
+			var oCid = $a.attr("cid");
+			$li.attr("id", "li_menu_" + did + "_" + oCid);
+			$a.attr("did", did);
+			$a.off("click");
+			$a.on("click", function(){
+				loadDeviceConfig(did, oCid);
+			});
+		});
+		if (_curDeviceModel != null && _curDeviceModel.did == newDid) {
+			_curDeviceModel.did = did;
+			_curDeviceModel.model = device;
+			_curDid = did;
+			_title.text(did + " (Composite Device)");
+		}
+		_deviceItem = null;
+
+	}
+	
 	this.save = function() {
 //		_curModel = $.extend(true, _curModel, _editorModel);
 //		_dirtyFlag = false;
 //		var url = URL_PREFIX + 'changeName?oldName=' + encodeURI(oldName) + '&newName=' + encodeURI(newName) + '&msg=';
 		var url = URL_PREFIX + 'changeName?msg=';
-		var saveMsg = $('#id_input_saveMessage').val().replace(/^\s+|\s+$/gm,'');
+		var saveMsg = $('#id_input_changeNameMessage').val().replace(/^\s+|\s+$/gm,'');
 		if (saveMsg.length > 0) {
 			url += encodeURI(saveMsg);
 		}
 //		if (_versionId) {
-//			url += "&version=" + encodeURI(_versionId);
+//		url += "&version=" + encodeURI(_versionId);
 //		}
+		var oldDid = did;
+		var newDid = label.attr('did');
+		did = newDid;
 		url += "&" + Date.now();
-		$('#id_modal_saveDialog').modal('hide');
+		$('#id_modal_changeNameDialog').modal('hide');
 		var text = JSON.stringify(_model[newDid]);
-		$.post(url,  {oldDid:did, newDid:newDid, model:text}, function(data) {
-			console.log(data);
+		$.post(url,  {oldDid:oldDid, newDid:newDid, model:text}, function(data) {
 //			data = $.parseJSON(data);
 			try {
 				if (data["status"] == "OK") {
-					_saveObj = null;
 					var device = _model[did];
 					delete _model[did];
 					_model[newDid] = device;
-					if (_curDeviceModel.did == did) {
+					if (_curDeviceModel != null && _curDeviceModel.did == did) {
 						_curDeviceModel.did = newDid;
+						_title.text(newDid + " (Composite Device)");
 					}
-					did = newDid;
 					showMsg("Device name saved in the server.");
+					_deviceItem = null;
 					$('td.editable input.changed').removeClass('changed');
 					setTimeout(_historyBar.reload, 3000)
 				} else {
@@ -970,7 +1024,7 @@ var DeviceGroup = function($div) {
 //					deviceItem.resetChange();
 				}
 			} catch (e) {
-				showMsg("Failed to rename the device: " + e.statusText, 'danger');
+				showMsg("Failed to rename the device: " + e, 'danger');
 //				deviceItem.resetChange();
 			}
 		}).fail(function(e) {
@@ -1259,10 +1313,7 @@ var loadCompositeDevice = function(did) {
 		$('#id_div_sidebuttom>.class_ul_folder').addClass('class_ul_hide');
 		$('#ul_mc_' + did).removeClass('class_ul_hide');
 		$('.class_li_subitem').removeClass('active');
-//		var trs = $("#id_div_main_area").find('tr.editable_row');
-//		trs.each(function() {
-//			var pr = new PropertyRow($(this));				
-//		});				
+		_historyBar.reload();
 	} else {
 		return;
 	}
@@ -1357,6 +1408,7 @@ var deleteConfig = function() {
 	if (configs.length > 0) {
 		loadDeviceConfig(did, configs[0]);
 	}
+	showMsg('NOT saved, please use the save button to commit the change to server', 'warning');
 }
 
 var deleteSubDevice = function(did, subDid) {
@@ -1709,6 +1761,10 @@ var saveModel = function() {
 			if (data["status"] == "OK") {
 				showMsg("Saved in the server.");
 				$('td.editable input.changed').removeClass('changed');
+				if (_deviceItem != null) {
+					_deviceItem.init = false;
+					_deviceItem = null;
+				}
 				setTimeout(_historyBar.reload, 3000)
 			} else {
 				showMsg(data["reason"], 'danger');
@@ -1890,7 +1946,6 @@ $(document).ready(function() {
 			_historyBar.reload();
 
 			var did = 'New_device';
-			_initNewDevice = true;
 			var datype = 'C';
 			var html = '<div class="class_a_mc" href="#"><h6 class="sidebar-subheading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 ">' + 
 				'<span class="class_span_mc_name" did="' + did + '" datype="' + datype + '"><i class="fas fa-caret-down"></i> ' + did + '</span>';
@@ -1900,7 +1955,7 @@ $(document).ready(function() {
 	
 			html += "</ul>";
 			var $div = $(html);
-			var devGroup = new DeviceGroup($div);
+			var devGroup = new DeviceGroup($div, true);
 			var newDev = $.extend({}, JSON_TEMP_COMPOSITE_DEVICE);
 			_model[did] = newDev;
 			_curDeviceModel = new DeviceModel(did, newDev);
@@ -1916,24 +1971,34 @@ $(document).ready(function() {
 	});
 	
 	$('#id_button_saveConfirm').click(function() {
-		if (_saveObj != null) {
-			_saveObj.save();
-		} else {
 			saveModel();
-		}
-//		if (_dirtyFlag) {
-//			saveModel();
-//		}
 	});
 	
 	$('#id_input_saveMessage').keypress(function(event) {
 		if ( event.which == 13 ) {
-			if (_saveObj != null) {
-				_saveObj.save();
-			} 
-			if (_dirtyFlag) {
+//			if (_dirtyFlag) {
 				saveModel();
+//			}
+		}
+	});
+	
+	$('#id_button_changeNameConfirm').click(function() {
+		if (_deviceItem != null) {
+			_deviceItem.save();
+		}
+	});
+	
+	$('#id_input_changeNameMessage').keypress(function(event) {
+		if ( event.which == 13 ) {
+			if (_deviceItem != null) {
+				_deviceItem.save();
 			}
+		}
+	});
+	
+	$('#id_button_changeNameDismiss').click(function() {
+		if (_deviceItem != null) {
+			_deviceItem.cancelSave();
 		}
 	});
 	
