@@ -3,6 +3,8 @@
  */
 package au.gov.ansto.bragg.nbi.ui.scripting.parts;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IResource;
@@ -27,6 +29,7 @@ public class ScriptRunner {
 	private boolean isConfirmed;
 	private String folderPath;
 	private String filePath;
+	private String[] filenames;
 	private Shell shell;
 
 	public ScriptRunner(Shell shell) {
@@ -234,6 +237,67 @@ public class ScriptRunner {
 		return getFilePath();
 	}
 	
+	public String[] selectLoadMultiFile(final List<String> extNames) {
+		return selectLoadMultiFile(extNames, null);
+	}
+	
+	public String[] selectLoadMultiFile(final List<String> extNames, final String workspacePath) {
+		setActionPerformed(false);
+		shell.getDisplay().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				FileDialog dialog = new FileDialog(shell, SWT.MULTI);
+				IWorkspace workspace= ResourcesPlugin.getWorkspace();
+				IWorkspaceRoot root = workspace.getRoot();
+				IResource resource = null;
+				if (workspacePath != null) {
+					resource = root.findMember(workspacePath);					
+				}
+				if (resource != null) {
+					dialog.setFilterPath(resource.getLocation().toOSString());
+				} else {
+					if (fileDialogPath == null){
+	 					dialog.setFilterPath(root.getLocation().toOSString());						
+					} else {
+						dialog.setFilterPath(fileDialogPath);
+					}
+				}
+ 				if (extNames != null && extNames.size() > 0) {
+ 					String[] extArray = new String[extNames.size()];
+ 					dialog.setFilterExtensions(extNames.toArray(extArray));
+ 				}
+ 				String filePath = dialog.open();
+ 				String[] filenames = dialog.getFileNames();
+ 				setFilenames(filenames);
+ 				if (workspacePath == null){
+ 	 				fileDialogPath = filePath; 					
+ 				}
+ 				for (int i = 0; i < filenames.length; i++) {
+					filenames[i] = dialog.getFilterPath() + File.separator + filenames[i];
+				}
+				setActionPerformed(true);
+			}
+		});
+		
+		while (!isActionPerformed()){
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				System.out.println("can't wait");
+			}
+		}
+		return getFilenames();
+	}
+	
+	public List<String> selectLoadMultiFileList(final List<String> extNames) {
+		return Arrays.asList(selectLoadMultiFile(extNames, null));
+	}
+
+	public List<String> selectLoadMultiFileList(final List<String> extNames, final String workspacePath) {
+		return Arrays.asList(selectLoadMultiFile(extNames, workspacePath));
+	}
+
 	public String selectSaveFile(final List<String> extNames, final String workspacePath, final String filename) {
 		setActionPerformed(false);
 		shell.getDisplay().asyncExec(new Runnable() {
@@ -300,6 +364,14 @@ public class ScriptRunner {
 	
 	public void setFilePath(String filePath) {
 		this.filePath = filePath;
+	}
+	
+	public String[] getFilenames() {
+		return filenames;
+	}
+	
+	public void setFilenames(String[] filenames) {
+		this.filenames = filenames;
 	}
 	
 	public String getFolderPath() {

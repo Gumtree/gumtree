@@ -2581,10 +2581,11 @@ public class ScriptControlViewer extends Composite {
 				list.setBackground(getBackground());
 				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(fillWidth, fillHeight
 						).span(parameterColspan, parameterRowspan).hint(width, height).applyTo(list);
-				for (Object item : parameter.getOptions()) {
-					list.add(String.valueOf(item));
+				if (parameter.getOptions() != null) {
+					for (Object item : parameter.getOptions()) {
+						list.add(String.valueOf(item));
+					}
 				}
-
 				if (isHighlight) {
 					list.setForeground(highlightColor);
 				} 			
