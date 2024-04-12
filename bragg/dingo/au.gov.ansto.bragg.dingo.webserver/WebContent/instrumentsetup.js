@@ -1,4 +1,4 @@
-var title = "Dingo Status";
+var title = "Dingo";
 var batchEnabled = true;
 var devices = [
                {"group":"CAMERA STATUS", 
