@@ -41,7 +41,7 @@ body {
 .sidebar-sticky {
   position: relative;
   top: 0;
-  height: calc(100vh - 48px);
+  height: calc(100vh - 172px);
   padding-top: .5rem;
   overflow-x: hidden;
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
@@ -111,6 +111,10 @@ body {
 
 div.class_a_mc {
 	cursor: pointer;
+}
+div.class_a_mc :hover{
+	text-decoration: underline;
+	color: #007bff;
 }
 
 .class_mc_input {
@@ -219,6 +223,10 @@ h6.sidebar-subheading {
 	padding-left: 40px;
 	margin: 2px;
 }
+.class_li_subitem :hover {
+	color: #007bff;
+	text-decoration: underline;
+}
 .class_li_subitem a {
 	padding: 0;
 	margin: 0px;
@@ -251,6 +259,7 @@ td.editable_value table {
 	margin: 2px 0;
 }
 td.editable_value input,
+td.editable_key input,
 td.pair_key input 
 td.pair_value input {
 	background: transparent;
@@ -365,7 +374,7 @@ tbody > tr > td.warning {
 	float: left;
 	width: 30%;
 	min-width:180px;
-	min-height: 480px;
+/*	min-height: 480px;*/
 	background-color: #fafafa;
 	bottom: 10px;
 	
@@ -458,4 +467,36 @@ a.class_a_cid_delete {
 }
 a.class_a_cid_delete:hover {
   color: #F00 !important;
+}
+.div_hidden {
+	display: none;
+}
+.div_static {
+	background-color: #aaa;
+}
+.span_highlight {
+	color: #770000;
+}
+td.editable_control, th.editable_control {
+	padding: 0 4px;
+	vertical-align: middle;
+	color: maroon;
+}
+td.editable_control > span, th.editable_control > span {
+	cursor: pointer;
+}
+#id_div_main_area {
+	/* height: calc(100vh - 140px);*/
+	overflow-y: auto;
+	bottom: 10px;
+}
+li.nav-item > a.active {
+	cursor: default;
+}
+span.tab_remove {
+	margin-left: 6px;
+	cursor: pointer;
+	font-size: 0.8em;
+	vertical-align: text-top;
+	color: maroon;
 }

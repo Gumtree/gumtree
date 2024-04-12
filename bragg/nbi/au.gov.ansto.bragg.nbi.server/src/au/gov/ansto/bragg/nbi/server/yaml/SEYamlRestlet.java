@@ -66,10 +66,12 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 	private static final String SEG_NAME_SECONFIG = "seconfig";
 	private static final String SEG_NAME_DBHISTORY = "dbhistory";
 	private static final String SEG_NAME_CONFIGHISTORY = "confighistory";
+	private static final String SEG_NAME_CONFIGLOAD = "configload";
 	private static final String SEG_NAME_DBSAVE = "dbsave";
 	private static final String SEG_NAME_DBREMOVE = "dbremove";
 	private static final String SEG_NAME_DBLOAD = "dbload";
 	private static final String SEG_NAME_CONFIGSAVE = "configsave";
+	private static final String SEG_NAME_CONFIGREMOVE = "configremove";
 	private static final String SEG_NAME_CHANGENAME = "changeName";
 	
 	private static final String QUERY_ENTRY_PATH = "path";
@@ -295,6 +297,24 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
 					return;
 				}
+			} else if (SEG_NAME_CONFIGLOAD.equalsIgnoreCase(seg)){
+				try {
+					Form form = request.getResourceRef().getQueryAsForm();
+					String objectId = form.getValues(QUERY_ENTRY_VERSION_ID);
+					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
+					String text = getSEConfigGitService(instrumentId).readRevisionOfFile(configName, objectId);
+					YamlRestlet.saveRevisionToTempFile(objectId, text);
+					Object model = YamlRestlet.loadConfigModelFromText(text);
+					JSONObject jsonObject = (JSONObject) _convertToJson(model);
+					response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					logger.error("failed to load yaml.", e);
+					e.printStackTrace();
+//					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+					return;
+				}
 			} else if (SEG_NAME_CHANGENAME.equalsIgnoreCase(seg)){
 				try {
 					if (!hasSEConfigurePrivilege(session)) {
@@ -377,6 +397,30 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 				} catch (Exception e) {
 					logger.error("failed to do save", e);
 					response.setEntity(makeErrorJSON("failed to save, " + e.getLocalizedMessage()), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
+			} else if (SEG_NAME_CONFIGREMOVE.equalsIgnoreCase(seg)){
+				try {
+					if (!hasSEConfigurePrivilege(session)) {
+						throw new Exception("user not allowed to change configuration.");
+					}
+					Representation rep = request.getEntity();
+					Form form = request.getResourceRef().getQueryAsForm();
+					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
+					String did = form.getValues(QUERY_ENTRY_DEVICEID);
+					String saveMessage = form.getValues(QUERY_ENTRY_MESSAGE);
+//					if (versionId != null && versionId.length() > 0) {
+//						saveTempConfigModel(versionId, text, saveMessage, session);
+//					} else {
+					deleteSEConfigModel(instrumentId, did, saveMessage, session);
+//					}
+//					copyToRemote();
+					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					logger.error("failed to delete", e);
+					response.setEntity(makeErrorJSON("failed to delete, " + e.getLocalizedMessage()), MediaType.APPLICATION_JSON);
 					response.setStatus(Status.SUCCESS_OK);
 					return;
 				}
@@ -494,6 +538,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 
 	}
 	
+	
 	public static void saveDBConfigModel(String text, String message, UserSessionObject session) 
 			throws IOException, JSONException, GitException {
 		String userName = session.getUserName().toUpperCase();
@@ -576,6 +621,55 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		}
 	}
 
+	public static void deleteSEConfigModel(String instrumentId, String did, String message, UserSessionObject session) 
+			throws IOException, JSONException, GitException {
+		String userName = session.getUserName().toUpperCase();
+		String filePath = getSEConfigFilename(instrumentId);
+		GitService git = getSEConfigGitService(instrumentId);
+//		saveModel(filePath, text, message, userName, git);
+		if (did == null || did.trim().length() == 0 ) {
+			throw new JSONException("device name can not be empty");
+		}
+		File file = new File(filePath);
+
+		DumperOptions options = new DumperOptions();
+	    options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(options);
+		Map<String, Object> model = null;
+		InputStream input = new FileInputStream(file);
+		try {
+			model = yaml.loadAs(input, Map.class);
+		} finally {
+			input.close();
+		}
+		Map<String, Object> device = (Map<String, Object>) model.get(did);
+		if (device == null) {
+			throw new JSONException("device with the name not found");
+		}
+		model.remove(did);
+		FileWriter writer = new FileWriter(file);
+		try {
+			yaml.dump(model, writer);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}finally {
+			writer.close();
+		}
+		
+//		GitService git = getSEDBGitService();
+		if (git != null) {
+			git.applyChange();
+			if (message == null || message.length() == 0) {
+				message = userName + " deleted " + did + ": " + formater.format(new Date());
+			} else {
+				message = userName + " deleted " + did + ": " + message;
+			}
+			git.commit(message);
+		}
+
+	}
+	
 	private static void updateModel(JSONObject json, Map<String, Object> model) throws JSONException {
 		for (int i = 0; i < json.names().length(); i++) {
 			String key = json.names().getString(i);

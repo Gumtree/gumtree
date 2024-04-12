@@ -36,7 +36,7 @@
   </head>
 
   <body>
-    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow" id="id_nav_header">
       <a class="navbar-brand col-sm-3 col-md-3 col-lg-3 col-xl-2 mr-0" id="id_a_instrument_name" href="sicsConfigMenu.html"><span>&#171; All instruments</span></a>
       <div style="width:100%;">
       	<input id="id_input_search_text" class="form-control form-control-dark w-100" type="text" placeholder="Search for SICS name" aria-label="Search">
@@ -53,19 +53,23 @@
       <div class="row">
         <nav class="col-md-3 col-lg-3 col-xl-2 d-none d-md-block bg-light sidebar">
           <div class="class_span_side_title" id="id_span_side_title"></div>
-          <div class="class_span_side_home" id="id_span_side_home"><a href="#"><i class="fas fa-home"></i> Home</a> <span id="id_span_waiting"><i class="fas fa-spinner fa-spin"></i></span></div>
+          <div class="class_span_side_home" id="id_span_side_home"><a href="#"><i class="fas fa-home"></i> Home</a> 
+          <span id="id_span_waiting"><i class="fas fa-spinner fa-spin"></i></span>
+          <span id="id_span_addController" class="float_right padding_right_4 clickable"><i class="fas fa-plus"></i> </span>
+          </div>
           <div class="sidebar-sticky" id="id_div_sidebar">
           </div>
         </nav>
 
         <main role="main" class="col-md-9 col-lg-9 col-xl-10 offset-md-3 offset-lg-3 offset-xl-2">
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom">
             <h3 class="h4" id="id_device_title">Please use the side bar to select a motion control axis.</h3>
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
                 <button id="id_button_reset" class="btn btn-sm btn-outline-secondary">Reset</button>
                 <button id="id_button_save" class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-target="#id_modal_saveDialog">Save</button>
                 <button id="id_button_history" class="btn btn-sm btn-group-toggle btn-outline-secondary" data-toggle="buttons">History</button>
+                <button id="id_button_manage" class="btn btn-sm btn-group-toggle btn-outline-secondary" data-toggle="buttons">Manage</button>
               </div>
               <!-- 
               <button class="btn btn-sm btn-outline-secondary">
@@ -75,8 +79,8 @@
                -->
             </div>
           </div>
+	      <div id="id_div_info"></div>
           <div id="id_div_main_area">
-	          <div id="id_div_info"></div>
 			  <ul class="nav nav-tabs" id="id_ul_tabs"></ul>
 	          <h5 class="h5" id="id_editor_subtitle"></h5>
 	          <div class="table-responsive" id="id_div_editor_table"></div>
@@ -113,12 +117,109 @@
 	  </div>
 	</div>
 
+	<div class="modal" tabindex="-1" role="dialog" id="id_modal_newControllerDialog">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Add a new motion controller profile with initial axis.</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        <p>Name of the new motion controller:</p>
+	        <input id="id_input_newControllerName" class="form-control" type="text" placeholder="single_word_name" aria-label="config_name">
+	        <p>Name of the initial axis id:</p>
+	        <input id="id_input_newAxisName" class="form-control" type="text" placeholder="single_word_name" aria-label="axis_name">
+	        <p>Name of the initial motor name for the axis:</p>
+	        <input id="id_input_newMotorName" class="form-control" type="text" placeholder="single_word_name" aria-label="motor_name">
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" id="id_button_newController">Create</button>
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="id_modal_newAxisDialog">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Add a new axis with an initial motor profile.</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        <p>Motion controller: <span id="id_span_newControllerName2"></span></p>
+	        <p>Name of the new axis id:</p>
+	        <input id="id_input_newAxisName2" class="form-control" type="text" placeholder="single_word_name" aria-label="axis_name">
+	        <p>Name of the initial motor name for the axis:</p>
+	        <input id="id_input_newMotorName2" class="form-control" type="text" placeholder="single_word_name" aria-label="motor_name">
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" id="id_button_newAxis">Add</button>
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="id_modal_newMotorDialog">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Add a new motor to the selected axis.</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        <p>Motion controller: <span id="id_span_newControllerName3"></span></p>
+	        <p>Name of the new axis id: <span id="id_span_newAxisName3"></span></p>
+	        <p>Name of the new motor:</p>
+	        <input id="id_input_newMotorName3" class="form-control" type="text" placeholder="single_word_name" aria-label="motor_name">
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" id="id_button_newMotor">Add</button>
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="id_modal_deleteAxis">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Confirm to delete the selected axis.</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	      	<p>Deleting the only motor in an axis will trigger deleting the whole axis. 
+	      		If you want to keep the axis, please add a new motor before deleting the current motor. 
+	      		Click the 'Delete' button to confirm deleting the axis.</p>
+	        <p>Axis to be deleted: <span id="id_span_deleteAxisName4"></span></p>
+	        <p>Please add a short message about this change for version control purpose.</p>
+	        <input id="id_input_deleteAxisMessage4" class="form-control" type="text" placeholder="Commit message" aria-label="message">
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" id="id_button_deleteAxis4">Delete</button>
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="js/jquery/jquery-1.10.2.min.js"></script>
     <script src="js/bootstrap/bootstrap.bundle.min.js"></script>
-    <script src="js/libs/lodash.min.js"></script>
+    <!-- script src="js/libs/lodash.min.js"></script -->
     <script type="text/javascript" src="js/instrumentsetup.js"></script>
 	<script src="js/account.js"></script>
 	<script src="js/widget.js"></script>

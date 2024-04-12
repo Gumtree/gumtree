@@ -74,6 +74,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 	private static final String SEG_NAME_MODEL = "model";
 	private static final String SEG_NAME_SAVE = "save";
 	private static final String SEG_NAME_LOAD = "load";
+	private static final String SEG_NAME_DELETE = "delete";
 	private static final String SEG_NAME_HISTORY = "history";
 	private static final String SEG_NAME_APPLY = "apply";
 	
@@ -143,7 +144,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 		if (JSON_OK == null) {
 			JSONObject json = new JSONObject();
 			try {
-				json.append("status", "OK");
+				json.put("status", "OK");
 			} catch (JSONException e) {
 			}
 			JSON_OK = json.toString();
@@ -317,7 +318,27 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 //					response.setStatus(Status.CLIENT_ERROR_EXPECTATION_FAILED, e);
 					return;
 				}
-			}
+			} else if (SEG_NAME_DELETE.equalsIgnoreCase(seg)){
+				try {
+					if (!hasSEConfigurePrivilege(session)) {
+						throw new Exception("user not allowed to change configuration.");
+					}
+					Representation rep = request.getEntity();
+					Form form = request.getResourceRef().getQueryAsForm();
+					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
+					String path = form.getValues(QUERY_ENTRY_PATH);
+					String saveMessage = form.getValues(QUERY_ENTRY_MESSAGE);
+					deleteAxisFromModel(instrumentId, path, saveMessage, session);
+					copyToRemote(instrumentId);
+					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					logger.error("failed to delete", e);
+					response.setEntity(makeErrorJSON("failed to delete, " + e.getLocalizedMessage()), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
+			} 
 		} else {
 			response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "<span style=\"color:red\">Error: invalid user session.</span>");
 		}
@@ -349,8 +370,8 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 		File file = new File(getYamlFilePath(instrumentId));
 		String[] pair = text.split("&", 3);
 		String path = pair[0].substring(pair[0].indexOf("=") + 1).trim();
-		String idx = pair[1].substring(pair[1].indexOf("=") + 1).trim();
-		String modelString = pair[2].substring(pair[2].indexOf("=") + 1).trim();
+//		String idx = pair[1].substring(pair[1].indexOf("=") + 1).trim();
+		String modelString = pair[1].substring(pair[1].indexOf("=") + 1).trim();
 		JSONObject json = new LinkedJSONObject(modelString);
 //		System.out.println(json.get("path"));
 //		System.out.println(json.get("model"));
@@ -367,16 +388,27 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 		}
 		String[] pathSeg = path.split("/");
 		Map<String, Object> device = (Map<String, Object>) model.get("GALIL_CONTROLLERS");
-		for (String seg : pathSeg) {
-			if (seg.length() > 0) {
-				device = (Map<String, Object>) device.get(seg);
-			}
-		}
+//		for (String seg : pathSeg) {
+//			if (seg.length() > 0) {
+//				Map<String, Object> parent = device;
+//				device = (Map<String, Object>) device.get(seg);
+//				if (device == null) {
+//					device = new HashMap<String, Object>();
+//					parent.put(seg, device);
+//				}
+//			}
+//		}
+		device = (Map<String, Object>) device.get(pathSeg[1]);
+		
 //		Object item = device.get("sics_motor");
 //		int index = Integer.valueOf(idx);
 //		item = ((ArrayList<Object>) item).get(index);
-		Object item = device.get(idx);
-		updateMode(json, (Map<String, Object>) item);
+//		Object item = device.get(idx);
+//		updateMode(json, (Map<String, Object>) item);
+		Map<String, Object> map = YamlRestlet.toMap(json);
+		device.put(pathSeg[pathSeg.length - 1], map);
+		
+//		updateMode(json, device);
 		FileWriter writer = new FileWriter(file);
 		try {
 			yaml.dump(model, writer);
@@ -425,7 +457,12 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 		Map<String, Object> device = (Map<String, Object>) model.get("GALIL_CONTROLLERS");
 		for (String seg : pathSeg) {
 			if (seg.length() > 0) {
+				Map<String, Object> parent = device;
 				device = (Map<String, Object>) device.get(seg);
+				if (device == null) {
+					device = new HashMap<String, Object>();
+					parent.put(seg, device);
+				}
 			}
 		}
 		updateMode(json, device);
@@ -520,6 +557,73 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 					model.put(key, val);
 				}
 			}
+		}
+	}
+	
+	public static void deleteAxisFromModel(String instrumentId, String path, String message, UserSessionObject session) 
+			throws IOException, JSONException, GitException {
+		String userName = session.getUserName().toUpperCase();
+
+		File file = new File(getYamlFilePath(instrumentId));
+	    DumperOptions options = new DumperOptions();
+	    options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(options);
+		Map<String, Object> model = null;
+		InputStream input = new FileInputStream(file);
+		try {
+			model = yaml.loadAs(input, Map.class);
+		} finally {
+			input.close();
+		}
+		String[] pathSeg = path.split("/");
+		Map<String, Object> device = (Map<String, Object>) model.get("GALIL_CONTROLLERS");
+		Map<String, Object> parent = (Map<String, Object>) device.get(pathSeg[1]);
+		device = (Map<String, Object>) parent.get(pathSeg[2]);
+		if (device == null) {
+			throw new IOException("axis not found");
+		}
+		parent.remove(pathSeg[2]);
+//		Map<String, Object> parent;
+//		for (String seg : pathSeg) {
+//			if (seg.length() > 0) {
+//				parent = device;
+//				device = (Map<String, Object>) device.get(seg);
+//				if (device == null) {
+//					throw new IOException("axis not found");
+//				}
+//			}
+//		}
+//		device = (Map<String, Object>) device.get(pathSeg[1]);
+		
+//		Object item = device.get("sics_motor");
+//		int index = Integer.valueOf(idx);
+//		item = ((ArrayList<Object>) item).get(index);
+//		Object item = device.get(idx);
+//		updateMode(json, (Map<String, Object>) item);
+		
+//		Map<String, Object> map = YamlRestlet.toMap(json);
+//		device.put(pathSeg[pathSeg.length - 1], map);
+		
+//		updateMode(json, device);
+		FileWriter writer = new FileWriter(file);
+		try {
+			yaml.dump(model, writer);
+		} catch (Exception e) {
+			// TODO: handle exception
+		} finally {
+			writer.close();
+		}
+		
+		GitService git = getGitService(instrumentId);
+		if (git != null) {
+			git.applyChange();
+			if (message == null || message.length() == 0) {
+				message = session.getUserName().toUpperCase() + " updated " + path + ": " + formater.format(new Date());
+			} else {
+				message = session.getUserName().toUpperCase() + " updated " + path + ": " + message;
+			}
+			git.commit(message);
 		}
 	}
 	

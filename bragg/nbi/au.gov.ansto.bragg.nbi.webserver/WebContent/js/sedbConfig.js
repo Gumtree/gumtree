@@ -44,6 +44,7 @@ var ID_PROP_PORT = "port";
 var JSON_TEMP_SUB_DEVICE = {
 	"config_id" : "--",
 	"datype" 	: "NA",
+	"desc" 		: "--",
 	"driver" 	: "--",
 	"id"		: "1",
 	"ip"		: "--",
@@ -1059,8 +1060,12 @@ var showModelInSidebar = function() {
 		
 		$.each(device, function(cid, config) {
 			if (! (PROPERTY_KEYWORDS.includes(cid)) ) {
+				var driver = "";
+				if (datype == "C") {
+					driver = " (" + config[ID_PROP_DRIVER] + ")";
+				}
 				html += '<li id="li_menu_' + did + '_' + cid + '" class="nav-item class_li_subitem"><a class="nav-link class_a_axis" did="' + did + '" cid="' + cid + '" href="#">' +
-          		cid + '<span class="sr-only">(current)</span></a></li>';
+          		cid + driver + '<span class="sr-only">(current)</span></a></li>';
 			}
 		});
 		if (datype != "C") {
@@ -1267,7 +1272,7 @@ var loadCompositeDevice = function(did) {
 				html += '<div class="class_div_device_page" id="div_page_' + did + '_' + subDid + '"><a href="#" class="class_a_cid_delete" did="' 
 					+ did + '" cid="' + subDid + '"><i class="fas fa-square-minus"></i> </a>'
 					+ '<div class="class_div_device_item"><a href="#" class="class_a_cid_label" did="' 
-					+ did + '" cid="' + subDid + '">' + subDid + '</a></div></div>';
+					+ did + '" cid="' + subDid + '">' + subDid + '<br>(' + config[ID_PROP_DRIVER] + ')' + '</a></div></div>';
 			}
 		});
 		var $div = $('<div ondragover="allowDrop(event)" />').append(html);
@@ -1510,6 +1515,10 @@ var makeSubDevice = function(did, subDid) {
 		subDevice["ip"] = ips[0];
 	} else {
 		subDevice["ip"] = ips;
+	}
+	var desc = source["desc"];
+	if (desc) {
+		subDevice["desc"] = desc;
 	}
 	subDevice["name"] = DEFAULT_SUB_DEVICE_NAME_PREFIX[subType] + newId;
 	subDevice["port"] = source["port"];
