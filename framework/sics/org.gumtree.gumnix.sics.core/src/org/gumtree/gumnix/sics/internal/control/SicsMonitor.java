@@ -86,7 +86,8 @@ public class SicsMonitor implements ISicsMonitor {
 			public void messageReceived(String message, String channelId) {
 				if (channelId.equals(ISicsProxy.CHANNEL_STATUS)) {
 					// Handle interrupt event
-					if (message.startsWith("INTERRUPT")) {
+					if (message.startsWith("INTERRUPT") || message.startsWith("INT1712")) {
+						logger.error(message);
 						try {
 							// Get interrupt level
 							final int level = Integer.parseInt(message.split(" ")[1]);
