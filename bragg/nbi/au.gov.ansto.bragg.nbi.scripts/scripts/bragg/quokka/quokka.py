@@ -1436,11 +1436,18 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
     sicsController = sics.getSicsController()
     scanController = sicsController.findComponentController(controllerPath)
     statusData = scanController.getStatusController().getValue().getStringData()
+    counter = 0.
+    timeout = 60.
     while CommandStatus.valueOf(statusData) != CommandStatus.IDLE :
-        statusData = scanController.getStatusController().getValue().getStringData()
+        if counter > timeout :
+            statusData = scanController.getStatusController().getValue(True).getStringData()
+            counter = 0.
+        else:
+            statusData = scanController.getStatusController().getValue().getStringData()
         time.sleep(0.5)
+        counter += 0.5
     scanController.asyncExecute()
-    counter = 0.;
+    counter = 0.
     statusChanged = False
     stime = 0.1
     timeout = 60.
@@ -1480,6 +1487,8 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
     scan_err = None
     low_items = 0
     l_toll = 5
+    t_unchange = 120
+    c_unchange = 0
     while CommandStatus.valueOf(statusData) == CommandStatus.BUSY :
         time.sleep(stime)
         count += stime
@@ -1521,9 +1530,10 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
                         except :
                             pass
 #                             time.sleep(stime)
-                    if crate == rate1 and rate1 == rate2 and rate2 == rate3:
-                        if total == total1 and total1 == total2 and total2 == total3:
-                            scan_err = 'detector map rate not changing for 20 seconds: stop, save and restart the scan'
+                    if total == total1 and total1 == total2 and total2 == total3:
+                        c_unchange += 20
+                        if c_unchange >= t_unchange:
+                            scan_err = 'detector map rate not changing for 120 seconds: stop, save and restart the scan'
                             try:
                                 fn = dump_hms_status()
                                 slog('log HMS status in ' + fn)
@@ -1532,6 +1542,10 @@ def detector_rate_monitor_scan(controllerPath, redo = 0):
                             except:
                                 pass
                             break
+                    else:
+                        c_unchange = 0
+                else:
+                    c_unchange = 0
                 if crate < std_rate * 0.3 :
                     low_items += 1
                     slog('lower count rate found at {}'.format(crate))
