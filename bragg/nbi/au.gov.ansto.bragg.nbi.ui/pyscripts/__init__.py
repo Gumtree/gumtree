@@ -126,6 +126,11 @@ def selectLoadFile(ext = None, ws_path = None):
     if ext is None:
         ext = []
     return __runner__.selectLoadFile(ext, ws_path)
+
+def selectMuiltFile(ext = None, ws_path = None):
+    if ext is None:
+        ext = []
+    return __runner__.selectLoadMultiFileList(ext, ws_path)
     
 if '__dispose__' in globals() :
     __dispose__()
