@@ -676,6 +676,26 @@ class Dataset(Data):
         return res
         
     def compress(self, condition, axis = None, out = None):
+        ''' Return selected slices of an array along given axis.
+        
+            When working along a given axis, a slice along that axis is returned in output for each index where condition evaluates to True. When working on a 1-D array, compress is equivalent to extract.
+        
+            Parameters
+        
+                condition : 1-D array of bools
+                    Array that selects which entries to return. If len(condition) is less than the size of a along the given axis, then output is truncated to the length of the condition array.
+        
+                axis : int, optional
+                    Axis along which to take slices. If None (default), work on the flattened array.
+            
+                out : ndarray, optional
+                    Output array. Its type is preserved and it must be of the right shape to hold the output.
+        
+            Returns
+        
+                compressed_array : ndarray
+                    A copy of a without the slices along axis for which condition is false.
+        '''
         res = Data.compress(self, condition, axis, out)
         res.__copy_metadata__(self)
         return res
