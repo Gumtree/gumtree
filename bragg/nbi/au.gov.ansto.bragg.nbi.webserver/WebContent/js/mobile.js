@@ -53,6 +53,12 @@ function changeHistmemType(i) {
 
 var lastTimeEstimation = -1.;
 var evEnabled = false;
+function compareNXalias( a, b ) {
+	if ("nxalias" in a && "nxalias" in b) {
+		return a["nxalias"].localeCompare(b["nxalias"]);
+	}
+	return 0;
+}
 var refresh = function(){
 	var url = "ns/rest/hdbs?devices=";
 	if (nsItems.length > 0) {
@@ -303,17 +309,48 @@ var refresh = function(){
 	var url = sicsPath + "/rest/group?path=" + encodeURIComponent("/control");
 	$.get(url,function(data,status){
 		if (status == "success") {
+			console.log("group success");
 			var obj = jQuery.parseJSON(data);
+			obj.hdbs.sort( compareNXalias );
 			if (obj.hdbs.length > 0) {
 				if (!evEnabled) {
+					console.log("enabled");
 					$("#deviceList").append('<li class="ui-li ui-li-divider ui-bar-d ui-first-child" role="heading" data-role="list-divider">ENVIRONMENT CONTROLS</li>');
 					for ( var i = 0; i < obj.hdbs.length; i++) {
-						$("#deviceList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left">' + obj.hdbs[i].id + ': </div> <div class="div-inlist" id="' + obj.hdbs[i].id + '">' + obj.hdbs[i].value + '</div></li>');
+						const item = obj.hdbs[i];
+						var iName = item.id;
+						if ("nxalias" in item) {
+							iName = item["nxalias"];
+						}
+						if ("nick" in item) {
+							iName += " (" + item["nick"] + ")";
+						}
+						var units = "";
+						if ("units" in item) {
+							units = " " + item["units"];
+						}
+						$("#deviceList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left" id="' + obj.hdbs[i].id + '_name">' + iName 
+								+ ': </div> <div class="div-inlist" id="' + obj.hdbs[i].id + '">' + obj.hdbs[i].value + units + '</div></li>');
+						console.log("append finished");
 					}
 					evEnabled = true;
 				} else {
 					for ( var i = 0; i < obj.hdbs.length; i++) {
-						$("#" + obj.hdbs[i].id).text(obj.hdbs[i].value);
+						console.log("update " + obj.hdbs[i].id + ": " + obj.hdbs[i].value);
+						const item = obj.hdbs[i];
+						var iName = item.id;
+						if ("nxalias" in item) {
+							iName = item["nxalias"];
+						}
+						if ("nick" in item) {
+							iName += " (" + item["nick"] + ")";
+						}
+						var units = "";
+						if ("units" in item) {
+							units = " " + item["units"];
+						}
+						$("#" + obj.hdbs[i].id + "_name").text(iName);
+						$("#" + obj.hdbs[i].id).text(obj.hdbs[i].value + units);
 					}
 				}
 			}

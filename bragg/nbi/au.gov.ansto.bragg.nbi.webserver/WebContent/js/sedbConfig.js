@@ -13,11 +13,13 @@ const EMPTY_ROW_PART1 = '<tr class="tr_entry"><td class="pair_key"><input type="
 const EMPTY_ROW_PART2 = '"></td><td class="pair_value"><input type="text" class="form-control" value="';
 const EMPTY_ROW_PART3 = '"></td><td class="pair_control input-group-btn"><button type="button" class="btn btn-outline-primary button_plus">+</button><button type="button" class="btn btn-outline-primary button_minus">-</button></td></tr>';
 const DISABLED_ROW_PART1 = '<tr class="tr_entry"><td class="pair_key"><input type="text" class="form-control" disabled value="';
+const HTML_TABLE = '<table class="table table-striped table-sm"><thead><tr><th width="34%">Error entry</th><th width="66%">Message</th></tr></thead><tbody/></table>';
 
 const KEY_DATYPE = "datype";
+const KEY_STATIC = "STATIC";
 const TYPE_COMPOSITE = "C";
 const PROPERTY_KEYWORDS = [
-	KEY_DATYPE
+	KEY_STATIC,
 ];
 const DATYPE_ICON = {
 		"T" : "thermometer-half",
@@ -33,7 +35,10 @@ const DEFAULT_SUB_DEVICE_NAME_PREFIX = {
 }
 const _option_prop = ["config_id", "ip", "port"];
 const JSON_TEMP_COMPOSITE_DEVICE = {
-		"datype" : "C"
+		"STATIC" :
+		{
+			"datype" : "C"
+		}
 }
 const JSON_TEMP_SUB_DEVICE = {
 		"config_id" : "--",
@@ -52,6 +57,12 @@ const ID_PROP_IP = "ip";
 const ID_PROP_ID = "id";
 const ID_PROP_NAME = "name";
 const ID_PROP_PORT = "port";
+const ID_PROP_NATIVETYPE = "type";
+const JSON_SKIP_NAME = [
+	ID_PROP_NAME,
+	ID_PROP_NATIVETYPE,
+	ID_PROP_DRIVER,
+];
 
 const _message = $('#id_div_info');
 const _title = $('#id_device_title');
@@ -60,9 +71,10 @@ const _tabs = $('#id_ul_tabs');
 const _editor = $('#id_div_editor_table');
 const _propertyTitle = $('#id_property_subtitle');
 const _property = $('#id_div_property_table');
+var _errorReport;
 
 var _curDevice;
-var _curDid;
+//var _curDid;
 
 function allowDrop(ev) {
 	ev.preventDefault();
@@ -101,11 +113,11 @@ class StaticUtils {
 	}
 
 	static showError(errorMsg, timeLast) {
-		showMsg(errorMsg, 'danger', timeLast);
+		StaticUtils.showMsg(errorMsg, 'danger', timeLast);
 	}
 
 	static showWarning(warnMsg, timeLast) {
-		showMsg(warnMsg, 'warning', timeLast);
+		StaticUtils.showMsg(warnMsg, 'warning', timeLast);
 	}
 	
 	static getTimeString(timestamp) {
@@ -148,11 +160,11 @@ class DBModel {
 	}
 	
 	get physicalDids() {
-		return this.physicalDevices.keys();
+		return Object.keys(this.physicalDevices);
 	}
 	
 	get compositeDids() {
-		return this.compositeDevices.keys();
+		return Object.keys(this.compositeDevices);
 	}
 	
 	getCidsOfDevice(did) {
@@ -186,7 +198,8 @@ class DBModel {
 				const names = [];
 				$.each(deviceModel, function(cid, cfg) {
 					if (!(PROPERTY_KEYWORDS.includes(cid))) {
-						var path = obj.type + "/" + did + "/" + cid;
+//						var path = obj.getType(cid) + "/" + did + "/" + cid;
+						var path = "/" + did + "/" + cid;
 						var desc = "";
 						if (cfg.hasOwnProperty(KEY_DEVICE_DESC)) {
 							desc = cfg[KEY_DEVICE_DESC];
@@ -202,6 +215,8 @@ class DBModel {
 				obj.configNamesOfDevice[did] = names;
 			});
 			obj.createUi();
+			obj.verify();
+			_errorReport.show();
 		}).fail(function(e) {
 			if (e.status == 401) {
 				alert("sign in required");
@@ -215,7 +230,7 @@ class DBModel {
 	createUi() {
 		const obj = this;
 		$.each(this.model, function(did, deviceModel){
-			const datype = deviceModel["datype"];
+			const datype = deviceModel[KEY_STATIC][KEY_DATYPE];
 			if (datype == "C") {
 				const device = new CompositeDevice(did, deviceModel, obj.$compositeMenuBar);
 				device.createMenuUi();
@@ -225,16 +240,26 @@ class DBModel {
 				const device = new PhysicalDevice(did, deviceModel, obj.$physicalMenuBar);
 				device.createMenuUi();
 				obj.setDevice(did, device);
-				obj.compositeDevices[did] = device;
+				obj.physicalDevices[did] = device;
 			}
 		});
 	}
 
+	verify() {
+		const obj = this;
+		_errorReport.clearError();
+		$.each(this.compositeDids, function(idx, key) {
+			obj.compositeDevices[key].verify();
+		});
+	}
+	
 	addNewCompositeDevice(did, deviceModel) {
 		const device = new CompositeDevice(did, deviceModel, this.$compositeMenuBar);
+		device.init = true;
 		device.createMenuUi();
 		this.setDevice(did, device);
 		this.compositeDevices[did] = device;
+		device.setDirtyFlag();
 		device.load();
 	}
 	
@@ -318,16 +343,24 @@ class AbstractDevice {
 	{
 		this.did = did;
 		this.model = model;
+		this.STATIC = model[KEY_STATIC];
 		this.editorModel = $.extend(true, {}, model);
 		this.$parentUi = $parentUi;
 		this.tabUi = new TabUi(this);
 		this.configEditors = {};
 		this.configMenuDict = {};
 		this.curCid = null;
+		this.firstConfigId = this.getConfigArray()[0];
+	}
+	
+	get firstConfig() {
+		return this.model[this.firstConfigId];
 	}
 
 	get datype() {
-		return this.model["datype"];
+//		return this.model["datype"];
+//		return this.firstConfig[KEY_DATYPE];
+		return this.model[KEY_STATIC][KEY_DATYPE];
 	}
 	
 	set did(did) {
@@ -343,11 +376,21 @@ class AbstractDevice {
 	}
 	
 	get id() {
-		return this.type + ":" + this.did;
+//		return this.getType() + ":" + this.did;
+		return this.did;
 	}
 	
+	get configs() {
+		return this.getConfigArray();
+	}
+	
+	verify() {}
+	
 	setDirtyFlag() {
-		if (!this.isDirty()) {
+//		if (!this.isDirty()) {
+//			this.$menuHeader.find('span.class_span_mc_name').append('<i class="fas fa-asterisk i_changed"> </i>');
+//		}
+		if (this.$menuHeader.find('i.fa-asterisk').length == 0) {
 			this.$menuHeader.find('span.class_span_mc_name').append('<i class="fas fa-asterisk i_changed"> </i>');
 		}
 		this.#dirtyFlag = true;
@@ -458,16 +501,18 @@ class AbstractDevice {
 					$.extend(true, obj.model, obj.editorModel);
 					obj.clearDirtyFlag();
 					_historyBar.reload();
+					_saveButton.reset();
 //					setTimeout(_historyBar.reload, 3000)
 				} else {
-					StaticUtils.showMsg(data["reason"], 'danger');
+					StaticUtils.showError(data["reason"]);
 				}
+				_errorReport.clearError();
+				_dbModel.verify();
 			} catch (e) {
-				StaticUtils.showMsg("Failed to save: " + e.statusText, 'danger');
+				StaticUtils.showError("Failed to save: " + e.statusText);
 			}
 		}).fail(function(e) {
-			console.log(e);
-			StaticUtils.showMsg("Faied to save: " + e.statusText, "danger");
+			StaticUtils.showError("Faied to save: " + e.statusText);
 		}).always(function() {
 			_saveButton.close();
 		});
@@ -475,7 +520,46 @@ class AbstractDevice {
 	
 	reset() {
 		this.clearDirtyFlag();
-		$.extend(true, this.editorModel, this.model);
+//		$.extend(true, this.editorModel, this.model);
+		this.editorModel = $.extend(true, {}, this.model);
+		$.each(Object.values(this.configEditors), function(idx, editor) {
+			editor.dispose();
+		});
+		this.configEditors = {};
+		this.reloadMenu();
+		this.tabUi.reload();
+		if (this.rootEditor) {
+			this.rootEditor.reload();
+		}
+		if (this.curCid && (this.curCid in this.editorModel)) {
+			this.loadConfig(this.curCid);
+		} else {
+			this.load();
+		}
+	}
+		
+	remove() {}
+	
+//	fromHistory() {}
+	fromHistory(commitModel) {
+		const deviceModel = commitModel[this.did];
+		console.log(deviceModel);
+		if (!deviceModel) {
+			throw new Error('device not found in history model: ' + this.did);
+		}
+//		$.extend(true, this.editorModel, deviceModel);
+		this.editorModel = deviceModel;
+		
+		if (this.$menuUl) {
+//			this.$menuUl.reload();
+			this.reloadMenu();
+		}
+		
+		this.rootEditor.reload();
+		if (this.tabUi) {
+			this.tabUi.reload();
+		}
+		
 		$.each(Object.values(this.configEditors), function(idx, editor) {
 			editor.dispose();
 		});
@@ -485,13 +569,12 @@ class AbstractDevice {
 		} else {
 			this.load();
 		}
+		this.setDirtyFlag();
 	}
-		
-	remove() {}
-	
-	fromHistory() {}
 	
 	deleteConfig(cid) {}
+	
+	reloadMenu() {}
 }
 
 class PhysicalDevice extends AbstractDevice {
@@ -499,17 +582,19 @@ class PhysicalDevice extends AbstractDevice {
 	constructor(did, model, $parentUi)
 	{
 		super(did, model, $parentUi);
-		this.rootEditor = new ImmutableRootUi(this);
+//		this.rootEditor = new ImmutableRootUi(this);
+		this.rootEditor = new StaticPropertyTable(this);
 		this.$addBt = null;
 	}
 	
-	get type() {
-		return this.model[KEY_DATYPE];
-	}
+//	getType() {
+//		return this.model[cid][KEY_DATYPE];
+//	}
 	
 	createMenuUi() {
 		const obj = this;
-		var datype = this.model["datype"];
+//		var datype = this.model["datype"];
+		const datype = this.datype;
 		if (datype == null) {
 			return;
 		}
@@ -534,7 +619,7 @@ class PhysicalDevice extends AbstractDevice {
 		});
 		
 		const $menuUl = $('<ul id="ul_mc_'+ this.did + '" class="nav flex-column class_ul_hide class_ul_folder"></ul>');
-		$.each(this.model, function(cid, config) {
+		$.each(this.editorModel, function(cid, config) {
 			if (! (PROPERTY_KEYWORDS.includes(cid))){
 				const subItem = new ConfigMenuItem(obj, cid);
 				subItem.createUi($menuUl);
@@ -558,6 +643,25 @@ class PhysicalDevice extends AbstractDevice {
 		
 	}
 
+	reloadMenu() {
+		const obj = this;
+		obj.$menuUl.empty();
+		$.each(this.editorModel, function(cid, config) {
+			if (! (PROPERTY_KEYWORDS.includes(cid))){
+				const subItem = new ConfigMenuItem(obj, cid);
+				subItem.createUi(obj.$menuUl);
+				obj.configMenuDict[cid] = subItem;
+			}
+		});
+		const $addBt = $('<li id="li_menu_' + obj.did + '_NEW_DEVICE' + '" class="nav-item class_li_subitem">'
+				+ '<a class="nav-link class_a_add_axis" did="' + obj.did + '" href="#"><i class="fas fa-plus"> </a></li>');
+		obj.$menuUl.append($addBt);
+		this.$addBt = $addBt;
+		this.addConfigModal = new NewConfigModal($addBt, obj);
+		this.addConfigModal.init();
+	}
+	
+	
 	drag(ev) {
 //		var element = $(ev.target.outerHTML);
 //		var did = element.attr('did');
@@ -575,7 +679,17 @@ class PhysicalDevice extends AbstractDevice {
 			const obj = this;
 			_title.text(obj.did + " (Physical device)");
 
-			_editorTitle.text('Use the menu bar in the left to load a configuration of this device.');
+			_editorTitle.text('Static properties of the device');
+
+			this.curCid = null;
+			$.each(Object.values(this.configEditors), function(idx, propTable) {
+				propTable.hide();
+			});
+
+			_errorReport.hide();
+			this.tabUi.show();
+			this.rootEditor.show();
+			_historyBar.reload();
 
 		}
 	}
@@ -591,7 +705,8 @@ class PhysicalDevice extends AbstractDevice {
 			this.curCid = cid;
 			const obj = this;
 			var config = obj.editorModel[cid]; 
-			var datype = obj.editorModel[KEY_DATYPE];
+//			var datype = obj.editorModel[KEY_DATYPE];
+			const datype = config[KEY_DATYPE];
 			
 			
 			var desc = config[KEY_DEVICE_DESC];
@@ -615,6 +730,7 @@ class PhysicalDevice extends AbstractDevice {
 				this.configEditors[cid] = table;
 			}
 			table.show();
+			_errorReport.hide();
 			this.setMenuActive(true);
 			this.setMenuItemActive(cid);
 			
@@ -633,7 +749,7 @@ class PhysicalDevice extends AbstractDevice {
 			if (cidArray.length > 0) {
 				copyCid = cidArray[cidArray.length - 1];
 			} else {
-				StaticUtils.showMsg("Failed to create new configuration: no existing one to copy", "danger");
+				StaticUtils.showError("Failed to create new configuration: no existing one to copy");
 				return;
 			}
 		}
@@ -641,17 +757,17 @@ class PhysicalDevice extends AbstractDevice {
 		var newName = cid.trim();
 		newName = newName.replace(/\W/g, '_');
 		if (cid in obj.model) {
-			StaticUtils.showMsg("Failed to create new configuration: id already exists, " + newName, "danger");
+			StaticUtils.showError("Failed to create new configuration: id already exists, " + newName);
 			return;
 		}
 		
-		var copyModel = obj.model[copyCid];
+		var copyModel = obj.editorModel[copyCid];
 		if (copyModel === undefined) {
-			StaticUtils.showMsg("Faied to copy: " + obj.did + "/" + copyCid + ", config not found", "danger");
+			StaticUtils.showError("Faied to copy: " + obj.did + "/" + copyCid + ", config not found");
 			return;
 		}
 		
-		obj.model[newName] = $.extend(true, {}, copyModel);
+//		obj.model[newName] = $.extend(true, {}, copyModel);
 		obj.editorModel[newName] = $.extend(true, {}, copyModel);
 		
 		const subItem = new ConfigMenuItem(obj, newName);
@@ -660,6 +776,8 @@ class PhysicalDevice extends AbstractDevice {
 		
 		obj.$addBt.detach();
 		obj.$menuUl.append(obj.$addBt);
+		
+		obj.tabUi.reload();
 
 		obj.loadConfig(newName);
 	}
@@ -668,21 +786,23 @@ class PhysicalDevice extends AbstractDevice {
 		const obj = this;
 		obj.setDirtyFlag();
 
-		const subDevice = obj.model[cid];
+		const subDevice = obj.editorModel[cid];
 		if (subDevice == null) {
-			StaticUtils.showMsg('sub device not found: ' + cid, 'danger');
+			StaticUtils.showError('sub device not found: ' + cid);
 			return;
 		}
 		const rmType = subDevice[KEY_DATYPE];
 		const rmId = subDevice[ID_PROP_ID];
 		
-		delete obj.model[cid];
+//		delete obj.model[cid];
 		delete obj.editorModel[cid];
 		
 		const menuItem = obj.configMenuDict[cid];
 		menuItem.dispose();
 		
 		obj.tabUi.removeConfigTab(cid);
+		
+		obj.reloadMenu();
 		
 		obj.configEditors[cid].dispose();
 		obj.load();
@@ -738,13 +858,17 @@ class CompositeDevice extends AbstractDevice {
 		this.newDid = null;
 	}
 
-	get type() {
+//	get type() {
+//		return TYPE_COMPOSITE;
+//	}
+	get datype() {
 		return TYPE_COMPOSITE;
 	}
 	
 	createMenuUi() {
 		const obj = this;
-		var datype = this.model["datype"];
+//		var datype = this.model["datype"];
+		const datype = this.datype;
 		if (datype == null) {
 			return;
 		}
@@ -811,6 +935,7 @@ class CompositeDevice extends AbstractDevice {
 					_changeDidModal.show();
 				} else {
 					obj.did = newDid;
+					obj.setDirtyFlag();
 //					did = newDid;
 				}
 			} else if ( event.key === "Escape" ) {
@@ -831,7 +956,6 @@ class CompositeDevice extends AbstractDevice {
 			obj.$control.addClass('class_span_hide');
 			obj.$label.addClass('class_span_hide');
 			obj.$input.removeClass('class_span_hide');
-			console.log(obj.$textbox.val());
 			const range = obj.$textbox.val().length;
 			obj.$textbox.get(0).setSelectionRange(range, range);
 			obj.$textbox.focus();
@@ -856,6 +980,33 @@ class CompositeDevice extends AbstractDevice {
 		this.$menuHeader.find('i.i_changed').remove();
 	}
 	
+	verify() {
+		const obj = this;
+		$.each(this.configs, function(idx, cid) {
+			const configModel = obj.model[cid];
+			const configSelection = configModel[ID_PROP_CONFIGID];
+			const driverId = obj.getDriverName(cid);
+			if (driverId == null) {
+//				StaticUtils.showError('device ID not found in configuration');
+				_errorReport.addError(obj.did, cid, "configuration doesn't have a deviceId property");
+				return;
+			}
+			const dModel = _dbModel.getDeviceModel(driverId);
+			if (dModel == null) {
+				_errorReport.addError(obj.did, cid, 'device ' + driverId + ' not found in the Database');
+//				StaticUtils.showError('device not found in the Device Database: ' + driverId);
+				return;
+			}
+			const cModel = dModel[configSelection];
+			if (cModel == null) {
+//				StaticUtils.showError('configuration not found in database device: ' + newConfigId);
+				_errorReport.addError(obj.did, cid, 'configuration ' + configSelection + ' not found in physical device: ' + driverId);
+				return;
+			}
+		});
+
+	}
+	
 	load() {
 		if (this.checkDirtyFlag()) {
 			const obj = this;
@@ -867,11 +1018,13 @@ class CompositeDevice extends AbstractDevice {
 			
 			_title.text(obj.did);
 
-			_editorTitle.text('Use the tab menu to load configuration of sub-device');
+//			_editorTitle.text('Use the tab menu to load configuration of sub-device');
+			_editorTitle.text('Use drag & drop action to drop a physical device to the box below.');
 			this.curCid = null;
 			$.each(Object.values(this.configEditors), function(idx, propTable) {
 				propTable.hide();
 			});
+			_errorReport.hide();
 			this.tabUi.show();
 			this.rootEditor.show();
 			_historyBar.reload();
@@ -891,7 +1044,8 @@ class CompositeDevice extends AbstractDevice {
 			this.curCid = cid;
 			const obj = this;
 			var config = obj.editorModel[cid]; 
-			var datype = obj.editorModel[KEY_DATYPE];
+//			var datype = obj.editorModel[KEY_DATYPE];
+			const datype = config[KEY_DATYPE];
 			
 			
 			var desc = config[KEY_DEVICE_DESC];
@@ -909,6 +1063,7 @@ class CompositeDevice extends AbstractDevice {
 				}
 			});
 			this.rootEditor.hide();
+			_errorReport.hide();
 			var table = this.configEditors[cid];
 			if (!table) {
 				table = new PropertyTable(obj, cid, config);
@@ -922,44 +1077,61 @@ class CompositeDevice extends AbstractDevice {
 		}
 	}
 	
-	fromHistory(commitModel) {
-		const deviceModel = commitModel[this.did];
-		if (!deviceModel) {
-			throw new Error('device not found in history model: ' + this.did);
+	getDriverName(cid) {
+		return this.model[cid][ID_PROP_DRIVER];
+	}
+	
+	changeConfig(cid, newConfigId) {
+		const obj = this;
+		const driverId = this.getDriverName(cid);
+		if (driverId == null) {
+			StaticUtils.showError('deviceId property not found in this configuration');
+			return;
 		}
-		$.extend(true, this.editorModel, deviceModel);
-		$.each(Object.values(this.configEditors), function(idx, editor) {
-			editor.dispose();
+		const dModel = _dbModel.getDeviceModel(driverId);
+		if (dModel == null) {
+			StaticUtils.showError('device not found in the Device Database: ' + driverId);
+			return;
+		}
+		const cModel = dModel[newConfigId];
+		if (cModel == null) {
+			StaticUtils.showError('configuration not found in database device: ' + newConfigId);
+			return;
+		}
+		const editorConfig = this.editorModel[cid];
+		$.each(cModel, function(key, val) {
+			if (!JSON_SKIP_NAME.includes(key) && key in editorConfig) {
+				editorConfig[key] = val;
+				if (cid in obj.configEditors) {
+					const editor = obj.configEditors[cid];
+					editor.updateValue(key, val);
+				}
+			}
 		});
-		this.configEditors = {};
-		if (this.curCid) {
-			this.loadConfig(this.curCid);
-		} else {
-			this.load();
-		}
-		this.setDirtyFlag();
+		
 	}
 	
 	makeSubDevice(subDid) {
 		const obj = this;
+		obj.setDirtyFlag();
 		const did = obj.did;
 		const deviceModel = _dbModel.getDeviceModel(subDid);
 		if (deviceModel == null) {
-			StaticUtils.showMsg('device not found: ' + subDid, 'danger');
+			StaticUtils.showError('device not found: ' + subDid);
 			return;
 		}
-		const subType = deviceModel['datype'].toUpperCase();
+		const subType = deviceModel[KEY_STATIC][KEY_DATYPE].toUpperCase();
 		var idx = 1;
 		var newName;
 		while(true) {
 			newName = subDid + '_' + idx;
-			if (!(newName in this.model)) {
+			if (!(newName in this.editorModel)) {
 				break;
 			}
 			idx++;
 		}
 		var newId = 1;
-		$.each(this.model, function(key, config) {
+		$.each(this.editorModel, function(key, config) {
 			if (config[KEY_DATYPE] == subType && config[ID_PROP_ID] == newId) {
 				newId++;
 			}
@@ -990,10 +1162,12 @@ class CompositeDevice extends AbstractDevice {
 			subDevice["config_id"] = configs[0];
 		}
 		var source = _dbModel.getDeviceModel(subDid)[configs[0]];
+		const srcDevice = _dbModel.devices[subDid];
 		subDevice["datype"] = subType;
 		subDevice["driver"] = subDid;
 		subDevice["id"] = newId;
-		var ips = source["ip"];
+//		var ips = source["ip"];
+		const ips = srcDevice.STATIC[ID_PROP_IP];
 		if (typeof ips === 'object') {
 			subDevice["ip"] = ips[0];
 		} else {
@@ -1003,14 +1177,28 @@ class CompositeDevice extends AbstractDevice {
 		if (desc) {
 			subDevice["desc"] = desc;
 		}
-		subDevice["name"] = DEFAULT_SUB_DEVICE_NAME_PREFIX[subType] + newId;
+		var prefix;
+		if (subType in DEFAULT_SUB_DEVICE_NAME_PREFIX) {
+			prefix = DEFAULT_SUB_DEVICE_NAME_PREFIX[subType];
+		} else {
+			prefix = subType;
+		}
+		subDevice["name"] = prefix + newId;
 		subDevice["port"] = source["port"];
-		obj.model[newName] = subDevice;
+		for (const key of Object.keys(source)) {
+			if (!(key in subDevice) && !(JSON_SKIP_NAME.includes(key))) {
+				subDevice[key] = source[key];
+			}
+		}
+//		obj.model[newName] = subDevice;
 		obj.editorModel[newName] = $.extend({}, subDevice);
 		const newSubDevice = {};
-		const subHtml = '<div class="class_div_device_page" id="div_page_' + did + '_' + newName + '"><a href="#" class="class_a_cid_delete"><i class="fas fa-square-minus"></i> </a>'
+		const subHtml = '<div class="class_div_device_page" id="div_page_' + did + '_' + newName 
+			+ '"><a href="#" class="class_a_cid_delete" cid="' + newName 
+			+ '"><i class="fas fa-square-minus"></i> </a>'
 			+ '<div class="class_div_device_item"><a href="#" class="class_a_cid_label" did="' 
 			+ did + '" cid="' + newName + '">' + newName + '</a></div></div>';
+//			+ did + '" cid="' + newName + '">' + newName + '<br>(' + subDevice["driver"] + ')' + '</a></div></div>';
 		newSubDevice["html"] = subHtml;
 //		newSubDevice["html"] = '<div class="class_div_device_item">' + newName + '</div>';
 		newSubDevice["cid"] = newName;
@@ -1063,14 +1251,14 @@ class CompositeDevice extends AbstractDevice {
 					_instModel.removeDevice(obj.did);
 //					setTimeout(_historyBar.reload, 3000)
 				} else {
-					StaticUtils.showMsg(data["reason"], 'danger');
+					StaticUtils.showError(data["reason"]);
 				}
 			} catch (e) {
-				StaticUtils.showMsg("Failed to remove: " + e.statusText, 'danger');
+				StaticUtils.showError("Failed to remove: " + e.statusText);
 			}
 		}).fail(function(e) {
 			console.log(e);
-			StaticUtils.showMsg("Faied to remove: " + e.statusText, "danger");
+			StaticUtils.showError("Faied to remove: " + e.statusText);
 		}).always(function() {
 			$('#id_modal_deleteDialog').modal('hide');
 		});
@@ -1104,15 +1292,15 @@ class CompositeDevice extends AbstractDevice {
 					$('td.editable input.changed').removeClass('changed');
 					setTimeout(_historyBar.reload, 3000)
 				} else {
-					StaticUtils.showMsg("Failed to rename the device: " + data["reason"], 'danger');
+					StaticUtils.showError("Failed to rename the device: " + data["reason"]);
 //					deviceItem.resetChange();
 				}
 			} catch (e) {
-				StaticUtils.showMsg("Failed to rename the device: " + e, 'danger');
+				StaticUtils.showError("Failed to rename the device: " + e);
 //				deviceItem.resetChange();
 			}
 		}).fail(function(e) {
-			StaticUtils.showMsg("Failed to talk to the server: " + e.statusText, "danger");
+			StaticUtils.showError("Failed to talk to the server: " + e.statusText);
 //			deviceItem.resetChange();
 		}).always(function() {
 			$('#id_modal_saveDialog').modal('hide');
@@ -1166,19 +1354,31 @@ class CompositeDevice extends AbstractDevice {
 
 	}
 	
+	reloadMenu() {
+		const obj = this;
+		obj.$menuUl.empty();
+		$.each(this.model, function(cid, config) {
+			if (! (PROPERTY_KEYWORDS.includes(cid))){
+				const subItem = new ConfigMenuItem(obj, cid);
+				subItem.createUi(obj.$menuUl);
+				obj.configMenuDict[cid] = subItem;
+			}
+		});
+	}
+
 	deleteConfig(cid) {
 		const obj = this;
 		obj.setDirtyFlag();
 
-		const subDevice = obj.model[cid];
+		const subDevice = obj.editorModel[cid];
 		if (subDevice == null) {
-			StaticUtils.showMsg('sub device not found: ' + cid, 'danger');
+			StaticUtils.showError('sub device not found: ' + cid);
 			return;
 		}
 		const rmType = subDevice[KEY_DATYPE];
 		const rmId = subDevice[ID_PROP_ID];
 		
-		delete obj.model[cid];
+//		delete obj.model[cid];
 		delete obj.editorModel[cid];
 		
 		const menuItem = obj.configMenuDict[cid];
@@ -1189,7 +1389,9 @@ class CompositeDevice extends AbstractDevice {
 		if (obj.rootEditor != null) {
 			obj.rootEditor.deleteConfigPage(cid);
 		}
-		obj.configEditors[cid].dispose();
+		if (cid in obj.configEditors) {
+			obj.configEditors[cid].dispose();
+		}
 		
 		$.each(obj.model, function(key, config) {
 			if (key != KEY_DATYPE) {
@@ -1199,12 +1401,18 @@ class CompositeDevice extends AbstractDevice {
 					if (iId > rmId) {
 						iId--;
 						obj.editorModel[key][ID_PROP_ID] = iId;
-						obj.editorModel[key][ID_PROP_NAME] = DEFAULT_SUB_DEVICE_NAME_PREFIX[iType] + iId;
+						var prefix;
+						if (iType in DEFAULT_SUB_DEVICE_NAME_PREFIX) {
+							prefix = DEFAULT_SUB_DEVICE_NAME_PREFIX[iType];
+						} else {
+							prefix = iType;
+						}
+						obj.editorModel[key][ID_PROP_NAME] = iType + iId;
 					}
 				}
 			}
 		});
-		
+		obj.load();
 	}
 }
 
@@ -1241,7 +1449,6 @@ class ConfigMenuItem {
 	}
 	
 	dispose() {
-		console.log('dispose ' + this.cid);
 		if (this.$ui) {
 			this.$ui.remove();
 		}
@@ -1267,7 +1474,7 @@ class TabUi {
 		});
 
 		obj.$tabUi.append($li);
-		$.each(this.device.model, function(cid, config) {
+		$.each(this.device.editorModel, function(cid, config) {
 			if (! (PROPERTY_KEYWORDS.includes(cid))){
 				var $li = $('<li class="nav-item" id="li_tab_' + obj.device.did + '_' + cid + '"><a class="nav-link tab_item" href="#">' + cid + '</a></li>');
 				$li.click(function() {
@@ -1279,6 +1486,11 @@ class TabUi {
 		});
 		_tabs.append(this.$tabUi);
 		this.init = true;
+	}
+	
+	reload() {
+		this.$tabUi.empty();
+		this.createUi();
 	}
 	
 	show() {
@@ -1326,6 +1538,7 @@ class TabUi {
 	}
 }
 
+
 class AbstractMainUi {
 	device;
 	init = false;
@@ -1338,6 +1551,11 @@ class AbstractMainUi {
 	}
 	
 	createUi() {}
+	
+	reload() {
+		this.$editorUi.empty();
+		this.createUi();
+	}
 	
 	show() {
 		if (!this.init) {
@@ -1356,6 +1574,42 @@ class AbstractMainUi {
 	
 	dispose() {
 		this.$editorUi.remove();
+	}
+}
+
+class ErrorReportUi extends AbstractMainUi {
+	constructor()
+	{
+		super(null);
+	}
+	
+	createUi() {
+		this.$table = $(HTML_TABLE);
+		this.$body = this.$table.find('tbody');
+		this.$editorUi.append(this.$table);
+		_editor.append(this.$editorUi);
+		this.init = true;
+	}
+	
+	addError(did, cid, msg) {
+		const eid = did + " / " + cid;
+		console.log("add error " + eid + ": " + msg);
+		const $tr = $('<tr id="' + did + "_" + cid + '"><td><span class="span_error_id" did="' + did + '" cid="' + cid + '">' + eid 
+				+ '</span></td><td><span class="span_error_msg">' + msg + '</span></td></tr>');
+		$tr.find('span.span_error_id').click(function() {
+			console.log("load " + eid);
+			const device = _dbModel.getDevice(did);
+			device.loadConfig(cid);
+		});
+		this.$body.append($tr);
+	}
+	
+	removeError(did, cid) {
+		this.$body.find('#' + id).remove();
+	}
+	
+	clearError() {
+		this.$body.empty();
 	}
 }
 
@@ -1392,7 +1646,7 @@ class MutableRootUi extends AbstractMainUi {
 	createUi() {
 		const obj = this;
 		var html = '';
-		$.each(obj.device.model, function(subDid, config) {
+		$.each(obj.device.editorModel, function(subDid, config) {
 			if (! (PROPERTY_KEYWORDS.includes(subDid))) {
 //				html += '<div class="class_div_device_page" id="div_page_' + obj.device.did + '_' + cid + '">'
 //					+ '<div class="class_div_device_item"><a href="#" class="class_a_cid_label" did="' 
@@ -1400,7 +1654,8 @@ class MutableRootUi extends AbstractMainUi {
 				html += '<div class="class_div_device_page" id="div_page_' + obj.device.did + '_' + subDid + '"><a href="#" class="class_a_cid_delete" did="' 
 					+ obj.device.did + '" cid="' + subDid + '"><i class="fas fa-square-minus"></i> </a>'
 					+ '<div class="class_div_device_item"><a href="#" class="class_a_cid_label" did="' 
-					+ obj.device.did + '" cid="' + subDid + '">' + subDid + '<br>(' + config[ID_PROP_DRIVER] + ')' + '</a></div></div>';
+					+ obj.device.did + '" cid="' + subDid + '">' + subDid + '</a></div></div>';
+//					+ obj.device.did + '" cid="' + subDid + '">' + subDid + '<br>(' + config[ID_PROP_DRIVER] + ')' + '</a></div></div>';
 			}
 		});
 		var $div = $('<div class="class_div_device_canvas"/>').append(html);
@@ -1447,7 +1702,6 @@ class MutableRootUi extends AbstractMainUi {
 	}
 	
 	deleteConfigPage(cid) {
-		console.log("remove page " + cid);
 		this.$editorUi.find('#div_page_' + this.device.did + '_' + cid).remove();
 	}
 }
@@ -1463,6 +1717,7 @@ class PropertyTable extends AbstractMainUi {
 		if (device.datype == "C") {
 			this.dModel = _dbModel.getDeviceModel(this.driverId);
 		}
+		this.rowEditor = {};
 		this.configRow = null;
 		this.ipRow = null;
 		this.portRow = null;
@@ -1493,7 +1748,8 @@ class PropertyTable extends AbstractMainUi {
 						object.configRow = object.createRow(key, val, options, true);
 						$tbody.append(object.configRow.getUI());
 					} else if (key == ID_PROP_IP) {
-						var options = object.dModel[subConfigId][ID_PROP_IP];
+//						var options = object.dModel[subConfigId][ID_PROP_IP];
+						var options = object.dModel[KEY_STATIC][ID_PROP_IP];
 						object.ipRow = object.createRow(key, val, options);
 						$tbody.append(object.ipRow.getUI());
 					} else if (key == ID_PROP_PORT) {
@@ -1501,7 +1757,8 @@ class PropertyTable extends AbstractMainUi {
 						object.portRow = object.createRow(key, val, options);
 						$tbody.append(object.portRow.getUI());
 					} else {
-						var pRow = object.createRow(key, val, null, true);
+//						var pRow = object.createRow(key, val, null, true);
+						var pRow = object.createRow(key, val);
 						$tbody.append(pRow.getUI());
 					}
 				});
@@ -1509,34 +1766,39 @@ class PropertyTable extends AbstractMainUi {
 				const obj = this;
 				$.each(this.cModel, function(key, val){
 					if (key == ID_PROP_CONFIGID) {
-						var options = obj.device.getConfigArray();
+//						var options = obj.device.getConfigArray();
+						StaticUtils.showWarn("configuration " + subConfigId + " not found in physical device: " + obj.driverId);
+						console.log("not found");
+						var options = _dbModel.getConfigNamesOfDevice(object.driverId);
+						options.push(val);
 						object.configRow = obj.createRow(key, val, options);
 						$tbody.append(object.configRow.getUI());
 					} else if (_option_prop.includes(key)) {
 						var pRow = obj.createRow(key, val);
 						$tbody.append(pRow.getUI());
 					} else {
-						var pRow = obj.createRow(key, val, null, true);
+//						var pRow = obj.createRow(key, val, null, true);
+						var pRow = obj.createRow(key, val);
 						$tbody.append(pRow.getUI());
 					}
 				});
 			}
 		}
-		if (object.configRow != null) {
-			object.configRow.addValueSelectListener(function(value){
-				var newConfig = object.dModel[value];
-				if (newConfig) {
-					var ips = newConfig[ID_PROP_IP];
-					if (object.ipRow) {
-						object.ipRow.updateValueOptions(ips);
-					}
-					var ports = newConfig[ID_PROP_PORT];
-					if (object.portRow) {
-						object.portRow.updateValueOptions(ports);
-					}
-				}
-			});
-		}
+//		if (object.configRow != null) {
+//			object.configRow.addValueSelectListener(function(value){
+//				var newConfig = object.dModel[value];
+//				if (newConfig) {
+//					var ips = newConfig[ID_PROP_IP];
+//					if (object.ipRow) {
+//						object.ipRow.updateValueOptions(ips);
+//					}
+//					var ports = newConfig[ID_PROP_PORT];
+//					if (object.portRow) {
+//						object.portRow.updateValueOptions(ports);
+//					}
+//				}
+//			});
+//		}
 		this.$editorUi.append($table);
 		
 		var $del = $('<div class="main_footer"><span id="id_button_del_config" class="btn btn-outline-primary btn-block " href="#"><i class="fas fa-remove"></i> Remove This Configuration from Device ' + object.device.did + '</span></div>');
@@ -1548,8 +1810,16 @@ class PropertyTable extends AbstractMainUi {
 		this.init = true;
 	}
 	
+	updateValue(key, val) {
+		const propertyRow = this.rowEditor[key];
+		if (propertyRow != null) {
+			propertyRow.setValue(val);
+		}
+	}
+	
 	createRow(key, val, options, editingDisabled) {
 		const cid = this.cid;
+//		console.log(cid + "/" + key + ":" + val + ":" + options);
 		if (typeof options === 'undefined') {
 			options = null;
 		} else if (!(typeof options === 'object')) {
@@ -1558,154 +1828,144 @@ class PropertyTable extends AbstractMainUi {
 		if (typeof editingDisabled === 'undefined') {
 			editingDisabled = false;
 		}
-		var html;
-		if (typeof val === 'object') {
-			html = '<tr class="editable_row" key="' + key + '"><td class="editable_key">' + key + '</td>' 
-//			+ '<td class="editable_type"><select name="value_type" class="form-control"><option value="text">plain text</option><option value="pair" selected>name-value pair</option></select></td>'
-			+ '<td class="editable_value">' + TABLE_TIER2_HEADER;
-			$.each(val, function(subKey, subVal){
-				if ('key' in val) {
-					html += EMPTY_ROW_PART1 + subKey + EMPTY_ROW_PART2 + subVal + EMPTY_ROW_PART3;
-				} else {
-					html += DISABLED_ROW_PART1 + '-' + EMPTY_ROW_PART2 + subVal + EMPTY_ROW_PART3;
-				}
-			});
-			html += '</tbody></table></td></tr>';
+//		var html;
+//		if (typeof val === 'object') {
+//			html = '<tr class="editable_row" key="' + key + '"><td class="editable_key">' + key + '</td>' 
+////			+ '<td class="editable_type"><select name="value_type" class="form-control"><option value="text">plain text</option><option value="pair" selected>name-value pair</option></select></td>'
+//			+ '<td class="editable_value">' + TABLE_TIER2_HEADER;
+//			$.each(val, function(subKey, subVal){
+//				if ('key' in val) {
+//					html += EMPTY_ROW_PART1 + subKey + EMPTY_ROW_PART2 + subVal + EMPTY_ROW_PART3;
+//				} else {
+//					html += DISABLED_ROW_PART1 + '-' + EMPTY_ROW_PART2 + subVal + EMPTY_ROW_PART3;
+//				}
+//			});
+//			html += '</tbody></table></td></tr>';
+//		} else {
+//			if (options != null) {
+//				var ot = "";
+//				$.each(options, function(idx, op){
+//					var sl = op == val ? " selected" : "";
+//					ot += '<option value="' + op + '"' + sl + '>'+ op + '</option>';
+//				});
+//				html = '<tr class="editable_row" key="' + key + '"><td class="editable_key">' + key + '</td>'
+////				+ '<td class="editable_type"></td>' 
+//				+ '<td class="editable_value">';
+//				if (editingDisabled) {
+//					html += '<select name="option_value" class="form-control">' + ot + '</select>';
+//				} else {
+//					html += '<input name="option_value" class="form-control" value="' + val + '" list="' + key + '"/><datalist id="' + key + '">' + ot + '</datalist>';
+//				}
+//				html += '</td></tr>';
+//			} else {
+//				html = '<tr class="editable_row" key="' + key + '"><td class="editable_key">' + key + '</td>'
+////				+ '<td class="editable_type"><select name="value_type" class="form-control"><option value="text">plain text</option><option value="pair">name-value pair</option></select></td>'
+//				+ '<td class="editable_value"><input type="text" class="form-control" value="' + val + '"' + (editingDisabled ? ' disabled' : '') + '></td></tr>';
+//			}
+//		}
+//		var $row = $(html);
+//		return new PropertyRow(this.device, cid, $row);
+		var propertyRow;
+		if (key == ID_PROP_CONFIGID && options != null) {
+			propertyRow = new ConfigIDPropertyRow(this.device, cid, key, val, options);
 		} else {
-			if (options != null) {
-				var ot = "";
-				$.each(options, function(idx, op){
-					var sl = op == val ? " selected" : "";
-					ot += '<option value="' + op + '"' + sl + '>'+ op + '</option>';
-				});
-				html = '<tr class="editable_row" key="' + key + '"><td class="editable_key">' + key + '</td>'
-//				+ '<td class="editable_type"></td>' 
-				+ '<td class="editable_value">';
-				if (editingDisabled) {
-					html += '<select name="option_value" class="form-control">' + ot + '</select>';
+			if (typeof val === 'object') {
+				if (Array.isArray(val)) {
+					propertyRow = new ArrayPropertyRow(this.device, cid, key, val);
 				} else {
-					html += '<input name="option_value" class="form-control" value="' + val + '" list="' + key + '"/><datalist id="' + key + '">' + ot + '</datalist>';
+					propertyRow = new DictPropertyRow(this.device, cid, key, val);
 				}
-				html += '</td></tr>';
 			} else {
-				html = '<tr class="editable_row" key="' + key + '"><td class="editable_key">' + key + '</td>'
-//				+ '<td class="editable_type"><select name="value_type" class="form-control"><option value="text">plain text</option><option value="pair">name-value pair</option></select></td>'
-				+ '<td class="editable_value"><input type="text" class="form-control" value="' + val + '"' + (editingDisabled ? ' disabled' : '') + '></td></tr>';
+				if (options != null) {
+					propertyRow = new OptionsPropertyRow(this.device, cid, key, val, options);
+				} else {
+					propertyRow = new PropertyRow(this.device, cid, key, val);				
+				}
 			}
 		}
-		var $row = $(html);
-		return new PropertyRow(this.device, cid, $row);
-	};
+		propertyRow.isEditingDisabled = editingDisabled;
+		propertyRow.init();
+		this.rowEditor[key] = propertyRow;
+		return propertyRow;
+	}
 
 }
 
 class PropertyRow {
-	constructor(device, cid, $tr) {
+	
+	isEditingDisabled = false;
+	
+	constructor(device, cid, key, val) {
+//		this.device = device;
+//		this.$row = $tr;
+//		this.cid = cid;
+//		this.configModel = device.model[cid];
+////		var colKey = tr.find('.editable_key');
+//		this.$colValue = $tr.find('.editable_value');
+//		this.$t1Value = this.$colValue.find("> input");
+//		this.$t1Select = this.$colValue.find("> select");
+//		this.$t2Body = this.$colValue.find("tbody");
+//		this.key = $tr.attr('key');
 		this.device = device;
-		this.$row = $tr;
 		this.cid = cid;
-		this.configModel = device.model[cid];
-//		var colKey = tr.find('.editable_key');
-		this.$colValue = $tr.find('.editable_value');
+		this.key = key;
+		if (typeof val === 'string' && val.includes("\"")) {
+			this.val = escape(val);
+		} else {
+			this.val = val;
+		}
+		this.configModel = device.editorModel[cid];		
+	}
+	
+	init() {
+		const html = '<tr class="editable_row" key="' + this.key + '"><td class="editable_key">' + this.key + '</td>'
+//	+ '<td class="editable_type"><select name="value_type" class="form-control"><option value="text">plain text</option><option value="pair">name-value pair</option></select></td>'
+			+ '<td class="editable_value"><input type="text" class="form-control" value="' + this.val + '"' + (this.isEditingDisabled ? ' disabled="true"' : '') + '></td></tr>';
+//			+ '<td class="editable_value"><input type="text" class="form-control" value="' + this.val + '"></td></tr>';
+		this.$row = $(html);
+		this.$colValue = this.$row.find('.editable_value');
 		this.$t1Value = this.$colValue.find("> input");
-		this.key = $tr.attr('key');
+		this.$t1Select = this.$colValue.find("> select");
+		this.$t2Body = this.$colValue.find("tbody");
+		this.key = this.$row.attr('key');
+
 		this.addEventHandler();
 	}
 	
 	addEventHandler() {
 		const obj = this;
 		const colType = this.$row.find('.editable_type');
-		const sel = colType.find('select');
+//		const sel = colType.find('select');
 		const oldVal = obj.configModel[this.key];
-		var newTextHtml;
-		var newPairHtml;
-		if (typeof oldVal === 'object') {
-			newPairHtml = TABLE_TIER2_HEADER;
-			$.each(oldVal, function(subKey, subVal){
-				newPairHtml += EMPTY_ROW_PART1 + subKey + EMPTY_ROW_PART2 + subVal + EMPTY_ROW_PART3;
-			});
-			newPairHtml += '</tbody></table>';
-			newTextHtml = '<input type="text" key="' + this.key + '" class="form-control" value="">';
-		} else {
-			newPairHtml = TABLE_TIER2_HEADER + EMPTY_ROW_PART1 + EMPTY_ROW_PART2 + EMPTY_ROW_PART3 + '</tbody></table>';
-			newTextHtml = '<input type="text" key="' + this.key + '" class="form-control" value="' + oldVal + '">';
-		}
-		sel.change(function() {
-			var selVal = sel.val();
-			if (selVal === 'text') {
-				obj.colValue.html(newTextHtml);
-			} else {
-				obj.colValue.html(newPairHtml);
-			}
-		});
-		t1Value.focus(function() {
-			obj.$row.addClass("active");
-		}).blur(function() {
-			obj.$row.removeClass("active");
-			obj.updateNode(t1Value, t1Value.val());
-		}).keypress(function( event ) {
-			if ( event.which == 13 ) {
-				t1Value.blur();
-			}
-		});
-		
-		var t1Select = this.colValue.find("> select");
-		if (t1Select) {
-			t1Select.change(function() {
-				obj.updateNode(t1Select, obj.key, t1Select.val());
-			});
-		}
-		
-		var t2Body = obj.colValue.find("tbody");
-		if (t2Body) {
-			var t2Key = t2Body.find("td.pair_key > input");
-			var oldKV = t2Key.val();
-			var isPair = !t2Key.prop('disabled');
-			if (isPair) {
-				t2Key.focus(function() {
-					this.row.addClass("active");
-				}).blur(function() {
-					this.row.removeClass("active");
-					obj.updateT2Pair(t2Key, obj.key, t2Body, oldKV, isPair);
-				}).keypress(function( event ) {
-					if ( event.which == 13 ) {
-						t2Key.blur();
-					}
-				});
-			}
-
-			var t2Value = t2Body.find("td.pair_value > input");
-			var oldVV = t2Value.val();
-			t2Value.focus(function() {
-				obj.row.addClass("active");
+		if (obj.$t1Value) {
+			obj.$t1Value.focus(function() {
+				obj.$row.addClass("active");
 			}).blur(function() {
-				obj.row.removeClass("active");
-				obj.updateT2Pair(t2Value, obj.key, t2Body, oldVV, isPair);
+				obj.$row.removeClass("active");
+				obj.updateNode(obj.$t1Value);
 			}).keypress(function( event ) {
 				if ( event.which == 13 ) {
-					t2Value.blur();
+					obj.$t1Value.blur();
 				}
 			});
-			
-			var t2Add = t2Body.find("td.pair_control > button.button_plus");
-			t2Add.click(function() {
-				obj.addRow(t2Add, obj.key, t2Body, isPair);
-			});
-			var t2Remove = t2Body.find("td.pair_control > button.button_minus");
-			t2Remove.click(function() {
-				obj.removeRow(t2Remove, obj.key, t2Body, isPair);
+		}
+		
+		if (obj.$t1Select) {
+			obj.$t1Select.change(function() {
+				obj.updateNode(obj.$t1Select);
 			});
 		}
+		
 	}
 
 	getUI() {
-		return this.row;
+		return this.$row;
 	}
 	
 	addValueSelectListener(f) {
-		var t1ValueSelect = this.colValue.find("> select");
-		t1ValueSelect.change(function() {
-			f(t1ValueSelect.val());
+		var $t1ValueSelect = this.$colValue.find("> select");
+		$t1ValueSelect.change(function() {
+			f($t1ValueSelect.val());
 		});
 	}
 	
@@ -1719,9 +1979,9 @@ class PropertyRow {
 		$.each(options, function(idx, op) {
 			ot += '<option value="' + op + '">'+ op + '</option>';
 		});
-		var t1ValueDatalist = this.colValue.find("> datalist");
-		if (t1ValueDatalist) {
-			t1ValueDatalist.html(ot);
+		const $t1ValueDatalist = this.$colValue.find("> datalist");
+		if ($t1ValueDatalist) {
+			$t1ValueDatalist.html(ot);
 		}
 		if (options.length > 0) {
 			this.setValue(options[0]);			
@@ -1731,28 +1991,220 @@ class PropertyRow {
 	}
 	
 	setValue(val) {
-		var t1Value = this.colValue.find("> input");
-		if (t1Value) {
-			t1Value.val(val);
-			this.updateNode(t1Value, this.key, val);
+		if (this.$t1Value) {
+			this.$t1Value.val(val);
+			this.updateNode(this.$t1Value);
 		}
 	}
 	
-	updateT2Pair($node, key, tbody, oldVal, isPair) {
+	updateNode($node) {
+		const curVal = this.device.getValue(this.cid, this.key);
+		const newVal = unescape($node.val());
+		if (curVal.toString() != newVal.toString()) {
+			$node.addClass('changed');
+			this.device.setDirtyFlag();
+		} else {
+			$node.removeClass('changed');
+		}
+		this.device.setValue(this.cid, this.key, newVal);
+	}
+	
+}
+
+class OptionsPropertyRow extends PropertyRow {
+	
+	isEditingDisabled = false;
+	
+	constructor(device, cid, key, val, options) {
+		super(device, cid, key, val);
+		this.options = options;
+	}
+	
+	init() {
+		var ot = "";
+		$.each(this.options, function(idx, op){
+			var sl = op == this.val ? " selected" : "";
+			ot += '<option value="' + op + '"' + sl + '>'+ op + '</option>';
+		});
+		var html = '<tr class="editable_row" key="' + this.key + '"><td class="editable_key">' + this.key + '</td>'
+			+ '<td class="editable_value">';
+		html += '<input name="option_value" class="form-control" value="' + this.val + '" list="' + this.key + '"/><datalist id="' + this.key + '">' + ot + '</datalist>';
+		html += '</td></tr>';
+
+		this.$row = $(html);
+		this.$colValue = this.$row.find('.editable_value');
+		this.$t1Value = this.$colValue.find("> input");
+		this.$t1Select = this.$colValue.find("> select");
+		this.$t2Body = this.$colValue.find("tbody");
+		this.key = this.$row.attr('key');
+
+		this.addEventHandler();
+	}
+}
+
+class ConfigIDPropertyRow extends PropertyRow {
+	
+	isEditingDisabled = false;
+	
+	constructor(device, cid, key, val, options) {
+		super(device, cid, key, val);
+		this.options = options;
+	}
+	
+	init() {
 		const obj = this;
-		var tr = $node.parent().parent();
-		var $key = tr.find("td.pair_key > input");
-		var $value = tr.find("td.pair_value > input");
-//		var isPair = !$key.prop('disabled');
-		var isValid = true;
-		if (isPair) {
-			var kv = $key.val().trim();
-			if (!kv || !/^[a-z0-9_]+$/i.test(kv)) {
-				$key.parent().addClass("warning");
-				isValid = false;
-			} else {
-				$key.parent().removeClass("warning");
+		var ot = "";
+		$.each(obj.options, function(idx, op){
+			var sl = op == obj.val ? " selected" : "";
+			ot += '<option value="' + op + '"' + sl + '>'+ op + '</option>';
+		});
+		var html = '<tr class="editable_row" key="' + obj.key + '"><td class="editable_key">' + obj.key + '</td>'
+			+ '<td class="editable_value">';
+		html += '<select name="option_value" class="form-control">' + ot + '</select>';
+		html += '</td></tr>';
+
+		this.$row = $(html);
+		this.$colValue = this.$row.find('.editable_value');
+		this.$t1Value = this.$colValue.find("> input");
+		this.$t1Select = this.$colValue.find("> select");
+		this.$t2Body = this.$colValue.find("tbody");
+		this.key = this.$row.attr('key');
+
+		this.addEventHandler();
+	}
+	
+	addEventHandler() {
+		const obj = this;
+		const colType = this.$row.find('.editable_type');
+//		const sel = colType.find('select');
+		const oldVal = obj.configModel[this.key];
+		if (obj.$t1Value) {
+			obj.$t1Value.focus(function() {
+				obj.$row.addClass("active");
+			}).blur(function() {
+				obj.$row.removeClass("active");
+				obj.updateNode(obj.$t1Value);
+			}).keypress(function( event ) {
+				if ( event.which == 13 ) {
+					obj.$t1Value.blur();
+				}
+			});
+		}
+		
+		if (obj.$t1Select) {
+			obj.$t1Select.change(function() {
+				obj.updateNode(obj.$t1Select);
+				obj.device.changeConfig(obj.cid, obj.$t1Select.val());
+			});
+		}
+		
+	}
+
+}
+
+class DictPropertyRow extends PropertyRow {
+	constructor(device, cid, key, val) {
+		super(device, cid, key, val);
+	}
+	
+	init() {
+		var html = '<tr class="editable_row" key="' + this.key + '"><td class="editable_key">' + this.key + '</td>' 
+			+ '<td class="editable_value">' + TABLE_TIER2_HEADER;
+		$.each(this.val, function(subKey, subVal){
+//				if ('key' in val) {
+				html += EMPTY_ROW_PART1 + subKey + EMPTY_ROW_PART2 + subVal + EMPTY_ROW_PART3;
+//				} else {
+//					html += DISABLED_ROW_PART1 + '-' + EMPTY_ROW_PART2 + subVal + EMPTY_ROW_PART3;
+//				}
+		});
+		html += '</tbody></table></td></tr>';
+
+		this.$row = $(html);
+		this.$colValue = this.$row.find('.editable_value');
+		this.$t1Value = this.$colValue.find("> input");
+		this.$t1Select = this.$colValue.find("> select");
+		this.$t2Body = this.$colValue.find("tbody");
+		this.key = this.$row.attr('key');
+
+		this.addEventHandler();
+	}
+	
+	addEventHandler() {
+		super.addEventHandler();
+		const obj = this;
+		const colType = this.$row.find('.editable_type');
+//		const sel = colType.find('select');
+		const oldVal = obj.configModel[this.key];
+		
+		const $t2Key = obj.$t2Body.find("td.pair_key > input");
+		const oldKV = $t2Key.val();
+		$t2Key.focus(function() {
+			this.$row.addClass("active");
+		}).blur(function() {
+			this.$row.removeClass("active");
+			obj.updateT2Pair($(this), oldKV, isPair);
+		}).keypress(function( event ) {
+			if ( event.which == 13 ) {
+				$t2Key.blur();
 			}
+		});
+
+		var $t2Value = obj.$t2Body.find("td.pair_value > input");
+		var oldVV = $t2Value.val();
+		$t2Value.focus(function() {
+			obj.$row.addClass("active");
+		}).blur(function() {
+			obj.$row.removeClass("active");
+			obj.updateT2Pair($(this), oldVV);
+		}).keypress(function( event ) {
+			if ( event.which == 13 ) {
+				t2Value.blur();
+			}
+		});
+		
+		var $t2Add = obj.$t2Body.find("td.pair_control > button.button_plus");
+		$t2Add.click(function() {
+			obj.addRow($(this), obj.$t2Body);
+		});
+		var $t2Remove = obj.$t2Body.find("td.pair_control > button.button_minus");
+		$t2Remove.click(function() {
+			obj.removeRow($(this), obj.$t2Body);
+		});
+	}
+
+//	updateValueOptions(options) {
+//		if (typeof options === 'undefined') {
+//			options = [];
+//		} else if (!(typeof options === 'object')) {
+//			options = [options];
+//		}
+//		var ot = "";
+//		$.each(options, function(idx, op) {
+//			ot += '<option value="' + op + '">'+ op + '</option>';
+//		});
+//		const $t1ValueDatalist = this.$colValue.find("> datalist");
+//		if ($t1ValueDatalist) {
+//			$t1ValueDatalist.html(ot);
+//		}
+//		if (options.length > 0) {
+//			this.setValue(options[0]);			
+//		} else {
+//			this.setValue("");
+//		}
+//	}
+	
+	updateT2Pair($node, oldVal) {
+		const obj = this;
+		const $tr = $node.parent().parent();
+		const $key = $tr.find("td.pair_key > input");
+		const $value = $tr.find("td.pair_value > input");
+		var isValid = true;
+		var kv = $key.val().trim();
+		if (!kv || !/^[a-z0-9_]+$/i.test(kv)) {
+			$key.parent().addClass("warning");
+			isValid = false;
+		} else {
+			$key.parent().removeClass("warning");
 		}
 		var vv = $value.val().trim();
 		if (!vv) {
@@ -1761,7 +2213,7 @@ class PropertyRow {
 		} else {
 			$value.parent().removeClass("warning");
 		}
-		
+		console.log($node.val() + " : " + oldVal + " : " + isPair + " : " + isValid);
 		if (isValid) {
 			if ($node.val() != oldVal) {
 				$node.addClass("changed");
@@ -1769,138 +2221,290 @@ class PropertyRow {
 				$node.removeClass("changed");
 			}
 			
-			var curVal = obj.device.editorModel[obj.cid][obj.key];
+//			var curVal = obj.device.editorModel[obj.cid][obj.key];
+			const curVal = obj.device.getValue(obj.cid, obj.key);
 			var isChanged = true;
-			console.log(typeof curVal);
 			if (typeof curVal === 'object') {
 				if (curVal.hasOwnProperty(kv)) {
-					var cv = curVal[kv];
+					const cv = curVal[kv];
 					if (cv == vv) {
 						isChanged = false;
 					}
+				} else {
+					isChanged = $node.val() != oldVal;
 				}
 			}
 			if (isChanged) {
 				obj.device.setDirtyFlag();
-				var newVal;
-				if (isPair) {
-					newVal = {};
-					var trs = tbody.find('tr');
-					trs.each(function() {
-						var rk = $(this).find('td.pair_key > input').val();
-						var rv = $(this).find('td.pair_value > input').val();
-						newVal[rk] = rv;
-						console.log('add ' + rk + ":" + rv);
-					});
-					obj.device.editorModel[obj.cid][obj.key] = newVal;
-				} else {
-					newVal = [];
-					var trs = tbody.find('tr');
-					trs.each(function() {
-						var rv = $(this).find('td.pair_value > input').val();
-						newVal.push(rv);
-					});
-					obj.device.editorModel[obj.cid][obj.key]  = newVal;
-				}
+				const newVal = {};
+				const $trs = tbody.find('tr');
+				$trs.each(function() {
+					const rk = $(this).find('td.pair_key > input').val();
+					const rv = $(this).find('td.pair_value > input').val();
+					newVal[rk] = rv;
+					console.log('add ' + rk + ":" + rv);
+				});
+				obj.device.setValue(obj.cid, obj.key, newVal)
 			} 
 		}
 	}
 
-	updateNode($node, key, val) {
-//		var curVal = _editorModel[_curCid][key];
-		const curVal = this.device.getValue(this.cid, key);
-		if (curVal.toString() != val.toString()) {
-			$node.addClass('changed');
-			this.device.setDirtyFlag();
-		} else {
-			$node.removeClass('changed');
-		}
-//		_editorModel[_curCid][key] = val;
-		this.device.setValue(this.cid, key, val);
-	}
-	
-	addRow(bt, key, t2Body, isPair) {
+	addRow($bt) {
 		const obj = this;
-		var nRow;
-		if (isPair) {
-			nRow = $(EMPTY_ROW_PART1 + EMPTY_ROW_PART2 + EMPTY_ROW_PART3);
-		} else {
-			nRow = $(DISABLED_ROW_PART1 + '-' + EMPTY_ROW_PART2 + EMPTY_ROW_PART3);	
-		}
-		var cRow = bt.parent().parent();
+		const nRow = $(EMPTY_ROW_PART1 + EMPTY_ROW_PART2 + EMPTY_ROW_PART3);
+		const cRow = $bt.parent().parent();
 		nRow.insertAfter(cRow);
 		
-		if (isPair) {
-			var t2Key = nRow.find("td.pair_key > input");
-			var oldKV = t2Key.val();
-			
-			t2Key.focus(function() {
-				nRow.addClass("active");
-			}).blur(function() {
-				nRow.removeClass("active");
-				obj.updateT2Pair($(this), key, t2Body, oldKV, isPair);
-			}).keypress(function( event ) {
-				if ( event.which == 13 ) {
-					$(this).blur();
-				}
-			});
-		}
+		const $t2Key = nRow.find("td.pair_key > input");
+		const oldKV = $t2Key.val();
 
-		var t2Value = nRow.find("td.pair_value > input");
-		var oldVV = t2Value.val();
-		t2Value.focus(function() {
+		$t2Key.focus(function() {
 			nRow.addClass("active");
 		}).blur(function() {
 			nRow.removeClass("active");
-			obj.updateT2Pair($(this), key, t2Body, oldVV, isPair);
+			obj.updateT2Pair($(this), oldKV);
+		}).keypress(function( event ) {
+			if ( event.which == 13 ) {
+				$(this).blur();
+			}
+		});
+
+		const $t2Value = nRow.find("td.pair_value > input");
+		const oldVV = $t2Value.val();
+		$t2Value.focus(function() {
+			nRow.addClass("active");
+		}).blur(function() {
+			nRow.removeClass("active");
+			obj.updateT2Pair($(this), oldVV);
 		}).keypress(function( event ) {
 			if ( event.which == 13 ) {
 				$(this).blur();
 			}
 		});
 		
-		var t2Add = nRow.find("td.pair_control > button.button_plus");
-		t2Add.click(function() {
-			obj.addRow($(this), key, t2Body, isPair);
+		const $t2Add = nRow.find("td.pair_control > button.button_plus");
+		$t2Add.click(function() {
+			obj.addRow($(this));
 		});
-		var t2Remove = nRow.find("td.pair_control > button.button_minus");
-		t2Remove.click(function() {
-			obj.removeRow($(this), key, t2Body, isPair);
+		const $t2Remove = nRow.find("td.pair_control > button.button_minus");
+		$t2Remove.click(function() {
+			obj.removeRow($(this));
 		});
 
-		if (isPair) {
-			t2Key.focus();
+		$t2Key.focus();
+	}
+
+	removeRow($bt) {
+		const obj = this;
+		
+		const $cRow = $bt.parent().parent();
+		$cRow.remove();
+		
+		var newVal = {};
+		var $trs = obj.$t2Body.find('tr');
+		$trs.each(function() {
+			const rk = $(this).find('td.pair_key > input').val();
+			const rv = $(this).find('td.pair_value > input').val();
+			newVal[rk] = rv;
+		});
+		obj.device.setValue(obj.cid, obj.key, newVal);
+	}
+
+}
+
+class ArrayPropertyRow extends PropertyRow {
+	constructor(device, cid, key, val) {
+		super(device, cid, key, val);
+	}
+	
+	init() {
+		var html = '<tr class="editable_row" key="' + this.key + '"><td class="editable_key">' + this.key + '</td>' 
+			+ '<td class="editable_value">' + TABLE_TIER2_HEADER;
+		$.each(this.val, function(subKey, subVal){
+			html += DISABLED_ROW_PART1 + '-' + EMPTY_ROW_PART2 + subVal + EMPTY_ROW_PART3;
+		});
+		html += '</tbody></table></td></tr>';
+
+		this.$row = $(html);
+		this.$colValue = this.$row.find('.editable_value');
+		this.$t1Value = this.$colValue.find("> input");
+		this.$t1Select = this.$colValue.find("> select");
+		this.$t2Body = this.$colValue.find("tbody");
+		this.key = this.$row.attr('key');
+
+		this.addEventHandler();
+	}
+	
+	addEventHandler() {
+		super.addEventHandler();
+		const obj = this;
+		const colType = this.$row.find('.editable_type');
+//		const sel = colType.find('select');
+		const oldVal = obj.configModel[this.key];
+		
+		const $t2Key = obj.$t2Body.find("td.pair_key > input");
+		const oldKV = $t2Key.val();
+
+		var $t2Value = obj.$t2Body.find("td.pair_value > input");
+		var oldVV = $t2Value.val();
+		$t2Value.focus(function() {
+			obj.$row.addClass("active");
+		}).blur(function() {
+			obj.$row.removeClass("active");
+			obj.updateT2Pair($(this), oldVV);
+		}).keypress(function( event ) {
+			if ( event.which == 13 ) {
+				t2Value.blur();
+			}
+		});
+		
+		var $t2Add = obj.$t2Body.find("td.pair_control > button.button_plus");
+		$t2Add.click(function() {
+			obj.addRow($(this), obj.$t2Body);
+		});
+		var $t2Remove = obj.$t2Body.find("td.pair_control > button.button_minus");
+		$t2Remove.click(function() {
+			obj.removeRow($(this), obj.$t2Body);
+		});
+	}
+
+//	updateValueOptions(options) {
+//		if (typeof options === 'undefined') {
+//			options = [];
+//		} else if (!(typeof options === 'object')) {
+//			options = [options];
+//		}
+//		var ot = "";
+//		$.each(options, function(idx, op) {
+//			ot += '<option value="' + op + '">'+ op + '</option>';
+//		});
+//		const $t1ValueDatalist = this.$colValue.find("> datalist");
+//		if ($t1ValueDatalist) {
+//			$t1ValueDatalist.html(ot);
+//		}
+//		if (options.length > 0) {
+//			this.setValue(options[0]);			
+//		} else {
+//			this.setValue("");
+//		}
+//	}
+	
+	updateT2Pair($node, oldVal) {
+		const obj = this;
+		const $tr = $node.parent().parent();
+		const $key = $tr.find("td.pair_key > input");
+		const $value = $tr.find("td.pair_value > input");
+		var isValid = true;
+		var vv = $value.val().trim();
+		if (!vv) {
+			$value.parent().addClass("warning");
+			isValid = false;
 		} else {
-			t2Value.focus();
+			$value.parent().removeClass("warning");
+		}
+		if (isValid) {
+			if ($node.val() != oldVal) {
+				$node.addClass("changed");
+			} else {
+				$node.removeClass("changed");
+			}
+			
+//			var curVal = obj.device.editorModel[obj.cid][obj.key];
+			const curVal = obj.device.getValue(obj.cid, obj.key);
+			var isChanged = $node.val() != oldVal;
+			if (isChanged) {
+				obj.device.setDirtyFlag();
+				const newVal = [];
+				const $trs = obj.$t2Body.find('tr');
+				$trs.each(function() {
+					const rv = $(this).find('td.pair_value > input').val();
+					newVal.push(rv);
+					console.log('push ' + rv);
+				});
+				obj.device.setValue(obj.cid, obj.key, newVal);
+			} 
 		}
 	}
 
-	removeRow(bt, key, tbody, isPair) {
+	addRow($bt) {
+		const obj = this;
+		const nRow = $(DISABLED_ROW_PART1 + '-' + EMPTY_ROW_PART2 + EMPTY_ROW_PART3);
+		const cRow = $bt.parent().parent();
+		nRow.insertAfter(cRow);
+		
+		const $t2Key = nRow.find("td.pair_key > input");
+		const oldKV = $t2Key.val();
+
+		const $t2Value = nRow.find("td.pair_value > input");
+		const oldVV = $t2Value.val();
+		$t2Value.focus(function() {
+			nRow.addClass("active");
+		}).blur(function() {
+			nRow.removeClass("active");
+			obj.updateT2Pair($(this), oldVV);
+		}).keypress(function( event ) {
+			if ( event.which == 13 ) {
+				$(this).blur();
+			}
+		});
+		
+		const $t2Add = nRow.find("td.pair_control > button.button_plus");
+		$t2Add.click(function() {
+			obj.addRow($(this));
+		});
+		const $t2Remove = nRow.find("td.pair_control > button.button_minus");
+		$t2Remove.click(function() {
+			obj.removeRow($(this));
+		});
+
+		$t2Value.focus();
+	}
+
+	removeRow($bt) {
 		const obj = this;
 		
-		var cRow = bt.parent().parent();
-		cRow.remove();
+		const $cRow = $bt.parent().parent();
+		$cRow.remove();
 		
-		
-		if (isPair) {
-			var newVal = {};
-			var trs = tbody.find('tr');
-			trs.each(function() {
-				var rk = $(this).find('td.pair_key > input').val();
-				var rv = $(this).find('td.pair_value > input').val();
-				newVal[rk] = rv;
-			});
-		} else {
-			newVal = [];
-			var trs = tbody.find('tr');
-			trs.each(function() {
-				var rv = $(this).find('td.pair_value > input').val();
-				newVal.push(rv);
-			});
-		}
-		obj.device.editorModel[obj.cid][obj.key] = newVal;
-	};
+		newVal = [];
+		var trs = obj.$t2Body.find('tr');
+		trs.each(function() {
+			const rv = $(this).find('td.pair_value > input').val();
+			newVal.push(rv);
+		});
+		obj.device.setValue(obj.cid, obj.key, newVal);
+	}
 
+}
+
+class StaticPropertyTable extends PropertyTable {
+	constructor(device) {
+//		super(device);
+//		this.cid = cid;
+//		this.cModel = config;
+//		this.driverId = config[KEY_DEVICE_DRIVER];
+//		if (device.datype == "C") {
+//			this.dModel = _dbModel.getDeviceModel(this.driverId);
+//		}
+//		this.configRow = null;
+//		this.ipRow = null;
+//		this.portRow = null;
+		super(device, KEY_STATIC, device.editorModel[KEY_STATIC]);
+	}
+	
+	createUi() {
+		super.createUi();
+
+		const del = this.$editorUi.find('.main_footer');
+		if (del) {
+			del.remove();
+		}
+	}
+	
+	reload() {
+		this.cModel = this.device.editorModel[KEY_STATIC];
+		super.reload();
+	}
 }
 
 class HistoryBlock {
@@ -1920,8 +2524,8 @@ class HistoryBlock {
 			this.empty();
 			const obj = this;
 			var url = URL_PREFIX + 'dbhistory?';
-			if (_curDid) {
-				url += 'did=' + _curDid;
+			if (_curDevice) {
+				url += 'did=' + _curDevice.did;
 			}
 			url += '&' + Date.now();
 			$.get(url, function(data) {
@@ -1986,7 +2590,8 @@ class CommitItem {
 				alert('Please select a device first. Loading history version is only supported on a per-device base.')
 				return;
 			}
-			var url = URL_PREFIX + 'configload?inst=' + _inst + '&version=' + encodeURI(name) + "&" + Date.now();
+//			var url = URL_PREFIX + 'configload?inst=' + _inst + '&version=' + encodeURI(name) + "&" + Date.now();
+			var url = URL_PREFIX + 'dbload?version=' + encodeURI(name) + "&" + Date.now();
 			$.get(url, function(data) {
 				try{
 					_curDevice.fromHistory(data);
@@ -2014,13 +2619,15 @@ class SearchWidget {
 	show($li) {
 //		const name = $li.attr('name');
 		const path = $li.attr('path');
-		const mid = $li.attr('mid');
-		const parts = path.split('/');
-		const mcid = parts[1];
-		const aid = parts[2];
+		const did = $li.attr('did');
+//		const parts = path.split('/');
+//		const did = parts[1];
+		const cid = $li.attr('cid');
 		this.$msgPop.hide();
-		const axis = _instModel.getController(mcid).axes[aid];
-		axis.load(mid);
+//		const axis = _instModel.getController(mcid).axes[aid];
+		const device = _dbModel.devices[did];
+//		axis.load(mid);
+		device.loadConfig(cid);
 		this.$textInput.blur();
 	}
 	
@@ -2031,26 +2638,28 @@ class SearchWidget {
 		var html = '';
 //		var found = {};
 		const obj = this;
-		$.each(_dbModel.motors, function(name, pair) {
+		$.each(_dbModel.configsByPath, function(name, pair) {
 			var word = obj.$textInput.val().toLowerCase();
 			if (name.toLowerCase().indexOf(word) >= 0) {
 //				found[name] = path;
-				var path = pair[0];
-				var mid = pair[1];
-				var desc = pair[2];
+				const path = pair[0];
+				const did = pair[1];
+				const cid = pair[2];
+				var desc = pair[3];
 				if (desc) {
 					desc = '(' + desc + ')';
 				}
-				html += '<li class="messageitem" href="#" name="' + name + '" path="' + path + '" mid="' + mid + '"><span class="widget_text">' + 
+				html += '<li class="messageitem" href="#" name="' + name + '" path="' + path + '" did="' + did + '" cid="' + cid + '"><span class="widget_text">' + 
 						name + ' => ' + path + ' ' + desc + '</span></li>';
 			} else {
-				var desc = pair[2];
+				var desc = pair[3];
 				if (desc && desc.toLowerCase().indexOf(word) >= 0) {
 //					found[name] = path;
-					var path = pair[0];
-					var mid = pair[1];
+					const path = pair[0];
+					const cid = pair[2];
+					const did = pair[1];
 					desc = '(' + desc + ')';
-					html += '<li class="messageitem" href="#" name="' + name + '" path="' + path + '" mid="' + mid + '"><span class="widget_text">' + 
+					html += '<li class="messageitem" href="#" name="' + name + '" path="' + path + '" did="' + did + '" cid="' + cid + '"><span class="widget_text">' + 
 						name + ' => ' + path + ' ' + desc + '</span></li>';
 				} 
 			}
@@ -2154,7 +2763,7 @@ class SaveButton {
 			if (_curDevice) {
 				_curDevice.save();
 			} else {
-				StaticUtils.showMsg('Please select a device for saving. Saving is per-device based.', 'warning')
+				StaticUtils.showWarning('Please select a device for saving. Saving is per-device based.')
 				obj.close();
 			}
 		});
@@ -2164,11 +2773,15 @@ class SaveButton {
 				if (_curDevice) {
 					_curDevice.save();
 				} else {
-					StaticUtils.showMsg('Please select a device for saving. Saving is per-device based.', 'warning')
+					StaticUtils.showWarning('Please select a device for saving. Saving is per-device based.')
 					obj.close();
 				}
 			}
 		});
+	}
+	
+	reset() {
+		this.$textInput.val("");
 	}
 	
 	close() {
@@ -2364,7 +2977,7 @@ class NewDeviceButton {
 			_propertyTitle.empty();
 			_property.empty();
 			$('.class_ul_folder > li').removeClass('active');
-			_curDid = null;
+//			_curDid = null;
 			_historyBar.reload();
 
 			const did = 'New_device';
@@ -2424,6 +3037,7 @@ class HomeButton {
 			_curDevice = null;
 		}
 		_title.text('Please use the side bar to select a device configuration.');
+		_errorReport.show();
 		_historyBar.reload();
 	}
 }
@@ -2436,6 +3050,9 @@ $(document).ready(function() {
 	});
 	
 	StaticUtils.addPageTitle();
+
+	_errorReport = new ErrorReportUi();
+	_errorReport.createUi();
 	
 	const homeButton = new HomeButton($('#id_span_side_home'));
 	homeButton.init();

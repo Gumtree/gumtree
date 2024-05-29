@@ -276,6 +276,10 @@ td.pair_value input {
 td.editable_value input[type='checkbox'] {
 	width: auto;
 }
+td.editable_value input[type="text"]:disabled {
+  background: #ccc;
+}
+
 td.pair_control {
 	min-width: 50px;
 }
@@ -308,6 +312,9 @@ tbody > tr.warning td {
 }
 tbody > tr > td.warning {
 	background: #fdb3bf;
+}
+.line-space-L tr input{
+	line-height: 34px;
 }
 #id_div_info {
 	min-height: 24px;
@@ -499,4 +506,12 @@ span.tab_remove {
 	font-size: 0.8em;
 	vertical-align: text-top;
 	color: maroon;
+}
+span.span_error_id {
+	cursor: pointer;
+	text-decoration: underline;
+	color: #0080c0;
+}
+span.span_error_msg {
+	color: #6f3737;
 }
