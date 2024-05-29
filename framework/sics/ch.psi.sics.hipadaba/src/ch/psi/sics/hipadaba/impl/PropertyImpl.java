@@ -99,6 +99,13 @@ public class PropertyImpl extends EDataObjectImpl implements Property {
 		return value;
 	}
 
+	public void setValue(String stringValue) {
+		if (value == null) {
+			value = new EDataTypeEList<String>(String.class, this, HipadabaPackageImpl.PROPERTY__VALUE);
+		}
+		value.set(0, stringValue);
+	}
+	
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

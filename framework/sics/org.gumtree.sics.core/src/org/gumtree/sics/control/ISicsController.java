@@ -11,6 +11,8 @@
 
 package org.gumtree.sics.control;
 
+import java.util.List;
+
 import org.gumtree.core.object.IDisposable;
 import org.gumtree.sics.io.ISicsProxy;
 
@@ -75,5 +77,9 @@ public interface ISicsController extends IDisposable {
 	public ISicsController findChild(String relativePath);
 	
 	public ISicsController findChildByDeviceId(String deviceId);
+	
+	public List<String> getPropertyValue(String propId);
+	
+	public void setPropertyValue(String propId, String newValue);
 	
 }

@@ -18,6 +18,8 @@ import org.eclipse.emf.ecore.sdo.SDOFactory;
 import org.eclipse.emf.ecore.sdo.util.SDOUtil;
 import org.gumtree.sics.core.PropertySelectionCriterion;
 import org.gumtree.sics.core.PropertySelectionType;
+import org.gumtree.sics.control.ISicsController;
+import org.gumtree.sics.core.ISicsManager;
 import org.gumtree.sics.core.PropertyConstants.ComponentType;
 import org.gumtree.sics.core.PropertyConstants.Privilege;
 import org.gumtree.sics.core.PropertyConstants.PropertyType;
@@ -32,6 +34,10 @@ import commonj.sdo.DataObject;
 
 public final class SicsModelUtils {
 
+	private static final String PROP_NXALIAS = "nxalias";
+	
+	private static final String PREFIX_SAMPLE = "sample";
+	
 	public static SICS deserialiseSICSModel(byte[] data) throws IOException {
 		return loadSICSModel(new ByteArrayInputStream(data));
 	}
@@ -321,4 +327,22 @@ public final class SicsModelUtils {
 		super();
 	}
 	
+	public static ISicsController getNicknameController(ISicsManager sicsManager, ISicsController seItem) {
+		List<String> prop = seItem.getPropertyValue(PROP_NXALIAS);
+		if (prop.size() > 0) {
+			String alias = prop.get(0);
+			String[] path = alias.split("_");
+			String nickPath = null;
+			if (!PREFIX_SAMPLE.equals(path[0])) {
+				nickPath = "/" + PREFIX_SAMPLE;
+			}
+			for (int i = 0; i < path.length - 1; i++) {
+				nickPath += "/" + path[i];
+			}
+			nickPath += "/nick";
+			return sicsManager.getServerController().findChild(nickPath);
+		}
+		return null;
+	}
+
 }

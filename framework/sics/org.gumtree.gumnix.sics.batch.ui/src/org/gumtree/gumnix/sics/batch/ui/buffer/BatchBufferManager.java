@@ -302,8 +302,8 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			
 //	Modified by nxi. Change the uploading strategy. Save the script in the mounted folder instead.			
 //			// Ready to upload
-//			asyncSend("exe clear", null, ISicsProxy.CHANNEL_RAW_BATCH);
-//			asyncSend("exe clearupload", null, ISicsProxy.CHANNEL_RAW_BATCH);
+			asyncSend("exe clear", null, ISicsProxy.CHANNEL_RAW_BATCH);
+			asyncSend("exe clearupload", null, ISicsProxy.CHANNEL_RAW_BATCH);
 //			asyncSend("exe upload", null, ISicsProxy.CHANNEL_RAW_BATCH);
 //			// Upload
 //			BufferedReader reader = new BufferedReader(new StringReader(buffer.getContent()));
@@ -369,6 +369,10 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			
 			// Enqueue (due to the delay in general channel, wait until it is ready)
 			final boolean[] enqueued = new boolean[] { false };
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e1) {
+			}
 			asyncSend("exe enqueue {" + filename + "}", new SicsCallbackAdapter() {
 				public void receiveReply(ISicsReplyData data) {
 					enqueued[0] = true;

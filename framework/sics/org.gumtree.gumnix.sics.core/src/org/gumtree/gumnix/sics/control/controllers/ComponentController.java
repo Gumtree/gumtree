@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.psi.sics.hipadaba.Component;
+import ch.psi.sics.hipadaba.Property;
 
 public abstract class ComponentController implements IComponentController {
 
@@ -104,6 +105,19 @@ public abstract class ComponentController implements IComponentController {
 			deviceId = SicsUtils.getPropertyFirstValue(getComponent(), "sicsdev");
 		}
 		return deviceId;
+	}
+	
+	@Override
+	public List<String> getPropertyValue(String propId) {
+		List<Property> propList = getComponent().getProperty();
+		if (propList != null) {
+			for (Property prop : propList) {
+				if (propId.equals(prop.getId())) {
+					return prop.getValue();
+				}
+			}
+		}
+		return new ArrayList<String>();
 	}
 	
 	public ControllerStatus getStatus() {

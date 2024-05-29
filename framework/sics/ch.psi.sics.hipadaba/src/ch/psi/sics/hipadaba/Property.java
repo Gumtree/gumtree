@@ -42,6 +42,19 @@ public interface Property {
 	List<String> getValue();
 
 	/**
+	 * Set a String value to the first attribute of the property.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * Only change the first item of the list.
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @model unique="false" dataType="org.eclipse.emf.ecore.xml.type.String"
+	 *        extendedMetaData="kind='element' name='value'"
+	 * @generated
+	 */
+	void setValue(String stringValue);
+	
+	/**
 	 * Returns the value of the '<em><b>Id</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <p>

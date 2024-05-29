@@ -12,6 +12,8 @@
 package org.gumtree.gumnix.sics.control.controllers;
 
 
+import java.util.List;
+
 import org.gumtree.gumnix.sics.control.ControllerStatus;
 import org.gumtree.gumnix.sics.control.events.IComponentControllerListener;
 
@@ -99,5 +101,13 @@ public interface IComponentController {
 	 * @param listener
 	 */
 	public void removeComponentListener(IComponentControllerListener listener);
+	
+	/**
+	 * Return the value of a specific property ID. Return null if not found.
+	 * 
+	 * @param propId in List of String type
+	 * @return
+	 */
+	public List<String> getPropertyValue(String propId);
 
 }

@@ -18,14 +18,20 @@ import org.gumtree.sics.control.IDynamicController;
 import org.gumtree.sics.control.ISicsController;
 import org.gumtree.sics.control.ServerStatus;
 import org.gumtree.sics.core.ISicsManager;
+import org.gumtree.sics.core.ISicsMonitor;
 import org.gumtree.sics.io.ISicsData;
+import org.gumtree.sics.io.SicsEventHandler;
+import org.gumtree.sics.io.SicsLogManager;
+import org.gumtree.sics.io.ISicsLogManager.LogType;
 import org.gumtree.sics.util.SicsComponentUtils;
+import org.gumtree.sics.util.SicsModelUtils;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.LoopRunner;
 import org.gumtree.util.LoopRunnerStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.osgi.service.event.Event;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
@@ -60,6 +66,12 @@ public class SicsRestlet extends Restlet implements IDisposable {
 	private static final String QUERY_GROUP = "path";
 	
 	private static final String QUERY_COMPONENTS = "components";
+	
+	private static final String CONTROL_GROUP = "/control";
+	
+	private static final String PROP_NICK = "nick";
+	
+	private static final String[] PROP_COLLECTED = new String[] {PROP_NICK, "nxalias", "units"};
 	
 	private static Logger logger = LoggerFactory.getLogger(SicsRestlet.class);
 	
@@ -148,7 +160,7 @@ public class SicsRestlet extends Restlet implements IDisposable {
 			});
 			for (ISicsController child : childList){
 				try {
-					JSONObject controllerValues = createComponentJSONRepresentation(
+					JSONObject controllerValues = createComponentJSONRepresentationWithProp(
 							request, child, false);
 					array.put(controllerValues);
 				} catch (Exception e) {
@@ -400,6 +412,28 @@ public class SicsRestlet extends Restlet implements IDisposable {
 		return result;
 	}
 	
+	private JSONObject createComponentJSONRepresentationWithProp(Request request,
+			ISicsController controller, boolean detailed) throws Exception {
+		JSONObject result = createComponentJSONRepresentation(request, controller, detailed);
+		for (String name : PROP_COLLECTED) {
+			String value = null;
+			List<String> valueList = controller.getPropertyValue(name);
+			if (valueList != null && valueList.size() > 0) {
+				value = valueList.get(0);
+			}
+			if (value != null) {
+				result.put(name, value);
+			}
+		}
+//		ISicsController nickController = SicsModelUtils.getNicknameController(getSicsManager(), controller);
+//		if (nickController != null) {
+//			if (nickController instanceof IDynamicController) {
+//				((IDynamicController) nickController).addChild(child);
+//			}
+//		}
+		return result;
+	}
+	
 	private void writeJSONObject(Response response, Form queryForm, JSONObject jsonObject) {
 		// Use content-type in header to resolve representation (see http://restlet.tigris.org/issues/show_bug.cgi?id=385)
 	    // TODO: fix this will Restlet 1.1
@@ -418,6 +452,39 @@ public class SicsRestlet extends Restlet implements IDisposable {
 						MediaType.APPLICATION_JSON);
 			} else {
 				response.setEntity(jsonObject.toString(), MediaType.TEXT_PLAIN);
+			}
+		}
+	}
+	
+	public void initControlListener() {
+		ISicsController controller = getSicsManager()
+				.getServerController().findChild(CONTROL_GROUP);
+		if (controller != null) {
+			ISicsController[] children = controller.getChildren();
+			List<ISicsController> childList = Arrays.asList(children);
+			for (final ISicsController child : childList){
+				ISicsController nickController = SicsModelUtils.getNicknameController(getSicsManager(), child);
+				if (nickController != null) {
+					((IDynamicController) nickController).getCurrentValue(new ControllerCallbackAdapter() {
+						
+						@Override
+						public void getCurrentValue(ISicsData data) {
+							super.getCurrentValue(data);
+							child.setPropertyValue(PROP_NICK, data.getString());
+						}
+					});
+					String path = nickController.getPath();
+					final SicsEventHandler eventHandler = new SicsEventHandler(ISicsMonitor.EVENT_TOPIC_HNOTIFY
+							+ path) {
+						@Override
+						public void handleSicsEvent(Event event) {
+							String newValue = getString(event,
+									ISicsMonitor.EVENT_PROP_VALUE);
+							child.setPropertyValue(PROP_NICK, newValue);
+						}
+					};
+					eventHandler.setProxyId(getSicsManager().getProxy().getId()).activate();
+				}
 			}
 		}
 	}

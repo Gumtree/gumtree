@@ -18,6 +18,7 @@ import org.gumtree.util.string.IStringProvider;
 import org.gumtree.util.string.StringUtils;
 
 import ch.psi.sics.hipadaba.Component;
+import ch.psi.sics.hipadaba.Property;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
@@ -66,6 +67,31 @@ public class SicsController implements ISicsController {
 		this.deviceId = deviceId;
 	}
 
+	@Override
+	public List<String> getPropertyValue(String propId) {
+		List<Property> propList = componentModel.getProperty();
+		if (propList != null) {
+			for (Property prop : propList) {
+				if (propId.equals(prop.getId())) {
+					return prop.getValue();
+				}
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public void setPropertyValue(String propId, String newValue) {
+		List<Property> propList = componentModel.getProperty();
+		if (propList != null) {
+			for (Property prop : propList) {
+				if (propId.equals(prop.getId())) {
+					prop.setValue(newValue);
+				}
+			}
+		}		
+	}
+	
 	@Override
 	public String getPath() {
 		if (path == null) {

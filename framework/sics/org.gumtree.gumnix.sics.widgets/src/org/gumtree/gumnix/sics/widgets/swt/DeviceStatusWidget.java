@@ -3,6 +3,7 @@ package org.gumtree.gumnix.sics.widgets.swt;
 import java.net.URI;
 import java.text.Normalizer.Form;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -86,6 +87,7 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 				label = getWidgetFactory().createLabel(this,
 						deviceContext.label + ": ");
 				label.setFont(UIResources.getDefaultFont(SWT.BOLD));
+				deviceContext.widget = label;
 				// Part 3: Value
 				label = createDeviceLabel(this, deviceContext.path, "--",
 						SWT.RIGHT, deviceContext.converter, deviceContext.showSoftLimits);
@@ -269,6 +271,10 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		});
 	}
 
+	protected void sortDevices() {
+		Collections.sort(deviceContexts);
+	}
+	
 	@Override
 	protected void disposeWidget() {
 		if (deviceContexts != null) {
@@ -381,14 +387,23 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 	 * Utilities
 	 *************************************************************************/
 
-	private class DeviceContext {
+	private class DeviceContext implements Comparable<DeviceContext> {
 		String path;
 		Image icon;
 		String label;
 		String unit;
+		Label widget;
 		boolean isSeparator;
 		LabelConverter converter;
 		boolean showSoftLimits;
+		
+		@Override
+		public int compareTo(DeviceContext arg0) {
+			if (label == null) {
+				return -1;
+			}
+			return label.compareTo(arg0.label);
+		}
 	}
 
 	private class LabelContext {
@@ -681,6 +696,23 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
+		}
+	}
+	
+	public void setDeviceTitle(String path, String newTitle) {
+		for (final DeviceContext device : deviceContexts) {
+			if (device.path.equals(path)) {
+				device.label = newTitle;
+				SafeUIRunner.asyncExec(new SafeRunnable() {
+					@Override
+					public void run() throws Exception {
+						if (device.widget != null && !device.widget.isDisposed()) {
+							device.widget.setText(device.label);
+							device.widget.pack();
+						}
+					}
+				});
+			}
 		}
 	}
 }

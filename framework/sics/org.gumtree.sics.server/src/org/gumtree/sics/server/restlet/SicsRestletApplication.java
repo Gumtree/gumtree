@@ -36,6 +36,7 @@ public class SicsRestletApplication extends Application {
 		SicsRestlet restlet = ContextInjectionFactory.make(SicsRestlet.class,
 				context);
 		
+		restlet.initControlListener();
 //		// Temp: login here
 //		try {
 //			restlet.getSicsManager()
