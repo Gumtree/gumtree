@@ -318,7 +318,8 @@ class Controller {
 //			obj.motors[aid] = axis;
 		});
 		this.$addAxis = $('<li id="li_menu_' + obj.mcid + '_NEW_DEVICE' + '" class="nav-item class_li_subitem">'
-				+ '<a class="nav-link class_a_add_axis" mcid="' + obj.mcid + '" href="#"><i class="fas fa-plus"> </a></li>');
+				+ '<a class="nav-link class_a_add_axis" mcid="' + obj.mcid 
+				+ '" href="#" data-toggle="tooltip" title="Duplicate the selected axis in the MC. If none selected, duplicate the first axis."><i class="fas fa-plus"> </a></li>');
 		$menuUl.append(this.$addAxis);
 		this.$menuUl = $menuUl;
 		
@@ -930,7 +931,7 @@ class TabUi {
 				}
 			});
 		});
-		obj.$addLi = $('<li class="nav-item"><a class="nav-link tab_item" href="#"><i class="fas fa-plus"> </a></li>');
+		obj.$addLi = $('<li class="nav-item"><a class="nav-link tab_item" href="#" data-toggle="tooltip" title="Add a new motor to the current axis."><i class="fas fa-plus"> </a></li>');
 		obj.$tabUi.append(obj.$addLi);
 		_tabs.append(obj.$tabUi);
 		

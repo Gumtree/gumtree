@@ -428,7 +428,7 @@ class AbstractDevice {
 		if (this.rootEditor) {
 			this.rootEditor.hide();
 		}
-		$.each(Object.values(this.configEditors), function(idx, editor) {
+		$.each(Object.values(this.configEditors), (idx, editor) => {
 			editor.hide();
 		});
 		_title.text('');
@@ -488,7 +488,7 @@ class AbstractDevice {
 		url += "&" + Date.now();
 		_saveButton.close();
 		var text = JSON.stringify(this.editorModel);
-		$.post(url,  {did:obj.did, model:text}, function(data) {
+		$.post(url,  {did:obj.did, model:text}, data => {
 //			data = $.parseJSON(data);
 			try {
 				if (data["status"] == "OK") {
@@ -779,6 +779,7 @@ class PhysicalDevice extends AbstractDevice {
 		
 		obj.tabUi.reload();
 
+		obj.setDirtyFlag();
 		obj.loadConfig(newName);
 	}
 	
@@ -1767,8 +1768,7 @@ class PropertyTable extends AbstractMainUi {
 				$.each(this.cModel, function(key, val){
 					if (key == ID_PROP_CONFIGID) {
 //						var options = obj.device.getConfigArray();
-						StaticUtils.showWarn("configuration " + subConfigId + " not found in physical device: " + obj.driverId);
-						console.log("not found");
+						StaticUtils.showWarning("configuration " + subConfigId + " not found in physical device: " + obj.driverId);
 						var options = _dbModel.getConfigNamesOfDevice(object.driverId);
 						options.push(val);
 						object.configRow = obj.createRow(key, val, options);
@@ -3044,6 +3044,12 @@ class HomeButton {
 
 
 $(document).ready(function() {
+	
+	if (typeof _DEBUG_ENABLED !== 'undefined') {
+		if (_DEBUG_ENABLED) {
+			return;
+		}
+	}
 	
 	$('#id_a_signout').click(function() {
 		signout("sedbConfig.html");

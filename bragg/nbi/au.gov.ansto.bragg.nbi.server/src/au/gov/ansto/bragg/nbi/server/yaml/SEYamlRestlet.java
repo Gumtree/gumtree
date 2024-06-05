@@ -552,7 +552,60 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		String userName = session.getUserName().toUpperCase();
 		String filePath = getSEConfigFilename(instrumentId);
 		GitService git = getSEConfigGitService(instrumentId);
-		saveModel(filePath, text, message, userName, git);
+		
+//		saveModel(filePath, text, message, userName, git);
+		
+//		if (text == null || text.trim().length() == 0) {
+//			throw new JSONException("model can not be empty");
+//		}
+		File file = new File(filePath);
+//		String[] pair = text.split("&", 1);
+//		String modelString = pair[1].substring(pair[1].indexOf("=") + 1).trim();
+//		String modelString = text.substring(text.indexOf("=") + 1).trim();
+	    DumperOptions options = new DumperOptions();
+	    options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(options);
+		FileWriter writer = new FileWriter(file);
+		if (text == null || text.trim().length() == 0) {
+			try {
+				writer.write("");
+				writer.flush();
+			} catch (Exception e) {
+				// TODO: handle exception
+			}finally {
+				writer.close();
+			}
+		} else {
+			JSONObject json = new LinkedJSONObject(text);
+			Map<String, Object> map = YamlRestlet.toMap(json);
+			try {
+				yaml.dump(map, writer);
+			} catch (Exception e) {
+				// TODO: handle exception
+			}finally {
+				writer.close();
+			}
+		}
+//		Map<String, Object> model = null;
+//		InputStream input = new FileInputStream(file);
+//		try {
+//			model = yaml.loadAs(input, Map.class);
+//		} finally {
+//			input.close();
+//		}
+
+		
+//			GitService git = getSEDBGitService();
+		if (git != null) {
+			git.applyChange();
+			if (message == null || message.length() == 0) {
+				message = userName + " updated " + instrumentId + ": " + formater.format(new Date());
+			} else {
+				message = userName + " updated " + instrumentId + ": " + message;
+			}
+			git.commit(message);
+		}
 	}
 		
 	public static void saveModel(String yamlFilePath, String text, String message, String userName, GitService git) 

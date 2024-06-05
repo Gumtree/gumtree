@@ -200,6 +200,10 @@
             base-name="/WebContent/test.html">
       </resource>
       <resource
+            alias="/user/QUnit.html"
+            base-name="/WebContent/QUnit.html">
+      </resource>
+      <resource
             alias="/user/sicsConfig.html"
             base-name="/WebContent/sicsConfig.html">
       </resource>

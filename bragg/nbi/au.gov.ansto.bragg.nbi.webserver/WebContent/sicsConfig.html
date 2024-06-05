@@ -55,7 +55,7 @@
           <div class="class_span_side_title" id="id_span_side_title"></div>
           <div class="class_span_side_home" id="id_span_side_home"><a href="#"><i class="fas fa-home"></i> Home</a> 
           <span id="id_span_waiting"><i class="fas fa-spinner fa-spin"></i></span>
-          <span id="id_span_addController" class="float_right padding_right_4 clickable"><i class="fas fa-plus"></i> </span>
+          <span id="id_span_addController" class="float_right padding_right_4 clickable" data-toggle="tooltip" title="Add a new motion controller, with an initial axis."><i class="fas fa-plus"></i> </span>
           </div>
           <div class="sidebar-sticky" id="id_div_sidebar">
           </div>
@@ -66,10 +66,10 @@
             <h3 class="h4" id="id_device_title">Please use the side bar to select a motion control axis.</h3>
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
-                <button id="id_button_reset" class="btn btn-sm btn-outline-secondary">Reset</button>
-                <button id="id_button_save" class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-target="#id_modal_saveDialog">Save</button>
-                <button id="id_button_history" class="btn btn-sm btn-group-toggle btn-outline-secondary" data-toggle="buttons">History</button>
-                <button id="id_button_manage" class="btn btn-sm btn-group-toggle btn-outline-secondary" data-toggle="buttons">Manage</button>
+                <button id="id_button_reset" class="btn btn-sm btn-outline-secondary" data-toggle="tooltip" title="Reset changes to the current axis.">Reset</button>
+                <button id="id_button_save" class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-target="#id_modal_saveDialog" title="Save changes to the current axis.">Save</button>
+                <button id="id_button_history" class="btn btn-sm btn-group-toggle btn-outline-secondary" data-toggle="buttons" title="Toggle the history side bar.">History</button>
+                <button id="id_button_manage" class="btn btn-sm btn-group-toggle btn-outline-secondary" data-toggle="buttons" title="Toggle showing control widgets to remove motors or add/remove properties.">Manage</button>
               </div>
               <!-- 
               <button class="btn btn-sm btn-outline-secondary">

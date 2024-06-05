@@ -30,6 +30,22 @@ const KEYS_COPIED_FROM_DB = [
 	"port",
 	"desc",
 ];
+const INST_DEVICE_INIT = {
+	"config_id" : "",
+	"datype" : "",
+	"driver" : "",
+	"id" : "",
+	"name" : "",
+}
+const INST_DEVICE_COPY = [
+	"config_id",
+	"driver",
+]
+const INST_DEVICE_MIRROR = [
+	"desc",
+	"ip",
+	"port",
+]
 //const _option_prop = ["config_id", "ip", "port"];
 const FIXED_PROPS = ["datype", "driver", "id", "name"];
 const TABLE_TIER1_HEADER = '<table class="table table-striped table-sm"><thead><tr><th width="34%">Key</th><th width="66%">Value</th></tr></thead><tbody>';
@@ -38,7 +54,7 @@ const EMPTY_ROW_PART1 = '<tr class="tr_entry"><td class="pair_key"><input type="
 const EMPTY_ROW_PART2 = '"></td><td class="pair_value"><input type="text" class="form-control" value="';
 const EMPTY_ROW_PART3 = '"></td><td class="pair_control input-group-btn"><button type="button" class="btn btn-outline-primary button_plus">+</button><button type="button" class="btn btn-outline-primary button_minus">-</button></td></tr>';
 const DISABLED_ROW_PART1 = '<tr class="tr_entry"><td class="pair_key"><input type="text" class="form-control" disabled value="';
-const HTML_TABLE = '<table class="table table-striped table-sm"><thead><tr><th width="34%">Error entry</th><th width="66%">Message</th></tr></thead><tbody/></table>';
+const HTML_TABLE = '<table class="table table-striped table-sm"><thead><tr><th width="34%">Error entry</th><th width="66%">Message</th></tr></thead><tbody></tbody></table>';
 
 const ID_PROP_DRIVER = "driver";
 const ID_PROP_CONFIGID = "config_id";
@@ -190,6 +206,10 @@ class AbstractDeviceModel {
 		this.#firstConfigs = dict;
 	}
 
+	getConfigModel(did, cid) {
+		return this.model[did][cid];
+	}
+	
 	get devices() {
 		return this.#devices;
 	}
@@ -267,24 +287,8 @@ class AbstractDeviceModel {
 	
 	addDevice(did, device) {}
 	
-	removeDevice(did) {
-		const obj = this;
-		if (did in this.model) {
-			const deviceModel = this.model[did];
-			$.each(deviceModel, function(cid, cfg) {
-				if (!(PROPERTY_KEYWORDS.includes(cid))) {
-					var name = did + ":" + cid
-					delete obj.configs[name];
-				}
-			});
-			delete this.model[did];
-			delete this.firstConfigs[did];
-			delete this.configNamesOfDevice[did];
-			delete this.devices[did];
-		} else {
-			throw new Error('device not found:' + did);
-		}
-	}
+	removeDevice(did) {}
+	
 }
 
 class InstrumentModel extends AbstractDeviceModel {
@@ -325,8 +329,29 @@ class InstrumentModel extends AbstractDeviceModel {
 		}
 		const obj = this;
 		const names = [];
-		const newModel = $.extend(true, {}, deviceModel);
+		
+		const newModel = {};
+		newModel[KEY_STATIC] = $.extend(true, {}, deviceModel[KEY_STATIC]);
+		$.each(deviceModel, function(cid, cfg) {
+			if (!(PROPERTY_KEYWORDS.includes(cid))) {
+				const newConfig = $.extend(true, {}, INST_DEVICE_INIT);
+				const datype = cfg[KEY_DATYPE];
+				newConfig[KEY_DATYPE] = datype;
+				const typeId = obj.getNextTypeId(datype, 1);
+				newConfig[ID_PROP_ID] = typeId;
+				var prefix = datype;
+				if (datype in DEFAULT_SUB_DEVICE_NAME_PREFIX) {
+					prefix = DEFAULT_SUB_DEVICE_NAME_PREFIX[datype];
+				}
+				newConfig[ID_PROP_NAME] = prefix + typeId;
+				$.each(INST_DEVICE_COPY, (idx, key) => {
+					newConfig[key] = cfg[key];
+				});
+				newModel[cid] = newConfig;
+			}
+		});
 		this.model[did] = newModel;
+		
 		$.each(newModel, function(cid, cfg) {
 			if (!(PROPERTY_KEYWORDS.includes(cid))) {
 				var path = obj.type + "/" + did + "/" + cid;
@@ -343,13 +368,97 @@ class InstrumentModel extends AbstractDeviceModel {
 			}
 		});
 		obj.configNamesOfDevice[did] = names;
-		
+			
 		const device = new InstrumentDevice(did, newModel, obj.$menuBar);
 		device.createMenuUi();
 		obj.setDevice(did, device);
 		device.load();
+		device.setDirtyFlag();
 	}
 	
+	getNextTypeId(datype, startIdx) {
+		var idx = startIdx;
+		const obj = this;
+		$.each(obj.model, (did, dModel) => {
+			if (did != KEY_STATIC) {
+				$.each(dModel, (cid, cModel) => {
+					if (cModel[KEY_DATYPE] == datype) {
+						if (idx == cModel[ID_PROP_ID]) {
+							idx += 1;
+							return obj.getNextTypeId(datype, idx);
+						}
+					}
+				});
+			}
+		});
+		return idx;
+	}
+	
+	save() {
+		const obj = this;
+		var url = URL_PREFIX + 'configsave?inst=' + _inst + '&msg=';
+		var saveMsg = $('#id_input_saveMessage').val().replace(/^\s+|\s+$/gm,'');
+		if (saveMsg.length > 0) {
+			url += encodeURI(saveMsg);
+		}
+		url += "&" + Date.now();
+		_saveButton.close();
+		console.log("instrument save");
+		var text = JSON.stringify(this.model);
+//		$.post(url,  {model:text}, function(data) {
+		$.post(url,  text, function(data) {
+//			data = $.parseJSON(data);
+			try {
+				if (data["status"] == "OK") {
+					StaticUtils.showMsg("Saved in the server.");
+//					$('td.editable_value input.changed').removeClass('changed');
+//					if (_deviceItem != null) {
+//						_deviceItem.init = false;
+//						_deviceItem = null;
+//					}
+//					$.extend(true, obj.model, obj.editorModel);
+//					obj.clearDirtyFlag();
+					$.each(obj.devices, (did, device) => {
+						device.clearDirtyFlag();
+					});
+					_historyBar.reload();
+					_saveButton.reset();
+//					setTimeout(_historyBar.reload, 3000)
+				} else {
+					StaticUtils.showError(data["reason"]);
+				}
+			} catch (e) {
+				StaticUtils.showError("Failed to save: " + e.statusText);
+			}
+//			_errorReport.clearError();
+			_instModel.verify();
+		}).fail(function(e) {
+			console.log(e);
+			StaticUtils.showError("Faied to save: " + e.statusText);
+		}).always(function() {
+			_saveButton.close();
+		});
+	}
+	
+	removeDevice(did) {
+		const obj = this;
+		if (did in this.model) {
+			const deviceModel = this.model[did];
+			$.each(deviceModel, function(cid, cfg) {
+				if (!(PROPERTY_KEYWORDS.includes(cid))) {
+					var name = did + ":" + cid
+					delete obj.configs[name];
+				}
+			});
+			delete this.model[did];
+			delete this.firstConfigs[did];
+			delete this.configNamesOfDevice[did];
+			delete this.devices[did];
+		} else {
+			throw new Error('device not found:' + did);
+		}
+	}
+
 	verify() {
 		const obj = this;
 		_errorReport.clearError();
@@ -442,13 +551,14 @@ class AbstractDevice {
 	createMenuUi() {}
 	
 	checkDirtyFlag() {
-		var okToGo = true;
-		if (_curDevice != null) {
-			if (_curDevice.id != this.id && _curDevice.isDirty()) {
-				okToGo = confirm('You have unsaved changes in the current device. If you load another device, your change will be lost. Do you want to continue?');
-			}
-		}
-		return okToGo;
+//		var okToGo = true;
+//		if (_curDevice != null) {
+//			if (_curDevice.id != this.id && _curDevice.isDirty()) {
+//				okToGo = confirm('You have unsaved changes in the current device. If you load another device, your change will be lost. Do you want to continue?');
+//			}
+//		}
+//		return okToGo;
+		return true;
 	}
 	
 	load() {
@@ -579,7 +689,6 @@ class DBDevice extends AbstractDevice {
 			try {
 				_instModel.addDevice(obj.did, _dbModel.getDeviceModel(obj.did));
 			} catch (e) {
-				console.error(e);
 				StaticUtils.showError(e);
 			}
 		});
@@ -665,8 +774,9 @@ class InstrumentDevice extends AbstractDevice {
 		});
 		
 		this.$menuHeader.find('span.class_span_mc_control').click(function() {
-			_removeModal.toRemove = obj.did;
-			_removeModal.open();
+//			_removeModal.toRemove = obj.did;
+//			_removeModal.open();
+			obj.remove();
 		});
 		
 		const $menuUl = $('<ul id="ul_mc_'+ this.did + '" class="nav flex-column class_ul_hide class_ul_folder"></ul>');
@@ -742,7 +852,9 @@ class InstrumentDevice extends AbstractDevice {
 //			_curCid = cid;
 			this.curCid = cid;
 			const obj = this;
-			var config = obj.editorModel[cid]; 
+			const curConfig = obj.editorModel[cid];
+			const dbConfig = _dbModel.getConfigModel(obj.did, cid);
+			const config = $.extend(true, {}, curConfig, dbConfig);
 //			_tabs.empty();
 			var datype = obj.editorModel[KEY_STATIC][KEY_DATYPE];
 			
@@ -894,62 +1006,93 @@ class InstrumentDevice extends AbstractDevice {
 		this.setDirtyFlag();
 	}
 	
-	remove(saveMsg) {
+//	remove(saveMsg) {
+	remove() {
 		const obj = this;
-		var url = URL_PREFIX + 'configremove?inst=' + _inst + '&did=' + obj.did + '&msg=';
-		if (saveMsg.length > 0) {
-			url += encodeURI(saveMsg);
-		}
-//		if (_versionId) {
-//			url += "&version=" + encodeURI(_versionId);
-//		}
-		url += "&" + Date.now();
-		$.get(url, function(data) {
-			try {
-				if (data["status"] == "OK") {
-					obj.clearDirtyFlag();
-					StaticUtils.showMsg("Removed successfully in the server.");
-//					var $ul = $('#ul_mc_' + did);
-//					$ul.prev().remove();
-//					$ul.remove();
-//					loadDeviceConfig(null, null);
-					if (_curDevice != null && _curDevice.id == obj.id) {
-						_curDevice.hide();
-						_title.text('Please use the side bar to select a device configuration.');
-					}
-					
-					obj.$menuHeader.remove();
-					$.each(obj.configMenuDict, function(cid, configMenu) {
-						configMenu.dispose();
-						delete obj.configMenuDict[cid];
-					});
-					if (obj.$menuUl) {
-						obj.$menuUl.remove();
-					}
-					if (obj.tabUi) {
-						obj.tabUi.dispose();
-					}
-					if (obj.rootEditor) {
-						obj.rootEditor.dispose();						
-					}
-					$.each(obj.configEditors, function(cid, editor) {
-						editor.dispose();
-						delete obj.configEditors[cid];
-					});
-					
-					_instModel.removeDevice(obj.did);
-//					setTimeout(_historyBar.reload, 3000)
-				} else {
-					StaticUtils.showError(data["reason"]);
-				}
-			} catch (e) {
-				StaticUtils.showError("Failed to remove: " + e.statusText);
+		try {
+			if (_curDevice != null && _curDevice.id == obj.id) {
+				_curDevice.hide();
+				_title.text('Please use the side bar to select a device configuration.');
 			}
-		}).fail(function(e) {
-			StaticUtils.showError("Faied to remove: " + e.statusText);
-		}).always(function() {
-			$('#id_modal_deleteDialog').modal('hide');
-		});
+			
+			obj.$menuHeader.remove();
+			$.each(obj.configMenuDict, function(cid, configMenu) {
+				configMenu.dispose();
+				delete obj.configMenuDict[cid];
+			});
+			if (obj.$menuUl) {
+				obj.$menuUl.remove();
+			}
+			if (obj.tabUi) {
+				obj.tabUi.dispose();
+			}
+			if (obj.rootEditor) {
+				obj.rootEditor.dispose();						
+			}
+			$.each(obj.configEditors, function(cid, editor) {
+				editor.dispose();
+				delete obj.configEditors[cid];
+			});
+			
+			_instModel.removeDevice(obj.did);
+			
+			obj.clearDirtyFlag();
+			StaticUtils.showWarning("Make sure to use the 'Save' button to save the change to the server.");
+		} catch (e) {
+			StaticUtils.showError("Failed to remove: " + e.statusText);
+		}
+
+//		var url = URL_PREFIX + 'configremove?inst=' + _inst + '&did=' + obj.did + '&msg=';
+//		if (saveMsg.length > 0) {
+//			url += encodeURI(saveMsg);
+//		}
+//		url += "&" + Date.now();
+//		$.get(url, function(data) {
+//			try {
+//				if (data["status"] == "OK") {
+//					obj.clearDirtyFlag();
+//					StaticUtils.showMsg("Removed successfully in the server.");
+////					var $ul = $('#ul_mc_' + did);
+////					$ul.prev().remove();
+////					$ul.remove();
+////					loadDeviceConfig(null, null);
+//					if (_curDevice != null && _curDevice.id == obj.id) {
+//						_curDevice.hide();
+//						_title.text('Please use the side bar to select a device configuration.');
+//					}
+//					
+//					obj.$menuHeader.remove();
+//					$.each(obj.configMenuDict, function(cid, configMenu) {
+//						configMenu.dispose();
+//						delete obj.configMenuDict[cid];
+//					});
+//					if (obj.$menuUl) {
+//						obj.$menuUl.remove();
+//					}
+//					if (obj.tabUi) {
+//						obj.tabUi.dispose();
+//					}
+//					if (obj.rootEditor) {
+//						obj.rootEditor.dispose();						
+//					}
+//					$.each(obj.configEditors, function(cid, editor) {
+//						editor.dispose();
+//						delete obj.configEditors[cid];
+//					});
+//					
+//					_instModel.removeDevice(obj.did);
+////					setTimeout(_historyBar.reload, 3000)
+//				} else {
+//					StaticUtils.showError(data["reason"]);
+//				}
+//			} catch (e) {
+//				StaticUtils.showError("Failed to remove: " + e.statusText);
+//			}
+//		}).fail(function(e) {
+//			StaticUtils.showError("Faied to remove: " + e.statusText);
+//		}).always(function() {
+//			$('#id_modal_deleteDialog').modal('hide');
+//		});
 	}
 	
 	verify() {
@@ -1129,8 +1272,8 @@ class ErrorReportUi extends AbstractMainUi {
 	}
 	
 	addError(did, cid, msg) {
+		this.$body.find('.class_no_entry').remove();
 		const eid = did + " / " + cid;
-		console.log("add error " + eid + ": " + msg);
 		const $tr = $('<tr id="' + did + "_" + cid + '"><td><span class="span_error_id" did="' + did + '" cid="' + cid + '">' + eid 
 				+ '</span></td><td><span class="span_error_msg">' + msg + '</span></td></tr>');
 		$tr.find('span.span_error_id').click(function() {
@@ -1147,6 +1290,12 @@ class ErrorReportUi extends AbstractMainUi {
 	
 	clearError() {
 		this.$body.empty();
+		this.addNoEntry();
+	}
+	
+	addNoEntry() {
+		const $tr = $('<tr class="class_no_entry"><td colspan="2">No error found.</td></tr>');
+		this.$body.append($tr);
 	}
 }
 
@@ -1222,76 +1371,80 @@ class PropertyTable extends AbstractMainUi {
 	createUi() {
 		var $table = $(TABLE_TIER1_HEADER + '</tbody></table>');
 		var $tbody = $table.find('tbody');
-		var object = this;
+		var obj = this;
 //		var cid = this.cid;
 //		var did = this.driverId;
 		var subConfigId = this.cModel[ID_PROP_CONFIGID];
-		if (typeof this.dModel === 'undefined') {
-			StaticUtils.showWarning('device ' + obj.driverId + ' not found in the Database');
-			$.each(this.cModel, function(key, val){
-				if (!FIXED_PROPS.includes(key)) {
-					var pRow = object.createRow(key, val);
-					$tbody.append(pRow.getUI());
-				} else {
-					var pRow = object.createRow(key, val, null, true);
-					$tbody.append(pRow.getUI());
-				}
-			});
-		} else {
-			if (subConfigId in object.dModel) {
-				$.each(this.cModel, function(key, val){
-					if (key == ID_PROP_CONFIGID) {
-						var options = _dbModel.getConfigNamesOfDevice(object.driverId);
-						object.configRow = object.createRow(key, val, options, true);
-						$tbody.append(object.configRow.getUI());
-					} else if (key == ID_PROP_IP) {
-						var options = object.dModel[KEY_STATIC][ID_PROP_IP];
-						object.ipRow = object.createRow(key, val, options);
-						$tbody.append(object.ipRow.getUI());
-					} else if (key == ID_PROP_PORT) {
-						var options = object.dModel[subConfigId][ID_PROP_PORT];
-						object.portRow = object.createRow(key, val, options);
-						$tbody.append(object.portRow.getUI());
-					} else if (!FIXED_PROPS.includes(key)) {
-						var pRow = object.createRow(key, val);
-						$tbody.append(pRow.getUI());
-					} else {
-						var pRow = object.createRow(key, val, null, true);
-						$tbody.append(pRow.getUI());
-					}
-				});
-			} else {
-				const obj = this;
-				$.each(this.cModel, function(key, val){
-					if (key == ID_PROP_CONFIGID) {
-//						var options = obj.device.getConfigArray();
-						StaticUtils.showWarning("configuration " + subConfigId + " not found in physical device: " + obj.driverId);
-						var options = _dbModel.getConfigNamesOfDevice(object.driverId);
-						options.push(val);
-						object.configRow = obj.createRow(key, val, options);
-						$tbody.append(object.configRow.getUI());
-					} else if (!FIXED_PROPS.includes(key)) {
-						var pRow = obj.createRow(key, val);
-						$tbody.append(pRow.getUI());
-					} else {
-						var pRow = obj.createRow(key, val, null, true);
-						$tbody.append(pRow.getUI());
-					}
-				});
-			}
-		}
-		if (object.configRow != null) {
-			object.configRow.addValueSelectListener(function(value){
-				var newConfig = object.dModel[value];
-//				const staticConfig = object.dModel[KEY_STATIC];
+//		if (typeof this.dModel === 'undefined') {
+//			StaticUtils.showWarning('device ' + obj.driverId + ' not found in the Database');
+//			$.each(this.cModel, function(key, val){
+//				if (!FIXED_PROPS.includes(key)) {
+//					var pRow = obj.createRow(key, val);
+//					$tbody.append(pRow.getUI());
+//				} else {
+//					var pRow = obj.createRow(key, val, null, true);
+//					$tbody.append(pRow.getUI());
+//				}
+//			});
+//		} else {
+//			if (subConfigId in obj.dModel) {
+//				$.each(this.cModel, function(key, val){
+//					if (key == ID_PROP_CONFIGID) {
+//						var options = _dbModel.getConfigNamesOfDevice(obj.driverId);
+//						obj.configRow = obj.createRow(key, val, options, true);
+//						$tbody.append(obj.configRow.getUI());
+//					} else if (key == ID_PROP_IP) {
+//						var options = obj.dModel[KEY_STATIC][ID_PROP_IP];
+//						obj.ipRow = obj.createRow(key, val, options);
+//						$tbody.append(obj.ipRow.getUI());
+//					} else if (key == ID_PROP_PORT) {
+//						var options = obj.dModel[subConfigId][ID_PROP_PORT];
+//						obj.portRow = obj.createRow(key, val, options);
+//						$tbody.append(obj.portRow.getUI());
+//					} else if (!FIXED_PROPS.includes(key)) {
+//						var pRow = obj.createRow(key, val);
+//						$tbody.append(pRow.getUI());
+//					} else {
+//						var pRow = obj.createRow(key, val, null, true);
+//						$tbody.append(pRow.getUI());
+//					}
+//				});
+//			} else {
+//				const obj = this;
+//				$.each(this.cModel, function(key, val){
+//					if (key == ID_PROP_CONFIGID) {
+////						var options = obj.device.getConfigArray();
+//						StaticUtils.showWarning("configuration " + subConfigId + " not found in physical device: " + obj.driverId);
+//						var options = _dbModel.getConfigNamesOfDevice(obj.driverId);
+//						options.push(val);
+//						obj.configRow = obj.createRow(key, val, options);
+//						$tbody.append(obj.configRow.getUI());
+//					} else if (!FIXED_PROPS.includes(key)) {
+//						var pRow = obj.createRow(key, val);
+//						$tbody.append(pRow.getUI());
+//					} else {
+//						var pRow = obj.createRow(key, val, null, true);
+//						$tbody.append(pRow.getUI());
+//					}
+//				});
+//			}
+//		}
+		$.each(this.cModel, function(key, val){
+			var pRow = obj.createRow(key, val, null, true);
+			$tbody.append(pRow.getUI());
+		});
+		if (obj.configRow != null) {
+			obj.configRow.addValueSelectListener(function(value){
+				var newConfig = obj.dModel[value];
+//				const staticConfig = obj.dModel[KEY_STATIC];
 				if (newConfig) {
 //					var ips = staticConfig[ID_PROP_IP];
-//					if (object.ipRow) {
-//						object.ipRow.updateValueOptions(ips);
+//					if (obj.ipRow) {
+//						obj.ipRow.updateValueOptions(ips);
 //					}
 					var ports = newConfig[ID_PROP_PORT];
-					if (object.portRow) {
-						object.portRow.updateValueOptions(ports);
+					if (obj.portRow) {
+						obj.portRow.updateValueOptions(ports);
 					}
 				}
 			});
@@ -2343,24 +2496,30 @@ class SaveButton {
 	init() {
 		const obj = this;
 		this.$button.click(function() {
-			if (_curDevice) {
-				_curDevice.save();
-			} else {
-				StaticUtils.showWarning('Please select a device for saving. Saving is per-device based.')
-				obj.close();
-			}
+//			if (_curDevice) {
+//				_curDevice.save();
+//			} else {
+//				StaticUtils.showWarning('Please select a device for saving. Saving is per-device based.')
+//				obj.close();
+//			}
+			obj.run();
 		});
 	
 		this.$textInput.keypress(function(event) {
 			if ( event.which == 13 ) {
-				if (_curDevice) {
-					_curDevice.save();
-				} else {
-					StaticUtils.showWarning('Please select a device for saving. Saving is per-device based.')
-					obj.close();
-				}
+//				if (_curDevice) {
+//					_curDevice.save();
+//				} else {
+//					StaticUtils.showWarning('Please select a device for saving. Saving is per-device based.')
+//					obj.close();
+//				}
+				obj.run();
 			}
 		});
+	}
+	
+	run() {
+		_instModel.save();
 	}
 	
 	reset() {
@@ -2512,9 +2671,9 @@ class HistoryBlock {
 			this.empty();
 			const obj = this;
 			var url = URL_PREFIX + 'confighistory?inst=' + _inst;
-			if (_curDevice) {
-				url += '&path=' + _curDevice.did;
-			}
+//			if (_curDevice) {
+//				url += '&path=' + _curDevice.did;
+//			}
 			url += '&' + Date.now();
 			$.get(url, function(data) {
 				data = $.parseJSON(data);
