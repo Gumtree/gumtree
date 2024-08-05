@@ -148,9 +148,12 @@ public class GeometryCorrection extends ConcreteProcessor {
 	 * @param Zpvertic  Offset in z position at each 2-theta value
 	 * @param contribs  Pixel ok map
 	 * @param radius Curved detector radius
+	 * @param bottom bottom-most pixel position to consider
+	 * @param top top-most pixel position to consider
 	 */
 	public void correctGeometry(IArray iSample, IArray raw_theta, double radius, IArray thetaVect, IArray Zpvertic, IArray variance,
-			/* output */
+								int bottom, int top,
+								/* output */
 			                    IArray contribs, IArray decurved_data, IArray decurved_variance)
 	{   		
 		int verPixels = iSample.getShape()[0];
@@ -205,7 +208,7 @@ public class GeometryCorrection extends ConcreteProcessor {
 		{
 			double inTheta = 	raw_theta.getDouble(rawthind.set(i)) * (Math.PI)/180; // convert to radians
 			double oldcos = Math.cos(inTheta);  //precalculate for efficiency
-			for(int j = 0; j < verPixels; j++)
+			for(int j = bottom; j < top; j++)
 			{
 				if (Zpvertic != null) invz = Zpvertic.getDouble(zpind.set(j)); //vertical offset for this vertical pixel coordinate
 				double xFactor = radius/Math.sqrt(radsq+invz*invz);
