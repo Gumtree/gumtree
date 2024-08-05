@@ -94,14 +94,14 @@ public class GeometryCorrection extends ConcreteProcessor {
 				    System.out.println("No contribution map available for geometry correction: all pixels contribute");
 			}
 			/* now correct for the detector geometry */
-			correctGeometry(ConverterLib.get2DDouble(dataArray), radius,
-						ConverterLib.get1DDouble(thetaArray), verticalOffset,
-						ConverterLib.get2DDouble(variance_array),
-						(int [][]) contribs_array.getArrayUtils().copyToNDJavaArray());
+			//correctGeometry(ConverterLib.get2DDouble(dataArray), radius,
+			//			ConverterLib.get1DDouble(thetaArray), verticalOffset,
+			//			ConverterLib.get2DDouble(variance_array),
+			//			(int [][]) contribs_array.getArrayUtils().copyToNDJavaArray());
 			/* pack everything up for transfer to the next step */
-		    out_array = Factory.createArray(decurved_data);
-		    out_variance = Factory.createArray(decurved_variance);
-		    IArray out_contribs = Factory.createArray(contributor_mask);
+		    //out_array = Factory.createArray(decurved_data);
+		    //out_variance = Factory.createArray(decurved_variance);
+		    //IArray out_contribs = Factory.createArray(contributor_mask);
 			String resultName = "geometryCorrection_result";
 			//Transfer theta axis values to Array datastructure
 			IIndex thindex = thetaArray.getIndex();
@@ -112,14 +112,14 @@ public class GeometryCorrection extends ConcreteProcessor {
 			geometryCorrection_output = PlotFactory.createPlot(geometryCorrection_scanData, resultName, dataDimensionType);
 			PlotFactory.addDataToPlot(geometryCorrection_output, resultName, out_array, "Straightened data", "Counts", out_variance);
 			((NcGroup) geometryCorrection_output).addLog("apply geometry correction algorithm to get " + resultName);
-			IDataItem contribs = Factory.createDataItem(null,geometryCorrection_output, "contributors",out_contribs);
-			PlotFactory.addAxisToPlot(geometryCorrection_output, "verticalOffset", verticalOffsetArray, "Vertical offset", "Channel", 0);
-			PlotFactory.addAxisToPlot(geometryCorrection_output, "two_theta_axis", thetaArray, "Two theta","degrees",1);
+			//IDataItem contribs = Factory.createDataItem(null,geometryCorrection_output, "contributors",out_contribs);
+			//PlotFactory.addAxisToPlot(geometryCorrection_output, "verticalOffset", verticalOffsetArray, "Vertical offset", "Channel", 0);
+			//PlotFactory.addAxisToPlot(geometryCorrection_output, "two_theta_axis", thetaArray, "Two theta","degrees",1);
 			// Add information for use by visualisation software
 //			geometryCorrection_output.addStringAttribute(StaticDefinition.DATA_STRUCTURE_TYPE, 
 	//				StaticDefinition.DataStructureType.plot.name());
 		//	geometryCorrection_output.addStringAttribute(StaticDefinition.DATA_DIMENSION_TYPE, StaticDefinition.DataDimensionType.map.name());
-			geometryCorrection_output.addDataItem(contribs);
+			//geometryCorrection_output.addDataItem(contribs);
 		}
 		// as the instance of this object remains for as long as the processor chain exists, we null out any fields that are taking up
 		// too much room.  This will only give a benefit if the data to which they point has been copied to the output group (rather than
@@ -137,36 +137,37 @@ public class GeometryCorrection extends ConcreteProcessor {
 	 * This method will set the return data and variance
 	 * Java arrays, as well as a region array describing which parts of the return array can be included in any
 	 * horizontal integration.  Once the region datastructure becomes more versatile (currently only rectilinear
-	 * descriptions are supported) we can use that API instead of the current adhoc approach. 
-	 * @param iSample  input 2D array data set after stitching (nTubes*nScan)*yPixels 
+	 * descriptions are supported) we can use that API instead of the current adhoc approach.
+	 * 
+	 * This routine has been adjusted so it can be directly called from Python after instantiating this class. It
+	 * will no longer work as part of the old Java-based data reduction routines.
+	 * 
+	 * @param iSample  input 2D array data set after stitching (nTubes*nScan)*yPixels
+	 * @param stepsize ideal stepsize to use when building output two-theta array 
 	 * @param thetaVect   OneD array theta vector in degrees
 	 * @param Zpvertic  Offset in z position at each 2-theta value
 	 * @param contribs  Pixel ok map
 	 * @param radius Curved detector radius
 	 */
-	public void correctGeometry(double[][] iSample, double radius, double[] thetaVect, double[] Zpvertic, double[][] variance,
-			                    int [][] contribs)
+	public void correctGeometry(IArray iSample, IArray raw_theta, double radius, IArray thetaVect, IArray Zpvertic, IArray variance,
+			/* output */
+			                    IArray contribs, IArray decurved_data, IArray decurved_variance)
 	{   		
-		int verPixels = iSample.length;
-		int horiPixels = iSample[0].length;
-		int mScanxPixels = horiPixels;
-		int thlen = thetaVect.length;
+		int verPixels = iSample.getShape()[0];
+		int horiPixels = iSample.getShape()[1];
+		long thlen = thetaVect.getSize();
 
 		int mNewPixels = 0;
 		double cor2theta = 0.0;    // corrected value
 		double invz =0.0;
-		/* Respace the theta bins into an even grid.  We find out the total length and number of bins,
-		 * then use the average width for our grid.
-		 */
 		
-		// values for working out pixel location in our array. As discussed in the stitching algorithm,
-		// we assume that the 2theta value corresponds to the centre of the pixel.  Therefore, we expect 
-		// thlen-1 bins from thlen points.
-
-		double dtheta = (thetaVect[thlen-1] -thetaVect[0]) / (thlen-1);  //negative if order is reversed
-		double mdtheta = dtheta * Math.PI/180.0; // in radians
-		System.out.printf("Theta grid regularised to spacing %f\n", mdtheta*180.0/Math.PI);
-
+		IIndex thind = thetaVect.getIndex();
+		IIndex rawthind = raw_theta.getIndex();
+		
+		double inTheta0 = thetaVect.getDouble(thind.set(0)) * (Math.PI)/180; //start angle, radians
+		long mScanxPixels = thlen;
+		double mdtheta = (thetaVect.getDouble(thind.set((int) (thlen-1))) - thetaVect.getDouble(thind.set(0)))/(thlen - 1) * (Math.PI/180);
+		System.out.println("Theta step is " +mdtheta);
 		/* our strategy is to calculate the true two-theta value of each pixel, and insert the intensity
 		 * into our array of (y, true 2-theta)-indexed intensities.  It is quite possible that several
 		 * source pixels might map onto a single target pixel, so we keep track of this as we go. Unlike
@@ -185,24 +186,28 @@ public class GeometryCorrection extends ConcreteProcessor {
 		 * larger efficiency value.  They will be weaker by a factor of the Jacobian, so multiplication
 		 * by the Jacobian should not be necessary.
 		 */
-		double ncontr[][] = new double [verPixels][mScanxPixels]; //number of contributions
-		decurved_variance = new double [verPixels][mScanxPixels]; //new variances
-		decurved_data = new double[verPixels][mScanxPixels];      //output data
-		double inTheta0 = thetaVect[0] * (Math.PI)/180; //start angle, radians
 		double Jacobian = 0.0;  // for storing the Jacobian
-		// loop over input pixel array
 		double maxJac = 0.0;     //because we can
 		double minJac = 5.0;
-		thetagrid = new double[thlen];
-		for(int i=0;i<thlen;i++) thetagrid[i]=inTheta0+(mdtheta*i);  //initialise theta grid
+
 		double radsq = radius*radius;   //precalculate for efficiency
-		for(int i = 0; i < mScanxPixels; i++)
+		
+		IIndex isind = iSample.getIndex();
+		IIndex varind = variance.getIndex();
+		IIndex zpind = Zpvertic.getIndex();
+		IIndex contind = contribs.getIndex();
+		IIndex decind = decurved_data.getIndex();
+		IIndex decvarind = decurved_variance.getIndex();
+		
+		int[][] ncontr = new int[verPixels][(int) thlen];
+		
+		for(int i = 0; i < horiPixels; i++)
 		{
-			double inTheta = 	thetaVect[i] * (Math.PI)/180; // convert to radians
+			double inTheta = 	raw_theta.getDouble(rawthind.set(i)) * (Math.PI)/180; // convert to radians
 			double oldcos = Math.cos(inTheta);  //precalculate for efficiency
 			for(int j = 0; j < verPixels; j++)
 			{
-				if (Zpvertic != null) invz = Zpvertic[j]; //vertical offset for this vertical pixel coordinate
+				if (Zpvertic != null) invz = Zpvertic.getDouble(zpind.set(j)); //vertical offset for this vertical pixel coordinate
 				double xFactor = radius/Math.sqrt(radsq+invz*invz);
 				cor2theta = Math.acos(xFactor*oldcos);    //potential sign issues?
 				// We calculate the Jacobian, but it is not presently used
@@ -213,11 +218,11 @@ public class GeometryCorrection extends ConcreteProcessor {
 				mNewPixels = (int) Math.round((cor2theta-inTheta0)/mdtheta);
 				// Check in with our pixelok map. A pixel which is not OK will not contribute, and the next section
 				// of code will take care of constructing the new pixel ok map
-				if(contribs[j][i]==1) {
-				ncontr[j][mNewPixels]++;	
-				decurved_data[j][mNewPixels] += iSample[j][i];
-				decurved_variance[j][mNewPixels] += variance[j][i];
-				}
+				ncontr[j][mNewPixels]++;
+				decind.set(j, mNewPixels);
+				decvarind.set(j, mNewPixels);
+				decurved_data.setDouble(decind, decurved_data.getDouble(decind) + iSample.getDouble(isind.set(j,i)));
+				decurved_variance.setDouble(decvarind, decurved_variance.getDouble(decvarind) + variance.getDouble(varind.set(j,i)));
 			}
 		}
 		/* When this dataset is vertically integrated, we need to avoid accessing the regions that were
@@ -230,37 +235,44 @@ public class GeometryCorrection extends ConcreteProcessor {
 		 efficiency (or more properly flood-field) correction has taken care of the compression effects already.
 		 */
 		
-		contributor_mask = new int [verPixels][mScanxPixels];
 		int nonzero = 0; // count nonzero pixels
 		for(int i=0;i<mScanxPixels;i++)
 		{
 		//	System.out.printf("%d: ",i);
 			for(int j=1;j<verPixels-1;j++) {
 				/* look for the edges */
+				contind.set(j, i);
 				if (ncontr[j][i] > 0 && ncontr[j-1][i] > 0 && ncontr[j+1][i]>0) {
-					contributor_mask[j][i] = 1;
+					contribs.setInt(contind,1);
 					nonzero++;
 					continue;
 				}
 				if (ncontr[j][i] > 0 && ncontr[j-1][i] == 0) {  // found a rising edge, discard this value
-					decurved_data[j][i] = 0.0;
-					decurved_variance[j][i] = 0.0;
-					j++;                                        // skip the new real edge value
-					contributor_mask[j][i]=1;                          // but it does contribute
+					decind.set(j,i);
+					decvarind.set(j,i);
+					decurved_data.setDouble(decind,0.0);
+					decurved_variance.setDouble(decvarind, 0.0);
+					j++;
+					contind.set(j,i);                           // skip the new real edge value
+					contribs.setInt(contind,1);                          // but it does contribute
 					nonzero++;
 					continue;                                   
 				}
 				if (ncontr[j][i] == 0 && ncontr[j-1][i] > 0) {   // a falling edge
-					decurved_data[j-1][i] = 0.0;
-					decurved_variance[j-1][i] = 0.0;
+					decind.set(j-1,i);
+					decvarind.set(j-1,i);					
+					decurved_data.setDouble(decind,0.0);
+					decurved_variance.setDouble(decvarind,0.0);
 				}
 			}
 			/* Handle the vertical edges */
-			if (ncontr[0][i]>0) { 
-				contributor_mask[0][i]=1; nonzero++;
+			if (ncontr[0][i]>0) {
+				contind.set(0,1);
+				contribs.setInt(contind, 1); nonzero++;
 			}
 			if (ncontr[verPixels-1][i]>0) {
-				contributor_mask[verPixels-1][i]=1; nonzero++;
+				contind.set(verPixels-1, i);
+				contribs.setInt(contind, 1); nonzero++;
 			}
 		}
 		System.out.println("Geometry transformation minimum, maximum Jacobian: "+minJac +","+maxJac);
