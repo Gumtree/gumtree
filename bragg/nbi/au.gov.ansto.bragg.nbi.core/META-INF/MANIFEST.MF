@@ -7,10 +7,12 @@ Bundle-Activator: au.gov.ansto.bragg.nbi.core.internal.Activator
 Require-Bundle: org.gumtree.gumnix.sics.core;bundle-version="1.7.0";visibility:=reexport,
  twitter4j;bundle-version="2.1.0";resolution:=optional,
  org.apache.commons.httpclient;bundle-version="3.1.0",
- org.gumtree.control.core;bundle-version="1.13.0";visibility:=reexport
+ org.gumtree.control.core;bundle-version="1.13.0";visibility:=reexport,
+ ninia.jep;bundle-version="4.2.0";resolution:=optional
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: au.gov.ansto.bragg.nbi.scripting,
+Export-Package: au.gov.ansto.bragg.nbi.jep,
+ au.gov.ansto.bragg.nbi.scripting,
  au.gov.ansto.bragg.nbi.service.notification.support,
  au.gov.ansto.bragg.nbi.service.soap
 Bundle-Vendor: Bragg Institute
