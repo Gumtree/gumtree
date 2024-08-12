@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Jep
+Bundle-SymbolicName: ninia.jep
+Bundle-Version: 4.2.0.qualifier
+Bundle-ClassPath: jep-4.2.0.jar
+Bundle-Vendor: ninia Github
+Export-Package: jep,
+ jep.python
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
