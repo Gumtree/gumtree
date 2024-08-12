@@ -70,6 +70,7 @@
 		<module>${common.path}/org.gumtree.msw.ui.ktable</module>
 
 
+		<module>${extensions.path}/com.jcraft.jsch</module>
 		<module>${extensions.path}/org.beanshell</module>
 		<module>${extensions.path}/org.gumtree.beanshell.core</module>
 		<module>${extensions.path}/org.gumtree.beanshell.core.feature</module>
