@@ -31,6 +31,7 @@
 		<module>${nbi.path}/com.ostermiller.util</module>
 		<module>${nbi.path}/org.apache.poi</module>
 		<module>${nbi.path}/uk.ac.ucl.ee.flanagan</module>
+		<module>${nbi.path}/ninia.jep</module>
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.core</module>
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.algolib</module>
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.dra</module>
