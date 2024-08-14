@@ -221,6 +221,7 @@ public class GeometryCorrection extends ConcreteProcessor {
 				mNewPixels = (int) Math.round((cor2theta-inTheta0)/mdtheta);
 				// Check in with our pixelok map. A pixel which is not OK will not contribute, and the next section
 				// of code will take care of constructing the new pixel ok map
+				if(mNewPixels>=thlen) continue;
 				ncontr[j][mNewPixels]++;
 				decind.set(j, mNewPixels);
 				decvarind.set(j, mNewPixels);
@@ -364,6 +365,7 @@ public class GeometryCorrection extends ConcreteProcessor {
 					// find out where this pixel would sit on the transformed grid.
 					double grid_pos = (cor2theta-inTheta0)/mdtheta;
 					mNewPixels = (int) Math.round(grid_pos);
+					if (mNewPixels>=thlen) continue;
 					double ideal_pos = inTheta0 + mNewPixels * mdtheta;
 					
 					// proportion of intensity to assign
