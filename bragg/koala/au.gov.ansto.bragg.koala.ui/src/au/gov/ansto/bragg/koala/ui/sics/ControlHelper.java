@@ -616,6 +616,7 @@ public class ControlHelper {
 				
 				@Override
 				public void widgetSelected(SelectionEvent e) {
+					logger.warn("Drum Down button pressed.");
 					Thread runThread = new Thread(new Runnable() {
 
 						@Override
@@ -757,6 +758,7 @@ public class ControlHelper {
 				
 				@Override
 				public void widgetSelected(SelectionEvent e) {
+					logger.warn("Sample Stage Up button pressed");
 					Thread runThread = new Thread(new Runnable() {
 
 						@Override

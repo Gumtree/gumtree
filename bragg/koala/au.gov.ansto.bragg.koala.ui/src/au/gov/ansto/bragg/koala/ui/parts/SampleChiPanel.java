@@ -84,7 +84,7 @@ public class SampleChiPanel extends AbstractPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				logger.info("Zero Chi button clicked");
+				logger.warn("Zero Chi button clicked");
 				chiHighButton.setSelection(false);
 			}
 			
@@ -102,7 +102,7 @@ public class SampleChiPanel extends AbstractPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				logger.info("High Chi button clicked");
+				logger.warn("High Chi button clicked");
 				chiZeroButton.setSelection(false);
 			}
 			
@@ -121,7 +121,7 @@ public class SampleChiPanel extends AbstractPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				logger.info("Drive Chi button clicked");
+				logger.warn("Drive Chi button clicked");
 				if (chiZeroButton.getSelection()) {
 					driveSchi(0);					
 				} else if (chiHighButton.getSelection()) {
