@@ -108,6 +108,7 @@ public class ControlHelper {
 	public static final String GUMTREE_COMMENTS = "gumtree.koala.comments";
 	public static final String GUMTREE_USER_NAME = "gumtree.koala.username";
 	public static final String GALIL_STATE = "gumtree.koala.galilState";
+	public static final String GALIL_STATUS = "gumtree.koala.galilStatus";
 	
 	private final static Color BUSY_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
 	private final static Color IDLE_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
@@ -524,75 +525,152 @@ public class ControlHelper {
 		return logbookService;
 	}
 	
-	public static String getMCError() {
+//	public static String getMCError() {
+//		String err = "";
+//		try {
+//			ISicsController device = getProxy().getSicsModel().findController(System.getProperty(GALIL_STATE));
+//			if (device != null) {
+//				int state = ((IDynamicController) device).getControllerDataValue().getIntData();
+//				if (state < 0) {
+//					err = "GALIL_STATE = " + state + "; ";
+//					switch (state) {
+//					case -1:
+//						err += "Motion controller shows a -1 state, possibly cased by drum door status. \n" 
+//								+ "Reset any Safety Trip that has occurred (on Safety Touchscreen) and "
+//								+ "unlock, then relock the doors to reset the Motion Controller Sequencer.";
+//						break;
+//					case -2:
+//						err += "A Drum Carriage Z Axis Limit Switch has been activated while in a sequence. \n"
+//								+ "Contact an Instrument Scientist or Electrical Engineering Team to drive "
+//								+ "the Drum Carriage Z Axis away from the limit switch and reset all errors.";
+//						break;
+//					case -3:
+//						err += "The sequence failed to complete a step within an acceptable time (i.e. timeout error).\n" 
+//								+ "Contact the Electrical Engineering Team to determine the State that the sequence "
+//								+ "failed to complete (ST_ERR[0]) and to unlock, then lock the doors to reset.";
+//						break;
+//					case -4:
+//						err += "The Safety System detected a fault (E-stop activated, vibration was too high, "
+//								+ "laser safety relay fault, etc.) was activated during a sequence.\n" 
+//								+ "Contact an Instrument Scientist or Electrical Engineering Team to reset all "
+//								+ "errors and unlock, then lock the doors to reset.";
+//						break;
+//					case -5:
+//						err += "The IFM vibration monitoring system detected vibration exceeding a warning level "
+//								+ "during a sequence.\n" 
+//								+ "Contact the Electrical Engineering Team to check the IFM vibration monitoring "
+//								+ "system history data (where necessary they will rectify the imbalance) and to "
+//								+ "unlock, then lock the doors to reset.";
+//						break;
+//					case -6:
+//						err += "The Motion Controller detected that the Sample or Drum Carriage Z Axis exceeded "
+//								+ "their acceptable maximum value (possibly free fell) or the Motion Controller "
+//								+ "was reset or power cycled\n" 
+//								+ "Contact an Instrument Scientist or Electrical Engineering Team to reset all "
+//								+ "errors and unlock, then lock the doors to reset.";
+//						break;
+//					case -7:
+//						err += "Drum Rotation Axis Servo Amplifier is in fault: please check the following: \n"
+//								+ "  1. Is software disabled (the motion controller has not enabled the Servo "
+//								+ "Drive and/or the DriveWare App has connected to the Servo Drive but the "
+//								+ "'Software Enable' button has not been clicked – or was not clicked after "
+//								+ "connecting and then closing the App)? \n"
+//								+ "  2. Positive and Negative Velocity Limit? \n"
+//								+ "  3. Motor Over Temperature? \n"
+//								+ "  4. Feedback Sensor (encoder) error? \n"
+//								+ "  5. Drive Internal Error? \n" 
+//								+ "  6. Short Circuit \n"
+//								+ "  7. Over Current? \n"
+//								+ "  8. Under Voltage (this occurs when motion is disabled but is automatically "
+//								+ "reset when motion is enabled)? \n"
+//								+ "  9. Over Voltage? \n"
+//								+ "  10. Drive Over Temperature?";
+//						break;
+//					case -8:
+//						err += "Drum Rotation Axis Stepper Amplifier is in fault: please check the following: \n"
+//								+ "  1. No power is applied to the Stepper Amplifier (or AC voltage is too low)? \n"
+//								+ "  2. Stepper Amplifier temperature is above 55°C? \n"
+//								+ "  3. Stepper Amplifier detects a short circuit in the motor or motor cable? \n"
+//								+ "  4. Motor is not connected? \n"
+//								+ "  5. No continuity in Interlock connector? \n"
+//								+ "  6. Stepper is not enabled (motion controller has not enabled the Stepper Drive)?";
+//						break;
+//					default:
+//						err += "Unknown issue code, please contact an instrument scientist or the electrical "
+//								+ "engineering team for help.";
+//						break;
+//					}
+//				}
+//			}
+//		} catch (Exception e) {
+//		}
+//		return err;
+//	}
+
+	public static String getGalilError() {
 		String err = "";
 		try {
-			ISicsController device = getProxy().getSicsModel().findController(System.getProperty(GALIL_STATE));
+			ISicsController device = getProxy().getSicsModel().findController(System.getProperty(GALIL_STATUS));
 			if (device != null) {
-				int state = ((IDynamicController) device).getControllerDataValue().getIntData();
-				if (state < 0) {
-					err = "GALIL_STATE = " + state + "; ";
-					switch (state) {
+				int status = ((IDynamicController) device).getControllerDataValue().getIntData();
+				if (status < 0) {
+					err = "GALIL_STATUS = " + status + "; ";
+					switch (status) {
 					case -1:
-						err += "Motion controller shows a -1 state, possibly cased by drum door status. \n" 
-								+ "Reset any Safety Trip that has occurred (on Safety Touchscreen) and "
-								+ "unlock, then relock the doors to reset the Motion Controller Sequencer.";
+						err += "Motion was disabled (E-stop, Safety Trip, Motion Isolation Sw turned off or Doors not locked) during a sequence.\n"
+								+ "\r\n"
+								+ "Contact an Instrument Scientist or Electrical Engineering Team. "
+								+ "Once Safety System errors are reset, unlock, then lock the doors to reset.";
 						break;
 					case -2:
-						err += "A Drum Carriage Z Axis Limit Switch has been activated while in a sequence. \n"
-								+ "Contact an Instrument Scientist or Electrical Engineering Team to drive "
-								+ "the Drum Carriage Z Axis away from the limit switch and reset all errors.";
+						err += "The sequence failed to complete a step within an acceptable time (i.e. timeout error).\n" 
+								+ "\r\n"
+								+ "Contact the Electrical Engineering Team to determine the State that the sequence failed to complete (ST_ERR[0]). "
+								+ "Once resolved, unlock, then lock the doors to reset.";
 						break;
 					case -3:
-						err += "The sequence failed to complete a step within an acceptable time (i.e. timeout error).\n" 
-								+ "Contact the Electrical Engineering Team to determine the State that the sequence "
-								+ "failed to complete (ST_ERR[0]) and to unlock, then lock the doors to reset.";
+						err += "The Motion Controller detected that the Sample or Drum Carriage Z Axis exceeded their acceptable maximum value "
+								+ "(possibly free fell) or the Motion Controller was reset or power cycled.\n"
+								+ "\r\n"
+								+ "Contact an Instrument Scientist or Electrical Engineering Team to reset all errors. "
+								+ "Once resolved, unlock, then lock the doors to reset.";
 						break;
 					case -4:
-						err += "The Safety System detected a fault (E-stop activated, vibration was too high, "
-								+ "laser safety relay fault, etc.) was activated during a sequence.\n" 
-								+ "Contact an Instrument Scientist or Electrical Engineering Team to reset all "
-								+ "errors and unlock, then lock the doors to reset.";
+						err += "The IFM vibration monitoring system detected vibration exceeding a warning level during a sequence.\n"
+								+ "\r\n"
+								+ "Contact the Electrical Engineering Team to check the IFM vibration monitoring system history data "
+								+ "(where necessary they will rectify the imbalance). "
+								+ "Once resolved, unlock, then lock the doors to reset.";
 						break;
-					case -5:
-						err += "The IFM vibration monitoring system detected vibration exceeding a warning level "
-								+ "during a sequence.\n" 
-								+ "Contact the Electrical Engineering Team to check the IFM vibration monitoring "
-								+ "system history data (where necessary they will rectify the imbalance) and to "
-								+ "unlock, then lock the doors to reset.";
+					case -11:
+						err += "The Drum Rotation Axis Servo Amplifier is in fault (or hasn’t enabled when commanded to do so)\n"
+								+ "\r\n"
+								+ "Contact the Electrical Engineering Team to determine the status of the Servo Amplifier (via the AMC DriveWare App). "
+								+ "Once resolved, unlock, then lock the doors to reset.";
 						break;
-					case -6:
-						err += "The Motion Controller detected that the Sample or Drum Carriage Z Axis exceeded "
-								+ "their acceptable maximum value (possibly free fell) or the Motion Controller "
-								+ "was reset or power cycled\n" 
-								+ "Contact an Instrument Scientist or Electrical Engineering Team to reset all "
-								+ "errors and unlock, then lock the doors to reset.";
+					case -12:
+						err += "The Drum Carriage Z Axis Stepper Amplifier is in fault (or hasn’t enabled when commanded to do so)\n" 
+								+ "\r\n"
+								+ "Contact the Electrical Engineering Team to determine the status of the Axis B Stepper Amplifier. "
+								+ "Once resolved, to unlock, then lock the doors to reset.";
 						break;
-					case -7:
-						err += "Drum Rotation Axis Servo Amplifier is in fault: please check the following: \n"
-								+ "  1. Is software disabled (the motion controller has not enabled the Servo "
-								+ "Drive and/or the DriveWare App has connected to the Servo Drive but the "
-								+ "'Software Enable' button has not been clicked – or was not clicked after "
-								+ "connecting and then closing the App)? \n"
-								+ "  2. Positive and Negative Velocity Limit? \n"
-								+ "  3. Motor Over Temperature? \n"
-								+ "  4. Feedback Sensor (encoder) error? \n"
-								+ "  5. Drive Internal Error? \n" 
-								+ "  6. Short Circuit \n"
-								+ "  7. Over Current? \n"
-								+ "  8. Under Voltage (this occurs when motion is disabled but is automatically "
-								+ "reset when motion is enabled)? \n"
-								+ "  9. Over Voltage? \n"
-								+ "  10. Drive Over Temperature?";
+					case -13:
+						err += "The Sample Carriage Z Axis Stepper Amplifier is in fault (or hasn’t enabled when commanded to do so)\n" 
+								+ "\r\n" 
+								+ "Contact the Electrical Engineering Team to determine the status of the Axis B Stepper Amplifier. "
+								+ "Once resolved, to unlock, then lock the doors to reset.";
 						break;
-					case -8:
-						err += "Drum Rotation Axis Stepper Amplifier is in fault: please check the following: \n"
-								+ "  1. No power is applied to the Stepper Amplifier (or AC voltage is too low)? \n"
-								+ "  2. Stepper Amplifier temperature is above 55°C? \n"
-								+ "  3. Stepper Amplifier detects a short circuit in the motor or motor cable? \n"
-								+ "  4. Motor is not connected? \n"
-								+ "  5. No continuity in Interlock connector? \n"
-								+ "  6. Stepper is not enabled (motion controller has not enabled the Stepper Drive)?";
+					case -19:
+						err += "The Drum Rotation Axis has a following error.\n" 
+								+ "\r\n" 
+								+ "Contact the Electrical Engineering Team to determine why the Drum Rotation Axis incurred a following error. "
+								+ "Once resolved, to unlock, then lock the doors to reset.";
+						break;
+					case -21:
+						err += "A Drum Carriage Z Axis Limit Switch has been activated while in a sequence\n" 
+								+ "\r\n" 
+								+ "Contact an Instrument Scientist or Electrical Engineering Team to drive the Drum Carriage Z Axis "
+								+ "away from the limit switch and reset all errors.";
 						break;
 					default:
 						err += "Unknown issue code, please contact an instrument scientist or the electrical "
@@ -605,7 +683,7 @@ public class ControlHelper {
 		}
 		return err;
 	}
-
+	
 	public static class DrumZHelper {
 		
 		private Button drumButton;
