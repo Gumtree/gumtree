@@ -138,7 +138,7 @@ public class GeometryCorrection implements ConcreteProcessor {
 				variance_array = variance_array.getArrayUtils().flip(drank-1).getArray();
 				thetaArray = thetaArray.getArrayUtils().flip(thshape.length-1).getArray();
 			}
-			correctGeometry(dataArray, radius,
+			/*correctGeometry(dataArray, radius,
 						thetaArray, verticalOffset,
 						variance_array,
 						(int [][]) contribs_array.getArrayUtils().copyToNDJavaArray());
@@ -182,63 +182,30 @@ public class GeometryCorrection implements ConcreteProcessor {
 	 * @param Zpvertic  Offset in z position at each 2-theta value
 	 * @param contribs  2D Pixel ok map
 	 * @param radius Curved detector radius
+	 * @param stepsize The angular step between each two-theta bin, in degrees.
 	 */
-	public void correctGeometry (IArray iSample, double radius, IArray thetaVect, double[] Zpvertic, IArray variance,
-			int [][] contribs) throws InvalidRangeException,ShapeNotMatchException,Exception
+	public void correctGeometry (IArray iSample, double radius, double stepsize, IArray thetaVect, IArray Zpvertic, IArray variance,
+			int bottom, int top,
+			/* output */
+            IArray contributor_mask, IArray decurved_data, IArray decurved_variance) throws InvalidRangeException,ShapeNotMatchException,Exception
 			{   		
 		int[] dataShape = iSample.getShape();
 		IIndex dindex = iSample.getIndex();
 		int dlength = iSample.getRank();
 		int verPixels = dataShape[dlength-2];  //least rapidly varying index
 		int horiPixels = dataShape[dlength-1]; //most rapidly varying index
-		int mScanxPixels = horiPixels;  
-		// If there are multiple extra dimensions theta will be a multi-dimensional array:
-		// In fact, there should be dlength-1 dimensions of theta
-		if(thetaVect.getRank()!=dlength-1) {
-			String errorstring = String.format("Geometry correction fails: theta array has rank %d for data of rank %d",
-					thetaVect.getRank(),dlength);
-			throw new Exception(errorstring);
-		}
+		
+		// If there are multiple extra dimensions theta will be a multi-dimensional array: if
+		// the detector is stationary theta dimension will be lower
+		
+		boolean stationary = (thetaVect.getRank()==1);
+		
 		int mNewPixels = 0;
 		double cor2theta = 0.0;    // corrected value
 		double invz =0.0;
-		contributor_mask = new int [verPixels][mScanxPixels];
-		//set all values to 1
-		for(int j=0;j<verPixels;j++)
-			for(int k=0;k<mScanxPixels;k++) contributor_mask[j][k]=1;
-		/* The geometry corrector class produces an object which will convert a pixel
-		 * value to an angular value.  We will use this for interpolation later
-		 */
-		GeometryCorrecter ac;
-		if(Zpvertic != null)
-			/* A detector with centre point 0,0 in both pixel and
-			 * world coordinates, curved in X direction only and with
-			 * pixels separated by 0.01 units.  For our purposes
-			 * only the y centre point in pixel units and the
-			 * detector radius are used.
-			 */
-			ac= new GeometryCorrecter(radius,new FPoint(0.0,0.0),	
-					new FPoint(0.0,0.0),
-					true,false,
-					new FPoint(0.01f,0.01f),
-					1);
-		else 
-			/* No vertical pixels available: centre point at 0,150 in both
-			 * pixel and world coordinates, 0.01 size pixels. We should never use this
-			 */
-			ac= new GeometryCorrecter(radius,new FPoint(0,150.0),      			
-					new FPoint(0,150.0),
-					true,false,
-					new FPoint(0.01,0.01),
-					1);
-
-		/* It is possible that we have unevenly-spaced theta bins, and we are not proposing to respace
-		 * them evenly in this algorithm.  At the same time, we want it to be as easy as possible to correct
-		 * for any action that we take here.  So, when searching for the appropriate bin in which to put a
-		 * recalculated theta value, we simply search in the appropriate direction until we find something 
-		 * suitable.
-		 */
-
+		double radsq = radius * radius;
+		double mdtheta = stepsize * Math.PI/180;
+		
 		/* our strategy is to calculate the true two-theta value of each pixel, and insert the intensity
 		 * into our array of (y, true 2-theta)-indexed intensities.  It is quite possible that several
 		 * source pixels might map onto a single target pixel, so we keep track of this as we go. Unlike
@@ -257,107 +224,118 @@ public class GeometryCorrection implements ConcreteProcessor {
 		 * larger efficiency value.  They will be weaker by a factor of the Jacobian, so multiplication
 		 * by the Jacobian should not be necessary.
 		 */
-		decurved_variance = Factory.createArray(double.class, dataShape); //new variances
-		decurved_data = Factory.createArray(double.class, dataShape);      //output data
-		// double inTheta0 = thetaVect.[0] * (Math.PI)/180; //start angle, radians
-		double Jacobian = 0.0;  // for storing the Jacobian
-		// loop over input pixel array
-		double maxJac = 0.0;     //because we can
-		double minJac = 5.0;
+
 		ISliceIterator data_iter = iSample.getSliceIterator(2);
 		ISliceIterator out_iter = decurved_data.getSliceIterator(2);
 		ISliceIterator out_var_iter = decurved_variance.getSliceIterator(2);
 		ISliceIterator var_iter = variance.getSliceIterator(2);
-		ISliceIterator tth_iter = thetaVect.getSliceIterator(1);
-		// Now loop over images, looping over our twotheta array as well
+		ISliceIterator contrib_iter = contributor_mask.getSliceIterator(2);
+		ISliceIterator tth_iter = null;
+		
+		if (!stationary) tth_iter = thetaVect.getSliceIterator(1);
+		
+		/* Not clear what the best strategy here is for multiple frames. If we loop over
+		 vertical, then horizontal, then frame, we minimise floating-point calculations,
+		 but we will skip around the data structure and lose the benefit of caching.
+		 
+		 If we simply iterate over every point, we will perform some calculations at least 100 * nframes
+		 times more often than necessary. So we loop over frames, but within a single frame we loop
+		 over height, then angle.
+		
+		*/
+		IIndex zpind = Zpvertic.getIndex();
+		IArray this_tthvect = thetaVect;
+		
+		// Now loop over images
 		while(data_iter.hasNext()) {
-			double ncontr[][] = new double [verPixels][mScanxPixels]; //number of contributions
-			IArray this_tthvect = tth_iter.getArrayNext();
-
+			double ncontr[][] = new double [verPixels][horiPixels]; //number of contributions
+			if (!stationary) {
+			    this_tthvect = tth_iter.getArrayNext();
+			}
+			
 			// values for working out pixel location in our array. 
-			// We assume that the 2theta value corresponds to the centre of the pixel.  Therefore, we expect 
-			// thlen-1 bins from thlen points.
+			// We assume that the 2theta value corresponds to the centre of the pixel.
 
 			IIndex tth_index = this_tthvect.getIndex();
-			double dtheta = (this_tthvect.getDouble(tth_index.set(mScanxPixels-1)) -this_tthvect.getDouble(tth_index.set(0)))
-			/ (mScanxPixels-1);  //negative if order is reversed
-			double mdtheta = dtheta * Math.PI/180.0; // 
-			List<Double> thetagrid = new ArrayList<Double>((int) this_tthvect.getSize());
-			IArrayIterator ai = this_tthvect.getIterator();
-			// Copy this tth array to a hashable list in radians
-			while(ai.hasNext()) thetagrid.add(ai.getDoubleNext()*Math.PI/180.0);
-			// Now loop over each point in each image
-			IArrayIterator twod_data_iter = data_iter.getArrayNext().getIterator();
-			IArrayIterator twod_var_iter = var_iter.getArrayNext().getIterator();
+			double start_theta = this_tthvect.getDouble(tth_index.set(0)) * Math.PI/180.0;
+			
+			// Now set things up for this frame
+			
+			IArray twod_data = data_iter.getArrayNext();
+			IIndex twod_d_ind = twod_data.getIndex();
+			
+			IArray twod_var = var_iter.getArrayNext();
+			IIndex twod_v_ind = twod_var.getIndex();
+			
 			IArray twod_outd_arr = out_iter.getArrayNext();
 			IArray twod_outv_arr = out_var_iter.getArrayNext();
 			IIndex twod_outv_ind = twod_outv_arr.getIndex();
 			IIndex twod_outd_ind = twod_outd_arr.getIndex();
-			while(twod_data_iter.hasNext())
-				// for(int i = 0; i < mScanxPixels; i++)  
+			IArray contrib_arr = contrib_iter.getArrayNext();
+			IIndex contrib_ind = contrib_arr.getIndex();
+			
+			// Loop over vertical position
+			for(int j = bottom; j < top; j++)
 			{
-				//	for(int j = 0; j < verPixels; j++)
-				//	{
-				double twod_data_value = twod_data_iter.getDoubleNext();
-				int[] twod_pos = twod_data_iter.getCounter();  //[vert,horiz] is standard for data
-				double inTheta = 	this_tthvect.getDouble(tth_index.set(twod_pos[1])) * (Math.PI)/180; // convert to radians
-				if (Zpvertic != null) invz = Zpvertic[twod_pos[0]]; //vertical offset for this vertical pixel coordinate
-				cor2theta = ac.getAngle2theta(inTheta,invz); //actual 2 theta value in radians
-				// We calculate the Jacobian, but it is not presently used
-				Jacobian = 1.0/Math.sqrt(1.0-Math.pow(Math.cos(cor2theta),2))*Math.sin(inTheta);
-				if(Jacobian>maxJac) maxJac = Jacobian;
-				if(Jacobian<minJac) minJac = Jacobian;
-				// find out where this pixel would sit on the transformed grid.
-				// We do a binary search on our thetagrid, which will return either an exact match or else
-				// the insertion point, defined as the position that this value would be in the list.  Which
-				// means we have to decide either to assign this value to the previous 2 theta coordinate,
-				// or else the next one.  We take the halfway point between them as the boundary
-				// Collections.sort(thetagrid);
-				mNewPixels = Collections.binarySearch(thetagrid, cor2theta);  //get (-insertion point) - 1
-				// if(invz>=0 && (i%1000==0 || i%1000==1)) System.out.printf("IP %d ",mNewPixels);
-				// For reference, the value on an even grid
-				int mOldPixels = (int) Math.round((cor2theta-(this_tthvect.getDouble(tth_index.set(0))*Math.PI/180))/mdtheta);
-				if (mNewPixels < 0)              //no exact match, as will be the case away from equator
-				{
-					mNewPixels = (-1*mNewPixels)-1;            // now equal to insertion point
-					if(mNewPixels > 0 && mNewPixels < mScanxPixels) {    // otherwise no point in the following calculation
-						// adjust for the nearest neighbour
-						double dist = cor2theta - thetagrid.get(mNewPixels-1);
-						double local_span = thetagrid.get(mNewPixels) - thetagrid.get(mNewPixels-1);
-						if (dist < local_span/2) mNewPixels--;
-						// Some debugging output
-						//if(invz>=0 &&(i%1000 == 0 || i%1000 == 1)) {
-						//   System.out.printf("%f %d -> %f %f, assigned to %f *%f* %f (bin %d, dist %f, span %f)%n",inTheta,j,cor2theta,invz,
-						//		   mNewPixels >0 ? thetagrid.get(mNewPixels-1):0.0, thetagrid.get(mNewPixels),thetagrid.get(mNewPixels+1),
-						//		   mNewPixels, dist, local_span);
-						// }
-					}
-					// due to rounding error we could conceive of getting an insertion point beyond the last element.  We assume that
-					// it would be assigned to the last bin in any case
-					if (mNewPixels == mScanxPixels) mNewPixels--;   //assign to last element
-				}
-				// Check in with our pixelok map. A pixel which is not OK will not contribute, and the next section
-				// of code will take care of constructing the new pixel ok map. 
-				if(contribs[twod_pos[0]][twod_pos[1]]==1) {
-					ncontr[twod_pos[0]][mNewPixels]++;	
-					//Now create a view of the array where the final two dimensions are fixed, then iterate over it
-					//setting the data and variance values
-					/* Array loop_array = iSample.sectionNoReduce(origin_list, range_list, null);
-					Array loop_err_array = variance.sectionNoReduce(origin_list, range_list, null);
-					Array out_array = decurved_data.sectionNoReduce(origin_list, range_list, null);
-					Array out_var_array = decurved_variance.sectionNoReduce(origin_list, range_list, null);
-					ArrayIterator oa_iter = out_array.getIterator();
-					ArrayIterator oae_iter = out_var_array.getIterator();
-					ArrayIterator la_iter = loop_array.getIterator();
-					ArrayIterator lae_iter = loop_err_array.getIterator();*/
+				invz = Zpvertic.getDouble(zpind.set(j)); //vertical offset for this vertical pixel coordinate
+				double xFactor = radius/Math.sqrt(radsq+invz*invz);
+
+				for(int i = 0; i < horiPixels; i++) {  //loop over raw two theta grid
+					double inTheta = 	this_tthvect.getDouble(tth_index.set(i)) * (Math.PI)/180; // convert to radiansraw
+					double oldcos = Math.cos(inTheta);
+					cor2theta = Math.acos(xFactor*oldcos);    //potential sign issues?
+				
+					// find out where this pixel would sit on the transformed grid.
+					
+					double grid_pos = (cor2theta-start_theta)/mdtheta;
+					mNewPixels = (int) Math.round(grid_pos);
+					double ideal_pos = start_theta + mNewPixels * mdtheta;
+				
+					// proportion of intensity to assign
+				
+					double shift = (cor2theta - ideal_pos)/mdtheta;
+				
+				/* Use offset as a proxy for proportion of the pixel to move. If shift is positive, the ideal position is to the right
+				 * and the next pixel right will get shift*intensity added to it. If shift is negative, the ideal position is back to
+				 * the left of centre and that position will get abs(shift)* intensity added to it. In both cases the ideal pixel gets
+				 * the remainder of the intensity. 
+				 */
+					int partial = (int) (mNewPixels + Math.signum(shift));
+					shift = Math.abs(shift);
+					
+					if (mNewPixels >= horiPixels) {
+						mNewPixels--;   //assign to last element
+						shift = 0;
+						partial = -1;
+					}	
+				
+					// Count contributions to this pixel
+				
+					ncontr[j][mNewPixels]+=(1-shift);
+					
+					
 					// Add contribution of this pixel to the appropriate place
 
-					twod_outd_ind.set(twod_pos[0],mNewPixels);
-					twod_outd_arr.setDouble(twod_outd_ind,twod_outd_arr.getDouble(twod_outd_ind)+twod_data_value);
-					twod_outv_ind.set(twod_pos[0],mNewPixels);
-					twod_outv_arr.setDouble(twod_outv_ind,twod_outv_arr.getDouble(twod_outv_ind)+twod_var_iter.getDoubleNext());
-				}
-			}
+					twod_v_ind.set(j,i);
+					twod_d_ind.set(j, i);
+					twod_outv_ind.set(j,mNewPixels);
+					twod_outd_ind.set(j,mNewPixels);
+					
+					twod_outd_arr.setDouble(twod_outd_ind,twod_outd_arr.getDouble(twod_outd_ind)+twod_data.getDouble(twod_d_ind) * (1 - shift));
+					twod_outv_arr.setDouble(twod_outv_ind,twod_outv_arr.getDouble(twod_outv_ind)+twod_var.getDouble(twod_v_ind) * (1 - shift));
+					
+					// Now the remainder that overlaps the neighbour
+					
+					if (partial >= 0 && partial < horiPixels) {
+					    ncontr[j][partial] += shift;
+					    twod_outd_ind.set(j, partial);
+					    twod_outv_ind.set(j, partial);
+						twod_outd_arr.setDouble(twod_outd_ind,twod_outd_arr.getDouble(twod_outd_ind)+twod_data.getDouble(twod_d_ind) * shift);
+						twod_outv_arr.setDouble(twod_outv_ind,twod_outv_arr.getDouble(twod_outv_ind)+twod_var.getDouble(twod_v_ind) * shift);
+					}
+			}  // horizontal coord
+		}      // vertical coord
+			
 			/* When this dataset is vertically integrated, we need to avoid accessing the regions that were
 		 not accessible to the cylindrical detector but after straightening transformation are now included
 		 in the output array.  We thus create a 'mask' array with 0 in non-contributor positions and '1' in
@@ -368,13 +346,14 @@ public class GeometryCorrection implements ConcreteProcessor {
 		 efficiency (or more properly flood-field) correction has taken care of the compression effects already.
 			 */
 			int nonzero = 0; // count nonzero pixels
-			for(int i=0;i<mScanxPixels;i++)
+			for(int i=0;i<horiPixels;i++)
 			{
 				//	System.out.printf("%d: ",i);
 				for(int j=1;j<verPixels-1;j++) {
 					/* look for the edges */
 					if (ncontr[j][i] > 0 && ncontr[j-1][i] > 0 && ncontr[j+1][i]>0) {
-						contributor_mask[j][i] &= 1;   //All slices must have a contributor for this to count
+						contrib_ind.set(j,i);
+					    contrib_arr.setInt(contrib_ind, 1);
 						nonzero++;
 						continue;
 					}
@@ -383,8 +362,9 @@ public class GeometryCorrection implements ConcreteProcessor {
 						twod_outd_arr.setDouble(twod_outd_ind,0);
 						twod_outv_ind.set(j,i);
 						twod_outv_arr.setDouble(twod_outv_ind,0);
-						j++;                                        // skip the new real edge value
-						contributor_mask[j][i]&=1;                          // but it does contribute
+						j++;
+						contrib_ind.set(j,i);
+						contrib_arr.setInt(contrib_ind, 1);                          // but it does contribute
 						nonzero++;
 						continue;                                   
 					}
@@ -397,15 +377,16 @@ public class GeometryCorrection implements ConcreteProcessor {
 				}  // end of loop over one vertical strip
 				/* Handle the vertical edges */
 				if (ncontr[0][i]>0) { 
-					contributor_mask[0][i]&=1; nonzero++;
+					contrib_ind.set(0,i);
+					contrib_arr.setInt(contrib_ind, 1); nonzero++;
 				}
 				if (ncontr[verPixels-1][i]>0) {
-					contributor_mask[verPixels-1][i]&=1; nonzero++;
+					contrib_ind.set(verPixels-1,i);
+					contrib_arr.setInt(contrib_ind, 1); nonzero++;
 				}
 			}  //end of loop over all horizontal coordinates
 			System.out.printf("Nonzero pixels in mask for this frame: %d%n",nonzero);
 		}  //end of loop over all frames
-		System.out.println("Geometry transformation minimum, maximum Jacobian: "+minJac +","+maxJac);
 	}
 
 	public IGroup getGeometryCorrection_output() {
