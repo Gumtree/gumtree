@@ -26,6 +26,8 @@ import org.gumtree.control.ui.viewer.ControlViewer;
 import org.gumtree.control.ui.viewer.model.INodeSet;
 import org.gumtree.control.ui.viewer.model.NodeSet;
 import org.gumtree.util.string.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.koala.ui.Activator;
 import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
@@ -42,6 +44,7 @@ public class AdminPanel extends AbstractPanel {
 	private static final int HEIGHT_HINT = 1080;
 	private static final int WIDTH_HINT_SMALL = 1560;
 	private static final int HEIGHT_HINT_SMALL = 720;
+	private static final Logger logger = LoggerFactory.getLogger(AdminPanel.class);
 
 	private MainPart mainPart;
 	private int panelWidth;
@@ -79,6 +82,7 @@ public class AdminPanel extends AbstractPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.warn("Reload SICS Model button pressed");
 				Thread reloadThread = new Thread(new Runnable() {
 					
 					@Override
@@ -108,6 +112,7 @@ public class AdminPanel extends AbstractPanel {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				logger.warn("Reconnect to SICS button pressed");
 				Thread reconnectThread = new Thread(new Runnable() {
 					
 					@Override
