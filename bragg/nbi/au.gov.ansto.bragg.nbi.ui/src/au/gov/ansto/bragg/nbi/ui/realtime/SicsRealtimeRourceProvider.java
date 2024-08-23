@@ -94,7 +94,7 @@ public class SicsRealtimeRourceProvider implements IRealtimeResourceProvider {
 			}
 			List<String> nickname = controller.getPropertyValue(PROP_NICKNAME);
 			if (nickname.size() > 0) {
-				id += " - " + nickname.get(0);
+				id = controller.getId() + " - " + nickname.get(0);
 			}
 			List<String> units = controller.getPropertyValue(PROP_UNITS);
 			if (units.size() > 0) {
