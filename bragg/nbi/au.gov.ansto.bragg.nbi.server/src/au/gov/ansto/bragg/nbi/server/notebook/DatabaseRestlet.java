@@ -86,8 +86,10 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 			return null;
 		}
 		String directIp = request.getClientInfo().getUpstreamAddress();
+		logger.debug("allowed ips = " + allowedDavIps);
+		logger.debug("direct ip = " + directIp);
 		if (directIp != null) {
-			if (directIp != null && directIp.equals("127.0.0.1")) {
+			if ((directIp != null && directIp.equals("127.0.0.1")) || (directIp != null && directIp.endsWith(":0:0:1"))) {
 				UserSessionObject session = new UserSessionObject();
 				session.setDAV(true);
 				session.setUserName(System.getenv("gumtree.instrument.id"));
@@ -108,6 +110,7 @@ public class DatabaseRestlet extends Restlet implements IDisposable {
 		if (header != null) {
 			Form qform = (Form) header;
 			String forwardedIp = qform.getFirstValue("X-Forwarded-For");
+			logger.debug("forward ip = " + forwardedIp);
 			if (forwardedIp != null) {
 				if (forwardedIp.contains(",")) {
 					forwardedIp = forwardedIp.split(",")[0].trim();
