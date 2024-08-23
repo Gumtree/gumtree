@@ -71,6 +71,7 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 //					} else if (id.startsWith("I")) {
 //						units = "A";
 //					}
+					final String labelName = label;
 					if (aliasName != null) {
 						label = aliasName;
 					} else {
@@ -82,7 +83,8 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 					}
 					String fullname = null;
 					if (nickname != null) {
-						fullname = label + "(" + nickname + ")";
+						nickname = nickname.trim();
+						fullname = labelName + "(" + nickname + ")";
 					} else {
 						fullname = label;
 					}

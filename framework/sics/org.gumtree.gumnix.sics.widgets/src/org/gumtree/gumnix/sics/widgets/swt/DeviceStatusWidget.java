@@ -43,7 +43,7 @@ import org.osgi.service.event.Event;
 public class DeviceStatusWidget extends ExtendedSicsComposite {
 
 	private static final int SICS_CONNECTION_TIMEOUT = 5000;
-	
+	private static final int LABEL_MAX_LENGTH = 14;
 	private IDataAccessManager dataAccessManager;
 
 	private IDelayEventExecutor delayEventExecutor;
@@ -660,6 +660,9 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 						} 
 					} else {
 						text = converter.convertValue(data);
+					}
+					if (text.length() > LABEL_MAX_LENGTH) {
+						text = text.substring(0, LABEL_MAX_LENGTH) + "...";
 					}
 					label.setText(text);
 					// TODO: does it have any performance hit?
