@@ -66,6 +66,7 @@
             <h3 class="h4" id="id_device_title">Please use the side bar to select a motion control axis.</h3>
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
+	            <button id="id_button_help" class="btn btn-sm btn-outline-secondary" data-toggle="tooltip" title="Show help in a new tab.">Help</button>
                 <button id="id_button_reset" class="btn btn-sm btn-outline-secondary" data-toggle="tooltip" title="Reset changes to the current axis.">Reset</button>
                 <button id="id_button_save" class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-target="#id_modal_saveDialog" title="Save changes to the current axis.">Save</button>
                 <button id="id_button_history" class="btn btn-sm btn-group-toggle btn-outline-secondary" data-toggle="buttons" title="Toggle the history side bar.">History</button>
@@ -214,6 +215,33 @@
 	  </div>
 	</div>
 
+	<div class="modal" tabindex="-1" role="dialog" id="id_modal_deleteMC">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Confirm to delete the selected Motion Controller.</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	      	<p>Deleting the only motor in an axis will trigger deleting the whole axis. And deleting the only axis in the motion controller will 
+	      		trigger the whole motion controller to be removed from the model. 
+	      		If you want to keep the axis, please add a new motor before deleting the current motor. 
+	      		Click the 'Delete' button to confirm deleting the axis.</p>
+	        <p>Axis to be deleted: <span id="id_span_deleteAxisName5"></span></p>
+	        <p>Motion controller to be deleted: <span id="id_span_deleteMCid5"></span></p>
+	        <p>Please add a short message about this change for version control purpose.</p>
+	        <input id="id_input_deleteMCMessage5" class="form-control" type="text" placeholder="Commit message" aria-label="message">
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" id="id_button_deleteMC5">Delete</button>
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->

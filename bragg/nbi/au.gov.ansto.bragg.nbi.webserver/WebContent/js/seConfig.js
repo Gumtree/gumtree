@@ -207,6 +207,12 @@ class AbstractDeviceModel {
 	}
 
 	getConfigModel(did, cid) {
+		if (!(did in this.model)) {
+			return {};
+		} 
+		if (!(cid in this.model[did])) {
+			return {};
+		}
 		return this.model[did][cid];
 	}
 	
@@ -225,6 +231,9 @@ class AbstractDeviceModel {
 	}
 	
 	getDeviceModel(did) {
+		if (!(did in this.model)) {
+			return {};
+		}
 		return this.model[did];
 	}
 	
@@ -338,6 +347,7 @@ class InstrumentModel extends AbstractDeviceModel {
 				const datype = cfg[KEY_DATYPE];
 				newConfig[KEY_DATYPE] = datype;
 				const typeId = obj.getNextTypeId(datype, 1);
+				console.log("add " + datype + " " + typeId);
 				newConfig[ID_PROP_ID] = typeId;
 				var prefix = datype;
 				if (datype in DEFAULT_SUB_DEVICE_NAME_PREFIX) {
@@ -817,6 +827,10 @@ class InstrumentDevice extends AbstractDevice {
 			_title.text(obj.did);
 			StaticUtils.clearMsg();
 
+			if (!(obj.did in _dbModel.model)) {
+				StaticUtils.showWarning("device " + obj.did + " not found in the Device Database.");
+			}
+			
 			_editorTitle.text('Use the tab menu to load configuration of sub-device');
 			this.curCid = null;
 			$.each(Object.values(this.configEditors), function(idx, propTable) {
@@ -854,7 +868,7 @@ class InstrumentDevice extends AbstractDevice {
 			const obj = this;
 			const curConfig = obj.editorModel[cid];
 			const dbConfig = _dbModel.getConfigModel(obj.did, cid);
-			const config = $.extend(true, {}, curConfig, dbConfig);
+			const config = $.extend(true, {}, dbConfig, curConfig);
 //			_tabs.empty();
 			var datype = obj.editorModel[KEY_STATIC][KEY_DATYPE];
 			
@@ -909,7 +923,7 @@ class InstrumentDevice extends AbstractDevice {
 			return;
 		}
 		const dModel = _dbModel.getDeviceModel(driverId);
-		if (dModel == null) {
+		if (Object.keys(dModel).length == 0) {
 //			throw new Error('device not found in the Device Database: ' + driverId);
 			StaticUtils.showError('device not found in the Device Database: ' + driverId);
 			return;
@@ -1101,22 +1115,26 @@ class InstrumentDevice extends AbstractDevice {
 			const configModel = obj.model[cid];
 			const configSelection = configModel[ID_PROP_CONFIGID];
 			const driverId = obj.getDriverName(cid);
+			if (!(obj.did in _dbModel.model)) {
+				_errorReport.addError(obj.did, cid, "device " + obj.did + " not found in the Database");
+				return false;
+			}
 			if (driverId == null) {
 //				StaticUtils.showError('device ID not found in configuration');
 				_errorReport.addError(obj.did, cid, "configuration doesn't have a deviceId property");
-				return;
+				return false;
 			}
 			const dModel = _dbModel.getDeviceModel(driverId);
-			if (dModel == null) {
+			if (Object.keys(dModel).length == 0) {
 				_errorReport.addError(obj.did, cid, 'device ' + driverId + ' not found in the Database');
 //				StaticUtils.showError('device not found in the Device Database: ' + driverId);
-				return;
+				return false;
 			}
 			const cModel = dModel[configSelection];
 			if (cModel == null) {
 //				StaticUtils.showError('configuration not found in database device: ' + newConfigId);
 				_errorReport.addError(obj.did, cid, 'configuration ' + configSelection + ' not found in physical device: ' + driverId);
-				return;
+				return false;
 			}
 		});
 

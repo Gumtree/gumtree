@@ -157,8 +157,8 @@ class InstrumentModel {
 		
 	createUi() {
 		const obj = this;
-		$.each(this.model, function(mcid, controllerModel){
-			const controller = new Controller(mcid, controllerModel, obj.$menuBar);
+		$.each(Object.keys(obj.model).sort(), (idx, mcid) => {
+			const controller = new Controller(mcid, obj.model[mcid], obj.$menuBar);
 			controller.createMenuUi();
 			obj.setController(mcid, controller);
 		});
@@ -197,7 +197,16 @@ class InstrumentModel {
 		}
 		
 		const obj = this;
-		const toCopy = Utils.getFirstObject(Utils.getFirstObject(Utils.getFirstObject(obj.model)));
+		var toCopy;
+		if (_curAxis != null) {
+			if (_curAxis.curMid != null) {
+				toCopy = _curAxis.model[_curAxis.curMid];
+			} else {
+				toCopy = Utils.getFirstObject(_curAxis.model);
+			}
+		} else {
+			toCopy = Utils.getFirstObject(Utils.getFirstObject(Utils.getFirstObject(obj.model)));
+		}
 		const newMotorModel = $.extend(true, {}, toCopy);
 		const newAxisModel = {};
 		const newControllerModel = {};
@@ -213,6 +222,9 @@ class InstrumentModel {
 			desc = newMotorModel[KEY_DEVICE_DESC];
 		}
 		obj.updatePathTable(newMcid, newAid, newMid, desc)
+		
+		controller.axes[newAid].setDirtyFlag();
+		controller.axes[newAid].load(newMid);
 	}
 	
 	updatePathTable(newMcid, newAid, newMid, desc) {
@@ -291,7 +303,7 @@ class Controller {
 	}
 	
 	getAxis(aid) {
-		return this.motors[aid];
+		return this.axes[aid];
 	}
 	
 	createMenuUi() {
@@ -311,8 +323,8 @@ class Controller {
 //		});
 		
 		const $menuUl = $('<ul id="ul_mc_'+ this.aid + '" class="nav flex-column class_ul_hide class_ul_folder"></ul>');
-		$.each(this.model, function(aid, axisModel) {
-			const axis = new Axis(obj, aid, axisModel, $menuUl);
+		$.each(Object.keys(obj.model).sort(), function(idx, aid) {
+			const axis = new Axis(obj, aid, obj.model[aid], $menuUl);
 			axis.createMenuUi();
 			obj.axes[aid] = axis;
 //			obj.motors[aid] = axis;
@@ -381,15 +393,36 @@ class Controller {
 		const obj = this;
 //		const toCopy = Utils.getFirstObject(Utils.getFirstObject(Utils.getFirstObject(obj.model)));
 		var toCopy;
-		if (_curAxis != null && _curAxis.controller.mcid == obj.mcid) {
-			toCopy = _curAxis.model;
+//		if (_curAxis != null && _curAxis.controller.mcid == obj.mcid) {
+//		if (_curAxis != null) {
+//			if (_curAxis.curMid != null) {
+//				toCopy = _curAxis.model;
+//			}
+//		} else {
+//			toCopy = Utils.getFirstObject(obj.model);
+//		}
+//		if (toCopy == null) {
+//			toCopy = Utils.getFirstObject(Utils.getFirstObject(_instModel.model));
+//		}
+//		toCopy = Utils.getFirstObject(toCopy);
+		
+		var toCopy;
+		if (_curAxis != null) {
+			if (_curAxis.curMid != null) {
+				toCopy = _curAxis.model[_curAxis.curMid];
+			} else {
+				toCopy = Utils.getFirstObject(_curAxis.model);
+			}
 		} else {
-			toCopy = Utils.getFirstObject(obj.model);
+			const axisModel = Utils.getFirstObject(obj.model);
+			if (axisModel != null) {
+				toCopy = Utils.getFirstObject(axisModel);
+			}
 		}
 		if (toCopy == null) {
-			toCopy = Utils.getFirstObject(Utils.getFirstObject(_instModel.model));
+			toCopy = Utils.getFirstObject(Utils.getFirstObject(Utils.getFirstObject(_instModel.model)));
 		}
-		toCopy = Utils.getFirstObject(toCopy);
+
 		const newMotorModel = $.extend(true, {}, toCopy);
 		const newAxisModel = {};
 		newAxisModel[newMid] = newMotorModel;
@@ -432,6 +465,9 @@ class Controller {
 					obj.motors = {};
 					obj.motorMenuDict = {};
 					_homeButton.run();
+					if (Object.keys(obj.axes).length == 0) {
+						obj.dispose();
+					}
 				} else {
 					showMsg(data["reason"], 'danger');
 				}
@@ -442,6 +478,15 @@ class Controller {
 			console.log(e);
 			showMsg("Faied to delete: " + e.statusText, "danger");
 		});
+	}
+	
+	dispose() {
+		this.$addAxis.remove();
+		this.$menuUl.remove();
+		this.$menuHeader.remove();
+		this.axes = {};
+		this.motors = {};
+		this.motorMenuDict = {};
 	}
 }
 
@@ -798,10 +843,18 @@ class Axis {
 
 //		const toCopy = Utils.getFirstObject(Utils.getFirstObject(Utils.getFirstObject(obj.model)));
 		var toCopy;
-		if (obj.curMid != null) {
-			toCopy = obj.model[obj.curMid];
+		if (_curAxis != null) {
+			if (_curAxis.curMid != null) {
+				toCopy = _curAxis.model[_curAxis.curMid];
+			} else {
+				toCopy = Utils.getFirstObject(_curAxis.model);
+			}
 		} else {
-			toCopy = Utils.getFirstObject(obj.model);
+			if (obj.curMid != null) {
+				toCopy = obj.model[obj.curMid];
+			} else {
+				toCopy = Utils.getFirstObject(obj.model);
+			}
 		}
 		const newMotorModel = $.extend(true, {}, toCopy);
 		obj.model[newMid] = newMotorModel;
@@ -845,7 +898,7 @@ class Axis {
 		delete obj.motorEditors[mid];
 		
 		const mids = [];
-		$.each(obj.model, function(motorId, motorModel) {
+		$.each(obj.editorModel, function(motorId, motorModel) {
 			mids.push(motorId);
 		});
 		obj.firstMid = mids[0];
@@ -926,8 +979,13 @@ class TabUi {
 					obj.axis.removeMotor(mid);
 					obj.axis.load(obj.axis.mids[obj.axis.mids.length - 1]);
 				} else {
-					const deleteAxisModel = new DeleteAxisModel($(this), obj.axis);
-					deleteAxisModel.open();
+					if (Object.keys(obj.axis.controller.axes).length == 1) {
+						const deleteMCModel = new DeleteMCModel($(this), obj.axis);
+						deleteMCModel.open();
+					} else {
+						const deleteAxisModel = new DeleteAxisModel($(this), obj.axis);
+						deleteAxisModel.open();
+					}
 				}
 			});
 		});
@@ -1922,9 +1980,10 @@ class Utils {
 	}
 	
 	static getFirstObject(obj) {
-		const key = Object.keys(obj)[0];
+		const key = Object.keys(obj).sort()[0];
 		return obj[key];
 	}
+	
 }
 
 class SignOutButton {
@@ -2122,6 +2181,50 @@ class DeleteAxisModel {
 
 }
 
+class DeleteMCModel {
+	$bt;
+	
+	constructor($bt, axis)
+	{
+		this.$bt = $bt;
+		this.axis = axis;
+		this.dialog = $('#id_modal_deleteMC').first().clone();
+		this.$input = this.dialog.find('#id_input_deleteMCMessage5');
+		this.$ok = this.dialog.find('#id_button_deleteMC5');
+		this.$axisName = this.dialog.find('#id_span_deleteAxisName5');
+		this.$mcName = this.dialog.find('#id_span_deleteMCid5');
+		this.init();
+	}
+	
+	init() {
+		const obj = this;
+		obj.$axisName.text('/' + obj.axis.controller.mcid + '/' + obj.axis.aid);
+		obj.$mcName.text('/' + obj.axis.controller.mcid);
+		obj.$ok.click(function() {
+			obj.run();
+		});
+		obj.$input.keypress(function(event) {
+			if ( event.which == 13 ) {
+				obj.run();
+			}
+		});
+	}
+	
+	run() {
+		this.close();
+		this.axis.controller.deleteAxis(this.axis.aid, this.$input.val());
+	}
+	
+	close() {
+		this.dialog.modal('hide');
+	}
+	
+	open() {
+		this.dialog.modal('show');
+	}
+
+}
+
 class ManageButton {
 
 	constructor($bt)
@@ -2192,6 +2295,15 @@ $(document).ready(function() {
 
 	_instModel.load();
 
+	$('#id_button_help').click(function() {
+		var win = window.open('js/mcConfigHelp.pdf', '_blank');
+		if (win) {
+		    win.focus();
+		} else {
+			showWarning('Please allow popups for this website');
+		}
+	});
+	
 	_historyBar = new HistoryBlock($("#id_div_main_area"), $('#id_div_right_bar'));
 	$('#id_button_history').click(function(){
 		_historyBar.toggle();
