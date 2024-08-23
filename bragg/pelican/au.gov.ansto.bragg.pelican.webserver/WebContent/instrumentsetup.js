@@ -1,5 +1,6 @@
 var title = "Pelican";
 var batchEnabled = true;
+var useNewProxy = true;
 var devices = [
                {"group":"BEAM STATUS", 
             	   "items":[{"classId":"total_counts", "deviceId":"::histogram_memory::total_counts", "title":"Detector Counts", "units":"ct"}, 
