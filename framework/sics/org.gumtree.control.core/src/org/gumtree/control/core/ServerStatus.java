@@ -44,7 +44,7 @@ public enum ServerStatus {
 			return COUNTING;
 		} else if (message.startsWith("driving")) {
 			return DRIVING;
-		} else if (message.startsWith("wait")) {
+		} else if (message.contains("wait")) {
 			return WAIT;
 		} else if (message.startsWith("running")) {
 			return RUNNING_A_SCAN;
