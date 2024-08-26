@@ -53,6 +53,10 @@ public class ControlRestlet extends Restlet {
 	
 	private static final String QUERY_COMPONENTS = "components";
 	
+	private static final String PROP_NICK = "nick";
+	
+	private static final String[] PROP_COLLECTED = new String[] {PROP_NICK, "nxalias", "units"};
+
 	private static Logger logger = LoggerFactory.getLogger(ControlRestlet.class);
 	
 	public void handle(Request request, Response response) {
@@ -135,7 +139,7 @@ public class ControlRestlet extends Restlet {
 			});
 			for (ISicsController child : childList){
 				try {
-					JSONObject controllerValues = createComponentJSONRepresentation(
+					JSONObject controllerValues = createComponentJSONRepresentationWithProp(
 							request, child, false);
 					array.put(controllerValues);
 				} catch (Exception e) {
@@ -384,6 +388,28 @@ public class ControlRestlet extends Restlet {
 		return result;
 	}
 	
+	private JSONObject createComponentJSONRepresentationWithProp(Request request,
+			ISicsController controller, boolean detailed) throws Exception {
+		JSONObject result = createComponentJSONRepresentation(request, controller, detailed);
+		for (String name : PROP_COLLECTED) {
+			String value = null;
+			List<String> valueList = controller.getPropertyValue(name);
+			if (valueList != null && valueList.size() > 0) {
+				value = valueList.get(0);
+			}
+			if (value != null) {
+				result.put(name, value.trim());
+			}
+		}
+//		ISicsController nickController = SicsModelUtils.getNicknameController(getSicsManager(), controller);
+//		if (nickController != null) {
+//			if (nickController instanceof IDynamicController) {
+//				((IDynamicController) nickController).addChild(child);
+//			}
+//		}
+		return result;
+	}
+
 	private void writeJSONObject(Response response, Form queryForm, JSONObject jsonObject) {
 		// Use content-type in header to resolve representation (see http://restlet.tigris.org/issues/show_bug.cgi?id=385)
 	    // TODO: fix this will Restlet 1.1
