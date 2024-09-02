@@ -70,8 +70,14 @@ public class SicsProxy implements ISicsProxy {
 			this.publisherAddress = publisherAddress;
 			connectionContext.setServerAddress(serverAddress);
 			connectionContext.setPublisherAddress(publisherAddress);
+			if (channel != null) {
+				if (channel.isConnected()) {
+					channel.disconnect();
+				}
+			}
 			channel = new SicsChannel(this);
 			try {
+				logger.warn("connecting to server: " + serverAddress);
 				channel.connect(serverAddress, publisherAddress);
 			} catch (Exception e) {
 				return false;
@@ -83,7 +89,7 @@ public class SicsProxy implements ISicsProxy {
 				}
 				serverStatus = ServerStatus.parseStatus(s);
 			} catch (SicsException e) {
-				e.printStackTrace();
+				logger.error("failed to get status after connecting to the server");
 				throw e;
 			}
 //			try {
@@ -150,14 +156,20 @@ public class SicsProxy implements ISicsProxy {
 		if (channel == null || !channel.isConnected()) {
 			channel = new SicsChannel(this);
 			try {
+				logger.warn("reconnect to " + serverAddress);
 				channel.connect(serverAddress, publisherAddress);
 			} catch (Exception e) {
 				return false;
 			}
 		} 
-//		try {
-		logger.warn("connection reestablished");
-		serverStatus = ServerStatus.parseStatus(channel.syncSend("status", null));
+		try {
+			logger.warn("connection reestablished");
+			serverStatus = ServerStatus.parseStatus(channel.syncSend("status", null));
+		} catch (Exception e) {
+			logger.error("Failed to get status from server after reconnecting. Disconnect now.");
+			disconnect();
+			return false;
+		}
 
 //		if (sicsModel == null) {
 			getGumtreeXML();
@@ -184,6 +196,7 @@ public class SicsProxy implements ISicsProxy {
 	@Override
 	public void disconnect() {
 		if (channel != null) {
+			logger.warn("disconnected from SICS");
 			channel.disconnect();
 			fireConnectionEvent(false);
 		}

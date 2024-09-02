@@ -2,6 +2,7 @@ package org.gumtree.control.ui.batch;
 
 import java.util.List;
 
+import org.gumtree.control.batch.BatchStatus;
 import org.gumtree.control.batch.IBatchListener;
 import org.gumtree.control.batch.IBatchScript;
 import org.gumtree.control.batch.SicsMessageAdapter;
@@ -26,7 +27,7 @@ public interface IBatchManager extends IService {
 	/***************************************************************
 	 * Status
 	 ***************************************************************/
-	public BatchManagerStatus getStatus();
+	public BatchStatus getStatus();
 
 	/**
 	 * Queries the currently executing buffer name.

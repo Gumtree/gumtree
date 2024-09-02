@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.gumtree.control.batch.BatchStatus;
 import org.gumtree.control.batch.IBatchControl;
+import org.gumtree.control.batch.BatchControl.BatchInfo;
 import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ServerStatus;
@@ -166,10 +167,10 @@ public class ControlRestlet extends Restlet {
 		// Get devices
 		JSONObject result = new JSONObject();
 		IBatchControl bufferManager = SicsManager.getBatchControl();
-		BatchStatus bufferStatus = bufferManager.getStatus();
+//		BatchStatus bufferStatus = bufferManager.getStatus();
 		try {
-			result.put("status", bufferStatus);
-			if (bufferStatus == BatchStatus.RUNNING) {
+//			result.put("status", bufferStatus);
+//			if (bufferStatus == BatchStatus.RUNNING) {
 //				String bufferName = bufferManager.getRunningBuffername();
 //				String runningText = bufferManager.getRunningText();
 //				String bufferRange = bufferManager.getRunningBufferRangeString();
@@ -182,7 +183,13 @@ public class ControlRestlet extends Restlet {
 //				} catch (Exception ex) {
 //					result.put("content", ex.toString());
 //				}
-			}
+//			}
+			BatchInfo batchInfo = bufferManager.getBatchInfo();
+			result.put("status", batchInfo.getStatus());
+			result.put("name", batchInfo.getBatchName());
+			result.put("text", batchInfo.getBatchText());
+			result.put("range", batchInfo.getBatchRange());
+			result.put("content", batchInfo.getBatchText());
 			writeJSONObject(response, queryForm, result);
 		} catch (JSONException e) {
 			response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());

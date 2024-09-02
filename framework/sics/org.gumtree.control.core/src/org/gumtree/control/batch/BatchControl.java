@@ -38,7 +38,13 @@ public class BatchControl implements IBatchControl {
 
 	private ISicsCallback outputListener;
 
-	private BatchStatus status;
+	private BatchStatus status = BatchStatus.DISCONNECTED;
+	
+	private String batchId = "";
+	
+	private String batchName = "";
+	
+	private String batchText = "";
 
 	private ProxyListener proxyListener;
 
@@ -58,8 +64,29 @@ public class BatchControl implements IBatchControl {
 
 	private void initialise() {
 		try {
-			status = BatchStatus.parseStatus(sicsProxy.syncRun("exe info", null));
+			sicsProxy.asyncRun("exe info", new SicsCallbackAdapter() {
+				@Override
+				public void receiveFinish(ISicsReplyData data) {
+					String info = data.getString().trim();
+					try {
+						if (info.startsWith(BatchStatus.EXECUTING_PREFIX)) {
+							if (info.length() > BatchStatus.EXECUTING_PREFIX.length()) {
+								setBatchName(info.substring(BatchStatus.EXECUTING_PREFIX.length()));
+								status = BatchStatus.EXECUTING;
+							} else {
+								status = BatchStatus.ERROR;
+							}
+						} else {
+							status = BatchStatus.parseStatus(info);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						logger.error("failed to set batch status: " + e.getMessage());
+					}
+				}
+			});
 		} catch (SicsException e) {
+			logger.error("failed to get batch status: " + e.getMessage());
 		}
 		getOutputListener();
 	}
@@ -134,7 +161,7 @@ public class BatchControl implements IBatchControl {
 							setBatchStatus(BatchStatus.IDLE);
 						} else {
 							try {
-								String sicsObject = data.getFullReply().getString(JSONTag.OBJECT.getText());
+								String sicsObject = data.getFullReply().getString(JSONTag.REPLY.getText());
 								if(!sicsObject.equals(CMD_GUMPUT)) {
 									return;
 								}
@@ -184,11 +211,13 @@ public class BatchControl implements IBatchControl {
 
 	@Override
 	public void fireBatchEvent(String type, String value) {
-		if (type.equals(PropertyConstants.PROP_BATCH_NAME)) {
+		if (type.equals(PropertyConstants.PROP_BATCH_START)) {
+//			System.err.println("batch started");
 			for (IBatchListener listener : batchListeners) {
 				listener.scriptChanged(value);
 			}
 		} else if (type.equals(PropertyConstants.PROP_BATCH_RANGE)) {
+			System.err.println("range=" + value);
 			for (IBatchListener listener : batchListeners) {
 				listener.lineExecuted(Integer.valueOf(value));;
 			}
@@ -200,4 +229,118 @@ public class BatchControl implements IBatchControl {
 //		}
 	}
 
+	@Override
+	public void parseState(String state, String batchName) {
+		if (state.equalsIgnoreCase(BatchStatus.START_STATE)) {
+			setBatchName(batchName);
+			setBatchStatus(BatchStatus.EXECUTING);
+		} else if (state.equalsIgnoreCase(BatchStatus.FINISH_STATE)) {
+			clearBatchName();
+			setBatchStatus(BatchStatus.IDLE);
+		}
+	}
+
+	public String getBatchId() {
+		return batchId;
+	}
+	
+	/**
+	 * @return the batchName
+	 */
+	public String getBatchName() {
+		return batchName;
+	}
+
+	private void setBatchName(String batchName) {
+		this.batchId = String.valueOf(System.currentTimeMillis());
+		this.batchName = batchName;
+		try {
+			sicsProxy.asyncRun("exe print " + batchName, new SicsCallbackAdapter() {
+				@Override
+				public void receiveFinish(ISicsReplyData data) {
+					try {
+						batchText = data.getString();
+					} catch (Exception e) {
+						logger.error("failed to get batch text of file: " + batchName);
+					}
+				}
+			});
+		} catch (SicsException e) {
+			logger.error("failed to get batch status: " + e.getMessage());
+		}
+
+	}
+	
+	private void clearBatchName() {
+		this.batchId = "";
+		this.batchName = "";
+		this.batchText = "";
+	}
+	
+	public String getBatchText() {
+		return batchText;
+	}
+	
+	public String getBatchRange() {
+		if (status.equals(BatchStatus.EXECUTING)) {
+			try {
+				String range = sicsProxy.syncRun("exe info range");
+				if (range.contains(".range")) {
+					return range;
+				} else {
+					return "";
+				}
+			} catch (SicsException e) {
+				logger.error("failed to get buffer range: " + e.getMessage());
+			}
+		}
+		return "";
+	}
+	
+	public class BatchInfo {
+		private BatchStatus status;
+		private String batchId;
+		private String batchName;
+		private String batchText;
+		private String batchRange;
+		
+		public BatchInfo(BatchStatus status, String id, String name, String text, String range) {
+			this.status = status;
+			this.batchId = id;
+			this.batchName = name;
+			this.batchText = text;
+			this.batchRange = range;
+		}
+		
+		public BatchStatus getStatus() {
+			return status;
+		}
+		
+		public String getBatchId() {
+			return batchId;
+		}
+		
+		public String getBatchName() {
+			return batchName;
+		}
+		
+		public String getBatchRange() {
+			return batchRange;
+		}
+		
+		public String getBatchText() {
+			return batchText;
+		}
+	}
+	
+	public BatchInfo getBatchInfo() {
+		return new BatchInfo(status, batchId, batchName, batchText, getBatchRange());
+	}
+	
+	@Override
+	public void resetStatus() {
+		if (status.equals(BatchStatus.PREPARING) || status.equals(BatchStatus.ERROR)) {
+			setBatchStatus(BatchStatus.IDLE);
+		}
+	}
 }

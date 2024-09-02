@@ -16,6 +16,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.gumtree.control.batch.BatchStatus;
+import org.gumtree.control.batch.IBatchControl;
+import org.gumtree.control.batch.IBatchListener;
 import org.gumtree.control.batch.IBatchScript;
 import org.gumtree.control.batch.SicsMessageAdapter;
 import org.gumtree.control.core.ISicsProxy;
@@ -54,7 +56,10 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 	private int estimatedTimeForBuffer;
 	
 	// Current status
-	private BatchManagerStatus status = BatchManagerStatus.DISCONNECTED;
+//	private BatchManagerStatus status = BatchManagerStatus.DISCONNECTED;
+	private IBatchControl batchControl;
+	
+	private IBatchListener batchListener;
 	
 	// Scheduler
 	private Job scheduler;
@@ -66,7 +71,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 	private Object executionLock = new Object();
 	
 	// Proxy listener
-	private ISicsProxyListener proxyListener;
+//	private ISicsProxyListener proxyListener;
 	
 	private SicsMessageAdapter messageListener;
 	
@@ -88,7 +93,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		batchQueue = new BatchQueue(this, "batchBufferQueue");
 		batchFolderPath = System.getProperty(TCL_BATCH_FOLDER_PROPERTY);
 		batchManagerListeners = new ArrayList<IBatchManagerListener>();
-		setBatchStatus(BatchManagerStatus.DISCONNECTED);
+//		setBatchStatus(BatchManagerStatus.DISCONNECTED);
 		
 		// Handles buffer queue change event
 		queueEventListener = new IQueueEventListener() {
@@ -103,48 +108,96 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		batchQueue.addQueueEventListener(queueEventListener);
 		
 		// Handles proxy connect and disconnect events
-		proxyListener = new SicsProxyListenerAdapter() {
+//		proxyListener = new SicsProxyListenerAdapter() {
+//			
+//			@Override
+//			public void interrupt(boolean isInterrupted) {
+//				// Batch is interrupt with level 3 or above
+////				setBatchStatus(BatchManagerStatus.IDLE);
+//				// Pause for the rest of queue
+//				setAutoRun(false);
+//			}
+//			
+//			@Override
+//			public void disconnect() {
+//				handleSicsDisconnect();
+//			}
+//			
+//			@Override
+//			public void connect() {
+//				handleSicsConnect();
+//			}
+//		};
+//		sicsProxy.addProxyListener(proxyListener);
+		batchControl = sicsProxy.getBatchControl();
+		
+		batchListener = new IBatchListener() {
 			
 			@Override
-			public void interrupt(boolean isInterrupted) {
-				// Batch is interrupt with level 3 or above
-				setBatchStatus(BatchManagerStatus.IDLE);
-				// Pause for the rest of queue
-				setAutoRun(false);
+			public void stop() {
+				
 			}
 			
 			@Override
-			public void disconnect() {
-				handleSicsDisconnect();
+			public void statusChanged(BatchStatus newStatus) {
+				fireBatchStatusEvent(newStatus);
 			}
 			
 			@Override
-			public void connect() {
-				handleSicsConnect();
+			public void start() {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void scriptChanged(String scriptName) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void lineExecutionError(int line) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void lineExecuted(int line) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void charExecuted(int start, int end) {
+				// TODO Auto-generated method stub
+				
 			}
 		};
-		sicsProxy.addProxyListener(proxyListener);
-		if (sicsProxy.isConnected()) {
-			BatchStatus batchStatus = sicsProxy.getBatchControl().getStatus();
-			switch (batchStatus) {
-			case IDLE:
-				setBatchStatus(BatchManagerStatus.IDLE);
-				break;
-			case ERROR:
-				setBatchStatus(BatchManagerStatus.ERROR);
-				break;
-			case RUNNING:
-				setBatchStatus(BatchManagerStatus.EXECUTING);
-				break;
-			case DISCONNECTED:
-				setBatchStatus(BatchManagerStatus.DISCONNECTED);
-			default:
-				setBatchStatus(BatchManagerStatus.IDLE);
-				break;
-			}
-		} else {
-			setBatchStatus(BatchManagerStatus.DISCONNECTED);
-		}
+		
+		batchControl.addListener(batchListener);
+		fireBatchStatusEvent(batchControl.getStatus());
+		
+//		if (sicsProxy.isConnected()) {
+//			BatchStatus batchStatus = sicsProxy.getBatchControl().getStatus();
+//			switch (batchStatus) {
+//			case IDLE:
+//				setBatchStatus(BatchManagerStatus.IDLE);
+//				break;
+//			case ERROR:
+//				setBatchStatus(BatchManagerStatus.ERROR);
+//				break;
+//			case EXECUTING:
+//				setBatchStatus(BatchManagerStatus.EXECUTING);
+//				break;
+//			case DISCONNECTED:
+//				setBatchStatus(BatchManagerStatus.DISCONNECTED);
+//			default:
+//				setBatchStatus(BatchManagerStatus.IDLE);
+//				break;
+//			}
+//		} else {
+//			setBatchStatus(BatchManagerStatus.DISCONNECTED);
+//		}
 
 		// Setup scheduler
 		scheduler = new Job("") {
@@ -153,7 +206,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 				// * Batch buffer manager is connected and idle
 				// * Queue is non empty
 				// * Triggered to run
-				if (getStatus().equals(BatchManagerStatus.IDLE) && isAutoRun()) {
+				if (getStatus().equals(BatchStatus.IDLE) && isAutoRun()) {
 //					boolean isTimeEstimationAvailable = true;
 //					int time = 0;
 //					List<IBatchScript> queue = getBatchBufferQueue();
@@ -192,7 +245,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 					}
 				}
 				// Continue if not disconnected
-				if (!getStatus().equals(BatchManagerStatus.DISCONNECTED)) {
+				if (!getStatus().equals(BatchStatus.DISCONNECTED)) {
 //					System.err.println("schedule next");
 					schedule(SCHEDULING_INTERVAL);
 				}
@@ -235,42 +288,42 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		}
 	}
 	
-	protected void handleSicsConnect() {
-		setBatchStatus(BatchManagerStatus.IDLE);
-		try {
-			asyncSend("exe info", new SicsCallbackAdapter() {
-				@Override
-				public void receiveFinish(ISicsReplyData data) {
-					if (data.getString().equalsIgnoreCase("Idle")) {
-						setBatchStatus(BatchManagerStatus.IDLE);
-					} else {
-						setBatchStatus(BatchManagerStatus.EXECUTING);
-						try {
-							asyncSend("exe interest", null);
-						} catch (SicsBatchException e) {
-							handleException(e.getMessage());
-						}
-					}					
-				}
-			});
-
-		} catch (Exception e) {
-		}
-		
-		// Schedule queue
-		scheduler.schedule();
-	}
+//	protected void handleSicsConnect() {
+//		setBatchStatus(BatchManagerStatus.IDLE);
+//		try {
+//			asyncSend("exe info", new SicsCallbackAdapter() {
+//				@Override
+//				public void receiveFinish(ISicsReplyData data) {
+//					if (data.getString().equalsIgnoreCase("Idle")) {
+//						setBatchStatus(BatchManagerStatus.IDLE);
+//					} else {
+//						setBatchStatus(BatchManagerStatus.EXECUTING);
+//						try {
+//							asyncSend("exe interest", null);
+//						} catch (SicsBatchException e) {
+//							handleException(e.getMessage());
+//						}
+//					}					
+//				}
+//			});
+//
+//		} catch (Exception e) {
+//		}
+//		
+//		// Schedule queue
+//		scheduler.schedule();
+//	}
 	
-	protected void handleSicsDisconnect() {
-		if (exeInterestCallback != null) {
-			exeInterestCallback.setCallbackCompleted(true);
-			exeInterestCallback = null;
-		}
-		// Set manager to disconnected state
-		setBatchStatus(BatchManagerStatus.DISCONNECTED);
-		// Unschedule queue
-		scheduler.cancel();
-	}
+//	protected void handleSicsDisconnect() {
+//		if (exeInterestCallback != null) {
+//			exeInterestCallback.setCallbackCompleted(true);
+//			exeInterestCallback = null;
+//		}
+//		// Set manager to disconnected state
+//		setBatchStatus(BatchManagerStatus.DISCONNECTED);
+//		// Unschedule queue
+//		scheduler.cancel();
+//	}
 	
 	public boolean isAutoRun() {
 		return autoRun;
@@ -302,7 +355,8 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 	private void execute(IBatchScript buffer) throws IOException {
 		synchronized (executionLock) {
 			// Go to preparing mode
-			setBatchStatus(BatchManagerStatus.PREPARING);
+//			setBatchStatus(BatchManagerStatus.PREPARING);
+			fireBatchStatusEvent(BatchStatus.PREPARING);
 			
 //	Modified by nxi. Change the uploading strategy. Save the script in the mounted folder instead.			
 //			// Ready to upload
@@ -369,21 +423,23 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 				asyncSend("exe run", new SicsCallbackAdapter() {
 					
 					public void receiveReply(ISicsReplyData data) {
-						if (getBatchStatus() != BatchManagerStatus.EXECUTING) {
-							setBatchStatus(BatchManagerStatus.EXECUTING);
-						}
+//						if (getStatus() != BatchStatus.EXECUTING) {
+//							setBatchStatus(BatchStatus.EXECUTING);
+//						}
+//						fireBatchStatusEvent(BatchStatus.PREPARING);
 					}
 					
 					@Override
 					public void receiveFinish(ISicsReplyData data) {
 						setCallbackCompleted(true);
-						setBatchStatus(BatchManagerStatus.IDLE);
+//						setBatchStatus(BatchStatus.IDLE);
 					}
 					
 					@Override
 					public void receiveError(ISicsReplyData data) {
 						setCallbackCompleted(true);
-						setBatchStatus(BatchManagerStatus.ERROR);
+//						setBatchStatus(BatchStatus.ERROR);
+						fireBatchStatusEvent(BatchStatus.ERROR);
 					}
 					
 					@Override
@@ -488,28 +544,28 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		}
 	}
 
-	public BatchManagerStatus getBatchStatus() {
-		return status;
-	}
+//	public BatchManagerStatus getBatchStatus() {
+//		return status;
+//	}
 	
-	protected void setBatchStatus(BatchManagerStatus status) {
-		synchronized (this.status) {
-			// Sets status
-			this.status = status;
-			
-//			if (status == BatchStatus.IDLE) {
-//				if (!isAutoRun()) {
-//					try{
-//						asyncSend("hset /experiment/gumtree_time_estimate 0", null);
-//					}catch (Exception e) {
-//					
-//					}
-//				}
-//			}
-			// Fires event
-			fireBatchStatusEvent(status);
-		}
-	}
+//	protected void setBatchStatus(BatchStatus status) {
+//		synchronized (this.status) {
+//			// Sets status
+//			this.status = status;
+//			
+////			if (status == BatchStatus.IDLE) {
+////				if (!isAutoRun()) {
+////					try{
+////						asyncSend("hset /experiment/gumtree_time_estimate 0", null);
+////					}catch (Exception e) {
+////					
+////					}
+////				}
+////			}
+//			// Fires event
+//			fireBatchStatusEvent(status);
+//		}
+//	}
 
 	/***************************************************************
 	 * Event
@@ -524,16 +580,16 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		batchManagerListeners.remove(listener);
 	}
 
-	private void fireBatchStatusEvent(BatchManagerStatus status) {
+	private void fireBatchStatusEvent(BatchStatus status) {
 		for (IBatchManagerListener listener : batchManagerListeners) {
 			listener.statusChanged(status);
 		}
 	}
 	
 	private void handleException(String err) {
-		synchronized (this.status) {
-			this.status = BatchManagerStatus.ERROR;
-			fireBatchStatusEvent(status);
+		synchronized (batchControl.getStatus()) {
+//			this.status = BatchManagerStatus.ERROR;
+			fireBatchStatusEvent(BatchStatus.ERROR);
 //			BatchScriptManagerStatusEvent event = new BatchScriptManagerStatusEvent(this, status);
 //			event.setMessage(err);
 //			PlatformUtils.getPlatformEventBus().postEvent(event);
@@ -578,7 +634,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		try {
 			String val =  sicsProxy.syncRun(command);
 			JSONObject json = new JSONObject();
-			json.put(JSONTag.DATA.getText(), val);
+			json.put(JSONTag.REPLY.getText(), val);
 			return new SicsReplyData(json);
 		} catch (Exception e) {
 			handleException(e.getMessage());
@@ -597,14 +653,18 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 	@Override
 	public void resetBufferManagerStatus() {
 		
-		if (getBatchStatus() == BatchManagerStatus.PREPARING || getStatus() == BatchManagerStatus.ERROR){
-			setBatchStatus(BatchManagerStatus.IDLE);
+		if (batchControl != null) {
+			batchControl.resetStatus();
 		}
 	}
 
 	@Override
-	public BatchManagerStatus getStatus() {
-		return status;
+	public BatchStatus getStatus() {
+		if (batchControl != null) {
+			return batchControl.getStatus();
+		} else {
+			return BatchStatus.DISCONNECTED;
+		}
 	}
 	
 	public static IBatchManager getBatchScriptManager(ISicsProxy sicsProxy) {

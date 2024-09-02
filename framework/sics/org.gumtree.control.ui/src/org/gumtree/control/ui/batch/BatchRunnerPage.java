@@ -54,6 +54,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ResourceSelectionDialog;
+import org.gumtree.control.batch.BatchStatus;
 import org.gumtree.control.batch.IBatchScript;
 import org.gumtree.control.batch.ResourceBasedBatchScript;
 import org.gumtree.control.batch.SicsMessageAdapter;
@@ -131,37 +132,32 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		batchListener = new IBatchManagerListener() {
 			
 			@Override
-			public void statusChanged(BatchManagerStatus newStatus) {
+			public void statusChanged(BatchStatus newStatus) {
 				updateStatus(newStatus);
 			}
 			
 			@Override
 			public void lineExecutionError(int line) {
-				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void lineExecuted(int line) {
-				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void charExecuted(int start, int end) {
-				// TODO Auto-generated method stub
 				
 			}
 
 			@Override
 			public void queueStarted() {
-				// TODO Auto-generated method stub
 				
 			}
 
 			@Override
 			public void queueStopped() {
-				// TODO Auto-generated method stub
 				
 			}
 
@@ -184,13 +180,11 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 			
 			@Override
 			public void disconnect() {
-				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void connect() {
-				// TODO Auto-generated method stub
 				
 			}
 		};
@@ -532,29 +526,29 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		
 	}
 
-	private void updateStatus(final BatchManagerStatus status) {
+	private void updateStatus(final BatchStatus status) {
 		SafeUIRunner.asyncExec(new SafeRunnable() {
 			public void run() throws Exception {
 				if (context == null || isDisposed()) {
 					return;
 				}
 				context.statusLabel.setText("\n" + status.name() + "\n");
-				if (status.equals(BatchManagerStatus.DISCONNECTED)) {
+				if (status.equals(BatchStatus.DISCONNECTED)) {
 					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 					context.currentBuffer.setText("");
 					context.timerWidget.clearTimerUI();
-				} else if (status.equals(BatchManagerStatus.ERROR)) {
+				} else if (status.equals(BatchStatus.ERROR)) {
 					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 //					context.currentBuffer.setText("");
 					context.timerWidget.clearTimerUI();
-				} else if (status.equals(BatchManagerStatus.IDLE)) {
+				} else if (status.equals(BatchStatus.IDLE)) {
 					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
 //					context.currentBuffer.setText("");
 					context.timerWidget.stopTimerUI();
-				} else if (status.equals(BatchManagerStatus.PREPARING)) {
+				} else if (status.equals(BatchStatus.PREPARING)) {
 					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
 //					context.currentBuffer.setText("");
-				} else if (status.equals(BatchManagerStatus.EXECUTING)) {
+				} else if (status.equals(BatchStatus.EXECUTING)) {
 					// Update status
 					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
 					// Reset and start timer
@@ -592,16 +586,22 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					context.currentBuffer.setText("");
 					context.editorText.setText("");
 				} else {
-					getBatchBufferManager().getRunningBufferContent(new SicsCallbackAdapter() {
+//					getBatchBufferManager().getRunningBufferContent(new SicsCallbackAdapter() {
+//						@Override
+//						public void receiveFinish(ISicsReplyData data) {
+//							context.editorText.setText(data.getString());
+//							getBatchBufferManager().getRunningBufferRangeString(new SicsCallbackAdapter() {
+//								@Override
+//								public void receiveFinish(ISicsReplyData data) {
+//									highlightBuffer(data.getString());
+//								}
+//							});
+//						}
+//					});
+					getBatchBufferManager().getBuffer(scriptName, new SicsCallbackAdapter() {
 						@Override
 						public void receiveFinish(ISicsReplyData data) {
-							context.editorText.setText(data.getString());
-							getBatchBufferManager().getRunningBufferRangeString(new SicsCallbackAdapter() {
-								@Override
-								public void receiveFinish(ISicsReplyData data) {
-									highlightBuffer(data.getString());
-								}
-							});
+							highlightBuffer(data.getString());
 						}
 					});
 //					String rangeString = getBatchBufferManager().getRunningBufferRangeString();
@@ -654,6 +654,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	}
 
 	private void updateLogText(final String message) {
+		System.err.println("BatchRunner " + message);
 		SafeUIRunner.asyncExec(new SafeRunnable() {
 			public void run() throws Exception {
 				// Don't update when is disposed

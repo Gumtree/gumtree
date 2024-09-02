@@ -24,6 +24,7 @@ import org.gumtree.control.core.ISicsConnectionContext;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.SicsCoreProperties;
+import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.core.SicsRole;
 import org.gumtree.control.imp.CommandController;
 import org.gumtree.control.imp.DriveableController;
@@ -51,6 +52,12 @@ public class ModelUtils {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(ModelUtils.class);
+	
+	private static final String PREFIX_SAMPLE = "sample";
+
+	private static final String PROP_NXALIAS = "nxalias";
+
+	private static final String PROP_NICK_VAR = "nick_var";
 	
 	private static List<IDriveableController> drivableCache;
 
@@ -430,4 +437,28 @@ public class ModelUtils {
 			findComponentsFromProperties(child, selectionCriteria, buffer);
 		}
 	}
+	
+	public static ISicsController getNicknameController(ISicsController seItem) {
+		List<String> prop = seItem.getPropertyValue(PROP_NXALIAS);
+		List<String> varProp = seItem.getPropertyValue(PROP_NICK_VAR);
+		if (prop.size() > 0) {
+			String alias = prop.get(0).trim();
+			String[] path = alias.split("_");
+			String nickPath = null;
+			if (!PREFIX_SAMPLE.equals(path[0])) {
+				nickPath = "/" + PREFIX_SAMPLE;
+			}
+			for (int i = 0; i < path.length - 1; i++) {
+				nickPath += "/" + path[i];
+			}
+			if (varProp.size() > 0) {
+				nickPath += "/" + varProp.get(0).trim();
+			} else {
+				nickPath += "/nick";
+			}
+			return SicsManager.getSicsModel().findControllerByPath(nickPath);
+		}
+		return null;
+	}
+
 }

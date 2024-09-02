@@ -1,6 +1,7 @@
 package org.gumtree.control.ui.widgets;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -80,6 +81,7 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 				// Part 2: label
 				label = getWidgetFactory().createLabel(this,
 						deviceContext.label + ": ");
+				deviceContext.labelWidget = label;
 				label.setFont(UIResources.getDefaultFont(SWT.BOLD));
 				// Part 3: Value
 				label = createDeviceLabel(this, deviceContext.path, "--",
@@ -234,6 +236,10 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 		});
 	}
 
+	protected void sortDevices() {
+		Collections.sort(deviceContexts);
+	}
+
 	@Override
 	protected void disposeWidget() {
 		if (deviceContexts != null) {
@@ -352,15 +358,24 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 	 * Utilities
 	 *************************************************************************/
 
-	private class DeviceContext {
+	private class DeviceContext implements Comparable<DeviceContext> {
 		String path;
 		Image icon;
 		String label;
+		Label labelWidget;
 		String unit;
 		boolean isSeparator;
 		LabelConverter converter;
 		ColorConverter colorConverter;
 		boolean showSoftLimits;
+
+		@Override
+		public int compareTo(DeviceContext arg0) {
+			if (label == null) {
+				return -1;
+			}
+			return label.compareTo(arg0.label);
+		}
 	}
 
 	private class LabelContext {
@@ -605,4 +620,22 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 //		} catch (InterruptedException e) {
 //		}
 //	}
+	
+	public void setDeviceTitle(String path, String newTitle) {
+		for (final DeviceContext device : deviceContexts) {
+			if (device.path.equals(path)) {
+				device.label = newTitle;
+				SafeUIRunner.asyncExec(new SafeRunnable() {
+					@Override
+					public void run() throws Exception {
+						if (device.labelWidget != null && !device.labelWidget.isDisposed()) {
+							device.labelWidget.setText(device.label);
+							device.labelWidget.pack();
+						}
+					}
+				});
+			}
+		}
+	}
+
 }

@@ -4,6 +4,7 @@ import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.ServerStatus;
+import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ThreadPool;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.PropertyConstants;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 public class MessageHandler {
 
 	private static Logger logger = LoggerFactory.getLogger(MessageHandler.class);
+	private final static String STATE_EXE = "exe ";
 	private ISicsModel model;
 	private ThreadPool threadPool;
 	private SicsProxy sicsProxy;
@@ -66,14 +68,14 @@ public class MessageHandler {
 //			}
 //		} catch (JSONException e) {
 //		}
-//		System.err.println(json.toString());
 		try {
 			if (json.has(PropertyConstants.PROP_UPDATE_TYPE)) {
 				String type = json.getString(PropertyConstants.PROP_UPDATE_TYPE);
 				if (type.equalsIgnoreCase(MessageType.STATUS.getId())) {
 					String status = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
 //					logger.info("UPDATE status to " + status);
-					sicsProxy.setServerStatus(ServerStatus.parseStatus(status));
+					ServerStatus ss = ServerStatus.parseStatus(status);
+					sicsProxy.setServerStatus(ss);
 				} else if (type.equalsIgnoreCase(MessageType.VALUE.getId())) {
 					String name = json.getString(PropertyConstants.PROP_UPDATE_NAME);
 					String value = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
@@ -83,7 +85,12 @@ public class MessageHandler {
 					String name = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
 					String state = json.getString(PropertyConstants.PROP_UPDATE_NAME);
 //					logger.info("UPDATE state of " + name + " to " + state);
-					processState(name, state);
+//					if (name.startsWith("exe")) {
+//						sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_START, 
+//								name.substring(4));
+//					} else {
+						processState(name, state);
+//					}
 				} else if (type.equalsIgnoreCase(MessageType.BATCH.getId())) {
 					processBatch(json);
 				} else {
@@ -99,18 +106,28 @@ public class MessageHandler {
 
 	public void processBatch(final JSONObject json) {
 		try {
-			if (json.has(PropertyConstants.PROP_BATCH_NAME)) {
-				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_NAME, 
-						json.getString(PropertyConstants.PROP_BATCH_NAME));
+			String name = json.getString(PropertyConstants.PROP_UPDATE_NAME);
+			if (PropertyConstants.PROP_BATCH_START.equals(name)) {
+				System.err.println("start " + json.getString(PropertyConstants.PROP_UPDATE_VALUE));
+				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_START, 
+						json.getString(PropertyConstants.PROP_UPDATE_VALUE));
+			} else if (PropertyConstants.PROP_BATCH_RANGE.equals(name)) {
+				System.err.println("range = " + json.getString(PropertyConstants.PROP_UPDATE_VALUE));
+//				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_NAME, 
+//						json.getString(PropertyConstants.PROP_BATCH_NAME));
+			} else if (PropertyConstants.PROP_BATCH_FINISH.equals(name)) {
+				System.err.println("finish " + json.getString(PropertyConstants.PROP_UPDATE_VALUE));
+//				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_NAME, 
+//						json.getString(PropertyConstants.PROP_BATCH_NAME));
 			}
-			if (json.has(PropertyConstants.PROP_BATCH_RANGE)) {
-				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_RANGE, 
-						json.getString(PropertyConstants.PROP_BATCH_RANGE));
-			}
-			if (json.has(PropertyConstants.PROP_BATCH_TEXT)) {
-				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_TEXT, 
-						json.getString(PropertyConstants.PROP_BATCH_TEXT));
-			}
+//			if (json.has(PropertyConstants.PROP_BATCH_RANGE)) {
+//				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_RANGE, 
+//						json.getString(PropertyConstants.PROP_BATCH_RANGE));
+//			}
+//			if (json.has(PropertyConstants.PROP_BATCH_TEXT)) {
+//				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_TEXT, 
+//						json.getString(PropertyConstants.PROP_BATCH_TEXT));
+//			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -126,11 +143,19 @@ public class MessageHandler {
 	}
 
 	public void processState(String path, String state) {
-		ISicsController controller = getModel().findController(path);
-		try {
-			controller.setState(ControllerState.getState(state));
-		} catch (Exception e) {
-			logger.error("failed to set state for " + path + " " + state);
+		if (path.startsWith(STATE_EXE)) {
+			if (path.length() > STATE_EXE.length()) {
+				SicsManager.getBatchControl().parseState(state, path.substring(STATE_EXE.length()));
+			} else {
+				logger.error("failed to process exe state: " + path + ":" + state);
+			}
+		} else {
+			ISicsController controller = getModel().findController(path);
+			try {
+				controller.setState(ControllerState.getState(state));
+			} catch (Exception e) {
+				logger.error("failed to set state for " + path + " " + state);
+			}
 		}
 	}
 

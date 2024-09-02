@@ -98,7 +98,7 @@ public class SicsChannel implements ISicsChannel {
 				while(true) {
 					try {
 						String msg = subscriberSocket.recvStr();
-//						logger.info("SUB: " + msg);
+						logger.warn("SUB: " + msg);
 						JSONObject json;
 						json = new JSONObject(msg);
 						messageHandler.delayedProcess(json);
