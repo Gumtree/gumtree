@@ -26,7 +26,7 @@ public class BatchControl implements IBatchControl {
 
 	private static final String CMD_GUMPUT = "gumput";
 
-	private static Logger logger;
+	private static final Logger logger = LoggerFactory.getLogger(BatchControl.class);
 
 	// used for inner class in setBatchInterest()
 //	private boolean interestSetFlag = false;
@@ -200,13 +200,6 @@ public class BatchControl implements IBatchControl {
 		public void disconnect() {
 			setBatchStatus(BatchStatus.DISCONNECTED);
 		}
-	}
-
-	private static Logger getLogger() {
-		if(logger == null) {
-			logger = LoggerFactory.getLogger(BatchControl.class);
-		}
-		return logger;
 	}
 
 	@Override
