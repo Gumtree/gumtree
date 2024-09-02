@@ -254,7 +254,7 @@ public class BatchControl implements IBatchControl {
 					try {
 						batchText = data.getString();
 					} catch (Exception e) {
-						logger.error("failed to get batch text of file: " + batchName);
+						getLogger().error("failed to get batch text of file: " + batchName);
 					}
 				}
 			});
@@ -272,6 +272,10 @@ public class BatchControl implements IBatchControl {
 	
 	public String getBatchText() {
 		return batchText;
+	}
+	
+	private static Logger getLogger() {
+		return logger;
 	}
 	
 	public String getBatchRange() {
