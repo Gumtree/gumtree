@@ -83,7 +83,7 @@ public class BatchControl implements IBatchControl {
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
-						logger.error("failed to set batch status: " + e.getMessage());
+						BatchControl.logger.error("failed to set batch status: " + e.getMessage());
 					}
 				}
 			});
@@ -212,7 +212,7 @@ public class BatchControl implements IBatchControl {
 				listener.scriptChanged(value);
 			}
 		} else if (type.equals(PropertyConstants.PROP_BATCH_RANGE)) {
-			System.err.println("range=" + value);
+			System.err.println("fire event range=" + value);
 			for (IBatchListener listener : batchListeners) {
 				listener.lineExecuted(Integer.valueOf(value));;
 			}
@@ -248,7 +248,7 @@ public class BatchControl implements IBatchControl {
 		return batchName;
 	}
 
-	private void setBatchName(String batchName) {
+	private void setBatchName(final String batchName) {
 		this.batchId = String.valueOf(System.currentTimeMillis());
 		this.batchName = batchName;
 		try {
@@ -353,5 +353,6 @@ public class BatchControl implements IBatchControl {
 	 */
 	private void setBatchRangeText(String batchRangeText) {
 		this.batchRangeText = batchRangeText;
+		
 	}
 }
