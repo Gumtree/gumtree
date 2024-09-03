@@ -247,6 +247,7 @@ public class BatchControl implements IBatchControl {
 	private void setBatchName(String batchName) {
 		this.batchId = String.valueOf(System.currentTimeMillis());
 		this.batchName = batchName;
+		final Logger parentLogger = logger;
 		try {
 			sicsProxy.asyncRun("exe print " + batchName, new SicsCallbackAdapter() {
 				@Override
@@ -254,7 +255,7 @@ public class BatchControl implements IBatchControl {
 					try {
 						batchText = data.getString();
 					} catch (Exception e) {
-						getLogger().error("failed to get batch text of file: " + batchName);
+						parentLogger.error("failed to get batch text of file: " + batchName);
 					}
 				}
 			});
@@ -272,10 +273,6 @@ public class BatchControl implements IBatchControl {
 	
 	public String getBatchText() {
 		return batchText;
-	}
-	
-	private static Logger getLogger() {
-		return logger;
 	}
 	
 	public String getBatchRange() {
