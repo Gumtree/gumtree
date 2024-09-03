@@ -153,6 +153,13 @@
             name="SICS Experiment">
 	  </perspective>
 	  <perspective
+            class="au.gov.ansto.bragg.nbi.ui.internal.ControlExperimentPerspective"
+            icon="icons/reports_stack.png"
+            id="au.gov.ansto.bragg.nbi.ui.ControlExperimentPerspective"
+            fixed="true"
+            name="Control Experiment">
+	  </perspective>
+	  <perspective
             class="au.gov.ansto.bragg.nbi.ui.internal.EmptyPerspective"
             id="au.gov.ansto.bragg.nbi.ui.EmptyPerspective"
             fixed="true"
