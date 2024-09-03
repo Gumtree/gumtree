@@ -1,4 +1,5 @@
 var title = "Emu";
+var useNewProxy = true;
 var batchEnabled = true;
 var devices = [
                {"group":"NEUTRON COUNTS", 
