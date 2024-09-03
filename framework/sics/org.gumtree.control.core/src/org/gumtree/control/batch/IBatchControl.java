@@ -35,4 +35,6 @@ public interface IBatchControl {
 	public String getBatchId();
 
 	public void resetStatus();
+
+	public String getBatchRangeText();
 }

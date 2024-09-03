@@ -7,6 +7,7 @@ public enum BatchStatus {
 	public static String IDLE_TEXT = "Idle";
 	public static String START_STATE = "STARTED";
 	public static String FINISH_STATE = "FINISH";
+	public static String RANGE_STATE = "RANGE";
 	public static String EXE_PREFIX = "exe ";
 	public static String EXECUTING_PREFIX = "Executing ";
 	

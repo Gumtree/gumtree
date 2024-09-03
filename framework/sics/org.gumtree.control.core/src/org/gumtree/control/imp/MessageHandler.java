@@ -107,19 +107,23 @@ public class MessageHandler {
 	public void processBatch(final JSONObject json) {
 		try {
 			String name = json.getString(PropertyConstants.PROP_UPDATE_NAME);
-			if (PropertyConstants.PROP_BATCH_START.equals(name)) {
-				System.err.println("start " + json.getString(PropertyConstants.PROP_UPDATE_VALUE));
-				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_START, 
-						json.getString(PropertyConstants.PROP_UPDATE_VALUE));
-			} else if (PropertyConstants.PROP_BATCH_RANGE.equals(name)) {
-				System.err.println("range = " + json.getString(PropertyConstants.PROP_UPDATE_VALUE));
-//				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_NAME, 
-//						json.getString(PropertyConstants.PROP_BATCH_NAME));
-			} else if (PropertyConstants.PROP_BATCH_FINISH.equals(name)) {
-				System.err.println("finish " + json.getString(PropertyConstants.PROP_UPDATE_VALUE));
-//				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_NAME, 
-//						json.getString(PropertyConstants.PROP_BATCH_NAME));
-			}
+			String value = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
+			SicsManager.getBatchControl().parseState(name, value);
+//			String name = json.getString(PropertyConstants.PROP_UPDATE_NAME);
+//			if (PropertyConstants.PROP_BATCH_START.equals(name)) {
+//				System.err.println("start " + json.getString(PropertyConstants.PROP_UPDATE_VALUE));
+////				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_START, 
+////						json.getString(PropertyConstants.PROP_UPDATE_VALUE));
+//				
+//			} else if (PropertyConstants.PROP_BATCH_RANGE.equals(name)) {
+//				System.err.println("range = " + json.getString(PropertyConstants.PROP_UPDATE_VALUE));
+////				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_NAME, 
+////						json.getString(PropertyConstants.PROP_BATCH_NAME));
+//			} else if (PropertyConstants.PROP_BATCH_FINISH.equals(name)) {
+//				System.err.println("finish " + json.getString(PropertyConstants.PROP_UPDATE_VALUE));
+////				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_NAME, 
+////						json.getString(PropertyConstants.PROP_BATCH_NAME));
+//			}
 //			if (json.has(PropertyConstants.PROP_BATCH_RANGE)) {
 //				sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_RANGE, 
 //						json.getString(PropertyConstants.PROP_BATCH_RANGE));
@@ -144,11 +148,12 @@ public class MessageHandler {
 
 	public void processState(String path, String state) {
 		if (path.startsWith(STATE_EXE)) {
-			if (path.length() > STATE_EXE.length()) {
-				SicsManager.getBatchControl().parseState(state, path.substring(STATE_EXE.length()));
-			} else {
-				logger.error("failed to process exe state: " + path + ":" + state);
-			}
+//			if (path.length() > STATE_EXE.length()) {
+//				SicsManager.getBatchControl().parseState(state, path.substring(STATE_EXE.length()));
+//			} else {
+//				logger.error("failed to process exe state: " + path + ":" + state);
+//			}
+			logger.error("batch state, not process, use batch specific message instead: " + path + ": " + state);
 		} else {
 			ISicsController controller = getModel().findController(path);
 			try {

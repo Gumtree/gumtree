@@ -46,6 +46,8 @@ public class BatchControl implements IBatchControl {
 	
 	private String batchText = "";
 
+	private String batchRangeText = "";
+	
 	private ProxyListener proxyListener;
 
 	public BatchControl(ISicsProxy proxy) {
@@ -223,13 +225,15 @@ public class BatchControl implements IBatchControl {
 	}
 
 	@Override
-	public void parseState(String state, String batchName) {
-		if (state.equalsIgnoreCase(BatchStatus.START_STATE)) {
-			setBatchName(batchName);
+	public void parseState(String stateName, String stateValue) {
+		if (stateName.equalsIgnoreCase(BatchStatus.START_STATE)) {
+			setBatchName(stateValue);
 			setBatchStatus(BatchStatus.EXECUTING);
-		} else if (state.equalsIgnoreCase(BatchStatus.FINISH_STATE)) {
+		} else if (stateName.equalsIgnoreCase(BatchStatus.FINISH_STATE)) {
 			clearBatchName();
 			setBatchStatus(BatchStatus.IDLE);
+		} else if (stateName.equalsIgnoreCase(BatchStatus.RANGE_STATE)) {
+			setBatchRangeText(stateValue);
 		}
 	}
 
@@ -247,7 +251,6 @@ public class BatchControl implements IBatchControl {
 	private void setBatchName(String batchName) {
 		this.batchId = String.valueOf(System.currentTimeMillis());
 		this.batchName = batchName;
-		final Logger parentLogger = logger;
 		try {
 			sicsProxy.asyncRun("exe print " + batchName, new SicsCallbackAdapter() {
 				@Override
@@ -255,7 +258,7 @@ public class BatchControl implements IBatchControl {
 					try {
 						batchText = data.getString();
 					} catch (Exception e) {
-						parentLogger.error("failed to get batch text of file: " + batchName);
+						BatchControl.logger.error("failed to get batch text of file: " + batchName);
 					}
 				}
 			});
@@ -328,7 +331,7 @@ public class BatchControl implements IBatchControl {
 	}
 	
 	public BatchInfo getBatchInfo() {
-		return new BatchInfo(status, batchId, batchName, batchText, getBatchRange());
+		return new BatchInfo(status, batchId, batchName, batchText, batchRangeText);
 	}
 	
 	@Override
@@ -336,5 +339,19 @@ public class BatchControl implements IBatchControl {
 		if (status.equals(BatchStatus.PREPARING) || status.equals(BatchStatus.ERROR)) {
 			setBatchStatus(BatchStatus.IDLE);
 		}
+	}
+
+	/**
+	 * @return the batchRangeText
+	 */
+	public String getBatchRangeText() {
+		return batchRangeText;
+	}
+
+	/**
+	 * @param batchRangeText the batchRangeText to set
+	 */
+	private void setBatchRangeText(String batchRangeText) {
+		this.batchRangeText = batchRangeText;
 	}
 }
