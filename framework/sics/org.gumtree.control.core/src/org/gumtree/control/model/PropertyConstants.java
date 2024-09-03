@@ -20,7 +20,7 @@ public class PropertyConstants {
 
 //	public final static String PROP_BATCH_NAME = "batch_name";
 //	public final static String PROP_BATCH_RANGE = "batch_range";
-//	public final static String PROP_BATCH_TEXT = "batch_text";
+	public final static String PROP_BATCH_TEXT = "batch_text";
 
 	public final static String PROP_BATCH_START = "STARTED";
 	public final static String PROP_BATCH_RANGE = "RANGE";

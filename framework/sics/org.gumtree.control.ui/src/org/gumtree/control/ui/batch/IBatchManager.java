@@ -34,7 +34,7 @@ public interface IBatchManager extends IService {
 	 * 
 	 * @return currently running buffer name, null if no running buffer is found
 	 */
-	public void getRunningBuffername(ISicsCallback callback) throws SicsException;
+	public String getRunningBuffername();
 	
 	/**
 	 * Queries the buffer content based on the provided buffer name.
@@ -44,8 +44,8 @@ public interface IBatchManager extends IService {
 	 * @throws BatchBufferManagerException when buffer not found
 	 */
 	public void getBuffer(String buffername, ISicsCallback callback);
-	public void getRunningBufferContent(ISicsCallback callback);
-	public void getRunningBufferRangeString(ISicsCallback callback);
+	public String getRunningBufferContent();
+	public String getRunningBufferRangeString();
 	
 	/***************************************************************
 	 * Event

@@ -9,6 +9,8 @@ import org.json.JSONObject;
 public class SicsReplyData implements ISicsReplyData {
 
 	private JSONObject data;
+	public final static String COMMAND_REPLY_DEFERRED = "DEFERRED";
+	public final static String COMMAND_REPLY_RUNNING = "RUNNING";
 
 	public SicsReplyData(JSONObject data) {
 		this.data = data;

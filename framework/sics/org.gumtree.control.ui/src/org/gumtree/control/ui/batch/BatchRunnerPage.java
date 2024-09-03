@@ -22,6 +22,7 @@ import javax.inject.Inject;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -58,6 +59,7 @@ import org.gumtree.control.batch.BatchStatus;
 import org.gumtree.control.batch.IBatchScript;
 import org.gumtree.control.batch.ResourceBasedBatchScript;
 import org.gumtree.control.batch.SicsMessageAdapter;
+import org.gumtree.control.batch.BatchControl.BatchInfo;
 import org.gumtree.control.core.ISicsReplyData;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
@@ -236,6 +238,20 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		createRunMainContent(runMainArea);
 		
 		getParent().layout(true, true);
+		
+		updateBatchInfo();
+	}
+	
+	private void updateBatchInfo() {
+		SafeRunner.run(new SafeRunnable() {
+			
+			@Override
+			public void run() throws Exception {
+				BatchInfo info = SicsManager.getBatchControl().getBatchInfo();
+				updateStatus(info.getStatus());
+				updateScriptName(info.getBatchName());
+			}
+		});
 	}
 	
 	private void createRunMainContent(Composite parent) {
@@ -261,6 +277,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		editorGroup.setFont(JFaceResources.getBannerFont());
 		context.editorText = new AutoScrollStyledText(editorGroup, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
 		context.editorText.setText("");
+//		context.editorText.setText(getBatchBufferManager().getRunningBufferContent());
 		context.editorText.setFont(JFaceResources.getBannerFont());
 		context.editorText.setData(KEY_PREV_DOC_LEN, 0);
 		
@@ -298,6 +315,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		GridDataFactory.fillDefaults().grab(false, false).applyTo(currentGroup);
 		context.currentBuffer = getToolkit().createText(currentGroup, "", SWT.READ_ONLY);
 		context.currentBuffer.setFont(JFaceResources.getBannerFont());
+//		context.currentBuffer.setText(getBatchBufferManager().getRunningBuffername());
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(context.currentBuffer);
 		
 		// Buffer queue
@@ -555,7 +573,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					context.timerWidget.clearTimerUI();
 					context.timerWidget.startTimerUI();
 					// Update buffer name
-//					String buffername = getBatchBufferManager().getRunningBuffername();
+					String buffername = getBatchBufferManager().getRunningBuffername();
 //					if (buffername != null) {
 //						context.currentBuffer.setText(getBatchBufferManager().getRunningBuffername());
 //					}
@@ -586,6 +604,9 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					context.currentBuffer.setText("");
 					context.editorText.setText("");
 				} else {
+					context.currentBuffer.setText(getBatchBufferManager().getRunningBuffername());
+					String bufferContent = getBatchBufferManager().getRunningBufferContent();
+					context.editorText.setText(bufferContent);
 //					getBatchBufferManager().getRunningBufferContent(new SicsCallbackAdapter() {
 //						@Override
 //						public void receiveFinish(ISicsReplyData data) {
@@ -598,17 +619,19 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 //							});
 //						}
 //					});
-					getBatchBufferManager().getBuffer(scriptName, new SicsCallbackAdapter() {
-						@Override
-						public void receiveFinish(ISicsReplyData data) {
-							highlightBuffer(data.getString());
-						}
-					});
-//					String rangeString = getBatchBufferManager().getRunningBufferRangeString();
-//					if (bufferContent != null && rangeString != null) {
+//					getBatchBufferManager().getBuffer(scriptName, new SicsCallbackAdapter() {
+//						@Override
+//						public void receiveFinish(ISicsReplyData data) {
+//							highlightBuffer(data.getString());
+//						}
+//					});
+					String rangeString = getBatchBufferManager().getRunningBufferRangeString();
+					if (bufferContent != null && rangeString != null) {
 //						context.editorText.setText(bufferContent);
-//						highlightBuffer(rangeString);
-//					}
+						if (rangeString.contains(".range = ")) {
+							highlightBuffer(rangeString);
+						}
+					}
 				}
 //				if (status.equals(BatchStatus.DISCONNECTED)) {
 //					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
@@ -665,12 +688,13 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 				if (message.startsWith("BATCHSTART=")) {
 					// Update buffer (may be duplicated, but we need to ensure
 					// this is available for highlight)
-					getBatchBufferManager().getRunningBufferContent(new SicsCallbackAdapter() {
-						@Override
-						public void receiveFinish(ISicsReplyData data) {
-							context.editorText.setText(data.getString());
-						}
-					});
+//					getBatchBufferManager().getRunningBufferContent(new SicsCallbackAdapter() {
+//						@Override
+//						public void receiveFinish(ISicsReplyData data) {
+//							context.editorText.setText(data.getString());
+//						}
+//					});
+					context.editorText.setText(getBatchBufferManager().getRunningBufferContent());
 					// Clear log
 					if (clearLog) {
 						context.logText.setText("");

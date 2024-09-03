@@ -4,6 +4,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.ui.actions.CommandNotMappedException;
 import org.gumtree.control.core.ISicsConnectionContext;
 import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.imp.SicsReplyData;
 import org.gumtree.control.imp.client.ClientChannel;
 import org.gumtree.control.imp.client.IClientListener;
 import org.gumtree.control.model.PropertyConstants;
@@ -92,13 +93,15 @@ public class ZMQAdapter implements ICommunicationAdapter {
 						try {
 							OutputStyle style = OutputStyle.NORMAL;
 							String text = json.getString(PropertyConstants.PROP_COMMAND_REPLY);
-							if (json.has(PropertyConstants.PROP_COMMAND_FLAG)) {
-								if (FlagType.parseString(json.getString(PropertyConstants.PROP_COMMAND_FLAG)) == FlagType.ERROR) {
-									style = OutputStyle.ERROR;
-									text = "ERROR: " + text;
+							if (!text.equals(SicsReplyData.COMMAND_REPLY_DEFERRED) && !text.equals(SicsReplyData.COMMAND_REPLY_RUNNING)) {
+								if (json.has(PropertyConstants.PROP_COMMAND_FLAG)) {
+									if (FlagType.parseString(json.getString(PropertyConstants.PROP_COMMAND_FLAG)) == FlagType.ERROR) {
+										style = OutputStyle.ERROR;
+										text = "ERROR: " + text;
+									}
 								}
+								getOutputBuffer().appendOutput(text, style);
 							}
-							getOutputBuffer().appendOutput(text, style);
 						} catch (JSONException e) {
 						}
 					}

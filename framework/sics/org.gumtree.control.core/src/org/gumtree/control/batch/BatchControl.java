@@ -217,11 +217,11 @@ public class BatchControl implements IBatchControl {
 				listener.lineExecuted(Integer.valueOf(value));;
 			}
 		} 
-//		else if (type.equals(PropertyConstants.PROP_BATCH_TEXT)) {
-//			for (IBatchListener listener : batchListeners) {
-//				listener.(Integer.valueOf(value));;
-//			}
-//		}
+		else if (type.equals(PropertyConstants.PROP_BATCH_TEXT)) {
+			for (IBatchListener listener : batchListeners) {
+				listener.scriptChanged(value);;
+			}
+		}
 	}
 
 	@Override
@@ -254,9 +254,10 @@ public class BatchControl implements IBatchControl {
 		try {
 			sicsProxy.asyncRun("exe print " + batchName, new SicsCallbackAdapter() {
 				@Override
-				public void receiveFinish(ISicsReplyData data) {
+				public void receiveFinish(final ISicsReplyData data) {
 					try {
-						batchText = data.getString();
+						setBatchText(data.getString());
+//						batchText = data.getString();
 					} catch (Exception e) {
 						BatchControl.logger.error("failed to get batch text of file: " + batchName);
 					}
@@ -266,6 +267,12 @@ public class BatchControl implements IBatchControl {
 			logger.error("failed to get batch status: " + e.getMessage());
 		}
 
+	}
+	
+	private void setBatchText(String text) {
+		batchText = text;
+		fireBatchEvent(PropertyConstants.PROP_BATCH_TEXT, text);
+		getBatchRange();
 	}
 	
 	private void clearBatchName() {
@@ -281,12 +288,19 @@ public class BatchControl implements IBatchControl {
 	public String getBatchRange() {
 		if (status.equals(BatchStatus.EXECUTING)) {
 			try {
-				String range = sicsProxy.syncRun("exe info range");
-				if (range.contains(".range")) {
-					return range;
-				} else {
-					return "";
-				}
+				sicsProxy.asyncRun("exe info range", new SicsCallbackAdapter() {
+					@Override
+					public void receiveFinish(final ISicsReplyData data) {
+						try {
+							String range = data.getString();
+							if (range.contains(".range")) {
+								setBatchRangeText(range);
+							}
+						} catch (Exception e) {
+							BatchControl.logger.error("failed to get batch text of file: " + batchName);
+						}
+					}
+				});
 			} catch (SicsException e) {
 				logger.error("failed to get buffer range: " + e.getMessage());
 			}
@@ -353,6 +367,6 @@ public class BatchControl implements IBatchControl {
 	 */
 	private void setBatchRangeText(String batchRangeText) {
 		this.batchRangeText = batchRangeText;
-		
+		fireBatchEvent(PropertyConstants.PROP_BATCH_TEXT, batchRangeText);
 	}
 }

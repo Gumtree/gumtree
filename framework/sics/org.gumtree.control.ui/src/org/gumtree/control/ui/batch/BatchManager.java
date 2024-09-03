@@ -151,8 +151,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 			
 			@Override
 			public void scriptChanged(String scriptName) {
-				// TODO Auto-generated method stub
-				
+				fireBatchChangeEvent(scriptName);
 			}
 			
 			@Override
@@ -516,32 +515,35 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 //	}
 
 	// Return null if no running buffer
-	public void getRunningBuffername(ISicsCallback callback) {
-		try {
-			asyncSend("exe info", callback);
-		} catch (SicsBatchException e) {
-			handleExecutionEvent(e.getMessage());
-		}
+	public String getRunningBuffername() {
+//		try {
+//			asyncSend("exe info", callback);
+//		} catch (SicsBatchException e) {
+//			handleExecutionEvent(e.getMessage());
+//		}
+		return batchControl.getBatchName();
 	}
 	
-	public void getRunningBufferContent(final ISicsCallback callback) {
-		getRunningBuffername(new SicsCallbackAdapter() {
-			@Override
-			public void receiveFinish(ISicsReplyData data) {
-				if (data.getString().indexOf(" ") > 0) {
-					String scriptName = data.getString().substring(data.getString().indexOf(" ") + 1);
-					getBuffer(scriptName, callback);
-				}
-			}
-		});
+	public String getRunningBufferContent() {
+		return batchControl.getBatchText();
+//		getRunningBuffername(new SicsCallbackAdapter() {
+//			@Override
+//			public void receiveFinish(ISicsReplyData data) {
+//				if (data.getString().indexOf(" ") > 0) {
+//					String scriptName = data.getString().substring(data.getString().indexOf(" ") + 1);
+//					getBuffer(scriptName, callback);
+//				}
+//			}
+//		});
 	}
 	
-	public void getRunningBufferRangeString(ISicsCallback callback) {
-		try {
-			asyncSend("exe info range", callback);
-		} catch (Exception e) {
-			handleExecutionEvent(e.getMessage());
-		}
+	public String getRunningBufferRangeString() {
+//		try {
+//			asyncSend("exe info range", callback);
+//		} catch (Exception e) {
+//			handleExecutionEvent(e.getMessage());
+//		}
+		return batchControl.getBatchRangeText();
 	}
 
 //	public BatchManagerStatus getBatchStatus() {
@@ -586,6 +588,12 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		}
 	}
 	
+	private void fireBatchChangeEvent(final String bufferName) {
+		for (IBatchManagerListener listener : batchManagerListeners) {
+			listener.scriptChanged(bufferName);
+		}
+	}
+	
 	private void handleException(String err) {
 		synchronized (batchControl.getStatus()) {
 //			this.status = BatchManagerStatus.ERROR;
@@ -616,16 +624,16 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 //			PlatformUtils.getPlatformEventBus().postEvent(
 //					new BatchBufferManagerExecutionEvent(this, buffername,
 //							startPosition, endPosition));
-			fireBatchScriptEvent(buffername, startPosition, endPosition);
+//			fireBatchScriptEvent(buffername, startPosition, endPosition);
 		} catch (Exception e) {
 //			e.printStackTrace();
 		}
 	}
 
-	private void fireBatchScriptEvent(String buffername,
-			long startPosition, long endPosition) {
-		
-	}
+//	private void fireBatchScriptEvent(String buffername,
+//			long startPosition, long endPosition) {
+//		
+//	}
 
 	/***************************************************************
 	 * I/O

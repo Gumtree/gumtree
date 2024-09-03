@@ -86,6 +86,17 @@ public class TerminalText extends StyledText implements IWidget {
 	}
 	
 	public void appendOutputText(String text, OutputStyle style) {
+		if (text.contains("\n")) {
+			String[] parts = text.split("\n");
+			for (String part : parts) {
+				wrapOutputText(part, style);
+			}
+		} else {
+			wrapOutputText(text, style);
+		}
+	}
+	
+	private void wrapOutputText(String text, OutputStyle style) {
 		int wrapNewLineCount = 0;
 		Color styleColor = style == OutputStyle.ERROR ? red : blue;
 		for(int i = 0; i < text.length(); i += wrapSize) {

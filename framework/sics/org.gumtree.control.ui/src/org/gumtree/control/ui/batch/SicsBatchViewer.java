@@ -430,7 +430,7 @@ public class SicsBatchViewer extends AbstractPartControlProvider {
 
 		@Override
 		public void scriptChanged(String scriptName) {
-//			updat
+			
 		}
 		
 	}
