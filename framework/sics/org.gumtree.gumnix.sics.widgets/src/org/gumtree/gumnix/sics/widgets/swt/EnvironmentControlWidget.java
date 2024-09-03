@@ -47,17 +47,17 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 					String nickname = null;
 					List<String> nickList = item.getPropertyValue("nick");
 					if (nickList != null && nickList.size() > 0) {
-						nickname = nickList.get(0);
+						nickname = nickList.get(0).trim();
 					}
 					String aliasName = null;
 					List<String> aliasList = item.getPropertyValue("nxalias");
 					if (aliasList != null && aliasList.size() > 0) {
-						aliasName = aliasList.get(0);
+						aliasName = aliasList.get(0).trim();
 					}
 					String units = null;
 					List<String> unitsList = item.getPropertyValue("units");
 					if (unitsList != null && unitsList.size() > 0) {
-						units = unitsList.get(0);
+						units = unitsList.get(0).trim();
 					}
 //					String units = "";
 //					if (id.startsWith("T")) {
@@ -71,21 +71,20 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 //					} else if (id.startsWith("I")) {
 //						units = "A";
 //					}
-					final String labelName = label;
-					if (aliasName != null) {
-						label = aliasName;
-					} else {
-						if (label.contains("SP")) {
-							label = id.replace("SP", " SetPoint");
-						} else if (label.contains("S")) {
-							label = id.replace("S", " Sensor");
-						}
-					}
 					String fullname = null;
 					if (nickname != null) {
 						nickname = nickname.trim();
-						fullname = labelName + "(" + nickname + ")";
+						fullname = label + "(" + nickname + ")";
 					} else {
+						if (aliasName != null) {
+							label = aliasName;
+						} else {
+							if (label.contains("SP")) {
+								label = id.replace("SP", " SetPoint");
+							} else if (label.contains("S")) {
+								label = id.replace("S", " Sensor");
+							}
+						}
 						fullname = label;
 					}
 					try {
