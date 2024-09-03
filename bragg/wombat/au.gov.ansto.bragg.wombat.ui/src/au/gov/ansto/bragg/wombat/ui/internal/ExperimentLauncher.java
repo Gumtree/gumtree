@@ -125,10 +125,17 @@ public class ExperimentLauncher extends AbstractLauncher {
 		}
 		IMultiMonitorManager mmManager = new MultiMonitorManager();
 		// Attempt to close intro
-		mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 0, 0, false);
+//		mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 0, 0, false);
 		mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SICS, 0, 0, false);
 		mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
 		
+		if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
+			// open new window as editor buffer
+			mmManager.openWorkbenchWindow(ID_PERSPECTIVE_SCRIPTING, 1, true);
+		} else {
+			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
+		}
+
 		activeWorkbenchWindow.addPerspectiveListener(new IPerspectiveListener() {
 			
 			@Override

@@ -23,7 +23,8 @@ import org.gumtree.ui.service.multimonitor.IMultiMonitorManager;
 public class WombatAnalysisLauncher extends AbstractLauncher {
 
 	private static final String ID_PERSPECTIVE_DEFAULT = "org.gumtree.ui.isee.workbenchPerspective";
-	
+	public static final String ID_PERSPECTIVE_SCRIPTING = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
+
 	public WombatAnalysisLauncher() {
 	}
 
@@ -37,7 +38,7 @@ public class WombatAnalysisLauncher extends AbstractLauncher {
 				IPerspectiveDescriptor[] perspectives = page.getOpenPerspectives();
 				for (IPerspectiveDescriptor perspective : perspectives) {
 					if (perspective.getId().equals(
-							WombatAnalysisPerspective.ANALYSIS_PERSPECTIVE_ID)) {
+							ID_PERSPECTIVE_SCRIPTING)) {
 						page.setPerspective(perspective);
 //						window.setActivePage(page);
 						window.getShell().setActive();
@@ -51,7 +52,7 @@ public class WombatAnalysisLauncher extends AbstractLauncher {
 		IMultiMonitorManager mmManager = ServiceUtils.getService(IMultiMonitorManager.class);
 		int numberOfOpenWindows = PlatformUI.getWorkbench().getWorkbenchWindowCount();
 		mmManager.openWorkbenchWindow(ID_PERSPECTIVE_DEFAULT, 1, false);
-		mmManager.showPerspectiveOnOpenedWindow(WombatAnalysisPerspective.ANALYSIS_PERSPECTIVE_ID, 
+		mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 
 				numberOfOpenWindows, 1, true);
 	}
 
