@@ -126,12 +126,14 @@ var refresh = function(){
 					}
 					if (obj.status == "EXECUTING") {
 						$("#tclScript").text(obj.name);
-						$("#runningCode").text(obj.text);
+//						$("#runningCode").text(obj.text);
 						try {
 							var ct = obj.content;
 //							ct = ct.replace(/\n\n/g, '\n');
 							var range = obj.range;
 							var items = range.split("=");
+							var line = ct.substring(Number(items[1]), Number(items[2]));
+							$("#runningCode").text(line);
 							var newCt = '<div class="div-highlight">' + $("<div>").text(ct.substring(0, Number(items[2]))).html() + '</div>';
 							if (Number(items[2] < ct.length)) {
 								var torun = ct.substring(Number(items[2]) + 1, ct.length);
@@ -323,7 +325,7 @@ var refresh = function(){
 							iName = item["nxalias"];
 						}
 						if ("nick" in item) {
-							iName += " (" + item["nick"] + ")";
+							iName = item.id + " (" + item["nick"] + ")";
 						}
 						var units = "";
 						if ("units" in item) {
@@ -343,7 +345,7 @@ var refresh = function(){
 							iName = item["nxalias"];
 						}
 						if ("nick" in item) {
-							iName += " (" + item["nick"] + ")";
+							iName = item.id + " (" + item["nick"] + ")";
 						}
 						var units = "";
 						if ("units" in item) {
