@@ -52,6 +52,7 @@ public class EnvironmentStatusWidget extends ControllerStatusWidget {
 					String id = item.getId();
 					String label = id;
 					String nickname = null;
+					final String path = item.getPath();
 					List<String> nickList = item.getPropertyValue("nick");
 					if (nickList != null && nickList.size() > 0) {
 						nickname = nickList.get(0).trim();
@@ -97,7 +98,7 @@ public class EnvironmentStatusWidget extends ControllerStatusWidget {
 								@Override
 								public void updateValue(Object oldValue, Object newValue) {
 									String newTitle = prefix + "(" + newValue.toString() + ")";
-									setDeviceTitle(item.getPath(), newTitle);
+									setDeviceTitle(path, newTitle);
 								}
 							});
 						}
