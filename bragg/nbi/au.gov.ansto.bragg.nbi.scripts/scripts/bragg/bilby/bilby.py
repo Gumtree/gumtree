@@ -120,6 +120,27 @@ __sampleMap16__ = {
         17 : -510.0,
        }
 
+__meerMap16__ = {
+        0 : 510.0,
+        1 : 450.0,
+        2 : 390.0,
+        3 : 330.0,
+        4 : 270.0,
+        5 : 210.0,
+        6 : 150.0,
+        7 : 90.0,
+        8 : 30.0,
+        9 : -30.0,
+        10 : -90.0,
+        11 : -150.0,
+        12 : -210.0,
+        13 : -270.0,
+        14 : -330.0,
+        15 : -390.0,
+        16 : -450.0,
+        17 : -510.0,
+       }
+
 __fixedStage__ = {
        0 : 100000,
        1 : 0.0,
@@ -127,15 +148,17 @@ __fixedStage__ = {
        }    
 
 __sampleMap__ = {
-                 1: __fixedStage__,
-                 5: __sampleMap5__,
-                 6: __sampleMap6__,
-                 10: __sampleMap10__,
-                 12: __sampleMap12__, 
-                 16: __sampleMap16__,
+                 'fixed': __fixedStage__,
+                 '5': __sampleMap5__,
+                 '6': __sampleMap6__,
+                 '10': __sampleMap10__,
+                 '12': __sampleMap12__, 
+                 '16': __sampleMap16__,
+                 'meer16' : __meerMap16__,
                  }
 
-__sampleNum__ = 12
+# __sampleNum__ = 12
+__sampleStage__ = '12'
 
 def att_pos(val = None):
     if not val is None :
@@ -180,19 +203,25 @@ def som(val = None):
         sics.drive('som', val)
     return sics.get_raw_value('som')
 
+def get_stage_size():
+    global __sampleMap__, __sampleStage__
+    return len(__sampleMap__[__sampleStage__]) - 2
+    
 def __cal_samx__(val):
-    global __sampleMap__, __sampleNum__
-    if val <=0 or val >= len(__sampleMap__[__sampleNum__]) - 1 :
-        raise Exception, 'sample number not supported, must be within 1 to ' + str(len(__sampleMap__[__sampleNum__]) - 2) + ', got ' + str(val)
+    global __sampleMap__, __sampleStage__
+    __sampleNum__ = len(__sampleMap__[__sampleStage__]) - 2
+    if val <= 0 or val > __sampleNum__ :
+        raise Exception, 'sample number not supported, must be within 1 to ' + str(__sampleNum__) + ', got ' + str(val)
     ival = int(val)
     if ival == val:
-        return __sampleMap__[__sampleNum__][ival]
+        return __sampleMap__[__sampleStage__][ival]
     else:
-        return __sampleMap__[__sampleNum__][ival] + (__sampleMap__[__sampleNum__][ival + 1] - __sampleMap__[__sampleNum__][ival]) * (val - ival)
+        return __sampleMap__[__sampleStage__][ival] + (__sampleMap__[__sampleStage__][ival + 1] - __sampleMap__[__sampleStage__][ival]) * (val - ival)
             
      
 def sample(val = None):
-    global __sampleMap__, __sampleNum__
+    global __sampleMap__, __sampleStage__
+    __sampleNum__ = len(__sampleMap__[__sampleStage__]) - 2
     if not val is None :
         if not type(val) is int or not type(val) is float:
             val = float(str(val))
@@ -205,12 +234,12 @@ def sample(val = None):
                 sics.drive('samx', __cal_samx__(val))
     raw = sics.get_raw_value('samx')
     samNum = -1;
-    for i in xrange(len(__sampleMap__[__sampleNum__])) :
-        if raw > __sampleMap__[__sampleNum__][i] :
+    for i in xrange(len(__sampleMap__[__sampleStage__])) :
+        if raw > __sampleMap__[__sampleStage__][i] :
             if i > 0 :
-                samNum = i - (raw - __sampleMap__[__sampleNum__][i]) / (__sampleMap__[__sampleNum__][i - 1] - __sampleMap__[__sampleNum__][i])
+                samNum = i - (raw - __sampleMap__[__sampleStage__][i]) / (__sampleMap__[__sampleStage__][i - 1] - __sampleMap__[__sampleStage__][i])
             break
-    if samNum < 0.05 or samNum > len(__sampleMap__[__sampleNum__]) - 1.05 :
+    if samNum < 0.05 or samNum > len(__sampleMap__[__sampleStage__]) - 1.05 :
         samNum = -1
     return round(samNum, 1)
 
@@ -616,7 +645,8 @@ def count(mode, dataType, preset, force='true', saveType=saveType.save):
     return savedFilename
 
 def scan10(sample_position, collect_time, sample_name = None, thickness = 0):
-    global __sampleMap__, __sampleNum__
+    global __sampleMap__, __sampleStage__
+    __sampleNum__ = len(__sampleMap__[__sampleStage__]) - 2
     if sample_position < 1 or sample_position > __sampleNum__:
         raise Exception, 'Invalid sample position, scan not run. Choose a position between 1 and ' + str(__sampleNum__) + ' inclusive.'
     else:
@@ -651,7 +681,7 @@ def scan10(sample_position, collect_time, sample_name = None, thickness = 0):
         if is_samx_fixed or __sampleNum__ == 1 :
             scan('dummy_motor', 0, 0, 1, scanMode.time, dataType.HISTOGRAM_XYT, collect_time)
         else:
-            cur_samx = __sampleMap__[__sampleNum__][sample_position]
+            cur_samx = __sampleMap__[__sampleStage__][sample_position]
             scan('samx', cur_samx, cur_samx, 1, scanMode.time, dataType.HISTOGRAM_XYT, collect_time)
         time.sleep(2)
         log(sics.get_base_filename() + ' updated')
