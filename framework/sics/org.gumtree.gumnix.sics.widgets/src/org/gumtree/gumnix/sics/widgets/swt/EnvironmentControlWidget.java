@@ -16,6 +16,7 @@ import org.gumtree.gumnix.sics.control.events.DynamicControllerListenerAdapter;
 import org.gumtree.gumnix.sics.control.events.IComponentControllerListener;
 import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.core.SicsUtils;
+import org.gumtree.gumnix.sics.io.SicsIOException;
 
 public class EnvironmentControlWidget extends DeviceStatusWidget {
 
@@ -87,11 +88,6 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 						}
 						fullname = label;
 					}
-					try {
-						addDevice(item.getPath(), fullname, null, units);
-					} catch (Exception e) {
-					}
-					
 					final String labelPrefix = label;
 					IComponentController nickController = SicsUtils.getNicknameController(item);
 					if (nickController != null) {
@@ -105,8 +101,17 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 									setDeviceTitle(item.getPath(), newTitle);
 								}
 							});
+							try {
+								fullname = labelPrefix + "(" + ((IDynamicController) nickController).getValue().getStringData() + ")";
+							} catch (SicsIOException e) {
+							}
 						}
 					}
+					try {
+						addDevice(item.getPath(), fullname, null, units);
+					} catch (Exception e) {
+					}
+					
 				}
 				sortDevices();
 				Display.getDefault().asyncExec(new Runnable() {

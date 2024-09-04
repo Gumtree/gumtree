@@ -13,6 +13,8 @@ import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.events.SicsControllerAdapter;
+import org.gumtree.control.model.ModelUtils;
 //import org.gumtree.util.ILoopExitCondition;
 //import org.gumtree.util.LoopRunner;
 //import org.gumtree.util.LoopRunnerStatus;
@@ -408,6 +410,13 @@ public class ControlRestlet extends Restlet {
 				result.put(name, value.trim());
 			}
 		}
+		ISicsController nickController = ModelUtils.getNicknameController(controller);
+		if (nickController != null) {
+			if (nickController instanceof IDynamicController) {
+				result.put(PROP_NICK, ((IDynamicController) nickController).getValue());
+			}
+		}
+
 //		ISicsController nickController = SicsModelUtils.getNicknameController(getSicsManager(), controller);
 //		if (nickController != null) {
 //			if (nickController instanceof IDynamicController) {
