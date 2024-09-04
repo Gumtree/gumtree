@@ -38,12 +38,16 @@ public class LoginProgressMonitorDialog extends ProgressMonitorDialog {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				monitor.beginTask("Communicating with SICS...", IProgressMonitor.UNKNOWN);
 				monitor.subTask("Logging into the server");
+				boolean connected = false;
 				try {
-					SicsManager.getSicsProxy().connect(context.getServerAddress(), 
+					connected = SicsManager.getSicsProxy().connect(context.getServerAddress(), 
 							context.getPublisherAddress());
 				} catch (Exception e) {
 //					throw new InvocationTargetException(e, e.getMessage());
 					e.printStackTrace();
+				}
+				if (!connected) {
+					throw new InvocationTargetException(new Exception("connection failed"));
 				}
 //				monitor.subTask("Setting instrument profile");
 //				SicsCore.getSicsManager().service().setCurrentInstrumentProfile(profile);

@@ -36,7 +36,7 @@ public class SicsProxy implements ISicsProxy {
 
 	private static Logger logger = LoggerFactory.getLogger(SicsProxy.class);
 	private static final int EPOCH_PERIOD = 3000;
-	private static final int EPOCH_RETRY = 3;
+	private static final int EPOCH_RETRY = 1;
 
 	private String serverAddress;
 	private String publisherAddress;
@@ -120,7 +120,7 @@ public class SicsProxy implements ISicsProxy {
 					} catch (InterruptedException e1) {
 						break;
 					}
-					if (!isBroken && channel != null && channel.isConnected()) {
+					if (isConnected && !isBroken && channel != null && channel.isConnected()) {
 						try {
 							channel.syncPoch();
 							fct = 0;
@@ -169,6 +169,7 @@ public class SicsProxy implements ISicsProxy {
 			logger.error("Failed to get status from server after reconnecting. Disconnect now.");
 			disconnect();
 			return false;
+//			throw e;
 		}
 
 //		if (sicsModel == null) {

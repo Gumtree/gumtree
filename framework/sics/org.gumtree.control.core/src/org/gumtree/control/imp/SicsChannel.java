@@ -3,6 +3,7 @@
  */
 package org.gumtree.control.imp;
 
+import java.nio.channels.ClosedSelectorException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,6 +20,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zeromq.SocketType;
+import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
 
@@ -48,12 +51,13 @@ public class SicsChannel implements ISicsChannel {
 	public static final String JSON_VALUE_OK = "OK";
 	private static final String POCH_COMMAND = "POCH";
 	
-	private static final int COMMAND_WAIT_TIME = 1;
+	private static final int COMMAND_WAIT_TIME = 3;
 	private static final int COMMAND_TIMEOUT = 10000;
 	
 	private static Logger logger = LoggerFactory.getLogger(SicsChannel.class);
 	
-	private ZMQ.Context context;
+//	private static ZMQ.Context context = ZMQ.context(2);
+	static ZContext context = new ZContext();
     private ZMQ.Socket clientSocket;
     private ZMQ.Socket subscriberSocket;
     
@@ -78,8 +82,11 @@ public class SicsChannel implements ISicsChannel {
 	public SicsChannel(SicsProxy sicsProxy) {
 	    id = String.valueOf(System.currentTimeMillis()).substring(3);
 	    this.sicsProxy = sicsProxy;
-	    context = ZMQ.context(1);
-	    clientSocket = context.socket(ZMQ.DEALER);
+//	    context = ZMQ.context(2);
+//	    clientSocket = context.socket(ZMQ.DEALER);
+	    clientSocket = context.createSocket(SocketType.DEALER);
+	    clientSocket.setSendTimeOut(COMMAND_TIMEOUT);
+//	    clientSocket.setReceiveTimeOut(COMMAND_TIMEOUT);
 	    clientSocket.setIdentity(id.getBytes(ZMQ.CHARSET));
 	    messageHandler = new MessageHandler(sicsProxy);
 	    commandMap = new HashMap<Integer, SicsCommand>();
@@ -87,27 +94,37 @@ public class SicsChannel implements ISicsChannel {
 	
 	private void subscribe(String publisherAddress) {
 
-		subscriberSocket = context.socket(ZMQ.SUB);
+//		subscriberSocket = context.socket(ZMQ.SUB);
+		subscriberSocket = context.createSocket(SocketType.SUB);
 	    subscriberSocket.connect(publisherAddress);
 	    subscriberSocket.subscribe("".getBytes());
 		
+	}
+	
+	private void startSubscribeThread() {
 		subscribeThread = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
-				while(true) {
+				while(isConnected) {
 					try {
 						String msg = subscriberSocket.recvStr();
-						logger.warn("SUB: " + msg);
+						logger.info("SUB: " + msg);
 						JSONObject json;
 						json = new JSONObject(msg);
 						messageHandler.delayedProcess(json);
 					} catch (ZMQException ze) {
-						logger.error("subscriber socket closed");
+						logger.error("subscriber socket not available");
 						break;
 					} catch (JSONException e) {
 						logger.error(e.getMessage());
 						e.printStackTrace();
+					} catch (ClosedSelectorException ce) { 
+						logger.error("subscriber socket not available");
+						break;
+					} catch (Exception ne) {
+						logger.error("broken subscriber socket");
+//						break;
 					} finally {
 					}
 				}
@@ -186,9 +203,10 @@ public class SicsChannel implements ISicsChannel {
 	public void connect(String serverAddress, String publisherAddress) throws SicsCommunicationException {
 	    clientSocket.connect(serverAddress);
 	    subscribe(publisherAddress);
+		isConnected = true;
+	    startSubscribeThread();
 	    this.serverAddress = serverAddress;
 	    this.publisherAddress = publisherAddress;
-		isConnected = true;
 		isBusy = false;
 		clientThread = new Thread(new Runnable() {
 			
@@ -198,8 +216,8 @@ public class SicsChannel implements ISicsChannel {
 					try {
 						String received = clientSocket.recvStr();
 						String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
-						System.err.println(timeStamp + " Received: [" + received);
-//						logger.info("CMD: " + received);
+//						System.err.println(timeStamp + " Received: [" + received);
+						logger.debug("CMD: " + received);
 						JSONObject json = null;
 						try {
 							json = new JSONObject(received);	
@@ -228,13 +246,16 @@ public class SicsChannel implements ISicsChannel {
 		if (clientSocket != null) {
 			if (serverAddress != null) {
 				try {
+					logger.debug("client socket disconnecting");
 					clientSocket.disconnect(serverAddress);
+					clientSocket.unbind(serverAddress);
 				} catch (Exception e) {
 					logger.error("failed to disconnect client socket, ", e);
 				}
 			}
 			try {
 				clientSocket.close();
+				logger.debug("client socket closed");
 			} catch (Exception e) {
 				logger.error("failed to close client socket, ", e);
 			}
@@ -242,19 +263,33 @@ public class SicsChannel implements ISicsChannel {
 		if (subscriberSocket != null) {
 			if (publisherAddress != null) {
 				try {
+					logger.debug("subscriber socket disconnecting");
+					subscriberSocket.unsubscribe("");
 					subscriberSocket.disconnect(publisherAddress);
+					subscriberSocket.unbind(publisherAddress);
 				} catch (Exception e) {
 					logger.error("failed to disconnect subscriber socket, ", e);
 				}
 			}
 			try {
 				subscriberSocket.close();
+				logger.debug("subscriber socket closed");
 			} catch (Exception e) {
 				logger.error("failed to close subscriber socket, ", e);
 			}
 		}
+		try {
+			context.destroySocket(clientSocket);
+			logger.debug("context destroy client");
+			context.destroySocket(subscriberSocket);
+			logger.debug("context destroy subscriber");
+		} catch (Exception e) {
+			logger.error("failed to terminate ZMQ context, ", e);
+		}
+
         clientThread.interrupt();
         isConnected = false;
+        logger.warn("finished disconnecting routine");
 	}
 	
 	@Override
@@ -306,7 +341,7 @@ public class SicsChannel implements ISicsChannel {
 //			System.err.println(timeStamp + " async send: " + jcom.toString());
 			String msg = jcom.toString();
 			if (!POCH_COMMAND.equals(command)) {
-				logger.info("syncSend: " + command);
+				logger.debug("syncSend: " + command);
 			}
 			clientSocket.send(msg);
 			int tc = 0;
@@ -351,7 +386,7 @@ public class SicsChannel implements ISicsChannel {
 //			String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
 //			System.err.println(timeStamp + " async send: " + jcom.toString());
 			String msg = jcom.toString();
-			logger.info("asyncSend: " + msg);
+			logger.debug("asyncSend: " + msg);
 			clientSocket.send(msg);
 		}
 
@@ -375,7 +410,7 @@ public class SicsChannel implements ISicsChannel {
 					if (json.has(PropertyConstants.PROP_COMMAND_REPLY)) {
 						reply = json.get(PropertyConstants.PROP_COMMAND_REPLY).toString();
 						if (!POCH_COMMAND.equals(command)) {
-							logger.info(String.format("reply of %s: %s", command, reply));
+							logger.debug(String.format("reply of %s: %s", command, reply));
 						}
 					}
 					if (json.has(JSON_KEY_INTERRUPT)) {

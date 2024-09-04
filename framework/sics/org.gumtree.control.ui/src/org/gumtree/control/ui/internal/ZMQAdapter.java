@@ -37,7 +37,7 @@ public class ZMQAdapter implements ICommunicationAdapter {
 
 //	private PrintStream outputStream;
 
-	private Thread listenerThread;
+//	private Thread listenerThread;
 
 	private boolean isConnected;
 	
@@ -75,6 +75,9 @@ public class ZMQAdapter implements ICommunicationAdapter {
 		try {
 			serverAddress = context.getServerAddress();
 //			socket = new Socket(host, port);
+			if (channel != null && channel.isConnected()) {
+				channel.disconnect();
+			}
 			channel = new ClientChannel();
 			try {
 				channel.connect(context.getServerAddress(), context.getPublisherAddress());
@@ -137,11 +140,14 @@ public class ZMQAdapter implements ICommunicationAdapter {
 	}
 
 	public void disconnect() {
+		if (channel != null && channel.isConnected()) {
+			channel.disconnect();
+		}
 		if(!isConnected) {
 			return;
 		}
 		getOutputBuffer().appendInput("disconnected");
-		listenerThread = null;
+//		listenerThread = null;
 		isConnected = false;
 	}
 
