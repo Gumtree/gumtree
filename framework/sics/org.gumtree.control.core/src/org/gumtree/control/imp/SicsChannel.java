@@ -402,7 +402,7 @@ public class SicsChannel implements ISicsChannel {
 				return;
 			}
 			try {
-				logger.debug(json.toString());
+//				logger.debug(json.toString());
 				if (!isStarted) {
 					isStarted = true;
 					messageHandler.process(json);

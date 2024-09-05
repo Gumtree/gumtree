@@ -39,7 +39,7 @@ public class EnvironmentStatusWidget extends ControllerStatusWidget {
 					}
 				});
 				
-				for (ISicsController item : itemList) {
+				for (final ISicsController item : itemList) {
 //					String id = item.getId();
 //					String label = id;
 //					if (label.contains("SP")) {
