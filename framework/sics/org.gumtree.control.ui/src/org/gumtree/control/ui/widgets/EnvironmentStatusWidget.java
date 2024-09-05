@@ -10,11 +10,13 @@ import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.SicsControllerAdapter;
+import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.ModelUtils;
 
 public class EnvironmentStatusWidget extends ControllerStatusWidget {
 
 	private boolean isInitialised = false;
+	private static final String UNKNOWN_VALUE = "UNKNOWN";
 	
 	public EnvironmentStatusWidget(Composite parent, int style) {
 		super(parent, style);
@@ -70,6 +72,9 @@ public class EnvironmentStatusWidget extends ControllerStatusWidget {
 					String fullname = null;
 					if (nickname != null) {
 						nickname = nickname.trim();
+						if (UNKNOWN_VALUE.equalsIgnoreCase(nickname)) {
+							nickname = "";
+						}
 						fullname = label + "(" + nickname + ")";
 					} else {
 						if (aliasName != null) {
@@ -83,10 +88,6 @@ public class EnvironmentStatusWidget extends ControllerStatusWidget {
 						}
 						fullname = label;
 					}
-					try {
-						addDevice(item.getPath(), fullname, null, units);
-					} catch (Exception e) {
-					}
 					
 					final String labelPrefix = label;
 					ISicsController nickController = ModelUtils.getNicknameController(item);
@@ -99,9 +100,26 @@ public class EnvironmentStatusWidget extends ControllerStatusWidget {
 								public void updateValue(Object oldValue, Object newValue) {
 									String newTitle = prefix + "(" + newValue.toString() + ")";
 									setDeviceTitle(path, newTitle);
+									String nick = newValue.toString().trim();
+									if (UNKNOWN_VALUE.equalsIgnoreCase(nick)) {
+										nick = "";
+									} 
+									setDeviceTitle(item.getPath(), prefix + "(" + nick + ")");
 								}
 							});
+							try {
+								String nick = ((IDynamicController) nickController).getValue().toString().trim();
+								if (UNKNOWN_VALUE.equalsIgnoreCase(nick)) {
+									nick = "";
+								} 
+								fullname = labelPrefix + "(" + nick + ")";
+							} catch (SicsModelException e) {
+							}
 						}
+					}
+					try {
+						addDevice(item.getPath(), fullname, null, units);
+					} catch (Exception e) {
 					}
 				}
 				sortDevices();

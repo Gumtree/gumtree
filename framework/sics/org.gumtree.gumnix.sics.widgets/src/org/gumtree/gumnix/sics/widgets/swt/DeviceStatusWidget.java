@@ -442,6 +442,8 @@ public class DeviceStatusWidget extends ExtendedSicsComposite {
 				return "";
 			} else if ("seconds".equalsIgnoreCase(String.valueOf(obj))){
 				return "s";
+			} else if ("UNKNOWN".equalsIgnoreCase(String.valueOf(obj))) {
+				return "";
 			} else if (obj == null) {
 				return null;
 			} else {

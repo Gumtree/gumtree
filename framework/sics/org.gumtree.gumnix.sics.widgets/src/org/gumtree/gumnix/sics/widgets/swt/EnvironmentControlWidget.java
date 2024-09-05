@@ -21,6 +21,7 @@ import org.gumtree.gumnix.sics.io.SicsIOException;
 public class EnvironmentControlWidget extends DeviceStatusWidget {
 
 	private boolean isInitialised = false;
+	private static final String UNKNOWN_VALUE = "UNKNOWN";
 	
 	public EnvironmentControlWidget(Composite parent, int style) {
 		super(parent, style);
@@ -59,6 +60,9 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 					List<String> unitsList = item.getPropertyValue("units");
 					if (unitsList != null && unitsList.size() > 0) {
 						units = unitsList.get(0).trim();
+						if (UNKNOWN_VALUE.equalsIgnoreCase(units)) {
+							units = "";
+						}
 					}
 //					String units = "";
 //					if (id.startsWith("T")) {
@@ -75,6 +79,9 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 					String fullname = null;
 					if (nickname != null) {
 						nickname = nickname.trim();
+						if (UNKNOWN_VALUE.equalsIgnoreCase(nickname)) {
+							nickname = "";
+						}
 						fullname = label + "(" + nickname + ")";
 					} else {
 						if (aliasName != null) {
@@ -97,12 +104,19 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 								private String prefix = labelPrefix;
 								@Override
 								public void valueChanged(IDynamicController controller, IComponentData newValue) {
-									String newTitle = prefix + "(" + newValue.getStringData() + ")";
-									setDeviceTitle(item.getPath(), newTitle);
+									String nick = newValue.getStringData().trim();
+									if (UNKNOWN_VALUE.equalsIgnoreCase(nick)) {
+										nick = "";
+									} 
+									setDeviceTitle(item.getPath(), prefix + "(" + nick + ")");									
 								}
 							});
 							try {
-								fullname = labelPrefix + "(" + ((IDynamicController) nickController).getValue().getStringData() + ")";
+								String nick = ((IDynamicController) nickController).getValue().getStringData().trim();
+								if (UNKNOWN_VALUE.equalsIgnoreCase(nick)) {
+									nick = "";
+								} 
+								fullname = labelPrefix + "(" + nick + ")";
 							} catch (SicsIOException e) {
 							}
 						}

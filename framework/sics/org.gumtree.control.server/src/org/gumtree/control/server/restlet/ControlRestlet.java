@@ -413,7 +413,13 @@ public class ControlRestlet extends Restlet {
 		ISicsController nickController = ModelUtils.getNicknameController(controller);
 		if (nickController != null) {
 			if (nickController instanceof IDynamicController) {
-				result.put(PROP_NICK, ((IDynamicController) nickController).getValue());
+				Object val = ((IDynamicController) nickController).getValue();
+				if (val != null) {
+					val = String.valueOf(val).trim();
+				} else {
+					val = "";
+				}
+				result.put(PROP_NICK, val);
 			}
 		}
 

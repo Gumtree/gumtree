@@ -441,7 +441,7 @@ public class ModelUtils {
 	public static ISicsController getNicknameController(ISicsController seItem) {
 		List<String> prop = seItem.getPropertyValue(PROP_NXALIAS);
 		List<String> varProp = seItem.getPropertyValue(PROP_NICK_VAR);
-		if (prop.size() > 0) {
+		if (prop != null && prop.size() > 0) {
 			String alias = prop.get(0).trim();
 			String[] path = alias.split("_");
 			String nickPath = null;
@@ -451,7 +451,7 @@ public class ModelUtils {
 			for (int i = 0; i < path.length - 1; i++) {
 				nickPath += "/" + path[i];
 			}
-			if (varProp.size() > 0) {
+			if (varProp != null && varProp.size() > 0) {
 				nickPath += "/" + varProp.get(0).trim();
 			} else {
 				nickPath += "/nick";
