@@ -325,11 +325,19 @@ var refresh = function(){
 							iName = item["nxalias"];
 						}
 						if ("nick" in item) {
-							iName = item.id + " (" + item["nick"] + ")";
+							var n = item["nick"].trim();
+							if (n == "UNKNOWN") {
+								n = "";
+							}
+							iName = item.id + " (" + n + ")";
 						}
 						var units = "";
 						if ("units" in item) {
-							units = " " + item["units"];
+							var u = item["units"].trim();
+							if (u == "UNKNOWN") {
+								u = "";
+							}
+							units = " " + u;
 						}
 						$("#deviceList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left" id="' + obj.hdbs[i].id + '_name">' + iName 
 								+ ': </div> <div class="div-inlist" id="' + obj.hdbs[i].id + '">' + obj.hdbs[i].value + units + '</div></li>');
@@ -345,11 +353,19 @@ var refresh = function(){
 							iName = item["nxalias"];
 						}
 						if ("nick" in item) {
-							iName = item.id + " (" + item["nick"] + ")";
+							var n = item["nick"].trim();
+							if (n == "UNKNOWN") {
+								n = "";
+							}
+							iName = item.id + " (" + n + ")";
 						}
 						var units = "";
 						if ("units" in item) {
-							units = " " + item["units"];
+							var u = item["units"].trim();
+							if (u == "UNKNOWN") {
+								u = "";
+							}
+							units = " " + u;
 						}
 						$("#" + obj.hdbs[i].id + "_name").text(iName);
 						$("#" + obj.hdbs[i].id).text(obj.hdbs[i].value + units);
