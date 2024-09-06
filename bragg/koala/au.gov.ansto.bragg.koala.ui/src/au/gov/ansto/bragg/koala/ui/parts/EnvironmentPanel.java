@@ -171,7 +171,7 @@ public class EnvironmentPanel extends AbstractPanel {
 						final String value = ((DynamicController) valueController).getValue().toString();
 						final String target = ((DynamicController) targetController).getValue().toString();
 
-						targetKeyListner = new KeyListener() {
+						final KeyListener keyListner = new KeyListener() {
 							
 							@Override
 							public void keyReleased(KeyEvent e) {
@@ -186,7 +186,7 @@ public class EnvironmentPanel extends AbstractPanel {
 							}
 						};
 						
-						runButtonListener = new SelectionListener() {
+						final SelectionListener selectionListener = new SelectionListener() {
 							
 							@Override
 							public void widgetSelected(SelectionEvent e) {
@@ -205,7 +205,15 @@ public class EnvironmentPanel extends AbstractPanel {
 							public void run() {
 								valueText.setText(value);
 								targetText.setText(target);
+								if (targetKeyListner != null) {
+									targetText.removeKeyListener(targetKeyListner);
+								}
+								targetKeyListner = keyListner;
 								targetText.addKeyListener(targetKeyListner);
+								if (runButtonListener != null) {
+									runButton.removeSelectionListener(runButtonListener);
+								}
+								runButtonListener = selectionListener;
 								runButton.addSelectionListener(runButtonListener);
 							}
 						});

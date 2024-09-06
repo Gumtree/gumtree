@@ -1119,3 +1119,74 @@ def take(a, indices, axis=None, out=None, mode=None):
     '''
     a = asanyarray(a)
     return a.take(indices, axis, out)
+
+'''
+    One-dimensional linear interpolation for monotonically increasing sample points.
+    
+    Returns the one-dimensional piecewise linear interpolant to a function with given discrete data points (xp, fp), evaluated at x.
+    
+    Parameters:
+    
+        x: array_like
+    
+            The x-coordinates at which to evaluate the interpolated values.
+            
+        xp: 1-D sequence of floats
+    
+            The x-coordinates of the data points, must be increasing if argument period is not specified. Otherwise, xp is internally sorted after normalizing the periodic boundaries with xp = xp % period.
+        
+        fp: 1-D sequence of float or complex
+    
+            The y-coordinates of the data points, same length as xp.
+        
+        left: optional float or complex corresponding to fp
+    
+            Value to return for x < xp[0], default is fp[0].
+        
+        right: optional float or complex corresponding to fp
+    
+            Value to return for x > xp[-1], default is fp[-1].
+        
+        period: None or float, optional
+    
+            A period for the x-coordinates. This parameter allows the proper interpolation of angular x-coordinates. Parameters left and right are ignored if period is specified.
+    
+    Returns:
+    
+        y: float or complex (corresponding to fp) or ndarray
+    
+            The interpolated values, same shape as x.
+    
+    Raises:
+    
+        ValueError
+    
+            If xp and fp have different length If xp or fp are not 1-D sequences If period == 0
+    
+'''
+def interp(x, xp, fp):
+    zipped = zip(xp, fp)
+    if hasattr(x, '__len__'):
+        res = empty_like(x)
+        _interp_array(x, res, zipped)
+        return res
+    else:
+        return _interp_single(x, zipped)
+
+def _interp_array(source, target, zipped):
+    for i in xrange(len(source)):
+        if hasattr(source[i], '__len__') :
+            _interp_array(source[i], target[i], zipped)
+        else:
+            target[i] = _interp_single(source[i], zipped)
+    return target   
+    
+def _interp_single(x, zipped):
+    if x <= zipped[0][0] :
+        return zipped[0][1]
+    elif x >= zipped[-1][0] :
+        return zipped[-1][1]
+    for i in xrange(len(zipped) - 1) :
+        if x <= zipped[i + 1][0] :
+            return zipped[i][1] + (x - zipped[i][0]) * (zipped[i + 1][1] - zipped[i][1]) / (zipped[i + 1][0] - zipped[i][0])
+    return 0

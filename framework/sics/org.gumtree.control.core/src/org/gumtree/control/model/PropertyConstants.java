@@ -18,10 +18,14 @@ public class PropertyConstants {
 	public final static String PROP_UPDATE_SEQ = "seq";
 	public final static String PROP_UPDATE_TS = "ts";
 
-	public final static String PROP_BATCH_NAME = "batch_name";
-	public final static String PROP_BATCH_RANGE = "batch_range";
+//	public final static String PROP_BATCH_NAME = "batch_name";
+//	public final static String PROP_BATCH_RANGE = "batch_range";
 	public final static String PROP_BATCH_TEXT = "batch_text";
 
+	public final static String PROP_BATCH_START = "STARTED";
+	public final static String PROP_BATCH_RANGE = "RANGE";
+	public final static String PROP_BATCH_FINISH = "FINISH";
+	
 //	public final static String PROP_TYPE_UPDATE = "UPDATE";
 //	public final static String PROP_TYPE_STATE = "STATE";
 //	public final static String PROP_TYPE_STATUS = "STATUS";

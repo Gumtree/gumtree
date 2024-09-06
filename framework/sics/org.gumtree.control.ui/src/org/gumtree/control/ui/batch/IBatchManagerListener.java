@@ -1,8 +1,10 @@
 package org.gumtree.control.ui.batch;
 
+import org.gumtree.control.batch.BatchStatus;
+
 public interface IBatchManagerListener {
 
-	void statusChanged(BatchManagerStatus newStatus);
+	void statusChanged(BatchStatus newStatus);
 	
 	void scriptChanged(String scriptName);
 	

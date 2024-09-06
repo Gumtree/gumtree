@@ -320,7 +320,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 				}
 			} else if (SEG_NAME_DELETE.equalsIgnoreCase(seg)){
 				try {
-					if (!hasSEConfigurePrivilege(session)) {
+					if (!hasMotorConfigurePrivilege(session)) {
 						throw new Exception("user not allowed to change configuration.");
 					}
 					Representation rep = request.getEntity();
@@ -398,7 +398,11 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 //				}
 //			}
 //		}
-		device = (Map<String, Object>) device.get(pathSeg[1]);
+		Map<String, Object> mc = (Map<String, Object>) device.get(pathSeg[1]);
+		if (mc == null) {
+			mc = new HashMap<String, Object>();
+			device.put(pathSeg[1], mc);
+		}
 		
 //		Object item = device.get("sics_motor");
 //		int index = Integer.valueOf(idx);
@@ -406,7 +410,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 //		Object item = device.get(idx);
 //		updateMode(json, (Map<String, Object>) item);
 		Map<String, Object> map = YamlRestlet.toMap(json);
-		device.put(pathSeg[pathSeg.length - 1], map);
+		mc.put(pathSeg[pathSeg.length - 1], map);
 		
 //		updateMode(json, device);
 		FileWriter writer = new FileWriter(file);
@@ -577,13 +581,16 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			input.close();
 		}
 		String[] pathSeg = path.split("/");
-		Map<String, Object> device = (Map<String, Object>) model.get("GALIL_CONTROLLERS");
-		Map<String, Object> parent = (Map<String, Object>) device.get(pathSeg[1]);
-		device = (Map<String, Object>) parent.get(pathSeg[2]);
+		Map<String, Object> galil = (Map<String, Object>) model.get("GALIL_CONTROLLERS");
+		Map<String, Object> parent = (Map<String, Object>) galil.get(pathSeg[1]);
+		Map<String, Object> device = (Map<String, Object>) parent.get(pathSeg[2]);
 		if (device == null) {
 			throw new IOException("axis not found");
 		}
 		parent.remove(pathSeg[2]);
+		if (parent.isEmpty()) {
+			galil.remove(pathSeg[1]);
+		}
 //		Map<String, Object> parent;
 //		for (String seg : pathSeg) {
 //			if (seg.length() > 0) {
@@ -668,6 +675,18 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			logger.debug(rfile);
 			logger.debug(lfile);
 			
+			JSch.setLogger(new com.jcraft.jsch.Logger() {
+				
+				@Override
+				public void log(int level, String message) {
+					logger.debug(message);
+				}
+				
+				@Override
+				public boolean isEnabled(int level) {
+					return true;
+				}
+			});
 			JSch jsch = new JSch();
 			jsch.addIdentity(keyPath, passphrase);
 //			System.err.println(EncryptionUtils.encryptBase64(passphrase));

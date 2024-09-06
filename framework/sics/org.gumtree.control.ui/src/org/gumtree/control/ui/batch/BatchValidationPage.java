@@ -174,13 +174,13 @@ public class BatchValidationPage extends ExtendedFormComposite {
 				DataBindingContext bindingContext = new DataBindingContext();
 				bindingContext.bindValue(SWTObservables.observeText(hostText,
 						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "host"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(portText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "port"), new UpdateValueStrategy(), new UpdateValueStrategy());
+						getConnectionContext(), "serverAddress"), new UpdateValueStrategy(), new UpdateValueStrategy());
+//				bindingContext.bindValue(SWTObservables.observeText(portText,
+//						SWT.Modify), BeansObservables.observeValue(
+//						getConnectionContext(), "port"), new UpdateValueStrategy(), new UpdateValueStrategy());
 				bindingContext.bindValue(SWTObservables.observeText(loginText,
 						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "login"), new UpdateValueStrategy(), new UpdateValueStrategy());
+						getConnectionContext(), "role"), new UpdateValueStrategy(), new UpdateValueStrategy());
 				bindingContext.bindValue(SWTObservables.observeText(
 						passwordText, SWT.Modify), BeansObservables.observeValue(
 						getConnectionContext(), "password"), new UpdateValueStrategy(), new UpdateValueStrategy());

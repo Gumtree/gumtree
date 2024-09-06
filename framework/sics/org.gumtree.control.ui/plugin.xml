@@ -26,6 +26,14 @@
             name="Batch Script Manager"
             restorable="true">
       </view>
+      <view
+            category="org.gumtree.control.ui"
+            class="org.gumtree.control.ui.ControlTerminalView"
+            icon="icons/terminal.png"
+            id="org.gumtree.control.ui.ControlTerminalView"
+            name="Control Terminal View"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.gumtree.ui.communicationAdapters">

@@ -293,7 +293,7 @@ public class SicsBatchViewer extends AbstractPartControlProvider {
 				BatchStatus status = SicsManager.getBatchControl().getStatus();
 				if (status.equals(BatchStatus.IDLE)) {
 					start();
-				} else if (status.equals(BatchStatus.RUNNING)) {
+				} else if (status.equals(BatchStatus.EXECUTING)) {
 					interrupt();
 				}
 			}
@@ -366,7 +366,7 @@ public class SicsBatchViewer extends AbstractPartControlProvider {
 					controlButton.setText("Run");
 					controlButton.setEnabled(true);
 					timerWidget.stopTimerUI();
-				} else if (status.equals(BatchStatus.RUNNING)) {
+				} else if (status.equals(BatchStatus.EXECUTING)) {
 					statusText.setText("RUNNING");
 					statusText.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
 					controlButton.setImage(InternalImage.STOP.getImage());
@@ -430,7 +430,6 @@ public class SicsBatchViewer extends AbstractPartControlProvider {
 
 		@Override
 		public void scriptChanged(String scriptName) {
-			// TODO Auto-generated method stub
 			
 		}
 		
@@ -483,7 +482,7 @@ public class SicsBatchViewer extends AbstractPartControlProvider {
 	
 	public void interrupt() {
 		BatchStatus status = SicsManager.getBatchControl().getStatus();
-		if (status.equals(BatchStatus.RUNNING)) {
+		if (status.equals(BatchStatus.EXECUTING)) {
 			try {
 				SicsManager.getBatchControl().interrupt();
 			} catch (SicsException e1) {

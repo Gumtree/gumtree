@@ -8,10 +8,13 @@ import java.util.List;
 
 import org.gumtree.control.batch.BatchStatus;
 import org.gumtree.control.batch.IBatchControl;
+import org.gumtree.control.batch.BatchControl.BatchInfo;
 import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.events.SicsControllerAdapter;
+import org.gumtree.control.model.ModelUtils;
 //import org.gumtree.util.ILoopExitCondition;
 //import org.gumtree.util.LoopRunner;
 //import org.gumtree.util.LoopRunnerStatus;
@@ -53,6 +56,10 @@ public class ControlRestlet extends Restlet {
 	
 	private static final String QUERY_COMPONENTS = "components";
 	
+	private static final String PROP_NICK = "nick";
+	
+	private static final String[] PROP_COLLECTED = new String[] {PROP_NICK, "nxalias", "units"};
+
 	private static Logger logger = LoggerFactory.getLogger(ControlRestlet.class);
 	
 	public void handle(Request request, Response response) {
@@ -135,7 +142,7 @@ public class ControlRestlet extends Restlet {
 			});
 			for (ISicsController child : childList){
 				try {
-					JSONObject controllerValues = createComponentJSONRepresentation(
+					JSONObject controllerValues = createComponentJSONRepresentationWithProp(
 							request, child, false);
 					array.put(controllerValues);
 				} catch (Exception e) {
@@ -162,10 +169,10 @@ public class ControlRestlet extends Restlet {
 		// Get devices
 		JSONObject result = new JSONObject();
 		IBatchControl bufferManager = SicsManager.getBatchControl();
-		BatchStatus bufferStatus = bufferManager.getStatus();
+//		BatchStatus bufferStatus = bufferManager.getStatus();
 		try {
-			result.put("status", bufferStatus);
-			if (bufferStatus == BatchStatus.RUNNING) {
+//			result.put("status", bufferStatus);
+//			if (bufferStatus == BatchStatus.RUNNING) {
 //				String bufferName = bufferManager.getRunningBuffername();
 //				String runningText = bufferManager.getRunningText();
 //				String bufferRange = bufferManager.getRunningBufferRangeString();
@@ -178,7 +185,13 @@ public class ControlRestlet extends Restlet {
 //				} catch (Exception ex) {
 //					result.put("content", ex.toString());
 //				}
-			}
+//			}
+			BatchInfo batchInfo = bufferManager.getBatchInfo();
+			result.put("status", batchInfo.getStatus());
+			result.put("name", batchInfo.getBatchName());
+			result.put("text", batchInfo.getBatchText());
+			result.put("range", batchInfo.getBatchRange());
+			result.put("content", batchInfo.getBatchText());
 			writeJSONObject(response, queryForm, result);
 		} catch (JSONException e) {
 			response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
@@ -384,6 +397,41 @@ public class ControlRestlet extends Restlet {
 		return result;
 	}
 	
+	private JSONObject createComponentJSONRepresentationWithProp(Request request,
+			ISicsController controller, boolean detailed) throws Exception {
+		JSONObject result = createComponentJSONRepresentation(request, controller, detailed);
+		for (String name : PROP_COLLECTED) {
+			String value = null;
+			List<String> valueList = controller.getPropertyValue(name);
+			if (valueList != null && valueList.size() > 0) {
+				value = valueList.get(0);
+			}
+			if (value != null) {
+				result.put(name, value.trim());
+			}
+		}
+		ISicsController nickController = ModelUtils.getNicknameController(controller);
+		if (nickController != null) {
+			if (nickController instanceof IDynamicController) {
+				Object val = ((IDynamicController) nickController).getValue();
+				if (val != null) {
+					val = String.valueOf(val).trim();
+				} else {
+					val = "";
+				}
+				result.put(PROP_NICK, val);
+			}
+		}
+
+//		ISicsController nickController = SicsModelUtils.getNicknameController(getSicsManager(), controller);
+//		if (nickController != null) {
+//			if (nickController instanceof IDynamicController) {
+//				((IDynamicController) nickController).addChild(child);
+//			}
+//		}
+		return result;
+	}
+
 	private void writeJSONObject(Response response, Form queryForm, JSONObject jsonObject) {
 		// Use content-type in header to resolve representation (see http://restlet.tigris.org/issues/show_bug.cgi?id=385)
 	    // TODO: fix this will Restlet 1.1

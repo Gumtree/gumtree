@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.gumtree.gumnix.sics.control.controllers.IComponentController;
+import org.gumtree.gumnix.sics.core.SicsUtils;
 
 /**
  * @author nxi
@@ -22,6 +23,10 @@ import org.gumtree.gumnix.sics.control.controllers.IComponentController;
  */
 public class SicsRealtimeRourceProvider implements IRealtimeResourceProvider {
 
+	private static final String PROP_NXALIAS = "nxalias";
+	private static final String PROP_NICKNAME = "nick";
+	private static final String PROP_UNITS = "units";
+	
 //	private String[] resourceNames;
 	private List<String> nameFilter;
 //	private List<IRealtimeResource> resourceToManageList = new ArrayList<IRealtimeResource>();
@@ -71,13 +76,31 @@ public class SicsRealtimeRourceProvider implements IRealtimeResourceProvider {
 		}
 		List<IComponentController> environmentControllers = SicsRealtimeResource.getEnvironmentControllers();
 		for (IComponentController controller : environmentControllers) {
-			String id = controller.getId();
-			if (id.contains("SP")) {
-				id = id.replace("SP", "_Setpoint");
-			} else {
-				id = id.replace("S", "_Sensor");
+			String id;
+			IComponentController nickController = SicsUtils.getNicknameController(controller);
+			if (nickController != null) {
+				
 			}
-			SicsRealtimeResource resource = new SicsRealtimeResource(id);
+			List<String> nxalias = controller.getPropertyValue(PROP_NXALIAS);
+			if (nxalias.size() > 0) {
+				id = nxalias.get(0);
+			} else {
+				id = controller.getId();
+				if (id.contains("SP")) {
+					id = id.replace("SP", "_Setpoint");
+				} else {
+					id = id.replace("S", "_Sensor");
+				}
+			}
+			List<String> nickname = controller.getPropertyValue(PROP_NICKNAME);
+			if (nickname.size() > 0) {
+				id = controller.getId() + "-" + nickname.get(0).trim();
+			}
+			List<String> units = controller.getPropertyValue(PROP_UNITS);
+			if (units.size() > 0) {
+				id += "(" + units.get(0) + ")";
+			}
+			final SicsRealtimeResource resource = new SicsRealtimeResource(id);
 			resource.setFullName(controller.getPath());
 			resourceList.add(resource);
 		}

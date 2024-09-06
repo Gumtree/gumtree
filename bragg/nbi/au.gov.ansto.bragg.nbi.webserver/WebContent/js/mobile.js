@@ -126,12 +126,14 @@ var refresh = function(){
 					}
 					if (obj.status == "EXECUTING") {
 						$("#tclScript").text(obj.name);
-						$("#runningCode").text(obj.text);
+//						$("#runningCode").text(obj.text);
 						try {
 							var ct = obj.content;
 //							ct = ct.replace(/\n\n/g, '\n');
 							var range = obj.range;
 							var items = range.split("=");
+							var line = ct.substring(Number(items[1]), Number(items[2]));
+							$("#runningCode").text(line);
 							var newCt = '<div class="div-highlight">' + $("<div>").text(ct.substring(0, Number(items[2]))).html() + '</div>';
 							if (Number(items[2] < ct.length)) {
 								var torun = ct.substring(Number(items[2]) + 1, ct.length);
@@ -323,11 +325,19 @@ var refresh = function(){
 							iName = item["nxalias"];
 						}
 						if ("nick" in item) {
-							iName += " (" + item["nick"] + ")";
+							var n = item["nick"].trim();
+							if (n == "UNKNOWN") {
+								n = "";
+							}
+							iName = item.id + " (" + n + ")";
 						}
 						var units = "";
 						if ("units" in item) {
-							units = " " + item["units"];
+							var u = item["units"].trim();
+							if (u == "UNKNOWN") {
+								u = "";
+							}
+							units = " " + u;
 						}
 						$("#deviceList").append('<li class="ui-li ui-li-static ui-btn-up-c"><div class="div-inlist-left" id="' + obj.hdbs[i].id + '_name">' + iName 
 								+ ': </div> <div class="div-inlist" id="' + obj.hdbs[i].id + '">' + obj.hdbs[i].value + units + '</div></li>');
@@ -343,11 +353,19 @@ var refresh = function(){
 							iName = item["nxalias"];
 						}
 						if ("nick" in item) {
-							iName += " (" + item["nick"] + ")";
+							var n = item["nick"].trim();
+							if (n == "UNKNOWN") {
+								n = "";
+							}
+							iName = item.id + " (" + n + ")";
 						}
 						var units = "";
 						if ("units" in item) {
-							units = " " + item["units"];
+							var u = item["units"].trim();
+							if (u == "UNKNOWN") {
+								u = "";
+							}
+							units = " " + u;
 						}
 						$("#" + obj.hdbs[i].id + "_name").text(iName);
 						$("#" + obj.hdbs[i].id).text(obj.hdbs[i].value + units);

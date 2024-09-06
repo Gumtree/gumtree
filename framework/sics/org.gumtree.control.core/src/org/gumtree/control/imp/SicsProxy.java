@@ -36,7 +36,7 @@ public class SicsProxy implements ISicsProxy {
 
 	private static Logger logger = LoggerFactory.getLogger(SicsProxy.class);
 	private static final int EPOCH_PERIOD = 3000;
-	private static final int EPOCH_RETRY = 3;
+	private static final int EPOCH_RETRY = 1;
 
 	private String serverAddress;
 	private String publisherAddress;
@@ -70,8 +70,14 @@ public class SicsProxy implements ISicsProxy {
 			this.publisherAddress = publisherAddress;
 			connectionContext.setServerAddress(serverAddress);
 			connectionContext.setPublisherAddress(publisherAddress);
+			if (channel != null) {
+				if (channel.isConnected()) {
+					channel.disconnect();
+				}
+			}
 			channel = new SicsChannel(this);
 			try {
+				logger.warn("connecting to server: " + serverAddress);
 				channel.connect(serverAddress, publisherAddress);
 			} catch (Exception e) {
 				return false;
@@ -83,7 +89,7 @@ public class SicsProxy implements ISicsProxy {
 				}
 				serverStatus = ServerStatus.parseStatus(s);
 			} catch (SicsException e) {
-				e.printStackTrace();
+				logger.error("failed to get status after connecting to the server");
 				throw e;
 			}
 //			try {
@@ -114,7 +120,7 @@ public class SicsProxy implements ISicsProxy {
 					} catch (InterruptedException e1) {
 						break;
 					}
-					if (!isBroken && channel != null && channel.isConnected()) {
+					if (isConnected && !isBroken && channel != null && channel.isConnected()) {
 						try {
 							channel.syncPoch();
 							fct = 0;
@@ -150,14 +156,21 @@ public class SicsProxy implements ISicsProxy {
 		if (channel == null || !channel.isConnected()) {
 			channel = new SicsChannel(this);
 			try {
+				logger.warn("reconnect to " + serverAddress);
 				channel.connect(serverAddress, publisherAddress);
 			} catch (Exception e) {
 				return false;
 			}
 		} 
-//		try {
-		logger.warn("connection reestablished");
-		serverStatus = ServerStatus.parseStatus(channel.syncSend("status", null));
+		try {
+			logger.warn("connection reestablished");
+			serverStatus = ServerStatus.parseStatus(channel.syncSend("status", null));
+		} catch (Exception e) {
+			logger.error("Failed to get status from server after reconnecting. Disconnect now.");
+			disconnect();
+			return false;
+//			throw e;
+		}
 
 //		if (sicsModel == null) {
 			getGumtreeXML();
@@ -184,6 +197,7 @@ public class SicsProxy implements ISicsProxy {
 	@Override
 	public void disconnect() {
 		if (channel != null) {
+			logger.warn("disconnected from SICS");
 			channel.disconnect();
 			fireConnectionEvent(false);
 		}

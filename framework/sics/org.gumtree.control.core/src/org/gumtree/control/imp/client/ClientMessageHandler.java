@@ -49,6 +49,7 @@ public class ClientMessageHandler {
 //				} catch (JSONException e) {
 //				}
 //				System.out.println("delayed");
+				logger.warn(json.toString());
 				process(json);
 			}
 		});
@@ -71,7 +72,7 @@ public class ClientMessageHandler {
 //					logger.info("UPDATE status to " + status);
 				} else if (type.equalsIgnoreCase(MessageType.VALUE.getId())) {
 					String name = json.getString(PropertyConstants.PROP_UPDATE_NAME);
-					String value = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
+//					String value = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
 //					logger.info("UPDATE value " + name + " = " + value);
 //					processUpdate(name, value);
 				} else if (type.equalsIgnoreCase(MessageType.STATE.getId())) {
@@ -80,7 +81,7 @@ public class ClientMessageHandler {
 //					logger.info("UPDATE state of " + name + " to " + state);
 //					processState(name, state);
 				} else if (type.equalsIgnoreCase(MessageType.BATCH.getId())) {
-					processBatch(json);
+//					processBatch(json);
 				} else {
 					logger.error(json.toString());
 				}
@@ -92,18 +93,18 @@ public class ClientMessageHandler {
 		}
 	}
 
-	public void processBatch(final JSONObject json) {
-		try {
-			if (json.has(PropertyConstants.PROP_BATCH_NAME)) {
-			}
-			if (json.has(PropertyConstants.PROP_BATCH_RANGE)) {
-			}
-			if (json.has(PropertyConstants.PROP_BATCH_TEXT)) {
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	public void processBatch(final JSONObject json) {
+//		try {
+//			if (json.has(PropertyConstants.PROP_BATCH_NAME)) {
+//			}
+//			if (json.has(PropertyConstants.PROP_BATCH_RANGE)) {
+//			}
+//			if (json.has(PropertyConstants.PROP_BATCH_TEXT)) {
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 	
 //	public void processUpdate(String path, String value) {
 //		ISicsController controller = getModel().findController(path);

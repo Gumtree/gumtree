@@ -50,4 +50,6 @@ public interface ISicsController {
 	ISicsController getChild(String childName);
 	
 	void dispose();
+	
+	List<String> getPropertyValue(String name);
 }

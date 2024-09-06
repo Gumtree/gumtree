@@ -2,6 +2,7 @@ package org.gumtree.control.ui.batch;
 
 import java.util.List;
 
+import org.gumtree.control.batch.BatchStatus;
 import org.gumtree.control.batch.IBatchListener;
 import org.gumtree.control.batch.IBatchScript;
 import org.gumtree.control.batch.SicsMessageAdapter;
@@ -26,14 +27,14 @@ public interface IBatchManager extends IService {
 	/***************************************************************
 	 * Status
 	 ***************************************************************/
-	public BatchManagerStatus getStatus();
+	public BatchStatus getStatus();
 
 	/**
 	 * Queries the currently executing buffer name.
 	 * 
 	 * @return currently running buffer name, null if no running buffer is found
 	 */
-	public void getRunningBuffername(ISicsCallback callback) throws SicsException;
+	public String getRunningBuffername();
 	
 	/**
 	 * Queries the buffer content based on the provided buffer name.
@@ -43,8 +44,8 @@ public interface IBatchManager extends IService {
 	 * @throws BatchBufferManagerException when buffer not found
 	 */
 	public void getBuffer(String buffername, ISicsCallback callback);
-	public void getRunningBufferContent(ISicsCallback callback);
-	public void getRunningBufferRangeString(ISicsCallback callback);
+	public String getRunningBufferContent();
+	public String getRunningBufferRangeString();
 	
 	/***************************************************************
 	 * Event

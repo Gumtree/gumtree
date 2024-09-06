@@ -51,6 +51,8 @@ public class SicsUtils {
 	
 	private static final String PREFIX_SAMPLE = "sample";
 	
+	private static final String PROP_NICK_VAR = "nick_var";
+
 	public static List<String> getSicsDrivableIdList() {
 		if (drivableIdCache == null) {
 			// SICS proxy is not yet ready
@@ -429,6 +431,7 @@ public class SicsUtils {
 
 	public static IComponentController getNicknameController(IComponentController seItem) {
 		List<String> prop = seItem.getPropertyValue(PROP_NXALIAS);
+		List<String> varProp = seItem.getPropertyValue(PROP_NICK_VAR);
 		if (prop.size() > 0) {
 			String alias = prop.get(0);
 			String[] path = alias.split("_");
@@ -439,7 +442,11 @@ public class SicsUtils {
 			for (int i = 0; i < path.length - 1; i++) {
 				nickPath += "/" + path[i];
 			}
-			nickPath += "/nick";
+			if (varProp.size() > 0) {
+				nickPath += "/" + varProp.get(0).trim();
+			} else {
+				nickPath += "/nick";
+			}
 			return SicsCore.getSicsController().findComponentController(nickPath);
 		}
 		return null;

@@ -9,6 +9,8 @@ import org.json.JSONObject;
 public class SicsReplyData implements ISicsReplyData {
 
 	private JSONObject data;
+	public final static String COMMAND_REPLY_DEFERRED = "DEFERRED";
+	public final static String COMMAND_REPLY_RUNNING = "RUNNING";
 
 	public SicsReplyData(JSONObject data) {
 		this.data = data;
@@ -16,49 +18,49 @@ public class SicsReplyData implements ISicsReplyData {
 
 	public String getString() {
 		try {
-			return data.getString(JSONTag.DATA.getText());
+			return data.getString(JSONTag.REPLY.getText());
 		} catch (JSONException e) { }
 		return null;
 	}
 
 	public Boolean getBoolean() {
 		try {
-			return data.getBoolean(JSONTag.DATA.getText());
+			return data.getBoolean(JSONTag.REPLY.getText());
 		} catch (JSONException e) { }
 		return null;
 	}
 
 	public Integer getInteger() {
 		try {
-			return data.getInt(JSONTag.DATA.getText());
+			return data.getInt(JSONTag.REPLY.getText());
 		} catch (JSONException e) { }
 		return null;
 	}
 
 	public Double getDouble() {
 		try {
-			return data.getDouble(JSONTag.DATA.getText());
+			return data.getDouble(JSONTag.REPLY.getText());
 		} catch (JSONException e) { }
 		return null;
 	}
 
 	public Long getLong() {
 		try {
-			return data.getLong(JSONTag.DATA.getText());
+			return data.getLong(JSONTag.REPLY.getText());
 		} catch (JSONException e) { }
 		return null;
 	}
 
 	public JSONArray getArray() {
 		try {
-			return data.getJSONArray(JSONTag.DATA.getText());
+			return data.getJSONArray(JSONTag.REPLY.getText());
 		} catch (JSONException e) { }
 		return null;
 	}
 
 	public JSONObject getJSONObject() {
 		try {
-			return data.getJSONObject(JSONTag.DATA.getText());
+			return data.getJSONObject(JSONTag.REPLY.getText());
 		} catch (JSONException e) {
 //			logger.error("Cannot get data from json object", e);
 		}

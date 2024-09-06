@@ -79,7 +79,7 @@ public class CollectionHelper {
 	private boolean isStarted;
 	private boolean isAborting;
 	private IDynamicController stateController;
-	private IDynamicController galilStateController;
+	private IDynamicController galilStatusController;
 	private IDynamicController errorController;
 	private IDynamicController tiffStatusController;
 	private IDynamicController tiffErrorController;
@@ -128,8 +128,8 @@ public class CollectionHelper {
 				System.getProperty(ControlHelper.IMAGE_STATE_PATH));
 		errorController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
 				System.getProperty(ControlHelper.IMAGE_ERROR_PATH));
-		galilStateController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
-				System.getProperty(ControlHelper.GALIL_STATE));
+		galilStatusController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+				System.getProperty(ControlHelper.GALIL_STATUS));
 		
 		if (stateController != null) {
 			try {
@@ -261,6 +261,12 @@ public class CollectionHelper {
 								tiffErrorController.getValue());
 						throw new KoalaServerException(errorMsg);
 					}
+				} else {
+					String err = getErrorMessage();
+					if (err != null && err.length() > 0) {
+						String galilStatus = galilStatusController.getValue().toString();
+						throw new KoalaServerException(err + ", galil status = " + (galilStatus.length() == 0 ? "<EMPTY>" : galilStatus));
+					}
 				}
 			} catch (SicsModelException e) {
 				throw new KoalaServerException("invalid tiff status value, " + e.getMessage(), e);
@@ -384,7 +390,7 @@ public class CollectionHelper {
 			while (!isStarted && ct <= START_TIMEOUT * 1000) {
 				String err = getErrorMessage();
 				if (err != null && err.length() > 0) {
-					String galilState = galilStateController.getValue().toString();
+					String galilState = galilStatusController.getValue().toString();
 					throw new KoalaServerException(err + ", galil state = " + (galilState.length() == 0 ? "<EMPTY>" : galilState));
 				}
 				try {

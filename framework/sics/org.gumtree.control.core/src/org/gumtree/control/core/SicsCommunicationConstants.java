@@ -3,11 +3,16 @@ package org.gumtree.control.core;
 public class SicsCommunicationConstants {
 
 	public enum JSONTag {
-		CONNECTION("con"),
-		TRANSACTION("trans"),
-		OBJECT("object"),
+//		CONNECTION("con"),
+//		TRANSACTION("trans"),
+//		OBJECT("object"),
+//		FLAG("flag"),
+//		DATA("data");
+		CMD("cmd"),
+		TEXT("text"),
+		FINAL("final"),
 		FLAG("flag"),
-		DATA("data");
+		REPLY("reply");
 
 		private JSONTag(String text) {
 			this.text = text;

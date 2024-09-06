@@ -79,11 +79,21 @@ public class DynamicController extends SicsController implements IDynamicControl
 		case FLOAT_LITERAL:
 		case FLOATAR_LITERAL:
 		case FLOATVARAR_LITERAL:
-			return Float.parseFloat(getModel().getValue().getValue());
+			try {
+				return Float.parseFloat(getModel().getValue().getValue());
+			} catch (Exception e) {
+				logger.error("Failed to parse value to float value:" + getModel().getValue().getValue());
+				return Float.NaN;
+			}
 		case INT_LITERAL:
 		case INTAR_LITERAL:
 		case INTVARAR_LITERAL:
-			return Integer.parseInt(getModel().getValue().getValue());
+			try {
+				return Integer.parseInt(getModel().getValue().getValue());
+			} catch (Exception e) {
+				logger.error("Failed to parse value to integer value:" + getModel().getValue().getValue());
+				return Integer.MIN_VALUE;
+			}
 		case TEXT_LITERAL :
 			return getModel().getValue().getValue();
 		default:

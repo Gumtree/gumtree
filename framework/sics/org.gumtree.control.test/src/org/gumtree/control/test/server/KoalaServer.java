@@ -297,7 +297,13 @@ public class KoalaServer {
 		} catch (JSONException e) {
 			sendInternalError(client, cid, command, "failed to start");
 		}
-		if (command.startsWith(CMD_MANAGER)) {
+		if (command.equals("POCH")) {
+			try {
+				respondFinal(client, cid, command, "POCH");
+			} catch (JSONException e) {
+				sendInternalError(client, cid, command, "failed to respond to heartbeat");
+			}
+		} else if (command.startsWith(CMD_MANAGER)) {
 			processLogin(client, cid, command);
 		} else if (command.startsWith(CMD_DRIVE)) {
 			processDrive(client, cid, command);
@@ -804,7 +810,7 @@ public class KoalaServer {
 //			
 //			@Override
 //			public void run() {
-				batchStatus = BatchStatus.RUNNING;
+				batchStatus = BatchStatus.EXECUTING;
 				JSONObject json = new JSONObject();
 				try {
 					json.put(SicsChannel.JSON_KEY_STATUS, ServerStatus.DRIVING);

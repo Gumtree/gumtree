@@ -10,6 +10,7 @@ import org.gumtree.control.model.ModelUtils;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 
 import ch.psi.sics.hipadaba.Component;
+import ch.psi.sics.hipadaba.Property;
 
 public class SicsController implements ISicsController {
 
@@ -139,6 +140,19 @@ public class SicsController implements ISicsController {
 		return state;
 	}
 
+	@Override
+	public List<String> getPropertyValue(String propId) {
+		List<Property> propList = model.getProperty();
+		if (propList != null) {
+			for (Property prop : propList) {
+				if (propId.equals(prop.getId())) {
+					return prop.getValue();
+				}
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public ISicsController getChild(String childName) {
 		synchronized (childControllers) {

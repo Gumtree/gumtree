@@ -35,7 +35,8 @@ import commonj.sdo.DataObject;
 public final class SicsModelUtils {
 
 	private static final String PROP_NXALIAS = "nxalias";
-	
+	private static final String PROP_NICK_VAR = "nick_var";
+
 	private static final String PREFIX_SAMPLE = "sample";
 	
 	public static SICS deserialiseSICSModel(byte[] data) throws IOException {
@@ -329,8 +330,9 @@ public final class SicsModelUtils {
 	
 	public static ISicsController getNicknameController(ISicsManager sicsManager, ISicsController seItem) {
 		List<String> prop = seItem.getPropertyValue(PROP_NXALIAS);
-		if (prop.size() > 0) {
-			String alias = prop.get(0);
+		List<String> varProp = seItem.getPropertyValue(PROP_NICK_VAR);
+		if (prop != null && prop.size() > 0) {
+			String alias = prop.get(0).trim();
 			String[] path = alias.split("_");
 			String nickPath = null;
 			if (!PREFIX_SAMPLE.equals(path[0])) {
@@ -339,7 +341,11 @@ public final class SicsModelUtils {
 			for (int i = 0; i < path.length - 1; i++) {
 				nickPath += "/" + path[i];
 			}
-			nickPath += "/nick";
+			if (varProp != null && varProp.size() > 0) {
+				nickPath += "/" + varProp.get(0).trim();
+			} else {
+				nickPath += "/nick";
+			}
 			return sicsManager.getServerController().findChild(nickPath);
 		}
 		return null;

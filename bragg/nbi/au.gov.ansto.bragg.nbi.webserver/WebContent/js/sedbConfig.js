@@ -72,6 +72,7 @@ const _editor = $('#id_div_editor_table');
 const _propertyTitle = $('#id_property_subtitle');
 const _property = $('#id_div_property_table');
 var _errorReport;
+var _removeModal;
 
 var _curDevice;
 //var _curDid;
@@ -148,7 +149,7 @@ class DBModel {
 		this.compositeDevices = {};
 		this.configsByPath = {};
 		this.firstConfigs = {};
-		this.configNamesOfDevice = [];
+		this.configNamesOfDevice = {};
 	}
 	
 	get model() {
@@ -191,7 +192,7 @@ class DBModel {
 		var obj = this;
 		$.get(this.url, function(data) {
 			obj.model = data;
-			obj.configs = {};
+//			obj.configs = {};
 			obj.firstConfigs = {};
 			obj.configNamesOfDevice = {};
 			$.each(data, function(did, deviceModel) {
@@ -229,7 +230,8 @@ class DBModel {
 		
 	createUi() {
 		const obj = this;
-		$.each(this.model, function(did, deviceModel){
+		$.each(Object.keys(this.model).sort(), (idx, did) => {
+			const deviceModel = obj.model[did];
 			const datype = deviceModel[KEY_STATIC][KEY_DATYPE];
 			if (datype == "C") {
 				const device = new CompositeDevice(did, deviceModel, obj.$compositeMenuBar);
@@ -300,18 +302,21 @@ class DBModel {
 		delete this.axes[path];
 	}
 	
-	removeController(mcid) {
+	removeDevice(did) {
 		const obj = this;
-		if (mcid in this.model) {
-			const controllerModel = this.model[mcid];
-			$.each(controllerModel, function(aid, cfg) {
-				var name = mcid + ":" + aid;
-				delete obj.motors[name];
+		if (did in this.model) {
+			const deviceModel = this.model[did];
+			$.each(deviceModel, function(cid, cfg) {
+				if (cid != KEY_STATIC) {
+					var name = did + ":" + cid;
+					delete obj.configsByPath[name];
+				}
 			});
 			delete this.model[did];
-			delete this.firstMotor[did];
-			delete this.configNamesOfDevice[did];
 			delete this.devices[did];
+			delete this.compositeDevices[did];
+			delete this.firstConfigs[did];
+			delete this.configNamesOfDevice[did];
 		} else {
 			throw new Error('device not found:' + did);
 		}
@@ -324,6 +329,7 @@ class DBModel {
 		}
 		return device.getConfigArray();
 	}
+	
 }
 const _dbModel = new DBModel();
 
@@ -1208,7 +1214,7 @@ class CompositeDevice extends AbstractDevice {
 	
 	remove(saveMsg) {
 		const obj = this;
-		var url = URL_PREFIX + 'configremove?inst=' + _inst + '&did=' + obj.did + '&msg=';
+		var url = URL_PREFIX + 'dbremove?did=' + obj.did + '&msg=';
 		if (saveMsg.length > 0) {
 			url += encodeURI(saveMsg);
 		}
@@ -1219,15 +1225,10 @@ class CompositeDevice extends AbstractDevice {
 		$.get(url, function(data) {
 			try {
 				if (data["status"] == "OK") {
-					obj.clearDirtyFlag();
 					StaticUtils.showMsg("Removed successfully in the server.");
-//					var $ul = $('#ul_mc_' + did);
-//					$ul.prev().remove();
-//					$ul.remove();
-//					loadDeviceConfig(null, null);
 					if (_curDevice != null && _curDevice.id == obj.id) {
-						_curDevice.hide();
-						_title.text('Please use the side bar to select a device configuration.');
+						_curDevice = null;
+//						_title.text('Please use the side bar to select a device configuration.');
 					}
 					
 					obj.$menuHeader.remove();
@@ -1249,7 +1250,7 @@ class CompositeDevice extends AbstractDevice {
 						delete obj.configEditors[cid];
 					});
 					
-					_instModel.removeDevice(obj.did);
+					_dbModel.removeDevice(obj.did);
 //					setTimeout(_historyBar.reload, 3000)
 				} else {
 					StaticUtils.showError(data["reason"]);
@@ -1261,7 +1262,7 @@ class CompositeDevice extends AbstractDevice {
 			console.log(e);
 			StaticUtils.showError("Faied to remove: " + e.statusText);
 		}).always(function() {
-			$('#id_modal_deleteDialog').modal('hide');
+			_removeModal.close();
 		});
 	}
 	
@@ -1676,7 +1677,17 @@ class MutableRootUi extends AbstractMainUi {
 			obj.drop(ev);
 		});
 		this.$container = $div;
+		
+		const $del = $('<div class="main_footer"><span id="id_button_del" class="btn btn-outline-primary btn-block " href="#"><i class="fas fa-remove"></i> Remove This Device</span></div>');
+		$del.find('span').click(function() {
+//			$('#id_modal_deleteDialog').modal('show');
+			_removeModal.toRemove = obj.device.did;
+			_removeModal.open();
+		});
+//		_property.append($del);
+
 		this.$editorUi.append($div);
+		this.$editorUi.append($del);
 		
 		_editor.append(this.$editorUi);
 //		_historyBar.reload();
@@ -2887,6 +2898,64 @@ class DeleteConfigModal extends AbstractModal {
 	
 }
 
+class RemoveModal {
+
+	toRemove;
+
+	constructor(id)
+	{
+		this.id = id;
+		this.$modelUi = $('#' + id);
+		this.$confirm = this.$modelUi.find('#' + this.id + '_confirm');
+		this.$textInput = this.$modelUi.find('input#' + this.id + '_text');
+	}
+	
+	init() {
+		const obj = this;
+		this.$confirm.click(function() {
+			obj.remove();
+		});
+	
+		this.$textInput.keypress(function(event) {
+			if ( event.which == 13 ) {
+				obj.remove();
+			}
+		});
+	}
+	
+	remove() {
+		const obj = this;
+		const did = this.toRemove;
+		if (!did) {
+			StaticUtils.showError("failed to remove: no device selected");
+			return;
+		}
+
+		const device = _dbModel.getDevice(did);
+		var saveMsg = obj.$textInput.val().replace(/^\s+|\s+$/gm,'');
+		
+		try {
+			device.remove(saveMsg);
+		} catch (e) {
+			StaticUtils.showError(e);
+		} finally {
+			obj.close();
+		}
+	}
+	
+	close() {
+		this.$modelUi.modal('hide');
+	}
+	
+	open() {
+		this.$modelUi.modal('show');
+	}
+	
+	set toRemove(did) {
+		this.toRemove = did;
+	}
+}
+
 class NewConfigModal extends AbstractModal {
 
 	constructor($bt, device)
@@ -3071,8 +3140,8 @@ $(document).ready(function() {
 	_resetButton = new ResetButton($('#id_button_reset'));
 	_resetButton.init();
 	
-//	_removeModal = new RemoveModal('id_modal_deleteDialog');
-//	_removeModal.init();
+	_removeModal = new RemoveModal('id_modal_deleteDialog');
+	_removeModal.init();
 
 	_changeDidModal = new ChangeDidModal();
 	_changeDidModal.init();

@@ -1,5 +1,6 @@
 package org.gumtree.control.batch;
 
+import org.gumtree.control.batch.BatchControl.BatchInfo;
 import org.gumtree.control.exception.SicsException;
 
 public interface IBatchControl {
@@ -21,4 +22,19 @@ public interface IBatchControl {
 
 	void fireBatchEvent(String type, String value);
 
+	public void parseState(String state, String substring);
+	
+	public BatchInfo getBatchInfo();
+	
+	public String getBatchRange();
+	
+	public String getBatchText();
+	
+	public String getBatchName();
+	
+	public String getBatchId();
+
+	public void resetStatus();
+
+	public String getBatchRangeText();
 }

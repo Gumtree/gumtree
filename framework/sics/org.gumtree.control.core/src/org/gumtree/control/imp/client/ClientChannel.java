@@ -26,6 +26,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zeromq.SocketType;
+import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
 
@@ -50,9 +52,9 @@ public class ClientChannel implements ISicsChannel {
 	private static final int COMMAND_WAIT_TIME = 1;
 	private static Logger logger = LoggerFactory.getLogger(ClientChannel.class);
 	
-	private ZMQ.Context context;
+	private static ZContext context = new ZContext();
     private ZMQ.Socket clientSocket;
-    private ZMQ.Socket subscriberSocket;
+//    private ZMQ.Socket subscriberSocket;
     
     private boolean isBusy;
     private boolean isConnected;
@@ -63,10 +65,10 @@ public class ClientChannel implements ISicsChannel {
     
     private ClientMessageHandler messageHandler;
     private Thread clientThread;
-    private Thread subscribeThread;
+//    private Thread subscribeThread;
     
     private String serverAddress;
-    private String publisherAddress;
+//    private String publisherAddress;
     
     private InputStream inputStream;
     private OutputStream outputStream;
@@ -75,46 +77,46 @@ public class ClientChannel implements ISicsChannel {
     
 	public ClientChannel() {
 	    id = String.valueOf(System.currentTimeMillis()).substring(3);
-	    context = ZMQ.context(2);
-	    clientSocket = context.socket(ZMQ.DEALER);
+//	    context = ZMQ.context(1);
+	    clientSocket = context.createSocket(SocketType.DEALER);
 	    clientSocket.setIdentity(id.getBytes(ZMQ.CHARSET));
 	    messageHandler = new ClientMessageHandler();
 	    commandMap = new HashMap<Integer, SicsCommand>();
 	    listeners = new ArrayList<IClientListener>();
 	}
 	
-	private void subscribe(String publisherAddress) {
-
-		subscriberSocket = context.socket(ZMQ.SUB);
-	    subscriberSocket.connect(publisherAddress);
-	    subscriberSocket.subscribe("".getBytes());
-		
-		subscribeThread = new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				while(true) {
-					try {
-						String msg = subscriberSocket.recvStr();
-//						System.err.println("SUB " + msg);
-//						logger.info("SUB: " + msg);
-						JSONObject json;
-						json = new JSONObject(msg);
-						messageHandler.delayedProcess(json);
-					} catch (ZMQException ze) {
-						logger.error("subscriber socket closed");
-						break;
-					} catch (JSONException e) {
-						logger.error(e.getMessage());
-						e.printStackTrace();
-					} finally {
-					}
-				}
-			}
-		});
-		
-		subscribeThread.start();
-	}
+//	private void subscribe(String publisherAddress) {
+//
+//		subscriberSocket = context.socket(ZMQ.SUB);
+//	    subscriberSocket.connect(publisherAddress);
+//	    subscriberSocket.subscribe("".getBytes());
+//		
+//		subscribeThread = new Thread(new Runnable() {
+//			
+//			@Override
+//			public void run() {
+//				while(true) {
+//					try {
+//						String msg = subscriberSocket.recvStr();
+////						System.err.println("SUB " + msg);
+////						logger.info("SUB: " + msg);
+//						JSONObject json;
+//						json = new JSONObject(msg);
+//						messageHandler.delayedProcess(json);
+//					} catch (ZMQException ze) {
+//						logger.error("subscriber socket closed");
+//						break;
+//					} catch (JSONException e) {
+//						logger.error(e.getMessage());
+//						e.printStackTrace();
+//					} finally {
+//					}
+//				}
+//			}
+//		});
+//		
+//		subscribeThread.start();
+//	}
 
 	@Override
 	public String syncSend(String command, ISicsCallback callback) throws SicsException {
@@ -128,7 +130,7 @@ public class ClientChannel implements ISicsChannel {
 		SicsCommand sicsCommand = new SicsCommand(cid, command, callback);
 		commandMap.put(cid, sicsCommand);
 		isBusy = true;
-		logger.info("syncRun: " + command);
+		logger.debug("syncRun: " + command);
 		try {
 			return sicsCommand.syncRun();
 		} finally {
@@ -139,7 +141,7 @@ public class ClientChannel implements ISicsChannel {
 	@Override
 	public void asyncSend(String command, ISicsCallback callback) throws SicsException {
 		cid++;
-		logger.info("asyncRun: " + command);
+		logger.debug("asyncRun: " + command);
 		SicsCommand sicsCommand = new SicsCommand(cid, command, callback);
 		commandMap.put(cid, sicsCommand);
 		sicsCommand.asyncRun();
@@ -153,9 +155,9 @@ public class ClientChannel implements ISicsChannel {
 	@Override
 	public void connect(String serverAddress, String publisherAddress) throws SicsCommunicationException {
 	    clientSocket.connect(serverAddress);
-	    subscribe(publisherAddress);
+//	    subscribe(publisherAddress);
 	    this.serverAddress = serverAddress;
-	    this.publisherAddress = publisherAddress;
+//	    this.publisherAddress = publisherAddress;
 		isConnected = true;
 		clientThread = new Thread(new Runnable() {
 			
@@ -166,7 +168,7 @@ public class ClientChannel implements ISicsChannel {
 						String received = clientSocket.recvStr();
 						String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
 //						System.err.println(timeStamp + " Received: " + received);
-						logger.info("CMD: " + received);
+						logger.debug("CMD: " + received);
 						JSONObject json = null;
 						try {
 							json = new JSONObject(received);	
@@ -195,7 +197,9 @@ public class ClientChannel implements ISicsChannel {
 		if (clientSocket != null) {
 			if (serverAddress != null) {
 				try {
+					logger.warn("terminal socket disconnecting");
 					clientSocket.disconnect(serverAddress);
+					clientSocket.unbind(serverAddress);
 				} catch (Exception e) {
 					logger.error("failed to disconnect client socket, ", e);
 				}
@@ -205,21 +209,28 @@ public class ClientChannel implements ISicsChannel {
 			} catch (Exception e) {
 				logger.error("failed to close client socket, ", e);
 			}
-		}
-		if (subscriberSocket != null) {
-			if (publisherAddress != null) {
-				try {
-					subscriberSocket.disconnect(publisherAddress);
-				} catch (Exception e) {
-					logger.error("failed to disconnect subscriber socket, ", e);
-				}
-			}
 			try {
-				subscriberSocket.close();
+				context.destroySocket(clientSocket);
+//				context.destroy();
+				logger.debug("destroyed terminal socket");
 			} catch (Exception e) {
-				logger.error("failed to close subscriber socket, ", e);
+				logger.error("failed to terminate ZMQ context, ", e);
 			}
 		}
+//		if (subscriberSocket != null) {
+//			if (publisherAddress != null) {
+//				try {
+//					subscriberSocket.disconnect(publisherAddress);
+//				} catch (Exception e) {
+//					logger.error("failed to disconnect subscriber socket, ", e);
+//				}
+//			}
+//			try {
+//				subscriberSocket.close();
+//			} catch (Exception e) {
+//				logger.error("failed to close subscriber socket, ", e);
+//			}
+//		}
         clientThread.interrupt();
         isConnected = false;
 	}
@@ -295,7 +306,7 @@ public class ClientChannel implements ISicsChannel {
 //			String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
 //			System.err.println(timeStamp + " async send: " + jcom.toString());
 			String msg = jcom.toString();
-			logger.info("syncSend: " + msg);
+			logger.debug("syncSend: " + msg);
 			clientSocket.send(msg);
 			while (!isFinished) {
 				try {
@@ -323,7 +334,7 @@ public class ClientChannel implements ISicsChannel {
 //			String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
 //			System.err.println(timeStamp + " async send: " + jcom.toString());
 			String msg = jcom.toString();
-			logger.info("asyncSend: " + msg);
+			logger.debug("asyncSend: " + msg);
 			clientSocket.send(msg);
 		}
 
