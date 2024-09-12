@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
@@ -154,6 +155,10 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 	
 	private int defaultLineLimit = DEFAULT_LINE_LIMIT;
 	
+	private PrintWriter writer;
+	
+	private PrintWriter errorWriter;
+	
 	public IScriptExecutor getScriptExecutor() {
 		return executor;
 	}
@@ -167,6 +172,26 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 		this.inputEnabled = isInputEnabled;
 	}
 	
+	public class SharedPrintWriter extends PrintWriter {
+		
+		private OutputStream stream;
+		
+		public SharedPrintWriter(OutputStream stream) {
+			super(stream, true);
+			this.stream = stream;
+		}
+		
+		public OutputStream getStream() {
+			return stream;
+		}
+		
+		public void write(String s) {
+			super.write(s);
+			// Hack to get Jepp to display text
+			flush();
+		}
+	}
+
 	public void setScriptExecutor(final IScriptExecutor executor) {
 		this.executor = executor;
 		// Wait for engine to be ready
@@ -213,7 +238,7 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 			engine.setContext(context);
 			scriptContext = engine.getContext();
 		}
-		PrintWriter writer = new PrintWriter(new ByteArrayOutputStream() {
+		OutputStream writerStream = new ByteArrayOutputStream() {
 			public synchronized void flush() throws IOException {
 				final String text = toString();
 				SafeUIRunner.asyncExec(new SafeRunnable() {
@@ -223,15 +248,11 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 				});
 				reset();
 			}
-		}, true) {
-			public void write(String s) {
-				super.write(s);
-				// Hack to get Jepp to display text
-				flush();
-			}
 		};
+		
+		writer = new SharedPrintWriter(writerStream);
 		scriptContext.setWriter(writer);
-		PrintWriter errorWriter = new PrintWriter(new ByteArrayOutputStream() {
+		final OutputStream errorStream = new ByteArrayOutputStream() {
 			public synchronized void flush() throws IOException {
 				final String text = toString();
 				SafeUIRunner.asyncExec(new SafeRunnable() {
@@ -241,13 +262,8 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 				});
 				reset();
 			}
-		}, true) {
-			public void write(String s) {
-				super.write(s);
-				// Hack to get Jepp to display text
-				flush();
-			}
 		};
+		errorWriter = new SharedPrintWriter(errorStream);
 		scriptContext.setErrorWriter(errorWriter);
 		// Update context
 		final ScriptContext updatedContext = scriptContext;
@@ -365,6 +381,14 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 			toolProperty = "history";
 		}
 		return toolProperty;
+	}
+	
+	public PrintWriter getWriter() {
+		return writer;
+	}
+	
+	public PrintWriter getErrorWriter() {
+		return errorWriter;
 	}
 	
 	public String getConsoleText() {

@@ -27,20 +27,20 @@ public class JepManager {
 	public JepManager() {
 	}
 
-	private static Interpreter createInterpreter(OutputStream writer) {
+	private static Interpreter createInterpreter(OutputStream writer, OutputStream errorWriter) {
 		JepConfig config = new JepConfig();
-		config.redirectStdErr(writer);
 		config.redirectStdout(writer);
+		config.redirectStdErr(errorWriter);
 		Interpreter interp = new SubInterpreter(config);
 		interpMap.put(writer, interp);
 		return interp;
 	}
 	
-	public synchronized static Interpreter getInterpreter(OutputStream writer) {
+	public synchronized static Interpreter getInterpreter(OutputStream writer, OutputStream errorWriter) {
 		if (interpMap.containsKey(writer)) {
 			return interpMap.get(writer);
 		} else {
-			return createInterpreter(writer);
+			return createInterpreter(writer, errorWriter);
 		}
 	}
 	
