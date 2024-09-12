@@ -81,8 +81,10 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 						nickname = nickname.trim();
 						if (UNKNOWN_VALUE.equalsIgnoreCase(nickname)) {
 							nickname = "";
+							fullname = label;
+						} else {
+							fullname = label + "(" + nickname + ")";
 						}
-						fullname = label + "(" + nickname + ")";
 					} else {
 						if (aliasName != null) {
 							label = aliasName;
@@ -107,16 +109,20 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 									String nick = newValue.getStringData().trim();
 									if (UNKNOWN_VALUE.equalsIgnoreCase(nick)) {
 										nick = "";
-									} 
-									setDeviceTitle(item.getPath(), prefix + "(" + nick + ")");									
+										setDeviceTitle(item.getPath(), prefix);
+									} else {
+										setDeviceTitle(item.getPath(), prefix + "(" + nick + ")");
+									}
 								}
 							});
 							try {
 								String nick = ((IDynamicController) nickController).getValue().getStringData().trim();
 								if (UNKNOWN_VALUE.equalsIgnoreCase(nick)) {
 									nick = "";
-								} 
-								fullname = labelPrefix + "(" + nick + ")";
+									fullname = labelPrefix;
+								} else { 
+									fullname = labelPrefix + "(" + nick + ")";
+								}
 							} catch (SicsIOException e) {
 							}
 						}
