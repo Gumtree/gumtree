@@ -1,4 +1,5 @@
 var title = "Echidna";
+var useNewProxy = true;
 var batchEnabled = true;
 var devices = [
                {"group":"BEAM STATUS", 

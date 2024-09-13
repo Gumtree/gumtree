@@ -1,4 +1,5 @@
 var title = "Kowari";
+var useNewProxy = true;
 var batchEnabled = true;
 var timeEstimationEnabled = true;
 var devices = [

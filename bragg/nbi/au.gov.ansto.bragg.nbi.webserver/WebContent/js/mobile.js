@@ -326,10 +326,9 @@ var refresh = function(){
 						}
 						if ("nick" in item) {
 							var n = item["nick"].trim();
-							if (n == "UNKNOWN") {
-								n = "";
-							}
-							iName = item.id + " (" + n + ")";
+							if (n != "UNKNOWN" && n != "") {
+								iName = item.id + " (" + n + ")";
+							} 
 						}
 						var units = "";
 						if ("units" in item) {
@@ -354,10 +353,9 @@ var refresh = function(){
 						}
 						if ("nick" in item) {
 							var n = item["nick"].trim();
-							if (n == "UNKNOWN") {
-								n = "";
-							}
-							iName = item.id + " (" + n + ")";
+							if (n != "UNKNOWN" && n != "") {
+								iName = item.id + " (" + n + ")";
+							} 
 						}
 						var units = "";
 						if ("units" in item) {

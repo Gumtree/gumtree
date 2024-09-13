@@ -1,4 +1,5 @@
 var title = "Spatz";
+var useNewProxy = true;
 var batchEnabled = true;
 var timeEstimationEnabled = false;
 

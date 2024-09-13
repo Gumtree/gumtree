@@ -1,4 +1,5 @@
 var title = "Dingo";
+var useNewProxy = true;
 var batchEnabled = true;
 var devices = [
                {"group":"CAMERA STATUS", 

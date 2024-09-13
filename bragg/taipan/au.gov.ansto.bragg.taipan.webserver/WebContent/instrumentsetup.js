@@ -1,4 +1,5 @@
 var title = "Taipan";
+var useNewProxy = true;
 var batchEnabled = true;
 var devices = [
                {"group":"BEAM STATUS", 

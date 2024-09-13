@@ -1,4 +1,5 @@
 var title = "Quokka";
+var useNewProxy = true;
 var batchEnabled = false;
 var timeEstimationEnabled = true;
 
