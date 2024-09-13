@@ -86,6 +86,7 @@ public class SicsChannel implements ISicsChannel {
 //	    clientSocket = context.socket(ZMQ.DEALER);
 	    clientSocket = context.createSocket(SocketType.DEALER);
 	    clientSocket.setSendTimeOut(COMMAND_TIMEOUT);
+	    clientSocket.setLinger(0);
 //	    clientSocket.setReceiveTimeOut(COMMAND_TIMEOUT);
 	    clientSocket.setIdentity(id.getBytes(ZMQ.CHARSET));
 	    messageHandler = new MessageHandler(sicsProxy);
@@ -109,7 +110,7 @@ public class SicsChannel implements ISicsChannel {
 				while(isConnected) {
 					try {
 						String msg = subscriberSocket.recvStr();
-						logger.info("SUB: " + msg);
+						logger.debug("SUB: " + msg);
 						JSONObject json;
 						json = new JSONObject(msg);
 						messageHandler.delayedProcess(json);

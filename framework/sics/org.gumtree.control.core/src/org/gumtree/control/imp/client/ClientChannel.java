@@ -3,7 +3,6 @@
  */
 package org.gumtree.control.imp.client;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
@@ -19,7 +18,6 @@ import org.gumtree.control.exception.SicsCommunicationException;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsExecutionException;
 import org.gumtree.control.exception.SicsInterruptException;
-import org.gumtree.control.imp.MessageHandler;
 import org.gumtree.control.imp.SicsReplyData;
 import org.gumtree.control.model.PropertyConstants;
 import org.json.JSONException;
@@ -29,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
-import org.zeromq.ZMQException;
 
 /**
  * @author nxi
@@ -50,6 +47,7 @@ public class ClientChannel implements ISicsChannel {
 	public static final String JSON_VALUE_OK = "OK";
 	
 	private static final int COMMAND_WAIT_TIME = 1;
+	private static final int COMMAND_TIMEOUT = 10000;
 	private static Logger logger = LoggerFactory.getLogger(ClientChannel.class);
 	
 	private static ZContext context = new ZContext();
@@ -79,6 +77,8 @@ public class ClientChannel implements ISicsChannel {
 	    id = String.valueOf(System.currentTimeMillis()).substring(3);
 //	    context = ZMQ.context(1);
 	    clientSocket = context.createSocket(SocketType.DEALER);
+	    clientSocket.setSendTimeOut(COMMAND_TIMEOUT);
+	    clientSocket.setLinger(0);
 	    clientSocket.setIdentity(id.getBytes(ZMQ.CHARSET));
 	    messageHandler = new ClientMessageHandler();
 	    commandMap = new HashMap<Integer, SicsCommand>();
