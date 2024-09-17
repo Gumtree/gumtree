@@ -16,6 +16,7 @@ import org.gumtree.control.core.ISicsConnectionContext;
 import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.ServerStatus;
+import org.gumtree.control.core.SicsCoreProperties;
 import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.events.ISicsMessageListener;
 import org.gumtree.control.events.ISicsProxyListener;
@@ -46,6 +47,7 @@ public class SicsProxy implements ISicsProxy {
 	private boolean isConnected;
 	private boolean isInterrupted;
     private boolean isBroken;
+    private boolean keepConnection;
 	private ISicsModel sicsModel;
 	private List<ISicsProxyListener> proxyListeners;
 	private List<ISicsMessageListener> messageListeners;
@@ -58,6 +60,7 @@ public class SicsProxy implements ISicsProxy {
 		messageListeners = new ArrayList<ISicsMessageListener>();
 		batchControl = new BatchControl(this);
 		connectionContext = new SicsConnectionContext();
+		keepConnection = SicsCoreProperties.KEEP_CONNECTION.getBoolean();
 	}
 	
 	/* (non-Javadoc)
@@ -136,6 +139,12 @@ public class SicsProxy implements ISicsProxy {
 							}
 						} catch (Exception e) {
 						}
+					} else if (keepConnection && !isConnected && channel != null) {
+						try {
+							reconnect();
+						} catch (SicsException e) {
+							logger.error("Reconnect failed");
+						}
 					}
 				}
 			}
@@ -159,6 +168,8 @@ public class SicsProxy implements ISicsProxy {
 				logger.warn("reconnect to " + serverAddress);
 				channel.connect(serverAddress, publisherAddress);
 			} catch (Exception e) {
+				logger.error("Failed to get status from server after reconnecting. Disconnect now.");
+				disconnect();
 				return false;
 			}
 		} 
@@ -166,8 +177,13 @@ public class SicsProxy implements ISicsProxy {
 			logger.warn("connection reestablished");
 			serverStatus = ServerStatus.parseStatus(channel.syncSend("status", null));
 		} catch (Exception e) {
-			logger.error("Failed to get status from server after reconnecting. Disconnect now.");
-			disconnect();
+			if (keepConnection) {
+				logger.error("Failed to get status from server after reconnecting. Set status to UNKNOWN.");
+				setServerStatus(ServerStatus.UNKNOWN);
+			} else {
+				logger.error("Failed to get status from server after reconnecting. Disconnect now.");
+				disconnect();
+			}
 			return false;
 //			throw e;
 		}
@@ -199,6 +215,7 @@ public class SicsProxy implements ISicsProxy {
 		if (channel != null) {
 			logger.warn("disconnected from SICS");
 			channel.disconnect();
+			setServerStatus(ServerStatus.UNKNOWN);
 			fireConnectionEvent(false);
 		}
 	}

@@ -87,6 +87,9 @@ public final class SicsCoreProperties {
 	public static final ISystemProperty FILTER_PATH = new SystemProperty(
 			"gumtree.sics.filterPath", "");
 
+	public static final ISystemProperty KEEP_CONNECTION = new SystemProperty(
+			"gumtree.control.keepConnection", "false");
+
 	private SicsCoreProperties() {
 		super();
 	}
