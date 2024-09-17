@@ -101,6 +101,8 @@ var refresh = function(){
 				} else  {
 					$("#sicsServer").text("DISCONNECTED");
 					$("#sicsServer").css("color", "#c40000");
+					$("#connection").text("FAULT");
+					$("#connection").css("color", "red");
 				}
 			} else {
 				$("#connection").text("FAULT");
