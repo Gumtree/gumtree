@@ -75,6 +75,8 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 	
 	private SicsMessageAdapter messageListener;
 	
+	private ISicsProxyListener proxyListener;
+	
 	// SICS batch buffer manager callback
 	private ISicsCallback exeInterestCallback;
 	
@@ -108,27 +110,27 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		batchQueue.addQueueEventListener(queueEventListener);
 		
 		// Handles proxy connect and disconnect events
-//		proxyListener = new SicsProxyListenerAdapter() {
-//			
-//			@Override
-//			public void interrupt(boolean isInterrupted) {
-//				// Batch is interrupt with level 3 or above
-////				setBatchStatus(BatchManagerStatus.IDLE);
-//				// Pause for the rest of queue
-//				setAutoRun(false);
-//			}
-//			
-//			@Override
-//			public void disconnect() {
-//				handleSicsDisconnect();
-//			}
-//			
-//			@Override
-//			public void connect() {
-//				handleSicsConnect();
-//			}
-//		};
-//		sicsProxy.addProxyListener(proxyListener);
+		proxyListener = new SicsProxyListenerAdapter() {
+			
+			@Override
+			public void interrupt(boolean isInterrupted) {
+				// Batch is interrupt with level 3 or above
+//				setBatchStatus(BatchManagerStatus.IDLE);
+				// Pause for the rest of queue
+				setAutoRun(false);
+			}
+			
+			@Override
+			public void disconnect() {
+				handleSicsDisconnect();
+			}
+			
+			@Override
+			public void connect() {
+				handleSicsConnect();
+			}
+		};
+		sicsProxy.addProxyListener(proxyListener);
 		batchControl = sicsProxy.getBatchControl();
 		
 		batchListener = new IBatchListener() {
@@ -152,6 +154,11 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 			@Override
 			public void scriptChanged(String scriptName) {
 				fireBatchChangeEvent(scriptName);
+			}
+			
+			@Override
+			public void rangeExecuted(String rangeText) {
+				fireBatchRangeEvent(rangeText);
 			}
 			
 			@Override
@@ -287,7 +294,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		}
 	}
 	
-//	protected void handleSicsConnect() {
+	protected void handleSicsConnect() {
 //		setBatchStatus(BatchManagerStatus.IDLE);
 //		try {
 //			asyncSend("exe info", new SicsCallbackAdapter() {
@@ -308,21 +315,21 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 //
 //		} catch (Exception e) {
 //		}
-//		
-//		// Schedule queue
-//		scheduler.schedule();
-//	}
+		
+		// Schedule queue
+		scheduler.schedule();
+	}
 	
-//	protected void handleSicsDisconnect() {
-//		if (exeInterestCallback != null) {
-//			exeInterestCallback.setCallbackCompleted(true);
-//			exeInterestCallback = null;
-//		}
-//		// Set manager to disconnected state
+	protected void handleSicsDisconnect() {
+		if (exeInterestCallback != null) {
+			exeInterestCallback.setCallbackCompleted(true);
+			exeInterestCallback = null;
+		}
+		// Set manager to disconnected state
 //		setBatchStatus(BatchManagerStatus.DISCONNECTED);
-//		// Unschedule queue
-//		scheduler.cancel();
-//	}
+		// Unschedule queue
+		scheduler.cancel();
+	}
 	
 	public boolean isAutoRun() {
 		return autoRun;
@@ -593,7 +600,13 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 			listener.scriptChanged(bufferName);
 		}
 	}
-	
+
+	private void fireBatchRangeEvent(final String range) {
+		for (IBatchManagerListener listener : batchManagerListeners) {
+			listener.rangeChanged(range);
+		}
+	}
+
 	private void handleException(String err) {
 		synchronized (batchControl.getStatus()) {
 //			this.status = BatchManagerStatus.ERROR;
@@ -684,8 +697,9 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 
 	public void setMessageListener(SicsMessageAdapter messageListener) {
 		this.messageListener = messageListener;
-		sicsProxy.addMessageListener(messageListener);
+		if (messageListener != null) {
+			sicsProxy.addMessageListener(messageListener);
+		}
 	}
 	
-
 }

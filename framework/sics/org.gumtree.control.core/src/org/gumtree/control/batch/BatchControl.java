@@ -123,6 +123,7 @@ public class BatchControl implements IBatchControl {
 	}
 
 	private synchronized void setBatchStatus(final BatchStatus status) {
+		System.err.println("status = " + status);
 		this.status = status;
 		for (IBatchListener listener : batchListeners) {
 			listener.statusChanged(status);
@@ -212,20 +213,26 @@ public class BatchControl implements IBatchControl {
 				listener.scriptChanged(value);
 			}
 		} else if (type.equals(PropertyConstants.PROP_BATCH_RANGE)) {
-			System.err.println("fire event range=" + value);
 			for (IBatchListener listener : batchListeners) {
-				listener.lineExecuted(Integer.valueOf(value));;
+//				listener.lineExecuted(Integer.valueOf(value));;
+				listener.rangeExecuted(value);
 			}
 		} 
 		else if (type.equals(PropertyConstants.PROP_BATCH_TEXT)) {
 			for (IBatchListener listener : batchListeners) {
 				listener.scriptChanged(value);;
 			}
+		} else if (type.equals(PropertyConstants.PROP_BATCH_FINISH)) {
+			for (IBatchListener listener : batchListeners) {
+//				listener.lineExecuted(Integer.valueOf(value));;
+				listener.stop();
+			}
 		}
 	}
 
 	@Override
 	public void parseState(String stateName, String stateValue) {
+		logger.warn("parse batch: " + stateName + " " + stateValue);
 		if (stateName.equalsIgnoreCase(BatchStatus.START_STATE)) {
 			setBatchName(stateValue);
 			setBatchStatus(BatchStatus.EXECUTING);
@@ -250,6 +257,7 @@ public class BatchControl implements IBatchControl {
 
 	private void setBatchName(final String batchName) {
 		this.batchId = String.valueOf(System.currentTimeMillis());
+		System.err.println("batch name = " + batchName);
 		this.batchName = batchName;
 		try {
 			sicsProxy.asyncRun("exe print " + batchName, new SicsCallbackAdapter() {
@@ -271,6 +279,7 @@ public class BatchControl implements IBatchControl {
 	
 	private void setBatchText(String text) {
 		batchText = text;
+		System.err.println("batch text = " + batchText);
 		fireBatchEvent(PropertyConstants.PROP_BATCH_TEXT, text);
 		getBatchRange();
 	}
@@ -367,6 +376,7 @@ public class BatchControl implements IBatchControl {
 	 */
 	private void setBatchRangeText(String batchRangeText) {
 		this.batchRangeText = batchRangeText;
-		fireBatchEvent(PropertyConstants.PROP_BATCH_TEXT, batchRangeText);
+		System.err.println("batch range = " + batchRangeText);
+		fireBatchEvent(PropertyConstants.PROP_BATCH_RANGE, batchRangeText);
 	}
 }

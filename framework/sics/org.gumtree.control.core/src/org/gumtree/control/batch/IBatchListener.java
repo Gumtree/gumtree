@@ -9,6 +9,8 @@ public interface IBatchListener {
 
 	void charExecuted(int start, int end);
 
+	void rangeExecuted(String rangeText);
+	
 	void lineExecuted(int line);
 	
 	void lineExecutionError(int line);

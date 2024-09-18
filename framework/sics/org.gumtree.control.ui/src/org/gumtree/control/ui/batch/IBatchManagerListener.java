@@ -8,6 +8,8 @@ public interface IBatchManagerListener {
 	
 	void scriptChanged(String scriptName);
 	
+	void rangeChanged(String rangeText);
+	
 	void lineExecutionError(int line);
 	
 	void lineExecuted(int line);

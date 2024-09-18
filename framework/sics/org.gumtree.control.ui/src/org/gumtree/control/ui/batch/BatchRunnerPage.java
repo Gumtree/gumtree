@@ -101,7 +101,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	// Listener to the batch buffer queue and auto run
 	private PropertyChangeListener propertyChangeListener;
 	
-	private IBatchManagerListener batchListener;
+	private IBatchManagerListener batchManagerListener;
 	
 	private SicsMessageAdapter messageListener;
 	
@@ -131,7 +131,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 			
 		};
 		
-		batchListener = new IBatchManagerListener() {
+		batchManagerListener = new IBatchManagerListener() {
 			
 			@Override
 			public void statusChanged(BatchStatus newStatus) {
@@ -146,6 +146,15 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 			@Override
 			public void lineExecuted(int line) {
 				
+			}
+			
+			@Override
+			public void rangeChanged(String rangeText) {
+				SafeUIRunner.asyncExec(new SafeRunnable() {
+					public void run() throws Exception {
+						highlightBuffer(rangeText);
+					}
+				});
 			}
 			
 			@Override
@@ -455,21 +464,23 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		context.autoRunButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				// Check instrument state
-				if (checkInstrumentReady && !getBatchBufferManager().isAutoRun()) {
-					InstrumentReadyStatus status = InstrumentReadyManager.isInstrumentReady();
-					if (!status.isInstrumentReady()) {
-						// Prepare message
-						StringBuilder builder = new StringBuilder();
-						builder.append("Instrument is not ready due to the following reasons:\n");
-						for (String message : status.getMessages()) {
-							builder.append("  * " + message + "\n");
+				if (!getBatchBufferManager().isAutoRun()) {
+					if (checkInstrumentReady) {
+						InstrumentReadyStatus status = InstrumentReadyManager.isInstrumentReady();
+						if (!status.isInstrumentReady()) {
+							// Prepare message
+							StringBuilder builder = new StringBuilder();
+							builder.append("Instrument is not ready due to the following reasons:\n");
+							for (String message : status.getMessages()) {
+								builder.append("  * " + message + "\n");
+							}
+							// Pop up dialog
+							MessageDialog.openWarning(getShell(), "Instrument is not ready", builder.toString());
+							// Disable run
+							getBatchBufferManager().setAutoRun(false);
+							((Button) e.widget).setSelection(false);
+							return;
 						}
-						// Pop up dialog
-						MessageDialog.openWarning(getShell(), "Instrument is not ready", builder.toString());
-						// Disable run
-						getBatchBufferManager().setAutoRun(false);
-						((Button) e.widget).setSelection(false);
-						return;
 					}
 				} else {
 					boolean confirm = MessageDialog.openConfirm(getShell(), "Confirm pausing the queue", "Please confirm if you want to pause the queue. " +
@@ -555,17 +566,21 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 					context.currentBuffer.setText("");
 					context.timerWidget.clearTimerUI();
+					messageListener.setEnabled(false);
 				} else if (status.equals(BatchStatus.ERROR)) {
 					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
-//					context.currentBuffer.setText("");
+					context.currentBuffer.setText("");
 					context.timerWidget.clearTimerUI();
+					messageListener.setEnabled(false);
 				} else if (status.equals(BatchStatus.IDLE)) {
 					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
-//					context.currentBuffer.setText("");
+					context.currentBuffer.setText("");
 					context.timerWidget.stopTimerUI();
+					messageListener.setEnabled(false);
 				} else if (status.equals(BatchStatus.PREPARING)) {
 					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
 //					context.currentBuffer.setText("");
+					messageListener.setEnabled(true);
 				} else if (status.equals(BatchStatus.EXECUTING)) {
 					// Update status
 					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
@@ -573,6 +588,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					context.timerWidget.clearTimerUI();
 					context.timerWidget.startTimerUI();
 					// Update buffer name
+					messageListener.setEnabled(true);
 					String buffername = getBatchBufferManager().getRunningBuffername();
 //					if (buffername != null) {
 //						context.currentBuffer.setText(getBatchBufferManager().getRunningBuffername());
@@ -746,9 +762,11 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	@Override
 	protected void disposeWidget() {
 		if (batchBufferManager != null) {
-			batchBufferManager.removeBatchManagerListener(batchListener);
+			batchBufferManager.removeBatchManagerListener(batchManagerListener);
 			SicsManager.getSicsProxy().removeProxyListener(batchChannelListener);
-			batchListener = null;
+			messageListener.setEnabled(false);
+			batchBufferManager.setMessageListener(null);
+			batchManagerListener = null;
 			batchBufferManager = null;
 			batchChannelListener = null;
 		}
@@ -769,13 +787,13 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	@Inject
 	public void setBatchBufferManager(IBatchManager batchBufferManager) {
 		if (this.batchBufferManager != null) {
-			batchBufferManager.removeBatchManagerListener(batchListener);
+			batchBufferManager.removeBatchManagerListener(batchManagerListener);
 			SicsManager.getSicsProxy().removeProxyListener(batchChannelListener);
 			batchBufferManager.setMessageListener(null);
 			((AbstractModelObject) this.batchBufferManager).removePropertyChangeListener(propertyChangeListener);		
 		}
 		this.batchBufferManager = batchBufferManager;
-		batchBufferManager.addBatchManagerListener(batchListener);
+		batchBufferManager.addBatchManagerListener(batchManagerListener);
 		SicsManager.getSicsProxy().addProxyListener(batchChannelListener);
 		batchBufferManager.setMessageListener(messageListener);
 		((AbstractModelObject) this.batchBufferManager).addPropertyChangeListener(propertyChangeListener);

@@ -413,6 +413,11 @@ public class SicsBatchViewer extends AbstractPartControlProvider {
 			}
 		}
 
+		@Override
+		public void rangeExecuted(String rangeText) {
+			
+		}
+		
 		public void lineExecutionError(int line) {
 		}
 
