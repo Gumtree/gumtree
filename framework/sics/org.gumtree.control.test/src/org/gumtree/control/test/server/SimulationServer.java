@@ -526,7 +526,7 @@ public class SimulationServer {
 //			
 //			@Override
 //			public void run() {
-				batchStatus = BatchStatus.RUNNING;
+				batchStatus = BatchStatus.EXECUTING;
 				JSONObject json = new JSONObject();
 				try {
 					json.put(SicsChannel.JSON_KEY_STATUS, ServerStatus.DRIVING);

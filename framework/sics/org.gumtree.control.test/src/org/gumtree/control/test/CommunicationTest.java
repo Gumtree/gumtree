@@ -20,7 +20,7 @@ public class CommunicationTest extends TestCase{
 	private ISicsProxy proxy;
 
 	// assigning the values
-	protected void setUp(){
+	protected void setUp() throws SicsException{
 //		context = ZMQ.context(1);
 //		subscriber = context.socket(ZMQ.SUB);
 //		if (ConstantSetup.USE_LOCAL_SERVER) {
