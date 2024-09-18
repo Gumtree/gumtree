@@ -52,6 +52,7 @@ public class SicsChannel implements ISicsChannel {
 	private static final String POCH_COMMAND = "POCH";
 	
 	private static final int COMMAND_WAIT_TIME = 3;
+	private static final int SEND_TIMEOUT = 3000;
 	private static final int COMMAND_TIMEOUT = 10000;
 	
 	private static Logger logger = LoggerFactory.getLogger(SicsChannel.class);
@@ -85,8 +86,11 @@ public class SicsChannel implements ISicsChannel {
 //	    context = ZMQ.context(2);
 //	    clientSocket = context.socket(ZMQ.DEALER);
 	    clientSocket = context.createSocket(SocketType.DEALER);
-	    clientSocket.setSendTimeOut(COMMAND_TIMEOUT);
+//	    clientSocket.setSendTimeOut(COMMAND_TIMEOUT);
+	    clientSocket.setSendTimeOut(SEND_TIMEOUT);
 	    clientSocket.setLinger(0);
+//	    clientSocket.setBacklog(1);
+	    clientSocket.setConflate(true);
 //	    clientSocket.setReceiveTimeOut(COMMAND_TIMEOUT);
 	    clientSocket.setIdentity(id.getBytes(ZMQ.CHARSET));
 	    messageHandler = new MessageHandler(sicsProxy);
@@ -344,7 +348,10 @@ public class SicsChannel implements ISicsChannel {
 			if (!POCH_COMMAND.equals(command)) {
 				logger.debug("syncSend: " + command);
 			}
-			clientSocket.send(msg);
+			if (!clientSocket.send(msg)) {
+				logger.debug("client socket broken");
+				throw new SicsCommunicationException("client socket broken");
+			}
 			int tc = 0;
 			while (!isStarted && !isFinished && tc < COMMAND_TIMEOUT) {
 				try {

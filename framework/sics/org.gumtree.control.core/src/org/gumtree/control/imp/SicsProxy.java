@@ -143,7 +143,9 @@ public class SicsProxy implements ISicsProxy {
 						try {
 							reconnect();
 						} catch (SicsException e) {
-							logger.error("Reconnect failed");
+							logger.error("Reconnection failed");
+						} catch (Exception e) {
+							logger.error("falied to run reconnection function.", e);
 						}
 					}
 				}
