@@ -184,6 +184,15 @@ def multiDrive(entries):
     wait_until_idle()
     handleInterrupt()
 
+def multi_drive(entries, timeout = 900):
+    cmd = "drive "
+    for key in entries.keys():
+        cmd += key + " " + str(entries[key])
+#     run_command_timeout(cmd)
+    res = run_command_timeout(cmd, True, timeout)
+    if not res is None and res.find('Full Stop') >= 0:
+        raise Exception, res
+    
 def runbmonscan(scan_variable, scan_start, scan_increment, NP, mode, preset, channel):
     runscan('bmonscan', scan_variable, scan_start, scan_increment, NP, mode, preset, channel)
 
