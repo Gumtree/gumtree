@@ -149,7 +149,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 			}
 			
 			@Override
-			public void rangeChanged(String rangeText) {
+			public void rangeChanged(final String rangeText) {
 				SafeUIRunner.asyncExec(new SafeRunnable() {
 					public void run() throws Exception {
 						highlightBuffer(rangeText);
