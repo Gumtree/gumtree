@@ -368,7 +368,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			throw new JSONException("model can not be empty");
 		}
 		File file = new File(getYamlFilePath(instrumentId));
-		String[] pair = text.split("&", 3);
+		String[] pair = text.split("&", 2);
 		String path = pair[0].substring(pair[0].indexOf("=") + 1).trim();
 //		String idx = pair[1].substring(pair[1].indexOf("=") + 1).trim();
 		String modelString = pair[1].substring(pair[1].indexOf("=") + 1).trim();
