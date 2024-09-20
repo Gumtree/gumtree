@@ -7,6 +7,7 @@ import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.events.ISicsMessageListener;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.exception.SicsException;
+import org.json.JSONObject;
 
 public interface ISicsProxy {
 
@@ -31,7 +32,7 @@ public interface ISicsProxy {
 	IBatchControl getBatchControl();
 	void addMessageListener(ISicsMessageListener listener);
 	void removeMessageListener(ISicsMessageListener listener);
-	void fireMessageEvent(String message);
+	void fireMessageEvent(JSONObject message);
 	void updateGumtreeXML() throws SicsException;
 	ISicsConnectionContext getConnectionContext();
 }

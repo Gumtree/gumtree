@@ -66,6 +66,8 @@ import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsCallbackAdapter;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
+import org.gumtree.control.model.PropertyConstants;
+import org.gumtree.control.model.PropertyConstants.MessageType;
 import org.gumtree.control.ui.viewer.InternalImage;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.ui.util.swt.IDNDHandler;
@@ -73,6 +75,7 @@ import org.gumtree.ui.widgets.AutoScrollStyledText;
 import org.gumtree.ui.widgets.TimerWidget;
 import org.gumtree.util.bean.AbstractModelObject;
 import org.gumtree.widgets.swt.forms.ExtendedFormComposite;
+import org.json.JSONObject;
 
 public class BatchRunnerPage extends ExtendedFormComposite {
 
@@ -123,9 +126,15 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		messageListener = new SicsMessageAdapter() {
 			
 			@Override
-			public void messageReceived(String message) {
+			public void messageReceived(JSONObject message) {
 				if (isEnabled()) {
-					updateLogText(message);
+					try {
+						String type = message.getString(PropertyConstants.PROP_UPDATE_TYPE);
+						if (MessageType.BATCH.getId().equalsIgnoreCase(type)) {
+							updateLogText(message.getString(PropertyConstants.PROP_UPDATE_VALUE));
+						}
+					} catch (Exception e) {
+					}
 				}
 			}
 			
@@ -175,6 +184,11 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 			@Override
 			public void scriptChanged(String scriptName) {
 				updateScriptName(scriptName);
+			}
+			
+			@Override
+			public void scriptFinished(String replyText) {
+				updateLogText(replyText);
 			}
 		};
 		

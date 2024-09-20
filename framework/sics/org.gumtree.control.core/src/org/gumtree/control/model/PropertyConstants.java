@@ -54,7 +54,7 @@ public class PropertyConstants {
 	}
 	
 	public enum MessageType{
-		VALUE("VALUE"), STATE("STATE"), STATUS("STATUS"), BATCH("BATCH");
+		VALUE("Value"), STATE("State"), STATUS("Status"), BATCH("Batch");
 		
 		private MessageType(String id) {
 			this.id = id;

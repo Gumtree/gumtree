@@ -433,10 +433,13 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 //							setBatchStatus(BatchStatus.EXECUTING);
 //						}
 //						fireBatchStatusEvent(BatchStatus.PREPARING);
+						
 					}
 					
 					@Override
 					public void receiveFinish(ISicsReplyData data) {
+						final String reply = data.getString();
+						fireBatchFinishEvent(reply);
 						setCallbackCompleted(true);
 //						setBatchStatus(BatchStatus.IDLE);
 					}
@@ -604,6 +607,12 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 	private void fireBatchRangeEvent(final String range) {
 		for (IBatchManagerListener listener : batchManagerListeners) {
 			listener.rangeChanged(range);
+		}
+	}
+
+	private void fireBatchFinishEvent(final String reply) {
+		for (IBatchManagerListener listener : batchManagerListeners) {
+			listener.scriptFinished(reply);
 		}
 	}
 

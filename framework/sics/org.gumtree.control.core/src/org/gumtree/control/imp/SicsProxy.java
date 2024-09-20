@@ -26,6 +26,7 @@ import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.SicsModel;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.JobRunner;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -422,7 +423,7 @@ public class SicsProxy implements ISicsProxy {
 		messageListeners.remove(listener);
 	}
 	
-	public void fireMessageEvent(String message) {
+	public void fireMessageEvent(JSONObject message) {
 		for (ISicsMessageListener listener : messageListeners) {
 			try {
 				listener.messageReceived(message);

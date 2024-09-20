@@ -61,7 +61,9 @@ public class KoalaServer {
 
 	private static int COUNT_RATE = 1000;
 	private static int DUR_READING = 2000;
-	private static final String MODEL_FILENAME = "C:\\Gumtree\\docs\\GumtreeXML\\koala.xml";
+//	private static final String MODEL_FILENAME = "C:\\Gumtree\\docs\\GumtreeXML\\koala.xml";
+//	private static final String MODEL_FILENAME = "C:\\Gumtree\\docs\\GumtreeXML\\koala_cobra.xml";
+	private static final String MODEL_FILENAME = "C:\\Gumtree\\docs\\GumtreeXML\\koala_cf2.xml";
 	private static final String DATA_PATH = "W:/data/koala/";
 	private static final String ORG_FILE = "ORG.tif";
 	private static int fileID = 1;

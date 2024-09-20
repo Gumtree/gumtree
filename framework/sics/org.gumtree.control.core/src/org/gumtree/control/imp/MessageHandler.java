@@ -56,7 +56,7 @@ public class MessageHandler {
 				process(json);
 			}
 		});
-		sicsProxy.fireMessageEvent(json.toString());
+		sicsProxy.fireMessageEvent(json);
 	}
 
 	public void process(final JSONObject json) {
