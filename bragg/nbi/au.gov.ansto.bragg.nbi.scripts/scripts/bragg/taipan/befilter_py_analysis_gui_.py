@@ -1,7 +1,7 @@
 '''
 Taipan BE-Fiter Analysis
 
-This script is for analysis of data from Taipan BE-filter experiments. It follows the procedure outlined in "Data-processing technique for the Taipan “Be-filter” neutron spectrometer at the Australian Nuclear Science and Technology Organisation" (2021).
+This script is for analysis of data from Taipan BE-filter experiments. It follows the procedure outlined in "Data-processing technique for the Taipan Be-filter neutron spectrometer at the Australian Nuclear Science and Technology Organisation" (2021).
 
 The script below imports the data from its .xys format. It then processes the data with a background subtraction as well as higher-order scattering corrections. It does this for both the PG and Cu monochromator scans.
 
@@ -18,10 +18,12 @@ import numpy as np
 from tkinter import*
 from tkinter import filedialog
 import tkinter.simpledialog as tkSimpleDialog
+# from aifc import data
 root = Tk()     # Create Tk root
 
 #Define the name of the data directory, and define the header names for the data (initial energy, singal intensity, and error).
 folder_name = "Normalised/"
+folder_name = "W:/Taipan/data/Kirrily/inputs/"
 head_names = ["Ei", "signal", "sigma"]
 
 
@@ -70,8 +72,14 @@ def sample_name_input(name_type):
 EMPTY_PG_FILES = ["103654.xys", "103655.xys"]
 EMPTY_Cu_FILES = ["103656.xys", "103657.xys", "103658.xys"]
 
-SAMPLE_PG_FILES = directory_via_gui('Select your PG sample files')
-SAMPLE_Cu_FILES = directory_via_gui('Select your Cu sample files')
+EMPTY_PG_FILES = ["103654_4.xys", "103655_3.xys"]
+EMPTY_Cu_FILES = ["103656_2.xys", "103657_1.xys", "103658_0.xys"]
+
+# SAMPLE_PG_FILES = directory_via_gui('Select your PG sample files')
+# SAMPLE_Cu_FILES = directory_via_gui('Select your Cu sample files')
+
+SAMPLE_PG_FILES = ["103731_18.xys", "103732_17.xys", "103733_16.xys", "103734_15.xys"]
+SAMPLE_Cu_FILES = ["103735_14.xys", "103736_13.xys", "103737_12.xys", "103738_11.xys", "103739_10.xys", "103740_9.xys"]
 
 #EMPTY_PG_FILES = directory_via_gui('Select your PG empty files')
 #EMPTY_Cu_FILES = directory_via_gui('Select your Cu empty files')
@@ -89,11 +97,14 @@ EMPTY_Cu = import_n_fns(*EMPTY_Cu_FILES)
 
 
 #NAME YOUR SAMPLE HERE!:
-#Sample_name = 'H2O'     #Name the sample
-#Sample_temp = '5K'      #Temp
+Sample_name = 'H2O'     #Name the sample
+Sample_temp = '5K'      #Temp
 
-Sample_name = sample_name_input('name')
-Sample_temp = sample_name_input('temperature')
+# Sample_name = sample_name_input('name')
+# Sample_temp = sample_name_input('temperature')
+
+# Sample_name = 'D2O'
+# Sample_temp = '5K'
 
 #Let's give some names to our wonderful measurements; they've earnt it.
 SMPL_PG.name = Sample_name + '_' + Sample_temp + '_PG'
@@ -108,7 +119,7 @@ If mismatched energy steps between background and sample measurements is an issu
 #The background scans and the sample scans below 26.81 meV doe not match in energy steps (...oops). So here, I upsample the background scan to be the same length as the sample scan over this region.
 #If this is not an issue with the given dataset, this cell can be skipped.
 
-PG_LOW = 50 #Define the threshold (in energy) for the last PG scans.
+PG_LOW = 60 #Define the threshold (in energy) for the last PG scans.
 
 
 #Now let's rescale (via linear interpolation) the signal and the sigma of the empty low E scan to match the energy steps of the sample scan. 
@@ -245,31 +256,88 @@ higher_order_corr(SMPL_PG, SMPL_Cu, 3, 1.1)
 #SMPL_PG
 #SMPL_Cu
 
-####---You can check the DataFrames without row cutoff:---####
-#with pd.option_context('display.max_rows', None, 'display.max_columns', None,'display.precision', 5,):
+###---You can check the DataFrames without row cutoff:---####
+# with pd.option_context('display.max_rows', None, 'display.max_columns', None,'display.precision', 5,):
 #    print(SMPL_PG)
 '''
 Error bars!
 '''
 #Can't forget the error bars! (Even though they're not that significant here)
-
+ 
 #For the PG
 SMPL_PG['signal_bkg_sub_SIGMA'] = np.sqrt(SMPL_PG['sigma']**2 + EMPTY_PG['sigma']**2)
 SMPL_PG['Fin_Lam_Corr_SIGMA'] = SMPL_PG['Fin_Lam_Corr'] * (SMPL_PG['signal_bkg_sub_SIGMA'] / SMPL_PG['signal_bkg_sub'])
-
-#For the Cu
+# 
+# #For the Cu
 SMPL_Cu['signal_bkg_sub_SIGMA'] = np.sqrt(SMPL_Cu['sigma']**2 + EMPTY_Cu['sigma']**2)
 SMPL_Cu['Fin_Lam_Corr_SIGMA'] = SMPL_Cu['Fin_Lam_Corr'] * (SMPL_Cu['signal_bkg_sub_SIGMA'] / SMPL_Cu['signal_bkg_sub'])
 '''
 Exporting the data:
 '''
 #Let's export the data to csv so we can plot it wherever we want
-
+ 
 #Folder in which to save data
-save_folder = 'Processed_Data_D2O/'
-
+save_folder = 'W:/Taipan/data/Kirrily/exports/'
+ 
 #For PG data
 SMPL_PG.to_csv(save_folder+SMPL_PG.name+'_DATA.csv', sep = ',')
 #For Cu data
 SMPL_Cu.to_csv(save_folder+SMPL_Cu.name+'_DATA.csv', sep = ',')
+# 
+# '''
+# Plot data
+# '''
+# # plt.errorbar(SMPL_Cu['DeltaE'], SMPL_Cu['Fin_Lam_Corr'], yerr = SMPL_Cu['Fin_Lam_Corr_SIGMA'], color = 'r')
+# # plt.errorbar(SMPL_PG['DeltaE'], SMPL_PG['Fin_Lam_Corr'], yerr = SMPL_PG['Fin_Lam_Corr_SIGMA'], color = 'black')
+# plt.plot(SMPL_Cu['DeltaE'], SMPL_Cu['Fin_Lam_Corr'], '-o', markersize=4, label = 'Cu', color = 'r')
+# plt.plot(SMPL_PG['DeltaE'], SMPL_PG['Fin_Lam_Corr'], '-o', markersize=4,  label = 'PG', color = 'black')
+# plt.plot(SMPL_PG['DeltaE'], SMPL_PG['signal'], '-o', markersize=4,  label = 'PG-unproc.', color = 'b')
+# # plt.plot(SMPL_PG['DeltaE'], EMPTY_PG['signal']*6, '-o', markersize=4,  label = 'PG-empty.', color = 'g')
+# plt.legend()
+# # plt.xlim([8.9,70])
+# # plt.ylim([40000,285000])
+# # plt.ylim([2000,20000])
+# 
+# plt.xlabel("Energy (meV)")
+# plt.ylabel('Intensity (arb.u.)')
+# 
+# # plt.scatter(SMPL_Cu['Ei'],SMPL_Cu['signal'])
+# # plt.scatter(SMPL_Cu['Ei'],SMPL_Cu['signal_bkg_sub'])
+# # 
+# # plt.scatter(SMPL_PG.iloc[:,0][SMPL_PG['Ei'] < SMPL_PG['Ei'].max()/4], np.interp(SMPL_PG.iloc[:,0][SMPL_PG['Ei'] < SMPL_PG['Ei'].max()/4], SMPL_PG.iloc[:,0]/4, SMPL_PG.iloc[:,1] /4 ))
+# # plt.scatter(SMPL_PG.iloc[:,0]/4, SMPL_PG.iloc[:,1] /4 )
+# # plt.xlim([8.9,17.5])
+# 
+# plt.show()
+# PG_LOW = 26.82
+# EMPTY_PG = import_fn("95672.xys", "95673.xys", "95674.xys")
 
+# int_signal = np.interp(SMPL_PG.iloc[:,0][SMPL_PG['Ei'] < PG_LOW], EMPTY_PG.iloc[:,0][EMPTY_PG['Ei'] < PG_LOW], EMPTY_PG.iloc[:,1][EMPTY_PG['Ei'] < PG_LOW])
+
+# plt.scatter(SMPL_PG.iloc[:,0][SMPL_PG['Ei'] < PG_LOW], int_signal)
+# plt.scatter(EMPTY_PG.iloc[:,0][EMPTY_PG['Ei'] < PG_LOW], EMPTY_PG.iloc[:,1][EMPTY_PG['Ei'] < PG_LOW])
+
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+ax.errorbar(SMPL_Cu['DeltaE'], SMPL_Cu['Fin_Lam_Corr'], fmt='-o', ms = 4, capsize = 3,  yerr = SMPL_Cu['Fin_Lam_Corr_SIGMA'], color = 'r', label = 'Cu')
+ax.errorbar(SMPL_PG['DeltaE'], SMPL_PG['Fin_Lam_Corr'], fmt='-o', ms = 4, capsize = 3, yerr = SMPL_PG['Fin_Lam_Corr_SIGMA'], color = 'black', label = 'PG')
+ax.plot(SMPL_Cu['DeltaE'], SMPL_Cu['signal'], '-o', markersize=4,  label = 'Cu-unproc.', color = 'magenta', alpha = 0.33)
+ax.plot(SMPL_Cu['DeltaE'], EMPTY_Cu['signal']*1, '-o', markersize=4,  label = 'Cu-empty', color = 'orange', alpha = 0.33)
+ax.plot(SMPL_PG['DeltaE'], SMPL_PG['signal'], '-o', markersize=4,  label = 'PG-unproc.', color = 'b', alpha = 0.33)
+# ax.plot(SMPL_PG['DeltaE'], EMPTY_PG['signal']*1, '-o', markersize=4,  label = 'PG-empty', color = 'g', alpha = 0.33)
+ax.legend()
+ax.set_xlim([0,205])
+ax.set_ylim([-10000,75000])
+ax.set_xlabel("Energy (meV)")
+ax.set_ylabel('Intensity (arb.u.)')
+
+for item in ([ax.title, ax.xaxis.label, ax.yaxis.label,] +
+             ax.get_xticklabels() + ax.get_yticklabels() ):
+    item.set_fontsize(20)
+    
+for item in (ax.get_legend().get_texts()):
+    item.set_fontsize(14)
+    
+plt.show()
+    
