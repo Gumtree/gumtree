@@ -390,8 +390,9 @@ public class CollectionHelper {
 			while (!isStarted && ct <= START_TIMEOUT * 1000) {
 				String err = getErrorMessage();
 				if (err != null && err.length() > 0) {
-					String galilState = galilStatusController.getValue().toString();
-					throw new KoalaServerException(err + ", galil state = " + (galilState.length() == 0 ? "<EMPTY>" : galilState));
+//					String galilState = galilStatusController.getValue().toString();
+//					throw new KoalaServerException(err + ", galil state = " + (galilState.length() == 0 ? "<EMPTY>" : galilState));
+					throw new KoalaServerException(err);
 				}
 				try {
 					Thread.sleep(CHECK_CYCLE);

@@ -90,7 +90,7 @@ public class SicsChannel implements ISicsChannel {
 	    clientSocket.setSendTimeOut(SEND_TIMEOUT);
 	    clientSocket.setLinger(0);
 //	    clientSocket.setBacklog(1);
-	    clientSocket.setConflate(true);
+//	    clientSocket.setConflate(true);
 //	    clientSocket.setReceiveTimeOut(COMMAND_TIMEOUT);
 	    clientSocket.setIdentity(id.getBytes(ZMQ.CHARSET));
 	    messageHandler = new MessageHandler(sicsProxy);

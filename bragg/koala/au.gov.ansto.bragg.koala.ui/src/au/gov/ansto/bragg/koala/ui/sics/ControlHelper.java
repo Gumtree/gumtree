@@ -109,6 +109,7 @@ public class ControlHelper {
 	public static final String GUMTREE_USER_NAME = "gumtree.koala.username";
 	public static final String GALIL_STATE = "gumtree.koala.galilState";
 	public static final String GALIL_STATUS = "gumtree.koala.galilStatus";
+	public static final String GALIL_STATUS_MESSAGE = "gumtree.koala.galilStatusMsg";
 	
 	private final static Color BUSY_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
 	private final static Color IDLE_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
@@ -611,6 +612,7 @@ public class ControlHelper {
 		String err = "";
 		try {
 			ISicsController device = getProxy().getSicsModel().findController(System.getProperty(GALIL_STATUS));
+			ISicsController msgDevice = getProxy().getSicsModel().findController(System.getProperty(GALIL_STATUS_MESSAGE));
 			if (device != null) {
 				int status = ((IDynamicController) device).getControllerDataValue().getIntData();
 				if (status < 0) {
@@ -676,6 +678,32 @@ public class ControlHelper {
 						err += "Unknown issue code, please contact an instrument scientist or the electrical "
 								+ "engineering team for help.";
 						break;
+					}
+				} else if (status > 0) {
+					err = "GALIL_STATUS = " + status + "; ";
+					switch (status) {
+					case 1:
+						err += "Motion disabled. Please ensure it's safe to drive motors and use the control "
+								+ "panel on the wall to enable motion control.";
+						break;
+					case 2:
+						err += "Axis B forward limit switch activated. Contact instrument scientist for further instructions.";
+						break;
+					case 4:
+						err += "Axis B Reverse limit switch activated. Contact instrument scientist for further instructions.";
+						break;
+					case 8:
+						err += "Sample not within ±12mm of beam height. Use the the 'Move Sample Z to Beam' button in "
+								+ "the footbar of this window to drive sample into the beam.";
+						break;
+					default:
+						break;
+					} 
+					if (msgDevice != null) {
+						String msg = ((IDynamicController) msgDevice).getControllerDataValue().getStringData();
+						if (msg != null && msg.trim().length() > 0) {
+							err += "\nGalil Status message: " + msg.trim();
+						}
 					}
 				}
 			}
@@ -824,7 +852,7 @@ public class ControlHelper {
 	
 	public static class SampleZHelper {
 		
-		public static final String MOVE_Z_UP 	= "Sample Stage Up ";
+		public static final String MOVE_Z_UP 	= "Move Sample Stage Up ";
 		public static final String MOVE_Z_BACK 	= "Move Sample Z to Beam ";
 		
 		private Button samzButton;
