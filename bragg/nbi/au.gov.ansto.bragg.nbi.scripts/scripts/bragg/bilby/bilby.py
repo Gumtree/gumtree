@@ -120,25 +120,46 @@ __sampleMap16__ = {
         17 : -510.0,
        }
 
+# __meerMap16__ = {
+#         0 : 510.0,
+#         1 : 450.0,
+#         2 : 390.0,
+#         3 : 330.0,
+#         4 : 270.0,
+#         5 : 210.0,
+#         6 : 150.0,
+#         7 : 90.0,
+#         8 : 30.0,
+#         9 : -30.0,
+#         10 : -90.0,
+#         11 : -150.0,
+#         12 : -210.0,
+#         13 : -270.0,
+#         14 : -330.0,
+#         15 : -390.0,
+#         16 : -450.0,
+#         17 : -510.0,
+#        }
+
 __meerMap16__ = {
-        0 : 510.0,
-        1 : 450.0,
-        2 : 390.0,
-        3 : 330.0,
-        4 : 270.0,
-        5 : 210.0,
-        6 : 150.0,
-        7 : 90.0,
-        8 : 30.0,
-        9 : -30.0,
-        10 : -90.0,
-        11 : -150.0,
-        12 : -210.0,
-        13 : -270.0,
-        14 : -330.0,
-        15 : -390.0,
-        16 : -450.0,
-        17 : -510.0,
+        0 : -510.0,
+        1 : -450.0,
+        2 : -390.0,
+        3 : -330.0,
+        4 : -270.0,
+        5 : -210.0,
+        6 : -150.0,
+        7 : -90.0,
+        8 : -30.0,
+        9 : 30.0,
+        10 : 90.0,
+        11 : 150.0,
+        12 : 210.0,
+        13 : 270.0,
+        14 : 330.0,
+        15 : 390.0,
+        16 : 450.0,
+        17 : 510.0,
        }
 
 __fixedStage__ = {
@@ -221,7 +242,8 @@ def __cal_samx__(val):
      
 def sample(val = None):
     global __sampleMap__, __sampleStage__
-    __sampleNum__ = len(__sampleMap__[__sampleStage__]) - 2
+    _table = __sampleMap__[__sampleStage__]
+    __sampleNum__ = len(_table) - 2
     if not val is None :
         if not type(val) is int or not type(val) is float:
             val = float(str(val))
@@ -234,12 +256,19 @@ def sample(val = None):
                 sics.drive('samx', __cal_samx__(val))
     raw = sics.get_raw_value('samx')
     samNum = -1;
-    for i in xrange(len(__sampleMap__[__sampleStage__])) :
-        if raw > __sampleMap__[__sampleStage__][i] :
-            if i > 0 :
-                samNum = i - (raw - __sampleMap__[__sampleStage__][i]) / (__sampleMap__[__sampleStage__][i - 1] - __sampleMap__[__sampleStage__][i])
-            break
-    if samNum < 0.05 or samNum > len(__sampleMap__[__sampleStage__]) - 1.05 :
+    if _table[0] > _table[len(_table) - 1] :
+        for i in xrange(len(_table)) :
+            if raw > _table[i] :
+                if i > 0 :
+                    samNum = i - (raw - _table[i]) / (_table[i - 1] - _table[i])
+                break
+    else :
+        for i in xrange(len(_table)) :
+            if raw < _table[i] :
+                if i > 0 :
+                    samNum = i - (_table[i] - raw) / (_table[i] - _table[i - 1])
+                break
+    if samNum < 0.05 or samNum > len(_table) - 1.05 :
         samNum = -1
     return round(samNum, 1)
 
