@@ -63,6 +63,9 @@ public class EnvironmentStatusWidget extends ControllerStatusWidget {
 					List<String> aliasList = item.getPropertyValue("nxalias");
 					if (aliasList != null && aliasList.size() > 0) {
 						aliasName = aliasList.get(0).trim();
+						if (aliasName.length() > 30) {
+							aliasName = null;
+						}
 					}
 					String units = null;
 					List<String> unitsList = item.getPropertyValue("units");
@@ -76,7 +79,7 @@ public class EnvironmentStatusWidget extends ControllerStatusWidget {
 							nickname = "";
 							fullname = label;
 						}
-						fullname = label + "(" + nickname + ")";
+						fullname = label + " (" + nickname + ")";
 					} else {
 						if (aliasName != null) {
 							label = aliasName;
@@ -99,14 +102,14 @@ public class EnvironmentStatusWidget extends ControllerStatusWidget {
 								private String prefix = labelPrefix;
 								@Override
 								public void updateValue(Object oldValue, Object newValue) {
-									String newTitle = prefix + "(" + newValue.toString() + ")";
+									String newTitle = prefix + " (" + newValue.toString() + ")";
 									setDeviceTitle(path, newTitle);
 									String nick = newValue.toString().trim();
 									if (UNKNOWN_VALUE.equalsIgnoreCase(nick)) {
 										nick = "";
 										setDeviceTitle(item.getPath(), prefix);
 									} else {
-										setDeviceTitle(item.getPath(), prefix + "(" + nick + ")");
+										setDeviceTitle(item.getPath(), prefix + " (" + nick + ")");
 									}
 								}
 							});
@@ -116,7 +119,7 @@ public class EnvironmentStatusWidget extends ControllerStatusWidget {
 									nick = "";
 									fullname = labelPrefix;
 								} else {
-									fullname = labelPrefix + "(" + nick + ")";
+									fullname = labelPrefix + " (" + nick + ")";
 								}
 							} catch (SicsModelException e) {
 							}

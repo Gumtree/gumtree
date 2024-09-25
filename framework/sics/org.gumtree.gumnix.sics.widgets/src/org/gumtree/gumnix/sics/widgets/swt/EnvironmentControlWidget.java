@@ -55,6 +55,9 @@ public class EnvironmentControlWidget extends DeviceStatusWidget {
 					List<String> aliasList = item.getPropertyValue("nxalias");
 					if (aliasList != null && aliasList.size() > 0) {
 						aliasName = aliasList.get(0).trim();
+						if (aliasName.length() > 30) {
+							aliasName = null;
+						}
 					}
 					String units = null;
 					List<String> unitsList = item.getPropertyValue("units");
