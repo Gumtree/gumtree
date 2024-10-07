@@ -39,7 +39,7 @@ public class BilbyWorkflowViewer extends Composite {
 
 //		SashForm level2Left = new SashForm(level1Form, SWT.VERTICAL);
 		SashForm level2Right = new SashForm(level1Form, SWT.VERTICAL);
-		level1Form.setWeights(new int[]{5, 5});
+		level1Form.setWeights(new int[]{11, 10});
 
 //		level2Left.setWeights(new int[]{21, 10});
 		
