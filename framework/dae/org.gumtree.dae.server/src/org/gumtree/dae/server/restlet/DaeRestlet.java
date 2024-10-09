@@ -34,7 +34,7 @@ public class DaeRestlet extends Restlet implements IManageableBeanProvider {
 	
 	private static final SystemProperty HISTOGRAM_LOG_SCALING = new SystemProperty("gumtree.hm.imageLogScaling", "2");
 	
-	private static final String DEFAULT_QUERY = "open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO&open_annotations=ENABLE&scaling_type=LOG&log_scaling_range=" 
+	private static final String DEFAULT_QUERY = "open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO&open_annotations=ENABLE&log_scaling_range=" 
 			+ HISTOGRAM_LOG_SCALING.getValue();
 	
 	private static Logger logger = LoggerFactory.getLogger(DaeRestlet.class);
