@@ -40,7 +40,7 @@ var nsItems = [
 
 //var histmemUrl = "dae/rest/image?type=TOTAL_HISTOGRAM_XT&screen_size_x=760&screen_size_y=760";
 
-var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE";
+var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE&scaling_type=LOG";
 
 var histmemTypes = [
                     {"id" : "TOTAL_HISTOGRAM_T", "text" : "Total t histogram"},

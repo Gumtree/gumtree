@@ -47,4 +47,4 @@ var nsItems = [
                {"classId":"reactorPower", "deviceId":"reactorPower", "title":"Reactor Power", "units":"MW"}
                ];
 
-var histmemUrl = "dae/rest/image?screen_size_x=800&screen_size_y=600";
+var histmemUrl = "dae/rest/image?screen_size_x=800&screen_size_y=600&scaling_type=LOG";

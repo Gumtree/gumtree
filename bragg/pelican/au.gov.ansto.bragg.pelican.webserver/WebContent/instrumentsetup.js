@@ -46,7 +46,7 @@ var nsItems = [
                {"classId":"cnsOutTemp", "deviceId":"cnsOutTemp", "title":"CNS Out Temp", "units":"K"}
                ];
 
-var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE";
+var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE&scaling_type=LOG";
 
 var histmemTypes = [
                     {"id" : "TOTAL_HISTOGRAM_XY", "text" : "Total x-y histogram"},

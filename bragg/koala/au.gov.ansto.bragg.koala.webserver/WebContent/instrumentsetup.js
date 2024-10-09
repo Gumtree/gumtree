@@ -29,8 +29,7 @@ var devices = [
 			 	   "items":[{"classId":"gumstatus", "deviceId":"/experiment/gumtree_status", "title":"Scan Status", "units":""},
 			 		   		{"classId":"stepId", "deviceId":"/experiment/target_file_name", "title":"Step", "units":""},
 			 	            {"classId":"imagestate", "deviceId":"/instrument/image/state", "title":"Phase", "units":""},
-			 	            {"classId":"exporemain", "deviceId":"/instrument/image/timer_sec", "title":"Exposure time remaining", "units":"", "adapt":adaptTime},
-			 	            {"classId":"temperature", "deviceId":"/sample/tc1/sensor", "title":"Temperature", "units":"K"}
+			 	            {"classId":"exporemain", "deviceId":"/instrument/image/timer_sec", "title":"Exposure time remaining", "units":"", "adapt":adaptTime}
 			 	            ]
 			   },
 			   {"group":"NEUTRON SOURCE", 

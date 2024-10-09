@@ -44,4 +44,4 @@ var nsItems = [
                {"classId":"cnsOutTemp", "deviceId":"cnsOutTemp", "title":"CNS Out Temp", "units":"K"}
                ];
 
-var histmemUrl = "dae/rest/image?type=TOTAL_HISTOGRAM_XY&screen_size_x=600&screen_size_y=600";
+var histmemUrl = "dae/rest/image?type=TOTAL_HISTOGRAM_XY&scaling_type=LOG&screen_size_x=600&screen_size_y=600";

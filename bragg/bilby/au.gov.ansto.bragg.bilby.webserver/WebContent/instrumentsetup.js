@@ -148,7 +148,7 @@ var nsItems = [
     ];
 
 //var histmemUrl = "dae/rest/image?type=TOTAL_HISTOGRAM_XY&screen_size_x=800&screen_size_y=600";
-var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE&screen_size_x=800";
+var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE&scaling_type=LOG&screen_size_x=800";
 
 var histmemTypes = [
                     {"id" : "TOTAL_HISTOGRAM_XY", "text" : "Total x-y histogram", "isDefault" : true},
