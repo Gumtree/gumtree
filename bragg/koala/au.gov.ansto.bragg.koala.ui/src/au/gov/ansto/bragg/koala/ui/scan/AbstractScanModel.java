@@ -808,6 +808,7 @@ public abstract class AbstractScanModel implements KTableModel {
 						handleError("error: " + e.getMessage());
 						break;
 					}
+					savePreference(scan.getFilename());
 				}
 				startTime = null;
 				isRunning = false;
@@ -818,6 +819,13 @@ public abstract class AbstractScanModel implements KTableModel {
 		runnerThread.start();
 	}
 	
+	private void savePreference(String filename) {
+//		Activator.setPreference(Activator.NAME_SAMPLE_NAME, nameText.getText());
+//		Activator.setPreference(Activator.NAME_COMMENTS, comText.getText());
+		Activator.setPreference(Activator.NAME_FILENAME, filename);
+		Activator.flushPreferenceStore();
+	}
+
 	private void handleError(String errorText) {
 		ControlHelper.experimentModel.publishErrorMessage(errorText);
 	}
