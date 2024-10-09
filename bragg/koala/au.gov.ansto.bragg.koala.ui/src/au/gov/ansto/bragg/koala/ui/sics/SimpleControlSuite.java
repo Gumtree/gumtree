@@ -83,8 +83,12 @@ public class SimpleControlSuite {
 					
 					@Override
 					public void run() {
-						currentControl.setText("");
-						setpointControl.setText("");
+						if (!currentControl.isDisposed()) {
+							currentControl.setText("");
+						}
+						if (!setpointControl.isDisposed()) {
+							setpointControl.setText("");
+						}
 					}
 				});
 			}
@@ -170,7 +174,9 @@ public class SimpleControlSuite {
 						
 						@Override
 						public void run() {
-							currentControl.setText(value.toString());
+							if (!currentControl.isDisposed()) {
+								currentControl.setText(value.toString());
+							}
 						}
 					});
 				} catch (Exception e) {
@@ -188,11 +194,13 @@ public class SimpleControlSuite {
 						
 						@Override
 						public void run() {
-							try {
-								setpointControl.setText(value.toString());
-								targetValue = Float.valueOf(value.toString());
-							} catch (Exception e) {
-								targetValue = Float.NaN;
+							if (!setpointControl.isDisposed()) {
+								try {
+									setpointControl.setText(value.toString());
+									targetValue = Float.valueOf(value.toString());
+								} catch (Exception e) {
+									targetValue = Float.NaN;
+								}
 							}
 						}
 					});
@@ -279,7 +287,7 @@ public class SimpleControlSuite {
 			
 			@Override
 			public void run() {
-				if (slider != null) {
+				if (slider != null && !slider.isDisposed()) {
 					slider.setSelection(50);
 					slider.setEnabled(true);
 				}
@@ -301,7 +309,7 @@ public class SimpleControlSuite {
 //				statusLabel.getParent().forceFocus();
 //				statusLabel.update();
 //				statusLabel.setRedraw(true);
-				if (runButton != null) {
+				if (runButton != null && !runButton.isDisposed()) {
 					runButton.forceFocus();
 				}
 			}
@@ -324,7 +332,9 @@ public class SimpleControlSuite {
 					
 					@Override
 					public void run() {
-						currentControl.setText(String.valueOf(newValue));
+						if (!currentControl.isDisposed()) {
+							currentControl.setText(String.valueOf(newValue));
+						}
 					}
 				});
 			}
@@ -346,12 +356,14 @@ public class SimpleControlSuite {
 				
 				@Override
 				public void run() {
-					if (newState == ControllerState.BUSY) {
-						currentControl.setForeground(BUSY_COLOR);
-						runButton.setEnabled(false);
-					} else {
-						currentControl.setForeground(IDLE_COLOR);
-						runButton.setEnabled(true);
+					if (!currentControl.isDisposed() && !runButton.isDisposed()) {
+						if (newState == ControllerState.BUSY) {
+							currentControl.setForeground(BUSY_COLOR);
+							runButton.setEnabled(false);
+						} else {
+							currentControl.setForeground(IDLE_COLOR);
+							runButton.setEnabled(true);
+						}
 					}
 				}
 			});
@@ -372,11 +384,13 @@ public class SimpleControlSuite {
 					
 					@Override
 					public void run() {
-						try {
-							setpointControl.setText(newValue.toString());
-							targetValue = Float.valueOf(newValue.toString());
-						} catch (Exception e) {
-							targetValue = Float.NaN;
+						if (!setpointControl.isDisposed()) {
+							try {
+								setpointControl.setText(newValue.toString());
+								targetValue = Float.valueOf(newValue.toString());
+							} catch (Exception e) {
+								targetValue = Float.NaN;
+							}
 						}
 					}
 				});
