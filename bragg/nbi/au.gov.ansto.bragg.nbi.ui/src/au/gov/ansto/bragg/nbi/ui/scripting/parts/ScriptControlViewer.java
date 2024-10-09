@@ -1191,9 +1191,14 @@ public class ScriptControlViewer extends Composite {
 	private void addGroup(final Composite parent, final ScriptObjectGroup objGroup) {
 		Composite group;
 		String hideTitleString = objGroup.getProperty("hideTitle");
+		String hideBorderString = objGroup.getProperty("hideBorder");
 		boolean needRefresh = false;
 		if (hideTitleString != null && Boolean.valueOf(hideTitleString)) {
-			group = new Composite(parent, SWT.BORDER);
+			if (hideBorderString != null && Boolean.valueOf(hideBorderString)) {
+				group = new Composite(parent, SWT.NONE);
+			} else {
+				group = new Composite(parent, SWT.BORDER);
+			}
 		} else {
 			group = new MenuBasedGroup(parent, SWT.NONE);
 			final MenuBasedGroup menuGroup = (MenuBasedGroup) group;
