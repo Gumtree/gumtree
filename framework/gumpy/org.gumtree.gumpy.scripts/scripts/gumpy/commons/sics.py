@@ -563,11 +563,11 @@ def drive_ms(id, value, controller_name = 'tc1'):
                 dval = value
             entries[dname] = dval
         print("multi_drive " + str(entries))
-        sics.multiDrive(entries)
+        multiDrive(entries)
     else :
         did = controller_name + '_' + 'MEER{0:02d}'.format(id) + '_ObjectTemp_LOOP_0_TARGET'
         print("drive {} {}".format(did, value))
-        sics.drive(did, value)
+        drive(did, value)
 
 def drive_all_ms(value, controller_name = 'tc1'):
     entries = dict()
@@ -577,9 +577,9 @@ def drive_all_ms(value, controller_name = 'tc1'):
             dval = value[i]
             entries[dname] = dval
         print("multi_drive " + str(entries))
-        sics.multiDrive(entries)
+        multiDrive(entries)
     else :
-        tc = sics.getDeviceController('/sample/' + controller_name)
+        tc = getDeviceController('/sample/' + controller_name)
         if tc is None :
             raise Exception(controller_name + ' not found')
         num = len(tc.getChildControllers())
@@ -587,7 +587,7 @@ def drive_all_ms(value, controller_name = 'tc1'):
             dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
             entries[dname] = value
         print("multi_drive " + str(entries))
-        sics.multi_drive(entries)
+        multi_drive(entries)
 
 def run_ms(id, value, controller_name = 'tc1'):
     if type(id) is list or type(id) is tuple:
@@ -599,11 +599,11 @@ def run_ms(id, value, controller_name = 'tc1'):
             else:
                 dval = value
             print("run " + dname + ' ' + str(dval))
-            sics.run(dname, dval)
+            run(dname, dval)
     else :
         did = controller_name + '_' + 'MEER{0:02d}'.format(id) + '_ObjectTemp_LOOP_0_TARGET'
         print("run " + did + ' ' + str(value))
-        sics.run(dname, value)
+        run(did, value)
 
 def run_all_ms(value, controller_name = 'tc1'):
     if type(value) is list or type(value) is tuple:
@@ -611,13 +611,23 @@ def run_all_ms(value, controller_name = 'tc1'):
             dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
             dval = value[i]
             print("run " + dname + ' ' + str(dval))
-            sics.run(dname, dval)
+            run(dname, dval)
     else :
-        tc = sics.getDeviceController('/sample/' + controller_name)
+        tc = getDeviceController('/sample/' + controller_name)
         if tc is None :
             raise Exception(controller_name + ' not found')
         num = len(tc.getChildControllers())
         for i in xrange(num):
             dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
             print("run " + dname + ' ' + str(value))
-            sics.run(dname, value)
+            run(dname, value)
+
+def get_ms(meer_id, controller_name = 'tc1'):
+    tc = getDeviceController('/sample/' + controller_name)
+    if tc is None :
+        raise Exception(controller_name + ' not found')
+    dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/ObjectTemp_LOOP_0_SENSOR'
+    dc = getDeviceController(dpath)
+    if dc is None :
+        raise Exception(dpath + ' not found')
+    return dc.getValue().getFloatData()
