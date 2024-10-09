@@ -680,29 +680,32 @@ public class ControlHelper {
 						break;
 					}
 				} else if (status > 0) {
-					err = "GALIL_STATUS = " + status + "; ";
+					String errText = null;
 					switch (status) {
 					case 1:
-						err += "Motion disabled. Please ensure it's safe to drive motors and use the control "
+						errText = "Motion disabled. Please ensure it's safe to drive motors and use the control "
 								+ "panel on the wall to enable motion control.";
 						break;
 					case 2:
-						err += "Axis B forward limit switch activated. Contact instrument scientist for further instructions.";
+						errText = "Axis B forward limit switch activated. Contact instrument scientist for further instructions.";
 						break;
 					case 4:
-						err += "Axis B Reverse limit switch activated. Contact instrument scientist for further instructions.";
+						errText = "Axis B Reverse limit switch activated. Contact instrument scientist for further instructions.";
 						break;
 					case 8:
-						err += "Sample not within ±12mm of beam height. Use the the 'Move Sample Z to Beam' button in "
+						errText = "Sample not within ±12mm of beam height. Use the the 'Move Sample Z to Beam' button in "
 								+ "the footbar of this window to drive sample into the beam.";
 						break;
 					default:
 						break;
-					} 
-					if (msgDevice != null) {
-						String msg = ((IDynamicController) msgDevice).getControllerDataValue().getStringData();
-						if (msg != null && msg.trim().length() > 0) {
-							err += "\nGalil Status message: " + msg.trim();
+					}
+					if (errText != null) {
+						err = "GALIL_STATUS = " + status + "\n" + errText;
+						if (msgDevice != null) {
+							String msg = ((IDynamicController) msgDevice).getControllerDataValue().getStringData();
+							if (msg != null && msg.trim().length() > 0) {
+								err += "\nGalil Status message: " + msg.trim();
+							}
 						}
 					}
 				}

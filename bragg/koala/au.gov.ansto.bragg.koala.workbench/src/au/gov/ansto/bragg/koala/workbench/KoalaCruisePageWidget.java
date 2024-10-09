@@ -166,7 +166,94 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 						}
 					}
 				})
-				.addDevice("/instrument/image/error_msg", "State", null, "", new ControllerStatusWidget.LabelConverter() {
+				.addDevice("/instrument/image/galil_api/STATUS", "Galil Status", null, "", new ControllerStatusWidget.LabelConverter() {
+					
+					@Override
+					public String convertValue(Object obj) {
+						if (obj == null) {
+							return "--";
+						}
+						int value = 0;
+						try {
+							value = Float.valueOf(obj.toString()).intValue();
+						} catch (Exception e) {
+							return String.valueOf(obj);
+						}
+						if (value == 0) {
+							return "OK";
+						}
+						if (value < 0) {
+							switch (value) {
+							case -1:
+								return "motion disabled";
+							case -2:
+								return "timeout error";
+							case -3:
+								return "sz out";
+							case -4:
+								return "vibration warning";
+							case -11:
+								return "drum rotation fault";
+							case -12:
+								return "drum Z fault";
+							case -13:
+								return "sz fault";
+							case -19:
+								return "drum rotation error";
+							case -21:
+								return "drum Z limit";
+
+							default:
+								return String.valueOf(obj);
+							}
+						} else {
+							switch (value) {
+							case 1:
+								return "motion disabled";
+							case 2:
+								return "B forward limit";
+							case 4:
+								return "B Reverse limit";
+							case 7:
+								return "doors unlocked";
+							case 8:
+								return "sz out of beam";
+							case 256:
+								return "HOME";
+							case 512:
+								return "ERASE";
+							case 1024:
+								return "EXPOSE";
+							case 2048:
+								return "CLOSE SHUTTER";
+							case 4096:
+								return "READ";
+							default:
+								return String.valueOf(obj);
+							}
+						}
+					}
+				}, false, new ControllerStatusWidget.ColorConverter() {
+					
+					@Override
+					public Color convertColor(Object value) {
+						if (value != null && value.toString().trim().length() > 0) {
+							try {
+								int i = Float.valueOf(value.toString()).intValue();
+								if (i < 0) {
+									return Activator.getWarningColor();
+								} else {
+									return Activator.getRunningForgroundColor();
+								}
+							} catch (Exception e) {
+								return Activator.getWarningColor();
+							}
+						} else {
+							return Activator.getWarningColor();
+						}
+					}
+				})
+				.addDevice("/instrument/image/error_msg", "SICS message", null, "", new ControllerStatusWidget.LabelConverter() {
 					
 					@Override
 					public String convertValue(Object obj) {
