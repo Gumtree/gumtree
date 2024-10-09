@@ -19,9 +19,13 @@ import org.gumtree.util.messaging.EventHandler;
 import org.gumtree.widgets.swt.util.SafeUIRunner;
 import org.gumtree.widgets.swt.util.UIResources;
 import org.osgi.service.event.Event;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SicsStatusWidget extends ExtendedSicsComposite {
 
+	private static final Logger logger = LoggerFactory.getLogger(SicsStatusWidget.class);
+	
 	private EventHandler eventHandler;
 
 	private Label statusLabel;
@@ -30,9 +34,11 @@ public class SicsStatusWidget extends ExtendedSicsComposite {
 	public SicsStatusWidget(Composite parent, int style) {
 		super(parent, style);
 		eventHandler = new EventHandler(SicsEvents.Server.TOPIC_SERVER_STATUS) {
-			public void handleEvent(Event event) {
+			public void handleEvent(final Event event) {
 				updateUI((ServerStatus) event
 						.getProperty(SicsEvents.Server.STATUS));
+				logger.warn(String.valueOf((ServerStatus) event
+						.getProperty(SicsEvents.Server.STATUS)));
 			}
 		};
 	}
