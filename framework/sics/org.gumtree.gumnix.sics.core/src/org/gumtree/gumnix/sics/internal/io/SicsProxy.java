@@ -483,7 +483,6 @@ public class SicsProxy implements ISicsProxy {
 														|| flag.equalsIgnoreCase(Flag.FINISH.toString())) {
 													String data = json.getString(JSONTag.DATA.getText());
 													listener.messageReceived(data, CHANNEL_RAW_BATCH);
-													System.err.println(data);
 												}
 											} catch (Exception e) {
 											}
