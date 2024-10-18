@@ -122,7 +122,7 @@ public class CatalogCollectingService {
 				}
 			});
 			Arrays.sort(newFiles);
-			logger.error("update " + newFiles.length + " files");
+			logger.info("update " + newFiles.length + " files");
 			for (File file : newFiles) {
 				try {
 //					logger.error(file.getPath());
