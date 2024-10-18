@@ -1,8 +1,11 @@
 from org.gumtree.control.core import SicsManager as manager
 from org.gumtree.control.core import ServerStatus
+from org.gumtree.control.model.PropertyConstants import ControllerState
 from org.gumtree.control.events import ISicsControllerListener, ISicsCallback
 from org.gumtree.control.ui.batch import SicsBatchUIUtils
 from org.gumtree.control.events import SicsCallbackAdapter
+from org.gumtree.control.batch import SicsMessageAdapter as MessageAdapter
+from org.gumtree.control.events import SicsControllerAdapter as ControllerAdapter
 from gumpy.commons import logger
 import os
 from datetime import datetime, timedelta
@@ -382,9 +385,13 @@ def get_raw_value(cmd, dtype = float):
     if "=" in res:
         pair = res.split("=")
         res = pair[-1].strip()
-    if dtype == float :
+    if dtype is str:
+        return str(res)
+    elif dtype is float:
         return float(res)
-    else :
+    elif dtype is int:
+        return int(float(res))
+    else:
         return res
 
 def get_base_filename():
@@ -477,3 +484,84 @@ def wait_until_value_reached(device, value, precision = 0.01, timeout_if_not_cha
         logger.log(str(device) + ' reached value ' + str(value) + ' in ' + str(total_count) + ' seconds')
     else:
         logger.log(str(device) + ' failed to reach value ' + str(value) + ' in ' + str(total_count) + ' seconds')
+
+def drive_ms(id, value, controller_name = 'tc1'):
+    entries = dict()
+    if type(id) is list or type(id) is tuple:
+        for i in xrange(len(id)):
+            did = id[i]
+            dname = controller_name + '_' + 'MEER{0:02d}'.format(did) + '_ObjectTemp_LOOP_0_TARGET'
+            if type(value) is list or type(value) is tuple:
+                dval = value[i]
+            else:
+                dval = value
+            entries[dname] = dval
+        print("multi_drive " + str(entries))
+        multiDrive(entries)
+    else :
+        did = controller_name + '_' + 'MEER{0:02d}'.format(id) + '_ObjectTemp_LOOP_0_TARGET'
+        print("drive {} {}".format(did, value))
+        drive(did, value)
+
+def drive_all_ms(value, controller_name = 'tc1'):
+    entries = dict()
+    if type(value) is list or type(value) is tuple:
+        for i in xrange(len(value)):
+            dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
+            dval = value[i]
+            entries[dname] = dval
+        print("multi_drive " + str(entries))
+        multi_drive(entries)
+    else :
+        tc = getDeviceController('/sample/' + controller_name)
+        if tc is None :
+            raise Exception(controller_name + ' not found')
+        num = len(tc.getChildControllers())
+        for i in xrange(num):
+            dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
+            entries[dname] = value
+        print("multi_drive " + str(entries))
+        multi_drive(entries)
+
+def run_ms(id, value, controller_name = 'tc1'):
+    if type(id) is list or type(id) is tuple:
+        for i in xrange(len(id)):
+            did = id[i]
+            dname = controller_name + '_' + 'MEER{0:02d}'.format(did) + '_ObjectTemp_LOOP_0_TARGET'
+            if type(value) is list or type(value) is tuple:
+                dval = value[i]
+            else:
+                dval = value
+            print("run " + dname + ' ' + str(dval))
+            run(dname, dval)
+    else :
+        did = controller_name + '_' + 'MEER{0:02d}'.format(id) + '_ObjectTemp_LOOP_0_TARGET'
+        print("run " + did + ' ' + str(value))
+        run(did, value)
+
+def run_all_ms(value, controller_name = 'tc1'):
+    if type(value) is list or type(value) is tuple:
+        for i in xrange(len(value)):
+            dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
+            dval = value[i]
+            print("run " + dname + ' ' + str(dval))
+            run(dname, dval)
+    else :
+        tc = getDeviceController('/sample/' + controller_name)
+        if tc is None :
+            raise Exception(controller_name + ' not found')
+        num = len(tc.getChildControllers())
+        for i in xrange(num):
+            dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
+            print("run " + dname + ' ' + str(value))
+            run(dname, value)
+
+def get_ms(meer_id, controller_name = 'tc1'):
+    tc = get_controller('/sample/' + controller_name)
+    if tc is None :
+        raise Exception(controller_name + ' not found')
+    dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/ObjectTemp_LOOP_0_SENSOR'
+    dc = getDeviceController(dpath)
+    if dc is None :
+        raise Exception(dpath + ' not found')
+    return dc.getValue().getFloatData()
