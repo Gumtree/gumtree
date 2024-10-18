@@ -1276,7 +1276,6 @@ class PropertyRow {
 				obj.row.addClass("active");
 			}).blur(function() {
 				obj.row.removeClass("active");
-//				obj.updateT2Pair(t2Key, obj.key, t2Body, oldKV, isPair);
 				const val = t1Key.val().trim();
 				if (val.length > 0) {
 					obj.key = val;
@@ -1320,32 +1319,38 @@ class PropertyRow {
 		const t2Body = obj.colValue.find("tbody");
 		if (t2Body) {
 			var t2Key = t2Body.find("td.pair_key > input");
-			var oldKV = t2Key.val();
 			var isPair = !t2Key.prop('disabled');
 			if (isPair) {
-				t2Key.focus(function() {
-					obj.row.addClass("active");
-				}).blur(function() {
-					obj.row.removeClass("active");
-					obj.updateT2Pair(t2Key, obj.key, t2Body, oldKV, isPair);
-				}).keypress(function( event ) {
-					if ( event.which == 13 ) {
-						t2Key.blur();
-					}
+				t2Key.each(function(){
+					const $kInput = $(this);
+					const oldKV = $kInput.val();
+					$kInput.focus(function() {
+						obj.row.addClass("active");
+					}).blur(function() {
+						obj.row.removeClass("active");
+						obj.updateT2Pair($kInput, obj.key, t2Body, oldKV, isPair);
+					}).keypress(function( event ) {
+						if ( event.which == 13 ) {
+							$kInput.blur();
+						}
+					});
 				});
 			}
 
 			const t2Value = t2Body.find("td.pair_value > input");
-			const oldVV = t2Value.val();
-			t2Value.focus(function() {
-				obj.row.addClass("active");
-			}).blur(function() {
-				obj.row.removeClass("active");
-				obj.updateT2Pair(t2Value, obj.key, t2Body, oldVV, isPair);
-			}).keypress(function( event ) {
-				if ( event.which == 13 ) {
-					t2Value.blur();
-				}
+			t2Value.each(function(){
+				const $vInput = $(this);
+				const oldVV = $vInput.val();
+				$vInput.focus(function() {
+					obj.row.addClass("active");
+				}).blur(function() {
+					obj.row.removeClass("active");
+					obj.updateT2Pair($vInput, obj.key, t2Body, oldVV, isPair);
+				}).keypress(function( event ) {
+					if ( event.which == 13 ) {
+						$vInput.blur();
+					}
+				});
 			});
 			
 			const t2Add = t2Body.find("td.pair_control > button.button_plus");
