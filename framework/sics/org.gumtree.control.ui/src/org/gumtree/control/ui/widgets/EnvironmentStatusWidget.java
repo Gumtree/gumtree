@@ -1,5 +1,6 @@
 package org.gumtree.control.ui.widgets;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -28,7 +29,7 @@ public class EnvironmentStatusWidget extends ControllerStatusWidget {
 			checkSicsConnection();
 			ISicsController controlFolder = SicsManager.getSicsModel().findControllerByPath("/control");
 			if (controlFolder != null) {
-				List<ISicsController> itemList = controlFolder.getChildren();
+				List<ISicsController> itemList = new ArrayList<ISicsController>(controlFolder.getChildren());
 				
 				Collections.sort(itemList, new Comparator<ISicsController>() {
 
@@ -71,6 +72,9 @@ public class EnvironmentStatusWidget extends ControllerStatusWidget {
 					List<String> unitsList = item.getPropertyValue("units");
 					if (unitsList != null && unitsList.size() > 0) {
 						units = unitsList.get(0).trim();
+						if ("UNKNOWN".equalsIgnoreCase(units)) {
+							units = "";
+						}
 					}
 					String fullname = null;
 					if (nickname != null) {
