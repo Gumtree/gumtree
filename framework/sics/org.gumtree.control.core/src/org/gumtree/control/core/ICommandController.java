@@ -7,6 +7,8 @@ import org.gumtree.control.exception.SicsException;
 
 public interface ICommandController extends IGroupController {
 	
+	boolean run() throws SicsException;
+	
 	boolean run(ISicsCallback callback) throws SicsException;
 	
 	boolean isBusy();
