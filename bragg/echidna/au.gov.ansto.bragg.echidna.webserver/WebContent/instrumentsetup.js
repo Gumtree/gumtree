@@ -52,4 +52,15 @@ var nsItems = [
                {"classId":"reactorPower", "deviceId":"reactorPower", "title":"Reactor Power", "units":"MW"}
                ];
 
-var histmemUrl = "dae/rest/image?type=TOTAL_HISTOGRAM_X&scaling_type=LIN&screen_size_x=900&screen_size_y=500";
+var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE&scaling_type=$SCALE_TYPE&screen_size_x=900&screen_size_y=500";
+
+var histmemTypes = [
+    {"id" : "TOTAL_HISTOGRAM_X", "text" : "Total x histogram", "isDefault" : true},
+    {"id" : "TOTAL_HISTOGRAM_Y", "text" : "Total y histogram"},
+    {"id" : "TOTAL_HISTOGRAM_XY", "text" : "Total x-y histogram"}
+    ];
+
+var scaleTypes = [
+    {"id" : "LIN", "text" : "Linear", "isDefault" : true},
+    {"id" : "LOG", "text" : "Logarithm"}
+    ];

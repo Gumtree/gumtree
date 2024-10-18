@@ -21,6 +21,9 @@ var refresh = function(){
 	} else {
 		newHistmemUrl = histmemUrl;
 	}
+	if (typeof scaleTypes !== 'undefined' && scaleTypes.length > 0) {
+		newHistmemUrl = newHistmemUrl.replace('$SCALE_TYPE', $('#scale_type').val());
+	} 
 	newHistmemUrl += "&timestamp=" + new Date().getTime()
 
 	try{
@@ -40,6 +43,9 @@ function changeHistmemType() {
 	} else {
 		newHistmemUrl = histmemUrl;
 	}
+	if (typeof scaleTypes !== 'undefined' && scaleTypes.length > 0) {
+		newHistmemUrl = newHistmemUrl.replace('$SCALE_TYPE', $('#scale_type').val());
+	} 
 	newHistmemUrl += "&timestamp=" + new Date().getTime()
 
 	try{
@@ -61,7 +67,7 @@ jQuery(document).ready(function(){
 	var html = "";
 	if (typeof histmemTypes !== 'undefined' && histmemTypes.length > 0) {
 		var defaultType = histmemTypes[0].id;
-		html = '<label for="histmem_type" class="select">Select histogram type (log view): </label><select id="histmem_type" name="histmem_type" onchange="changeHistmemType()">';
+		html = '<label for="histmem_type" class="select">Select histogram type: </label><select id="histmem_type" name="histmem_type" onchange="changeHistmemType()">';
 		for ( var i = 0; i < histmemTypes.length; i++) {
 			html += '<option value="' + histmemTypes[i].id + '"' + (histmemTypes[i].isDefault ? ' selected' : '') + '>' + histmemTypes[i].text + '</option>';
 			if (histmemTypes[i].isDefault) {
@@ -73,6 +79,20 @@ jQuery(document).ready(function(){
 		if (isMobileBrowser) {
 			newHistmemUrl += '&screen_size_x=760&screen_size_y=560';
 		}
+	}
+	if (typeof scaleTypes !== 'undefined' && scaleTypes.length > 0) {
+		var defaultType = scaleTypes[0].id;
+		html += '<p><label for="scale_type" class="select">Select scale type: </label><select id="scale_type' + '" name="scale_type'
+				+ '" onchange="changeHistmemType(' + i + ')">';
+		for ( var j = 0; j < scaleTypes.length; j++) {
+//			html += '<option value="' + histmemTypes[i].id + '">' + histmemTypes[i].text + '</option>';
+			html += '<option value="' + scaleTypes[j].id + '"' + (scaleTypes[j].isDefault ? ' selected' : '') + '>' + scaleTypes[j].text + '</option>';
+			if (scaleTypes[j].isDefault) {
+				defaultType = scaleTypes[j].id;
+			}
+		}
+		html += '</select></p>';
+		newHistmemUrl = newHistmemUrl.replace('$SCALE_TYPE', defaultType);
 	}
 	$("#histmemDiv").html(html + '<img id="histmemImage" src="' + newHistmemUrl + '" alt="Loading error. Please refresh again.">');
 	if (isMobileBrowser) {

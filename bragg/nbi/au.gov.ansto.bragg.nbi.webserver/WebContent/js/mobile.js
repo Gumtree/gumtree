@@ -38,17 +38,12 @@ function changeHistmemType(i) {
 	} else {
 		newHistmemUrl = histmemList[i];
 	}
+	if (typeof scaleTypes !== 'undefined' && scaleTypes.length > 0) {
+		newHistmemUrl = newHistmemUrl.replace('$SCALE_TYPE', $('#scale_type').val());
+	} 
 	newHistmemUrl += "&timestamp=" + new Date().getTime()
 	
 	$("#histmemImage" + i).attr("src", newHistmemUrl);
-//	try{
-//		$.get(newHistmemUrl, function(data,status){
-//			if (status == "success") {
-//				$("#histmemImage").attr("src", newHistmemUrl);
-//			} 
-//		});
-//	} catch (e) {
-//	}
 }
 
 var lastTimeEstimation = -1.;
@@ -205,6 +200,9 @@ var refresh = function(){
 				} else {
 					newHistmemUrl = histmemList[i];
 				}
+				if (typeof scaleTypes !== 'undefined' && scaleTypes.length > 0) {
+					newHistmemUrl = newHistmemUrl.replace('$SCALE_TYPE', $('#scale_type').val());
+				} 
 				newHistmemUrl += "&timestamp=" + new Date().getTime()
 				$(new Image()).data("iid", i).attr('src', newHistmemUrl).load(function() {
 					$("#histmemImage" + $(this).data("iid")).attr('src', this.src);
@@ -439,7 +437,8 @@ jQuery(document).ready(function(){
 				}
 				if (typeof histmemTypes !== 'undefined' && histmemTypes.length > 0) {
 					var defaultType = histmemTypes[0].id;
-					html += '<label for="histmem_type" class="select">Select histogram type (log view): </label><select id="histmem_type' + i + '" name="histmem_type' + i + '" onchange="changeHistmemType(' + i + ')">';
+					html += '<p><label for="histmem_type" class="select">Select histogram type: </label><select id="histmem_type' + i + '" name="histmem_type' + i 
+							+ '" onchange="changeHistmemType(' + i + ')">';
 					for ( var j = 0; j < histmemTypes.length; j++) {
 //						html += '<option value="' + histmemTypes[i].id + '">' + histmemTypes[i].text + '</option>';
 						html += '<option value="' + histmemTypes[j].id + '"' + (histmemTypes[j].isDefault ? ' selected' : '') + '>' + histmemTypes[j].text + '</option>';
@@ -447,8 +446,22 @@ jQuery(document).ready(function(){
 							defaultType = histmemTypes[j].id;
 						}
 					}
-					html += '</select><br>';
+					html += '</select></p>';
 					newHistmemUrl = histmemList[i].replace('$HISTMEM_TYPE', defaultType);
+				}
+				if (typeof scaleTypes !== 'undefined' && scaleTypes.length > 0) {
+					var defaultType = scaleTypes[0].id;
+					html += '<p><label for="scale_type" class="select">Select scale type: </label><select id="scale_type' + '" name="scale_type' 
+							+ '" onchange="changeHistmemType(' + i + ')">';
+					for ( var j = 0; j < scaleTypes.length; j++) {
+//						html += '<option value="' + histmemTypes[i].id + '">' + histmemTypes[i].text + '</option>';
+						html += '<option value="' + scaleTypes[j].id + '"' + (scaleTypes[j].isDefault ? ' selected' : '') + '>' + scaleTypes[j].text + '</option>';
+						if (scaleTypes[j].isDefault) {
+							defaultType = scaleTypes[j].id;
+						}
+					}
+					html += '</select></p>';
+					newHistmemUrl = newHistmemUrl.replace('$SCALE_TYPE', defaultType);
 				}
 				html += '<img id="histmemImage' + i + '" src="' + newHistmemUrl + '" alt="Waiting for the picture to get ready, or refresh again.">';
 			}
