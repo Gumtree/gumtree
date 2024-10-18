@@ -139,10 +139,12 @@ public class MessageHandler {
 	
 	public void processUpdate(String path, String value) {
 		ISicsController controller = getModel().findController(path);
-		try {
-			((IDynamicController) controller).updateModelValue(value);
-		} catch (SicsModelException e) {
-			logger.error("failed to update value of " + path + " " + value);
+		if (controller != null) {
+			try {
+				((IDynamicController) controller).updateModelValue(value);
+			} catch (SicsModelException e) {
+				logger.error("failed to update value of " + path + " " + value);
+			}
 		}
 	}
 
@@ -156,10 +158,12 @@ public class MessageHandler {
 			logger.error("batch state, not process, use batch specific message instead: " + path + ": " + state);
 		} else {
 			ISicsController controller = getModel().findController(path);
-			try {
-				controller.setState(ControllerState.getState(state));
-			} catch (Exception e) {
-				logger.error("failed to set state for " + path + " " + state);
+			if (controller != null) {
+				try {
+					controller.setState(ControllerState.getState(state));
+				} catch (Exception e) {
+					logger.error("failed to set state for " + path + " " + state);
+				}
 			}
 		}
 	}
