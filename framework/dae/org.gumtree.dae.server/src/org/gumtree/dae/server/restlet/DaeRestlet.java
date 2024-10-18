@@ -1,8 +1,10 @@
 package org.gumtree.dae.server.restlet;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
@@ -100,17 +102,23 @@ public class DaeRestlet extends Restlet implements IManageableBeanProvider {
 			response.setEntity(result);
 		} catch (Exception e) {
 			response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
+			e.printStackTrace();
 		}
 	}
 	
 	private byte[] fetchImage(RequestContext context) throws Exception {
 		// Clean up cache
 		Iterator<Entry<String, ImageCache>> iterator = imagedataCache.entrySet().iterator();
+		List<String> toRemove = new ArrayList<String>();
 		while (iterator.hasNext()) {
 			Entry<String, ImageCache> cacheEntry = iterator.next();
 			if (cacheEntry.getValue().isExpired()) {
-				imagedataCache.remove(cacheEntry.getKey());
+//				imagedataCache.remove(cacheEntry.getKey());
+				toRemove.add(cacheEntry.getKey());
 			}
+		}
+		for (String key : toRemove) {
+			imagedataCache.remove(key);
 		}
 		// Check cache
 		String uri = "http://" + SystemProperties.DAE_HOST.getValue().trim()
