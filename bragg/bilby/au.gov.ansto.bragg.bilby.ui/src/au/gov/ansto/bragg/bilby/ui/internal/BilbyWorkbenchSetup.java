@@ -31,9 +31,22 @@ public class BilbyWorkbenchSetup implements IStartup {
 	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
 	private static final String ID_PERSPECTIVE_SCRIPTING = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
 	private static final String ID_PERSPECTIVE_ANALYSIS = "au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingPerspective";
+	private static final String ID_PERSPECTIVE_CONTROL = "au.gov.ansto.bragg.nbi.ui.ControlExperimentPerspective";
+	private static final String USE_NEW_PROXY = "gumtree.sics.useNewProxy";
+
+	private boolean newProxy;
+	private String sicsPID;
 	
 	private static Logger logger = LoggerFactory.getLogger(BilbyWorkbenchSetup.class);
 	
+	public BilbyWorkbenchSetup() {
+		newProxy = Boolean.valueOf(System.getProperty(USE_NEW_PROXY, "false"));
+		if (newProxy) {
+			sicsPID = ID_PERSPECTIVE_CONTROL;
+		} else {
+			sicsPID = ID_PERSPECTIVE_SICS;
+		}
+	}
 	public void earlyStartup() {
 		String launchBilbyLayout = System.getProperty(PROP_START_EXP_LAYOUT, "false");
 		// [GT-73] Launch Bilby layout if required
@@ -52,7 +65,7 @@ public class BilbyWorkbenchSetup implements IStartup {
 							try {
 								IPerspectiveDescriptor[] perspectives = page.getOpenPerspectives();
 								for (IPerspectiveDescriptor perspective : perspectives) {
-									if (!ID_PERSPECTIVE_SICS.equals(perspective.getId())){
+									if (!sicsPID.equals(perspective.getId())){
 										activeWorkbenchWindow.getActivePage().closePerspective(perspective, false, true);
 									}
 								}
@@ -99,7 +112,7 @@ public class BilbyWorkbenchSetup implements IStartup {
 					
 					IMultiMonitorManager mmManager = new MultiMonitorManager();
 
-					mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SICS, 0, 0, mmManager.isMultiMonitorSystem());
+					mmManager.showPerspectiveOnOpenedWindow(sicsPID, 0, 0, mmManager.isMultiMonitorSystem());
 					
 					if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
 						// open new window as editor buffer
