@@ -9,7 +9,7 @@ import org.gumtree.control.model.PropertyConstants;
  * @author nxi
  *
  */
-public abstract class SicsControllerAdapter implements ISicsControllerListener {
+public class SicsControllerAdapter implements ISicsControllerListener {
 
 	public void updateState(PropertyConstants.ControllerState oldState, PropertyConstants.ControllerState newState) {}
 	
