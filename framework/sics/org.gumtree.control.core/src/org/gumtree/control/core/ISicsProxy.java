@@ -35,4 +35,5 @@ public interface ISicsProxy {
 	void fireMessageEvent(JSONObject message);
 	void updateGumtreeXML() throws SicsException;
 	ISicsConnectionContext getConnectionContext();
+	boolean isModelAvailable();
 }

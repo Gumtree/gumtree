@@ -3,6 +3,7 @@ package org.gumtree.control.ui.internal;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.ui.actions.CommandNotMappedException;
 import org.gumtree.control.core.ISicsConnectionContext;
+import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.imp.SicsReplyData;
 import org.gumtree.control.imp.client.ClientChannel;
@@ -63,7 +64,8 @@ public class ZMQAdapter implements ICommunicationAdapter {
 //	}
 
 	public void connect(ITerminalOutputBuffer outputBuffer) throws CommunicationAdapterException {
-		ISicsConnectionContext context = SicsManager.getSicsProxy().getConnectionContext();
+		ISicsProxy proxy = SicsManager.getSicsProxy();
+		ISicsConnectionContext context = proxy.getConnectionContext();
 		if(context == null) {
 			throw new CommunicationAdapterException("Missing configuration.");
 		}
@@ -78,7 +80,7 @@ public class ZMQAdapter implements ICommunicationAdapter {
 			if (channel != null && channel.isConnected()) {
 				channel.disconnect();
 			}
-			channel = new ClientChannel();
+			channel = new ClientChannel(proxy);
 			try {
 				channel.connect(context.getServerAddress(), context.getPublisherAddress());
 			} catch (Exception e) {

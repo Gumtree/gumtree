@@ -62,9 +62,13 @@ public abstract class ExtendedWidgetComposite extends ExtendedComposite {
 			
 			@Override
 			public void connect() {
-				internalHandleSicsConnect();
+//				internalHandleSicsConnect();
 			}
 
+			@Override
+			public void modelUpdated() {
+				internalHandleSicsConnect();
+			}
 		});
 	}
 	
@@ -76,7 +80,7 @@ public abstract class ExtendedWidgetComposite extends ExtendedComposite {
 			}
 		}, new Runnable() {
 			public void run() {
-				if (SicsManager.getSicsProxy().isConnected()) {
+				if (SicsManager.getSicsProxy().isModelAvailable()) {
 					handleSicsConnect();
 				}
 			}

@@ -119,7 +119,7 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 		ISicsProxy proxy = SicsManager.getSicsProxy();
 //		proxy.addProxyListener(proxyListener);
 		
-		if (proxy.isConnected()) {
+		if (proxy.isModelAvailable()) {
 			handleSicsConnect();
 		}
 	}

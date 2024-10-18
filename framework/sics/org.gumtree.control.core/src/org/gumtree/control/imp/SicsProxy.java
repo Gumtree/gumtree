@@ -46,6 +46,7 @@ public class SicsProxy implements ISicsProxy {
 	private ServerStatus serverStatus;
 	private IBatchControl batchControl;
 	private boolean isConnected;
+	private boolean isModelAvailable;
 	private boolean isInterrupted;
     private boolean isBroken;
     private boolean keepConnection;
@@ -446,6 +447,7 @@ public class SicsProxy implements ISicsProxy {
 					msg = msg.substring(idx);
 					sicsModel = new SicsModel(this);
 					sicsModel.loadFromString(msg);
+					isModelAvailable = true;
 					fireModelUpdatedEvent();
 				}
 			} catch (IOException e) {
@@ -465,6 +467,7 @@ public class SicsProxy implements ISicsProxy {
 				}
 				sicsModel = new SicsModel(this);
 				sicsModel.loadFromString(msg);
+				isModelAvailable = true;
 				fireModelUpdatedEvent();
 			}
 		} catch (IOException e) {
@@ -481,4 +484,12 @@ public class SicsProxy implements ISicsProxy {
 	public ISicsConnectionContext getConnectionContext() {
 		return connectionContext;
 	}
+
+	/**
+	 * @return the isModelAvailable
+	 */
+	public boolean isModelAvailable() {
+		return isModelAvailable;
+	}
+
 }
