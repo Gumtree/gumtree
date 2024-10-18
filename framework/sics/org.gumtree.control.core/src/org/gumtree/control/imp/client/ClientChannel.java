@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.gumtree.control.core.ISicsChannel;
+import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.exception.SicsCommunicationException;
 import org.gumtree.control.exception.SicsException;
@@ -73,14 +74,14 @@ public class ClientChannel implements ISicsChannel {
     
     private List<IClientListener> listeners;
     
-	public ClientChannel() {
+	public ClientChannel(ISicsProxy sicsProxy) {
 	    id = String.valueOf(System.currentTimeMillis()).substring(3);
 //	    context = ZMQ.context(1);
 	    clientSocket = context.createSocket(SocketType.DEALER);
 	    clientSocket.setSendTimeOut(COMMAND_TIMEOUT);
 	    clientSocket.setLinger(0);
 	    clientSocket.setIdentity(id.getBytes(ZMQ.CHARSET));
-	    messageHandler = new ClientMessageHandler();
+	    messageHandler = new ClientMessageHandler(sicsProxy);
 	    commandMap = new HashMap<Integer, SicsCommand>();
 	    listeners = new ArrayList<IClientListener>();
 	}

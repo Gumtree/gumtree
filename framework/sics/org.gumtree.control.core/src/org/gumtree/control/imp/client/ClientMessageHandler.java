@@ -1,13 +1,10 @@
 package org.gumtree.control.imp.client;
 
-import org.gumtree.control.core.IDynamicController;
-import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ISicsModel;
-import org.gumtree.control.core.ServerStatus;
+import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.events.ThreadPool;
-import org.gumtree.control.exception.SicsModelException;
+import org.gumtree.control.imp.SicsProxy;
 import org.gumtree.control.model.PropertyConstants;
-import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.control.model.PropertyConstants.MessageType;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,8 +16,10 @@ public class ClientMessageHandler {
 	private static Logger logger = LoggerFactory.getLogger(ClientMessageHandler.class);
 	private ISicsModel model;
 	private ThreadPool threadPool;
+	private ISicsProxy sicsProxy;
 	
-	public ClientMessageHandler() {
+	public ClientMessageHandler(ISicsProxy sicsProxy) {
+		this.sicsProxy = sicsProxy;
 		threadPool = new ThreadPool();
 	}
 	
@@ -53,6 +52,7 @@ public class ClientMessageHandler {
 				process(json);
 			}
 		});
+		sicsProxy.fireMessageEvent(json);
 	}
 
 	public void process(final JSONObject json) {

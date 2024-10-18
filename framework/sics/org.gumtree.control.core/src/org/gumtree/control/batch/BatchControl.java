@@ -83,12 +83,12 @@ public class BatchControl implements IBatchControl {
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
-						BatchControl.logger.error("failed to set batch status: " + e.getMessage());
+						BatchControl.logger.error("failed to set batch status: " + e.getMessage(), e);
 					}
 				}
 			});
 		} catch (SicsException e) {
-			logger.error("failed to get batch status: " + e.getMessage());
+			logger.error("failed to get batch status: " + e.getMessage(), e);
 		}
 		getOutputListener();
 	}
@@ -123,7 +123,7 @@ public class BatchControl implements IBatchControl {
 	}
 
 	private synchronized void setBatchStatus(final BatchStatus status) {
-		System.err.println("status = " + status);
+		logger.warn("status = " + status);
 		this.status = status;
 		for (IBatchListener listener : batchListeners) {
 			listener.statusChanged(status);
@@ -256,8 +256,8 @@ public class BatchControl implements IBatchControl {
 	}
 
 	private void setBatchName(final String batchName) {
+		logger.warn("batch name = " + batchName);
 		this.batchId = String.valueOf(System.currentTimeMillis());
-		System.err.println("batch name = " + batchName);
 		this.batchName = batchName;
 		try {
 			sicsProxy.asyncRun("exe print " + batchName, new SicsCallbackAdapter() {
@@ -267,12 +267,12 @@ public class BatchControl implements IBatchControl {
 						setBatchText(data.getString());
 //						batchText = data.getString();
 					} catch (Exception e) {
-						BatchControl.logger.error("failed to get batch text of file: " + batchName);
+						BatchControl.logger.error("failed to get batch text of file: " + batchName, e);
 					}
 				}
 			});
 		} catch (SicsException e) {
-			logger.error("failed to get batch status: " + e.getMessage());
+			logger.error("failed to get batch text: " + batchName, e);
 		}
 
 	}
@@ -376,7 +376,16 @@ public class BatchControl implements IBatchControl {
 	 */
 	private void setBatchRangeText(String batchRangeText) {
 		this.batchRangeText = batchRangeText;
-		System.err.println("batch range = " + batchRangeText);
-		fireBatchEvent(PropertyConstants.PROP_BATCH_RANGE, batchRangeText);
+		logger.warn("batch range = " + batchRangeText);
+		if (batchName == "") {
+			try {
+				String name = batchRangeText.split("=")[0].trim();
+				setBatchName(name);
+			} catch (Exception e) {
+				logger.error("failed to interpret filename from range text: " + batchRangeText, e);
+			}
+		} else {
+			fireBatchEvent(PropertyConstants.PROP_BATCH_RANGE, batchRangeText);
+		}
 	}
 }

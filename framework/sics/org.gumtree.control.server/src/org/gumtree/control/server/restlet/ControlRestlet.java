@@ -11,6 +11,7 @@ import org.gumtree.control.batch.IBatchControl;
 import org.gumtree.control.batch.BatchControl.BatchInfo;
 import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.SicsControllerAdapter;
@@ -130,8 +131,13 @@ public class ControlRestlet extends Restlet {
 		
 		// Get devices
 		String devicesQuery = queryForm.getValues(QUERY_GROUP);
+		ISicsModel model = SicsManager.getSicsModel();
+		if (model == null) {
+			response.setStatus(Status.SERVER_ERROR_INTERNAL, "SICS model not available");
+			return;
+		}
 		if (devicesQuery != null) {
-			ISicsController controller = SicsManager.getSicsModel().findController(devicesQuery);
+			ISicsController controller = model.findController(devicesQuery);
 			List<ISicsController> childList = controller.getChildren();
 			Collections.sort(childList, new Comparator<ISicsController>(){
 
@@ -220,6 +226,11 @@ public class ControlRestlet extends Restlet {
 	}
 	
 	private void handleHdbRequests(Request request, Response response, Form queryForm) {
+		ISicsModel model = SicsManager.getSicsModel();
+		if (model == null) {
+			response.setStatus(Status.SERVER_ERROR_INTERNAL, "SICS model not available");
+			return;
+		}
 		JSONArray array = new JSONArray();
 		
 		// Get devices
@@ -228,7 +239,7 @@ public class ControlRestlet extends Restlet {
 			String[] deviceIds = devicesQuery.split(",");
 			// Find data for each device query
 			for (String deviceId : deviceIds) {
-				ISicsController controller = SicsManager.getSicsModel().findControllerById(deviceId);
+				ISicsController controller = model.findControllerById(deviceId);
 				if (controller != null) {
 					try {
 						JSONObject controllerValues = createComponentJSONRepresentation(
@@ -249,7 +260,7 @@ public class ControlRestlet extends Restlet {
 			String[] paths = componentsQuery.split(",");
 			// Find data for each device query
 			for (String path : paths) {
-				ISicsController controller = SicsManager.getSicsModel().findControllerByPath(path);
+				ISicsController controller = model.findControllerByPath(path);
 				if (controller != null) {
 					try {
 						JSONObject controllerValues = createComponentJSONRepresentation(
@@ -276,6 +287,11 @@ public class ControlRestlet extends Restlet {
 	
 	private void handleDevicesRequests(Request request, Response response,
 			Form queryForm) {
+		ISicsModel model = SicsManager.getSicsModel();
+		if (model == null) {
+			response.setStatus(Status.SERVER_ERROR_INTERNAL, "SICS model not available");
+			return;
+		}
 		JSONArray array = new JSONArray();
 		ISicsController[] deviceControllers = SicsManager.getSicsModel().getSicsControllers();
 		for (ISicsController controller : deviceControllers) {

@@ -48,16 +48,28 @@ public class CommandController extends GroupController implements ICommandContro
 	}
 
 	private synchronized void registerStatusListener() {
+//		if (!statusListener.isRegistered) {
+//			ISicsController feedback = this.getChild("feedback");
+//			if (feedback != null) {
+//				ISicsController status = feedback.getChild("status");
+//				if (status != null) {
+//					status.addControllerListener(statusListener);
+//					statusListener.isRegistered = true;
+//				}
+//			}
+//		}
 		if (!statusListener.isRegistered) {
-			ISicsController feedback = this.getChild("feedback");
-			if (feedback != null) {
-				ISicsController status = feedback.getChild("status");
-				if (status != null) {
-					status.addControllerListener(statusListener);
-					statusListener.isRegistered = true;
-				}
+		ISicsController statusController = getStatusController();
+			if (statusController != null) {
+				statusController.addControllerListener(statusListener);
+				statusListener.isRegistered = true;
 			}
 		}
+	}
+	
+	@Override
+	public boolean run() throws SicsException {
+		return run(null);
 	}
 	
 	@Override
@@ -69,12 +81,15 @@ public class CommandController extends GroupController implements ICommandContro
 		setErrorMessage(null);
 		registerStatusListener();
 		try {
-			getSicsProxy().syncRun("hset " + getPath() + " start", null);
+			getSicsProxy().syncRun("hset " + getPath() + " start", callback);
 		} catch (SicsException e) {
 			setErrorMessage(e.getMessage());
 			throw e;
 		} finally {
 			isBusy = false;
+		}
+		if (getState().equals(ControllerState.ERROR)) {
+			throw new SicsException("error in running the command group: " + getPath());
 		}
 		return false;
 	}
@@ -90,6 +105,15 @@ public class CommandController extends GroupController implements ICommandContro
 		}
 		return run(callback);
 	}	
+	
+	private ISicsController getStatusController() {
+		ISicsController feedback = this.getChild("feedback");
+		if (feedback != null) {
+			return feedback.getChild("status");
+		} else {
+			return null;
+		}
+	}
 	
 	@Override
 	public boolean isBusy() {
