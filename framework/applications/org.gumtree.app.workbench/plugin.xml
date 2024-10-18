@@ -6,7 +6,7 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.gumtree.app.workbench.application"
-            name="Gumtree">
+            name="Gumtree 1.13.10">
          <property
                name="appName"
                value="Gumtree">
