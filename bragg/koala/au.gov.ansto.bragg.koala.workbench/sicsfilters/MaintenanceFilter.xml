@@ -6,6 +6,8 @@
     <include>/sample/sx</include>
     <include>/sample/sy</include>
     <include>/sample/sr</include>
+    <include>/sample/cs800</include>
     <include>/sample/tc1</include>
-    <include>/instrument/save_tiff</include>
+    <include>/instrument/image</include>
+    <include>/instrument/image_control</include>
 </nodeset>

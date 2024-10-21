@@ -59,7 +59,7 @@ public class KoalaServer {
 	public static final String PATH_IMAGE_START = "/instrument/image/start";
 	public static final String PATH_IMAGE_STATE = "/instrument/image/state";
 	public static final String PATH_IMAGE_EXPTIME = "/instrument/image/exposure_time_sec";
-	public static final String PATH_TIFF_STATE = "/instrument/save_tiff/status/save_tiff";
+	public static final String PATH_TIFF_STATE = "/instrument/image_control/status/save_tiff";
 	public static final int READING_TIME = 10;
 	
 	private static int MESSAGE_SEQ = 0;

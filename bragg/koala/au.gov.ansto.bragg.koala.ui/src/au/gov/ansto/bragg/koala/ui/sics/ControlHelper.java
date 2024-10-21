@@ -102,6 +102,7 @@ public class ControlHelper {
 	public static final String ABORT_COLLECTION_PATH = "gumtree.path.abortCollection";
 	public static final String TIFF_STATE_PATH = "gumtree.path.tiffStatus";
 	public static final String TIFF_ERROR_PATH = "gumtree.path.tiffError";
+	public static final String TIFF_SAVE_COMMAND = "gumtree.path.tiffCommand";
 	public static final String GUMTREE_STATUS_PATH = "gumtree.path.gumtreestatus";
 	public static final String GUMTREE_TIME_PATH = "gumtree.path.gumtreetime";
 	public static final String GUMTREE_SAMPLE_NAME = "gumtree.koala.samplename";

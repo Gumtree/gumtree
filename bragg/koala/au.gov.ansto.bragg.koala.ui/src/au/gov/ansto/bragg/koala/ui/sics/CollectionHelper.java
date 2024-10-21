@@ -88,6 +88,7 @@ public class CollectionHelper {
 	private List<ICollectionListener> listeners;
 	private static CollectionHelper instance;
 	private String errorMessage;
+	private String tiffSaveCommand;
 	private TempReporter reporter;
 	private ImageState imageState;
 	
@@ -145,6 +146,7 @@ public class CollectionHelper {
 				System.getProperty(ControlHelper.TIFF_STATE_PATH));
 		tiffErrorController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
 				System.getProperty(ControlHelper.TIFF_ERROR_PATH));
+		tiffSaveCommand = System.getProperty(ControlHelper.TIFF_SAVE_COMMAND);
 		
 		if (stateController != null)
 			stateController.addControllerListener(new ISicsControllerListener() {
@@ -246,7 +248,7 @@ public class CollectionHelper {
 					break;
 				} else if (TiffStatus.FAIL.name().equalsIgnoreCase(tiffStatus)) {
 					if (retry > 0) {
-						ControlHelper.getProxy().asyncRun("hset /instrument/save_tiff/commands/save 1", null);
+						ControlHelper.getProxy().asyncRun(tiffSaveCommand, null);
 						try {
 							Thread.sleep(CHECK_CYCLE);
 						} catch (Exception e) {
