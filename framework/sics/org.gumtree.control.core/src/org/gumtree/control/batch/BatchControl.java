@@ -264,6 +264,7 @@ public class BatchControl implements IBatchControl {
 				@Override
 				public void receiveFinish(final ISicsReplyData data) {
 					try {
+						BatchControl.logger.warn("set batch text for " + batchName);
 						setBatchText(data.getString());
 //						batchText = data.getString();
 					} catch (Exception e) {
@@ -377,9 +378,15 @@ public class BatchControl implements IBatchControl {
 	private void setBatchRangeText(String batchRangeText) {
 		this.batchRangeText = batchRangeText;
 		logger.warn("batch range = " + batchRangeText);
-		if (batchName == "") {
+		if (!BatchStatus.EXECUTING.equals(getStatus())) {
+			setBatchStatus(BatchStatus.EXECUTING);
+		}
+		String name = batchRangeText.split("=")[0].trim();
+		if (name.endsWith(".range")) {
+			name = name.substring(0, name.length() - 6);
+		}
+		if (!name.equals(batchName)) {
 			try {
-				String name = batchRangeText.split("=")[0].trim();
 				setBatchName(name);
 			} catch (Exception e) {
 				logger.error("failed to interpret filename from range text: " + batchRangeText, e);
