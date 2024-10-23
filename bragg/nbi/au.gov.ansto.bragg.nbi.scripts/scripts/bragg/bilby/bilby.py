@@ -348,31 +348,45 @@ def curtaind(val = None):
 
 def dhv(val = None):
     if not val is None:
+        log('driving dhv ' + str(val))
         if val.upper() == 'UP':
-            dhv1_up = sics.get_raw_value('dhv1 upper')
-            dhv2_up = sics.get_raw_value('dhv2 upper')
-            res = sics.run_command('drive dhv1 ' + str(dhv1_up) + ' dhv2 ' + str(dhv2_up))
+#             dhv1_up = sics.get_raw_value('dhv1 upper')
+#             dhv2_up = sics.get_raw_value('dhv2 upper')
+#             res = sics.run_command('drive dhv1 ' + str(dhv1_up) + ' dhv2 ' + str(dhv2_up))
+            res = sics.run_command('dhv up')
             if res.find('Full Stop') >= 0:
                 raise Exception, res
         elif val.upper() == 'DOWN':
-            dhv1_down = sics.get_raw_value('dhv1 lower')
-            dhv2_down = sics.get_raw_value('dhv2 lower')
-            res = sics.run_command('drive dhv1 ' + str(dhv1_down) + ' dhv2 ' + str(dhv2_down))
+#             dhv1_down = sics.get_raw_value('dhv1 lower')
+#             dhv2_down = sics.get_raw_value('dhv2 lower')
+#             res = sics.run_command('drive dhv1 ' + str(dhv1_down) + ' dhv2 ' + str(dhv2_down))
+            res = sics.run_command('dhv down')
             if res.find('Full Stop') >= 0:
                 raise Exception, res
+        elif val.upper() == 'OFF':
+            res = sics.run_command('dhv off')
+            if res.find('Full Stop') >= 0:
+                raise Exception, res
+        elif val.upper() == 'DOWN':
+            raise Exception, 'invalid dhv parameter: ' + str(val)
     else:
-        dhv1_up = sics.get_raw_value('dhv1 upper')
-        dhv1_down = sics.get_raw_value('dhv1 lower')
-        dhv1 = sics.get_raw_value('dhv1')
-        dhv2_up = sics.get_raw_value('dhv2 upper')
-        dhv2_down = sics.get_raw_value('dhv2 lower')
-        dhv2 = sics.get_raw_value('dhv2')
-        if abs(dhv1_up - dhv1) <= 5 and (dhv2_up - dhv2) <= 5:
-            return 'UP'
-        elif abs(dhv1 - dhv1_down) <= 5 and (dhv2 - dhv2_down) <= 5:
-            return 'DOWN'
+#         dhv1_up = sics.get_raw_value('dhv1 upper')
+#         dhv1_down = sics.get_raw_value('dhv1 lower')
+#         dhv1 = sics.get_raw_value('dhv1')
+#         dhv2_up = sics.get_raw_value('dhv2 upper')
+#         dhv2_down = sics.get_raw_value('dhv2 lower')
+#         dhv2 = sics.get_raw_value('dhv2')
+#         if abs(dhv1_up - dhv1) <= 5 and (dhv2_up - dhv2) <= 5:
+#             return 'UP'
+#         elif abs(dhv1 - dhv1_down) <= 5 and (dhv2 - dhv2_down) <= 5:
+#             return 'DOWN'
+#         else:
+#             return 'ERROR'
+        res = sics.run_command('dhv status')
+        if not 'ERROR' in res:
+            return res.upper()
         else:
-            return 'ERROR'
+            return res
         
 class DetectorSystem :
     def __init__(self):
