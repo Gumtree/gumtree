@@ -121,6 +121,11 @@ public class ClientChannel implements ISicsChannel {
 
 	@Override
 	public String syncSend(String command, ISicsCallback callback) throws SicsException {
+		return syncSend(command, callback, -1);
+	}
+
+	@Override
+	public String syncSend(String command, ISicsCallback callback, int timeout) throws SicsException {
 //		JSONObject json = null;
 //		try {
 //			json = new JSONObject(received);	
@@ -128,7 +133,7 @@ public class ClientChannel implements ISicsChannel {
 //		}
 //		if (json != null && json.has(JSON_KEY_CID) && json.getInt(JSON_KEY_CID) == cid) {
 		cid++;
-		SicsCommand sicsCommand = new SicsCommand(cid, command, callback);
+		SicsCommand sicsCommand = new SicsCommand(cid, command, callback, timeout);
 		commandMap.put(cid, sicsCommand);
 		isBusy = true;
 		logger.debug("syncRun: " + command);
@@ -143,7 +148,7 @@ public class ClientChannel implements ISicsChannel {
 	public void asyncSend(String command, ISicsCallback callback) throws SicsException {
 		cid++;
 		logger.debug("asyncRun: " + command);
-		SicsCommand sicsCommand = new SicsCommand(cid, command, callback);
+		SicsCommand sicsCommand = new SicsCommand(cid, command, callback, -1);
 		commandMap.put(cid, sicsCommand);
 		sicsCommand.asyncRun();
 	}
@@ -285,12 +290,14 @@ public class ClientChannel implements ISicsChannel {
 		private boolean isFinished;
 		private boolean hasError;
 		private SicsException error;
+		private int timeout = -1;
 		private String reply;
 		
-		SicsCommand(int cid, String command, ISicsCallback callback) {
+		SicsCommand(int cid, String command, ISicsCallback callback, int timeout) {
 			this.cid = cid;
 			this.command = command;
 			this.callback = callback;
+			this.timeout = timeout;
 			isFinished = false;
 		}
 		
@@ -309,12 +316,17 @@ public class ClientChannel implements ISicsChannel {
 			String msg = jcom.toString();
 			logger.debug("syncSend: " + msg);
 			clientSocket.send(msg);
-			while (!isFinished) {
+			int ct = 0;
+			while (!isFinished && (timeout <= 0 || ct < timeout)) {
 				try {
 					Thread.sleep(COMMAND_WAIT_TIME);
 				} catch (InterruptedException e) {
 					throw new SicsExecutionException("interrupted");
 				}
+				ct += COMMAND_WAIT_TIME;
+			}
+			if (timeout > 0 && ct > timeout) {
+				throw new SicsExecutionException("timeout in running command " + command);
 			}
 			if (hasError && error != null) {
 				throw error;

@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 public class SicsProxy implements ISicsProxy {
 
 	private static Logger logger = LoggerFactory.getLogger(SicsProxy.class);
+	private static final int RECONNECT_TIMEOUT = 60000;
 	private static final int EPOCH_PERIOD = 3000;
 	private static final int EPOCH_RETRY = 1;
 
@@ -179,7 +180,7 @@ public class SicsProxy implements ISicsProxy {
 		} 
 		try {
 			logger.warn("connection reestablished");
-			serverStatus = ServerStatus.parseStatus(channel.syncSend("status", null));
+			serverStatus = ServerStatus.parseStatus(channel.syncSend("status", null, RECONNECT_TIMEOUT));
 		} catch (Exception e) {
 			if (keepConnection) {
 				logger.error("Failed to get status from server after reconnecting. Set status to UNKNOWN.");

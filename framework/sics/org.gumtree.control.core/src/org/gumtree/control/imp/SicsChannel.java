@@ -7,7 +7,9 @@ import java.nio.channels.ClosedSelectorException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.gumtree.control.core.ISicsChannel;
 import org.gumtree.control.events.ISicsCallback;
@@ -51,6 +53,7 @@ public class SicsChannel implements ISicsChannel {
 	public static final String JSON_VALUE_OK = "OK";
 	private static final String POCH_COMMAND = "POCH";
 	
+	private static final int POCH_TIMEOUT = 10000;
 	private static final int COMMAND_WAIT_TIME = 3;
 	private static final int SEND_TIMEOUT = 3000;
 	private static final int COMMAND_TIMEOUT = 10000;
@@ -141,6 +144,11 @@ public class SicsChannel implements ISicsChannel {
 
 	@Override
 	public String syncSend(String command, ISicsCallback callback) throws SicsException {
+		return syncSend(command, callback, -1);
+	}
+	
+	@Override
+	public String syncSend(String command, ISicsCallback callback, int timeout) throws SicsException {
 //		JSONObject json = null;
 //		try {
 //			json = new JSONObject(received);	
@@ -152,7 +160,7 @@ public class SicsChannel implements ISicsChannel {
 		}
 		cid++;
 		currentCommand = command;
-		SicsCommand sicsCommand = new SicsCommand(cid, command, callback);
+		SicsCommand sicsCommand = new SicsCommand(cid, command, callback, timeout);
 		commandMap.put(cid, sicsCommand);
 		isBusy = true;
 		logger.info("syncRun: " + command);
@@ -177,7 +185,7 @@ public class SicsChannel implements ISicsChannel {
 	@Override
 	public void syncPoch() throws SicsCommunicationException {
 		pochId --;
-		SicsCommand sicsCommand = new SicsCommand(pochId, POCH_COMMAND, null);
+		SicsCommand sicsCommand = new SicsCommand(pochId, POCH_COMMAND, null, POCH_TIMEOUT);
 		commandMap.put(pochId, sicsCommand);
 		try {
 			sicsCommand.syncRun(POCH_COMMAND);
@@ -194,7 +202,7 @@ public class SicsChannel implements ISicsChannel {
 	public void asyncSend(String command, ISicsCallback callback) throws SicsException {
 		cid++;
 		logger.info("asyncRun: " + command);
-		SicsCommand sicsCommand = new SicsCommand(cid, command, callback);
+		SicsCommand sicsCommand = new SicsCommand(cid, command, callback, -1);
 		commandMap.put(cid, sicsCommand);
 		sicsCommand.asyncRun();
 	}
@@ -303,6 +311,15 @@ public class SicsChannel implements ISicsChannel {
 	}
 	
 	public void reset() {
+		Set<Integer> keys = commandMap.keySet();
+		for (Integer key : keys) {
+			if (commandMap.containsKey(key)) {
+				SicsCommand command = commandMap.get(key);
+				if (!command.isFinished) {
+					command.drop();
+				}
+			}
+		}
 		isBusy = false;
 	}
 	
@@ -320,11 +337,13 @@ public class SicsChannel implements ISicsChannel {
 		private boolean hasError;
 		private SicsException error;
 		private String reply;
+		private int timeout = -1;
 		
-		SicsCommand(int cid, String command, ISicsCallback callback) {
+		SicsCommand(int cid, String command, ISicsCallback callback, int timeout) {
 			this.cid = cid;
 			this.command = command;
 			this.callback = callback;
+			this.timeout = timeout;
 			isFinished = false;
 		}
 		
@@ -368,12 +387,17 @@ public class SicsChannel implements ISicsChannel {
 				finish();
 				throw new SicsCommunicationException("timeout starting command: " + command);
 			}
-			while (!isFinished) {
+			tc = 0;
+			while (!isFinished && (timeout <= 0 || tc <= timeout)) {
 				try {
 					Thread.sleep(COMMAND_WAIT_TIME);
 				} catch (InterruptedException e) {
 					throw new SicsExecutionException("interrupted");
 				}
+				tc += COMMAND_WAIT_TIME;
+			}
+			if (timeout > 0 && tc > timeout) {
+				throw new SicsExecutionException("timout finishing command " + command);
 			}
 			if (hasError && error != null) {
 				throw error;
@@ -497,6 +521,11 @@ public class SicsChannel implements ISicsChannel {
 		
 		void interrupt() {
 			takeError(new SicsInterruptException("user interrupted"));
+		}
+		
+		void drop() {
+			isStarted = true;
+			finish();
 		}
 		
 		void finish() {
