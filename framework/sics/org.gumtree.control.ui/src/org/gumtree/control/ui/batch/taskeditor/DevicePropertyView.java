@@ -24,6 +24,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
+import org.gumtree.control.model.SicsModelUtils;
 import org.gumtree.control.ui.batch.SicsBatchUIUtils;
 import org.gumtree.control.ui.batch.command.AbstractSicsCommandView;
 import org.gumtree.control.ui.batch.command.DevicePropertyCommand;
@@ -46,7 +47,7 @@ private DataBindingContext bindingContext;
 		 * Device
 		 *********************************************************************/
 //		final IDrivableController[] drivables = SicsCommandUtils.getSicsDrivables();
-		final String[] drivableIds = SicsBatchUIUtils.getSicsDrivableIds();
+		final String[] drivableIds = SicsModelUtils.getSicsDrivableIds();
 		drivableComboViewer = new ComboViewer(parent, SWT.READ_ONLY);
 		drivableComboViewer.setContentProvider(new ArrayContentProvider());
 		drivableComboViewer.setLabelProvider(new LabelProvider());
@@ -151,7 +152,7 @@ private DataBindingContext bindingContext;
 	
 	private void updatePropertyInput(String drivableId) {
 		// Update attribute list
-		String[] attributes = SicsBatchUIUtils.getDrivableAttributes(drivableId);
+		String[] attributes = SicsModelUtils.getDrivableAttributes(drivableId);
 		propertyComboViewer.setInput(attributes);
 		// Set default selection
 		selectPropertyId();

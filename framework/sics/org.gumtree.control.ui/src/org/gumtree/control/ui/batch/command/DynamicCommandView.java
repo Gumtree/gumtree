@@ -33,7 +33,7 @@ import org.gumtree.control.batch.tasks.ICommandArg;
 import org.gumtree.control.batch.tasks.ICompositeCommand;
 import org.gumtree.control.batch.tasks.IPlainCommand;
 import org.gumtree.control.batch.tasks.ISicsCommand;
-import org.gumtree.control.ui.batch.SicsBatchUIUtils;
+import org.gumtree.control.model.SicsModelUtils;
 import org.gumtree.ui.util.SafeUIRunner;
 
 public class DynamicCommandView extends AbstractSicsCommandView<DynamicCommand> {
@@ -194,7 +194,7 @@ public class DynamicCommandView extends AbstractSicsCommandView<DynamicCommand> 
 						drivableComboViewer.setContentProvider(new ArrayContentProvider());
 						drivableComboViewer.setLabelProvider(new LabelProvider());
 						drivableComboViewer.setSorter(new ViewerSorter());
-						drivableComboViewer.setInput(SicsBatchUIUtils.getSicsDrivableIds());
+						drivableComboViewer.setInput(SicsModelUtils.getSicsDrivableIds());
 						
 						/*****************************************************
 						 * Data binding

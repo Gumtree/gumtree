@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.model.SicsModelUtils;
 import org.gumtree.control.ui.batch.SicsBatchUIUtils;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.LoopRunner;
@@ -94,7 +95,7 @@ public class ControlRealtimeDataViewer extends Composite {
 			}
 			return filter;
 		} else {
-			String[] drivables = SicsBatchUIUtils.getSicsDrivableIds();
+			String[] drivables = SicsModelUtils.getSicsDrivableIds();
 			return Arrays.asList(drivables);
 		}
 	}

@@ -44,7 +44,7 @@ import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.exception.SicsException;
-import org.gumtree.control.ui.batch.SicsBatchUIUtils;
+import org.gumtree.control.model.SicsModelUtils;
 import org.gumtree.control.ui.batch.command.AbstractSicsCommandView;
 import org.gumtree.control.ui.batch.command.DrivableCommand;
 import org.gumtree.control.ui.batch.command.DrivableParameter;
@@ -116,7 +116,7 @@ public class DrivableCommandView extends AbstractSicsCommandView<DrivableCommand
 		drivableComboViewer.setContentProvider(new ArrayContentProvider());
 		drivableComboViewer.setLabelProvider(new LabelProvider());
 		drivableComboViewer.setSorter(new ViewerSorter());
-		drivableComboViewer.setInput(SicsBatchUIUtils.getSicsDrivableIds());
+		drivableComboViewer.setInput(SicsModelUtils.getSicsDrivableIds());
 		GridDataFactory.swtDefaults().hint(WIDTH_COMBO, SWT.DEFAULT).applyTo(drivableComboViewer.getCombo());
 		
 		final Text targetText = getToolkit().createText(parameterArea, "", SWT.BORDER);

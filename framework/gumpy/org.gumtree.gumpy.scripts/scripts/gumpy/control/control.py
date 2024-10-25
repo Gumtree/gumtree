@@ -2,7 +2,7 @@ from org.gumtree.control.core import SicsManager as manager
 from org.gumtree.control.core import ServerStatus
 from org.gumtree.control.model.PropertyConstants import ControllerState
 from org.gumtree.control.events import ISicsControllerListener, ISicsCallback
-from org.gumtree.control.ui.batch import SicsBatchUIUtils
+from org.gumtree.control.model import SicsModelUtils
 from org.gumtree.control.events import SicsCallbackAdapter
 from org.gumtree.control.batch import SicsMessageAdapter as MessageAdapter
 from org.gumtree.control.events import SicsControllerAdapter as ControllerAdapter
@@ -401,7 +401,7 @@ def get_status():
     return proxy.getServerStatus()
 
 def get_drivables():
-    arr = SicsBatchUIUtils.getSicsDrivableIds()
+    arr = SicsModelUtils.getSicsDrivableIds()
     res = []
     for i in xrange(len(arr)):
         item = arr[i]

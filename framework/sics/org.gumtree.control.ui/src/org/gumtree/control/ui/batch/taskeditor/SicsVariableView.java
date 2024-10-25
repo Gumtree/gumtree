@@ -32,6 +32,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
+import org.gumtree.control.model.SicsModelUtils;
 import org.gumtree.control.ui.batch.SicsBatchUIUtils;
 import org.gumtree.control.ui.batch.command.AbstractSicsCommandView;
 import org.gumtree.control.ui.batch.command.SicsVariableCommand;
@@ -51,7 +52,7 @@ public class SicsVariableView extends AbstractSicsCommandView<SicsVariableComman
 		/*********************************************************************
 		 * Sics variable selection
 		 *********************************************************************/
-		final String[] sicsVariables = SicsBatchUIUtils.getSicsVariables();
+		final String[] sicsVariables = SicsModelUtils.getSicsVariables();
 		comboViewer = new ComboViewer(parent, SWT.READ_ONLY);
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
