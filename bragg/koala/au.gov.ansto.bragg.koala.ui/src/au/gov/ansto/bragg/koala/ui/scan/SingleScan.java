@@ -286,6 +286,7 @@ public class SingleScan {
 	private final static int PAUSE_CHECK_INTERVAL = 20;
 	private final static float DEVICE_VALUE_TOLERANCE = 0.00001f;
 	private final static Logger logger = LoggerFactory.getLogger(SingleScan.class);
+	private final static Logger fileLogger = LoggerFactory.getLogger(SingleScan.class.getName() + ".CopyFile");
 	private final static String FOLDER_HIGHGAIN = "higain";
 	private final static String FOLDER_LOWGAIN = "logain";
 	private final static String FOLDER_LOWGAIN_COPY = "lowgain";
@@ -945,6 +946,14 @@ public class SingleScan {
 			Files.copy((new File(lowSource)).toPath(), currentLowFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			ControlHelper.experimentModel.setLastFilename(currentFile.getAbsolutePath());
 			fileIndex++;
+			try {
+				fileLogger.warn(String.format("SICS='%s', Gumtree='%s'", hiSource.substring(hiSource.lastIndexOf(File.separator) + 1), 
+						currentFile.getAbsolutePath().substring(System.getProperty(Activator.PROP_SAVING_PATH).length() + 1)));
+				fileLogger.warn(String.format("SICS='%s', Gumtree='%s'", lowSource.substring(lowSource.lastIndexOf(File.separator) + 1), 
+						currentLowFile.getAbsolutePath().substring(System.getProperty(Activator.PROP_SAVING_PATH).length() + 1)));
+			} catch (Exception e) {
+				fileLogger.error("failed to log file copying; ", e);
+			}
 //			System.err.println(source);
 //			System.err.println(currentFile.toString());
 			convertTiffToPng(hiSource);

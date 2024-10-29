@@ -61,7 +61,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String CHI_HTML = "&chi;";
 	public static final String TAU = "\u03C4";
 	public static final String MAINTENANCE_FILTER = "MaintenanceFilter.xml";
-
+	public static final String PROP_SAVING_PATH = "gumtree.koala.proposalFolder";
 	
 	// The shared instance
 	private static Activator plugin;

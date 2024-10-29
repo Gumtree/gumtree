@@ -92,6 +92,8 @@ public class ControlHelper {
 	public static final String DRUM_PATH = "gumtree.path.koalaDrum";
 	public static final String DRUM_DOWN_VALUE = "gumtree.koala.drumDownValue";
 	public static final String FILENAME_PATH = "gumtree.koala.filename";
+	public static final String BM1_COUNT_PATH = "gumtree.koala.bm1_count";
+	public static final String BM1_TIME_PATH = "gumtree.koala.bm1_time";
 	public static final String GUMTREE_VERSION_PATH = "gumtree.sics.gumtreeVersionPath";
 	public static final String GUMTREE_VERSION_PROP = "gumtree.client.version";
 	

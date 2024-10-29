@@ -23,8 +23,6 @@ import au.gov.ansto.bragg.koala.ui.sics.ControlHelper;
  */
 public class ExperimentModel {
 
-	public static final String PROP_SAVING_PATH = "gumtree.koala.proposalFolder";
-	
 	private PhysicsModel physicsModel;
 	private ChemistryModel chemistryModel;
 	private String proposalId;
@@ -154,7 +152,7 @@ public class ExperimentModel {
 		} else {
 			if (propId != null) {
 				int pid = Integer.valueOf(propId.replaceAll("[\\D]", ""));
-				pFolder = System.getProperty(PROP_SAVING_PATH) + File.separator 
+				pFolder = System.getProperty(Activator.PROP_SAVING_PATH) + File.separator 
 						+ String.format("%05d", pid) + File.separator;
 				File pf = new File(pFolder);
 				if (!pf.exists()) {
@@ -180,7 +178,7 @@ public class ExperimentModel {
 		this.localContact = localContact;
 		try {
 			int pid = Integer.valueOf(proposalId.replaceAll("[\\D]", ""));
-			String pFolder = System.getProperty(PROP_SAVING_PATH) + File.separator 
+			String pFolder = System.getProperty(Activator.PROP_SAVING_PATH) + File.separator 
 					+ String.format("%05d", pid) + File.separator;
 			File pf = new File(pFolder);
 			if (!pf.exists()) {

@@ -20,6 +20,7 @@ import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
+import org.gumtree.control.events.SicsControllerAdapter;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.imp.DynamicController;
@@ -63,6 +64,7 @@ public class MainPart extends Composite {
 	public static final String UNLOCK_TEXT = "koala123";
 	private static final String PROP_RECURRENT_PERIOD = "gumtree.koala.recurrentPeriodMS";
 	private static Logger logger = LoggerFactory.getLogger(MainPart.class);
+	final private static Logger bmLogger = LoggerFactory.getLogger(BeamMonitorListener.class);
 
 
 //	private String proposalFolder;
@@ -91,6 +93,7 @@ public class MainPart extends Composite {
 	
 	private ExperimentModel experimentModel;
 	private IExperimentModelListener modelListener;
+	private BeamMonitorListener bmListener;
 	
 	public MainPart(Composite parent, int style) {
 		super(parent, style);
@@ -140,7 +143,7 @@ public class MainPart extends Composite {
 			if (fnController != null) {
 				fnController.addControllerListener(new FilenameControllerListener());
 			}
-			
+			bmListener = new BeamMonitorListener();
 		} else {
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 
@@ -168,6 +171,11 @@ public class MainPart extends Composite {
 							logger.error("failed set gumtree version in SICS", e);
 						}
 					}
+					
+					if (bmListener != null) {
+						bmListener.disable();
+					}
+					bmListener = new BeamMonitorListener();
 				}
 			};
 
@@ -462,6 +470,44 @@ public class MainPart extends Composite {
 
 		@Override
 		public void updateTarget(final Object oldValue, final Object newValue) {
+		}
+	}
+	
+	class BeamMonitorListener extends SicsControllerAdapter {
+		
+		IDynamicController countsController;
+		IDynamicController timeController;
+		boolean isEnabled = true;
+		
+		public BeamMonitorListener() {
+			countsController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+					System.getProperty(ControlHelper.BM1_COUNT_PATH));
+			timeController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+					System.getProperty(ControlHelper.BM1_TIME_PATH));
+			timeController.addControllerListener(this);
+			bmLogger.warn("Beam monitor logger initialised");
+		}
+		
+		@Override
+		public void updateValue(Object oldValue, Object newValue) {
+			if (isEnabled) {
+				try {
+					final int counts = (Integer) countsController.getValue();
+					final Float time = (Float) newValue;
+					if (time == 0) {
+						return;
+					}
+					final Float rate = counts / time;
+					bmLogger.warn(String.format("Counts=%d, Rate=%d, Duration=%d", counts, rate.intValue(), time.intValue()));
+				} catch (Exception e) {
+					bmLogger.error("failed to log beam monitor event; ", e);
+				}
+			}
+		}
+		
+		public void disable() {
+			timeController.removeControllerListener(this);
+			isEnabled = false;
 		}
 	}
 
