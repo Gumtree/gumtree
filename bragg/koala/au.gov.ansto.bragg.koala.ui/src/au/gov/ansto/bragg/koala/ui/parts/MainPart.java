@@ -485,7 +485,7 @@ public class MainPart extends Composite {
 			timeController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
 					System.getProperty(ControlHelper.BM1_TIME_PATH));
 			timeController.addControllerListener(this);
-			bmLogger.warn("Beam monitor logger initialised");
+//			bmLogger.warn("Beam monitor logger initialised");
 		}
 		
 		@Override
