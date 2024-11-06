@@ -7,6 +7,9 @@ const HTML_ID_COMPOSITEBAR = '#id_div_sidebuttom';
 const HTML_HIDDEN_FILL_DIV = '<div class="div_fill div_hidden"/>';
 const HTML_NAV_DIV = '<div class="nav"/>';
 
+const PHYSICAL_DB = "PD"
+const COMPOSITE_DB = "CD"
+	
 const TABLE_TIER1_HEADER = '<table class="table table-striped table-sm"><thead><tr><th width="34%">Key</th><th width="66%">Value</th></tr></thead><tbody>';
 const TABLE_TIER2_HEADER = '<table class="table table-striped table-sm"><thead><tr><th width="40%">Key</th><th width="40%">Value</th><th width="20%"></th></tr></thead><tbody>';
 const EMPTY_ROW_PART1 = '<tr class="tr_entry"><td class="pair_key"><input type="text" class="form-control" value="';
@@ -25,21 +28,28 @@ const DATYPE_ICON = {
 		"T" : "thermometer-half",
 		"B"	: "magnet",
 		"V" : "bolt",
-		"P" : "gauge"
+		"P" : "gauge",
+		"rheometry" : "rotate",
+		"robot" : "hand-holding",
+		"X" : "compass",
+		"pump" : "gas-pump",
+		"valve" : "gear",
+		"viscosity" : "droplet",
 }
 const DEFAULT_SUB_DEVICE_NAME_PREFIX = {
 		"T" : "tc",
 		"B" : "ma",
-		"V"	: "vo",
+		"V"	: "volts",
 		"P" : "pc"
 }
 const _option_prop = ["config_id", "ip", "port"];
-const JSON_TEMP_COMPOSITE_DEVICE = {
-		"STATIC" :
-		{
-			"datype" : "C"
-		}
-}
+//const JSON_TEMP_COMPOSITE_DEVICE = {
+//		"STATIC" :
+//		{
+//			"datype" : "C"
+//		}
+//}
+const JSON_TEMP_COMPOSITE_DEVICE = {};
 const JSON_TEMP_SUB_DEVICE = {
 		"config_id" : "--",
 		"datype" 	: "NA",
@@ -73,7 +83,9 @@ const _propertyTitle = $('#id_property_subtitle');
 const _property = $('#id_div_property_table');
 var _errorReport;
 var _removeModal;
+var _homeButton;
 
+const _allDevices = {};
 var _curDevice;
 //var _curDid;
 
@@ -140,7 +152,8 @@ class DBModel {
 	
 	#model;
 
-	constructor() {
+	constructor(dbType) {
+		this.dbType = dbType;
 		this.$physicalMenuBar = $(HTML_ID_PHYSICALBAR);
 		this.$compositeMenuBar = $(HTML_ID_COMPOSITEBAR);
 		this.url = URL_PREFIX + 'sedb';
@@ -188,9 +201,10 @@ class DBModel {
 		this.devices[did] = device;
 	}
 	
-	load() {
+	load(callback) {
 		var obj = this;
-		$.get(this.url, function(data) {
+		const loadUrl = this.url + "?dbtype=" + this.dbType;
+		$.get(loadUrl, function(data) {
 			obj.model = data;
 //			obj.configs = {};
 			obj.firstConfigs = {};
@@ -217,6 +231,9 @@ class DBModel {
 			});
 			obj.createUi();
 			obj.verify();
+			if (callback) {
+				callback();
+			}
 			_errorReport.show();
 		}).fail(function(e) {
 			if (e.status == 401) {
@@ -232,17 +249,25 @@ class DBModel {
 		const obj = this;
 		$.each(Object.keys(this.model).sort(), (idx, did) => {
 			const deviceModel = obj.model[did];
-			const datype = deviceModel[KEY_STATIC][KEY_DATYPE];
+//			const datype = deviceModel[KEY_STATIC][KEY_DATYPE];
+			var datype;
+			if (KEY_STATIC in deviceModel) {
+				datype = deviceModel[KEY_STATIC][KEY_DATYPE];
+			} else {
+				datype = "C";
+			}
 			if (datype == "C") {
 				const device = new CompositeDevice(did, deviceModel, obj.$compositeMenuBar);
 				device.createMenuUi();
 				obj.setDevice(did, device);
 				obj.compositeDevices[did] = device;
+				_allDevices[did] = device;
 			} else {
 				const device = new PhysicalDevice(did, deviceModel, obj.$physicalMenuBar);
 				device.createMenuUi();
 				obj.setDevice(did, device);
 				obj.physicalDevices[did] = device;
+				_allDevices[did] = device;
 			}
 		});
 	}
@@ -331,7 +356,8 @@ class DBModel {
 	}
 	
 }
-const _dbModel = new DBModel();
+const _pdModel = new DBModel(PHYSICAL_DB);
+const _cdModel = new DBModel(COMPOSITE_DB);
 
 class AbstractDevice {
 	
@@ -486,7 +512,7 @@ class AbstractDevice {
 	
 	save() {
 		const obj = this;
-		var url = URL_PREFIX + 'dbsave?msg=';
+		var url = URL_PREFIX + 'dbsave?dbtype=' + obj.dbType + '&msg=';
 		var saveMsg = $('#id_input_saveMessage').val().replace(/^\s+|\s+$/gm,'');
 		if (saveMsg.length > 0) {
 			url += encodeURI(saveMsg);
@@ -513,12 +539,13 @@ class AbstractDevice {
 					StaticUtils.showError(data["reason"]);
 				}
 				_errorReport.clearError();
-				_dbModel.verify();
+				_pdModel.verify();
 			} catch (e) {
-				StaticUtils.showError("Failed to save: " + e.statusText);
+				console.log(e);
+				StaticUtils.showError("Failed to save: " + e);
 			}
 		}).fail(function(e) {
-			StaticUtils.showError("Faied to save: " + e.statusText);
+			StaticUtils.showError("Faied to save: " + e);
 		}).always(function() {
 			_saveButton.close();
 		});
@@ -549,7 +576,7 @@ class AbstractDevice {
 //	fromHistory() {}
 	fromHistory(commitModel) {
 		const deviceModel = commitModel[this.did];
-		console.log(deviceModel);
+//		console.log(deviceModel);
 		if (!deviceModel) {
 			throw new Error('device not found in history model: ' + this.did);
 		}
@@ -584,6 +611,8 @@ class AbstractDevice {
 }
 
 class PhysicalDevice extends AbstractDevice {
+	
+	dbType = PHYSICAL_DB;
 	
 	constructor(did, model, $parentUi)
 	{
@@ -737,9 +766,11 @@ class PhysicalDevice extends AbstractDevice {
 			}
 			table.show();
 			_errorReport.hide();
-			this.setMenuActive(true);
+			this.setMenuActive(true, cid);
 			this.setMenuItemActive(cid);
 			
+			this.tabUi.show();
+			this.tabUi.setActive(cid);
 			_historyBar.reload();
 		}
 	}
@@ -815,6 +846,19 @@ class PhysicalDevice extends AbstractDevice {
 		obj.load();
 	}
 	
+	findIps(cid) {
+		const ips = this.STATIC[ID_PROP_IP];
+		const res = [];
+		if (typeof ips === "object") {
+			$.each(Object.keys(ips), function(idx, key) {
+				if (ips[key] == cid) {
+					res.push(key);
+				}
+			});
+		}
+		return res;
+	}
+	
 //	deleteConfig(cid) {
 //		this.setDirtyFlag();
 //		
@@ -854,6 +898,7 @@ class CompositeDevice extends AbstractDevice {
 	$textbox;
 	$control;
 	init = false;
+	dbType = COMPOSITE_DB;
 	
 	constructor(did, model, $parentUi)
 	{
@@ -916,8 +961,8 @@ class CompositeDevice extends AbstractDevice {
 				obj.$input.addClass('class_span_hide');
 				obj.$label.removeClass('class_span_hide');
 				obj.$control.removeClass('class_span_hide');
-				delete _dbModel.model[obj.did];
-				_dbModel.model[newDid] = obj.model;
+				delete _cdModel.model[obj.did];
+				_cdModel.model[newDid] = obj.model;
 //				var $ul = $("#ul_mc_" + did);
 				obj.$menuUl.attr("id", "ul_mc_" + newDid);
 				$.each(obj.$menuUl.find("li"), function(idx, val) {
@@ -998,7 +1043,7 @@ class CompositeDevice extends AbstractDevice {
 				_errorReport.addError(obj.did, cid, "configuration doesn't have a deviceId property");
 				return;
 			}
-			const dModel = _dbModel.getDeviceModel(driverId);
+			const dModel = _pdModel.getDeviceModel(driverId);
 			if (dModel == null) {
 				_errorReport.addError(obj.did, cid, 'device ' + driverId + ' not found in the Database');
 //				StaticUtils.showError('device not found in the Device Database: ' + driverId);
@@ -1080,12 +1125,20 @@ class CompositeDevice extends AbstractDevice {
 			this.setMenuActive(true);
 			this.setMenuItemActive(cid);
 			
+			this.tabUi.show();
+			this.tabUi.setActive(cid);
 			_historyBar.reload();
 		}
 	}
 	
 	getDriverName(cid) {
-		return this.model[cid][ID_PROP_DRIVER];
+		if (cid in this.model) {
+			return this.model[cid][ID_PROP_DRIVER];
+		} else if (cid in this.editorModel) {
+			return this.editorModel[cid][ID_PROP_DRIVER];
+		} else {
+			return null;
+		}
 	}
 	
 	changeConfig(cid, newConfigId) {
@@ -1095,7 +1148,7 @@ class CompositeDevice extends AbstractDevice {
 			StaticUtils.showError('deviceId property not found in this configuration');
 			return;
 		}
-		const dModel = _dbModel.getDeviceModel(driverId);
+		const dModel = _pdModel.getDeviceModel(driverId);
 		if (dModel == null) {
 			StaticUtils.showError('device not found in the Device Database: ' + driverId);
 			return;
@@ -1122,7 +1175,7 @@ class CompositeDevice extends AbstractDevice {
 		const obj = this;
 		obj.setDirtyFlag();
 		const did = obj.did;
-		const deviceModel = _dbModel.getDeviceModel(subDid);
+		const deviceModel = _pdModel.getDeviceModel(subDid);
 		if (deviceModel == null) {
 			StaticUtils.showError('device not found: ' + subDid);
 			return;
@@ -1164,21 +1217,31 @@ class CompositeDevice extends AbstractDevice {
 		obj.tabUi.addConfigTab(cid)
 		
 		var subDevice = $.extend({}, JSON_TEMP_SUB_DEVICE);
-		var configs = _dbModel.getCidsOfDevice(subDid);
+		var configs = _pdModel.getCidsOfDevice(subDid);
 		if (configs.length > 0) {
 			subDevice["config_id"] = configs[0];
+		} else {
+			throw new Error("no configuration found for device " + subDid);
 		}
-		var source = _dbModel.getDeviceModel(subDid)[configs[0]];
-		const srcDevice = _dbModel.devices[subDid];
+		var source = _pdModel.getDeviceModel(subDid)[configs[0]];
+		const srcDevice = _pdModel.devices[subDid];
 		subDevice["datype"] = subType;
 		subDevice["driver"] = subDid;
 		subDevice["id"] = newId;
 //		var ips = source["ip"];
-		const ips = srcDevice.STATIC[ID_PROP_IP];
-		if (typeof ips === 'object') {
-			subDevice["ip"] = ips[0];
+//		const ips = srcDevice.STATIC[ID_PROP_IP];
+//		if (typeof ips === 'object') {
+//			subDevice["ip"] = ips[0];
+//			console.log("take first IP" + subDevice["ip"]);
+//		} else {
+//			subDevice["ip"] = ips;
+//			console.log("take all IP" + subDevice["ip"]);
+//		}
+		const ips = srcDevice.findIps(configs[0]);
+		if (ips.length > 0) {
+			subDevice[ID_PROP_IP] = ips[0];
 		} else {
-			subDevice["ip"] = ips;
+			subDevice[ID_PROP_IP] = "--";
 		}
 		var desc = source["desc"];
 		if (desc) {
@@ -1192,11 +1255,12 @@ class CompositeDevice extends AbstractDevice {
 		}
 		subDevice["name"] = prefix + newId;
 		subDevice["port"] = source["port"];
-		for (const key of Object.keys(source)) {
-			if (!(key in subDevice) && !(JSON_SKIP_NAME.includes(key))) {
-				subDevice[key] = source[key];
-			}
-		}
+//		disable copy all properties to composite subdevice 
+//		for (const key of Object.keys(source)) {
+//			if (!(key in subDevice) && !(JSON_SKIP_NAME.includes(key))) {
+//				subDevice[key] = source[key];
+//			}
+//		}
 //		obj.model[newName] = subDevice;
 		obj.editorModel[newName] = $.extend({}, subDevice);
 		const newSubDevice = {};
@@ -1214,7 +1278,7 @@ class CompositeDevice extends AbstractDevice {
 	
 	remove(saveMsg) {
 		const obj = this;
-		var url = URL_PREFIX + 'dbremove?did=' + obj.did + '&msg=';
+		var url = URL_PREFIX + 'dbremove?dbtype=CD&did=' + obj.did + '&msg=';
 		if (saveMsg.length > 0) {
 			url += encodeURI(saveMsg);
 		}
@@ -1250,7 +1314,7 @@ class CompositeDevice extends AbstractDevice {
 						delete obj.configEditors[cid];
 					});
 					
-					_dbModel.removeDevice(obj.did);
+					_cdModel.removeDevice(obj.did);
 //					setTimeout(_historyBar.reload, 3000)
 				} else {
 					StaticUtils.showError(data["reason"]);
@@ -1268,7 +1332,7 @@ class CompositeDevice extends AbstractDevice {
 	
 	changeName(msg) {
 		const obj = this;
-		var url = URL_PREFIX + 'changeName?msg=';
+		var url = URL_PREFIX + 'changeName?dbtype=' + COMPOSITE_DB + '&msg=';
 		const saveMsg = msg.replace(/^\s+|\s+$/gm,'');
 		if (saveMsg.length > 0) {
 			url += encodeURI(saveMsg);
@@ -1284,8 +1348,8 @@ class CompositeDevice extends AbstractDevice {
 			try {
 				if (data["status"] == "OK") {
 					const deviceModel = obj.model;
-					delete _dbModel.model[oldDid];
-					_dbModel.model[newDid] = deviceModel;
+					delete _cdModel.model[oldDid];
+					_cdModel.model[newDid] = deviceModel;
 					if (_curDevice !=  null && _curDevice.did == obj.did) {
 						_title.text(newDid + " (Composite Device)");
 					}
@@ -1317,9 +1381,9 @@ class CompositeDevice extends AbstractDevice {
 		var newDid = this.$label.attr('did');
 		this.$label.attr('did', did);
 		this.$label.html('<i class="fas fa-caret-down"></i> ' + did);
-		const device = _dbModel.model[newDid];
-		delete _dbModel.model[newDid];
-		_dbModel.model[did] = device;
+		const device = _cdModel.model[newDid];
+		delete _cdModel.model[newDid];
+		_cdModel.model[did] = device;
 		
 		this.$menuUl.attr("id", "ul_mc_" + did);
 		$.each(obj.$menuUl.find("li"), function(idx, val) {
@@ -1359,7 +1423,7 @@ class CompositeDevice extends AbstractDevice {
 	reloadMenu() {
 		const obj = this;
 		obj.$menuUl.empty();
-		$.each(this.model, function(cid, config) {
+		$.each(this.editorModel, function(cid, config) {
 			if (! (PROPERTY_KEYWORDS.includes(cid))){
 				const subItem = new ConfigMenuItem(obj, cid);
 				subItem.createUi(obj.$menuUl);
@@ -1600,7 +1664,7 @@ class ErrorReportUi extends AbstractMainUi {
 				+ '</span></td><td><span class="span_error_msg">' + msg + '</span></td></tr>');
 		$tr.find('span.span_error_id').click(function() {
 			console.log("load " + eid);
-			const device = _dbModel.getDevice(did);
+			const device = _cdModel.getDevice(did);
 			device.loadConfig(cid);
 		});
 		this.$body.append($tr);
@@ -1727,7 +1791,7 @@ class PropertyTable extends AbstractMainUi {
 		this.cModel = config;
 		this.driverId = config[KEY_DEVICE_DRIVER];
 		if (device.datype == "C") {
-			this.dModel = _dbModel.getDeviceModel(this.driverId);
+			this.dModel = _cdModel.getDeviceModel(this.driverId);
 		}
 		this.rowEditor = {};
 		this.configRow = null;
@@ -1756,12 +1820,15 @@ class PropertyTable extends AbstractMainUi {
 			if (subConfigId in object.dModel) {
 				$.each(this.cModel, function(key, val){
 					if (key == ID_PROP_CONFIGID) {
-						var options = _dbModel.getConfigNamesOfDevice(object.driverId);
+						var options = _pdModel.getConfigNamesOfDevice(object.driverId);
 						object.configRow = object.createRow(key, val, options, true);
 						$tbody.append(object.configRow.getUI());
 					} else if (key == ID_PROP_IP) {
 //						var options = object.dModel[subConfigId][ID_PROP_IP];
-						var options = object.dModel[KEY_STATIC][ID_PROP_IP];
+//						var options = object.dModel[KEY_STATIC][ID_PROP_IP];
+						const device = _pdModel.getDevice(object.driverId);
+						const options = device.findIps(subConfigId);
+						console.log(options);
 						object.ipRow = object.createRow(key, val, options);
 						$tbody.append(object.ipRow.getUI());
 					} else if (key == ID_PROP_PORT) {
@@ -1780,7 +1847,7 @@ class PropertyTable extends AbstractMainUi {
 					if (key == ID_PROP_CONFIGID) {
 //						var options = obj.device.getConfigArray();
 						StaticUtils.showWarning("configuration " + subConfigId + " not found in physical device: " + obj.driverId);
-						var options = _dbModel.getConfigNamesOfDevice(object.driverId);
+						var options = _pdModel.getConfigNamesOfDevice(object.driverId);
 						options.push(val);
 						object.configRow = obj.createRow(key, val, options);
 						$tbody.append(object.configRow.getUI());
@@ -2148,29 +2215,35 @@ class DictPropertyRow extends PropertyRow {
 		const oldVal = obj.configModel[this.key];
 		
 		const $t2Key = obj.$t2Body.find("td.pair_key > input");
-		const oldKV = $t2Key.val();
-		$t2Key.focus(function() {
-			this.$row.addClass("active");
-		}).blur(function() {
-			this.$row.removeClass("active");
-			obj.updateT2Pair($(this), oldKV, isPair);
-		}).keypress(function( event ) {
-			if ( event.which == 13 ) {
-				$t2Key.blur();
-			}
+		$t2Key.each(function(){
+			const $kInput = $(this);
+			const oldKV = $kInput.val();
+			$kInput.focus(function() {
+				obj.$row.addClass("active");
+			}).blur(function() {
+				obj.$row.removeClass("active");
+				obj.updateT2Pair($kInput, oldKV);
+			}).keypress(function( event ) {
+				if ( event.which == 13 ) {
+					$kInput.blur();
+				}
+			});
 		});
 
 		var $t2Value = obj.$t2Body.find("td.pair_value > input");
-		var oldVV = $t2Value.val();
-		$t2Value.focus(function() {
-			obj.$row.addClass("active");
-		}).blur(function() {
-			obj.$row.removeClass("active");
-			obj.updateT2Pair($(this), oldVV);
-		}).keypress(function( event ) {
-			if ( event.which == 13 ) {
-				t2Value.blur();
-			}
+		$t2Value.each(function(){
+			const $vInput = $(this);
+			var oldVV = $vInput.val();
+			$vInput.focus(function() {
+				obj.$row.addClass("active");
+			}).blur(function() {
+				obj.$row.removeClass("active");
+				obj.updateT2Pair($vInput, oldVV);
+			}).keypress(function( event ) {
+				if ( event.which == 13 ) {
+					$vInput.blur();
+				}
+			});
 		});
 		
 		var $t2Add = obj.$t2Body.find("td.pair_control > button.button_plus");
@@ -2211,7 +2284,7 @@ class DictPropertyRow extends PropertyRow {
 		const $value = $tr.find("td.pair_value > input");
 		var isValid = true;
 		var kv = $key.val().trim();
-		if (!kv || !/^[a-z0-9_]+$/i.test(kv)) {
+		if (!kv || !/^[a-z0-9._]+$/i.test(kv)) {
 			$key.parent().addClass("warning");
 			isValid = false;
 		} else {
@@ -2224,7 +2297,7 @@ class DictPropertyRow extends PropertyRow {
 		} else {
 			$value.parent().removeClass("warning");
 		}
-		console.log($node.val() + " : " + oldVal + " : " + isPair + " : " + isValid);
+		console.log($node.val() + " : " + oldVal + " : " + isValid);
 		if (isValid) {
 			if ($node.val() != oldVal) {
 				$node.addClass("changed");
@@ -2248,7 +2321,7 @@ class DictPropertyRow extends PropertyRow {
 			if (isChanged) {
 				obj.device.setDirtyFlag();
 				const newVal = {};
-				const $trs = tbody.find('tr');
+				const $trs = obj.$t2Body.find('tr');
 				$trs.each(function() {
 					const rk = $(this).find('td.pair_key > input').val();
 					const rv = $(this).find('td.pair_value > input').val();
@@ -2495,7 +2568,7 @@ class StaticPropertyTable extends PropertyTable {
 //		this.cModel = config;
 //		this.driverId = config[KEY_DEVICE_DRIVER];
 //		if (device.datype == "C") {
-//			this.dModel = _dbModel.getDeviceModel(this.driverId);
+//			this.dModel = _pdModel.getDeviceModel(this.driverId);
 //		}
 //		this.configRow = null;
 //		this.ipRow = null;
@@ -2535,14 +2608,16 @@ class HistoryBlock {
 			this.empty();
 			const obj = this;
 			var url = URL_PREFIX + 'dbhistory?';
+			var dbType = COMPOSITE_DB;
 			if (_curDevice) {
-				url += 'did=' + _curDevice.did;
+				dbType = _curDevice.dbType;
+				url += 'dbtype=' + dbType + '&did=' + _curDevice.did;
 			}
 			url += '&' + Date.now();
 			$.get(url, function(data) {
 				data = $.parseJSON(data);
 				$.each(data, function(index, version) {
-					var commit = new CommitItem(version, index);
+					var commit = new CommitItem(dbType, version, index);
 					commit.init(obj.$side);
 				});
 			}).fail(function() {
@@ -2572,7 +2647,8 @@ class CommitItem {
 	
 	$control;
 	
-	constructor(commit, index) {
+	constructor(dbType, commit, index) {
+		this.dbType = dbType;
 		this.commit = commit;
 		this.index = index;
 	}
@@ -2584,6 +2660,7 @@ class CommitItem {
 		var timestamp = this.commit["timestamp"];
 		var btText;
 		var star;
+		const obj = this;
 		if (this.index == 0) {
 			btText = "Current version";
 			star = "* ";
@@ -2602,7 +2679,7 @@ class CommitItem {
 				return;
 			}
 //			var url = URL_PREFIX + 'configload?inst=' + _inst + '&version=' + encodeURI(name) + "&" + Date.now();
-			var url = URL_PREFIX + 'dbload?version=' + encodeURI(name) + "&" + Date.now();
+			var url = URL_PREFIX + 'dbload?dbtype=' + obj.dbType + '&version=' + encodeURI(name) + "&" + Date.now();
 			$.get(url, function(data) {
 				try{
 					_curDevice.fromHistory(data);
@@ -2636,7 +2713,7 @@ class SearchWidget {
 		const cid = $li.attr('cid');
 		this.$msgPop.hide();
 //		const axis = _instModel.getController(mcid).axes[aid];
-		const device = _dbModel.devices[did];
+		const device = _allDevices[did];
 //		axis.load(mid);
 		device.loadConfig(cid);
 		this.$textInput.blur();
@@ -2649,7 +2726,7 @@ class SearchWidget {
 		var html = '';
 //		var found = {};
 		const obj = this;
-		$.each(_dbModel.configsByPath, function(name, pair) {
+		$.each($.extend({}, _pdModel.configsByPath, _cdModel.configsByPath), function(name, pair) {
 			var word = obj.$textInput.val().toLowerCase();
 			if (name.toLowerCase().indexOf(word) >= 0) {
 //				found[name] = path;
@@ -2931,7 +3008,7 @@ class RemoveModal {
 			return;
 		}
 
-		const device = _dbModel.getDevice(did);
+		const device = _cdModel.getDevice(did);
 		var saveMsg = obj.$textInput.val().replace(/^\s+|\s+$/gm,'');
 		
 		try {
@@ -3061,9 +3138,9 @@ class NewDeviceButton {
 //			const $div = $(html);
 			const newModel = $.extend({}, JSON_TEMP_COMPOSITE_DEVICE);
 			
-			_dbModel.addNewCompositeDevice(did, newModel);
+			_cdModel.addNewCompositeDevice(did, newModel);
 			
-//			const device = new CompositeDevice(did, newModel, _dbModel.$compositeMenuBar);
+//			const device = new CompositeDevice(did, newModel, _cdModel.$compositeMenuBar);
 //			_model[did] = newDev;
 //			_curDeviceModel = new DeviceModel(did, newDev);
 //			_curDid = did;
@@ -3129,8 +3206,8 @@ $(document).ready(function() {
 	_errorReport = new ErrorReportUi();
 	_errorReport.createUi();
 	
-	const homeButton = new HomeButton($('#id_span_side_home'));
-	homeButton.init();
+	_homeButton = new HomeButton($('#id_span_side_home'));
+	_homeButton.init();
 
 	const loadingLabel = new LoadingLabel($('#id_span_waiting'));
 	loadingLabel.init();
@@ -3146,7 +3223,9 @@ $(document).ready(function() {
 	_changeDidModal = new ChangeDidModal();
 	_changeDidModal.init();
 
-	_dbModel.load();
+	_pdModel.load(function() {
+		_cdModel.load(null);
+	});
 	
 	_historyBar = new HistoryBlock($("#id_div_main_area"), $('#id_div_right_bar'));
 	$('#id_button_history').click(function(){

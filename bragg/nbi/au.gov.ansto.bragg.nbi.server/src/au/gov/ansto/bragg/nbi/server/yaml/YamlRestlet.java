@@ -109,15 +109,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 	private static String localPath;
 	private static String yamlName;
 	
-
-	public YamlRestlet(){
-		this(null);
-	}
-	/**
-	 * @param context
-	 */
-	public YamlRestlet(Context context) {
-		super(context);
+	static {
 		configPath = System.getProperty(PROPERTY_SERVER_YAML_PATH);
 		tempPath = System.getProperty(PROPERTY_SERVER_TEMP_PATH);
 		user = System.getProperty(PROPERTY_SSH_USER);
@@ -134,9 +126,6 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 		yamlName = System.getProperty(PROPERTY_YAML_FILENAME);
 		localPath = System.getProperty(PROPERTY_SERVER_SHARE);
 		gitServiceMap = new HashMap<String, GitService>();
-//		if (configPath != null) {
-//			gitService = new GitService(configPath);
-//		}
 		if (formater == null) {
 			formater = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
 		}
@@ -148,6 +137,19 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			}
 			JSON_OK = json.toString();
 		}
+	}
+	
+	public YamlRestlet(){
+		this(null);
+	}
+	/**
+	 * @param context
+	 */
+	public YamlRestlet(Context context) {
+		super(context);
+//		if (configPath != null) {
+//			gitService = new GitService(configPath);
+//		}
 	}
 
 	private synchronized static GitService getGitService(String instrumentId) {

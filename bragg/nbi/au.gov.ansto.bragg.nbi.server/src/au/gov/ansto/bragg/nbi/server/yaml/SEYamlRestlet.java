@@ -49,12 +49,14 @@ import au.gov.ansto.bragg.nbi.server.login.UserSessionObject;
  */
 public class SEYamlRestlet extends AbstractUserControlRestlet implements IDisposable {
 
-	private static final String PROPERTY_SERVER_SEDB_NAME = "gumtree.server.SEDBName";
+	private static final String PROPERTY_SERVER_SEPD_NAME = "gumtree.server.SEPDName";
+	private static final String PROPERTY_SERVER_SECD_NAME = "gumtree.server.SECDName";
 	private static final String PROPERTY_SERVER_SEDB_PATH = "gumtree.server.SEDBPath";
 	private static final String PROPERTY_SERVER_SECONFIG_NAME = "gumtree.server.SEConfigName";
 	private static final String PROPERTY_SERVER_SECONFIG_PATH = "gumtree.server.SEConfigPath";
 
 	private static final String QUERY_ENTRY_INSTRUMENT = "inst";
+	private static final String QUERY_ENTRY_DBTYPE = "dbtype";
 	private static final String QUERY_ENTRY_DEVICEID = "did";
 	private static final String QUERY_ENTRY_MESSAGE = "msg";
 	private static final String QUERY_ENTRY_OLDDID = "oldDid";
@@ -75,9 +77,12 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 	private static final String SEG_NAME_CHANGENAME = "changeName";
 	
 	private static final String QUERY_ENTRY_PATH = "path";
+	private static final String DBTYPE_PHYSICAL = "PD";
+	private static final String DBTYPE_COMPOSITE = "CD";
 
 	private static String dbPath;
-	private static String dbName;
+	private static String pdName;
+	private static String cdName;
 	private static String configPath;
 	private static String configName;
 
@@ -88,16 +93,10 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 
 	private static final Logger logger = LoggerFactory.getLogger(SEYamlRestlet.class);
 
-	public SEYamlRestlet(){
-		this(null);
-	}
-	/**
-	 * @param context
-	 */
-	public SEYamlRestlet(Context context) {
-		super(context);
+	static {
 		dbPath = System.getProperty(PROPERTY_SERVER_SEDB_PATH);
-		dbName = System.getProperty(PROPERTY_SERVER_SEDB_NAME);
+		pdName = System.getProperty(PROPERTY_SERVER_SEPD_NAME);
+		cdName = System.getProperty(PROPERTY_SERVER_SECD_NAME);
 		configPath = System.getProperty(PROPERTY_SERVER_SECONFIG_PATH);
 		configName = System.getProperty(PROPERTY_SERVER_SECONFIG_NAME);
 		
@@ -114,6 +113,16 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 			}
 			JSON_OK = json.toString();
 		}
+	}
+	
+	public SEYamlRestlet(){
+		this(null);
+	}
+	/**
+	 * @param context
+	 */
+	public SEYamlRestlet(Context context) {
+		super(context);
 	}
 
 	@Override
@@ -139,10 +148,11 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		if (session != null && session.isValid()) {
 			if (SEG_NAME_SEDB.equalsIgnoreCase(seg)){
 				try {
-//					Form form = request.getResourceRef().getQueryAsForm();
+					Form form = request.getResourceRef().getQueryAsForm();
+					String dbType = form.getValues(QUERY_ENTRY_DBTYPE);
 //					response.setEntity("Done", MediaType.TEXT_PLAIN);
 //					copyFromRemote(instrumentId, session);
-					Object model = loadSEDB();
+					Object model = loadSEDB(dbType);
 					JSONObject jsonObject = (JSONObject) _convertToJson(model);
 //					JSONObject jsonObject = new JSONObject(model.toString());
 					response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
@@ -177,9 +187,14 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 			} else if (SEG_NAME_DBHISTORY.equalsIgnoreCase(seg)) {
 				try {
 					Form form = request.getResourceRef().getQueryAsForm();
-//					String did = form.getValues(QUERY_ENTRY_DEVICEID);
+					String dbType = form.getValues(QUERY_ENTRY_DBTYPE);
 					String did = form.getValues(QUERY_ENTRY_DEVICEID);
-					List<GitCommit> commits = getSEDBGitService().getCommits(dbName);
+					List<GitCommit> commits;
+					if (DBTYPE_PHYSICAL.equals(dbType)) {
+						commits = getSEDBGitService().getCommits(pdName);
+					} else {
+						commits = getSEDBGitService().getCommits(cdName);
+					}
 //					JSONObject jsonObject = new JSONObject(new LinkedHashMap<String, Object>());
 					JSONArray jsonArray = new JSONArray();
 //					int i = 0;
@@ -258,6 +273,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 					}
 					Representation rep = request.getEntity();
 					Form form = request.getResourceRef().getQueryAsForm();
+					String dbType = form.getValues(QUERY_ENTRY_DBTYPE);
 					String saveMessage = form.getValues(QUERY_ENTRY_MESSAGE);
 //					String versionId = form.getValues(QUERY_ENTRY_VERSION_ID);
 					String text = rep.getText();
@@ -269,7 +285,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 //					if (versionId != null && versionId.length() > 0) {
 //						saveTempConfigModel(versionId, text, saveMessage, session);
 //					} else {
-					saveDBConfigModel(text, saveMessage, session);
+					saveDBConfigModel(dbType, text, saveMessage, session);
 //					}
 //					copyToRemote();
 					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
@@ -283,8 +299,14 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 			} else if (SEG_NAME_DBLOAD.equalsIgnoreCase(seg)){
 				try {
 					Form form = request.getResourceRef().getQueryAsForm();
+					String dbType = form.getValues(QUERY_ENTRY_DBTYPE);
 					String objectId = form.getValues(QUERY_ENTRY_VERSION_ID);
-					String text = getSEDBGitService().readRevisionOfFile(dbName, objectId);
+					String text;
+					if (DBTYPE_COMPOSITE.equals(dbType)) {
+						text = getSEDBGitService().readRevisionOfFile(cdName, objectId);
+					} else {
+						text = getSEDBGitService().readRevisionOfFile(pdName, objectId);
+					}
 					YamlRestlet.saveRevisionToTempFile(objectId, text);
 					Object model = YamlRestlet.loadConfigModelFromText(text);
 					JSONObject jsonObject = (JSONObject) _convertToJson(model);
@@ -323,6 +345,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 					Representation rep = request.getEntity();
 					Form query = request.getResourceRef().getQueryAsForm();
 					String saveMessage = query.getValues(QUERY_ENTRY_MESSAGE);
+					String dbType = query.getValues(QUERY_ENTRY_DBTYPE);
 					Form form = new Form(rep);
 					String oldDid = form.getValues(QUERY_ENTRY_OLDDID);
 					String newDid = form.getValues(QUERY_ENTRY_NEWDID);
@@ -336,7 +359,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 //					if (versionId != null && versionId.length() > 0) {
 //						saveTempConfigModel(versionId, text, saveMessage, session);
 //					} else {
-					changeDBDeviceName(oldDid, newDid, saveMessage, session);
+					changeDBDeviceName(dbType, oldDid, newDid, saveMessage, session);
 //					}
 //					copyToRemote();
 					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
@@ -354,12 +377,13 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 					}
 					Representation rep = request.getEntity();
 					Form form = request.getResourceRef().getQueryAsForm();
+					String dbType = form.getValues(QUERY_ENTRY_DBTYPE);
 					String did = form.getValues(QUERY_ENTRY_DEVICEID);
 					String saveMessage = form.getValues(QUERY_ENTRY_MESSAGE);
 //					if (versionId != null && versionId.length() > 0) {
 //						saveTempConfigModel(versionId, text, saveMessage, session);
 //					} else {
-					deleteDBConfigModel(did, saveMessage, session);
+					deleteDBConfigModel(dbType, did, saveMessage, session);
 //					}
 //					copyToRemote();
 					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
@@ -439,10 +463,10 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		}
 	}
 
-	public static void changeDBDeviceName(String oldDid, String newDid, String message, UserSessionObject session) 
+	public static void changeDBDeviceName(String dbType, String oldDid, String newDid, String message, UserSessionObject session) 
 			throws IOException, JSONException, GitException {
 		String userName = session.getUserName().toUpperCase();
-		String filePath = getSEDBPath();
+		String filePath = getSEDBPath(dbType);
 		GitService git = getSEDBGitService();
 //		saveModel(filePath, text, message, userName, git);
 		if (oldDid == null || oldDid.trim().length() == 0 || newDid == null || newDid.trim().length() == 0) {
@@ -489,10 +513,10 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 
 	}
 
-	public static void deleteDBConfigModel(String did, String message, UserSessionObject session) 
+	public static void deleteDBConfigModel(String dbType, String did, String message, UserSessionObject session) 
 			throws IOException, JSONException, GitException {
 		String userName = session.getUserName().toUpperCase();
-		String filePath = getSEDBPath();
+		String filePath = getSEDBPath(dbType);
 		GitService git = getSEDBGitService();
 //		saveModel(filePath, text, message, userName, git);
 		if (did == null || did.trim().length() == 0 ) {
@@ -539,10 +563,10 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 	}
 	
 	
-	public static void saveDBConfigModel(String text, String message, UserSessionObject session) 
+	public static void saveDBConfigModel(String dbType, String text, String message, UserSessionObject session) 
 			throws IOException, JSONException, GitException {
 		String userName = session.getUserName().toUpperCase();
-		String filePath = getSEDBPath();
+		String filePath = getSEDBPath(dbType);
 		GitService git = getSEDBGitService();
 		saveModel(filePath, text, message, userName, git);
 	}
@@ -783,12 +807,12 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		}
 	}
 	
-	public static Object loadSEDB() throws IOException {
+	public static Object loadSEDB(String dbType) throws IOException {
 	    DumperOptions options = new DumperOptions();
 	    options.setPrettyFlow(true);
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         Yaml yaml = new Yaml(options);
-		InputStream input = new FileInputStream(new File(getSEDBPath()));
+		InputStream input = new FileInputStream(new File(getSEDBPath(dbType)));
 		try {
 			Object data = yaml.load(input);
 			return data;
@@ -811,8 +835,12 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		}
 	}
 
-	private static String getSEDBPath() {
-		return dbPath + "/" + dbName;
+	private static String getSEDBPath(String dbType) {
+		if (DBTYPE_COMPOSITE.equals(dbType)) {
+			return dbPath + "/" + cdName;
+		} else {
+			return dbPath + "/" + pdName;
+		}
 	}
 
 	private static String getSEConfigPath(String instrumentId) {

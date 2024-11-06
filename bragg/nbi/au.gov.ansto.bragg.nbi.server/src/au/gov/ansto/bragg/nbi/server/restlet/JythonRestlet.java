@@ -109,31 +109,34 @@ public class JythonRestlet extends AbstractUserControlRestlet implements IDispos
 	    String sessionId = form.getValues(QUERY_ENTRY_SESSIONID);
 	    String proposalId = form.getValues(QUERY_ENTRY_PROPOSALID);
 	    try {
-	    	String currentSessionId = controlDb.getCurrentSessionId();
-	    	String currentProposal = proposalDb.findProposalId(currentSessionId);
-	    	if (proposalId != null && !proposalId.equals("undefined")) {
-	    		if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
-	    			allowAccess = true;
-	    		} else {
-	    			if (proposalId.equals(currentProposal)) {
-	    				if (allowAccessCurrentPage(session, sessionId, proposalDb)){
-	    					allowAccess = true;
+	    	allowAccess = UserSessionService.verifyService(session, UserSessionService.NAME_SERVICE_NOTEBOOKMANAGER);
+	    	if (!allowAccess) {
+	    		String currentSessionId = controlDb.getCurrentSessionId();
+	    		String currentProposal = proposalDb.findProposalId(currentSessionId);
+	    		if (proposalId != null && !proposalId.equals("undefined")) {
+	    			if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
+	    				allowAccess = true;
+	    			} else {
+	    				if (proposalId.equals(currentProposal)) {
+	    					if (allowAccessCurrentPage(session, sessionId, proposalDb)){
+	    						allowAccess = true;
+	    					}
 	    				}
 	    			}
-	    		}
-	    	} else if (sessionId != null) {
-	    		proposalId = proposalDb.findProposalId(sessionId);
-	    		if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
-	    			allowAccess = true;
-	    		}
-	    	} else {
-	    		sessionId = currentSessionId;
-	    		proposalId = currentProposal;
-	    		//			if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
-	    		//				allowAccess = true;
-	    		//			}
-	    		if (allowAccessCurrentPage(session, sessionId, proposalDb)){
-	    			allowAccess = true;
+	    		} else if (sessionId != null) {
+	    			proposalId = proposalDb.findProposalId(sessionId);
+	    			if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
+	    				allowAccess = true;
+	    			}
+	    		} else {
+	    			sessionId = currentSessionId;
+	    			proposalId = currentProposal;
+	    			//			if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
+	    			//				allowAccess = true;
+	    			//			}
+	    			if (allowAccessCurrentPage(session, sessionId, proposalDb)){
+	    				allowAccess = true;
+	    			}
 	    		}
 	    	}
 	    } catch (Exception e) {
