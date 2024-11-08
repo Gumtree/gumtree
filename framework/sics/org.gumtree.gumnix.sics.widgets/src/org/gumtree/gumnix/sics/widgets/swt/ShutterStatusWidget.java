@@ -34,6 +34,9 @@ import org.osgi.service.event.Event;
 @SuppressWarnings("restriction")
 public class ShutterStatusWidget extends ExtendedSicsComposite {
 
+	private static final String PROP_PATH_SECONDARY_SHUTTER = "gumtree.sics.path.secondaryshutter";
+	private static final String PROP_PATH_TERTIARY_SHUTTER = "gumtree.sics.path.tertiaryshutter";
+
 	private IDataAccessManager dataAccessManager;
 
 	private IDelayEventExecutor delayEventExecutor;
@@ -59,21 +62,21 @@ public class ShutterStatusWidget extends ExtendedSicsComposite {
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(label);
 		Context context = new Context();
-		context.path = "/instrument/status/secondary";
+		context.path = System.getProperty(PROP_PATH_SECONDARY_SHUTTER);
 		context.label = label;
 		context.originalForeground = label.getForeground();
 		context.handler = new HdbEventHandler(context, getDelayEventExecutor())
 				.activate();
 		contexts.add(context);
 
-		label = getWidgetFactory().createLabel(this, "Sample - ",
+		label = getWidgetFactory().createLabel(this, "Tertiary - ",
 				SWT.CENTER | SWT.WRAP | SWT.BORDER);
 		label.setFont(JFaceResources.getFontRegistry().getBold(
 				JFaceResources.DEFAULT_FONT));
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(label);
 		context = new Context();
-		context.path = "/instrument/status/tertiary";
+		context.path = System.getProperty(PROP_PATH_TERTIARY_SHUTTER);
 		context.label = label;
 		context.originalForeground = label.getForeground();
 		context.handler = new HdbEventHandler(context, getDelayEventExecutor())
@@ -185,10 +188,10 @@ public class ShutterStatusWidget extends ExtendedSicsComposite {
 				for (final Context context : contexts) {
 					// Set label text
 					StringBuilder builder = new StringBuilder();
-					if (context.path.endsWith("secondary")) {
+					if (context.path.contains("secondary")) {
 						builder.append("Secondary - ");
-					} else if (context.path.endsWith("tertiary")) {
-						builder.append("Sample - ");
+					} else if (context.path.contains("tertiary")) {
+						builder.append("Tertiary - ");
 					}
 					context.label.setText(builder.toString());
 					context.label.setBackground(null);
@@ -278,23 +281,24 @@ public class ShutterStatusWidget extends ExtendedSicsComposite {
 				}
 				// Set label text
 				StringBuilder builder = new StringBuilder();
-				if (context.path.endsWith("secondary")) {
+				if (context.path.contains("secondary")) {
 					builder.append("Secondary - ");
-				} else if (context.path.endsWith("tertiary")) {
-					builder.append("Sample - ");
+				} else if (context.path.contains("tertiary")) {
+					builder.append("Tertiary - ");
 				}
-				builder.append(data);
-				context.label.setText(builder.toString());
+//				builder.append(data);
 				// Set colour based on status
 				if (data.equalsIgnoreCase("Opened")
-						| data.equalsIgnoreCase("OPEN")) {
+						| data.equalsIgnoreCase("OPEN") | data.startsWith("1")) {
+					builder.append("OPEN");
 					context.label.setBackground(getDisplay().getSystemColor(
 							SWT.COLOR_GREEN));
 					context.label.setForeground(getDisplay().getSystemColor(
 							SWT.COLOR_BLACK));
 					context.isActivated = true;
 				} else if (data.equalsIgnoreCase("Closed")
-						| data.equalsIgnoreCase("CLOSE")) {
+						| data.equalsIgnoreCase("CLOSE") | data.startsWith("0")) {
+					builder.append("CLOSED");
 					context.label.setBackground(getDisplay().getSystemColor(
 							SWT.COLOR_RED));
 					context.label.setForeground(getDisplay().getSystemColor(
@@ -305,6 +309,7 @@ public class ShutterStatusWidget extends ExtendedSicsComposite {
 					context.label.setForeground(context.originalForeground);
 					context.isActivated = false;
 				}
+				context.label.setText(builder.toString());
 			}
 		});
 	}

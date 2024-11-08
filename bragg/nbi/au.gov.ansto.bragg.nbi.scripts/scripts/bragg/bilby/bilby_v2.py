@@ -202,13 +202,13 @@ def nguide(val1, val2, val3):
     v3 = str(val3).upper()
     if v3 != 'D10' and v3 != 'D20' and v3 != 'D40' and v3 != 'S40' and v3 != 'R100' :
         raise Exception, 'third parameter must select from the list [D10, D20, D40, S40, R100]'
-    return control.get_raw_value('nguide ' + str(val1) + ' ' + str(v2) + ' ' + str(v3), )
+    return str(control.execute('nguide ' + str(val1) + ' ' + str(v2) + ' ' + str(v3)))
 
 def sapmot(val = None):
     if not val is None:
         if type(val) is float or type(val) is int :
             val = 'D' + str(val)
-        control.run_command('pdrive sapmot ' + str(val))
+        control.send_command('pdrive sapmot ' + str(val))
     return control.get_raw_value('posname sapmot', str)
 
 def samx(val = None):
@@ -350,24 +350,24 @@ def dhv(val = None):
     if not val is None:
         log('driving dhv ' + str(val))
         if val.upper() == 'UP':
-            res = control.run_command('dhv up')
+            res = control.send_command('dhv up')
             if res.find('Full Stop') >= 0:
                 raise Exception, res
         elif val.upper() == 'DOWN':
 #             dhv1_down = sics.get_raw_value('dhv1 lower')
 #             dhv2_down = sics.get_raw_value('dhv2 lower')
 #             res = sics.run_command('drive dhv1 ' + str(dhv1_down) + ' dhv2 ' + str(dhv2_down))
-            res = control.run_command('dhv down')
+            res = control.send_command('dhv down')
             if res.find('Full Stop') >= 0:
                 raise Exception, res
         elif val.upper() == 'OFF':
-            res = control.run_command('dhv off')
+            res = control.send_command('dhv off')
             if res.find('Full Stop') >= 0:
                 raise Exception, res
         elif val.upper() == 'DOWN':
             raise Exception, 'invalid dhv parameter: ' + str(val)
     else:
-        res = control.run_command('dhv status')
+        res = control.send_command('dhv status')
         if not 'ERROR' in res:
             return res.upper()
         else:
@@ -407,7 +407,7 @@ class DetectorSystem :
             cmd += ' curtainu ' + str(curtainu)
         if not curtaind is None:
             cmd += ' curtaind ' + str(curtaind)
-        res = control.run_command(cmd)
+        res = control.send_command(cmd)
         if not res is None and res.find('Full Stop') >= 0:
             raise Exception, res
         
