@@ -31,6 +31,9 @@ import org.gumtree.widgets.swt.util.SafeUIRunner;
 @SuppressWarnings("restriction")
 public class ShutterGroupWidget extends ExtendedWidgetComposite {
 
+	private static final String PROP_PATH_SECONDARY_SHUTTER = "gumtree.sics.path.secondaryshutter";
+	private static final String PROP_PATH_TERTIARY_SHUTTER = "gumtree.sics.path.tertiaryshutter";
+	
 	private IDataAccessManager dataAccessManager;
 
 	private IDelayEventExecutor delayEventExecutor;
@@ -49,26 +52,26 @@ public class ShutterGroupWidget extends ExtendedWidgetComposite {
 		setBackgroundMode(SWT.INHERIT_FORCE);
 		GridLayoutFactory.swtDefaults().applyTo(this);
 
-		Label label = getWidgetFactory().createLabel(this, "Secondary\n--",
+		Label label = getWidgetFactory().createLabel(this, "Secondary --",
 				SWT.CENTER | SWT.WRAP | SWT.BORDER);
 		label.setFont(JFaceResources.getFontRegistry().getBold(
 				JFaceResources.DEFAULT_FONT));
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(label);
 		Context context = new Context();
-		context.path = "/instrument/status/secondary";
+		context.path = System.getProperty(PROP_PATH_SECONDARY_SHUTTER);
 		context.label = label;
 		context.originalForeground = label.getForeground();
 		contexts.add(context);
 
-		label = getWidgetFactory().createLabel(this, "Sample\n--",
+		label = getWidgetFactory().createLabel(this, "Tertiary --",
 				SWT.CENTER | SWT.WRAP | SWT.BORDER);
 		label.setFont(JFaceResources.getFontRegistry().getBold(
 				JFaceResources.DEFAULT_FONT));
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(label);
 		context = new Context();
-		context.path = "/instrument/status/tertiary";
+		context.path = System.getProperty(PROP_PATH_TERTIARY_SHUTTER);
 		context.label = label;
 		context.originalForeground = label.getForeground();
 		contexts.add(context);
@@ -194,12 +197,12 @@ public class ShutterGroupWidget extends ExtendedWidgetComposite {
 				for (final Context context : contexts) {
 					// Set label text
 					StringBuilder builder = new StringBuilder();
-					if (context.path.endsWith("secondary")) {
-						builder.append("Secondary\n");
-					} else if (context.path.endsWith("tertiary")) {
-						builder.append("Sample\n");
+					if (context.path.contains("secondary")) {
+						builder.append("Secondary -- ");
+					} else if (context.path.contains("tertiary")) {
+						builder.append("Tertiary -- ");
 					}
-					builder.append("--");
+//					builder.append("--");
 					context.label.setText(builder.toString());
 					context.label.setBackground(null);
 					context.label.setForeground(context.originalForeground);
@@ -316,10 +319,10 @@ public class ShutterGroupWidget extends ExtendedWidgetComposite {
 				}
 				// Set label text
 				StringBuilder builder = new StringBuilder();
-				if (context.path.endsWith("secondary")) {
-					builder.append("Secondary\n");
-				} else if (context.path.endsWith("tertiary")) {
-					builder.append("Sample\n");
+				if (context.path.contains("secondary")) {
+					builder.append("Secondary - ");
+				} else if (context.path.contains("tertiary")) {
+					builder.append("Tertiary - ");
 				}
 				builder.append(data);
 				context.label.setText(builder.toString());

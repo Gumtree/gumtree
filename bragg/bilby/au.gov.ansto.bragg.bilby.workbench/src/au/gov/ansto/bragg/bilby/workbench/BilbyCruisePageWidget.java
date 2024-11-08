@@ -99,14 +99,34 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 			ControllerStatusWidget deviceStatusWidget;
 
 			// Devices
-			PGroup monochromatorGroup = createGroup("DEVICES",
+//			PGroup monochromatorGroup = createGroup("ATTENUATOR",
+//					SharedImage.SPIN.getImage());
+//			deviceStatusWidget = new ControllerStatusWidget(monochromatorGroup, SWT.NONE);
+//			deviceStatusWidget
+//					.addDevice("/instrument/att", "att", null, null)
+//					;
+//			configureWidget(deviceStatusWidget);
+//			deviceStatusWidget.render();
+
+			PGroup vsGroup = createGroup("VELOCITY SELECTOR",
 					SharedImage.SPIN.getImage());
-			deviceStatusWidget = new ControllerStatusWidget(monochromatorGroup, SWT.NONE);
+			deviceStatusWidget = new ControllerStatusWidget(vsGroup, SWT.NONE);
 			deviceStatusWidget
-					.addDevice("/instrument/collimator/att", "att", null, null)
-					.addDevice("/instrument/cdd", "cdd", null, null)
-					.addDevice("/instrument/cdr", "cdr", null, null)
-					.addDevice("/instrument/sdh", "sdh", null, null)
+					.addDevice("/instrument/nvs067/lambda", "wavelength", null, "\u212B")
+					;
+			configureWidget(deviceStatusWidget);
+			deviceStatusWidget.render();
+
+			// Choppers
+			PGroup chopperGroup = createGroup("CHOPPERS",
+					SharedImage.GEAR.getImage());
+			deviceStatusWidget = new ControllerStatusWidget(chopperGroup, SWT.NONE);
+			deviceStatusWidget
+					.addDevice("/instrument/t0_chopper_id", "T0 chopper ID", null, "")
+					.addDevice("/instrument/t0_chopper_freq", "T0 chopper frequency", null, "Hz")
+					.addDevice("/instrument/master1_chopper_id", "master1 chopper", null, "")
+					.addDevice("/instrument/master2_chopper_id", "master2 chopper", null, "")
+					.addDevice("/instrument/master_chopper_freq", "master chopper frequency", null, "Hz")
 					;
 			configureWidget(deviceStatusWidget);
 			deviceStatusWidget.render();
@@ -116,10 +136,9 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 					SharedImage.POWER.getImage());
 			deviceStatusWidget = new ControllerStatusWidget(detectorGroup, SWT.NONE);
 			deviceStatusWidget
-					.addDevice("/instrument/detector/total_counts", "total counts", null, "cts")
-					.addDevice("/instrument/detector/cdl", "cdl", null, null)
-					.addDevice("/instrument/detector/cdu", "cdu", null, null)
-					.addDevice("/instrument/det", "det", null, "")
+					.addDevice("/instrument/att", "att", null, null)
+					.addDevice("/instrument/nguide", "guide", null, null)
+					.addDevice("/instrument/detector/det", "det", null, "")
 					;
 			configureWidget(deviceStatusWidget);
 			deviceStatusWidget.render();
@@ -129,17 +148,8 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 					SharedImage.MONITOR.getImage());
 			deviceStatusWidget = new ControllerStatusWidget(monitorGroup, SWT.NONE);
 			deviceStatusWidget
-					.addDevice("/monitor/bm1_counts", "BM1 counts", null, "cts")
-					.addDevice("/monitor/bm2_counts", "BM2 counts", null, "cts");
-			configureWidget(deviceStatusWidget);
-
-			// Choppers
-			PGroup chopperGroup = createGroup("CHOPPERS",
-					SharedImage.POSITIONER.getImage());
-			deviceStatusWidget = new ControllerStatusWidget(chopperGroup, SWT.NONE);
-			deviceStatusWidget
-					.addDevice("/instrument/master_chopper_id", "master chopper", null, "")
-					;
+					.addDevice("/monitor/data", "monitor counts", null, "")
+					.addDevice("/instrument/detector/total_counts", "detector counts", null, "");
 			configureWidget(deviceStatusWidget);
 			deviceStatusWidget.render();
 
@@ -148,7 +158,19 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 					SharedImage.BEAKER.getImage());
 			deviceStatusWidget = new ControllerStatusWidget(sampleGroup, SWT.NONE);
 			deviceStatusWidget
-					.addDevice("/sample/name", "Name", null, "")
+					.addDevice("/sample/name", "name", null, "")
+					;
+			configureWidget(deviceStatusWidget);
+			deviceStatusWidget.render();
+
+			// Sample Info
+			PGroup bsGroup = createGroup("BEAM STOPS",
+					SharedImage.POSITIONER.getImage());
+			deviceStatusWidget = new ControllerStatusWidget(bsGroup, SWT.NONE);
+			deviceStatusWidget
+					.addDevice("/instrument/detector/bs3", "bs3", null, "")
+					.addDevice("/instrument/detector/bs4", "bs4", null, "")
+					.addDevice("/instrument/detector/bs5", "bs5", null, "")
 					;
 			configureWidget(deviceStatusWidget);
 			deviceStatusWidget.render();
