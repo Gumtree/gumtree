@@ -51,6 +51,7 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
+import au.gov.ansto.bragg.nbi.server.NBIServerProperties;
 import au.gov.ansto.bragg.nbi.server.git.GitException;
 import au.gov.ansto.bragg.nbi.server.git.GitService;
 import au.gov.ansto.bragg.nbi.server.git.GitService.GitCommit;
@@ -89,8 +90,6 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 	
 	private static final String PROPERTY_SSH_USER = "gumtree.ssh.username";
 	private static final String PROPERTY_SSH_HOST = "gumtree.ssh.host";
-	private static final String PROPERTY_SSH_KEYPATH = "gumtree.ssh.keypath";
-	private static final String PROPERTY_SSH_PASSPHRASE = "gumtree.ssh.passphrase";
 	
 	private static final Logger logger = LoggerFactory.getLogger(YamlRestlet.class);
 	
@@ -114,10 +113,10 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 		tempPath = System.getProperty(PROPERTY_SERVER_TEMP_PATH);
 		user = System.getProperty(PROPERTY_SSH_USER);
 		host = System.getProperty(PROPERTY_SSH_HOST);
-		keyPath = System.getProperty(PROPERTY_SSH_KEYPATH);
+		keyPath = System.getProperty(NBIServerProperties.PROPERTY_SSH_KEYPATH);
 		try {
 //			passphrase = EncryptionUtils.decryptBase64(System.getProperty(PROPERTY_SSH_PASSPHRASE));
-			passphrase = EncryptionUtils.decryptProperty(PROPERTY_SSH_PASSPHRASE);
+			passphrase = EncryptionUtils.decryptProperty(NBIServerProperties.PROPERTY_SSH_PASSPHRASE);
 		} catch (Exception e1) {
 		}
 		remotePath = System.getProperty(PROPERTY_YAML_REMOTEPATH);

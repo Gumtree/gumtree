@@ -20,6 +20,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -46,7 +47,13 @@ import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepository;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.JschConfigSessionFactory;
 import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.SshSessionFactory;
+import org.eclipse.jgit.transport.SshTransport;
+import org.eclipse.jgit.transport.Transport;
+import org.eclipse.jgit.transport.OpenSshConfig.Host;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -54,19 +61,30 @@ import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
+import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
 import org.eclipse.jgit.util.IO;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
+import org.gumtree.security.EncryptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+
+import au.gov.ansto.bragg.nbi.server.NBIServerProperties;
 
 public class GitService {
 
 	private static Logger logger = LoggerFactory.getLogger(GitService.class);
+	private static String keyPath;
+	private static String passphrase;
 	private Git git;
 	private String repoPath;
 	private String remoteAddress;
 	private Repository repository;
+	private SshSessionFactory sshSessionFactory;
 	
 	public GitService(String path) {
 		repoPath = path;
@@ -76,6 +94,13 @@ public class GitService {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		keyPath = System.getProperty(NBIServerProperties.PROPERTY_SSH_KEYPATH);
+		try {
+//			passphrase = EncryptionUtils.decryptBase64(System.getProperty(PROPERTY_SSH_PASSPHRASE));
+			passphrase = EncryptionUtils.decryptProperty(NBIServerProperties.PROPERTY_SSH_PASSPHRASE);
+		} catch (Exception e1) {
+		}
+		setCredential();
 	}
 
 	public void setRemoteAddress(String remoteAddress) {
@@ -84,6 +109,32 @@ public class GitService {
 	
 	public String getRemoteAddress() {
 		return remoteAddress;
+	}
+	
+	private void setCredential() {
+		sshSessionFactory = new JschConfigSessionFactory() {
+			
+			@Override
+			protected void configure(Host arg0, Session arg1) {
+				
+			}
+			
+			@Override
+			protected JSch createDefaultJSch( FS fs ) throws JSchException {
+			  JSch defaultJSch = super.createDefaultJSch( fs );
+//			  defaultJSch.addIdentity( "/path/to/private_key" );
+			  defaultJSch.addIdentity(keyPath, passphrase);
+//			  java.util.Properties config = new java.util.Properties(); 
+//			  config.put("StrictHostKeyChecking", "no");
+//			  defaultJSch.setConfig(config);
+			  JSch.setConfig("StrictHostKeyChecking", "no");
+			  return defaultJSch;
+			}
+		};
+		
+//		CredentialsProvider credential = new 
+//		PushCommand push = git.push();
+//		push.setCredentialsProvider(credentialsProvider)
 	}
 	
 	public void applyChange() throws GitException {
@@ -143,8 +194,18 @@ public class GitService {
 	public void push() throws GitException {
 		if (git != null) {
 			PushCommand push = git.push();
+			push.setTransportConfigCallback(new TransportConfigCallback() {
+				
+				@Override
+				public void configure(Transport transport) {
+					SshTransport sshTransport = ( SshTransport )transport;
+				    sshTransport.setSshSessionFactory( sshSessionFactory );					
+				}
+			});
+			
 			try {
-				Iterable<PushResult> results = push.setRemote(remoteAddress).call();
+				push.setRemote(remoteAddress);
+				Iterable<PushResult> results = push.call();
 				logger.info("push repository: " + String.valueOf(repoPath) + " to remote git at: " + remoteAddress);
 				for (PushResult result : results) {
 					logger.info("Pushed " + result.getMessages() + " " + result.getURI() + " updates: " + String.valueOf(result.getRemoteUpdates()));

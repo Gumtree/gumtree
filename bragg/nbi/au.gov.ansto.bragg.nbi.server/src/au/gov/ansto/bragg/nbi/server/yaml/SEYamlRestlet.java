@@ -54,6 +54,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 	private static final String PROPERTY_SERVER_SEDB_PATH = "gumtree.server.SEDBPath";
 	private static final String PROPERTY_SERVER_SECONFIG_NAME = "gumtree.server.SEConfigName";
 	private static final String PROPERTY_SERVER_SECONFIG_PATH = "gumtree.server.SEConfigPath";
+	private static final String PROPERTY_SERVER_SEDB_REMOTEGIT = "gumtree.server.SEDBRemoteGit";
 
 	private static final String QUERY_ENTRY_INSTRUMENT = "inst";
 	private static final String QUERY_ENTRY_DBTYPE = "dbtype";
@@ -85,6 +86,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 	private static String cdName;
 	private static String configPath;
 	private static String configName;
+	private static String remoteGit;
 
 	private static String JSON_OK;
 
@@ -99,6 +101,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		cdName = System.getProperty(PROPERTY_SERVER_SECD_NAME);
 		configPath = System.getProperty(PROPERTY_SERVER_SECONFIG_PATH);
 		configName = System.getProperty(PROPERTY_SERVER_SECONFIG_NAME);
+		remoteGit = System.getProperty(PROPERTY_SERVER_SEDB_REMOTEGIT);
 		
 		gitServiceMap = new HashMap<String, GitService>();
 
@@ -695,6 +698,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 				message = userName + " updated " + did + ": " + message;
 			}
 			git.commit(message);
+			git.push();
 		}
 	}
 
@@ -856,6 +860,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 			return gitServiceMap.get(SEG_NAME_SEDB);
 		} else {
 			GitService git = new GitService(dbPath);
+			git.setRemoteAddress(remoteGit);
 			gitServiceMap.put(SEG_NAME_SEDB, git);
 			return git;
 		}
