@@ -45,6 +45,7 @@ import org.gumtree.msw.ui.ktable.editors.KTableCellEditorText2;
 import org.gumtree.msw.ui.ktable.renderers.DefaultCellRenderer;
 import org.gumtree.msw.ui.ktable.renderers.TextCellRenderer;
 
+import au.gov.ansto.bragg.nbi.core.NBISystemProperties;
 import au.gov.ansto.bragg.quokka.msw.ExperimentDescription;
 import au.gov.ansto.bragg.quokka.msw.IModelProviderListener;
 import au.gov.ansto.bragg.quokka.msw.ModelProvider;
@@ -57,6 +58,7 @@ import au.gov.ansto.bragg.quokka.msw.schedule.ICustomInstrumentActionListener;
 import au.gov.ansto.bragg.quokka.msw.util.CsvTable;
 import au.gov.ansto.bragg.quokka.msw.util.LockStateManager;
 
+import org.gumtree.gumnix.sics.core.SicsCore;
 
 public class SamplesComposite extends Composite {
 	// finals
@@ -330,28 +332,53 @@ public class SamplesComposite extends Composite {
 		// setup table
 		tableModel.updateSource(sampleList);
 		
-		// sics listener
-		final ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
-
-			@Override
-			public void connect() {
-				requestSamplePositions.set(true);				
-			}
-
-		};
-
-		try {
-			SicsManager.getSicsProxy().addProxyListener(proxyListener);
-			modelBindings.add(new IModelBinding() {
+		if (NBISystemProperties.USE_NEW_PROXY) {
+			// sics listener
+			final ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
+	
 				@Override
-				public void dispose() {
-					SicsManager.getSicsProxy().removeProxyListener(proxyListener);
+				public void connect() {
+					requestSamplePositions.set(true);				
 				}
-			});
-		}
-		catch (Exception e) {
-			System.out.println("Failed to add listener to sics proxy for connect signal.");  
-			e.printStackTrace();
+	
+			};
+	
+			try {
+				SicsManager.getSicsProxy().addProxyListener(proxyListener);
+				modelBindings.add(new IModelBinding() {
+					@Override
+					public void dispose() {
+						SicsManager.getSicsProxy().removeProxyListener(proxyListener);
+					}
+				});
+			}
+			catch (Exception e) {
+				System.out.println("Failed to add listener to sics proxy for connect signal.");  
+				e.printStackTrace();
+			}
+		} else {
+			// sics listener
+			final org.gumtree.gumnix.sics.io.ISicsProxyListener proxyListener = new org.gumtree.gumnix.sics.io.SicsProxyListenerAdapter() {
+				
+				@Override
+				public void proxyConnected() {
+					requestSamplePositions.set(true);
+				}
+			};
+
+			try {
+				SicsCore.getSicsManager().proxy().addProxyListener(proxyListener);
+				modelBindings.add(new IModelBinding() {
+					@Override
+					public void dispose() {
+						SicsCore.getSicsManager().proxy().removeProxyListener(proxyListener);
+					}
+				});
+			}
+			catch (Exception e) {
+				System.out.println("Failed to add listener to sics proxy for connect signal.");  
+				e.printStackTrace();
+			}
 		}
 	}
 	private static ElementTableModel<SampleList, Sample> createTableModel(final KTable table, Menu menu, final ModelProvider modelProvider) {

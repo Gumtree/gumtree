@@ -3,6 +3,10 @@ package au.gov.ansto.bragg.quokka.msw.util;
 import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.SicsManager;
+import org.gumtree.gumnix.sics.control.controllers.IComponentController;
+import org.gumtree.gumnix.sics.core.SicsCore;
+
+import au.gov.ansto.bragg.nbi.core.NBISystemProperties;
 
 
 public class SampleStage {
@@ -32,24 +36,44 @@ public class SampleStage {
 	
 	// methods
 	public static boolean isLocked(String motorName) {
-		try {
-			ISicsController motor = SicsManager.getSicsModel().findControllerById(
-					motorName);
-			
-			if (motor instanceof IDynamicController) {
-				ISicsController motorFixed = motor.getChild("fixed");
-				Object value = ((IDynamicController) motorFixed).getValue();
-				if ((float) value > 0) {
-					return true;
-				} else {
-					return false;
+		if (NBISystemProperties.USE_NEW_PROXY) {
+			try {
+				ISicsController motor = SicsManager.getSicsModel().findControllerById(
+						motorName);
+
+				if (motor instanceof IDynamicController) {
+					ISicsController motorFixed = motor.getChild("fixed");
+					Object value = ((IDynamicController) motorFixed).getValue();
+					if ((float) value > 0) {
+						return true;
+					} else {
+						return false;
+					}
 				}
 			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				IComponentController motor = SicsCore
+						.getSicsController()
+						.findDeviceController(motorName);
 
+				if (motor instanceof org.gumtree.gumnix.sics.control.controllers.IDynamicController) {
+					IComponentController motorFixed = motor.getChildController("fixed");
+					Object value = ((org.gumtree.gumnix.sics.control.controllers.IDynamicController) motorFixed).getValue();
+					if ((float) value > 0) {
+						return true;
+					} else {
+						return false;
+					}
+				}
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		return false;
 	}
 	
