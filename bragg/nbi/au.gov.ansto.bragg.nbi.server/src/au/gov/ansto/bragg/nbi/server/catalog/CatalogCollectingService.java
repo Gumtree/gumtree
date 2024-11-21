@@ -144,7 +144,7 @@ public class CatalogCollectingService {
 			Map<String, String> dict = new HashMap<String, String>();
 			for (String column : catalogColumns) {
 				String[] pair = column.split(":");
-				if (pair[0].trim() != "#") {
+				if (!pair[0].trim().equals("#")) {
 					IDataItem item = root.findDataItem(pair[0]);
 					if (item != null) {
 						IArray data = item.getData();
