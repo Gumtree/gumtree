@@ -6,6 +6,7 @@ from org.gumtree.control.model import SicsModelUtils
 from org.gumtree.control.events import SicsCallbackAdapter
 from org.gumtree.control.batch import SicsMessageAdapter as MessageAdapter
 from org.gumtree.control.events import SicsControllerAdapter as ControllerAdapter
+from org.gumtree.control.events import SicsProxyListenerAdapter as ProxyAdapter
 from gumpy.commons import logger
 import os
 from datetime import datetime, timedelta
@@ -103,10 +104,15 @@ def sleep(secs, dt=0.1):
 
     handle_interrupt()
     
+def async_command(command, reset_intt = True, callback = _callback):
+    if reset_intt:
+        clear_interrupt()
+    proxy.asyncRun(command, callback)
+    
 def send_command(command, reset_intt = True, callback = _callback):
     if reset_intt:
         clear_interrupt()
-    return proxy.syncRun(command)
+    return proxy.syncRun(command, callback)
     
 # Asynchronously execute any (adhoc) SICS command (without feedback)
 def execute(command, callback = _callback):

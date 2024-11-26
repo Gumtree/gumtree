@@ -22,6 +22,7 @@ public class LoginHandler extends SicsProxyListenerAdapter implements ILoginHand
 	private LoginHandler instance;
 
 	private boolean processing = false;
+	private BaseLoginDialog dialog;
 	
 	public LoginHandler() {
 		instance = this;
@@ -54,7 +55,7 @@ public class LoginHandler extends SicsProxyListenerAdapter implements ILoginHand
 				Shell shell = new Shell(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
 				boolean successed = false;
 				
-				BaseLoginDialog dialog = new InstrumentSpecificLoginDialog(shell, instance);
+				dialog = new InstrumentSpecificLoginDialog(shell, instance);
 //				IInstrumentProfile defaultProfile = null;
 
 //				ICommandLineOptions options = ServiceUtils.getService(ICommandLineOptions.class);
@@ -78,6 +79,7 @@ public class LoginHandler extends SicsProxyListenerAdapter implements ILoginHand
 //						final IInstrumentProfile profile = dialog.getInstrumentProfile();
 						new LoginProgressMonitorDialog(shell).runDialog(context);
 						successed = true;
+						SicsManager.getSicsProxy().removeProxyListener(instance);
 					} catch (Exception e) {
 						e.printStackTrace();
 						dialog.setInitialErrorMessage(e.getMessage());
@@ -124,7 +126,7 @@ public class LoginHandler extends SicsProxyListenerAdapter implements ILoginHand
 										"SICS Error",
 										"SICS may not be initialised correctly\n(Reason: Failed to load instrument model.)");
 					}
-				}
+				} 
 				processing = false;
 			}
 		});
@@ -137,6 +139,19 @@ public class LoginHandler extends SicsProxyListenerAdapter implements ILoginHand
 		}
 	}
 
+	@Override
+	public void connect() {
+		final Display display = PlatformUI.getWorkbench().getDisplay();
+		display.asyncExec(new Runnable() {
+			public void run() {
+				if (dialog != null) {
+					dialog.close();
+				}
+				processing = false;
+			}
+		});
+	}
+	
 	public void setNoMoreLogin(boolean noMoreLogin) {
 		this.noMoreLogin = noMoreLogin;
 	}
