@@ -194,9 +194,9 @@ public class BatchControl implements IBatchControl {
 		public void connect() {
 			if(getStatus().equals(BatchStatus.DISCONNECTED)) {
 				setBatchStatus(BatchStatus.IDLE);
-				if (outputListener == null) {
-					initialise();
-				}
+//				if (outputListener == null) {
+				initialise();
+//				}
 			}
 		}
 		@Override
