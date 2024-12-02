@@ -16,6 +16,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
+import au.gov.ansto.bragg.nbi.core.NBISystemProperties;
+import au.gov.ansto.bragg.nbi.ui.realtime.control.ControlRealtimeDataViewer;
 import au.gov.ansto.bragg.nbi.ui.widgets.SicsRealtimeDataViewer;
 
 /**
@@ -24,7 +26,7 @@ import au.gov.ansto.bragg.nbi.ui.widgets.SicsRealtimeDataViewer;
  */
 public class SicsRealtimeDataView extends ViewPart {
 
-	private SicsRealtimeDataViewer viewer;
+	private Composite viewer;
 	/**
 	 * 
 	 */
@@ -37,7 +39,11 @@ public class SicsRealtimeDataView extends ViewPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		viewer = new SicsRealtimeDataViewer(parent, SWT.NONE);
+		if (NBISystemProperties.USE_NEW_PROXY) {
+			viewer = new ControlRealtimeDataViewer(parent, SWT.NONE);
+		} else {
+			viewer = new SicsRealtimeDataViewer(parent, SWT.NONE);
+		}
 		GridLayoutFactory.fillDefaults().applyTo(viewer);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer);
 //		GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer);
