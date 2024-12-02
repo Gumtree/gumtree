@@ -100,6 +100,8 @@ public class GitService {
 			passphrase = EncryptionUtils.decryptProperty(NBIServerProperties.PROPERTY_SSH_PASSPHRASE);
 		} catch (Exception e1) {
 		}
+		logger.error(keyPath);
+		logger.error(passphrase);
 		setCredential();
 	}
 
@@ -121,6 +123,38 @@ public class GitService {
 			
 			@Override
 			protected JSch createDefaultJSch( FS fs ) throws JSchException {
+			  com.jcraft.jsch.Logger schLogger = new com.jcraft.jsch.Logger() {
+				
+				@Override
+				public void log(int level, String message) {
+					switch (level) {
+					case com.jcraft.jsch.Logger.DEBUG:
+						logger.debug(message);
+						break;
+					case com.jcraft.jsch.Logger.INFO:
+						logger.info(message);
+						break;
+					case com.jcraft.jsch.Logger.WARN:
+						logger.warn(message);
+						break;
+					case com.jcraft.jsch.Logger.ERROR:
+						logger.error(message);
+						break;
+					case com.jcraft.jsch.Logger.FATAL:
+						logger.error(message);
+						break;
+					default:
+						logger.debug(message);
+						break;
+					}
+				}
+				
+				@Override
+				public boolean isEnabled(int level) {
+					return true;
+				}
+			};
+			  JSch.setLogger(schLogger);
 			  JSch defaultJSch = super.createDefaultJSch( fs );
 //			  defaultJSch.addIdentity( "/path/to/private_key" );
 			  defaultJSch.addIdentity(keyPath, passphrase);
