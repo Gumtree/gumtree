@@ -22,7 +22,6 @@ import org.eclipse.swt.widgets.Display;
 import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.model.SicsModelUtils;
-import org.gumtree.control.ui.batch.SicsBatchUIUtils;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.LoopRunner;
 
