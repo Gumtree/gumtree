@@ -94,7 +94,7 @@ public class GitService {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		keyPath = System.getProperty(NBIServerProperties.PROPERTY_SSH_KEYPATH);
+		keyPath = System.getProperty(NBIServerProperties.PROPERTY_SSH_GITKEY);
 		try {
 //			passphrase = EncryptionUtils.decryptBase64(System.getProperty(PROPERTY_SSH_PASSPHRASE));
 			passphrase = EncryptionUtils.decryptProperty(NBIServerProperties.PROPERTY_SSH_PASSPHRASE);
@@ -155,7 +155,8 @@ public class GitService {
 				}
 			};
 			  JSch.setLogger(schLogger);
-			  JSch defaultJSch = super.createDefaultJSch( fs );
+//			  JSch defaultJSch = super.createDefaultJSch( fs );
+			  JSch defaultJSch = new JSch();
 //			  defaultJSch.addIdentity( "/path/to/private_key" );
 			  defaultJSch.addIdentity(keyPath, passphrase);
 //			  java.util.Properties config = new java.util.Properties(); 
