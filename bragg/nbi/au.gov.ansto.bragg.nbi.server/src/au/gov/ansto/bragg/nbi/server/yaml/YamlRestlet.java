@@ -87,6 +87,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 	private static final String PROPERTY_YAML_REMOTEPATH = "gumtree.sics.yamlPath";
 	private static final String PROPERTY_YAML_REMOTEPATH_NEW = "gumtree.sics.yamlPathNew";
 //	private static final String PROPERTY_YAML_NEW_CONFIG_INSTR = "gumtree.sics.newConfigInstr";
+	private static final String PROPERTY_SERVER_REMOTEGIT = "gumtree.server.EERemoteGit";
 	
 	private static final String PROPERTY_SSH_USER = "gumtree.ssh.username";
 	private static final String PROPERTY_SSH_HOST = "gumtree.ssh.host";
@@ -107,6 +108,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 //	private static String newConfigInstr;
 	private static String localPath;
 	private static String yamlName;
+	private static String remoteGit;
 	
 	static {
 		configPath = System.getProperty(PROPERTY_SERVER_YAML_PATH);
@@ -124,6 +126,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 //		newConfigInstr = System.getProperty(PROPERTY_YAML_NEW_CONFIG_INSTR, "");
 		yamlName = System.getProperty(PROPERTY_YAML_FILENAME);
 		localPath = System.getProperty(PROPERTY_SERVER_SHARE);
+		remoteGit = System.getProperty(PROPERTY_SERVER_REMOTEGIT);
 		gitServiceMap = new HashMap<String, GitService>();
 		if (formater == null) {
 			formater = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
@@ -156,6 +159,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 			return gitServiceMap.get(instrumentId);
 		} else {
 			GitService git = new GitService(configPath + "/" + instrumentId);
+			git.setRemoteAddress(getRemoteGitPath(instrumentId));
 			gitServiceMap.put(instrumentId, git);
 			return git;
 		}
@@ -431,6 +435,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 				message = session.getUserName().toUpperCase() + " updated " + path + ": " + message;
 			}
 			git.commit(message);
+			git.push();
 		}
 	}
 
@@ -490,6 +495,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 					message = session.getUserName().toUpperCase() + " updated " + path + ": " + message;
 				}
 				git.commit(message);
+				git.push();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -512,6 +518,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 				git.applyChange();
 				String message = session.getUserName().toUpperCase() + " reversed version to" + ": " + timestamp;
 				git.commit(message);
+				git.push();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -631,6 +638,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 				message = session.getUserName().toUpperCase() + " updated " + path + ": " + message;
 			}
 			git.commit(message);
+			git.push();
 		}
 	}
 	
@@ -654,6 +662,10 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 
 	private static String getHostName(String instrumentId) {
 		return host.replace("$INSTRUMENT", instrumentId);
+	}
+	
+	private static String getRemoteGitPath(String instrumentId) {
+		return remoteGit.replace("$INSTRUMENT", instrumentId);
 	}
 	
 	public static void copyFromRemote(String instrumentId, UserSessionObject session) {
@@ -792,6 +804,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 //						String message = session.getUserName().toUpperCase() + " fetch remote version" + ": " + formater.format(new Date());
 						String message = "System fetch remote version" + ": " + formater.format(new Date());
 						git.commit(message);
+						git.push();
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

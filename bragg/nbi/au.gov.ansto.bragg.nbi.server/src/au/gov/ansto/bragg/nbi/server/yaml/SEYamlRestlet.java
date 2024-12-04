@@ -512,6 +512,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 				message = userName + " updated " + newDid + ": " + message;
 			}
 			git.commit(message);
+			git.push();
 		}
 
 	}
@@ -561,6 +562,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 				message = userName + " deleted " + did + ": " + message;
 			}
 			git.commit(message);
+			git.push();
 		}
 
 	}
@@ -747,6 +749,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 				message = userName + " deleted " + did + ": " + message;
 			}
 			git.commit(message);
+			git.push();
 		}
 
 	}
