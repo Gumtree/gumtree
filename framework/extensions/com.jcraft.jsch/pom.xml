@@ -12,6 +12,6 @@
 	</parent>
 
 	<artifactId>com.jcraft.jsch</artifactId>
-	<version>0.1.46.v201205102330</version>
+	<version>0.1.55-SNAPSHOT</version>
 	<name>Jsch</name>
 </project>
