@@ -124,19 +124,19 @@
 			<url>http://download.eclipse.org/releases/oxygen</url>
 		</repository>
 		-->
-		<!-- Eclipse Juno p2 repository>
+		<!-- Eclipse Juno p2 repository -->
 		<repository>
 			<id>eclipse_juno</id>
 			<layout>p2</layout>
 			<url>file:/x:/eclipse/p2/repo/eclipse/releases/juno</url>
-		</repository-->
-		
+		</repository>
+		<!--
 		<repository>
 			<id>eclipse_juno</id>
 			<layout>p2</layout>
 			<url>http://download.eclipse.org/releases/juno</url>
 		</repository>
-		
+		-->
 		
 		<!-- Gumtree customised p2 repository -->
 		<repository>
