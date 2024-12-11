@@ -11,6 +11,8 @@ public interface IDriveableController extends IDynamicController {
 	boolean commitTargetWithDrive(ISicsCallback callback) throws SicsException;
 	void run() throws SicsException;
 	void run(double target) throws SicsException;
+	void hset() throws SicsException;
+	void hset(double target) throws SicsException;
 	void setTarget(double target);
 	double getSoftzero();
 	double getUpperlim();

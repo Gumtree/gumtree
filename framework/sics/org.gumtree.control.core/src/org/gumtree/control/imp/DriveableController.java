@@ -67,6 +67,17 @@ public class DriveableController extends DynamicController implements IDriveable
 	}
 
 	@Override
+	public void hset() throws SicsException {
+		super.asyncCommitTarget();
+	}
+	
+	@Override
+	public void hset(double target) throws SicsException {
+		setTarget(target);
+		hset();
+	}
+	
+	@Override
 	public void setTarget(double target) {
 		setTargetValue(String.valueOf(target));
 	}

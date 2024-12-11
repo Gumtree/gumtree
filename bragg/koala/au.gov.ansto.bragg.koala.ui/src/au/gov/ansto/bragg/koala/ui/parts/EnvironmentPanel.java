@@ -282,8 +282,9 @@ public class EnvironmentPanel extends AbstractPanel {
 					public void run() {
 						try {
 							if (setpointController instanceof DriveableController) {
-								((DriveableController) setpointController).setTargetValue(targetValue);
-								((DriveableController) setpointController).run();
+//								((DriveableController) setpointController).setTargetValue(targetValue);
+//								((DriveableController) setpointController).run();
+								((DriveableController) setpointController).hset(targetValue);
 							} else {
 								((DynamicController) setpointController).setValue(targetValue);
 							}
