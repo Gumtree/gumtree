@@ -70,6 +70,8 @@ import org.gumtree.ui.widgets.AutoScrollStyledText;
 import org.gumtree.ui.widgets.TimerWidget;
 import org.gumtree.util.bean.AbstractModelObject;
 import org.gumtree.widgets.swt.forms.ExtendedFormComposite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BatchRunnerPage extends ExtendedFormComposite {
 
@@ -80,6 +82,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	private static final String PROP_REMOVE_DOUBLELINEFEED = "gumtree.sics.escapeDoubleLineFeed";
 	
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	
+	private static final Logger logger = LoggerFactory.getLogger(BatchRunnerPage.class);
 	
 	private IBatchBufferManager batchBufferManager;
 
@@ -108,6 +112,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		eventHandler = new IEventHandler<BatchBufferManagerEvent>() {
 			public void handleEvent(final BatchBufferManagerEvent event) {
 				if (event instanceof BatchBufferManagerStatusEvent) {
+					logger.warn("process batch event: " + ((BatchBufferManagerStatusEvent) event).getStatus());
 					updateStatus(((BatchBufferManagerStatusEvent) event).getStatus());
 					String message = ((BatchBufferManagerStatusEvent) event).getMessage();
 					if (message != null) {
@@ -323,6 +328,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 						if (file.getName().endsWith(".tcl")) {
 							IBatchBuffer buffer = new ResourceBasedBatchBuffer(
 									file.getName(), file.getLocationURI());
+							logger.warn("add workspace file " + buffer.getName());
 							getBatchBufferManager().getBatchBufferQueue().add(buffer);
 						}
 					}
@@ -345,6 +351,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 				if (file.getName().endsWith(".tcl")) {
 					IBatchBuffer buffer = new ResourceBasedBatchBuffer(file
 							.getName(), file.toURI());
+					logger.warn("add local file " + buffer.getName());
 					getBatchBufferManager().getBatchBufferQueue().add(buffer);
 				}
 			}
@@ -356,6 +363,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		removeButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				IStructuredSelection selections = (IStructuredSelection) context.queueViewer.getViewer().getSelection();
+				logger.warn("remove all selected buffer files");
 				getBatchBufferManager().getBatchBufferQueue().removeAll(selections.toList());
 			}
 		});
@@ -373,6 +381,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		context.autoRunButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				// Check instrument state
+				logger.warn("run/pause button clicked");
 				if (checkInstrumentReady && !getBatchBufferManager().isAutoRun()) {
 					IInstrumentReadyManager manager = ServiceUtils.getService(IInstrumentReadyManager.class);
 					IInstrumentReadyStatus status = manager.isInstrumentReady();
@@ -388,6 +397,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 						// Disable run
 						getBatchBufferManager().setAutoRun(false);
 						((Button) e.widget).setSelection(false);
+						logger.warn("instrument not ready, stop auto run");
 						return;
 					}
 				} else if (getBatchBufferManager().isAutoRun()) {
@@ -397,6 +407,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					if (!confirm) {
 						getBatchBufferManager().setAutoRun(true);
 						((Button) e.widget).setSelection(true);
+						logger.warn("pausing the queue not confirmed, not pausing");
 						return;
 					}
 				}
@@ -409,12 +420,15 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 							context.logText.setText("");
 							context.logText.resetScroll();
 						}
+						logger.warn("start the queue");
 					} else {
 						context.autoRunButton.setText("Play");
 						context.autoRunButton.setImage(InternalImage.PLAY.getImage());
+						logger.warn("pause the queue");
 					}
 					previousSelection[0] = isAutoRun;
 				}
+				logger.warn("auto run = " + isAutoRun);
 				getBatchBufferManager().setAutoRun(isAutoRun);
 				if (!isAutoRun) {
 					getBatchBufferManager().resetBufferManagerStatus();
@@ -443,6 +457,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 			public void widgetSelected(SelectionEvent e) {
 				try {
 					SicsCore.getSicsController().interrupt();
+					logger.warn("interrupt the batch runner");
 				} catch (SicsIOException e1) {
 					e1.printStackTrace();
 				}
@@ -454,6 +469,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		checkInstrumentButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				checkInstrumentReady = ((Button) e.widget).getSelection();
+				logger.warn("checkInstrumentReady = " + checkInstrumentReady);
 			}
 		});
 		checkInstrumentReady = true;
@@ -469,6 +485,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 				if (context == null || isDisposed()) {
 					return;
 				}
+				logger.warn("update status to " + status.name());
 				context.statusLabel.setText("\n" + status.name() + "\n");
 				if (status.equals(BatchBufferManagerStatus.DISCONNECTED)) {
 					context.statusLabel.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));

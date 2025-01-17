@@ -34,6 +34,8 @@ import org.gumtree.util.LoopRunner;
 import org.gumtree.util.LoopRunnerStatus;
 import org.gumtree.util.PlatformUtils;
 import org.gumtree.util.bean.AbstractModelObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("restriction")
 public class BatchBufferManager extends AbstractModelObject implements IBatchBufferManager {
@@ -46,6 +48,8 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	
 	// Schedule to check queue every 1s
 	private static final int SCHEDULING_INTERVAL = 1000;
+	
+	private static final Logger logger = LoggerFactory.getLogger(BatchBufferManager.class);
 	
 	// The batch buffer container
 	private BatchBufferQueue batchBufferQueue;
@@ -141,6 +145,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 //						asyncSend("hset /experiment/gumtree_time_estimate -1", null);
 //					}
 					if (getBatchBufferQueue().size() > 0) {
+						logger.warn("buffer queue size is " + getBatchBufferQueue().size());
 						try {
 							estimatedTimeForBuffer = ((IBatchBuffer) getBatchBufferQueue().get(0)).getTimeEstimation();
 							timestampOnEstimation = System.currentTimeMillis();
@@ -151,6 +156,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 //							handleExecutionEvent("failed to execute buffer: " + e.getMessage());
 						}
 					} else {
+						logger.warn("buffer queue size is 0, stop the auto-run");
 						asyncSend("hset /experiment/gumtree_time_estimate 0", null);
 						setAutoRun(false);
 					}
@@ -230,6 +236,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		getSicsManager().monitor().addSicsListener(sicsListener);
 		// Schedule queue
 		scheduler.schedule();
+		logger.warn("SICS connect event handled");
 	}
 	
 	protected void handleSicsDisconnect() {
@@ -245,6 +252,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 		setStatus(BatchBufferManagerStatus.DISCONNECTED);
 		// Unschedule queue
 		scheduler.cancel();
+		logger.warn("SICS disconnect event handled");
 	}
 	
 	/***************************************************************
@@ -285,6 +293,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			asyncSend("hset /experiment/gumtree_time_estimate 0", null);
 		}
 		firePropertyChange("autoRun", oldValue, autoRun);
+		logger.warn("set auto run " + autoRun);
 	}
 	
 	public List<IBatchBuffer> getBatchBufferQueue() {
@@ -298,6 +307,8 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	private void execute(IBatchBuffer buffer) throws IOException {
 		synchronized (executionLock) {
 			// Go to preparing mode
+			logger.warn("try to execute buffer " + buffer.getName());
+			
 			setStatus(BatchBufferManagerStatus.PREPARING);
 			
 //	Modified by nxi. Change the uploading strategy. Save the script in the mounted folder instead.			
@@ -409,6 +420,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 				} catch (Exception e) {
 				}
 			}
+			logger.warn("execute buffer " + buffer.getName() + " done");
 		}
 	}
 	
@@ -473,6 +485,8 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	}
 	
 	protected void setStatus(BatchBufferManagerStatus status) {
+		logger.warn("set buffer manager status to be " + status.name());
+		
 		synchronized (this.status) {
 			// Sets status
 			this.status = status;
@@ -493,6 +507,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 				}
 			}
 			// Fires event
+			logger.warn("post batch buffer manager status event " + status.name());
 			PlatformUtils.getPlatformEventBus().postEvent(
 					new BatchBufferManagerStatusEvent(this, status));
 		}
@@ -513,6 +528,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	
 	private void handleException(String err) {
 //		setStatus(BatchBufferManagerStatus.ERROR);
+		logger.warn("handle exception " + err);
 		synchronized (this.status) {
 			this.status = BatchBufferManagerStatus.ERROR;
 			BatchBufferManagerStatusEvent event = new BatchBufferManagerStatusEvent(this, status);
@@ -524,6 +540,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	// Handle range message
 	private void handleExecutionEvent(String message) {
 		try {
+			logger.warn("handle execution event: " + message);
 			String[] rangeInfos = message.split("=");
 			for (int i = 0; i < rangeInfos.length; i++) {
 				rangeInfos[i] = rangeInfos[i].trim(); 
@@ -606,7 +623,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 
 	@Override
 	public void resetBufferManagerStatus() {
-		
+		logger.warn("reset buffer manager status to IDLE");
 		if (getStatus() == BatchBufferManagerStatus.PREPARING || getStatus() == BatchBufferManagerStatus.ERROR){
 			setStatus(BatchBufferManagerStatus.IDLE);
 		}
