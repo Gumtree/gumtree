@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Jeromq
 Bundle-SymbolicName: org.zeromq.jeromq
-Bundle-Version: 5.2.0.qualifier
+Bundle-Version: 6.0.0.qualifier
 Bundle-Vendor: Zeromq
 Require-Bundle: org.eclipse.core.runtime,
  com.neilalexander.jnacl;bundle-version="0.1.0"
@@ -31,9 +31,12 @@ Export-Package: org.zeromq,
  zmq.pipe,
  zmq.poll,
  zmq.socket,
+ zmq.socket.clientserver,
  zmq.socket.pipeline,
  zmq.socket.pubsub,
+ zmq.socket.radiodish,
  zmq.socket.reqrep,
+ zmq.socket.scattergather,
  zmq.util,
  zmq.util.function
-Bundle-ClassPath: jeromq-0.5.2.jar
+Bundle-ClassPath: jeromq-0.6.0.jar
