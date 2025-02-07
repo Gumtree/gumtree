@@ -97,8 +97,8 @@ var devices = [
                {"group":"VELOCITY SELECTOR", 
             	   "items":[
             		   		// {"classId":"vs_pos", "deviceId":"vs_pos", "title":"position", "units":""},
-            	            {"classId":"vs_lambda", "deviceId":"/instrument/nvs067/lambda", "title":"wavelength", "units":"\u212B", "decimal":1},
-            	            {"classId":"vs_speed", "deviceId":"/instrument/nvs067/actspeed", "title":"speed", "units":"rpm", "decimal":1}
+            	            {"classId":"vs_lambda", "deviceId":"/instrument/nvs067/status/wavelength", "title":"wavelength", "units":"\u212B", "decimal":1},
+            	            {"classId":"vs_speed", "deviceId":"/instrument/nvs067/status/rpm", "title":"speed", "units":"rpm", "decimal":1}
             	            ]
                },
                {"group":"CHOPPERS", 
