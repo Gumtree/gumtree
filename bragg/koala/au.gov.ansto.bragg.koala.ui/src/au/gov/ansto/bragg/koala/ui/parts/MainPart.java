@@ -84,7 +84,7 @@ public class MainPart extends Composite {
 //	private AbstractControlPanel nextPanel;
 	private ChemistryModel chemModel;
 	private PhysicsModel physModel;
-	private KoalaMode instrumentMode = KoalaMode.CHEMISTRY;
+	private KoalaMode instrumentMode = KoalaMode.PHYSICS;
 	private ControlHelper control;
 	
 	private boolean isJoeyMode;

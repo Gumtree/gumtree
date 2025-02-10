@@ -531,6 +531,7 @@ public class SingleScan {
 //		temp = scan.getTemp();
 //		phi = scan.getPhi();
 //		chi = scan.getChi();
+		startIndex = scan.getStartIndex();
 		comments = scan.getComments();
 		filename = scan.getFilename();
 		points = scan.getPoints();
