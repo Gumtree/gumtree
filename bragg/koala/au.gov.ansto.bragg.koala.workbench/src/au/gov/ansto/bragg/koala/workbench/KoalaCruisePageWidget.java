@@ -156,13 +156,33 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 					public String convertValue(Object obj) {
 						// TODO Auto-generated method stub
 						String text = obj.toString();
-						if (text != null && text.contains("_")) {
-							text = text.substring(0, text.indexOf("_"));
-						}
+//						if (text != null && text.contains("_")) {
+//							text = text.substring(0, text.indexOf("_"));
+//						}
 						if (text != null && text.length() > 23) {
 							return text.substring(0, 23);
 						} else {
 							return text;
+						}
+					}
+				}, false, new ControllerStatusWidget.ColorConverter() {
+					
+					@Override
+					public Color convertColor(Object value) {
+						if (value != null && value.toString().trim().length() > 0) {
+							try {
+								if ("IDLE".equalsIgnoreCase(value.toString())) {
+									return Activator.getIdleColor();
+								} else if (value.toString().toUpperCase().contains("ERROR")) {
+									return Activator.getWarningColor();
+								} else {
+									return Activator.getBusyForgroundColor();
+								}
+							} catch (Exception e) {
+								return Activator.getWarningColor();
+							}
+						} else {
+							return Activator.getWarningColor();
 						}
 					}
 				})
@@ -215,7 +235,7 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 							case 4:
 								return "B Reverse limit";
 							case 7:
-								return "doors unlocked";
+								return "7:EMO/Trip/ISO/Doors";
 							case 8:
 								return "sz out of beam";
 							case 256:
@@ -242,6 +262,8 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 								int i = Float.valueOf(value.toString()).intValue();
 								if (i < 0) {
 									return Activator.getWarningColor();
+								} else if (i >= 1 && i <= 8) {
+									return Activator.getWarningColor();
 								} else {
 									return Activator.getRunningForgroundColor();
 								}
@@ -253,7 +275,7 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 						}
 					}
 				})
-				.addDevice("/instrument/image/error_msg", "SICS message", null, "", new ControllerStatusWidget.LabelConverter() {
+				.addDevice("/instrument/image/error_msg", "Last Message", null, "", new ControllerStatusWidget.LabelConverter() {
 					
 					@Override
 					public String convertValue(Object obj) {

@@ -81,6 +81,7 @@ public class Activator extends AbstractUIPlugin {
 	private static Color warningColor;
 	private static Color busyColor;
 	private static Color idleColor;
+	private static Color busyForgroundColor;
 	private static Color runningBackgoundColor;
 	private static Color runningForgroundColor;
 
@@ -120,6 +121,7 @@ public class Activator extends AbstractUIPlugin {
 				highlightColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_RED);
 				warningColor = Display.getDefault().getSystemColor(SWT.COLOR_RED);
 				busyColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_GREEN);
+				busyForgroundColor = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
 				idleColor = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
 				lightForgroundColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY);
 				veryLightForgroundColor = Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
@@ -245,5 +247,9 @@ public class Activator extends AbstractUIPlugin {
 		} catch (Exception e) {
 			return false;
 		}
+	}
+
+	public static Color getBusyForgroundColor() {
+		return busyForgroundColor;
 	}
 }
