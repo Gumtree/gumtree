@@ -695,6 +695,9 @@ public class ControlHelper {
 					case 4:
 						errText = "Axis B Reverse limit switch activated. Contact instrument scientist for further instructions.";
 						break;
+					case 7:
+						errText = "Motion disabled: E-stopped or Safety Trip or Isolation Switch off or Doors not locked.";
+						break;
 					case 8:
 						errText = "Sample not within ±12mm of beam height. Use the the 'Move Sample Z to Beam' button in "
 								+ "the footbar of this window to drive sample into the beam.";
