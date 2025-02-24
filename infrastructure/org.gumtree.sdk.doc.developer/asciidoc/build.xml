@@ -5,6 +5,7 @@
 	<!-- Please read the "Book of Gumtree" for setup instructions -->
 
 	<property name="bashLocation" value="X:/apps/Cygwin/1.7.16-1/bin" />
+	<property name="xsltLocation" value="X:/apps/xsltproc" />
 	<property name="asciidocLocation" value="X:/apps/Asciidoc/8.6.8" />
 	<property name="asciidocLocationCygwin" value="/cygdrive/x/apps/Asciidoc/8.6.8" />
 
@@ -27,7 +28,7 @@
 		<exec executable="python">
 			<arg line="${asciidocLocation}/asciidoc.py -v -b docbook ${basedir}/gumtree.txt" />
 		</exec>
-		<exec executable="xsltproc">
+		<exec executable="${xsltLocation}/xsltproc.exe">
 			<arg line="--stringparam chunk.section.depth 0 ${asciidocLocation}/docbook-xsl/chunked.xsl ${basedir}/gumtree.xml" />
 		</exec>
 		<delete file="${basedir}/gumtree.xml" />
