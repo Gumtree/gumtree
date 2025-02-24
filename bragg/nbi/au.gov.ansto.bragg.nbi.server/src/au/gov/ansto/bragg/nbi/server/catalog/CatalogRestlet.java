@@ -26,6 +26,8 @@ import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.nbi.server.internal.AbstractUserControlRestlet;
 import au.gov.ansto.bragg.nbi.server.internal.UserSessionService;
@@ -52,6 +54,7 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 	private static final String QUERY_ENTRY_START = "start";
 	private static final String CATALOG_HELPFILENAME = "guide.xml";
 	
+	private static final Logger logger = LoggerFactory.getLogger(CatalogRestlet.class);
 	
 	private ProposalDB proposalDb;
 	private ControlDB controlDb;
@@ -168,6 +171,7 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 				}
 			} else if (SEG_NAME_READ.equalsIgnoreCase(seg)) {
 				try {
+					System.err.println("handling read");
 					Form form = request.getResourceRef().getQueryAsForm();
 					boolean allowAccess = false;
 					String sessionId = form.getValues(QUERY_ENTRY_SESSIONID);
@@ -184,7 +188,7 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 								}
 							}
 						}
-					} else if (sessionId != null) {
+					} else if (sessionId != null && !sessionId.equalsIgnoreCase("undefined")) {
 						proposalId = proposalDb.findProposalId(sessionId);
 						if (allowReadHistoryProposal(session, proposalId, proposalDb)) {
 							allowAccess = true;
@@ -211,7 +215,7 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 						} else {
 							CatalogDB catalogDb = CatalogDB.getInstance(proposalId);
 							String key = form.getValues(QUERY_ENTRY_KEY);
-							if (key != null) {
+							if (key != null && !key.equalsIgnoreCase("undefined")) {
 								List<String> columnNames = catalogDb.getColumnNames();
 								headerArray = new JSONArray(columnNames);
 								String value = catalogDb.getEntry(key);
@@ -221,7 +225,7 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 								jsonObject.put("body", entryArray);
 							} else {
 								String start = form.getValues(QUERY_ENTRY_START);
-								if (start == null) {
+								if (start == null || start.equalsIgnoreCase("undefined")) {
 									List<String> columnNames = catalogDb.getColumnNames();
 									headerArray = new JSONArray(columnNames);
 									LinkedHashMap<String, Object> items = catalogDb.getAll();
@@ -258,8 +262,10 @@ public class CatalogRestlet extends AbstractUserControlRestlet implements IDispo
 						response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "<span style=\"color:red\">Error: invalid user session.</span>");
 					}
 				} catch (Exception e) {
+					StackTraceElement[] trace = e.getStackTrace();
+					logger.error("read error:", e);
 					response.setEntity("<span style=\"color:red\">Error reading from catalogue database: " 
-								+ e.getMessage() + ".</span>", MediaType.TEXT_PLAIN);
+								+ trace.toString() + ".</span>", MediaType.TEXT_PLAIN);
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
 					return;
 				}

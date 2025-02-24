@@ -142,7 +142,7 @@ public class SicsProxy implements ISicsProxy {
 							}
 						} catch (Exception e) {
 						}
-					} else if (keepConnection && !isConnected && channel != null) {
+					} else if (keepConnection && (!isConnected || isBroken) && channel != null) {
 						try {
 							reconnect();
 						} catch (SicsException e) {
@@ -199,9 +199,9 @@ public class SicsProxy implements ISicsProxy {
 
 		fireConnectionEvent(true);
 		isBroken = false;
-		if (monitorThread == null) {
+		if (monitorThread == null || !monitorThread.isAlive()) {
 			startMonitorThread();
-		}
+		} 
 //		} catch (SicsException e) {
 //			
 //		}
@@ -443,6 +443,9 @@ public class SicsProxy implements ISicsProxy {
 			}
 			try {
 				String msg = channel.syncSend("getgumtreexml /", null);
+//				FileWriter w = new FileWriter("C:/temp/gumtree.xml");
+//				w.write(msg);
+//				w.close();
 				if (msg != null) {
 					int idx = msg.indexOf("<");
 					msg = msg.substring(idx);
@@ -452,6 +455,7 @@ public class SicsProxy implements ISicsProxy {
 					fireModelUpdatedEvent();
 				}
 			} catch (IOException e) {
+				e.printStackTrace();
 				throw new SicsModelException("failed to interpret SICS model text");
 			}
 //		}
@@ -486,6 +490,10 @@ public class SicsProxy implements ISicsProxy {
 		return connectionContext;
 	}
 
+	public boolean isBroken() {
+		return isBroken;
+	}
+	
 	/**
 	 * @return the isModelAvailable
 	 */

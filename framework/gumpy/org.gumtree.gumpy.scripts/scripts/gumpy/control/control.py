@@ -25,10 +25,11 @@ def is_connected():
     return proxy.isConnected()
 
 def get_model():
-    if proxy.isConnected():
-        return proxy.getSicsModel()
-    else:
-        return None
+#     if proxy.isConnected():
+#         return proxy.getSicsModel()
+#     else:
+#         return None
+    return proxy.getSicsModel()
     
 # if '__IS_VALIDATION_MODE__' in globals():
 #     print 'in globals'
@@ -193,7 +194,7 @@ def drive(deviceId, value):
     controller = get_controller(deviceId)
     controller.setTarget(value)
     controller.drive()
-#     handle_interrupt()
+    handle_interrupt()
     logger.log("drive " + controller.getPath() + " OK")
 
 # Synchronously drive a number of devices to a given value
@@ -201,7 +202,7 @@ def drive(deviceId, value):
 def multi_drive(entries):
     clear_interrupt()
     proxy.multiDrive(entries)
-#     handle_interrupt()
+    handle_interrupt()
 
 class __ControllerEventHandler__(ISicsControllerListener):
     
@@ -492,6 +493,7 @@ def wait_until_value_reached(device, value, precision = 0.01, timeout_if_not_cha
         logger.log(str(device) + ' failed to reach value ' + str(value) + ' in ' + str(total_count) + ' seconds')
 
 def drive_ms(id, value, controller_name = 'tc1'):
+    enable_ms(id, print_all = False)
     entries = dict()
     if type(id) is list or type(id) is tuple:
         for i in xrange(len(id)):
@@ -503,13 +505,14 @@ def drive_ms(id, value, controller_name = 'tc1'):
                 dval = value
             entries[dname] = dval
         print("multi_drive " + str(entries))
-        multiDrive(entries)
+        multi_drive(entries)
     else :
         did = controller_name + '_' + 'MEER{0:02d}'.format(id) + '_ObjectTemp_LOOP_0_TARGET'
         print("drive {} {}".format(did, value))
         drive(did, value)
 
 def drive_all_ms(value, controller_name = 'tc1'):
+    enable_all_ms(print_all = False)
     entries = dict()
     if type(value) is list or type(value) is tuple:
         for i in xrange(len(value)):
@@ -519,10 +522,10 @@ def drive_all_ms(value, controller_name = 'tc1'):
         print("multi_drive " + str(entries))
         multi_drive(entries)
     else :
-        tc = getDeviceController('/sample/' + controller_name)
+        tc = get_controller('/sample/' + controller_name)
         if tc is None :
             raise Exception(controller_name + ' not found')
-        num = len(tc.getChildControllers())
+        num = len(tc.getChildren())
         for i in xrange(num):
             dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
             entries[dname] = value
@@ -530,6 +533,7 @@ def drive_all_ms(value, controller_name = 'tc1'):
         multi_drive(entries)
 
 def run_ms(id, value, controller_name = 'tc1'):
+    enable_ms(id, print_all = False)
     if type(id) is list or type(id) is tuple:
         for i in xrange(len(id)):
             did = id[i]
@@ -546,6 +550,7 @@ def run_ms(id, value, controller_name = 'tc1'):
         run(did, value)
 
 def run_all_ms(value, controller_name = 'tc1'):
+    enable_all_ms(print_all = False)
     if type(value) is list or type(value) is tuple:
         for i in xrange(len(value)):
             dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
@@ -553,21 +558,160 @@ def run_all_ms(value, controller_name = 'tc1'):
             print("run " + dname + ' ' + str(dval))
             run(dname, dval)
     else :
-        tc = getDeviceController('/sample/' + controller_name)
+        tc = get_controller('/sample/' + controller_name)
         if tc is None :
             raise Exception(controller_name + ' not found')
-        num = len(tc.getChildControllers())
+        num = len(tc.getChildren())
         for i in xrange(num):
             dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
             print("run " + dname + ' ' + str(value))
             run(dname, value)
 
 def get_ms(meer_id, controller_name = 'tc1'):
+#     tc = get_controller('/sample/' + controller_name)
+#     if tc is None :
+#         raise Exception(controller_name + ' not found')
+    dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/ObjectTemp_LOOP_0_SENSOR'
+    dc = get_controller(dpath)
+    if dc is None :
+        raise Exception(dpath + ' not found')
+    return dc.getValue()
+
+def get_ms_tolerance(meer_id, controller_name = 'tc1'):
+#     tc = get_controller('/sample/' + controller_name)
+#     if tc is None :
+#         raise Exception(controller_name + ' not found')
+    dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/ObjectTemp_LOOP_0_TARGET'
+    res = get_raw_value('hgetprop ' + dpath + ' tolerance')
+    if res is None :
+        raise Exception(dpath + ' tolerance not found')
+    return res
+
+def set_ms_tolerance(meer_id, value, controller_name = 'tc1'):
+    if type(meer_id) is list or type(id) is tuple:
+        for i in xrange(len(meer_id)):
+            did = meer_id[i]
+            dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + '/ObjectTemp_LOOP_0_TARGET'
+            if type(value) is list or type(value) is tuple:
+                dval = value[i]
+            else:
+                dval = value
+            cmd = "hsetprop " + dpath + ' tolerance ' + str(dval)
+            print(cmd)
+            async_command(cmd)
+    else :
+        dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/ObjectTemp_LOOP_0_TARGET'
+        cmd = "hsetprop " + dpath + ' tolerance ' + str(value)
+        print(cmd)
+        async_command(cmd)
+
+def set_all_ms_tolerance(value, controller_name = 'tc1'):
+    if type(value) is list or type(value) is tuple:
+        for i in xrange(len(value)):
+            dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + '/ObjectTemp_LOOP_0_TARGET'
+            dval = value[i]
+            cmd = "hsetprop " + dpath + ' tolerance ' + str(dval)
+            print(cmd)
+            async_command(cmd)
+    else :
+        tc = get_controller('/sample/' + controller_name)
+        if tc is None :
+            raise Exception(controller_name + ' not found')
+        num = len(tc.getChildren())
+        for i in xrange(num):
+            dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + '/ObjectTemp_LOOP_0_TARGET'
+            cmd = "hsetprop " + dpath + ' tolerance ' + str(value)
+            print(cmd)
+            async_command(cmd)
+            
+def enable_ms(meer_id, controller_name = 'tc1', print_all = True):
+    if type(meer_id) is list or type(id) is tuple:
+        for i in xrange(len(meer_id)):
+            did = meer_id[i]
+            ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + '/OUTPUT_STAGE_ENABLERBV'
+            rbv = get_controller(ipath)
+            if rbv == None:
+                raise Exception(ipath + ' not found')
+            if rbv.getValue() <= 0 :
+                dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + '/OUTPUT_STAGE_ENABLE'
+                cmd = "hset " + dpath + ' 1'
+                print(cmd)
+                async_command(cmd)
+            elif print_all :
+                print('/MEER{0:02d}'.format(did) + ' already enabled')
+    else :
+        ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/OUTPUT_STAGE_ENABLERBV'
+        rbv = get_controller(ipath)
+        if rbv == None:
+            raise Exception(ipath + ' not found')
+        if rbv.getValue() <= 0 :
+            dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/OUTPUT_STAGE_ENABLE'
+            cmd = "hset " + dpath + ' 1'
+            print(cmd)
+            async_command(cmd)
+        elif print_all :
+            print('/MEER{0:02d}'.format(meer_id) + ' already enabled')
+
+def enable_all_ms(controller_name = 'tc1', print_all = True):
     tc = get_controller('/sample/' + controller_name)
     if tc is None :
         raise Exception(controller_name + ' not found')
-    dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/ObjectTemp_LOOP_0_SENSOR'
-    dc = getDeviceController(dpath)
-    if dc is None :
-        raise Exception(dpath + ' not found')
-    return dc.getValue().getFloatData()
+    num = len(tc.getChildren())
+    for i in xrange(num):
+        ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + '/OUTPUT_STAGE_ENABLERBV'
+        rbv = get_controller(ipath)
+        if rbv == None:
+            raise Exception(ipath + ' not found')
+        if rbv.getValue() <= 0 :
+            dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + '/OUTPUT_STAGE_ENABLE'
+            cmd = "hset " + dpath + ' 1'
+            print(cmd)
+            async_command(cmd)
+        elif print_all :
+            print('/MEER{0:02d}'.format(i + 1) + ' already enabled')
+            
+def disable_ms(meer_id, controller_name = 'tc1', print_all = True):
+    if type(meer_id) is list or type(id) is tuple:
+        for i in xrange(len(meer_id)):
+            did = meer_id[i]
+            ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + '/OUTPUT_STAGE_ENABLERBV'
+            rbv = get_controller(ipath)
+            if rbv == None:
+                raise Exception(ipath + ' not found')
+            if rbv.getValue() >= 1 :
+                dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + '/OUTPUT_STAGE_ENABLE'
+                cmd = "hset " + dpath + ' 0'
+                print(cmd)
+                async_command(cmd)
+            elif print_all :
+                print('/MEER{0:02d}'.format(did) + ' already disabled')
+    else :
+        ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/OUTPUT_STAGE_ENABLERBV'
+        rbv = get_controller(ipath)
+        if rbv == None:
+            raise Exception(ipath + ' not found')
+        if rbv.getValue() >= 1 :
+            dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/OUTPUT_STAGE_ENABLE'
+            cmd = "hset " + dpath + ' 0'
+            print(cmd)
+            async_command(cmd)
+        elif print_all :
+            print('/MEER{0:02d}'.format(meer_id) + ' already disabled')
+
+def disable_all_ms(controller_name = 'tc1', print_all = True):
+    tc = get_controller('/sample/' + controller_name)
+    if tc is None :
+        raise Exception(controller_name + ' not found')
+    num = len(tc.getChildren())
+    for i in xrange(num):
+        ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + '/OUTPUT_STAGE_ENABLERBV'
+        rbv = get_controller(ipath)
+        if rbv == None:
+            raise Exception(ipath + ' not found')
+        if rbv.getValue() >= 1 :
+            dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + '/OUTPUT_STAGE_ENABLE'
+            cmd = "hset " + dpath + ' 0'
+            print(cmd)
+            async_command(cmd)
+        elif print_all :
+            print('/MEER{0:02d}'.format(i + 1) + ' already disabled')

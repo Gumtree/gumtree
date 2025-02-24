@@ -120,4 +120,8 @@ public class CommandController extends GroupController implements ICommandContro
 		return isBusy;
 	}
 
+	@Override
+	public ControllerState getCommandStatus() {
+		return getState();
+	}
 }

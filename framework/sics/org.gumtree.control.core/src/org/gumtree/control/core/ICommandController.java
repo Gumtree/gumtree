@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.exception.SicsException;
+import org.gumtree.control.model.PropertyConstants.ControllerState;
 
 public interface ICommandController extends IGroupController {
 	
@@ -14,4 +15,6 @@ public interface ICommandController extends IGroupController {
 	boolean isBusy();
 	
 	boolean run(Map<String, Object> parameters, ISicsCallback callback) throws SicsException;
+	
+	ControllerState getCommandStatus();
 }
