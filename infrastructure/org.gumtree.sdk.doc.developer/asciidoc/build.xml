@@ -7,7 +7,8 @@
 	<property name="bashLocation" value="X:/apps/Cygwin/1.7.16-1/bin" />
 	<property name="xsltLocation" value="X:/apps/xsltproc" />
 	<property name="asciidocLocation" value="X:/apps/Asciidoc/8.6.8" />
-	<property name="asciidocLocationCygwin" value="/cygdrive/x/apps/Asciidoc/8.6.8" />
+	<!-- property name="asciidocLocationCygwin" value="/cygdrive/x/apps/Asciidoc/8.6.8" / -->
+	<property name="asciidocLocationCygwin" value="X:/apps/Asciidoc/8.6.8" />
 
 	<target name="generateSingleHTML">
 		<property name="outputLocation">${basedir}/output/single</property>
