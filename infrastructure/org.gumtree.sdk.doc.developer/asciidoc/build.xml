@@ -9,6 +9,8 @@
 	<property name="asciidocLocation" value="X:/apps/Asciidoc/8.6.8" />
 	<!-- property name="asciidocLocationCygwin" value="/cygdrive/x/apps/Asciidoc/8.6.8" / -->
 	<property name="asciidocLocationCygwin" value="X:/apps/Asciidoc/8.6.8" />
+	<property name="sourceLocation" value="C:/Gumtree/Build/Gumtree_product/source/gumtree/infrastructure/org.gumtree.sdk.doc.developer" />
+	<property name="sourceLocationCygwin" value="/cygdrive/c/Gumtree/Build/Gumtree_product/source/gumtree/infrastructure/org.gumtree.sdk.doc.developer" />
 
 	<target name="generateSingleHTML">
 		<property name="outputLocation">${basedir}/output/single</property>
