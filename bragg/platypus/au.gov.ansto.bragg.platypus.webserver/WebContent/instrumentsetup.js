@@ -1,5 +1,6 @@
 var title = "Platypus";
 var batchEnabled = true;
+var useNewProxy = true;
 var REVERSE_CATALOG_ENABLED = true;
 var devices = [
                {"group":"NEUTRON COUNTS", 
@@ -10,26 +11,26 @@ var devices = [
             	            {"classId":"ratemap_xy_total", "deviceId":"::histogram_memory::ratemap_xy_total", "title":"Detector Rate", "units":"ct"}
             	            ]
                },
-               {"group":"PREMONOCHROMATOR", 
-            	   "items":[{"classId":"lambda", "deviceId":"lambda", "title":"Wavelength", "units":"\u212B"},  
-            	            {"classId":"momto", "deviceId":"momto", "title":"Take-off angle", "units":"degree"},
-            	            {"classId":"mom", "deviceId":"mom", "title":"Premono Omega", "units":"degree"}
-            	            ]
-               },
-               {"group":"CHOPPERS", 
-            	   "items":[{"classId":"chom", "deviceId":"chom", "title":"Graphite chopper omega", "units":"degree"},  
-            	            {"classId":"chomto", "deviceId":"chomto", "title":"Graphite chopper take-off angle", "units":"degree"},
-            	            {"classId":"gspeed", "deviceId":"/instrument/chpr/graphite/actspeed", "title":"Graphite chopper speed", "units":"rpm"},
-            	            {"classId":"bspeed", "deviceId":"/instrument/chpr/background/actspeed", "title":"Background chopper speed", "units":"rpm"},
-            	            {"classId":"bphase", "deviceId":"/instrument/chpr/background/actphase", "title":"Background chopper phase", "units":"degree"},
-            	            {"classId":"bgear", "deviceId":"/instrument/chpr/background/actgear", "title":"Background chopper ratio", "units":""}
-            	            ]
-               },
-               {"group":"DOPPLER", 
-            	   "items":[{"classId":"damp", "deviceId":"/instrument/doppler/ctrl/amplitude", "title":"Amplitude", "units":"mm"},
-            	            {"classId":"dvel", "deviceId":"/instrument/doppler/ctrl/velocity", "title":"Velocity", "units":"m/s"}
-            	   ]
-               }
+//               {"group":"PREMONOCHROMATOR", 
+//            	   "items":[{"classId":"lambda", "deviceId":"lambda", "title":"Wavelength", "units":"\u212B"},  
+//            	            {"classId":"momto", "deviceId":"momto", "title":"Take-off angle", "units":"degree"},
+//            	            {"classId":"mom", "deviceId":"mom", "title":"Premono Omega", "units":"degree"}
+//            	            ]
+//               },
+//               {"group":"CHOPPERS", 
+//            	   "items":[{"classId":"chom", "deviceId":"chom", "title":"Graphite chopper omega", "units":"degree"},  
+//            	            {"classId":"chomto", "deviceId":"chomto", "title":"Graphite chopper take-off angle", "units":"degree"},
+//            	            {"classId":"gspeed", "deviceId":"/instrument/chpr/graphite/actspeed", "title":"Graphite chopper speed", "units":"rpm"},
+//            	            {"classId":"bspeed", "deviceId":"/instrument/chpr/background/actspeed", "title":"Background chopper speed", "units":"rpm"},
+//            	            {"classId":"bphase", "deviceId":"/instrument/chpr/background/actphase", "title":"Background chopper phase", "units":"degree"},
+//            	            {"classId":"bgear", "deviceId":"/instrument/chpr/background/actgear", "title":"Background chopper ratio", "units":""}
+//            	            ]
+//               },
+//               {"group":"DOPPLER", 
+//            	   "items":[{"classId":"damp", "deviceId":"/instrument/doppler/ctrl/amplitude", "title":"Amplitude", "units":"mm"},
+//            	            {"classId":"dvel", "deviceId":"/instrument/doppler/ctrl/velocity", "title":"Velocity", "units":"m/s"}
+//            	   ]
+//               }
                ];
 
 var nsItems = [
