@@ -376,7 +376,7 @@ var refresh = function(){
 							}
 							units = " " + u;
 						}
-						$("#" + obj.hdbs[i].id + "_name").text(iName);
+						$("#" + obj.hdbs[i].id + "_name").text(iName + ":");
 						$("#" + obj.hdbs[i].id).text(obj.hdbs[i].value + units);
 					}
 				}
