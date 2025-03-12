@@ -41,7 +41,7 @@ class Dataset(Data):
         '''
         if type(storage) is int or type(storage) is float or type(storage) is long or type(storage) is bool :
             storage = [storage]
-        if type(storage) is str :
+        if type(storage) is str or type(storage) is unicode :
             storage = NexusUtils.readNexusDataset(storage)
         if hasattr(storage, '__len__') :
             Data.__init__(self, storage, shape, dtype, var, axes, anames, \
