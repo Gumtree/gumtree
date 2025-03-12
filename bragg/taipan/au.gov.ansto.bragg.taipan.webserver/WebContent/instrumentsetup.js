@@ -36,13 +36,13 @@ var devices = [
             	            {"classId":"currpoint", "deviceId":"currpoint", "title":"Scan Point", "units":""}
             	   ]
                },
-               {"group":"TEMPERATURE CONTROLLER", 
-            	   "items":[{"classId":"sensorValueA", "deviceId":"/sample/tc1/sensor/sensorValueA", "title":"Sensor A", "units":"K"},
-            	            {"classId":"sensorValueB", "deviceId":"/sample/tc1/sensor/sensorValueB", "title":"Sensor B", "units":"K"},
-            	            {"classId":"sensorValueC", "deviceId":"/sample/tc1/sensor/sensorValueC", "title":"Sensor C", "units":"K"},
-            	            {"classId":"sensorValueD", "deviceId":"/sample/tc1/sensor/sensorValueD", "title":"Sensor D", "units":"K"}
-            	   ]
-               },
+//               {"group":"TEMPERATURE CONTROLLER", 
+//            	   "items":[{"classId":"sensorValueA", "deviceId":"/sample/tc1/sensor/sensorValueA", "title":"Sensor A", "units":"K"},
+//            	            {"classId":"sensorValueB", "deviceId":"/sample/tc1/sensor/sensorValueB", "title":"Sensor B", "units":"K"},
+//            	            {"classId":"sensorValueC", "deviceId":"/sample/tc1/sensor/sensorValueC", "title":"Sensor C", "units":"K"},
+//            	            {"classId":"sensorValueD", "deviceId":"/sample/tc1/sensor/sensorValueD", "title":"Sensor D", "units":"K"}
+//            	   ]
+//               },
 //               {"group":"TEMPERATURE CONTROLLER 1", 
 //            	   "items":[
 //            	            {"classId":"tc1SensorB", "deviceId":"/sample/tc1/sensor/sensorValueB", "title":"TC1 Sensor B", "units":"K"},
