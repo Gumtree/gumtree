@@ -40,7 +40,7 @@ function getPdf(page, session){
 			  $.fileDownload(fileUrl)
 			  .done(function () {})
 			  .fail(function () { alert('File download failed!'); });				
-		  }, 1500);
+		  }, 3000);
 		} 
 	})
 	.fail(function(e) {
