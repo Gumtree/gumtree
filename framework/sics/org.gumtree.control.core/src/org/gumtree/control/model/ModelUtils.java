@@ -443,7 +443,7 @@ public class ModelUtils {
 		List<String> varProp = seItem.getPropertyValue(PROP_NICK_VAR);
 		if (prop != null && prop.size() > 0) {
 			String alias = prop.get(0).trim();
-			String[] path = alias.split("_");
+			String[] path = alias.split("_", 3);
 			String nickPath = null;
 			if (!PREFIX_SAMPLE.equals(path[0])) {
 				nickPath = "/" + PREFIX_SAMPLE;
