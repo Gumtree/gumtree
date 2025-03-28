@@ -2,6 +2,7 @@ package org.gumtree.gumnix.sics.control.controllers;
 
 import org.gumtree.gumnix.sics.control.ControllerStatus;
 import org.gumtree.gumnix.sics.control.IStateMonitorListener;
+import org.gumtree.gumnix.sics.control.ServerStatus;
 import org.gumtree.gumnix.sics.control.events.DynamicControllerCallbackAdapter;
 import org.gumtree.gumnix.sics.core.PropertyConstants.PropertyType;
 import org.gumtree.gumnix.sics.core.SicsCore;
@@ -142,13 +143,33 @@ public class DrivableController extends DynamicController implements IDrivableCo
 								logger.warn("check if current value is within the tolerance: TARGET=" + value + 
 										", CURRENT=" + currentValue + ", PRECISION=" + precisionValue);
 								if (Math.abs(value - currentValue) < precisionValue) {
-									repeat++;
-									logger.warn("target reached, repeat=" + repeat);
-									if (repeat >= 3) {
-										logger.error("ERROR: DRIVING HANGS WITH TARGET REACHED, BREAKING THE WAITING LOOP.");
-										SicsCore.getDefaultProxy().send("stopexe " + deviceName, null);
-										Thread.sleep(1000);
-										setStatus(ControllerStatus.OK);
+//									repeat++;
+//									logger.warn("target reached, repeat=" + repeat);
+//									if (repeat >= 3) {
+									logger.error("ERROR: DRIVING HANGS WITH TARGET REACHED, BREAKING THE WAITING LOOP.");
+									SicsCore.getDefaultProxy().send("stopexe " + deviceName, null);
+									Thread.sleep(1000);
+									setStatus(ControllerStatus.OK);
+									break;
+//									}
+								} else {
+									SicsCore.getSicsController().refreshServerStatus();
+									if (ServerStatus.EAGER_TO_EXECUTE.equals(SicsCore.getSicsController().getServerStatus())) {
+										logger.error("resend the drive command");
+										if (deviceName != null) {
+											SicsCore.getDefaultProxy().send("run " + deviceName + " " + value, new SicsCallbackAdapter() {
+												public void receiveError(ISicsReplyData data) {
+													errorMessages[0] = data.getString();
+												}
+											});
+										} else {
+											commitTargetValue(new DynamicControllerCallbackAdapter() {
+												public void handleOperationError(IDynamicController controller,
+														String errorMessage) {
+													errorMessages[0] = errorMessage;
+												}
+											});
+										}
 										break;
 									}
 								}
