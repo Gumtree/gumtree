@@ -15,6 +15,7 @@ import time
 SICS_PROXY = manager.getSicsProxy()
 # SICS_MODEL = manager.getSicsModel()
 
+_enable_node = '/OUTPUT_STAGE_ENABLE'
 # VALIDATOR_PROXY = manager.getValidatorProxy()
 # VALIDATOR_MODEL = VALIDATOR_PROXY.getSicsModel()
 
@@ -628,24 +629,24 @@ def enable_ms(meer_id, controller_name = 'tc1', print_all = True):
     if type(meer_id) is list or type(id) is tuple:
         for i in xrange(len(meer_id)):
             did = meer_id[i]
-            ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + '/OUTPUT_STAGE_ENABLERBV'
+            ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + _enable_node
             rbv = get_controller(ipath)
             if rbv == None:
                 raise Exception(ipath + ' not found')
             if rbv.getValue() <= 0 :
-                dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + '/OUTPUT_STAGE_ENABLE'
+                dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + _enable_node
                 cmd = "hset " + dpath + ' 1'
                 print(cmd)
                 async_command(cmd)
             elif print_all :
                 print('/MEER{0:02d}'.format(did) + ' already enabled')
     else :
-        ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/OUTPUT_STAGE_ENABLERBV'
+        ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + _enable_node
         rbv = get_controller(ipath)
         if rbv == None:
             raise Exception(ipath + ' not found')
         if rbv.getValue() <= 0 :
-            dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/OUTPUT_STAGE_ENABLE'
+            dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + _enable_node
             cmd = "hset " + dpath + ' 1'
             print(cmd)
             async_command(cmd)
@@ -658,12 +659,12 @@ def enable_all_ms(controller_name = 'tc1', print_all = True):
         raise Exception(controller_name + ' not found')
     num = len(tc.getChildren())
     for i in xrange(num):
-        ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + '/OUTPUT_STAGE_ENABLERBV'
+        ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + _enable_node
         rbv = get_controller(ipath)
         if rbv == None:
             raise Exception(ipath + ' not found')
         if rbv.getValue() <= 0 :
-            dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + '/OUTPUT_STAGE_ENABLE'
+            dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + _enable_node
             cmd = "hset " + dpath + ' 1'
             print(cmd)
             async_command(cmd)
@@ -674,24 +675,24 @@ def disable_ms(meer_id, controller_name = 'tc1', print_all = True):
     if type(meer_id) is list or type(id) is tuple:
         for i in xrange(len(meer_id)):
             did = meer_id[i]
-            ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + '/OUTPUT_STAGE_ENABLERBV'
+            ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + _enable_node
             rbv = get_controller(ipath)
             if rbv == None:
                 raise Exception(ipath + ' not found')
             if rbv.getValue() >= 1 :
-                dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + '/OUTPUT_STAGE_ENABLE'
+                dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + _enable_node
                 cmd = "hset " + dpath + ' 0'
                 print(cmd)
                 async_command(cmd)
             elif print_all :
                 print('/MEER{0:02d}'.format(did) + ' already disabled')
     else :
-        ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/OUTPUT_STAGE_ENABLERBV'
+        ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + _enable_node
         rbv = get_controller(ipath)
         if rbv == None:
             raise Exception(ipath + ' not found')
         if rbv.getValue() >= 1 :
-            dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/OUTPUT_STAGE_ENABLE'
+            dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + _enable_node
             cmd = "hset " + dpath + ' 0'
             print(cmd)
             async_command(cmd)
@@ -704,12 +705,12 @@ def disable_all_ms(controller_name = 'tc1', print_all = True):
         raise Exception(controller_name + ' not found')
     num = len(tc.getChildren())
     for i in xrange(num):
-        ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + '/OUTPUT_STAGE_ENABLERBV'
+        ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + _enable_node
         rbv = get_controller(ipath)
         if rbv == None:
             raise Exception(ipath + ' not found')
         if rbv.getValue() >= 1 :
-            dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + '/OUTPUT_STAGE_ENABLE'
+            dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + _enable_node
             cmd = "hset " + dpath + ' 0'
             print(cmd)
             async_command(cmd)
