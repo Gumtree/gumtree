@@ -11,13 +11,19 @@ const DATYPE_NAME_DICT = {
 		"T" : "Temperature",
 		"B" : "Magnet",
 		"V" : "Voltage",
-		"P" : "Pressure"
 }
 const DATYPE_ICON = {
 	"T" : "thermometer-half",
 	"B"	: "magnet",
 	"V" : "bolt",
-	"P" : "gauge"
+	"pump" : "gauge",
+	"em" : "",
+	"robot" : "",
+	"X" : "",
+	"climate" : "",
+	"valve" : "",
+	"viscosity" : "",
+	"GHS" : "",
 }
 const DEFAULT_SUB_DEVICE_NAME_PREFIX = {
 	"T" : "tc",
@@ -31,14 +37,14 @@ const KEYS_COPIED_FROM_DB = [
 	"desc",
 ];
 const INST_DEVICE_INIT = {
-	"config_id" : "",
+//	"config_id" : "",
 	"datype" : "",
 	"driver" : "",
 	"id" : "",
 	"name" : "",
 }
 const INST_DEVICE_COPY = [
-	"config_id",
+//	"config_id",
 	"driver",
 ]
 const INST_DEVICE_MIRROR = [
@@ -56,18 +62,24 @@ const EMPTY_ROW_PART3 = '"></td><td class="pair_control input-group-btn"><button
 const DISABLED_ROW_PART1 = '<tr class="tr_entry"><td class="pair_key"><input type="text" class="form-control" disabled value="';
 const HTML_TABLE = '<table class="table table-striped table-sm"><thead><tr><th width="34%">Error entry</th><th width="66%">Message</th></tr></thead><tbody></tbody></table>';
 
+const PROP_GALIL_CONTROLLERS = "GALIL_CONTROLLERS";
 const ID_PROP_DRIVER = "driver";
 const ID_PROP_CONFIGID = "config_id";
 const ID_PROP_IP = "ip";
 const ID_PROP_ID = "id";
 const ID_PROP_NAME = "name";
 const ID_PROP_PORT = "port";
+const ID_PROP_ENABLED = "enabled";
+const ID_PROP_SAMPLESTAGE = "sample_stage";
 const PROP_TO_AVOID = [
 	ID_PROP_DRIVER,
 ];
 
 const KEY_DEVICE_DESC = "desc";
 const KEY_DEVICE_DRIVER = "driver";
+const KEY_MOTOR_DESC = "description";
+const KEY_SAMPLE_STAGE = "SAMPLE_STAGE";
+const KEY_DEVICE_MOTOR = "DEVICE_MOTOR_LINKS";
 const HTML_HIDDEN_FILL_DIV = '<div class="div_fill div_hidden"/>';
 const HTML_STATIC_MAIN_DIV = '<div class="div_fill div_static div_hidden"/>';
 const HTML_NAV_DIV = '<div class="nav"/>';
@@ -82,13 +94,21 @@ const _property = $('#id_div_property_table');
 
 const TYPE_INST = 'INST';
 const TYPE_DB = 'DB';
+const PHYSICAL_DB = "PD"
+const COMPOSITE_DB = "CD"
 
 var _curDevice;
 var _saveButton;
 var _resetButton;
 var _errorReport;
 var _instModel;
-var _dbModel;
+var _pdbModel;
+var _cdbModel;
+var _motorDBModel;
+var _motorConficModel;
+var _curVersionName;
+var _additionalModel;
+var _sampleStage;
 
 class StaticUtils {
 	
@@ -166,14 +186,295 @@ class StaticUtils {
 //	showMsg(warnMsg, 'warning', timeLast);
 //}
 
-class AbstractDeviceModel {
+class AbstractModel {
+	
+	load() {}
+	
+	afterLoad() {}
+}
+
+class AdditionalModel extends AbstractModel {
+	
+	constructor() {
+		super();
+		this.url = URL_PREFIX + 'adit?inst=' + _inst;
+		this.model;
+		this.editorModel;
+	}
+	
+	load() {
+		const obj = this;
+		$.get(obj.url, function(data) {
+			obj.model = data;
+			obj.editorModel = $.extend(true, {}, data);
+			obj.afterLoad();
+		}).fail(function(e) {
+			if (e.status == 401) {
+				window.location = 'signin.html?redirect=seConfig.html?inst=' + _inst;
+			} else {
+				StaticUtils.showError('failed to load additional model file.');
+			}
+
+		});
+	}
+	
+	getSelectedMotor() {
+		var selected = null;
+		if (KEY_SAMPLE_STAGE in this.editorModel) {
+			const motor = this.editorModel[KEY_SAMPLE_STAGE];
+			if (motor !== 'None') {
+				selected = motor;
+			}
+		}
+		return selected;
+	}
+	
+	getMotorForDevice(did) {
+		if (KEY_DEVICE_MOTOR in this.editorModel) {
+			if (did in this.editorModel[KEY_DEVICE_MOTOR]) {
+				return this.editorModel[KEY_DEVICE_MOTOR][did];
+			}
+		}
+		return null;
+	}
+	
+	setMotorForDevice(did, motor) {
+		var pairs;
+		if (KEY_DEVICE_MOTOR in this.editorModel) {
+			pairs = this.editorModel[KEY_DEVICE_MOTOR];
+		} else {
+			pairs = {};
+			this.editorModel[KEY_DEVICE_MOTOR] = pairs;
+		}
+		if (did in pairs) {
+			if (motor != "NONE") {
+				pairs[did] = motor;
+			} else {
+				delete pairs[did];
+			}
+		} else {
+			if (motor != "NONE") {
+				pairs[did] = motor;
+			}
+		}
+	}
+	
+	getDeviceMotorModel() {
+		if (KEY_DEVICE_MOTOR in this.editorModel) {
+			return this.editorModel[KEY_DEVICE_MOTOR];
+		} else {
+			return {};
+		}
+	}
+	
+	getChangeMsg() {
+		const obj = this;
+		var msg = "";
+		if (KEY_DEVICE_MOTOR in this.model) {
+			const cModel = obj.model[KEY_DEVICE_MOTOR];
+			$.each(Object.keys(cModel), function(idx, did) {
+				const cMotor = cModel[did];
+				const nMotor = obj.editorModel[KEY_DEVICE_MOTOR][did];
+				if (cMotor != nMotor) {
+					if (nMotor) {
+						msg += "link " + did + " to " + nMotor + "; ";
+					} else {
+						msg += "remove link for " + did + "; ";
+					}
+				}
+			});
+		} 
+		if (KEY_DEVICE_MOTOR in obj.editorModel) {
+			const nModel = obj.editorModel[KEY_DEVICE_MOTOR];
+			$.each(Object.keys(nModel), function(idx, did) {
+				const nMotor = nModel[did];
+				const cMotor = (KEY_DEVICE_MOTOR in obj.model ? obj.model[KEY_DEVICE_MOTOR][did] : null);
+				if (!cMotor) {
+					msg += "link " + did + " to " + nMotor + "; ";
+				}
+			});
+		}
+		return msg;
+	}
+	
+	applyChange() {
+		this.model = $.extend(true, {}, this.editorModel);
+	}
+	
+	reset() {
+		this.editorModel = $.extend(true, {}, this.model);
+		_sampleStage.select(this.getSelectedMotor());
+	}
+}
+
+class MotorDBModel extends AbstractModel {
+	
+	constructor() {
+		super();
+		this.model;
+		this.devices;
+	}
+	
+	load() {
+		var obj = this;
+		$.get('yaml/cachedModel?inst=' + _inst, function(data) {
+			obj.model = data[PROP_GALIL_CONTROLLERS];
+			obj.devices = {};
+			$.each(obj.model, function(mcid, mc) {
+				$.each(mc, function(aid, axis) {
+					$.each(axis, function(mid, motor) {
+						if (ID_PROP_SAMPLESTAGE in motor) {
+							const val = motor[ID_PROP_SAMPLESTAGE];
+							if (Boolean(val)) {
+								obj.devices[mid] = motor;
+							}
+						}
+					});
+				});
+			});
+			obj.createMenuUi();
+			obj.afterLoad();
+		}).fail(function(e) {
+			if (e.status == 401) {
+				window.location = 'signin.html?redirect=seConfig.html?inst=' + _inst;
+			} else {
+				alert(e.statusText);
+			}
+		});
+	}
+	
+	createMenuUi() {
+		const obj = this;
+		var faIcon;
+		var html = '<div class="class_a_motor_group" href="#"><h6 class="sidebar-subheading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 ">' 
+				+ '<span class="class_span_mc_name" >Sample Stage Motors</span>';
+				+ '</h6></div><ul class="nav flex-column ">';
+		obj.$menuHeader = $(html);
+		
+		obj.$menuUl = $('<ul class="nav flex-column class_ul_folder"></ul>');
+		_sampleStage = new SampleStage(obj.$menuUl);
+		const selectedMotor = _additionalModel.getSelectedMotor();
+		$.each(Object.keys(this.devices), function(idx, mid) {
+			const motor = obj.devices[mid];
+			const checkedText = mid == selectedMotor ? "checked" : "";
+			html = '<li class="nav-item class_li_subitem"><div class="menu_left"><input type="checkbox" id="id_motor_' + mid + '" class="class_SE_checkbox" ' + checkedText + '>'
+				+ '<a class="nav-link class_a_motor" href="#" data-toggle="tooltip" data-placement="top" title="' + motor[KEY_MOTOR_DESC] + '">' 
+				+ mid + '</a></div></li>';
+			const $li = $(html);
+			_sampleStage.addMotor(mid, $li.find('input:checkbox'), $li.find('a'));
+			obj.$menuUl.append($li);
+		});
+		obj.$menuHeader.append(obj.$menuUl);
+		$('#id_div_sidebar').append(obj.$menuHeader);
+	}
+	
+	afterLoad() {}
+}
+
+class SampleStage {
+	
+	constructor($ul) {
+		this.$ul = $ul;
+		this.checkboxes = {};
+		this.links = {};
+		this.oldSelected = null;
+//		this.model = {};
+	}
+	
+	addMotor(mid, $checkbox, $a) {
+		if ($checkbox.is(':checked')) {
+			this.oldSelected = mid;
+		}
+		this.checkboxes[mid] = $checkbox;
+		this.links[mid] = $a;
+		const obj = this;
+		$a.click(function() {
+			if ($checkbox.is(':checked')) {
+				$checkbox.prop('checked', false);
+			} else {
+				$checkbox.prop('checked', true);
+				$.each(Object.keys(obj.checkboxes), function(idx, key) {
+					if (key != mid) {
+						obj.checkboxes[key].prop('checked', false);
+					}
+				});
+			}
+		});
+		$checkbox.change(function() {
+			if ($checkbox.is(':checked')) {
+				$.each(Object.keys(obj.checkboxes), function(idx, key) {
+					if (key != mid) {
+						obj.checkboxes[key].prop('checked', false);
+					}
+				});
+			} 
+		});
+	}
+	
+	getMotors() {
+		return Object.keys(this.checkboxes);
+	}
+	
+	getSelected() {
+		const obj = this;
+		var found = null;
+		$.each(Object.keys(obj.checkboxes), function(idx, key) {
+			const $box = obj.checkboxes[key];
+			if ($box.is(':checked')) {
+				found = key;
+			}
+		});
+		return found;
+	}
+	
+	select(mid) {
+		const obj = this;
+		$.each(Object.keys(obj.checkboxes), function(idx, key) {
+			const $box = obj.checkboxes[key];
+			$box.prop('checked', key == mid);
+		});
+	}
+	
+	getChangeMsg() {
+		const newSelected = this.getSelected();
+		var msg = '';
+		if (this.oldSelected) {
+			if (newSelected) {
+				if (this.oldSelected != newSelected) {
+					msg = 'change sample stage motor to: ' + newSelected + '; ';
+				}
+			} else {
+				msg = 'deselect sample stage motor: ' + this.oldSelected + "; ";
+			}
+		} else {
+			if (newSelected) {
+				msg = 'select sample stage motor: ' + newSelected + '; ';
+			}
+		}
+		return msg;
+	}
+}
+
+_additionalModel = new AdditionalModel();
+_additionalModel.afterLoad = function() {
+	_motorDBModel.load();
+}
+
+_motorDBModel = new MotorDBModel();
+_motorDBModel.afterLoad = function() {
+	_pdbModel.load();
+}
+
+class AbstractDeviceModel extends AbstractModel {
 	#model;
+	#editorModel;
 	#configs;
 	#firstConfigs;
 	#configNamesOfDevice;
 	#devices = {};
 
 	constructor() {
+		super();
 	}
 	
 	get $menuBar() {}
@@ -182,12 +483,31 @@ class AbstractDeviceModel {
 		return '';
 	}
 	
+	get editorModel() {
+		return this.#editorModel;
+	}
+	
+	resetEditorModel() {
+		this.#editorModel = $.extend(true, {}, this.model);
+	}
+	
+	applyChange() {
+		const obj = this;
+		$.each(Object.keys(obj.model), function(idx, key) {
+			if (!(key in obj.editorModel)) {
+				delete obj.model[key];
+			}
+		});
+		$.extend(true, this.#model, this.#editorModel);
+	}
+	
 	get model() {
 		return this.#model;
 	}
 	
 	set model(model) {
 		this.#model = model;
+		this.#editorModel = $.extend(true, {}, model);
 	}
 	
 	get configs() {
@@ -285,7 +605,7 @@ class AbstractDeviceModel {
 		}).fail(function(e) {
 			if (e.status == 401) {
 				alert("sign in required");
-				window.location = 'signin.html?redirect=seConfig.html';
+				window.location = 'signin.html?redirect=seConfig.html?inst=' + _inst;
 			} else {
 				alert(e.statusText);
 			}
@@ -298,6 +618,7 @@ class AbstractDeviceModel {
 	
 	removeDevice(did) {}
 	
+	reset() {}
 }
 
 class InstrumentModel extends AbstractDeviceModel {
@@ -318,10 +639,32 @@ class InstrumentModel extends AbstractDeviceModel {
 		return URL_PREFIX + 'seconfig?inst=' + _inst;
 	}
 
+	getChangeMsg() {
+		const obj = this;
+		var msg = '';
+		if (_curVersionName) {
+			msg += 'load version: ' + _curVersionName + '; ';
+		}
+		$.each(Object.keys(obj.model), function(idx, key) {
+			if (!(key in obj.editorModel)) {
+				msg += "remove " + key + "; ";
+			} else {
+				const device = obj.devices[key];
+				msg += device.getChangeMsg();
+			}
+		});
+		$.each(Object.keys(obj.editorModel), function(idx, key) {
+			if (!(key in obj.model)) {
+				msg += "add " + key + "; ";
+			}
+		});
+		return msg;
+	}
+	
 	createUi() {
 		const obj = this;
 		$.each(this.model, function(did, deviceModel){
-			const device = new InstrumentDevice(did, deviceModel, obj.$menuBar);
+			const device = new InstrumentDevice(did, deviceModel, obj.editorModel[did], obj.$menuBar);
 			device.createMenuUi();
 			obj.setDevice(did, device);
 		});
@@ -333,34 +676,44 @@ class InstrumentModel extends AbstractDeviceModel {
 	}
 	
 	addDevice(did, deviceModel) {
-		if (did in this.model) {
+		if (did in this.editorModel) {
 			throw new Error('device already exists: ' + did);
 		}
 		const obj = this;
 		const names = [];
 		
 		const newModel = {};
-		newModel[KEY_STATIC] = $.extend(true, {}, deviceModel[KEY_STATIC]);
+		newModel[KEY_STATIC] = {"enabled" : true}
+//		newModel[KEY_STATIC] = $.extend(true, {}, deviceModel[KEY_STATIC]);
 		$.each(deviceModel, function(cid, cfg) {
 			if (!(PROPERTY_KEYWORDS.includes(cid))) {
 				const newConfig = $.extend(true, {}, INST_DEVICE_INIT);
 				const datype = cfg[KEY_DATYPE];
 				newConfig[KEY_DATYPE] = datype;
-				const typeId = obj.getNextTypeId(datype, 1);
-				console.log("add " + datype + " " + typeId);
-				newConfig[ID_PROP_ID] = typeId;
-				var prefix = datype;
-				if (datype in DEFAULT_SUB_DEVICE_NAME_PREFIX) {
-					prefix = DEFAULT_SUB_DEVICE_NAME_PREFIX[datype];
-				}
-				newConfig[ID_PROP_NAME] = prefix + typeId;
+				newConfig[ID_PROP_ID] = cfg[ID_PROP_ID];
+				newConfig[ID_PROP_NAME] = cfg[ID_PROP_NAME];
+//				var typeId = obj.getNextTypeId(datype, 1);
+//				$.each(newModel, (subCid, subModel) => {
+//					if (subModel[KEY_DATYPE] == datype) {
+//						if (typeId == subModel[ID_PROP_ID]) {
+//							typeId += 1;
+//						}
+//					}
+//				});
+//				console.log("add " + datype + " " + typeId);
+//				newConfig[ID_PROP_ID] = typeId;
+//				var prefix = datype;
+//				if (datype in DEFAULT_SUB_DEVICE_NAME_PREFIX) {
+//					prefix = DEFAULT_SUB_DEVICE_NAME_PREFIX[datype];
+//				}
+//				newConfig[ID_PROP_NAME] = prefix + typeId;
 				$.each(INST_DEVICE_COPY, (idx, key) => {
 					newConfig[key] = cfg[key];
 				});
 				newModel[cid] = newConfig;
 			}
 		});
-		this.model[did] = newModel;
+		this.editorModel[did] = newModel;
 		
 		$.each(newModel, function(cid, cfg) {
 			if (!(PROPERTY_KEYWORDS.includes(cid))) {
@@ -379,44 +732,84 @@ class InstrumentModel extends AbstractDeviceModel {
 		});
 		obj.configNamesOfDevice[did] = names;
 			
-		const device = new InstrumentDevice(did, newModel, obj.$menuBar);
+		const device = new InstrumentDevice(did, $.extend(true, {}, newModel), newModel, obj.$menuBar);
 		device.createMenuUi();
 		obj.setDevice(did, device);
+		
+		obj.reassignTypeNumber();
 		device.load();
 		device.setDirtyFlag();
+	}
+	
+	reassignTypeNumber() {
+		const typeNumbers = {};
+		const obj = this;
+		$.each(obj.model, (did, dModel) => {
+			const editorModel = obj.getDevice(did).editorModel;
+			$.each(dModel, (cid, cModel) => {
+				if (!(PROPERTY_KEYWORDS.includes(cid))) {
+					const datype = cModel[KEY_DATYPE];
+					var typeNum = 1;
+					if (datype in typeNumbers) {
+						typeNum = typeNumbers[datype] + 1;
+					}
+					cModel[ID_PROP_ID] = typeNum;
+					editorModel[cid][ID_PROP_ID] = typeNum;
+					var prefix = datype;
+					if (datype in DEFAULT_SUB_DEVICE_NAME_PREFIX) {
+						prefix = DEFAULT_SUB_DEVICE_NAME_PREFIX[datype];
+					}
+					cModel[ID_PROP_NAME] = prefix + typeNum;
+					editorModel[cid][ID_PROP_NAME] = prefix + typeNum;
+					typeNumbers[datype] = typeNum;
+					console.log(did + " - " + cid + ": " + prefix + typeNum);
+				}
+			});
+		});
 	}
 	
 	getNextTypeId(datype, startIdx) {
 		var idx = startIdx;
 		const obj = this;
 		$.each(obj.model, (did, dModel) => {
-			if (did != KEY_STATIC) {
-				$.each(dModel, (cid, cModel) => {
+			$.each(dModel, (cid, cModel) => {
+				if (!(PROPERTY_KEYWORDS.includes(cid))) {
 					if (cModel[KEY_DATYPE] == datype) {
 						if (idx == cModel[ID_PROP_ID]) {
 							idx += 1;
 							return obj.getNextTypeId(datype, idx);
 						}
 					}
-				});
-			}
+				}
+			});
 		});
 		return idx;
 	}
 	
 	save() {
 		const obj = this;
-		var url = URL_PREFIX + 'configsave?inst=' + _inst + '&msg=';
-		var saveMsg = $('#id_input_saveMessage').val().replace(/^\s+|\s+$/gm,'');
+		const selectedMotor = _sampleStage.getSelected();
+		const deviceMotorPairs = JSON.stringify(_additionalModel.getDeviceMotorModel());
+		var url = URL_PREFIX + 'configsave?inst=' + _inst + '&selectedMotor=' + (selectedMotor ? selectedMotor : 'None') 
+			+ '&deviceMotorPairs=' + encodeURI(deviceMotorPairs) + '&msg=';
+//		var saveMsg = $('#id_input_saveMessage').val().replace(/^\s+|\s+$/gm,'');
+		var saveMsg = _sampleStage.getChangeMsg();
+		saveMsg += obj.getChangeMsg();
+		saveMsg += _additionalModel.getChangeMsg();
 		if (saveMsg.length > 0) {
 			url += encodeURI(saveMsg);
 		}
 		url += "&" + Date.now();
+		$.each(obj.devices, function(did, device) {
+			device.applyChange();
+		});
+		
+		obj.applyChange();
+		_additionalModel.applyChange();
 		_saveButton.close();
-		console.log("instrument save");
 		var text = JSON.stringify(this.model);
 //		$.post(url,  {model:text}, function(data) {
-		$.post(url,  text, function(data) {
+		$.post(url, text, function(data) {
 //			data = $.parseJSON(data);
 			try {
 				if (data["status"] == "OK") {
@@ -450,17 +843,27 @@ class InstrumentModel extends AbstractDeviceModel {
 		});
 	}
 	
+	reset() {
+		const obj = this;
+		$.each(obj.devices, function(did, device) {
+			device.remove();
+		});
+		obj.resetEditorModel();
+		obj.createUi();
+		_additionalModel.reset();
+	}
+	
 	removeDevice(did) {
 		const obj = this;
-		if (did in this.model) {
-			const deviceModel = this.model[did];
+		if (did in this.editorModel) {
+			const deviceModel = this.editorModel[did];
 			$.each(deviceModel, function(cid, cfg) {
 				if (!(PROPERTY_KEYWORDS.includes(cid))) {
 					var name = did + ":" + cid
 					delete obj.configs[name];
 				}
 			});
-			delete this.model[did];
+			delete this.editorModel[did];
 			delete this.firstConfigs[did];
 			delete this.configNamesOfDevice[did];
 			delete this.devices[did];
@@ -481,8 +884,9 @@ _instModel = new InstrumentModel();
 
 class DBModel extends AbstractDeviceModel {
 
-	constructor(){
+	constructor(dbType){
 		super();
+		this.dbType = dbType;
 	}
 
 	get $menuBar() {
@@ -494,24 +898,31 @@ class DBModel extends AbstractDeviceModel {
 	}
 	
 	get url() {
-		return URL_PREFIX + 'sedb';
+		return URL_PREFIX + 'sedb?dbtype=' + this.dbType;
 	}
 
 	afterLoad() {
-		_instModel.load();
+//		_instModel.load();
 	}
 	
 	createUi() {
 		const obj = this;
 		$.each(this.model, function(did, deviceModel){
-			const device = new DBDevice(did, deviceModel, obj.$menuBar);
+			const device = new DBDevice(did, deviceModel, obj.editorModel[did], obj.$menuBar);
 			device.createMenuUi();
 			obj.setDevice(did, device);
 		});
 	}
 
 }
-_dbModel = new DBModel();
+_pdbModel = new DBModel(PHYSICAL_DB);
+_cdbModel = new DBModel(COMPOSITE_DB);
+_pdbModel.afterLoad = function() {
+	_cdbModel.load();
+}
+_cdbModel.afterLoad = function() {
+	_instModel.load();
+}
 
 class AbstractDevice {
 	
@@ -525,11 +936,12 @@ class AbstractDevice {
 	rootEditor;
 	configEditors;
 	
-	constructor(did, model, $parentUi)
+	constructor(did, model, editorModel, $parentUi)
 	{
 		this.did = did;
 		this.model = model;
-		this.editorModel = $.extend(true, {}, model);
+//		this.editorModel = $.extend(true, {}, model);
+		this.editorModel = editorModel;
 		this.$parentUi = $parentUi;
 		this.configEditors = {};
 	}
@@ -539,7 +951,11 @@ class AbstractDevice {
 	}
 	
 	get datype() {
-		return this.model[KEY_STATIC][KEY_DATYPE];
+		if (KEY_STATIC in this.model && KEY_DATYPE in this.model[KEY_STATIC]) {
+			return this.model[KEY_STATIC][KEY_DATYPE];
+		} else {
+			return "C";
+		}
 	}
 	
 	get id() {
@@ -561,13 +977,6 @@ class AbstractDevice {
 	createMenuUi() {}
 	
 	checkDirtyFlag() {
-//		var okToGo = true;
-//		if (_curDevice != null) {
-//			if (_curDevice.id != this.id && _curDevice.isDirty()) {
-//				okToGo = confirm('You have unsaved changes in the current device. If you load another device, your change will be lost. Do you want to continue?');
-//			}
-//		}
-//		return okToGo;
 		return true;
 	}
 	
@@ -641,12 +1050,12 @@ class AbstractDevice {
 
 class DBDevice extends AbstractDevice {
 	
-	constructor(did, model, $parentUi)
+	constructor(did, model, editorModel, $parentUi)
 	{
 //		this.#did = did;
 //		this.#model = model;
 //		this.#parentUi = parentUi;
-		super(did, model, $parentUi);
+		super(did, model, editorModel, $parentUi);
 		this.rootEditor = new ImmutableRootUi(this);
 	}
 	
@@ -654,6 +1063,14 @@ class DBDevice extends AbstractDevice {
 		return TYPE_DB;
 	}
 	
+	get datype() {
+		if (KEY_STATIC in this.model && KEY_DATYPE in this.model[KEY_STATIC]) {
+			return this.model[KEY_STATIC][KEY_DATYPE];
+		} else {
+			return "C";
+		}
+	}
+
 	createMenuUi() {
 //		var datype = this.model["datype"];
 //		if (datype != "C") {
@@ -697,7 +1114,7 @@ class DBDevice extends AbstractDevice {
 		
 		this.$menuHeader.find('span.class_span_mc_icon').click(function() {
 			try {
-				_instModel.addDevice(obj.did, _dbModel.getDeviceModel(obj.did));
+				_instModel.addDevice(obj.did, _cdbModel.getDeviceModel(obj.did));
 			} catch (e) {
 				StaticUtils.showError(e);
 			}
@@ -714,6 +1131,7 @@ class DBDevice extends AbstractDevice {
 //			}
 //		}
 		if (this.checkDirtyFlag()) {
+			console.log("load CD");
 			if (_curDevice != null && _curDevice.id != this.id) {
 				_curDevice.hide();
 			}
@@ -744,12 +1162,12 @@ class DBDevice extends AbstractDevice {
 
 class InstrumentDevice extends AbstractDevice {
 	
-	constructor(did, model, $parentUi)
+	constructor(did, model, editorModel, $parentUi)
 	{
 //		this.#did = did;
 //		this.#model = model;
 //		this.#parentUi = parentUi;
-		super(did, model, $parentUi);
+		super(did, model, editorModel, $parentUi);
 		this.tabUi = new TabUi(this);
 		this.rootEditor = new MutableRootUi(this);
 		this.configMenuDict = {};
@@ -760,6 +1178,73 @@ class InstrumentDevice extends AbstractDevice {
 		return TYPE_INST;
 	}
 	
+	isEnabled() {
+		if (KEY_STATIC in this.editorModel) {
+			if (ID_PROP_ENABLED in this.editorModel[KEY_STATIC]) {
+				return this.editorModel[KEY_STATIC][ID_PROP_ENABLED];
+			}
+		}
+		return true;
+	}
+
+	getChangeMsg() {
+		const isEnabledNew = this.isEnabled();
+		var isEnabledOld = true;
+		if (KEY_STATIC in this.model) {
+			if (ID_PROP_ENABLED in this.model[KEY_STATIC]) {
+				isEnabledOld = this.model[KEY_STATIC][ID_PROP_ENABLED];
+			}
+		}
+		if (isEnabledNew) {
+			if (!isEnabledOld) {
+				return 'enable ' + this.did + '; ';
+			}
+		} else {
+			if (isEnabledOld) {
+				return 'disable ' + this.did + '; ';
+			}
+		}
+		return '';
+	}
+
+	applyChange() {
+		const isEnabledNew = this.isEnabled();
+		var isEnabledOld = true;
+		if (KEY_STATIC in this.model) {
+			if (ID_PROP_ENABLED in this.model[KEY_STATIC]) {
+				isEnabledOld = this.model[KEY_STATIC][ID_PROP_ENABLED];
+			}
+		}
+		if (isEnabledNew) {
+			if (!isEnabledOld) {
+				if (KEY_STATIC in this.model) {
+					this.model[KEY_STATIC][ID_PROP_ENABLED] = true;
+				} else {
+					this.model[KEY_STATIC] = {"enabled" : true};
+				}
+			}
+		} else {
+			if (isEnabledOld) {
+				if (KEY_STATIC in this.model) {
+					this.model[KEY_STATIC][ID_PROP_ENABLED] = false;
+				} else {
+					this.model[KEY_STATIC] = {"enabled" : false};
+				}
+			}
+		}
+	}
+
+	hasChanged() {
+		const isEnabledNew = this.isEnabled();
+		var isEnabledOld = true;
+		if (KEY_STATIC in this.model) {
+			if (ID_PROP_ENABLED in this.model[KEY_STATIC]) {
+				isEnabledOld = this.model[KEY_STATIC][ID_PROP_ENABLED];
+			}
+		}
+		return isEnabledNew ? !isEnabledOld : isEnabledOld;
+	}
+
 	createMenuUi() {
 		const obj = this;
 //		var datype = this.model["datype"];
@@ -768,11 +1253,14 @@ class InstrumentDevice extends AbstractDevice {
 //		}
 		var faIcon;
 		var html = '<div class="class_a_mc" href="#"><h6 class="sidebar-subheading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 ">' 
-				+ '<span class="class_span_mc_name" did="' + this.did + '" datype="' + this.datype + '"><i class="fas fa-caret-down"></i> ' + this.did + '</span>';
-		if (this.datype != null && this.datype in DATYPE_ICON) {
-			faIcon = DATYPE_ICON[this.datype];
-			html += '<span class="class_span_mc_icon"><i class="fas fa-' + faIcon + '"></i> </span>';
-		}
+				+ '<div class="menu_left">'
+				+ '<span class="class_span_mc_enabled"><input type="checkbox" name="' + this.did + '_enabled" ' + (obj.isEnabled() ? 'checked' : '')+ '/> </span>'
+				+ '<span class="class_span_mc_name" did="' + this.did + '" datype="' + this.datype + '"><i class="fas fa-caret-down"></i> ' + this.did + '</span>'
+				+ '</div>';
+//		if (this.datype != null && this.datype in DATYPE_ICON) {
+//			faIcon = DATYPE_ICON[this.datype];
+//			html += '<span class="class_span_mc_icon"><i class="fas fa-' + faIcon + '"></i> </span>';
+//		}
 		if (this.datype == "C") {
 			html += '<span class="class_span_mc_control"><i class="fas fa-minus"></i> </span>';
 		}
@@ -787,6 +1275,20 @@ class InstrumentDevice extends AbstractDevice {
 //			_removeModal.toRemove = obj.did;
 //			_removeModal.open();
 			obj.remove();
+			StaticUtils.showWarning("Make sure to use the 'Save' button to save the change to the server.");
+		});
+		
+		this.$menuHeader.find('span.class_span_mc_enabled > input').change(function() {
+	    	if (KEY_STATIC in obj.editorModel) {
+	    		obj.editorModel[KEY_STATIC][ID_PROP_ENABLED] = $(this).is(':checked');
+	    	} else {
+	    		obj.editorModel[KEY_STATIC] = {"enabled" : $(this).is(':checked')};
+	    	}
+	    	if (obj.hasChanged()) {
+	    		obj.setDirtyFlag();
+	    	} else {
+	    		obj.clearDirtyFlag();
+	    	}
 		});
 		
 		const $menuUl = $('<ul id="ul_mc_'+ this.did + '" class="nav flex-column class_ul_hide class_ul_folder"></ul>');
@@ -827,7 +1329,7 @@ class InstrumentDevice extends AbstractDevice {
 			_title.text(obj.did);
 			StaticUtils.clearMsg();
 
-			if (!(obj.did in _dbModel.model)) {
+			if (!(obj.did in _cdbModel.model)) {
 				StaticUtils.showWarning("device " + obj.did + " not found in the Device Database.");
 			}
 			
@@ -839,7 +1341,7 @@ class InstrumentDevice extends AbstractDevice {
 			this.tabUi.show();
 			_errorReport.hide();
 			this.rootEditor.show();
-			_historyBar.reload();
+//			_historyBar.reload();
 		} else {
 			return;
 		}
@@ -867,10 +1369,10 @@ class InstrumentDevice extends AbstractDevice {
 			this.curCid = cid;
 			const obj = this;
 			const curConfig = obj.editorModel[cid];
-			const dbConfig = _dbModel.getConfigModel(obj.did, cid);
+			const dbConfig = _cdbModel.getConfigModel(obj.did, cid);
 			const config = $.extend(true, {}, dbConfig, curConfig);
 //			_tabs.empty();
-			var datype = obj.editorModel[KEY_STATIC][KEY_DATYPE];
+//			var datype = obj.editorModel[KEY_STATIC][KEY_DATYPE];
 			
 			
 			var desc = config[KEY_DEVICE_DESC];
@@ -898,7 +1400,7 @@ class InstrumentDevice extends AbstractDevice {
 			this.setMenuActive(true);
 			this.setMenuItemActive(cid);
 			_errorReport.hide();
-			_historyBar.reload();
+//			_historyBar.reload();
 		}
 	}
 	
@@ -922,7 +1424,7 @@ class InstrumentDevice extends AbstractDevice {
 			StaticUtils.showError('deviceId property not found in this configuration');
 			return;
 		}
-		const dModel = _dbModel.getDeviceModel(driverId);
+		const dModel = _pdbModel.getDeviceModel(driverId);
 		if (Object.keys(dModel).length == 0) {
 //			throw new Error('device not found in the Device Database: ' + driverId);
 			StaticUtils.showError('device not found in the Device Database: ' + driverId);
@@ -948,58 +1450,51 @@ class InstrumentDevice extends AbstractDevice {
 	}
 	
 	save() {
-		const obj = this;
-		var url = URL_PREFIX + 'configsave?inst=' + _inst + '&msg=';
-		var saveMsg = $('#id_input_saveMessage').val().replace(/^\s+|\s+$/gm,'');
-		if (saveMsg.length > 0) {
-			url += encodeURI(saveMsg);
-		}
-		url += "&" + Date.now();
-		_saveButton.close();
-		var text = JSON.stringify(this.editorModel);
-		$.post(url,  {did:obj.did, model:text}, function(data) {
-//			data = $.parseJSON(data);
-			try {
-				if (data["status"] == "OK") {
-					StaticUtils.showMsg("Saved in the server.");
-					$('td.editable_value input.changed').removeClass('changed');
-//					if (_deviceItem != null) {
-//						_deviceItem.init = false;
-//						_deviceItem = null;
-//					}
-					$.extend(true, obj.model, obj.editorModel);
-					obj.clearDirtyFlag();
-					_historyBar.reload();
-					_saveButton.reset();
-//					setTimeout(_historyBar.reload, 3000)
-				} else {
-					StaticUtils.showError(data["reason"]);
-				}
-			} catch (e) {
-				StaticUtils.showError("Failed to save: " + e.statusText);
-			}
-//			_errorReport.clearError();
-			_instModel.verify();
-		}).fail(function(e) {
-			console.log(e);
-			StaticUtils.showError("Faied to save: " + e.statusText);
-		}).always(function() {
-			_saveButton.close();
-		});
+//		const obj = this;
+//		var url = URL_PREFIX + 'configsave?inst=' + _inst + '&msg=';
+//		var saveMsg = $('#id_input_saveMessage').val().replace(/^\s+|\s+$/gm,'');
+//		if (saveMsg.length > 0) {
+//			url += encodeURI(saveMsg);
+//		}
+//		url += "&" + Date.now();
+//		_saveButton.close();
+//		var text = JSON.stringify(this.editorModel);
+//		$.post(url,  {did:obj.did, model:text}, function(data) {
+////			data = $.parseJSON(data);
+//			try {
+//				if (data["status"] == "OK") {
+//					StaticUtils.showMsg("Saved in the server.");
+//					$('td.editable_value input.changed').removeClass('changed');
+////					if (_deviceItem != null) {
+////						_deviceItem.init = false;
+////						_deviceItem = null;
+////					}
+//					$.extend(true, obj.model, obj.editorModel);
+//					obj.clearDirtyFlag();
+//					_historyBar.reload();
+//					_saveButton.reset();
+////					setTimeout(_historyBar.reload, 3000)
+//				} else {
+//					StaticUtils.showError(data["reason"]);
+//				}
+//			} catch (e) {
+//				StaticUtils.showError("Failed to save: " + e.statusText);
+//			}
+////			_errorReport.clearError();
+//			_instModel.verify();
+//		}).fail(function(e) {
+//			console.log(e);
+//			StaticUtils.showError("Faied to save: " + e.statusText);
+//		}).always(function() {
+//			_saveButton.close();
+//		});
 	}
 	
 	reset() {
 		this.clearDirtyFlag();
 		$.extend(true, this.editorModel, this.model);
-		$.each(Object.values(this.configEditors), function(idx, editor) {
-			editor.dispose();
-		});
-		this.configEditors = {};
-		if (this.curCid) {
-			this.loadConfig(this.curCid);
-		} else {
-			this.load();
-		}
+		this.clearDirtyFlag();
+		this.$menuHeader.find('span.class_span_mc_enabled > input').prop('checked', this.isEnabled()); 
 	}
 	
 	fromHistory(commitModel) {
@@ -1051,7 +1546,6 @@ class InstrumentDevice extends AbstractDevice {
 			_instModel.removeDevice(obj.did);
 			
 			obj.clearDirtyFlag();
-			StaticUtils.showWarning("Make sure to use the 'Save' button to save the change to the server.");
 		} catch (e) {
 			StaticUtils.showError("Failed to remove: " + e.statusText);
 		}
@@ -1113,20 +1607,20 @@ class InstrumentDevice extends AbstractDevice {
 		const obj = this;
 		$.each(this.getConfigArray(), function(idx, cid) {
 			const configModel = obj.model[cid];
-			const configSelection = configModel[ID_PROP_CONFIGID];
 			const driverId = obj.getDriverName(cid);
-			if (!(obj.did in _dbModel.model)) {
-				_errorReport.addError(obj.did, cid, "device " + obj.did + " not found in the Database");
+			if (!(obj.did in _cdbModel.model)) {
+				_errorReport.addError(obj.did, cid, "device " + obj.did + " not found in the Composite Database");
 				return false;
 			}
+			const configSelection = _cdbModel.model[obj.did][cid][ID_PROP_CONFIGID];
 			if (driverId == null) {
 //				StaticUtils.showError('device ID not found in configuration');
 				_errorReport.addError(obj.did, cid, "configuration doesn't have a deviceId property");
 				return false;
 			}
-			const dModel = _dbModel.getDeviceModel(driverId);
+			const dModel = _pdbModel.getDeviceModel(driverId);
 			if (Object.keys(dModel).length == 0) {
-				_errorReport.addError(obj.did, cid, 'device ' + driverId + ' not found in the Database');
+				_errorReport.addError(obj.did, cid, 'device ' + driverId + ' not found in the Physical Database');
 //				StaticUtils.showError('device not found in the Device Database: ' + driverId);
 				return false;
 			}
@@ -1332,12 +1826,28 @@ class MutableRootUi extends AbstractMainUi {
 					+ obj.device.did + '" cid="' + cid + '">' + cid + '<br>(' + config[KEY_DEVICE_DRIVER] + ')' + '</a></div></div>';
 			}
 		});
+		
+		const motors = _sampleStage.getMotors();
+		const selected = _additionalModel.getMotorForDevice(obj.device.did);
+		var ot = '<option value="NONE" ' + (selected == null ? 'selected' : '') + '></option>';
+		$.each(motors, function(idx, motor) {
+			ot += '<option value="' + motor + '" ' + (motor == selected ? 'selected' : '') + '>'+ motor + '</option>';
+		});
+		html += '<div class="class_div_device_page" id="div_page_' + obj.device.did + '_motor">'
+			+ '<div class="class_div_device_item class_div_sample_stage"><span class="class_a_cid_label" did="' 
+			+ obj.device.did + '" cid="motor_selection"><a href="#">Sample Stage</a><br><select class="form-control thin_input">' + ot + '</select></span></div></div>';
+		
 		var $div = $('<div class="class_div_device_canvas"/>').append(html);
 		$div.find('a.class_a_cid_label').click(function(){
 			var acid = $(this).attr('cid');
 			obj.device.loadConfig(acid);
 		});
 		
+		$div.find("select").change(function() {
+			const selected = $(this).val();
+			_additionalModel.setMotorForDevice(obj.device.did, selected);
+		});
+
 		this.$editorUi.append($div);
 		
 		_editor.append(this.$editorUi);
@@ -1363,7 +1873,7 @@ class ImmutableRootUi extends AbstractMainUi {
 			}
 		});
 		var $div = $('<div class="class_div_device_canvas div_static"/>').append(html);
-
+		
 		this.$editorUi.append($div);
 		_editor.append(this.$editorUi);
 //		_historyBar.reload();
@@ -1379,7 +1889,7 @@ class PropertyTable extends AbstractMainUi {
 		this.cid = cid;
 		this.cModel = config;
 		this.driverId = config[KEY_DEVICE_DRIVER];
-		this.dModel = _dbModel.getDeviceModel(this.driverId);
+		this.dModel = _pdbModel.getDeviceModel(this.driverId);
 		this.rowEditor = {};
 		this.configRow = null;
 		this.ipRow = null;
@@ -2331,7 +2841,7 @@ class SearchWidget {
 			device.loadConfig(cid);
 		} else if (type == TYPE_DB) {
 			console.log('load db device: ' + did);
-			const device = _dbModel.getDevice(did);
+			const device = _cdbModel.getDevice(did);
 			device.load();			
 		}
 		this.$textInput.blur();
@@ -2371,7 +2881,7 @@ class SearchWidget {
 			}
 		});
 		
-		$.each(_dbModel.configs, function(name, pair) {
+		$.each(_cdbModel.configs, function(name, pair) {
 			var word = obj.$textInput.val().toLowerCase();
 			if (name.toLowerCase().indexOf(word) >= 0) {
 //				found[name] = path;
@@ -2507,33 +3017,21 @@ class SaveButton {
 	constructor($button)
 	{
 		this.$button = $button;
-		this.$textInput = $('#id_input_saveMessage');
-		this.dialog = $('#id_modal_saveDialog');
+//		this.$textInput = $('#id_input_saveMessage');
+//		this.dialog = $('#id_modal_saveDialog');
 	}
 	
 	init() {
 		const obj = this;
 		this.$button.click(function() {
-//			if (_curDevice) {
-//				_curDevice.save();
-//			} else {
-//				StaticUtils.showWarning('Please select a device for saving. Saving is per-device based.')
-//				obj.close();
-//			}
 			obj.run();
 		});
 	
-		this.$textInput.keypress(function(event) {
-			if ( event.which == 13 ) {
-//				if (_curDevice) {
-//					_curDevice.save();
-//				} else {
-//					StaticUtils.showWarning('Please select a device for saving. Saving is per-device based.')
-//					obj.close();
-//				}
-				obj.run();
-			}
-		});
+//		this.$textInput.keypress(function(event) {
+//			if ( event.which == 13 ) {
+//				obj.run();
+//			}
+//		});
 	}
 	
 	run() {
@@ -2541,11 +3039,11 @@ class SaveButton {
 	}
 	
 	reset() {
-		this.$textInput.val("");
+//		this.$textInput.val("");
 	}
 	
 	close() {
-		this.dialog.modal('hide');
+//		this.dialog.modal('hide');
 	}
 }
 
@@ -2628,9 +3126,7 @@ class ResetButton {
 	
 	init() {
 		this.$button.click(function(){
-			if (_curDevice) {
-				_curDevice.reset();
-			}
+			_instModel.reset();
 		});
 	}
 }
@@ -2664,7 +3160,7 @@ class HomeButton {
 				}
 				_title.text('Please use the side bar to select a device configuration.');
 				_errorReport.show();
-				_historyBar.reload();
+//				_historyBar.reload();
 			} else {
 				return;
 			}
@@ -2678,6 +3174,7 @@ class HistoryBlock {
 		this.$side = $side;
 //		this.$holder = $('.class_div_commit_item');
 		this.enabled = false;
+		this.commits = [];
 	}
 	
 	empty() {
@@ -2696,12 +3193,38 @@ class HistoryBlock {
 			$.get(url, function(data) {
 				data = $.parseJSON(data);
 				$.each(data, function(index, version) {
-					var commit = new CommitItem(version, index);
-					commit.init(obj.$side);
+					const commit = new CommitItem(version, index);
+					obj.commits.push(commit);
 //					.append(commit.getControl());
 				});
+				url = URL_PREFIX + 'adithistory?inst=' + _inst + '&' + Date.now();
+				$.get(url, function(data) {
+					data = $.parseJSON(data);
+					$.each(data, function(index, version) {
+						const commit = new CommitItem(version, index);
+						var exists = false;
+						obj.commits.forEach((c) => {
+							if (c.id == commit.id) {
+								exists = true;
+								return;
+							}
+						});
+						if (!exists) {
+							obj.commits.push(commit);
+						}
+					});
+					
+					obj.commits.sort((a, b) => b.ts - a.ts);
+					obj.commits.forEach((commit) => {
+						commit.init(obj.$side);
+					});
+
+				}).fail(function() {
+					obj.$side.prepend($('<span class="alert alert-danger">failed to get additional config history.</span>'));
+				});
+
 			}).fail(function() {
-				obj.$side.html('<span class="alert alert-danger">failed to get history.</span>');
+				obj.$side.prepend($('<span class="alert alert-danger">failed to get SE configuration history.</span>'));
 			});
 		}
 	};
@@ -2715,7 +3238,7 @@ class HistoryBlock {
 			var mainHeight = $("#id_div_main_area").height();
 			var newHeight = bodyHeight > mainHeight ? bodyHeight : mainHeight;
 			this.$side.height(newHeight);
-			this.reload();
+//			this.reload();
 		} else {
 			this.$side.hide();
 			this.$main.css('width', '100%');
@@ -2730,13 +3253,16 @@ class CommitItem {
 	constructor(commit, index) {
 		this.commit = commit;
 		this.index = index;
+		this.ts = Number(commit["timestamp"]);
+		this.id = commit["id"];
 	}
 	
 	init($parentUi) {
-		var id = this.commit["id"];
-		var name = this.commit["name"];
-		var message = this.commit["message"];
-		var timestamp = this.commit["timestamp"];
+		const id = this.commit["id"];
+		const name = this.commit["name"];
+		const message = this.commit["message"];
+		const timestamp = this.commit["timestamp"];
+		const timeString = StaticUtils.getTimeString(timestamp);
 		var btText;
 		var star;
 		if (this.index == 0) {
@@ -2747,87 +3273,26 @@ class CommitItem {
 			star = "";
 		}
 		this.$control = $('<div/>').addClass("class_div_commit_item");
-		this.$control.append('<span class="badge badge-secondary class_span_commit_timestamp">' + star + StaticUtils.getTimeString(timestamp) + '</span>');
+		this.$control.append('<span class="badge badge-secondary class_span_commit_timestamp">' + star + timeString + '</span>');
 		this.$control.append('<span class="class_span_commit_message">' + message + '</span>');
 		var button = $('<span class="class_span_commit_button"><button class="class_button_load_commit btn btn-sm btn-block btn-outline-primary">' + btText + '</button></span>');
 		this.$control.append(button);
 		button.find('button').click(function() {
-			if (_curDevice == null) {
-				alert('Please select a device first. Loading history version is only supported on a per-device base.')
-				return;
-			}
+//			if (_curDevice == null) {
+//				alert('Please select a device first. Loading history version is only supported on a per-device base.')
+//				return;
+//			}
 			var url = URL_PREFIX + 'configload?inst=' + _inst + '&version=' + encodeURI(name) + "&" + Date.now();
 			$.get(url, function(data) {
 				try{
-					_curDevice.fromHistory(data);
+					_instModel.model = data;
+					_instModel.reset();
+					_curVersionName = timeString;
+					StaticUtils.showWarning("please use the 'Save' button to apply the change.");
 				} catch (e) {
 					alert('failed to load model from the commit, ' + e);
 					return;
 				}
-//				$('.class_ul_folder').addClass('class_ul_hide');
-//				$('#ul_mc_' + _curDid).removeClass('class_ul_hide');
-//				$('.class_ul_folder > li').removeClass('active');
-//				$('#li_' + _curDid + '_' + _curCid).addClass('active');
-//				loadDeviceConfig(_curDid, _curCid);
-//				_dirtyFlag = true;
-				
-//				if (_curDid != null) {
-//					try{
-//						_curDeviceModel.fromHistory(data);
-//					} catch (e) {
-//						alert('Device ' + _curDid + " doesn't exist.");
-//						return;
-//					}
-//					$('.class_ul_folder').addClass('class_ul_hide');
-//					$('#ul_mc_' + _curDid).removeClass('class_ul_hide');
-//					$('.class_ul_folder > li').removeClass('active');
-//					$('#li_' + _curDid + '_' + _curCid).addClass('active');
-//					loadDeviceConfig(_curDid, _curCid);
-//					_dirtyFlag = true;
-//				} else {
-//					_model = data;
-//					_versionId = name;
-//					_timestamp = getTimeString(timestamp);
-//					_configs = {};
-//					_firstConfig = {};
-//					$.each(_model, function(did, device) {
-//						$.each(device, function(cid, config) {
-//							if (!(PROPERTY_KEYWORDS.includes(cid))) {
-//								var path = "/" + did + "/" + cid;
-//	//							var motor = encoder[keysOf(encoder)[0]];
-//								var name = did + ":" + cid;
-//								var desc = "";
-//	//							if (KEY_MOTOR_DESC in motor){
-//								if (motor.hasOwnProperty(KEY_MOTOR_DESC)) {
-//									desc = motor[KEY_DEVICE_DESC];
-//								}
-//								_configs[name] = [path, did, cid, desc];
-//								if (!(did in _firstConfig)) {
-//									_firstConfig[did] = cid;
-//								}
-//							}
-//						});
-//					});
-//		//			_sics = _model[SICS_MOTORS_NODE];
-//	//				$("#id_div_sidebar").empty();
-//					_curDeviceModel = null;
-//					_curCid = null;
-//					_curDid = null;
-//					_editorModel = null;
-//					showModelInSidebar();
-//					showMsg('Successully loaded version: ' + message);
-//					_editorTitle.empty();
-//					_tabs.empty();
-//					_editor.empty();
-//					_propertyTitle.empty();
-//					_property.empty();
-//					_editorTitle.text("History version '" + message + "' has been loaded back.");
-//					var $b = $('<button class="btn btn-outline-primary">Apply this version</button>');
-//					$b.click(function() {
-//						applyCurrentVersion($(this));
-//					});
-//					_editor.append($b);
-//				}
 			}).fail(function(e) {
 				alert('failed to load the version, ' + e.statusText);
 			});
@@ -2873,7 +3338,7 @@ $(document).ready(function() {
 
 	const loadingLabel = new LoadingLabel($('#id_span_waiting'));
 	loadingLabel.init();
-	_saveButton = new SaveButton($('#id_button_saveConfirm'));
+	_saveButton = new SaveButton($('#id_button_save'));
 	_saveButton.init();
 	
 	_resetButton = new ResetButton($('#id_button_reset'));
@@ -2882,7 +3347,10 @@ $(document).ready(function() {
 	_removeModal = new RemoveModal('id_modal_deleteDialog');
 	_removeModal.init();
 	
-	_dbModel.load();
+	_additionalModel.load();
+//	_motorDBModel.load();
+//	_pdbModel.load();
+//	_cdbModel.load();
 //	_instModel.load();
 	
 	_historyBar = new HistoryBlock($("#id_div_main_area"), $('#id_div_right_bar'));
@@ -2894,6 +3362,7 @@ $(document).ready(function() {
 		_historyBar.reload();
 	});
 	_historyBar.toggle();
+	_historyBar.reload();
 	
 	const searchWidget = new SearchWidget($('#id_input_search_text'));
 	searchWidget.init();

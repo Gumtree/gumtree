@@ -7,7 +7,7 @@
     <meta name="author" content="">
     <link rel="icon" href="icons/favicon.ico">
 
-    <title>Sample Environment Configuration </title>
+    <title>Instrument Configuration </title>
 
 	<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
 	<link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
@@ -37,7 +37,7 @@
 
   <body>
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-      <a class="navbar-brand col-sm-3 col-md-3 col-lg-3 col-xl-2 mr-0" id="id_a_instrument_name" href="seConfigMenu.html"><span>&#171; Menu</span></a>
+      <a class="navbar-brand col-sm-3 col-md-3 col-lg-3 col-xl-2 mr-0" id="id_a_instrument_name"><span>Instrument Configuration</span></a>
       <div style="width:100%;">
       	<input id="id_input_search_text" class="form-control form-control-dark w-100" type="text" placeholder="Search for device name" aria-label="Search">
 	    <div class="messagepop" id="id_div_search_result"></div>
@@ -53,11 +53,11 @@
       <div class="row">
         <nav class="col-md-3 col-lg-3 col-xl-2 d-none d-md-block bg-light sidebar">
           <div class="class_span_side_title" id="id_span_side_title"></div>
-          <div class="class_span_side_home" id="id_span_side_home"><a href="#"><i class="fas fa-home"></i> <span id="id_span_home">Home</span></a> <span id="id_span_waiting"><i class="fas fa-spinner fa-spin"></i></span></div>
+          <div class="class_span_side_home" id="id_span_side_home">
+            <a href="#"><i class="fas fa-home"></i> <span id="id_span_home">Home</span></a> <span id="id_span_waiting"><i class="fas fa-spinner fa-spin"></i></span>
+          </div>
           <div class="sidebar-sticky sidebar-half-top" id="id_div_sidebar">
           </div>
-          <div class="class_span_side_title"><i class="fas fa-database"></i> <span id="id_span_db">Device Database</span> </div>
-          <div class="sidebar-half-buttom" id="id_div_sidebuttom"></div>
         </nav>
 
         <main role="main" class="col-md-9 col-lg-9 col-xl-10 offset-md-3 offset-lg-3 offset-xl-2">
@@ -115,27 +115,6 @@
 	  </div>
 	</div -->
 
-	<div class="modal" tabindex="-1" role="dialog" id="id_modal_deleteDialog">
-	  <div class="modal-dialog" role="document">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <h5 class="modal-title">Please confirm deleting the selected device from the instrument setup.</h5>
-	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	          <span aria-hidden="true">&times;</span>
-	        </button>
-	      </div>
-	      <div class="modal-body">
-	        <p>Please add a short message about this change for version control purpose.</p>
-	        <input id="id_modal_deleteDialog_text" class="form-control" type="text" placeholder="Commit message" aria-label="message">
-	      </div>
-	      <div class="modal-footer">
-	        <button type="button" class="btn btn-primary" id="id_modal_deleteDialog_confirm">Confirm delete</button>
-	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-	      </div>
-	    </div>
-	  </div>
-	</div>
-
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
@@ -145,6 +124,6 @@
     <script type="text/javascript" src="js/instrumentsetup.js"></script>
 	<script src="js/account.js"></script>
 	<script src="js/widget.js"></script>
-	<script src="js/seConfig.js"></script>
+	<script src="js/instrumentConfig.js"></script>
   </body>
 </html>

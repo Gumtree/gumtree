@@ -847,18 +847,30 @@ class PhysicalDevice extends AbstractDevice {
 	}
 	
 	findIps(cid) {
-		const ips = this.STATIC[ID_PROP_IP];
 		const res = [];
-		if (typeof ips === "object") {
-			$.each(Object.keys(ips), function(idx, key) {
-				if (ips[key] == cid) {
-					res.push(key);
-				}
-			});
+		if (ID_PROP_IP in this.STATIC) {
+			const ips = this.STATIC[ID_PROP_IP];
+			if (typeof ips === "object") {
+				$.each(Object.keys(ips), function(idx, key) {
+					if (ips[key] == cid) {
+						res.push(key);
+					}
+				});
+			}
 		}
 		return res;
 	}
-	
+
+	getAllIps() {
+		const res = [];
+		if (ID_PROP_IP in this.STATIC) {
+			const ips = this.STATIC[ID_PROP_IP];
+			if (typeof ips === "object") {
+				return Object.keys(ips);
+			}
+		}
+		return [];
+	}
 //	deleteConfig(cid) {
 //		this.setDirtyFlag();
 //		
@@ -1169,6 +1181,10 @@ class CompositeDevice extends AbstractDevice {
 			}
 		});
 		
+		const table = this.configEditors[cid];
+		if (table) {
+			table.updateIpOptions(newConfigId);
+		}
 	}
 	
 	makeSubDevice(subDid) {
@@ -1791,7 +1807,7 @@ class PropertyTable extends AbstractMainUi {
 		this.cModel = config;
 		this.driverId = config[KEY_DEVICE_DRIVER];
 		if (device.datype == "C") {
-			this.dModel = _cdModel.getDeviceModel(this.driverId);
+			this.dModel = _pdModel.getDeviceModel(this.driverId);
 		}
 		this.rowEditor = {};
 		this.configRow = null;
@@ -1802,55 +1818,55 @@ class PropertyTable extends AbstractMainUi {
 	createUi() {
 		var $table = $(TABLE_TIER1_HEADER + '</tbody></table>');
 		var $tbody = $table.find('tbody');
-		var object = this;
+		var obj = this;
 //		var cid = this.cid;
 //		var did = this.driverId;
 		var subConfigId = this.cModel[ID_PROP_CONFIGID];
-		if (typeof this.dModel === 'undefined') {
+		if (typeof obj.dModel === 'undefined') {
+//			StaticUtils.showWarning("driver id " + obj.driverId + " not found in the physical device list!");
 			$.each(this.cModel, function(key, val){
 				if (_option_prop.includes(key)) {
-					var pRow = object.createRow(key, val);
+					var pRow = obj.createRow(key, val);
 					$tbody.append(pRow.getUI());
 				} else {
-					var pRow = object.createRow(key, val, null, false);
+					var pRow = obj.createRow(key, val, null, false);
 					$tbody.append(pRow.getUI());
 				}
 			});
 		} else {
-			if (subConfigId in object.dModel) {
+			if (subConfigId in obj.dModel) {
 				$.each(this.cModel, function(key, val){
 					if (key == ID_PROP_CONFIGID) {
-						var options = _pdModel.getConfigNamesOfDevice(object.driverId);
-						object.configRow = object.createRow(key, val, options, true);
-						$tbody.append(object.configRow.getUI());
+						var options = _pdModel.getConfigNamesOfDevice(obj.driverId);
+						obj.configRow = obj.createRow(key, val, options, true);
+						$tbody.append(obj.configRow.getUI());
 					} else if (key == ID_PROP_IP) {
-//						var options = object.dModel[subConfigId][ID_PROP_IP];
-//						var options = object.dModel[KEY_STATIC][ID_PROP_IP];
-						const device = _pdModel.getDevice(object.driverId);
+//						var options = obj.dModel[subConfigId][ID_PROP_IP];
+//						var options = obj.dModel[KEY_STATIC][ID_PROP_IP];
+						const device = _pdModel.getDevice(obj.driverId);
 						const options = device.findIps(subConfigId);
-						console.log(options);
-						object.ipRow = object.createRow(key, val, options);
-						$tbody.append(object.ipRow.getUI());
+//						console.log(options);
+						obj.ipRow = obj.createRow(key, val, options);
+						$tbody.append(obj.ipRow.getUI());
 					} else if (key == ID_PROP_PORT) {
-						var options = object.dModel[subConfigId][ID_PROP_PORT];
-						object.portRow = object.createRow(key, val, options);
-						$tbody.append(object.portRow.getUI());
+						var options = obj.dModel[subConfigId][ID_PROP_PORT];
+						obj.portRow = obj.createRow(key, val, options);
+						$tbody.append(obj.portRow.getUI());
 					} else {
-//						var pRow = object.createRow(key, val, null, true);
-						var pRow = object.createRow(key, val);
+//						var pRow = obj.createRow(key, val, null, true);
+						var pRow = obj.createRow(key, val);
 						$tbody.append(pRow.getUI());
 					}
 				});
 			} else {
-				const obj = this;
 				$.each(this.cModel, function(key, val){
 					if (key == ID_PROP_CONFIGID) {
 //						var options = obj.device.getConfigArray();
 						StaticUtils.showWarning("configuration " + subConfigId + " not found in physical device: " + obj.driverId);
-						var options = _pdModel.getConfigNamesOfDevice(object.driverId);
+						var options = _pdModel.getConfigNamesOfDevice(obj.driverId);
 						options.push(val);
-						object.configRow = obj.createRow(key, val, options);
-						$tbody.append(object.configRow.getUI());
+						obj.configRow = obj.createRow(key, val, options);
+						$tbody.append(obj.configRow.getUI());
 					} else if (_option_prop.includes(key)) {
 						var pRow = obj.createRow(key, val);
 						$tbody.append(pRow.getUI());
@@ -1879,13 +1895,25 @@ class PropertyTable extends AbstractMainUi {
 //		}
 		this.$editorUi.append($table);
 		
-		var $del = $('<div class="main_footer"><span id="id_button_del_config" class="btn btn-outline-primary btn-block " href="#"><i class="fas fa-remove"></i> Remove This Configuration from Device ' + object.device.did + '</span></div>');
+		var $del = $('<div class="main_footer"><span id="id_button_del_config" class="btn btn-outline-primary btn-block " href="#"><i class="fas fa-remove"></i> Remove This Configuration from Device ' + obj.device.did + '</span></div>');
 		this.$editorUi.append($del);
-		const deleteConfigModal = new DeleteConfigModal($del, object.device, object.cid);
+		const deleteConfigModal = new DeleteConfigModal($del, obj.device, obj.cid);
 		deleteConfigModal.init();
 		
 		_editor.append(this.$editorUi);
 		this.init = true;
+	}
+	
+	updateIpOptions(newConfigId) {
+		const device = _pdModel.getDevice(this.driverId);
+		const options = device.findIps(newConfigId);
+		if (options.length > 0) {
+			this.ipRow.setValue(options[0]);
+			this.ipRow.updateOptions(options);
+		} else {
+			this.ipRow.setValue("");
+			this.ipRow.updateOptions(device.getAllIps());
+		}
 	}
 	
 	updateValue(key, val) {
@@ -2099,24 +2127,40 @@ class OptionsPropertyRow extends PropertyRow {
 	}
 	
 	init() {
+		const obj = this;
 		var ot = "";
 		$.each(this.options, function(idx, op){
-			var sl = op == this.val ? " selected" : "";
+			var sl = op == obj.val ? " selected" : "";
 			ot += '<option value="' + op + '"' + sl + '>'+ op + '</option>';
 		});
+		const datalistId = obj.device.did + "_" + obj.cid + "_" + obj.key;
 		var html = '<tr class="editable_row" key="' + this.key + '"><td class="editable_key">' + this.key + '</td>'
 			+ '<td class="editable_value">';
-		html += '<input name="option_value" class="form-control" value="' + this.val + '" list="' + this.key + '"/><datalist id="' + this.key + '">' + ot + '</datalist>';
+		html += '<input name="option_value" class="form-control" value="' + this.val + '" list="' + datalistId + '"/><datalist id="' + datalistId + '">' + ot + '</datalist>';
 		html += '</td></tr>';
 
 		this.$row = $(html);
 		this.$colValue = this.$row.find('.editable_value');
 		this.$t1Value = this.$colValue.find("> input");
-		this.$t1Select = this.$colValue.find("> select");
+//		this.$t1Select = this.$colValue.find("> select");
+		this.$datalist = this.$colValue.find("> datalist");
 		this.$t2Body = this.$colValue.find("tbody");
 		this.key = this.$row.attr('key');
 
 		this.addEventHandler();
+	}
+	
+	updateOptions(options) {
+		const obj = this;
+		obj.options = options;
+		var ot = "";
+		$.each(obj.options, function(idx, op){
+			var sl = op == obj.val ? " selected" : "";
+			ot += '<option value="' + op + '"' + sl + '>'+ op + '</option>';
+		});
+		if (this.$datalist) {
+			this.$datalist.html(ot);
+		}
 	}
 }
 

@@ -73,6 +73,7 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 	private static final String QUERY_ENTRY_TIMESTAMP = "timestamp";
 	
 	private static final String SEG_NAME_MODEL = "model";
+	private static final String SEG_NAME_CACHEDMODEL = "cachedModel";
 	private static final String SEG_NAME_SAVE = "save";
 	private static final String SEG_NAME_LOAD = "load";
 	private static final String SEG_NAME_DELETE = "delete";
@@ -204,6 +205,22 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 					e.printStackTrace();
 					logger.error("failed to load model", e);
 //					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+					return;
+				}
+			}  else if (SEG_NAME_CACHEDMODEL.equalsIgnoreCase(seg)){
+				try {
+					Form form = request.getResourceRef().getQueryAsForm();
+					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
+					if (instrumentId == null) {
+						throw new Exception("need instrument name");
+					}
+					Object model = loadConfigModel(instrumentId);
+					JSONObject jsonObject = (JSONObject) _convertToJson(model);
+					response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					logger.error("failed to load model", e);
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
 					return;
 				}
@@ -342,7 +359,10 @@ public class YamlRestlet extends AbstractUserControlRestlet implements IDisposab
 					response.setStatus(Status.SUCCESS_OK);
 					return;
 				}
-			} 
+			} else {
+				response.setStatus(Status.SERVER_ERROR_NOT_IMPLEMENTED, new Exception("not supported"));
+				return;
+			}
 		} else {
 			response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED, "<span style=\"color:red\">Error: invalid user session.</span>");
 		}

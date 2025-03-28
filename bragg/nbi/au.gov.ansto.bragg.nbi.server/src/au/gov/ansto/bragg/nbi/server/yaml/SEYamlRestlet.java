@@ -55,6 +55,8 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 	private static final String PROPERTY_SERVER_SECONFIG_NAME = "gumtree.server.SEConfigName";
 	private static final String PROPERTY_SERVER_SECONFIG_PATH = "gumtree.server.SEConfigPath";
 	private static final String PROPERTY_SERVER_SEDB_REMOTEGIT = "gumtree.server.SEDBRemoteGit";
+//	private static final String PROPERTY_SERVER_SEMOTOR_FILE = "gumtree.server.SEMotorFile";
+	private static final String PROPERTY_SERVER_ADDITIONAL_NAME = "gumtree.server.AdditionalConfig";
 
 	private static final String QUERY_ENTRY_INSTRUMENT = "inst";
 	private static final String QUERY_ENTRY_DBTYPE = "dbtype";
@@ -64,11 +66,15 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 	private static final String QUERY_ENTRY_NEWDID = "newDid";
 	private static final String QUERY_ENTRY_VERSION_ID = "version";
 	private static final String QUERY_ENTRY_TIMESTAMP = "timestamp";
+	private static final String QUERY_ENTRY_SELECTEDMOTOR = "selectedMotor";
+	private static final String QUERY_ENTRY_DEVICEMOTORPAIRS = "deviceMotorPairs";
 
 	private static final String SEG_NAME_SEDB = "sedb";
+	private static final String SEG_NAME_ADDITIONALLOAD = "adit";
 	private static final String SEG_NAME_SECONFIG = "seconfig";
 	private static final String SEG_NAME_DBHISTORY = "dbhistory";
 	private static final String SEG_NAME_CONFIGHISTORY = "confighistory";
+	private static final String SEG_NAME_ADDITIONALHISTORY = "adithistory";
 	private static final String SEG_NAME_CONFIGLOAD = "configload";
 	private static final String SEG_NAME_DBSAVE = "dbsave";
 	private static final String SEG_NAME_DBREMOVE = "dbremove";
@@ -77,6 +83,8 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 	private static final String SEG_NAME_CONFIGREMOVE = "configremove";
 	private static final String SEG_NAME_CHANGENAME = "changeName";
 	
+	private static final String KEY_SAMPLESTAGE = "SAMPLE_STAGE";
+	private static final String KEY_DEVICE_MOTOR = "DEVICE_MOTOR_LINKS";
 	private static final String QUERY_ENTRY_PATH = "path";
 	private static final String DBTYPE_PHYSICAL = "PD";
 	private static final String DBTYPE_COMPOSITE = "CD";
@@ -86,6 +94,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 	private static String cdName;
 	private static String configPath;
 	private static String configName;
+	private static String additionalName;
 	private static String remoteGit;
 
 	private static String JSON_OK;
@@ -101,6 +110,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		cdName = System.getProperty(PROPERTY_SERVER_SECD_NAME);
 		configPath = System.getProperty(PROPERTY_SERVER_SECONFIG_PATH);
 		configName = System.getProperty(PROPERTY_SERVER_SECONFIG_NAME);
+		additionalName = System.getProperty(PROPERTY_SERVER_ADDITIONAL_NAME);
 		remoteGit = System.getProperty(PROPERTY_SERVER_SEDB_REMOTEGIT);
 		
 		gitServiceMap = new HashMap<String, GitService>();
@@ -167,6 +177,25 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
 					return;
 				}					
+
+			} else if (SEG_NAME_ADDITIONALLOAD.equalsIgnoreCase(seg)){
+				try {
+					Form form = request.getResourceRef().getQueryAsForm();
+//					response.setEntity("Done", MediaType.TEXT_PLAIN);
+//					copyFromRemote(instrumentId, session);
+					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
+					Object model = loadAdditionalModel(instrumentId);
+					JSONObject jsonObject = (JSONObject) _convertToJson(model);
+//					JSONObject jsonObject = new JSONObject(model.toString());
+					response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.error("failed to load config model", e);
+//					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+					return;
+				}			
 
 			} else if (SEG_NAME_SECONFIG.equalsIgnoreCase(seg)){
 				try {
@@ -249,6 +278,37 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 								}
 							}
 						}
+						JSONObject obj = new JSONObject();
+						obj.put("id", commit.getId());
+						obj.put("name", commit.getName());
+						obj.put("short message", commit.getShortMessage());
+						obj.put("message", commit.getMessage());
+						obj.put("timestamp", commit.getTimestamp());
+//						jsonObject.put(String.valueOf(i), obj);
+						jsonArray.put(obj);
+//						i ++;
+					}
+//					JSONObject jsonObject = new JSONObject(model.toString());
+					response.setEntity(jsonArray.toString(), MediaType.TEXT_PLAIN);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.error("failed to load history", e);
+//					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+					return;
+				}
+			} else if (SEG_NAME_ADDITIONALHISTORY.equalsIgnoreCase(seg)) {
+				try {
+					Form form = request.getResourceRef().getQueryAsForm();
+//					String did = form.getValues(QUERY_ENTRY_DEVICEID);
+//					String path = form.getValues(QUERY_ENTRY_PATH);
+					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
+					List<GitCommit> commits = getSEConfigGitService(instrumentId).getCommits(additionalName);
+//					JSONObject jsonObject = new JSONObject(new LinkedHashMap<String, Object>());
+					JSONArray jsonArray = new JSONArray();
+//					int i = 0;
+					for (GitCommit commit : commits) {
 						JSONObject obj = new JSONObject();
 						obj.put("id", commit.getId());
 						obj.put("name", commit.getName());
@@ -406,6 +466,8 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 					Form form = request.getResourceRef().getQueryAsForm();
 					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
 					String saveMessage = form.getValues(QUERY_ENTRY_MESSAGE);
+					String selectedMotor = form.getValues(QUERY_ENTRY_SELECTEDMOTOR);
+					String deviceMotorPairs = form.getValues(QUERY_ENTRY_DEVICEMOTORPAIRS);
 //					String versionId = form.getValues(QUERY_ENTRY_VERSION_ID);
 					String text = rep.getText();
 					try {
@@ -416,6 +478,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 //					if (versionId != null && versionId.length() > 0) {
 //						saveTempConfigModel(versionId, text, saveMessage, session);
 //					} else {
+					saveMotorConfiguration(instrumentId, selectedMotor, deviceMotorPairs);
 					saveSEConfigModel(instrumentId, text, saveMessage, session);
 //					}
 //					copyToRemote();
@@ -507,9 +570,9 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		if (git != null) {
 			git.applyChange();
 			if (message == null || message.length() == 0) {
-				message = userName + " updated " + newDid + ": " + formater.format(new Date());
+				message = userName + " set up SE for " + newDid + ": " + formater.format(new Date());
 			} else {
-				message = userName + " updated " + newDid + ": " + message;
+				message = userName + " set up SE for " + newDid + ": " + message;
 			}
 			git.commit(message);
 			git.push();
@@ -567,6 +630,69 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 
 	}
 	
+	private static Object loadAdditionalModel(String instrumentId) throws IOException {
+		File addFile = new File(getAdditionalFilename(instrumentId));
+		if (addFile.exists()) {
+			DumperOptions options = new DumperOptions();
+			options.setPrettyFlow(true);
+			options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+			Yaml yaml = new Yaml(options);
+			InputStream input = new FileInputStream(new File(getAdditionalFilename(instrumentId)));
+			try {
+				Object data = yaml.load(input);
+				return data;
+			} finally {
+				input.close();
+			}
+		} else {
+			return "";
+		}
+	}
+ 
+	private static void saveMotorConfiguration(String instrumentId, String selectedMotor, String deviceMotorPairs) throws IOException, JSONException {
+		String filePath = getAdditionalFilename(instrumentId);
+		
+		DumperOptions options = new DumperOptions();
+	    options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(options);
+		
+		Map<String, Object> model = null;
+		File addFile = new File(filePath);
+		if (!addFile.exists()) {
+			if (addFile.createNewFile()) {
+				model = new LinkedHashMap<String, Object>();
+			} else {
+				throw new IOException("failed to create " + additionalName + " file");
+			}
+		} else {
+			InputStream input = new FileInputStream(addFile);
+			try {
+				model = yaml.loadAs(input, Map.class);
+			} finally {
+				input.close();
+			}
+		}
+		
+		model.put(KEY_SAMPLESTAGE, selectedMotor);
+
+		JSONObject deviceMotorJson = new LinkedJSONObject(deviceMotorPairs);
+		if (deviceMotorJson.length() > 0) {
+			model.put(KEY_DEVICE_MOTOR, YamlRestlet.toMap(deviceMotorJson));
+		} else {
+			model.remove(KEY_DEVICE_MOTOR);
+		}
+		
+		FileWriter writer = new FileWriter(addFile);
+		try {
+			yaml.dump(model, writer);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}finally {
+			writer.close();
+		}
+		
+	}
 	
 	public static void saveDBConfigModel(String dbType, String text, String message, UserSessionObject session) 
 			throws IOException, JSONException, GitException {
@@ -629,9 +755,9 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		if (git != null) {
 			git.applyChange();
 			if (message == null || message.length() == 0) {
-				message = userName + " updated " + instrumentId + ": " + formater.format(new Date());
+				message = userName + " set up SE for " + instrumentId + ": " + formater.format(new Date());
 			} else {
-				message = userName + " updated " + instrumentId + ": " + message;
+				message = userName + " set up SE for " + instrumentId + ": " + message;
 			}
 			git.commit(message);
 		}
@@ -695,9 +821,9 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		if (git != null) {
 			git.applyChange();
 			if (message == null || message.length() == 0) {
-				message = userName + " updated " + did + ": " + formater.format(new Date());
+				message = userName + " set up SE for " + did + ": " + formater.format(new Date());
 			} else {
-				message = userName + " updated " + did + ": " + message;
+				message = userName + " set up SE for " + did + ": " + message;
 			}
 			git.commit(message);
 			git.push();
@@ -856,6 +982,10 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 
 	private static String getSEConfigFilename(String instrumentId) {
 		return configPath + "/" + instrumentId + "/" + configName;
+	}
+	
+	private static String getAdditionalFilename(String instrumentId) {
+		return configPath + "/" + instrumentId + "/" + additionalName;
 	}
 	
 	private synchronized static GitService getSEDBGitService() {
