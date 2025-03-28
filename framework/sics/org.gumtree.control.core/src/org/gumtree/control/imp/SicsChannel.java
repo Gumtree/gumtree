@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.gumtree.control.core.ISicsChannel;
 import org.gumtree.control.events.ISicsCallback;
@@ -61,7 +62,8 @@ public class SicsChannel implements ISicsChannel {
 	private static Logger logger = LoggerFactory.getLogger(SicsChannel.class);
 	
 //	private static ZMQ.Context context = ZMQ.context(2);
-	static ZContext context = new ZContext();
+//	static ZContext context = new ZContext();
+	private ZContext context;
     private ZMQ.Socket clientSocket;
     private ZMQ.Socket subscriberSocket;
     
@@ -88,6 +90,7 @@ public class SicsChannel implements ISicsChannel {
 	    this.sicsProxy = sicsProxy;
 //	    context = ZMQ.context(2);
 //	    clientSocket = context.socket(ZMQ.DEALER);
+	    context = new ZContext();
 	    clientSocket = context.createSocket(SocketType.DEALER);
 //	    clientSocket.setSendTimeOut(COMMAND_TIMEOUT);
 	    clientSocket.setSendTimeOut(SEND_TIMEOUT);
@@ -228,7 +231,7 @@ public class SicsChannel implements ISicsChannel {
 				while(isConnected) {
 					try {
 						String received = clientSocket.recvStr();
-						String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
+//						String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
 //						System.err.println(timeStamp + " Received: [" + received);
 						logger.debug("CMD: " + received);
 						JSONObject json = null;
@@ -292,10 +295,12 @@ public class SicsChannel implements ISicsChannel {
 			}
 		}
 		try {
-			context.destroySocket(clientSocket);
-			logger.debug("context destroy client");
-			context.destroySocket(subscriberSocket);
-			logger.debug("context destroy subscriber");
+//			context.destroySocket(clientSocket);
+//			logger.debug("context destroy client");
+//			context.destroySocket(subscriberSocket);
+//			logger.debug("context destroy subscriber");
+			logger.debug("context destroy");
+			context.destroy();
 		} catch (Exception e) {
 			logger.error("failed to terminate ZMQ context, ", e);
 		}
@@ -311,7 +316,7 @@ public class SicsChannel implements ISicsChannel {
 	}
 	
 	public void reset() {
-		Set<Integer> keys = commandMap.keySet();
+		Set<Integer> keys = new TreeSet<Integer>(commandMap.keySet());
 		for (Integer key : keys) {
 			if (commandMap.containsKey(key)) {
 				SicsCommand command = commandMap.get(key);
@@ -531,6 +536,11 @@ public class SicsChannel implements ISicsChannel {
 		void finish() {
 			isFinished = true;
 			dropCommand(cid);
+		}
+		
+		void finish(String reply) {
+			this.reply = reply;
+			finish();
 		}
 		
 		boolean hasError() {
