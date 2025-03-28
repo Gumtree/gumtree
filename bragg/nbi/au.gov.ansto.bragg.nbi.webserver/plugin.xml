@@ -224,6 +224,10 @@
             base-name="/WebContent/seConfig.html">
       </resource>
       <resource
+            alias="/user/instrumentConfig.html"
+            base-name="/WebContent/instrumentConfig.html">
+      </resource>
+      <resource
             alias="/doc/notebook.html"
             base-name="/WebContent/notebook.html">
       </resource>
