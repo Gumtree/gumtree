@@ -790,7 +790,7 @@ $(document).ready(function() {
 	    		_currentThread.loadMore();
 	    	}
 	    }
-	    _scrollBlocker = $(document).height() > 200 && ($obj.scrollTop() + $obj.height() < $(document).height() - 200);
+	    _scrollBlocker = $(document).height() > 200 && ($obj.scrollTop() + $obj.height() < $(document).height() - 100);
 	});
 	
 	$_sidebar.scroll(function() {
