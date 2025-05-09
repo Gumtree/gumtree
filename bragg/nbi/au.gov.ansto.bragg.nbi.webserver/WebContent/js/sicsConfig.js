@@ -2301,7 +2301,7 @@ $(document).ready(function() {
 	_instModel.load();
 
 	$('#id_button_help').click(function() {
-		var win = window.open('js/mcConfigHelp.pdf', '_blank');
+		var win = window.open('../status/manuals/load?path=online/mcConfigHelp.pdf', '_blank');
 		if (win) {
 		    win.focus();
 		} else {
