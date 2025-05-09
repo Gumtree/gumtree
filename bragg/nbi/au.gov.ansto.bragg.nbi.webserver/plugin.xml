@@ -64,6 +64,26 @@
             base-name="/WebContent/mobile.html">
       </resource>
       <resource
+            alias="/exp"
+            base-name="/WebContent/exp">
+      </resource>
+      <resource
+            alias="/exp/css"
+            base-name="/WebContent/css">
+      </resource>
+      <resource
+            alias="/exp/js"
+            base-name="/WebContent/js">
+      </resource>
+      <resource
+            alias="/exp/icons"
+            base-name="/WebContent/icons">
+      </resource>
+      <resource
+            alias="/exp/images"
+            base-name="/WebContent/images">
+      </resource>
+      <resource
             alias="/status"
             base-name="/WebContent/mobile.html">
       </resource>

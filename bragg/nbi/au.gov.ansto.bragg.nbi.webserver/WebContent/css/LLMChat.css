@@ -1,0 +1,178 @@
+body {
+	font-family: ui-sans-serif, -apple-system, system-ui, Segoe UI, Helvetica, Apple Color Emoji, Arial, sans-serif, Segoe UI Emoji, Segoe UI Symbol;
+	font-size: 1em;
+}
+
+@media screen {
+	.print_title {
+		display: none;
+	}
+}
+
+@media print {
+	#id_control_header {
+		display: none;
+	}
+	.main {
+		padding-top: 20px;
+	}
+	.print_title {
+		display: block;
+	}
+	.btn-toolbar  {
+		display: none;
+	}
+	#id_div_info {
+		display: none;
+	}
+	.footer{
+		display: none;
+	}
+}
+
+#id_a_app_title > span > img {
+    position: relative;
+    float: left;
+    /*width:  100px;*/
+    height: 1.5em;
+    background-position: 50% 50%;
+    background-repeat:   no-repeat;
+    background-size:     cover;
+}
+
+.form-control-dark {
+  color: #fff;
+  background-color: rgba(255, 255, 255, .1);
+  border-color: rgba(255, 255, 255, .1);
+}
+
+#id_a_app_title {
+	color: #fff;
+}
+
+.chatbox-input {
+	border: 2px solid #999;
+	border-radius: .5rem;
+  /* margin:0px 0px; this is redundant anyways since its specified below
+  padding-top:10px;
+  padding-bottom:25px; /* increased! 
+  height:2.4em; */
+  height: auto;
+  text-align: justify;
+  /* line-height:16px; */
+  width:100%; /* changed from 96 to 100% */
+  /*display: inline;*/
+  /* margin:0px auto; not needed since i have width 100% now */
+  font-size: 1em;
+  resize: none;
+}
+
+.class_div_wrap {
+	margin: 8px 0px;
+	display: block;
+	float: clear;
+	overflow: hidden;
+	font-size: 1em;
+	line-height: 1.75;
+	max-width: 1024px;
+}
+
+.class_div_input {
+	border: 1px solid #999;
+	border-radius: .25rem;
+	float: right;
+	/*margin-left: auto; 
+	margin-right: 0;*/ 
+	background-color: #ddd;
+	padding: 8px;
+	min-width: 320px;
+	max-width: 720px;
+}
+
+.class_div_output {
+	border: 1px solid #ccc;
+	border-radius: .25rem;
+	padding: 8px;
+}
+
+.code-block::first-line {
+  font-size: 0.9rem;
+  font-weight: bold; 
+  /*background-color: #ccc;*/
+  color: #007bff;
+  font-style: italic;
+}
+
+.code-block {
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  padding: 8px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.8em;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  border-radius: 4px;
+  line-height: 1em;
+}
+
+#id_div_property_table {
+	margin-bottom: 64px;
+}
+
+
+.class_div_thread_tag:nth-child(odd) {
+	background-color: #eee;
+}
+
+.class_span_thread_tag {
+	font-size: 1em;
+}
+
+.class_span_thread_tag:hover {
+	cursor: pointer;
+	text-decoration: underline;
+	color: #007bff;
+}
+
+.class_span_thread_removed {
+	font-size: 1em;
+	text-decoration: line-through;
+}
+
+.class_div_thread_tag {
+	padding: 8px;
+}
+
+.div_chat_think {
+	font-style: italic;
+	color: #888;
+}
+
+.span_chat_think {
+	font-weight: bold;
+}
+
+#id_div_sidebar {
+	height: calc(100vh - 106px);
+}
+
+#id_span_chatControl {
+	display: flex;
+	float: right;
+}
+
+#div_chat_group {
+	max-width: 1024px;
+	margin-left: 16px;
+	margin-right: 16px;
+	width: auto;
+}
+
+#id_editor_subtitle {
+	font-weight: bold;
+}
+
+#id_editor_subtitle:first-letter {
+    text-transform: uppercase;
+}

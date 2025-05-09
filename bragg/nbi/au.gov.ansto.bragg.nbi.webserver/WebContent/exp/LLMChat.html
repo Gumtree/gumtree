@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="icons/favicon.ico">
+
+    <title>Chat with neutron AI </title>
+
+	<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="icons/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="icons/apple-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="icons/apple-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="icons/apple-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-icon-180x180.png">
+	<link rel="icon" type="image/png" sizes="192x192"  href="icons/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+	<link rel="manifest" href="icons/manifest.json">
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
+	<meta name="theme-color" content="#ffffff">
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap/bootstrap-dialog.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+    <!-- Custom styles for this template -->
+    <link href="css/sicsConfig.css" rel="stylesheet">
+    <link href="css/LLMChat.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow" id="id_nav_header">
+      <a class="navbar-brand col-sm-3 col-md-3 col-lg-3 col-xl-2 mr-0" id="id_a_app_title"><span><img src="images/gumtree.png">Gumtree LLM</span></a>
+      <div style="width:100%;">
+      	<input id="id_input_search_text" class="form-control form-control-dark w-100" type="text" placeholder="Search from history chat" aria-label="Search">
+	    <div class="messagepop" id="id_div_search_result"></div>
+      </div>
+      <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+          <a class="nav-link" href="#" id="id_a_signout"></a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <nav class="col-md-3 col-lg-3 col-xl-2 d-none d-md-block bg-light sidebar">
+          <!-- div class="class_span_side_title" id="id_span_side_title"></div -->
+          <div class="class_span_side_home" id="id_span_side_home"><a><i class="fas fa-home"></i> Threads</a> 
+          <span id="id_span_waiting"><i class="fas fa-spinner fa-spin"></i></span>
+          <span id="id_span_addThread" class="float_right padding_right_4 clickable" data-toggle="tooltip" title="Add a new thread."><i class="fas fa-plus"></i> </span>
+          </div>
+          <div class="sidebar-sticky" id="id_div_sidebar">
+          </div>
+        </nav>
+
+		<div class="print_title"><h4>Gumtree LLM Chat-box</h4></div>
+        <main role="main" class="main col-md-9 col-lg-9 col-xl-10 offset-md-3 offset-lg-3 offset-xl-2">
+          <div id="id_control_header" class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom">
+            <!-- h3 class="h4" id="id_device_title"></h3 -->
+            <div id="id_div_info"></div>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group mr-2">
+	            <button id="id_button_new" class="btn btn-sm btn-outline-secondary" data-toggle="tooltip" title="Add a new thread.">New Thread</button>
+                <button id="id_button_delete" class="btn btn-sm btn-outline-secondary" data-toggle="tooltip" title="Reset changes to the current axis.">Delete Thread</button>
+                <button id="id_button_save" class="btn btn-sm btn-outline-secondary" title="Send to printer or save to PDF.">Print</button>
+              </div>
+            </div>
+          </div>
+	      <div id="id_div_info"></div>
+          <div id="id_div_main_area">
+	          <h5 class="h5" id="id_editor_subtitle"></h5>
+	          <div class="table-responsive" id="id_div_editor_table"></div>
+	          <h4 class="h5" id="id_property_subtitle"></h4>
+	          <div class="table-responsive" id="id_div_property_table">
+	          </div>
+          </div>
+          <footer class="footer mt-auto py-3 bg-white fixed-bottom offset-md-3 offset-lg-3 offset-xl-2">
+		    <div class="input-group" id="div_chat_group">
+    		  <!-- input id="id_input_chatbox" class="form-control chatbox-input w-100" type="text" placeholder="What's your question?" aria-label="Chatbox" -->
+    		  <textarea id="id_input_chatbox" class="form-control chatbox-input" rows="1" spellcheck="true" placeholder="Your question? (Use 'Think' and 'Concise' buttons to control performance. Use SHIFT + Enter to add new line)"></textarea>
+              <span id="id_span_chatControl" class="btn-group">
+    		  	<button id="id_button_think" class="btn btn-sm btn-outline-secondary btn-group-toggle active" data-toggle="buttons" aria-pressed="true" title="Enable deep reasoning.">Think</button>
+    		  	<button id="id_button_concise" class="btn btn-sm btn-outline-secondary btn-group-toggle" data-toggle="buttons" title="Enable deep reasoning.">Concise</button>
+    		  </span>
+  		 	</div>
+		  </footer>
+        </main>
+      </div>
+    </div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="id_modal_deleteChat">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Please confirm deleting the current chat thread.</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        <h6>This is irreversible.</h6>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" id="id_modal_deleteChat_confirm">Confirm delete</button>
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="id_modal_saveDialog">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Add message about the change</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        <p>Please add a short message about this change for version control purpose.</p>
+	        <input id="id_input_saveMessage" class="form-control" type="text" placeholder="Commit message" aria-label="message">
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" id="id_button_saveConfirm">Save changes</button>
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery/jquery-1.10.2.min.js"></script>
+    <script src="js/bootstrap/bootstrap.bundle.min.js"></script>
+    <!-- script src="js/libs/lodash.min.js"></script -->
+    <!-- script type="text/javascript" src="js/instrumentsetup.js"></script -->
+	<script src="js/account.js"></script>
+	<script src="js/widget.js"></script>
+	<script type="module" src="js/LLMChat.js"></script>
+  </body>
+</html>
