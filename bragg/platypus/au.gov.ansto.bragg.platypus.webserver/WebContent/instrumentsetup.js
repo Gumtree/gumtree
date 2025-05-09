@@ -1,5 +1,5 @@
 var title = "Platypus";
-var batchEnabled = true;
+var batchEnabled = false;
 var useNewProxy = true;
 var REVERSE_CATALOG_ENABLED = true;
 var devices = [
@@ -44,9 +44,9 @@ var nsItems = [
 var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE";
 
 var histmemTypes = [
-                    {"id" : "TOTAL_HISTOGRAM_T", "text" : "Total t histogram"},
-                    {"id" : "TOTAL_HISTOGRAM_XT", "text" : "Total x-t histogram", "isDefault" : true},
-                    {"id" : "RAW_TOTAL_HISTOGRAM_XTAUX", "text" : "Raw x-taux histogram"},
-                    {"id" : "RAW_TOTAL_HISTOGRAM_YTAUX", "text" : "Raw y-taux histogram"},
-                    {"id" : "RAW_TOTAL_HISTOGRAM_TTAUX", "text" : "Raw t-taux histogram"}                    
+				    {"id" : "TOTAL_HISTOGRAM_T", "text" : "Total t histogram"},
+				    {"id" : "TOTAL_HISTOGRAM_XT", "text" : "Total x-t histogram"},
+				    {"id" : "TOTAL_HISTOGRAM_YT", "text" : "Total y-t histogram", "isDefault" : true},
+				    {"id" : "RAW_TOTAL_HISTOGRAM_XT", "text" : "Raw x-t histogram"},
+				    {"id" : "RAW_TOTAL_HISTOGRAM_YT", "text" : "Raw y-t histogram"}
                     ];
