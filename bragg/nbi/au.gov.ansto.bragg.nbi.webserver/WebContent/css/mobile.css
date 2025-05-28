@@ -35,8 +35,11 @@ img, object{
     border:1px solid #021a40;
 }
 .div-textarea{
-	width: 300px;
-	height: 200px;
+	/*width: 300px;
+	height: 200px;*/
+	width: 100%;
+	max-width: 800px;
+	max-height: 480px;
 	background-color: white;
 	overflow: scroll;
 	white-space: pre;

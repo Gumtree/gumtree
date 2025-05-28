@@ -24,5 +24,27 @@
             base-name="/WebContent/instrumentsetup.js">
       </resource>
    </extension>
-
+   <extension
+         id="platypusHttpcontext"
+         point="org.eclipse.equinox.http.registry.httpcontexts">
+      <httpcontext
+            id="platypusResource">
+         <resource-mapping
+               path="/status/resource">
+         </resource-mapping>
+      </httpcontext>
+   </extension>
+   <extension
+         id="platypusRestlet"
+         point="org.eclipse.equinox.http.registry.servlets">
+      <servlet
+            alias="/status/resource"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="platypusResource">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.platypus.webserver.PlatypusScriptRestletApplication">
+         </init-param>
+      </servlet>
+   </extension>
 </plugin>

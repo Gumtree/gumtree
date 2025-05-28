@@ -1,11 +1,15 @@
 var isMobileBrowser = false;
 var hideStatus = false;
+var otherResource = false;
 if (typeof disableStatus !== 'undefined' && disableStatus){
 	hideStatus = true;
 }
 var sicsPath = "sics";
 if (typeof useNewProxy !== 'undefined' && useNewProxy) {
 	sicsPath = "control";
+}
+if (typeof loadResource !== 'undefined') {
+	otherResource = true;
 }
 
 try {
@@ -165,6 +169,9 @@ var refresh = function(){
 					}
 				} 
 			});
+		}
+		if (otherResource) {
+			loadResource();
 		}
 		if (typeof timeEstimationEnabled !== 'undefined' && timeEstimationEnabled) {
 			try{
@@ -407,6 +414,10 @@ jQuery(document).ready(function(){
 		$("#serviceList").append('<li><div class="div-inlist-left">Runner Status:</div> <div class="div-inlist" id="runnerStatus">--</div></li>');
 		$("#serviceList").append('<li><div class="div-inlist-left">Script Name:</div> <div class="div-inlist" id="tclScript">--</div></li>');
 		$("#serviceList").append('<li><div class="div-inlist-left">Running Code:</div> <div class="div-inlist" id="runningCode">--</div></li>');
+		$("#serviceList").append('<li><div class="div-inlist-left">Script Content:</div> <div class="div-inlist" id="runningCode"><div id="scriptContent" class="div-textarea" name="textarea"></div></div></li>');
+	}
+	if (otherResource) {
+		$("#serviceList").append('<li data-role="list-divider">Batch Runner</li>');
 		$("#serviceList").append('<li><div class="div-inlist-left">Script Content:</div> <div class="div-inlist" id="runningCode"><div id="scriptContent" class="div-textarea" name="textarea"></div></div></li>');
 	}
 	if (typeof timeEstimationEnabled !== 'undefined' && timeEstimationEnabled) {
