@@ -39,7 +39,7 @@ public class SicsProxy implements ISicsProxy {
 	private static Logger logger = LoggerFactory.getLogger(SicsProxy.class);
 	private static final int RECONNECT_TIMEOUT = 60000;
 	private static final int EPOCH_PERIOD = 3000;
-	private static final int EPOCH_RETRY = 4;
+	private static final int EPOCH_RETRY = Integer.valueOf(System.getProperty("gumtree.control.epochRetry", "4"));
 
 	private String serverAddress;
 	private String publisherAddress;
