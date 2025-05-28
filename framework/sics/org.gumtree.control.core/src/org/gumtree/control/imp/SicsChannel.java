@@ -244,10 +244,10 @@ public class SicsChannel implements ISicsChannel {
 								}
 							}
 						} catch (Exception e) {
-							e.printStackTrace();
+							logger.error("JSon Error: " + (json != null ? json.toString() : "failed to create JSon object;"), e);
 						}
 					} catch (Exception e) {
-						logger.error("proxy disconnected");
+						logger.error("proxy disconnected", e);
 						break;
 					}
 				}
