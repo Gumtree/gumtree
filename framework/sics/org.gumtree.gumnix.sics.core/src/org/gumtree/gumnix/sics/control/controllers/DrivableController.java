@@ -142,7 +142,7 @@ public class DrivableController extends DynamicController implements IDrivableCo
 								double currentValue = getValue(true).getFloatData();
 								logger.warn("check if current value is within the tolerance: TARGET=" + value + 
 										", CURRENT=" + currentValue + ", PRECISION=" + precisionValue);
-								if (Math.abs(value - currentValue) < precisionValue) {
+								if (Math.abs(value - currentValue) < precisionValue || (precisionValue < 1e-4 && Math.abs(value - currentValue) < 1e-4)) {
 //									repeat++;
 //									logger.warn("target reached, repeat=" + repeat);
 //									if (repeat >= 3) {
