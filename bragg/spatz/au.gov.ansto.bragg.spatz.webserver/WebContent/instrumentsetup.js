@@ -74,6 +74,11 @@ var devices = [
             	            {"classId":"sy", "deviceId":"sy", "title":"Sample Y", "units":"mm", "decimal":3},
             	            {"classId":"detrot", "deviceId":"detrot", "title":"Detector Rotation", "units":"degrees", "decimal":3}
             	            ]
+               },
+               {"group":"PUMP STATUS", 
+            	   "items":[{"classId":"mvp1_setpoint", "deviceId":"/sample/mvp1/Control/SetPoint", "title":"mvp setpoint", "units":""},
+            	            {"classId":"hplv1_status", "deviceId":"/sample/hplc1/pump/status", "title":"hplc status", "units":""}
+            	            ]
                }
                ];
 

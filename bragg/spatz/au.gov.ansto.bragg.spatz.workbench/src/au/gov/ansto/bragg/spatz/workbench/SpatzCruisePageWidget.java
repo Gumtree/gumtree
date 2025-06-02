@@ -196,8 +196,8 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.CRADLE.getImage());
 		deviceStatusWidget = new DeviceStatusWidget(pumpStageGroup, SWT.NONE);
 		deviceStatusWidget
-				.addDevice("/sample/mvp/Control/SetPoint", "mvp setpoint", null, "")
-				.addDevice("/sample/hplc/pump/status", "hplc status", null, "")
+				.addDevice("/sample/mvp1/Control/SetPoint", "mvp setpoint", null, "")
+				.addDevice("/sample/hplc1/pump/status", "hplc status", null, "")
 				;
 		configureWidget(deviceStatusWidget);
 
