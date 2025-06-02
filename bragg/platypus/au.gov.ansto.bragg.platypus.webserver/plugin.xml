@@ -30,6 +30,12 @@
       <httpcontext
             id="platypusResource">
          <resource-mapping
+               path="/resource">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="platypusStatusResource">
+         <resource-mapping
                path="/status/resource">
          </resource-mapping>
       </httpcontext>
@@ -38,9 +44,18 @@
          id="platypusRestlet"
          point="org.eclipse.equinox.http.registry.servlets">
       <servlet
-            alias="/status/resource"
+            alias="/resource"
             class="org.restlet.ext.servlet.ServerServlet"
             httpcontextId="platypusResource">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.platypus.webserver.PlatypusScriptRestletApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/status/resource"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="platypusStatusResource">
          <init-param
                name="org.restlet.application"
                value="au.gov.ansto.bragg.platypus.webserver.PlatypusScriptRestletApplication">
