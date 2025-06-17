@@ -79,7 +79,10 @@ const KEY_DEVICE_DESC = "desc";
 const KEY_DEVICE_DRIVER = "driver";
 const KEY_MOTOR_DESC = "description";
 const KEY_SAMPLE_STAGE = "SAMPLE_STAGE";
-const KEY_DEVICE_MOTOR = "DEVICE_MOTOR_LINKS";
+const KEY_SAMPLE_STAGE_MOTORS = "SAMPLE_STAGE_MOTORS";
+const KEY_STAGE_GROUP = "SE_MOTOR_GROUPS";
+const KEY_SELECTED_GROUP = "SELECTED_GROUP";
+const KEY_DEVICE_MOTOR_GROUP = "DEVICE_MOTOR_GROUP_LINKS";
 const HTML_HIDDEN_FILL_DIV = '<div class="div_fill div_hidden"/>';
 const HTML_STATIC_MAIN_DIV = '<div class="div_fill div_static div_hidden"/>';
 const HTML_NAV_DIV = '<div class="nav"/>';
@@ -105,10 +108,13 @@ var _instModel;
 var _pdbModel;
 var _cdbModel;
 var _motorDBModel;
+var _motorGroups;
 var _motorConficModel;
 var _curVersionName;
 var _additionalModel;
-var _sampleStage;
+var _homeButton;
+var _newGroupModal;
+//var _sampleStage;
 
 class StaticUtils {
 	
@@ -200,6 +206,8 @@ class AdditionalModel extends AbstractModel {
 		this.url = URL_PREFIX + 'adit?inst=' + _inst;
 		this.model;
 		this.editorModel;
+//		this.motorGroupsModel;
+//		this.motorGroups;
 	}
 	
 	load() {
@@ -207,6 +215,7 @@ class AdditionalModel extends AbstractModel {
 		$.get(obj.url, function(data) {
 			obj.model = data;
 			obj.editorModel = $.extend(true, {}, data);
+			obj.createMenuUi();
 			obj.afterLoad();
 		}).fail(function(e) {
 			if (e.status == 401) {
@@ -218,33 +227,75 @@ class AdditionalModel extends AbstractModel {
 		});
 	}
 	
-	getSelectedMotor() {
+	createMenuUi() {
+		const obj = this;
+		var groupModel = {};
+		var groupEditorModel = {};
+		if (KEY_STAGE_GROUP in obj.model) {
+			groupModel = obj.model[KEY_STAGE_GROUP];
+			groupEditorModel = obj.editorModel[KEY_STAGE_GROUP];
+		}
+//		obj.motorGroupsModel = KEY_STAGE_GROUP in obj.editorModel ? obj.editorModel[KEY_STAGE_GROUP] : {};
+		_motorGroups = new MotorGroups(KEY_STAGE_GROUP, groupModel, groupEditorModel, $('#id_div_sidebar'));
+		_motorGroups.createMenuUi();
+	}
+	
+	getSelectedGroup() {
 		var selected = null;
-		if (KEY_SAMPLE_STAGE in this.editorModel) {
-			const motor = this.editorModel[KEY_SAMPLE_STAGE];
-			if (motor !== 'None') {
-				selected = motor;
+		if (KEY_SELECTED_GROUP in this.editorModel) {
+			const group = this.editorModel[KEY_SELECTED_GROUP];
+			if (group !== 'None') {
+				selected = group;
 			}
 		}
 		return selected;
 	}
 	
-	getMotorForDevice(did) {
-		if (KEY_DEVICE_MOTOR in this.editorModel) {
-			if (did in this.editorModel[KEY_DEVICE_MOTOR]) {
-				return this.editorModel[KEY_DEVICE_MOTOR][did];
+	setSelectedGroup(gid) {
+		if (gid) {
+			this.editorModel[KEY_SELECTED_GROUP] = gid;
+		} else {
+			delete this.editorModel[KEY_SELECTED_GROUP]
+		}
+	}
+	
+	applyGroupSelection() {
+		const gid = this.getSelectedGroup();
+		if (gid) {
+			const motors = _motorGroups.listMotorsForGroup(gid);
+			this.editorModel[KEY_SAMPLE_STAGE_MOTORS] = motors;
+		} else {
+			delete this.editorModel[KEY_SAMPLE_STAGE_MOTORS];
+		}
+	}
+	
+//	getSelectedMotor() {
+//		var selected = null;
+//		if (KEY_SAMPLE_STAGE in this.editorModel) {
+//			const motor = this.editorModel[KEY_SAMPLE_STAGE];
+//			if (motor !== 'None') {
+//				selected = motor;
+//			}
+//		}
+//		return selected;
+//	}
+	
+	getMotorGroupForDevice(did) {
+		if (KEY_DEVICE_MOTOR_GROUP in this.editorModel) {
+			if (did in this.editorModel[KEY_DEVICE_MOTOR_GROUP]) {
+				return this.editorModel[KEY_DEVICE_MOTOR_GROUP][did];
 			}
 		}
 		return null;
 	}
 	
-	setMotorForDevice(did, motor) {
+	setMotorGroupForDevice(did, motor) {
 		var pairs;
-		if (KEY_DEVICE_MOTOR in this.editorModel) {
-			pairs = this.editorModel[KEY_DEVICE_MOTOR];
+		if (KEY_DEVICE_MOTOR_GROUP in this.editorModel) {
+			pairs = this.editorModel[KEY_DEVICE_MOTOR_GROUP];
 		} else {
 			pairs = {};
-			this.editorModel[KEY_DEVICE_MOTOR] = pairs;
+			this.editorModel[KEY_DEVICE_MOTOR_GROUP] = pairs;
 		}
 		if (did in pairs) {
 			if (motor != "NONE") {
@@ -260,8 +311,8 @@ class AdditionalModel extends AbstractModel {
 	}
 	
 	getDeviceMotorModel() {
-		if (KEY_DEVICE_MOTOR in this.editorModel) {
-			return this.editorModel[KEY_DEVICE_MOTOR];
+		if (KEY_DEVICE_MOTOR_GROUP in this.editorModel) {
+			return this.editorModel[KEY_DEVICE_MOTOR_GROUP];
 		} else {
 			return {};
 		}
@@ -270,11 +321,11 @@ class AdditionalModel extends AbstractModel {
 	getChangeMsg() {
 		const obj = this;
 		var msg = "";
-		if (KEY_DEVICE_MOTOR in this.model) {
-			const cModel = obj.model[KEY_DEVICE_MOTOR];
+		if (KEY_DEVICE_MOTOR_GROUP in this.model) {
+			const cModel = obj.model[KEY_DEVICE_MOTOR_GROUP];
 			$.each(Object.keys(cModel), function(idx, did) {
 				const cMotor = cModel[did];
-				const nMotor = obj.editorModel[KEY_DEVICE_MOTOR][did];
+				const nMotor = obj.editorModel[KEY_DEVICE_MOTOR_GROUP][did];
 				if (cMotor != nMotor) {
 					if (nMotor) {
 						msg += "link " + did + " to " + nMotor + "; ";
@@ -284,11 +335,11 @@ class AdditionalModel extends AbstractModel {
 				}
 			});
 		} 
-		if (KEY_DEVICE_MOTOR in obj.editorModel) {
-			const nModel = obj.editorModel[KEY_DEVICE_MOTOR];
+		if (KEY_DEVICE_MOTOR_GROUP in obj.editorModel) {
+			const nModel = obj.editorModel[KEY_DEVICE_MOTOR_GROUP];
 			$.each(Object.keys(nModel), function(idx, did) {
 				const nMotor = nModel[did];
-				const cMotor = (KEY_DEVICE_MOTOR in obj.model ? obj.model[KEY_DEVICE_MOTOR][did] : null);
+				const cMotor = (KEY_DEVICE_MOTOR_GROUP in obj.model ? obj.model[KEY_DEVICE_MOTOR_GROUP][did] : null);
 				if (!cMotor) {
 					msg += "link " + did + " to " + nMotor + "; ";
 				}
@@ -303,7 +354,24 @@ class AdditionalModel extends AbstractModel {
 	
 	reset() {
 		this.editorModel = $.extend(true, {}, this.model);
-		_sampleStage.select(this.getSelectedMotor());
+//		_sampleStage.select(this.getSelectedMotor());
+		_motorGroups.select(this.getSelectedGroup());
+	}
+	
+	verify() {
+		const obj = this;
+		console.log("additional verify");
+		if (KEY_DEVICE_MOTOR_GROUP in obj.editorModel) {
+			const deviceLinks = obj.editorModel[KEY_DEVICE_MOTOR_GROUP];
+			$.each(deviceLinks, function(did, gid) {
+				if (_instModel.getDevice(did)) {
+					const groups = obj.editorModel[KEY_STAGE_GROUP];
+					if (groups == null || !(gid in groups)) {
+						_errorReport.addError(did, null, 'motor group ' + gid + ' not found in SE Motor Groups.');
+					}
+				}
+			});
+		} 
 	}
 }
 
@@ -313,6 +381,10 @@ class MotorDBModel extends AbstractModel {
 		super();
 		this.model;
 		this.devices;
+	}
+	
+	getMotorList() {
+		return Object.keys(this.devices);
 	}
 	
 	load() {
@@ -332,7 +404,7 @@ class MotorDBModel extends AbstractModel {
 					});
 				});
 			});
-			obj.createMenuUi();
+//			obj.createMenuUi();
 			obj.afterLoad();
 		}).fail(function(e) {
 			if (e.status == 401) {
@@ -352,8 +424,9 @@ class MotorDBModel extends AbstractModel {
 		obj.$menuHeader = $(html);
 		
 		obj.$menuUl = $('<ul class="nav flex-column class_ul_folder"></ul>');
-		_sampleStage = new SampleStage(obj.$menuUl);
-		const selectedMotor = _additionalModel.getSelectedMotor();
+//		_sampleStage = new SampleStage(obj.$menuUl);
+//		const selectedMotor = _additionalModel.getSelectedMotor();
+		var selectedMotor = null;
 		$.each(Object.keys(this.devices), function(idx, mid) {
 			const motor = obj.devices[mid];
 			const checkedText = mid == selectedMotor ? "checked" : "";
@@ -361,7 +434,7 @@ class MotorDBModel extends AbstractModel {
 				+ '<a class="nav-link class_a_motor" href="#" data-toggle="tooltip" data-placement="top" title="' + motor[KEY_MOTOR_DESC] + '">' 
 				+ mid + '</a></div></li>';
 			const $li = $(html);
-			_sampleStage.addMotor(mid, $li.find('input:checkbox'), $li.find('a'));
+//			_sampleStage.addMotor(mid, $li.find('input:checkbox'), $li.find('a'));
 			obj.$menuUl.append($li);
 		});
 		obj.$menuHeader.append(obj.$menuUl);
@@ -371,89 +444,89 @@ class MotorDBModel extends AbstractModel {
 	afterLoad() {}
 }
 
-class SampleStage {
-	
-	constructor($ul) {
-		this.$ul = $ul;
-		this.checkboxes = {};
-		this.links = {};
-		this.oldSelected = null;
-//		this.model = {};
-	}
-	
-	addMotor(mid, $checkbox, $a) {
-		if ($checkbox.is(':checked')) {
-			this.oldSelected = mid;
-		}
-		this.checkboxes[mid] = $checkbox;
-		this.links[mid] = $a;
-		const obj = this;
-		$a.click(function() {
-			if ($checkbox.is(':checked')) {
-				$checkbox.prop('checked', false);
-			} else {
-				$checkbox.prop('checked', true);
-				$.each(Object.keys(obj.checkboxes), function(idx, key) {
-					if (key != mid) {
-						obj.checkboxes[key].prop('checked', false);
-					}
-				});
-			}
-		});
-		$checkbox.change(function() {
-			if ($checkbox.is(':checked')) {
-				$.each(Object.keys(obj.checkboxes), function(idx, key) {
-					if (key != mid) {
-						obj.checkboxes[key].prop('checked', false);
-					}
-				});
-			} 
-		});
-	}
-	
-	getMotors() {
-		return Object.keys(this.checkboxes);
-	}
-	
-	getSelected() {
-		const obj = this;
-		var found = null;
-		$.each(Object.keys(obj.checkboxes), function(idx, key) {
-			const $box = obj.checkboxes[key];
-			if ($box.is(':checked')) {
-				found = key;
-			}
-		});
-		return found;
-	}
-	
-	select(mid) {
-		const obj = this;
-		$.each(Object.keys(obj.checkboxes), function(idx, key) {
-			const $box = obj.checkboxes[key];
-			$box.prop('checked', key == mid);
-		});
-	}
-	
-	getChangeMsg() {
-		const newSelected = this.getSelected();
-		var msg = '';
-		if (this.oldSelected) {
-			if (newSelected) {
-				if (this.oldSelected != newSelected) {
-					msg = 'change sample stage motor to: ' + newSelected + '; ';
-				}
-			} else {
-				msg = 'deselect sample stage motor: ' + this.oldSelected + "; ";
-			}
-		} else {
-			if (newSelected) {
-				msg = 'select sample stage motor: ' + newSelected + '; ';
-			}
-		}
-		return msg;
-	}
-}
+//class SampleStage {
+//	
+//	constructor($ul) {
+//		this.$ul = $ul;
+//		this.checkboxes = {};
+//		this.links = {};
+//		this.oldSelected = null;
+////		this.model = {};
+//	}
+//	
+//	addMotor(mid, $checkbox, $a) {
+//		if ($checkbox.is(':checked')) {
+//			this.oldSelected = mid;
+//		}
+//		this.checkboxes[mid] = $checkbox;
+//		this.links[mid] = $a;
+//		const obj = this;
+//		$a.click(function() {
+//			if ($checkbox.is(':checked')) {
+//				$checkbox.prop('checked', false);
+//			} else {
+//				$checkbox.prop('checked', true);
+//				$.each(Object.keys(obj.checkboxes), function(idx, key) {
+//					if (key != mid) {
+//						obj.checkboxes[key].prop('checked', false);
+//					}
+//				});
+//			}
+//		});
+//		$checkbox.change(function() {
+//			if ($checkbox.is(':checked')) {
+//				$.each(Object.keys(obj.checkboxes), function(idx, key) {
+//					if (key != mid) {
+//						obj.checkboxes[key].prop('checked', false);
+//					}
+//				});
+//			} 
+//		});
+//	}
+//	
+//	getMotors() {
+//		return Object.keys(this.checkboxes);
+//	}
+//	
+//	getSelected() {
+//		const obj = this;
+//		var found = null;
+//		$.each(Object.keys(obj.checkboxes), function(idx, key) {
+//			const $box = obj.checkboxes[key];
+//			if ($box.is(':checked')) {
+//				found = key;
+//			}
+//		});
+//		return found;
+//	}
+//	
+//	select(mid) {
+//		const obj = this;
+//		$.each(Object.keys(obj.checkboxes), function(idx, key) {
+//			const $box = obj.checkboxes[key];
+//			$box.prop('checked', key == mid);
+//		});
+//	}
+//	
+//	getChangeMsg() {
+//		const newSelected = this.getSelected();
+//		var msg = '';
+//		if (this.oldSelected) {
+//			if (newSelected) {
+//				if (this.oldSelected != newSelected) {
+//					msg = 'change sample stage motor to: ' + newSelected + '; ';
+//				}
+//			} else {
+//				msg = 'deselect sample stage motor: ' + this.oldSelected + "; ";
+//			}
+//		} else {
+//			if (newSelected) {
+//				msg = 'select sample stage motor: ' + newSelected + '; ';
+//			}
+//		}
+//		return msg;
+//	}
+//}
 
 _additionalModel = new AdditionalModel();
 _additionalModel.afterLoad = function() {
@@ -788,12 +861,14 @@ class InstrumentModel extends AbstractDeviceModel {
 	
 	save() {
 		const obj = this;
-		const selectedMotor = _sampleStage.getSelected();
+//		const selectedMotor = _sampleStage.getSelected();
+		const selectedGroup = _motorGroups.getSelected();
 		const deviceMotorPairs = JSON.stringify(_additionalModel.getDeviceMotorModel());
-		var url = URL_PREFIX + 'configsave?inst=' + _inst + '&selectedMotor=' + (selectedMotor ? selectedMotor : 'None') 
-			+ '&deviceMotorPairs=' + encodeURI(deviceMotorPairs) + '&msg=';
+//		var url = URL_PREFIX + 'configsave?inst=' + _inst + '&selectedGroup=' + (selectedGroup ? selectedGroup : 'None') 
+//			+ '&deviceMotorPairs=' + encodeURI(deviceMotorPairs) + '&msg=';
+		var url = URL_PREFIX + 'configsave?inst=' + _inst + '&msg=';
 //		var saveMsg = $('#id_input_saveMessage').val().replace(/^\s+|\s+$/gm,'');
-		var saveMsg = _sampleStage.getChangeMsg();
+		var saveMsg = _motorGroups.getChangeMsg();
 		saveMsg += obj.getChangeMsg();
 		saveMsg += _additionalModel.getChangeMsg();
 		if (saveMsg.length > 0) {
@@ -804,10 +879,13 @@ class InstrumentModel extends AbstractDeviceModel {
 			device.applyChange();
 		});
 		
-		obj.applyChange();
-		_additionalModel.applyChange();
+		_additionalModel.applyGroupSelection();
+		const rootModel = {
+				"instrument_model" : obj.editorModel,
+				"additional_model" : _additionalModel.editorModel
+		}
 		_saveButton.close();
-		var text = JSON.stringify(this.model);
+		var text = JSON.stringify(rootModel);
 //		$.post(url,  {model:text}, function(data) {
 		$.post(url, text, function(data) {
 //			data = $.parseJSON(data);
@@ -824,6 +902,9 @@ class InstrumentModel extends AbstractDeviceModel {
 					$.each(obj.devices, (did, device) => {
 						device.clearDirtyFlag();
 					});
+					obj.applyChange();
+					_additionalModel.applyChange();
+					_motorGroups.applyChange();
 					_historyBar.reload();
 					_saveButton.reset();
 //					setTimeout(_historyBar.reload, 3000)
@@ -878,6 +959,7 @@ class InstrumentModel extends AbstractDeviceModel {
 		$.each(Object.keys(obj.devices), function(idx, key) {
 			obj.devices[key].verify();
 		});
+		_additionalModel.verify();
 	}
 }
 _instModel = new InstrumentModel();
@@ -1046,6 +1128,358 @@ class AbstractDevice {
 	fromHistory() {}
 	
 	verify() {}
+}
+
+class MotorGroups extends AbstractDevice {
+	constructor(did, model, editorModel, $parentUi) {
+//	constructor(model, $ul) {
+		super(did, model, editorModel, $parentUi);
+//		this.model = model;
+//		this.$ul = $ul;
+		this.groupTitles = {};
+		this.checkboxes = {};
+		this.links = {};
+		this.oldSelected = null;
+		this.configMenuDict = {};
+//		this.groupEditor = {};
+	}
+	
+	createMenuUi() {
+		const obj = this;
+		var faIcon;
+		var html = '<div class="class_a_motor_group" href="#"><h6 class="sidebar-subheading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 ">' 
+				+ '<span class="class_span_mc_name" >SE Motor Groups</span>'
+				+ '<span id="id_span_add" class="float_right padding_right_4 clickable"><i class="fas fa-plus"></i> </span></h6></div>';
+		obj.$menuHeader = $(html);
+		
+		_newGroupModal = new NewGroupModal(obj.$menuHeader.find('#id_span_add'));
+		_newGroupModal.init();
+		
+		obj.$menuUl = $('<ul class="nav flex-column class_ul_folder"></ul>');
+		const selectedGroup = _additionalModel.getSelectedGroup();
+		$.each(Object.keys(obj.editorModel), function(idx, gid) {
+			const group = obj.editorModel[gid];
+			const checkedText = gid == selectedGroup ? "checked" : "";
+			const title = "desc" in group ? group["desc"] : gid;
+			obj.groupTitles[gid] = title;
+			html = '<li class="nav-item class_li_subitem"><div class="menu_left"><input type="checkbox" id="id_group_' + gid + '" class="class_SE_checkbox" ' + checkedText + '>'
+				+ '<a class="nav-link class_a_group" href="#" data-toggle="tooltip" data-placement="top" title="' + gid + '">' 
+				+ title + '</a></div></li>';
+			const $li = $(html);
+			obj.addGroup(gid, $li.find('input:checkbox'), $li.find('a'));
+			obj.$menuUl.append($li);
+			obj.configMenuDict[gid] = $li;
+		});
+		obj.$menuHeader.append(obj.$menuUl);
+		obj.$parentUi.append(obj.$menuHeader);
+	}
+	
+	addGroup(gid, $checkbox, $a) {
+		if ($checkbox.is(':checked')) {
+			this.oldSelected = gid;
+		}
+		this.checkboxes[gid] = $checkbox;
+		this.links[gid] = $a;
+		const obj = this;
+		$a.click(function() {
+//			if ($checkbox.is(':checked')) {
+//				$checkbox.prop('checked', false);
+//			} else {
+//				$checkbox.prop('checked', true);
+//				$.each(Object.keys(obj.checkboxes), function(idx, key) {
+//					if (key != mid) {
+//						obj.checkboxes[key].prop('checked', false);
+//					}
+//				});
+//			}
+			obj.loadGroup(gid);
+		});
+		$checkbox.change(function() {
+			if ($checkbox.is(':checked')) {
+				$.each(Object.keys(obj.checkboxes), function(idx, key) {
+					if (key != gid) {
+						obj.checkboxes[key].prop('checked', false);
+					}
+				});
+			}
+			
+			var found = null;
+			$.each(obj.checkboxes, function(key, $box) {
+				if ($box.is(':checked')) {
+					found = key;
+				}
+			});
+			obj.select(found);
+		});
+		
+	}
+	
+	addNewGroup(gid, desc) {
+		const obj = this;
+		var newGid = gid.trim();
+		newGid = newGid.replace(/\W/g, '_');
+		if (newGid in obj.editorModel) {
+			StaticUtils.showError("Failed to create new motor group: id already exists, " + newGid);
+			return;
+		}
+		const group = {
+				"desc" : desc,
+				"motors" : [],
+		};
+		obj.editorModel[newGid] = group;
+		
+		desc = desc.trim();
+		obj.groupTitles[newGid] = desc;
+		const html = '<li class="nav-item class_li_subitem"><div class="menu_left"><input type="checkbox" id="id_group_' + newGid + '" class="class_SE_checkbox">'
+			+ '<a class="nav-link class_a_group" href="#" data-toggle="tooltip" data-placement="top" title="' + newGid + '">' 
+			+ desc + '</a></div></li>';
+		const $li = $(html);
+		obj.addGroup(newGid, $li.find('input:checkbox'), $li.find('a'));
+		obj.$menuUl.append($li);
+		obj.configMenuDict[gid] = $li;
+		
+		obj.setDirtyFlag();
+		obj.loadGroup(newGid);
+	}
+	
+	removeGroup(gid) {
+		const obj = this;
+		delete obj.editorModel[gid];
+		obj.configMenuDict[gid].remove();
+		delete obj.configMenuDict[gid];
+		this.configEditors[gid].dispose();
+		delete this.configEditors[gid];
+		obj.setDirtyFlag();
+		_homeButton.show();
+		
+		StaticUtils.showWarning("Please use the 'Save' button to apply the change on server.");
+	}
+	
+	addMotor(gid, motorName) {
+		const group = this.editorModel[gid];
+		group["motors"].push(motorName);
+		if (this.ifChanged(gid)) {
+			this.setDirtyFlag();
+		} else {
+			this.clearDirtyFlag();
+		}
+	}
+	
+	removeMotor(gid, motorName) {
+		const groupMotors = this.editorModel[gid]["motors"];
+		let index = groupMotors.indexOf(motorName);
+	    if (index > -1) {
+	    	groupMotors.splice(index, 1);
+	    }
+		if (this.ifChanged(gid)) {
+			this.setDirtyFlag();
+		} else {
+			this.clearDirtyFlag();
+		}
+	}
+	
+	ifChanged(gid) {
+		const oGroup = this.model[gid];
+		const nGroup = this.editorModel[gid];
+		if (oGroup == null || nGroup == null) {
+			return true;
+		}
+		if (oGroup["desc"] != nGroup["desc"] ) {
+			return true;
+		}
+		const oMotors = oGroup["motors"];
+		const nMotors = nGroup["motors"];
+		for (const motor of oMotors) {
+			if (!nMotors.includes(motor)) {
+				return true;
+			}
+		}
+		for (const motor of nMotors) {
+			if (!oMotors.includes(motor)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	getGids() {
+		return Object.keys(this.checkboxes);
+	}
+	
+	getSelected() {
+		const obj = this;
+		var found = null;
+		$.each(Object.keys(obj.checkboxes), function(idx, key) {
+			const $box = obj.checkboxes[key];
+			if ($box.is(':checked')) {
+				found = key;
+			}
+		});
+		return found;
+	}
+	
+	listMotorsForGroup(gid) {
+		return this.editorModel[gid]["motors"];
+	}
+	
+	select(gid) {
+		const obj = this;
+		$.each(Object.keys(obj.checkboxes), function(idx, key) {
+			const $box = obj.checkboxes[key];
+			$box.prop('checked', key == gid);
+		});
+		_additionalModel.setSelectedGroup(gid);
+	}
+
+	setDesc(gid, desc) {
+		if (desc == null || desc.trim().length == 0) {
+			throw Exception("description text can't be empy.");
+		}
+		const obj = this;
+		const group = obj.editorModel[gid];
+		group["desc"] = desc;
+		this.setDirtyFlag();
+	}
+
+	loadGroup(gid) {
+		if (_curDevice != null && _curDevice.id != this.id) {
+			_curDevice.hide();
+		}
+		_curDevice = this;
+		this.curGid = gid;
+		const obj = this;
+		const curConfig = obj.editorModel[gid];
+		const stageMotors = Object.keys(_motorDBModel.devices);
+//		const dbConfig = _cdbModel.getConfigModel(obj.did, cid);
+//		const config = $.extend(true, {}, dbConfig, curConfig);
+//			_tabs.empty();
+//			var datype = obj.editorModel[KEY_STATIC][KEY_DATYPE];
+		
+		
+		var desc = curConfig[KEY_DEVICE_DESC];
+		if (desc == null) {
+			desc = gid;
+		}
+		_title.text(gid + " (" + desc + ")");
+		StaticUtils.clearMsg();
+
+		_editorTitle.text('Edit motor group');
+		
+		$.each(Object.values(this.configEditors), function(idx, groupEditor) {
+			if (groupEditor.gid != gid) {
+				groupEditor.hide();
+			}
+		});
+//		this.rootEditor.hide();
+		var editor = this.configEditors[gid];
+		if (!editor) {
+			editor = new MotorGroupEditor(obj, gid, curConfig);
+			this.configEditors[gid] = editor;
+		}
+		editor.show();
+		this.setMenuActive(true);
+		this.setMenuItemActive(gid);
+		_errorReport.hide();
+	}
+	
+	setMenuItemActive(cid) {
+		this.$menuUl.find('li.class_li_subitem').removeClass('active');
+		if (cid) {
+			this.configMenuDict[cid].addClass("active");
+		}
+//		this.tabUi.setActive(cid);
+	}
+	
+	setMenuActive(isActive, cid) {
+		if (isActive) {
+			this.$menuHeader.find(".class_span_mc_name").addClass("span_highlight");
+		} else {
+			this.$menuHeader.find(".class_span_mc_name").removeClass("span_highlight");
+		}
+		this.setMenuItemActive(cid);
+	}
+
+	getChangeMsg() {
+		const obj = this;
+		var msg = '';
+		
+		$.each(obj.model, function(gid, oGroup) {
+//			const oGroup = this.model[gid];
+			const nGroup = obj.editorModel[gid];
+			if (!nGroup) {
+				msg += "remove SE motor group " + gid + ";";
+				return;
+			}
+			if (oGroup["desc"] != nGroup["desc"] ) {
+				msg += "change descript of SE motor group " + gid + ";";
+			}
+			const oMotors = oGroup["motors"];
+			const nMotors = nGroup["motors"];
+			var isChanged = false;
+			for (const motor of oMotors) {
+				if (!nMotors.includes(motor)) {
+					isChanged = true;
+					break;
+				}
+			}
+			if (!isChanged) {
+				for (const motor of nMotors) {
+					if (!oMotors.includes(motor)) {
+						isChanged = true;
+						break;
+					}
+				}
+			}
+			if (isChanged) {
+				msg += "change motor list for SE motor group " + gid + ";";
+			} else {
+				console.log("no change for group " + gid);
+			}
+		});
+		
+		$.each(obj.editorModel, function(gid, nGroup) {
+			const oGroup = obj.model[gid];
+			if (!oGroup) {
+				msg += "add SE motor group " + gid + ";";
+				return;
+			}
+		});
+
+		const newSelected = this.getSelected();
+		if (obj.oldSelected) {
+			if (newSelected) {
+				if (obj.oldSelected != newSelected) {
+					msg = 'change SE motor group to: ' + newSelected + '; ';
+				}
+			} else {
+				msg = 'deselect SE motor group: ' + obj.oldSelected + "; ";
+			}
+		} else {
+			if (newSelected) {
+				msg = 'select SE motor group: ' + newSelected + '; ';
+			}
+		}
+		return msg;
+	}
+
+	applyChange() {
+		this.oldSelected = this.getSelected();
+		this.model = _additionalModel.model[KEY_STAGE_GROUP];
+		this.clearDirtyFlag();
+	}
+	
+	setDirtyFlag() {
+		if (!this.isDirty()) {
+			this.$menuHeader.find('span.class_span_mc_name').append('<i class="fas fa-asterisk i_changed"> </i>');
+		}
+		super.setDirtyFlag();
+	}
+	
+	clearDirtyFlag() {
+		super.clearDirtyFlag();
+		this.$menuHeader.find('i.i_changed').remove();
+	}
+
 }
 
 class DBDevice extends AbstractDevice {
@@ -1785,13 +2219,17 @@ class ErrorReportUi extends AbstractMainUi {
 	
 	addError(did, cid, msg) {
 		this.$body.find('.class_no_entry').remove();
-		const eid = did + " / " + cid;
+		const eid = did + " / " + (cid != null ? cid : "");
 		const $tr = $('<tr id="' + did + "_" + cid + '"><td><span class="span_error_id" did="' + did + '" cid="' + cid + '">' + eid 
 				+ '</span></td><td><span class="span_error_msg">' + msg + '</span></td></tr>');
 		$tr.find('span.span_error_id').click(function() {
 			console.log("load " + eid);
 			const device = _instModel.getDevice(did);
-			device.loadConfig(cid);
+			if (cid) {
+				device.loadConfig(cid);
+			} else {
+				device.load();
+			}
 		});
 		this.$body.append($tr);
 	}
@@ -1811,6 +2249,106 @@ class ErrorReportUi extends AbstractMainUi {
 	}
 }
 
+class MotorGroupEditor extends AbstractMainUi {
+	constructor(device, gid, groupModel) {
+		super(device);
+		this.gid = gid;
+		this.model = groupModel;
+		this.addedMotors = {};
+		this.availMotors = {};
+		this.$gAdded;
+		this.$gAvail;
+	}
+	
+	createUi() {
+		const obj = this;
+		const $div = $('<div class="class_div_motor_group"/>');
+		const $desc = $('<div class="class_div_desc_editor"><span>Description</span><span><input type="text" class="form-control" value="' + obj.model["desc"] + '"></span></div>');
+		$div.append($desc);
+		$desc.find('input').focus(function() {
+		}).blur(function() {
+			obj.setDesc($(this).val());
+		}).keypress(function( event ) {
+			if ( event.which == 13 ) {
+				$desc.blur();
+			}
+		});
+		obj.$gAdded = $('<div class="class_div_motor_box" id="id_div_added_box"><span class="class_span_box_title">Selected</span></div>');
+		obj.$gAvail = $('<div class="class_div_motor_box" id="id_div_avail_box"><span class="class_span_box_title">Available</span></div>');
+		$div.append(obj.$gAdded);
+		$div.append(obj.$gAvail);
+		
+		$.each(obj.model["motors"], function(idx, motorName) {
+			const $motorItem = $('<div class="class_div_motor_item">' + motorName 
+			+ '<span class="class_span_motor_control" title="Remove"><i class="fas fa-minus"> </span></div>');
+			obj.$gAdded.append($motorItem);
+			obj.addedMotors[motorName] = $motorItem;
+			$motorItem.find(".class_span_motor_control").click(function() {
+				obj.removeMotor(motorName);
+			});
+		});
+		
+		$.each(_motorDBModel.getMotorList(), function(idx, motorName) {
+			if (!obj.model["motors"].includes(motorName)) {
+				const $motorItem = $('<div class="class_div_motor_item">' + motorName 
+						+ '<span class="class_span_motor_control" title="Add"><i class="fas fa-plus"> </span></div>');
+				obj.$gAvail.append($motorItem);
+				obj.availMotors[motorName] = $motorItem;
+				$motorItem.find(".class_span_motor_control").click(function() {
+					obj.addMotor(motorName);
+				});
+			}
+		});
+		
+		const $del = $('<div class="main_footer"><span id="id_button_del" class="btn btn-outline-primary btn-block " href="#"><i class="fas fa-remove"></i> Remove This Motor Group</span></div>');
+		$del.find('span').click(function() {
+//			$('#id_modal_deleteDialog').modal('show');
+			_removeModal.toRemove = obj.gid;
+			_removeModal.open();
+		});
+		
+//		$div.append($del);
+		this.$editorUi.append($div).append($del);
+		_editor.append(this.$editorUi);
+//		_historyBar.reload();
+		this.init = true;
+	}
+	
+	setDesc(text) {
+		console.log("set desc " + text);
+		this.device.setDesc(this.gid, text);
+	}
+	
+	removeMotor(motorName) {
+		const obj = this;
+		obj.addedMotors[motorName].remove();
+		const $motorItem = $('<div class="class_div_motor_item">' + motorName 
+				+ '<span class="class_span_motor_control" title="Add"><i class="fas fa-plus"> </span></div>');
+		obj.$gAvail.append($motorItem);
+		obj.availMotors[motorName] = $motorItem;
+		$motorItem.find(".class_span_motor_control").click(function() {
+			obj.addMotor(motorName);
+		});
+//		obj.device.setDirtyFlag();
+		obj.device.removeMotor(obj.gid, motorName);
+	}
+
+	addMotor(motorName) {
+		const obj = this;
+		obj.availMotors[motorName].remove();
+		const $motorItem = $('<div class="class_div_motor_item">' + motorName 
+				+ '<span class="class_span_motor_control" title="Remove"><i class="fas fa-minus"> </span></div>');
+		obj.$gAdded.append($motorItem);
+		obj.addedMotors[motorName] = $motorItem;
+		$motorItem.find(".class_span_motor_control").click(function() {
+			obj.removeMotor(motorName);
+		});
+//		obj.device.setDirtyFlag();
+		obj.device.addMotor(obj.gid, motorName);
+	}
+
+}
+
 class MutableRootUi extends AbstractMainUi {
 	constructor(device) {
 		super(device);
@@ -1827,15 +2365,17 @@ class MutableRootUi extends AbstractMainUi {
 			}
 		});
 		
-		const motors = _sampleStage.getMotors();
-		const selected = _additionalModel.getMotorForDevice(obj.device.did);
+//		const motors = _sampleStage.getMotors();
+//		const groups = _motorGroups.getGids();
+		const groupTitles = _motorGroups.groupTitles;
+		const selected = _additionalModel.getMotorGroupForDevice(obj.device.did);
 		var ot = '<option value="NONE" ' + (selected == null ? 'selected' : '') + '></option>';
-		$.each(motors, function(idx, motor) {
-			ot += '<option value="' + motor + '" ' + (motor == selected ? 'selected' : '') + '>'+ motor + '</option>';
+		$.each(groupTitles, function(group, title) {
+			ot += '<option value="' + group + '" ' + (group == selected ? 'selected' : '') + '>'+ title + '</option>';
 		});
-		html += '<div class="class_div_device_page" id="div_page_' + obj.device.did + '_motor">'
+		html += '<div class="class_div_device_page" id="div_page_' + obj.device.did + '_group">'
 			+ '<div class="class_div_device_item class_div_sample_stage"><span class="class_a_cid_label" did="' 
-			+ obj.device.did + '" cid="motor_selection"><a href="#">Sample Stage</a><br><select class="form-control thin_input">' + ot + '</select></span></div></div>';
+			+ obj.device.did + '" cid="group_selection"><a>Motor Group</a><br><select class="form-control thin_input">' + ot + '</select></span></div></div>';
 		
 		var $div = $('<div class="class_div_device_canvas"/>').append(html);
 		$div.find('a.class_a_cid_label').click(function(){
@@ -1845,7 +2385,8 @@ class MutableRootUi extends AbstractMainUi {
 		
 		$div.find("select").change(function() {
 			const selected = $(this).val();
-			_additionalModel.setMotorForDevice(obj.device.did, selected);
+			_additionalModel.setMotorGroupForDevice(obj.device.did, selected);
+			obj.device.setDirtyFlag();
 		});
 
 		this.$editorUi.append($div);
@@ -2814,6 +3355,67 @@ class ArrayPropertyRow extends PropertyRow {
 
 }
 
+class AbstractModal {
+	$bt;
+	
+	constructor($bt, modalId) {
+		this.$bt = $bt;
+		this.dialog = $('#' + modalId).first().clone();
+	}
+	
+	run() {
+		this.close();
+	}
+	
+	close() {
+		this.dialog.modal('hide');
+	}
+	
+	open() {
+		console.log("open");
+		this.dialog.modal('show');
+	}
+
+}
+
+class NewGroupModal extends AbstractModal {
+
+	constructor($bt)
+	{
+		super($bt, 'id_modal_newGroupDialog');
+		this.$ok = this.dialog.find('#id_button_newGroup');
+		this.$groupId = this.dialog.find('#id_input_newGroupId');
+		this.$groupDesc = this.dialog.find('#id_input_newGroupDesc');
+	}
+	
+	init() {
+		const obj = this;
+		obj.$bt.click(function() {
+//			obj.$groupId.val('');
+//			obj.$groupDesc.val('');
+			obj.open();
+		});
+		obj.$ok.click(function() {
+			obj.run();
+		});
+		obj.$groupDesc.keypress(function(event) {
+			if ( event.key === "Enter" ) {
+				if (obj.$groupId.val().trim().length > 0) {
+					obj.run();
+				}
+			}
+		});
+	}
+	
+	run() {
+		this.close();
+		const newGid = this.$groupId.val();
+		const newDesc = this.$groupDesc.val();
+		_motorGroups.addNewGroup(newGid, newDesc);
+	}
+	
+}
+
 class SearchWidget {
 	constructor($textInput) {
 		this.$textInput = $textInput;
@@ -3074,22 +3676,29 @@ class RemoveModal {
 	
 	remove() {
 		const obj = this;
-		const did = this.toRemove;
-		if (!did) {
-			StaticUtils.showError("failed to remove: no device selected");
+		const gid = this.toRemove;
+		if (!gid) {
+			StaticUtils.showError("failed to remove: no motor group selected");
 			return;
 		}
 
-		const device = _instModel.getDevice(did);
-		var saveMsg = obj.$textInput.val().replace(/^\s+|\s+$/gm,'');
-		
 		try {
-			device.remove(saveMsg);
+			_motorGroups.removeGroup(gid);
 		} catch (e) {
 			StaticUtils.showError(e);
 		} finally {
 			obj.close();
 		}
+//		const device = _instModel.getDevice(did);
+//		var saveMsg = obj.$textInput.val().replace(/^\s+|\s+$/gm,'');
+//		
+//		try {
+//			device.remove(saveMsg);
+//		} catch (e) {
+//			StaticUtils.showError(e);
+//		} finally {
+//			obj.close();
+//		}
 		
 		
 //		var deviceModel = _instModel.getDeviceModel(did);
@@ -3144,27 +3753,32 @@ class HomeButton {
 	}
 	
 	init() {
+		const obj = this;
 		this.$button.click(function() {
-			
-			var okToGo = true;
-			if (_curDevice != null) {
-				if (_curDevice.isDirty()) {
-					okToGo = confirm('You have unsaved changes in the current device. If you load another device, your change will be lost. Do you want to continue?');
-				}
-			}
-
-			if (okToGo) {
-				if (_curDevice != null) {
-					_curDevice.hide();
-					_curDevice = null;
-				}
-				_title.text('Please use the side bar to select a device configuration.');
-				_errorReport.show();
-//				_historyBar.reload();
-			} else {
-				return;
-			}
+			obj.show();
 		});
+	}
+	
+	show() {
+		var okToGo = true;
+//		if (_curDevice != null) {
+//			if (_curDevice.isDirty()) {
+//				okToGo = confirm('You have unsaved changes in the current device. If you load another device, your change will be lost. Do you want to continue?');
+//			}
+//		}
+
+		if (okToGo) {
+			if (_curDevice != null) {
+				_curDevice.hide();
+				_curDevice = null;
+			}
+			_title.text('Please use the side bar to select a device configuration.');
+			_instModel.verify();
+			_errorReport.show();
+//			_historyBar.reload();
+		} else {
+			return;
+		}
 	}
 }
 
@@ -3333,8 +3947,8 @@ $(document).ready(function() {
 	_errorReport = new ErrorReportUi();
 	_errorReport.createUi();
 	
-	const homeButton = new HomeButton($('#id_span_side_home'));
-	homeButton.init();
+	_homeButton = new HomeButton($('#id_span_side_home'));
+	_homeButton.init();
 
 	const loadingLabel = new LoadingLabel($('#id_span_waiting'));
 	loadingLabel.init();

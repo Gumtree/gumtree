@@ -479,6 +479,10 @@ tr.editable_row:hover {
   padding: 50px;
 }
 
+.class_div_device_item select {
+	width: auto;
+}
+
 .class_div_sample_stage {
   padding-bottom: 35px;
 }
@@ -486,12 +490,92 @@ tr.editable_row:hover {
 .class_div_device_page {
   width: 240px;
   display: inline-block;
-  border: 2px medium #aaa;
+  border: 2px solid #aaa;
   box-shadow: 2px 3px #888888;
   -webkit-border-radius: 2px;
   border-radius: 2px;
   background-color: #e0e0e0;
   margin: 12px;
+}
+
+.class_div_motor_group {
+  border: 2px dashed #bbb;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  padding: 24px;
+  text-align: center;
+  background-color: #fafafa;
+  min-height: 400px;
+/*  margin: 4px;*/
+}
+
+.class_div_desc_editor {
+  border: 1px solid #ddd;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+}
+
+.class_div_desc_editor > span {
+	display: inline-block;
+	width: 240px;
+	margin: 8px 0;
+	font-size: 1em;
+}
+
+.class_div_motor_box {
+  width: 240px;
+  height: 360px;
+  display: inline-block;
+  border: 2px solid #aaa;
+  box-shadow: 2px 3px #888888;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+  background-color: #e0e0e0;
+  vertical-align: middle;
+  margin: 12px;
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.class_div_motor_item {
+	margin: 4px;
+	background-color: #f4f4f4;
+	border: 2px outset #ccc;
+	border-radius: 2px;
+	padding: 4px;
+}
+
+/*
+.class_div_motor_item:hover {
+    border: 2px outset #ccc;
+}
+*/
+
+.class_span_motor_control {
+	float: right;
+	color: #007bff;
+	margin-right: 8px;
+	cursor: pointer;
+	border: 2px hidden #ccc;
+	border-radius: 4px;
+	padding: 0 4px;
+}
+
+.class_span_motor_control:hover {
+	border: 2px outset #ccc;
+}
+.class_div_box_editor {
+  font: 1.4em bold arial;
+  color: #333;
+  /*text-align: center;*/
+  display: flex;
+  /* justify-content: center; */
+  align-items: center;
+  padding: 50px;
+}
+
+.class_span_box_title {
+  font-size: 1.2em;
 }
 
 .main_footer {

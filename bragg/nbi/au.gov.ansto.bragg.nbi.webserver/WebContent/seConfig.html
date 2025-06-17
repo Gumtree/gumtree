@@ -119,17 +119,38 @@
 	  <div class="modal-dialog" role="document">
 	    <div class="modal-content">
 	      <div class="modal-header">
-	        <h5 class="modal-title">Please confirm deleting the selected device from the instrument setup.</h5>
+	        <h5 class="modal-title">Confirm deleting the selected motor group?</h5>
 	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 	          <span aria-hidden="true">&times;</span>
 	        </button>
 	      </div>
 	      <div class="modal-body">
-	        <p>Please add a short message about this change for version control purpose.</p>
-	        <input id="id_modal_deleteDialog_text" class="form-control" type="text" placeholder="Commit message" aria-label="message">
 	      </div>
 	      <div class="modal-footer">
 	        <button type="button" class="btn btn-primary" id="id_modal_deleteDialog_confirm">Confirm delete</button>
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="id_modal_newGroupDialog">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Add a new SE motor group.</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        <p>Provide an ID for the new motor group. Please only use letters, numbers or underscores.: </p>
+	        <input id="id_input_newGroupId" class="form-control" type="text" placeholder="single_word_name" aria-label="config_name">
+	        <p>Please give a description for this motor group.</p>
+	        <input id="id_input_newGroupDesc" class="form-control" type="text" placeholder="short description" aria-label="config_name">
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" id="id_button_newGroup">Create</button>
 	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
 	      </div>
 	    </div>

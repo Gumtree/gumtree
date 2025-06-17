@@ -85,6 +85,8 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 	
 	private static final String KEY_SAMPLESTAGE = "SAMPLE_STAGE";
 	private static final String KEY_DEVICE_MOTOR = "DEVICE_MOTOR_LINKS";
+	private static final String KEY_ADDITIONAL_MODEL = "additional_model";
+	private static final String KEY_INSTRUMENT_MODEL = "instrument_model";
 	private static final String QUERY_ENTRY_PATH = "path";
 	private static final String DBTYPE_PHYSICAL = "PD";
 	private static final String DBTYPE_COMPOSITE = "CD";
@@ -466,8 +468,8 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 					Form form = request.getResourceRef().getQueryAsForm();
 					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
 					String saveMessage = form.getValues(QUERY_ENTRY_MESSAGE);
-					String selectedMotor = form.getValues(QUERY_ENTRY_SELECTEDMOTOR);
-					String deviceMotorPairs = form.getValues(QUERY_ENTRY_DEVICEMOTORPAIRS);
+//					String selectedMotor = form.getValues(QUERY_ENTRY_SELECTEDMOTOR);
+//					String deviceMotorPairs = form.getValues(QUERY_ENTRY_DEVICEMOTORPAIRS);
 //					String versionId = form.getValues(QUERY_ENTRY_VERSION_ID);
 					String text = rep.getText();
 					try {
@@ -478,8 +480,11 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 //					if (versionId != null && versionId.length() > 0) {
 //						saveTempConfigModel(versionId, text, saveMessage, session);
 //					} else {
-					saveMotorConfiguration(instrumentId, selectedMotor, deviceMotorPairs);
-					saveSEConfigModel(instrumentId, text, saveMessage, session);
+					JSONObject rootModel = new LinkedJSONObject(text);
+					saveMotorConfiguration(instrumentId, (JSONObject) rootModel.get(KEY_ADDITIONAL_MODEL));
+					saveSEConfigModel(instrumentId, (JSONObject) rootModel.get(KEY_INSTRUMENT_MODEL), saveMessage, session);
+//					saveMotorConfiguration(instrumentId, selectedMotor, deviceMotorPairs);
+//					saveSEConfigModel(instrumentId, text, saveMessage, session);
 //					}
 //					copyToRemote();
 					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
@@ -649,7 +654,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		}
 	}
  
-	private static void saveMotorConfiguration(String instrumentId, String selectedMotor, String deviceMotorPairs) throws IOException, JSONException {
+	private static void saveMotorConfiguration(String instrumentId, JSONObject model) throws IOException, JSONException {
 		String filePath = getAdditionalFilename(instrumentId);
 		
 		DumperOptions options = new DumperOptions();
@@ -657,35 +662,37 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         Yaml yaml = new Yaml(options);
 		
-		Map<String, Object> model = null;
-		File addFile = new File(filePath);
-		if (!addFile.exists()) {
-			if (addFile.createNewFile()) {
-				model = new LinkedHashMap<String, Object>();
-			} else {
-				throw new IOException("failed to create " + additionalName + " file");
-			}
-		} else {
-			InputStream input = new FileInputStream(addFile);
-			try {
-				model = yaml.loadAs(input, Map.class);
-			} finally {
-				input.close();
-			}
-		}
+//		Map<String, Object> model = null;
+//		File addFile = new File(filePath);
+//		if (!addFile.exists()) {
+//			if (addFile.createNewFile()) {
+//				model = new LinkedHashMap<String, Object>();
+//			} else {
+//				throw new IOException("failed to create " + additionalName + " file");
+//			}
+//		} else {
+//			InputStream input = new FileInputStream(addFile);
+//			try {
+//				model = yaml.loadAs(input, Map.class);
+//			} finally {
+//				input.close();
+//			}
+//		}
+//		
+//		model.put(KEY_SAMPLESTAGE, selectedMotor);
+//
+//		JSONObject deviceMotorJson = new LinkedJSONObject(deviceMotorPairs);
+//		if (deviceMotorJson.length() > 0) {
+//			model.put(KEY_DEVICE_MOTOR, YamlRestlet.toMap(deviceMotorJson));
+//		} else {
+//			model.remove(KEY_DEVICE_MOTOR);
+//		}
 		
-		model.put(KEY_SAMPLESTAGE, selectedMotor);
-
-		JSONObject deviceMotorJson = new LinkedJSONObject(deviceMotorPairs);
-		if (deviceMotorJson.length() > 0) {
-			model.put(KEY_DEVICE_MOTOR, YamlRestlet.toMap(deviceMotorJson));
-		} else {
-			model.remove(KEY_DEVICE_MOTOR);
-		}
-		
+        File addFile = new File(filePath);
 		FileWriter writer = new FileWriter(addFile);
 		try {
-			yaml.dump(model, writer);
+			Map<String, Object> map = YamlRestlet.toMap(model);
+			yaml.dump(map, writer);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}finally {
@@ -702,7 +709,7 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 		saveModel(filePath, text, message, userName, git);
 	}
 	
-	public static void saveSEConfigModel(String instrumentId, String text, String message, UserSessionObject session) 
+	public static void saveSEConfigModel(String instrumentId, JSONObject model, String message, UserSessionObject session) 
 			throws IOException, JSONException, GitException {
 		String userName = session.getUserName().toUpperCase();
 		String filePath = getSEConfigFilename(instrumentId);
@@ -722,7 +729,8 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         Yaml yaml = new Yaml(options);
 		FileWriter writer = new FileWriter(file);
-		if (text == null || text.trim().length() == 0) {
+//		if (text == null || text.trim().length() == 0) {
+		if (model == null || model.length() == 0) {
 			try {
 				writer.write("");
 				writer.flush();
@@ -732,8 +740,8 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 				writer.close();
 			}
 		} else {
-			JSONObject json = new LinkedJSONObject(text);
-			Map<String, Object> map = YamlRestlet.toMap(json);
+//			JSONObject json = new LinkedJSONObject(text);
+			Map<String, Object> map = YamlRestlet.toMap(model);
 			try {
 				yaml.dump(map, writer);
 			} catch (Exception e) {
