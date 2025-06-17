@@ -71,7 +71,7 @@ function loadResource() {
 			const newCt = $('<pre/>').html(text);
 			$("#scriptContent").html(newCt);
 		} else if (data["status"] == "unchanged") {
-			console.log("unchanged");
+//			console.log("unchanged");
 		} else {
 			$("#scriptContent").html('<div class="div-highlight">' + data["reason"] + '</div>');
 		}

@@ -23,6 +23,14 @@
             alias="/status/js/instrumentsetup.js"
             base-name="/WebContent/instrumentsetup.js">
       </resource>
+      <resource
+            alias="/user/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
+      <resource
+            alias="/doc/js/instrumentsetup.js"
+            base-name="/WebContent/instrumentsetup.js">
+      </resource>
    </extension>
    <extension
          id="platypusHttpcontext"
