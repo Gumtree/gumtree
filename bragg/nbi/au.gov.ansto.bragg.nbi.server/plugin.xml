@@ -89,6 +89,12 @@
          </resource-mapping>
       </httpcontext>
       <httpcontext
+            id="SicsAdminYamlRestlet">
+         <resource-mapping
+               path="/user/sicsadmin">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
             id="NBPageRedirectRestlet">
          <resource-mapping
                path="/status/notebook.html">
@@ -258,6 +264,15 @@
          <init-param
                name="org.restlet.application"
                value="au.gov.ansto.bragg.nbi.server.yaml.InstYamlApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/user/sicsadmin"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="SicsAdminYamlRestlet">
+         <init-param
+               name="org.restlet.application"
+               value="au.gov.ansto.bragg.nbi.server.yaml.SicsAdminYamlApplication">
          </init-param>
       </servlet>
       <servlet

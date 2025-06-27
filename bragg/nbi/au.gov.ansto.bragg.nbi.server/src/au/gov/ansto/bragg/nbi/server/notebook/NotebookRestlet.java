@@ -52,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.nbi.restlet.RestletFileUpload;
+import au.gov.ansto.bragg.nbi.restlet.fileupload.FileItem;
 import au.gov.ansto.bragg.nbi.restlet.fileupload.disk.DiskFileItemFactory;
 import au.gov.ansto.bragg.nbi.server.git.GitService;
 import au.gov.ansto.bragg.nbi.server.internal.UserSessionService;
@@ -82,6 +83,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String SEG_NAME_DOWNLOAD = "download";
 	private final static String SEG_NAME_IMAGEUPLOAD = "imageupload";
 	private final static String SEG_NAME_IMAGEURL = "imageurl";
+	private final static String SEG_NAME_IMAGEBASE64 = "imagebase64";
 	private final static String SEG_NAME_IMAGESERVICE = "imageService";
 	private final static String SEG_NAME_ARCHIVE = "archive";
 	private final static String SEG_NAME_MYARCHIVE = "myarchive";
@@ -1249,7 +1251,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e.toString());
 					return;
 				}
-			} else if (SEG_NAME_IMAGEUPLOAD.equals(seg)) {
+			} else if (SEG_NAME_IMAGEBASE64.equals(seg)) {
 				Representation entity = request.getEntity();
 				Form form = new Form(entity);
 				String upload = form.getValues("upload");
@@ -1262,6 +1264,41 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					fos = new FileOutputStream(file);
 					fos.write(Base64.decode(upload));
 					response.setEntity("notebook/images?id=" + filename, MediaType.TEXT_PLAIN);
+				} catch (Exception e) {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to create file at the server");
+					return;
+				} finally {
+					if (fos != null) {
+						try {
+							fos.close();
+						} catch (Exception e2) {
+						}
+					}
+				}
+			} else if (SEG_NAME_IMAGEUPLOAD.equals(seg)) {
+				Representation entity = request.getEntity();
+//				Form form = new Form(entity);
+				FileOutputStream fos = null;
+				try {
+					DiskFileItemFactory factory = new DiskFileItemFactory();
+		            factory.setSizeThreshold(1000240);
+
+					RestletFileUpload upload = new RestletFileUpload(factory);
+					List<FileItem> items = upload.parseRequest(request);
+
+//					InputStream stream = entity.getStream();
+//					int size = ((Long) entity.getSize()).intValue();
+//					byte[] input = new byte[size];
+//					stream.read(input);
+					String filename = String.valueOf(System.currentTimeMillis()) + ".png";
+					String targetPath = imageFolder + "/" + filename;
+					File file = new File(targetPath);
+//					fos = new FileOutputStream(file);
+//					fos.write(input);
+					items.get(0).write(file);
+					JSONObject json = new JSONObject();
+					json.put("url", "notebook/images?id=" + filename);
+					response.setEntity(json.toString(), MediaType.TEXT_PLAIN);
 				} catch (Exception e) {
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to create file at the server");
 					return;

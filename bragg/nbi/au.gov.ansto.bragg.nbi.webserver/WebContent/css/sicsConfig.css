@@ -28,6 +28,57 @@ body {
 .dark_background {
 	background-color: #adb5bd !important;
 }
+
+.instrument_background {
+	/*
+	background-color: #e0eadb;
+	*/
+	background-color: #D8DBE2;
+}
+
+.instrument_sidebar {
+	/*
+	background-color: #f2cf97;
+	*/
+	background-color: #A9BCD0;
+}
+
+.instrument_floating_right {
+	/*
+	background-color: #f0ebe7 !important;
+	*/
+	background-color: #A9BCD0 !important;
+}
+
+.instrument_sidebar .class_ul_folder {
+	background-color: #707e91;
+}
+
+.admin_background {
+	/*
+	background-color: #e0eadb;
+	*/
+	background-color: #eee7df;
+}
+
+.admin_sidebar {
+	/*
+	background-color: #f2cf97;
+	*/
+	background-color: #A99985;
+}
+
+.admin_floating_right {
+	/*
+	background-color: #f0ebe7 !important;
+	*/
+	background-color: #DAD2BC !important;
+}
+
+.admin_sidebar .class_ul_folder {
+	background-color: #DAD2BC;
+}
+
 /*
  * Sidebar
  */
@@ -84,6 +135,10 @@ body {
 
 .sidebar .nav-link.active {
   color: #007bff;
+}
+
+li.active a.nav-link {
+	color: #eee;
 }
 
 .sidebar .nav-link:hover .feather,
@@ -479,8 +534,9 @@ tr.editable_row:hover {
   padding: 50px;
 }
 
-.class_div_device_item select {
+.class_div_device_item select, .class_div_device_item span {
 	width: auto;
+	white-space: nowrap;
 }
 
 .class_div_sample_stage {

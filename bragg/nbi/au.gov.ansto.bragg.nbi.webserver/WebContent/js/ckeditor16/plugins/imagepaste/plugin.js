@@ -61,7 +61,7 @@ CKEDITOR.plugins.add( 'imagepaste',
 					var src;
 
 //					var url= editor.config.filebrowserImageUploadUrl;
-					var url= editor.config.pasteUploadFileApi;
+					var url= editor.config.imagePasteBase64Api;
 					if (url.indexOf("?") == -1)
 						url += "?";
 					else

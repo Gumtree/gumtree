@@ -7,7 +7,7 @@ CKEDITOR.editorConfig = function( config ) {
 	// %REMOVE_START%
 	// The configuration options below are needed when running CKEditor from source files.
 	config.plugins = 'dialogui,dialog,about,basicstyles,blockquote,notification,button,toolbar,'
-				   + 'clipboard,elementspath,enterkey,entities,floatingspace,wysiwygarea,indent,'
+				   + 'clipboard,elementspath,enterkey,entities,floatingspace,wysiwygarea,image2,indent,'
 				   + 'indentlist,fakeobjects,link,list,undo,allowsave,autosave,'
 				   + 'lineutils,widgetselection,widget,codesnippet,'
 				   + 'panelbutton,panel,floatpanel,colorbutton,menu,contextmenu,'
@@ -52,7 +52,7 @@ CKEDITOR.editorConfig = function( config ) {
 	    [ CKEDITOR.CTRL + 83, 'save' ],    // Ctrl+S
 	];
 	
-	config.extraPlugins = 'pdf,word,lock';
+	config.extraPlugins = 'pdf,word,lock,pasteUploadImage,imageresize,imageresizerowandcolumn';
 
 	// The default plugins included in the basic setup define some buttons that
 	// are not needed in a basic editor. They are removed here.
@@ -63,6 +63,7 @@ CKEDITOR.editorConfig = function( config ) {
 //	config.extraPlugins = 'pasteUploadImage';
 	config.pasteUploadFileApi = 'notebook/imageupload';
 	config.pasteUploadImageUrlApi = 'notebook/imageurl';
+	config.imagePasteBase64Api = 'notebook/imagebase64';
 //	config.filebrowserImageUploadUrl = 'notebook/imageurl?';
 	
 	// Dialog windows are also simplified.

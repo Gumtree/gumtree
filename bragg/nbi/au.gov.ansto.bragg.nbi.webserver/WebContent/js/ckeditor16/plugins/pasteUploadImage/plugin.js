@@ -27,8 +27,8 @@
         }
         // 去重一些src data-src等造成的重复图片
         var urls = uniq(oldUrl.match(/(?<=img.*?[\s]src=")[^"]+(?=")/gi));
-//        if (filesCount > 0) {
-        if (false) {
+        if (filesCount > 0) {
+//        if (false) {
           for (var i = 0; i < filesCount; i++) {
             var file = dataTransfer.getFile(i);
             // 网页复制单个
@@ -75,6 +75,7 @@
           
           // 接口回调URL
           var newUrl = text;
+          console.log(newUrl);
           updateEditorVal(oldUrl, newUrl, isCreateImage);
           updateModal(modalUrl, true);
         }).catch(function () {
@@ -95,7 +96,7 @@
             return;
           }
           var newUrl = text;
-          updateModal(oldUrl, true);
+//          updateModal(oldUrl, true);
           updateEditorVal(oldUrl, newUrl);
         }).catch(function () {
           updateModal(oldUrl, false);
@@ -118,6 +119,7 @@
               var text =  xhr.responseText || '{}';
               var data = JSON.parse(text);
               if (data.url) {
+            	console.log(data.url);
                 resolve(data.url);
               } else {
                 // 没有返回图片链接则reject

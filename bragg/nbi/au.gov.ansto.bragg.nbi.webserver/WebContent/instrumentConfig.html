@@ -51,16 +51,17 @@
 
     <div class="container-fluid">
       <div class="row">
-        <nav class="col-md-3 col-lg-3 col-xl-2 d-none d-md-block bg-light sidebar">
+        <nav class="col-md-3 col-lg-3 col-xl-2 d-none d-md-block sidebar instrument_sidebar">
           <div class="class_span_side_title" id="id_span_side_title"></div>
           <div class="class_span_side_home" id="id_span_side_home">
-            <a href="#"><i class="fas fa-home"></i> <span id="id_span_home">Home</span></a> <span id="id_span_waiting"><i class="fas fa-spinner fa-spin"></i></span>
+            <a href="#"><i class="fas fa-home"></i> <span id="id_span_home">Verify</span></a> <span id="id_span_waiting"><i class="fas fa-spinner fa-spin"></i></span>
           </div>
           <div class="sidebar-sticky" id="id_div_sidebar">
+            <div id="id_div_composite_devices"></div>
           </div>
         </nav>
 
-        <main role="main" class="col-md-9 col-lg-9 col-xl-10 offset-md-3 offset-lg-3 offset-xl-2">
+        <main role="main" class="col-md-9 col-lg-9 col-xl-10 offset-md-3 offset-lg-3 offset-xl-2 instrument_background">
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h3 class="h4" id="id_device_title">Please use the 'Save' button to apply changes.</h3>
             <div class="btn-toolbar mb-2 mb-md-0">
@@ -85,7 +86,7 @@
 	          <h4 class="h5" id="id_property_subtitle"></h4>
 	          <div class="table-responsive" id="id_div_property_table"></div>
           </div>
-          <div id="id_div_right_bar">
+          <div id="id_div_right_bar" class="instrument_floating_right">
           	<div class="class_div_bar_header">
           		<span class="class_span_bar_title">Version history</span> <button id="id_button_reload_history" class="btn btn-sm btn-outline-primary">Reload</button>
           	</div>

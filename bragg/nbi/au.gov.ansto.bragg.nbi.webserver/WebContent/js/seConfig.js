@@ -353,9 +353,19 @@ class AdditionalModel extends AbstractModel {
 	}
 	
 	reset() {
-		this.editorModel = $.extend(true, {}, this.model);
+		const obj = this;
+		obj.editorModel = $.extend(true, {}, obj.model);
 //		_sampleStage.select(this.getSelectedMotor());
-		_motorGroups.select(this.getSelectedGroup());
+		_motorGroups.select(obj.getSelectedGroup());
+		var groupModel = {};
+		var groupEditorModel = {};
+		if (KEY_STAGE_GROUP in obj.model) {
+			groupModel = obj.model[KEY_STAGE_GROUP];
+			groupEditorModel = obj.editorModel[KEY_STAGE_GROUP];
+		}
+		_motorGroups.model = groupModel;
+		_motorGroups.editorModel = groupEditorModel;
+		_motorGroups.reset();
 	}
 	
 	verify() {
@@ -701,7 +711,8 @@ class InstrumentModel extends AbstractDeviceModel {
 	}
 
 	get $menuBar() {
-		return $('#id_div_sidebar');
+//		return $('#id_div_sidebar');
+		return $('#id_div_composite_devices');
 	}
 	
 	get type() {
@@ -1149,7 +1160,7 @@ class MotorGroups extends AbstractDevice {
 		var faIcon;
 		var html = '<div class="class_a_motor_group" href="#"><h6 class="sidebar-subheading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 ">' 
 				+ '<span class="class_span_mc_name" >SE Motor Groups</span>'
-				+ '<span id="id_span_add" class="float_right padding_right_4 clickable"><i class="fas fa-plus"></i> </span></h6></div>';
+				+ '<span id="id_span_add" class="float_right clickable"><i class="fas fa-plus"></i> </span></h6></div>';
 		obj.$menuHeader = $(html);
 		
 		_newGroupModal = new NewGroupModal(obj.$menuHeader.find('#id_span_add'));
@@ -1329,6 +1340,7 @@ class MotorGroups extends AbstractDevice {
 			$box.prop('checked', key == gid);
 		});
 		_additionalModel.setSelectedGroup(gid);
+		obj.setDirtyFlag();
 	}
 
 	setDesc(gid, desc) {
@@ -1407,11 +1419,11 @@ class MotorGroups extends AbstractDevice {
 //			const oGroup = this.model[gid];
 			const nGroup = obj.editorModel[gid];
 			if (!nGroup) {
-				msg += "remove SE motor group " + gid + ";";
+				msg += "remove SE motor group " + gid + "; ";
 				return;
 			}
 			if (oGroup["desc"] != nGroup["desc"] ) {
-				msg += "change descript of SE motor group " + gid + ";";
+				msg += "change descript of SE motor group " + gid + "; ";
 			}
 			const oMotors = oGroup["motors"];
 			const nMotors = nGroup["motors"];
@@ -1431,7 +1443,7 @@ class MotorGroups extends AbstractDevice {
 				}
 			}
 			if (isChanged) {
-				msg += "change motor list for SE motor group " + gid + ";";
+				msg += "change motor list for SE motor group " + gid + "; ";
 			} else {
 				console.log("no change for group " + gid);
 			}
@@ -1440,7 +1452,7 @@ class MotorGroups extends AbstractDevice {
 		$.each(obj.editorModel, function(gid, nGroup) {
 			const oGroup = obj.model[gid];
 			if (!oGroup) {
-				msg += "add SE motor group " + gid + ";";
+				msg += "add SE motor group " + gid + "; ";
 				return;
 			}
 		});
@@ -1480,6 +1492,11 @@ class MotorGroups extends AbstractDevice {
 		this.$menuHeader.find('i.i_changed').remove();
 	}
 
+	reset() {
+		const obj = this;
+		obj.$menuHeader.remove();
+		obj.createMenuUi();
+	}
 }
 
 class DBDevice extends AbstractDevice {
@@ -3899,8 +3916,12 @@ class CommitItem {
 			var url = URL_PREFIX + 'configload?inst=' + _inst + '&version=' + encodeURI(name) + "&" + Date.now();
 			$.get(url, function(data) {
 				try{
-					_instModel.model = data;
+					const instModel = data["instrument_model"];
+					const addiModel = data["additional_model"];
+					_instModel.model = instModel;
 					_instModel.reset();
+					_additionalModel.model = addiModel;
+					_additionalModel.reset();
 					_curVersionName = timeString;
 					StaticUtils.showWarning("please use the 'Save' button to apply the change.");
 				} catch (e) {

@@ -244,6 +244,10 @@
             base-name="/WebContent/seConfig.html">
       </resource>
       <resource
+            alias="/user/sicsAdmin.html"
+            base-name="/WebContent/sicsAdmin.html">
+      </resource>
+      <resource
             alias="/user/instrumentConfig.html"
             base-name="/WebContent/instrumentConfig.html">
       </resource>
