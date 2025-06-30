@@ -25,7 +25,8 @@ var devices = [
             	   "items":[{"classId":"stth", "deviceId":"stth", "title":"stth", "units":"deg"},  
             	            {"classId":"sx", "deviceId":"sx", "title":"sx", "units":"mm"},
             	            {"classId":"sy", "deviceId":"sy", "title":"sy", "units":"mm"},
-            	            {"classId":"som", "deviceId":"som", "title":"som", "units":"deg"}
+            	            {"classId":"som", "deviceId":"som", "title":"som", "units":"deg"},
+            	            {"classId":"msom", "deviceId":"/instrument/msom", "title":"msom", "units":"deg"}
             	            ]
                },
                {"group":"EULER CRADLE", 
@@ -40,8 +41,17 @@ var devices = [
             	            {"classId":"ss2vg", "deviceId":"ss2vg", "title":"slit2 vert gap", "units":"mm"},
             	            {"classId":"ss2hg", "deviceId":"ss2hg", "title":"slit2 horiz gap", "units":"mm"}
             	   ]
+               },
+               {"group":"MAGNET1", 
+            	   "items":[{"classId":"m1_field", "deviceId":"/sample/magnet1/magnet/field", "title":"Field", "units":"tesla"},  
+            		   		{"classId":"m1_he_level", "deviceId":"/sample/magnet1/magnet/he_level", "title":"He Level", "units":""},
+            		   		{"classId":"m1_temp", "deviceId":"/sample/magnet1/magnet/temperature", "title":"Temperature", "units":"K"},
+            		   		{"classId":"m1_Ramp_setpoint_amps", "deviceId":"/sample/magnet1/magnet/ramp_setpoint_amps", "title":"Ramp_setpoint_amps", "units":"A"},
+            		   		{"classId":"m1_Ramp_setpoint_tesla", "deviceId":"/sample/magnet1/magnet/ramp_setpoint_amps", "title":"Ramp_setpoint_tesla", "units":"tesla"},
+            		   		{"classId":"m1_setpoint", "deviceId":"/sample/magnet1/magnet/setpoint", "title":"Setpoint", "units":"tesla"}
+            	   ]
                }
-               ];
+];
 
 var nsItems = [
                {"classId":"reactorPower", "deviceId":"reactorPower", "title":"Reactor Power", "units":"MW"}
