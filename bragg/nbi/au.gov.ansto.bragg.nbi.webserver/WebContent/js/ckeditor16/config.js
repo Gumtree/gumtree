@@ -52,7 +52,8 @@ CKEDITOR.editorConfig = function( config ) {
 	    [ CKEDITOR.CTRL + 83, 'save' ],    // Ctrl+S
 	];
 	
-	config.extraPlugins = 'pdf,word,lock,pasteUploadImage,imageresize,imageresizerowandcolumn';
+//	config.extraPlugins = 'pdf,word,lock,pasteUploadImage';
+	config.extraPlugins = 'pdf,word,lock';
 
 	// The default plugins included in the basic setup define some buttons that
 	// are not needed in a basic editor. They are removed here.

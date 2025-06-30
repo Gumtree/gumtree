@@ -33,7 +33,7 @@
             var file = dataTransfer.getFile(i);
             // 网页复制单个
             if (urls.length) {
-              modal(urls[0]);
+//              modal(urls[0]);
               uploadFile(urls[0], urls[0], file);
             }
             //本地imagename.png
@@ -44,7 +44,7 @@
               }
               var modalUrl = window.URL.createObjectURL(file);
               var isCreateImage = true;
-              modal(modalUrl);
+//              modal(modalUrl);
               uploadFile(oldUrl, modalUrl, file, isCreateImage)
             }
           }
@@ -52,7 +52,7 @@
           // 网页上传URL
           if (urls.length) {
             for (var i = 0; i < urls.length; i++) {
-              modal(urls[i]);
+//              modal(urls[i]);
               uploadImageUrl(urls[i]);
             }
           }
@@ -69,7 +69,7 @@
         ajaxPost(option).then(function (text) {
           if (text === 'request time out') {
             updateEditorVal(oldUrl, text, isCreateImage);
-            updateModal(modalUrl, text);
+//            updateModal(modalUrl, text);
             return;
           }
           
@@ -77,9 +77,9 @@
           var newUrl = text;
           console.log(newUrl);
           updateEditorVal(oldUrl, newUrl, isCreateImage);
-          updateModal(modalUrl, true);
+//          updateModal(modalUrl, true);
         }).catch(function () {
-          updateModal(oldUrl, false);
+//          updateModal(oldUrl, false);
           updateEditorVal(modalUrl, 'failure');
         });
       }
@@ -92,14 +92,14 @@
         ajaxPost(option).then(function (text) {
           if (text === 'request time out') {
             updateEditorVal(oldUrl, text);
-            updateModal(oldUrl, text);
+//            updateModal(oldUrl, text);
             return;
           }
           var newUrl = text;
 //          updateModal(oldUrl, true);
           updateEditorVal(oldUrl, newUrl);
         }).catch(function () {
-          updateModal(oldUrl, false);
+//          updateModal(oldUrl, false);
 //          updateEditorVal(oldUrl, 'failure');
         });
       }

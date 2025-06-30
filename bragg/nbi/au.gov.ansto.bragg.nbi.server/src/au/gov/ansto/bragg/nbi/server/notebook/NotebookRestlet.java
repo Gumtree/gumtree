@@ -112,6 +112,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String QUERY_EXTERNAL_URL_ID = "url";
 	private final static String QUERY_IMAGE_ID = "id";
 	private static final String QUERY_PATTERN = "pattern";
+	private static final String QUERY_TIMESTAMP ="ts";
 	private static final String QUERY_PASSCODE = "pc";
 	private static final String QUERY_PROPOSAL_ID = "proposal_id";
 	private static final String FILE_FREFIX = "<div class=\"class_div_search_file\" name=\"$filename\" session=\"$session\" proposal=\"$proposal\">";
@@ -1276,7 +1277,9 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 					}
 				}
 			} else if (SEG_NAME_IMAGEUPLOAD.equals(seg)) {
-				Representation entity = request.getEntity();
+//				Representation entity = request.getEntity();
+				Form queryForm = request.getResourceRef().getQueryAsForm();
+				String ts = queryForm.getValues(QUERY_TIMESTAMP);
 //				Form form = new Form(entity);
 				FileOutputStream fos = null;
 				try {
@@ -1290,7 +1293,8 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 //					int size = ((Long) entity.getSize()).intValue();
 //					byte[] input = new byte[size];
 //					stream.read(input);
-					String filename = String.valueOf(System.currentTimeMillis()) + ".png";
+//					String filename = String.valueOf(System.currentTimeMillis()) + ".png";
+					String filename = ts + ".png";
 					String targetPath = imageFolder + "/" + filename;
 					File file = new File(targetPath);
 //					fos = new FileOutputStream(file);
