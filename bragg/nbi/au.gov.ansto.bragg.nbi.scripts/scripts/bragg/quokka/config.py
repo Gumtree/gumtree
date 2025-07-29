@@ -82,7 +82,8 @@ class ConfigSystem :
             if not self.det_offset is None:
                 cmd += ' detoff ' + str(self.det_offset)
             else:
-                cmd += ' detoff 0'
+#                 cmd += ' detoff 0'
+                pass
 #         if not self.wavelength is None:
 #             cmd += ' nvs_lambda ' + str(self.wavelength)
         if not self.srce is None:
@@ -109,7 +110,7 @@ class ConfigSystem :
             if cur is None:
                 log('timeout getting current wavelength, drive it anyway')
                 return True
-            pre = 0.1
+            pre = 0.049
             if abs(cur - val) < pre:
                 return False
             else:
@@ -172,14 +173,14 @@ class ConfigSystem :
         if self.det is None:
             return False
         else:
-            precision = 5
+            precision = 1
             offsetPrecision = 1
             position = self.det
-            offset = self.det_offset
-            if offset is None:
-                offset = 0
             shouldDrive = (position > getDetPosition() + precision) or (position < getDetPosition() - precision)
-            shouldDrive = (shouldDrive) or ((offset > getDetOffset() + offsetPrecision) or (offset < getDetOffset() - offsetPrecision))
+            offset = self.det_offset
+            if not offset is None:
+#                 offset = 0
+                shouldDrive = (shouldDrive) or ((offset > getDetOffset() + offsetPrecision) or (offset < getDetOffset() - offsetPrecision))
             return shouldDrive
 
     def need_drive_guide(self):
