@@ -22,6 +22,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import au.gov.ansto.bragg.nbi.core.NBISystemProperties;
+
 public class CurrentProposalSOAPService {
 	// finals
 	
@@ -34,8 +36,8 @@ public class CurrentProposalSOAPService {
 	public static final AtomicInteger BUSY_ID = new AtomicInteger();
 	private static final Logger logger = LoggerFactory.getLogger(CurrentProposalSOAPService.class);
 	
-	private static final String SOAP_URL =
-			"http://neutron.ansto.gov.au/WebServices/WebServiceAppServiceSoapHttpPort?invoke=";
+	private static final String SOAP_URL = NBISystemProperties.PORTAL_ADDRESS + 
+			"/WebServices/WebServiceAppServiceSoapHttpPort?invoke=";
 	
 	private static final String SOAP_XML =
 			"<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">" +

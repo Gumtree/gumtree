@@ -32,6 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
+import au.gov.ansto.bragg.nbi.core.NBISystemProperties;
+
 public class NSRestlet extends Restlet implements IDisposable {
 
 	private static final String PART_HDBS = "hdbs";
@@ -141,7 +143,7 @@ public class NSRestlet extends Restlet implements IDisposable {
 	}
 	
 	private void createPostThread() throws UnsupportedEncodingException {
-		postMethod = new PostMethod("http://neutron.ansto.gov.au/WebServices/WebServiceAppServiceSoapHttpPort?invoke=");
+		postMethod = new PostMethod(NBISystemProperties.PORTAL_ADDRESS + "/WebServices/WebServiceAppServiceSoapHttpPort?invoke=");
 		postMethod.setDoAuthentication(false);
 		RequestEntity entity = new StringRequestEntity(SOAP_XML, "text/xml", "ISO-8859-1");
 		postMethod.setRequestEntity(entity);

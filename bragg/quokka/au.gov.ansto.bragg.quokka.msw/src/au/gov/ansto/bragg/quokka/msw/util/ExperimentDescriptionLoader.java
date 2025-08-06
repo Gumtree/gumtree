@@ -27,8 +27,10 @@ public class ExperimentDescriptionLoader {
 	private static final String BUSY_ID_NAME = ExperimentDescriptionLoader.class.getSimpleName();
 	private static final AtomicInteger BUSY_ID = new AtomicInteger();
 	
-	private static final String SOAP_URL =
-			"http://neutron.ansto.gov.au/WebServices/WebServiceAppServiceSoapHttpPort?invoke=";
+	private static String PORTAL_ADDRESS = System.getProperty("gumtree.portalAddress", "http://neutron.ansto.gov.au");
+	
+	private static final String SOAP_URL = PORTAL_ADDRESS + 
+			"/WebServices/WebServiceAppServiceSoapHttpPort?invoke=";
 	
 	private static final String SOAP_XML =
 			"<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">" +

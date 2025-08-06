@@ -27,6 +27,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import au.gov.ansto.bragg.nbi.core.NBISystemProperties;
+
 /**
  * @author nxi
  *
@@ -37,7 +39,7 @@ public class ProposalDBSOAPService {
 										+ "<soap:Body xmlns:ns1=\"http://au/gov/ansto/bragg/web/model/webService/server/webservice/WebServiceAppServer.wsdl\">"
 										+ "<ns1:getProposalInfoElement><ns1:proposalId>";
 	private final static String SOAP_XML_FOLLOW = "</ns1:proposalId></ns1:getProposalInfoElement></soap:Body></soap:Envelope>";
-	private final static String SOAP_URL = "http://neutron.ansto.gov.au/WebServices/WebServiceAppServiceSoapHttpPort?invoke=";
+	private final static String SOAP_URL = NBISystemProperties.PORTAL_ADDRESS + "/WebServices/WebServiceAppServiceSoapHttpPort?invoke=";
 //	private final static int DEFAULT_POST_THREAD_HARTBEAT = 60000;
 	private static HttpClient client;
 	private static PostMethod postMethod;

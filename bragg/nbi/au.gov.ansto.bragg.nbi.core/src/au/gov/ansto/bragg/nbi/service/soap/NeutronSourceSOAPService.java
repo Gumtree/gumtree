@@ -26,6 +26,8 @@ import org.gumtree.gumnix.sics.control.controllers.IDynamicController;
 import org.gumtree.gumnix.sics.core.SicsCore;
 import org.w3c.dom.Element;
 
+import au.gov.ansto.bragg.nbi.core.NBISystemProperties;
+
 /**
  * @author nxi
  *
@@ -35,7 +37,7 @@ public class NeutronSourceSOAPService {
 	private final static String SOAP_XML = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">"
 			+ "<soap:Body xmlns:ns1=\"http://au/gov/ansto/bragg/web/model/webService/server/webservice/WebServiceAppServer.wsdl\">"
 			+ "<ns1:getReactorDisplayElement/></soap:Body></soap:Envelope>";
-	private final static String SOAP_URL = "http://neutron.ansto.gov.au/WebServices/WebServiceAppServiceSoapHttpPort?invoke=";
+	private final static String SOAP_URL = NBISystemProperties.PORTAL_ADDRESS + "/WebServices/WebServiceAppServiceSoapHttpPort?invoke=";
 	private final static int DEFAULT_POST_THREAD_HARTBEAT = 60000;
 	private static HttpClient client;
 	private static PostMethod postMethod;
