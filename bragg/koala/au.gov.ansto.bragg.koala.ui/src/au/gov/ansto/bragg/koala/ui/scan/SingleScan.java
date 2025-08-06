@@ -284,6 +284,7 @@ public class SingleScan {
 	private final static int WAIT_BETWEEN_COLLECTION = 5000;
 	private final static int WAIT_AFTER_SCAN = 1000;
 	private final static int PAUSE_CHECK_INTERVAL = 20;
+	private final static int HSET_WAIT_INTERVAL = 25;
 	private final static float DEVICE_VALUE_TOLERANCE = 0.00001f;
 	private final static Logger logger = LoggerFactory.getLogger(SingleScan.class);
 	private final static Logger fileLogger = LoggerFactory.getLogger(SingleScan.class.getName() + ".CopyFile");
@@ -817,6 +818,7 @@ public class SingleScan {
 			if (!getTarget().isTemperature()) {
 				if (!Float.isNaN(getTemp())) {
 					ControlHelper.publishGumtreeStatus("Scan - change temperature");
+					sleep(HSET_WAIT_INTERVAL);
 					ControlHelper.driveTemperature(getTemp());
 				}
 			}
@@ -824,11 +826,13 @@ public class SingleScan {
 			if (getTarget().isTemperature()) {
 				if (!Float.isNaN(getPhi())) {
 					ControlHelper.publishGumtreeStatus("Scan - drive sample Phi");
+					sleep(HSET_WAIT_INTERVAL);
 					ControlHelper.drivePhi(getPhi());
 				}
 			}
 			if (!Float.isNaN(getChi())) {
 				ControlHelper.publishGumtreeStatus("Scan - drive sample Chi");
+				sleep(HSET_WAIT_INTERVAL);
 				ControlHelper.driveChi(getChi());
 			}
 			String comments = getComments();
@@ -837,6 +841,7 @@ public class SingleScan {
 			}
 			ControlHelper.asyncExec(String.format("hset %s %s", 
 					System.getProperty(ControlHelper.GUMTREE_COMMENTS), comments));
+			sleep(HSET_WAIT_INTERVAL);
 			evaluatePauseStatus();
 			if (getTarget().isPoints()) {
 				List<Float> points = getPointValues();
@@ -879,6 +884,13 @@ public class SingleScan {
 		}
 	}
 	
+	private void sleep(long sleepTime) {
+		try {
+			Thread.sleep(sleepTime);
+		} catch (InterruptedException e) {
+		}
+	}
+	
 	private void publishScanResult() {
 		if (tiffFiles.size() > 0) {
 			try {
@@ -899,6 +911,7 @@ public class SingleScan {
 		setStatus(stepText);
 		ControlHelper.asyncExec(String.format("hset %s %s", 
 				System.getProperty(ControlHelper.STEP_TEXT_PATH), stepText));
+		sleep(HSET_WAIT_INTERVAL);
 //		if (getTarget().isTemperature()) {
 //			ControlHelper.publishGumtreeStatus("Scan - driving temperature");			
 //		} else {
@@ -906,15 +919,19 @@ public class SingleScan {
 //		}
 		if (getTarget().isTemperature()) {
 			ControlHelper.publishGumtreeStatus("Scan - driving temperature to " + target);
+			sleep(HSET_WAIT_INTERVAL);
 			ControlHelper.driveTemperature(target);
 		} else {
 			ControlHelper.publishGumtreeStatus("Scan - driving " + getTarget().getDeviceName());
+			sleep(HSET_WAIT_INTERVAL);
 			ControlHelper.syncDrive(getTarget().getDeviceName(), target);
 		}
 		evaluatePauseStatus();
 		ControlHelper.publishGumtreeStatus("Scan - image collection cycle");
+		sleep(HSET_WAIT_INTERVAL);
 		ControlHelper.syncCollect(getExposure());
 		ControlHelper.publishGumtreeStatus("Scan - image collection finished");
+		sleep(HSET_WAIT_INTERVAL);
 //		copyFile();
 		evaluatePauseStatus();
 	}

@@ -135,6 +135,8 @@ public class ControlHelper {
 	public static String proposalFolder;
 	public static ExperimentModel experimentModel;
 	
+	private static long ESTIMATED_FINISH_TIME = -1L;
+	
 	static {
 		TEMP_DEVICE_NAME = System.getProperty(ENV_SETPOINT);
 		CHI_DEVICE_NAME = System.getProperty(SAMPLE_CHI);
@@ -413,8 +415,11 @@ public class ControlHelper {
 //			logger.warn("failed to publish finish time estimation");
 //		}
 		try {
-			asyncExec(String.format("hset %s %s", 
+			if (finishTime != ESTIMATED_FINISH_TIME) {
+				ESTIMATED_FINISH_TIME = finishTime;
+				asyncExec(String.format("hset %s %s", 
 					System.getProperty(ControlHelper.GUMTREE_TIME_PATH), String.valueOf(finishTime)));
+			}
 		} catch (KoalaServerException e) {
 			logger.error("failed to publish finish time estimation");
 		}
