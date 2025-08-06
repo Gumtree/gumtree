@@ -40,6 +40,8 @@ public class SicsProxy implements ISicsProxy {
 	private static final int RECONNECT_TIMEOUT = 60000;
 	private static final int EPOCH_PERIOD = 3000;
 	private static final int EPOCH_RETRY = Integer.valueOf(System.getProperty("gumtree.control.epochRetry", "4"));
+	
+	private static String SICS_Timestamp = null;
 
 	private String serverAddress;
 	private String publisherAddress;
@@ -128,7 +130,17 @@ public class SicsProxy implements ISicsProxy {
 					}
 					if (isConnected && !isBroken && channel != null && channel.isConnected()) {
 						try {
-							channel.syncPoch();
+							String since = channel.syncPoch();
+							if (since != null) {
+								if (!since.equals(SICS_Timestamp)) {
+									if (SICS_Timestamp != null) {
+										SICS_Timestamp = since;
+										getGumtreeXML();
+									} else {
+										SICS_Timestamp = since;
+									}
+								}
+							}
 							fct = 0;
 						} catch (SicsCommunicationException e) {
 							fct++;
@@ -193,9 +205,9 @@ public class SicsProxy implements ISicsProxy {
 //			throw e;
 		}
 
-//		if (sicsModel == null) {
+		if (sicsModel == null) {
 			getGumtreeXML();
-//		}
+		}
 
 		fireConnectionEvent(true);
 		isBroken = false;

@@ -97,7 +97,7 @@ public class SicsChannel implements ISicsChannel {
 	    clientSocket.setLinger(0);
 //	    clientSocket.setBacklog(1);
 //	    clientSocket.setConflate(true);
-//	    clientSocket.setReceiveTimeOut(COMMAND_TIMEOUT);
+	    clientSocket.setReceiveTimeOut(SEND_TIMEOUT);
 	    clientSocket.setIdentity(id.getBytes(ZMQ.CHARSET));
 	    messageHandler = new MessageHandler(sicsProxy);
 	    commandMap = new HashMap<Integer, SicsCommand>();
@@ -186,16 +186,18 @@ public class SicsChannel implements ISicsChannel {
 	}
 
 	@Override
-	public void syncPoch() throws SicsCommunicationException {
+	public String syncPoch() throws SicsCommunicationException {
 		pochId --;
-		SicsCommand sicsCommand = new SicsCommand(pochId, POCH_COMMAND, null, POCH_TIMEOUT);
+//		SicsCommand sicsCommand = new SicsCommand(pochId, POCH_COMMAND, null, POCH_TIMEOUT);
+		PochCommand sicsCommand = new PochCommand(pochId);
 		commandMap.put(pochId, sicsCommand);
 		try {
-			sicsCommand.syncRun(POCH_COMMAND);
+			return sicsCommand.syncRun(POCH_COMMAND);
 		} catch(SicsCommunicationException e) {
 			logger.error("failed to PING server, ", e);
 			throw e;
 		} catch (Exception e) {
+			return "";
 		} finally {
 			commandMap.remove(pochId);
 		}
@@ -230,9 +232,14 @@ public class SicsChannel implements ISicsChannel {
 			public void run() {
 				while(isConnected) {
 					try {
-						String received = clientSocket.recvStr();
+						logger.debug("waiting for next message");
+						String received = clientSocket.recvStr(0);
 //						String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
 //						System.err.println(timeStamp + " Received: [" + received);
+						if (received == null) {
+							logger.debug("received null");
+							continue;
+						}
 						logger.debug("CMD: " + received);
 						JSONObject json = null;
 						try {
@@ -251,6 +258,7 @@ public class SicsChannel implements ISicsChannel {
 						break;
 					}
 				}
+				logger.warn("quitting client thread");
 			}
 		});
 		clientThread.start();
@@ -294,20 +302,59 @@ public class SicsChannel implements ISicsChannel {
 				logger.error("failed to close subscriber socket, ", e);
 			}
 		}
+		if (clientThread != null) {
+			logger.debug("interrupting client thread");
+	        clientThread.interrupt();
+		}
 		try {
 //			context.destroySocket(clientSocket);
 //			logger.debug("context destroy client");
 //			context.destroySocket(subscriberSocket);
 //			logger.debug("context destroy subscriber");
-			logger.debug("context destroy");
-			context.destroy();
+			logger.debug("destroying context");
+			logger.error("context closed = " + context.isClosed());
+//			logger.error("context empty = " + context.isEmpty());
+//			context.close();
+			for (ZMQ.Socket socket : context.getSockets()) {
+				socket.close();
+			}
+			logger.error("socket number = " + context.getSockets().size());
+//			context.destroy();
+			Thread dt = destroyContext(context);
+			int ct = 0;
+			while(dt.isAlive() && ct < SEND_TIMEOUT) {
+				Thread.sleep(COMMAND_WAIT_TIME);
+				ct += COMMAND_WAIT_TIME;
+			}
+			if (ct >= SEND_TIMEOUT) {
+				logger.debug("interrupting destroy thread");
+				dt.interrupt();
+			}
+			logger.debug("context destroyed");
 		} catch (Exception e) {
 			logger.error("failed to terminate ZMQ context, ", e);
 		}
 
-        clientThread.interrupt();
         isConnected = false;
         logger.warn("finished disconnecting routine");
+	}
+	
+	private Thread destroyContext(final ZContext context) {
+		Thread dThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					context.destroy();
+				} catch (Exception e) {
+					logger.error("failed to finish destroying context");
+				}
+				logger.debug("end of destroying thread");
+			}
+		});
+		
+		dThread.start();
+		return dThread;
 	}
 	
 	@Override
@@ -372,7 +419,7 @@ public class SicsChannel implements ISicsChannel {
 			if (!POCH_COMMAND.equals(command)) {
 				logger.debug("syncSend: " + command);
 			}
-			if (!clientSocket.send(msg)) {
+			if (!clientSocket.send(msg, ZMQ.DONTWAIT)) {
 				logger.debug("client socket broken");
 				throw new SicsCommunicationException("client socket broken");
 			}
@@ -549,6 +596,35 @@ public class SicsChannel implements ISicsChannel {
 		
 		SicsException getError() {
 			return error;
+		}
+		
+		void setReply(String reply) {
+			this.reply = reply;
+		}
+	}
+	
+	class PochCommand extends SicsCommand {
+		
+		public PochCommand(int pid) {
+			super(pid, POCH_COMMAND, null, POCH_TIMEOUT);
+		}
+		
+		@Override
+		void progress(JSONObject json) {
+			if (!isConnected()) {
+				takeError(new SicsCommunicationException("disconnected"));
+				return;
+			}
+			try {
+				if (json.has(PropertyConstants.PROP_COMMAND_SINCE)) {
+					setReply(json.get(PropertyConstants.PROP_COMMAND_SINCE).toString());
+				} else {
+					setReply(null);
+				}
+				finish();
+			} catch (JSONException e) {
+				takeError(new SicsCommunicationException(e.getMessage()));
+			} 
 		}
 	}
 }

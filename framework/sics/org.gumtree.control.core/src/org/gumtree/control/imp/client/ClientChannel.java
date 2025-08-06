@@ -21,6 +21,7 @@ import org.gumtree.control.exception.SicsExecutionException;
 import org.gumtree.control.exception.SicsInterruptException;
 import org.gumtree.control.imp.SicsReplyData;
 import org.gumtree.control.model.PropertyConstants;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -252,7 +253,8 @@ public class ClientChannel implements ISicsChannel {
 	}
 	
 	@Override
-	public void syncPoch() throws SicsCommunicationException {
+	public String syncPoch() throws SicsCommunicationException {
+		return null;
 	}
 	
 	public void dropCommand(Integer cid) {
@@ -308,6 +310,9 @@ public class ClientChannel implements ISicsChannel {
 				jcom.put(JSON_KEY_TYPE, "sics");
 				jcom.put(JSON_KEY_CID, cid);
 				jcom.put(JSON_KEY_COMMAND, command);
+				JSONArray arr = new JSONArray();
+				arr.put("terse");
+				jcom.put("options", arr);
 			} catch (JSONException e1) {
 				throw new SicsExecutionException("illegal command");
 			}
@@ -341,6 +346,9 @@ public class ClientChannel implements ISicsChannel {
 				jcom.put(JSON_KEY_TYPE, "sics");
 				jcom.put(JSON_KEY_CID, cid);
 				jcom.put(JSON_KEY_COMMAND, command);
+				JSONArray arr = new JSONArray();
+				arr.put("terse");
+				jcom.put("options", arr);
 			} catch (JSONException e1) {
 				throw new SicsExecutionException("illegal command");
 			}

@@ -14,5 +14,5 @@ public interface ISicsChannel {
 	void disconnect();
 	boolean isBusy();
 	void reset();
-	void syncPoch() throws SicsCommunicationException;
+	String syncPoch() throws SicsCommunicationException;
 }

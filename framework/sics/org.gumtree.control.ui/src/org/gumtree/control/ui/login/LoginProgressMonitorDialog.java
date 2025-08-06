@@ -43,8 +43,8 @@ public class LoginProgressMonitorDialog extends ProgressMonitorDialog {
 					connected = SicsManager.getSicsProxy().connect(context.getServerAddress(), 
 							context.getPublisherAddress());
 				} catch (Exception e) {
-//					throw new InvocationTargetException(e, e.getMessage());
 					e.printStackTrace();
+					throw new InvocationTargetException(e, e.getMessage());
 				}
 				if (!connected) {
 					throw new InvocationTargetException(new Exception("connection failed"));
