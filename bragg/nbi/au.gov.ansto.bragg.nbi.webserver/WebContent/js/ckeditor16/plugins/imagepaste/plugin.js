@@ -111,6 +111,9 @@ CKEDITOR.plugins.add( 'imagepaste',
 			} else {
 		        var dataTransfer = e.data.dataTransfer;
 		        var filesCount = dataTransfer.getFilesCount();
+		        if (filesCount == 0) {
+		        	return;
+		        }
 		        console.log("file counts = " + filesCount);
 		        var id = CKEDITOR.tools.getNextId();
 		        var file = dataTransfer.getFile(0);

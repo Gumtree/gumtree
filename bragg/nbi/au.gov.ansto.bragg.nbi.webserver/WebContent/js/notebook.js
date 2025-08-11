@@ -997,23 +997,40 @@ function convertImagesToBase64 (doc, callback) {
 	if (numChange > 0) {
 		$.each(regularImages, function () {
 			// preparing canvas for drawing
+			console.log("converting image " + numChange);
 			var imgElement = $(this);
 			var img = new Image();
 			img.crossOrigin = 'Anonymous';
 			img.onload = function() {
-				var canvas = document.createElement('CANVAS');
-				var ctx = canvas.getContext('2d');
-				canvas.height = this.naturalHeight;
-				canvas.width = this.naturalWidth;
-				ctx.drawImage(this, 0, 0);
-				dataURL = canvas.toDataURL();
-				imgElement.attr('src', dataURL);
-				canvas.remove();
+				try {
+					var canvas = document.createElement('CANVAS');
+					var ctx = canvas.getContext('2d');
+					canvas.height = this.naturalHeight;
+					canvas.width = this.naturalWidth;
+					ctx.drawImage(this, 0, 0);
+					dataURL = canvas.toDataURL();
+					imgElement.attr('src', dataURL);
+					canvas.remove();
+				} catch (e) {
+					console.log("failed to convert " + numChange);
+				}
 				numChange --;
+				console.log("to be converted " + numChange);
 				if (numChange <= 0) {
+					console.log("calling html to word");
 					html_word(div.html());
 				}
 			};
+			img.onerror = function() {
+				console.log("failed to load image " + numChange);
+				numChange --;
+				console.log("to be converted " + numChange);
+				if (numChange <= 0) {
+					console.log("calling html to word");
+					html_word(div.html());
+				}
+			}
+			console.log("image src = " + this.src);
 			img.src = this.src;
 	//		ctx.clearRect(0, 0, canvas.width, canvas.height);
 	//		canvas.width = this.width;
@@ -1048,11 +1065,12 @@ function html_word(data){
 }
 
 function getWord(){
+	console.log("get word starting");
 	var data = CKEDITOR.instances.id_editable_inner.getData();
 //	jQuery('<div />').append(data).wordExport();
-
+	console.log("get word data ready");
 	convertImagesToBase64(data, html_word);
-	
+	console.log("get word finished");
 //	$("#id_editable_page").wordExport();
 }
 
