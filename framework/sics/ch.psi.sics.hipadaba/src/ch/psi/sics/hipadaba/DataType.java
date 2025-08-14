@@ -106,7 +106,17 @@ public enum DataType implements InternalDataType {
 	 * @generated
 	 * @ordered
 	 */
-	FUNC_LITERAL(8, "func", "func");
+	FUNC_LITERAL(8, "func", "func"),
+
+	/**
+	 * The '<em><b>Long</b></em>' literal object.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #LONG
+	 * @generated
+	 * @ordered
+	 */
+	LONG_LITERAL(9, "long", "long");
 
 	/**
 	 * The '<em><b>Int</b></em>' literal value.
@@ -244,6 +254,21 @@ public enum DataType implements InternalDataType {
 	public static final int FUNC = 8;
 
 	/**
+	 * The '<em><b>Long</b></em>' literal value.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of '<em><b>Long</b></em>' literal object isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @see #LONG_LITERAL
+	 * @model name="long"
+	 * @generated
+	 * @ordered
+	 */
+	public static final int LONG = 9;
+
+	/**
 	 * An array of all the '<em><b>Data Type</b></em>' enumerators.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -260,6 +285,7 @@ public enum DataType implements InternalDataType {
 			FLOATVARAR_LITERAL,
 			NONE_LITERAL,
 			FUNC_LITERAL,
+			LONG_LITERAL,
 		};
 
 	/**
@@ -319,6 +345,7 @@ public enum DataType implements InternalDataType {
 			case FLOATVARAR: return FLOATVARAR_LITERAL;
 			case NONE: return NONE_LITERAL;
 			case FUNC: return FUNC_LITERAL;
+			case LONG: return LONG_LITERAL;
 		}
 		return null;
 	}
