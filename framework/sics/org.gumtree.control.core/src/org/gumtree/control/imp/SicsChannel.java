@@ -57,6 +57,7 @@ public class SicsChannel implements ISicsChannel {
 	private static final int POCH_TIMEOUT = 10000;
 	private static final int COMMAND_WAIT_TIME = 3;
 	private static final int SEND_TIMEOUT = 3000;
+	private static final int RECEIVE_TIMEOUT = 5000;
 	private static final int COMMAND_TIMEOUT = 10000;
 	
 	private static Logger logger = LoggerFactory.getLogger(SicsChannel.class);
@@ -97,7 +98,7 @@ public class SicsChannel implements ISicsChannel {
 	    clientSocket.setLinger(0);
 //	    clientSocket.setBacklog(1);
 //	    clientSocket.setConflate(true);
-	    clientSocket.setReceiveTimeOut(SEND_TIMEOUT);
+	    clientSocket.setReceiveTimeOut(RECEIVE_TIMEOUT);
 	    clientSocket.setIdentity(id.getBytes(ZMQ.CHARSET));
 	    messageHandler = new MessageHandler(sicsProxy);
 	    commandMap = new HashMap<Integer, SicsCommand>();

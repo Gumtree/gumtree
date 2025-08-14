@@ -3,6 +3,7 @@
  */
 package org.gumtree.control.imp;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -471,6 +472,18 @@ public class SicsProxy implements ISicsProxy {
 				throw new SicsModelException("failed to interpret SICS model text");
 			}
 //		}
+	}
+	
+	public void saveGumtreeXML(String filename) throws SicsException {
+		try {
+			String msg = channel.syncSend("getgumtreexml /", null);
+			FileWriter w = new FileWriter(filename);
+			w.write(msg);
+			w.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new SicsModelException("failed to interpret SICS model text");
+		}
 	}
 	
 	public synchronized void updateGumtreeXML() throws SicsException {
