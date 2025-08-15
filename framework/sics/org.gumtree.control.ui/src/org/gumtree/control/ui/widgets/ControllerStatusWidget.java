@@ -26,6 +26,7 @@ import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
+import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
 import org.gumtree.service.dataaccess.IDataAccessManager;
@@ -103,21 +104,21 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 			}
 		}
 
-//		proxyListener = new SicsProxyListenerAdapter() {
-//			
-//			@Override
-//			public void disconnect() {
-//				handleSicsDisconnect();
-//			}
-//			
-//			@Override
-//			public void connect() {
-//				handleSicsConnect();
-//			}
-//
-//		};
+		proxyListener = new SicsProxyListenerAdapter() {
+			
+			@Override
+			public void modelUpdated() {
+				handleSicsConnect();
+			}
+			
+			@Override
+			public void disconnect() {
+				handleSicsDisconnect();
+			}
+
+		};
 		ISicsProxy proxy = SicsManager.getSicsProxy();
-//		proxy.addProxyListener(proxyListener);
+		proxy.addProxyListener(proxyListener);
 		
 		if (proxy.isModelAvailable()) {
 			handleSicsConnect();
