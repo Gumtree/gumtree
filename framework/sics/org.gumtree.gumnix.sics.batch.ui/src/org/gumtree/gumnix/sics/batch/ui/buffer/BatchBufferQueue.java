@@ -22,9 +22,13 @@ import javax.inject.Inject;
 import org.gumtree.service.persistence.ILocalPersistenceManager;
 import org.gumtree.util.bean.AbstractModelObject;
 import org.gumtree.util.bean.PropertyList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BatchBufferQueue extends PropertyList<IBatchBuffer> {
 
+	private static final Logger logger = LoggerFactory.getLogger(BatchBufferQueue.class);
+	
 	@Inject
 	private ILocalPersistenceManager persistenceManager;
 	private List<IQueueEventListener> queueEventListeners;
@@ -53,50 +57,64 @@ public class BatchBufferQueue extends PropertyList<IBatchBuffer> {
 	}
 	
 	public boolean add(IBatchBuffer e) {
+		logger.warn("adding buffer " + e.getName());
 		boolean result = super.add(e);
 		persist();
 		triggerQueueEvent();
+		logger.warn("finished adding buffer " + e.getName());
 		return result;
 	}
 	
 	public void add(int index, IBatchBuffer element) {
-		add(index, element);
+		logger.warn("adding buffer " + element.getName());
+		super.add(index, element);
 		persist();
 		triggerQueueEvent();
+		logger.warn("finished adding buffer " + element.getName());
 	}
 	
 	public boolean addAll(Collection<? extends IBatchBuffer> c) {
+		logger.warn("adding multiple buffer files: " + c.size());
 		boolean result = super.addAll(c);
 		persist();
 		triggerQueueEvent();
+		logger.warn("finished adding multiple buffer files: " + c.size());
 		return result;
 	}
 	
 	public boolean addAll(int index, Collection<? extends IBatchBuffer> c) {
+		logger.warn("adding multiple buffer files: " + c.size());
 		boolean result = super.addAll(index, c);
 		persist();
 		triggerQueueEvent();
+		logger.warn("finished adding multiple buffer files: " + c.size());
 		return result;
 	}
 	
 	public IBatchBuffer remove(int index) {
+		logger.warn("removing buffer file at index: " + index);
 		IBatchBuffer result = super.remove(index);
 		persist();
 		triggerQueueEvent();
+		logger.warn("finished removing buffer file at index: " + index);
 		return result;
 	}
 	
 	public boolean remove(Object o) {
+		logger.warn("removing selected buffer file");
 		boolean result = super.remove(o);
 		persist();
 		triggerQueueEvent();
+		logger.warn("finished removing selected buffer file");
 		return result;
 	}
 	
 	public boolean removeAll(Collection<?> c) {
+		logger.warn("removing all buffer files");
 		boolean result = super.removeAll(c);
 		persist();
 		triggerQueueEvent();
+		logger.warn("finished removing all buffer files");
 		return result;
 	}
 	
@@ -108,6 +126,7 @@ public class BatchBufferQueue extends PropertyList<IBatchBuffer> {
 	}
 	
 	public void clear() {
+		logger.warn("clear buffer queue");
 		super.clear();
 		persist();
 		triggerQueueEvent();

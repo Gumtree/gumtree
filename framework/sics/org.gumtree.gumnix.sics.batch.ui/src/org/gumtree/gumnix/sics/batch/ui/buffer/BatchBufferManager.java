@@ -334,6 +334,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			
 			File folderFolder = new File(batchFolderPath);
 			if (folderFolder.exists() && !folderFolder.isDirectory()) {
+				logger.error("unable to access batch folder");
 				throw new IOException("batch folder doesn't exist.");
 			} 
 			if (!folderFolder.exists()) {
@@ -342,41 +343,50 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 				}
 			}
 			String filename = buffer.getName();
-			String newTCLFilePath = batchFolderPath + "/" + filename;
-			File checkFile = new File(newTCLFilePath);
-			if (checkFile.exists()) {
-				if (!checkFile.delete()) {
-					String timeStamp = new SimpleDateFormat("yyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-					if (filename.contains(".")) {
-						int dotIndex = filename.lastIndexOf(".");
-						filename = filename.substring(0, dotIndex) + "_" + timeStamp + filename.substring(dotIndex, filename.length());
-					} else {
-						filename = filename + "_" + timeStamp;
-					}
-					newTCLFilePath = batchFolderPath + "/" + filename;
-				}
-			}
-			BufferedReader reader = new BufferedReader(new StringReader(buffer.getContent()));
-
-			BufferedWriter batchWriter = new BufferedWriter(new FileWriter(newTCLFilePath, false));
-			
-			String line = null;
 			try {
-				while((line = reader.readLine()) != null) {
-//					if (escapeBrackets) {
-//						line = line.replace("{", "\\{").replace("}", "\\}").replace("\"", "\\\"");
-//					}
-//					asyncSend("exe append " + line, null, ISicsProxy.CHANNEL_RAW_BATCH);
-					batchWriter.write(line + "\n");
+				String newTCLFilePath = batchFolderPath + "/" + filename;
+				logger.warn("create buffer file in the shared batch folder " + newTCLFilePath);
+				File checkFile = new File(newTCLFilePath);
+				if (checkFile.exists()) {
+					if (!checkFile.delete()) {
+						String timeStamp = new SimpleDateFormat("yyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+						if (filename.contains(".")) {
+							int dotIndex = filename.lastIndexOf(".");
+							filename = filename.substring(0, dotIndex) + "_" + timeStamp + filename.substring(dotIndex, filename.length());
+						} else {
+							filename = filename + "_" + timeStamp;
+						}
+						newTCLFilePath = batchFolderPath + "/" + filename;
+					}
 				}
+				BufferedReader reader = new BufferedReader(new StringReader(buffer.getContent()));
+
+				BufferedWriter batchWriter = new BufferedWriter(new FileWriter(newTCLFilePath, false));
+				
+				String line = null;
+				try {
+					while((line = reader.readLine()) != null) {
+//						if (escapeBrackets) {
+//							line = line.replace("{", "\\{").replace("}", "\\}").replace("\"", "\\\"");
+//						}
+//						asyncSend("exe append " + line, null, ISicsProxy.CHANNEL_RAW_BATCH);
+						batchWriter.write(line + "\n");
+					}
+				} catch (Exception e) {
+//					handleExecutionEvent("failed to append line: " + line);
+					handleException("failed to append line: " + line);
+				} finally {
+					batchWriter.flush();
+					batchWriter.close();
+					reader.close();
+				}
+				logger.warn("finished creating file " + newTCLFilePath);
 			} catch (Exception e) {
-//				handleExecutionEvent("failed to append line: " + line);
-				handleException("failed to append line: " + line);
-			} finally {
-				batchWriter.flush();
-				batchWriter.close();
-				reader.close();
+				logger.error("failed to generate buffer file:" + e.getMessage());
+				throw new IOException(e);
 			}
+			
+			logger.warn("sending commands to SICS to run the buffer script.");
 			
 			// Enqueue (due to the delay in general channel, wait until it is ready)
 			final boolean[] enqueued = new boolean[] { false };
@@ -406,6 +416,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 					}
 					String timeStamp = new SimpleDateFormat("yyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 					String newFilename = folderProperty + "/" + timeStamp + "_" + buffer.getName();
+					logger.warn("backing up buffer file to path: " + newFilename);
 					if (!newFilename.toLowerCase().endsWith(".tcl")){
 						newFilename += ".tcl";
 					}
@@ -418,6 +429,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 					writer.flush();
 					writer.close();
 				} catch (Exception e) {
+					logger.error("failed to backup buffer file");
 				}
 			}
 			logger.warn("execute buffer " + buffer.getName() + " done");
