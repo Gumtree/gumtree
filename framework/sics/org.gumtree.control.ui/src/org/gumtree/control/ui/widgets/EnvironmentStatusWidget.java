@@ -18,14 +18,19 @@ public class EnvironmentStatusWidget extends ControllerStatusWidget {
 
 	private boolean isInitialised = false;
 	private static final String UNKNOWN_VALUE = "UNKNOWN";
-	
+	private static int COUNT;
+
 	public EnvironmentStatusWidget(Composite parent, int style) {
 		super(parent, style);
+		COUNT ++;
 	}
 
 	@Override
-	protected synchronized void handleSicsConnect() {
-		if (!isInitialised) {
+	protected synchronized void handleModelUpdate() {
+			if (isInitialised) {
+				disposeAllDevices();
+				isInitialised = false;
+			}
 			checkSicsConnection();
 			ISicsController controlFolder = SicsManager.getSicsModel().findControllerByPath("/control");
 			if (controlFolder != null) {
@@ -139,13 +144,13 @@ public class EnvironmentStatusWidget extends ControllerStatusWidget {
 					
 					@Override
 					public void run() {
-						render();
+//						render();
+						handleRender();
 					}
 				});
 				isInitialised = true;
 			}
 		}
-		super.handleSicsConnect();
-	}
+//		super.handleSicsConnect();
 
 }

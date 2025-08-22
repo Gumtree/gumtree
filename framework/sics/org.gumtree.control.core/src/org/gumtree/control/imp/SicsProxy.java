@@ -348,7 +348,9 @@ public class SicsProxy implements ISicsProxy {
 		synchronized (proxyListeners) {
 			for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
 				ISicsProxyListener listener = iter.next();
-				listener.interrupt(isInterrupted);
+				if (listener.isActive()) {
+					listener.interrupt(isInterrupted);
+				}
 			}
 		}
 	}
@@ -359,19 +361,23 @@ public class SicsProxy implements ISicsProxy {
 			if (isConnected) {
 				for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
 					ISicsProxyListener listener = iter.next();
-					try {
-						listener.connect();
-					} catch (Exception e) {
-						logger.error("failed fire connecting event", e);
+					if (listener.isActive()) {
+						try {
+							listener.connect();
+						} catch (Exception e) {
+							logger.error("failed fire connecting event", e);
+						}
 					}
 				}
 			} else {
 				for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
 					ISicsProxyListener listener = iter.next();
-					try {
-						listener.disconnect();
-					} catch (Exception e) {
-						logger.error("failed fire disconnecting event", e);
+					if (listener.isActive()) {
+						try {
+							listener.disconnect();
+						} catch (Exception e) {
+							logger.error("failed fire disconnecting event", e);
+						}
 					}
 				}
 			}
@@ -382,10 +388,12 @@ public class SicsProxy implements ISicsProxy {
 		synchronized (proxyListeners) {
 			for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
 				ISicsProxyListener listener = iter.next();
-				try {
-					listener.modelUpdated();
-				} catch (Exception e) {
-					logger.error("failed fire model updating event", e);
+				if (listener.isActive()) {
+					try {
+						listener.modelUpdated();
+					} catch (Exception e) {
+						logger.error("failed fire model updating event", e);
+					}
 				}
 			}
 //			System.err.println("fire model updated");
@@ -396,10 +404,12 @@ public class SicsProxy implements ISicsProxy {
 		synchronized (proxyListeners) {
 			for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
 				ISicsProxyListener listener = iter.next();
-				try {
-					listener.proxyConnectionReqested();
-				} catch (Exception e) {
-					logger.error("failed fire connection broken event", e);
+				if (listener.isActive()) {
+					try {
+						listener.proxyConnectionReqested();
+					} catch (Exception e) {
+						logger.error("failed fire connection broken event", e);
+					}
 				}
 			}
 //		System.err.println("fire connection broken");
@@ -410,10 +420,12 @@ public class SicsProxy implements ISicsProxy {
 		synchronized (proxyListeners) {
 			for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
 				ISicsProxyListener listener = iter.next();
-				try {
-					listener.setStatus(status);
-				} catch (Exception e) {
-					logger.error("failed fire status changing event", e);
+				if (listener.isActive()) {
+					try {
+						listener.setStatus(status);
+					} catch (Exception e) {
+						logger.error("failed fire status changing event", e);
+					}
 				}
 			}
 		}

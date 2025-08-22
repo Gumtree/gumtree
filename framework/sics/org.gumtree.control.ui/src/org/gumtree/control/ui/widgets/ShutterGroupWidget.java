@@ -40,7 +40,7 @@ public class ShutterGroupWidget extends ExtendedWidgetComposite {
 
 	private Set<Context> contexts;
 
-	private ISicsProxyListener proxyListener;
+//	private ISicsProxyListener proxyListener;
 
 	public ShutterGroupWidget(Composite parent, int style) {
 		super(parent, style);
@@ -137,29 +137,14 @@ public class ShutterGroupWidget extends ExtendedWidgetComposite {
 //			}
 //		};
 		
-//		proxyListener = new SicsProxyListenerAdapter() {
-//			
-//			@Override
-//			public void disconnect() {
-//				handleSicsDisconnect();
-//			}
-//			
-//			@Override
-//			public void connect() {
-//				handleSicsConnect();
-//			}
-//
-//		};
-		ISicsProxy proxy = SicsManager.getSicsProxy();
-//		proxy.addProxyListener(proxyListener);
-		
-		if (proxy.isConnected()) {
-			handleSicsConnect();
-		}
 	}
 
 	@Override
 	protected void handleSicsConnect() {
+	}
+
+	@Override
+	protected void handleModelUpdate() {
 		if (contexts == null) {
 			return;
 		}
@@ -172,7 +157,11 @@ public class ShutterGroupWidget extends ExtendedWidgetComposite {
 			e.printStackTrace();
 		}
 	}
-
+	
+	@Override
+	protected void handleStatusUpdate(ServerStatus status) {
+	}
+	
 	private void initiateLabel(Context context) {
 		ISicsController controller = SicsManager.getSicsModel().findControllerByPath(context.path);
 		if (controller != null && controller instanceof IDynamicController) {
@@ -259,10 +248,6 @@ public class ShutterGroupWidget extends ExtendedWidgetComposite {
 	
 	@Override
 	protected void disposeWidget() {
-		if (proxyListener != null) {
-			SicsManager.getSicsProxy().removeProxyListener(proxyListener);
-			proxyListener = null;
-		}
 		if (contexts != null) {
 			for (Context context : contexts) {
 				if (context.listener != null) {
@@ -274,6 +259,7 @@ public class ShutterGroupWidget extends ExtendedWidgetComposite {
 		}
 		dataAccessManager = null;
 		delayEventExecutor = null;
+		super.disposeWidget();
 	}
 
 	/*************************************************************************

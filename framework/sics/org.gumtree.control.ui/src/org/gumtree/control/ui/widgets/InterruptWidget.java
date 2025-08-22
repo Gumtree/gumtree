@@ -12,6 +12,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.ui.viewer.InternalImage;
 import org.gumtree.widgets.swt.util.SafeUIRunner;
@@ -60,6 +61,14 @@ public class InterruptWidget extends ExtendedWidgetComposite {
 		});
 	}
 
+	@Override
+	protected void handleModelUpdate() {
+	}
+	
+	@Override
+	protected void handleStatusUpdate(ServerStatus status) {
+	}
+	
 	@Override
 	protected void handleRender() {
 		GridLayoutFactory.swtDefaults().applyTo(this);

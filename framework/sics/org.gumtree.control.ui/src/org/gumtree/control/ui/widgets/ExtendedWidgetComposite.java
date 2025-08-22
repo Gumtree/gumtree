@@ -5,7 +5,9 @@ import javax.annotation.PostConstruct;
 import org.eclipse.swt.widgets.Composite;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ISicsProxy;
+import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.JobRunner;
@@ -16,7 +18,8 @@ public abstract class ExtendedWidgetComposite extends ExtendedComposite {
 
 	private static final int SICS_CONNECTION_TIMEOUT = 5000;
 	
-	private EventHandler sicsProxyEventHandler;
+//	private EventHandler sicsProxyEventHandler;
+	private ISicsProxyListener proxyListener;
 
 	public ExtendedWidgetComposite(Composite parent, int style) {
 		super(parent, style);
@@ -31,15 +34,22 @@ public abstract class ExtendedWidgetComposite extends ExtendedComposite {
 	
 	@Override
 	protected void disposeWidget() {
-		if (sicsProxyEventHandler != null) {
-			sicsProxyEventHandler.deactivate();
-			sicsProxyEventHandler = null;
+//		if (sicsProxyEventHandler != null) {
+//			sicsProxyEventHandler.deactivate();
+//			sicsProxyEventHandler = null;
+//		}
+		if (proxyListener != null) {
+			SicsManager.getSicsProxy().removeProxyListener(proxyListener);
 		}
 	}
 
 	protected abstract void handleSicsConnect();
 
 	protected abstract void handleSicsDisconnect();
+	
+	protected abstract void handleModelUpdate();
+	
+	protected abstract void handleStatusUpdate(ServerStatus status);
 
 	protected abstract void handleRender();
 
@@ -49,11 +59,11 @@ public abstract class ExtendedWidgetComposite extends ExtendedComposite {
 
 	protected void bindSicsProxy() {
 		ISicsProxy proxy = SicsManager.getSicsProxy();
-//		if (!proxy.isConnected()) {
-//			return;
-//		}
-		internalHandleSicsConnect();
-		proxy.addProxyListener(new SicsProxyListenerAdapter() {
+		if (proxy.isConnected()) {
+			handleSicsConnect();
+		}
+//		internalHandleSicsConnect();
+		proxyListener = new SicsProxyListenerAdapter() {
 			
 			@Override
 			public void disconnect() {
@@ -63,29 +73,36 @@ public abstract class ExtendedWidgetComposite extends ExtendedComposite {
 			@Override
 			public void connect() {
 //				internalHandleSicsConnect();
+				handleSicsConnect();
 			}
 
 			@Override
 			public void modelUpdated() {
-				internalHandleSicsConnect();
+				handleModelUpdate();
 			}
-		});
+			
+			@Override
+			public void setStatus(ServerStatus newStatus) {
+				handleStatusUpdate(newStatus);
+			}
+		};
+		proxy.addProxyListener(proxyListener);
 	}
 	
-	protected void internalHandleSicsConnect() {
-		JobRunner.run(new ILoopExitCondition() {
-			public boolean getExitCondition() {
-//				return SicsManager.getSicsProxy().isConnected();
-				return true;
-			}
-		}, new Runnable() {
-			public void run() {
-				if (SicsManager.getSicsProxy().isModelAvailable()) {
-					handleSicsConnect();
-				}
-			}
-		}, 500);
-	}
+//	protected void internalHandleSicsConnect() {
+//		JobRunner.run(new ILoopExitCondition() {
+//			public boolean getExitCondition() {
+////				return SicsManager.getSicsProxy().isConnected();
+//				return true;
+//			}
+//		}, new Runnable() {
+//			public void run() {
+//				if (SicsManager.getSicsProxy().isModelAvailable()) {
+//					handleSicsConnect();
+//				}
+//			}
+//		}, 500);
+//	}
 
 	protected void checkSicsConnection() {
 		int counter = 0;

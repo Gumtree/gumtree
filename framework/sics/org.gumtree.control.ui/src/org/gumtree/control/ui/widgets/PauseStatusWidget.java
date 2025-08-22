@@ -50,7 +50,7 @@ public class PauseStatusWidget extends ExtendedWidgetComposite {
 	
 	private Image continueImage;
 	
-	private ISicsProxyListener proxyListener;
+//	private ISicsProxyListener proxyListener;
 	
 	private boolean isRequested = false;
 	
@@ -87,35 +87,44 @@ public class PauseStatusWidget extends ExtendedWidgetComposite {
 		});
 		this.layout(true, true);
 		// Set UI status
-		proxyListener = new SicsProxyListenerAdapter() {
-			
-			@Override
-			public void disconnect() {
-				handleSicsDisconnect();
-			}
-			
-			@Override
-			public void connect() {
-				handleSicsConnect();
-			}
-
-			@Override
-			public void setStatus(ServerStatus newStatus) {
-				handleStatusChange(newStatus);
-			}
-
-		};
-		ISicsProxy proxy = SicsManager.getSicsProxy();
-		proxy.addProxyListener(proxyListener);
-		
-		if (proxy.isConnected()) {
-			handleSicsConnect();
-		}
+//		proxyListener = new SicsProxyListenerAdapter() {
+//			
+//			@Override
+//			public void disconnect() {
+//				handleSicsDisconnect();
+//			}
+//			
+//			@Override
+//			public void connect() {
+//				handleSicsConnect();
+//			}
+//
+//			@Override
+//			public void setStatus(ServerStatus newStatus) {
+//				handleStatusChange(newStatus);
+//			}
+//
+//		};
+//		ISicsProxy proxy = SicsManager.getSicsProxy();
+//		proxy.addProxyListener(proxyListener);
+//		
+//		if (proxy.isConnected()) {
+//			handleSicsConnect();
+//		}
 		// Register proxy listener
 	}
 
 	protected void handleSicsConnect() {
 		updateUI(null);
+	}
+	
+	@Override
+	protected void handleModelUpdate() {
+	}
+	
+	@Override
+	protected void handleStatusUpdate(ServerStatus status) {
+		updateUI(status);
 	}
 	
 	protected void handleSicsDisconnect() {
@@ -126,10 +135,6 @@ public class PauseStatusWidget extends ExtendedWidgetComposite {
 		updateUI(null);
 	}
 	
-	private void handleStatusChange(ServerStatus newStatus) {
-		updateUI(newStatus);
-	}
-
 	private void togglePause() {
 		try {
 			// Action: interrupt SICS
@@ -152,18 +157,23 @@ public class PauseStatusWidget extends ExtendedWidgetComposite {
 		}
 	}
 	
-	public void widgetDispose() {
-		if (proxyListener != null) {
-			SicsManager.getSicsProxy().removeProxyListener(proxyListener);
-			proxyListener = null;
-		}
+	@Override
+	protected void disposeWidget() {
 		if (handCursor != null) {
 			handCursor.dispose();
 			handCursor = null;
 		}
 		buttonLabel = null;
 		statusLabel = null;
+		super.disposeWidget();
 	}
+	
+//	public void widgetDispose() {
+//		if (proxyListener != null) {
+//			SicsManager.getSicsProxy().removeProxyListener(proxyListener);
+//			proxyListener = null;
+//		}
+//	}
 	
 	private void updateUI(ServerStatus status) {
 		if (buttonLabel != null && !buttonLabel.isDisposed()) {

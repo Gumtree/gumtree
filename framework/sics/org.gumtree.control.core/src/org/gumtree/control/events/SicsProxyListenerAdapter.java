@@ -11,6 +11,8 @@ import org.gumtree.control.core.ServerStatus;
  */
 public abstract class SicsProxyListenerAdapter implements ISicsProxyListener {
 
+	public boolean isActive = true;
+	
 	/* (non-Javadoc)
 	 * @see org.gumtree.control.events.ISicsProxyListener#connect()
 	 */
@@ -48,5 +50,20 @@ public abstract class SicsProxyListenerAdapter implements ISicsProxyListener {
 
 	@Override
 	public void proxyConnectionReqested() {
+	}
+	
+	@Override
+	public void activate() {
+		isActive = true;
+	}
+	
+	@Override
+	public void deactivate() {
+		isActive = false;
+	}
+	
+	@Override
+	public boolean isActive() {
+		return isActive;
 	}
 }

@@ -8,7 +8,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.emf.common.util.URI;
@@ -18,6 +20,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.sdo.EDataGraph;
 import org.eclipse.emf.ecore.sdo.SDOFactory;
 import org.eclipse.emf.ecore.sdo.util.SDOUtil;
+import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.gumtree.control.batch.tasks.PropertySelectionCriterion;
 import org.gumtree.control.core.IDriveableController;
 import org.gumtree.control.core.ISicsConnectionContext;
@@ -88,6 +91,10 @@ public class ModelUtils {
 				new HipadabaResourceFactoryImpl());
 		Resource resource = resourceSet.createResource(URI
 				.createURI("all.hipadaba"), "hipadaba");
+//		Map<String, Object> options = new HashMap<String, Object>();
+//		options.put(XMLResource.OPTION_ESCAPE_USING_CDATA, //ENTITY_RESOLVER, 
+//				true);
+//		resource.load(inputStream, options);
 		resource.load(inputStream, null);
 		Object content = resource.getContents().get(0);
 		SICS sicsModel = null;

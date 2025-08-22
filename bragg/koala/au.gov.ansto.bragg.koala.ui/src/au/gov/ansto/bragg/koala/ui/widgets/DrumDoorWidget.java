@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Label;
 import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ISicsProxy;
+import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
@@ -44,7 +45,7 @@ public class DrumDoorWidget extends ExtendedWidgetComposite {
 
 	private Set<Context> contexts;
 
-	private ISicsProxyListener proxyListener;
+//	private ISicsProxyListener proxyListener;
 
 	private float dataLeft = -1;
 	private float dataRight = -1;
@@ -133,29 +134,33 @@ public class DrumDoorWidget extends ExtendedWidgetComposite {
 //			}
 //		};
 		
-		proxyListener = new SicsProxyListenerAdapter() {
-			
-			@Override
-			public void disconnect() {
-				handleSicsDisconnect();
-			}
-			
-			@Override
-			public void modelUpdated() {
-				handleSicsConnect();
-			}
-
-		};
-		ISicsProxy proxy = SicsManager.getSicsProxy();
-		proxy.addProxyListener(proxyListener);
-		
-		if (proxy.isConnected()) {
-			handleSicsConnect();
-		}
+//		proxyListener = new SicsProxyListenerAdapter() {
+//			
+//			@Override
+//			public void disconnect() {
+//				handleSicsDisconnect();
+//			}
+//			
+//			@Override
+//			public void modelUpdated() {
+//				handleSicsConnect();
+//			}
+//
+//		};
+//		ISicsProxy proxy = SicsManager.getSicsProxy();
+//		proxy.addProxyListener(proxyListener);
+//		
+//		if (proxy.isConnected()) {
+//			handleSicsConnect();
+//		}
 	}
 
 	@Override
 	protected void handleSicsConnect() {
+	}
+
+	@Override
+	protected void handleModelUpdate() {
 		if (contexts == null) {
 			return;
 		}
@@ -169,6 +174,10 @@ public class DrumDoorWidget extends ExtendedWidgetComposite {
 		}
 	}
 
+	@Override
+	protected void handleStatusUpdate(ServerStatus status) {
+	}
+	
 	private void initiateLabel(Context context) {
 		ISicsController controllerLeft = SicsManager.getSicsModel().findControllerByPath(context.pathLeft);
 		ISicsController controllerRight = SicsManager.getSicsModel().findControllerByPath(context.pathRight);
@@ -279,10 +288,10 @@ public class DrumDoorWidget extends ExtendedWidgetComposite {
 	
 	@Override
 	protected void disposeWidget() {
-		if (proxyListener != null) {
-			SicsManager.getSicsProxy().removeProxyListener(proxyListener);
-			proxyListener = null;
-		}
+//		if (proxyListener != null) {
+//			SicsManager.getSicsProxy().removeProxyListener(proxyListener);
+//			proxyListener = null;
+//		}
 		if (contexts != null) {
 			for (Context context : contexts) {
 				if (context.listenerLeft != null || context.listenerRight != null) {
@@ -294,6 +303,7 @@ public class DrumDoorWidget extends ExtendedWidgetComposite {
 		}
 		dataAccessManager = null;
 		delayEventExecutor = null;
+		super.disposeWidget();
 	}
 
 	/*************************************************************************

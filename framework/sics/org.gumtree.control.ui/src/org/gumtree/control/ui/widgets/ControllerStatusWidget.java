@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Label;
 import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ISicsProxy;
+import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
@@ -48,7 +49,7 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 	private Set<LabelContext> labelContexts;
 
 //	private IFilteredEventHandler<SicsControllerEvent> eventHandler;
-	private ISicsProxyListener proxyListener;
+//	private ISicsProxyListener proxyListener;
 	
 	private boolean isExpandingEnabled = true;
 
@@ -104,27 +105,27 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 			}
 		}
 
-		proxyListener = new SicsProxyListenerAdapter() {
-			
-			@Override
-			public void modelUpdated() {
-				handleSicsConnect();
-			}
-			
-			@Override
-			public void disconnect() {
-				handleSicsDisconnect();
-			}
-
-		};
-		ISicsProxy proxy = SicsManager.getSicsProxy();
-		proxy.addProxyListener(proxyListener);
-		
-		if (proxy.isModelAvailable()) {
-			handleSicsConnect();
-		}
+//		proxyListener = new SicsProxyListenerAdapter() {
+//			
+//			@Override
+//			public void modelUpdated() {
+//				handleModelUpdate();
+//			}
+//			
+//			@Override
+//			public void disconnect() {
+//				handleSicsDisconnect();
+//			}
+//
+//		};
+//		ISicsProxy proxy = SicsManager.getSicsProxy();
+//		proxy.addProxyListener(proxyListener);
+//		
+//		if (proxy.isModelAvailable()) {
+//			handleSicsConnect();
+//		}
 	}
-
+	
 	private Label createUnitsLabel(DeviceContext deviceContext) {
 		if (deviceContext.unit != null) {
 			return getWidgetFactory().createLabel(this, deviceContext.unit, SWT.LEFT);
@@ -182,7 +183,7 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 			});
 		}
 	}
-	
+
 	@Override
 	protected void handleSicsConnect() {
 		if (labelContexts == null) {
@@ -191,9 +192,49 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 //		checkSicsConnection();
 		try {
 			for (final LabelContext labelContext : labelContexts) {
+				reloadLabel(labelContext.path, 
+						labelContext.label, labelContext.converter, labelContext.colorConverter);
+				if (labelContext.showSoftLimits) {
+					reloadLabel(labelContext.path + "/softlowerlim", 
+						labelContext.lowerlimLabel, null, labelContext.colorConverter);
+					reloadLabel(labelContext.path + "/softupperlim", 
+							labelContext.upperlimLabel, null, labelContext.colorConverter);
+					reloadLabel(labelContext.path + "/softzero", 
+							labelContext.softzeroLabel, null, labelContext.colorConverter);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	protected void handleStatusUpdate(ServerStatus status) {
+	}
+	
+	@Override
+	protected void handleModelUpdate() {
+		if (labelContexts == null) {
+			return;
+		}
+//		checkSicsConnection();
+		try {
+			for (final LabelContext labelContext : labelContexts) {
+				if (labelContext.listener != null) {
+					labelContext.listener.updateEnabled(false);
+				}
 				labelContext.listener = initiateLabel(labelContext.path, 
 						labelContext.label, labelContext.converter, labelContext.colorConverter);
 				if (labelContext.showSoftLimits) {
+					if (labelContext.lowerlimListener != null) {
+						labelContext.lowerlimListener.updateEnabled(false);
+					}
+					if (labelContext.upperlimListener != null) {
+						labelContext.upperlimListener.updateEnabled(false);
+					}
+					if (labelContext.softzeroListener != null) {
+						labelContext.softzeroListener.updateEnabled(false);
+					}
 					labelContext.lowerlimListener = initiateLabel(labelContext.path + "/softlowerlim", 
 						labelContext.lowerlimLabel, null, labelContext.colorConverter);
 					labelContext.upperlimListener = initiateLabel(labelContext.path + "/softupperlim", 
@@ -207,6 +248,18 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 		}
 	}
 
+	private void reloadLabel(String path, Label label, LabelConverter converter, ColorConverter colorConverter) {
+		ISicsController controller = SicsManager.getSicsModel().findControllerByPath(path);
+		if (controller != null && controller instanceof IDynamicController) {
+			String data;
+			try {
+				data = String.valueOf(((IDynamicController) controller).getValue());
+				updateLabelText(label, data, converter);
+			} catch (SicsModelException e) {
+			}
+		}
+	}
+	
 	private ISicsControllerListener initiateLabel(String path, Label label, LabelConverter converter, ColorConverter colorConverter) {
 		ISicsController controller = SicsManager.getSicsModel().findControllerByPath(path);
 		if (controller != null && controller instanceof IDynamicController) {
@@ -265,10 +318,10 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 			labelContexts.clear();
 			labelContexts = null;
 		}
-		if (proxyListener != null) {
-			SicsManager.getSicsProxy().removeProxyListener(proxyListener);
-			proxyListener = null;
-		}
+//		if (proxyListener != null) {
+//			SicsManager.getSicsProxy().removeProxyListener(proxyListener);
+//			proxyListener = null;
+//		}
 		dataAccessManager = null;
 		delayEventExecutor = null;
 		super.disposeWidget();
@@ -467,19 +520,23 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 		LabelConverter converter;
 		ColorConverter colorConverter;
 		Color currentColor;
+		boolean isEnabled;
 		
 		public SicsControllerListener(Label widget, LabelConverter converter, ColorConverter colorConverter) {
 			this.widget = widget;
 			this.converter = converter;
 			this.colorConverter = colorConverter;
+			this.isEnabled = true;
 		}
 		
 		@Override
 		public void updateValue(Object oldValue, Object newValue) {
-			updateLabelText(widget, String.valueOf(newValue), converter);
-			if (colorConverter != null) {
-				currentColor = colorConverter.convertColor(newValue);
-				updateWidgetState(widget, null, currentColor);
+			if (isEnabled) {
+				updateLabelText(widget, String.valueOf(newValue), converter);
+				if (colorConverter != null) {
+					currentColor = colorConverter.convertColor(newValue);
+					updateWidgetState(widget, null, currentColor);
+				}
 			}
 		}
 		
@@ -489,11 +546,21 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 		
 		@Override
 		public void updateState(ControllerState oldState, ControllerState newState) {
-			updateWidgetState(widget, newState, currentColor);
+			if (isEnabled) {
+				updateWidgetState(widget, newState, currentColor);
+			}
 		}
 		
 		@Override
 		public void updateEnabled(boolean isEnabled) {
+			this.isEnabled = isEnabled;
+		}
+		
+		public void dispose() {
+			this.widget = null;
+			this.converter = null;
+			this.colorConverter = null;
+			this.isEnabled = false;
 		}
 	}
 	
@@ -639,4 +706,38 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 		}
 	}
 
+	protected void disposeAllDevices() {
+		if (deviceContexts == null) {
+			return;
+		}
+		try {
+			for (final LabelContext labelContext : labelContexts) {
+				if (labelContext.listener != null) {
+					((SicsControllerListener) labelContext.listener).dispose();
+				}
+				if (labelContext.showSoftLimits) {
+					if (labelContext.lowerlimListener != null) {
+						((SicsControllerListener) labelContext.lowerlimListener).dispose();
+					}
+					if (labelContext.upperlimListener != null) {
+						((SicsControllerListener) labelContext.upperlimListener).dispose();
+					}
+					if (labelContext.softzeroListener != null) {
+						((SicsControllerListener) labelContext.softzeroListener).dispose();
+					}
+				}
+			}
+			labelContexts.clear();
+			SafeUIRunner.asyncExec(new SafeRunnable() {
+				@Override
+				public void run() throws Exception {
+					for (Control child : getChildren()) {
+						child.dispose();
+					}
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

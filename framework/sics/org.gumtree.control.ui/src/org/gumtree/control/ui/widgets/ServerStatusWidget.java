@@ -24,7 +24,7 @@ public class ServerStatusWidget extends ExtendedWidgetComposite {
 
 	private Label statusLabel;
 	private Button reconnectButton;
-	private ISicsProxyListener proxyListener;
+//	private ISicsProxyListener proxyListener;
 
 	public ServerStatusWidget(Composite parent, int style) {
 		super(parent, style);
@@ -42,9 +42,17 @@ public class ServerStatusWidget extends ExtendedWidgetComposite {
 	@Override
 	protected void handleSicsConnect() {
 		updateUI(null);
-		
 	}
 
+	@Override
+	protected void handleModelUpdate() {
+	}
+	
+	@Override
+	protected void handleStatusUpdate(ServerStatus status) {
+		updateUI(status);
+	}
+	
 	@Override
 	protected void handleSicsDisconnect() {
 		updateUI(null);
@@ -76,38 +84,14 @@ public class ServerStatusWidget extends ExtendedWidgetComposite {
 				
 			}
 		});
-		proxyListener = new SicsProxyListenerAdapter() {
-			
-			@Override
-			public void disconnect() {
-//				handleSicsDisconnect();
-			}
-			
-			@Override
-			public void connect() {
-//				handleSicsConnect();
-			}
-
-			@Override
-			public void setStatus(ServerStatus newStatus) {
-				updateUI(newStatus);
-			}
-		};
-		ISicsProxy proxy = SicsManager.getSicsProxy();
-		proxy.addProxyListener(proxyListener);
-		
-		if (proxy.isConnected()) {
-			handleSicsConnect();
-//			internalHandleSicsConnect();
-		}
 	}
 
 	@Override
 	protected void disposeWidget() {
-		if (proxyListener != null) {
-			SicsManager.getSicsProxy().removeProxyListener(proxyListener);
-			proxyListener = null;
-		}
+//		if (proxyListener != null) {
+//			SicsManager.getSicsProxy().removeProxyListener(proxyListener);
+//			proxyListener = null;
+//		}
 		statusLabel = null;
 		super.disposeWidget();
 	}

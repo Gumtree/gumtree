@@ -10,5 +10,7 @@ public interface ISicsProxyListener {
 	void interrupt(boolean isInterrupted);
 	void setStatus(ServerStatus newStatus);
 	void proxyConnectionReqested();
-
+	void activate();
+	void deactivate();
+	boolean isActive();
 }
