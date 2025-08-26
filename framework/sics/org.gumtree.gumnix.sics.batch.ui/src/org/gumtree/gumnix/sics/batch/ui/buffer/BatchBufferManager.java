@@ -49,7 +49,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 	// Schedule to check queue every 1s
 	private static final int SCHEDULING_INTERVAL = 1000;
 	
-	private static final Logger logger = LoggerFactory.getLogger(BatchBufferManager.class);
+	static final Logger logger = LoggerFactory.getLogger(BatchBufferManager.class);
 	
 	// The batch buffer container
 	private BatchBufferQueue batchBufferQueue;
