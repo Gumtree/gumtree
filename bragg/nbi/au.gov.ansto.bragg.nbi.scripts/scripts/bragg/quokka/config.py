@@ -6,6 +6,9 @@ from bragg.quokka.quokka import *
 
 from org.gumtree.gumnix.sics.control import ServerStatus
 
+def console_log(text, f_err = False):
+    log(text)
+    
 class ConfigSystem :
 
     _property_list = ['__is_dirty__',
@@ -20,8 +23,9 @@ class ConfigSystem :
                        'bs',
                        'beamcenterx',
                        'beamcenterz',
+                       'log',
                        ]
-    def __init__(self):
+    def __init__(self, slog = None):
         self.__is_dirty__ = False
         self.att = None
         self.wavelength = None
@@ -34,10 +38,14 @@ class ConfigSystem :
         self.bs = None
         self.beamcenterx = None
         self.beamcenterz = None
+        if slog is None:
+            self.log = console_log
+        else:
+            self.log = slog
 
     def __setattr__(self, name, value):
         if name == 'att' and value != 330 and not value is None:
-            log('att can not be changed; use 330 instead')
+            self.log('att can not be changed; use 330 instead', True)
             return
         if name == 'bs' and not value is None :
             if value < 1 or value > 6:
@@ -72,10 +80,10 @@ class ConfigSystem :
         if not self.wavelength is None:
             if (self.need_drive_lambda(self.wavelength)):
                 wavelengthFlag = True
-                log('run nvs_lambda ' + str(self.wavelength))
+                self.log('run nvs_lambda ' + str(self.wavelength))
                 self.run_nvs_lambda(self.wavelength)
             else :
-                log('lambda is already at ' + str(self.wavelength) + ', skip driving nvs_lambda')
+                self.log('lambda is already at ' + str(self.wavelength) + ', skip driving nvs_lambda')
         cmd = 'drive'
         if self.need_drive_det():
             cmd += ' det ' + str(self.det)
@@ -91,11 +99,12 @@ class ConfigSystem :
         if not self.apx is None:
             cmd += ' apx ' + str(self.apx)
         if not cmd == 'drive':
-            log(cmd)
+            self.log(cmd)
             res = sics.run_command_timeout(cmd, True, 15*60)
-            if not res is None and res.find('Full Stop') >= 0:
+            if not res is None and res.find('ERROR') >= 0:
+                self.log(res)
                 raise Exception, res
-            log('finished multi-drive')
+            self.log('finished multi-drive')
         if wavelengthFlag:
             self.check_nvs_lambda(self.wavelength)
                 
@@ -108,7 +117,7 @@ class ConfigSystem :
             cur = sics.get_raw_value('nvs_lambda')
 #           pre = sics.get_raw_value('nvs_lambda precision')
             if cur is None:
-                log('timeout getting current wavelength, drive it anyway')
+                self.log('timeout getting current wavelength, drive it anyway', True)
                 return True
             pre = 0.049
             if abs(cur - val) < pre:
@@ -116,7 +125,7 @@ class ConfigSystem :
             else:
                 return True
         except:
-            log('failed to get current wavelength, drive it anyway')
+            self.log('failed to get current wavelength, drive it anyway', True)
             return True
         
     def check_nvs_lambda(self, val):
@@ -132,14 +141,14 @@ class ConfigSystem :
                 pre = 0.1
                 if abs(cur - val) < pre:
                     sics.execute('stopexe nvs_lambda')
-                    log('wavelength is ' + str(cur))
+                    self.log('wavelength is ' + str(cur))
                     return True
                 else:
                     try:
                         time.sleep(interval)
                         count += interval
                     except KeyboardInterrupt as ei:
-                        log('Interrupted')
+                        self.log('Interrupted', True)
                         raise Exception, 'interrupted'
                         break;
             except:
@@ -147,26 +156,26 @@ class ConfigSystem :
                     time.sleep(interval)
                     count += interval
                 except KeyboardInterrupt as ei:
-                    log('Interrupted')
+                    self.log('Interrupted', True)
                     raise Exception, 'interrupted'
                     break;
         if sics.isInterrupt():
             sics.clearInterrupt()
             raise Exception, 'interrupted'
         sics.execute('stopexe nvs_lambda')
-        log('WARNING: timeout in driving nvs_lambda, but choose to continue.')
+        self.log('WARNING: timeout in driving nvs_lambda, but choose to continue.', True)
         
     def multi_set(self):
         if not self.wavelength is None:
             sics.set('/instrument/velocity_selector/wavelength', self.wavelength)
         if not self.wavelength_spread is None:
-            log('set wavelength_spread to ' + str(self.wavelength_spread))
+            self.log('set wavelength_spread to ' + str(self.wavelength_spread))
             sics.set('/instrument/velocity_selector/wavelength_spread', self.wavelength_spread)
         if not self.beamcenterx is None :
-            log('set beam centre x to ' + str(self.beamcenterx))
+            self.log('set beam centre x to ' + str(self.beamcenterx))
             sics.set('beamcenterx', self.beamcenterx)
         if not self.beamcenterz is None :
-            log('set beam centre z to ' + str(self.beamcenterz))
+            self.log('set beam centre z to ' + str(self.beamcenterz))
             sics.set('beamcenterz', self.beamcenterz)
 
     def need_drive_det(self):
@@ -188,12 +197,13 @@ class ConfigSystem :
 
     def drive(self):
         if self.__is_dirty__ :
+            self.log("raise att to 330")
             driveAtt(330)
         else:
             return
         try:
             sics.clearInterrupt()
-            log('starting configuration')
+            self.log('starting configuration')
             
             if not self.bs is None:
                 selBs(self.bs)
@@ -204,8 +214,9 @@ class ConfigSystem :
             
         finally:
             self.clear()
-        log('skipping status checking')
+        self.log('skipping status checking')
 #    while not sics.get_status().equals(ServerStatus.EAGER_TO_EXECUTE) :
 #            time.sleep(0.3)
         sics.handleInterrupt()
-        log('configuration is finished')
+        self.log('configuration is finished')
+

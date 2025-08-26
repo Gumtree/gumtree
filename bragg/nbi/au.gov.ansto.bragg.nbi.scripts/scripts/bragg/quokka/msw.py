@@ -7,7 +7,7 @@ import sys
 
 
 # create config system for multi drive
-quokka.config = ConfigSystem()
+quokka.config = ConfigSystem(quokka.slog)
 
 
 def deferredCall(target, id):
@@ -15,9 +15,11 @@ def deferredCall(target, id):
     if info is not None:
         try:
             target(info)
-        except:
-            traceback.print_exc(file = sys.stderr)
+        except Exception as e:
+#             traceback.print_exc(file = sys.stderr)
+            tb_str = traceback.format_exc()
             info.interrupted = True
+            quokka.slog(tb_str, True)
             raise
 
     else:
