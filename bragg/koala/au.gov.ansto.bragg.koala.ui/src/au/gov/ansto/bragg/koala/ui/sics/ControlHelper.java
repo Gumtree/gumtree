@@ -438,6 +438,7 @@ public class ControlHelper {
 		ISicsController device = getModel().findController(deviceName);
 		if (device instanceof IDriveableController) {
 			try {
+				logger.warn("driving " + deviceName + " to " + value);
 				((IDriveableController) device).drive(value);
 			} catch (SicsException e) {
 				if (e instanceof SicsInterruptException) {
@@ -737,15 +738,26 @@ public class ControlHelper {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					logger.warn("Drum Down button pressed.");
-					Thread runThread = new Thread(new Runnable() {
+					
+					try {
+						boolean isInCollecation = CollectionHelper.isInCollection();
+						if (!isInCollecation) {
+							Thread runThread = new Thread(new Runnable() {
 
-						@Override
-						public void run() {
-							ControlHelper.concurrentDrive(System.getProperty(ControlHelper.DRUM_PATH), 
-										Float.valueOf(System.getProperty(ControlHelper.DRUM_DOWN_VALUE)));
+								@Override
+								public void run() {
+									ControlHelper.concurrentDrive(System.getProperty(ControlHelper.DRUM_PATH), 
+											Float.valueOf(System.getProperty(ControlHelper.DRUM_DOWN_VALUE)));
+								}
+							});
+							runThread.start();
+						} else {
+							experimentModel.publishErrorMessage("The 'Drum' button was pressed. Gumtree refused to move the drum during the image collection routine.");
 						}
-					});
-					runThread.start();
+					} catch (SicsModelException e1) {
+						experimentModel.publishErrorMessage("The 'Drum' button was pressed. Gumtree failed to determine the image collection status and refused to move the drum.");
+					}
+					
 				}
 				
 				@Override
@@ -879,29 +891,38 @@ public class ControlHelper {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					logger.warn("Sample Stage Up button pressed");
-					Thread runThread = new Thread(new Runnable() {
+					try {
+						boolean isInCollecation = CollectionHelper.isInCollection();
+						if (!isInCollecation) {
+							Thread runThread = new Thread(new Runnable() {
 
-						@Override
-						public void run() {
-							float target;
-							if (isUp) {
-								String value = Activator.getPreference(Activator.NAME_SZ_ALIGN);
-								if (value == null || value.length() == 0) {
-									value = System.getProperty(SZ_ZERO);
+								@Override
+								public void run() {
+									float target;
+									if (isUp) {
+										String value = Activator.getPreference(Activator.NAME_SZ_ALIGN);
+										if (value == null || value.length() == 0) {
+											value = System.getProperty(SZ_ZERO);
+										}
+										if (value == null || value.length() == 0) {
+											target = 0;									
+										} else {
+											target = Float.valueOf(value);
+										}
+									} else {
+										target = Float.valueOf(System.getProperty(ControlHelper.SZ_UP_VALUE));
+									}
+									ControlHelper.concurrentDrive(System.getProperty(ControlHelper.SZ_PATH), 
+												target);
 								}
-								if (value == null || value.length() == 0) {
-									target = 0;									
-								} else {
-									target = Float.valueOf(value);
-								}
-							} else {
-								target = Float.valueOf(System.getProperty(ControlHelper.SZ_UP_VALUE));
-							}
-							ControlHelper.concurrentDrive(System.getProperty(ControlHelper.SZ_PATH), 
-										target);
+							});
+							runThread.start();
+						} else {
+							experimentModel.publishErrorMessage("The 'Sample Stage Up/Down' button was pressed. Gumtree refused to move sz during the image collection routine.");
 						}
-					});
-					runThread.start();
+					} catch (SicsModelException e1) {
+						experimentModel.publishErrorMessage("The 'Sample Stage Up/Down' button was pressed. Gumtree failed to determine the image collection status and refused to move sz.");
+					}
 				}
 				
 				@Override

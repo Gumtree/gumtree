@@ -542,6 +542,12 @@ public class CollectionHelper {
 		return phase;
 	}
 
+	public static boolean isInCollection() throws SicsModelException {
+		ISicsController device = ControlHelper.getProxy().getSicsModel().findController(System.getProperty(ControlHelper.GALIL_STATUS));
+		int status = ((IDynamicController) device).getControllerDataValue().getIntData();
+		return status >= 256;
+	}
+		
 	public static int getErasureTime() {
 		int t = ControlHelper.ERASURE_TIME;
 		String eraTimeProp = Activator.getPreference(Activator.NAME_ERASURE_TIME);
