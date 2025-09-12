@@ -606,7 +606,7 @@ def scan(deviceName, start, stop, numpoints, scanMode, dataType, preset, force='
 
     # wait for instrument ready
     time.sleep(1)
-    control.wait_until_idle()
+#     control.wait_until_idle()
 
     df = False
     ct = 0
@@ -627,7 +627,8 @@ def scan(deviceName, start, stop, numpoints, scanMode, dataType, preset, force='
                         raise
 
     # Get output filename
-    control.wait_until_idle()
+#     control.wait_until_idle()
+    time.sleep(1)
     filenameController = control.get_controller('datafilename')
     savedFilename = filenameController.getValue()
     log('Saved to ' +  savedFilename)
@@ -653,7 +654,7 @@ def count(mode, dataType, preset, force='true', saveType=saveType.save):
 
     # wait for instrument ready
     time.sleep(1)
-    control.wait_until_idle()
+#     control.wait_until_idle()
         
     try:       
         scanController.run()
@@ -683,7 +684,7 @@ def scan10(sample_position, collect_time, sample_name = None, thickness = 0):
         
         control.execute('samplethickness ' + str(thickness))
 #        cur_samx = samx()
-        time.sleep(1)
+#         time.sleep(1)
         log("Collection time set to " + str(collect_time) + " seconds")
 #        control.execute('histmem mode time')
 #        control.execute('histmem preset ' +  str(collect_time))
@@ -711,7 +712,7 @@ def scan10(sample_position, collect_time, sample_name = None, thickness = 0):
         else:
             cur_samx = __sampleMap__[__sampleStage__][sample_position]
             scan('samx', cur_samx, cur_samx, 1, scanMode.time, dataType.HISTOGRAM_XYT, collect_time)
-        time.sleep(2)
+#         time.sleep(1)
         log(control.get_base_filename() + ' updated')
         log("Scan completed")
         if not sample_name is None:
