@@ -12,6 +12,7 @@
 package org.gumtree.scripting;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -123,6 +124,7 @@ public class ScriptExecutor implements IScriptExecutor {
 					} catch (Exception e) {
 						try {
 							engine.getContext().getErrorWriter().write(e.getMessage());
+//							e.printStackTrace((PrintWriter) engine.getContext().getErrorWriter());
 						} catch (IOException ioe) {
 							// Nothing more that I can do about
 							logger.error("Reporting error has encountered problem.", ioe);
@@ -149,6 +151,7 @@ public class ScriptExecutor implements IScriptExecutor {
 					} catch (Exception e) {
 						try {
 							engine.getContext().getErrorWriter().write(e.getMessage());
+							e.printStackTrace((PrintWriter) engine.getContext().getErrorWriter());
 						} catch (IOException ioe) {
 							// Nothing more that I can do about
 							logger.error("Report error problem.", ioe);
@@ -188,6 +191,7 @@ public class ScriptExecutor implements IScriptExecutor {
 					} catch (Exception e) {
 						try {
 							engine.getContext().getErrorWriter().write(e.getMessage());
+//							e.printStackTrace((PrintWriter) engine.getContext().getErrorWriter());
 						} catch (IOException ioe) {
 							// Nothing more that I can do about
 							logger.error("Report error problem.", ioe);
