@@ -11,6 +11,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -114,7 +117,9 @@ import org.gumtree.gumnix.sics.control.events.IDynamicControllerListener;
 import org.gumtree.gumnix.sics.core.SicsCore;
 import org.gumtree.gumnix.sics.io.SicsIOException;
 import org.gumtree.gumnix.sics.ui.SicsUIConstants;
+import org.gumtree.scripting.IScriptBlock;
 import org.gumtree.scripting.IScriptExecutor;
+import org.gumtree.scripting.ScriptBlock;
 import org.gumtree.scripting.ScriptExecutor;
 import org.gumtree.ui.scripting.viewer.ICommandLineViewer;
 
@@ -287,6 +292,12 @@ public class ScriptControlViewer extends Composite {
 	private Color defaultColor;
 	private Map<Integer, Composite> groupMap;
 
+	private FileDialog saveFileDialog;
+	private FileDialog scriptLoadDialog;
+	private FileDialog singleLoadDialog;
+	private FileDialog multiLoadDialog;
+	private DirectoryDialog saveFolderDialog;
+
 	
 	/**
 	 * @param parent
@@ -417,7 +428,7 @@ public class ScriptControlViewer extends Composite {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				FileDialog dialog = new FileDialog(getShell(), SWT.SINGLE);
+				FileDialog dialog = getScriptLoadDialog();
  				if (fileDialogPath == null){
  					String folderPath = System.getProperty(DEFAULT_SCRIPTING_FOLDER);
  					if (folderPath != null) {
@@ -890,8 +901,35 @@ public class ScriptControlViewer extends Composite {
 				String initFile = getScriptFilename();
 				if (initFile != null) {
 					try {
-						FileReader reader = new FileReader(initFile);
-						executor.runScript(reader);
+//						FileReader reader = new FileReader(initFile);
+//						Reader reader = new BufferedReader(new FileReader(initFile));
+//						Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(initFile)));
+						byte[] bytes = Files.readAllBytes(Paths.get(initFile));
+				        final String text = new String(bytes, StandardCharsets.UTF_8);
+//						BufferedReader reader = null;
+//						StringBuilder sb = new StringBuilder();
+//						try {
+//							reader = new BufferedReader(
+//					                new InputStreamReader(new FileInputStream(initFile), StandardCharsets.UTF_8));
+//				            String line;
+//				            while ((line = reader.readLine()) != null) {
+//				                sb.append(line).append("\n"); // keep newlines
+//				            }
+//
+//						} catch (Exception e) {
+//							handleException(e, "failed to load file: " + initFile);
+//						} finally {
+//							if (reader != null) { 
+//								reader.close();
+//							}
+//						}
+//				        final String text = sb.toString();
+				        IScriptBlock block = new ScriptBlock() {
+				        	public String getScript() {
+				        		return text;
+				        	}
+				        };
+						executor.runScript(block);
 						executor.runScript("t = logln( '<' + str(__script__.title) + '> loaded')");
 						while(executor.isBusy()) {
 							Thread.sleep(200);
@@ -951,7 +989,9 @@ public class ScriptControlViewer extends Composite {
 			
 			@Override
 			public void run() {
+				long ct = System.currentTimeMillis();
 				updateControlUI();
+				System.err.println("update UI: " + (System.currentTimeMillis() - ct));
 			}
 		});
 	}
@@ -970,15 +1010,21 @@ public class ScriptControlViewer extends Composite {
 //		for (Composite composite : groupMap.values()) {
 //			composite.dispose();
 //		}
+		scroll.setRedraw(false);
+		long ct1 = System.currentTimeMillis();
 		for (int id : groupMap.keySet()) {
 			Composite composite = groupMap.get(id);
 			composite.dispose();
 		}
-		
 		groupMap.clear();
 		for (Control control : dynamicComposite.getChildren()) {
 			control.dispose();
 		}
+
+		long ct2 = System.currentTimeMillis();
+		System.err.println("dispose=" + (ct2 - ct1));
+		ct1 = ct2;
+		
 		String title = scriptModel.getTitle();
 		if (title != "unknown") {
 			String version = scriptModel.getVersion();
@@ -1009,6 +1055,11 @@ public class ScriptControlViewer extends Composite {
 		List<ScriptObjectGroup> groups = scriptModel.getGroups();
 		List<IPyObject> objs = scriptModel.getControlList();
 		List<IPyObject> controls = prepareControlList(objs, tabs, groups);
+		
+		ct2 = System.currentTimeMillis();
+		System.err.println("prepare=" + (ct2 - ct1));
+		ct1 = ct2;
+		
 //		if (tabs.size() > 0) {
 //			addTabs(dynamicComposite, tabs);
 //		}
@@ -1027,17 +1078,30 @@ public class ScriptControlViewer extends Composite {
 				}
 			}
 		}
-		dynamicComposite.layout(true, true);
-		dynamicComposite.update();
-		dynamicComposite.redraw();
+		
+		ct2 = System.currentTimeMillis();
+		System.err.println("make=" + (ct2 - ct1));
+		ct1 = ct2;
+		
+//		dynamicComposite.layout(true, true);
+//		dynamicComposite.update();
+//		dynamicComposite.redraw();
+		
+		scroll.setRedraw(true);
 		Rectangle r = scroll.getClientArea();
 		scroll.setMinSize(dynamicComposite.computeSize(r.width, SWT.DEFAULT));
 		scroll.layout(true, true);
 		scroll.update();
 		scroll.redraw();
-		layout(true, true);
-		update();
-		redraw();
+		
+//		layout(true, true);
+//		update();
+//		redraw();
+		
+		ct2 = System.currentTimeMillis();
+		System.err.println("layout=" + (ct2 - ct1));
+		ct1 = ct2;
+		
 	}
 	
 	private List<IPyObject> prepareControlList(List<IPyObject> objs, List<ScriptObjectTab> tabs, 
@@ -1709,6 +1773,41 @@ public class ScriptControlViewer extends Composite {
 			}
 		});
 		
+	}
+
+	private synchronized FileDialog getSingleLoadDialog() {
+		if (singleLoadDialog == null) {
+			singleLoadDialog = new FileDialog(getShell(), SWT.SINGLE);
+		}
+		return singleLoadDialog;
+	}
+
+	private synchronized FileDialog getSaveFileDialog() {
+		if (saveFileDialog == null) {
+			saveFileDialog = new FileDialog(getShell(), SWT.SAVE);
+		}
+		return saveFileDialog;
+	}
+	
+	private synchronized FileDialog getScriptLoadDialog() {
+		if (scriptLoadDialog == null) {
+			scriptLoadDialog = new FileDialog(getShell(), SWT.SINGLE);
+		}
+		return scriptLoadDialog;
+	}
+
+	private synchronized DirectoryDialog getSaveFolderDialog() {
+		if (saveFolderDialog == null) {
+			saveFolderDialog = new DirectoryDialog(getShell(), SWT.SINGLE);
+		}
+		return saveFolderDialog;
+	}
+	
+	private synchronized FileDialog getMultiLoadDialog() {
+		if (multiLoadDialog == null) {
+			multiLoadDialog = new FileDialog(getShell(), SWT.MULTI);
+		}
+		return multiLoadDialog;
 	}
 
 	private void addParameter(Composite parent, final ScriptParameter parameter) {
@@ -2454,7 +2553,7 @@ public class ScriptControlViewer extends Composite {
 							dialogTypeString = "single";
 						}
 						if (dialogTypeString.toLowerCase().matches("multi")) {
-							FileDialog dialog = new FileDialog(getShell(), SWT.MULTI);
+							FileDialog dialog = getMultiLoadDialog();
 							if (ScriptDataSourceViewer.fileDialogPath == null){
 								IWorkspace workspace= ResourcesPlugin.getWorkspace();
 								IWorkspaceRoot root = workspace.getRoot();
@@ -2482,7 +2581,7 @@ public class ScriptControlViewer extends Composite {
 								fileText.setToolTipText(filePath);
 							}
 						} else if (dialogTypeString.toLowerCase().matches("save")){
-							FileDialog dialog = new FileDialog(getShell(), SWT.SAVE);
+							FileDialog dialog = getSaveFileDialog();
 							if (ScriptDataSourceViewer.fileDialogPath == null){
 								IWorkspace workspace= ResourcesPlugin.getWorkspace();
 								IWorkspaceRoot root = workspace.getRoot();
@@ -2507,7 +2606,7 @@ public class ScriptControlViewer extends Composite {
 							}
 						} else if (dialogTypeString.toLowerCase().matches("folder") 
 								|| dialogTypeString.toLowerCase().matches("dir")){
-							DirectoryDialog dialog = new DirectoryDialog(getShell(), SWT.SINGLE);
+							DirectoryDialog dialog = getSaveFolderDialog();
 							if (ScriptDataSourceViewer.fileDialogPath == null){
 								IWorkspace workspace= ResourcesPlugin.getWorkspace();
 								IWorkspaceRoot root = workspace.getRoot();
@@ -2523,7 +2622,7 @@ public class ScriptControlViewer extends Composite {
 							fileText.setToolTipText(filePath);
 							ScriptDataSourceViewer.fileDialogPath = dialog.getFilterPath();
 						} else {
-							FileDialog dialog = new FileDialog(getShell(), SWT.SINGLE);
+							FileDialog dialog = getSingleLoadDialog();
 							if (ScriptDataSourceViewer.fileDialogPath == null){
 								IWorkspace workspace= ResourcesPlugin.getWorkspace();
 								IWorkspaceRoot root = workspace.getRoot();

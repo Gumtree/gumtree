@@ -31,6 +31,10 @@ public class ScriptRunner {
 	private String filePath;
 	private String[] filenames;
 	private Shell shell;
+	private FileDialog singleLoadDialog;
+	private FileDialog multiLoadDialog;
+	private FileDialog saveFileDialog;
+	private DirectoryDialog saveFolderDialog;
 
 	public ScriptRunner(Shell shell) {
 		this.shell = shell;
@@ -157,13 +161,20 @@ public class ScriptRunner {
 		return selectSaveFile(extNames, null, null);
 	}
 
+	private synchronized DirectoryDialog getSaveFolderDialog() {
+		if (saveFolderDialog == null) {
+			saveFolderDialog = new DirectoryDialog(shell, SWT.MULTI);
+		}
+		return saveFolderDialog;
+	}
+	
 	public String selectSaveFolder(){
 		setActionPerformed(false);
 		shell.getDisplay().asyncExec(new Runnable() {
 			
 			@Override
 			public void run() {
-				DirectoryDialog dialog = new DirectoryDialog(shell, SWT.MULTI);
+				DirectoryDialog dialog = getSaveFolderDialog();
  				if (fileDialogPath == null){
  					IWorkspace workspace= ResourcesPlugin.getWorkspace();
  					IWorkspaceRoot root = workspace.getRoot();
@@ -192,13 +203,20 @@ public class ScriptRunner {
 		return selectLoadFile(extNames, null);
 	}
 	
+	private synchronized FileDialog getSingleLoadDialog() {
+		if (singleLoadDialog == null) {
+			singleLoadDialog = new FileDialog(shell, SWT.SINGLE);
+		}
+		return singleLoadDialog;
+	}
+
 	public String selectLoadFile(final List<String> extNames, final String workspacePath) {
 		setActionPerformed(false);
 		shell.getDisplay().asyncExec(new Runnable() {
 			
 			@Override
 			public void run() {
-				FileDialog dialog = new FileDialog(shell, SWT.SINGLE);
+				FileDialog dialog = getSingleLoadDialog();
 				IWorkspace workspace= ResourcesPlugin.getWorkspace();
 				IWorkspaceRoot root = workspace.getRoot();
 				IResource resource = null;
@@ -241,13 +259,20 @@ public class ScriptRunner {
 		return selectLoadMultiFile(extNames, null);
 	}
 	
+	private synchronized FileDialog getMultiLoadDialog() {
+		if (multiLoadDialog == null) {
+			multiLoadDialog = new FileDialog(shell, SWT.MULTI);
+		}
+		return multiLoadDialog;
+	}
+
 	public String[] selectLoadMultiFile(final List<String> extNames, final String workspacePath) {
 		setActionPerformed(false);
 		shell.getDisplay().asyncExec(new Runnable() {
 			
 			@Override
 			public void run() {
-				FileDialog dialog = new FileDialog(shell, SWT.MULTI);
+				FileDialog dialog = getMultiLoadDialog();
 				IWorkspace workspace= ResourcesPlugin.getWorkspace();
 				IWorkspaceRoot root = workspace.getRoot();
 				IResource resource = null;
@@ -298,13 +323,20 @@ public class ScriptRunner {
 		return Arrays.asList(selectLoadMultiFile(extNames, workspacePath));
 	}
 
+	private synchronized FileDialog getSaveFileDialog() {
+		if (saveFileDialog == null) {
+			saveFileDialog = new FileDialog(shell, SWT.SAVE);
+		}
+		return saveFileDialog;
+	}
+	
 	public String selectSaveFile(final List<String> extNames, final String workspacePath, final String filename) {
 		setActionPerformed(false);
 		shell.getDisplay().asyncExec(new Runnable() {
 			
 			@Override
 			public void run() {
-				FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+				FileDialog dialog = getSaveFileDialog();
 				IWorkspace workspace= ResourcesPlugin.getWorkspace();
 				IWorkspaceRoot root = workspace.getRoot();
 				IResource resource = null;
