@@ -84,7 +84,7 @@ public class DrivableController extends DynamicController implements IDrivableCo
 					}
 				}, 4000, 10);
 				if (status.equals(LoopRunnerStatus.TIMEOUT)) {
-					throw new SicsExecutionException("Device is already running.");
+					throw new SicsExecutionException("time out in starting the run command");
 				}
 			}
 			dirtyFlag = false;
