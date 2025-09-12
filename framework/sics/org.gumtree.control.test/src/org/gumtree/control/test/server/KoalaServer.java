@@ -294,6 +294,14 @@ public class KoalaServer {
 	}
 	
 	public void processCommand(String client, String cid, String command) throws InterruptedException {
+		if (command.equals("POCH")) {
+			try {
+				respondFinal(client, cid, command, "POCH");
+				return;
+			} catch (JSONException e) {
+				sendInternalError(client, cid, command, "failed to respond to heartbeat");
+			}
+		} 
 		try {
 			respondReply(client, cid, command, command);
 		} catch (JSONException e) {
