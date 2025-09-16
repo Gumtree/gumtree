@@ -363,7 +363,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		removeButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				IStructuredSelection selections = (IStructuredSelection) context.queueViewer.getViewer().getSelection();
-				logger.warn("remove all selected buffer files");
+				logger.warn("Remove button clicked");
 				getBatchBufferManager().getBatchBufferQueue().removeAll(selections.toList());
 			}
 		});

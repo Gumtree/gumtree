@@ -149,6 +149,7 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 						try {
 							estimatedTimeForBuffer = ((IBatchBuffer) getBatchBufferQueue().get(0)).getTimeEstimation();
 							timestampOnEstimation = System.currentTimeMillis();
+							logger.warn("pop buffer file at index 0 from the queue");
 							IBatchBuffer buffer = (IBatchBuffer) getBatchBufferQueue().remove(0);
 							execute(buffer);
 						} catch (Exception e) {
