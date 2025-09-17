@@ -34,6 +34,27 @@ sampleMap = [
 	       		-455.0
 	       ];
 
+sampleMap = [
+	        510.0,
+	        450.0,
+	        390.0,
+	        330.0,
+	        270.0,
+	        210.0,
+	        150.0,
+	        90.0,
+	        30.0,
+	        -30.0,
+	        -90.0,
+	        -150.0,
+	        -210.0,
+	        -270.0,
+	        -330.0,
+	        -390.0,
+	        -450.0,
+	        -510.0
+	       ];
+
 
 function adaptAtt(val) {
 	return String(Math.round(Number(val)));
@@ -59,7 +80,7 @@ function adaptSamNum(text) {
 			break;
 		}
 	}
-	if (samNum < 0.05 || samNum > 10.95) {
+	if (samNum < 0.05 || samNum > sampleMap.length - 1.05) {
 		return "out";
 	} else {
 		samNum = samNum.toFixed(1);
