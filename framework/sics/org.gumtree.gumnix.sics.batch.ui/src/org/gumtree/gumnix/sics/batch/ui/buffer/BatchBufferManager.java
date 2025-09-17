@@ -102,7 +102,11 @@ public class BatchBufferManager extends AbstractModelObject implements IBatchBuf
 			@Override
 			public void queueChanged() {
 				if (isAutoRun()){
-					updateTimeEstimation();
+					try {
+						updateTimeEstimation();						
+					} catch (Exception e) {
+						logger.error("failed to update time estimation ", e);
+					}
 				}
 			}
 		};

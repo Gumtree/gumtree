@@ -193,6 +193,7 @@ public class BatchBufferQueue extends PropertyList<IBatchBuffer> {
 						new ArrayList<IBatchBuffer>(this));
 			} catch (Exception e) {
 				e.printStackTrace();
+				logger.error("failed to persist the buffer queue", e);
 			}
 		}
 	}
