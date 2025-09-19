@@ -658,8 +658,8 @@ def driveToLoadPosition():
     soft_upperlim = samx.getChildController('/softupperlim').getValue().getFloatData()
     hard_upperlim = samx.getChildController('/hardupperlim').getValue().getFloatData()
 
-    if soft_upperlim > hard_upperlim - soft_zero:
-        soft_upperlim = hard_upperlim - soft_zero
+    if soft_upperlim > hard_upperlim - abs(soft_zero):
+        soft_upperlim = hard_upperlim - abs(soft_zero)
 
     checkedDrive('samx', soft_upperlim - tolerance)
 
