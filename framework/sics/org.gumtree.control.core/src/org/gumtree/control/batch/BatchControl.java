@@ -74,13 +74,17 @@ public class BatchControl implements IBatchControl {
 						if (info.startsWith(BatchStatus.EXECUTING_PREFIX)) {
 							if (info.length() > BatchStatus.EXECUTING_PREFIX.length()) {
 								setBatchName(info.substring(BatchStatus.EXECUTING_PREFIX.length()));
-								status = BatchStatus.EXECUTING;
+//								status = BatchStatus.EXECUTING;
+								setBatchStatus(BatchStatus.EXECUTING);
 							} else {
-								status = BatchStatus.ERROR;
+//								status = BatchStatus.ERROR;
+								setBatchStatus(BatchStatus.ERROR);
 							}
 						} else {
-							status = BatchStatus.parseStatus(info);
+//							status = BatchStatus.parseStatus(info);
+							setBatchStatus(BatchStatus.parseStatus(info));
 						}
+//						fireBatchEvent(type, value);
 					} catch (Exception e) {
 						e.printStackTrace();
 						BatchControl.logger.error("failed to set batch status: " + e.getMessage(), e);

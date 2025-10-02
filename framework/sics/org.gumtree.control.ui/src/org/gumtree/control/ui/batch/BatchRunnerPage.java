@@ -85,6 +85,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
+	private static final String PROP_CHECKINSTRUMENTREADY = "gumtree.sics.checkinstrumentready";
+	
 	private IBatchManager batchBufferManager;
 
 	private IDNDHandler<IBatchManager> dndHandler;
@@ -108,6 +110,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	
 	private SicsMessageAdapter messageListener;
 	
+	private boolean defaultCheckInstrumentReady = true;
+	
 	public BatchRunnerPage(Composite parent, int style) {
 		super(parent, style);
 		// Listen to batch buffer manager
@@ -122,6 +126,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 //				}
 //			}
 //		};
+		
+		defaultCheckInstrumentReady = Boolean.valueOf(System.getProperty(PROP_CHECKINSTRUMENTREADY, "true"));
 		
 		messageListener = new SicsMessageAdapter() {
 			
@@ -143,8 +149,11 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		batchManagerListener = new IBatchManagerListener() {
 			
 			@Override
-			public void statusChanged(BatchStatus newStatus) {
+			public void statusChanged(BatchStatus newStatus, String message) {
 				updateStatus(newStatus);
+				if (message != null) {
+					updateLogText(message);
+				}
 			}
 			
 			@Override
@@ -562,8 +571,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 				checkInstrumentReady = ((Button) e.widget).getSelection();
 			}
 		});
-		checkInstrumentReady = true;
-		checkInstrumentButton.setSelection(true);
+		checkInstrumentReady = defaultCheckInstrumentReady;
+		checkInstrumentButton.setSelection(checkInstrumentReady);
 		
 		updateStatus(batchBufferManager.getStatus());
 		

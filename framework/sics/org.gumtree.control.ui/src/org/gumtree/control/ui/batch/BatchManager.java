@@ -142,7 +142,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 			
 			@Override
 			public void statusChanged(BatchStatus newStatus) {
-				fireBatchStatusEvent(newStatus);
+				fireBatchStatusEvent(newStatus, null);
 			}
 			
 			@Override
@@ -181,7 +181,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		};
 		
 		batchControl.addListener(batchListener);
-		fireBatchStatusEvent(batchControl.getStatus());
+		fireBatchStatusEvent(batchControl.getStatus(), null);
 		
 //		if (sicsProxy.isConnected()) {
 //			BatchStatus batchStatus = sicsProxy.getBatchControl().getStatus();
@@ -362,7 +362,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		synchronized (executionLock) {
 			// Go to preparing mode
 //			setBatchStatus(BatchManagerStatus.PREPARING);
-			fireBatchStatusEvent(BatchStatus.PREPARING);
+			fireBatchStatusEvent(BatchStatus.PREPARING, "preparing buffer script");
 			
 //	Modified by nxi. Change the uploading strategy. Save the script in the mounted folder instead.			
 //			// Ready to upload
@@ -448,7 +448,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 					public void receiveError(ISicsReplyData data) {
 						setCallbackCompleted(true);
 //						setBatchStatus(BatchStatus.ERROR);
-						fireBatchStatusEvent(BatchStatus.ERROR);
+						fireBatchStatusEvent(BatchStatus.ERROR, data.getString());
 					}
 					
 					@Override
@@ -592,9 +592,9 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		batchManagerListeners.remove(listener);
 	}
 
-	private void fireBatchStatusEvent(BatchStatus status) {
+	private void fireBatchStatusEvent(BatchStatus status, String message) {
 		for (IBatchManagerListener listener : batchManagerListeners) {
-			listener.statusChanged(status);
+			listener.statusChanged(status, message);
 		}
 	}
 	
@@ -619,7 +619,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 	private void handleException(String err) {
 		synchronized (batchControl.getStatus()) {
 //			this.status = BatchManagerStatus.ERROR;
-			fireBatchStatusEvent(BatchStatus.ERROR);
+			fireBatchStatusEvent(BatchStatus.ERROR, "ERROR: " + err);
 //			BatchScriptManagerStatusEvent event = new BatchScriptManagerStatusEvent(this, status);
 //			event.setMessage(err);
 //			PlatformUtils.getPlatformEventBus().postEvent(event);

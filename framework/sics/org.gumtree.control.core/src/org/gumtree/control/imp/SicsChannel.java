@@ -54,11 +54,11 @@ public class SicsChannel implements ISicsChannel {
 	public static final String JSON_VALUE_OK = "OK";
 	private static final String POCH_COMMAND = "POCH";
 	
-	private static final int POCH_TIMEOUT = 10000;
+	private static final int POCH_TIMEOUT = 90*1000;
 	private static final int COMMAND_WAIT_TIME = 3;
-	private static final int SEND_TIMEOUT = 3000;
+	private static final int SEND_TIMEOUT = 70*000;
 	private static final int RECEIVE_TIMEOUT = 5000;
-	private static final int COMMAND_TIMEOUT = 10000;
+	private static final int COMMAND_TIMEOUT = 100000;
 	
 	private static Logger logger = LoggerFactory.getLogger(SicsChannel.class);
 	
@@ -476,6 +476,7 @@ public class SicsChannel implements ISicsChannel {
 		}
 
 		void takeError(SicsException error) {
+			logger.error("take error " + error.getMessage());
 			hasError = true;
 			this.error = error;
 			finish();

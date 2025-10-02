@@ -214,6 +214,10 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 	
 	@Override
 	protected void handleModelUpdate() {
+		initListeners();
+	}
+
+	protected void initListeners() {
 		if (labelContexts == null) {
 			return;
 		}
@@ -247,7 +251,6 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 			e.printStackTrace();
 		}
 	}
-
 	private void reloadLabel(String path, Label label, LabelConverter converter, ColorConverter colorConverter) {
 		ISicsController controller = SicsManager.getSicsModel().findControllerByPath(path);
 		if (controller != null && controller instanceof IDynamicController) {
