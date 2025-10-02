@@ -46,7 +46,7 @@ var nsItems = [
                {"classId":"cnsOutTemp", "deviceId":"cnsOutTemp", "title":"CNS Out Temp", "units":"K"}
                ];
 
-var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE&scaling_type=LOG";
+var histmemUrl = "dae/rest/image?type=$HISTMEM_TYPE&scaling_type=$SCALE_TYPE";
 
 var histmemTypes = [
                     {"id" : "TOTAL_HISTOGRAM_XY", "text" : "Total x-y histogram"},
@@ -56,3 +56,8 @@ var histmemTypes = [
                     {"id" : "TOTAL_HISTOGRAM_Y", "text" : "Total y histogram"},
                     {"id" : "TOTAL_HISTOGRAM_T", "text" : "Total t histogram"}
                     ];
+
+var scaleTypes = [
+    {"id" : "LIN", "text" : "Linear"},
+    {"id" : "LOG", "text" : "Logarithm", "isDefault" : true}
+    ];
