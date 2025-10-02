@@ -4,6 +4,7 @@ import time
 from gumpy.lib import enum
 # from org.gumtree.gumnix.sics.control import ServerStatus
 from gumpy.commons.logger import log
+from org.gumtree.control.exception import *
 
 # parameter values for nguide
 OUT = 'OUT'
@@ -614,17 +615,31 @@ def scan(deviceName, start, stop, numpoints, scanMode, dataType, preset, force='
         try:       
             scanController.run()
             df = True
-        except Exception as e:
-            ct += 1
-            if control.is_interrupted():
+        except SicsException as e:
+            if isinstance(e, SicsInterruptException) :
+                log('interruption caught')
                 raise
             else:
+                log(str(e))
+                ct += 1
                 if control.get_status().equals(control.ServerStatus.COUNTING):
                     control.wait_until_idle()
                     df = True
                 else:
                     if ct >= 5:
                         raise
+                    else:
+                        time.sleep(1)
+        except :
+            ct += 1
+            if control.get_status().equals(control.ServerStatus.COUNTING):
+                control.wait_until_idle()
+                df = True
+            else:
+                if ct >= 5:
+                    raise
+                else:
+                    time.sleep(1)
 
     # Get output filename
 #     control.wait_until_idle()
