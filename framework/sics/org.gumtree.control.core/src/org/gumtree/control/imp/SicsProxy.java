@@ -25,8 +25,6 @@ import org.gumtree.control.exception.SicsCommunicationException;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.SicsModel;
-import org.gumtree.util.ILoopExitCondition;
-import org.gumtree.util.JobRunner;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -538,4 +536,8 @@ public class SicsProxy implements ISicsProxy {
 		return isModelAvailable;
 	}
 
+	public String getModelTimestamp() {
+		return SICS_Timestamp;
+	}
+	
 }
