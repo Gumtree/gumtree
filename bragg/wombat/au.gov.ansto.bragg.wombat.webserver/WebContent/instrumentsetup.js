@@ -1,11 +1,20 @@
 var title = "Wombat";
 var useNewProxy = true;
 var batchEnabled = true;
+
+function adaptShutter(val) {
+	if (val == 1 || val == "1") {
+		return "OPEN";
+	} else {
+		return "CLOSED";
+	}
+}
+
 var devices = [
                {"group":"BEAM STATUS", 
-            	   "items":[{"classId":"plc_tertiary", "deviceId":"plc_tertiary", "title":"Sample Shutter", "units":""},
-            		   		{"classId":"plc_secondary", "deviceId":"plc_secondary", "title":"Secondary Shutter", "units":""},
-            	            {"classId":"bm1_counts", "deviceId":"bm1_counts", "title":"BM1 Counts", "units":"ct"},
+            	   "items":[{"classId":"sis_tertiary", "deviceId":"/instrument/sis/instrument/b00_tertiary_open", "title":"Sample Shutter", "units":"", "adapt":adaptShutter},
+  	            			{"classId":"sis_secondary", "deviceId":"/instrument/sis/guide/b03_secondary_open", "title":"Secondary Shutter", "units":"", "adapt":adaptShutter},
+  	            			{"classId":"bm1_counts", "deviceId":"bm1_counts", "title":"BM1 Counts", "units":"ct"},
             	            {"classId":"bm2_counts", "deviceId":"bm2_counts", "title":"BM2 Counts", "units":"ct"},
             	            {"classId":"total_counts", "deviceId":"::histogram_memory::total_counts", "title":"Detector Counts", "units":"ct"}, 
             	            {"classId":"histogram_memory_time", "deviceId":"::histogram_memory::time", "title":"Time of Counting", "units":"s"}

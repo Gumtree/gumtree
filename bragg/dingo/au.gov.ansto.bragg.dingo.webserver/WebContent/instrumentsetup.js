@@ -1,11 +1,20 @@
 var title = "Dingo";
 var useNewProxy = true;
 var batchEnabled = true;
+
+function adaptShutter(val) {
+	if (val == 1 || val == "1") {
+		return "OPEN";
+	} else {
+		return "CLOSED";
+	}
+}
+
 var devices = [
                {"group":"CAMERA STATUS", 
-            	   "items":[{"classId":"plc_secondary", "deviceId":"plc_secondary", "title":"Secondary Shutter", "units":""},
-            	            {"classId":"plc_tertiary", "deviceId":"plc_tertiary", "title":"Sample Shutter", "units":""},
-            	            {"classId":"cm1_mode", "deviceId":"cm1_mode", "title":"Camera Mode", "units":""},  
+            	   "items":[{"classId":"sis_tertiary", "deviceId":"/instrument/sis/instrument/b00_tertiary_open", "title":"Sample Shutter", "units":"", "adapt":adaptShutter},
+  	            			{"classId":"sis_secondary", "deviceId":"/instrument/sis/guide/b03_secondary_open", "title":"Secondary Shutter", "units":"", "adapt":adaptShutter},
+        		   			{"classId":"cm1_mode", "deviceId":"cm1_mode", "title":"Camera Mode", "units":""},  
             	            {"classId":"cm1_preset", "deviceId":"cm1_preset", "title":"Camera Preset", "units":""},
             	            {"classId":"cm1_time", "deviceId":"cm1_time", "title":"Exposure Time", "units":"s"},
             	            {"classId":"cm1_counts", "deviceId":"cm1_counts", "title":"Camera Counts", "units":"cts"}

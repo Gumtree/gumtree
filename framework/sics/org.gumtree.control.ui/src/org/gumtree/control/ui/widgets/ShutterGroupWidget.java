@@ -310,28 +310,34 @@ public class ShutterGroupWidget extends ExtendedWidgetComposite {
 				} else if (context.path.contains("tertiary")) {
 					builder.append("Tertiary - ");
 				}
-				builder.append(data);
-				context.label.setText(builder.toString());
+				String status;
 				// Set colour based on status
 				if (data.equalsIgnoreCase("Opened")
-						| data.equalsIgnoreCase("OPEN")) {
+						| data.equalsIgnoreCase("OPEN")
+						| data.equalsIgnoreCase("1")) {
 					context.label.setBackground(getDisplay().getSystemColor(
 							SWT.COLOR_GREEN));
 					context.label.setForeground(getDisplay().getSystemColor(
 							SWT.COLOR_BLACK));
+					status = "OPEN";
 					context.isActivated = true;
 				} else if (data.equalsIgnoreCase("Closed")
-						| data.equalsIgnoreCase("CLOSE")) {
+						| data.equalsIgnoreCase("CLOSE")
+						| data.equalsIgnoreCase("0")) {
 					context.label.setBackground(getDisplay().getSystemColor(
 							SWT.COLOR_RED));
 					context.label.setForeground(getDisplay().getSystemColor(
 							SWT.COLOR_WHITE));
+					status = "CLOSED";
 					context.isActivated = true;
 				} else {
 					context.label.setBackground(null);
 					context.label.setForeground(context.originalForeground);
+					status = "UNKNOWN";
 					context.isActivated = false;
 				}
+				builder.append(status);
+				context.label.setText(builder.toString());
 			}
 		});
 	}

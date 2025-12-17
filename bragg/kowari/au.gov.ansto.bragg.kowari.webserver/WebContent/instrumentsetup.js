@@ -2,9 +2,18 @@ var title = "Kowari";
 var useNewProxy = true;
 var batchEnabled = true;
 var timeEstimationEnabled = true;
+
+function adaptShutter(val) {
+	if (val == 1 || val == "1") {
+		return "OPEN";
+	} else {
+		return "CLOSED";
+	}
+}
+
 var devices = [
                {"group":"BEAM STATUS", 
-            	   "items":[{"classId":"plc_tertiary", "deviceId":"plc_tertiary", "title":"Sample Shutter", "units":""},
+            	   "items":[{"classId":"sis_tertiary", "deviceId":"/instrument/sis/instrument/b00_tertiary_open", "title":"Sample Shutter", "units":"", "adapt":adaptShutter},
             	            {"classId":"total_detector_rate", "deviceId":"::histogram_memory::ratemap_xy_total", "title":"Tot. Rate on Detector", "units":"c/s"},  
             	            {"classId":"histogram_memory_time", "deviceId":"::histogram_memory::time", "title":"Time of Counting", "units":"s"}, 
             	            {"classId":"xy_max_binrate", "deviceId":"::histogram_memory::ratemap_xy_max_bin", "title":"Max Rate on Pixel", "units":"c/s"},
