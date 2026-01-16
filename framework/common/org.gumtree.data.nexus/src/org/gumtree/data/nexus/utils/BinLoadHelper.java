@@ -18,7 +18,7 @@ import org.gumtree.data.utils.FactoryManager;
 
 public class BinLoadHelper {
 
-	private final static int FILE_FRAME_LENGTH = 20000; // 50hz -> microseconds (detector)
+	public static int FILE_FRAME_LENGTH = 40000; // 50hz -> microseconds (detector)
 	
 	public final static int HISTO_BINS_X = 192; // pixel
 	public final static int HISTO_BINS_Y = 192; // pixel
@@ -464,6 +464,7 @@ public class BinLoadHelper {
 			}
 			
 			System.err.println("found " + err + " problems out of " + tt + " events");
+			System.err.println("beamtime = " + _beamTime);
 			// append last timeBin to timeBins
 			_timeBins.add(timeBin);
 		} finally {
