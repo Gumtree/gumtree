@@ -6,9 +6,9 @@
 	<artifactId>org.gumtree.maven.tycho.crossplatform</artifactId>
 	<packaging>pom</packaging>
 	<parent>
-		<groupId>org.codehaus.gumtree</groupId>
+		<groupId>com.github.gumtree</groupId>
 		<artifactId>org.gumtree.maven.tycho</artifactId>
-		<version>1.13.0-SNAPSHOT</version>
+		<version>2.0.0-SNAPSHOT</version>
 		<relativePath>../org.gumtree.maven.tycho</relativePath>
 	</parent>
 
@@ -24,29 +24,12 @@
 						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
 							<arch>x86_64</arch>
 						</environment>
-						<!--
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86</arch>
-						</environment>
-						-->
 						<environment>
 							<os>macosx</os>
 							<ws>cocoa</ws>
 							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86</arch>
 						</environment>
 						<environment>
 							<os>win32</os>

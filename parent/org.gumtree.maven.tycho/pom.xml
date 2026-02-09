@@ -6,23 +6,22 @@
 	<artifactId>org.gumtree.maven.tycho</artifactId>
 	<packaging>pom</packaging>
 	<parent>
-		<groupId>org.codehaus.gumtree</groupId>
+		<groupId>com.github.gumtree</groupId>
 		<artifactId>org.gumtree.maven.parent</artifactId>
-		<version>1.13.0-SNAPSHOT</version>
+		<version>2.0.0-SNAPSHOT</version>
 		<relativePath>../org.gumtree.maven.parent</relativePath>
 	</parent>
 	<properties>
 		<tycho.groupId>org.eclipse.tycho</tycho.groupId>
-		<tycho.version>0.14.1</tycho.version>
-		<maven.javadoc.version>2.8.1</maven.javadoc.version>
-		<maven.javadoc.version>2.8.1</maven.javadoc.version>
-		<maven.clean.version>2.5</maven.clean.version>
-		<maven.resources.version>2.6</maven.resources.version>
-		<mavan.docbkx.version>2.0.14</mavan.docbkx.version>
-		<maven.findbugs.version>2.5.1</maven.findbugs.version>
-		<maven.antrun.version>1.3</maven.antrun.version>
-		<maven.emma.version>2.0.5312</maven.emma.version>
-		<maven.helper.version>1.7</maven.helper.version>
+		<tycho.version>5.0.0</tycho.version>
+		<maven.javadoc.version>3.12.0</maven.javadoc.version>
+		<maven.clean.version>3.5.0</maven.clean.version>
+		<maven.resources.version>3.3.1</maven.resources.version>
+		<mavan.docbkx.version>2.0.17</mavan.docbkx.version>
+		<maven.findbugs.version>3.0.5</maven.findbugs.version>
+		<maven.antrun.version>3.0.0</maven.antrun.version>
+		<maven.emma.version>2.0.5320</maven.emma.version>
+		<maven.helper.version>4.30.0</maven.helper.version>
 		<maven.scala.version>2.15.2</maven.scala.version>
 		<scala.version>2.9.0</scala.version>
 		<gumtree.eclemma.version>1.1.0-SNAPSHOT</gumtree.eclemma.version>
@@ -49,29 +48,12 @@
 						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
 							<arch>x86_64</arch>
 						</environment>
-						<!--
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86</arch>
-						</environment>
-						-->
 						<environment>
 							<os>macosx</os>
 							<ws>cocoa</ws>
 							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86</arch>
 						</environment>
 						<environment>
 							<os>win32</os>
@@ -124,11 +106,11 @@
 			<url>http://download.eclipse.org/releases/oxygen</url>
 		</repository>
 		-->
-		<!-- Eclipse Juno p2 repository -->
+		<!-- Eclipse 202506 p2 repository -->
 		<repository>
-			<id>eclipse_juno</id>
+			<id>eclipse_2506</id>
 			<layout>p2</layout>
-			<url>file:/x:/eclipse/p2/repo/eclipse/releases/juno</url>
+			<url>file:/D:/NewGumtree/repo/2025-06</url>
 		</repository>
 		<!--
 		<repository>
@@ -142,7 +124,7 @@
 		<repository>
 			<id>gumtree_bundles</id>
 			<layout>p2</layout>
-			<url>file:/x:/eclipse/p2/repo/gumtree/bundles/1.8.x</url>
+			<url>file:/D:/NewGumtree/exports/manually/repository</url>
 		</repository>
 		<!--
 		<repository>
@@ -181,20 +163,6 @@
 			</build>
 		</profile>
 		<profile>
-			<id>win32</id>
-			<activation>
-				<os>
-					<family>windows</family>
-					<arch>x86</arch>
-				</os>
-			</activation>
-			<properties>
-				<osgi.os>win32</osgi.os>
-				<osgi.ws>win32</osgi.ws>
-				<osgi.arch>x86</osgi.arch>
-			</properties>
-		</profile>
-		<profile>
 			<id>win64</id>
 			<activation>
 				<os>
@@ -208,20 +176,7 @@
 				<osgi.arch>x86_64</osgi.arch>
 			</properties>
 		</profile>
-		<profile>
-			<id>gtk32</id>
-			<activation>
-				<os>
-					<family>linux</family>
-				</os>
-			</activation>
-			<properties>
-				<osgi.os>linux</osgi.os>
-				<osgi.ws>gtk</osgi.ws>
-				<osgi.arch>x86</osgi.arch>
-			</properties>
-		</profile>
-		<profile>
+		<!-- profile>
 			<id>cocoa32</id>
 			<activation>
 				<os>
@@ -233,6 +188,6 @@
 				<osgi.ws>cocoa</osgi.ws>
 				<osgi.arch>x86</osgi.arch>
 			</properties>
-		</profile>
+		</profile -->
 	</profiles>
 </project>
