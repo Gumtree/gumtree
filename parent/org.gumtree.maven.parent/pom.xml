@@ -3,30 +3,20 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.codehaus.gumtree</groupId>
+	<groupId>com.github.gumtree</groupId>
 	<artifactId>org.gumtree.maven.parent</artifactId>
-	<version>1.13.0-SNAPSHOT</version>
+	<version>2.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
-		<eclipse.groupId>org.codehaus.gumtree</eclipse.groupId>
-		<gumtree.groupId>org.codehaus.gumtree</gumtree.groupId>
-		<gumtree.version>1.13.0-SNAPSHOT</gumtree.version>
+		<eclipse.groupId>com.github.gumtree</eclipse.groupId>
+		<gumtree.groupId>com.github.gumtree</gumtree.groupId>
+		<gumtree.version>2.0.0-SNAPSHOT</gumtree.version>
 		<cdma.version>3.0.0-SNAPSHOT</cdma.version>
 	</properties>
 
-	<build>
-		<extensions>
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-webdav</artifactId>
-				<version>1.0-beta-2</version>
-			</extension>
-		</extensions>
-	</build>
-
 	<name>Gumtree Maven Parent POM</name>
 	<description>Gumtree Maven Parent Project Metadata</description>
-	<url>http://gumtree.codehaus.org</url>
+	<url>https://github.com/Gumtree/gumtree</url>
 	<inceptionYear>2004</inceptionYear>
 	<licenses>
 		<license>
@@ -37,8 +27,8 @@
 	</licenses>
 
 	<issueManagement>
-		<system>JIRA</system>
-		<url>http://jira.codehaus.org/browse/GUMTREE</url>
+		<system>github</system>
+		<url>https://github.com/Gumtree/gumtree/issues</url>
 	</issueManagement>
 	<mailingLists>
 		<mailingList>
@@ -51,6 +41,12 @@
     	<developerConnection>scm:git:https://github.com/Gumtree/gumtree.git</developerConnection>
     	<url>http://github.com/Gumtree/gumtree</url>
 	</scm>
+	<pluginRepositories>
+  	  <pluginRepository>
+    	<id>eclipse-tycho</id>
+     	<url>https://repo.eclipse.org/content/groups/tycho/</url>
+      </pluginRepository>
+	</pluginRepositories>
 	<repositories>
 		<!--
 		<repository>
@@ -80,19 +76,13 @@
 	</repositories>
 	<distributionManagement>
 		<repository>
-			<id>codehaus.org</id>
+			<id>github</id>
 			<name>Gumtree Central Distribution Repository</name>
-			<url>dav:https://dav.codehaus.org/repository/gumtree/</url>
+			<url>https://maven.pkg.github.com/Gumtree/gumtree</url>
 		</repository>
-		<snapshotRepository>
-			<id>codehaus.org</id>
-			<name>Gumtree Central Development Repository</name>
-			<url>dav:https://dav.codehaus.org/snapshots.repository/gumtree/</url>
-			<uniqueVersion>false</uniqueVersion>
-		</snapshotRepository>
 		<site>
-			<id>codehaus.org</id>
-			<url>dav:https://dav.codehaus.org/gumtree/</url>
+			<id>github</id>
+			<url>https://github.com/Gumtree/gumtree</url>
 		</site>
 	</distributionManagement>
 </project>
