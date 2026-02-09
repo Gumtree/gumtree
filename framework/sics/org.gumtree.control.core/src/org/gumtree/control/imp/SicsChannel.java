@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.gumtree.control.core.ISicsChannel;
 import org.gumtree.control.events.ISicsCallback;
@@ -54,11 +55,11 @@ public class SicsChannel implements ISicsChannel {
 	public static final String JSON_VALUE_OK = "OK";
 	private static final String POCH_COMMAND = "POCH";
 	
-	private static final int POCH_TIMEOUT = 90*1000;
-	private static final int COMMAND_WAIT_TIME = 3;
-	private static final int SEND_TIMEOUT = 70*000;
-	private static final int RECEIVE_TIMEOUT = 5000;
-	private static final int COMMAND_TIMEOUT = 100000;
+	static final int POCH_TIMEOUT = 90*1000;
+	static final int COMMAND_WAIT_TIME = 3;
+	static final int SEND_TIMEOUT = 70*000;
+	static final int RECEIVE_TIMEOUT = 5000;
+	static final int COMMAND_TIMEOUT = 100000;
 	
 	private static Logger logger = LoggerFactory.getLogger(SicsChannel.class);
 	
@@ -101,7 +102,7 @@ public class SicsChannel implements ISicsChannel {
 	    clientSocket.setReceiveTimeOut(RECEIVE_TIMEOUT);
 	    clientSocket.setIdentity(id.getBytes(ZMQ.CHARSET));
 	    messageHandler = new MessageHandler(sicsProxy);
-	    commandMap = new HashMap<Integer, SicsCommand>();
+	    commandMap = new ConcurrentHashMap<Integer, SicsCommand>();
 	}
 	
 	private void subscribe(String publisherAddress) {
@@ -231,10 +232,22 @@ public class SicsChannel implements ISicsChannel {
 			
 			@Override
 			public void run() {
+				// Use a ZMQ Poller to avoid blocking indefinitely on recv
+				ZMQ.Poller poller = context.createPoller(1);
+				poller.register(clientSocket, ZMQ.Poller.POLLIN);
 				while(isConnected) {
 					try {
 						logger.debug("waiting for next message");
-						String received = clientSocket.recvStr(0);
+						int rc = poller.poll(RECEIVE_TIMEOUT);
+						if (rc <= 0) {
+							// timeout or interrupted, continue waiting
+							continue;
+						}
+						if (!poller.pollin(0)) {
+							// no input ready despite poll returning > 0
+							continue;
+						}
+						String received = clientSocket.recvStr(ZMQ.DONTWAIT);
 //						String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
 //						System.err.println(timeStamp + " Received: [" + received);
 						if (received == null) {
