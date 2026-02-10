@@ -13,9 +13,10 @@ package org.gumtree.control.ui.batch.taskeditor;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -50,12 +51,12 @@ private DataBindingContext bindingContext;
 		/*********************************************************************
 		 * Data binding
 		 *********************************************************************/
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				bindingContext = new DataBindingContext();
 				bindingContext.bindValue(
-						SWTObservables.observeText(text, SWT.Modify),
-						BeansObservables.observeValue(getCommand(), "text"),
+						WidgetProperties.text(SWT.Modify).observe(text),
+						BeanProperties.value(ScriptCommand.class, "text").observe(getCommand()),
 						new UpdateValueStrategy(),
 						new UpdateValueStrategy()
 				);

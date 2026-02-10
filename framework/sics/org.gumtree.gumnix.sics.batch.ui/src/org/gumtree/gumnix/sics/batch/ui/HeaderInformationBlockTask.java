@@ -13,9 +13,10 @@ package org.gumtree.gumnix.sics.batch.ui;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -31,16 +32,16 @@ import org.gumtree.workflow.ui.ITaskView;
 public class HeaderInformationBlockTask extends CommandBlockTask {
 
 	private SicsVariableCommand userCommand;
-	
+
 	private SicsVariableCommand titleCommand;
-	
+
 	public void initialise() {
 		super.initialise();
-		if (getDataModel() != null && getDataModel().getCommands().length == 2){
+		if (getDataModel() != null && getDataModel().getCommands().length == 2) {
 			ISicsCommandElement[] commands = getDataModel().getCommands();
 			userCommand = (SicsVariableCommand) commands[0];
 			titleCommand = (SicsVariableCommand) commands[1];
-		}else{
+		} else {
 			userCommand = new SicsVariableCommand();
 			userCommand.setSicsVariable("user");
 			getDataModel().addCommand(userCommand);
@@ -53,36 +54,45 @@ public class HeaderInformationBlockTask extends CommandBlockTask {
 	protected ITaskView createViewInstance() {
 		return new HeaderInformationBlockTaskView();
 	}
-		
+
 	private class HeaderInformationBlockTaskView extends AbstractTaskView {
+
+		private DataBindingContext bindingContext;
 
 		public void createPartControl(Composite parent) {
 			GridLayoutFactory.swtDefaults().numColumns(2).applyTo(parent);
-			
+
 			// Row 1: user
 			Label label = getToolkit().createLabel(parent, "User: ");
 			final Text userText = getToolkit().createText(parent, "");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(userText);
-			
+
 			// Row 2: title
 			label = getToolkit().createLabel(parent, "Title: ");
 			final Text titleText = getToolkit().createText(parent, "");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(titleText);
-			
+
 			// Data binding
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
-					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeText(userText, SWT.Modify),
-						BeansObservables.observeValue(userCommand, "value"),
-						new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(titleText, SWT.Modify),
-							BeansObservables.observeValue(titleCommand, "value"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext = new DataBindingContext();
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(userText),
+							BeanProperties.value("value").observe(userCommand), new UpdateValueStrategy(),
+							new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(titleText),
+							BeanProperties.value("value").observe(titleCommand), new UpdateValueStrategy(),
+							new UpdateValueStrategy());
+				}
+			});
+
+			// Add dispose listener to clean up data binding resources
+			parent.addDisposeListener(e -> {
+				if (bindingContext != null) {
+					bindingContext.dispose();
 				}
 			});
 		}
-		
+
 	}
-	
+
 }

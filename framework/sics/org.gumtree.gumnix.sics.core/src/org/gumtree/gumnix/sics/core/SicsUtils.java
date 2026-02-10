@@ -13,11 +13,12 @@ import java.util.List;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.impl.EObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.sdo.EDataGraph;
-import org.eclipse.emf.ecore.sdo.SDOFactory;
-import org.eclipse.emf.ecore.sdo.util.SDOUtil;
+import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.gumtree.gumnix.sics.control.controllers.IComponentController;
 import org.gumtree.gumnix.sics.control.controllers.IDrivableController;
 import org.gumtree.gumnix.sics.core.PropertyConstants.ComponentType;
@@ -35,8 +36,6 @@ import ch.psi.sics.hipadaba.DocumentRoot;
 import ch.psi.sics.hipadaba.Property;
 import ch.psi.sics.hipadaba.SICS;
 import ch.psi.sics.hipadaba.impl.HipadabaPackageImpl;
-
-import commonj.sdo.DataObject;
 
 public class SicsUtils {
 
@@ -108,16 +107,20 @@ public class SicsUtils {
 
 	public static String getPath(Object object) {
 		Assert.isNotNull(object);
-		if (object instanceof DataObject && !(object instanceof SICS)) {
-			String id = ((DataObject) object).getString("id");
-			return getPath(((DataObject) object).getContainer()) + "/" + id;
+		if (object instanceof EObjectImpl && !(object instanceof SICS)) {
+			EStructuralFeature feature = ((EObjectImpl) object).eClass().getEStructuralFeature("id");
+			Object idO = ((EObjectImpl) object).eGet(feature);
+			if (idO == null) {
+				return getPath(((EObjectImpl) object).eContainer()) + "/" + "UNKNOWN_ID";
+			}
+			return getPath(((EObjectImpl) object).eContainer()) + "/" + idO.toString();
 		}
 		return "";
 	}
 
 	public static Component getComponentParent(Component component) {
 		Assert.isNotNull(component);
-		DataObject dataObject = ((DataObject) component).getContainer();
+		EObject dataObject = ((EObjectImpl) component).eContainer();
 		if (dataObject instanceof Component) {
 			return (Component) dataObject;
 		}
@@ -141,7 +144,8 @@ public class SicsUtils {
 		// Similar to SDOUtil.loadDataGraph(InputStream, Map), but it needs
 		// to register ProtocolPackage for XML deserialisation
 		// see: http://www.devx.com/Java/Article/29093/1954?pf=true
-		ResourceSet resourceSet = SDOUtil.createResourceSet();
+
+		ResourceSet resourceSet = new ResourceSetImpl();
 		resourceSet.getPackageRegistry().put(HipadabaPackageImpl.eNS_URI,
 				HipadabaPackageImpl.eINSTANCE);
 		Resource resource = resourceSet.createResource(URI
@@ -159,29 +163,51 @@ public class SicsUtils {
 		} else {
 			throw new IOException("Badly formatted XML");
 		}
-		EDataGraph dataGraph = SDOFactory.eINSTANCE.createEDataGraph();
-		dataGraph.setERootObject((EObject) sicsModel);
-		EObject root = dataGraph.getERootObject();
-		return (SICS) root;
+		Resource dataGraph = new ResourceImpl();
+		dataGraph.getContents().add((EObject) sicsModel);
+//		EObject root = dataGraph.getERootObject();
+		return sicsModel;
 	}
 
-	public static Component getComponent(SICS sicsModel, String path) {
-		Assert.isNotNull(sicsModel);
-		String[] ids = path.split("/");
-		StringBuilder builder = new StringBuilder("/SICS");
-		if (ids.length < 2) {
+	public static Component getComponent(final Component parent, String relativePath) {
+		Assert.isNotNull(relativePath);
+		String[] parts = relativePath.split("/");
+		if(parts.length <= 1) {
 			return null;
 		}
-		for (int i = 1; i < ids.length; i++) {
-			builder.append("/component[id=");
-			builder.append(ids[i]);
-			builder.append("]");
+		List<Component> childControllers = parent.getComponent();
+		for(Component childController : childControllers) {
+			if(getPropertyFirstValue(childController, "id").equals(parts[1])) {
+				relativePath = relativePath.substring(parts[1].length() + 1);
+				if(relativePath.length() == 0) {
+					return childController;
+				} else {
+					return getComponent(childController, relativePath);
+				}
+			}
 		}
-		try {
-			return (Component) ((DataObject) sicsModel).get(builder.toString());
-		} catch (Exception e) {
+		return null;
+	}
+
+	
+	public static Component getComponent(SICS sicsModel, String relativePath) {
+		Assert.isNotNull(relativePath);
+		String[] parts = relativePath.split("/");
+		if(parts.length <= 1) {
 			return null;
 		}
+		List<Component> childControllers = sicsModel.getComponent();
+		for(Component childController : childControllers) {
+			if(getPropertyFirstValue(childController, "id").equals(parts[1])) {
+				relativePath = relativePath.substring(parts[1].length() + 1);
+				if(relativePath.length() == 0) {
+					return childController;
+				} else {
+					return getComponent(childController, relativePath);
+				}
+			}
+		}
+		return null;
 	}
 
 	public static List<Property> findDeviceProperties(EObject eObject,

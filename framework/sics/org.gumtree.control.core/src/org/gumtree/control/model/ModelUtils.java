@@ -8,19 +8,17 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.impl.EObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.sdo.EDataGraph;
-import org.eclipse.emf.ecore.sdo.SDOFactory;
-import org.eclipse.emf.ecore.sdo.util.SDOUtil;
-import org.eclipse.emf.ecore.xmi.XMLResource;
+import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.gumtree.control.batch.tasks.PropertySelectionCriterion;
 import org.gumtree.control.core.IDriveableController;
 import org.gumtree.control.core.ISicsConnectionContext;
@@ -49,7 +47,6 @@ import ch.psi.sics.hipadaba.Property;
 import ch.psi.sics.hipadaba.SICS;
 import ch.psi.sics.hipadaba.impl.HipadabaPackageImpl;
 import ch.psi.sics.hipadaba.util.HipadabaResourceFactoryImpl;
-import commonj.sdo.DataObject;
 
 public class ModelUtils {
 
@@ -84,7 +81,7 @@ public class ModelUtils {
 		// Similar to SDOUtil.loadDataGraph(InputStream, Map), but it needs
 		// to register ProtocolPackage for XML deserialisation
 		// see: http://www.devx.com/Java/Article/29093/1954?pf=true
-		ResourceSet resourceSet = SDOUtil.createResourceSet();
+		ResourceSet resourceSet = new ResourceSetImpl();
 		resourceSet.getPackageRegistry().put(HipadabaPackageImpl.eNS_URI,
 				HipadabaPackageImpl.eINSTANCE);
 		resourceSet.getResourceFactoryRegistry().getContentTypeToFactoryMap().put("hipadaba", 
@@ -96,7 +93,7 @@ public class ModelUtils {
 //				true);
 //		resource.load(inputStream, options);
 		resource.load(inputStream, null);
-		Object content = resource.getContents().get(0);
+		EObject content = resource.getContents().get(0);
 		SICS sicsModel = null;
 		if (content instanceof DocumentRoot) {
 			DocumentRoot documentRoot = (DocumentRoot) content;
@@ -108,10 +105,11 @@ public class ModelUtils {
 		} else {
 			throw new IOException("Badly formatted XML");
 		}
-		EDataGraph dataGraph = SDOFactory.eINSTANCE.createEDataGraph();
-		dataGraph.setERootObject((EObject) sicsModel);
-		EObject root = dataGraph.getERootObject();
-		return (SICS) root;
+		Resource dataGraph = new ResourceImpl();
+		dataGraph.getContents().add((EObject) sicsModel);
+//		EObject root = dataGraph.getERootObject();
+//		return (SICS) root;
+		return sicsModel;
 	}
 	
 	public static ISicsController createComponentController(ISicsProxy sicsProxy, Component component) {
@@ -195,7 +193,7 @@ public class ModelUtils {
 	
 	public static Component getComponentParent(Component component) {
 		Assert.isNotNull(component);
-		DataObject dataObject = ((DataObject) component).getContainer();
+		EObject dataObject = ((EObjectImpl) component).eContainer();
 		if (dataObject instanceof Component) {
 			return (Component) dataObject;
 		}
@@ -271,9 +269,13 @@ public class ModelUtils {
 	
 	public static String getPath(Object object) {
 		Assert.isNotNull(object);
-		if (object instanceof DataObject && !(object instanceof SICS)) {
-			String id = ((DataObject) object).getString("id");
-			return getPath(((DataObject) object).getContainer()) + "/" + id;
+		if (object instanceof EObjectImpl && !(object instanceof SICS)) {
+			EStructuralFeature feature = ((EObjectImpl) object).eClass().getEStructuralFeature("id");
+			Object idO = ((EObjectImpl) object).eGet(feature);
+			if (idO == null) {
+				return getPath(((EObjectImpl) object).eContainer()) + "/" + "UNKNOWN_ID";
+			}
+			return getPath(((EObjectImpl) object).eContainer()) + "/" + idO.toString();
 		}
 		return "";
 	}

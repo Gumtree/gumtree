@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.gumtree.gumnix.sics.ui;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.gumtree.gumnix.sics.internal.ui.Activator
 Bundle-Localization: plugin
 Bundle-ActivationPolicy: lazy
@@ -16,7 +16,7 @@ Export-Package: org.gumtree.gumnix.sics.internal.ui.actions,
  org.gumtree.gumnix.sics.ui.widgets,
  org.gumtree.gumnix.sics.ui.workflow
 Bundle-Vendor: %providerName
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BundleShape: jar
 Require-Bundle: javax.inject;bundle-version="1.0.0";visibility:=reexport,
  javax.annotation;bundle-version="1.0.0";visibility:=reexport,
@@ -27,7 +27,6 @@ Require-Bundle: javax.inject;bundle-version="1.0.0";visibility:=reexport,
  org.jfree.chart;bundle-version="1.0.13",
  com.thoughtworks.xstream;bundle-version="1.4.2",
  org.eclipse.core.resources;bundle-version="3.7.100",
- sun.tools.jconsole;bundle-version="1.6.7",
  org.eclipse.nebula.widgets;bundle-version="1.0.0",
  org.eclipse.ui.navigator;bundle-version="3.5.100",
  org.eclipse.ui.console;bundle-version="3.5.100",

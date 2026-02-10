@@ -13,9 +13,10 @@ package org.gumtree.gumnix.sics.internal.ui;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -73,17 +74,18 @@ public class SicsTelnetConfigPart extends TelnetConfigPart {
 //		getBindingContext().bind(passwordText, new Property(getConnectionContext(), "password"), null);
 
 		// Eclipse 3.3 databinding
-		Realm.runWithDefault(SWTObservables.getRealm(PlatformUI.getWorkbench()
+		Realm.runWithDefault(DisplayRealm.getRealm(PlatformUI.getWorkbench()
 				.getDisplay()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(loginText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "login"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext
-						.bindValue(SWTObservables.observeText(passwordText,
-								SWT.Modify), BeansObservables.observeValue(
-								getConnectionContext(), "password"), new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(
+						WidgetProperties.text(SWT.Modify).observe(loginText),
+						BeanProperties.value(Object.class, "login").observe(getConnectionContext()),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(
+						WidgetProperties.text(SWT.Modify).observe(passwordText),
+						BeanProperties.value(Object.class, "password").observe(getConnectionContext()),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});
 

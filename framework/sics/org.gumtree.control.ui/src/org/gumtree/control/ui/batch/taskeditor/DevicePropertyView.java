@@ -2,9 +2,10 @@ package org.gumtree.control.ui.batch.taskeditor;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
@@ -110,17 +111,32 @@ private DataBindingContext bindingContext;
 		 * Default setting
 		 *********************************************************************/
 		selectDeviceId();
+		// Ensure property list is populated for the default device selection
+		String deviceId = getCommand().getDeviceId();
+		if (deviceId == null) {
+			IStructuredSelection sel = (IStructuredSelection) drivableComboViewer.getSelection();
+			if (!sel.isEmpty()) {
+				deviceId = (String) sel.getFirstElement();
+			}
+		}
+		if (deviceId != null) {
+			updatePropertyInput(deviceId);
+		}
+		// Initialize text from model (so UI shows initial value before binding takes over)
+		if (getCommand().getValue() != null) {
+			text.setText(String.valueOf(getCommand().getValue()));
+		}
 		
 		/*********************************************************************
 		 * Data binding
 		 *********************************************************************/
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				bindingContext = new DataBindingContext();
-				
+ 				
 				bindingContext.bindValue(
-						SWTObservables.observeText(text, SWT.Modify),
-						BeansObservables.observeValue(getCommand(), "value"),
+						WidgetProperties.text(SWT.Modify).observe(text),
+						BeanProperties.value(DevicePropertyCommand.class, "value").observe(getCommand()),
 						new UpdateValueStrategy(),
 						new UpdateValueStrategy()
 				);

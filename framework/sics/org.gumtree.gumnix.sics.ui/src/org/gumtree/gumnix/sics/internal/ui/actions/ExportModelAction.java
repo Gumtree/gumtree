@@ -4,8 +4,10 @@ import java.io.IOException;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.sdo.EDataObject;
-import org.eclipse.emf.ecore.sdo.util.SDOUtil;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -41,12 +43,27 @@ public class ExportModelAction implements IWorkbenchWindowActionDelegate {
 						if(filename == null) {
 							return;
 						}
-//						EDataGraph dataGraph = SDOFactory.eINSTANCE.createEDataGraph();
-//						dataGraph.setERootObject((EDataObject)model);
-//						Resource resource = dataGraph.getResourceSet().createResource(URI.createFileURI(filename));
-						Resource resource = SDOUtil.createResourceSet().createResource(URI.createFileURI(filename));
-						// [TLA] 2007-09-18 Add to add model into the resource for XML export
-						resource.getContents().add((EDataObject)model);
+						// Use EMF ResourceSet/XMIResourceFactory to save the model
+//						ResourceSet resourceSet = new ResourceSetImpl();
+//						resourceSet.getPackageRegistry().put(HipadabaPackageImpl.eNS_URI,
+//								HipadabaPackageImpl.eINSTANCE);
+//						Resource resource = resourceSet.createResource(URI
+//								.createURI("all.hipadaba"));
+//						resource.load(new FileInputStream(filename), null);
+
+						ResourceSet resourceSet = new ResourceSetImpl();
+						// register XMI resource factory for XML serialization
+						resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("hipadaba", new XMIResourceFactoryImpl());
+						resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());
+						// create resource and add model
+						Resource resource = resourceSet.createResource(URI.createFileURI(filename));
+						if (model instanceof EObject) {
+							resource.getContents().add((EObject) model);
+						} else {
+							// fallback: cannot export non-EObject models
+							MessageDialog.openError(window.getShell(), "Error in exporting model", "Online instrument model cannot be exported: unsupported model type.");
+							return;
+						}
 						resource.save(null);
 					} else {
 						MessageDialog.openError(window.getShell(), "Error in exporting model", "Online instrument model is not available.");
@@ -56,6 +73,7 @@ public class ExportModelAction implements IWorkbenchWindowActionDelegate {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
+					MessageDialog.openError(window.getShell(), "Error in exporting model", "Failed to save model: " + e.getMessage());
 				}
 			}
 		});

@@ -24,9 +24,10 @@ import javax.inject.Inject;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.JFaceResources;
@@ -174,22 +175,22 @@ public class BatchValidationTimeEstimatePage extends ExtendedFormComposite {
 		passwordText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
 				false));
 
-		Realm.runWithDefault(SWTObservables.getRealm(PlatformUI.getWorkbench()
+		Realm.runWithDefault(DisplayRealm.getRealm(PlatformUI.getWorkbench()
 				.getDisplay()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(hostText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "host"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(portText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "port"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(loginText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "login"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(
-						passwordText, SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "password"), new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(hostText), 
+						BeanProperties.value("host").observe(getConnectionContext()), 
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(portText), 
+						BeanProperties.value("port").observe(getConnectionContext()), 
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(loginText), 
+						BeanProperties.value("login").observe(getConnectionContext()), 
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(passwordText), 
+						BeanProperties.value("password").observe(getConnectionContext()), 
+						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});
 	}

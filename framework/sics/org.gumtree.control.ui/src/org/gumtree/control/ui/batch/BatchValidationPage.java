@@ -11,21 +11,17 @@
 
 package org.gumtree.control.ui.batch;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.io.StringReader;
-import java.net.Socket;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.JFaceResources;
@@ -35,7 +31,6 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.custom.StyledTextContent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
@@ -168,22 +163,22 @@ public class BatchValidationPage extends ExtendedFormComposite {
 		passwordText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
 				false));
 
-		Realm.runWithDefault(SWTObservables.getRealm(PlatformUI.getWorkbench()
+		Realm.runWithDefault(DisplayRealm.getRealm(PlatformUI.getWorkbench()
 				.getDisplay()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(hostText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "serverAddress"), new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(hostText), 
+						BeanProperties.value("serverAddress").observe(getConnectionContext()), 
+						new UpdateValueStrategy(), new UpdateValueStrategy());
 //				bindingContext.bindValue(SWTObservables.observeText(portText,
 //						SWT.Modify), BeansObservables.observeValue(
 //						getConnectionContext(), "port"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(loginText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "role"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(
-						passwordText, SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "password"), new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(loginText), 
+						BeanProperties.value("role").observe(getConnectionContext()), 
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(passwordText), 
+						BeanProperties.value("password").observe(getConnectionContext()), 
+						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});
 	}

@@ -2,13 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree Control Core
 Bundle-SymbolicName: org.gumtree.control.core
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Vendor: ANSTO
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: org.json;bundle-version="1.0.0",
- org.zeromq.jeromq;bundle-version="4.1.7",
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Require-Bundle: json;bundle-version="20250517.0.0",
+ org.zeromq.jeromq;bundle-version="0.6.0",
  ch.psi.sics.hipadaba;bundle-version="1.13.0";visibility:=reexport,
- org.slf4j.api;bundle-version="1.6.4",
  org.eclipse.core.runtime;bundle-version="3.8.0",
  org.gumtree.core;bundle-version="1.13.0";visibility:=reexport
 Export-Package: org.gumtree.control.batch,

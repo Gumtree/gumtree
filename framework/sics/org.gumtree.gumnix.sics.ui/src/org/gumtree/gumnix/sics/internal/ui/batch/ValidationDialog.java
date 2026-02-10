@@ -19,9 +19,10 @@ import java.net.Socket;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
@@ -121,22 +122,26 @@ public class ValidationDialog extends TitleAreaDialog {
 //		getBindingContext().bind(passwordText, new Property(getConnectionContext(), "password"), null);
 
 		// Eclipse 3.3 databinding
-		Realm.runWithDefault(SWTObservables.getRealm(PlatformUI.getWorkbench()
+		Realm.runWithDefault(DisplayRealm.getRealm(PlatformUI.getWorkbench()
 				.getDisplay()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(hostText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "host"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(portText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "port"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(loginText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "login"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(
-						passwordText, SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "password"), new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(
+						WidgetProperties.text(SWT.Modify).observe(hostText),
+						BeanProperties.value(ExtendedConnectionContext.class, "host").observe(getConnectionContext()),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(
+						WidgetProperties.text(SWT.Modify).observe(portText),
+						BeanProperties.value(ExtendedConnectionContext.class, "port").observe(getConnectionContext()),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(
+						WidgetProperties.text(SWT.Modify).observe(loginText),
+						BeanProperties.value(ExtendedConnectionContext.class, "login").observe(getConnectionContext()),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(
+						WidgetProperties.text(SWT.Modify).observe(passwordText),
+						BeanProperties.value(ExtendedConnectionContext.class, "password").observe(getConnectionContext()),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});
 	}
@@ -186,7 +191,7 @@ public class ValidationDialog extends TitleAreaDialog {
 						String replyMessage;
 						while ((replyMessage = inputStream.readLine()) != null) {
 							// little hack to sics telnet bug
-							while (replyMessage.startsWith("ящ")) {
+							while (replyMessage.startsWith("пїЅпїЅ")) {
 								replyMessage = replyMessage.substring(2);
 							}
 							if (outputText == null || outputText.isDisposed()) {

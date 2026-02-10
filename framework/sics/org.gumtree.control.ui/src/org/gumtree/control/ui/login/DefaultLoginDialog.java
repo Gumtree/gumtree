@@ -2,9 +2,10 @@ package org.gumtree.control.ui.login;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -192,21 +193,24 @@ public class DefaultLoginDialog extends BaseLoginDialog {
 				false));
 //		getBindingContext().bind(passwordText, new Property(getConnectionContext(), "password"), null);
 		
-		Realm.runWithDefault(SWTObservables.getRealm(PlatformUI.getWorkbench()
+		Realm.runWithDefault(DisplayRealm.getRealm(PlatformUI.getWorkbench()
 				.getDisplay()), new Runnable() {
-			public void run() {
-				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(hostText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "host"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(portText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "port"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(passwordText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "password"), new UpdateValueStrategy(), new UpdateValueStrategy());
-			}
-		});
+ 			public void run() {
+ 				DataBindingContext bindingContext = new DataBindingContext();
+				bindingContext.bindValue(
+						WidgetProperties.text(SWT.Modify).observe(hostText),
+						BeanProperties.value(Object.class, "host").observe(getConnectionContext()),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(
+						WidgetProperties.text(SWT.Modify).observe(portText),
+						BeanProperties.value(Object.class, "port").observe(getConnectionContext()),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(
+						WidgetProperties.text(SWT.Modify).observe(passwordText),
+						BeanProperties.value(Object.class, "password").observe(getConnectionContext()),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+ 			}
+ 		});
 	}
 
 }

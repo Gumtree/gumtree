@@ -2,17 +2,17 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree SICS Core
 Bundle-SymbolicName: org.gumtree.sics.core;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.gumtree.sics.util.Activator
-Require-Bundle: org.json;bundle-version="1.0.0";visibility:=reexport,
+Require-Bundle: json,
  ch.psi.sics.hipadaba;bundle-version="1.7.0";visibility:=reexport,
  org.gumtree.core;bundle-version="1.7.0";visibility:=reexport,
- ch.lambdaj;bundle-version="2.3.3",
+ ch.lambdaj;bundle-version="2.4.0",
  ch.unifr.nio.framework;bundle-version="1.1.0",
  com.google.guava;bundle-version="11.0.1",
  com.db4o.java5;bundle-version="8.0.184"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: org.gumtree.sics.batch,
  org.gumtree.sics.control,
  org.gumtree.sics.control.support,

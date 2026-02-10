@@ -54,11 +54,11 @@ public class SicsChannel implements ISicsChannel {
 	public static final String JSON_VALUE_OK = "OK";
 	private static final String POCH_COMMAND = "POCH";
 	
-	private static final int POCH_TIMEOUT = 10000;
-	private static final int COMMAND_WAIT_TIME = 3;
-	private static final int SEND_TIMEOUT = 3000;
-	private static final int RECEIVE_TIMEOUT = 5000;
-	private static final int COMMAND_TIMEOUT = 10000;
+	static final int POCH_TIMEOUT = 10000;
+	static final int COMMAND_WAIT_TIME = 3;
+	static final int SEND_TIMEOUT = 3000;
+	static final int RECEIVE_TIMEOUT = 5000;
+	static final int COMMAND_TIMEOUT = 10000;
 	
 	private static Logger logger = LoggerFactory.getLogger(SicsChannel.class);
 	
@@ -171,7 +171,7 @@ public class SicsChannel implements ISicsChannel {
 		try {
 			return sicsCommand.syncRun();
 		} catch(Exception e) {
-			isBusy = false;
+		 isBusy = false;
 			logger.error(e.getMessage());
 			if (sicsProxy.isInterrupted()) {
 				throw new SicsInterruptException("user interrupted");
@@ -231,12 +231,22 @@ public class SicsChannel implements ISicsChannel {
 			
 			@Override
 			public void run() {
+				// Use a ZMQ Poller to avoid blocking indefinitely on recv
+				ZMQ.Poller poller = context.createPoller(1);
+				poller.register(clientSocket, ZMQ.Poller.POLLIN);
 				while(isConnected) {
 					try {
 						logger.debug("waiting for next message");
+						int rc = poller.poll(RECEIVE_TIMEOUT);
+						if (rc <= 0) {
+							// timeout or interrupted, continue waiting
+							continue;
+						}
+						if (!poller.pollin(0)) {
+							// no input ready despite poll returning > 0
+							continue;
+						}
 						String received = clientSocket.recvStr(0);
-//						String timeStamp = new SimpleDateFormat("dd.HH.mm.ss.SSS").format(new Date());
-//						System.err.println(timeStamp + " Received: [" + received);
 						if (received == null) {
 							logger.debug("received null");
 							continue;
@@ -244,7 +254,7 @@ public class SicsChannel implements ISicsChannel {
 						logger.debug("CMD: " + received);
 						JSONObject json = null;
 						try {
-							json = new JSONObject(received);	
+							json = new JSONObject(received);    
 							if (json != null && json.has(JSON_KEY_CID)) {
 								int commandId = json.getInt(JSON_KEY_CID);
 								if (commandMap.containsKey(commandId)) {
@@ -254,12 +264,21 @@ public class SicsChannel implements ISicsChannel {
 						} catch (Exception e) {
 							logger.error("JSon Error: " + (json != null ? json.toString() : "failed to create JSon object;"), e);
 						}
+					} catch (ZMQException ze) {
+						logger.error("proxy disconnected", ze);
+						break;
 					} catch (Exception e) {
 						logger.error("proxy disconnected", e);
 						break;
 					}
 				}
+				try {
+					poller.close();
+				} catch (Exception e) {
+					// ignore
+				}
 				logger.warn("quitting client thread");
+				
 			}
 		});
 		clientThread.start();
@@ -514,7 +533,7 @@ public class SicsChannel implements ISicsChannel {
 						}
 					}
 					if (json.has(JSON_KEY_FINISHED)) {
-						if (json.getString(JSON_KEY_FINISHED).equals("true")) {
+						if (json.getBoolean(JSON_KEY_FINISHED)) {
 							finish();
 							if (callback != null) {
 								callback.receiveFinish(new SicsReplyData(json));
@@ -547,7 +566,8 @@ public class SicsChannel implements ISicsChannel {
 						}
 					}
 					if (json.has(JSON_KEY_FINISHED)) {
-						if (json.getString(JSON_KEY_FINISHED).equals("true")) {
+//						if (json.getString(JSON_KEY_FINISHED).equals("true")) {
+						if (json.getBoolean(JSON_KEY_FINISHED)) {
 							if (callback != null) {
 								callback.receiveFinish(new SicsReplyData(json));
 							}

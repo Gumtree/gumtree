@@ -13,10 +13,11 @@ package org.gumtree.gumnix.sics.batch.ui.views;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.databinding.viewers.ViewersObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
@@ -85,14 +86,15 @@ public class DrivableCommandView extends AbstractSicsCommandView<DrivableCommand
 		/*********************************************************************
 		 * Data binding
 		 *********************************************************************/
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				bindingContext.bindValue(
-						ViewersObservables.observeSingleSelection(methodComboViewer),
-						BeansObservables.observeValue(getCommand(), "method"),
+						ViewerProperties.singleSelection().observe(methodComboViewer),
+						BeanProperties.value("method").observe(getCommand()),
 						new UpdateValueStrategy(),
 						new UpdateValueStrategy()
 				);
+
 			}
 		});
 	}
@@ -167,21 +169,22 @@ public class DrivableCommandView extends AbstractSicsCommandView<DrivableCommand
 		/*********************************************************************
 		 * Data binding
 		 *********************************************************************/
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				bindingContext.bindValue(
-						ViewersObservables.observeSingleSelection(drivableComboViewer),
-						BeansObservables.observeValue(parameter, "deviceId"),
+						ViewerProperties.singleSelection().observe(drivableComboViewer),
+						BeanProperties.value("deviceId").observe(parameter),
 						new UpdateValueStrategy(),
 						new UpdateValueStrategy()
 				);
+
 				bindingContext.bindValue(
-						SWTObservables.observeText(targetText, SWT.Modify),
-						BeansObservables.observeValue(parameter, "target"),
+						WidgetProperties.text(SWT.Modify).observe(targetText),
+						BeanProperties.value("target").observe(parameter),
 						new UpdateValueStrategy(),
 						new UpdateValueStrategy()
 				);
-				
+
 				/*********************************************************************
 				 * Default selection
 				 *********************************************************************/

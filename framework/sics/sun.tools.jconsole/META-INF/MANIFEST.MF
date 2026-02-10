@@ -9,4 +9,4 @@ Export-Package: com.sun.tools.jconsole,
  sun.tools.jconsole,
  sun.tools.jconsole.inspector,
  sun.tools.jconsole.resources
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21

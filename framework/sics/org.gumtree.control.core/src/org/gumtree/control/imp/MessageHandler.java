@@ -78,7 +78,8 @@ public class MessageHandler {
 					sicsProxy.setServerStatus(ss);
 				} else if (type.equalsIgnoreCase(MessageType.VALUE.getId())) {
 					String name = json.getString(PropertyConstants.PROP_UPDATE_NAME);
-					String value = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
+//					String value = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
+					String value = json.get(PropertyConstants.PROP_UPDATE_VALUE).toString();
 //					logger.info("UPDATE value " + name + " = " + value);
 					processUpdate(name, value);
 				} else if (type.equalsIgnoreCase(MessageType.STATE.getId())) {

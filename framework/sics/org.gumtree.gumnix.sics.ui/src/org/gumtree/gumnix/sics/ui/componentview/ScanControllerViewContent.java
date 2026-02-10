@@ -2,23 +2,19 @@ package org.gumtree.gumnix.sics.ui.componentview;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
-import org.eclipse.core.databinding.observable.Realm;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
-import org.gumtree.gumnix.sics.control.controllers.ICommandController;
 import org.gumtree.gumnix.sics.control.controllers.IComponentController;
 import org.gumtree.gumnix.sics.control.controllers.IScanController;
 import org.gumtree.gumnix.sics.control.events.IScanControllerListener;
@@ -29,6 +25,8 @@ public class ScanControllerViewContent implements IComponentViewContent {
 	private IScanController controller;
 
 	private FormToolkit toolkit;
+
+	private DataBindingContext bindingContext;
 
 	private Text npText;
 
@@ -44,14 +42,11 @@ public class ScanControllerViewContent implements IComponentViewContent {
 
 	private ListViewer listViewer;
 
-	private Composite parent;
-
 	private IScanControllerListener controllerListener;
 
 	public void createPartControl(Composite parent, IComponentController controller) {
 		Assert.isTrue(controller instanceof IScanController);
-		this.controller = (IScanController)controller;
-		this.parent = parent;
+		this.controller = (IScanController) controller;
 		toolkit = new FormToolkit(parent.getDisplay());
 		parent.setLayout(new FillLayout());
 		ScrolledForm form = toolkit.createScrolledForm(parent);
@@ -61,22 +56,18 @@ public class ScanControllerViewContent implements IComponentViewContent {
 		getToolkit().createLabel(form.getBody(), "Preset: ");
 		presetText = getToolkit().createText(form.getBody(), "", SWT.BORDER);
 		presetText.setLayoutData(gridData);
-//		getBindingContext().bind(presetText, new Property(getController().config(), "preset"), null);
 
-		Realm.runWithDefault(SWTObservables.getRealm(PlatformUI.getWorkbench()
-				.getDisplay()), new Runnable() {
-			public void run() {
-				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(
-						SWTObservables.observeText(presetText, SWT.Modify),
-						BeansObservables.observeValue(getController().config(),
-								"preset"), new UpdateValueStrategy(), new UpdateValueStrategy());
-			}
-		});
-		
+		bindingContext = new DataBindingContext();
+		bindingContext.bindValue(
+				WidgetProperties.text(SWT.Modify).observe(presetText),
+				BeanProperties.value("preset").observe(getController().config()), 
+				new UpdateValueStrategy(), new UpdateValueStrategy());
+
 		controllerListener = new ScanControllerListenerAdapter() {
+			@Override
 			public void scanConfigUpdated() {
 			}
+			@Override
 			public void scanStatusUpdated() {
 			}
 		};
@@ -85,9 +76,16 @@ public class ScanControllerViewContent implements IComponentViewContent {
 	}
 
 	public void dispose() {
-		if(getController() != null && controllerListener != null) {
+		if (bindingContext != null) {
+			bindingContext.dispose();
+		}
+		if (getController() != null && controllerListener != null) {
 			getController().removeComponentListener(controllerListener);
 			controllerListener = null;
+		}
+		if (toolkit != null) {
+			toolkit.dispose();
+			toolkit = null;
 		}
 	}
 

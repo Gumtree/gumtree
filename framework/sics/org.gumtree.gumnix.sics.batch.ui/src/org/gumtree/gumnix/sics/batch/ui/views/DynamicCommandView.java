@@ -2,10 +2,11 @@ package org.gumtree.gumnix.sics.batch.ui.views;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.databinding.viewers.ViewersObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
@@ -80,12 +81,12 @@ public class DynamicCommandView extends AbstractSicsCommandView<DynamicCommand> 
 		/*********************************************************************
 		 * Data binding
 		 *********************************************************************/
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 
 			public void run() {
 				bindingContext.bindValue(
-						ViewersObservables.observeSingleSelection(commandComboViewer),
-						BeansObservables.observeValue(getCommand(), "selectedCommand"),
+						ViewerProperties.singleSelection().observe(commandComboViewer),
+						BeanProperties.value("selectedCommand").observe(getCommand()),
 						new UpdateValueStrategy(),
 						new UpdateValueStrategy()
 				);
@@ -148,11 +149,11 @@ public class DynamicCommandView extends AbstractSicsCommandView<DynamicCommand> 
 		/*********************************************************************
 		 * Data binding
 		 *********************************************************************/
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				bindingContext.bindValue(
-						ViewersObservables.observeSingleSelection(subCommandComboViewer),
-						BeansObservables.observeValue(command, "selectedSubCommand"),
+						ViewerProperties.singleSelection().observe(subCommandComboViewer),
+						BeanProperties.value("selectedSubCommand").observe(command),
 						new UpdateValueStrategy(),
 						new UpdateValueStrategy()
 				);
@@ -186,7 +187,7 @@ public class DynamicCommandView extends AbstractSicsCommandView<DynamicCommand> 
 		/*********************************************************************
 		 * Data binding
 		 *********************************************************************/
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				for (final ICommandArg arg : command.getArguments()) {
 					if (arg.getType().equals(ArgType.DRIVABLE)) {
@@ -201,8 +202,8 @@ public class DynamicCommandView extends AbstractSicsCommandView<DynamicCommand> 
 						 * Data binding
 						 *****************************************************/
 						bindingContext.bindValue(
-								ViewersObservables.observeSingleSelection(drivableComboViewer),
-								BeansObservables.observeValue(arg, "value"),
+								ViewerProperties.singleSelection().observe(drivableComboViewer),
+								BeanProperties.value("value").observe(arg),
 								new UpdateValueStrategy(),
 								new UpdateValueStrategy()
 						);
@@ -239,8 +240,8 @@ public class DynamicCommandView extends AbstractSicsCommandView<DynamicCommand> 
 						 * Data binding
 						 *****************************************************/
 						bindingContext.bindValue(
-								SWTObservables.observeText(argText, SWT.Modify),
-								BeansObservables.observeValue(arg, "value"),
+								WidgetProperties.text(SWT.Modify).observe(argText),
+								BeanProperties.value("value").observe(arg),
 								new UpdateValueStrategy(),
 								new UpdateValueStrategy()
 						);

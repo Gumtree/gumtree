@@ -2,9 +2,10 @@ package org.gumtree.gumnix.sics.internal.ui.login;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -12,7 +13,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -82,7 +83,7 @@ public class DefaultLoginDialog extends BaseLoginDialog {
 				return super.getText(element);
 			}
 		});
-		listViewer.setSorter(new ViewerSorter() {
+		listViewer.setComparator(new ViewerComparator() {
 			public int compare(Viewer viewer, Object e1, Object e2) {
 				if(e1 instanceof IInstrumentProfile && e2 instanceof IInstrumentProfile) {
 					if(((IInstrumentProfile)e1).isDefault()) {
@@ -193,19 +194,19 @@ public class DefaultLoginDialog extends BaseLoginDialog {
 				false));
 //		getBindingContext().bind(passwordText, new Property(getConnectionContext(), "password"), null);
 		
-		Realm.runWithDefault(SWTObservables.getRealm(PlatformUI.getWorkbench()
+		Realm.runWithDefault(DisplayRealm.getRealm(PlatformUI.getWorkbench()
 				.getDisplay()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(hostText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "host"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(portText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "port"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(passwordText,
-						SWT.Modify), BeansObservables.observeValue(
-						getConnectionContext(), "password"), new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(hostText),
+						BeanProperties.value("host").observe(getConnectionContext()), 
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(portText),
+						BeanProperties.value("port").observe(getConnectionContext()), 
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(passwordText),
+						BeanProperties.value("password").observe(getConnectionContext()), 
+						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});
 	}

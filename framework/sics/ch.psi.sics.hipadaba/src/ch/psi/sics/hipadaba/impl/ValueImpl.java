@@ -13,8 +13,8 @@ import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.EClass;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
+import org.eclipse.emf.ecore.impl.EObjectImpl;
 
-import org.eclipse.emf.ecore.sdo.impl.EDataObjectImpl;
 
 /**
  * <!-- begin-user-doc -->
@@ -29,7 +29,7 @@ import org.eclipse.emf.ecore.sdo.impl.EDataObjectImpl;
  *
  * @generated
  */
-public class ValueImpl extends EDataObjectImpl implements Value {
+public class ValueImpl extends EObjectImpl implements Value {
 	/**
 	 * The default value of the '{@link #getValue() <em>Value</em>}' attribute.
 	 * <!-- begin-user-doc -->

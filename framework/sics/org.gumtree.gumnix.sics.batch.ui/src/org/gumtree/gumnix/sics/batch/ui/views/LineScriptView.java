@@ -13,9 +13,10 @@ package org.gumtree.gumnix.sics.batch.ui.views;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -27,28 +28,25 @@ import org.gumtree.gumnix.sics.batch.ui.commands.LineScriptCommand;
 public class LineScriptView extends AbstractSicsCommandView<LineScriptCommand> {
 
 	private DataBindingContext bindingContext;
-	
+
 	private Text text;
-	
+
 	@Override
 	public void createPartControl(Composite parent, LineScriptCommand command) {
 		GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(parent);
 		text = getToolkit().createText(parent, "", SWT.BORDER);
 		text.setToolTipText("Enter script");
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(text);
-		
+
 		/*********************************************************************
 		 * Data binding
 		 *********************************************************************/
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				bindingContext = new DataBindingContext();
-				bindingContext.bindValue(
-						SWTObservables.observeText(text, SWT.Modify),
-						BeansObservables.observeValue(getCommand(), "text"),
-						new UpdateValueStrategy(),
-						new UpdateValueStrategy()
-				);
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(text),
+						BeanProperties.value("text").observe(getCommand()), new UpdateValueStrategy(),
+						new UpdateValueStrategy());
 			}
 		});
 	}
@@ -61,5 +59,5 @@ public class LineScriptView extends AbstractSicsCommandView<LineScriptCommand> {
 		text = null;
 		super.dispose();
 	}
-	
+
 }

@@ -6,9 +6,10 @@
  */
 package ch.psi.sics.hipadaba;
 
-import commonj.sdo.Sequence;
 
 import java.util.Map;
+
+import org.eclipse.emf.ecore.util.FeatureMap;
 
 /**
  * <!-- begin-user-doc -->
@@ -42,7 +43,7 @@ public interface DocumentRoot {
 	 *        extendedMetaData="kind='elementWildcard' name=':mixed'"
 	 * @generated
 	 */
-	Sequence getMixed();
+	FeatureMap getMixed();
 
 	/**
 	 * Returns the value of the '<em><b>XMLNS Prefix Map</b></em>' map.

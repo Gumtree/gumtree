@@ -15,10 +15,11 @@ import java.net.URI;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.nebula.widgets.pgroup.AbstractGroupStrategy;
 import org.eclipse.nebula.widgets.pgroup.PGroup;
@@ -96,19 +97,38 @@ public class InstrumentSpecificLoginDialog extends BaseLoginDialog {
 		createConnectBar(loginArea);
 
 		// Bind GUI for Eclipse 3.3
-//		Realm.runWithDefault(SWTObservables.getRealm(PlatformUI.getWorkbench()
+		// Realm.runWithDefault(SWTObservables.getRealm(PlatformUI.getWorkbench()
+		// 		.getDisplay()), new Runnable() {
+		// 	public void run() {
+		// 		DataBindingContext bindingContext = new DataBindingContext();
+		// 		bindingContext.bindValue(SWTObservables.observeText(hostText,
+		// 			SWT.Modify), BeansObservables.observeValue(
+		// 			getConnectionContext(), "serverAddress"), new UpdateValueStrategy(), new UpdateValueStrategy());
+		// 		bindingContext.bindValue(SWTObservables.observeText(portText,
+		// 			SWT.Modify), BeansObservables.observeValue(
+		// 			getConnectionContext(), "publisherAddress"), new UpdateValueStrategy(), new UpdateValueStrategy());
+		// 		bindingContext.bindValue(SWTObservables.observeText(passwordText,
+		// 			SWT.Modify), BeansObservables.observeValue(
+		// 			getConnectionContext(), "password"), new UpdateValueStrategy(), new UpdateValueStrategy());
+		// 	}
+		// });
+		// Bind GUI using modern databinding APIs
+//		Realm.runWithDefault(DisplayRealm.getRealm(PlatformUI.getWorkbench()
 //				.getDisplay()), new Runnable() {
 //			public void run() {
 //				DataBindingContext bindingContext = new DataBindingContext();
-//				bindingContext.bindValue(SWTObservables.observeText(hostText,
-//						SWT.Modify), BeansObservables.observeValue(
-//						getConnectionContext(), "serverAddress"), new UpdateValueStrategy(), new UpdateValueStrategy());
-//				bindingContext.bindValue(SWTObservables.observeText(portText,
-//						SWT.Modify), BeansObservables.observeValue(
-//						getConnectionContext(), "publisherAddress"), new UpdateValueStrategy(), new UpdateValueStrategy());
-//				bindingContext.bindValue(SWTObservables.observeText(passwordText,
-//						SWT.Modify), BeansObservables.observeValue(
-//						getConnectionContext(), "password"), new UpdateValueStrategy(), new UpdateValueStrategy());
+//				bindingContext.bindValue(
+//						WidgetProperties.text(SWT.Modify).observe(hostText),
+//						BeanProperties.value(Object.class, "serverAddress").observe(getConnectionContext()),
+//						new UpdateValueStrategy(), new UpdateValueStrategy());
+//				bindingContext.bindValue(
+//						WidgetProperties.text(SWT.Modify).observe(portText),
+//						BeanProperties.value(Object.class, "publisherAddress").observe(getConnectionContext()),
+//						new UpdateValueStrategy(), new UpdateValueStrategy());
+//				bindingContext.bindValue(
+//						WidgetProperties.text(SWT.Modify).observe(passwordText),
+//						BeanProperties.value(Object.class, "password").observe(getConnectionContext()),
+//						new UpdateValueStrategy(), new UpdateValueStrategy());
 //			}
 //		});
 

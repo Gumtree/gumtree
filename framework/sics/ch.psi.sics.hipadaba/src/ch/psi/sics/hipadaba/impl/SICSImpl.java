@@ -21,9 +21,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
-
-import org.eclipse.emf.ecore.sdo.impl.EDataObjectImpl;
-
+import org.eclipse.emf.ecore.impl.EObjectImpl;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
@@ -41,7 +39,7 @@ import org.eclipse.emf.ecore.util.InternalEList;
  *
  * @generated
  */
-public class SICSImpl extends EDataObjectImpl implements SICS {
+public class SICSImpl extends EObjectImpl implements SICS {
 	/**
 	 * The cached value of the '{@link #getComponent() <em>Component</em>}' containment reference list.
 	 * <!-- begin-user-doc -->

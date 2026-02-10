@@ -8,9 +8,9 @@ package ch.psi.sics.hipadaba.validation;
 
 import ch.psi.sics.hipadaba.SICS;
 
-import commonj.sdo.Sequence;
-
 import java.util.Map;
+
+import org.eclipse.emf.ecore.util.FeatureMap;
 
 /**
  * A sample validator interface for {@link ch.psi.sics.hipadaba.DocumentRoot}.
@@ -21,7 +21,7 @@ import java.util.Map;
 public interface DocumentRootValidator {
 	boolean validate();
 
-	boolean validateMixed(Sequence value);
+	boolean validateMixed(FeatureMap value);
 	boolean validateXMLNSPrefixMap(Map<String, String> value);
 	boolean validateXSISchemaLocation(Map<String, String> value);
 	boolean validateSICS(SICS value);

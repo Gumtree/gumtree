@@ -14,7 +14,8 @@ package org.gumtree.control.ui.batch;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.IBeanValueProperty;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
@@ -23,7 +24,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.jface.dialogs.IInputValidator;
@@ -122,7 +123,15 @@ public class BatchQueueViewer extends FormControlWidget {
 		queueViewer = new TableViewer(this, getOriginalStyle());
 		ObservableListContentProvider contentProvider = new ObservableListContentProvider();
 		queueViewer.setContentProvider(contentProvider);
-		IObservableMap[] attributeMaps = BeansObservables.observeMaps(contentProvider.getKnownElements(), IBatchScript.class, new String[] { "name" });
+//		IObservableMap[] attributeMaps = BeansObservables.observeMaps(contentProvider.getKnownElements(), IBatchScript.class, new String[] { "name" });
+//		IObservableMap[] attributeMaps = BeanProperties.values(new String[]{"name"}).observeEach(contentProvider.getKnownElements());
+		IBeanValueProperty[] beanProps = BeanProperties.values(new String[]{"name"});
+		IObservableMap[] attributeMaps = new IObservableMap[beanProps.length];
+		
+		for (int i = 0; i < beanProps.length; i++) {
+			attributeMaps[i] = beanProps[i].observeDetail(contentProvider.getKnownElements());
+		}
+		
 		queueViewer.setLabelProvider(new ObservableMapLabelProvider(attributeMaps) {
 			public Image getColumnImage(Object element, int columnIndex) {
 				if (columnIndex == 0) {
@@ -228,7 +237,7 @@ public class BatchQueueViewer extends FormControlWidget {
 		}
 		this.manager = manager;
 		//Prepare UI (sync queue)
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				queueViewer.setInput(new WritableList(getManager().getBatchBufferQueue(), IBatchScript.class));
 				((AbstractModelObject) getManager()).addPropertyChangeListener(propertyChangeListener);

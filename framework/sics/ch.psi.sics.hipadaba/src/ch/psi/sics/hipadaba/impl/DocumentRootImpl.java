@@ -9,8 +9,6 @@ package ch.psi.sics.hipadaba.impl;
 import ch.psi.sics.hipadaba.DocumentRoot;
 import ch.psi.sics.hipadaba.SICS;
 
-import commonj.sdo.Sequence;
-
 import java.util.Map;
 
 import org.eclipse.emf.common.notify.NotificationChain;
@@ -21,13 +19,8 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.InternalEObject;
-
+import org.eclipse.emf.ecore.impl.EObjectImpl;
 import org.eclipse.emf.ecore.impl.EStringToStringMapEntryImpl;
-
-import org.eclipse.emf.ecore.sdo.impl.EDataObjectImpl;
-
-import org.eclipse.emf.ecore.sdo.util.BasicESequence;
-import org.eclipse.emf.ecore.sdo.util.ESequence;
 
 import org.eclipse.emf.ecore.util.BasicFeatureMap;
 import org.eclipse.emf.ecore.util.EcoreEMap;
@@ -50,7 +43,7 @@ import org.eclipse.emf.ecore.util.InternalEList;
  *
  * @generated
  */
-public class DocumentRootImpl extends EDataObjectImpl implements DocumentRoot {
+public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 	/**
 	 * The cached value of the '{@link #getMixed() <em>Mixed</em>}' attribute list.
 	 * <!-- begin-user-doc -->
@@ -59,7 +52,7 @@ public class DocumentRootImpl extends EDataObjectImpl implements DocumentRoot {
 	 * @generated
 	 * @ordered
 	 */
-	protected ESequence mixed;
+	protected FeatureMap mixed;
 
 	/**
 	 * The cached value of the '{@link #getXMLNSPrefixMap() <em>XMLNS Prefix Map</em>}' map.
@@ -105,9 +98,9 @@ public class DocumentRootImpl extends EDataObjectImpl implements DocumentRoot {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public Sequence getMixed() {
+	public FeatureMap getMixed() {
 		if (mixed == null) {
-			mixed = new BasicESequence(new BasicFeatureMap(this, HipadabaPackageImpl.DOCUMENT_ROOT__MIXED));
+			mixed = new BasicFeatureMap(this, HipadabaPackageImpl.DOCUMENT_ROOT__MIXED);
 		}
 		return mixed;
 	}
@@ -263,7 +256,7 @@ public class DocumentRootImpl extends EDataObjectImpl implements DocumentRoot {
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case HipadabaPackageImpl.DOCUMENT_ROOT__MIXED:
-				return mixed != null && !mixed.featureMap().isEmpty();
+				return mixed != null && !mixed.isEmpty();
 			case HipadabaPackageImpl.DOCUMENT_ROOT__XMLNS_PREFIX_MAP:
 				return xMLNSPrefixMap != null && !xMLNSPrefixMap.isEmpty();
 			case HipadabaPackageImpl.DOCUMENT_ROOT__XSI_SCHEMA_LOCATION:

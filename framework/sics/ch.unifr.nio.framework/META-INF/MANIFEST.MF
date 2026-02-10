@@ -8,6 +8,6 @@ Bundle-ClassPath: src/,
 Export-Package: ch.unifr.nio.framework,
  ch.unifr.nio.framework.ssl,
  ch.unifr.nio.framework.transform
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Vendor: Ronny Standtke, University of Fribourg
 Eclipse-BundleShape: dir

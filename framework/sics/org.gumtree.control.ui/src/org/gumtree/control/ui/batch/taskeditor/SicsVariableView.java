@@ -13,9 +13,11 @@ package org.gumtree.control.ui.batch.taskeditor;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
@@ -87,20 +89,20 @@ public class SicsVariableView extends AbstractSicsCommandView<SicsVariableComman
 		/*********************************************************************
 		 * Data binding
 		 *********************************************************************/
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				bindingContext = new DataBindingContext();
 				
 				bindingContext.bindValue(
-						SWTObservables.observeSelection(comboViewer.getCombo()),
-						BeansObservables.observeValue(getCommand(), "sicsVariable"),
+						ViewerProperties.singleSelection().observe(comboViewer),
+						BeanProperties.value(SicsVariableCommand.class, "sicsVariable").observe(getCommand()),
 						new UpdateValueStrategy(),
 						new UpdateValueStrategy()
 				);
 				
 				bindingContext.bindValue(
-						SWTObservables.observeText(text, SWT.Modify),
-						BeansObservables.observeValue(getCommand(), "value"),
+						WidgetProperties.text(SWT.Modify).observe(text),
+						BeanProperties.value(SicsVariableCommand.class, "value").observe(getCommand()),
 						new UpdateValueStrategy(),
 						new UpdateValueStrategy()
 				);

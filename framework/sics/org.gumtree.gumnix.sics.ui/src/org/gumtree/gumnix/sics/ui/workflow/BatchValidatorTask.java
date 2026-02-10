@@ -16,12 +16,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
@@ -48,11 +50,11 @@ public class BatchValidatorTask extends AbstractTask {
 	private static final String BATCH_NAME = "gumtreeBatchValidation";
 
 	private StyledText outputText;
-	
+
 	private ExtendedConnectionContext context;
-	
+
 	private String[] commands;
-	
+
 	@Override
 	protected Object createModelInstance() {
 		return null;
@@ -64,77 +66,100 @@ public class BatchValidatorTask extends AbstractTask {
 
 	@Override
 	protected Object run(Object input) throws WorkflowException {
-		
 		/*********************************************************************
 		 * Clear text
 		 *********************************************************************/
 		SafeUIRunner.asyncExec(new SafeRunnable() {
 			public void run() throws Exception {
-				outputText.setText("");
+				if (outputText != null && !outputText.isDisposed()) {
+					outputText.setText("");
+				}
 			}
 		});
+
 		/*********************************************************************
 		 * Connect and login to SICS
 		 *********************************************************************/
-		try {
-			Socket socket = new Socket(getConnectionContext().getHost(),
-						getConnectionContext().getPort());
-			final BufferedReader inputStream = new BufferedReader(
-					new InputStreamReader(socket.getInputStream()));
-			PrintStream outputStream = new PrintStream(socket.getOutputStream());
+		try (Socket socket = new Socket(getConnectionContext().getHost(), getConnectionContext().getPort());
+				BufferedReader inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				PrintStream outputStream = new PrintStream(socket.getOutputStream(), true)) { // Enable auto-flush
+
+			// Set a read timeout. If no data is received for this duration,
+			// we assume the batch is complete and the listener thread will terminate.
+			socket.setSoTimeout(10000); // 10 seconds
+
 			Thread listenerThread = new Thread(new Runnable() {
 				public void run() {
 					try {
 						String replyMessage;
 						while ((replyMessage = inputStream.readLine()) != null) {
 							// little hack to sics telnet bug
-							while (replyMessage.startsWith("ящ")) {
+							while (replyMessage.startsWith("пїЅпїЅ")) {
 								replyMessage = replyMessage.substring(2);
 							}
 							if (outputText == null || outputText.isDisposed()) {
 								break;
 							}
 							final String message = replyMessage;
-							PlatformUI.getWorkbench().getDisplay().asyncExec(
-								new Runnable() {
-									public void run() {
-										if (outputText == null
-												|| outputText.isDisposed()) {
-											return;
-										}
-										StyleRange styleRange = new StyleRange();
-										styleRange.start = outputText
-														.getCharCount();
-										styleRange.length = message
-														.length() + 1;
-										styleRange.fontStyle = SWT.BOLD;
-										styleRange.foreground = PlatformUI
-														.getWorkbench()
-														.getDisplay()
-														.getSystemColor(
-																SWT.COLOR_BLUE);
-										outputText.append(message + "\n");
-										outputText
-														.setStyleRange(styleRange);
-										// Auto scroll
-										StyledTextContent doc = outputText
-														.getContent();
-										int docLength = doc.getCharCount();
-										if (docLength > 0) {
-											outputText
-													.setCaretOffset(docLength);
-											outputText.showSelection();
-										}
+							PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+								public void run() {
+									if (outputText == null || outputText.isDisposed()) {
+										return;
 									}
+									StyleRange styleRange = new StyleRange();
+									styleRange.start = outputText.getCharCount();
+									styleRange.length = message.length() + 1;
+									styleRange.fontStyle = SWT.BOLD;
+									styleRange.foreground = PlatformUI.getWorkbench().getDisplay()
+											.getSystemColor(SWT.COLOR_BLUE);
+									outputText.append(message + "\n");
+									outputText.setStyleRange(styleRange);
+									// Auto scroll
+									StyledTextContent doc = outputText.getContent();
+									int docLength = doc.getCharCount();
+									if (docLength > 0) {
+										outputText.setCaretOffset(docLength);
+										outputText.showSelection();
+									}
+								}
 							});
 						}
+					} catch (SocketTimeoutException e) {
+						// This is our signal that the batch is likely finished.
+						final String message = "--> Batch validation finished (timeout waiting for more output).";
+						SafeUIRunner.asyncExec(new SafeRunnable() {
+							public void run() throws Exception {
+								if (outputText != null && !outputText.isDisposed()) {
+									outputText.append(message + "\n");
+								}
+							}
+						});
 					} catch (IOException e) {
+						// If the socket is closed by the main thread's try-with-resources,
+						// an exception is expected. Otherwise, it's an error.
+						if (!socket.isClosed()) {
+							final String errorMessage = "--> Network error: " + e.getMessage();
+							SafeUIRunner.asyncExec(new SafeRunnable() {
+								public void run() throws Exception {
+									if (outputText != null && !outputText.isDisposed()) {
+										StyleRange styleRange = new StyleRange();
+										styleRange.start = outputText.getCharCount();
+										styleRange.length = errorMessage.length() + 1;
+										styleRange.foreground = PlatformUI.getWorkbench().getDisplay()
+												.getSystemColor(SWT.COLOR_DARK_RED);
+										outputText.append(errorMessage + "\n");
+										outputText.setStyleRange(styleRange);
+									}
+								}
+							});
+						}
 					}
 				}
 			});
+
 			listenerThread.start();
-			send(getConnectionContext().getLogin() + " "
-					+ getConnectionContext().getPassword(), outputStream);
+
+			send(getConnectionContext().getLogin() + " " + getConnectionContext().getPassword(), outputStream);
 			send("exe clear", outputStream);
 			send("exe upload", outputStream);
 			for (String command : getCommands()) {
@@ -143,16 +168,20 @@ public class BatchValidatorTask extends AbstractTask {
 			send("exe forcesave " + BATCH_NAME, outputStream);
 			send("exe enqueue " + BATCH_NAME, outputStream);
 			send("exe run", outputStream);
-			} catch (IOException e) {
-//				setErrorMessage("Cannot connect to server");
 
-			}
-			// Append batch
-			// Run and capture output
-			
-			return null;
+			// Wait for the listener thread to finish (either by closing stream or timeout)
+			listenerThread.join();
+
+		} catch (IOException e) {
+			throw new WorkflowException("Failed to connect or communicate with validation server: " + e.getMessage(),
+					e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new WorkflowException("Batch validation task was interrupted.", e);
+		}
+		return null;
 	}
-	
+
 	private String[] getCommands() {
 		if (commands == null) {
 			// Ensures not returning a null object
@@ -166,8 +195,7 @@ public class BatchValidatorTask extends AbstractTask {
 			context = new ExtendedConnectionContext();
 			context.setHost(SicsCoreProperties.VALIDATION_HOST.getValue());
 			context.setPort(SicsCoreProperties.VALIDATION_PORT.getInt());
-			ISicsConnectionContext currentContext = SicsCore.getDefaultProxy()
-					.getConnectionContext();
+			ISicsConnectionContext currentContext = SicsCore.getDefaultProxy().getConnectionContext();
 			if (currentContext != null) {
 				context.setLogin(currentContext.getRole().getLoginId());
 				context.setPassword(currentContext.getPassword());
@@ -175,15 +203,17 @@ public class BatchValidatorTask extends AbstractTask {
 		}
 		return context;
 	}
-	
+
 	private void send(final String text, PrintStream outputStream) {
 		if (outputStream != null) {
-			// Send to IO
+			// Send to IO (auto-flush is enabled on PrintStream)
 			outputStream.println(text);
-			outputStream.flush();
 			// Update UI
 			SafeUIRunner.asyncExec(new SafeRunnable() {
 				public void run() throws Exception {
+					if (outputText == null || outputText.isDisposed()) {
+						return;
+					}
 					StyleRange styleRange = new StyleRange();
 					styleRange.start = outputText.getCharCount();
 					styleRange.length = 1;
@@ -193,8 +223,7 @@ public class BatchValidatorTask extends AbstractTask {
 					styleRange = new StyleRange();
 					styleRange.start = outputText.getCharCount();
 					styleRange.length = text.length() + 1;
-					styleRange.foreground = PlatformUI.getWorkbench()
-							.getDisplay().getSystemColor(SWT.COLOR_DARK_RED);
+					styleRange.foreground = PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_DARK_RED);
 					outputText.append(text + "\n");
 					outputText.setStyleRange(styleRange);
 				}
@@ -203,14 +232,12 @@ public class BatchValidatorTask extends AbstractTask {
 	}
 
 	private class BatchValidatorTaskView extends AbstractTaskView {
-		
+
 		private Text hostText;
-
 		private Text portText;
-
 		private Text loginText;
-
 		private Text passwordText;
+		private DataBindingContext bindingContext;
 
 		public void createPartControl(Composite parent) {
 			parent.setLayout(new GridLayout());
@@ -220,13 +247,20 @@ public class BatchValidatorTask extends AbstractTask {
 			getToolkit().adapt(configGroup);
 
 			createConnnectionConfigArea(configGroup);
-			
+
 			createOutputArea(parent);
+
+			// Add dispose listener to clean up data binding resources
+			parent.addDisposeListener(e -> {
+				if (bindingContext != null) {
+					bindingContext.dispose();
+				}
+			});
 		}
 
 		private void createConnnectionConfigArea(Composite parent) {
 			parent.setLayout(new GridLayout(2, false));
-			
+
 			getToolkit().createLabel(parent, "Host: ");
 			hostText = getToolkit().createText(parent, "");
 			GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).hint(250, SWT.DEFAULT).applyTo(hostText);
@@ -241,39 +275,47 @@ public class BatchValidatorTask extends AbstractTask {
 
 			getToolkit().createLabel(parent, "Password: ");
 			passwordText = getToolkit().createText(parent, "", SWT.PASSWORD);
-			GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).hint(250, SWT.DEFAULT).applyTo(passwordText);
+			GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).hint(250, SWT.DEFAULT)
+					.applyTo(passwordText);
 
-			// Eclipse 3.3 databinding
-			Realm.runWithDefault(SWTObservables.getRealm(PlatformUI.getWorkbench()
-					.getDisplay()), new Runnable() {
+			// Data binding with modern JFace API
+			Realm.runWithDefault(DisplayRealm.getRealm(PlatformUI.getWorkbench().getDisplay()), new Runnable() {
 				public void run() {
-					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeText(hostText,
-							SWT.Modify), BeansObservables.observeValue(
-							getConnectionContext(), "host"), new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(portText,
-							SWT.Modify), BeansObservables.observeValue(
-							getConnectionContext(), "port"), new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(loginText,
-							SWT.Modify), BeansObservables.observeValue(
-							getConnectionContext(), "login"), new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(
-							passwordText, SWT.Modify), BeansObservables.observeValue(
-							getConnectionContext(), "password"), new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext = new DataBindingContext();
+
+					// Bind host
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(hostText),
+							BeanProperties.value("host").observe(getConnectionContext()), new UpdateValueStrategy(),
+							new UpdateValueStrategy());
+
+					// Bind port
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(portText),
+							BeanProperties.value("port").observe(getConnectionContext()), new UpdateValueStrategy(),
+							new UpdateValueStrategy());
+
+					// Bind login
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(loginText),
+							BeanProperties.value("login").observe(getConnectionContext()), new UpdateValueStrategy(),
+							new UpdateValueStrategy());
+
+					// Bind password
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(passwordText),
+							BeanProperties.value("password").observe(getConnectionContext()), new UpdateValueStrategy(),
+							new UpdateValueStrategy());
 				}
 			});
 		}
 
 		private void createOutputArea(Composite parent) {
 			parent.setLayout(new GridLayout());
-			outputText = new StyledText(parent, SWT.BORDER | SWT.MULTI
-					| SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION
-					| SWT.READ_ONLY);
-			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(SWT.DEFAULT, 300).applyTo(outputText);
+			outputText = new StyledText(parent,
+					SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION | SWT.READ_ONLY);
+			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(SWT.DEFAULT, 300)
+					.applyTo(outputText);
 		}
-		
+
 	}
-	
+
 	/**
 	 * Extended connection context for handling sics role as string to make
 	 * better data binding with JFace.
@@ -305,5 +347,5 @@ public class BatchValidatorTask extends AbstractTask {
 	public Class<?>[] getOutputTypes() {
 		return null;
 	}
-	
+
 }

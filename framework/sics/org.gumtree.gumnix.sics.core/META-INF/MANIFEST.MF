@@ -2,16 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.gumtree.gumnix.sics.core;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.gumtree.gumnix.sics.internal.core.Activator
 Bundle-Localization: plugin
 Require-Bundle: ch.psi.sics.hipadaba;bundle-version="1.7.0";visibility:=reexport,
  org.gumtree.core;bundle-version="1.7.0";visibility:=reexport,
  ch.lambdaj;bundle-version="2.3.3",
- com.db4o.java5;bundle-version="8.0.184",
- org.springframework.core;bundle-version="3.0.5";resolution:=optional,
- org.springframework.beans;bundle-version="3.0.5";resolution:=optional,
- org.springframework.context;bundle-version="3.0.5";resolution:=optional
+ com.db4o.java5;bundle-version="8.0.184"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.gumtree.gumnix.sics.control;uses:="ch.psi.sics.hipadaba,org.gumtree.core.service,org.gumtree.gumnix.sics.control.controllers",
  org.gumtree.gumnix.sics.control.controllers;
@@ -40,6 +37,6 @@ Import-Package: ch.unifr.nio.framework,
  ch.unifr.nio.framework.transform,
  org.json,
  org.osgi.service.event
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BundleShape: jar
 Service-Component: OSGI-INF/ComponentControllerFactory.xml, OSGI-INF/SicsDataProvider.xml, OSGI-INF/SicsDataConverter.xml, OSGI-INF/SicsProxyMonitor.xml, OSGI-INF/SicsProxyWatchdog.xml, OSGI-INF/SicsManager.xml, OSGI-INF/InstrumentReadyManager.xml, OSGI-INF/SicsPersistenceManager.xml

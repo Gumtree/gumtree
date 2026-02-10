@@ -23,6 +23,7 @@ import org.gumtree.control.events.ISicsMessageListener;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.exception.SicsCommunicationException;
 import org.gumtree.control.exception.SicsException;
+import org.gumtree.control.exception.SicsExecutionException;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.model.SicsModel;
 import org.gumtree.util.ILoopExitCondition;
@@ -258,11 +259,63 @@ public class SicsProxy implements ISicsProxy {
 	@Override
 	public String syncRun(String command, ISicsCallback callback) throws SicsException {
 		if (channel != null && channel.isConnected()) {
-			return channel.syncSend(command, callback);
-		} else {
-			throw new SicsCommunicationException("not connected");
-		}
+            // Use monitored sync send which will wait for reconnect and retry if appropriate
+            return monitoredSyncSend(command, callback, -1);
+        } else {
+            throw new SicsCommunicationException("not connected");
+        }
 	}
+
+	/**
+     * Monitored wrapper around channel.syncSend that will detect SicsCommunicationException,
+     * and if the connection appears broken, will wait for a reconnect and retry once.
+     * If retry still fails (or no reconnect within RECONNECT_TIMEOUT), the original
+     * SicsCommunicationException is thrown.
+     */
+    private String monitoredSyncSend(String command, ISicsCallback callback, int timeout) throws SicsException {
+        if (channel == null) {
+            throw new SicsCommunicationException("not connected");
+        }
+        try {
+            if (timeout > 0) {
+                return channel.syncSend(command, callback, timeout);
+            } else {
+                return channel.syncSend(command, callback);
+            }
+        } catch (SicsCommunicationException sce) {
+            logger.warn("Detected SicsCommunicationException on command '{}': {}", command, sce.getMessage());
+            // If channel is not connected or proxy marked as broken, wait for reconnect and retry
+//            if (channel == null || !channel.isConnected() || isBroken) {
+                final long start = System.currentTimeMillis();
+                final long maxWait = SicsChannel.POCH_TIMEOUT * EPOCH_RETRY + RECONNECT_TIMEOUT;
+                final long step = 500; // ms
+                logger.info("Waiting up to {} ms for connection to be re-established before retrying command '{}'", maxWait, command);
+                while (System.currentTimeMillis() - start < maxWait) {
+                    // If proxy-level isConnected flag was set (fireConnectionEvent), or channel reports connected, try again
+                    if (channel != null && channel.isConnected()) {
+                        try {
+                            if (timeout > 0) {
+                                return channel.syncSend(command, callback, timeout);
+                            } else {
+                                return channel.syncSend(command, callback);
+                            }
+                        } catch (SicsCommunicationException sce2) {
+                            // still failing — continue waiting until timeout
+                            logger.debug("Retry after reconnect attempt failed for '{}': {}", command, sce2.getMessage());
+                        }
+                    }
+                    try {
+                        Thread.sleep(step);
+                    } catch (InterruptedException ie) {
+                        throw new SicsExecutionException("interrupted");
+                    }
+                }
+                logger.warn("Timed out waiting for reconnect; will rethrow original SicsCommunicationException for command '{}'", command);
+//            }
+                
+            throw sce;
+        }
+    }
 
 	@Override
 	public void asyncRun(String command, ISicsCallback callback) throws SicsException {
@@ -537,5 +590,6 @@ public class SicsProxy implements ISicsProxy {
 	public boolean isModelAvailable() {
 		return isModelAvailable;
 	}
+
 
 }

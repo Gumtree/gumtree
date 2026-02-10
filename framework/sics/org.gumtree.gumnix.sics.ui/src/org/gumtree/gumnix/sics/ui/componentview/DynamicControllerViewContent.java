@@ -35,7 +35,7 @@ import org.gumtree.gumnix.sics.control.controllers.IDynamicController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sun.tools.jconsole.Plotter;
+//import sun.tools.jconsole.Plotter;
 
 public class DynamicControllerViewContent implements IComponentViewContent {
 
@@ -49,7 +49,7 @@ public class DynamicControllerViewContent implements IComponentViewContent {
 	
 	private IDynamicController lowerlimit;
 	
-	private Plotter plotter;
+//	private Plotter plotter;
 	
 	private volatile Thread blinker;
 
@@ -69,7 +69,7 @@ public class DynamicControllerViewContent implements IComponentViewContent {
 		itemMonitor.setText("Device Property Monitor");
 			itemMonitor.getBody().setLayout(new FillLayout());
 		getToolkit().adapt(itemMonitor.getBody());
-		createMonitorSection(itemMonitor.getBody());
+//		createMonitorSection(itemMonitor.getBody());
 
 		shelf.setSelection(itemMonitor);
 	}
@@ -81,80 +81,80 @@ public class DynamicControllerViewContent implements IComponentViewContent {
 		getToolkit().createLabel(form.getBody(), "Component Path: " +  getController().getPath());
 	}
 
-	private void createMonitorSection(Composite parent) {
-		parent.setLayout(new GridLayout(2, false));
-		
-		Label label = getToolkit().createLabel(parent, "Range");
-		GridDataFactory.fillDefaults().align(SWT.END, SWT.CENTER).grab(true, false).applyTo(label);
-		
-		final Combo combo = new Combo(parent, SWT.READ_ONLY);
-		combo.setItems(Plotter.rangeNames);
-		combo.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				if (plotter != null) {
-					plotter.setViewRange(Plotter.rangeValues[combo.getSelectionIndex()]);
-				}
-			}
-		});
-		// Select the last one as default
-		combo.select(Plotter.rangeNames.length - 1);
-		getToolkit().adapt(combo);
-		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, false).applyTo(combo);
-		
-		Composite embeddedComposite = getToolkit().createComposite(parent, SWT.EMBEDDED);
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(2, 1).applyTo(embeddedComposite);
-		Frame frame = SWT_AWT.new_Frame(embeddedComposite);
-		frame.setLayout(new BorderLayout());
-		plotter = new Plotter();
-		frame.add("Center", plotter);
-		// Use the last range as default
-		plotter.setViewRange(Plotter.rangeValues[Plotter.rangeValues.length - 1]);		
-		plotter.createSequence("value", "Value", Color.BLUE, true);
-		
-		try {
-			upperlimit = (IDynamicController) controller.getChildController("/softupperlim");
-			lowerlimit = (IDynamicController) controller.getChildController("/softlowerlim");
-		} catch (Exception e) {
-			logger.error("Failed to retrieve limits.", e);
-		}
-		
-		if (upperlimit != null && lowerlimit != null) {
-			plotter.createSequence("upper", "Upper Limit", Color.RED, true);
-			plotter.createSequence("lower", "Lower Limit", Color.RED, true);
-		}
-		plotter.setDecimals(3);
-
-		// Use dashboard MVC instead??
-		Thread monitoringThread = new Thread(new Runnable() {
-			public void run() {
-				Thread thisThread = Thread.currentThread();
-				while (blinker == thisThread) {
-					try {
-						if (plotter != null && controller != null) {
-							long value = Math.round(controller.getValue().getFloatData() * 1000);
-							if (upperlimit != null && lowerlimit != null) {
-								long upperlim = Math.round(upperlimit.getValue().getFloatData() * 1000);
-								long lowerlim = Math.round(lowerlimit.getValue().getFloatData() * 1000);
-								plotter.addValues(System.currentTimeMillis(), value, upperlim, lowerlim);
-							} else {
-								plotter.addValues(System.currentTimeMillis(), value);
-							}
-						}
-						Thread.sleep(3000);
-					} catch (Exception e) {
-						logger.error("Error occured when updating plotter.", e);
-						// stop
-						blinker = null;	
-					}
-				}
-			}			
-		});
-		blinker = monitoringThread;
-		monitoringThread.start();
-	}
+//	private void createMonitorSection(Composite parent) {
+//		parent.setLayout(new GridLayout(2, false));
+//		
+//		Label label = getToolkit().createLabel(parent, "Range");
+//		GridDataFactory.fillDefaults().align(SWT.END, SWT.CENTER).grab(true, false).applyTo(label);
+//		
+//		final Combo combo = new Combo(parent, SWT.READ_ONLY);
+//		combo.setItems(Plotter.rangeNames);
+//		combo.addSelectionListener(new SelectionAdapter() {
+//			public void widgetSelected(SelectionEvent e) {
+//				if (plotter != null) {
+//					plotter.setViewRange(Plotter.rangeValues[combo.getSelectionIndex()]);
+//				}
+//			}
+//		});
+//		// Select the last one as default
+//		combo.select(Plotter.rangeNames.length - 1);
+//		getToolkit().adapt(combo);
+//		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, false).applyTo(combo);
+//		
+//		Composite embeddedComposite = getToolkit().createComposite(parent, SWT.EMBEDDED);
+//		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(2, 1).applyTo(embeddedComposite);
+//		Frame frame = SWT_AWT.new_Frame(embeddedComposite);
+//		frame.setLayout(new BorderLayout());
+//		plotter = new Plotter();
+//		frame.add("Center", plotter);
+//		// Use the last range as default
+//		plotter.setViewRange(Plotter.rangeValues[Plotter.rangeValues.length - 1]);		
+//		plotter.createSequence("value", "Value", Color.BLUE, true);
+//		
+//		try {
+//			upperlimit = (IDynamicController) controller.getChildController("/softupperlim");
+//			lowerlimit = (IDynamicController) controller.getChildController("/softlowerlim");
+//		} catch (Exception e) {
+//			logger.error("Failed to retrieve limits.", e);
+//		}
+//		
+//		if (upperlimit != null && lowerlimit != null) {
+//			plotter.createSequence("upper", "Upper Limit", Color.RED, true);
+//			plotter.createSequence("lower", "Lower Limit", Color.RED, true);
+//		}
+//		plotter.setDecimals(3);
+//
+//		// Use dashboard MVC instead??
+//		Thread monitoringThread = new Thread(new Runnable() {
+//			public void run() {
+//				Thread thisThread = Thread.currentThread();
+//				while (blinker == thisThread) {
+//					try {
+//						if (plotter != null && controller != null) {
+//							long value = Math.round(controller.getValue().getFloatData() * 1000);
+//							if (upperlimit != null && lowerlimit != null) {
+//								long upperlim = Math.round(upperlimit.getValue().getFloatData() * 1000);
+//								long lowerlim = Math.round(lowerlimit.getValue().getFloatData() * 1000);
+//								plotter.addValues(System.currentTimeMillis(), value, upperlim, lowerlim);
+//							} else {
+//								plotter.addValues(System.currentTimeMillis(), value);
+//							}
+//						}
+//						Thread.sleep(3000);
+//					} catch (Exception e) {
+//						logger.error("Error occured when updating plotter.", e);
+//						// stop
+//						blinker = null;	
+//					}
+//				}
+//			}			
+//		});
+//		blinker = monitoringThread;
+//		monitoringThread.start();
+//	}
 
 	public void dispose() {
-		plotter = null;
+//		plotter = null;
 		controller = null;
 		blinker = null;
 	}

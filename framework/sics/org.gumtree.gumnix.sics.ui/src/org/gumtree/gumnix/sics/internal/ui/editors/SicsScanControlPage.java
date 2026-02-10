@@ -2,11 +2,12 @@ package org.gumtree.gumnix.sics.internal.ui.editors;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.SafeRunner;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -189,13 +190,14 @@ public class SicsScanControlPage extends FormPage {
 //		getBindingContext().bind(presetText, new Property(getScanController().config(), "preset"), null);
 		unitLabel = getToolkit().createLabel(composite, "count");
 
-		Realm.runWithDefault(SWTObservables.getRealm(PlatformUI.getWorkbench()
+		Realm.runWithDefault(DisplayRealm.getRealm(PlatformUI.getWorkbench()
 				.getDisplay()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(presetText,
-						SWT.Modify), BeansObservables.observeValue(
-								getScanController().config(), "preset"), new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(
+						WidgetProperties.text(SWT.Modify).observe(presetText),
+						BeanProperties.value(Object.class, "preset").observe(getScanController().config()),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});
 		
@@ -332,19 +334,22 @@ public class SicsScanControlPage extends FormPage {
 		listViewer.getList().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		((GridData)listViewer.getList().getLayoutData()).horizontalSpan = 2;
 		
-		Realm.runWithDefault(SWTObservables.getRealm(PlatformUI.getWorkbench()
+		Realm.runWithDefault(DisplayRealm.getRealm(PlatformUI.getWorkbench()
 				.getDisplay()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(scanVariableText,
-						SWT.Modify), BeansObservables.observeValue(
-								getScanController().config(), "variable"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(startValueText,
-						SWT.Modify), BeansObservables.observeValue(
-								getScanController().config(), "startValue"), new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(incrementText,
-						SWT.Modify), BeansObservables.observeValue(
-								getScanController().config(), "increment"), new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(
+						WidgetProperties.text(SWT.Modify).observe(scanVariableText),
+						BeanProperties.value(Object.class, "variable").observe(getScanController().config()),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(
+						WidgetProperties.text(SWT.Modify).observe(startValueText),
+						BeanProperties.value(Object.class, "startValue").observe(getScanController().config()),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(
+						WidgetProperties.text(SWT.Modify).observe(incrementText),
+						BeanProperties.value(Object.class, "increment").observe(getScanController().config()),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});
 	}
