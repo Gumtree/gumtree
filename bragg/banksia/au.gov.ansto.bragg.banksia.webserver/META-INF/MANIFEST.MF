@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Banksia Webserver
 Bundle-SymbolicName: au.gov.ansto.bragg.banksia.webserver;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.banksia.webserver.Activator
 Require-Bundle: au.gov.ansto.bragg.banksia.server;bundle-version="1.12.0",
  au.gov.ansto.bragg.nbi.webserver;bundle-version="1.12.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-21
